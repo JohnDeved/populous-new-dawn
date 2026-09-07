@@ -2968,5 +2968,161 @@
     160,
     26,
     -1
+  ],
+  "spellCharging": [
+    {
+      "mode": 0,
+      "cost": 0,
+      "normalLimit": 0,
+      "alternateLimit": 0,
+      "rate": 0
+    },
+    {
+      "mode": 0,
+      "cost": 12000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 0
+    },
+    {
+      "mode": 1,
+      "cost": 10000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 30
+    },
+    {
+      "mode": 1,
+      "cost": 80000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 180
+    },
+    {
+      "mode": 1,
+      "cost": 90000,
+      "normalLimit": 3,
+      "alternateLimit": 0,
+      "rate": 180
+    },
+    {
+      "mode": 1,
+      "cost": 40000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 45
+    },
+    {
+      "mode": 1,
+      "cost": 50000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 120
+    },
+    {
+      "mode": 1,
+      "cost": 85000,
+      "normalLimit": 3,
+      "alternateLimit": 0,
+      "rate": 240
+    },
+    {
+      "mode": 1,
+      "cost": 400000,
+      "normalLimit": 2,
+      "alternateLimit": 0,
+      "rate": 180
+    },
+    {
+      "mode": 1,
+      "cost": 18000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 60
+    },
+    {
+      "mode": 1,
+      "cost": 210000,
+      "normalLimit": 2,
+      "alternateLimit": 5,
+      "rate": 240
+    },
+    {
+      "mode": 1,
+      "cost": 100000,
+      "normalLimit": 3,
+      "alternateLimit": 0,
+      "rate": 180
+    },
+    {
+      "mode": 1,
+      "cost": 70000,
+      "normalLimit": 4,
+      "alternateLimit": 5,
+      "rate": 180
+    },
+    {
+      "mode": 1,
+      "cost": 510000,
+      "normalLimit": 1,
+      "alternateLimit": 0,
+      "rate": 300
+    },
+    {
+      "mode": 1,
+      "cost": 175000,
+      "normalLimit": 2,
+      "alternateLimit": 0,
+      "rate": 240
+    },
+    {
+      "mode": 1,
+      "cost": 125000,
+      "normalLimit": 3,
+      "alternateLimit": 5,
+      "rate": 240
+    },
+    {
+      "mode": 1,
+      "cost": 800000,
+      "normalLimit": 1,
+      "alternateLimit": 0,
+      "rate": 300
+    },
+    {
+      "mode": 1,
+      "cost": 10000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 300
+    },
+    {
+      "mode": 2,
+      "cost": 999999,
+      "normalLimit": 1,
+      "alternateLimit": 0,
+      "rate": 60
+    },
+    {
+      "mode": 1,
+      "cost": 60000,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 120
+    },
+    {
+      "mode": 2,
+      "cost": 999999,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 120
+    },
+    {
+      "mode": 2,
+      "cost": 999999,
+      "normalLimit": 4,
+      "alternateLimit": 0,
+      "rate": 120
+    }
   ]
 }

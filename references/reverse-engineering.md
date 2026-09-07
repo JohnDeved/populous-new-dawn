@@ -1369,3 +1369,63 @@ Live browser training still uses its earlier in-place conversion. Connecting the
 reconstructed dispatcher to native allocation/counters, person commands, building
 occupancy and the first-mission training bindings remains required; this step does
 not establish live conversion or full engine parity.
+
+
+## Full native mana distribution and live first-mission integration
+
+`app/mana.ts` reconstructs `0041a590` and `0041ad70`. Tribe fields now retain the
+computer mana pool (`+94d`), pending release (`+951`), incoming amount (`+955`),
+charged-spell total (`+959`), previous/estimated rates (`+95d/+961`), release delay
+and step (`+a05/+a07`) and all 22 progress counters (`+969 + model*4`). The spell
+availability mask and disabled-charge mask come from the 56-byte records at
+`0096070a`; charge stocks retain their high nibble. The imported 62-byte spell
+descriptors provide charge mode/cost, normal and alternate limits and rate data.
+The alternate limits are selected by game flags bit 32; no multiplayer meaning
+is inferred for that flag.
+
+Pending mana releases on the native signed timer and step schedule. **Idle-hut
+refunds only run when incoming mana is nonzero.** Training huts are collected in
+reverse tribe-list order through their `+a0` links. They receive a share of half
+the incoming amount, capped at cost/32 and remaining capacity. Negative shares
+remove stored mana, and overfunded huts can refund even during a positive share.
+The low-intake flag is set only on the native capped branch. All multiplication,
+addition, division and byte/word stores preserve original integer behavior.
+
+Computer player type 1 receives the remainder in its clamped mana pool and does
+not run the second training pass. Human spell charging shares mana among enabled,
+available and not-full spells, performs original stock-cap and special-mode
+checks, and redistributes overflow after a spell fills. With no active spell,
+unfinished training huts get the second capped pass. Negative incoming mana
+reduces existing spell progress across available spells and repeats when a
+progress counter hits zero. Equality at the active-count boundary does not spend
+a per-spell unit; remaining input is cleared on return, matching the executable.
+The query retains the first spell on a highest-cost tie. Charge-rate estimation
+and tutorial request branches are also reconstructed.
+
+The oracle executes native stock operations, eligibility, cap selection, queries
+and distributor calls without intercepted gameplay leaves. Only notification
+output `00499d90` and its reminder predicate `00499970` are supplied. **1,024**
+updates and **1,024** queries match, including INT32 extremes and wrapped half-mana
+multiplication. Coverage assertions record **170** stock changes, **312** progress
+decreases, **282** idle refunds, **168** computer pool changes and **46** notification
+paths. New exports show `00499970` permits its reminder only on original levels
+6–10 before its flag is set; it correctly returns false for the live first level.
+
+The browser now calls this distributor each turn instead of its separate formula.
+It charges only Blast in the first-level adapter, keeps stone-head rewards as
+one-off stocks, waits for a generation pulse before refunding idle camps and
+retains computer mana instead of spending its remainder on another training pass.
+A Node regression exercises these live differences. All **33** regressions pass.
+Playwright exercised the actual React/Three.js page: Blast progress matched its
+native integer counter (67), the computer pool increased (92), pause stopped turns,
+and no browser errors occurred. The screenshot was inspected. Type checking,
+production build and lint also pass (seven existing image-element warnings).
+
+Remaining integration limits are explicit: follower mana generation and complete
+turn ordering are not newly proved by this distributor check. Live camps still
+use one-trainee occupancy and the previous in-place conversion, so their adapter
+supplies one-person costs. Initial tribe mana, pending-mana producers, rate-sample
+inputs and AI spending are not fully connected. Native notification requests are
+retained for later tutorial gating/presentation rather than sent through an
+incompatible message allocator. The original batch-conversion and occupant ports
+still need that broader world integration.

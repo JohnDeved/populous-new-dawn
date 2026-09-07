@@ -457,3 +457,27 @@ UI-panel activation `00509290`, allocation/registration, mana credit, command
 target preparation and existing occupancy world effects remain boundaries.
 The oracle does not execute the complete original object allocator or panel UI.
 These reconstructions are not yet wired into live browser training conversion.
+
+
+## Mana distribution and spell charging
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mana.py /path/to/d3dpoptb.exe
+```
+
+`app/mana.ts` reconstructs the full distributor `0041a590`, charging query
+`0041ad70`, spell-mode gate `004c2ca0`, limit selector `004c2d50`, and the charge
+stock operations used by `004c2b40`/`004c2ba0`/`004c2cd0`. Spell descriptors are
+imported by `inspect-executable.py` after the original constant overrides.
+The oracle compares **1,024** distributor updates and **1,024** queries with
+actual native charging, refunds, negative mana, pending-mana release, computer
+pool clamps and overflow. Only tutorial notification output `00499d90` and its
+UI predicate `00499970` are supplied. Branch assertions cover **170** stock
+changes, **312** progress decreases, **282** idle refunds, **168** computer pool
+changes and **46** notification paths.
+
+The live first mission now uses the distributor for training mana and Blast
+charging and retains computer mana. Its existing follower mana-generation,
+one-trainee occupancy and in-place conversion adapters remain partial. Tutorial
+requests are retained pending native UI gating; frame-rate/mana estimation inputs,
+initial tribe mana and complete AI spending still need original-world integration.

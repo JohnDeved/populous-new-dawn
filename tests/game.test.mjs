@@ -766,3 +766,22 @@ test('training replaces a whole batch, inherits the first occupant order tail an
   }
  }
 });
+
+test('live mana refunds wait for a pulse and computer training receives only the original first pass', async () => {
+ const {addBuilding}=await import('../app/model.ts');
+ const w=createWorld(),empty=addBuilding(w,'blue','camp',HOME),red=addBuilding(w,'red','camp',ENEMY);
+ empty.timer=99;w.shots.blast=0;
+ const trainee=w.units.find(u=>u.team==='red'&&u.kind==='brave');
+ trainee.inside=red.id;trainee.work=red.id;trainee.path=[];
+ tick(w,1/12);
+ assert.equal(empty.timer,99,'an empty incoming-mana update cannot refund a hut');
+ assert.equal(red.timer,0);assert.equal(w.manaTribes[1].mana,0);
+ tick(w,3/12);
+ assert.equal(empty.timer,0,'the next generation pulse permits the refund');
+ assert.ok(w.mana>.099,'the refund joins normal Blast charging');
+ assert.equal(red.timer,Math.min(trainingCost(w,'red')>>5,Math.trunc((red.timer+w.manaTribes[1].mana)/2)),
+  'computer huts receive a capped share of half the incoming mana');
+ assert.ok(w.manaTribes[1].mana>0,'the remainder is retained in the computer mana pool');
+ const stored=red.timer,pool=w.manaTribes[1].mana;
+ tick(w,1/12);assert.equal(red.timer,stored);assert.equal(w.manaTribes[1].mana,pool);
+});

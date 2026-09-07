@@ -1,6 +1,7 @@
 import {nativeAngle,nativeStep,random} from './native-math.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
+import {distributeMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
@@ -247,6 +248,7 @@ export type World = {
   spellCasts:number[][];
   gifts: (Point & {kind: Shrine['kind']; remaining: number})[];
   giftCounts: Record<Spell, number>;
+  manaWorld: ManaWorld; manaTribes: ManaTribe[]; manaNotices: {flags:number;message:number}[];
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
@@ -275,7 +277,12 @@ function missionAI(){
   return ai;
 }
 export function createWorld(): World {
-  const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0}, terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+  const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0},
+    manaWorld:{playerTribe:0,gameFlags:0,loadFlags:0,levelFlags:0,manaFlags:0,turn:0,rateSample:0,
+      spells:Array.from({length:4},()=>({available:4,disabled:0,stocks:Array(22).fill(0)}))},
+    manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,mana:0,pending:0,available:0,
+      totalProgress:0,previousRate:0,estimatedRate:0,releaseDelay:0,releaseRate:0,spellProgress:Array(22).fill(0)})),manaNotices:[],
+    terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
@@ -739,15 +746,31 @@ function stepTurn(w:World){
       sound(w, 0x70, shrine);
     }
   }
-  // 0x41a590: split mana among active training huts, with a cost/32 intake cap per turn.
+  // First-mission adapter: only Blast recharges; head rewards remain one-off stocks.
+  w.manaWorld.turn=w.turn;
+  w.manaWorld.spells[0].stocks[2]=w.shots.blast;
+  w.manaWorld.spells[0].disabled=w.charging?0:2;
+  w.manaTribes[0].spellProgress[2]=Math.round(w.mana*1000);
   for(const team of ['blue','red'] as const){
-    const training=w.buildings.filter(b=>b.team===team&&b.kind==='camp'&&b.progress===1&&b.hp>0&&w.units.some(u=>u.inside===b.id&&u.kind==='brave'&&u.hp>0));
-    const charging=team==='blue'&&w.charging&&w.shots.blast<4;
-    let mana=(w.turn&rules.manaUpdateMask)===0?manaPulse(w,team):0;
-    for(const b of w.buildings.filter(b=>b.team===team&&b.kind==='camp'&&b.progress===1&&!training.includes(b))){const refund=Math.min(100,b.timer);b.timer-=refund;mana+=refund;}
-    if(training.length){const cost=trainingCost(w,team);for(let pass=0;pass<(charging?1:2);pass++){const share=Math.floor(mana*(pass===0?.5:1)/training.length);for(const b of training){const used=Math.max(0,Math.min(share,cost-b.timer,cost>>5));b.timer+=used;mana-=used;}}}
-    if(charging){let charge=Math.round(w.mana*1000)+mana;while(charge>=constants.SPELL_BLAST&&w.shots.blast<4){charge-=constants.SPELL_BLAST;w.shots.blast++;}w.mana=w.shots.blast===4?0:charge/1000;}
+    const tribe=w.manaTribes[team==='blue'?0:1];
+    if((w.turn&rules.manaUpdateMask)===0)tribe.available=(tribe.available+manaPulse(w,team))|0;
+    const camps=w.buildings.filter(b=>b.team===team&&b.kind==='camp'&&b.progress===1&&b.hp>0);
+    // ponytail: live occupancy/conversion still admits one trainee; native slots
+    // and batch costs replace this adapter when the occupant lifecycle is wired in.
+    const buildings=camps.map(b=>({id:b.id,model:7,flags3:0,manaNext:0,trainingCost:trainingCost(w,team),storedMana:b.timer,
+      activity:w.units.some(u=>u.inside===b.id&&u.kind==='brave'&&u.hp>0)?128:0}));
+    distributeMana(w.manaWorld,tribe,buildings,{
+      // 0x499970 only permits its tutorial reminder on original levels 6–10.
+      shouldNotifyFull:()=>false,
+      notify:(flags,message)=>{
+        // ponytail: retain native requests until tutorial gating/presentation is ported.
+        if(!w.manaNotices.some(n=>n.flags===flags))w.manaNotices.push({flags,message});
+      },
+    });
+    buildings.forEach((b,i)=>{camps[i].timer=b.storedMana;});
   }
+  w.shots.blast=w.manaWorld.spells[0].stocks[2]&15;
+  w.mana=w.manaTribes[0].spellProgress[2]/1000;
   for(const b of w.buildings) {
     if(b.hp<=0)continue;
     const inhabitants=w.units.filter(u=>u.inside===b.id&&u.hp>0);
