@@ -11,3 +11,10 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 
 .desktop-recommendation{display:none}@media(max-width:900px){.desktop-recommendation{display:flex;position:absolute;inset:0;z-index:20;align-items:center;justify-content:center;flex-direction:column;background:#102127f2;backdrop-filter:blur(12px);text-align:center;padding:35px}.desktop-recommendation h2{font-size:28px;max-width:400px;margin:20px 0}.desktop-recommendation p{max-width:320px;color:#adbaaf;font-size:12px;line-height:1.9;margin-bottom:28px}.desktop-recommendation .brand-rune{display:block;font-size:70px}}
+
+/* Planet mission controls */
+.shrine-label{position:absolute;transform:translate(-50%,-100%);border:1px solid #c0a36b88;background:#172b29dc;color:#e9d4a0;padding:6px 9px;border-radius:3px;font:9px var(--font-sans, sans-serif);letter-spacing:1px;white-space:nowrap;cursor:pointer;z-index:2;box-shadow:0 3px 12px #0005}.shrine-label:hover{background:#3b4f40}.shrine-label[hidden]{display:none}.charge-track{height:2px;background:#253b3c;display:block;position:absolute;bottom:0;left:0;right:0}.charge-track>i{display:block;height:2px;background:#ebc287}.spell-list{justify-content:center}.spell-card{position:relative;flex:1;max-width:140px}.building-card:disabled{opacity:.45;cursor:default}.chapter-heading h1{font-size:clamp(26px,2.6vw,42px)}
+
+.spell-list{grid-template-columns:repeat(3,minmax(0,1fr))}.spell-card{max-width:none}
+
+.chapter-heading{top:105px}.chapter-heading h1{font-size:28px;margin-top:8px}.chapter-heading p,.chapter-heading .chapter-rule{display:none}.building-label{color:#a8d9ee;border-color:#78aec377}

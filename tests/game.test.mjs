@@ -1,36 +1,27 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, height, HOME, ENEMY } from '../app/model.ts';
-const advance = (w, seconds) => { for (let i = 0; i < seconds * 30; i++) tick(w, 1 / 30); };
-test('a complete playable loop: selection, paths, conversion, building, training, combat, and end states', () => {
-  const w = createWorld();
-  assert.ok(w.units.every(u => walkable(w.terrain, u)), 'all followers start on dry land');
-  assert.ok(w.buildings.every(b => walkable(w.terrain, b)), 'all structures start on dry land');
-  assert.ok(findPath(w.terrain, HOME, ENEMY).length, 'tribes have a reachable land route');
-  assert.equal(findPath(w.terrain, HOME, { x: -46, z: -46 }).length, 0, 'no walking across deep water');
-  const start = w.mana;
-  assert.equal(cast(w, 'convert', { x: -7, z: 0 }), true);
-  assert.ok(w.units.filter(u => u.team === 'blue').length > 13);
-  assert.equal(w.mana, start - 20);
-  assert.equal(cast(w, 'convert', { x: -40, z: 40 }), false);
-  assert.equal(w.mana, start - 20, 'invalid casts do not spend mana');
-  select(w, 'shaman'); command(w, { x: -8, z: 9 }); advance(w, 8);
-  assert.ok(Math.hypot(w.units[0].x + 8, w.units[0].z - 9) < 1, 'shaman reaches commanded destination');
-  assert.equal(placeBuilding(w, 'hut', { x: -46, z: -46 }), false);
-  const wood = w.wood;
-  assert.equal(placeBuilding(w, 'camp', { x: -9, z: 12 }), true, 'place accessible camp');
-  assert.equal(w.wood, wood - 65);
-  advance(w, 25);
-  assert.equal(w.buildings.find(b => b.kind === 'camp').progress, 1);
-  assert.ok(w.units.filter(u => u.team === 'blue' && u.kind === 'warrior').length > 3, 'completed camp trains braves');
-  const before = w.time; w.paused = true; tick(w, 1); assert.equal(w.time, before); w.paused = false;
-  w.mana = 300; const h = height(w.terrain, 0, 0); assert.ok(cast(w, 'volcano', { x: 0, z: 0 })); assert.ok(height(w.terrain, 0, 0) > h + 10);
-  const q = createWorld(); q.mana = 0; assert.equal(cast(q, 'blast', HOME), false); assert.equal(q.mana, 0);
-  const s = q.units.find(u => u.kind === 'shaman' && u.team === 'blue'); s.hp = 0; tick(q, 1 / 30); assert.ok(q.respawn > 0); advance(q, 13); assert.ok(q.units.some(u => u.kind === 'shaman' && u.team === 'blue'), 'shaman reincarnates');
-  q.units = q.units.filter(u => u.team !== 'red'); q.buildings = q.buildings.filter(b => b.team !== 'red'); tick(q, 1 / 30); assert.equal(q.status, 'won');
-  const combat = createWorld(); combat.mana = 300; const caster = combat.units.find(u => u.team === 'blue' && u.kind === 'shaman'); caster.x = 6; caster.z = -5;
-  const victim = combat.units.find(u => u.team === 'red' && u.kind === 'warrior'); assert.ok(cast(combat, 'lightning', victim)); tick(combat, 1/30); assert.ok(!combat.units.some(u => u.id === victim.id), 'lightning defeats a targeted warrior');
-  assert.ok(cast(combat, 'earthquake', {x:19,z:-15})); tick(combat,1/30); assert.ok(combat.buildings.filter(b=>b.team==='red').length < 4, 'earthquake destroys enemy structures');
-  const raid = createWorld(); raid.nextRaid = 0; tick(raid,1/30); assert.ok(raid.units.some(u=>u.team==='red' && u.target !== null && u.path.length),'enemy AI launches a reachable raid');
-  const lost = createWorld(); lost.units = lost.units.filter(u => u.team !== 'blue'); tick(lost, 1 / 30); assert.equal(lost.status, 'lost');
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate } from '../app/model.ts';
+const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
+test('original level layout, spherical coordinates, foundations, and the complete mission',()=>{
+ const w=createWorld();assert.deepEqual(HOME,{x:9,z:33});assert.deepEqual(ENEMY,{x:1,z:-37});assert.equal(w.units.filter(u=>u.team==='blue'&&u.kind==='brave').length,6);assert.equal(w.buildings.length,4);assert.equal(w.shrines.length,3);assert.equal(w.units.filter(u=>u.team==='red').length,5);
+ assert.ok(w.units.every(u=>walkable(w.terrain,u)));assert.equal(findPath(w.terrain,HOME,ENEMY).length,0);foundations(w);
+ for(const p of [HOME,ENEMY,{x:150,z:-70},{x:-160,z:75}]){const q=planetPoint(p,2),back=mapPoint(q),n=normal(p);assert.ok(Math.abs(back.x-p.x)<1e-9&&Math.abs(back.z-p.z)<1e-9);assert.ok(Math.abs(Math.hypot(n.x,n.y,n.z)-1)<1e-9);}
+ const snapshot=JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings});assert.equal(placeBuilding(w,'hut',{x:30,z:30}),false);assert.equal(placeBuilding(w,'hut',w.buildings[2]),false);assert.equal(placeBuilding(w,'camp',{x:4,z:32}),false);assert.equal(JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings}),snapshot,'invalid plans never terraform or consume timber');
+ const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),bridge=w.shrines.find(s=>s.kind==='bridge');w.selected=[brave.id];command(w,bridge);advance(w,32);assert.ok(w.shots.bridge>=3);assert.equal(bridge.duration,7);
+ select(w,'shaman');command(w,{x:0,z:20});advance(w,10);const charges=w.shots.bridge;assert.equal(cast(w,'bridge',{x:25,z:20}),false);assert.equal(w.shots.bridge,charges);assert.equal(cast(w,'bridge',{x:0,z:4}),true);foundations(w);assert.ok(findPath(w.terrain,HOME,w.shrines[0]).length);
+ command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',guard));advance(w,2);assert.ok(!w.units.includes(guard));command(w,w.shrines.find(s=>s.kind==='vault'));advance(w,15);assert.ok(w.unlockedCamp);
+ assert.ok(placeBuilding(w,'camp',{x:4,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
+ select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
+ select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));advance(w,42);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-24}));assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
+ command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));advance(w,.1);assert.ok(w.redRespawn>0,'both shamans reincarnate with a delay');assert.ok(!w.units.includes(enemyShaman));
+ // Fight through the remaining defenders using the units that were actually trained above.
+ select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.units.find(u=>u.team==='red');if(!enemy)break;command(w,enemy);advance(w,8);}
+ assert.equal(w.status,'won','the first mission can be won through the full discovery/build/train/combat loop');assert.ok(w.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
+});
+test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
+ const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');const idle=manaRate(w);w.selected=[brave.id];command(w,w.buildings.find(b=>b.team==='blue'));advance(w,8);assert.ok(brave.inside);assert.ok(manaRate(w)>idle);
+ w.shots.blast=0;w.charging=false;advance(w,3);assert.equal(w.shots.blast,0);w.charging=true;advance(w,10);assert.ok(w.shots.blast>0);const time=w.time;w.paused=true;tick(w,2);assert.equal(w.time,time);w.paused=false;
+ const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/30);assert.ok(w.respawn>0);advance(w,13);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
+ w.units=w.units.filter(u=>u.team!=='blue');tick(w,1/30);assert.equal(w.status,'lost');
 });

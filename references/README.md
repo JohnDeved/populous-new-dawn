@@ -31,7 +31,7 @@ These are located listening/reference sources and cue documentation; direct play
 - https://wiki.popre.net/Shaman — selection and casting range, combat, and reincarnation supported by living followers.
 - https://ts.popre.net/websites/poptb.com/guide/getting-started/index.html — tribes, follower and building roles.
 
-The implementation uses a compact, deterministic simulation. Its economy is simplified: idle braves generate wood, huts generate braves, camps train nearby braves, and temples add mana. The terrain is a bounded heightfield projected onto a curve, without world wrapping. Values are tuned for this one scenario rather than copied from the original game.
+The initial invented skirmish has been replaced with the original first mission. The supplied level file provides its terrain and initial objects; the game now has a spherical camera, worship gifts, the vault unlock, physical timber delivery, explicit training and follower-based mana flow. See [the level-one evidence and implementation limits](level-one.md).
 
 ## Stack research and decision
 
