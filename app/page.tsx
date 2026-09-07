@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from 're
 import { BUILDINGS, SPELLS, HOME, createWorld, select, tell, manaRate, populationLimit, guardShaman, type World, type UnitKind } from './model';
 import type { GameScene } from './scene';
 import { Soundscape } from './audio';
+import {messageText,removeMessage} from './messages';
 const timeLabel = (time: number) => `${Math.floor(time / 60).toString().padStart(2, '0')}:${Math.floor(time % 60).toString().padStart(2, '0')}`;
 
 export default function Home() {
@@ -87,6 +88,12 @@ export default function Home() {
     </aside>
 
     {ready && world.messageUntil > world.time && <div className="world-message" role="status"><span>✧</span>{world.message}</div>}
+    <aside className="campaign-messages" aria-label="Campaign messages">
+      {world.messages.slots.map((message,slot)=>({message,slot})).filter(entry=>entry.message).sort((a,b)=>b.message!.age-a.message!.age).map(({message,slot})=><details key={message!.serial}>
+        <summary aria-label="Read campaign message"><img src="/original/message.png" alt="" /></summary>
+        <div><p>{messageText(message!.stringId)}</p><button onClick={()=>{removeMessage(world.messages,slot);update();}} aria-label="Dismiss campaign message">×</button></div>
+      </details>)}
+    </aside>
     {ready && world.paused && !menu && world.status === 'playing' && <button className="paused-badge" onClick={() => { world.paused = false; update(); }}>Ⅱ <span>WORLD PAUSED</span><small>Click to resume</small></button>}
     {world.mode && <div className="target-prompt"><span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'} <strong>{modeName}</strong><button onClick={() => { world.mode = null; update(); }}>Cancel <kbd>ESC</kbd></button></div>}
 

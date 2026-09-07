@@ -350,3 +350,61 @@ morph, vault and worship comparisons pass; all 277 export hashes verify. Chrome
 QA checks both moving door stages and paused geometry, native sprites/effects,
 head removal and worship cue playback. The UI mission passes discoveries, bridge
 casting, construction, training, pause, orbit and restart. Production build passes.
+
+
+## Original discovery notifications (2026-09-07)
+
+The browser now executes original `cpscr010` words 1242–1321 before the existing
+terrain block. The Lightning branch uses `EVERY 63 2`: for Dakini's script index
+1 it samples on turns 61, 125, etc. It reads the head at (18,246), emits message
+83 when its remaining count drops below four, and sets variable 38 to prevent
+repetition. The Land Bridge branch uses `EVERY 15 0`, sampling turns 15, 31, etc.;
+it queries Blue's stocked Land Bridge shots, emits message 82 when positive, and
+sets variable 43. Both honor the original shared message guard in variable 29.
+They run from bytecode, not rewritten conditionals. Other tutorial branches and
+all attack scheduling are still incomplete.
+
+Opcode 1176 (`0048cc60` → `0048eae0`) reads its field argument and indexes the
+16-bit string map at `005ae310`. `scripts/import-messages.py` validates the source
+executable, decodes the supplied UTF-16LE `language/lang00.dat`, and imports all
+eight constant message references present in this mission. Message 82 maps to
+string 615; message 83 to 616. The original type-3 glyph is HFX 174, selected by
+`0049f9c0` at definition offset 17, not the background frame at offset 12. Input
+hashes and native definition fields live in `app/original-messages.json`.
+
+`app/messages.ts` reconstructs type-3 allocation and text assignment from
+`00430bd0`/`00430e40`. It uses the first free one of 32 slots; when full it
+replaces the first eligible slot with the greatest positive signed age. The
+original has an uninitialized selection when none qualifies; the browser rejects
+that undefined case. Type 3 has no class cap, timed expiry or deletion-history
+entry. Serial numbers wrap at 16 bits. Allocation consumes exactly one shared
+native RNG draw for icon movement speed, preserves native flags and normalized
+height (including the odd-height correction), and emits cue `0xe3`. That cue is
+preloaded and non-positional. Removal follows `00430fe0` for type 3.
+
+`scripts/check-native-messages.py` executes 160 native allocations covering free
+slots, full-slot eviction, RNG seeds and serial wrap. A further 320 cases execute
+the original discovery bytecode, real stock/head queries, message handler,
+allocator and list rebuild, comparing all user variables, message records,
+random state and cues. Only sound playback is intercepted. A separate removal
+case compares surviving native slots. Both executable and original script hashes
+are checked; no original executable bytes are embedded.
+
+Limits: the browser shows the native icon and text through a React notification
+list, with browser panel layout and dismissal controls. Original screen motion,
+font rasterization, click-state flags, popup positioning and other notification
+classes are not ported. Browser message ages advance with its shared simulation
+turn; native `004314c0` gates age on offset-counter changes and pause flags inside
+the presentation loop, whose complete scheduling remains open. Allocation is
+compared at a 480-pixel reference height; stored normalized geometry does not yet
+drive the CSS panel. Multiplayer's message-suppression flag is not represented.
+The remaining original tutorial, camera and global script phases still need
+integration. These checks establish the stated isolated behavior, not complete
+campaign or notification-engine parity.
+
+Validation: 17 engine tests, TypeScript checking and production build pass. The
+existing 1,236 VM, 416 height-query and 42 terrain-rule comparisons still pass.
+Browser QA completes the mission discovery/construction/training flow, opens and
+dismisses the original Land Bridge notification, and verifies decoded cue audio.
+The corrected glyph and popup placement were visually inspected. All 288 exported
+routines pass the manifest and executable identity checks.

@@ -337,3 +337,18 @@ test('vault discovery follows worship, door, entry and exit tasks', () => {
  assert.equal(w.sounds.filter(s => s.cue === 0x9f).length, 2);
  assert.equal(vault.uses, 1);
 });
+
+test('original discovery messages follow script phases, persist and reset',async()=>{
+ const {messageText,removeMessage}=await import('../app/messages.ts');
+ const w=createWorld();w.shots.bridge=1;w.turn=13;
+ tick(w,1/12);assert.equal(w.messages.slots.filter(Boolean).length,0);
+ tick(w,1/12);const bridge=w.messages.slots.find(Boolean);
+ assert.equal(bridge.stringId,615);assert.match(messageText(bridge.stringId),/Single Shot Landbridge/);
+ w.shrines.find(s=>s.kind==='lightning').remaining=3;w.turn=60;tick(w,1/12);
+ assert.deepEqual(w.messages.slots.filter(Boolean).map(m=>m.stringId),[615,616]);
+ for(let i=0;i<128;i++)tick(w,1/12);
+ assert.equal(w.messages.slots.filter(Boolean).length,2,'script flags prevent duplicate discovery notifications');
+ w.paused=true;const before=structuredClone(w.messages);tick(w,2);assert.deepEqual(w.messages,before);
+ removeMessage(w.messages,0);assert.equal(w.messages.slots[0],null);assert.equal(w.messages.slots[1].stringId,616);
+ assert.equal(createWorld().messages.slots.filter(Boolean).length,0);
+});

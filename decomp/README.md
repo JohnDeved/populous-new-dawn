@@ -37,6 +37,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 | Original entries | Browser implementation | Evidence and limit |
 | --- | --- | --- |
+| `0048eae0`, `00430bd0`, `00430e40`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and two original discovery branches CPU-compared; full notification UI/scheduler pending |
 | `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
 | `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows/compositing; some reaction layers still approximated |
 | `00586074`, `004e6a70` | `scripts/inspect-executable.py`, `app/model.ts` | Integer angle/sine tables and movement; route selection still browser A* |
@@ -178,3 +179,20 @@ Inno executable too; patterns are relative to its application directory. It
 verifies payload checksums, rejects escaping paths and differing existing files,
 and prints source SHA256 hashes. The optional extractor is separate from the
 stdlib importer and native comparison dependencies.
+
+
+## Campaign message comparison
+
+```sh
+.tools/decomp/oracle/bin/python scripts/extract-reference.py /path/to/PopulousTB-Setup.zip /path/to/game 'language/lang00.dat'
+python3 scripts/import-messages.py /path/to/game
+.tools/decomp/oracle/bin/python scripts/check-native-messages.py /path/to/d3dpoptb.exe /path/to/cpscr010.dat
+```
+
+The importer also uses the palette and HFX bank already listed in native asset
+provenance. The check runs 160 original type-3 allocations, 320 original discovery
+script cases and one removal. Only sound playback is intercepted. It compares
+slot contents, serial wrap, text IDs, shared RNG and script variables. It does
+not establish the rest of the original notification types, screen animation,
+popup interaction or full campaign scheduling. The executable and mission script
+are both hash-checked.

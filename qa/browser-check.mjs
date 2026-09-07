@@ -23,6 +23,7 @@ try{
  await page.getByRole('button',{name:'1× GAME SPEED',exact:false}).click();
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();await page.getByRole('button',{name:'Worship Land Bridge stone head',exact:true}).click();
  await page.getByRole('button',{name:/Land Bridge, [234] shots/}).waitFor({timeout:24000});console.log('stone head gifts verified');
+ const message=page.locator('.campaign-messages details').filter({hasText:'You have received a Single Shot Landbridge spell.'});await message.locator('summary').click();assert.ok(await message.locator('p').isVisible());await page.screenshot({path:'qa/campaign-message.png'});await message.getByRole('button',{name:'Dismiss campaign message',exact:true}).click();await message.waitFor({state:'detached'});
  await page.getByRole('button',{name:'Select all shaman',exact:true}).click();await focus(0,20);await click(0,20,'right');await page.waitForTimeout(6500);
  await focus(0,10);await page.getByRole('button',{name:/Land Bridge, [234] shots/}).click();await click(0,4);await page.waitForFunction(()=>document.querySelectorAll('.objective-panel li.complete').length===1);
  const shaman=w.units.find(u=>u.kind==='shaman'&&u.team==='blue');shaman.x=0;shaman.z=20;w.shots.bridge=1;cast(w,'bridge',{x:0,z:4});for(let i=0;i<180;i++)tick(w,1/30);await page.waitForTimeout(3000);

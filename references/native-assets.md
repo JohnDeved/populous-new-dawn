@@ -56,3 +56,13 @@ x86 and interpolation passes 7,595 coordinate cases, including real vault points
 Browser approach/interior routing, initial idle morph scheduling and the complete
 native object-phase schedule remain unported. The current hut mesh uses one of
 the original variant families; native RNG selection between families is pending.
+
+
+## Campaign text
+
+`scripts/import-messages.py` reads the supplied English `language/lang00.dat` as
+NUL-separated UTF-16LE strings and uses the executable's `005ae310` map for the
+first mission's eight constant notification references. It also imports HFX 174
+from the native type-3 notification definition. Source hashes and the definition
+are recorded in `app/original-messages.json`. Text remains original game content;
+popup layout and font rendering are currently browser implementations.

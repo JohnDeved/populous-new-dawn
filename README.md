@@ -49,6 +49,7 @@ Maintainability is a standing [side objective](GOAL.md#side-objective-keep-devel
 | Change | Start here |
 | --- | --- |
 | Spell identity, behavior or engine state | `app/model.ts`; use the shared `SPELLS` definitions, including native model IDs |
+| Campaign notifications and imported text | `app/messages.ts`, `app/original-messages.json`; original bytecode integration in `app/model.ts` |
 | Native model coordinate morphs | `app/morph.ts`; task transitions in `app/model.ts`, geometry updates in `app/scene.ts` |
 | Worship work, decay and refill | `app/worship.ts`, `app/vault.ts`; world eligibility and delayed rewards currently live in `app/model.ts` |
 | Campaign bytecode semantics | `app/popscript.ts`; engine command bindings currently live in `app/model.ts` |

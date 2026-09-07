@@ -1,0 +1,49 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "sha256": {
+    "language/lang00.dat": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf"
+  },
+  "defaults": {
+    "lifetime": 0,
+    "height": 24,
+    "speed": 8,
+    "flags": 193,
+    "icon": 174
+  },
+  "messages": {
+    "140": {
+      "stringId": 1220,
+      "text": "This is the Shaman. Left-click on her directly to select her, or left-click on the Shaman Button on the Control Panel. Right-click when you want to deselect her."
+    },
+    "78": {
+      "stringId": 611,
+      "text": "I have created my Reincarnation Site and the settlement is nearly complete. "
+    },
+    "84": {
+      "stringId": 617,
+      "text": "Your settlement is thriving, Shaman. Braves resting in Huts are one way of creating Mana. Mana gives you the power to cast spells and train Followers"
+    },
+    "85": {
+      "stringId": 618,
+      "text": "Your tribe is small. Four Huts should breed enough Followers for you to attack the Dakini. Rest some Braves in your Huts and they will create Mana for your spells."
+    },
+    "83": {
+      "stringId": 616,
+      "text": "The Lightning Spell is a devastating weapon and much more powerful than Blast. It kills Enemy Followers, and sets fire to Trees and buildings."
+    },
+    "82": {
+      "stringId": 615,
+      "text": "You have received a Single Shot Landbridge spell. Use it to create a path from where your Shaman stands to the land on which it is cast. Cast it over water to create a causeway."
+    },
+    "86": {
+      "stringId": 619,
+      "text": "Shaman, you've stolen the Warrior Training Hut Plan! Build one to train Warriors ready for conquest."
+    },
+    "87": {
+      "stringId": 620,
+      "text": "Braves sent to a Warrior Training Hut become Warriors. Training uses Mana."
+    }
+  }
+}

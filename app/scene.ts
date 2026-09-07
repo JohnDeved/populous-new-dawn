@@ -319,6 +319,7 @@ export class GameScene {
   playWorldSounds(){
     for(const event of this.world.sounds)if(event.serial>this.soundSerial){
       this.soundSerial=event.serial;
+      if(event.cue===0xe3){this.onSound(event.cue,1,0);continue;} // Native notification cue is not positional.
       const dx=Math.round((event.x-this.viewPoint.x)*256),dz=Math.round((event.z-this.viewPoint.z)*256);
       const q=planetPoint(event,this.y(event)),screen=new THREE.Vector3(q.x,q.y,q.z).project(this.camera);
       // Native distance curve; screen pan/listener position approximate the still-unported native camera transform.
