@@ -81,7 +81,7 @@ def main():
             assert element<len(elements) and element not in visited; visited.add(element)
             pos,x,y,flags,element = elements[element]
             layer, variant = (flags>>4)&15, flags>>9
-            include = flags==0 or (layer==1 and variant==(1 if team=='red' else 0)) or (layer==2 and variant==2 and kind=='warrior')
+            include = flags & ~1 == 0 or (layer==1 and variant==(1 if team=='red' else 0)) or (layer==2 and variant==2 and kind=='warrior')
             if not include: continue
             assert pos%6==0 and 0<pos//6<=len(bank)
             w,h,data = bank[pos//6-1]
