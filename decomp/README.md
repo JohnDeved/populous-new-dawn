@@ -664,3 +664,25 @@ geometry, scoring, ranges or scan/dispatch. The final allocation consumer record
 casts and applies AI delay 12. Live casting uses this controller through the
 existing opening-class person adapter; native person states and additional
 classes/effects still limit which responses can occur in the playable game.
+
+## Tribe processor and outer-loop phases
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-tribe-turns.py /path/to/d3dpoptb.exe
+```
+
+`app/tribe-turns.ts` ports complete `00461510`, including the real `00419480`
+active/defeat-timer gate. The oracle compares **2,048** calls with computer and
+territory consumers supplied: cooldowns, callback order, all suppression flags,
+signed timer boundaries and changes to later tribes during iteration. Another
+**512** calls run the actual offline `004a5590` loop and `004ec6f0` gate/increment.
+Clock/readiness and command/replay consumers are supplied; remaining object work
+is skipped through the original epilogue after the native increment. These traces
+verify tribe processing before increment, the outer skip bit, paused land and
+multiple subturns, including unsigned turn wrap.
+
+The live game uses the recovered tribe processor before incrementing its turn.
+Human territory refresh precedes the computer tribe's cooldown/script/spell work.
+Scripts and emergency/general casting share native suppression gates. Defeat-timer
+production, the complete computer processor, remaining object phases and network
+timing remain unfinished; this is not a complete global scheduler port.

@@ -1,12 +1,13 @@
 import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from './native-math.ts';
 import {createNativeTerrain,queueTerrain,processTerrain,type NativeTerrain} from './native-terrain.ts';
 import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './territory.ts';
+import {processTribes,type TribeTurnState} from './tribe-turns.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {nativeSpellRange,prepareSpellPayment,debitSpellMana,createTribeCasting,
-  canShamanCast,registerSpellCooldown,stepTribeCastCooldown,stepComputerCastCooldown,
+  canShamanCast,registerSpellCooldown,stepComputerCastCooldown,
   type TribeCasting,type SpellCaster} from './spell-casting.ts';
 import {castShoreBlast,processComputerSpells,type SpellTargetScan,type SpellTargetWorld,type SpellTargetUnit} from './computer-spells.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
@@ -256,7 +257,8 @@ export type World = {
   gifts: (Point & {kind: Shrine['kind']; remaining: number})[];
   giftCounts: Record<Spell, number>;
   land:NativeTerrain & Territory;landVersion:number;spellScan:SpellTargetScan;
-  castingTribes: TribeCasting[]; manaWorld: ManaWorld; manaTribes: ManaTribe[]; manaNotices: {flags:number;message:number}[];
+  castingTribes: TribeCasting[]; manaWorld: ManaWorld; manaTribes: (ManaTribe & TribeTurnState)[]; manaNotices: {flags:number;message:number}[];
+  tribeCount:number;levelFlags2:number;
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
@@ -290,9 +292,10 @@ export function createWorld(): World {
     land:{...structuredClone(originalLand),regions:new Uint8Array(16384),searchMarks:new Uint8Array(16384),searchTag:255},landVersion:-1,
     spellScan:{cursor:0,limit:0,paused:0,targets:[0,0,0,0]},
     castingTribes:Array.from({length:4},(_,id)=>createTribeCasting(id!==0)),
+    tribeCount:2,levelFlags2:0,
     manaWorld:{playerTribe:0,gameFlags:0,loadFlags:0,levelFlags:0,manaFlags:0,turn:0,rateSample:0,
       spells:Array.from({length:4},()=>({available:4,disabled:0,stocks:Array(22).fill(0)}))},
-    manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,mana:0,pending:0,available:constants.START_MANA,
+    manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,active:id<2,defeatTimer:0,flags2:0,mana:0,pending:0,available:constants.START_MANA,
       totalProgress:0,previousRate:0,estimatedRate:0,releaseDelay:0,releaseRate:0,spellProgress:Array(22).fill(0)})),manaNotices:[],
     terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
@@ -644,9 +647,13 @@ function syncNativeTerrain(w:World) {
   for(const cell of changed)queueTerrain(w.land,cell,1,0,terrainTextures);
   processTerrain(w.land,terrainTextures);w.landVersion=w.terrainVersion;
 }
+function refreshTribeTerritory(w:World,id:number) {
+  const team=id===0?'blue':id===1?'red':null;
+  refreshBuildingTerritory(w.land,w.turn,{id,playerType:w.manaTribes[id].playerType,
+    defenceRadius:id===1?w.ai.defenceRadius:11,buildings:w.buildings.filter(b=>b.hp>0&&b.team===team)
+      .map(b=>({...nativePosition(w,b),tribe:id}))});
+}
 function stepComputerSpells(w:World) {
-  syncNativeTerrain(w);
-  if((w.manaWorld.loadFlags&0x200)||(w.manaWorld.gameFlags&32))return;
   const u=w.units.find(u=>u.team==='red'&&u.kind==='shaman'&&u.hp>0);
   const caster=u?{...spellCaster(w,u),...nativePosition(w,u),state:0,flags4:0,landIndex:0,
     casting:w.castingTribes[1],playerType:w.manaTribes[1].playerType}:null;
@@ -661,9 +668,7 @@ function stepComputerSpells(w:World) {
   const able=!!u&&!u.lift&&!u.fight&&!u.casting;
   const shore=able&&castShoreBlast(world,caster,{turn:w.turn,population:w.units.filter(p=>p.team==='red'&&p.hp>0).length,
     mana:w.manaTribes[1].mana,reserve:0,gameFlags:w.manaWorld.gameFlags,aiFlags:w.ai.flags},{categoryFlags,cast:allocate});
-  for(const id of [0,1])refreshBuildingTerritory(w.land,w.turn,{id,playerType:w.manaTribes[id].playerType,
-    defenceRadius:id===1?w.ai.defenceRadius:11,buildings:w.buildings.filter(b=>b.hp>0&&b.team===(id===0?'blue':'red'))
-      .map(b=>({...nativePosition(w,b),tribe:id}))});
+  refreshTribeTerritory(w,1);
   if(shore)return;
   // Transport existing action guards through the native cast-block bit until
   // the person-state adapter supplies original states and flags directly.
@@ -810,7 +815,22 @@ export function tick(w:World,dt:number){
   if(w.status!=='playing')w.pendingTime=0;
 }
 function stepTurn(w:World){
-  const dt=1/TURNS_PER_SECOND;w.turn++;w.time=w.turn/TURNS_PER_SECOND;
+  // 0x4a5590: tribe work observes the previous completed object turn.
+  // ponytail: tribe defeat timers/active flags await 0x418e30; first-mission
+  // initialization supplies two active tribes. Object phases below remain partial.
+  if(w.land.landFlags&2)return;
+  syncNativeTerrain(w);
+  if(!(w.land.landFlags&0x800000))processTribes({...w.manaWorld,landFlags:w.land.landFlags,
+    levelFlags2:w.levelFlags2,tribeCount:w.tribeCount},w.manaTribes,w.castingTribes,{
+    territory:id=>refreshTribeTerritory(w,id),
+    computer:id=>{
+      if(id!==1)throw new Error(`Unimplemented campaign tribe ${id}`);
+      stepComputerCastCooldown(w.castingTribes[id],w.ai.flags);
+      campaignRules(w);
+      stepComputerSpells(w);
+    },
+  });
+  const dt=1/TURNS_PER_SECOND;w.turn=(w.turn+1)>>>0;w.time=w.turn/TURNS_PER_SECOND;
   // 0x4facf0: auto-collected reward objects grant knowledge/stock after 82 object turns.
   for (const gift of w.gifts) {
     if (--gift.remaining !== 0) continue;
@@ -831,12 +851,6 @@ function stepTurn(w:World){
   w.effects=w.effects.filter(f=>f.age<f.duration);
   processProjectiles(w);
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0;
-  for(const t of w.castingTribes)stepTribeCastCooldown(t,true,0,w.manaWorld.loadFlags);
-  // ponytail: native active/eliminated tribe flags await the common world scheduler.
-  if(!(w.manaWorld.loadFlags&0x200)&&!(w.manaWorld.gameFlags&32))
-    stepComputerCastCooldown(w.castingTribes[1],w.ai.flags);
-  campaignRules(w);
-  stepComputerSpells(w);
   if((w.turn&15)===0)for(const t of w.trees)if(t.logs>0&&t.logs<4)t.logs=Math.min(4,t.logs+constants.TREE1_WOOD_GROW/100);
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   for(const shrine of w.shrines) {

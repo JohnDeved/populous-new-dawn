@@ -526,7 +526,8 @@ input-mask release is unported. CPU setup explicitly uses x87 control word
 These are isolated arithmetic/timeline comparisons, not full original-frame
 capture or proof of camera parity on every graphics configuration.
 
-Browser integration starts the tour and original narration at turn 71, blocks
+Browser integration starts the tour and original narration in the tribe phase at
+turn 71, before object turn 72 (outer-loop correction below), blocks
 game orders during it, and supports pause and Escape/Space or a skip button.
 The browser supplies a fixed **24 Hz presentation clock**, independent of game
 speed; native frame throttling is still unported. Three.js maps the recovered
@@ -1966,3 +1967,59 @@ without page errors. Build/lint pass with seven existing image warnings and zero
 errors. `004f52c0` was exported while checking defaults; it only clears AI flag
 `0x10` and remains raw initialization evidence.
 The executable/manifest verifier checks **520** raw C exports.
+
+## Tribe processor and outer-loop phase correction — 2026-09-08
+
+`app/tribe-turns.ts` reconstructs complete `00461510`. Land flag `2` or load
+flag `0x200` suppress the whole processor. Otherwise, its four-tribe pass first
+decrements nonzero cast cooldowns for active tribes, including tribes beyond
+the configured processing count. Game flag `32` or the separate level-flags-2
+bit `0x100000` then suppresses tribe work without suppressing that timer pass.
+Configured tribes run in index order. Actual `00419480` permits an active tribe
+only when its signed field at `+0x949` is less than 97; the caller also excludes
+tribe flags at `+0x941 & 64`. Player type one invokes the computer processor;
+other types invoke territory refresh. Eligibility is read during iteration,
+so earlier consumers can change a later tribe's eligibility.
+
+The original `004a5590` calls this processor before `004ec6f0` increments the
+unsigned simulation turn. Its independent land bit `0x800000` skips tribe work,
+including the timer pass, while still running object turns. Land bit `2`
+prevents the inner increment. `004a5d40`, exported while tracing that boundary,
+updates a separate environmental timer; it is raw evidence, not a live port.
+
+The browser previously incremented first and ran projectiles/rewards before
+scripts. It now runs human territory refresh, computer cooldown recovery,
+the bound campaign script and shoreline/general/emergency casting before the
+object increment. The shared processor supplies all recovered tribe gates.
+Opening initialization supplies two active tribes and zero defeat timers;
+`00418e30`'s defeat lifecycle is not yet wired in. Native terrain state supplies
+the existing land flags; level-flags-2 stays distinct from mana notification flags.
+
+Consequences are verified in live regressions: the opening script observes turn
+71 and its result is visible after object turn 72. Marker and spell fixtures
+now distinguish the script's input turn from the completed object's turn.
+An AI Lightning allocated at turn three gets its first projectile tick during
+object turn four; its stored charge is spent before that turn's mana generation.
+A reward delivered during an object turn becomes visible to the next eligible
+script phase. The real first-mission six-person threshold and two-Blast shutoff
+still pass, as do full-mission gameplay and render-rate independence.
+
+`check-native-tribe-turns.py` compares **2,048** complete `00461510` calls with
+the original eligibility query unmodified. Only the computer/territory consumers
+are supplied; every callback observes all four cooldowns, and selected consumers
+disable a later tribe. Coverage includes **97** computer calls, **199** territory
+calls, **16** callback mutations and **1,838** passes without tribe callbacks.
+An additional **512** actual offline outer-loop traces use a supplied clock,
+ready command buffer and command/replay consumers. The native inner gate and
+increment run, then remaining object work is skipped via its actual epilogue.
+These traces cover zero through three subturns, pause/skip bits and 32-bit wrap;
+they do not verify the skipped object consumers or multiplayer timing.
+
+All **43** regressions and the executable/manifest check pass (**522** raw C
+exports). Playwright checks the actual React/Three.js game: suppressing tribe
+work leaves the object turn and human cooldown advancing; re-enabling it starts
+the original tour/message before object turn 72. No page errors occurred.
+Build/lint pass with seven existing image warnings and zero errors.
+Remaining global scheduling gaps include computer task/housekeeping
+integration, per-object class ordering, native defeat/win lifecycle, queued input,
+network timing and complete RNG consumption.
