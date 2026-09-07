@@ -6,6 +6,60 @@ export type SpellCaster = {height: number; flags2: number;
 export type SpellEntry = {model: number; mana: number};
 const divide = (a: number, b: number) => Math.trunc(a / b) | 0;
 
+export type TribeCasting = {flags: number; cooldown: number; aiCooldown: number;
+  spells: {used: number; interval: number; remaining: number}[]};
+
+// 0x461d70 sets computer recovery intervals to one (64 processor calls).
+export function createTribeCasting(computer: boolean): TribeCasting {
+  return {flags: computer ? 32 : 0, cooldown: 0, aiCooldown: 0,
+    spells: Array.from({length:22},()=>({used:0,interval:computer?1:0,remaining:0}))};
+}
+
+// 0x4c2d80. The unlimited-range flag also bypasses cast-state eligibility.
+export function canShamanCast(t: TribeCasting, playerType: number, p: {state: number; flags2: number; flags4: number}) {
+  if (t.flags & 0x80000) return true;
+  return p.state !== 22 && p.state !== 3 && !t.cooldown && !(p.flags2 & 3) && !(p.flags4 & 0x400)
+    && (playerType !== 1 || !t.aiCooldown);
+}
+
+// 0x4f2100. These usage limits are separate from one-off spell stock.
+export function computerSpellAllowed(t: TribeCasting, aiFlags: number, gameFlags: number, model: number) {
+  const d = rules.spellCharging[model], limit = gameFlags & 32 ? d.alternateLimit : d.normalLimit;
+  return !(aiFlags & 0x40000) || t.spells[model].used < limit;
+}
+
+// Counter/timer portion of 0x4c14c0. The allocator's 0x5bd delay is separate
+// and is set even on allocation failure; this function requires successful init.
+export function registerSpellCooldown(t: TribeCasting, playerType: number, aiFlags: number, gameFlags: number, openedFilesFlags: number, model: number) {
+  if (!(openedFilesFlags & 16) && playerType !== 1) t.cooldown = 12;
+  if (playerType !== 2 && (aiFlags & 0x40000)) {
+    const s = t.spells[model], d = rules.spellCharging[model];
+    if (s.used < (gameFlags & 32 ? d.alternateLimit : d.normalLimit)) s.used++;
+    if (!s.remaining) s.remaining = s.interval << 6;
+  }
+}
+
+// 0x461510's four-tribe timer pass precedes computer processing. Neither the
+// special spell mode nor disabled AI processing suppresses this timer pass.
+export function stepTribeCastCooldown(t: TribeCasting, active: boolean, landFlags: number, loadFlags: number) {
+  if (!(landFlags & 2) && !(loadFlags & 0x200) && active && t.cooldown) t.cooldown = (t.cooldown - 1) & 255;
+}
+
+// Opening of 0x4615f0, before the campaign interpreter. Zero timers leave usage
+// unchanged. On expiry, another interval starts only if usage remains nonzero.
+export function stepComputerCastCooldown(t: TribeCasting, aiFlags: number) {
+  if (t.aiCooldown) t.aiCooldown = (t.aiCooldown - 1) & 255;
+  if (aiFlags & 0x40000) for (const s of t.spells) {
+    if (s.remaining) {
+      s.remaining = (s.remaining - 1) & 65535;
+      if (!s.remaining && s.used) {
+        s.used = (s.used - 1) & 255;
+        if (s.used) s.remaining = s.interval << 6;
+      }
+    }
+  }
+}
+
 // 0x4c2e30. Range is in native position units. The building is the raw object
 // indexed by the caster's terrain cell, not a filtered list of living buildings.
 export function nativeSpellRange(gameFlags: number, tribeFlags: number, caster: SpellCaster, model: number) {

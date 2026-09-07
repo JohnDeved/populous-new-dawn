@@ -1547,3 +1547,63 @@ Playwright confirmed live charging and pause, then held an enemy shaman below
 budget before funding a cast and observing its settled pool at 10,015 mana.
 No page errors occurred. Build and lint pass (seven existing image warnings,
 zero errors), and the export manifest verifies **493** raw C exports.
+
+## 2026-09-07 — Casting lockout and AI usage recovery
+
+`004c2d80` rejects person states 3/22, tribe `+c5e` cooldown, person flags2 bits
+1/2 and flags4 bit `0x400`. Computer player type 1 additionally checks tribe
+`+5bd`. Tribe flags `+93d & 0x80000` bypass every check. The browser now keeps
+casting state per tribe and uses the recovered cooldown gate alongside existing
+HP, lift and casting-animation guards. Native person states/flags are not yet
+backed by live person records; those input fields remain an explicit adapter gap.
+
+`00461d70` initializes computer attribute 43 (`00960815 + owner*48`) to 12 and
+all 22 spell recovery interval bytes at tribe `+53f + model*4` to one. The live
+first-mission script receives this default before turn-zero execution.
+`004f4de0` copies the configured attribute to tribe `+5bd` after allocation even
+if allocation fails. It is a byte countdown, replacing the former shared
+six-second enemy melee cooldown in the browser.
+
+`004c14c0` assigns 12 to tribe `+c5e` for player types other than 1 unless
+`opened_files_flags & 16`. For player types other than 2 with AI flag `0x40000`,
+it increments the spell's usage byte up to the selected normal/alternate cap.
+A zero recovery timer starts at interval byte times 64; an existing timer does
+not restart when casting again. `004f2100` rejects usage at or above the selected
+cap only while this AI flag is enabled. Usage is distinct from one-off stock.
+
+At the opening of `004615f0`, the general AI cast delay decrements if nonzero.
+When AI flag `0x40000` is set, each nonzero 16-bit recovery timer decrements with
+wrap. Expiry removes one usage count, then restarts the interval only if usage
+remains. Zero timers do not reduce usage. Disabling that AI flag pauses recovery
+without pausing the general byte delay. These operations precede script execution.
+The browser preserves that local ordering.
+
+`00461510` first decrements `+c5e` for all four active (`+c20 != 0`) tribes,
+unless land flags bit 2 or load flags `0x200` suppress the whole function.
+Special spell mode bit 32 and `level_flags_2 & 0x100000` suppress subsequent AI
+processing but not the earlier general cooldown pass. Native `level_flags_2`
+is at `00895da4`, distinct from the existing mana notice flags at `00895da8`.
+The live first-mission adapter uses its known load/special-mode gates; land,
+active/eliminated/disabled-tribe and additional level flags await the common
+scheduler. Full `004615f0` and `004d0860` casting selection are not ported here.
+
+The new oracle compares **2,048** full eligibility/usage queries, actual
+initializer timer outputs and native AI timer-prefix updates; **512** complete
+four-tribe cooldown passes; all four native tribe initialization outputs and
+five allocator delay assignments on failure. Only initializer projectile/UI
+consumers and allocation failure are supplied. The AI prefix ends at `00461655`;
+its remaining world work is not replaced with invented successful results.
+The general timer pass executes with zero configured computer processors so
+unrelated scheduling does not obscure those outputs.
+
+All **36** Node regressions pass. The existing live two-cast mission check now
+also verifies the 12-turn configured separation, and the full mission still
+completes. A new regression verifies the player's lockout after animation ends,
+expiry on turn 12, usage recovery/recast behavior, paused recovery and the
+native override gate. Two impact tests now wait for the real casting lockout
+before requesting another spell.
+
+Playwright verified a live funded enemy cast with a retained pool of 10,015,
+an AI casting delay of eight remaining turns and zero melee delay, plus charging
+and pause without page errors. Build/lint pass with seven existing image warnings
+and zero errors. The executable/manifest verifier now checks **497** raw exports.

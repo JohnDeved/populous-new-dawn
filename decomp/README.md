@@ -524,3 +524,26 @@ range; allocation consumes stock or queues a mana debit. Starting mana is queued
 as incoming mana, not put directly into the retained pool. Browser target scoring,
 Euclidean distance, cooldown, attack-group/person integration, cell occupancy and
 tribe override flags remain partial.
+
+## Casting lockouts and computer usage recovery
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-cast-cooldowns.py /path/to/d3dpoptb.exe
+```
+
+`app/spell-casting.ts` reconstructs shaman eligibility `004c2d80`, the usage gate
+`004f2100`, initializer counter/timer branches `004c14c0`, the timer prefix of
+`004615f0` and the four-tribe cooldown pass in `00461510`. The oracle compares
+**2,048** eligibility/limit/initializer/recovery scenarios, **512** full native
+four-tribe timer passes, all four original tribe initializations and five allocator
+delay assignments including allocation failure. It stops the AI processor at
+`00461655`, before unrelated world/command work. Initializer projectile/UI leaves
+are supplied; only casting-state outputs are compared. The general timer pass
+uses zero active computer processors to isolate it from unrelated AI work.
+
+The native computer initialization sets attribute 43 to 12 and all 22 usage
+recovery intervals to one. Allocation copies that attribute into a byte delay;
+this replaces the live six-second melee cooldown. Player initialization sets a
+separate 12-turn lockout. Usage limits/recovery use AI flag `0x40000`, independent
+of one-off spell stock. Native action state, outer tribe flags and full casting
+selection/scheduling still require integration.

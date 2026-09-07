@@ -80,6 +80,7 @@ test('native animation identity, casting interruption, gradual terrain and blast
  w.selected=[brave.id];brave.target=32;assert.equal(unitAnimation(w,brave),'selected','an assigned distant enemy is not an active fight');brave.fighting=true;assert.equal(unitAnimation(w,brave),'attack','automatic melee displays its attack sprite');brave.fighting=false;brave.target=null;brave.cargo=1;brave.path=[{x:brave.x+1,z:brave.z}];assert.equal(unitAnimation(w,brave),'carry');brave.lift=.5;assert.equal(unitAnimation(w,brave),'airborne');brave.lift=0;brave.cargo=0;brave.path=[];
  w.manaTribes[0].available=0; // Isolate spending from the starting-mana grant.
  w.selected=[shaman.id];const shots=w.shots.blast;assert.ok(cast(w,'blast',shaman));assert.equal(unitAnimation(w,shaman),'cast');command(w,{x:10,z:32});advance(w,.6);assert.equal(w.shots.blast,shots-1,'native spell allocation spends the charge before animation finishes');assert.equal(shaman.casting,null);assert.ok(w.projectiles.length,'movement does not delete the independent spell');impact(w,'blast');
+ while(w.castingTribes[0].cooldown)tick(w,1/12);
  shaman.x=0;shaman.z=20;shaman.path=[];w.shots.bridge=1;const before=[...w.terrain];assert.ok(cast(w,'bridge',{x:0,z:4}));impact(w,'bridge');tick(w,1/12);const rise=w.effects.find(e=>e.kind==='bridge');assert.ok(rise.land.length>0);const sample=rise.land.find(p=>p.to-p.from>1);assert.ok(w.terrain[sample.index]>before[sample.index]&&w.terrain[sample.index]<sample.to);advance(w,6);assert.equal(w.terrain[sample.index],sample.to);foundations(w);
  shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));impact(w,'blast');assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
  const hut=w.buildings.find(b=>b.team==='blue');for(const [angle,x,z] of [[0,-3,44.5],[Math.PI/2,-6.5,41],[Math.PI,-3,37.25],[3*Math.PI/2,.75,41]]){hut.angle=angle;assert.deepEqual(entrance(w,hut),{x,z},'door routes use native rotated shape offsets and coarse anchors');}
@@ -121,6 +122,7 @@ test('lightning hits a native map cell and Blast leaves allied health intact',()
  const hit=addUnit(w,'blue','brave',{x:2.2,z:.2}),outside=addUnit(w,'blue','brave',{x:1.9,z:.2});
  w.shots.lightning=1;assert.ok(cast(w,'lightning',{x:2.3,z:.3}));impact(w,'lightning');
  assert.ok(!w.units.includes(hit));assert.equal(outside.hp,maxHp('brave'));assert.equal(outside.lift,0,'adjacent cells receive no invented radial lightning damage');
+ while(w.castingTribes[0].cooldown)tick(w,1/12);
  const ally=addUnit(w,'blue','brave',{x:2,z:0});const hp=ally.hp;
  assert.ok(cast(w,'blast',ally));impact(w,'blast');assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');
 });
@@ -422,11 +424,13 @@ test('original campaign stops Dakini Blast casting after its second allocation',
  assert.equal(w.ai.pendingCommands.filter(c=>[1038,1108,1196].includes(c.opcode)).length,0);
  w.units=w.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');
  Object.assign(red,{x:4,z:29});w.ai.variables[57]=1;w.inputMask=0;
+ const castTurns=[];
  for(let turn=0;turn<220;turn++){
   // Keep one eligible opponent nearby after each knockback; retain the caster's real cooldown and counters.
   Object.assign(target,{x:8,z:29,hp:10000,lift:0,inside:null,work:null,path:[],target:null});
-  tick(w,1/12);
+  const count=w.spellCasts[1][2];tick(w,1/12);if(w.spellCasts[1][2]!==count)castTurns.push(w.turn);
  }
+ assert.equal(castTurns[1]-castTurns[0],12,'native configured delay replaces the six-second melee timer');
  assert.equal(w.spellCasts[1][2],2,'the live enemy allocates two Blasts and then stops');
  assert.equal(w.ai.variables[19],2);assert.equal(w.ai.states&0x400,0);assert.equal(w.ai.flags&0x100,0);
  assert.deepEqual(w.ai.spellEntries.slice(0,2).map(s=>s.model),[0,0]);
@@ -832,4 +836,22 @@ test('live spell reach follows terrain height and enemy casts require and spend 
  pool.mana=20000;tick(enemy,1/12);
  assert.equal(enemy.spellCasts[1][2],1);assert.equal(pool.mana,20000);assert.equal(pool.available,-10000,'allocation queues the debit');
  tick(enemy,1/12);assert.equal(pool.available,0);assert.equal(pool.mana,10000,'the next distribution settles payment');
+});
+
+test('native casting lockout survives animation and computer usage recovers one charge at a time', async () => {
+ const {canShamanCast,computerSpellAllowed,stepComputerCastCooldown,registerSpellCooldown,createTribeCasting}=await import('../app/spell-casting.ts');
+ const w=createWorld(),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ w.units=w.units.filter(u=>u.kind==='shaman');w.terrain.fill(3);Object.assign(shaman,{x:0,z:0});
+ assert.ok(cast(w,'blast',{x:4,z:0}));assert.equal(w.castingTribes[0].cooldown,12);
+ tick(w,6/12);assert.equal(shaman.casting,null);assert.equal(cast(w,'blast',{x:4,z:0}),false,'animation ending does not end the tribe lockout');
+ tick(w,5/12);assert.equal(cast(w,'blast',{x:4,z:0}),false);tick(w,1/12);assert.ok(cast(w,'blast',{x:4,z:0}));
+ assert.equal(w.ai.attributes[43],12);
+ const ai=createTribeCasting(true),p={state:0,flags2:0,flags4:0};ai.aiCooldown=2;
+ assert.equal(canShamanCast(ai,1,p),false);assert.equal(canShamanCast(ai,2,p),true,'AI delay does not block human player types');
+ Object.assign(ai.spells[2],{used:4,remaining:1});assert.equal(computerSpellAllowed(ai,0x40000,0,2),false);
+ stepComputerCastCooldown(ai,0x40000);assert.deepEqual(ai.spells[2],{used:3,interval:1,remaining:64});assert.equal(ai.aiCooldown,1);
+ registerSpellCooldown(ai,1,0x40000,0,0,2);assert.equal(ai.spells[2].used,4);assert.equal(ai.spells[2].remaining,64,'casting does not restart an existing recovery timer');
+ stepComputerCastCooldown(ai,0);assert.equal(ai.spells[2].remaining,64,'usage recovery pauses when its AI flag is disabled');assert.equal(ai.aiCooldown,0);
+ assert.ok(canShamanCast(ai,1,p));ai.flags|=0x80000;ai.cooldown=12;
+ assert.ok(canShamanCast(ai,1,{state:22,flags2:3,flags4:0x400}),'native override bypasses every eligibility gate');
 });
