@@ -51,6 +51,9 @@ if len(sys.argv)>2:
     rules['buildingFlags']=[value(0x5a7228+i*76+72) for i in range(20)]
     rules['buildingCapacity']=[value(0x5a7228+i*76+32,1) for i in range(20)]
     rules['personCommands']=[{'people':value(0x5a7dc4+i*22),'flags':value(0x5a7dca+i*22)} for i in range(35)]
+    rules['personModels']=[{'nextState':value(0x5a7060+i*50+4,1),'physics':value(0x5a7060+i*50+6,1),'flags':value(0x5a7060+i*50+48,2)} for i in range(9)]
+    rules['personSpeeds']=[value(0x5a7b90+i*26+4,2) for i in range(20)]
+    rules['personAnimationObjects']=list(struct.unpack('<234h',read(0x5a6d50,234*2)))
     assert [rules['sine'][i] for i in [0,512,1024,1536]]==[0,65536,0,-65536]
     assert rules['atan'][0]==0 and rules['atan'][256]==256
     assert rules['manaUpdateMask']==3 and rules['hutCapacity']==[3,4,5]

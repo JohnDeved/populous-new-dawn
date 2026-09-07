@@ -539,3 +539,33 @@ test('group orders share references and release their object only after the fina
  for(let i=0;i<8;i++)queuePersonOrder(group,8,55,0);
  assert.throws(()=>queuePersonOrder(group,8,55,0),RangeError,'unsupported native queue overflow fails explicitly');
 });
+
+test('AI reservation enters native selection state and releases through the normal person initializer', async () => {
+ const {reserveTrainingPerson,releaseSelectedPeople}=await import('../app/person-state.ts');
+ const {emptyPersonOrder}=await import('../app/person-orders.ts');
+ const p={id:1,model:2,state:17,substate:0,x:0xfe00,y:0,flags2:0,flags3:1,flags4:0,assignment:0,
+  selectionFlags:0,commands:Array(8).fill(0),commandCursor:0,immediateCommand:0,orderLocation:0,
+  commandStatus:0,workTarget:0,tribe:0,previousState:10,physics:2,renderFlags:0,statusFlags:0,
+  workFlags:0,stateObject:0,speed:64,timer:0,target:0,reservationNext:0,formationCell:0,cargo:0,
+  animationMode:0,vehicle:0,angle:0,turnAngle:0,motionTimer:123,motionMode:3};
+ const w={randomState:1,instantFacing:false,levelFlags:0,orders:{records:Array.from({length:800},emptyPersonOrder),cursor:1,active:0},
+  tribes:[{x:0,y:0,angle:0,selectedCount:0,flags:64}]};
+ const events=[],unexpected=()=>assert.fail('unexpected world consumer');
+ const effects={deselectPassengers:unexpected,rebuildTrainingQueue:unexpected,rebuildFormation:unexpected,
+  releaseMotion:()=>events.push('motion'),startOrders:()=>events.push('orders'),setAnimation:p=>events.push(p.state)};
+ reserveTrainingPerson(w,p,effects);
+ assert.equal(p.state,14);assert.equal(p.previousState,17);assert.equal(p.speed,0);
+ assert.equal(p.assignment&0x800,0x800);assert.equal(p.selectionFlags&128,128);
+ assert.equal(p.flags3&1,0);assert.equal(w.tribes[0].selectedCount,1);assert.notEqual(w.randomState,1);
+ const seed=w.randomState;
+ releaseSelectedPeople(w,[p],14,effects);
+ assert.equal(p.state,10);assert.equal(p.previousState,14);assert.equal(p.selectionFlags&128,0);
+ assert.equal(p.assignment&0x800,0);assert.equal(w.tribes[0].selectedCount,0);
+ assert.equal(p.motionTimer,0);assert.equal(p.motionMode,0);
+ assert.equal(w.randomState,seed,'the shared state-10 prefix does not draw another speed');
+ assert.deepEqual(events,['motion',14,'orders',10]);
+ const snapshot=structuredClone(p);releaseSelectedPeople(w,[p],14,effects);assert.deepEqual(p,snapshot);
+ p.flags2|=0x100000;reserveTrainingPerson(w,p,effects);
+ assert.equal(p.state,10,'a protected person keeps its state');assert.equal(p.assignment&0x800,0x800);
+ assert.equal(w.tribes[0].selectedCount,0);
+});

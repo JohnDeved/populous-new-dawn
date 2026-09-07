@@ -950,3 +950,69 @@ RNG and selects animations. State 14 sets the selected bit used by group commit;
 leaving it decrements the tribe selection count. `00418ce0` and `004f65e0` rely
 on that lifecycle. These state transitions and native command execution remain
 unported, so mission training words 601–624 are still intentionally unbound.
+
+## Person state initialization and training handoff
+
+`app/person-state.ts` now reconstructs the common body of `004d2740` and states
+10 (orders) / 14 (AI selection). Shared initialization resets person flags,
+work/formation fields and timers, maintains the tribe selection count, and
+draws native randomized speed only when the destination state's flag 512 is
+clear. It preserves signed-short speed arithmetic and the speed-double flag.
+State 14 still consumes the applicable speed draw before zeroing speed.
+State 10 delegates to the required original-order startup consumer; it does
+not invent movement from a destination alone. Other initializer bodies fail
+explicitly until reconstructed.
+
+`00409d40` preserves an existing training reservation in state 14 or when the
+current state-10 command is model 8 with the matching target. This particular
+leaf does not reject cancelled commands. `004d47d0` tests the **low byte** of
+the queued command index before formation rebuilding in state 10, so command
+index 256 is different from index 257 here. These details are preserved and
+covered by the native initializer fixtures.
+
+The reservation consumer in `004c8490` changes eligible followers to state 14
+and then sets assignment bit `0x800`. Disassembly at `004c85ce` confirms the
+write is **byte +0x77**, not the animation/order scratch field suggested by
+the old inferred structure names. `reserveTrainingPerson` handles protected
+followers as the executable does: their state stays unchanged, but the
+reservation marker is still set. `releaseSelectedPeople` reconstructs
+`00418ce0` and the movement reset in `004e9b40`; normal trained-class defaults
+return to state 10. Special/default states outside the reviewed initializer
+domain, including the level-flag shaman state 39, remain unported.
+
+`004eec80` faces selected followers toward an offset from the tribe view
+position and angle, using signed coordinate wrap and native angle/step math.
+With neither `land_flags_1` bit 8 nor `opened_files_flags` bit 16 set, it releases
+the motion reference and sets turn flags/target angle. Either flag instead
+assigns yaw directly. The port uses those same two behaviors.
+
+`personAnimationObject` reconstructs `004d3ea0`: state-dependent object rows,
+carrying variants, airborne flags, stationary speed, literal state-15/16 object
+IDs and the -1 sentinel that preserves an existing animation. It returns
+original object identities, not browser animation names. The importer records
+nine person model flags/defaults, the first 20 reviewed physics speed records,
+and the 234 animation-object entries used by this leaf. Sprite-frame assignment
+inside `004d4040` is still a required consumer.
+
+`scripts/check-native-person-state.py` compares **8,288** native cases:
+1,536 complete shared/state-10/14 initializer calls, 6,624 animation-object
+selections across all 46 states and nine models, and 128 training handoffs
+through actual phase 4, 5 and 6. The handoffs run actual native selection,
+initialization, shared-command allocation/attachment and selected-person release;
+they compare every represented person field, the full command pool, AI phase,
+selection ownership/counts, effect ordering and RNG state.
+
+World consumers remain explicit comparison boundaries: order startup
+(`00432260`), training-list rebuilding (`00409580`), formation rebuilding
+(`004d56f0`), motion-reference release (`004ea460`), animation assignment
+(`004d4040`) and, in combined cases, target preparation (`00438730`). Passenger
+selection propagation is outside these fixtures. The new exports include
+`00432df0` and `0043d510` for the next order-startup work. These checks do not
+prove command execution, travel or arrival; mission training words 601–624
+remain unbound pending those world consumers.
+
+The angle, planar step and RNG helpers were moved unchanged from `model.ts`
+into `native-math.ts`. Both the live simulation and reconstructed person states
+use them, keeping state reconstruction independent of the browser world module.
+The Node reservation/release regression additionally checks state/count cleanup,
+the assignment marker, protected followers and effect order.

@@ -354,3 +354,19 @@ not prove terrain/target correction, person-state initialization or movement.
 The Node ownership regression follows two followers through shared assignment,
 replacement and final-reference deletion. Full eight-slot queue overflow is
 explicitly rejected; the native out-of-bounds memory write is not represented.
+
+## Person initialization and training handoff
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-person-state.py /path/to/d3dpoptb.exe
+```
+
+`app/person-state.ts` reconstructs shared initialization and state bodies 10/14,
+AI reservation, selected-person release, facing and animation-object selection.
+The oracle compares 1,536 initializers, 6,624 animation selections across all
+46 states/nine models, and 128 combined training phase-4/5/6 handoffs. Combined
+cases execute the native selector, state initializer, group commands and release;
+order startup, target preparation and other world consumers remain supplied
+leaves. These are not complete movement or training-arrival comparisons.
+The original math helpers now live in `app/native-math.ts`, shared unchanged
+with the existing simulation. Unknown initializer bodies fail explicitly.

@@ -1,3 +1,5 @@
+import {nativeAngle,nativeStep,random} from './native-math.ts';
+export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
@@ -47,17 +49,6 @@ export function populationLimit(w:World,team:Team){return Math.min(200,6+w.build
 export function breedingWork(w:World,b:Building){return Math.floor(rules.hutBreedingWork[b.level-1]*rules.breedingBands[Math.min(19,Math.floor(population(w,b.team)/10))]/256);}
 export function trainingCost(w:World,team:Team){const count=w.units.filter(u=>u.team===team&&u.kind==='warrior'&&u.hp>0).length,band=count<16?Math.floor(count/4):count<21?4:5;return Math.floor((team==='blue'?constants.HUMAN_TRAIN_MANA_WARR:constants.CP_TRAIN_MANA_WARR)*rules.trainingBands[band]/256);}
 export function meleeDamage(u:Unit){const base=u.kind==='warrior'?constants.FIGHT_DAMAGE_WARR:u.kind==='shaman'?constants.FIGHT_DAMAGE_SHAMAN:constants.FIGHT_DAMAGE_BRAVE;return Math.max(32,Math.floor(base*u.hp/maxHp(u.kind)))/20;}
-// 0x586074: integer octant lookup. Input Z is already reflected from the native map.
-export function nativeAngle(dx:number,dz:number){
-  const x=Math.abs(dx),z=Math.abs(dz);if(!x&&!z)return 0;
-  const a=rules.atan[Math.floor(Math.min(x,z)*256/Math.max(x,z))];
-  return (dx>=0?dz<0?(x<z?a:512-a):(x<z?1024-a:512+a):dz<0?(x<z?2048-a:1536+a):(x<z?1024+a:1536-a))&2047;
-}
-// 0x4e6a70: signed high word of a 16.16 sine product, then reflect native Y.
-export function nativeStep(p:Point,angle:number,length:number):Point{
-  return {x:(Math.round(p.x*256)+Math.floor(rules.sine[angle&2047]*length/65536))/256,z:(Math.round(p.z*256)-Math.floor(rules.sine[(angle+512)&2047]*length/65536))/256};
-}
-export function random(w:World){const n=(Math.imul(w.randomState,0x24a1)+0x24df)>>>0;return w.randomState=((n>>>13)|(n<<19))>>>0;}
 const short=(v:number)=>(v<<16)>>16;
 // 0x4e6ac0: native XYZ, including signed-short wrap and half-scale vertical steps.
 export function nativeStep3D(p:NativePoint,yaw:number,pitch:number,length:number):NativePoint{
