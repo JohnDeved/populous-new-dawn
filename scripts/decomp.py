@@ -45,6 +45,25 @@ def inspect(executable):
             'debugDirectoryRva': debug_rva, 'debugDirectorySize': debug_size}
 
 
+def native_cpu(executable):
+    """Map the verified PE image for isolated CPU comparisons; do not start Windows."""
+    from unicorn import Uc, UC_ARCH_X86, UC_MODE_32
+    identity = inspect(executable)
+    data = executable.read_bytes()
+    pe = struct.unpack_from('<I', data, 60)[0]
+    count = struct.unpack_from('<H', data, pe + 6)[0]
+    opt = struct.unpack_from('<H', data, pe + 20)[0]
+    base = struct.unpack_from('<I', data, pe + 24 + 28)[0]
+    size = struct.unpack_from('<I', data, pe + 24 + 56)[0]
+    cpu = Uc(UC_ARCH_X86, UC_MODE_32)
+    cpu.mem_map(base, (size + 4095) & ~4095)
+    for i in range(count):
+        _, _, va, length, offset = struct.unpack_from('<8sIIII', data, pe + 24 + opt + i * 40)
+        if length:
+            cpu.mem_write(base + va, data[offset:offset + length])
+    return cpu, identity
+
+
 def setup(cache):
     if (platform.system(), platform.machine()) != ('Darwin', 'arm64'):
         raise ValueError('Bootstrap targets macOS arm64; elsewhere supply GHIDRA_HOME and JAVA_HOME')

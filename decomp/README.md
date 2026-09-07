@@ -46,7 +46,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | `004c1d10`, `004c21e0`, `004bae30`, `004bbf30` | Existing approximate casting in `app/model.ts` | Shot pipeline traced, not yet ported |
 | `00409200`, `004092a0` | Existing building HP in `app/model.ts` | Native structural damage traced, not yet ported |
 | `0048a050`, `0048b500`, `0048b950` | `scripts/import-sound.py`, `app/audio.ts`, `app/model.ts` | Native PCM/cues and partial event dispatch; adaptive music and complete scheduler pending |
-| `0048cc60` | Existing first-mission AI in `app/model.ts` | Script interpreter located; full interpreter not yet ported |
+| `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
+| `0048cc60`, `0048f350` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization applied; full game-command host remains open |
 
 For each subsequent port, preserve the original branch ordering, integer widths/rounding, state transitions and scheduling when established. Record uncertainty rather than silently replacing it with a guessed rule. Add a runnable behavioral check and update the [detailed evidence log](../references/reverse-engineering.md) and [goal checklist](../GOAL.md). Existing browser tests establish internal consistency; they are not yet cross-engine replay evidence.
 
@@ -74,3 +75,17 @@ The current check compares 508 movement cases and 680 terrain cases, including
 wrapped cell boundaries, signed extremes, and rounded-mean ties. It proves equality
 for those isolated inputs, not original scheduling, the whole shot processor,
 terrain update processing beyond the diagonal flag, or all game physics. No original executable bytes are stored in its source or output.
+
+
+## Campaign interpreter comparison
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-script.py /path/to/d3dpoptb.exe /path/to/levels/cpscr010.dat
+```
+
+The oracle checks both executable and script hashes, maps the original interpreter,
+and compares command order, external-read order, 64 variables, 48 byte attributes,
+and the final instruction position. It covers 1,152 mission-script cases and 84
+arithmetic/control-flow cases. Game commands are intercepted; external reads are
+provided by the test host. This proves control-flow agreement for these inputs,
+not the behavior of those game commands, recurring AI scheduling, or campaign parity.

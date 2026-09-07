@@ -1,2 +1,2 @@
-# Optional CPU oracle used by scripts/check-native-math.py
+# Optional CPU oracles: scripts/check-native-math.py and scripts/check-native-script.py
 unicorn==2.1.4

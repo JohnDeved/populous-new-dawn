@@ -27,8 +27,8 @@ All rows remain open until compared against the original engine, including edge 
 | Economy and buildings | Native mana, breeding/training bands and hut upgrade values | Construction, repair/fire/damage, activity timers and all building classes |
 | Spells | Blast/Lightning/Land Bridge projectiles, cell targets, spent charges and delayed impact; native 3D-step CPU comparisons | Complete scheduling, targeting/reflection, deformation, animation and every spell |
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
-| AI and campaign | Original first-level layout and progression, script interpreter entry located | Original AI interpreter, all missions, objectives, progression and difficulty |
+| AI and campaign | Original first-level layout; native script control flow CPU-compared, turn-zero state/attribute setup and disabled Dakini reincarnation applied | Complete game-command bindings and AI scheduler; all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Eleven regression tests and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Twelve regression tests and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).

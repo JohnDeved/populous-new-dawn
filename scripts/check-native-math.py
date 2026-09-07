@@ -9,24 +9,10 @@ import struct
 import subprocess
 import sys
 
-from unicorn import Uc, UC_ARCH_X86, UC_MODE_32
 from unicorn.x86_const import UC_X86_REG_ESP, UC_X86_REG_EIP, UC_X86_REG_EAX
-from decomp import inspect
+from decomp import native_cpu
 
-exe = Path(sys.argv[1])
-identity = inspect(exe)
-data = exe.read_bytes()
-pe = struct.unpack_from('<I', data, 60)[0]
-count = struct.unpack_from('<H', data, pe + 6)[0]
-opt = struct.unpack_from('<H', data, pe + 20)[0]
-base = struct.unpack_from('<I', data, pe + 24 + 28)[0]
-size = struct.unpack_from('<I', data, pe + 24 + 56)[0]
-cpu = Uc(UC_ARCH_X86, UC_MODE_32)
-cpu.mem_map(base, (size + 4095) & ~4095)
-for i in range(count):
-    _, _, va, length, offset = struct.unpack_from('<8sIIII', data, pe + 24 + opt + i * 40)
-    if length:
-        cpu.mem_write(base + va, data[offset:offset + length])
+cpu, identity = native_cpu(Path(sys.argv[1]))
 stack, point, stop = 0x2001000, 0x2002000, 0x2003000
 cpu.mem_map(0x2000000, 0x4000)
 rng = random.Random(1998)

@@ -1,4 +1,6 @@
 import level from './level-one.ts';
+import originalScript from './original-script.json' with {type:'json'};
+import {runScript,scriptState,type ScriptState} from './popscript.ts';
 import constants from './original-constants.json' with { type: 'json' };
 import rules from './original-rules.json' with { type: 'json' };
 export type Team = 'blue' | 'red' | 'wild';
@@ -247,6 +249,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
   return [];
 }
 export type World = {
+  ai:ScriptState & {states:number;reincarnation:boolean;pendingCommands:{opcode:number;args:number[]}[]};
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
@@ -262,8 +265,20 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   const b: Building = { x:p.x, z:p.z, id: w.nextId++, team, kind, hp: buildingHp(kind), progress: complete ? 1 : 0, timer: 0, foundation: 0, level: 1, logs: complete ? BUILDINGS.find(b=>b.id===kind)?.cost ?? 0 : 0, upgrade:0, upgrading:false, angle:0 };
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
+function missionAI(){
+  const ai={...scriptState(originalScript),states:0,reincarnation:true,pendingCommands:[] as {opcode:number;args:number[]}[]};
+  // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
+  runScript(originalScript,ai,{turn:0,tribe:1,readInternal:id=>{if(id===0)return 0;throw new Error(`Unbound initial script read ${id}`);},command:(opcode,args)=>{
+    // 0x48cc60: native state bits, and SET_REINCARNATION's disable flag at tribe+0x93d.
+    if(opcode>=1028&&opcode<=1051&&opcode!==1038&&opcode!==1049){
+      const bit=1<<(opcode-1028);if(args[0]===1022)ai.states|=bit;else if(args[0]===1023)ai.states&=~bit;
+    }else if(opcode===1164){if(args[0]===1022)ai.reincarnation=true;else if(args[0]===1023)ai.reincarnation=false;}
+    else ai.pendingCommands.push({opcode,args});
+  }});
+  return ai;
+}
 export function createWorld(): World {
-  const w: World = { terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+  const w: World = { ai:missionAI(), terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
@@ -555,7 +570,7 @@ function stepTurn(w:World){
     }else u.idleTurns=0;
   }
   for(const [u,target] of contacts.sort((a,b)=>a[0].id-b[0].id))if(u.hp>0&&target.hp>0&&u.inside===null&&target.inside===null&&u.lift===0&&target.lift===0&&distance(u,target)<1.7&&!u.fight&&!u.casting&&!target.casting)joinBattle(w,u,target);
-  for(const u of w.units.filter(u=>u.hp<=0&&u.kind==='shaman'))if(w.units.some(a=>a.team===u.team&&a.hp>0)){if(u.team==='blue'){w.respawn=12;tell(w,'Your shaman will reincarnate in 12 seconds.');}else w.redRespawn=12;}
+  for(const u of w.units.filter(u=>u.hp<=0&&u.kind==='shaman'))if(w.units.some(a=>a.team===u.team&&a.hp>0)){if(u.team==='blue'){w.respawn=12;tell(w,'Your shaman will reincarnate in 12 seconds.');}else if(w.ai.reincarnation)w.redRespawn=12;}
   for(const u of w.units.filter(u=>u.hp<=0)){const f=effect(w,walkable(w.terrain,u)?'death':'splash',u);if(f.kind==='death')f.unit={team:u.team,kind:u.kind,heading:u.heading};}
   for(const b of w.buildings.filter(b=>b.hp<=0))effect(w,'death',b);
   w.units=w.units.filter(u=>u.hp>0);w.buildings=w.buildings.filter(b=>b.hp>0);w.selected=w.selected.filter(id=>w.units.some(u=>u.id===id));
