@@ -4,10 +4,29 @@ import {createHash} from 'node:crypto';
 import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
+import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '../app/tooltips.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('opening tooltips resolve mission cells and have an independent lifetime', () => {
+ const w=createWorld(),state=createTooltip();
+ for(const [mode,packed,text] of [[2,6668,'Dakini Warrior Training Hut.'],[2,64002,'Vault of Knowledge:'],[1,62994,'Stone Head:']]){
+  const object=forcedTooltipObject(w,mode,packed);
+  assert.ok(object,'original flyby cell resolves to a world object');
+  showObjectTooltip(state,object,3);
+  assert.ok(state.text.startsWith(text));
+ }
+ // The last tooltip has its own presentation lifetime, independent of tour flags.
+ assert.equal(w.flyby.flags&1,0);
+ for(let i=0;i<3;i++)stepTooltip(state,true,24);
+ assert.equal(state.target,0);assert.equal(state.text,'');
+ showObjectTooltip(state,forcedTooltipObject(w,2,64002),100);
+ stepTooltip(state,false,24);
+ assert.equal(state.target,0,'removing the target cancels its callout immediately');
+ showObjectTooltip(state,forcedTooltipObject(w,1,0),100);
+ assert.equal(state.target,0,'an empty original cell cannot retain the previous target');
+});
 function until(w,ready,seconds){for(let i=0;i<seconds*12&&!ready()&&w.status==='playing';i++)tick(w,1/12);assert.ok(ready(),'gameplay condition reached within its turn budget');}
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}

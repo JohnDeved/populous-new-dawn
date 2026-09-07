@@ -1,4 +1,4 @@
-"""Import first-mission message text, native string IDs and the type-3 icon.
+"""Import message/tooltip text, native string IDs and interface artwork.
 Usage: python3 scripts/import-messages.py /path/to/extracted/game
 """
 import hashlib
@@ -42,3 +42,36 @@ w,h,pixels=assets.sprites(hfx,palette)[icon];assets.png(ROOT/'public/original/me
 out={'executableSha256':identity['sha256'],'sha256':{name:hashlib.sha256((source/name).read_bytes()).hexdigest() for name in ['language/lang00.dat','data/pal0-c.dat','data/hfx0-0.dat']},'defaults':defaults,'messages':messages}
 (ROOT/'app/original-messages.json').write_text(json.dumps(out,indent=2)+'\n')
 print(f'Imported {len(messages)} original messages and HFX icon {icon}')
+
+# 0x4f0f90: class-specific names, including enemy and multiplayer variants.
+names={}
+for kind,address,count,stride,offset,pair in [(1,0x5a7060,9,50,0,True),(2,0x5a7228,20,76,4,True),
+                                            (4,0x5a7938,5,23,6,False),(5,0x5a79b0,20,24,2,False)]:
+    names[kind]=[list(struct.unpack('<hh' if pair else '<h',read(address+i*stride+offset,4 if pair else 2))) for i in range(count)]
+ids={848,*range(888,900),597,598,600,601,609}
+for entries in names.values():
+    for entry in entries:
+        ids.update(n for n in entry if n)
+        if len(entry)==2 and entry[1]:ids.add(entry[1]+1)
+assert all(0<i<len(strings) for i in ids)
+window=list(struct.unpack('<9H',read(0x5caae8,18)))
+assert window==[591,595,592,597,0,598,593,596,594]
+bank=assets.sprites(hfx,palette);pixels=bytearray(12*12*4)
+for i,sprite in enumerate(window):
+    if not sprite:continue
+    w,h,data=bank[sprite];assert (w,h)==(4,4)
+    for y in range(4):
+        start=((i//3*4+y)*12+i%3*4)*4;pixels[start:start+16]=data[y*16:y*16+16]
+assets.png(ROOT/'public/original/tooltip-border.png',12,12,pixels)
+# 0x44a9e8: ordinary object tooltips pass AL=0x98 to draw_ingame_window.
+# 0x44a38b: text uses palette_index_1=0x50. The earlier 0x3a is ':' parsing.
+assert read(0x44a9e8,2)==b'\xb0\x98'
+assert read(0x44a38b,7)==b'\xc6\x05\x9c\x48\x98\x00\x50'
+background,foreground=read(0x44a9e9,1)[0],read(0x44a391,1)[0]
+tooltip={'executableSha256':identity['sha256'],'languageSha256':hashlib.sha256(lang).hexdigest(),
+         'paletteSha256':hashlib.sha256(palette).hexdigest(),'hfxSha256':hashlib.sha256(hfx).hexdigest(),
+         'names':names,'strings':{i:strings[i] for i in sorted(ids)},'window':window,
+         'backgroundIndex':background,'foregroundIndex':foreground,
+         'background':list(palette[background*4:background*4+3]),'foreground':list(palette[foreground*4:foreground*4+3])}
+(ROOT/'app/original-tooltips.json').write_text(json.dumps(tooltip,indent=2)+'\n')
+print(f'Imported {len(ids)} tooltip strings and eight original window-border sprites')

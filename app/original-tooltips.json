@@ -1,0 +1,304 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "languageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+  "paletteSha256": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+  "hfxSha256": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+  "names": {
+    "1": [
+      [
+        0,
+        0
+      ],
+      [
+        837,
+        0
+      ],
+      [
+        903,
+        922
+      ],
+      [
+        904,
+        924
+      ],
+      [
+        906,
+        928
+      ],
+      [
+        907,
+        930
+      ],
+      [
+        905,
+        926
+      ],
+      [
+        902,
+        920
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "2": [
+      [
+        0,
+        0
+      ],
+      [
+        908,
+        932
+      ],
+      [
+        909,
+        934
+      ],
+      [
+        910,
+        936
+      ],
+      [
+        911,
+        938
+      ],
+      [
+        913,
+        942
+      ],
+      [
+        914,
+        944
+      ],
+      [
+        912,
+        940
+      ],
+      [
+        915,
+        946
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        916,
+        948
+      ],
+      [
+        916,
+        948
+      ],
+      [
+        917,
+        950
+      ],
+      [
+        917,
+        950
+      ],
+      [
+        848,
+        0
+      ],
+      [
+        897,
+        0
+      ],
+      [
+        967,
+        0
+      ]
+    ],
+    "4": [
+      [
+        0
+      ],
+      [
+        838
+      ],
+      [
+        838
+      ],
+      [
+        839
+      ],
+      [
+        839
+      ]
+    ],
+    "5": [
+      [
+        0
+      ],
+      [
+        835
+      ],
+      [
+        835
+      ],
+      [
+        835
+      ],
+      [
+        835
+      ],
+      [
+        835
+      ],
+      [
+        835
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ],
+      [
+        898
+      ],
+      [
+        0
+      ],
+      [
+        836
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ],
+      [
+        0
+      ]
+    ]
+  },
+  "strings": {
+    "597": "Casting on water has no effect.",
+    "598": "Casting on Shaman has no effect: See Encyclopaedia",
+    "600": "Casting on Shaman has no effect.",
+    "601": "Casting on Wildmen has no effect.",
+    "609": "You cannot cast Landbridge from a Balloon.",
+    "835": "Tree: Select Braves and {}to gather wood. |}query.",
+    "836": "Wood Pile: Select Braves and {}to pick up. |}query.",
+    "837": "Wildman: A native. Use the Convert spell to convert him to a Brave.",
+    "838": "Boat: Select Followers and {}to use. |}query.",
+    "839": "Balloon: Select Followers and {}to use. |}query.",
+    "848": "Guard Post: Select Followers and {}to guard. Shift+|}remove.",
+    "888": "Totem Pole: Worship this to aid you in your struggle.",
+    "889": "Obelisk: Only a Shaman can worship this and aid her tribe.",
+    "890": "Begin Tutorial Obelisk: Worship this to begin the tutorial.",
+    "891": "Spells Tutorial Obelisk: Worship this to begin the spells tutorial.",
+    "892": "Building Tutorial Obelisk: Worship this to begin the building tutorial.",
+    "893": "Fighting Tutorial Obelisk: Worship this to begin the fighting tutorial.",
+    "894": "End Spells Tutorial Obelisk: Worship this to end the spells tutorial.",
+    "895": "End Building Tutorial Obelisk: Worship this to end the building tutorial.",
+    "896": "End Fighting Tutorial Obelisk: Worship this to end the fighting tutorial.",
+    "897": "Vault of Knowledge: Contains the Knowledge of the Enemy. Only your Shaman can worship it.",
+    "898": "Stone Head: Your Followers may worship this to gain a bonus.",
+    "899": "Gargoyle: Worship this to aid you in your struggle.",
+    "902": "Shaman: {}select. |}query.",
+    "903": "Brave: {}select. |}query.",
+    "904": "Warrior: {}select. |}query.",
+    "905": "Firewarrior: {}select. |}query.",
+    "906": "Preacher: {}select. |}query.",
+    "907": "Spy: {}select. |}query.",
+    "908": "Small Hut: Select Followers and {}to house. |}query.",
+    "909": "Medium Hut: Select Followers and {}to house. |}query.",
+    "910": "Large Hut: Select Followers and {}to house. |}query.",
+    "911": "Guard Tower: Select a Follower and {}to use the Tower. |}query.",
+    "912": "Warrior Training Hut: Select Followers and {}to train. |}query.",
+    "913": "Temple: Select Followers and {}to train. |}query.",
+    "914": "Spy Training Hut: Select Followers and {}to train. |}query.",
+    "915": "Firewarrior Training Hut: Select Followers and {}to train. |}query.",
+    "916": "Boat House: Select Braves and {}to begin construction. |}query.",
+    "917": "Balloon Hut: Select Braves and {}to begin construction. |}query.",
+    "920": "The %s Shaman.",
+    "921": "%s's Shaman.",
+    "922": "%s Brave.",
+    "923": "One of %s's Braves.",
+    "924": "%s Warrior.",
+    "925": "One of %s's Warriors.",
+    "926": "%s Firewarrior.",
+    "927": "One of %s's Firewarriors.",
+    "928": "%s Preacher.",
+    "929": "One of %s's Preachers.",
+    "930": "%s Spy.",
+    "931": "One of %s's Spies.",
+    "932": "Small %s Hut.",
+    "933": "One of %s's Small Huts.",
+    "934": "Medium %s Hut.",
+    "935": "One of %s's Medium Huts.",
+    "936": "Large %s Hut.",
+    "937": "One of %s's Large Huts.",
+    "938": "%s Guard Tower.",
+    "939": "One of %s's Guard Towers.",
+    "940": "%s Warrior Training Hut.",
+    "941": "One of %s's Warrior Training Huts.",
+    "942": "%s Temple.",
+    "943": "One of %s's Temples.",
+    "944": "%s Spy Training Hut.",
+    "945": "One of %s's Spy Training Huts.",
+    "946": "%s Firewarrior Training Hut.",
+    "947": "One of %s's Firewarrior Training Huts.",
+    "948": "%s Boat House.",
+    "949": "One of %s's Boat Houses.",
+    "950": "%s Balloon Hut.",
+    "951": "One of %s's Balloon Huts.",
+    "967": "Prison: The Shaman has been incarcerated here."
+  },
+  "window": [
+    591,
+    595,
+    592,
+    597,
+    0,
+    598,
+    593,
+    596,
+    594
+  ],
+  "backgroundIndex": 152,
+  "foregroundIndex": 80,
+  "background": [
+    191,
+    111,
+    23
+  ],
+  "foreground": [
+    99,
+    69,
+    53
+  ]
+}

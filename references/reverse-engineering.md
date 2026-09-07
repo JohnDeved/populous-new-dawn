@@ -539,8 +539,57 @@ after skipping. Nineteen engine regressions and the existing native message
 comparisons pass. Rendered opening and completion screenshots were inspected.
 
 Remaining: native interest-point track (kind 4) explicitly fails rather than
-silently approximating; this mission does not use it. Tooltip events are decoded
-and emitted by the engine but not yet drawn by the browser. The exact globe
+silently approximating; this mission does not use it. Tooltip events are now
+drawn by the browser as described below. The exact globe
 projection, zoom mapping, startup camera state, initial input-mask lifecycle,
 message dialog behavior, native frame cap and early near-target input release
 remain incomplete. These limits must be resolved for full camera/UI parity.
+
+## Forced opening tooltips (2026-09-07)
+
+The original three flyby callouts now identify the Dakini Warrior Training Hut,
+Vault of Knowledge and Lightning Stone Head. `0044d7f0` clears the old tooltip
+before selecting an object: mode 1 traverses the even map cell for scenery
+class 5/model 9; mode 2 reads its building occupancy flag/index. It stores flags
+6 and a signed-short duration, then uses `004f0f90` to choose the original text.
+The name routine selects class-specific own/enemy/multiplayer strings; worship
+objects use their linked trigger's category, tutorial index and reward flags.
+`004851e0` derives those flags from linked type-6/model-2 reward settings.
+
+`004aa4e0` invokes `0044db60` after the flyby update, independently of whether
+the flyby is still running. A nonzero duration decrements as a signed short;
+expiry or an invalid target clears the callout, while a valid update requests
+drawing and sets the hold counter to twice the presentation rate. The browser
+keeps this lifetime on its existing 24 Hz presentation clock after interruption
+and freezes it with pause. The world adapter still uses first-mission footprints
+instead of the native cell occupancy table; tribe formatting covers the current
+Blue/Dakini world rather than dynamic multiplayer names. Hover and forced modes
+3–10 are not implemented.
+
+The importer reads 72 original English strings, their executable name tables,
+and the eight 4×4 HFX border sprites referenced at `005caae8` (center slot zero).
+Disassembly at `0044a9e8` supplies ordinary-object background index **152**;
+`0044a38b` sets text index **80**. The `0x3a` elsewhere in the decompilation is
+a colon used while laying out text, not a background color. `00429c70` loads
+the landscape palette; `004a3420`/`004a3530`/`004b1850` copy it into the system
+palette. The index conversion `00415f70` and opaque rectangle path through
+`004a24c0`/`00516a00` are CPU-compared, including all 256 colors and four expanded
+rectangle vertices. Browser callouts currently use that opaque color path.
+
+The naming/selection/timer oracle covers 1,900 names, 144 forced selections and
+384 counter updates, including missing targets, signed wrap, owners and linked
+worship categories. Native cell traversal executes, but only the supplied-object
+portion of the browser port is compared directly. Twenty engine regressions
+include the real opening cell bindings. Browser QA sees all three original
+callouts and checks pause, expiry, restart, natural completion and skipping.
+The Stone Head's elevated text anchor had incorrectly been used for hemisphere
+culling; the browser now uses the ground target for that visibility decision.
+Rendered callouts were inspected. Visual QA also hashes the actual rendered
+closed-vault vertices against the independent `knowledge.3ds` reference, in
+addition to checking every door phase.
+
+Native font selection/render routines are exported for further work; browser
+text still uses Arial and CSS wrapping. Exact font metrics, text balancing,
+mouse-button glyphs, inherited blend state, native clipping/projection and full
+hover/fixed-message behavior remain unported. These checks do not establish
+pixel-identical tooltips or full interface parity.

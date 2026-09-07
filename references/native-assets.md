@@ -66,3 +66,11 @@ first mission's eight constant notification references. It also imports HFX 174
 from the native type-3 notification definition. Source hashes and the definition
 are recorded in `app/original-messages.json`. Text remains original game content;
 popup layout and font rendering are currently browser implementations.
+
+The same importer now reads executable tooltip name tables and their 72 English
+strings into `app/original-tooltips.json`. It records the language, palette and
+HFX hashes and verifies the tooltip color operands in the executable. The native
+window table selects HFX 591–598, packed as a 12×12 nine-patch with transparent
+center in `public/original/tooltip-border.png`. Tooltip text currently uses CSS
+font metrics; the original bitmap-font rendering and full UI blending remain
+unported. See the forced-tooltip evidence in `reverse-engineering.md`.

@@ -57,6 +57,7 @@ Maintainability is a standing [side objective](GOAL.md#side-objective-keep-devel
 | Worship work, decay and refill | `app/worship.ts`, `app/vault.ts`; world eligibility and delayed rewards currently live in `app/model.ts` |
 | Campaign bytecode semantics | `app/popscript.ts`; engine command bindings currently live in `app/model.ts` |
 | Opening camera events and motion | `app/flyby.ts`; native comparisons in `scripts/check-native-flyby.py` |
+| Forced tour callouts, names and lifetime | `app/tooltips.ts`, `scripts/import-messages.py`; native comparison in `scripts/check-native-tooltips.py` |
 | Models, sprites, camera or input | `app/scene.ts` |
 | HUD and menus | `app/page.tsx`, `app/globals.css` |
 | Sound playback | `app/audio.ts`; original sample/cue data is generated |

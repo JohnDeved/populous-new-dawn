@@ -12,3 +12,5 @@
 
 .skip-introduction { position: absolute; z-index: 30; bottom: 155px; left: 50%; transform: translateX(-50%); padding: 10px 16px; color: #efddb3; background: #242718e8; border: 1px solid #9c8655; cursor: pointer; }
 .skip-introduction kbd { margin-left: 12px; font-size: 10px; opacity: .7; }
+
+.native-tooltip { position: absolute; z-index: 12; max-width: 300px; padding: 5px 8px; border: 4px solid transparent; border-image: url("/original/tooltip-border.png") 4 repeat; font: 12px/1.3 Arial, sans-serif; text-align: center; pointer-events: none; }

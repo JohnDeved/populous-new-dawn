@@ -1,5 +1,6 @@
 import { soundAttenuation } from './audio';
 import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
+import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldTooltipObject,tooltipPalette} from './tooltips.ts';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -89,6 +90,8 @@ export class GameScene {
   cameraBearing = 0;
   flybyTime = 0;
   wasFlying = false;
+  tooltip = createTooltip();
+  tooltipElement = document.createElement('div');
   down = { x: 0, y: 0, button: 0 };
   dragBox: HTMLDivElement;
   keys = new Set<string>();
@@ -116,6 +119,11 @@ export class GameScene {
     this.renderer.domElement.setAttribute('aria-label', 'Island battlefield. Click to select, right-click to move, drag to select a group.');
     this.renderer.domElement.tabIndex = 0;
     container.appendChild(this.renderer.domElement);
+    this.tooltipElement.className = 'native-tooltip';
+    this.tooltipElement.setAttribute('role','tooltip');
+    this.tooltipElement.style.backgroundColor = `rgb(${tooltipPalette.background.join(',')})`;
+    this.tooltipElement.style.color = `rgb(${tooltipPalette.foreground.join(',')})`;
+    this.tooltipElement.hidden = true; container.appendChild(this.tooltipElement);
     this.scene.fog = new THREE.FogExp2(0x9aadb5, .001);
     this.scene.add(new THREE.HemisphereLight(0xc6d6e3, 0x777258, 2.0));
     const sun = new THREE.DirectionalLight(0xfff2d5, 2.6); sun.position.set(-35, 90, 65); sun.castShadow = true;
@@ -286,7 +294,6 @@ export class GameScene {
   updateFlyby(dt: number) {
     const state = this.world.flyby, active = !!(state.flags & 1);
     this.controls.enabled = !this.world.inputMask;
-    if (!active && !this.wasFlying) return false;
     if (active && !this.wasFlying) {
       this.flybyCamera = {x: Math.round((this.viewPoint.x + 8) * 256), y: Math.round((-this.viewPoint.z - 8) * 256), angle: 0, zoom: 0};
       this.flybyTime = 0; this.keys.clear();
@@ -296,10 +303,16 @@ export class GameScene {
     if (!this.world.paused) {
       this.flybyTime += dt;
       while (this.flybyTime >= 1 / 24) {
-        stepFlyby(state, this.flybyCamera, 24);
+        for (const event of stepFlyby(state, this.flybyCamera, 24)) {
+          if (event.kind === 5) showObjectTooltip(this.tooltip,forcedTooltipObject(this.world,event.flags,event.value),event.duration);
+        }
+        // Native render_land_ui consumes the request before the next frame.
+        this.tooltip.draw = 0;
+        stepTooltip(this.tooltip,!!worldTooltipObject(this.world,this.tooltip.target),24);
         this.flybyTime -= 1 / 24;
       }
     }
+    if (!active && !this.wasFlying) return false;
     const c = this.flybyCamera;
     const p = {x: c.x / 256 - 8, z: -c.y / 256 - 8};
     const n = normal(p), up = new THREE.Vector3(n.x, n.y, n.z);
@@ -319,6 +332,22 @@ export class GameScene {
       this.controls.enabled = !this.world.inputMask;
     }
     return true;
+  }
+  renderTooltip() {
+    const object = worldTooltipObject(this.world,this.tooltip.target);
+    const element = this.tooltipElement;
+    element.hidden = !this.tooltip.draw || !this.tooltip.text || !object;
+    if (element.hidden || !object) return;
+    const ground = planetPoint(object,this.y(object));
+    const q = planetPoint(object,this.y(object) + (object.type===1?128:512)/45);
+    const p = new THREE.Vector3(q.x,q.y,q.z).project(this.camera);
+    // Visibility belongs to the ground target, not its elevated label anchor.
+    const n = normal(object), view = this.camera.position.clone().sub(new THREE.Vector3(ground.x,ground.y,ground.z));
+    if (p.z < -1 || p.z > 1 || view.dot(new THREE.Vector3(n.x,n.y,n.z)) <= 0) { element.hidden = true; return; }
+    element.textContent = this.tooltip.text;
+    const {width,height} = this.container.getBoundingClientRect();
+    element.style.left = `${Math.max(4,Math.min(width-element.offsetWidth-4,(p.x+1)*width/2))}px`;
+    element.style.top = `${Math.max(4,Math.min(height-element.offsetHeight-4,(1-p.y)*height/2))}px`;
   }
   focus(p: Point = HOME) { this.cameraBearing=0; const n=normal({x:p.x,z:p.z+.55*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(105).add(this.controls.target);this.controls.update();this.orientCamera(); }
   overview(){this.camera.position.set(30,155,0);this.controls.update();this.orientCamera();}
@@ -398,6 +427,7 @@ export class GameScene {
       this.camera.position.setFromSpherical(spherical).applyQuaternion(rotation.invert()).add(this.controls.target);
     }
     if (!this.updateFlyby(dt)) { this.controls.update();this.orientCamera(); }
+    this.renderTooltip();
     for (const [id, g] of this.unitMeshes) if (!this.world.units.some(u => u.id === id)) { this.objects.remove(g); this.releaseGroup(g); this.unitMeshes.delete(id); }
     for (const u of this.world.units) {
       let g = this.unitMeshes.get(u.id);
@@ -469,5 +499,5 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate);
   };
   releaseGroup(g: THREE.Object3D) { const materials = new Set<THREE.Material>(); g.traverse(o => { if(o instanceof THREE.Sprite){o.material.map?.dispose();materials.add(o.material);} if (o instanceof THREE.Mesh || o instanceof THREE.Line) { if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m)); } }); materials.forEach(m => m.dispose()); }
-  dispose() { cancelAnimationFrame(this.frame); this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.terrainData.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
+  dispose() { cancelAnimationFrame(this.frame); this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.terrainData.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
 }

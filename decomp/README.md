@@ -37,6 +37,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 | Original entries | Browser implementation | Evidence and limit |
 | --- | --- | --- |
+| `0044d7f0`, `004f0f90`, `0044db60`, `0044b100` | `app/tooltips.ts`, `app/scene.ts` | Forced object tooltip names and lifetime CPU-compared; first-mission cell adapter is approximate; hover and modes 3–10 unported |
+| `0044a2f0`, `004a24c0`, `004a1f50`, `00415f70`, `00516a00` | `scripts/import-messages.py`, `app/scene.ts`, `app/globals.css` | Color operands, indexed conversion, opaque rectangle vertices and native border artwork recovered; font/layout/projection and other blend states unported |
 | `0048eae0`, `00430bd0`, `00430e40`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and discovery/settlement/vault tutorial branches CPU-compared; full notification UI/scheduler pending |
 | `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
 | `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows/compositing; some reaction layers still approximated |
@@ -55,6 +57,26 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | `00492790`, `00492860`, `00491c30`, `004f2900`, `004c2b40`, `004c14c0` | `app/model.ts`, `scripts/check-native-campaign.py` | Cast/stock/head queries and allocation counters CPU-compared; unsupported AI stock still explicit |
 
 For each subsequent port, preserve the original branch ordering, integer widths/rounding, state transitions and scheduling when established. Record uncertainty rather than silently replacing it with a guessed rule. Add a runnable behavioral check and update the [detailed evidence log](../references/reverse-engineering.md) and [goal checklist](../GOAL.md). Existing browser tests establish internal consistency; they are not yet cross-engine replay evidence.
+
+## Forced tooltip comparison
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-tooltips.py /path/to/d3dpoptb.exe
+```
+
+The executable's adjacent `data/pal0-c.dat` is also required. The check executes
+1,900 native name cases, 144 forced selections and 384 lifetime updates. CRT text
+formatting is intercepted; native string selection, cell traversal and signed
+counters execute. The browser receives selected objects directly in that oracle:
+its first-mission cell adapter is covered separately by the engine regression
+and `qa/flyby-check.mjs`, not proven equivalent to the native occupancy table.
+
+An additional 256 indexed color conversions and 256 opaque window quad emissions
+run the original color and rectangle routines. Only final polygon submission and
+border drawing are intercepted. This verifies RGB order and rectangle expansion;
+it does not prove CSS font metrics, nine-patch rasterization, inherited blend
+state or native camera projection. `scripts/import-messages.py` checks the actual
+background/text instruction operands and imports the eight border sprites.
 
 ## Validation of this setup
 

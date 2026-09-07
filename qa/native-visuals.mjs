@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {chromium} from '@playwright/test';
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist']});
 const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(String(e)));
@@ -41,6 +42,19 @@ try{
   w.selected=[u.id];w.paused=false;m.command(w,vault);w.paused=true;scene.focus(vault);
  });
  await page.waitForTimeout(200);await page.screenshot({path:'qa/native-vault-closed.png'});
+ const vaultVertices=await page.evaluate(()=>{
+  const {w,scene}=window.nativeQA,vault=w.shrines.find(s=>s.kind==='vault');
+  const points=scene.shrineMeshes.get(vault.id).g.children[0].geometry.getAttribute('position').array;
+  const unique=new Map();
+  for(let i=0;i<points.length;i+=3){
+   const p=[points[i],points[i+1],-points[i+2]].map(v=>Math.round(v*10000));
+   unique.set(JSON.stringify(p),p);
+  }
+  return [...unique.values()].sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
+ });
+ assert.equal(createHash('sha256').update(JSON.stringify(vaultVertices)).digest('hex'),
+  '977d4efcc02c8ac2269fb8e44d56c442b2a3b0a27da8c9eabbf1760ab105481e',
+  'the actual rendered vault geometry matches original knowledge.3ds, not just its model ID');
  for(const phase of [3,4,6,8,9]){
   await page.evaluate(phase=>{const {w,m}=window.nativeQA,u=w.units.find(u=>u.team==='blue');w.paused=false;
    for(let i=0;i<400&&u.vault?.phase!==phase;i++)m.tick(w,1/12);

@@ -8,12 +8,16 @@ try {
  const skip=page.getByRole('button',{name:/Skip introduction/});await skip.waitFor({timeout:15000});
  const opening=page.locator('.campaign-messages details').filter({hasText:'I have created'});
  assert.ok(await opening.locator('p').isVisible(),'original opening narration opens automatically');
- await page.waitForTimeout(4500);await page.screenshot({path:'qa/opening-flyby.png'});
+ const tooltip=page.getByRole('tooltip');
+ await page.getByRole('tooltip').filter({hasText:'Dakini Warrior Training Hut.'}).waitFor({timeout:12000});
+ await page.screenshot({path:'qa/opening-flyby.png'});
  await page.getByRole('button',{name:'Pause game',exact:true}).click();
  const label=page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true,includeHidden:true});
- const before=await label.boundingBox();await page.waitForTimeout(400);assert.deepEqual(await label.boundingBox(),before,'pause holds the flyby camera');
+ const tooltipBefore=await tooltip.boundingBox();const before=await label.boundingBox();await page.waitForTimeout(400);assert.deepEqual(await label.boundingBox(),before,'pause holds the flyby camera');assert.deepEqual(await tooltip.boundingBox(),tooltipBefore,'pause holds the tooltip');
  await page.getByRole('button',{name:'Resume game',exact:true}).click();
- await skip.waitFor({state:'hidden',timeout:35000});
+ await tooltip.filter({hasText:'Vault of Knowledge:'}).waitFor({timeout:12000});await page.screenshot({path:'qa/opening-vault-tooltip.png'});
+ await tooltip.filter({hasText:'Stone Head:'}).waitFor({timeout:12000});await page.screenshot({path:'qa/opening-head-tooltip.png'});
+ await skip.waitFor({state:'hidden',timeout:15000});assert.ok(await tooltip.isHidden(),'last tooltip expires before natural completion');
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();
  assert.match(await page.getByRole('button',{name:'Select all braves',exact:true}).getAttribute('class'),/selected/,'natural completion releases gameplay controls');
  await page.screenshot({path:'qa/opening-complete.png'});
@@ -22,5 +26,5 @@ try {
  await page.keyboard.press('Escape');await skip.waitFor({state:'hidden',timeout:5000});
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();
  assert.match(await page.getByRole('button',{name:'Select all braves',exact:true}).getAttribute('class'),/selected/,'interruption releases gameplay controls');
- assert.deepEqual(errors,[]);console.log('PASS: opening narration, flyby, pause, natural completion, restart and keyboard interruption');
+ assert.deepEqual(errors,[]);console.log('PASS: opening narration, three original tooltips, pause, natural completion, restart and keyboard interruption');
 } finally {await browser.close();}
