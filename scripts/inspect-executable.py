@@ -43,6 +43,10 @@ if len(sys.argv)>2:
     rules={'manaUpdateMask':value(0x5aa44c),'manaIdleBrave':value(0x5aa5bc),'manaBusyBrave':value(0x5aa5c4),'manaIdleWarrior':value(0x5aa5c0),'manaBusyWarrior':value(0x5aa5c8),'humanManaFactor':value(0x5aa41c),'computerManaFactor':value(0x5aa420),'breedingBands':[value(0x5aa47c+i*4) for i in range(20)],'trainingBands':[value(0x5aa578+i*4) for i in range(6)],'hutCapacity':[value(0x5a7228+i*76+32,1) for i in (1,2,3)],'hutUpgradeWork':[value(0x5a7228+i*76+54,2) for i in (1,2,3)],'hutBreedingWork':[value(0x5a7228+i*76+60,2) for i in (1,2,3)]}
     rules['sine']=list(struct.unpack('<2048i',read(0x5ddde8,2048*4)))
     rules['atan']=list(struct.unpack('<257h',read(0x5861b4,257*2)))
+    physics=[value(0x5a7060+i*50+6,1) for i in (2,3,7)]
+    friction=[value(0x5a7b90+i*26+20,2) for i in physics]
+    assert friction==[28,28,28]
+    rules['groundFriction']=friction[0]
     assert [rules['sine'][i] for i in [0,512,1024,1536]]==[0,65536,0,-65536]
     assert rules['atan'][0]==0 and rules['atan'][256]==256
     assert rules['manaUpdateMask']==3 and rules['hutCapacity']==[3,4,5]

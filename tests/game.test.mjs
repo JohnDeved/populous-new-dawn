@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, random } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
 test('original level layout, spherical coordinates, foundations, and the complete mission',()=>{
@@ -107,16 +107,34 @@ test('native integer movement and combat exchanges preserve timing, retaliation 
  const walker=addUnit(moving,'blue','brave',{x:0,z:0});addUnit(moving,'red','brave',{x:40,z:40});walker.path=[{x:10,z:0}];tick(moving,1/12);
  assert.equal(walker.x,70/256);assert.equal(walker.z,0);assert.equal(walker.heading,Math.PI/2);
  const rng=createWorld();assert.deepEqual(Array.from({length:6},()=>random(rng)),[1275068418,1896767491,2517695575,2629181784,3921238491,2630906275]);
- const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.units=[];w.buildings=[];w.randomState=seed;addUnit(w,'blue','warrior',{x:0,z:0});addUnit(w,'red','brave',{x:1,z:0});return w;};
+ const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.units=[];w.buildings=[];w.randomState=seed;const a=addUnit(w,'blue','warrior',{x:0,z:0}),b=addUnit(w,'red','brave',{x:180/256,z:0}),group={id:w.nextId++,x:0,z:0,angle:512,members:[a.id,b.id]};w.fights=[group];for(const [u,other] of [[a,b],[b,a]])u.fight={group:group.id,opponent:other.id,action:'ready',started:0,until:0};return w;};
  const a=duel(),b=structuredClone(a);b.units.reverse();tick(a,1/12);tick(b,1/12);b.units.sort((a,b)=>a.id-b.id);assert.deepEqual(b,a,'one coordinated exchange is independent of unit array order');
  assert.equal(a.units[0].hp,87);assert.equal(a.units[1].hp,32,'the brave retaliates with its pre-hit health');
  assert.equal(a.units[0].fight.action,'attack');assert.equal(a.units[1].fight.action,'recoil');
  assert.equal(a.units[0].heading,Math.PI/2);assert.equal(a.units[1].heading,Math.PI*1.5);
- tick(a,5/12);assert.equal(a.units[1].hp,32,'no second exchange during animation recovery');tick(a,1/12);assert.ok(a.units[1].hp<32);
+ tick(a,3/12);assert.equal(a.units[1].hp,32,'no second exchange during animation recovery');const before=a.units[1].x,speed=random(structuredClone(a))%70+35,impulse=speed+(speed>>4);tick(a,1/12);assert.equal(a.units[1].fight.action,'push');assert.equal(a.units[1].x,before+(impulse+Math.max(0,impulse-28))/256,'the first recoil turn applies the native impulse, then ground damping and movement');tick(a,2/12);assert.notEqual(a.units[1].fight.action,'push');tick(a,2);assert.ok(a.units[1].hp<32);
  const special=duel(75);tick(special,1/12);assert.equal(special.units[0].fight.action,'special');assert.equal(special.units[0].hp,90,'state 4 suppresses retaliation');assert.equal(special.units[0].fight.until-special.turn,7);
  const strike=duel(12);tick(strike,1/12);assert.equal(strike.units[0].fight.action,'strike');assert.equal(strike.units[0].hp,87);
- const lethal=duel();for(const u of lethal.units)u.hp=1;tick(lethal,1/12);assert.equal(lethal.units.length,0,'a lethal ordinary exchange still applies both precomputed hits');
+ const lethal=duel();for(const u of lethal.units)u.hp=1;tick(lethal,1/12);assert.equal(lethal.units.length,0,'a lethal ordinary exchange still applies both precomputed hits');assert.equal(lethal.fights.length,0,'terminal turns retain no dead fight groups');
  const replay=duel(),other=structuredClone(replay);for(let i=0;i<150;i++)tick(replay,1/30);for(let i=0;i<720;i++)tick(other,1/144);assert.deepEqual(other,replay);
  const {readFileSync}=await import('node:fs'),sprites=JSON.parse(readFileSync(new URL('../app/original-units.json',import.meta.url)));
  for(const [kind,state,start,frames] of [['warrior','attack',120,6],['warrior','strike',104,7],['warrior','special',200,7],['brave','recoil',112,7],['shaman','special',552,5],['shaman','recoil',424,5]]){const cycle=sprites.animations[`blue-${kind}`][state][0];assert.equal(cycle.source,start);assert.equal(cycle.frames.length,frames);}
+});
+
+test('native fight slots form four-person groups and release on interruption',()=>{
+ const w=createWorld();w.terrain.fill(3);w.units=[];w.buildings=[];
+ const center=addUnit(w,'blue','warrior',{x:0,z:0});
+ for(let i=0;i<4;i++)addUnit(w,'red','brave',{x:.4+i*.1,z:0});
+ tick(w,1/12);assert.equal(w.fights.length,1);assert.equal(w.fights[0].members.length,4,'one center and at most three attackers');
+ assert.equal(w.units.filter(u=>u.fight).length,4);assert.equal(center.hp,90,'contact first creates and stages a fight');
+ const b=w.fights[0];assert.equal(b.members[0],center.id);
+ for(let i=1;i<4;i++){const p=fightPosition(b,i);assert.ok(Math.abs(Math.hypot(p.x-b.x,p.z-b.z)-180/256)<.006);}
+ const replay=structuredClone(w);for(let i=0;i<30;i++)tick(w,1/30);for(let i=0;i<144;i++)tick(replay,1/144);assert.deepEqual(replay,w,'group movement and RNG do not depend on render rate');
+ const slots=w.fights[0].members.map((_,i)=>fightPosition(w.fights[0],i));assert.equal(new Set(slots.map(p=>`${p.x}:${p.z}`)).size,4);
+ const shaman=addUnit(w,'blue','shaman',{x:3,z:0});assert.ok(cast(w,'blast',center));tick(w,7/12);
+ assert.equal(center.fight,null);assert.ok(center.lift>0);assert.equal(w.fights.length,0,'launched participants leave no stale fight group');assert.equal(shaman.lift,0);
+ const swap=createWorld();swap.terrain.fill(3);swap.units=[];swap.buildings=[];
+ const a=addUnit(swap,'blue','brave',{x:0,z:0}),enemy=addUnit(swap,'red','warrior',{x:.6,z:0});addUnit(swap,'blue','brave',{x:1,z:0});tick(swap,1/12);
+ assert.equal(swap.fights[0].members[0],enemy.id,'adding another member moves the outnumbered tribe into the center');
+ swap.selected=[a.id];command(swap,{x:10,z:0});assert.equal(a.fight,null,'a new order releases the old fight assignment');
 });

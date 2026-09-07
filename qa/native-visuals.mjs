@@ -19,6 +19,15 @@ try{
  }
  await page.evaluate(()=>{const {w,m}=window.nativeQA;w.effects=[];for(const [kind,x,z] of [['blast',1,28],['lightning',8,29],['birth',5,34],['splash',-2,33]]){const f=m.effect(w,kind,{x,z});f.age=.25;}for(const u of w.units){u.path=[];u.lift=0;u.casting=null;u.fighting=false;u.fight=null;}});
  await page.waitForTimeout(350);await page.screenshot({path:'qa/native-effects.png'});
+ await page.evaluate(()=>{
+  const {w,m,scene}=window.nativeQA;w.units=[];w.effects=[];w.fights=[];w.time=0;w.turn=0;w.pendingTime=0;w.randomState=1;w.status='playing';
+  m.addUnit(w,'blue','warrior',{x:1,z:29});for(let i=0;i<3;i++)m.addUnit(w,'red','brave',{x:1.4+i*.1,z:29});
+  w.paused=false;m.tick(w,1/12);w.paused=true;scene.focus({x:1,z:29});scene.zoom(.88);
+ });
+ assert.equal(await page.evaluate(()=>window.nativeQA.w.fights[0]?.members.length),4);
+ for(let i=0;i<12;i++){await page.evaluate(()=>{const {w,m}=window.nativeQA;w.paused=false;m.tick(w,1/12);w.paused=true;});await page.waitForTimeout(90);}
+ await page.screenshot({path:'qa/native-group-fight.png'});
+ assert.ok(await page.evaluate(()=>window.nativeQA.w.units.some(u=>u.hp<window.nativeQA.m.maxHp(u.kind))),'staged fighters exchange damage in the rendered scene');
  assert.deepEqual(errors,[]);console.log('PASS: native walking, carrying, airborne, casting, attacks and translucent effect rendering.');
  await page.evaluate(()=>window.nativeQA.scene.dispose());
 }finally{await browser.close();}

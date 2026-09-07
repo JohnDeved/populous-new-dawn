@@ -2605,7 +2605,8 @@
       254,
       255,
       256
-    ]
+    ],
+    "groundFriction": 28
   },
   "ignoredConstants": [
     "BLAST_DAMAGE_AOD",
