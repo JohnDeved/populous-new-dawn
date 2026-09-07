@@ -14,6 +14,22 @@ try{
   window.nativeQA={scene,w,m};
  });
  await page.waitForTimeout(800);await page.screenshot({path:'qa/native-idle.png'});
+ // Native 0x468c7b selects directions from camera/unit headings, independent of
+ // where a sprite stands on the curved landscape. These indices are x86-checked.
+ const facing=await page.evaluate(async()=>{
+  const data=(await import('/app/original-units.json')).default,{scene,w}=window.nativeQA;
+  const u=w.units.find(u=>u.kind==='brave'),g=scene.unitMeshes.get(u.id),body=g.userData.sprite;
+  const directions=data.animations['blue-brave'].idle,original=scene.cameraBearing,results=[];
+  for(const [camera,heading,index] of [[0,0,4],[512,0,6],[1536,0,2],[512,512,4],[0,128,4],[0,129,3]]){
+   scene.cameraBearing=camera*Math.PI/1024;
+   scene.animatePerson(body,g,Math.PI-heading*Math.PI/1024,directions,0);
+   const cycle=directions[index],frameIndex=cycle.frames[0],frame=data.frames[frameIndex];
+   results.push([body.material.map.offset.x,(frameIndex%data.columns*data.cell+(cycle.flip?frame.w:0))/data.width,
+    body.material.map.repeat.x,(cycle.flip?-frame.w:frame.w)/data.width]);
+  }
+  scene.cameraBearing=original;return results;
+ });
+ for(const [offset,expectedOffset,width,expectedWidth] of facing){assert.equal(offset,expectedOffset);assert.equal(width,expectedWidth);}
  for(const state of ['walk','carry','airborne','cast','attack','strike','special','recoil']){
   await page.evaluate(state=>{const {w}=window.nativeQA;for(const u of w.units){u.path=[];u.cargo=0;u.lift=0;u.casting=null;u.fighting=false;u.fight=['attack','strike','special','recoil'].includes(state)?{action:state,opponent:0,started:w.time*12,until:w.time*12+7}:null;u.heading=Math.PI/2;if(state==='walk'||state==='carry')u.path=[{x:u.x+2,z:u.z}];if(state==='carry'&&u.kind==='brave')u.cargo=1;if(state==='airborne')u.lift=.5;if(state==='cast'&&u.kind==='shaman')u.casting={spell:'blast',point:{x:0,z:25},remaining:.4};}w.time+=.25;},state);
   await page.waitForTimeout(100);await page.evaluate(()=>window.nativeQA.w.time+=.25);await page.waitForTimeout(100);await page.screenshot({path:`qa/native-${state}.png`});

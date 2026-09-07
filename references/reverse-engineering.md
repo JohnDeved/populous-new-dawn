@@ -593,3 +593,65 @@ text still uses Arial and CSS wrapping. Exact font metrics, text balancing,
 mouse-button glyphs, inherited blend state, native clipping/projection and full
 hover/fixed-message behavior remain unported. These checks do not establish
 pixel-identical tooltips or full interface parity.
+
+## Native camera pipeline and sprite facing (2026-09-07)
+
+The normal ground view is not the browser's current sphere. `0046dbe0` and
+`0046de00` apply a camera-relative 14-bit integer basis, subtract curvature from
+transformed Y using transformed X/Z, and project through a configurable depth
+offset. Their screen fields are **float32**, despite the inferred integer types
+in the exported pseudocode. Disassembly and CPU output confirm the stores.
+The curvature product deliberately retains the native signed 32-bit intermediate
+after shifting a 64-bit product; replacing it with unlimited-precision math
+changes overflow cases. Clip flags stop at the first failed axis and preserve
+existing bits. The behind-camera fallback retains the executable's unusual
+masked shift by `fraction + 100`.
+
+`scripts/import-camera.py` reads all 50 original 94-byte `data/vconfig0.dat`
+records (SHA256 `e9226f39682ed3ac149054f1843a4575fa0c15640db08d487f9f115b2559dca8`).
+The ten resolution groups each contain five camera modes. `004171f0` chooses
+exact dimensions first, otherwise the smallest signed product of dimension
+differences. `0041c700` interpolates curvature, matrix scale, pitch, vertical
+offset and horizon for flyby zoom. `00417000` overwrites field +52 with 280;
+`00476090` uses it as a sprite enlargement factor, including normal-view shamans.
+It is not a terrain cutoff. `00520cd0` selects fractional screen precision
+from device mode/capabilities: X/Y are 0/0, 4/0 or 4/4, with reciprocal float
+multipliers. The full device initialization and its x87 precision remain unported.
+
+`app/projection.ts` reconstructs these calculations, the normalized yaw/pitch
+basis (`0047f480`/`0047fab0`), circular and rotated quadrilateral mesh bounds
+(`0046e450`/`0046e510`), and original model transforms (`00471490`). Models use
+`rawCoordinate * nativeScale >> 8`, then pitch/roll/heading, then their wrapped
+half-map position and native height. This differs from treating the editor's
+inverse-scaled mesh coordinates as native world units. Half-world coordinate
+ties retain opposite signs depending on the original difference.
+
+`00476090` scales signed sprite-layer offsets and dimensions from a **depth-sort
+bucket**, not distance to the camera. Its normal/zoomed and shaman paths have
+different fixed-point rounding and clamps. `004673b0`, instructions
+`00468c7b`–`00468c91`, selects the eight-way sprite offset from
+`(cameraHeading - objectHeading - 0x380) & 0x700`. The live scene now uses this
+heading calculation. The previous per-unit camera vector introduced positional
+parallax and reversed the yaw contribution during the opening flyby. Both live
+followers and death effects share the corrected selector.
+
+The native comparison checks 266 resolution selections, 100 nonzero zoom states,
+6,144 camera bases (all 2,048 headings), 512 arbitrary basis rotations, 4,096
+screen projections, 1,024 real-asset model transforms, 223 circular bounds,
+1,024 rotated bounds, 4,096 sprite scaling cases and 18,432 direction selections.
+Zoom viewport/bounds leaves are intercepted; all interpolated fields execute.
+Model fixtures set face count to zero and capture points before projection, so
+they do not verify face lighting, culling or emission. The direction fixture
+executes only the identified instruction span. A translation-cache flush ensures
+the model-point capture hook also applies to previously executed projection code.
+Every fixture uses the pinned executable and verifies the camera data hash.
+
+**Integration limit:** only sprite direction selection is wired into the live
+scene in this change. The remaining camera/model/bounds/sprite-size ports are
+verified prerequisites for replacing the renderer, not a claim that the visible
+world already uses native projection. Terrain, water, picking, labels, sprites
+and models must switch together. Original ground-mesh generation, full toroidal
+level coverage, depth buckets, face lighting/order, globe overview, input controls,
+device selection and startup/frame timing remain unfinished. Browser visual QA
+checks actual frame atlas offsets at direction boundaries, all vault door phases,
+effects and combat; the existing 20 engine regressions still pass.

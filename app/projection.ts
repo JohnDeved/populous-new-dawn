@@ -1,0 +1,179 @@
+import native from './original-camera.json' with {type:'json'};
+import rules from './original-rules.json' with {type:'json'};
+
+export type CameraConfig = typeof native.views[number];
+export type Projection = {
+  matrix: number[]; curvature: number; depth: number; perspective: number; scale: number;
+  width: number; height: number; centerX: number; centerY: number;
+  fractionX: number; fractionY: number; pixelScaleX: number; pixelScaleY: number;
+};
+export type ProjectedPoint = {x:number;y:number;z:number;screenX:number;screenY:number;flags:number};
+
+// Signed low 32 bits of a 64-bit product shifted right 16; no floating rounding.
+export function multiplyShift16(a: number, b: number) {
+  const ah=a>>16,bh=b>>16,al=a&65535,bl=b&65535;
+  return ((al*bl>>>16)+ah*bl+bh*al+(Math.imul(ah,bh)<<16))|0;
+}
+const dot = (a:number[],b:number[]) => (Math.imul(a[0],b[0])+Math.imul(a[1],b[1])+Math.imul(a[2],b[2]))|0;
+const cross = (a:number[],b:number[]) => [
+  (Math.imul(a[1],b[2])-Math.imul(a[2],b[1]))>>14,
+  (Math.imul(a[2],b[0])-Math.imul(a[0],b[2]))>>14,
+  (Math.imul(a[0],b[1])-Math.imul(a[1],b[0]))>>14,
+];
+function normalize(v:number[]) {
+  const length=Math.floor(Math.sqrt(dot(v,v)>>>0));
+  if (!length) throw new RangeError('Degenerate native camera basis');
+  return v.map(n=>Math.trunc((n<<14)/length));
+}
+
+// 0x47fab0: rotate about a current basis row, then normalize/rebuild the basis.
+export function rotateBasis(matrix:number[],angle:number,axis:1|2|3) {
+  const fixed=axis===1?0:axis===2?1:2;
+  const rows=[matrix.slice(0,3),matrix.slice(3,6),matrix.slice(6,9)];
+  const [x,y,z]=rows[fixed],s=rules.sine[angle&2047]>>2,c=rules.sine[(angle+512)&2047]>>2;
+  const diagonal=(n:number)=>{const squared=Math.imul(n,n)>>14;return (Math.imul(16384-squared,c)>>14)+squared;};
+  const xy=Math.imul(Math.imul(x,y)>>14,16384-c)>>14;
+  const xz=Math.imul(Math.imul(x,z)>>14,16384-c)>>14;
+  const yz=Math.imul(Math.imul(y,z)>>14,16384-c)>>14;
+  const sx=Math.imul(s,x)>>14,sy=Math.imul(s,y)>>14,sz=Math.imul(s,z)>>14;
+  const rotation=[[diagonal(x),xy-sz,xz+sy],[xy+sz,diagonal(y),yz-sx],[xz-sy,yz+sx,diagonal(z)]];
+  for(let i=0;i<3;i++)if(i!==fixed)rows[i]=rotation.map(r=>dot(r,rows[i])>>14);
+  rows[2]=normalize(rows[2]);
+  rows[1]=normalize(cross(rows[2],rows[0]));
+  rows[0]=normalize(cross(rows[1],rows[2]));
+  return rows.flat();
+}
+
+// 0x47f480 builds yaw first, then pitch around the resulting horizontal basis.
+export function cameraMatrix(yaw:number,pitch:number) {
+  return rotateBasis(rotateBasis([16384,0,0,0,16384,0,0,0,16384],yaw,2),-pitch,1);
+}
+
+// 0x471490: object pitch/roll multiply on the left; heading rotates the basis.
+export function modelMatrix(heading:number,pitch=0,roll=0) {
+  const sp=rules.sine[pitch&2047]>>2,cp=rules.sine[(pitch+512)&2047]>>2;
+  const sr=rules.sine[roll&2047]>>2,cr=rules.sine[(roll+512)&2047]>>2;
+  const a=[[cr,-sr,0],[sr,cr,0],[0,0,16384]],b=[[16384,0,0],[0,cp,-sp],[0,sp,cp]];
+  const matrix=a.flatMap(row=>[0,1,2].map(i=>dot(row,[b[0][i],b[1][i],b[2][i]])>>14));
+  return heading||pitch||roll?rotateBasis(matrix,-heading,2):matrix;
+}
+
+// Native unsigned map coordinates preserve opposite signs at the half-world tie.
+export function relativeCoordinate(coordinate:number,center:number) {
+  const delta=(coordinate&65535)-(center&65535),magnitude=Math.abs(delta);
+  return (magnitude&32768?delta>0?magnitude-65536:65536-magnitude:delta)>>1;
+}
+
+// Raw PNTS coordinates, native object scale, and native camera-relative origin.
+// The imported editor-sized meshes must be converted back to raw coordinates first.
+export function modelPoint(raw:number[],scale:number,matrix:number[],origin:{x:number;y:number;z:number}) {
+  const p=raw.map(n=>Math.imul(n,scale)>>8);
+  return {x:(dot(matrix.slice(0,3),p)>>14)+origin.x,
+    y:(dot(matrix.slice(3,6),p)>>14)+origin.y,z:(dot(matrix.slice(6,9),p)>>14)+origin.z};
+}
+
+// 0x46e450: half-open coarse-cell spans centered in the 222-row landscape buffer.
+export function circularMeshBounds(diameter:number) {
+  if(!Number.isInteger(diameter)||diameter<0||diameter>222)throw new RangeError('Native mesh diameter exceeds its buffer');
+  const rows=Array.from({length:222},()=>[0,0]),radius=diameter>>1;
+  for(let y=0;y<radius;y++) {
+    let x=Math.floor(Math.sqrt(radius*radius-y*y));if(x<3)x=0;
+    rows[110-y]=[110-x,110+x];rows[110+y]=[110-x,110+x];
+  }
+  if(diameter<220){rows[109-radius]=[...rows[110-radius]];rows[110-radius]=[...rows[111-radius]];}
+  return rows;
+}
+
+// 0x46e510: rotate the configured quadrilateral and rasterize inclusive edges.
+export function polygonMeshBounds(bounds:number[],heading:number) {
+  if(bounds.length!==8)throw new RangeError('Native mesh bounds need four points');
+  const sine=rules.sine[-heading&2047],cosine=rules.sine[(-heading+512)&2047];
+  const points=Array.from({length:4},(_,i)=>{
+    const x=bounds[i*2],y=bounds[i*2+1];
+    return (heading?[(Math.imul(cosine,x)-Math.imul(sine,y))>>16,(Math.imul(sine,x)+Math.imul(cosine,y))>>16]:[x,y])
+      .map(n=>Math.max(1,Math.min(220,((n+110)<<16)>>16)));
+  });
+  const rows=Array.from({length:222},()=>[0,0]);
+  for(let i=0;i<4;i++) {
+    const [ax,ay]=points[i===3?0:i],[bx,by]=points[i===3?3:i+1];
+    if(ay===by){rows[ay]=[Math.min(ax,bx),Math.max(ax,bx)];continue;}
+    const distance=Math.abs(by-ay),step=Math.trunc((bx-ax)*256/distance),direction=by>ay?1:-1;
+    for(let j=0;j<=distance;j++) {
+      const row=rows[ay+j*direction],x=ax+Math.trunc(j*step/256);
+      if(row[0]===0)row[0]=row[1]=x;
+      else if(x<row[0])row[0]=x;
+      else if(x>row[1])row[1]=x;
+    }
+  }
+  return rows;
+}
+
+// 0x4673b0's eight-way VSTART offset, before tribe-specific animation selection.
+export function spriteDirection(cameraHeading:number,objectHeading:number) {
+  return ((((cameraHeading<<16)>>16)-((objectHeading<<16)>>16)-0x380)&0x700)>>8;
+}
+
+// 0x476090 rescales both signed layer offsets and dimensions. Its input is the
+// renderer's depth-sort bucket, not Euclidean distance from the camera.
+export function spriteCoordinate(value:number,bucket:number,flags:number,view:Pick<CameraConfig,'scale'|'spriteScale'|'shamanScale'>) {
+  if(!view.spriteScale)throw new RangeError('Native sprite scale divisor is zero');
+  if(bucket<0&&!(flags&0x380))return Math.trunc(Math.imul(view.shamanScale,value)/256);
+  let n=Math.trunc(Math.imul(Math.imul(view.scale,value),bucket<0?256:16)/view.spriteScale);
+  const distance=Math.abs(bucket);
+  if(distance>=1792)n=(n+Math.trunc(Math.imul(Math.trunc(Math.imul(n,14)/16),distance-1792)/-1792))|0;
+  if(bucket<0){const product=Math.imul(view.shamanScale,n);n=(product+((product>>31)&255))>>16;}
+  else n>>=4;
+  return Math.max(-256,Math.min(256,n));
+}
+
+// 0x4171f0 uses a signed product, not Euclidean nearest-resolution distance.
+export function cameraConfigIndex(width:number,height:number) {
+  let best=0,bestScore=0xfffffff;
+  for(let i=0;i<10;i++) {
+    const v=native.views[i*5];
+    if(width===v.width&&height===v.height)return i;
+    const score=Math.imul(Math.abs(v.width)-width,Math.abs(v.height)-height);
+    if(score<bestScore){best=i;bestScore=score;}
+  }
+  return best;
+}
+
+// 0x41c700's flyby zoom interpolation; ordinary view switches have their own timer.
+export function cameraConfig(index:number,zoom=0,range=16384):CameraConfig {
+  if(!Number.isInteger(index)||index<0||index>=10)throw new RangeError('Invalid native camera configuration');
+  if(!Number.isInteger(zoom)||Math.abs(zoom)>range||range<=0)throw new RangeError('Invalid native camera zoom');
+  const base=native.views[index*5];
+  if(!zoom)return {...base,bounds:[...base.bounds]};
+  const target=native.views[index*5+(zoom>0?2:3)],amount=Math.abs(zoom);
+  const result={...base,bounds:[...base.bounds],diameter:amount===range?target.diameter:50,globe:Number(!!(base.globe||target.globe))};
+  for(const key of ['curvature','scale','pitch','offsetY','horizon'] as const) {
+    const value=(base[key]+Math.trunc(Math.imul(target[key]-base[key],amount)/range))|0;
+    result[key]=key==='pitch'||key==='offsetY'||key==='horizon'?(value<<16)>>16:value;
+  }
+  return result;
+}
+
+// 0x46dbe0 (with clip flags) / 0x46de00 (without). Inputs are native camera-relative
+// X/Z half map coordinates and original height units; screen outputs are float32.
+export function projectPoint(p:{x:number;y:number;z:number;flags?:number},v:Projection,clip=true):ProjectedPoint {
+  const m=v.matrix;
+  const x=(Math.imul(p.x,m[0])+Math.imul(p.z,m[2]))>>14;
+  let y=dot([m[3],m[4],m[5]],[p.x,p.y,p.z])>>14;
+  const z=dot([m[6],m[7],m[8]],[p.x,p.y,p.z])>>14;
+  const radiusSquared=(Math.imul(x<<1,x<<1)+Math.imul(z<<1,z<<1))|0;
+  y=(y-(multiplyShift16(radiusSquared,v.curvature)>>16))|0;
+  const depth=(z+v.depth)|0;
+  let sx:number,sy:number;
+  if(depth<=0) {
+    sx=-(v.centerX<<(v.fractionX+100))|0;
+    sy=-(v.centerY<<(v.fractionY+100))|0;
+  }else{
+    const perspective=Math.trunc((1<<(v.perspective+16))/depth);
+    sx=multiplyShift16(Math.imul(v.scale,x)>>(16-v.fractionX),perspective);
+    sy=multiplyShift16(Math.imul(v.scale,y)>>(16-v.fractionY),perspective);
+  }
+  const screenX=Math.fround(v.pixelScaleX*sx+v.centerX),screenY=Math.fround(v.centerY-v.pixelScaleY*sy);
+  let flags=p.flags??0;
+  if(clip)flags|=screenX<0?2:screenX>=v.width?4:screenY<0?8:screenY>=v.height?16:0;
+  return {x,y,z,screenX,screenY,flags};
+}

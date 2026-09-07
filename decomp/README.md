@@ -255,3 +255,23 @@ VM decoding and interruption. UI/input/audio/debug leaves are intercepted;
 keyframe handlers, arithmetic, event ordering and timeline control execute.
 Interest-point tracking, native tooltips, early near-target input release,
 projection and frame throttling remain incomplete. See the evidence log.
+
+
+## Camera and sprite projection
+
+```sh
+.tools/decomp/oracle/bin/python scripts/extract-reference.py /path/to/PopulousTB-Setup.zip /path/to/game 'data/vconfig0.*'
+python3 scripts/import-camera.py /path/to/game
+.tools/decomp/oracle/bin/python scripts/check-native-projection.py /path/to/game/d3dpoptb.exe
+node qa/native-visuals.mjs
+```
+
+The importer requires the verified executable beside `data/`. The CPU check
+verifies both its identity and the original 50-record camera table. It compares
+camera resolution/zoom selection, all 2,048 yaw headings at three pitches,
+integer projection with both clip modes, real model point transforms, both mesh
+bound algorithms, sprite size/offset scaling and 18,432 sprite directions.
+The x87 control word is explicitly 0x027f; native startup precision is not proven.
+Only the direction selector currently drives the live renderer. The other ports
+are verified prerequisites for replacing the current spherical projection.
+See the detailed evidence log for intercepted leaves and remaining integration.

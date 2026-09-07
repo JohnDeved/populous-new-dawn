@@ -9,6 +9,7 @@ import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, normal, planetPoint, mapPoint, 
 import nativeModelData from './original-models.json';
 const nativeModels: Record<number,{p:number[];uv:number[];scale:number}> = nativeModelData;
 import {morphCoordinate} from './morph.ts';
+import {spriteDirection} from './projection.ts';
 import nativeUnits from './original-units.json';
 import nativeEffects from './original-effects.json';
 
@@ -353,8 +354,7 @@ export class GameScene {
   overview(){this.camera.position.set(30,155,0);this.controls.update();this.orientCamera();}
   zoom(amount: number) { const offset = this.camera.position.clone().sub(this.controls.target).multiplyScalar(amount); offset.clampLength(PLANET_RADIUS+14, PLANET_RADIUS+190); this.camera.position.copy(this.controls.target).add(offset); this.controls.update();this.orientCamera(); }
   animatePerson(body:THREE.Sprite,g:THREE.Group,heading:number,directions:{frames:number[];flip:boolean}[],age:number,once=false){
-    const camera=this.camera.position.clone().sub(g.position).applyQuaternion(g.quaternion.clone().invert());
-    const direction=((Math.round((heading-Math.atan2(camera.x,camera.z))/(Math.PI/4))%8)+8)%8;
+    const direction=spriteDirection(Math.round(this.cameraBearing*1024/Math.PI),Math.round((Math.PI-heading)*1024/Math.PI));
     const cycle=directions[direction],step=Math.floor(age*nativeUnits.fps),index=cycle.frames[once?Math.min(step,cycle.frames.length-1):step%cycle.frames.length],cell=nativeUnits.cell;
     const frame=nativeUnits.frames[index],map=body.material.map!;
     map.repeat.set((cycle.flip?-frame.w:frame.w)/nativeUnits.width,frame.h/nativeUnits.height);
