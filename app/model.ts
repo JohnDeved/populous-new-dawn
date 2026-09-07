@@ -332,6 +332,13 @@ export function recordSpellCast(w: World, tribe: number, model: number) {
 
 export function campaignInternal(w: World, id: number) {
   if (id === 0) return w.turn;
+  // 0x48f350: total population is a dword; per-class counters are signed words.
+  if (id >= 1 && id <= 5) return campaignPersonCount(w, id === 1 ? 1 : id - 2);
+  if (id >= 1146 && id <= 1175) {
+    const tribe = id < 1152 ? 1 : Math.floor((id - 1152) / 6);
+    const model = (id < 1152 ? id - 1146 : (id - 1152) % 6) + 2;
+    return short(campaignPersonCount(w, tribe, model));
+  }
   if (id === 1050) return constants.SPELL_BLAST; // 0x48f350 reads the loaded spell-cost table.
   // 0x48f350: self then four explicit tribes, 16 building models each.
   if (id >= 1066 && id <= 1145) {
@@ -343,7 +350,17 @@ export function campaignInternal(w: World, id: number) {
   }
   // Native spell constants, including Blast, Lightning and Land Bridge.
   if (id >= 1184 && id <= 1199) return id - 1183;
+  if (id === 1200) return 18; // INT_M_KNOWLEDGE, preceding the person constants.
+  if (id >= 1201 && id <= 1206) return id - 1199;
   throw new Error(`Unbound campaign internal ${id}`);
+}
+
+// 0x4ecac0: active tribe followers count even while housed or selected by the AI.
+// Ghosts and the remaining person classes are not represented by browser units yet.
+export function campaignPersonCount(w: World, tribe: number, model?: number) {
+  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null;
+  return w.units.filter(u => u.team === team && u.hp > 0 &&
+    (model === undefined || (u.kind === 'brave' ? 2 : u.kind === 'warrior' ? 3 : 7) === model)).length | 0;
 }
 
 // 0x4ecac0 counts completed buildings (state 2) separately from all live buildings.
@@ -443,7 +460,7 @@ export function campaignCommand(w: World, opcode: number, args: number[], script
 
 const boundCampaignScript = {
   ...originalScript,
-  codes: [12, 1003, ...originalScript.codes.slice(564, 601), ...originalScript.codes.slice(936, 1505), 1004, 1019],
+  codes: [12, 1003, ...originalScript.codes.slice(564, 601), ...originalScript.codes.slice(625, 681), ...originalScript.codes.slice(936, 1505), 1004, 1019],
 };
 function campaignRules(w: World) {
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.

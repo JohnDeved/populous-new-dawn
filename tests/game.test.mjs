@@ -436,3 +436,48 @@ test('original campaign stops Dakini Blast casting after its second allocation',
  const fresh=createWorld();assert.equal(fresh.ai.spellEntries[0].model,2,'restart resets the spell entries');
  assert.throws(()=>campaignCommand(fresh,1108,[0,1,2,3,4,5],{fields:[[0,8],[0,2],[0,0],[0,512],[0,6],[0,0]]}),/Invalid computer spell entry/);
 });
+
+test('campaign attack commitment follows living warrior counts on its original turn', async () => {
+ const {campaignInternal}=await import('../app/model.ts');
+ for(const [count,stage,turn,expected] of [[0,0,113,19],[1,0,113,34],[3,2,113,34],[4,0,113,67],[12,0,113,67],[13,0,113,100],[13,3,113,19],[13,0,112,19]]){
+  const w=createWorld();w.units=[];w.turn=turn-1;w.ai.variables[57]=1;w.ai.variables[2]=stage;w.ai.attributes[11]=19;
+  addUnit(w,'red','shaman',ENEMY);addUnit(w,'blue','shaman',HOME);
+  for(let i=0;i<count;i++)addUnit(w,'blue','warrior',HOME);
+  addUnit(w,'blue','warrior',HOME).hp=0;
+  addUnit(w,'wild','brave',HOME);
+  assert.equal(campaignInternal(w,1153),count);
+  assert.equal(campaignInternal(w,2),count+1);
+  assert.equal(campaignInternal(w,1),1);
+  tick(w,1/12);
+  assert.equal(w.ai.attributes[11],expected);
+ }
+});
+
+test('queued training keeps its selection lock until issuing the order and frees its slot after arrival', async () => {
+ const {createComputerQueue,requestTraining,dispatchComputerTask,computerPhase,stepTrainingTask}=await import('../app/computer.ts');
+ const ai=createComputerQueue(),building={id:42,owner:1,state:2,model:7,capacity:4,inside:0,occupants:[null,null,null,null]};
+ const actions=[],input={tribe:1,preference:0,population:10,trained:0,committed:0,maximum:5,select:()=>[11,12,13]};
+ requestTraining(ai,3,3,3,model=>model===7?42:0);
+ for(let turn=0;turn<8;turn++)if(computerPhase(turn,1)==='dispatch')dispatchComputerTask(ai,i=>actions.push(...stepTrainingTask(ai,i,building,input)));
+ assert.deepEqual(actions,[{kind:'select',id:11},{kind:'select',id:12},{kind:'select',id:13},{kind:'train',id:42}]);
+ assert.equal(ai.selectionOwner,10);assert.equal(ai.tasks[0].phase,7);assert.equal(ai.tasks[0].flags&1,1);
+ building.inside=4;
+ dispatchComputerTask(ai,i=>stepTrainingTask(ai,i,building,input));
+ assert.equal(ai.tasks[0].phase,8);
+ dispatchComputerTask(ai,i=>actions.push(...stepTrainingTask(ai,i,building,input)));
+ assert.equal(ai.tasks[0].flags&1,0);assert.equal(actions.at(-1).kind,'restore');
+ requestTraining(ai,1,3,1,()=>42);
+ assert.equal(ai.tasks[0].phase,0);assert.equal(ai.tasks[0].requested,1,'released slot can be reused');
+});
+
+test('external game store publishes edits and restarts without sharing worlds between sessions', async () => {
+ const {createGameStore}=await import('../app/game-store.ts');
+ const store=createGameStore(),other=createGameStore(),old=store.getWorld(),events=[];
+ const unsubscribe=store.subscribe(()=>events.push([store.getSnapshot(),store.getWorld()]));
+ store.change(w=>{w.paused=true;w.mode='blast';});
+ assert.equal(events.length,1);assert.equal(events[0][0],1);assert.equal(events[0][1],old);
+ assert.equal(other.getWorld().paused,false);assert.equal(other.getSnapshot(),0);
+ store.restart();assert.notEqual(store.getWorld(),old);assert.equal(store.getWorld().mode,null);
+ assert.equal(events.length,2);assert.equal(events[1][0],2);
+ unsubscribe();store.update();assert.equal(events.length,2);
+});

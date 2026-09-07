@@ -753,3 +753,87 @@ not a universal native two-spell cap. Native mana/bucket eligibility, target
 scoring, shaman defense movement, close-combat reactions, casting cadence and
 AI state scheduling remain incomplete. Marker orders, attacks, training requests
 and the remaining first-mission script still need their original implementations.
+
+## AI task scheduling, training controller and follower counts
+
+Verified against `d3dpoptb.exe` SHA256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+Reviewed control is in `app/computer.ts`; raw exports retain Ghidra's inferred
+names/types. The complete AI scheduler and person-command system are not yet
+integrated into the browser world.
+
+- `004615f0` calls the campaign interpreter before its task branch. With
+  `phase = turn + signed tribe index`, `(phase+13)&63 == 0` reserves the radius
+  maintenance turn; otherwise `(phase+1)&63 == 0` reserves task production;
+  otherwise `004623e0` processes at most one active task. These maintenance
+  branches skip dispatch even when there is no radius work. The outer engine's
+  invocation order, timers and remaining spell/defense phases remain unported.
+- Ten task records begin at tribe+`0x36`, stride `0x52`. `004623e0` starts at
+  cursor byte +`0x5b5`, scans inactive slots, calls one handler, then advances
+  once. Even an empty queue advances once. `00462730` finds the first free slot;
+  `00462770` clears active/cancel bits only. `00462790` retains unrelated flags
+  and scratch fields; `00462ca0` has no type-6 reset branch.
+- `004e6640` (TRAIN_PEOPLE_NOW) requires a free slot and available people before
+  finding the first completed training building in the native linked list.
+  Person models 3/4/5/6 map to building models 7/5/6/8. It allocates type 6 with
+  the requested signed count, target building and phase zero; it does not train
+  a person immediately. `004f67b0` excludes the shaman (model **7**), not model
+  10. `004f6730` counts people in states 10/33 with uncancelled housing command 6.
+- `004c8490` phases 0/2 initialize the request and eject non-braves from the
+  training hut. A full hut ejects its final occupant to make space. Zero count
+  calculates `max(0, preference * population / 100 - trained - committed)`,
+  bounded by attribute 33 at `0096080b + tribe*48`; multiplication is signed
+  32-bit and trained counts are signed 16-bit. Attribute indices 5/6/7/8 select
+  spy/religious/warrior/firewarrior preferences. `004f2ac0` supplies already
+  committed people; its full native list consumer is not integrated yet.
+- Phase 3 acquires the tribe selection lock via `004f5c80` and `004f2290`.
+  Active type-20 tasks can prevent acquisition in particular phases even with
+  an otherwise free lock. Phase 4 gathers at most 100 people per call and
+  reserves them in person state 14; phases 5/6 issue group command 8 and release
+  selection. Phase 7 adds the active-task count to its wait counter and moves
+  to cleanup when the hut fills or the counter is **greater than** 300.
+  Invalid/deleted targets and cancellation share cleanup; a competing lock
+  can prevent selection restoration, but the task slot is still released.
+- `004f8490` native selection traverses people by priority bands, eligibility
+  flags, command state and target distance. This is **not** approximated by
+  choosing the nearest browser brave. `stepTrainingTask` exposes native
+  selection as an input and ejection/selection/command/restoration as actions.
+  These action consumers and native eligibility still need a world adapter;
+  the original words 601–624 (TRAIN_PEOPLE_NOW block) stay unbound until then.
+
+`scripts/check-native-training.py` runs 1,024 actual dispatcher occupancy masks,
+1,024 actual `004615f0` prefix/phase cases, 1,200 training-controller cases and
+300 actual allocation calls. The training comparison executes the controller,
+lock contention and release routines; selection, committed-count lookup,
+occupancy mutation and person commands are controlled leaves. It does not
+prove person selection, movement, native initialization or complete scheduling.
+The Node regression separately runs a request through selection, command,
+arrival, cleanup and slot reuse.
+
+`campaignInternal` now binds total counts (internal IDs 1–5), per-class counts
+(1146–1175), knowledge model constant 1200 (=18), and person constants
+1201–1206 (=2–7). `004ecac0` includes active, non-ghost followers while inside
+buildings or selected; wild people are separate. The browser adapter currently
+covers braves, warriors and shamans of the two represented tribes; the remaining
+classes and ghosts have no browser representation yet. Person reads do not
+consume PARTIAL_BUILDING_COUNT's one-shot flag. Count timing still follows the
+browser world; native rebuild/event ordering remains a larger integration task.
+
+`scripts/check-native-followers.py` executes actual counter rebuilds and 2,016
+native queries/constants without intercepted calls (mana rebuilding and
+player-only UI excluded by fixture state). It also compares 4,608 executions of
+the exact original words 625–680: EVERY 127 offset 14, while variable 2 is less
+than 3, blue warrior counts 1–3 / 4–12 / 13+ set attribute 11 (AWAY_BRAVE) to
+34 / 67 / 100. Zero warriors retains its prior value. This block now executes in
+the browser campaign at the original phase, including turn 113 for Dakini.
+Attack command execution itself remains unfinished; this port supplies the
+original commitment settings instead of inventing attack waves.
+
+The UI now holds an external simulation store and subscribes through React's
+`useSyncExternalStore`. UI edits notify through `store.change`; scene updates
+publish the existing display cadence through `store.update`. Restart creates a
+new world and rebuilds the scene. This replaces mutating a world held directly
+in React component state, which failed the React immutability check. It adds no
+simulation rules or dependencies. The native simulation remains independently
+runnable in Node; separate store instances, notifications and unsubscribe are
+covered by a regression, with restart and gameplay checked in the browser.

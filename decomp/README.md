@@ -303,3 +303,19 @@ bytecode disables both initial Blast entries after the count exceeds one, on its
 simulation and Chrome check. These checks do not port the consumers' mana and
 target eligibility, spell-defense positioning, general AI states or scheduling.
 Additional exported consumers remain raw, unreviewed where no port is recorded.
+
+## AI queue/training and follower comparison
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-training.py /path/to/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-followers.py /path/to/d3dpoptb.exe
+```
+
+`app/computer.ts` reconstructs `004623e0`, the task branch of `004615f0`,
+`004e6640` allocation and `004c8490` training control with selection-lock leaves.
+The 3,548 native comparisons preserve dispatcher, allocation and controller
+execution; person selection, occupancy mutation and person commands are
+controlled leaves. Browser training integration awaits those native consumers.
+The follower check runs 2,016 real rebuild/query comparisons and 4,608 original
+mission attack-commitment branches, now bound to browser follower counts.
+See the [reviewed evidence and remaining limits](../references/reverse-engineering.md#ai-task-scheduling-training-controller-and-follower-counts).

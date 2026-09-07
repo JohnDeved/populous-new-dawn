@@ -51,6 +51,15 @@ try{
  for(let i=0;i<12;i++){await page.evaluate(()=>{const {w,m}=window.nativeQA;w.paused=false;m.tick(w,1/12);w.paused=true;});await page.waitForTimeout(90);}
  await page.screenshot({path:'qa/native-group-fight.png'});
  assert.ok(await page.evaluate(()=>window.nativeQA.w.units.some(u=>u.hp<window.nativeQA.m.maxHp(u.kind))),'staged fighters exchange damage in the rendered scene');
+ const attackCommitment=await page.evaluate(()=>{
+  const {w,m}=window.nativeQA;w.units=[];w.effects=[];w.projectiles=[];w.fights=[];
+  w.turn=112;w.time=112/12;w.pendingTime=0;w.status='playing';w.ai.variables[2]=0;
+  m.addUnit(w,'red','shaman',m.ENEMY);m.addUnit(w,'blue','shaman',m.HOME);
+  for(let i=0;i<13;i++)m.addUnit(w,'blue','warrior',m.HOME);
+  w.paused=false;m.tick(w,1/12);w.paused=true;
+  return {turn:w.turn,warriors:m.campaignInternal(w,1153),commitment:w.ai.attributes[11]};
+ });
+ assert.deepEqual(attackCommitment,{turn:113,warriors:13,commitment:100},'live campaign applies the original warrior-dependent attack commitment');
  const enemyCasts=await page.evaluate(()=>{
   const {w,m,scene}=window.nativeQA;w.units=[];w.effects=[];w.projectiles=[];w.fights=[];w.turn=0;w.time=0;w.pendingTime=0;w.status='playing';
   w.ai=m.createWorld().ai;w.ai.variables[57]=1;w.spellCasts[1][2]=0;
