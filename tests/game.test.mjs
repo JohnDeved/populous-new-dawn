@@ -412,3 +412,27 @@ test('original opening runs at turn 71 and its independent flyby clock can be in
  assert.equal(w.flyby.flags&1,0,'campaign flag prevents replay');
  assert.equal(w.messages.slots.filter(m=>m?.stringId===611).length,1);
 });
+
+
+test('original campaign stops Dakini Blast casting after its second allocation', () => {
+ const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),target=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
+ assert.equal(w.ai.defencePosition,8|(28<<8));assert.equal(w.ai.defenceRadius,7);
+ assert.deepEqual(w.ai.spellEntries.slice(0,2),[0,1].map(mode=>({model:2,mana:10000,range:512,people:6,mode})));
+ assert.equal(w.ai.pendingCommands.filter(c=>[1038,1108,1196].includes(c.opcode)).length,0);
+ w.units=w.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');
+ Object.assign(red,{x:4,z:29});w.ai.variables[57]=1;w.inputMask=0;
+ for(let turn=0;turn<220;turn++){
+  // Keep one eligible opponent nearby after each knockback; retain the caster's real cooldown and counters.
+  Object.assign(target,{x:8,z:29,hp:10000,lift:0,inside:null,work:null,path:[],target:null});
+  tick(w,1/12);
+ }
+ assert.equal(w.spellCasts[1][2],2,'the live enemy allocates two Blasts and then stops');
+ assert.equal(w.ai.variables[19],2);assert.equal(w.ai.states&0x400,0);assert.equal(w.ai.flags&0x100,0);
+ assert.deepEqual(w.ai.spellEntries.slice(0,2).map(s=>s.model),[0,0]);
+ const limited=createWorld();limited.spellCasts[1][2]=2;limited.turn=1;
+ tick(limited,1/12);assert.equal(limited.ai.spellEntries[0].model,2,'EVERY 1 skips even turns for tribe one');
+ tick(limited,1/12);assert.equal(limited.ai.spellEntries[0].model,0,'the original block disables entries on the next odd turn');
+ assert.equal(limited.ai.defencePosition,8|(28<<8),'OFF preserves the previous defense target');
+ const fresh=createWorld();assert.equal(fresh.ai.spellEntries[0].model,2,'restart resets the spell entries');
+ assert.throws(()=>campaignCommand(fresh,1108,[0,1,2,3,4,5],{fields:[[0,8],[0,2],[0,0],[0,512],[0,6],[0,0]]}),/Invalid computer spell entry/);
+});

@@ -706,3 +706,50 @@ per-layer rounding and depth-dependent size therefore remain approximate. The
 minimap camera rectangle, selection/health/construction overlays and some spell
 visuals remain approximations too. These results establish ground-projection
 integration, not pixel-identical rendering or full engine parity.
+
+
+## First-mission computer spell setup and shutoff (2026-09-07)
+
+The original `cpscr010` words 564–600 contain an `EVERY 1` block: it reads
+Dakini's Blast allocation counter into variable 19, and when that byte exceeds
+one it issues `STATE_SPELL_DEFENCE 90 202 OFF` and rewrites spell entries 0 and
+1 with model zero. For script tribe 1 this runs on odd turns. The browser now
+executes these original words before the already-bound presentation/discovery
+blocks. Its existing defensive caster checks the enabled spell entries instead
+of continuing to allocate Blasts indefinitely.
+
+`00492c30` evaluates both coordinate fields, truncates them to bytes and toggles
+state bit `0x400` only for literal ON/OFF tokens. If that state remains enabled,
+it sets tribe flag `0x100` and writes the packed target at +0x46e; otherwise it
+clears the flag and preserves the old target. `0048cc60` command 1196 writes the
+defense radius as a byte at +0x5be. `004902e0` writes each spell entry's dword
+at +0x4c6, word at +0x4ca, and bytes at +0x4ce/+0x4d0/+0x4d1, using a 12-byte
+stride. The untouched entry bytes are not invented or consumed by this port.
+`004d11b0` and `004d1450` confirm **eight** entries; the latter separately updates
+availability after checking mana and other native eligibility. Those consumers
+remain unported.
+
+Startup now applies the four corresponding calls: defense radius 7, packed
+position (8,28), and two Blast entries carrying the loaded Blast cost, range
+field 512, people field 6 and mode bytes 0/1. The cost read is internal 1050,
+which `0048f350` resolves through the loaded spell table at `0x5a8150`. Nine
+startup commands remain deferred. Other AI defaults are still zero-initialized
+browser state, not a recovered native initialization pass.
+
+`scripts/check-native-computer.py` executes 256 full native command calls with
+constant/variable fields, ON/OFF/unknown tokens, signed values and all 32 flag
+bits. Another 192 executions include the actual startup field references and
+unmodified recurring block across 32 turn phases and six counter values. No
+native leaf is intercepted; the fixture supplies the loaded Blast-cost cell.
+All written fields and the script counter agree with the browser. A simulation
+regression holds an opponent nearby through actual spell allocations and proves
+the browser stops at two, retains the target when disabled, observes odd-turn
+timing and resets entries on restart. Chrome's rendered-world check exercises
+the same path. Existing campaign, interpreter, message and complete mission
+checks pass; 21 engine regressions and all 389 export hashes verify.
+
+This establishes the script's spell-entry shutoff and its browser integration,
+not a universal native two-spell cap. Native mana/bucket eligibility, target
+scoring, shaman defense movement, close-combat reactions, casting cadence and
+AI state scheduling remain incomplete. Marker orders, attacks, training requests
+and the remaining first-mission script still need their original implementations.

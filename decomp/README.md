@@ -280,3 +280,26 @@ triangle picks cover headings and periodic terrain copies. Resolution-specific
 mesh-bound overrides also have 114 native CPU comparisons. Overview, original
 terrain mesh generation, lighting, water and depth-sort buckets remain unfinished.
 See the detailed evidence log for intercepted leaves and remaining integration.
+
+
+## Computer spell setup and mission-one shutoff
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-computer.py /path/to/game/d3dpoptb.exe
+node qa/native-visuals.mjs
+```
+
+The original `levels/cpscr010.dat` must be beside the executable's directory
+structure. Its hash and the executable identity are checked. The oracle runs
+256 complete native command calls for `STATE_SPELL_DEFENCE`, `SET_SPELL_ENTRY`
+and `SET_DEFENCE_RADIUS`, then 192 original first-mission spell-limit blocks,
+without intercepting command handlers or leaves. The loaded Blast-cost cell is
+supplied by the fixture from the already-imported balance constants.
+
+`00492c30`, `004902e0` and `0048cc60` are bound in `app/model.ts`. Eight spell
+entries are confirmed by consumer loops in `004d11b0` and `004d1450`. The original
+bytecode disables both initial Blast entries after the count exceeds one, on its
+`EVERY 1` phase. The browser caster now honors those entries, with an integrated
+simulation and Chrome check. These checks do not port the consumers' mana and
+target eligibility, spell-defense positioning, general AI states or scheduling.
+Additional exported consumers remain raw, unreviewed where no port is recorded.

@@ -244,7 +244,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
   return [];
 }
 export type World = {
-  ai:ScriptState & {states:number;reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
+  ai:ScriptState & {states:number;flags:number;defencePosition:number;defenceRadius:number;spellEntries:{model:number;mana:number;range:number;people:number;mode:number}[];reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
   messages: MessageState;
   flyby: Flyby;
   inputMask: number;
@@ -268,7 +268,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 function missionAI(){
-  const ai={...scriptState(originalScript),states:0,reincarnation:true,includeIncompleteBuildings:false,pendingCommands:[] as {opcode:number;args:number[]}[]};
+  const ai={...scriptState(originalScript),states:0,flags:0,defencePosition:0,defenceRadius:0,spellEntries:Array.from({length:8},()=>({model:0,mana:0,range:0,people:0,mode:0})),reincarnation:true,includeIncompleteBuildings:false,pendingCommands:[] as {opcode:number;args:number[]}[]};
   // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
   runScript(originalScript,ai,{turn:0,tribe:1,readInternal:id=>{if(id===0)return 0;throw new Error(`Unbound initial script read ${id}`);},command:(opcode,args)=>{
     // 0x48cc60: native state bits, and SET_REINCARNATION's disable flag at tribe+0x93d.
@@ -294,6 +294,10 @@ export function createWorld(): World {
       w.shrines.push({...worship,forced:false,morph:null,model:kind==='vault'?154:45,angle:(vault?.angle??0)/2048*Math.PI*2,id:w.nextId++,x:o.x,z:o.z,kind,name:kind==='vault'?'Vault of Knowledge':kind==='bridge'?'Land Bridge stone head':'Lightning stone head',progress:0,duration:worship.target*4/TURNS_PER_SECOND,uses:0});
     }
   }
+  w.ai.pendingCommands=w.ai.pendingCommands.filter(c=>{
+    if(![1038,1108,1196].includes(c.opcode))return true;
+    campaignCommand(w,c.opcode,c.args);return false;
+  });
   w.selected=[w.units.find(u=>u.team==='blue'&&u.kind==='shaman')!.id];
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   return w;
@@ -328,6 +332,7 @@ export function recordSpellCast(w: World, tribe: number, model: number) {
 
 export function campaignInternal(w: World, id: number) {
   if (id === 0) return w.turn;
+  if (id === 1050) return constants.SPELL_BLAST; // 0x48f350 reads the loaded spell-cost table.
   // 0x48f350: self then four explicit tribes, 16 building models each.
   if (id >= 1066 && id <= 1145) {
     const tribe = id < 1082 ? 1 : Math.floor((id - 1082) / 16);
@@ -360,10 +365,27 @@ export function forceHead(w: World, marker: number) {
 
 // Reviewed DO query handlers. Unknown commands/unsupported world state fail explicitly.
 export function campaignCommand(w: World, opcode: number, args: number[], script: PopScript = originalScript) {
-  const arity = ({1076: 3, 1077: 3, 1085: 2, 1131: 3, 1136: 0, 1151: 1, 1171: 2, 1176: 1, 1113: 0, 1180: 0, 1187: 0, 1205: 0, 1206: 0, 1207: 0, 1208: 1, 1209: 4, 1210: 3, 1211: 3, 1212: 4, 1213: 5, 1214: 4, 1215: 2} as Record<number, number>)[opcode];
+  const arity = ({1038: 3, 1108: 6, 1196: 1, 1076: 3, 1077: 3, 1085: 2, 1131: 3, 1136: 0, 1151: 1, 1171: 2, 1176: 1, 1113: 0, 1180: 0, 1187: 0, 1205: 0, 1206: 0, 1207: 0, 1208: 1, 1209: 4, 1210: 3, 1211: 3, 1212: 4, 1213: 5, 1214: 4, 1215: 2} as Record<number, number>)[opcode];
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`);
   if (args.length !== arity) throw new Error(`Invalid campaign command arguments ${opcode}`);
   const read = (index: number) => scriptValue(script, w.ai, index, id => campaignInternal(w, id));
+
+  if (opcode === 1038) {
+    // 0x492c30 reads both coordinates even for OFF; disabled orders retain the old target.
+    const x=read(args[0])&255,y=read(args[1])&255;
+    if(args[2]===1022)w.ai.states=(w.ai.states|0x400)>>>0;else if(args[2]===1023)w.ai.states=(w.ai.states&~0x400)>>>0;
+    if(w.ai.states&0x400){w.ai.flags=(w.ai.flags|0x100)>>>0;w.ai.defencePosition=x|(y<<8);}
+    else w.ai.flags=(w.ai.flags&~0x100)>>>0;
+    return;
+  }
+  if (opcode === 1196) { w.ai.defenceRadius=read(args[0])&255;return; }
+  if (opcode === 1108) {
+    // 0x4902e0: preserve the native dword/word/byte widths of the five written fields.
+    const [index,model,mana,range,people,mode]=args.map(read);
+    if(!Number.isInteger(index)||index<0||index>=w.ai.spellEntries.length)throw new RangeError('Invalid computer spell entry');
+    w.ai.spellEntries[index]={model:model&255,mana:mana|0,range:range&65535,people:people&255,mode:mode&255};
+    return;
+  }
 
   if (opcode === 1113) { w.inputMask &= ~128; return; }
   if (opcode === 1180 || opcode === 1187) {
@@ -419,13 +441,13 @@ export function campaignCommand(w: World, opcode: number, args: number[], script
   w.ai.variables[index] = value | 0;
 }
 
-const discoveryScript = {
+const boundCampaignScript = {
   ...originalScript,
-  codes: [12, 1003, ...originalScript.codes.slice(936, 1505), 1004, 1019],
+  codes: [12, 1003, ...originalScript.codes.slice(564, 601), ...originalScript.codes.slice(936, 1505), 1004, 1019],
 };
-function campaignDiscoveries(w: World) {
+function campaignRules(w: World) {
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.
-  runScript(discoveryScript, w.ai, {
+  runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe: 1,
     readInternal: id => campaignInternal(w, id),
@@ -661,7 +683,7 @@ function stepTurn(w:World){
   w.effects=w.effects.filter(f=>f.age<f.duration);
   processProjectiles(w);
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0;
-  campaignDiscoveries(w);
+  campaignRules(w);
   if((w.turn&15)===0)for(const t of w.trees)if(t.logs>0&&t.logs<4)t.logs=Math.min(4,t.logs+constants.TREE1_WOOD_GROW/100);
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   for(const shrine of w.shrines) {
@@ -750,7 +772,8 @@ function stepTurn(w:World){
     if(target&&!('progress' in target)&&(target.lift>0||target.inside!==null))target=undefined;
     if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&t.inside===null&&t.lift===0&&distance(u,t)<(u.team==='red'?8:3));}
     if(target){u.heading=Math.atan2(target.x-u.x,target.z-u.z);}
-    if(target&&u.team==='red'&&u.kind==='shaman'&&distance(u,target)<12){if(!u.cooldown){u.path=[];beginCast(w,u,'blast',target);u.cooldown=6;}continue;}
+    // ponytail: native entries enable spells; mana eligibility, target scoring and scheduling remain unported.
+    if(target&&u.team==='red'&&u.kind==='shaman'&&w.ai.spellEntries.some(s=>s.model===2)&&distance(u,target)<12){if(!u.cooldown){u.path=[];beginCast(w,u,'blast',target);u.cooldown=6;}continue;}
     if(target&&distance(u,target)<('progress' in target?4.3:1.7)){
       if('progress' in target){u.fighting=true;if(!u.cooldown){target.hp-=meleeDamage(u);u.cooldown=(u.kind==='shaman'?4:6)/TURNS_PER_SECOND;effect(w,'hit',target);}}
       else contacts.push([u,target]);continue;

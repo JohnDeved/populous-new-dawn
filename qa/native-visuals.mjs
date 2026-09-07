@@ -51,6 +51,16 @@ try{
  for(let i=0;i<12;i++){await page.evaluate(()=>{const {w,m}=window.nativeQA;w.paused=false;m.tick(w,1/12);w.paused=true;});await page.waitForTimeout(90);}
  await page.screenshot({path:'qa/native-group-fight.png'});
  assert.ok(await page.evaluate(()=>window.nativeQA.w.units.some(u=>u.hp<window.nativeQA.m.maxHp(u.kind))),'staged fighters exchange damage in the rendered scene');
+ const enemyCasts=await page.evaluate(()=>{
+  const {w,m,scene}=window.nativeQA;w.units=[];w.effects=[];w.projectiles=[];w.fights=[];w.turn=0;w.time=0;w.pendingTime=0;w.status='playing';
+  w.ai=m.createWorld().ai;w.ai.variables[57]=1;w.spellCasts[1][2]=0;
+  m.addUnit(w,'red','shaman',{x:4,z:29});const target=m.addUnit(w,'blue','brave',{x:8,z:29});m.addUnit(w,'blue','shaman',m.HOME);
+  w.paused=false;
+  for(let i=0;i<220;i++){Object.assign(target,{x:8,z:29,hp:10000,lift:0,inside:null,work:null,path:[],target:null});m.tick(w,1/12);}
+  w.paused=true;scene.focus({x:6,z:29});return {casts:w.spellCasts[1][2],entries:w.ai.spellEntries.slice(0,2).map(s=>s.model)};
+ });
+ assert.deepEqual(enemyCasts,{casts:2,entries:[0,0]},'rendered mission stops allocating enemy Blasts through the original campaign block');
+ await page.waitForTimeout(200);await page.screenshot({path:'qa/native-enemy-spell-limit.png'});
  await page.evaluate(()=>{
   const {w,m,scene}=window.nativeQA,vault=w.shrines.find(s=>s.kind==='vault');
   w.units=[];w.effects=[];w.fights=[];w.status='playing';
