@@ -45,8 +45,8 @@ export function finishWorship(s: WorshipState) {
   if (s.remaining < 0) s.active = false;
 }
 
-// Type-0 spell heads sample on every fourth object turn. Work is integer, not elapsed seconds.
-export function stepWorship(s: WorshipState, phase: number, followers: number): boolean {
+// Shared reset/refill prefix of 0x4fb270, before its trigger-type switch.
+export function beginWorshipTurn(s: WorshipState): boolean {
   if (!s.active) return false;
   if (s.reset) {
     s.work = 0;
@@ -59,6 +59,12 @@ export function stepWorship(s: WorshipState, phase: number, followers: number): 
     }
     return false;
   }
+  return true;
+}
+
+// Type-0 spell heads sample on every fourth object turn. Work is integer, not elapsed seconds.
+export function stepWorship(s: WorshipState, phase: number, followers: number): boolean {
+  if (!beginWorshipTurn(s)) return false;
   if (phase & 3) return false;
   const square = Math.imul(s.required, s.required);
   if (followers === 0) {

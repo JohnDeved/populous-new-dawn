@@ -2,13 +2,13 @@
 
 The user supplied `/Users/johann/Downloads/PopulousTB-Setup.zip` and explicitly requested original-file extraction and asset fidelity. The Inno Setup payload was read with Binary Refinery in a temporary Python environment. The Windows game was not launched. Isolated native movement instructions are now exercised in a CPU emulator for comparison. The game executable and external converters are not runtime dependencies.
 
-`python3 scripts/import-original.py /path/to/extracted/game` regenerates the browser assets using only Python's standard library. It validates bank magic/counts, RLE row boundaries, face and point indices, animation chains, layer offsets and texture dimensions. [`public/original/provenance.json`](../public/original/provenance.json) records SHA-256 hashes for every input, the 21 selected model IDs, 7,953 source frames and 1,512 composited frames.
+`python3 scripts/import-original.py /path/to/extracted/game` regenerates the browser assets using only Python's standard library. It validates bank magic/counts, RLE row boundaries, face and point indices, animation chains, layer offsets and texture dimensions. [`public/original/provenance.json`](../public/original/provenance.json) records SHA-256 hashes for every input, the 21 selected model IDs, 7,953 source frames and 1,876 composited frames.
 
 ## Geometry
 
 `OBJS0-0.DAT`, `FACS0-0.DAT`, `PNTS0-0.DAT` use packed records of 54, 60 and 6 bytes. Object face/point starts are one-based. Face point offsets are relative to the object's start. Native triangle/quad vertices and 21-bit fixed-point UVs are preserved. Coordinates are divided by the per-object scale times three, matching the documented converter. No replacement hut, training-building, tree or shrine geometry is generated.
 
-Models: huts 169–174, warrior training 141–142, towers 117–118, temples 133–134; trees 13–15 and 60–62; reincarnation stone 30; stone head 82; vault 94. Semantic identities were checked against the world editor's named 3DS exports by comparing their vertex extents. The runtime keeps native proportions, scales compounds to their existing ground pads and converts the original object angles into the reflected map coordinate system. There are no invented decorative rocks.
+Models: huts 169–174, warrior training 141–142, towers 117–118, temples 133–134; trees 13–15 and 60–62; reincarnation stone 30; stone head 82; vault 192. The old vault-94 mapping was incorrect: model 94 is the prison. Model 192 matches all 110 unique vertices of the world editor's named `knowledge.3ds` after rounding to 1/10,000 model units. This independent geometry fingerprint is checked by the vault gameplay regression. The runtime keeps native proportions, scales compounds to their existing ground pads and converts the original object angles into the reflected map coordinate system. There are no invented decorative rocks.
 
 The 256×1024 `BL320-C.DAT` atlas contains 32×32 tiles. `PAL0-C.DAT` contains 256 RGB-plus-padding entries. Black-key cutouts preserve rope fences and foliage. The archive's object atlas C is byte-identical to atlas 0.
 
@@ -35,3 +35,17 @@ The browser still approximates the original terrain lookup calibration, lighting
 - [OpenPopulous HFX definitions](https://github.com/OpenPop/OpenPopulous/blob/master/src/Graphics/HFX_Defs.h): named UI sprite identifiers.
 
 These projects were used to understand data layouts and identities; the Python importer and browser renderer are newly written. Converted sprites, models and textures remain the original game's artwork.
+
+
+Vault identity reference: ALACNPopWorldEditor revision
+`1adcc222c6f35cdc76429cbb9c536b6410359df6`, `data/knowledge.3ds`, SHA256
+`79c7b9d77561be8f49d72feb9d7da7bbd2a1ca8df2b0653d3f006858a9e4aff1`.
+Decode 3DS vertex chunks (`0x4110` within object/mesh containers), quantize each
+coordinate with `round(value * 10000)`, remove duplicates, sort XYZ numerically,
+and hash the compact JSON list. The result is
+`977d4efcc02c8ac2269fb8e44d56c442b2a3b0a27da8c9eabbf1760ab105481e`.
+Browser geometry reverses Z, so undo that reflection before comparison. The
+rendered closed pyramid was also inspected in Chrome. Original task references
+`0x98`–`0x9b` do not directly identify matching meshes in this extracted asset
+set; their runtime mapping/morph pipeline remains unresolved. They must not be
+used as raw geometry IDs. The pyramid remains static while task timing runs.

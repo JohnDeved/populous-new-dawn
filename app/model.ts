@@ -1,7 +1,8 @@
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
 import {runScript,scriptState,scriptValue,type ScriptState,type PopScript} from './popscript.ts';
-import {createWorship,stepWorship,finishWorship,worshipProgress,type WorshipState} from './worship.ts';
+import {createWorship,stepWorship,worshipProgress,type WorshipState} from './worship.ts';
+import {stepVaultWork,stepVaultTask,type VaultTask} from './vault.ts';
 import constants from './original-constants.json' with { type: 'json' };
 import rules from './original-rules.json' with { type: 'json' };
 export type Team = 'blue' | 'red' | 'wild';
@@ -13,9 +14,9 @@ type Fight = { group: number; opponent: number; action: 'approach'|'ready'|'atta
 type NativePoint = { x:number; y:number; h:number };
 export type Projectile = { id:number; spell:Spell; team:Team; caster:number; target:Point; source:Point; position:NativePoint; destination:NativePoint; origin:NativePoint; phase:'windup'|'flying'|'arrived'; remaining:number; turns:number; visuals:Effect[] };
 type Battle = Point & { id: number; members: number[]; angle: number };
-export type Unit = Point & { id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
+export type Unit = Point & { vault: VaultTask | null; id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
 export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number };
-export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number };
+export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; forced: boolean; model: number; angle: number };
 export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
 export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
@@ -164,7 +165,7 @@ export function unitAnimation(w:World,u:Unit){
   if(u.path.length)return u.cargo?'carry':'walk';
   if(u.cargo)return 'carryIdle';
   if(u.tree!==null&&u.timer>0)return 'chop';
-  if(w.shrines.some(s=>s.id===u.work&&s.active&&distance(s,u)<3))return 'pray';
+  if(w.shrines.some(s=>s.id===u.work&&s.active&&distance(s,u)<3&&(s.kind!=='vault'||u.vault?.phase===2)))return 'pray';
   if(w.buildings.some(b=>b.id===u.work&&b.progress<1&&b.logs>=(BUILDINGS.find(s=>s.id===b.kind)?.cost??Infinity)&&distance(b,u)<=4.2))return 'work';
   return w.selected.includes(u.id)?'selected':'idle';
 }
@@ -262,7 +263,7 @@ export type World = {
 };
 function route(w:World,start:Point,end:Point){return findPath(w.terrain,start,end,w.buildings);}
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
-  const u: Unit = { x:p.x, z:p.z, id: w.nextId++, team, kind, hp: maxHp(kind), path: [], target: null, cooldown: 0, work: null, inside:null, cargo:0, tree:null, timer:0, guard:false, lift:0, vx:0, vz:0,idleTurns:0,heading:Math.PI,fighting:false,fight:null,casting:null };
+  const u: Unit = { vault:null, x:p.x, z:p.z, id: w.nextId++, team, kind, hp: maxHp(kind), path: [], target: null, cooldown: 0, work: null, inside:null, cargo:0, tree:null, timer:0, guard:false, lift:0, vx:0, vz:0,idleTurns:0,heading:Math.PI,fighting:false,fight:null,casting:null };
   w.units.push(u); return u;
 }
 export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, complete = true) {
@@ -292,7 +293,8 @@ export function createWorld(): World {
       const kind=settings[0]===4?'vault':reward?.[0]===11&&reward[1]===3?'lightning':reward?.[0]===11&&reward[1]===12?'bridge':null;
       if(!kind)throw new Error(`Unbound shrine reward ${o.index}`);
       const worship=createWorship(settings);
-      w.shrines.push({...worship,id:w.nextId++,x:o.x,z:o.z,kind,name:kind==='vault'?'Vault of Knowledge':kind==='bridge'?'Land Bridge stone head':'Lightning stone head',progress:0,duration:kind==='vault'?worship.target/4:worship.target*4/TURNS_PER_SECOND,uses:0});
+      const vault=kind==='vault'?level.objects.find(r=>r.type===2&&r.model===18&&distance(r,o)<3):undefined;
+      w.shrines.push({...worship,forced:false,model:kind==='vault'?192:82,angle:(vault?.angle??0)/2048*Math.PI*2,id:w.nextId++,x:o.x,z:o.z,kind,name:kind==='vault'?'Vault of Knowledge':kind==='bridge'?'Land Bridge stone head':'Lightning stone head',progress:0,duration:worship.target*4/TURNS_PER_SECOND,uses:0});
     }
   }
   w.selected=[w.units.find(u=>u.team==='blue'&&u.kind==='shaman')!.id];
@@ -393,7 +395,7 @@ export function sound(w:World,cue:number,p:Point){w.sounds.push({serial:++w.soun
 function castVoice(w:World,u:Unit,spell:Spell){sound(w,(u.team==='blue'?{blast:0x76,lightning:0x77,bridge:0x80}:{blast:0x8c,lightning:0x8d,bridge:0x96})[spell],u);}
 export function effect(w: World, kind: Effect['kind'], p: Point) { const f:Effect={ x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:kind==='blast'?1.2:1.7 };w.effects.push(f);return f; }
 export function select(w: World, kind: UnitKind | 'all') { w.selected=w.units.filter(u=>u.team==='blue'&&(kind==='all'||u.kind===kind)).map(u=>u.id); w.mode=null; }
-function release(u: Unit) { u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
+function release(u: Unit) { u.vault=null; u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
 export function entrance(w: World, b: Point, radius=4) {
   const angle='angle' in b?Number(b.angle):0;
   // Native model doors face -Z. Reflect both the model and the native map coordinates.
@@ -411,10 +413,41 @@ export function command(w: World, p: Point) {
     if(friendly && (friendly.kind!=='hut'||friendly.progress<1) && u.kind!=='brave')continue;
     const goal=shrine?entrance(w,shrine,2):friendly?entrance(w,friendly):enemy&&'progress' in enemy?entrance(w,enemy):enemy??p;
     const path=route(w,u,goal); if(!path.length)continue;
-    release(u); u.path=path; u.work=shrine?.id??friendly?.id??null; u.target=enemy?.id??null; count++;
+    release(u); u.path=path; u.work=shrine?.id??friendly?.id??null; u.target=enemy?.id??null;
+    if(shrine?.kind==='vault')u.vault={head:shrine.id,phase:1,entering:true,remaining:0};
+    count++;
   }
   tell(w,count ? shrine?`Worshipping ${shrine.name}. ${shrine.kind==='vault'?'Only your shaman can learn its secrets.':'One follower is enough.'}`:friendly?friendly.progress<1?'Braves assigned to construction.':friendly.kind==='camp'?'Braves sent to train as warriors.':'Braves sent to live in the hut.':enemy?'Your followers march to battle.':'Your followers are on the move.':shrine?.kind==='vault'?'Select your shaman to worship the Vault of Knowledge.':'No land route. Bring your shaman to the shore and make a Land Bridge.');
 }
+
+function processVaultTask(w: World, u: Unit) {
+  const task = u.vault!;
+  const head = w.shrines.find(s => s.id === task.head);
+  if (!head) { release(u); return; }
+  // ponytail: native approach/pathfinding and shape entry coordinates still use browser routes.
+  const door = entrance(w, head, 2);
+  if (task.phase === 1) {
+    if (u.path.length) return;
+    if (distance(u, door) > 0.1) { u.path = route(w,u,door); return; }
+    task.phase = 2;
+    task.entering = true;
+  }
+  const goal = task.phase === 4 ? head : task.phase === 9 ? entrance(w,head,6) : door;
+  const arrived = Math.abs(Math.round(goal.x*256)-Math.round(u.x*256))<=11
+    && Math.abs(Math.round(goal.z*256)-Math.round(u.z*256))<=11;
+  const {done, actions} = stepVaultTask(task, arrived, head.work>=head.target, head.active);
+  for (const action of actions) {
+    if (action==='enter' || action==='exit' || action==='leave') u.path=route(w,u,goal);
+    if (action==='open' || action==='close') {
+      sound(w,0x9f,head);
+      // Native 0x98–0x9b animation/object references need asset-bank resolution before rendering.
+    }
+    if (action==='trigger') head.forced=true;
+    if (action==='face') u.heading=Math.atan2(head.x-u.x,head.z-u.z);
+  }
+  if (done) release(u);
+}
+
 export function guardShaman(w:World) { const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');if(!shaman)return; for(const u of w.units.filter(u=>w.selected.includes(u.id)&&u.kind!=='shaman')){const guard=!u.guard;release(u);u.guard=guard;}tell(w,'Selected followers will guard your shaman.'); }
 export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
   if(w.paused||w.status!=='playing')return false;
@@ -588,12 +621,12 @@ function stepTurn(w:World){
     const worshippers=w.units.filter(u=>u.hp>0&&u.work===shrine.id&&distance(u,shrine)<3&&(!u.path.length)&&u.lift===0);
     let fired = false;
     if (shrine.kind === 'vault') {
-      // ponytail: vault task completion still needs the shaman command-state port.
-      if (worshippers.some(u => u.kind === 'shaman')) shrine.progress += dt / shrine.duration;
-      if (shrine.progress >= 1) {
-        finishWorship(shrine);
-        fired = true;
-      }
+      const shaman = w.units.find(u => u.team==='blue' && u.kind==='shaman' && u.hp>0);
+      // ponytail: native coarse-cell/adjacent-building eligibility awaits the occupancy port.
+      const eligible = !!shaman && shaman.vault?.head===shrine.id && shaman.lift===0 && !shaman.fight && !shaman.casting && distance(shaman,shrine)<3;
+      fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced);
+      shrine.forced = false;
+      shrine.progress = shrine.target>0 ? shrine.work/shrine.target : 0;
     } else {
       // ponytail: eligibility and per-object phase still use the browser's order/world state.
       fired = stepWorship(shrine, w.turn, worshippers.length);
@@ -660,7 +693,8 @@ function stepTurn(w:World){
     if(!walkable(w.terrain,u)){u.hp=0;continue;}
     if(u.fight)continue;
     if(u.casting){u.casting.remaining-=dt;if(u.casting.remaining<=1e-8)u.casting=null;continue;}
-    const work=w.buildings.find(b=>b.id===u.work&&b.hp>0)??w.shrines.find(s=>s.id===u.work&&s.active);
+    if (u.vault) processVaultTask(w,u);
+    const work=w.buildings.find(b=>b.id===u.work&&b.hp>0)??w.shrines.find(s=>s.id===u.work&&(s.active||u.vault?.head===s.id));
     if(u.work!==null&&!work)release(u);
     if(u.inside!==null){const b=w.buildings.find(b=>b.id===u.inside&&b.hp>0);if(b)continue;release(u);u.hp-=10;}
     if(work&&'kind' in work&&'hp' in work&&work.progress===1&&!u.path.length&&distance(u,work)<=4.2){const capacity=housing(work);if(w.units.filter(a=>a.inside===work.id).length<capacity){u.inside=work.id;continue;}}

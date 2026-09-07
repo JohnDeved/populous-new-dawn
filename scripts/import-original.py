@@ -52,7 +52,7 @@ def main():
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models = {}
     # Models actually used in this mission, including every hut upgrade and both tribes.
-    selected = [13,14,15,60,61,62,30,82,94,117,118,133,134,141,142,*range(169,175)]
+    selected = [13,14,15,60,61,62,30,82,192,117,118,133,134,141,142,*range(169,175)]
     for i in selected:
         _, nf, np, _, _, _, scale, sf, _, sp, _, *_ = struct.unpack_from('<Hhhbbii4I6h4b3h',objects,i*54)
         assert nf>0 and np>0 and scale>0 and sf>0 and sp>0

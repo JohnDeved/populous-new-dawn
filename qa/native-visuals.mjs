@@ -34,6 +34,21 @@ try{
  for(let i=0;i<12;i++){await page.evaluate(()=>{const {w,m}=window.nativeQA;w.paused=false;m.tick(w,1/12);w.paused=true;});await page.waitForTimeout(90);}
  await page.screenshot({path:'qa/native-group-fight.png'});
  assert.ok(await page.evaluate(()=>window.nativeQA.w.units.some(u=>u.hp<window.nativeQA.m.maxHp(u.kind))),'staged fighters exchange damage in the rendered scene');
+ await page.evaluate(()=>{
+  const {w,m,scene}=window.nativeQA,vault=w.shrines.find(s=>s.kind==='vault');
+  w.units=[];w.effects=[];w.fights=[];w.status='playing';
+  const u=m.addUnit(w,'blue','shaman',m.entrance(w,vault,2));m.addUnit(w,'red','brave',{x:0,z:-32});
+  w.selected=[u.id];w.paused=false;m.command(w,vault);w.paused=true;scene.focus(vault);
+ });
+ await page.waitForTimeout(200);await page.screenshot({path:'qa/native-vault-closed.png'});
+ for(const phase of [4,6,9]){
+  await page.evaluate(phase=>{const {w,m}=window.nativeQA,u=w.units.find(u=>u.team==='blue');w.paused=false;
+   for(let i=0;i<400&&u.vault?.phase!==phase;i++)m.tick(w,1/12);w.paused=true;
+   if(u.vault?.phase!==phase)throw new Error(`Vault did not reach ${phase}`);
+  },phase);
+  await page.waitForTimeout(150);await page.screenshot({path:`qa/native-vault-${phase}.png`});
+  assert.equal(await page.evaluate(()=>{const {w,scene}=window.nativeQA,v=w.shrines.find(s=>s.kind==='vault');return scene.shrineMeshes.get(v.id).g.children[0].userData.nativeModel;}),192);
+ }
  const removed=await page.evaluate(()=>{const {w,m,scene}=window.nativeQA,head=w.shrines.find(s=>s.kind==='bridge');const entry=scene.shrineMeshes.get(head.id);window.removedHead=entry;m.removeHead(w,2,222);return head.id;});
  await page.waitForTimeout(100);
  assert.ok(await page.evaluate(id=>!window.nativeQA.scene.shrineMeshes.has(id)&&!window.removedHead.label.isConnected&&window.removedHead.g.parent===null,removed),'native head removal releases its mesh and worship button');

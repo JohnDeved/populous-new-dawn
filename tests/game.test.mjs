@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import {createHash} from 'node:crypto';
+import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
 import {runScript,scriptState} from '../app/popscript.ts';
@@ -284,4 +286,52 @@ test('worship decays without followers and continues at full spell stock', () =>
  assert.ok(cast(w, 'bridge', shaman));
  assert.equal(w.shots.bridge, 3);
  assert.equal(w.giftCounts.bridge, 0, 'human casting spends a gift count too');
+});
+
+test('vault discovery follows worship, door, entry and exit tasks', () => {
+ const w = createWorld(), vault = w.shrines.find(s => s.kind === 'vault');
+ // Independent named knowledge.3ds reference, rounded to 1/10,000 model units.
+ const points = nativeModels[vault.model].p, unique = new Map();
+ for (let i=0;i<points.length;i+=3) {
+  const p=[points[i],points[i+1],-points[i+2]].map(v=>Math.round(v*10000));
+  unique.set(JSON.stringify(p),p);
+ }
+ const vertices=[...unique.values()].sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
+ assert.equal(createHash('sha256').update(JSON.stringify(vertices)).digest('hex'),
+  '977d4efcc02c8ac2269fb8e44d56c442b2a3b0a27da8c9eabbf1760ab105481e',
+  'the rendered vault matches the named stone pyramid, not the prison or a hut');
+ const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman');
+ // Isolate the interaction from the nearby mission defender.
+ w.units = w.units.filter(u => u.team === 'blue' || u.z < -20);
+ const door = entrance(w, vault, 2);
+ Object.assign(shaman, door);
+ w.selected = [shaman.id];
+ command(w, vault);
+ until(w, () => vault.work >= 10, 5);
+ command(w, {x: -3, z: 1});
+ assert.equal(shaman.vault, null, 'a new order cancels the task');
+ const work = vault.work;
+ advance(w, 1);
+ assert.ok(vault.work < work, 'vault work decays after interruption');
+ command(w, vault);
+ until(w, () => shaman.vault?.phase === 3, 20);
+ const opening = w.turn;
+ assert.equal(w.unlockedCamp, false, 'full worship alone does not grant knowledge');
+ until(w, () => shaman.vault?.phase === 4, 4);
+ assert.equal(w.turn - opening, 40);
+ assert.equal(vault.model, 192);
+ until(w, () => shaman.vault?.phase === 5, 5);
+ const inside = w.turn;
+ until(w, () => shaman.vault?.phase === 6, 3);
+ assert.equal(w.turn - inside, 24);
+ assert.equal(w.gifts.length, 0, 'the task signals the trigger for its next turn');
+ tick(w, 1 / 12);
+ assert.equal(w.gifts.length, 1);
+ assert.equal(vault.active, false);
+ assert.ok(shaman.vault, 'trigger deletion does not cancel the exit task');
+ until(w, () => shaman.vault === null, 20);
+ until(w, () => w.unlockedCamp, 8);
+ assert.equal(vault.model, 192);
+ assert.equal(w.sounds.filter(s => s.cue === 0x9f).length, 2);
+ assert.equal(vault.uses, 1);
 });
