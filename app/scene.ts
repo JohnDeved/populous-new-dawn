@@ -1,40 +1,32 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, normal, planetPoint, mapPoint, worldPoint, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect } from './model';
 
-const teamColor = { blue: 0x39aaf2, red: 0xe96549, wild: 0xc6bf9b };
-const material = (color: number, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: .95, flatShading: true, ...extra });
-const textures = new Map<string, THREE.CanvasTexture>();
+import nativeModels from './original-models.json';
+import nativeUnits from './original-units.json';
+
+const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 };
+const material = (color: number, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra });
+const textures = new Map<string, THREE.Texture>();
 function texture(kind: string) {
-  if (textures.has(kind)) return textures.get(kind)!;
-  const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128;
-  const ctx = canvas.getContext('2d')!;
-  let seed = 37; const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-  ctx.fillStyle = kind === 'ground' ? '#eeeeea' : kind.startsWith('thatch') ? '#d9c7a1' : '#d6c6a2'; ctx.fillRect(0,0,128,128);
-  for (let i = 0; i < 2300; i++) {
-    const light = rand() > .5; ctx.fillStyle = light ? '#fff4cc12' : '#1e281d10';
-    const x = rand()*128, y = rand()*128;
-    ctx.fillRect(x,y,kind.startsWith('thatch') ? .6+rand()*1.3 : 1+rand()*2.5,kind.startsWith('thatch') ? 6+rand()*18 : 1+rand()*2);
-  }
-  if (kind.startsWith('thatch')) {
-    ctx.strokeStyle = kind.endsWith('blue') ? '#2873b2' : '#b54836'; ctx.lineWidth = 13; ctx.lineJoin = 'miter';
-    ctx.beginPath();ctx.moveTo(-10,85);for(let x=0;x<=144;x+=16)ctx.lineTo(x,x%32===0?65:91);ctx.stroke();
-  }
-  if (kind.startsWith('wall')) {
-    ctx.strokeStyle = kind.endsWith('blue') ? '#2466a9' : '#a83e30'; ctx.lineWidth = 5; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(64,66,23,.1,Math.PI*1.85); ctx.stroke(); ctx.beginPath(); ctx.arc(64,66,11,0,Math.PI*1.8); ctx.stroke();
-    ctx.beginPath();ctx.moveTo(42,94);ctx.lineTo(64,19);ctx.lineTo(86,94);ctx.stroke();
-    ctx.lineWidth=3;ctx.strokeRect(8,8,112,112);
-  }
-  const t = new THREE.CanvasTexture(canvas); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
-  if (kind.startsWith('thatch')) t.repeat.set(3,1); if (kind.startsWith('wall')) t.repeat.set(4,1);
-  textures.set(kind,t); return t;
+  if(textures.has(kind))return textures.get(kind)!;
+  const t=new THREE.TextureLoader().load(`/original/${kind}.png`);
+  t.colorSpace=kind.endsWith('detail')?THREE.NoColorSpace:THREE.SRGBColorSpace;
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
+  if(kind==='units'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
+  textures.set(kind,t);return t;
+}
+function nativeModel(id:number,scale=2){
+  const data=(nativeModels as Record<string,{p:number[];uv:number[]}>)[id];
+  const geo=geometry(`original-${id}`,()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(data.p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(data.uv,2));g.computeVertexNormals();return g;});
+  const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:texture('atlas'),side:THREE.DoubleSide,alphaTest:.5}));
+  mesh.scale.setScalar(scale);mesh.userData.nativeModel=id;return mesh;
 }
 const meshes = new Map<string, THREE.BufferGeometry>();
 function geometry(key: string, create: () => THREE.BufferGeometry) { if (!meshes.has(key)) meshes.set(key, create()); return meshes.get(key)!; }
 const cylinder = (top: number, bottom: number, h: number, segments = 8) => geometry(`c${top},${bottom},${h},${segments}`, () => new THREE.CylinderGeometry(top, bottom, h, segments));
-const sphere = (r: number) => geometry(`s${r}`, () => new THREE.IcosahedronGeometry(r, 0));
+const sphere = (r: number) => geometry(`s${r}`, () => new THREE.IcosahedronGeometry(r, 1));
 const box = (x: number, y: number, z: number) => geometry(`b${x},${y},${z}`, () => new THREE.BoxGeometry(x, y, z));
 function part(group: THREE.Group, geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 0) {
   const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; group.add(m); return m;
@@ -44,86 +36,33 @@ function ring(radius: number, color: number, width = .075) {
   return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .85, depthWrite: false, side: THREE.DoubleSide }));
 }
 function makeUnit(u: Unit) {
-  const g = new THREE.Group(), cloth = material(teamColor[u.team]), skin = material(u.team === 'wild' ? 0xaa977b : 0xba8154), dark = material(0x353139), gold = material(0xecc383);
-  const shaman = u.kind === 'shaman', warrior = u.kind === 'warrior';
-  part(g, cylinder(.22, .38, .62, 6), cloth, 0, .63);
-  part(g, sphere(.22), skin, 0, 1.17);
-  part(g, cylinder(.14, .2, .32, 5), shaman ? cloth : skin, 0, .99);
-  const leg1 = part(g, cylinder(.07, .085, .4, 5), dark, -.14, .2), leg2 = part(g, cylinder(.07, .085, .4, 5), dark, .14, .2);
-  const arm1 = part(g, cylinder(.075, .08, .44, 5), skin, -.3, .79), arm2 = part(g, cylinder(.075, .08, .44, 5), skin, .3, .79);
-  arm1.rotation.z = .23; arm2.rotation.z = -.25;
-  if (shaman) {
-    part(g, cylinder(.07, .055, 1.75, 6), gold, .48, .88);
-    part(g, new THREE.TorusGeometry(.19, .05, 5, 10), gold, .48, 1.9);
-    part(g, sphere(.105), material(teamColor[u.team], { emissive: teamColor[u.team], emissiveIntensity: 2 }), .48, 1.9);
-    for (let i = -2; i <= 2; i++) { const f = part(g, cylinder(0, .09, .65 - Math.abs(i) * .1, 4), i % 2 ? gold : cloth, i * .12, 1.53); f.rotation.z = -i * .2; }
-    g.scale.setScalar(1.28);
-  } else if (warrior) {
-    part(g, cylinder(.04, .055, 1.7, 5), dark, .48, .85);
-    part(g, cylinder(0, .14, .35, 4), gold, .48, 1.8);
-    const shield = part(g, sphere(.26), cloth, -.38, .8); shield.scale.set(1, 1.2, .28);
-    part(g, cylinder(.23, .24, .12), gold, 0, 1.27);
-  } else if (u.team === 'wild') { part(g, sphere(.26), dark, 0, 1.26); }
-  const cargo=part(g,cylinder(.13,.16,.85,6),material(0x795637),0,.8,.4);cargo.rotation.z=Math.PI/2;cargo.visible=false;
-  const selection = ring(.8, 0x85d7ff); selection.position.y = .05; g.add(selection);
-  const health = new THREE.Group();
-  part(health, box(.9, .075, .045), material(0x263635), 0, 2.3);
-  const healthFill = part(health, box(.88, .06, .05), material(teamColor[u.team]), 0, 2.3, .01); g.add(health);
-  g.userData = { unit: u.id, signature: `${u.team}-${u.kind}`, leg1, leg2, arm1, arm2, cargo, selection, health, healthFill };
-  return g;
+  const g=new THREE.Group(),map=texture('units').clone();
+  map.repeat.set(64/nativeUnits.width,64/nativeUnits.height);
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map,alphaTest:.5,depthWrite:true,toneMapped:false}));
+  // Every composite shares the original foot anchor at (32,48), including hats and weapons.
+  sprite.center.set(.5,.25);sprite.scale.set(4.16,4.16,1);g.add(sprite);
+  const shadow=ring(.36,0x171b12,.35);shadow.position.y=.015;(shadow.material as THREE.MeshBasicMaterial).opacity=.32;g.add(shadow);
+  const selection=ring(.55,0xffff6c,.045);selection.position.y=.04;g.add(selection);
+  const health=new THREE.Group();part(health,box(.8,.055,.02),material(0x20251a),0,2.1);
+  const healthFill=part(health,box(.78,.04,.025),material(teamColor[u.team]),0,2.1,.01);g.add(health);
+  g.userData={unit:u.id,signature:`${u.team}-${u.kind}`,sprite,selection,health,healthFill,heading:0,frame:-1};return g;
 }
 function makeBuilding(b: Building) {
-  const g = new THREE.Group(), wood = material(0x68503b), thatch = material(0xb29a65), wall = material(0xd1bc8e), cloth = material(teamColor[b.team]), dark = material(0x26292b), stone = material(0x808c82);
-  const tower = b.kind === 'tower', temple = b.kind === 'temple', camp = b.kind === 'camp';
-  thatch.map = texture(`thatch-${b.team}`); wall.map = texture(`wall-${b.team}`);
-  const base = tower ? 3.7 : 0, radius = temple ? 2.5 : camp ? 1.8 : 1.6;
-  part(g, cylinder(radius + .3, radius + .5, .3, 10), stone, 0, .15);
-  if (tower) {
-    part(g, cylinder(.65, .95, 4, 7), wall, 0, 2);
-    for (const x of [-.6, .6]) { const leg = part(g, cylinder(.12, .17, 4.5, 6), wood, x, 2, .4); leg.rotation.z = x * .14; }
-    for (let i = 0; i < 7; i++) part(g, box(.65, .08, .12), wood, 0, .4 + i * .48, 1);
-  }
-  part(g, cylinder(radius * .9, radius, 1.6, 10), wall, 0, base + .95);
-  part(g, cylinder(radius + .02, radius + .02, .3, 10), cloth, 0, base + 1.45);
-  part(g, cylinder(radius * .56, radius + .7, .5, 12), thatch, 0, base + 1.93);
-  part(g, cylinder(.16, radius * .58, .95, 12), thatch, 0, base + 2.58);
-  part(g, cylinder(0, .3, .55, 8), cloth, 0, base + 3.1);
-  if (temple) { part(g, cylinder(.8, 1.1, .8, 10), wall, 0, 3); part(g, cylinder(.1, 1.6, 1, 10), thatch, 0, 3.8); part(g, cylinder(0,.25,.5,6),cloth,0,4.55); }
-  for (let i = 0; i < 10; i++) {
-    const a = i / 10 * Math.PI * 2;
-    const r = part(g, cylinder(.035, .055, 2.35, 4), wood, Math.sin(a) * (radius + .35) / 2, base + 2.27, Math.cos(a) * (radius + .35) / 2);
-    r.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(Math.sin(a) * (radius + .35), -1.25, Math.cos(a) * (radius + .35)).normalize());
-  }
-  part(g, box(.62, 1.12, .1), dark, 0, base + .7, radius * .96);
-  const awning = part(g, box(1.1, .15, .8), thatch, 0, base + 1.3, radius + .25); awning.rotation.x = .18;
-  if (!tower) {
-    for (let i = 3; i < 29; i++) { const a = i / 30 * Math.PI * 2; part(g, cylinder(.055, .08, .75, 4), wood, Math.sin(a) * (radius + 1), .38, Math.cos(a) * (radius + 1)); }
-  }
-  if (!tower) for (const y of [.3, .6]) { const rail = part(g, new THREE.TorusGeometry(radius + 1, .045, 3, 32, Math.PI * 1.73), wood, 0, y); rail.rotation.x = Math.PI / 2; rail.rotation.z = Math.PI * .13; }
-  if (camp) for (let i = 0; i < 3; i++) { const spear = part(g, cylinder(.035, .05, 3, 5), wood, -1.2 + i * .25, 1.6, 2.1); spear.rotation.z = .2 - i * .2; part(g, cylinder(0, .14, .4, 4), stone, -1.2 + i * .25, 3.2, 2.1); }
-  if (temple) { part(g, cylinder(.6, .8, 1, 7), stone, 0, .55, 2.8); part(g, sphere(.32), material(0x72c8eb, { emissive: 0x52b9e2, emissiveIntensity: 1.5 }), 0, 1.3, 2.8); }
-  const pole = part(g, cylinder(.04, .07, 3.2, 5), wood, radius + .8, 1.6, -.3);
-  part(g, box(.8, .5, .04), cloth, pole.position.x + .35, 2.7, -.3);
-  // Merge the static architecture by material, keeping construction and health animation independent.
-  const batches = new Map<THREE.Material, THREE.BufferGeometry[]>();
-  for (const child of [...g.children]) if (child instanceof THREE.Mesh) { child.updateMatrix(); const geo = (child.geometry.index ? child.geometry.toNonIndexed() : child.geometry.clone()).applyMatrix4(child.matrix); const mat = child.material as THREE.Material; if (!batches.has(mat)) batches.set(mat, []); batches.get(mat)!.push(geo); g.remove(child); }
-  for (const [mat, geos] of batches) { const merged = new THREE.Mesh(mergeGeometries(geos), mat); merged.castShadow = true; merged.receiveShadow = true; g.add(merged); geos.forEach(geo => geo.dispose()); }
-  const health = new THREE.Group(); part(health, box(2.5, .09, .05), dark, 0, base + 3.7);
-  const healthFill = part(health, box(2.5, .09, .06), cloth, 0, base + 3.7, .01); g.add(health);
-  const scaffold = new THREE.Group();
-  for(const x of [-2.4,2.4])for(const z of [-2.4,2.4])part(scaffold,cylinder(.06,.09,3.8,5),wood,x,1.9,z);
-  for(const y of [1.1,2.3,3.5]){part(scaffold,box(4.8,.09,.12),wood,0,y,-2.4);part(scaffold,box(.12,.09,4.8),wood,-2.4,y,0);part(scaffold,box(.12,.09,4.8),wood,2.4,y,0);}
-  g.add(scaffold);g.userData = { building: b.id, signature: b.level, health, healthFill, scaffold, architecture:g.children.filter(c=>c!==health&&c!==scaffold) };
-  // Hut upgrades add a visible upper thatch tier while preserving the footprint.
-  if(b.kind==='hut'&&b.level>1){part(g,cylinder(.6,1.1,.8,10),wall,0,3.1);part(g,cylinder(.08,1.5,.9,12),thatch,0,3.85);health.position.y=1.5;if(b.level===3){part(g,cylinder(.4,.65,.65,10),wall,0,4.35);part(g,cylinder(.05,.95,.8,12),thatch,0,4.95);health.position.y=2.2;}}
-
-  return g;
+  const g=new THREE.Group(),id=b.kind==='hut'?(b.team==='blue'?169:172)+b.level-1:b.kind==='camp'?(b.team==='blue'?141:142):b.kind==='tower'?(b.team==='blue'?117:118):(b.team==='blue'?133:134);
+  const model=nativeModel(id,b.kind==='temple'?1.65:2);g.add(model);
+  const health=new THREE.Group(),top=b.kind==='tower'?6:4.8;
+  part(health,box(2.5,.09,.05),material(0x201d16),0,top);
+  const healthFill=part(health,box(2.5,.09,.06),material(teamColor[b.team]),0,top,.01);g.add(health);
+  const scaffold=new THREE.Group(),wood=material(0x695337);
+  for(const x of [-2.4,2.4])for(const z of [-2.4,2.4])part(scaffold,cylinder(.055,.075,3.8,5),wood,x,1.9,z);
+  for(const y of [1.1,2.3,3.5]){part(scaffold,box(4.8,.08,.1),wood,0,y,-2.4);part(scaffold,box(.1,.08,4.8),wood,-2.4,y,0);part(scaffold,box(.1,.08,4.8),wood,2.4,y,0);}
+  g.add(scaffold);g.userData={building:b.id,signature:b.level,health,healthFill,scaffold,architecture:[model]};return g;
 }
 
 export class GameScene {
   world: World;
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(42, 1, .2, 500);
+  camera = new THREE.PerspectiveCamera(38, 1, .2, 500);
   renderer: THREE.WebGLRenderer;
   controls: OrbitControls;
   terrain: THREE.Mesh;
@@ -164,15 +103,16 @@ export class GameScene {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
     this.renderer.shadowMap.enabled = true; this.renderer.shadowMap.type = THREE.PCFShadowMap;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMapping = THREE.NoToneMapping; this.renderer.toneMappingExposure = 1;
     this.renderer.setClearColor(0x172c36, 0);
     this.renderer.domElement.setAttribute('aria-label', 'Island battlefield. Click to select, right-click to move, drag to select a group.');
     this.renderer.domElement.tabIndex = 0;
     container.appendChild(this.renderer.domElement);
-    this.scene.fog = new THREE.FogExp2(0x263c46, .0036);
-    this.scene.add(new THREE.HemisphereLight(0xb6d4e3, 0x65563e, 2.1));
-    const sun = new THREE.DirectionalLight(0xffd59b, 2.8); sun.position.set(-10, 65, -50); sun.castShadow = true;
+    this.scene.fog = new THREE.FogExp2(0x9aadb5, .001);
+    this.scene.add(new THREE.HemisphereLight(0xc6d6e3, 0x777258, 2.0));
+    const sun = new THREE.DirectionalLight(0xfff2d5, 2.6); sun.position.set(-35, 90, 65); sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048); sun.shadow.camera.left = -62; sun.shadow.camera.right = 62; sun.shadow.camera.top = 62; sun.shadow.camera.bottom = -62; sun.shadow.normalBias = .16; sun.shadow.bias = -.0001; this.scene.add(sun);
+    this.makeSky();
     this.camera.up.set(0,0,-1);this.camera.position.set(30,155,0);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement); this.controls.target.set(0, -PLANET_RADIUS, 0);
     this.controls.enableDamping = true; this.controls.dampingFactor = .09; this.controls.minDistance = PLANET_RADIUS + 14; this.controls.maxDistance = PLANET_RADIUS + 190; this.controls.enablePan = false;
@@ -181,23 +121,39 @@ export class GameScene {
     this.controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
     this.controls.update();
     this.terrainData = new THREE.DataTexture(new Float32Array(world.terrain), GRID, GRID, THREE.RedFormat, THREE.FloatType); this.terrainData.needsUpdate = true;
-    this.terrain = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial({ vertexColors: true, map: texture('ground'), roughness: 1, flatShading: true })); this.terrain.receiveShadow = true; this.terrain.castShadow = true; this.scene.add(this.terrain);
+    this.terrain = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.ShaderMaterial({
+      uniforms:{colours:{value:texture('land-colours')},detail:{value:texture('land-detail')}},
+      vertexShader:`attribute float altitude; varying vec2 land; varying float h; varying vec3 norm; void main(){land=uv;h=altitude;norm=normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader:`uniform sampler2D colours;uniform sampler2D detail;varying vec2 land;varying float h;varying vec3 norm;
+      void main(){float grain=texture2D(detail,land/16.).r*255.-128.;float shade=64.+grain*.20+(dot(normalize(norm),normalize(vec3(-.5,1.,.4)))-.75)*42.;
+      float level=clamp(h*45.+140.+smoothstep(0.,1.,h)*150.+grain*.22,0.,1151.);
+      gl_FragColor=texture2D(colours,vec2(clamp(shade,1.,254.)/256.,1.-(level+.5)/1152.));
+      #include <colorspace_fragment>
+      }`
+    })); this.terrain.receiveShadow = true; this.terrain.castShadow = true; this.scene.add(this.terrain);
     const waterGeo = new THREE.SphereGeometry(PLANET_RADIUS, 144, 96);
     this.water = new THREE.Mesh(waterGeo, new THREE.ShaderMaterial({
-      uniforms: { time: { value: 0 }, heights: { value: this.terrainData } },
+      uniforms: { time: { value: 0 }, heights: { value: this.terrainData }, detail:{value:texture('land-detail')},colours:{value:texture('land-colours')} },
       vertexShader: `varying vec3 vPos; uniform float time; void main() { vec3 p=position; p+=normalize(p)*(.06+sin(p.x*.5+time)*cos(p.z*.4+time*.7)*.035); vPos=p; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0); }`,
-      fragmentShader: `varying vec3 vPos; uniform float time; uniform sampler2D heights; void main(){
+      fragmentShader: `varying vec3 vPos; uniform float time; uniform sampler2D heights; uniform sampler2D detail; uniform sampler2D colours; void main(){
         vec2 map=vec2(atan(vPos.x,vPos.y),asin(clamp(vPos.z/length(vPos),-1.,1.)))*70.;
-        vec2 uv=(map+48.)/96.; float h=-3.; if(all(greaterThanEqual(uv,vec2(0.)))&&all(lessThanEqual(uv,vec2(1.))))h=texture2D(heights,uv).r;
-        vec3 color=mix(vec3(.018,.085,.12),vec3(.12,.38,.37),smoothstep(-2.,.5,h));
-        float wave=sin(map.x*2.+time*.65+sin(map.y*1.5))*sin(map.y*1.6-time*.6);color+=pow(max(0.,wave),10.)*.075;
-        float foam=smoothstep(.03,.45,h)*(1.-smoothstep(.5,.9,h))*(.6+.4*sin(map.x*2.4+map.y*2.1+time));color+=foam*vec3(.32,.37,.3);
-        color*=.65+.35*max(0.,dot(normalize(vPos),normalize(vec3(-.1,1.,-.6))));gl_FragColor=vec4(color,1.);
+        vec2 grid=map+48.,base=floor(grid),f=fract(grid);float h=-3.;
+        if(all(greaterThanEqual(grid,vec2(0.)))&&all(lessThan(grid,vec2(96.)))){
+          float a=texture2D(heights,(base+.5)/97.).r,b=texture2D(heights,(base+vec2(1.5,.5))/97.).r,c=texture2D(heights,(base+vec2(.5,1.5))/97.).r,d=texture2D(heights,(base+1.5)/97.).r;
+          h=f.x+f.y<=1.?a+f.x*(b-a)+f.y*(c-a):d+(1.-f.x)*(c-d)+(1.-f.y)*(b-d);
+        }
+        vec2 wave=map/12.+vec2(time*.009,time*.004);
+        float grain=texture2D(detail,wave).r;
+        float light=clamp(150.+(grain-.5)*105.,30.,240.);
+        float shore=1.-smoothstep(-.15,.35,abs(h-.16));
+        vec3 color=texture2D(colours,vec2(light/256.,1.-.5/1152.)).rgb;
+        color+=shore*smoothstep(.48,.63,grain)*vec3(.23,.25,.23);
+        gl_FragColor=vec4(color,1.);
         #include <colorspace_fragment>
       }`,
     })); this.water.position.y=-PLANET_RADIUS;this.scene.add(this.water);
     this.scene.add(this.objects, this.decorations, this.cursor, this.range); this.cursor.visible = false; this.range.visible = false;
-    this.rebuildTerrain(); this.makeDecorations(); this.makeShrines(); this.focus({x:0,z:36});this.drawMinimap();
+    this.rebuildTerrain(); this.makeDecorations(); this.makeShrines(); this.focus({x:2,z:30});this.drawMinimap();
     this.dragBox = document.createElement('div'); this.dragBox.className = 'selection-box'; container.appendChild(this.dragBox);
     this.resize = new ResizeObserver(() => this.setSize()); this.resize.observe(container); this.setSize();
     this.listen(this.renderer.domElement, 'pointerdown', this.pointerDown);
@@ -209,6 +165,13 @@ export class GameScene {
     this.listen(minimap, 'pointerdown', e => { const p = e as PointerEvent, rect = minimap.getBoundingClientRect(); this.focus({ x: (p.clientX - rect.left) / rect.width * SIZE - 48, z: (p.clientY - rect.top) / rect.height * SIZE - 48 }); });
     this.frame = requestAnimationFrame(this.animate);
   }
+  makeSky(){
+    const loader=new THREE.TextureLoader();
+    const sky=loader.load('/original/sky.png');sky.colorSpace=THREE.SRGBColorSpace;this.scene.background=sky;
+    const clouds=loader.load('/original/clouds.png');clouds.colorSpace=THREE.SRGBColorSpace;clouds.wrapS=clouds.wrapT=THREE.RepeatWrapping;
+    const dome=new THREE.Mesh(new THREE.SphereGeometry(350,48,24),new THREE.MeshBasicMaterial({map:clouds,side:THREE.BackSide,transparent:true,depthWrite:false,fog:false,opacity:.72}));
+    clouds.repeat.set(4,2);dome.position.y=-PLANET_RADIUS;this.scene.add(dome);
+  }
   listen(target: EventTarget, name: string, handler: EventListener) { target.addEventListener(name, handler); this.disposeListeners.push(() => target.removeEventListener(name, handler)); }
   setSize() { const { width, height } = this.container.getBoundingClientRect(); this.renderer.setSize(width, height); this.camera.aspect = width / Math.max(1, height); this.camera.updateProjectionMatrix(); }
   y(p: Point) { return height(this.world.terrain,p.x,p.z); }
@@ -216,66 +179,29 @@ export class GameScene {
   groundRing(mesh:THREE.Mesh,p:Point,radius:number){const pos=mesh.geometry.attributes.position;for(let i=0;i<pos.count;i++){const a=i%65/64*Math.PI*2,r=i<65?radius-.1:radius;const q={x:p.x+Math.cos(a)*r,z:p.z+Math.sin(a)*r};const v=planetPoint(q,Math.max(0,height(this.world.terrain,q.x,q.z))+.16);pos.setXYZ(i,v.x,v.y,v.z);}pos.needsUpdate=true;mesh.geometry.computeBoundingSphere();}
 
   rebuildTerrain() {
-    const w = this.world, positions: number[] = [], colors: number[] = [];
-    const sand = new THREE.Color(0xb9ad76), grass = new THREE.Color(0x71824a), highGrass = new THREE.Color(0x586740), rock = new THREE.Color(0x8d8972);
-    const add = (x: number, z: number, shade: number) => {
-      const h = w.terrain[(z + 48) * GRID + x + 48]; const p=planetPoint({x,z},h);positions.push(p.x,p.y,p.z);
-      const c = h < 1.2 ? sand.clone().lerp(grass, Math.max(0, h - .45) / .75) : h < 5.6 ? grass.clone().lerp(highGrass, (h - 1.2) / 4.4) : highGrass.clone().lerp(rock, Math.min(1, (h - 5.6) / 2.8));
-      c.multiplyScalar(shade); colors.push(c.r, c.g, c.b);
-    };
-    for (let z = -48; z < 48; z++) for (let x = -48; x < 48; x++) {
-      const shade = .92 + (Math.sin(x * 32.56 + z * 75.12) * 43758.54 % 1) * .085;
-      add(x, z, shade); add(x, z + 1, shade); add(x + 1, z, shade);
-      add(x + 1, z, shade + .02); add(x, z + 1, shade + .02); add(x + 1, z + 1, shade + .02);
-    }
-    this.terrain.geometry.dispose(); const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); const uv = []; for (let i=0;i<positions.length;i+=3) uv.push(positions[i]/6,positions[i+2]/6); geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); geo.computeVertexNormals(); this.terrain.geometry = geo;
+    const w=this.world,positions:number[]=[],altitudes:number[]=[],uv:number[]=[];
+    const add=(x:number,z:number)=>{const h=w.terrain[(z+48)*GRID+x+48],p=planetPoint({x,z},h);positions.push(p.x,p.y,p.z);altitudes.push(h);uv.push(x,z);};
+    for(let z=-48;z<48;z++)for(let x=-48;x<48;x++){add(x,z);add(x,z+1);add(x+1,z);add(x+1,z);add(x,z+1);add(x+1,z+1);}
+    this.terrain.geometry.dispose();const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('altitude',new THREE.Float32BufferAttribute(altitudes,1));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    const smooth=mergeVertices(geo);smooth.computeVertexNormals();geo.dispose();this.terrain.geometry=smooth;
     (this.terrainData.image.data as Float32Array).set(w.terrain); this.terrainData.needsUpdate = true; this.terrainVersion = w.terrainVersion;
     for (const d of this.decorations.children) { const p = d.userData.point as Point | undefined; if (p) { this.locate(d,p); d.visible = walkable(w.terrain, p); } }
     const bg = this.minimapBackground; bg.width = GRID; bg.height = GRID; const ctx = bg.getContext('2d')!; const data = ctx.createImageData(GRID, GRID);
     for (let i = 0; i < w.terrain.length; i++) { const h = w.terrain[i]; const c = h < .4 ? [25, 55, 63] : h < 1.2 ? [153, 146, 106] : h > 7 ? [114, 121, 113] : [71 + h * 4, 93 + h * 3, 61 + h * 2]; data.data.set([...c, 255], i * 4); } ctx.putImageData(data, 0, 0);
   }
   makeDecorations() {
-    let seed = 426; const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-    const wood = material(0x605644), leaf = material(0x385c3a), leafLight = material(0x547b43), stone = material(0x868778);
-    const trunkGeos: THREE.BufferGeometry[] = [], leafGeos: THREE.BufferGeometry[] = [], leafLightGeos: THREE.BufferGeometry[] = [];
-    const stamp = (geo: THREE.BufferGeometry, x: number, y: number, z: number, sx = 1, sy = 1, sz = 1) => (geo.index ? geo.toNonIndexed() : geo.clone()).applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(...Object.values(planetPoint({x,z},y)) as [number,number,number]), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(...Object.values(normal({x,z})) as [number,number,number])), new THREE.Vector3(sx, sy, sz)));
-    // Static foliage is merged into three draws; rebuilding the island removes trees under new structures.
-    for (const tree of this.world.trees) {
-      if(tree.logs<1)continue;const p = tree, h = height(this.world.terrain, p.x, p.z);
-      if (h < .3 || this.world.buildings.some(b => distance(b, p) < 3.7) || distance(p, HOME) < 5 || distance(p, ENEMY) < 4) continue;
-      const y = this.y(p), size = .75 + rand() * .7;
-      trunkGeos.push(stamp(cylinder(.12, .24, 2.7, 5), p.x, y + 1.3 * size, p.z, size, size, size));
-      if (rand() > .6) {
-        for (let j = 0; j < 3; j++) (j % 2 ? leafGeos : leafLightGeos).push(stamp(cylinder(0, 1.3 - j * .25, 2, 6), p.x, y + (2.1 + j * .7) * size, p.z, size, size, size));
-      } else if (rand() > .42) {
-        leafGeos.push(stamp(sphere(1.3), p.x, y + 3 * size, p.z, size * 1.2, size * .7, size));
-        leafLightGeos.push(stamp(sphere(.95), p.x - .5 * size, y + 3.5 * size, p.z + .3, size, size * .8, size));
-      } else {
-        for (let j=0;j<6;j++) { const angle=j*Math.PI/3; const geo=sphere(1).clone(); geo.scale(.42*size,.15*size,1.8*size);geo.rotateX(.18);geo.rotateY(angle);geo.translate(Math.sin(angle)*1.1*size,2.8*size,Math.cos(angle)*1.1*size);leafLightGeos.push(stamp(geo,p.x,y,p.z));geo.dispose(); }
-      }
+    for(const tree of this.world.trees){
+      if(tree.logs<1||this.world.buildings.some(b=>distance(b,tree)<3.7))continue;
+      const g=new THREE.Group();g.add(nativeModel([13,14,15,60,61,62][Math.max(0,tree.model-1)]));this.locate(g,tree);g.userData.point=tree;this.decorations.add(g);
     }
-    for (const [geos, mat] of [[trunkGeos, wood], [leafGeos, leaf], [leafLightGeos, leafLight]] as const) if (geos.length) { const merged = mergeGeometries(geos); const m = new THREE.Mesh(merged, mat); m.castShadow = true; m.receiveShadow = true; this.decorations.add(m); geos.forEach(g => g.dispose()); }
-    for (const center of [HOME, ENEMY]) {
-      const g = new THREE.Group();
-      for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; const m = part(g, cylinder(.22, .36, 1.6 + (i % 3) * .15, 5), stone, Math.sin(a) * 2.8, .7, Math.cos(a) * 2.8); m.rotation.z = Math.sin(a) * .12; }
-      const sacred = ring(2.3, center === HOME ? 0x6bcafa : 0xee8660, .12); sacred.position.y = .07; g.add(sacred); this.locate(g,center); g.userData.point = center; this.decorations.add(g);
+    for(const center of [HOME,ENEMY])for(let i=0;i<8;i++){
+      const a=i/8*Math.PI*2,p={x:center.x+Math.sin(a)*2.8,z:center.z+Math.cos(a)*2.8},g=new THREE.Group();
+      const pillar=nativeModel(30);g.add(pillar);this.locate(g,p);g.rotateY(-a-Math.PI/2);this.decorations.add(g);
     }
-    for (let i = 0; i < 65; i++) { const p = { x: rand() * 76 - 38, z: rand() * 72 - 36 }; if (!walkable(this.world.terrain, p) || this.world.buildings.some(b => distance(b, p) < 4)) continue; const g = new THREE.Group(); const r = height(this.world.terrain,p.x,p.z) < 2.3 ? .65 + rand()*1.1 : .3 + rand() * .8; part(g, sphere(r), stone, 0, r * .3); g.scale.y = .65; this.locate(g,p); g.userData.point = p; this.decorations.add(g); }
   }
   makeShrines(){
     for(const shrine of this.world.shrines){
-      const g=new THREE.Group(),stone=material(0x848a75),dark=material(0x364a40),gold=material(0xd7b978);
-      part(g,cylinder(1.1,1.5,.4,8),stone,0,.1);
-      if(shrine.kind==='vault'){
-        for(const x of [-1.2,1.2])part(g,cylinder(.45,.6,2.5,5),stone,x,1.3);
-        part(g,box(3.2,.55,1.2),stone,0,2.7);part(g,cylinder(0,1.8,1.3,4),gold,0,3.5);
-        part(g,box(1.4,1.7,.6),dark,0,1.1);part(g,new THREE.TorusGeometry(.4,.07,4,12),gold,0,1.8,.4);
-      }else{
-        const head=part(g,sphere(1),stone,0,1.7);head.scale.set(.95,1.4,.8);
-        for(const x of [-.35,.35])part(g,box(.27,.12,.15),dark,x,2.05,.7);
-        part(g,box(.24,.5,.25),stone,0,1.75,.85);part(g,box(.48,.1,.12),dark,0,1.35,.76);
-        part(g,new THREE.TorusGeometry(.25,.06,4,10),gold,0,2.7,.3);
-      }
+      const g=new THREE.Group();g.add(nativeModel(shrine.kind==='vault'?94:82));
       this.locate(g,shrine);this.objects.add(g);
       const label=document.createElement('button');label.className='shrine-label';label.setAttribute('aria-label',`Worship ${shrine.name}`);
       label.onclick=()=>{command(this.world,shrine);this.onSound('command');this.onChange();};this.container.appendChild(label);this.shrineMeshes.set(shrine.id,{g,label});
@@ -325,8 +251,8 @@ export class GameScene {
     if ((event.target as HTMLElement).closest('button,input,dialog,a') || event.ctrlKey || event.metaKey || event.altKey) return;
     this.keys.add(event.key.toLowerCase()); if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) event.preventDefault();
   }) as EventListener;
-  orientCamera(){const distance=this.camera.position.distanceTo(this.controls.target),tilt=Math.min(.55,Math.max(0,(180-distance)/70*.55));const p=mapPoint(this.camera.position);p.z=Math.max(-100,Math.min(100,p.z-tilt*PLANET_RADIUS));this.viewPoint=p;const q=planetPoint(p);this.camera.lookAt(q.x,q.y,q.z);this.camera.updateMatrixWorld();}
-  focus(p: Point = HOME) { const n=normal({x:p.x,z:p.z+(.55*55/70)*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(125).add(this.controls.target);this.controls.update();this.orientCamera(); }
+  orientCamera(){const distance=this.camera.position.distanceTo(this.controls.target),tilt=Math.min(.55,Math.max(0,(180-distance)/70*.55));const p=mapPoint(this.camera.position);p.z=Math.max(-100,Math.min(100,p.z-tilt*PLANET_RADIUS));this.viewPoint=p;const q=planetPoint(p),n=normal(p);if(tilt>.01)this.camera.up.set(n.x,n.y,n.z);this.camera.lookAt(q.x,q.y,q.z);this.camera.up.set(0,0,-1);this.camera.updateMatrixWorld();}
+  focus(p: Point = HOME) { const n=normal({x:p.x,z:p.z+.55*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(105).add(this.controls.target);this.controls.update();this.orientCamera(); }
   overview(){this.camera.position.set(30,155,0);this.controls.update();this.orientCamera();}
   zoom(amount: number) { const offset = this.camera.position.clone().sub(this.controls.target).multiplyScalar(amount); offset.clampLength(PLANET_RADIUS+14, PLANET_RADIUS+190); this.camera.position.copy(this.controls.target).add(offset); this.controls.update();this.orientCamera(); }
   makeFx(f: Effect) {
@@ -368,9 +294,20 @@ export class GameScene {
       if (g && g.userData.signature !== `${u.team}-${u.kind}`) { this.objects.remove(g); this.releaseGroup(g); this.unitMeshes.delete(u.id); g = undefined; }
       if (!g) { g = makeUnit(u); this.unitMeshes.set(u.id, g); this.objects.add(g); }
       this.locate(g,u);const n=normal(u);g.position.addScaledVector(new THREE.Vector3(n.x,n.y,n.z),.04+Math.sin(u.lift*Math.PI)*2); g.visible=u.inside===null;
-      if (u.path.length) { g.rotateY(Math.atan2(u.path[0].x - u.x, u.path[0].z - u.z)); const step = Math.sin(this.world.time * 11 + u.id) * .45; g.userData.leg1.rotation.x = step; g.userData.leg2.rotation.x = -step; g.position.addScaledVector(new THREE.Vector3(n.x,n.y,n.z),Math.abs(Math.sin(this.world.time*11+u.id))*.075); }
-      else { g.userData.leg1.rotation.x = 0; g.userData.leg2.rotation.x = 0; }
-      g.userData.selection.visible = this.world.selected.includes(u.id);g.userData.cargo.visible=u.cargo>0;
+      const body=g.userData.sprite as THREE.Sprite,up=new THREE.Vector3(n.x,n.y,n.z);
+      if(u.path.length){g.userData.heading=Math.atan2(u.path[0].x-u.x,u.path[0].z-u.z);}
+      const localCamera=this.camera.position.clone().sub(g.position).applyQuaternion(g.quaternion.clone().invert());
+      const relative=g.userData.heading-Math.atan2(localCamera.x,localCamera.z);
+      const direction=((Math.round(relative/(Math.PI/4))%8)+8)%8;
+      const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[g.userData.signature];
+      const state=u.cargo>0&&animations.carry?'carry':u.path.length?'walk':u.target!==null?'attack':u.work!==null?'work':'idle';
+      const cycle=animations[state][direction],index=cycle.frames[Math.floor(this.world.time*8+u.id)%cycle.frames.length];
+      const map=(body.material as THREE.SpriteMaterial).map!;
+      map.repeat.set((cycle.flip?-64:64)/nativeUnits.width,64/nativeUnits.height);
+      map.offset.set((index%16*64+(cycle.flip?64:0))/nativeUnits.width,1-(Math.floor(index/16)+1)*64/nativeUnits.height);
+      // Preserve the globe's local up direction while the sprite faces the camera.
+      const screenUp=up.clone().transformDirection(this.camera.matrixWorldInverse);body.material.rotation=-Math.atan2(screenUp.x,screenUp.y);
+      g.userData.frame=index;g.userData.selection.visible=this.world.selected.includes(u.id);
       g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id);
       g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = Math.max(.001, u.hp / maxHp(u.kind));
     }
@@ -407,11 +344,11 @@ export class GameScene {
     if(shaman&&spec&&this.range.visible)this.groundRing(this.range,shaman,spec.range);
     this.cursor.visible=!!this.pointer&&!!this.world.mode;
     if(this.pointer&&this.world.mode){const p=this.pointer;this.groundRing(this.cursor,p,spec?2:footprint(this.world.mode as Building['kind']));const valid=spec?!!shaman&&distance(shaman,p)<=spec.range&&!(!walkable(this.world.terrain,p)&&spec.id==='bridge'):!placementError(this.world,this.world.mode as Building['kind'],p);this.cursor.material.color.setHex(valid?0xebd398:0xec6e59);}
-    (this.water.material as THREE.ShaderMaterial).uniforms.time.value = now * .0003;
+    (this.water.material as THREE.ShaderMaterial).uniforms.time.value = this.world.time;
     this.renderer.render(this.scene, this.camera);
     this.uiTimer += dt; if (this.uiTimer > .2) { this.onChange(); this.drawMinimap(); this.uiTimer = 0; }
     this.frame = requestAnimationFrame(this.animate);
   };
-  releaseGroup(g: THREE.Object3D) { const materials = new Set<THREE.Material>(); g.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line) { if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m)); } }); materials.forEach(m => m.dispose()); }
+  releaseGroup(g: THREE.Object3D) { const materials = new Set<THREE.Material>(); g.traverse(o => { if(o instanceof THREE.Sprite){o.material.map?.dispose();materials.add(o.material);} if (o instanceof THREE.Mesh || o instanceof THREE.Line) { if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m)); } }); materials.forEach(m => m.dispose()); }
   dispose() { cancelAnimationFrame(this.frame); this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.terrainData.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
 }

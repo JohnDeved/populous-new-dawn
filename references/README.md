@@ -2,9 +2,9 @@
 
 ## Accepted direction
 
-The user selected the original generated `public/og.png` artwork as the art and level-design target on 2026-09-07: stylized low-poly geometry, a prominent rocky mountain, a blue coastal village, a rival red settlement beyond the ridge, warm dawn light, azure roof patterns, turquoise water, standing stones, and palms. The illustration is concept/cover artwork; the game itself renders an interactive Three.js scene.
+The current direction is to copy the original game's appearance. On 2026-09-07 the user explicitly removed the earlier low-poly constraint. All 17 local reference images were inspected; see [the visual audit](visual-audit.md) for observations, changes and original-asset provenance.
 
-The screenshot references below guide architecture and game identity. They are kept in this research folder, outside public assets, and are not used as game textures.
+The earlier generated `public/og.png` remains cover artwork. It no longer defines the playable game's art direction. The screenshots themselves stay in this research folder; selected original textures are decoded separately from the game archive supplied by the user.
 
 ## Visual references
 
@@ -45,4 +45,4 @@ Chosen: Three.js for rendering and raycasting; a TypeScript simulation with a fi
 
 ## Cover artwork
 
-Generated once with the built-in image generation tool and saved to `public/og.png`. The accepted prompt requested a landscape social card reading “POPULOUS”, “THE FIRST DAWN”, and “A BROWSER TRIBUTE”, with elegant Roman serif typography, deep teal and gold, an original low-poly curved island, blue shaman and thatched huts, mossy rocky mountain, palms and conifers, a distant red village, and warm directional dawn light. The image also became the user-approved art direction for the playable level.
+Generated once with the built-in image generation tool and saved to `public/og.png`. The accepted prompt requested a landscape social card reading “POPULOUS”, “THE FIRST DAWN”, and “A BROWSER TRIBUTE”, with elegant Roman serif typography, deep teal and gold, an original low-poly curved island, blue shaman and thatched huts, mossy rocky mountain, palms and conifers, a distant red village, and warm directional dawn light. This was the earlier art direction; the user has since requested the original game’s look.

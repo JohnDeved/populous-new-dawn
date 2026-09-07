@@ -25,3 +25,21 @@ test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/30);assert.ok(w.respawn>0);advance(w,13);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
  w.units=w.units.filter(u=>u.team!=='blue');tick(w,1/30);assert.equal(w.status,'lost');
 });
+
+test('imported compound bases stay on their spherical ground pads',async()=>{
+ const THREE=await import('three'),{readFileSync}=await import('node:fs');
+ const models=JSON.parse(readFileSync(new URL('../app/original-models.json',import.meta.url)));
+ const w=createWorld();
+ for(const [index,id] of [[0,174],[1,142],[2,169],[3,169]]){
+  const b=w.buildings[index],n=normal(b),up=new THREE.Vector3(n.x,n.y,n.z),base=planetPoint(b,b.foundation);
+  const rotation=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),up).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),b.angle));
+  const points=models[id].p;
+  for(let i=0;i<points.length;i+=3){
+   if(Math.abs(points[i+1])>.012)continue;
+   const vertex=new THREE.Vector3(points[i],points[i+1],points[i+2]).multiplyScalar(2).applyQuaternion(rotation).add(new THREE.Vector3(base.x,base.y,base.z));
+   const ground=worldPoint(w.terrain,mapPoint(vertex));
+   const gap=vertex.sub(new THREE.Vector3(ground.x,ground.y,ground.z)).dot(up);
+   assert.ok(gap>-.006&&gap<.03,`native model ${id} base gap ${gap}`);
+  }
+ }
+});

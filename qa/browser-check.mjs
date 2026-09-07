@@ -6,10 +6,10 @@ const browser=await chromium.launch({channel:'chrome',headless:true,args:['--ena
 const page=await browser.newPage({viewport:{width:1440,height:960},deviceScaleFactor:1});page.setDefaultTimeout(12000);
 const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 await page.addInitScript(()=>{window.__audioStarts=0;for(const Type of [OscillatorNode,AudioBufferSourceNode]){const start=Type.prototype.start;Type.prototype.start=function(...args){window.__audioStarts++;return start.apply(this,args);};}});
-const w=createWorld(),cam=new THREE.PerspectiveCamera(42,1440/960,.2,500);cam.up.set(0,0,-1);
-function camera(p){const n=normal({x:p.x,z:p.z+(.55*55/70)*PLANET_RADIUS});cam.position.set(n.x*125,n.y*125-PLANET_RADIUS,n.z*125);const q=planetPoint(p);cam.lookAt(q.x,q.y,q.z);cam.updateMatrixWorld();}camera({x:0,z:36});
+const w=createWorld(),cam=new THREE.PerspectiveCamera(38,1240/960,.2,500);cam.up.set(0,0,-1);
+function camera(p){const n=normal({x:p.x,z:p.z+.55*PLANET_RADIUS});cam.position.set(n.x*105,n.y*105-PLANET_RADIUS,n.z*105);const q=planetPoint(p),up=normal(p);cam.up.set(up.x,up.y,up.z);cam.lookAt(q.x,q.y,q.z);cam.updateMatrixWorld();}camera({x:2,z:30});
 async function focus(x,z){const rect=await page.locator('.minimap-wrap canvas').boundingBox();await page.mouse.click(rect.x+(x+48)/96*rect.width,rect.y+(z+48)/96*rect.height);camera({x,z});await page.waitForTimeout(350);}
-async function click(x,z,button='left'){const q=worldPoint(w.terrain,{x,z}),p=new THREE.Vector3(q.x,q.y,q.z).project(cam);await page.mouse.click((p.x+1)*720,(1-p.y)*480,{button});}
+async function click(x,z,button='left'){const q=worldPoint(w.terrain,{x,z}),p=new THREE.Vector3(q.x,q.y,q.z).project(cam);const rect=await page.locator('.world-viewport canvas').boundingBox();await page.mouse.click(rect.x+(p.x+1)*rect.width/2,rect.y+(1-p.y)*rect.height/2,{button});}
 try{
  await page.goto('http://localhost:3000/',{waitUntil:'networkidle'});await page.locator('.loading-world').waitFor({state:'hidden'});await page.screenshot({path:'qa/desktop.png'});
  await page.getByRole('button',{name:'Enable sound',exact:true}).click();assert.ok(await page.evaluate(()=>window.__audioStarts>=4));

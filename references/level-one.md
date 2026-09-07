@@ -1,6 +1,6 @@
 # Level one: evidence and implementation
 
-Researched 2026-09-07. The latest user request selects the original first mission and a camera that travels around a miniature planet. The accepted cover image remains the palette/architecture reference; its invented mountain is not part of this level.
+Researched 2026-09-07. The latest user request selects the original first mission and a camera that travels around a miniature planet. The original game artwork now supersedes the generated cover; its invented mountain is not part of this level.
 
 ## Primary evidence from the supplied game
 
@@ -10,7 +10,7 @@ Read `PopulousTB-Setup.zip` as an archive, then extracted the Inno Setup payload
 - 128 × 128 height grid, 390 nonzero land vertices, 44 nonempty object records. Terrain heights are little endian; object coordinates are big endian. This distinction matters.
 - Blue: six braves, one shaman, two small huts. Dakini: two warriors, two braves (including the central guard), one shaman, one large hut, one warrior training hut. These are the file's initial objects; births change the counts after play begins.
 - Land Bridge head: one worshipper, seven seconds, repeatable. Lightning head: one worshipper, eight seconds per gift, four uses. Vault: shaman-only, eight seconds, unlocks the Warrior Training Hut. These timings and limits come from the trigger records.
-- The terrain crosses both original map seams. The importer unwraps it before display: two scene units per original terrain cell, with blue to the south and Dakini to the north. Heights are scaled by 1/45; local foundations are levelled for the new models.
+- The terrain crosses both original map seams. The importer unwraps it before display: two scene units per original terrain cell, with blue to the south and Dakini to the north. Heights are scaled by 1/45; local foundations support the imported native models.
 - `levl2001.hdr` selects AI script 10, so the matching campaign file is **levels/cpscr010.dat**, not the similarly named expansion script. Its binary script is reference material; the browser does not emulate the original scripting engine.
 
 `Manual.pdf`, printed pages 2–7, was rendered and read visually. It confirms shaman-only vault worship, repeatable single-shot gifts, four logs per tree with regrowth, drowning, small/medium/large hut capacities of 3/4/5, housing and work generating more mana, manually assigning braves to buildings, spell charging toggles, construction near an existing settlement, and G to guard the shaman. The manual also describes a population limit of 200. No original manual pages or quotations are distributed here.

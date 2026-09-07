@@ -40,7 +40,8 @@ export function makeTerrain() {
   return Array.from({length: GRID*GRID}, (_,i) => {
     const x=(i%GRID-48)/2+4,z=-(Math.floor(i/GRID)-48)/2-4,ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz;
     const h=sample(ix,iz)*(1-fx)*(1-fz)+sample(ix+1,iz)*fx*(1-fz)+sample(ix,iz+1)*(1-fx)*fz+sample(ix+1,iz+1)*fx*fz;
-    return h === 0 ? -3 : h;
+    // Keep the sea bed just below zero so original coast ramps meet the water without artificial cliffs.
+    return h === 0 ? -.35 : h;
   });
 }
 export function height(terrain: number[], x: number, z: number) {
