@@ -387,7 +387,23 @@ and the complete command-8 dispatcher `00434610`. `stopPersonMovement` in
 `app/person-state.ts` reconstructs `004d4ee0`. The oracle requires the supplied
 `levels/constant.dat`, compares **1,540** queue calls without intercepted leaves,
 and **2,689** command scenarios across all 14 substates, including a six-tick
-queue handoff. Command comparisons execute native queue, speed/RNG, stopping
-and facing logic; geometry, path requests, animation output, cargo, occupant
+queue handoff. Command comparisons execute native geometry, queue, speed/RNG, stopping
+and facing logic; path requests, animation output, cargo, occupant
 entry and inside work remain supplied world consumers. These are engine
 reconstructions, not proof of live browser pathfinding or training arrival.
+
+## Original building footprint geometry
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-building-shapes.py /path/to/d3dpoptb.exe
+```
+
+Requires `objects/shapes.dat` and `objects/objs0-2.dat` beside the executable.
+`import-original.py` now imports the 64 shape descriptors, shared mask buffer
+and all 158 object-to-orientation mappings into `app/original-shapes.json`.
+The oracle verifies the native loader's pointer relocation and compares
+**22,752** inner/outer entrance and queue positions across all 632
+object/orientation pairs, including zero shapes, map boundaries and negative
+queue positions. No geometry leaves are supplied. `app/building-shapes.ts`
+is used by the training controller and live building door routing; live
+pathfinding/occupancy and non-building shrine approaches remain unfinished.

@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with {type: 'json'};
+import {buildingInsidePoint, buildingOutsidePoint, buildingQueuePoint, type BuildingShapePose} from './building-shapes.ts';
 import {nativeAngle} from './native-math.ts';
 import {currentPersonOrder, type OrderPool} from './person-orders.ts';
 import {recoverPersonMovement, stopPersonMovement, type PersonStateEffects} from './person-state.ts';
@@ -8,7 +9,7 @@ export type TrainingPerson = StartingPerson & {
   class: number; tickPhase: number; goalX: number; goalY: number; facingAngle: number;
 };
 export type TrainingQueue = {id: number; queueHead: number; queueFrom: number; activity: number};
-export type TrainingBuilding = TrainingQueue & {
+export type TrainingBuilding = TrainingQueue & BuildingShapePose & {
   class: number; model: number; flags2: number; flags3: number;
   inside: number; entering: number; entryDelay: number; entryTimer: number;
 };
@@ -18,15 +19,12 @@ type QueueWorld = {people: Map<number, QueuePerson>; orders: OrderPool};
 export type TrainingWorld = QueueWorld & {
   randomState: number; people: Map<number, TrainingPerson>; buildings: Map<number, TrainingBuilding>;
 };
-// Geometry, path requests, cargo objects and occupant/work updates still require
+// Path requests, cargo objects and occupant/work updates still require
 // native world consumers. A straight-line queue or teleport is not a substitute.
 export type TrainingEffects = {
   setAnimation: PersonStateEffects['setAnimation'];
   releaseMotion: (p: TrainingPerson) => void;
   adjacentBuilding: (p: TrainingPerson) => number;
-  outsidePoint: (b: TrainingBuilding) => {x: number; y: number};
-  insidePoint: (b: TrainingBuilding) => {x: number; y: number};
-  queuePoint: (b: TrainingBuilding, index: number) => {x: number; y: number};
   setDestination: (p: TrainingPerson, x: number, y: number) => void;
   directDestination: (p: TrainingPerson, x: number, y: number) => void;
   dropCargo: (p: TrainingPerson) => void;
@@ -124,7 +122,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
   const near = (distance: number) => Math.abs(short(p.goalX) - short(p.x)) < distance && Math.abs(short(p.goalY) - short(p.y)) < distance;
   const move = (person: TrainingPerson, point: {x: number; y: number}) => effects.setDestination(person, short(point.x), short(point.y));
   const recover = (person = p) => recoverPersonMovement(w, person, effects.setAnimation);
-  const position = (index: number) => effects.queuePoint(b, index);
+  const position = (index: number) => buildingQueuePoint(b, index);
   const phase = (person: QueuePerson) => (person as TrainingPerson).commandPhase;
   const face = (point: {x: number; y: number}) => {
     const angle = nativeAngle(short(point.x - p.x), -short(point.y - p.y));
@@ -138,7 +136,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
     if (!(p.flags3 & 32)) {
       if (queued) changed = true;
       if (effects.adjacentBuilding(p) === b.id && (!queued || (!b.queueHead && byte(b.inside) < capacity && byte(b.entering) < capacity))) p.substate = 4;
-      else { move(p, effects.outsidePoint(b)); recover(); }
+      else { move(p, buildingOutsidePoint(b)); recover(); }
     } else {
       p.substate = 3; p.commandPhase = 0;
       let follower = live(w.people, b.queueHead), index = 0;
@@ -180,7 +178,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
         if (near(12)) {
           if (p.speed) {
             stopPersonMovement(p, effects.setAnimation);
-            const angle = face(p.commandPhase ? position(byte(p.commandPhase) - 1) : effects.insidePoint(b));
+            const angle = face(p.commandPhase ? position(byte(p.commandPhase) - 1) : buildingInsidePoint(b));
             effects.releaseMotion(p); p.turnAngle = angle; p.flags2 = (p.flags2 | 0x1080) >>> 0;
           }
           const trained = rules.buildingTrainedModel[b.model];
@@ -207,7 +205,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
       if (!blocked) {
         if (p.substate === 4) {
           p.substate = 5; recover();
-          const point = effects.insidePoint(b); face(point);
+          const point = buildingInsidePoint(b); face(point);
           p.flags4 = ((p.flags4 & 0xfffefff8) | 2) >>> 0;
           effects.directDestination(p, short(point.x), short(point.y));
           if (byte(b.entering) < capacity) {
@@ -231,13 +229,13 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
       p.substate = 8; break;
     }
     case 6:
-      p.substate = 7; recover(); move(p, effects.outsidePoint(b));
+      p.substate = 7; recover(); move(p, buildingOutsidePoint(b));
       // falls through
     case 7:
       if (!(p.tickPhase & 1) && near(112)) { p.substate = 4; effects.dropCargo(p); }
       break;
     case 8:
-      p.flags4 = (p.flags4 & 0xfffefff8) >>> 0; p.substate = 9; recover(); move(p, effects.outsidePoint(b));
+      p.flags4 = (p.flags4 & 0xfffefff8) >>> 0; p.substate = 9; recover(); move(p, buildingOutsidePoint(b));
       // falls through
     case 9:
       if (!(p.tickPhase & 1) && near(112)) p.substate = 0;

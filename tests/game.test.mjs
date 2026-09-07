@@ -81,7 +81,7 @@ test('native animation identity, casting interruption, gradual terrain and blast
  w.selected=[shaman.id];const shots=w.shots.blast;assert.ok(cast(w,'blast',shaman));assert.equal(unitAnimation(w,shaman),'cast');command(w,{x:10,z:32});advance(w,.6);assert.equal(w.shots.blast,shots-1,'native spell allocation spends the charge before animation finishes');assert.equal(shaman.casting,null);assert.ok(w.projectiles.length,'movement does not delete the independent spell');impact(w,'blast');
  shaman.x=0;shaman.z=20;shaman.path=[];w.shots.bridge=1;const before=[...w.terrain];assert.ok(cast(w,'bridge',{x:0,z:4}));impact(w,'bridge');tick(w,1/12);const rise=w.effects.find(e=>e.kind==='bridge');assert.ok(rise.land.length>0);const sample=rise.land.find(p=>p.to-p.from>1);assert.ok(w.terrain[sample.index]>before[sample.index]&&w.terrain[sample.index]<sample.to);advance(w,6);assert.equal(w.terrain[sample.index],sample.to);foundations(w);
  shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));impact(w,'blast');assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
- const hut=w.buildings.find(b=>b.team==='blue');for(const angle of [0,Math.PI/2,Math.PI,3*Math.PI/2]){hut.angle=angle;const door=entrance(w,hut);assert.ok(Math.abs(door.x-hut.x+Math.sin(angle)*4)<1e-9&&Math.abs(door.z-hut.z-Math.cos(angle)*4)<1e-9,'door routes use the model coordinate conversion');}
+ const hut=w.buildings.find(b=>b.team==='blue');for(const [angle,x,z] of [[0,-3,44.5],[Math.PI/2,-6.5,41],[Math.PI,-3,37.25],[3*Math.PI/2,.75,41]]){hut.angle=angle;assert.deepEqual(entrance(w,hut),{x,z},'door routes use native rotated shape offsets and coarse anchors');}
 });
 
 
@@ -611,20 +611,19 @@ test('native training queue yields to an untrained follower and releases its new
  const person=(id,model,phase,next)=>({id,class:1,model,state:10,substate:3,tickPhase:0,physics:2,
   flags2:0,flags3:32,flags4:0,assignment:8,commands:[1,0,0,0,0,0,0,0],commandCursor:0,
   immediateCommand:0,workTarget:100,target:100,reservationNext:next,commandPhase:phase,commandAux:0,
-  x:1000,y:1000,goalX:1000,goalY:1000,speed:0,cargo:0,timer:256,angle:0,turnAngle:0,facingAngle:0});
+  x:256,y:64384,goalX:256,goalY:64384,speed:0,cargo:0,timer:256,angle:0,turnAngle:0,facingAngle:0});
  const specialist=person(1,4,0,2),brave=person(2,2,1,0);
- const b={id:100,class:2,model:5,flags2:0,flags3:0,activity:8,queueHead:1,queueFrom:0,
+ const b={id:100,class:2,model:5,object:95,angle:0,anchorX:0,anchorY:0,flags2:0,flags3:0,activity:8,queueHead:1,queueFrom:0,
   inside:5,entering:0,entryDelay:0,entryTimer:0};
  const w={randomState:1,orders:{records,cursor:3,active:2},people:new Map([[1,specialist],[2,brave]]),buildings:new Map([[100,b]])};
  const events=[],unexpected=()=>assert.fail('unexpected world consumer');
  const effects={setAnimation:(p,id)=>events.push(['animation',p.id,id]),releaseMotion:p=>events.push(['motion',p.id]),
-  adjacentBuilding:unexpected,outsidePoint:unexpected,insidePoint:()=>({x:1000,y:1256}),
-  queuePoint:(_,index)=>({x:1000,y:1000-index*128}),setDestination:(p,x,y)=>{p.goalX=x&65535;p.goalY=y&65535;},
+  adjacentBuilding:unexpected,setDestination:(p,x,y)=>{p.goalX=x&65535;p.goalY=y&65535;},
   directDestination:unexpected,dropCargo:unexpected,enterBuilding:unexpected,workInside:unexpected};
  assert.equal(stepTrainingPerson(w,specialist,effects),0);
  assert.equal(b.queueHead,2);assert.equal(brave.reservationNext,1);assert.equal(specialist.reservationNext,0);
  assert.equal(brave.commandAux,1);assert.equal(specialist.commandAux,1);
- assert.equal(specialist.goalY,872);assert.equal(brave.goalY,1000);
+ assert.equal(specialist.goalX,64);assert.equal(specialist.goalY,64448);assert.equal(brave.goalY,64384);
  assert.ok(specialist.speed>=70&&brave.speed>=70);
  stepTrainingPerson(w,brave,effects);
  assert.equal(brave.commandPhase,0);assert.equal(brave.speed,0);assert.equal(specialist.commandAux,2);
@@ -638,4 +637,21 @@ test('native training queue yields to an untrained follower and releases its new
  // A cancelled immediate command suppresses the otherwise valid queued order.
  specialist.immediateCommand=2;
  assert.equal(rebuildTrainingQueue(w,b),0);assert.equal(b.queueHead,0);assert.equal(specialist.flags3&32,0);
+});
+
+test('live followers reach rotated native doors before entering buildings', () => {
+ for (const angle of [0,Math.PI/2,Math.PI,3*Math.PI/2]) {
+  const w=createWorld(),hut=w.buildings.find(b=>b.team==='blue'),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
+  hut.angle=angle;w.selected=[brave.id];
+  assert.deepEqual(findPath(w.terrain,brave,hut,w.buildings),[],'the door exception does not permit routes to building centers');
+  command(w,hut);
+  assert.ok(brave.path.length,'the coarse path must reach the exact original entrance');
+  assert.deepEqual(brave.path.at(-1),entrance(w,hut));
+  advance(w,24);
+  assert.equal(brave.inside,hut.id,'all four native entrance orientations remain reachable');
+ }
+ const w=createWorld(),hut=w.buildings.find(b=>b.team==='blue'),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
+ Object.assign(brave,{x:hut.x,z:hut.z,work:hut.id,path:[]});
+ tick(w,1/12);
+ assert.equal(brave.inside,null,'standing near the building center is not arrival at its door');
 });

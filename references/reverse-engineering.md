@@ -1126,3 +1126,60 @@ state-10 updater `00432590`, next-command routine `004366b0`, occupant removal
 continued reconstruction. Live world adapters, pathfinding, occupancy, order
 advancement and the original mission's training block remain unfinished. This
 checkpoint does not enable an approximate training AI in their place.
+
+## Original footprint masks, entrances and queue geometry
+
+`app/building-shapes.ts` reconstructs the shape consumers `00404420`,
+`004044b0` and `00409710`. The supplied `SHAPES.DAT` contains **64** 48-byte
+records followed by **1,532** shared mask bytes. The executable's initial
+`005ca2ec` is 64; loader `0040c880` relocates each record's pointer at `+44`
+relative to the start of that mask buffer. The importer preserves this shared
+buffer instead of making independent, padded grids. Geometry probes can cross
+a particular shape's extent, and inventing padding would change their results.
+Raw shapes and bank-2 object files are recorded in the asset provenance hashes.
+
+Each object record stores four signed shape indices at bytes `44–47`.
+The original lookup divides the signed angle by 512 with truncation toward
+zero. Shape bytes `2–3` offset the anchor in units of 256; signed bytes `4–5`
+locate the inner entrance and `6–7` the outside approach in units of 64.
+Building initialization `00403610` aligns anchor coordinates at `+7a/+7c`
+with mask `0xfe00`. These are not positions at a constant radius from the
+rendered building's center, and the four orientations need not be symmetric.
+For the first blue hut at browser (-4,42), the four outer points are
+(-3,44.5), (-6.5,41), (-3,37.25), and (0.75,41).
+
+Queue index zero returns the outer entrance. Any nonzero index first aligns
+to the footprint edge using signed division by 64 and the native bit masks;
+a negative index stops after that alignment. Positive indices walk 128-unit
+steps. One probe tests mask bit 1 to turn clockwise, then another tests bit 4
+to turn back; both use the absolute wrapped coordinate distance from the shape
+origin. Native angle and integer-step helpers are reused. Zero-sized shape
+records retain their native behavior; invalid object/angle mappings and probes
+beyond the loaded mask buffer are explicit unsupported-domain errors.
+
+`check-native-building-shapes.py` verifies importer output against raw assets,
+rejects truncated inputs, executes the actual loader relocation with only file
+I/O supplied, and checks **22,752** native inner/outer/queue points across
+all **632** object/orientation pairs. Cases include signed queue indices,
+positions through 127, and both signed and unsigned map seams. Geometry calls
+have no intercepted leaves. The **2,689** training-command scenarios now also
+execute the original geometry, replacing the three supplied geometry consumers
+from the preceding checkpoint. The existing **1,540** queue comparisons remain.
+
+The live renderer and routing share `buildingObject`, so displayed buildings
+and their entrance lookup use one object identity. Building orders, timber
+returns and follower emergence use the original outer point. The browser
+adapter now measures arrival at that point rather than accepting followers
+within a fixed radius of the building center. Its coarse A* allows the final
+goal cell to reach the exact door when the old circular obstacle intersects
+that cell; this is an explicit pathfinding approximation, not a reconstructed
+native pathfinder. A regression commands live followers into huts at all four
+orientations and rejects a follower merely standing at the building center.
+The complete Node mission flow still passes with discovery, construction,
+training and victory. The staged native entry/occupancy consumers, full command
+scheduler and non-building shrine approach adapter remain unfinished.
+
+The final Playwright gameplay run also passed discovery, timber delivery,
+construction, training, pause, planet rotation, decoded sound and restart with
+no browser errors. All 30 Node regressions, type checking, production build and
+lint passed (the seven existing image-element lint warnings remain).

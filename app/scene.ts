@@ -4,7 +4,7 @@ import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldToo
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { buildingObject, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModelData from './original-models.json';
 const nativeModels: Record<number,{p:number[];uv:number[];scale:number}> = nativeModelData;
@@ -55,7 +55,7 @@ function makeUnit(u: Unit) {
   g.userData={unit:u.id,signature:`${u.team}-${u.kind}`,sprite,selection,health,healthFill,heading:0,frame:-1};return g;
 }
 function makeBuilding(b: Building) {
-  const g=new THREE.Group(),id=b.kind==='hut'?(b.team==='blue'?131:134)+b.level-1:b.kind==='camp'?(b.team==='blue'?103:104):b.kind==='tower'?(b.team==='blue'?79:80):(b.team==='blue'?95:96);
+  const g=new THREE.Group(),id=buildingObject(b);
   const model=nativeModel(id,b.kind==='temple'?1.65:2);g.add(model);
   const health=new THREE.Group(),top=b.kind==='tower'?6:4.8;
   part(health,box(2.5,.09,.05),material(0x201d16),0,top);

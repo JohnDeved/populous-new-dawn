@@ -41,6 +41,19 @@ def sprites(data, palette, alpha=False):
 def resolve_object_bank(requested):
     return 2 if requested == 0 else requested # 0x40c670.
 
+def building_shapes(data, objects):
+    # 0x40c880 relocates 64 records (native 0x5ca2ec), each 48 bytes.
+    assert len(data) >= 64*48 and len(objects)%54 == 0
+    shapes=[]
+    for i in range(64):
+        width,height,x,y,ix,iy,ox,oy=struct.unpack_from('<4B4b',data,i*48)
+        offset=struct.unpack_from('<I',data,i*48+44)[0]
+        assert offset+width*height <= len(data)-64*48
+        shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset))
+    indices=[list(struct.unpack_from('<4b',objects,i+44)) for i in range(0,len(objects),54)]
+    assert all(0 <= n < len(shapes) for row in indices for n in row)
+    return dict(objects=indices,shapes=shapes,cells=list(data[64*48:]))
+
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]
     output = project / 'public/original'; output.mkdir(exist_ok=True)
@@ -55,6 +68,8 @@ def main():
     atlas = read('data/bl320-c.dat'); assert len(atlas) == 256*1024
     png(output/'atlas.png', 256, 1024, b''.join(palette[v*4:v*4+3]+bytes([0 if v==0 else 255]) for v in atlas))
     objects, faces, points = [read(f'objects/{n}0-{object_bank}.dat') for n in ['objs','facs','pnts']]
+    shape_data=read('objects/shapes.dat')
+    (project/'app/original-shapes.json').write_text(json.dumps(building_shapes(shape_data,objects),separators=(',',':'))+'\n')
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
     # Models actually used in this mission, including every hut upgrade and both tribes.

@@ -1,4 +1,5 @@
 import {nativeAngle,nativeStep,random} from './native-math.ts';
+import {buildingOutsidePoint} from './building-shapes.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
@@ -213,6 +214,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
   const cell = (p: Point) => Math.max(0, Math.min(48, Math.round((p.z + 48) / 2))) * 49 + Math.max(0, Math.min(48, Math.round((p.x + 48) / 2)));
   const point = (i: number) => ({ x: (i % 49) * 2 - 48, z: Math.floor(i / 49) * 2 - 48 });
   const source = cell(start), goal = cell(end), open = [source], costs = new Map([[source, 0]]), came = new Map<number, number>(), closed = new Set<number>();
+  const doorGoal = buildings.some(b => { const door=buildingDoor(b); return door.x===end.x && door.z===end.z; });
   while (open.length) {
     open.sort((a, b) => costs.get(a)! + distance(point(a), end) - costs.get(b)! - distance(point(b), end));
     const current = open.shift()!;
@@ -225,7 +227,8 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
     const p = point(current);
     for (const [dx, dz] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) {
       const next = { x: p.x + dx, z: p.z + dz };
-      if (buildings.some(b=>b.progress===1&&distance(b,next)<2.35&&distance(b,start)>=2.35) || !walkable(terrain, next) || Math.abs(height(terrain, next.x, next.z) - height(terrain, p.x, p.z)) > 2.8) continue;
+      // ponytail: allow the destination cell to reach its exact door; replace coarse A* with the native pathfinder.
+      if ((!doorGoal || cell(next)!==goal) && buildings.some(b=>b.progress===1&&distance(b,next)<2.35&&distance(b,start)>=2.35) || !walkable(terrain, next) || Math.abs(height(terrain, next.x, next.z) - height(terrain, p.x, p.z)) > 2.8) continue;
       const id = cell(next), cost = costs.get(current)! + 2;
       if (closed.has(id) || cost >= (costs.get(id) ?? Infinity)) continue;
       came.set(id, current); costs.set(id, cost);
@@ -470,11 +473,29 @@ function castVoice(w:World,u:Unit,spell:Spell){sound(w,(u.team==='blue'?{blast:0
 export function effect(w: World, kind: Effect['kind'], p: Point) { const f:Effect={ x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:kind==='blast'?1.2:1.7 };w.effects.push(f);return f; }
 export function select(w: World, kind: UnitKind | 'all') { w.selected=w.units.filter(u=>u.team==='blue'&&(kind==='all'||u.kind===kind)).map(u=>u.id); w.mode=null; }
 function release(u: Unit) { u.vault=null; u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
+// Share the displayed object identity with native footprint/entrance lookup.
+export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {
+  return b.kind==='hut'?(b.team==='blue'?131:134)+b.level-1:b.kind==='camp'?(b.team==='blue'?103:104):b.kind==='tower'?(b.team==='blue'?79:80):(b.team==='blue'?95:96);
+}
+function buildingDoor(b: Building) {
+  const point=buildingOutsidePoint({object:buildingObject(b),angle:Math.round(b.angle*2048/(Math.PI*2))&2047,
+    anchorX:Math.round((b.x+8)*256)&0xfe00,anchorY:Math.round((-b.z-8)*256)&0xfe00});
+  return browserPosition({...point,h:0});
+}
 export function entrance(w: World, b: Point, radius=4) {
+  if ('level' in b && 'team' in b && 'kind' in b && 'angle' in b) {
+    return buildingDoor(b as Building);
+  }
   const angle='angle' in b?Number(b.angle):0;
   // Native model doors face -Z. Reflect both the model and the native map coordinates.
   if('angle' in b)return {x:b.x-Math.sin(angle)*radius,z:b.z+Math.cos(angle)*radius};
   return Array.from({length:16},(_,i)=>({x:b.x+Math.sin(i*Math.PI/8)*radius,z:b.z+Math.cos(i*Math.PI/8)*radius})).find(p=>walkable(w.terrain,p)) ?? b;
+}
+// The live adapter still enters occupants directly; command-8's staged entry
+// awaits the native path/occupancy consumers. Arrival is measured at its door.
+function atBuildingEntrance(w: World, p: Point, b: Building) {
+  const door=entrance(w,b);
+  return Math.abs(p.x-door.x)<112/256 && Math.abs(p.z-door.z)<112/256;
 }
 export function command(w: World, p: Point) {
   if(w.paused||w.status!=='playing')return;
@@ -733,14 +754,14 @@ function stepTurn(w:World){
       const cost=BUILDINGS.find(s=>s.id===b.kind)!.cost;
       const workers=w.units.filter(u=>u.work===b.id&&u.hp>0&&u.kind==='brave');
       for(const u of workers) {
-        if(u.cargo&&distance(u,b)<=4.2&&!u.path.length){b.logs+=u.cargo;u.cargo=0;u.tree=null;}
+        if(u.cargo&&atBuildingEntrance(w,u,b)&&!u.path.length){b.logs+=u.cargo;u.cargo=0;u.tree=null;}
         if(b.logs+workers.reduce((n,a)=>n+(a.cargo||a.tree!==null?1:0),0)<cost&&!u.cargo&&u.tree===null){
           const tree=w.trees.filter(t=>t.logs>=1).sort((a,c)=>distance(a,u)-distance(c,u)).find(t=>route(w,u,t).length);
           if(tree){u.tree=tree.id;u.path=route(w,u,tree);u.timer=0;}
         }
         if(u.tree!==null&&!u.cargo){const tree=w.trees.find(t=>t.id===u.tree)!;if(distance(u,tree)<1&&!u.path.length){u.timer+=dt;if(u.timer>=2){if(tree.logs>=1){tree.logs--;u.cargo=1;}else u.tree=null;u.timer=0;u.path=route(w,u,entrance(w,b));}}}
       }
-      if(b.logs>=cost)b.progress=Math.min(1,b.progress+workers.filter(u=>distance(u,b)<=4.2&&!u.path.length).length*dt/12);
+      if(b.logs>=cost)b.progress=Math.min(1,b.progress+workers.filter(u=>atBuildingEntrance(w,u,b)&&!u.path.length).length*dt/12);
       if(b.progress===1){if(!b.upgrading)w.stats.built++;b.upgrading=false;for(const u of workers){release(u);u.path=[];const p=entrance(w,b,4);u.x=p.x;u.z=p.z;}tell(w,`${BUILDINGS.find(s=>s.id===b.kind)!.name} completed.`);}
       continue;
     }
@@ -775,7 +796,7 @@ function stepTurn(w:World){
     const work=w.buildings.find(b=>b.id===u.work&&b.hp>0)??w.shrines.find(s=>s.id===u.work&&(s.active||u.vault?.head===s.id));
     if(u.work!==null&&!work)release(u);
     if(u.inside!==null){const b=w.buildings.find(b=>b.id===u.inside&&b.hp>0);if(b)continue;release(u);u.hp-=10;}
-    if(work&&'kind' in work&&'hp' in work&&work.progress===1&&!u.path.length&&distance(u,work)<=4.2){const capacity=housing(work);if(w.units.filter(a=>a.inside===work.id).length<capacity){u.inside=work.id;continue;}}
+    if(work&&'kind' in work&&'hp' in work&&work.progress===1&&!u.path.length&&atBuildingEntrance(w,u,work)){const capacity=housing(work);if(w.units.filter(a=>a.inside===work.id).length<capacity){u.inside=work.id;continue;}}
     let target:Unit|Building|undefined=u.target===null?undefined:[...w.units,...w.buildings].find(t=>t.id===u.target&&t.hp>0);
     if(target&&!('progress' in target)&&(target.lift>0||target.inside!==null))target=undefined;
     if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&t.inside===null&&t.lift===0&&distance(u,t)<(u.team==='red'?8:3));}

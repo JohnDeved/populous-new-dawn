@@ -1,8 +1,8 @@
 """Compare native training queues and the complete command-8 substate dispatcher.
 Usage: python scripts/check-native-training-queue.py /path/to/d3dpoptb.exe
 Queue operations execute without intercepted leaves. Controller cases supply
-geometry, path requests, animation output, cargo, occupant entry and inside work;
-queue mutations, facing math, movement speed/RNG and stopping execute natively.
+path requests, animation output, cargo, occupant entry and inside work;
+geometry, queue mutations, facing math, speed/RNG and stopping execute natively.
 """
 import copy,json,random,re,struct,subprocess,sys
 from pathlib import Path
@@ -25,6 +25,15 @@ for index in range(512):
     assert size in (1,2,4)
     value=constants[name]*256//100 if flags&1 else constants[name]
     cpu.mem_write(address,(value&((1<<(size*8))-1)).to_bytes(size,'little'))
+# Load original object/shape data; relocation is independently CPU-checked by
+# check-native-building-shapes.py. These buffers survive per-case world resets.
+cpu.mem_map(0x2040000,0x10000)
+objects,shapes=0x2040000,0x2043000
+source=Path(sys.argv[1]).parent
+cpu.mem_write(objects,(source/'objects/objs0-2.dat').read_bytes())
+raw=(source/'objects/shapes.dat').read_bytes();cpu.mem_write(shapes,raw)
+cpu.mem_write(0x895ec1,struct.pack('<I',objects));cpu.mem_write(0x59df3c,struct.pack('<I',shapes))
+for i in range(64):cpu.mem_write(shapes+i*48+44,struct.pack('<I',shapes+3072+struct.unpack_from('<I',raw,i*48+44)[0]))
 base,stack,stop=0x2000000,0x203d000,0x203e000
 rng=random.Random(0x434610);actions=[]
 def write(a,fmt,*v):cpu.mem_write(a,struct.pack('<'+fmt,*v))
@@ -42,7 +51,7 @@ fields={'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'state':(0x2c,'B')
  'workTarget':(0x89,'H'),'speed':(0x5f,'h'),'timer':(0x70,'h'),'target':(0x72,'h'),
  'reservationNext':(0x85,'H'),'cargo':(0x78,'H'),'angle':(0x26,'H'),'turnAngle':(0x57,'H'),
  'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'facingAngle':(0x5d,'H'),'commandPhase':(0xaa,'B'),'commandAux':(0xa9,'B')}
-bfields={'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),
+bfields={'object':(0x33,'h'),'angle':(0x26,'H'),'anchorX':(0x7a,'H'),'anchorY':(0x7c,'H'),'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),
  'activity':(0x9c,'H'),'queueHead':(0xa2,'H'),'queueFrom':(0xac,'B'),'inside':(0xa6,'B'),
  'entering':(0xad,'B'),'entryDelay':(0xab,'B'),'entryTimer':(0xae,'B')}
 def person(id_,**kw):
@@ -66,10 +75,10 @@ def snapshot(c,result):
     return dict(people=people,building={key:read(addr(c['building']['id'])+off,fmt) for key,(off,fmt) in bfields.items()},
       randomState=read(0x89d178,'I'),actions=copy.deepcopy(actions),result=result)
 def case():
-    b={key:0 for key in bfields};b.update(id=100,model=5,activity=8,queueHead=1,inside=5);b['class']=2
+    b={key:0 for key in bfields};b.update(id=100,model=5,object=95,activity=8,queueHead=1,inside=5);b['class']=2
     return dict(people=[person(i) for i in range(1,5)],building=b,
       orders=[[i,dict(model=8,flags=0,a=100)] for i in range(1,5)],randomState=rng.getrandbits(32),
-      outside=[1000,1000],insidePoint=[1000,1256],queueOrigin=[1000,1000],adjacent=0,workResult=0)
+      adjacent=0,workResult=0)
 js_prefix="""import {trainingQueuePerson,trainingQueuePredecessor,appendTrainingQueue,rebuildTrainingQueue,stepTrainingPerson} from './app/training.ts';
 import {emptyPersonOrder} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
 const result=JSON.parse(s).map(c=>{const records=Array.from({length:800},emptyPersonOrder);for(const [id,o] of c.orders)Object.assign(records[id],o);
@@ -117,19 +126,11 @@ compare(cases,expected,"""let value;if(c.op===0)value=rebuildTrainingQueue(w,b);
 else if(c.op===2)value=appendTrainingQueue(w,b,w.people.get(c.person));else value=trainingQueuePredecessor(w,b,w.people.get(c.person))?.id||0;
 return snapshot(value);""",'queue pruning, lookup, append and predecessor calls (no supplied leaves)')
 
-# Supply world consumers only; native queue, speed/recovery/stop and angle leaves run.
+# Supply world consumers only; native geometry, queue, speed/recovery/stop and angle leaves run.
 current=None
-short=lambda n:(n+32768)%65536-32768
 def leaf(cpu,address,size,user):
     sp=cpu.reg_read(UC_X86_REG_ESP);a,b,d=struct.unpack('<III',cpu.mem_read(sp+4,12));result=0
-    if address in [0x4044b0,0x404420,0x409710]:
-        kind={0x4044b0:'outside',0x404420:'inside',0x409710:'queue'}[address]
-        if kind=='queue':
-            index=(b+2**31)%2**32-2**31;point=[current['queueOrigin'][0],current['queueOrigin'][1]-index*128];dest=d
-            actions.append([kind,read(a+0x24,'H'),index])
-        else:point=current['outside' if kind=='outside' else 'insidePoint'];dest=b;actions.append([kind,read(a+0x24,'H')])
-        write(dest,'HH',*[v&65535 for v in point])
-    elif address in [0x4e9d80,0x4e9dd0]:
+    if address in [0x4e9d80,0x4e9dd0]:
         x,y=struct.unpack('<hh',cpu.mem_read(b,4));write(a+0x4f,'HH',x&65535,y&65535)
         actions.append(['direct' if address==0x4e9dd0 else 'destination',read(a+0x24,'H'),x,y])
     elif address==0x4d4040:actions.append(['animation',read(a+0x24,'H'),b&65535])
@@ -139,7 +140,7 @@ def leaf(cpu,address,size,user):
     elif address==0x407150:actions.append(['enter',read(a+0x24,'H'),read(b+0x24,'H')])
     elif address==0x4da5b0:actions.append(['work',read(a+0x24,'H')]);result=current['workResult']
     cpu.reg_write(UC_X86_REG_EAX,result);cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
-for a in [0x4044b0,0x404420,0x409710,0x4e9d80,0x4e9dd0,0x4d4040,0x4ea460,0x40a3f0,0x4d58c0,0x407150,0x4da5b0]:
+for a in [0x4e9d80,0x4e9dd0,0x4d4040,0x4ea460,0x40a3f0,0x4d58c0,0x407150,0x4da5b0]:
     cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a)
 cases=[];expected=[]
 for trial in range(2688):
@@ -156,25 +157,23 @@ for trial in range(2688):
     c['adjacent']=rng.choice([0,0,100]);c['workResult']=trial%2
     delta=rng.choice([0,0,11,12,111,112,1335,1336,-12,-112])
     p['goalX']=(p['x']+delta)&65535;p['goalY']=(p['y']+rng.choice([0,11,12,112,1336]))&65535
-    c['outside']=[p['goalX'],p['goalY']];c['insidePoint']=[p['goalX'],p['goalY']];c['queueOrigin']=[p['goalX'],p['goalY']]
+    b.update(object=rng.choice([79,95,103,131,154]),angle=(trial%4)*512,anchorX=p['x']&0xfe00,anchorY=p['y']&0xfe00)
     for other in c['people'][1:]:other.update(commandPhase=other['id']-1,x=1000,y=1000,goalX=1000,goalY=1000,model=rng.choice([2,3,4]))
     c['ticks']=[1];fixture(c);current=c;result=call(0x434610,addr(1))&255
     cases.append(c);expected.append([snapshot(c,result)])
 # Sequential handoff: a specialist yields its queue position, then both followers
 # receive the delayed position update; opening capacity releases the new head.
-c=case();c['building'].update(model=5,inside=5);c['people'][0].update(model=4,speed=0,x=1000,y=1000,goalX=1000,goalY=1000)
-for p in c['people'][1:]:p.update(commandPhase=p['id']-1,x=1000,y=1000,goalX=1000,goalY=1000)
+c=case();c['building'].update(model=5,inside=5);c['people'][0].update(model=4,speed=0,x=256,y=64384,goalX=256,goalY=64384)
+for p in c['people'][1:]:p.update(commandPhase=p['id']-1,x=256,y=64384,goalX=256,goalY=64384)
 c['ticks']=[1,2,1,2,1,2];c['openAt']=3;fixture(c);current=c;out=[]
 for i,id_ in enumerate(c['ticks']):
     if i==c['openAt']:write(addr(100)+0xa6,'B',0)
     result=call(0x434610,addr(id_))&255;out.append(snapshot(c,result))
 cases.append(c);expected.append(out)
-compare(cases,expected,"""const point=(kind,index)=>{actions.push(index===undefined?[kind,b.id]:[kind,b.id,index]);
- const xy=kind==='queue'?[c.queueOrigin[0],c.queueOrigin[1]-index*128]:kind==='outside'?c.outside:c.insidePoint;return {x:xy[0]&65535,y:xy[1]&65535};};
-const destination=(kind,p,x,y)=>{actions.push([kind,p.id,x,y]);p.goalX=x&65535;p.goalY=y&65535;};
+compare(cases,expected,"""const destination=(kind,p,x,y)=>{actions.push([kind,p.id,x,y]);p.goalX=x&65535;p.goalY=y&65535;};
 const effects={setAnimation:(p,id)=>actions.push(['animation',p.id,id&65535]),releaseMotion:p=>actions.push(['motion',p.id]),
- adjacentBuilding:p=>{actions.push(['adjacent',p.id]);return c.adjacent;},outsidePoint:()=>point('outside'),insidePoint:()=>point('inside'),queuePoint:(_,i)=>point('queue',i),
+ adjacentBuilding:p=>{actions.push(['adjacent',p.id]);return c.adjacent;},
  setDestination:(p,x,y)=>destination('destination',p,x,y),directDestination:(p,x,y)=>destination('direct',p,x,y),
  dropCargo:p=>{actions.push(['cargo',p.id]);p.cargo=0;},enterBuilding:(p,b)=>actions.push(['enter',p.id,b.id]),workInside:p=>{actions.push(['work',p.id]);return c.workResult;}};
 return c.ticks.map((id,i)=>{if(i===c.openAt)b.inside=0;const value=stepTrainingPerson(w,w.people.get(id),effects);return structuredClone(snapshot(value));});""",
- 'command-8 scenarios (all 14 substates and sequential queue handoff; world consumers supplied)')
+ 'command-8 scenarios (all 14 substates, original geometry and sequential queue handoff; remaining world consumers supplied)')
