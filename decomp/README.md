@@ -628,3 +628,20 @@ dirty flags, counters and texture callback order, including radius-64 ocean and
 first-mission rebuilds. The mission uses imported original heights before any
 browser resampling. The live opening terrain now runs the same two-traversal
 initialization; ongoing terrain deformation and texture consumers remain pending.
+
+## Live computer spell scan and shoreline Blast
+
+The spell-target oracle also runs **1,024** complete `004c6a20` shoreline Blast
+calls, including real `004f4d40` affordability, `004f45c0` person scoring and
+eligibility/usage checks. Its allocation consumer applies the native AI delay.
+Cases cover all four aim directions, priority ties, both shore transitions,
+population-dependent reserves, strict affordability and continued traversal
+after an override permits multiple casts.
+
+The live game now runs shoreline targeting before territory refresh and the
+general 80-cell scan/16-turn dispatch. It stores native terrain/territory and
+the four target slots per world, clears building claims on removal and refreshes
+them at the recovered staggered phase. Existing cropped terrain producers feed
+native vertices into the reconstructed terrain queue when their version changes.
+Browser person records/order, attack-group reserve input, early emergency paths,
+occupancy flags and complete global scheduling remain integration gaps.

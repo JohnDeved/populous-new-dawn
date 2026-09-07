@@ -460,6 +460,31 @@ test('original opening runs at turn 71 and its independent flyby clock can be in
 });
 
 
+test('live spell scans use population thresholds and building territory with delayed overlap recovery', async () => {
+ const {addBuilding}=await import('../app/model.ts');
+ const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),blue=w.units.filter(u=>u.team==='blue'&&u.kind==='brave'),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ w.terrain.fill(3);w.terrainVersion++;w.inputMask=0;w.ai.variables[57]=1;
+ const reset=()=>{
+  Object.assign(red,{x:0,z:0,path:[],target:null,work:null,inside:null,fight:null,lift:0,casting:null});
+  Object.assign(shaman,{x:30,z:30,path:[],work:null,inside:null});
+  for(const p of blue)Object.assign(p,{x:6,z:0,path:[],target:null,work:null,inside:null,fight:null,lift:0,hp:10000});
+  w.manaTribes[1].mana=20000;w.manaTribes[1].available=0;w.castingTribes[1].aiCooldown=0;
+ };
+ w.units=[red,shaman,...blue.slice(0,5)];reset();w.turn=14;
+ tick(w,1/12);assert.equal(w.spellScan.cursor,80);assert.equal(w.spellCasts[1][2],0);
+ tick(w,1/12);assert.equal(w.spellCasts[1][2],0,'five braves fall below the original offense threshold');
+ w.units.push(blue[5]);reset();w.turn=31;tick(w,1/12);
+ assert.equal(w.spellCasts[1][2],1,'six braves are eligible on the dispatch phase');
+ const b=addBuilding(w,'red','hut',{x:0,z:0});addBuilding(w,'red','hut',{x:0,z:0});
+ const cell=(248>>1)*128+(14>>1);reset();w.turn=102;tick(w,1/12);
+ assert.ok(w.land.regions[cell]&32,'the native tribe-one refresh marks ground around both buildings');
+ reset();w.turn=111;tick(w,1/12);assert.equal(w.spellCasts[1][2],1,'defense counts specialists, excluding the six braves');
+ for(const p of blue)p.kind='warrior';reset();w.turn=127;tick(w,1/12);
+ assert.equal(w.spellCasts[1][2],2,'six specialists meet the defense threshold');
+ b.hp=0;tick(w,1/12);assert.equal(w.land.regions[cell]&32,0,'removal clears the overlapping claim');
+ reset();w.turn=230;tick(w,1/12);assert.ok(w.land.regions[cell]&32,'the next scheduled refresh restores the surviving building’s claim');
+});
+
 test('original campaign stops Dakini Blast casting after its second allocation', () => {
  const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),target=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
  assert.equal(w.ai.defencePosition,8|(28<<8));assert.equal(w.ai.defenceRadius,7);
@@ -467,13 +492,15 @@ test('original campaign stops Dakini Blast casting after its second allocation',
  assert.equal(w.ai.pendingCommands.filter(c=>[1038,1108,1196].includes(c.opcode)).length,0);
  w.units=w.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');
  Object.assign(red,{x:4,z:29});w.ai.variables[57]=1;w.inputMask=0;
+ const opponents=[target,...Array.from({length:5},()=>addUnit(w,'blue','brave',{x:10,z:29}))];
  const castTurns=[];
  for(let turn=0;turn<220;turn++){
-  // Keep one eligible opponent nearby after each knockback; retain the caster's real cooldown and counters.
-  Object.assign(target,{x:8,z:29,hp:10000,lift:0,inside:null,work:null,path:[],target:null});
+  // Keep the script's six-person threshold in range while isolating cast timing.
+  Object.assign(red,{x:4,z:29,path:[],target:null,lift:0,fight:null});
+  for(const p of opponents)Object.assign(p,{x:10,z:29,hp:10000,lift:0,inside:null,work:null,path:[],target:null,fight:null});
   const count=w.spellCasts[1][2];tick(w,1/12);if(w.spellCasts[1][2]!==count)castTurns.push(w.turn);
  }
- assert.equal(castTurns[1]-castTurns[0],12,'native configured delay replaces the six-second melee timer');
+ assert.equal(castTurns[1]-castTurns[0],16,'dispatch waits for its next 16-turn phase after the 12-turn lockout');
  assert.equal(w.spellCasts[1][2],2,'the live enemy allocates two Blasts and then stops');
  assert.equal(w.ai.variables[19],2);assert.equal(w.ai.states&0x400,0);assert.equal(w.ai.flags&0x100,0);
  assert.deepEqual(w.ai.spellEntries.slice(0,2).map(s=>s.model),[0,0]);
@@ -876,9 +903,11 @@ test('live spell reach follows terrain height and enemy casts require and spend 
  for(const t of enemy.manaTribes)t.available=0;
  const pool=enemy.manaTribes[1];pool.mana=19999;
  tick(enemy,1/12);assert.equal(enemy.spellCasts[1][2],0,'cost plus entry reserve requires 20,000 mana');
- pool.mana=20000;tick(enemy,1/12);
- assert.equal(enemy.spellCasts[1][2],1);assert.equal(pool.mana,20000);assert.equal(pool.available,-10000,'allocation queues the debit');
- tick(enemy,1/12);assert.equal(pool.available,0);assert.equal(pool.mana,10000,'the next distribution settles payment');
+ pool.mana=20000;enemy.turn=15;for(const e of enemy.ai.spellEntries)e.people=1;
+ const control=structuredClone(enemy);for(const e of control.ai.spellEntries)e.model=0;
+ tick(enemy,1/12);tick(control,1/12);
+ assert.equal(enemy.spellCasts[1][2],1);assert.equal(pool.mana,control.manaTribes[1].mana-10000,'AI payment precedes this turn’s mana distribution');
+ assert.equal(pool.available,0,'distribution settles the queued debit');
 });
 
 test('native casting lockout survives animation and computer usage recovers one charge at a time', async () => {
@@ -906,6 +935,8 @@ test('spell targeting preserves native cell allowances and wrapped coordinate se
  w.terrain.fill(3);w.inputMask=0;w.ai.variables[57]=1;
  w.units=w.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');
  Object.assign(red,{x:0,z:0,target:target.id});Object.assign(target,{x:10.8,z:0,path:[],target:null,inside:null,work:null});
+ w.turn=15;w.spellScan.cursor=80;w.manaTribes[1].mana=20000;w.manaTribes[1].available=0;
+ for(const e of w.ai.spellEntries)e.people=1;
  tick(w,1/12);assert.equal(w.spellCasts[1][2],1,'target cell is eligible beyond the old truncated-radius distance');
  Object.assign(red,{x:124,z:0});assert.ok(spellInRange(w,red,2,{x:-124,z:0}),'position range wraps at the 256-unit world seam');
  const state=createTribeCasting(false),caster={x:0,y:0,height:256,flags2:0,flags4:0x2000000,state:0,landIndex:1,building:null,casting:state,playerType:2},events=[];
@@ -940,5 +971,6 @@ test('native spell scans retain slots and Blast scoring avoids friendly concentr
  Object.assign(shaman,{x:30,z:30});Object.assign(red,{x:0,z:0,target:blue[0].id});
  for(const [i,u] of blue.entries())Object.assign(u,{x:i?6:4,z:0,path:[],work:null,inside:null});
  for(const u of allies)Object.assign(u,{x:4,z:0,path:[],work:null,inside:null});
+ w.turn=15;w.manaTribes[1].mana=20000;w.manaTribes[1].available=0;for(const e of w.ai.spellEntries)e.people=1;
  tick(w,1/12);const shot=w.projectiles.find(p=>p.team==='red');assert.ok(shot);assert.deepEqual(shot.target,{x:7,z:-1},'live Blast retargets to the positive neighboring cell');
 });

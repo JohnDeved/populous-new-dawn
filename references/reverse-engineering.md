@@ -1841,3 +1841,67 @@ and `0042c130` (category clear) were exported while locating the producer; they
 remain raw, unported evidence.
 The existing math oracle also passes 680 terrain and 508 projectile comparisons;
 the executable/manifest verifier checks **515** raw C exports.
+
+## Live territory, general spell dispatch and shoreline Blast — 2026-09-08
+
+Exported `004c6a20`, `004f4d40`, `004f45c0`, `004c6760` and `004c6680` while
+tracing `004615f0`'s order. `castShoreBlast` reconstructs the complete first
+routine using its real affordability rule and the existing person scorer,
+now confirmed to match `004f45c0`. `004c6760` redistributes building occupants;
+`004c6680` creates a response task. These two exports remain unported evidence.
+
+Shoreline Blast checks `(tribe + turn + 7) & 31 == 0`, then strictly requires
+mana above Blast cost plus attack-group spell reserves, adding 50,000 when
+`tribe+91d` (person count) is below ten. It scans ring indices 24 through 78.
+Ground beside a shore category, or shore beside water, chooses the first matching
+neighbor in south/north/east/west order and aims on the opposite side of the
+enemy cell. The cell must have a positive native person score. Eligibility and
+usage gates are rechecked on each candidate; casting does not itself exit the
+loop. Normally allocation's AI delay prevents another cast, while override can
+permit more. No entry readiness, population threshold or final range gate is
+added to this independent native path.
+
+`check-native-spell-targets.py` adds **1,024** full shoreline calls to its existing
+**8,192** ring/scorer/summary/scan/dispatch comparisons. The native shoreline
+function and every query run unmodified; only final allocation is supplied,
+recording the spell/cell and applying its known 12-turn AI delay. Explicit cases
+exercise all directions, tie priority, both ground/shore and shore/water rules,
+and multiple allocations under override; randomized cases include group reserves,
+strict mana boundaries, population, alliances, disguise and protected people.
+
+The live world now owns a full native terrain state, region/search bytes and
+four-slot spell scan. On browser terrain-version changes, its even grid vertices
+feed native height changes through `queueTerrain`/`processTerrain`; intermediate
+browser vertices are not treated as native map points. This remains an adapter
+for approximate construction/deformation producers, not a claim of full native
+terrain physics. Terrain occupancy flags and texture consumers remain pending.
+
+The AI phase now executes shoreline Blast, scheduled territory refresh, then
+general scan/dispatch if the shoreline path did not cast. This replaces the
+nearest-opponent casting branch. General casting honors the original mission's
+six-person entry threshold and 16-turn dispatch cadence. Defense entries count
+enemy specialists rather than braves; offense counts all enemy people. Scanning
+continues while the existing browser action guards prevent allocation. Building
+removal clears its native footprint; an overlapping surviving claim returns on
+the next tribe refresh. Native defense radius defaults to eleven before script
+commands apply the first mission's seven.
+
+AI allocation now precedes the turn's mana distribution. A control-world
+regression verifies the exact debit despite that turn's follower generation.
+The prior one-opponent fixtures were corrected: focused range/payment/scoring
+tests explicitly lower their entry threshold, while the campaign regression
+retains the real six-person requirement and verifies two allocations on successive
+16-turn phases followed by the original script disabling the entries.
+
+All **41** regressions, including the full mission, pass. A new integration
+sequence checks five versus six braves, defense specialist counts, native building
+territory, overlap clearing and scheduled recovery. Playwright confirms live
+five-person rejection and six-person allocation to `{x:7,z:-1}` without page
+errors. Build/lint pass with seven existing image warnings and zero errors.
+Early emergency responses in `004d0860`, live person flags/cell-list ordering,
+attack-group reserve input, the two housekeeping routines and complete global
+turn ordering remain unfinished. The browser still uses its existing turn-number
+convention; the original outer loop runs tribe processing before incrementing
+the simulation turn inside `004ec6f0`.
+The shoreline cases record **19** allocations, including one override call with
+multiple allocations. The executable/manifest verifier checks **519** raw C exports.

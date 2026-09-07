@@ -20,7 +20,7 @@ def call(a,*args):
     assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
     return cpu.reg_read(UC_X86_REG_EAX)
 def compare(cases,expected,body):
-    js="import * as s from './app/computer-spells.ts';import * as m from './app/native-math.ts';let text='';for await(const c of process.stdin)text+=c;console.log(JSON.stringify(JSON.parse(text).map(c=>{"+body+"})));"
+    js="import * as s from './app/computer-spells.ts';import * as m from './app/native-math.ts';import rules from './app/original-rules.json' with {type:'json'};let text='';for await(const c of process.stdin)text+=c;console.log(JSON.stringify(JSON.parse(text).map(c=>{"+body+"})));"
     r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
     actual=json.loads(r.stdout);assert len(actual)==len(expected)
     for i,(a,b) in enumerate(zip(expected,actual)):
@@ -108,8 +108,10 @@ def setup(c):
     return t
 
 def scan_state(t):return dict(cursor=read(t+0x52e,'H'),limit=read(t+0x530,'H'),paused=read(t+0x53a,'B'),targets=list(struct.unpack('<4H',cpu.mem_read(t+0x532,8))))
+shore_delay=False
 def cast_leaf(cpu,address,size,user):
     sp=cpu.reg_read(UC_X86_REG_ESP);events.append([read(sp+8,'I'),read(sp+12,'I')&65535])
+    if shore_delay:write(read(sp+4,'I')+0x5bd,'B',12)
     cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
 cpu.hook_add(UC_HOOK_CODE,cast_leaf,begin=0x4f4de0,end=0x4f4de0)
 cases=[];expected=[];dispatches=[];cast_count=0;retained=0
@@ -143,3 +145,42 @@ compare(cases,expected,body+'return c.scan;')
 compare(cases,dispatches,body+"const casts=[],caster={...c.pos,height:256,flags2:0,flags4:0,state:0,landIndex:0,building:null,casting:{flags:0,cooldown:0,aiCooldown:0,spells:[]},playerType:1};s.dispatchSpellTargets(w,c.scan,c.entries,c.ranges,caster,0,0,{regionFlags:cell=>c.regions.includes(cell)?1<<(c.tribe+4):0,categoryFlags:cell=>c.water.includes(cell)?2:1,cast:(...args)=>casts.push(args)});return {scan:c.scan,ranges:c.ranges,casts};")
 assert cast_count and retained,(cast_count,retained)
 print('PASS: 1,024 full native general scans and composed dispatch calls;',cast_count,'casts;',retained,'retained target queues')
+
+# Execute the earlier shoreline routine with its real affordability, square-ring,
+# scoring and cast gates. The allocator consumer applies its known AI delay.
+shore_delay=True;cases=[];expected=[];shore_casts=0;multiple=0
+for i,c in enumerate(all_cases):
+    if i<11:
+        cells=[]
+        for j in ([24,32] if i==0 else [24]):
+            cell=call(0x49c890,0,j,0)&65535
+            cells.append([cell,[{'class':1,'model':3,'state':0,'tribe':0,'x':(cell&255)<<8,'y':cell&0xff00,'flags2':0,'flags4':0,'disguise':0}]])
+        c={**c,'tribe':1,'alliances':0,'center':0,'cells':cells,'blocks':[]}
+    t=setup(c);pos=dict(x=(c['center']&254)<<8,y=c['center']&0xfe00);shaman=base+0x24000
+    write(t+0x89d,'I',shaman);write(shaman+0x2f,'B',c['tribe']);write(shaman+0x3d,'HHh',pos['x'],pos['y'],256)
+    turn=(25-c['tribe'])&31
+    if i%7==0 and i>=11:turn+=1
+    population=rng.choice([0,9,10,20]);mana=rng.choice([10000,10001,60000,60001,100000]);delay=rng.choice([0,0,0,12])
+    flags=0x80000 if i%8==0 else 0;ai_flags=0x40000 if i%3==0 else 0;used=rng.choice([0,4])
+    if i<11:mana=200000;ai_flags=0;delay=0
+    write(t+0x91d,'i',population);write(t+0x94d,'i',mana);write(t+0x93d,'I',flags);write(t+0x596,'I',ai_flags)
+    write(t+0xc1f,'B',1);write(t+0x5bd,'B',delay);write(t+0x546,'B',used);write(0x89d188,'I',turn)
+    group=[2,3,0] if i%4==0 else [];reserve=sum(read(0x5a80d4+m*62,'i') for m in group if m)
+    if group:
+        write(shaman+0xaf,'B',1);write(t+0x36+0x4f,'B',20);write(t+0x36+0x1f,'3B',*group)
+    category={}
+    for j in range(160):
+        cell=call(0x49c890,c['center']&0xfefe,j,0)&65535;model=0 if i<11 else rng.randrange(16);category[cell]=model;write(terrain(cell)+12,'B',model)
+    if i<11:
+        for cell,people in c['cells']:
+            coast=5<=i<=8 or i==10
+            if coast:category[cell]=2;write(terrain(cell)+12,'B',2)
+            x,y=cell&255,cell>>8;adjacent=[x|(((y+2)&255)<<8),x|(((y-2)&255)<<8),((x+2)&255)|(y<<8),((x-2)&255)|(y<<8)]
+            directions=range(4) if i>=9 else [0 if i==0 else (i-1)%4]
+            for d in directions:category[adjacent[d]]=1 if coast else 2;write(terrain(adjacent[d])+12,'B',category[adjacent[d]])
+    events=[];result=bool(call(0x4c6a20,t));shore_casts+=len(events);multiple+=len(events)>1
+    expected.append(dict(result=result,casts=events.copy(),delay=read(t+0x5bd,'B')))
+    cases.append(dict(**c,pos=pos,turn=turn,population=population,mana=mana,reserve=reserve,flags=flags,gameFlags=0,aiFlags=ai_flags,used=used,delay=delay,category=list(category.items())))
+compare(cases,expected,"const categories=new Map(c.category),flags=rules.terrainCategoryFlags,casts=[];const w={tribe:c.tribe,alliances:c.alliances,cells:new Map(c.cells),terrainFlags:()=>0},caster={...c.pos,height:256,state:0,flags2:0,flags4:0,landIndex:0,building:null,playerType:1,casting:{flags:c.flags,cooldown:0,aiCooldown:c.delay,spells:Array.from({length:22},()=>({used:c.used}))}};const result=s.castShoreBlast(w,caster,c,{categoryFlags:cell=>flags[categories.get(cell)??0],cast:(...args)=>{casts.push(args);caster.casting.aiCooldown=12;}});return {result,casts,delay:caster.casting.aiCooldown};")
+assert shore_casts and multiple,(shore_casts,multiple)
+print('PASS: 1,024 full native shoreline Blast calls;',shore_casts,'allocations;',multiple,'calls continue allocating under the override')

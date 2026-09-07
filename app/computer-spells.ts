@@ -1,7 +1,7 @@
 import {spiralCell,cellsNear} from './native-math.ts';
 import type {SelectionUnit} from './computer-selection.ts';
 import rules from './original-rules.json' with {type:'json'};
-import {filterSpellEntries,computerSpellAllowed,computerSpellInRange,type TargetCaster} from './spell-casting.ts';
+import {filterSpellEntries,computerSpellAllowed,computerSpellInRange,canShamanCast,type TargetCaster} from './spell-casting.ts';
 
 export type SpellTargetUnit = Pick<SelectionUnit,'class'|'model'|'state'|'tribe'|'x'|'y'|'flags2'|'flags4'|'assignment'> & {disguise:number};
 export type SpellTargetWorld = {tribe:number;alliances:number;cells:Map<number,SpellTargetUnit[]>;
@@ -58,6 +58,29 @@ function scoreCell(w:SpellTargetWorld,cell:number) {
       !(p.flags4&0x1000)&&!spyDisguisedFrom(p,w.tribe)&&!allied(w,p.tribe)?1:-1;
   }
   return score;
+}
+
+// 0x4c6a20 and 0x4f4d40. Before general targeting, aim behind enemies at a
+// shoreline. Allocation may change eligibility; keep checking through index 78.
+export function castShoreBlast(w:SpellTargetWorld,caster:TargetCaster|null,
+  context:{turn:number;population:number;mana:number;reserve:number;gameFlags:number;aiFlags:number},
+  effects:{categoryFlags:(cell:number)=>number;cast:(model:number,cell:number)=>void}) {
+  const {turn,population,mana,reserve,gameFlags,aiFlags}=context;
+  if(((w.tribe+turn+7)&31)||!caster||((population<10?50000:0)+rules.spellCharging[2].cost+reserve|0)>=mana)return false;
+  const origin=((caster.x>>>8)&254)|(caster.y&0xfe00);
+  let cast=false;
+  for(let i=24;i<79;i++) {
+    const cell=spiralCell(origin,i,0),flags=effects.categoryFlags(cell);
+    const mask=flags&60?2:flags&1?60:0;if(!mask)continue;
+    const x=cell&255,y=cell>>>8;
+    const adjacent=[x|(((y+2)&255)<<8),x|(((y-2)&255)<<8),((x+2)&255)|(y<<8),((x-2)&255)|(y<<8)];
+    const direction=adjacent.findIndex(c=>effects.categoryFlags(c)&mask);
+    if(direction>=0&&scoreCell(w,cell)>0&&canShamanCast(caster.casting,caster.playerType,caster)&&
+      computerSpellAllowed(caster.casting,aiFlags,gameFlags,2)) {
+      effects.cast(2,adjacent[direction^1]);cast=true;
+    }
+  }
+  return cast;
 }
 
 // 0x4f4680, all spell cases. Preserve traversal order and the original center

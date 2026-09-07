@@ -1,13 +1,14 @@
 import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from './native-math.ts';
-import {createNativeTerrain,queueTerrain} from './native-terrain.ts';
+import {createNativeTerrain,queueTerrain,processTerrain,type NativeTerrain} from './native-terrain.ts';
+import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './territory.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {nativeSpellRange,spellEntryRanges,prepareSpellPayment,debitSpellMana,createTribeCasting,
-  canShamanCast,computerSpellAllowed,computerSpellInRange,registerSpellCooldown,stepTribeCastCooldown,stepComputerCastCooldown,
+  canShamanCast,registerSpellCooldown,stepTribeCastCooldown,stepComputerCastCooldown,
   type TribeCasting,type SpellCaster} from './spell-casting.ts';
-import {chooseSpellTarget,type SpellTargetWorld,type SpellTargetUnit} from './computer-spells.ts';
+import {castShoreBlast,scanSpellTargets,dispatchSpellTargets,type SpellTargetScan,type SpellTargetWorld,type SpellTargetUnit} from './computer-spells.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
@@ -254,6 +255,7 @@ export type World = {
   spellCasts:number[][];
   gifts: (Point & {kind: Shrine['kind']; remaining: number})[];
   giftCounts: Record<Spell, number>;
+  land:NativeTerrain & Territory;landVersion:number;spellScan:SpellTargetScan;
   castingTribes: TribeCasting[]; manaWorld: ManaWorld; manaTribes: ManaTribe[]; manaNotices: {flags:number;message:number}[];
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
@@ -271,7 +273,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 function missionAI(){
-  const ai={...scriptState(originalScript),states:0,flags:0,defencePosition:0,defenceRadius:0,spellEntries:Array.from({length:8},()=>({model:0,mana:0,range:0,people:0,mode:0})),reincarnation:true,includeIncompleteBuildings:false,pendingCommands:[] as {opcode:number;args:number[]}[]};
+  const ai={...scriptState(originalScript),states:0,flags:0,defencePosition:0,defenceRadius:11,spellEntries:Array.from({length:8},()=>({model:0,mana:0,range:0,people:0,mode:0})),reincarnation:true,includeIncompleteBuildings:false,pendingCommands:[] as {opcode:number;args:number[]}[]};
   // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
   ai.attributes[43]=12; // 0x461d70: attribute 43 before the turn-zero script.
   runScript(originalScript,ai,{turn:0,tribe:1,readInternal:id=>{if(id===0)return 0;throw new Error(`Unbound initial script read ${id}`);},command:(opcode,args)=>{
@@ -285,6 +287,8 @@ function missionAI(){
 }
 export function createWorld(): World {
   const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0},
+    land:{...structuredClone(originalLand),regions:new Uint8Array(16384),searchMarks:new Uint8Array(16384),searchTag:255},landVersion:-1,
+    spellScan:{cursor:0,limit:0,paused:0,targets:[0,0,0,0]},
     castingTribes:Array.from({length:4},(_,id)=>createTribeCasting(id!==0)),
     manaWorld:{playerTribe:0,gameFlags:0,loadFlags:0,levelFlags:0,manaFlags:0,turn:0,rateSample:0,
       spells:Array.from({length:4},()=>({available:4,disabled:0,stocks:Array(22).fill(0)}))},
@@ -616,6 +620,49 @@ function computerSpellWorld(w:World):SpellTargetWorld {
   }
   return {tribe:1,alliances:0,cells,terrainFlags:()=>{throw new Error('Native terrain occupancy flags are not integrated');}};
 }
+const nativeCellIndex=(cell:number)=>((cell>>>9)*128)+((cell&254)>>>1);
+const terrainTextures={surface:()=>{},globe:()=>{}};
+// ponytail: construction/deformation still write the cropped browser grid.
+// Feed its native vertices through the recovered queue until those producers
+// write the full native map directly; interpolated browser vertices are ignored.
+function syncNativeTerrain(w:World) {
+  if(w.landVersion===w.terrainVersion)return;
+  const changed:number[]=[];
+  for(let z=-48;z<=48;z+=2)for(let x=-48;x<=48;x+=2) {
+    const p=nativePosition(w,{x,z}),cell=((p.x>>>8)&254)|(p.y&0xfe00),i=nativeCellIndex(cell);
+    const h=short(Math.max(0,p.h));
+    if(w.land.heights[i]!==h){w.land.heights[i]=h;changed.push(cell);}
+  }
+  for(const cell of changed)queueTerrain(w.land,cell,1,0,terrainTextures);
+  processTerrain(w.land,terrainTextures);w.landVersion=w.terrainVersion;
+}
+function stepComputerSpells(w:World) {
+  syncNativeTerrain(w);
+  if((w.manaWorld.loadFlags&0x200)||(w.manaWorld.gameFlags&32))return;
+  const u=w.units.find(u=>u.team==='red'&&u.kind==='shaman'&&u.hp>0);
+  const caster=u?{...spellCaster(w,u),...nativePosition(w,u),state:0,flags4:0,landIndex:0,
+    casting:w.castingTribes[1],playerType:w.manaTribes[1].playerType}:null;
+  const world=computerSpellWorld(w),categoryFlags=(cell:number)=>rules.terrainCategoryFlags[w.land.categories[nativeCellIndex(cell)]&15];
+  const allocate=(model:number,cell:number)=>{
+    const spell=SPELLS.find(s=>s.model===model);
+    if(!spell)throw new Error(`Unimplemented computer spell effect ${model}`);
+    u!.path=[];beginCast(w,u!,spell.id,nativeCellPoint(cell));
+  };
+  // ponytail: native person action states and attack-group reserves remain
+  // adapters; the first mission supplies the opening three person classes.
+  const able=!!u&&!u.lift&&!u.fight&&!u.casting;
+  const shore=able&&castShoreBlast(world,caster,{turn:w.turn,population:w.units.filter(p=>p.team==='red'&&p.hp>0).length,
+    mana:w.manaTribes[1].mana,reserve:0,gameFlags:w.manaWorld.gameFlags,aiFlags:w.ai.flags},{categoryFlags,cast:allocate});
+  for(const id of [0,1])refreshBuildingTerritory(w.land,w.turn,{id,playerType:w.manaTribes[id].playerType,
+    defenceRadius:id===1?w.ai.defenceRadius:11,buildings:w.buildings.filter(b=>b.hp>0&&b.team===(id===0?'blue':'red'))
+      .map(b=>({...nativePosition(w,b),tribe:id}))});
+  if(shore)return;
+  const ranges=spellEntryRanges(w.manaWorld.gameFlags,w.castingTribes[1].flags,w.manaTribes[1].mana,caster,w.ai.spellEntries,0);
+  scanSpellTargets(world,w.spellScan,caster,ranges,()=>{throw new Error('Native preacher response is not integrated');});
+  if(able&&caster&&canShamanCast(caster.casting,caster.playerType,caster)&&(w.turn&15)===0)
+    dispatchSpellTargets(world,w.spellScan,w.ai.spellEntries,ranges,caster,w.manaWorld.gameFlags,w.ai.flags,
+      {categoryFlags,regionFlags:cell=>w.land.regions[nativeCellIndex(cell)],cast:allocate});
+}
 function beginCast(w:World,u:Unit,spell:Spell,p:Point){
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
   const target={x:Math.floor(p.x/2)*2+1,z:-Math.floor(-p.z/2)*2-1},position=nativePosition(w,u);
@@ -771,6 +818,7 @@ function stepTurn(w:World){
   if(!(w.manaWorld.loadFlags&0x200)&&!(w.manaWorld.gameFlags&32))
     stepComputerCastCooldown(w.castingTribes[1],w.ai.flags);
   campaignRules(w);
+  stepComputerSpells(w);
   if((w.turn&15)===0)for(const t of w.trees)if(t.logs>0&&t.logs<4)t.logs=Math.min(4,t.logs+constants.TREE1_WOOD_GROW/100);
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   for(const shrine of w.shrines) {
@@ -875,22 +923,6 @@ function stepTurn(w:World){
     if(target&&!('progress' in target)&&(target.lift>0||target.inside!==null))target=undefined;
     if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&t.inside===null&&t.lift===0&&distance(u,t)<(u.team==='red'?8:3));}
     if(target){u.heading=Math.atan2(target.x-u.x,target.z-u.z);}
-    // ponytail: native affordability/range; target scoring, attack-group reserves
-    // and scheduling still need the original AI controller and person records.
-    if(target&&u.team==='red'&&u.kind==='shaman'&&!(w.manaWorld.loadFlags&0x200)&&!(w.manaWorld.gameFlags&32)){
-      const ranges=spellEntryRanges(w.manaWorld.gameFlags,w.castingTribes[1].flags,w.manaTribes[1].mana,spellCaster(w,u),w.ai.spellEntries,0);
-      const point=nativePosition(w,target),targetCell=((point.x>>>8)&254)|(point.y&0xfe00);
-      if(w.ai.spellEntries.some((s,i)=>s.model===2&&ranges[i]>0)&&
-        computerSpellInRange(w.manaWorld.gameFlags,w.castingTribes[1].flags,{...spellCaster(w,u),...nativePosition(w,u)},targetCell,2)){
-        // Existing browser action guards above remain until native person states are live.
-        if(canShamanCast(w.castingTribes[1],w.manaTribes[1].playerType,{state:0,flags2:0,flags4:0})&&
-          computerSpellAllowed(w.castingTribes[1],w.ai.flags,w.manaWorld.gameFlags,2)){
-          const chosen=chooseSpellTarget(computerSpellWorld(w),2,targetCell,null);
-          if(chosen.accepted){u.path=[];beginCast(w,u,'blast',nativeCellPoint(chosen.cell));}
-        }
-        continue;
-      }
-    }
     if(target&&distance(u,target)<('progress' in target?4.3:1.7)){
       if('progress' in target){u.fighting=true;if(!u.cooldown){target.hp-=meleeDamage(u);u.cooldown=(u.kind==='shaman'?4:6)/TURNS_PER_SECOND;effect(w,'hit',target);}}
       else contacts.push([u,target]);continue;
@@ -919,7 +951,10 @@ function stepTurn(w:World){
   for(const [u,target] of contacts.sort((a,b)=>a[0].id-b[0].id))if(u.hp>0&&target.hp>0&&u.inside===null&&target.inside===null&&u.lift===0&&target.lift===0&&distance(u,target)<1.7&&!u.fight&&!u.casting&&!target.casting)joinBattle(w,u,target);
   for(const u of w.units.filter(u=>u.hp<=0&&u.kind==='shaman'))if(w.units.some(a=>a.team===u.team&&a.hp>0)){if(u.team==='blue'){w.respawn=12;tell(w,'Your shaman will reincarnate in 12 seconds.');}else if(w.ai.reincarnation)w.redRespawn=12;}
   for(const u of w.units.filter(u=>u.hp<=0)){const f=effect(w,walkable(w.terrain,u)?'death':'splash',u);if(f.kind==='death')f.unit={team:u.team,kind:u.kind,heading:u.heading};}
-  for(const b of w.buildings.filter(b=>b.hp<=0))effect(w,'death',b);
+  for(const b of w.buildings.filter(b=>b.hp<=0)){
+    markBuildingTerritory(w.land,{...nativePosition(w,b),tribe:b.team==='blue'?0:1},b.team==='blue'?11:w.ai.defenceRadius,true);
+    effect(w,'death',b);
+  }
   w.units=w.units.filter(u=>u.hp>0);w.buildings=w.buildings.filter(b=>b.hp>0);w.selected=w.selected.filter(id=>w.units.some(u=>u.id===id));
   cleanBattles(w);
   for(const team of ['blue','red'] as const){const key=team==='blue'?'respawn':'redRespawn';if(w[key]>0){w[key]=Math.max(0,w[key]-dt);if(w[key]===0&&w.units.some(u=>u.team===team)){const u=addUnit(w,team,'shaman',team==='blue'?HOME:ENEMY);if(team==='blue'&&!w.selected.length)w.selected=[u.id];effect(w,'birth',u);}}}
