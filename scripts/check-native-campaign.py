@@ -135,3 +135,71 @@ assert len(actual) == len(expected)
 for case, want, got in zip(cases, expected, actual):
     assert want == got, (case, want, got)
 print(f'PASS: {len(cases)} native spell-initializer counters; wrap at 256 and exclude models 22+')
+
+# Rebuild actual native building counters, then execute opcode 1136 and
+# both reads through the original interpreter. Mana rebuilding is disabled;
+# no calls are intercepted. Browser progress maps native state 2 to completion.
+import random
+rng=random.Random(1136);cases=[];expected=[]
+for trial in range(40):
+    rows=[];cpu.mem_write(0x89d1c8,bytes(4*0xc65))
+    cpu.mem_write(0x89d17c,struct.pack('<I',0x20));cpu.mem_write(0x89d188,struct.pack('<I',73))
+    cpu.mem_write(0x89c6f0,b'\0');cpu.mem_write(0x890330,bytes(4))
+    for i in range(24):
+        model=rng.choice([1,2,3,4,5,7,18,19]);owner=rng.randrange(2);state=rng.randrange(6);active=bool(rng.randrange(4))
+        p=head+i*256;cpu.mem_write(p,bytes(256))
+        cpu.mem_write(p+4,struct.pack('<I',p+256 if i<23 else 0))
+        cpu.mem_write(p+0x10,struct.pack('<I',0x20000000 if active else 0))
+        cpu.mem_write(p+0x2a,bytes([2,model,state]));cpu.mem_write(p+0x2f,bytes([owner]))
+        rows.append(dict(model=model,owner=owner,state=state,active=active))
+    cpu.mem_write(0x890324,struct.pack('<I',head));call(0x4ecac0)
+    results=[]
+    for internal in range(1066,1146):
+        codes=[12,1003,1006,1136,1007,0,1,1007,2,3,1007,4,3,1004,1019]
+        fields=[[1,0],[2,0],[1,1],[2,internal],[1,2]]
+        blob=bytearray(12552);struct.pack_into('<'+'H'*len(codes),blob,0,*codes)
+        for i,f in enumerate(fields):struct.pack_into('<Ii',blob,8192+i*8,*f)
+        cpu.mem_write(program,bytes(blob));call(0x48c6b0,0x89d1c8+0xc65,program)
+        results.append([*struct.unpack('<3i',cpu.mem_read(program+0x3000,12)),bool(struct.unpack('<I',cpu.mem_read(0x89d1c8+0xc65+0x596,4))[0]&0x10000)])
+    cases.append(rows);expected.append(results)
+js="""import {createWorld,campaignCommand,campaignInternal} from './app/model.ts';
+let input='';for await(const c of process.stdin)input+=c;
+console.log(JSON.stringify(JSON.parse(input).map(rows=>{
+ const w=createWorld();w.turn=73;
+ w.buildings=rows.filter(b=>b.model<18).map(b=>({team:b.owner===0?'blue':'red',kind:b.model<4?'hut':({4:'tower',5:'temple',7:'camp'})[b.model],level:b.model<4?b.model:1,hp:b.active?100:0,progress:b.state===2?1:0}));
+ return Array.from({length:80},(_,i)=>{campaignCommand(w,1136,[]);const turn=campaignInternal(w,0),all=campaignInternal(w,1066+i),complete=campaignInternal(w,1066+i);return [turn,all,complete,w.ai.includeIncompleteBuildings];});
+})));"""
+actual=browser(js,cases);assert len(actual)==len(expected)
+for rows,want,got in zip(cases,expected,actual):
+    for index,(a,b) in enumerate(zip(want,got)):assert a==b,(1066+index,rows,a,b)
+print(f'PASS: {len(cases)} native building-list rebuilds and {len(cases)*80} one-shot building-query sequences')
+
+# Actual opcode 1151 at every marker; cell traversal skips a non-head.
+level=json.loads((root/'app/level-one.ts').read_text().split('export default ',1)[1].rstrip(';\n'))
+cpu.mem_write(0x89b7a5,struct.pack('<256H',*level['markers']))
+cpu.mem_write(0x8a03e4,bytes(0x40000));cpu.mem_write(head,bytes(512))
+cpu.mem_write(head+0x2a,b'\6\6');cpu.mem_write(head+256+0x2a,b'\2\1');cpu.mem_write(head+256+0x20,b'\2\0')
+cpu.mem_write(0x890394,struct.pack('<I',head+256));cpu.mem_write(0x890398,struct.pack('<I',head))
+cell=(246//2)*128+18//2;cpu.mem_write(0x8a03ea+cell*16,b'\1\0')
+expected=[]
+for marker in range(256):
+    blob=bytearray(12552);struct.pack_into('<7H',blob,0,12,1003,1006,1151,0,1004,1019);struct.pack_into('<Ii',blob,8192,0,marker)
+    cpu.mem_write(program,bytes(blob));cpu.mem_write(head+0x6d,b'\1');call(0x48c6b0,tribe,program)
+    expected.append(bool(cpu.mem_read(head+0x6d,1)[0]&2))
+actual=browser("""import {createWorld,campaignCommand} from './app/model.ts';const w=createWorld(),head=w.shrines.find(s=>s.kind==='lightning');
+console.log(JSON.stringify(Array.from({length:256},(_,marker)=>{head.forced=false;campaignCommand(w,1151,[0],{fields:[[0,marker]]});return head.forced;})));""",[])
+assert actual==expected
+print('PASS: 256 native marker-trigger commands with actual cell lookup')
+# Real mission markers miss this head, so include explicit hit/adjacent fixtures.
+packed_cases=[(y<<8)|x for x in (16,18,19,20) for y in (244,246,247,248)]
+expected=[]
+for packed in packed_cases:
+    write_marker=struct.pack('<H',packed);cpu.mem_write(0x89b7a5,write_marker)
+    blob=bytearray(12552);struct.pack_into('<7H',blob,0,12,1003,1006,1151,0,1004,1019);struct.pack_into('<Ii',blob,8192,0,0)
+    cpu.mem_write(program,bytes(blob));cpu.mem_write(head+0x6d,b'\1');call(0x48c6b0,tribe,program)
+    expected.append(bool(cpu.mem_read(head+0x6d,1)[0]&2))
+actual=browser("""import {createWorld,forceHead} from './app/model.ts';import level from './app/level-one.ts';
+let input='';for await(const c of process.stdin)input+=c;const w=createWorld(),head=w.shrines.find(s=>s.kind==='lightning');
+console.log(JSON.stringify(JSON.parse(input).map(packed=>{level.markers[0]=packed;head.forced=false;forceHead(w,0);return head.forced;})));""",packed_cases)
+assert sum(expected)==4 and actual==expected
+print('PASS: 16 marker-trigger hit/adjacent-cell fixtures, including ignored odd bits')

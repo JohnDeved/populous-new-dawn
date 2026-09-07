@@ -253,7 +253,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
   return [];
 }
 export type World = {
-  ai:ScriptState & {states:number;reincarnation:boolean;pendingCommands:{opcode:number;args:number[]}[]};
+  ai:ScriptState & {states:number;reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
   messages: MessageState;
   spellCasts:number[][];
   gifts: (Point & {kind: Shrine['kind']; remaining: number})[];
@@ -274,7 +274,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 function missionAI(){
-  const ai={...scriptState(originalScript),states:0,reincarnation:true,pendingCommands:[] as {opcode:number;args:number[]}[]};
+  const ai={...scriptState(originalScript),states:0,reincarnation:true,includeIncompleteBuildings:false,pendingCommands:[] as {opcode:number;args:number[]}[]};
   // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
   runScript(originalScript,ai,{turn:0,tribe:1,readInternal:id=>{if(id===0)return 0;throw new Error(`Unbound initial script read ${id}`);},command:(opcode,args)=>{
     // 0x48cc60: native state bits, and SET_REINCARNATION's disable flag at tribe+0x93d.
@@ -334,17 +334,45 @@ export function recordSpellCast(w: World, tribe: number, model: number) {
 
 export function campaignInternal(w: World, id: number) {
   if (id === 0) return w.turn;
+  // 0x48f350: self then four explicit tribes, 16 building models each.
+  if (id >= 1066 && id <= 1145) {
+    const tribe = id < 1082 ? 1 : Math.floor((id - 1082) / 16);
+    const model = id < 1082 ? id - 1065 : (id - 1082) % 16 + 1;
+    const value = campaignBuildingCount(w, tribe, model, w.ai.includeIncompleteBuildings);
+    w.ai.includeIncompleteBuildings = false;
+    return value;
+  }
   // Native spell constants, including Blast, Lightning and Land Bridge.
   if (id >= 1184 && id <= 1199) return id - 1183;
   throw new Error(`Unbound campaign internal ${id}`);
 }
 
+// 0x4ecac0 counts completed buildings (state 2) separately from all live buildings.
+// Browser progress is the current approximation of native building state.
+export function campaignBuildingCount(w: World, tribe: number, model: number, includeIncomplete: boolean) {
+  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null;
+  const count = w.buildings.filter(b => b.team === team && b.hp > 0 &&
+    (includeIncomplete || b.progress >= 1) &&
+    (b.kind === 'hut' ? b.level : b.kind === 'tower' ? 4 : b.kind === 'temple' ? 5 : 7) === model).length;
+  return short(count);
+}
+
+// 0x48cc60 / 0x4fbf40: marker coordinates select a coarse cell, not a radius.
+export function forceHead(w: World, marker: number) {
+  if (!Number.isInteger(marker) || marker < 0 || marker >= level.markers.length) throw new RangeError('Invalid trigger marker');
+  const packed = level.markers[marker], head = headAt(w, packed & 255, packed >>> 8);
+  if (head) head.forced = true;
+}
+
 // Reviewed DO query handlers. Unknown commands/unsupported world state fail explicitly.
 export function campaignCommand(w: World, opcode: number, args: number[], script: PopScript = originalScript) {
-  const arity = ({1076: 3, 1077: 3, 1085: 2, 1131: 3, 1171: 2, 1176: 1} as Record<number, number>)[opcode];
+  const arity = ({1076: 3, 1077: 3, 1085: 2, 1131: 3, 1136: 0, 1151: 1, 1171: 2, 1176: 1} as Record<number, number>)[opcode];
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`);
   if (args.length !== arity) throw new Error(`Invalid campaign command arguments ${opcode}`);
   const read = (index: number) => scriptValue(script, w.ai, index, id => campaignInternal(w, id));
+
+  if (opcode === 1136) { w.ai.includeIncompleteBuildings = true; return; }
+  if (opcode === 1151) { forceHead(w, read(args[0])); return; }
 
   if (opcode === 1176) {
     addMessage(w.messages, messageStringId(read(args[0])), () => random(w));
@@ -386,7 +414,7 @@ export function campaignCommand(w: World, opcode: number, args: number[], script
 
 const discoveryScript = {
   ...originalScript,
-  codes: [12, 1003, ...originalScript.codes.slice(1242, 1322), ...originalScript.codes.slice(1370, 1470), 1004, 1019],
+  codes: [12, 1003, ...originalScript.codes.slice(1080, 1505), 1004, 1019],
 };
 function campaignDiscoveries(w: World) {
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.
@@ -631,6 +659,7 @@ function stepTurn(w:World){
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   for(const shrine of w.shrines) {
     if(!shrine.active)continue;
+    if(shrine.reset)shrine.forced=false;
     const worshippers=w.units.filter(u=>u.hp>0&&u.work===shrine.id&&distance(u,shrine)<3&&(!u.path.length)&&u.lift===0);
     let fired = false;
     if (shrine.kind === 'vault') {
@@ -638,11 +667,10 @@ function stepTurn(w:World){
       // ponytail: native coarse-cell/adjacent-building eligibility awaits the occupancy port.
       const eligible = !!shaman && shaman.vault?.head===shrine.id && shaman.lift===0 && !shaman.fight && !shaman.casting && distance(shaman,shrine)<3;
       fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced);
-      shrine.forced = false;
       shrine.progress = shrine.target>0 ? shrine.work/shrine.target : 0;
     } else {
       // ponytail: eligibility and per-object phase still use the browser's order/world state.
-      fired = stepWorship(shrine, w.turn, worshippers.length);
+      fired = stepWorship(shrine, w.turn, worshippers.length, shrine.forced);
       shrine.progress = worshipProgress(shrine);
     }
     if (fired) {

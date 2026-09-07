@@ -30,6 +30,7 @@ try{
  await click(0,4,'right');await page.waitForTimeout(4200);await focus(-4,0);
  await page.getByRole('button',{name:/Blast, [1-4] shots/}).click();await click(-8,-3);await page.waitForTimeout(1200);
  await page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('.objective-panel li.complete').length===2,{},{timeout:18000});console.log('bridge and vault verified');
+ const knowledge=page.locator('.campaign-messages details').filter({hasText:"Shaman, you've stolen the Warrior Training Hut Plan!"});await knowledge.locator('summary').click();assert.ok(await knowledge.locator('p').isVisible());await page.screenshot({path:'qa/campaign-knowledge.png'});await knowledge.getByRole('button',{name:'Dismiss campaign message',exact:true}).click();
  await focus(4,32);await page.getByRole('button',{name:'Select all braves',exact:true}).click();await click(4,32,'right');
  await page.getByRole('button',{name:'buildings B',exact:false}).click();const camp=page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true});assert.ok(await camp.isEnabled());await camp.click();await click(4,32);
  await page.getByText('Warrior Training Hut planned. Braves will fetch 8 logs from nearby trees.').waitFor();await page.screenshot({path:'qa/construction.png'});

@@ -352,3 +352,23 @@ test('original discovery messages follow script phases, persist and reset',async
  removeMessage(w.messages,0);assert.equal(w.messages.slots[0],null);assert.equal(w.messages.slots[1].stringId,616);
  assert.equal(createWorld().messages.slots.filter(Boolean).length,0);
 });
+
+test('partial building queries consume their mode once and marker triggers bypass worship',async()=>{
+ const {campaignCommand,campaignInternal,forceHead,addBuilding}=await import('../app/model.ts');
+ const {default:level}=await import('../app/level-one.ts');
+ const w=createWorld();const hut=w.buildings.find(b=>b.team==='blue');
+ const count=campaignInternal(w,1082);addBuilding(w,'blue','hut',HOME,false);
+ campaignCommand(w,1136,[]);assert.equal(campaignInternal(w,1185),2);
+ assert.equal(w.ai.includeIncompleteBuildings,true,'unrelated reads preserve the one-shot mode');
+ assert.equal(campaignInternal(w,1082),count+1);assert.equal(campaignInternal(w,1082),count);
+ hut.level=2;assert.equal(campaignInternal(w,1083),1,'upgrades move between native model counters');
+ const head=w.shrines.find(s=>s.kind==='lightning'),old=level.markers[255];
+ try{
+  level.markers[255]=0xf713;head.reset=false;head.enabled=true;w.turn=1;
+  forceHead(w,255);assert.equal(head.forced,true);tick(w,1/12);
+  assert.equal(head.uses,1,'force works outside the fourth-turn worship sample');
+  assert.equal(w.gifts.filter(g=>g.kind==='lightning').length,1);
+  tick(w,2/12);assert.equal(head.forced,false,'reset clears the retained force bit');assert.equal(head.uses,1);
+ }finally{level.markers[255]=old;}
+ assert.throws(()=>forceHead(w,256),RangeError);
+});

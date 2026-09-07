@@ -37,7 +37,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 | Original entries | Browser implementation | Evidence and limit |
 | --- | --- | --- |
-| `0048eae0`, `00430bd0`, `00430e40`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and two original discovery branches CPU-compared; full notification UI/scheduler pending |
+| `0048eae0`, `00430bd0`, `00430e40`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and discovery/settlement/vault tutorial branches CPU-compared; full notification UI/scheduler pending |
 | `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
 | `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows/compositing; some reaction layers still approximated |
 | `00586074`, `004e6a70` | `scripts/inspect-executable.py`, `app/model.ts` | Integer angle/sine tables and movement; route selection still browser A* |
@@ -196,3 +196,19 @@ slot contents, serial wrap, text IDs, shared RNG and script variables. It does
 not establish the rest of the original notification types, screen animation,
 popup interaction or full campaign scheduling. The executable and mission script
 are both hash-checked.
+
+
+The campaign oracle also executes 40 native building-list rebuilds and 3,200
+`PARTIAL_BUILDING_COUNT` query sequences through the actual interpreter. The
+fixture disables mana processing, not the counter rebuild. All 256 imported
+marker commands and 16 explicit hit/adjacent fixtures execute `TRIGGER_THING`
+through real dispatch and cell lookup. No leaf is intercepted in these checks.
+Browser progress/completion and active-object translation still approximate
+native building states and rebuild scheduling.
+
+The message oracle additionally compares 384 native settlement/vault tutorial
+cases with supplied building counters. The worship oracle now checks 4,824 work
+turns (480 with explicit force signals) and the unchanged 1,660 reward turns.
+Force evaluation follows work sampling and is cleared by reset, rather than
+cleared unconditionally each turn. See the detailed evidence log for fixture
+scope, opcode names and unported phases.

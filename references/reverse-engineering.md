@@ -408,3 +408,72 @@ Browser QA completes the mission discovery/construction/training flow, opens and
 dismisses the original Land Bridge notification, and verifies decoded cue audio.
 The corrected glyph and popup placement were visually inspected. All 288 exported
 routines pass the manifest and executable identity checks.
+
+
+## Settlement counters, trigger commands and tutorial continuation (2026-09-07)
+
+`004ecac0` rebuilds two signed-short building tables each cycle. Active class-2
+objects have flag `0x20000000`; models 18 (vault) and 19 (prison) use separate
+lists. Other models increment the all-building table at tribe+`0xbaf`; only
+native state 2 increments the completed table at tribe+`0xb7d`. Model IDs 1–3
+are hut sizes and 7 is Warrior Training. Browser queries now count represented
+buildings by team/model and map `progress >= 1` to completed state. Destroyed
+browser buildings are excluded. Native state transitions and the full rebuild
+phase are still not ported; this is an explicit world-state translation.
+
+`0048f350` internal IDs 1066–1081 query the executing tribe, and 1082–1145 query
+Blue, Dakini and the other two tribes in groups of 16 models. The normal read
+uses the completed table. Opcode 1136 sets tribe flag `0x10000`; only the next
+building-table read consumes it and uses the all-building table. Other internal
+reads leave it set. The community editor header names this command
+`PARTIAL_BUILDING_COUNT` (the earlier working name COUNT_WITH_BUILDINGS was not
+an original symbol). Self queries currently bind to Dakini, the only running
+campaign script; other script owners await full multi-tribe integration.
+
+Opcode 1151 (`TRIGGER_THING`) resolves a field to a marker index and passes the
+packed marker to `004fbf40`. It ignores odd coordinate bits, traverses the coarse
+cell list to the first class-6/model-6 head and sets force bit 2. Marker 41 from
+this mission does not address any represented original head, so that particular
+script request has no effect. The general binding handles existing heads, absent
+heads and marker validation. Native flag handling revealed a browser bug: force
+must persist until the trigger's reset prefix, rather than being cleared after
+every vault step. Type-0 heads now honor forcing too, after any work sample on
+that turn, bypassing the required work amount and fourth-turn sampling gate.
+Reset still clears forcing before evaluation; disabled/refilling heads retain
+the native ordering. `app/worship.ts` owns that work/force logic.
+
+The browser now executes the uninterrupted original bytecode range 1080–1504:
+settlement growth, advice when too few huts exist (including plans where the
+script requests them), Lightning/Land Bridge discovery, Warrior Knowledge theft,
+its marker trigger and cast-count baseline, Warrior Training construction, and
+the existing terrain-head removal block. Original masks and once-only variables
+determine when notifications appear. Opening narration/flyby, the earlier economy
+and attack branches, AI defaults and full script scheduling remain unported.
+
+The campaign oracle adds 40 actual native list rebuilds and 3,200 query sequences
+(arm partial counting, read time, read a building count twice). Fixtures span
+native states, both represented teams, active/inactive flags, all query IDs, and
+vault/prison exclusions. Mana rebuilding is disabled; no leaf is intercepted.
+Marker tests execute all 256 imported markers, plus 16 explicit hit/adjacent-cell
+fixtures because none of those original markers hits the chosen test head.
+The extra fixtures produce four hits and establish ignored odd-bit behavior.
+
+The message oracle adds 384 complete native settlement/vault tutorial cases,
+comparing user variables, notification records, latch consumption, sound cues and
+shared RNG. Those fixtures supply native building counter memory; the independent
+rebuild check covers its construction from object lists. Only message sound
+playback is intercepted. The worship oracle adds 480 turns covering force during
+reset, disabled/refilling phases, non-sample turns and zero-follower work; all
+4,824 work turns and 1,660 reward turns pass. Existing vault comparisons also pass.
+
+Names are cross-checked against ALACNPopWorldEditor `script.h`, revision
+`1adcc222c6f35cdc76429cbb9c536b6410359df6`; behavior comes from the supplied
+executable. The browser still approximates building state/cleanup, worship
+ownership, global phases and popup rendering. These tests do not prove full
+building, trigger, campaign or engine parity.
+
+Validation: all 18 engine regressions and TypeScript checking pass, along with
+the production build. Existing VM/height/terrain, vault, message and worship
+comparisons pass. Browser QA completes worship, bridge casting, vault discovery,
+construction, training, pause, orbit and restart, and opens/dismisses the original
+Warrior Knowledge notification. Its rendered text and pyramid were inspected.

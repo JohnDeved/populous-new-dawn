@@ -109,3 +109,42 @@ actual=browser("""import {removeMessage} from './app/messages.ts';let s='';for a
 const state=JSON.parse(s);removeMessage(state,1);console.log(JSON.stringify(state));""",before)
 assert actual==expected
 print('PASS: native message removal and surviving slots')
+
+# Remaining settlement and vault tutorial branches. Original terrain block has
+# its own oracle; skip only that block here, keeping tutorial command order.
+level=json.loads((root/'app/level-one.ts').read_text().split('export default ',1)[1].rstrip(';\n'))
+write(0x89b7a5,'<256H',*level['markers'])
+codes=[12,1003,*original[1080:1370],*original[1470:1505],1004,1019]
+blob=bytearray(source);blob[:8192]=bytes(8192);struct.pack_into('<'+'H'*len(codes),blob,0,*codes)
+vault=head+256;cpu.mem_write(vault,bytes(256));cpu.mem_write(vault+0x2a,b'\6\6');write(0x890398,'<I',vault)
+write(0x8a03ea+((250//2)*128+2//2)*16,'<H',2)
+profiles=[([0,0,0,0],[0,0,0,0],4,1,0,0),([4,0,0,0],[0,0,0,0],3,1,1,0),
+          ([1,0,0,0],[3,0,0,0],2,0,0,0),([1,1,1,1],[0,0,0,0],0,0,4,0),
+          ([1,0,0,0],[0,1,0,1],3,0,1,0),([4,0,0,1],[0,0,0,0],0,0,4,1)]
+cases=[];expected=[]
+for turn in range(64):
+    for complete,unfinished,lightning_remaining,vault_remaining,stock,busy in profiles:
+        seed=rng.getrandbits(32);reset(seed);sounds.clear();write(0x89c6d1,'<I',480);write(0x89d188,'<I',turn)
+        write(tribe+0x596,'<I',0);write(head+0x6b,'<b',lightning_remaining);write(vault+0x6b,'<b',vault_remaining)
+        write(0x96071e+12,'<B',stock);write(0x89ddee+12,'<B',5)
+        cpu.mem_write(0x89dd45,bytes(100))
+        for model,c,u in zip([1,2,3,7],complete,unfinished):
+            write(0x89dd45+model*2,'<h',c);write(0x89dd77+model*2,'<h',c+u)
+        variables=[0]*64;variables[29]=busy
+        cpu.mem_write(program,bytes(blob));cpu.mem_write(program+0x3000,struct.pack('<64i',*variables));call(0x48c6b0,tribe,program)
+        expected.append(dict(variables=list(struct.unpack('<64i',cpu.mem_read(program+0x3000,256))),messages=snapshot(),randomState=read(0x89bc72,'<I'),partial=bool(read(tribe+0x596,'<I')&0x10000),sounds=list(sounds)))
+        cases.append(dict(turn=turn,complete=complete,unfinished=unfinished,lightning=lightning_remaining,vault=vault_remaining,stock=stock,busy=busy,seed=seed))
+js="""import {createWorld,campaignCommand,campaignInternal} from './app/model.ts';import {runScript} from './app/popscript.ts';
+import original from './app/original-script.json' with {type:'json'};
+const script={...original,codes:[12,1003,...original.codes.slice(1080,1370),...original.codes.slice(1470,1505),1004,1019]};
+let input='';for await(const c of process.stdin)input+=c;
+console.log(JSON.stringify(JSON.parse(input).map(c=>{
+ const w=createWorld();w.ai.variables=Array(64).fill(0);w.ai.variables[29]=c.busy;w.turn=c.turn;w.randomState=c.seed;w.buildings=[];
+ [1,2,3,7].forEach((model,i)=>{for(let n=0;n<c.complete[i]+c.unfinished[i];n++)w.buildings.push({team:'blue',kind:model===7?'camp':'hut',level:model===7?1:model,hp:100,progress:n<c.complete[i]?1:0});});
+ w.shrines.find(s=>s.kind==='lightning').remaining=c.lightning;w.shrines.find(s=>s.kind==='vault').remaining=c.vault;w.shots.bridge=c.stock;w.spellCasts[0][12]=5;
+ runScript(script,w.ai,{turn:w.turn,tribe:1,readInternal:id=>campaignInternal(w,id),command:(op,args)=>campaignCommand(w,op,args)});
+ return {variables:w.ai.variables,messages:w.messages,randomState:w.randomState,partial:w.ai.includeIncompleteBuildings,sounds:w.sounds.map(s=>s.cue)};
+})));"""
+actual=browser(js,cases);assert len(actual)==len(expected)
+for c,want,got in zip(cases,expected,actual):assert want==got,(c,want,got)
+print(f'PASS: {len(cases)} native settlement/vault tutorial turns, actual counters, marker command and messages')

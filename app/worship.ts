@@ -63,17 +63,21 @@ export function beginWorshipTurn(s: WorshipState): boolean {
 }
 
 // Type-0 spell heads sample on every fourth object turn. Work is integer, not elapsed seconds.
-export function stepWorship(s: WorshipState, phase: number, followers: number): boolean {
+export function stepWorship(s: WorshipState, phase: number, followers: number, forced = false): boolean {
+  if (s.reset) forced = false;
   if (!beginWorshipTurn(s)) return false;
-  if (phase & 3) return false;
-  const square = Math.imul(s.required, s.required);
-  if (followers === 0) {
-    s.work = Math.max(0, (s.work - square) | 0);
-    return false;
+  let ready = false;
+  if (!(phase & 3)) {
+    const square = Math.imul(s.required, s.required);
+    if (followers === 0) {
+      s.work = Math.max(0, (s.work - square) | 0);
+    } else {
+      const missing = s.required - Math.min(s.required, followers) + 1;
+      s.work = (s.work + Math.trunc(square / Math.imul(missing, missing))) | 0;
+      ready = s.work >= Math.imul(s.target, square);
+    }
   }
-  const missing = s.required - Math.min(s.required, followers) + 1;
-  s.work = (s.work + Math.trunc(square / Math.imul(missing, missing))) | 0;
-  if (s.work < Math.imul(s.target, square)) return false;
+  if (!ready && !forced) return false;
   finishWorship(s);
   return true;
 }

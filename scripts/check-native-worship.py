@@ -50,7 +50,7 @@ profiles = [[1]*180, [0]*8+[1]*12+[0]*8+[1]*152,
             [2]*16+[0]*8+[4]*156, [0,1,2,3,4,0,0,0]*23]
 for required, target, remaining, growth in ((1,28,0,1),(1,32,4,1),(2,8,0,8),
                                            (4,2,1,1),(2,2,-1,1),(1,1,0,0)):
-    for counts in profiles:
+    for profile, counts in enumerate(profiles + [[0]*40, [1]*40]):
         settings = [0]*32
         settings[1], settings[3] = 1, remaining & 255
         for index, value in ((4,required),(26,target),(30,growth)):
@@ -60,11 +60,13 @@ for required, target, remaining, growth in ((1,28,0,1),(1,32,4,1),(2,8,0,8),
         cpu.mem_write(record, bytes([6,6,0,0,0,0,0]+settings))
         call(0x485b00, unit, record)
         deleted, trace = False, []
+        force_turns = [1,5,7,12,22] if profile >= len(profiles) else []
         for turn, count in enumerate(counts, 1):
             for i in range(count):
                 write(people+i*256+0x20, '<H', i+2 if i+1<count else 0)
             write(0x8a03ea, '<H', 1 if count else 0)
             write(unit+0x2e, '<B', turn & 255)
+            if turn in force_turns: write(unit+0x6d, '<B', read(unit+0x6d, '<B') | 2)
             before = bool(read(unit+0x6d, '<B') & 1)
             was_deleted = deleted
             if not deleted: call(0x4fb270, unit)
@@ -74,12 +76,13 @@ for required, target, remaining, growth in ((1,28,0,1),(1,32,4,1),(2,8,0,8),
                               enabled=bool(flags&1),grown=bool(flags&4),reset=bool(read(unit+0x6e,'<B')),
                               active=not deleted and not (remaining<0 and not flags&1),
                               fired=(not was_deleted and deleted) or (before and not flags&1)))
-        cases.append(dict(settings=settings,counts=counts));expected.append(trace)
+        cases.append(dict(settings=settings,counts=counts,forceTurns=force_turns));expected.append(trace)
 js = """import {createWorship,stepWorship} from './app/worship.ts';
 let input='';for await(const c of process.stdin)input+=c;
 console.log(JSON.stringify(JSON.parse(input).map(c=>{
- const s=createWorship(c.settings);return c.counts.map((count,i)=>{
-  const fired=stepWorship(s,i+1,count);
+ const s=createWorship(c.settings);let forced=false;return c.counts.map((count,i)=>{
+  if(c.forceTurns.includes(i+1))forced=true;if(s.reset)forced=false;
+  const fired=stepWorship(s,i+1,count,forced);
   const {work,target,remaining,cooldown,enabled,grown,reset,active}=s;
   return {work,target,remaining,cooldown,enabled,grown,reset,active,fired};
  });
