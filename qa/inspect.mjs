@@ -1,0 +1,10 @@
+import { chromium } from '@playwright/test';
+const browser = await chromium.launch({channel:'chrome',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist']});
+const page = await browser.newPage({ viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1 });
+page.on('response',r=>{if(r.status()>=400)console.log('HTTP',r.status(),r.url())});page.on('requestfailed',r=>console.log('FAILED',r.url(),r.failure()));
+const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push({text:m.text(),location:m.location()})});
+await page.goto('http://localhost:3000/',{waitUntil:'networkidle'});
+await page.waitForTimeout(2000);
+await page.screenshot({path:'qa/desktop.png'});
+console.log(JSON.stringify({title:await page.title(),canvas:await page.locator('.world-viewport canvas').count(),errors,body:(await page.locator('body').innerText()).slice(-1500)},null,2));
+await browser.close();
