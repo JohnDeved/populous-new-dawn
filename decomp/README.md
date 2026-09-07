@@ -415,15 +415,20 @@ pathfinding/occupancy and non-building shrine approaches remain unfinished.
 ```
 
 `app/building-occupants.ts` reconstructs admission `00407150`, occupant-mode
-changes `004d80e0`, conversion-weight scan `00408d20` and the cost arithmetic
+changes `004d80e0`, removal `00407490`, containing-building lookup `00409ed0`,
+repricing `0040bbe0`, conversion-weight scan `00408d20` and the cost arithmetic
 consumed from `0041b0c0`. Order clearing `00436ca0` is shared with group commits
-in `app/person-orders.ts`. The oracle compares **8,128** scenarios: 1,728 cost
+in `app/person-orders.ts`. The oracle compares **11,200** scenarios: 1,728 cost
 calculations, 1,024 weight scans, 2,048 occupant-mode transitions, 3,072
-admissions and 256 combined training-command/admission/interior-stop scenarios.
+admissions, 256 combined training-command/admission/interior-stop scenarios,
+and 3,072 removal/lookup/repricing scenarios.
 The combined calls execute actual admission, visibility, order cleanup, weight
-and cost routines. Vehicle/cell/tower consumers, full-building ejection,
-occupancy indicators and existing order-effect boundaries remain supplied.
+and cost routines. Full-building shaman admission executes actual removal and outside geometry.
+Vehicle/cell/tower consumers, construction-plan geometry, occupancy indicators
+and existing order-effect boundaries remain supplied. Removal restores the person
+at its current coordinates and sets its exit target/facing without teleporting.
 
 The balance override loader is shared by the person-state, queue and occupancy
-comparisons in `scripts/decomp.py`. Live warrior costs reuse the recovered
+comparisons in `scripts/decomp.py`; queue and occupancy comparisons share the
+original-shape fixture loader. Live warrior costs reuse the recovered
 arithmetic; complete live occupancy/pathfinding integration remains pending.

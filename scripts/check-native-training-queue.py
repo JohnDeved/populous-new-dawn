@@ -8,19 +8,14 @@ import copy,json,random,struct,subprocess,sys
 from pathlib import Path
 from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
-from decomp import native_cpu,configure_native_constants
+from decomp import native_cpu,configure_native_constants,load_native_shapes
 root=Path(__file__).resolve().parents[1]
 cpu,_=native_cpu(Path(sys.argv[1]));cpu.mem_map(0x2000000,0x40000)
 configure_native_constants(cpu, Path(sys.argv[1]))
 # Load original object/shape data; relocation is independently CPU-checked by
 # check-native-building-shapes.py. These buffers survive per-case world resets.
 cpu.mem_map(0x2040000,0x10000)
-objects,shapes=0x2040000,0x2043000
-source=Path(sys.argv[1]).parent
-cpu.mem_write(objects,(source/'objects/objs0-2.dat').read_bytes())
-raw=(source/'objects/shapes.dat').read_bytes();cpu.mem_write(shapes,raw)
-cpu.mem_write(0x895ec1,struct.pack('<I',objects));cpu.mem_write(0x59df3c,struct.pack('<I',shapes))
-for i in range(64):cpu.mem_write(shapes+i*48+44,struct.pack('<I',shapes+3072+struct.unpack_from('<I',raw,i*48+44)[0]))
+load_native_shapes(cpu, Path(sys.argv[1]), 0x2040000, 0x2043000)
 base,stack,stop=0x2000000,0x203d000,0x203e000
 rng=random.Random(0x434610);actions=[]
 def write(a,fmt,*v):cpu.mem_write(a,struct.pack('<'+fmt,*v))

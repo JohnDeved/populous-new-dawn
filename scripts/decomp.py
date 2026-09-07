@@ -64,6 +64,18 @@ def native_cpu(executable):
     return cpu, identity
 
 
+def load_native_shapes(cpu, executable, objects, shapes):
+    """Load bank-2 geometry into mapped fixture memory, applying 0x40c880 relocation."""
+    source = executable.parent / 'objects'
+    cpu.mem_write(objects, (source / 'objs0-2.dat').read_bytes())
+    raw = (source / 'shapes.dat').read_bytes()
+    cpu.mem_write(shapes, raw)
+    cpu.mem_write(0x895ec1, struct.pack('<I', objects))
+    cpu.mem_write(0x59df3c, struct.pack('<I', shapes))
+    for i in range(64):
+        cpu.mem_write(shapes+i*48+44, struct.pack('<I', shapes+3072+struct.unpack_from('<I', raw, i*48+44)[0]))
+
+
 def configure_native_constants(cpu, executable):
     """Apply shipped balance overrides through the native descriptor table."""
     constants=json.loads((ROOT/'app/original-constants.json').read_text())

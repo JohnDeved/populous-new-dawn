@@ -2,15 +2,16 @@
 Usage: python scripts/check-native-occupants.py /path/to/d3dpoptb.exe
 Admission, slot scans, conversion weights, cost arithmetic, visibility flags and
 command reference release run natively. Transport/cell/tower/indicator consumers
-and full-building ejection are supplied; this does not prove native pathfinding.
+and construction-plan exit geometry are supplied; this does not prove native pathfinding.
 """
 import copy,json,random,struct,subprocess,sys
 from pathlib import Path
 from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
-from decomp import native_cpu,configure_native_constants
+from decomp import native_cpu,configure_native_constants,load_native_shapes
 root=Path(__file__).resolve().parents[1]
 cpu,_=native_cpu(Path(sys.argv[1]));configure_native_constants(cpu,Path(sys.argv[1]));cpu.mem_map(0x2000000,0x40000)
+cpu.mem_map(0x2040000,0x10000);load_native_shapes(cpu,Path(sys.argv[1]),0x2040000,0x2043000)
 base,stack,stop=0x2000000,0x203d000,0x203e000
 rng=random.Random(0x407150);actions=[];current=None
 
@@ -22,14 +23,15 @@ def call(a,*args):
     cpu.emu_start(a,stop,timeout=1000000,count=2000000)
     assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
     return cpu.reg_read(UC_X86_REG_EAX)
-fields={'physics':(0x30,'B'),'speed':(0x5f,'h'),'cargo':(0x78,'H'),'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'tickPhase':(0x2e,'B'),
+fields={'homeX':(0x68,'H'),'homeY':(0x6a,'H'),'formationSlot':(0x82,'B'),'angle':(0x26,'H'),'turnAngle':(0x57,'H'),'facingAngle':(0x5d,'H'),
+ 'physics':(0x30,'B'),'speed':(0x5f,'h'),'cargo':(0x78,'H'),'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'tickPhase':(0x2e,'B'),
  'commandAux':(0xa9,'B'),'commandPhase':(0xaa,'B'),'animationMode':(0xa8,'B'),'selectionFlags':(0x7a,'B'),'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'state':(0x2c,'B'),'substate':(0x2d,'B'),
  'tribe':(0x2f,'b'),'x':(0x3d,'H'),'y':(0x3f,'H'),'height':(0x41,'H'),'velocityX':(0x43,'h'),'velocityY':(0x45,'h'),'velocityZ':(0x47,'h'),
  'clip':(0x1c,'H'),'renderFlags':(0x35,'H'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),
  'assignment':(0x76,'H'),'commandCursor':(0xa6,'B'),'immediateCommand':(0x9b,'H'),
  'orderLocation':(0x83,'H'),'commandStatus':(0xa7,'B'),'workTarget':(0x89,'H'),'vehicle':(0x9f,'H')}
-bfields={'physics':(0x30,'B'),'speed':(0x5f,'h'),'cargo':(0x78,'H'),'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'tickPhase':(0x2e,'B'),
- 'commandAux':(0xa9,'B'),'commandPhase':(0xaa,'B'),'animationMode':(0xa8,'B'),'selectionFlags':(0x7a,'B'),'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'tribe':(0x2f,'b'),
+bfields={'lastActivity':(0x7e,'I'),'queueHead':(0xa2,'H'),'queueFrom':(0xac,'B'),'entryDelay':(0xab,'B'),'entryTimer':(0xae,'B'),'entering':(0xad,'B'),
+ 'object':(0x33,'h'),'angle':(0x26,'H'),'anchorX':(0x7a,'H'),'anchorY':(0x7c,'H'),'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'tribe':(0x2f,'b'),
  'flags2':(0xc,'I'),'flags3':(0x14,'I'),'activity':(0x9c,'H'),'inside':(0xa6,'B'),
  'trainingTimer':(0x9a,'H'),'trainingCost':(0x96,'H')}
 def fixture(c):
@@ -44,8 +46,12 @@ def fixture(c):
     write(a+0x86,'6H',*b['occupants'])
     for i,o in enumerate(c['orders']):write(0x938830+i*10,'BB4H',o['model'],o['flags'],o['references'],o['object'],o['a'],o['b'])
     write(0x96aa7a,'H',c['active']);write(0x96eace,'B',c['towerTribes'])
+    write(0x89d188,'I',c['turn']);cpu.mem_write(0x8a03e4,bytes(128*128*16))
+    write(addr(101)+0x24,'H',101);write(addr(101)+0x2a,'B',c['otherClass']);write(0x890390+101*4,'I',addr(101))
+    for p in c['people']:write(0x8a03ec+((p['y']>>9)*128+(p['x']>>9))*16,'H',c['terrainBuilding'])
     for i,t in enumerate(c['tribes']):
         a=0x89d1c8+i*0xc65;write(a+0xa27,'9h',*t['personCounts']);write(a+0xc1f,'B',t['playerType'])
+        write(a+0x885,'I',addr(t['buildingIds'][0]) if t['buildingIds'] else 0)
 def snapshot(c,result):
     people=[{**{key:read(addr(p['id'])+off,fmt) for key,(off,fmt) in fields.items()},'commands':list(struct.unpack('<8H',cpu.mem_read(addr(p['id'])+0x8b,16)))} for p in c['people']]
     b={key:read(addr(100)+off,fmt) for key,(off,fmt) in bfields.items()};b['occupants']=list(struct.unpack('<6H',cpu.mem_read(addr(100)+0x86,12)))
@@ -65,12 +71,7 @@ def leaf(cpu,address,size,user):
         x,y,h=struct.unpack('<3H',cpu.mem_read(b,6));actions.append(['move',id_,x,y,h]);write(a+0x3d,'3H',x,y,h)
     elif address==INSERT:actions.append(['insert',id_])
     elif address==0x4ee4f0:actions.append(['remove',id_])
-    elif address==0x407490:
-        actions.append(['eject',id_])
-        if current['eject']:
-            for slot in range(6):
-                if read(a+0x86+slot*2,'H'):
-                    write(a+0x86+slot*2,'H',0);write(a+0xa6,'B',(read(a+0xa6,'B')-1)&255);break
+    elif address==0x4b9fc0:actions.append(['plan',id_]);write(b,'HH',3072,4096)
     elif address==0x40c4e0:actions.append(['indicator',id_])
     elif address==0x4d4040:actions.append(['animation',id_,b&65535])
     elif address in ORDER_LEAVES:actions.append([ORDER_LEAVES[address],id_])
@@ -79,7 +80,7 @@ def leaf(cpu,address,size,user):
 # Use the same reviewed order cleanup leaves as check-native-orders.py.
 HEIGHT,MOVE,INSERT=0x44e940,0x4ee580,0x4ee470
 ORDER_LEAVES={0x51ff40:'work',0x4ef180:'delete',0x4d4f40:'fight'}
-for a in [0x466c80,0x40a3f0,0x404540,HEIGHT,MOVE,INSERT,0x4ee4f0,0x407490,0x40c4e0,0x4d4040,*ORDER_LEAVES]:
+for a in [0x466c80,0x40a3f0,0x404540,HEIGHT,MOVE,INSERT,0x4ee4f0,0x4b9fc0,0x40c4e0,0x4d4040,*ORDER_LEAVES]:
     cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a)
 
 def case():
@@ -88,17 +89,18 @@ def case():
         p={key:0 for key in fields};p.update(id=id_,model=2,state=10,tribe=0,commands=[id_,0,0,0,0,0,0,0],workTarget=100,x=1000,y=2000);p['class']=1;people.append(p)
     b={key:0 for key in bfields};b.update(id=100,model=7,activity=8,occupants=[0]*6);b['class']=2
     orders=[dict(model=8,flags=0,references=1,object=100,a=100,b=0) for _ in range(8)];orders[0]=dict(model=0,flags=0,references=0,object=0,a=0,b=0)
-    return dict(people=people,building=b,orders=orders,active=7,towerTribes=rng.randrange(256),
-        tribes=[dict(personCounts=[0]*9,playerType=2) for _ in range(4)],tower=0,special=0,eject=False)
-js_prefix="""import {stepTrainingPerson} from './app/training.ts';import {enterBuilding,setPersonOccupancy,trainingOccupantWeight,nativeTrainingCost} from './app/building-occupants.ts';
+    return dict(people=people,building=b,orders=orders,active=7,towerTribes=rng.randrange(256),turn=12345,terrainBuilding=0,otherClass=1,
+        tribes=[dict(personCounts=[0]*9,playerType=2,buildingIds=[100]) for _ in range(4)],tower=0,special=0)
+js_prefix="""import {stepTrainingPerson} from './app/training.ts';import {enterBuilding,removeBuildingOccupant,leaveBuilding,repriceTraining,setPersonOccupancy,trainingOccupantWeight,nativeTrainingCost} from './app/building-occupants.ts';
 let s='';for await(const c of process.stdin)s+=c;const result=JSON.parse(s).map(c=>{
-const actions=[],b=c.building,w={people:new Map(c.people.map(p=>[p.id,p])),orders:{records:c.orders,cursor:1,active:c.active},towerTribes:c.towerTribes,tribes:c.tribes};
+const actions=[],b=c.building,w={people:new Map(c.people.map(p=>[p.id,p])),orders:{records:c.orders,cursor:1,active:c.active},towerTribes:c.towerTribes,tribes:c.tribes,
+ turn:c.turn,buildingAt:()=>c.terrainBuilding,buildings:new Map([[b.id,b],[101,{...b,id:101,class:c.otherClass,inside:0,occupants:[0,0,0,0,0,0]}]])};
 const effects={orders:{prepare:()=>{throw Error('unexpected prepare')},stopWork:p=>{if(p.workTarget===100)actions.push(['work',100]);},releaseSpell:()=>{throw Error('uncovered spell cancellation')},
  deleteObject:id=>actions.push(['delete',id]),releaseFight:p=>actions.push(['fight',p.id])},leaveVehicle:p=>actions.push(['vehicle',p.id]),
  adjacentBuilding:(p,model)=>{actions.push(['adjacent',p.id,model]);return model===4?c.tower:c.special;},towerPosition:id=>{actions.push(['tower',id]);return {x:1234,y:4321,clip:321};},
  terrainHeight:(x,y)=>{actions.push(['height',x&65535,y&65535]);return 65400;},moveToCell:(p,x,y,h)=>{actions.push(['move',p.id,x,y,h]);p.x=x;p.y=y;p.height=h;},
  insertCell:p=>actions.push(['insert',p.id]),removeCell:p=>actions.push(['remove',p.id]),updateIndicator:b=>actions.push(['indicator',b.id]),
- ejectFirst:b=>{actions.push(['eject',b.id]);if(c.eject){const slot=b.occupants.findIndex(Boolean);if(slot>=0){b.occupants[slot]=0;b.inside=(b.inside-1)&255;}}}};
+ planExitPoint:b=>{actions.push(['plan',b.id]);return {x:3072,y:4096};}};
 const snapshot=result=>({people:c.people,building:b,orders:w.orders.records,active:w.orders.active,towerTribes:w.towerTribes,actions:structuredClone(actions),result});
 """
 def compare(cases,expected,js,label):
@@ -143,7 +145,7 @@ for trial in range(3072):
     c=case();b=c['building'];p=c['people'][0]
     b.update(model=trial%20,tribe=trial%4,inside=rng.choice([0,1,3,4,5,6,127,128,255]),activity=rng.choice([8,8,8,0x1488,0]),
       flags3=rng.getrandbits(32),trainingTimer=rng.randrange(65536),trainingCost=rng.randrange(65536),occupants=[rng.choice([0,0,2,3,4,5,6,7]) for _ in range(6)])
-    c['eject']=trial%2==0;c['tower']=100 if b['model']==4 else 0;c['special']=100 if b['model']==19 else 0
+    c['tower']=100 if b['model']==4 else 0;c['special']=100 if b['model']==19 else 0
     for person in c['people']:
         person.update(model=rng.randrange(9),tribe=rng.choice([b['tribe'],b['tribe'],(b['tribe']+1)%4]),flags2=rng.choice([0,0,1,0x20000]),
           flags4=rng.getrandbits(32),assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),orderLocation=rng.randrange(65536))
@@ -173,3 +175,30 @@ const training={setAnimation:(p,id)=>actions.push(['animation',p.id,id&65535]),r
 w.buildings=new Map([[b.id,b]]);w.randomState=1;const out=[];
 for(let i=0;i<2;i++){const value=stepTrainingPerson(w,c.people[0],training);out.push(structuredClone(snapshot(value)));if(value)break;}return out;""",
  'combined training-command admission and interior-stop scenarios; no entry, occupancy, weight, cost or order-cleanup leaves supplied')
+
+cases=[];expected=[]
+for trial in range(3072):
+    c=case();b=c['building'];c['op']=trial%3;c['person']=rng.choice([0,1,2,3,7]);c['nullBuilding']=trial%11==0
+    c['terrainBuilding']=rng.choice([0,0,100,101,1024,1124,1125]);c['otherClass']=rng.choice([0,1,2]);c['turn']=rng.getrandbits(32)
+    b.update(model=trial%20,tribe=trial%4,inside=rng.choice([0,1,3,5,6,127,128,255]),flags2=rng.choice([0,1]),
+      flags3=rng.getrandbits(32),activity=rng.randrange(65536),trainingTimer=rng.randrange(65536),trainingCost=rng.randrange(65536),
+      object=rng.choice([79,95,103,131,154]),angle=(trial%4)*512,anchorX=rng.randrange(128)*512,anchorY=rng.randrange(128)*512,
+      occupants=[rng.choice([0,1,2,3,4,5,6,7]) for _ in range(6)],entryDelay=rng.randrange(256),lastActivity=rng.getrandbits(32))
+    b['class']=rng.choice([2,2,2,9])
+    for p in c['people']:
+        p.update(model=rng.randrange(9),tribe=b['tribe'],flags2=rng.getrandbits(32),flags4=rng.getrandbits(32),
+          assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),x=rng.choice([0,32767,32768,65535]),y=rng.randrange(65536),
+          homeX=rng.randrange(65536),homeY=rng.randrange(65536),formationSlot=rng.randrange(256),angle=rng.randrange(2048),
+          turnAngle=rng.randrange(2048),facingAngle=rng.randrange(2048))
+        p['class']=rng.choice([0,1,1,2])
+    for t in c['tribes']:t['buildingIds']=rng.choice([[],[100]])
+    if c['op']==2:b['model']=rng.choice([5,6,7,8,9])
+    fixture(c)
+    if c['op']==0:
+        value=call(0x407490,0 if c['nullBuilding'] else addr(100),addr(c['person']));value=read(value+0x24,'H') if value else 0
+    elif c['op']==1:call(0x409ed0,addr(c['person'] or 1));value=0
+    else:call(0x40bbe0,addr(100));value=0
+    cases.append(c);expected.append(snapshot(c,value))
+compare(cases,expected,"""let value=0;if(c.op===0)value=removeBuildingOccupant(w,c.nullBuilding?undefined:b,w.people.get(c.person),effects)?.id||0;
+else if(c.op===1)leaveBuilding(w,w.people.get(c.person||1),effects);else repriceTraining(w,b);return snapshot(value);""",
+ 'occupant removals, containing-building lookup and repricing, including signed counts, map seams and construction-plan exits; only plan geometry and existing spatial/transport/indicator leaves supplied')

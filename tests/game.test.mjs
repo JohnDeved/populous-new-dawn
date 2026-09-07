@@ -657,23 +657,27 @@ test('live followers reach rotated native doors before entering buildings', () =
 });
 
 test('building admission preserves native slot order, training activity and shared commands', async () => {
- const {enterBuilding,setPersonOccupancy,trainingOccupantWeight}=await import('../app/building-occupants.ts');
+ const {enterBuilding,leaveBuilding,setPersonOccupancy,trainingOccupantWeight,repriceTraining}=await import('../app/building-occupants.ts');
  const {emptyPersonOrder}=await import('../app/person-orders.ts');
  const person=(id,model,tribe=0)=>({id,class:1,model,tribe,state:10,substate:5,x:1000,y:2000,
   flags2:0,flags3:0,flags4:0,assignment:0,renderFlags:0,commands:[1,0,0,0,0,0,0,0],
   commandCursor:0,immediateCommand:0,commandStatus:8,workTarget:100,orderLocation:123,
-  height:100,velocityX:1,velocityY:2,velocityZ:3,clip:0});
+  height:100,velocityX:1,velocityY:2,velocityZ:3,clip:0,
+  homeX:0,homeY:0,formationSlot:3,angle:0,turnAngle:0,facingAngle:0});
  const brave=person(1,2),warrior=person(2,3),guest=person(3,2,1);
  const records=Array.from({length:800},emptyPersonOrder);Object.assign(records[1],{model:8,references:3,a:100});
  const w={people:new Map([[1,brave],[2,warrior],[3,guest]]),orders:{records,cursor:2,active:1},towerTribes:0,
-  tribes:[{personCounts:[0,0,0,4,0,0,0,0,0],playerType:2}]};
+  buildings:new Map(),turn:42,buildingAt:()=>0,
+  tribes:[{personCounts:[0,0,0,4,0,0,0,0,0],playerType:2,buildingIds:[100]}]};
  const b={id:100,class:2,model:7,tribe:0,flags2:0,flags3:0x1000,activity:8|1024,inside:1,
-  occupants:[0,2,0,0,0,0],trainingTimer:123,trainingCost:0};
+  occupants:[0,2,0,0,0,0],trainingTimer:123,trainingCost:0,
+  object:103,angle:512,anchorX:0,anchorY:0,entryDelay:0,lastActivity:0};
+ w.buildings.set(100,b);
  const events=[],unexpected=()=>assert.fail('unexpected world consumer');
  const effects={orders:{prepare:unexpected,stopWork:unexpected,releaseSpell:unexpected,deleteObject:unexpected,releaseFight:unexpected},
   leaveVehicle:p=>events.push(['vehicle',p.id]),adjacentBuilding:()=>0,towerPosition:unexpected,terrainHeight:()=>321,
   moveToCell:unexpected,insertCell:p=>events.push(['insert',p.id]),removeCell:p=>events.push(['remove',p.id]),
-  ejectFirst:b=>{events.push(['eject',b.id]);b.occupants[b.occupants.findIndex(Boolean)]=0;b.inside--;},
+  planExitPoint:unexpected,
   updateIndicator:b=>events.push(['indicator',b.id])};
  assert.equal(enterBuilding(w,brave,b,effects),1);
  assert.deepEqual(b.occupants,[1,2,0,0,0,0]);assert.equal(b.inside,2);
@@ -687,9 +691,20 @@ test('building admission preserves native slot order, training activity and shar
  assert.equal(b.trainingCost,4375,'a building without a conversion retains its old cost word');
  assert.equal(brave.assignment&4,0);assert.equal(warrior.assignment&4,0);
  b.inside=5;const full=structuredClone(b);assert.equal(enterBuilding(w,guest,b,effects),0);assert.deepEqual(b,full);
- guest.model=7;assert.equal(enterBuilding(w,guest,b,effects),1);assert.ok(events.some(e=>e[0]==='eject'));
+ guest.model=7;assert.equal(enterBuilding(w,guest,b,effects),1);
+ assert.equal(brave.flags2&0x804000,0,'shaman admission executes the real occupant exit');
+ assert.equal(brave.formationSlot,0);assert.equal(b.entryDelay,12);
+ assert.deepEqual([brave.x,brave.y],[1000,2000],'exit restores the person without teleporting');
+ assert.equal(brave.homeX&511,256);assert.equal(brave.homeY&511,256);
+ // A nonzero terrain index suppresses list fallback, even when no building exists.
+ w.buildingAt=()=>101;const occupied=structuredClone(b);
+ leaveBuilding(w,warrior,effects);assert.deepEqual(b,occupied);
+ w.buildingAt=()=>0;leaveBuilding(w,warrior,effects);
+ assert.equal(b.occupants[1],0);assert.equal(warrior.flags2&16,16);
+ const emptySlot=structuredClone(b);leaveBuilding(w,warrior,effects);assert.deepEqual(b,emptySlot);
  // Ordinary housing clears this occupant's reference while the shared order survives.
  b.model=1;b.inside=0;b.occupants.fill(0);brave.model=2;
+ assert.throws(()=>repriceTraining(w,b),RangeError,'non-training models cannot silently divide by zero');
  assert.equal(enterBuilding(w,brave,b,effects),1);assert.equal(brave.commands[0],0);assert.equal(records[1].references,2);
  assert.equal(brave.renderFlags&16,16);assert.equal(brave.flags2&0x804000,0x804000);
  setPersonOccupancy(w,brave,1,effects);

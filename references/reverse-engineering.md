@@ -1253,3 +1253,52 @@ the building's work/conversion update remains to be reconstructed. New exports
 record those workshop helpers and indicator/transport consumers for continued
 work. Full live occupant lifecycle, building conversion, native pathfinding and
 the original mission training bindings remain unfinished.
+
+
+## Native occupant removal and containing-building lookup
+
+`removeBuildingOccupant` reconstructs `00407490`; full-building shaman admission
+now invokes this routine instead of a supplied ejection effect. A signed inside
+count at or below zero prevents removal. The routine selects the first nonzero
+physical slot, or the first signed slot matching the requested person's ID,
+without the live/class filter used by weight scans. It decrements the byte count,
+clears the slot and activity bit 4, and applies actual occupancy mode 1. Training
+activity, assignments and cost are rebuilt through the shared admission logic.
+`repriceTraining` reconstructs `0040bbe0`, including conversion-count division,
+cost clamping and word storage. Unsupported zero-weight training models fail
+explicitly rather than silently producing a JavaScript NaN-derived cost.
+
+After the indicator update, removal obtains the original outside point and steps
+512 native units sideways at building angle +512. Construction plans (class 9)
+use the separately exported `004b9fc0` geometry boundary. It records coarse-cell
+centers at person +68/+6a, clears formation slot +82 and calculates wrapped
+facing toward the exit. Flags control turning and backwards facing. The routine
+sets movement flag 16, building entry delay 12, clears activity 1024, and records
+the world turn for building descriptor flag 32. **It does not teleport the person
+to the door or create a path.** Spatial insertion/height remain world consumers.
+
+`leaveBuilding` reconstructs `00409ed0`. It first uses the person's packed coarse
+terrain cell and masks the building index to ten bits. A nonzero index suppresses
+fallback even if the indexed object is the wrong class or does not contain the
+person. Only a zero index scans the tribe's linked building list, stopping at the
+first matching occupant slot. Native lookup and removal intentionally use
+different validity checks; the port preserves those distinctions.
+
+The occupancy oracle now compares **11,200** scenarios. The **3,072** new cases
+cover removal, containing-building lookup and repricing, including signed counts,
+sparse slots, dead/nonperson records, world seams, backwards facing, terrain-index
+masking and construction plans. Previous shaman admission cases now execute the
+real native exit, geometry and repricing. Only construction-plan geometry and
+existing spatial/transport/indicator/order effects remain supplied. The Node
+regression checks real shaman displacement, unchanged position, exit-cell centers,
+lookup fallback suppression and repeat removal. The shared shape fixture loader
+also replaces the queue oracle's duplicate setup; the separate geometry oracle
+continues to verify the executable's actual pointer relocation.
+
+Inspection of `00405b80` identifies the next conversion boundary: native training
+allocates replacement people, transfers eligible follow-up orders (or attaches a
+shared outside movement order), then removes the old trainees. Partial allocation
+rolls back the newly allocated people. Ghost and mana handling have separate
+branches. This conversion routine is exported but **not yet ported**; the live
+browser still changes a brave's model in place. Full live occupancy/pathfinding,
+conversion and original first-mission training bindings remain unfinished.

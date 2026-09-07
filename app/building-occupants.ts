@@ -1,20 +1,25 @@
 import rules from './original-rules.json' with {type: 'json'};
+import {buildingOutsidePoint, type BuildingShapePose} from './building-shapes.ts';
+import {nativeAngle, nativeStep} from './native-math.ts';
 import {clearPersonOrders, type OrderedPerson, type OrderPool, type OrderEffects} from './person-orders.ts';
 import type {TrainingBuilding} from './training.ts';
 
 export type BuildingOccupant = OrderedPerson & {
   class: number; tribe: number; renderFlags: number; clip: number; height: number;
   velocityX: number; velocityY: number; velocityZ: number;
+  homeX: number; homeY: number; formationSlot: number; angle: number; turnAngle: number; facingAngle: number;
 };
-export type OccupiedBuilding = Pick<TrainingBuilding, 'id' | 'class' | 'model' | 'flags2' | 'flags3' | 'activity' | 'inside'> & {
-  tribe: number; occupants: number[]; trainingTimer: number; trainingCost: number;
+export type OccupiedBuilding = BuildingShapePose & Pick<TrainingBuilding, 'id' | 'class' | 'model' | 'flags2' | 'flags3' | 'activity' | 'inside'> & {
+  tribe: number; occupants: number[]; trainingTimer: number; trainingCost: number; entryDelay: number; lastActivity: number;
 };
 export type OccupancyWorld = {
   people: Map<number, BuildingOccupant>; orders: OrderPool; towerTribes: number;
-  tribes: {personCounts: number[]; playerType: number}[];
+  buildings: Map<number, OccupiedBuilding>; turn: number;
+  buildingAt: (cell: number) => number;
+  tribes: {personCounts: number[]; playerType: number; buildingIds: number[]}[];
 };
 // Required world consumers: vehicle removal, land-cell membership, tower
-// placement, full-building ejection and occupancy indicator allocation.
+// placement, construction-plan geometry and occupancy indicator allocation.
 export type OccupancyEffects = {
   orders: OrderEffects;
   leaveVehicle: (person: BuildingOccupant) => void;
@@ -24,7 +29,7 @@ export type OccupancyEffects = {
   moveToCell: (person: BuildingOccupant, x: number, y: number, height: number) => void;
   insertCell: (person: BuildingOccupant) => void;
   removeCell: (person: BuildingOccupant) => void;
-  ejectFirst: (building: OccupiedBuilding) => void;
+  planExitPoint: (building: OccupiedBuilding) => {x: number; y: number};
   updateIndicator: (building: OccupiedBuilding) => void;
 };
 const short = (n: number) => (n << 16) >> 16;
@@ -55,6 +60,28 @@ export function trainingOccupantWeight(w: OccupancyWorld, b: OccupiedBuilding) {
     if (p && p.model !== model) weight += short(rules.personTraining[p.model].weight);
   }
   return weight >= short(rules.personTraining[model].weight) ? weight : 0;
+}
+
+// 0x40bbe0. A zero conversion count stores zero here; callers decide whether
+// repricing is warranted or whether the previous cost word must be preserved.
+export function repriceTraining(w: OccupancyWorld, b: OccupiedBuilding) {
+  const model = rules.buildingTrainedModel[b.model], tribe = w.tribes[b.tribe];
+  const divisor = short(rules.personTraining[model].weight);
+  if (!divisor) throw new RangeError('Native training model has zero conversion weight');
+  const amount = Math.trunc(trainingOccupantWeight(w, b) / divisor);
+  b.trainingCost = Math.min(65535, nativeTrainingCost(tribe.personCounts[model], model, tribe.playerType, amount)) & 65535;
+}
+
+// Shared activity rebuild in native admission and removal.
+function updateTrainingOccupants(w: OccupancyWorld, b: OccupiedBuilding) {
+  b.flags3 = (b.flags3 & ~0x1000) >>> 0; b.trainingTimer = 0;
+  const weight = trainingOccupantWeight(w, b);
+  b.activity = weight ? b.activity | 128 : b.activity & ~128;
+  if (weight) repriceTraining(w, b);
+  for (let i = 0; i < rules.buildingCapacity[b.model]; i++) {
+    const occupant = live(w, b.occupants[i]);
+    if (occupant?.tribe === b.tribe) occupant.assignment = weight ? occupant.assignment | 4 : occupant.assignment & ~4;
+  }
 }
 
 // 0x4d80e0. Modes 0/4 hide ordinary occupants; 3 retains training/workshop
@@ -94,7 +121,7 @@ export function enterBuilding(w: OccupancyWorld, p: BuildingOccupant, b: Occupie
   if (p.tribe !== b.tribe && !(flags & 0x100000) || !(b.activity & 8)) return 0;
   if (byte(b.inside) >= capacity) {
     if (p.model !== 7) return 0;
-    effects.ejectFirst(b);
+    removeBuildingOccupant(w, b, undefined, effects);
   }
   const slot = b.occupants.slice(0, 6).indexOf(0);
   if (slot < 0) return 0;
@@ -102,19 +129,50 @@ export function enterBuilding(w: OccupancyWorld, p: BuildingOccupant, b: Occupie
   setPersonOccupancy(w, p, flags & 65 ? 3 : 0, effects);
   if (b.model === 4) w.towerTribes = (w.towerTribes | (1 << (b.tribe & 31))) & 255;
   if (rules.buildingFlags[b.model] & 1) {
-    b.flags3 = (b.flags3 & ~0x1000) >>> 0; b.trainingTimer = 0;
-    const weight = trainingOccupantWeight(w, b);
-    b.activity = weight ? b.activity | 128 : b.activity & ~128;
-    if (weight) {
-      const model = rules.buildingTrainedModel[b.model], tribe = w.tribes[b.tribe];
-      const amount = Math.trunc(weight / short(rules.personTraining[model].weight));
-      b.trainingCost = Math.min(65535, nativeTrainingCost(tribe.personCounts[model], model, tribe.playerType, amount)) & 65535;
-    }
-    for (let i = 0; i < rules.buildingCapacity[b.model]; i++) {
-      const occupant = live(w, b.occupants[i]);
-      if (occupant?.tribe === b.tribe) occupant.assignment = weight ? occupant.assignment | 4 : occupant.assignment & ~4;
-    }
+    updateTrainingOccupants(w, b);
   }
   effects.updateIndicator(b); b.activity &= ~1024; p.orderLocation = 0;
   return 1;
+}
+
+// 0x409ed0: a nonzero terrain index suppresses list fallback, even when it is
+// the wrong class/building. The tribe list is consulted only for index zero.
+export function leaveBuilding(w: OccupancyWorld, p: BuildingOccupant, effects: OccupancyEffects) {
+  const id = w.buildingAt(((p.x >>> 8) & 254) | (p.y & 0xfe00)) & 1023;
+  if (id) {
+    const b = w.buildings.get(id);
+    if (b?.class === 2) removeBuildingOccupant(w, b, p, effects);
+  } else {
+    for (const id of w.tribes[p.tribe].buildingIds) {
+      const b = w.buildings.get(id)!;
+      if (b.occupants.some(slot => short(slot) === p.id)) { removeBuildingOccupant(w, b, p, effects); return; }
+    }
+  }
+}
+
+// 0x407490. Restore the person at its current location, then set the outside
+// movement target and facing. Native removal does not teleport to the door.
+export function removeBuildingOccupant(w: OccupancyWorld, b: OccupiedBuilding | undefined,
+  person: BuildingOccupant | undefined, effects: OccupancyEffects): BuildingOccupant | undefined {
+  if (!b) { if (person) leaveBuilding(w, person, effects); return; }
+  if (byte(b.inside) <= 0) return;
+  const slot = b.occupants.slice(0, 6).findIndex(id => person ? short(id) === person.id : id !== 0);
+  if (slot < 0) return;
+  const p = w.people.get(b.occupants[slot]);
+  if (!p) throw new RangeError('Native occupant slot has no object record');
+  b.inside = (b.inside - 1) & 255; b.occupants[slot] = 0; b.activity &= ~4;
+  setPersonOccupancy(w, p, 1, effects);
+  if (b.model === 4) w.towerTribes = (w.towerTribes | (1 << (b.tribe & 31))) & 255;
+  if (rules.buildingFlags[b.model] & 1) updateTrainingOccupants(w, b);
+  effects.updateIndicator(b);
+  const outside = b.class === 9 ? effects.planExitPoint(b) : buildingOutsidePoint(b);
+  const exit = nativeStep({x: outside.x / 256, z: -outside.y / 256}, (b.angle + 512) & 2047, 512);
+  const x = Math.round(exit.x * 256) & 65535, y = Math.round(-exit.z * 256) & 65535;
+  p.homeX = (x & 0xfe00) + 256; p.homeY = (y & 0xfe00) + 256; p.formationSlot = 0;
+  const angle = nativeAngle(short(x - p.x), -short(y - p.y));
+  if (p.flags2 & 128) p.turnAngle = angle;
+  p.facingAngle = angle; p.angle = p.flags2 & 0x8000 ? (angle + 1024) & 2047 : angle;
+  p.flags2 = (p.flags2 | 16) >>> 0; b.entryDelay = 12; b.activity &= ~1024;
+  if (rules.buildingFlags[b.model] & 32) b.lastActivity = w.turn >>> 0;
+  return p;
 }
