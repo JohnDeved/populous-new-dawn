@@ -141,6 +141,7 @@ export class GameScene {
   mouse = new THREE.Vector2();
   ray = new THREE.Raycaster();
   pointer: Point | null = null;
+  viewPoint: Point = HOME;
   down = { x: 0, y: 0, button: 0 };
   dragBox: HTMLDivElement;
   keys = new Set<string>();
@@ -250,7 +251,7 @@ export class GameScene {
         leafGeos.push(stamp(sphere(1.3), p.x, y + 3 * size, p.z, size * 1.2, size * .7, size));
         leafLightGeos.push(stamp(sphere(.95), p.x - .5 * size, y + 3.5 * size, p.z + .3, size, size * .8, size));
       } else {
-        for (let j=0;j<6;j++) { const angle=j*Math.PI/3; const geo=sphere(1).clone(); geo.scale(.42*size,.15*size,1.8*size);geo.rotateX(.18);geo.rotateY(angle);geo.translate(p.x+Math.sin(angle)*1.1*size,y+2.8*size,p.z+Math.cos(angle)*1.1*size);leafLightGeos.push(geo); }
+        for (let j=0;j<6;j++) { const angle=j*Math.PI/3; const geo=sphere(1).clone(); geo.scale(.42*size,.15*size,1.8*size);geo.rotateX(.18);geo.rotateY(angle);geo.translate(Math.sin(angle)*1.1*size,2.8*size,Math.cos(angle)*1.1*size);leafLightGeos.push(stamp(geo,p.x,y,p.z));geo.dispose(); }
       }
     }
     for (const [geos, mat] of [[trunkGeos, wood], [leafGeos, leaf], [leafLightGeos, leafLight]] as const) if (geos.length) { const merged = mergeGeometries(geos); const m = new THREE.Mesh(merged, mat); m.castShadow = true; m.receiveShadow = true; this.decorations.add(m); geos.forEach(g => g.dispose()); }
@@ -324,8 +325,8 @@ export class GameScene {
     if ((event.target as HTMLElement).closest('button,input,dialog,a') || event.ctrlKey || event.metaKey || event.altKey) return;
     this.keys.add(event.key.toLowerCase()); if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) event.preventDefault();
   }) as EventListener;
-  orientCamera(){const distance=this.camera.position.distanceTo(this.controls.target),tilt=Math.min(.22,Math.max(0,(180-distance)/70*.22));const p=mapPoint(this.camera.position);p.z=Math.max(-100,Math.min(100,p.z-tilt*PLANET_RADIUS));const q=planetPoint(p);this.camera.lookAt(q.x,q.y,q.z);this.camera.updateMatrixWorld();}
-  focus(p: Point = HOME) { const n=normal({x:p.x,z:p.z+(.22*55/70)*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(125).add(this.controls.target);this.controls.update();this.orientCamera(); }
+  orientCamera(){const distance=this.camera.position.distanceTo(this.controls.target),tilt=Math.min(.55,Math.max(0,(180-distance)/70*.55));const p=mapPoint(this.camera.position);p.z=Math.max(-100,Math.min(100,p.z-tilt*PLANET_RADIUS));this.viewPoint=p;const q=planetPoint(p);this.camera.lookAt(q.x,q.y,q.z);this.camera.updateMatrixWorld();}
+  focus(p: Point = HOME) { const n=normal({x:p.x,z:p.z+(.55*55/70)*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(125).add(this.controls.target);this.controls.update();this.orientCamera(); }
   overview(){this.camera.position.set(30,155,0);this.controls.update();this.orientCamera();}
   zoom(amount: number) { const offset = this.camera.position.clone().sub(this.controls.target).multiplyScalar(amount); offset.clampLength(PLANET_RADIUS+14, PLANET_RADIUS+190); this.camera.position.copy(this.controls.target).add(offset); this.controls.update();this.orientCamera(); }
   makeFx(f: Effect) {
@@ -345,7 +346,7 @@ export class GameScene {
     for (const b of this.world.buildings) { ctx.fillStyle = b.team === 'blue' ? '#54bffe' : '#ef8069'; const [x, z] = at(b); ctx.fillRect(x - 2, z - 2, 4, 4); }
     for (const u of this.world.units) { ctx.fillStyle = u.team === 'blue' ? '#82d5ff' : u.team === 'red' ? '#f78b74' : '#d8d5b3'; const [x, z] = at(u); ctx.beginPath(); ctx.arc(x, z, u.kind === 'shaman' ? 3 : 1.5, 0, Math.PI * 2); ctx.fill(); }
     for(const shrine of this.world.shrines){const [x,z]=at(shrine);ctx.fillStyle=shrine.active?'#f5cf86':'#777e6c';ctx.beginPath();ctx.arc(x,z,3,0,Math.PI*2);ctx.fill();}
-    const [x, z] = at(mapPoint(this.camera.position)); ctx.strokeStyle = '#f1e0b599'; ctx.lineWidth = 1; const size = this.camera.position.distanceTo(this.controls.target) * .5; ctx.strokeRect(x - size / 2, z - size / 3, size, size * .67);
+    const [x, z] = at(this.viewPoint); ctx.strokeStyle = '#f1e0b599'; ctx.lineWidth = 1; const size = this.camera.position.distanceTo(this.controls.target) * .5; ctx.strokeRect(x - size / 2, z - size / 3, size, size * .67);
   }
   animate = (now: number) => {
     const dt = Math.min(.1, (now - (this.previous || now)) / 1000); this.previous = now;

@@ -15,6 +15,8 @@ The screenshot references below guide architecture and game identity. They are k
 - User: https://www.dazeland.com/images/PC-consoles/Populous3-5.jpg — early village, proportions, fences, warriors, clear troop silhouettes.
 - User-provided thumbnail references `user-ref3.jpg`, `user-ref5.jpg`, and `user-ref6.jpg`: shrine gathering, volcanic terrain, and balloons respectively. Balloons are reference-only and are not in this single-world version.
 
+- User: https://the-beginning.b-cdn.net/wp-content/uploads/2021/11/Campaigns.jpg — inspected at 2048×1152: low camera looking toward a curved horizon, tall tapered tower bases, distinct hut upgrades, palisade compounds, worn clearings and steep grassy terraces. The airborne pieces are battle debris. This is an architectural/camera reference, not a replacement for the imported first-level map. The close camera now leans toward the horizon; the overview remains a globe view.
+
 ## Audio references
 
 - Original soundtrack, in-game tracks 2–5, credited to Mark Knight: https://www.youtube.com/watch?v=kIY_4F47R6Q
