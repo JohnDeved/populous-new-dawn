@@ -46,7 +46,7 @@ def internal(cpu, address, size, user):
         reads.append(index)
         return_value(values.get(index, 0))
 
-cpu.hook_add(UC_HOOK_CODE, command, begin=0x48cc60, end=0x48cc60)
+command_hook=cpu.hook_add(UC_HOOK_CODE, command, begin=0x48cc60, end=0x48cc60)
 cpu.hook_add(UC_HOOK_CODE, internal, begin=0x48f350, end=0x48f350)
 rng = random.Random(1998)
 cases = [dict(turn=turn, tribe=owner, variables=[0]*64, values={}) for owner in range(4) for turn in range(256)]
@@ -102,3 +102,88 @@ assert len(actual)==len(expected)
 for case,want,got in zip(cases,expected,actual):
     assert got==want,(case,want,got)
 print(f'PASS: {len(cases)} native x86/browser campaign interpreter cases; external game commands intercepted')
+
+
+# Execute actual DO GET_HEIGHT_AT_POS dispatch, without the command interception above.
+level=json.loads((root/'app/level-one.ts').read_text().split('export default ',1)[1].strip().removesuffix(';'))
+header=(Path(sys.argv[2]).parent/'levl2001.hdr').read_bytes()
+assert hashlib.sha256(header).hexdigest()==level['headerSha256'],'Level header hash mismatch'
+cpu.hook_del(command_hook)
+cpu.mem_write(0x8a03e4,bytes(0x40000))
+heights=[0]*16384
+for x,y,h in level['heights']:heights[y*128+x]=h
+for i,h in enumerate(heights):cpu.mem_write(0x8a03e8+i*16,struct.pack('<h',h))
+cpu.mem_write(0x89b7a5,header[100:612])
+queries=[dict(index=i,packed=p,height=None) for i,p in enumerate(level['markers'])]
+queries += [dict(index=i,packed=level['markers'][i]|odd,height=h)
+            for i in range(25,41) for odd in (0,0x101) for h in (-32768,-1,0,1,32767)]
+expected=[]
+for case in queries:
+    packed=case['packed'];index=((packed&0xfe00)>>9)*128+((packed&254)>>1)
+    h=heights[index] if case['height'] is None else case['height']
+    cpu.mem_write(0x8a03e8+index*16,struct.pack('<h',h))
+    cpu.mem_write(0x89b7a5+case['index']*2,struct.pack('<H',packed))
+    blob=bytearray(12552)
+    struct.pack_into('<8H',blob,0,12,1003,1006,1085,0,1,1004,1019)
+    struct.pack_into('<IiIi',blob,8192,0,case['index'],1,0)
+    cpu.mem_write(program,bytes(blob))
+    cpu.mem_write(stack,struct.pack('<III',stop,tribe,program));cpu.reg_write(UC_X86_REG_ESP,stack)
+    cpu.emu_start(0x48c6b0,stop,timeout=100000,count=10000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop,'Native terrain query failed to return'
+    expected.append(struct.unpack('<i',cpu.mem_read(program+0x3000,4))[0])
+js="""import level from './app/level-one.ts';import {makeTerrain,markerHeight,nativeCellPoint,GRID} from './app/model.ts';
+let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{
+ const t=makeTerrain(),previous=level.markers[c.index];level.markers[c.index]=c.packed;
+ if(c.height!==null){const p=nativeCellPoint(c.packed);if(Math.abs(p.x)>48||Math.abs(p.z)>48)throw Error('Override outside browser crop');t[(p.z+48)*GRID+p.x+48]=c.height===0?-.35:c.height/45;}
+ const result=markerHeight(t,c.index);level.markers[c.index]=previous;return result;
+})));"""
+result=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(queries),text=True,capture_output=True,check=True,cwd=root)
+actual=json.loads(result.stdout)
+assert len(actual)==len(expected)
+for case,want,got in zip(queries,expected,actual):assert want==got,(case,want,got)
+print(f'PASS: {len(queries)} native DO GET_HEIGHT_AT_POS/browser queries; actual native command executed')
+
+# Run the original terrain-check block with real native queries. Only the final
+# world-deletion leaf is intercepted, so its request can be compared without an OS/game loop.
+removals=[]
+def remove_head(cpu,address,size,user):
+    sp=cpu.reg_read(UC_X86_REG_ESP)
+    removals.append([u32(sp+4)&255,u32(sp+8)&255]);return_value(0)
+cpu.hook_add(UC_HOOK_CODE,remove_head,begin=0x4f2160,end=0x4f2160)
+cpu.mem_write(0x89b7a5,header[100:612])
+fragment=[12,1003,*script['codes'][1370:1470],1004,1019]
+assert fragment[2]==1005 and script['codes'][1470]==1005
+profiles=[([0]*6,[0]*5),([0,0,0,0,0,45],[0]*5),([0]*6,[0,0,0,0,45]),
+          ([0,0,0,0,0,45],[0,0,0,0,45]),([45,-45,0,0,0,0],[45,0,0,0,0]),
+          ([-32768,32767,0,0,0,0],[32767,0,0,0,0])]
+rules=[dict(turn=turn,south=a,north=b) for turn in (0,28,29,30,60,61,62) for a,b in profiles]
+slots=[*range(21,27),*range(45,50),50,52]
+expected=[]
+for case in rules:
+    for marker,h in [*zip(range(35,41),case['south']),*zip(range(25,30),case['north'])]:
+        packed=level['markers'][marker];index=((packed&0xfe00)>>9)*128+((packed&254)>>1)
+        cpu.mem_write(0x8a03e8+index*16,struct.pack('<h',h))
+    blob=bytearray(source);blob[:8192]=bytes(8192)
+    struct.pack_into('<'+'H'*len(fragment),blob,0,*fragment)
+    cpu.mem_write(program,bytes(blob));cpu.mem_write(tribe+0xc22,b'\1')
+    cpu.mem_write(0x89d188,struct.pack('<I',case['turn']))
+    cpu.mem_write(stack,struct.pack('<III',stop,tribe,program));cpu.reg_write(UC_X86_REG_ESP,stack)
+    removals=[]
+    cpu.emu_start(0x48c6b0,stop,timeout=100000,count=100000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop,'Native campaign terrain block failed to return'
+    variables=struct.unpack('<64i',cpu.mem_read(program+0x3000,256))
+    assert removals in ([],[[2,222]])
+    expected.append(dict(removed=bool(removals),values=[variables[i] for i in slots]))
+js="""import level from './app/level-one.ts';import {createWorld,makeTerrain,nativeCellPoint,GRID,tick} from './app/model.ts';
+let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{
+ const w=createWorld();w.terrain=makeTerrain();w.turn=c.turn-1;w.ai.variables.fill(0);
+ for(const [start,values]of [[35,c.south],[25,c.north]])values.forEach((h,i)=>{const p=nativeCellPoint(level.markers[start+i]);w.terrain[(p.z+48)*GRID+p.x+48]=h===0?-.35:h/45;});
+ tick(w,1/12);return {removed:!w.shrines.some(s=>s.kind==='bridge'),values:[21,22,23,24,25,26,45,46,47,48,49,50,52].map(i=>w.ai.variables[i])};
+})));"""
+result=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(rules),text=True,capture_output=True,check=True,cwd=root)
+actual=json.loads(result.stdout)
+assert len(actual)==len(expected)
+for case,want,got in zip(rules,expected,actual):assert want==got,(case,want,got)
+print(f'PASS: {len(rules)} original terrain-rule/browser turns; native removal requests intercepted')

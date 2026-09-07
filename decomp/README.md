@@ -89,3 +89,12 @@ and the final instruction position. It covers 1,152 mission-script cases and 84
 arithmetic/control-flow cases. Game commands are intercepted; external reads are
 provided by the test host. This proves control-flow agreement for these inputs,
 not the behavior of those game commands, recurring AI scheduling, or campaign parity.
+
+
+The script oracle additionally runs 416 actual `DO GET_HEIGHT_AT_POS` commands
+through native dispatch (`0048cc60` → `00492920`), with no interception of the
+terrain query. It checks all 256 imported markers, odd coordinate bits and signed
+height limits. Another 42 cases execute the original terrain-rule bytecode with
+real native queries; only the final `004f2160` removal request is intercepted.
+The browser comparison checks marker variables and head removal on the same turns.
+The original header hash is verified before these comparisons.

@@ -181,11 +181,11 @@ export function nativeTerrainHeight(terrain:readonly number[],x:number,y:number)
 }
 // Browser Z reflects native Y, exchanging the two diagonals. Quantize like the water shader.
 export function terrainCross(a:number,b:number,c:number,d:number){return !nativeTerrainCross(Math.floor(c*45+.5),Math.floor(d*45+.5),Math.floor(a*45+.5),Math.floor(b*45+.5));}
+const originalTerrain=Array<number>(128*128).fill(0);
+for(const [x,y,h] of level.heights)originalTerrain[y*128+x]=h;
 export function makeTerrain() {
-  const original = Array<number>(128*128).fill(0);
-  for(const [x,y,h] of level.heights)original[y*128+x]=h;
   return Array.from({length: GRID*GRID}, (_,i) => {
-    const x=i%GRID-48,z=Math.floor(i/GRID)-48,h=nativeTerrainHeight(original,(x+8)*256,(-z-8)*256)/45;
+    const x=i%GRID-48,z=Math.floor(i/GRID)-48,h=nativeTerrainHeight(originalTerrain,(x+8)*256,(-z-8)*256)/45;
     // ponytail: cropped/resampled terrain and artificial seabed remain until the native world grid is ported.
     return h === 0 ? -.35 : h;
   });
@@ -291,6 +291,35 @@ export function createWorld(): World {
   w.selected=[w.units.find(u=>u.team==='blue'&&u.kind==='shaman')!.id];
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   return w;
+}
+// 0x492920: marker queries read the coarse vertex; odd coordinate bits are ignored.
+export function nativeCellPoint(packed:number):Point{return browserPosition({x:(packed&254)<<8,y:packed&0xfe00,h:0});}
+export function markerHeight(terrain:number[],index:number){
+  if(!Number.isInteger(index)||index<0||index>=level.markers.length)throw new RangeError('Invalid campaign marker');
+  const packed=level.markers[index],p=nativeCellPoint(packed);
+  if(Math.abs(p.x)>48||Math.abs(p.z)>48)return originalTerrain[((packed&0xfe00)>>9)*128+((packed&254)>>1)];
+  const h=height(terrain,p.x,p.z);
+  return h===-.35?0:short(Math.round(h*45)); // Convert the browser's artificial seabed back to native zero.
+}
+// 0x4f2160: remove the head in the addressed map cell, not a distance-selected head.
+export function removeHead(w:World,x:number,y:number){
+  const p=nativeCellPoint(((y&255)<<8)|(x&255));
+  const index=w.shrines.findIndex(s=>{const n=nativePosition(w,s),cell=nativeCellPoint((n.y&0xff00)|((n.x>>>8)&255));return cell.x===p.x&&cell.z===p.z;});
+  if(index<0)return;
+  const [head]=w.shrines.splice(index,1);head.active=false;
+  for(const u of w.units)if(u.work===head.id){release(u);u.path=[];}
+}
+function campaignTerrain(w:World){
+  // cpscr010 words 1370..1469: EVERY 31 2, with tribe 1's turn offset.
+  if((w.turn+3)&31)return;
+  const vars=w.ai.variables;
+  for(let i=0;i<6;i++)vars[21+i]=markerHeight(w.terrain,35+i);
+  vars[52]=vars.slice(21,27).reduce((a,b)=>a+b,0);
+  if(vars[52]>0){
+    for(let i=0;i<5;i++)vars[45+i]=markerHeight(w.terrain,25+i);
+    vars[50]=vars.slice(45,50).reduce((a,b)=>a+b,0);
+    if(vars[50]>0)removeHead(w,2,222);
+  }
 }
 export function tell(w: World, message: string) { w.message = message; w.messageUntil = w.time + 9; }
 // Presentation events have their own serial; they never consume simulation IDs or random values.
@@ -466,9 +495,10 @@ export function tick(w:World,dt:number){
 }
 function stepTurn(w:World){
   const dt=1/TURNS_PER_SECOND;w.turn++;w.time=w.turn/TURNS_PER_SECOND;
-  for(const fx of w.effects){fx.age+=dt;if(fx.land){const t=Math.min(1,fx.age/fx.duration);for(const p of fx.land)w.terrain[p.index]=Math.max(w.terrain[p.index],p.from+(p.to-p.from)*t);w.terrainVersion++;if(t===1&&route(w,HOME,ENEMY).length)w.shrines.find(s=>s.kind==='bridge')!.active=false;}}
+  for(const fx of w.effects){fx.age+=dt;if(fx.land){const t=Math.min(1,fx.age/fx.duration);for(const p of fx.land)w.terrain[p.index]=Math.max(w.terrain[p.index],p.from+(p.to-p.from)*t);w.terrainVersion++;}}
   w.effects=w.effects.filter(f=>f.age<f.duration);
   processProjectiles(w);
+  campaignTerrain(w);
   if((w.turn&15)===0)for(const t of w.trees)if(t.logs>0&&t.logs<4)t.logs=Math.min(4,t.logs+constants.TREE1_WOOD_GROW/100);
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   for(const shrine of w.shrines) {

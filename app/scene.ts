@@ -371,6 +371,7 @@ export class GameScene {
       let g = this.fxMeshes.get(f.id); if (!g) { g = this.makeFx(f); this.fxMeshes.set(f.id, g); this.scene.add(g); }
       this.locate(g,f,f.height);this.animateFx(g,f);
     }
+    for(const [id,entry] of this.shrineMeshes)if(!this.world.shrines.some(s=>s.id===id)){this.objects.remove(entry.g);this.releaseGroup(entry.g);entry.label.remove();this.shrineMeshes.delete(id);}
     for(const shrine of this.world.shrines){const entry=this.shrineMeshes.get(shrine.id)!;this.locate(entry.g,shrine);entry.g.visible=shrine.active||shrine.kind==='vault';
       const q=planetPoint(shrine,this.y(shrine)+4.5),p=new THREE.Vector3(q.x,q.y,q.z).project(this.camera),n=normal(shrine),view=this.camera.position.clone().sub(new THREE.Vector3(q.x,q.y,q.z));
       entry.label.hidden=!entry.g.visible||p.z>1||view.dot(new THREE.Vector3(n.x,n.y,n.z))<=0;

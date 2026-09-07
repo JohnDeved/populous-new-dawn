@@ -34,6 +34,9 @@ try{
  for(let i=0;i<12;i++){await page.evaluate(()=>{const {w,m}=window.nativeQA;w.paused=false;m.tick(w,1/12);w.paused=true;});await page.waitForTimeout(90);}
  await page.screenshot({path:'qa/native-group-fight.png'});
  assert.ok(await page.evaluate(()=>window.nativeQA.w.units.some(u=>u.hp<window.nativeQA.m.maxHp(u.kind))),'staged fighters exchange damage in the rendered scene');
+ const removed=await page.evaluate(()=>{const {w,m,scene}=window.nativeQA,head=w.shrines.find(s=>s.kind==='bridge');const entry=scene.shrineMeshes.get(head.id);window.removedHead=entry;m.removeHead(w,2,222);return head.id;});
+ await page.waitForTimeout(100);
+ assert.ok(await page.evaluate(id=>!window.nativeQA.scene.shrineMeshes.has(id)&&!window.removedHead.label.isConnected&&window.removedHead.g.parent===null,removed),'native head removal releases its mesh and worship button');
  assert.deepEqual(errors,[]);console.log('PASS: native walking, carrying, airborne, casting, attacks and translucent effect rendering.');
  await page.evaluate(()=>window.nativeQA.scene.dispose());
 }finally{await browser.close();}

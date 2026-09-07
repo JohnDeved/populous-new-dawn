@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import level from '../app/level-one.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
 import {runScript,scriptState} from '../app/popscript.ts';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, GRID, random, fightPosition } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
@@ -211,4 +212,20 @@ test('original campaign setup disables only enemy reincarnation and retains defe
  const shaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');shaman.hp=0;tick(w,1/12);advance(w,15);
  assert.ok(w.units.some(u=>u.team==='red'));assert.ok(!w.units.some(u=>u.team==='red'&&u.kind==='shaman'));assert.equal(w.redRespawn,0);
  const fresh=createWorld();fresh.ai.attributes[0]=99;assert.equal(createWorld().ai.attributes[0],12,'new games own independent script state');
+});
+
+
+test('campaign markers remove the bridge head on the native phase, independently of routing',()=>{
+ const w=createWorld(),head=w.shrines.find(s=>s.kind==='bridge');
+ const set=(index,h)=>{const p=nativeCellPoint(level.markers[index]);w.terrain[(p.z+48)*GRID+p.x+48]=h===0?-.35:h/45;};
+ assert.deepEqual(nativeCellPoint(level.markers[35]),{x:-6,z:14});
+ assert.deepEqual(nativeCellPoint(level.markers[35]|0x101),{x:-6,z:14},'odd native coordinate bits ignored');
+ assert.equal(markerHeight(w.terrain,35),0);assert.throws(()=>markerHeight(w.terrain,256),/Invalid campaign marker/);
+ set(40,45);for(let i=0;i<29;i++)tick(w,1/12);assert.equal(w.turn,29);assert.ok(w.shrines.includes(head),'both crossings are required');assert.equal(w.ai.variables[52],45);assert.equal(w.ai.variables[50],0);
+ set(29,45);for(let i=0;i<31;i++)tick(w,1/12);assert.ok(w.shrines.includes(head),'next EVERY 31 2 phase is turn 61');
+ const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');brave.work=head.id;
+ tick(w,1/12);assert.equal(w.turn,61);assert.ok(!w.shrines.includes(head));assert.equal(head.active,false);assert.equal(brave.work,null);
+ assert.equal(findPath(w.terrain,HOME,ENEMY).length,0,'native rule does not require a walkable route');assert.equal(w.shrines.length,2);
+ const fresh=createWorld();const count=fresh.shrines.length;removeHead(fresh,0,0);assert.equal(fresh.shrines.length,count,'wrong cell leaves heads intact');
+ removeHead(fresh,3,223);assert.equal(fresh.shrines.length,count-1,'odd coordinates select the same native cell');assert.ok(fresh.shrines.every(s=>s.kind!=='bridge'));
 });
