@@ -1,5 +1,5 @@
 """Read the animation tables from the user-supplied D3DPopTB.exe without executing it.
-Usage: python3 scripts/inspect-executable.py /path/to/D3DPopTB.exe
+Usage: python3 scripts/inspect-executable.py /path/to/D3DPopTB.exe [constants.json [rules-output.json]]
 Offsets are for the analyzed executable; fail closed on an unknown build.
 """
 import hashlib,json,struct,sys
@@ -18,7 +18,7 @@ def read(address,size):
         if virtual<=rva and rva+size<=virtual+raw_size:return b[raw+rva-virtual:raw+rva-virtual+size]
     raise ValueError(hex(address))
 rows={}
-for name,row in [('idle',0),('walk',1),('carryIdle',4),('carry',5),('work',6),('chop',8),('attack',11),('airborne',12),('pray',13)]:
+for name,row in [('idle',0),('walk',1),('carryIdle',4),('carry',5),('work',6),('chop',8),('attack',10),('airborne',12),('pray',13)]:
     rows[name]={}
     for kind,index in [('brave',2),('warrior',3),('shaman',7)]:
         obj=struct.unpack('<h',read(0x5a6d50+(row*9+index)*2,2))[0]
@@ -26,4 +26,23 @@ for name,row in [('idle',0),('walk',1),('carryIdle',4),('carry',5),('work',6),('
         rows[name][kind]={'start':start,'layer':record[5],'variant':record[6],'turnsPerFrame':record[3]+1}
 assert rows['walk']['shaman']['start']==616
 assert rows['carry']['brave']['start']==72
-print(json.dumps({'sha256':sha,'animationRows':rows,'blastDamage':struct.unpack('<i',read(0x5aa510,4))[0],'blastBuildingDamage':struct.unpack('<i',read(0x5aa50c,4))[0]},indent=2))
+report={'sha256':sha,'animationRows':rows,'blastDamage':struct.unpack('<i',read(0x5aa510,4))[0],'blastBuildingDamage':struct.unpack('<i',read(0x5aa50c,4))[0]}
+if len(sys.argv)>2:
+    # Apply only names recognized by this executable, with its integer percentage conversion.
+    constants=json.loads(Path(sys.argv[2]).read_text());memory={};recognized=set()
+    for i in range(512):
+        record=read(0x5aa5f0+i*31,31);name=record[:25].split(b'\0')[0].decode('ascii')
+        if not name:break
+        size,flags=record[25:27];address=struct.unpack_from('<I',record,27)[0]
+        assert size in (1,2,4)
+        if name in constants:
+            recognized.add(name);v=constants[name];v=v*256//100 if flags&1 else v
+            for j in range(size):memory[address+j]=(v>>(j*8))&255
+    def value(address,size=4):
+        return int.from_bytes(bytes(memory.get(address+i,read(address+i,1)[0]) for i in range(size)),'little')
+    rules={'manaUpdateMask':value(0x5aa44c),'manaIdleBrave':value(0x5aa5bc),'manaBusyBrave':value(0x5aa5c4),'manaIdleWarrior':value(0x5aa5c0),'manaBusyWarrior':value(0x5aa5c8),'humanManaFactor':value(0x5aa41c),'computerManaFactor':value(0x5aa420),'breedingBands':[value(0x5aa47c+i*4) for i in range(20)],'trainingBands':[value(0x5aa578+i*4) for i in range(6)],'hutCapacity':[value(0x5a7228+i*76+32,1) for i in (1,2,3)],'hutUpgradeWork':[value(0x5a7228+i*76+54,2) for i in (1,2,3)],'hutBreedingWork':[value(0x5a7228+i*76+60,2) for i in (1,2,3)]}
+    assert rules['manaUpdateMask']==3 and rules['hutCapacity']==[3,4,5]
+    assert rules['breedingBands'][0]==76 and rules['hutBreedingWork'][0]==4000
+    report.update(runtimeRules=rules,ignoredConstants=sorted(constants.keys()-recognized))
+    if len(sys.argv)>3:Path(sys.argv[3]).write_text(json.dumps(rules,indent=2)+'\n')
+print(json.dumps(report,indent=2))

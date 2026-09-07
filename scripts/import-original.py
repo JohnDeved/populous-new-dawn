@@ -101,7 +101,7 @@ def main():
     for team in ['blue','red','wild']:
         for kind in (['brave'] if team=='wild' else ['brave','warrior','shaman']):
             # Executable animation map at 0x5a6d50 -> object table 0x5a6858.
-            states = {'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':128,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416}
+            states = {'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416}
             if team=='wild':states={k:0 if k=='walk' else 8 for k in states}
             if kind=='shaman':
                 states={'walk':616,'idle':424,'selected':744,'work':456,'chop':456,'attack':456,'pray':552,'cast':648,'airborne':488,'die':352,'drown':616}
@@ -133,7 +133,7 @@ def main():
     fx_palette=b''.join(palette[alpha[(v|15)*256]*4:alpha[(v|15)*256]*4+3]+bytes([(v&15)*17]) for v in range(256))
     effects=sprites(hfx_data,fx_palette,alpha=True)
     # HFX effects are consecutive native frames; their draw records advance once per turn.
-    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8)}
+    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16)}
     fx_frames=[];fx_meta={};cell=256
     for name,(start,count) in fx_sequences.items():
         fx_meta[name]=[]

@@ -1,0 +1,54 @@
+{
+  "manaUpdateMask": 3,
+  "manaIdleBrave": 4,
+  "manaBusyBrave": 15,
+  "manaIdleWarrior": 4,
+  "manaBusyWarrior": 5,
+  "humanManaFactor": 320,
+  "computerManaFactor": 128,
+  "breedingBands": [
+    76,
+    89,
+    102,
+    128,
+    153,
+    179,
+    204,
+    230,
+    256,
+    281,
+    307,
+    332,
+    358,
+    384,
+    409,
+    435,
+    460,
+    486,
+    499,
+    512
+  ],
+  "trainingBands": [
+    256,
+    320,
+    384,
+    448,
+    512,
+    640
+  ],
+  "hutCapacity": [
+    3,
+    4,
+    5
+  ],
+  "hutUpgradeWork": [
+    2400,
+    2400,
+    0
+  ],
+  "hutBreedingWork": [
+    4000,
+    3000,
+    2000
+  ]
+}

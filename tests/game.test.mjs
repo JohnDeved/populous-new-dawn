@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, unitAnimation, maxHp, entrance } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
 test('original level layout, spherical coordinates, foundations, and the complete mission',()=>{
@@ -21,9 +21,9 @@ test('original level layout, spherical coordinates, foundations, and the complet
 });
 test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');const idle=manaRate(w);w.selected=[brave.id];command(w,w.buildings.find(b=>b.team==='blue'));advance(w,8);assert.ok(brave.inside);assert.ok(manaRate(w)>idle);
- w.shots.blast=0;w.charging=false;advance(w,3);assert.equal(w.shots.blast,0);w.charging=true;advance(w,10);assert.ok(w.shots.blast>0);const time=w.time;w.paused=true;tick(w,2);assert.equal(w.time,time);w.paused=false;
- const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/30);assert.ok(w.respawn>0);advance(w,13);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
- w.units=w.units.filter(u=>u.team!=='blue');tick(w,1/30);assert.equal(w.status,'lost');
+ w.shots.blast=0;w.charging=false;advance(w,3);assert.equal(w.shots.blast,0);w.charging=true;advance(w,60);assert.ok(w.shots.blast>0);const time=w.time;w.paused=true;tick(w,2);assert.equal(w.time,time);w.paused=false;
+ const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/12);assert.ok(w.respawn>0);advance(w,13);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
+ w.units=w.units.filter(u=>u.team!=='blue');tick(w,1/12);assert.equal(w.status,'lost');
 });
 
 test('imported compound bases stay on their spherical ground pads',async()=>{
@@ -46,7 +46,7 @@ test('imported compound bases stay on their spherical ground pads',async()=>{
 
 test('native animation identity, casting interruption, gradual terrain and blast survival',async()=>{
  const {readFileSync}=await import('node:fs'),sprites=JSON.parse(readFileSync(new URL('../app/original-units.json',import.meta.url))),w=createWorld();
- assert.equal(sprites.animations['blue-shaman'].walk[0].source,616);assert.equal(sprites.animations['red-shaman'].walk[0].source,624);assert.equal(sprites.animations['blue-brave'].carry[0].source,72);assert.equal(sprites.animations['blue-warrior'].attack[0].source,128);
+ assert.equal(sprites.animations['blue-shaman'].walk[0].source,616);assert.equal(sprites.animations['red-shaman'].walk[0].source,624);assert.equal(sprites.animations['blue-brave'].carry[0].source,72);assert.equal(sprites.animations['blue-warrior'].attack[0].source,120);
  assert.ok(sprites.frames.every(f=>f.w>0&&f.h>0&&f.w<=sprites.cell&&f.h<=sprites.cell));
  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
  assert.equal(maxHp('brave'),50);assert.equal(maxHp('warrior'),90);
@@ -55,4 +55,44 @@ test('native animation identity, casting interruption, gradual terrain and blast
  shaman.x=0;shaman.z=20;shaman.path=[];w.shots.bridge=1;const before=[...w.terrain];assert.ok(cast(w,'bridge',{x:0,z:4}));advance(w,.6);const rise=w.effects.find(e=>e.kind==='bridge');assert.ok(rise.land.length>0);const sample=rise.land.find(p=>p.to-p.from>1);assert.ok(w.terrain[sample.index]>before[sample.index]&&w.terrain[sample.index]<sample.to);advance(w,6);assert.equal(w.terrain[sample.index],sample.to);foundations(w);
  shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));advance(w,.6);assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
  const hut=w.buildings.find(b=>b.team==='blue');for(const angle of [0,Math.PI/2,Math.PI,3*Math.PI/2]){hut.angle=angle;const door=entrance(w,hut);assert.ok(Math.abs(door.x-hut.x+Math.sin(angle)*4)<1e-9&&Math.abs(door.z-hut.z-Math.cos(angle)*4)<1e-9,'door routes use the model coordinate conversion');}
+});
+
+
+test('native economy uses fixed turns, population bands and real hut upgrades',()=>{
+ const a=createWorld(),b=createWorld();
+ for(const w of [a,b]){w.shots.blast=0;select(w,'shaman');command(w,{x:0,z:20});}
+ for(let i=0;i<900;i++)tick(a,1/30);
+ for(let i=0;i<4320;i++)tick(b,1/144);
+ assert.deepEqual(b,a,'render frame rate cannot change the simulation');
+ const paused=JSON.stringify(a);a.paused=true;tick(a,10);a.paused=false;assert.equal(JSON.stringify(a),paused,'pause cannot accumulate a catch-up burst');
+ assert.throws(()=>tick(a,NaN),RangeError);
+ const w=createWorld();w.buildings=[];w.shots.blast=0;tick(w,1/4);assert.equal(w.mana,0);tick(w,1/12);assert.equal(w.mana,.067,'four turns: floor((6*4+30)*320/256) native mana');
+ const village=createWorld(),hut=village.buildings.find(b=>b.team==='blue');
+ assert.equal(populationLimit(village,'blue'),12);
+ for(const [level,capacity] of [[1,3],[2,4],[3,5]]){hut.level=level;assert.equal(housing(hut),capacity);}hut.level=1;
+ assert.equal(breedingWork(village,hut),1187,'integer 8.8 percentage conversion matches the executable');
+ for(let i=0;i<3;i++)addUnit(village,'blue','brave',HOME);
+ assert.equal(breedingWork(village,hut),1390,'population band increases at ten followers');
+ assert.equal(trainingCost(village,'blue'),3500);
+ for(let i=0;i<4;i++)addUnit(village,'blue','warrior',HOME);
+ assert.equal(trainingCost(village,'blue'),4375);
+ const warrior=village.units.find(u=>u.kind==='warrior'&&u.team==='blue');warrior.hp=45;assert.equal(meleeDamage(warrior),9);warrior.hp=.1;assert.equal(meleeDamage(warrior),1.6,'minimum native melee damage is 32');
+ const grow=createWorld(),h=grow.buildings.find(b=>b.team==='blue'),residents=grow.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,3);
+ for(const u of residents){u.inside=h.id;u.work=h.id;u.path=[];}
+ const count=grow.units.length;h.timer=breedingWork(grow,h)-8;grow.turn=3;grow.time=.25;tick(grow,1/12);assert.equal(grow.units.length,count+1);assert.equal(h.timer,0);
+ grow.turn=15;grow.time=15/12;h.upgrade=2392;tick(grow,1/12);assert.equal(h.level,2);assert.equal(h.progress,0);assert.equal(h.logs,0,'mature huts require upgrade timber');assert.equal(h.upgrading,true);
+ advance(grow,70);assert.equal(h.progress,1);assert.equal(h.logs,3);assert.equal(h.upgrading,false);foundations(grow);
+ const capped=createWorld();while(capped.units.filter(u=>u.team==='blue').length<populationLimit(capped,'blue'))addUnit(capped,'blue','brave',HOME);
+ const ch=capped.buildings.find(b=>b.team==='blue');ch.timer=99999;tick(capped,1/3);assert.equal(ch.timer,0);assert.equal(capped.units.filter(u=>u.team==='blue').length,12,'breeding stops at the settlement population limit');
+});
+
+
+test('lightning hits a native map cell and Blast leaves allied health intact',()=>{
+ const w=createWorld();w.buildings=[];const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ shaman.x=0;shaman.z=0;w.units=w.units.filter(u=>u.kind==='shaman');
+ const hit=addUnit(w,'blue','brave',{x:2.2,z:.2}),outside=addUnit(w,'blue','brave',{x:1.9,z:.2});
+ w.shots.lightning=1;assert.ok(cast(w,'lightning',{x:2.3,z:.3}));tick(w,.5);
+ assert.ok(!w.units.includes(hit));assert.equal(outside.hp,maxHp('brave'));assert.equal(outside.lift,0,'adjacent cells receive no invented radial lightning damage');
+ const ally=addUnit(w,'blue','brave',{x:2,z:0});const hp=ally.hp;
+ assert.ok(cast(w,'blast',ally));tick(w,.5);assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');
 });

@@ -87,7 +87,6 @@ export class GameScene {
   resize: ResizeObserver;
   frame = 0;
   previous = 0;
-  accumulator = 0;
   uiTimer = 0;
   terrainVersion = -1;
   treeSignature = '';
@@ -271,7 +270,7 @@ export class GameScene {
       const map=texture('units').clone(),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map,alphaTest:.5,toneMapped:false}));
       sprite.center.set(.5,.25);sprite.scale.setScalar(nativeUnits.cell*.065);g.add(sprite);g.userData.sprite=sprite;return g;
     }
-    const sequence=f.kind==='blast'?'impact':f.kind==='death'?'smoke':f.kind==='bridge'||f.kind==='birth'?'sparkle':f.kind;
+    const sequence=f.kind==='blast'?'impact':f.kind==='death'?'smoke':f.kind==='bridge'?'sparkle':f.kind;
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('effects').clone(),transparent:true,depthWrite:false,toneMapped:false}));
     sprite.center.set(.5,0);g.add(sprite);g.userData.sprite=sprite;g.userData.sequence=sequence;
     if(f.kind==='blast'){const shock=ring(.2,0xe1e7ed,.08);shock.position.y=.08;g.add(shock);g.userData.shock=shock;}
@@ -308,8 +307,7 @@ export class GameScene {
   }
   animate = (now: number) => {
     const dt = Math.min(.1, (now - (this.previous || now)) / 1000); this.previous = now;
-    this.accumulator += dt * this.world.speed;
-    while (this.accumulator >= 1 / 30) { tick(this.world, 1 / 30); this.accumulator -= 1 / 30; }
+    tick(this.world,dt*this.world.speed);
     if (this.terrainVersion !== this.world.terrainVersion) { this.rebuildTerrain(); this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); }
     const trees=this.world.trees.map(t=>t.logs>=1?'1':'0').join('');if(trees!==this.treeSignature){this.treeSignature=trees;this.releaseGroup(this.decorations);this.decorations.clear();this.makeDecorations();}
     const movingX = Number(this.keys.has('d') || this.keys.has('arrowright')) - Number(this.keys.has('a') || this.keys.has('arrowleft'));

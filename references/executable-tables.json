@@ -123,19 +123,19 @@
     },
     "attack": {
       "brave": {
-        "start": 128,
+        "start": 120,
         "layer": 0,
         "variant": 0,
         "turnsPerFrame": 1
       },
       "warrior": {
-        "start": 128,
+        "start": 120,
         "layer": 2,
         "variant": 2,
         "turnsPerFrame": 1
       },
       "shaman": {
-        "start": 424,
+        "start": 456,
         "layer": 0,
         "variant": 0,
         "turnsPerFrame": 1
@@ -183,5 +183,73 @@
     }
   },
   "blastDamage": 50,
-  "blastBuildingDamage": 40
+  "blastBuildingDamage": 40,
+  "runtimeRules": {
+    "manaUpdateMask": 3,
+    "manaIdleBrave": 4,
+    "manaBusyBrave": 15,
+    "manaIdleWarrior": 4,
+    "manaBusyWarrior": 5,
+    "humanManaFactor": 320,
+    "computerManaFactor": 128,
+    "breedingBands": [
+      76,
+      89,
+      102,
+      128,
+      153,
+      179,
+      204,
+      230,
+      256,
+      281,
+      307,
+      332,
+      358,
+      384,
+      409,
+      435,
+      460,
+      486,
+      499,
+      512
+    ],
+    "trainingBands": [
+      256,
+      320,
+      384,
+      448,
+      512,
+      640
+    ],
+    "hutCapacity": [
+      3,
+      4,
+      5
+    ],
+    "hutUpgradeWork": [
+      2400,
+      2400,
+      0
+    ],
+    "hutBreedingWork": [
+      4000,
+      3000,
+      2000
+    ]
+  },
+  "ignoredConstants": [
+    "BLAST_DAMAGE_AOD",
+    "CONV_RECONV",
+    "CONV_SUPER",
+    "CONV_TEMPLE",
+    "CONV_WARRIOR",
+    "FIGHT_DAMAGE_SHAMAN",
+    "MANA_UPDATE_FREQ",
+    "SP_1_OFF_MAX_ARMAGEDDON",
+    "SW_BLAST_RATE_TOWER",
+    "TRIGGER_REACTIVATE_TIME",
+    "WOOD_SHAMAN",
+    "WOOD_SPY"
+  ]
 }
