@@ -645,3 +645,22 @@ them at the recovered staggered phase. Existing cropped terrain producers feed
 native vertices into the reconstructed terrain queue when their version changes.
 Browser person records/order, attack-group reserve input, early emergency paths,
 occupancy flags and complete global scheduling remain integration gaps.
+
+## Complete general and emergency spell controller
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-emergency-spells.py /path/to/d3dpoptb.exe
+```
+
+`processComputerSpells` composes complete `004d0860`: self-Blast responses,
+flag-driven enemy-shaman and tower Lightning, preacher-response priority, entry
+readiness, scanning and dispatch. Tower targets use the existing native inside
+point geometry. Early returns preserve old readiness and queued work; the request
+bit can clear even when the attempted Blast fails. Stored Lightning bypasses
+the mana gate in the shaman/tower paths, but not in preacher responses.
+
+The oracle compares **1,040** complete native calls without replacing queries,
+geometry, scoring, ranges or scan/dispatch. The final allocation consumer records
+casts and applies AI delay 12. Live casting uses this controller through the
+existing opening-class person adapter; native person states and additional
+classes/effects still limit which responses can occur in the playable game.

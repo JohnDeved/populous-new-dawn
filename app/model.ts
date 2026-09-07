@@ -5,10 +5,10 @@ import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
-import {nativeSpellRange,spellEntryRanges,prepareSpellPayment,debitSpellMana,createTribeCasting,
+import {nativeSpellRange,prepareSpellPayment,debitSpellMana,createTribeCasting,
   canShamanCast,registerSpellCooldown,stepTribeCastCooldown,stepComputerCastCooldown,
   type TribeCasting,type SpellCaster} from './spell-casting.ts';
-import {castShoreBlast,scanSpellTargets,dispatchSpellTargets,type SpellTargetScan,type SpellTargetWorld,type SpellTargetUnit} from './computer-spells.ts';
+import {castShoreBlast,processComputerSpells,type SpellTargetScan,type SpellTargetWorld,type SpellTargetUnit} from './computer-spells.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
@@ -247,7 +247,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
   return [];
 }
 export type World = {
-  ai:ScriptState & {states:number;flags:number;defencePosition:number;defenceRadius:number;spellEntries:{model:number;mana:number;range:number;people:number;mode:number}[];reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
+  ai:ScriptState & {states:number;flags:number;enemyTribe:number;defencePosition:number;defenceRadius:number;spellEntries:{model:number;mana:number;range:number;people:number;mode:number}[];reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
   messages: MessageState;
   flyby: Flyby;
   inputMask: number;
@@ -273,7 +273,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 function missionAI(){
-  const ai={...scriptState(originalScript),states:0,flags:0,defencePosition:0,defenceRadius:11,spellEntries:Array.from({length:8},()=>({model:0,mana:0,range:0,people:0,mode:0})),reincarnation:true,includeIncompleteBuildings:false,pendingCommands:[] as {opcode:number;args:number[]}[]};
+  const ai={...scriptState(originalScript),states:0,flags:0,enemyTribe:0,defencePosition:0,defenceRadius:11,spellEntries:Array.from({length:8},()=>({model:0,mana:0,range:0,people:0,mode:0})),reincarnation:true,includeIncompleteBuildings:false,pendingCommands:[] as {opcode:number;args:number[]}[]};
   // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
   ai.attributes[43]=12; // 0x461d70: attribute 43 before the turn-zero script.
   runScript(originalScript,ai,{turn:0,tribe:1,readInternal:id=>{if(id===0)return 0;throw new Error(`Unbound initial script read ${id}`);},command:(opcode,args)=>{
@@ -497,9 +497,12 @@ function release(u: Unit) { u.vault=null; u.work=null; u.inside=null; u.tree=nul
 export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {
   return b.kind==='hut'?(b.team==='blue'?131:134)+b.level-1:b.kind==='camp'?(b.team==='blue'?103:104):b.kind==='tower'?(b.team==='blue'?79:80):(b.team==='blue'?95:96);
 }
+function buildingPose(b:Building) {
+  return {object:buildingObject(b),angle:Math.round(b.angle*2048/(Math.PI*2))&2047,
+    anchorX:Math.round((b.x+8)*256)&0xfe00,anchorY:Math.round((-b.z-8)*256)&0xfe00};
+}
 function buildingDoor(b: Building) {
-  const point=buildingOutsidePoint({object:buildingObject(b),angle:Math.round(b.angle*2048/(Math.PI*2))&2047,
-    anchorX:Math.round((b.x+8)*256)&0xfe00,anchorY:Math.round((-b.z-8)*256)&0xfe00});
+  const point=buildingOutsidePoint(buildingPose(b));
   return browserPosition({...point,h:0});
 }
 export function entrance(w: World, b: Point, radius=4) {
@@ -609,13 +612,18 @@ export function spellInRange(w:World,u:Unit,model:number,target:Point) {
 }
 // ponytail: browser unit arrays supply cell order until native terrain lists and
 // person records are live. Blast scoring does not consume terrain flags.
+function computerSpellPerson(w:World,u:Unit):SpellTargetUnit {
+  const p=nativePosition(w,u);
+  return {class:1,model:u.team==='wild'?1:u.kind==='shaman'?7:u.kind==='warrior'?3:2,
+    state:0,tribe:u.team==='wild'?-1:u.team==='blue'?0:1,x:p.x,y:p.y,
+    flags2:u.inside===null?0:0x800000,flags4:0,assignment:0,disguise:0};
+}
 function computerSpellWorld(w:World):SpellTargetWorld {
   const cells=new Map<number,SpellTargetUnit[]>();
   for(const u of w.units)if(u.hp>0&&u.inside===null) {
-    const p=nativePosition(w,u),cell=((p.x>>>8)&254)|(p.y&0xfe00);
+    const p=computerSpellPerson(w,u),cell=((p.x>>>8)&254)|(p.y&0xfe00);
     const objects=cells.get(cell)??[];
-    objects.push({class:1,model:u.team==='wild'?1:u.kind==='shaman'?7:u.kind==='warrior'?3:2,
-      state:0,tribe:u.team==='wild'?-1:u.team==='blue'?0:1,x:p.x,y:p.y,flags2:0,flags4:0,assignment:0,disguise:0});
+    objects.push(p);
     cells.set(cell,objects);
   }
   return {tribe:1,alliances:0,cells,terrainFlags:()=>{throw new Error('Native terrain occupancy flags are not integrated');}};
@@ -657,11 +665,21 @@ function stepComputerSpells(w:World) {
     defenceRadius:id===1?w.ai.defenceRadius:11,buildings:w.buildings.filter(b=>b.hp>0&&b.team===(id===0?'blue':'red'))
       .map(b=>({...nativePosition(w,b),tribe:id}))});
   if(shore)return;
-  const ranges=spellEntryRanges(w.manaWorld.gameFlags,w.castingTribes[1].flags,w.manaTribes[1].mana,caster,w.ai.spellEntries,0);
-  scanSpellTargets(world,w.spellScan,caster,ranges,()=>{throw new Error('Native preacher response is not integrated');});
-  if(able&&caster&&canShamanCast(caster.casting,caster.playerType,caster)&&(w.turn&15)===0)
-    dispatchSpellTargets(world,w.spellScan,w.ai.spellEntries,ranges,caster,w.manaWorld.gameFlags,w.ai.flags,
-      {categoryFlags,regionFlags:cell=>w.land.regions[nativeCellIndex(cell)],cast:allocate});
+  // Transport existing action guards through the native cast-block bit until
+  // the person-state adapter supplies original states and flags directly.
+  if(caster&&!able)caster.flags4|=0x400;
+  const enemyTeam=w.ai.enemyTribe===0?'blue':w.ai.enemyTribe===1?'red':null;
+  const enemy=w.units.find(p=>p.team===enemyTeam&&p.kind==='shaman'&&p.hp>0);
+  const context={turn:w.turn,mana:w.manaTribes[1].mana,reserve:0,gameFlags:w.manaWorld.gameFlags,
+    aiFlags:w.ai.flags,blastFrequency:w.ai.attributes[32],stock:w.manaWorld.spells[1]};
+  processComputerSpells(world,w.spellScan,caster,context,w.ai.spellEntries,{categoryFlags,
+    regionFlags:cell=>w.land.regions[nativeCellIndex(cell)],cast:allocate,enemyShaman:enemy?computerSpellPerson(w,enemy):null,
+    enemyBuildings:w.buildings.filter(b=>b.team===enemyTeam&&b.hp>0&&b.kind==='tower').map(b=>{
+      const people=w.units.filter(p=>p.inside===b.id&&p.hp>0);
+      return {...buildingPose(b),model:4,state:b.progress===1?2:1,occupants:people.length,
+        firstOccupant:people[0]?computerSpellPerson(w,people[0]):null};
+    })});
+  w.ai.flags=context.aiFlags;
 }
 function beginCast(w:World,u:Unit,spell:Spell,p:Point){
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.

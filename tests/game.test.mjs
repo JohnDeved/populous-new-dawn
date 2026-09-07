@@ -460,6 +460,36 @@ test('original opening runs at turn 71 and its independent flyby clock can be in
 });
 
 
+test('emergency casting preserves queued work and preacher responses keep their own payment rules', async () => {
+ const {processComputerSpells}=await import('../app/computer-spells.ts');
+ const {createTribeCasting}=await import('../app/spell-casting.ts');
+ const preacher={class:1,model:4,state:0,tribe:0,x:512,y:0,flags2:0,flags4:0,assignment:64,disguise:0};
+ const world={tribe:1,alliances:0,cells:new Map([[2,[preacher]]]),terrainFlags:()=>0};
+ const caster={x:0,y:0,height:256,state:0,flags2:0,flags4:0,landIndex:0,building:null,playerType:1,casting:createTribeCasting(true)};
+ const scan={cursor:0,limit:123,paused:0,targets:[0,0,0,0]},stock={available:0,disabled:0,stocks:Array(22).fill(0)};
+ stock.stocks[3]=1;
+ const context={turn:1,mana:79999,reserve:0,gameFlags:0,aiFlags:0,blastFrequency:0,stock};
+ const entries=Array.from({length:8},(_,i)=>({model:i?0:2,mana:0,people:0,mode:0})),casts=[];
+ const effects={enemyShaman:null,enemyBuildings:[],regionFlags:()=>0,categoryFlags:()=>1,cast:(...args)=>{casts.push(args);caster.casting.aiCooldown=12;}};
+ processComputerSpells(world,scan,caster,context,entries,effects);
+ assert.deepEqual(casts,[],'a Lightning stock does not bypass a preacher response’s mana gate');
+ context.mana=80000;scan.cursor=0;processComputerSpells(world,scan,caster,context,entries,effects);
+ assert.deepEqual(casts,[[3,2]],'Lightning is the final preacher-response fallback');
+ stock.stocks[5]=1;caster.casting.aiCooldown=0;scan.cursor=0;
+ processComputerSpells(world,scan,caster,context,entries,effects);assert.deepEqual(casts.at(-1),[5,2],'model five precedes Lightning');
+ const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),blue=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ w.units=[red,blue];w.terrain.fill(3);w.terrainVersion++;w.ai.variables[57]=1;w.inputMask=0;
+ Object.assign(red,{x:0,z:0,path:[]});Object.assign(blue,{x:6,z:0,path:[]});
+ w.ai.flags|=0x4000;w.ai.attributes[32]=1;w.turn=2;
+ w.manaTribes[1].mana=0;w.manaTribes[1].available=0;w.manaWorld.spells[1].stocks[3]=1;
+ Object.assign(w.spellScan,{cursor:79,limit:123,paused:1,targets:[1,2,3,4]});const before=structuredClone(w.spellScan);
+ tick(w,1/12);
+ assert.equal(w.spellCasts[1][3],1,'the independent shaman response can spend a stored Lightning with no mana');
+ assert.equal(w.manaWorld.spells[1].stocks[3],0);assert.equal(w.manaTribes[1].mana,0);
+ assert.deepEqual(w.spellScan,before,'an early emergency cast preserves pending scan work');
+ assert.deepEqual(w.projectiles.find(p=>p.team==='red').target,{x:7,z:-1});
+});
+
 test('live spell scans use population thresholds and building territory with delayed overlap recovery', async () => {
  const {addBuilding}=await import('../app/model.ts');
  const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),blue=w.units.filter(u=>u.team==='blue'&&u.kind==='brave'),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');

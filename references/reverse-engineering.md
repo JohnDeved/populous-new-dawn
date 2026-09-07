@@ -1905,3 +1905,64 @@ convention; the original outer loop runs tribe processing before incrementing
 the simulation turn inside `004ec6f0`.
 The shoreline cases record **19** allocations, including one override call with
 multiple allocations. The executable/manifest verifier checks **519** raw C exports.
+
+## Complete emergency/general spell controller — 2026-09-08
+
+`processComputerSpells` in `app/computer-spells.ts` now composes complete
+`004d0860`, including the early paths and the preacher callback previously left
+unimplemented. It reuses native cell scoring, spell payment classification,
+eligibility, range/readiness, inside-building geometry, scan and dispatch.
+
+Attribute 32 supplies a byte frequency. Timing uses the original bit masks on
+`frequency*4-1`, including non-power-of-two values. With more than Blast cost
+plus 50,000 mana, states 25/29 can cast at the shaman's own cell. Otherwise flags
+`0x3000` permit the scored Blast response; `0x1000` clears before scoring and
+stays cleared when scoring, range or usage prevents allocation. These early
+responses return before recalculating entry readiness or changing scan state.
+
+Flag `0x4000` targets the configured enemy shaman on its staggered phase,
+checking alliance and the exact `flags2 & 0x82007` / `flags4 & 0x400` exclusions.
+Flag `0x8000` checks that tribe's building list on a different phase: completed
+model-four buildings with occupants qualify only when the first occupant is
+model four or six. That path does not add an alliance check. It targets the
+original inside point from `00404420`, preserving list order and returning on
+the first in-range tower. Both Lightning paths accept payment type three without
+requiring 80,000 mana; otherwise the cost comparison is sufficient even when
+payment classification is zero, matching the executable's actual branches.
+
+During the general scan, a preaching model-four person (`assignment & 64`)
+tries spell models **2, 5, 3**, in that order. Each requires nonzero payment
+classification, sufficient mana, permitted usage and native range. Here a stored
+charge does not bypass the mana requirement. Allocation stops that person's
+fallback sequence but does not stop scanning; later eligibility queries observe
+the allocator's changes. A normal dispatch still follows only on its phase and
+when eligible. Missing shamans reset the scan while retaining its prior limit.
+
+`check-native-emergency-spells.py` compares **1,040** full `004d0860` calls,
+loading the original shape banks and executing every query, geometry and nested
+scan/dispatch routine unmodified. Only final allocation is supplied, recording
+the request and applying its known 12-turn AI delay. Coverage records **17**
+Blast, **4** Lightning and **1** model-five allocations, **23** consumed request
+bits, **16** early casts preserving readiness and **4** preacher-response cases.
+Deterministic cases cover each response and stock/mana boundary; randomized
+cases vary cast states, flags, masks, alliances, stock/payment modes, usage,
+target flags, tower occupancy/geometry and pending scan work.
+
+The live AI now calls the complete controller. A shared browser-person adapter
+feeds cell records and the enemy shaman; the stored enemy-tribe field defaults
+to zero like native AI initialization. Tower targeting shares the same shape
+pose as building entrance routing. Existing browser action guards use the native
+cast-block flag until the actual person states/flags are integrated. Native
+states 25/29, preaching followers and specialist tower occupants remain dependent
+on those unfinished person/class integrations; the full native routine being
+ported does not make those live classes complete. Model-five effects, attack-group
+reserve input, terrain occupancy and global scheduling also remain unfinished.
+
+All **42** regressions pass. A focused check distinguishes preacher stock/mana
+rules from the shaman response and verifies model-five fallback priority. A live
+case spends a stored Lightning with zero mana and preserves pending scan work.
+Playwright confirms that allocation, stock consumption and target `{x:7,z:-1}`
+without page errors. Build/lint pass with seven existing image warnings and zero
+errors. `004f52c0` was exported while checking defaults; it only clears AI flag
+`0x10` and remains raw initialization evidence.
+The executable/manifest verifier checks **520** raw C exports.

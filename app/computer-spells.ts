@@ -1,12 +1,14 @@
 import {spiralCell,cellsNear} from './native-math.ts';
 import type {SelectionUnit} from './computer-selection.ts';
 import rules from './original-rules.json' with {type:'json'};
-import {filterSpellEntries,computerSpellAllowed,computerSpellInRange,canShamanCast,type TargetCaster} from './spell-casting.ts';
+import {filterSpellEntries,computerSpellAllowed,computerSpellInRange,canShamanCast,spellEntryRanges,spellPaymentType,type TargetCaster} from './spell-casting.ts';
+import {buildingInsidePoint,type BuildingShapePose} from './building-shapes.ts';
+import type {SpellStock} from './mana.ts';
 
 export type SpellTargetUnit = Pick<SelectionUnit,'class'|'model'|'state'|'tribe'|'x'|'y'|'flags2'|'flags4'|'assignment'> & {disguise:number};
 export type SpellTargetWorld = {tribe:number;alliances:number;cells:Map<number,SpellTargetUnit[]>;
   terrainFlags:(cell:number)=>number};
-const cellOf=(p:SpellTargetUnit)=>((p.x>>>8)&254)|(p.y&0xfe00);
+const cellOf=(p:{x:number;y:number})=>((p.x>>>8)&254)|(p.y&0xfe00);
 const objectsAt=(w:SpellTargetWorld,cell:number)=>w.cells.get(cell&0xfefe)??[];
 const allied=(w:SpellTargetWorld,tribe:number)=>w.tribe===-1||tribe===-1||tribe===w.tribe||!!(w.alliances&(1<<tribe));
 const summaryGroup=[undefined,undefined,'braves','warriors','preachers','braves','firewarriors','warriors'] as const;
@@ -167,4 +169,53 @@ export function dispatchSpellTargets(w:SpellTargetWorld,scan:SpellTargetScan,ent
     scan.targets[i]=0;
     if(area.weight)return;
   }
+}
+
+export type EmergencyTower = BuildingShapePose & {model:number;state:number;occupants:number;firstOccupant:{model:number}|null};
+// Complete 0x4d0860, composed with the recovered scan and dispatch. Return the
+// new readiness bytes, or undefined when an early return preserves old bytes.
+export function processComputerSpells(w:SpellTargetWorld,scan:SpellTargetScan,caster:TargetCaster|null,
+  context:{turn:number;mana:number;reserve:number;gameFlags:number;aiFlags:number;blastFrequency:number;stock:SpellStock},
+  entries:{model:number;mana:number;people:number;mode:number}[],
+  effects:{enemyShaman:SpellTargetUnit|null;enemyBuildings:EmergencyTower[];regionFlags:(cell:number)=>number;
+    categoryFlags:(cell:number)=>number;cast:(model:number,cell:number)=>void}) {
+  if(!caster){resetSpellTargets(scan);return;}
+  const {turn,mana,gameFlags,blastFrequency,stock}=context,period=blastFrequency*4;
+  const eligible=()=>canShamanCast(caster.casting,caster.playerType,caster);
+  const allowed=(model:number)=>computerSpellAllowed(caster.casting,context.aiFlags,gameFlags,model);
+  const payment=(model:number)=>spellPaymentType(gameFlags,caster.casting.flags,stock,model);
+  const inRange=(model:number,cell:number)=>computerSpellInRange(gameFlags,caster.casting.flags,caster,cell,model);
+  if(period&&mana>((rules.spellCharging[2].cost+50000)|0)) {
+    if(caster.state===25||caster.state===29) {
+      if(eligible()&&!(turn&(period-1))&&allowed(2)){effects.cast(2,cellOf(caster));return;}
+    }else if((context.aiFlags&0x3000)===0x3000&&eligible()) {
+      context.aiFlags&=~0x1000;
+      const target=chooseSpellTarget(w,2,cellOf(caster),null);
+      if(target.accepted&&inRange(2,target.cell)&&allowed(2)){effects.cast(2,target.cell);return;}
+    }
+  }
+  const enemy=effects.enemyShaman;
+  if((context.aiFlags&0x4000)&&period&&eligible()&&!((w.tribe+turn)&(period-1))&&allowed(3)&&
+    enemy&&!allied(w,enemy.tribe)&&!(enemy.flags2&0x82007)&&!(enemy.flags4&0x400)&&
+    (payment(3)===3||mana>=rules.spellCharging[3].cost)&&inRange(3,cellOf(enemy))) {
+    effects.cast(3,cellOf(enemy));return;
+  }
+  if((context.aiFlags&0x8000)&&period&&eligible()&&!((w.tribe+turn+blastFrequency*2)&(period-1))&&
+    allowed(3)&&(payment(3)===3||mana>=rules.spellCharging[3].cost)) {
+    for(const b of effects.enemyBuildings)if(b.state===2&&b.occupants&&b.model===4&&
+      b.firstOccupant&&(b.firstOccupant.model===6||b.firstOccupant.model===4)) {
+      const cell=cellOf(buildingInsidePoint(b));
+      if(inRange(3,cell)){effects.cast(3,cell);return;}
+    }
+  }
+  const ranges=spellEntryRanges(gameFlags,caster.casting.flags,mana,caster,entries,context.reserve);
+  scanSpellTargets(w,scan,caster,ranges,p=>{
+    if(!eligible())return;
+    for(const model of [2,5,3])if(payment(model)&&mana>=rules.spellCharging[model].cost&&allowed(model)&&inRange(model,cellOf(p))) {
+      effects.cast(model,cellOf(p));break;
+    }
+  });
+  if(ranges.some(Boolean)&&eligible()&&!(turn&15))
+    dispatchSpellTargets(w,scan,entries,ranges,caster,gameFlags,context.aiFlags,effects);
+  return ranges;
 }
