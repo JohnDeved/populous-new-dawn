@@ -347,7 +347,7 @@ test('original discovery messages follow script phases, persist and reset',async
  w.shrines.find(s=>s.kind==='lightning').remaining=3;w.turn=60;tick(w,1/12);
  assert.deepEqual(w.messages.slots.filter(Boolean).map(m=>m.stringId),[615,616]);
  for(let i=0;i<128;i++)tick(w,1/12);
- assert.equal(w.messages.slots.filter(Boolean).length,2,'script flags prevent duplicate discovery notifications');
+ assert.deepEqual(w.messages.slots.filter(Boolean).map(m=>m.stringId),[615,616,611],'discovery flags prevent duplicates; the opening message fires once');
  w.paused=true;const before=structuredClone(w.messages);tick(w,2);assert.deepEqual(w.messages,before);
  removeMessage(w.messages,0);assert.equal(w.messages.slots[0],null);assert.equal(w.messages.slots[1].stringId,616);
  assert.equal(createWorld().messages.slots.filter(Boolean).length,0);
@@ -371,4 +371,27 @@ test('partial building queries consume their mode once and marker triggers bypas
   tick(w,2/12);assert.equal(head.forced,false,'reset clears the retained force bit');assert.equal(head.uses,1);
  }finally{level.markers[255]=old;}
  assert.throws(()=>forceHead(w,256),RangeError);
+});
+
+
+test('original opening runs at turn 71 and its independent flyby clock can be interrupted', async () => {
+ const {stepFlyby,interruptFlyby}=await import('../app/flyby.ts');
+ const w=createWorld();
+ for(let i=0;i<70;i++)tick(w,1/12);
+ assert.equal(w.flyby.flags&1,0);assert.equal(w.inputMask,128);
+ tick(w,1/12);
+ assert.equal(w.flyby.events.length,18);assert.equal(w.flyby.warmup,6);
+ assert.equal(w.flyby.flags&1,1);assert.equal(w.inputMask,64);
+ assert.equal(w.messages.slots[w.lastMessage].stringId,611);
+ assert.equal(w.messages.slots[w.lastMessage].flags&0x20200,0x20200);
+ const camera={x:17*256,y:-41*256,angle:0,zoom:0};
+ const before=structuredClone(w.flyby);stepFlyby(w.flyby,camera,24,true);assert.deepEqual(w.flyby,before);
+ for(let i=0;i<80;i++)stepFlyby(w.flyby,camera,24);
+ assert.notEqual(camera.x,17*256);assert.notEqual(camera.y,-41*256);
+ const turn=w.turn;interruptFlyby(w.flyby,camera);
+ for(let i=0;i<60;i++)stepFlyby(w.flyby,camera,24);
+ assert.equal(w.flyby.flags&1,0);assert.equal(camera.zoom,0);assert.equal(w.turn,turn);
+ for(let i=0;i<128;i++)tick(w,1/12);
+ assert.equal(w.flyby.flags&1,0,'campaign flag prevents replay');
+ assert.equal(w.messages.slots.filter(m=>m?.stringId===611).length,1);
 });

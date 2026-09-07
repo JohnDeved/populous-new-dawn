@@ -212,3 +212,24 @@ turns (480 with explicit force signals) and the unchanged 1,660 reward turns.
 Force evaluation follows work sampling and is cleared by reset, rather than
 cleared unconditionally each turn. See the detailed evidence log for fixture
 scope, opcode names and unported phases.
+
+
+## Opening flyby
+
+`app/flyby.ts` reconstructs the event queue, script value encoding, position/angle/
+zoom motion, presentation-frame scheduling and interruption from `00448ec0`–
+`0044a1e0` and `00490590`–`00490ab0`. Mission-one words 936–1079 now execute
+alongside the previously bound notification branches. Run:
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-flyby.py /path/to/d3dpoptb.exe
+node qa/flyby-check.mjs
+```
+
+The CPU comparison fixes x87 precision at 53 bits (`0x027f`); startup/device-mode
+precision is not established. It compares 1,000 profile calculations, 6,270 zoom
+frames, 1,600 queue insertions and 4,077 complete opening frames, including native
+VM decoding and interruption. UI/input/audio/debug leaves are intercepted;
+keyframe handlers, arithmetic, event ordering and timeline control execute.
+Interest-point tracking, native tooltips, early near-target input release,
+projection and frame throttling remain incomplete. See the evidence log.

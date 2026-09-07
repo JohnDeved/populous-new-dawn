@@ -13,6 +13,8 @@ Use Node 24, a desktop monitor, keyboard/mouse and a WebGL 2 browser. The music-
 
 ## Play
 
+The first mission opens with its original camera tour. Press Escape/Space or click **Skip introduction** to return to play; pause also freezes the tour.
+
 1. Select a brave and click the southern Land Bridge stone head. Keep a follower worshipping to earn gifts, with up to four Land Bridge shots held at once. Each completed worship cycle starts a short delivery delay; leaving early loses progress.
 2. Move your shaman to the northern edge of the starting island. Choose Land Bridge and click land across the water.
 3. Blast the lone Dakini guard. Send the shaman to the Vault of Knowledge to discover warrior training; send a follower to the other stone head for four Lightning gifts.
@@ -32,6 +34,7 @@ npm run check
 npm run build
 # With the development server running and Google Chrome installed:
 node qa/browser-check.mjs
+node qa/flyby-check.mjs
 ```
 
 Tests cover the original setup, closed island crossings, worship/discoveries, timber delivery, explicit training, mana allocation, complete mission victory, defeat, reincarnation and spherical foundation geometry. Playwright exercises the visible mission controls, construction, training, audio, pause, planet rotation and restart.
@@ -53,6 +56,7 @@ Maintainability is a standing [side objective](GOAL.md#side-objective-keep-devel
 | Native model coordinate morphs | `app/morph.ts`; task transitions in `app/model.ts`, geometry updates in `app/scene.ts` |
 | Worship work, decay and refill | `app/worship.ts`, `app/vault.ts`; world eligibility and delayed rewards currently live in `app/model.ts` |
 | Campaign bytecode semantics | `app/popscript.ts`; engine command bindings currently live in `app/model.ts` |
+| Opening camera events and motion | `app/flyby.ts`; native comparisons in `scripts/check-native-flyby.py` |
 | Models, sprites, camera or input | `app/scene.ts` |
 | HUD and menus | `app/page.tsx`, `app/globals.css` |
 | Sound playback | `app/audio.ts`; original sample/cue data is generated |

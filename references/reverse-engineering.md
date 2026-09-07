@@ -477,3 +477,70 @@ the production build. Existing VM/height/terrain, vault, message and worship
 comparisons pass. Browser QA completes worship, bridge casting, vault discovery,
 construction, training, pause, orbit and restart, and opens/dismisses the original
 Warrior Knowledge notification. Its rendered text and pyramid were inspected.
+
+
+## First-mission opening flyby (2026-09-07)
+
+The runtime now executes original first-mission words **936–1504**. The added
+opening block runs on EVERY 7 after turn 70, once via user variable 57. It creates
+message 78/string 611, sets its return-on-OK and auto-open bits with commands
+1180/1187, releases the initial input mask, and builds the original 18 flyby
+events. No replacement waypoint sequence was authored.
+
+`00449240` stores at most 32 eight-byte events, sorted by signed start time with
+stable ordering for ties; insertion is disabled while playing. The command
+wrappers pack coordinates into bytes, preserve signed short timing, and convert
+zoom percentages by truncating `(short(value) << 8) / -100`. The zoom handler
+later mutates that event value by shifting it six more bits. Tooltip commands
+map modes 0/1 to flags 1/2. The end target is stored independently for interruption.
+
+`004a4960` calls `00449320` from **draw_main**, independently of the simulation
+turn. The scheduler warms up for six presentation frames, averages the measured
+frame-rate global, clamps the resulting signed byte to 8–24, then converts script
+times from tenths of a second. Separate tracks update position, angle and zoom;
+the frame at the duration endpoint still runs before completion. Position follows
+the shortest signed-16-bit route to the center of an even map cell. Angle events
+use the native shortest difference and start from the interest-point track's
+velocity (zero for this mission). Zoom is clamped to ±16384 and reset on exit.
+
+`0044a070` computes acceleration, cruise and braking using carried velocity.
+The x87 disassembly is significant: intermediate float stores and extended
+arithmetic are not interchangeable. Update routines add a stored 0.5 bias, then
+truncate the sum of velocity and the current signed coordinate. They do not snap
+to a nominal endpoint. `00449080` allows an immediate stop during warmup or blends
+to the end target over two seconds (three at frame rates below 11), resetting
+position/zoom velocity first. The implementation lives in a separate TypeScript
+module, independent of React, Three.js and the simulation tick.
+
+The native oracle executes the supplied binary and original flyby bytecode. It
+compares **1,000** profile calculations, **6,270** zoom frames/velocities,
+**1,600** event insertions, and **4,077** complete opening frames across measured
+rates 8/10/12/24/60 and natural/warmup/midflight/late interruption paths. It checks
+camera coordinates, angle, zoom, event cursor, track counters/active flags,
+warmup, sampled rate and emitted tooltip parameters. The no-op `004e9d70` executes.
+Only renderer zoom setting, tooltip/message presentation, game input-mask OS
+handling, notification dispatch and debug output are intercepted. Native
+near-target bit 0x80 is excluded from snapshots because the browser's early
+input-mask release is unported. CPU setup explicitly uses x87 control word
+**0x027f**; the real startup and Direct3D precision modes need verification.
+These are isolated arithmetic/timeline comparisons, not full original-frame
+capture or proof of camera parity on every graphics configuration.
+
+Browser integration starts the tour and original narration at turn 71, blocks
+game orders during it, and supports pause and Escape/Space or a skip button.
+The browser supplies a fixed **24 Hz presentation clock**, independent of game
+speed; native frame throttling is still unported. Three.js maps the recovered
+coordinates/angle/zoom onto the existing approximate sphere. The orbit camera
+now preserves the final bearing by inverting that spherical offset rather than
+jumping away from the settlement. Browser QA checks the uninterrupted tour,
+pause, replay after restart, keyboard interruption and restored selection;
+the existing UI mission checks discoveries, construction, training and orbit
+after skipping. Nineteen engine regressions and the existing native message
+comparisons pass. Rendered opening and completion screenshots were inspected.
+
+Remaining: native interest-point track (kind 4) explicitly fails rather than
+silently approximating; this mission does not use it. Tooltip events are decoded
+and emitted by the engine but not yet drawn by the browser. The exact globe
+projection, zoom mapping, startup camera state, initial input-mask lifecycle,
+message dialog behavior, native frame cap and early near-target input release
+remain incomplete. These limits must be resolved for full camera/UI parity.

@@ -1,4 +1,5 @@
 import { soundAttenuation } from './audio';
+import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -84,6 +85,10 @@ export class GameScene {
   ray = new THREE.Raycaster();
   pointer: Point | null = null;
   viewPoint: Point = HOME;
+  flybyCamera: FlybyCamera = {x: 17 * 256, y: -41 * 256, angle: 0, zoom: 0};
+  cameraBearing = 0;
+  flybyTime = 0;
+  wasFlying = false;
   down = { x: 0, y: 0, button: 0 };
   dragBox: HTMLDivElement;
   keys = new Set<string>();
@@ -167,7 +172,7 @@ export class GameScene {
     this.listen(this.renderer.domElement, 'contextmenu', e => e.preventDefault());
     this.listen(window, 'keydown', this.keyDown); this.listen(window, 'keyup', e => this.keys.delete((e as KeyboardEvent).key.toLowerCase()));
     this.listen(window, 'blur', () => { this.keys.clear(); this.world.paused = true; this.onChange(); });
-    this.listen(minimap, 'pointerdown', e => { const p = e as PointerEvent, rect = minimap.getBoundingClientRect(); this.focus({ x: (p.clientX - rect.left) / rect.width * SIZE - 48, z: (p.clientY - rect.top) / rect.height * SIZE - 48 }); });
+    this.listen(minimap, 'pointerdown', e => { if(this.world.inputMask)return; const p = e as PointerEvent, rect = minimap.getBoundingClientRect(); this.focus({ x: (p.clientX - rect.left) / rect.width * SIZE - 48, z: (p.clientY - rect.top) / rect.height * SIZE - 48 }); });
     this.frame = requestAnimationFrame(this.animate);
   }
   makeSky(){
@@ -229,6 +234,7 @@ export class GameScene {
     }
   }) as EventListener;
   pointerUp = ((event: PointerEvent) => {
+    if (this.world.inputMask) return;
     this.dragBox.style.display = 'none'; const moved = Math.hypot(event.clientX - this.down.x, event.clientY - this.down.y);
     if (moved > 7) {
       if (event.button === 0 && event.pointerType !== 'touch' && !this.world.mode) {
@@ -257,11 +263,64 @@ export class GameScene {
     this.onChange();
   }) as EventListener;
   keyDown = ((event: KeyboardEvent) => {
+    if (this.world.inputMask) return;
     if ((event.target as HTMLElement).closest('button,input,dialog,a') || event.ctrlKey || event.metaKey || event.altKey) return;
     this.keys.add(event.key.toLowerCase()); if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) event.preventDefault();
   }) as EventListener;
-  orientCamera(){const distance=this.camera.position.distanceTo(this.controls.target),tilt=Math.min(.55,Math.max(0,(180-distance)/70*.55));const p=mapPoint(this.camera.position);p.z=Math.max(-100,Math.min(100,p.z-tilt*PLANET_RADIUS));this.viewPoint=p;const q=planetPoint(p),n=normal(p);if(tilt>.01)this.camera.up.set(n.x,n.y,n.z);this.camera.lookAt(q.x,q.y,q.z);this.camera.up.set(0,0,-1);this.camera.updateMatrixWorld();}
-  focus(p: Point = HOME) { const n=normal({x:p.x,z:p.z+.55*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(105).add(this.controls.target);this.controls.update();this.orientCamera(); }
+  orientCamera() {
+    const distance = this.camera.position.distanceTo(this.controls.target);
+    const tilt = Math.min(.55, Math.max(0, (180 - distance) / 70 * .55));
+    const position = mapPoint(this.camera.position), a = Math.cos(tilt);
+    const b = Math.sin(tilt) * Math.cos(this.cameraBearing), c = Math.sin(tilt) * Math.sin(this.cameraBearing);
+    // Invert the same spherical camera offset used by the flyby, preserving its
+    // final bearing when OrbitControls resumes. Bearing zero is the old view.
+    const latitude = Math.asin(Math.max(-1, Math.min(1, Math.sin(position.z / PLANET_RADIUS) / Math.hypot(a,b)))) - Math.atan2(b,a);
+    const longitude = position.x / PLANET_RADIUS - Math.atan2(c, a * Math.cos(latitude) - b * Math.sin(latitude));
+    const p = {x: longitude * PLANET_RADIUS, z: Math.max(-100, Math.min(100, latitude * PLANET_RADIUS))};
+    this.viewPoint = p;
+    const q = planetPoint(p), n = normal(p);
+    if (tilt > .01) this.camera.up.set(n.x,n.y,n.z);
+    this.camera.lookAt(q.x,q.y,q.z);this.camera.up.set(0,0,-1);this.camera.updateMatrixWorld();
+  }
+  skipIntroduction() { interruptFlyby(this.world.flyby, this.flybyCamera); if (!(this.world.flyby.flags & 1)) this.world.inputMask &= ~64; this.onChange(); }
+  updateFlyby(dt: number) {
+    const state = this.world.flyby, active = !!(state.flags & 1);
+    this.controls.enabled = !this.world.inputMask;
+    if (!active && !this.wasFlying) return false;
+    if (active && !this.wasFlying) {
+      this.flybyCamera = {x: Math.round((this.viewPoint.x + 8) * 256), y: Math.round((-this.viewPoint.z - 8) * 256), angle: 0, zoom: 0};
+      this.flybyTime = 0; this.keys.clear();
+    }
+    // ponytail: a 24 Hz presentation clock drives the recovered native timeline;
+    // original frame throttling and the native camera projection are still unported.
+    if (!this.world.paused) {
+      this.flybyTime += dt;
+      while (this.flybyTime >= 1 / 24) {
+        stepFlyby(state, this.flybyCamera, 24);
+        this.flybyTime -= 1 / 24;
+      }
+    }
+    const c = this.flybyCamera;
+    const p = {x: c.x / 256 - 8, z: -c.y / 256 - 8};
+    const n = normal(p), up = new THREE.Vector3(n.x, n.y, n.z);
+    const east = new THREE.Vector3(Math.cos(p.x / PLANET_RADIUS), -Math.sin(p.x / PLANET_RADIUS), 0);
+    const south = east.clone().cross(up), angle = c.angle * Math.PI / 1024;
+    this.cameraBearing = angle;
+    const direction = south.multiplyScalar(Math.cos(angle)).addScaledVector(east, Math.sin(angle));
+    const distance = 105 + c.zoom / 16384 * 24;
+    this.camera.position.copy(up).multiplyScalar(Math.cos(.55)).addScaledVector(direction, Math.sin(.55)).multiplyScalar(distance).add(this.controls.target);
+    const target = planetPoint(p);
+    this.camera.up.copy(up); this.camera.lookAt(target.x, target.y, target.z); this.camera.updateMatrixWorld();
+    this.viewPoint = p;
+    this.wasFlying = !!(state.flags & 1);
+    if (!this.wasFlying) {
+      this.world.inputMask &= ~64;
+      this.camera.up.set(0,0,-1);
+      this.controls.enabled = !this.world.inputMask;
+    }
+    return true;
+  }
+  focus(p: Point = HOME) { this.cameraBearing=0; const n=normal({x:p.x,z:p.z+.55*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(105).add(this.controls.target);this.controls.update();this.orientCamera(); }
   overview(){this.camera.position.set(30,155,0);this.controls.update();this.orientCamera();}
   zoom(amount: number) { const offset = this.camera.position.clone().sub(this.controls.target).multiplyScalar(amount); offset.clampLength(PLANET_RADIUS+14, PLANET_RADIUS+190); this.camera.position.copy(this.controls.target).add(offset); this.controls.update();this.orientCamera(); }
   animatePerson(body:THREE.Sprite,g:THREE.Group,heading:number,directions:{frames:number[];flip:boolean}[],age:number,once=false){
@@ -338,7 +397,7 @@ export class GameScene {
       spherical.theta-=movingX*dt*.5;spherical.phi=Math.max(.03,Math.min(Math.PI-.03,spherical.phi+movingZ*dt*.5));
       this.camera.position.setFromSpherical(spherical).applyQuaternion(rotation.invert()).add(this.controls.target);
     }
-    this.controls.update();this.orientCamera();
+    if (!this.updateFlyby(dt)) { this.controls.update();this.orientCamera(); }
     for (const [id, g] of this.unitMeshes) if (!this.world.units.some(u => u.id === id)) { this.objects.remove(g); this.releaseGroup(g); this.unitMeshes.delete(id); }
     for (const u of this.world.units) {
       let g = this.unitMeshes.get(u.id);

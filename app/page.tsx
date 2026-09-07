@@ -37,6 +37,10 @@ export default function Home() {
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement).closest('input,dialog')) return;
+      if (world.inputMask) {
+        if ((e.code === 'Space' || e.key === 'Escape') && (world.flyby.flags & 1)) { e.preventDefault(); engine.current?.skipIntroduction(); }
+        return;
+      }
       const s = SPELLS.find(s => s.key === e.key);
       if (s) { world.mode = world.mode === s.id ? null : s.id; setTab('spells'); }
       if(e.key==='Enter'&&!(e.target as HTMLElement).closest('button'))engine.current?.overview();
@@ -65,7 +69,9 @@ export default function Home() {
   const focused = SPELLS.find(s => s.id === (hover ?? world.mode)) ?? BUILDINGS.find(b => b.id === (hover ?? world.mode));
   const modeName = SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name;
   const objectives = [ { text: 'Bridge to the central island', done: world.stats.bridges > 0 }, { text: 'Discover warrior training', done: world.unlockedCamp }, { text: 'Defeat the Dakini tribe', done: world.status === 'won' } ];
-  return <main className="game-shell">
+  return <main className="game-shell" onClickCapture={e => {
+    if (world.inputMask && !(e.target as Element).closest('.top-actions,.wordmark,.game-dialog,.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen')) { e.preventDefault(); e.stopPropagation(); }
+  }}>
     <div className="world-viewport" ref={viewport} />
     <div className="world-vignette" />
     {desktopNotice && <aside className="desktop-recommendation"><span className="brand-rune">⟡</span><h2>A world worth a bigger screen.</h2><p>For the best experience, play on a desktop monitor with a keyboard and mouse.</p><button className="primary-button" onClick={() => { setDesktopNotice(false); world.paused = false; update(); }}>Continue anyway <span>↗</span></button></aside>}
@@ -89,11 +95,12 @@ export default function Home() {
 
     {ready && world.messageUntil > world.time && <div className="world-message" role="status"><span>✧</span>{world.message}</div>}
     <aside className="campaign-messages" aria-label="Campaign messages">
-      {world.messages.slots.map((message,slot)=>({message,slot})).filter(entry=>entry.message).sort((a,b)=>b.message!.age-a.message!.age).map(({message,slot})=><details key={message!.serial}>
+      {world.messages.slots.map((message,slot)=>({message,slot})).filter(entry=>entry.message).sort((a,b)=>b.message!.age-a.message!.age).map(({message,slot})=><details key={message!.serial} open={message!.flags & 0x20000 ? true : undefined}>
         <summary aria-label="Read campaign message"><img src="/original/message.png" alt="" /></summary>
         <div><p>{messageText(message!.stringId)}</p><button onClick={()=>{removeMessage(world.messages,slot);update();}} aria-label="Dismiss campaign message">×</button></div>
       </details>)}
     </aside>
+    {ready && !!(world.flyby.flags & 1) && <button className="skip-introduction" onClick={() => engine.current?.skipIntroduction()}>Skip introduction <kbd>ESC</kbd></button>}
     {ready && world.paused && !menu && world.status === 'playing' && <button className="paused-badge" onClick={() => { world.paused = false; update(); }}>Ⅱ <span>WORLD PAUSED</span><small>Click to resume</small></button>}
     {world.mode && <div className="target-prompt"><span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'} <strong>{modeName}</strong><button onClick={() => { world.mode = null; update(); }}>Cancel <kbd>ESC</kbd></button></div>}
 

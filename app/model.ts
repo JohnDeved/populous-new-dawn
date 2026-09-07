@@ -1,3 +1,4 @@
+import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
 import {runScript,scriptState,scriptValue,type ScriptState,type PopScript} from './popscript.ts';
@@ -255,6 +256,9 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
 export type World = {
   ai:ScriptState & {states:number;reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
   messages: MessageState;
+  flyby: Flyby;
+  inputMask: number;
+  lastMessage: number;
   spellCasts:number[][];
   gifts: (Point & {kind: Shrine['kind']; remaining: number})[];
   giftCounts: Record<Spell, number>;
@@ -286,7 +290,7 @@ function missionAI(){
   return ai;
 }
 export function createWorld(): World {
-  const w: World = { ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0}, terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+  const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0}, terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
@@ -366,16 +370,29 @@ export function forceHead(w: World, marker: number) {
 
 // Reviewed DO query handlers. Unknown commands/unsupported world state fail explicitly.
 export function campaignCommand(w: World, opcode: number, args: number[], script: PopScript = originalScript) {
-  const arity = ({1076: 3, 1077: 3, 1085: 2, 1131: 3, 1136: 0, 1151: 1, 1171: 2, 1176: 1} as Record<number, number>)[opcode];
+  const arity = ({1076: 3, 1077: 3, 1085: 2, 1131: 3, 1136: 0, 1151: 1, 1171: 2, 1176: 1, 1113: 0, 1180: 0, 1187: 0, 1205: 0, 1206: 0, 1207: 0, 1208: 1, 1209: 4, 1210: 3, 1211: 3, 1212: 4, 1213: 5, 1214: 4, 1215: 2} as Record<number, number>)[opcode];
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`);
   if (args.length !== arity) throw new Error(`Invalid campaign command arguments ${opcode}`);
   const read = (index: number) => scriptValue(script, w.ai, index, id => campaignInternal(w, id));
+
+  if (opcode === 1113) { w.inputMask &= ~128; return; }
+  if (opcode === 1180 || opcode === 1187) {
+    const message = w.messages.slots[w.lastMessage];
+    if (message) message.flags |= opcode === 1180 ? 0x200 : 0x20000;
+    return;
+  }
+  if (opcode >= 1205 && opcode <= 1215) {
+    flybyCommand(w.flyby, opcode, opcode === 1208 ? [args[0] === 1022 ? 1 : 0] : args.map(read));
+    if (opcode === 1206) w.inputMask |= 64;
+    if (opcode === 1207) w.inputMask &= ~64;
+    return;
+  }
 
   if (opcode === 1136) { w.ai.includeIncompleteBuildings = true; return; }
   if (opcode === 1151) { forceHead(w, read(args[0])); return; }
 
   if (opcode === 1176) {
-    addMessage(w.messages, messageStringId(read(args[0])), () => random(w));
+    w.lastMessage = addMessage(w.messages, messageStringId(read(args[0])), () => random(w));
     sound(w, 0xe3, HOME);
     return;
   }
@@ -414,7 +431,7 @@ export function campaignCommand(w: World, opcode: number, args: number[], script
 
 const discoveryScript = {
   ...originalScript,
-  codes: [12, 1003, ...originalScript.codes.slice(1080, 1505), 1004, 1019],
+  codes: [12, 1003, ...originalScript.codes.slice(936, 1505), 1004, 1019],
 };
 function campaignDiscoveries(w: World) {
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.

@@ -18,6 +18,7 @@ async function click(x,z,button='left'){const q=worldPoint(w.terrain,{x,z}),p=ne
 try{
  await page.goto('http://localhost:3000/',{waitUntil:'networkidle'});await page.locator('.loading-world').waitFor({state:'hidden'});await page.screenshot({path:'qa/desktop.png'});
  await page.getByRole('button',{name:'Enable sound',exact:true}).click();await page.getByRole('button',{name:'Mute sound',exact:true}).waitFor({timeout:30000});assert.ok(await page.evaluate(()=>window.__audioStarts>=1&&window.__samples[0].peak>0));
+ await page.getByRole('button',{name:/Skip introduction/}).waitFor();await page.getByRole('button',{name:/Skip introduction/}).click();await page.getByRole('button',{name:/Skip introduction/}).waitFor({state:'hidden'});
  await page.getByRole('button',{name:'buildings B',exact:false}).click();assert.ok(await page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true}).isDisabled());
  await page.getByRole('button',{name:'spells 1–3',exact:false}).click();
  await page.getByRole('button',{name:'1× GAME SPEED',exact:false}).click();
