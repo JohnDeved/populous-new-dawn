@@ -336,3 +336,21 @@ occupancy, command precedence, toroidal ties, priority bands and count clamps
 are covered. These are independently executable engine ports; browser world
 integration still requires original person state and command lifecycle consumers.
 New command exports are research evidence, not completed implementations.
+
+## Shared person commands
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-orders.py /path/to/d3dpoptb.exe
+```
+
+`app/person-orders.ts` now reconstructs command encoding, the shared command
+pool, queued/immediate attachment and removal, route conversion and group commit.
+The importer includes the 35 reviewed command descriptor masks/flags.
+The oracle compares 1,120 encodings, 576 route/attach/remove calls and 256 group
+commits, including pool exhaustion and aliasing of unreserved free records.
+Command preparation, work interruption, spell cleanup, attached-object deletion
+and fight release are explicit world-effect boundaries. These comparisons do
+not prove terrain/target correction, person-state initialization or movement.
+The Node ownership regression follows two followers through shared assignment,
+replacement and final-reference deletion. Full eight-slot queue overflow is
+explicitly rejected; the native out-of-bounds memory write is not represented.

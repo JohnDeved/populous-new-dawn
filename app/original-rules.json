@@ -2452,5 +2452,147 @@
     0,
     0,
     1
+  ],
+  "personCommands": [
+    {
+      "people": 0,
+      "flags": 0
+    },
+    {
+      "people": 252,
+      "flags": 0
+    },
+    {
+      "people": 252,
+      "flags": 0
+    },
+    {
+      "people": 252,
+      "flags": 72499257
+    },
+    {
+      "people": 252,
+      "flags": 4202522
+    },
+    {
+      "people": 128,
+      "flags": 33
+    },
+    {
+      "people": 4,
+      "flags": 4718980
+    },
+    {
+      "people": 4,
+      "flags": 4194457
+    },
+    {
+      "people": 252,
+      "flags": 71827528
+    },
+    {
+      "people": 4,
+      "flags": 4325433
+    },
+    {
+      "people": 4,
+      "flags": 4194692
+    },
+    {
+      "people": 252,
+      "flags": 71571616
+    },
+    {
+      "people": 252,
+      "flags": 4481
+    },
+    {
+      "people": 32,
+      "flags": 1
+    },
+    {
+      "people": 32,
+      "flags": 512
+    },
+    {
+      "people": 32,
+      "flags": 2097153
+    },
+    {
+      "people": 32,
+      "flags": 1024
+    },
+    {
+      "people": 16,
+      "flags": 131201
+    },
+    {
+      "people": 128,
+      "flags": 161
+    },
+    {
+      "people": 252,
+      "flags": 80746528
+    },
+    {
+      "people": 128,
+      "flags": 4202553
+    },
+    {
+      "people": 252,
+      "flags": 15743008
+    },
+    {
+      "people": 252,
+      "flags": 71385108
+    },
+    {
+      "people": 252,
+      "flags": 67109120
+    },
+    {
+      "people": 128,
+      "flags": 131105
+    },
+    {
+      "people": 252,
+      "flags": 71598265
+    },
+    {
+      "people": 252,
+      "flags": 131257
+    },
+    {
+      "people": 252,
+      "flags": 8397082
+    },
+    {
+      "people": 252,
+      "flags": 80740626
+    },
+    {
+      "people": 252,
+      "flags": 5242930
+    },
+    {
+      "people": 124,
+      "flags": 4194354
+    },
+    {
+      "people": 16,
+      "flags": 8388737
+    },
+    {
+      "people": 16,
+      "flags": 8519809
+    },
+    {
+      "people": 128,
+      "flags": 8397066
+    },
+    {
+      "people": 252,
+      "flags": 50339840
+    }
   ]
 }

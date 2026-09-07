@@ -888,3 +888,65 @@ shared reference-counted command records and person-state transitions. The
 training controller and selector remain outside the browser world update until
 those consumers are reconstructed; original mission words 601–624 remain
 unbound. This change adds verified engine behavior, not new playable AI orders.
+
+## Shared person orders and command ownership
+
+`app/person-orders.ts` reconstructs `00435780` encoding, valid eight-slot
+`00435730` enqueue, the allocator/group control in `004359b0`, reference and
+person-slot changes in `004364d0`/`00436d00`, and route conversion in `0043b010`.
+The importer records command models 0–34: people masks at `005a7dc4` and flags
+at `005a7dca`, stride 22. Unused payload bytes retain old contents; command 7
+sets flags 4/8 according to its first argument. Queue overflow writes beyond
+the original eight records, so the port rejects that unsupported corruption
+path rather than silently simulating a larger queue.
+
+The pool is 800 ten-byte records at `00938830`, with cursor/active count at
+`0096aa78`/`0096aa7a`. Allocation scans at most 800 times, wraps to slot 1,
+clears model/flags/attached-object identity, and preserves payload. Allocation
+does **not** reserve a record. A nearly full pool can therefore return the same
+zero-reference record repeatedly before group attachment begins. Cursor zero
+can return the failure sentinel after resetting record zero and advancing.
+The port retains both behaviors; it does not substitute unique reservations.
+
+Group commit allocates first, then visits selected people in tribe-list order,
+filters the three requested models, removes old commands, clears two person
+flags and attaches eligible queued commands. Cancelled or ineligible entries
+still consume positions. An allocation failure keeps all old person orders;
+the group queue clears in either case. Each command is shared by all eligible
+followers, so reference count transitions control active-record count and
+attached-object deletion. Immediate replacement acquires the new reference
+before releasing the old one, including replacement by the same record.
+
+`0043b010` finds the first run of route models 11/25, allowing empty slots
+inside the run and stopping at a different nonempty command. Two or more route
+entries convert model 11 to 25, expand the packed cell into two coordinates,
+and set person flags-2 bit 16. These records are shared: conversion is visible
+to other followers referencing them. Disassembly confirms the apparent
+uninitialized decompiler local is assigned by the first route entry before
+use; the reconstruction does not depend on stack residue.
+
+Removal preserves the original effect sequence: active work interruption,
+model-7/model-30 cleanup, reference decrement and possible object deletion,
+person-slot clearing, command-status reset, then fight-assignment release.
+`OrderEffects` makes the unported world consumers mandatory: target preparation
+(`00438730`), live work-target handling (`0051ff40`), model-30 tribe/shaman/RNG
+cleanup, object deletion (`004ef180`) and fight release (`004d4f40`). They are
+not replaced with no-ops in a browser adapter; that adapter is still pending.
+
+`scripts/check-native-orders.py` compares **1,952** calls: 1,120 command
+encodings, 576 route/attach/remove cases and 256 group commits. It compares
+the entire command pool, group bytes, person fields, cursor/active counts and
+effect order. Native preparation, work/object/fight effect leaves are supplied;
+model-30 cases use tribes without a live shaman, with the counter effect
+supplied on the TypeScript side. This is not a comparison of those world
+effects. The Node regression follows two followers through assignment,
+replacement, final-reference deletion, immediate self-replacement and pool
+exhaustion. All 26 Node regressions pass.
+
+Additional exports identify the next integration work. `004ed6f0` is an empty
+function, but `004ed640` dispatches to `004d2740`, whose person-state initializer
+updates selection counts/flags, resets movement and combat fields, consumes
+RNG and selects animations. State 14 sets the selected bit used by group commit;
+leaving it decrements the tribe selection count. `00418ce0` and `004f65e0` rely
+on that lifecycle. These state transitions and native command execution remain
+unported, so mission training words 601–624 are still intentionally unbound.

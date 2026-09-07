@@ -505,3 +505,37 @@ test('computer recruitment preserves wrapped-distance ties and native command el
  assert.deepEqual(selectComputerPeople(world,2,2,-1,0,0,2,3),[1,2,6],
   'capacity alone does not exclude an occupant: completed training huts lack native building flag 64');
 });
+
+test('group orders share references and release their object only after the final follower leaves', async () => {
+ const {emptyPersonOrder,queuePersonOrder,commitPersonOrders,attachPersonOrder,removePersonOrder}=await import('../app/person-orders.ts');
+ const pool={records:Array.from({length:800},emptyPersonOrder),cursor:1,active:0};
+ const group={records:Array.from({length:8},emptyPersonOrder),count:0,cursor:0};
+ const people=[1,2].map(id=>({id,model:2,state:17,substate:0,x:0,y:0,flags2:0,flags3:0,flags4:0,
+  assignment:0,selectionFlags:128,commands:Array(8).fill(0),commandCursor:0,immediateCommand:0,
+  orderLocation:0,commandStatus:0,workTarget:0}));
+ const deleted=[],unexpected=()=>assert.fail('unexpected world effect');
+ const effects={prepare:(o,model,a,b)=>{assert.equal(model,8);Object.assign(o,{model,a,b});},
+  stopWork:unexpected,releaseSpell:unexpected,releaseFight:unexpected,deleteObject:id=>deleted.push(id)};
+ queuePersonOrder(group,8,77,0);
+ assert.ok(commitPersonOrders(pool,group,people,[-1,-1,-1],effects));
+ assert.deepEqual(people.map(p=>p.commands[0]),[1,1]);
+ assert.equal(pool.records[1].references,2);assert.equal(pool.records[1].a,77);assert.equal(pool.active,1);
+ pool.records[1].object=99;people[1].selectionFlags=0;
+ queuePersonOrder(group,8,88,0);commitPersonOrders(pool,group,people,[-1,-1,-1],effects);
+ assert.equal(pool.records[1].references,1);assert.equal(pool.records[2].references,1);assert.equal(pool.active,2);
+ assert.deepEqual(deleted,[]);
+ removePersonOrder(pool,people[1],0,effects);
+ assert.deepEqual(deleted,[99]);assert.equal(pool.active,1);
+ attachPersonOrder(pool,people[0],2,-1,effects);attachPersonOrder(pool,people[0],2,-1,effects);
+ assert.equal(pool.records[2].references,2,'replacing an immediate order with itself acquires before releasing');
+ removePersonOrder(pool,people[0],0,effects);removePersonOrder(pool,people[0],-1,effects);
+ assert.equal(pool.active,0);assert.equal(pool.records[2].references,0);
+ for(const order of pool.records)order.references=1;
+ people[0].commands[0]=1;
+ queuePersonOrder(group,8,55,0);
+ assert.equal(commitPersonOrders(pool,group,people,[-1,-1,-1],effects),false);
+ assert.equal(people[0].commands[0],1,'pool exhaustion preserves existing orders');
+ assert.equal(group.count,0);assert.ok(group.records.every(o=>o.model===0));
+ for(let i=0;i<8;i++)queuePersonOrder(group,8,55,0);
+ assert.throws(()=>queuePersonOrder(group,8,55,0),RangeError,'unsupported native queue overflow fails explicitly');
+});
