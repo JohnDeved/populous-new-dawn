@@ -481,3 +481,23 @@ charging and retains computer mana. Its existing follower mana-generation,
 one-trainee occupancy and in-place conversion adapters remain partial. Tutorial
 requests are retained pending native UI gating; frame-rate/mana estimation inputs,
 initial tribe mana and complete AI spending still need original-world integration.
+
+
+## Follower mana generation
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mana-generation.py /path/to/d3dpoptb.exe
+```
+
+`app/mana.ts` also reconstructs person contribution `0041af80`, preacher-order
+predicate `004df0e0` and the mana scan/commit inside `004ecac0`. The oracle compares
+**2,304** person/predicate cases and **1,024** actual complete tribe rebuilds,
+including **383** generation pulses. It supplies only local-player UI activity
+classification `004513e0`; native generation, contribution and preacher-order
+calls execute without interception. The compared outputs of the full rebuild
+are its mana fields, not all its unrelated counters and lists.
+
+Live contribution and display use the same port. Current browser commands are
+still adapted to native command presence, HP to object registration, and building
+occupancy to the inside flag; native person records/order ownership remain the
+integration target. Combat animation alone no longer increases mana output.

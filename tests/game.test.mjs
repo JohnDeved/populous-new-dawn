@@ -785,3 +785,29 @@ test('live mana refunds wait for a pulse and computer training receives only the
  const stored=red.timer,pool=w.manaTribes[1].mana;
  tick(w,1/12);assert.equal(red.timer,stored);assert.equal(w.manaTribes[1].mana,pool);
 });
+
+test('follower mana uses native preacher orders, registration and ghost flags before tribe scaling', async () => {
+ const {personMana,generateFollowerMana}=await import('../app/mana.ts');
+ const {emptyPersonOrder}=await import('../app/person-orders.ts');
+ const pool={records:Array.from({length:3},emptyPersonOrder),cursor:1,active:0};
+ Object.assign(pool.records[1],{model:17});Object.assign(pool.records[2],{model:17,flags:1});
+ const p={class:1,model:4,state:10,tribe:0,flags2:0,flags4:0x20000000,assignment:0,
+  commandStatus:17,commands:[1,0,0,0,0,0,0,0],commandCursor:0,immediateCommand:0};
+ assert.equal(personMana(pool,p),4,'preaching orders use the idle specialist contribution');
+ p.assignment=64;assert.equal(personMana(pool,p),5);p.assignment=0;
+ p.immediateCommand=2;assert.equal(personMana(pool,p),5,'a cancelled immediate order suppresses the preaching order');
+ p.immediateCommand=0;p.flags2=0x800000;assert.equal(personMana(pool,p),5,'inside takes precedence over preaching order');
+ const brave={...p,model:2,flags2:0x800001},shaman={...p,model:7,flags2:0};
+ const people=[brave,shaman,{...brave,flags4:0x20000800},{...brave,flags4:0},
+  {...brave,model:1},{...brave,model:8},{...brave,class:2}];
+ const w=createWorld();w.manaWorld.turn=4;w.manaTribes[0].available=2147483647;w.manaTribes[0].estimatedRate=123;
+ generateFollowerMana(w.manaWorld,w.manaTribes,people,pool);
+ assert.equal(w.manaTribes[0].previousRate,56,'(15 + 30) scaled once by 320/256');
+ assert.equal(w.manaTribes[0].available,(2147483647+56)|0);assert.equal(w.manaTribes[0].estimatedRate,0);
+ const before=structuredClone(w.manaTribes);w.manaWorld.gameFlags=32;
+ generateFollowerMana(w.manaWorld,w.manaTribes,people,pool);assert.deepEqual(w.manaTribes,before);
+ w.manaWorld.gameFlags=0;w.manaWorld.turn=5;
+ generateFollowerMana(w.manaWorld,w.manaTribes,people,pool);assert.deepEqual(w.manaTribes,before);
+ const live=createWorld(),idle=manaRate(live);live.units.find(u=>u.kind==='brave'&&u.team==='blue').fighting=true;
+ assert.equal(manaRate(live),idle,'fighting animation alone is not an order or an inside flag');
+});

@@ -1429,3 +1429,55 @@ inputs and AI spending are not fully connected. Native notification requests are
 retained for later tutorial gating/presentation rather than sent through an
 incompatible message allocator. The original batch-conversion and occupant ports
 still need that broader world integration.
+
+
+## Native follower mana contribution and generation commit
+
+`personMana` in `app/mana.ts` reconstructs `0041af80`. Braves (model 2) use the
+configured busy value when their inside flag (`flags2 & 0x800000`) or command-status
+byte (`+a7`) is nonzero, otherwise the idle value. Models 3/5/6 use the specialist
+values with the same gate. Model 7 uses the unsigned mana word in its person
+descriptor, imported by `inspect-executable.py`; other models yield zero.
+There is no additional building-type/upgrade-level or animation/fighting test in
+this routine. Inside training and housing use the same contribution gate.
+
+Model 4 is the **preacher**, confirmed directly by the original constant descriptor
+`HUMAN_TRAIN_MANA_PREACH` pointing to `005a714c` (person model 4 +36); the spy
+constant points to model 5 at `005a717e`. An early working name was corrected before
+commit. A commanded preacher outside a building uses the idle specialist value
+when `004df0e0` recognizes its order and assignment bit 64 is clear. That predicate
+requires state 10 or 33 and a noncancelled current command of model 17, 31 or 32.
+Immediate commands take precedence, including cancelled ones; cancellation does
+not fall back to the queued command. Inside occupancy overrides the special case.
+
+`generatedMana` and `generateFollowerMana` reconstruct the mana portion of the
+actual tribe rebuild `004ecac0`. Contribution requires person class 1 and object
+registration bit `flags4 & 0x20000000`. Ghosts (`flags4 & 0x800`), wild-person model 1
+and model 8 are excluded. The original scan adds no independent HP/dead-bit check.
+It sums each tribe's contributions with signed 32-bit wrap, then applies the human
+factor only for player type 2 (computer factor otherwise) with a wrapped multiply
+and signed division by 256. On eligible turns it adds the result to incoming mana,
+stores it at tribe `+95d` and clears the estimated rate at `+961`. Game flags bit 32
+or a nonzero turn/update-mask intersection suppresses the entire generation commit,
+including those rate-field writes. A pulse updates all four tribes, even empty ones.
+
+`check-native-mana-generation.py` compares **2,304** contribution/preacher-predicate
+cases across all nine models and **1,024** full native tribe rebuilds, including
+**383** mana pulses. The full rebuild executes generation and current-command
+queries natively; only local-player UI activity classification `004513e0` is supplied.
+Fixtures exercise registration, ghosts, all tribe player types, cancelled immediate
+orders, generation gates, zero populations and overflow into existing incoming mana.
+The full-rebuild comparison covers mana outputs; it does not claim all rebuilt
+counters/list side effects have been ported.
+
+Live generation and the mana-flow display now share these recovered functions.
+The former broad busy test (including fighting/animation alone) is removed. The
+browser's current three follower classes still adapt work/path/target/guard orders
+to command presence, alive units to registration and inside membership to the
+native flag. Original person/order integration remains required for exact state
+transitions and the remaining classes. All **34** Node regressions pass, including
+special preacher orders, ghosts/registration, pulse gates, overflow and the live
+combat-animation distinction. The separate distributor/query oracle still passes
+**2,048** comparisons. Playwright again confirmed live charging, the computer pool
+and pause without browser errors. Type checking, lint and build pass; seven existing
+image-element warnings remain.

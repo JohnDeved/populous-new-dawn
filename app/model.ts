@@ -1,7 +1,7 @@
 import {nativeAngle,nativeStep,random} from './native-math.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
-import {distributeMana,type ManaWorld,type ManaTribe} from './mana.ts';
+import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
@@ -684,11 +684,16 @@ function damageSpell(w:World,spell:'blast'|'lightning',p:Point,caster:Pick<Unit,
   }
   for(const b of w.buildings)if(distance(b,p)<radius+1.5)b.hp-=20;
 }
-function manaPulse(w:World,team:Team){
-  const amount=w.units.filter(u=>u.team===team&&u.hp>0).reduce((n,u)=>{const busy=u.inside!==null||u.work!==null||u.path.length>0||u.fighting||u.fight!==null||u.casting!==null;return n+(u.kind==='shaman'?constants.MANA_F_SHAMEN:u.kind==='brave'?busy?rules.manaBusyBrave:rules.manaIdleBrave:busy?rules.manaBusyWarrior:rules.manaIdleWarrior);},0);
-  return Math.floor(amount*(team==='blue'?rules.humanManaFactor:rules.computerManaFactor)/256);
+// ponytail: current braves/warriors/shaman use the live order adapter. Replace it
+// with native person records/order ownership when that lifecycle is integrated.
+const liveManaOrders={records:[],cursor:1,active:0};
+function manaPeople(w:World){
+  return w.units.map(u=>({class:1,model:u.team==='wild'?1:u.kind==='shaman'?7:u.kind==='warrior'?3:2,
+    tribe:u.team==='red'?1:0,state:10,flags2:u.inside!==null?0x800000:0,flags4:u.hp>0?0x20000000:0,
+    assignment:0,commandStatus:u.work!==null||u.path.length>0||u.target!==null||u.guard?1:0,
+    commands:[],commandCursor:0,immediateCommand:0}));
 }
-export function manaRate(w:World){return manaPulse(w,'blue')*TURNS_PER_SECOND/(rules.manaUpdateMask+1)/1000;}
+export function manaRate(w:World){return generatedMana(liveManaOrders,manaPeople(w),w.manaTribes)[0]*TURNS_PER_SECOND/(rules.manaUpdateMask+1)/1000;}
 export function tick(w:World,dt:number){
   if(w.paused||w.status!=='playing')return;
   if(!Number.isFinite(dt)||dt<0)throw new RangeError('Simulation delta must be finite and nonnegative');
@@ -751,9 +756,9 @@ function stepTurn(w:World){
   w.manaWorld.spells[0].stocks[2]=w.shots.blast;
   w.manaWorld.spells[0].disabled=w.charging?0:2;
   w.manaTribes[0].spellProgress[2]=Math.round(w.mana*1000);
+  generateFollowerMana(w.manaWorld,w.manaTribes,manaPeople(w),liveManaOrders);
   for(const team of ['blue','red'] as const){
     const tribe=w.manaTribes[team==='blue'?0:1];
-    if((w.turn&rules.manaUpdateMask)===0)tribe.available=(tribe.available+manaPulse(w,team))|0;
     const camps=w.buildings.filter(b=>b.team===team&&b.kind==='camp'&&b.progress===1&&b.hp>0);
     // ponytail: live occupancy/conversion still admits one trainee; native slots
     // and batch costs replace this adapter when the occupant lifecycle is wired in.

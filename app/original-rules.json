@@ -2522,6 +2522,17 @@
       "computerMana": 0
     }
   ],
+  "personMana": [
+    0,
+    0,
+    15,
+    4,
+    4,
+    4,
+    4,
+    30,
+    0
+  ],
   "personCommands": [
     {
       "people": 0,
