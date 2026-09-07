@@ -569,3 +569,35 @@ test('AI reservation enters native selection state and releases through the norm
  assert.equal(p.state,10,'a protected person keeps its state');assert.equal(p.assignment&0x800,0x800);
  assert.equal(w.tribes[0].selectedCount,0);
 });
+
+test('training order startup uses configured speed and preserves only a compatible building occupant', async () => {
+ const {startPersonOrders}=await import('../app/person-order-start.ts');
+ const {emptyPersonOrder}=await import('../app/person-orders.ts');
+ const p={id:1,model:2,state:10,substate:0,x:0,y:0,flags2:0x800010,flags3:0,flags4:0,assignment:32,
+  selectionFlags:0,commands:[1,0,0,0,0,0,0,0],commandCursor:0,immediateCommand:0,orderLocation:0,
+  commandStatus:0,workTarget:0,tribe:0,previousState:14,physics:2,renderFlags:0,statusFlags:0,
+  workFlags:0,stateObject:0,speed:0,timer:0,target:0,reservationNext:0,formationCell:0,cargo:0,
+  animationMode:0,vehicle:0,angle:0,turnAngle:0,motionTimer:123,motionMode:3,destinationX:0,
+  destinationY:0,savedVehicle:0,commandPhase:4,commandAux:3,orderDelay:0};
+ const w={randomState:1,instantFacing:false,levelFlags:0,orders:{records:Array.from({length:800},emptyPersonOrder),cursor:3,active:2},
+  tribes:[{x:0,y:0,angle:0,selectedCount:0,flags:0,vehicleMode:0}]};
+ Object.assign(w.orders.records[1],{model:8,references:1,a:100});
+ Object.assign(w.orders.records[2],{model:8,references:1,a:101,flags:1});
+ const events=[],unexpected=()=>assert.fail('unexpected world consumer');
+ const effects={setAnimation:()=>events.push('animation'),setDestination:unexpected,commandPosition:unexpected,
+  allowVehicleOrder:unexpected,initializeCommand:unexpected,adjacentBuilding:()=>100,canStayForTarget:unexpected,
+  leaveBuilding:()=>events.push('leave'),resetVehicleMovement:unexpected,leaveSelectedVehicle:unexpected,initializeState:unexpected};
+ startPersonOrders(w,p,effects);
+ assert.equal(p.target,100);assert.equal(p.commandStatus,8);assert.equal(p.orderDelay,8);
+ assert.ok(p.speed>=70&&p.speed<=86,'shipped BRAVE_SPEED is 70, overriding the executable default of 64');
+ assert.equal(p.assignment&32,0);assert.equal(p.commandPhase,0);assert.equal(p.commandAux,0);
+ assert.deepEqual(events,['animation'],'a compatible training occupant stays inside');
+ p.immediateCommand=2;
+ startPersonOrders(w,p,effects);
+ assert.equal(p.target,100,'cancelled immediate order does not configure a new target or fall back');
+ assert.deepEqual(events,['animation','leave'],'building reconciliation still sees the immediate target');
+ assert.equal(p.flags2&16,0);
+ p.immediateCommand=0;p.commands[0]=0;
+ const before=JSON.stringify({w,p,events});startPersonOrders(w,p,effects);
+ assert.equal(JSON.stringify({w,p,events}),before,'empty order startup consumes no RNG and changes no fields');
+});

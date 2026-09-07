@@ -1,9 +1,10 @@
-"""Compare native person initialization (states 10/14) and animation selection.
+"""Compare native person initialization, order startup and animation selection.
 Usage: python scripts/check-native-person-state.py /path/to/d3dpoptb.exe
-Complex world consumers are intercepted; initializer arithmetic, flags, RNG,
+Requires the original levels/constant.dat beside the executable. Complex world
+consumers are intercepted; initializer/startup flags, configured speeds, RNG,
 selection counts, facing math and animation-object selection execute natively.
 """
-import json,random,struct,subprocess,sys
+import json,random,re,struct,subprocess,sys
 from pathlib import Path
 from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
@@ -11,6 +12,22 @@ from decomp import native_cpu
 
 root=Path(__file__).resolve().parents[1]
 cpu,_=native_cpu(Path(sys.argv[1]));cpu.mem_map(0x2000000,0x20000)
+# Match the shipped LEVELS/constant.dat settings, not the executable defaults.
+# Resolve addresses and native widths through its own constant descriptor table.
+constants=json.loads((root/'app/original-constants.json').read_text())
+balance=(Path(sys.argv[1]).parent/'levels/constant.dat').read_bytes()
+if balance[:2]==b'@~':balance=b'  '+bytes((~(v^(1<<((i-3)&7))))&255 for i,v in enumerate(balance))[2:]
+decoded={}
+for name,value in re.findall(r'^\s*P3CONST_(\S+)\s*=\s*(-?\d+)',balance.decode('ascii'),re.M):decoded.setdefault(name,int(value))
+assert decoded==constants,'Imported balance constants differ from the supplied game'
+for index in range(512):
+    data=bytes(cpu.mem_read(0x5aa5f0+index*31,31));name=data[:25].split(b'\0')[0].decode('ascii')
+    if not name:break
+    if name not in constants:continue
+    size,flags=data[25:27];address=struct.unpack('<I',data[27:])[0]
+    assert size in (1,2,4)
+    value=constants[name]*256//100 if flags&1 else constants[name]
+    cpu.mem_write(address,(value&((1<<(size*8))-1)).to_bytes(size,'little'))
 p,stack,stop=0x2000000,0x201d000,0x201e000
 tribes=0x89d1c8;rng=random.Random(0x4d2740);actions=[]
 
@@ -28,7 +45,7 @@ def leaf(cpu,address,size,user):
     elif address==0x4ea460:actions.append(['motion'])
     elif address==0x432260:actions.append(['orders'])
     cpu.reg_write(UC_X86_REG_EAX,0);cpu.reg_write(UC_X86_REG_EIP,struct.unpack('<I',cpu.mem_read(sp,4))[0]);cpu.reg_write(UC_X86_REG_ESP,sp+4)
-for a in [0x4d4040,0x409580,0x4d56f0,0x4ea460,0x432260]:cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a)
+hooks={a:cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a) for a in [0x4d4040,0x409580,0x4d56f0,0x4ea460,0x432260]}
 
 fields={'model':(0x2b,'B'),'state':(0x2c,'B'),'substate':(0x2d,'B'),'x':(0x3d,'H'),'y':(0x3f,'H'),
  'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),'assignment':(0x76,'H'),
@@ -38,7 +55,8 @@ fields={'model':(0x2b,'B'),'state':(0x2c,'B'),'substate':(0x2d,'B'),'x':(0x3d,'H
  'statusFlags':(0xb2,'B'),'workFlags':(0x9d,'H'),'stateObject':(0x87,'H'),'speed':(0x5f,'h'),
  'timer':(0x70,'h'),'target':(0x72,'h'),'reservationNext':(0x85,'H'),'formationCell':(0x80,'H'),
  'cargo':(0x78,'H'),'animationMode':(0xa8,'B'),'vehicle':(0x9f,'H'),'angle':(0x26,'H'),'turnAngle':(0x57,'H'),
- 'motionTimer':(0x61,'H'),'motionMode':(0x66,'B')}
+ 'motionTimer':(0x61,'H'),'motionMode':(0x66,'B'),'destinationX':(0x53,'H'),'destinationY':(0x55,'H'),
+ 'savedVehicle':(0xa1,'H'),'commandPhase':(0xaa,'B'),'commandAux':(0xa9,'B'),'orderDelay':(0xab,'B')}
 
 def fixture(c):
     global actions
@@ -49,7 +67,7 @@ def fixture(c):
     for id_ in [100,101]:
         obj=p+1024+id_*256;cpu.mem_write(obj,bytes(256));write(obj+0x24,'<H',id_);write(obj+0x2a,'<B',2);write(0x890390+id_*4,'<I',obj)
     for id_,order in c['orders']:
-        write(0x938830+id_*10,'<BB4H',order['model'],order['flags'],1,0,order['a'],0)
+        write(0x938830+id_*10,'<BB4H',order['model'],order['flags'],1,0,order['a'],order.get('b',0))
     write(0x89d178,'<I',c['randomState']);write(0x89c661,'<B',c['facingFlags']&8);write(0x98f746,'<B',c['facingFlags']&16)
     for i,t in enumerate(c['tribes']):
         a=tribes+i*0xc65;write(a+0x24,'<HH',t['x'],t['y']);write(a+0x32,'<H',t['angle']);write(a+0x92d,'<i',t['selectedCount']);write(a+0x941,'<I',t['flags'])
@@ -108,6 +126,72 @@ for i,(a,b) in enumerate(zip(expected,actual)):assert a==b,(i,cases[i],a,b)
 assert len(actual)==len(expected)
 print(f'PASS: {len(cases)} native animation-object selections across all 46 states and 9 models')
 
+# Replace the previous startup boundary with the actual native startup/configure
+# routines. Supply destination, adjacency and building-exit world consumers.
+cpu.hook_del(hooks[0x432260])
+startup_case={}
+def startup_leaf(cpu,address,size,user):
+    sp=cpu.reg_read(UC_X86_REG_ESP);a,b=struct.unpack('<II',cpu.mem_read(sp+4,8));result=0
+    if address==0x4e9d80:actions.append(['destination',*struct.unpack('<hh',cpu.mem_read(b,4))])
+    elif address==0x40a3f0:
+        actions.append(['adjacent',b]);id_=startup_case.get('adjacent',{}).get(str(b),0)
+        if id_:result=struct.unpack('<I',cpu.mem_read(0x890390+id_*4,4))[0]
+    elif address==0x409ed0:actions.append(['leave'])
+    elif address==0x520170:
+        id_=struct.unpack('<H',cpu.mem_read(b+0x24,2))[0];actions.append(['canStay',id_]);result=int(startup_case.get('canStay',False))
+    cpu.reg_write(UC_X86_REG_EAX,result);cpu.reg_write(UC_X86_REG_EIP,struct.unpack('<I',cpu.mem_read(sp,4))[0]);cpu.reg_write(UC_X86_REG_ESP,sp+4)
+for a in [0x4e9d80,0x40a3f0,0x409ed0,0x520170]:cpu.hook_add(UC_HOOK_CODE,startup_leaf,begin=a,end=a)
+
+cases=[];expected=[]
+plain_models=[0,1,2,3,4,5,8,9,12,13,14,15,16,17,18,20,22,23,24,26,27,29,32,33,34]
+for trial in range(1280):
+    u={key:rng.randrange(256 if fmt in ['B','b'] else 65536) for key,(_,fmt) in fields.items()}
+    for key in ['flags2','flags3','flags4']:u[key]=rng.getrandbits(32)
+    for key in ['speed','timer']:u[key]=rng.randrange(-128,256)
+    u.update(id=1,model=trial%9,state=10,previousState=14,physics=trial%20,tribe=trial%4,target=100,vehicle=0,
+        commands=[rng.choice([0,1,2]) for _ in range(8)],commandCursor=trial%8,immediateCommand=rng.choice([0,1,2]),
+        commandStatus=rng.choice([0,8,21,28,31]))
+    # Reconcile-only cases also exercise its command-presence/cancellation rules.
+    kind='reconcile' if trial%4==0 else 'start'
+    c=dict(kind=kind,person=u,orders=[[i,dict(model=plain_models[(trial+i)%len(plain_models)],flags=trial%2,a=rng.choice([0,100,101]))] for i in [1,2]],
+        randomState=rng.getrandbits(32),facingFlags=0,adjacent={'0':rng.choice([0,100,101]),'4':rng.choice([0,100])},canStay=bool(trial%3),
+        tribes=[dict(x=0,y=0,angle=0,selectedCount=0,flags=0) for _ in range(4)])
+    if kind=='start' and trial%2==0:
+        for _,o in c['orders']:
+            if o['model'] in [3,5,9,12,13,15,17,20,24,26,32]:
+                o['a']=rng.choice([0,0x7ffe,0x8001,0xfefe,0xffff]);o['b']=rng.randrange(65536)
+    fixture(c);startup_case=c;call(0x43d510 if kind=='reconcile' else 0x432260,p);cases.append(c);expected.append(snapshot(c))
+js="""import {startPersonOrders,reconcileOrderBuilding} from './app/person-order-start.ts';import {emptyPersonOrder} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{const actions=[],p=c.person,records=Array.from({length:800},emptyPersonOrder);for(const [id,o] of c.orders)Object.assign(records[id],o);
+const w={randomState:c.randomState,instantFacing:false,levelFlags:0,tribes:c.tribes,orders:{records,cursor:1,active:0}},unexpected=()=>{throw Error('uncovered world consumer');};
+const effects={setAnimation:(_,id)=>actions.push(['animation',id&65535]),setDestination:(_,x,y)=>actions.push(['destination',x,y]),commandPosition:unexpected,allowVehicleOrder:unexpected,
+initializeCommand:unexpected,adjacentBuilding:(_,model)=>{actions.push(['adjacent',model]);return c.adjacent[model]??0;},canStayForTarget:(_,id)=>{if(![100,101].includes(id))return false;actions.push(['canStay',id]);return c.canStay;},
+leaveBuilding:()=>actions.push(['leave']),resetVehicleMovement:unexpected,leaveSelectedVehicle:unexpected,initializeState:unexpected};
+(c.kind==='reconcile'?reconcileOrderBuilding:startPersonOrders)(w,p,effects);return {person:p,tribes:w.tribes,randomState:w.randomState,actions};})));"""
+actual=browser(js,cases);assert len(actual)==len(expected)
+for i,(a,b) in enumerate(zip(expected,actual)):
+    if a!=b:
+        path=Path('/private/tmp/populous-order-start-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(path)))
+print('PASS: 1280 native order-startup/building-reconciliation cases; destination and building world consumers supplied')
+
+# Verify configured speed values directly: selection state 14 zeroes its speed,
+# so its initializer comparison alone only proves RNG consumption, not the draw.
+cases=[];expected=[]
+for physics in range(20):
+    for option in range(32):
+        u={key:0 for key in fields};u.update(id=1,model=option%9,state=10,physics=physics,tribe=0,
+            flags3=0x80000 if option&1 else 0,flags2=0x8000|(0x80000 if option&2 else 0),
+            flags4=0x400 if option&4 else 0,cargo=1 if option&8 else 0,commands=[0]*8)
+        c=dict(person=u,orders=[],randomState=rng.getrandbits(32),facingFlags=0,
+            tribes=[dict(x=0,y=0,angle=0,selectedCount=0,flags=0) for _ in range(4)])
+        fixture(c);call(0x4d4f40,p);cases.append(c);expected.append(snapshot(c))
+actual=browser("""import {recoverPersonMovement} from './app/person-state.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{const actions=[],w={randomState:c.randomState};recoverPersonMovement(w,c.person,(_,id)=>actions.push(['animation',id&65535]));
+return {person:c.person,tribes:c.tribes,randomState:w.randomState,actions};})));""",cases)
+assert len(actual)==len(expected)
+for i,(a,b) in enumerate(zip(expected,actual)):assert a==b,(i,a,b)
+print('PASS: 640 native speed/recovery calls with shipped balance overrides, signed speeds and animation selection')
+
 # Native training phase 4 -> 5 -> 6, with actual selector, initialization,
 # shared command attachment and selected-person release. Only the same world
 # consumers above and command target preparation remain intercepted.
@@ -118,6 +202,7 @@ def prepare_leaf(cpu,address,size,user):
     cpu.reg_write(UC_X86_REG_EAX,0);cpu.reg_write(UC_X86_REG_EIP,struct.unpack('<I',cpu.mem_read(sp,4))[0]);cpu.reg_write(UC_X86_REG_ESP,sp+4)
 cpu.hook_add(UC_HOOK_CODE,prepare_leaf,begin=0x438730,end=0x438730)
 cases=[];expected=[]
+startup_case={}
 for trial in range(128):
     people=[]
     for i in range(7):
@@ -144,14 +229,16 @@ for trial in range(128):
         owner=cpu.mem_read(tribes+0x5b3,1)[0],pool=bytes(cpu.mem_read(0x938830,8000)).hex(),
         cursor=struct.unpack('<H',cpu.mem_read(0x96aa78,2))[0],active=struct.unpack('<H',cpu.mem_read(0x96aa7a,2))[0])
     cases.append(c);expected.append(out)
-js="""import {initializePersonState,reserveTrainingPerson,releaseSelectedPeople} from './app/person-state.ts';
+js="""import {initializePersonState,reserveTrainingPerson,releaseSelectedPeople} from './app/person-state.ts';import {startPersonOrders} from './app/person-order-start.ts';
 import {createComputerQueue,stepTrainingTask} from './app/computer.ts';import {selectComputerPeople} from './app/computer-selection.ts';
 import {emptyPersonOrder,queuePersonOrder,commitPersonOrders} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
 console.log(JSON.stringify(JSON.parse(s).map(c=>{const people=c.people,actions=[],pool={records:Array.from({length:800},emptyPersonOrder),cursor:1,active:0};
 const w={randomState:c.randomState,instantFacing:!!c.facingFlags,levelFlags:0,tribes:c.tribes,orders:pool};
-const effects={deselectPassengers:()=>{throw Error('uncovered passengers');},rebuildTrainingQueue:id=>actions.push(['training',id]),rebuildFormation:cell=>actions.push(['formation',cell]),releaseMotion:()=>actions.push(['motion']),startOrders:()=>actions.push(['orders']),setAnimation:(_,id)=>actions.push(['animation',id&65535])};
+const effects={deselectPassengers:()=>{throw Error('uncovered passengers');},rebuildTrainingQueue:id=>actions.push(['training',id]),rebuildFormation:cell=>actions.push(['formation',cell]),releaseMotion:()=>actions.push(['motion']),startOrders:p=>startPersonOrders(w,p,startEffects),setAnimation:(_,id)=>actions.push(['animation',id&65535])};
 const group={records:Array.from({length:8},emptyPersonOrder),count:0,cursor:0},unexpected=()=>{throw Error('uncovered order effect');};
 const orderEffects={prepare:(o,model,a,b)=>{actions.push(['prepare',model,a,b]);Object.assign(o,{model,a,b});},stopWork:unexpected,releaseSpell:unexpected,deleteObject:unexpected,releaseFight:unexpected};
+const startEffects={setAnimation:effects.setAnimation,setDestination:(_,x,y)=>actions.push(['destination',x,y]),commandPosition:unexpected,allowVehicleOrder:unexpected,initializeCommand:unexpected,
+adjacentBuilding:(_,model)=>{actions.push(['adjacent',model]);return 0;},canStayForTarget:unexpected,leaveBuilding:()=>actions.push(['leave']),resetVehicleMovement:unexpected,leaveSelectedVehicle:unexpected,initializeState:unexpected};
 for(const p of people)Object.assign(p,{class:1,driver:0,busy:0,inside:0});
 const units=new Map(people.map(p=>[p.id,p]));units.set(100,{class:2,model:7,state:2,flags2:0,inside:0});
 const selection={people,units,orders:new Map(),tribes:c.tribes.map(()=>({hasBase:false,base:0,shaman:0,radius:0})),buildingAt:()=>0};
@@ -168,4 +255,4 @@ actual=browser(js,cases);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
     if a!=b:
         path=Path('/private/tmp/populous-training-handoff-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(path),[k for k in a if a[k]!=b[k]]))
-print('PASS: 128 native training handoffs through selection, state initialization, shared orders and release; world consumers supplied')
+print('PASS: 128 native training handoffs through selection, state initialization, shared orders, release and actual order startup; world consumers supplied')

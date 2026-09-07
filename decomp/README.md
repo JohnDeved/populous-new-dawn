@@ -364,9 +364,14 @@ explicitly rejected; the native out-of-bounds memory write is not represented.
 `app/person-state.ts` reconstructs shared initialization and state bodies 10/14,
 AI reservation, selected-person release, facing and animation-object selection.
 The oracle compares 1,536 initializers, 6,624 animation selections across all
-46 states/nine models, and 128 combined training phase-4/5/6 handoffs. Combined
-cases execute the native selector, state initializer, group commands and release;
-order startup, target preparation and other world consumers remain supplied
+46 states/nine models, 1,280 startup/building-reconciliation cases, 640 direct
+speed/recovery calls, and 128 combined training phase-4/5/6 handoffs. Combined
+cases execute the native selector, state initializer, group commands, release
+and order startup; target preparation and other world consumers remain supplied
 leaves. These are not complete movement or training-arrival comparisons.
 The original math helpers now live in `app/native-math.ts`, shared unchanged
 with the existing simulation. Unknown initializer bodies fail explicitly.
+The original `levels/constant.dat` must accompany the executable. Its decoded
+settings must match `app/original-constants.json`; the oracle writes these through
+the native constant descriptor table before comparisons. Native default speeds
+are different from the shipped balance overrides.

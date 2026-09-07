@@ -22,6 +22,11 @@ export type OrderEffects = {
 };
 
 export const emptyPersonOrder = (): PersonOrder => ({model: 0, flags: 0, references: 0, object: 0, a: 0, b: 0});
+// Raw command lookup: callers apply their own state/cancellation rules.
+export function currentPersonOrder(pool: OrderPool, person: Pick<OrderedPerson, 'immediateCommand' | 'commands' | 'commandCursor'>) {
+  const id = person.immediateCommand || person.commands[person.commandCursor];
+  return id ? pool.records[id] : undefined;
+}
 function descriptor(model: number) {
   const d = rules.personCommands[model];
   if (!d) throw new RangeError(`Unsupported native person command ${model}`);

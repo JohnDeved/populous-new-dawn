@@ -1016,3 +1016,58 @@ into `native-math.ts`. Both the live simulation and reconstructed person states
 use them, keeping state reconstruction independent of the browser world module.
 The Node reservation/release regression additionally checks state/count cleanup,
 the assignment marker, protected followers and effect order.
+
+## Order startup, building compatibility and configured speed
+
+`app/person-order-start.ts` reconstructs `00432260`, the shared descriptor
+logic in `00432df0`, and `0043d510` building compatibility. Training command 8
+uses that common logic: it records the building target, initializes command
+status and flags, resets motion counters and sets the order delay to eight.
+It does not immediately turn the building target into a guessed walking path.
+Position commands delegate the original destination consumer, preserving the
+different raw-coordinate and packed-cell conversions in the descriptor.
+Specialized construction/vehicle/spell command bodies remain required world
+consumers, not silent defaults.
+
+Empty order startup changes no fields and consumes no RNG. A present but
+cancelled immediate command still causes the startup speed draw; configuration
+then rejects it without falling back to the queued command. Building compatibility
+has its own rules and can still inspect that cancelled command's target.
+An occupant stays for a matching training target, particular firewarrior tower
+orders, or order 31; otherwise the native building-exit consumer runs before
+flags-2 bit 16 is cleared. Reconciliation for order 28 also requires a live,
+compatible target. Vehicle transition and state-33 entry remain explicit world
+boundaries; this change does not implement transport travel.
+
+`recoverPersonMovement` reconstructs `004d4f40`, now used when startup releases
+a fight assignment: draw speed again, apply the doubling flag, and choose the
+native movement/carrying/airborne animation object. `resetPersonMotion` and
+`currentPersonOrder` share the actual reset and raw lookup rules with existing
+person-state code, without imposing one consumer's cancellation policy on another.
+
+The stronger startup comparison exposed a native-fixture omission: executable
+defaults differ from shipped `LEVELS/constant.dat` overrides. For example,
+`BRAVE_SPEED` is **70**, while the executable's initial table value is **64**.
+`check-native-person-state.py` now decodes the supplied balance file, checks it
+against the repository import, and writes its settings using the native
+descriptor table's addresses, sizes and percentage flags before execution.
+The previous state-14 comparison proved speed-draw RNG consumption but could
+not prove the drawn value, because that state immediately zeros its speed;
+state 10 previously supplied its startup leaf. This gap is now covered directly.
+
+The updated oracle adds **1,280** startup/building-reconciliation calls and
+**640** direct recovery calls across all 20 reviewed physics models, and upgrades
+the **128** training handoffs to execute actual native order startup. The entire
+script now compares **10,208** cases. Startup fixtures exercise 25 command models
+without specialized command bodies, cancellation/empty queues, building decisions,
+field resets, target conversion, effect order and configured speed/RNG behavior.
+Destination setup (`004e9d80`), adjacent-building lookup (`0040a3f0`), target
+compatibility (`00520170`) and building exit (`00409ed0`) are supplied consumers
+in those cases. The combined training handoffs no longer intercept `00432260`;
+they retain the documented target-preparation, animation and other world leaves.
+
+The new Node regression checks a compatible training occupant, cancelled
+immediate-target handling, configured brave speed, fight-release animation,
+and empty-order nonmutation. Live browser command scheduling, pathfinding,
+travel, training-list/occupancy mutation and arrival remain unfinished; the
+original mission training block stays unbound until those consumers are ready.

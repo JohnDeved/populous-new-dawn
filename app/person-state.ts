@@ -1,6 +1,6 @@
 import rules from './original-rules.json' with {type: 'json'};
 import {nativeAngle, nativeStep, random} from './native-math.ts';
-import type {OrderedPerson, OrderPool} from './person-orders.ts';
+import {currentPersonOrder, type OrderedPerson, type OrderPool} from './person-orders.ts';
 
 export type StatefulPerson = OrderedPerson & {
   tribe: number; previousState: number; physics: number; renderFlags: number;
@@ -30,6 +30,22 @@ export function randomPersonSpeed(w: {randomState: number}, p: Pick<StatefulPers
   const base = short(raw), spread = (base >> 2) >>> 0;
   const speed = short(base + random(w) % (spread || 1));
   return p.flags3 & 0x80000 ? short(speed * 2) : speed;
+}
+
+// 0x4d4f40: dropping a fight assignment draws speed and resets its animation.
+export function recoverPersonMovement(w: {randomState: number}, p: StatefulPerson, setAnimation: PersonStateEffects['setAnimation']) {
+  p.speed = randomPersonSpeed(w, p);
+  let row = p.cargo ? 5 : 1;
+  if (p.flags2 & 0x80000) {
+    row = p.flags4 & 0x400 ? 12 : 2;
+    if (row === 2) p.flags2 = (p.flags2 & ~0x8000) >>> 0;
+  }
+  setAnimation(p, rules.personAnimationObjects[row * 9 + p.model]);
+}
+
+// 0x4e9b40, shared by state release and command configuration.
+export function resetPersonMotion(p: StatefulPerson) {
+  p.flags2 = ((p.flags2 & 0xdffff7ff) | 0x1000) >>> 0; p.motionTimer = 0; p.motionMode = 0;
 }
 
 // 0x4d3ea0. Return the original animation-object identity, not a guessed sprite
@@ -89,7 +105,7 @@ export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, ef
   } else if (p.previousState === 24) { p.flags2 = (p.flags2 & ~0x4000) >>> 0; p.workTarget = 0; }
   if (p.state !== p.previousState && (oldFlags & 256)) p.flags3 = (p.flags3 | 0x800) >>> 0;
   if ((p.flags3 & 32) && p.state !== 14) {
-    const id = p.immediateCommand || p.commands[p.commandCursor], order = id ? w.orders.records[id] : undefined;
+    const order = currentPersonOrder(w.orders, p);
     // Unlike normal command queries, this leaf does not test cancellation.
     if (!order || order.model !== 8 || short(p.target) !== order.a) {
       effects.rebuildTrainingQueue(short(p.target)); p.flags3 = (p.flags3 & ~32) >>> 0; p.reservationNext = 0;
@@ -141,7 +157,7 @@ export function reserveTrainingPerson(w: PersonStateWorld, p: StatefulPerson, ef
 export function releaseSelectedPeople(w: PersonStateWorld, people: StatefulPerson[], state: number, effects: PersonStateEffects) {
   for (const p of people) {
     if (p.state !== state) continue;
-    p.flags2 = ((p.flags2 & 0xdffff7ff) | 0x1000) >>> 0; p.motionTimer = 0; p.motionMode = 0;
+    resetPersonMotion(p);
     if (p.flags2 & 0x100000) continue;
     const next = (w.levelFlags & 2) && p.model === 7 ? 39 : rules.personModels[p.model]?.nextState;
     if (next !== 10 && next !== 14) throw new RangeError(`Unported person-state initializer ${next}`);
