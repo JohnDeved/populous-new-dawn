@@ -14,7 +14,7 @@ export type OrderedPerson = {
 // stopWork resolves the live work target; releaseSpell owns tribe counters/RNG;
 // prepare owns native terrain/target correction (0x438730).
 export type OrderEffects = {
-  prepare: (order: PersonOrder, model: number, a: number, b: number) => void;
+  prepare: (order: PersonOrder, model: number, a: number, b: number, flags?: number) => void;
   stopWork: (person: OrderedPerson) => void;
   releaseSpell: (person: OrderedPerson) => void;
   deleteObject: (id: number) => void;
@@ -65,7 +65,7 @@ export function queuePersonOrder(group: OrderGroup, model: number, first: number
   group.cursor++; group.count++;
 }
 
-// Allocator in 0x4359b0. Allocation clears identity but does not reserve a slot:
+// 0x436c20 and allocator in 0x4359b0. Clears identity but does not reserve a slot:
 // until attached, its zero-reference record can be allocated again after wrap.
 export function allocatePersonOrder(pool: OrderPool) {
   let index = pool.cursor;
@@ -78,6 +78,15 @@ export function allocatePersonOrder(pool: OrderPool) {
     return index;
   }
   return 0;
+}
+
+// 0x43b120. Only inspect slots after the cursor; this predicate does not wrap.
+export function hasFollowingPersonOrder(pool: OrderPool, person: OrderedPerson) {
+  for (let slot = person.commandCursor + 1; slot < 8; slot++) {
+    const id = person.commands[slot];
+    if (id && !(pool.records[id].flags & 1)) return true;
+  }
+  return false;
 }
 
 // 0x43b010: coalesce the first run of route commands, allowing empty slots

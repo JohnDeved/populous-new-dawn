@@ -150,6 +150,13 @@ export function leaveBuilding(w: OccupancyWorld, p: BuildingOccupant, effects: O
   }
 }
 
+// Shared outside target in removal and training conversion.
+export function buildingExitPoint(b: OccupiedBuilding, effects: OccupancyEffects) {
+  const outside = b.class === 9 ? effects.planExitPoint(b) : buildingOutsidePoint(b);
+  const exit = nativeStep({x: outside.x / 256, z: -outside.y / 256}, (b.angle + 512) & 2047, 512);
+  return {x: Math.round(exit.x * 256) & 65535, y: Math.round(-exit.z * 256) & 65535};
+}
+
 // 0x407490. Restore the person at its current location, then set the outside
 // movement target and facing. Native removal does not teleport to the door.
 export function removeBuildingOccupant(w: OccupancyWorld, b: OccupiedBuilding | undefined,
@@ -165,9 +172,7 @@ export function removeBuildingOccupant(w: OccupancyWorld, b: OccupiedBuilding | 
   if (b.model === 4) w.towerTribes = (w.towerTribes | (1 << (b.tribe & 31))) & 255;
   if (rules.buildingFlags[b.model] & 1) updateTrainingOccupants(w, b);
   effects.updateIndicator(b);
-  const outside = b.class === 9 ? effects.planExitPoint(b) : buildingOutsidePoint(b);
-  const exit = nativeStep({x: outside.x / 256, z: -outside.y / 256}, (b.angle + 512) & 2047, 512);
-  const x = Math.round(exit.x * 256) & 65535, y = Math.round(-exit.z * 256) & 65535;
+  const {x, y} = buildingExitPoint(b, effects);
   p.homeX = (x & 0xfe00) + 256; p.homeY = (y & 0xfe00) + 256; p.formationSlot = 0;
   const angle = nativeAngle(short(x - p.x), -short(y - p.y));
   if (p.flags2 & 128) p.turnAngle = angle;

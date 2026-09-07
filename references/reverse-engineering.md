@@ -1302,3 +1302,70 @@ rolls back the newly allocated people. Ghost and mana handling have separate
 branches. This conversion routine is exported but **not yet ported**; the live
 browser still changes a brave's model in place. Full live occupancy/pathfinding,
 conversion and original first-mission training bindings remain unfinished.
+
+
+## Native training conversion, batch rollback and order inheritance
+
+`app/training-conversion.ts` reconstructs `00405b80`. With activity bit 128 clear,
+the routine runs its queue-yield check only every sixteenth building phase and
+when an occupant exists. The first physical occupant must be the trained model
+or a shaman. An untrained non-shaman queue head can eject that occupant. A scan
+for any queue member of another model also marks leading trained followers to
+restart, sets queue-dirty activity 8192 and requests removal of the same original
+occupant again. The second removal is intentionally not a request for a different
+occupant; `00407490` handles an already removed person without another mutation.
+
+With training active, `00509290` requests **UI-panel activation/retention**. Its
+helpers `005092e0` and `00504060` confirm this is not training sound or work-mana
+accumulation: the latter allocates a class-10/model-3 panel object, populates the
+158-byte panel record, draws its contents and selects the training panel type.
+Those consumers are exported but remain a supplied UI boundary.
+
+Training cost is rebuilt when zero or on the sixteenth phase. Sufficient stored
+mana is first clamped down to that cost. Nonzero conversion weight allocates a
+shared outside movement order (model 3, flags 32), then counts ghost occupants.
+The conversion count is weight divided by the destination model's weight; each
+remaining weight unit produces a brave. If this was not a periodic reprice, the
+routine reprices again before allocation and checks the new cost. Ghost batches
+bypass that second affordability check, not the initial affordability gate.
+
+Each replacement is allocated at the original inside point, with the native
+initialization stack containing signed x/y/angle and two zeros, and allocation
+flag 1. Any ghost occupant marks **every** replacement as a ghost; local-player
+replacements also receive render bit 16384. All replacements must allocate before
+old occupants are touched. Failure deletes the successfully allocated partial
+batch. The already prepared zero-reference command remains available in the pool.
+A successful ordinary batch credits stored mana through `0041a4f0` for computer
+player type 1 and then clears stored mana; a ghost batch retains it.
+
+The native order-source index advances past empty slots but **does not advance
+past the first nonempty slot**. This is confirmed by the instructions at
+`00406281`–`00406356`, not inferred from the pseudocode alone. Every replacement
+can therefore inherit the same first occupant's following orders, even when that
+occupant already has the trained model and remains inside. Eligibility `0043b120`
+looks only after the current cursor, without wrapping, and ignores cancelled
+records. Once eligible, copying walks seven following slots with wrap, preserves
+empty positions, and attaches even cancelled records. Otherwise the replacement
+receives the shared outside order if allocation succeeded. Each replacement gets
+movement flag 16. Old live occupants of other models are then removed, their
+commands released, and their objects deleted. Finalization zeros the cost, sets
+activity 1024, and records the current turn.
+
+`check-native-training-conversion.py` reuses the occupancy fixture and compares
+**1,024** complete dispatcher scenarios against the executable. Explicit coverage
+assertions verify **112** completions, **52** ghost completions, **42** rollbacks,
+**33** computer mana credits, **29** queue yields and **11** exhausted command-pool
+paths. Original cost, weight, geometry, exit, command allocation/attachment,
+follow-up predicate and reference cleanup execute without intercepted leaves.
+Allocation/registration, deletion, mana credit, panel activation, command target
+preparation and existing spatial/indicator consumers are supplied. Allocation
+arguments and initialization-stack contents are compared, and supplied population
+mutations exercise repricing after creation/removal. A new Node regression checks
+batch rollback and shared inheritance from a retained trained occupant, including
+cancelled records and gaps. All **32** Node tests pass; the separate **11,200**
+occupancy and **1,952** command comparisons also pass.
+
+Live browser training still uses its earlier in-place conversion. Connecting the
+reconstructed dispatcher to native allocation/counters, person commands, building
+occupancy and the first-mission training bindings remains required; this step does
+not establish live conversion or full engine parity.

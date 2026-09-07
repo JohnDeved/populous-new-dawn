@@ -712,3 +712,57 @@ test('building admission preserves native slot order, training activity and shar
  assert.deepEqual([brave.velocityX,brave.velocityY,brave.velocityZ],[0,0,0]);
  assert.ok(events.some(e=>e[0]==='insert'));
 });
+
+test('training replaces a whole batch, inherits the first occupant order tail and rolls back partial allocation', async () => {
+ const {stepTrainingConversion}=await import('../app/training-conversion.ts');
+ const {emptyPersonOrder,hasFollowingPersonOrder}=await import('../app/person-orders.ts');
+ for (const failAfter of [1,16]) {
+  const person=(id,model)=>({id,class:1,model,tribe:0,state:10,substate:13,x:0,y:0,
+   flags2:0x800000,flags3:0,flags4:0,assignment:4,selectionFlags:0,renderFlags:0,
+   commands:[1,0,0,0,0,0,0,0],commandCursor:0,immediateCommand:0,commandStatus:8,
+   workTarget:100,orderLocation:0,height:0,velocityX:0,velocityY:0,velocityZ:0,clip:0,
+   homeX:0,homeY:0,formationSlot:0,angle:0,turnAngle:0,facingAngle:0,reservationNext:0});
+  const warrior=person(1,3),braves=[person(2,2),person(3,2)];warrior.commands=[1,2,0,3,0,0,0,0];
+  const records=Array.from({length:800},emptyPersonOrder);
+  Object.assign(records[1],{model:8,references:3,a:100});
+  Object.assign(records[2],{model:3,references:1,a:1000,b:2000});
+  Object.assign(records[3],{model:3,references:1,flags:1,a:3000,b:4000});
+  const b={id:100,class:2,model:7,tribe:0,flags2:0,flags3:0,activity:8|128,inside:3,
+   occupants:[1,2,3,0,0,0],trainingTimer:0,trainingCost:0,storedMana:65535,tickPhase:0,queueHead:0,
+   object:103,angle:512,anchorX:0,anchorY:0,entryDelay:0,lastActivity:0};
+  const w={people:new Map([warrior,...braves].map(p=>[p.id,p])),orders:{records,cursor:4,active:3},
+   buildings:new Map([[100,b]]),turn:1234,buildingAt:()=>100,towerTribes:0,playerTribe:0,
+   tribes:[{personCounts:[0,0,2,1,0,0,0,0,0],playerType:1,buildingIds:[100]}]};
+  const events=[],created=[],unexpected=()=>assert.fail('unexpected world consumer');
+  const effects={orders:{prepare:(o,model,x,y,flags)=>Object.assign(o,{model,a:x,b:y,flags}),
+   stopWork:unexpected,releaseSpell:unexpected,releaseFight:unexpected,
+   deleteObject:id=>{events.push(['delete',id]);const p=w.people.get(id);p.class=0;w.tribes[0].personCounts[p.model]--; }},
+   leaveVehicle:unexpected,adjacentBuilding:unexpected,towerPosition:unexpected,terrainHeight:()=>0,
+   moveToCell:unexpected,insertCell:()=>{},removeCell:unexpected,planExitPoint:unexpected,updateIndicator:()=>{},
+   updateTrainingPanel:()=>{},addMana:(tribe,amount)=>events.push(['mana',tribe,amount]),
+   allocateTrainee:(model,tribe,x,y,angle)=>{
+    if(created.length===failAfter)return;
+    const p=person(200+created.length,model);Object.assign(p,{tribe,x,y,angle,commands:Array(8).fill(0),flags2:0});
+    created.push(p);w.people.set(p.id,p);w.tribes[tribe].personCounts[model]++;return p;
+   }};
+  assert.ok(hasFollowingPersonOrder(w.orders,warrior));
+  warrior.commandCursor=7;assert.equal(hasFollowingPersonOrder(w.orders,warrior),false,'eligibility does not wrap');
+  warrior.commandCursor=2;assert.equal(hasFollowingPersonOrder(w.orders,warrior),false,'cancelled tail alone is ineligible');
+  warrior.commandCursor=0;stepTrainingConversion(w,b,effects);
+  if(failAfter===1){
+   assert.deepEqual(b.occupants,[1,2,3,0,0,0]);assert.ok(braves.every(p=>p.class===1&&p.commands[0]===1));
+   assert.deepEqual(events,[['delete',200]]);assert.equal(created[0].class,0);assert.equal(b.lastActivity,0);
+   assert.equal(w.tribes[0].personCounts[3],1,'rollback restores the supplied population counter');
+  }else{
+   assert.equal(created.length,2);assert.ok(created.every(p=>p.model===3));
+   assert.ok(created.every(p=>p.commands[0]===2&&p.commands[1]===0&&p.commands[2]===3),
+    'both replacements inherit the first occupant tail, preserving gaps and cancelled records');
+   assert.equal(records[2].references,3);assert.equal(records[3].references,3);assert.equal(records[4].references,0);
+   assert.deepEqual(b.occupants,[1,0,0,0,0,0]);assert.equal(b.inside,1);assert.equal(warrior.class,1);
+   assert.ok(braves.every(p=>p.class===0&&p.commands.every(id=>id===0)));
+   assert.equal(b.trainingCost,0);assert.equal(b.storedMana,0);assert.equal(b.lastActivity,1234);
+   assert.equal(events[0][0],'mana');assert.ok(events[0][2]>0);
+   assert.deepEqual(events.slice(1),[['delete',2],['delete',3]]);
+  }
+ }
+});

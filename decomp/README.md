@@ -432,3 +432,28 @@ The balance override loader is shared by the person-state, queue and occupancy
 comparisons in `scripts/decomp.py`; queue and occupancy comparisons share the
 original-shape fixture loader. Live warrior costs reuse the recovered
 arithmetic; complete live occupancy/pathfinding integration remains pending.
+
+
+## Training conversion and order inheritance
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-training-conversion.py /path/to/d3dpoptb.exe
+```
+
+`app/training-conversion.ts` reconstructs the complete `00405b80` dispatcher:
+periodic queue yielding, repricing, batch allocation, ghost propagation, mana
+handling, order inheritance, old-person removal and partial-allocation rollback.
+It shares the verified occupant exit, shape geometry and command routines.
+`00436c20` uses the existing allocator; `0043b120` is the non-wrapping follow-up
+eligibility check in `app/person-orders.ts`. Command preparation now accepts the
+original flags argument (32 for the conversion exit command).
+
+The oracle compares **1,024** scenarios, including **112** completed batches,
+**52** ghost batches, **42** partial-allocation rollbacks, **33** computer mana
+credits, **29** queue-yield updates and **11** command-pool exhaustion paths.
+The supplied allocator records and checks the native initialization stack and
+flag and updates population counters; supplied deletion reverses these counts.
+UI-panel activation `00509290`, allocation/registration, mana credit, command
+target preparation and existing occupancy world effects remain boundaries.
+The oracle does not execute the complete original object allocator or panel UI.
+These reconstructions are not yet wired into live browser training conversion.

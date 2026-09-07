@@ -112,93 +112,94 @@ def compare(cases,expected,js,label):
             path=Path('/private/tmp/populous-occupant-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((label,i,str(path)))
     print(f'PASS: {len(cases)} native {label}')
 
-cases=[];expected=[]
-for trial in range(1728):
-    c=case();model=trial%9;count=rng.choice([-32768,-1,0,3,4,7,8,11,12,15,16,20,21,32767]);amount=rng.choice([0,1,2,3,7,127,65535,2147483647,-1,-2147483648]);kind=trial%4
-    c.update(model=model,count=count,amount=amount,kind=kind);c['tribes'][0]['personCounts'][model]=count;c['tribes'][0]['playerType']=kind
-    fixture(c);call(0x41b0c0,addr(100),base,model,amount);value=read(base,'i');cases.append(c);expected.append(value)
-compare(cases,expected,'return nativeTrainingCost(c.count,c.model,c.kind,c.amount);','training-cost calculations across every person model, tribe type, population band and signed overflow')
+if __name__ == '__main__':
+    cases=[];expected=[]
+    for trial in range(1728):
+        c=case();model=trial%9;count=rng.choice([-32768,-1,0,3,4,7,8,11,12,15,16,20,21,32767]);amount=rng.choice([0,1,2,3,7,127,65535,2147483647,-1,-2147483648]);kind=trial%4
+        c.update(model=model,count=count,amount=amount,kind=kind);c['tribes'][0]['personCounts'][model]=count;c['tribes'][0]['playerType']=kind
+        fixture(c);call(0x41b0c0,addr(100),base,model,amount);value=read(base,'i');cases.append(c);expected.append(value)
+    compare(cases,expected,'return nativeTrainingCost(c.count,c.model,c.kind,c.amount);','training-cost calculations across every person model, tribe type, population band and signed overflow')
 
-cases=[];expected=[]
-for trial in range(1024):
-    c=case();b=c['building'];b.update(model=trial%20,inside=rng.choice([0,1,5,128,255]),occupants=[rng.choice([0,2,3,4,5,6,7]) for _ in range(6)])
-    for p in c['people']:p.update(model=rng.randrange(9),flags2=rng.choice([0,0,1]),tribe=rng.randrange(4));p['class']=rng.choice([0,1,1,2])
-    fixture(c);value=call(0x408d20,addr(100));cases.append(c);expected.append(value if value<2**31 else value-2**32)
-compare(cases,expected,'return trainingOccupantWeight(w,b);','occupant conversion-weight scans (no supplied leaves)')
+    cases=[];expected=[]
+    for trial in range(1024):
+        c=case();b=c['building'];b.update(model=trial%20,inside=rng.choice([0,1,5,128,255]),occupants=[rng.choice([0,2,3,4,5,6,7]) for _ in range(6)])
+        for p in c['people']:p.update(model=rng.randrange(9),flags2=rng.choice([0,0,1]),tribe=rng.randrange(4));p['class']=rng.choice([0,1,1,2])
+        fixture(c);value=call(0x408d20,addr(100));cases.append(c);expected.append(value if value<2**31 else value-2**32)
+    compare(cases,expected,'return trainingOccupantWeight(w,b);','occupant conversion-weight scans (no supplied leaves)')
 
-cases=[];expected=[]
-for trial in range(2048):
-    c=case();p=c['people'][0];c['mode']=[0,1,2,3,4,255,256][trial%7]
-    p.update(model=trial%9,flags2=rng.getrandbits(32),flags3=rng.getrandbits(32),flags4=rng.getrandbits(32),
-      assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),height=rng.randrange(65536),clip=rng.randrange(65536),
-      velocityX=rng.randrange(-32768,32768),velocityY=rng.randrange(-32768,32768),velocityZ=rng.randrange(-32768,32768),
-      commandCursor=rng.randrange(8),immediateCommand=rng.choice([0,0,2]),orderLocation=rng.randrange(65536),commandStatus=8,
-      commands=[rng.choice([0,1,1,2]) for _ in range(8)],state=rng.choice([10,33,14]),substate=rng.choice([0,1,3]))
-    c['tower']=rng.choice([0,0,100]);c['special']=rng.choice([0,100]);c['orders'][1]['model']=rng.choice([7,8,19,21]);c['orders'][2]['flags']=trial%2
-    for i,o in enumerate(c['orders']):o['references']=sum(p['commands'].count(i)+(p['immediateCommand']==i) for p in c['people']) if i else 0
-    c['active']=sum(o['references']>0 for o in c['orders'])
-    fixture(c);call(0x4d80e0,addr(1),c['mode']);cases.append(c);expected.append(snapshot(c,0))
-compare(cases,expected,'setPersonOccupancy(w,c.people[0],c.mode,effects);return snapshot(0);','occupancy-mode transitions, visibility, tower placement and actual command reference cleanup; spatial/transport leaves supplied')
+    cases=[];expected=[]
+    for trial in range(2048):
+        c=case();p=c['people'][0];c['mode']=[0,1,2,3,4,255,256][trial%7]
+        p.update(model=trial%9,flags2=rng.getrandbits(32),flags3=rng.getrandbits(32),flags4=rng.getrandbits(32),
+          assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),height=rng.randrange(65536),clip=rng.randrange(65536),
+          velocityX=rng.randrange(-32768,32768),velocityY=rng.randrange(-32768,32768),velocityZ=rng.randrange(-32768,32768),
+          commandCursor=rng.randrange(8),immediateCommand=rng.choice([0,0,2]),orderLocation=rng.randrange(65536),commandStatus=8,
+          commands=[rng.choice([0,1,1,2]) for _ in range(8)],state=rng.choice([10,33,14]),substate=rng.choice([0,1,3]))
+        c['tower']=rng.choice([0,0,100]);c['special']=rng.choice([0,100]);c['orders'][1]['model']=rng.choice([7,8,19,21]);c['orders'][2]['flags']=trial%2
+        for i,o in enumerate(c['orders']):o['references']=sum(p['commands'].count(i)+(p['immediateCommand']==i) for p in c['people']) if i else 0
+        c['active']=sum(o['references']>0 for o in c['orders'])
+        fixture(c);call(0x4d80e0,addr(1),c['mode']);cases.append(c);expected.append(snapshot(c,0))
+    compare(cases,expected,'setPersonOccupancy(w,c.people[0],c.mode,effects);return snapshot(0);','occupancy-mode transitions, visibility, tower placement and actual command reference cleanup; spatial/transport leaves supplied')
 
-cases=[];expected=[]
-for trial in range(3072):
-    c=case();b=c['building'];p=c['people'][0]
-    b.update(model=trial%20,tribe=trial%4,inside=rng.choice([0,1,3,4,5,6,127,128,255]),activity=rng.choice([8,8,8,0x1488,0]),
-      flags3=rng.getrandbits(32),trainingTimer=rng.randrange(65536),trainingCost=rng.randrange(65536),occupants=[rng.choice([0,0,2,3,4,5,6,7]) for _ in range(6)])
-    c['tower']=100 if b['model']==4 else 0;c['special']=100 if b['model']==19 else 0
-    for person in c['people']:
-        person.update(model=rng.randrange(9),tribe=rng.choice([b['tribe'],b['tribe'],(b['tribe']+1)%4]),flags2=rng.choice([0,0,1,0x20000]),
-          flags4=rng.getrandbits(32),assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),orderLocation=rng.randrange(65536))
-        person['class']=rng.choice([0,1,1,2])
-    p.update(model=trial%9,tribe=b['tribe'] if trial%3 else (b['tribe']+1)%4)
-    for t in c['tribes']:t.update(playerType=rng.randrange(4),personCounts=[rng.choice([0,3,4,7,8,11,12,15,16,20,21,32767]) for _ in range(9)])
-    fixture(c);value=call(0x407150,addr(1),addr(100))&255;cases.append(c);expected.append(snapshot(c,value))
-compare(cases,expected,'return snapshot(enterBuilding(w,c.people[0],b,effects));','building admissions with actual occupancy modes, weights and cost calculation; world consumers supplied')
+    cases=[];expected=[]
+    for trial in range(3072):
+        c=case();b=c['building'];p=c['people'][0]
+        b.update(model=trial%20,tribe=trial%4,inside=rng.choice([0,1,3,4,5,6,127,128,255]),activity=rng.choice([8,8,8,0x1488,0]),
+          flags3=rng.getrandbits(32),trainingTimer=rng.randrange(65536),trainingCost=rng.randrange(65536),occupants=[rng.choice([0,0,2,3,4,5,6,7]) for _ in range(6)])
+        c['tower']=100 if b['model']==4 else 0;c['special']=100 if b['model']==19 else 0
+        for person in c['people']:
+            person.update(model=rng.randrange(9),tribe=rng.choice([b['tribe'],b['tribe'],(b['tribe']+1)%4]),flags2=rng.choice([0,0,1,0x20000]),
+              flags4=rng.getrandbits(32),assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),orderLocation=rng.randrange(65536))
+            person['class']=rng.choice([0,1,1,2])
+        p.update(model=trial%9,tribe=b['tribe'] if trial%3 else (b['tribe']+1)%4)
+        for t in c['tribes']:t.update(playerType=rng.randrange(4),personCounts=[rng.choice([0,3,4,7,8,11,12,15,16,20,21,32767]) for _ in range(9)])
+        fixture(c);value=call(0x407150,addr(1),addr(100))&255;cases.append(c);expected.append(snapshot(c,value))
+    compare(cases,expected,'return snapshot(enterBuilding(w,c.people[0],b,effects));','building admissions with actual occupancy modes, weights and cost calculation; world consumers supplied')
 
-# Compose the real command dispatcher with the real entry/occupancy/weight/cost
-# routines. Ordinary training ends in the stopped interior state; do not invoke
-# the next command tick after a completed ordinary-hut order.
-cases=[];expected=[]
-for trial in range(256):
-    c=case();b=c['building'];p=c['people'][0]
-    b.update(model=[1,4,5,6,7,8,9,19][trial%8],tribe=trial%4,inside=0,occupants=[0]*6,activity=8)
-    p.update(substate=5,tribe=b['tribe'],model=trial%9,goalX=p['x'],goalY=p['y'],physics=2,speed=70,selectionFlags=1)
-    c['tower']=100 if b['model']==4 else 0;c['special']=100 if b['model']==19 else 0
-    fixture(c);out=[]
-    for _ in range(2):
-        value=call(0x434610,addr(1))&255;out.append(snapshot(c,value))
-        if value:break
-    cases.append(c);expected.append(out)
-compare(cases,expected,"""const unexpected=()=>{throw Error('unexpected world consumer')};
-const training={setAnimation:(p,id)=>actions.push(['animation',p.id,id&65535]),releaseMotion:unexpected,adjacentBuilding:unexpected,
- setDestination:unexpected,directDestination:unexpected,dropCargo:unexpected,workInside:unexpected,enterBuilding:(p,b)=>enterBuilding(w,p,b,effects)};
-w.buildings=new Map([[b.id,b]]);w.randomState=1;const out=[];
-for(let i=0;i<2;i++){const value=stepTrainingPerson(w,c.people[0],training);out.push(structuredClone(snapshot(value)));if(value)break;}return out;""",
- 'combined training-command admission and interior-stop scenarios; no entry, occupancy, weight, cost or order-cleanup leaves supplied')
+    # Compose the real command dispatcher with the real entry/occupancy/weight/cost
+    # routines. Ordinary training ends in the stopped interior state; do not invoke
+    # the next command tick after a completed ordinary-hut order.
+    cases=[];expected=[]
+    for trial in range(256):
+        c=case();b=c['building'];p=c['people'][0]
+        b.update(model=[1,4,5,6,7,8,9,19][trial%8],tribe=trial%4,inside=0,occupants=[0]*6,activity=8)
+        p.update(substate=5,tribe=b['tribe'],model=trial%9,goalX=p['x'],goalY=p['y'],physics=2,speed=70,selectionFlags=1)
+        c['tower']=100 if b['model']==4 else 0;c['special']=100 if b['model']==19 else 0
+        fixture(c);out=[]
+        for _ in range(2):
+            value=call(0x434610,addr(1))&255;out.append(snapshot(c,value))
+            if value:break
+        cases.append(c);expected.append(out)
+    compare(cases,expected,"""const unexpected=()=>{throw Error('unexpected world consumer')};
+    const training={setAnimation:(p,id)=>actions.push(['animation',p.id,id&65535]),releaseMotion:unexpected,adjacentBuilding:unexpected,
+     setDestination:unexpected,directDestination:unexpected,dropCargo:unexpected,workInside:unexpected,enterBuilding:(p,b)=>enterBuilding(w,p,b,effects)};
+    w.buildings=new Map([[b.id,b]]);w.randomState=1;const out=[];
+    for(let i=0;i<2;i++){const value=stepTrainingPerson(w,c.people[0],training);out.push(structuredClone(snapshot(value)));if(value)break;}return out;""",
+     'combined training-command admission and interior-stop scenarios; no entry, occupancy, weight, cost or order-cleanup leaves supplied')
 
-cases=[];expected=[]
-for trial in range(3072):
-    c=case();b=c['building'];c['op']=trial%3;c['person']=rng.choice([0,1,2,3,7]);c['nullBuilding']=trial%11==0
-    c['terrainBuilding']=rng.choice([0,0,100,101,1024,1124,1125]);c['otherClass']=rng.choice([0,1,2]);c['turn']=rng.getrandbits(32)
-    b.update(model=trial%20,tribe=trial%4,inside=rng.choice([0,1,3,5,6,127,128,255]),flags2=rng.choice([0,1]),
-      flags3=rng.getrandbits(32),activity=rng.randrange(65536),trainingTimer=rng.randrange(65536),trainingCost=rng.randrange(65536),
-      object=rng.choice([79,95,103,131,154]),angle=(trial%4)*512,anchorX=rng.randrange(128)*512,anchorY=rng.randrange(128)*512,
-      occupants=[rng.choice([0,1,2,3,4,5,6,7]) for _ in range(6)],entryDelay=rng.randrange(256),lastActivity=rng.getrandbits(32))
-    b['class']=rng.choice([2,2,2,9])
-    for p in c['people']:
-        p.update(model=rng.randrange(9),tribe=b['tribe'],flags2=rng.getrandbits(32),flags4=rng.getrandbits(32),
-          assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),x=rng.choice([0,32767,32768,65535]),y=rng.randrange(65536),
-          homeX=rng.randrange(65536),homeY=rng.randrange(65536),formationSlot=rng.randrange(256),angle=rng.randrange(2048),
-          turnAngle=rng.randrange(2048),facingAngle=rng.randrange(2048))
-        p['class']=rng.choice([0,1,1,2])
-    for t in c['tribes']:t['buildingIds']=rng.choice([[],[100]])
-    if c['op']==2:b['model']=rng.choice([5,6,7,8,9])
-    fixture(c)
-    if c['op']==0:
-        value=call(0x407490,0 if c['nullBuilding'] else addr(100),addr(c['person']));value=read(value+0x24,'H') if value else 0
-    elif c['op']==1:call(0x409ed0,addr(c['person'] or 1));value=0
-    else:call(0x40bbe0,addr(100));value=0
-    cases.append(c);expected.append(snapshot(c,value))
-compare(cases,expected,"""let value=0;if(c.op===0)value=removeBuildingOccupant(w,c.nullBuilding?undefined:b,w.people.get(c.person),effects)?.id||0;
-else if(c.op===1)leaveBuilding(w,w.people.get(c.person||1),effects);else repriceTraining(w,b);return snapshot(value);""",
- 'occupant removals, containing-building lookup and repricing, including signed counts, map seams and construction-plan exits; only plan geometry and existing spatial/transport/indicator leaves supplied')
+    cases=[];expected=[]
+    for trial in range(3072):
+        c=case();b=c['building'];c['op']=trial%3;c['person']=rng.choice([0,1,2,3,7]);c['nullBuilding']=trial%11==0
+        c['terrainBuilding']=rng.choice([0,0,100,101,1024,1124,1125]);c['otherClass']=rng.choice([0,1,2]);c['turn']=rng.getrandbits(32)
+        b.update(model=trial%20,tribe=trial%4,inside=rng.choice([0,1,3,5,6,127,128,255]),flags2=rng.choice([0,1]),
+          flags3=rng.getrandbits(32),activity=rng.randrange(65536),trainingTimer=rng.randrange(65536),trainingCost=rng.randrange(65536),
+          object=rng.choice([79,95,103,131,154]),angle=(trial%4)*512,anchorX=rng.randrange(128)*512,anchorY=rng.randrange(128)*512,
+          occupants=[rng.choice([0,1,2,3,4,5,6,7]) for _ in range(6)],entryDelay=rng.randrange(256),lastActivity=rng.getrandbits(32))
+        b['class']=rng.choice([2,2,2,9])
+        for p in c['people']:
+            p.update(model=rng.randrange(9),tribe=b['tribe'],flags2=rng.getrandbits(32),flags4=rng.getrandbits(32),
+              assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),x=rng.choice([0,32767,32768,65535]),y=rng.randrange(65536),
+              homeX=rng.randrange(65536),homeY=rng.randrange(65536),formationSlot=rng.randrange(256),angle=rng.randrange(2048),
+              turnAngle=rng.randrange(2048),facingAngle=rng.randrange(2048))
+            p['class']=rng.choice([0,1,1,2])
+        for t in c['tribes']:t['buildingIds']=rng.choice([[],[100]])
+        if c['op']==2:b['model']=rng.choice([5,6,7,8,9])
+        fixture(c)
+        if c['op']==0:
+            value=call(0x407490,0 if c['nullBuilding'] else addr(100),addr(c['person']));value=read(value+0x24,'H') if value else 0
+        elif c['op']==1:call(0x409ed0,addr(c['person'] or 1));value=0
+        else:call(0x40bbe0,addr(100));value=0
+        cases.append(c);expected.append(snapshot(c,value))
+    compare(cases,expected,"""let value=0;if(c.op===0)value=removeBuildingOccupant(w,c.nullBuilding?undefined:b,w.people.get(c.person),effects)?.id||0;
+    else if(c.op===1)leaveBuilding(w,w.people.get(c.person||1),effects);else repriceTraining(w,b);return snapshot(value);""",
+     'occupant removals, containing-building lookup and repricing, including signed counts, map seams and construction-plan exits; only plan geometry and existing spatial/transport/indicator leaves supplied')
