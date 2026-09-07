@@ -547,3 +547,20 @@ this replaces the live six-second melee cooldown. Player initialization sets a
 separate 12-turn lockout. Usage limits/recovery use AI flag `0x40000`, independent
 of one-off spell stock. Native action state, outer tribe flags and full casting
 selection/scheduling still require integration.
+
+## Spell target validation and native distance
+
+The spell-casting oracle also compares **2,048** wrapped position/cell distance,
+proximity and AI range cases, **2,048** complete `004c24f0` player validations,
+and **2,048** `004d1340` offense/defense entry filters. The player checker supplies
+cursor blocking, alternate bridge-anchor retrieval and notification output;
+its eligibility, range, distance and terrain descriptor reads execute natively.
+The entry filter supplies only the native base/defense-area predicate.
+
+`app/native-math.ts` shares the native squared cell metric with computer follower
+selection. Live player range and the cursor use wrapped full-resolution distance;
+AI casting uses its native coarse-cell range check and boundary allowance.
+The complete player validator and entry population filter are reconstructed,
+but their native world/UI/area-summary inputs are not fully integrated. The
+original 80-cell scan, four target slots, emergency spell paths and 16-turn
+selection cadence in `004d0860` remain the next AI integration work.

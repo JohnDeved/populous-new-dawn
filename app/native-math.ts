@@ -1,6 +1,25 @@
 import rules from './original-rules.json' with {type: 'json'};
 type Point = {x: number; z: number};
 
+export function cellDelta(a: number, b: number) {
+  const d = Math.abs((a & 255) - (b & 255));
+  return Math.min(d, 256 - d);
+}
+// 0x49c720: halve each wrapped byte-coordinate difference before squaring.
+export function cellDistanceSquared(a: number, b: number) {
+  const x = cellDelta(a,b) >> 1, y = cellDelta(a >>> 8,b >>> 8) >> 1;
+  return x*x + y*y;
+}
+// 0x4f2fc0: square proximity in byte coordinates, without even-cell rounding.
+export function cellsNear(a: number, b: number, radius: number) {
+  return cellDelta(a,b) <= radius && cellDelta(a >>> 8,b >>> 8) <= radius;
+}
+// 0x4503f0: shortest 16-bit toroidal distance, truncated by fast_sqrt.
+export function positionDistance(a: {x:number;y:number}, b: {x:number;y:number}) {
+  const x = Math.abs(((a.x-b.x)<<16)>>16), y = Math.abs(((a.y-b.y)<<16)>>16);
+  return Math.floor(Math.sqrt((x*x+y*y)>>>0));
+}
+
 // 0x586074: integer octant lookup. Input Z is already reflected from the native map.
 export function nativeAngle(dx:number,dz:number){
   const x=Math.abs(dx),z=Math.abs(dz);if(!x&&!z)return 0;

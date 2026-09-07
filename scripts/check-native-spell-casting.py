@@ -21,7 +21,7 @@ def call(a,*args):
     assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
     return cpu.reg_read(UC_X86_REG_EAX)
 def compare(cases,expected,body):
-    js="import * as s from './app/spell-casting.ts';import {createWorld} from './app/model.ts';let text='';for await(const c of process.stdin)text+=c;console.log(JSON.stringify(JSON.parse(text).map(c=>{"+body+"})));"
+    js="import * as s from './app/spell-casting.ts';import * as m from './app/native-math.ts';import {createWorld} from './app/model.ts';let text='';for await(const c of process.stdin)text+=c;console.log(JSON.stringify(JSON.parse(text).map(c=>{"+body+"})));"
     r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
     actual=json.loads(r.stdout);assert len(actual)==len(expected)
     for i,(a,b) in enumerate(zip(expected,actual)):
@@ -91,3 +91,54 @@ for i in range(4):
     expected.append(dict(mana=read(t+0x94d,'i'),pending=read(t+0x951,'i'),available=read(t+0x955,'i')))
 compare([None],[expected],"return createWorld().manaTribes.map(({mana,pending,available})=>({mana,pending,available}));")
 print('PASS: native starting mana for all four tribes')
+
+cases=[];expected=[]
+for i in range(2048):
+    reset();t=0x89d1c8;game=rng.choice([0,32]);flags=rng.choice([0,0,0x80000]);model=rng.randrange(1,22)
+    a=rng.randrange(65536);b=rng.randrange(65536);radius=rng.choice([-1,0,1,3,127,128,255])
+    x=rng.randrange(65536);y=rng.randrange(65536);tx=(x+rng.randrange(-8192,8192))&65535;ty=(y+rng.randrange(-8192,8192))&65535
+    caster=dict(x=x,y=y,height=rng.randrange(-32768,32768),flags2=0,building=None)
+    write(base+0x3d,'HHh',x,y,caster['height']);write(base+0x100,'HH',tx,ty);write(t+0x93d,'I',flags);write(0x89d17c,'I',game)
+    cell=(tx>>8)|((ty>>8)<<8)
+    expected.append(dict(squared=call(0x49c720,a,b),near=bool(call(0x4f2fc0,a,b,radius&0xffffffff)),distance=call(0x4503f0,base+0x3d,base+0x100),range=bool(call(0x4f3040,base,cell,model))))
+    cases.append(dict(a=a,b=b,radius=radius,caster=caster,target=dict(x=tx,y=ty),cell=cell,game=game,flags=flags,model=model))
+compare(cases,expected,"return {squared:m.cellDistanceSquared(c.a,c.b),near:m.cellsNear(c.a,c.b,c.radius),distance:m.positionDistance(c.caster,c.target),range:s.computerSpellInRange(c.game,c.flags,c.caster,c.cell,c.model)};")
+print('PASS: 2,048 native wrapped cell/position distances, proximity checks and complete AI target range calls')
+
+current=None;events=[]
+def target_leaf(cpu,address,size,user):
+    sp=cpu.reg_read(UC_X86_REG_ESP);result=0
+    if address==0x44b060:events.append(['cursor']);result=current['blocked']
+    elif address==0x4bb160:
+        events.append(['bridge']);write(read(sp+8,'I'),'HH',current['start']['x'],current['start']['y'])
+    elif address==0x499d90:events.append(['notify',read(sp+4,'I'),read(sp+8,'I')])
+    else:result=current['defending']
+    cpu.reg_write(UC_X86_REG_EAX,result);cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
+for a in [0x44b060,0x4bb160,0x499d90,0x4f3ef0]:cpu.hook_add(UC_HOOK_CODE,target_leaf,begin=a,end=a)
+cases=[];expected=[];coverage={-1:0,-2:0,-3:0,1:0};filter_cases=[];filter_expected=[]
+for i in range(2048):
+    reset();events=[];t=0x89d1c8
+    def point():return dict(x=rng.randrange(65536),y=rng.randrange(65536))
+    origin=point();target={k:(v+rng.randrange(-8192,8192))&65535 for k,v in origin.items()}
+    game=rng.choice([0,0,32]);flags=rng.choice([0,0,0x80000]);model=rng.choice([0,2,3,12,12,12,21]);terrain=rng.choice([0,2])
+    caster=None if i%8==0 else dict(**origin,height=rng.randrange(1024),flags2=rng.choice([0,0,1,2]),flags4=rng.choice([0,0x400,0x2000000]),state=rng.choice([0,0,3,22]),landIndex=rng.choice([0,0,1]),building=None,playerType=rng.choice([1,2]),casting=dict(flags=flags,cooldown=rng.choice([0,0,12]),aiCooldown=rng.choice([0,0,12]),spells=[]))
+    c=dict(game=game,flags=flags,origin=origin,caster=caster,model=model,target=target,terrain=terrain,check=i%2==0,notify=i%3!=0,blocked=i%5==0,start=point())
+    current=c;write(0x89d17c,'I',game);write(t+0x93d,'I',flags);write(t+0x911,'HH',origin['x'],origin['y']);write(base+0x100,'HH',target['x'],target['y'])
+    cell=((target['y']>>9)*128+(target['x']>>9))*16
+    # Terrain categories use a 14-byte descriptor; flags at +0, category at cell+c.
+    write(0x8a03e4+cell+12,'B',1 if terrain else 0)
+    if caster:
+        write(t+0x89d,'I',base);write(base+0x3d,'HHh',caster['x'],caster['y'],caster['height']);write(base+0xc,'I',caster['flags2']);write(base+0x10,'I',caster['flags4']);write(base+0x2c,'B',caster['state']);write(base+0x9f,'H',caster['landIndex'])
+        write(t+0xc1f,'B',caster['playerType']);write(t+0xc5e,'B',caster['casting']['cooldown']);write(t+0x5bd,'B',caster['casting']['aiCooldown'])
+    result=call(0x4c24f0,0,int(c['check']),model,base+0x100,int(c['notify']));result=result if result<2**31 else result-2**32
+    expected.append(dict(result=result,events=events.copy()));cases.append(c);coverage[result]+=1
+    ranges=[rng.randrange(256) for _ in range(8)];entries=[dict(people=rng.randrange(256),mode=rng.choice([0,1,255])) for _ in range(8)]
+    friendly=[rng.randrange(100) for _ in range(3)];enemies=rng.randrange(256);current=dict(defending=i%2)
+    for j in range(8):write(t+0x4cf+j*12,'BBB',ranges[j],entries[j]['people'],entries[j]['mode'])
+    write(base+0x214,'HHH',*friendly);write(base+0x222,'H',enemies)
+    call(0x4d1340,t,0,base+0x200)
+    filter_cases.append(dict(ranges=ranges,entries=entries,defending=bool(i%2),friendly=friendly,enemies=enemies));filter_expected.append([read(t+0x4cf+j*12,'B') for j in range(8)])
+compare(cases,expected,"const events=[];const result=s.validateSpellTarget(c.game,c.flags,c.origin,c.caster,c.model,c.target,c.terrain,c.check,c.notify,{cursorBlocked:()=>{events.push(['cursor']);return c.blocked},bridgeStart:()=>{events.push(['bridge']);return c.start},notify:(f,m)=>events.push(['notify',f,m])});return {result,events};")
+compare(filter_cases,filter_expected,"s.filterSpellEntries(c.ranges,c.entries,c.defending,c.friendly,c.enemies);return c.ranges;")
+assert all(coverage.values()),coverage
+print('PASS: 2,048 complete player target validations and 2,048 entry mode/population filters; result coverage:',coverage)

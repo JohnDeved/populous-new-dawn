@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with {type: 'json'};
+import {cellDelta as delta,cellDistanceSquared} from './native-math.ts';
 
 // Native person/command fields consumed by 0x4f8490 and its eligibility leaves.
 // The people array is in native tribe-list order; spatial queries use coarse cells.
@@ -17,7 +18,6 @@ export type SelectionWorld = {
 };
 
 const cell = (p: SelectionUnit) => ((p.x >>> 8) & 254) | (p.y & 0xfe00);
-const delta = (a: number, b: number) => { const d = Math.abs((a & 255) - (b & 255)); return Math.min(d, 256 - d); };
 function stateFlags(p: SelectionUnit) {
   const flags = rules.personStateFlags[p.state];
   if (flags === undefined) throw new RangeError(`Unsupported native person state ${p.state}`);
@@ -60,8 +60,7 @@ function transportDuty(w: SelectionWorld, p: SelectionUnit) {
 function defendingBase(w: SelectionWorld, p: SelectionUnit, command: number | undefined) {
   if (p.busy || ![17, 31, 32].includes(command ?? -1)) return false;
   const tribe = w.tribes[p.tribe], base = tribe.hasBase ? tribe.base : tribe.shaman;
-  const location = cell(p), x = delta(location, base) >> 1, y = delta(location >> 8, base >> 8) >> 1;
-  return x * x + y * y <= tribe.radius * tribe.radius;
+  return cellDistanceSquared(cell(p),base) <= tribe.radius * tribe.radius;
 }
 
 // 0x4f8490 / 0x4f8390. Mode 0 keeps traversal order; mode 1 ranks by wrapped

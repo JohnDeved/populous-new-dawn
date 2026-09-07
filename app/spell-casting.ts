@@ -1,5 +1,6 @@
 import rules from './original-rules.json' with {type: 'json'};
 import type {ManaTribe, ManaWorld, SpellStock} from './mana.ts';
+import {cellDistanceSquared,positionDistance} from './native-math.ts';
 
 export type SpellCaster = {height: number; flags2: number;
   building: {class: number; model: number; state: number} | null};
@@ -85,6 +86,51 @@ export function reservedSpellMana(group: {type: number; spells: number[]} | null
 export function spellEntryRanges(gameFlags: number, tribeFlags: number, mana: number, caster: SpellCaster | null, entries: SpellEntry[], reserved: number) {
   return entries.map(e => caster && e.model && ((rules.spellCharging[e.model].cost + e.mana + reserved) | 0) <= mana
     ? divide(nativeSpellRange(gameFlags, tribeFlags, caster, e.model), 512) & 255 : 0);
+}
+
+// 0x4f3040. The AI keeps the full signed range here, not the readiness byte.
+// Only the caster cell is forced even; callers may pass an odd target cell.
+export function computerSpellInRange(gameFlags: number, tribeFlags: number, caster: SpellCaster & {x: number; y: number}, target: number, model: number) {
+  const cell = ((caster.x >>> 8) & 254) | (caster.y & 0xfe00);
+  const range = divide(nativeSpellRange(gameFlags,tribeFlags,caster,model),512);
+  return cellDistanceSquared(target,cell) <= ((Math.imul(range,range) + 2) | 0);
+}
+
+export type TargetCaster = SpellCaster & {x:number;y:number;state:number;flags4:number;landIndex:number;
+  casting:TribeCasting;playerType:number};
+// 0x4c24f0. Results: 1 valid, -1 unavailable, -2 range, -3 bridge placement.
+// Cursor blocking and the alternate-mode bridge anchor are native UI inputs.
+export function validateSpellTarget(gameFlags:number, tribeFlags:number, origin:{x:number;y:number}, caster:TargetCaster|null,
+  model:number, target:{x:number;y:number}, terrainFlags:number, checkCursor:boolean, notify:boolean,
+  effects:{cursorBlocked:()=>boolean;bridgeStart:()=>{x:number;y:number};notify:(flags:number,message:number)=>void}) {
+  if (model<1 || (checkCursor&&effects.cursorBlocked())) return -1;
+  const d=rules.spellCharging[model];
+  if ((gameFlags&32)&&d.alternateLimit) {
+    const range=tribeFlags&0x80000?0x0fffffff:d.alternateRange|0;
+    if (model===12&&positionDistance(origin,effects.bridgeStart())>range) return -2;
+    return positionDistance(origin,target)>range?-2:1;
+  }
+  if (!caster || (caster.flags2&1)) {
+    if (!(tribeFlags&0x80000)) return -1;
+  } else {
+    if (!canShamanCast(caster.casting,caster.playerType,caster)) return -1;
+    if (positionDistance(caster,target)>nativeSpellRange(gameFlags,tribeFlags,caster,model)) return -2;
+  }
+  if (model!==12) return 1;
+  if (tribeFlags&0x80000) return terrainFlags&2?-3:1;
+  // A valid normal-mode shaman is guaranteed by the checks above.
+  if (notify) {
+    if (terrainFlags&2) effects.notify(0x8000,0x255);
+    if (caster!.landIndex && (caster!.flags4&0x2000000)) effects.notify(0x8000000,0x261);
+  }
+  return !caster!.landIndex&&!(terrainFlags&2)?1:-3;
+}
+
+// 0x4d1340. Entry mode selects defense (nonzero) or offense (zero). The
+// native area summary supplies three friendly counts and one enemy total.
+export function filterSpellEntries(ranges: number[], entries: {people: number; mode: number}[], defending: boolean, friendly: number[], enemies: number) {
+  const people = defending ? (friendly[0]&65535)+(friendly[1]&65535)+(friendly[2]&65535) : enemies&65535;
+  for (let i=0;i<ranges.length;i++) if (ranges[i] && (!!entries[i].mode !== defending || people < (entries[i].people&255))) ranges[i]=0;
 }
 
 // 0x4c29a0. Disabled charging does not prevent spending existing stock.

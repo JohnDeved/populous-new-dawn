@@ -1,10 +1,10 @@
-import {nativeAngle,nativeStep,random} from './native-math.ts';
+import {nativeAngle,nativeStep,random,positionDistance} from './native-math.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {nativeSpellRange,spellEntryRanges,prepareSpellPayment,debitSpellMana,createTribeCasting,
-  canShamanCast,computerSpellAllowed,registerSpellCooldown,stepTribeCastCooldown,stepComputerCastCooldown,
+  canShamanCast,computerSpellAllowed,computerSpellInRange,registerSpellCooldown,stepTribeCastCooldown,stepComputerCastCooldown,
   type TribeCasting,type SpellCaster} from './spell-casting.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
@@ -579,7 +579,7 @@ export function cast(w: World, spell: Spell, p: Point) {
   if(!shaman){tell(w,'Your shaman is reincarnating.');return false;}
   if(shaman.lift>0||shaman.casting||!canShamanCast(w.castingTribes[0],w.manaTribes[0].playerType,{state:0,flags2:0,flags4:0})){tell(w,'Your shaman must finish her current action.');return false;}
   if(w.shots[spell]<=0){tell(w,spell==='blast'?'Blast is charging. Braves working or inside huts generate more mana.':'Worship the stone head to receive this spell.');return false;}
-  if(distance(shaman,p)>spellRange(w,shaman,spec.model)){tell(w,'Beyond your reach. Move your shaman closer.');return false;}
+  if(!spellInRange(w,shaman,spec.model,p)){tell(w,'Beyond your reach. Move your shaman closer.');return false;}
   if(Math.abs(p.x)>45||Math.abs(p.z)>45){tell(w,'Choose a target within the world.');return false;}
   if(spell==='bridge'&&(!walkable(w.terrain,p)||!walkable(w.terrain,shaman))){tell(w,'Land Bridge must join two dry shores. Aim at land on the opposite island.');return false;}
   release(shaman);shaman.path=[];shaman.heading=Math.atan2(p.x-shaman.x,p.z-shaman.z);
@@ -596,6 +596,9 @@ function spellCaster(w:World,u:Unit):SpellCaster {
 }
 export function spellRange(w:World,u:Unit,model:number) {
   return nativeSpellRange(w.manaWorld.gameFlags,w.castingTribes[u.team==='blue'?0:1].flags,spellCaster(w,u),model)/256;
+}
+export function spellInRange(w:World,u:Unit,model:number,target:Point) {
+  return positionDistance(nativePosition(w,u),nativePosition(w,target))<=spellRange(w,u,model)*256;
 }
 function beginCast(w:World,u:Unit,spell:Spell,p:Point){
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
@@ -860,7 +863,9 @@ function stepTurn(w:World){
     // and scheduling still need the original AI controller and person records.
     if(target&&u.team==='red'&&u.kind==='shaman'&&!(w.manaWorld.loadFlags&0x200)&&!(w.manaWorld.gameFlags&32)){
       const ranges=spellEntryRanges(w.manaWorld.gameFlags,w.castingTribes[1].flags,w.manaTribes[1].mana,spellCaster(w,u),w.ai.spellEntries,0);
-      if(w.ai.spellEntries.some((s,i)=>s.model===2&&ranges[i]>0&&distance(u,target)<ranges[i]*2)){
+      const point=nativePosition(w,target),targetCell=((point.x>>>8)&254)|(point.y&0xfe00);
+      if(w.ai.spellEntries.some((s,i)=>s.model===2&&ranges[i]>0)&&
+        computerSpellInRange(w.manaWorld.gameFlags,w.castingTribes[1].flags,{...spellCaster(w,u),...nativePosition(w,u)},targetCell,2)){
         // Existing browser action guards above remain until native person states are live.
         if(canShamanCast(w.castingTribes[1],w.manaTribes[1].playerType,{state:0,flags2:0,flags4:0})&&
           computerSpellAllowed(w.castingTribes[1],w.ai.flags,w.manaWorld.gameFlags,2)){

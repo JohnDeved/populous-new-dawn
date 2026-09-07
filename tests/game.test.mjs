@@ -855,3 +855,21 @@ test('native casting lockout survives animation and computer usage recovers one 
  assert.ok(canShamanCast(ai,1,p));ai.flags|=0x80000;ai.cooldown=12;
  assert.ok(canShamanCast(ai,1,{state:22,flags2:3,flags4:0x400}),'native override bypasses every eligibility gate');
 });
+
+test('spell targeting preserves native cell allowances and wrapped coordinate seams', async () => {
+ const {spellInRange}=await import('../app/model.ts');
+ const {validateSpellTarget,createTribeCasting,filterSpellEntries}=await import('../app/spell-casting.ts');
+ const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),target=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
+ w.terrain.fill(3);w.inputMask=0;w.ai.variables[57]=1;
+ w.units=w.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');
+ Object.assign(red,{x:0,z:0,target:target.id});Object.assign(target,{x:10.8,z:0,path:[],target:null,inside:null,work:null});
+ tick(w,1/12);assert.equal(w.spellCasts[1][2],1,'target cell is eligible beyond the old truncated-radius distance');
+ Object.assign(red,{x:124,z:0});assert.ok(spellInRange(w,red,2,{x:-124,z:0}),'position range wraps at the 256-unit world seam');
+ const state=createTribeCasting(false),caster={x:0,y:0,height:256,flags2:0,flags4:0x2000000,state:0,landIndex:1,building:null,casting:state,playerType:2},events=[];
+ const effects={cursorBlocked:()=>false,bridgeStart:()=>({x:0,y:0}),notify:(...args)=>events.push(args)};
+ assert.equal(validateSpellTarget(0,0,{x:0,y:0},caster,12,{x:0,y:0},2,false,true,effects),-3);
+ assert.deepEqual(events,[[0x8000,0x255],[0x8000000,0x261]],'bridge reports terrain and occupied-caster restrictions independently');
+ assert.equal(validateSpellTarget(0,0x80000,{x:0,y:0},null,2,{x:32768,y:32768},0,false,false,effects),1,'override permits targeting without a shaman');
+ const ranges=[6,6,6],entries=[{mode:0,people:3},{mode:1,people:6},{mode:1,people:7}];
+ filterSpellEntries(ranges,entries,true,[2,2,2],100);assert.deepEqual(ranges,[0,6,0],'defense uses the friendly subtotal and inclusive population threshold');
+});

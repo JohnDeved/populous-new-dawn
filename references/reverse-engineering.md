@@ -1607,3 +1607,68 @@ Playwright verified a live funded enemy cast with a retained pool of 10,015,
 an AI casting delay of eight remaining turns and zero melee delay, plus charging
 and pause without page errors. Build/lint pass with seven existing image warnings
 and zero errors. The executable/manifest verifier now checks **497** raw exports.
+
+## 2026-09-07 — Wrapped spell distance and target validation
+
+Native `0049c720` wraps byte-coordinate differences, halves each axis before
+squaring, then adds. `004f2fc0` tests a wrapped square radius in byte coordinates
+without even-cell rounding. `004503f0` instead measures full 16-bit position
+coordinates and returns the integer square root of the sum of squared shortest
+wrapped differences. The new shared helpers replace the duplicate defensive-base
+metric in follower selection. Its existing oracle still passes **1,870** selection
+calls and **256** combined training-controller/selector calls.
+
+`004f3040` compares squared cell distance against `(range/512)^2 + 2`, with
+signed multiply/add wrap. It rounds the caster's packed cell even, preserves the
+caller's target byte parity and uses the full signed range rather than the
+readiness byte. Live enemy casts now use that predicate. Player casting and the
+cursor use full-resolution toroidal distance; the visible radius still comes
+from the recovered height-dependent range. A new live regression covers an AI
+target cell accepted beyond the former truncated-radius boundary and a player
+range query crossing the 256-unit world seam. The cropped playable terrain is
+unchanged; this is a distance correction, not a full world-wrap integration.
+
+`validateSpellTarget` reconstructs complete `004c24f0`: cursor blocking, alternate
+spell mode with no shaman requirement, two-endpoint alternate Land Bridge range,
+normal shaman eligibility and override behavior, range, normal bridge occupancy
+and target-terrain restrictions, and both tutorial notifications. It preserves
+results 1, -1, -2 and -3 and callback ordering. Missing/dead shamans are accepted
+under the original override; that override still cannot bridge onto prohibited
+terrain. The full validator is CPU-compared but not yet the live UI's full gate:
+native cursor state, alternate origin/bridge anchor, person records and terrain
+classification still require integration. The live distance portion is integrated.
+
+Instruction review corrected the terrain layout used by the fixture: `c_3` is
+at cell offset `+c`, and the category's flags are at `005aa328 + category*14`.
+The raw pseudocode's array typing obscures this 14-byte descriptor stride. Ground
+category zero has flag 1; water category one has flag 2. The oracle now writes
+actual categories and executes the native flag lookup rather than replacing it.
+
+`filterSpellEntries` reconstructs `004d1340`. Inside the native defense area,
+nonzero mode entries remain eligible only if their people threshold fits the
+sum of three unsigned 16-bit friendly counts. Outside that area, only mode zero
+entries survive, comparing against the unsigned enemy total. The threshold is
+inclusive. These inputs must come from `004f4030` and the native defense-area
+predicate; the live nearest-target heuristic does not yet supply them.
+
+The expanded oracle adds **2,048** native position/cell/proximity/range cases,
+**2,048** complete player validations and **2,048** entry filters. Player results
+cover **1,230** unavailable, **216** range failures, **94** invalid bridge targets
+and **508** accepted targets. Only UI blocking/anchor retrieval/notification and
+the defense-area predicate are supplied leaves; range, eligibility, stock caps,
+distance and terrain reads remain native. All prior range/payment comparisons
+continue to pass. All **37** Node regressions pass, including the full mission.
+
+Further recovered scan evidence: `004d0860` refreshes entry readiness, derives
+its scan limit from the largest range and scans 80 cells per call with
+`0049c890`. It keeps four packed target slots, groups candidates within square
+radius three, and invokes target dispatch on turns divisible by 16 when the
+shaman can cast. The original writes a new candidate into every currently empty
+slot, not only the first slot. Emergency Blast/Lightning/preacher responses and
+world-list order are separate branches. These behaviors remain to be ported;
+this turn does not claim complete target scoring, scan cadence or AI parity.
+
+Playwright also verified that the live enemy accepts the coarse-cell boundary
+case, waits below budget, spends mana and maintains separate casting/melee delays.
+No page errors occurred. Build/lint pass with seven existing image warnings and
+zero errors; the executable/manifest verifier checks **503** raw C exports.
