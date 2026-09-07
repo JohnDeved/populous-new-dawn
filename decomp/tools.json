@@ -1,0 +1,24 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "ghidra": {
+    "version": "12.1.3",
+    "url": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.3_build/ghidra_12.1.3_PUBLIC_20260817.zip",
+    "sha256": "93a5d11a9ad510622acaaf908c556a7b9b764d338e78a7567f3689bf5081fd54",
+    "archive": "ghidra.zip",
+    "home": "ghidra_12.1.3_PUBLIC"
+  },
+  "jdk": {
+    "version": "Temurin 21.0.12.1+1 macOS aarch64",
+    "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.12.1_1.tar.gz",
+    "sha256": "3623232f33a9c3baadf304480b2535f9a3cba8a58d42ecbb438ba267315d9998",
+    "archive": "jdk.tar.gz",
+    "home": "jdk-21.0.12.1+1/Contents/Home"
+  },
+  "metadata": {
+    "repository": "https://github.com/hrttf111/pop3-rev.git",
+    "commit": "60408e4e99b76ab2e5461897c8e1b33756360eaa",
+    "file": "backup/backup.xml",
+    "sha256": "61b88ee7e0af403dc0de3158c418bacae37dadf9490adad621c55b3dbb554f31",
+    "referenceExecutableSha256": "815ba8a550f571c38b602cf3386f65aab942667a4a2d9c7096b3660deac2eacd"
+  }
+}

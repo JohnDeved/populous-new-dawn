@@ -45,3 +45,7 @@ yarn-error.log*
 /references/*.png
 /references/*.webp
 *.tsbuildinfo
+
+# Reproducible local reverse-engineering tools and analysis projects
+/.tools/
+__pycache__/

@@ -91,7 +91,7 @@ analyzeHeadless /path/to/project populous -process D3DPopTB.exe -noanalysis \
   -postScript ExportFunctions.java /tmp/populous-analysis 00476570 0045f9d0 004ee7b0 0049c1a0
 ```
 
-The local analysis project, decompiled C and original executable stay outside the application repository. The runtime remains TypeScript/Three.js.
+Decompilation is now part of the repository: see [the pinned setup, analysis scripts and C exports](../decomp/README.md), [upstream/symbol research](../decomp/upstreams.md), and the standing [full-parity goal](../GOAL.md). Original executables and downloaded tool/project binaries remain local and ignored; reviewed pseudocode and reconstructed behavior are tracked. The runtime remains TypeScript/Three.js.
 
 ## Remaining differences
 
