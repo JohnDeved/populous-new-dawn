@@ -1183,3 +1183,73 @@ The final Playwright gameplay run also passed discovery, timber delivery,
 construction, training, pause, planet rotation, decoded sound and restart with
 no browser errors. All 30 Node regressions, type checking, production build and
 lint passed (the seven existing image-element lint warnings remain).
+
+## Native occupant admission, visibility and training preparation
+
+`app/building-occupants.ts` reconstructs admission `00407150`, mode changes
+`004d80e0`, weight scan `00408d20`, and the cost arithmetic used from `0041b0c0`.
+The initial gate checks building activity bit 8 and matching tribes, except
+building descriptor flag `0x100000` permits a foreign occupant. The signed
+inside-count byte is compared with the descriptor capacity. A full building
+rejects ordinary people; a shaman requests an ejection and then tries entry.
+Regardless of that count, the incoming person takes the **first empty of six
+physical occupant slots** at building `+86`, or fails if no slot is available.
+Only successful admission increments the byte count and changes the person.
+
+Training/workshop descriptors (flags 1 or 64) choose occupancy mode 3, which
+requests vehicle exit and sets the inside flag while retaining commands and
+presentation. Ordinary housing uses mode 0: request vehicle exit, clear orders
+with native reference accounting, set inside/hidden flags, then resolve special
+tower/shaman placement or hide the person and remove its land-cell membership
+when applicable. Mode 4 preserves orders while applying that ordinary hiding
+behavior. Mode 1 restores presentation and land membership, obtains ground
+height, and resets all three velocity words. The tower-tribe update mask is the
+byte at **`0096eace`**, verified from instruction `0040723d`; the metadata field
+name alone does not provide its address.
+
+Training admission clears building flags-3 bit `0x1000` and its timer at `+9a`.
+It sums the original person conversion weights from descriptor `+31` for live
+occupants that differ from the building's trained model. These scans do not
+filter tribe or require person class 1. A sum below one trained model's weight
+is treated as zero. Nonzero weight sets building activity bit 128, calculates
+the cost for the number of conversions, and sets assignment bit 4 on same-tribe
+occupants, including occupants already of the trained model. Zero weight clears
+those activity/assignment flags but **preserves the old training-cost word**.
+Admission finally updates the occupancy indicator, clears activity bit 1024,
+and clears the person's saved order location.
+
+The cost function uses signed-short population counts, all six population bands,
+native person-model mana tables (human when tribe player type is 2), two wrapped
+32-bit multiplications, and truncation toward zero on division by 256. Admission
+clamps positive overflow of the resulting cost to 65535 before storing the word.
+The live warrior-cost query now shares this arithmetic instead of maintaining
+its own band/formula copy. The `0041b0c0` affordability return is not claimed as
+a new port here; admission consumes only its calculated cost.
+
+`clearPersonOrders` reconstructs `00436ca0` and is shared by ordinary occupancy
+and group commit. The person-state, training-queue and occupant oracles also
+share one `configure_native_constants` helper, which verifies the supplied
+balance file and applies its overrides using the executable's descriptor table.
+
+`check-native-occupants.py` compares **8,128** scenarios: **1,728** cost
+calculations across every person model, population threshold, player type and
+signed overflow; **1,024** weight scans; **2,048** occupancy-mode changes;
+**3,072** admissions; and **256** composed command-8 admission/interior-stop
+scenarios. The composed calls execute native admission, occupant flags, weight,
+cost, command cleanup and final stopping/animation selection. Full-building
+ejection `00407490`, vehicle exit `00466c80`, adjacent/tower placement, terrain
+height, cell insertion/removal, occupancy indicator `0040c4e0`, animation output
+and existing work/object/fight order effects remain supplied world consumers.
+The separate order (1,952), person-state (10,208) and queue/controller (4,229)
+comparisons still pass after sharing their helpers. The new Node regression
+checks sparse slot order, foreign rejection, activity/cost retention, shaman
+ejection, shared references and restoration of vertical state.
+
+A further boundary is now explicit: `004da5b0` is the workshop-interior movement
+path selected by building flag 64 (models 13–16), rather than ordinary warrior
+training. Its helper `00409f90` has defined offsets for those workshop models.
+Ordinary training instead reaches command substate 12 and then stops in 13;
+the building's work/conversion update remains to be reconstructed. New exports
+record those workshop helpers and indicator/transport consumers for continued
+work. Full live occupant lifecycle, building conversion, native pathfinding and
+the original mission training bindings remain unfinished.

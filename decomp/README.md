@@ -407,3 +407,23 @@ object/orientation pairs, including zero shapes, map boundaries and negative
 queue positions. No geometry leaves are supplied. `app/building-shapes.ts`
 is used by the training controller and live building door routing; live
 pathfinding/occupancy and non-building shrine approaches remain unfinished.
+
+## Building admission and occupant transitions
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-occupants.py /path/to/d3dpoptb.exe
+```
+
+`app/building-occupants.ts` reconstructs admission `00407150`, occupant-mode
+changes `004d80e0`, conversion-weight scan `00408d20` and the cost arithmetic
+consumed from `0041b0c0`. Order clearing `00436ca0` is shared with group commits
+in `app/person-orders.ts`. The oracle compares **8,128** scenarios: 1,728 cost
+calculations, 1,024 weight scans, 2,048 occupant-mode transitions, 3,072
+admissions and 256 combined training-command/admission/interior-stop scenarios.
+The combined calls execute actual admission, visibility, order cleanup, weight
+and cost routines. Vehicle/cell/tower consumers, full-building ejection,
+occupancy indicators and existing order-effect boundaries remain supplied.
+
+The balance override loader is shared by the person-state, queue and occupancy
+comparisons in `scripts/decomp.py`. Live warrior costs reuse the recovered
+arithmetic; complete live occupancy/pathfinding integration remains pending.

@@ -64,6 +64,24 @@ def native_cpu(executable):
     return cpu, identity
 
 
+def configure_native_constants(cpu, executable):
+    """Apply shipped balance overrides through the native descriptor table."""
+    constants=json.loads((ROOT/'app/original-constants.json').read_text())
+    balance=(executable.parent/'levels/constant.dat').read_bytes()
+    if balance[:2]==b'@~':balance=b'  '+bytes((~(v^(1<<((i-3)&7))))&255 for i,v in enumerate(balance))[2:]
+    decoded={}
+    for name,value in re.findall(r'^\s*P3CONST_(\S+)\s*=\s*(-?\d+)',balance.decode('ascii'),re.M):decoded.setdefault(name,int(value))
+    assert decoded==constants,'Imported balance constants differ from the supplied game'
+    for index in range(512):
+        data=bytes(cpu.mem_read(0x5aa5f0+index*31,31));name=data[:25].split(b'\0')[0].decode('ascii')
+        if not name:break
+        if name not in constants:continue
+        size,flags=data[25:27];address=struct.unpack('<I',data[27:])[0]
+        assert size in (1,2,4)
+        value=constants[name]*256//100 if flags&1 else constants[name]
+        cpu.mem_write(address,(value&((1<<(size*8))-1)).to_bytes(size,'little'))
+
+
 def setup(cache):
     if (platform.system(), platform.machine()) != ('Darwin', 'arm64'):
         raise ValueError('Bootstrap targets macOS arm64; elsewhere supply GHIDRA_HOME and JAVA_HOME')

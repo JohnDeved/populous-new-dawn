@@ -2475,6 +2475,53 @@
     0,
     0
   ],
+  "personTraining": [
+    {
+      "weight": 0,
+      "humanMana": 0,
+      "computerMana": 0
+    },
+    {
+      "weight": 0,
+      "humanMana": 0,
+      "computerMana": 0
+    },
+    {
+      "weight": 1,
+      "humanMana": 0,
+      "computerMana": 0
+    },
+    {
+      "weight": 1,
+      "humanMana": 3500,
+      "computerMana": 1000
+    },
+    {
+      "weight": 1,
+      "humanMana": 3500,
+      "computerMana": 1000
+    },
+    {
+      "weight": 1,
+      "humanMana": 4000,
+      "computerMana": 1000
+    },
+    {
+      "weight": 1,
+      "humanMana": 4000,
+      "computerMana": 1000
+    },
+    {
+      "weight": 0,
+      "humanMana": 0,
+      "computerMana": 0
+    },
+    {
+      "weight": 0,
+      "humanMana": 0,
+      "computerMana": 0
+    }
+  ],
   "personCommands": [
     {
       "people": 0,

@@ -147,6 +147,15 @@ export function attachPersonOrder(pool: OrderPool, person: OrderedPerson, id: nu
   }
 }
 
+// 0x436ca0, also used when a building hides an occupant and clears its orders.
+export function clearPersonOrders(pool: OrderPool, person: OrderedPerson, effects: OrderEffects) {
+  person.commandCursor = 0;
+  for (let slot = 0; slot < 8; slot++) if (person.commands[slot]) removePersonOrder(pool, person, slot, effects);
+  if (person.immediateCommand) removePersonOrder(pool, person, -1, effects);
+  person.flags2 = (person.flags2 & ~0x8000000) >>> 0;
+  person.flags4 = (person.flags4 & ~512) >>> 0;
+}
+
 // 0x4359b0. Pool exhaustion leaves old person orders intact, but always clears
 // the group queue. Cancelled/ineligible commands still consume queue positions.
 export function commitPersonOrders(pool: OrderPool, group: OrderGroup, people: OrderedPerson[],
@@ -159,11 +168,7 @@ export function commitPersonOrders(pool: OrderPool, group: OrderGroup, people: O
   }
   if (success) for (const person of people) {
     if (!(person.selectionFlags & 128) || (models[0] !== -1 && !models.includes(person.model))) continue;
-    person.commandCursor = 0;
-    for (let slot = 0; slot < 8; slot++) if (person.commands[slot]) removePersonOrder(pool, person, slot, effects);
-    if (person.immediateCommand) removePersonOrder(pool, person, -1, effects);
-    person.flags2 = (person.flags2 & ~0x8000000) >>> 0;
-    person.flags4 = (person.flags4 & ~512) >>> 0;
+    clearPersonOrders(pool, person, effects);
     let position = person.commandCursor;
     for (let slot = 0; slot < group.count; slot++, position = (position + 1) % 8) {
       const command = group.records[slot];

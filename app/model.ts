@@ -1,5 +1,6 @@
 import {nativeAngle,nativeStep,random} from './native-math.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
+import {nativeTrainingCost} from './building-occupants.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
@@ -48,7 +49,7 @@ export const housing = (b: Building) => b.kind==='hut'?rules.hutCapacity[b.level
 export function population(w:World,team:Team){return 1+w.units.filter(u=>u.team===team&&u.kind!=='shaman'&&u.hp>0).length;}
 export function populationLimit(w:World,team:Team){return Math.min(200,6+w.buildings.filter(b=>b.team===team&&b.kind==='hut'&&b.progress===1&&b.hp>0).reduce((sum,b)=>sum+[constants.MAX_POP_VALUE__HUT_1,constants.MAX_POP_VALUE__HUT_2,constants.MAX_POP_VALUE__HUT_3][b.level-1],0));}
 export function breedingWork(w:World,b:Building){return Math.floor(rules.hutBreedingWork[b.level-1]*rules.breedingBands[Math.min(19,Math.floor(population(w,b.team)/10))]/256);}
-export function trainingCost(w:World,team:Team){const count=w.units.filter(u=>u.team===team&&u.kind==='warrior'&&u.hp>0).length,band=count<16?Math.floor(count/4):count<21?4:5;return Math.floor((team==='blue'?constants.HUMAN_TRAIN_MANA_WARR:constants.CP_TRAIN_MANA_WARR)*rules.trainingBands[band]/256);}
+export function trainingCost(w:World,team:Team){return nativeTrainingCost(w.units.filter(u=>u.team===team&&u.kind==='warrior'&&u.hp>0).length,3,team==='blue'?2:1);}
 export function meleeDamage(u:Unit){const base=u.kind==='warrior'?constants.FIGHT_DAMAGE_WARR:u.kind==='shaman'?constants.FIGHT_DAMAGE_SHAMAN:constants.FIGHT_DAMAGE_BRAVE;return Math.max(32,Math.floor(base*u.hp/maxHp(u.kind)))/20;}
 const short=(v:number)=>(v<<16)>>16;
 // 0x4e6ac0: native XYZ, including signed-short wrap and half-scale vertical steps.

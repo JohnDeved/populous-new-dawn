@@ -655,3 +655,45 @@ test('live followers reach rotated native doors before entering buildings', () =
  tick(w,1/12);
  assert.equal(brave.inside,null,'standing near the building center is not arrival at its door');
 });
+
+test('building admission preserves native slot order, training activity and shared commands', async () => {
+ const {enterBuilding,setPersonOccupancy,trainingOccupantWeight}=await import('../app/building-occupants.ts');
+ const {emptyPersonOrder}=await import('../app/person-orders.ts');
+ const person=(id,model,tribe=0)=>({id,class:1,model,tribe,state:10,substate:5,x:1000,y:2000,
+  flags2:0,flags3:0,flags4:0,assignment:0,renderFlags:0,commands:[1,0,0,0,0,0,0,0],
+  commandCursor:0,immediateCommand:0,commandStatus:8,workTarget:100,orderLocation:123,
+  height:100,velocityX:1,velocityY:2,velocityZ:3,clip:0});
+ const brave=person(1,2),warrior=person(2,3),guest=person(3,2,1);
+ const records=Array.from({length:800},emptyPersonOrder);Object.assign(records[1],{model:8,references:3,a:100});
+ const w={people:new Map([[1,brave],[2,warrior],[3,guest]]),orders:{records,cursor:2,active:1},towerTribes:0,
+  tribes:[{personCounts:[0,0,0,4,0,0,0,0,0],playerType:2}]};
+ const b={id:100,class:2,model:7,tribe:0,flags2:0,flags3:0x1000,activity:8|1024,inside:1,
+  occupants:[0,2,0,0,0,0],trainingTimer:123,trainingCost:0};
+ const events=[],unexpected=()=>assert.fail('unexpected world consumer');
+ const effects={orders:{prepare:unexpected,stopWork:unexpected,releaseSpell:unexpected,deleteObject:unexpected,releaseFight:unexpected},
+  leaveVehicle:p=>events.push(['vehicle',p.id]),adjacentBuilding:()=>0,towerPosition:unexpected,terrainHeight:()=>321,
+  moveToCell:unexpected,insertCell:p=>events.push(['insert',p.id]),removeCell:p=>events.push(['remove',p.id]),
+  ejectFirst:b=>{events.push(['eject',b.id]);b.occupants[b.occupants.findIndex(Boolean)]=0;b.inside--;},
+  updateIndicator:b=>events.push(['indicator',b.id])};
+ assert.equal(enterBuilding(w,brave,b,effects),1);
+ assert.deepEqual(b.occupants,[1,2,0,0,0,0]);assert.equal(b.inside,2);
+ assert.equal(b.trainingTimer,0);assert.equal(b.trainingCost,4375);assert.equal(b.activity,8|128);
+ assert.equal(brave.assignment&4,4);assert.equal(warrior.assignment&4,4);
+ assert.equal(brave.flags2&0x800000,0x800000);assert.equal(brave.commands[0],1,'training retains the command');
+ assert.equal(brave.orderLocation,0);assert.equal(trainingOccupantWeight(w,b),1);
+ const before=structuredClone(b);assert.equal(enterBuilding(w,guest,b,effects),0);assert.deepEqual(b,before);
+ brave.model=3;guest.model=3;guest.tribe=0;
+ assert.equal(enterBuilding(w,guest,b,effects),1);assert.equal(b.activity&128,0);
+ assert.equal(b.trainingCost,4375,'a building without a conversion retains its old cost word');
+ assert.equal(brave.assignment&4,0);assert.equal(warrior.assignment&4,0);
+ b.inside=5;const full=structuredClone(b);assert.equal(enterBuilding(w,guest,b,effects),0);assert.deepEqual(b,full);
+ guest.model=7;assert.equal(enterBuilding(w,guest,b,effects),1);assert.ok(events.some(e=>e[0]==='eject'));
+ // Ordinary housing clears this occupant's reference while the shared order survives.
+ b.model=1;b.inside=0;b.occupants.fill(0);brave.model=2;
+ assert.equal(enterBuilding(w,brave,b,effects),1);assert.equal(brave.commands[0],0);assert.equal(records[1].references,2);
+ assert.equal(brave.renderFlags&16,16);assert.equal(brave.flags2&0x804000,0x804000);
+ setPersonOccupancy(w,brave,1,effects);
+ assert.equal(brave.renderFlags&16,0);assert.equal(brave.flags2&0x804000,0);assert.equal(brave.height,321);
+ assert.deepEqual([brave.velocityX,brave.velocityY,brave.velocityZ],[0,0,0]);
+ assert.ok(events.some(e=>e[0]==='insert'));
+});
