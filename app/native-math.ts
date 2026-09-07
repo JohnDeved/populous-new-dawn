@@ -1,6 +1,12 @@
 import rules from './original-rules.json' with {type: 'json'};
 type Point = {x: number; z: number};
 
+// 0x44df40: bit 0 chooses B-C when A or D is furthest from the rounded mean.
+export function nativeTerrainCross(a:number,b:number,c:number,d:number){
+  const mean=(a+b+c+d)>>2;
+  return Math.max(Math.abs(a-mean),Math.abs(d-mean))>=Math.max(Math.abs(b-mean),Math.abs(c-mean));
+}
+
 export function cellDelta(a: number, b: number) {
   const d = Math.abs((a & 255) - (b & 255));
   return Math.min(d, 256 - d);

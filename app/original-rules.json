@@ -3219,6 +3219,25 @@
     32,
     32
   ],
+  "terrainCategories": [
+    1,
+    8,
+    9,
+    5,
+    6,
+    14,
+    2,
+    11,
+    7,
+    4,
+    15,
+    10,
+    3,
+    13,
+    12,
+    0
+  ],
+  "landHeightConstant": 384,
   "territoryWidths": [
     [
       2,

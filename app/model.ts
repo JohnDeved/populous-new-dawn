@@ -1,4 +1,5 @@
-import {nativeAngle,nativeStep,random,positionDistance} from './native-math.ts';
+import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from './native-math.ts';
+import {createNativeTerrain,queueTerrain} from './native-terrain.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
@@ -160,13 +161,9 @@ export function unitAnimation(w:World,u:Unit){
   if(w.buildings.some(b=>b.id===u.work&&b.progress<1&&b.logs>=(BUILDINGS.find(s=>s.id===b.kind)?.cost??Infinity)&&distance(b,u)<=4.2))return 'work';
   return w.selected.includes(u.id)?'selected':'idle';
 }
-// 0x44df40: bit 0 chooses B-C when A or D is furthest from the rounded mean.
-export function nativeTerrainCross(a:number,b:number,c:number,d:number){
-  const mean=(a+b+c+d)>>2;
-  return Math.max(Math.abs(a-mean),Math.abs(d-mean))>=Math.max(Math.abs(b-mean),Math.abs(c-mean));
-}
+export {nativeTerrainCross} from './native-math.ts';
 // 0x44e940: toroidal 128-cell map, 512 coordinates/cell, separate signed shifts.
-export function nativeTerrainHeight(terrain:readonly number[],x:number,y:number){
+export function nativeTerrainHeight(terrain:ArrayLike<number>,x:number,y:number){
   const ix=(x&65535)>>9,iy=(y&65535)>>9,fx=(x&510)>>1,fy=(y&510)>>1;
   const a=terrain[iy*128+ix],b=terrain[iy*128+((ix+1)&127)],c=terrain[((iy+1)&127)*128+ix],d=terrain[((iy+1)&127)*128+((ix+1)&127)];
   return short(nativeTerrainCross(a,b,c,d)?(fx+fy<256?a+(((b-a)*fx)>>8)+(((c-a)*fy)>>8):d+(((b-d)*(256-fy))>>8)+(((c-d)*(256-fx))>>8)):
@@ -174,8 +171,13 @@ export function nativeTerrainHeight(terrain:readonly number[],x:number,y:number)
 }
 // Browser Z reflects native Y, exchanging the two diagonals. Quantize like the water shader.
 export function terrainCross(a:number,b:number,c:number,d:number){return !nativeTerrainCross(Math.floor(c*45+.5),Math.floor(d*45+.5),Math.floor(a*45+.5),Math.floor(b*45+.5));}
-const originalTerrain=Array<number>(128*128).fill(0);
+const originalLand=createNativeTerrain(new Int16Array(16384));
+const originalTerrain=originalLand.heights;
 for(const [x,y,h] of level.heights)originalTerrain[y*128+x]=h;
+// 0x44e850: complete two-traversal initialization before browser resampling.
+// ponytail: original texture assets still supply rendering; native texture
+// consumers join this queue when palette/texture rebuilding is integrated.
+queueTerrain(originalLand,0,64,1,{surface:()=>{},globe:()=>{}});
 export function makeTerrain() {
   return Array.from({length: GRID*GRID}, (_,i) => {
     const x=i%GRID-48,z=Math.floor(i/GRID)-48,h=nativeTerrainHeight(originalTerrain,(x+8)*256,(-z-8)*256)/45;

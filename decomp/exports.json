@@ -5,6 +5,7 @@
   "metadataSha256": "61b88ee7e0af403dc0de3158c418bacae37dadf9490adad621c55b3dbb554f31",
   "snapshot": "Fresh Ghidra analysis followed by ImportMetadata.java with memory/properties disabled; all file-backed section bytes verified before export. Pseudocode is unreviewed where no port is recorded.",
   "files": {
+    "004015f0.c": "2b68b4c9feb693519165fd14a4089752d9bf9f742612a5c51fd48f29b5f2450d",
     "00402ec0.c": "6c85a925be43fd270f058e2edc63f1a1b5a2f17e1d6d00019d5d69e13e8eeb22",
     "004030c0.c": "de57a2ea51b582b12864a014e4b5555b194d50770e4833cbc68f0703de7353d1",
     "00403280.c": "2714dbc7a2fc7a7f5baa9ea51b2f171f2df08f009df923b40cb13f2cedea327d",
@@ -78,6 +79,7 @@
     "0042b590.c": "59a5348b941df24d5a4cd14b3d19dd2667bf6b1249fc802783a8e16bc1e2ca2f",
     "0042b660.c": "1a2ceefaefb9ac5d9a9d2c476ad8e5a537c66a1d7fbac6e07017b5f8bf3d5c1a",
     "0042bde0.c": "e3fc8b2910f1f621767119fd20c649cc834d7f0d9286e831f3956eedbda1a946",
+    "0042c130.c": "9434714f8dcfe35c733cd7f1af7f286fb9eeb85cbab47a461646ef9435615d3b",
     "0042c150.c": "23c11a1b65d87e9813060a53c77718193c0c5e1e45eab9331ce763d8e9538a6b",
     "004309b0.c": "a4df1e075e27c820f4dc2d06011a738b70689d9b12c18f011618e2682e05077c",
     "00430bd0.c": "9686ca5207a7559150e3b701a4f2a00cc1558255c9ae23e9d42fccb4f5e03b71",

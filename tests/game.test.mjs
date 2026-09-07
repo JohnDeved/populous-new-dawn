@@ -10,6 +10,23 @@ import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('terrain rebuilds preserve queue precedence and initialize the original mission before sampling', async () => {
+ const {createNativeTerrain,queueTerrain,processTerrain}=await import('../app/native-terrain.ts');
+ const land=createNativeTerrain(new Int16Array(16384).fill(100)),events=[];
+ const textures={surface:c=>events.push(['surface',c]),globe:c=>events.push(['globe',c])};
+ queueTerrain(land,0,0,0,textures);queueTerrain(land,0,0,1,textures);
+ queueTerrain(land,2,0,1,textures);queueTerrain(land,4,0,1,textures);
+ assert.deepEqual(land.queued,[0,2,4]);assert.equal(land.duplicates,1);
+ processTerrain(land,textures);
+ assert.deepEqual(events,[['surface',2],['surface',4],['globe',2],['globe',4]]);
+ assert.equal(land.queued.length,0);assert.ok(land.dirty.every(v=>v===0));
+ const raw=new Int16Array(16384);for(const [x,y,h] of level.heights)raw[y*128+x]=h;
+ const mission=createNativeTerrain(raw);queueTerrain(mission,0,64,0,textures);
+ assert.equal(mission.attempts,33282);assert.equal(mission.duplicates,226);
+ const changed=[];for(let i=0;i<raw.length;i++)if(raw[i]!==mission.heights[i])changed.push([i%128,i>>>7,mission.heights[i]]);
+ assert.deepEqual(changed,[[4,121,1],[6,121,1]],'native repair of enclosed zero-height points');
+ const sampled=makeTerrain();assert.equal(height(sampled,0,6),1/45);assert.equal(height(sampled,4,6),1/45);
+});
 test('territory preserves native footprint asymmetry, overlap clearing and staggered recovery', async () => {
  const {markBuildingTerritory,refreshBuildingTerritory}=await import('../app/territory.ts');
  const land={categories:new Uint8Array(16384).fill(0xf0),regions:new Uint8Array(16384).fill(5),searchMarks:new Uint8Array(16384).fill(99),searchTag:254};

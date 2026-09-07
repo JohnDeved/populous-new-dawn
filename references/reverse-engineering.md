@@ -1796,3 +1796,48 @@ Live terrain categories, building lifecycle calls, tower coverage and full spell
 scan integration remain pending; this change does not claim new live AI behavior.
 Build and lint pass (seven existing image warnings, zero errors); the executable
 and manifest verifier checks **513** raw C exports.
+
+## Terrain queue, category passes and opening initialization — 2026-09-08
+
+`app/native-terrain.ts` reconstructs `0044ddf0` and the simulation portion of
+`0044df40`. A terrain record's signed height is at +4, cliff/slope byte at +a,
+category at +c and shadow byte at +e. `scripts/inspect-executable.py` now imports
+the 16-entry category table at `005aa318` and terrain constant at `005aa450`.
+The diagonal helper moved unchanged to the existing native-math module so
+sampling and rebuilding share it without a model import cycle.
+
+The first pass visits the nine heights in native order, preserving the strict
+minimum-index tie rule and initial extrema 0/1025. It updates diagonal, slope,
+shadow direction and water flags; flag `04000000` protects the slope byte.
+The second pass uses four corner slopes to select the category while preserving
+its upper bits. The third repairs zero-height points surrounded by ground unless
+land flag 128 suppresses it, then runs requested surface texture callbacks.
+Globe texture callbacks follow in a separate pass. Cleanup clears the queue,
+dirty bitmap and land flag 128, including when the queue is empty.
+
+Queueing keeps the first texture-update flag for duplicate cells, wraps cell
+coordinates, and flushes exactly at 1,024 entries. Radius 64 traverses 129×129
+positions and repeats once after flushing, matching `0044e850` initialization.
+On the imported first-mission height field this performs **33,282** enqueue
+attempts with **226** duplicates. Native terrain repair changes points `(4,121)`
+and `(6,121)` from zero to one. `makeTerrain` now samples the rebuilt height
+field, so the two browser positions `(0,6)` and `(4,6)` use `1/45` rather than
+the artificial seabed value.
+
+`check-native-terrain.py` compares **260** queue/process checkpoints over 66
+sequences, including a complete ocean and the imported first mission. It executes
+the full native routines with only `004be230` surface textures and `004bdff0`
+globe textures supplied, comparing their call ordering along with every terrain
+record, pending coordinates/update flags, dirty bitmap, counters and recursion
+state. Randomized sequences cover seams, signed height extremes, protected slope
+bytes, land flags, duplicate requests and automatic flush boundaries.
+
+All **40** Node regressions pass. Playwright confirmed both repaired heights in
+the live game and advancing turns without page errors. Build/lint pass with seven
+existing image warnings and zero errors. Native texture/palette consumers,
+deformation integration, full map storage in the live world, and the territory
+lifecycle/spell-scan connections remain unfinished. `004015f0` (dynamic lighting)
+and `0042c130` (category clear) were exported while locating the producer; they
+remain raw, unported evidence.
+The existing math oracle also passes 680 terrain and 508 projectile comparisons;
+the executable/manifest verifier checks **515** raw C exports.

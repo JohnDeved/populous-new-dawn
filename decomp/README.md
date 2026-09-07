@@ -611,3 +611,20 @@ building removal, player types, staggered turns and marker wrap.
 tower coverage in the lower region bits; its export is not a completed port.
 These territory primitives still need the native terrain-category producer and
 building lifecycle in the live world before supplying the spell dispatcher.
+
+## Terrain update queue and categories
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-terrain.py /path/to/d3dpoptb.exe
+```
+
+`app/native-terrain.ts` reconstructs `0044ddf0` queueing and the simulation
+passes of `0044df40`: diagonal choice, slope/shadow fields, water flags,
+category lookup, enclosed-zero repair and queue cleanup. Surface and globe
+texture consumers remain callbacks in their original phase order. The oracle
+compares **260** checkpoints against the complete native functions, supplying
+only those two texture consumers. It checks all 16-byte map records, queues,
+dirty flags, counters and texture callback order, including radius-64 ocean and
+first-mission rebuilds. The mission uses imported original heights before any
+browser resampling. The live opening terrain now runs the same two-traversal
+initialization; ongoing terrain deformation and texture consumers remain pending.
