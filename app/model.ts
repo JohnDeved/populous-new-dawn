@@ -1,6 +1,6 @@
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
-import {runScript,scriptState,type ScriptState} from './popscript.ts';
+import {runScript,scriptState,scriptValue,type ScriptState,type PopScript} from './popscript.ts';
 import constants from './original-constants.json' with { type: 'json' };
 import rules from './original-rules.json' with { type: 'json' };
 export type Team = 'blue' | 'red' | 'wild';
@@ -14,15 +14,15 @@ export type Projectile = { id:number; spell:Spell; team:Team; caster:number; tar
 type Battle = Point & { id: number; members: number[]; angle: number };
 export type Unit = Point & { id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
 export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number };
-export type Shrine = Point & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; active: boolean };
+export type Shrine = Point & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; remaining:number; active: boolean };
 export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
 export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
 export const TURNS_PER_SECOND=12;
-export const SPELLS: { id: Spell; name: string; cost: number; range: number; key: string; symbol: string; color: string; description: string }[] = [
-  { id: 'blast', name: 'Blast', cost: 10, range: 12, key: '1', symbol: '✹', color: '#e8b076', description: 'Rechargeable · throws followers back. Water is deadly.' },
-  { id: 'bridge', name: 'Land Bridge', cost: 70, range: 20, key: '2', symbol: '≋', color: '#bbca8a', description: 'Worship the southern stone head. Cast from one shore onto the other.' },
-  { id: 'lightning', name: 'Lightning', cost: 80, range: 24, key: '3', symbol: 'ϟ', color: '#c6b8f2', description: 'Four gifts from the central stone head. A direct hit kills a follower.' },
+export const SPELLS: { id: Spell; model:number; name: string; cost: number; range: number; key: string; symbol: string; color: string; description: string }[] = [
+  { id: 'blast', model:2, name: 'Blast', cost: 10, range: 12, key: '1', symbol: '✹', color: '#e8b076', description: 'Rechargeable · throws followers back. Water is deadly.' },
+  { id: 'bridge', model:12, name: 'Land Bridge', cost: 70, range: 20, key: '2', symbol: '≋', color: '#bbca8a', description: 'Worship the southern stone head. Cast from one shore onto the other.' },
+  { id: 'lightning', model:3, name: 'Lightning', cost: 80, range: 24, key: '3', symbol: 'ϟ', color: '#c6b8f2', description: 'Four gifts from the central stone head. A direct hit kills a follower.' },
 ];
 export const BUILDINGS: { id: BuildingKind; name: string; cost: number; symbol: string; description: string }[] = [
   { id: 'hut', name: 'Hut', cost: 3, symbol: '⌂', description: 'Three logs. Send braves inside to breed faster and generate more mana.' },
@@ -250,6 +250,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
 }
 export type World = {
   ai:ScriptState & {states:number;reincarnation:boolean;pendingCommands:{opcode:number;args:number[]}[]};
+  spellCasts:number[][];
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
@@ -278,14 +279,14 @@ function missionAI(){
   return ai;
 }
 export function createWorld(): World {
-  const w: World = { ai:missionAI(), terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+  const w: World = { ai:missionAI(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
     if (o.type===5 && o.model<=6) w.trees.push({id:w.nextId++,x:o.x,z:o.z,logs:4,model:o.model});
     if (o.type===6 && o.model===6) {
       const settings=o.settings!, kind=settings[0]===4?'vault':settings[3]===4?'lightning':'bridge';
-      w.shrines.push({id:w.nextId++,x:o.x,z:o.z,kind,name:kind==='vault'?'Vault of Knowledge':kind==='bridge'?'Land Bridge stone head':'Lightning stone head',progress:0,duration:(settings[26]+settings[27]*256)/4,uses:0,active:true});
+      w.shrines.push({id:w.nextId++,x:o.x,z:o.z,kind,name:kind==='vault'?'Vault of Knowledge':kind==='bridge'?'Land Bridge stone head':'Lightning stone head',progress:0,duration:(settings[26]+settings[27]*256)/4,uses:0,remaining:(settings[3]<<24)>>24,active:true});
     }
   }
   w.selected=[w.units.find(u=>u.team==='blue'&&u.kind==='shaman')!.id];
@@ -301,25 +302,83 @@ export function markerHeight(terrain:number[],index:number){
   const h=height(terrain,p.x,p.z);
   return h===-.35?0:short(Math.round(h*45)); // Convert the browser's artificial seabed back to native zero.
 }
-// 0x4f2160: remove the head in the addressed map cell, not a distance-selected head.
-export function removeHead(w:World,x:number,y:number){
+// 0x4f2160 / 0x4f2900 share the same coarse cell lookup.
+function headAt(w:World,x:number,y:number){
   const p=nativeCellPoint(((y&255)<<8)|(x&255));
-  const index=w.shrines.findIndex(s=>{const n=nativePosition(w,s),cell=nativeCellPoint((n.y&0xff00)|((n.x>>>8)&255));return cell.x===p.x&&cell.z===p.z;});
-  if(index<0)return;
-  const [head]=w.shrines.splice(index,1);head.active=false;
+  return w.shrines.find(s=>{const n=nativePosition(w,s),cell=nativeCellPoint((n.y&0xff00)|((n.x>>>8)&255));return cell.x===p.x&&cell.z===p.z;});
+}
+export function removeHead(w:World,x:number,y:number){
+  const head=headAt(w,x,y);if(!head)return;
+  w.shrines.splice(w.shrines.indexOf(head),1);head.active=false;
   for(const u of w.units)if(u.work===head.id){release(u);u.path=[];}
 }
-function campaignTerrain(w:World){
-  // cpscr010 words 1370..1469: EVERY 31 2, with tribe 1's turn offset.
-  if((w.turn+3)&31)return;
-  const vars=w.ai.variables;
-  for(let i=0;i<6;i++)vars[21+i]=markerHeight(w.terrain,35+i);
-  vars[52]=vars.slice(21,27).reduce((a,b)=>a+b,0);
-  if(vars[52]>0){
-    for(let i=0;i<5;i++)vars[45+i]=markerHeight(w.terrain,25+i);
-    vars[50]=vars.slice(45,50).reduce((a,b)=>a+b,0);
-    if(vars[50]>0)removeHead(w,2,222);
+// 0x4c14c0 increments these bytes during allocation, even if the spell later cancels.
+export function recordSpellCast(w: World, tribe: number, model: number) {
+  if (!Number.isInteger(tribe) || tribe < 0 || tribe > 3 ||
+      !Number.isInteger(model) || model < 0 || model > 255) {
+    throw new RangeError('Invalid native spell identity');
   }
+  if (model < 22) w.spellCasts[tribe][model] = (w.spellCasts[tribe][model] + 1) & 255;
+}
+
+export function campaignInternal(w: World, id: number) {
+  if (id === 0) return w.turn;
+  // Native spell constants, including Blast, Lightning and Land Bridge.
+  if (id >= 1184 && id <= 1199) return id - 1183;
+  throw new Error(`Unbound campaign internal ${id}`);
+}
+
+// Reviewed DO query handlers. Unknown commands/unsupported world state fail explicitly.
+export function campaignCommand(w: World, opcode: number, args: number[], script: PopScript = originalScript) {
+  const arity = ({1076: 3, 1077: 3, 1085: 2, 1131: 3, 1171: 2} as Record<number, number>)[opcode];
+  if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`);
+  if (args.length !== arity) throw new Error(`Invalid campaign command arguments ${opcode}`);
+  const read = (index: number) => scriptValue(script, w.ai, index, id => campaignInternal(w, id));
+
+  if (opcode === 1171) {
+    removeHead(w, read(args[0]), read(args[1]));
+    return;
+  }
+  let value: number;
+  if (opcode === 1085) {
+    value = markerHeight(w.terrain, read(args[0]));
+  } else if (opcode === 1131) {
+    value = ((headAt(w, read(args[0]), read(args[1]))?.remaining ?? 0) << 24) >> 24;
+  } else {
+    const tribe = args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0]);
+    const model = read(args[1]);
+    if (!Number.isInteger(tribe) || tribe < 0 || tribe > 3 ||
+        !Number.isInteger(model) || model < 0 || model >= 22) {
+      throw new RangeError('Invalid campaign spell query');
+    }
+    if (opcode === 1076) {
+      value = w.spellCasts[tribe][model] & 255;
+    } else {
+      const spell = SPELLS.find(s => s.model === model)?.id;
+      if (tribe !== 0 || !spell) throw new Error(`Unbound one-off spell stock ${tribe}:${model}`);
+      value = w.shots[spell] & 15; // 0x4c2b40 ignores the upper spell-flag nibble.
+    }
+  }
+  // Native destinations use the field's value as a user-variable index, regardless of type.
+  const index = script.fields[args.at(-1)!]?.[1];
+  if (!Number.isInteger(index) || index < 0 || index >= 64) {
+    throw new RangeError('Invalid campaign query destination');
+  }
+  w.ai.variables[index] = value | 0;
+}
+
+const terrainScript = {
+  ...originalScript,
+  codes: [12, 1003, ...originalScript.codes.slice(1370, 1470), 1004, 1019],
+};
+function campaignTerrain(w: World) {
+  // ponytail: execute this verified original block until the remaining mission commands are bound.
+  runScript(terrainScript, w.ai, {
+    turn: w.turn,
+    tribe: 1,
+    readInternal: id => campaignInternal(w, id),
+    command: (opcode, args) => campaignCommand(w, opcode, args),
+  });
 }
 export function tell(w: World, message: string) { w.message = message; w.messageUntil = w.time + 9; }
 // Presentation events have their own serial; they never consume simulation IDs or random values.
@@ -381,6 +440,7 @@ function beginCast(w:World,u:Unit,spell:Spell,p:Point){
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
   const target={x:Math.floor(p.x/2)*2+1,z:-Math.floor(-p.z/2)*2-1},position=nativePosition(w,u);
   w.projectiles.push({id:w.nextId++,spell,team:u.team,caster:u.id,target,source:{x:u.x,z:u.z},position,destination:nativePosition(w,target),origin:{...position},phase:'windup',remaining:6,turns:0,visuals:[]});
+  recordSpellCast(w,u.team==='blue'?0:1,SPELLS.find(s=>s.id===spell)!.model);
   if(u.team==='blue'){w.shots[spell]--;w.stats.cast++;}
   u.casting={spell,point:target,remaining:6/TURNS_PER_SECOND};castVoice(w,u,spell);
 }
@@ -507,8 +567,9 @@ function stepTurn(w:World){
     if(!worshippers.length || shrine.kind==='bridge'&&w.shots.bridge>=4)continue;
     shrine.progress+=dt/shrine.duration;
     if(shrine.progress>=1){shrine.progress=0;shrine.uses++;effect(w,'birth',shrine);
+      if(shrine.remaining<0||shrine.remaining>0&&--shrine.remaining===0)shrine.active=false; // 0x4fb270: zero is unlimited; negatives fire once without decrementing.
       if(shrine.kind==='vault'){w.unlockedCamp=true;shrine.active=false;tell(w,'Knowledge discovered: build a Warrior Training Hut, then send braves inside.');}
-      else{w.shots[shrine.kind]++;if(shrine.kind==='lightning'&&shrine.uses===4)shrine.active=false;tell(w,`${shrine.kind==='bridge'?'Land Bridge':'Lightning'} received. ${w.shots[shrine.kind]} shots ready.`);}
+      else{w.shots[shrine.kind]++;tell(w,`${shrine.kind==='bridge'?'Land Bridge':'Lightning'} received. ${w.shots[shrine.kind]} shots ready.`);}
     }
   }
   // 0x41a590: split mana among active training huts, with a cost/32 intake cap per turn.

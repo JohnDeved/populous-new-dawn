@@ -3,6 +3,7 @@ import test from 'node:test';
 import level from '../app/level-one.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
 import {runScript,scriptState} from '../app/popscript.ts';
+import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
@@ -228,4 +229,30 @@ test('campaign markers remove the bridge head on the native phase, independently
  assert.equal(findPath(w.terrain,HOME,ENEMY).length,0,'native rule does not require a walkable route');assert.equal(w.shrines.length,2);
  const fresh=createWorld();const count=fresh.shrines.length;removeHead(fresh,0,0);assert.equal(fresh.shrines.length,count,'wrong cell leaves heads intact');
  removeHead(fresh,3,223);assert.equal(fresh.shrines.length,count-1,'odd coordinates select the same native cell');assert.ok(fresh.shrines.every(s=>s.kind!=='bridge'));
+});
+
+test('campaign counters track allocation and remaining head gifts through gameplay',()=>{
+ const w=createWorld(),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ const fields=[[0,0],[2,1185],[1,7]],program={fields};
+ w.spellCasts[0][2]=254;
+ assert.equal(cast(w,'blast',{x:100,z:100}),false);assert.equal(w.spellCasts[0][2],254,'rejected orders do not allocate');
+ assert.ok(cast(w,'blast',shaman));campaignCommand(w,1076,[1118,1,2],program);assert.equal(w.ai.variables[7],255,'counts before impact');
+ shaman.hp=0;tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.spellCasts[0][2],255,'canceled spells retain their cast count');
+ recordSpellCast(w,0,2);assert.equal(w.spellCasts[0][2],0,'the original byte wraps');assert.equal(w.stats.cast,1,'UI total remains a separate statistic');
+ const fresh=createWorld();assert.equal(fresh.spellCasts[0][2],0);recordSpellCast(fresh,1,2);assert.equal(fresh.spellCasts[0][2],0,'tribes have independent counters');
+ assert.throws(()=>recordSpellCast(w,4,2),/Invalid native spell identity/);
+ const head=fresh.shrines.find(s=>s.kind==='lightning'),brave=fresh.units.find(u=>u.team==='blue'&&u.kind==='brave');
+ const headQuery={fields:[[0,19],[0,247],[1,0]]};
+ campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],4,'query reports gifts remaining, not gifts already awarded');
+ Object.assign(brave,{x:head.x,z:head.z,work:head.id,path:[]});
+ for(let remaining=3;remaining>=0;remaining--){head.progress=1;tick(fresh,1/12);campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],remaining);}
+ assert.equal(head.active,false);assert.equal(fresh.shots.lightning,4);
+ campaignCommand(fresh,1077,[0,1,2],{fields:[[0,0],[2,1186],[1,0]]});assert.equal(fresh.ai.variables[0],4);
+ removeHead(fresh,18,246);campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],0,'absent heads return zero');
+ const bridge=fresh.shrines.find(s=>s.kind==='bridge');Object.assign(brave,{x:bridge.x,z:bridge.z,work:bridge.id,path:[]});
+ bridge.progress=1;tick(fresh,1/12);assert.equal(bridge.remaining,0);assert.equal(bridge.active,true,'zero initial trigger count means unlimited');
+ bridge.remaining=-1;bridge.progress=1;tick(fresh,1/12);assert.equal(bridge.remaining,-1);assert.equal(bridge.active,false,'negative trigger counts fire once and retain their value');
+ assert.throws(()=>campaignCommand(fresh,1077,[1119,1,2],program),/Unbound one-off spell stock/,'unported AI stock is not silently reported as zero');
+ assert.throws(()=>campaignCommand(fresh,1076,[1118,1,2],{fields:[[0,0],[0,2],[1,64]]}),/Invalid campaign query destination/);
+ assert.throws(()=>campaignCommand(fresh,1059,[]),/Unbound campaign command/);
 });

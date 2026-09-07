@@ -1,6 +1,6 @@
 # Populous · The Journey Begins
 
-The original first mission, rebuilt for desktop browsers with original-game visual styling and a spherical world. Its terrain, initial objects and worship timings were imported from the user-supplied game.
+The original first mission, rebuilt for desktop browsers with original-game visual styling and a spherical world. Terrain and initial objects come from the user-supplied game; behavior is being reconstructed and compared against its executable. Worship scheduling is still approximate.
 
 ## Run
 
@@ -28,8 +28,7 @@ Send braves inside huts to increase mana flow and breeding. Builders collect act
 ## Verify
 
 ```sh
-npm test
-npx tsc --noEmit
+npm run check
 npm run build
 # With the development server running and Google Chrome installed:
 node qa/browser-check.mjs
@@ -42,3 +41,21 @@ Tests cover the original setup, closed island crossings, worship/discoveries, ti
 See [level-one research and implementation limits](references/level-one.md) and [art, audio and stack references](references/README.md). Combat, timing and enemy AI remain adaptations; this is the first mission, not a full campaign or an emulator.
 
 Full parity remains an [active goal](GOAL.md). The project includes a [reproducible decompilation workflow](decomp/README.md) and [debug-symbol/upstream assessment](decomp/upstreams.md).
+
+## Editing the game
+
+Maintainability is a standing [side objective](GOAL.md#side-objective-keep-development-easy). The current stack is TypeScript, React 19, Three.js, Web Audio and Vite 8 through vinext. Keep the simulation runnable without a browser; UI and rendering consume its state. [Three.js](https://threejs.org/manual/en/fundamentals.html) supplies scene/rendering primitives while our engine retains control of original simulation rules.
+
+| Change | Start here |
+| --- | --- |
+| Spell identity, behavior or engine state | `app/model.ts`; use the shared `SPELLS` definitions, including native model IDs |
+| Campaign bytecode semantics | `app/popscript.ts`; engine command bindings currently live in `app/model.ts` |
+| Models, sprites, camera or input | `app/scene.ts` |
+| HUD and menus | `app/page.tsx`, `app/globals.css` |
+| Sound playback | `app/audio.ts`; original sample/cue data is generated |
+| Original assets, maps or script data | `scripts/import-*.py`; rerun the importer rather than editing its generated output |
+| Native behavior evidence | `decomp/`, `references/reverse-engineering.md`, `scripts/check-native-*.py` |
+
+Run `npm run dev` to edit and play, then `npm run check` for types and gameplay regressions. [Vite supports fast module updates but does not type-check TypeScript](https://vite.dev/guide/features#typescript), so checking stays explicit. The tests run the same engine modules directly using [Node's TypeScript support](https://nodejs.org/api/typescript.html). Use `npm run build` before publishing and the browser checks above for interaction/rendering changes.
+
+The growing simulation and scene files need further separation as their subsystems are ported. Prefer readable functions, shared data and direct module imports; keep each refactor tied to the behavior being worked on and its existing comparisons. Generated data may stay compact; hand-written code should stay easy to inspect.

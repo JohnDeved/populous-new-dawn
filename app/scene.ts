@@ -376,7 +376,7 @@ export class GameScene {
       const q=planetPoint(shrine,this.y(shrine)+4.5),p=new THREE.Vector3(q.x,q.y,q.z).project(this.camera),n=normal(shrine),view=this.camera.position.clone().sub(new THREE.Vector3(q.x,q.y,q.z));
       entry.label.hidden=!entry.g.visible||p.z>1||view.dot(new THREE.Vector3(n.x,n.y,n.z))<=0;
       entry.label.style.left=`${(p.x+1)*this.container.clientWidth/2}px`;entry.label.style.top=`${(1-p.y)*this.container.clientHeight/2}px`;
-      entry.label.textContent=`${shrine.kind==='vault'?'◈ WARRIOR KNOWLEDGE':shrine.kind==='bridge'?'≋ LAND BRIDGE':'ϟ LIGHTNING'} · ${shrine.active?shrine.progress>0?Math.floor(shrine.progress*100)+'%':shrine.kind==='lightning'?4-shrine.uses+' gifts':'WORSHIP':'DISCOVERED'}`;
+      entry.label.textContent=`${shrine.kind==='vault'?'◈ WARRIOR KNOWLEDGE':shrine.kind==='bridge'?'≋ LAND BRIDGE':'ϟ LIGHTNING'} · ${shrine.active?shrine.progress>0?Math.floor(shrine.progress*100)+'%':shrine.kind==='lightning'?shrine.remaining+' gifts':'WORSHIP':'DISCOVERED'}`;
     }
     const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman');
     this.range.visible = !!this.world.mode && SPELLS.some(s => s.id === this.world.mode) && !!shaman;
