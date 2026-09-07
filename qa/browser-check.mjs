@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { chromium } from '@playwright/test';
 import * as THREE from 'three';
-import { createWorld, worldPoint, planetPoint, normal, PLANET_RADIUS, cast } from '../app/model.ts';
+import { createWorld, worldPoint, planetPoint, normal, PLANET_RADIUS, cast, tick } from '../app/model.ts';
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist']});
 const page=await browser.newPage({viewport:{width:1440,height:960},deviceScaleFactor:1});page.setDefaultTimeout(12000);
 const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
@@ -20,9 +20,9 @@ try{
  await page.getByRole('button',{name:/Land Bridge, [234] shots/}).waitFor({timeout:24000});console.log('stone head gifts verified');
  await page.getByRole('button',{name:'Select all shaman',exact:true}).click();await focus(0,20);await click(0,20,'right');await page.waitForTimeout(6500);
  await focus(0,10);await page.getByRole('button',{name:/Land Bridge, [234] shots/}).click();await click(0,4);await page.waitForFunction(()=>document.querySelectorAll('.objective-panel li.complete').length===1);
- const shaman=w.units.find(u=>u.kind==='shaman'&&u.team==='blue');shaman.x=0;shaman.z=20;w.shots.bridge=1;cast(w,'bridge',{x:0,z:4});
+ const shaman=w.units.find(u=>u.kind==='shaman'&&u.team==='blue');shaman.x=0;shaman.z=20;w.shots.bridge=1;cast(w,'bridge',{x:0,z:4});for(let i=0;i<180;i++)tick(w,1/30);await page.waitForTimeout(3000);
  await click(0,4,'right');await page.waitForTimeout(4200);await focus(-4,0);
- await page.getByRole('button',{name:/Blast, [1-4] shots/}).click();await click(-9,-3);await page.waitForTimeout(600);
+ await page.getByRole('button',{name:/Blast, [1-4] shots/}).click();await click(-8,-3);await page.waitForTimeout(1200);
  await page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('.objective-panel li.complete').length===2,{},{timeout:18000});console.log('bridge and vault verified');
  await focus(4,32);await page.getByRole('button',{name:'Select all braves',exact:true}).click();await click(4,32,'right');
  await page.getByRole('button',{name:'buildings B',exact:false}).click();const camp=page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true});assert.ok(await camp.isEnabled());await camp.click();await click(4,32);

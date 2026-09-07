@@ -25,7 +25,7 @@
     174
   ],
   "sourceFrames": 7953,
-  "compositedFrames": 690,
+  "compositedFrames": 1312,
   "sha256": {
     "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
     "data/bl320-c.dat": "26fbee4d3cb590462e1ef3c9afe1964283f1b662e8c58057ed8f2cbf324b2a05",
@@ -37,6 +37,8 @@
     "data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
     "data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
     "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/al0-c.dat": "afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310",
+    "levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
     "data/bigf0-c.dat": "4787545c07f41d6949895e4e280d32fd571b3690536a8356f558638486c58129",
     "data/disp0-c.dat": "d68d33c50badc5a002955cdba53010b9ebcddc70cfb89db3d6c369f3ab37b33c",
     "data/watdisp.dat": "259e75c803810c16f2166b86191b1d43090f28a6fac8b3b3df28477873ca1238",

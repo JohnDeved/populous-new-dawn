@@ -4,7 +4,7 @@ Native layout evidence and remaining renderer differences: references/native-ass
 Only Python's standard library is needed. Format/geometry checks run on every import.
 """
 from pathlib import Path
-import hashlib, json, struct, sys, zlib
+import hashlib, json, re, struct, sys, zlib
 
 def png(path, width, height, pixels):
     def chunk(kind, data):
@@ -13,7 +13,7 @@ def png(path, width, height, pixels):
     rows = b''.join(b'\0' + pixels[y*width*4:(y+1)*width*4] for y in range(height))
     path.write_bytes(b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(rows)) + chunk(b'IEND', b''))
 
-def sprites(data, palette):
+def sprites(data, palette, alpha=False):
     assert data[:4] == b'PSFB', 'Invalid sprite bank'
     count = struct.unpack_from('<I', data, 4)[0]
     assert 8 + count * 8 <= len(data)
@@ -31,7 +31,7 @@ def sprites(data, palette):
                 else:
                     assert x + run <= w and p + run <= len(data), (i, y, x, run, w)
                     for idx in data[p:p+run]:
-                        pixels[(y*w+x)*4:(y*w+x)*4+4] = palette[idx*4:idx*4+3] + b'\xff'
+                        pixels[(y*w+x)*4:(y*w+x)*4+4] = palette[idx*4:idx*4+4] if alpha else palette[idx*4:idx*4+3] + b'\xff'
                         x += 1
                     p += run
                 assert x <= w
@@ -64,7 +64,9 @@ def main():
             indices = struct.unpack_from('<4h',faces,face*60+40)
             for k in ([0,1,2] if n==3 else [0,1,2,0,2,3]):
                 index = sp+indices[k]-1; assert 0<=index<len(points)//6
-                p.extend(round(v/(scale*3),6) for v in struct.unpack_from('<3h',points,index*6))
+                x,y,z=struct.unpack_from('<3h',points,index*6)
+                # The level importer reverses map Z: geometry must use the same handedness.
+                p.extend(round(v/(scale*3),6) for v in (x,y,-z))
                 uv.extend([round((tile%8+texcoords[k*2]/0x200000)/8,7),round(1-(tile//8+texcoords[k*2+1]/0x200000)/32,7)])
         assert len(p)//3 == len(uv)//2 and len(p)%9 == 0
         models[i] = {'p':p,'uv':uv}
@@ -76,27 +78,34 @@ def main():
     # VELE references legacy six-byte TAB records, numbered from one. VFRA chains
     # retain each body/weapon/clothing layer's signed offset and original timing.
     def composite(frame, team, kind):
-        pixels = bytearray(64*64*4); element = frames[frame][0]; visited = set()
+        layers=[];element=frames[frame][0];visited=set()
         while element:
-            assert element<len(elements) and element not in visited; visited.add(element)
-            pos,x,y,flags,element = elements[element]
-            layer, variant = (flags>>4)&15, flags>>9
-            include = flags & ~1 == 0 or (layer==1 and variant==(1 if team=='red' else 0)) or (layer==2 and variant==2 and kind=='warrior')
-            if not include: continue
-            assert pos%6==0 and 0<pos//6<=len(bank)
-            w,h,data = bank[pos//6-1]
+            assert element<len(elements) and element not in visited;visited.add(element)
+            pos,x,y,flags,element=elements[element]
+            layer,variant=(flags>>4)&31,flags>>9
+            include=(layer==0 and variant!=1) or (layer==1 and variant==(1 if team=='red' else 0) and kind!='shaman') or (layer==2 and variant==2 and kind=='warrior')
+            if include:
+                assert pos%6==0 and 0<pos//6<=len(bank)
+                w,h,data=bank[pos//6-1];layers.append((x,y,w,h,data,flags))
+        assert layers
+        left=min(a[0] for a in layers);top=min(a[1] for a in layers)
+        width=max(x+w for x,y,w,h,data,flags in layers)-left;height=max(y+h for x,y,w,h,data,flags in layers)-top
+        pixels=bytearray(width*height*4)
+        for x,y,w,h,data,flags in layers:
             for sy in range(h):
                 for sx in range(w):
-                    dx,dy=x+32+(w-1-sx if flags&1 else sx),y+48+sy
-                    assert 0<=dx<64 and 0<=dy<64
-                    if data[(sy*w+sx)*4+3]:pixels[(dy*64+dx)*4:(dy*64+dx)*4+4]=data[(sy*w+sx)*4:(sy*w+sx)*4+4]
-        return pixels
+                    dx,dy=x-left+(w-1-sx if flags&1 else sx),y-top+sy
+                    if data[(sy*w+sx)*4+3]:pixels[(dy*width+dx)*4:(dy*width+dx)*4+4]=data[(sy*w+sx)*4:(sy*w+sx)*4+4]
+        return width,height,left,top,pixels
     metadata = {}; rendered = []; cache = {}
     for team in ['blue','red','wild']:
         for kind in (['brave'] if team=='wild' else ['brave','warrior','shaman']):
-            states = {'walk':0 if team=='wild' else 40,'idle':8 if team=='wild' else 48,'work':16 if team=='wild' else 72,'attack':16 if team=='wild' else 88,'carry':776}
-            if kind=='warrior':states['attack']=728
-            if kind=='shaman':states={'walk':424 if team=='blue' else 432,'idle':424 if team=='blue' else 432,'work':456 if team=='blue' else 464,'attack':456 if team=='blue' else 464}
+            # Executable animation map at 0x5a6d50 -> object table 0x5a6858.
+            states = {'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':128,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416}
+            if team=='wild':states={k:0 if k=='walk' else 8 for k in states}
+            if kind=='shaman':
+                states={'walk':616,'idle':424,'selected':744,'work':456,'chop':456,'attack':456,'pray':552,'cast':648,'airborne':488,'die':352,'drown':616}
+                states={k:v+(8 if team=='red' else 0) for k,v in states.items()}
             metadata[f'{team}-{kind}'] = {}
             for state,start in states.items():
                 directions=[]
@@ -107,15 +116,42 @@ def main():
                         key=(frame,team,kind)
                         if key not in cache:cache[key]=len(rendered);rendered.append(composite(frame,team,kind))
                         cycle.append(cache[key]);frame=frames[frame][-1]
-                    directions.append({'frames':cycle,'flip':bool(mirror)})
+                    directions.append({'frames':cycle,'flip':bool(mirror),'source':start+direction})
                 metadata[f'{team}-{kind}'][state]=directions
-    width=1024;height=((len(rendered)+15)//16)*64;pixels=bytearray(width*height*4)
-    for i,data in enumerate(rendered):
-        x=i%16*64;y=i//16*64
-        for row in range(64):pixels[((y+row)*width+x)*4:((y+row)*width+x+64)*4]=data[row*256:(row+1)*256]
+    cell=1
+    while cell<max(max(w,h) for w,h,x,y,data in rendered):cell*=2
+    width=cell*32;height=((len(rendered)+31)//32)*cell;pixels=bytearray(width*height*4)
+    for i,(w,h,left,top,data) in enumerate(rendered):
+        x=i%32*cell;y=i//32*cell
+        for row in range(h):pixels[((y+row)*width+x)*4:((y+row)*width+x+w)*4]=data[row*w*4:(row+1)*w*4]
     png(output/'units.png',width,height,pixels)
-    (project/'app/original-units.json').write_text(json.dumps({'width':width,'height':height,'animations':metadata},separators=(',',':')))
-    hfx = sprites(read('data/hfx0-0.dat'),palette)
+    info=[{'w':w,'h':h,'x':x,'y':y} for w,h,x,y,data in rendered]
+    (project/'app/original-units.json').write_text(json.dumps({'width':width,'height':height,'cell':cell,'columns':32,'fps':12,'frames':info,'animations':metadata},separators=(',',':')))
+    hfx_data=read('data/hfx0-0.dat');hfx=sprites(hfx_data,palette)
+    # 0x476570: HFX high nibble selects an AL0 colour, low nibble is 0..15 alpha.
+    alpha=read('data/al0-c.dat');assert len(alpha)==65536
+    fx_palette=b''.join(palette[alpha[(v|15)*256]*4:alpha[(v|15)*256]*4+3]+bytes([(v&15)*17]) for v in range(256))
+    effects=sprites(hfx_data,fx_palette,alpha=True)
+    # HFX effects are consecutive native frames; their draw records advance once per turn.
+    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8)}
+    fx_frames=[];fx_meta={};cell=256
+    for name,(start,count) in fx_sequences.items():
+        fx_meta[name]=[]
+        for i in range(start,start+count):
+            w,h,data=effects[i];assert w<=cell and h<=cell
+            fx_meta[name].append({'index':len(fx_frames),'w':w,'h':h,'source':i});fx_frames.append((w,h,data))
+    fw=2048;fh=((len(fx_frames)+7)//8)*cell;pixels=bytearray(fw*fh*4)
+    for i,(w,h,data) in enumerate(fx_frames):
+        x=i%8*cell;y=i//8*cell
+        for row in range(h):pixels[((y+row)*fw+x)*4:((y+row)*fw+x+w)*4]=data[row*w*4:(row+1)*w*4]
+    png(output/'effects.png',fw,fh,pixels)
+    (project/'app/original-effects.json').write_text(json.dumps({'width':fw,'height':fh,'animations':fx_meta},separators=(',',':')))
+    data=read('levels/constant.dat')
+    if data[:2]==b'@~':data=b'  '+bytes((~(v^(1<<((i-3)&7))))&255 for i,v in enumerate(data))[2:]
+    constants={}
+    for k,v in re.findall(r'^\s*P3CONST_(\S+)\s*=\s*(-?\d+)',data.decode('ascii'),re.M):constants.setdefault(k,int(v))
+    assert constants['LIFE_BRAVE']==1000 and constants['BRAVE_SPEED']==70
+    (project/'app/original-constants.json').write_text(json.dumps(constants,indent=2)+'\n')
     icons={'blast':355,'lightning':356,'bridge':365,'brave':666,'warrior':668,'shaman':664,'buildings':676,'spells':678,'followers':680,'gold':712,'hut':1028,'tower':1029,'camp':1030,'temple':1032}
     for name,i in icons.items():png(output/(name+'.png'),*hfx[i])
     png(output/'portrait.png',*bank[6879])

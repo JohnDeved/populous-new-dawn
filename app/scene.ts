@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, normal, planetPoint, mapPoint, worldPoint, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect } from './model';
+import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, normal, planetPoint, mapPoint, worldPoint, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModels from './original-models.json';
 import nativeUnits from './original-units.json';
+import nativeEffects from './original-effects.json';
 
 const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 };
 const material = (color: number, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra });
@@ -14,7 +15,7 @@ function texture(kind: string) {
   const t=new THREE.TextureLoader().load(`/original/${kind}.png`);
   t.colorSpace=kind.endsWith('detail')?THREE.NoColorSpace:THREE.SRGBColorSpace;
   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
-  if(kind==='units'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
+  if(kind==='units'||kind==='effects'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
   textures.set(kind,t);return t;
 }
 function nativeModel(id:number,scale=2){
@@ -26,7 +27,6 @@ function nativeModel(id:number,scale=2){
 const meshes = new Map<string, THREE.BufferGeometry>();
 function geometry(key: string, create: () => THREE.BufferGeometry) { if (!meshes.has(key)) meshes.set(key, create()); return meshes.get(key)!; }
 const cylinder = (top: number, bottom: number, h: number, segments = 8) => geometry(`c${top},${bottom},${h},${segments}`, () => new THREE.CylinderGeometry(top, bottom, h, segments));
-const sphere = (r: number) => geometry(`s${r}`, () => new THREE.IcosahedronGeometry(r, 1));
 const box = (x: number, y: number, z: number) => geometry(`b${x},${y},${z}`, () => new THREE.BoxGeometry(x, y, z));
 function part(group: THREE.Group, geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 0) {
   const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; group.add(m); return m;
@@ -37,10 +37,10 @@ function ring(radius: number, color: number, width = .075) {
 }
 function makeUnit(u: Unit) {
   const g=new THREE.Group(),map=texture('units').clone();
-  map.repeat.set(64/nativeUnits.width,64/nativeUnits.height);
+  map.repeat.set(nativeUnits.cell/nativeUnits.width,nativeUnits.cell/nativeUnits.height);
   const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map,alphaTest:.5,depthWrite:true,toneMapped:false}));
-  // Every composite shares the original foot anchor at (32,48), including hats and weapons.
-  sprite.center.set(.5,.25);sprite.scale.set(4.16,4.16,1);g.add(sprite);
+  // Frame-specific offsets keep native feet, headdresses and death poses anchored.
+  g.add(sprite);
   const shadow=ring(.36,0x171b12,.35);shadow.position.y=.015;(shadow.material as THREE.MeshBasicMaterial).opacity=.32;g.add(shadow);
   const selection=ring(.55,0xffff6c,.045);selection.position.y=.04;g.add(selection);
   const health=new THREE.Group();part(health,box(.8,.055,.02),material(0x20251a),0,2.1);
@@ -175,7 +175,7 @@ export class GameScene {
   listen(target: EventTarget, name: string, handler: EventListener) { target.addEventListener(name, handler); this.disposeListeners.push(() => target.removeEventListener(name, handler)); }
   setSize() { const { width, height } = this.container.getBoundingClientRect(); this.renderer.setSize(width, height); this.camera.aspect = width / Math.max(1, height); this.camera.updateProjectionMatrix(); }
   y(p: Point) { return height(this.world.terrain,p.x,p.z); }
-  locate(g:THREE.Object3D,p:Point,h?:number){const q=h===undefined?worldPoint(this.world.terrain,p):planetPoint(p,h);g.position.set(q.x,q.y,q.z);const n=normal(p);g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(n.x,n.y,n.z));}
+  locate(g:THREE.Object3D,p:Point,h?:number){const q=h===undefined?worldPoint(this.world.terrain,p):planetPoint(p,h);g.position.set(q.x,q.y,q.z);const n=normal(p),a=p.x/PLANET_RADIUS,up=new THREE.Vector3(n.x,n.y,n.z),east=new THREE.Vector3(Math.cos(a),-Math.sin(a),0);g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(east,up,east.clone().cross(up)));}
   groundRing(mesh:THREE.Mesh,p:Point,radius:number){const pos=mesh.geometry.attributes.position;for(let i=0;i<pos.count;i++){const a=i%65/64*Math.PI*2,r=i<65?radius-.1:radius;const q={x:p.x+Math.cos(a)*r,z:p.z+Math.sin(a)*r};const v=planetPoint(q,Math.max(0,height(this.world.terrain,q.x,q.z))+.16);pos.setXYZ(i,v.x,v.y,v.z);}pos.needsUpdate=true;mesh.geometry.computeBoundingSphere();}
 
   rebuildTerrain() {
@@ -255,16 +255,48 @@ export class GameScene {
   focus(p: Point = HOME) { const n=normal({x:p.x,z:p.z+.55*PLANET_RADIUS});this.camera.position.set(n.x,n.y,n.z).multiplyScalar(105).add(this.controls.target);this.controls.update();this.orientCamera(); }
   overview(){this.camera.position.set(30,155,0);this.controls.update();this.orientCamera();}
   zoom(amount: number) { const offset = this.camera.position.clone().sub(this.controls.target).multiplyScalar(amount); offset.clampLength(PLANET_RADIUS+14, PLANET_RADIUS+190); this.camera.position.copy(this.controls.target).add(offset); this.controls.update();this.orientCamera(); }
+  animatePerson(body:THREE.Sprite,g:THREE.Group,heading:number,directions:{frames:number[];flip:boolean}[],age:number,once=false){
+    const camera=this.camera.position.clone().sub(g.position).applyQuaternion(g.quaternion.clone().invert());
+    const direction=((Math.round((heading-Math.atan2(camera.x,camera.z))/(Math.PI/4))%8)+8)%8;
+    const cycle=directions[direction],step=Math.floor(age*nativeUnits.fps),index=cycle.frames[once?Math.min(step,cycle.frames.length-1):step%cycle.frames.length],cell=nativeUnits.cell;
+    const frame=nativeUnits.frames[index],map=body.material.map!;
+    map.repeat.set((cycle.flip?-frame.w:frame.w)/nativeUnits.width,frame.h/nativeUnits.height);
+    map.offset.set((index%nativeUnits.columns*cell+(cycle.flip?frame.w:0))/nativeUnits.width,1-(Math.floor(index/nativeUnits.columns)*cell+frame.h)/nativeUnits.height);
+    body.center.set(cycle.flip?1+frame.x/frame.w:-frame.x/frame.w,1+frame.y/frame.h);body.scale.set(frame.w*.065,frame.h*.065,1);
+    const up=new THREE.Vector3(0,1,0).applyQuaternion(g.quaternion).transformDirection(this.camera.matrixWorldInverse);body.material.rotation=-Math.atan2(up.x,up.y);
+  }
   makeFx(f: Effect) {
-    const g = new THREE.Group(), color = f.kind === 'birth' ? 0x88deee : f.kind === 'lightning' ? 0xdddbff : 0xffab52;
-    if (f.kind === 'lightning') {
-      const points = []; for (let i = 0; i <= 10; i++) points.push(new THREE.Vector3(Math.sin(i * 17) * (i === 10 ? 0 : 1.5), 22 - i * 2.2, Math.cos(i * 13) * .5));
-      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0xeeedff, transparent: true })));
-      part(g, cylinder(.1, .3, 22, 6), new THREE.MeshBasicMaterial({ color: 0xc9d4ff, transparent: true, opacity: .35 }), 0, 11);
+    const g=new THREE.Group();this.locate(g,f);
+    if(f.unit){
+      const map=texture('units').clone(),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map,alphaTest:.5,toneMapped:false}));
+      sprite.center.set(.5,.25);sprite.scale.setScalar(nativeUnits.cell*.065);g.add(sprite);g.userData.sprite=sprite;return g;
     }
-    const halo = ring(1, color, .12); halo.position.y = .3; g.add(halo);
-    for (let i = 0; i < (f.kind === 'hit' ? 4 : 22); i++) { const m = part(g, sphere(.15), new THREE.MeshBasicMaterial({ color, transparent: true })); m.userData.velocity = new THREE.Vector3(Math.sin(i * 2.4) * (1 + i % 4), 2 + i % 5, Math.cos(i * 2.4) * (1 + i % 4)); }
-    this.locate(g,f); g.userData.halo = halo; return g;
+    const sequence=f.kind==='blast'?'impact':f.kind==='death'?'smoke':f.kind==='bridge'||f.kind==='birth'?'sparkle':f.kind;
+    const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('effects').clone(),transparent:true,depthWrite:false,toneMapped:false}));
+    sprite.center.set(.5,0);g.add(sprite);g.userData.sprite=sprite;g.userData.sequence=sequence;
+    if(f.kind==='blast'){const shock=ring(.2,0xe1e7ed,.08);shock.position.y=.08;g.add(shock);g.userData.shock=shock;}
+    if(f.kind==='lightning'){
+      const bolt=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xcce9ff,transparent:true,depthWrite:false}));g.add(bolt);g.userData.bolt=bolt;
+    }
+    return g;
+  }
+  animateFx(g:THREE.Group,f:Effect){
+    const sprite=g.userData.sprite as THREE.Sprite;
+    if(f.unit){const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[`${f.unit.team}-${f.unit.kind}`];this.animatePerson(sprite,g,f.unit.heading,animations.die,f.age,true);sprite.material.opacity=Math.min(1,(f.duration-f.age)*3);return;}
+    const sequence=(nativeEffects.animations as Record<string,{index:number;w:number;h:number}[]>)[g.userData.sequence];
+    const frame=sequence[Math.min(sequence.length-1,Math.floor(f.age*12))],map=sprite.material.map!;
+    map.repeat.set(frame.w/nativeEffects.width,frame.h/nativeEffects.height);map.offset.set(frame.index%8*256/nativeEffects.width,1-(Math.floor(frame.index/8)*256+frame.h)/nativeEffects.height);
+    const scale=f.kind==='birth'||f.kind==='bridge'?.035:.065;sprite.scale.set(frame.w*scale,frame.h*scale,1);sprite.material.opacity=Math.min(1,(f.duration-f.age)*5);
+    if(g.userData.shock){const shock=g.userData.shock as THREE.Mesh;shock.scale.setScalar(1+Math.min(1,f.age/.25)*25);(shock.material as THREE.MeshBasicMaterial).opacity=Math.max(0,1-f.age/.35);}
+    if(g.userData.bolt){
+      const bolt=g.userData.bolt as THREE.LineSegments,phase=Math.floor(f.age*24),points:number[]=[];
+      if(g.userData.phase!==phase){
+        g.userData.phase=phase;let last=new THREE.Vector3(0,24,0);
+        for(let i=1;i<=16;i++){const next=new THREE.Vector3(i===16?0:Math.sin(i*27+phase*7)*.7,24-i*1.5,i===16?0:Math.cos(i*19+phase)*.4);points.push(...last.toArray(),...next.toArray());if(i%4===0&&i<14)points.push(...next.toArray(),next.x+Math.sin(i+phase)*2.5,next.y-2,next.z+.4);last=next;}
+        bolt.geometry.dispose();bolt.geometry=new THREE.BufferGeometry();bolt.geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));
+      }
+      bolt.visible=f.age<.65;(bolt.material as THREE.LineBasicMaterial).opacity=Math.max(0,1-f.age/.65);
+    }
   }
   drawMinimap() {
     const ctx = this.mini.getContext('2d'); if (!ctx) return; const s = this.mini.width; ctx.clearRect(0, 0, s, s); ctx.drawImage(this.minimapBackground, 0, 0, s, s);
@@ -294,27 +326,19 @@ export class GameScene {
       if (g && g.userData.signature !== `${u.team}-${u.kind}`) { this.objects.remove(g); this.releaseGroup(g); this.unitMeshes.delete(u.id); g = undefined; }
       if (!g) { g = makeUnit(u); this.unitMeshes.set(u.id, g); this.objects.add(g); }
       this.locate(g,u);const n=normal(u);g.position.addScaledVector(new THREE.Vector3(n.x,n.y,n.z),.04+Math.sin(u.lift*Math.PI)*2); g.visible=u.inside===null;
-      const body=g.userData.sprite as THREE.Sprite,up=new THREE.Vector3(n.x,n.y,n.z);
-      if(u.path.length){g.userData.heading=Math.atan2(u.path[0].x-u.x,u.path[0].z-u.z);}
-      const localCamera=this.camera.position.clone().sub(g.position).applyQuaternion(g.quaternion.clone().invert());
-      const relative=g.userData.heading-Math.atan2(localCamera.x,localCamera.z);
-      const direction=((Math.round(relative/(Math.PI/4))%8)+8)%8;
+      const body=g.userData.sprite as THREE.Sprite;
       const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[g.userData.signature];
-      const state=u.cargo>0&&animations.carry?'carry':u.path.length?'walk':u.target!==null?'attack':u.work!==null?'work':'idle';
-      const cycle=animations[state][direction],index=cycle.frames[Math.floor(this.world.time*8+u.id)%cycle.frames.length];
-      const map=(body.material as THREE.SpriteMaterial).map!;
-      map.repeat.set((cycle.flip?-64:64)/nativeUnits.width,64/nativeUnits.height);
-      map.offset.set((index%16*64+(cycle.flip?64:0))/nativeUnits.width,1-(Math.floor(index/16)+1)*64/nativeUnits.height);
-      // Preserve the globe's local up direction while the sprite faces the camera.
-      const screenUp=up.clone().transformDirection(this.camera.matrixWorldInverse);body.material.rotation=-Math.atan2(screenUp.x,screenUp.y);
-      g.userData.frame=index;g.userData.selection.visible=this.world.selected.includes(u.id);
+      const state=unitAnimation(this.world,u);
+      if(g.userData.state!==state){g.userData.state=state;g.userData.since=this.world.time;}
+      this.animatePerson(body,g,u.heading,animations[state]??animations.idle,this.world.time-g.userData.since);
+      g.userData.selection.visible=this.world.selected.includes(u.id);
       g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id);
       g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = Math.max(.001, u.hp / maxHp(u.kind));
     }
     for (const [id, g] of this.buildingMeshes) if (!this.world.buildings.some(b => b.id === id)) { this.objects.remove(g); this.releaseGroup(g); this.buildingMeshes.delete(id);this.buildingLabels.get(id)?.remove();this.buildingLabels.delete(id); }
     for (const b of this.world.buildings) {
       let g = this.buildingMeshes.get(b.id);if(g&&g.userData.signature!==b.level){this.objects.remove(g);this.releaseGroup(g);this.buildingMeshes.delete(b.id);g=undefined;} if (!g) { g = makeBuilding(b); this.buildingMeshes.set(b.id, g); this.objects.add(g); if (b.progress < 1) { this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); } }
-      this.locate(g,b,b.foundation);g.rotateY(b.angle);g.userData.scaffold.visible=b.progress<1;for(const child of g.userData.architecture)child.visible=b.progress>.35; g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1; g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = b.progress < 1 ? Math.max(.01, b.progress) : Math.max(.001, b.hp / buildingHp(b.kind));
+      this.locate(g,b,b.foundation);g.rotateY(-b.angle);g.userData.scaffold.visible=b.progress<1;for(const child of g.userData.architecture)child.visible=b.progress>.35; g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1; g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = b.progress < 1 ? Math.max(.01, b.progress) : Math.max(.001, b.hp / buildingHp(b.kind));
       if(b.team==='blue'&&(b.kind==='camp'||b.progress<1)){
         let label=this.buildingLabels.get(b.id);if(!label){label=document.createElement('button');label.className='shrine-label building-label';label.onclick=()=>{command(this.world,b);this.onChange();};this.container.appendChild(label);this.buildingLabels.set(b.id,label);}
         const name=b.kind==='camp'?'Warrior Training Hut':'Hut',q=planetPoint(b,b.foundation+5),p=new THREE.Vector3(q.x,q.y,q.z).project(this.camera),n=normal(b);
@@ -329,8 +353,7 @@ export class GameScene {
     for (const [id, g] of this.fxMeshes) if (!this.world.effects.some(f => f.id === id)) { this.scene.remove(g); this.releaseGroup(g); this.fxMeshes.delete(id); }
     for (const f of this.world.effects) {
       let g = this.fxMeshes.get(f.id); if (!g) { g = this.makeFx(f); this.fxMeshes.set(f.id, g); this.scene.add(g); }
-      const life = 1 - f.age / f.duration; g.userData.halo.scale.setScalar(.5 + f.age * (f.kind === 'hit' ? 1 : 4)); g.userData.halo.material.opacity = life * .8;
-      for (const m of g.children) if (m instanceof THREE.Mesh && m.userData.velocity) { m.position.copy(m.userData.velocity).multiplyScalar(f.age); m.position.y -= f.age * f.age * 1.5; (m.material as THREE.MeshBasicMaterial).opacity = life; }
+      this.animateFx(g,f);
     }
     for(const shrine of this.world.shrines){const entry=this.shrineMeshes.get(shrine.id)!;this.locate(entry.g,shrine);entry.g.visible=shrine.active||shrine.kind==='vault';
       const q=planetPoint(shrine,this.y(shrine)+4.5),p=new THREE.Vector3(q.x,q.y,q.z).project(this.camera),n=normal(shrine),view=this.camera.position.clone().sub(new THREE.Vector3(q.x,q.y,q.z));
