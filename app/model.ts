@@ -2,6 +2,7 @@ import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
 import {runScript,scriptState,scriptValue,type ScriptState,type PopScript} from './popscript.ts';
 import {createWorship,stepWorship,worshipProgress,type WorshipState} from './worship.ts';
+import type {ModelMorph} from './morph.ts';
 import {stepVaultWork,stepVaultTask,type VaultTask} from './vault.ts';
 import constants from './original-constants.json' with { type: 'json' };
 import rules from './original-rules.json' with { type: 'json' };
@@ -16,7 +17,7 @@ export type Projectile = { id:number; spell:Spell; team:Team; caster:number; tar
 type Battle = Point & { id: number; members: number[]; angle: number };
 export type Unit = Point & { vault: VaultTask | null; id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
 export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number };
-export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; forced: boolean; model: number; angle: number };
+export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; forced: boolean; model: number; morph: ModelMorph | null; angle: number };
 export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
 export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
@@ -294,7 +295,7 @@ export function createWorld(): World {
       if(!kind)throw new Error(`Unbound shrine reward ${o.index}`);
       const worship=createWorship(settings);
       const vault=kind==='vault'?level.objects.find(r=>r.type===2&&r.model===18&&distance(r,o)<3):undefined;
-      w.shrines.push({...worship,forced:false,model:kind==='vault'?192:82,angle:(vault?.angle??0)/2048*Math.PI*2,id:w.nextId++,x:o.x,z:o.z,kind,name:kind==='vault'?'Vault of Knowledge':kind==='bridge'?'Land Bridge stone head':'Lightning stone head',progress:0,duration:worship.target*4/TURNS_PER_SECOND,uses:0});
+      w.shrines.push({...worship,forced:false,morph:null,model:kind==='vault'?154:45,angle:(vault?.angle??0)/2048*Math.PI*2,id:w.nextId++,x:o.x,z:o.z,kind,name:kind==='vault'?'Vault of Knowledge':kind==='bridge'?'Land Bridge stone head':'Lightning stone head',progress:0,duration:worship.target*4/TURNS_PER_SECOND,uses:0});
     }
   }
   w.selected=[w.units.find(u=>u.team==='blue'&&u.kind==='shaman')!.id];
@@ -435,16 +436,19 @@ function processVaultTask(w: World, u: Unit) {
   const goal = task.phase === 4 ? head : task.phase === 9 ? entrance(w,head,6) : door;
   const arrived = Math.abs(Math.round(goal.x*256)-Math.round(u.x*256))<=11
     && Math.abs(Math.round(goal.z*256)-Math.round(u.z*256))<=11;
+  const previous = task.phase;
   const {done, actions} = stepVaultTask(task, arrived, head.work>=head.target, head.active);
   for (const action of actions) {
     if (action==='enter' || action==='exit' || action==='leave') u.path=route(w,u,goal);
     if (action==='open' || action==='close') {
       sound(w,0x9f,head);
-      // Native 0x98–0x9b animation/object references need asset-bank resolution before rendering.
+      head.model=152;
+      head.morph={from:action==='open'?154:153,to:action==='open'?153:155,started:w.turn,duration:40};
     }
     if (action==='trigger') head.forced=true;
     if (action==='face') u.heading=Math.atan2(head.x-u.x,head.z-u.z);
   }
+  if (previous===3 && task.phase===4) { head.model=153; head.morph=null; }
   if (done) release(u);
 }
 

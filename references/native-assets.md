@@ -2,13 +2,13 @@
 
 The user supplied `/Users/johann/Downloads/PopulousTB-Setup.zip` and explicitly requested original-file extraction and asset fidelity. The Inno Setup payload was read with Binary Refinery in a temporary Python environment. The Windows game was not launched. Isolated native movement instructions are now exercised in a CPU emulator for comparison. The game executable and external converters are not runtime dependencies.
 
-`python3 scripts/import-original.py /path/to/extracted/game` regenerates the browser assets using only Python's standard library. It validates bank magic/counts, RLE row boundaries, face and point indices, animation chains, layer offsets and texture dimensions. [`public/original/provenance.json`](../public/original/provenance.json) records SHA-256 hashes for every input, the 21 selected model IDs, 7,953 source frames and 1,876 composited frames.
+`python3 scripts/import-original.py /path/to/extracted/game` regenerates the browser assets using only Python's standard library. It validates bank magic/counts, RLE row boundaries, face and point indices, animation chains, layer offsets and texture dimensions. [`public/original/provenance.json`](../public/original/provenance.json) records SHA-256 hashes for every input, the 24 selected model IDs, 7,953 source frames and 1,876 composited frames.
 
 ## Geometry
 
-`OBJS0-0.DAT`, `FACS0-0.DAT`, `PNTS0-0.DAT` use packed records of 54, 60 and 6 bytes. Object face/point starts are one-based. Face point offsets are relative to the object's start. Native triangle/quad vertices and 21-bit fixed-point UVs are preserved. Coordinates are divided by the per-object scale times three, matching the documented converter. No replacement hut, training-building, tree or shrine geometry is generated.
+`OBJS0-2.DAT`, `FACS0-2.DAT`, `PNTS0-2.DAT` use packed records of 54, 60 and 6 bytes. Object face/point starts are one-based. Face point offsets are relative to the object's start. Native triangle/quad vertices and 21-bit fixed-point UVs are preserved. Coordinates are divided by the per-object scale times three, matching the documented converter. No replacement hut, training-building, tree or shrine geometry is generated.
 
-Models: huts 169–174, warrior training 141–142, towers 117–118, temples 133–134; trees 13–15 and 60–62; reincarnation stone 30; stone head 82; vault 192. The old vault-94 mapping was incorrect: model 94 is the prison. Model 192 matches all 110 unique vertices of the world editor's named `knowledge.3ds` after rounding to 1/10,000 model units. This independent geometry fingerprint is checked by the vault gameplay regression. The runtime keeps native proportions, scales compounds to their existing ground pads and converts the original object angles into the reflected map coordinate system. There are no invented decorative rocks.
+Models in bank 2: huts 131–136, warrior training 103–104, towers 79–80, temples 95–96; trees 13–18; reincarnation stone 30; stone head 45; vault base/open/closed/spent 152–155. The original loader `0040c670` redirects requested object bank 0 to bank 2. Reading bank 0 directly caused the wrong geometry mappings: its model 94 is a prison, and its pyramid 192 corresponds to bank-2 model 154. Both pyramids match all 110 unique vertices of the world editor's named `knowledge.3ds` after rounding to 1/10,000 model units. This independent geometry fingerprint is checked by the vault gameplay regression. The runtime keeps native proportions, scales compounds to their existing ground pads and converts the original object angles into the reflected map coordinate system. There are no invented decorative rocks.
 
 The 256×1024 `BL320-C.DAT` atlas contains 32×32 tiles. `PAL0-C.DAT` contains 256 RGB-plus-padding entries. Black-key cutouts preserve rope fences and foliage. The archive's object atlas C is byte-identical to atlas 0.
 
@@ -22,7 +22,7 @@ The browser uses camera-facing 2D sprites anchored at the original foot origin. 
 
 ## Landscape and HUD
 
-`levl2001.hdr` byte 96 selects landscape bank 12 (`c`); byte 97 selects object bank 0. Bank c's `BIGF`, `DISP`, palette and Direct3D sky layers are decoded. Displacement bytes use signed wrapping plus 128 for the grayscale representation. `BIGF` is the native 256×1152 terrain/water colour lookup. The renderer samples it using height, slope and displacement detail. `HFX0-0.DAT` supplies original spell icons, building icons, unit icons, tabs and gold panel fill.
+`levl2001.hdr` byte 96 selects landscape bank 12 (`c`); byte 97 requests object bank 0, which the native loader redirects to bank 2. These two header fields are preserved in generated level data; the importer applies the native redirect. Sprite and HFX bank selection is separate. Bank c's `BIGF`, `DISP`, palette and Direct3D sky layers are decoded. Displacement bytes use signed wrapping plus 128 for the grayscale representation. `BIGF` is the native 256×1152 terrain/water colour lookup. The renderer samples it using height, slope and displacement detail. `HFX0-0.DAT` supplies original spell icons, building icons, unit icons, tabs and gold panel fill.
 
 The browser still approximates the original terrain lookup calibration, lighting, water motion, cloud projection and construction reveal. Native HFX spell frames now use the original nibble-encoded alpha and AL0-C colour lookup. The globe projection is a browser implementation; the original software rasterizer and its exact camera/terrain transform have not been decompiled. Native PCM voices and effects are decoded and played; ambient/music scheduling remains unported. These differences prevent a claim of pixel-identical rendering or complete gameplay parity. See [the executable analysis](reverse-engineering.md) for verified animation/effect routines, balance changes, reproduction steps and remaining behaviour differences.
 
@@ -46,6 +46,13 @@ and hash the compact JSON list. The result is
 `977d4efcc02c8ac2269fb8e44d56c442b2a3b0a27da8c9eabbf1760ab105481e`.
 Browser geometry reverses Z, so undo that reflection before comparison. The
 rendered closed pyramid was also inspected in Chrome. Original task references
-`0x98`–`0x9b` do not directly identify matching meshes in this extracted asset
-set; their runtime mapping/morph pipeline remains unresolved. They must not be
-used as raw geometry IDs. The pyramid remains static while task timing runs.
+`0x98`–`0x9b` address bank-2 models 152–155. The task opens from 154 to
+153 and closes from 153 to 155, each over 40 turns using base model 152's
+faces/UVs; it explicitly selects static model 153 after opening. `app/morph.ts`
+ports signed integer coordinate interpolation from `0040cc60`. The importer
+checks shared face topology and scale; rendering clones cached geometry before
+changing positions. The bank selector passes all 256 byte inputs against native
+x86 and interpolation passes 7,595 coordinate cases, including real vault points.
+Browser approach/interior routing, initial idle morph scheduling and the complete
+native object-phase schedule remain unported. The current hut mesh uses one of
+the original variant families; native RNG selection between families is pending.

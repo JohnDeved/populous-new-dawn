@@ -41,17 +41,25 @@ try{
   w.selected=[u.id];w.paused=false;m.command(w,vault);w.paused=true;scene.focus(vault);
  });
  await page.waitForTimeout(200);await page.screenshot({path:'qa/native-vault-closed.png'});
- for(const phase of [4,6,9]){
+ for(const phase of [3,4,6,8,9]){
   await page.evaluate(phase=>{const {w,m}=window.nativeQA,u=w.units.find(u=>u.team==='blue');w.paused=false;
-   for(let i=0;i<400&&u.vault?.phase!==phase;i++)m.tick(w,1/12);w.paused=true;
+   for(let i=0;i<400&&u.vault?.phase!==phase;i++)m.tick(w,1/12);
+   if((phase===3||phase===8)&&u.vault?.entering)m.tick(w,1/12);w.paused=true;
    if(u.vault?.phase!==phase)throw new Error(`Vault did not reach ${phase}`);
   },phase);
   await page.waitForTimeout(150);await page.screenshot({path:`qa/native-vault-${phase}.png`});
-  assert.equal(await page.evaluate(()=>{const {w,scene}=window.nativeQA,v=w.shrines.find(s=>s.kind==='vault');return scene.shrineMeshes.get(v.id).g.children[0].userData.nativeModel;}),192);
+  assert.equal(await page.evaluate(()=>{const {w,scene}=window.nativeQA,v=w.shrines.find(s=>s.kind==='vault');return scene.shrineMeshes.get(v.id).g.children[0].userData.nativeModel;}),[3,8,9].includes(phase)?152:153);
+  if(phase===3||phase===8){
+   const positions=()=>page.evaluate(()=>{const {w,scene}=window.nativeQA,v=w.shrines.find(s=>s.kind==='vault');return Array.from(scene.shrineMeshes.get(v.id).g.children[0].geometry.getAttribute('position').array);});
+   const before=await positions();await page.waitForTimeout(150);assert.deepEqual(await positions(),before,'paused door geometry is stable');
+   await page.evaluate(()=>{const {w,m}=window.nativeQA;w.paused=false;m.tick(w,19/12);w.paused=true;});
+   await page.waitForTimeout(150);assert.notDeepEqual(await positions(),before,'door geometry changes during the native morph');
+   await page.screenshot({path:`qa/native-vault-${phase}-mid.png`});
+  }
  }
  const removed=await page.evaluate(()=>{const {w,m,scene}=window.nativeQA,head=w.shrines.find(s=>s.kind==='bridge');const entry=scene.shrineMeshes.get(head.id);window.removedHead=entry;m.removeHead(w,2,222);return head.id;});
  await page.waitForTimeout(100);
  assert.ok(await page.evaluate(id=>!window.nativeQA.scene.shrineMeshes.has(id)&&!window.removedHead.label.isConnected&&window.removedHead.g.parent===null,removed),'native head removal releases its mesh and worship button');
- assert.deepEqual(errors,[]);console.log('PASS: native walking, carrying, airborne, casting, attacks and translucent effect rendering.');
+ assert.deepEqual(errors,[]);console.log('PASS: native sprites, effects, combat, vault door morphs and head removal.');
  await page.evaluate(()=>window.nativeQA.scene.dispose());
 }finally{await browser.close();}

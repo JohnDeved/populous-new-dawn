@@ -4,7 +4,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, normal, planetPoint, mapPoint, worldPoint, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
-import nativeModels from './original-models.json';
+import nativeModelData from './original-models.json';
+const nativeModels: Record<number,{p:number[];uv:number[];scale:number}> = nativeModelData;
+import {morphCoordinate} from './morph.ts';
 import nativeUnits from './original-units.json';
 import nativeEffects from './original-effects.json';
 
@@ -20,7 +22,7 @@ function texture(kind: string) {
   textures.set(kind,t);return t;
 }
 function nativeModel(id:number,scale=2){
-  const data=(nativeModels as Record<string,{p:number[];uv:number[]}>)[id];
+  const data=nativeModels[id];
   const geo=geometry(`original-${id}`,()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(data.p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(data.uv,2));g.computeVertexNormals();return g;});
   const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:texture('atlas'),side:THREE.DoubleSide,alphaTest:.5}));
   mesh.scale.setScalar(scale);mesh.userData.nativeModel=id;return mesh;
@@ -49,7 +51,7 @@ function makeUnit(u: Unit) {
   g.userData={unit:u.id,signature:`${u.team}-${u.kind}`,sprite,selection,health,healthFill,heading:0,frame:-1};return g;
 }
 function makeBuilding(b: Building) {
-  const g=new THREE.Group(),id=b.kind==='hut'?(b.team==='blue'?169:172)+b.level-1:b.kind==='camp'?(b.team==='blue'?141:142):b.kind==='tower'?(b.team==='blue'?117:118):(b.team==='blue'?133:134);
+  const g=new THREE.Group(),id=b.kind==='hut'?(b.team==='blue'?131:134)+b.level-1:b.kind==='camp'?(b.team==='blue'?103:104):b.kind==='tower'?(b.team==='blue'?79:80):(b.team==='blue'?95:96);
   const model=nativeModel(id,b.kind==='temple'?1.65:2);g.add(model);
   const health=new THREE.Group(),top=b.kind==='tower'?6:4.8;
   part(health,box(2.5,.09,.05),material(0x201d16),0,top);
@@ -199,7 +201,7 @@ export class GameScene {
   makeDecorations() {
     for(const tree of this.world.trees){
       if(tree.logs<1||this.world.buildings.some(b=>distance(b,tree)<3.7))continue;
-      const g=new THREE.Group();g.add(nativeModel([13,14,15,60,61,62][Math.max(0,tree.model-1)]));this.locate(g,tree);g.userData.point=tree;this.decorations.add(g);
+      const g=new THREE.Group();g.add(nativeModel([13,14,15,16,17,18][Math.max(0,tree.model-1)]));this.locate(g,tree);g.userData.point=tree;this.decorations.add(g);
     }
     for(const center of [HOME,ENEMY])for(let i=0;i<8;i++){
       const a=i/8*Math.PI*2,p={x:center.x+Math.sin(a)*2.8,z:center.z+Math.cos(a)*2.8},g=new THREE.Group();
@@ -373,6 +375,22 @@ export class GameScene {
     }
     for(const [id,entry] of this.shrineMeshes)if(!this.world.shrines.some(s=>s.id===id)){this.objects.remove(entry.g);this.releaseGroup(entry.g);entry.label.remove();this.shrineMeshes.delete(id);}
     for(const shrine of this.world.shrines){const entry=this.shrineMeshes.get(shrine.id)!;this.locate(entry.g,shrine);entry.g.rotateY(-shrine.angle);
+      let mesh=entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry,THREE.MeshBasicMaterial>;
+      if(mesh.userData.nativeModel!==shrine.model){
+        entry.g.remove(mesh);if(mesh.userData.morph)mesh.geometry.dispose();mesh.material.dispose();
+        mesh=nativeModel(shrine.model);entry.g.add(mesh);
+      }
+      if(shrine.morph){
+        const morph=shrine.morph,frame=Math.min(morph.duration,Math.max(0,this.world.turn-morph.started+1));
+        if(!mesh.userData.morph){mesh.geometry=mesh.geometry.clone();mesh.userData.morph=true;}
+        if(mesh.userData.morphFrame!==frame||mesh.userData.morphStart!==morph.started){
+          const from=nativeModels[morph.from],to=nativeModels[morph.to];
+          const position=mesh.geometry.getAttribute('position') as THREE.BufferAttribute,scale=from.scale*3;
+          for(let i=0;i<position.array.length;i++)position.array[i]=morphCoordinate(Math.round(from.p[i]*scale),Math.round(to.p[i]*scale),frame,morph.duration)/scale;
+          position.needsUpdate=true;mesh.geometry.computeBoundingSphere();
+          mesh.userData.morphFrame=frame;mesh.userData.morphStart=morph.started;
+        }
+      }
       entry.g.visible=shrine.active||shrine.kind==='vault';
       const q=planetPoint(shrine,this.y(shrine)+4.5),p=new THREE.Vector3(q.x,q.y,q.z).project(this.camera),n=normal(shrine),view=this.camera.position.clone().sub(new THREE.Vector3(q.x,q.y,q.z));
       entry.label.hidden=!entry.g.visible||p.z>1||view.dot(new THREE.Vector3(n.x,n.y,n.z))<=0;

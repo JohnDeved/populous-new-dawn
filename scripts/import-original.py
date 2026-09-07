@@ -38,38 +38,47 @@ def sprites(data, palette, alpha=False):
         result.append((w, h, pixels))
     return result
 
+def resolve_object_bank(requested):
+    return 2 if requested == 0 else requested # 0x40c670.
+
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]
     output = project / 'public/original'; output.mkdir(exist_ok=True)
     hashes = {}
     def read(name):
         data = (source / name).read_bytes(); hashes[name] = hashlib.sha256(data).hexdigest(); return data
-    # levl2001.hdr byte 96 selects landscape bank 12 ('c'); byte 97 selects object bank 0.
+    level = json.loads((project/'app/level-one.ts').read_text().split('export default ',1)[1].rstrip(';\n'))
+    requested_bank = level['objectBank']
+    object_bank = resolve_object_bank(requested_bank)
+    assert level['landscapeBank'] == 12, 'This importer currently supports landscape bank c'
     palette = read('data/pal0-c.dat'); assert len(palette) == 1024
     atlas = read('data/bl320-c.dat'); assert len(atlas) == 256*1024
     png(output/'atlas.png', 256, 1024, b''.join(palette[v*4:v*4+3]+bytes([0 if v==0 else 255]) for v in atlas))
-    objects, faces, points = [read('objects/'+n+'0-0.dat') for n in ['objs','facs','pnts']]
+    objects, faces, points = [read(f'objects/{n}0-{object_bank}.dat') for n in ['objs','facs','pnts']]
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
-    models = {}
+    models, topology = {}, {}
     # Models actually used in this mission, including every hut upgrade and both tribes.
-    selected = [13,14,15,60,61,62,30,82,192,117,118,133,134,141,142,*range(169,175)]
+    selected = [13,14,15,16,17,18,30,45,152,153,154,155,79,80,95,96,103,104,*range(131,137)]
     for i in selected:
         _, nf, np, _, _, _, scale, sf, _, sp, _, *_ = struct.unpack_from('<Hhhbbii4I6h4b3h',objects,i*54)
         assert nf>0 and np>0 and scale>0 and sf>0 and sp>0
-        p, uv = [], []
+        p, uv, order = [], [], []
         for face in range(sf-1,sf+nf-1):
             _, tile, _, n, _ = struct.unpack_from('<hhHBb',faces,face*60)
             assert n in (3,4) and 0<=tile<256
             texcoords = struct.unpack_from('<8i',faces,face*60+8)
             indices = struct.unpack_from('<4h',faces,face*60+40)
             for k in ([0,1,2] if n==3 else [0,1,2,0,2,3]):
+                order.append(indices[k])
                 index = sp+indices[k]-1; assert 0<=index<len(points)//6
                 x,y,z=struct.unpack_from('<3h',points,index*6)
                 # The level importer reverses map Z: geometry must use the same handedness.
                 p.extend(round(v/(scale*3),6) for v in (x,y,-z))
                 uv.extend([round((tile%8+texcoords[k*2]/0x200000)/8,7),round(1-(tile//8+texcoords[k*2+1]/0x200000)/32,7)])
         assert len(p)//3 == len(uv)//2 and len(p)%9 == 0
-        models[i] = {'p':p,'uv':uv}
+        models[i] = {'p':p,'uv':uv,'scale':scale}
+        topology[i] = (scale, order)
+    assert all(topology[i] == topology[152] for i in (153,154,155)), 'Vault morph topology differs'
     (project/'app/original-models.json').write_text(json.dumps(models,separators=(',',':')))
     bank = sprites(read('data/hspr0-0.dat'),palette); assert len(bank)==7953
     elements = list(struct.iter_unpack('<HhhHH',read('data/vele-0.ani')))
@@ -162,7 +171,7 @@ def main():
         png(output/({'bigf0-c.dat':'land-colours','disp0-c.dat':'land-detail','watdisp.dat':'water-detail'}[name]+'.png'),w,h,rgba)
     for src,dst in [('dsky0-c1.png','clouds.png'),('dsky0-cb.png','sky.png')]:
         data=read('data/d3d/'+src);(output/dst).write_bytes(data)
-    (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'objectBank':0,'modelIds':selected,'sourceFrames':len(bank),'compositedFrames':len(rendered),'sha256':hashes},indent=2)+'\n')
+    (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'compositedFrames':len(rendered),'sha256':hashes},indent=2)+'\n')
     print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} composite animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 
 if __name__=='__main__':main()

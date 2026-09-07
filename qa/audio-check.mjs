@@ -11,6 +11,7 @@ try{
   const rendered=await offline.startRendering();let energy=0;for(const sample of rendered.getChannelData(0))energy+=sample*sample;
   audio.reset();const reset=audio.active.size===0&&audio.enabled&&audio.randomState===1;
   audio.cue(0x18);audio.mute();const muted=!audio.enabled&&audio.active.size===0;await audio.enable();const resumed=audio.enabled&&audio.active.size>0;
+  for(const cue of [0x70,0x9f]){audio.stopAll();audio.cue(cue);if(audio.active.size!==1)throw new Error(`Worship cue ${cue} did not play`);}
   const buffers=audio.buffers.size;audio.dispose();return {rms:Math.sqrt(energy/rendered.length),nativeDuration,reset,muted,resumed,buffers,closed:audio.context.state};
  });
  assert.ok(result.rms>.001);assert.ok(result.nativeDuration>.1);assert.ok(result.reset&&result.muted&&result.resumed);assert.ok(result.buffers>30);assert.equal(result.closed,'closed');console.log('PASS: decoded native waveform, offline audio energy, reset/mute/resume/dispose',result);

@@ -40,7 +40,7 @@ test('imported compound bases stay on their spherical ground pads',async()=>{
  const THREE=await import('three'),{readFileSync}=await import('node:fs');
  const models=JSON.parse(readFileSync(new URL('../app/original-models.json',import.meta.url)));
  const w=createWorld();
- for(const [index,id] of [[0,174],[1,142],[2,169],[3,169]]){
+ for(const [index,id] of [[0,136],[1,104],[2,131],[3,131]]){
   const b=w.buildings[index],n=normal(b),up=new THREE.Vector3(n.x,n.y,n.z),base=planetPoint(b,b.foundation);
   const rotation=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(Math.cos(b.x/PLANET_RADIUS),-Math.sin(b.x/PLANET_RADIUS),0),up,new THREE.Vector3(Math.cos(b.x/PLANET_RADIUS),-Math.sin(b.x/PLANET_RADIUS),0).cross(up))).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-b.angle));
   const points=models[id].p;
@@ -319,7 +319,8 @@ test('vault discovery follows worship, door, entry and exit tasks', () => {
  assert.equal(w.unlockedCamp, false, 'full worship alone does not grant knowledge');
  until(w, () => shaman.vault?.phase === 4, 4);
  assert.equal(w.turn - opening, 40);
- assert.equal(vault.model, 192);
+ assert.equal(vault.model, 153);
+ assert.equal(vault.morph, null, 'the open endpoint becomes a static object');
  until(w, () => shaman.vault?.phase === 5, 5);
  const inside = w.turn;
  until(w, () => shaman.vault?.phase === 6, 3);
@@ -331,7 +332,8 @@ test('vault discovery follows worship, door, entry and exit tasks', () => {
  assert.ok(shaman.vault, 'trigger deletion does not cancel the exit task');
  until(w, () => shaman.vault === null, 20);
  until(w, () => w.unlockedCamp, 8);
- assert.equal(vault.model, 192);
+ assert.equal(vault.model, 152);
+ assert.equal(vault.morph.to, 155, 'closing uses the native base mesh with final target points');
  assert.equal(w.sounds.filter(s => s.cue === 0x9f).length, 2);
  assert.equal(vault.uses, 1);
 });

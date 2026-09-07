@@ -37,6 +37,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 | Original entries | Browser implementation | Evidence and limit |
 | --- | --- | --- |
+| `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
 | `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows/compositing; some reaction layers still approximated |
 | `00586074`, `004e6a70` | `scripts/inspect-executable.py`, `app/model.ts` | Integer angle/sine tables and movement; route selection still browser A* |
 | `0041af80`, `0041b0c0`, `00403280` | `app/model.ts` | Mana, breeding and upgrades partially ported |
@@ -48,7 +49,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | `0048a050`, `0048b500`, `0048b950` | `scripts/import-sound.py`, `app/audio.ts`, `app/model.ts` | Native PCM/cues and partial event dispatch; adaptive music and complete scheduler pending |
 | `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
 | `0048cc60`, `0048f350` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization applied; full game-command host remains open |
-| `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | Post-approach vault tasks and type-4 work CPU-compared; navigation, asset mapping and morphs unfinished |
+| `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | Post-approach vault tasks and type-4 work CPU-compared; navigation and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts` | Integer worship/refill and delayed spell gifts CPU-compared; eligibility, phase and reward visuals incomplete |
 | `00492790`, `00492860`, `00491c30`, `004f2900`, `004c2b40`, `004c14c0` | `app/model.ts`, `scripts/check-native-campaign.py` | Cast/stock/head queries and allocation counters CPU-compared; unsupported AI stock still explicit |
 
@@ -145,6 +146,35 @@ Runs 640 native post-approach task transitions and 320 type-4 work/force/reset
 cases. Task movement, animation, facing and sound leaves are intercepted; trigger
 fixtures omit decorative/UI effects and final deletion. Real task branches,
 timers, force-bit lookup and trigger work execute. The rendered stone pyramid is
-verified separately against the editor's named geometry; executable animation
-references are not treated as raw asset IDs. Approach routing, occupancy, morphs,
-cleanup and full scheduler behavior remain open.
+verified separately against the editor's named geometry. Task model IDs address
+native bank 2 (see below). Approach routing, occupancy, cleanup and full scheduler
+behavior remain open.
+
+
+## Object bank and morph comparison
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-models.py /path/to/d3dpoptb.exe
+```
+
+Compares all 256 bank-selector byte inputs and 7,595 native coordinate cases
+against the actual importer and `app/morph.ts`. Only the selector's resource-load
+leaf is intercepted; morph arithmetic executes without interception. Includes
+both imported vault morphs at all frames, signed extremes and random inputs.
+The original loader redirects bank 0 to 2. This does not verify the full native
+object/morph scheduler, initial idle animation, routing or hut variant RNG.
+
+To reproduce selected extraction without launching the installer:
+
+```sh
+.tools/decomp/oracle/bin/python -m pip install -r decomp/extraction-requirements.txt
+.tools/decomp/oracle/bin/python scripts/extract-reference.py /path/to/PopulousTB-Setup.zip /path/to/game 'objects/*0-2.*'
+python3 scripts/import-original.py /path/to/game
+```
+
+The importer also needs the previously extracted palette, atlas and animation
+files listed in `public/original/provenance.json`. The extractor accepts a raw
+Inno executable too; patterns are relative to its application directory. It
+verifies payload checksums, rejects escaping paths and differing existing files,
+and prints source SHA256 hashes. The optional extractor is separate from the
+stdlib importer and native comparison dependencies.

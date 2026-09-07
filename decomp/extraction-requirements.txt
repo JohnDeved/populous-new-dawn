@@ -1,0 +1,2 @@
+# Optional: read the user-supplied Inno archive, without executing its installer.
+binary-refinery==0.10.11

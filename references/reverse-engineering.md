@@ -291,8 +291,8 @@ pyramid). All 110 unique vertices match the independently named editor
 [native assets](native-assets.md). A regression checks that fingerprint against
 the mesh selected by the actual vault. The original task's numeric references
 `0x98`–`0x9b` produce unrelated meshes when used directly as extracted record IDs;
-that runtime asset/morph mapping remains unresolved. Browser door cues use native
-`0x9f`, but door morph visuals remain unported. The level's vault orientation is
+that runtime asset/morph mapping was unresolved in this pass (resolved below).
+Browser door cues use native `0x9f`. The level's vault orientation is
 now imported from its decorative building object.
 
 Sixteen engine regressions pass, including interruption/decay, exact 40/24-turn
@@ -302,3 +302,51 @@ construction and training. Browser approach routing, shape entry/interior points
 coarse-cell eligibility, collision/visibility flags, interruption cleanup and
 per-object scheduling remain incomplete. Full vault and campaign parity remain
 open; the recovered task timing does not establish those missing behaviors.
+
+
+## Native object bank redirect and vault door morphs (2026-09-07)
+
+The wrong asset IDs came from skipping `0040c670`: it substitutes bank 2 when
+requested bank is zero before calling `0040c690`. Level-one header byte 97 is
+zero. `0049a890` only validates the 68-byte version header and version 5;
+`0040c920` relocates pointers without remapping model IDs. The importer now uses
+bank 2, with source hashes in `public/original/provenance.json`. Bank-2 model 154
+matches the independently named pyramid exactly. Native task IDs 152–155 now
+resolve directly to the correct vault; bank-2 prison is 156. This supersedes the
+previous unresolved mapping and bank-0 model-192 workaround.
+
+The scenery table at `0x5a79b0` maps tree types 1–6 to 13–18. The building table
+at `0x5a7228` identifies towers 79, temples 95, warrior training 103 and vault 152.
+Represented blue/red meshes and hut upgrades now use this bank. `0040b170`
+selects between three hut variant families (107, 119, 131); the browser retains
+family 131 until that RNG selection is ported.
+
+`0043c7a0` starts the 40-turn door morph on base model 152: opening 154→153,
+closing 153→155. After opening it selects static model 153; after closing the
+base object retains the morphed points. `0040cc60` computes signed coordinates
+as `from + trunc((to - from) * frame / duration)`, with native 32-bit multiply
+and 16-bit result wrapping. This lives in `app/morph.ts`. Rendering reconstructs
+raw coordinates using the imported scale, mutates a private geometry clone and
+retains the base model's UVs during the morph. Imported morph topology is checked.
+The initial closed mesh remains 154; initial idle morph scheduling is not ported.
+
+`scripts/check-native-models.py` compares all 256 requested bank bytes against
+actual `0040c670`, intercepting only its load leaf. It executes `0040cc60`
+without interception for 7,595 coordinate cases: signed extremes, deterministic
+random cases and every coordinate pair of both actual door morphs across 41
+frames. These establish bank selection and coordinate arithmetic, not full
+native morph/object scheduling. Browser turn integration and paused rendering
+remain separate checks. Approach navigation, entry positions, visibility flags,
+cleanup and native per-object scheduling remain open.
+
+`scripts/extract-reference.py` makes selected Inno asset extraction reproducible
+from the supplied ZIP without running the installer. Its optional dependency is
+pinned separately in `decomp/extraction-requirements.txt`; it checks payloads,
+rejects escaping paths, and refuses to overwrite differing files. The worship
+and door cues (0x70/0x9f) are now included in audio preloading and playback QA.
+
+Validation: all 16 engine regressions and TypeScript checking pass. Native bank,
+morph, vault and worship comparisons pass; all 277 export hashes verify. Chrome
+QA checks both moving door stages and paused geometry, native sprites/effects,
+head removal and worship cue playback. The UI mission passes discoveries, bridge
+casting, construction, training, pause, orbit and restart. Production build passes.
