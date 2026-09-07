@@ -686,3 +686,27 @@ Human territory refresh precedes the computer tribe's cooldown/script/spell work
 Scripts and emergency/general casting share native suppression gates. Defeat-timer
 production, the complete computer processor, remaining object phases and network
 timing remain unfinished; this is not a complete global scheduler port.
+
+## Defeat and victory decisions
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-outcomes.py /path/to/d3dpoptb.exe
+```
+
+`processOutcome` in `app/tribe-turns.ts` reconstructs complete `00418e30`:
+the 16-turn phase/minimum turn, four-tribe defeat timers, campaign opponent
+counts and forced results, multiplayer extinction/mutual-alliance winners,
+celebration state transitions, forced-loss damage requests and ordered outcome
+consumers. The oracle compares **2,071** native calls, including a sequential
+defeat-timer progression, all state fields and consumer requests. Camera,
+defeat effect/cleanup, input, reveal, campaign save, network result and person
+state/damage consumers are supplied. `0041b8b0`'s last-defeated-tribe prefix is
+applied by both sides; its remaining object effects are not claimed as ported.
+
+The live first mission checks outcomes after the object-turn increment and
+before object work, respecting load/special-mode gates. It retires immediate
+empty-tribe victory/loss, records native flags/counters/completion requests and
+feeds defeat timers back into the tribe processor. Browser followers still adapt
+native registration/counts; native celebration, collapsing defeated buildings,
+end-camera playback, persistent progression and post-result simulation remain
+unfinished. The browser result screen currently stops further simulation.

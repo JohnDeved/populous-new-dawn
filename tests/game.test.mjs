@@ -96,7 +96,7 @@ test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');const idle=manaRate(w);w.selected=[brave.id];command(w,w.buildings.find(b=>b.team==='blue'));advance(w,8);assert.ok(brave.inside);assert.ok(manaRate(w)>idle);
  w.shots.blast=0;w.charging=false;advance(w,3);assert.equal(w.shots.blast,0);w.charging=true;advance(w,60);assert.ok(w.shots.blast>0);const time=w.time;w.paused=true;tick(w,2);assert.equal(w.time,time);w.paused=false;
  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/12);assert.ok(w.respawn>0);advance(w,13);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
- w.units=w.units.filter(u=>u.team!=='blue');tick(w,1/12);assert.equal(w.status,'lost');
+ w.units=w.units.filter(u=>u.team!=='blue');until(w,()=>w.status==='lost',2);
 });
 
 test('native transformed compound bases stay on their ground pads',()=>{
@@ -240,7 +240,7 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,2308592903);assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
  const a=make(),b=make();a.shots.bridge=b.shots.bridge=1;cast(a,'bridge',{x:10,z:0});cast(b,'bridge',{x:10,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a,b,'flight, effects and simulation RNG are independent of rendering FPS');
  const dead=make();dead.manaTribes[0].available=0;cast(dead,'blast',{x:10,z:0});dead.units[0].hp=0;tick(dead,1/12);assert.equal(dead.projectiles.length,0);assert.equal(dead.shots.blast,3,'caster death removes a pending spell without refunding the spent shot');
- const won=createWorld();won.terrain.fill(3);won.units=won.units.filter(u=>u.kind==='shaman');Object.assign(won.units[0],{x:0,z:0});Object.assign(won.units[1],{x:9,z:-1});won.shots.lightning=1;cast(won,'lightning',won.units[1]);impact(won,'lightning');assert.equal(won.status,'won');assert.ok(won.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
+ const won=createWorld();won.terrain.fill(3);won.units=won.units.filter(u=>u.kind==='shaman');Object.assign(won.units[0],{x:0,z:0});Object.assign(won.units[1],{x:9,z:-1});won.shots.lightning=1;cast(won,'lightning',won.units[1]);impact(won,'lightning');assert.equal(won.status,'playing','the last casualty does not end the level between outcome phases');until(won,()=>won.status==='won',3);assert.equal(won.turn,32);assert.ok(won.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
 });
 
 
@@ -459,6 +459,32 @@ test('original opening runs before object turn 72 and its independent flyby cloc
  assert.equal(w.messages.slots.filter(m=>m?.stringId===611).length,1);
 });
 
+
+test('native outcome phases honor campaign opponents, forced results and defeat recovery', () => {
+ const won=createWorld();won.units=won.units.filter(u=>u.team==='blue');
+ tick(won,31/12);assert.equal(won.status,'playing');assert.equal(won.manaTribes[1].defeatTimer,0);
+ tick(won,1/12);assert.equal(won.status,'won');assert.equal(won.turn,32);
+ assert.equal(won.manaTribes[1].defeatTimer,1);assert.equal(won.outcome.defeatedCounts[0],1);
+ assert.equal(won.outcome.cameraTribe,1);assert.equal(won.outcome.completedLevel,0);assert.equal(won.outcome.progressFlags&1,1);
+ assert.deepEqual(won.selected,[]);assert.ok(won.buildings.some(b=>b.team==='red'),'empty buildings do not postpone campaign victory');
+ const lost=createWorld();lost.units=[];lost.turn=31;tick(lost,1/12);
+ assert.equal(lost.status,'lost','simultaneous campaign extinction is a player loss');assert.equal(lost.manaTribes[1].defeatTimer,0);
+ for(const flags of [0x40000,0x20000,0x60000]) {
+  const w=createWorld();w.turn=31;w.castingTribes[0].flags|=flags;tick(w,1/12);
+  assert.equal(w.status,flags===0x40000?'won':'lost');
+  assert.ok(w.units.some(u=>u.team==='red'),'scripted results do not require eliminating the opponent');
+  if(flags&0x20000)assert.ok(w.units.every(u=>u.team!=='blue'),'forced defeat damages living player followers');
+ }
+ const partial=createWorld();partial.outcome.campaignTribes=3;partial.manaTribes[1].active=false;partial.manaTribes[2].active=true;partial.turn=31;
+ tick(partial,1/12);assert.equal(partial.status,'playing','a living campaign opponent matters even when inactive');
+ assert.equal(partial.manaTribes[2].defeatTimer,1,'campaign count is distinct from the AI processing count');
+ tick(partial,96/12);assert.equal(partial.manaTribes[2].defeatTimer,97);assert.equal(partial.outcome.defeatedCounts[0],1,'defeat is counted once');
+ for(const gate of ['loadFlags','gameFlags']) {
+  const w=createWorld();w.units=w.units.filter(u=>u.team==='blue');w.turn=31;w.manaWorld[gate]=gate==='loadFlags'?0x200:32;
+  tick(w,1/12);assert.equal(w.status,'playing',gate);
+  w.manaWorld[gate]=0;w.turn=47;tick(w,1/12);assert.equal(w.status,'won',gate);
+ }
+});
 
 test('tribe gates suppress scripts and AI while object turns and eligible cooldowns keep their native phases', () => {
  for(const gate of ['none','land','outer','load','mode','level','inactive','defeated','disabled']) {

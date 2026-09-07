@@ -2023,3 +2023,86 @@ Build/lint pass with seven existing image warnings and zero errors.
 Remaining global scheduling gaps include computer task/housekeeping
 integration, per-object class ordering, native defeat/win lifecycle, queued input,
 network timing and complete RNG consumption.
+
+## Defeat/victory decisions and live outcome phase — 2026-09-08
+
+`processOutcome` in `app/tribe-turns.ts` ports complete `00418e30`, with explicit
+consumers for person release/initialization/damage, camera, defeat effects,
+input cancellation, reveal, campaign completion and network results. Original
+`004ec6f0` invokes it after incrementing the object turn, before object processing,
+unless load flag `0x200` or game flag `32` suppresses it. Its own phase is
+`turn & 15 == 0`, with an unsigned `turn > 16` check: the first is turn **32**.
+
+On each eligible call, nonzero signed defeat timers at tribe `+0x949` advance
+by 16 only for active tribes and only while less than 96. A normal defeat starts
+at one and reaches 97 six phases later, crossing the existing tribe-processing
+eligibility boundary. The loop covers all four tribes regardless of configured
+AI or campaign counts. Negative timer inputs retain the original signed behavior.
+
+Campaign mode first rejects further player outcome processing once the player's
+defeat timer is nonzero. Zero player population loses; flag `0x20000` also forces
+loss and submits each player-list person's full signed-short HP as damage after
+clearing `flags3 & 0x88000`. This takes priority over the forced-win bit.
+Otherwise, opponent indices **1 through campaign-count minus one** are checked,
+without a separate active-tribe test. A new zero-population opponent gets timer
+one, triggers defeat cleanup and increments the player's signed defeat statistic.
+The campaign-count byte is **`0096eac0`**, distinct from the AI processing count
+at **`0096eabf`**; both are two for the opening browser mission.
+
+All opponents defeated, or player flag `0x40000`, permits victory. The routine
+requests celebration unless the world already has its win bit, replaces the
+world result bits (`0x6000000`) with win (`0x2000000`), cancels input, optionally
+requests the most recently defeated tribe's camera and sets campaign progress
+byte `009608b2 & 1`. It calls `004860c0` with signed-short level number minus one.
+Loss replaces the same result bits with `0x4000000`, cancels input and requests
+the player's camera and defeat cleanup. Simultaneous campaign extinction loses.
+
+Multiplayer (`landFlags & 8`) instead scans four active, undefeated tribes.
+Empty tribes are defeated once. A sole survivor wins; two or more survivors win
+only if **every pair is allied in both directions**. Winner tribe flags at
+`+0x941` get bit one, preventing repeated celebration. The local world win bit
+is set only if no local result already exists; a defeated local player does not
+become a winner when surviving opponents ally. The network result consumer always
+receives the surviving count and whether a mutual-alliance victory occurred.
+The primitive covers this branch; the browser still has no multiplayer transport.
+
+Celebration preserves each eligible person's previous state, calls its release
+consumer, writes state **41**, then initializes it. Model eight and people with
+`flags2 & 0x100000` are excluded; no extra HP or inside-building filter is added.
+`0041b8b0` updates the last-defeated byte at `0089d165` before its other work;
+the port retains that prefix so subsequent campaign camera selection matches.
+New raw exports `0041b610`, `0041b8b0`, `004af1c0`, `004164b0`, `00450610`
+document the boundary consumers. Their camera/sky/cleanup/reveal/network internals
+remain outside this port.
+
+`check-native-outcomes.py` executes **2,071** complete original calls across
+2,064 fixtures, including an eight-call timer sequence. It compares result and
+progress flags, last defeat, signed statistics, all tribe timers/winner flags,
+person state/previous state/damage flags and ordered consumer requests, including
+the world result bits visible during each callback. The consumers are supplied;
+damage and state callbacks do not claim native combat/animation execution.
+Coverage records **147** camera, **270** defeat, **202** input-cancel, **30** reveal,
+**40** campaign-complete, **502** network-result, **205** person release/init pairs
+and **186** damage requests. Tests cover boundary turns, existing results,
+forced flag priority, inactive campaign opponents, one-way alliances, no/one/many
+survivors, spectator multiplayer, exclusion flags and signed counter wrap.
+
+The live world now uses this phase and result flags instead of immediately ending
+when a team's last browser follower disappears. Defeat timers feed the shared
+tribe scheduler; camera and campaign-completion requests are retained in world
+state. The native population/list producer is still adapted from living browser
+followers, and its order/ghost/registration semantics are not fully integrated.
+Native defeat cleanup/building collapse, celebration animation, camera playback,
+persistent campaign progress and result-screen timing remain unfinished. The
+existing browser end screen still freezes subsequent turns, so post-result timer
+and object processing are verified only by the primitive, not playable afterward.
+
+All **44** regressions pass, including the complete first-mission discovery,
+construction, training and combat scenario. New live cases verify earliest turn
+32, forced loss/win priority, empty-building victory, campaign/AI count separation,
+one-time defeat statistics, timer progression and caller load/special-mode gates.
+The executable/manifest check verifies **527** raw C exports.
+Playwright confirms no early result at turn 31, victory at turn 32, cleared
+completion state on restart and defeat at turn 48 through the real result UI.
+No page errors occurred. Build/lint pass with seven existing image warnings
+and zero errors.
