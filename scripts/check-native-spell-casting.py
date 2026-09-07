@@ -133,12 +133,12 @@ for i in range(2048):
     result=call(0x4c24f0,0,int(c['check']),model,base+0x100,int(c['notify']));result=result if result<2**31 else result-2**32
     expected.append(dict(result=result,events=events.copy()));cases.append(c);coverage[result]+=1
     ranges=[rng.randrange(256) for _ in range(8)];entries=[dict(people=rng.randrange(256),mode=rng.choice([0,1,255])) for _ in range(8)]
-    friendly=[rng.randrange(100) for _ in range(3)];enemies=rng.randrange(256);current=dict(defending=i%2)
+    specialists=[rng.randrange(100) for _ in range(3)];enemies=rng.randrange(256);current=dict(defending=i%2)
     for j in range(8):write(t+0x4cf+j*12,'BBB',ranges[j],entries[j]['people'],entries[j]['mode'])
-    write(base+0x214,'HHH',*friendly);write(base+0x222,'H',enemies)
+    write(base+0x214,'HHH',*specialists);write(base+0x222,'H',enemies)
     call(0x4d1340,t,0,base+0x200)
-    filter_cases.append(dict(ranges=ranges,entries=entries,defending=bool(i%2),friendly=friendly,enemies=enemies));filter_expected.append([read(t+0x4cf+j*12,'B') for j in range(8)])
+    filter_cases.append(dict(ranges=ranges,entries=entries,defending=bool(i%2),specialists=specialists,enemies=enemies));filter_expected.append([read(t+0x4cf+j*12,'B') for j in range(8)])
 compare(cases,expected,"const events=[];const result=s.validateSpellTarget(c.game,c.flags,c.origin,c.caster,c.model,c.target,c.terrain,c.check,c.notify,{cursorBlocked:()=>{events.push(['cursor']);return c.blocked},bridgeStart:()=>{events.push(['bridge']);return c.start},notify:(f,m)=>events.push(['notify',f,m])});return {result,events};")
-compare(filter_cases,filter_expected,"s.filterSpellEntries(c.ranges,c.entries,c.defending,c.friendly,c.enemies);return c.ranges;")
+compare(filter_cases,filter_expected,"s.filterSpellEntries(c.ranges,c.entries,c.defending,c.specialists,c.enemies);return c.ranges;")
 assert all(coverage.values()),coverage
 print('PASS: 2,048 complete player target validations and 2,048 entry mode/population filters; result coverage:',coverage)

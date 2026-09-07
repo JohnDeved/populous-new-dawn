@@ -1646,7 +1646,7 @@ actual categories and executes the native flag lookup rather than replacing it.
 
 `filterSpellEntries` reconstructs `004d1340`. Inside the native defense area,
 nonzero mode entries remain eligible only if their people threshold fits the
-sum of three unsigned 16-bit friendly counts. Outside that area, only mode zero
+sum of three unsigned 16-bit enemy specialist counts. Outside that area, only mode zero
 entries survive, comparing against the unsigned enemy total. The threshold is
 inclusive. These inputs must come from `004f4030` and the native defense-area
 predicate; the live nearest-target heuristic does not yet supply them.
@@ -1672,3 +1672,89 @@ Playwright also verified that the live enemy accepts the coarse-cell boundary
 case, waits below budget, spends mana and maintains separate casting/melee delays.
 No page errors occurred. Build/lint pass with seven existing image warnings and
 zero errors; the executable/manifest verifier checks **503** raw C exports.
+
+## 2026-09-07 — Computer spell cell scoring, area summaries and target queues
+
+`spiralCell` reconstructs `0049c890`: square rings begin northwest relative to
+the native coordinate axes, exclude the center, advance in original order and
+support four rotations with byte-coordinate wrapping. A closed-form side count
+replaces the native per-step loop. Ring boundaries, indices through 65,535,
+rotations and coordinate seams are CPU-compared.
+
+`chooseSpellTarget` reconstructs all cases of `004f4680`. Blast and Swarm score
+the center and 48 surrounding cells, keeping the first strictly best positive
+score. A valid enemy person adds one; allied, protected, invalid-state/model or
+disguised people subtract one. Wild-owned people contribute nothing. Dead/inside
+flags are not independently filtered by this routine; it trusts the native
+cell list. `004de7b0` recognizes spy model 5 with an apparent tribe in the upper
+two disguise bits, or the real tribe while the lower six bits are nonzero.
+
+Lightning-family cases preserve the direct-shaman shortcut, require a net
+person score greater than five or a completed enemy building, and search 224
+neighboring cells. The original returns the input center for a qualifying
+neighbor person group, but a building's own even cell for a qualifying building.
+Terrain-restricted cases search 24 cells for a location without `0x200` occupancy.
+Unconditionally accepted and unsupported spell cases retain the original target
+and result. No invented distance recheck is added after choosing another cell.
+
+`summarizeSpellEnemies` reconstructs `004f4030` over the original square traversal.
+It excludes allies and flags4 `0x1000`, then groups enemy braves/spies,
+warriors/shamans, firewarriors and preachers. Counts wrap at 16 bits; weighted
+threat wraps at 32 bits using imported person descriptor byte `+35`. It also
+reconstructs the 133% force requirements and optional preacher assessment,
+including signed own-population words, pending training, the brave reserve,
+request arithmetic and unchanged threat weight when assessment suppresses total.
+
+**Terminology correction:** following this producer proves that the three counts
+used by the defense entry filter are enemy combat specialists. The previous
+entry incorrectly called them friendly counts. Offense uses total enemies;
+defense excludes braves and spies from its threshold. The earlier documentation,
+parameter naming and regression label are corrected. The verified filter
+arithmetic itself is unchanged.
+
+`scanSpellTargets` reconstructs the general scan portion of `004d0860`.
+`004d1420` reset preserves the previous limit. With readiness, the limit is
+`4*r*(r+1)-1` truncated to 16 bits; a cursor above it resets only at the next
+call. A nonpaused scan always examines 80 cells, even when crossing that limit.
+Only the first eligible person in each cell contributes a candidate. Candidate
+zero becomes sentinel one; a new candidate fills every empty target slot unless
+an existing slot is within wrapped square radius three. Preacher reaction stays
+at its original traversal position as an explicit world consumer.
+
+`dispatchSpellTargets` reconstructs complete `004d11b0` using the recovered
+area summary, territory-bit test (`cell+f`, owner bit 4..7), entry filters, usage
+limit, cell range and target scoring. It discards empty-area slots until the
+first area with nonzero weighted threat. That area ends the dispatch even if
+no entry casts. Later target slots remain queued. Spell model 11 additionally
+requires ground-category flag 1. Allocation is selected at most once and the
+processed slot clears even if allocation subsequently fails.
+
+`check-native-spell-targets.py` compares **4,096** ring cases, **1,024** full
+scorers, **1,024** full area summaries and **1,024** composed general scans and
+dispatches. Scoring executes without supplied leaves. Area assessment supplies
+only queued-preacher count and the training request consumer. Native general
+scans disable the initial emergency paths, keep the shaman in state 22 and have
+no preaching assignment, so the comparison does not claim emergency casting.
+Dispatch runs real summary/territory/filter/range/scoring routines, supplying
+only final spell allocation. Coverage includes **659** accepted scorer results,
+**130** changed target cells, **12** training requests, **657** weighted summaries,
+**222** composed casts and **382** dispatches retaining target queues.
+
+Live enemy Blast now uses native cell scoring to choose its allocation target.
+A regression verifies retargeting away from friendly people in the initial cell.
+The scan/dispatch primitives are ready for the common native world, but the live
+search seed, territory classification, native cell-list order, person flags and
+emergency responses remain unintegrated. The browser adapter supplies alive,
+visible opening-class units and refuses terrain-dependent scoring until native
+occupancy flags exist; Blast does not read those flags. All **38** regressions,
+including the complete mission, pass. A queue regression covers the zero-cell
+sentinel, filling all empty slots, scanning beyond the limit, pause/reset and
+retaining later targets after an unusable first weighted area.
+
+Additional native scan cases exercise readiness 255 through the original override
+flag, checking the truncated scan limit and reset before scanning. A non-dispatch
+turn prevents allocation while that flag bypasses the state-22 eligibility guard.
+Playwright verified actual live retargeting to `{x:7,z:-1}` away from the friendly
+concentration, plus mana payment, independent cooldowns and pause without page
+errors. Build/lint pass with seven existing image warnings and zero errors.
+The executable/manifest verifier checks **508** raw C exports.

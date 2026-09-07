@@ -564,3 +564,31 @@ The complete player validator and entry population filter are reconstructed,
 but their native world/UI/area-summary inputs are not fully integrated. The
 original 80-cell scan, four target slots, emergency spell paths and 16-turn
 selection cadence in `004d0860` remain the next AI integration work.
+
+## Computer spell cell scoring and target queues
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-spell-targets.py /path/to/d3dpoptb.exe
+```
+
+`app/computer-spells.ts` reconstructs complete `004f4680` target scoring,
+`004f4030` enemy-area summaries (including optional preacher assessment),
+`004de7b0` disguise recognition, `004d1420` reset, the general target scan in
+`004d0860` and complete `004d11b0` dispatch. The shared `spiralCell` ports
+`0049c890` without its per-step loop.
+
+The oracle compares **4,096** rings/boundaries/rotations, **1,024** complete
+scorers, **1,024** complete area summaries and **1,024** composed native scans
+and dispatches. Scoring has no supplied leaves. Area assessment supplies only
+queued-preacher count and training requests. General scans run the full native
+function with early emergency paths disabled, state 22 plus a non-dispatch turn suppressing casts and
+no preaching-assignment flag. Override cases exercise readiness 255 and scan-limit
+wrapping. Dispatch executes real area, mode, range and target
+scoring; spell allocation is the supplied final consumer. These are bounded
+comparisons, not a full `004d0860` emergency-response port.
+
+The area producer establishes that defense thresholds count enemy specialists,
+not friendly people. Live Blast uses native cell scoring after eligibility;
+the full target scan/dispatch still awaits native territory flags, cell list
+order and person state. Current browser unit fields provide only the opening
+three follower classes to live scoring.

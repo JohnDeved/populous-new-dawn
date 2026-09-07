@@ -2533,6 +2533,17 @@
     30,
     0
   ],
+  "personThreat": [
+    0,
+    0,
+    2,
+    12,
+    2,
+    1,
+    10,
+    8,
+    0
+  ],
   "personCommands": [
     {
       "people": 0,

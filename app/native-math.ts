@@ -20,6 +20,19 @@ export function positionDistance(a: {x:number;y:number}, b: {x:number;y:number})
   return Math.floor(Math.sqrt((x*x+y*y)>>>0));
 }
 
+// 0x49c890: clockwise square rings, excluding the center, in doubled cells.
+export function spiralCell(center: number, index: number, rotation: number) {
+  let ring=1;
+  while ((ring+1)*ring*4 <= index) ring++;
+  const step=index+(1-ring)*ring*4, side=ring*2;
+  let x=-ring+Math.min(step,side)-Math.max(0,Math.min(step-side*2,side));
+  let y=ring-Math.max(0,Math.min(step-side,side))+Math.max(0,Math.min(step-side*3,side));
+  if (rotation===1) [x,y]=[y,-x];
+  else if (rotation===2) [x,y]=[-x,-y];
+  else if (rotation===3) [x,y]=[-y,x];
+  return (((center&255)+x*2)&255)|((((center>>>8)+y*2)&255)<<8);
+}
+
 // 0x586074: integer octant lookup. Input Z is already reflected from the native map.
 export function nativeAngle(dx:number,dz:number){
   const x=Math.abs(dx),z=Math.abs(dz);if(!x&&!z)return 0;

@@ -127,9 +127,9 @@ export function validateSpellTarget(gameFlags:number, tribeFlags:number, origin:
 }
 
 // 0x4d1340. Entry mode selects defense (nonzero) or offense (zero). The
-// native area summary supplies three friendly counts and one enemy total.
-export function filterSpellEntries(ranges: number[], entries: {people: number; mode: number}[], defending: boolean, friendly: number[], enemies: number) {
-  const people = defending ? (friendly[0]&65535)+(friendly[1]&65535)+(friendly[2]&65535) : enemies&65535;
+// native area summary supplies three enemy specialist counts and an enemy total.
+export function filterSpellEntries(ranges: number[], entries: {people: number; mode: number}[], defending: boolean, specialists: number[], enemies: number) {
+  const people = defending ? (specialists[0]&65535)+(specialists[1]&65535)+(specialists[2]&65535) : enemies&65535;
   for (let i=0;i<ranges.length;i++) if (ranges[i] && (!!entries[i].mode !== defending || people < (entries[i].people&255))) ranges[i]=0;
 }
 

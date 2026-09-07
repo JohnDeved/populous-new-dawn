@@ -6,6 +6,7 @@ export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {nativeSpellRange,spellEntryRanges,prepareSpellPayment,debitSpellMana,createTribeCasting,
   canShamanCast,computerSpellAllowed,computerSpellInRange,registerSpellCooldown,stepTribeCastCooldown,stepComputerCastCooldown,
   type TribeCasting,type SpellCaster} from './spell-casting.ts';
+import {chooseSpellTarget,type SpellTargetWorld,type SpellTargetUnit} from './computer-spells.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
@@ -600,6 +601,19 @@ export function spellRange(w:World,u:Unit,model:number) {
 export function spellInRange(w:World,u:Unit,model:number,target:Point) {
   return positionDistance(nativePosition(w,u),nativePosition(w,target))<=spellRange(w,u,model)*256;
 }
+// ponytail: browser unit arrays supply cell order until native terrain lists and
+// person records are live. Blast scoring does not consume terrain flags.
+function computerSpellWorld(w:World):SpellTargetWorld {
+  const cells=new Map<number,SpellTargetUnit[]>();
+  for(const u of w.units)if(u.hp>0&&u.inside===null) {
+    const p=nativePosition(w,u),cell=((p.x>>>8)&254)|(p.y&0xfe00);
+    const objects=cells.get(cell)??[];
+    objects.push({class:1,model:u.team==='wild'?1:u.kind==='shaman'?7:u.kind==='warrior'?3:2,
+      state:0,tribe:u.team==='wild'?-1:u.team==='blue'?0:1,x:p.x,y:p.y,flags2:0,flags4:0,assignment:0,disguise:0});
+    cells.set(cell,objects);
+  }
+  return {tribe:1,alliances:0,cells,terrainFlags:()=>{throw new Error('Native terrain occupancy flags are not integrated');}};
+}
 function beginCast(w:World,u:Unit,spell:Spell,p:Point){
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
   const target={x:Math.floor(p.x/2)*2+1,z:-Math.floor(-p.z/2)*2-1},position=nativePosition(w,u);
@@ -869,7 +883,8 @@ function stepTurn(w:World){
         // Existing browser action guards above remain until native person states are live.
         if(canShamanCast(w.castingTribes[1],w.manaTribes[1].playerType,{state:0,flags2:0,flags4:0})&&
           computerSpellAllowed(w.castingTribes[1],w.ai.flags,w.manaWorld.gameFlags,2)){
-          u.path=[];beginCast(w,u,'blast',target);
+          const chosen=chooseSpellTarget(computerSpellWorld(w),2,targetCell,null);
+          if(chosen.accepted){u.path=[];beginCast(w,u,'blast',nativeCellPoint(chosen.cell));}
         }
         continue;
       }

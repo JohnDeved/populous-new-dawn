@@ -871,5 +871,31 @@ test('spell targeting preserves native cell allowances and wrapped coordinate se
  assert.deepEqual(events,[[0x8000,0x255],[0x8000000,0x261]],'bridge reports terrain and occupied-caster restrictions independently');
  assert.equal(validateSpellTarget(0,0x80000,{x:0,y:0},null,2,{x:32768,y:32768},0,false,false,effects),1,'override permits targeting without a shaman');
  const ranges=[6,6,6],entries=[{mode:0,people:3},{mode:1,people:6},{mode:1,people:7}];
- filterSpellEntries(ranges,entries,true,[2,2,2],100);assert.deepEqual(ranges,[0,6,0],'defense uses the friendly subtotal and inclusive population threshold');
+ filterSpellEntries(ranges,entries,true,[2,2,2],100);assert.deepEqual(ranges,[0,6,0],'defense uses the enemy-specialist subtotal and inclusive population threshold');
+});
+
+test('native spell scans retain slots and Blast scoring avoids friendly concentrations', async () => {
+ const {scanSpellTargets,chooseSpellTarget,summarizeSpellEnemies,dispatchSpellTargets}=await import('../app/computer-spells.ts');
+ const {createTribeCasting}=await import('../app/spell-casting.ts');
+ const enemy={class:1,model:3,state:0,tribe:0,x:0,y:0,flags2:0,flags4:0,assignment:0,disguise:0};
+ const cells=new Map([[0,[enemy]]]),world={tribe:1,alliances:0,cells,terrainFlags:()=>0};
+ const scan={cursor:0,limit:99,paused:0,targets:[0,0,0,0]};
+ scanSpellTargets(world,scan,{x:512,y:512},[1,0,0,0,0,0,0,0],()=>assert.fail('No preacher'));
+ assert.deepEqual(scan,{cursor:80,limit:7,paused:0,targets:[1,1,1,1]},'zero cell uses sentinel one and fills every empty target slot; scanning continues beyond the ring limit');
+ scan.paused=1;scanSpellTargets(world,scan,{x:512,y:512},[1],()=>{});assert.equal(scan.cursor,0,'cursor wraps at the next call before checking pause');
+ scanSpellTargets(world,scan,null,[1],()=>{});assert.deepEqual(scan,{cursor:0,limit:7,paused:0,targets:[0,0,0,0]});
+ cells.get(0).push({...enemy,tribe:1});
+ assert.equal(chooseSpellTarget(world,2,0,null).accepted,false,'one friendly cancels one valid enemy');
+ cells.set(2,[{...enemy,x:512}]);assert.deepEqual(chooseSpellTarget(world,2,0,null),{accepted:true,cell:2});
+ const area=summarizeSpellEnemies(world,0,1);assert.equal(area.warriors,2);assert.equal(area.total,2,'allies are excluded from enemy area totals');
+ scan.targets=[1,4,0,0];const ranges=Array(8).fill(6),entries=Array.from({length:8},()=>({model:0,people:0,mode:0}));
+ const caster={x:0,y:0,height:256,state:0,flags2:0,flags4:0,landIndex:0,building:null,casting:createTribeCasting(true),playerType:1};
+ dispatchSpellTargets(world,scan,entries,ranges,caster,0,0,{regionFlags:()=>0,categoryFlags:()=>1,cast:()=>assert.fail('No spell enabled')});
+ assert.deepEqual(scan.targets,[0,4,0,0],'an unusable weighted first area leaves later slots for another dispatch');
+ const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),blue=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2),allies=w.units.filter(u=>u.team==='red'&&u.kind==='brave').slice(0,2),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ w.terrain.fill(3);w.inputMask=0;w.ai.variables[57]=1;w.units=[shaman,...blue,red,...allies];
+ Object.assign(shaman,{x:30,z:30});Object.assign(red,{x:0,z:0,target:blue[0].id});
+ for(const [i,u] of blue.entries())Object.assign(u,{x:i?6:4,z:0,path:[],work:null,inside:null});
+ for(const u of allies)Object.assign(u,{x:4,z:0,path:[],work:null,inside:null});
+ tick(w,1/12);const shot=w.projectiles.find(p=>p.team==='red');assert.ok(shot);assert.deepEqual(shot.target,{x:7,z:-1},'live Blast retargets to the positive neighboring cell');
 });
