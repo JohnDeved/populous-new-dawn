@@ -138,3 +138,21 @@ test('native fight slots form four-person groups and release on interruption',()
  assert.equal(swap.fights[0].members[0],enemy.id,'adding another member moves the outnumbered tribe into the center');
  swap.selected=[a.id];command(swap,{x:10,z:0});assert.equal(a.fight,null,'a new order releases the old fight assignment');
 });
+
+test('native sound cues preserve sample identity, cast phases and simulation randomness',async()=>{
+ const {cueVariant,audioRandom,soundAttenuation}=await import('../app/audio.ts');
+ const {default:audio}=await import('../app/original-sound.json',{with:{type:'json'}});
+ assert.equal(audioRandom(1),1275068418);
+ const blast=cueVariant(0xa1,1);assert.equal(blast.key,'sound-105');assert.equal(blast.pitch,.96);assert.equal(blast.state,1896767491);
+ assert.equal(audio.samples.sound['105'].name,'blast4');
+ assert.equal(cueVariant(0x18,1).key,'sound-42');assert.equal(audio.samples.sound['42'].name,'Sv_sel02');
+ assert.equal(cueVariant(0xd,1).key,'fight-3');assert.equal(audio.samples.fight['3'].name,'Punch11');
+ assert.equal(cueVariant(0,1),null);assert.equal(soundAttenuation(0),1);assert.equal(soundAttenuation(0x4800000),.5);assert.equal(soundAttenuation(0x9000000),0);
+ const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');w.units[0].x=0;w.units[0].z=0;const enemy=w.units.find(u=>u.team==='red');enemy.x=30;enemy.z=30;return w;};
+ const w=make(),ids=w.nextId,rng=w.randomState;assert.ok(cast(w,'blast',{x:4,z:0}));
+ assert.deepEqual(w.sounds.map(e=>e.cue),[0x75]);assert.equal(w.nextId,ids);assert.equal(w.randomState,rng);
+ for(let i=0;i<5;i++)tick(w,1/12);assert.equal(w.sounds.length,1);
+ tick(w,1/12);assert.deepEqual(w.sounds.map(e=>e.cue),[0x75,0xa1,0xb2]);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,6]);
+ const canceled=make();assert.ok(cast(canceled,'blast',{x:4,z:0}));canceled.selected=[canceled.units[0].id];command(canceled,{x:1,z:0});advance(canceled,1);assert.deepEqual(canceled.sounds.map(e=>e.cue),[0x75]);
+ const a=make(),b=make();cast(a,'blast',{x:4,z:0});cast(b,'blast',{x:4,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a.sounds,b.sounds);
+});

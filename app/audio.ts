@@ -1,63 +1,55 @@
-// Original procedural audio: ocean wash, a sparse drone, hand-drum pulses, and contextual spell cues.
-// No original Populous recordings are distributed with the game.
+import native from './original-sound.json' with { type: 'json' };
+// First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
+export const AUDIO_CUES=[0xd,0xe,0x18,0x19,0x24,0x25,0x27,0x2b,0x32,0x37,0x43,0x58,0x66,0x75,0x77,0x80,0x8b,0x8d,0x96,0xa1,0xa2,0xb2,0xab,0x29];
+export function audioRandom(state:number){const n=(Math.imul(state,0x24a1)+0x24df)>>>0;return ((n>>>13)|(n<<19))>>>0;}
+export function cueVariant(cue:number,state:number){
+  const row=native.cues[cue];if(!row?.samples.length)return null;
+  state=audioRandom(state);const sample=row.samples[state%row.samples.length];let pitch=100;
+  if(row.pitchVariation){state=audioRandom(state);pitch+=state%(row.pitchVariation*2)-row.pitchVariation;}
+  return {state,key:`${row.bank}-${sample}`,pitch:pitch/100,volume:row.volume/127};
+}
+// 0x48b100: quadratic distance attenuation in native 1/256 map units.
+export function soundAttenuation(distanceSquared:number){return Math.max(0,Math.floor((0x9000000-distanceSquared)/0x900))/65536;}
+
 export class Soundscape {
-  context: AudioContext | null = null;
-  master: GainNode | null = null;
-  timer: ReturnType<typeof setInterval> | null = null;
-  noise: AudioBuffer | null = null;
-  enabled = false;
-  beat = 0;
-  volume = .35;
-  async enable() {
-    if (!this.context) {
-      const ctx = new AudioContext(); this.context = ctx;
-      this.master = ctx.createGain(); this.master.gain.value = this.volume;
-      const limiter = ctx.createDynamicsCompressor(); this.master.connect(limiter); limiter.connect(ctx.destination);
-      this.noise = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate); const samples = this.noise.getChannelData(0); let last = 0;
-      for (let i = 0; i < samples.length; i++) { last = (last + (Math.random() * 2 - 1) * .025) / 1.025; samples[i] = last * 4; }
-      const wind = ctx.createBufferSource(); wind.buffer = this.noise; wind.loop = true;
-      const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 580;
-      const gain = ctx.createGain(); gain.gain.value = .23; wind.connect(filter); filter.connect(gain); gain.connect(this.master); wind.start();
-      const swell = ctx.createOscillator(); swell.frequency.value = .085; const amount = ctx.createGain(); amount.gain.value = .09; swell.connect(amount); amount.connect(gain.gain); swell.start();
-      this.timer = setInterval(() => this.pulse(), 480);
+  context:AudioContext|null=null;
+  master:GainNode|null=null;
+  buffers=new Map<string,AudioBuffer>();
+  loading:Promise<void>|null=null;
+  active=new Set<AudioBufferSourceNode>();
+  enabled=false;
+  disposed=false;
+  randomState=1; // Independent of simulation RNG; native initialization is still to be matched.
+  volume=.35;
+  async enable(){
+    if(this.disposed)return;
+    if(!this.context){this.context=new AudioContext();this.master=this.context.createGain();this.master.gain.value=0;this.master.connect(this.context.destination);}
+    const ctx=this.context;await ctx.resume();
+    if(!this.loading){
+      const samples=new Set(AUDIO_CUES.flatMap(c=>native.cues[c].samples.map(s=>`${native.cues[c].bank}-${s}`)));
+      this.loading=Promise.all([...samples].map(async key=>{
+        if(this.buffers.has(key))return;
+        const response=await fetch(`/original/audio/${key}.wav`);if(!response.ok)throw new Error(`Sound sample failed: ${key}`);
+        const buffer=await ctx.decodeAudioData(await response.arrayBuffer());if(!this.disposed)this.buffers.set(key,buffer);
+      })).then(()=>{}).catch(e=>{this.loading=null;throw e;});
     }
-    await this.context.resume(); this.enabled = true; this.master!.gain.setTargetAtTime(this.volume, this.context.currentTime, .2); this.cue('select');
+    await this.loading;if(this.disposed)return;
+    this.enabled=true;this.master!.gain.setValueAtTime(this.volume,ctx.currentTime);this.cue(0x66);
   }
-  mute() { this.enabled = false; if (this.master && this.context) this.master.gain.setTargetAtTime(0, this.context.currentTime, .08); }
-  setVolume(value: number) { this.volume = value; if (this.enabled && this.master && this.context) this.master.gain.setTargetAtTime(value, this.context.currentTime, .1); }
-  tone(frequency: number, duration: number, volume: number, type: OscillatorType = 'sine', delay = 0, endFrequency = frequency) {
-    if (!this.context || !this.master || !this.enabled) return;
-    const ctx = this.context, now = ctx.currentTime + delay, o = ctx.createOscillator(), gain = ctx.createGain();
-    o.type = type; o.frequency.setValueAtTime(frequency, now); o.frequency.exponentialRampToValueAtTime(Math.max(1, endFrequency), now + duration);
-    gain.gain.setValueAtTime(.0001, now); gain.gain.exponentialRampToValueAtTime(volume, now + Math.min(.05, duration / 5)); gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
-    o.connect(gain); gain.connect(this.master); o.start(now); o.stop(now + duration + .02); o.onended = () => { o.disconnect(); gain.disconnect(); };
+  stopAll(){for(const source of this.active)source.stop();this.active.clear();}
+  reset(){this.stopAll();this.randomState=1;}
+  mute(){this.enabled=false;this.stopAll();if(this.master&&this.context)this.master.gain.setValueAtTime(0,this.context.currentTime);}
+  setVolume(value:number){this.volume=Math.max(0,Math.min(1,value));if(this.enabled&&this.master&&this.context)this.master.gain.setValueAtTime(this.volume,this.context.currentTime);}
+  cue(cue:number,attenuation=1,pan=0){
+    if(!this.enabled||!this.context||!this.master||attenuation<=0)return;
+    const variant=cueVariant(cue,this.randomState);if(!variant)return;this.randomState=variant.state;
+    const buffer=this.buffers.get(variant.key);if(!buffer)return;
+    // ponytail: browser voice cap; the original priority/stealing scheduler is not ported yet.
+    if(this.active.size>=64)this.active.values().next().value?.stop();
+    const ctx=this.context,source=ctx.createBufferSource(),gain=ctx.createGain(),panner=ctx.createStereoPanner();
+    source.buffer=buffer;source.playbackRate.value=variant.pitch;gain.gain.value=Math.floor(Math.min(1,attenuation)*variant.volume*127)/127;panner.pan.value=Math.max(-1,Math.min(1,pan));
+    source.connect(gain);gain.connect(panner);panner.connect(this.master);this.active.add(source);
+    source.onended=()=>{this.active.delete(source);source.disconnect();gain.disconnect();panner.disconnect();};source.start();
   }
-  rumble(duration: number, frequency: number, volume: number) {
-    if (!this.context || !this.master || !this.noise || !this.enabled) return;
-    const ctx = this.context, source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain(), now = ctx.currentTime;
-    source.buffer = this.noise; source.loop = true; filter.type = 'lowpass'; filter.frequency.setValueAtTime(frequency, now); filter.frequency.exponentialRampToValueAtTime(80, now + duration);
-    gain.gain.setValueAtTime(volume, now); gain.gain.exponentialRampToValueAtTime(.001, now + duration);
-    source.connect(filter); filter.connect(gain); gain.connect(this.master); source.start(); source.stop(now + duration); source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
-  }
-  pulse() {
-    if (!this.enabled) return;
-    const b = this.beat++ % 32;
-    if ([0, 6, 8, 14, 16, 22, 24, 27, 30].includes(b)) this.tone(b % 8 === 0 ? 110 : 170, .24, b % 8 === 0 ? .23 : .12, 'sine', 0, 45);
-    if (b % 4 === 2) this.rumble(.07, 3000, .08);
-    if (b % 8 === 0) { const n = [73.416, 87.307, 65.406, 73.416][b / 8]; this.tone(n, 6, .08, 'sine'); this.tone(n * 1.5, 5, .045, 'sine', .2); }
-    if ([3, 11, 19, 26].includes(b)) this.tone([293.66, 349.23, 440, 261.63][Math.floor(b / 8)], 1.8, .055, 'triangle');
-  }
-  cue(kind: string) {
-    if (!this.enabled) return;
-    if (kind === 'select') { this.tone(220, .28, .16, 'triangle', 0, 293); this.tone(440, .3, .05, 'sine', .06, 587); }
-    else if (kind === 'command') this.tone(180, .13, .12, 'triangle', 0, 145);
-    else if (kind === 'error') this.tone(95, .2, .16, 'triangle');
-    else if (kind === 'convert') [293.66, 349.23, 440, 587.33].forEach((n, i) => this.tone(n, .9, .13, 'sine', i * .1));
-    else if (kind === 'lightning') { this.rumble(1.8, 6000, 1); this.tone(70, .8, .4, 'sawtooth', 0, 22); }
-    else if (kind === 'volcano' || kind === 'earthquake') { this.rumble(kind === 'volcano' ? 5 : 3, 900, 1); this.tone(60, 2.5, .4, 'sine', 0, 25); }
-    else if (kind === 'blast') { this.rumble(.9, 1900, .7); this.tone(120, .45, .35, 'sine', 0, 35); }
-    else if (kind === 'bridge') { this.rumble(2, 500, .5); this.tone(130, 1.5, .17, 'triangle', .1, 260); }
-    else { this.tone(420, .09, .17, 'triangle'); this.tone(300, .1, .12, 'triangle', .13); }
-  }
-  dispose() { if (this.timer) clearInterval(this.timer); void this.context?.close(); }
+  dispose(){this.disposed=true;this.mute();this.buffers.clear();void this.context?.close();}
 }

@@ -26,7 +26,7 @@ All rows remain open until compared against the original engine, including edge 
 | Combat | HP-scaled exchanges, attack selection and up-to-four-person fight groups | Remaining substates, class scheduling, recovery interactions and all unit classes |
 | Economy and buildings | Native mana, breeding/training bands and hut upgrade values | Construction, repair/fire/damage, activity timers and all building classes |
 | Spells | Partial Blast, Lightning and Land Bridge ports | Shot travel, exact targeting/deformation, cancellation and every spell |
-| Audio | Banks located and sound dispatcher decompiled | Native sample playback, cue mapping, spatial mix and adaptive music; runtime still synthesized |
+| Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
 | AI and campaign | Original first-level layout and progression, script interpreter entry located | Original AI interpreter, all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
 | Validation | Eight regression tests and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |

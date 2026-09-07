@@ -1,3 +1,4 @@
+import { soundAttenuation } from './audio';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -91,13 +92,14 @@ export class GameScene {
   terrainVersion = -1;
   treeSignature = '';
   onChange: () => void;
-  onSound: (kind: string) => void;
+  onSound: (cue:number,attenuation?:number,pan?:number) => void;
+  soundSerial=0;
   disposeListeners: (() => void)[] = [];
   container: HTMLElement;
   mini: HTMLCanvasElement;
   minimapBackground = document.createElement('canvas');
 
-  constructor(container: HTMLElement, minimap: HTMLCanvasElement, world: World, onChange: () => void, onSound: (kind: string) => void) {
+  constructor(container: HTMLElement, minimap: HTMLCanvasElement, world: World, onChange: () => void, onSound: (cue:number,attenuation?:number,pan?:number) => void) {
     this.container = container; this.mini = minimap; this.world = world; this.onChange = onChange; this.onSound = onSound;
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
@@ -203,7 +205,7 @@ export class GameScene {
       const g=new THREE.Group();g.add(nativeModel(shrine.kind==='vault'?94:82));
       this.locate(g,shrine);this.objects.add(g);
       const label=document.createElement('button');label.className='shrine-label';label.setAttribute('aria-label',`Worship ${shrine.name}`);
-      label.onclick=()=>{command(this.world,shrine);this.onSound('command');this.onChange();};this.container.appendChild(label);this.shrineMeshes.set(shrine.id,{g,label});
+      label.onclick=()=>{command(this.world,shrine);this.orderSound();this.onChange();};this.container.appendChild(label);this.shrineMeshes.set(shrine.id,{g,label});
     }
   }
   pick(event: PointerEvent): Point | null {
@@ -231,18 +233,18 @@ export class GameScene {
     }
     let p = this.pick(event); if (!p) return;
     if(!this.world.mode){const hit=this.ray.intersectObjects([...this.buildingMeshes.values()],true)[0];let object=hit?.object;while(object?.parent&&object.userData.building===undefined)object=object.parent;const b=this.world.buildings.find(b=>b.id===object?.userData.building);if(b)p={x:b.x,z:b.z};}
-    if (event.button === 2) { this.world.mode = null; command(this.world, p); this.onSound('command'); }
+    if (event.button === 2) { this.world.mode = null; command(this.world, p); this.orderSound(); }
     else if (this.world.mode) {
       const mode = this.world.mode;
       const ok = SPELLS.some(s => s.id === mode) ? cast(this.world, mode as Parameters<typeof cast>[1], p) : placeBuilding(this.world, mode as Parameters<typeof placeBuilding>[1], p);
-      this.onSound(ok ? mode : 'error');
+      if(!ok)this.onSound(0x25);else if(!SPELLS.some(s=>s.id===mode))this.onSound(0x24);
     } else {
       // Raycast actual unit geometry before using a ground-distance fallback.
       const hits = this.ray.intersectObjects([...this.unitMeshes.values()].filter(g=>g.visible), true); let obj = hits[0]?.object;
       while (obj?.parent && obj.userData.unit === undefined) obj = obj.parent;
       const picked = this.world.units.find(u => u.id === obj?.userData.unit && u.team === 'blue') ?? this.world.units.filter(u => u.team === 'blue' && u.inside===null && distance(u, p) < 2.1).sort((a, b) => distance(a, p) - distance(b, p))[0];
-      if (picked) { this.world.selected = event.shiftKey ? this.world.selected.includes(picked.id) ? this.world.selected.filter(id => id !== picked.id) : [...this.world.selected, picked.id] : [picked.id]; this.onSound(picked.kind === 'shaman' ? 'select' : 'command'); }
-      else if (this.world.selected.length) { command(this.world, p); this.onSound('command'); }
+      if (picked) { this.world.selected = event.shiftKey ? this.world.selected.includes(picked.id) ? this.world.selected.filter(id => id !== picked.id) : [...this.world.selected, picked.id] : [picked.id]; this.onSound(picked.kind==='shaman'?0x18:picked.kind==='warrior'?0x43:0x58); }
+      else if (this.world.selected.length) { command(this.world, p); this.orderSound(); }
     }
     this.onChange();
   }) as EventListener;
@@ -305,9 +307,19 @@ export class GameScene {
     for(const shrine of this.world.shrines){const [x,z]=at(shrine);ctx.fillStyle=shrine.active?'#f5cf86':'#777e6c';ctx.beginPath();ctx.arc(x,z,3,0,Math.PI*2);ctx.fill();}
     const [x, z] = at(this.viewPoint); ctx.strokeStyle = '#f1e0b599'; ctx.lineWidth = 1; const size = this.camera.position.distanceTo(this.controls.target) * .5; ctx.strokeRect(x - size / 2, z - size / 3, size, size * .67);
   }
+  orderSound(){const units=this.world.units.filter(u=>this.world.selected.includes(u.id));if(units.length)this.onSound(units.some(u=>u.kind==='shaman')?0x19:0x37);}
+  playWorldSounds(){
+    for(const event of this.world.sounds)if(event.serial>this.soundSerial){
+      this.soundSerial=event.serial;
+      const dx=Math.round((event.x-this.viewPoint.x)*256),dz=Math.round((event.z-this.viewPoint.z)*256);
+      const q=planetPoint(event,this.y(event)),screen=new THREE.Vector3(q.x,q.y,q.z).project(this.camera);
+      // Native distance curve; screen pan/listener position approximate the still-unported native camera transform.
+      this.onSound(event.cue,soundAttenuation(dx*dx+dz*dz),screen.x);
+    }
+  }
   animate = (now: number) => {
     const dt = Math.min(.1, (now - (this.previous || now)) / 1000); this.previous = now;
-    tick(this.world,dt*this.world.speed);
+    tick(this.world,dt*this.world.speed);this.playWorldSounds();
     if (this.terrainVersion !== this.world.terrainVersion) { this.rebuildTerrain(); this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); }
     const trees=this.world.trees.map(t=>t.logs>=1?'1':'0').join('');if(trees!==this.treeSignature){this.treeSignature=trees;this.releaseGroup(this.decorations);this.decorations.clear();this.makeDecorations();}
     const movingX = Number(this.keys.has('d') || this.keys.has('arrowright')) - Number(this.keys.has('a') || this.keys.has('arrowleft'));

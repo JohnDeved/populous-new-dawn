@@ -23,7 +23,7 @@ The pinned `pop3-rev` XML contains **5,390 FUNCTION entries**, **14,662 SYMBOL e
 
 The public platform repository's `Internal/PopTB Platform/PopTB Platform/src/Pop3Math.cpp` provides an independent numerical check: its **257-entry atan table exactly matches** the executable-derived browser table. The **first 2,048 sine entries exactly match** ours; its remaining 512 entries repeat the first quarter. These are table comparisons, not evidence of whole-engine parity. The current browser math was already derived from the user executable, so no upstream implementation needs copying to gain this validation.
 
-`PopSoundEditor` identifies `Soundd2.SDT` as sound effects/voices, `PopDrum***.SDT` as drums and `PopDrones22.SDT` as music. Our native initializer at `0048b950` independently names those banks. `0048a050` uses a 12-byte cue table at `005acf60`, selecting sample variants and pitch with a **separate audio RNG**. Browser audio integration must not consume the simulation RNG. Sample-channel interpretation, spatial mixing and music scheduling still need tracing.
+`PopSoundEditor` identifies `Soundd2.SDT` as sound effects/voices, `PopDrum***.SDT` as drums and `PopDrones22.SDT` as music. Our native initializer at `0048b950` independently names those banks. `0048a050` uses a 12-byte cue table at `005acf60`, selecting sample variants and pitch with a **separate audio RNG**. Browser audio integration must not consume the simulation RNG. Native reader tracing now confirms one-based sample IDs and the stereo flag; PCM/cue playback is implemented. Complete spatial mixing and music scheduling still need tracing.
 
 ## Working inheritance plan
 

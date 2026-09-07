@@ -12,6 +12,7 @@ export type Unit = Point & { id: number; team: Team; kind: UnitKind; hp: number;
 export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number };
 export type Shrine = Point & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; active: boolean };
 export type Tree = Point & { id: number; logs: number; model: number };
+export type SoundEvent = Point & { serial:number; cue:number; turn:number };
 export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash'; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
 export const TURNS_PER_SECOND=12;
 export const SPELLS: { id: Spell; name: string; cost: number; range: number; key: string; symbol: string; color: string; description: string }[] = [
@@ -117,7 +118,13 @@ function processBattles(w:World){
         // ponytail: ground recoil uses native damping; airborne falls and slope forces need the full physics port.
         const p={x:u.x+v.x/256,z:u.z+v.z/256};if(clear(p)){u.x=p.x;u.z=p.z;}else{v.x=0;v.z=0;}
         if(w.turn<f.until)continue;f.action='approach';
-      }else if(f.action!=='approach'&&f.action!=='ready'){if(w.turn<f.until)continue;f.action='approach';}
+      }else if(f.action!=='approach'&&f.action!=='ready'){
+        if(w.turn<f.until)continue;
+        // 0x518fb0 emits the fight sound when the action timer expires.
+        if(f.action==='attack'||f.action==='special')sound(w,0xd,u);
+        if(f.action==='strike'){const target=w.units.find(a=>a.id===f.opponent);if(u.kind==='warrior'){sound(w,target?.kind==='warrior'?0x27:0x2b,u);if(target&&target.kind!=='warrior')sound(w,0x32,target);}else sound(w,0xe,u);}
+        f.action='approach';
+      }
       const p=fightPosition(b,i),dx=Math.round((p.x-u.x)*256),dz=Math.round((p.z-u.z)*256);
       if(Math.abs(dx)>11||Math.abs(dz)>11){
         f.action='approach';const angle=nativeAngle(dx,dz),next=nativeStep(u,angle,Math.min(unitSpeed(u),Math.floor(Math.hypot(dx,dz))));
@@ -212,7 +219,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
   return [];
 }
 export type World = {
-  terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[];
+  terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
   paused: boolean; speed: number; message: string; messageUntil: number; status: 'playing' | 'won' | 'lost';
@@ -228,7 +235,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 export function createWorld(): World {
-  const w: World = { terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], shrines:[], trees:[], fights:[], mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+  const w: World = { terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
@@ -243,6 +250,10 @@ export function createWorld(): World {
   return w;
 }
 export function tell(w: World, message: string) { w.message = message; w.messageUntil = w.time + 9; }
+// Presentation events have their own serial; they never consume simulation IDs or random values.
+// ponytail: retain 128 recent cues; a streaming consumer is needed if a catch-up frame exceeds that history.
+export function sound(w:World,cue:number,p:Point){w.sounds.push({serial:++w.soundSerial,cue,x:p.x,z:p.z,turn:w.turn});if(w.sounds.length>128)w.sounds.shift();}
+function castVoice(w:World,u:Unit,spell:Spell){sound(w,(u.team==='blue'?{blast:0x75,lightning:0x77,bridge:0x80}:{blast:0x8b,lightning:0x8d,bridge:0x96})[spell],u);}
 export function effect(w: World, kind: Effect['kind'], p: Point) { const f:Effect={ x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:kind==='blast'?1.2:1.7 };w.effects.push(f);return f; }
 export function select(w: World, kind: UnitKind | 'all') { w.selected=w.units.filter(u=>u.team==='blue'&&(kind==='all'||u.kind===kind)).map(u=>u.id); w.mode=null; }
 function release(u: Unit) { u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
@@ -291,11 +302,13 @@ export function cast(w: World, spell: Spell, p: Point) {
   if(Math.abs(p.x)>45||Math.abs(p.z)>45){tell(w,'Choose a target within the world.');return false;}
   if(spell==='bridge'&&(!walkable(w.terrain,p)||!walkable(w.terrain,shaman))){tell(w,'Land Bridge must join two dry shores. Aim at land on the opposite island.');return false;}
   release(shaman);shaman.path=[];shaman.heading=Math.atan2(p.x-shaman.x,p.z-shaman.z);
-  shaman.casting={spell,point:{...p},remaining:6/TURNS_PER_SECOND};w.mode=null;
+  shaman.casting={spell,point:{...p},remaining:6/TURNS_PER_SECOND};castVoice(w,shaman,spell);w.mode=null;
   return true;
 }
 function finishCast(w:World,shaman:Unit,spell:Spell,p:Point){
   if(shaman.team==='blue'){w.shots[spell]--;w.stats.cast++;}const fx=effect(w,spell,p);
+  // Shot creation and impact still coincide in this browser pipeline; keep both native Blast cues.
+  if(spell==='blast'){sound(w,0xa1,shaman);sound(w,0xb2,p);}else if(spell==='lightning')sound(w,0xa2,p);else{sound(w,0xab,p);sound(w,0x29,p);}
   if(spell==='bridge') {
     fx.land=[];
     const length=distance(shaman,p),start=height(w.terrain,shaman.x,shaman.z),end=height(w.terrain,p.x,p.z);
@@ -418,7 +431,7 @@ function stepTurn(w:World){
     if(target&&!('progress' in target)&&(target.lift>0||target.inside!==null))target=undefined;
     if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&t.inside===null&&t.lift===0&&distance(u,t)<(u.team==='red'?8:3));}
     if(target){u.heading=Math.atan2(target.x-u.x,target.z-u.z);}
-    if(target&&u.team==='red'&&u.kind==='shaman'&&distance(u,target)<12){if(!u.cooldown){u.path=[];u.casting={spell:'blast',point:{x:target.x,z:target.z},remaining:6/TURNS_PER_SECOND};u.cooldown=6;}continue;}
+    if(target&&u.team==='red'&&u.kind==='shaman'&&distance(u,target)<12){if(!u.cooldown){u.path=[];u.casting={spell:'blast',point:{x:target.x,z:target.z},remaining:6/TURNS_PER_SECOND};castVoice(w,u,'blast');u.cooldown=6;}continue;}
     if(target&&distance(u,target)<('progress' in target?4.3:1.7)){
       if('progress' in target){u.fighting=true;if(!u.cooldown){target.hp-=meleeDamage(u);u.cooldown=(u.kind==='shaman'?4:6)/TURNS_PER_SECOND;effect(w,'hit',target);}}
       else contacts.push([u,target]);continue;
