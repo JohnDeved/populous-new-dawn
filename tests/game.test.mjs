@@ -10,6 +10,32 @@ import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('territory preserves native footprint asymmetry, overlap clearing and staggered recovery', async () => {
+ const {markBuildingTerritory,refreshBuildingTerritory}=await import('../app/territory.ts');
+ const land={categories:new Uint8Array(16384).fill(0xf0),regions:new Uint8Array(16384).fill(5),searchMarks:new Uint8Array(16384).fill(99),searchTag:254};
+ const b={x:0,y:0,tribe:1},other={...b,x:512},index=(x,y)=>((y&127)*128)+(x&127);
+ const marked=(x,y)=>!!(land.regions[index(x,y)]&32);
+ markBuildingTerritory(land,b,5);
+ assert.ok(marked(2,-4));assert.equal(marked(3,-4),false);
+ assert.ok(marked(3,4),'native lower edge uses the second table entry');
+ assert.equal(marked(4,4),false);assert.ok(marked(-4,0),'wraps through the map seam');
+ const water=index(0,1);land.categories[water]=0xf1;
+ markBuildingTerritory(land,other,5);
+ markBuildingTerritory(land,{...b,tribe:2},5);
+ markBuildingTerritory(land,b,5,true);
+ assert.equal(marked(0,0),false,'removal clears a surviving building’s overlapping claim');
+ assert.equal(land.regions[0],69,'other tribes and low coverage bits survive');
+ assert.equal(land.regions[water],37,'non-ground cells are left unchanged');
+ const tribe={id:1,playerType:1,defenceRadius:5,buildings:[other]};
+ refreshBuildingTerritory(land,102,tribe);
+ assert.equal(marked(0,0),false);assert.equal(land.searchTag,254);
+ refreshBuildingTerritory(land,103,tribe);
+ assert.ok(marked(0,0));assert.equal(land.searchTag,1);assert.ok(land.searchMarks.every(v=>v===0));
+ const before=land.regions.slice();land.regions.fill(5);
+ markBuildingTerritory(land,b,6);const fallback=land.regions.slice();land.regions.fill(5);
+ markBuildingTerritory(land,b,11);assert.deepEqual(land.regions,fallback);
+ assert.notDeepEqual(land.regions,before);
+});
 test('opening tooltips resolve mission cells and have an independent lifetime', () => {
  const w=createWorld(),state=createTooltip();
  for(const [mode,packed,text] of [[2,6668,'Dakini Warrior Training Hut.'],[2,64002,'Vault of Knowledge:'],[1,62994,'Stone Head:']]){

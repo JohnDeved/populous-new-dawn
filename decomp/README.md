@@ -592,3 +592,22 @@ not friendly people. Live Blast uses native cell scoring after eligibility;
 the full target scan/dispatch still awaits native territory flags, cell list
 order and person state. Current browser unit fields provide only the opening
 three follower classes to live scoring.
+
+## Building territory
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-territory.py /path/to/d3dpoptb.exe
+```
+
+`app/territory.ts` ports complete `004f6cc0` marking/removal and `004f6c20`
+periodic refresh. The executable importer records the four row-width tables
+and 16 terrain-category descriptor flags. The oracle runs both native routines
+without supplied leaves: **2,048** mutations/refreshes compare every region byte
+and the shared search-marker buffer across 256 sequences. It covers all radii,
+fallback values, coordinate seams, asymmetric row traversal, overlapping tribes,
+building removal, player types, staggered turns and marker wrap.
+
+`00403860` establishes the building-removal call. `00502090` separately updates
+tower coverage in the lower region bits; its export is not a completed port.
+These territory primitives still need the native terrain-category producer and
+building lifecycle in the live world before supplying the spell dispatcher.

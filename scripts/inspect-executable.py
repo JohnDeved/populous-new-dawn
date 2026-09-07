@@ -63,6 +63,8 @@ if len(sys.argv)>2:
         'normalLimit':value(0x5a80fd+i*62,1),'alternateLimit':value(0x5a80fe+i*62,1),
         'rate':value(0x5a810a+i*62,2)} for i in range(22)]
     rules['spellRangeBands']=[value(0x5aa538+i*4) for i in range(8)]
+    rules['terrainCategoryFlags']=[value(0x5aa328+i*14,1) for i in range(16)]
+    rules['territoryWidths']=[list(read(address,length)) for address,length in [(0x5d56b4,5),(0x5d56bc,7),(0x5d56c8,9),(0x5d56d8,11)]]
     assert [rules['sine'][i] for i in [0,512,1024,1536]]==[0,65536,0,-65536]
     assert rules['atan'][0]==0 and rules['atan'][256]==256
     assert rules['manaUpdateMask']==3 and rules['hutCapacity']==[3,4,5]

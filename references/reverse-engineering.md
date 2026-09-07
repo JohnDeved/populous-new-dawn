@@ -1758,3 +1758,41 @@ Playwright verified actual live retargeting to `{x:7,z:-1}` away from the friend
 concentration, plus mana payment, independent cooldowns and pause without page
 errors. Build/lint pass with seven existing image warnings and zero errors.
 The executable/manifest verifier checks **508** raw C exports.
+
+## Building territory producer and refresh — 2026-09-08
+
+Reconstructed complete `004f6cc0` and `004f6c20` in `app/territory.ts`.
+`scripts/inspect-executable.py` imports width tables at `005d56b4`, `005d56bc`,
+`005d56c8`, `005d56d8` and category flags at `005aa328` (14-byte stride).
+The marker uses native 16-bit building positions and wraps over the full
+128×128 cell map. Only category descriptor flag 1 admits a write; category
+upper bits, other tribes and lower region bits survive. Radii 5/7/9 select
+their tables; every other value selects 11. The two halves are slightly
+asymmetric: the positive half repeats the widest row and ends at entry one,
+whereas the negative half starts at entry zero.
+
+`00403860` clears territory during building removal, using the computer tribe's
+configured defense radius or 11 for other player types. This is a bit clear,
+not a reference count: overlapping surviving buildings temporarily lose their
+claim too. `004f6c20` ORs claims back when `(turn + tribe*8 + 17) & 127 == 0`.
+It visits the full building list without model/state filtering. It also advances
+the shared search tag at `005d56b0`, skipping 255 and clearing the 16,384-byte
+buffer at `00a64e88` on wrap to zero before setting tag 1. Disassembly confirms
+that this address is the buffer itself, despite Ghidra's misleading pointer
+type. Search-buffer clearing does not clear territory.
+
+`00502090` is a separate tower-coverage updater: its writes to the lower `ph_2`
+bits must not be confused with the upper building-territory bits used by spell
+dispatch. That routine and `00403860` remain raw lifecycle evidence, not complete
+browser ports. `00461f90` was also exported while tracing the scheduler and
+remains unreviewed task-maintenance evidence.
+
+`check-native-territory.py` executes both complete native territory routines
+without supplied leaves, comparing **2,048** sequential operations over complete
+maps and search buffers. It checks that every unrelated terrain byte remains
+unchanged. All **39** Node regressions pass, including asymmetric map edges,
+non-ground preservation, overlapping removal, delayed recovery and tag wrap.
+Live terrain categories, building lifecycle calls, tower coverage and full spell
+scan integration remain pending; this change does not claim new live AI behavior.
+Build and lint pass (seven existing image warnings, zero errors); the executable
+and manifest verifier checks **513** raw C exports.
