@@ -501,3 +501,26 @@ Live contribution and display use the same port. Current browser commands are
 still adapted to native command presence, HP to object registration, and building
 occupancy to the inside flag; native person records/order ownership remain the
 integration target. Combat animation alone no longer increases mana output.
+
+## Spell range, readiness and payment
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-spell-casting.py /path/to/d3dpoptb.exe
+```
+
+`app/spell-casting.ts` reconstructs range `004c2e30`, attack-group reserve
+`004f2f50`, entry readiness `004d1450`/`004c2e00`, payment type `004c29a0`
+and the stock/price/debit portions of `004f4de0`/`004c14c0`.
+The oracle compares **2,048** full range/reserve/eight-entry updates without
+supplied leaves, **1,024** payment scenarios and all four starting mana grants
+from actual `0042b660` tribe initialization. Payment supplies allocation failure,
+projectile initialization and unavailable UI notification slots; only payment
+outputs of the initializer are compared. This is not a complete spell allocator
+or initializer port.
+
+Player targeting and its visible ring now share height-dependent range. Enemy
+Blast entries require cost plus configured reserve and use the native readiness
+range; allocation consumes stock or queues a mana debit. Starting mana is queued
+as incoming mana, not put directly into the retained pool. Browser target scoring,
+Euclidean distance, cooldown, attack-group/person integration, cell occupancy and
+tribe override flags remain partial.

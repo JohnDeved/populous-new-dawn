@@ -1481,3 +1481,69 @@ combat-animation distinction. The separate distributor/query oracle still passes
 **2,048** comparisons. Playwright again confirmed live charging, the computer pool
 and pause without browser errors. Type checking, lint and build pass; seven existing
 image-element warnings remain.
+
+## 2026-09-07 — Spell affordability, height-dependent range and payment
+
+Recovered `004c2e30` interpolates eight configured 8.8 range multipliers at
+128-height intervals, clamps the lookup index at seven and preserves signed
+truncation for negative heights. The normal descriptor range is multiplied with
+32-bit wrap. A person carrying the inside flag gains one third extra range only
+when the raw object indexed by their terrain cell is class 2/model 4/state 2.
+Game flags bit 32 selects the alternate descriptor; tribe flags bit `0x80000`
+bypasses both paths with `0x0fffffff`. `inspect-executable.py` now imports both
+range descriptors and the height table after applying the recognized constants.
+
+`004d1450` updates eight readiness bytes. Each is zero unless a shaman exists,
+the entry model is nonzero and its spell cost plus configured entry mana plus
+reserved attack spell costs fits the signed retained mana pool. The sum wraps
+before comparison. A ready value is the low byte of the native range divided by
+512, not a boolean. `004f2f50` reserves three model costs only for the shaman's
+nonzero attack group of task type 20; `004f25a0` simply reads the tribe's shaman
+pointer. These functions execute unmodified in the new CPU oracle.
+
+Payment type `004c29a0` distinguishes stock/free casts from priced casts; paused
+charging does not prevent spending stock. In alternate mode, stock also requires
+a nonzero alternate cap. The payment portion of `004f4de0` consumes stock before
+allocation, even when allocation fails, preserving the high nibble. Priced casts
+pass the descriptor cost through the native initialization stack. On successful
+`004c14c0` initialization, `add_mana` queues the negative price into incoming mana
+unless tribe flag bit 8 is set. It does not directly change the retained pool.
+
+The actual `0042b660` tribe reset clears retained/pending/incoming mana, then
+calls `add_mana(start_mana,0)`. All four tribes consequently start with 30,000
+incoming mana in this configuration. The live world now does the same. This
+corrects the previous zero-mana initialization and provides the first mission's
+early enemy casting budget. With a 10,000 Blast cost and 10,000 entry reserve,
+the initial pool supports the scripted first two casts before the original
+campaign disables those entries.
+
+`check-native-spell-casting.py` compares **2,048** full range/reserve/readiness
+scenarios, **1,024** native payment/stock/debit scenarios and all four native
+starting grants. Range/readiness use no supplied leaves. Payment supplies only
+allocation failure, projectile initialization and an unavailable notification
+slot; actual payment queries, stock mutation and mana addition execute natively.
+The successful-initializer comparison covers mana output, not its other world
+side effects. The starting-grant check executes actual computer initialization
+and compares only retained, pending and incoming mana.
+
+Live player casting and the scene's ring/cursor now share the native range
+calculation. Enemy Blast eligibility uses the recovered readiness bytes and
+queues the real debit. The existing two-cast campaign regression still passes.
+The complete mission test now aims its northern Land Bridge at the nearer dry
+shore, within the recovered low-ground range. Tests isolating charge loss/refunds
+explicitly remove the starting grant instead of treating its refill as a refund.
+A new live regression covers low/high ground, unaffordable enemy casts and the
+next-turn debit settlement. All **35** regressions pass.
+
+Remaining gaps: native target scoring and wrapped/coarse-cell distance checks,
+AI tick scheduling/cooldowns, full spell allocation/initialization and cast-state
+eligibility, AI stock timers and the attack-group/person records. The reserve
+routine is verified but the live adapter currently supplies no attack group;
+range/payment override flags are unset. Browser inside membership still supplies
+the terrain-cell building. These checks establish the recovered arithmetic and
+its bounded first-mission integration, not full spell or AI parity.
+
+Playwright confirmed live charging and pause, then held an enemy shaman below
+budget before funding a cast and observing its settled pool at 10,015 mana.
+No page errors occurred. Build and lint pass (seven existing image warnings,
+zero errors), and the export manifest verifies **493** raw C exports.

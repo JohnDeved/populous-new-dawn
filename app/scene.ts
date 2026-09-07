@@ -4,7 +4,7 @@ import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldToo
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { buildingObject, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { buildingObject, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModelData from './original-models.json';
 const nativeModels: Record<number,{p:number[];uv:number[];scale:number}> = nativeModelData;
@@ -487,9 +487,9 @@ export class GameScene {
     const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman');
     this.range.visible = !!this.world.mode && SPELLS.some(s => s.id === this.world.mode) && !!shaman;
     const spec=SPELLS.find(s=>s.id===this.world.mode);
-    if(shaman&&spec&&this.range.visible)this.groundRing(this.range,shaman,spec.range);
+    if(shaman&&spec&&this.range.visible)this.groundRing(this.range,shaman,spellRange(this.world,shaman,spec.model));
     this.cursor.visible=!!this.pointer&&!!this.world.mode;
-    if(this.pointer&&this.world.mode){const p=this.pointer;this.groundRing(this.cursor,p,spec?2:footprint(this.world.mode as Building['kind']));const valid=spec?!!shaman&&distance(shaman,p)<=spec.range&&!(!walkable(this.world.terrain,p)&&spec.id==='bridge'):!placementError(this.world,this.world.mode as Building['kind'],p);this.cursor.material.color.setHex(valid?0xebd398:0xec6e59);}
+    if(this.pointer&&this.world.mode){const p=this.pointer;this.groundRing(this.cursor,p,spec?2:footprint(this.world.mode as Building['kind']));const valid=spec?!!shaman&&distance(shaman,p)<=spellRange(this.world,shaman,spec.model)&&!(!walkable(this.world.terrain,p)&&spec.id==='bridge'):!placementError(this.world,this.world.mode as Building['kind'],p);this.cursor.material.color.setHex(valid?0xebd398:0xec6e59);}
     (this.water.material as THREE.ShaderMaterial).uniforms.time.value = this.world.time;
     this.terrain.count=this.overviewActive?1:9;
     this.water.geometry=this.overviewActive?geometry('overview-water',()=>new THREE.PlaneGeometry(256,256,128,128).rotateX(-Math.PI/2)):geometry('ground-water',()=>new THREE.PlaneGeometry(252,252,126,126).rotateX(-Math.PI/2));

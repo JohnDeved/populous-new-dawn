@@ -3,6 +3,7 @@ import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
+import {nativeSpellRange,spellEntryRanges,prepareSpellPayment,debitSpellMana,type SpellCaster} from './spell-casting.ts';
 import {createFlyby,flybyCommand,type Flyby} from './flyby.ts';
 import level from './level-one.ts';
 import originalScript from './original-script.json' with {type:'json'};
@@ -29,10 +30,10 @@ export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
 export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
 export const TURNS_PER_SECOND=12;
-export const SPELLS: { id: Spell; model:number; name: string; cost: number; range: number; key: string; symbol: string; color: string; description: string }[] = [
-  { id: 'blast', model:2, name: 'Blast', cost: 10, range: 12, key: '1', symbol: '✹', color: '#e8b076', description: 'Rechargeable · throws followers back. Water is deadly.' },
-  { id: 'bridge', model:12, name: 'Land Bridge', cost: 70, range: 20, key: '2', symbol: '≋', color: '#bbca8a', description: 'Worship the southern stone head. Cast from one shore onto the other.' },
-  { id: 'lightning', model:3, name: 'Lightning', cost: 80, range: 24, key: '3', symbol: 'ϟ', color: '#c6b8f2', description: 'Four gifts from the central stone head. A direct hit kills a follower.' },
+export const SPELLS: { id: Spell; model:number; name: string; cost: number; key: string; symbol: string; color: string; description: string }[] = [
+  { id: 'blast', model:2, name: 'Blast', cost: 10, key: '1', symbol: '✹', color: '#e8b076', description: 'Rechargeable · throws followers back. Water is deadly.' },
+  { id: 'bridge', model:12, name: 'Land Bridge', cost: 70, key: '2', symbol: '≋', color: '#bbca8a', description: 'Worship the southern stone head. Cast from one shore onto the other.' },
+  { id: 'lightning', model:3, name: 'Lightning', cost: 80, key: '3', symbol: 'ϟ', color: '#c6b8f2', description: 'Four gifts from the central stone head. A direct hit kills a follower.' },
 ];
 export const BUILDINGS: { id: BuildingKind; name: string; cost: number; symbol: string; description: string }[] = [
   { id: 'hut', name: 'Hut', cost: 3, symbol: '⌂', description: 'Three logs. Send braves inside to breed faster and generate more mana.' },
@@ -280,7 +281,7 @@ export function createWorld(): World {
   const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0},
     manaWorld:{playerTribe:0,gameFlags:0,loadFlags:0,levelFlags:0,manaFlags:0,turn:0,rateSample:0,
       spells:Array.from({length:4},()=>({available:4,disabled:0,stocks:Array(22).fill(0)}))},
-    manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,mana:0,pending:0,available:0,
+    manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,mana:0,pending:0,available:constants.START_MANA,
       totalProgress:0,previousRate:0,estimatedRate:0,releaseDelay:0,releaseRate:0,spellProgress:Array(22).fill(0)})),manaNotices:[],
     terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
@@ -574,19 +575,34 @@ export function cast(w: World, spell: Spell, p: Point) {
   if(!shaman){tell(w,'Your shaman is reincarnating.');return false;}
   if(shaman.lift>0||shaman.casting){tell(w,'Your shaman must finish her current action.');return false;}
   if(w.shots[spell]<=0){tell(w,spell==='blast'?'Blast is charging. Braves working or inside huts generate more mana.':'Worship the stone head to receive this spell.');return false;}
-  if(distance(shaman,p)>spec.range){tell(w,'Beyond your reach. Move your shaman closer.');return false;}
+  if(distance(shaman,p)>spellRange(w,shaman,spec.model)){tell(w,'Beyond your reach. Move your shaman closer.');return false;}
   if(Math.abs(p.x)>45||Math.abs(p.z)>45){tell(w,'Choose a target within the world.');return false;}
   if(spell==='bridge'&&(!walkable(w.terrain,p)||!walkable(w.terrain,shaman))){tell(w,'Land Bridge must join two dry shores. Aim at land on the opposite island.');return false;}
   release(shaman);shaman.path=[];shaman.heading=Math.atan2(p.x-shaman.x,p.z-shaman.z);
   beginCast(w,shaman,spell,p);w.mode=null;
   return true;
 }
+// ponytail: browser occupancy supplies the cell's building until native terrain
+// object lists and person flags are integrated. Range/payment override flags
+// are unset in the current first-mission adapter.
+function spellCaster(w:World,u:Unit):SpellCaster {
+  const b=w.buildings.find(b=>b.id===u.inside);
+  return {height:nativePosition(w,u).h,flags2:u.inside===null?0:0x800000,
+    building:b?{class:2,model:b.kind==='hut'?b.level:b.kind==='tower'?4:b.kind==='temple'?5:7,state:b.progress===1?2:1}:null};
+}
+export function spellRange(w:World,u:Unit,model:number) {
+  return nativeSpellRange(w.manaWorld.gameFlags,0,spellCaster(w,u),model)/256;
+}
 function beginCast(w:World,u:Unit,spell:Spell,p:Point){
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
   const target={x:Math.floor(p.x/2)*2+1,z:-Math.floor(-p.z/2)*2-1},position=nativePosition(w,u);
+  const tribe=u.team==='blue'?0:1,model=SPELLS.find(s=>s.id===spell)!.model;
+  if(tribe===0)w.manaWorld.spells[0].stocks[model]=w.shots[spell];
+  const price=prepareSpellPayment(w.manaWorld,tribe,0,model);
   w.projectiles.push({id:w.nextId++,spell,team:u.team,caster:u.id,target,source:{x:u.x,z:u.z},position,destination:nativePosition(w,target),origin:{...position},phase:'windup',remaining:6,turns:0,visuals:[]});
-  recordSpellCast(w,u.team==='blue'?0:1,SPELLS.find(s=>s.id===spell)!.model);
-  if(u.team==='blue'){w.shots[spell]--;w.giftCounts[spell]=Math.max(0,w.giftCounts[spell]-1);w.stats.cast++;}
+  debitSpellMana(w.manaTribes[tribe],0,price);
+  recordSpellCast(w,tribe,model);
+  if(u.team==='blue'){w.shots[spell]=w.manaWorld.spells[0].stocks[model]&15;w.giftCounts[spell]=Math.max(0,w.giftCounts[spell]-1);w.stats.cast++;}
   u.casting={spell,point:target,remaining:6/TURNS_PER_SECOND};castVoice(w,u,spell);
 }
 function shotVisual(w:World,p:NativePoint,sequence:string,frame:number,duration:number){
@@ -830,8 +846,14 @@ function stepTurn(w:World){
     if(target&&!('progress' in target)&&(target.lift>0||target.inside!==null))target=undefined;
     if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&t.inside===null&&t.lift===0&&distance(u,t)<(u.team==='red'?8:3));}
     if(target){u.heading=Math.atan2(target.x-u.x,target.z-u.z);}
-    // ponytail: native entries enable spells; mana eligibility, target scoring and scheduling remain unported.
-    if(target&&u.team==='red'&&u.kind==='shaman'&&w.ai.spellEntries.some(s=>s.model===2)&&distance(u,target)<12){if(!u.cooldown){u.path=[];beginCast(w,u,'blast',target);u.cooldown=6;}continue;}
+    // ponytail: native affordability/range; target scoring, attack-group reserves
+    // and scheduling still need the original AI controller and person records.
+    if(target&&u.team==='red'&&u.kind==='shaman'){
+      const ranges=spellEntryRanges(w.manaWorld.gameFlags,0,w.manaTribes[1].mana,spellCaster(w,u),w.ai.spellEntries,0);
+      if(w.ai.spellEntries.some((s,i)=>s.model===2&&ranges[i]>0&&distance(u,target)<ranges[i]*2)){
+        if(!u.cooldown){u.path=[];beginCast(w,u,'blast',target);u.cooldown=6;}continue;
+      }
+    }
     if(target&&distance(u,target)<('progress' in target?4.3:1.7)){
       if('progress' in target){u.fighting=true;if(!u.cooldown){target.hp-=meleeDamage(u);u.cooldown=(u.kind==='shaman'?4:6)/TURNS_PER_SECOND;effect(w,'hit',target);}}
       else contacts.push([u,target]);continue;

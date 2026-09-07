@@ -41,7 +41,7 @@ test('original level layout, native foundations, and the complete mission',()=>{
  command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',{x:guard.x+1,z:guard.z}));advance(w,2);assert.ok(!w.units.includes(guard),'Blast knocks the guard off the western coast');command(w,w.shrines.find(s=>s.kind==='vault'));until(w,()=>w.unlockedCamp,45);
  assert.ok(placeBuilding(w,'camp',{x:4,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
  select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
- select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-24}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
+ select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-22}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
  command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');assert.equal(w.redRespawn,0,'the native first-mission script disables Dakini reincarnation');assert.ok(!w.units.includes(enemyShaman));
  // Fight through the remaining defenders using the units that were actually trained above.
  select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.buildings.find(b=>b.team==='red')??w.units.find(u=>u.team==='red'&&u.inside===null);if(!enemy)break;command(w,enemy);advance(w,8);}
@@ -78,6 +78,7 @@ test('native animation identity, casting interruption, gradual terrain and blast
  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
  assert.equal(maxHp('brave'),50);assert.equal(maxHp('warrior'),90);
  w.selected=[brave.id];brave.target=32;assert.equal(unitAnimation(w,brave),'selected','an assigned distant enemy is not an active fight');brave.fighting=true;assert.equal(unitAnimation(w,brave),'attack','automatic melee displays its attack sprite');brave.fighting=false;brave.target=null;brave.cargo=1;brave.path=[{x:brave.x+1,z:brave.z}];assert.equal(unitAnimation(w,brave),'carry');brave.lift=.5;assert.equal(unitAnimation(w,brave),'airborne');brave.lift=0;brave.cargo=0;brave.path=[];
+ w.manaTribes[0].available=0; // Isolate spending from the starting-mana grant.
  w.selected=[shaman.id];const shots=w.shots.blast;assert.ok(cast(w,'blast',shaman));assert.equal(unitAnimation(w,shaman),'cast');command(w,{x:10,z:32});advance(w,.6);assert.equal(w.shots.blast,shots-1,'native spell allocation spends the charge before animation finishes');assert.equal(shaman.casting,null);assert.ok(w.projectiles.length,'movement does not delete the independent spell');impact(w,'blast');
  shaman.x=0;shaman.z=20;shaman.path=[];w.shots.bridge=1;const before=[...w.terrain];assert.ok(cast(w,'bridge',{x:0,z:4}));impact(w,'bridge');tick(w,1/12);const rise=w.effects.find(e=>e.kind==='bridge');assert.ok(rise.land.length>0);const sample=rise.land.find(p=>p.to-p.from>1);assert.ok(w.terrain[sample.index]>before[sample.index]&&w.terrain[sample.index]<sample.to);advance(w,6);assert.equal(w.terrain[sample.index],sample.to);foundations(w);
  shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));impact(w,'blast');assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
@@ -193,7 +194,7 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,10]);
  const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,2308592903);assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
  const a=make(),b=make();a.shots.bridge=b.shots.bridge=1;cast(a,'bridge',{x:10,z:0});cast(b,'bridge',{x:10,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a,b,'flight, effects and simulation RNG are independent of rendering FPS');
- const dead=make();cast(dead,'blast',{x:10,z:0});dead.units[0].hp=0;tick(dead,1/12);assert.equal(dead.projectiles.length,0);assert.equal(dead.shots.blast,3,'caster death removes a pending spell without refunding the spent shot');
+ const dead=make();dead.manaTribes[0].available=0;cast(dead,'blast',{x:10,z:0});dead.units[0].hp=0;tick(dead,1/12);assert.equal(dead.projectiles.length,0);assert.equal(dead.shots.blast,3,'caster death removes a pending spell without refunding the spent shot');
  const won=createWorld();won.terrain.fill(3);won.units=won.units.filter(u=>u.kind==='shaman');Object.assign(won.units[0],{x:0,z:0});Object.assign(won.units[1],{x:9,z:-1});won.shots.lightning=1;cast(won,'lightning',won.units[1]);impact(won,'lightning');assert.equal(won.status,'won');assert.ok(won.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
 });
 
@@ -771,6 +772,7 @@ test('live mana refunds wait for a pulse and computer training receives only the
  const {addBuilding}=await import('../app/model.ts');
  const w=createWorld(),empty=addBuilding(w,'blue','camp',HOME),red=addBuilding(w,'red','camp',ENEMY);
  empty.timer=99;w.shots.blast=0;
+ for(const t of w.manaTribes)t.available=0; // Isolate follower pulses from starting mana.
  const trainee=w.units.find(u=>u.team==='red'&&u.kind==='brave');
  trainee.inside=red.id;trainee.work=red.id;trainee.path=[];
  tick(w,1/12);
@@ -810,4 +812,24 @@ test('follower mana uses native preacher orders, registration and ghost flags be
  generateFollowerMana(w.manaWorld,w.manaTribes,people,pool);assert.deepEqual(w.manaTribes,before);
  const live=createWorld(),idle=manaRate(live);live.units.find(u=>u.kind==='brave'&&u.team==='blue').fighting=true;
  assert.equal(manaRate(live),idle,'fighting animation alone is not an order or an inside flag');
+});
+
+test('live spell reach follows terrain height and enemy casts require and spend native mana', async () => {
+ const {spellRange}=await import('../app/model.ts');
+ const w=createWorld(),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ Object.assign(shaman,{x:0,z:0});w.inputMask=0;w.terrain.fill(1);
+ assert.ok(spellRange(w,shaman,2)<11);
+ assert.equal(cast(w,'blast',{x:11,z:0}),false,'low ground cannot reach the old fixed-radius edge');
+ assert.equal(w.shots.blast,4);w.terrain.fill(8);
+ assert.ok(spellRange(w,shaman,2)>11);assert.ok(cast(w,'blast',{x:11,z:0}));assert.equal(w.shots.blast,3);
+ const enemy=createWorld(),red=enemy.units.find(u=>u.team==='red'&&u.kind==='shaman'),target=enemy.units.find(u=>u.team==='blue'&&u.kind==='brave');
+ enemy.units=enemy.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');
+ Object.assign(red,{x:4,z:29});Object.assign(target,{x:8,z:29});enemy.inputMask=0;enemy.ai.variables[57]=1;
+ assert.deepEqual(enemy.manaTribes.map(t=>[t.mana,t.available]),Array.from({length:4},()=>[0,30000]));
+ for(const t of enemy.manaTribes)t.available=0;
+ const pool=enemy.manaTribes[1];pool.mana=19999;
+ tick(enemy,1/12);assert.equal(enemy.spellCasts[1][2],0,'cost plus entry reserve requires 20,000 mana');
+ pool.mana=20000;tick(enemy,1/12);
+ assert.equal(enemy.spellCasts[1][2],1);assert.equal(pool.mana,20000);assert.equal(pool.available,-10000,'allocation queues the debit');
+ tick(enemy,1/12);assert.equal(pool.available,0);assert.equal(pool.mana,10000,'the next distribution settles payment');
 });
