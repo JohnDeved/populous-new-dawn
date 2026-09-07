@@ -481,3 +481,27 @@ test('external game store publishes edits and restarts without sharing worlds be
  assert.equal(events.length,2);assert.equal(events[1][0],2);
  unsubscribe();store.update();assert.equal(events.length,2);
 });
+
+test('computer recruitment preserves wrapped-distance ties and native command eligibility', async () => {
+ const {availableTrainingPeople,selectComputerPeople}=await import('../app/computer-selection.ts');
+ const person=(id,x,fields={})=>({id,class:1,model:2,state:17,tribe:0,x,y:0,
+  flags2:0,flags3:3,flags4:0,assignment:0,busy:0,vehicle:0,driver:0,inside:0,
+  immediateCommand:0,commands:Array(8).fill(0),commandCursor:0,...fields});
+ const people=[person(1,0xfe00),person(2,0x0200),person(3,0,{model:7}),
+  person(4,0,{state:10,commands:[1,0,0,0,0,0,0,0]}),
+  person(5,0,{state:10,immediateCommand:2,commands:[1,0,0,0,0,0,0,0],flags3:0}),
+  person(6,0,{flags2:0x800000}),person(7,0,{flags4:0x800})];
+ const hut=person(40,0,{class:2,model:13,inside:4});
+ const world={people,units:new Map([...people,hut].map(p=>[p.id,p])),
+  orders:new Map([[1,{model:6,flags:0}],[2,{model:6,flags:1}]]),
+  tribes:[{hasBase:true,base:0,shaman:0,radius:3}],buildingAt:()=>40};
+ assert.equal(availableTrainingPeople(world),5,'availability is broader than recruitment eligibility');
+ assert.deepEqual(selectComputerPeople(world,2,2,-1,1,0,6,3),[4,1,2],
+  'housing order is eligible; seam ties keep list order; cancelled immediate cannot fall back to queued housing');
+ assert.deepEqual(people.map(p=>p.flags3),[2,2,3,2,0,3,3],'only selected followers consume their force-selection bit');
+ assert.deepEqual(selectComputerPeople(world,2,2,-1,0,0,2,3),[1,2],
+  'without the housing flag the order remains excluded; flagged full buildings and ghosts remain excluded');
+ hut.model=7;hut.inside=5;
+ assert.deepEqual(selectComputerPeople(world,2,2,-1,0,0,2,3),[1,2,6],
+  'capacity alone does not exclude an occupant: completed training huts lack native building flag 64');
+});

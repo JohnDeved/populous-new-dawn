@@ -837,3 +837,54 @@ in React component state, which failed the React immutability check. It adds no
 simulation rules or dependencies. The native simulation remains independently
 runnable in Node; separate store instances, notifications and unsubscribe are
 covered by a regression, with restart and gameplay checked in the browser.
+
+## Native follower eligibility and selection
+
+`app/computer-selection.ts` ports `004f8490`, its ranking leaf `004f8390`,
+availability (`004f25b0`, `004f67b0`, `004f6730`), command predicates
+(`004f62c0`, `004f39d0`), transport exclusion (`004f7720`), building exclusions
+(`004f3200`, `004f61f0`), forced selection (`004f6720`) and base defense
+(`004f55d0`, `0049c720`). The input preserves native tribe-list order and raw
+person fields; it does not infer original states from browser animations.
+
+- Selection visits priority bands 0–6, filters assignments, ghosts, shamans,
+  transports and current orders, then either keeps traversal order or ranks by
+  wrapped Manhattan distance. Strict-less-than insertion preserves ties across
+  bands. Requested count is clamped to 0–100; only returned people consume
+  flags-3 bit 1. Native scratch writes beyond the returned prefix are not
+  represented as world memory.
+- Current commands are read only in person states 10 and 33. A cancelled
+  immediate command suppresses the queued command; there is no fallback.
+  Housing orders require selection option 4. Defending orders use wrapped,
+  halved-axis squared distance with an inclusive radius boundary.
+- The inside-building lookup is terrain record **+8** (`008a03ec`), masked to
+  10 bits. The adjacent record +6 is a different field. Full-building exclusion
+  requires building flag 64 as well as signed occupancy >= capacity. In the
+  imported table only models 13–16 have this flag; a completed model-7 training
+  hut is not excluded merely because it is full.
+- Transport duty excludes a brave driving a valid vehicle and passengers whose
+  valid driver is not in a ready state. `00465650`'s landing predicate is pure;
+  both consumer branches make the same driver-state test. Its terrain reads
+  can therefore be omitted from the reconstructed eligibility result.
+
+`scripts/inspect-executable.py` now imports the 46 person-state flag records
+from `005a6f78` (stride 5, flags +1), and 20 building flags/capacities from
+`005a7228` (stride 76, flags +72, capacity +32). Unknown person states fail
+explicitly in the port instead of silently inventing eligibility.
+
+`scripts/check-native-selection.py` runs **1,870** actual native availability
+and selection comparisons with all leaves executing: randomized person/command
+records, each option mask, all building models and signed occupancy boundaries,
+cancelled immediate commands, seam/tie ranking and more than 100 candidates.
+Another **256** cases run the actual `004c8490` phase-4 controller with the actual
+selector. Only person initialization/restoration are intercepted in those
+combined cases. A Node regression covers recruitment ordering, command
+precedence, selected-bit consumption and the building-flag distinction.
+
+Group command creation/commit (`00435730`, `00435780`, `004359b0`), command
+removal/attachment (`004364d0`, `00436d00`), payload update (`00438730`) and
+selected-person release (`00418ce0`) are exported but not yet ported. They use
+shared reference-counted command records and person-state transitions. The
+training controller and selector remain outside the browser world update until
+those consumers are reconstructed; original mission words 601–624 remain
+unbound. This change adds verified engine behavior, not new playable AI orders.

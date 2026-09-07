@@ -319,3 +319,20 @@ controlled leaves. Browser training integration awaits those native consumers.
 The follower check runs 2,016 real rebuild/query comparisons and 4,608 original
 mission attack-commitment branches, now bound to browser follower counts.
 See the [reviewed evidence and remaining limits](../references/reverse-engineering.md#ai-task-scheduling-training-controller-and-follower-counts).
+
+## Native follower selection
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-selection.py /path/to/d3dpoptb.exe
+```
+
+`app/computer-selection.ts` reconstructs `004f8490` with availability, command,
+transport, building and base-defense eligibility. The importer records the
+original person-state flags and building flags/capacities used by these leaves.
+The oracle runs 1,870 availability/selection comparisons without intercepting
+native calls, then 256 combined training-controller/selector cases with only
+person initialization/restoration intercepted. All 20 building models, signed
+occupancy, command precedence, toroidal ties, priority bands and count clamps
+are covered. These are independently executable engine ports; browser world
+integration still requires original person state and command lifecycle consumers.
+New command exports are research evidence, not completed implementations.
