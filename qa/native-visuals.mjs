@@ -13,11 +13,11 @@ try{
   window.nativeQA={scene,w,m};
  });
  await page.waitForTimeout(800);await page.screenshot({path:'qa/native-idle.png'});
- for(const state of ['walk','carry','airborne','cast','attack']){
-  await page.evaluate(state=>{const {w}=window.nativeQA;for(const u of w.units){u.path=[];u.cargo=0;u.lift=0;u.casting=null;u.fighting=state==='attack';u.heading=Math.PI/2;if(state==='walk'||state==='carry')u.path=[{x:u.x+2,z:u.z}];if(state==='carry'&&u.kind==='brave')u.cargo=1;if(state==='airborne')u.lift=.5;if(state==='cast'&&u.kind==='shaman')u.casting={spell:'blast',point:{x:0,z:25},remaining:.4};}w.time+=.25;},state);
+ for(const state of ['walk','carry','airborne','cast','attack','strike','special','recoil']){
+  await page.evaluate(state=>{const {w}=window.nativeQA;for(const u of w.units){u.path=[];u.cargo=0;u.lift=0;u.casting=null;u.fighting=false;u.fight=['attack','strike','special','recoil'].includes(state)?{action:state,opponent:0,started:w.time*12,until:w.time*12+7}:null;u.heading=Math.PI/2;if(state==='walk'||state==='carry')u.path=[{x:u.x+2,z:u.z}];if(state==='carry'&&u.kind==='brave')u.cargo=1;if(state==='airborne')u.lift=.5;if(state==='cast'&&u.kind==='shaman')u.casting={spell:'blast',point:{x:0,z:25},remaining:.4};}w.time+=.25;},state);
   await page.waitForTimeout(100);await page.evaluate(()=>window.nativeQA.w.time+=.25);await page.waitForTimeout(100);await page.screenshot({path:`qa/native-${state}.png`});
  }
- await page.evaluate(()=>{const {w,m}=window.nativeQA;w.effects=[];for(const [kind,x,z] of [['blast',1,28],['lightning',8,29],['birth',5,34],['splash',-2,33]]){const f=m.effect(w,kind,{x,z});f.age=.25;}for(const u of w.units){u.path=[];u.lift=0;u.casting=null;u.fighting=false;}});
+ await page.evaluate(()=>{const {w,m}=window.nativeQA;w.effects=[];for(const [kind,x,z] of [['blast',1,28],['lightning',8,29],['birth',5,34],['splash',-2,33]]){const f=m.effect(w,kind,{x,z});f.age=.25;}for(const u of w.units){u.path=[];u.lift=0;u.casting=null;u.fighting=false;u.fight=null;}});
  await page.waitForTimeout(350);await page.screenshot({path:'qa/native-effects.png'});
  assert.deepEqual(errors,[]);console.log('PASS: native walking, carrying, airborne, casting, attacks and translucent effect rendering.');
  await page.evaluate(()=>window.nativeQA.scene.dispose());

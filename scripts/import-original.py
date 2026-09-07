@@ -101,10 +101,10 @@ def main():
     for team in ['blue','red','wild']:
         for kind in (['brave'] if team=='wild' else ['brave','warrior','shaman']):
             # Executable animation map at 0x5a6d50 -> object table 0x5a6858.
-            states = {'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416}
+            states = {'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'strike':104,'special':200,'recoil':112,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416}
             if team=='wild':states={k:0 if k=='walk' else 8 for k in states}
             if kind=='shaman':
-                states={'walk':616,'idle':424,'selected':744,'work':456,'chop':456,'attack':456,'pray':552,'cast':648,'airborne':488,'die':352,'drown':616}
+                states={'walk':616,'idle':424,'selected':744,'work':456,'chop':456,'attack':456,'strike':456,'special':552,'recoil':424,'pray':552,'cast':648,'airborne':488,'die':352,'drown':616}
                 states={k:v+(8 if team=='red' else 0) for k,v in states.items()}
             metadata[f'{team}-{kind}'] = {}
             for state,start in states.items():

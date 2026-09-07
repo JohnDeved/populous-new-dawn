@@ -6,7 +6,8 @@ export type UnitKind = 'shaman' | 'brave' | 'warrior';
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple';
 export type Spell = 'blast' | 'lightning' | 'bridge';
 export type Point = { x: number; z: number };
-export type Unit = Point & { id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; casting: {spell: Spell; point: Point; remaining: number} | null };
+type Fight = { opponent: number; action: 'attack'|'strike'|'special'|'recoil'; started: number; until: number };
+export type Unit = Point & { id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
 export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number };
 export type Shrine = Point & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; active: boolean };
 export type Tree = Point & { id: number; logs: number; model: number };
@@ -42,9 +43,34 @@ export function populationLimit(w:World,team:Team){return Math.min(200,6+w.build
 export function breedingWork(w:World,b:Building){return Math.floor(rules.hutBreedingWork[b.level-1]*rules.breedingBands[Math.min(19,Math.floor(population(w,b.team)/10))]/256);}
 export function trainingCost(w:World,team:Team){const count=w.units.filter(u=>u.team===team&&u.kind==='warrior'&&u.hp>0).length,band=count<16?Math.floor(count/4):count<21?4:5;return Math.floor((team==='blue'?constants.HUMAN_TRAIN_MANA_WARR:constants.CP_TRAIN_MANA_WARR)*rules.trainingBands[band]/256);}
 export function meleeDamage(u:Unit){const base=u.kind==='warrior'?constants.FIGHT_DAMAGE_WARR:u.kind==='shaman'?constants.FIGHT_DAMAGE_SHAMAN:constants.FIGHT_DAMAGE_BRAVE;return Math.max(32,Math.floor(base*u.hp/maxHp(u.kind)))/20;}
+// 0x586074: integer octant lookup. Input Z is already reflected from the native map.
+export function nativeAngle(dx:number,dz:number){
+  const x=Math.abs(dx),z=Math.abs(dz);if(!x&&!z)return 0;
+  const a=rules.atan[Math.floor(Math.min(x,z)*256/Math.max(x,z))];
+  return (dx>=0?dz<0?(x<z?a:512-a):(x<z?1024-a:512+a):dz<0?(x<z?2048-a:1536+a):(x<z?1024+a:1536-a))&2047;
+}
+// 0x4e6a70: signed high word of a 16.16 sine product, then reflect native Y.
+export function nativeStep(p:Point,angle:number,length:number):Point{
+  return {x:(Math.round(p.x*256)+Math.floor(rules.sine[angle&2047]*length/65536))/256,z:(Math.round(p.z*256)-Math.floor(rules.sine[(angle+512)&2047]*length/65536))/256};
+}
+export function random(w:World){const n=(Math.imul(w.randomState,0x24a1)+0x24df)>>>0;return w.randomState=((n>>>13)|(n<<19))>>>0;}
+function meleeExchange(w:World,u:Unit,target:Unit){
+  // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
+  const choice=random(w)&15,action=u.kind==='shaman'?(choice<=6?'attack':'special'):choice<=4?'attack':choice<14?'special':'strike';
+  const damage=meleeDamage(u),counter=meleeDamage(target),turns=u.kind==='shaman'?(action==='special'?5:4):action==='attack'?6:7;
+  release(u);release(target);u.path=[];target.path=[];u.target=target.id;target.target=u.id;
+  u.heading=Math.PI-nativeAngle(Math.round((target.x-u.x)*256),Math.round((target.z-u.z)*256))*Math.PI/1024;target.heading=u.heading+Math.PI;
+  u.fight={opponent:target.id,action,started:w.turn,until:w.turn+turns};
+  // ponytail: four reaction + two push-delay turns stay stationary until native recoil physics is ported.
+  target.fight={opponent:u.id,action:'recoil',started:w.turn,until:w.turn+(action==='attack'&&target.kind!=='shaman'?6:7)};
+  target.hp=Math.max(0,(Math.round(target.hp*20)-Math.round(damage*20))/20);
+  if(action!=='special')u.hp=Math.max(0,(Math.round(u.hp*20)-Math.round(counter*20))/20);
+  effect(w,'hit',target);if(action!=='special')effect(w,'hit',u);
+}
 export function unitAnimation(w:World,u:Unit){
   if(u.lift>0)return 'airborne';
   if(u.casting)return 'cast';
+  if(u.fight)return u.fight.action;
   if(u.fighting)return 'attack';
   if(u.path.length)return u.cargo?'carry':'walk';
   if(u.cargo)return 'carryIdle';
@@ -124,13 +150,13 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
 export type World = {
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; shrines: Shrine[]; trees: Tree[];
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
-  time: number; turn: number; pendingTime: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
+  time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
   paused: boolean; speed: number; message: string; messageUntil: number; status: 'playing' | 'won' | 'lost';
   respawn: number; redRespawn: number; stats: { built: number; cast: number; bridges: number; trained: number };
 };
 function route(w:World,start:Point,end:Point){return findPath(w.terrain,start,end,w.buildings);}
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
-  const u: Unit = { x:p.x, z:p.z, id: w.nextId++, team, kind, hp: maxHp(kind), path: [], target: null, cooldown: 0, work: null, inside:null, cargo:0, tree:null, timer:0, guard:false, lift:0, vx:0, vz:0,idleTurns:0,heading:Math.PI,fighting:false,casting:null };
+  const u: Unit = { x:p.x, z:p.z, id: w.nextId++, team, kind, hp: maxHp(kind), path: [], target: null, cooldown: 0, work: null, inside:null, cargo:0, tree:null, timer:0, guard:false, lift:0, vx:0, vz:0,idleTurns:0,heading:Math.PI,fighting:false,fight:null,casting:null };
   w.units.push(u); return u;
 }
 export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, complete = true) {
@@ -138,7 +164,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 export function createWorld(): World {
-  const w: World = { terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], shrines:[], trees:[], mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+  const w: World = { terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], shrines:[], trees:[], mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
@@ -155,7 +181,7 @@ export function createWorld(): World {
 export function tell(w: World, message: string) { w.message = message; w.messageUntil = w.time + 9; }
 export function effect(w: World, kind: Effect['kind'], p: Point) { const f:Effect={ x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:kind==='blast'?1.2:1.7 };w.effects.push(f);return f; }
 export function select(w: World, kind: UnitKind | 'all') { w.selected=w.units.filter(u=>u.team==='blue'&&(kind==='all'||u.kind===kind)).map(u=>u.id); w.mode=null; }
-function release(u: Unit) { u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.idleTurns=0; }
+function release(u: Unit) { u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
 export function entrance(w: World, b: Point, radius=4) {
   const angle='angle' in b?Number(b.angle):0;
   // Native model doors face -Z. Reflect both the model and the native map coordinates.
@@ -165,7 +191,7 @@ export function entrance(w: World, b: Point, radius=4) {
 export function command(w: World, p: Point) {
   if(w.paused||w.status!=='playing')return;
   const shrine=w.shrines.find(s=>s.active&&distance(s,p)<3), building=w.buildings.find(b=>distance(b,p)<3.1);
-  const enemy=w.units.find(u=>u.team==='red'&&distance(u,p)<1.5) ?? (building?.team==='red'?building:undefined);
+  const enemy=w.units.find(u=>u.team==='red'&&u.inside===null&&u.lift===0&&distance(u,p)<1.5) ?? (building?.team==='red'?building:undefined);
   const friendly=building?.team==='blue'?building:undefined;
   let count=0;
   for(const u of w.units.filter(u=>w.selected.includes(u.id))) {
@@ -232,12 +258,12 @@ function damageSpell(w:World,spell:'blast'|'lightning',p:Point,caster:Unit) {
     if(u.team!==caster.team)u.hp-=50/20;
     const dx=distance(u,p)<.2?p.x-caster.x:u.x-p.x,dz=distance(u,p)<.2?p.z-caster.z:u.z-p.z,d=Math.hypot(dx,dz)||1;
     const strength=Math.max(.15,1-distance(u,p)/5)*140/256*TURNS_PER_SECOND;
-    u.vx=dx/d*strength;u.vz=dz/d*strength;u.lift=1;u.path=[];u.inside=null;u.casting=null;
+    u.vx=dx/d*strength;u.vz=dz/d*strength;u.lift=1;u.path=[];u.inside=null;u.casting=null;u.fight=null;
   }
   for(const b of w.buildings)if(distance(b,p)<radius+1.5)b.hp-=20;
 }
 function manaPulse(w:World,team:Team){
-  const amount=w.units.filter(u=>u.team===team&&u.hp>0).reduce((n,u)=>{const busy=u.inside!==null||u.work!==null||u.path.length>0||u.fighting||u.casting!==null;return n+(u.kind==='shaman'?constants.MANA_F_SHAMEN:u.kind==='brave'?busy?rules.manaBusyBrave:rules.manaIdleBrave:busy?rules.manaBusyWarrior:rules.manaIdleWarrior);},0);
+  const amount=w.units.filter(u=>u.team===team&&u.hp>0).reduce((n,u)=>{const busy=u.inside!==null||u.work!==null||u.path.length>0||u.fighting||u.fight!==null||u.casting!==null;return n+(u.kind==='shaman'?constants.MANA_F_SHAMEN:u.kind==='brave'?busy?rules.manaBusyBrave:rules.manaIdleBrave:busy?rules.manaBusyWarrior:rules.manaIdleWarrior);},0);
   return Math.floor(amount*(team==='blue'?rules.humanManaFactor:rules.computerManaFactor)/256);
 }
 export function manaRate(w:World){return manaPulse(w,'blue')*TURNS_PER_SECOND/(rules.manaUpdateMask+1)/1000;}
@@ -248,6 +274,7 @@ export function tick(w:World,dt:number){
   while(w.pendingTime+1e-9>=1/TURNS_PER_SECOND&&w.status==='playing'){
     w.pendingTime=Math.max(0,w.pendingTime-1/TURNS_PER_SECOND);if(w.pendingTime<1e-9)w.pendingTime=0;stepTurn(w);
   }
+  if(w.status!=='playing')w.pendingTime=0;
 }
 function stepTurn(w:World){
   const dt=1/TURNS_PER_SECOND;w.turn++;w.time=w.turn/TURNS_PER_SECOND;
@@ -311,25 +338,37 @@ function stepTurn(w:World){
     }
   }
 
+  const contacts:[Unit,Unit][]=[];
   for(const u of w.units) {
     u.fighting=false;if(u.hp<=0)continue;u.cooldown=Math.max(0,u.cooldown-dt);
     if(u.lift>0){u.x+=u.vx*dt;u.z+=u.vz*dt;u.lift=Math.max(0,u.lift-dt);if(!u.lift&&!walkable(w.terrain,u))u.hp=0;continue;}
     if(!walkable(w.terrain,u)){u.hp=0;continue;}
+    if(u.fight){if(u.fight.until>w.turn&&w.units.some(t=>t.id===u.fight!.opponent&&t.hp>0&&t.lift===0))continue;u.fight=null;}
     if(u.casting){u.casting.remaining-=dt;if(u.casting.remaining<=1e-8){const pending=u.casting;u.casting=null;finishCast(w,u,pending.spell,pending.point);}continue;}
     const work=w.buildings.find(b=>b.id===u.work&&b.hp>0)??w.shrines.find(s=>s.id===u.work&&s.active);
     if(u.work!==null&&!work)release(u);
     if(u.inside!==null){const b=w.buildings.find(b=>b.id===u.inside&&b.hp>0);if(b)continue;release(u);u.hp-=10;}
     if(work&&'kind' in work&&'hp' in work&&work.progress===1&&!u.path.length&&distance(u,work)<=4.2){const capacity=housing(work);if(w.units.filter(a=>a.inside===work.id).length<capacity){u.inside=work.id;continue;}}
     let target:Unit|Building|undefined=u.target===null?undefined:[...w.units,...w.buildings].find(t=>t.id===u.target&&t.hp>0);
-    if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&!t.inside&&distance(u,t)<(u.team==='red'?8:3));}
+    if(target&&!('progress' in target)&&(target.lift>0||target.inside!==null))target=undefined;
+    if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&t.inside===null&&t.lift===0&&distance(u,t)<(u.team==='red'?8:3));}
     if(target){u.heading=Math.atan2(target.x-u.x,target.z-u.z);}
     if(target&&u.team==='red'&&u.kind==='shaman'&&distance(u,target)<12){if(!u.cooldown){u.path=[];u.casting={spell:'blast',point:{x:target.x,z:target.z},remaining:6/TURNS_PER_SECOND};u.cooldown=6;}continue;}
     if(target&&distance(u,target)<('progress' in target?4.3:1.7)){
-      u.fighting=true;if(!u.cooldown){target.hp-=meleeDamage(u);u.cooldown=(u.kind==='shaman'?4:6)/TURNS_PER_SECOND;effect(w,'hit',target);}continue;
+      if('progress' in target){u.fighting=true;if(!u.cooldown){target.hp-=meleeDamage(u);u.cooldown=(u.kind==='shaman'?4:6)/TURNS_PER_SECOND;effect(w,'hit',target);}}
+      else contacts.push([u,target]);continue;
     }
     if(target&&u.target===null&&u.team==='red'&&!u.work){u.target=target.id;u.path=route(w,u,target);}
     if(u.guard&&!u.path.length){const shaman=w.units.find(a=>a.team===u.team&&a.kind==='shaman');if(shaman&&distance(u,shaman)>3)u.path=route(w,u,entrance(w,shaman,2));}
-    if(u.path.length){const next=u.path[0],d=distance(u,next),step=(u.kind==='shaman'?constants.MEDICINE_MAN_SPEED:u.kind==='warrior'?constants.WARRIOR_SPEED:constants.BRAVE_SPEED)/256*TURNS_PER_SECOND*dt;if(!walkable(w.terrain,next)){u.path=[];continue;}if(d>.001)u.heading=Math.atan2(next.x-u.x,next.z-u.z);if(d<=step){u.x=next.x;u.z=next.z;u.path.shift();}else{u.x+=(next.x-u.x)/d*step;u.z+=(next.z-u.z)/d*step;}}
+    if(u.path.length){
+      const next=u.path[0],length=u.kind==='shaman'?constants.MEDICINE_MAN_SPEED:u.kind==='warrior'?constants.WARRIOR_SPEED:constants.BRAVE_SPEED;
+      if(!walkable(w.terrain,next)){u.path=[];continue;}
+      const dx=Math.round(next.x*256)-Math.round(u.x*256),dz=Math.round(next.z*256)-Math.round(u.z*256),angle=nativeAngle(dx,dz);
+      if(dx||dz)u.heading=Math.PI-angle*Math.PI/1024;
+      const p=Math.hypot(dx,dz)<=length?{x:Math.round(next.x*256)/256,z:Math.round(next.z*256)/256}:nativeStep(u,angle,length);
+      if(!walkable(w.terrain,p)){u.path=[];continue;}u.x=p.x;u.z=p.z;
+      if(Math.hypot(dx,dz)<=length)u.path.shift();
+    }
     else if(target&&u.target!==null)u.path=route(w,u,'progress' in target?entrance(w,target):target);
     else if(work)u.heading=Math.atan2(work.x-u.x,work.z-u.z);
     if(u.kind==='brave'&&!u.path.length&&u.work===null&&u.target===null&&!u.guard){
@@ -340,6 +379,9 @@ function stepTurn(w:World){
       }
     }else u.idleTurns=0;
   }
+  // Stable contact order prevents render/storage order from deciding simultaneous melee damage.
+  // ponytail: individual exchanges support this mission; native four-person fight groups are not yet ported.
+  for(const [u,target] of contacts.sort((a,b)=>a[0].id-b[0].id))if(u.hp>0&&target.hp>0&&u.inside===null&&target.inside===null&&u.lift===0&&target.lift===0&&distance(u,target)<1.7&&!u.fight&&!target.fight&&!u.casting&&!target.casting)meleeExchange(w,u,target);
   for(const u of w.units.filter(u=>u.hp<=0&&u.kind==='shaman'))if(w.units.some(a=>a.team===u.team&&a.hp>0)){if(u.team==='blue'){w.respawn=12;tell(w,'Your shaman will reincarnate in 12 seconds.');}else w.redRespawn=12;}
   for(const u of w.units.filter(u=>u.hp<=0)){const f=effect(w,walkable(w.terrain,u)?'death':'splash',u);if(f.kind==='death')f.unit={team:u.team,kind:u.kind,heading:u.heading};}
   for(const b of w.buildings.filter(b=>b.hp<=0))effect(w,'death',b);

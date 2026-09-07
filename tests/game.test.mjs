@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, random } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
 test('original level layout, spherical coordinates, foundations, and the complete mission',()=>{
@@ -16,7 +16,9 @@ test('original level layout, spherical coordinates, foundations, and the complet
  select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));advance(w,42);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-24}));advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
  command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));advance(w,.6);assert.ok(w.redRespawn>0,'both shamans reincarnate with a delay');assert.ok(!w.units.includes(enemyShaman));
  // Fight through the remaining defenders using the units that were actually trained above.
- select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.units.find(u=>u.team==='red');if(!enemy)break;command(w,enemy);advance(w,8);}
+ select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.units.find(u=>u.team==='red'&&u.inside===null)??w.buildings.find(b=>b.team==='red'&&w.units.some(u=>u.inside===b.id));if(!enemy)break;command(w,enemy);advance(w,8);}
+ // Reincarnation can outlast the assault: use another earned Lightning gift on the last defender.
+ if(w.status==='playing'){select(w,'shaman');command(w,{x:0,z:-22});advance(w,40);const last=w.units.find(u=>u.team==='red');assert.ok(last);assert.ok(cast(w,'lightning',last));advance(w,1);}
  assert.equal(w.status,'won','the first mission can be won through the full discovery/build/train/combat loop');assert.ok(w.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
 });
 test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
@@ -95,4 +97,26 @@ test('lightning hits a native map cell and Blast leaves allied health intact',()
  assert.ok(!w.units.includes(hit));assert.equal(outside.hp,maxHp('brave'));assert.equal(outside.lift,0,'adjacent cells receive no invented radial lightning damage');
  const ally=addUnit(w,'blue','brave',{x:2,z:0});const hp=ally.hp;
  assert.ok(cast(w,'blast',ally));tick(w,.5);assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');
+});
+
+test('native integer movement and combat exchanges preserve timing, retaliation and replay',async()=>{
+ for(const [x,z,angle] of [[0,-256,0],[256,-256,256],[256,0,512],[256,256,768],[0,256,1024],[-256,256,1280],[-256,0,1536],[-256,-256,1792]])assert.equal(nativeAngle(x,z),angle);
+ assert.deepEqual(nativeStep({x:0,z:0},256,70),{x:49/256,z:-49/256});
+ assert.deepEqual(nativeStep({x:0,z:0},1280,70),{x:-50/256,z:50/256},'signed native products round down, not toward zero');
+ const moving=createWorld();moving.terrain.fill(3);moving.buildings=[];moving.units=[];
+ const walker=addUnit(moving,'blue','brave',{x:0,z:0});addUnit(moving,'red','brave',{x:40,z:40});walker.path=[{x:10,z:0}];tick(moving,1/12);
+ assert.equal(walker.x,70/256);assert.equal(walker.z,0);assert.equal(walker.heading,Math.PI/2);
+ const rng=createWorld();assert.deepEqual(Array.from({length:6},()=>random(rng)),[1275068418,1896767491,2517695575,2629181784,3921238491,2630906275]);
+ const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.units=[];w.buildings=[];w.randomState=seed;addUnit(w,'blue','warrior',{x:0,z:0});addUnit(w,'red','brave',{x:1,z:0});return w;};
+ const a=duel(),b=structuredClone(a);b.units.reverse();tick(a,1/12);tick(b,1/12);b.units.sort((a,b)=>a.id-b.id);assert.deepEqual(b,a,'one coordinated exchange is independent of unit array order');
+ assert.equal(a.units[0].hp,87);assert.equal(a.units[1].hp,32,'the brave retaliates with its pre-hit health');
+ assert.equal(a.units[0].fight.action,'attack');assert.equal(a.units[1].fight.action,'recoil');
+ assert.equal(a.units[0].heading,Math.PI/2);assert.equal(a.units[1].heading,Math.PI*1.5);
+ tick(a,5/12);assert.equal(a.units[1].hp,32,'no second exchange during animation recovery');tick(a,1/12);assert.ok(a.units[1].hp<32);
+ const special=duel(75);tick(special,1/12);assert.equal(special.units[0].fight.action,'special');assert.equal(special.units[0].hp,90,'state 4 suppresses retaliation');assert.equal(special.units[0].fight.until-special.turn,7);
+ const strike=duel(12);tick(strike,1/12);assert.equal(strike.units[0].fight.action,'strike');assert.equal(strike.units[0].hp,87);
+ const lethal=duel();for(const u of lethal.units)u.hp=1;tick(lethal,1/12);assert.equal(lethal.units.length,0,'a lethal ordinary exchange still applies both precomputed hits');
+ const replay=duel(),other=structuredClone(replay);for(let i=0;i<150;i++)tick(replay,1/30);for(let i=0;i<720;i++)tick(other,1/144);assert.deepEqual(other,replay);
+ const {readFileSync}=await import('node:fs'),sprites=JSON.parse(readFileSync(new URL('../app/original-units.json',import.meta.url)));
+ for(const [kind,state,start,frames] of [['warrior','attack',120,6],['warrior','strike',104,7],['warrior','special',200,7],['brave','recoil',112,7],['shaman','special',552,5],['shaman','recoil',424,5]]){const cycle=sprites.animations[`blue-${kind}`][state][0];assert.equal(cycle.source,start);assert.equal(cycle.frames.length,frames);}
 });

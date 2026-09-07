@@ -328,7 +328,7 @@ export class GameScene {
       const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[g.userData.signature];
       const state=unitAnimation(this.world,u);
       if(g.userData.state!==state){g.userData.state=state;g.userData.since=this.world.time;}
-      this.animatePerson(body,g,u.heading,animations[state]??animations.idle,this.world.time-g.userData.since);
+      this.animatePerson(body,g,u.heading,animations[state]??animations.idle,this.world.time-(u.fight?u.fight.started/12:g.userData.since),u.fight!==null);
       g.userData.selection.visible=this.world.selected.includes(u.id);
       g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id);
       g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = Math.max(.001, u.hp / maxHp(u.kind));

@@ -18,7 +18,7 @@ def read(address,size):
         if virtual<=rva and rva+size<=virtual+raw_size:return b[raw+rva-virtual:raw+rva-virtual+size]
     raise ValueError(hex(address))
 rows={}
-for name,row in [('idle',0),('walk',1),('carryIdle',4),('carry',5),('work',6),('chop',8),('attack',10),('airborne',12),('pray',13)]:
+for name,row in [('idle',0),('walk',1),('carryIdle',4),('carry',5),('work',6),('chop',8),('attack',10),('strike',8),('special',16),('recoil',9),('airborne',12),('pray',13)]:
     rows[name]={}
     for kind,index in [('brave',2),('warrior',3),('shaman',7)]:
         obj=struct.unpack('<h',read(0x5a6d50+(row*9+index)*2,2))[0]
@@ -41,6 +41,10 @@ if len(sys.argv)>2:
     def value(address,size=4):
         return int.from_bytes(bytes(memory.get(address+i,read(address+i,1)[0]) for i in range(size)),'little')
     rules={'manaUpdateMask':value(0x5aa44c),'manaIdleBrave':value(0x5aa5bc),'manaBusyBrave':value(0x5aa5c4),'manaIdleWarrior':value(0x5aa5c0),'manaBusyWarrior':value(0x5aa5c8),'humanManaFactor':value(0x5aa41c),'computerManaFactor':value(0x5aa420),'breedingBands':[value(0x5aa47c+i*4) for i in range(20)],'trainingBands':[value(0x5aa578+i*4) for i in range(6)],'hutCapacity':[value(0x5a7228+i*76+32,1) for i in (1,2,3)],'hutUpgradeWork':[value(0x5a7228+i*76+54,2) for i in (1,2,3)],'hutBreedingWork':[value(0x5a7228+i*76+60,2) for i in (1,2,3)]}
+    rules['sine']=list(struct.unpack('<2048i',read(0x5ddde8,2048*4)))
+    rules['atan']=list(struct.unpack('<257h',read(0x5861b4,257*2)))
+    assert [rules['sine'][i] for i in [0,512,1024,1536]]==[0,65536,0,-65536]
+    assert rules['atan'][0]==0 and rules['atan'][256]==256
     assert rules['manaUpdateMask']==3 and rules['hutCapacity']==[3,4,5]
     assert rules['breedingBands'][0]==76 and rules['hutBreedingWork'][0]==4000
     report.update(runtimeRules=rules,ignoredConstants=sorted(constants.keys()-recognized))
