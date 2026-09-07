@@ -1071,3 +1071,58 @@ immediate-target handling, configured brave speed, fight-release animation,
 and empty-order nonmutation. Live browser command scheduling, pathfinding,
 travel, training-list/occupancy mutation and arrival remain unfinished; the
 original mission training block stays unbound until those consumers are ready.
+
+## Training waiting line and command-8 substates
+
+The verified executable's `00434610` now has a TypeScript reconstruction in
+`app/training.ts`, together with its actual linked-list queue consumers
+`00409580` (prune/rebuild), `00409b10` (append), `00409bd0` (predecessor), and
+`00409c50` (indexed entry/tail). The building's queue head is word `+a2`;
+person successors are words `+85`. Queue membership requires a live person in
+state 10 or 14, substate 3, with an uncancelled current command 8 targeting the
+building. The immediate command takes precedence even when cancelled. Pruning
+preserves raw links while traversing only live entries, clears removed people's
+membership flag, and sets building activity `0x2000` plus the first changed
+position, clamped to 255. A broken final link is not silently repaired. Native
+lists are acyclic; malformed cycles are outside this reconstruction's domain.
+
+The controller preserves substates 0–13, including same-call fallthroughs:
+approach, join/wait, enter/retry, inside work and idle. Queue slot numbers and
+refresh delays are bytes; position lookup sign-extends the slot. A follower
+which reaches its queue position stops and faces the preceding slot or the
+building entrance. An already-trained specialist can swap places with the
+untrained follower behind it on its 16-phase check. Both receive delayed slot
+refreshes, and movement restarts consume the original speed RNG draws. The
+building's trained person model is imported from descriptor byte `+49` at
+`005a7228 + model*76`, not inferred from names or browser building kinds.
+
+The waiting head can approach the entrance only when capacity is available,
+the building's entry delay is zero, and the follower is stopped. The controller
+sets a 16-tick entry delay and removes that follower from the waiting list.
+Entry is staged through the outside and inside points, with separate congestion
+and entering counters; blocked entry retries only for queue-enabled building
+models. Queue movement can time out or restart after movement flags change.
+Goal proximity compares the absolute difference of *separately sign-extended*
+coordinates at person `+4f/+51` and `+3d/+3f`. It does not use a wrapped delta;
+facing calculations do wrap. Native `004d4ee0` stopping is also reconstructed,
+preserving carrying and airborne animation choices without consuming RNG.
+
+`check-native-training-queue.py` compares **1,540** native queue operations
+with no supplied leaves, including invalid/dead links, cancelled immediate
+commands, non-person entries and changed-position byte clamping. It additionally
+compares **2,689** command scenarios across all 14 substates (2,688 single calls
+plus one six-tick specialist/trainee handoff), checking people, building fields,
+RNG, completion result and ordered effects. Configured balance constants are
+loaded through the executable's own descriptor table. A Node regression follows
+the specialist swap, delayed refresh, capacity release and cancellation cleanup.
+
+Boundaries remain explicit: `00409710` queue geometry, `004044b0` outside point,
+`00404420` inside point, `004e9d80` path request, `004e9dd0` direct destination,
+`0040a3f0` adjacency, animation output, motion-group release, cargo allocation,
+`00407150` occupant entry and `004da5b0` inside work are supplied consumers in
+these controller comparisons. The exported source also records the surrounding
+state-10 updater `00432590`, next-command routine `004366b0`, occupant removal
+`00407490`, cargo drop `004d58c0`, and path routines `004ec3f0`/`004e9e80` for
+continued reconstruction. Live world adapters, pathfinding, occupancy, order
+advancement and the original mission's training block remain unfinished. This
+checkpoint does not enable an approximate training AI in their place.

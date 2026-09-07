@@ -43,6 +43,17 @@ export function recoverPersonMovement(w: {randomState: number}, p: StatefulPerso
   setAnimation(p, rules.personAnimationObjects[row * 9 + p.model]);
 }
 
+// 0x4d4ee0: stopping keeps cargo/airborne animation choices, without an RNG draw.
+export function stopPersonMovement(p: StatefulPerson, setAnimation: PersonStateEffects['setAnimation']) {
+  p.speed = 0;
+  let row = p.cargo ? 4 : 0;
+  if (p.flags2 & 0x80000) {
+    row = p.flags4 & 0x400 ? 12 : 2;
+    if (row === 2) p.flags2 = (p.flags2 & ~0x8000) >>> 0;
+  }
+  setAnimation(p, rules.personAnimationObjects[row * 9 + p.model]);
+}
+
 // 0x4e9b40, shared by state release and command configuration.
 export function resetPersonMotion(p: StatefulPerson) {
   p.flags2 = ((p.flags2 & 0xdffff7ff) | 0x1000) >>> 0; p.motionTimer = 0; p.motionMode = 0;

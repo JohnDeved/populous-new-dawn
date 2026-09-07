@@ -375,3 +375,19 @@ The original `levels/constant.dat` must accompany the executable. Its decoded
 settings must match `app/original-constants.json`; the oracle writes these through
 the native constant descriptor table before comparisons. Native default speeds
 are different from the shipped balance overrides.
+
+## Training queue and command substates
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-training-queue.py /path/to/d3dpoptb.exe
+```
+
+`app/training.ts` reconstructs `00409580`, `00409b10`, `00409bd0`, `00409c50`
+and the complete command-8 dispatcher `00434610`. `stopPersonMovement` in
+`app/person-state.ts` reconstructs `004d4ee0`. The oracle requires the supplied
+`levels/constant.dat`, compares **1,540** queue calls without intercepted leaves,
+and **2,689** command scenarios across all 14 substates, including a six-tick
+queue handoff. Command comparisons execute native queue, speed/RNG, stopping
+and facing logic; geometry, path requests, animation output, cargo, occupant
+entry and inside work remain supplied world consumers. These are engine
+reconstructions, not proof of live browser pathfinding or training arrival.

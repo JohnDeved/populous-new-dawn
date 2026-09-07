@@ -601,3 +601,41 @@ test('training order startup uses configured speed and preserves only a compatib
  const before=JSON.stringify({w,p,events});startPersonOrders(w,p,effects);
  assert.equal(JSON.stringify({w,p,events}),before,'empty order startup consumes no RNG and changes no fields');
 });
+
+test('native training queue yields to an untrained follower and releases its new head', async () => {
+ const {stepTrainingPerson,rebuildTrainingQueue,trainingQueuePerson}=await import('../app/training.ts');
+ const {emptyPersonOrder}=await import('../app/person-orders.ts');
+ const records=Array.from({length:800},emptyPersonOrder);
+ Object.assign(records[1],{model:8,references:2,a:100});
+ Object.assign(records[2],{model:8,flags:1,references:1,a:100});
+ const person=(id,model,phase,next)=>({id,class:1,model,state:10,substate:3,tickPhase:0,physics:2,
+  flags2:0,flags3:32,flags4:0,assignment:8,commands:[1,0,0,0,0,0,0,0],commandCursor:0,
+  immediateCommand:0,workTarget:100,target:100,reservationNext:next,commandPhase:phase,commandAux:0,
+  x:1000,y:1000,goalX:1000,goalY:1000,speed:0,cargo:0,timer:256,angle:0,turnAngle:0,facingAngle:0});
+ const specialist=person(1,4,0,2),brave=person(2,2,1,0);
+ const b={id:100,class:2,model:5,flags2:0,flags3:0,activity:8,queueHead:1,queueFrom:0,
+  inside:5,entering:0,entryDelay:0,entryTimer:0};
+ const w={randomState:1,orders:{records,cursor:3,active:2},people:new Map([[1,specialist],[2,brave]]),buildings:new Map([[100,b]])};
+ const events=[],unexpected=()=>assert.fail('unexpected world consumer');
+ const effects={setAnimation:(p,id)=>events.push(['animation',p.id,id]),releaseMotion:p=>events.push(['motion',p.id]),
+  adjacentBuilding:unexpected,outsidePoint:unexpected,insidePoint:()=>({x:1000,y:1256}),
+  queuePoint:(_,index)=>({x:1000,y:1000-index*128}),setDestination:(p,x,y)=>{p.goalX=x&65535;p.goalY=y&65535;},
+  directDestination:unexpected,dropCargo:unexpected,enterBuilding:unexpected,workInside:unexpected};
+ assert.equal(stepTrainingPerson(w,specialist,effects),0);
+ assert.equal(b.queueHead,2);assert.equal(brave.reservationNext,1);assert.equal(specialist.reservationNext,0);
+ assert.equal(brave.commandAux,1);assert.equal(specialist.commandAux,1);
+ assert.equal(specialist.goalY,872);assert.equal(brave.goalY,1000);
+ assert.ok(specialist.speed>=70&&brave.speed>=70);
+ stepTrainingPerson(w,brave,effects);
+ assert.equal(brave.commandPhase,0);assert.equal(brave.speed,0);assert.equal(specialist.commandAux,2);
+ b.inside=0;
+ stepTrainingPerson(w,brave,effects);
+ assert.equal(brave.substate,6);assert.equal(b.entryDelay,16);
+ assert.equal(b.queueHead,1);assert.equal(brave.flags3&32,0);assert.equal(brave.reservationNext,0);
+ assert.equal(b.activity&0x2000,0x2000);assert.equal(b.queueFrom,0);
+ assert.equal(trainingQueuePerson(w,b,-1),specialist);
+ assert.equal(events.filter(e=>e[0]==='motion').length,1);
+ // A cancelled immediate command suppresses the otherwise valid queued order.
+ specialist.immediateCommand=2;
+ assert.equal(rebuildTrainingQueue(w,b),0);assert.equal(b.queueHead,0);assert.equal(specialist.flags3&32,0);
+});
