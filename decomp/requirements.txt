@@ -1,2 +1,2 @@
-# Optional CPU oracle used by scripts/check-native-projectile-math.py
+# Optional CPU oracle used by scripts/check-native-math.py
 unicorn==2.1.4

@@ -49,3 +49,40 @@ Repeat the math comparison against that pinned checkout with:
 ```sh
 python3 scripts/check-upstream-math.py /path/to/Populous-The-Beginning-Public
 ```
+
+## Additional symbol and campaign-tool checks
+
+The [PopRe world editor](https://github.com/PopRe/Pop-World-Editor/tree/3d02fa3113f737913cac9aefc5c6d2f635845df3) at `3d02fa3113f737913cac9aefc5c6d2f635845df3` includes `script.h`, `script_compile.cpp`, and `script_decompile.cpp`. Direct inspection confirms a version-12 PopScript compiler/decompiler, token constants, and constant/user/internal field handling. This can accelerate campaign bytecode decoding; it does not implement the engine's AI scheduler or command behavior. The only license file found in its recursive tree belongs to the bundled 3DS toolkit, so keep this as an external format reference until reuse terms for the editor code are established.
+
+The [historical community search for debug information](https://www.popre.net/forum/populous-tools-testing-f17/poptb-with-debug-information-t6976.html) includes requests for a PDB, not evidence that a matching package was located. Do not confuse cheat/debug mode with compiler debug symbols.
+
+### Modern Linux server: real symbols, different subsystem
+
+Downloaded the Linux server build 4708 linked by the [PopTB development team](https://www.populous3.info/), and inspected the ZIP/ELF without executing the program or its installer:
+
+- [Published archive](https://www.populous3.info/releases/poptb-server/PopServer-Linux-Release-x64-4708.zip): SHA256 `66504ec244d94ed5e7dea85fd6e5bfdca23533a0a0ab3ae8577c83197d710bd1`.
+- `pop3-server`: 193,312 bytes, ELF x86-64, SHA256 `ccac6d8413f8a22ab9c2f0f8fb2d59b8bb50bdef56cfb9c49b91e2cb66753533`.
+- Retains `.symtab` with 559 entries, including 381 named defined symbols. These counts include compiler and library symbols, not just application functions. No `.debug*`, `.zdebug*`, or `.gnu_debug*` sections were present.
+- Source-file symbols include `main.cpp`, `FederationClient.cpp`, `LobbyDirectory.cpp`, and `LobbySession.cpp`; named functions include `LobbyDirectory::handleJoin` and `LobbySession::onJoinerReadable`.
+- The accompanying README describes a lobby directory, federation announcer, and UDP packet relay. It is not a headless gameplay simulation. These symbols can help study the modern lobby protocol, but cannot label the original 1998 combat, terrain, or AI routines.
+
+Retain the download outside the repository. No architecture change follows from this lead, and its modern protocol must not be assumed to match the original release.
+
+### Modern Windows game: PDB locators, no packaged PDB
+
+Inspected the [official build 4752 installer](https://www.populous3.info/releases/poptb/pop3-build-4752.exe), SHA256 `49b8266275dfacc051c0f5b6b0f8a7fe34468a0d9360d2021a0d4861b31054a2`, using the existing Binary Refinery `xtinno` extractor and `pefile`; no executable was run. Its 2,008 listed members contain no `.pdb`, `.dbg`, or `.sym` file. The `.map` match is the game's `data/uk.map`, not a linker symbol map.
+
+Unlike our original executable, both modern game executables contain RSDS CodeView records:
+
+| Binary | SHA256 | PDB GUID / age | Embedded build path |
+| --- | --- | --- | --- |
+| `pop3.exe` (24,035,840 bytes) | `ee4ced53aeb233d1b1ec2430bc1983694bdea2f995fecaf485f185f8f4cf546c` | `354e6174-dd73-468f-ae8c-61ad67423cb1` / 1 | `D:\Builds\poptb_release\Source\ReleaseSW\pop3.pdb` |
+| `pop3_x64.exe` (43,162,112 bytes) | `504a766beba180df11f7160d03ce91a99231092fdde4e4c7ef946547c0e4ffd0` | `026a2925-2dca-45ca-98d0-6b4ab7b41943` / 1 | `D:\Builds\poptb_release\Source\x64\ReleaseSW\pop3.pdb` |
+
+These identifiers would allow an exact match if the maintainers publish symbols. An embedded PDB path is not the PDB itself or a download URL. Modern-build symbols could assist cross-version function matching, but their addresses and behavior must not be applied directly to the supplied original executable.
+
+Repeat the installer inventory with the existing extractor:
+
+```sh
+xtinno -l < /path/to/pop3-build-4752.exe
+```

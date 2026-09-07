@@ -19,7 +19,7 @@ All rows remain open until compared against the original engine, including edge 
 | Subsystem | Current evidence | Still required |
 | --- | --- | --- |
 | Decompilation workflow | Pinned Ghidra/JDK, metadata adapter, section-byte verification, address-based C exports | Continue identifying routines and reconstructing reviewed code alongside ports |
-| World, terrain, camera | Original mission-one data, textures and models imported | Exact toroidal coordinates, deformation, projection, visibility and camera behavior |
+| World, terrain, camera | Original mission-one data, textures and models; native tile split/height routines CPU-compared and used during import | Exact toroidal coordinates, deformation, projection, visibility and camera behavior |
 | Graphics and interface | Original layered unit sprites, building meshes, HUD and several effects | All animation states, layers, palettes, blend passes, effects and controls |
 | Turns and randomness | 12 Hz turns, integer movement tables, native RNG formula | Scheduling order/phases, seed initialization and complete RNG consumption |
 | Movement and physics | Integer steps and partial ground recoil | Original pathfinding, formation, steering, collision, slopes, falling and drowning |
@@ -29,6 +29,6 @@ All rows remain open until compared against the original engine, including edge 
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
 | AI and campaign | Original first-level layout and progression, script interpreter entry located | Original AI interpreter, all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Ten regression tests and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Eleven regression tests and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).

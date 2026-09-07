@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, random, fightPosition } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
@@ -171,4 +171,29 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  const a=make(),b=make();a.shots.bridge=b.shots.bridge=1;cast(a,'bridge',{x:10,z:0});cast(b,'bridge',{x:10,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a,b,'flight, effects and simulation RNG are independent of rendering FPS');
  const dead=make();cast(dead,'blast',{x:10,z:0});dead.units[0].hp=0;tick(dead,1/12);assert.equal(dead.projectiles.length,0);assert.equal(dead.shots.blast,3,'caster death removes a pending spell without refunding the spent shot');
  const won=createWorld();won.terrain.fill(3);won.units=won.units.filter(u=>u.kind==='shaman');Object.assign(won.units[0],{x:0,z:0});Object.assign(won.units[1],{x:9,z:-1});won.shots.lightning=1;cast(won,'lightning',won.units[1]);impact(won,'lightning');assert.equal(won.status,'won');assert.ok(won.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
+});
+
+
+test('native terrain ridges, reflected diagonals, surface planes and boundary vertices',()=>{
+  assert.equal(nativeTerrainCross(0,0,0,1),true,'rounded-mean ties retain native bit 0');
+  assert.equal(nativeTerrainCross(0,148,0,0),false);
+  const original=Array(16384).fill(0);original[1]=148;
+  assert.equal(nativeTerrainHeight(original,256,256),0,'ridge center is not bilinear average 37');
+  assert.equal(makeTerrain()[(-41+48)*GRID-7+48],-.35,'original zero-height ridge stays below the sea');
+  for(const corners of [[0,0,0,8],[0,8,0,0]]){
+    const t=Array(GRID*GRID).fill(0),i=48*GRID+48;
+    [i,i+1,i+GRID,i+GRID+1].forEach((k,j)=>t[k]=corners[j]);
+    const cross=terrainCross(...corners);
+    const vertices=[[0,0],[1,0],[0,1],[1,1]].map(([x,z],j)=>planetPoint({x,z},corners[j]));
+    const dot=(a,b)=>a.x*b.x+a.y*b.y+a.z*b.z,sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y,z:a.z-b.z});
+    for(const x of [.1,.4,.9])for(const z of [.1,.6,.9]){
+      const ids=cross?(x+z<=1?[0,1,2]:[3,2,1]):(z<x?[0,1,3]:[0,2,3]);
+      const a=vertices[ids[0]],u=sub(vertices[ids[1]],a),v=sub(vertices[ids[2]],a);
+      const n={x:u.y*v.z-u.z*v.y,y:u.z*v.x-u.x*v.z,z:u.x*v.y-u.y*v.x};
+      assert.ok(Math.abs(dot(n,sub(worldPoint(t,{x,z}),a)))<1e-10,'unit position lies on its rendered triangle plane');
+    }
+    assert.equal(height(t,.5,.5),cross?(corners[1]+corners[2])/2:(corners[0]+corners[3])/2);
+  }
+  const t=Array(GRID*GRID).fill(0);t[t.length-1]=123;
+  assert.equal(height(t,48,48),123,'outermost vertex is exact');
 });

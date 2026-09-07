@@ -35,7 +35,10 @@ export function planetPoint(p:Point,h=0) {const n=normal(p),r=PLANET_RADIUS+h;re
 export function mapPoint(p:{x:number;y:number;z:number}):Point {return {x:Math.atan2(p.x,p.y+PLANET_RADIUS)*PLANET_RADIUS,z:Math.asin(Math.max(-1,Math.min(1,p.z/Math.hypot(p.x,p.y+PLANET_RADIUS,p.z))))*PLANET_RADIUS};}
 export function worldPoint(terrain:number[],p:Point) {
   const x=Math.floor(p.x),z=Math.floor(p.z),fx=p.x-x,fz=p.z-z;
-  const nodes=fx+fz<=1?[[x,z,1-fx-fz],[x+1,z,fx],[x,z+1,fz]]:[[x+1,z+1,fx+fz-1],[x,z+1,1-fx],[x+1,z,1-fz]];
+  const cross=terrainCross(height(terrain,x,z),height(terrain,x+1,z),height(terrain,x,z+1),height(terrain,x+1,z+1));
+  const nodes=cross?
+    (fx+fz<=1?[[x,z,1-fx-fz],[x+1,z,fx],[x,z+1,fz]]:[[x+1,z+1,fx+fz-1],[x,z+1,1-fx],[x+1,z,1-fz]]):
+    (fz<fx?[[x,z,1-fx],[x+1,z,fx-fz],[x+1,z+1,fz]]:[[x,z,1-fz],[x,z+1,fz-fx],[x+1,z+1,fx]]);
   return nodes.reduce((v,[x,z,t])=>{const q=planetPoint({x,z},height(terrain,x,z));return {x:v.x+q.x*t,y:v.y+q.y*t,z:v.z+q.z*t};},{x:0,y:0,z:0});
 }
 export const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -162,22 +165,35 @@ export function unitAnimation(w:World,u:Unit){
   if(w.buildings.some(b=>b.id===u.work&&b.progress<1&&b.logs>=(BUILDINGS.find(s=>s.id===b.kind)?.cost??Infinity)&&distance(b,u)<=4.2))return 'work';
   return w.selected.includes(u.id)?'selected':'idle';
 }
+// 0x44df40: bit 0 chooses B-C when A or D is furthest from the rounded mean.
+export function nativeTerrainCross(a:number,b:number,c:number,d:number){
+  const mean=(a+b+c+d)>>2;
+  return Math.max(Math.abs(a-mean),Math.abs(d-mean))>=Math.max(Math.abs(b-mean),Math.abs(c-mean));
+}
+// 0x44e940: toroidal 128-cell map, 512 coordinates/cell, separate signed shifts.
+export function nativeTerrainHeight(terrain:readonly number[],x:number,y:number){
+  const ix=(x&65535)>>9,iy=(y&65535)>>9,fx=(x&510)>>1,fy=(y&510)>>1;
+  const a=terrain[iy*128+ix],b=terrain[iy*128+((ix+1)&127)],c=terrain[((iy+1)&127)*128+ix],d=terrain[((iy+1)&127)*128+((ix+1)&127)];
+  return short(nativeTerrainCross(a,b,c,d)?(fx+fy<256?a+(((b-a)*fx)>>8)+(((c-a)*fy)>>8):d+(((b-d)*(256-fy))>>8)+(((c-d)*(256-fx))>>8)):
+    (fy<fx?a+(((d-b)*fy)>>8)+(((b-a)*fx)>>8):a+(((d-c)*fx)>>8)+(((c-a)*fy)>>8)));
+}
+// Browser Z reflects native Y, exchanging the two diagonals. Quantize like the water shader.
+export function terrainCross(a:number,b:number,c:number,d:number){return !nativeTerrainCross(Math.floor(c*45+.5),Math.floor(d*45+.5),Math.floor(a*45+.5),Math.floor(b*45+.5));}
 export function makeTerrain() {
-  const original = new Map(level.heights.map(([x,z,h]) => [z*128+x, h]));
-  const sample = (x: number, z: number) => (original.get(((z+128)%128)*128+(x+128)%128) ?? 0) / 45;
+  const original = Array<number>(128*128).fill(0);
+  for(const [x,y,h] of level.heights)original[y*128+x]=h;
   return Array.from({length: GRID*GRID}, (_,i) => {
-    const x=(i%GRID-48)/2+4,z=-(Math.floor(i/GRID)-48)/2-4,ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz;
-    const h=sample(ix,iz)*(1-fx)*(1-fz)+sample(ix+1,iz)*fx*(1-fz)+sample(ix,iz+1)*(1-fx)*fz+sample(ix+1,iz+1)*fx*fz;
-    // Keep the sea bed just below zero so original coast ramps meet the water without artificial cliffs.
+    const x=i%GRID-48,z=Math.floor(i/GRID)-48,h=nativeTerrainHeight(original,(x+8)*256,(-z-8)*256)/45;
+    // ponytail: cropped/resampled terrain and artificial seabed remain until the native world grid is ported.
     return h === 0 ? -.35 : h;
   });
 }
 export function height(terrain: number[], x: number, z: number) {
-  const gx = Math.max(0, Math.min(95.999, x + 48)), gz = Math.max(0, Math.min(95.999, z + 48));
-  const ix = Math.floor(gx), iz = Math.floor(gz), fx = gx - ix, fz = gz - iz;
+  const gx = Math.max(0, Math.min(96, x + 48)), gz = Math.max(0, Math.min(96, z + 48));
+  const ix = Math.min(95,Math.floor(gx)), iz = Math.min(95,Math.floor(gz)), fx = gx - ix, fz = gz - iz;
   const a = terrain[iz * GRID + ix], b = terrain[iz * GRID + ix + 1], c = terrain[(iz + 1) * GRID + ix], d = terrain[(iz + 1) * GRID + ix + 1];
   // Match the rendered triangles, including their diagonal, rather than bilinear interpolation.
-  return fx + fz <= 1 ? a + fx * (b - a) + fz * (c - a) : d + (1 - fx) * (c - d) + (1 - fz) * (b - d);
+  return terrainCross(a,b,c,d)?(fx+fz<=1?a+fx*(b-a)+fz*(c-a):d+(1-fx)*(c-d)+(1-fz)*(b-d)):(fz<fx?a+fx*(b-a)+fz*(d-b):a+fx*(d-c)+fz*(c-a));
 }
 export function surface(terrain: number[], p: Point) { return height(terrain,p.x,p.z); }
 export const footprint = (kind: BuildingKind) => kind === 'temple' ? 3.9 : 3;

@@ -2,7 +2,7 @@ import { soundAttenuation } from './audio';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, normal, planetPoint, mapPoint, worldPoint, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, normal, planetPoint, mapPoint, worldPoint, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModels from './original-models.json';
 import nativeUnits from './original-units.json';
@@ -141,7 +141,9 @@ export class GameScene {
         vec2 grid=map+48.,base=floor(grid),f=fract(grid);float h=-3.;
         if(all(greaterThanEqual(grid,vec2(0.)))&&all(lessThan(grid,vec2(96.)))){
           float a=texture2D(heights,(base+.5)/97.).r,b=texture2D(heights,(base+vec2(1.5,.5))/97.).r,c=texture2D(heights,(base+vec2(.5,1.5))/97.).r,d=texture2D(heights,(base+1.5)/97.).r;
-          h=f.x+f.y<=1.?a+f.x*(b-a)+f.y*(c-a):d+(1.-f.x)*(c-d)+(1.-f.y)*(b-d);
+          vec4 corners=floor(vec4(a,b,c,d)*45.+.5);float mean=floor(dot(corners,vec4(.25)));vec4 delta=abs(corners-mean);
+          bool cross=max(delta.x,delta.w)>max(delta.y,delta.z);
+          h=cross?(f.x+f.y<=1.?a+f.x*(b-a)+f.y*(c-a):d+(1.-f.x)*(c-d)+(1.-f.y)*(b-d)):(f.y<f.x?a+f.x*(b-a)+f.y*(d-b):a+f.x*(d-c)+f.y*(c-a));
         }
         vec2 wave=map/12.+vec2(time*.009,time*.004);
         float grain=texture2D(detail,wave).r;
@@ -182,7 +184,11 @@ export class GameScene {
   rebuildTerrain() {
     const w=this.world,positions:number[]=[],altitudes:number[]=[],uv:number[]=[];
     const add=(x:number,z:number)=>{const h=w.terrain[(z+48)*GRID+x+48],p=planetPoint({x,z},h);positions.push(p.x,p.y,p.z);altitudes.push(h);uv.push(x,z);};
-    for(let z=-48;z<48;z++)for(let x=-48;x<48;x++){add(x,z);add(x,z+1);add(x+1,z);add(x+1,z);add(x,z+1);add(x+1,z+1);}
+    for(let z=-48;z<48;z++)for(let x=-48;x<48;x++){
+      const i=(z+48)*GRID+x+48,t=w.terrain;
+      if(terrainCross(t[i],t[i+1],t[i+GRID],t[i+GRID+1])){add(x,z);add(x,z+1);add(x+1,z);add(x+1,z);add(x,z+1);add(x+1,z+1);}
+      else{add(x,z);add(x+1,z+1);add(x+1,z);add(x,z);add(x,z+1);add(x+1,z+1);}
+    }
     this.terrain.geometry.dispose();const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('altitude',new THREE.Float32BufferAttribute(altitudes,1));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     const smooth=mergeVertices(geo);smooth.computeVertexNormals();geo.dispose();this.terrain.geometry=smooth;
     (this.terrainData.image.data as Float32Array).set(w.terrain); this.terrainData.needsUpdate = true; this.terrainVersion = w.terrainVersion;

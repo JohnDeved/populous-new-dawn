@@ -167,7 +167,7 @@ fades, lighting and exact release animation still need porting.
 
 `nativeStep3D` reconstructs `004e6ac0` with 32-bit products, arithmetic shifts,
 half-scale vertical motion and signed-16 coordinate wrapping. The repository's
-`check-native-projectile-math.py` loads the hash-checked executable into Unicorn
+`check-native-math.py` loads the hash-checked executable into Unicorn
 2.1.4, invokes **the actual x86 movement routine**, and compares 508 cases to
 Node's browser implementation. All match. This is stronger evidence than a
 pseudocode-only check but covers the movement routine, not the entire shot
@@ -191,3 +191,16 @@ substates (including Lightning's extra effect-object dispatch), every other
 shot/spell class, complete damage/terrain deformation and original-engine
 replay comparisons. The browser's local arrival timings are tested but not
 claimed as a complete native turn trace.
+
+
+## Terrain diagonal selection and integer heights
+
+`0044df40` (`level_land_processing_2`) recomputes tile flags after height changes. For corners A=current, B=east, C=next native Y, D=diagonal, it computes `mean=(A+B+C+D)>>2` and sets bit 0 when A or D shares the largest absolute deviation from that mean. A set flag connects B-C; a clear flag connects A-D. Equality is significant. This is more specific than the community description of choosing the shortest diagonal; it also fixes the browser/native Y reflection.
+
+`0044e940` (`calc_point_height`) addresses the full 128×128 toroidal height grid using unsigned 16-bit coordinates, with 512 coordinate units per tile. It drops the lowest coordinate bit, giving weights 0..255. Each weighted height difference is arithmetically shifted by eight separately before addition, and callers consume the signed low 16 bits. Combining the products before rounding, or bilinear interpolation, changes the answer.
+
+Reviewed reconstructions `nativeTerrainCross` and `nativeTerrainHeight` in `app/model.ts` now sample the original mission heights. `terrainCross` reflects the rule for browser Z and selects the triangles used by the mesh, `height`, `worldPoint`, and the shoreline shader. Foundation vertices remain on their rendered supporting plane. The upper terrain boundary now samples its exact vertex instead of an epsilon inside the final cell.
+
+`scripts/check-native-math.py` executes the original tile flag setter from `0044df40` through its write at `0044e200` (stopping before `0044e202`), then calls the full height routine in Unicorn against the same native cells. All 680 cases match the browser helpers, including toroidal seams, signed limits, fractional coordinates and ties. The existing 508 movement cases also match. Eleven simulation/geometry regressions pass, including both diagonal surface planes and an original ridge whose old bilinear center was 37 but whose native center is zero.
+
+Remaining differences: the browser still crops and resamples into its 97×97 grid, substitutes a shallow seabed for zero, flattens building pads, and uses a spherical projection. Continuous height interpolation over that browser mesh is intentionally distinct from the native integer sampler used to import its vertices. Full-world coordinates, native projection, original deformation scheduling, terrain shading, and exact live native ground physics remain open. The emulation validates these isolated routines, not the entire original terrain processor or complete world parity.
