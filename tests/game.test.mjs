@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, random, fightPosition } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
 test('original level layout, spherical coordinates, foundations, and the complete mission',()=>{
  const w=createWorld();assert.deepEqual(HOME,{x:9,z:33});assert.deepEqual(ENEMY,{x:1,z:-37});assert.equal(w.units.filter(u=>u.team==='blue'&&u.kind==='brave').length,6);assert.equal(w.buildings.length,4);assert.equal(w.shrines.length,3);assert.equal(w.units.filter(u=>u.team==='red').length,5);
@@ -13,13 +14,13 @@ test('original level layout, spherical coordinates, foundations, and the complet
  command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',{x:guard.x+1,z:guard.z}));advance(w,2);assert.ok(!w.units.includes(guard),'Blast knocks the guard off the western coast');command(w,w.shrines.find(s=>s.kind==='vault'));advance(w,15);assert.ok(w.unlockedCamp);
  assert.ok(placeBuilding(w,'camp',{x:4,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
  select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
- select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));advance(w,42);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-24}));advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
- command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));advance(w,.6);assert.ok(w.redRespawn>0,'both shamans reincarnate with a delay');assert.ok(!w.units.includes(enemyShaman));
+ select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));advance(w,42);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-24}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
+ command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');assert.ok(w.redRespawn>0,'both shamans reincarnate with a delay');assert.ok(!w.units.includes(enemyShaman));
  // Fight through the remaining defenders using the units that were actually trained above.
- select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.units.find(u=>u.team==='red'&&u.inside===null)??w.buildings.find(b=>b.team==='red'&&w.units.some(u=>u.inside===b.id));if(!enemy)break;command(w,enemy);advance(w,8);}
+ select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.buildings.find(b=>b.team==='red')??w.units.find(u=>u.team==='red'&&u.inside===null);if(!enemy)break;command(w,enemy);advance(w,8);}
  // Reincarnation can outlast the assault: use another earned Lightning gift on the last defender.
- if(w.status==='playing'){select(w,'shaman');command(w,{x:0,z:-22});advance(w,40);const last=w.units.find(u=>u.team==='red');assert.ok(last);assert.ok(cast(w,'lightning',last));advance(w,1);}
- assert.equal(w.status,'won','the first mission can be won through the full discovery/build/train/combat loop');assert.ok(w.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
+ if(w.status==='playing'){select(w,'shaman');command(w,{x:0,z:-22});advance(w,40);const last=w.units.find(u=>u.team==='red');assert.ok(last);assert.ok(cast(w,'lightning',last));impact(w,'lightning');}
+ assert.equal(w.status,'won','the first mission can be won through the full discovery/build/train/combat loop');
 });
 test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');const idle=manaRate(w);w.selected=[brave.id];command(w,w.buildings.find(b=>b.team==='blue'));advance(w,8);assert.ok(brave.inside);assert.ok(manaRate(w)>idle);
@@ -53,9 +54,9 @@ test('native animation identity, casting interruption, gradual terrain and blast
  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
  assert.equal(maxHp('brave'),50);assert.equal(maxHp('warrior'),90);
  w.selected=[brave.id];brave.target=32;assert.equal(unitAnimation(w,brave),'selected','an assigned distant enemy is not an active fight');brave.fighting=true;assert.equal(unitAnimation(w,brave),'attack','automatic melee displays its attack sprite');brave.fighting=false;brave.target=null;brave.cargo=1;brave.path=[{x:brave.x+1,z:brave.z}];assert.equal(unitAnimation(w,brave),'carry');brave.lift=.5;assert.equal(unitAnimation(w,brave),'airborne');brave.lift=0;brave.cargo=0;brave.path=[];
- w.selected=[shaman.id];const shots=w.shots.blast;assert.ok(cast(w,'blast',shaman));assert.equal(unitAnimation(w,shaman),'cast');command(w,{x:10,z:32});advance(w,.6);assert.equal(w.shots.blast,shots,'movement interrupts the pending cast');
- shaman.x=0;shaman.z=20;shaman.path=[];w.shots.bridge=1;const before=[...w.terrain];assert.ok(cast(w,'bridge',{x:0,z:4}));advance(w,.6);const rise=w.effects.find(e=>e.kind==='bridge');assert.ok(rise.land.length>0);const sample=rise.land.find(p=>p.to-p.from>1);assert.ok(w.terrain[sample.index]>before[sample.index]&&w.terrain[sample.index]<sample.to);advance(w,6);assert.equal(w.terrain[sample.index],sample.to);foundations(w);
- shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));advance(w,.6);assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
+ w.selected=[shaman.id];const shots=w.shots.blast;assert.ok(cast(w,'blast',shaman));assert.equal(unitAnimation(w,shaman),'cast');command(w,{x:10,z:32});advance(w,.6);assert.equal(w.shots.blast,shots-1,'native spell allocation spends the charge before animation finishes');assert.equal(shaman.casting,null);assert.ok(w.projectiles.length,'movement does not delete the independent spell');impact(w,'blast');
+ shaman.x=0;shaman.z=20;shaman.path=[];w.shots.bridge=1;const before=[...w.terrain];assert.ok(cast(w,'bridge',{x:0,z:4}));impact(w,'bridge');tick(w,1/12);const rise=w.effects.find(e=>e.kind==='bridge');assert.ok(rise.land.length>0);const sample=rise.land.find(p=>p.to-p.from>1);assert.ok(w.terrain[sample.index]>before[sample.index]&&w.terrain[sample.index]<sample.to);advance(w,6);assert.equal(w.terrain[sample.index],sample.to);foundations(w);
+ shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));impact(w,'blast');assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
  const hut=w.buildings.find(b=>b.team==='blue');for(const angle of [0,Math.PI/2,Math.PI,3*Math.PI/2]){hut.angle=angle;const door=entrance(w,hut);assert.ok(Math.abs(door.x-hut.x+Math.sin(angle)*4)<1e-9&&Math.abs(door.z-hut.z-Math.cos(angle)*4)<1e-9,'door routes use the model coordinate conversion');}
 });
 
@@ -93,10 +94,10 @@ test('lightning hits a native map cell and Blast leaves allied health intact',()
  const w=createWorld();w.buildings=[];const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
  shaman.x=0;shaman.z=0;w.units=w.units.filter(u=>u.kind==='shaman');
  const hit=addUnit(w,'blue','brave',{x:2.2,z:.2}),outside=addUnit(w,'blue','brave',{x:1.9,z:.2});
- w.shots.lightning=1;assert.ok(cast(w,'lightning',{x:2.3,z:.3}));tick(w,.5);
+ w.shots.lightning=1;assert.ok(cast(w,'lightning',{x:2.3,z:.3}));impact(w,'lightning');
  assert.ok(!w.units.includes(hit));assert.equal(outside.hp,maxHp('brave'));assert.equal(outside.lift,0,'adjacent cells receive no invented radial lightning damage');
  const ally=addUnit(w,'blue','brave',{x:2,z:0});const hp=ally.hp;
- assert.ok(cast(w,'blast',ally));tick(w,.5);assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');
+ assert.ok(cast(w,'blast',ally));impact(w,'blast');assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');
 });
 
 test('native integer movement and combat exchanges preserve timing, retaliation and replay',async()=>{
@@ -131,7 +132,7 @@ test('native fight slots form four-person groups and release on interruption',()
  for(let i=1;i<4;i++){const p=fightPosition(b,i);assert.ok(Math.abs(Math.hypot(p.x-b.x,p.z-b.z)-180/256)<.006);}
  const replay=structuredClone(w);for(let i=0;i<30;i++)tick(w,1/30);for(let i=0;i<144;i++)tick(replay,1/144);assert.deepEqual(replay,w,'group movement and RNG do not depend on render rate');
  const slots=w.fights[0].members.map((_,i)=>fightPosition(w.fights[0],i));assert.equal(new Set(slots.map(p=>`${p.x}:${p.z}`)).size,4);
- const shaman=addUnit(w,'blue','shaman',{x:3,z:0});assert.ok(cast(w,'blast',center));tick(w,7/12);
+ const shaman=addUnit(w,'blue','shaman',{x:3,z:0});assert.ok(cast(w,'blast',center));impact(w,'blast');
  assert.equal(center.fight,null);assert.ok(center.lift>0);assert.equal(w.fights.length,0,'launched participants leave no stale fight group');assert.equal(shaman.lift,0);
  const swap=createWorld();swap.terrain.fill(3);swap.units=[];swap.buildings=[];
  const a=addUnit(swap,'blue','brave',{x:0,z:0}),enemy=addUnit(swap,'red','warrior',{x:.6,z:0});addUnit(swap,'blue','brave',{x:1,z:0});tick(swap,1/12);
@@ -150,9 +151,24 @@ test('native sound cues preserve sample identity, cast phases and simulation ran
  assert.equal(cueVariant(0,1),null);assert.equal(soundAttenuation(0),1);assert.equal(soundAttenuation(0x4800000),.5);assert.equal(soundAttenuation(0x9000000),0);
  const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');w.units[0].x=0;w.units[0].z=0;const enemy=w.units.find(u=>u.team==='red');enemy.x=30;enemy.z=30;return w;};
  const w=make(),ids=w.nextId,rng=w.randomState;assert.ok(cast(w,'blast',{x:4,z:0}));
- assert.deepEqual(w.sounds.map(e=>e.cue),[0x75]);assert.equal(w.nextId,ids);assert.equal(w.randomState,rng);
+ assert.deepEqual(w.sounds.map(e=>e.cue),[0x76]);assert.equal(w.nextId,ids+1);assert.equal(w.randomState,rng);
  for(let i=0;i<5;i++)tick(w,1/12);assert.equal(w.sounds.length,1);
- tick(w,1/12);assert.deepEqual(w.sounds.map(e=>e.cue),[0x75,0xa1,0xb2]);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,6]);
- const canceled=make();assert.ok(cast(canceled,'blast',{x:4,z:0}));canceled.selected=[canceled.units[0].id];command(canceled,{x:1,z:0});advance(canceled,1);assert.deepEqual(canceled.sounds.map(e=>e.cue),[0x75]);
+ tick(w,1/12);assert.deepEqual(w.sounds.map(e=>e.cue),[0x76,0xa1]);assert.equal(w.effects.some(e=>e.kind==='blast'),false);impact(w,'blast');assert.deepEqual(w.sounds.map(e=>e.cue),[0x76,0xa1,0xb2]);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,9]);
+ const canceled=make();assert.ok(cast(canceled,'blast',{x:4,z:0}));canceled.selected=[canceled.units[0].id];command(canceled,{x:1,z:0});impact(canceled,'blast');assert.deepEqual(canceled.sounds.map(e=>e.cue),[0x76,0xa1,0xb2]);
  const a=make(),b=make();cast(a,'blast',{x:4,z:0});cast(b,'blast',{x:4,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a.sounds,b.sounds);
+});
+
+
+test('native spell allocation, discrete flight, RNG trails and delayed impact',()=>{
+ const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
+ assert.deepEqual(nativeStep3D({x:32760,y:-32760,h:32760},2047,511,-321),{x:32760,y:32455,h:32759},'negative odd length and short wrapping verified against x86');
+ const w=make();cast(w,'blast',{x:10,z:0});assert.equal(w.shots.blast,3);assert.deepEqual(w.projectiles[0].target,{x:11,z:-1});tick(w,6/12);
+ assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
+ tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,1,'no jitter on the first Blast movement turn');
+ tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,1335621054,'four trailing particles consume eight simulation draws');
+ tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,10]);
+ const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,2308592903);assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
+ const a=make(),b=make();a.shots.bridge=b.shots.bridge=1;cast(a,'bridge',{x:10,z:0});cast(b,'bridge',{x:10,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a,b,'flight, effects and simulation RNG are independent of rendering FPS');
+ const dead=make();cast(dead,'blast',{x:10,z:0});dead.units[0].hp=0;tick(dead,1/12);assert.equal(dead.projectiles.length,0);assert.equal(dead.shots.blast,3,'caster death removes a pending spell without refunding the spent shot');
+ const won=createWorld();won.terrain.fill(3);won.units=won.units.filter(u=>u.kind==='shaman');Object.assign(won.units[0],{x:0,z:0});Object.assign(won.units[1],{x:9,z:-1});won.shots.lightning=1;cast(won,'lightning',won.units[1]);impact(won,'lightning');assert.equal(won.status,'won');assert.ok(won.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');
 });

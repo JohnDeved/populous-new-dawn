@@ -19,8 +19,14 @@ try{
  }
  await page.evaluate(()=>{const {w,m}=window.nativeQA;w.effects=[];for(const [kind,x,z] of [['blast',1,28],['lightning',8,29],['birth',5,34],['splash',-2,33]]){const f=m.effect(w,kind,{x,z});f.age=.25;}for(const u of w.units){u.path=[];u.lift=0;u.casting=null;u.fighting=false;u.fight=null;}});
  await page.waitForTimeout(350);await page.screenshot({path:'qa/native-effects.png'});
+ for(const spell of ['blast','lightning','bridge']){
+  await page.evaluate(spell=>{const {w,m,scene}=window.nativeQA;w.units=[];w.effects=[];w.projectiles=[];w.fights=[];w.turn=0;w.time=0;w.pendingTime=0;w.status='playing';w.paused=false;w.shots[spell]=1;m.addUnit(w,'blue','shaman',{x:4,z:29});m.addUnit(w,'red','shaman',{x:1,z:-37});m.cast(w,spell,{x:12,z:29});m.tick(w,7/12);w.paused=true;scene.focus({x:7,z:29});},spell);
+  await page.waitForTimeout(250);assert.ok(await page.evaluate(()=>window.nativeQA.w.projectiles.some(p=>p.phase==='flying')));
+  assert.ok(await page.evaluate(()=>window.nativeQA.w.effects.some(f=>f.sprite&&Number.isFinite(f.height))));
+  await page.screenshot({path:`qa/native-projectile-${spell}.png`});
+ }
  await page.evaluate(()=>{
-  const {w,m,scene}=window.nativeQA;w.units=[];w.effects=[];w.fights=[];w.time=0;w.turn=0;w.pendingTime=0;w.randomState=1;w.status='playing';
+  const {w,m,scene}=window.nativeQA;w.units=[];w.effects=[];w.projectiles=[];w.fights=[];w.time=0;w.turn=0;w.pendingTime=0;w.randomState=1;w.status='playing';
   m.addUnit(w,'blue','warrior',{x:1,z:29});for(let i=0;i<3;i++)m.addUnit(w,'red','brave',{x:1.4+i*.1,z:29});
   w.paused=false;m.tick(w,1/12);w.paused=true;scene.focus({x:1,z:29});scene.zoom(.88);
  });

@@ -25,10 +25,10 @@ All rows remain open until compared against the original engine, including edge 
 | Movement and physics | Integer steps and partial ground recoil | Original pathfinding, formation, steering, collision, slopes, falling and drowning |
 | Combat | HP-scaled exchanges, attack selection and up-to-four-person fight groups | Remaining substates, class scheduling, recovery interactions and all unit classes |
 | Economy and buildings | Native mana, breeding/training bands and hut upgrade values | Construction, repair/fire/damage, activity timers and all building classes |
-| Spells | Partial Blast, Lightning and Land Bridge ports | Shot travel, exact targeting/deformation, cancellation and every spell |
+| Spells | Blast/Lightning/Land Bridge projectiles, cell targets, spent charges and delayed impact; native 3D-step CPU comparisons | Complete scheduling, targeting/reflection, deformation, animation and every spell |
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
 | AI and campaign | Original first-level layout and progression, script interpreter entry located | Original AI interpreter, all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Eight regression tests and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Ten regression tests and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).

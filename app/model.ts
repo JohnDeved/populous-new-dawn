@@ -7,13 +7,15 @@ export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple';
 export type Spell = 'blast' | 'lightning' | 'bridge';
 export type Point = { x: number; z: number };
 type Fight = { group: number; opponent: number; action: 'approach'|'ready'|'attack'|'strike'|'special'|'recoil'|'push'; started: number; until: number; knockback?: boolean; velocity?: Point };
+type NativePoint = { x:number; y:number; h:number };
+export type Projectile = { id:number; spell:Spell; team:Team; caster:number; target:Point; source:Point; position:NativePoint; destination:NativePoint; origin:NativePoint; phase:'windup'|'flying'|'arrived'; remaining:number; turns:number; visuals:Effect[] };
 type Battle = Point & { id: number; members: number[]; angle: number };
 export type Unit = Point & { id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
 export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number };
 export type Shrine = Point & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; active: boolean };
 export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
-export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash'; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
+export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
 export const TURNS_PER_SECOND=12;
 export const SPELLS: { id: Spell; name: string; cost: number; range: number; key: string; symbol: string; color: string; description: string }[] = [
   { id: 'blast', name: 'Blast', cost: 10, range: 12, key: '1', symbol: '✹', color: '#e8b076', description: 'Rechargeable · throws followers back. Water is deadly.' },
@@ -56,6 +58,16 @@ export function nativeStep(p:Point,angle:number,length:number):Point{
   return {x:(Math.round(p.x*256)+Math.floor(rules.sine[angle&2047]*length/65536))/256,z:(Math.round(p.z*256)-Math.floor(rules.sine[(angle+512)&2047]*length/65536))/256};
 }
 export function random(w:World){const n=(Math.imul(w.randomState,0x24a1)+0x24df)>>>0;return w.randomState=((n>>>13)|(n<<19))>>>0;}
+const short=(v:number)=>(v<<16)>>16;
+// 0x4e6ac0: native XYZ, including signed-short wrap and half-scale vertical steps.
+export function nativeStep3D(p:NativePoint,yaw:number,pitch:number,length:number):NativePoint{
+  const horizontal=Math.imul(rules.sine[pitch&2047],length)>>16;
+  return {x:short(p.x+(Math.imul(rules.sine[yaw&2047],horizontal)>>16)),y:short(p.y+(Math.imul(rules.sine[(yaw+512)&2047],horizontal)>>16)),h:short(p.h+(Math.imul(rules.sine[(pitch+512)&2047],length>>1)>>16))};
+}
+const nativePosition=(w:World,p:Point):NativePoint=>({x:short(Math.round((p.x+8)*256)),y:short(Math.round((-p.z-8)*256)),h:Math.round(height(w.terrain,p.x,p.z)*45)});
+const browserPosition=(p:NativePoint):Point=>({x:short(p.x-2048)/256,z:-short(p.y+2048)/256});
+const nativeDistance=(a:NativePoint,b:NativePoint)=>Math.floor(Math.hypot(short(a.x-b.x),short(a.y-b.y),a.h-b.h));
+function shotAngles(p:NativePoint,d:NativePoint){const dx=short(d.x-p.x),dy=short(d.y-p.y);return [nativeAngle(dx,-dy),nativeAngle(Math.max(Math.abs(dx),Math.abs(dy)),-2*(d.h-p.h))];}
 function meleeExchange(w:World,u:Unit,target:Unit,choice:number){
   // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
   const action=u.kind==='shaman'?(choice<=6?'attack':'special'):choice<=4?'attack':choice<14?'special':'strike';
@@ -219,7 +231,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
   return [];
 }
 export type World = {
-  terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
+  terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
   paused: boolean; speed: number; message: string; messageUntil: number; status: 'playing' | 'won' | 'lost';
@@ -235,7 +247,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 export function createWorld(): World {
-  const w: World = { terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+  const w: World = { terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
@@ -253,7 +265,7 @@ export function tell(w: World, message: string) { w.message = message; w.message
 // Presentation events have their own serial; they never consume simulation IDs or random values.
 // ponytail: retain 128 recent cues; a streaming consumer is needed if a catch-up frame exceeds that history.
 export function sound(w:World,cue:number,p:Point){w.sounds.push({serial:++w.soundSerial,cue,x:p.x,z:p.z,turn:w.turn});if(w.sounds.length>128)w.sounds.shift();}
-function castVoice(w:World,u:Unit,spell:Spell){sound(w,(u.team==='blue'?{blast:0x75,lightning:0x77,bridge:0x80}:{blast:0x8b,lightning:0x8d,bridge:0x96})[spell],u);}
+function castVoice(w:World,u:Unit,spell:Spell){sound(w,(u.team==='blue'?{blast:0x76,lightning:0x77,bridge:0x80}:{blast:0x8c,lightning:0x8d,bridge:0x96})[spell],u);}
 export function effect(w: World, kind: Effect['kind'], p: Point) { const f:Effect={ x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:kind==='blast'?1.2:1.7 };w.effects.push(f);return f; }
 export function select(w: World, kind: UnitKind | 'all') { w.selected=w.units.filter(u=>u.team==='blue'&&(kind==='all'||u.kind===kind)).map(u=>u.id); w.mode=null; }
 function release(u: Unit) { u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
@@ -302,13 +314,81 @@ export function cast(w: World, spell: Spell, p: Point) {
   if(Math.abs(p.x)>45||Math.abs(p.z)>45){tell(w,'Choose a target within the world.');return false;}
   if(spell==='bridge'&&(!walkable(w.terrain,p)||!walkable(w.terrain,shaman))){tell(w,'Land Bridge must join two dry shores. Aim at land on the opposite island.');return false;}
   release(shaman);shaman.path=[];shaman.heading=Math.atan2(p.x-shaman.x,p.z-shaman.z);
-  shaman.casting={spell,point:{...p},remaining:6/TURNS_PER_SECOND};castVoice(w,shaman,spell);w.mode=null;
+  beginCast(w,shaman,spell,p);w.mode=null;
   return true;
 }
-function finishCast(w:World,shaman:Unit,spell:Spell,p:Point){
-  if(shaman.team==='blue'){w.shots[spell]--;w.stats.cast++;}const fx=effect(w,spell,p);
-  // Shot creation and impact still coincide in this browser pipeline; keep both native Blast cues.
-  if(spell==='blast'){sound(w,0xa1,shaman);sound(w,0xb2,p);}else if(spell==='lightning')sound(w,0xa2,p);else{sound(w,0xab,p);sound(w,0x29,p);}
+function beginCast(w:World,u:Unit,spell:Spell,p:Point){
+  // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
+  const target={x:Math.floor(p.x/2)*2+1,z:-Math.floor(-p.z/2)*2-1},position=nativePosition(w,u);
+  w.projectiles.push({id:w.nextId++,spell,team:u.team,caster:u.id,target,source:{x:u.x,z:u.z},position,destination:nativePosition(w,target),origin:{...position},phase:'windup',remaining:6,turns:0,visuals:[]});
+  if(u.team==='blue'){w.shots[spell]--;w.stats.cast++;}
+  u.casting={spell,point:target,remaining:6/TURNS_PER_SECOND};castVoice(w,u,spell);
+}
+function shotVisual(w:World,p:NativePoint,sequence:string,frame:number,duration:number){
+  const fx=effect(w,'trail',browserPosition(p));fx.height=p.h/45;fx.sprite={sequence,frame};fx.duration=duration;return fx;
+}
+function moveVisual(f:Effect,p:NativePoint){Object.assign(f,browserPosition(p));f.height=p.h/45;}
+function processProjectiles(w:World){
+  // Newest native allocations precede older objects. Full mixed-class scheduling remains to be ported.
+  for(const shot of [...w.projectiles].reverse()){
+    const caster=w.units.find(u=>u.team===shot.team&&u.kind==='shaman'&&u.hp>0);
+    const remove=()=>{w.projectiles.splice(w.projectiles.indexOf(shot),1);for(const f of shot.visuals)f.duration=f.age;};
+    if(shot.phase==='windup'){
+      if(!caster){remove();continue;}
+      if(--shot.remaining>0)continue;
+      shot.source={x:caster.x,z:caster.z};shot.origin=nativePosition(w,caster);shot.origin.h+=0x60;shot.position={...shot.origin};
+      // 0x4c21e0: Lightning aims 0x400 above, displaced 0x600 toward the shaman.
+      if(shot.spell==='lightning'){
+        const d=shot.destination,yaw=nativeAngle(short(shot.origin.x-d.x),-short(shot.origin.y-d.y));
+        shot.destination=nativeStep3D({...d,h:d.h+0x400},yaw,512,0x600);
+      }
+      shot.phase='flying';
+      if(shot.spell==='blast'){
+        sound(w,0xa1,shot.source);
+        shot.visuals=Array.from({length:5},(_,i)=>shotVisual(w,shot.position,'blastShot',i+3,Infinity));
+      }
+      continue;
+    }
+    if(shot.phase==='arrived'){
+      if(caster)finishCast(w,{id:shot.caster,team:shot.team,...shot.source},shot.spell,shot.target);
+      remove();continue;
+    }
+    const p=shot.position,d=shot.destination;
+    if(shot.spell==='blast'){
+      // 0x4bb440: move 1000 units/turn, snap inside the arrival sphere, delete next turn.
+      if(Math.abs(d.x-p.x)<0x408&&Math.abs(d.y-p.y)<0x408&&Math.abs(d.h-p.h)<0x408&&nativeDistance(p,d)<1000){
+        shot.position={...d};shot.phase='arrived';for(const f of shot.visuals)f.duration=f.age;continue;
+      }
+      const [yaw,pitch]=shotAngles(p,d);shot.position=nativeStep3D(p,yaw,pitch,1000);
+      shot.position.h=Math.max(shot.position.h,nativePosition(w,browserPosition(shot.position)).h);
+      const travelled=nativeDistance(shot.position,shot.origin);
+      moveVisual(shot.visuals[0],shot.position);
+      for(let i=1;i<=4;i++)if(i*80<travelled)moveVisual(shot.visuals[i],nativeStep3D(shot.position,yaw,pitch,-i*80));
+      // Four jitter trails, behind the last attached sprite; the jitter consumes simulation RNG.
+      if(shot.turns>0)for(let i=1;i<=4;i++)if(320+i*160<travelled){
+        const tail=nativeStep3D(nativeStep3D(shot.position,yaw,pitch,-320),yaw,pitch,-i*160);
+        tail.x=short(tail.x+8-(random(w)&15));tail.y=short(tail.y+8-(random(w)&15));
+        shotVisual(w,tail,'blastTrail',0,4/TURNS_PER_SECOND);
+      }
+    }else{
+      // 0x4baf00: 20 substeps of 70, with a four-turn trail before every arrival check.
+      for(let i=0;i<20;i++){
+        const p=shot.position,tail={...p,x:short(p.x+8-(random(w)&15)),y:short(p.y+8-(random(w)&15))};
+        tail.h=Math.max(tail.h,nativePosition(w,browserPosition(tail)).h);
+        shotVisual(w,tail,'spellTrail',0,4/TURNS_PER_SECOND);
+        if(Math.abs(d.x-p.x)<108&&Math.abs(d.y-p.y)<108&&Math.abs(d.h-p.h)<108){
+          if(caster)finishCast(w,{id:shot.caster,team:shot.team,...shot.source},shot.spell,shot.target);
+          remove();break;
+        }
+        const [yaw,pitch]=shotAngles(p,d);shot.position=nativeStep3D(p,yaw,pitch,70);
+      }
+    }
+    shot.turns++;
+  }
+}
+function finishCast(w:World,shaman:Pick<Unit,'id'|'team'|'x'|'z'>,spell:Spell,p:Point){
+  const fx=effect(w,spell,p);
+  if(spell==='blast'){sound(w,0xb2,p);}else if(spell==='lightning')sound(w,0xa2,p);else{sound(w,0xab,p);sound(w,0x29,p);}
   if(spell==='bridge') {
     fx.land=[];
     const length=distance(shaman,p),start=height(w.terrain,shaman.x,shaman.z),end=height(w.terrain,p.x,p.z);
@@ -322,7 +402,7 @@ function finishCast(w:World,shaman:Unit,spell:Spell,p:Point){
     tell(w,'The earth rises. Lead your followers across the new Land Bridge.');
   } else { damageSpell(w,spell,p,shaman);if(shaman.team==='blue')tell(w,`${SPELLS.find(s=>s.id===spell)!.name}! The world bends to your will.`); }
 }
-function damageSpell(w:World,spell:'blast'|'lightning',p:Point,caster:Unit) {
+function damageSpell(w:World,spell:'blast'|'lightning',p:Point,caster:Pick<Unit,'id'|'team'|'x'|'z'>) {
   const radius=spell==='blast'?3:3.6;
   // Lightning electrocutes the native 2×2 map cell; it does not apply Blast's radial launch.
   if(spell==='lightning'){
@@ -357,6 +437,7 @@ function stepTurn(w:World){
   const dt=1/TURNS_PER_SECOND;w.turn++;w.time=w.turn/TURNS_PER_SECOND;
   for(const fx of w.effects){fx.age+=dt;if(fx.land){const t=Math.min(1,fx.age/fx.duration);for(const p of fx.land)w.terrain[p.index]=Math.max(w.terrain[p.index],p.from+(p.to-p.from)*t);w.terrainVersion++;if(t===1&&route(w,HOME,ENEMY).length)w.shrines.find(s=>s.kind==='bridge')!.active=false;}}
   w.effects=w.effects.filter(f=>f.age<f.duration);
+  processProjectiles(w);
   if((w.turn&15)===0)for(const t of w.trees)if(t.logs>0&&t.logs<4)t.logs=Math.min(4,t.logs+constants.TREE1_WOOD_GROW/100);
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   for(const shrine of w.shrines) {
@@ -422,7 +503,7 @@ function stepTurn(w:World){
     if(u.lift>0){u.x+=u.vx*dt;u.z+=u.vz*dt;u.lift=Math.max(0,u.lift-dt);if(!u.lift&&!walkable(w.terrain,u))u.hp=0;continue;}
     if(!walkable(w.terrain,u)){u.hp=0;continue;}
     if(u.fight)continue;
-    if(u.casting){u.casting.remaining-=dt;if(u.casting.remaining<=1e-8){const pending=u.casting;u.casting=null;finishCast(w,u,pending.spell,pending.point);}continue;}
+    if(u.casting){u.casting.remaining-=dt;if(u.casting.remaining<=1e-8)u.casting=null;continue;}
     const work=w.buildings.find(b=>b.id===u.work&&b.hp>0)??w.shrines.find(s=>s.id===u.work&&s.active);
     if(u.work!==null&&!work)release(u);
     if(u.inside!==null){const b=w.buildings.find(b=>b.id===u.inside&&b.hp>0);if(b)continue;release(u);u.hp-=10;}
@@ -431,7 +512,7 @@ function stepTurn(w:World){
     if(target&&!('progress' in target)&&(target.lift>0||target.inside!==null))target=undefined;
     if(!target){u.target=null;target=w.units.find(t=>t.team!==u.team&&t.team!=='wild'&&t.hp>0&&t.inside===null&&t.lift===0&&distance(u,t)<(u.team==='red'?8:3));}
     if(target){u.heading=Math.atan2(target.x-u.x,target.z-u.z);}
-    if(target&&u.team==='red'&&u.kind==='shaman'&&distance(u,target)<12){if(!u.cooldown){u.path=[];u.casting={spell:'blast',point:{x:target.x,z:target.z},remaining:6/TURNS_PER_SECOND};castVoice(w,u,'blast');u.cooldown=6;}continue;}
+    if(target&&u.team==='red'&&u.kind==='shaman'&&distance(u,target)<12){if(!u.cooldown){u.path=[];beginCast(w,u,'blast',target);u.cooldown=6;}continue;}
     if(target&&distance(u,target)<('progress' in target?4.3:1.7)){
       if('progress' in target){u.fighting=true;if(!u.cooldown){target.hp-=meleeDamage(u);u.cooldown=(u.kind==='shaman'?4:6)/TURNS_PER_SECOND;effect(w,'hit',target);}}
       else contacts.push([u,target]);continue;

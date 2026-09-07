@@ -267,12 +267,12 @@ export class GameScene {
     const up=new THREE.Vector3(0,1,0).applyQuaternion(g.quaternion).transformDirection(this.camera.matrixWorldInverse);body.material.rotation=-Math.atan2(up.x,up.y);
   }
   makeFx(f: Effect) {
-    const g=new THREE.Group();this.locate(g,f);
+    const g=new THREE.Group();this.locate(g,f,f.height);
     if(f.unit){
       const map=texture('units').clone(),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map,alphaTest:.5,toneMapped:false}));
       sprite.center.set(.5,.25);sprite.scale.setScalar(nativeUnits.cell*.065);g.add(sprite);g.userData.sprite=sprite;return g;
     }
-    const sequence=f.kind==='blast'?'impact':f.kind==='death'?'smoke':f.kind==='bridge'?'sparkle':f.kind;
+    const sequence=f.sprite?.sequence??(f.kind==='blast'?'impact':f.kind==='death'?'smoke':f.kind==='bridge'?'sparkle':f.kind);
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('effects').clone(),transparent:true,depthWrite:false,toneMapped:false}));
     sprite.center.set(.5,0);g.add(sprite);g.userData.sprite=sprite;g.userData.sequence=sequence;
     if(f.kind==='blast'){const shock=ring(.2,0xe1e7ed,.08);shock.position.y=.08;g.add(shock);g.userData.shock=shock;}
@@ -285,7 +285,7 @@ export class GameScene {
     const sprite=g.userData.sprite as THREE.Sprite;
     if(f.unit){const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[`${f.unit.team}-${f.unit.kind}`];this.animatePerson(sprite,g,f.unit.heading,animations.die,f.age,true);sprite.material.opacity=Math.min(1,(f.duration-f.age)*3);return;}
     const sequence=(nativeEffects.animations as Record<string,{index:number;w:number;h:number}[]>)[g.userData.sequence];
-    const frame=sequence[Math.min(sequence.length-1,Math.floor(f.age*12))],map=sprite.material.map!;
+    const frame=sequence[Math.min(sequence.length-1,f.sprite?.sequence==='blastShot'?f.sprite.frame:Math.floor(f.age*12))],map=sprite.material.map!;
     map.repeat.set(frame.w/nativeEffects.width,frame.h/nativeEffects.height);map.offset.set(frame.index%8*256/nativeEffects.width,1-(Math.floor(frame.index/8)*256+frame.h)/nativeEffects.height);
     const scale=f.kind==='birth'||f.kind==='bridge'?.035:.065;sprite.scale.set(frame.w*scale,frame.h*scale,1);sprite.material.opacity=Math.min(1,(f.duration-f.age)*5);
     if(g.userData.shock){const shock=g.userData.shock as THREE.Mesh;shock.scale.setScalar(1+Math.min(1,f.age/.25)*25);(shock.material as THREE.MeshBasicMaterial).opacity=Math.max(0,1-f.age/.35);}
@@ -363,7 +363,7 @@ export class GameScene {
     for (const [id, g] of this.fxMeshes) if (!this.world.effects.some(f => f.id === id)) { this.scene.remove(g); this.releaseGroup(g); this.fxMeshes.delete(id); }
     for (const f of this.world.effects) {
       let g = this.fxMeshes.get(f.id); if (!g) { g = this.makeFx(f); this.fxMeshes.set(f.id, g); this.scene.add(g); }
-      this.animateFx(g,f);
+      this.locate(g,f,f.height);this.animateFx(g,f);
     }
     for(const shrine of this.world.shrines){const entry=this.shrineMeshes.get(shrine.id)!;this.locate(entry.g,shrine);entry.g.visible=shrine.active||shrine.kind==='vault';
       const q=planetPoint(shrine,this.y(shrine)+4.5),p=new THREE.Vector3(q.x,q.y,q.z).project(this.camera),n=normal(shrine),view=this.camera.position.clone().sub(new THREE.Vector3(q.x,q.y,q.z));

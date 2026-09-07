@@ -126,3 +126,68 @@ npm test
 # With the development server running:
 node qa/browser-check.mjs
 ```
+
+## Spell allocation and projectiles — 2026-09-07
+
+This pass supersedes the six-turn immediate-impact and movement-cancellation
+claims above. `004f4de0` targets the center of a native 2×2 cell, spends a gifted
+shot before allocating its spell object, and `004c1b80` starts the shaman's cast
+animation separately. `004c1d10` counts six spell turns and creates a shot; a
+new movement order does not delete that independent spell. Caster absence
+cancels the pending spell without refunding the charge. The browser now follows
+these stages and freezes Land Bridge's source at projectile launch.
+
+The executable's 62-byte spell rows at `005a80f6/f7/f8` give Blast (model 2)
+shot types `[4,4]` and effects `[5,3,78,38,0]`, Lightning (3) `[2,1]` and
+`[17,0,0,0,0]`, and Land Bridge (12) `[2,1]` and `[24,0,0,0,0]`.
+`00509c10` switches on **effect type minus one**. Its case `0x11` is Swamp
+(effect 18), not Lightning (effect 17). The earlier apparent table mismatch
+was an analysis mistake, not a version mismatch.
+
+`004c21e0` adds 96 native height units at launch. Lightning raises the endpoint
+by 1024 and moves it 1536 horizontal units toward the source, retaining the
+actual strike cell. `004bab10` initializes shots; `004baf00` advances types 1/2
+in up to 20 steps of 70 per turn. Each step emits a four-turn trail, consumes
+two simulation RNG draws and tests the three coordinate differences against
+108 before moving. `004bb440` advances Blast by 1000 per turn, snaps inside
+its arrival sphere, and deletes the shot on its following processing turn.
+The waiting spell creates the impact after deletion. Blast's attached sprites
+are HFX `0x463` and `0x464..467`, separated by 80 native units. Subsequent
+movement turns emit up to four additional jitter trails at 160-unit intervals.
+Launch and impact cues now occur on distinct turns. The casting voice index is
+spell model + `0x74` (player) or + `0x8a` (enemy); Blast's previous cue indexes
+were one low, although both aliases selected the same PCM samples.
+
+Visual inspection caught a bank error in the new small particles. The
+`draw_polygons` type-1 branch at `004673b0` always selects HFX, including draw
+type 1's `0x13a` and `0x142` trail frames. They use the ordinary palette;
+Blast's main translucent sprites use the nibble-alpha palette. The importer
+now preserves that distinction. Particle frame-counter phase, native palette
+fades, lighting and exact release animation still need porting.
+
+`nativeStep3D` reconstructs `004e6ac0` with 32-bit products, arithmetic shifts,
+half-scale vertical motion and signed-16 coordinate wrapping. The repository's
+`check-native-projectile-math.py` loads the hash-checked executable into Unicorn
+2.1.4, invokes **the actual x86 movement routine**, and compares 508 cases to
+Node's browser implementation. All match. This is stronger evidence than a
+pseudocode-only check but covers the movement routine, not the entire shot
+processor or scheduler. The browser still converts its approximate terrain
+heights back to native units (×45); native triangle flags and interpolation
+from `0044e940` remain to be ported.
+
+Ten gameplay tests pass, including cell targeting, charge consumption, a
+moving cast animation, first/second Blast flight coordinates, trail RNG,
+arrival/deletion separation, elevated Lightning endpoints, caster death,
+30/144-FPS world equality and a complete first-mission victory. The mission
+assault now targets the breeding huts before the remaining defenders; it no
+longer relies on immediate spell hits. Browser QA passed discovery, bridge,
+vault, construction, training, audio, camera, pause and restart. Dedicated
+visual QA also captures all three projectiles in flight.
+
+Remaining: original mixed-class allocation/processing order, god/reincarnation
+shot sources, shaman vertical offsets in towers/vehicles, AI homing references,
+reflection, exact particle allocation limits and cosmetic RNG, native effect
+substates (including Lightning's extra effect-object dispatch), every other
+shot/spell class, complete damage/terrain deformation and original-engine
+replay comparisons. The browser's local arrival timings are tested but not
+claimed as a complete native turn trace.

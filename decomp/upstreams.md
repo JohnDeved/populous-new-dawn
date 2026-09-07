@@ -14,8 +14,21 @@ Searches included `Populous debug symbols`, `Populous D3DPopTB.pdb`, Populous PD
 | [OpenPop/OpenPopulous](https://github.com/OpenPop/OpenPopulous) | `afca2cf36a0243dac37c95845b392a6e7feaa4ea` | C++ clone skeleton, graphics/asset readers and UI code | Not an engine replacement: `Unit::Update`, `Building::Update`, `Route::Calculate` are empty; `Spell.cpp` is zero bytes. GPLv3-or-later headers |
 | [Toksisitee/PopSoundEditor](https://github.com/Toksisitee/PopSoundEditor) | `d151ce4cc9ff719de4865d13a801641fea559357` | Reads/exports SDT sound/drum/music banks; WAV and MP2 export | Useful separate extraction/reference tool for native audio. GPLv3; no editor source copied into the browser |
 | [Toksisitee/ALACNPopWorldEditor](https://github.com/Toksisitee/ALACNPopWorldEditor) | `1adcc222c6f35cdc76429cbb9c536b6410359df6` | Map/object format and placement definitions | Continue cross-checking level imports; no general top-level code license found in this checkout |
+| [hrttf111/faithful](https://github.com/hrttf111/faithful) | `6abcf22eba7a2086e8ca6950cc538d2f074eccce` | Rust/OpenGL terrain renderer and resource viewer, CPU/GPU palette texturing, water texture generation, layered animation decoding | Strongest additional rendering reference; GPLv3. Inspect alongside native rendering routines before adapting code; not a gameplay engine |
+| [TylerTheFox/populous-tb-worldview](https://github.com/TylerTheFox/populous-tb-worldview) | `b92f5f175a4011d18ff7c1e019233bf3271f75b7` | Educational C++ software globe renderer and explanation of fixed-point projection, texture tables and map wrapping | Useful projection lead, not verified against our executable. No license file found; README links a credits/license section that is absent. Keep as an external reference |
+| [LinusU/pop3-graphics](https://github.com/LinusU/pop3-graphics) | `13d7de3d51137154fbc45fff72c92e135a1eb2df` | Small JavaScript palette, sprite and font readers | `package.json` declares MIT; no standalone license file found. Existing importer already covers sprites; inspect font handling when original text rendering is ported |
+| [IntelOrca/poptools.net](https://github.com/IntelOrca/poptools.net) | `1391f681ebca2331b13ea7df3f84a5b22bf7b65e` | VB.NET map symmetry tool, level and color helpers | MIT; useful for map-format comparison, no simulation implementation |
+| [peterderivaz/populous](https://github.com/peterderivaz/populous) | `6b4ef9a34b5b79ce203be54fbeaf1ec974b7cd1f` | Illustrated original-frame rendering analysis; repository contains only README | Reference material for terrain curvature, lighting, adaptive triangulation, shorelines and water. No engine code to inherit; validate the author's findings against native routines |
 
 Other rendering-only leads: [populousmapviewer](https://github.com/TambourineReindeer/populousmapviewer) and [Populous-3-RTX-Remix](https://github.com/xmarre/Populous-3-RTX-Remix). Neither has been established here as an original gameplay implementation. No architecture switch is justified by the inspected code.
+
+The broader GitHub repository search found the additional leads above. `populousmapviewer` revision `b1157b4c0bbe024e2d3ff8fedc9d02aa2974fcb9` has an MIT license and a small native OpenGL viewer. The RTX Remix project reconstructs terrain and initial level objects for a renderer hook; its README does not establish complete live simulation parity. Remakes of the earlier, isometric Populous are not substitutes for The Beginning's engine.
+
+### Rendering follow-up from the expanded search
+
+Faithful's `src/pop/landscape/land.rs`, `water.rs`, `globe.rs`, `src/pop/animation.rs`, and `shaders/landscape.frag` were inspected directly at the pinned revision. They provide concrete displacement/table indexing and animation record layouts. Its README explicitly reports seams and incorrect height ratios, and its shader uses desktop GLSL 4.60 buffer samplers: direct browser reuse needs adaptation and native comparisons. Keep it as a separate reference tool until a particular port justifies taking GPL code into the project.
+
+The worldview project describes the planetary overview renderer; this is not sufficient evidence for the normal close gameplay camera. The frame breakdown describes that close view separately. Compare both with the corresponding original entry points before replacing the current browser sphere. These references can reduce investigation time without treating a community reconstruction as recovered original source.
 
 ## Verified useful evidence
 
@@ -28,6 +41,8 @@ The public platform repository's `Internal/PopTB Platform/PopTB Platform/src/Pop
 ## Working inheritance plan
 
 Use `pop3-rev` to accelerate navigation, verify every port against the supplied bytes, and keep reconstructed routines/tests in this repo. Extend the existing asset importer with the MIT resource editor's format knowledge. Use the public platform layer for math/protocol comparisons and the sound editor for bank inspection. Continue the browser engine rather than replacing it with OpenPop's unfinished gameplay skeleton.
+
+Prioritize Faithful and the frame breakdown for the next terrain/rendering comparison, and the worldview project for the planetary overview. No complete publicly reusable original gameplay engine was found in the projects inspected; combat, AI, economy, scheduling and spell behavior still need the native reconstruction work.
 
 Repeat the math comparison against that pinned checkout with:
 

@@ -53,3 +53,22 @@ For each subsequent port, preserve the original branch ordering, integer widths/
 ## Validation of this setup
 
 Tested on macOS arm64: verified cached downloads, clean extraction and native decompiler build; fresh executable analysis and metadata import; 161 successful exports; actual section-byte checks; metadata and caller-export completion receipts; invalid-entry rejection without replacing existing evidence; hash verification and independent upstream math comparison. All eight gameplay regressions and TypeScript checking passed. Decompiler warnings and annotation conflicts remain review inputs, not proof of recovered source correctness. This tooling change does not change playable behavior.
+
+## Native CPU comparison
+
+The projectile math check emulates the supplied executable's `004e6ac0` routine
+with Unicorn, then compares its outputs with the browser implementation. This
+runs isolated x86 instructions and data tables; it does not start Windows or
+emulate system calls. Inputs cover all quadrants, signed overflow, negative/odd
+lengths, zero movement, and deterministic random cases. The executable hash is
+verified before mapping its PE sections.
+
+```sh
+python3 -m venv .tools/decomp/oracle
+.tools/decomp/oracle/bin/python -m pip install -r decomp/requirements.txt
+.tools/decomp/oracle/bin/python scripts/check-native-projectile-math.py /path/to/d3dpoptb.exe
+```
+
+The current check compares 508 cases. It proves equality for those isolated
+movement inputs, not original scheduling, the whole shot processor or all game
+physics. No original executable bytes are stored in its source or output.

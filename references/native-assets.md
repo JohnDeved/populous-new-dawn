@@ -1,6 +1,6 @@
 # Native Populous assets
 
-The user supplied `/Users/johann/Downloads/PopulousTB-Setup.zip` and explicitly requested original-file extraction and asset fidelity. The Inno Setup payload was read with Binary Refinery in a temporary Python environment. The Windows executable was never executed. The game executable and external converters are not runtime dependencies.
+The user supplied `/Users/johann/Downloads/PopulousTB-Setup.zip` and explicitly requested original-file extraction and asset fidelity. The Inno Setup payload was read with Binary Refinery in a temporary Python environment. The Windows game was not launched. Isolated native movement instructions are now exercised in a CPU emulator for comparison. The game executable and external converters are not runtime dependencies.
 
 `python3 scripts/import-original.py /path/to/extracted/game` regenerates the browser assets using only Python's standard library. It validates bank magic/counts, RLE row boundaries, face and point indices, animation chains, layer offsets and texture dimensions. [`public/original/provenance.json`](../public/original/provenance.json) records SHA-256 hashes for every input, the 21 selected model IDs, 7,953 source frames and 1,512 composited frames.
 
@@ -24,7 +24,7 @@ The browser uses camera-facing 2D sprites anchored at the original foot origin. 
 
 `levl2001.hdr` byte 96 selects landscape bank 12 (`c`); byte 97 selects object bank 0. Bank c's `BIGF`, `DISP`, palette and Direct3D sky layers are decoded. Displacement bytes use signed wrapping plus 128 for the grayscale representation. `BIGF` is the native 256×1152 terrain/water colour lookup. The renderer samples it using height, slope and displacement detail. `HFX0-0.DAT` supplies original spell icons, building icons, unit icons, tabs and gold panel fill.
 
-The browser still approximates the original terrain lookup calibration, lighting, water motion, cloud projection and construction reveal. Native HFX spell frames now use the original nibble-encoded alpha and AL0-C colour lookup. The globe projection is a browser implementation; the original software rasterizer and its exact camera/terrain transform have not been decompiled. Audio remains synthesized. These differences prevent a claim of pixel-identical rendering or complete gameplay parity. See [the executable analysis](reverse-engineering.md) for verified animation/effect routines, balance changes, reproduction steps and remaining behaviour differences.
+The browser still approximates the original terrain lookup calibration, lighting, water motion, cloud projection and construction reveal. Native HFX spell frames now use the original nibble-encoded alpha and AL0-C colour lookup. The globe projection is a browser implementation; the original software rasterizer and its exact camera/terrain transform have not been decompiled. Native PCM voices and effects are decoded and played; ambient/music scheduling remains unported. These differences prevent a claim of pixel-identical rendering or complete gameplay parity. See [the executable analysis](reverse-engineering.md) for verified animation/effect routines, balance changes, reproduction steps and remaining behaviour differences.
 
 ## Format evidence
 

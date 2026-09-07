@@ -132,13 +132,14 @@ def main():
     alpha=read('data/al0-c.dat');assert len(alpha)==65536
     fx_palette=b''.join(palette[alpha[(v|15)*256]*4:alpha[(v|15)*256]*4+3]+bytes([(v&15)*17]) for v in range(256))
     effects=sprites(hfx_data,fx_palette,alpha=True)
-    # HFX effects are consecutive native frames; their draw records advance once per turn.
-    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16)}
+    # 0x4673b0 draws type-1 objects from HFX, including the small trail particles.
+    # Trail draw type 1 uses the ordinary palette; the Blast head uses nibble alpha.
+    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,4),'spellTrail':(0x142,4)}
     fx_frames=[];fx_meta={};cell=256
     for name,(start,count) in fx_sequences.items():
         fx_meta[name]=[]
         for i in range(start,start+count):
-            w,h,data=effects[i];assert w<=cell and h<=cell
+            w,h,data=(hfx if name in ('blastTrail','spellTrail') else effects)[i];assert w<=cell and h<=cell
             fx_meta[name].append({'index':len(fx_frames),'w':w,'h':h,'source':i});fx_frames.append((w,h,data))
     fw=2048;fh=((len(fx_frames)+7)//8)*cell;pixels=bytearray(fw*fh*4)
     for i,(w,h,data) in enumerate(fx_frames):
