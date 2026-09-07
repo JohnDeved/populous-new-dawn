@@ -27,7 +27,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 58800,
@@ -54,7 +54,7 @@
         65
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -81,7 +81,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 58800,
@@ -108,7 +108,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 0,
@@ -135,7 +135,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 46000,
@@ -162,7 +162,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 58800,
@@ -189,7 +189,7 @@
         65
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -216,7 +216,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 58800,
@@ -243,7 +243,7 @@
         65
       ],
       "boundsMode": 1,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 0,
@@ -270,7 +270,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 35248,
@@ -297,7 +297,7 @@
         54
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -324,7 +324,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -351,7 +351,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 58800,
@@ -378,7 +378,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 0,
@@ -405,7 +405,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 35248,
@@ -432,7 +432,7 @@
         48
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -459,7 +459,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -486,7 +486,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 58800,
@@ -513,7 +513,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 0,
@@ -540,7 +540,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 44208,
@@ -567,7 +567,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -594,7 +594,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -621,7 +621,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -648,7 +648,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -675,7 +675,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 46000,
@@ -702,7 +702,7 @@
         46
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -729,7 +729,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -756,7 +756,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -783,7 +783,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 0,
@@ -810,7 +810,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 46000,
@@ -837,7 +837,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -864,7 +864,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -891,7 +891,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -918,7 +918,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -945,7 +945,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 46000,
@@ -972,7 +972,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -999,7 +999,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1026,7 +1026,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1053,7 +1053,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -1080,7 +1080,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 46000,
@@ -1107,7 +1107,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1134,7 +1134,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1161,7 +1161,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1188,7 +1188,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -1215,7 +1215,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     },
     {
       "curvature": 46000,
@@ -1242,7 +1242,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1269,7 +1269,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1296,7 +1296,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 46000,
@@ -1323,7 +1323,7 @@
         39
       ],
       "boundsMode": 1,
-      "globe": 0
+      "scaledSprites": 0
     },
     {
       "curvature": 0,
@@ -1350,7 +1350,7 @@
         39
       ],
       "boundsMode": 0,
-      "globe": 1
+      "scaledSprites": 1
     }
   ]
 }

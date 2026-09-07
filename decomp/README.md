@@ -263,6 +263,7 @@ projection and frame throttling remain incomplete. See the evidence log.
 .tools/decomp/oracle/bin/python scripts/extract-reference.py /path/to/PopulousTB-Setup.zip /path/to/game 'data/vconfig0.*'
 python3 scripts/import-camera.py /path/to/game
 .tools/decomp/oracle/bin/python scripts/check-native-projection.py /path/to/game/d3dpoptb.exe
+node qa/projection-check.mjs
 node qa/native-visuals.mjs
 ```
 
@@ -272,6 +273,10 @@ camera resolution/zoom selection, all 2,048 yaw headings at three pitches,
 integer projection with both clip modes, real model point transforms, both mesh
 bound algorithms, sprite size/offset scaling and 18,432 sprite directions.
 The x87 control word is explicitly 0x027f; native startup precision is not proven.
-Only the direction selector currently drives the live renderer. The other ports
-are verified prerequisites for replacing the current spherical projection.
+The ground renderer now uses these camera/model transforms, mesh bounds and
+screen-pixel sprite dimensions through `app/render-view.ts`. The WebGL2 check
+compares 24,576 projected points and 26,838 original model vertices; 29 actual
+triangle picks cover headings and periodic terrain copies. Resolution-specific
+mesh-bound overrides also have 114 native CPU comparisons. Overview, original
+terrain mesh generation, lighting, water and depth-sort buckets remain unfinished.
 See the detailed evidence log for intercepted leaves and remaining integration.

@@ -655,3 +655,54 @@ level coverage, depth buckets, face lighting/order, globe overview, input contro
 device selection and startup/frame timing remain unfinished. Browser visual QA
 checks actual frame atlas offsets at direction boundaries, all vault door phases,
 effects and combat; the existing 20 engine regressions still pass.
+
+
+## Ground renderer integration (2026-09-07)
+
+`app/render-view.ts` now applies the reviewed integer camera pipeline to normal
+view terrain, water, original models, sprite anchors and labels. The shader
+retains 32-bit arithmetic wrap and delays conversion to float32 until the native
+screen-coordinate store. Model coordinates are restored from editor units and
+scaled/rotated using the original transform. Foundations now share a flat native
+height with their models; the old sphere-compensating terrain deformation is
+removed. Ground triangles use affine interpolation, as their screen positions
+already contain the native perspective divide.
+
+`00416e50` replaces normal-view table bounds for 800×600, 1024×768 and 1280×1024,
+with a default for other dimensions. An additional 114 CPU cases verify this
+setter. Nonzero flyby zoom sets bounds mode zero, selecting circular bounds.
+The field at +93 is now named `scaledSprites`: it controls level flag `0x100`,
+and is set by both negative-zoom and overview presets. It does not identify
+globe mode by itself.
+
+The renderer uploads native coarse-row bounds for fragment clipping. Terrain
+uses periodic translated instances; water follows the camera on a coarse grid.
+Their unwrapped relative coordinates prevent triangles folding across the map's
+antipodal seam. Objects retain the native wrapped-coordinate convention. Picking
+inverts the actual projected triangles with barycentric weights and returns
+wrapped map positions. This is a browser picker, not a port of the entire native
+input/picking state path. Mouse and keyboard ground movement wrap at 256 map
+units; the original flyby supplies its recovered camera position, heading and
+zoom directly. The existing 24 Hz presentation clock is unchanged.
+
+`qa/projection-check.mjs` runs the same vertex shader under WebGL2 transform
+feedback. All 24,576 screen-point outputs exactly match the CPU-compared float32
+results. Across 26,838 original model vertices and multiple headings, the maximum
+normalized clip-space difference is 5.564e-8 (tolerance 1e-6). Twenty-nine actual
+terrain-triangle picks invert within 1e-6 map units, including translated world
+copies. The complete mission browser check and opening flyby check cover the
+integrated renderer. Native visual QA retains the independent `knowledge.3ds`
+geometry fingerprint and verifies every vault door phase; no prison geometry is
+selected in these runs. The reported prison on the user's existing page has not
+been reproduced; the current page URL/browser state could not be inspected.
+
+Remaining differences: native terrain mesh generation (the browser retains its
+97×97 one-unit grid), full toroidal simulation and level coverage, face lighting
+and ordering, terrain color lookup calibration, WATDISP water animation, native
+clip/rasterizer/device initialization, original globe projection and exact input
+timing. Sprite widths/heights use native screen pixels and shaman/zoom scaling,
+but still pass a placeholder ±1 depth bucket and composite layers before scaling;
+per-layer rounding and depth-dependent size therefore remain approximate. The
+minimap camera rectangle, selection/health/construction overlays and some spell
+visuals remain approximations too. These results establish ground-projection
+integration, not pixel-identical rendering or full engine parity.

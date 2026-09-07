@@ -16,7 +16,7 @@ for i in range(50):
         spriteScale=read('<i',12),depth=read('<i',16),perspective=read('<i',20),
         pitch=read('<h',32),offsetX=read('<h',42),offsetY=read('<h',44),
         horizon=read('<h',46),width=read('<h',48),height=read('<h',50),
-        shamanScale=280,bounds=list(struct.unpack_from('<8h',row,68)),boundsMode=read('<B',84),globe=read('<B',93)))
+        shamanScale=280,bounds=list(struct.unpack_from('<8h',row,68)),boundsMode=read('<B',84),scaledSprites=read('<B',93)))
 assert views[0]['curvature']==46000 and views[0]['pitch']==1932
 out={'executableSha256':identity['sha256'],'sha256':hashlib.sha256(data).hexdigest(),'views':views}
 (ROOT/'app/original-camera.json').write_text(json.dumps(out,indent=2)+'\n')

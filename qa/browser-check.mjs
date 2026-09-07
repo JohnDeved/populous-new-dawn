@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { chromium } from '@playwright/test';
 import * as THREE from 'three';
-import { createWorld, worldPoint, planetPoint, normal, PLANET_RADIUS, cast, tick } from '../app/model.ts';
+import {RenderView} from '../app/render-view.ts';
+import { createWorld, worldPoint, cast, tick } from '../app/model.ts';
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist']});
 const page=await browser.newPage({viewport:{width:1440,height:960},deviceScaleFactor:1});page.setDefaultTimeout(12000);
 const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
@@ -11,10 +12,10 @@ await page.addInitScript(()=>{
  AudioBufferSourceNode.prototype.start=function(...args){window.__audioStarts++;window.__samples.push({duration:this.buffer?.duration,channels:this.buffer?.numberOfChannels,peak:this.buffer?Math.max(...this.buffer.getChannelData(0).subarray(0,20000).map(Math.abs)):0});return start.apply(this,args);};
  const oscillator=OscillatorNode.prototype.start;OscillatorNode.prototype.start=function(...args){window.__oscillators++;return oscillator.apply(this,args);};
 });
-const w=createWorld(),cam=new THREE.PerspectiveCamera(38,1240/960,.2,500);cam.up.set(0,0,-1);
-function camera(p){const n=normal({x:p.x,z:p.z+.55*PLANET_RADIUS});cam.position.set(n.x*105,n.y*105-PLANET_RADIUS,n.z*105);const q=planetPoint(p),up=normal(p);cam.up.set(up.x,up.y,up.z);cam.lookAt(q.x,q.y,q.z);cam.updateMatrixWorld();}camera({x:2,z:30});
+const w=createWorld(),cam=new THREE.Camera(),view=new RenderView();
+function camera(p){view.update(1240,960,p,0,0,false,1440);}camera({x:2,z:30});
 async function focus(x,z){const rect=await page.locator('.minimap-wrap canvas').boundingBox();await page.mouse.click(rect.x+(x+48)/96*rect.width,rect.y+(z+48)/96*rect.height);camera({x,z});await page.waitForTimeout(350);}
-async function click(x,z,button='left'){const q=worldPoint(w.terrain,{x,z}),p=new THREE.Vector3(q.x,q.y,q.z).project(cam);const rect=await page.locator('.world-viewport canvas').boundingBox();await page.mouse.click(rect.x+(p.x+1)*rect.width/2,rect.y+(1-p.y)*rect.height/2,{button});}
+async function click(x,z,button='left'){const q=worldPoint(w.terrain,{x,z}),p=view.screen(new THREE.Vector3(q.x,q.y,q.z),cam);const rect=await page.locator('.world-viewport canvas').boundingBox();await page.mouse.click(rect.x+(p.x+1)*rect.width/2,rect.y+(1-p.y)*rect.height/2,{button});}
 try{
  await page.goto('http://localhost:3000/',{waitUntil:'networkidle'});await page.locator('.loading-world').waitFor({state:'hidden'});await page.screenshot({path:'qa/desktop.png'});
  await page.getByRole('button',{name:'Enable sound',exact:true}).click();await page.getByRole('button',{name:'Mute sound',exact:true}).waitFor({timeout:30000});assert.ok(await page.evaluate(()=>window.__audioStarts>=1&&window.__samples[0].peak>0));
@@ -39,7 +40,7 @@ try{
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();await click(4,32,'right');await page.waitForFunction(()=>Number(document.querySelectorAll('.tribe-classes strong')[1]?.textContent)>0,{},{timeout:20000});await page.screenshot({path:'qa/training.png'});
  await page.getByRole('button',{name:'Pause game',exact:true}).click();const time=await page.locator('.clock-label').innerText();await page.waitForTimeout(300);assert.equal(await page.locator('.clock-label').innerText(),time);
  await page.getByRole('button',{name:'Planet overview',exact:true}).click();await page.screenshot({path:'qa/planet.png'});
- const before=await page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true,includeHidden:true}).boundingBox();await page.mouse.move(950,470);await page.mouse.down({button:'right'});await page.mouse.move(390,500,{steps:30});await page.mouse.up({button:'right'});await page.waitForTimeout(500);await page.screenshot({path:'qa/planet-orbit.png'});
+ const before=await page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true,includeHidden:true}).boundingBox();assert.equal(await page.evaluate(()=>document.elementFromPoint(1360,620)?.tagName),'CANVAS','orbit drag starts on the battlefield');await page.mouse.move(1360,620);await page.mouse.down({button:'right'});await page.mouse.move(1100,660,{steps:30});await page.mouse.up({button:'right'});await page.waitForTimeout(500);await page.screenshot({path:'qa/planet-orbit.png'});
  const after=await page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true,includeHidden:true}).boundingBox();assert.ok(after===null||Math.abs(before.x-after.x)>30,'rotation carries landmarks around the planet');
  await page.getByRole('button',{name:'Centre camera',exact:true}).click();await page.getByRole('button',{name:'Menu',exact:true}).click();assert.ok(await page.locator('dialog').evaluate(d=>d.open));await page.getByRole('button',{name:'Restart world',exact:true}).click();await page.locator('.loading-world').waitFor({state:'hidden'});assert.equal(await page.locator('.objective-panel li.complete').count(),0);
  const audio=await page.evaluate(()=>({starts:window.__audioStarts,oscillators:window.__oscillators,samples:window.__samples}));assert.ok(audio.starts>4&&audio.oscillators===0&&audio.samples.every(s=>s.duration>0&&s.channels>=1),JSON.stringify(audio));assert.deepEqual(errors,[]);console.log('PASS: render, original mission discoveries, real timber delivery, training, pause, spherical orbit, sound, and restart.');

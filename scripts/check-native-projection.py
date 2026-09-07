@@ -46,6 +46,14 @@ for width, height in cases:
 compare('c=>f.cameraConfigIndex(...c)', cases, expected)
 print(f'PASS: {len(cases)} native camera resolution selections')
 
+cases=[(v['width'],v['height']) for v in native['views']]+[(rng.randint(1,32767),rng.randint(1,32767)) for _ in range(64)]
+expected=[]
+for width,height in cases:
+    write(point+48,'<hh',width,height);call(0x416e50,point)
+    expected.append(list(struct.unpack('<8h',cpu.mem_read(point+68,16))))
+compare('c=>f.cameraMeshBounds(...c)',cases,expected)
+print(f'PASS: {len(cases)} native resolution-specific mesh bounds')
+
 # Nonzero zoom invokes viewport/mesh-bound leaves; only those are intercepted.
 def skip(cpu,address,size,user):
     sp=cpu.reg_read(UC_X86_REG_ESP)
@@ -53,7 +61,7 @@ def skip(cpu,address,size,user):
 hooks=[cpu.hook_add(UC_HOOK_CODE,skip,begin=a,end=a) for a in (0x429f90,0x46e450)]
 cases,expected=[],[]
 fields={'curvature':(0,'<i'),'diameter':(4,'<i'),'scale':(8,'<i'),'pitch':(32,'<h'),
-        'offsetY':(44,'<h'),'horizon':(46,'<h'),'globe':(93,'<B')}
+        'offsetY':(44,'<h'),'horizon':(46,'<h'),'boundsMode':(84,'<B'),'scaledSprites':(93,'<B')}
 for index in range(10):
     for zoom in [-16384,-16383,-8192,-123,-1,1,123,8192,16383,16384]:
         cpu.mem_write(0x88f004,data[index*470:index*470+94]);write(0x89c6ee,'<h',index)

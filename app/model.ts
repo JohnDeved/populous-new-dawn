@@ -37,17 +37,7 @@ const position = (owner: number) => { const o = level.objects.find(o => o.type =
 export const HOME = position(0), ENEMY = position(1);
 export const SIZE = 96, GRID = 97;
 export const PLANET_RADIUS = 70;
-export function normal(p: Point) { const a=p.x/PLANET_RADIUS,b=p.z/PLANET_RADIUS; return {x:Math.sin(a)*Math.cos(b),y:Math.cos(a)*Math.cos(b),z:Math.sin(b)}; }
-export function planetPoint(p:Point,h=0) {const n=normal(p),r=PLANET_RADIUS+h;return {x:n.x*r,y:n.y*r-PLANET_RADIUS,z:n.z*r};}
-export function mapPoint(p:{x:number;y:number;z:number}):Point {return {x:Math.atan2(p.x,p.y+PLANET_RADIUS)*PLANET_RADIUS,z:Math.asin(Math.max(-1,Math.min(1,p.z/Math.hypot(p.x,p.y+PLANET_RADIUS,p.z))))*PLANET_RADIUS};}
-export function worldPoint(terrain:number[],p:Point) {
-  const x=Math.floor(p.x),z=Math.floor(p.z),fx=p.x-x,fz=p.z-z;
-  const cross=terrainCross(height(terrain,x,z),height(terrain,x+1,z),height(terrain,x,z+1),height(terrain,x+1,z+1));
-  const nodes=cross?
-    (fx+fz<=1?[[x,z,1-fx-fz],[x+1,z,fx],[x,z+1,fz]]:[[x+1,z+1,fx+fz-1],[x,z+1,1-fx],[x+1,z,1-fz]]):
-    (fz<fx?[[x,z,1-fx],[x+1,z,fx-fz],[x+1,z+1,fz]]:[[x,z,1-fz],[x,z+1,fz-fx],[x+1,z+1,fx]]);
-  return nodes.reduce((v,[x,z,t])=>{const q=planetPoint({x,z},height(terrain,x,z));return {x:v.x+q.x*t,y:v.y+q.y*t,z:v.z+q.z*t};},{x:0,y:0,z:0});
-}
+export function worldPoint(terrain:number[],p:Point){return {x:p.x,y:height(terrain,p.x,p.z)*45/128,z:p.z};}
 export const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.z - b.z);
 export const maxHp = (kind: UnitKind) => (kind === 'shaman' ? constants.LIFE_SHAMEN : kind === 'warrior' ? constants.LIFE_WARR : constants.LIFE_BRAVE)/20;
 export const buildingHp = (kind: BuildingKind) => kind === 'hut' ? 170 : 260;
@@ -219,10 +209,10 @@ export function placementError(w: World, kind: BuildingKind, p: Point) {
   return null;
 }
 export function groundBuilding(w: World, b: Building) {
-  // Flatten every supporting vertex in rendered space, so curvature cannot leave floating fence posts.
+  // A shared native height keeps the building and its supporting terrain together.
   const points = footprintPoints(b.kind, b);
-  b.foundation = points.reduce((sum, p) => sum + surface(w.terrain, p), 0) / points.length;
-  for (const p of points) w.terrain[(p.z + 48) * GRID + p.x + 48] = (PLANET_RADIUS+b.foundation)/(normal(b).x*normal(p).x+normal(b).y*normal(p).y+normal(b).z*normal(p).z)-PLANET_RADIUS;
+  b.foundation = Math.round(points.reduce((sum, p) => sum + surface(w.terrain, p), 0) / points.length*45)/45;
+  for (const p of points) w.terrain[(p.z + 48) * GRID + p.x + 48] = b.foundation;
   w.terrainVersion++;
 }
 export function walkable(terrain: number[], p: Point) { return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > .45; }

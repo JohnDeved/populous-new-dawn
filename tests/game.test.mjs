@@ -5,9 +5,10 @@ import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
 import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '../app/tooltips.ts';
+import {modelMatrix,modelPoint} from '../app/projection.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 test('opening tooltips resolve mission cells and have an independent lifetime', () => {
  const w=createWorld(),state=createTooltip();
@@ -29,11 +30,11 @@ test('opening tooltips resolve mission cells and have an independent lifetime', 
 });
 function until(w,ready,seconds){for(let i=0;i<seconds*12&&!ready()&&w.status==='playing';i++)tick(w,1/12);assert.ok(ready(),'gameplay condition reached within its turn budget');}
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
-function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
-test('original level layout, spherical coordinates, foundations, and the complete mission',()=>{
+function foundations(w){for(const b of w.buildings){for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');assert.ok(Math.abs(worldPoint(w.terrain,p).y-b.foundation*45/128)<1e-9,'supporting vertices share the native foundation height');}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){assert.ok(Math.abs(worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz}).y-b.foundation*45/128)<1e-9,'interpolated ground supports the whole building');}}}
+test('original level layout, native foundations, and the complete mission',()=>{
  const w=createWorld();assert.deepEqual(HOME,{x:9,z:33});assert.deepEqual(ENEMY,{x:1,z:-37});assert.equal(w.units.filter(u=>u.team==='blue'&&u.kind==='brave').length,6);assert.equal(w.buildings.length,4);assert.equal(w.shrines.length,3);assert.equal(w.units.filter(u=>u.team==='red').length,5);
  assert.ok(w.units.every(u=>walkable(w.terrain,u)));assert.equal(findPath(w.terrain,HOME,ENEMY).length,0);foundations(w);
- for(const p of [HOME,ENEMY,{x:150,z:-70},{x:-160,z:75}]){const q=planetPoint(p,2),back=mapPoint(q),n=normal(p);assert.ok(Math.abs(back.x-p.x)<1e-9&&Math.abs(back.z-p.z)<1e-9);assert.ok(Math.abs(Math.hypot(n.x,n.y,n.z)-1)<1e-9);}
+
  const snapshot=JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings});assert.equal(placeBuilding(w,'hut',{x:30,z:30}),false);assert.equal(placeBuilding(w,'hut',w.buildings[2]),false);assert.equal(placeBuilding(w,'camp',{x:4,z:32}),false);assert.equal(JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings}),snapshot,'invalid plans never terraform or consume timber');
  const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),bridge=w.shrines.find(s=>s.kind==='bridge');w.selected=[brave.id];command(w,bridge);until(w,()=>w.shots.bridge>=3,60);assert.equal(bridge.duration,28/3);
  select(w,'shaman');command(w,{x:0,z:20});advance(w,10);const charges=w.shots.bridge;assert.equal(cast(w,'bridge',{x:25,z:20}),false);assert.equal(w.shots.bridge,charges);assert.equal(cast(w,'bridge',{x:0,z:4}),true);advance(w,6);foundations(w);assert.ok(findPath(w.terrain,HOME,w.shrines[0]).length);
@@ -55,20 +56,17 @@ test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  w.units=w.units.filter(u=>u.team!=='blue');tick(w,1/12);assert.equal(w.status,'lost');
 });
 
-test('imported compound bases stay on their spherical ground pads',async()=>{
- const THREE=await import('three'),{readFileSync}=await import('node:fs');
- const models=JSON.parse(readFileSync(new URL('../app/original-models.json',import.meta.url)));
+test('native transformed compound bases stay on their ground pads',()=>{
  const w=createWorld();
  for(const [index,id] of [[0,136],[1,104],[2,131],[3,131]]){
-  const b=w.buildings[index],n=normal(b),up=new THREE.Vector3(n.x,n.y,n.z),base=planetPoint(b,b.foundation);
-  const rotation=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(Math.cos(b.x/PLANET_RADIUS),-Math.sin(b.x/PLANET_RADIUS),0),up,new THREE.Vector3(Math.cos(b.x/PLANET_RADIUS),-Math.sin(b.x/PLANET_RADIUS),0).cross(up))).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-b.angle));
-  const points=models[id].p;
-  for(let i=0;i<points.length;i+=3){
-   if(Math.abs(points[i+1])>.012)continue;
-   const vertex=new THREE.Vector3(points[i],points[i+1],points[i+2]).multiplyScalar(2).applyQuaternion(rotation).add(new THREE.Vector3(base.x,base.y,base.z));
-   const ground=worldPoint(w.terrain,mapPoint(vertex));
-   const gap=vertex.sub(new THREE.Vector3(ground.x,ground.y,ground.z)).dot(up);
-   assert.ok(gap>-.006&&gap<.03,`native model ${id} base gap ${gap}`);
+  const b=w.buildings[index],data=nativeModels[id],basis=modelMatrix(Math.round(b.angle*1024/Math.PI));
+  for(let i=0;i<data.p.length;i+=3){
+   const raw=[Math.round(data.p[i]*data.scale*3),Math.round(data.p[i+1]*data.scale*3),Math.round(-data.p[i+2]*data.scale*3)];
+   if(Math.abs(raw[1])>5)continue;
+   const p=modelPoint(raw,data.scale,basis,{x:0,y:Math.round(b.foundation*45),z:0});
+   const ground=worldPoint(w.terrain,{x:b.x+p.x/128,z:b.z-p.z/128});
+   const gap=p.y/128-ground.y;
+   assert.ok(gap>=-1/128&&gap<=3/128,`native model ${id} base gap ${gap}`);
   }
  }
 });
@@ -210,7 +208,7 @@ test('native terrain ridges, reflected diagonals, surface planes and boundary ve
     const t=Array(GRID*GRID).fill(0),i=48*GRID+48;
     [i,i+1,i+GRID,i+GRID+1].forEach((k,j)=>t[k]=corners[j]);
     const cross=terrainCross(...corners);
-    const vertices=[[0,0],[1,0],[0,1],[1,1]].map(([x,z],j)=>planetPoint({x,z},corners[j]));
+    const vertices=[[0,0],[1,0],[0,1],[1,1]].map(([x,z],j)=>({x,y:corners[j]*45/128,z}));
     const dot=(a,b)=>a.x*b.x+a.y*b.y+a.z*b.z,sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y,z:a.z-b.z});
     for(const x of [.1,.4,.9])for(const z of [.1,.6,.9]){
       const ids=cross?(x+z<=1?[0,1,2]:[3,2,1]):(z<x?[0,1,3]:[0,2,3]);

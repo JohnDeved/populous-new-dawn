@@ -138,14 +138,22 @@ export function cameraConfigIndex(width:number,height:number) {
   return best;
 }
 
+// 0x416e50 replaces the file's normal-view bounds after resolution selection.
+export function cameraMeshBounds(width:number,height:number) {
+  if(width===800&&height===600)return [-14,-16,14,-16,25,44,-25,44];
+  if(width===1024&&height===768)return [-16,-18,16,-18,30,49,-30,49];
+  if(width===1280&&height===1024)return [-18,-20,18,-20,32,54,-32,54];
+  return [-10,-16,10,-16,16,39,-16,39];
+}
+
 // 0x41c700's flyby zoom interpolation; ordinary view switches have their own timer.
 export function cameraConfig(index:number,zoom=0,range=16384):CameraConfig {
   if(!Number.isInteger(index)||index<0||index>=10)throw new RangeError('Invalid native camera configuration');
   if(!Number.isInteger(zoom)||Math.abs(zoom)>range||range<=0)throw new RangeError('Invalid native camera zoom');
   const base=native.views[index*5];
-  if(!zoom)return {...base,bounds:[...base.bounds]};
+  if(!zoom)return {...base,bounds:base.boundsMode===1?cameraMeshBounds(base.width,base.height):[...base.bounds]};
   const target=native.views[index*5+(zoom>0?2:3)],amount=Math.abs(zoom);
-  const result={...base,bounds:[...base.bounds],diameter:amount===range?target.diameter:50,globe:Number(!!(base.globe||target.globe))};
+  const result={...base,bounds:[...base.bounds],boundsMode:0,diameter:amount===range?target.diameter:50,scaledSprites:Number(!!(base.scaledSprites||target.scaledSprites))};
   for(const key of ['curvature','scale','pitch','offsetY','horizon'] as const) {
     const value=(base[key]+Math.trunc(Math.imul(target[key]-base[key],amount)/range))|0;
     result[key]=key==='pitch'||key==='offsetY'||key==='horizon'?(value<<16)>>16:value;
