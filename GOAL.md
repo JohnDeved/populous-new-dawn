@@ -44,7 +44,7 @@ All rows remain open until compared against the original engine, including edge 
 | Subsystem | Current evidence | Still required |
 | --- | --- | --- |
 | Decompilation workflow | Pinned Ghidra/JDK, metadata adapter, section-byte verification, address-based C exports | Continue identifying routines and reconstructing reviewed code alongside ports |
-| Developer workflow and maintainability | TypeScript engine runs in Node; React/Three.js/audio separated; Vite dev loop; shared spell definitions and `npm run check` | Continue separating reconstructed subsystems, improving readability and removing demonstrated editing/performance friction without parity regressions |
+| Developer workflow and maintainability | TypeScript engine runs in Node; React/Three.js/audio separated; Vite dev loop; shared spell definitions, standalone worship/VM modules and `npm run check` | Continue separating reconstructed subsystems, improving readability and removing demonstrated editing/performance friction without parity regressions |
 | World, terrain, camera | Original mission-one data, textures and models; native tile split/height routines CPU-compared and used during import | Exact toroidal coordinates, deformation, projection, visibility and camera behavior |
 | Graphics and interface | Original layered unit sprites, building meshes, HUD and several effects | All animation states, layers, palettes, blend passes, effects and controls |
 | Turns and randomness | 12 Hz turns, integer movement tables, native RNG formula | Scheduling order/phases, seed initialization and complete RNG consumption |
@@ -53,8 +53,8 @@ All rows remain open until compared against the original engine, including edge 
 | Economy and buildings | Native mana, breeding/training bands and hut upgrade values | Construction, repair/fire/damage, activity timers and all building classes |
 | Spells | Blast/Lightning/Land Bridge projectiles, cell targets, spent charges and delayed impact; native 3D-step CPU comparisons | Complete scheduling, targeting/reflection, deformation, animation and every spell |
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
-| AI and campaign | Original first-level layout; CPU-compared VM, cast/stock/head query bindings, turn-zero setup, disabled Dakini reincarnation and original terrain-rule bytecode applied | Remaining game-command bindings, AI stocks and scheduler; exact worship/reward lifecycle; all missions, objectives, progression and difficulty |
+| AI and campaign | Original first-level layout; CPU-compared VM, cast/stock/head query bindings, turn-zero setup, disabled Dakini reincarnation and original terrain-rule bytecode applied; 6,004 native worship/reward turn comparisons | Remaining game-command bindings, AI stocks and scheduler; worship eligibility, object phases and remaining reward lifecycle; all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Fourteen regression tests, native CPU comparisons and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Fifteen regression tests, native CPU comparisons and real-browser mission/visual QA | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).

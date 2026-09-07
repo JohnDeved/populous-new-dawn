@@ -6,6 +6,7 @@ import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, normal, planetPoint, worldPoint, mapPoint, PLANET_RADIUS, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+function until(w,ready,seconds){for(let i=0;i<seconds*12&&!ready()&&w.status==='playing';i++)tick(w,1/12);assert.ok(ready(),'gameplay condition reached within its turn budget');}
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
 function foundations(w){for(const b of w.buildings){const n=normal(b);for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');const q=worldPoint(w.terrain,p);const error=q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-(PLANET_RADIUS+b.foundation);assert.ok(Math.abs(error)<1e-9,`building ${b.id} support error ${error}`);}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){const q=worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz});assert.ok(Math.abs(q.x*n.x+(q.y+PLANET_RADIUS)*n.y+q.z*n.z-PLANET_RADIUS-b.foundation)<1e-9,'the rendered triangles form one supporting plane');}}}
 test('original level layout, spherical coordinates, foundations, and the complete mission',()=>{
@@ -13,12 +14,12 @@ test('original level layout, spherical coordinates, foundations, and the complet
  assert.ok(w.units.every(u=>walkable(w.terrain,u)));assert.equal(findPath(w.terrain,HOME,ENEMY).length,0);foundations(w);
  for(const p of [HOME,ENEMY,{x:150,z:-70},{x:-160,z:75}]){const q=planetPoint(p,2),back=mapPoint(q),n=normal(p);assert.ok(Math.abs(back.x-p.x)<1e-9&&Math.abs(back.z-p.z)<1e-9);assert.ok(Math.abs(Math.hypot(n.x,n.y,n.z)-1)<1e-9);}
  const snapshot=JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings});assert.equal(placeBuilding(w,'hut',{x:30,z:30}),false);assert.equal(placeBuilding(w,'hut',w.buildings[2]),false);assert.equal(placeBuilding(w,'camp',{x:4,z:32}),false);assert.equal(JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings}),snapshot,'invalid plans never terraform or consume timber');
- const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),bridge=w.shrines.find(s=>s.kind==='bridge');w.selected=[brave.id];command(w,bridge);advance(w,32);assert.ok(w.shots.bridge>=3);assert.equal(bridge.duration,7);
+ const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),bridge=w.shrines.find(s=>s.kind==='bridge');w.selected=[brave.id];command(w,bridge);until(w,()=>w.shots.bridge>=3,60);assert.equal(bridge.duration,28/3);
  select(w,'shaman');command(w,{x:0,z:20});advance(w,10);const charges=w.shots.bridge;assert.equal(cast(w,'bridge',{x:25,z:20}),false);assert.equal(w.shots.bridge,charges);assert.equal(cast(w,'bridge',{x:0,z:4}),true);advance(w,6);foundations(w);assert.ok(findPath(w.terrain,HOME,w.shrines[0]).length);
- command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',{x:guard.x+1,z:guard.z}));advance(w,2);assert.ok(!w.units.includes(guard),'Blast knocks the guard off the western coast');command(w,w.shrines.find(s=>s.kind==='vault'));advance(w,15);assert.ok(w.unlockedCamp);
+ command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',{x:guard.x+1,z:guard.z}));advance(w,2);assert.ok(!w.units.includes(guard),'Blast knocks the guard off the western coast');command(w,w.shrines.find(s=>s.kind==='vault'));until(w,()=>w.unlockedCamp,45);
  assert.ok(placeBuilding(w,'camp',{x:4,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
  select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
- select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));advance(w,42);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-24}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
+ select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-24}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
  command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');assert.equal(w.redRespawn,0,'the native first-mission script disables Dakini reincarnation');assert.ok(!w.units.includes(enemyShaman));
  // Fight through the remaining defenders using the units that were actually trained above.
  select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.buildings.find(b=>b.team==='red')??w.units.find(u=>u.team==='red'&&u.inside===null);if(!enemy)break;command(w,enemy);advance(w,8);}
@@ -245,14 +246,42 @@ test('campaign counters track allocation and remaining head gifts through gamepl
  const headQuery={fields:[[0,19],[0,247],[1,0]]};
  campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],4,'query reports gifts remaining, not gifts already awarded');
  Object.assign(brave,{x:head.x,z:head.z,work:head.id,path:[]});
- for(let remaining=3;remaining>=0;remaining--){head.progress=1;tick(fresh,1/12);campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],remaining);}
- assert.equal(head.active,false);assert.equal(fresh.shots.lightning,4);
+ const finish=(head)=>{Object.assign(head,{work:head.target*head.required**2-1,enabled:true,reset:false,cooldown:0});tick(fresh,1/3);};
+ for(let remaining=3;remaining>=0;remaining--){finish(head);campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],remaining);}
+ assert.equal(head.active,false);assert.equal(fresh.shots.lightning,0,'head depletion precedes reward delivery');until(fresh,()=>fresh.shots.lightning===4,8);
  campaignCommand(fresh,1077,[0,1,2],{fields:[[0,0],[2,1186],[1,0]]});assert.equal(fresh.ai.variables[0],4);
  removeHead(fresh,18,246);campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],0,'absent heads return zero');
  const bridge=fresh.shrines.find(s=>s.kind==='bridge');Object.assign(brave,{x:bridge.x,z:bridge.z,work:bridge.id,path:[]});
- bridge.progress=1;tick(fresh,1/12);assert.equal(bridge.remaining,0);assert.equal(bridge.active,true,'zero initial trigger count means unlimited');
- bridge.remaining=-1;bridge.progress=1;tick(fresh,1/12);assert.equal(bridge.remaining,-1);assert.equal(bridge.active,false,'negative trigger counts fire once and retain their value');
+ finish(bridge);assert.equal(bridge.remaining,0);assert.equal(bridge.active,true,'zero initial trigger count means unlimited');
+ bridge.remaining=-1;finish(bridge);assert.equal(bridge.remaining,-1);assert.equal(bridge.active,false,'negative trigger counts fire once and retain their value');
  assert.throws(()=>campaignCommand(fresh,1077,[1119,1,2],program),/Unbound one-off spell stock/,'unported AI stock is not silently reported as zero');
  assert.throws(()=>campaignCommand(fresh,1076,[1118,1,2],{fields:[[0,0],[0,2],[1,64]]}),/Invalid campaign query destination/);
  assert.throws(()=>campaignCommand(fresh,1059,[]),/Unbound campaign command/);
+});
+
+test('worship decays without followers and continues at full spell stock', () => {
+ const w = createWorld(), head = w.shrines.find(s => s.kind === 'bridge');
+ const brave = w.units.find(u => u.team === 'blue' && u.kind === 'brave');
+ Object.assign(brave, {x: head.x, z: head.z, work: head.id, path: []});
+ w.shots.bridge = 4;
+ advance(w, 4);
+ assert.equal(head.work, 12, 'full stock does not pause worship');
+ brave.work = null;
+ advance(w, 2);
+ assert.equal(head.work, 6, 'leaving the head loses accumulated work');
+ brave.work = head.id;
+ until(w, () => head.uses === 1, 10);
+ assert.equal(w.gifts.length, 1);
+ assert.equal(w.giftCounts.bridge, 0);
+ removeHead(w, 2, 222);
+ for (let i = 0; i < 81; i++) tick(w, 1 / 12);
+ assert.equal(w.giftCounts.bridge, 0, 'the reward waits 82 turns after firing');
+ tick(w, 1 / 12);
+ assert.equal(w.gifts.length, 0, 'a spawned gift survives removal of its head');
+ assert.equal(w.shots.bridge, 4, 'an award at the cap does not create a fifth shot');
+ assert.equal(w.giftCounts.bridge, 1, 'the separate gift counter still advances');
+ const shaman = w.units.find(u => u.kind === 'shaman' && u.team === 'blue');
+ assert.ok(cast(w, 'bridge', shaman));
+ assert.equal(w.shots.bridge, 3);
+ assert.equal(w.giftCounts.bridge, 0, 'human casting spends a gift count too');
 });

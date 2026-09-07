@@ -1,6 +1,6 @@
 # Populous · The Journey Begins
 
-The original first mission, rebuilt for desktop browsers with original-game visual styling and a spherical world. Terrain and initial objects come from the user-supplied game; behavior is being reconstructed and compared against its executable. Worship scheduling is still approximate.
+The original first mission, rebuilt for desktop browsers with original-game visual styling and a spherical world. Terrain and initial objects come from the user-supplied game; behavior is being reconstructed and compared against its executable. Spell-head work and delayed gifts are CPU-compared; follower eligibility and world scheduling remain approximate.
 
 ## Run
 
@@ -13,7 +13,7 @@ Use Node 24, a desktop monitor, keyboard/mouse and a WebGL 2 browser. The music-
 
 ## Play
 
-1. Select a brave and click the southern Land Bridge stone head. One worshipper earns a shot every seven seconds, up to four held at once.
+1. Select a brave and click the southern Land Bridge stone head. Keep a follower worshipping to earn gifts, with up to four Land Bridge shots held at once. Each completed worship cycle starts a short delivery delay; leaving early loses progress.
 2. Move your shaman to the northern edge of the starting island. Choose Land Bridge and click land across the water.
 3. Blast the lone Dakini guard. Send the shaman to the Vault of Knowledge to discover warrior training; send a follower to the other stone head for four Lightning gifts.
 4. Place a Warrior Training Hut near your settlement. Free braves fetch eight logs and build it. Select braves and click the completed hut to train them.
@@ -49,6 +49,7 @@ Maintainability is a standing [side objective](GOAL.md#side-objective-keep-devel
 | Change | Start here |
 | --- | --- |
 | Spell identity, behavior or engine state | `app/model.ts`; use the shared `SPELLS` definitions, including native model IDs |
+| Worship work, decay and refill | `app/worship.ts`; world eligibility and delayed rewards currently live in `app/model.ts` |
 | Campaign bytecode semantics | `app/popscript.ts`; engine command bindings currently live in `app/model.ts` |
 | Models, sprites, camera or input | `app/scene.ts` |
 | HUD and menus | `app/page.tsx`, `app/globals.css` |

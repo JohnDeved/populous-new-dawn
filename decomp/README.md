@@ -48,6 +48,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | `0048a050`, `0048b500`, `0048b950` | `scripts/import-sound.py`, `app/audio.ts`, `app/model.ts` | Native PCM/cues and partial event dispatch; adaptive music and complete scheduler pending |
 | `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
 | `0048cc60`, `0048f350` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization applied; full game-command host remains open |
+| `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts` | Integer worship/refill and delayed spell gifts CPU-compared; eligibility, phase and reward visuals incomplete |
 | `00492790`, `00492860`, `00491c30`, `004f2900`, `004c2b40`, `004c14c0` | `app/model.ts`, `scripts/check-native-campaign.py` | Cast/stock/head queries and allocation counters CPU-compared; unsupported AI stock still explicit |
 
 For each subsequent port, preserve the original branch ordering, integer widths/rounding, state transitions and scheduling when established. Record uncertainty rather than silently replacing it with a guessed rule. Add a runnable behavioral check and update the [detailed evidence log](../references/reverse-engineering.md) and [goal checklist](../GOAL.md). Existing browser tests establish internal consistency; they are not yet cross-engine replay evidence.
@@ -115,3 +116,19 @@ execute the original spell initializer with no shaman, no mana debit, no UI
 notification and no opponent observers; its original allocation counter is
 compared directly. These checks do not prove the full initializer, stock awards,
 worship scheduling, the AI scheduler or unimplemented commands.
+
+
+## Worship and reward comparison
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-worship.py /path/to/d3dpoptb.exe
+```
+
+Compares 4,344 native worship turns (including decay, refill, growth and signed
+remaining counts) and 1,660 native automatic spell-reward turns (82-turn delivery,
+four-shot cap and independent upper-nibble gift counter). Only the final deletion
+leaf is intercepted. Worship uses actual native command eligibility; reward
+fixtures skip visual initialization and Windows UI callbacks. These checks do not
+prove browser eligibility, object scheduling, vault tasks, competitive ownership,
+floating reward visuals or pickup behavior. Fifteen gameplay regressions cover
+integration, including rewards surviving head removal and worship at full stock.
