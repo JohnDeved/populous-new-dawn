@@ -155,3 +155,19 @@ Reproduce with `node scripts/check-browser-scenery-fire.mjs`; inspect
 contribution, not model lighting, unit shadow art, sunlight or the full scenery
 scheduler. Those remain the next visible comparison targets alongside native
 raster/filter differences. The existing native burn visibility cutoff is unchanged.
+
+### Unit shadow and depth-size pass
+
+Original code confirms the dark disks under standing people were invented. HFX22
+is a small screen-facing ground shadow enabled by airborne physics. The scene now
+uses that artwork during actual Blast flight, with original terrain anchoring,
+depth-scaled dimensions and the unscaled two-pixel painter offset. Standing units
+have no generic rings. Body sprites and selection arrows now use actual projected
+depth rather than fixed buckets; halo shadow scaling shares the painter convention.
+
+Reproduce with `node scripts/check-browser-unit-shadows.mjs`; the inspected
+`/private/tmp/populous-native-unit-shadow.png` shows the shadow below an elevated
+red shaman. GPU isolation measures 36 changed pixels and landing removes it.
+Selection and halo checks still pass. Native queue/painter/gate comparisons total
+2,048 cases. Full interpolation, model lighting, all shadow owners and painter
+ordering remain open; this capture does not establish whole-frame parity.

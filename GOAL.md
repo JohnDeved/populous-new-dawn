@@ -247,5 +247,18 @@ sharing shape traversal and occupant shade with building footprints. Its complet
 setter and real shade consumer match 632 cases; building footprint/shade regressions
 match another 632/4,096. Browser ground pixels and an actual Lightning burn verify
 shade appearance/removal. Full scenery ownership, sunlight, model lighting and
-unit shadow art remain open; continue those visible comparisons. The lighting
+complete unit shadow ownership remain open; continue those visible comparisons. The lighting
 checkpoint stays partial in PARITY.md, with the new evidence recorded.
+
+### Latest visible integration: airborne shadows and unit scale
+
+Removed the invented standing-unit rings. Airborne people now use original HFX22
+art, native ground sampling, depth-scaled dimensions and the fixed two-pixel
+anchor offset. Body sprites and selection arrows use their actual native depth
+bucket, including the shaman scale path and custom person bias. The native queue,
+painter and airborne gate match 2,048 cases; an actual browser Blast verifies
+visible ground shadow pixels and removal on landing. Existing selection, halo
+and projection checks pass. Full render-position interpolation, mixed painter
+ordering and object-class shadow ownership remain open; lighting and directional
+sprite checkpoints stay partial. Continue visible model lighting, activity and
+rendering comparisons before isolated hidden engine work.

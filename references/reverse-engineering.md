@@ -4138,3 +4138,24 @@ Boundary: native texture regeneration is intercepted in CPU tests and the live
 browser atlas supplies invalidation; object classes/ownership outside the current
 tree adapter, sunlight and model/unit shadows remain open. The lighting parity
 checkpoint stays partial; its evidence improves without increasing the score.
+
+### Airborne person shadows and depth-based sprite size
+
+Traced native body queue `0046f080`, shadow queue `0046f850`, painter branch
+`0046acf6..0046c185` and person tail `004d3ce7`. Replaced invented ground rings
+with original HFX22 shadow art, grounded through native terrain sampling and
+shown only for airborne people. Body sizing previously used fixed +/-1 buckets;
+it now uses projected depth, the native -300/custom bias and one-based painter
+index. Halo shadow scaling also receives the corrected one-based bucket.
+
+Validation: 512 native body/shadow queue comparisons, 1,024 original shadow
+rectangle/scaling comparisons and 512 person-tail gate comparisons. Queue fixtures
+supply projection with zero velocity; native terrain and sprite scaling execute.
+A real browser Blast produces 36 isolated shadow GPU pixels, retains ground
+anchoring and removes the shadow on landing. Selection, halo and full native
+projection regressions pass. Capture: `/private/tmp/populous-native-unit-shadow.png`.
+
+Full render-position interpolation, mixed painter ordering and all class shadow
+ownership are still open. The live flight gate includes the existing Blast lift
+adapter until native person physics owns it. This is evidence within two partial
+checkpoints, not new verified credit or whole-frame parity.

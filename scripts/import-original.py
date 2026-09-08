@@ -199,12 +199,12 @@ def main():
     effects=sprites(hfx_data,fx_palette,alpha=True)
     # 0x4673b0 draws type-1 objects from HFX, including the small trail particles.
     # Trail draw type 1 uses the ordinary palette; the Blast head uses nibble alpha.
-    fx_sequences={'impact':(1099,9),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,8),'spellTrail':(0x142,8),'log':(23,1),'halo':(1466,12),'haloShadow':(70,1),'buildingSmoke':(1345,16)}
+    fx_sequences={'impact':(1099,9),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,8),'spellTrail':(0x142,8),'log':(23,1),'halo':(1466,12),'haloShadow':(70,1),'buildingSmoke':(1345,16),'unitShadow':(22,1)}
     fx_frames=[];fx_meta={};cell=256
     for name,(start,count) in fx_sequences.items():
         fx_meta[name]=[]
         for i in range(start,start+count):
-            w,h,data=(hfx if name in ('blastTrail','spellTrail','log','haloShadow') else effects)[i];assert w<=cell and h<=cell
+            w,h,data=(hfx if name in ('blastTrail','spellTrail','log','haloShadow','unitShadow') else effects)[i];assert w<=cell and h<=cell
             fx_meta[name].append({'index':len(fx_frames),'w':w,'h':h,'source':i});fx_frames.append((w,h,data))
     fw=2048;fh=((len(fx_frames)+7)//8)*cell;pixels=bytearray(fw*fh*4)
     for i,(w,h,data) in enumerate(fx_frames):

@@ -35,12 +35,12 @@ try{
   const s=window.testScene,u=s.world.units.find(u=>u.kind==='shaman'&&u.team==='blue'),g=s.unitMeshes.get(u.id),body=g.userData.sprite,out=[];
   for(let i=0;i<12;i++){
    s.animatePerson(body,g,u.heading,directions,i/12,false);
-   const a=g.userData.selection;out.push({index:g.userData.frame,offset:(1-a.center.y)*a.scale.y,view:s.view.config});
+   const a=g.userData.selection;out.push({index:g.userData.frame,offset:(1-a.center.y)*a.scale.y,view:s.view.config,bucket:g.userData.spriteBucket});
   }
   return out;
  },native.animations['blue-shaman'].walk);
  assert.ok(new Set(poses.map(p=>p.offset)).size>1,'arrow follows varying native pose heights');
- for(const p of poses){const flags=p.view.scaledSprites?0x100:0;assert.ok(Math.abs(p.offset-spriteCoordinate(native.frames[p.index].nativeHeight,-1,flags,p.view))<1e-8);}
+ for(const p of poses){const flags=p.view.scaledSprites?0x100:0;assert.ok(Math.abs(p.offset-spriteCoordinate(native.frames[p.index].nativeHeight,p.bucket,flags,p.view))<1e-8);}
  await page.screenshot({path:'/private/tmp/populous-selection-shaman.png'});
  await page.evaluate(()=>{const s=window.testScene;s.world.selected=s.world.units.filter(u=>u.team==='red').map(u=>u.id);s.onChange();});
  await page.waitForFunction(()=>[...window.testScene.unitMeshes.values()].every(g=>!g.userData.selection.visible));

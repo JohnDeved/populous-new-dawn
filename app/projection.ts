@@ -225,7 +225,27 @@ export function spriteCoordinate(
   return Math.max(-256, Math.min(256, n))
 }
 
-// 0x46f9e0 queues scaled HFX at this depth bucket; 0x4673b0 sizes its rectangle.
+// Native body, shadow and HFX queues share this depth-bucket calculation.
+// The painter counts buckets from 1, although the linked-list array starts at 0.
+export function spriteBucket(depth: number, bias: number) {
+  const distance = (depth + 0x7000 + bias) | 0
+  return (distance < 64 ? 0 : Math.min(3584, distance >> 4)) + 1
+}
+
+// 0x46f850 queues ground shadows with bias -192. The painter adds two screen
+// pixels below the anchor; that offset is not scaled with the artwork.
+export function spriteShadow(
+  frame: { w: number; h: number },
+  depth: number,
+  flags: number,
+  view: Pick<CameraConfig, 'scale' | 'spriteScale' | 'shamanScale'>
+) {
+  const bucket = spriteBucket(depth, -192)
+  const width = flags & 0x380 ? spriteCoordinate(frame.w, bucket, flags, view) : frame.w
+  const height = flags & 0x380 ? spriteCoordinate(frame.h, bucket, flags, view) : frame.h
+  return { x: -Math.trunc(width / 2), y: 2 - height, width, height }
+}
+
 export function scaledEffectSize(
   frame: { w: number; h: number },
   effect: { scaleX: number; scaleY: number },
@@ -233,8 +253,7 @@ export function scaledEffectSize(
   flags: number,
   view: Pick<CameraConfig, 'scale' | 'spriteScale' | 'shamanScale'>
 ) {
-  const distance = (depth + 0x6f80) | 0
-  const bucket = (distance < 64 ? 0 : Math.min(3584, distance >> 4)) + 1
+  const bucket = spriteBucket(depth, -128)
   const width = Math.imul(frame.w, effect.scaleX) >> 8
   const height = Math.imul(frame.h, effect.scaleY) >> 8
   if (!(flags & 0x380)) return { width, height }

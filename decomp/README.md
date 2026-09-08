@@ -1852,3 +1852,37 @@ comparison measures 26,778 changed ground pixels and verifies that an actual
 Lightning-burned tree clears its shade when removed. Native burn removal at the
 wood threshold remains unchanged. Full scenery class registration, all scenery
 objects and original texture scheduling still require integration.
+
+## Person depth scaling and airborne shadows
+
+`0046f080` queues body sprites with depth bias -300, or signed person morph byte
+multiplied by 16 when flags3 bit 0x400 is set. `0046f850` samples original terrain
+height and queues HFX22 (21 by 4 pixels) with bias -192. The painter uses one-based
+bucket numbers; the linked-list array is zero-based. `spriteBucket` shares this
+conversion with scaled HFX. The shaman path negates the body bucket.
+
+`004673b0` at `0046acf6..0046c185` draws shadow types 15/16/25 from HFX22/71/70,
+scaling dimensions as configured and placing the rectangle at x-width/2,
+y-height+2. The two-pixel offset is not scaled. The person updater tail at
+`004d3ce7` enables the shadow render flag only when flags4 bit 0x400 is set.
+The live Blast adapter also exposes airborne state through lift; standing rings
+were removed. Full native interpolation and person render ownership remain open.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-unit-shadows.py /path/to/d3dpoptb.exe
+node scripts/check-browser-unit-shadows.mjs
+```
+
+The native check covers 512 body/shadow queues with zero velocity and supplied
+projection output, 1,024 shadow painter rectangles using native sprite scaling,
+and 512 person-tail shadow gates. Ground sampling executes in the original;
+final draw submission is intercepted. Queue rejection tests vary projected screen
+Y independently of clip bits: disassembly shows the queue checks screen Y's float
+sign, not the point's clip-flags field. These checks do not establish full velocity
+interpolation, mixed painter ordering or all object-class shadow ownership.
+`004741b0` is retained as traced terrain-render evidence, not a person-shadow port.
+
+The browser check casts real Blast, verifies original shadow atlas data and visible
+GPU pixels below the flying person, then confirms removal on landing. It also
+checks varying body depth buckets. Selection-arrow and halo regressions pass with
+the corrected one-based painter bucket used for their scaling.

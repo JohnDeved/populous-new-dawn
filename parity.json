@@ -130,9 +130,11 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-animation.py",
-            "app/scene.ts"
+            "app/scene.ts",
+            "scripts/check-native-unit-shadows.py",
+            "scripts/check-browser-unit-shadows.mjs"
           ],
-          "note": "Eight-way selection reconstructed; complete action/state ownership remains open."
+          "note": "Eight-way selection and native body depth buckets/scaling integrated; complete action/state ownership and render-position interpolation remain open."
         },
         {
           "id": "graphics.animation",
@@ -163,9 +165,11 @@
             "scripts/check-browser-water.mjs",
             "scripts/check-native-scenery-shadow.py",
             "scripts/check-browser-scenery-fire.mjs",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "scripts/check-native-unit-shadows.py",
+            "scripts/check-browser-unit-shadows.mjs"
           ],
-          "note": "Terrain diffuse/additive conversion and scenery shadow updates are verified and integrated for live trees, including removal. Sunlight propagation, model lighting, unit shadows and the full scenery lifecycle remain incomplete."
+          "note": "Terrain diffuse/additive conversion, live scenery shade and original airborne person shadow art/grounding/scaling are compared and integrated. Sunlight propagation, model lighting, full object shadow ownership/interpolation and scenery lifecycle remain incomplete."
         },
         {
           "id": "graphics.raster",

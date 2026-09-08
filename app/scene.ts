@@ -15,6 +15,7 @@ import { defeatSky, createSkyMotion, updateSkyArray, skyCloudLayer } from './sky
 import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import { waterTexture, waterPoint, waterCell } from './water.ts'
 import { vertexLighting } from './projection.ts'
+import { terrainPointHeight } from './native-terrain.ts'
 import skyPalette from './original-sky.json'
 import {
   createTooltip,
@@ -68,6 +69,8 @@ import { morphCoordinate } from './morph.ts'
 import {
   spriteDirection,
   spriteCoordinate,
+  spriteBucket,
+  spriteShadow,
   selectionArrow,
   scaledEffectSize,
 } from './projection.ts'
@@ -159,20 +162,6 @@ function part(
   group.add(m)
   return m
 }
-function ring(radius: number, color: number, width = 0.075) {
-  const g = new THREE.RingGeometry(radius - width, radius, 64)
-  g.rotateX(-Math.PI / 2)
-  return new THREE.Mesh(
-    g,
-    new THREE.MeshBasicMaterial({
-      color,
-      transparent: true,
-      opacity: 0.85,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    })
-  )
-}
 function makeUnit(u: Unit) {
   const g = new THREE.Group(),
     map = texture('units').clone()
@@ -182,9 +171,16 @@ function makeUnit(u: Unit) {
   )
   // Frame-specific offsets keep native feet, headdresses and death poses anchored.
   g.add(sprite)
-  const shadow = ring(0.36, 0x171b12, 0.35)
-  shadow.position.y = 0.015
-  ;(shadow.material as THREE.MeshBasicMaterial).opacity = 0.32
+  const shadow = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: texture('effects').clone(),
+      alphaTest: 0.5,
+      depthWrite: false,
+      toneMapped: false,
+    })
+  )
+  effectFrame(shadow, nativeEffects.animations.unitShadow[0])
+  shadow.visible = false
   g.add(shadow)
   const selection = new THREE.Sprite(
     new THREE.SpriteMaterial({
@@ -205,6 +201,7 @@ function makeUnit(u: Unit) {
     owner: u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1,
     signature: `${u.team}-${u.kind}`,
     sprite,
+    shadow,
     selection,
     health,
     healthFill,
@@ -1306,10 +1303,13 @@ export class GameScene {
     )
     body.center.set(cycle.flip ? 1 + frame.x / frame.w : -frame.x / frame.w, 1 + frame.y / frame.h)
     const shaman = g.userData.signature?.endsWith('shaman') || g.userData.shaman,
-      flags = this.view.config.scaledSprites ? 0x100 : 0
+      flags = this.view.config.scaledSprites ? 0x100 : 0,
+      depth = this.view.project(g.position, (g.position.y * 128) / 45).z,
+      bucket = spriteBucket(depth, g.userData.depthBias ?? -300) * (shaman ? -1 : 1)
+    g.userData.spriteBucket = bucket
     const size = (n: number) =>
-      shaman || flags ? spriteCoordinate(n, shaman ? -1 : 1, flags, this.view.config) : n
-    body.scale.set(Math.max(1, size(frame.w)), Math.max(1, size(frame.h)), 1)
+      shaman || flags ? spriteCoordinate(n, bucket, flags, this.view.config) : n
+    body.scale.set(Math.max(0, size(frame.w)), Math.max(0, size(frame.h)), 1)
     const arrow = g.userData.selection as THREE.Sprite | undefined
     if (arrow) {
       // Selection ownership currently comes from the browser command list.
@@ -1323,7 +1323,7 @@ export class GameScene {
           y: 0,
           frameHeight: size(frame.nativeHeight),
           scaled: !!(shaman || flags),
-          bucket: shaman ? -1 : 1,
+          bucket,
           flags,
         },
         this.view.config
@@ -1592,8 +1592,8 @@ export class GameScene {
         bucket = haloBucket(projected.z)
       if (flags)
         shadow.scale.set(
-          spriteCoordinate(9, bucket, flags, this.view.config),
-          spriteCoordinate(2, bucket, flags, this.view.config),
+          spriteCoordinate(9, bucket + 1, flags, this.view.config),
+          spriteCoordinate(2, bucket + 1, flags, this.view.config),
           1
         )
       shadow.visible = shadow.scale.x > 0 && shadow.scale.y > 0
@@ -1739,6 +1739,28 @@ export class GameScene {
       this.locate(g, u)
       g.position.y += ((0.04 + Math.sin(u.lift * Math.PI) * 2) * 45) / 128
       g.visible = u.inside === null
+      g.userData.depthBias =
+        u.native && u.native.flags3 & 0x400 ? ((u.native.morph << 24) >> 24) * 16 : -300
+      const shadow = g.userData.shadow as THREE.Sprite
+      // 0x4d32b0's tail enables person shadows only for airborne physics (0x400).
+      // Blast's current flight adapter exposes lift until full physics owns it.
+      shadow.visible = !!((u.native?.flags4 ?? 0) & 0x400) || u.lift > 0
+      if (shadow.visible) {
+        const ground = terrainPointHeight(this.world.land, nativePosition(this.world, u))
+        shadow.position.y = ground / 128 - g.position.y
+        const depth = this.view.project(u, ground / 45).z
+        const r = spriteShadow(
+          nativeEffects.animations.unitShadow[0],
+          depth,
+          this.view.config.scaledSprites ? 0x100 : 0,
+          this.view.config
+        )
+        shadow.visible = r.width > 0 && r.height > 0
+        if (shadow.visible) {
+          shadow.scale.set(r.width, r.height, 1)
+          shadow.center.set(-r.x / r.width, 1 + r.y / r.height)
+        }
+      }
       const body = g.userData.sprite as THREE.Sprite
       const animations = (
         nativeUnits.animations as Record<
