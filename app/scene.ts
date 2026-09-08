@@ -87,7 +87,7 @@ import {
 import { zoomPreset, viewTransitionFrames, stepViewTransition } from './camera-view.ts'
 import { RenderView } from './render-view.ts'
 import { GlobeRenderer } from './globe-renderer.ts'
-import { globeDrag } from './globe.ts'
+import { beginGlobeDrag, stepGlobeMotion, type GlobeMotion } from './globe.ts'
 import nativeUnits from './original-units.json'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeEffects from './original-effects.json'
@@ -348,7 +348,14 @@ export class GameScene {
   viewPreset = 0
   viewTransition: { config: CameraConfig; remaining: number } | null = null
   dragLast = { x: 0, y: 0 }
-  dragOrigin = { x: 0, y: 0 }
+  globePointer = { x: 0, y: 0 }
+  globeMotion: GlobeMotion = {
+    position: { x: 0, y: 0 },
+    origin: { x: 0, y: 0 },
+    press: { x: 0, y: 0 },
+    velocity: { x: 0, y: 0 },
+    dragging: false,
+  }
   scene = new THREE.Scene()
   camera = new THREE.PerspectiveCamera(38, 1, 0.2, 1000)
   renderer: THREE.WebGLRenderer
@@ -605,6 +612,8 @@ export class GameScene {
     this.listen(this.renderer.domElement, 'pointerup', this.pointerUp)
     this.listen(this.renderer.domElement, 'pointercancel', () => {
       this.pointerButtons = 0
+      this.globeMotion.dragging = false
+      this.globeMotion.velocity = { x: 0, y: 0 }
     })
     this.listen(this.renderer.domElement, 'contextmenu', e => e.preventDefault())
     this.listen(this.renderer.domElement, 'wheel', e => {
@@ -637,6 +646,8 @@ export class GameScene {
       this.navigationPointer = null
     })
     this.listen(window, 'blur', () => {
+      this.globeMotion.dragging = false
+      this.globeMotion.velocity = { x: 0, y: 0 }
       this.keys.clear()
       this.navigationPointer = null
       this.world.paused = true
@@ -1074,7 +1085,18 @@ export class GameScene {
     this.pointerButtons = event.buttons
     this.down = { x: event.clientX, y: event.clientY, button: event.button }
     this.dragLast = { x: event.clientX, y: event.clientY }
-    this.dragOrigin = { ...this.view.center }
+    if (
+      this.overviewActive &&
+      !this.world.inputMask &&
+      (event.buttons === 2 || event.buttons === 4)
+    ) {
+      const rect = this.renderer.domElement.getBoundingClientRect()
+      this.globePointer = {
+        x: Math.trunc(event.clientX - rect.left),
+        y: Math.trunc(event.clientY - rect.top),
+      }
+      beginGlobeDrag(this.globeMotion, this.view.globe, this.globePointer)
+    }
     this.renderer.domElement.setPointerCapture(event.pointerId)
   }) as EventListener
   pointerMove = ((event: PointerEvent) => {
@@ -1090,16 +1112,11 @@ export class GameScene {
         this.tooltip.draw = 0
       }
       if (this.overviewActive) {
-        // ponytail: active native drag only; connect release inertia when the
-        // original pointer-mode/outer-frame controller is integrated.
-        const point = globeDrag(
-          this.dragOrigin,
-          event.clientX - this.down.x,
-          event.clientY - this.down.y,
-          this.container.clientHeight
-        )
-        this.cameraPosition.x = point.x & 65535
-        this.cameraPosition.y = point.y & 65535
+        const rect = this.renderer.domElement.getBoundingClientRect()
+        this.globePointer = {
+          x: Math.trunc(event.clientX - rect.left),
+          y: Math.trunc(event.clientY - rect.top),
+        }
       } else dragCamera(this.cameraPosition, this.cameraVelocity, event.buttons === 2, dx, dy)
       this.viewPoint = browserPosition(this.cameraPosition)
       this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
@@ -1119,6 +1136,7 @@ export class GameScene {
   }) as EventListener
   pointerUp = ((event: PointerEvent) => {
     this.pointerButtons = event.buttons
+    if (!(event.buttons & 6)) this.globeMotion.dragging = false
     if (this.world.inputMask) return
     this.dragBox.style.display = 'none'
     const moved = Math.hypot(event.clientX - this.down.x, event.clientY - this.down.y)
@@ -1304,8 +1322,27 @@ export class GameScene {
             const angle = this.cameraPosition.angle
             if (this.overviewActive) this.cameraPosition.angle = 0
             stepCameraInput(this.cameraPosition, this.cameraVelocity, buttons, 24)
-            if (this.overviewActive) this.cameraPosition.angle = angle
+            if (this.overviewActive) {
+              this.cameraPosition.angle = angle
+              if (buttons & 15) {
+                const drag = this.globeMotion
+                drag.position.x += ((this.cameraPosition.x - drag.position.x) << 16) >> 16
+                drag.position.y += ((this.cameraPosition.y - drag.position.y) << 16) >> 16
+                drag.velocity = { x: 0, y: 0 }
+                this.globe.moveStars(this.cameraPosition)
+              }
+            }
             active = true
+          }
+          if (this.overviewActive && !s.active) {
+            const drag = this.globeMotion
+            if (drag.dragging || drag.velocity.x || drag.velocity.y) {
+              const delta = stepGlobeMotion(drag, this.globePointer, this.container.clientHeight)
+              this.cameraPosition.x = drag.position.x & 65535
+              this.cameraPosition.y = drag.position.y & 65535
+              this.globe.moveStars(this.cameraPosition, delta)
+              active = true
+            }
           }
         }
         const context = { skyCounter: w.outcome.skyCounter, newTurn: this.resultTurn !== w.turn }
@@ -1445,6 +1482,9 @@ export class GameScene {
   overview() {
     if (this.world.inputMask) return
     this.overviewActive = true
+    this.globeMotion.dragging = false
+    this.globeMotion.velocity = { x: 0, y: 0 }
+    this.globeMotion.position = { ...this.view.center }
     this.world.mode = null
     this.cameraMotion.active = 0
     this.viewTransition = null

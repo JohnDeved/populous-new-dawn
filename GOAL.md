@@ -372,3 +372,24 @@ remain open. Tall desktop viewports deliberately avoid the original icon-scale
 signed overflow; native icon sizing is compared at heights 480/600/768. Camera
 and raster checkpoints remain partial. Continue visible overview effects/controls
 and ground-world activity comparisons; full parity and discovery remain open.
+
+
+### Latest visible integration: overview drag and release glide
+
+Overview dragging now samples once per presentation tick. A valid grab captures
+the map origin, movement retains native wrapped coordinates and velocity clamps,
+and release keeps the original constant glide. Holding still while dragging
+clears velocity; keyboard navigation takes over. Star parallax consumes each
+clamped movement step exactly once, including multiple ticks before one render.
+The original routines agree on 1,664 complete lifecycle snapshots; eight native
+sequences now run as portable regressions in `npm test`. Browser checks cover
+right/middle input, seam crossing, flicks, stationary stops, rejected space grabs,
+keyboard takeover, modal/input/blur gates and view reentry. Existing camera,
+view, navigation and sprite checks remain green.
+
+Full native input-mode/modifier ownership, original outer-frame pacing and globe
+entry/return transitions remain open. The desktop adapter retains 24 Hz sampling
+and browser-specific cancellation on lost input. Camera stays partial; this does
+not finish overview or engine parity. Continue visible overview spell effects
+and transitions, then compare ground-world building activity and first-mission
+feedback against original captures. Discovery and the full-game goal stay open.

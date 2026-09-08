@@ -89,6 +89,7 @@ try {
   await page.mouse.move(x, y)
   await page.mouse.down({ button: 'right' })
   await page.mouse.move(x + 81, y + 37, { steps: 9 })
+  await page.evaluate(() => window.testScene.updateCameraMotion(1 / 24))
   await page.mouse.up({ button: 'right' })
   await advance()
   const dragged = await state(), scale = Math.trunc(0x320000 / 400)

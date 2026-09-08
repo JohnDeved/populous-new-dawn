@@ -58,6 +58,8 @@ export class GlobeRenderer extends THREE.Group {
   icons = new Image()
   offsets = new Int32Array(32)
   buildingIcons = new Set<number>()
+  starPosition: { x: number; y: number } | null = null
+  starsDirty = false
   view: GlobeView | null = null
   atlas: ReturnType<typeof terrainAtlas> | undefined
   version = -1
@@ -89,7 +91,19 @@ export class GlobeRenderer extends THREE.Group {
     })
     this.visible = false
   }
+  // Drag parallax uses clamped velocity, even when the map moves farther.
+  moveStars(position: { x: number; y: number }, delta?: { x: number; y: number }) {
+    const previous = this.starPosition ?? position,
+      dx = delta?.x ?? ((position.x - previous.x) << 16) >> 16,
+      dy = delta?.y ?? ((position.y - previous.y) << 16) >> 16
+    if (dx || dy) {
+      moveGlobeStars(this.offsets, dx, dy)
+      this.starsDirty = true
+    }
+    this.starPosition = { x: position.x, y: position.y }
+  }
   update(view: GlobeView, world: World, textures: TerrainTextures) {
+    this.moveStars(view)
     if (
       this.version !== world.landVersion ||
       !world.land.shadows.every((v, i) => v === this.shadows[i])
@@ -105,14 +119,10 @@ export class GlobeRenderer extends THREE.Group {
     const previous = this.view
     if (
       !previous ||
+      this.starsDirty ||
       Object.keys(view).some(k => view[k as keyof GlobeView] !== previous[k as keyof GlobeView])
     ) {
-      if (previous)
-        moveGlobeStars(
-          this.offsets,
-          ((view.x - previous.x) << 16) >> 16,
-          ((view.y - previous.y) << 16) >> 16
-        )
+      this.starsDirty = false
       this.view = { ...view }
       const positions: number[] = [],
         uv: number[] = [],

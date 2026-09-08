@@ -128,7 +128,41 @@ for _ in range(512):
 compare('c=>{const o=Int32Array.from(c[0]);g.moveGlobeStars(o,c[1],c[2]);return [...o]}',cases,expected)
 print('PASS: 512 native parallax updates across all sixteen star layers',flush=True)
 
+# Full pointer lifecycle, including failed grabs, velocity clipping and release.
+# All original calls execute; there are no pointer/controller hooks.
+cases=[];expected=[]
+for i in range(128):
+    v=views[i%len(views)];setup(v)
+    velocity=dict(x=rng.randrange(-2048,2049),y=rng.randrange(-2048,2049))
+    offsets=[rng.randrange(-2147483648,2147483648) for _ in range(32)]
+    write(ctx+0x50,'3i',velocity['x'],velocity['y'],2048);write(ctx+0x5c,'32i',*offsets)
+    initial=dict(position=dict(x=v['x'],y=v['y']),origin=dict(x=0,y=0),press=dict(x=0,y=0),velocity=velocity,dragging=False)
+    x,y=v['width']//2+rng.randrange(-50,51),v['height']//2+rng.randrange(-50,51)
+    actions=[['press',x,y]]
+    for j in range(6):
+        if j!=4:x+=rng.randrange(-300,301);y+=rng.randrange(-300,301)
+        actions.append(['step',x,y])
+    actions += [['release',x,y],*([['step',x,y]]*3),['press',-100,-100],['step',x,y]]
+    states=[]
+    for action,x,y in actions:
+        if action=='press':call(0x42d1f0,x,y)
+        elif action=='release':call(0x42d380)
+        else:call(0x42d240,x,y)
+        states.append(dict(position=dict(x=read(ctx+0x18,'i'),y=read(ctx+0x1c,'i')),
+            origin=dict(x=read(ctx+0x44,'i'),y=read(ctx+0x48,'i')),
+            press=dict(x=read(ctx+0x3c,'i'),y=read(ctx+0x40,'i')),
+            velocity=dict(x=read(ctx+0x50,'i'),y=read(ctx+0x54,'i')),dragging=bool(read(ctx+0x4c,'i')),
+            offsets=list(struct.unpack('<32i',cpu.mem_read(ctx+0x5c,128)))))
+    cases.append(dict(view=v,initial=initial,offsets=offsets,actions=actions));expected.append(states)
+compare("""c=>{const m=c.initial,o=Int32Array.from(c.offsets);return c.actions.map(([action,x,y])=>{
+if(action==='press')g.beginGlobeDrag(m,{...c.view,...m.position},{x,y});
+else if(action==='release')m.dragging=false;
+else {const d=g.stepGlobeMotion(m,{x,y},c.view.height);g.moveGlobeStars(o,d.x,d.y)}
+return structuredClone({...m,offsets:[...o]})})}""",cases,expected)
+print('PASS: 1664 native press/drag/release snapshots, failed grabs, stationary frames, clamped velocity, persistent glide and star parallax',flush=True)
+
 if '--record' in sys.argv[2:]:
-    fixture=dict(executableSha256=hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest(),meshes=mesh_fixtures)
+    fixture=dict(executableSha256=hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest(),meshes=mesh_fixtures,
+        motion=[dict(**c,sha256=hashlib.sha256(json.dumps(expected[i],separators=(',',':')).encode()).hexdigest()) for i,c in enumerate(cases[:8])])
     (root/'tests/fixtures/globe.json').write_text(json.dumps(fixture,indent=2)+'\n')
-    print('Recorded portable mesh fixtures from the native submissions after all comparisons passed.')
+    print('Recorded portable mesh/motion fixtures from the native submissions after all comparisons passed.')

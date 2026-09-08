@@ -4257,3 +4257,23 @@ transition/release inertia and matched original frames remain open. See the
 [decompilation notes](../decomp/README.md#overview-building-footprints-and-icon-ownership)
 and runnable native/browser checks. Camera/raster remain partial; no broad
 checkpoint or known-scope percentage increase is claimed.
+
+
+## 2026-09-08: overview drag sampling and release glide
+
+Recovered `0042d1f0`/`0042d240`/`0042d380` press, sampled motion and release behavior.
+World view now keeps the original constant post-release glide, clears it after
+a stationary held frame, clamps flick velocity and rejects grabs outside the
+disc. Native continuous position is retained across browser coordinate wrapping.
+Keyboard movement resets the glide, as `0041ef30` does through `0042d060`.
+Star motion now uses each clamped native step and avoids duplicate application
+by renderer refreshes. The raw input wrapper and separate selection/style calls
+are exported with explicit unported boundaries.
+
+The native oracle compares 1,664 complete motion/star snapshots; eight sequences
+are captured in the portable globe fixture. Browser checks cover right/middle
+input, seams, coalesced renders, flick/hold/release behavior, rejected grabs,
+keyboard takeover, modal/input/blur gates and reentry. Existing world/camera/view/
+navigation and sprite regressions pass. Native outer-frame pacing, input settings
+and globe transitions remain open; 24 Hz sampling and platform cancellation are
+still adapters. Camera remains partial and the global denominator is unchanged.

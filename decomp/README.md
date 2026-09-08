@@ -2365,3 +2365,56 @@ The plan blink currently receives the browser world turn, not the original
 independent presentation counter. This is a bounded visible integration, not
 complete marker or camera parity. Four new export hashes bring the manifest to
 827 entries without changing earlier snapshots.
+
+
+## Overview drag sampling and persistent release motion
+
+`0042d1f0` grabs only when the original inverse globe projection succeeds. It
+records the pointer and map origin, activates dragging and zeros both velocities.
+A failed grab leaves all motion fields intact. `0042d380` only clears the active
+flag; it does not stop movement. The complete `0042d240` samples the latest
+pointer once per draw: active motion derives its position from total displacement
+since the press, computes the delta from the preceding native integer position,
+and clamps each velocity to the configured maximum (2048 in the original callers).
+A stationary sampled frame therefore zeros velocity. The released branch adds
+the retained velocity with int32 wrapping on every call, without friction.
+Both branches update all sixteen star layers from the clamped velocity, not
+necessarily the full map displacement.
+
+The caller `0041ce30` routes press/release flags and alternate controls. The
+browser still adapts right/middle buttons and its own modal/input gates; full
+native modifier/configuration ownership is not claimed. `0041ef30` routes
+keyboard map movement through `0042d060`, resetting the drag velocities. The
+existing keyboard integration now does the same. `0042d160` only sets overlay
+style fields; `0042d870` updates a separate cell-selection region. Neither is
+friction. Those exploratory exports are retained without claiming their complete
+browser integration. The manifest now contains 831 byte-identified exports.
+
+`GlobeMotion` holds the continuous native position independently of wrapped
+browser coordinates. This prevents a world-seam crossing from inventing a large
+next-frame velocity. `GlobeRenderer.moveStars` records consumed motion and accepts
+the native clamped delta, so implicit camera refreshes do not count it twice.
+Multiple presentation steps before a render retain their individual integer
+parallax rounding. Existing terrain/icon rendering remains unchanged.
+
+```sh
+python scripts/check-native-globe.py /path/to/d3dpoptb.exe
+node --test tests/globe.test.mjs
+node scripts/check-browser-globe-motion.mjs
+```
+
+The native check now adds 128 thirteen-step pointer sequences: 1,664 complete
+snapshots of map position, press/origin, active flag, velocity and 32 star offsets.
+The actual press, update and release routines execute without hooks. Cases cover
+wrapped centers, multiple resolutions, clamping, stationary samples, release
+glide and rejected off-disc grabs. `--record` retains eight compared sequences
+as portable native hashes alongside the existing mesh captures.
+
+Actual browser checks cover sampled right/middle drags, seam crossing, clamped
+flicks, persistent glide, per-tick star movement, holding still, black-space
+rejection, keyboard takeover, input/modal/blur gates and clean ground/world
+reentry. Existing world view, navigation, camera input/preset and sprite/shadow/
+selection regressions pass. The regular suite has 76 tests. Rendering still uses
+the existing 24 Hz presentation adapter; full original outer-loop/input timing,
+all press modes, transition lifecycle and matched original frames remain open.
+Browser cancellation on blur/pointer cancellation is an explicit platform adapter.

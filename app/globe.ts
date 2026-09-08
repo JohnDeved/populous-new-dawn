@@ -166,6 +166,45 @@ export function globeDrag(origin: Point, dx: number, dy: number, height: number)
   }
 }
 
+export interface GlobeMotion {
+  position: Point
+  origin: Point
+  press: Point
+  velocity: Point
+  dragging: boolean
+}
+
+// 0x42d1f0 only grabs the visible disc; a miss leaves existing motion intact.
+export function beginGlobeDrag(motion: GlobeMotion, view: GlobeView, pointer: Point) {
+  if (!globePick(view, pointer.x, pointer.y)) return false
+  motion.position = { x: view.x, y: view.y }
+  motion.origin = { ...motion.position }
+  motion.press = { ...pointer }
+  motion.velocity = { x: 0, y: 0 }
+  motion.dragging = true
+  return true
+}
+
+// Complete 0x42d240: sample once per presentation frame. Holding still clears
+// velocity; release keeps the last clamped velocity without friction.
+export function stepGlobeMotion(motion: GlobeMotion, pointer: Point, height: number) {
+  if (motion.dragging) {
+    const next = globeDrag(
+      motion.origin,
+      pointer.x - motion.press.x,
+      pointer.y - motion.press.y,
+      height
+    )
+    motion.velocity.x = Math.max(-2048, Math.min(2048, (next.x - motion.position.x) | 0))
+    motion.velocity.y = Math.max(-2048, Math.min(2048, (next.y - motion.position.y) | 0))
+    motion.position = next
+  } else {
+    motion.position.x = (motion.position.x + motion.velocity.x) | 0
+    motion.position.y = (motion.position.y + motion.velocity.y) | 0
+  }
+  return motion.velocity
+}
+
 // 0x42de90. Invert the near half of the projection; the outer disc has no map hit.
 export function globePick(view: GlobeView, x: number, y: number): Point | null {
   const gain = Math.trunc((view.height * 4) / 10) * 80,
