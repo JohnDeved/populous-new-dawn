@@ -4029,3 +4029,47 @@ health/duplication and focused ox-standard checks were run. Legacy large-functio
 and lint debt remains; the new code is not evidence that the whole repository is
 clean. Native panic movement, sunlight, full plan/lifecycle ownership, exact repair
 timing, voice scheduling and mixed-class ordering remain explicit integration gaps.
+
+## Plan rotation, entrance arrows and shared placement anchors — 2026-09-08
+
+The preview previously hard-coded angle zero, omitted the entrance arrow and used
+an unsnapped click position for the placed model. Space also paused while a plan
+was selected. The original [controls reference](https://ts.popre.net/websites/poptb.com/guide/getting-started/controls/index.html)
+identifies Space as plan rotation; executable `004aab80`, command 0x7b, supplies
+the exact direction increment/wrap and cue 0x26. Direction lives in each 18-byte
+building-icon record at `005a8858`, rather than one shared orientation.
+
+`004b9190` reads the object from the native building descriptor and selects its
+quarter-turn shape. Its preview branch marks the outside-door cell with 0x800
+independently of occupied cells (bit 1). The first-level hut's doorway cell has
+mask 4 or 6, so iterating only the occupied footprint lost it entirely. Door cell
+coordinates are signed shape outside coordinates shifted by three, relative to
+the same wrapped shape origin. `0046d070` queues arrow-only cells with mask zero;
+the existing `00474ba0` port supplies tile 242 and direction-dependent UVs.
+
+The renderer now includes that separate cell and uses descriptor-selected plan
+objects. `buildingPlanPose` shares direction and the snapped anchor between
+preview, validation and placement. Builder routes use the placed building's
+selected orientation before their orders are assigned. Each building type retains
+its direction when another is selected. Space rotates while selecting a plan and
+plays the imported cue; keyboard auto-repeat does not repeatedly toggle pause.
+The target prompt and help explain the binding.
+
+Validation: 632 native preview-geometry comparisons across all 158 imported
+objects and four directions, plus 64 complete rotation commands/cue calls.
+Territory, per-cell validity, capacity and entrance-access callbacks are supplied
+in the geometry check; their rules are not claimed as ported. The existing 2,624
+overlay checks and 30,336 native shape/doorway checks still pass. Seventy-one
+gameplay tests include building all four orientations, matching preview anchors
+and assigned entrance paths. Real browser input checks the entrance itself
+(243 visible GPU pixels), all rotations without pausing, invalid clicks, snapped
+placement, rendered heading and cancellation. Preview and placed-model captures
+were inspected.
+
+Maintainability: a small shape helper reuses the existing footprint traversal,
+and the shared plan pose prevents separate renderer/input orientation state.
+The browser check now reuses common setup and is formatted for reading. Fallow
+health/duplication and focused ox-standard checks were run; existing large-module
+debt remains. Full native preview lifecycle, per-cell validity, territory limits,
+plan allocation and construction ground changes are still open. This advances
+visible controls without claiming complete placement or whole-frame fidelity.

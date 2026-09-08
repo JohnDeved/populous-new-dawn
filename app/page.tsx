@@ -1,6 +1,15 @@
 'use client'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { BUILDINGS, SPELLS, HOME, select, tell, guardShaman, type UnitKind } from './model'
+import {
+  BUILDINGS,
+  SPELLS,
+  HOME,
+  select,
+  tell,
+  guardShaman,
+  rotateBuildingPlan,
+  type UnitKind,
+} from './model'
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
@@ -122,9 +131,12 @@ export default function Home() {
       }
       if (e.code === 'Space' && !(e.target as HTMLElement).closest('button')) {
         e.preventDefault()
-        store.change(w => {
-          w.paused = !w.paused
-        })
+        if (!e.repeat) {
+          store.change(w => {
+            if (rotateBuildingPlan(w)) audio.current?.cue(0x26)
+            else w.paused = !w.paused
+          })
+        }
       }
       update()
     }
@@ -271,6 +283,11 @@ export default function Home() {
         <div className="target-prompt">
           <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}
           <strong>{modeName}</strong>
+          {Object.hasOwn(world.buildingDirections, world.mode) && (
+            <span>
+              Rotate <kbd>SPACE</kbd>
+            </span>
+          )}
           <button
             onClick={() => {
               store.change(w => {
@@ -485,7 +502,7 @@ export default function Home() {
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
                   aria-label={`${b.name}, ${b.cost} wood`}
                   aria-pressed={world.mode === b.id}
-                  title={b.name}
+                  title={`${b.name} · Space rotates the plan`}
                   onClick={() =>
                     store.change(w => {
                       w.mode = w.mode === b.id ? null : b.id
@@ -671,6 +688,8 @@ export default function Home() {
           <strong>Zoom · WASD to move · Q / E to turn</strong>
           <span>1–3 / B</span>
           <strong>Choose a spell / open buildings</strong>
+          <span>Space with a building plan</span>
+          <strong>Rotate the entrance before placing</strong>
           <span>H / F / G / Space / Esc</span>
           <strong>Shaman / focus / guard shaman / pause / cancel</strong>
         </div>

@@ -1766,3 +1766,32 @@ and mixed-class scheduling remain open. HP and construction progress remain brow
 adapters around native structural work. Owned audio can be stopped explicitly;
 native voice priority, entity-removal cancellation and complete ownership remain
 unported. This does not establish full fire, construction or audio parity.
+
+## Building-plan orientation and entrance arrows
+
+`004b9190` marks an entrance cell independently of footprint bit 1, using the
+signed outside-door coordinates shifted by three. The renderer queues this
+0x800 cell even when its ordinary preview mask is zero (`0046d070`), selecting
+tile 242 and its direction-dependent UVs (`00474ba0`). The plan uses the building
+descriptor's object, which can differ from the current completed-building mesh.
+`004aab80` command 0x7b increments the selected icon's stored direction, wraps
+after three and plays cue 0x26. The live Space binding now uses that behavior.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-building-plan.py /path/to/d3dpoptb.exe
+node scripts/check-browser-ground-overlay.mjs
+```
+
+The native check executes 632 preview traversals, covering every imported object
+and quadrant, and 64 complete rotation commands with their sound arguments.
+Preview validity/territory/capacity queries are supplied as successful; this
+establishes geometry, not native validation. Existing native overlay and shape
+checks cover arrow UVs, all neighbor masks and doorway routing geometry.
+
+The browser check verifies visible arrow pixels, all four Space rotations without
+pausing, invalid rejection, snapped placement, the rendered model's heading and
+cancellation. Gameplay checks build huts through all four orientations and verify
+builder entrance routes. `004b8f50`/`004b9150` and the remaining modes of `004b9190`
+are preserved as evidence for later controller/allocation work. Exact per-cell
+validity, territory limits, construction terrain changes and plan lifecycle remain
+browser adapters; Space outside placement still uses the existing pause binding.

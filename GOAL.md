@@ -50,8 +50,10 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** continue scenery fire and building activity/destruction, checking
-visible results against original captures. Collapse smoke now uses native rotated
+**Next action:** compare the running first mission against the original reference
+captures again, prioritizing terrain/coast colors, lighting, scale and the remaining
+visible placement/control gaps. Continue building activity/destruction as those
+comparisons identify discrepancies. Collapse smoke now uses native rotated
 shape sockets, RNG consumption, HFX1345–1360, palette 7, fixed-point growth/shrink,
 depth-scaled sizing and native lifetime. Verified against 632 native allocations,
 512 lifecycle steps and 512 size calculations, plus real browser collapse.
@@ -82,10 +84,14 @@ creation and stone initialization agree on 2,048 cases. Full site creation timin
 rise/sink effects, tribe lifecycle and relocation remain open; the scene still
 shows the two first-mission sites at their original shaman positions.
 Placement previews now use original connected terrain tiles, stored terrain
-vertices and the shared native building footprint. The original plan-preview
-controller, per-cell validity, doorway arrows, rotation controls and remaining
-ground targets are still open; the browser validator supplies preview validity.
-Keep checking these during first-mission play.
+vertices, descriptor-selected plan shapes and the separate entrance-arrow cell.
+Space rotates the plan, retains a direction per building type and plays native
+cue 0x26. Preview, placement and builder routing share the selected orientation
+and snapped anchor. Native checks cover 632 plan geometries, 64 rotation commands
+and the existing 2,624 overlay cases; browser input and all four construction
+orientations pass. The full plan-preview controller, per-cell validity, allocation
+and remaining ground targets are still open; the browser validator supplies
+preview validity. Keep checking these during first-mission play.
 Lightning now uses its displaced upper flash, three native eight-segment shapes,
 recursive screen-space branches and original procedural strip texture; full
 painter/blend ownership and its complete damage/fire side effects remain open. Blast's
@@ -200,6 +206,6 @@ All rows remain open until compared against the original engine, including edge 
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
 | AI and campaign | Original first-level layout; CPU-compared VM, cast/stock/head query bindings, turn-zero setup, disabled Dakini reincarnation and original terrain-rule bytecode applied; 6,484 native worship/reward turns and 960 vault task/work comparisons; original discovery/settlement/vault notification branches, building counter rebuild/query sequences, marker forcing and type-3 allocation CPU-compared; first-mission spell-defense setup and recurring spell-entry shutoff after the second Blast CPU-compared and integrated; live follower counts and original warrior-dependent attack-commitment block CPU-compared and integrated; AI queue/training controller and follower eligibility/selection reconstructed and CPU-compared, including combined controller/selector calls; shared command encoding, ownership, routes and group commit CPU-compared; shared person initialization, AI reservation/release, facing and animation selection CPU-compared, including 128 combined training handoffs; order startup, building reconciliation and configured speed CPU-compared; training linked-list operations and all command-8 substates with original geometry CPU-compared, including a sequential specialist/trainee queue handoff; native admission/interior-stop composition and building conversion CPU-compared; pathfinding and remaining world-effect integration pending; complete campaign/multiplayer outcome decisions CPU-compared, live 16-turn result checks, forced flags and defeat-timer progression integrated; simulation continues after results so defeated settlements finish collapsing; all nine native celebration substates, chain actions and state-41 initialization CPU-compared, now driving live braves, warriors and shamans through explicit movement/world adapters | Remaining game-command bindings, AI stocks and scheduler; worship eligibility, object phases and remaining reward lifecycle; all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Seventy regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Seventy-one regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).

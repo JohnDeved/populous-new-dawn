@@ -49,6 +49,7 @@ if len(sys.argv)>2:
     rules['groundFriction']=friction[0]
     rules['personStateFlags']=[value(0x5a6f79+i*5) for i in range(46)]
     rules['buildingFlags']=[value(0x5a7228+i*76+72) for i in range(20)]
+    rules['buildingObjects']=[value(0x5a7228+i*76,2) for i in range(20)]
     rules['buildingShade']=[struct.unpack('<b',read(0x5a7228+i*76+53,1))[0] for i in range(20)]
     rules['sceneryShade']=[struct.unpack('<b',read(0x5a79b0+i*24+19,1))[0] for i in range(20)]
     rules['sceneryWood']=[value(0x5a79b0+i*24+4,2) for i in range(20)]

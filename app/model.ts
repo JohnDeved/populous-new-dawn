@@ -722,6 +722,8 @@ export function footprintPoints(kind: BuildingKind, p: Point) {
   return points
 }
 export function placementError(w: World, kind: BuildingKind, p: Point) {
+  const plan = buildingPlanPose(w, kind, p)
+  p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
   const points = footprintPoints(kind, p),
     heights = points.map(q => surface(w.terrain, q))
   if (points.some(q => !walkable(w.terrain, q)))
@@ -835,6 +837,7 @@ export type World = {
   nextId: number
   selected: number[]
   mode: Spell | BuildingKind | null
+  buildingDirections: Record<BuildingKind, number>
   paused: boolean
   speed: number
   message: string
@@ -1043,6 +1046,7 @@ export function createWorld(): World {
     nextId: 1,
     selected: [],
     mode: null,
+    buildingDirections: { hut: 0, tower: 0, temple: 0, camp: 0 },
     paused: false,
     speed: 1,
     message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.',
@@ -1523,6 +1527,29 @@ export function buildingPose(b: Building) {
     anchorY: Math.round((-b.z - 8) * 256) & 0xfe00,
   }
 }
+
+export function buildingPlanPose(w: World, kind: BuildingKind, p: Point) {
+  return {
+    object: rules.buildingObjects[buildingModel({ kind, level: 1 })],
+    angle: w.buildingDirections[kind] * 512,
+    anchorX: Math.round((p.x + 8) * 256) & 0xfe00,
+    anchorY: Math.round((-p.z - 8) * 256) & 0xfe00,
+  }
+}
+
+// 0x4aab80 command 0x7b: each building icon retains its quarter-turn direction.
+export function rotateBuildingPlan(w: World) {
+  if (
+    !w.mode ||
+    !Object.hasOwn(w.buildingDirections, w.mode) ||
+    w.inputMask ||
+    w.status !== 'playing'
+  )
+    return false
+  const kind = w.mode as BuildingKind
+  w.buildingDirections[kind] = (w.buildingDirections[kind] + 1) & 3
+  return true
+}
 // Completed-building lifecycle adapter. Native plan/stage allocation and terrain
 // texture refresh are still pending; registration itself uses the original mask.
 export function syncBuildingFootprints(w: World) {
@@ -1715,6 +1742,8 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     tell(w, 'Your shaman must discover the Warrior Training Hut at the vault.')
     return false
   }
+  const plan = buildingPlanPose(w, kind, p)
+  p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
   const error = placementError(w, kind, p)
   if (error) {
     tell(w, error)
@@ -1739,6 +1768,7 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     return false
   }
   const b = addBuilding(w, 'blue', kind, p, false)
+  b.angle = (plan.angle * Math.PI) / 1024
   for (const { u } of workers) {
     release(w, u)
     u.work = b.id

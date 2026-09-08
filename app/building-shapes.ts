@@ -74,6 +74,21 @@ export function buildingFootprintCells(b: BuildingShapePose) {
   return cells
 }
 
+// 0x4b9190 marks the entrance separately, outside the occupied footprint.
+export function buildingPlanCells(b: BuildingShapePose) {
+  const s = shape(b)
+  const x = s.outside[0] >> 3
+  const y = s.outside[1] >> 3
+  const cells = buildingFootprintCells(b)
+  let entrance: number | null = null
+  if (x >= 0 && x < s.width && y >= 0 && y < s.height) {
+    const px = ((b.anchorX >>> 8) - s.x + x * 2) & 255
+    const py = ((b.anchorY >>> 8) - s.y + y * 2) & 255
+    entrance = (py >> 1) * 128 + (px >> 1)
+  }
+  return { cells, entrance }
+}
+
 // 0x403a00: update only shape-mask bit 1 cells. Modes 0/1 remove/register;
 // mode 4 clears terrain-damage bit 0x20000 without a shade recomputation.
 export function registerBuildingFootprint(

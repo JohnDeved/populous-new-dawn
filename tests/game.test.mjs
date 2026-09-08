@@ -7,9 +7,38 @@ import originalScript from '../app/original-script.json' with {type:'json'};
 import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '../app/tooltips.ts';
 import {modelMatrix,modelPoint} from '../app/projection.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
-import {campaignCommand,recordSpellCast} from '../app/model.ts';
+import {campaignCommand,recordSpellCast,rotateBuildingPlan,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('rotated building plans keep their anchor, entrance routes and orientation through construction', () => {
+  for (let direction = 0; direction < 4; direction++) {
+    const w = createWorld();
+    w.manaWorld.gameFlags = 32;
+    w.inputMask = 0;
+    w.mode = 'hut';
+    for (let i = 0; i < direction; i++) assert.ok(rotateBuildingPlan(w));
+    w.mode = 'camp';
+    assert.ok(rotateBuildingPlan(w));
+    w.mode = 'hut';
+    const point = { x: 4.3, z: 32.3 };
+    const plan = buildingPlanPose(w, 'hut', point);
+    assert.equal(plan.angle, direction * 512, 'each building type remembers its own direction');
+    assert.equal(placementError(w, 'hut', point), null);
+    select(w, 'brave');
+    assert.ok(placeBuilding(w, 'hut', point));
+    const b = w.buildings.at(-1);
+    assert.deepEqual({ x: b.x, z: b.z }, { x: 4, z: 34 });
+    assert.equal(buildingPose(b).anchorX, plan.anchorX);
+    assert.equal(buildingPose(b).anchorY, plan.anchorY);
+    const workers = w.units.filter(u => u.work === b.id);
+    assert.ok(workers.length);
+    for (const u of workers) assert.deepEqual(u.path.at(-1), entrance(w, b));
+    until(w, () => b.progress === 1, 120);
+    assert.equal(buildingPose(b).angle, plan.angle);
+    assert.equal(w.mode, null);
+    assert.equal(rotateBuildingPlan(w), false);
+  }
+});
 test('Lightning ignites only its building footprint, then evacuates, damages and permits repair', () => {
   const w = createWorld();
   w.manaWorld.gameFlags = 32;

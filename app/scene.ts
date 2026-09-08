@@ -28,6 +28,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import {
   buildingObject,
+  buildingPlanPose,
   buildingStage,
   nativePosition,
   browserPosition,
@@ -75,7 +76,7 @@ import nativeEffects from './original-effects.json'
 import nativeHud from './original-hud.json'
 import { spellCursor } from './spell-casting.ts'
 import { spellHalo, haloBucket } from './spell-halo.ts'
-import { buildingFootprintCells } from './building-shapes.ts'
+import { buildingPlanCells } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
 import { lightningLines, lightningQuad, lightningTexture, type Lightning } from './lightning.ts'
 import rules from './original-rules.json'
@@ -682,28 +683,25 @@ export class GameScene {
     }
     // ponytail: the browser placement validator supplies validity until the
     // native plan preview/cell-marking controller owns these transient flags.
-    const invalid = !!placementError(w, kind, p),
-      native = nativePosition(w, p)
-    const pose = {
-      object: buildingObject({ kind, team: 'blue', level: 1 }),
-      angle: 0,
-      anchorX: native.x & 0xfe00,
-      anchorY: native.y & 0xfe00,
-    }
-    const key = [kind, pose.anchorX, pose.anchorY, invalid, w.landVersion].join(',')
+    const invalid = !!placementError(w, kind, p)
+    const pose = buildingPlanPose(w, kind, p)
+    const key = [kind, pose.anchorX, pose.anchorY, pose.angle, invalid, w.landVersion].join(',')
     if (key === this.placementState) return
     this.placementState = key
-    const cells = buildingFootprintCells(pose),
-      flags = new Uint32Array(w.land.flags),
-      mask = invalid ? 0x180 : 0x80
+    const { cells, entrance } = buildingPlanCells(pose)
+    const flags = new Uint32Array(w.land.flags)
     // These are presentation marks, not persistent terrain ownership flags.
     for (let i = 0; i < flags.length; i++) flags[i] &= ~0x1980
-    for (const i of cells) flags[i] |= mask
+    for (const i of cells) flags[i] |= invalid ? 0x190 : 0x90
+    if (entrance !== null) {
+      flags[entrance] |= 0x800
+      if (!cells.includes(entrance)) cells.push(entrance)
+    }
     const positions: number[] = [],
       uv: number[] = [],
       colors: number[] = []
     for (const i of cells) {
-      const overlay = groundOverlay(flags, i, mask),
+      const overlay = groundOverlay(flags, i, flags[i] & 0x180, pose.angle / 512),
         tint = new THREE.Color(overlay.color & 0xffffff)
       const x = (i & 127) * 512,
         y = (i >> 7) * 512,
@@ -728,6 +726,7 @@ export class GameScene {
     geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
     this.cursor.geometry = geo
     this.cursor.userData.cells = cells
+    this.cursor.userData.entrance = entrance
     this.cursor.userData.invalid = invalid
   }
 
