@@ -1,3 +1,4 @@
+import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
@@ -197,6 +198,7 @@ export type Building = Point & {
   upgrading: boolean
   angle: number
   counter: number
+  birthPending?: boolean
   damageState: (DamageBuilding & { plan: BuildingPlan }) | null
   burn?: BuildingBurn
 }
@@ -914,6 +916,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
   }
   groundBuilding(w, b)
   w.buildings.push(b)
+  if (complete && kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   return b
 }
 function missionAI() {
@@ -1128,6 +1131,7 @@ export function createWorld(): World {
   })
   w.selected = [w.units.find(u => u.team === 'blue' && u.kind === 'shaman')!.id]
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
+  for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
   return w
 }
@@ -1449,13 +1453,13 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
           ? 0.5
           : 1.7,
   }
-  if (kind === 'blast' || kind === 'lightning' || kind === 'splash') {
+  if (kind === 'blast' || kind === 'lightning' || kind === 'splash' || kind === 'birth') {
     // Effect 38: 0x509c10 grounds the flash (0x445c20), sets draw 30/HFX1099;
     // state 0x24 in 0x50a750 removes its object after nine simulation turns.
     // Lightning starts hidden: one pending turn, then eight turns of upper flash.
     const position = nativePosition(w, p)
     f.height = (terrainPointHeight(w.land, position) + (kind === 'lightning' ? 1024 : 0)) / 45
-    f.turnsRemaining = kind === 'splash' ? 16 : 9
+    f.turnsRemaining = kind === 'splash' || kind === 'birth' ? 16 : 9
     f.duration = f.turnsRemaining / TURNS_PER_SECOND
     f.animation = {
       object: 0,
@@ -1470,7 +1474,11 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
       morphTimer: 0,
       morphFrames: 0,
     }
-    if (kind === 'splash') {
+    if (kind === 'birth') {
+      // 0x404c80 overrides effect 60's initial draw 44/HFX1288 with 41/HFX1441.
+      setAnimationObject(f.animation, 44, 1288)
+      setAnimationObject(f.animation, 41, 1441)
+    } else if (kind === 'splash') {
       // Effect 65, 0x513830: grounded draw 44/HFX1304, cue 44, sixteen turns.
       setAnimationObject(f.animation, 44, 1304)
       f.animation.morph = 0xd3
@@ -3001,6 +3009,7 @@ function stepTurn(w: World) {
       if (b.progress === 1) {
         if (!b.upgrading && !b.damageState) w.stats.built++
         b.upgrading = false
+        if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
         for (const u of workers) {
           release(w, u)
           const p = entrance(w, b, 4)
@@ -3025,20 +3034,27 @@ function stepTurn(w: World) {
         effect(w, 'birth', trainee)
       }
     } else if (b.kind === 'hut') {
-      if ((w.turn & 3) === 0) {
-        if (population(w, b.team) >= populationLimit(w, b.team)) b.timer = 0
-        else {
-          b.timer += 2 * (inhabitants.length + 1)
-          if (b.timer >= breedingWork(w, b)) {
-            b.timer = 0
-            const u = addUnit(w, b.team, 'brave', entrance(w, b, 4))
-            effect(w, 'birth', u)
-            if (inhabitants.length < housing(b)) {
-              u.work = b.id
-              u.inside = b.id
-            }
-          }
-        }
+      if (
+        !(w.manaWorld.gameFlags & 32) &&
+        stepHutBirth(
+          b,
+          inhabitants.length,
+          population(w, b.team) < populationLimit(w, b.team),
+          breedingWork(w, b)
+        )
+      ) {
+        const points = hutBirthPoints(buildingPose(b), point => {
+          const cell = (point.y >> 9) * 128 + (point.x >> 9)
+          if (!(w.land.flags[cell] & 512)) return
+          const neighbor = w.buildings.find(other => other.id === (w.land.buildingIds[cell] & 1023))
+          return neighbor && buildingPose(neighbor)
+        })
+        const u = addUnit(w, b.team, 'brave', browserPosition(points.inside))
+        u.heading = Math.PI - b.angle
+        if (b.team === 'blue') sound(w, 0x28, u)
+        effect(w, 'birth', browserPosition(points.flash))
+        // ponytail: native newborn home/state ownership still uses the live route adapter.
+        route(w, u, browserPosition(points.destination))
       }
       if ((w.turn & 15) === 0 && inhabitants.length && b.level < 3) {
         b.upgrade += 8 * inhabitants.length

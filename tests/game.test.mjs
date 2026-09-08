@@ -273,7 +273,7 @@ test('native economy uses fixed turns, population bands and real hut upgrades',(
  const warrior=village.units.find(u=>u.kind==='warrior'&&u.team==='blue');warrior.hp=45;assert.equal(meleeDamage(warrior),9);warrior.hp=.1;assert.equal(meleeDamage(warrior),1.6,'minimum native melee damage is 32');
  const grow=createWorld(),h=grow.buildings.find(b=>b.team==='blue'),residents=grow.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,3);
  for(const u of residents){u.inside=h.id;u.work=h.id;u.path=[];}
- const count=grow.units.length;h.timer=breedingWork(grow,h)-8;grow.turn=3;grow.time=.25;tick(grow,1/12);assert.equal(grow.units.length,count+1);assert.equal(h.timer,0);
+ const count=grow.units.length;h.timer=breedingWork(grow,h)-8;grow.turn=3;h.counter=3;grow.time=.25;tick(grow,1/12);assert.equal(grow.units.length,count+1);assert.equal(h.timer,0);
  grow.turn=15;grow.time=15/12;h.upgrade=2392;tick(grow,1/12);assert.equal(h.level,2);assert.equal(h.progress,0);assert.equal(h.logs,0,'mature huts require upgrade timber');assert.equal(h.upgrading,true);
  advance(grow,70);assert.equal(h.progress,1);assert.equal(h.logs,3);assert.equal(h.upgrading,false);foundations(grow);
  const capped=createWorld();while(capped.units.filter(u=>u.team==='blue').length<populationLimit(capped,'blue'))addUnit(capped,'blue','brave',HOME);

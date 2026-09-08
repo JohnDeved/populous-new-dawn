@@ -4382,3 +4382,15 @@ its Lightning/tree-fire browser check confirms animated original UVs, actual GPU
 pixels, grounding, shrinking trees, sound, smoke and cleanup. The expanded live
 hut-collapse check observes four invisible fragments and verifies their groups
 have no drawable children while ordinary faces remain textured and moving.
+
+
+## Native hut birth flow — 2026-09-08
+
+Reconstructed `00404c80` and compared the complete routine with the supplied EXE:
+2,304 controller cases, 188 allocations and 2,304 completion-clock initializations.
+The recovered flow replaces world-turn breeding and instant housing with local
+building phases, native sockets, a redirected/snapped exit and visible newborn
+motion. Original entrance flash and player birth audio are integrated and checked
+through browser GPU pixels and an actual PCM source. Native person ownership and
+wild-person/class-9/allocation paths remain open. See [the controller evidence
+and reproducible commands](../decomp/README.md#hut-birth-controller-and-entrance-feedback--2026-09-08).

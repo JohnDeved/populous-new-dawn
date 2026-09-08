@@ -62,7 +62,7 @@ try {
   await page.locator('.world-viewport canvas').focus()
   const bearing = await page.evaluate(() => window.testScene.cameraBearing)
   await page.keyboard.down('q')
-  await page.waitForTimeout(400)
+  await page.waitForFunction(bearing => window.testScene.cameraBearing !== bearing, bearing)
   await page.keyboard.up('q')
   assert.notEqual(await page.evaluate(() => window.testScene.cameraBearing), bearing)
   assert.deepEqual(await checkStones(), initial)

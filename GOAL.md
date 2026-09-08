@@ -447,3 +447,19 @@ Full original initialization/allocation order and upgrade replacement scheduling
 remain open, so opening hut identities are not claimed to match an original run.
 The broader model/lifecycle checkpoint remains partial. Continue with visible
 settlement activity and effects, retaining world, controls and sprite regressions.
+
+
+### Latest visible integration: original hut births
+
+Completed huts now initialize their breeding work to native cost minus 54 and
+sample admission on their own four-turn phase. Pending requests, signed counters,
+spawn/flash sockets and neighboring-building exit redirection follow 00404c80.
+New followers visibly leave the hut; their entrance flash uses original HFX1441,
+full opacity and sixteen simulation turns. Player births play original cue 40.
+Native comparisons cover 2,304 controller calls and completion clocks, 128 flash
+initializations and 2,688 animation records; 288 captured cases run in portable
+tests. Browser checks verify newborn motion, flash GPU pixels, PCM playback and
+cleanup. Global housing remains partial: native person allocation/state ownership,
+wild-person notification, class-9 plans, counter staggering and upgrades remain.
+Continue visible settlement behavior and critical gameplay while preserving
+original artwork, camera/control and sprite regressions. Full parity is unfinished.

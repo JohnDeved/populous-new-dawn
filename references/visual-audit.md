@@ -295,3 +295,13 @@ Construction caps and invisible picking faces now follow the original stage
 and collapse rules. These are local model/integration comparisons, not matched
 original full-frame screenshots. Original whole-scene lighting, painter order,
 settlement scheduling and exact opening allocation RNG remain open.
+
+
+## Newborn exit and original entrance flash — 2026-09-08
+
+Inspected `/private/tmp/populous-hut-birth-v109.png`: the newborn is visible at its
+hut and the original HFX1441 flash sits at the distinct outside socket. The live
+check measures flash GPU pixels, observes the newborn walking out, verifies full
+opacity and sixteen-turn expiry, and checks original cue40 PCM playback. This is
+backed by native socket/controller/animation comparisons, not an original matched
+video-frame claim. Complete native newborn person-state ownership remains open.

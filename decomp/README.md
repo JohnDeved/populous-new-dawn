@@ -2600,3 +2600,56 @@ its Lightning/tree-fire browser check confirms animated original UVs, actual GPU
 pixels, grounding, shrinking trees, sound, smoke and cleanup. The expanded live
 hut-collapse check observes four invisible fragments and verifies their groups
 have no drawable children while ordinary faces remain textured and moving.
+
+
+## Hut birth controller and entrance feedback — 2026-09-08
+
+`00404c80` samples admission and breeding cost only when unit counter+0x2e is
+four-aligned. Signed occupant byte+0xa6 contributes twice (occupants+1) to signed
+work short+0xa4. Crossing cost sets building flag 0x4000; consuming that flag
+resets work even on a non-sampling turn, where the request is discarded.
+`004049d0` initializes completed huts to breeding cost minus 54. The outer
+`00403280` work gate is the byte at 0x89d17c bit 0x20 (browser manaWorld.gameFlags),
+verified from instructions rather than the ambiguous metadata name level_flags.
+
+A successful birth allocates brave model 2 at the shape's inside socket. Player
+tribe births request cue 0x28. Effect 60 is separately allocated at the outside
+socket: `00509c10` initializes draw44/HFX1288 and state47, then the birth caller
+sets sixteen turns and draw41/HFX1441. `0050a750` state47 decrements and removes
+it; `004ee7b0` supplies animation. There is no browser fade. Existing generic
+birth-art producers reuse the corrected animation presentation; their own native
+training/gift/reincarnation allocation paths are not established by this check.
+Cue 40's existing original sound sample352 is now preloaded. The browser probe
+verifies a real AudioBufferSourceNode starts with its decoded PCM duration.
+
+The newborn destination starts 512 native units beyond the outside socket at
+building angle+512. `00405050` detects an occupied destination cell and substitutes
+that building's outside socket. `00405090` snaps both coordinates to cell center.
+The browser reuses existing shape and route helpers; newborns stay visible and
+walk out instead of immediately becoming hut occupants. This remains a live route
+adapter, not a port of the original person's allocation/home/state dispatcher.
+
+```sh
+python scripts/check-native-hut-birth.py /path/to/d3dpoptb.exe
+python scripts/check-native-hut-birth.py /path/to/d3dpoptb.exe --record
+node --test tests/hut-birth.test.mjs
+node scripts/check-browser-hut-birth.mjs
+```
+
+The oracle executes 2,304 full controller calls, including 188 successful births,
+and 2,304 complete building-completion clock initializations. It supplies storage,
+population admission/cost, audio and unrelated completion registration callbacks.
+Original socket geometry, signed arithmetic, movement, neighbor lookup, cell snap,
+flags and animation setters execute. A separate 128-case flash pass executes the
+initializer, birth override, 2,688 animation records and sixteen-turn deletion;
+class-list registration/removal is supplied. The portable fixture retains the
+first 288 controller cases; live tests check the work gate and per-building phase.
+Browser capture `/private/tmp/populous-hut-birth-v109.png` shows the original
+entrance flash and newborn; GPU differences and movement/expiry are asserted.
+
+Class-9 construction-plan fallback, allocation exhaustion, wild-person state
+notification, full person initialization, native object-counter staggering and
+global scheduling remain open. Population/cost providers retain the current
+opening-class adapter. Three exports bring the manifest to 853. `0050c260` was
+examined but is not the birth effect's updater: both switch dispatchers subtract
+one from their selectors. Retain it as research, not a claimed port.
