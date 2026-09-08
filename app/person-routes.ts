@@ -69,7 +69,7 @@ export function updatePersonRouteVehicle(w:MotionRoutes,p:RoutedPerson,ready:(id
   p.flags2=(waiting?p.flags2|0x8000000:p.flags2&~0x8000000)>>>0;
 }
 
-export type RouteWorld={routes:MotionRoutes;skip:number;checkingPerson:number;levelFlags2:number;humanLimit:number;computerLimit:number;
+export type RouteWorld={routes:MotionRoutes;skip:number;checkingPerson:number;levelFlags2:number;computerLimit:number;humanLimit:number;
   tribes:{playerType:number;requests:number}[];land:Pick<NativeTerrain,'flags'|'categories'|'buildingIds'>;vehicles:ReadonlyMap<number,Point>};
 type RouteEffects={outside:(id:number)=>Point;buildingBlocks:(cell:number)=>boolean;coastDirection:(to:Point)=>number;
   build:(p:RoutedPerson,from:Point,to:Point)=>number;vehicleReady:(id:number)=>boolean;advance:(p:RoutedPerson)=>void};
@@ -83,7 +83,7 @@ export function planPersonDestination(w:RouteWorld,p:RoutedPerson,to:Point,e:Rou
   else enabled=!(w.levelFlags2&0x400000)&&!!(p.flags2&0x2000000)&&!(p.vehicle&&(p.flags4&0x2000000));
   p.flags4=(p.flags4&~0x10000000)>>>0;
   if(enabled){
-    const tribe=w.tribes[p.tribe],limit=tribe.playerType===1?w.humanLimit:tribe.playerType===2?w.computerLimit:0;
+    const tribe=w.tribes[p.tribe],limit=tribe.playerType===1?w.computerLimit:tribe.playerType===2?w.humanLimit:0;
     if(limit&&tribe.requests>limit)enabled=false;
   }
   if(enabled){

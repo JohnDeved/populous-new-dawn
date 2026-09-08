@@ -1,6 +1,8 @@
+import {terrainSupportsPerson} from './person-collision.ts';
+import {createLivePathfinding,findLivePath} from './live-pathfinding.ts';
 import {createLivePerson,initializeLiveCelebration,stepLiveCelebration,syncLivePersonCells,type LivePerson} from './live-people.ts';
 import type {ObjectCells} from './object-cells.ts';
-import {createMotionRoutes,type MotionRoutes} from './person-routes.ts';
+import {createMotionRoutes,ageFailedRoutes,type MotionRoutes} from './person-routes.ts';
 import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from './native-math.ts';
 import {createNativeTerrain,queueTerrain,processTerrain,updateWalkMasks,type NativeTerrain} from './native-terrain.ts';
 import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './territory.ts';
@@ -225,38 +227,17 @@ export function groundBuilding(w: World, b: Building) {
 export function walkable(terrain: number[], p: Point) { return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > .45; }
 export const buildingContainsPoint=(b:Building,p:Point)=>b.progress===1&&distance(b,p)<2.35;
 export const buildingBlocksStep=(b:Building,start:Point,next:Point)=>buildingContainsPoint(b,next)&&!buildingContainsPoint(b,start);
-// ponytail: a 49×49 A* grid is enough for this island; use a heap and cached flow fields for hundreds of followers.
-export function findPath(terrain: number[], start: Point, end: Point, buildings: Building[] = []): Point[] {
-  if (!walkable(terrain, end)) return [];
-  const cell = (p: Point) => Math.max(0, Math.min(48, Math.round((p.z + 48) / 2))) * 49 + Math.max(0, Math.min(48, Math.round((p.x + 48) / 2)));
-  const point = (i: number) => ({ x: (i % 49) * 2 - 48, z: Math.floor(i / 49) * 2 - 48 });
-  const source = cell(start), goal = cell(end), open = [source], costs = new Map([[source, 0]]), came = new Map<number, number>(), closed = new Set<number>();
-  const doorGoal = buildings.some(b => { const door=buildingDoor(b); return door.x===end.x && door.z===end.z; });
-  while (open.length) {
-    open.sort((a, b) => costs.get(a)! + distance(point(a), end) - costs.get(b)! - distance(point(b), end));
-    const current = open.shift()!;
-    if (current === goal) {
-      const route: Point[] = [end];
-      for (let at = current; at !== source; at = came.get(at)!) route.unshift(point(at));
-      return route;
-    }
-    closed.add(current);
-    const p = point(current);
-    for (const [dx, dz] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) {
-      const next = { x: p.x + dx, z: p.z + dz };
-      // ponytail: allow the destination cell to reach its exact door; replace coarse A* with the native pathfinder.
-      if ((!doorGoal || cell(next)!==goal) && buildings.some(b=>buildingBlocksStep(b,start,next)) || !walkable(terrain, next) || Math.abs(height(terrain, next.x, next.z) - height(terrain, p.x, p.z)) > 2.8) continue;
-      const id = cell(next), cost = costs.get(current)! + 2;
-      if (closed.has(id) || cost >= (costs.get(id) ?? Infinity)) continue;
-      came.set(id, current); costs.set(id, cost);
-      if (!open.includes(id)) open.push(id);
-    }
-  }
-  return [];
+// Terrain support follows the original coastal mask, including low dry shore.
+// ponytail: the movement adapter still owns only the rendered map crop.
+export function supportsFollower(w:World,p:Point){
+  if(Math.abs(p.x)>=47||Math.abs(p.z)>=47)return false;
+  const n=nativePosition(w,p),cell=((n.y&65535)>>9)*128+((n.x&65535)>>9);
+  return !!terrainSupportsPerson(w.land.categories[cell],n);
 }
+export function findPath(w:World,start:Unit,end:Point):Point[]{syncNativeTerrain(w);syncBuildingFootprints(w);return findLivePath(w,start,end);}
 export type World = {
   objectCells:ObjectCells;
-  motionRoutes:MotionRoutes;
+  motionRoutes:MotionRoutes;pathfinding:ReturnType<typeof createLivePathfinding>;
   ai:ScriptState & {states:number;flags:number;enemyTribe:number;defencePosition:number;defenceRadius:number;spellEntries:{model:number;mana:number;range:number;people:number;mode:number}[];reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
   messages: MessageState;
   flyby: Flyby;
@@ -275,7 +256,7 @@ export type World = {
   paused: boolean; speed: number; message: string; messageUntil: number; status: 'playing' | 'won' | 'lost';
   respawn: number; redRespawn: number; stats: { built: number; cast: number; bridges: number; trained: number };
 };
-function route(w:World,start:Point,end:Point){return findPath(w.terrain,start,end,w.buildings);}
+function route(w:World,start:Unit,end:Point){return findPath(w,start,end);}
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
   const u: Unit = { native:null, vault:null, x:p.x, z:p.z, id: w.nextId++, team, kind, hp: maxHp(kind), path: [], target: null, cooldown: 0, work: null, inside:null, cargo:0, tree:null, timer:0, guard:false, lift:0, vx:0, vz:0,idleTurns:0,heading:Math.PI,fighting:false,fight:null,casting:null };
   w.units.push(u); return u;
@@ -300,7 +281,7 @@ function missionAI(){
 export function createWorld(): World {
   const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0},
     objectCells:{heads:new Uint16Array(16384),objects:new Map()},
-    motionRoutes:createMotionRoutes(),
+    motionRoutes:createMotionRoutes(),pathfinding:createLivePathfinding(),
     land:{...structuredClone(originalLand),regions:new Uint8Array(16384),searchMarks:new Uint8Array(16384),searchTag:255},landVersion:-1,buildingFootprints:new Map(),
     spellScan:{cursor:0,limit:0,paused:0,targets:[0,0,0,0]},
     castingTribes:Array.from({length:4},(_,id)=>createTribeCasting(id!==0)),
@@ -934,6 +915,9 @@ function stepTurn(w:World){
     },
   });
   const dt=1/TURNS_PER_SECOND;w.turn=(w.turn+1)>>>0;w.time=w.turn/TURNS_PER_SECOND;
+  // 0x4ec6f0 resets per-turn route requests and search counters before objects.
+  w.pathfinding.solver.tribeRequests.fill(0);w.pathfinding.state.searches=0;
+  Object.assign(w.pathfinding.solver,{attempts:0,detours:0,steps:0,limited:0});
   stepOutcome(w); // 0x4ec6f0: after increment, before this turn's object work.
   // 0x4facf0: auto-collected reward objects grant knowledge/stock after 82 object turns.
   for (const gift of w.gifts) {
@@ -1049,9 +1033,10 @@ function stepTurn(w:World){
   syncBuildingFootprints(w);
   for(const u of w.units) {
     u.fighting=false;if(u.hp<=0)continue;u.cooldown=Math.max(0,u.cooldown-dt);
+    // ponytail: Blast flight/landing retains its height cutoff until the native airborne dispatcher owns it.
     if(u.lift>0){u.x+=u.vx*dt;u.z+=u.vz*dt;u.lift=Math.max(0,u.lift-dt);if(!u.lift&&!walkable(w.terrain,u))u.hp=0;continue;}
     if(u.native?.state===41){stepLiveCelebration(w,u);continue;}
-    if(!walkable(w.terrain,u)){u.hp=0;continue;}
+    if(!supportsFollower(w,u)){u.hp=0;continue;}
     if(u.fight)continue;
     if(u.casting){u.casting.remaining-=dt;if(u.casting.remaining<=1e-8)u.casting=null;continue;}
     if (u.vault) processVaultTask(w,u);
@@ -1071,11 +1056,11 @@ function stepTurn(w:World){
     if(u.guard&&!u.path.length){const shaman=w.units.find(a=>a.team===u.team&&a.kind==='shaman');if(shaman&&distance(u,shaman)>3)u.path=route(w,u,entrance(w,shaman,2));}
     if(u.path.length){
       const next=u.path[0],length=unitSpeed(u);
-      if(!walkable(w.terrain,next)){u.path=[];continue;}
+      if(!supportsFollower(w,next)){u.path=[];continue;}
       const dx=Math.round(next.x*256)-Math.round(u.x*256),dz=Math.round(next.z*256)-Math.round(u.z*256),angle=nativeAngle(dx,dz);
       if(dx||dz)u.heading=Math.PI-angle*Math.PI/1024;
       const p=Math.hypot(dx,dz)<=length?{x:Math.round(next.x*256)/256,z:Math.round(next.z*256)/256}:nativeStep(u,angle,length);
-      if(!walkable(w.terrain,p)){u.path=[];continue;}u.x=p.x;u.z=p.z;
+      if(!supportsFollower(w,p)){u.path=[];continue;}u.x=p.x;u.z=p.z;
       if(Math.hypot(dx,dz)<=length)u.path.shift();
     }
     else if(target&&u.target!==null)u.path=route(w,u,'progress' in target?entrance(w,target):target);
@@ -1090,7 +1075,7 @@ function stepTurn(w:World){
   }
   for(const [u,target] of contacts.sort((a,b)=>a[0].id-b[0].id))if(u.hp>0&&target.hp>0&&u.inside===null&&target.inside===null&&u.lift===0&&target.lift===0&&distance(u,target)<1.7&&!u.fight&&!u.casting&&!target.casting)joinBattle(w,u,target);
   for(const u of w.units.filter(u=>u.hp<=0&&u.kind==='shaman'))if(w.units.some(a=>a.team===u.team&&a.hp>0)){if(u.team==='blue'){w.respawn=12;tell(w,'Your shaman will reincarnate in 12 seconds.');}else if(w.ai.reincarnation)w.redRespawn=12;}
-  for(const u of w.units.filter(u=>u.hp<=0)){const f=effect(w,walkable(w.terrain,u)?'death':'splash',u);if(f.kind==='death')f.unit={team:u.team,kind:u.kind,heading:u.heading};}
+  for(const u of w.units.filter(u=>u.hp<=0)){const f=effect(w,supportsFollower(w,u)?'death':'splash',u);if(f.kind==='death')f.unit={team:u.team,kind:u.kind,heading:u.heading};}
   for(const b of w.buildings.filter(b=>b.hp<=0)){
     markBuildingTerritory(w.land,{...nativePosition(w,b),tribe:b.team==='blue'?0:1},b.team==='blue'?11:w.ai.defenceRadius,true);
     effect(w,'death',b);
@@ -1100,6 +1085,7 @@ function stepTurn(w:World){
   syncBuildingFootprints(w);
   cleanBattles(w);
   for(const team of ['blue','red'] as const){const key=team==='blue'?'respawn':'redRespawn';if(w[key]>0){w[key]=Math.max(0,w[key]-dt);if(w[key]===0&&w.units.some(u=>u.team===team)){const u=addUnit(w,team,'shaman',team==='blue'?HOME:ENEMY);if(team==='blue'&&!w.selected.length)w.selected=[u.id];effect(w,'birth',u);}}}
+  ageFailedRoutes(w.motionRoutes); // 0x4ec6f0: after object and terrain work.
   // The result overlay remains while followers continue their native celebration.
   // Full progression presentation is still being reconstructed.
   if(w.land.landFlags&0x2000000){w.redRespawn=0;w.status='won';}

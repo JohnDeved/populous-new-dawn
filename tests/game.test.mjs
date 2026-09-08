@@ -76,15 +76,15 @@ function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spe
 function foundations(w){for(const b of w.buildings){for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');assert.ok(Math.abs(worldPoint(w.terrain,p).y-b.foundation*45/128)<1e-9,'supporting vertices share the native foundation height');}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){assert.ok(Math.abs(worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz}).y-b.foundation*45/128)<1e-9,'interpolated ground supports the whole building');}}}
 test('original level layout, native foundations, and the complete mission',()=>{
  const w=createWorld();assert.deepEqual(HOME,{x:9,z:33});assert.deepEqual(ENEMY,{x:1,z:-37});assert.equal(w.units.filter(u=>u.team==='blue'&&u.kind==='brave').length,6);assert.equal(w.buildings.length,4);assert.equal(w.shrines.length,3);assert.equal(w.units.filter(u=>u.team==='red').length,5);
- assert.ok(w.units.every(u=>walkable(w.terrain,u)));assert.equal(findPath(w.terrain,HOME,ENEMY).length,0);foundations(w);
+ assert.ok(w.units.every(u=>walkable(w.terrain,u)));assert.equal(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},ENEMY).length,0);foundations(w);
 
  const snapshot=JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings});assert.equal(placeBuilding(w,'hut',{x:30,z:30}),false);assert.equal(placeBuilding(w,'hut',w.buildings[2]),false);assert.equal(placeBuilding(w,'camp',{x:4,z:32}),false);assert.equal(JSON.stringify({terrain:w.terrain,wood:w.wood,buildings:w.buildings}),snapshot,'invalid plans never terraform or consume timber');
  const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),bridge=w.shrines.find(s=>s.kind==='bridge');w.selected=[brave.id];command(w,bridge);until(w,()=>w.shots.bridge>=3,60);assert.equal(bridge.duration,28/3);
- select(w,'shaman');command(w,{x:0,z:20});advance(w,10);const charges=w.shots.bridge;assert.equal(cast(w,'bridge',{x:25,z:20}),false);assert.equal(w.shots.bridge,charges);assert.equal(cast(w,'bridge',{x:0,z:4}),true);advance(w,6);foundations(w);assert.ok(findPath(w.terrain,HOME,w.shrines[0]).length);
+ select(w,'shaman');command(w,{x:0,z:20});advance(w,10);const charges=w.shots.bridge;assert.equal(cast(w,'bridge',{x:25,z:20}),false);assert.equal(w.shots.bridge,charges);assert.equal(cast(w,'bridge',{x:0,z:4}),true);advance(w,6);foundations(w);assert.ok(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},w.shrines[0]).length);
  command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',{x:guard.x+1,z:guard.z}));advance(w,2);assert.ok(!w.units.includes(guard),'Blast knocks the guard off the western coast');command(w,w.shrines.find(s=>s.kind==='vault'));until(w,()=>w.unlockedCamp,45);
  assert.ok(placeBuilding(w,'camp',{x:4,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
  select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
- select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-22}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w.terrain,HOME,ENEMY).length);assert.equal(bridge.active,false);foundations(w);
+ select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-22}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},ENEMY).length);assert.equal(bridge.active,false);foundations(w);
  command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');assert.equal(w.redRespawn,0,'the native first-mission script disables Dakini reincarnation');assert.ok(!w.units.includes(enemyShaman));
  // Fight through the remaining defenders using the units that were actually trained above.
  select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.buildings.find(b=>b.team==='red')??w.units.find(u=>u.team==='red'&&u.inside===null);if(!enemy)break;command(w,enemy);advance(w,8);}
@@ -292,7 +292,7 @@ test('campaign markers remove the bridge head on the native phase, independently
  set(29,45);for(let i=0;i<31;i++)tick(w,1/12);assert.ok(w.shrines.includes(head),'next EVERY 31 2 phase is turn 61');
  const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');brave.work=head.id;
  tick(w,1/12);assert.equal(w.turn,62);assert.ok(!w.shrines.includes(head));assert.equal(head.active,false);assert.equal(brave.work,null);
- assert.equal(findPath(w.terrain,HOME,ENEMY).length,0,'native rule does not require a walkable route');assert.equal(w.shrines.length,2);
+ assert.equal(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},ENEMY).length,0,'native rule does not require a walkable route');assert.equal(w.shrines.length,2);
  const fresh=createWorld();const count=fresh.shrines.length;removeHead(fresh,0,0);assert.equal(fresh.shrines.length,count,'wrong cell leaves heads intact');
  removeHead(fresh,3,223);assert.equal(fresh.shrines.length,count-1,'odd coordinates select the same native cell');assert.ok(fresh.shrines.every(s=>s.kind!=='bridge'));
 });
@@ -804,9 +804,9 @@ test('live followers reach rotated native doors before entering buildings', () =
  for (const angle of [0,Math.PI/2,Math.PI,3*Math.PI/2]) {
   const w=createWorld(),hut=w.buildings.find(b=>b.team==='blue'),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
   hut.angle=angle;w.selected=[brave.id];
-  assert.deepEqual(findPath(w.terrain,brave,hut,w.buildings),[],'the door exception does not permit routes to building centers');
+  assert.deepEqual(findPath(w,brave,hut).at(-1),entrance(w,hut),'native planning redirects the building center to its outside point');
   command(w,hut);
-  assert.ok(brave.path.length,'the coarse path must reach the exact original entrance');
+  assert.ok(brave.path.length,'the original route must reach the exact original entrance');
   assert.deepEqual(brave.path.at(-1),entrance(w,hut));
   advance(w,24);
   assert.equal(brave.inside,hut.id,'all four native entrance orientations remain reachable');
@@ -1343,7 +1343,7 @@ test('native route reuse shares ownership and live celebration releases each fol
  second.flags2|=0x2000000;
  const unexpected=()=>{throw Error('An existing route should be reused');};
  let advanced=0;
- const route=planPersonDestination({routes,skip:0,checkingPerson:0,levelFlags2:0,humanLimit:0,computerLimit:0,
+ const route=planPersonDestination({routes,skip:0,checkingPerson:0,levelFlags2:0,computerLimit:0,humanLimit:0,
   tribes:Array.from({length:4},()=>({playerType:1,requests:0})),land:w.land,vehicles:new Map()},second,to,
   {outside:unexpected,buildingBlocks:unexpected,coastDirection:unexpected,build:unexpected,vehicleReady:unexpected,advance:()=>advanced++});
  assert.equal(route,1);assert.equal(advanced,1);assert.equal(second.motionGroup,1);assert.equal(v.getInt16(a,true),2);assert.equal(routes.active,1);
@@ -1394,7 +1394,7 @@ test('native path search packs a trimmed route and preserves distinct vehicle re
   for(const [i,x,kind] of [[0,5130,0],[1,5132,0],[2,5131,1],[3,5132,0]]){v.setInt32(i*10,x,true);v.setInt32(i*10+4,5140,true);v.setUint16(i*10+8,kind,true);}
   const state={searches:0,landLimit:0,checkingPerson:0,limit:0,vehicles:0,mode:0,currentBoat:0,candidateCount:0,candidateIndex:0,truncated:0,walkMask:0};
   const categories=new Uint8Array(16384);categories.fill(rules.terrainCategoryFlags.findIndex(f=>f&1));
-  const w={state,path,result:routes.pathResult,categories,boatsEnabled:1,landLimit:32,humanLimit:32,computerLimit:32,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
+  const w={state,path,result:routes.pathResult,categories,boatsEnabled:1,landLimit:32,computerLimit:32,humanLimit:32,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
   const outcomes=retry?[2,1,1,1,0]:[0],attempts=[],choices=[];let pass=0;
   const consumers={prepare:()=>{state.candidateCount=2;},choose:i=>choices.push(i),solve:()=>{attempts.push([state.walkMask,state.vehicles]);state.currentBoat=2;return outcomes[pass++];},
    smooth:()=>{},measure:()=>{},collect:()=>{state.truncated=Number(collectSearchPath(path,routes.pathResult,command));}};
@@ -1420,7 +1420,7 @@ test('native wrapped route smoothing respects blocked steps and measures retaine
   const state={searches:0,landLimit:0,checkingPerson:0,limit:0,vehicles:0,mode:0,currentBoat:0,candidateCount:0,candidateIndex:0,truncated:0,walkMask:0};
   const categories=new Uint8Array(16384).fill(rules.terrainCategoryFlags.findIndex(f=>f&1)),walkMasks=[new Uint8Array(8192).fill(255),new Uint8Array(8192).fill(255)];
   if(blocked)for(const mask of walkMasks){const bit=20*256+251;mask[bit>>3]&=~(1<<(bit&7));}
-  const w={state,path,result:routes.pathResult,categories,flags:new Uint32Array(16384),walkMasks,boatsEnabled:0,landLimit:32,humanLimit:32,computerLimit:32,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
+  const w={state,path,result:routes.pathResult,categories,flags:new Uint32Array(16384),walkMasks,boatsEnabled:0,landLimit:32,computerLimit:32,humanLimit:32,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
   const unexpected=()=>{throw Error('Unexpected boat or building consumer');},probe={buildingAccess:unexpected,boardingBoat:unexpected,disembark:unexpected,boatCell:unexpected};
   const measure={dirty:1,distance:0,tribes:0},regions=new Uint8Array(16384).fill(0x30),tribes=[{active:true,defeatTimer:0},{active:false,defeatTimer:0}];
   const consumers={prepare:()=>preparePathCandidates(w,g),choose:i=>choosePathCandidate(w,g,i),solve:()=>{
@@ -1454,7 +1454,7 @@ test('native obstacle solving builds a world-seam detour and rejects a blocked d
    for(let x=252;x<=257;x++)for(let y=18;y<=22;y++){const bit=y*256+(x&255);mask[bit>>3]&=~(1<<(bit&7));}
    if(closed){const bit=20*256+6;mask[bit>>3]&=~(1<<(bit&7));}
   }
-  const w={state,path,result:routes.pathResult,categories:new Uint8Array(16384).fill(rules.terrainCategoryFlags.findIndex(f=>f&1)),flags:new Uint32Array(16384),walkMasks,boatsEnabled:0,landLimit:32,humanLimit:64,computerLimit:64,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
+  const w={state,path,result:routes.pathResult,categories:new Uint8Array(16384).fill(rules.terrainCategoryFlags.findIndex(f=>f&1)),flags:new Uint32Array(16384),walkMasks,boatsEnabled:0,landLimit:32,computerLimit:64,humanLimit:64,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
   const unexpected=()=>{throw Error('Unexpected boat or building consumer');},e={buildingAccess:unexpected,boardingBoat:unexpected,disembark:unexpected,boatCell:unexpected};
   const measure={dirty:1,distance:0,tribes:0},consumers={prepare:()=>preparePathCandidates(w,g),choose:i=>choosePathCandidate(w,g,i),solve:()=>solvePersonPath(w,g,solver,p,e),
    smooth:()=>smoothSearchPath(path,0,(a,b,k)=>clearPathSegment(w,g,p,a,b,k,e)),measure:()=>measureSearchPath(path,g.line,measure,new Uint8Array(16384),[]),collect:()=>{state.truncated=Number(collectSearchPath(path,w.result,0));}};
@@ -1485,10 +1485,10 @@ test('native planned routes use the recovered solver and advance shared follower
  const tribes=Array.from({length:4},()=>({playerType:1,requests:0,flags:0,active:true,defeatTimer:0})),vehicles=new Map(),people=new Map(ps.map(p=>[p.id,p]));
  const land={flags,categories,buildingIds:new Uint16Array(16384)},boatWorld={flags,categories,cellObjects:()=>[],boatsEnabled:0,vehicles,people,tribes};
  const path={data:new Uint8Array(2580),count:0},g=createPathGeometry(),solver=createPathSolver(),state={searches:0,landLimit:0,checkingPerson:0,limit:0,vehicles:0,mode:0,currentBoat:0,candidateCount:0,candidateIndex:0,truncated:0,walkMask:0};
- const w={...boatWorld,state,path,result:routes.pathResult,walkMasks,landLimit:32,humanLimit:64,computerLimit:64},measure={dirty:1,distance:0,tribes:0};
+ const w={...boatWorld,state,path,result:routes.pathResult,walkMasks,landLimit:32,computerLimit:64,humanLimit:64},measure={dirty:1,distance:0,tribes:0};
  const unexpected=()=>{throw Error('Unexpected world consumer for a land route');};
  const advance=p=>advancePersonRoute({routes,vehicles,people},p,{boarding:unexpected,board:unexpected,routeAvailable:p=>routeVehicleAvailable(routes,p,cell=>boardingVehicle(boatWorld,p,cell)),approach:unexpected,alternativeLanding:unexpected,landingBlocked:unexpected,prepareLanding:unexpected,leaveVehicle:unexpected,clearOrders:unexpected});
- const planner={routes,skip:0,checkingPerson:0,levelFlags2:0,humanLimit:0,computerLimit:0,land,vehicles,tribes};
+ const planner={routes,skip:0,checkingPerson:0,levelFlags2:0,computerLimit:0,humanLimit:0,land,vehicles,tribes};
  const build=(p,a,b)=>buildPersonRoute(routes,p,a,b,0,tribes[p.tribe],{findVehicle:unexpected,search:(_,p,a,b,option,allow)=>{
   const e={buildingAccess:unexpected,boardingBoat:cell=>boardingVehicle(boatWorld,p,cell),disembark:(id,to)=>vehicleCanDisembark(boatWorld,vehicles.get(id),to),boatCell:(cell,id)=>vehicleCellFree(boatWorld,cell,id)};
   return searchPersonPath(w,p,Uint8Array.of(a.x,a.y,0,0),Uint8Array.of(b.x,b.y,0,0),option,allow,{prepare:()=>preparePathCandidates(w,g),choose:i=>choosePathCandidate(w,g,i),solve:()=>solvePersonPath(w,g,solver,p,e),smooth:()=>smoothSearchPath(path,0,(a,b,k)=>clearPathSegment(w,g,p,a,b,k,e)),measure:()=>measureSearchPath(path,g.line,measure,new Uint8Array(16384),tribes),collect:()=>{state.truncated=Number(collectSearchPath(path,w.result,0));}});
@@ -1523,4 +1523,22 @@ test('native boarding checks the first boat and landing requests reserve distinc
  adjustVehicleDestination(w,slots,air,a);adjustVehicleDestination(w,slots,air,b);
  assert.notDeepEqual(a,b);assert.notDeepEqual(a,{x:0x2100,y:0x2100});assert.equal(slots.count,2);
  assert.equal(slots.records[2],1);assert.equal(slots.records[5],1);assert.ok(slots.search.every((v,i)=>i%12!==0||v===0));
+});
+
+test('live native routes release query ownership, expire failures and walk low shoreline', async () => {
+ const {supportsFollower}=await import('../app/model.ts');
+ const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),shore={x:9,z:25};
+ assert.equal(walkable(w.terrain,shore),false);assert.equal(supportsFollower(w,shore),true);
+ assert.deepEqual(findPath(w,u,ENEMY),[]);const searches=w.pathfinding.state.searches;
+ assert.ok(searches>0);assert.deepEqual(findPath(w,u,ENEMY),[]);assert.equal(w.pathfinding.state.searches,searches,'failed route is cached');
+ const cached=w.motionRoutes.failedSearches.findIndex((n,i)=>i%10===0&&n===16);assert.ok(cached>=0);
+ w.paused=true;advance(w,1);assert.equal(w.motionRoutes.failedSearches[cached],16);
+ w.paused=false;tick(w,1/12);assert.equal(w.motionRoutes.failedSearches[cached],15);
+ for(let i=0;i<15;i++)tick(w,1/12);assert.equal(w.motionRoutes.failedSearches[cached],0);
+ assert.deepEqual(findPath(w,u,ENEMY),[]);assert.ok(w.pathfinding.state.searches>0,'expired failure searches again');
+ select(w,'shaman');command(w,shore);assert.ok(u.path.length);assert.deepEqual(u.path.at(-1),shore);
+ assert.equal(w.motionRoutes.active,0);assert.equal(u.native,null,'planning does not claim animation or ordinary order ownership');
+ until(w,()=>u.x===shore.x&&u.z===shore.z,15);advance(w,1);assert.ok(w.units.includes(u));assert.equal(u.hp,maxHp('shaman'));
+ for(let id=1;id<=400;id++)assert.equal(new DataView(w.motionRoutes.records.buffer).getInt16(id*109,true),0);
+ w.pathfinding.solver.tribeRequests.fill(123);tick(w,1/12);assert.ok(w.pathfinding.solver.tribeRequests.every(n=>n<123),'request limits observe this turn only');
 });

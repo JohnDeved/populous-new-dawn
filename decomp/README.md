@@ -1494,7 +1494,7 @@ readiness, `004663c0` boarding selection with `004f2490`'s reservation byte,
 bytes at `005a7938 + model*23 + 8` are imported with the original rules.
 
 Boarding considers only the first eligible boat in native cell order; if it is
-full, busy, too fast or reserved for a human player, the routine does not try a
+full, busy, too fast or reserved for a computer player, the routine does not try a
 second boat. Passenger count/capacity and speed limits retain signed comparisons.
 The passenger array starts at **+0x7a**, and reservation is byte **+0xa2**. Other
 class-4 objects block landing cells even when their dead flag is set. Boats need
@@ -1528,10 +1528,45 @@ construction, complete search/solver/postprocessing and advancement: two followe
 share the original seam-crossing detour, visit centered waypoints and release the
 route independently at the exact goal. Positions are advanced to waypoints by the
 fixture; this is not a full physics replay. The other verifies first-boat rejection,
-human reservations, landing occupancy and distinct shared landing reservations.
+computer reservations, landing occupancy and distinct shared landing reservations.
 
 The manifest now contains **644 raw exports**. Ordinary live movement still uses
 the browser route adapter. Native boarding/disembarking actions, landing-position
 geometry, building-access ownership, reservation scheduling and ordinary native
 person/physics integration remain open. Exported consumers are not completed
 world actions, and these checks do not establish full engine parity.
+
+
+## Ordinary live path queries
+
+`app/live-pathfinding.ts` now composes the recovered destination planner,
+route construction, complete path search/solver, smoothing, collection and initial
+advancement for every ordinary browser route request. The 49×49 A* implementation
+is removed. The live terrain, walk masks and complete-building footprints feed
+those routines. `00518070` is reconstructed in `pathCellBlocked`; its real native
+building-access and height-range callees execute in **8,192 additional comparisons**
+in `scripts/check-native-person-collision.py`. Only its adjacent-building lookup
+is supplied, and the comparison checks the order of height/adjacency consumers.
+
+`0042b590` initializes 200-node limits and zero request limits. `0042b660` confirms
+player type **1 is computer, 2 is human**; previously reversed path-limit property
+names are corrected without changing the address-based oracle behavior. Imported
+`005aa450` supplies the 384 land limit, and signed category direction bytes at
+`005aa329 + category*14` supply `004655f0` coastal offsets. `004ec6f0` resets search
+requests before object work and ages failed routes afterward; both live hooks are
+now present. Two new raw exports bring the manifest to **646**.
+
+Ground movement now uses the original coastal support mask, so a valid low-shore
+waypoint is not rejected by the old height cutoff. Placement and the existing
+Blast airborne/landing adapter retain their earlier checks. The **65 gameplay
+regressions** cover the complete first mission, all four building-door orientations,
+failed-route expiry/pause, query reference release and live low-shore arrival.
+The browser check also issues a real right-click order before its celebration QA.
+
+**Remaining boundary:** each query bootstraps a temporary person, then flattens
+and releases the route for the existing `Unit.path` controller. Ordinary native
+orders, persistent route references, per-step native advancement, full collision
+and physics are not integrated by this change. Queued-command collection uses
+model zero until ordinary queues are native. Current live worlds have no vehicles;
+empty vehicle lookups represent that fact. Full-world rendering, vehicle actions,
+complete building-access ownership and the remaining object scheduler are open.

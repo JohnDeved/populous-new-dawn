@@ -34,7 +34,15 @@ cpu.hook_add(UC_HOOK_CODE,boat,begin=0x4665c0,end=0x4665c0)
 write(0x96aa74,'I',0x96aaba)
 fields={'x':(0x3d,'H'),'y':(0x3f,'H'),'model':(0x2b,'B'),'flags2':(0xc,'I'),'flags4':(0x10,'I'),'tribe':(0x2f,'B'),'workTarget':(0x89,'H'),'target':(0x72,'H')}
 objfields={'x':(0x3d,'H'),'y':(0x3f,'H'),'class':(0x2a,'B'),'state':(0x2c,'B'),'flags2':(0xc,'I'),'tribe':(0x2f,'B'),'related':(0x92,'h')}
-for mode in ['building','collision']:
+def path_consumer(cpu,a,size,u):
+ if mode!='path':return
+ sp=cpu.reg_read(UC_X86_REG_ESP)
+ if a==0x44f600:events.append(['height',read(sp+4,'I')&65535]);return
+ events.append(['adjacent',read(sp+8,'I')&255]);cpu.reg_write(UC_X86_REG_EAX,p+case['adjacent']*256 if case['adjacent'] else 0)
+ cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
+cpu.hook_add(UC_HOOK_CODE,path_consumer,begin=0x44f600,end=0x44f600)
+cpu.hook_add(UC_HOOK_CODE,path_consumer,begin=0x40a3f0,end=0x40a3f0)
+for mode in ['building','collision','path']:
  cases=[];expected=[]
  for i in range(8192):
   person=dict(x=1000,y=1000,model=rng.choice([1,2,3,7]),flags2=rng.choice([0,0x20000000]),flags4=rng.choice([0,1,2,4,7,0x10000,0x10003])|rng.choice([0,0x800000,0x1000000,0x1800000]),tribe=i%4,workTarget=rng.choice([0,2,3]),target=rng.choice([0,4]))
@@ -45,16 +53,28 @@ for mode in ['building','collision']:
   for k,(off,f) in fields.items():write(p+off,f,person[k])
   for j,obj in objects:
    address=p+j*256;write(0x890390+j*4,'I',address);cpu.mem_write(address,bytes(256))
+   write(address+0x24,'H',j)
    for k,(off,f) in objfields.items():write(address+off,f,obj[k])
   celladdr=0x8a03e4+index(point)*16;write(celladdr,'I',cell['flags']);write(celladdr+12,'B',cell['category']);write(celladdr+8,'H',cell['building'])
   write(0x8a03e4+index(objects[2][1])*16+8,'H',case['otherBuilding'])
   bit=(point['y']>>8)*256+(point['x']>>8);write(0x96aaba+(bit>>3),'B',255 if case['passable'] else 0)
   write(to,'HH',point['x'],point['y']);boats=0
-  result=(call(0x517f10,p,celladdr) if mode=='building' else call(0x5178d0,p,to))&255
-  expected.append(dict(result=result,boats=boats))
- compare("""import {buildingBlocksPerson,personStepCollision} from './app/person-collision.ts';console.log(JSON.stringify(input.cases.map(c=>{let boats=0;
+  events=[]
+  if mode=='path':
+   packed=((point['x']>>8)&254)|(point['y']&0xfe00);x=(packed&254)>>1;y=packed>>9
+   case.update(packed=packed,limit=rng.choice([-32768,-1,0,1,128,384,32767]),adjacent=rng.choice([0,2,3]),heights=[rng.choice([-32768,-1,0,1,128,384,1024,32767]) for _ in range(4)])
+   for j,h in zip([y*128+x,((y+1)&127)*128+x,((y+1)&127)*128+((x+1)&127),y*128+((x+1)&127)],case['heights']):write(0x8a03e4+j*16+4,'h',h)
+   write(0x9557c8,'I',p);write(0x9557b2,'h',case['limit']);result=call(0x518070,packed)
+  else:result=(call(0x517f10,p,celladdr) if mode=='building' else call(0x5178d0,p,to))&255
+  expected.append(dict(result=result,boats=boats,events=events))
+ compare("""import {buildingBlocksPerson,personStepCollision,pathCellBlocked} from './app/person-collision.ts';import {terrainCellHeightRange} from './app/native-terrain.ts';console.log(JSON.stringify(input.cases.map(c=>{let boats=0;const events=[];
  const w={cell:p=>p.x===20000&&p.y===20000?{...c.cell,building:c.otherBuilding}:c.cell,walkMask:new Uint8Array(8192).fill(c.passable?255:0),objects:new Map(c.objects),boatAt:()=>{boats++;return c.boat;}};
- return {result:input.mode==='building'?buildingBlocksPerson(w,c.p,c.cell):personStepCollision(w,c.p,c.to),boats};})));""",dict(mode=mode,cases=cases),expected,mode)
+ let result;if(input.mode==='path'){
+  const x=(c.packed&254)>>1,y=c.packed>>9,land={heights:new Int16Array(16384)};
+  [y*128+x,((y+1)&127)*128+x,((y+1)&127)*128+((x+1)&127),y*128+((x+1)&127)].forEach((j,k)=>land.heights[j]=c.heights[k]);
+  result=pathCellBlocked(w,c.p,c.packed,()=>{events.push(['height',c.packed]);return terrainCellHeightRange(land,c.packed);},c.limit,()=>{events.push(['adjacent',0]);return c.adjacent;});
+ }else result=input.mode==='building'?buildingBlocksPerson(w,c.p,c.cell):personStepCollision(w,c.p,c.to);
+ return {result,boats,events};})));""",dict(mode=mode,cases=cases),expected,mode)
 # Full bit-map updates, including unchanged bits outside wrapped update regions.
 heights=[rng.randrange(80,260) for _ in range(16384)];flags=[rng.choice([0,1,0,1,4,0x80000]) for _ in range(16384)]
 for i in range(16384):write(0x8a03e4+i*16,'Ih',flags[i],heights[i])

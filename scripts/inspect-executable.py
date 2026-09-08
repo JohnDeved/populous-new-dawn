@@ -92,6 +92,8 @@ if len(sys.argv)>2:
         'normalLimit':value(0x5a80fd+i*62,1),'alternateLimit':value(0x5a80fe+i*62,1),
         'rate':value(0x5a810a+i*62,2)} for i in range(22)]
     rules['spellRangeBands']=[value(0x5aa538+i*4) for i in range(8)]
+    rules['pathLandLimit']=value(0x5aa450)
+    rules['terrainCategoryDirections']=[struct.unpack('<b',read(0x5aa329+i*14,1))[0] for i in range(16)]
     rules['terrainCategoryFlags']=[value(0x5aa328+i*14,1) for i in range(16)]
     rules['terrainCategoryMasks']=[list(read(0x5aa32e+i*14,8)) for i in range(16)]
     rules['terrainCategories']=list(read(0x5aa318,16))

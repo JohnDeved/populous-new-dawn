@@ -104,7 +104,7 @@ export function initializeLiveCelebration(w:World,u:Unit){
   initializeLivePerson(w,u,ctx);w.randomState=ctx.state.randomState;
 }
 
-function collisionWorld(w:World):CollisionWorld{
+export function collisionWorld(w:World):CollisionWorld{
   // Native footprint cells are shared; object/plan lifecycle is still adapted.
   const objects=new Map<number,CollisionObject>();
   for(const b of w.buildings)objects.set(b.id,{...nativePosition(w,b),class:2,state:b.progress===1?2:1,flags2:0,tribe:b.team==='blue'?0:1,related:0});

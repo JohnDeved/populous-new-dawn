@@ -36,7 +36,7 @@ js="""import {createHash} from 'node:crypto';import {createMotionRoutes,attachPe
 let s='';for await(const c of process.stdin)s+=c;const input=JSON.parse(s),land={flags:new Uint32Array(16384),categories:new Uint8Array(16384),buildingIds:new Uint16Array(16384)};
 console.log(JSON.stringify(input.cases.map(c=>{const routes=createMotionRoutes(),events=[],p=c.p;for(const [id,bytes] of c.records)routes.records.set(bytes,id*109);routes.active=c.active;routes.last=c.last;
 for(const t of c.tiles){land.flags[t.i]=t.flags;land.categories[t.i]=t.category;land.buildingIds[t.i]=t.building;}
-const w={routes,skip:c.skip,checkingPerson:0,levelFlags2:c.levelFlags2,humanLimit:c.humanLimit,computerLimit:c.computerLimit,tribes:c.tribes,land,vehicles:new Map([[2,{x:65530,y:10}]])};
+const w={routes,skip:c.skip,checkingPerson:0,levelFlags2:c.levelFlags2,computerLimit:c.computerLimit,humanLimit:c.humanLimit,tribes:c.tribes,land,vehicles:new Map([[2,{x:65530,y:10}]])};
 const e={outside:id=>{events.push(['outside',id]);return {x:(1000+id*100)&65535,y:2000};},buildingBlocks:cell=>{events.push(['blocks',cell]);return !!c.blocks;},coastDirection:to=>{events.push(['coast',{...to}]);return c.direction;},
 build:(p,a,b)=>{events.push(['build',a,b]);return c.build;},vehicleReady:id=>{events.push(['ready',id]);return !!c.ready;},advance:p=>{events.push(['advance',{...p}]);p.destinationX=(p.destinationX+17)&65535;}};
 let result=null;if(input.mode==='attach'||input.mode==='reserve')attachPersonRoute(routes,p,c.id,input.mode==='reserve');else if(input.mode==='release')releasePersonRoute(routes,p);else if(input.mode==='direct')setDirectPersonDestination(routes,p,c.to);else if(input.mode==='position')result=personRoutePosition(routes,c.id,c.index);
@@ -64,7 +64,7 @@ for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea46
   for q in [ps,to]:
    i=(q['y']>>9)*128+(q['x']>>9);tiles[i]=dict(i=i,flags=rng.choice([0,0,512]),category=rng.randrange(16),building=rng.choice([0,2,3]))
    if tiles[i]['flags']&512 and not tiles[i]['building']:tiles[i]['building']=2
-  c=dict(p=ps,records=records,active=rng.randrange(1,10),last=rng.randrange(1,9),skip=n%11==0,levelFlags2=0x400000 if n%7==0 else 0,humanLimit=n%4,computerLimit=n%5,
+  c=dict(p=ps,records=records,active=rng.randrange(1,10),last=rng.randrange(1,9),skip=n%11==0,levelFlags2=0x400000 if n%7==0 else 0,computerLimit=n%4,humanLimit=n%5,
    tribes=[dict(playerType=i,requests=rng.choice([-1,0,1,3,10])) for i in range(4)],tiles=list(tiles.values()),to=to,from_=frm,id=rng.randrange(9),index=rng.randrange(32),blocks=n%2,ready=n%2,direction=rng.randrange(-8,16),build=rng.choice([0,0,3]),adjust=rng.choice([0,0,37,65500]))
   c['from']=c.pop('from_');c['skip']=int(c['skip']);cpu.mem_write(0x955c29,bytes(401*109))
   for ident,raw in records:cpu.mem_write(0x955c29+ident*109,bytes(raw))
@@ -72,7 +72,7 @@ for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea46
   for k,(offset,f) in fields.items():write(p+offset,f,ps[k])
   for ident in [1,2,3]:write(0x890390+ident*4,'I',p+(ident-1)*256);write(p+(ident-1)*256+0x24,'H',ident)
   write(p+256+0x3d,'HH',65530,10)
-  write(0x9557b0,'h',c['active']);write(0x9557ae,'h',c['last']);write(0x9557c0,'B',c['skip']);write(0x9557c8,'I',0);write(0x895da4,'I',c['levelFlags2']);write(0x89ce5d,'B',c['humanLimit']);write(0x89ce5f,'B',c['computerLimit'])
+  write(0x9557b0,'h',c['active']);write(0x9557ae,'h',c['last']);write(0x9557c0,'B',c['skip']);write(0x9557c8,'I',0);write(0x895da4,'I',c['levelFlags2']);write(0x89ce5d,'B',c['computerLimit']);write(0x89ce5f,'B',c['humanLimit'])
   for i,t in enumerate(c['tribes']):write(0x89d1c8+i*0xc65+0xc1f,'B',t['playerType']);write(0x9557b6+i*2,'h',t['requests'])
   for t in c['tiles']:write(0x8a03e4+t['i']*16,'I',t['flags']);write(0x8a03e4+t['i']*16+8,'H',t['building']);write(0x8a03e4+t['i']*16+12,'B',t['category'])
   write(out,'HH',to['x'],to['y']);events=[];result=None

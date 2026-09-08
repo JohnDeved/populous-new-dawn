@@ -3148,3 +3148,36 @@ first-boat rejection and distinct landing reservations. Full ordinary live route
 ownership and movement integration remain open; the legacy adapter is still used
 outside reconstructed celebration. Six additional raw exports bring the manifest
 to **644**. Full game and engine parity remain unfinished.
+
+
+## 2026-09-08 — Original planning serves ordinary live routes
+
+Replaced coarse browser A* with the recovered planner, route builder, complete
+search/obstacle solver and postprocessing. The integration consumes live native
+terrain/masks/building footprints, original node/request limits and coastal
+direction bytes. Corrected reversed human/computer path-limit names using the
+tribe initializer: native type 1 is computer, type 2 is human. `004ec6f0` supplies
+per-turn search resets and end-of-turn failed-route aging.
+
+The additional whole-cell planning gate `00518070` passes **8,192 native cases**,
+including actual native building access and terrain height ranges; adjacency is
+the supplied consumer. The existing collision/mask checks and renamed route/search
+oracles also pass. The manifest contains **646 raw exports**.
+
+The live mission regression revealed a valid route through low shoreline at
+browser `(9,25)`. Native category zero supports that point at height 15, while the
+old browser cutoff rejected it. Ordinary ground movement now uses the original
+coastal support mask. The Blast airborne/landing adapter retains its old cutoff;
+changing that alone does not reconstruct its missing physics dispatcher.
+
+**65 gameplay tests** cover the complete mission, rotated outside-door targets,
+cache expiry and pause, query release and low-shore arrival. The browser regression
+issues an actual right-click move, verifies arrival without claiming native
+animation ownership, then exercises the existing victory/movement/atlas checks.
+
+This is native **path-query integration**, not complete native movement. Temporary
+planning records flatten their routes into `Unit.path` and release references.
+Ordinary tasks, exact-waypoint following, animation ownership, collision recovery,
+full physics and persistent native route/order records still need migration.
+The current world has no vehicles; their queries are empty and their actions
+remain explicit unsupported consumers. Full engine/game parity remains active.

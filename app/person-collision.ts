@@ -65,3 +65,15 @@ export function personStepCollision(w:CollisionWorld,p:CollisionPerson,to:Point)
   }else if(cell.flags&0x200)return buildingBlocksPerson(w,p,cell);
   return 0;
 }
+
+// Complete 0x518070. The path planner's whole-cell check has different
+// building/height gates from the per-step collision routine.
+export function pathCellBlocked(w:CollisionWorld,p:CollisionPerson,packed:number,heightRange:()=>number,limit:number,adjacentBuilding:()=>number){
+  const cell=w.cell({x:(packed&254)<<8,y:packed&0xfe00});
+  if(!(p.flags4&0x10007)&&(cell.flags&512)){
+    if(!(p.flags2&0x20000000))return 1;
+    const id=adjacentBuilding();return Number(!id||(cell.building&1023)!==id);
+  }
+  if(cell.flags&4||heightRange()>(limit<<16>>16)||!(rules.terrainCategoryFlags[cell.category&15]&1))return 1;
+  return cell.flags&512?Number(!!buildingBlocksPerson(w,p,cell)):0;
+}

@@ -10,7 +10,19 @@ try{
  await page.goto(process.env.POPULOUS_URL??'http://localhost:3000',{waitUntil:'networkidle'});await page.waitForSelector('.world-viewport canvas');
  await page.evaluate(()=>{
   let f=document.querySelector('main');f=f[Object.keys(f).find(k=>k.startsWith('__reactFiber'))];
-  for(;f;f=f.return)for(let h=f.memoizedState;h;h=h.next){if(h.memoizedState?.getWorld)window.testStore=h.memoizedState;if(h.memoizedState?.current?.unitMeshes)window.testScene=h.memoizedState.current;}
+  for(;f;f=f.return)for(let h=f.memoizedState;h;h=h.next){if(h.memoizedState?.getWorld)window.testStore=h.memoizedState;if(h.memoizedState?.current?.unitMeshes){window.testSceneRef=h.memoizedState;window.testScene=h.memoizedState.current;}}
+  const w=window.testStore.getWorld();w.flyby.flags=0;w.inputMask=0;w.paused=false;w.speed=3;
+  const u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');w.selected=[u.id];window.walker=u.id;window.testScene.focus({x:9,z:28});
+ });
+ await page.waitForTimeout(100);
+ const shore=await page.evaluate(()=>{const s=window.testScene,p=s.screen({x:9,z:25}),r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2};});
+ await page.mouse.click(shore.x,shore.y,{button:'right'});
+ const route=await page.evaluate(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker);window.walkGoal=u.path.at(-1);return {points:u.path,active:w.motionRoutes.active,native:u.native};});
+ assert.ok(route.points.length);assert.equal(route.active,0);assert.equal(route.native,null);
+ await page.waitForFunction(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker),p=window.walkGoal;return u&&Math.hypot(u.x-p.x,u.z-p.z)<.05;},{},{timeout:15000});
+ assert.ok(await page.evaluate(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker);return u.hp>0&&u.native===null;}),'right-clicked follower reaches the shore through native planning');
+ await page.evaluate(()=>window.testStore.restart());await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld());await page.evaluate(()=>window.testScene=window.testSceneRef.current);
+ await page.evaluate(()=>{
   const w=window.testStore.getWorld();w.units=w.units.filter(u=>u.team==='blue');w.units.find(u=>u.kind==='brave').kind='warrior';w.turn=31;w.pendingTime=0;w.paused=false;w.speed=1;w.ai.variables[57]=1;w.flyby.flags=0;w.inputMask=0;
   window.initialPeople=w.units.map(u=>({id:u.id,x:u.x,z:u.z}));window.testScene.focus({x:9,z:33});
  });
@@ -88,5 +100,5 @@ try{
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().objectCells.heads.every(id=>!id)));
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().motionRoutes.records.every(n=>n===0)));
  assert.deepEqual(errors,[]);
- console.log('PASS: live victory handoff, movement, original atlas frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
+ console.log('PASS: right-click native route and shore arrival, live victory handoff, original atlas frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
 }finally{await browser.close();}

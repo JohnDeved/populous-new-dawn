@@ -6,7 +6,7 @@ export type SearchPath={data:Uint8Array;count:number}; // Two endpoints, then 25
 export type PathSearchState={searches:number;landLimit:number;checkingPerson:number;limit:number;vehicles:number;mode:number;
   currentBoat:number;candidateCount:number;candidateIndex:number;truncated:number;walkMask:number};
 export type PathSearchWorld={state:PathSearchState;path:SearchPath;result:Uint8Array;categories:ArrayLike<number>;
-  boatsEnabled:number;landLimit:number;humanLimit:number;computerLimit:number;tribes:{playerType:number}[];
+  boatsEnabled:number;landLimit:number;computerLimit:number;humanLimit:number;tribes:{playerType:number}[];
   cellObjects:(cell:number)=>Iterable<CellObject>};
 type SearchEffects={prepare:()=>void;choose:(index:number)=>void;solve:()=>number;smooth:()=>void;measure:()=>void;collect:()=>void};
 const packed=(p:Uint8Array)=>(p[0]&254)|((p[1]&254)<<8);
@@ -73,7 +73,7 @@ export function searchPersonPath(w:PathSearchWorld,p:SearchPerson,from:Uint8Arra
   let first=!w.boatsEnabled||!allow||(category(w,to)&1)?1:0,last=2;
   if(option&&w.boatsEnabled&&allow){first=4;last=5;}
   s.searches=(s.searches+1)>>>0;s.landLimit=w.landLimit&65535;s.checkingPerson=p.id;
-  s.limit=(w.tribes[p.tribe].playerType===1?w.humanLimit:w.computerLimit)&255;s.vehicles=Number(allow);
+  s.limit=(w.tribes[p.tribe].playerType===1?w.computerLimit:w.humanLimit)&255;s.vehicles=Number(allow);
   e.prepare();s.candidateIndex=0;
   let found=false,secondary=false;
   while(s.candidateIndex<s.candidateCount){
