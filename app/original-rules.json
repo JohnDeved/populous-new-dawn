@@ -2682,6 +2682,17 @@
       "computerMana": 0
     }
   ],
+  "personHealing": [
+    0,
+    0,
+    4,
+    6,
+    4,
+    4,
+    6,
+    32,
+    0
+  ],
   "personMana": [
     0,
     0,

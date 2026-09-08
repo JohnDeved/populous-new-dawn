@@ -1,6 +1,7 @@
 import type {World,Unit} from './model.ts';
 import {nativePosition,browserPosition,height,buildingPose,entrance,sound} from './model.ts';
-import {initializePersonState,type StatefulPerson} from './person-state.ts';
+import {initializePersonState,personAnimationObject,type StatefulPerson} from './person-state.ts';
+import {resetInterruptedPersonMotion,finishPersonPreparation,stepPersonReaction} from './person-update.ts';
 import {stepCelebration,type Celebrant,type CelebrationEffects} from './celebration.ts';
 import {setAnimationObject,setPersonAnimation,stepObjectAnimation,type Animation} from './animation.ts';
 import {turnPerson,groundVelocity,positionsOverlap,stepMotionRecovery,recoverGroundObstacle,type RecoveryPerson} from './person-motion.ts';
@@ -16,6 +17,7 @@ import sprites from './original-units.json' with {type:'json'};
 export type LivePerson=StatefulPerson & Celebrant & Animation & RecoveryPerson & CellObject & {
   stamp:number;morphTimer:number;morphFrames:number;building:number|null;goalX:number;goalY:number;destinationX:number;destinationY:number;
   motionGroup:number;motionIndex:number;
+  reactionTimer:number;reactionDuration:number;
 };
 const short=(n:number)=>(n<<16)>>16;
 
@@ -32,7 +34,7 @@ export function createLivePerson(w:World,u:Unit):LivePerson{
     animationMode:0,commandAux:0,commandPhase:0,object:0,draw:0,morph:0,palette:0,renderFlags:0,f1:0,f2:0,stamp:0,morphTimer:0,morphFrames:0,
     statusFlags:0,workFlags:0,reservationNext:0,formationCell:0,motionTimer:0,motionMode:0,motionGroup:0,motionIndex:0,recoveryCounter:0,supportHeight:0,
     selectionFlags:selected?128:0,commands:Array(8).fill(0),commandCursor:0,immediateCommand:0,
-    orderLocation:0,commandStatus:0,workTarget:0,cellNext:0,cellPrevious:0,displacement:{x:0,y:0,h:0}};
+    orderLocation:0,commandStatus:0,workTarget:0,cellNext:0,cellPrevious:0,displacement:{x:0,y:0,h:0},reactionTimer:0,reactionDuration:0};
 }
 
 // Legacy allocation/deletion and spell movement still own ordinary units.
@@ -116,6 +118,11 @@ function collisionWorld(w:World):CollisionWorld{
 export function stepLiveCelebration(w:World,u:Unit){
   const {state,effects}=context(w);
   const p=u.native!;p.counter=(p.counter+1)&255;
+  // Shared preparation pieces precede motion. Status-driven state resumption
+  // and the full class-1 dispatcher still await live state/order ownership.
+  resetInterruptedPersonMotion(p);
+  finishPersonPreparation(p,{animation:()=>{const object=personAnimationObject(p);if(object!==-1)effects.animation(p,object,true);},destination:point=>effects.destination(p,point)});
+  stepPersonReaction(p);
   const turning=turnPerson(p); // Native class-1 motion precedes its state controller.
   if(p.speed&&!(p.flags2&0x84000)){
     const terrain=(x:number,y:number)=>terrainPointHeight(w.land,{x,y});

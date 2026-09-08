@@ -1244,3 +1244,15 @@ test('live native cell order follows arrivals and removes dead records', async (
  w.units=[];syncLivePersonCells(w);assert.equal(w.objectCells.objects.size,0);assert.ok(w.objectCells.heads.every(id=>!id));
  assert.ok(createWorld().objectCells.heads.every(id=>!id),'restart has no stale cell heads');
 });
+
+test('live native preparation consumes reroutes and completes slow turns and reactions', async () => {
+ const {createLivePerson,stepLiveCelebration}=await import('../app/live-people.ts');
+ const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');w.units=[u];u.native=createLivePerson(w,u);
+ const p=u.native;Object.assign(p,{state:41,substate:8,timer:100,speed:0,counter:0,flags2:0x80000804,slowTurn:2,motionTimer:9,motionMode:7,reactionTimer:5,reactionDuration:1});
+ p.flags4|=0x300000;p.goalX=(p.x+100)&65535;p.goalY=(p.y+100)&65535;
+ stepLiveCelebration(w,u);
+ assert.equal(p.slowTurn,1);assert.equal(p.flags2&0x80000000,0);assert.equal(p.motionTimer,0);assert.equal(p.motionMode,0);
+ assert.equal(p.destinationX,p.goalX);assert.equal(p.destinationY,p.goalY);
+ assert.equal(p.reactionTimer,0);assert.equal(p.reactionDuration,0);assert.equal(p.flags4&0x300000,0);
+ stepLiveCelebration(w,u);assert.equal(p.slowTurn,0);assert.ok(p.object>0,'ending a slow turn refreshes the native person animation');
+});

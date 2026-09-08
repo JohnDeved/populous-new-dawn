@@ -1130,3 +1130,23 @@ now checks every imported descriptor (45) rather than a fixed range of 40.
 These recovery states are reconstructed, not yet the live dispatcher. Remaining
 state bodies, group/vehicle/object lifecycle and airborne integration are open.
 The manifest contains 588 exports; the full parity goal remains unfinished.
+
+
+## Person update preparation and health
+
+`app/person-update.ts` reconstructs complete `004d42a0` preparation,
+`004eefd0` interrupted-motion reset, `0051fed0` reaction counters,
+`004eeff0` drowning eligibility and `004d43a0` health processing. The importer
+reads each model's healing byte at `005a7060 + model*50 + 26`.
+
+Run `scripts/check-native-person-update.py EXE`: 20,480 comparisons, 4,096
+per routine. Terrain height/coastal masks, animation selection and motion reset
+execute natively; state initialization, upper animation setting and destination
+planning are supplied consumers. Drowning returns only AL, not all of EAX.
+
+Live celebration now runs interruption reset, slow-turn expiry, pending goal
+consumption and reaction counters before motion. Full preparation state resumption
+and health remain unintegrated until the class-1 state/order dispatcher owns them.
+The live destination consumer still uses direct destination assignment, pending
+native path planning. Raw `004e0270` and `004d4690` preserve surrounding person
+update evidence; they are not ports. The manifest contains 593 exports.

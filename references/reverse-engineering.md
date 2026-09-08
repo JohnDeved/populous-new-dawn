@@ -2926,3 +2926,40 @@ production build pass. Lint retains seven existing warnings and no errors.
 engine but is not yet connected to the live person dispatcher. The full class-1
 scheduler, remaining state/order bodies, world consumers and airborne ownership
 still need composition. Full game parity remains unfinished.
+
+
+## 2026-09-08 — Person preparation, reactions and health
+
+The class-1 loop `004d32b0` calls preparation `004d42a0`, reaction counters
+`0051fed0`, airborne eligibility and physics before its state controller. Its
+post-state health gate calls `004d43a0`, which first checks drowning `004eeff0`.
+These five complete consumers (including interrupted-motion reset `004eefd0`)
+are now reconstructed in `app/person-update.ts`.
+
+Preparation preserves status countdown ordering, motion reset, state resumption,
+slow-turn animation refresh and pending goal dispatch. Reaction counters preserve
+alternate-turn timing and the separate duration expiry. Drowning uses native
+triangle height, coastal subcell masks and transport exceptions. Health preserves
+callback-sensitive flags, death/drowning transitions, the every-eight-turn healing
+byte, signed short overflow, quarter-health flags and state-31 requests. The
+healing byte is imported from the configured original person model table.
+
+`scripts/check-native-person-update.py EXE` passes **20,480 native comparisons**,
+4,096 per routine, comparing complete owned fields and ordered callback snapshots.
+Cases cover random wrapped coordinates, terrain diagonals/categories, flags, byte
+and signed-short extremes, models, physics rows and initializer mutations. Native
+terrain, coastal masks, animation selection and reset execute; initialization,
+upper animation setting and destination planning are supplied. The oracle reads
+only AL for `004eeff0`, as confirmed by its native return instructions.
+
+Live celebration consumes interrupted steering, slow-turn countdown/animation,
+pending goal requests and reaction timers before motion. All **54 gameplay tests**
+and typechecking pass. The real browser verifies live movement, original atlas
+frames, pause, circle/chain transitions, obstacle detours, cell integrity and
+restart without page errors. Five new raw exports bring the manifest to **593**.
+
+**Remaining boundary:** full preparation state resumption, health and airborne
+physics are not yet live; complete class-1 state/order ownership must connect them.
+The live goal consumer remains a direct-assignment adapter, not native pathfinding.
+Raw nearby person interaction `004e0270` and combat acquisition `004d4690` are
+retained as evidence, not claimed as reconstructed or integrated behavior.

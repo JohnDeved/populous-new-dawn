@@ -62,6 +62,7 @@ if len(sys.argv)>2:
     rules['cameraRampUp']=[struct.unpack('<h',read(0x59bbd0+i*2,2))[0] for i in range(4)]
     rules['cameraRampDown']=[struct.unpack('<h',read(0x59bbd8+i*2,2))[0] for i in range(11)]
     rules['personTraining']=[{'weight':value(0x5a7060+i*50+31,2),'humanMana':value(0x5a7060+i*50+36),'computerMana':value(0x5a7060+i*50+40)} for i in range(9)]
+    rules['personHealing']=[value(0x5a7060+i*50+26,1) for i in range(9)]
     rules['personMana']=[value(0x5a7060+i*50+14,2) for i in range(9)]
     rules['personThreat']=[value(0x5a7060+i*50+35,1) for i in range(9)]
     rules['personCommands']=[{'people':value(0x5a7dc4+i*22),'flags':value(0x5a7dca+i*22)} for i in range(35)]
