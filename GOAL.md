@@ -16,6 +16,25 @@ Achieve full game and engine parity through an ongoing decompilation and browser
 
 ## Current priority: visible fidelity first
 
+### Global parity tracking
+
+Maintain [the parity dashboard](PARITY.md) and its versioned capability checklist
+in `parity.json`. Report the global verified-checkpoint percentage, subsystem
+breakdown and partial/missing counts as progress; this is a planning metric, not
+an estimate of effort remaining or an objective fraction of the original engine.
+Only compared, integrated behavior earns verified credit for its stated scope.
+Record relevant evidence and remaining boundaries after substantive parity work;
+reopen regressions. Tests and decompiled routines do not independently add points.
+Keep stable checkpoint IDs and scope; increment the checklist revision and explain
+any denominator changes. Run `npm run parity:record -- "What changed and was checked"`
+to append an assessment snapshot and regenerate the report. `npm run check` validates
+ledger/report consistency; native and browser evidence still needs its own checks.
+Keep visible fidelity first while retaining campaign, saves and multiplayer in the
+global denominator. Maintainability and decompilation support this objective but
+do not count as completed gameplay.
+
+### Execution order
+
 User direction, 2026-09-08: prioritize what players immediately see, hear and
 control, then critical gameplay, before less-visible engine internals. This
 supersedes earlier immediate targets about campaign bindings, route ownership or

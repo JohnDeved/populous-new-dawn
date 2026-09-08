@@ -1,0 +1,177 @@
+# Game parity progress
+
+**17.7% verified checklist coverage — 17/96 checkpoints.**
+
+55 partial; 24 missing. Checklist revision 1. Full game parity remains unfinished.
+
+This is a planning metric against a versioned capability checklist, not an objective percentage of the original engine or an estimate of effort remaining. Each checkpoint has equal weight; scope and difficulty differ. Partial work receives no completion credit. Tests, exported functions and developer tooling do not earn extra points.
+
+Verified means the named scope has original-engine evidence and browser/game integration evidence reviewed for that scope. A verified rendering primitive does not certify its entire subsystem. Evidence links record the assessment; `parity:check` validates metadata and report freshness, not the execution or success of native/browser checks. Re-run relevant checks before crediting or retaining a changed behavior.
+
+## By subsystem
+
+| Subsystem | Verified coverage | Verified | Partial | Missing |
+| --- | ---: | ---: | ---: | ---: |
+| World and camera | 62.5% | 5/8 | 3 | 0 |
+| Models, sprites and lighting | 25.0% | 2/8 | 6 | 0 |
+| Effects and object lifecycles | 50.0% | 4/8 | 3 | 1 |
+| Interface and desktop controls | 37.5% | 3/8 | 4 | 1 |
+| Audio and music | 0.0% | 0/8 | 6 | 2 |
+| Simulation scheduling and randomness | 0.0% | 0/8 | 7 | 1 |
+| Movement, collision and vehicles | 12.5% | 1/8 | 5 | 2 |
+| Unit classes and combat | 0.0% | 0/8 | 5 | 3 |
+| Buildings, resources and population | 12.5% | 1/8 | 7 | 0 |
+| Spell rules and complete roster | 12.5% | 1/8 | 4 | 3 |
+| Campaign, AI and objectives | 0.0% | 0/8 | 5 | 3 |
+| Persistence and multiplayer | 0.0% | 0/8 | 0 | 8 |
+
+## History
+
+Scope changes require a new checklist revision. Scores across different revisions have different denominators and are not directly comparable; discoveries or reopened regressions can reduce coverage. No earlier percentages have been invented. Snapshot base commits identify HEAD when recorded; the ledger digest identifies the assessment, including uncommitted changes.
+
+| Recorded (UTC) | Revision | Coverage | Verified | Change | Note |
+| --- | ---: | ---: | ---: | ---: | --- |
+| 2026-09-08T14:48:55.929Z | 1 | 17.7% | 17/96 | baseline | Initial full-scope assessment from existing native and integration evidence, including coastline shading checks. No historical scores inferred. |
+
+## Update workflow
+
+1. Edit `parity.json`: keep checkpoint IDs and scope stable, update status, evidence and remaining boundaries. Credit only the stated, compared and integrated behavior; reopen regressions.
+2. Run the affected native/browser/game checks. Split or add scope only with a revision increment and an explanation; never silently shrink the denominator.
+3. Run `npm run parity:record -- "What changed and what was verified"`, then `npm run check`. Commit the ledger, history and generated report together.
+4. Use `npm run parity` for a compact summary or `npm run parity -- --json` for machine-readable counts. Keep maintainability and decomp progress in GOAL.md; they are not gameplay completion credit.
+
+## Checkpoints
+
+### World and camera
+
+- **verified** — Original first-mission terrain and object layout (`world.level-one`). Imported original mission; later missions tracked under campaign. Evidence: [app/level-one.ts](app/level-one.ts), [tests/game.test.mjs](tests/game.test.mjs), [references/level-one.md](references/level-one.md).
+- **verified** — Native terrain and model projection (`world.projection`). Integer transforms, bounds and projected picking compared; complete raster output tracked separately. Evidence: [scripts/check-native-projection.py](scripts/check-native-projection.py), [app/projection.ts](app/projection.ts), [scripts/check-browser-terrain.mjs](scripts/check-browser-terrain.mjs).
+- **verified** — Stored terrain diagonals and height sampling (`world.terrain`). Original splits and stored-height sampling integrated. Evidence: [scripts/check-native-terrain.py](scripts/check-native-terrain.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **verified** — Water texture, wave geometry and shoreline diffuse shading (`world.water`). Wave cycle and shared coast vertices checked in browser; dynamic lighting ownership remains open. Evidence: [scripts/check-native-water.py](scripts/check-native-water.py), [scripts/check-native-vertex-lighting.py](scripts/check-native-vertex-lighting.py), [scripts/check-browser-water.mjs](scripts/check-browser-water.mjs).
+- **verified** — First-mission opening camera tour (`world.flyby`). Native event queue and timeline compared; browser skip/pause exercised. Evidence: [scripts/check-native-flyby.py](scripts/check-native-flyby.py), [qa/flyby-check.mjs](qa/flyby-check.mjs).
+- **partial** — Complete camera movement and visibility behavior (`world.camera`). Remaining camera input/scheduling and visibility differences need comparison. Evidence: [scripts/check-native-camera-motion.py](scripts/check-native-camera-motion.py), [scripts/check-native-projection.py](scripts/check-native-projection.py).
+- **partial** — Full-world simulation and wrapped coordinates (`world.wrap`). Rendering spans 128x128; gameplay/routing still has a cropped boundary. Evidence: [scripts/check-native-path-solver.py](scripts/check-native-path-solver.py), [app/model.ts](app/model.ts).
+- **partial** — All terrain deformation and propagation (`world.deform`). Land Bridge integrated; other deformation and full lifecycle remain open. Evidence: [scripts/check-browser-terrain.mjs](scripts/check-browser-terrain.mjs), [scripts/check-native-terrain.py](scripts/check-native-terrain.py).
+
+### Models, sprites and lighting
+
+- **verified** — Original static model geometry and face textures (`graphics.models`). Native geometry, stage face visibility and exposed-face UVs integrated. Evidence: [scripts/check-native-models.py](scripts/check-native-models.py), [scripts/check-native-building-faces.py](scripts/check-native-building-faces.py), [app/scene.ts](app/scene.ts).
+- **verified** — Building shape anchors, headings and entrance geometry (`graphics.orientation`). All four construction orientations and shared plan anchors checked. Evidence: [scripts/check-native-building-shapes.py](scripts/check-native-building-shapes.py), [scripts/check-native-building-plan.py](scripts/check-native-building-plan.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Directional unit sprite selection across all states (`graphics.sprites`). Eight-way selection reconstructed; complete action/state ownership remains open. Evidence: [scripts/check-native-animation.py](scripts/check-native-animation.py), [app/scene.ts](app/scene.ts).
+- **partial** — All animation transitions and presentation timing (`graphics.animation`). Native setters/updaters and celebrations compared; remaining states and scheduling open. Evidence: [scripts/check-native-animation.py](scripts/check-native-animation.py), [scripts/check-browser-celebration.mjs](scripts/check-browser-celebration.mjs).
+- **partial** — All palettes, transparency and blend passes (`graphics.materials`). Original atlas alpha decoder verified; full painter/blend ownership unverified. Evidence: [references/reverse-engineering.md](references/reverse-engineering.md), [scripts/check-browser-scenery-fire.mjs](scripts/check-browser-scenery-fire.mjs).
+- **partial** — Dynamic lighting and shadows (`graphics.lighting`). Diffuse/additive conversion verified; sunlight propagation, model lighting and shadows incomplete. Evidence: [scripts/check-native-vertex-lighting.py](scripts/check-native-vertex-lighting.py), [scripts/check-browser-water.mjs](scripts/check-browser-water.mjs).
+- **partial** — Whole-frame visibility, ordering and raster fidelity (`graphics.raster`). Remaining filtering, clipping, painter order and original-frame comparison gaps. Evidence: [references/visual-audit.md](references/visual-audit.md).
+- **partial** — All model variants and morph lifecycles (`graphics.variants`). Vault morph math reconstructed; full scheduler, hut variant RNG and remaining objects open. Evidence: [scripts/check-native-vault.py](scripts/check-native-vault.py), [app/morph.ts](app/morph.ts).
+
+### Effects and object lifecycles
+
+- **verified** — Blast impact flash animation and lifetime (`effects.blast`). Original frames, grounding, nine-turn lifetime and impact cues integrated. Evidence: [scripts/check-native-blast-flash.py](scripts/check-native-blast-flash.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **verified** — Lightning bolt geometry and texture (`effects.lightning`). Native displaced flash and recursive screen-space branches; damage and blend ownership tracked elsewhere. Evidence: [scripts/check-native-lightning.py](scripts/check-native-lightning.py), [scripts/check-browser-lightning.mjs](scripts/check-browser-lightning.mjs).
+- **verified** — Opening spell projectile trail geometry (`effects.trails`). Native trail primitives integrated; complete spell roster remains open. Evidence: [scripts/check-native-spell-trails.py](scripts/check-native-spell-trails.py), [scripts/check-browser-spell-trails.mjs](scripts/check-browser-spell-trails.mjs).
+- **verified** — Building collapse smoke sockets and particle lifecycle (`effects.smoke`). Native rotated sockets, frame sequence, sizing and lifetime compared. Evidence: [scripts/check-native-building-smoke.py](scripts/check-native-building-smoke.py), [scripts/check-browser-building-smoke.mjs](scripts/check-browser-building-smoke.mjs).
+- **partial** — Complete building debris behavior and rendering (`effects.debris`). Faces, flight and impacts integrated; lighting, allocation limits and attachments remain open. Evidence: [scripts/check-native-building-debris.py](scripts/check-native-building-debris.py), [scripts/check-browser-building-debris.mjs](scripts/check-browser-building-debris.mjs).
+- **partial** — Complete building/scenery fire and propagation (`effects.fire`). Ignition and burn phases verified; panic, sunlight, propagation and repair timing incomplete. Evidence: [scripts/check-native-building-fire.py](scripts/check-native-building-fire.py), [scripts/check-native-scenery-fire.py](scripts/check-native-scenery-fire.py), [scripts/check-browser-building-fire.mjs](scripts/check-browser-building-fire.mjs).
+- **partial** — Reincarnation effects and site lifecycle (`effects.reincarnation`). Eight stone positions/headings verified; site creation, rise/sink and relocation incomplete. Evidence: [scripts/check-native-reincarnation.py](scripts/check-native-reincarnation.py), [scripts/check-browser-reincarnation.mjs](scripts/check-browser-reincarnation.mjs).
+- **missing** — All remaining environmental and spell effects (`effects.remaining`). Other spell/vehicle/weather effects require reconstruction and integration.
+
+### Interface and desktop controls
+
+- **verified** — Original English HUD glyph selection and advances (`interface.glyphs`). 606 native glyph selections/advances compared; full menu/layout coverage tracked separately. Evidence: [scripts/check-native-hud.py](scripts/check-native-hud.py), [scripts/check-browser-hud.mjs](scripts/check-browser-hud.mjs).
+- **verified** — Selection indicator geometry and gating (`interface.selection`). Original animated arrow bounds and projected sizing integrated. Evidence: [scripts/check-native-selection-indicator.py](scripts/check-native-selection-indicator.py), [scripts/check-browser-selection.mjs](scripts/check-browser-selection.mjs).
+- **verified** — Building plan rotation and entrance-arrow preview (`interface.plans`). Space rotation, per-kind direction and snapped placement checked; full validity controller remains open. Evidence: [scripts/check-native-building-plan.py](scripts/check-native-building-plan.py), [scripts/check-browser-ground-overlay.mjs](scripts/check-browser-ground-overlay.mjs), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete HUD panels, counts and minimap behavior (`interface.hud`). Opening HUD subset implemented; all panels, native layout and minimap interactions unverified. Evidence: [scripts/check-browser-hud.mjs](scripts/check-browser-hud.mjs), [app/page.tsx](app/page.tsx).
+- **partial** — Full selection, groups, orders and keyboard/mouse bindings (`interface.commands`). First-mission controls work; full native bindings, group semantics and command feedback incomplete. Evidence: [scripts/check-native-selection.py](scripts/check-native-selection.py), [qa/browser-check.mjs](qa/browser-check.mjs).
+- **partial** — All placement/targeting cursors and validity feedback (`interface.targeting`). Native cursor/halo primitives integrated; full plan and spell validity/ground targets incomplete. Evidence: [scripts/check-browser-spell-cursor.mjs](scripts/check-browser-spell-cursor.mjs), [scripts/check-browser-spell-halo.mjs](scripts/check-browser-spell-halo.mjs), [scripts/check-browser-ground-overlay.mjs](scripts/check-browser-ground-overlay.mjs).
+- **partial** — Complete tooltips, notifications and localized text (`interface.messages`). Opening callouts and selected notification branches verified; remaining forced tooltips/localization open. Evidence: [scripts/check-native-messages.py](scripts/check-native-messages.py), [scripts/check-native-tooltips.py](scripts/check-native-tooltips.py).
+- **missing** — Original front end, options and mission selection (`interface.menus`). Full original menu flow and settings not implemented.
+
+### Audio and music
+
+- **partial** — Original sound sample playback and cue mapping (`audio.samples`). 532 samples decoded with native mappings; whole-roster playback comparison still needed. Evidence: [scripts/import-sound.py](scripts/import-sound.py), [app/audio.ts](app/audio.ts), [references/native-assets.md](references/native-assets.md).
+- **partial** — All gameplay sound and speech triggers (`audio.triggers`). Opening actions emit cues; complete state-trigger coverage unverified. Evidence: [app/audio.ts](app/audio.ts), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Native pitch/random selection with exact RNG consumption (`audio.pitch`). Pitch formula recovered; shared draw order is not yet exact. Evidence: [app/audio.ts](app/audio.ts), [references/reverse-engineering.md](references/reverse-engineering.md).
+- **partial** — Camera-relative positioning and distance mixing (`audio.spatial`). Distance curve recovered; complete camera-relative mixing unverified. Evidence: [app/audio.ts](app/audio.ts).
+- **partial** — Voice limits, priorities, interruption and ownership (`audio.voices`). Owned fire sound cancellation integrated; native arbitration and removal semantics incomplete. Evidence: [scripts/check-browser-building-fire.mjs](scripts/check-browser-building-fire.mjs), [app/audio.ts](app/audio.ts).
+- **missing** — Environmental ambience scheduling (`audio.ambience`). Original ambience scheduler not implemented.
+- **missing** — Adaptive music and transitions (`audio.music`). Original adaptive music not implemented.
+- **partial** — Audio pause, restart and game-state transitions (`audio.pause`). Browser lifecycle works; original pause/transition behavior not fully compared. Evidence: [qa/browser-check.mjs](qa/browser-check.mjs).
+
+### Simulation scheduling and randomness
+
+- **partial** — Exact outer game loop and clock phases (`simulation.turns`). 12 Hz and offline phase traces verified; full live outer loop incomplete. Evidence: [scripts/check-native-tribe-turns.py](scripts/check-native-tribe-turns.py), [references/reverse-engineering.md](references/reverse-engineering.md).
+- **partial** — Complete tribe-turn scheduling and integration (`simulation.tribes`). Native tribe scheduler compared and integrated; remaining lifecycle work and ordering open. Evidence: [scripts/check-native-tribe-turns.py](scripts/check-native-tribe-turns.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Mixed-class object update order and lifetime ownership (`simulation.objects`). Selected person paths reconstructed; all-class dispatch incomplete. Evidence: [scripts/check-native-person-update.py](scripts/check-native-person-update.py), [app/model.ts](app/model.ts).
+- **partial** — Seed initialization and complete RNG draw order (`simulation.rng`). Native generator formula known; full consumption and seed behavior not matched. Evidence: [scripts/check-native-math.py](scripts/check-native-math.py), [app/model.ts](app/model.ts).
+- **partial** — Original allocation limits, reuse and failure behavior (`simulation.allocation`). Cell list operations reconstructed; global allocator and exhaustion behavior incomplete. Evidence: [scripts/check-native-object-cells.py](scripts/check-native-object-cells.py), [references/reverse-engineering.md](references/reverse-engineering.md).
+- **partial** — Complete order ownership, cancellation and handoffs (`simulation.orders`). Selected live routes/training handoffs verified; complete dispatcher remains open. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [scripts/check-native-order-update.py](scripts/check-native-order-update.py).
+- **missing** — Cross-engine deterministic scenario replays (`simulation.replay`). Whole-engine native/browser trace agreement not established.
+- **partial** — All pause, speed, result and mode transitions (`simulation.modes`). Result checks and ongoing collapse integrated; full mode timing remains open. Evidence: [scripts/check-native-outcomes.py](scripts/check-native-outcomes.py), [tests/game.test.mjs](tests/game.test.mjs).
+
+### Movement, collision and vehicles
+
+- **verified** — Ordinary first-mission order route planning and advance (`movement.routes`). Native planner/search/solver and shared route ownership integrated for ordinary opening orders. Evidence: [scripts/check-native-path-search.py](scripts/check-native-path-search.py), [scripts/check-native-path-solver.py](scripts/check-native-path-solver.py), [scripts/check-native-route-advance.py](scripts/check-native-route-advance.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete ground movement, slope and steering dispatch (`movement.ground`). Native primitives compared; full live state dispatch incomplete. Evidence: [scripts/check-native-person-motion.py](scripts/check-native-person-motion.py), [scripts/check-native-physics-driver.py](scripts/check-native-physics-driver.py).
+- **partial** — All person/building/scenery collision and access rules (`movement.collision`). Completed-building occupancy integrated; plan and access-state lifecycle remains open. Evidence: [scripts/check-native-person-collision.py](scripts/check-native-person-collision.py), [scripts/check-native-building-footprints.py](scripts/check-native-building-footprints.py).
+- **partial** — Falling, knockback, landing and drowning (`movement.airborne`). Native driver compared in isolation; complete live ownership and states not yet integrated. Evidence: [scripts/check-native-person-physics.py](scripts/check-native-person-physics.py), [scripts/check-native-physics-driver.py](scripts/check-native-physics-driver.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Group formations, crowd movement and avoidance (`movement.groups`). Group orders/fight slots exist; full native formation and steering behavior open. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **missing** — Boat construction, boarding, navigation and combat (`movement.boats`). Full boat gameplay not implemented.
+- **missing** — Balloon construction, boarding, flight and combat (`movement.balloons`). Full balloon gameplay not implemented.
+- **partial** — All blocked, idle, panic and recovery states (`movement.recovery`). Selected native states reconstructed; complete recovery/panic integration incomplete. Evidence: [scripts/check-native-person-recovery.py](scripts/check-native-person-recovery.py), [scripts/check-native-idle.py](scripts/check-native-idle.py).
+
+### Unit classes and combat
+
+- **partial** — Complete melee exchanges and fight state machine (`combat.melee`). HP-scaled exchanges and fight groups exist; remaining substates/scheduling open. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete brave work, combat and task transitions (`combat.braves`). Opening work loop playable; all task transitions not matched. Evidence: [scripts/check-native-person-update.py](scripts/check-native-person-update.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete warrior attack, pursuit and recovery (`combat.warriors`). Selected recovery/formation controllers compared; complete class scheduling open. Evidence: [scripts/check-native-person-recovery.py](scripts/check-native-person-recovery.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **missing** — Firewarrior attacks, range and behavior (`combat.firewarriors`). Full firewarrior class not implemented.
+- **missing** — Preaching, conversion and preacher combat (`combat.preachers`). Full preacher class not implemented.
+- **missing** — Disguise, sabotage and spy behavior (`combat.spies`). Full spy class not implemented.
+- **partial** — All shaman combat, death and reincarnation behavior (`combat.shamans`). Opening shaman playable; full death/site/tribe lifecycle unverified. Evidence: [scripts/check-native-reincarnation.py](scripts/check-native-reincarnation.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Wildmen, special units and cross-class interactions (`combat.other`). First-mission followers exist; complete recruitment, specials and interactions unverified. Evidence: [tests/game.test.mjs](tests/game.test.mjs).
+
+### Buildings, resources and population
+
+- **verified** — Follower mana generation and first-mission distribution (`economy.mana`). Native contribution, allocation and charging integrated for opening classes; full scheduling tracked separately. Evidence: [scripts/check-native-mana-generation.py](scripts/check-native-mana-generation.py), [scripts/check-native-mana.py](scripts/check-native-mana.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete building validity, allocation and construction (`economy.plans`). Native geometry/stages integrated; validity, plan registration and construction lifecycle incomplete. Evidence: [scripts/check-native-building-plan.py](scripts/check-native-building-plan.py), [scripts/check-native-building-damage.py](scripts/check-native-building-damage.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Timber harvesting, carrying, delivery and regrowth (`economy.wood`). Real logs and tree shrink exist; complete native work and replant schedule unverified. Evidence: [tests/game.test.mjs](tests/game.test.mjs), [scripts/check-native-scenery-fire.py](scripts/check-native-scenery-fire.py).
+- **partial** — Housing, breeding, upgrades and population limits (`economy.housing`). Bands and admission primitives compared; full hut activity/upgrade lifecycle incomplete. Evidence: [scripts/check-native-occupants.py](scripts/check-native-occupants.py), [scripts/check-native-followers.py](scripts/check-native-followers.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — All training queues, admissions and conversions (`economy.training`). Selected queue/conversion paths verified; all specialist classes and dispatch incomplete. Evidence: [scripts/check-native-training-queue.py](scripts/check-native-training-queue.py), [scripts/check-native-training-conversion.py](scripts/check-native-training-conversion.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Damage, evacuation, repair and demolition lifecycle (`economy.repair`). Native damage/fire phases integrated; exact repair and plan ownership remain adapters. Evidence: [scripts/check-native-building-damage.py](scripts/check-native-building-damage.py), [scripts/check-native-building-fire.py](scripts/check-native-building-fire.py), [scripts/check-browser-building-fire.mjs](scripts/check-browser-building-fire.mjs).
+- **partial** — All building classes and special structures (`economy.classes`). Original model/shape data available; every building behavior not implemented. Evidence: [scripts/check-native-building-shapes.py](scripts/check-native-building-shapes.py), [app/model.ts](app/model.ts).
+- **partial** — Full territory, occupancy and ownership lifecycle (`economy.territory`). Completed structures integrated; full plan/change-state registration incomplete. Evidence: [scripts/check-native-territory.py](scripts/check-native-territory.py), [scripts/check-native-building-footprints.py](scripts/check-native-building-footprints.py).
+
+### Spell rules and complete roster
+
+- **verified** — Opening spell range, payment and casting cooldowns (`spells.entry`). Native range/readiness/payment and lockouts integrated for opening spells. Evidence: [scripts/check-native-spell-casting.py](scripts/check-native-spell-casting.py), [scripts/check-native-cast-cooldowns.py](scripts/check-native-cast-cooldowns.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete Blast behavior and interactions (`spells.blast`). Projectile and impact reconstructed; full knockback, collisions and scheduling remain open. Evidence: [scripts/check-native-spell-targets.py](scripts/check-native-spell-targets.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete Lightning damage and side effects (`spells.lightning`). Bolt and ignition integrated; all targets, sunlight and damage/fire effects incomplete. Evidence: [scripts/check-native-lightning.py](scripts/check-native-lightning.py), [scripts/check-native-building-fire.py](scripts/check-native-building-fire.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — All terrain-changing spells (`spells.terrain`). Land Bridge playable; full deformation and remaining terrain spells unimplemented. Evidence: [scripts/check-browser-terrain.mjs](scripts/check-browser-terrain.mjs), [tests/game.test.mjs](tests/game.test.mjs).
+- **missing** — Creature/summoning spells and spawned behavior (`spells.summons`). Full summon spell roster and creatures not implemented.
+- **missing** — Conversion, concealment and defensive spells (`spells.status`). Full status/utility spell roster not implemented.
+- **missing** — Disaster and area attack spells (`spells.disasters`). Remaining destructive spell roster and effects not implemented.
+- **partial** — All spell interactions, reflection, AI use and scheduling (`spells.interactions`). Selected native AI scoring/casting integrated; full roster interactions and dispatch incomplete. Evidence: [scripts/check-native-emergency-spells.py](scripts/check-native-emergency-spells.py), [scripts/check-native-computer.py](scripts/check-native-computer.py).
+
+### Campaign, AI and objectives
+
+- **partial** — Complete first-mission behavior against the original (`campaign.mission-one`). Playable victory/defeat; remaining native bindings and world adapters prevent full credit. Evidence: [tests/game.test.mjs](tests/game.test.mjs), [scripts/check-native-campaign.py](scripts/check-native-campaign.py).
+- **partial** — Complete campaign VM and engine command bindings (`campaign.vm`). VM and selected bindings compared; command coverage incomplete. Evidence: [scripts/check-native-script.py](scripts/check-native-script.py), [scripts/check-native-campaign.py](scripts/check-native-campaign.py).
+- **partial** — All worship, knowledge and reward lifecycles (`campaign.worship`). Work/reward primitives verified; eligibility and complete lifecycle still adapted. Evidence: [scripts/check-native-worship.py](scripts/check-native-worship.py), [scripts/check-native-vault.py](scripts/check-native-vault.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete computer economy, attacks and difficulty (`campaign.ai`). First-mission controllers partly integrated; remaining AI stocks/scheduler and classes open. Evidence: [scripts/check-native-computer.py](scripts/check-native-computer.py), [scripts/check-native-emergency-spells.py](scripts/check-native-emergency-spells.py).
+- **partial** — All objective, victory, defeat and celebration behaviors (`campaign.objectives`). Outcome decisions/celebrants compared; full campaign scenarios and timing incomplete. Evidence: [scripts/check-native-outcomes.py](scripts/check-native-outcomes.py), [scripts/check-native-celebration.py](scripts/check-native-celebration.py), [scripts/check-browser-celebration.mjs](scripts/check-browser-celebration.mjs).
+- **missing** — Every remaining original campaign mission (`campaign.missions`). Later campaign missions are not playable.
+- **missing** — Campaign progression, unlocks and world selection (`campaign.progression`). Complete progression and mission selection not implemented.
+- **missing** — All original tutorials and special scripted sequences (`campaign.tutorials`). Complete tutorial/special sequence coverage not implemented.
+
+### Persistence and multiplayer
+
+- **missing** — Original save serialization and compatibility (`persistence.save`). Save format not implemented.
+- **missing** — Load and resume exact world state (`persistence.load`). Full world restore not implemented.
+- **missing** — Profile, options and campaign persistence (`persistence.profile`). Original profile/progression persistence not implemented.
+- **missing** — Multiplayer lobby and match setup (`persistence.lobby`). Multiplayer not implemented.
+- **missing** — Original protocol and command synchronization (`persistence.network`). Protocol behavior not implemented.
+- **missing** — Multiplayer lockstep and desync handling (`persistence.lockstep`). Network simulation not implemented.
+- **missing** — All multiplayer maps, rules and outcomes (`persistence.rules`). Native result helper alone does not establish multiplayer parity.
+- **missing** — Disconnect, reconnect and match lifecycle (`persistence.recovery`). Multiplayer connection lifecycle not implemented.
+
+Generated by `scripts/parity.mjs` from [parity.json](parity.json) and [parity-history.json](parity-history.json).

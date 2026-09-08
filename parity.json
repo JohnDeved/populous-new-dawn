@@ -1,0 +1,982 @@
+{
+  "revision": 1,
+  "groups": [
+    {
+      "id": "world",
+      "title": "World and camera",
+      "items": [
+        {
+          "id": "world.level-one",
+          "title": "Original first-mission terrain and object layout",
+          "status": "verified",
+          "evidence": [
+            "app/level-one.ts",
+            "tests/game.test.mjs",
+            "references/level-one.md"
+          ],
+          "note": "Imported original mission; later missions tracked under campaign."
+        },
+        {
+          "id": "world.projection",
+          "title": "Native terrain and model projection",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-projection.py",
+            "app/projection.ts",
+            "scripts/check-browser-terrain.mjs"
+          ],
+          "note": "Integer transforms, bounds and projected picking compared; complete raster output tracked separately."
+        },
+        {
+          "id": "world.terrain",
+          "title": "Stored terrain diagonals and height sampling",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-terrain.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Original splits and stored-height sampling integrated."
+        },
+        {
+          "id": "world.water",
+          "title": "Water texture, wave geometry and shoreline diffuse shading",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-water.py",
+            "scripts/check-native-vertex-lighting.py",
+            "scripts/check-browser-water.mjs"
+          ],
+          "note": "Wave cycle and shared coast vertices checked in browser; dynamic lighting ownership remains open."
+        },
+        {
+          "id": "world.flyby",
+          "title": "First-mission opening camera tour",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-flyby.py",
+            "qa/flyby-check.mjs"
+          ],
+          "note": "Native event queue and timeline compared; browser skip/pause exercised."
+        },
+        {
+          "id": "world.camera",
+          "title": "Complete camera movement and visibility behavior",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-camera-motion.py",
+            "scripts/check-native-projection.py"
+          ],
+          "note": "Remaining camera input/scheduling and visibility differences need comparison."
+        },
+        {
+          "id": "world.wrap",
+          "title": "Full-world simulation and wrapped coordinates",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-path-solver.py",
+            "app/model.ts"
+          ],
+          "note": "Rendering spans 128x128; gameplay/routing still has a cropped boundary."
+        },
+        {
+          "id": "world.deform",
+          "title": "All terrain deformation and propagation",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-browser-terrain.mjs",
+            "scripts/check-native-terrain.py"
+          ],
+          "note": "Land Bridge integrated; other deformation and full lifecycle remain open."
+        }
+      ]
+    },
+    {
+      "id": "graphics",
+      "title": "Models, sprites and lighting",
+      "items": [
+        {
+          "id": "graphics.models",
+          "title": "Original static model geometry and face textures",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-models.py",
+            "scripts/check-native-building-faces.py",
+            "app/scene.ts"
+          ],
+          "note": "Native geometry, stage face visibility and exposed-face UVs integrated."
+        },
+        {
+          "id": "graphics.orientation",
+          "title": "Building shape anchors, headings and entrance geometry",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-building-shapes.py",
+            "scripts/check-native-building-plan.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "All four construction orientations and shared plan anchors checked."
+        },
+        {
+          "id": "graphics.sprites",
+          "title": "Directional unit sprite selection across all states",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-animation.py",
+            "app/scene.ts"
+          ],
+          "note": "Eight-way selection reconstructed; complete action/state ownership remains open."
+        },
+        {
+          "id": "graphics.animation",
+          "title": "All animation transitions and presentation timing",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-animation.py",
+            "scripts/check-browser-celebration.mjs"
+          ],
+          "note": "Native setters/updaters and celebrations compared; remaining states and scheduling open."
+        },
+        {
+          "id": "graphics.materials",
+          "title": "All palettes, transparency and blend passes",
+          "status": "partial",
+          "evidence": [
+            "references/reverse-engineering.md",
+            "scripts/check-browser-scenery-fire.mjs"
+          ],
+          "note": "Original atlas alpha decoder verified; full painter/blend ownership unverified."
+        },
+        {
+          "id": "graphics.lighting",
+          "title": "Dynamic lighting and shadows",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-vertex-lighting.py",
+            "scripts/check-browser-water.mjs"
+          ],
+          "note": "Diffuse/additive conversion verified; sunlight propagation, model lighting and shadows incomplete."
+        },
+        {
+          "id": "graphics.raster",
+          "title": "Whole-frame visibility, ordering and raster fidelity",
+          "status": "partial",
+          "evidence": [
+            "references/visual-audit.md"
+          ],
+          "note": "Remaining filtering, clipping, painter order and original-frame comparison gaps."
+        },
+        {
+          "id": "graphics.variants",
+          "title": "All model variants and morph lifecycles",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-vault.py",
+            "app/morph.ts"
+          ],
+          "note": "Vault morph math reconstructed; full scheduler, hut variant RNG and remaining objects open."
+        }
+      ]
+    },
+    {
+      "id": "effects",
+      "title": "Effects and object lifecycles",
+      "items": [
+        {
+          "id": "effects.blast",
+          "title": "Blast impact flash animation and lifetime",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-blast-flash.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Original frames, grounding, nine-turn lifetime and impact cues integrated."
+        },
+        {
+          "id": "effects.lightning",
+          "title": "Lightning bolt geometry and texture",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-lightning.py",
+            "scripts/check-browser-lightning.mjs"
+          ],
+          "note": "Native displaced flash and recursive screen-space branches; damage and blend ownership tracked elsewhere."
+        },
+        {
+          "id": "effects.trails",
+          "title": "Opening spell projectile trail geometry",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-spell-trails.py",
+            "scripts/check-browser-spell-trails.mjs"
+          ],
+          "note": "Native trail primitives integrated; complete spell roster remains open."
+        },
+        {
+          "id": "effects.smoke",
+          "title": "Building collapse smoke sockets and particle lifecycle",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-building-smoke.py",
+            "scripts/check-browser-building-smoke.mjs"
+          ],
+          "note": "Native rotated sockets, frame sequence, sizing and lifetime compared."
+        },
+        {
+          "id": "effects.debris",
+          "title": "Complete building debris behavior and rendering",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-building-debris.py",
+            "scripts/check-browser-building-debris.mjs"
+          ],
+          "note": "Faces, flight and impacts integrated; lighting, allocation limits and attachments remain open."
+        },
+        {
+          "id": "effects.fire",
+          "title": "Complete building/scenery fire and propagation",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-building-fire.py",
+            "scripts/check-native-scenery-fire.py",
+            "scripts/check-browser-building-fire.mjs"
+          ],
+          "note": "Ignition and burn phases verified; panic, sunlight, propagation and repair timing incomplete."
+        },
+        {
+          "id": "effects.reincarnation",
+          "title": "Reincarnation effects and site lifecycle",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-reincarnation.py",
+            "scripts/check-browser-reincarnation.mjs"
+          ],
+          "note": "Eight stone positions/headings verified; site creation, rise/sink and relocation incomplete."
+        },
+        {
+          "id": "effects.remaining",
+          "title": "All remaining environmental and spell effects",
+          "status": "missing",
+          "evidence": [],
+          "note": "Other spell/vehicle/weather effects require reconstruction and integration."
+        }
+      ]
+    },
+    {
+      "id": "interface",
+      "title": "Interface and desktop controls",
+      "items": [
+        {
+          "id": "interface.glyphs",
+          "title": "Original English HUD glyph selection and advances",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-hud.py",
+            "scripts/check-browser-hud.mjs"
+          ],
+          "note": "606 native glyph selections/advances compared; full menu/layout coverage tracked separately."
+        },
+        {
+          "id": "interface.selection",
+          "title": "Selection indicator geometry and gating",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-selection-indicator.py",
+            "scripts/check-browser-selection.mjs"
+          ],
+          "note": "Original animated arrow bounds and projected sizing integrated."
+        },
+        {
+          "id": "interface.plans",
+          "title": "Building plan rotation and entrance-arrow preview",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-building-plan.py",
+            "scripts/check-browser-ground-overlay.mjs",
+            "tests/game.test.mjs"
+          ],
+          "note": "Space rotation, per-kind direction and snapped placement checked; full validity controller remains open."
+        },
+        {
+          "id": "interface.hud",
+          "title": "Complete HUD panels, counts and minimap behavior",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-browser-hud.mjs",
+            "app/page.tsx"
+          ],
+          "note": "Opening HUD subset implemented; all panels, native layout and minimap interactions unverified."
+        },
+        {
+          "id": "interface.commands",
+          "title": "Full selection, groups, orders and keyboard/mouse bindings",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-selection.py",
+            "qa/browser-check.mjs"
+          ],
+          "note": "First-mission controls work; full native bindings, group semantics and command feedback incomplete."
+        },
+        {
+          "id": "interface.targeting",
+          "title": "All placement/targeting cursors and validity feedback",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-browser-spell-cursor.mjs",
+            "scripts/check-browser-spell-halo.mjs",
+            "scripts/check-browser-ground-overlay.mjs"
+          ],
+          "note": "Native cursor/halo primitives integrated; full plan and spell validity/ground targets incomplete."
+        },
+        {
+          "id": "interface.messages",
+          "title": "Complete tooltips, notifications and localized text",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-messages.py",
+            "scripts/check-native-tooltips.py"
+          ],
+          "note": "Opening callouts and selected notification branches verified; remaining forced tooltips/localization open."
+        },
+        {
+          "id": "interface.menus",
+          "title": "Original front end, options and mission selection",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full original menu flow and settings not implemented."
+        }
+      ]
+    },
+    {
+      "id": "audio",
+      "title": "Audio and music",
+      "items": [
+        {
+          "id": "audio.samples",
+          "title": "Original sound sample playback and cue mapping",
+          "status": "partial",
+          "evidence": [
+            "scripts/import-sound.py",
+            "app/audio.ts",
+            "references/native-assets.md"
+          ],
+          "note": "532 samples decoded with native mappings; whole-roster playback comparison still needed."
+        },
+        {
+          "id": "audio.triggers",
+          "title": "All gameplay sound and speech triggers",
+          "status": "partial",
+          "evidence": [
+            "app/audio.ts",
+            "tests/game.test.mjs"
+          ],
+          "note": "Opening actions emit cues; complete state-trigger coverage unverified."
+        },
+        {
+          "id": "audio.pitch",
+          "title": "Native pitch/random selection with exact RNG consumption",
+          "status": "partial",
+          "evidence": [
+            "app/audio.ts",
+            "references/reverse-engineering.md"
+          ],
+          "note": "Pitch formula recovered; shared draw order is not yet exact."
+        },
+        {
+          "id": "audio.spatial",
+          "title": "Camera-relative positioning and distance mixing",
+          "status": "partial",
+          "evidence": [
+            "app/audio.ts"
+          ],
+          "note": "Distance curve recovered; complete camera-relative mixing unverified."
+        },
+        {
+          "id": "audio.voices",
+          "title": "Voice limits, priorities, interruption and ownership",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-browser-building-fire.mjs",
+            "app/audio.ts"
+          ],
+          "note": "Owned fire sound cancellation integrated; native arbitration and removal semantics incomplete."
+        },
+        {
+          "id": "audio.ambience",
+          "title": "Environmental ambience scheduling",
+          "status": "missing",
+          "evidence": [],
+          "note": "Original ambience scheduler not implemented."
+        },
+        {
+          "id": "audio.music",
+          "title": "Adaptive music and transitions",
+          "status": "missing",
+          "evidence": [],
+          "note": "Original adaptive music not implemented."
+        },
+        {
+          "id": "audio.pause",
+          "title": "Audio pause, restart and game-state transitions",
+          "status": "partial",
+          "evidence": [
+            "qa/browser-check.mjs"
+          ],
+          "note": "Browser lifecycle works; original pause/transition behavior not fully compared."
+        }
+      ]
+    },
+    {
+      "id": "simulation",
+      "title": "Simulation scheduling and randomness",
+      "items": [
+        {
+          "id": "simulation.turns",
+          "title": "Exact outer game loop and clock phases",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-tribe-turns.py",
+            "references/reverse-engineering.md"
+          ],
+          "note": "12 Hz and offline phase traces verified; full live outer loop incomplete."
+        },
+        {
+          "id": "simulation.tribes",
+          "title": "Complete tribe-turn scheduling and integration",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-tribe-turns.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Native tribe scheduler compared and integrated; remaining lifecycle work and ordering open."
+        },
+        {
+          "id": "simulation.objects",
+          "title": "Mixed-class object update order and lifetime ownership",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-update.py",
+            "app/model.ts"
+          ],
+          "note": "Selected person paths reconstructed; all-class dispatch incomplete."
+        },
+        {
+          "id": "simulation.rng",
+          "title": "Seed initialization and complete RNG draw order",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-math.py",
+            "app/model.ts"
+          ],
+          "note": "Native generator formula known; full consumption and seed behavior not matched."
+        },
+        {
+          "id": "simulation.allocation",
+          "title": "Original allocation limits, reuse and failure behavior",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-object-cells.py",
+            "references/reverse-engineering.md"
+          ],
+          "note": "Cell list operations reconstructed; global allocator and exhaustion behavior incomplete."
+        },
+        {
+          "id": "simulation.orders",
+          "title": "Complete order ownership, cancellation and handoffs",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-orders.py",
+            "scripts/check-native-order-update.py"
+          ],
+          "note": "Selected live routes/training handoffs verified; complete dispatcher remains open."
+        },
+        {
+          "id": "simulation.replay",
+          "title": "Cross-engine deterministic scenario replays",
+          "status": "missing",
+          "evidence": [],
+          "note": "Whole-engine native/browser trace agreement not established."
+        },
+        {
+          "id": "simulation.modes",
+          "title": "All pause, speed, result and mode transitions",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-outcomes.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Result checks and ongoing collapse integrated; full mode timing remains open."
+        }
+      ]
+    },
+    {
+      "id": "movement",
+      "title": "Movement, collision and vehicles",
+      "items": [
+        {
+          "id": "movement.routes",
+          "title": "Ordinary first-mission order route planning and advance",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-path-search.py",
+            "scripts/check-native-path-solver.py",
+            "scripts/check-native-route-advance.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Native planner/search/solver and shared route ownership integrated for ordinary opening orders."
+        },
+        {
+          "id": "movement.ground",
+          "title": "Complete ground movement, slope and steering dispatch",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-motion.py",
+            "scripts/check-native-physics-driver.py"
+          ],
+          "note": "Native primitives compared; full live state dispatch incomplete."
+        },
+        {
+          "id": "movement.collision",
+          "title": "All person/building/scenery collision and access rules",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-collision.py",
+            "scripts/check-native-building-footprints.py"
+          ],
+          "note": "Completed-building occupancy integrated; plan and access-state lifecycle remains open."
+        },
+        {
+          "id": "movement.airborne",
+          "title": "Falling, knockback, landing and drowning",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-physics.py",
+            "scripts/check-native-physics-driver.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Native driver compared in isolation; complete live ownership and states not yet integrated."
+        },
+        {
+          "id": "movement.groups",
+          "title": "Group formations, crowd movement and avoidance",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-orders.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Group orders/fight slots exist; full native formation and steering behavior open."
+        },
+        {
+          "id": "movement.boats",
+          "title": "Boat construction, boarding, navigation and combat",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full boat gameplay not implemented."
+        },
+        {
+          "id": "movement.balloons",
+          "title": "Balloon construction, boarding, flight and combat",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full balloon gameplay not implemented."
+        },
+        {
+          "id": "movement.recovery",
+          "title": "All blocked, idle, panic and recovery states",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-recovery.py",
+            "scripts/check-native-idle.py"
+          ],
+          "note": "Selected native states reconstructed; complete recovery/panic integration incomplete."
+        }
+      ]
+    },
+    {
+      "id": "combat",
+      "title": "Unit classes and combat",
+      "items": [
+        {
+          "id": "combat.melee",
+          "title": "Complete melee exchanges and fight state machine",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-state.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "HP-scaled exchanges and fight groups exist; remaining substates/scheduling open."
+        },
+        {
+          "id": "combat.braves",
+          "title": "Complete brave work, combat and task transitions",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-update.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Opening work loop playable; all task transitions not matched."
+        },
+        {
+          "id": "combat.warriors",
+          "title": "Complete warrior attack, pursuit and recovery",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-person-recovery.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Selected recovery/formation controllers compared; complete class scheduling open."
+        },
+        {
+          "id": "combat.firewarriors",
+          "title": "Firewarrior attacks, range and behavior",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full firewarrior class not implemented."
+        },
+        {
+          "id": "combat.preachers",
+          "title": "Preaching, conversion and preacher combat",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full preacher class not implemented."
+        },
+        {
+          "id": "combat.spies",
+          "title": "Disguise, sabotage and spy behavior",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full spy class not implemented."
+        },
+        {
+          "id": "combat.shamans",
+          "title": "All shaman combat, death and reincarnation behavior",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-reincarnation.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Opening shaman playable; full death/site/tribe lifecycle unverified."
+        },
+        {
+          "id": "combat.other",
+          "title": "Wildmen, special units and cross-class interactions",
+          "status": "partial",
+          "evidence": [
+            "tests/game.test.mjs"
+          ],
+          "note": "First-mission followers exist; complete recruitment, specials and interactions unverified."
+        }
+      ]
+    },
+    {
+      "id": "economy",
+      "title": "Buildings, resources and population",
+      "items": [
+        {
+          "id": "economy.mana",
+          "title": "Follower mana generation and first-mission distribution",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-mana-generation.py",
+            "scripts/check-native-mana.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Native contribution, allocation and charging integrated for opening classes; full scheduling tracked separately."
+        },
+        {
+          "id": "economy.plans",
+          "title": "Complete building validity, allocation and construction",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-building-plan.py",
+            "scripts/check-native-building-damage.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Native geometry/stages integrated; validity, plan registration and construction lifecycle incomplete."
+        },
+        {
+          "id": "economy.wood",
+          "title": "Timber harvesting, carrying, delivery and regrowth",
+          "status": "partial",
+          "evidence": [
+            "tests/game.test.mjs",
+            "scripts/check-native-scenery-fire.py"
+          ],
+          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified."
+        },
+        {
+          "id": "economy.housing",
+          "title": "Housing, breeding, upgrades and population limits",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-occupants.py",
+            "scripts/check-native-followers.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Bands and admission primitives compared; full hut activity/upgrade lifecycle incomplete."
+        },
+        {
+          "id": "economy.training",
+          "title": "All training queues, admissions and conversions",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-training-queue.py",
+            "scripts/check-native-training-conversion.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Selected queue/conversion paths verified; all specialist classes and dispatch incomplete."
+        },
+        {
+          "id": "economy.repair",
+          "title": "Damage, evacuation, repair and demolition lifecycle",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-building-damage.py",
+            "scripts/check-native-building-fire.py",
+            "scripts/check-browser-building-fire.mjs"
+          ],
+          "note": "Native damage/fire phases integrated; exact repair and plan ownership remain adapters."
+        },
+        {
+          "id": "economy.classes",
+          "title": "All building classes and special structures",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-building-shapes.py",
+            "app/model.ts"
+          ],
+          "note": "Original model/shape data available; every building behavior not implemented."
+        },
+        {
+          "id": "economy.territory",
+          "title": "Full territory, occupancy and ownership lifecycle",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-territory.py",
+            "scripts/check-native-building-footprints.py"
+          ],
+          "note": "Completed structures integrated; full plan/change-state registration incomplete."
+        }
+      ]
+    },
+    {
+      "id": "spells",
+      "title": "Spell rules and complete roster",
+      "items": [
+        {
+          "id": "spells.entry",
+          "title": "Opening spell range, payment and casting cooldowns",
+          "status": "verified",
+          "evidence": [
+            "scripts/check-native-spell-casting.py",
+            "scripts/check-native-cast-cooldowns.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Native range/readiness/payment and lockouts integrated for opening spells."
+        },
+        {
+          "id": "spells.blast",
+          "title": "Complete Blast behavior and interactions",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-spell-targets.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Projectile and impact reconstructed; full knockback, collisions and scheduling remain open."
+        },
+        {
+          "id": "spells.lightning",
+          "title": "Complete Lightning damage and side effects",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-lightning.py",
+            "scripts/check-native-building-fire.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Bolt and ignition integrated; all targets, sunlight and damage/fire effects incomplete."
+        },
+        {
+          "id": "spells.terrain",
+          "title": "All terrain-changing spells",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-browser-terrain.mjs",
+            "tests/game.test.mjs"
+          ],
+          "note": "Land Bridge playable; full deformation and remaining terrain spells unimplemented."
+        },
+        {
+          "id": "spells.summons",
+          "title": "Creature/summoning spells and spawned behavior",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full summon spell roster and creatures not implemented."
+        },
+        {
+          "id": "spells.status",
+          "title": "Conversion, concealment and defensive spells",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full status/utility spell roster not implemented."
+        },
+        {
+          "id": "spells.disasters",
+          "title": "Disaster and area attack spells",
+          "status": "missing",
+          "evidence": [],
+          "note": "Remaining destructive spell roster and effects not implemented."
+        },
+        {
+          "id": "spells.interactions",
+          "title": "All spell interactions, reflection, AI use and scheduling",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-emergency-spells.py",
+            "scripts/check-native-computer.py"
+          ],
+          "note": "Selected native AI scoring/casting integrated; full roster interactions and dispatch incomplete."
+        }
+      ]
+    },
+    {
+      "id": "campaign",
+      "title": "Campaign, AI and objectives",
+      "items": [
+        {
+          "id": "campaign.mission-one",
+          "title": "Complete first-mission behavior against the original",
+          "status": "partial",
+          "evidence": [
+            "tests/game.test.mjs",
+            "scripts/check-native-campaign.py"
+          ],
+          "note": "Playable victory/defeat; remaining native bindings and world adapters prevent full credit."
+        },
+        {
+          "id": "campaign.vm",
+          "title": "Complete campaign VM and engine command bindings",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-script.py",
+            "scripts/check-native-campaign.py"
+          ],
+          "note": "VM and selected bindings compared; command coverage incomplete."
+        },
+        {
+          "id": "campaign.worship",
+          "title": "All worship, knowledge and reward lifecycles",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-worship.py",
+            "scripts/check-native-vault.py",
+            "tests/game.test.mjs"
+          ],
+          "note": "Work/reward primitives verified; eligibility and complete lifecycle still adapted."
+        },
+        {
+          "id": "campaign.ai",
+          "title": "Complete computer economy, attacks and difficulty",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-computer.py",
+            "scripts/check-native-emergency-spells.py"
+          ],
+          "note": "First-mission controllers partly integrated; remaining AI stocks/scheduler and classes open."
+        },
+        {
+          "id": "campaign.objectives",
+          "title": "All objective, victory, defeat and celebration behaviors",
+          "status": "partial",
+          "evidence": [
+            "scripts/check-native-outcomes.py",
+            "scripts/check-native-celebration.py",
+            "scripts/check-browser-celebration.mjs"
+          ],
+          "note": "Outcome decisions/celebrants compared; full campaign scenarios and timing incomplete."
+        },
+        {
+          "id": "campaign.missions",
+          "title": "Every remaining original campaign mission",
+          "status": "missing",
+          "evidence": [],
+          "note": "Later campaign missions are not playable."
+        },
+        {
+          "id": "campaign.progression",
+          "title": "Campaign progression, unlocks and world selection",
+          "status": "missing",
+          "evidence": [],
+          "note": "Complete progression and mission selection not implemented."
+        },
+        {
+          "id": "campaign.tutorials",
+          "title": "All original tutorials and special scripted sequences",
+          "status": "missing",
+          "evidence": [],
+          "note": "Complete tutorial/special sequence coverage not implemented."
+        }
+      ]
+    },
+    {
+      "id": "persistence",
+      "title": "Persistence and multiplayer",
+      "items": [
+        {
+          "id": "persistence.save",
+          "title": "Original save serialization and compatibility",
+          "status": "missing",
+          "evidence": [],
+          "note": "Save format not implemented."
+        },
+        {
+          "id": "persistence.load",
+          "title": "Load and resume exact world state",
+          "status": "missing",
+          "evidence": [],
+          "note": "Full world restore not implemented."
+        },
+        {
+          "id": "persistence.profile",
+          "title": "Profile, options and campaign persistence",
+          "status": "missing",
+          "evidence": [],
+          "note": "Original profile/progression persistence not implemented."
+        },
+        {
+          "id": "persistence.lobby",
+          "title": "Multiplayer lobby and match setup",
+          "status": "missing",
+          "evidence": [],
+          "note": "Multiplayer not implemented."
+        },
+        {
+          "id": "persistence.network",
+          "title": "Original protocol and command synchronization",
+          "status": "missing",
+          "evidence": [],
+          "note": "Protocol behavior not implemented."
+        },
+        {
+          "id": "persistence.lockstep",
+          "title": "Multiplayer lockstep and desync handling",
+          "status": "missing",
+          "evidence": [],
+          "note": "Network simulation not implemented."
+        },
+        {
+          "id": "persistence.rules",
+          "title": "All multiplayer maps, rules and outcomes",
+          "status": "missing",
+          "evidence": [],
+          "note": "Native result helper alone does not establish multiplayer parity."
+        },
+        {
+          "id": "persistence.recovery",
+          "title": "Disconnect, reconnect and match lifecycle",
+          "status": "missing",
+          "evidence": [],
+          "note": "Multiplayer connection lifecycle not implemented."
+        }
+      ]
+    }
+  ]
+}

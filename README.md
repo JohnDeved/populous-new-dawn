@@ -45,6 +45,25 @@ See [level-one research and implementation limits](references/level-one.md) and 
 
 Full parity remains an [active goal](GOAL.md). The project includes a [reproducible decompilation workflow](decomp/README.md) and [debug-symbol/upstream assessment](decomp/upstreams.md).
 
+## Parity progress
+
+[PARITY.md](PARITY.md) tracks global verified-checkpoint coverage, each subsystem,
+remaining gaps, evidence and assessment history. Partial work receives no completion
+credit. The percentage measures a versioned checklist, not estimated effort or an
+objective fraction of the original engine.
+
+```sh
+npm run parity                 # Compact global/subsystem report
+npm run parity -- --json       # Machine-readable counts and percentage
+npm run parity:check           # Evidence paths, revision and report freshness
+npm run parity:record -- "Describe the change and checks run"
+```
+
+Edit `parity.json` after comparing and integrating behavior, then record a snapshot.
+Keep IDs/scope stable; scope changes require a revision increment and an explanation.
+Commit the ledger, history and generated dashboard together. Metadata checks run
+with `npm run check`; they do not execute the linked native or browser comparisons.
+
 ## Editing the game
 
 Maintainability is a standing [main priority](GOAL.md#main-priority-clean-readable-and-maintainable-typescript). The current stack is TypeScript, React 19, Three.js, Web Audio and Vite 8 through vinext. Keep the simulation runnable without a browser; UI and rendering consume its state. [Three.js](https://threejs.org/manual/en/fundamentals.html) supplies scene/rendering primitives while our engine retains control of original simulation rules.
