@@ -65,8 +65,14 @@ nine-frame texture cycle, growth/shrink, embers, expiry smoke and burning-tree s
 The object atlas now applies the native per-tile alpha decoder: 262,144 texels,
 128 fire initializers, 10,240 fire snapshots, 2,400 tree snapshots and 512 facing
 angles agree with isolated native routines. Browser casting, rendering and cleanup
-pass. Full propagation, building ignition, sunlight, painter ownership, allocation
-failure and delayed tree replanting remain open. Continue visible fire/building
+pass. Building ignition now resolves the native footprint and uses original rotated
+fire sockets, 135-turn flames, occupant evacuation and delayed structural damage.
+The ignition/socket and burn-phase controllers agree with 632 and 512 native
+cases; browser casting, damaged geometry, smoke and owned voice cancellation pass.
+Seventy gameplay regressions include evacuation, damage and subsequent repair.
+Shared smoke/shape helpers and the renamed `damageState` keep these paths readable.
+Full propagation, panic movement, sunlight, painter ownership, allocation
+failure, native repair scheduling and delayed tree replanting remain open. Continue visible fire/building
 activity and the first-mission controls before isolated hidden bookkeeping.
 The sprite audit found intact unit
 artwork; the nearby striped shapes were reincarnation stones. Their invented
@@ -194,6 +200,6 @@ All rows remain open until compared against the original engine, including edge 
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
 | AI and campaign | Original first-level layout; CPU-compared VM, cast/stock/head query bindings, turn-zero setup, disabled Dakini reincarnation and original terrain-rule bytecode applied; 6,484 native worship/reward turns and 960 vault task/work comparisons; original discovery/settlement/vault notification branches, building counter rebuild/query sequences, marker forcing and type-3 allocation CPU-compared; first-mission spell-defense setup and recurring spell-entry shutoff after the second Blast CPU-compared and integrated; live follower counts and original warrior-dependent attack-commitment block CPU-compared and integrated; AI queue/training controller and follower eligibility/selection reconstructed and CPU-compared, including combined controller/selector calls; shared command encoding, ownership, routes and group commit CPU-compared; shared person initialization, AI reservation/release, facing and animation selection CPU-compared, including 128 combined training handoffs; order startup, building reconciliation and configured speed CPU-compared; training linked-list operations and all command-8 substates with original geometry CPU-compared, including a sequential specialist/trainee queue handoff; native admission/interior-stop composition and building conversion CPU-compared; pathfinding and remaining world-effect integration pending; complete campaign/multiplayer outcome decisions CPU-compared, live 16-turn result checks, forced flags and defeat-timer progression integrated; simulation continues after results so defeated settlements finish collapsing; all nine native celebration substates, chain actions and state-41 initialization CPU-compared, now driving live braves, warriors and shamans through explicit movement/world adapters | Remaining game-command bindings, AI stocks and scheduler; worship eligibility, object phases and remaining reward lifecycle; all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Sixty-nine regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Seventy regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).

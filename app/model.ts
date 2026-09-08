@@ -61,6 +61,7 @@ import {
 import {
   buildingOutsidePoint,
   buildingSmokePoint,
+  buildingFirePoints,
   registerBuildingFootprint,
   nativeCellShade,
   type RegisteredBuilding,
@@ -70,6 +71,9 @@ import {
   defeatTribe,
   advanceCollapse,
   processBuildingDamage,
+  igniteBuilding,
+  stepBuildingBurn,
+  type BuildingBurn,
   changeBuildingWork,
   buildingWorkStage,
   type DamageBuilding,
@@ -189,7 +193,8 @@ export type Building = Point & {
   upgrading: boolean
   angle: number
   counter: number
-  collapse: (DamageBuilding & { plan: BuildingPlan }) | null
+  damageState: (DamageBuilding & { plan: BuildingPlan }) | null
+  burn?: BuildingBurn
 }
 export type Shrine = Point &
   WorshipState & {
@@ -205,7 +210,13 @@ export type Shrine = Point &
     angle: number
   }
 export type Tree = Point & { id: number; logs: number; model: number; burn?: BurningTree }
-export type SoundEvent = Point & { serial: number; cue: number; turn: number; owner?: number }
+export type SoundEvent = Point & {
+  serial: number
+  cue: number
+  turn: number
+  owner?: number
+  stop?: boolean
+}
 export type Effect = Point & {
   id: number
   kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke' | 'debris' | 'fire'
@@ -889,7 +900,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
     upgrading: false,
     angle: 0,
     counter: 0,
-    collapse: null,
+    damageState: null,
   }
   groundBuilding(w, b)
   w.buildings.push(b)
@@ -1387,15 +1398,17 @@ export function tell(w: World, message: string) {
 // Presentation events have their own serial; they never consume simulation IDs or random values.
 // ponytail: retain 128 recent cues; a streaming consumer is needed if a catch-up frame exceeds that history.
 export function sound(w: World, cue: number, p: Point, owner?: number) {
-  w.sounds.push({
+  const event: SoundEvent = {
     serial: ++w.soundSerial,
     cue,
     x: p.x,
     z: p.z,
     turn: w.turn,
     ...(owner === undefined ? {} : { owner }),
-  })
+  }
+  w.sounds.push(event)
   if (w.sounds.length > 128) w.sounds.shift()
+  return event
 }
 function castVoice(w: World, u: Unit, spell: Spell) {
   sound(
@@ -1484,7 +1497,7 @@ export function buildingStage(b: Building) {
   // ponytail: construction progress adapts native remaining work until the
   // original plan/construction processor replaces the browser work producer.
   const life = rules.buildingLife[buildingModel(b)]
-  return b.collapse?.stage ?? buildingWorkStage(Math.trunc(b.progress * life), life)
+  return b.damageState?.stage ?? buildingWorkStage(Math.trunc(b.progress * life), life)
 }
 // Share the displayed object identity with native footprint/entrance lookup.
 export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {
@@ -1977,8 +1990,8 @@ function cleanupDefeatedTribe(w: World, id: number) {
       tribe: building.team === 'blue' ? 0 : 1,
       flags4: 0,
       hp: 0,
-      buildingFlags: building.collapse?.buildingFlags ?? 0,
-      damage: building.collapse?.damage ?? 0,
+      buildingFlags: building.damageState?.buildingFlags ?? 0,
+      damage: building.damageState?.damage ?? 0,
       internalModel: 0,
     }))
   const context = {
@@ -1996,29 +2009,96 @@ function cleanupDefeatedTribe(w: World, id: number) {
   w.outcome.skyCounter = context.skyCounter
   for (const p of units)
     if (p.tribe === id) {
-      const b = p.building,
-        model = p.model
-      b.collapse = {
-        model,
-        state: b.progress === 1 ? 2 : 1,
-        flags2: 0,
-        flags3: 0,
-        buildingFlags: p.buildingFlags,
-        counter: b.counter,
-        damage: p.damage,
-        stage: 4,
-        attacker: 255,
-        occupants: 0,
-        plan: { remaining: rules.buildingLife[model], repairDelay: 0, attacker: 255 },
-      }
+      const state = ensureBuildingDamage(p.building)
+      state.buildingFlags = p.buildingFlags
+      state.damage = p.damage
     }
 }
-function stepCollapsingBuilding(w: World, b: Building) {
-  const state = b.collapse!
+function ensureBuildingDamage(b: Building) {
+  if (b.damageState) return b.damageState
+  const model = buildingModel(b)
+  const remaining = Math.trunc(
+    Math.min(b.progress, b.hp / buildingHp(b.kind)) * rules.buildingLife[model]
+  )
+  return (b.damageState = {
+    model,
+    state: b.progress === 1 ? 2 : 1,
+    flags2: 0,
+    flags3: 0,
+    buildingFlags: 0,
+    counter: b.counter,
+    damage: 0,
+    stage: buildingWorkStage(remaining, rules.buildingLife[model]),
+    attacker: 255,
+    occupants: 0,
+    plan: { remaining, repairDelay: 0, attacker: 255 },
+  })
+}
+
+function evacuateBuilding(w: World, b: Building) {
+  for (const u of w.units.filter(u => u.inside === b.id && u.hp > 0)) {
+    release(w, u)
+    Object.assign(u, buildingDoor(b))
+  }
+  // Ejection is integrated; native panic state 26 still needs its movement/animation port.
+}
+
+function emitBuildingSmoke(w: World, b: Building, rng: { randomState: number }) {
+  const point = buildingSmokePoint(buildingPose(b), rng)
+  if (!point) return null
+  const cloud = createBuildingSmoke(w.land, point, rng)
+  const fx = effect(w, 'buildingSmoke', browserPosition(point))
+  fx.animation = fx.smoke = cloud
+  fx.groundVersion = w.landVersion
+  fx.duration = Infinity
+  moveVisual(fx, cloud)
+  return cloud
+}
+
+function stepBurningBuilding(w: World, b: Building) {
+  const state = b.damageState!,
+    burn = b.burn!
+  state.occupants = w.units.filter(u => u.inside === b.id && u.hp > 0).length
+  stepBuildingBurn(state, burn, {
+    eject: () => evacuateBuilding(w, b),
+    sound: () => {
+      sound(w, 0x53, b, b.id)
+      burn.soundPlaying = true
+    },
+    damage: () => {
+      sound(w, 0x53, b, b.id).stop = true
+      const plan = state.plan
+      if (
+        changeBuildingWork(plan, -100, state, null, {
+          move: () => {},
+          release: () => {},
+          init: () => {},
+        })
+      ) {
+        const smoke = emitBuildingSmoke(w, b, w)
+        if (smoke) smoke.lifetime = (((random(w) & 255) + rules.buildingSmokeDuration) << 16) >> 16
+      }
+      plan.repairDelay = rules.buildingRepairDelay
+      if (state.attacker !== 255) plan.attacker = state.attacker
+      b.hp = Math.min(
+        b.hp,
+        (buildingHp(b.kind) * Math.max(0, plan.remaining)) / rules.buildingLife[state.model]
+      )
+    },
+    finish: () => {
+      b.burn = undefined
+      b.progress = Math.max(0, state.plan.remaining) / rules.buildingLife[state.model]
+      b.logs = Math.max(0, Math.floor(state.plan.remaining / 100))
+    },
+  })
+}
+
+function stepDamagedBuilding(w: World, b: Building) {
+  const state = b.damageState!
   state.counter = b.counter
   state.occupants = w.units.filter(u => u.inside === b.id && u.hp > 0).length
   advanceCollapse(w, state)
-  const smoke = { duration: 0, fx: null as Effect | null },
+  const smoke = { duration: 0, cloud: null as BuildingSmoke | null },
     context = { randomState: w.randomState, tribes: [] }
   processBuildingDamage(context, state, {
     ensurePlan: () => {
@@ -2036,15 +2116,8 @@ function stepCollapsingBuilding(w: World, b: Building) {
       state.occupants--
     },
     smoke: () => {
-      const point = buildingSmokePoint(buildingPose(b), context)
-      if (!point) return null
-      const cloud = createBuildingSmoke(w.land, point, context)
-      smoke.fx = effect(w, 'buildingSmoke', browserPosition(point))
-      smoke.fx.animation = smoke.fx.smoke = cloud
-      smoke.fx.height = cloud.h / 45
-      smoke.fx.groundVersion = w.landVersion
-      smoke.fx.duration = Infinity
-      return smoke
+      smoke.cloud = emitBuildingSmoke(w, b, context)
+      return smoke.cloud ? smoke : null
     },
     debris: oldStage => {
       const position = nativePosition(w, b)
@@ -2084,7 +2157,7 @@ function stepCollapsingBuilding(w: World, b: Building) {
     (buildingHp(b.kind) * Math.max(0, state.plan.remaining)) / rules.buildingLife[state.model]
   )
   w.randomState = context.randomState
-  if (smoke.fx?.smoke) smoke.fx.smoke.lifetime = smoke.duration
+  if (smoke.cloud) smoke.cloud.lifetime = smoke.duration
 }
 function stepOutcome(w: World) {
   if (w.manaWorld.loadFlags & 0x200 || w.manaWorld.gameFlags & 32) return
@@ -2242,19 +2315,16 @@ function stepDebrisEffect(w: World, fx: Effect, rng: { randomState: number }) {
   return alive
 }
 
-function createFire(w: World, p: Point, source: 'tree' | 'lightning') {
+function createFire(
+  w: World,
+  p: Point,
+  options: { size: number; snap: boolean; smoke: boolean; turns: number; suppressEmbers?: boolean }
+) {
   const fx = effect(w, 'fire', p)
-  fx.fire = createSceneryFire(
-    w.land,
-    nativePosition(w, p),
-    {
-      size: source === 'tree' ? 32 : 16,
-      snap: source === 'lightning',
-      smoke: source === 'tree',
-    },
-    w.cosmeticRandom
-  )
-  setFireLifetime(fx.fire, source === 'tree' ? 76 : 24)
+  fx.fire = createSceneryFire(w.land, nativePosition(w, p), options, w.cosmeticRandom)
+  setFireLifetime(fx.fire, options.turns)
+  fx.fire.suppressEmbers = options.suppressEmbers ?? false
+  fx.fire.expiring = fx.fire.suppressEmbers
   fx.duration = Infinity
   fx.groundVersion = w.landVersion
   moveVisual(fx, fx.fire)
@@ -2262,7 +2332,27 @@ function createFire(w: World, p: Point, source: 'tree' | 'lightning') {
 
 // 0x511ae0's first bolt turn: ignite burnable scenery in the target cell;
 // without scenery, create the short-lived, cell-centered fire instead.
-function igniteLightningScenery(w: World, target: NativePoint) {
+function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
+  const index = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
+  const id = w.land.buildingIds[index] & 1023
+  const building = w.buildings.find(b => b.id === id && b.hp > 0)
+  if (building) {
+    const state = ensureBuildingDamage(building)
+    igniteBuilding(state, tribe, () => {
+      building.burn = { remaining: 127, soundPlaying: false }
+      for (const point of buildingFirePoints(buildingPose(building))) {
+        createFire(w, browserPosition(point), {
+          size: point.size,
+          snap: false,
+          smoke: true,
+          turns: 135,
+          suppressEmbers: true,
+        })
+        building.burn.soundPlaying = true
+      }
+      // ponytail: native nearby-person panic and sunlight ownership remain unported.
+    })
+  }
   const trees = w.trees.filter(tree => {
     const p = nativePosition(w, tree)
     return (
@@ -2291,7 +2381,8 @@ function igniteLightningScenery(w: World, target: NativePoint) {
     fire!.expiring = true
     fire!.remaining = 0
   }
-  if (!trees.length && !fires.length) createFire(w, browserPosition(target), 'lightning')
+  if (!trees.length && !fires.length)
+    createFire(w, browserPosition(target), { size: 16, snap: true, smoke: false, turns: 24 })
 }
 
 function stepScenery(w: World) {
@@ -2304,7 +2395,7 @@ function stepScenery(w: World) {
       tree.burn,
       rules.sceneryWood[tree.model],
       debrisModels[tree.model + 12].scale,
-      () => createFire(w, tree, 'tree')
+      () => createFire(w, tree, { size: 32, snap: false, smoke: true, turns: 76 })
     )
     tree.logs = alive ? tree.burn.wood / 100 : 0
     // ponytail: native class-17 delayed replanting awaits scenery ownership.
@@ -2471,6 +2562,7 @@ function finishCast(
     // 0x511ef0 raises the displaced projectile endpoint above its local ground.
     // 0x511f70 creates the upper flash and bolt generator on the next turn.
     fx.lightning = {
+      tribe: shaman.team === 'blue' ? 0 : 1,
       start: { ...nativePosition(w, upper), h: Math.round(fx.height! * 45) },
       target: nativePosition(w, p),
       seed: 0,
@@ -2551,7 +2643,6 @@ function damageSpell(
         u.hp = 0
         killed++
       }
-    for (const b of w.buildings) if (distance(b, p) < radius + 1.5) b.hp -= 57
     return
   }
   for (const u of w.units)
@@ -2687,7 +2778,8 @@ function stepTurn(w: World) {
         setAnimationObject(fx.animation!, 41, 1361)
         sound(w, 0xa2, fx)
       } else {
-        if (fx.lightning.turn === 0) igniteLightningScenery(w, fx.lightning.target)
+        if (fx.lightning.turn === 0)
+          igniteLightningScenery(w, fx.lightning.target, fx.lightning.tribe)
         stepLightning(w.land, fx.lightning, w)
       }
     }
@@ -2781,9 +2873,11 @@ function stepTurn(w: World) {
   for (const b of w.buildings) {
     if (b.hp <= 0) continue
     b.counter = (b.counter + 1) & 255
-    if (b.collapse) {
-      stepCollapsingBuilding(w, b)
-      if (b.hp <= 0 || b.collapse.state !== 2) continue
+    if (b.damageState) {
+      stepDamagedBuilding(w, b)
+      if (b.hp > 0 && b.burn && b.damageState.state === 4) stepBurningBuilding(w, b)
+      if (b.hp <= 0 || b.burn || (b.damageState.buildingFlags & 64 && b.damageState.state !== 2))
+        continue
     }
     const inhabitants = w.units.filter(u => u.inside === b.id && u.hp > 0)
     if (b.progress < 1) {
@@ -2831,8 +2925,19 @@ function stepTurn(w: World) {
           b.progress +
             (workers.filter(u => atBuildingEntrance(w, u, b) && !u.path.length).length * dt) / 12
         )
+      if (b.damageState) {
+        // Reuse the current construction work producer until native repair scheduling lands.
+        const state = b.damageState,
+          remaining = Math.trunc(b.progress * rules.buildingLife[state.model])
+        changeBuildingWork(state.plan, remaining - state.plan.remaining, state, null, {
+          move: () => {},
+          release: () => {},
+          init: () => {},
+        })
+        b.hp = buildingHp(b.kind) * b.progress
+      }
       if (b.progress === 1) {
-        if (!b.upgrading) w.stats.built++
+        if (!b.upgrading && !b.damageState) w.stats.built++
         b.upgrading = false
         for (const u of workers) {
           release(w, u)
@@ -2879,6 +2984,7 @@ function stepTurn(w: World) {
           // ponytail: gather upgrade timber after maturation; native huts prefetch it at 75%.
           b.upgrade = 0
           b.level++
+          b.damageState = null
           b.progress = 0
           b.logs = 0
           b.timer = 0

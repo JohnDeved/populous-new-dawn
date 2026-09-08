@@ -36,7 +36,7 @@ try {
     world.manaWorld.gameFlags = 32
     const building = world.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
     const model = building.level
-    building.collapse = {
+    building.damageState = {
       model, state: 2, flags2: 0, flags3: 0, buildingFlags: 64, counter: 0,
       damage: rules.buildingDamageThreshold[model], stage: 4, attacker: 255, occupants: 0,
       plan: { remaining: rules.buildingLife[model], repairDelay: 0, attacker: 255 },

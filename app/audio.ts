@@ -1,8 +1,8 @@
 import native from './original-sound.json' with { type: 'json' }
 // First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
 export const AUDIO_CUES = [
-  0x6, 0x13, 0x2c, 0x34, 0xb, 0xd, 0xe, 0x18, 0x19, 0x24, 0x25, 0x27, 0x2b, 0x32, 0x37, 0x43, 0x58,
-  0x66, 0x70, 0x76, 0x77, 0x80, 0x8c, 0x8d, 0x96, 0x9f, 0xa1, 0xa2, 0xb2, 0xab, 0x29, 0xe3,
+  0x53, 0x6, 0x13, 0x2c, 0x34, 0xb, 0xd, 0xe, 0x18, 0x19, 0x24, 0x25, 0x27, 0x2b, 0x32, 0x37, 0x43,
+  0x58, 0x66, 0x70, 0x76, 0x77, 0x80, 0x8c, 0x8d, 0x96, 0x9f, 0xa1, 0xa2, 0xb2, 0xab, 0x29, 0xe3,
 ]
 export function audioRandom(state: number) {
   const n = (Math.imul(state, 0x24a1) + 0x24df) >>> 0
@@ -109,14 +109,19 @@ export class Soundscape {
     gain.connect(panner)
     panner.connect(this.master)
     this.active.add(source)
-    source.onended = () => {
-      this.active.delete(source)
-      source.disconnect()
-      gain.disconnect()
-      panner.disconnect()
-      finished?.()
-    }
+    source.addEventListener(
+      'ended',
+      () => {
+        this.active.delete(source)
+        source.disconnect()
+        gain.disconnect()
+        panner.disconnect()
+        finished?.()
+      },
+      { once: true }
+    )
     source.start()
+    return () => source.stop()
   }
   dispose() {
     this.disposed = true

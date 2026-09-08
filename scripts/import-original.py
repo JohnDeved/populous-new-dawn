@@ -72,7 +72,8 @@ def building_shapes(data, objects):
             point=list(struct.unpack_from('<3B',data,i*48+26+j*3))
             if not point[2]:break
             smoke.append(point)
-        shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset,smoke=smoke))
+        fire=[list(struct.unpack_from('<3B',data,i*48+26+j*3)) for j in range(6)]
+        shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset,smoke=smoke,fire=fire))
     indices=[list(struct.unpack_from('<4b',objects,i+44)) for i in range(0,len(objects),54)]
     assert all(0 <= n < len(shapes) for row in indices for n in row)
     return dict(objects=indices,shapes=shapes,cells=list(data[64*48:]))

@@ -5,6 +5,7 @@ import rules from './original-rules.json' with { type: 'json' }
 type Point = { x: number; y: number; h: number }
 type Ground = Pick<NativeTerrain, 'heights' | 'flags'>
 export type Lightning = {
+  tribe: number
   start: Point
   target: Point
   seed: number

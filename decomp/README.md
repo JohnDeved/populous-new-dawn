@@ -1730,7 +1730,39 @@ scale, UV animation, rotation, sound request, smoke and cleanup.
 
 Boundaries: allocation success and capacity, full class-5/mixed-class scheduling,
 per-object facing stagger, native texture/painter ownership, visibility, sunlight,
-propagation/building ignition, sinking scenery and class-17 delayed replanting.
+propagation, sinking scenery and class-17 delayed replanting. Building ignition
+is covered separately below.
 Browser sound completion prevents duplicate crackle voices; the native voice
 scheduler remains unported. These checks establish the described routines and
 integration, not whole-frame or full-engine parity.
+
+## Building ignition and structural fire damage
+
+`00408cb0` gates ignition by model flags, current state and the building lock.
+`00408840` supplies six rotated shape sockets, including nonzero entries after a
+zero socket; the smoke selector's terminator does not apply. Each allocated flame
+uses size+1, suppresses embers and lasts 135 turns. `00408ab0` decrements a signed
+127-turn timer, evacuates occupants at 119 and removes 100 structural work at 79
+before returning to repair state. The browser reuses the native work-stage and
+smoke helpers instead of subtracting invented immediate Lightning building HP.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-building-fire.py /path/to/d3dpoptb.exe
+node scripts/check-browser-building-fire.mjs
+```
+
+The native check compares 632 ignition/socket cases and 512 burn-phase cases,
+including protection, repeated ignition, lock flags, allocation failure and signed
+timer boundaries. Terrain executes natively; allocation, linked occupants, sound,
+plan ownership and lifecycle callbacks are intercepted. Structural work arithmetic
+and fire/smoke lifecycles have separate native checks. The browser check casts
+Lightning on a hut and verifies five sockets, original mesh scale/grounding,
+visible flames, delayed damaged geometry, smoke, cleanup and actual Web Audio
+voice cancellation. The gameplay regression continues through evacuation and repair.
+
+Boundaries: nearby-person panic and evacuated-person state-26 movement/animation,
+sunlight, full plan allocation/removal, native repair scheduling, allocation limits
+and mixed-class scheduling remain open. HP and construction progress remain browser
+adapters around native structural work. Owned audio can be stopped explicitly;
+native voice priority, entity-removal cancellation and complete ownership remain
+unported. This does not establish full fire, construction or audio parity.

@@ -3,7 +3,7 @@ import { random } from './native-math.ts'
 
 const short = (n: number) => (n << 16) >> 16
 const byte = (n: number) => (n << 24) >> 24
-export type DefeatEntity = {
+export interface DefeatEntity {
   id: number
   class: number
   model: number
@@ -35,7 +35,9 @@ export function defeatTribe<T extends DefeatEntity>(
     effects.allocate(tribe, [tribe, 0, 0, 0, 0])
     effects.reveal(position)
   }
-  for (const p of [...w.units])
+  // Removal callbacks may mutate the live list.
+  const units = [...w.units]
+  for (const p of units)
     if (p.tribe === tribe) {
       if (p.class === 1) {
         if (p.flags4 & 0x800) effects.remove(p)
@@ -47,7 +49,7 @@ export function defeatTribe<T extends DefeatEntity>(
     }
 }
 
-export type DamageBuilding = {
+export interface DamageBuilding {
   model: number
   state: number
   flags2: number
@@ -59,14 +61,52 @@ export type DamageBuilding = {
   attacker: number
   occupants: number
 }
-export type BuildingPlan = { remaining: number; repairDelay: number; attacker: number }
+export interface BuildingPlan {
+  remaining: number
+  repairDelay: number
+  attacker: number
+}
+export interface BuildingBurn {
+  remaining: number
+  soundPlaying: boolean
+}
+
+// 0x408cb0: protected models and buildings already burning ignore ignition.
+export function igniteBuilding(b: DamageBuilding, attacker: number, start: () => void) {
+  if (rules.buildingFlags[b.model] & 0x10000 || b.state === 4) return
+  if (!(b.flags2 & 0x100000)) {
+    b.state = 4
+    b.buildingFlags &= ~2
+    start()
+  }
+  if (byte(attacker) !== -1) b.attacker = attacker & 255
+}
+
+// 0x408ab0: eject at 119, remove one structural log at 79, finish at zero.
+// Plan allocation, smoke, linked occupants and audio stay with their world owners.
+export function stepBuildingBurn(
+  b: DamageBuilding,
+  burn: BuildingBurn,
+  effects: { eject: () => void; sound: () => void; damage: () => void; finish: () => void }
+) {
+  burn.remaining = byte(burn.remaining - 1)
+  if (burn.remaining < 1) {
+    if (!(b.flags2 & 0x100000)) {
+      b.state = 1
+      effects.finish()
+    }
+    return
+  }
+  if (burn.remaining === 119 && b.occupants) effects.eject()
+  if (burn.remaining >= 80) {
+    if (!burn.soundPlaying) effects.sound()
+  } else if (burn.remaining === 79) effects.damage()
+}
 
 export function buildingWorkStage(remaining: number, life: number) {
-  return remaining < life
-    ? remaining < 1
-      ? 0
-      : Math.max(0, Math.min(3, byte(Math.trunc((remaining * 4 - 1) / (life - 1)))))
-    : 4
+  if (remaining >= life) return 4
+  if (remaining < 1) return 0
+  return Math.max(0, Math.min(3, byte(Math.trunc((remaining * 4 - 1) / (life - 1)))))
 }
 
 // Complete 0x4ba2c0 with the caller's resolved live building and overlay.
@@ -134,8 +174,8 @@ export function processBuildingDamage(
   }
 ) {
   if (b.flags3 & 128) return
-  const model = b.model,
-    threshold = rules.buildingDamageThreshold[model]
+  const { model } = b
+  const threshold = rules.buildingDamageThreshold[model]
   if (!(b.counter & 3) && short(b.damage)) b.damage = short(b.damage - 1)
   if ((b.damage & 65535) < threshold) return
   const oldStage = byte(b.stage)

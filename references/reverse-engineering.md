@@ -3994,3 +3994,38 @@ fire's timer from leaking into smoke and triggering the wrong effect dispatcher.
 Browser setup and effect visibility checks are shared. Fallow and ox-standard
 were run; legacy complexity/lint debt remains open. See the runnable checks and
 precise comparison boundaries in [the decompilation guide](../decomp/README.md#scenery-fire-and-object-texture-alpha).
+
+## Building ignition, evacuation and structural damage — 2026-09-08
+
+Lightning now finds a building through the target cell's native footprint instead
+of applying a radius-based 57-HP subtraction. `00408cb0` rejects protected models
+and already-burning buildings; a locked building retains its state while still
+recording a valid attacker. `00408840` initializes a signed 127-turn burn timer
+and checks all six fire triples at shape-record offsets 26–43. These use the same
+rotated shape origin as other building geometry, but do not stop at smoke's zero
+terminator. Successful flames use size+1, flags 5 and lifetime 135, and suppress
+the building-owned sound cue. The first slot also requests sunlight, still unported.
+
+`00408ab0` evacuates at timer 119, requests cue 0x53 when eligible above 79, stops
+that cue at 79 and removes one 100-unit structural log. Stage changes reuse the
+original smoke socket/allocation path with its lifetime override; this branch does
+not request collapse fragments. Plan delay and attacker are retained. At expiration,
+the building returns to repair state. The live gameplay adapter permits repair
+using the existing timber/construction producer, preserving damaged model stages.
+
+Validation: 632 native ignition/socket cases and 512 burn-phase cases pass,
+including protected/already-burning/locked states, failed allocations and signed
+timer boundaries. Existing native shape (30,336 points), damage, smoke and scenery
+fire checks pass after sharing helpers. Seventy gameplay regressions include the
+whole ignition–evacuation–damage–repair path. Browser checks verify five correctly
+placed fire meshes (2,826 GPU pixels in the recorded view), structural damage,
+smoke and cleanup; a fallback owned cue is played and explicitly stopped through
+Web Audio. Scenery-fire and collapse-debris browser checks remain green.
+
+Maintainability: `collapse` is renamed `damageState` now that it owns ordinary
+structural damage too. Damage initialization, smoke allocation and geometry steps
+are shared; defeat reuses existing damage state instead of resetting it. Fallow
+health/duplication and focused ox-standard checks were run. Legacy large-function
+and lint debt remains; the new code is not evidence that the whole repository is
+clean. Native panic movement, sunlight, full plan/lifecycle ownership, exact repair
+timing, voice scheduling and mixed-class ordering remain explicit integration gaps.

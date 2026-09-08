@@ -10,6 +10,38 @@ import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('Lightning ignites only its building footprint, then evacuates, damages and permits repair', () => {
+  const w = createWorld();
+  w.manaWorld.gameFlags = 32;
+  const building = w.buildings.find(b => b.team === 'blue' && b.kind === 'hut');
+  const neighbor = w.buildings.find(b => b.team === 'blue' && b.id !== building.id);
+  const hp = building.hp;
+  const occupant = w.units.find(u => u.team === 'blue' && u.kind === 'brave');
+  occupant.inside = occupant.work = building.id;
+  w.shots.lightning = 1;
+  select(w, 'shaman');
+  assert.ok(cast(w, 'lightning', building));
+  until(w, () => !!building.burn, 5);
+  assert.equal(building.hp, hp, 'ignition does not apply the old immediate HP subtraction');
+  assert.equal(neighbor.damageState, null);
+  assert.ok(w.effects.filter(f => f.fire?.suppressEmbers).length > 1, 'original shape supplies multiple fire sockets');
+  until(w, () => building.burn.remaining === 119, 2);
+  assert.equal(occupant.inside, null);
+  assert.equal(building.damageState.plan.remaining, 300);
+  until(w, () => building.burn.remaining === 79, 4);
+  assert.equal(building.damageState.plan.remaining, 200);
+  assert.equal(building.damageState.stage, 2);
+  assert.ok(w.sounds.some(s => s.cue === 0x53 && s.stop && s.owner === building.id));
+  until(w, () => !building.burn, 8);
+  assert.equal(building.progress, 2 / 3);
+  assert.equal(building.logs, 2);
+  select(w, 'brave');
+  command(w, building);
+  until(w, () => building.progress === 1, 90);
+  assert.equal(building.damageState.state, 2);
+  assert.equal(building.damageState.plan.remaining, 300);
+  assert.equal(building.hp, hp);
+});
 test('Lightning burns original scenery through smoke and cleanup without leaking fire state', () => {
   const w = createWorld();
   w.manaWorld.gameFlags = 32;
@@ -1132,25 +1164,25 @@ test('defeat seeds native building collapse and staged damage ejects occupants b
  const defeated=createWorld();defeated.units=defeated.units.filter(u=>u.team==='blue');
  defeated.turn=47;tick(defeated,1/12);
  assert.equal(defeated.status,'won');assert.equal(defeated.outcome.skyCounter,20);
- assert.ok(defeated.buildings.filter(b=>b.team==='blue').every(b=>b.collapse===null));
+ assert.ok(defeated.buildings.filter(b=>b.team==='blue').every(b=>b.damageState===null));
  const ruins=defeated.buildings.filter(b=>b.team==='red');assert.ok(ruins.length);
- assert.ok(ruins.every(b=>b.collapse.buildingFlags&64));
+ assert.ok(ruins.every(b=>b.damageState.buildingFlags&64));
  // Isolate the live object adapter from outcome processing; the separate result
  // regression exercises continuous destruction after a real victory or defeat.
  const w=createWorld(),b=w.buildings.find(b=>b.team==='red'&&b.kind==='hut');
  w.manaWorld.gameFlags=32;w.terrain.fill(3);w.buildings=[b];w.units=[];
  const occupant=addUnit(w,'red','brave',b);occupant.inside=b.id;occupant.work=b.id;
  const model=buildingModel(b),threshold=rules.buildingDamageThreshold[model];
- b.collapse={model,state:2,flags2:0,flags3:0,buildingFlags:64,counter:0,damage:threshold,
+ b.damageState={model,state:2,flags2:0,flags3:0,buildingFlags:64,counter:0,damage:threshold,
   stage:4,attacker:255,occupants:1,plan:{remaining:rules.buildingLife[model],repairDelay:0,attacker:255}};
  tick(w,1/12);
- assert.equal(b.collapse.plan.remaining,rules.buildingLife[model]-100);assert.equal(b.collapse.stage,2);
+ assert.equal(b.damageState.plan.remaining,rules.buildingLife[model]-100);assert.equal(b.damageState.stage,2);
  assert.equal(occupant.inside,null);assert.equal(occupant.work,null);assert.equal(occupant.hp,maxHp('brave'));
- assert.equal(b.collapse.plan.repairDelay,rules.buildingRepairDelay);
+ assert.equal(b.damageState.plan.repairDelay,rules.buildingRepairDelay);
  assert.ok(w.effects.some(f=>f.kind==='buildingSmoke'&&f.smoke.lifetime>=rules.buildingSmokeDuration));
  assert.ok(w.sounds.some(s=>s.cue===0x34));
  for(let i=0;i<200&&w.buildings.includes(b);i++)tick(w,1/12);
- assert.equal(b.collapse.stage,0);assert.equal(b.hp,0);assert.ok(!w.buildings.includes(b));
+ assert.equal(b.damageState.stage,0);assert.equal(b.hp,0);assert.ok(!w.buildings.includes(b));
 });
 
 test('building display stages follow remaining work and retain separate complete meshes', async () => {
@@ -1164,7 +1196,7 @@ test('building display stages follow remaining work and retain separate complete
   assert.notDeepEqual(mesh.uv,source.uv,'unfinished surfaces retain their native cap material');
  }
  assert.strictEqual(modelStage(source,4),source);assert.deepEqual(source,before,'one damaged copy cannot mutate completed buildings');
- b.progress=1;b.collapse={stage:2};assert.equal(buildingStage(b),2,'damage takes priority over completed construction');
+ b.progress=1;b.damageState={stage:2};assert.equal(buildingStage(b),2,'damage takes priority over completed construction');
 });
 
 test('results preserve pending turns, collapse defeated settlements and reject new orders', () => {

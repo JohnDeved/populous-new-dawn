@@ -317,8 +317,14 @@ export class GameScene {
   terrainVersion = -1
   treeSignature = ''
   onChange: () => void
-  onSound: (cue: number, attenuation?: number, pan?: number, finished?: () => void) => void
+  onSound: (
+    cue: number,
+    attenuation?: number,
+    pan?: number,
+    finished?: () => void
+  ) => (() => void) | void
   soundSerial = 0
+  ownedSounds = new Map<number, () => void>()
   disposeListeners: (() => void)[] = []
   container: HTMLElement
   mini: HTMLCanvasElement
@@ -329,7 +335,12 @@ export class GameScene {
     minimap: HTMLCanvasElement,
     world: World,
     onChange: () => void,
-    onSound: (cue: number, attenuation?: number, pan?: number, finished?: () => void) => void
+    onSound: (
+      cue: number,
+      attenuation?: number,
+      pan?: number,
+      finished?: () => void
+    ) => (() => void) | void
   ) {
     this.container = container
     this.mini = minimap
@@ -1591,6 +1602,11 @@ export class GameScene {
     for (const event of this.world.sounds)
       if (event.serial > this.soundSerial) {
         this.soundSerial = event.serial
+        if (event.stop && event.owner !== undefined) {
+          this.ownedSounds.get(event.owner)?.()
+          this.ownedSounds.delete(event.owner)
+          continue
+        }
         if (event.cue === 0xe3 || event.cue === 0xa2) {
           this.onSound(event.cue, 1, 0)
           continue
@@ -1599,7 +1615,7 @@ export class GameScene {
           dz = Math.round((event.z - this.viewPoint.z) * 256)
         const screen = this.screen(event)
         // Native distance curve and projected pan; the full native mixer is still unported.
-        this.onSound(
+        const stop = this.onSound(
           event.cue,
           soundAttenuation(dx * dx + dz * dz),
           screen.x,
@@ -1608,8 +1624,12 @@ export class GameScene {
             : () => {
                 const fire = this.world.effects.find(f => f.id === event.owner)?.fire
                 if (fire) fire.soundPlaying = false
+                const burn = this.world.buildings.find(b => b.id === event.owner)?.burn
+                if (burn) burn.soundPlaying = false
+                this.ownedSounds.delete(event.owner!)
               }
         )
+        if (stop && event.owner !== undefined) this.ownedSounds.set(event.owner, stop)
       }
   }
   animate = (now: number) => {
@@ -1928,6 +1948,8 @@ export class GameScene {
   }
   dispose() {
     cancelAnimationFrame(this.frame)
+    for (const stop of this.ownedSounds.values()) stop()
+    this.ownedSounds.clear()
     this.terrainLoad.abort()
     this.resize.disconnect()
     this.disposeListeners.forEach(f => f())

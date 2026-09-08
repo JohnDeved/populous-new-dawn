@@ -2,15 +2,23 @@ import data from './original-shapes.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, nativeStep, random } from './native-math.ts'
 
-export type BuildingShapePose = { object: number; angle: number; anchorX: number; anchorY: number }
+export interface BuildingShapePose {
+  object: number
+  angle: number
+  anchorX: number
+  anchorY: number
+}
 export type RegisteredBuilding = BuildingShapePose & { id: number; tribe: number }
-export type BuildingCells = {
+export interface BuildingCells {
   flags: Uint32Array
   buildingIds: Uint16Array
   owners: Uint8Array
   shadows: Uint8Array
 }
-type Point = { x: number; y: number }
+interface Point {
+  x: number
+  y: number
+}
 const short = (n: number) => (n << 16) >> 16
 function shape(b: BuildingShapePose) {
   const quadrant = Math.trunc(short(b.angle) / 512)
@@ -31,6 +39,23 @@ export function buildingSmokePoint(b: BuildingShapePose, rng: { randomState: num
     x: short(b.anchorX + x * 32 - s.x * 256),
     y: short(b.anchorY + y * 32 - s.y * 256),
   }
+}
+
+// 0x408840 checks all six slots; smoke's zero-Z terminator does not apply here.
+export function buildingFirePoints(b: BuildingShapePose) {
+  const s = shape(b)
+  return s.fire.flatMap(([x, size, y], slot) =>
+    x || size || y
+      ? [
+          {
+            x: short(b.anchorX + x * 32 - s.x * 256),
+            y: short(b.anchorY + y * 32 - s.y * 256),
+            size: size + 1,
+            light: slot === 0,
+          },
+        ]
+      : []
+  )
 }
 
 // Shared native mask traversal for occupancy and the browser placement preview.
@@ -65,7 +90,7 @@ export function registerBuildingFootprint(
     id = mode === 1 ? b.id : 0
   for (const i of buildingFootprintCells(b)) {
     land.owners[i] = (land.owners[i] & 240) | owner
-    land.buildingIds[i] = ((land.buildingIds[i] ^ id) & 1023) ^ land.buildingIds[i]
+    land.buildingIds[i] ^= (land.buildingIds[i] ^ id) & 1023
     land.flags[i] |= 16
     if (mode === 0) land.flags[i] &= ~0x200
     else if (mode === 1) land.flags[i] |= 0x200
@@ -112,35 +137,41 @@ export function buildingOutsidePoint(b: BuildingShapePose): Point {
   }
 }
 
+function wrappedDistanceSquared(a: Point, b: Point) {
+  const x = short(a.x - b.x),
+    y = short(a.y - b.y)
+  return (x * x + y * y) | 0
+}
+
+function stepPoint(point: Point, angle: number, length: number) {
+  const next = nativeStep({ x: point.x / 256, z: -point.y / 256 }, angle, length)
+  return { x: Math.round(next.x * 256) & 65535, y: Math.round(-next.z * 256) & 65535 }
+}
+
 // 0x40a460: approach the closest point along the entrance axis in 64-unit
 // steps, then bias 32 units toward the outside. Distances are not rounded roots.
 export function buildingApproachPoint(b: BuildingShapePose, p: Point): Point {
   const inside = buildingInsidePoint(b),
     outside = buildingOutsidePoint(b)
-  const squared = (a: Point, b: Point) => {
-    const x = short(a.x - b.x),
-      y = short(a.y - b.y)
-    return (x * x + y * y) | 0
-  }
-  const a = squared(p, outside),
-    c = squared(p, inside)
+  const a = wrappedDistanceSquared(p, outside),
+    c = wrappedDistanceSquared(p, inside)
   let point = a < c ? outside : inside,
     previous = point,
     best = Math.min(a, c)
   const other = a < c ? inside : outside,
     angle = nativeAngle(short(other.x - point.x), -short(other.y - point.y))
-  const step = (p: Point, angle: number, length: number) => {
-    const q = nativeStep({ x: p.x / 256, z: -p.y / 256 }, angle, length)
-    return { x: Math.round(q.x * 256) & 65535, y: Math.round(-q.z * 256) & 65535 }
-  }
   for (;;) {
     previous = point
-    point = step(point, angle, 64)
-    const d = squared(p, point)
+    point = stepPoint(point, angle, 64)
+    const d = wrappedDistanceSquared(p, point)
     if (d >= best) break
     best = d
   }
-  return step(previous, nativeAngle(short(outside.x - inside.x), -short(outside.y - inside.y)), 32)
+  return stepPoint(
+    previous,
+    nativeAngle(short(outside.x - inside.x), -short(outside.y - inside.y)),
+    32
+  )
 }
 
 // 0x409710: walk 128-unit steps around the original footprint mask. The two
@@ -168,10 +199,6 @@ export function buildingQueuePoint(b: BuildingShapePose, index: number): Point {
   let angle = ((quadrant - 1) & 3) << 9
   const originX = (b.anchorX - s.x * 256) & 65535,
     originY = (b.anchorY - s.y * 256) & 65535
-  const step = (angle: number) => {
-    const p = nativeStep({ x: point.x / 256, z: -point.y / 256 }, angle, 128)
-    return { x: Math.round(p.x * 256) & 65535, y: Math.round(-p.z * 256) & 65535 }
-  }
   const cell = (p: Point) => {
     const x = Math.abs(short(originX - p.x)) >> 9,
       y = Math.abs(short(originY - p.y)) >> 9
@@ -182,9 +209,9 @@ export function buildingQueuePoint(b: BuildingShapePose, index: number): Point {
   }
   for (let i = 0; i < index; i++) {
     const turn = (angle + 512) & 2047
-    if (!(cell(step(turn)) & 1)) angle = turn
-    if (!(cell(step(angle)) & 4)) angle = (angle - 512) & 2047
-    point = step(angle)
+    if (!(cell(stepPoint(point, turn, 128)) & 1)) angle = turn
+    if (!(cell(stepPoint(point, angle, 128)) & 4)) angle = (angle - 512) & 2047
+    point = stepPoint(point, angle, 128)
   }
   return point
 }
