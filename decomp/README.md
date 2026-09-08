@@ -1048,3 +1048,16 @@ all native code. Live completed buildings now populate native occupancy cells,
 including changes and removal; plans and full lifecycle/texture scheduling remain
 open. All 52 game regressions and browser checks pass. The manifest verifies
 578 exports, including the unported texture-region consumer `004bdd40`.
+
+
+### Airborne eligibility and landing decisions
+
+`app/person-physics.ts` reconstructs `004e78f0`, `004e7980`, `004e7880`,
+`004e9050` and `004e9160`; native-terrain adds `0044f750`, `004ebd10`,
+`004ebc20` and `0044ebe0`. Run `scripts/check-native-person-physics.py EXE`
+for 45,056 native comparisons. Terrain/math execute unchanged; landing state,
+animation, fight and class-3 consumers are supplied and ordered. All 52 game
+regressions and browser checks pass. Shared ordinary velocity caps are live;
+complete physics and landing-state/order dispatch are not yet integrated.
+The manifest contains 581 exports, including unported path consumer `004eadc0`.
+See the evidence log for exact fixture boundaries and remaining dependencies.

@@ -14,6 +14,9 @@ const neighbor=(index:number,x:number,y:number)=>((((index>>>7)+y)&127)*128)+(((
 const neighbors=[[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1]];
 const heightsAround=[[0,0],[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,-1],[-1,1]];
 const waterBorder=[[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[-1,2],[0,2],[1,2],[2,2],[2,1],[2,0],[2,-1]];
+type Ground=Pick<NativeTerrain,'heights'|'flags'>;
+type Position={x:number;y:number};
+function heightCorners(land:Ground,i:number){const h=land.heights;return [h[i],h[neighbor(i,0,1)],h[neighbor(i,1,1)],h[neighbor(i,1,0)]];}
 
 export function createNativeTerrain(heights:ArrayLike<number>):NativeTerrain {
   return {heights:Int16Array.from(heights),flags:new Uint32Array(16384),cliffs:new Uint8Array(16384),
@@ -24,11 +27,43 @@ export function createNativeTerrain(heights:ArrayLike<number>):NativeTerrain {
 // 0x422bd0: choose three corners for a quarter-cell off the diagonal, all
 // four when it straddles the diagonal. Native min/max start at 1024 and zero.
 export function terrainQuarterPassable(land:Pick<NativeTerrain,'heights'|'flags'>,cell:number,limit:number){
-  const i=indexOf(cell),h=land.heights,a=h[i],b=h[neighbor(i,0,1)],c=h[neighbor(i,1,1)],d=h[neighbor(i,1,0)];
+  const i=indexOf(cell),[a,b,c,d]=heightCorners(land,i);
   const quarter=cell&1?(cell&256?2:3):(cell>>8)&1;
   const corners=land.flags[i]&1?quarter===0?[a,b,d]:quarter===2?[b,c,d]:[a,b,c,d]:
     quarter===1?[a,b,c]:quarter===3?[a,c,d]:[a,b,c,d];
   return Math.max(0,...corners)-Math.min(1024,...corners)<=limit;
+}
+
+// 0x44f750: height range of the triangle beneath a native position.
+export function terrainSlopeRange(land:Ground,p:Position){
+  const i=((p.y&65535)>>9)*128+((p.x&65535)>>9),[a,b,c,d]=heightCorners(land,i),x=(p.x&510)>>1,y=(p.y&510)>>1;
+  const h=land.flags[i]&1?x+y<256?[a,b,d]:[b,c,d]:y<x?[a,c,d]:[a,b,c];
+  return Math.max(0,...h)-Math.min(1024,...h);
+}
+
+// 0x4ebd10: signed-short height differences precede the 3/8 arithmetic shift.
+export function terrainSlopeVelocity(land:Ground,p:Position){
+  const i=((p.y&65535)>>9)*128+((p.x&65535)>>9),[a,b,c,d]=heightCorners(land,i),x=(p.x&510)>>1,y=(p.y&510)>>1;
+  const v=land.flags[i]&1?x+y<256?[a-d,a-b]:[b-c,d-c]:x<=y?[b-c,a-b]:[a-d,d-c];
+  return {x:(((v[0]<<16)>>16)*3)>>3,y:0,z:(((v[1]<<16)>>16)*3)>>3};
+}
+
+// 0x4ebc20: suppress drift into a local trough, using four 76-unit probes.
+export function terrainDrift(land:Ground,p:Position){
+  const north=terrainSlopeVelocity(land,{x:p.x,y:(p.y+76)&65535}),east=terrainSlopeVelocity(land,{x:(p.x+76)&65535,y:p.y});
+  const south=terrainSlopeVelocity(land,{x:p.x,y:(p.y-76)&65535}),west=terrainSlopeVelocity(land,{x:(p.x-76)&65535,y:p.y}),v=terrainSlopeVelocity(land,p);
+  if(east.x<0&&west.x>0)v.x=0;
+  if(north.z<0&&south.z>0)v.z=0;
+  return v;
+}
+
+// 0x44ebe0: any category without the land bit in an even-cell square.
+export function hasNonLand(land:Pick<NativeTerrain,'categories'>,center:number,radius:number){
+  for(let y=-radius;y<=radius;y++)for(let x=-radius;x<=radius;x++){
+    const cell=(((center&255)+x*2)&255)|((((center>>>8)+y*2)&255)<<8);
+    if(!(rules.terrainCategoryFlags[land.categories[indexOf(cell)]&15]&1))return true;
+  }
+  return false;
 }
 
 // 0x422a60: refresh both 256×256 bit maps in a wrapped (4r+1) square.

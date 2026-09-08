@@ -2688,3 +2688,65 @@ movement is live for celebrations only. Full cell shade refresh scheduling,
 scenery lifecycle, renderer lighting/texture caches, physics and pathfinding are
 still open. The manifest now retains **578 raw exports**. These changes do not
 establish full game parity.
+
+
+## Person physics: drift, velocity bounds and landing-state decisions
+
+`app/native-terrain.ts` adds reviewed reconstructions of `0044f750` (triangle
+height range), `004ebd10` (slope velocity), `004ebc20` (trough suppression) and
+`0044ebe0` (nearby non-land category query). They read the native triangle flag,
+wrap at the world seam, preserve the original 1024/0 extrema seeds, and truncate
+height differences to signed words before the arithmetic 3/8 shift. Drift probes
+four positions 76 native units away and suppresses horizontal components that
+would pull an object into a local trough.
+
+`app/person-physics.ts` reconstructs complete `004e78f0` and `004e7980` velocity
+caps, `004e7880` unsupported-ground query, `004e9050` airborne marking and
+`004e9160` landing/settling decisions. Physics flag 8 chooses triangle slope
+instead of the active walk mask. Landing tests use the **candidate position**,
+which may differ from the person's stored position before final cell insertion.
+They preserve signed squared-speed overflow, ordinary motion reset, animation
+refresh, interrupted-combat checks, the class-3 callback and shaman state 39 under
+game-state flag 2 at `0089d17c`. State release occurs before the new state is
+written and initialized. The inspector imports native vertical/impulse limits,
+slope thresholds and physics flags; the live grounded adapter now uses the shared
+verified ordinary velocity-cap routine.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-person-physics.py /path/to/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-person-collision.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+The new oracle compares **45,056 native calls**: 4,096 each for triangle range,
+slope velocity, composed drift, ordinary caps and impulse caps; 8,192 each for
+unsupported-ground eligibility, airborne marking and settling. Terrain/math
+callees execute unchanged, including the neighborhood-category test and real
+slope query inside settling. Cases cover signed height/velocity extrema, both
+triangle diagonals, seams, every configured physics row, blocked and clear masks,
+land-only and mixed-category neighborhoods, distinct stored/candidate positions,
+missing/dead targets, state flags and ordered consumer calls. Animation refresh,
+state release/initialization, fight consumers and class-3 settling are supplied;
+callback snapshots compare the current state and flags at each boundary.
+
+All **52 gameplay regressions**, typechecking and the production build pass.
+The affected collision/quarter-cell oracle also passes its 28,672 point/permission
+checks and 24 full dual-mask updates after sharing the terrain corner reader.
+A helper-name shadowing conflict caught during integration was fixed before the
+successful checks. Browser original-frame, pause, circle/chain, footprint detour
+and restart checks pass without page errors. Lint retains seven existing image
+warnings and no errors.
+
+**The full live airborne loop is still unfinished.** Ordinary velocity caps are
+integrated; the new drift, marking and settling routines are reconstructed and
+verified dependencies for the complete `004e6d00` driver. Impulse/gravity timing,
+collision bounce, damage/sounds on landing, drowning and post-move scheduling
+still need composition and live integration. Landing can return a person to
+states 10, 36 or 39; those transitions must join the shared live state/order
+dispatch instead of leaving a native animation record attached to legacy AI.
+`004eadc0`, retained as a raw export, is a substantial path-group/waypoint and
+vehicle/passenger consumer. It immediately returns for motion-group zero, the
+current celebration bootstrap, but remains required for ordinary orders.
+The manifest now retains **581 raw exports**. Full physics and game parity remain
+open.

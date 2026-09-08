@@ -6,6 +6,7 @@ import {setAnimationObject,setPersonAnimation,stepObjectAnimation,type Animation
 import {turnPerson,groundVelocity,positionsOverlap,stepMotionRecovery,recoverGroundObstacle,type RecoveryPerson} from './person-motion.ts';
 import {buildingApproachPoint,buildingOutsidePoint} from './building-shapes.ts';
 import {personStepCollision,buildingBlocksPerson,type CollisionWorld,type CollisionObject} from './person-collision.ts';
+import {limitPersonVelocity} from './person-physics.ts';
 import {positionDistance,random} from './native-math.ts';
 import rules from './original-rules.json' with {type:'json'};
 import sprites from './original-units.json' with {type:'json'};
@@ -114,8 +115,8 @@ export function stepLiveCelebration(w:World,u:Unit){
       const pose=buildingPose(building);return outside?buildingOutsidePoint(pose):buildingApproachPoint(pose,p);
     });
     const velocity={x:0,y:0,z:0};groundVelocity(velocity,p,speed,p.heading,terrain);
-    const limit=rules.personVelocityLimits[p.physics];
-    const next={x:(p.x+Math.max(-limit,Math.min(limit,velocity.x)))&65535,y:(p.y+Math.max(-limit,Math.min(limit,velocity.z)))&65535,h:0};
+    limitPersonVelocity(p.physics,velocity);
+    const next={x:(p.x+velocity.x)&65535,y:(p.y+velocity.z)&65535,h:0};
     next.h=terrain(next.x,next.y);
     if(speed&&blocked(next)){
       if(turning)Object.assign(next,{x:p.x,y:p.y,h:terrain(p.x,p.y)});
