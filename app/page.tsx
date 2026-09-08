@@ -69,7 +69,7 @@ export default function Home() {
             minimap.current,
             world,
             update,
-            (cue, attenuation, pan) => audio.current?.cue(cue, attenuation, pan)
+            (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
           )
           setReady(true)
         } catch (e) {

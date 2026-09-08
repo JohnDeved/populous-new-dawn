@@ -22,6 +22,7 @@ uniform ivec4 nativeScreen;
 uniform ivec2 nativeCenter;
 uniform ivec2 nativeRawCenter;
 uniform float nativeModelScale;
+uniform float nativeObjectScale;
 uniform float nativeRelative;
 uniform float nativeMode;
 varying vec2 nativeCell;
@@ -74,7 +75,7 @@ vec4 nativePosition(vec3 position){
  ivec3 p=nativeOrigin(world);
  if(nativeModelScale>0.){
   ivec3 raw=ivec3(round(vec3(position.x,position.y,-position.z)*nativeModelScale*3.));
-  ivec3 scaled=ivec3(nativeMul(raw.x,int(nativeModelScale)),nativeMul(raw.y,int(nativeModelScale)),nativeMul(raw.z,int(nativeModelScale)))>>8;
+  ivec3 scaled=ivec3(nativeMul(raw.x,int(nativeObjectScale)),nativeMul(raw.y,int(nativeObjectScale)),nativeMul(raw.z,int(nativeObjectScale)))>>8;
   ivec3 origin=nativeOrigin(modelMatrix[3].xyz);
   p=ivec3(nativeDot(scaled,nativeObjectBasis[0]),nativeDot(scaled,nativeObjectBasis[1]),nativeDot(scaled,nativeObjectBasis[2]))>>14;
   p+=origin;
@@ -279,7 +280,11 @@ export class RenderView {
                 Math.round(p.y * scale * 3),
                 Math.round(-p.z * scale * 3),
               ]
-              const q = modelPoint(raw, scale, basis, { x: 0, y: 0, z: 0 })
+              const q = modelPoint(raw, object.userData.nativeSize ?? scale, basis, {
+                x: 0,
+                y: 0,
+                z: 0,
+              })
               p = new THREE.Vector3(q.x, q.y, -q.z).multiplyScalar(1 / 128).add(origin)
             } else p.applyMatrix4(transform)
             world.push(p)
@@ -335,14 +340,18 @@ export class RenderView {
         material.fog = false
         const local = {
           nativeModelScale: { value: object.userData.nativeScale ?? 0 },
+          nativeObjectScale: { value: object.userData.nativeScale ?? 0 },
           nativeRelative: { value: object.userData.nativeRelative ? 1 : 0 },
           nativeObjectBasis: { value: new Int32Array(modelMatrix(0)) },
         }
         if (object.userData.nativeScale)
-          object.onBeforeRender = () =>
+          object.onBeforeRender = () => {
+            local.nativeObjectScale.value =
+              object.userData.nativeSize ?? object.userData.nativeScale
             local.nativeObjectBasis.value.set(
               modelMatrix(object.parent?.userData.nativeHeading ?? 0)
             )
+          }
         material.onBeforeCompile = (shader: Parameters<THREE.Material['onBeforeCompile']>[0]) => {
           Object.assign(shader.uniforms, this.uniforms, local)
           shader.vertexShader = nativeVertexShader + shader.vertexShader

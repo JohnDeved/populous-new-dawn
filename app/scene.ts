@@ -1,6 +1,7 @@
 import { animateLiveObjects } from './live-people.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
+import { fireUV, fireHeading } from './scenery-fire.ts'
 import { soundAttenuation } from './audio'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
 import {
@@ -51,6 +52,7 @@ import {
   tick,
   type World,
   type Point,
+  type Tree,
   type Unit,
   type Building,
   type Effect,
@@ -315,7 +317,7 @@ export class GameScene {
   terrainVersion = -1
   treeSignature = ''
   onChange: () => void
-  onSound: (cue: number, attenuation?: number, pan?: number) => void
+  onSound: (cue: number, attenuation?: number, pan?: number, finished?: () => void) => void
   soundSerial = 0
   disposeListeners: (() => void)[] = []
   container: HTMLElement
@@ -327,7 +329,7 @@ export class GameScene {
     minimap: HTMLCanvasElement,
     world: World,
     onChange: () => void,
-    onSound: (cue: number, attenuation?: number, pan?: number) => void
+    onSound: (cue: number, attenuation?: number, pan?: number, finished?: () => void) => void
   ) {
     this.container = container
     this.mini = minimap
@@ -1286,6 +1288,16 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
+    if (f.fire) {
+      const mesh = nativeModel(5)
+      mesh.geometry = mesh.geometry.clone() // Each fire owns its texture phase.
+      mesh.material.transparent = true
+      mesh.material.alphaTest = 0
+      mesh.material.depthWrite = false
+      mesh.name = 'scenery-fire'
+      g.add(mesh)
+      return g
+    }
     if (f.debris) {
       const geometry = new THREE.BufferGeometry()
       geometry.setAttribute(
@@ -1365,6 +1377,24 @@ export class GameScene {
     return g
   }
   animateFx(g: THREE.Group, f: Effect) {
+    if (f.fire) {
+      const mesh = g.children[0] as THREE.Mesh
+      mesh.userData.nativeSize = f.fire.scale
+      const uv = mesh.geometry.getAttribute('uv') as THREE.BufferAttribute
+      uv.array.set(fireUV(f.fire.frame))
+      uv.needsUpdate = true
+      // Camera fields still come from the browser view; native object counters
+      // will own the stagger once class-5 scheduling is integrated.
+      if (g.userData.facingTurn !== this.world.turn >> 3) {
+        g.userData.facingTurn = this.world.turn >> 3
+        f.fire.heading = fireHeading(f.fire, {
+          ...this.view.center,
+          angle: Math.round((this.cameraBearing * 1024) / Math.PI) & 2047,
+        })
+      }
+      g.userData.nativeHeading = f.fire.heading
+      return
+    }
     if (f.debris) {
       const mesh = g.children[0] as THREE.Mesh
       const positions = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
@@ -1569,7 +1599,17 @@ export class GameScene {
           dz = Math.round((event.z - this.viewPoint.z) * 256)
         const screen = this.screen(event)
         // Native distance curve and projected pan; the full native mixer is still unported.
-        this.onSound(event.cue, soundAttenuation(dx * dx + dz * dz), screen.x)
+        this.onSound(
+          event.cue,
+          soundAttenuation(dx * dx + dz * dz),
+          screen.x,
+          event.owner === undefined
+            ? undefined
+            : () => {
+                const fire = this.world.effects.find(f => f.id === event.owner)?.fire
+                if (fire) fire.soundPlaying = false
+              }
+        )
       }
   }
   animate = (now: number) => {
@@ -1594,6 +1634,14 @@ export class GameScene {
       this.releaseGroup(this.decorations)
       this.decorations.clear()
       this.makeDecorations()
+    }
+    for (const group of this.decorations.children) {
+      const tree = group.userData.point as Tree | undefined
+      if (tree?.burn) {
+        const mesh = group.children[0] as THREE.Mesh
+        mesh.userData.nativeSize = tree.burn.scale
+        group.visible = tree.logs > 0
+      }
     }
     const movingX =
       Number(this.keys.has('d') || this.keys.has('arrowright')) -

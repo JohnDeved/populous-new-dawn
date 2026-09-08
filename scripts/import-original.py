@@ -13,6 +13,24 @@ def png(path, width, height, pixels):
     rows = b''.join(b'\0' + pixels[y*width*4:(y+1)*width*4] for y in range(height))
     path.write_bytes(b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(rows)) + chunk(b'IEND', b''))
 
+def object_atlas(data, palette, alpha, alpha_tiles):
+    """0x4b6e60/0x42fb30: selected object tiles use AL colors and nibble opacity."""
+    output = bytearray()
+    for i, value in enumerate(data):
+        tile = (i % 256) // 32 + (i // (256 * 32)) * 8
+        if alpha_tiles[tile]:
+            opacity = (value & 15) * 17
+            color = alpha[(value | 15) * 256] if opacity else 0
+        else:
+            color, opacity = value, 255 if value else 0
+            if not value:
+                output.extend(bytes(4))
+                continue
+        output.extend(palette[color * 4:color * 4 + 3])
+        output.append(opacity)
+    return output
+
+
 def sprites(data, palette, alpha=False):
     assert data[:4] == b'PSFB', 'Invalid sprite bank'
     count = struct.unpack_from('<I', data, 4)[0]
@@ -71,14 +89,21 @@ def main():
     assert level['landscapeBank'] == 12, 'This importer currently supports landscape bank c'
     palette = read('data/pal0-c.dat'); assert len(palette) == 1024
     atlas = read('data/bl320-c.dat'); assert len(atlas) == 256*1024
-    png(output/'atlas.png', 256, 1024, b''.join(palette[v*4:v*4+3]+bytes([0 if v==0 else 255]) for v in atlas))
+    alpha=read('data/al0-c.dat');assert len(alpha)==65536
+    rules=json.loads((project/'app/original-rules.json').read_text())
+    png(output/'atlas.png', 256, 1024, object_atlas(atlas,palette,alpha,rules['objectTextureAlpha']))
     objects, faces, points = [read(f'objects/{n}0-{object_bank}.dat') for n in ['objs','facs','pnts']]
     shape_data=read('objects/shapes.dat')
     (project/'app/original-shapes.json').write_text(json.dumps(building_shapes(shape_data,objects),separators=(',',':'))+'\n')
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
     # Models actually used in this mission, including every hut upgrade and both tribes.
-    selected = [13,14,15,16,17,18,30,45,152,153,154,155,79,80,95,96,103,104,*range(131,137)]
+    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,95,96,103,104,*range(131,137)]
+    animation_tiles = read('data/anibl0-0.dat')
+    assert len(animation_tiles) == 500
+    fire = animation_tiles[20:40] # ANIBL record 1, consumed by 0x4f0f60.
+    assert 0 < fire[17] <= 12
+    (project/'app/original-fire.json').write_text(json.dumps(dict(model=5,tile=fire[16],frames=list(fire[4:4+fire[17]])),indent=2)+'\n')
     for i in selected:
         _, nf, np, _, _, _, scale, sf, _, sp, _, *_ = struct.unpack_from('<Hhhbbii4I6h4b3h',objects,i*54)
         assert nf>0 and np>0 and scale>0 and sf>0 and sp>0
@@ -169,7 +194,6 @@ def main():
     (project/'app/original-units.json').write_text(json.dumps({'width':width,'height':height,'cell':cell,'columns':32,'fps':12,'frameCounts':frame_counts,'frames':info,'animations':metadata},separators=(',',':')))
     hfx_data=read('data/hfx0-0.dat');hfx=sprites(hfx_data,palette)
     # 0x476570: HFX high nibble selects an AL0 colour, low nibble is 0..15 alpha.
-    alpha=read('data/al0-c.dat');assert len(alpha)==65536
     fx_palette=b''.join(palette[alpha[(v|15)*256]*4:alpha[(v|15)*256]*4+3]+bytes([(v&15)*17]) for v in range(256))
     effects=sprites(hfx_data,fx_palette,alpha=True)
     # 0x4673b0 draws type-1 objects from HFX, including the small trail particles.

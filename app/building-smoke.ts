@@ -22,7 +22,8 @@ export function createBuildingSmoke(
   rng: { randomState: number }
 ): BuildingSmoke {
   const smoke: BuildingSmoke = {
-    ...point,
+    x: point.x,
+    y: point.y,
     h: terrainPointHeight(land, point),
     lifetime: (random(rng) & 63) + 96,
     scaleX: 16,

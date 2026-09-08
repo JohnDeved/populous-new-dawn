@@ -51,6 +51,8 @@ if len(sys.argv)>2:
     rules['buildingFlags']=[value(0x5a7228+i*76+72) for i in range(20)]
     rules['buildingShade']=[struct.unpack('<b',read(0x5a7228+i*76+53,1))[0] for i in range(20)]
     rules['sceneryShade']=[struct.unpack('<b',read(0x5a79b0+i*24+19,1))[0] for i in range(20)]
+    rules['sceneryWood']=[value(0x5a79b0+i*24+4,2) for i in range(20)]
+    rules['objectTextureAlpha']=[bool(value(0x5d2910+i*4)) for i in range(256)]
     rules['buildingCapacity']=[value(0x5a7228+i*76+32,1) for i in range(20)]
     rules['buildingTrainedModel']=[value(0x5a7228+i*76+49,1) for i in range(20)]
     rules['buildingLife']=[value(0x5a7228+i*76+26,2) for i in range(20)]

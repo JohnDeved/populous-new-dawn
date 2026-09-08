@@ -3,6 +3,14 @@ import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
 import { createBuildingSmoke, stepBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
 import {
+  createSceneryFire,
+  setFireLifetime,
+  stepSceneryFire,
+  stepBurningTree,
+  type SceneryFire,
+  type BurningTree,
+} from './scenery-fire.ts'
+import {
   collapseBuildingFaces,
   stepBuildingDebris,
   type BuildingDebris,
@@ -196,17 +204,18 @@ export type Shrine = Point &
     morph: ModelMorph | null
     angle: number
   }
-export type Tree = Point & { id: number; logs: number; model: number }
-export type SoundEvent = Point & { serial: number; cue: number; turn: number }
+export type Tree = Point & { id: number; logs: number; model: number; burn?: BurningTree }
+export type SoundEvent = Point & { serial: number; cue: number; turn: number; owner?: number }
 export type Effect = Point & {
   id: number
-  kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke' | 'debris'
+  kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke' | 'debris' | 'fire'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
   lightning?: Lightning
   smoke?: BuildingSmoke
   debris?: BuildingDebris
+  fire?: SceneryFire
   turnsRemaining?: number
   groundVersion?: number
   age: number
@@ -1377,8 +1386,15 @@ export function tell(w: World, message: string) {
 }
 // Presentation events have their own serial; they never consume simulation IDs or random values.
 // ponytail: retain 128 recent cues; a streaming consumer is needed if a catch-up frame exceeds that history.
-export function sound(w: World, cue: number, p: Point) {
-  w.sounds.push({ serial: ++w.soundSerial, cue, x: p.x, z: p.z, turn: w.turn })
+export function sound(w: World, cue: number, p: Point, owner?: number) {
+  w.sounds.push({
+    serial: ++w.soundSerial,
+    cue,
+    x: p.x,
+    z: p.z,
+    turn: w.turn,
+    ...(owner === undefined ? {} : { owner }),
+  })
   if (w.sounds.length > 128) w.sounds.shift()
 }
 function castVoice(w: World, u: Unit, spell: Spell) {
@@ -1392,8 +1408,8 @@ function castVoice(w: World, u: Unit, spell: Spell) {
 }
 export function effect(w: World, kind: Effect['kind'], p: Point) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.
-  // Detached faces belong to class 10 and must not advance class 7's counter.
-  if (kind !== 'debris') w.effectCounter = (w.effectCounter + 1) & 255
+  // Debris (class 10) and fire (class 5) have separate native counters.
+  if (kind !== 'debris' && kind !== 'fire') w.effectCounter = (w.effectCounter + 1) & 255
   const f: Effect = {
     x: p.x,
     z: p.z,
@@ -2225,6 +2241,114 @@ function stepDebrisEffect(w: World, fx: Effect, rng: { randomState: number }) {
   moveVisual(fx, fragment)
   return alive
 }
+
+function createFire(w: World, p: Point, source: 'tree' | 'lightning') {
+  const fx = effect(w, 'fire', p)
+  fx.fire = createSceneryFire(
+    w.land,
+    nativePosition(w, p),
+    {
+      size: source === 'tree' ? 32 : 16,
+      snap: source === 'lightning',
+      smoke: source === 'tree',
+    },
+    w.cosmeticRandom
+  )
+  setFireLifetime(fx.fire, source === 'tree' ? 76 : 24)
+  fx.duration = Infinity
+  fx.groundVersion = w.landVersion
+  moveVisual(fx, fx.fire)
+}
+
+// 0x511ae0's first bolt turn: ignite burnable scenery in the target cell;
+// without scenery, create the short-lived, cell-centered fire instead.
+function igniteLightningScenery(w: World, target: NativePoint) {
+  const trees = w.trees.filter(tree => {
+    const p = nativePosition(w, tree)
+    return (
+      tree.model <= 6 &&
+      tree.logs > 0 &&
+      !tree.burn &&
+      (p.x & 0xfe00) === (target.x & 0xfe00) &&
+      (p.y & 0xfe00) === (target.y & 0xfe00)
+    )
+  })
+  for (const tree of trees)
+    tree.burn = {
+      remaining: 76,
+      started: false,
+      wood: Math.round(tree.logs * 100),
+      scale: debrisModels[tree.model + 12].scale,
+    }
+  const fires = w.effects.filter(
+    ({ fire }) =>
+      fire &&
+      !fire.expiring &&
+      (fire.x & 0xfe00) === (target.x & 0xfe00) &&
+      (fire.y & 0xfe00) === (target.y & 0xfe00)
+  )
+  for (const { fire } of fires) {
+    fire!.expiring = true
+    fire!.remaining = 0
+  }
+  if (!trees.length && !fires.length) createFire(w, browserPosition(target), 'lightning')
+}
+
+function stepScenery(w: World) {
+  // Snapshot before tree/fire callbacks allocate this turn's new scenery.
+  const fires = w.effects.filter(fx => fx.fire)
+  for (const tree of w.trees) {
+    if (!tree.burn || tree.logs <= 0) continue
+    tree.burn.wood = Math.round(tree.logs * 100)
+    const alive = stepBurningTree(
+      tree.burn,
+      rules.sceneryWood[tree.model],
+      debrisModels[tree.model + 12].scale,
+      () => createFire(w, tree, 'tree')
+    )
+    tree.logs = alive ? tree.burn.wood / 100 : 0
+    // ponytail: native class-17 delayed replanting awaits scenery ownership.
+  }
+  for (const fx of fires) {
+    const fire = fx.fire!
+    if (fx.groundVersion !== w.landVersion) fire.groundDirty = true
+    fx.groundVersion = w.landVersion
+    const alive = stepSceneryFire(w.land, fire, w, {
+      isLand: () =>
+        !!terrainSupportsPerson(w.land.categories[(fire.y >> 9) * 128 + (fire.x >> 9)], fire),
+      sound: () => {
+        sound(w, 6, fx, fx.id)
+        fire.soundPlaying = true // Cleared when its audio voice ends.
+      },
+      ember: (position, speed, flags) => {
+        const spark = effect(w, 'trail', browserPosition(position))
+        const trail = createSpellTrail(
+          w.land,
+          position,
+          3,
+          (w.effectCounter - 1) & 255,
+          w.cosmeticRandom
+        )
+        trail.speed = speed
+        trail.flags4 |= flags
+        spark.animation = trail
+        spark.sprite = { sequence: 'blastTrail', frame: 0 }
+        spark.duration = Infinity
+        moveVisual(spark, trail)
+      },
+      smoke: () => {
+        const cloud = createBuildingSmoke(w.land, fire, w)
+        const smoke = effect(w, 'buildingSmoke', browserPosition(fire))
+        smoke.animation = smoke.smoke = cloud
+        smoke.groundVersion = w.landVersion
+        smoke.duration = Infinity
+        moveVisual(smoke, cloud)
+      },
+    })
+    moveVisual(fx, fire)
+    if (!alive) fx.duration = fx.age
+  }
+}
 function processProjectiles(w: World) {
   // Newest native allocations precede older objects. Full mixed-class scheduling remains to be ported.
   for (const shot of [...w.projectiles].reverse()) {
@@ -2540,6 +2664,7 @@ function stepTurn(w: World) {
     }
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
+  stepScenery(w)
   for (const fx of w.effects) {
     fx.age += dt
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
@@ -2561,7 +2686,10 @@ function stepTurn(w: World) {
         fx.lightning.seed = w.randomState
         setAnimationObject(fx.animation!, 41, 1361)
         sound(w, 0xa2, fx)
-      } else stepLightning(w.land, fx.lightning, w)
+      } else {
+        if (fx.lightning.turn === 0) igniteLightningScenery(w, fx.lightning.target)
+        stepLightning(w.land, fx.lightning, w)
+      }
     }
     if (fx.land) {
       const t = Math.min(1, fx.age / fx.duration)
@@ -2575,7 +2703,7 @@ function stepTurn(w: World) {
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0
   if ((w.turn & 15) === 0)
     for (const t of w.trees)
-      if (t.model <= 6 && t.logs > 0 && t.logs < 4)
+      if (t.model <= 6 && t.logs > 0 && t.logs < 4 && !t.burn)
         t.logs = Math.min(4, t.logs + constants.TREE1_WOOD_GROW / 100)
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const shrine of w.shrines) {

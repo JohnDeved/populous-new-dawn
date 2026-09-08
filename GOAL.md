@@ -60,7 +60,14 @@ native centroid placement, launch RNG, gravity and spin. Native comparisons cove
 300 collapse calls (9,755 faces), 8,192 flight snapshots and 128 splash initializers;
 live-browser checks cover textured faces, motion, rotation, impact cues and cleanup.
 Full debris lighting/painter ownership, allocation limits, attachments and mixed-class
-scheduling remain open. Tree ignition/fire propagation is the next visible target.
+scheduling remain open. Lightning now ignites scenery with the original fire mesh,
+nine-frame texture cycle, growth/shrink, embers, expiry smoke and burning-tree shrink.
+The object atlas now applies the native per-tile alpha decoder: 262,144 texels,
+128 fire initializers, 10,240 fire snapshots, 2,400 tree snapshots and 512 facing
+angles agree with isolated native routines. Browser casting, rendering and cleanup
+pass. Full propagation, building ignition, sunlight, painter ownership, allocation
+failure and delayed tree replanting remain open. Continue visible fire/building
+activity and the first-mission controls before isolated hidden bookkeeping.
 The sprite audit found intact unit
 artwork; the nearby striped shapes were reincarnation stones. Their invented
 radius-2.8 circle is now replaced with the original eight cell-snapped offsets,
@@ -75,7 +82,7 @@ ground targets are still open; the browser validator supplies preview validity.
 Keep checking these during first-mission play.
 Lightning now uses its displaced upper flash, three native eight-segment shapes,
 recursive screen-space branches and original procedural strip texture; full
-painter/blend ownership and its damage/fire side effects remain open. Blast's
+painter/blend ownership and its complete damage/fire side effects remain open. Blast's
 impact now uses original HFX1099–1107, the native animation setter/updater,
 stored-diagonal grounding, nine-turn object lifetime and both impact cues;
 the invented shockwave ring is removed. Projectile trails now use both native
@@ -153,6 +160,12 @@ responsibilities and duplicated logic before calling the slice done. Use tool
 findings to guide focused refactoring, and keep remaining debt explicit. Passing
 native comparisons establishes behavior; readability still needs human review.
 
+Applied during the scenery-fire port: named boolean state replaces opaque native
+flag words in maintained TypeScript; shared smoke/trail initializers copy only
+position fields; browser checks reuse their setup and GPU visibility measurement.
+Fallow health/duplication and ox-standard checks guide this work. Existing broad
+lint/complexity debt remains open; passing a focused check does not clear it.
+
 Standing user requirement, added 2026-09-07: the stack and code must help progress rather than constrain it. Keep this a modern, concise web project that is easy to run, edit, extend and experiment with while retaining original-game parity.
 
 - Use TypeScript for the deterministic engine, React for interface state, Three.js for rendering, Web Audio for sound, and the existing Vite/vinext development and publishing flow. Evaluate dependencies or stack changes against a concrete parity, tooling or performance need; adopt a framework when it removes real work without constraining native behavior.
@@ -181,6 +194,6 @@ All rows remain open until compared against the original engine, including edge 
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
 | AI and campaign | Original first-level layout; CPU-compared VM, cast/stock/head query bindings, turn-zero setup, disabled Dakini reincarnation and original terrain-rule bytecode applied; 6,484 native worship/reward turns and 960 vault task/work comparisons; original discovery/settlement/vault notification branches, building counter rebuild/query sequences, marker forcing and type-3 allocation CPU-compared; first-mission spell-defense setup and recurring spell-entry shutoff after the second Blast CPU-compared and integrated; live follower counts and original warrior-dependent attack-commitment block CPU-compared and integrated; AI queue/training controller and follower eligibility/selection reconstructed and CPU-compared, including combined controller/selector calls; shared command encoding, ownership, routes and group commit CPU-compared; shared person initialization, AI reservation/release, facing and animation selection CPU-compared, including 128 combined training handoffs; order startup, building reconciliation and configured speed CPU-compared; training linked-list operations and all command-8 substates with original geometry CPU-compared, including a sequential specialist/trainee queue handoff; native admission/interior-stop composition and building conversion CPU-compared; pathfinding and remaining world-effect integration pending; complete campaign/multiplayer outcome decisions CPU-compared, live 16-turn result checks, forced flags and defeat-timer progression integrated; simulation continues after results so defeated settlements finish collapsing; all nine native celebration substates, chain actions and state-41 initialization CPU-compared, now driving live braves, warriors and shamans through explicit movement/world adapters | Remaining game-command bindings, AI stocks and scheduler; worship eligibility, object phases and remaining reward lifecycle; all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Sixty-eight regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Sixty-nine regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).

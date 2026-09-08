@@ -191,11 +191,12 @@ To reproduce selected extraction without launching the installer:
 
 ```sh
 .tools/decomp/oracle/bin/python -m pip install -r decomp/extraction-requirements.txt
-.tools/decomp/oracle/bin/python scripts/extract-reference.py /path/to/PopulousTB-Setup.zip /path/to/game 'objects/*0-2.*'
+.tools/decomp/oracle/bin/python scripts/extract-reference.py /path/to/PopulousTB-Setup.zip /path/to/game 'objects/*0-2.*' 'data/anibl0-0.dat'
 python3 scripts/import-original.py /path/to/game
 ```
 
-The importer also needs the previously extracted palette, atlas and animation
+Run `inspect-executable.py` first to refresh `original-rules.json`, including the
+object texture alpha table. The importer also needs the extracted palette, atlas and animation
 files listed in `public/original/provenance.json`. The extractor accepts a raw
 Inno executable too; patterns are relative to its application directory. It
 verifies payload checksums, rejects escaping paths and differing existing files,
@@ -1694,3 +1695,42 @@ Run `python scripts/check-native-building-debris.py EXE` for 300 native collapse
 calls (9,755 faces), 8,192 flight snapshots and 128 splash initializations.
 Run `node scripts/check-browser-building-debris.mjs` against the dev server for
 live collapse, visible textured geometry, rotation, impact cues and removal.
+
+## Scenery fire and object texture alpha
+
+`app/scenery-fire.ts` reconstructs fire initialization (`004a6b20`), lifetime
+selection (`004a8c60`), burning turns (`004a7170`), camera-facing geometry
+(`004eebc0`) and the burning-tree branch (`004a7bd0` / `004a79f0`). Lightning's
+first bolt turn (`00511ae0`) now ignites eligible scenery in its native cell.
+Model 5 uses ANIBL record 1 from `data/anibl0-0.dat`: tiles
+92, 93, 94, 95, 100, 101, 102, 103, 108. Tree fire grows to twice the base model
+scale and lasts 76 turns; empty-cell Lightning fire starts at full size and lasts
+24. Fire emits original effect-3 embers and effect-76 smoke before expiry.
+
+`004b6e60` selects texture decoding through the table at `005d2910`.
+`0042fb30` decodes flagged tiles through AL colors and four-bit opacity;
+`0042f980` decodes ordinary indexed tiles. Treating every tile as an ordinary
+palette index made flames green. The importer now decodes the entire object
+atlas with the native selector; browser fire uses alpha blending. PNG channels
+retain palette color precision and normalize four-bit opacity to 8 bits.
+Device-specific color packing, filtering fringes and painter order remain open.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-scenery-fire.py /path/to/d3dpoptb.exe
+node scripts/check-browser-scenery-fire.mjs
+```
+
+The native check executes terrain, initialization, lifetime, animation, shrink,
+RNG and both pixel converters. It compares all 262,144 atlas texels, 128 fire
+initializations/lifetime settings, 10,240 fire snapshots, 2,400 tree snapshots and
+512 facing angles. Sound, allocation, sunlight, cleanup and replanting callbacks
+are intercepted; camera geometry executes separately. The browser check casts
+Lightning on an original tree and verifies textured GPU output, grounding,
+scale, UV animation, rotation, sound request, smoke and cleanup.
+
+Boundaries: allocation success and capacity, full class-5/mixed-class scheduling,
+per-object facing stagger, native texture/painter ownership, visibility, sunlight,
+propagation/building ignition, sinking scenery and class-17 delayed replanting.
+Browser sound completion prevents duplicate crackle voices; the native voice
+scheduler remains unported. These checks establish the described routines and
+integration, not whole-frame or full-engine parity.

@@ -29,9 +29,9 @@ export function createSpellTrail(
   cosmetic: { randomState: number }
 ): SpellTrail {
   const p: SpellTrail = {
-    ...position,
     x: position.x & 65535,
     y: position.y & 65535,
+    h: position.h,
     object: 0,
     draw: 0,
     morph: 0,

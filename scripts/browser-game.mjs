@@ -1,0 +1,43 @@
+// Shared setup for desktop checks; keep test access out of the shipped game API.
+export async function openGame(browser) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await page.waitForSelector('.world-viewport canvas')
+  await page.waitForFunction(() => {
+    const main = document.querySelector('main')
+    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber; fiber = fiber.return) {
+      for (let hook = fiber.memoizedState; hook; hook = hook.next) {
+        if (hook.memoizedState?.current?.unitMeshes) window.testScene = hook.memoizedState.current
+      }
+    }
+    return !!window.testScene
+  })
+  await page.waitForFunction(() => window.testScene.world.flyby.flags & 1)
+  await page.keyboard.press('Escape')
+  await page.waitForFunction(() => !window.testScene.world.inputMask)
+  return { page, errors }
+}
+
+export async function effectPixels(page, ids) {
+  return page.evaluate(ids => {
+    const scene = window.testScene, groups = ids.map(id => scene.fxMeshes.get(id))
+    const renderer = scene.renderer, gl = renderer.getContext()
+    const length = gl.drawingBufferWidth * gl.drawingBufferHeight * 4
+    const before = new Uint8Array(length), after = new Uint8Array(length)
+    renderer.render(scene.scene, scene.camera)
+    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, before)
+    groups.forEach(g => { g.visible = false })
+    renderer.render(scene.scene, scene.camera)
+    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, after)
+    groups.forEach(g => { g.visible = true })
+    let pixels = 0
+    for (let i = 0; i < length; i += 4) {
+      if (before[i] !== after[i] || before[i + 1] !== after[i + 1] || before[i + 2] !== after[i + 2]) pixels++
+    }
+    return pixels
+  }, ids)
+}

@@ -1,8 +1,8 @@
 import native from './original-sound.json' with { type: 'json' }
 // First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
 export const AUDIO_CUES = [
-  0xb, 0xd, 0xe, 0x18, 0x19, 0x24, 0x25, 0x27, 0x2b, 0x32, 0x37, 0x43, 0x58, 0x66, 0x70, 0x76, 0x77,
-  0x80, 0x8c, 0x8d, 0x96, 0x9f, 0xa1, 0xa2, 0xb2, 0xab, 0x29, 0xe3,
+  0x6, 0x13, 0x2c, 0x34, 0xb, 0xd, 0xe, 0x18, 0x19, 0x24, 0x25, 0x27, 0x2b, 0x32, 0x37, 0x43, 0x58,
+  0x66, 0x70, 0x76, 0x77, 0x80, 0x8c, 0x8d, 0x96, 0x9f, 0xa1, 0xa2, 0xb2, 0xab, 0x29, 0xe3,
 ]
 export function audioRandom(state: number) {
   const n = (Math.imul(state, 0x24a1) + 0x24df) >>> 0
@@ -88,13 +88,13 @@ export class Soundscape {
     if (this.enabled && this.master && this.context)
       this.master.gain.setValueAtTime(this.volume, this.context.currentTime)
   }
-  cue(cue: number, attenuation = 1, pan = 0) {
-    if (!this.enabled || !this.context || !this.master || attenuation <= 0) return
+  cue(cue: number, attenuation = 1, pan = 0, finished?: () => void) {
+    if (!this.enabled || !this.context || !this.master || attenuation <= 0) return finished?.()
     const variant = cueVariant(cue, this.randomState)
-    if (!variant) return
+    if (!variant) return finished?.()
     this.randomState = variant.state
     const buffer = this.buffers.get(variant.key)
-    if (!buffer) return
+    if (!buffer) return finished?.()
     // ponytail: browser voice cap; the original priority/stealing scheduler is not ported yet.
     if (this.active.size >= 64) this.active.values().next().value?.stop()
     const ctx = this.context,
@@ -114,6 +114,7 @@ export class Soundscape {
       source.disconnect()
       gain.disconnect()
       panner.disconnect()
+      finished?.()
     }
     source.start()
   }

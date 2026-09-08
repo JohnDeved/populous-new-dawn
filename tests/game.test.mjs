@@ -10,6 +10,26 @@ import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('Lightning burns original scenery through smoke and cleanup without leaking fire state', () => {
+  const w = createWorld();
+  w.manaWorld.gameFlags = 32;
+  const tree = w.trees.find(t => t.id === 21);
+  const neighbor = w.trees.find(t => t.id === 22);
+  w.shots.lightning = 1;
+  select(w, 'shaman');
+  assert.ok(cast(w, 'lightning', tree));
+  until(w, () => w.effects.some(f => f.fire?.smokeOnExpiry), 15);
+  const fx = w.effects.find(f => f.fire?.smokeOnExpiry);
+  assert.ok(tree.burn);
+  assert.equal(neighbor.burn, undefined, 'ignition stays in the target native cell');
+  until(w, () => w.effects.some(f => f.smoke), 10);
+  const cloud = w.effects.find(f => f.smoke);
+  assert.equal('remaining' in cloud.animation, false, 'smoke must not be dispatched as a spell trail');
+  assert.ok(tree.burn.wood < 400);
+  until(w, () => !w.effects.includes(fx) && tree.logs === 0, 2);
+  assert.ok(w.effects.includes(cloud), 'smoke outlives the fire');
+  assert.ok(w.sounds.some(s => s.cue === 6 && s.owner === fx.id));
+});
 test('native impacts expire on exact turns and debris preserves the sprite allocation counter', async () => {
   const {effect, nativePosition} = await import('../app/model.ts');
   const {terrainPointHeight} = await import('../app/native-terrain.ts');

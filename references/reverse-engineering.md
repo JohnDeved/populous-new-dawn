@@ -3969,3 +3969,28 @@ Boundaries: full native face lighting, painter/blend ordering, class allocation
 limits/ownership and mixed-class scheduling remain open. Attachment-driven debris,
 other emitter modes and scenery fire are not implemented by this slice. This is
 collapse-fragment parity, not complete destruction or whole-frame visual parity.
+
+## Scenery fire, burning trees and atlas decoding — 2026-09-08
+
+Lightning now follows the first-bolt scenery branch with original model 5,
+ANIBL's nine fire frames, native growth/shrink, embers and expiry smoke. Burning
+trees consume four native wood units per turn and shrink with the original
+wood-to-scale calculation. Empty-cell fire uses the native 24-turn lifetime;
+tree fire uses 76 turns. Full propagation, building ignition and replanting remain
+open. Native allocation limits, class ordering, lighting and painter ownership
+are still browser adapters.
+
+The browser screenshot exposed an asset-decoding error: flame texels interpreted
+as ordinary palette indices appeared green. `004b6e60` and `0042fb30` establish
+which tiles instead use AL colors and nibble opacity. The shared object atlas is
+now decoded accordingly; all 262,144 texels match isolated native converters.
+Fire comparisons also cover 128 initializers/lifetime settings, 10,240 lifecycle
+snapshots, 2,400 tree snapshots and 512 facing angles. Browser Lightning ignition
+contributes 561 GPU pixels in the checked view and completes smoke/tree cleanup.
+
+Maintainability: fire state uses meaningful booleans instead of native flag
+words. Smoke and trail initializers copy coordinates explicitly, preventing a
+fire's timer from leaking into smoke and triggering the wrong effect dispatcher.
+Browser setup and effect visibility checks are shared. Fallow and ox-standard
+were run; legacy complexity/lint debt remains open. See the runnable checks and
+precise comparison boundaries in [the decompilation guide](../decomp/README.md#scenery-fire-and-object-texture-alpha).
