@@ -1537,8 +1537,38 @@ test('live native routes release query ownership, expire failures and walk low s
  for(let i=0;i<15;i++)tick(w,1/12);assert.equal(w.motionRoutes.failedSearches[cached],0);
  assert.deepEqual(findPath(w,u,ENEMY),[]);assert.ok(w.pathfinding.state.searches>0,'expired failure searches again');
  select(w,'shaman');command(w,shore);assert.ok(u.path.length);assert.deepEqual(u.path.at(-1),shore);
- assert.equal(w.motionRoutes.active,0);assert.equal(u.native,null,'planning does not claim animation or ordinary order ownership');
+ assert.ok(w.pathfinding.people.get(u.id)?.motionGroup);assert.equal(u.native,null,'routing does not claim animation or ordinary order ownership');
  until(w,()=>u.x===shore.x&&u.z===shore.z,15);advance(w,1);assert.ok(w.units.includes(u));assert.equal(u.hp,maxHp('shaman'));
  for(let id=1;id<=400;id++)assert.equal(new DataView(w.motionRoutes.records.buffer).getInt16(id*109,true),0);
  w.pathfinding.solver.tribeRequests.fill(123);tick(w,1/12);assert.ok(w.pathfinding.solver.tribeRequests.every(n=>n<123),'request limits observe this turn only');
+});
+
+
+test('live followers share routes, advance before exact arrival and release every owner', async () => {
+ const {guardShaman}=await import('../app/model.ts');
+ const w=createWorld(),a=addUnit(w,'blue','brave',HOME),b=addUnit(w,'blue','brave',HOME),goal={x:9,z:25};
+ w.selected=[a.id,b.id];command(w,goal);
+ const pa=w.pathfinding.people.get(a.id),pb=w.pathfinding.people.get(b.id),group=pa.motionGroup;
+ const refs=()=>new DataView(w.motionRoutes.records.buffer).getInt16(group*109,true);
+ assert.ok(group);assert.equal(pb.motionGroup,group);assert.equal(refs(),2);
+ command(w,ENEMY);assert.equal(w.pathfinding.people.get(a.id),pa);assert.equal(w.pathfinding.people.get(b.id),pb);assert.equal(refs(),2,'an unreachable replacement preserves existing orders');
+ const searches=w.pathfinding.state.searches;assert.ok(findPath(w,a,goal).length);
+ assert.equal(refs(),2,'a preview borrows and releases the shared route');assert.equal(w.pathfinding.state.searches,searches,'preview reuses the live route');
+ w.selected=[a.id];guardShaman(w);assert.equal(refs(),1);assert.equal(w.pathfinding.people.has(a.id),false);
+ until(w,()=>pb.motionGroup===0,15);
+ assert.ok(Math.hypot(b.x-goal.x,b.z-goal.z)>0,'native route arrival precedes exact task arrival');
+ assert.ok(Math.max(Math.abs(b.x-goal.x),Math.abs(b.z-goal.z))<=224/256);
+ assert.equal(refs(),0);assert.equal(w.motionRoutes.records[group*109+2],0);
+ until(w,()=>b.x===goal.x&&b.z===goal.z,3);assert.equal(w.pathfinding.people.has(b.id),false);
+ // A new destination replaces the old reference; interruption and deletion
+ // cover the same ownership boundary used by live task consumers.
+ w.selected=[b.id];command(w,HOME);const old=w.pathfinding.people.get(b.id).motionGroup;
+ command(w,{x:5,z:29});assert.equal(new DataView(w.motionRoutes.records.buffer).getInt16(old*109,true),0);
+ const last=w.pathfinding.people.get(b.id).motionGroup;b.hp=0;tick(w,1/12);
+ assert.equal(w.pathfinding.people.has(b.id),false);if(last)assert.equal(new DataView(w.motionRoutes.records.buffer).getInt16(last*109,true),0);
+ const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');w.selected=[shaman.id];command(w,goal);
+ assert.ok(w.pathfinding.people.has(shaman.id));assert.ok(cast(w,'blast',HOME));assert.equal(w.pathfinding.people.has(shaman.id),false);
+ const result=createWorld(),followers=result.units.filter(u=>u.team==='blue'&&u.kind==='brave');result.selected=followers.map(u=>u.id);command(result,goal);
+ assert.ok(result.pathfinding.people.size>0);result.units=result.units.filter(u=>u.team==='blue');result.turn=31;result.ai.variables[57]=1;tick(result,1/12);
+ assert.equal(result.status,'won');assert.equal(result.pathfinding.people.size,0);assert.equal(result.motionRoutes.active,0,'victory releases ordinary routes before native celebration takes over');
 });

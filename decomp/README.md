@@ -1570,3 +1570,32 @@ and physics are not integrated by this change. Queued-command collection uses
 model zero until ordinary queues are native. Current live worlds have no vehicles;
 empty vehicle lookups represent that fact. Full-world rendering, vehicle actions,
 complete building-access ownership and the remaining object scheduler are open.
+
+
+## Persistent ordinary route ownership
+
+`app/live-pathfinding.ts` now retains ordinary routing records in the world and
+composes `004eadc0` after each live movement update, matching its placement at the
+end of `004e6d00`. The original ground arrival square is 224 coordinate units;
+advancement no longer waits for the old exact-waypoint follower. Native pool
+references are shared by nearby followers and freed through `004ea460` when the
+last owner leaves. Route previews temporarily borrow/release references.
+
+Order replacement plans first, then commits the new ownership; an unreachable
+replacement keeps the existing browser order. Candidate tree/building queries do
+not replace a follower's active route. Shared cancellation now clears native
+route ownership across task release, person combat, casting/Blast interruption,
+construction/training transitions, death/removal and victory handoff.
+
+The **66 gameplay regressions** include two live shared-route followers, preview
+reuse, unreachable replacement, one-owner cancellation, early native arrival,
+exact final task arrival, replacement/death/casting cleanup and victory transfer.
+The **4,096 native route availability/advancement comparisons** pass unchanged.
+Real-browser QA verifies a right-click order holds a route while moving and drops
+its routing record on arrival, followed by the existing celebration checks.
+
+**Boundary:** these are persistent routing records, not full ordinary native
+state/animation ownership. Position/velocity and exact final task arrival still
+come from the browser controller. Full physics, collision recovery, ordinary
+order queues/states, vehicle actions and full-map rendering remain unfinished.
+The existing native ports are reused; the raw export count remains **646**.

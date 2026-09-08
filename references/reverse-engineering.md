@@ -3181,3 +3181,39 @@ Ordinary tasks, exact-waypoint following, animation ownership, collision recover
 full physics and persistent native route/order records still need migration.
 The current world has no vehicles; their queries are empty and their actions
 remain explicit unsupported consumers. Full engine/game parity remains active.
+
+
+## 2026-09-08 — Persistent live routes and native waypoint advancement
+
+Ordinary followers now retain native route records instead of immediately
+flattening and releasing each order's route. `004eadc0` runs after movement,
+following its call site at the end of `004e6d00`; the 224-unit arrival square now
+advances live waypoints. Nearby followers share native pool references. Previews
+borrow/release ownership, while committed replacement and interruption use the
+same release routine. Tree/building candidate searches remain queries.
+
+Shared cancellation covers task release, person combat, casting and Blast,
+building transitions, deletion/death and victory. A failed replacement preserves
+the existing browser order. The suite has **66 gameplay tests**, including live
+sharing, preview reuse, failed replacement, independent cancellation, early
+route advancement, final arrival and all ownership cleanup transitions. The
+**4,096 native availability/advancement cases** still pass. Browser right-click
+QA now verifies retained ownership during motion and release at arrival before
+its native celebration/atlas checks.
+
+The routing registry owns only the ordinary routing transition. It does not
+claim native state/animation ownership for those followers. The browser velocity
+controller and exact final task arrival still need replacement by the original
+physics/order dispatchers; collision recovery, vehicles and full-world integration
+remain open. No additional raw exports were needed; the manifest remains **646**.
+
+
+## 2026-09-08 — User priority change: visible fidelity first
+
+The user reordered the active full-parity goal: graphics/rendering, effects,
+UI/controls and critical gameplay take priority over less-visible engine systems.
+`GOAL.md` now records that order and supersedes the older immediate dispatcher/
+campaign targets. The next task is a browser/reference comparison and the largest
+visible correction. Decompilation remains part of the project, driven first by
+those visible targets or their concrete blockers. Full engine parity, saves and
+multiplayer remain in scope; no completion criteria were removed.
