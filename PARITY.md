@@ -1,8 +1,14 @@
 # Game parity progress
 
-**17.7% verified checklist coverage — 17/96 checkpoints.**
+**17.7% verified coverage of known scope — 17/96 checkpoints.**
 
-55 partial; 24 missing. Checklist revision 1. Full game parity remains unfinished.
+55 partial; 24 missing; 0 unassessed. Checklist revision 1.
+
+**Discovery: open.** The original engine and complete content inventory are still being researched. These 96 checkpoints are the current known scope, not a closed inventory; further decompilation and original-game comparisons may reveal new systems or split existing checkpoints.
+
+Unknown scope is not assigned an invented size or percentage. This checklist is expandable: add checkpoints or entire subsystems as research reveals them. Use `unassessed` for newly identified behavior whose implementation/parity has not been investigated; it enters the denominator immediately and receives no verified credit. Split overly broad checkpoints when discoveries justify it, with a recorded revision.
+
+Ready for final parity review: **no**. Even 100% of known checkpoints is not a full-game claim while discovery is open. An audited scope requires recorded evidence of a full content/system inventory review; new discoveries reopen it. This tool never automatically completes the project goal.
 
 This is a planning metric against a versioned capability checklist, not an objective percentage of the original engine or an estimate of effort remaining. Each checkpoint has equal weight; scope and difficulty differ. Partial work receives no completion credit. Tests, exported functions and developer tooling do not earn extra points.
 
@@ -10,20 +16,20 @@ Verified means the named scope has original-engine evidence and browser/game int
 
 ## By subsystem
 
-| Subsystem | Verified coverage | Verified | Partial | Missing |
-| --- | ---: | ---: | ---: | ---: |
-| World and camera | 62.5% | 5/8 | 3 | 0 |
-| Models, sprites and lighting | 25.0% | 2/8 | 6 | 0 |
-| Effects and object lifecycles | 50.0% | 4/8 | 3 | 1 |
-| Interface and desktop controls | 37.5% | 3/8 | 4 | 1 |
-| Audio and music | 0.0% | 0/8 | 6 | 2 |
-| Simulation scheduling and randomness | 0.0% | 0/8 | 7 | 1 |
-| Movement, collision and vehicles | 12.5% | 1/8 | 5 | 2 |
-| Unit classes and combat | 0.0% | 0/8 | 5 | 3 |
-| Buildings, resources and population | 12.5% | 1/8 | 7 | 0 |
-| Spell rules and complete roster | 12.5% | 1/8 | 4 | 3 |
-| Campaign, AI and objectives | 0.0% | 0/8 | 5 | 3 |
-| Persistence and multiplayer | 0.0% | 0/8 | 0 | 8 |
+| Subsystem | Known-scope coverage | Verified | Partial | Missing | Unassessed |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| World and camera | 62.5% | 5/8 | 3 | 0 | 0 |
+| Models, sprites and lighting | 25.0% | 2/8 | 6 | 0 | 0 |
+| Effects and object lifecycles | 50.0% | 4/8 | 3 | 1 | 0 |
+| Interface and desktop controls | 37.5% | 3/8 | 4 | 1 | 0 |
+| Audio and music | 0.0% | 0/8 | 6 | 2 | 0 |
+| Simulation scheduling and randomness | 0.0% | 0/8 | 7 | 1 | 0 |
+| Movement, collision and vehicles | 12.5% | 1/8 | 5 | 2 | 0 |
+| Unit classes and combat | 0.0% | 0/8 | 5 | 3 | 0 |
+| Buildings, resources and population | 12.5% | 1/8 | 7 | 0 | 0 |
+| Spell rules and complete roster | 12.5% | 1/8 | 4 | 3 | 0 |
+| Campaign, AI and objectives | 0.0% | 0/8 | 5 | 3 | 0 |
+| Persistence and multiplayer | 0.0% | 0/8 | 0 | 8 | 0 |
 
 ## History
 
@@ -32,13 +38,14 @@ Scope changes require a new checklist revision. Scores across different revision
 | Recorded (UTC) | Revision | Coverage | Verified | Change | Note |
 | --- | ---: | ---: | ---: | ---: | --- |
 | 2026-09-08T14:48:55.929Z | 1 | 17.7% | 17/96 | baseline | Initial full-scope assessment from existing native and integration evidence, including coastline shading checks. No historical scores inferred. |
+| 2026-09-08T14:52:42.949Z | 1 | 17.7% | 17/96 | 0.0 pp | Make discovery explicitly open: percentage covers known scope, new unassessed checkpoints expand it, and 100% cannot qualify for final review without an evidenced inventory audit. No capability counts changed. |
 
 ## Update workflow
 
-1. Edit `parity.json`: keep checkpoint IDs and scope stable, update status, evidence and remaining boundaries. Credit only the stated, compared and integrated behavior; reopen regressions.
-2. Run the affected native/browser/game checks. Split or add scope only with a revision increment and an explanation; never silently shrink the denominator.
+1. Edit `parity.json`: update status, evidence and remaining boundaries. Preserve IDs for unchanged scope. Add discoveries as `unassessed`, then classify them as missing, partial or verified after investigation. Credit only compared and integrated behavior; reopen regressions.
+2. Run the affected native/browser/game checks. Add or split checkpoints/groups freely as research requires, increment the revision, reopen discovery and explain the scope change; never silently shrink the denominator. There is no fixed checkpoint or group limit.
 3. Run `npm run parity:record -- "What changed and what was verified"`, then `npm run check`. Commit the ledger, history and generated report together.
-4. Use `npm run parity` for a compact summary or `npm run parity -- --json` for machine-readable counts. Keep maintainability and decomp progress in GOAL.md; they are not gameplay completion credit.
+4. Use `npm run parity` for a compact summary or `npm run --silent parity -- --json` for machine-readable counts. Keep maintainability and decomp progress in GOAL.md; they are not gameplay completion credit.
 
 ## Checkpoints
 

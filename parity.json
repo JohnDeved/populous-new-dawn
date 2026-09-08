@@ -1,5 +1,10 @@
 {
   "revision": 1,
+  "discovery": {
+    "status": "open",
+    "note": "The original engine and complete content inventory are still being researched. These 96 checkpoints are the current known scope, not a closed inventory; further decompilation and original-game comparisons may reveal new systems or split existing checkpoints.",
+    "evidence": ["GOAL.md", "references/reverse-engineering.md"]
+  },
   "groups": [
     {
       "id": "world",

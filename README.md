@@ -54,7 +54,7 @@ objective fraction of the original engine.
 
 ```sh
 npm run parity                 # Compact global/subsystem report
-npm run parity -- --json       # Machine-readable counts and percentage
+npm run --silent parity -- --json # Machine-readable counts and percentage
 npm run parity:check           # Evidence paths, revision and report freshness
 npm run parity:record -- "Describe the change and checks run"
 ```
@@ -63,6 +63,12 @@ Edit `parity.json` after comparing and integrating behavior, then record a snaps
 Keep IDs/scope stable; scope changes require a revision increment and an explanation.
 Commit the ledger, history and generated dashboard together. Metadata checks run
 with `npm run check`; they do not execute the linked native or browser comparisons.
+
+The percentage covers **known scope**. The inventory remains open: add new groups
+or `unassessed` checkpoints as research reveals more, or split broad checkpoints
+with a recorded revision. New scope can lower the percentage. Unknown work is not
+given an invented weight, and an open discovery status prevents 100% checklist
+coverage from qualifying for final parity review.
 
 ## Editing the game
 

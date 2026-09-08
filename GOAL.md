@@ -33,6 +33,14 @@ Keep visible fidelity first while retaining campaign, saves and multiplayer in t
 global denominator. Maintainability and decompilation support this objective but
 do not count as completed gameplay.
 
+The inventory is open and must adapt to discoveries. Report coverage **of known
+scope**, not a fixed percentage of everything in the original. Add newly discovered
+behaviors as `unassessed` (zero verified credit), expand groups or split broad
+checkpoints as needed, and record the denominator/revision change. Keep discovery
+open until a full original content/system inventory audit has evidence; reopen it
+when new scope appears. Even 100% known-checkpoint coverage cannot establish full
+game parity while discovery is open. Unknown work has no invented size or weight.
+
 ### Execution order
 
 User direction, 2026-09-08: prioritize what players immediately see, hear and
