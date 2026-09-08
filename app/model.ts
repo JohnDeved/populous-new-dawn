@@ -1,5 +1,6 @@
 import {terrainSupportsPerson} from './person-collision.ts';
 import {setAnimationObject,type AnimatedUnit} from './animation.ts';
+import {createSpellTrail,stepSpellTrail,type SpellTrail} from './spell-trails.ts';
 import {createLivePathfinding,findLivePath,planLivePath,acceptLivePath,clearLivePath,stepLiveRoute,removeDeadLiveRoutes} from './live-pathfinding.ts';
 import {createLivePerson,initializeLiveCelebration,stepLiveCelebration,syncLivePersonCells,type LivePerson} from './live-people.ts';
 import type {ObjectCells} from './object-cells.ts';
@@ -41,7 +42,7 @@ export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp:
 export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; forced: boolean; model: number; morph: ModelMorph | null; angle: number };
 export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
-export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; animation?:AnimatedUnit; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
+export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; animation?:AnimatedUnit|SpellTrail; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
 export const TURNS_PER_SECOND=12;
 export const SPELLS: { id: Spell; model:number; name: string; cost: number; key: string; symbol: string; color: string; description: string }[] = [
   { id: 'blast', model:2, name: 'Blast', cost: 10, key: '1', symbol: '✹', color: '#e8b076', description: 'Rechargeable · throws followers back. Water is deadly.' },
@@ -253,7 +254,7 @@ export type World = {
   outcome:Omit<OutcomeWorld,'turn'|'landFlags'|'playerTribe'> & {cameraTribe:number|null;cameraRequest:number;cameraPlaying:boolean;completedLevel:number|null;skyCounter:number};
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
-  time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
+  time: number; turn: number; pendingTime: number; randomState: number; cosmeticRandom:{randomState:number}; effectCounter:number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
   paused: boolean; speed: number; message: string; messageUntil: number; status: 'playing' | 'won' | 'lost';
   respawn: number; redRespawn: number; stats: { built: number; cast: number; bridges: number; trained: number };
 };
@@ -293,7 +294,7 @@ export function createWorld(): World {
       spells:Array.from({length:4},()=>({available:4,disabled:0,stocks:Array(22).fill(0)}))},
     manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,active:id<2,defeatTimer:0,flags2:0,mana:0,pending:0,available:constants.START_MANA,
       totalProgress:0,previousRate:0,estimatedRate:0,releaseDelay:0,releaseRate:0,spellProgress:Array(22).fill(0)})),manaNotices:[],
-    terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
+    terrain: makeTerrain(), terrainVersion: 0, units: [], buildings: [], effects: [], projectiles:[], shrines:[], trees:[], fights:[], sounds:[], soundSerial:0, mana:0, wood:0, shots:{blast:4,bridge:0,lightning:0}, charging:true, unlockedCamp:false, time: 0, turn:0, pendingTime:0, randomState:1, cosmeticRandom:{randomState:1}, effectCounter:0, nextId: 1, selected: [], mode: null, paused: false, speed: 1, message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.', messageUntil: 18, status: 'playing', respawn: 0, redRespawn:0, stats: { built: 0, cast: 0, bridges:0, trained:0 } };
   for (const o of level.objects) {
     if (o.type===2 && o.owner!==255) { const b=addBuilding(w,o.owner===0?'blue':'red',o.model===7?'camp':'hut',o); b.level=o.model===3?3:1; b.angle=o.angle/2048*Math.PI*2; }
     if (o.type===1) addUnit(w,o.owner===0?'blue':'red',o.model===7?'shaman':o.model===3?'warrior':'brave',o);
@@ -491,6 +492,8 @@ export function tell(w: World, message: string) { w.message = message; w.message
 export function sound(w:World,cue:number,p:Point){w.sounds.push({serial:++w.soundSerial,cue,x:p.x,z:p.z,turn:w.turn});if(w.sounds.length>128)w.sounds.shift();}
 function castVoice(w:World,u:Unit,spell:Spell){sound(w,(u.team==='blue'?{blast:0x76,lightning:0x77,bridge:0x80}:{blast:0x8c,lightning:0x8d,bridge:0x96})[spell],u);}
 export function effect(w: World, kind: Effect['kind'], p: Point) {
+  // Browser allocation adapter; full native class-7 allocation ownership is pending.
+  w.effectCounter=(w.effectCounter+1)&255;
   const f:Effect={x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:1.7};
   if(kind==='blast'){
     // Effect 38: 0x509c10 grounds the flash (0x445c20), sets draw 30/HFX1099;
@@ -807,8 +810,15 @@ function beginCast(w:World,u:Unit,spell:Spell,p:Point){
   if(u.team==='blue'){w.shots[spell]=w.manaWorld.spells[0].stocks[model]&15;w.giftCounts[spell]=Math.max(0,w.giftCounts[spell]-1);w.stats.cast++;}
   u.casting={spell,point:target,remaining:6/TURNS_PER_SECOND};castVoice(w,u,spell);
 }
-function shotVisual(w:World,p:NativePoint,sequence:string,frame:number,duration:number){
-  const fx=effect(w,'trail',browserPosition(p));fx.height=p.h/45;fx.sprite={sequence,frame};fx.duration=duration;return fx;
+function shotVisual(w:World,p:NativePoint,sequence:string,frame=0){
+  const fx=effect(w,'trail',browserPosition(p));fx.height=p.h/45;fx.sprite={sequence,frame};fx.duration=Infinity;
+  if(sequence==='blastTrail'||sequence==='spellTrail'){
+    const trail=createSpellTrail(w.land,p,sequence==='blastTrail'?3:4,(w.effectCounter-1)&255,w.cosmeticRandom);
+    // 0x4bb440 overrides Blast jitter trails to expire their first phase next turn.
+    if(sequence==='blastTrail'){trail.remaining=0;trail.flags3|=0x100;}
+    fx.animation=trail;fx.height=trail.h/45;
+  }
+  return fx;
 }
 function moveVisual(f:Effect,p:NativePoint){Object.assign(f,browserPosition(p));f.height=p.h/45;}
 function processProjectiles(w:World){
@@ -828,7 +838,7 @@ function processProjectiles(w:World){
       shot.phase='flying';
       if(shot.spell==='blast'){
         sound(w,0xa1,shot.source);
-        shot.visuals=Array.from({length:5},(_,i)=>shotVisual(w,shot.position,'blastShot',i+3,Infinity));
+        shot.visuals=Array.from({length:5},(_,i)=>shotVisual(w,shot.position,'blastShot',i+3));
       }
       continue;
     }
@@ -847,18 +857,18 @@ function processProjectiles(w:World){
       const travelled=nativeDistance(shot.position,shot.origin);
       moveVisual(shot.visuals[0],shot.position);
       for(let i=1;i<=4;i++)if(i*80<travelled)moveVisual(shot.visuals[i],nativeStep3D(shot.position,yaw,pitch,-i*80));
-      // Four jitter trails, behind the last attached sprite; the jitter consumes simulation RNG.
+      // Four jitter trails; jitter uses game RNG, effect initialization uses cosmetic RNG.
       if(shot.turns>0)for(let i=1;i<=4;i++)if(320+i*160<travelled){
         const tail=nativeStep3D(nativeStep3D(shot.position,yaw,pitch,-320),yaw,pitch,-i*160);
         tail.x=short(tail.x+8-(random(w)&15));tail.y=short(tail.y+8-(random(w)&15));
-        shotVisual(w,tail,'blastTrail',0,4/TURNS_PER_SECOND);
+        shotVisual(w,tail,'blastTrail');
       }
     }else{
-      // 0x4baf00: 20 substeps of 70, with a four-turn trail before every arrival check.
+      // 0x4baf00: 20 substeps of 70; each trail starts with four turns before its second phase.
       for(let i=0;i<20;i++){
         const p=shot.position,tail={...p,x:short(p.x+8-(random(w)&15)),y:short(p.y+8-(random(w)&15))};
         tail.h=Math.max(tail.h,nativePosition(w,browserPosition(tail)).h);
-        shotVisual(w,tail,'spellTrail',0,4/TURNS_PER_SECOND);
+        shotVisual(w,tail,'spellTrail');
         if(Math.abs(d.x-p.x)<108&&Math.abs(d.y-p.y)<108&&Math.abs(d.h-p.h)<108){
           if(caster)finishCast(w,{id:shot.caster,team:shot.team,...shot.source},shot.spell,shot.target);
           remove();break;
@@ -959,7 +969,14 @@ function stepTurn(w:World){
     }
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0);
-  for(const fx of w.effects){fx.age+=dt;if(fx.land){const t=Math.min(1,fx.age/fx.duration);for(const p of fx.land)w.terrain[p.index]=Math.max(w.terrain[p.index],p.from+(p.to-p.from)*t);w.terrainVersion++;}}
+  for(const fx of w.effects){
+    fx.age+=dt;
+    if(fx.animation&&'remaining' in fx.animation){
+      const alive=stepSpellTrail(w.land,fx.animation);moveVisual(fx,fx.animation);
+      if(!alive)fx.duration=fx.age;
+    }
+    if(fx.land){const t=Math.min(1,fx.age/fx.duration);for(const p of fx.land)w.terrain[p.index]=Math.max(w.terrain[p.index],p.from+(p.to-p.from)*t);w.terrainVersion++;}
+  }
   w.effects=w.effects.filter(f=>f.age<f.duration);
   processProjectiles(w);
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0;

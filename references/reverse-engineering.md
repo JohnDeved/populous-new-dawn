@@ -3627,3 +3627,62 @@ presentation clock and 12 Hz simulation clock are adapters, not evidence of full
 frame timing parity. Six raw exports retain grounding and investigated effect
 helpers. `00478ee0` concerns landscape restoration, despite a misleading metadata
 name, and was not used to implement Blast. Full game parity remains unfinished.
+
+
+## Original spell trail phases and motion — 2026-09-08
+
+`004bb440` allocates effect 3 behind the Blast projectile and overrides its
+initial lifetime to zero. `004baf00` allocates effect 4 along Lightning/Land
+Bridge travel, retaining a four-turn first phase. The previous browser adapter
+used four frames and a shared four-turn fade for both; it missed the second
+phase and movement.
+
+`app/spell-trails.ts` reconstructs `0050bf60`, `0050c380`, `0050bd70` and the
+transition in `0050beb0`, followed by state 4 of `0050a750`. Effect 3 starts
+HFX314; effect 4 starts HFX322 with `f1 = (class_counter & 3) * 4`. On first-phase
+expiry the object advances by four, resets its animation time and enters state
+4 for three more turns. The transition preserves render bits `0x4050`, clears
+`0x8000`, and selects draw 1 or 29 from the signed palette byte; flag `0x200`
+requests deletion instead. Blast jitter consequently transitions on its first
+processing turn and dies on turn four. Ordinary spell trails die on turn seven.
+The importer now retains all eight original frames in each sequence. Rendering
+uses the current object plus native frame offset and artwork alpha, without
+an extra opacity fade. The shared native animation adapter drives both phases.
+
+The newly exported `004e7a80` supplies directed trail movement. Its actual
+path for fresh effects 3/4 is reconstructed with existing terrain and velocity
+cap helpers: Blast's speed 20/pitch zero raises it ten native height units each
+turn; fresh effect-4 trails have speed zero. Movement precedes phase expiry,
+including the final deletion turn. Other impulse, ballistic/debris and destination
+motion branches remain unported here and are rejected rather than silently using
+trail physics. Effect-3 allocation advances the separate `0089bc72` cosmetic
+random generator once; it does not consume the game RNG used for jitter.
+
+The live world stores that cosmetic generator and a class-counter adapter for
+browser effects. **The initial cosmetic seed and complete native class-7 counter
+ownership remain approximations**: browser allocations are not the original
+mixed-class pool and do not yet include every supporting effect. The recovered
+initializer accepts the original counter explicitly, so that allocation ownership
+can replace the adapter without changing animation rules. The original 24 Hz
+presentation and 12 Hz simulation adapters remain separate; native outer-clock
+configuration is still open.
+
+`check-native-spell-trails.py EXE` compares 256 initializations and 2,816 timeline
+snapshots against native code: varied terrain/diagonals, all initial frame phases,
+wrapped coordinates, speed/angle caps, frozen movement, indefinite lifetime,
+palette branches, phase-preserved flags, deletion and cosmetic RNG. Class
+callbacks, cell insertion and free are intercepted; actual original terrain,
+directed physics, caps, animation, initializer and dispatcher instructions execute.
+The existing gameplay regression verifies live Blast rise and zero-turn override,
+staggered Lightning poses, seven-turn lifecycle and unchanged jitter game RNG.
+`check-browser-spell-trails.mjs` casts all three spells through real input, checks
+both phases, texture coordinates and sprite sizes, upward/stationary motion,
+pause, GPU pixels attributable specifically to trail sprites, and deletion.
+All three paused captures are retained in `/private/tmp/populous-*-trail.png`;
+Blast and Lightning captures were inspected. Typecheck, 66 regressions, the browser
+trail check and production build pass. Export manifest now contains 692 routines.
+
+This does not complete spell effects: the synthetic Lightning line, native local
+lighting, Blast's separate impact trail allocation, scenery ignition and complete
+physical blast response remain visible priorities. Overall game parity remains
+unfinished.

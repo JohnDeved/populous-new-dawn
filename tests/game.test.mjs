@@ -236,11 +236,17 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
  tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,1,'no jitter on the first Blast movement turn');
  tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,1335621054,'four trailing particles consume eight simulation draws');
+ const spark=w.effects.find(e=>e.sprite?.sequence==='blastTrail'),sparkHeight=spark.animation.h;
+ assert.equal(spark.animation.remaining,0);assert.notEqual(w.cosmeticRandom.randomState,1);
  tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,10,10]);
  const flash=w.effects.find(e=>e.kind==='blast');assert.equal(flash.animation.object,1099);assert.equal(flash.duration,9/12);
+ assert.equal(spark.animation.state,4);assert.equal(spark.animation.object,318);assert.equal(spark.animation.h,sparkHeight+20,'jitter sparks rise on both processing turns');
  tick(w,8/12);assert.ok(w.effects.includes(flash));w.paused=true;tick(w,1);assert.ok(w.effects.includes(flash));
  w.paused=false;tick(w,1/12);assert.ok(!w.effects.includes(flash),'native flash removed on its ninth active turn');
  const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,2308592903);assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
+ const trails=lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail');assert.equal(new Set(trails.map(e=>e.animation.f1)).size,4,'native class counter staggers initial poses');
+ tick(lightning,4/12);assert.equal(trails[0].animation.state,4);assert.equal(trails[0].animation.object,326);assert.ok(lightning.effects.includes(trails[0]));
+ tick(lightning,3/12);assert.ok(trails.every(e=>!lightning.effects.includes(e)),'four initial turns plus three second-phase turns');
  const a=make(),b=make();a.shots.bridge=b.shots.bridge=1;cast(a,'bridge',{x:10,z:0});cast(b,'bridge',{x:10,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a,b,'flight, effects and simulation RNG are independent of rendering FPS');
  const dead=make();dead.manaTribes[0].available=0;cast(dead,'blast',{x:10,z:0});dead.units[0].hp=0;tick(dead,1/12);assert.equal(dead.projectiles.length,0);assert.equal(dead.shots.blast,3,'caster death removes a pending spell without refunding the spent shot');
  const won=createWorld();won.terrain.fill(3);won.units=won.units.filter(u=>u.kind==='shaman');Object.assign(won.units[0],{x:0,z:0});Object.assign(won.units[1],{x:9,z:-1});won.shots.lightning=1;cast(won,'lightning',won.units[1]);impact(won,'lightning');assert.equal(won.status,'playing','the last casualty does not end the level between outcome phases');until(won,()=>won.status==='won',3);assert.equal(won.turn,32);assert.ok(won.buildings.some(b=>b.team==='red'),'victory requires followers, not every empty building');

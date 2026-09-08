@@ -43,12 +43,16 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** continue visible spell travel/impacts and ground target tiles
-during first-mission play, then construction activity and destruction. Blast's
+**Next action:** replace the synthetic Lightning bolt with its native visible
+effect, then ground target tiles, scenery fire and building activity/destruction.
+Keep checking these during first-mission play. Blast's
 impact now uses original HFX1099–1107, the native animation setter/updater,
 stored-diagonal grounding, nine-turn object lifetime and both impact cues;
-the invented shockwave ring is removed. Its supporting trail, terrain lighting,
-burning scenery and native multi-turn knockback remain open. Casting
+the invented shockwave ring is removed. Projectile trails now use both native
+phases, staggered initial frames, the separate cosmetic RNG and recovered motion;
+Blast sparks rise and Lightning/Land Bridge trails persist through their second
+phase. The impact's separate effect-3 allocation, terrain lighting, burning
+scenery and native multi-turn knockback remain open. Casting
 range now uses the native rotating 85-particle halo, terrain heights, original
 frames and shadow sprites, including hover previews; its complete native timer
 and painter ownership remain open. Spell pointers use native POINT artwork, unavailable markers

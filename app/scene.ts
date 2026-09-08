@@ -538,11 +538,11 @@ export class GameScene {
   }
   animateFx(g:THREE.Group,f:Effect){
     const sprite=g.userData.sprite as THREE.Sprite;
-    sprite.visible=f.animation?.object!==0x650;
+    sprite.visible=f.animation?.object!==0x650&&!(f.animation&&(f.animation.renderFlags&16));
     if(!sprite.visible)return;
     if(f.unit){const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[`${f.unit.team}-${f.unit.kind}`];this.animatePerson(sprite,g,f.unit.heading,animations.die,f.age,true);sprite.material.opacity=Math.min(1,(f.duration-f.age)*3);return;}
-    const sequence=(nativeEffects.animations as Record<string,{index:number;w:number;h:number}[]>)[g.userData.sequence];
-    const index=f.animation?(f.animation.f1&65535)>>>2:f.sprite?.sequence==='blastShot'?f.sprite.frame:Math.floor(f.age*12);
+    const sequence=(nativeEffects.animations as Record<string,{index:number;w:number;h:number;source:number}[]>)[g.userData.sequence];
+    const index=f.animation?f.animation.object-sequence[0].source+((f.animation.f1&65535)>>>2):f.sprite?.sequence==='blastShot'?f.sprite.frame:Math.floor(f.age*12);
     const frame=sequence[Math.min(sequence.length-1,index)];
     effectFrame(sprite,frame);sprite.material.opacity=f.animation?1:Math.min(1,(f.duration-f.age)*5);
     if(f.animation)sprite.center.set(Math.floor(frame.w/2)/frame.w,0);

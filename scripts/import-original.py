@@ -168,7 +168,7 @@ def main():
     effects=sprites(hfx_data,fx_palette,alpha=True)
     # 0x4673b0 draws type-1 objects from HFX, including the small trail particles.
     # Trail draw type 1 uses the ordinary palette; the Blast head uses nibble alpha.
-    fx_sequences={'impact':(1099,9),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,4),'spellTrail':(0x142,4),'log':(23,1),'halo':(1466,12),'haloShadow':(70,1)}
+    fx_sequences={'impact':(1099,9),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,8),'spellTrail':(0x142,8),'log':(23,1),'halo':(1466,12),'haloShadow':(70,1)}
     fx_frames=[];fx_meta={};cell=256
     for name,(start,count) in fx_sequences.items():
         fx_meta[name]=[]
