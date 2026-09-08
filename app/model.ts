@@ -1,6 +1,7 @@
 import {terrainSupportsPerson} from './person-collision.ts';
 import {setAnimationObject,type AnimatedUnit} from './animation.ts';
 import {createSpellTrail,stepSpellTrail,type SpellTrail} from './spell-trails.ts';
+import {stepLightning,type Lightning} from './lightning.ts';
 import {createLivePathfinding,findLivePath,planLivePath,acceptLivePath,clearLivePath,stepLiveRoute,removeDeadLiveRoutes} from './live-pathfinding.ts';
 import {createLivePerson,initializeLiveCelebration,stepLiveCelebration,syncLivePersonCells,type LivePerson} from './live-people.ts';
 import type {ObjectCells} from './object-cells.ts';
@@ -42,7 +43,7 @@ export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp:
 export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; forced: boolean; model: number; morph: ModelMorph | null; angle: number };
 export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
-export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; animation?:AnimatedUnit|SpellTrail; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
+export type Effect = Point & { id: number; kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'; height?:number; sprite?:{sequence:string;frame:number}; animation?:AnimatedUnit|SpellTrail; lightning?:Lightning; age: number; duration: number; unit?: Pick<Unit,'team'|'kind'|'heading'>; land?: {index:number;from:number;to:number}[] };
 export const TURNS_PER_SECOND=12;
 export const SPELLS: { id: Spell; model:number; name: string; cost: number; key: string; symbol: string; color: string; description: string }[] = [
   { id: 'blast', model:2, name: 'Blast', cost: 10, key: '1', symbol: '✹', color: '#e8b076', description: 'Rechargeable · throws followers back. Water is deadly.' },
@@ -495,14 +496,15 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.
   w.effectCounter=(w.effectCounter+1)&255;
   const f:Effect={x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:1.7};
-  if(kind==='blast'){
+  if(kind==='blast'||kind==='lightning'){
     // Effect 38: 0x509c10 grounds the flash (0x445c20), sets draw 30/HFX1099;
     // state 0x24 in 0x50a750 removes its object after nine simulation turns.
+    // Lightning starts hidden: one pending turn, then eight turns of upper flash.
     const position=nativePosition(w,p);
-    f.height=terrainPointHeight(w.land,position)/45;
+    f.height=(terrainPointHeight(w.land,position)+(kind==='lightning'?1024:0))/45;
     f.duration=9/TURNS_PER_SECOND;
     f.animation={object:0,draw:0,morph:0,palette:0,renderFlags:0,f1:0,f2:0,stamp:0,flags3:0,morphTimer:0,morphFrames:0};
-    setAnimationObject(f.animation,30,1099);
+    setAnimationObject(f.animation,kind==='blast'?30:41,kind==='blast'?1099:0x650);
   }
   w.effects.push(f);return f;
 }
@@ -870,7 +872,7 @@ function processProjectiles(w:World){
         tail.h=Math.max(tail.h,nativePosition(w,browserPosition(tail)).h);
         shotVisual(w,tail,'spellTrail');
         if(Math.abs(d.x-p.x)<108&&Math.abs(d.y-p.y)<108&&Math.abs(d.h-p.h)<108){
-          if(caster)finishCast(w,{id:shot.caster,team:shot.team,...shot.source},shot.spell,shot.target);
+          if(caster)finishCast(w,{id:shot.caster,team:shot.team,...shot.source},shot.spell,shot.target,shot.destination);
           remove();break;
         }
         const [yaw,pitch]=shotAngles(p,d);shot.position=nativeStep3D(p,yaw,pitch,70);
@@ -879,10 +881,15 @@ function processProjectiles(w:World){
     shot.turns++;
   }
 }
-function finishCast(w:World,shaman:Pick<Unit,'id'|'team'|'x'|'z'>,spell:Spell,p:Point){
-  const fx=effect(w,spell,p);
+function finishCast(w:World,shaman:Pick<Unit,'id'|'team'|'x'|'z'>,spell:Spell,p:Point,endpoint?:NativePoint){
+  const upper=spell==='lightning'&&endpoint?browserPosition(endpoint):p,fx=effect(w,spell,upper);
+  if(spell==='lightning'){
+    // 0x511ef0 raises the displaced projectile endpoint above its local ground.
+    // 0x511f70 creates the upper flash and bolt generator on the next turn.
+    fx.lightning={start:{...nativePosition(w,upper),h:Math.round(fx.height!*45)},target:nativePosition(w,p),seed:0,turn:-1,segments:[]};
+  }
   // Spell 2 allocates effect 78 (0x50b630) before effect 38 (0x509c10).
-  if(spell==='blast'){sound(w,0xa1,p);sound(w,0xb2,p);}else if(spell==='lightning')sound(w,0xa2,p);else{sound(w,0xab,p);sound(w,0x29,p);}
+  if(spell==='blast'){sound(w,0xa1,p);sound(w,0xb2,p);}else if(spell==='bridge'){sound(w,0xab,p);sound(w,0x29,p);}
   if(spell==='bridge') {
     fx.land=[];
     const length=distance(shaman,p),start=height(w.terrain,shaman.x,shaman.z),end=height(w.terrain,p.x,p.z);
@@ -974,6 +981,12 @@ function stepTurn(w:World){
     if(fx.animation&&'remaining' in fx.animation){
       const alive=stepSpellTrail(w.land,fx.animation);moveVisual(fx,fx.animation);
       if(!alive)fx.duration=fx.age;
+    }
+    if(fx.lightning){
+      if(fx.lightning.turn<0){
+        fx.lightning.turn=0;fx.lightning.seed=w.randomState;
+        setAnimationObject(fx.animation!,41,1361);sound(w,0xa2,fx);
+      }else stepLightning(w.land,fx.lightning,w);
     }
     if(fx.land){const t=Math.min(1,fx.age/fx.duration);for(const p of fx.land)w.terrain[p.index]=Math.max(w.terrain[p.index],p.from+(p.to-p.from)*t);w.terrainVersion++;}
   }

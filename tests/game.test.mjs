@@ -229,6 +229,21 @@ test('native sound cues preserve sample identity, cast phases and simulation ran
 });
 
 
+test('native Lightning delays the upper flash and regenerates eight segments for three turns',()=>{
+ const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');
+ Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});w.shots.lightning=1;
+ assert.ok(cast(w,'lightning',{x:10,z:0}));impact(w,'lightning');
+ const f=w.effects.find(e=>e.kind==='lightning'),turn=w.turn;
+ assert.equal(f.animation.object,0x650);assert.equal(f.lightning.turn,-1);assert.equal(f.lightning.segments.length,0);
+ assert.notEqual(f.lightning.start.x,f.lightning.target.x);assert.equal(f.height*45,f.lightning.start.h);
+ tick(w,1/12);assert.equal(f.animation.object,1361);assert.equal(f.animation.draw,41);assert.equal(f.lightning.turn,0);
+ assert.equal(w.sounds.findLast(e=>e.cue===0xa2).turn,turn+1);
+ const shapes=[];
+ for(let i=1;i<=3;i++){tick(w,1/12);assert.equal(f.lightning.turn,i);assert.equal(f.lightning.segments.length,8);shapes.push(JSON.stringify(f.lightning.segments));}
+ assert.equal(new Set(shapes).size,3);tick(w,1/12);assert.equal(f.lightning.segments.length,0);assert.ok(w.effects.includes(f));
+ tick(w,4/12);assert.ok(!w.effects.includes(f),'one pending turn plus eight flash turns');
+});
+
 test('native spell allocation, discrete flight, RNG trails and delayed impact',()=>{
  const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
  assert.deepEqual(nativeStep3D({x:32760,y:-32760,h:32760},2047,511,-321),{x:32760,y:32455,h:32759},'negative odd length and short wrapping verified against x86');

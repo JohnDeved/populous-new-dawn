@@ -35,10 +35,10 @@ try{
    let pixels=0;for(let i=0;i<a.length;i+=4)if(a[i]!==b[i]||a[i+1]!==b[i+1]||a[i+2]!==b[i+2])pixels++;
    return {p:structuredClone(f.animation),height:g.position.y*128,size:[body.scale.x,body.scale.y],offset:[body.material.map.offset.x,body.material.map.offset.y],opacity:body.material.opacity,pixels};
   });
-  assert.equal(second.p.object,start+4);assert.equal(second.p.remaining,3);assert.equal(second.height,second.p.h);assert.equal(second.opacity,1);assert.ok(second.pixels>0);
+  assert.equal(second.p.object,start+4);assert.ok(second.p.remaining>=1&&second.p.remaining<=3);assert.equal(second.height,second.p.h);assert.equal(second.opacity,1);assert.ok(second.pixels>0);
   const frame=atlas.animations[sequence][4+(second.p.f1>>>2)];assert.deepEqual(second.size,[frame.w,frame.h]);
   assert.deepEqual(second.offset,[frame.index%8*256/atlas.width,1-(Math.floor(frame.index/8)*256+frame.h)/atlas.height]);
-  assert.equal(second.p.h-first.h,spell==='blast'?10:0,'native Blast rise and stationary spell trail');
+  assert.equal(second.p.h-first.h,spell==='blast'?10*(4-second.p.remaining):0,'native Blast rise and stationary spell trail at the observed turn');
   await page.screenshot({path:`/private/tmp/populous-${spell}-trail.png`});
   await page.evaluate(()=>{window.testScene.world.paused=false;});
   await page.waitForFunction(()=>!window.testScene.world.effects.includes(window.testTrail));

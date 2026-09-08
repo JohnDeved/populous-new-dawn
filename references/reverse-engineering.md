@@ -3686,3 +3686,81 @@ This does not complete spell effects: the synthetic Lightning line, native local
 lighting, Blast's separate impact trail allocation, scenery ignition and complete
 physical blast response remain visible priorities. Overall game parity remains
 unfinished.
+
+
+## Original Lightning bolt geometry and drawing — 2026-09-08
+
+Spell 3's impact table allocates effect 17. `004c21e0` stores a projectile
+endpoint displaced `0x600` toward the caster and raised `0x400`, retaining the
+clicked destination separately. `00511ef0` grounds that displaced endpoint and
+raises it `0x400`; `00511f70` then creates an eight-turn upper HFX1361 flash
+(draw 41) and effect 30. The browser previously discarded the displaced endpoint,
+put its flash on the clicked ground, and drew a tall sine-generated line.
+It now preserves the endpoint, delays the upper flash and sound one turn,
+and starts the bolt generator on the following turn.
+
+`app/lightning.ts` reconstructs the geometric portion of `00511ae0`: nine
+points/eight segments, native wrapped direction and distance, 128-unit vertical
+steps, and jitter radius 200 down to zero. Point zero is replaced by the stored
+upper endpoint. Each segment's `00511a60` initializer clamps its start to local
+terrain while retaining the original endpoint delta; `0046fc30` projects the
+resulting endpoints. The generator creates three successive shapes and consumes
+eight game RNG draws each time; its separate saved seed draw does not change the
+game RNG. The browser clears segments after their last one-turn lifetime while
+the upper flash completes its own lifetime. Damage timing and native supporting
+allocations remain separate from this visible-effect reconstruction.
+
+The type-19 draw block at `0046b0f5` emits a textured strip with alpha 200 and
+width exponent 3, then invokes `00475350` for recursive screen-space branches.
+Those branches use the separate cosmetic RNG, twelve-pixel vertical steps,
+width exponent 2 and the native length/brightness recursion. The global draw
+alpha is deliberately not restored on return from recursion: native comparison
+caught this otherwise subtle brightness difference. `00516500` supplies the
+integer-angle strip corners and ceil rounding; the x87 addition retains enough
+precision to differ from rounding the intermediate sum to float32.
+`004b7de0` creates the 32x32 blue procedural texture. All its ARGB4444 pixels
+are recreated, including original `.2/.8` strip UVs sampled at `v=.5`.
+The apparent negative texture lookup in Ghidra is a stack-variable inference
+artifact: original assembly indexes the palette starting at zero.
+
+The existing Three.js renderer now draws these textured triangles with the
+native projected endpoint pixels. Main bolt geometry advances on simulation
+turns; screen branches regenerate on draws, including while paused. Native
+normal-view projection is reused directly without an NDC round trip before
+integer endpoint conversion. Overview projection remains the existing browser
+adapter. Texture values bypass an extra color-space conversion in the custom
+shader. The synthetic `LineSegments` branch geometry and added lifetime fade
+were removed.
+
+`check-native-lightning.py EXE` compares 384 native bolt shapes/game RNG states,
+256 complete recursive branch streams/cosmetic RNG states, 1,024 strip quads
+and all 1,024 procedural texture pixels. Native trig, distance, terrain,
+segment grounding, recursion, ceil and texture loops execute. Damage/fire,
+world allocation ownership and final rendering are intercepted at explicit
+boundaries. `check-browser-lightning.mjs` casts through real input and checks
+upper-endpoint displacement, original flash object/draw, eight segments,
+texture bytes, pixels attributable only to the bolt (over 6,000 in the inspected
+capture), three shapes, paused simulation with live cosmetic branching,
+camera rotation and cleanup. Shape snapshots slow simulation to avoid missing
+a turn under browser/GPU load; exact timing is checked separately against native
+code and in the gameplay test. `/private/tmp/populous-native-lightning.png` was
+inspected against the prior synthetic-line capture. The existing trail check
+also passes; its phase observer accepts any of the three remaining turns rather
+than assuming the browser always observes the first frame after transition.
+Exact phase duration remains checked in the native oracle and gameplay tests.
+
+The suite now has 67 passing regressions, including delayed upper-flash timing,
+all three shapes and independent flash lifetime. Typecheck and production build
+pass; lint retains three existing image warnings. Manifest contains 699 routines.
+Seven newly retained raw exports cover the bolt, texture and draw helpers;
+`00512700` is terrain deformation despite its misleading `process_lightning`
+metadata name, and is not used for this spell.
+
+Remaining boundaries: original mixed-class allocation order and class counters,
+first-turn scenery ignition/crater and physical-shock allocations, complete
+Lightning damage/death timing, local terrain illumination, native painter queue
+ordering and blend flags, other display pixel formats, and outer-clock ownership.
+Current strips use the browser alpha-blend/overlay adapter, so the comparisons
+prove recovered geometry and drawing inputs, not pixel-identical whole frames.
+Ground target/placement tiles and visible fire/building activity are next;
+full game parity remains unfinished.

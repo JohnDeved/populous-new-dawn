@@ -23,6 +23,7 @@ import nativeEffects from './original-effects.json';
 import nativeHud from './original-hud.json';
 import {spellCursor} from './spell-casting.ts';
 import {spellHalo,haloBucket} from './spell-halo.ts';
+import {lightningLines,lightningQuad,lightningTexture,type Lightning} from './lightning.ts';
 import rules from './original-rules.json';
 
 const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 };
@@ -30,8 +31,9 @@ const material = (color: number, extra = {}) => new THREE.MeshStandardMaterial({
 const textures = new Map<string, THREE.Texture>();
 function texture(kind: string) {
   if(textures.has(kind))return textures.get(kind)!;
-  const t=new THREE.TextureLoader().load(`/original/${kind}.png`);
-  t.colorSpace=kind.endsWith('detail')?THREE.NoColorSpace:THREE.SRGBColorSpace;
+  const t=kind==='lightning-bolt'?new THREE.DataTexture(lightningTexture(),32,32):new THREE.TextureLoader().load(`/original/${kind}.png`);
+  if(kind==='lightning-bolt'){t.needsUpdate=true;t.magFilter=t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;}
+  t.colorSpace=kind.endsWith('detail')||kind==='lightning-bolt'?THREE.NoColorSpace:THREE.SRGBColorSpace;
   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
   if(kind==='units'||kind==='effects'||kind==='selection'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
   textures.set(kind,t);return t;
@@ -532,12 +534,17 @@ export class GameScene {
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('effects').clone(),transparent:true,depthWrite:false,toneMapped:false}));
     sprite.center.set(.5,0);g.add(sprite);g.userData.sprite=sprite;g.userData.sequence=sequence;
     if(f.kind==='lightning'){
-      const bolt=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xcce9ff,transparent:true,depthWrite:false}));g.add(bolt);g.userData.bolt=bolt;
+      const bolt=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.ShaderMaterial({
+        uniforms:{map:{value:texture('lightning-bolt')}},transparent:true,depthTest:false,depthWrite:false,side:THREE.DoubleSide,
+        vertexShader:'attribute float opacity; varying float a; varying vec2 tex; void main(){a=opacity;tex=uv;gl_Position=vec4(position,1.);}',
+        fragmentShader:'uniform sampler2D map; varying float a; varying vec2 tex; void main(){gl_FragColor=texture2D(map,tex)*vec4(1.,1.,1.,a);}',
+      }));bolt.userData.nativeIgnore=true;bolt.frustumCulled=false;bolt.renderOrder=900;g.add(bolt);g.userData.bolt=bolt;
     }
     return g;
   }
   animateFx(g:THREE.Group,f:Effect){
     const sprite=g.userData.sprite as THREE.Sprite;
+    if(f.lightning)this.animateLightning(g.userData.bolt,f.lightning);
     sprite.visible=f.animation?.object!==0x650&&!(f.animation&&(f.animation.renderFlags&16));
     if(!sprite.visible)return;
     if(f.unit){const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[`${f.unit.team}-${f.unit.kind}`];this.animatePerson(sprite,g,f.unit.heading,animations.die,f.age,true);sprite.material.opacity=Math.min(1,(f.duration-f.age)*3);return;}
@@ -546,15 +553,28 @@ export class GameScene {
     const frame=sequence[Math.min(sequence.length-1,index)];
     effectFrame(sprite,frame);sprite.material.opacity=f.animation?1:Math.min(1,(f.duration-f.age)*5);
     if(f.animation)sprite.center.set(Math.floor(frame.w/2)/frame.w,0);
-    if(g.userData.bolt){
-      const bolt=g.userData.bolt as THREE.LineSegments,phase=Math.floor(f.age*24),points:number[]=[];
-      if(g.userData.phase!==phase){
-        g.userData.phase=phase;let last=new THREE.Vector3(0,24,0);
-        for(let i=1;i<=16;i++){const next=new THREE.Vector3(i===16?0:Math.sin(i*27+phase*7)*.7,24-i*1.5,i===16?0:Math.cos(i*19+phase)*.4);points.push(...last.toArray(),...next.toArray());if(i%4===0&&i<14)points.push(...next.toArray(),next.x+Math.sin(i+phase)*2.5,next.y-2,next.z+.4);last=next;}
-        bolt.geometry.dispose();bolt.geometry=new THREE.BufferGeometry();bolt.geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));
+  }
+  animateLightning(mesh:THREE.Mesh,b:Lightning){
+    mesh.visible=!!b.segments.length;if(!mesh.visible)return;
+    const positions:number[]=[],uv:number[]=[],opacity:number[]=[],width=this.container.clientWidth,height=this.container.clientHeight;
+    const screen=(p:{x:number;y:number;h:number})=>{
+      const point=browserPosition(p),q=this.view.project(point,p.h/45);
+      let x=q.screenX,y=q.screenY;
+      if(this.overviewActive){const clip=this.view.screen(new THREE.Vector3(point.x,p.h/128,point.z),this.camera);x=(clip.x+1)*width/2;y=(1-clip.y)*height/2;}
+      return {x:(Math.trunc(x)<<16)>>16,y:(Math.trunc(y)<<16)>>16,flags:q.flags};
+    };
+    for(const segment of b.segments){
+      const from=screen(segment.from),to=screen(segment.to);
+      if(!this.overviewActive&&(from.flags>>>0)>0x80000000)continue;
+      for(const line of lightningLines(from.x,from.y,to.x,to.y,this.world.cosmeticRandom)){
+        const q=lightningQuad(line);
+        for(const i of [0,1,2,0,2,3]){positions.push(q[i*2]*2/width-1,1-q[i*2+1]*2/height,0);uv.push(i<2?.2:.8,.5);opacity.push(line.alpha/255);}
       }
-      bolt.visible=f.age<.65;(bolt.material as THREE.LineBasicMaterial).opacity=Math.max(0,1-f.age/.65);
     }
+    mesh.geometry.dispose();mesh.geometry=new THREE.BufferGeometry();
+    mesh.geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+    mesh.geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    mesh.geometry.setAttribute('opacity',new THREE.Float32BufferAttribute(opacity,1));
   }
   updateSpellHalo(frame:number){
     const model=SPELLS.find(s=>s.id===this.world.mode)?.model??this.hoveredSpell;

@@ -43,9 +43,11 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** replace the synthetic Lightning bolt with its native visible
-effect, then ground target tiles, scenery fire and building activity/destruction.
-Keep checking these during first-mission play. Blast's
+**Next action:** recreate ground target/placement tiles, then scenery fire and
+building activity/destruction. Keep checking these during first-mission play.
+Lightning now uses its displaced upper flash, three native eight-segment shapes,
+recursive screen-space branches and original procedural strip texture; full
+painter/blend ownership and its damage/fire side effects remain open. Blast's
 impact now uses original HFX1099–1107, the native animation setter/updater,
 stored-diagonal grounding, nine-turn object lifetime and both impact cues;
 the invented shockwave ring is removed. Projectile trails now use both native
@@ -109,6 +111,6 @@ All rows remain open until compared against the original engine, including edge 
 | Audio | 532 samples decoded; native cue/sample mapping, pitch RNG, distance curve and simulation sound events | Complete trigger/scheduling/voice priority behavior, camera-relative mixing, ambience and adaptive music |
 | AI and campaign | Original first-level layout; CPU-compared VM, cast/stock/head query bindings, turn-zero setup, disabled Dakini reincarnation and original terrain-rule bytecode applied; 6,484 native worship/reward turns and 960 vault task/work comparisons; original discovery/settlement/vault notification branches, building counter rebuild/query sequences, marker forcing and type-3 allocation CPU-compared; first-mission spell-defense setup and recurring spell-entry shutoff after the second Blast CPU-compared and integrated; live follower counts and original warrior-dependent attack-commitment block CPU-compared and integrated; AI queue/training controller and follower eligibility/selection reconstructed and CPU-compared, including combined controller/selector calls; shared command encoding, ownership, routes and group commit CPU-compared; shared person initialization, AI reservation/release, facing and animation selection CPU-compared, including 128 combined training handoffs; order startup, building reconciliation and configured speed CPU-compared; training linked-list operations and all command-8 substates with original geometry CPU-compared, including a sequential specialist/trainee queue handoff; native admission/interior-stop composition and building conversion CPU-compared; pathfinding and remaining world-effect integration pending; complete campaign/multiplayer outcome decisions CPU-compared, live 16-turn result checks, forced flags and defeat-timer progression integrated; simulation continues after results so defeated settlements finish collapsing; all nine native celebration substates, chain actions and state-41 initialization CPU-compared, now driving live braves, warriors and shamans through explicit movement/world adapters | Remaining game-command bindings, AI stocks and scheduler; worship eligibility, object phases and remaining reward lifecycle; all missions, objectives, progression and difficulty |
 | Persistence and multiplayer | Not implemented | Original save/load behavior and multiplayer simulation/protocol behavior |
-| Validation | Sixty-six regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
+| Validation | Sixty-seven regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).
