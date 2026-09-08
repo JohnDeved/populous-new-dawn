@@ -2700,6 +2700,7 @@
     1,
     1
   ],
+  "pathSearchStepLimit": 1500,
   "pathSteps": [
     {
       "x": 0,

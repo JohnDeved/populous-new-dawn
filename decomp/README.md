@@ -1364,7 +1364,7 @@ remaining obstacle-search algorithm.
 
 A composed gameplay regression passes both normal and vehicle-retry results
 through the native collector and route constructor, retaining their distinct
-person flags. Full live pathfinding still needs obstacle solving and route
+person flags. Full live pathfinding still needs world consumers and route
 advancement connected to ordinary follower ownership.
 
 ## Wrapped path geometry and smoothing
@@ -1411,7 +1411,60 @@ A gameplay regression composes route construction, search control, preparation,
 selection, actual smoothing/measurement and collection around a supplied solver
 path. It verifies a shortcut across the world seam and a retained detour when
 its first step is blocked. All **61 gameplay regressions** pass. The manifest
-contains **635 raw exports**, including the next obstacle-following dependencies
-`004222d0` and `004229a0`; those two exports are not implemented ports. Full
-obstacle solving, route advancement and ordinary live follower ownership remain
-open. These comparisons do not establish full live pathfinding parity.
+contains **635 raw exports**, including the obstacle-following dependencies
+`004222d0` and `004229a0`, reconstructed in the next section. Route advancement,
+world consumers and ordinary live follower ownership remain open. These geometry
+comparisons alone do not establish full live pathfinding parity.
+
+## Complete path solver and obstacle following
+
+`app/path-solver.ts` reconstructs complete `00421130` solving, `004222d0`
+obstacle following and `004229a0` route merging. The original step limit of
+**1,500** at `0059bd8c` is imported with the other executable rules. Solver state
+preserves attempt/detour/step/limit counters and each tribe's 16-bit request count.
+
+The solver alternates left/right walkers around an obstruction, tracks their
+separation and reunion, chooses the first successful side, compacts and smooths
+its route, merges it and resumes line tracing. Each side retains its own cache,
+boat identity, route buffer, origin/current point, rotation, heading and corridor
+flag. Left/right status fields remain the existing geometry globals. The shared
+probe now accepts these side caches without temporarily replacing the main boat
+or cache. Main-cache mutations from smoothing remain distinct.
+
+The port preserves native turn ordering, short-limit signedness, step-budget
+checks, duplicate transition nodes, shoreline-neighbor acceptance, early return
+to line tracing and secondary vehicle results. The corridor's final test probes
+with the old heading but advances with the newly chosen heading; this apparent
+oddity is present in the native instructions and retained. Merge tests capacity
+before inspecting each source node, including duplicates, and copies the side's
+boat identity even when capacity prevents completion.
+
+Run `scripts/check-native-path-solver.py EXE`: **4,096 comparisons**, 1,024 each
+for sequential walker steps, merging, complete solving and the complete search
+chain (`00420840`) with native preparation, selection, solving, smoothing,
+measurement and collection. Only building access (`00517f10`), boarding lookup
+(`004663c0`), disembarking (`00464f90`) and boat-cell checks (`00465510`) are
+supplied. Original endpoint boat lookup (`004665c0`) executes against cell lists.
+Owned globals, both complete side-route buffers, main path/result buffers, person
+flags, consumers, metric records and return values match. Fixtures cover both
+walk masks, vehicle transitions/modes, node/step limits, failures and secondary
+results, repeated steps and stale side state. Negative short limits are covered
+by bounded step/merge fixtures; complete-search fixtures remain within the
+native buffers. The browser rejects writes beyond its typed path storage.
+
+The 62nd gameplay regression constructs routes using the actual solver. A wall
+crossing the world seam produces native points `(251,23)`, `(2,23)`, `(6,20)`,
+an 18-step metric and one 28-step solver attempt. Blocking the destination gives
+four attempts, six detours and 572 solver steps, no route, and the original
+16-turn failure-cache entry. Both fixtures also execute in the native oracle.
+The previous 7,168 geometry comparisons still pass after cache sharing changes.
+
+The full solver is reconstructed but not yet the ordinary live follower adapter.
+Route advancement, vehicle target adjustment, concrete boat/building consumers,
+and full ordinary person scheduling/physics remain integration work. These
+results do not establish full game or live movement parity.
+
+The three boat consumers are now preserved as raw exports for the next integration
+step; exporting them does not implement their behavior. The manifest contains
+**638 raw exports**. Typechecking, all 62 gameplay regressions, production build
+and the existing live celebration browser check pass.

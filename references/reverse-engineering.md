@@ -3099,3 +3099,26 @@ one endpoint and 16 quarter-cell steps; blocking its first step retains a detour
 with two nodes and 24 steps. The obstacle solver supplies that initial path.
 Full obstacle solving, route advancement and ordinary follower scheduling remain
 unfinished; the new ports do not yet change live follower pathfinding.
+
+## 2026-09-08 — Complete obstacle solver and composed native search
+
+`app/path-solver.ts` ports `00421130`, `004222d0` and `004229a0`, reusing the
+verified geometry and postprocessing. It preserves both obstacle walkers,
+separate caches/boats, shoreline transitions, corridor checks, merge limits,
+secondary results and native counters. The 1,500-step default is imported from
+`0059bd8c`. Detailed behavior and limits are recorded in the
+[decompilation guide](../decomp/README.md#complete-path-solver-and-obstacle-following).
+
+**4,096 native comparisons** now include complete search with its actual solver,
+preparation, selection, smoothing, measurement and collection. The four building/
+boat consumers are supplied; endpoint boat lookup executes natively. The existing
+**7,168 geometry comparisons** still pass with the shared probe's side-cache
+support. Full owned route buffers and state, rather than just success/failure,
+are compared.
+
+The **62nd gameplay regression** constructs the original detour around a wall
+across the world seam and verifies that a blocked destination yields failure and
+a 16-turn cache entry. The same layouts execute in the native comparison. This
+removes the supplied obstacle solver from the composed route-construction test.
+Ordinary live routing, route advancement, boat/building world consumers and full
+person scheduling/physics still need integration; full parity remains unfinished.

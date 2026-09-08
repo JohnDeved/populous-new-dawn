@@ -2,14 +2,14 @@ import rules from './original-rules.json' with {type:'json'};
 import type {PathSearchWorld,SearchPath} from './path-search.ts';
 
 type Point={x:number;y:number};
-type PathPoint=Point & {flags:number};
+export type PathPoint=Point & {flags:number};
 export type PathLine={xDirection:number;yDirection:number;dx:number;dy:number;error:number;horizontalMajor:number};
 export type PathGeometry={candidates:Uint8Array;cacheCell:number;cacheResult:number;leftState:number;rightState:number;diverged:number;secondary:number;
   allowTransition:number;kind:number;transition:number;line:PathLine};
 export const createPathGeometry=():PathGeometry=>({candidates:new Uint8Array(120),cacheCell:-1,cacheResult:0,leftState:0,rightState:0,diverged:0,secondary:0,
   allowTransition:0,kind:0,transition:0,line:{xDirection:0,yDirection:0,dx:0,dy:0,error:0,horizontalMajor:0}});
 const dataView=(data:Uint8Array)=>new DataView(data.buffer,data.byteOffset,data.byteLength);
-const readPoint=(v:DataView,a:number):PathPoint=>({x:v.getInt32(a,true),y:v.getInt32(a+4,true),flags:v.getUint16(a+8,true)});
+export const readPathPoint=(v:DataView,a:number):PathPoint=>({x:v.getInt32(a,true),y:v.getInt32(a+4,true),flags:v.getUint16(a+8,true)});
 type GeometryWorld=Pick<PathSearchWorld,'state'|'path'|'result'>;
 
 function endpoints(w:GeometryWorld){
@@ -62,32 +62,32 @@ export function stepPathLine(line:PathLine){
 }
 
 export type PathProbeWorld=Pick<PathSearchWorld,'state'|'categories'> & {flags:ArrayLike<number>;walkMasks:readonly ArrayLike<number>[]};
-type ProbeEffects={buildingAccess:(cell:number)=>number;boardingBoat:(cell:number)=>number;
+export type ProbeEffects={buildingAccess:(cell:number)=>number;boardingBoat:(cell:number)=>number;
   disembark:(boat:number,point:Point)=>boolean;boatCell:(cell:number,boat:number)=>boolean};
 
 // Complete 0x422020. Probe the next quarter-cell before consulting the cache;
 // transition success clears its cell key and preserves its result byte.
-export function probePathStep(w:PathProbeWorld,g:PathGeometry,p:{flags4:number},point:PathPoint,direction:number,e:ProbeEffects){
+export function probePathStep(w:PathProbeWorld,g:PathGeometry,p:{flags4:number},point:PathPoint,direction:number,e:ProbeEffects,cache:Pick<PathGeometry,'cacheCell'|'cacheResult'>=g,boat:{currentBoat:number}=w.state){
   g.transition=0;
   const step=rules.pathSteps[direction],x=(point.x+step.x)&255,y=(point.y+step.y)&255,bit=y*256+x;
   if(!(w.walkMasks[w.state.walkMask][bit>>3]&(1<<(bit&7))))return 3;
   const cell=(x&254)|((y&254)<<8),i=(y>>1)*128+(x>>1);
-  if(g.cacheCell===i)return g.cacheResult;
+  if(cache.cacheCell===i)return cache.cacheResult;
   const kind=point.flags&255,category=rules.terrainCategoryFlags[w.categories[i]&15],building=!!(w.flags[i]&512);let result=0;
   if(kind===0){
     if(!(p.flags4&0x10007)&&building)result=1;
     else if(!(category&1)){
       if(!(category&60)||!g.allowTransition)result=4;
-      else{const boat=e.boardingBoat(cell);if(!boat||boat===w.state.currentBoat)result=4;else{g.transition=1;w.state.currentBoat=boat;}}
+      else{const nextBoat=e.boardingBoat(cell);if(!nextBoat||nextBoat===boat.currentBoat)result=4;else{g.transition=1;boat.currentBoat=nextBoat;}}
     }else if(building&&(p.flags4&0x10007))result=e.buildingAccess(cell)&255;
   }else if(kind===1){
     if(category&1){
-      if(g.allowTransition&&e.disembark(w.state.currentBoat,{x:(point.x&254)<<8,y:(point.y&254)<<8}))g.transition=1;
+      if(g.allowTransition&&e.disembark(boat.currentBoat,{x:(point.x&254)<<8,y:(point.y&254)<<8}))g.transition=1;
       else result=5;
     }else if((category&60)&&(category&16))result=6;
-    else if(!e.boatCell(x|(y<<8),w.state.currentBoat))result=6;
+    else if(!e.boatCell(x|(y<<8),boat.currentBoat))result=6;
   }
-  if(g.transition)g.cacheCell=-1;else{g.cacheCell=i;g.cacheResult=result;}
+  if(g.transition)cache.cacheCell=-1;else{cache.cacheCell=i;cache.cacheResult=result;}
   return result;
 }
 
@@ -107,15 +107,15 @@ export function clearPathSegment(w:PathProbeWorld,g:PathGeometry,p:{flags4:numbe
 export function smoothSearchPath(path:SearchPath,start:number,clear:(from:PathPoint,to:PathPoint,kind:number)=>boolean){
   const d=path.data,v=dataView(d);let any=false;
   for(;;){
-    let current=readPoint(v,start?10+start*10:0),output=start,changed=false,source=start;
+    let current=readPathPoint(v,start?10+start*10:0),output=start,changed=false,source=start;
     while(source<path.count){
       let skip=0;
       for(let ahead=4;ahead>0;ahead--){
         const at=20+(source+ahead)*10;
-        if(source+ahead<path.count&&d[at+8]===(current.flags&255)&&clear(current,readPoint(v,at),current.flags&255)){skip=ahead;break;}
+        if(source+ahead<path.count&&d[at+8]===(current.flags&255)&&clear(current,readPathPoint(v,at),current.flags&255)){skip=ahead;break;}
       }
       if(skip){source+=skip;changed=any=true;continue;}
-      d.copyWithin(20+output*10,20+source*10,30+source*10);current=readPoint(v,20+output*10);source++;output++;
+      d.copyWithin(20+output*10,20+source*10,30+source*10);current=readPathPoint(v,20+output*10);source++;output++;
     }
     path.count=output;if(!changed)return any;
   }
@@ -125,9 +125,9 @@ export function smoothSearchPath(path:SearchPath,start:number,clear:(from:PathPo
 // Each segment includes its starting cell and excludes its endpoint.
 export function measureSearchPath(path:SearchPath,line:PathLine,measure:{dirty:number;distance:number;tribes:number},regions:ArrayLike<number>,tribes:readonly {active:boolean;defeatTimer:number}[]){
   if(!measure.dirty)return;
-  const v=dataView(path.data);let current=readPoint(v,0),distance=0,mask=0;
+  const v=dataView(path.data);let current=readPathPoint(v,0),distance=0,mask=0;
   for(let i=0;i<path.count;i++){
-    const to=readPoint(v,20+i*10);initializePathLine(line,current,to);
+    const to=readPathPoint(v,20+i*10);initializePathLine(line,current,to);
     while(current.x!==to.x||current.y!==to.y){
       distance=(distance+1)|0;mask|=regions[((current.y&254)>>1)*128+((current.x&254)>>1)];
       const step=rules.pathSteps[stepPathLine(line)];current.x=(current.x+step.x)|0;current.y=(current.y+step.y)|0;
