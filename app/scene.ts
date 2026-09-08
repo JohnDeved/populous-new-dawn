@@ -22,6 +22,8 @@ import nativeUnits from './original-units.json';
 import nativeEffects from './original-effects.json';
 import nativeHud from './original-hud.json';
 import {spellCursor} from './spell-casting.ts';
+import {spellHalo,haloBucket} from './spell-halo.ts';
+import rules from './original-rules.json';
 
 const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 };
 const material = (color: number, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra });
@@ -33,6 +35,12 @@ function texture(kind: string) {
   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
   if(kind==='units'||kind==='effects'||kind==='selection'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
   textures.set(kind,t);return t;
+}
+function effectFrame(sprite:THREE.Sprite,frame:{index:number;w:number;h:number}){
+  const map=sprite.material.map!;
+  map.repeat.set(frame.w/nativeEffects.width,frame.h/nativeEffects.height);
+  map.offset.set(frame.index%8*256/nativeEffects.width,1-(Math.floor(frame.index/8)*256+frame.h)/nativeEffects.height);
+  sprite.scale.set(frame.w,frame.h,1);
 }
 function nativeModel(id:number,scale=2,stage=4){
   const data=nativeModels[id];
@@ -111,7 +119,9 @@ export class GameScene {
   decorations = new THREE.Group();
   shrineMeshes = new Map<number, {g:THREE.Group}>();
   cursor = ring(2.5, 0xe1c38b, .1);
-  range = ring(34, 0x6dc9ee, .1);
+  range = new THREE.Group();
+  halo={angle:0};
+  hoveredSpell=0;
   mouse = new THREE.Vector2();
   pointer: Point | null = null;
   pointerScreen:{clientX:number;clientY:number}|null=null;
@@ -531,9 +541,8 @@ export class GameScene {
     const sprite=g.userData.sprite as THREE.Sprite;
     if(f.unit){const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[`${f.unit.team}-${f.unit.kind}`];this.animatePerson(sprite,g,f.unit.heading,animations.die,f.age,true);sprite.material.opacity=Math.min(1,(f.duration-f.age)*3);return;}
     const sequence=(nativeEffects.animations as Record<string,{index:number;w:number;h:number}[]>)[g.userData.sequence];
-    const frame=sequence[Math.min(sequence.length-1,f.sprite?.sequence==='blastShot'?f.sprite.frame:Math.floor(f.age*12))],map=sprite.material.map!;
-    map.repeat.set(frame.w/nativeEffects.width,frame.h/nativeEffects.height);map.offset.set(frame.index%8*256/nativeEffects.width,1-(Math.floor(frame.index/8)*256+frame.h)/nativeEffects.height);
-    sprite.scale.set(frame.w,frame.h,1);sprite.material.opacity=Math.min(1,(f.duration-f.age)*5);
+    const frame=sequence[Math.min(sequence.length-1,f.sprite?.sequence==='blastShot'?f.sprite.frame:Math.floor(f.age*12))];
+    effectFrame(sprite,frame);sprite.material.opacity=Math.min(1,(f.duration-f.age)*5);
     if(g.userData.shock){const shock=g.userData.shock as THREE.Mesh;shock.scale.setScalar(1+Math.min(1,f.age/.25)*25);(shock.material as THREE.MeshBasicMaterial).opacity=Math.max(0,1-f.age/.35);}
     if(g.userData.bolt){
       const bolt=g.userData.bolt as THREE.LineSegments,phase=Math.floor(f.age*24),points:number[]=[];
@@ -543,6 +552,33 @@ export class GameScene {
         bolt.geometry.dispose();bolt.geometry=new THREE.BufferGeometry();bolt.geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));
       }
       bolt.visible=f.age<.65;(bolt.material as THREE.LineBasicMaterial).opacity=Math.max(0,1-f.age/.65);
+    }
+  }
+  updateSpellHalo(frame:number){
+    const model=SPELLS.find(s=>s.id===this.world.mode)?.model??this.hoveredSpell;
+    this.range.userData.model=model;
+    const shaman=this.world.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+    this.range.visible=!!shaman&&!!model&&!(rules.spellCharging[model].flags&0x8000)&&!this.world.inputMask&&this.world.status==='playing';
+    if(!shaman||!this.range.visible)return;
+    const points=spellHalo(this.world.land,nativePosition(this.world,shaman),spellRange(this.world,shaman,model)*256,this.halo,frame);
+    for(const [i,p] of points.entries()){
+      let g=this.range.children[i] as THREE.Group;
+      if(!g){
+        g=new THREE.Group();
+        const body=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('effects').clone(),transparent:true,depthWrite:false,toneMapped:false}));
+        // Use the palette's encoded RGB values, as with the imported textures.
+        body.material.color.setStyle(`rgb(${nativeEffects.haloColor.join(',')})`);body.center.set(.5,0);
+        const shadow=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('effects').clone(),alphaTest:.5,depthWrite:false,toneMapped:false}));
+        g.add(shadow,body);this.range.add(g);
+      }
+      const point=browserPosition(p),projected=this.view.project(point,p.h/45);
+      this.locate(g,point,p.h/45);g.visible=this.overviewActive?this.visible(point,p.h/45):!(projected.flags&0x1e);g.userData.halo=p;
+      const [shadow,body]=g.children as THREE.Sprite[];
+      effectFrame(body,nativeEffects.animations.halo[p.frame-1466]);effectFrame(shadow,nativeEffects.animations.haloShadow[0]);
+      const flags=this.view.config.scaledSprites?0x100:0,bucket=haloBucket(projected.z);
+      if(flags)shadow.scale.set(spriteCoordinate(9,bucket,flags,this.view.config),spriteCoordinate(2,bucket,flags,this.view.config),1);
+      shadow.visible=shadow.scale.x>0&&shadow.scale.y>0;
+      if(shadow.visible)shadow.center.set(Math.trunc(shadow.scale.x/2)/shadow.scale.x,2/shadow.scale.y);
     }
   }
   drawMinimap() {
@@ -628,10 +664,10 @@ export class GameScene {
       entry.g.visible=shrine.active||shrine.kind==='vault';
 
     }
-    const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman');
-    this.range.visible = !!this.world.mode && SPELLS.some(s => s.id === this.world.mode) && !!shaman;
     const spec=SPELLS.find(s=>s.id===this.world.mode);
-    if(shaman&&spec&&this.range.visible)this.groundRing(this.range,shaman,spellRange(this.world,shaman,spec.model));
+    // Original geometry advances per draw; its animation clock is still a
+    // browser 12 Hz presentation clock until native timer ownership is ported.
+    this.updateSpellHalo(Math.floor(now*12/1000));
     // Picking projects the entire terrain; repeat when the pointer/view changes.
     const pointerState=[this.world.mode,this.pointerScreen?.clientX,this.pointerScreen?.clientY,this.world.landVersion,
       this.viewPoint.x,this.viewPoint.z,this.cameraBearing,this.viewZoom,this.overviewActive,

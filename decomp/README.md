@@ -1669,3 +1669,13 @@ and offsets, with target/readiness queries and raster submission supplied.
 records come from `scripts/inspect-executable.py`. Run
 `node scripts/check-browser-spell-cursor.mjs` for actual pointer/cast integration.
 Other cursor modes, native outer-turn ownership and ground overlays remain open.
+
+### Casting-range halo
+
+`app/spell-halo.ts` reconstructs `00475a70`'s 85-particle loop and depth bucket.
+Run `scripts/check-native-spell-halo.py EXE` for 256 native loop comparisons,
+including actual native movement, terrain interpolation and queue allocation.
+Only range and projection inputs are supplied. `scripts/import-original.py`
+imports HFX 1466–1477, shadow 70 and AL0-derived tint; the browser check is
+`node scripts/check-browser-spell-halo.mjs`. Native timer and complete painter
+ownership remain open.

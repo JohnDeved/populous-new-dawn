@@ -30,6 +30,12 @@ The browser still approximates dynamic lighting, water motion, texture-cache/LOD
 
 ## Format evidence
 
+Casting-range feedback uses HFX 1466–1477 (32×32), with HFX 70 (9×2) for
+each particle's shadow. The halo uses the AL0 nibble-alpha palette and native
+vertex tint derived from `AL0[0x2f82]`; bank c supplies RGB `[229,220,214]`.
+The existing effect atlas and updater are shared with spell impacts. See the
+halo comparison in the reverse-engineering log for positioning and limits.
+
 - [ALACN's native object converter](https://github.com/OpenPop/pop3dobj): packed object, face and point layouts and UV conversion.
 - [PopResourceEditor](https://github.com/Toksisitee/PopResourceEditor): PSFB, palette, block atlas, BIGF, DISP and landscape bank formats.
 - [PopSpriteEditor](https://github.com/Toksisitee/PopSpriteEditor): source sprite bank decoding and transparent overlay structure.

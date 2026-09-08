@@ -168,19 +168,21 @@ def main():
     effects=sprites(hfx_data,fx_palette,alpha=True)
     # 0x4673b0 draws type-1 objects from HFX, including the small trail particles.
     # Trail draw type 1 uses the ordinary palette; the Blast head uses nibble alpha.
-    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,4),'spellTrail':(0x142,4),'log':(23,1)}
+    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,4),'spellTrail':(0x142,4),'log':(23,1),'halo':(1466,12),'haloShadow':(70,1)}
     fx_frames=[];fx_meta={};cell=256
     for name,(start,count) in fx_sequences.items():
         fx_meta[name]=[]
         for i in range(start,start+count):
-            w,h,data=(hfx if name in ('blastTrail','spellTrail','log') else effects)[i];assert w<=cell and h<=cell
+            w,h,data=(hfx if name in ('blastTrail','spellTrail','log','haloShadow') else effects)[i];assert w<=cell and h<=cell
             fx_meta[name].append({'index':len(fx_frames),'w':w,'h':h,'source':i});fx_frames.append((w,h,data))
     fw=2048;fh=((len(fx_frames)+7)//8)*cell;pixels=bytearray(fw*fh*4)
     for i,(w,h,data) in enumerate(fx_frames):
         x=i%8*cell;y=i//8*cell
         for row in range(h):pixels[((y+row)*fw+x)*4:((y+row)*fw+x+w)*4]=data[row*w*4:(row+1)*w*4]
     png(output/'effects.png',fw,fh,pixels)
-    (project/'app/original-effects.json').write_text(json.dumps({'width':fw,'height':fh,'animations':fx_meta},separators=(',',':')))
+    # 0x46b294 selects AL0; 0x516270 derives the halo's vertex tint from it.
+    halo_color=list(palette[alpha[0x2f82]*4:alpha[0x2f82]*4+3])
+    (project/'app/original-effects.json').write_text(json.dumps({'width':fw,'height':fh,'haloColor':halo_color,'animations':fx_meta},separators=(',',':')))
     data=read('levels/constant.dat')
     if data[:2]==b'@~':data=b'  '+bytes((~(v^(1<<((i-3)&7))))&255 for i,v in enumerate(data))[2:]
     constants={}

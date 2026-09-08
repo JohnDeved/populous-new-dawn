@@ -3520,3 +3520,63 @@ uses the browser simulation turn; native outer-turn ownership is still open.
 The casting circle and building placement ring remain browser geometry. Native
 palette scheduling, device-pixel scaling and complete renderer parity are not
 established by the cursor comparison.
+
+## Original casting-range halo — 2026-09-08
+
+`00475a70` replaces the invented continuous blue casting circle with **85**
+terrain-anchored particle/shadow pairs. The 16-bit phase at `0059d9d0` advances
+by 8 per draw, particles are spaced by 24 native angle units, and the last
+angular gap is intentionally 32. Each position calls original `004e6a70` with
+a signed-short range, wraps the map coordinates, then samples `0044e940`.
+The browser reuses `nativeStep` and the already verified `terrainPointHeight`,
+including the stored diagonal and pending terrain changes, rather than
+recomputing a diagonal or sampling the cropped display-height array.
+
+Each visible point allocates a type-24 body and type-25 shadow. Body frames
+are HFX `1466 + ((particle + sprite_animation_counter) % 12)`, 32×32 pixels,
+centered horizontally and bottom-anchored. The draw branch `0046b294` selects
+AL0; `00516270` derives its vertex tint from the palette index at `AL0[0x2f82]`.
+The importer retains that RGB value and the twelve nibble-alpha frames. The
+shadow branch selects HFX 70, uses the normal sprite-scaling helper and sits
+two screen pixels below the bottom anchor. Its bucket comes from
+`clamp((projectedDepth + 0x6ed4) / 16, 0, 3584)` with the native below-64 gate.
+
+`app/spell-halo.ts` reconstructs positions, stored-diagonal heights, phase,
+frame selection and bucket calculation. `check-native-spell-halo.py EXE`
+executes **256 complete native loop calls**, comparing **21,760** positions,
+heights and frame IDs, **43,520** body/shadow queue records and their buckets.
+Movement, terrain sampling, phase advancement, frame arithmetic and allocation
+execute as original x86. Only range and camera projection are supplied; the
+fixture makes points visible. Pool exhaustion and camera clipping are outside
+this comparison. Existing projection/scaling checks cover those mathematical
+helpers, not the complete painter.
+
+The live range is now a reusable group of original sprites. Selecting a spell
+takes priority over HUD hover, while hover alone previews its range, matching
+the routine's selected/fallback model lookup. Spell flag `0x8000` suppresses
+the halo. Browser UI supplies the hovered model; alternate/minimap origins
+remain unported. Range calculation stays shared with real casting. Shared
+effect-atlas updates continue to serve ordinary spell effects after the atlas
+grows to 2048×4096.
+
+`node scripts/check-browser-spell-halo.mjs` checks all 85 pairs, exact height
+anchors, original sprite dimensions, GPU-visible pixels, animation, hover vs
+selection priority, camera rotation, pause, absent shaman and cancel. It also
+casts a real Blast and checks its impact sprite reaches GPU pixels. Captures
+at `/private/tmp/populous-halo-blast.png` and
+`/private/tmp/populous-halo-bridge.png` were inspected; the impact capture is
+`/private/tmp/populous-halo-impact.png`.
+
+All three captures were inspected. Halo, cursor and existing HUD/command
+browser checks pass, as do 66 regressions, typecheck and production build.
+Lint has three existing image warnings. The export manifest verifies **685**
+functions and retains the supplied executable identity.
+
+Remaining boundaries: animation uses a 12 Hz browser presentation clock;
+rotation advances per browser draw. Native clock ownership, special UI gates,
+pool limits, complete painter ordering, palette scheduling and raster blend
+behavior remain open. Shadow transparency/depth compositing uses the existing
+browser renderer. These checks establish the recovered inputs and geometry,
+not pixel-identical frames or full range/effect parity. Three additional raw
+exports retain the halo and investigated ground-overlay helpers. Ground target
+tiles, spell travel/impact spawners and construction/destruction are next.

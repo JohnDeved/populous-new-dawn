@@ -106,3 +106,14 @@ offsets replace the invented small ground target ring. Screenshots:
 `node scripts/check-browser-spell-cursor.mjs`. The operating-system arrow and
 large casting circle still differ; ground targeting and spell impacts remain
 the next visible comparison. Pointer tests do not prove whole-frame fidelity.
+
+### Casting-range halo
+
+The continuous blue circle has been replaced with the original 85 animated
+HFX particles and their small shadows. It follows the original terrain heights
+and previews range on spell hover. Inspected captures:
+`/private/tmp/populous-halo-blast.png` and
+`/private/tmp/populous-halo-bridge.png`; reproduce with
+`node scripts/check-browser-spell-halo.mjs`. The test also captures a real Blast
+impact as a baseline for the next effects pass. Native clock ownership and
+full painter/blend behavior remain open, alongside ground target tiles.

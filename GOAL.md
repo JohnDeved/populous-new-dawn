@@ -43,9 +43,11 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare ground range/target feedback and visible spell
-travel/impacts during first-mission play, then construction activity and
-destruction. Spell pointers now use native POINT artwork, unavailable markers
+**Next action:** compare visible spell travel/impacts and ground target tiles
+during first-mission play, then construction activity and destruction. Casting
+range now uses the native rotating 85-particle halo, terrain heights, original
+frames and shadow sprites, including hover previews; its complete native timer
+and painter ownership remain open. Spell pointers use native POINT artwork, unavailable markers
 and the out-of-range walking animation; full ground overlays and cursor ownership
 remain open. Selected followers now use the native above-head arrow and
 animation-frame height instead of invented ground rings. The HUD

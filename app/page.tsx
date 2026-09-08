@@ -27,6 +27,7 @@ export default function Home() {
   const [hover, setHover] = useState<string | null>(null);
   const viewport = useRef<HTMLDivElement>(null), minimap = useRef<HTMLCanvasElement>(null), dialog = useRef<HTMLDialogElement>(null);
   const engine = useRef<GameScene | null>(null), audio = useRef<Soundscape | null>(null);
+  useEffect(()=>{if(engine.current)engine.current.hoveredSpell=tab==='spells'?SPELLS.find(s=>s.id===hover)?.model??0:0;},[hover,tab,ready]);
   useEffect(() => {
     audio.current = new Soundscape(); return () => { audio.current?.dispose(); audio.current = null; };
   }, []);
