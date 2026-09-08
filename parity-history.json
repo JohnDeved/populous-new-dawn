@@ -3012,5 +3012,137 @@
     },
     "completionReady": false,
     "note": "Per-tree growth and original delayed replanting: native indexed site search, 256-turn retries and 100-wood saplings. 576 growth, 18 depletion and 128 native replant comparisons; full-delay live/browser growth and shade checks. Timber remains partial."
+  },
+  {
+    "date": "2026-09-08T22:26:55.306Z",
+    "revision": 1,
+    "baseCommit": "7969b9a5b14a8fc36cb33f9ccfb84597e2de2714",
+    "ledgerHash": "aed1310a7a446d5076dd66df3ade1adc96b6fc6a546178bf57207c16958d4e07",
+    "scopeHash": "931ace354b2d7020d17dc1796b0b262738ac538636f75fa3ddbc59a433cdc8c1",
+    "total": 96,
+    "verified": 17,
+    "partial": 55,
+    "missing": 24,
+    "unassessed": 0,
+    "groups": [
+      {
+        "id": "world",
+        "title": "World and camera",
+        "total": 8,
+        "verified": 5,
+        "partial": 3,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "graphics",
+        "title": "Models, sprites and lighting",
+        "total": 8,
+        "verified": 2,
+        "partial": 6,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "effects",
+        "title": "Effects and object lifecycles",
+        "total": 8,
+        "verified": 4,
+        "partial": 3,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "interface",
+        "title": "Interface and desktop controls",
+        "total": 8,
+        "verified": 3,
+        "partial": 4,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "audio",
+        "title": "Audio and music",
+        "total": 8,
+        "verified": 0,
+        "partial": 6,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "simulation",
+        "title": "Simulation scheduling and randomness",
+        "total": 8,
+        "verified": 0,
+        "partial": 7,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "movement",
+        "title": "Movement, collision and vehicles",
+        "total": 8,
+        "verified": 1,
+        "partial": 5,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "combat",
+        "title": "Unit classes and combat",
+        "total": 8,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "economy",
+        "title": "Buildings, resources and population",
+        "total": 8,
+        "verified": 1,
+        "partial": 7,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "spells",
+        "title": "Spell rules and complete roster",
+        "total": 8,
+        "verified": 1,
+        "partial": 4,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "campaign",
+        "title": "Campaign, AI and objectives",
+        "total": 8,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "persistence",
+        "title": "Persistence and multiplayer",
+        "total": 8,
+        "verified": 0,
+        "partial": 0,
+        "missing": 8,
+        "unassessed": 0
+      }
+    ],
+    "discovery": {
+      "status": "open",
+      "note": "The original engine and complete content inventory are still being researched. These 96 checkpoints are the current known scope, not a closed inventory; further decompilation and original-game comparisons may reveal new systems or split existing checkpoints.",
+      "evidence": [
+        "GOAL.md",
+        "references/reverse-engineering.md"
+      ]
+    },
+    "completionReady": false,
+    "note": "Removed building-distance vegetation suppression: native cell dispatcher and browser regression restore the original tree beside a first-mission hut. Four camera bearings and scenery rebuilds checked; full raster fidelity stays partial."
   }
 ]

@@ -2810,10 +2810,38 @@ delay at accelerated simulation speed and checks model size, GPU pixels and shad
 Allocation limits, global object insertion/order, initial counter staggering and
 complete mixed-class scenery ownership remain open. Browser retained dead tree
 records and request arrays are adapters, not the original allocator. The existing
-renderer also retains its approximate building-proximity vegetation suppression;
+renderer's building-proximity vegetation suppression was subsequently removed;
 full original geometry/placement visibility remains a separate fidelity gap.
 This does not complete the timber or scenery lifecycle checkpoints.
 
 Six new exports bring the manifest to 866; re-exported `004a6210` and `004a80b0`
 match their previous hashes. `004a8860/004a8950` (rising/sinking scenery), `004a8b00`
 and `004a9030` are retained supporting research, not new completed ports.
+
+
+## Trees beside buildings — 2026-09-09
+
+`0046ec80` traverses a cell's object list twice. In the second pass, ordinary
+3D objects skip hidden flag `0x10` and already-drawn flag `1`, then submit their
+model. For class 5/models 1–6, the queue probe `0048b2c0` updates a counter but
+does not decide whether the model is submitted. There is no building-distance
+rejection. Polygon-pool exhaustion and existing lifecycle flags remain distinct.
+
+Removed the browser's `distance < 3.7` scenery filter. It hid original mission
+tree ID 3, 3.16 browser units from hut ID 1, outside its native occupied footprint.
+The shared decoration builder now also preserves valid replanted trees near huts.
+
+`check-native-scenery-visibility.py` executes 1,440 complete cell-dispatch calls
+with six tree models, tree/building list orders and coordinates, hide/drawn flags,
+probe results, morph/overlay requests and exhausted polygon storage. Polygon
+consumers are observed at their call boundaries; this is not a raster comparison.
+The browser regression fails on the previous filter and passes after its removal,
+including four camera bearings and complete decoration rebuilds.
+
+```sh
+python scripts/check-native-scenery-visibility.py /path/to/d3dpoptb.exe
+node scripts/check-browser-scenery-visibility.mjs
+```
+
+Original mixed-class painter ordering, full visibility/lifecycle ownership and
+matched original frames remain open. No new renderer abstraction was needed.

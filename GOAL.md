@@ -506,7 +506,9 @@ replant/search calls. Portable tests wait the full 4,000-turn delay; browser che
 show sapling/full size and restored shade through the live simulation.
 
 Full allocator limits, shared scenery/command ownership, original insertion and
-counter scheduling remain open. The original tree renderer's remaining placement
-and visibility differences need comparison, alongside building construction stages
-and close-view world lighting. Continue visible fidelity work using references;
-do not treat native component checks as matched full frames or full game parity.
+counter scheduling remain open. The arbitrary building-distance tree filter is
+now removed: native cell submissions and browser checks confirm the first-mission
+tree beside a hut must remain visible. Regression checks cover rebuilding scenery
+and four camera bearings. Continue comparison of construction-stage appearance,
+close-view world lighting, original painter occlusion and HUD sizing. Do not treat
+native component checks as matched full frames or full game parity.

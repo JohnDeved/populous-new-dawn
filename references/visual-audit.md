@@ -349,3 +349,15 @@ The old tree stays removed and native scenery shade returns for the new identity
 The browser test also captures the empty site before planting. Full original
 frame matching, construction-stage appearance and the existing approximate
 building-proximity suppression of vegetation remain open visual comparisons.
+
+
+## Vegetation beside huts — v113
+
+Compared the close-world regrowth capture with `user-village.jpg`, then traced
+native cell submissions. The browser omitted original tree ID 3 beside the red
+hut despite its cell lying outside the building footprint. Removed that radius
+filter. The browser regression first failed on the missing mesh; after the fix,
+scenery rebuilds at four bearings retain the tree and contribute 384, 849, 812
+and 548 GPU pixels. Inspected `/private/tmp/populous-scenery-visibility-v113.png`:
+the tree is present beside the compound with original mesh/material and grounding.
+This corrects one visible omission, not complete original-frame matching.

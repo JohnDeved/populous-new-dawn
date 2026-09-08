@@ -4426,3 +4426,12 @@ sites retry after 256 turns and successful saplings start at 100 wood. Native
 comparisons cover growth, allocation records, search/terrain/collision and retry
 state, with full-delay live tests and browser GPU growth/shade checks.
 See [tree growth evidence and remaining ownership boundaries](../decomp/README.md#tree-growth-and-delayed-replanting--2026-09-09).
+
+
+### Tree visibility beside buildings
+
+The original cell dispatcher `0046ec80` submits ordinary tree models without a
+building-distance test. Native call-boundary and browser regression evidence is
+recorded in [the decompilation notes](../decomp/README.md#trees-beside-buildings--2026-09-09).
+Removed the browser radius filter that hid a shipped first-mission tree outside
+the adjacent hut footprint. Full painter/raster visibility remains partial.

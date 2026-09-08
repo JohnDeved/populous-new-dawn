@@ -1029,7 +1029,6 @@ export class GameScene {
         this.decorations.add(g)
         continue
       }
-      if (this.world.buildings.some(b => distance(b, tree) < 3.7)) continue
       const g = new THREE.Group()
       g.add(nativeModel(rules.sceneryObjects[tree.model]))
       this.locate(g, tree)
