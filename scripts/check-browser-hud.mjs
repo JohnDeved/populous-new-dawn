@@ -54,8 +54,10 @@ try{
  await page.screenshot({path:'/private/tmp/populous-native-hud-after.png'});
  await page.getByRole('button',{name:'Menu',exact:true}).click();assert.equal(await page.locator('dialog').evaluate(d=>d.open),true);assert.equal(await page.evaluate(()=>window.testScene.world.paused),true);
  await page.getByRole('button',{name:'Close menu',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.world.paused),false);
- await page.getByRole('button',{name:'Planet overview',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.overviewActive),true);
- await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.overviewActive),false);
+ await page.getByRole('button',{name:'Planet overview',exact:true}).click();
+ await page.waitForFunction(()=>window.testScene.overviewActive&&!window.testScene.overviewStage);
+ await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click();
+ await page.waitForFunction(()=>!window.testScene.overviewActive&&!window.testScene.overviewStage);
  assert.deepEqual(errors,[]);
  console.log('PASS: HUD bounds at two desktop sizes; selection, spell toggles/charging, building gating, mesh hover/worship, menu/pause and overview/shaman controls; no floating labels or browser errors');
 }finally{await browser.close();}

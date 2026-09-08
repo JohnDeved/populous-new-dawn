@@ -29,9 +29,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 .command-dock{position:absolute;left:0;top:204px;width:100px;bottom:0;padding:7px 2px;background:url('/original/hud-commands.png');border:2px ridge #e4b152;border-bottom:0}
 .spell-list,.building-list,.follower-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px}
 .spell-card,.building-card,.follower-list button{position:relative;min-width:0;height:43px;padding:0;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-button.png') 8 fill repeat}
-.spell-card.active,.building-card.active{border-image-source:url('/original/hud-button-selected.png')}.spell-card.gift:not(.active){border-image-source:url('/original/hud-button.png')}
-.shot-markers{position:absolute;top:-6px;left:50%;transform:translateX(-50%);display:flex;gap:1px}
-.charge-track{position:absolute;left:-5px;right:-5px;bottom:-4px;height:5px;border:1px ridge #ecc669;background:#b98b37}.charge-track i{display:block;height:100%;background:#383d81}
+.building-card.active{border-image-source:url('/original/hud-button-selected.png')}
+.spell-list{grid-template-columns:repeat(3,31px)}
+.spell-art{position:absolute;inset:-8px;pointer-events:none}.spell-art>span{position:absolute}
+.native-charge{left:2px;top:34px;width:26px;height:5px;background:url('/original/hud-charge.png')}.native-charge>i{position:absolute;left:1px;top:1px;height:3px}
 .building-list{grid-template-columns:repeat(2,1fr)}.building-card{height:53px}
 .top-actions{position:absolute;left:4px;bottom:3px;display:flex;gap:4px}.top-actions button{height:14px;width:17px;border:1px outset #f5ce7a;font-size:10px;line-height:12px}
 .hud-description{position:absolute;left:calc(var(--side) + 8px);top:43%;max-width:260px;background:#bf6f17;color:#634535;border:4px solid transparent;border-image:url('/original/tooltip-border.png') 4 repeat;padding:6px;font:12px/1.4 Arial,sans-serif;pointer-events:none;z-index:7}

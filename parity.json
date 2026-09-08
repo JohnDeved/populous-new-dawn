@@ -389,9 +389,13 @@
           "status": "partial",
           "evidence": [
             "scripts/check-browser-hud.mjs",
-            "app/page.tsx"
+            "app/page.tsx",
+            "app/spell-button.ts",
+            "scripts/check-native-spell-button.py",
+            "scripts/check-browser-spell-button.mjs",
+            "tests/spell-button.test.mjs"
           ],
-          "note": "Opening HUD subset implemented; all panels, native layout and minimap interactions unverified."
+          "note": "Opening HUD subset implemented. Original spell ready/inactive/hover icons, permanent/reward/selected frames, empty/gift stock markers, 1\u20134-shot logical positions and layered charging fills agree with 763 complete native calls. Supported spells follow native mana-cost slot order. Browser checks compare 24 live art states and actual charging controls; broader HUD interactions pass at two sizes with completed camera transitions. Full slot availability/disabled/locked dispatch, charge sparks, native resolution scaling, all panels, messages and minimap behavior remain unverified."
         },
         {
           "id": "interface.commands",

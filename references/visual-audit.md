@@ -361,3 +361,20 @@ scenery rebuilds at four bearings retain the tree and contribute 384, 849, 812
 and 548 GPU pixels. Inspected `/private/tmp/populous-scenery-visibility-v113.png`:
 the tree is present beside the compound with original mesh/material and grounding.
 This corrects one visible omission, not complete original-frame matching.
+
+
+## Spell-panel feedback — v114
+
+Reviewed the close-world capture against `user-village.jpg` and the existing HUD
+references. Native renderer inspection identified missing hover/reward artwork
+and the flat approximate charging track. The updated panel uses original reward
+frames, hover glyphs/markers and layered charging fills. Inspected
+`/private/tmp/populous-spell-panel-v114.png`: the three supported spells follow
+native mana-cost order (Blast, Land Bridge, Lightning), reward frames differ from
+the permanent frame, and mixed blue/red stock markers remain distinct.
+
+The browser check verifies 24 native-captured states, exact logical sprite bounds,
+frame identities and palette fill widths/colors, then uses actual right clicks to
+disable/enable charging. The broader HUD test passes at both desktop sizes after
+waiting for the already-restored overview transition. Complete UI scaling, native
+control availability, charge sparks and full original-frame matching remain open.

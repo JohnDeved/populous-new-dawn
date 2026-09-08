@@ -14,7 +14,8 @@ import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
 import { messageText, removeMessage } from './messages'
-import { HudSprite, NativeText } from './hud'
+import { HudSprite, NativeText, SpellButtonArt } from './hud'
+import { spellButton, spellOrder } from './spell-button'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -434,12 +435,24 @@ export default function Home() {
         <section className="command-dock" aria-label="Command panel">
           {tab === 'spells' && (
             <div className="spell-list">
-              {[...SPELLS]
-                .sort((a, b) => a.model - b.model)
-                .map(s => (
+              {SPELLS.toSorted(
+                (a, b) => spellOrder.indexOf(a.model) - spellOrder.indexOf(b.model)
+              ).map(s => {
+                const view = spellButton({
+                  model: s.model,
+                  permanent: !!(world.manaWorld.spells[0].available & (1 << s.model)),
+                  charging: s.id === 'blast' && world.charging,
+                  hovered: hover === s.id,
+                  selected: world.mode === s.id,
+                  stock: world.shots[s.id],
+                  gifts: world.giftCounts[s.id],
+                  progress: s.id === 'blast' ? Math.round(world.mana * 1000) : 0,
+                })
+                return (
                   <button
                     key={s.id}
-                    className={`spell-card ${world.mode === s.id ? 'active' : ''} ${s.id !== 'blast' ? 'gift' : ''}`}
+                    className="spell-card"
+                    style={{ borderImageSource: `url('/original/hud-${view.frame}.png')` }}
                     aria-label={`${s.name}, ${world.shots[s.id]} shots`}
                     aria-pressed={world.mode === s.id}
                     title={s.name}
@@ -460,37 +473,10 @@ export default function Home() {
                     onFocus={() => setHover(s.id)}
                     onBlur={() => setHover(null)}
                   >
-                    <span className="shot-markers">
-                      {Array.from({ length: 4 }, (_, i) => (
-                        <HudSprite
-                          key={i}
-                          id={
-                            i < world.shots[s.id]
-                              ? i < world.giftCounts[s.id]
-                                ? 65
-                                : 54
-                              : s.id === 'blast'
-                                ? 55
-                                : 66
-                          }
-                        />
-                      ))}
-                    </span>
-                    <HudSprite
-                      id={
-                        353 +
-                        s.model +
-                        Number(world.shots[s.id] === 0 && !(s.id === 'blast' && world.charging)) *
-                          18
-                      }
-                    />
-                    {s.id === 'blast' && world.charging && (
-                      <i className="charge-track">
-                        <i style={{ width: `${world.mana * 10}%` }} />
-                      </i>
-                    )}
+                    <SpellButtonArt view={view} />
                   </button>
-                ))}
+                )
+              })}
             </div>
           )}
           {tab === 'buildings' && (

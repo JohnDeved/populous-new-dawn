@@ -98,6 +98,7 @@ if len(sys.argv)>2:
     rules['animationDescriptors']=[dict(hold=struct.unpack('<b',read(0x5a6af8+i*11+1,1))[0],step=struct.unpack('<b',read(0x5a6af8+i*11+3,1))[0],mode=value(0x5a6af8+i*11+4,1),person=value(0x5a6af8+i*11+5,1),variant=value(0x5a6af8+i*11+6,1),palette=value(0x5a6af8+i*11+7,1),reset=value(0x5a6af8+i*11+8,1),flags=value(0x5a6af8+i*11+9,2)) for i in range(49)]
     rules['tribeEffectPalettes']=[value(0x5a89c8+i*5+3,1) for i in range(4)]
     rules['spellCharging']=[{'mode':value(0x5a80d0+i*62,2),'cost':value(0x5a80d4+i*62),
+        'icons':list(struct.unpack('<3h',read(0x5a80e0+i*62,6))),
         'cursor':value(0x5a80dc+i*62,2),'cursorBlockedOffset':list(read(0x5a810c+i*62,2)),'flags':value(0x5a80ea+i*62,2),
         'normalRange':value(0x5a80ee+i*62),'alternateRange':value(0x5a80f2+i*62),
         'normalLimit':value(0x5a80fd+i*62,1),'alternateLimit':value(0x5a80fe+i*62,1),

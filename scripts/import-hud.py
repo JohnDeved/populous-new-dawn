@@ -14,7 +14,7 @@ alpha=read('data/al0-c.dat');assert len(alpha)==65536
 alpha_colors=[alpha[((i<<4)|15)*256] for i in range(16)]
 output=ROOT/'public/original'
 # HFX identities are checked against the shipped spell records and artwork.
-ids=[54,55,65,66,*range(354,390),589,*range(664,682),875,1028,1029,1030]
+ids=[54,55,65,66,67,68,*range(354,408),589,*range(664,682),875,1028,1029,1030]
 entries={str(i):bank[i] for i in ids}
 # 0x524cf0 selects spell artwork from POINT, warning marks from HFX.
 points=a.sprites(read('data/point0-0.dat'),palette)
@@ -36,7 +36,9 @@ for key,(w,h,data) in entries.items():
         at=((r['y']+yy)*width+r['x'])*4;pixels[at:at+w*4]=data[yy*w*4:(yy+1)*w*4]
 a.png(output/'hud.png',width,height,pixels)
 # Nine-patches keep native corners and tile edges; no CSS-generated bevels.
-for name,start in [('button',821),('button-selected',830),('tab',740),('tab-active',758)]:
+for name,start in [('button',821),('button-selected',830),('button-hover',839),
+                   ('button-gift',510),('button-gift-selected',519),('button-gift-hover',528),
+                   ('tab',740),('tab-active',758)]:
     tiles=[bank[start+k] for k in [0,4,1,6,8,7,2,5,3]]
     columns=[max(tiles[j][0] for j in range(c,9,3)) for c in range(3)]
     rows=[max(t[1] for t in tiles[r*3:r*3+3]) for r in range(3)]
@@ -48,6 +50,18 @@ for name,start in [('button',821),('button-selected',830),('tab',740),('tab-acti
                 at=((top+yy)*wout+left+xx)*4;src=((yy%h)*w+xx%w)*4;pixels[at:at+4]=data[src:src+4]
     a.png(output/f'hud-{name}.png',wout,hout,pixels)
     print(name,columns,rows)
+# 0x49daf0's 26x5 charging frame uses 0x4a1f50's overlapping 4px corners.
+# CSS border-image would shrink these corners to fit the short rectangle.
+pixels=bytearray(26*5*4)
+for sprite,left,top,width,height in [(1018,4,0,18,4),(1019,4,1,18,4),
+                                     (1014,0,0,4,4),(1015,22,0,4,4),
+                                     (1016,0,1,4,4),(1017,22,1,4,4)]:
+    w,h,data=bank[sprite]
+    for y in range(height):
+        for x in range(width):
+            src=((y%h)*w+x%w)*4;at=((top+y)*26+left+x)*4
+            if data[src+3]:pixels[at:at+4]=data[src:src+4]
+a.png(output/'hud-charge.png',26,5,pixels)
 pixels=bytearray(100*99*4)
 for i in range(4):
     w,h,data=bank[690+i];assert (w,h)==(50,49 if i<2 else 50)
@@ -56,5 +70,6 @@ for i in range(4):
 a.png(output/'hud-map-frame.png',100,99,pixels)
 for name,i in [('panel',706),('commands',712)]:a.png(output/f'hud-{name}.png',*bank[i])
 meta=dict(executableSha256=identity['sha256'],sha256=hashes,width=width,height=height,rects=rects,alphaColors=alpha_colors,spriteColors=[alpha[i*4096+0x2f82] for i in range(13)])
+meta['colors']=['#'+palette[i*4:i*4+3].hex() for i in range(256)]
 (ROOT/'app/original-hud.json').write_text(json.dumps(meta,separators=(',',':'))+'\n')
-print(f'Imported {len(entries)} native HUD sprites/glyphs, four borders and minimap frame')
+print(f'Imported {len(entries)} native HUD sprites/glyphs, eight borders, charge frame and minimap frame')

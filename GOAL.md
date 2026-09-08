@@ -512,3 +512,21 @@ tree beside a hut must remain visible. Regression checks cover rebuilding scener
 and four camera bearings. Continue comparison of construction-stage appearance,
 close-view world lighting, original painter occlusion and HUD sizing. Do not treat
 native component checks as matched full frames or full game parity.
+
+
+### Latest visible integration: original spell-panel feedback
+
+Spell buttons now use original permanent/reward frames, hover artwork, selected
+frames and distinct empty-stock markers. Charging draws the native layered fills
+and palette colors at recovered logical positions. The supported spell subset
+follows native mana-cost order. A small presentation helper replaces scattered
+icon arithmetic and CSS approximations; fixed HUD spacing avoids recomputing a
+native initialization cache on every React update.
+
+Native comparisons cover 763 complete button calls, 1–4-shot layouts and charging
+boundaries, plus original slot sorting. Browser checks cover 24 art states and
+real charge toggles; the broader HUD check waits for the restored camera transitions.
+Full slot availability/disabled/locked dispatch, charge sparks, UI resolution
+scaling, all status panels, messages and minimap behavior remain open. Continue
+visible first-mission comparison, especially world lighting, construction activity
+and native HUD/control ownership. Full game parity remains unfinished.

@@ -4435,3 +4435,14 @@ building-distance test. Native call-boundary and browser regression evidence is
 recorded in [the decompilation notes](../decomp/README.md#trees-beside-buildings--2026-09-09).
 Removed the browser radius filter that hid a shipped first-mission tree outside
 the adjacent hut footprint. Full painter/raster visibility remains partial.
+
+
+### Native spell-panel feedback
+
+Recovered `0049daf0`/`004a1dd0` button frames, hover glyphs and markers, layered
+charging fills and `004c2fe0` mana-cost slot order. The browser now uses these
+through a compact presentation helper and original artwork. See
+[the native comparison evidence](../decomp/README.md#spell-panel-artwork-and-charging--2026-09-09).
+OpenPop's `SpellButton.cpp`/`Panel.cpp` were consulted as secondary layout leads;
+implementation and comparisons use the supplied executable. Existing upstream
+license/provenance records apply; no upstream implementation was copied.

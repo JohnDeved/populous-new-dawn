@@ -2845,3 +2845,58 @@ node scripts/check-browser-scenery-visibility.mjs
 
 Original mixed-class painter ordering, full visibility/lifecycle ownership and
 matched original frames remain open. No new renderer abstraction was needed.
+
+
+## Spell-panel artwork and charging — 2026-09-09
+
+`0049daf0` is the spell-button renderer, reached through the native UI controls.
+`004a1dd0` selects normal, selected or highlighted nine-patch tables. Permanent
+frames start at HFX821/830/839; reward frames at HFX510/519/528. The reward branch
+requires normal game flags, no permanent spell bit, a populated nonzero slot and
+no locked-state marker. The live first-mission adapter supplies enabled populated
+slots; full control ownership/availability remains unported.
+
+The spell descriptor's three shorts at offsets 16/18/20 select ready, inactive
+and hover icons. Previously only the first two banks were imported. Normal stock
+uses HFX54, gifts HFX65; empty markers are 55/68 for permanent and 66/67 for reward
+(normal/hover). Hover hides the charging track. `004c2fe0` collects nonzero-mode
+spell descriptors and stably sorts by mana cost; the browser's supported subset
+now follows that order, while the complete native slot table remains open.
+
+The logical 31×43 layout places markers at y=2 and centers the main icon between
+the marker row and charge frame. Native 1–4-shot spacing is retained as a small
+fixed lookup. The charge frame is [2,34,28,39], with fill [3,35,27,38]. It uses
+HFX1014–1021 with overlapping four-pixel corners; the importer composes the short
+26×5 frame rather than shrinking corners through CSS border-image. The fill
+routine emits rollover layers with palette indices ending at 239, followed by
+player-zero color 222. Integer division/modulo boundaries agree with the supplied
+executable. Both palette-color constructors (`004525d0`, `00415f70`) are thiscall
+and pop their index argument; the native harness observes them accordingly.
+
+```sh
+python scripts/check-native-spell-button.py /path/to/d3dpoptb.exe
+python scripts/check-native-spell-button.py /path/to/d3dpoptb.exe --record
+node --test tests/spell-button.test.mjs
+node scripts/check-browser-spell-button.mjs
+node scripts/check-browser-hud.mjs
+```
+
+763 complete `0049daf0` calls compare borders, every sprite's identity/position and
+layered fill rectangles across seven spell models, all ordinary stock limits,
+permanent/gift, charging, hover and selection states, plus progress boundaries.
+The harness executes the original spell queries and border selector. Logical
+coordinate conversion, reference button rectangle, palette constructors and final
+raster consumers are supplied; pending mana is zero to isolate the separate
+random charge-spark path. Native slot order and all captured draws also run in
+portable tests. Browser checks compare 24 live art states against those captures
+and exercise actual context-menu charging controls. Existing HUD interaction tests
+now wait for the restored two-stage overview transition instead of asserting an
+immediate view change.
+
+The asset importer now carries 499 HUD sprites/glyphs, eight nine-patch borders,
+the charging frame and original palette colors. Thirteen new exports bring the
+manifest to 879; re-exported `00522570` and `00415f70` remain byte-identical. Other newly
+exported UI dispatch routines are supporting research, not completed ports.
+Disabled/locked/empty control ownership, all spell slots, other game modes/tribes,
+charge-spark RNG/lifetime, resolution parameterization and full raster/painter
+matching remain open. This advances the HUD checkpoint without completing it.
