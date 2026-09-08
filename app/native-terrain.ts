@@ -4,6 +4,7 @@ import {nativeTerrainCross} from './native-math.ts';
 export type NativeTerrain = {
   heights:Int16Array;flags:Uint32Array;cliffs:Uint8Array;categories:Uint8Array;shadows:Uint8Array;
   walkMasks:Uint8Array[];
+  buildingIds:Uint16Array;owners:Uint8Array;
   queued:number[];textureUpdates:number[];dirty:Uint8Array;landFlags:number;
   attempts:number;duplicates:number;recursing:boolean;
 };
@@ -16,7 +17,7 @@ const waterBorder=[[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[-1,2],[0,2],[1,2],[2,2],
 
 export function createNativeTerrain(heights:ArrayLike<number>):NativeTerrain {
   return {heights:Int16Array.from(heights),flags:new Uint32Array(16384),cliffs:new Uint8Array(16384),
-    categories:new Uint8Array(16384),shadows:new Uint8Array(16384),walkMasks:[new Uint8Array(8192),new Uint8Array(8192)],queued:[],textureUpdates:[],
+    categories:new Uint8Array(16384),shadows:new Uint8Array(16384),buildingIds:new Uint16Array(16384),owners:new Uint8Array(16384),walkMasks:[new Uint8Array(8192),new Uint8Array(8192)],queued:[],textureUpdates:[],
     dirty:new Uint8Array(16384),landFlags:0,attempts:0,duplicates:0,recursing:false};
 }
 

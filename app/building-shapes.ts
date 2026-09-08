@@ -1,7 +1,10 @@
 import data from './original-shapes.json' with {type: 'json'};
+import rules from './original-rules.json' with {type: 'json'};
 import {nativeAngle, nativeStep} from './native-math.ts';
 
 export type BuildingShapePose = {object: number; angle: number; anchorX: number; anchorY: number};
+export type RegisteredBuilding=BuildingShapePose & {id:number;tribe:number};
+export type BuildingCells={flags:Uint32Array;buildingIds:Uint16Array;owners:Uint8Array;shadows:Uint8Array};
 type Point = {x: number; y: number};
 const short = (n: number) => (n << 16) >> 16;
 function shape(b: BuildingShapePose) {
@@ -9,6 +12,37 @@ function shape(b: BuildingShapePose) {
   const index = data.objects[b.object]?.[quadrant], result = data.shapes[index];
   if (!result) throw new RangeError(`No native building shape for object ${b.object}, angle ${b.angle}`);
   return result;
+}
+
+// 0x403a00: update only shape-mask bit 1 cells. Modes 0/1 remove/register;
+// mode 4 clears terrain-damage bit 0x20000 without a shade recomputation.
+export function registerBuildingFootprint(land:BuildingCells,b:RegisteredBuilding,mode:number,
+  shade:(index:number)=>number,refresh:(cell:number,radius:number)=>void){
+  const s=shape(b),cx=(b.anchorX>>>8)&254,cy=(b.anchorY>>>8)&254;
+  const owner=mode===1?(b.tribe+1)&255:0,id=mode===1?b.id:0;
+  for(let y=0;y<s.height;y++)for(let x=0;x<s.width;x++)if(data.cells[s.offset+y*s.width+x]&1){
+    const px=(cx-s.x+x*2)&255,py=(cy-s.y+y*2)&255,i=(py>>1)*128+(px>>1);
+    land.owners[i]=(land.owners[i]&240)|owner;
+    land.buildingIds[i]=((land.buildingIds[i]^id)&1023)^land.buildingIds[i];
+    land.flags[i]|=16;
+    if(mode===0)land.flags[i]&=~0x200;
+    else if(mode===1)land.flags[i]|=0x200;
+    else if(mode===4)land.flags[i]&=~0x20000;
+    if(mode===0||mode===1)land.shadows[i]=(land.shadows[i]&240)|(Math.min(15,shade(i))&255);
+  }
+  refresh(cx|(cy<<8),Math.max(s.width>>1,s.height>>1)+1);
+}
+
+// 0x450d50: native building stage shade followed by cell-list scenery shade.
+export function nativeCellShade(flags:number,b:{class:number;model:number;state:number;flags2:number;stage:number}|undefined,
+  objects:Iterable<{class:number;model:number}>){
+  let shade=0;
+  if((flags&0x200)&&b&&!(b.flags2&1)&&b.class){
+    shade=rules.buildingShade[b.model];
+    if(b.state===1&&!(rules.buildingFlags[b.model]&256))shade=Math.trunc(shade*((b.stage<<24)>>24)/3);
+  }
+  for(const o of objects){if(shade>15)break;if(o.class===5)shade+=rules.sceneryShade[o.model];}
+  return Math.min(15,shade);
 }
 
 // 0x404420 / 0x4044b0: anchor words are coarse-cell aligned by 0x403610.

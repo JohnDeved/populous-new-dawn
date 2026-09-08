@@ -1035,3 +1035,16 @@ occupancy and ordinary order/lifecycle integration remain adapters. All 51 game
 regressions and the browser detour/restart check pass. The manifest verifies 576
 raw exports; exact coverage and the +0x92 metadata correction are in the evidence
 log.
+
+
+### Building footprint registration
+
+`registerBuildingFootprint` and `nativeCellShade` in `app/building-shapes.ts`
+reconstruct `00403a00` and `00450d50`. Run
+`scripts/check-native-building-footprints.py EXE` for 632 complete map updates
+across all imported object/orientation pairs and 4,096 complete cell-shade calls.
+Registration's shade/texture consumers are supplied; shade comparisons execute
+all native code. Live completed buildings now populate native occupancy cells,
+including changes and removal; plans and full lifecycle/texture scheduling remain
+open. All 52 game regressions and browser checks pass. The manifest verifies
+578 exports, including the unported texture-region consumer `004bdd40`.

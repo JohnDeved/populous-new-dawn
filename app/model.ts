@@ -3,7 +3,7 @@ import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from 
 import {createNativeTerrain,queueTerrain,processTerrain,updateWalkMasks,type NativeTerrain} from './native-terrain.ts';
 import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './territory.ts';
 import {processTribes,processOutcome,type TribeTurnState,type OutcomeWorld} from './tribe-turns.ts';
-import {buildingOutsidePoint} from './building-shapes.ts';
+import {buildingOutsidePoint,registerBuildingFootprint,nativeCellShade,type RegisteredBuilding} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
 import {defeatTribe,advanceCollapse,processBuildingDamage,changeBuildingWork,buildingWorkStage,type DamageBuilding,type BuildingPlan} from './building-damage.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
@@ -261,7 +261,7 @@ export type World = {
   spellCasts:number[][];
   gifts: (Point & {kind: Shrine['kind']; remaining: number})[];
   giftCounts: Record<Spell, number>;
-  land:NativeTerrain & Territory;landVersion:number;spellScan:SpellTargetScan;
+  land:NativeTerrain & Territory;landVersion:number;buildingFootprints:Map<number,RegisteredBuilding>;spellScan:SpellTargetScan;
   castingTribes: TribeCasting[]; manaWorld: ManaWorld; manaTribes: (ManaTribe & TribeTurnState)[]; manaNotices: {flags:number;message:number}[];
   tribeCount:number;levelFlags2:number;
   outcome:Omit<OutcomeWorld,'turn'|'landFlags'|'playerTribe'> & {cameraTribe:number|null;cameraRequest:number;cameraPlaying:boolean;completedLevel:number|null;skyCounter:number};
@@ -295,7 +295,7 @@ function missionAI(){
 }
 export function createWorld(): World {
   const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0},
-    land:{...structuredClone(originalLand),regions:new Uint8Array(16384),searchMarks:new Uint8Array(16384),searchTag:255},landVersion:-1,
+    land:{...structuredClone(originalLand),regions:new Uint8Array(16384),searchMarks:new Uint8Array(16384),searchTag:255},landVersion:-1,buildingFootprints:new Map(),
     spellScan:{cursor:0,limit:0,paused:0,targets:[0,0,0,0]},
     castingTribes:Array.from({length:4},(_,id)=>createTribeCasting(id!==0)),
     tribeCount:2,levelFlags2:0,
@@ -324,6 +324,7 @@ export function createWorld(): World {
   });
   w.selected=[w.units.find(u=>u.team==='blue'&&u.kind==='shaman')!.id];
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
+  syncBuildingFootprints(w);
   return w;
 }
 // 0x492920: marker queries read the coarse vertex; odd coordinate bits are ignored.
@@ -519,6 +520,24 @@ export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {
 export function buildingPose(b:Building) {
   return {object:buildingObject(b),angle:Math.round(b.angle*2048/(Math.PI*2))&2047,
     anchorX:Math.round((b.x+8)*256)&0xfe00,anchorY:Math.round((-b.z-8)*256)&0xfe00};
+}
+// Completed-building lifecycle adapter. Native plan/stage allocation and terrain
+// texture refresh are still pending; registration itself uses the original mask.
+export function syncBuildingFootprints(w:World){
+  const current=new Map(w.buildings.filter(b=>b.hp>0&&b.progress===1).map(b=>[b.id,{...buildingPose(b),id:b.id,tribe:b.team==='blue'?0:1}]));
+  const shade=(i:number)=>{
+    const b=w.buildings.find(b=>b.id===(w.land.buildingIds[i]&1023));
+    const scenery=w.trees.filter(t=>t.logs>0&&nativeCellIndex(((nativePosition(w,t).x>>>8)&254)|(nativePosition(w,t).y&0xfe00))===i).map(t=>({class:5,model:t.model}));
+    return nativeCellShade(w.land.flags[i],b?{class:2,model:buildingModel(b),state:b.progress===1?2:1,flags2:b.hp>0?0:1,stage:buildingStage(b)}:undefined,scenery);
+  };
+  const update=(b:RegisteredBuilding,mode:number)=>registerBuildingFootprint(w.land,b,mode,shade,()=>{});
+  for(const [id,old] of w.buildingFootprints){
+    const next=current.get(id);
+    if(!next||Object.keys(old).some(k=>old[k as keyof RegisteredBuilding]!==next[k as keyof RegisteredBuilding])){
+      update(old,0);update(old,4);w.buildingFootprints.delete(id);
+    }
+  }
+  for(const [id,b] of current)if(!w.buildingFootprints.has(id)){update(b,1);w.buildingFootprints.set(id,b);}
 }
 function buildingDoor(b: Building) {
   const point=buildingOutsidePoint(buildingPose(b));
@@ -1021,6 +1040,7 @@ function stepTurn(w:World){
 
   processBattles(w);
   const contacts:[Unit,Unit][]=[];
+  syncBuildingFootprints(w);
   for(const u of w.units) {
     u.fighting=false;if(u.hp<=0)continue;u.cooldown=Math.max(0,u.cooldown-dt);
     if(u.lift>0){u.x+=u.vx*dt;u.z+=u.vz*dt;u.lift=Math.max(0,u.lift-dt);if(!u.lift&&!walkable(w.terrain,u))u.hp=0;continue;}
@@ -1070,6 +1090,7 @@ function stepTurn(w:World){
     effect(w,'death',b);
   }
   w.units=w.units.filter(u=>u.hp>0);w.buildings=w.buildings.filter(b=>b.hp>0);w.selected=w.selected.filter(id=>w.units.some(u=>u.id===id));
+  syncBuildingFootprints(w);
   cleanBattles(w);
   for(const team of ['blue','red'] as const){const key=team==='blue'?'respawn':'redRespawn';if(w[key]>0){w[key]=Math.max(0,w[key]-dt);if(w[key]===0&&w.units.some(u=>u.team===team)){const u=addUnit(w,team,'shaman',team==='blue'?HOME:ENEMY);if(team==='blue'&&!w.selected.length)w.selected=[u.id];effect(w,'birth',u);}}}
   // The result overlay remains while followers continue their native celebration.

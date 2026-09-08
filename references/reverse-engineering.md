@@ -2626,3 +2626,65 @@ Native failed-recovery airborne dispatch, falling, impulses, landing/drowning,
 path recomputation and general person lifecycle still require integration. The
 terrain synchronization producer still begins with the cropped browser grid.
 The manifest now verifies **576 raw exports**. Full game parity is unfinished.
+
+
+## Original building footprint registration and cell shade
+
+`app/building-shapes.ts` reconstructs complete `00403a00`. It traverses the
+original bank-2 shape mask for the building's object and orientation, visits bit-1
+cells in row order, wraps coarse coordinates and preserves the high six bits of
+packed building IDs. Registration writes the tribe owner nibble, building ID,
+occupancy bit 0x200 and dirty bit 0x10. Removal clears occupancy; mode 4 clears
+terrain-damage bit 0x20000. Other byte modes retain their native behavior,
+including ID/owner writes without shade recalculation. Modes 0/1 recompute the
+cell's low shadow nibble and every mode requests the native texture region.
+
+`nativeCellShade` reconstructs complete `00450d50`: valid building shade,
+construction-stage scaling unless building flag 0x100 is set, then scenery in
+cell-list order with the original cap at 15. The inspector imports signed building
+shade at model+0x35 and scenery shade at model+0x13. The texture-region consumer
+`004bdd40` is retained as a raw export; its lighting and texture-cache work is not
+yet integrated into the renderer.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-building-footprints.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+The footprint oracle compares **632 sequential complete map updates**, covering
+every imported object/orientation pair, six operation modes, wrap boundaries,
+packed-bit preservation and ordered shade/texture requests. Each checkpoint
+hashes all flags, building IDs, owner bytes and shadow bytes across 16,384 cells.
+Original shape data is loaded through the existing checked relocation helper.
+Shade and texture consumers are supplied for these registration comparisons;
+**4,096 separate complete native shade calls** cover real table values, signed
+stages, missing/dead buildings, scenery lists and the shade cap without supplied
+callees. Raw terrain bytes deliberately contain unrelated bits to verify their
+preservation.
+
+The live world owns native `buildingIds` and `owners` arrays alongside its flags
+and shadows. A completed-building adapter registers initial buildings, replaces
+changed object/orientation/anchor/tribe footprints and clears removed footprints
+using the original modes 0 then 4. Synchronization occurs before follower motion
+and after object removal. Live native collision and building-exit recovery read
+these registered cells, replacing the completed-building radius lookup for those
+consumers. Cell shade uses the existing building/scenery adapters; the renderer
+still does not consume the complete native shade/texture pipeline.
+
+All **52 regressions**, typechecking and production build pass; lint retains
+seven existing image-element warnings and no errors. The integration regression
+checks relocation, rotation handling and removal without stale invisible
+collision. The detour regression and browser check now begin at an actual native
+footprint boundary. Browser celebration/frame/pause/circle/chain/restart checks
+also pass without page errors.
+
+**Remaining boundaries:** native plan allocation, partially constructed/special
+building registration, stage scheduling and complete object/cell-list lifecycle
+remain incomplete. The adapter currently registers completed entries in the
+browser building collection and uses the existing object identity/anchor mapping.
+General legacy follower orders still use the old route planner; shared native
+movement is live for celebrations only. Full cell shade refresh scheduling,
+scenery lifecycle, renderer lighting/texture caches, physics and pathfinding are
+still open. The manifest now retains **578 raw exports**. These changes do not
+establish full game parity.

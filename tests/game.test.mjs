@@ -1178,10 +1178,13 @@ test('victory owns persistent native followers, drops cargo and renders a separa
 
 test('live blocked followers retain native detour steering and recovery timers', async () => {
  const {createLivePerson,stepLiveCelebration}=await import('../app/live-people.ts');
- const {buildingContainsPoint}=await import('../app/model.ts');
+ const {syncBuildingFootprints,browserPosition}=await import('../app/model.ts');
  const w=createWorld(),u=w.units.find(u=>u.kind==='brave'&&u.team==='blue'),b=w.buildings.find(b=>b.team==='blue');
  w.units=[u];w.buildings=[b];w.terrain.fill(100/45);w.land.heights.fill(100);
- Object.assign(u,{x:7,z:33,inside:null,work:null});Object.assign(b,{x:9.4,z:33,progress:1});
+ Object.assign(b,{x:9.4,z:33,progress:1});syncBuildingFootprints(w);
+ const edge=w.land.buildingIds.findIndex((id,i)=>(id&1023)===b.id&&(i&127)>0&&!(w.land.flags[i-1]&0x200));assert.ok(edge>=0);
+ const start=browserPosition({x:((edge&127)*512-12)&65535,y:((edge>>7)*512+256)&65535});
+ Object.assign(u,{...start,inside:null,work:null});
  u.native=createLivePerson(w,u);const p=u.native;
  Object.assign(p,{state:41,substate:1,flags2:128,counter:0,heading:512,angle:512,turnAngle:512,speed:20,assignment:0,animationMode:0,commandPhase:100,timer:100});
  const before={x:u.x,z:u.z};stepLiveCelebration(w,u);
@@ -1189,8 +1192,8 @@ test('live blocked followers retain native detour steering and recovery timers',
  assert.equal(p.motionMode,1);assert.equal(p.recoveryCounter,1);
  assert.notEqual(p.heading,512);assert.ok(p.motionTimer>0);
  assert.notDeepEqual({x:u.x,z:u.z},before,'a free probe advances the live follower');
- assert.equal(buildingContainsPoint(b,u),false,'the chosen probe respects the live collision boundary');
- const timer=p.motionTimer,heading=p.heading;w.buildings=[];stepLiveCelebration(w,u);
+ assert.equal(w.land.flags[(p.y>>9)*128+(p.x>>9)]&0x200,0,'the chosen probe stays outside the original footprint');
+ const timer=p.motionTimer,heading=p.heading;w.buildings=[];syncBuildingFootprints(w);stepLiveCelebration(w,u);
  assert.equal(p.motionTimer,timer-1,'the next grounded step consumes the recovery timer');
  assert.equal(p.heading,heading,'normal facing cannot overwrite active recovery steering');
 });
@@ -1209,4 +1212,17 @@ test('live celebrants obey native walk masks and survive the legacy ground-heigh
  assert.deepEqual({x:u.x,z:u.z},{x:7,z:33},'blocked native mask rejects every detour');
  w.land.walkMasks[0].fill(255);tick(w,1/12);
  assert.notDeepEqual({x:u.x,z:u.z},{x:7,z:33},'native mask update allows the next grounded step');
+});
+
+
+test('live completed-building footprints relocate and clear on removal', async () => {
+ const {syncBuildingFootprints}=await import('../app/model.ts');
+ const w=createWorld(),b=w.buildings.find(b=>b.team==='blue');w.buildings=[b];syncBuildingFootprints(w);
+ const occupied=()=>Array.from(w.land.buildingIds).flatMap((id,i)=>(id&1023)===b.id?[i]:[]);
+ const old=occupied();assert.ok(old.length>0);assert.ok(old.every(i=>w.land.flags[i]&0x200));
+ b.x+=16;b.angle=Math.PI/2;syncBuildingFootprints(w);
+ const moved=occupied();assert.ok(moved.length>0);assert.ok(moved.every(i=>!old.includes(i)));
+ assert.ok(old.every(i=>!(w.land.flags[i]&0x200)),'old footprint cannot remain as invisible collision');
+ b.hp=0;syncBuildingFootprints(w);assert.deepEqual(occupied(),[]);
+ assert.ok(moved.every(i=>!(w.land.flags[i]&0x200)),'removed buildings release their cells');
 });
