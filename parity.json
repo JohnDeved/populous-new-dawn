@@ -167,18 +167,23 @@
             "scripts/check-browser-scenery-fire.mjs",
             "tests/game.test.mjs",
             "scripts/check-native-unit-shadows.py",
-            "scripts/check-browser-unit-shadows.mjs"
+            "scripts/check-browser-unit-shadows.mjs",
+            "scripts/check-native-model-lighting.py",
+            "scripts/check-browser-model-lighting.mjs"
           ],
-          "note": "Terrain diffuse/additive conversion, live scenery shade and original airborne person shadow art/grounding/scaling are compared and integrated. Sunlight propagation, model lighting, full object shadow ownership/interpolation and scenery lifecycle remain incomplete."
+          "note": "Terrain diffuse/additive conversion, live scenery shade, airborne person shadows and model sunlight normals/shades/depth fading are compared and integrated. Dynamic sunlight ownership/propagation, colored highlights, debris lighting and complete object/scenery lifecycles remain incomplete."
         },
         {
           "id": "graphics.raster",
           "title": "Whole-frame visibility, ordering and raster fidelity",
           "status": "partial",
           "evidence": [
-            "references/visual-audit.md"
+            "references/visual-audit.md",
+            "decomp/generated/004673b0.c",
+            "scripts/check-browser-scenery-fire.mjs",
+            "scripts/check-browser-building-fire.mjs"
           ],
-          "note": "Remaining filtering, clipping, painter order and original-frame comparison gaps."
+          "note": "Non-drawing texture-mode-0 faces now omitted from raster meshes. Remaining filtering, clipping, painter order, native picking ownership and matched original-frame comparisons are open."
         },
         {
           "id": "graphics.variants",

@@ -352,7 +352,13 @@ export class RenderView {
               modelMatrix(object.parent?.userData.nativeHeading ?? 0)
             )
           }
-        material.onBeforeCompile = (shader: Parameters<THREE.Material['onBeforeCompile']>[0]) => {
+        const compile = material.onBeforeCompile.bind(material),
+          programKey = material.customProgramCacheKey()
+        material.onBeforeCompile = (
+          shader: Parameters<THREE.Material['onBeforeCompile']>[0],
+          renderer: THREE.WebGLRenderer
+        ) => {
+          compile(shader, renderer)
           Object.assign(shader.uniforms, this.uniforms, local)
           shader.vertexShader = nativeVertexShader + shader.vertexShader
           if (object instanceof THREE.Sprite) {
@@ -383,7 +389,7 @@ export class RenderView {
               )
         }
         material.customProgramCacheKey = () =>
-          object instanceof THREE.Sprite ? 'native-sprite' : 'native-mesh'
+          `${object instanceof THREE.Sprite ? 'native-sprite' : 'native-mesh'}-${programKey}`
         material.needsUpdate = true
       }
     })

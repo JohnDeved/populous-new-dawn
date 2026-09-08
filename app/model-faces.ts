@@ -4,6 +4,7 @@ export interface NativeModel {
   scale: number
   faces: number[]
   tiles: number[]
+  normals: number[][]
 }
 
 export function modelCapUV(corner: number) {

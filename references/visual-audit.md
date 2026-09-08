@@ -171,3 +171,23 @@ red shaman. GPU isolation measures 36 changed pixels and landing removes it.
 Selection and halo checks still pass. Native queue/painter/gate comparisons total
 2,048 cases. Full interpolation, model lighting, all shadow owners and painter
 ordering remain open; this capture does not establish whole-frame parity.
+
+### Model light pass
+
+Rechecked `images-1.jpg` and the running first mission. A code-backed difference
+was that all original meshes used unlit texture materials. Faces now receive
+native sunlight shades, original heading records or quantized transformed normals,
+first-vertex distance fade and the warm additive channel. This changes roof/wall
+and tree shading without changing mission palette assets by eye.
+
+Inspected `/private/tmp/populous-model-lighting.png`, showing the Dakini settlement
+and nearby warrior vault. Reproduce with `node scripts/check-browser-model-lighting.mjs`.
+The check covers 41 live models plus six isolated GPU colors, and verifies shade
+refresh on rotation/resize without replacing attribute buffers. Original and
+browser captures still differ in scene/view/content; this is not a matched-frame
+parity claim. Dynamic light scheduling, selection colors and painter ordering are
+explicit next lighting targets.
+
+The same painter audit removed twelve non-drawing picking faces from the fire
+mesh, leaving its eight native visible faces. Real spell ignition, animated fire
+textures and cleanup are rechecked after this correction.

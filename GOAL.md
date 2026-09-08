@@ -262,3 +262,17 @@ and projection checks pass. Full render-position interpolation, mixed painter
 ordering and object-class shadow ownership remain open; lighting and directional
 sprite checkpoints stay partial. Continue visible model lighting, activity and
 rendering comparisons before isolated hidden engine work.
+
+### Latest visible integration: model lighting
+
+Original 3D models now use native sunlight face shades, quantized normals,
+heading-dependent face records, depth attenuation and diffuse/additive color.
+Previously their original textures were unlit. Native checks cover 33 complete
+1,024-entry sunlight tables, 4,096 normals, 450 complete model normal/shade passes
+and 1,024 complete triangle submissions. Browser checks cover 41 live meshes,
+heading/size refresh without GPU buffer replacement, and six GPU color samples.
+Model geometry ownership is consistent across ordinary objects, fires and morphs;
+projection preparation preserves each material's lighting shader hook. Full
+sunlight lifecycle/propagation, colored selection overrides, debris lighting and
+all model modes remain open; the lighting checkpoint remains partial. Continue
+visible lighting, building activity and controls before isolated hidden systems.

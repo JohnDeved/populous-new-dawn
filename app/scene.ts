@@ -16,6 +16,7 @@ import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terra
 import { waterTexture, waterPoint, waterCell } from './water.ts'
 import { vertexLighting } from './projection.ts'
 import { terrainPointHeight } from './native-terrain.ts'
+import { modelLighting } from './model-lighting.ts'
 import skyPalette from './original-sky.json'
 import {
   createTooltip,
@@ -131,14 +132,70 @@ function nativeModel(id: number, scale = 2, stage = 4) {
     return g
   })
   const mesh = new THREE.Mesh(
-    geo,
+    geo.clone(),
     new THREE.MeshBasicMaterial({ map: texture('atlas'), side: THREE.DoubleSide, alphaTest: 0.5 })
   )
   mesh.scale.setScalar(scale)
   mesh.userData.nativeModel = id
   mesh.userData.stage = stage
   mesh.userData.nativeScale = data.scale
+  mesh.material.onBeforeCompile = shader => {
+    shader.vertexShader =
+      `attribute float faceShade;
+attribute vec3 faceAnchor;
+varying float modelLight;
+` + shader.vertexShader
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `
+      #include <begin_vertex>
+      ivec3 anchor=ivec3(faceAnchor);
+      anchor=ivec3(nativeMul(anchor.x,int(nativeObjectScale)),nativeMul(anchor.y,int(nativeObjectScale)),nativeMul(anchor.z,int(nativeObjectScale)))>>8;
+      anchor=(ivec3(nativeDot(anchor,nativeObjectBasis[0]),nativeDot(anchor,nativeObjectBasis[1]),nativeDot(anchor,nativeObjectBasis[2]))>>14)+nativeOrigin(modelMatrix[3].xyz);
+      int depth=nativeDot(anchor,nativeBasis[2])>>14;
+      modelLight=float(depth>-3328?max(1,int(faceShade)+nativeMul(-3328-depth,32)/8192):int(faceShade));
+    `
+    )
+    shader.fragmentShader = 'varying float modelLight;\n' + shader.fragmentShader
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <colorspace_fragment>',
+      `
+      #include <colorspace_fragment>
+      int shade=int(modelLight+.5), strength=clamp(shade*5-160,0,256);
+      vec3 highlight=vec3((ivec3(253,185,53)*strength)>>8)/255.;
+      gl_FragColor.rgb=gl_FragColor.rgb*float(shade<32?shade*8:255)/255.+highlight;
+    `
+    )
+  }
+  mesh.material.customProgramCacheKey = () => 'native-model-light'
   return mesh
+}
+
+function updateModelLighting(object: THREE.Object3D) {
+  if (!(object instanceof THREE.Mesh) || object.userData.nativeModel === undefined) return
+  const { nativeModel: id, nativeSize, stage } = object.userData,
+    heading = object.parent?.userData.nativeHeading ?? 0,
+    position = object.geometry.getAttribute('position') as THREE.BufferAttribute,
+    key = `${heading}-${nativeSize}-${position.version}`
+  if (object.userData.lightKey === key) return
+  const { shades, anchors } = modelLighting(
+    nativeModels[id],
+    position.array,
+    stage,
+    heading,
+    nativeSize
+  )
+  for (const [name, values, size] of [
+    ['faceShade', shades, 1],
+    ['faceAnchor', anchors, 3],
+  ] as const) {
+    const attribute = object.geometry.getAttribute(name) as THREE.BufferAttribute | undefined
+    if (attribute) {
+      attribute.array.set(values)
+      attribute.needsUpdate = true
+    } else object.geometry.setAttribute(name, new THREE.Float32BufferAttribute(values, size))
+  }
+  object.userData.lightKey = key
 }
 const meshes = new Map<string, THREE.BufferGeometry>()
 function geometry(key: string, create: () => THREE.BufferGeometry) {
@@ -1340,7 +1397,6 @@ export class GameScene {
     const g = new THREE.Group()
     if (f.fire) {
       const mesh = nativeModel(5)
-      mesh.geometry = mesh.geometry.clone() // Each fire owns its texture phase.
       mesh.material.transparent = true
       mesh.material.alphaTest = 0
       mesh.material.depthWrite = false
@@ -1859,7 +1915,7 @@ export class GameScene {
       let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
       if (mesh.userData.nativeModel !== shrine.model) {
         entry.g.remove(mesh)
-        if (mesh.userData.morph) mesh.geometry.dispose()
+        mesh.geometry.dispose()
         mesh.material.dispose()
         mesh = nativeModel(shrine.model)
         entry.g.add(mesh)
@@ -1867,10 +1923,7 @@ export class GameScene {
       if (shrine.morph) {
         const morph = shrine.morph,
           frame = Math.min(morph.duration, Math.max(0, this.world.turn - morph.started + 1))
-        if (!mesh.userData.morph) {
-          mesh.geometry = mesh.geometry.clone()
-          mesh.userData.morph = true
-        }
+        mesh.userData.morph = true
         if (mesh.userData.morphFrame !== frame || mesh.userData.morphStart !== morph.started) {
           const from = nativeModels[morph.from],
             to = nativeModels[morph.to]
@@ -1976,6 +2029,7 @@ export class GameScene {
         (sky.color & 255) / 255,
         (sky.color >>> 24) / 255
       )
+    this.scene.traverse(updateModelLighting)
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
     if (!this.world.paused) {

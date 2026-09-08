@@ -4159,3 +4159,32 @@ Full render-position interpolation, mixed painter ordering and all class shadow
 ownership are still open. The live flight gate includes the existing Blast lift
 adapter until native person physics owns it. This is evidence within two partial
 checkpoints, not new verified credit or whole-frame parity.
+
+### Model sunlight, face normals and depth fade
+
+Replaced unlit model textures with the original primary sunlight table and face
+shade selection. `00401040` supplies direction (147,147,147), ambient 28 and
+strength 15; `00401790` builds the normal table. Retained face +4 normal flags and
++0x30 heading entries from the original files. Dynamic normals follow `0040cd00`
+after native scaling/rotation, while static faces select a stored quadrant normal.
+The model material applies `004718c0` distance fading and the native diffuse/warm
+additive conversion using a shared first-vertex anchor for each face.
+
+Validation: 33 complete sunlight tables, 4,096 normal calculations, 450 complete
+ordinary renderer normal/shade passes and 1,024 complete triangle submissions.
+Model fixtures supply projection only; normal and transform code executes in the
+original. Existing 2,096 stage-face calls/5,479 triangles still agree. Browser
+checks compare 41 live model attributes, rotate/resize an instance while retaining
+GPU buffers, and compare six actual GPU colors to native-checked shade math.
+The inspected capture is `/private/tmp/populous-model-lighting.png`.
+
+Geometry now belongs to each native model instance; fire UV animation and vault
+morphs reuse that ownership. Projection setup composes material shader hooks rather
+than replacing the model's hook. Full dynamic sunlight and secondary-table
+consumers, colored selection overrides, collapse-debris light, painter ownership
+and alternate transform modes remain open. The lighting checkpoint stays partial.
+
+The painter trace also identifies twelve mode-0 fire-model faces that never submit
+pixels in the original. The importer now omits them, preserving the eight drawable
+fire faces. This removes previously rendered picking geometry; complete original
+picking ownership remains separate.

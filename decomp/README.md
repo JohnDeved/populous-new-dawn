@@ -1886,3 +1886,50 @@ The browser check casts real Blast, verifies original shadow atlas data and visi
 GPU pixels below the flying person, then confirms removal on landing. It also
 checks varying body depth buckets. Selection-arrow and halo regressions pass with
 the corrected one-based painter bucket used for their scaling.
+
+## Original model sunlight and distance shading
+
+`app/model-lighting.ts` reconstructs the primary 1,024-entry normal shade table
+from `00401790`, using default parameters assigned by `00401040`. It reuses the
+original sine/angle tables and fixed-point transforms. `0040cd00` quantizes a
+face cross product to two five-bit angles. Original face records at +4 select
+computed normals or the four heading records at +0x30; the importer retains these
+records instead of deriving substitute geometric normals.
+
+Complete model renderer `004708d0` transforms vertices, updates face normals and
+looks up sunlight. Construction renderer `00471c40` shares those rules while
+selecting stage faces. `004718c0` and `00471a80` attenuate numeric shade using the
+first triangle vertex's camera Z, starting after -3328 with truncation toward
+zero and a minimum of one. Quad triangles share the same first vertex. The model
+shader uses that raw anchor and existing integer camera/model bases, then applies
+native diffuse and warm additive color after output color conversion.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-model-lighting.py /path/to/d3dpoptb.exe
+node scripts/check-browser-model-lighting.mjs
+```
+
+Checks execute 33 complete primary sunlight tables (33,792 entries), 4,096 normal
+calculations, 450 complete ordinary model renderer calls and 1,024 complete
+triangle queues. The model fixture supplies collinear projection to suppress
+raster emission, then compares each drawable face's real updated normal/shade; transforms,
+normal calculation and sunlight remain native. The separate queue fixture supplies
+projected vertices and compares all three emitted colors, including colored bypass
+and fade boundaries. This does not verify full original clipping/painter order.
+The existing 2,096 construction face/cap-UV comparisons still pass.
+
+Browser checks validate all 41 opening model shade/anchor attributes, live rotation
+and size refresh, reused attribute buffers and six real GPU diffuse/additive/fade
+colors. Native model geometry is owned per instance so lighting, fire texture
+phases and vault morphs cannot overwrite another object's data. Projection shader
+preparation now preserves existing material hooks and their program cache keys.
+The live scene uses default sunlight; dynamic sunlight ownership/propagation,
+secondary shade-table consumers, colored selection overrides, debris lighting and
+all alternate model transformation modes remain unfinished.
+
+The painter's texture mode 0 bypasses triangle submission and continues only into
+selection/picking bookkeeping (`004673b0`, label `0046995d_caseD_0`). The importer
+therefore omits these non-drawing faces from raster meshes: model 5 keeps its eight
+visible fire faces and drops twelve picking faces. Other currently imported models
+have no mode-0 faces. Native full-renderer comparisons filter the same explicit
+mode; complete native picking ownership remains open.
