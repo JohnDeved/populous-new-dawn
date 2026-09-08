@@ -9,6 +9,7 @@ export interface BuildingShapePose {
   anchorY: number
 }
 export type RegisteredBuilding = BuildingShapePose & { id: number; tribe: number }
+export type SceneryShapePose = Omit<BuildingShapePose, 'angle'>
 export interface BuildingCells {
   flags: Uint32Array
   buildingIds: Uint16Array
@@ -59,10 +60,9 @@ export function buildingFirePoints(b: BuildingShapePose) {
 }
 
 // Shared native mask traversal for occupancy and the browser placement preview.
-export function buildingFootprintCells(b: BuildingShapePose) {
-  const s = shape(b),
-    cx = (b.anchorX >>> 8) & 254,
-    cy = (b.anchorY >>> 8) & 254,
+function shapeCells(s: ReturnType<typeof shape>, anchorX: number, anchorY: number) {
+  const cx = (anchorX >>> 8) & 254,
+    cy = (anchorY >>> 8) & 254,
     cells: number[] = []
   for (let y = 0; y < s.height; y++)
     for (let x = 0; x < s.width; x++)
@@ -72,6 +72,26 @@ export function buildingFootprintCells(b: BuildingShapePose) {
         cells.push((py >> 1) * 128 + (px >> 1))
       }
   return cells
+}
+
+export function buildingFootprintCells(b: BuildingShapePose) {
+  return shapeCells(shape(b), b.anchorX, b.anchorY)
+}
+
+// 0x403c10: scenery always uses the first shape, with shape 1 as the zero fallback.
+// The apparent extra arguments in callers are unused; shade comes from cell occupants.
+export function refreshSceneryShadow(
+  land: Pick<BuildingCells, 'flags' | 'shadows'>,
+  p: SceneryShapePose,
+  shade: (index: number) => number,
+  refresh: (cell: number, radius: number) => void
+) {
+  const s = data.shapes[data.objects[p.object][0] || 1]
+  for (const i of shapeCells(s, p.anchorX, p.anchorY)) {
+    land.flags[i] |= 16
+    land.shadows[i] = (land.shadows[i] & 240) | (Math.min(15, shade(i)) & 255)
+  }
+  refresh(((p.anchorX >>> 8) & 254) | (p.anchorY & 0xfe00), Math.max(s.width, s.height) >> 1)
 }
 
 // 0x4b9190 marks the entrance separately, outside the occupied footprint.

@@ -239,3 +239,13 @@ All rows remain open until compared against the original engine, including edge 
 | Validation | Seventy-one regression tests, native CPU comparisons and real-browser mission/visual QA, including original models and all three opening callouts | Original-engine traces, cross-engine replay comparisons, complete campaign and multiplayer scenarios |
 
 Detailed port evidence and explicit approximations: [reverse-engineering log](references/reverse-engineering.md). Current upstream assessment: [symbols and reusable projects](decomp/upstreams.md).
+
+### Latest visible integration: scenery shade
+
+Native `00403c10` now refreshes terrain shade for live tree insertion/removal,
+sharing shape traversal and occupant shade with building footprints. Its complete
+setter and real shade consumer match 632 cases; building footprint/shade regressions
+match another 632/4,096. Browser ground pixels and an actual Lightning burn verify
+shade appearance/removal. Full scenery ownership, sunlight, model lighting and
+unit shadow art remain open; continue those visible comparisons. The lighting
+checkpoint stays partial in PARITY.md, with the new evidence recorded.

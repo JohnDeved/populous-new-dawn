@@ -63,8 +63,10 @@ import {
   buildingSmokePoint,
   buildingFirePoints,
   registerBuildingFootprint,
+  refreshSceneryShadow,
   nativeCellShade,
   type RegisteredBuilding,
+  type SceneryShapePose,
 } from './building-shapes.ts'
 import { nativeTrainingCost } from './building-occupants.ts'
 import {
@@ -770,7 +772,7 @@ export function supportsFollower(w: World, p: Point) {
 }
 export function findPath(w: World, start: Unit, end: Point): Point[] {
   syncNativeTerrain(w)
-  syncBuildingFootprints(w)
+  syncLandscapeObjects(w)
   return findLivePath(w, start, end)
 }
 export type World = {
@@ -798,6 +800,7 @@ export type World = {
   land: NativeTerrain & Territory
   landVersion: number
   buildingFootprints: Map<number, RegisteredBuilding>
+  sceneryShadows: Map<number, SceneryShapePose>
   spellScan: SpellTargetScan
   castingTribes: TribeCasting[]
   manaWorld: ManaWorld
@@ -849,7 +852,7 @@ export type World = {
 }
 function planRoute(w: World, u: Unit, end: Point) {
   syncNativeTerrain(w)
-  syncBuildingFootprints(w)
+  syncLandscapeObjects(w)
   return planLivePath(w, u, end)
 }
 function route(w: World, u: Unit, end: Point) {
@@ -972,6 +975,7 @@ export function createWorld(): World {
     },
     landVersion: -1,
     buildingFootprints: new Map(),
+    sceneryShadows: new Map(),
     spellScan: { cursor: 0, limit: 0, paused: 0, targets: [0, 0, 0, 0] },
     castingTribes: Array.from({ length: 4 }, (_, id) => createTribeCasting(id !== 0)),
     tribeCount: 2,
@@ -1119,7 +1123,7 @@ export function createWorld(): World {
   })
   w.selected = [w.units.find(u => u.team === 'blue' && u.kind === 'shaman')!.id]
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
-  syncBuildingFootprints(w)
+  syncLandscapeObjects(w)
   return w
 }
 // 0x492920: marker queries read the coarse vertex; odd coordinate bits are ignored.
@@ -1550,39 +1554,40 @@ export function rotateBuildingPlan(w: World) {
   w.buildingDirections[kind] = (w.buildingDirections[kind] + 1) & 3
   return true
 }
-// Completed-building lifecycle adapter. Native plan/stage allocation and terrain
-// texture refresh are still pending; registration itself uses the original mask.
-export function syncBuildingFootprints(w: World) {
+function cellShade(w: World, i: number) {
+  const b = w.buildings.find(b => b.id === (w.land.buildingIds[i] & 1023))
+  const scenery = w.trees
+    .filter(
+      t =>
+        t.logs > 0 &&
+        nativeCellIndex(
+          ((nativePosition(w, t).x >>> 8) & 254) | (nativePosition(w, t).y & 0xfe00)
+        ) === i
+    )
+    .map(t => ({ class: 5, model: t.model }))
+  return nativeCellShade(
+    w.land.flags[i],
+    b
+      ? {
+          class: 2,
+          model: buildingModel(b),
+          state: b.progress === 1 ? 2 : 1,
+          flags2: b.hp > 0 ? 0 : 1,
+          stage: buildingStage(b),
+        }
+      : undefined,
+    scenery
+  )
+}
+// Live object adapter: native masks/shade, browser-owned building and tree lifetimes.
+// Full plan/scenery class registration and native texture scheduling remain open.
+export function syncLandscapeObjects(w: World) {
   const current = new Map(
     w.buildings
       .filter(b => b.hp > 0 && b.progress === 1)
       .map(b => [b.id, { ...buildingPose(b), id: b.id, tribe: b.team === 'blue' ? 0 : 1 }])
   )
-  const shade = (i: number) => {
-    const b = w.buildings.find(b => b.id === (w.land.buildingIds[i] & 1023))
-    const scenery = w.trees
-      .filter(
-        t =>
-          t.logs > 0 &&
-          nativeCellIndex(
-            ((nativePosition(w, t).x >>> 8) & 254) | (nativePosition(w, t).y & 0xfe00)
-          ) === i
-      )
-      .map(t => ({ class: 5, model: t.model }))
-    return nativeCellShade(
-      w.land.flags[i],
-      b
-        ? {
-            class: 2,
-            model: buildingModel(b),
-            state: b.progress === 1 ? 2 : 1,
-            flags2: b.hp > 0 ? 0 : 1,
-            stage: buildingStage(b),
-          }
-        : undefined,
-      scenery
-    )
-  }
+  const shade = (i: number) => cellShade(w, i)
   const update = (b: RegisteredBuilding, mode: number) =>
     registerBuildingFootprint(w.land, b, mode, shade, () => {})
   for (const [id, old] of w.buildingFootprints) {
@@ -1602,6 +1607,34 @@ export function syncBuildingFootprints(w: World) {
     if (!w.buildingFootprints.has(id)) {
       update(b, 1)
       w.buildingFootprints.set(id, b)
+    }
+  const scenery = new Map<number, SceneryShapePose>()
+  for (const tree of w.trees) {
+    if (tree.logs <= 0 || !(rules.sceneryFlags[tree.model] & 1)) continue
+    const p = nativePosition(w, tree)
+    scenery.set(tree.id, {
+      object: rules.sceneryObjects[tree.model],
+      anchorX: p.x & 0xfe00,
+      anchorY: p.y & 0xfe00,
+    })
+  }
+  const refresh = (p: SceneryShapePose) => refreshSceneryShadow(w.land, p, shade, () => {})
+  for (const [id, old] of w.sceneryShadows) {
+    const next = scenery.get(id)
+    if (
+      !next ||
+      old.object !== next.object ||
+      old.anchorX !== next.anchorX ||
+      old.anchorY !== next.anchorY
+    ) {
+      refresh(old)
+      w.sceneryShadows.delete(id)
+    }
+  }
+  for (const [id, p] of scenery)
+    if (!w.sceneryShadows.has(id)) {
+      refresh(p)
+      w.sceneryShadows.set(id, p)
     }
 }
 function buildingDoor(b: Building) {
@@ -3033,7 +3066,7 @@ function stepTurn(w: World) {
 
   processBattles(w)
   const contacts: [Unit, Unit][] = []
-  syncBuildingFootprints(w)
+  syncLandscapeObjects(w)
   for (const u of w.units) {
     u.fighting = false
     if (u.hp <= 0) continue
@@ -3211,7 +3244,7 @@ function stepTurn(w: World) {
   w.buildings = w.buildings.filter(b => b.hp > 0)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
   syncLivePersonCells(w)
-  syncBuildingFootprints(w)
+  syncLandscapeObjects(w)
   cleanBattles(w)
   for (const team of ['blue', 'red'] as const) {
     const key = team === 'blue' ? 'respawn' : 'redRespawn'

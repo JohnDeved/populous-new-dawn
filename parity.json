@@ -3,7 +3,10 @@
   "discovery": {
     "status": "open",
     "note": "The original engine and complete content inventory are still being researched. These 96 checkpoints are the current known scope, not a closed inventory; further decompilation and original-game comparisons may reveal new systems or split existing checkpoints.",
-    "evidence": ["GOAL.md", "references/reverse-engineering.md"]
+    "evidence": [
+      "GOAL.md",
+      "references/reverse-engineering.md"
+    ]
   },
   "groups": [
     {
@@ -157,9 +160,12 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-vertex-lighting.py",
-            "scripts/check-browser-water.mjs"
+            "scripts/check-browser-water.mjs",
+            "scripts/check-native-scenery-shadow.py",
+            "scripts/check-browser-scenery-fire.mjs",
+            "tests/game.test.mjs"
           ],
-          "note": "Diffuse/additive conversion verified; sunlight propagation, model lighting and shadows incomplete."
+          "note": "Terrain diffuse/additive conversion and scenery shadow updates are verified and integrated for live trees, including removal. Sunlight propagation, model lighting, unit shadows and the full scenery lifecycle remain incomplete."
         },
         {
           "id": "graphics.raster",

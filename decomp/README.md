@@ -1823,3 +1823,32 @@ no warm highlights. Wave motion/wrap/pause, shared coast heights and overview st
 pass. A real Land Bridge cast still rebuilds terrain textures and geometry. The
 lighting-input fixture does not establish native sunlight allocation, propagation
 or timing; those systems and complete raster/filter/LOD behavior remain open.
+
+## Scenery terrain shade
+
+`00403c10` refreshes cells covered by the object's first shape (shape 1 when
+that index is zero), independently of its heading. It sets the terrain dirty
+flag, calls `00450d50` to recompute occupant shade, preserves the high slope
+nibble and requests texture refresh around the original coarse anchor. The extra
+arguments visible in scenery initializer/removal callers are unused by this
+executable's routine.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-scenery-shadow.py /path/to/d3dpoptb.exe
+node scripts/check-browser-scenery-fire.mjs
+```
+
+The native check executes the complete setter and actual shade consumer across
+632 original object/heading/coordinate cases, including wrapped edges and the
+fallback shape. Every terrain byte and texture request is compared; only the
+texture regeneration consumer is intercepted. Existing building traversal and
+shade checks still pass 632 and 4,096 cases. Scenery object IDs and flags now come
+from the verified executable descriptor table via `inspect-executable.py`.
+
+`syncLandscapeObjects` shares shade calculation between building footprints and
+live tree insertion/removal. Shape-mask traversal is shared in `building-shapes.ts`.
+The browser's existing terrain atlas invalidation renders the new shade; the
+comparison measures 26,778 changed ground pixels and verifies that an actual
+Lightning-burned tree clears its shade when removed. Native burn removal at the
+wood threshold remains unchanged. Full scenery class registration, all scenery
+objects and original texture scheduling still require integration.

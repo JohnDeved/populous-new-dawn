@@ -139,3 +139,19 @@ Reproduce with `node scripts/check-browser-water.mjs`. Original terrain texture
 updates after a real Land Bridge cast remain verified. Next visible comparisons
 should examine model lighting/shadows and representative unit activity alongside
 the remaining terrain raster/filter differences.
+
+### Scenery ground shade pass
+
+Compared the previous coast capture and original references, including the newly
+provided AVIF. Tree cells were missing the original terrain shade: they previously
+received it only when a nearby building refreshed its own footprint. The recovered
+scenery setter now updates these cells on creation/removal, including overlap.
+The matched browser views show soft native terrain shading below the trees;
+26,778 GPU pixels change, and a real Lightning burn clears the shade on removal.
+
+Reproduce with `node scripts/check-browser-scenery-fire.mjs`; inspect
+`/private/tmp/populous-scenery-shadows-before.png` and
+`/private/tmp/populous-scenery-shadows-after.png`. This verifies the terrain shade
+contribution, not model lighting, unit shadow art, sunlight or the full scenery
+scheduler. Those remain the next visible comparison targets alongside native
+raster/filter differences. The existing native burn visibility cutoff is unchanged.

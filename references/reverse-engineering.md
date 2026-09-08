@@ -4114,3 +4114,27 @@ and existing repository debt remain. Native sunlight allocation/propagation,
 timing, colored-object lighting and complete raster/filter/LOD ownership remain
 open. The native color checks and browser pixels establish this correction, not
 whole-frame visual parity.
+
+### Scenery ground shade integration
+
+Reconstructed `00403c10` against the supplied executable. Original scenery
+initialization/removal calls it to recalculate shape-covered terrain shade; our
+adapter previously only recalculated shade while registering building footprints.
+Live trees therefore lacked their native ground shading in otherwise empty cells.
+The port shares original shape traversal and `nativeCellShade` with buildings,
+imports scenery object/flag descriptors, and refreshes on live tree insertion,
+removal or pose changes through `syncLandscapeObjects`.
+
+Validation: 632 complete native scenery setter/real shade-consumer comparisons,
+632 existing building footprint and 4,096 cell-shade comparisons; 72 gameplay
+regressions plus the parity-tool test. The added gameplay scenario covers two
+occupants sharing a cell, depletion, preserved slope bits and regrowth. Browser
+comparisons show 26,778 changed ground pixels, then exercise actual Lightning,
+fire/shrink/smoke and shadow removal with no browser errors. Before/after captures
+are `/private/tmp/populous-scenery-shadows-before.png` and
+`/private/tmp/populous-scenery-shadows-after.png`.
+
+Boundary: native texture regeneration is intercepted in CPU tests and the live
+browser atlas supplies invalidation; object classes/ownership outside the current
+tree adapter, sunlight and model/unit shadows remain open. The lighting parity
+checkpoint stays partial; its evidence improves without increasing the score.

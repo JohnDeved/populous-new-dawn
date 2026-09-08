@@ -10,6 +10,27 @@ import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast,rotateBuildingPlan,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('scenery shade follows cell occupants through overlap, depletion and regrowth', async () => {
+  const {syncLandscapeObjects}=await import('../app/model.ts');
+  const w=createWorld();
+  const tree=w.trees.find(t=>w.sceneryShadows.has(t.id));
+  const p=w.sceneryShadows.get(tree.id);
+  const i=(p.anchorY>>9)*128+(p.anchorX>>9);
+  assert.equal(w.land.shadows[i]&15,6);
+  const slope=w.land.shadows[i]&240;
+  const copy={...tree,id:w.nextId++};
+  w.trees.push(copy);syncLandscapeObjects(w);
+  assert.equal(w.land.shadows[i]&15,12);
+  tree.logs=1;syncLandscapeObjects(w);
+  assert.equal(w.land.shadows[i]&15,12,'a shrinking tree still occupies its cell');
+  tree.logs=0;syncLandscapeObjects(w);
+  assert.equal(w.land.shadows[i]&15,6,'removing one tree preserves the other occupant');
+  copy.logs=0;syncLandscapeObjects(w);
+  assert.equal(w.land.shadows[i]&15,0);
+  assert.equal(w.land.shadows[i]&240,slope,'scenery must preserve the slope nibble');
+  tree.logs=4;syncLandscapeObjects(w);
+  assert.equal(w.land.shadows[i]&15,6);
+});
 test('rotated building plans keep their anchor, entrance routes and orientation through construction', () => {
   for (let direction = 0; direction < 4; direction++) {
     const w = createWorld();
@@ -1303,10 +1324,10 @@ test('victory owns persistent native followers, drops cargo and renders a separa
 
 test('live blocked followers retain native detour steering and recovery timers', async () => {
  const {createLivePerson,stepLiveCelebration}=await import('../app/live-people.ts');
- const {syncBuildingFootprints,browserPosition}=await import('../app/model.ts');
+ const {syncLandscapeObjects,browserPosition}=await import('../app/model.ts');
  const w=createWorld(),u=w.units.find(u=>u.kind==='brave'&&u.team==='blue'),b=w.buildings.find(b=>b.team==='blue');
  w.units=[u];w.buildings=[b];w.terrain.fill(100/45);w.land.heights.fill(100);
- Object.assign(b,{x:9.4,z:33,progress:1});syncBuildingFootprints(w);
+ Object.assign(b,{x:9.4,z:33,progress:1});syncLandscapeObjects(w);
  const edge=w.land.buildingIds.findIndex((id,i)=>(id&1023)===b.id&&(i&127)>0&&!(w.land.flags[i-1]&0x200));assert.ok(edge>=0);
  const start=browserPosition({x:((edge&127)*512-12)&65535,y:((edge>>7)*512+256)&65535});
  Object.assign(u,{...start,inside:null,work:null});
@@ -1318,7 +1339,7 @@ test('live blocked followers retain native detour steering and recovery timers',
  assert.notEqual(p.heading,512);assert.ok(p.motionTimer>0);
  assert.notDeepEqual({x:u.x,z:u.z},before,'a free probe advances the live follower');
  assert.equal(w.land.flags[(p.y>>9)*128+(p.x>>9)]&0x200,0,'the chosen probe stays outside the original footprint');
- const timer=p.motionTimer,heading=p.heading;w.buildings=[];syncBuildingFootprints(w);stepLiveCelebration(w,u);
+ const timer=p.motionTimer,heading=p.heading;w.buildings=[];syncLandscapeObjects(w);stepLiveCelebration(w,u);
  assert.equal(p.motionTimer,timer-1,'the next grounded step consumes the recovery timer');
  assert.equal(p.heading,heading,'normal facing cannot overwrite active recovery steering');
 });
@@ -1341,14 +1362,14 @@ test('live celebrants obey native walk masks and survive the legacy ground-heigh
 
 
 test('live completed-building footprints relocate and clear on removal', async () => {
- const {syncBuildingFootprints}=await import('../app/model.ts');
- const w=createWorld(),b=w.buildings.find(b=>b.team==='blue');w.buildings=[b];syncBuildingFootprints(w);
+ const {syncLandscapeObjects}=await import('../app/model.ts');
+ const w=createWorld(),b=w.buildings.find(b=>b.team==='blue');w.buildings=[b];syncLandscapeObjects(w);
  const occupied=()=>Array.from(w.land.buildingIds).flatMap((id,i)=>(id&1023)===b.id?[i]:[]);
  const old=occupied();assert.ok(old.length>0);assert.ok(old.every(i=>w.land.flags[i]&0x200));
- b.x+=16;b.angle=Math.PI/2;syncBuildingFootprints(w);
+ b.x+=16;b.angle=Math.PI/2;syncLandscapeObjects(w);
  const moved=occupied();assert.ok(moved.length>0);assert.ok(moved.every(i=>!old.includes(i)));
  assert.ok(old.every(i=>!(w.land.flags[i]&0x200)),'old footprint cannot remain as invisible collision');
- b.hp=0;syncBuildingFootprints(w);assert.deepEqual(occupied(),[]);
+ b.hp=0;syncLandscapeObjects(w);assert.deepEqual(occupied(),[]);
  assert.ok(moved.every(i=>!(w.land.flags[i]&0x200)),'removed buildings release their cells');
 });
 
