@@ -2418,3 +2418,67 @@ selection regressions pass. The regular suite has 76 tests. Rendering still uses
 the existing 24 Hz presentation adapter; full original outer-loop/input timing,
 all press modes, transition lifecycle and matched original frames remain open.
 Browser cancellation on blur/pointer cancellation is an explicit platform adapter.
+
+## Overview spell range and projectile trails
+
+`0041d730` calls `0041f370` for the active shaman spell range before building
+footprints and markers. Its 32-point circle uses `0049bb20` integer polar offsets,
+signed wrapped coordinates, and keeps a segment if either endpoint is visible.
+`00516500` submits the same ceil-rounded quad strips already used by Lightning;
+the shared TypeScript helper is now named `lineQuad`. Alpha is
+`((sin[phase & 2047] << 6) >> 16) + 128`. Complete `0041ebf0` advances the phase
+by the unsigned sky tick counter shifted right four on every overview draw.
+The browser shares that counter with the sky, so the ring pulses while simulation
+is paused. Ground-view sprite-halo phase does not advance in overview.
+
+`0041deb0` queues class-7 models 3, 4 and 10 for the HFX branch of `0041e5b0`.
+Object flag 16 and flags4 bit 0x20000 suppress drawing. Nonowned objects require
+a seen cell when fog is active; owned effects are exempt. The visited cell's
+origin controls outer globe visibility. Native Blast head/projectile class 6,
+Blast impact model 38 and Lightning flash model 42 are absent from this queue;
+showing every ground effect in overview would therefore be incorrect.
+
+The HFX painter adds `f1 >> 2` only when the descriptor's **hold** byte exceeds
+one; it skips frame 0x650. Unlike building icons, these sprites retain their
+original pixel dimensions and bottom-center anchor even near the rim.
+Palette bytes below -15 draw untinted; 15 aliases zero and values >=16 suppress
+drawing. `00516270` obtains the vertex tint from `AL[palette*4096 + 0x2f82]`,
+then the opening palette. This differs from the building-footprint alpha lookup.
+The HUD importer now retains all thirteen in-file sprite tint indices; the
+renderer caches tinted crops of the existing effect atlas. Actual original
+animation descriptors use only 240, 0, 7 and 15. Other out-of-file AL pointers
+are deliberately not interpreted without their native runtime ownership.
+
+`0050c410` initializes model-10 art; `004bb440` assigns HFX1124–1127 to the four
+attached Blast tails. The head is HFX1123 and remains omitted from overview.
+`shotVisual` now retains the casting tribe for all original spell trails, giving
+the overview fog gate its owner. Existing ground rendering and effect lifetimes
+continue through the same simulation objects.
+
+```sh
+python scripts/check-native-globe-effects.py /path/to/d3dpoptb.exe
+node scripts/check-browser-globe-effects.mjs
+```
+
+The oracle executes 256 complete native circle controllers through final D3D
+strips, 256 viewport/phase updates (only backend leaves supplied), and 512 complete
+effect-cell queues through the HFX painter. Original HFX dimensions and palette
+bytes are loaded from the supplied game. Cases cover wrapped/rim positions,
+resolutions, animation hold/frame, hidden flags, class/model selection, ownership,
+fog, sentinel and palette branches. The isolated queue receives an already
+visited cell; it does not pretend to execute the outer globe scan.
+
+Browser checks cover 32 actual range strips, 1,523 contributed GPU pixels, paused
+pulse, selected/hover priority, Escape/input gates and ground-halo return. A real
+Blast cast contributes 316 trail pixels and exercises attached AL-tinted tails,
+owner propagation, fog/hidden gates and cleanup. Captures are
+`/private/tmp/populous-globe-range-v106.png` and
+`/private/tmp/populous-globe-trails-v106.png`.
+
+Complete mixed-class allocation/painter ordering, concealment-byte ownership,
+all globe effect/circle/auxiliary-marker classes and tower coverage fans remain
+open. Neutral fire-ember ownership still uses the browser adapter. The exported
+`0041e3d0`, `0041e460`, `0041e4e0`, `0041efb0` and `0041f160` describe additional
+queues/fans but are not claimed as integrated. Ten new hashes bring the manifest
+to 841 exports without changing earlier snapshots. These bounded additions do
+not complete overview or whole-frame raster parity.

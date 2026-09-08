@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import {
   globePalette,
+  globeCircle,
+  globeEffectFrame,
   globeFootprint,
   globeBuildingIcon,
   globeIconRect,
@@ -15,6 +17,8 @@ import {
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import { buildingModel, nativePosition, type World } from './model.ts'
 import hud from './original-hud.json'
+import effects from './original-effects.json'
+import { lineQuad } from './lightning.ts'
 
 // The world view has its own flat terrain and markers; ordinary models, waves
 // and people sprites belong to the ground renderer.
@@ -56,6 +60,10 @@ export class GlobeRenderer extends THREE.Group {
     })
   )
   icons = new Image()
+  effects = new Image()
+  tintedEffects = new Map<string, HTMLCanvasElement>()
+  phase = 0
+  spellRange: { x: number; y: number; radius: number; tribe: number } | null = null
   offsets = new Int32Array(32)
   buildingIcons = new Set<number>()
   starPosition: { x: number; y: number } | null = null
@@ -83,6 +91,7 @@ export class GlobeRenderer extends THREE.Group {
       )
     }
     this.icons.src = '/original/hud.png'
+    this.effects.src = '/original/effects.png'
     this.add(this.stars, this.land, this.markers)
     this.children.forEach((object, i) => {
       object.userData.nativeIgnore = true
@@ -211,6 +220,13 @@ export class GlobeRenderer extends THREE.Group {
         ctx.stroke()
       }
     }
+    if (this.spellRange) {
+      for (const line of globeCircle(view, this.spellRange, this.spellRange.radius, this.phase)) {
+        ctx.globalAlpha = line.alpha / 255
+        polygon(lineQuad(line), color(globePalette.tribes[this.spellRange.tribe]), false)
+      }
+      ctx.globalAlpha = 1
+    }
     this.buildingIcons.clear()
     const buildings = new Map(
       world.buildings.map(b => [b.id, { id: b.id, tribe: b.team === 'blue' ? 0 : 1 }])
@@ -301,8 +317,93 @@ export class GlobeRenderer extends THREE.Group {
       for (const shrine of world.shrines)
         icon(locate(shrine), shrine.kind === 'vault' ? 0x7a : 0x7b)
     }
+    this.drawEffects(ctx, view, world, textures)
     this.markers.material.map!.needsUpdate = true
   }
+  drawEffects(
+    ctx: CanvasRenderingContext2D,
+    view: GlobeView,
+    world: World,
+    textures: TerrainTextures
+  ) {
+    if (!this.effects.complete || !this.effects.naturalWidth) return
+    for (const f of world.effects) {
+      const sequence = f.sprite?.sequence
+      if (
+        sequence !== 'blastTrail' &&
+        sequence !== 'spellTrail' &&
+        !(sequence === 'blastShot' && f.sprite!.frame >= 4)
+      )
+        continue
+      const animation = f.animation ?? {
+          object: 1120 + f.sprite!.frame,
+          draw: 29,
+          f1: 0,
+          palette: 15,
+          renderFlags: 2,
+        },
+        position = nativePosition(world, f),
+        cellX = position.x & 0xfe00,
+        cellY = position.y & 0xfe00,
+        cell = (cellY >> 9) * 128 + (cellX >> 9),
+        tribe = { blue: 0, red: 1, wild: 4 }[f.team ?? 'wild']
+      if (
+        animation.renderFlags & 16 ||
+        ('flags4' in animation && Number(animation.flags4) & 0x20000) ||
+        !globeVisible(view, cellX, cellY)
+      )
+        continue
+      // Native unseen-cell gating exempts owned effects. The live concealment
+      // byte and complete mixed-class allocation/queue order remain open.
+      if (
+        world.manaWorld.levelFlags & 4 &&
+        !(world.land.flags[cell] & 8) &&
+        tribe !== world.manaWorld.playerTribe
+      )
+        continue
+      const frame = globeEffectFrame(animation)
+      if (!frame) continue
+      // Original descriptors use only 240 (untinted), 0, 7 and 15. Other
+      // out-of-file AL pointers need native runtime palette ownership first.
+      if (frame.palette !== null && (frame.palette < 0 || frame.palette >= hud.spriteColors.length))
+        continue
+      const frames = (
+          effects.animations as Record<
+            string,
+            { index: number; w: number; h: number; source: number }[]
+          >
+        )[sequence],
+        art = frames.find(r => r.source === frame.id)
+      if (!art) continue
+      const q = globePoint(view, position.x, position.y),
+        x = q.x - (art.w >> 1),
+        y = q.y - art.h,
+        sx = (art.index % 8) * 256,
+        sy = Math.floor(art.index / 8) * 256
+      if (frame.palette === null)
+        ctx.drawImage(this.effects, sx, sy, art.w, art.h, x, y, art.w, art.h)
+      else {
+        const key = `${art.index}-${frame.palette}`
+        let tinted = this.tintedEffects.get(key)
+        if (!tinted) {
+          tinted = document.createElement('canvas')
+          tinted.width = art.w
+          tinted.height = art.h
+          const paint = tinted.getContext('2d')!
+          paint.drawImage(this.effects, sx, sy, art.w, art.h, 0, 0, art.w, art.h)
+          const pixels = paint.getImageData(0, 0, art.w, art.h),
+            index = hud.spriteColors[frame.palette]
+          for (let i = 0; i < pixels.data.length; i += 4)
+            for (let channel = 0; channel < 3; channel++)
+              pixels.data[i + channel] *= textures.palette[index * 4 + channel] / 255
+          paint.putImageData(pixels, 0, 0)
+          this.tintedEffects.set(key, tinted)
+        }
+        ctx.drawImage(tinted, x, y)
+      }
+    }
+  }
+
   dispose() {
     this.map.dispose()
     this.markers.material.map!.dispose()

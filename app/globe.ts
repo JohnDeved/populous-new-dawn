@@ -1,5 +1,6 @@
 import { multiplyShift16 } from './projection.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import type { Animation } from './animation.ts'
 
 // 0x42adc0 nearest-color lookup on the opening landscape palette, and
 // the normal tribe marker indices at 0x59bc19.
@@ -154,6 +155,34 @@ export function globeIconRect(view: GlobeView, point: Point, width: number, heig
     height = Math.max(1, Math.min(height, Math.imul(height, scale) >> 16))
   }
   return { x: point.x - (width >> 1), y: point.y - (height >> 1), width, height }
+}
+
+// 0x41f370 / 0x49bb20: a 32-segment wrapped range circle. A segment survives
+// when either endpoint is visible; the other endpoint keeps its normal projection.
+export function globeCircle(view: GlobeView, origin: Point, radius: number, phase: number | null) {
+  const alpha = phase === null ? 255 : ((rules.sine[phase & 2047] << 6) >> 16) + 128
+  const points = Array.from({ length: 32 }, (_, i) => ({
+    x: short(origin.x + (Math.imul(rules.sine[(i * 64 + 512) & 2047], radius) >> 16)),
+    y: short(origin.y + (Math.imul(rules.sine[i * 64], radius) >> 16)),
+  }))
+  return points.flatMap((a, i) => {
+    const b = points[(i + 1) & 31]
+    if (!globeVisible(view, a.x, a.y) && !globeVisible(view, b.x, b.y)) return []
+    const from = globePoint(view, a.x, a.y),
+      to = globePoint(view, b.x, b.y)
+    return [{ x1: from.x, y1: from.y, x2: to.x, y2: to.y, alpha, width: 1 }]
+  })
+}
+
+// HFX branch of 0x41e5b0. The globe uses unscaled, bottom-centered art.
+export function globeEffectFrame(animation: Pick<Animation, 'object' | 'draw' | 'f1' | 'palette'>) {
+  const id =
+      short(animation.object) +
+      (rules.animationDescriptors[animation.draw].hold > 1 ? (animation.f1 & 65535) >> 2 : 0),
+    palette = (animation.palette << 24) >> 24
+  if (id === 0x650 || palette >= 16) return null
+  if (palette < -15) return { id, palette: null }
+  return { id, palette: palette === 15 ? 0 : palette }
 }
 
 // Active-drag branch of 0x42d240. Always measure from the press snapshot so

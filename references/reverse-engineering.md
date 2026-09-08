@@ -4277,3 +4277,28 @@ keyboard takeover, modal/input/blur gates and reentry. Existing world/camera/vie
 navigation and sprite regressions pass. Native outer-frame pacing, input settings
 and globe transitions remain open; 24 Hz sampling and platform cancellation are
 still adapters. Camera remains partial and the global denominator is unchanged.
+
+## 2026-09-08: overview spell range and original projectile art
+
+Overview now draws the native 32-strip pulsing spell range and unscaled original
+spell trails. `0041f370`/`0049bb20`/`00516500` agree on 256 complete circle/strip
+calls; `0041ebf0` agrees on 256 phase updates from the sky counter. Simulation
+pause preserves the visible pulse and overview leaves the ground halo's phase
+alone. The range shares existing selected/hover and input gating.
+
+`0041deb0` plus `0041e5b0` agree on 512 complete effect-cell queue/painter cases,
+including original class/model/flags/fog/ownership, animation hold/frame,
+bottom-center sizing, sentinel and palette selection. Blast's four attached
+HFX1124–1127 tails and loose Blast/other spell trails render from the existing
+atlas. `00516270` supplies their distinct AL tint lookup; all casting trails now
+retain their tribe. Large ground impact flashes absent from the native overview
+queue remain omitted.
+
+Live browser checks cover actual strips and pixels, pause/hover/selection/input,
+a real Blast cast, tint, fog/hidden gates, expiry and ground-halo return. Captures:
+`/private/tmp/populous-globe-range-v106.png` and
+`/private/tmp/populous-globe-trails-v106.png`. Native gameplay state and mixed
+painter ownership, other effect/circle classes, tower fans, concealment and
+matched original full frames remain open. Camera/raster stay partial and the
+known-scope denominator is unchanged. See decomp/README.md for exact addresses,
+regeneration commands and oracle boundaries.

@@ -96,7 +96,7 @@ import { spellCursor } from './spell-casting.ts'
 import { spellHalo, haloBucket } from './spell-halo.ts'
 import { buildingPlanCells } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
-import { lightningLines, lightningQuad, lightningTexture, type Lightning } from './lightning.ts'
+import { lightningLines, lineQuad, lightningTexture, type Lightning } from './lightning.ts'
 import rules from './original-rules.json'
 
 const cameraKeys: Record<string, number> = {
@@ -1792,7 +1792,7 @@ export class GameScene {
         to = screen(segment.to)
       if (!this.overviewActive && from.flags >>> 0 > 0x80000000) continue
       for (const line of lightningLines(from.x, from.y, to.x, to.y, this.world.cosmeticRandom)) {
-        const q = lightningQuad(line)
+        const q = lineQuad(line)
         for (const i of [0, 1, 2, 0, 2, 3]) {
           positions.push((q[i * 2] * 2) / width - 1, 1 - (q[i * 2 + 1] * 2) / height, 0)
           uv.push(i < 2 ? 0.2 : 0.8, 0.5)
@@ -1816,7 +1816,17 @@ export class GameScene {
       !(rules.spellCharging[model].flags & 0x8000) &&
       !this.world.inputMask &&
       this.world.status === 'playing'
+    this.globe.spellRange = null
     if (!shaman || !this.range.visible) return
+    if (this.overviewActive) {
+      this.globe.spellRange = {
+        ...nativePosition(this.world, shaman),
+        radius: spellRange(this.world, shaman, model!) * 256,
+        tribe: this.world.manaWorld.playerTribe,
+      }
+      this.range.visible = false
+      return
+    }
     const points = spellHalo(
       this.world.land,
       nativePosition(this.world, shaman),
@@ -2226,8 +2236,10 @@ export class GameScene {
     this.ground.visible = !this.overviewActive
     this.globe.visible = this.overviewActive
     this.scene.background = this.overviewActive ? this.space : this.groundSky
-    if (this.overviewActive && this.terrainTextures)
+    if (this.overviewActive && this.terrainTextures) {
+      this.globe.phase = (this.globe.phase + (skyTicks >>> 4)) | 0
       this.globe.update(this.view.globe, this.world, this.terrainTextures)
+    }
     this.updateSky(skyTicks)
     // ponytail: initial mission palette; connect live system-palette changes
     // when the original palette scheduler is integrated.

@@ -221,6 +221,7 @@ export type SoundEvent = Point & {
 }
 export type Effect = Point & {
   id: number
+  team?: Team
   kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke' | 'debris' | 'fire'
   height?: number
   sprite?: { sequence: string; frame: number }
@@ -2325,10 +2326,11 @@ function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   u.casting = { spell, point: target, remaining: 6 / TURNS_PER_SECOND }
   castVoice(w, u, spell)
 }
-function shotVisual(w: World, p: NativePoint, sequence: string, frame = 0) {
+function shotVisual(w: World, p: NativePoint, team: Team, sequence: string, frame = 0) {
   const fx = effect(w, 'trail', browserPosition(p))
   fx.height = p.h / 45
   fx.sprite = { sequence, frame }
+  fx.team = team
   fx.duration = Infinity
   if (sequence === 'blastTrail' || sequence === 'spellTrail') {
     const trail = createSpellTrail(
@@ -2531,7 +2533,7 @@ function processProjectiles(w: World) {
       if (shot.spell === 'blast') {
         sound(w, 0xa1, shot.source)
         shot.visuals = Array.from({ length: 5 }, (_, i) =>
-          shotVisual(w, shot.position, 'blastShot', i + 3)
+          shotVisual(w, shot.position, shot.team, 'blastShot', i + 3)
         )
       }
       continue
@@ -2580,7 +2582,7 @@ function processProjectiles(w: World) {
             )
             tail.x = short(tail.x + 8 - (random(w) & 15))
             tail.y = short(tail.y + 8 - (random(w) & 15))
-            shotVisual(w, tail, 'blastTrail')
+            shotVisual(w, tail, shot.team, 'blastTrail')
           }
     } else {
       // 0x4baf00: 20 substeps of 70; each trail starts with four turns before its second phase.
@@ -2592,7 +2594,7 @@ function processProjectiles(w: World) {
             y: short(p.y + 8 - (random(w) & 15)),
           }
         tail.h = Math.max(tail.h, nativePosition(w, browserPosition(tail)).h)
-        shotVisual(w, tail, 'spellTrail')
+        shotVisual(w, tail, shot.team, 'spellTrail')
         if (Math.abs(d.x - p.x) < 108 && Math.abs(d.y - p.y) < 108 && Math.abs(d.h - p.h) < 108) {
           if (caster)
             finishCast(

@@ -63,7 +63,7 @@ mode='quads';cases=[];expected=[]
 for i in range(1024):
  line=dict(x1=rng.randrange(-32768,32768),y1=rng.randrange(-32768,32768),x2=rng.randrange(-32768,32768),y2=rng.randrange(-32768,32768),alpha=200,width=rng.choice([2,3]));call(0x516500,line['x1'],line['y1'],line['x2'],line['y2'],0xc8ffffff,line['width'],0,0x42)
  cases.append(line);expected.append([read(a+off,'f') for a in [0x5da0f0,0x5da110,0x5da130,0x5da150] for off in [0,4]])
-compare("""import {lightningQuad} from './app/lightning.ts';let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).cases.map(lightningQuad)));""",dict(cases=cases),expected)
+compare("""import {lineQuad} from './app/lightning.ts';let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).cases.map(lineQuad)));""",dict(cases=cases),expected)
 
 # Native ARGB4444 palette loop followed by the complete 32x32 texture loop.
 cpu.reg_write(UC_X86_REG_ESP,stack);cpu.reg_write(UC_X86_REG_EDI,0)

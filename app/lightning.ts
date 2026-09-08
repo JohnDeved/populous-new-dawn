@@ -2,9 +2,13 @@ import { nativeAngle, nativeStep, positionDistance, random } from './native-math
 import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
-type Point = { x: number; y: number; h: number }
+interface Point {
+  x: number
+  y: number
+  h: number
+}
 type Ground = Pick<NativeTerrain, 'heights' | 'flags'>
-export type Lightning = {
+export interface Lightning {
   tribe: number
   start: Point
   target: Point
@@ -12,7 +16,7 @@ export type Lightning = {
   turn: number
   segments: { from: Point; to: Point }[]
 }
-export type LightningLine = {
+export interface LightningLine {
   x1: number
   y1: number
   x2: number
@@ -87,7 +91,7 @@ export function lightningLines(
 
 // 0x516500: integer-angle, ceil-rounded textured strip corners. Native UVs
 // are (.2,.5), (.2,.5), (.8,.5), (.8,.5) across the 32x32 texture.
-export function lightningQuad(l: LightningLine) {
+export function lineQuad(l: LightningLine) {
   const angle = (nativeAngle(l.x2 - l.x1, l.y2 - l.y1) - 512) & 2047
   const dx = -(rules.sine[angle] << (l.width & 31)) / 131072,
     dy = (rules.sine[(angle + 512) & 2047] << (l.width & 31)) / 131072

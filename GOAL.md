@@ -393,3 +393,22 @@ and browser-specific cancellation on lost input. Camera stays partial; this does
 not finish overview or engine parity. Continue visible overview spell effects
 and transitions, then compare ground-world building activity and first-mission
 feedback against original captures. Discovery and the full-game goal stay open.
+
+### Latest visible integration: overview spell range and trails
+
+World view now displays the original 32-strip pulsing spell range and original
+projectile-tail sprites. Range phase follows the native sky counter while the
+simulation is paused; the ground sprite halo keeps its own phase. Native HFX
+trails retain their original pixel size, bottom-center anchor and AL palette
+tint. Casting-tribe ownership now reaches the overview fog gate. The native
+queue omits several large ground impact flashes, so those remain hidden here.
+
+Comparisons cover 256 complete circle/strip calls, 256 native phase updates and
+512 complete effect-cell queue/painter calls. Actual browser checks cover range
+pixels, selection/hover/input gates, paused pulse, a real Blast cast, tinted
+tails, owner/fog/hidden gates, expiry and ground-halo return. Ten more identified
+exports bring the maintained manifest to 841. Complete mixed-class ordering,
+concealment, tower fans, remaining overview effect classes and matched original
+frames remain open. Camera/raster stay partial; discovery and full parity are
+unfinished. Continue visible overview transitions and ground-world activity,
+using original captures to choose the next discrepancy.

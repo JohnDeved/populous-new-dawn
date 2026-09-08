@@ -55,6 +55,6 @@ for i in range(4):
         at=((i//2*49+yy)*100+i%2*50)*4;pixels[at:at+200]=data[yy*200:(yy+1)*200]
 a.png(output/'hud-map-frame.png',100,99,pixels)
 for name,i in [('panel',706),('commands',712)]:a.png(output/f'hud-{name}.png',*bank[i])
-meta=dict(executableSha256=identity['sha256'],sha256=hashes,width=width,height=height,rects=rects,alphaColors=alpha_colors)
+meta=dict(executableSha256=identity['sha256'],sha256=hashes,width=width,height=height,rects=rects,alphaColors=alpha_colors,spriteColors=[alpha[i*4096+0x2f82] for i in range(13)])
 (ROOT/'app/original-hud.json').write_text(json.dumps(meta,separators=(',',':'))+'\n')
 print(f'Imported {len(entries)} native HUD sprites/glyphs, four borders and minimap frame')
