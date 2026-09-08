@@ -39,11 +39,22 @@ try{
  });
  await page.waitForFunction(()=>window.observedPhases.includes(5)&&window.observedPhases.includes(6),{},{timeout:10000});
  await page.waitForTimeout(1300);
- await page.evaluate(()=>{clearInterval(window.phaseWatcher);});
+ await page.evaluate(()=>{
+  clearInterval(window.phaseWatcher);
+  const w=window.testStore.getWorld(),u=w.units.find(u=>u.kind!=='shaman'),b=w.buildings.find(b=>b.team==='blue');
+  Object.assign(u,{x:7,z:33});Object.assign(b,{x:9.4,z:33,progress:1});
+  Object.assign(u.native,{substate:1,flags2:128,counter:0,heading:512,angle:512,turnAngle:512,speed:80,assignment:0,animationMode:0,commandPhase:100,timer:100,motionTimer:0,motionMode:0,recoveryCounter:0});
+  window.detourPerson=u.id;
+ });
+ await page.waitForFunction(()=>window.testStore.getWorld().units.find(u=>u.id===window.detourPerson)?.native.motionMode>0);
+ assert.ok(await page.evaluate(()=>{
+  const u=window.testStore.getWorld().units.find(u=>u.id===window.detourPerson);
+  return u.native.heading!==512&&(u.x!==7||u.z!==33);
+ }),'blocked live follower selects and moves along a native detour');
  await page.waitForFunction(()=>!window.testStore.getWorld().outcome.cameraPlaying);
  await page.waitForSelector('.end-screen button');await page.locator('.end-screen button').click();
  await page.waitForFunction(()=>window.testStore.getWorld().status==='playing');
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().units.every(u=>u.native===null)));
  assert.deepEqual(errors,[]);
- console.log('PASS: live victory handoff, movement, original atlas frames, pause, circles, chains and restart; no page errors');
+ console.log('PASS: live victory handoff, movement, original atlas frames, pause, circles, chains, obstacle detours and restart; no page errors');
 }finally{await browser.close();}

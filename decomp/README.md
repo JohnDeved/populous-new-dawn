@@ -1008,3 +1008,16 @@ frames, pause, circles/chains and restart. All 49 gameplay tests pass.
 The manifest now contains 568 raw exports. Full physics, pathfinding, ordinary
 orders, native allocation and presentation scheduling are still incomplete;
 see the live-integration section of the evidence log for the exact boundaries.
+
+
+### Obstacle and building-exit recovery
+
+`app/person-motion.ts` ports complete `004e9720`, `004e9950` and `004e7a10`;
+`app/building-shapes.ts` adds `0040a460`. The motion oracle now checks 20,480
+calls across facing, slope velocity, obstacle probing, recovery and proximity.
+The shape oracle checks 30,336 points with all geometry callees executing.
+Live celebrants use these routines with the existing world collision adapters;
+50 gameplay regressions and the browser detour/restart check pass. Native
+collision classification, occupancy, path recomputation and full physics remain
+open. The export manifest now verifies 574 raw functions; see the evidence log
+for supplied consumer boundaries and the corrected square-proximity finding.

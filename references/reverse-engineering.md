@@ -2501,3 +2501,63 @@ The result overlay and progression are also still browser implementations.
 The manifest now verifies **568 raw exports**, adding `004d43a0`, `004e9050` and
 `004e9950` as retained evidence for the next motion/lifecycle work. Raw exports
 are not claims of reconstructed or integrated behavior.
+
+
+## Native obstacle probing, recovery timers and building approaches
+
+`app/person-motion.ts` now reconstructs complete `004e9720` and `004e9950`.
+Blocked followers probe eleven alternating headings in 170-angle-unit increments,
+first at their current speed and then twice that speed. The original signed-byte
+recovery counter chooses turn-side changes and retry flags; the successful probe
+sets the native steering timer without overwriting an existing positive timer.
+A building-cell hit starts the original two-stage exit recovery. Its approach,
+111-unit threshold, outside-point transition, support-height reset and periodic
+path-retry flags are retained.
+
+`004e7a10` is a **square proximity test, not a cone gate** as the preceding
+integration note called it. Its seam fold deliberately uses 65535, and comparisons
+are strict. The live remaining-distance shortening now uses this verified gate.
+`turnPerson` exposes the native local turning result so the live driver holds
+position during a blocked turn and only probes alternatives after turning ends.
+
+`buildingApproachPoint` in `app/building-shapes.ts` ports complete `0040a460`:
+choose the nearer inside/outside entrance point using squared toroidal distance,
+walk 64-unit steps along their axis until distance stops decreasing, then offset
+32 units toward the outside. It shares the imported shape records, entrance
+helpers and native integer step/angle math.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-person-motion.py /path/to/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-building-shapes.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+The motion oracle checks **4,096 cases each** of facing (including the native local
+turning result), slope velocity, complete obstacle probing, complete recovery,
+and square proximity: **20,480 comparisons**. The obstacle/recovery fixtures
+compare every tracked person field, output position, return byte and ordered
+height/collision/access/entrance requests. Terrain heights, collision results,
+building access and entrance consumers are supplied at their call boundaries;
+native math and control flow execute unchanged. Negative building-exit timers
+would read an uninitialized native point and are excluded/rejected; signed timer
+wrap and negative timers in ordinary timed recovery are covered.
+
+The geometry oracle now compares **30,336** inside/outside/queue/approach points
+across **632 object/orientation pairs**, including 7,584 approach points, original
+shape-loader relocation and seam boundaries. All geometry callees run natively.
+All **50 gameplay regressions**, typechecking and production build pass; lint has
+seven existing image-element warnings and no errors. The new live regression
+forces a blocked step, checks movement along a free probe, and verifies that
+recovery steering/timers survive the next step after clearing the obstacle.
+Browser QA now also forces an obstacle detour, alongside celebration/frame/pause,
+circle/chain and restart checks, without page errors.
+
+**Remaining boundaries:** the live world still supplies its coarse dry-land and
+completed-building collision/occupancy tests, and building-access permission is
+an adapter. The native collision classifier `005178d0`, building access `00517f10`,
+airborne eligibility `004e7880`, boat lookup `004665c0` and remaining full physics
+are retained for the next integration; these raw exports are not verified ports.
+Native failed-recovery airborne dispatch, path recomputation, cell-list ownership,
+falling, impulses, landing and general person lifecycle remain unfinished.
+The manifest now retains **574** raw exports. Full parity is still open.

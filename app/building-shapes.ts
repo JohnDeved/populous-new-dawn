@@ -24,6 +24,22 @@ export function buildingOutsidePoint(b: BuildingShapePose): Point {
     y: (b.anchorY - s.y * 256 + s.outside[1] * 64) & 65535};
 }
 
+// 0x40a460: approach the closest point along the entrance axis in 64-unit
+// steps, then bias 32 units toward the outside. Distances are not rounded roots.
+export function buildingApproachPoint(b:BuildingShapePose,p:Point):Point {
+  const inside=buildingInsidePoint(b),outside=buildingOutsidePoint(b);
+  const squared=(a:Point,b:Point)=>{const x=short(a.x-b.x),y=short(a.y-b.y);return (x*x+y*y)|0;};
+  const a=squared(p,outside),c=squared(p,inside);
+  let point=a<c?outside:inside,previous=point,best=Math.min(a,c);
+  const other=a<c?inside:outside,angle=nativeAngle(short(other.x-point.x),-short(other.y-point.y));
+  const step=(p:Point,angle:number,length:number)=>{
+    const q=nativeStep({x:p.x/256,z:-p.y/256},angle,length);
+    return {x:Math.round(q.x*256)&65535,y:Math.round(-q.z*256)&65535};
+  };
+  for(;;){previous=point;point=step(point,angle,64);const d=squared(p,point);if(d>=best)break;best=d;}
+  return step(previous,nativeAngle(short(outside.x-inside.x),-short(outside.y-inside.y)),32);
+}
+
 // 0x409710: walk 128-unit steps around the original footprint mask. The two
 // probes use different bits (1, then 4), and mirror wrapped offsets with abs.
 // Keep the shared mask buffer: a native probe can cross a record's mask extent.

@@ -1,14 +1,15 @@
 import type {World,Unit} from './model.ts';
-import {nativePosition,browserPosition,nativeTerrainHeight,walkable,height,buildingBlocksStep,entrance,sound} from './model.ts';
+import {nativePosition,browserPosition,nativeTerrainHeight,walkable,height,buildingBlocksStep,buildingContainsPoint,buildingPose,entrance,sound} from './model.ts';
 import {initializePersonState,type StatefulPerson} from './person-state.ts';
 import {stepCelebration,type Celebrant,type CelebrationEffects} from './celebration.ts';
 import {setAnimationObject,setPersonAnimation,stepObjectAnimation,type Animation} from './animation.ts';
-import {turnPerson,groundVelocity,type PersonFacing} from './person-motion.ts';
+import {turnPerson,groundVelocity,positionsOverlap,stepMotionRecovery,recoverGroundObstacle,type RecoveryPerson} from './person-motion.ts';
+import {buildingApproachPoint,buildingOutsidePoint} from './building-shapes.ts';
 import {positionDistance,random} from './native-math.ts';
 import rules from './original-rules.json' with {type:'json'};
 import sprites from './original-units.json' with {type:'json'};
 
-export type LivePerson=StatefulPerson & Celebrant & Animation & PersonFacing & {
+export type LivePerson=StatefulPerson & Celebrant & Animation & RecoveryPerson & {
   stamp:number;morphTimer:number;morphFrames:number;building:number|null;goalX:number;goalY:number;destinationX:number;destinationY:number;
   motionGroup:number;motionIndex:number;
 };
@@ -26,7 +27,7 @@ export function createLivePerson(w:World,u:Unit):LivePerson{
     speed:0,angle,heading:angle,turnAngle:angle,turnY:0,slowTurn:0,goalX:0,goalY:0,destinationX:0,destinationY:0,
     building:u.inside,cargo:u.cargo*100,vehicle:0,assignment:0,timer:0,target:0,link:0,stateObject:0,
     animationMode:0,commandAux:0,commandPhase:0,object:0,draw:0,morph:0,palette:0,renderFlags:0,f1:0,f2:0,stamp:0,morphTimer:0,morphFrames:0,
-    statusFlags:0,workFlags:0,reservationNext:0,formationCell:0,motionTimer:0,motionMode:0,motionGroup:0,motionIndex:0,
+    statusFlags:0,workFlags:0,reservationNext:0,formationCell:0,motionTimer:0,motionMode:0,motionGroup:0,motionIndex:0,recoveryCounter:0,supportHeight:0,
     selectionFlags:selected?128:0,commands:Array(8).fill(0),commandCursor:0,immediateCommand:0,
     orderLocation:0,commandStatus:0,workTarget:0};
 }
@@ -86,20 +87,30 @@ export function stepLiveCelebration(w:World,u:Unit){
   const p=u.native!;p.counter=(p.counter+1)&255;
   // External spell impulses still move the legacy unit; reconcile that handoff.
   const position=nativePosition(w,u);p.x=position.x&65535;p.y=position.y&65535;p.h=position.h;
-  turnPerson(p); // Native class-1 motion precedes its state controller.
+  const turning=turnPerson(p); // Native class-1 motion precedes its state controller.
   if(p.speed&&!(p.flags2&0x84000)){
     const terrain=(x:number,y:number)=>nativeTerrainHeight(w.land.heights,x,y);
     let speed=p.speed;
-    if((p.flags2&0x200)&&!(p.flags2&128))speed=Math.min(speed,positionDistance(p,{x:p.turnAngle,y:p.turnY}));
+    const destination={x:p.turnAngle,y:p.turnY};
+    if((p.flags2&0x200)&&!(p.flags2&128)&&positionsOverlap(p,56,destination,1024))speed=Math.min(speed,positionDistance(p,destination));
+    const building=w.buildings.find(b=>buildingContainsPoint(b,u));
+    // ponytail: native occupancy/access records are not yet shared with the
+    // live world. Keep its collision boundary; use original recovery/geometry.
+    const blocked=(to:{x:number;y:number})=>{const point=browserPosition(to);return Number(!walkable(w.terrain,point)||w.buildings.some(b=>buildingBlocksStep(b,u,point)));};
+    if(speed)stepMotionRecovery(p,!!building,()=>true,outside=>{
+      if(!building)throw new Error('Missing building during native exit recovery');
+      const pose=buildingPose(building);return outside?buildingOutsidePoint(pose):buildingApproachPoint(pose,p);
+    });
     const velocity={x:0,y:0,z:0};groundVelocity(velocity,p,speed,p.heading,terrain);
     const limit=rules.personVelocityLimits[p.physics];
-    const next={x:(p.x+Math.max(-limit,Math.min(limit,velocity.x)))&65535,y:(p.y+Math.max(-limit,Math.min(limit,velocity.z)))&65535};
-    const point=browserPosition(next);
-    // ponytail: native obstacle recovery, falling and cell-list order are still
-    // pending. Retain the existing dry-land/building collision boundary here.
-    if(walkable(w.terrain,point)&&!w.buildings.some(b=>buildingBlocksStep(b,u,point))){
-      p.x=next.x;p.y=next.y;p.h=terrain(p.x,p.y);Object.assign(u,point);
+    const next={x:(p.x+Math.max(-limit,Math.min(limit,velocity.x)))&65535,y:(p.y+Math.max(-limit,Math.min(limit,velocity.z)))&65535,h:0};
+    next.h=terrain(next.x,next.y);
+    if(speed&&blocked(next)){
+      if(turning)Object.assign(next,{x:p.x,y:p.y,h:terrain(p.x,p.y)});
+      else recoverGroundObstacle(p,next,!!building,terrain,blocked);
+      // Native failed-recovery airborne dispatch remains in the physics work.
     }
+    p.x=next.x;p.y=next.y;p.h=next.h;Object.assign(u,browserPosition(next));
   }
   const {state,effects}=context(w);stepCelebration(state,p,effects);w.randomState=state.randomState;
   u.heading=Math.PI-p.angle*Math.PI/1024;u.cargo=p.cargo/100;

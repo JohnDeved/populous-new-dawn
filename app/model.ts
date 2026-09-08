@@ -220,7 +220,8 @@ export function groundBuilding(w: World, b: Building) {
   w.terrainVersion++;
 }
 export function walkable(terrain: number[], p: Point) { return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > .45; }
-export const buildingBlocksStep=(b:Building,start:Point,next:Point)=>b.progress===1&&distance(b,next)<2.35&&distance(b,start)>=2.35;
+export const buildingContainsPoint=(b:Building,p:Point)=>b.progress===1&&distance(b,p)<2.35;
+export const buildingBlocksStep=(b:Building,start:Point,next:Point)=>buildingContainsPoint(b,next)&&!buildingContainsPoint(b,start);
 // ponytail: a 49×49 A* grid is enough for this island; use a heap and cached flow fields for hundreds of followers.
 export function findPath(terrain: number[], start: Point, end: Point, buildings: Building[] = []): Point[] {
   if (!walkable(terrain, end)) return [];
@@ -514,7 +515,7 @@ export function buildingStage(b:Building) {
 export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {
   return b.kind==='hut'?(b.team==='blue'?131:134)+b.level-1:b.kind==='camp'?(b.team==='blue'?103:104):b.kind==='tower'?(b.team==='blue'?79:80):(b.team==='blue'?95:96);
 }
-function buildingPose(b:Building) {
+export function buildingPose(b:Building) {
   return {object:buildingObject(b),angle:Math.round(b.angle*2048/(Math.PI*2))&2047,
     anchorX:Math.round((b.x+8)*256)&0xfe00,anchorY:Math.round((-b.z-8)*256)&0xfe00};
 }

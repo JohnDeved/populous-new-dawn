@@ -1175,3 +1175,22 @@ test('victory owns persistent native followers, drops cargo and renders a separa
  w.paused=true;animateLivePeople(w);assert.equal(p.f2,1);
  w.paused=false;p.renderFlags|=2;animateLivePeople(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
 });
+
+test('live blocked followers retain native detour steering and recovery timers', async () => {
+ const {createLivePerson,stepLiveCelebration}=await import('../app/live-people.ts');
+ const {buildingContainsPoint}=await import('../app/model.ts');
+ const w=createWorld(),u=w.units.find(u=>u.kind==='brave'&&u.team==='blue'),b=w.buildings.find(b=>b.team==='blue');
+ w.units=[u];w.buildings=[b];w.terrain.fill(100/45);w.land.heights.fill(100);
+ Object.assign(u,{x:7,z:33,inside:null,work:null});Object.assign(b,{x:9.4,z:33,progress:1});
+ u.native=createLivePerson(w,u);const p=u.native;
+ Object.assign(p,{state:41,substate:1,flags2:128,counter:0,heading:512,angle:512,turnAngle:512,speed:20,assignment:0,animationMode:0,commandPhase:100,timer:100});
+ const before={x:u.x,z:u.z};stepLiveCelebration(w,u);
+ assert.ok(p.flags2&0x800,'collision starts native steering recovery');
+ assert.equal(p.motionMode,1);assert.equal(p.recoveryCounter,1);
+ assert.notEqual(p.heading,512);assert.ok(p.motionTimer>0);
+ assert.notDeepEqual({x:u.x,z:u.z},before,'a free probe advances the live follower');
+ assert.equal(buildingContainsPoint(b,u),false,'the chosen probe respects the live collision boundary');
+ const timer=p.motionTimer,heading=p.heading;w.buildings=[];stepLiveCelebration(w,u);
+ assert.equal(p.motionTimer,timer-1,'the next grounded step consumes the recovery timer');
+ assert.equal(p.heading,heading,'normal facing cannot overwrite active recovery steering');
+});

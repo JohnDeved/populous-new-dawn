@@ -51,16 +51,18 @@ for object_,angle in poses:
         x,y=(rng.choice([0,512,32256,32768,65024]),rng.choice([0,512,32256,32768,65024])) if trial<8 else (rng.randrange(128)*512,rng.randrange(128)*512)
         b=dict(object=object_,angle=angle,anchorX=x,anchorY=y)
         cpu.mem_write(p,bytes(256));cpu.mem_write(p+0x26,struct.pack('<H',angle));cpu.mem_write(p+0x33,struct.pack('<h',object_));cpu.mem_write(p+0x7a,struct.pack('<HH',x,y))
-        for mode in ['inside','outside','queue']:
+        for mode in ['inside','outside','queue','approach']:
             index=[-128,-1,0,1,2,3,7,15,31,63,100,127][trial]
-            address={'inside':0x404420,'outside':0x4044b0,'queue':0x409710}[mode]
-            call(address,p,index,out) if mode=='queue' else call(address,p,out)
-            px,py=struct.unpack('<HH',cpu.mem_read(out,4));cases.append(dict(b=b,mode=mode,index=index));expected.append(dict(x=px,y=py))
-js="""import {buildingInsidePoint,buildingOutsidePoint,buildingQueuePoint} from './app/building-shapes.ts';let s='';for await(const c of process.stdin)s+=c;
-console.log(JSON.stringify(JSON.parse(s).map(c=>c.mode==='inside'?buildingInsidePoint(c.b):c.mode==='outside'?buildingOutsidePoint(c.b):buildingQueuePoint(c.b,c.index))));"""
+            address={'inside':0x404420,'outside':0x4044b0,'queue':0x409710,'approach':0x40a460}[mode]
+            point=dict(x=(x+rng.randrange(-1536,1537))&65535,y=(y+rng.randrange(-1536,1537))&65535)
+            cpu.mem_write(out+16,struct.pack('<HH',point['x'],point['y']))
+            call(address,p,out+16,out) if mode=='approach' else call(address,p,index,out) if mode=='queue' else call(address,p,out)
+            px,py=struct.unpack('<HH',cpu.mem_read(out,4));cases.append(dict(b=b,mode=mode,index=index,point=point));expected.append(dict(x=px,y=py))
+js="""import {buildingInsidePoint,buildingOutsidePoint,buildingQueuePoint,buildingApproachPoint} from './app/building-shapes.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>c.mode==='approach'?buildingApproachPoint(c.b,c.point):c.mode==='inside'?buildingInsidePoint(c.b):c.mode==='outside'?buildingOutsidePoint(c.b):buildingQueuePoint(c.b,c.index))));"""
 r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),text=True,capture_output=True,cwd=root);assert r.returncode==0,r.stderr
 actual=json.loads(r.stdout);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
     if a!=b:
         path=Path('/private/tmp/populous-shape-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(path)))
-print(f'PASS: {len(cases)} native inside/outside/queue points across {len(poses)} object/orientation pairs, wrap boundaries and signed queue slots; no geometry leaves supplied')
+print(f'PASS: {len(cases)} native inside/outside/queue/approach points across {len(poses)} object/orientation pairs, wrap boundaries and signed queue slots; no geometry leaves supplied')
