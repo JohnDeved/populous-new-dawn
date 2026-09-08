@@ -2290,3 +2290,50 @@ are unfinished. The result overlay is still a browser substitute. This extends
 the previous result-camera investigation; it does not establish full end-sequence
 or camera parity. The manifest verifies **544** raw exports, adding movement,
 generic camera-request and interaction-cleanup routines.
+
+
+## Defeat-sky flash
+
+The defeat branch of `00524a30` now feeds `app/sky.ts` and the live renderer.
+The nonzero byte counter selects alpha **48, 72, 96, 72** by `counter & 3`.
+Color comes from the first entry of each five-byte tribe ramp at `005a89c8`,
+using the inline system palette at `00d05528`. With the supplied mission palette,
+indices **219, 244, 237, 227** yield RGB **(43,59,155), (163,19,0),
+(191,147,39), (35,139,79)**. `import-messages.py` retains executable/palette
+hashes and imports these into `app/original-sky.json`.
+
+`00517830` emits one untextured alpha quad. Bounds use viewport x/y/width and
+integer `surface_mem_offset / screen_width`; the caller clears render flag bits
+`0x18`. `00522570` queues sky before landscape. `0047c7e0` assigns progressively
+nearer depths to later commands, and `004f9470` applies each command's depth to
+its vertices. The flash therefore stays behind land. `005221e0` establishes
+source-alpha / inverse-source-alpha blending. The browser uses a depth-tested
+far-plane quad before other transparent objects, with direct palette RGB in the
+framebuffer. It does not tint the HUD or foreground geometry.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-sky.py /path/to/d3dpoptb.exe
+```
+
+The oracle runs **1,024** native calls, covering all 256 byte counter values and
+four tribes with varied signed viewport origins, widths and integer height
+remainders. Mode 3 skips the unrelated base-sky/lens branch. There are **no
+stubbed callees**: the real `00517830` and `0047d980` allocate the render command.
+All four corner coordinates, packed ARGB, command flags, allocation count/size,
+zero texture handle, retained vertex fields and caller flag clearing match.
+This is command-generation evidence; no Direct3D device is emulated.
+
+Playwright read back real WebGL pixels for every tribe and all four opacity
+phases. Sky pixels match source-alpha blending within one byte; a foreground
+land pixel stays unchanged, and counter zero restores the original sky. Both
+victory/loss camera-and-sound scenarios still pass and restart cleanly, with no
+page errors. The standalone oracle is the runnable regression for this branch;
+the existing **48** gameplay regressions and typechecking also pass.
+
+Remaining boundaries: live system-palette animation/remapping, other landscape
+palettes, native base-sky/lens geometry and hardware fallback paths are unported.
+The existing 24 Hz presentation adapter controls the counter. WebGL depth ordering
+preserves this effect's layer relationship but is not the complete native polygon
+queue or rasterizer. The general sky and result UI remain unfinished. The manifest
+now retains **555** raw exports, including the traced draw, quad, queue, depth and
+blend routines.

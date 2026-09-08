@@ -75,3 +75,10 @@ tooltip={'executableSha256':identity['sha256'],'languageSha256':hashlib.sha256(l
          'background':list(palette[background*4:background*4+3]),'foreground':list(palette[foreground*4:foreground*4+3])}
 (ROOT/'app/original-tooltips.json').write_text(json.dumps(tooltip,indent=2)+'\n')
 print(f'Imported {len(ids)} tooltip strings and eight original window-border sprites')
+
+# 0x524a30: the first color in each five-byte tribe ramp tints the defeat sky.
+sky_indices=[read(0x5a89c8+i*5,1)[0] for i in range(4)]
+sky={'executableSha256':identity['sha256'],'paletteSha256':hashlib.sha256(palette).hexdigest(),
+     'indices':sky_indices,'colors':[list(palette[i*4:i*4+3]) for i in sky_indices]}
+(ROOT/'app/original-sky.json').write_text(json.dumps(sky,indent=2)+'\n')
+print('Imported four native defeat-sky colors')

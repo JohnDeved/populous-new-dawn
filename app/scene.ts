@@ -1,6 +1,8 @@
 import { soundAttenuation } from './audio';
 import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
 import {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion} from './camera-motion.ts';
+import {defeatSky} from './sky.ts';
+import skyPalette from './original-sky.json';
 import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldTooltipObject,tooltipPalette} from './tooltips.ts';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -68,6 +70,12 @@ export class GameScene {
   world: World;
   view = new RenderView();
   skyDome:THREE.Mesh|null=null;
+  skyFlash=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({
+    uniforms:{rgba:{value:new THREE.Vector4()}},
+    vertexShader:'void main(){gl_Position=vec4(position.xy,1.,1.);}',
+    fragmentShader:'uniform vec4 rgba; void main(){gl_FragColor=rgba;}',
+    transparent:true,depthWrite:false,depthTest:true,toneMapped:false,
+  }));
   overviewActive = false;
   viewZoom = 0;
   dragLast = {x:0,y:0};
@@ -198,6 +206,10 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate);
   }
   makeSky(){
+    // Native sky commands precede land and receive a farther depth (0x47c7e0).
+    // Draw before other transparent objects, with opaque land still occluding it.
+    this.skyFlash.renderOrder=-10000;this.skyFlash.frustumCulled=false;
+    this.skyFlash.userData.nativeIgnore=true;this.skyFlash.visible=false;this.scene.add(this.skyFlash);
     const loader=new THREE.TextureLoader();
     const sky=loader.load('/original/sky.png');sky.colorSpace=THREE.SRGBColorSpace;this.scene.background=sky;
     const clouds=loader.load('/original/clouds.png');clouds.colorSpace=THREE.SRGBColorSpace;clouds.wrapS=clouds.wrapT=THREE.RepeatWrapping;
@@ -533,6 +545,12 @@ export class GameScene {
     this.water.geometry=this.overviewActive?geometry('overview-water',()=>new THREE.PlaneGeometry(256,256,128,128).rotateX(-Math.PI/2)):geometry('ground-water',()=>new THREE.PlaneGeometry(252,252,126,126).rotateX(-Math.PI/2));
     this.water.position.set(this.overviewActive?0:Math.floor(this.viewPoint.x/2)*2,0,this.overviewActive?0:Math.floor(this.viewPoint.z/2)*2);
     if(this.skyDome)this.skyDome.visible=this.overviewActive;
+    // ponytail: initial mission palette; connect live system-palette changes
+    // when the original palette scheduler is integrated.
+    const sky=defeatSky(this.world.outcome.skyCounter,this.world.outcome.lastDefeated,skyPalette.colors,
+      {x:0,y:0,width:this.container.clientWidth,screenWidth:this.container.clientWidth,surfaceOffset:this.container.clientWidth*this.container.clientHeight});
+    this.skyFlash.visible=!!sky;
+    if(sky)this.skyFlash.material.uniforms.rgba.value.set((sky.color>>>16&255)/255,(sky.color>>>8&255)/255,(sky.color&255)/255,(sky.color>>>24)/255);
     this.view.prepare(this.scene);this.renderer.render(this.scene, this.camera);
     this.uiTimer += dt; if (this.uiTimer > .2) { this.onChange(); this.drawMinimap(); this.uiTimer = 0; }
     this.frame = requestAnimationFrame(this.animate);
