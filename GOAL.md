@@ -311,3 +311,14 @@ cover the change, with existing lighting, water, terrain and sprite regressions.
 The raster checkpoint remains partial: complete sampler ownership/settings,
 legacy formats, clipping, ordering and matched original frames are still open.
 Continue visible rendering and controls before isolated hidden engine systems.
+
+### Latest visible integration: original camera view presets
+
+Ordinary zoom uses original close/normal/bird's-eye presets and integer timed
+transitions, replacing arbitrary continuous scaling. = / −, wheel and menu
+controls share the view commands. Native comparisons cover 60 timer cases,
+ten command routes and 3,480 transition frames across all ten resolutions;
+browser checks cover actual inputs, presets, retargeting, pause/lock and resize.
+The native world-view renderer/transition, complete input mapping and scheduling
+are still open. Keep the camera checkpoint partial and continue visible controls
+and rendering work before isolated hidden systems.

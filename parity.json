@@ -78,9 +78,14 @@
             "qa/flyby-check.mjs",
             "app/camera-input.ts",
             "scripts/check-native-camera-input.py",
-            "scripts/check-browser-camera-input.mjs"
+            "scripts/check-browser-camera-input.mjs",
+            "app/camera-view.ts",
+            "scripts/check-native-camera-view.py",
+            "scripts/check-browser-camera-view.mjs",
+            "decomp/generated/00417510.c",
+            "decomp/generated/00479f00.c"
           ],
-          "note": "Native focus journeys preserve heading/zoom; native keyboard and drag movement now drive desktop controls with integer directions, speed and wrapping. Mixed native input/momentum comparisons and actual browser keyboard, drag, pause/lock, frame timing and takeover checks pass. Input uses a 24 Hz momentum-off adapter; full settings, input sampling/bindings, edge scrolling, frame scheduling, minimap mapping, overview transitions and visibility remain incomplete."
+          "note": "Native focus, keyboard/drag movement and close/normal/bird's-eye view presets are integrated. Native comparisons include 3480 view-transition frames across ten resolutions; browser checks cover keys/wheel/menu, retargeting, pause/lock, resize and focus preserving the selected preset. Presentation still uses a 24 Hz momentum-off adapter. Full settings, input sampling/bindings, edge scrolling, scheduling, minimap mapping, native overview rendering/transitions and visibility remain incomplete."
         },
         {
           "id": "world.wrap",

@@ -10,6 +10,7 @@ import {
   circularMeshBounds,
   polygonMeshBounds,
   type Projection,
+  type CameraConfig,
 } from './projection.ts'
 
 // WebGL2 port of the CPU-compared projection. Unsigned operations preserve x86
@@ -142,12 +143,14 @@ export class RenderView {
     heading: number,
     zoom: number,
     overview: boolean,
-    screenWidth = width
+    screenWidth = width,
+    config?: CameraConfig
   ) {
     width = Math.max(1, Math.round(width))
     height = Math.max(1, Math.round(height))
     this.overview = overview
-    this.config = cameraConfig(cameraConfigIndex(Math.round(screenWidth), height), Math.round(zoom))
+    this.config =
+      config ?? cameraConfig(cameraConfigIndex(Math.round(screenWidth), height), Math.round(zoom))
     this.rawCenter = { x: Math.round((point.x + 8) * 256), y: Math.round((-point.z - 8) * 256) }
     this.center = { x: this.rawCenter.x & 65535, y: this.rawCenter.y & 65535 }
     const angle = Math.round((heading * 1024) / Math.PI) & 2047,

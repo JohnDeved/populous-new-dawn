@@ -76,7 +76,11 @@ import {
   spriteShadow,
   selectionArrow,
   scaledEffectSize,
+  cameraPreset,
+  cameraConfigIndex,
+  type CameraConfig,
 } from './projection.ts'
+import { zoomPreset, viewTransitionFrames, stepViewTransition } from './camera-view.ts'
 import { RenderView } from './render-view.ts'
 import nativeUnits from './original-units.json'
 import { spriteLayers } from './sprite-layers.ts'
@@ -324,6 +328,8 @@ export class GameScene {
   )
   overviewActive = false
   viewZoom = 0
+  viewPreset = 0
+  viewTransition: { config: CameraConfig; remaining: number } | null = null
   dragLast = { x: 0, y: 0 }
   scene = new THREE.Scene()
   camera = new THREE.PerspectiveCamera(38, 1, 0.2, 1000)
@@ -599,9 +605,9 @@ export class GameScene {
     })
     this.listen(this.renderer.domElement, 'contextmenu', e => e.preventDefault())
     this.listen(this.renderer.domElement, 'wheel', e => {
-      if (!this.overviewActive && !this.world.inputMask) {
+      if (!this.world.inputMask) {
         e.preventDefault()
-        this.zoom(Math.exp((e as WheelEvent).deltaY * 0.001))
+        if ((e as WheelEvent).deltaY) this.zoom((e as WheelEvent).deltaY < 0)
       }
     })
     this.listen(window, 'keydown', this.keyDown)
@@ -757,7 +763,14 @@ export class GameScene {
       this.cameraBearing,
       this.viewZoom,
       this.overviewActive,
-      document.documentElement.clientWidth
+      document.documentElement.clientWidth,
+      this.viewTransition?.config ?? (this.viewPreset ? this.currentPreset() : undefined)
+    )
+  }
+  currentPreset() {
+    return cameraPreset(
+      cameraConfigIndex(document.documentElement.clientWidth, this.container.clientHeight),
+      this.viewPreset
     )
   }
   screen(p: Point, h = this.y(p)) {
@@ -1161,15 +1174,24 @@ export class GameScene {
   }) as EventListener
   keyDown = ((event: KeyboardEvent) => {
     const key = event.key.toLowerCase()
+    const zoomIn = key === '=' || key === '+',
+      zoomOut = key === '-'
     if (
       this.world.inputMask ||
-      !cameraKeys[key] ||
+      (!cameraKeys[key] && !zoomIn && !zoomOut) ||
       (event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]') ||
       event.ctrlKey ||
       event.metaKey ||
       event.altKey
     )
       return
+    if (zoomIn || zoomOut) {
+      if (!event.shiftKey) {
+        this.zoom(zoomIn)
+        event.preventDefault()
+      }
+      return
+    }
     this.keys.add(key)
     event.preventDefault()
   }) as EventListener
@@ -1216,6 +1238,16 @@ export class GameScene {
     if (!w.paused || !s.active) {
       this.cameraTime += dt
       while (this.cameraTime >= 1 / 24) {
+        if (this.viewTransition && !w.inputMask && !this.overviewActive) {
+          this.viewTransition.remaining = stepViewTransition(
+            this.viewTransition.config,
+            this.currentPreset(),
+            this.viewTransition.remaining,
+            viewTransitionFrames(24)
+          )
+          if (!this.viewTransition.remaining) this.viewTransition = null
+          this.updateView()
+        }
         if (!w.inputMask && !this.overviewActive) {
           let buttons = 0
           for (const key of this.keys) buttons |= cameraKeys[key] ?? 0
@@ -1279,6 +1311,8 @@ export class GameScene {
       active = !!(state.flags & 1)
     this.controls.enabled = this.overviewActive && !this.world.inputMask
     if (active && !this.wasFlying) {
+      this.viewPreset = 0
+      this.viewTransition = null
       this.flybyCamera = {
         x: Math.round((this.viewPoint.x + 8) * 256),
         y: Math.round((-this.viewPoint.z - 8) * 256),
@@ -1374,16 +1408,22 @@ export class GameScene {
     this.controls.update()
     this.orientCamera()
   }
-  zoom(amount: number) {
-    if (this.overviewActive) {
-      const offset = this.camera.position
-        .clone()
-        .sub(this.controls.target)
-        .multiplyScalar(amount)
-        .clampLength(PLANET_RADIUS + 14, PLANET_RADIUS + 190)
-      this.camera.position.copy(this.controls.target).add(offset)
-      this.controls.update()
-    } else this.viewZoom = Math.max(-16384, Math.min(16384, this.viewZoom + (amount - 1) * 32768))
+  zoom(inward: boolean) {
+    if (this.world.inputMask) return
+    const preset = zoomPreset(this.overviewActive ? 4 : this.viewPreset, inward)
+    if (preset === 4) {
+      if (!this.overviewActive) this.overview()
+      return
+    }
+    if (!this.overviewActive && preset === this.viewPreset) return
+    this.overviewActive = false
+    this.controls.enabled = false
+    this.viewPreset = preset
+    this.viewZoom = 0
+    this.viewTransition = {
+      config: { ...this.view.config, bounds: [...this.view.config.bounds] },
+      remaining: viewTransitionFrames(24),
+    }
     this.updateView()
   }
   animatePerson(
@@ -2047,6 +2087,8 @@ export class GameScene {
       this.viewPoint.z,
       this.cameraBearing,
       this.viewZoom,
+      this.viewPreset,
+      this.viewTransition?.remaining,
       this.overviewActive,
       ...this.camera.position.toArray(),
       this.container.clientWidth,

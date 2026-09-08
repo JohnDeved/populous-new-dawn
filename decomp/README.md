@@ -2144,3 +2144,49 @@ alter their RGB; direct palette calibration avoids that conversion.
 Full graphics settings and batch-to-sampler ownership, UV/padding conventions,
 texture cache/LOD, legacy pixel formats/dithering, clipping, painter ordering and
 matched original frames remain open. The raster checkpoint stays partial.
+
+### Ordinary camera view switches, 2026-09-08
+
+`00479f00` command 15 chooses close (preset 3), normal (0), bird's-eye (2),
+then world (4), with no change past either endpoint. The supplied original's
+`004aab80` commands 0x2a/0x2b route inward/outward requests here. The archived
+[Bullfrog beta 3.1 keycard](https://ts.popre.net/archive/Downloads/Docs/poptbfinalkeycard3.1.pdf)
+lists = / − for zoom and Return for world view; that document is supporting
+input evidence, not proof of this binary's entire binding table.
+
+`004174b0` computes an even three-quarter-frame-rate timer, clamps its signed-byte
+value to 8..32, then optionally applies fixed-point timing scale. `00417510`
+approaches the target configuration with truncating integer divisions. Most
+fields use remaining−1; screen offsets begin a frame later and use remaining.
+The last frame copies the target preset. Scaled sprites are enabled throughout
+a transition if either endpoint requires them; circular bounds and diameter 50
+apply until the final preset's bounds are restored. `app/camera-view.ts` handles
+these rendered fields with readable names and a single transition step.
+
+```
+.tools/decomp/oracle/bin/python scripts/check-native-camera-view.py /path/to/d3dpoptb.exe
+node scripts/check-browser-camera-view.mjs # development server required
+```
+
+The CPU check executes complete timer/command/transition routines: 60 timing
+cases, ten zoom commands and 180 view journeys / 3,480 frames across all ten
+resolution tables. It compares 13 rendering fields after every frame. Renderer
+notifications, surface offsets, bound-cache generation and the overview dispatcher
+are intercepted; those effects and unused configuration bytes are not certified.
+The renderer uses existing CPU/GPU-compared transforms and bounds. The transient
+polygon coordinates are not copied while circular bounds are active.
+
+Browser = / − keys and menu controls now request presets instead of arbitrary
+continuous zoom. Wheel direction is a browser convenience mapped to the same
+commands, not a recovered original wheel-event policy. The existing 24 Hz
+presentation clock gives 18-frame ordinary transitions. Browser checks cover
+actual input, full endpoint configurations, retargeting without snapping,
+pause/lock, resize, menu controls and returning from overview. Focus checks now
+assert preservation of the selected preset, rather than the removed continuous
+manual-zoom value. Flyby interpolation remains separate.
+
+The other continuous zoom routine, `004b43f0`, is called by replay handling
+`004b3920` under opened-files flag 0x10. Its export is retained as investigation
+evidence; it was not substituted for ordinary view commands. Full native world
+view rendering/transition and heading restoration, event sampling, settings,
+timing ownership and all key bindings remain open. Camera parity stays partial.

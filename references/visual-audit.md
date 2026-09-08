@@ -250,3 +250,18 @@ state checks, model lighting, clouds, water, terrain deformation and sprite
 regressions pass. The terrain fixture now selects Land Bridge after focus,
 because native focus clears spell targeting. Whole-frame visual parity is open;
 these checks do not reproduce the original GPU's complete raster output.
+
+### Close and bird's-eye camera presets, 2026-09-08
+
+Inspected `/private/tmp/populous-camera-view-close.png` and
+`/private/tmp/populous-camera-view-birds-eye.png` over the same mission-one
+settlement. Zoom now changes among the original view presets: a close, low
+view with larger sprites; normal view; and the elevated bird's-eye view. All
+preset fields come from the selected original resolution table, including its
+specific horizon and clipping diameter; values differ between resolutions.
+
+`node scripts/check-browser-camera-view.mjs` reproduces the captures and checks
+the 18-frame transition, original endpoint data, = / −, wheel/menu input,
+interruption, paused/locked controls, resize and overview return. Native comparisons
+cover 3,480 transition frames. The full original world-view renderer and its
+transition remain unported; the existing spherical overview is still an adapter.

@@ -672,8 +672,8 @@ export default function Home() {
           >
             {world.speed}× game speed
           </button>
-          <button onClick={() => engine.current?.zoom(0.82)}>Zoom in</button>
-          <button onClick={() => engine.current?.zoom(1.22)}>Zoom out</button>
+          <button onClick={() => engine.current?.zoom(true)}>Zoom in</button>
+          <button onClick={() => engine.current?.zoom(false)}>Zoom out</button>
           <button onClick={() => engine.current?.focus(HOME, { animate: true })}>
             Focus settlement
           </button>
@@ -686,8 +686,8 @@ export default function Home() {
           <strong>Select a group · Shift adds to selection</strong>
           <span>Right / middle drag</span>
           <strong>Right drag turns the view · middle drag moves it</strong>
-          <span>Scroll</span>
-          <strong>Zoom · WASD to move · Q / E to turn</strong>
+          <span>Scroll · = / −</span>
+          <strong>Switch view · WASD to move · Q / E to turn</strong>
           <span>1–3 / B</span>
           <strong>Choose a spell / open buildings</strong>
           <span>Space with a building plan</span>

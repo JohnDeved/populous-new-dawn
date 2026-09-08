@@ -311,6 +311,17 @@ export function cameraMeshBounds(width: number, height: number) {
   return [-10, -16, 10, -16, 16, 39, -16, 39]
 }
 
+// Original resolution/view table, with the native resolution-specific bounds.
+export function cameraPreset(index: number, preset = 0): CameraConfig {
+  const view = native.views[index * 5 + preset]
+  if (!view || !Number.isInteger(index) || !Number.isInteger(preset) || preset < 0 || preset > 4)
+    throw new RangeError('Invalid native camera preset')
+  return {
+    ...view,
+    bounds: view.boundsMode === 1 ? cameraMeshBounds(view.width, view.height) : [...view.bounds],
+  }
+}
+
 // 0x41c700's flyby zoom interpolation; ordinary view switches have their own timer.
 export function cameraConfig(index: number, zoom = 0, range = 16384): CameraConfig {
   if (!Number.isInteger(index) || index < 0 || index >= 10)
@@ -318,11 +329,7 @@ export function cameraConfig(index: number, zoom = 0, range = 16384): CameraConf
   if (!Number.isInteger(zoom) || Math.abs(zoom) > range || range <= 0)
     throw new RangeError('Invalid native camera zoom')
   const base = native.views[index * 5]
-  if (!zoom)
-    return {
-      ...base,
-      bounds: base.boundsMode === 1 ? cameraMeshBounds(base.width, base.height) : [...base.bounds],
-    }
+  if (!zoom) return cameraPreset(index)
   const target = native.views[index * 5 + (zoom > 0 ? 2 : 3)],
     amount = Math.abs(zoom)
   const result = {
