@@ -20,6 +20,8 @@ entries.update({f'point{i}':points[i] for i in [*range(38,58),*range(80,84)]})
 for font in [0,2]:
     for i,glyph in enumerate(a.sprites(read(f'data/font{font}-0.dat'),palette)):
         entries[f'font{font}-{i}']=glyph
+# 0x41d730: original world-view building, occupant and discovery icons.
+entries.update({str(i):bank[i] for i in [*range(0x74,0xaa),0x434,0x43b]})
 width=1024;x=y=row=0;rects={}
 for key,(w,h,_) in entries.items():
     assert w<=width

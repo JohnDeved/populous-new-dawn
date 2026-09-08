@@ -2235,3 +2235,78 @@ seam, duplicate fast pan, release, pause and modal/drag/window gates.
 The original world-view navigation/rendering, settings UI, complete key-state
 ownership and native frame/event sampling remain open. The desktop adapter
 still runs at 24 Hz with momentum off; full camera parity is not claimed.
+
+### Native world overview: projection, terrain and stars
+
+The original world view is a wrapped planar map projected into a disc, not a
+latitude/longitude sphere. `0041cee0` sets a screen radius of `height*4/10` and a
+native map radius of 20,480 (40 cells). `0042d180`, `0042daa0` and `0042dae0` supply
+setup, strict signed-short circular visibility and integer screen coordinates.
+The projection gain is `80*screenRadius`; native map deltas divided by 512 use
+`gain/(dx²+dy²+1600)`. X uses the unstored division result, while Y reloads its
+float32 store; both products are stored as float32 and converted with nearest-even
+`fistp`. The isolated oracle uses the existing 53-bit x87 comparison convention.
+`0042de90` supplies the inverse near-half projection. The browser returns the
+camera center at the inverse's zero-distance singularity; native int32 overflow
+there disappears after conversion to wrapped map coordinates.
+
+`00462e60` initializes trailing-zero ranks; `00462ea0` marks both adaptive parents.
+`0042d940` marks the coarse four-cell grid, an 80-step perimeter and the original
+10×10 detail patch offset (+10,-10). `0042ea10` alternates diagonals in both axes,
+culls coarse triangles and invokes recursive `0042df80`. Its software submission
+contains projected vertices, fixed UVs and globe-only lighting: curved sunlight,
+edge brightening and a fourth-power highlight. The TypeScript uses named map
+points and shared math, with raw addresses/types confined to these records.
+
+`004bee20` generates 8×8 indexed tiles, sampling the detail bank every fourth
+pixel and adding `detail>>2` to interpolated brightness. Ground tiles instead
+use the difference between adjacent detail values. Both paths now share
+`terrainTile`; atlas reconstruction remains incremental. The displacement table
+simplifies exactly to `clamp(level*3-64,320,1024)`. Native cliff remapping and the
+original palette remain intact. The browser repacks globe tiles into a 1024²
+atlas; native cache rectangles, UV/filter padding and fade tiles are still open.
+
+`0042edb0` generates 1,000 candidates from seed 123456789 with its own LCG and
+sixteen parallax layers. `0042dbf0` projects the short-coordinate star field;
+`0042d060` updates offsets. Actual captured D3D POINTLIST submissions confirm
+that the native stream includes its initialized first vertex and omits the final
+generated visible star. Native palette colors, order and count are preserved.
+WebGL point centers receive a half-pixel offset to occupy the requested pixel.
+
+`0042adc0` resolves the original marker outline/tree/wild colors against the
+opening palette; tribe colors come from `0059bc19`. `0041e5b0` and `0041f680`
+identify person/scenery glyphs. `0041d730` selects the original HFX building,
+occupant and discovery icons and reduces their size near the rim; these assets
+are imported with the HUD decoder. Canvas supplies the current marker rasterizer.
+Full native selection flags, queue order, eligibility, dynamic palettes,
+colored building footprints (`0041edb0`), garrison/reincarnation icon ownership,
+overview spell effects and all classes remain open.
+
+Validation:
+
+```sh
+python scripts/check-native-globe.py /path/to/d3dpoptb.exe
+python scripts/check-native-terrain-texture.py /path/to/d3dpoptb.exe
+node --test tests/globe.test.mjs
+node scripts/check-browser-globe.mjs
+```
+
+The native check covers 4,096 projection/visibility pairs, 2,048 inverse picks,
+18,532 complete adaptive triangles and their vertex shades, 4,176 star positions,
+16 actual D3D star submissions, the complete initial marker palette resolver,
+512 active-drag updates and 512 parallax updates. Add `--record` only to
+intentionally regenerate portable mesh fixtures from native submissions after
+all comparisons pass. `npm test` compares these fixtures without requiring the
+executable. The texture check covers 256 ground and 256 globe tiles (278,528
+indexed pixels), plus cell lighting, fog/stains and existing atlas regressions.
+
+Browser checks exercise world entry/return, actual GPU terrain/marker/star pixels,
+wrapped inverse picking, arrows, cumulative right drag, parallax, resize and
+preserved ground bearing. Existing sprite, camera-view/navigation, HUD, ground
+terrain and real building-fire checks pass. Ordinary rendering/effects live in
+one hidden ground group during overview and restore on return. FX detach from
+their actual parent when expired. OrbitControls and the cloudy sphere are removed.
+The 24 Hz keyboard adapter, active-drag-only pointer adapter, immediate world
+entry/exit, complete globe transition/rotation restoration, native outer-loop
+ownership and original frame raster comparisons remain incomplete. Camera and
+raster checkpoints remain partial; this is not full overview or engine parity.

@@ -43,19 +43,21 @@ for n in range(256):
  write(0x895da8,'I',4 if fog else 0);write(0x895da4,'I',0x10000 if n%4==0 else 0)
  write(0x2300000+cell*10+4,'i',0 if marks else -1)
  for j,(mx,my) in enumerate(marks):write(0x2330000+j*8,'HHi',mx*16,my*16,j+1 if j+1<len(marks) else -1)
+ call(0x4bee20,(x*2)|((y*2)<<8),out)
+ globe=hashlib.sha256(b''.join(bytes(cpu.mem_read(out+y*256,8)) for y in range(8))).hexdigest()
  call(0x4bf860,(x*2)|((y*2)<<8),out)
  cases.append(dict(cell=cell,ids=ids,heights=heights,cliffs=cliffs,shadows=shadows,flags=flags,brightness=brightness,sun=sun,fog=fog,marks=marks,overlay=n%4!=0))
- expected.append(dict(light=light,texture=hashlib.sha256(cpu.mem_read(out,1024)).hexdigest()))
+ expected.append(dict(light=light,globe=globe,texture=hashlib.sha256(cpu.mem_read(out,1024)).hexdigest()))
 js="""import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';import {createNativeTerrain} from './app/native-terrain.ts';import {readTerrainTextures,terrainTile,terrainBrightness} from './app/terrain-texture.ts';
 const raw=readFileSync('public/original/landscape.bin'),t=readTerrainTextures(raw.buffer.slice(raw.byteOffset,raw.byteOffset+raw.byteLength));let s='';for await(const b of process.stdin)s+=b;
 console.log(JSON.stringify(JSON.parse(s).map(c=>{const land=createNativeTerrain(new Int16Array(16384)),brightness=new Uint8Array(16384);
  for(let j=0;j<4;j++){const i=c.ids[j];for(const k of ['heights','cliffs','shadows','flags'])land[k][i]=c[k][j];brightness[i]=c.brightness[j];}
  const stains=c.overlay?new Uint8Array(1024):undefined;if(stains)for(const [x,y] of c.marks)stains[y*32+x]=Math.min(12,stains[y*32+x]+3);
- return {light:terrainBrightness(land,c.cell,c.sun),texture:createHash('sha256').update(terrainTile(land,brightness,c.cell,t,c.fog,stains)).digest('hex')};})));"""
+ return {light:terrainBrightness(land,c.cell,c.sun),globe:createHash('sha256').update(terrainTile(land,brightness,c.cell,t,false,undefined,8)).digest('hex'),texture:createHash('sha256').update(terrainTile(land,brightness,c.cell,t,c.fog,stains)).digest('hex')};})));"""
 r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
 actual=json.loads(r.stdout);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):assert a==b,(i,cases[i],a,b)
-print('PASS: 256 native terrain textures (262,144 indexed pixels), native amplitude initialization, cliff remap, fog and linked stains; 256 cell-lighting comparisons')
+print('PASS: 256 native ground and globe textures (278,528 indexed pixels), native amplitude initialization, cliff remap, fog and linked stains; 256 cell-lighting comparisons')
 
 # Compare reflected atlas tiles from the actual opening map, after an edit.
 js="""import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';import {createWorld} from './app/model.ts';import {readTerrainTextures,terrainAtlas,terrainBrightness} from './app/terrain-texture.ts';

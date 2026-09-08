@@ -333,3 +333,24 @@ Actual browser checks cover modifiers, keys, corners, pause and modal/drag/windo
 gates alongside existing movement, focus, view and sprite regressions. Settings,
 complete input-state ownership, scheduling and world-view controls remain open;
 the camera checkpoint and full parity goal stay unfinished.
+
+### Latest visible integration: native world overview
+
+World view now uses the original wrapped disc projection, adaptive terrain mesh,
+separate globe lighting, 8×8 native terrain tiles and deterministic star field.
+Original building/discovery icons and native person/scenery marker shapes replace
+ordinary 3D objects in this view. Arrows and right/middle drag move the map;
+wrapped picking and ground-view return preserve the camera bearing. OrbitControls
+and the cloudy latitude/longitude sphere are removed. Shared terrain math and a
+separate globe renderer keep the integration readable.
+
+Native comparisons cover 18,532 complete triangles with projected vertices and
+lighting, projection/picking, stars/parallax, active dragging and opening marker
+colors; portable native fixtures now run in `npm test`. GPU/browser checks cover
+entry/return, terrain/icons/stars, actual inputs and resize. Sprites, camera views,
+navigation, HUD, ground terrain and building-fire regressions still pass.
+Full native marker rasterization/ownership, colored building footprints, overview
+spell effects, cache UV/fog, transition and release inertia remain open. Continue
+these visible overview/control gaps, then ground-world building activity and
+first-mission feedback. The camera/raster checkpoints and full game goal remain
+unfinished; discovery stays open and no broad checkpoint credit is added.

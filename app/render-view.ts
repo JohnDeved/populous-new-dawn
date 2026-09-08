@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
   cameraConfig,
   cameraConfigIndex,
@@ -83,10 +84,7 @@ vec4 nativePosition(vec3 position){
   nativeCell=vec2(origin.xz);
   world=modelMatrix[3].xyz+vec3(p.x-origin.x,p.y-origin.y,-(p.z-origin.z))/128.;
  }else nativeCell=vec2(p.xz);
- if(nativeMode>0.)return nativeProject(p);
- float a=world.x*0.02454369260617026,b=world.z*0.01227184630308513,r=70.+world.y*128./45.;
- vec3 globe=vec3(sin(a)*cos(b)*r,cos(a)*cos(b)*r-70.,sin(b)*r);
- return projectionMatrix*viewMatrix*vec4(globe,1.);
+ return nativeProject(p);
 }
 `
 const fragment = `
@@ -201,7 +199,12 @@ export class RenderView {
       z: unwrapped ? (y - this.rawCenter.y) >> 1 : relativeCoordinate(y, this.center.y),
     }
   }
+  get globe() {
+    return { ...this.center, width: this.projection.width, height: this.projection.height }
+  }
   visible(p: { x: number; z: number }, unwrapped = false) {
+    if (this.overview)
+      return globeVisible(this.center, Math.round((p.x + 8) * 256), Math.round((-p.z - 8) * 256))
     const q = this.relative(p, 0, unwrapped),
       x = (q.x + ((this.center.x & 510) >> 1)) / 256 + 110,
       row = Math.floor((q.z + ((this.center.y & 510) >> 1)) / 256) + 110
@@ -211,7 +214,7 @@ export class RenderView {
   project(p: { x: number; z: number }, height: number) {
     return projectPoint(this.relative(p, height), this.projection)
   }
-  screen(world: THREE.Vector3, camera: THREE.Camera, unwrapped = false) {
+  screen(world: THREE.Vector3, _camera: THREE.Camera, unwrapped = false) {
     if (!this.overview) {
       const p = projectPoint(this.relative(world, (world.y * 128) / 45, unwrapped), this.projection)
       return new THREE.Vector4(
@@ -221,22 +224,39 @@ export class RenderView {
         1
       )
     }
-    const a = (world.x * Math.PI) / 128,
-      b = (world.z * Math.PI) / 256,
-      r = 70 + (world.y * 128) / 45
-    const v = new THREE.Vector4(
-      Math.sin(a) * Math.cos(b) * r,
-      Math.cos(a) * Math.cos(b) * r - 70,
-      Math.sin(b) * r,
+    const p = globePoint(
+      this.globe,
+      Math.round((world.x + 8) * 256),
+      Math.round((-world.z - 8) * 256)
+    )
+    return new THREE.Vector4(
+      (p.x * 2) / this.projection.width - 1,
+      1 - (p.y * 2) / this.projection.height,
+      this.visible(world) ? 0 : 2,
       1
     )
-      .applyMatrix4(camera.matrixWorldInverse)
-      .applyMatrix4(camera.projectionMatrix)
-    return new THREE.Vector4(v.x / v.w, v.y / v.w, v.z / v.w, v.w)
   }
+
   // Pick the projected triangles themselves. A straight 3D ray cannot invert the
-  // native nonlinear surface; affine ground view and perspective overview differ.
+  // native nonlinear surface. The globe supplies its own native inverse.
   pick(mouse: THREE.Vector2, objects: THREE.Object3D[], camera: THREE.Camera) {
+    if (this.overview) {
+      const p = globePick(
+        this.globe,
+        Math.trunc(((mouse.x + 1) * this.projection.width) / 2),
+        Math.trunc(((1 - mouse.y) * this.projection.height) / 2)
+      )
+      return p && objects[0]
+        ? {
+            point: {
+              x: (((p.x - 2048) << 16) >> 16) / 256,
+              z: -(((p.y + 2048) << 16) >> 16) / 256,
+            },
+            object: objects[0],
+            depth: 0,
+          }
+        : null
+    }
     let best: { point: { x: number; z: number }; object: THREE.Object3D; depth: number } | null =
       null
     for (const root of objects)
@@ -250,8 +270,6 @@ export class RenderView {
         for (let instance = 0; instance < copies; instance++) {
           const transform = object.matrixWorld.clone()
           if (object instanceof THREE.InstancedMesh) {
-            // Only the center tile is needed for the overview's complete sphere.
-            if (this.overview && instance !== 0) continue
             const local = new THREE.Matrix4()
             object.getMatrixAt(instance, local)
             transform.multiply(local)

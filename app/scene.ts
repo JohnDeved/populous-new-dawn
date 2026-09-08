@@ -34,7 +34,6 @@ import {
   tooltipPalette,
 } from './tooltips.ts'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import {
   buildingObject,
@@ -47,7 +46,6 @@ import {
   SIZE,
   HOME,
   ENEMY,
-  PLANET_RADIUS,
   placementError,
   height,
   walkable,
@@ -88,6 +86,8 @@ import {
 } from './projection.ts'
 import { zoomPreset, viewTransitionFrames, stepViewTransition } from './camera-view.ts'
 import { RenderView } from './render-view.ts'
+import { GlobeRenderer } from './globe-renderer.ts'
+import { globeDrag } from './globe.ts'
 import nativeUnits from './original-units.json'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeEffects from './original-effects.json'
@@ -323,7 +323,10 @@ function makeBuilding(b: Building, stage: number) {
 export class GameScene {
   world: World
   view = new RenderView()
-  skyDome: THREE.Mesh | null = null
+  groundSky: THREE.Texture | null = null
+  ground = new THREE.Group()
+  globe = new GlobeRenderer()
+  space = new THREE.Color(0)
   skyMotion = createSkyMotion()
   skyGrid = new Int32Array(26 * 96 * 2)
   skyLoaded = false
@@ -345,10 +348,10 @@ export class GameScene {
   viewPreset = 0
   viewTransition: { config: CameraConfig; remaining: number } | null = null
   dragLast = { x: 0, y: 0 }
+  dragOrigin = { x: 0, y: 0 }
   scene = new THREE.Scene()
   camera = new THREE.PerspectiveCamera(38, 1, 0.2, 1000)
   renderer: THREE.WebGLRenderer
-  controls: OrbitControls
   terrain: THREE.InstancedMesh
   waves: Uint8Array | null = null
   waterMap = new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256)
@@ -453,6 +456,7 @@ export class GameScene {
       powerPreference: 'high-performance',
     })
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8))
+    this.globe.stars.material.uniforms.pixelRatio.value = this.renderer.getPixelRatio()
     this.renderer.shadowMap.enabled = false
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.toneMapping = THREE.NoToneMapping
@@ -495,22 +499,6 @@ export class GameScene {
     this.makeSky()
     this.camera.up.set(0, 0, -1)
     this.camera.position.set(30, 155, 0)
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    this.controls.target.set(0, -PLANET_RADIUS, 0)
-    this.controls.enableDamping = true
-    this.controls.dampingFactor = 0.09
-    this.controls.minDistance = PLANET_RADIUS + 14
-    this.controls.maxDistance = PLANET_RADIUS + 190
-    this.controls.enablePan = false
-    this.controls.minPolarAngle = 0.03
-    this.controls.maxPolarAngle = Math.PI - 0.03
-    this.controls.mouseButtons = {
-      LEFT: null as unknown as THREE.MOUSE,
-      MIDDLE: THREE.MOUSE.ROTATE,
-      RIGHT: THREE.MOUSE.ROTATE,
-    }
-    this.controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }
-    this.controls.update()
     this.terrainMap.colorSpace = THREE.NoColorSpace
     this.terrainMap.magFilter = this.terrainMap.minFilter = THREE.LinearFilter
     this.waterMap.colorSpace = THREE.NoColorSpace
@@ -591,8 +579,8 @@ export class GameScene {
     this.terrain.userData.nativeRelative = true
     this.terrain.receiveShadow = true
     this.terrain.castShadow = true
-    this.scene.add(this.terrain)
-    this.scene.add(this.objects, this.decorations, this.cursor, this.range)
+    this.ground.add(this.terrain, this.objects, this.decorations, this.cursor, this.range)
+    this.scene.add(this.ground, this.globe)
     this.cursor.visible = false
     this.range.visible = false
     this.rebuildTerrain()
@@ -679,6 +667,7 @@ export class GameScene {
     const loader = new THREE.TextureLoader()
     const sky = loader.load('/original/sky.png')
     sky.colorSpace = THREE.SRGBColorSpace
+    this.groundSky = sky
     this.scene.background = sky
     for (const [i, name] of ['clouds', 'clouds-high'].entries()) {
       const geo = new THREE.BufferGeometry()
@@ -707,26 +696,8 @@ export class GameScene {
       this.skyClouds.push(mesh)
       this.scene.add(mesh)
     }
-    const clouds = loader.load('/original/clouds.png')
-    clouds.colorSpace = THREE.SRGBColorSpace
-    clouds.wrapS = clouds.wrapT = THREE.RepeatWrapping
-    const dome = new THREE.Mesh(
-      new THREE.SphereGeometry(350, 48, 24),
-      new THREE.MeshBasicMaterial({
-        map: clouds,
-        side: THREE.BackSide,
-        transparent: true,
-        depthWrite: false,
-        fog: false,
-        opacity: 0.72,
-      })
-    )
-    clouds.repeat.set(4, 2)
-    this.skyDome = dome
-    dome.userData.nativeIgnore = true
-    dome.position.y = -PLANET_RADIUS
-    this.scene.add(dome)
   }
+
   updateSky(ticks: number) {
     const camera = {
       ...this.view.center,
@@ -816,12 +787,9 @@ export class GameScene {
   visible(p: Point, h = this.y(p)) {
     const q = this.screen(p, h)
     if (q.z < -1 || q.z > 1) return false
-    if (!this.overviewActive) return this.view.visible(p)
-    const a = (p.x * Math.PI) / 128,
-      b = (p.z * Math.PI) / 256,
-      n = new THREE.Vector3(Math.sin(a) * Math.cos(b), Math.cos(a) * Math.cos(b), Math.sin(b))
-    return n.dot(this.camera.position.clone().add(new THREE.Vector3(0, 70, 0))) > 70 + h
+    return this.view.visible(p)
   }
+
   updatePlacement() {
     const w = this.world,
       kind = w.mode as Building['kind'],
@@ -1065,6 +1033,20 @@ export class GameScene {
   }
   pickWorldObject(event: { clientX: number; clientY: number }) {
     const rect = this.renderer.domElement.getBoundingClientRect()
+    if (this.overviewActive) {
+      return (
+        [...this.world.buildings, ...this.world.shrines].find(object => {
+          const p = this.screen(object)
+          return (
+            this.visible(object) &&
+            Math.hypot(
+              ((p.x + 1) * rect.width) / 2 + rect.left - event.clientX,
+              ((1 - p.y) * rect.height) / 2 + rect.top - event.clientY
+            ) < 10
+          )
+        }) ?? null
+      )
+    }
     this.mouse.set(
       ((event.clientX - rect.left) / rect.width) * 2 - 1,
       1 - ((event.clientY - rect.top) / rect.height) * 2
@@ -1092,16 +1074,13 @@ export class GameScene {
     this.pointerButtons = event.buttons
     this.down = { x: event.clientX, y: event.clientY, button: event.button }
     this.dragLast = { x: event.clientX, y: event.clientY }
+    this.dragOrigin = { ...this.view.center }
     this.renderer.domElement.setPointerCapture(event.pointerId)
   }) as EventListener
   pointerMove = ((event: PointerEvent) => {
     this.pointerButtons = event.buttons
     this.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
-    if (
-      !this.world.inputMask &&
-      !this.overviewActive &&
-      (event.buttons === 2 || event.buttons === 4)
-    ) {
+    if (!this.world.inputMask && (event.buttons === 2 || event.buttons === 4)) {
       const dx = event.clientX - this.dragLast.x,
         dy = event.clientY - this.dragLast.y
       this.cameraMotion.active = 0
@@ -1110,7 +1089,18 @@ export class GameScene {
         this.world.mode = null
         this.tooltip.draw = 0
       }
-      dragCamera(this.cameraPosition, this.cameraVelocity, event.buttons === 2, dx, dy)
+      if (this.overviewActive) {
+        // ponytail: active native drag only; connect release inertia when the
+        // original pointer-mode/outer-frame controller is integrated.
+        const point = globeDrag(
+          this.dragOrigin,
+          event.clientX - this.down.x,
+          event.clientY - this.down.y,
+          this.container.clientHeight
+        )
+        this.cameraPosition.x = point.x & 65535
+        this.cameraPosition.y = point.y & 65535
+      } else dragCamera(this.cameraPosition, this.cameraVelocity, event.buttons === 2, dx, dy)
       this.viewPoint = browserPosition(this.cameraPosition)
       this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
       this.dragLast = { x: event.clientX, y: event.clientY }
@@ -1235,13 +1225,6 @@ export class GameScene {
     this.keys.add(key)
     if (!modifier) event.preventDefault()
   }) as EventListener
-  orientCamera() {
-    if (this.overviewActive) {
-      this.camera.lookAt(this.controls.target)
-      this.camera.updateMatrixWorld()
-    }
-    this.updateView()
-  }
   captureCamera() {
     this.cameraPosition = {
       x: Math.round((this.viewPoint.x + 8) * 256) & 65535,
@@ -1288,7 +1271,7 @@ export class GameScene {
           if (!this.viewTransition.remaining) this.viewTransition = null
           this.updateView()
         }
-        if (!w.inputMask && !this.overviewActive && !document.querySelector('dialog[open]')) {
+        if (!w.inputMask && !document.querySelector('dialog[open]')) {
           let buttons = 0
           for (const key of this.keys)
             buttons = mergeCameraInput(
@@ -1296,6 +1279,7 @@ export class GameScene {
               cameraCommand(cameraKeys[key] ?? 0, {
                 control: this.keys.has('control'),
                 fast: this.keys.has('shift'),
+                overview: this.overviewActive,
               })
             )
           const pointer = this.navigationPointer
@@ -1317,7 +1301,10 @@ export class GameScene {
             }
             // Native momentum-off mode. The original settings menu and
             // frame-rate/input scaling lifecycle are still presentation adapters.
+            const angle = this.cameraPosition.angle
+            if (this.overviewActive) this.cameraPosition.angle = 0
             stepCameraInput(this.cameraPosition, this.cameraVelocity, buttons, 24)
+            if (this.overviewActive) this.cameraPosition.angle = angle
             active = true
           }
         }
@@ -1356,7 +1343,6 @@ export class GameScene {
     if (active) {
       if (s.active) {
         this.overviewActive = false
-        this.controls.enabled = false
       }
       this.viewPoint = browserPosition(this.cameraPosition)
       this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
@@ -1367,7 +1353,6 @@ export class GameScene {
   updateFlyby(dt: number) {
     const state = this.world.flyby,
       active = !!(state.flags & 1)
-    this.controls.enabled = this.overviewActive && !this.world.inputMask
     if (active && !this.wasFlying) {
       this.viewPreset = 0
       this.viewTransition = null
@@ -1411,7 +1396,6 @@ export class GameScene {
     if (!this.wasFlying) {
       this.world.inputMask &= ~64
       this.camera.up.set(0, 0, -1)
-      this.controls.enabled = this.overviewActive && !this.world.inputMask
     }
     return true
   }
@@ -1441,7 +1425,6 @@ export class GameScene {
   focus(p: Point = HOME, { animate = false } = {}) {
     if (animate && this.world.inputMask) return
     this.overviewActive = false
-    this.controls.enabled = false
     this.captureCamera()
     requestCameraFocus(
       this.cameraMotion,
@@ -1460,11 +1443,12 @@ export class GameScene {
     }
   }
   overview() {
+    if (this.world.inputMask) return
     this.overviewActive = true
-    this.controls.enabled = !this.world.inputMask
-    this.camera.position.set(30, 155, 0)
-    this.controls.update()
-    this.orientCamera()
+    this.world.mode = null
+    this.cameraMotion.active = 0
+    this.viewTransition = null
+    this.updateView()
   }
   zoom(inward: boolean) {
     if (this.world.inputMask) return
@@ -1475,7 +1459,6 @@ export class GameScene {
     }
     if (!this.overviewActive && preset === this.viewPreset) return
     this.overviewActive = false
-    this.controls.enabled = false
     this.viewPreset = preset
     this.viewZoom = 0
     this.viewTransition = {
@@ -1877,7 +1860,7 @@ export class GameScene {
     const [x, z] = at(this.viewPoint)
     ctx.strokeStyle = '#f1e0b599'
     ctx.lineWidth = 1
-    const size = this.camera.position.distanceTo(this.controls.target) * 0.5
+    const size = this.overviewActive ? 80 : this.view.config.diameter
     ctx.strokeRect(x - size / 2, z - size / 3, size, size * 0.67)
   }
   orderSound() {
@@ -1950,8 +1933,7 @@ export class GameScene {
       }
     }
     if (!this.updateCameraMotion(dt) && !this.updateFlyby(dt)) {
-      if (this.overviewActive) this.controls.update()
-      this.orientCamera()
+      this.updateView()
     }
     this.renderTooltip()
     for (const [id, g] of this.unitMeshes)
@@ -2071,7 +2053,7 @@ export class GameScene {
     }
     for (const [id, g] of this.fxMeshes)
       if (!this.world.effects.some(f => f.id === id)) {
-        this.scene.remove(g)
+        g.removeFromParent()
         this.releaseGroup(g)
         this.fxMeshes.delete(id)
       }
@@ -2080,7 +2062,7 @@ export class GameScene {
       if (!g) {
         g = this.makeFx(f)
         this.fxMeshes.set(f.id, g)
-        this.scene.add(g)
+        this.ground.add(g)
       }
       this.locate(g, f, f.height)
       this.animateFx(g, f)
@@ -2199,9 +2181,13 @@ export class GameScene {
         }
       })
     }
-    this.terrain.count = this.overviewActive ? 1 : 9
+    this.terrain.count = 9
     this.updateWater()
-    if (this.skyDome) this.skyDome.visible = this.overviewActive
+    this.ground.visible = !this.overviewActive
+    this.globe.visible = this.overviewActive
+    this.scene.background = this.overviewActive ? this.space : this.groundSky
+    if (this.overviewActive && this.terrainTextures)
+      this.globe.update(this.view.globe, this.world, this.terrainTextures)
     this.updateSky(skyTicks)
     // ponytail: initial mission palette; connect live system-palette changes
     // when the original palette scheduler is integrated.
@@ -2217,7 +2203,7 @@ export class GameScene {
         surfaceOffset: this.container.clientWidth * this.container.clientHeight,
       }
     )
-    this.skyFlash.visible = !!sky
+    this.skyFlash.visible = !!sky && !this.overviewActive
     if (sky)
       this.skyFlash.material.uniforms.rgba.value.set(
         ((sky.color >>> 16) & 255) / 255,
@@ -2276,7 +2262,8 @@ export class GameScene {
     this.terrainLoad.abort()
     this.resize.disconnect()
     this.disposeListeners.forEach(f => f())
-    this.controls.dispose()
+    this.scene.remove(this.globe)
+    this.globe.dispose()
     this.releaseGroup(this.scene)
     this.waterMap.dispose()
     this.terrainMap.dispose()

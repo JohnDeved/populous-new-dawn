@@ -4208,3 +4208,27 @@ mode or simulation changes, fixing stale targets under a stationary pointer.
 Existing tooltip descriptors supply object class/owner; the full native picking
 and modal/all-tribe targeting controller remains open. No additional verified
 checkpoint credit is claimed for this subset of command feedback and lighting.
+
+### Original world overview
+
+Replaced the latitude/longitude globe and cloud dome with the original wrapped-map
+disc, adaptive mesh, native globe lighting, low-resolution terrain tiles and star
+field. `app/globe.ts` is compared with the original routines; `globe-renderer.ts`
+owns the separate browser drawing resources. Original HFX building/discovery
+icons and native marker colors/shapes restore the overview's flat presentation.
+Ground sprites/models/effects stay in one group and restore on return.
+
+Native checks compare 18,532 complete terrain triangles and shades, 4,096 projected
+points/visibility pairs, 2,048 inverse picks, 4,176 star positions, 16 complete star
+submissions, opening marker palette, 512 drag and 512 parallax updates. The shared
+texture check compares 278,528 original indexed ground/globe pixels. Portable
+native mesh fixtures join the ordinary test suite. Browser checks measure terrain,
+marker and star GPU contributions, native wrapped picking, arrows/drag, parallax,
+resize and return; confirmed unit sprites and existing desktop/HUD/terrain/fire
+checks pass. Capture: `/private/tmp/populous-globe-v103.png`.
+
+Full transitions and release inertia, original marker rasterizer/queues/eligibility,
+colored building footprints, overview effects, all classes, texture-cache UV/fog
+and matched original GPU frames remain open. No full overview/camera/raster parity
+claim or additional verified checkpoint credit is made. See decomp/README.md for
+addresses, mathematical details, regeneration commands and oracle boundaries.
