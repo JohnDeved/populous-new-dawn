@@ -87,7 +87,8 @@ try {
     const origin = mesh.getWorldPosition(mesh.position.clone())
     const depth = s.view.project(origin, origin.y * 128 / 45).z
     anchor.array.fill(0); anchor.needsUpdate = true
-    for (const value of [1, 15, 28, 32, 43, 80]) {
+    for (const [value, highlight] of [[1,0], [15,0], [28,0], [32,0], [43,0], [80,0], [80,200], [80,255]]) {
+      mesh.userData.highlight.value = highlight
       shade.array.fill(value); shade.needsUpdate = true
       s.renderer.render(s.scene, s.camera)
       const pixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
@@ -98,17 +99,17 @@ try {
         // The scene clear color is common; retain every other color for matching.
         counts.set(key, (counts.get(key) ?? 0) + 1)
       }
-      rows.push({ value, depth, colors: [...counts].sort((a,b) => b[1]-a[1]).slice(0,8) })
+      rows.push({ value, highlight, depth, colors: [...counts].sort((a,b) => b[1]-a[1]).slice(0,8) })
     }
     return rows
   })
   for (const sample of samples) {
     const c = vertexLighting(modelShade(sample.value, sample.depth), 0xfdb935)
-    const expected = [16,8,0].map(shift => Math.min(255, Math.round(64 * ((c.diffuse >>> shift) & 255) / 255 + ((c.specular >>> shift) & 255))))
+    const expected = sample.highlight ? [0,0,0].map(() => Math.round(64 * sample.highlight / 255)) : [16,8,0].map(shift => Math.min(255, Math.round(64 * ((c.diffuse >>> shift) & 255) / 255 + ((c.specular >>> shift) & 255))))
     assert.ok(sample.colors.some(([rgb, count]) => count > 20 && rgb.split(',').every((v,i) => Math.abs(Number(v)-expected[i]) <= 1)), JSON.stringify({ sample, expected }))
   }
   assert.deepEqual(errors, [])
-  console.log(`PASS: ${meshes.length} live models use native face shades/anchors; six GPU diffuse, additive-light and depth-fade samples match native math; no browser errors`)
+  console.log(`PASS: ${meshes.length} live models use native face shades/anchors; eight GPU diffuse, additive-light, depth-fade and hover samples match native math; no browser errors`)
 } finally {
   await browser.close()
 }

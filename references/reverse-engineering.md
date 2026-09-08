@@ -4188,3 +4188,23 @@ The painter trace also identifies twelve mode-0 fire-model faces that never subm
 pixels in the original. The importer now omits them, preserving the eight drawable
 fire faces. This removes previously rendered picking geometry; complete original
 picking ownership remains separate.
+
+### Hover feedback and original shade override
+
+Connected native model hover rules from `004708d0`/`00471c40` to the existing
+building/shrine picker. Native gray 200 and white 255 replace face sunlight and
+distance attenuation; they do not add to them. Phase comes from unsigned turn
+bit 1 (`004a4450`'s presentation update). Eligibility distinguishes ordinary and
+construction rendering, ownership, class exceptions and building flag 0x10.
+
+Validation: 512 complete native renderer/real queue comparisons and 256 original
+phase-loop executions; real browser hover/control checks measure 5,454 changed
+phase pixels and 5,387 pixels against ordinary lighting. Eight GPU color probes
+include both override values, and existing HUD/worship interactions still pass.
+Screenshot `/private/tmp/populous-model-highlight.png` was inspected.
+
+The browser now refreshes its hovered object when camera, pointer, buttons, input
+mode or simulation changes, fixing stale targets under a stationary pointer.
+Existing tooltip descriptors supply object class/owner; the full native picking
+and modal/all-tribe targeting controller remains open. No additional verified
+checkpoint credit is claimed for this subset of command feedback and lighting.

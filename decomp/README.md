@@ -1933,3 +1933,40 @@ therefore omits these non-drawing faces from raster meshes: model 5 keeps its ei
 visible fire faces and drops twelve picking faces. Other currently imported models
 have no mode-0 faces. Native full-renderer comparisons filter the same explicit
 mode; complete native picking ownership remains open.
+
+## Hovered model color overrides
+
+`modelHighlight` reconstructs the eligibility and color branches in `004708d0`
+and `00471c40`. The ordinary renderer permits owned/neutral objects, class 4,
+class-6 model 8, accessible enemy buildings (building flags bit 0x10), or the
+all-tribe targeting flag. Owned class-6 model 8 is excluded. Construction omits
+the two class exceptions. `0040bac0` confirms the building flag test. Selected
+hover IDs and global enable flags are separate caller-owned inputs.
+
+The color is 0xffc8c8c8 or 0xffffffff. `004a4450` at `004a470b..004a472d` refreshes
+the phase from unsigned simulation turn / 2 & 1. The shader uses this packed
+color's gray component instead of sunlight/depth shade, with no additive channel.
+Native lighting attributes remain unchanged as the hover uniform changes.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-model-highlight.py /path/to/d3dpoptb.exe
+node scripts/check-browser-model-highlight.mjs
+node scripts/check-browser-model-lighting.mjs
+```
+
+The fixture runs 512 complete ordinary/construction renderer calls with original
+model data, transforms, sunlight, building-access test and real polygon queues.
+A single visible triangle and supplied projection isolate the color branch; all
+three emitted colors agree. Another 256 calls execute the native phase-update
+loop, including unsigned wrap boundaries. Native picking, culling and the entire
+presentation loop are not supplied by this fixture.
+
+The browser connects its existing building/shrine picker and object descriptors
+to the verified rules. Hover refresh now shares pointer/view invalidation with
+placement targeting, including input mode, buttons and simulation changes. This
+fixes stale highlights/tooltips after camera movement without mouse movement.
+Real browser checks cover neutral heads, enemy/owned buildings and construction,
+press/release, spell mode, leaving the canvas and camera movement. Eight GPU
+lighting samples verify both overrides bypass light/fade math. Full original
+picking ownership and the modal/all-tribe controller in `0046e030` remain adapters;
+`00451370` is retained as evidence for that controller's input-state gate.

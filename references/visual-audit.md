@@ -191,3 +191,17 @@ explicit next lighting targets.
 The same painter audit removed twelve non-drawing picking faces from the fire
 mesh, leaving its eight native visible faces. Real spell ignition, animated fire
 textures and cleanup are rechecked after this correction.
+
+### Hovered building and worship-object feedback
+
+The original model renderer alternates a hovered eligible object's diffuse color
+between gray 200 and white 255, every two simulation turns. The scene now applies
+that override to buildings and shrines through the shared picker; ordinary enemy
+buildings stay unhighlighted. Sunlight, additive color and distance shade are
+bypassed while the override is active, as confirmed with isolated GPU samples.
+
+Inspected `/private/tmp/populous-model-highlight.png` over the opening stone head.
+`node scripts/check-browser-model-highlight.mjs` verifies 5,454 phase-difference
+pixels, 5,387 pixels versus ordinary lighting, real press/release, spell targeting,
+canvas exit, ownership/construction gates and camera movement beneath an unmoving
+pointer. Full native picking/modal ownership and other colored effects remain open.

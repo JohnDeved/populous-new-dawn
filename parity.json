@@ -169,9 +169,11 @@
             "scripts/check-native-unit-shadows.py",
             "scripts/check-browser-unit-shadows.mjs",
             "scripts/check-native-model-lighting.py",
-            "scripts/check-browser-model-lighting.mjs"
+            "scripts/check-browser-model-lighting.mjs",
+            "scripts/check-native-model-highlight.py",
+            "scripts/check-browser-model-highlight.mjs"
           ],
-          "note": "Terrain diffuse/additive conversion, live scenery shade, airborne person shadows and model sunlight normals/shades/depth fading are compared and integrated. Dynamic sunlight ownership/propagation, colored highlights, debris lighting and complete object/scenery lifecycles remain incomplete."
+          "note": "Terrain diffuse/additive conversion, scenery shade, airborne shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete."
         },
         {
           "id": "graphics.raster",
@@ -332,9 +334,11 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-selection.py",
-            "qa/browser-check.mjs"
+            "qa/browser-check.mjs",
+            "scripts/check-native-model-highlight.py",
+            "scripts/check-browser-model-highlight.mjs"
           ],
-          "note": "First-mission controls work; full native bindings, group semantics and command feedback incomplete."
+          "note": "First-mission controls and native hovered-model color/ownership rules work; stationary-pointer targets refresh on camera changes. Full native picking/modal/targeting ownership, bindings, group semantics and remaining command feedback are incomplete."
         },
         {
           "id": "interface.targeting",

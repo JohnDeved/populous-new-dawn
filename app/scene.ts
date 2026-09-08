@@ -16,7 +16,7 @@ import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terra
 import { waterTexture, waterPoint, waterCell } from './water.ts'
 import { vertexLighting } from './projection.ts'
 import { terrainPointHeight } from './native-terrain.ts'
-import { modelLighting } from './model-lighting.ts'
+import { modelLighting, modelHighlight } from './model-lighting.ts'
 import skyPalette from './original-sky.json'
 import {
   createTooltip,
@@ -139,7 +139,9 @@ function nativeModel(id: number, scale = 2, stage = 4) {
   mesh.userData.nativeModel = id
   mesh.userData.stage = stage
   mesh.userData.nativeScale = data.scale
+  mesh.userData.highlight = { value: 0 }
   mesh.material.onBeforeCompile = shader => {
+    shader.uniforms.modelHighlight = mesh.userData.highlight
     shader.vertexShader =
       `attribute float faceShade;
 attribute vec3 faceAnchor;
@@ -156,14 +158,16 @@ varying float modelLight;
       modelLight=float(depth>-3328?max(1,int(faceShade)+nativeMul(-3328-depth,32)/8192):int(faceShade));
     `
     )
-    shader.fragmentShader = 'varying float modelLight;\n' + shader.fragmentShader
+    shader.fragmentShader =
+      'uniform float modelHighlight;\nvarying float modelLight;\n' + shader.fragmentShader
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <colorspace_fragment>',
       `
       #include <colorspace_fragment>
       int shade=int(modelLight+.5), strength=clamp(shade*5-160,0,256);
       vec3 highlight=vec3((ivec3(253,185,53)*strength)>>8)/255.;
-      gl_FragColor.rgb=gl_FragColor.rgb*float(shade<32?shade*8:255)/255.+highlight;
+      gl_FragColor.rgb=modelHighlight>0.?gl_FragColor.rgb*modelHighlight/255.:
+        gl_FragColor.rgb*float(shade<32?shade*8:255)/255.+highlight;
     `
     )
   }
@@ -348,6 +352,7 @@ export class GameScene {
   pointer: Point | null = null
   pointerScreen: { clientX: number; clientY: number } | null = null
   pointerState = ''
+  pointerButtons = 0
   spellPointer = document.createElement('div')
   viewPoint: Point = HOME
   flybyCamera: FlybyCamera = { x: 17 * 256, y: -41 * 256, angle: 0, zoom: 0 }
@@ -572,6 +577,9 @@ export class GameScene {
       this.pointerState = ''
     })
     this.listen(this.renderer.domElement, 'pointerup', this.pointerUp)
+    this.listen(this.renderer.domElement, 'pointercancel', () => {
+      this.pointerButtons = 0
+    })
     this.listen(this.renderer.domElement, 'contextmenu', e => e.preventDefault())
     this.listen(this.renderer.domElement, 'wheel', e => {
       if (!this.overviewActive && !this.world.inputMask) {
@@ -986,7 +994,7 @@ export class GameScene {
     )
     return this.view.pick(this.mouse, [this.terrain], this.camera)?.point ?? null
   }
-  pickWorldObject(event: PointerEvent) {
+  pickWorldObject(event: { clientX: number; clientY: number }) {
     const rect = this.renderer.domElement.getBoundingClientRect()
     this.mouse.set(
       ((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -1012,11 +1020,13 @@ export class GameScene {
     )
   }
   pointerDown = ((event: PointerEvent) => {
+    this.pointerButtons = event.buttons
     this.down = { x: event.clientX, y: event.clientY, button: event.button }
     this.dragLast = { x: event.clientX, y: event.clientY }
     this.renderer.domElement.setPointerCapture(event.pointerId)
   }) as EventListener
   pointerMove = ((event: PointerEvent) => {
+    this.pointerButtons = event.buttons
     this.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
     if (
       !this.world.inputMask &&
@@ -1032,10 +1042,6 @@ export class GameScene {
       this.dragLast = { x: event.clientX, y: event.clientY }
       this.updateView()
     }
-    this.hoveredObject =
-      !event.buttons && !this.world.mode && !this.world.inputMask
-        ? (this.pickWorldObject(event)?.id ?? null)
-        : null
     if (event.buttons === 1 && event.pointerType !== 'touch' && !this.world.mode) {
       const rect = this.container.getBoundingClientRect()
       Object.assign(this.dragBox.style, {
@@ -1048,6 +1054,7 @@ export class GameScene {
     }
   }) as EventListener
   pointerUp = ((event: PointerEvent) => {
+    this.pointerButtons = event.buttons
     if (this.world.inputMask) return
     this.dragBox.style.display = 'none'
     const moved = Math.hypot(event.clientX - this.down.x, event.clientY - this.down.y)
@@ -1952,6 +1959,9 @@ export class GameScene {
     // Picking projects the entire terrain; repeat when the pointer/view changes.
     const pointerState = [
       this.world.mode,
+      this.world.inputMask,
+      this.world.turn,
+      this.pointerButtons,
       this.pointerScreen?.clientX,
       this.pointerScreen?.clientY,
       this.world.landVersion,
@@ -1966,8 +1976,16 @@ export class GameScene {
     ].join(',')
     if (pointerState !== this.pointerState) {
       this.pointer = this.pointerScreen && this.world.mode ? this.pick(this.pointerScreen) : null
+      this.hoveredObject =
+        this.pointerScreen && !this.pointerButtons && !this.world.mode && !this.world.inputMask
+          ? (this.pickWorldObject(this.pointerScreen)?.id ?? null)
+          : null
       this.pointerState = pointerState
     }
+    const hovered =
+      this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
+    const hoveredBuilding = this.world.buildings.find(b => b.id === this.hoveredObject)
+
     this.updatePlacement()
     this.spellPointer.hidden =
       !spec || !this.pointerScreen || !!this.world.inputMask || this.world.status !== 'playing'
@@ -2029,7 +2047,19 @@ export class GameScene {
         (sky.color & 255) / 255,
         (sky.color >>> 24) / 255
       )
-    this.scene.traverse(updateModelLighting)
+    this.scene.traverse(object => {
+      updateModelLighting(object)
+      if (!object.userData.highlight) return
+      const id = object.parent?.userData.building ?? object.parent?.userData.shrine
+      object.userData.highlight.value =
+        hovered && id === hovered.id
+          ? modelHighlight(
+              { ...hovered, buildingFlags: hoveredBuilding?.damageState?.buildingFlags },
+              this.world.turn,
+              { construction: object.userData.stage !== 4 }
+            )
+          : 0
+    })
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
     if (!this.world.paused) {

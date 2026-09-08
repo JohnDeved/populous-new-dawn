@@ -23,15 +23,15 @@ export function sunlightShades(x = 147, z = 147, y = 147, ambient = 28, strength
 }
 
 // 0x40cd00 quantizes the cross product to a 32 by 32 normal table.
+const normalAngle = (x: number, y: number) => ((nativeAngle(x, y) + 32) >> 6) & 31
 export function faceNormal(a: number[], b: number[], c: number[]) {
   const u = b.map((n, i) => (n - a[i]) | 0),
     v = c.map((n, i) => (n - a[i]) | 0),
     x = (Math.imul(u[1], v[2]) - Math.imul(u[2], v[1])) | 0,
     y = (Math.imul(v[0], u[2]) - Math.imul(u[0], v[2])) | 0,
     z = (Math.imul(u[0], v[1]) - Math.imul(v[0], u[1])) | 0,
-    length = Math.floor(Math.sqrt((Math.imul(z, z) + Math.imul(x, x)) >>> 0)),
-    angle = (x: number, y: number) => ((nativeAngle(x, y) + 32) >> 6) & 31
-  return angle(y, -length) * 32 + angle(z, -x)
+    length = Math.floor(Math.sqrt((Math.imul(z, z) + Math.imul(x, x)) >>> 0))
+  return normalAngle(y, -length) * 32 + normalAngle(z, -x)
 }
 
 const sunlight = sunlightShades()
@@ -41,6 +41,26 @@ export function modelShade(shade: number, depth: number) {
   return depth > -3328 && !(shade & 0xff000000)
     ? Math.max(1, (shade + Math.trunc(Math.imul(-3328 - depth, 32) / 8192)) | 0)
     : shade
+}
+
+// 0x4708d0 / 0x471c40: the hovered object's color replaces sunlight and
+// distance fading. 0x4a4450 changes the phase every two simulation turns.
+export function modelHighlight(
+  object: { type: number; model: number; owner: number; buildingFlags?: number },
+  turn: number,
+  { player = 0, allTribes = false, construction = false } = {}
+) {
+  const owned = object.owner === player,
+    special = object.type === 6 && object.model === 8
+  if (!construction && special && owned) return 0
+  const eligible =
+    allTribes ||
+    owned ||
+    object.owner === -1 ||
+    (object.type === 2 && !!((object.buildingFlags ?? 0) & 16)) ||
+    (!construction && (object.type === 4 || special))
+  if (!eligible) return 0
+  return (turn >>> 1) & 1 ? 255 : 200
 }
 
 // Whole faces share a shade and first-vertex depth anchor, including both

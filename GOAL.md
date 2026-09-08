@@ -276,3 +276,15 @@ projection preparation preserves each material's lighting shader hook. Full
 sunlight lifecycle/propagation, colored selection overrides, debris lighting and
 all model modes remain open; the lighting checkpoint remains partial. Continue
 visible lighting, building activity and controls before isolated hidden systems.
+
+### Latest visible integration: hovered model feedback
+
+Hovered buildings and worship objects now use the original gray/white color
+override, ownership rules and two-turn phase. Both ordinary and construction
+renderers agree on 512 native cases; the original phase loop agrees on 256 turn
+values. Browser checks cover actual mouse hover, button press/release, spell
+mode, enemy/owned construction gates and camera movement under a stationary
+pointer. Eight isolated GPU colors include both hover phases bypassing sunlight
+and distance fade. HUD/worship controls still pass. Full native picking, modal
+and all-tribe targeting ownership, other colored effects and dynamic lights remain
+open. Keep visible feedback and lighting comparisons ahead of isolated internals.
