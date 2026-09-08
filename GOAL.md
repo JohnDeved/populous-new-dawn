@@ -44,8 +44,14 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** audit the visible unit cutouts and building surfaces against
-original sprite/mesh captures, then scenery fire and building activity/destruction.
+**Next action:** continue scenery fire and building activity/destruction, checking
+visible results against original captures. The sprite audit found intact unit
+artwork; the nearby striped shapes were reincarnation stones. Their invented
+radius-2.8 circle is now replaced with the original eight cell-snapped offsets,
+site-relative headings and stored-diagonal terrain heights. Native normal site
+creation and stone initialization agree on 2,048 cases. Full site creation timing,
+rise/sink effects, tribe lifecycle and relocation remain open; the scene still
+shows the two first-mission sites at their original shaman positions.
 Placement previews now use original connected terrain tiles, stored terrain
 vertices and the shared native building footprint. The original plan-preview
 controller, per-cell validity, doorway arrows, rotation controls and remaining

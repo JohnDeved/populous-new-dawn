@@ -3839,3 +3839,37 @@ related foundation/plan investigation; their full controllers are not ported her
 The inspected desktop captures show unit cutouts and building surfaces that need
 comparison against isolated original sprite/model renders. Audit these visible
 issues before adding more internal simulation ports.
+
+
+## Reincarnation stone layout — 2026-09-08
+
+The apparent striped unit cutouts were original mesh-30 reincarnation stones
+crowding the units. Sprite contact sheets were intact. The renderer had invented
+eight radius-2.8 positions and tangent headings. `app/reincarnation.ts` now uses
+the eight signed coordinate pairs at `0x5a9f10`: (0,6), (4,4), (6,0), (4,-4),
+(0,-6), (-4,-4), (-6,0), (-4,4), in 256-unit coordinates. Each stone is snapped
+to a 512-unit cell center, with 16-bit map wrapping.
+
+This is not inferred solely from the god-mode reset at `0x41c140`. Normal shaman
+site creation at `0x433a10`, state 3, selects the same table in reverse countdown
+order and launches class-8/model-1 carriers. Those carriers request effect 7,
+whose initializer `0x50c690` replaces the indexed scenery-class-5/model-12 stone.
+`0x4a7d80` snaps the stone and computes its heading from signed wrapped deltas
+relative to tribe offsets `0x911/0x913`; terrain height comes from `0x44e940`.
+The browser renderer now uses those exact positions, heights and headings and
+recreates the geometry placement after terrain updates.
+
+`scripts/check-native-reincarnation.py EXE` runs the actual normal creation state
+and stone initializer for 256 centers × eight stones, covering all four tribes,
+cell boundaries, wrap seams and both stored terrain diagonals. It intercepts
+allocation, registration, object-setting, shadow submission and the separate rise
+update; it does not claim to verify those subsystems. Native coordinate, height
+and angle code executes unmodified. `scripts/check-browser-reincarnation.mjs`
+checks all 16 rendered stone transforms, keyboard camera rotation and grounding
+after terrain deformation.
+
+The additional exports `0x4a6480`, `0x4a7eb0` and `0x514240` are investigation
+evidence, not new ports. `0x4a7eb0` contains stone rise/sink behavior; `0x514240`
+is a separate shaman-placement path. The browser still initializes two static
+first-mission sites; creation order/timing, particles/sounds, rise/sink, relocation,
+removal and complete tribe lifecycle remain unported here.

@@ -91,3 +91,9 @@ Apply [Ponytail](https://github.com/dietrichgebert/ponytail) when editing: reuse
 existing helpers, remove unnecessary machinery, and favor clear domain names and
 control flow. Concise code means fewer unnecessary operations, not fewer line breaks.
 Raw decompiler output belongs in `decomp/`, not in maintained TypeScript.
+
+
+`node scripts/check-browser-reincarnation.mjs` checks the original stone-ring
+positions, facing, keyboard camera rotation and grounding after terrain edits.
+For executable comparisons run `python scripts/check-native-reincarnation.py EXE`
+with the decompilation environment described in `decomp/README.md`.

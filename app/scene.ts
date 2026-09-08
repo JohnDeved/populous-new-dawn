@@ -1,4 +1,5 @@
 import { animateLiveObjects } from './live-people.ts'
+import { reincarnationStones } from './reincarnation.ts'
 import { soundAttenuation } from './audio'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
 import {
@@ -842,17 +843,17 @@ export class GameScene {
       g.userData.point = tree
       this.decorations.add(g)
     }
-    for (const center of [HOME, ENEMY])
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2,
-          p = { x: center.x + Math.sin(a) * 2.8, z: center.z + Math.cos(a) * 2.8 },
-          g = new THREE.Group()
-        const pillar = nativeModel(30)
-        g.add(pillar)
-        this.locate(g, p)
-        this.orientModel(g, a + Math.PI / 2)
-        this.decorations.add(g)
+    for (const center of [HOME, ENEMY]) {
+      const stones = reincarnationStones(this.world.land, nativePosition(this.world, center))
+      for (const stone of stones) {
+        const group = new THREE.Group()
+        group.name = 'reincarnation-stone'
+        group.add(nativeModel(30))
+        this.locate(group, browserPosition(stone), stone.h / 45)
+        this.orientModel(group, (stone.heading * Math.PI) / 1024)
+        this.decorations.add(group)
       }
+    }
   }
   makeShrines() {
     for (const shrine of this.world.shrines) {
