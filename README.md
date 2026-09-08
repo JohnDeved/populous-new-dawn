@@ -47,7 +47,7 @@ Full parity remains an [active goal](GOAL.md). The project includes a [reproduci
 
 ## Editing the game
 
-Maintainability is a standing [side objective](GOAL.md#side-objective-keep-development-easy). The current stack is TypeScript, React 19, Three.js, Web Audio and Vite 8 through vinext. Keep the simulation runnable without a browser; UI and rendering consume its state. [Three.js](https://threejs.org/manual/en/fundamentals.html) supplies scene/rendering primitives while our engine retains control of original simulation rules.
+Maintainability is a standing [main priority](GOAL.md#main-priority-clean-readable-and-maintainable-typescript). The current stack is TypeScript, React 19, Three.js, Web Audio and Vite 8 through vinext. Keep the simulation runnable without a browser; UI and rendering consume its state. [Three.js](https://threejs.org/manual/en/fundamentals.html) supplies scene/rendering primitives while our engine retains control of original simulation rules.
 
 | Change | Start here |
 | --- | --- |
@@ -67,3 +67,27 @@ Maintainability is a standing [side objective](GOAL.md#side-objective-keep-devel
 Run `npm run dev` to edit and play, then `npm run check` for types and gameplay regressions. [Vite supports fast module updates but does not type-check TypeScript](https://vite.dev/guide/features#typescript), so checking stays explicit. The tests run the same engine modules directly using [Node's TypeScript support](https://nodejs.org/api/typescript.html). Use `npm run build` before publishing and the browser checks above for interaction/rendering changes.
 
 The growing simulation and scene files need further separation as their subsystems are ported. Prefer readable functions, shared data and direct module imports; keep each refactor tied to the behavior being worked on and its existing comparisons. Generated data may stay compact; hand-written code should stay easy to inspect.
+
+### TypeScript quality workflow
+
+Use `npm run format` to format maintained app TypeScript with
+[ox-standard](https://github.com/JohnDeved/ox-standard), and `npm run format:check`
+to verify it. Generated level data and original asset JSON remain importer-owned.
+`npm run lint:standard` runs the preset's Oxlint rules without modifying files.
+The preset’s hexadecimal-case rule is disabled because Oxfmt normalizes hex
+digits to lowercase; formatting owns that choice. Oxlint currently reports legacy findings; do not hide them or treat it as a passing gate.
+Keep `npm run lint` for the existing correctness and accessibility checks during migration.
+
+[Fallow](https://github.com/fallow-rs/fallow) is pinned locally:
+`npm run quality:health` ranks complexity hotspots and refactoring targets,
+`npm run quality:dupes` finds duplication, and `npm run quality:unused` finds
+unused-code candidates. These commands are advisory: exit 1 means findings,
+exit 2 means an execution/configuration error. Python native-comparison scripts
+import engine exports indirectly, so investigate callers before deleting anything.
+The initial complexity hotspots are `stepTurn`, `stepCelebration` and
+`stepTrainingPerson`; simplify coherent pieces while preserving native comparisons.
+
+Apply [Ponytail](https://github.com/dietrichgebert/ponytail) when editing: reuse
+existing helpers, remove unnecessary machinery, and favor clear domain names and
+control flow. Concise code means fewer unnecessary operations, not fewer line breaks.
+Raw decompiler output belongs in `decomp/`, not in maintained TypeScript.

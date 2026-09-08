@@ -14,7 +14,8 @@ User direction, 2026-09-08: prioritize what players immediately see, hear and
 control, then critical gameplay, before less-visible engine internals. This
 supersedes earlier immediate targets about campaign bindings, route ownership or
 physics dispatch. Full game and engine parity remains the completion objective;
-this changes the order of work, not its scope.
+this changes the order of work, not its scope. Clean, readable TypeScript is a
+parallel main priority: make room for refactoring while delivering visible parity.
 
 1. **Graphics and world rendering.** Compare the running desktop game against the
    original screenshots, reference folder and gameplay footage. Fix the largest
@@ -80,13 +81,50 @@ below and the reverse-engineering log, rather than setting the next priority.
 
 ## Decompilation is part of the project
 
+Implementation started, 2026-09-08: pinned Fallow 3.23.0 and ox-standard
+(`oxc-standard` 1.4.0), configured explicit app/test/tool entry points and generated
+exclusions, formatted maintained app TypeScript, and simplified the connected
+ground-overlay selector into named lookup tables with explicit texture-bank
+precedence. Its 2,624 native comparisons, 67 gameplay regressions, type checking
+and real-browser placement check pass. Existing ESLint coverage remains enabled.
+Oxlint and Fallow expose legacy debt rather than implying the repository is clean;
+`stepTurn`, `stepCelebration` and `stepTrainingPerson` are initial refactoring targets.
+See the [quality commands](README.md#typescript-quality-workflow).
+
 Standing user requirement, added 2026-09-07: keep decompilation tools and discoveries in this repository, reconstruct the original routines where possible, and port their behavior into the browser engine. Do not substitute invented rules where the executable provides an answer.
 
 The repository owns [pinned tool setup, Ghidra scripts and pseudocode exports](decomp/README.md). Each port must connect an original entry address and executable identity to the browser implementation, tests, and remaining differences. Keep raw Ghidra output distinct from reviewed reconstructions: inferred types and names are not recovered original source. Evaluate existing projects before rebuilding their work; record upstream revisions and applicable licenses.
 
 The replacement thread goal was created on 2026-09-07 with this revised scope and is active. This file tracks its implementation evidence and remaining requirements.
 
-## Side objective: keep development easy
+## Main priority: clean, readable and maintainable TypeScript
+
+User direction, 2026-09-08: clean, easy-to-read, maintainable, concise and simple
+game TypeScript is a **main priority alongside visible fidelity and parity**.
+Spend time refactoring existing code, including code already ported. Do not write
+TypeScript that looks like decompiler output translated line for line.
+
+- Express recovered behavior with meaningful domain names, explicit state and
+  straightforward control flow. Preserve necessary integer widths and ordering,
+  but explain them locally instead of reproducing temporary variables, pointer
+  arithmetic or dense expressions throughout the maintained engine.
+- Concise means little unnecessary code, not minified code. Use ordinary
+  formatting, one clear operation per statement and small coherent functions.
+  Refactor large mixed-responsibility modules as work touches them; simplify
+  duplicated logic and remove proven dead code without adding speculative layers.
+- Use [Fallow](https://github.com/fallow-rs/fallow) to identify complexity,
+  duplication, dependency problems and unused-code candidates. Verify findings
+  against native comparison harnesses before deleting code they invoke indirectly.
+- Use [ox-standard](https://github.com/JohnDeved/ox-standard) for consistent
+  TypeScript/React linting and formatting. Keep correctness, accessibility and
+  existing verification coverage during tooling migration.
+- Apply [Ponytail](https://github.com/dietrichgebert/ponytail): reuse existing
+  helpers and platform features, prefer simple solutions, and avoid unnecessary
+  abstractions. Readability and required fidelity take precedence over shortest
+  character counts or mechanically matching decompiled structure.
+- Keep raw Ghidra exports and address-level evidence in `decomp/`; the browser
+  implementation is reviewed, idiomatic TypeScript. Validate refactors with
+  relevant native comparisons, gameplay checks and browser checks.
 
 Standing user requirement, added 2026-09-07: the stack and code must help progress rather than constrain it. Keep this a modern, concise web project that is easy to run, edit, extend and experiment with while retaining original-game parity.
 
@@ -96,7 +134,7 @@ Standing user requirement, added 2026-09-07: the stack and code must help progre
 - Reuse shared definitions and helpers so adding a spell, unit or command does not require updating unrelated copies. Record native widths, units, phases and evidence near reconstructed behavior.
 - Preserve a fast edit/play/check loop, documented commands, reproducible imports and a small set of useful checks. Refactors must preserve established native and gameplay comparisons. Measure performance before adding workers, WASM or another engine layer.
 
-This side objective supports the full-parity goal; ease of implementation is not a reason to replace original behavior with a framework's defaults. Review actual friction as the game grows rather than treating the current stack as permanently fixed.
+This main priority supports the full-parity goal; ease of implementation is not a reason to replace original behavior with a framework's defaults. Review actual friction as the game grows rather than treating the current stack as permanently fixed.
 
 ## Completion checklist
 

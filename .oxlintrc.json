@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "./node_modules/oxc-standard/.oxlintrc.json"
+  ],
+  "ignorePatterns": [
+    "app/level-one.ts",
+    "app/original-*.json",
+    "decomp/**",
+    "work/**",
+    ".tools/**",
+    "dist/**",
+    ".next/**",
+    "node_modules/**"
+  ],
+  "rules": {
+    "unicorn/number-literal-case": "off"
+  }
+}
