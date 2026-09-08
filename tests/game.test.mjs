@@ -1060,3 +1060,31 @@ test('native spell scans retain slots and Blast scoring avoids friendly concentr
  w.turn=16;w.manaTribes[1].mana=20000;w.manaTribes[1].available=0;for(const e of w.ai.spellEntries)e.people=1;
  tick(w,1/12);const shot=w.projectiles.find(p=>p.team==='red');assert.ok(shot);assert.deepEqual(shot.target,{x:7,z:-1},'live Blast retargets to the positive neighboring cell');
 });
+
+
+test('defeat seeds native building collapse and staged damage ejects occupants before removal', async () => {
+ const {buildingModel}=await import('../app/model.ts');
+ const {default:rules}=await import('../app/original-rules.json',{with:{type:'json'}});
+ const defeated=createWorld();defeated.units=defeated.units.filter(u=>u.team==='blue');
+ defeated.turn=47;tick(defeated,1/12);
+ assert.equal(defeated.status,'won');assert.equal(defeated.outcome.skyCounter,20);
+ assert.ok(defeated.buildings.filter(b=>b.team==='blue').every(b=>b.collapse===null));
+ const ruins=defeated.buildings.filter(b=>b.team==='red');assert.ok(ruins.length);
+ assert.ok(ruins.every(b=>b.collapse.buildingFlags&64));
+ // Isolate the live object adapter while both tribes remain alive: the result UI
+ // currently freezes later turns, and is not evidence of post-result processing.
+ const w=createWorld(),b=w.buildings.find(b=>b.team==='red'&&b.kind==='hut');
+ w.manaWorld.gameFlags=32;w.terrain.fill(3);w.buildings=[b];w.units=[];
+ const occupant=addUnit(w,'red','brave',b);occupant.inside=b.id;occupant.work=b.id;
+ const model=buildingModel(b),threshold=rules.buildingDamageThreshold[model];
+ b.collapse={model,state:2,flags2:0,flags3:0,buildingFlags:64,counter:0,damage:threshold,
+  stage:4,attacker:255,occupants:1,plan:{remaining:rules.buildingLife[model],repairDelay:0,attacker:255}};
+ tick(w,1/12);
+ assert.equal(b.collapse.plan.remaining,rules.buildingLife[model]-100);assert.equal(b.collapse.stage,2);
+ assert.equal(occupant.inside,null);assert.equal(occupant.work,null);assert.equal(occupant.hp,maxHp('brave'));
+ assert.equal(b.collapse.plan.repairDelay,rules.buildingRepairDelay);
+ assert.ok(w.effects.some(f=>f.kind==='death'&&f.duration>=rules.buildingSmokeDuration/12));
+ assert.ok(w.sounds.some(s=>s.cue===0x34));
+ for(let i=0;i<200&&w.buildings.includes(b);i++)tick(w,1/12);
+ assert.equal(b.collapse.stage,0);assert.equal(b.hp,0);assert.ok(!w.buildings.includes(b));
+});

@@ -2106,3 +2106,50 @@ Playwright confirms no early result at turn 31, victory at turn 32, cleared
 completion state on restart and defeat at turn 48 through the real result UI.
 No page errors occurred. Build/lint pass with seven existing image warnings
 and zero errors.
+
+
+## Defeated buildings and damage stages
+
+`app/building-damage.ts` reconstructs `0041b8b0` defeat cleanup, `004ba2c0`
+plan work/damage, and `004092a0` building damage processing, with their world
+consumers supplied. The collapse accumulation block of `00403280` uses native
+RNG and signed-short damage. The importer now extracts building life, damage
+thresholds, repair delay and smoke duration from the identified executable.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-building-damage.py /path/to/d3dpoptb.exe
+```
+
+The oracle compares **3,584** native calls/prefixes: 1,024 complete defeat
+cleanups, 1,024 plan work changes, 1,024 damage calls using the real plan-change
+and repair-delay/attacker routines, and 512 building-processor prefixes through
+collapse accumulation. It checks signed storage, RNG, stages, missing plans,
+overlays, ghost/internal removal, occupant ejection, allocation failures,
+computer responder selection and ordered world-consumer requests. The prefix
+check stops explicitly at the damage controller; it does not claim the rest of
+the building processor. Geometry, allocation, graphics and AI response consumers
+are supplied, and their bodies/RNG consumption remain outside these comparisons.
+
+Live defeat now seeds each surviving building's collapse flag and damage from
+its model and browser object ID. Subsequent building turns use native damage
+thresholds and plan stages, eject occupants on the first major stage change,
+request the existing smoke/sound effects and remove exhausted buildings.
+Browser IDs/order, the initial full-life plan, legacy combat HP conversion,
+smoke rendering and occupant placement remain adapters. Exact plan creation,
+ordinary combat/fire/repair producers, AI repair assignment, stage mesh filtering,
+face debris and sky effects remain unported. The result screen still freezes
+subsequent turns: this change initializes collapse on defeat but does not yet
+provide the full visible post-victory destruction sequence.
+
+Six raw exports (`00407860`, `0040b230`, `00498140`, `004ba2c0`, `004ba590`,
+`004ba5b0`) document damage boundaries; the manifest now verifies **533** files.
+
+All **45** regressions pass. The new live regression checks defeat-only seeding,
+the sky counter, occupant ejection before demolition, native remaining work and
+repair delay, smoke/sound requests and final removal. It isolates object turns
+with outcome processing disabled to avoid claiming post-result integration.
+Playwright also checks defeat seeding, live stage 4→2 work reduction, smoke
+requests and removal in the rendered game, followed by the existing victory,
+restart and defeat UI checks. No page errors occurred. Typecheck/build pass;
+lint has seven existing image warnings and zero errors. The stage check observes
+simulation state; mesh filtering and exact smoke visuals are not validated parity.

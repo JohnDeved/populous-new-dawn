@@ -4,6 +4,7 @@ import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './t
 import {processTribes,processOutcome,type TribeTurnState,type OutcomeWorld} from './tribe-turns.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
+import {defeatTribe,advanceCollapse,processBuildingDamage,changeBuildingWork,type DamageBuilding,type BuildingPlan} from './building-damage.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {nativeSpellRange,prepareSpellPayment,debitSpellMana,createTribeCasting,
@@ -30,7 +31,7 @@ type NativePoint = { x:number; y:number; h:number };
 export type Projectile = { id:number; spell:Spell; team:Team; caster:number; target:Point; source:Point; position:NativePoint; destination:NativePoint; origin:NativePoint; phase:'windup'|'flying'|'arrived'; remaining:number; turns:number; visuals:Effect[] };
 type Battle = Point & { id: number; members: number[]; angle: number };
 export type Unit = Point & { vault: VaultTask | null; id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
-export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number };
+export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number; counter:number; collapse:(DamageBuilding & {plan:BuildingPlan})|null };
 export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; forced: boolean; model: number; morph: ModelMorph | null; angle: number };
 export type Tree = Point & { id: number; logs: number; model: number };
 export type SoundEvent = Point & { serial:number; cue:number; turn:number };
@@ -259,7 +260,7 @@ export type World = {
   land:NativeTerrain & Territory;landVersion:number;spellScan:SpellTargetScan;
   castingTribes: TribeCasting[]; manaWorld: ManaWorld; manaTribes: (ManaTribe & TribeTurnState)[]; manaNotices: {flags:number;message:number}[];
   tribeCount:number;levelFlags2:number;
-  outcome:Omit<OutcomeWorld,'turn'|'landFlags'|'playerTribe'> & {cameraTribe:number|null;completedLevel:number|null};
+  outcome:Omit<OutcomeWorld,'turn'|'landFlags'|'playerTribe'> & {cameraTribe:number|null;completedLevel:number|null;skyCounter:number};
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
@@ -272,7 +273,7 @@ export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
   w.units.push(u); return u;
 }
 export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, complete = true) {
-  const b: Building = { x:p.x, z:p.z, id: w.nextId++, team, kind, hp: buildingHp(kind), progress: complete ? 1 : 0, timer: 0, foundation: 0, level: 1, logs: complete ? BUILDINGS.find(b=>b.id===kind)?.cost ?? 0 : 0, upgrade:0, upgrading:false, angle:0 };
+  const b: Building = { x:p.x, z:p.z, id: w.nextId++, team, kind, hp: buildingHp(kind), progress: complete ? 1 : 0, timer: 0, foundation: 0, level: 1, logs: complete ? BUILDINGS.find(b=>b.id===kind)?.cost ?? 0 : 0, upgrade:0, upgrading:false, angle:0,counter:0,collapse:null };
   groundBuilding(w, b); w.buildings.push(b); return b;
 }
 function missionAI(){
@@ -294,7 +295,7 @@ export function createWorld(): World {
     spellScan:{cursor:0,limit:0,paused:0,targets:[0,0,0,0]},
     castingTribes:Array.from({length:4},(_,id)=>createTribeCasting(id!==0)),
     tribeCount:2,levelFlags2:0,
-    outcome:{campaignTribes:2,level:1,progressFlags:0,lastDefeated:0,defeatedCounts:[0,0,0,0],alliances:[0,0,0,0],cameraTribe:null,completedLevel:null},
+    outcome:{campaignTribes:2,level:1,progressFlags:0,lastDefeated:0,defeatedCounts:[0,0,0,0],alliances:[0,0,0,0],cameraTribe:null,completedLevel:null,skyCounter:0},
     manaWorld:{playerTribe:0,gameFlags:0,loadFlags:0,levelFlags:0,manaFlags:0,turn:0,rateSample:0,
       spells:Array.from({length:4},()=>({available:4,disabled:0,stocks:Array(22).fill(0)}))},
     manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,active:id<2,defeatTimer:0,flags2:0,mana:0,pending:0,available:constants.START_MANA,
@@ -388,7 +389,7 @@ export function campaignBuildingCount(w: World, tribe: number, model: number, in
   const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null;
   const count = w.buildings.filter(b => b.team === team && b.hp > 0 &&
     (includeIncomplete || b.progress >= 1) &&
-    (b.kind === 'hut' ? b.level : b.kind === 'tower' ? 4 : b.kind === 'temple' ? 5 : 7) === model).length;
+    buildingModel(b) === model).length;
   return short(count);
 }
 
@@ -498,6 +499,9 @@ function castVoice(w:World,u:Unit,spell:Spell){sound(w,(u.team==='blue'?{blast:0
 export function effect(w: World, kind: Effect['kind'], p: Point) { const f:Effect={ x:p.x,z:p.z,kind,id:w.nextId++,age:0,duration:kind==='bridge'?constants.LAND_BRIDGE_DURATION/TURNS_PER_SECOND:kind==='hit'?.5:kind==='blast'?1.2:1.7 };w.effects.push(f);return f; }
 export function select(w: World, kind: UnitKind | 'all') { w.selected=w.units.filter(u=>u.team==='blue'&&(kind==='all'||u.kind===kind)).map(u=>u.id); w.mode=null; }
 function release(u: Unit) { u.vault=null; u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
+export function buildingModel(b:Pick<Building,'kind'|'level'>) {
+  return b.kind==='hut'?b.level:b.kind==='tower'?4:b.kind==='temple'?5:7;
+}
 // Share the displayed object identity with native footprint/entrance lookup.
 export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {
   return b.kind==='hut'?(b.team==='blue'?131:134)+b.level-1:b.kind==='camp'?(b.team==='blue'?103:104):b.kind==='tower'?(b.team==='blue'?79:80):(b.team==='blue'?95:96);
@@ -607,7 +611,7 @@ export function cast(w: World, spell: Spell, p: Point) {
 function spellCaster(w:World,u:Unit):SpellCaster {
   const b=w.buildings.find(b=>b.id===u.inside);
   return {height:nativePosition(w,u).h,flags2:u.inside===null?0:0x800000,
-    building:b?{class:2,model:b.kind==='hut'?b.level:b.kind==='tower'?4:b.kind==='temple'?5:7,state:b.progress===1?2:1}:null};
+    building:b?{class:2,model:buildingModel(b),state:b.progress===1?2:1}:null};
 }
 export function spellRange(w:World,u:Unit,model:number) {
   return nativeSpellRange(w.manaWorld.gameFlags,w.castingTribes[u.team==='blue'?0:1].flags,spellCaster(w,u),model)/256;
@@ -688,6 +692,44 @@ function stepComputerSpells(w:World) {
     })});
   w.ai.flags=context.aiFlags;
 }
+function cleanupDefeatedTribe(w:World,id:number) {
+  // ponytail: browser entity IDs/list order stand in for native registration;
+  // ghosts and internal objects join this adapter with the common object store.
+  const units=w.buildings.filter(b=>b.hp>0).map(building=>({building,id:building.id,class:2,model:buildingModel(building),
+    tribe:building.team==='blue'?0:1,flags4:0,hp:0,buildingFlags:building.collapse?.buildingFlags??0,
+    damage:building.collapse?.damage??0,internalModel:0}));
+  const context={turn:w.turn,lastDefeated:w.outcome.lastDefeated,skyCounter:w.outcome.skyCounter,units};
+  defeatTribe(context,id,w.castingTribes[id].flags,nativePosition(w,id===0?HOME:ENEMY),{
+    // Tribe-death sky objects and reveal/camera effects need their native consumers.
+    allocate:()=>{},reveal:()=>{},remove:()=>{},
+  });
+  w.outcome.skyCounter=context.skyCounter;
+  for(const p of units)if(p.tribe===id) {
+    const b=p.building,model=p.model;
+    b.collapse={model,state:b.progress===1?2:1,flags2:0,flags3:0,buildingFlags:p.buildingFlags,
+      counter:b.counter,damage:p.damage,stage:4,attacker:255,occupants:0,
+      plan:{remaining:rules.buildingLife[model],repairDelay:0,attacker:255}};
+  }
+}
+function stepCollapsingBuilding(w:World,b:Building) {
+  const state=b.collapse!;state.counter=b.counter;
+  state.occupants=w.units.filter(u=>u.inside===b.id&&u.hp>0).length;
+  advanceCollapse(w,state);
+  const smoke={duration:0,fx:null as Effect|null},context={randomState:w.randomState,tribes:[]};
+  processBuildingDamage(context,state,{
+    ensurePlan:()=>{if(state.state===2&&!(state.flags2&0x100000))state.state=1;},plan:()=>state.plan,
+    changeWork:(p,n)=>changeBuildingWork(p,n,state,null,{move:()=>{},release:()=>{},init:()=>{}}),
+    removeOccupant:()=>{const u=w.units.find(u=>u.inside===b.id&&u.hp>0);if(u){release(u);Object.assign(u,buildingDoor(b));}state.occupants--;},
+    smoke:()=>{smoke.fx=effect(w,'death',b);return smoke;},
+    debris:()=>{},canRespond:()=>false,reserve:()=>{},removePlan:()=>{},notify:()=>{},
+    removeBuilding:()=>{b.hp=0;},sound:()=>sound(w,0x34,b),
+  });
+  // ponytail: native plan stages drive collapse; combat HP, debris meshes,
+  // plan geometry and AI repair selection await the rest of the building port.
+  b.hp=Math.min(b.hp,buildingHp(b.kind)*Math.max(0,state.plan.remaining)/rules.buildingLife[state.model]);
+  w.randomState=context.randomState;
+  if(smoke.fx)smoke.fx.duration=smoke.duration/TURNS_PER_SECOND;
+}
 function stepOutcome(w:World) {
   if((w.manaWorld.loadFlags&0x200)||(w.manaWorld.gameFlags&32))return;
   // ponytail: registered native person lists/counts await the shared object
@@ -704,9 +746,9 @@ function stepOutcome(w:World) {
     cancelInput:()=>{w.selected=[];w.mode=null;},
     reveal:()=>{for(let i=0;i<w.land.flags.length;i++)w.land.flags[i]|=8;},
     releasePerson:p=>{release(p.unit);p.unit.path=[];},damage:(p,amount)=>{p.unit.hp-=amount/20;},
-    // Native camera playback, collapse effects/cleanup, celebration states,
+    // Native camera playback, debris/sky effects, celebration states,
     // persistent campaign saves and network result delivery remain unported.
-    defeat:()=>{},initPerson:()=>{},networkResult:()=>{},
+    defeat:id=>cleanupDefeatedTribe(w,id),initPerson:()=>{},networkResult:()=>{},
   });
   w.land.landFlags=context.landFlags;w.outcome.progressFlags=context.progressFlags;w.outcome.lastDefeated=context.lastDefeated;
   tribes.forEach((t,id)=>{w.manaTribes[id].defeatTimer=t.defeatTimer;w.manaTribes[id].flags2=t.flags2;});
@@ -928,6 +970,8 @@ function stepTurn(w:World){
   w.mana=w.manaTribes[0].spellProgress[2]/1000;
   for(const b of w.buildings) {
     if(b.hp<=0)continue;
+    b.counter=(b.counter+1)&255;
+    if(b.collapse){stepCollapsingBuilding(w,b);if(b.hp<=0||b.collapse.state!==2)continue;}
     const inhabitants=w.units.filter(u=>u.inside===b.id&&u.hp>0);
     if(b.progress<1){
       const cost=BUILDINGS.find(s=>s.id===b.kind)!.cost;

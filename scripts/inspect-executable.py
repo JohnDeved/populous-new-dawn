@@ -51,6 +51,10 @@ if len(sys.argv)>2:
     rules['buildingFlags']=[value(0x5a7228+i*76+72) for i in range(20)]
     rules['buildingCapacity']=[value(0x5a7228+i*76+32,1) for i in range(20)]
     rules['buildingTrainedModel']=[value(0x5a7228+i*76+49,1) for i in range(20)]
+    rules['buildingLife']=[value(0x5a7228+i*76+26,2) for i in range(20)]
+    rules['buildingDamageThreshold']=[value(0x5a7228+i*76+46,2) for i in range(20)]
+    rules['buildingRepairDelay']=value(0x5aa4fc)
+    rules['buildingSmokeDuration']=value(0x5aa59c)
     rules['personTraining']=[{'weight':value(0x5a7060+i*50+31,2),'humanMana':value(0x5a7060+i*50+36),'computerMana':value(0x5a7060+i*50+40)} for i in range(9)]
     rules['personMana']=[value(0x5a7060+i*50+14,2) for i in range(9)]
     rules['personThreat']=[value(0x5a7060+i*50+35,1) for i in range(9)]
