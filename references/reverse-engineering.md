@@ -4232,3 +4232,28 @@ colored building footprints, overview effects, all classes, texture-cache UV/fog
 and matched original GPU frames remain open. No full overview/camera/raster parity
 claim or additional verified checkpoint credit is made. See decomp/README.md for
 addresses, mathematical details, regeneration commands and oracle boundaries.
+
+
+## 2026-09-08: native overview footprints and building symbols
+
+World view now uses original translucent tribe-colored terrain-cell quads and
+shares native cell visibility with building-icon eligibility. The recovered
+`0041edb0`/`004f1280` decisions, `0042dd50` rim projection and `0042d390`/`0042d5b0`
+quad submissions agree on 3,072 projections and 4,096 complete native calls.
+HUD metadata now retains the original AL palette indices; alpha is 48/255.
+`0041d730` agrees on 384 complete icon-controller cases for models, owner-only
+hut counts, tower garrisons, wrapped position and edge sizing through 768px high.
+Modern tall viewports deliberately avoid the native signed scale overflow.
+
+Live browser checks cover 36 quads/6,181 alpha-48 pixels, relocation/destruction,
+empty/brave/warrior/shaman tower symbols and anchor fog. Existing overview GPU,
+input, resize, HUD and ground sprite regressions pass. Capture:
+`/private/tmp/populous-globe-footprints-v104.png`. The renderer reuses registered
+native building shapes instead of inventing new footprint geometry.
+
+Full concealment ownership, plan/placement producers and their independent blink
+clock, vehicle/reincarnation markers, queue/raster fidelity, overview spells,
+transition/release inertia and matched original frames remain open. See the
+[decompilation notes](../decomp/README.md#overview-building-footprints-and-icon-ownership)
+and runnable native/browser checks. Camera/raster remain partial; no broad
+checkpoint or known-scope percentage increase is claimed.

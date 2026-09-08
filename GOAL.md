@@ -354,3 +354,21 @@ spell effects, cache UV/fog, transition and release inertia remain open. Continu
 these visible overview/control gaps, then ground-world building activity and
 first-mission feedback. The camera/raster checkpoints and full game goal remain
 unfinished; discovery stays open and no broad checkpoint credit is added.
+
+
+### Latest visible integration: overview footprints and building icons
+
+World view now draws native projected building cells in the original translucent
+tribe colors. The same visible-cell decision enables building icons; owner-only
+hut counts and occupied/empty tower symbols follow live occupants. Native checks
+cover 3,072 inside/rim cell projections, 4,096 complete footprint/visibility/quad
+calls and 384 complete icon controllers. Browser checks cover 36 actual quads,
+6,181 alpha-48 pixels, relocation/destruction, tower occupants and anchor fog.
+Ground sprite, HUD and overview navigation regressions still pass.
+
+Native concealment-byte ownership, plan/placement producers, vehicle occupants,
+full marker queues/rasterization, spell effects, transition and release inertia
+remain open. Tall desktop viewports deliberately avoid the original icon-scale
+signed overflow; native icon sizing is compared at heights 480/600/768. Camera
+and raster checkpoints remain partial. Continue visible overview effects/controls
+and ground-world activity comparisons; full parity and discovery remain open.

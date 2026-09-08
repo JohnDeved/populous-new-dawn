@@ -10,6 +10,8 @@ def read(name):
 spec=importlib.util.spec_from_file_location('assets',ROOT/'scripts/import-original.py')
 a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
 palette=read('data/pal0-c.dat');bank=a.sprites(read('data/hfx0-0.dat'),palette)
+alpha=read('data/al0-c.dat');assert len(alpha)==65536
+alpha_colors=[alpha[((i<<4)|15)*256] for i in range(16)]
 output=ROOT/'public/original'
 # HFX identities are checked against the shipped spell records and artwork.
 ids=[54,55,65,66,*range(354,390),589,*range(664,682),875,1028,1029,1030]
@@ -53,6 +55,6 @@ for i in range(4):
         at=((i//2*49+yy)*100+i%2*50)*4;pixels[at:at+200]=data[yy*200:(yy+1)*200]
 a.png(output/'hud-map-frame.png',100,99,pixels)
 for name,i in [('panel',706),('commands',712)]:a.png(output/f'hud-{name}.png',*bank[i])
-meta=dict(executableSha256=identity['sha256'],sha256=hashes,width=width,height=height,rects=rects)
+meta=dict(executableSha256=identity['sha256'],sha256=hashes,width=width,height=height,rects=rects,alphaColors=alpha_colors)
 (ROOT/'app/original-hud.json').write_text(json.dumps(meta,separators=(',',':'))+'\n')
 print(f'Imported {len(entries)} native HUD sprites/glyphs, four borders and minimap frame')

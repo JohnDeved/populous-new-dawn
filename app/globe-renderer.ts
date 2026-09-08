@@ -1,6 +1,9 @@
 import * as THREE from 'three'
 import {
   globePalette,
+  globeFootprint,
+  globeBuildingIcon,
+  globeIconRect,
   globeMesh,
   globePoint,
   globeShade,
@@ -54,6 +57,7 @@ export class GlobeRenderer extends THREE.Group {
   )
   icons = new Image()
   offsets = new Int32Array(32)
+  buildingIcons = new Set<number>()
   view: GlobeView | null = null
   atlas: ReturnType<typeof terrainAtlas> | undefined
   version = -1
@@ -197,6 +201,37 @@ export class GlobeRenderer extends THREE.Group {
         ctx.stroke()
       }
     }
+    this.buildingIcons.clear()
+    const buildings = new Map(
+      world.buildings.map(b => [b.id, { id: b.id, tribe: b.team === 'blue' ? 0 : 1 }])
+    )
+    for (let cell = 0; cell < world.land.flags.length; cell++) {
+      const flags = world.land.flags[cell]
+      if (!(flags & 0x680)) continue
+      const footprint = globeFootprint(
+        view,
+        cell,
+        flags,
+        buildings.get(world.land.buildingIds[cell] & 1023),
+        {
+          player: world.manaWorld.playerTribe,
+          turn: world.turn,
+          fog: !!(world.manaWorld.levelFlags & 4),
+          // ponytail: native cell concealment byte has no live owner yet.
+          concealed: 0,
+        }
+      )
+      if (!footprint) continue
+      if (footprint.buildingId !== null) this.buildingIcons.add(footprint.buildingId)
+      if (!footprint.quad) continue
+      ctx.globalAlpha = footprint.translucent ? ((footprint.color & 15) * 16) / 255 : 1
+      polygon(
+        footprint.quad.flatMap(p => [p.x, p.y]),
+        color(footprint.translucent ? hud.alphaColors[footprint.color >> 4] : footprint.color),
+        false
+      )
+    }
+    ctx.globalAlpha = 1
     // 0x41e5b0/0x41f680 shapes, with browser canvas rasterization. Complete
     // native queue order, selection flags and palette scheduling remain open.
     for (const tree of world.trees) {
@@ -233,48 +268,28 @@ export class GlobeRenderer extends THREE.Group {
       }
     }
     if (this.icons.complete && this.icons.naturalWidth) {
-      const icon = (p: { x: number; z: number }, id: number) => {
-        const q = locate(p),
-          r = (hud.rects as Record<string, { x: number; y: number; w: number; h: number }>)[id]
+      const icon = (q: { x: number; y: number } | null, id: number) => {
+        const r = (hud.rects as Record<string, { x: number; y: number; w: number; h: number }>)[id]
         if (!q || !r) return
-        let width = r.w,
-          height = r.h
-        const radius = Math.trunc((view.height * 4) / 10) ** 2,
-          distance =
-            ((view.width >> 1) - q.x + (width >> 1)) ** 2 +
-            ((view.height >> 1) - q.y + (height >> 1)) ** 2
-        if (distance > radius >> 1) {
-          const scale =
-            Math.trunc(((radius - Math.min(radius, distance)) * 32768) / (radius >> 1)) + 32768
-          width = Math.max(1, Math.min(width, (width * scale) >> 16))
-          height = Math.max(1, Math.min(height, (height * scale) >> 16))
-        }
-        ctx.drawImage(
-          this.icons,
-          r.x,
-          r.y,
-          r.w,
-          r.h,
-          q.x - (width >> 1),
-          q.y - (height >> 1),
-          width,
-          height
-        )
+        const rect = globeIconRect(view, q, r.w, r.h)
+        ctx.drawImage(this.icons, r.x, r.y, r.w, r.h, rect.x, rect.y, rect.width, rect.height)
       }
       for (const b of world.buildings) {
-        if (b.progress < 1 || b.hp <= 0) continue
-        const model = buildingModel(b),
-          count =
-            b.team === 'blue' ? world.units.filter(u => u.inside === b.id && u.hp > 0).length : 0
-        icon(
-          b,
-          model <= 3
-            ? [0, 0x86, 0x8a, 0x8f][model] + count
-            : (({ 4: 0x78, 5: 0xa6, 6: 0xa7, 7: 0xa4, 8: 0xa5 } as Record<number, number>)[model] ??
-                0x434)
-        )
+        if (b.progress < 1 || b.hp <= 0 || !this.buildingIcons.has(b.id)) continue
+        const position = nativePosition(world, b),
+          cell = ((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9)
+        if (world.manaWorld.levelFlags & 4 && !(world.land.flags[cell] & 8)) continue
+        const occupants = world.units.filter(u => u.inside === b.id && u.hp > 0),
+          id = globeBuildingIcon(
+            buildingModel(b),
+            occupants.length,
+            b.team === 'blue',
+            occupants.map(u => ({ brave: 2, warrior: 3, shaman: 5 })[u.kind])
+          )
+        icon(globePoint(view, position.x, position.y), id)
       }
-      for (const shrine of world.shrines) icon(shrine, shrine.kind === 'vault' ? 0x7a : 0x7b)
+      for (const shrine of world.shrines)
+        icon(locate(shrine), shrine.kind === 'vault' ? 0x7a : 0x7b)
     }
     this.markers.material.map!.needsUpdate = true
   }

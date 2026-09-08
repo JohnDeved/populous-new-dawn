@@ -1,8 +1,15 @@
 import { multiplyShift16 } from './projection.ts'
+import rules from './original-rules.json' with { type: 'json' }
 
 // 0x42adc0 nearest-color lookup on the opening landscape palette, and
 // the normal tribe marker indices at 0x59bc19.
-export const globePalette = { outline: 172, tree: 228, wild: 182, tribes: [220, 244, 236, 227] }
+export const globePalette = {
+  outline: 172,
+  tree: 228,
+  wild: 182,
+  clear: 23,
+  tribes: [220, 244, 236, 227],
+}
 
 interface Point {
   x: number
@@ -31,6 +38,122 @@ export function globeVisible(view: Point, x: number, y: number) {
   const dx = short(x - view.x) >> 4,
     dy = short(y - view.y) >> 4
   return dx * dx + dy * dy < 1280 * 1280
+}
+
+// 0x42dd50 clamps outside cell corners to the rim before the quad winding test.
+// Its rim branch uses positive screen Y, unlike the interior map projection.
+export function globeCellPoint(view: GlobeView, x: number, y: number) {
+  if (globeVisible(view, x, y)) return globePoint(view, x, y)
+  const dx = short(x - view.x) >> 9,
+    dy = short(y - view.y) >> 9,
+    scale = Math.trunc((view.height * 4) / 10) / Math.sqrt(dx * dx + dy * dy)
+  return {
+    x: (view.width >> 1) + Math.trunc(dx * scale),
+    y: (view.height >> 1) + Math.trunc(dy * scale),
+  }
+}
+
+// 0x42d390/0x42d5b0 share this projected cell and two signed winding tests.
+export function globeCellQuad(view: GlobeView, cell: number) {
+  const x = (cell & 127) << 9,
+    y = (cell >> 7) << 9,
+    a = globeCellPoint(view, x, y),
+    b = globeCellPoint(view, x + 512, y),
+    c = globeCellPoint(view, x + 512, y + 512),
+    d = globeCellPoint(view, x, y + 512)
+  if (
+    Math.imul(c.y - b.y, b.x - a.x) > Math.imul(c.x - b.x, b.y - a.y) ||
+    Math.imul(d.y - c.y, c.x - a.x) > Math.imul(d.x - c.x, c.y - a.y)
+  )
+    return null
+  return [a, b, c, d]
+}
+
+// Complete 0x41edb0 cell decision with 0x4f1280's building visibility path.
+// Vehicle passengers are outside this building-only adapter.
+export function globeFootprint(
+  view: GlobeView,
+  cell: number,
+  flags: number,
+  building: { id: number; tribe: number } | undefined,
+  input: { player: number; turn: number; fog: boolean; concealed: number }
+) {
+  if (input.fog && !(flags & 8)) return null
+  let tribe = -1,
+    translucent = true,
+    buildingId: number | null = null
+  if (flags & 0x80) {
+    tribe = input.player
+    translucent = !(flags & 0x100 && input.turn & 1)
+  } else if (building && flags & 0x600) {
+    const { tribe: owner, id } = building
+    if (flags & 0x200) {
+      if (owner !== input.player && input.concealed & (1 << owner)) return null
+      buildingId = id
+    }
+    tribe = owner
+  }
+  if (tribe < 0 || !globeVisible(view, (cell & 127) << 9, (cell >> 7) << 9)) return null
+  return {
+    color: translucent ? (rules.tribeEffectPalettes[tribe] << 4) | 3 : globePalette.clear,
+    translucent,
+    buildingId,
+    quad: globeCellQuad(view, cell),
+  }
+}
+
+// 0x41d730: huts expose their count only to their owner; towers show the
+// last recognized live occupant among the native descriptor's slots.
+export function globeBuildingIcon(
+  model: number,
+  count: number,
+  owned: boolean,
+  occupants: readonly number[]
+) {
+  if (model >= 1 && model <= 3)
+    return [0, 0x86, 0x8a, 0x8f][model] + (owned ? (count << 24) >> 24 : 0)
+  if (model === 4) {
+    let icon = 0x78
+    if (count)
+      for (const person of occupants.slice(0, rules.buildingCapacity[4])) {
+        icon =
+          ({ 2: 0xa3, 3: 0x74, 4: 0x76, 5: 0x77, 6: 0x75, 7: 0x85 } as Record<number, number>)[
+            person
+          ] ?? icon
+      }
+    return icon
+  }
+  return (
+    (
+      {
+        5: 0xa6,
+        6: 0xa7,
+        7: 0xa4,
+        8: 0xa5,
+        13: 0xa8,
+        15: 0xa9,
+        17: 0x43b,
+        18: 0x79,
+        19: 0x95,
+      } as Record<number, number>
+    )[model] ?? 0x434
+  )
+}
+
+// Keep the scale numerator wide: the original signed shift overflows on tall
+// desktop viewports. Native dimensions through 768px agree without this overflow.
+export function globeIconRect(view: GlobeView, point: Point, width: number, height: number) {
+  const radius = Math.trunc((view.height * 4) / 10) ** 2,
+    distance =
+      ((view.width >> 1) - point.x + (width >> 1)) ** 2 +
+      ((view.height >> 1) - point.y + (height >> 1)) ** 2
+  if (distance > radius >> 1) {
+    const scale =
+      Math.trunc(((radius - Math.min(radius, distance)) * 32768) / (radius >> 1)) + 32768
+    width = Math.max(1, Math.min(width, Math.imul(width, scale) >> 16))
+    height = Math.max(1, Math.min(height, Math.imul(height, scale) >> 16))
+  }
+  return { x: point.x - (width >> 1), y: point.y - (height >> 1), width, height }
 }
 
 // Active-drag branch of 0x42d240. Always measure from the press snapshot so

@@ -2310,3 +2310,58 @@ The 24 Hz keyboard adapter, active-drag-only pointer adapter, immediate world
 entry/exit, complete globe transition/rotation restoration, native outer-loop
 ownership and original frame raster comparisons remain incomplete. Camera and
 raster checkpoints remain partial; this is not full overview or engine parity.
+
+
+## Overview building footprints and icon ownership
+
+`0041edb0` evaluates seen cells, placement/plan flags and building ownership.
+Flag `0x80` takes precedence; `0x100` alternates its fill with palette index 23
+on odd presentation-counter ticks. Building flag `0x200` consults `004f1280`,
+including its enemy concealment mask, and marks object flag bit 1 for icon drawing.
+Flag `0x400` colors the cell without marking that icon flag. The visible cell,
+not necessarily the building center, determines eligibility. The complete icon
+controller also checks the building anchor's seen bit when fog is enabled.
+
+`0042d390`/`0042d5b0` project A/B/C/D cell corners through `0042dd50`, reject
+native signed winding failures and submit an untextured quad. Outside corners
+use the native rim clamp, including its positive-Y branch. Icon eligibility is
+set before winding rejection. Translucent fills resolve the original AL table's
+maximum-alpha color and submit alpha `(nibble << 4)`, so tribe fills use 48/255.
+`import-hud.py` now retains those 16 color indices and the AL source hash.
+
+`0041d730` selects hut HFX by model plus owner-only signed occupant count, tower
+HFX by the last recognized live native slot, and the remaining building models
+by their original table. It measures edge scaling from the unscaled icon's
+top-left corner. The browser shares selection and rectangle math; native sizing
+matches at heights 480/600/768. A deliberate desktop extension keeps the scale
+numerator wide: at height 1000 the native signed shift can overflow and collapse
+an otherwise 20x19 tower icon to 2x2. Browser sizing avoids that discontinuity.
+
+Run:
+
+```sh
+python scripts/check-native-globe-footprints.py /path/to/d3dpoptb.exe
+node scripts/check-browser-globe-footprints.mjs
+```
+
+The oracle executes 3,072 cell projections and 4,096 complete footprint calls,
+including the building predicate, projection, winding and both quad emitters.
+Only the final D3D queue leaf is captured; vertices, RGBA, flags and icon marking
+are compared. It then runs 384 complete marker controllers with empty unrelated
+tribe/map lists and one allocated building, intercepting only the two final HFX
+sprite-submission leaves. Original HFX dimensions and tower capacity are retained.
+The viewport has no sidebar, matching the browser's renderer coordinate space.
+
+Browser checks compare actual canvas calls and 6,181 alpha-48 pixels from 36
+opening footprint quads, shared icon eligibility, live relocation/destruction,
+brave/warrior/shaman/empty tower symbols and unseen-anchor suppression. The
+existing overview test also verifies 8,863 marker GPU pixels, terrain/stars and
+actual desktop controls. Screenshot: `/private/tmp/populous-globe-footprints-v104.png`.
+
+The live cell concealment byte has no owner yet; it is explicitly supplied as
+zero. Native plan/placement producers, nonbuilding occupants, all-tribe object
+flags, complete marker ordering/rasterization and overview effects remain open.
+The plan blink currently receives the browser world turn, not the original
+independent presentation counter. This is a bounded visible integration, not
+complete marker or camera parity. Four new export hashes bring the manifest to
+827 entries without changing earlier snapshots.

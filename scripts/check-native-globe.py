@@ -107,7 +107,7 @@ print('PASS: 16 native star draw streams, submitted count/order, fixed seed and 
 cpu.mem_write(out, (root/'public/original/landscape.bin').read_bytes()[:1024])
 call(0x42adc0,out,out+1024)
 indices=list(cpu.mem_read(out+1024,11))
-compare('()=>g.globePalette',[None],[dict(outline=indices[1],tree=indices[3],wild=indices[10],tribes=[read(0x59bc19+i*4,'B') for i in range(4)])])
+compare('()=>g.globePalette',[None],[dict(outline=indices[1],tree=indices[3],wild=indices[10],clear=indices[9],tribes=[read(0x59bc19+i*4,'B') for i in range(4)])])
 cases=[];expected=[]
 for v in views:
     for _ in range(32):
