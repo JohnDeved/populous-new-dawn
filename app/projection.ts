@@ -2,7 +2,7 @@ import native from './original-camera.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 
 export type CameraConfig = (typeof native.views)[number]
-export type Projection = {
+export interface Projection {
   matrix: number[]
   curvature: number
   depth: number
@@ -17,13 +17,25 @@ export type Projection = {
   pixelScaleX: number
   pixelScaleY: number
 }
-export type ProjectedPoint = {
+export interface ProjectedPoint {
   x: number
   y: number
   z: number
   screenX: number
   screenY: number
   flags: number
+}
+
+// 0x46c340: small values encode shade/light strength; an ARGB value is already colored.
+export function vertexLighting(value: number, tint: number) {
+  if (value & 0xff000000) return { diffuse: value >>> 0, specular: 0 }
+  const shade = value < 32 ? value * 8 : 255
+  const strength = Math.max(0, Math.min(256, value * 5 - 160))
+  const channel = (shift: number) => (((tint >>> shift) & 255) * strength) >>> 8
+  return {
+    diffuse: (0xff000000 | (shade << 16) | (shade << 8) | shade) >>> 0,
+    specular: (channel(16) << 16) | (channel(8) << 8) | channel(0),
+  }
 }
 
 // Signed low 32 bits of a 64-bit product shifted right 16; no floating rounding.
@@ -49,7 +61,7 @@ function normalize(v: number[]) {
 
 // 0x47fab0: rotate about a current basis row, then normalize/rebuild the basis.
 export function rotateBasis(matrix: number[], angle: number, axis: 1 | 2 | 3) {
-  const fixed = axis === 1 ? 0 : axis === 2 ? 1 : 2
+  const fixed = axis - 1
   const rows = [matrix.slice(0, 3), matrix.slice(3, 6), matrix.slice(6, 9)]
   const [x, y, z] = rows[fixed],
     s = rules.sine[angle & 2047] >> 2,
@@ -105,7 +117,8 @@ export function modelMatrix(heading: number, pitch = 0, roll = 0) {
 export function relativeCoordinate(coordinate: number, center: number) {
   const delta = (coordinate & 65535) - (center & 65535),
     magnitude = Math.abs(delta)
-  return (magnitude & 32768 ? (delta > 0 ? magnitude - 65536 : 65536 - magnitude) : delta) >> 1
+  if (!(magnitude & 32768)) return delta >> 1
+  return (delta > 0 ? magnitude - 65536 : 65536 - magnitude) >> 1
 }
 
 // Raw PNTS coordinates, native object scale, and native camera-relative origin.
@@ -174,8 +187,10 @@ export function polygonMeshBounds(bounds: number[], heading: number) {
     for (let j = 0; j <= distance; j++) {
       const row = rows[ay + j * direction],
         x = ax + Math.trunc((j * step) / 256)
-      if (row[0] === 0) row[0] = row[1] = x
-      else if (x < row[0]) row[0] = x
+      if (row[0] === 0) {
+        row[0] = x
+        row[1] = x
+      } else if (x < row[0]) row[0] = x
       else if (x > row[1]) row[1] = x
     }
   }
@@ -332,8 +347,11 @@ export function projectPoint(
   const screenX = Math.fround(v.pixelScaleX * sx + v.centerX),
     screenY = Math.fround(v.centerY - v.pixelScaleY * sy)
   let flags = p.flags ?? 0
-  if (clip)
-    flags |=
-      screenX < 0 ? 2 : screenX >= v.width ? 4 : screenY < 0 ? 8 : screenY >= v.height ? 16 : 0
+  if (clip) {
+    if (screenX < 0) flags |= 2
+    else if (screenX >= v.width) flags |= 4
+    else if (screenY < 0) flags |= 8
+    else if (screenY >= v.height) flags |= 16
+  }
   return { x, y, z, screenX, screenY, flags }
 }

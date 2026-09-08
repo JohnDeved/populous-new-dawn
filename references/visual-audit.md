@@ -117,3 +117,25 @@ and previews range on spell hover. Inspected captures:
 `node scripts/check-browser-spell-halo.mjs`. The test also captures a real Blast
 impact as a baseline for the next effects pass. Native clock ownership and
 full painter/blend behavior remain open, alongside ground target tiles.
+
+### Coastline lighting pass
+
+Revisited `images-1.jpg`, `user-world.png` and `user-campaigns.jpg` alongside the
+live first mission. The current terrain bank remains original data; the reference
+images' different landscape palettes do not justify recoloring this mission by
+eye. A concrete rendering mismatch was visible at the sea edge: coastal terrain
+ignored vertex diffuse shading even though adjacent water received it.
+
+The recovered `0046c340` conversion now serves both surfaces. Wet coast vertices
+darken with the same native wave samples as the sea, and terrain supports the
+original additive warm-light channel. Inspected matched-view captures:
+`/private/tmp/populous-coast-before.png` (the previous omission reproduced with
+white terrain diffuse) and `/private/tmp/populous-coast-after.png`. The browser
+check measures 49,213 changed coast pixels and 6,817 pixels responding to supplied
+warm-light inputs. These are integration checks, not a whole-frame original-game
+comparison or proof of complete sunlight scheduling.
+
+Reproduce with `node scripts/check-browser-water.mjs`. Original terrain texture
+updates after a real Land Bridge cast remain verified. Next visible comparisons
+should examine model lighting/shadows and representative unit activity alongside
+the remaining terrain raster/filter differences.

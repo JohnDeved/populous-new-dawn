@@ -14,6 +14,7 @@ import {
 import { defeatSky, createSkyMotion, updateSkyArray, skyCloudLayer } from './sky.ts'
 import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import { waterTexture, waterPoint, waterCell } from './water.ts'
+import { vertexLighting } from './projection.ts'
 import skyPalette from './original-sky.json'
 import {
   createTooltip,
@@ -452,13 +453,32 @@ export class GameScene {
           waterMap: { value: this.waterMap },
           scroll: this.waterScroll,
         },
-        vertexShader: `attribute float surface;attribute float light;varying vec2 land;varying vec2 waterUV;varying float sea;varying float shade;
-        void main(){land=(uv+128.)/256.;waterUV=vec2(uv.x+8.,-uv.y-8.)/16.;sea=surface;shade=light;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-        fragmentShader: `uniform sampler2D map;uniform sampler2D waterMap;uniform float scroll;varying vec2 land;varying vec2 waterUV;varying float sea;varying float shade;
-      void main(){gl_FragColor=sea>.5?texture2D(waterMap,waterUV+scroll):texture2D(map,land);
-      #include <colorspace_fragment>
-      if(sea>.5)gl_FragColor.rgb*=shade;
-      }`,
+        vertexShader: `
+          attribute float surface;
+          attribute vec3 light;
+          attribute vec3 highlight;
+          varying vec2 land, waterUV;
+          varying float sea;
+          varying vec3 diffuse, specular;
+          void main() {
+            land = (uv + 128.) / 256.;
+            waterUV = vec2(uv.x + 8., -uv.y - 8.) / 16.;
+            sea = surface;
+            diffuse = light;
+            specular = highlight;
+            gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
+          }`,
+        fragmentShader: `
+          uniform sampler2D map, waterMap;
+          uniform float scroll;
+          varying vec2 land, waterUV;
+          varying float sea;
+          varying vec3 diffuse, specular;
+          void main() {
+            gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV + scroll) : texture2D(map, land);
+            #include <colorspace_fragment>
+            gl_FragColor.rgb = clamp(gl_FragColor.rgb * diffuse + specular, 0., 1.);
+          }`,
       }),
       9
     )
@@ -741,7 +761,7 @@ export class GameScene {
       positions.push(x, w.land.heights[i] / 128, z)
       uv.push(x, z)
       surfaces.push(sea)
-      lights.push(1)
+      lights.push(1, 1, 1)
     }
     for (let z = -128; z < 128; z += 2)
       for (let x = -128; x < 128; x += 2) {
@@ -768,7 +788,11 @@ export class GameScene {
     geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
     geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
     geo.setAttribute('surface', new THREE.Float32BufferAttribute(surfaces, 1))
-    geo.setAttribute('light', new THREE.Float32BufferAttribute(lights, 1))
+    geo.setAttribute('light', new THREE.Float32BufferAttribute(lights, 3))
+    geo.setAttribute(
+      'highlight',
+      new THREE.Float32BufferAttribute(new Float32Array(lights.length), 3)
+    )
     this.terrain.geometry = mergeVertices(geo)
     geo.dispose()
     this.terrainVersion = w.landVersion
@@ -828,14 +852,30 @@ export class GameScene {
     // command loop is live; the original texture uses its separate outer turn.
     this.waterScroll.value = (w.turn & 255) / 256
     const pos = this.terrain.geometry.getAttribute('position'),
-      light = this.terrain.geometry.getAttribute('light')
+      surface = this.terrain.geometry.getAttribute('surface'),
+      light = this.terrain.geometry.getAttribute('light'),
+      highlight = this.terrain.geometry.getAttribute('highlight')
     for (let j = 0; j < pos.count; j++) {
       const i = this.landIndex(pos.getX(j), pos.getZ(j)),
         p = waterPoint(w.land, i, w.turn, this.waves)
+      // 0x4673b0 uses the same diffuse conversion on coast and land; only
+      // open-water triangles suppress the additive warm light channel.
+      const colors = vertexLighting(p.color, surface.getX(j) ? 0 : 0xfdb935)
       pos.setY(j, p.height / 128)
-      light.setX(j, p.color < 32 ? (p.color * 8) / 255 : 1)
+      light.setXYZ(
+        j,
+        ((colors.diffuse >>> 16) & 255) / 255,
+        ((colors.diffuse >>> 8) & 255) / 255,
+        (colors.diffuse & 255) / 255
+      )
+      highlight.setXYZ(
+        j,
+        ((colors.specular >>> 16) & 255) / 255,
+        ((colors.specular >>> 8) & 255) / 255,
+        (colors.specular & 255) / 255
+      )
     }
-    pos.needsUpdate = light.needsUpdate = true
+    pos.needsUpdate = light.needsUpdate = highlight.needsUpdate = true
   }
   makeDecorations() {
     for (const tree of this.world.trees) {

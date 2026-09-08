@@ -4073,3 +4073,44 @@ health/duplication and focused ox-standard checks were run; existing large-modul
 debt remains. Full native preview lifecycle, per-cell validity, territory limits,
 plan allocation and construction ground changes are still open. This advances
 visible controls without claiming complete placement or whole-frame fidelity.
+
+## Shoreline vertex shading and additive terrain light — 2026-09-08
+
+The browser multiplied diffuse into open-water triangles only. Original terrain
+triangles also receive the point color from `0046cb90`, including wet vertices
+on the coast. `0046c340` converts numeric values below 32 into eight-times-value
+grayscale; higher values use white diffuse and a specular strength clamped from
+`value*5-160` to 256. Tint channels multiply this strength and shift by eight.
+Packed ARGB values bypass conversion and clear specular.
+
+`004673b0` uses tint 0xfdb935 on terrain, while its water branch clears specular.
+`004e3bc0` enables D3D render state 29 before submitting its textured batch, then
+disables it for subsequent work. `004f9380` copies queued triangle vertices and
+sets RHW=1; this confirms the existing affine browser projection rather than
+requiring a new perspective-correction approximation. These raw exports preserve
+the renderer evidence without claiming its complete queue/hardware pipeline.
+
+The shared `vertexLighting` helper supplies normalized diffuse/specular attributes.
+The readable terrain shader applies both after output color conversion, preserving
+the original encoded-color arithmetic. The wet shoreline now responds to native
+wave shade along with open water. Terrain-light ownership remains separate: no
+invented sunlight animation was added to exercise the new renderer channel.
+
+Validation: 1,408 complete native conversions execute without stub consumers,
+covering ordinary strengths, saturation, arbitrary tints and packed ARGB. The
+full native projection suite still passes after replacing nested conditions and
+chained assignment with straightforward control flow. Seventy-one gameplay tests,
+type checking, lint and build pass. The browser compares 49,213 changed coastline
+pixels against the old omission and 6,817 pixels responding to supplied warm-light
+inputs, while water highlights remain zero. Wave animation, 256-turn wrap, pause,
+shared coast heights and overview pass. A real Land Bridge cast continues to
+refresh changed terrain and shade data without browser errors. Matched-view
+coastline captures were inspected.
+
+Maintainability: projection declarations follow ox-standard, the touched module
+passes its focused lint, and the water browser check reuses shared setup and is
+formatted for reading. Fallow health/duplication was run; large simulation modules
+and existing repository debt remain. Native sunlight allocation/propagation,
+timing, colored-object lighting and complete raster/filter/LOD ownership remain
+open. The native color checks and browser pixels establish this correction, not
+whole-frame visual parity.

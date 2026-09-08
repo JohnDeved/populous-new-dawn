@@ -1795,3 +1795,31 @@ builder entrance routes. `004b8f50`/`004b9150` and the remaining modes of `004b9
 are preserved as evidence for later controller/allocation work. Exact per-cell
 validity, territory limits, construction terrain changes and plan lifecycle remain
 browser adapters; Space outside placement still uses the existing pause binding.
+
+## Coastline diffuse shading and additive terrain light
+
+`app/projection.ts:vertexLighting` reconstructs complete `0046c340`: packed ARGB
+passes through, small numeric values become grayscale diffuse color, and values
+above 32 also produce a clamped, tint-scaled specular channel. `004673b0` uses
+warm tint 0xfdb935 for terrain; its open-water branch suppresses specular. The
+browser previously applied diffuse only to open water, leaving coastal terrain
+too bright beside it. Both surfaces now receive diffuse after output color
+conversion, with additive light on terrain.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-vertex-lighting.py /path/to/d3dpoptb.exe
+node scripts/check-browser-water.mjs
+```
+
+The native check executes 1,408 complete conversions without intercepted
+consumers, covering all ordinary shade strengths, saturation, colored inputs and
+arbitrary tints. `004e3bc0` enables D3D render state 29 (specular) for the textured
+batch. `004f9380` writes RHW=1, consistent with the browser's existing affine
+native projection; queue capacity and the complete hardware batch remain unported.
+
+Browser checks compare the old coast-only omission against the corrected shader,
+verify additive light from supplied terrain-light inputs, and confirm water has
+no warm highlights. Wave motion/wrap/pause, shared coast heights and overview still
+pass. A real Land Bridge cast still rebuilds terrain textures and geometry. The
+lighting-input fixture does not establish native sunlight allocation, propagation
+or timing; those systems and complete raster/filter/LOD behavior remain open.

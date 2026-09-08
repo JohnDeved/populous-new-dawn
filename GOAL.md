@@ -111,8 +111,11 @@ animation-frame height instead of invented ground rings. The HUD
 now uses compact native artwork, bitmap counts and model-hover descriptions;
 exact native menu ordering, font/palette scheduling and control ownership remain
 open. Keep these visible gaps ahead of standalone internal ports. Native terrain
-and water calculations are integrated across the full rendered map, but coastal
-blend passes and whole-frame fidelity remain open. Use before/after browser
+and water calculations are integrated across the full rendered map. Coastline
+terrain now receives the same native diffuse shading as water, with the original
+additive warm-light channel on land. The 1,408 native vertex-color cases and real
+browser coast/light comparisons pass; complete lighting ownership, raster/filter
+behavior and whole-frame fidelity remain open. Use before/after browser
 captures and actual input/gameplay checks; native comparisons do not establish
 overall look-and-feel parity.
 
