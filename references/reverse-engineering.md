@@ -2865,3 +2865,64 @@ Typechecking, the production build and browser cell integrity, original frames,
 pause, circle/chain, detour and restart checks pass. Lint remains at zero errors
 and seven existing image warnings. The manifest checker verifies 586 exports
 against the supplied executable and unknown-build rejection.
+
+
+## 2026-09-08 — recovery controllers and shared landing initializers
+
+Extended `app/person-state.ts` with the original state-36 initialization path
+and full `004df220` recovery controller. It faces a valid target, selects the
+correct ground/air recovery animation, derives its timer from animation timing,
+handles vehicle-dependent speed halving, calls the fight consumer, and returns
+the configured next state on expiry or target loss. Flags, signed timers,
+frame resets and callback ordering remain native-width operations.
+
+`app/special-battle.ts` reconstructs state-39 setup (`004dfac0`), tribe-relative
+placement (`004783a0`) and boundary enforcement (`00478820`). The shared center
+pointer is `0096aa70`. Setup forces vehicle exit; non-shamans relocate, reset
+height/displacement, allocate class 7/model 32, configure descriptor 44/object
+1401 and select tribe palette. Shamans enter substate 3 without teleporting.
+Both face the center and stop with the original cargo/airborne animation choice.
+Formation width is at least six and otherwise truncated population/8. Negative
+ranks consume one RNG draw; rank zero and positive ranks have distinct spacing.
+Boundary enforcement preserves the original strict signed squared-distance
+comparison and delay/substate gates. This is special battle state 39, not an
+approximation of ordinary shaman control.
+
+The rule importer now reads animation descriptors 40–44 and the four palette
+bytes at `005a89c8 + tribe*5 + 3`. The animation oracle follows the imported
+array length so further evidenced descriptor imports do not silently escape it.
+Raw `004783a0` and `00478820` exports bring the manifest to **588**.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-person-recovery.py /path/to/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-person-state.py /path/to/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-animation.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+The new oracle passes **20,480 native comparisons**: 4,096 each for formation
+position, boundary, fight recovery, special setup and composed shared state
+initialization. It covers four configured tribes, population/rank extremes,
+seams, signed distance overflow, timer/speed extrema, missing/dead targets,
+cargo, flight flags, failed allocation and effect initialization suppression.
+The composed cases execute real `004d2740` plus `004dfac0`, confirming common
+flags and speed RNG before setup and animation refresh after it. Native math,
+RNG, cell movement, height on the flat fixture and the effect animation setter
+execute unchanged. Person animation, forced vehicle exit, effect allocation/
+class initialization and fight remain supplied consumers. Motion release runs
+natively with motion group zero. Nonzero group/vehicle behavior and complete
+battle gameplay are not covered by this composition.
+
+The existing state oracle now passes **4,096 shared initializers** across
+10/14/36/39/41, plus 6,624 animation selections, 1,280 order/reconciliation cases,
+640 speed/recovery cases and 128 training handoffs. All 45 imported animation
+descriptors pass 2,160 setter and 2,880 update checks, alongside 2,048 upper
+setters and 4,096 allocation-list updates. All **53 gameplay regressions**,
+typechecking, browser cell integrity/frames/pause/chains/detours/restart and the
+production build pass. Lint retains seven existing warnings and no errors.
+
+**Live boundary:** state 36/39 recovery/setup is available to the reconstructed
+engine but is not yet connected to the live person dispatcher. The full class-1
+scheduler, remaining state/order bodies, world consumers and airborne ownership
+still need composition. Full game parity remains unfinished.

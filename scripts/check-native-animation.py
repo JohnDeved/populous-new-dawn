@@ -83,14 +83,14 @@ def compare(kind,cases,expected):
  print(f'PASS: {len(cases):,} native {kind} animation comparisons',flush=True)
 
 cases=[];expected=[]
-for draw in range(40):
+for draw in range(len(rules['animationDescriptors'])):
  for _ in range(48):
   u=person(draw);obj=rng.randrange(65536);put(u);call(0x4ee700,p+0x33,draw,obj)
   cases.append(dict(p=u,draw=draw,object=obj));expected.append(get())
 compare('set',cases,expected)
 
 cases=[];expected=[]
-for draw in range(40):
+for draw in range(len(rules['animationDescriptors'])):
  for _ in range(64):
   u=person(draw)
   if rules['animationDescriptors'][draw]['mode']==2:u['object']=rng.choice([0,40,72,216,424,1616])

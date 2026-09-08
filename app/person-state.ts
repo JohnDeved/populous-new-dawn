@@ -21,6 +21,7 @@ export type PersonStateEffects = {
   startOrders: (person: StatefulPerson) => void;
   setAnimation: (person: StatefulPerson, object: number) => void;
   celebrate?: () => void;
+  specialBattle?: () => void;
 };
 const short = (n: number) => (n << 16) >> 16;
 
@@ -100,11 +101,12 @@ function faceSelection(w: PersonStateWorld, p: StatefulPerson, effects: PersonSt
   else { effects.releaseMotion(p); p.turnAngle = angle; p.flags2 = (p.flags2 | 0x1080) >>> 0; }
 }
 
-// 0x4d2740: shared initialization, orders (10), selection (14) and victory (41).
+// 0x4d2740: shared initialization for orders (10), selection (14), fight
+// recovery (36), special battle (39) and victory (41).
 // Other state bodies are not silently approximated. World consumers remain
 // required callbacks until their native terrain, animation and list ports land.
 export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, effects: PersonStateEffects) {
-  if (![10,14,41].includes(p.state)) throw new RangeError(`Unported person-state initializer ${p.state}`);
+  if (![10,14,36,39,41].includes(p.state)) throw new RangeError(`Unported person-state initializer ${p.state}`);
   const oldFlags = rules.personStateFlags[p.previousState], stateFlags = rules.personStateFlags[p.state];
   const model = rules.personModels[p.model];
   if (oldFlags === undefined || !model) throw new RangeError('Unsupported native person state/model');
@@ -143,7 +145,10 @@ export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, ef
     p.assignment &= ~4; p.flags4 = (p.flags4 & ~0x40000) >>> 0; p.speed = 0;
     p.selectionFlags |= 0x81; p.flags3 = (p.flags3 & ~1) >>> 0; p.flags2 = (p.flags2 | 0x1000000) >>> 0;
     faceSelection(w, p, effects); p.assignment |= 16; p.animationMode = 1;
-  }else{
+  }else if(p.state===39){
+    if(!effects.specialBattle)throw new Error('State 39 requires its special battle initializer');
+    effects.specialBattle();
+  }else if(p.state===41){
     if(p.model!==7){p.flags4=(p.flags4|128)>>>0;deselect();}
     if(!effects.celebrate)throw new Error('Victory initialization requires the celebration controller');
     effects.celebrate();
@@ -176,7 +181,31 @@ export function releaseSelectedPeople(w: PersonStateWorld, people: StatefulPerso
     resetPersonMotion(p);
     if (p.flags2 & 0x100000) continue;
     const next = (w.levelFlags & 2) && p.model === 7 ? 39 : rules.personModels[p.model]?.nextState;
-    if (next !== 10 && next !== 14) throw new RangeError(`Unported person-state initializer ${next}`);
+    if (![10,14,36,39,41].includes(next)) throw new RangeError(`Unported person-state initializer ${next}`);
     p.previousState = p.state; p.state = next; initializePersonState(w, p, effects);
   }
+}
+
+// 0x4df220: state 36 faces its target, plays the recovery pose, submits the
+// fight consumer, then returns to the configured state when its timer expires.
+export function stepFightRecovery(p:StatefulPerson & {heading:number;f1:number;f2:number},gameFlags:number,
+  objects:ReadonlyMap<number,{x:number;y:number;class:number;flags2:number}>,
+  effects:{setAnimation:PersonStateEffects['setAnimation'];duration:()=>number;fight:(target:number)=>void}){
+  const target=p.target?objects.get(p.target):undefined;
+  let finished=!target||!target.class||!!(target.flags2&1);
+  if(!finished){
+    if(p.substate===0){
+      p.assignment|=0x200;p.flags2=(p.flags2|128)>>>0;
+      p.heading=p.turnAngle=nativeAngle(short(target!.x-p.x),-short(target!.y-p.y));
+      p.angle=p.flags2&0x8000?(p.heading+1024)&2047:p.heading;
+      p.substate=1;p.flags2=(p.flags2|0x40000000)>>>0;
+    }else if(p.substate===1){
+      let row=15;
+      if(p.flags2&0x80000){row=p.flags4&0x400?12:2;if(row===2)p.flags2=(p.flags2&~0x8000)>>>0;}
+      effects.setAnimation(p,rules.personAnimationObjects[row*9+p.model]);p.f1=1;p.f2=0;p.timer=short(effects.duration());
+      p.speed=p.vehicle&&(p.flags4&0x2000000)?Math.trunc(p.speed/2):0;
+      effects.fight(p.target);p.substate=2;p.flags2=(p.flags2|0x40000000)>>>0;
+    }else if(p.substate===2){p.timer=short(p.timer-1);finished=p.timer<=0;}
+  }
+  return finished?((gameFlags&2)&&p.model===7?39:rules.personModels[p.model].nextState):0;
 }

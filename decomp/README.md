@@ -1104,3 +1104,29 @@ reconciled explicitly by `syncLivePersonCells`; ordinary units and other object
 classes still await native allocation/lifecycle integration. `004ed8a0` and
 `004ee300` are retained as reviewed raw evidence, not full ports. There are 586
 exports; all 53 gameplay regressions and browser cell-list integrity checks pass.
+
+
+## Landing recovery state handoffs
+
+`initializePersonState` now also accepts state 36 (common initialization) and
+39 (required special-battle initializer). `stepFightRecovery` reconstructs
+`004df220`; `app/special-battle.ts` reconstructs `004dfac0`, `004783a0` and
+`00478820`. The shared center pointer is `0096aa70`; this special state must
+not be substituted for ordinary shaman control. Its non-shaman setup includes
+tribe formation placement, a class-7/model-32 effect and facing the shared
+center; shamans enter substate 3 without that teleport. Descriptor 44 and the
+four tribe effect palette bytes are now imported from the original tables.
+
+Run `scripts/check-native-person-recovery.py EXE`: 20,480 native comparisons,
+4,096 each for position, boundary, fight recovery, special setup and composed
+state-36/39 initialization. Native math/RNG, cell motion, flat fixture height
+and effect animation setters execute. Person animation, vehicle exit,
+allocation/class initialization and fight consumers are supplied. Motion release
+executes with group zero. `scripts/check-native-person-state.py EXE` adds shared
+initialization coverage for states 36/39 while preserving the existing order,
+selection and celebration comparisons. `scripts/check-native-animation.py EXE`
+now checks every imported descriptor (45) rather than a fixed range of 40.
+
+These recovery states are reconstructed, not yet the live dispatcher. Remaining
+state bodies, group/vehicle/object lifecycle and airborne integration are open.
+The manifest contains 588 exports; the full parity goal remains unfinished.

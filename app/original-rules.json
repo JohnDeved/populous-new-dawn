@@ -4436,7 +4436,53 @@
       "palette": 15,
       "reset": 1,
       "flags": 4
+    },
+    {
+      "hold": 16,
+      "step": 4,
+      "mode": 1,
+      "palette": 15,
+      "reset": 1,
+      "flags": 4
+    },
+    {
+      "hold": 8,
+      "step": 4,
+      "mode": 1,
+      "palette": 15,
+      "reset": 1,
+      "flags": 4
+    },
+    {
+      "hold": 6,
+      "step": 4,
+      "mode": 1,
+      "palette": 15,
+      "reset": 1,
+      "flags": 4
+    },
+    {
+      "hold": 14,
+      "step": 4,
+      "mode": 1,
+      "palette": 0,
+      "reset": 1,
+      "flags": 4
+    },
+    {
+      "hold": 16,
+      "step": 4,
+      "mode": 1,
+      "palette": 0,
+      "reset": 1,
+      "flags": 4
     }
+  ],
+  "tribeEffectPalettes": [
+    4,
+    0,
+    1,
+    3
   ],
   "spellCharging": [
     {
