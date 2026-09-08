@@ -1,7 +1,7 @@
 // npm run dev, then node scripts/check-browser-globe-motion.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleView } from './browser-game.mjs'
 import { moveGlobeStars } from '../app/globe.ts'
 const browser = await chromium.launch({ headless: true })
 try {
@@ -16,6 +16,7 @@ try {
     s.animate(s.previous)
     cancelAnimationFrame(s.frame)
   })
+  await settleView(page)
   const state = () => page.evaluate(() => {
     const s = window.testScene
     return { motion: s.globeMotion, center: s.view.center, offsets: [...s.globe.offsets], bearing: s.cameraBearing }
@@ -91,9 +92,11 @@ try {
   // Return keyboard focus from the closed dialog to the game.
   await page.evaluate(() => document.activeElement?.blur())
   await page.keyboard.press('=')
+  await settleView(page)
   await frame()
   assert.equal(await page.evaluate(() => window.testScene.overviewActive), false)
   await page.getByRole('button', { name: 'Planet overview', exact: true }).click()
+  await settleView(page)
   await frame()
   assert.deepEqual((await state()).motion.velocity, { x: 0, y: 0 })
   assert.equal((await state()).bearing, held.bearing)

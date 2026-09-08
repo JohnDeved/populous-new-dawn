@@ -412,3 +412,22 @@ concealment, tower fans, remaining overview effect classes and matched original
 frames remain open. Camera/raster stay partial; discovery and full parity are
 unfinished. Continue visible overview transitions and ground-world activity,
 using original captures to choose the next discrepancy.
+
+### Latest visible integration: original overview transition
+
+Overview now uses the original two-stage ground zoom/rotation and globe projection
+morph, with the reverse sequence on return. Enter restores the saved ground view;
+zoom-in returns to bird's-eye. Original flat projection scales, rim behavior,
+lighting blend, inclusive morph timing and disabled morph picking are integrated.
+Forced focus, flyby and result camera requests cancel the ordinary transition.
+
+Native checks cover 1,344 blended projection/picking cases, 93,240 final mesh
+triangles and 100 complete morph lifetimes. Portable checks retain 24 native
+mesh captures and ten lifetimes; ground-view comparisons now cover 360 transitions
+and 6,960 frames including original preset 4. Actual browser checks cover stages,
+rotation, pause/input/picking, Enter versus zoom return and focus interruption.
+Camera/raster remain partial. Native outer dispatcher side effects, scaled frame
+scheduling, transition audio, globe recentering and matched full frames remain
+open; the current presentation adapter runs at 24 Hz. Continue original-capture
+comparisons of ground-world activity and first-mission feedback alongside the
+remaining overview markers/controls. Discovery and full parity remain unfinished.

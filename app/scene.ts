@@ -84,7 +84,14 @@ import {
   cameraConfigIndex,
   type CameraConfig,
 } from './projection.ts'
-import { zoomPreset, viewTransitionFrames, stepViewTransition } from './camera-view.ts'
+import {
+  zoomPreset,
+  viewTransitionFrames,
+  stepViewTransition,
+  beginGlobeMorph,
+  stepGlobeMorph,
+  type GlobeMorph,
+} from './camera-view.ts'
 import { RenderView } from './render-view.ts'
 import { GlobeRenderer } from './globe-renderer.ts'
 import { beginGlobeDrag, stepGlobeMotion, type GlobeMotion } from './globe.ts'
@@ -346,7 +353,22 @@ export class GameScene {
   overviewActive = false
   viewZoom = 0
   viewPreset = 0
-  viewTransition: { config: CameraConfig; remaining: number } | null = null
+  viewTransition: {
+    config: CameraConfig
+    remaining: number
+    angle?: { target: number; increment: number }
+  } | null = null
+  overviewStage: 'enter' | 'exit' | null = null
+  overviewReturn = { preset: 0, bearing: 0 }
+  globeMorph: GlobeMorph = {
+    value: 0,
+    source: 0,
+    target: 0,
+    increment: 0,
+    frame: 0,
+    duration: 6,
+    active: false,
+  }
   dragLast = { x: 0, y: 0 }
   globePointer = { x: 0, y: 0 }
   globeMotion: GlobeMotion = {
@@ -775,6 +797,8 @@ export class GameScene {
     g.userData.nativeHeading = Math.round((angle * 1024) / Math.PI) & 2047
   }
   updateView() {
+    this.view.globeBlend = this.overviewActive ? this.globeMorph.value : 0
+    this.view.globeFlatScale = this.overviewStage === 'exit' ? 18 : 21
     this.view.update(
       this.container.clientWidth,
       this.container.clientHeight,
@@ -1137,7 +1161,7 @@ export class GameScene {
   pointerUp = ((event: PointerEvent) => {
     this.pointerButtons = event.buttons
     if (!(event.buttons & 6)) this.globeMotion.dragging = false
-    if (this.world.inputMask) return
+    if (this.world.inputMask || this.overviewStage) return
     this.dragBox.style.display = 'none'
     const moved = Math.hypot(event.clientX - this.down.x, event.clientY - this.down.y)
     if (moved > 7) {
@@ -1261,7 +1285,10 @@ export class GameScene {
       motion = this.cameraMotion
     if (this.resultRequest !== w.outcome.cameraRequest) {
       this.resultRequest = w.outcome.cameraRequest
-      if (!s.active) this.captureCamera()
+      if (!s.active) {
+        this.cancelOverview()
+        this.captureCamera()
+      }
       // ponytail: first-mission tribe origins and no replay file mode; the
       // shared native tribe/camera store replaces this presentation adapter.
       beginResultCamera(
@@ -1279,17 +1306,8 @@ export class GameScene {
     if (!w.paused || !s.active) {
       this.cameraTime += dt
       while (this.cameraTime >= 1 / 24) {
-        if (this.viewTransition && !w.inputMask && !this.overviewActive) {
-          this.viewTransition.remaining = stepViewTransition(
-            this.viewTransition.config,
-            this.currentPreset(),
-            this.viewTransition.remaining,
-            viewTransitionFrames(24)
-          )
-          if (!this.viewTransition.remaining) this.viewTransition = null
-          this.updateView()
-        }
-        if (!w.inputMask && !document.querySelector('dialog[open]')) {
+        this.stepViewChange()
+        if (!w.inputMask && !this.overviewStage && !document.querySelector('dialog[open]')) {
           let buttons = 0
           for (const key of this.keys)
             buttons = mergeCameraInput(
@@ -1391,6 +1409,7 @@ export class GameScene {
     const state = this.world.flyby,
       active = !!(state.flags & 1)
     if (active && !this.wasFlying) {
+      this.cancelOverview()
       this.viewPreset = 0
       this.viewTransition = null
       this.flybyCamera = {
@@ -1459,9 +1478,18 @@ export class GameScene {
     element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
     element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
   }
+  cancelOverview() {
+    if (!this.overviewActive && !this.overviewStage) return
+    this.cameraBearing = this.overviewReturn.bearing
+    this.viewPreset = this.overviewReturn.preset
+    this.viewTransition = null
+    this.overviewStage = null
+    this.overviewActive = false
+    this.globeMorph.active = false
+  }
   focus(p: Point = HOME, { animate = false } = {}) {
     if (animate && this.world.inputMask) return
-    this.overviewActive = false
+    this.cancelOverview()
     this.captureCamera()
     requestCameraFocus(
       this.cameraMotion,
@@ -1479,33 +1507,94 @@ export class GameScene {
       this.updateView()
     }
   }
-  overview() {
+  stepViewChange() {
     if (this.world.inputMask) return
-    this.overviewActive = true
+    if (this.viewTransition && !this.overviewActive) {
+      this.viewTransition.remaining = stepViewTransition(
+        this.viewTransition.config,
+        this.currentPreset(),
+        this.viewTransition.remaining,
+        viewTransitionFrames(24)
+      )
+      const angle = this.viewTransition.angle
+      if (angle) {
+        this.cameraPosition.angle = this.viewTransition.remaining
+          ? (this.cameraPosition.angle + angle.increment) & 2047
+          : angle.target
+        this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
+      }
+      if (!this.viewTransition.remaining) {
+        this.viewTransition = null
+        if (this.overviewStage === 'enter') {
+          this.overviewActive = true
+          beginGlobeMorph(this.globeMorph, true)
+        } else this.overviewStage = null
+      }
+      this.updateView()
+    }
+    if (this.overviewActive && this.globeMorph.active) {
+      stepGlobeMorph(this.globeMorph)
+      if (!this.globeMorph.active) {
+        if (this.overviewStage === 'exit') {
+          this.overviewActive = false
+          this.startGroundView(this.overviewReturn.preset, this.overviewReturn.bearing)
+        } else this.overviewStage = null
+      }
+      this.updateView()
+    }
+  }
+  startGroundView(preset: number, bearing?: number) {
+    const frames = viewTransitionFrames(24)
+    this.viewPreset = preset
+    this.viewZoom = 0
+    this.viewTransition = {
+      config: { ...this.view.config, bounds: [...this.view.config.bounds] },
+      remaining: frames,
+    }
+    if (bearing !== undefined) {
+      const target = Math.round((bearing * 1024) / Math.PI) & 2047
+      let distance = target - this.cameraPosition.angle
+      if (Math.abs(distance) > 1024) distance += distance < 0 ? 2048 : -2048
+      this.viewTransition.angle = { target, increment: Math.trunc(distance / frames) }
+    }
+    this.updateView()
+  }
+  overview() {
+    if (this.world.inputMask || this.overviewStage) return
+    if (this.overviewActive) {
+      this.leaveOverview(this.overviewReturn.preset)
+      return
+    }
+    this.captureCamera()
+    this.overviewReturn = { preset: this.viewPreset, bearing: this.cameraBearing }
+    this.overviewStage = 'enter'
     this.globeMotion.dragging = false
     this.globeMotion.velocity = { x: 0, y: 0 }
     this.globeMotion.position = { ...this.view.center }
     this.world.mode = null
     this.cameraMotion.active = 0
-    this.viewTransition = null
-    this.updateView()
+    this.startGroundView(4, 0)
+  }
+  leaveOverview(preset: number) {
+    this.overviewReturn.preset = preset
+    this.overviewStage = 'exit'
+    this.globeMotion.dragging = false
+    this.globeMotion.velocity = { x: 0, y: 0 }
+    beginGlobeMorph(this.globeMorph, false)
+    this.world.mode = null
   }
   zoom(inward: boolean) {
-    if (this.world.inputMask) return
+    if (this.world.inputMask || this.overviewStage) return
     const preset = zoomPreset(this.overviewActive ? 4 : this.viewPreset, inward)
     if (preset === 4) {
       if (!this.overviewActive) this.overview()
       return
     }
-    if (!this.overviewActive && preset === this.viewPreset) return
-    this.overviewActive = false
-    this.viewPreset = preset
-    this.viewZoom = 0
-    this.viewTransition = {
-      config: { ...this.view.config, bounds: [...this.view.config.bounds] },
-      remaining: viewTransitionFrames(24),
+    if (this.overviewActive) {
+      this.leaveOverview(preset)
+      return
     }
-    this.updateView()
+    if (preset !== this.viewPreset) this.startGroundView(preset)
   }
   animatePerson(
     g: THREE.Group,

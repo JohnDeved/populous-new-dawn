@@ -46,3 +46,34 @@ export function stepViewTransition(
   if (--remaining === 0) Object.assign(current, target, { bounds: [...target.bounds] })
   return remaining
 }
+
+export interface GlobeMorph {
+  value: number
+  source: number
+  target: number
+  increment: number
+  frame: number
+  duration: number
+  active: boolean
+}
+
+// 0x41d410 / 0x41d450: entry starts flat; return is ignored during a morph.
+export function beginGlobeMorph(morph: GlobeMorph, entering: boolean) {
+  if (!entering && morph.active) return
+  morph.source = entering ? 256 : morph.value
+  morph.value = morph.source
+  morph.target = entering ? 0 : 256
+  morph.increment = Math.trunc(((morph.target - morph.source) * 256) / morph.duration)
+  morph.frame = 0
+  morph.active = true
+}
+
+// 0x41d680 and draw_globe use an inclusive initial frame, then snap the endpoint.
+export function stepGlobeMorph(morph: GlobeMorph) {
+  if (!morph.active) return
+  morph.value = morph.source + Math.trunc(Math.imul(morph.frame++, morph.increment) / 256)
+  if (morph.frame === morph.duration + 1) {
+    morph.active = false
+    morph.value = morph.target
+  }
+}

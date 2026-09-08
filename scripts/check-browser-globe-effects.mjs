@@ -1,7 +1,7 @@
 // npm run dev, then node scripts/check-browser-globe-effects.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleView } from './browser-game.mjs'
 import { globeCircle } from '../app/globe.ts'
 import { lineQuad } from '../app/lightning.ts'
 const browser = await chromium.launch({ headless: true })
@@ -13,6 +13,7 @@ try {
     s.focus({ x: 2, z: 30 }); s.overview()
     s.animate(s.previous); cancelAnimationFrame(s.frame)
   })
+  await settleView(page)
   const frame = (ms = 0) => page.evaluate(ms => {
     const s = window.testScene
     s.animate(s.previous + ms); cancelAnimationFrame(s.frame)
@@ -100,7 +101,7 @@ try {
   assert.deepEqual(gates,{visible:1,hidden:0,owned:1,enemy:0})
   for(let i=0;i<30;i++)await frame(80)
   assert.equal(await page.evaluate(()=>window.testScene.world.effects.some(f=>f.sprite)),false,'Expired projectile art must leave the overview')
-  await page.keyboard.press('=');await page.keyboard.press('1');await frame()
+  await page.keyboard.press('=');await settleView(page);await page.keyboard.press('1');await frame()
   assert.equal(await page.evaluate(()=>window.testScene.range.visible&&window.testScene.range.children.length===85),true)
   assert.deepEqual(errors,[])
   console.log(`PASS: native 32-strip overview range (${rangePixels} GPU pixels), paused pulse, hover/selection/input gates; real Blast trails (${effectPixels} GPU pixels), AL tint, tribe/fog/hidden gates, expiry and ground-halo return`)

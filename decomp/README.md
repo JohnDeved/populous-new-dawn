@@ -2482,3 +2482,68 @@ open. Neutral fire-ember ownership still uses the browser adapter. The exported
 queues/fans but are not claimed as integrated. Ten new hashes bring the manifest
 to 841 exports without changing earlier snapshots. These bounded additions do
 not complete overview or whole-frame raster parity.
+
+## Ground/world transition and projection morph
+
+`00418890` requests overview entry or return. `00418950` first changes the ground
+view to original preset 4 and turns the camera toward zero using the saved
+bearing; the ground transition reaches its last frame before `0041d410` starts
+the globe morph. Return uses `0041d450`, finishes the globe morph, then restores
+the saved ground preset/bearing through the same ground-view transition. Native
+zoom-in explicitly replaces the saved preset with bird's-eye; the overview toggle
+returns to the saved preset. The browser now follows this two-stage order instead
+of instantly switching renderers. Explicit focus, introductory flyby and result
+camera requests cancel the ordinary view sequence.
+
+`GlobeMorph` in `app/camera-view.ts` ports `0041d410`, `0041d450` and `0041d680`.
+Entry starts at 256 (flat), targets zero and uses truncating fixed-point increments.
+Return starts from the current value and ignores requests during an active morph.
+The original six-frame duration includes its initial frame: entry values are
+256,214,171,129,86,43,0; return values are 0,42,85,127,170,213,256. The completion
+call snaps the endpoint and requests the next draw mode. Native `0041ce00` sets
+the initial duration to six. Recentring through `0041d2e0` can change duration and
+translate the center; that separate globe-focus path remains unintegrated.
+
+`0042dae0` interpolates projected X/Y toward the original flat callbacks before
+inverting screen Y. `0041d1e0` uses 21 pixels per native cell on entry; `0041d260`
+uses 18 on return. `0042dd50` shares the interpolation but its outside-cell rim
+branch does not invert Y. The shared `blendGlobePoint` preserves that distinction.
+`0042de90` rejects inverse picks whenever the blend is nonzero. Both the render
+view and marker/effect drawing now consume the same blend and callback scale.
+`0042df80` blends the native fixed shade toward 0x200000. Its invalid floating
+conversion becomes an integer lower-clamp case, keeping transitional off-disc
+vertices finite. Terrain topology and star projection remain native and unchanged.
+
+```sh
+python scripts/check-native-globe-transition.py /path/to/d3dpoptb.exe
+python scripts/check-native-globe-transition.py /path/to/d3dpoptb.exe --record
+python scripts/check-native-camera-view.py /path/to/d3dpoptb.exe
+node --test tests/globe.test.mjs
+node scripts/check-browser-globe-transition.mjs
+```
+
+The new oracle compares 1,344 complete blended interior/rim projection and picking
+cases, 93,240 native mesh triangles with final projected coordinates and lighting,
+and 100 complete morph starts/lifetimes including ignored return requests. Only
+sidebar width, final triangle submissions and final draw-mode notification are
+supplied. Both original flat callbacks and native interpolation execute. The
+portable globe fixture retains 24 compared morph meshes and ten native lifetimes;
+existing captures remain intact. Ground-view comparisons now include preset 4
+in both directions: 360 transitions, 6,960 frames and thirteen rendered fields
+across all ten original resolutions.
+
+The actual browser test inspects both stages, integer rotation, intermediate
+mesh vertices, pause and input gates, rejected morph picks, Enter toggle versus
+zoom return, original endpoint values, restored bearing and focus interruption.
+Existing world-view, motion, camera-preset, spell-range/trail and footprint checks
+wait for this real transition instead of assuming an immediate renderer switch.
+Captures: `/private/tmp/populous-globe-morph-v107.png` and
+`/private/tmp/populous-globe-return-v107.png`.
+
+The browser still supplies its 24 Hz presentation scheduler and existing UI/input
+adapter. Full native dispatch side effects, resolution/scaled timing ownership,
+transition audio, map-focus recentering and original matched full frames remain
+open. Native projection/morph comparisons do not claim that complete outer UI
+controller has been CPU-compared. The newly exported instant-mode/menu handlers
+are retained as research, not claimed ports. Nine new hashes bring the verified
+manifest to 850 exports. Camera and whole-frame raster checkpoints remain partial.

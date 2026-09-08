@@ -2,7 +2,7 @@
 // Native geometry/math are compared separately by check-native-globe.py.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleView } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
@@ -32,6 +32,7 @@ try {
   })
   const original = await state()
   await page.getByRole('button', { name: 'Planet overview', exact: true }).click()
+  await settleView(page)
   await advance()
   let view = await state()
   assert.equal(view.overview, true)
@@ -83,7 +84,7 @@ try {
   view = await state()
   assert.equal(view.center.x, (original.center.x + 320) & 65535)
   assert.equal(view.center.y, original.center.y)
-  assert.equal(view.bearing, original.bearing)
+  assert.equal(view.bearing, 0)
   const canvas = page.locator('.world-viewport canvas'), rect = await canvas.boundingBox()
   const x = rect.x + rect.width / 2, y = rect.y + rect.height / 2
   await page.mouse.move(x, y)
@@ -95,7 +96,7 @@ try {
   const dragged = await state(), scale = Math.trunc(0x320000 / 400)
   assert.deepEqual(dragged.center, { x: (view.center.x + (Math.imul(-81, scale) >> 8)) & 65535,
     y: (view.center.y + (Math.imul(37, scale) >> 8)) & 65535 })
-  assert.equal(dragged.bearing, original.bearing)
+  assert.equal(dragged.bearing, 0)
   assert.notDeepEqual(await page.evaluate(() => [...window.testScene.globe.offsets]), new Array(32).fill(0))
   // Resize exercises mesh, icon target and framebuffer recreation together.
   await page.setViewportSize({ width: 1280, height: 900 })
@@ -105,6 +106,7 @@ try {
   assert.deepEqual(await page.evaluate(() => [window.testScene.globe.canvas.width, window.testScene.globe.canvas.height]), [(await state()).view.width, 900])
   // Zoom-in returns to the live scene and restores clouds, models and sprites.
   await page.keyboard.press('=')
+  await settleView(page)
   await advance()
   view = await state()
   assert.equal(view.overview, false)

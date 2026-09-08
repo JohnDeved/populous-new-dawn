@@ -65,7 +65,7 @@ for index in range(10):
     write(0x89c6ee,'h',index);write(0x89c6cf,'hh',base['width'],base['height'])
     for rate in [10,24,60]:
         write(0x5ca850,'i',rate);write(0x89c669,'I',0)
-        for source,target in [(0,3),(3,0),(0,2),(2,0),(3,2),(2,3)]:
+        for source,target in [(0,3),(3,0),(0,2),(2,0),(3,2),(2,3),(0,4),(2,4),(3,4),(4,0),(4,2),(4,3)]:
             cpu.mem_write(0x88f004,bytes(cpu.mem_read(0x88f0c0+(index*5+source)*94,94)))
             write(0x89c6ec,'b',source);call(0x479f00,12,target,0)
             count=read(0x89ce34,'b');sequence=[]

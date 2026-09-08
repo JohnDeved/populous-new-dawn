@@ -4302,3 +4302,30 @@ painter ownership, other effect/circle classes, tower fans, concealment and
 matched original full frames remain open. Camera/raster stay partial and the
 known-scope denominator is unchanged. See decomp/README.md for exact addresses,
 regeneration commands and oracle boundaries.
+
+## 2026-09-08: native ground/world transition
+
+World view now enters through the original ground-preset zoom and rotation,
+then morphs the terrain projection into the globe. Return reverses that sequence
+and restores the saved bearing. Enter returns to the retained ground preset;
+zoom-in deliberately chooses bird's-eye, as the original command does.
+
+`0041d410`/`0041d450`/`0041d680` agree on 100 complete morph lifetimes. Native
+`0041d1e0`/`0041d260` flat callbacks and `0042dae0`/`0042dd50` interpolation agree
+on 1,344 projected/picking cases; complete native meshes agree on 93,240 triangles
+including transitional lighting. Twenty-four mesh captures and ten lifetimes
+are portable regressions. Ground preset-4 transitions extend the original field
+comparison to 360 transitions/6,960 frames across all ten native resolutions.
+
+Actual browser checks cover entry/return timing, integer rotation, finite geometry,
+paused presentation, input and picking gates, saved-preset toggle, zoom return,
+restored bearing and focus interruption. Existing overview motion, range/trails,
+footprints and camera-preset checks now wait for the real transition. Captures:
+`/private/tmp/populous-globe-morph-v107.png` and
+`/private/tmp/populous-globe-return-v107.png`.
+
+The outer UI controller is reconstructed from `00418950` and connected to the
+browser's existing 24 Hz presentation/input adapter; it is not wholly CPU-compared.
+Original dispatcher side effects/audio, scaled frame scheduling, recentering and
+matched whole frames remain open. Nine exports bring the manifest to 850; camera
+and raster remain partial with no additional broad-checkpoint credit.

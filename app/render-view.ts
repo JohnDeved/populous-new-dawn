@@ -199,8 +199,16 @@ export class RenderView {
       z: unwrapped ? (y - this.rawCenter.y) >> 1 : relativeCoordinate(y, this.center.y),
     }
   }
+  globeBlend = 0
+  globeFlatScale = 21
   get globe() {
-    return { ...this.center, width: this.projection.width, height: this.projection.height }
+    return {
+      ...this.center,
+      width: this.projection.width,
+      height: this.projection.height,
+      blend: this.globeBlend,
+      flatScale: this.globeFlatScale,
+    }
   }
   visible(p: { x: number; z: number }, unwrapped = false) {
     if (this.overview)

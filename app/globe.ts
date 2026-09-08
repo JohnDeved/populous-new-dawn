@@ -16,7 +16,12 @@ interface Point {
   x: number
   y: number
 }
-export type GlobeView = Point & { width: number; height: number }
+export type GlobeView = Point & {
+  width: number
+  height: number
+  blend?: number
+  flatScale?: number
+}
 const short = (n: number) => (n << 16) >> 16
 const even = (n: number) => {
   const floor = Math.floor(n)
@@ -30,11 +35,23 @@ export function globePoint(view: GlobeView, x: number, y: number) {
     dy = short(y - view.y) / 512,
     gain = Math.fround(Math.trunc((view.height * 4) / 10) * 80),
     factor = gain / (dx * dx + dy * dy + 1600)
+  const xScreen = (view.width >> 1) + even(Math.fround(factor * dx)),
+    yScreen = (view.height >> 1) + even(Math.fround(Math.fround(factor) * dy))
+  const point = blendGlobePoint(view, x, y, { x: xScreen, y: yScreen })
+  return { x: point.x, y: view.height - point.y }
+}
+// The native flat callbacks use 21 pixels/cell on entry and 18 on return.
+// Blend before the interior Y inversion; outside cell corners have no inversion.
+function blendGlobePoint(view: GlobeView, x: number, y: number, point: Point) {
+  if (!view.blend) return point
+  const flatX = (view.width >> 1) + ((short(x - view.x) * (view.flatScale ?? 21)) >> 9),
+    flatY = (view.height >> 1) + ((short(y - view.y) * (view.flatScale ?? 21)) >> 9)
   return {
-    x: (view.width >> 1) + even(Math.fround(factor * dx)),
-    y: view.height - ((view.height >> 1) + even(Math.fround(Math.fround(factor) * dy))),
+    x: (Math.imul(256 - view.blend, point.x) + Math.imul(view.blend, flatX)) >> 8,
+    y: (Math.imul(256 - view.blend, point.y) + Math.imul(view.blend, flatY)) >> 8,
   }
 }
+
 export function globeVisible(view: Point, x: number, y: number) {
   const dx = short(x - view.x) >> 4,
     dy = short(y - view.y) >> 4
@@ -48,10 +65,10 @@ export function globeCellPoint(view: GlobeView, x: number, y: number) {
   const dx = short(x - view.x) >> 9,
     dy = short(y - view.y) >> 9,
     scale = Math.trunc((view.height * 4) / 10) / Math.sqrt(dx * dx + dy * dy)
-  return {
-    x: (view.width >> 1) + Math.trunc(dx * scale),
-    y: (view.height >> 1) + Math.trunc(dy * scale),
-  }
+  const xScreen = (view.width >> 1) + Math.trunc(dx * scale),
+    yScreen = (view.height >> 1) + Math.trunc(dy * scale)
+
+  return blendGlobePoint(view, x, y, { x: xScreen, y: yScreen })
 }
 
 // 0x42d390/0x42d5b0 share this projected cell and two signed winding tests.
@@ -236,6 +253,7 @@ export function stepGlobeMotion(motion: GlobeMotion, pointer: Point, height: num
 
 // 0x42de90. Invert the near half of the projection; the outer disc has no map hit.
 export function globePick(view: GlobeView, x: number, y: number): Point | null {
+  if (view.blend) return null
   const gain = Math.trunc((view.height * 4) / 10) * 80,
     dx = (x - (view.width >> 1)) / gain,
     dy = -(y - (view.height >> 1)) / gain,
@@ -265,9 +283,9 @@ export function globeShade(view: GlobeView, point: Point) {
     edge = Math.max(0, Math.fround((squared - Math.fround(0.9)) * 2)),
     fixed = Math.max(
       0x140000,
-      Math.min(0x3f0000, Math.trunc((diffuse + edge + specular + Math.fround(0.4)) * 4194304))
+      Math.min(0x3f0000, Math.trunc((diffuse + edge + specular + Math.fround(0.4)) * 4194304) | 0)
     ),
-    shade = fixed >> 13
+    shade = (fixed + Math.floor(((view.blend ?? 0) * (0x200000 - fixed)) / 256)) >> 13
   return {
     diffuse: Math.min(255, shade),
     specular: shade > 352 ? Math.min(255, Math.trunc((shade - 352) ** 2 / 200)) : 0,

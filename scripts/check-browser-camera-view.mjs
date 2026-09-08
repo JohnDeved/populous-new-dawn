@@ -1,7 +1,7 @@
 // Start npm run dev, then node scripts/check-browser-camera-view.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleView } from './browser-game.mjs'
 import native from '../app/original-camera.json' with { type: 'json' }
 const browser = await chromium.launch({ headless: true })
 try {
@@ -75,8 +75,10 @@ try {
   assert.deepEqual(view.config, native.views[index + 2])
   await page.screenshot({ path: '/private/tmp/populous-camera-view-birds-eye.png' })
   await page.keyboard.press('-')
+  await settleView(page)
   assert.equal((await state()).overview, true)
   await page.keyboard.press('=')
+  await settleView(page)
   await advance()
   assert.equal((await state()).overview, false)
   assert.equal((await state()).preset, 2)

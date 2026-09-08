@@ -1,7 +1,7 @@
 // npm run dev, then node scripts/check-browser-globe-footprints.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleView } from './browser-game.mjs'
 import { globeFootprint } from '../app/globe.ts'
 import hud from '../app/original-hud.json' with { type: 'json' }
 const browser = await chromium.launch({ headless: true })
@@ -17,6 +17,7 @@ try {
     cancelAnimationFrame(s.frame)
     window.globeBuilding = s.world.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
   })
+  await settleView(page)
   await page.waitForFunction(() => window.testScene.globe.icons.naturalWidth > 0)
   const capture = () => page.evaluate(() => {
     const s = window.testScene, g = s.globe, w = s.world, ctx = g.canvas.getContext('2d')

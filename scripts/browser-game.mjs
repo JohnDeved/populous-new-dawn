@@ -41,3 +41,15 @@ export async function effectPixels(page, ids) {
     return pixels
   }, ids)
 }
+
+// Rendering/input regressions wait for the real view sequence; the transition
+// check separately inspects each intermediate frame and original timing.
+export async function settleView(page) {
+  await page.evaluate(() => {
+    const scene = window.testScene
+    for (let i = 0; scene.overviewStage && i < 64; i++) scene.updateCameraMotion(1 / 24)
+    if (scene.overviewStage) throw new Error('Overview transition did not finish')
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+  })
+}
