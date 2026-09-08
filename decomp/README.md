@@ -2708,3 +2708,54 @@ changed native family model and successful completion. Inspected captures:
 
 One new export (`0040b4f0`) brings the manifest to 854; re-exported plan helpers
 match their existing hashes. Global housing and timber checkpoints remain partial.
+
+## Timber harvesting, pickup and tree size — 2026-09-08
+
+`00432590` dispatches on **command minus three**: its case 4 is command 7,
+`004340a0`, the fetch order used by hut upgrade preparation. At substate 3 it
+requests `004d50d0` (person animation row 6, work), cue 1 with argument 0x10,
+and a countdown from person descriptor byte +29. Loose model-11 logs use three
+turns; the configured brave uses twenty. The initial call decrements immediately.
+Positive remaining time requests cue 10 for logs. On signed-short time <= 0,
+`004a7860` transfers wood and the controller checks subsequent orders.
+
+The live hauling adapter now uses this recovered harvesting phase, replacing its
+fixed two-second delay and row-8 combat-style motion. It keeps the approach heading
+while harvesting instead of turning back toward the destination building. New
+orders clear harvesting state. Tree/log pickup cues use the already-imported
+original PCM. Native repeated/frame-gated sound ownership remains unported.
+
+`004a7860` limits transferred units by the source amount, request and recipient's
+remaining capacity (person descriptor short +20). Its scenery consumer `004a79f0`
+clamps wood to the model capacity, removes scenery below 100 units, and otherwise
+sets scale to `(modelScale - trunc(modelScale/6))*wood/capacity + trunc(modelScale/6)`.
+Rendering now applies this size to harvested trees as well as burning trees; both
+share one calculation. Original delayed replant allocations, source ownership,
+non-person transfer consumers and precise tree lifecycle remain open.
+
+```sh
+python scripts/check-native-timber.py /path/to/d3dpoptb.exe
+python scripts/check-native-timber.py /path/to/d3dpoptb.exe --record
+node --test tests/timber.test.mjs
+node scripts/check-browser-hut-upgrade.mjs
+```
+
+The oracle executes 1,860 complete `004340a0` calls starting at its reached-source
+harvesting phase, with a valid subsequent order. `004d50d0`, `004a7860` and
+`004a79f0` execute their original bytes. Output animation, sounds, removal and
+replant allocation are observed consumers; search, route arrival, other command
+phases and successful replant allocation are not established by this check.
+Cases include six tree models, logs, four person models, empty/partial/full cargo,
+entry and signed countdown boundaries, timber amounts, scale and depletion.
+110 captured brave cases run portably. Live tests check twenty-turn tree harvest,
+three-turn pickup, work/carry transitions and order cancellation. The browser
+checks real work frames, Web Audio playback, native-sized tree GPU changes and
+the complete existing upgrade/construction scenario.
+
+Six newly retained exports bring the manifest to 860. `00495d70`, `00496750`,
+`00497a30`, `00446790` and `004391a0` are supporting research, not claimed complete
+ports. In particular the automatic construction worker in `00496750` has a
+separate state/order lifecycle and calls `004391a0`, whose 32-turn random facing
+and motion-group side effects remain outside the shared live harvesting adapter.
+The timber checkpoint stays partial; direct command scheduling and all consumers
+must be integrated before claiming complete economy parity.

@@ -477,3 +477,19 @@ Housing and timber checkpoints remain partial: native resource searches, transfe
 and harvest timing, order ownership, replacement allocation and scheduling remain.
 Continue visible settlement and critical gameplay work without treating these
 consumer adapters as full native engine parity.
+
+### Latest visible integration: harvesting and shrinking trees
+
+Timber workers now use the original work pose and keep their approach heading.
+Tree harvesting uses the configured twenty-turn countdown; loose logs take three
+turns and request the original pickup cues. Harvested trees shrink using native
+wood-to-scale arithmetic, shared with burning trees. Native comparisons cover
+1,860 reached-source command calls including transfer, animation requests and
+scenery depletion; portable and browser checks cover live work/carry transitions,
+PCM playback, GPU size changes and the full hut upgrade sequence.
+
+Resource search, route arrival, original automatic-construction order ownership,
+frame-gated audio and delayed replanting remain open. Timber stays partial.
+Continue comparing visible first-mission world/activity and original captures;
+retain the desktop camera, artwork and sprite regression baseline. Full game
+parity remains unfinished, with discovery open.

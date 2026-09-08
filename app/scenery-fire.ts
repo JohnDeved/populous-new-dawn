@@ -3,6 +3,7 @@ import { random, nativeAngle, nativeStep } from './native-math.ts'
 import models from './original-models.json' with { type: 'json' }
 import artwork from './original-fire.json' with { type: 'json' }
 import { modelStage } from './model-faces.ts'
+import { timberScale } from './timber.ts'
 
 type Ground = Pick<NativeTerrain, 'heights' | 'flags' | 'categories'>
 const short = (n: number) => (n << 16) >> 16
@@ -87,8 +88,7 @@ export function stepBurningTree(
   if (tree.wood > 7) {
     tree.wood = Math.max(0, Math.min(maxWood, tree.wood - 4))
     if (tree.wood < 100) return false
-    const base = Math.trunc(modelScale / 6)
-    tree.scale = Math.trunc(((modelScale - base) * tree.wood) / maxWood) + base
+    tree.scale = timberScale(tree.wood, maxWood, modelScale)
   }
   return true
 }

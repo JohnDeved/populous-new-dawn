@@ -2,6 +2,7 @@ import { animateLiveObjects } from './live-people.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
+import { timberScale } from './timber.ts'
 import { soundAttenuation } from './audio'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
 import {
@@ -2067,9 +2068,15 @@ export class GameScene {
     }
     for (const group of this.decorations.children) {
       const tree = group.userData.point as Tree | undefined
-      if (tree?.burn) {
+      if (tree && tree.model !== 11) {
         const mesh = group.children[0] as THREE.Mesh
-        mesh.userData.nativeSize = tree.burn.scale
+        mesh.userData.nativeSize =
+          tree.burn?.scale ??
+          timberScale(
+            Math.round(tree.logs * 100),
+            rules.sceneryWood[tree.model],
+            nativeModels[rules.sceneryObjects[tree.model]].scale
+          )
         group.visible = tree.logs > 0
       }
     }

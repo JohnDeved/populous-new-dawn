@@ -4406,3 +4406,14 @@ at the native 100 work and keeps its hut family. Native decision and wood-count
 oracles plus a full live reconstruction check now cover this integration. Successful
 native allocation and resource/order scheduling remain open. See [the evidence
 and commands](../decomp/README.md#hut-maturity-and-timber-staging--2026-09-08).
+
+## Reached-source timber work and visible tree shrink
+
+The original dispatch subtracts three from command IDs: `004340a0` is fetch
+command 7. Its harvesting substate establishes twenty-turn brave tree work,
+three-turn loose-log pickup, row-6 work animation, cues 1/10 and native transfer
+limits. The original `004a79f0` scale consumer now also drives harvested trees.
+See [the timber evidence and explicit controller boundaries](../decomp/README.md#timber-harvesting-pickup-and-tree-size--2026-09-08).
+Native comparisons cover 1,860 calls; portable and browser checks retain the full
+visible upgrade sequence. Automatic construction scheduling and replanting are
+still open, so this does not establish full timber economy parity.

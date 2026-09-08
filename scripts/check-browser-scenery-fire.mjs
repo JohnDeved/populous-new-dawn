@@ -65,6 +65,13 @@ try {
     scene.world.speed = 0
     window.burnFire = fire
     return true
+  }).catch(async error => {
+    console.error(await page.evaluate(() => ({ mode: window.testScene.world.mode,
+      effects: window.testScene.world.effects.map(f => f.kind), tree: window.burnTree,
+      shaman: window.testScene.world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
+      shots: window.testScene.world.shots, inputMask: window.testScene.world.inputMask })))
+    await page.screenshot({path:'/private/tmp/populous-fire-timeout-v111.png'})
+    throw error
   })
   const first = await page.evaluate(() => {
     const scene = window.testScene, fx = window.burnFire, tree = window.burnTree
@@ -91,7 +98,7 @@ try {
   await page.evaluate(() => { window.testScene.world.speed = 0 })
   const bearing = await page.evaluate(() => window.testScene.cameraBearing)
   await page.keyboard.down('q')
-  await page.waitForTimeout(250)
+  await page.waitForFunction(bearing => window.testScene.cameraBearing !== bearing, bearing)
   await page.keyboard.up('q')
   assert.notEqual(await page.evaluate(() => window.testScene.cameraBearing), bearing)
   assert.ok(await effectPixels(page, [first.id]) > 100)
@@ -108,6 +115,12 @@ try {
     const scene = window.testScene
     return !scene.world.effects.includes(window.burnFire) && !scene.fxMeshes.has(window.burnFire.id)
       && window.burnTree.logs === 0 && !scene.decorations.children.some(g => g.userData.point === window.burnTree)
+  }).catch(async error => {
+    console.error(await page.evaluate(() => ({turn:window.testScene.world.turn,speed:window.testScene.world.speed,
+      tree:window.burnTree,fire:window.burnFire,
+      effect:window.testScene.world.effects.includes(window.burnFire),mesh:window.testScene.fxMeshes.has(window.burnFire.id),
+      treeMesh:window.testScene.decorations.children.some(g=>g.userData.point===window.burnTree)})))
+    throw error
   })
   assert.equal(await page.evaluate(() => window.testScene.world.land.shadows[window.burnTreeCell] & 15), 0)
   assert.deepEqual(errors, [])

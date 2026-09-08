@@ -316,3 +316,20 @@ standing. With enough timber, its next-family model appears in the native first
 construction stage. The browser test measures 166 log pixels and observes the
 entire reconstruction completing. Native clock/resource accounting is compared;
 full worker order, harvesting timing and replacement allocation are still adapters.
+
+## Harvesting and tree size — v111
+
+Inspected `/private/tmp/populous-harvesting-v111.png` and
+`/private/tmp/populous-harvested-tree-v111.png`: the live brave uses the imported
+work frames, then carries timber away; the source tree becomes visibly smaller.
+The extended hut-upgrade browser check confirms actual Web Audio playback and
+393 changed GPU pixels between harvested/full tree size, plus 166 original log
+pixels at the entrance. The complete replacement/construction loop still passes.
+Full original-frame matching and tree replanting remain unverified.
+
+The existing fire browser check also passes after rerun: 27,201 ground-shadow
+pixels, 840 fire pixels, native tree shrink, smoke, rotation and cleanup. Earlier
+runs timed out once at ignition and once at cleanup; no runtime fire change was
+needed. The check now waits for observed camera rotation rather than a fixed
+250 ms and emits world/effect diagnostics on those waits. Real-time browser
+scheduling remains a source of test sensitivity; native fire comparisons pass.

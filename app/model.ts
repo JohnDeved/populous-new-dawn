@@ -1,4 +1,5 @@
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
+import { startTimberHarvest, stepTimberHarvest, timberTransfer } from './timber.ts'
 import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
@@ -173,6 +174,7 @@ export type Unit = Point & {
   inside: number | null
   cargo: number
   tree: number | null
+  harvest?: { remaining: number }
   timer: number
   guard: boolean
   lift: number
@@ -629,7 +631,7 @@ export function unitAnimation(w: World, u: Unit) {
   if (u.fighting) return 'attack'
   if (u.path.length) return u.cargo ? 'carry' : 'walk'
   if (u.cargo) return 'carryIdle'
-  if (u.tree !== null && u.timer > 0) return 'chop'
+  if (u.harvest) return 'work'
   if (
     w.shrines.some(
       s =>
@@ -1505,6 +1507,7 @@ function release(w: World, u: Unit) {
   u.work = null
   u.inside = null
   u.tree = null
+  u.harvest = undefined
   u.target = null
   u.guard = false
   u.timer = 0
@@ -2799,7 +2802,7 @@ function findBuildingWood(w: World, u: Unit, b: Building) {
     .find(t => findPath(w, u, t).length)
 }
 
-// Shared live hauling adapter; native harvesting timing/order ownership remain open.
+// Shared live hauling adapter; native routing and automatic-construction orders remain open.
 function haulBuildingWood(w: World, b: Building, workers: Unit[], cost: number) {
   for (const u of workers) {
     if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
@@ -2828,18 +2831,27 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[], cost: number) 
       const tree = w.trees.find(t => t.id === u.tree)
       if (!tree) {
         u.tree = null
+        u.harvest = undefined
         continue
       }
       if (distance(u, tree) < 1 && !u.path.length) {
-        u.timer += 1 / TURNS_PER_SECOND
-        if (u.timer >= 2) {
-          if (tree.logs >= 1) {
-            tree.logs--
-            u.cargo = 1
-          } else u.tree = null
-          u.timer = 0
-          route(w, u, entrance(w, b))
+        if (!u.harvest) {
+          u.harvest = startTimberHarvest(2, tree.model)
+          sound(w, 1, u)
         }
+        if (stepTimberHarvest(u.harvest)) {
+          const wood = timberTransfer(
+            Math.round(tree.logs * 100),
+            Math.round(u.cargo * 100),
+            rules.personWood[2],
+            rules.personWood[2]
+          )
+          tree.logs -= wood / 100
+          u.cargo += wood / 100
+          if (!u.cargo) u.tree = null
+          u.harvest = undefined
+          route(w, u, entrance(w, b))
+        } else if (tree.model === 11) sound(w, 10, u)
       }
     }
   }
@@ -3252,7 +3264,7 @@ function stepTurn(w: World) {
       stepLiveRoute(w, u)
     } else if (target && u.target !== null)
       route(w, u, 'progress' in target ? entrance(w, target) : target)
-    else if (work) u.heading = Math.atan2(work.x - u.x, work.z - u.z)
+    else if (work && u.tree === null) u.heading = Math.atan2(work.x - u.x, work.z - u.z)
     if (u.kind === 'brave' && !u.path.length && u.work === null && u.target === null && !u.guard) {
       u.idleTurns++
       if (u.idleTurns > 16 && (w.turn & 15) === 0) {

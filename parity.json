@@ -795,9 +795,12 @@
             "scripts/check-native-hut-upgrade.py",
             "scripts/check-browser-hut-upgrade.mjs",
             "tests/hut-upgrade.test.mjs",
-            "tests/fixtures/hut-upgrade.json"
+            "tests/fixtures/hut-upgrade.json",
+            "app/timber.ts",
+            "scripts/check-native-timber.py",
+            "tests/timber.test.mjs"
           ],
-          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters."
+          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Reached-source fetch command 7 now uses native twenty-turn tree work, three-turn log pickup, row-6 work animation and cues 1/10. Transfer limits and harvested tree scale match original consumers in 1860 native phase calls; portable and live browser checks cover work/carry, PCM and GPU shrink. Search/arrival, automatic-construction ordering, frame-gated sound and delayed replant remain open."
         },
         {
           "id": "economy.housing",
