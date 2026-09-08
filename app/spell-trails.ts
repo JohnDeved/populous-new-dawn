@@ -1,8 +1,7 @@
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
-import { limitPersonVelocity } from './person-physics.ts'
+import { moveDirectedEffect } from './effect-motion.ts'
 import { random } from './native-math.ts'
-import rules from './original-rules.json' with { type: 'json' }
 
 type Ground = Pick<NativeTerrain, 'heights' | 'flags'>
 export type SpellTrail = AnimatedUnit & {
@@ -59,39 +58,9 @@ export function createSpellTrail(
   return p
 }
 
-// 0x4e7a80's directed, gravity-free path used by these freshly allocated
-// trails. Impulses/ballistic debris require the other physics branches.
-function moveTrail(land: Ground, p: SpellTrail) {
-  if (p.flags2 & 0x4000) return
-  if (p.flags2 & 0x82000 || !(p.flags2 & 0x80) || !(p.flags2 & 0x40000))
-    throw new Error('Unported trail motion flags')
-  const v = p.velocity
-  v.x = v.y = v.z = 0
-  if (p.speed >= 0) {
-    const horizontal = Math.imul(rules.sine[p.pitch & 2047], p.speed) >> 16
-    v.x = short(Math.imul(rules.sine[p.yaw & 2047], horizontal) >> 16)
-    v.z = short(Math.imul(rules.sine[(p.yaw + 512) & 2047], horizontal) >> 16)
-    v.y = short(Math.imul(rules.sine[(p.pitch + 512) & 2047], p.speed >> 1) >> 16)
-    const decay = (v: number) => short(Math.abs(v) < 2 ? 0 : v <= 0 ? v + 2 : v - 2)
-    v.x = decay(v.x)
-    v.z = decay(v.z)
-    limitPersonVelocity(10, v)
-    p.x = (p.x + v.x) & 65535
-    p.y = (p.y + v.z) & 65535
-    p.h = short(p.h + v.y)
-  }
-  const ground = terrainPointHeight(land, p)
-  p.flags4 = (p.flags4 | 0x400) >>> 0
-  if (p.h <= ground) {
-    p.flags4 &= ~0x400
-    v.y = 0
-  }
-  if (!(p.flags2 & 2)) p.h = Math.max(p.h, ground)
-}
-
 // 0x50bd70 -> 0x50beb0, then 0x50a750 state 4. Physics runs before expiry.
 export function stepSpellTrail(land: Ground, p: SpellTrail) {
-  moveTrail(land, p)
+  moveDirectedEffect(land, p, 10)
   if (p.state === 4) {
     p.remaining = short(p.remaining - 1)
     return p.remaining > 0

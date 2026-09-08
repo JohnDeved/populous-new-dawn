@@ -102,3 +102,8 @@ with the decompilation environment described in `decomp/README.md`.
 `node scripts/check-browser-building-smoke.mjs` exercises live collapse smoke,
 frame cycling, camera rotation, growth and expiry. Compare its geometry and
 lifecycle with `python scripts/check-native-building-smoke.py EXE`.
+
+`node scripts/check-browser-building-debris.mjs` checks collapsing building faces,
+original textures, flight/spin, camera rotation, impact sounds and cleanup.
+`python scripts/check-native-building-debris.py EXE` compares the original face
+emitter, initialization RNG, directed physics, land/water impacts and splash setup.

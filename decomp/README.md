@@ -1679,3 +1679,18 @@ Only range and projection inputs are supplied. `scripts/import-original.py`
 imports HFX 1466–1477, shadow 70 and AL0-derived tint; the browser check is
 `node scripts/check-browser-spell-halo.mjs`. Native timer and complete painter
 ownership remain open.
+
+### Detached building faces
+
+`app/building-debris.ts` reconstructs `00407860`'s collapse caller mode,
+`00502460` initialization and `00502660` unattached-fragment updates. Shared
+directed motion from `004e7a80` lives in `app/effect-motion.ts` and also serves
+spell trails. `00470160` supplies the face/cap texture and rotation evidence;
+the browser reuses its existing model transforms. `00513830` supplies water
+impact animation and cue initialization. See the reverse-engineering log for
+remaining lighting, scheduling, allocation and attachment boundaries.
+
+Run `python scripts/check-native-building-debris.py EXE` for 300 native collapse
+calls (9,755 faces), 8,192 flight snapshots and 128 splash initializations.
+Run `node scripts/check-browser-building-debris.mjs` against the dev server for
+live collapse, visible textured geometry, rotation, impact cues and removal.

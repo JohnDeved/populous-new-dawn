@@ -103,6 +103,7 @@ if len(sys.argv)>2:
     rules['terrainCategoryFlags']=[value(0x5aa328+i*14,1) for i in range(16)]
     rules['terrainCategoryMasks']=[list(read(0x5aa32e+i*14,8)) for i in range(16)]
     rules['terrainCategories']=list(read(0x5aa318,16))
+    rules['textureFlags']=list(read(0x5aa218,256))
     rules['landHeightConstant']=value(0x5aa450)
     rules['alternateLandHeightConstant']=value(0x5aa454)
     rules['territoryWidths']=[list(read(address,length)) for address,length in [(0x5d56b4,5),(0x5d56bc,7),(0x5d56c8,9),(0x5d56d8,11)]]

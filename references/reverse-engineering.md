@@ -3923,3 +3923,49 @@ for continuing fire work, not implemented scenery parity. Tree ignition/spread,
 fire damage, building debris, full plan ownership and native painter/blend order
 remain open. This change covers collapse smoke rather than the whole destruction
 system.
+
+## 2026-09-08 — original building collapse fragments and impacts
+
+The live damage adapter now implements its `00407860(b,0,1,oldStage,0,1,-1,-1,0)`
+debris callback. `app/building-debris.ts` selects lost faces for stages 0–4,
+recovers raw original points through the existing model transform, applies the
+native per-vertex ground warp and computes wrapped integer centroids/local points.
+The importer retains each face's tile index; cap faces use tile 250, and
+`005aa218` supplies the tribe-relative texture flag. The renderer reuses the
+existing atlas and model matrix, drawing each detached triangle/quad independently.
+
+`00502460` initializes class-10/model-7 fragments; the collapse caller replaces
+launch strength and spin. All six initializer RNG draws and four override draws
+are preserved. Emission is a generator so each fragment's immediate first update
+and any landing RNG execute before the next allocation. The new shared
+`moveDirectedEffect` owns `004e7a80`'s directed branch for both debris and trails;
+existing velocity limits, terrain queries and model transforms are reused.
+`00502660` applies gravity, updates three rotation angles, and emits effect 3 plus
+cue 19 on land or effect 65 on water. Native bounce/removal and game RNG match.
+Class-10 allocations no longer advance the class-7 animation counter.
+
+Water impacts now initialize through the shared splash adapter with `00513830`'s
+ground height, descriptor 44/HFX1304, morph 211, flags and cue 44. Native timed
+impacts use an integer turn countdown: floating-point seconds had extended the
+16-turn splash by one turn. Presentation still uses the shared animation clock.
+
+Validation: `check-native-building-debris.py` executes 300 original collapse
+calls across twelve building models, every stage, rotations, terrain warp and
+world seams: 9,755 face records, launch values and local points match exactly;
+atlas UVs agree within importer precision. Its 8,192 flight snapshots cover
+land/water categories, bounce, removal and RNG; 128 native splash initializations
+also match. Terrain category is byte 12 of the 16-byte tile record (the inherited
+`c_3` label is not a byte offset). Existing trail comparisons and 2,096 complete
+stage-renderer calls still pass after the motion/cap refactors. The real browser
+collapse shows 37 textured fragments contributing 3,298 GPU pixels in the recorded
+run; flight/spin, camera rotation, impact cues and mesh cleanup pass without errors.
+
+Fallow health/duplication and ox-standard were run for the readability review.
+The new motion and debris modules introduce no Oxlint findings after simplifying
+drag; the touched NativeModel declaration now follows the preset. Existing large
+simulation hotspots and repeated browser-test setup remain explicit debt.
+
+Boundaries: full native face lighting, painter/blend ordering, class allocation
+limits/ownership and mixed-class scheduling remain open. Attachment-driven debris,
+other emitter modes and scenery fire are not implemented by this slice. This is
+collapse-fragment parity, not complete destruction or whole-frame visual parity.

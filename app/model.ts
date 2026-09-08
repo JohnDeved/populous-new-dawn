@@ -2,6 +2,13 @@ import { terrainSupportsPerson } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
 import { createBuildingSmoke, stepBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
+import {
+  collapseBuildingFaces,
+  stepBuildingDebris,
+  type BuildingDebris,
+} from './building-debris.ts'
+import modelAssets from './original-models.json' with { type: 'json' }
+import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
 import {
   createLivePathfinding,
@@ -102,6 +109,8 @@ import { createMessages, addMessage, messageStringId, type MessageState } from '
 import { stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
+
+const debrisModels: Record<number, NativeModel> = modelAssets
 export type Team = 'blue' | 'red' | 'wild'
 export type UnitKind = 'shaman' | 'brave' | 'warrior'
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
@@ -191,12 +200,14 @@ export type Tree = Point & { id: number; logs: number; model: number }
 export type SoundEvent = Point & { serial: number; cue: number; turn: number }
 export type Effect = Point & {
   id: number
-  kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke'
+  kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke' | 'debris'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
   lightning?: Lightning
   smoke?: BuildingSmoke
+  debris?: BuildingDebris
+  turnsRemaining?: number
   groundVersion?: number
   age: number
   duration: number
@@ -1381,7 +1392,8 @@ function castVoice(w: World, u: Unit, spell: Spell) {
 }
 export function effect(w: World, kind: Effect['kind'], p: Point) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.
-  w.effectCounter = (w.effectCounter + 1) & 255
+  // Detached faces belong to class 10 and must not advance class 7's counter.
+  if (kind !== 'debris') w.effectCounter = (w.effectCounter + 1) & 255
   const f: Effect = {
     x: p.x,
     z: p.z,
@@ -1395,13 +1407,14 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
           ? 0.5
           : 1.7,
   }
-  if (kind === 'blast' || kind === 'lightning') {
+  if (kind === 'blast' || kind === 'lightning' || kind === 'splash') {
     // Effect 38: 0x509c10 grounds the flash (0x445c20), sets draw 30/HFX1099;
     // state 0x24 in 0x50a750 removes its object after nine simulation turns.
     // Lightning starts hidden: one pending turn, then eight turns of upper flash.
     const position = nativePosition(w, p)
     f.height = (terrainPointHeight(w.land, position) + (kind === 'lightning' ? 1024 : 0)) / 45
-    f.duration = 9 / TURNS_PER_SECOND
+    f.turnsRemaining = kind === 'splash' ? 16 : 9
+    f.duration = f.turnsRemaining / TURNS_PER_SECOND
     f.animation = {
       object: 0,
       draw: 0,
@@ -1415,7 +1428,15 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
       morphTimer: 0,
       morphFrames: 0,
     }
-    setAnimationObject(f.animation, kind === 'blast' ? 30 : 41, kind === 'blast' ? 1099 : 0x650)
+    if (kind === 'splash') {
+      // Effect 65, 0x513830: grounded draw 44/HFX1304, cue 44, sixteen turns.
+      setAnimationObject(f.animation, 44, 1304)
+      f.animation.morph = 0xd3
+      f.animation.flags3 |= 0x40400
+      sound(w, 0x2c, p)
+    } else {
+      setAnimationObject(f.animation, kind === 'blast' ? 30 : 41, kind === 'blast' ? 1099 : 0x650)
+    }
   }
   w.effects.push(f)
   return f
@@ -2009,7 +2030,28 @@ function stepCollapsingBuilding(w: World, b: Building) {
       smoke.fx.duration = Infinity
       return smoke
     },
-    debris: () => {},
+    debris: oldStage => {
+      const position = nativePosition(w, b)
+      const source = {
+        ...position,
+        h: terrainPointHeight(w.land, position),
+        angle: buildingPose(b).angle,
+        flags3: state.flags3,
+        tribe: b.team === 'blue' ? 0 : 1,
+      }
+      for (const fragment of collapseBuildingFaces(
+        w.land,
+        debrisModels[buildingObject(b)],
+        source,
+        oldStage,
+        context
+      )) {
+        const fx = effect(w, 'debris', browserPosition(fragment))
+        fx.debris = fragment
+        fx.duration = Infinity
+        if (!stepDebrisEffect(w, fx, context)) w.effects.splice(w.effects.indexOf(fx), 1)
+      }
+    },
     canRespond: () => false,
     reserve: () => {},
     removePlan: () => {},
@@ -2019,7 +2061,7 @@ function stepCollapsingBuilding(w: World, b: Building) {
     },
     sound: () => sound(w, 0x34, b),
   })
-  // ponytail: native plan stages drive collapse; combat HP, debris meshes,
+  // ponytail: native plan stages drive collapse; combat HP,
   // plan geometry and AI repair selection await the rest of the building port.
   b.hp = Math.min(
     b.hp,
@@ -2157,6 +2199,31 @@ function shotVisual(w: World, p: NativePoint, sequence: string, frame = 0) {
 function moveVisual(f: Effect, p: NativePoint) {
   Object.assign(f, browserPosition(p))
   f.height = p.h / 45
+}
+function stepDebrisEffect(w: World, fx: Effect, rng: { randomState: number }) {
+  const fragment = fx.debris!
+  const alive = stepBuildingDebris(w.land, fragment, rng, water => {
+    const position = browserPosition(fragment)
+    if (water) {
+      effect(w, 'splash', position)
+    } else {
+      const spark = effect(w, 'trail', position)
+      spark.sprite = { sequence: 'blastTrail', frame: 0 }
+      const trail = createSpellTrail(
+        w.land,
+        fragment,
+        3,
+        (w.effectCounter - 1) & 255,
+        w.cosmeticRandom
+      )
+      spark.animation = trail
+      spark.duration = Infinity
+      moveVisual(spark, trail)
+      sound(w, 0x13, position)
+    }
+  })
+  moveVisual(fx, fragment)
+  return alive
 }
 function processProjectiles(w: World) {
   // Newest native allocations precede older objects. Full mixed-class scheduling remains to be ported.
@@ -2475,6 +2542,8 @@ function stepTurn(w: World) {
   w.gifts = w.gifts.filter(g => g.remaining > 0)
   for (const fx of w.effects) {
     fx.age += dt
+    if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
+    if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
     if (fx.smoke) {
       if (fx.groundVersion !== w.landVersion) fx.smoke.flags2 |= 4
       fx.groundVersion = w.landVersion

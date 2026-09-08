@@ -1,5 +1,6 @@
 import { animateLiveObjects } from './live-people.ts'
 import { reincarnationStones } from './reincarnation.ts'
+import { debrisVertices } from './building-debris.ts'
 import { soundAttenuation } from './audio'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
 import {
@@ -1285,6 +1286,25 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
+    if (f.debris) {
+      const geometry = new THREE.BufferGeometry()
+      geometry.setAttribute(
+        'position',
+        new THREE.Float32BufferAttribute(debrisVertices(f.debris), 3)
+      )
+      geometry.setAttribute('uv', new THREE.Float32BufferAttribute(f.debris.uv, 2))
+      g.add(
+        new THREE.Mesh(
+          geometry,
+          new THREE.MeshBasicMaterial({
+            map: texture('atlas'),
+            side: THREE.DoubleSide,
+            alphaTest: 0.5,
+          })
+        )
+      )
+      return g
+    }
     this.locate(g, f, f.height)
     if (f.unit) {
       const map = texture('units').clone(),
@@ -1345,6 +1365,13 @@ export class GameScene {
     return g
   }
   animateFx(g: THREE.Group, f: Effect) {
+    if (f.debris) {
+      const mesh = g.children[0] as THREE.Mesh
+      const positions = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
+      positions.array.set(debrisVertices(f.debris))
+      positions.needsUpdate = true
+      return
+    }
     const sprite = g.userData.sprite as THREE.Sprite
     if (f.lightning) this.animateLightning(g.userData.bolt, f.lightning)
     sprite.visible = f.animation?.object !== 0x650 && !(f.animation && f.animation.renderFlags & 16)

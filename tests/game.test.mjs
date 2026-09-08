@@ -10,6 +10,26 @@ import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
+test('native impacts expire on exact turns and debris preserves the sprite allocation counter', async () => {
+  const {effect, nativePosition} = await import('../app/model.ts');
+  const {terrainPointHeight} = await import('../app/native-terrain.ts');
+  const w = createWorld();
+  const counter = w.effectCounter;
+  effect(w, 'debris', HOME);
+  assert.equal(w.effectCounter, counter, 'class 10 does not change class 7 animation staggering');
+  for (const [kind, turns] of [['splash', 16], ['blast', 9]]) {
+    const f = effect(w, kind, HOME);
+    assert.equal(f.height * 45, terrainPointHeight(w.land, nativePosition(w, HOME)));
+    if (kind === 'splash') {
+      assert.equal(f.animation.object, 1304);
+      assert.equal(w.sounds.at(-1).cue, 0x2c);
+    }
+    for (let turn = 1; turn < turns; turn++) tick(w, 1 / 12);
+    assert.ok(w.effects.includes(f));
+    tick(w, 1 / 12);
+    assert.equal(w.effects.includes(f), false, `${kind} must not gain a turn from floating-point age`);
+  }
+});
 test('terrain rebuilds preserve queue precedence and initialize the original mission before sampling', async () => {
  const {createNativeTerrain,queueTerrain,processTerrain}=await import('../app/native-terrain.ts');
  const land=createNativeTerrain(new Int16Array(16384).fill(100)),events=[];
