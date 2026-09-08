@@ -2337,3 +2337,56 @@ preserves this effect's layer relationship but is not the complete native polygo
 queue or rasterizer. The general sky and result UI remain unfinished. The manifest
 now retains **555** raw exports, including the traced draw, quad, queue, depth and
 blend routines.
+
+
+## Victory follower controller reconstruction
+
+`app/celebration.ts` reconstructs the complete `004e0af0` state-41 controller
+and its `004e2610` chain-action helper. The nine substates cover entry/cargo
+release, individual movement and worship, firewarrior gestures/projectile requests,
+circle leaders/followers, chain leaders/followers, vehicle waiting and the shaman's
+idle-and-turn behavior. `inspect-executable.py` now imports the three neighbor
+weight records at `005d4858` and four six-byte chain-action records at `005d4868`.
+The port uses the existing native RNG, angle, spiral-cell and person-speed helpers.
+It preserves signed byte/short counters, linked-list ordering, shared animation
+phase writes, wrapped destinations and the exact RNG consumption sequence.
+
+`initializePersonState` now accepts state **41** with an explicit celebration
+consumer, retaining the original shared cleanup and post-initialization animation
+selection. The native comparison exposed an existing scope assumption in training
+queue cleanup: the matching-command-8 exception only applies to order state 10;
+state 41 must release that reservation. The shared condition now expresses this.
+The three dance callers zero-extend their animation-table entries to **bytes**;
+Ghidra's `(char)` notation must not be interpreted as signed extension here.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-celebration.py /path/to/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-person-state.py /path/to/d3dpoptb.exe
+```
+
+The new oracle compares **2,048 complete controller calls**, **256 complete
+chain-action calls**, **40,960 sequential controller calls** across 64 ten-person
+64-turn timelines, and **128 composed state-41 initializations** executing the
+real celebration controller. It checks every supplied person's tracked fields,
+shared RNG and ordered animation, turning, destination, drop, sound, building-exit
+and projectile requests. Native cell/object lists and the angle, distance and
+movement math execute unchanged. Animation, motion registration/destination,
+allocation, sound, building-exit and projectile consumers are supplied at their
+call boundaries. Animation timing uses an explicit supplied record (signed hold
+-3, delay 2, seven frames), not a claim that every original sprite is integrated.
+The final 128 initializer compositions compare the controller's tracked fields;
+full shared initializer fields are covered by the separate initializer oracle.
+
+The expanded initializer oracle passes **2,048** state-10/14/41 cases, plus its
+existing **6,624** animation selections, **1,280** startup/reconciliation cases,
+**640** speed/recovery calls and **128** composed training handoffs. All **48**
+gameplay regressions and typechecking pass.
+
+**Live integration is unfinished.** The browser outcome adapter still does not
+initialize these native person records. Connecting this controller requires the
+shared person state, movement/turning, sprite-object/frame setters and world-effect
+consumers; mapping it to a generic looping dance would discard the behavior just
+recovered. Native vehicle/passenger handling, complete person physics and object
+scheduling remain explicit dependencies. This pass adds reviewed reconstruction
+and executable comparison evidence, not visible victory-animation parity. The
+existing **555** raw exports already contain these entry points and their helpers.

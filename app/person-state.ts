@@ -20,6 +20,7 @@ export type PersonStateEffects = {
   releaseMotion: (person: StatefulPerson) => void;
   startOrders: (person: StatefulPerson) => void;
   setAnimation: (person: StatefulPerson, object: number) => void;
+  celebrate?: () => void;
 };
 const short = (n: number) => (n << 16) >> 16;
 
@@ -99,26 +100,26 @@ function faceSelection(w: PersonStateWorld, p: StatefulPerson, effects: PersonSt
   else { effects.releaseMotion(p); p.turnAngle = angle; p.flags2 = (p.flags2 | 0x1080) >>> 0; }
 }
 
-// 0x4d2740: shared initialization plus order state 10 and AI selection state 14.
+// 0x4d2740: shared initialization, orders (10), selection (14) and victory (41).
 // Other state bodies are not silently approximated. World consumers remain
 // required callbacks until their native terrain, animation and list ports land.
 export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, effects: PersonStateEffects) {
-  if (p.state !== 10 && p.state !== 14) throw new RangeError(`Unported person-state initializer ${p.state}`);
+  if (![10,14,41].includes(p.state)) throw new RangeError(`Unported person-state initializer ${p.state}`);
   const oldFlags = rules.personStateFlags[p.previousState], stateFlags = rules.personStateFlags[p.state];
   const model = rules.personModels[p.model];
   if (oldFlags === undefined || !model) throw new RangeError('Unsupported native person state/model');
   p.stateObject = 0;
+  const deselect=()=>{p.flags3=(p.flags3&~128)>>>0;p.selectionFlags&=~128;if(p.vehicle)effects.deselectPassengers(p);};
   if (p.previousState === 14) {
     const tribe = w.tribes[p.tribe];
     if (tribe.selectedCount) tribe.selectedCount = (tribe.selectedCount - 1) | 0;
-    p.flags3 = (p.flags3 & ~128) >>> 0; p.selectionFlags &= ~128;
-    if (p.vehicle) effects.deselectPassengers(p);
+    deselect();
   } else if (p.previousState === 24) { p.flags2 = (p.flags2 & ~0x4000) >>> 0; p.workTarget = 0; }
   if (p.state !== p.previousState && (oldFlags & 256)) p.flags3 = (p.flags3 | 0x800) >>> 0;
   if ((p.flags3 & 32) && p.state !== 14) {
     const order = currentPersonOrder(w.orders, p);
     // Unlike normal command queries, this leaf does not test cancellation.
-    if (!order || order.model !== 8 || short(p.target) !== order.a) {
+    if (p.state!==10 || !order || order.model !== 8 || short(p.target) !== order.a) {
       effects.rebuildTrainingQueue(short(p.target)); p.flags3 = (p.flags3 & ~32) >>> 0; p.reservationNext = 0;
     }
   }
@@ -137,11 +138,15 @@ export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, ef
   if (!(stateFlags & 512)) p.speed = randomPersonSpeed(w, p);
   p.flags2 = (p.flags2 | 0x40000000) >>> 0; p.substate = 0; p.timer = 0;
   if (p.state === 10) effects.startOrders(p);
-  else {
+  else if(p.state===14) {
     const tribe = w.tribes[p.tribe]; tribe.selectedCount = (tribe.selectedCount + 1) | 0;
     p.assignment &= ~4; p.flags4 = (p.flags4 & ~0x40000) >>> 0; p.speed = 0;
     p.selectionFlags |= 0x81; p.flags3 = (p.flags3 & ~1) >>> 0; p.flags2 = (p.flags2 | 0x1000000) >>> 0;
     faceSelection(w, p, effects); p.assignment |= 16; p.animationMode = 1;
+  }else{
+    if(p.model!==7){p.flags4=(p.flags4|128)>>>0;deselect();}
+    if(!effects.celebrate)throw new Error('Victory initialization requires the celebration controller');
+    effects.celebrate();
   }
   if (!(p.renderFlags & 256)) {
     const object = personAnimationObject(p);

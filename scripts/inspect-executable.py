@@ -55,6 +55,8 @@ if len(sys.argv)>2:
     rules['buildingDamageThreshold']=[value(0x5a7228+i*76+46,2) for i in range(20)]
     rules['buildingRepairDelay']=value(0x5aa4fc)
     rules['buildingSmokeDuration']=value(0x5aa59c)
+    rules['celebrationWeights']=[list(struct.unpack('<hbb',read(0x5d4858+i*4,4))) for i in range(3)]
+    rules['celebrationChain']=[list(read(0x5d4868+i*6,6)) for i in range(4)]
     rules['cameraRampUp']=[struct.unpack('<h',read(0x59bbd0+i*2,2))[0] for i in range(4)]
     rules['cameraRampDown']=[struct.unpack('<h',read(0x59bbd8+i*2,2))[0] for i in range(11)]
     rules['personTraining']=[{'weight':value(0x5a7060+i*50+31,2),'humanMana':value(0x5a7060+i*50+36),'computerMana':value(0x5a7060+i*50+40)} for i in range(9)]
