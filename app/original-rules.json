@@ -2860,46 +2860,55 @@
   "personModels": [
     {
       "nextState": 0,
+      "idleState": 0,
       "physics": 0,
       "flags": 0
     },
     {
       "nextState": 8,
+      "idleState": 8,
       "physics": 0,
       "flags": 1
     },
     {
       "nextState": 10,
+      "idleState": 17,
       "physics": 2,
       "flags": 2223
     },
     {
       "nextState": 10,
+      "idleState": 17,
       "physics": 14,
       "flags": 2735
     },
     {
       "nextState": 10,
+      "idleState": 17,
       "physics": 15,
       "flags": 19087
     },
     {
       "nextState": 10,
+      "idleState": 17,
       "physics": 16,
       "flags": 2223
     },
     {
       "nextState": 10,
+      "idleState": 17,
       "physics": 17,
       "flags": 14447
     },
     {
       "nextState": 10,
+      "idleState": 17,
       "physics": 18,
       "flags": 7455
     },
     {
       "nextState": 28,
+      "idleState": 28,
       "physics": 19,
       "flags": 4368
     }

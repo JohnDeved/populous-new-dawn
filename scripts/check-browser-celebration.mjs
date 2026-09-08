@@ -32,6 +32,10 @@ try{
  const rendered=await page.evaluate(()=>window.testStore.getWorld().units.map(u=>({kind:u.kind,object:u.native.object,f2:u.native.f2,frame:window.testScene.unitMeshes.get(u.id).userData.frame})));
  for(const r of rendered){const dirs=Object.values(sprites.animations[`blue-${r.kind}`]).find(d=>d[0].source===r.object);assert.ok(dirs);assert.ok(dirs.some(d=>d.frames[r.f2%d.frames.length]===r.frame));}
  const paused=await page.evaluate(()=>window.testStore.getWorld().units.map(u=>[u.native.f1,u.native.f2]));await page.waitForTimeout(250);assert.deepEqual(await page.evaluate(()=>window.testStore.getWorld().units.map(u=>[u.native.f1,u.native.f2])),paused);
+ // A preparation interrupt returns through state 10 and the empty-order
+ // victory decision, including state initialization and the new sprite pose.
+ await page.evaluate(()=>{const w=window.testStore.getWorld(),p=w.units.find(u=>u.kind==='shaman').native;p.flags2|=16;w.paused=false;});
+ await page.waitForFunction(()=>{const p=window.testStore.getWorld().units.find(u=>u.kind==='shaman').native;return !(p.flags2&16)&&p.previousState===10&&p.state===41;});
  // Place the six followers into native circle substates to exercise the
  // circle->chain transition and frame freezes without waiting on random joins.
  await page.evaluate(()=>{

@@ -2963,3 +2963,54 @@ physics are not yet live; complete class-1 state/order ownership must connect th
 The live goal consumer remains a direct-assignment adapter, not native pathfinding.
 Raw nearby person interaction `004e0270` and combat acquisition `004d4690` are
 retained as evidence, not claimed as reconstructed or integrated behavior.
+
+
+## 2026-09-08 — Order completion and live interruption resumption
+
+`00432590` is now reconstructed in `app/person-order-update.ts`. It preserves
+current/immediate lookup, cancellation and work-resumption precedence, eight-turn
+vehicle checks, the command dispatch table and inline command effects, formation
+update order, anchor selection, queue release/advancement and final state choice.
+Unported command bodies remain required consumers, including shared native
+bodies for models 3/25, 17/31/32 and 19/21. They are not successful no-ops.
+
+`004366b0` now advances circular eight-slot queues, removing canceled entries and
+respecting repeat-model commands. Removal may change the current command model;
+the reconstruction preserves the original subsequent reads. Fallback route and
+vehicle consumers, next-order preparation, configuration and movement recovery
+run in their native order. Repeating queues that cannot continue are cleared.
+The updater composes with this routine rather than inventing completion rules.
+
+`004e32a0` chooses victory state 41 only under the original result flags and tribe
+conditions; otherwise it reads model byte +5. This is distinct from byte +4 used
+to resume order processing. Normal followers' configured idle state is 17, not
+state 10 or timed-wait state 1. `00402e70` centers the anchor and clears byte +0x82.
+Shared initialization now also supports state 1 with its extra RNG draw.
+
+The native oracle passes **16,384 comparisons**, 4,096 each for advancement,
+post-order choice, full dispatch and composed dispatch/advancement. It compares
+owned person fields, order records, affected objects and ordered consumer
+snapshots. Native cell lookup, building correction dispatch, anchor centering,
+wrapped overlap, object-validity lookup and survivor count execute. Command
+bodies, removal/configuration, path requests, formation and vehicle consumers
+are supplied. Shared state checks pass 4,096 initializers across 1/10/14/36/39/41,
+6,624 animation choices, 1,280 startup/building reconciliations, 640 speed/recovery
+cases and 128 composed training handoffs.
+
+Disassembly resolves two misleading metadata fields in raw `00432590`: command
+25 clears the matching class-10/model-16 effect's short at +0x70; command 29 reads
+its target's word +0x7a. The TypeScript and oracle use those actual offsets.
+Six new raw exports bring the manifest to **599**. Raw `00436870` next-order
+rewriting is retained for the remaining queue consumers, not claimed as ported.
+
+**Live integration:** preparation now runs in full for native victory followers.
+An interruption enters state 10, follows the empty-order handoff and re-enters
+celebration through shared initialization, preserving RNG and animation updates.
+A regression and real-browser check exercise this resumption. All **55 gameplay
+tests**, typechecking and browser movement/atlas/pause/chains/detours/cell integrity/
+restart checks pass without page errors.
+
+**Remaining boundary:** ordinary live order ownership and nonempty queues,
+remaining state bodies (including idle state 17), full class-1 scheduling,
+airborne physics, health and native path/vehicle consumers remain unintegrated.
+This is verified dispatch and victory resumption, not full engine parity.

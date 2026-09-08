@@ -165,6 +165,34 @@ export function clearPersonOrders(pool: OrderPool, person: OrderedPerson, effect
   person.flags4 = (person.flags4 & ~512) >>> 0;
 }
 
+// Complete 0x4366b0: circular queue advancement, cancellation cleanup and
+// same-model repeating commands. Removing an order can change commandStatus.
+export function advancePersonOrder(pool:OrderPool,p:OrderedPerson,effects:{
+  remove:(slot:number)=>void;resumeRoute:()=>boolean;resumeVehicle:()=>boolean;
+  prepareNext:()=>void;configure:()=>void;recover:()=>void;
+}){
+  const repeat=!!(descriptor(p.commandStatus).flags&0x8000);
+  let found=-1;
+  for(let n=0,slot=(p.commandCursor+1)%8;n<8;n++,slot=(slot+1)%8){
+    const id=p.commands[slot];if(!id)continue;
+    const order=pool.records[id];
+    if(order.flags&1)effects.remove(slot);
+    else if(!repeat||order.model===p.commandStatus){found=slot;break;}
+  }
+  if(found<0&&!repeat&&(effects.resumeRoute()||effects.resumeVehicle()))found=0;
+  if(found>=0){
+    p.commandCursor=found;if(!repeat)effects.prepareNext();
+    effects.configure();effects.recover();return true;
+  }
+  if(repeat){
+    p.commandCursor=0;
+    for(let slot=0;slot<8;slot++)if(p.commands[slot])effects.remove(slot);
+    if(p.immediateCommand)effects.remove(-1);
+    p.flags2=(p.flags2&~0x8000000)>>>0;p.flags4=(p.flags4&~512)>>>0;
+  }
+  return false;
+}
+
 // 0x4359b0. Pool exhaustion leaves old person orders intact, but always clears
 // the group queue. Cancelled/ineligible commands still consume queue positions.
 export function commitPersonOrders(pool: OrderPool, group: OrderGroup, people: OrderedPerson[],

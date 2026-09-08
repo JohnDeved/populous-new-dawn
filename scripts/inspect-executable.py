@@ -66,7 +66,7 @@ if len(sys.argv)>2:
     rules['personMana']=[value(0x5a7060+i*50+14,2) for i in range(9)]
     rules['personThreat']=[value(0x5a7060+i*50+35,1) for i in range(9)]
     rules['personCommands']=[{'people':value(0x5a7dc4+i*22),'flags':value(0x5a7dca+i*22)} for i in range(35)]
-    rules['personModels']=[{'nextState':value(0x5a7060+i*50+4,1),'physics':value(0x5a7060+i*50+6,1),'flags':value(0x5a7060+i*50+48,2)} for i in range(9)]
+    rules['personModels']=[{'nextState':value(0x5a7060+i*50+4,1),'idleState':value(0x5a7060+i*50+5,1),'physics':value(0x5a7060+i*50+6,1),'flags':value(0x5a7060+i*50+48,2)} for i in range(9)]
     rules['personSpeeds']=[value(0x5a7b90+i*26+4,2) for i in range(20)]
     rules['personTurning']=[value(0x5a7b90+i*26,2) for i in range(20)]
     rules['personVerticalLimits']=[value(0x5a7b90+i*26+10,2) for i in range(20)]

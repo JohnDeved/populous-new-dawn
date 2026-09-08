@@ -101,12 +101,12 @@ function faceSelection(w: PersonStateWorld, p: StatefulPerson, effects: PersonSt
   else { effects.releaseMotion(p); p.turnAngle = angle; p.flags2 = (p.flags2 | 0x1080) >>> 0; }
 }
 
-// 0x4d2740: shared initialization for orders (10), selection (14), fight
+// 0x4d2740: shared initialization for timed wait (1), orders (10), selection (14), fight
 // recovery (36), special battle (39) and victory (41).
 // Other state bodies are not silently approximated. World consumers remain
 // required callbacks until their native terrain, animation and list ports land.
 export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, effects: PersonStateEffects) {
-  if (![10,14,36,39,41].includes(p.state)) throw new RangeError(`Unported person-state initializer ${p.state}`);
+  if (![1,10,14,36,39,41].includes(p.state)) throw new RangeError(`Unported person-state initializer ${p.state}`);
   const oldFlags = rules.personStateFlags[p.previousState], stateFlags = rules.personStateFlags[p.state];
   const model = rules.personModels[p.model];
   if (oldFlags === undefined || !model) throw new RangeError('Unsupported native person state/model');
@@ -139,7 +139,8 @@ export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, ef
   p.flags2 = (p.flags2 & 0xfffb7fff) >>> 0;
   if (!(stateFlags & 512)) p.speed = randomPersonSpeed(w, p);
   p.flags2 = (p.flags2 | 0x40000000) >>> 0; p.substate = 0; p.timer = 0;
-  if (p.state === 10) effects.startOrders(p);
+  if(p.state===1){p.speed=0;p.timer=random(w)%50+50;}
+  else if (p.state === 10) effects.startOrders(p);
   else if(p.state===14) {
     const tribe = w.tribes[p.tribe]; tribe.selectedCount = (tribe.selectedCount + 1) | 0;
     p.assignment &= ~4; p.flags4 = (p.flags4 & ~0x40000) >>> 0; p.speed = 0;
@@ -181,7 +182,7 @@ export function releaseSelectedPeople(w: PersonStateWorld, people: StatefulPerso
     resetPersonMotion(p);
     if (p.flags2 & 0x100000) continue;
     const next = (w.levelFlags & 2) && p.model === 7 ? 39 : rules.personModels[p.model]?.nextState;
-    if (![10,14,36,39,41].includes(next)) throw new RangeError(`Unported person-state initializer ${next}`);
+    if (![1,10,14,36,39,41].includes(next)) throw new RangeError(`Unported person-state initializer ${next}`);
     p.previousState = p.state; p.state = next; initializePersonState(w, p, effects);
   }
 }

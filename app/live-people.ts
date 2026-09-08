@@ -1,7 +1,8 @@
 import type {World,Unit} from './model.ts';
 import {nativePosition,browserPosition,height,buildingPose,entrance,sound} from './model.ts';
 import {initializePersonState,personAnimationObject,type StatefulPerson} from './person-state.ts';
-import {resetInterruptedPersonMotion,finishPersonPreparation,stepPersonReaction} from './person-update.ts';
+import {preparePersonTurn,stepPersonReaction} from './person-update.ts';
+import {stepPersonOrders} from './person-order-update.ts';
 import {stepCelebration,type Celebrant,type CelebrationEffects} from './celebration.ts';
 import {setAnimationObject,setPersonAnimation,stepObjectAnimation,type Animation} from './animation.ts';
 import {turnPerson,groundVelocity,positionsOverlap,stepMotionRecovery,recoverGroundObstacle,type RecoveryPerson} from './person-motion.ts';
@@ -17,7 +18,7 @@ import sprites from './original-units.json' with {type:'json'};
 export type LivePerson=StatefulPerson & Celebrant & Animation & RecoveryPerson & CellObject & {
   stamp:number;morphTimer:number;morphFrames:number;building:number|null;goalX:number;goalY:number;destinationX:number;destinationY:number;
   motionGroup:number;motionIndex:number;
-  reactionTimer:number;reactionDuration:number;
+  reactionTimer:number;reactionDuration:number;anchorFlags:number;
 };
 const short=(n:number)=>(n<<16)>>16;
 
@@ -34,7 +35,7 @@ export function createLivePerson(w:World,u:Unit):LivePerson{
     animationMode:0,commandAux:0,commandPhase:0,object:0,draw:0,morph:0,palette:0,renderFlags:0,f1:0,f2:0,stamp:0,morphTimer:0,morphFrames:0,
     statusFlags:0,workFlags:0,reservationNext:0,formationCell:0,motionTimer:0,motionMode:0,motionGroup:0,motionIndex:0,recoveryCounter:0,supportHeight:0,
     selectionFlags:selected?128:0,commands:Array(8).fill(0),commandCursor:0,immediateCommand:0,
-    orderLocation:0,commandStatus:0,workTarget:0,cellNext:0,cellPrevious:0,displacement:{x:0,y:0,h:0},reactionTimer:0,reactionDuration:0};
+    orderLocation:0,commandStatus:0,workTarget:0,cellNext:0,cellPrevious:0,displacement:{x:0,y:0,h:0},reactionTimer:0,reactionDuration:0,anchorFlags:0};
 }
 
 // Legacy allocation/deletion and spell movement still own ordinary units.
@@ -94,14 +95,20 @@ function context(w:World){
   return {state,effects};
 }
 
-export function initializeLiveCelebration(w:World,u:Unit){
-  const p=u.native!,{state,effects}=context(w);p.previousState=p.state;p.state=41;
+function initializeLivePerson(w:World,u:Unit,{state,effects}:ReturnType<typeof context>){
+  const p=u.native!;
   const tribes=w.manaTribes.map((t,i)=>({x:0,y:0,angle:0,selectedCount:w.units.filter(u=>u.native?.tribe===i&&w.selected.includes(u.id)).length,flags:t.flags2}));
   const initWorld=Object.assign(state,{tribes,instantFacing:false,levelFlags:w.manaWorld.gameFlags,orders:{records:[],cursor:0,active:0}});
   const unexpected=()=>{throw new Error('Legacy handoff contains an unowned native assignment');};
   initializePersonState(initWorld,p,{celebrate:()=>stepCelebration(state,p,effects),setAnimation:(p,o)=>effects.animation(p as LivePerson,o,true),
-    releaseMotion:p=>effects.releaseMotion(p as LivePerson),deselectPassengers:unexpected,rebuildTrainingQueue:unexpected,rebuildFormation:unexpected,startOrders:unexpected});
-  tribes.forEach((t,i)=>{w.manaTribes[i].flags2=t.flags;});w.randomState=state.randomState;u.cargo=p.cargo/100;
+    releaseMotion:p=>effects.releaseMotion(p as LivePerson),deselectPassengers:unexpected,rebuildTrainingQueue:unexpected,rebuildFormation:unexpected,
+    startOrders:p=>{if(p.immediateCommand||p.commands[p.commandCursor])unexpected();}});
+  tribes.forEach((t,i)=>{w.manaTribes[i].flags2=t.flags;});u.cargo=p.cargo/100;
+}
+
+export function initializeLiveCelebration(w:World,u:Unit){
+  const ctx=context(w),p=u.native!;p.previousState=p.state;p.state=41;
+  initializeLivePerson(w,u,ctx);w.randomState=ctx.state.randomState;
 }
 
 function collisionWorld(w:World):CollisionWorld{
@@ -116,12 +123,10 @@ function collisionWorld(w:World):CollisionWorld{
 }
 
 export function stepLiveCelebration(w:World,u:Unit){
-  const {state,effects}=context(w);
+  const ctx=context(w),{state,effects}=ctx;
   const p=u.native!;p.counter=(p.counter+1)&255;
-  // Shared preparation pieces precede motion. Status-driven state resumption
-  // and the full class-1 dispatcher still await live state/order ownership.
-  resetInterruptedPersonMotion(p);
-  finishPersonPreparation(p,{animation:()=>{const object=personAnimationObject(p);if(object!==-1)effects.animation(p,object,true);},destination:point=>effects.destination(p,point)});
+  preparePersonTurn(p,w.manaWorld.gameFlags,{initialize:()=>initializeLivePerson(w,u,ctx),
+    animation:()=>{const object=personAnimationObject(p);if(object!==-1)effects.animation(p,object,true);},destination:point=>effects.destination(p,point)});
   stepPersonReaction(p);
   const turning=turnPerson(p); // Native class-1 motion precedes its state controller.
   if(p.speed&&!(p.flags2&0x84000)){
@@ -148,7 +153,25 @@ export function stepLiveCelebration(w:World,u:Unit){
     }
     moveObjectInCells(w.objectCells,p,next);Object.assign(u,browserPosition(next));
   }
-  stepCelebration(state,p,effects);w.randomState=state.randomState;
+  if(p.state===41)stepCelebration(state,p,effects);
+  else if(p.state===10){
+    // Victory followers can resume through an empty order queue. Ordinary live
+    // command/vehicle ownership and the remaining state dispatcher are pending.
+    const unowned=()=>{throw new Error('Native live order consumer is not integrated');};
+    if(p.immediateCommand||p.commands.some(Boolean))unowned();
+    const next=stepPersonOrders({orders:{records:[],cursor:0,active:0},objects:new Map(),landFlags:w.land.landFlags,
+      levelFlags2:w.levelFlags2,playerTribe:w.manaWorld.playerTribe,survivingTribes:()=>w.manaTribes.filter(t=>t.active&&!t.defeatTimer).length},p,{
+      commands:{},commandPosition:unowned,vehicleDestination:unowned,vehicleReady:unowned,changeTribe:unowned,effectiveTribe:unowned,cellObjects:unowned,
+      leaveVehicle:()=>{if(p.vehicle)unowned();return false;},outside:to=>{
+        const cell=((to.y&65535)>>9)*128+((to.x&65535)>>9);
+        if(!(w.land.flags[cell]&512))return to;
+        const b=w.buildings.find(b=>b.id===(w.land.buildingIds[cell]&1023));if(!b)return unowned();
+        return buildingOutsidePoint(buildingPose(b));
+      },destination:to=>effects.destination(p,to),arrival:unowned,stop:unowned,formation:unowned,remove:unowned,advance:unowned,initialize:()=>initializeLivePerson(w,u,ctx),
+    });
+    if(next&&!(p.flags2&0x100000)){p.previousState=p.state;p.state=next;initializeLivePerson(w,u,ctx);}
+  }else throw new Error(`Unported live person state ${p.state}`);
+  w.randomState=state.randomState;
   u.heading=Math.PI-p.angle*Math.PI/1024;u.cargo=p.cargo/100;
   // Presentation remains grounded on the same resampled surface as other units.
   p.h=short(Math.round(height(w.terrain,u.x,u.z)*45));

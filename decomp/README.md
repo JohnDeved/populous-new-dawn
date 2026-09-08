@@ -1150,3 +1150,31 @@ and health remain unintegrated until the class-1 state/order dispatcher owns the
 The live destination consumer still uses direct destination assignment, pending
 native path planning. Raw `004e0270` and `004d4690` preserve surrounding person
 update evidence; they are not ports. The manifest contains 593 exports.
+
+
+## State-10 order dispatch and resumption
+
+`app/person-order-update.ts` reconstructs `00432590` order dispatch/completion,
+`004e32a0` post-order state selection and `00402e70` anchor centering.
+`advancePersonOrder` in `app/person-orders.ts` reconstructs complete `004366b0`,
+including canceled slots, circular traversal, repeat-model matching, fallback
+consumers and queue cleanup. The person model importer now preserves idle-state
+byte +5 separately from the order-state byte +4. Shared initialization also
+covers the native timed-wait state 1 and its extra RNG draw.
+
+`scripts/check-native-order-update.py EXE` passes 16,384 comparisons: 4,096 each
+for advancement, idle selection, dispatch and dispatch with native advancement
+composed. Command bodies, removal/configuration, paths, formation and vehicle
+consumers are supplied, with owned-field and ordered callback snapshots. Native
+cell lookup, anchor centering, overlap, object validity and tribe survivor count
+execute. The existing state oracle covers 4,096 initializers across states
+1/10/14/36/39/41, alongside its prior animation/order/training handoff checks.
+
+Live celebration now uses complete preparation. Its interruption can enter
+state 10, center the anchor and return through the original victory decision,
+using shared state initialization and RNG throughout. Nonempty ordinary queues,
+vehicles, remaining states and full airborne/health dispatch are still open.
+Raw metadata can misname overlapping fields: compiled command 25 clears the
+matched effect's word +0x70, and command 29 tests target word +0x7a. Those offsets
+are confirmed by instructions and CPU comparison, not inferred field names.
+There are 599 raw exports and 55 gameplay regression tests.

@@ -1256,3 +1256,16 @@ test('live native preparation consumes reroutes and completes slow turns and rea
  assert.equal(p.reactionTimer,0);assert.equal(p.reactionDuration,0);assert.equal(p.flags4&0x300000,0);
  stepLiveCelebration(w,u);assert.equal(p.slowTurn,0);assert.ok(p.object>0,'ending a slow turn refreshes the native person animation');
 });
+
+test('interrupted victory followers resume through native orders and rejoin celebration', async () => {
+ const {createLivePerson,initializeLiveCelebration,stepLiveCelebration}=await import('../app/live-people.ts');
+ const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');w.units=[u];
+ w.land.landFlags|=0x2000000;u.native=createLivePerson(w,u);initializeLiveCelebration(w,u);
+ const p=u.native;p.flags2|=16;p.flags4|=0x400000;p.anchorFlags=255;
+ stepLiveCelebration(w,u);
+ assert.equal(p.state,41);assert.equal(p.previousState,10,'resumes through the native empty-order handoff');
+ assert.equal(p.flags2&16,0);assert.equal(p.flags4&0x400000,0);assert.equal(p.anchorFlags,0);
+ assert.equal(p.anchorX&511,256);assert.equal(p.anchorY&511,256);
+ assert.ok(p.object>0);assert.equal(p.substate,8);
+ stepLiveCelebration(w,u);assert.equal(p.state,41,'resumption remains owned by the native controller');
+});
