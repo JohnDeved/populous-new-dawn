@@ -103,7 +103,7 @@ export default function Home() {
         }
         return
       }
-      const s = SPELLS.find(s => s.key === e.key)
+      const s = !e.code.startsWith('Numpad') && SPELLS.find(s => s.key === e.key)
       if (s) {
         store.change(w => {
           w.mode = w.mode === s.id ? null : s.id
@@ -688,6 +688,12 @@ export default function Home() {
           <strong>Right drag turns the view · middle drag moves it</strong>
           <span>Scroll · = / −</span>
           <strong>Switch view · WASD to move · Q / E to turn</strong>
+          <span>↑ / ↓ · ← / →</span>
+          <strong>Move forward / back · Rotate left / right</strong>
+          <span>Ctrl + ← / → · Shift</span>
+          <strong>Pan sideways · Hold Shift for fast panning</strong>
+          <span>Screen edges</span>
+          <strong>Move the pointer to an outer edge to scroll</strong>
           <span>1–3 / B</span>
           <strong>Choose a spell / open buildings</strong>
           <span>Space with a building plan</span>

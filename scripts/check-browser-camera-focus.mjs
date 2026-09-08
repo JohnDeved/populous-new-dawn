@@ -48,7 +48,7 @@ try {
   // Normal manual controls take over without a delayed snap to the old target.
   await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),1)
-  await page.keyboard.down('ArrowRight');await page.waitForTimeout(100);await page.keyboard.up('ArrowRight')
+  await page.keyboard.down('d');await page.waitForTimeout(100);await page.keyboard.up('d')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
   await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click()
   const worldRect=await canvas.boundingBox()

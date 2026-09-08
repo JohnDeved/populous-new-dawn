@@ -21,7 +21,7 @@ The first mission opens with its original camera tour. Press Escape/Space or cli
 4. Place a Warrior Training Hut near your settlement. Free braves fetch eight logs and build it. Select braves and click the completed hut to train them.
 5. Bridge from the central island to the Dakini. Defeat their followers; Lightning is particularly useful against their shaman.
 
-Click to select/order; drag to select groups; Shift adds followers. WASD/arrows pan around the planet, Q/E or right drag rotate, middle drag pans, scroll or = / − switches view, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; panning or dragging takes over from an active journey. Enter or ◎ shows the planet overview.
+Click to select/order; drag to select groups; Shift adds followers. Up/down arrows move forward/back; left/right arrows rotate, Ctrl+left/right pan sideways, and Shift speeds up panning. The outer screen edges scroll, including beside the sidebar. WASD pans, Q/E or right drag rotates, middle drag pans, scroll or = / − switches view, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; panning or dragging takes over from an active journey. Enter or ◎ shows the planet overview.
 
 `1–3`: Blast / Land Bridge / Lightning. `B`: buildings. `H`: shaman. `F`: focus. `G`: guard shaman. `Space`: pause. `Esc`: cancel targeting. Right-click Blast's card to toggle charging and redirect mana to training.
 
@@ -39,6 +39,7 @@ npm run test:sprites
 node scripts/check-browser-camera-focus.mjs
 node scripts/check-browser-camera-input.mjs
 node scripts/check-browser-camera-view.mjs
+node scripts/check-browser-navigation.mjs
 ```
 
 `npm run test:sprites` checks a frozen atlas hash, 336 original-engine pose fixtures,
@@ -152,3 +153,8 @@ initialization/filter transitions; it does not emulate original GPU rasterizatio
 timed transitions and actual keyboard, wheel and menu controls. Use = / − or
 the wheel to switch views. `python scripts/check-native-camera-view.py EXE`
 compares original commands, timers and 3,480 transition frames.
+
+`node scripts/check-browser-navigation.mjs` checks original arrows/Ctrl/Shift,
+keypad navigation, screen edges, duplicate-direction acceleration and UI/window
+gates. `python scripts/check-native-navigation.py EXE` compares the original
+key table, command mapper, input accumulator and edge requests.

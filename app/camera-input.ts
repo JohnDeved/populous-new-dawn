@@ -10,6 +10,46 @@ export interface CameraVelocity {
 const short = (value: number) => (value << 16) >> 16
 const fraction = (value: number, scale: number) => Math.trunc(Math.imul(value, scale) / 256)
 
+// 0x4ae200 maps held navigation commands to the movement byte.
+export function cameraCommand(
+  command: number,
+  input: {
+    control?: boolean
+    fast?: boolean
+    swap?: boolean
+    reverse?: boolean
+    overview?: boolean
+    blocked?: boolean
+  } = {}
+) {
+  if (input.blocked) return 0
+  if (!!input.control !== !!input.swap && command >= 3 && command <= 6)
+    command += command < 5 ? 2 : -2
+  // Fixed-direction aliases bypass the Ctrl/setting swap.
+  if (command >= 199 && command <= 202) command -= 196
+  if (command < 1 || command > 6) return 0
+  if (command >= 5) {
+    if (input.overview) return command === 5 ? 4 : 8
+    if (input.reverse) return command === 5 ? 32 : 16
+    return command === 5 ? 16 : 32
+  }
+  return (1 << (command - 1)) | (input.fast ? 64 : 0)
+}
+
+// 0x479dd0: requesting the same direction twice also enables fast panning.
+export const mergeCameraInput = (current: number, incoming: number) =>
+  (current | incoming | (current & incoming ? 64 : 0)) & 255
+
+// 0x4adbb0 tests the outer screen pixels, including the sidebar and corners.
+export function cameraEdgeButtons(x: number, y: number, width: number, height: number) {
+  let buttons = 0
+  if (x < 1) buttons |= 4
+  else if (x >= width - 1) buttons |= 8
+  if (y < 1) buttons |= 1
+  else if (y >= height - 1) buttons |= 2
+  return buttons
+}
+
 // 0x442880/0x442920/0x4429c0 share input scaling and momentum retention.
 function applyAxis(
   camera: CameraPosition,

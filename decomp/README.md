@@ -2190,3 +2190,48 @@ The other continuous zoom routine, `004b43f0`, is called by replay handling
 evidence; it was not substituted for ordinary view commands. Full native world
 view rendering/transition and heading restoration, event sampling, settings,
 timing ownership and all key bindings remain open. Camera parity stays partial.
+
+### Desktop navigation and screen-edge scrolling, 2026-09-08
+
+`004891d0` builds keyboard bindings from 12-byte records beginning at `005d5de8`.
+The first twelve records call `004ae200`: up/down arrows and keypad 8/2 request
+forward/back; Delete/Page Down request sideways motion; left/right arrows request
+rotation. Keypad 4/6 and 7/9 use fixed-direction aliases 199..202. The archived
+keycard linked above independently describes arrows, Ctrl and screen-edge scrolling.
+
+Complete `004ae200` swaps commands 3/4 with 5/6 for Ctrl and again for setting
+bit `level_flags & 0x200000`; two swaps cancel. Fixed aliases bypass that swap.
+Shift adds fast-pan bit 0x40 to pan commands, not rotation. Setting bit 0x80000
+reverses rotation, and world-view rotation commands become sideways requests.
+The settings getters `004999a0` / `00499a10` execute in the native comparison.
+Second-key-state bytes gate modifiers; their complete lifecycle is not ported.
+
+`00479dd0` merges type-2 requests by OR, also adding 0x40 when a bit is requested
+twice. Thus a direction key combined with the matching screen edge pans fast.
+`004adbb0` emits edge requests at x/y < 1 or >= screen width/height − 1, including
+the sidebar and corners. It gates these on land flag 0x80000, level flag
+0x80000000, drag mode and the UI-lock bit returned by `00451370(2)`.
+
+```
+.tools/decomp/oracle/bin/python scripts/check-native-navigation.py /path/to/d3dpoptb.exe
+node scripts/check-browser-navigation.mjs # development server required
+```
+
+The comparison executes 1,920 complete navigation commands, 2,560 complete
+type-2 accumulations and 882 complete pointer handlers, with actual keyboard
+table assertions. The mouse-coordinate provider and unrelated UI/drag consumers
+are intercepted in the pointer check; emitted navigation requests and their
+gates are the compared scope. Existing complete keyboard/drag movement checks
+still cover 8,192 / 6,153 calls after these requests reach the shared movement code.
+
+Browser input now uses original arrows, Ctrl, Shift, Delete/Page Down and keypad
+navigation. WASD/QE remain convenience aliases. Keypad 2 no longer also selects
+Land Bridge. Modifiers affect already-held arrows. Pointer tracking covers the
+whole client area, clears on leave/blur/cancellation and suppresses scrolling
+during rotation/pan drags, modal dialogs, input locks and overview. DOM checks
+cover actual keys/pointers, edge corners and the non-scrolling sidebar/canvas
+seam, duplicate fast pan, release, pause and modal/drag/window gates.
+
+The original world-view navigation/rendering, settings UI, complete key-state
+ownership and native frame/event sampling remain open. The desktop adapter
+still runs at 24 Hz with momentum off; full camera parity is not claimed.

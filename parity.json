@@ -83,9 +83,14 @@
             "scripts/check-native-camera-view.py",
             "scripts/check-browser-camera-view.mjs",
             "decomp/generated/00417510.c",
-            "decomp/generated/00479f00.c"
+            "decomp/generated/00479f00.c",
+            "scripts/check-native-navigation.py",
+            "scripts/check-browser-navigation.mjs",
+            "decomp/generated/004ae200.c",
+            "decomp/generated/00479dd0.c",
+            "decomp/generated/004adbb0.c"
           ],
-          "note": "Native focus, keyboard/drag movement and close/normal/bird's-eye view presets are integrated. Native comparisons include 3480 view-transition frames across ten resolutions; browser checks cover keys/wheel/menu, retargeting, pause/lock, resize and focus preserving the selected preset. Presentation still uses a 24 Hz momentum-off adapter. Full settings, input sampling/bindings, edge scrolling, scheduling, minimap mapping, native overview rendering/transitions and visibility remain incomplete."
+          "note": "Native focus, movement, view presets and desktop navigation are integrated. Arrows rotate, Ctrl swaps panning/rotation, Shift and duplicate directions enable fast pan; outer screen edges share the native movement accumulator. CPU comparisons cover commands, input merging and edge gates; real browser checks cover keyboard/keypad, modifiers, edges/corners, pause/lock/modal/drag/focus, camera views and sprite regressions. The 24 Hz momentum-off adapter, full settings/key ownership, frame scheduling, minimap mapping, native overview rendering/navigation/transitions and complete visibility remain open."
         },
         {
           "id": "world.wrap",

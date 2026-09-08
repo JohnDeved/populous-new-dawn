@@ -4,7 +4,13 @@ import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
 import { soundAttenuation } from './audio'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
-import { dragCamera, stepCameraInput } from './camera-input.ts'
+import {
+  cameraCommand,
+  cameraEdgeButtons,
+  mergeCameraInput,
+  dragCamera,
+  stepCameraInput,
+} from './camera-input.ts'
 import {
   createCameraMotion,
   requestCameraFocus,
@@ -98,12 +104,20 @@ const cameraKeys: Record<string, number> = {
   arrowup: 1,
   s: 2,
   arrowdown: 2,
-  a: 4,
-  arrowleft: 4,
-  d: 8,
-  arrowright: 8,
-  q: 16,
-  e: 32,
+  a: 199,
+  arrowleft: 5,
+  d: 200,
+  arrowright: 6,
+  q: 201,
+  e: 202,
+  delete: 3,
+  pagedown: 4,
+  numpad8: 1,
+  numpad2: 2,
+  numpad4: 199,
+  numpad6: 200,
+  numpad7: 201,
+  numpad9: 202,
 }
 const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 }
 const material = (color: number, extra = {}) =>
@@ -376,6 +390,7 @@ export class GameScene {
   pointerScreen: { clientX: number; clientY: number } | null = null
   pointerState = ''
   pointerButtons = 0
+  navigationPointer: { x: number; y: number; buttons: number } | null = null
   spellPointer = document.createElement('div')
   viewPoint: Point = HOME
   flybyCamera: FlybyCamera = { x: 17 * 256, y: -41 * 256, angle: 0, zoom: 0 }
@@ -611,9 +626,31 @@ export class GameScene {
       }
     })
     this.listen(window, 'keydown', this.keyDown)
-    this.listen(window, 'keyup', e => this.keys.delete((e as KeyboardEvent).key.toLowerCase()))
+    this.listen(window, 'keyup', e => {
+      const event = e as KeyboardEvent
+      this.keys.delete(event.key.toLowerCase())
+      this.keys.delete(event.code.toLowerCase())
+      if (event.ctrlKey) this.keys.add('control')
+      else this.keys.delete('control')
+      if (event.shiftKey) this.keys.add('shift')
+      else this.keys.delete('shift')
+    })
+    const trackNavigation = (event: Event) => {
+      const p = event as PointerEvent
+      this.navigationPointer =
+        p.pointerType === 'mouse' ? { x: p.clientX, y: p.clientY, buttons: p.buttons } : null
+    }
+    for (const event of ['pointermove', 'pointerdown', 'pointerup'])
+      this.listen(window, event, trackNavigation)
+    this.listen(window, 'pointerout', e => {
+      if (!(e as PointerEvent).relatedTarget) this.navigationPointer = null
+    })
+    this.listen(window, 'pointercancel', () => {
+      this.navigationPointer = null
+    })
     this.listen(window, 'blur', () => {
       this.keys.clear()
+      this.navigationPointer = null
       this.world.paused = true
       this.onChange()
     })
@@ -1173,18 +1210,21 @@ export class GameScene {
     this.onChange()
   }) as EventListener
   keyDown = ((event: KeyboardEvent) => {
-    const key = event.key.toLowerCase()
+    const key = (event.code.startsWith('Numpad') ? event.code : event.key).toLowerCase()
     const zoomIn = key === '=' || key === '+',
-      zoomOut = key === '-'
+      zoomOut = key === '-',
+      modifier = key === 'control' || key === 'shift'
     if (
       this.world.inputMask ||
-      (!cameraKeys[key] && !zoomIn && !zoomOut) ||
+      (!cameraKeys[key] && !zoomIn && !zoomOut && !modifier) ||
       (event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]') ||
-      event.ctrlKey ||
+      (event.ctrlKey && key.length === 1) ||
       event.metaKey ||
       event.altKey
     )
       return
+    if (event.ctrlKey) this.keys.add('control')
+    if (event.shiftKey) this.keys.add('shift')
     if (zoomIn || zoomOut) {
       if (!event.shiftKey) {
         this.zoom(zoomIn)
@@ -1193,7 +1233,7 @@ export class GameScene {
       return
     }
     this.keys.add(key)
-    event.preventDefault()
+    if (!modifier) event.preventDefault()
   }) as EventListener
   orientCamera() {
     if (this.overviewActive) {
@@ -1248,9 +1288,27 @@ export class GameScene {
           if (!this.viewTransition.remaining) this.viewTransition = null
           this.updateView()
         }
-        if (!w.inputMask && !this.overviewActive) {
+        if (!w.inputMask && !this.overviewActive && !document.querySelector('dialog[open]')) {
           let buttons = 0
-          for (const key of this.keys) buttons |= cameraKeys[key] ?? 0
+          for (const key of this.keys)
+            buttons = mergeCameraInput(
+              buttons,
+              cameraCommand(cameraKeys[key] ?? 0, {
+                control: this.keys.has('control'),
+                fast: this.keys.has('shift'),
+              })
+            )
+          const pointer = this.navigationPointer
+          if (pointer && !(pointer.buttons & 6))
+            buttons = mergeCameraInput(
+              buttons,
+              cameraEdgeButtons(
+                pointer.x,
+                pointer.y,
+                document.documentElement.clientWidth,
+                document.documentElement.clientHeight
+              )
+            )
           if (buttons || Object.values(this.cameraVelocity).some(Boolean)) {
             if (buttons & 15) {
               motion.active = 0

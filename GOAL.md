@@ -322,3 +322,14 @@ browser checks cover actual inputs, presets, retargeting, pause/lock and resize.
 The native world-view renderer/transition, complete input mapping and scheduling
 are still open. Keep the camera checkpoint partial and continue visible controls
 and rendering work before isolated hidden systems.
+
+### Latest visible integration: desktop navigation and edge scrolling
+
+Original arrows/Ctrl/Shift, Delete/Page Down and keypad navigation now feed the
+native movement routine. Outer screen edges scroll, including the sidebar;
+duplicate direction requests enable native fast pan. CPU comparisons cover
+1,920 command cases, 2,560 input accumulations and 882 pointer-handler cases.
+Actual browser checks cover modifiers, keys, corners, pause and modal/drag/window
+gates alongside existing movement, focus, view and sprite regressions. Settings,
+complete input-state ownership, scheduling and world-view controls remain open;
+the camera checkpoint and full parity goal stay unfinished.

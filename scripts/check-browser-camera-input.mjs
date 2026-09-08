@@ -20,7 +20,7 @@ try {
   // Captured from complete 0x4424b0 at 24 Hz, with momentum disabled.
   const cases = [
     [['w'],[65272,367,333]], [['ArrowDown'],[64727,32,333]],
-    [['a'],[64832,472,333]], [['ArrowRight'],[65167,65463,333]],
+    [['a'],[64832,472,333]], [['ArrowRight'],[65000,200,359]],
     [['q'],[65000,200,307]], [['e'],[65000,200,359]],
     [['w','a','e'],[65140,629,359]],
     [['w','s','a','d','q','e'],[65140,629,359]],
@@ -47,7 +47,7 @@ try {
   await page.keyboard.up('w');await page.evaluate(()=>{window.testScene.world.inputMask=0})
   // Focused HUD buttons must not swallow camera keys; pan interrupts focus.
   await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
-  await page.keyboard.down('ArrowRight');await step();await page.keyboard.up('ArrowRight')
+  await page.keyboard.down('d');await step();await page.keyboard.up('d')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
   const canvas=page.locator('.world-viewport canvas'),rect=await canvas.boundingBox()
   const center={x:Math.round(rect.x+rect.width/2),y:Math.round(rect.y+rect.height/2)}

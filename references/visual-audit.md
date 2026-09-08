@@ -265,3 +265,18 @@ the 18-frame transition, original endpoint data, = / −, wheel/menu input,
 interruption, paused/locked controls, resize and overview return. Native comparisons
 cover 3,480 transition frames. The full original world-view renderer and its
 transition remain unported; the existing spherical overview is still an adapter.
+
+### Desktop navigation and screen edges, 2026-09-08
+
+Left/right arrows now rotate; Ctrl swaps them to sideways panning, while Shift
+enables native fast pan. The pointer scrolls at the outer screen edges, including
+the left edge of the sidebar. The seam between sidebar and terrain does not
+scroll. A key and edge requesting the same direction trigger native fast pan.
+
+`node scripts/check-browser-navigation.mjs` uses real keyboard and pointer events
+to compare positions/headings, keypad behavior, modifier changes while holding
+an arrow, corners, release, pause and modal/drag/leave/blur gates. Inspected
+`/private/tmp/populous-navigation.png` after the checks; original terrain, models,
+unit artwork and HUD remain in place. Existing view, focus, movement and sprite
+checks pass. Native comparisons cover command selection/merging and edge gates;
+full event ownership, settings and world-view controls remain open.
