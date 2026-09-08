@@ -208,6 +208,7 @@ stdlib importer and native comparison dependencies.
 ```sh
 .tools/decomp/oracle/bin/python scripts/extract-reference.py /path/to/PopulousTB-Setup.zip /path/to/game 'language/lang00.dat'
 python3 scripts/import-messages.py /path/to/game
+python3 scripts/import-hud.py /path/to/game
 .tools/decomp/oracle/bin/python scripts/check-native-messages.py /path/to/d3dpoptb.exe /path/to/cpscr010.dat
 ```
 
@@ -1638,3 +1639,13 @@ and `fade0-c.dat`, retaining original bytes and source hashes. The CPU check run
 plus incremental invalidation. The browser check casts Land Bridge and verifies
 texture refresh after native terrain synchronization. Native raster/cache/LOD,
 dynamic lighting and live fog/stain ownership remain open integration work.
+
+
+### English HUD glyphs
+
+`004fe270`'s English glyph selection/advance is used by `app/hud-font.ts` and
+bitmap follower counts. `scripts/check-native-hud.py /path/to/d3dpoptb.exe`
+compares 606 calls; only the final glyph raster consumer is supplied.
+`node scripts/check-browser-hud.mjs` checks live desktop layout and controls.
+See the reverse-engineering log for original artwork provenance and remaining
+font, menu-ordering and hover-controller differences.

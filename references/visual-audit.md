@@ -67,3 +67,20 @@ synchronization. Incremental atlas output matches a fresh rebuild.
 Remaining visible differences include water/shore behavior, dynamic light and
 scenery shadow scheduling, native texture-cache filtering/LOD and HUD layout.
 Native texture pixels matching does not establish whole-frame visual parity.
+
+
+### Compact HUD pass
+
+Compared the live panel with `images-2.jpg` and `populus-3.png`: native minimap
+corners, tab silhouettes, portrait proportions, compact unit counts and spell
+charge markers now replace stretched cards and persistent labels. Native bitmap
+counts retain glyph widths. Both 720- and 1000-pixel desktop heights fit without
+button overflow. Original spell inactive/charged artwork replaces opacity-only
+fading. Building/shrine descriptions appear on model hover; the same mesh hit
+accepts orders. Objectives and help are in the menu.
+
+Capture: `/private/tmp/populous-native-hud-after.png`, reproduced by
+`node scripts/check-browser-hud.mjs`. The panel still exposes the implemented
+command subset; original slot ordering, full native font/color/layout behavior
+and control scheduling remain open. Next comparisons should show actual spell
+impacts, selection/targeting and building activity, beyond the opening view.

@@ -3353,3 +3353,64 @@ remain unported. Overview is still a browser projection adapter. These checks
 do not establish whole-frame pixel parity. Next priority is the visibly
 oversized HUD, original fonts/icons/layout and non-native labels, followed by
 controls and critical gameplay feedback.
+
+
+## 2026-09-08 — compact original HUD and model interaction
+
+Replaced the large text-heavy sidebar with the original minimap surround,
+category tabs and selected variants, shaman portrait, class silhouettes,
+three-column spell buttons, charge markers and gold panel textures. Chapter
+copy, resource summaries, instructional footer and persistent building/shrine
+labels no longer cover the play area. Objectives, camera utilities, speed and
+help remain accessible in the menu. Original campaign messages remain visible.
+The desktop panel scales from a 100-pixel logical width and fits 720- and
+1000-pixel-tall windows; this scaling is a browser adapter.
+
+`scripts/import-hud.py` reuses the validated PSFB decoder, importing **398**
+HFX/font entries, four border patches and the minimap surround. Artwork and font
+source hashes plus executable identity are recorded in `app/original-hud.json`.
+The spell definition records at `005a80d0 + model*62` confirm the opening icons
+at offsets 16/18: 355/373 for Blast, 356/374 for Lightning and 365/383 for Land
+Bridge. Stock/charging state selects the colored or inactive artwork; charge
+markers use HFX 54/55/65/66. Original asset dimensions replace arbitrary image
+stretching. Interface geometry was compared with `images-2.jpg` and
+`populus-3.png`. OpenPop's HFX names and Panel/SpellButton files were inspected
+as secondary format/layout evidence; their full game/UI implementation was not
+adopted. Existing upstream license/provenance records still apply.
+
+`004fd7c0` loads the sprite font banks. The English branch of `004fe270` clamps
+character minus 32 to the bank's available glyph range, issues one glyph draw
+and returns its stored width. `00527a30` reads the original width/height directly.
+`app/hud-font.ts` and `app/hud.tsx` use those bitmap entries and advances for
+follower counts. `check-native-hud.py` passes **606** native glyph selections and
+advances across both imported banks and boundary codes. Only the final
+`00459d00` raster consumer is supplied; this is not a comparison of its text
+projection, tint or compositing. Counts currently use a white browser tint.
+Eleven new raw exports bring the manifest to **672**; the larger recovered
+panel/font routines remain unreviewed except where behavior above is recorded.
+
+Removing floating labels required retaining their useful interaction. The
+existing projected-model picker now resolves both building and shrine meshes,
+and both hover and clicks use that shared result. Hover reuses the native name
+lookup and original tooltip frame. Forced introduction tooltips take priority.
+The immediate hover delay, world-object visibility/occlusion ownership and CSS
+text metrics remain browser adapters. Mouse clicks on HUD buttons release DOM
+focus so Q/E movement and Space continue working; keyboard-focused controls
+retain normal accessibility behavior.
+
+`check-browser-hud.mjs` skips the real introduction, checks panel/button bounds
+at 1440×1000 and 1280×720, selects braves, rotates by keyboard after a HUD click,
+toggles pause and spell charging, checks building unlock gating, hovers and
+clicks the stone-head mesh to assign worship, opens/closes the menu and toggles
+overview/shaman focus. It verifies that persistent labels are absent and records
+`/private/tmp/populous-native-hud-after.png`. The actual pointer-targeted Land
+Bridge check also passes with the new HUD and shared model picker. All 66
+regression tests and typecheck pass; lint has three existing-style image warnings.
+
+Remaining UI boundaries: command availability/ordering still follows the live
+browser subset, not the complete original slot/control table. Native hover
+scheduling, bitmap paragraph layout, font palettes, charge/control dispatch,
+minimap rasterization and complete object status panels remain unfinished.
+Menu/pause/settings and short command prompts are browser controls. The next
+visible priority is selection/targeting and spell feedback, followed by building
+activity/destruction; this pass does not establish full interface parity.

@@ -103,11 +103,11 @@ export class GameScene {
   terrainShadows=new Uint8Array(16384);
   unitMeshes = new Map<number, THREE.Group>();
   buildingMeshes = new Map<number, THREE.Group>();
-  buildingLabels = new Map<number, HTMLButtonElement>();
+  hoveredObject:number|null=null;
   fxMeshes = new Map<number, THREE.Group>();
   objects = new THREE.Group();
   decorations = new THREE.Group();
-  shrineMeshes = new Map<number, {g:THREE.Group;label:HTMLButtonElement}>();
+  shrineMeshes = new Map<number, {g:THREE.Group}>();
   cursor = ring(2.5, 0xe1c38b, .1);
   range = ring(34, 0x6dc9ee, .1);
   mouse = new THREE.Vector2();
@@ -203,6 +203,7 @@ export class GameScene {
     this.resize = new ResizeObserver(() => this.setSize()); this.resize.observe(container); this.setSize();
     this.listen(this.renderer.domElement, 'pointerdown', this.pointerDown);
     this.listen(this.renderer.domElement, 'pointermove', this.pointerMove);
+    this.listen(this.renderer.domElement, 'pointerleave', ()=>{this.hoveredObject=null;});
     this.listen(this.renderer.domElement, 'pointerup', this.pointerUp);
     this.listen(this.renderer.domElement, 'contextmenu', e => e.preventDefault());
     this.listen(this.renderer.domElement,'wheel',e=>{if(!this.overviewActive&&!this.world.inputMask){e.preventDefault();this.zoom(Math.exp((e as WheelEvent).deltaY*.001));}});
@@ -331,13 +332,19 @@ export class GameScene {
     for(const shrine of this.world.shrines){
       const g=new THREE.Group();g.add(nativeModel(shrine.model));
       this.locate(g,shrine);this.orientModel(g,shrine.angle);this.objects.add(g);
-      const label=document.createElement('button');label.className='shrine-label';label.setAttribute('aria-label',`Worship ${shrine.name}`);
-      label.onclick=()=>{command(this.world,shrine);this.orderSound();this.onChange();};this.container.appendChild(label);this.shrineMeshes.set(shrine.id,{g,label});
+      g.userData.shrine=shrine.id;this.shrineMeshes.set(shrine.id,{g});
     }
   }
   pick(event: PointerEvent): Point | null {
     const rect=this.renderer.domElement.getBoundingClientRect();this.mouse.set((event.clientX-rect.left)/rect.width*2-1,1-(event.clientY-rect.top)/rect.height*2);
     return this.view.pick(this.mouse,[this.terrain],this.camera)?.point??null;
+  }
+  pickWorldObject(event:PointerEvent){
+    const rect=this.renderer.domElement.getBoundingClientRect();this.mouse.set((event.clientX-rect.left)/rect.width*2-1,1-(event.clientY-rect.top)/rect.height*2);
+    const hit=this.view.pick(this.mouse,[...this.buildingMeshes.values(),...[...this.shrineMeshes.values()].map(s=>s.g)],this.camera);
+    let object=hit?.object;while(object?.parent&&object.userData.building===undefined&&object.userData.shrine===undefined)object=object.parent;
+    const id=object?.userData.building??object?.userData.shrine;
+    return this.world.buildings.find(b=>b.id===id)??this.world.shrines.find(s=>s.id===id)??null;
   }
   pointerDown = ((event: PointerEvent) => { this.down = { x: event.clientX, y: event.clientY, button: event.button };this.dragLast={x:event.clientX,y:event.clientY}; this.renderer.domElement.setPointerCapture(event.pointerId); }) as EventListener;
   pointerMove = ((event: PointerEvent) => {
@@ -347,6 +354,7 @@ export class GameScene {
       this.dragLast={x:event.clientX,y:event.clientY};this.updateView();
     }
     this.pointer = this.world.mode?this.pick(event):null;
+    this.hoveredObject=!event.buttons&&!this.world.mode&&!this.world.inputMask?this.pickWorldObject(event)?.id??null:null;
     if (event.buttons === 1 && event.pointerType !== 'touch' && !this.world.mode) {
       const rect = this.container.getBoundingClientRect(); Object.assign(this.dragBox.style, { display: 'block', left: `${Math.min(this.down.x, event.clientX) - rect.left}px`, top: `${Math.min(this.down.y, event.clientY) - rect.top}px`, width: `${Math.abs(event.clientX - this.down.x)}px`, height: `${Math.abs(event.clientY - this.down.y)}px` });
     }
@@ -364,7 +372,7 @@ export class GameScene {
       return;
     }
     let p = this.pick(event); if (!p) return;
-    if(!this.world.mode){const hit=this.view.pick(this.mouse,[...this.buildingMeshes.values()],this.camera);let object=hit?.object;while(object?.parent&&object.userData.building===undefined)object=object.parent;const b=this.world.buildings.find(b=>b.id===object?.userData.building);if(b)p={x:b.x,z:b.z};}
+    if(!this.world.mode){const object=this.pickWorldObject(event);if(object)p={x:object.x,z:object.z};}
     if (event.button === 2) { this.world.mode = null; command(this.world, p); this.orderSound(); }
     else if (this.world.mode) {
       const mode = this.world.mode;
@@ -458,13 +466,18 @@ export class GameScene {
     return true;
   }
   renderTooltip() {
-    const object = worldTooltipObject(this.world,this.tooltip.target);
-    const element = this.tooltipElement;
-    element.hidden = !this.tooltip.draw || !this.tooltip.text || !object;
-    if (element.hidden || !object) return;
+    let state=this.tooltip;
+    if(!state.draw&&this.hoveredObject!==null){
+      // ponytail: hover uses native names but immediate browser hit testing;
+      // connect the original hover delay/ownership when its controller is ported.
+      state=createTooltip();showObjectTooltip(state,worldTooltipObject(this.world,this.hoveredObject),1);state.draw=1;
+    }
+    const object=worldTooltipObject(this.world,state.target),element=this.tooltipElement;
+    element.hidden=!state.draw||!state.text||!object;
+    if(element.hidden||!object)return;
     const p=this.screen(object,this.y(object)+(object.type===1?128:512)/45);
     if(!this.visible(object)){element.hidden=true;return;}
-    element.textContent = this.tooltip.text;
+    element.textContent=state.text;
     const {width,height} = this.container.getBoundingClientRect();
     element.style.left = `${Math.max(4,Math.min(width-element.offsetWidth-4,(p.x+1)*width/2))}px`;
     element.style.top = `${Math.max(4,Math.min(height-element.offsetHeight-4,(1-p.y)*height/2))}px`;
@@ -568,20 +581,11 @@ export class GameScene {
       g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id);
       g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = Math.max(.001, u.hp / maxHp(u.kind));
     }
-    for (const [id, g] of this.buildingMeshes) if (!this.world.buildings.some(b => b.id === id)) { this.objects.remove(g); this.releaseGroup(g); this.buildingMeshes.delete(id);this.buildingLabels.get(id)?.remove();this.buildingLabels.delete(id); }
+    for (const [id, g] of this.buildingMeshes) if (!this.world.buildings.some(b => b.id === id)) { this.objects.remove(g); this.releaseGroup(g); this.buildingMeshes.delete(id); }
     for (const b of this.world.buildings) {
       const stage=buildingStage(b);
       let g = this.buildingMeshes.get(b.id);if(g&&g.userData.signature!==`${b.level}-${stage}`){this.objects.remove(g);this.releaseGroup(g);this.buildingMeshes.delete(b.id);g=undefined;} if (!g) { g = makeBuilding(b,stage); this.buildingMeshes.set(b.id, g); this.objects.add(g); if (b.progress < 1) { this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); } }
       this.locate(g,b,b.foundation);this.orientModel(g,b.angle);g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1; g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = b.progress < 1 ? Math.max(.01, b.progress) : Math.max(.001, b.hp / buildingHp(b.kind));
-      if(b.team==='blue'&&(b.kind==='camp'||b.progress<1)){
-        let label=this.buildingLabels.get(b.id);if(!label){label=document.createElement('button');label.className='shrine-label building-label';label.onclick=()=>{command(this.world,b);this.onChange();};this.container.appendChild(label);this.buildingLabels.set(b.id,label);}
-        const name=b.kind==='camp'?'Warrior Training Hut':'Hut',p=this.screen(b,b.foundation+5);
-        label.hidden=!this.visible(b);
-        label.style.left=`${(p.x+1)*this.container.clientWidth/2}px`;label.style.top=`${(1-p.y)*this.container.clientHeight/2}px`;
-        label.setAttribute('aria-label',`${name}: ${b.progress===1?'ready':'under construction'}`);
-        const trainees=this.world.units.filter(u=>u.work===b.id&&u.kind==='brave').length;
-        label.textContent=b.progress<1?`⌂ ${b.logs}/${b.kind==='camp'?8:3} LOGS · ${Math.floor(b.progress*100)}% BUILT`:`⚔ ${trainees?trainees+' TRAINING':'TRAIN WARRIORS'}`;
-      }else if(this.buildingLabels.has(b.id)){this.buildingLabels.get(b.id)!.remove();this.buildingLabels.delete(b.id);}
 
     }
     for (const [id, g] of this.fxMeshes) if (!this.world.effects.some(f => f.id === id)) { this.scene.remove(g); this.releaseGroup(g); this.fxMeshes.delete(id); }
@@ -589,7 +593,7 @@ export class GameScene {
       let g = this.fxMeshes.get(f.id); if (!g) { g = this.makeFx(f); this.fxMeshes.set(f.id, g); this.scene.add(g); }
       this.locate(g,f,f.height);this.animateFx(g,f);
     }
-    for(const [id,entry] of this.shrineMeshes)if(!this.world.shrines.some(s=>s.id===id)){this.objects.remove(entry.g);this.releaseGroup(entry.g);entry.label.remove();this.shrineMeshes.delete(id);}
+    for(const [id,entry] of this.shrineMeshes)if(!this.world.shrines.some(s=>s.id===id)){this.objects.remove(entry.g);this.releaseGroup(entry.g);this.shrineMeshes.delete(id);}
     for(const shrine of this.world.shrines){const entry=this.shrineMeshes.get(shrine.id)!;this.locate(entry.g,shrine);this.orientModel(entry.g,shrine.angle);
       let mesh=entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry,THREE.MeshBasicMaterial>;
       if(mesh.userData.nativeModel!==shrine.model){
@@ -608,10 +612,7 @@ export class GameScene {
         }
       }
       entry.g.visible=shrine.active||shrine.kind==='vault';
-      const p=this.screen(shrine,this.y(shrine)+4.5);
-      entry.label.hidden=!entry.g.visible||!this.visible(shrine);
-      entry.label.style.left=`${(p.x+1)*this.container.clientWidth/2}px`;entry.label.style.top=`${(1-p.y)*this.container.clientHeight/2}px`;
-      entry.label.textContent=`${shrine.kind==='vault'?'◈ WARRIOR KNOWLEDGE':shrine.kind==='bridge'?'≋ LAND BRIDGE':'ϟ LIGHTNING'} · ${shrine.active?shrine.progress>0?Math.floor(shrine.progress*100)+'%':shrine.kind==='lightning'?shrine.remaining+' gifts':'WORSHIP':'DISCOVERED'}`;
+
     }
     const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman');
     this.range.visible = !!this.world.mode && SPELLS.some(s => s.id === this.world.mode) && !!shaman;
@@ -638,5 +639,5 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate);
   };
   releaseGroup(g: THREE.Object3D) { const materials = new Set<THREE.Material>(); g.traverse(o => { if(o instanceof THREE.Sprite){o.material.map?.dispose();materials.add(o.material);} if (o instanceof THREE.Mesh || o instanceof THREE.Line) { if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m)); } }); materials.forEach(m => m.dispose()); }
-  dispose() { cancelAnimationFrame(this.frame); this.terrainLoad.abort();this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.waterMap.dispose();this.terrainMap.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
+  dispose() { cancelAnimationFrame(this.frame); this.terrainLoad.abort();this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.waterMap.dispose();this.terrainMap.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove(); }
 }
