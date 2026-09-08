@@ -2,7 +2,7 @@ import {animateLivePeople} from './live-people.ts';
 import { soundAttenuation } from './audio';
 import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
 import {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion} from './camera-motion.ts';
-import {defeatSky} from './sky.ts';
+import {defeatSky,createSkyMotion,updateSkyArray,skyCloudLayer} from './sky.ts';
 import skyPalette from './original-sky.json';
 import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldTooltipObject,tooltipPalette} from './tooltips.ts';
 import * as THREE from 'three';
@@ -71,6 +71,10 @@ export class GameScene {
   world: World;
   view = new RenderView();
   skyDome:THREE.Mesh|null=null;
+  skyMotion=createSkyMotion();
+  skyGrid=new Int32Array(26*96*2);
+  skyLoaded=false;
+  skyClouds:THREE.Mesh<THREE.BufferGeometry,THREE.ShaderMaterial>[]=[];
   skyFlash=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({
     uniforms:{rgba:{value:new THREE.Vector4()}},
     vertexShader:'void main(){gl_Position=vec4(position.xy,1.,1.);}',
@@ -214,9 +218,46 @@ export class GameScene {
     this.skyFlash.userData.nativeIgnore=true;this.skyFlash.visible=false;this.scene.add(this.skyFlash);
     const loader=new THREE.TextureLoader();
     const sky=loader.load('/original/sky.png');sky.colorSpace=THREE.SRGBColorSpace;this.scene.background=sky;
+    for(const [i,name] of ['clouds','clouds-high'].entries()){
+      const geo=new THREE.BufferGeometry();
+      geo.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(31*3),3));
+      geo.setAttribute('uv',new THREE.Float32BufferAttribute(new Float32Array(31*2),2));
+      geo.setAttribute('fade',new THREE.Float32BufferAttribute(new Float32Array(31),1));
+      const mesh=new THREE.Mesh(geo,new THREE.ShaderMaterial({
+        uniforms:{map:{value:texture(name)}},
+        vertexShader:'attribute float fade; varying vec2 cloudUV; varying float cloudAlpha; void main(){cloudUV=vec2(uv.x,1.-uv.y);cloudAlpha=fade;gl_Position=vec4(position.xy,1.,1.);}',
+        fragmentShader:`uniform sampler2D map; varying vec2 cloudUV; varying float cloudAlpha;
+          void main(){gl_FragColor=texture2D(map,cloudUV);gl_FragColor.a*=cloudAlpha;
+          #include <colorspace_fragment>
+          }`,
+        transparent:true,depthWrite:false,depthTest:true,toneMapped:false,side:THREE.DoubleSide,
+      }));
+      mesh.renderOrder=-10002+i;mesh.frustumCulled=false;mesh.userData.nativeIgnore=true;
+      this.skyClouds.push(mesh);this.scene.add(mesh);
+    }
     const clouds=loader.load('/original/clouds.png');clouds.colorSpace=THREE.SRGBColorSpace;clouds.wrapS=clouds.wrapT=THREE.RepeatWrapping;
     const dome=new THREE.Mesh(new THREE.SphereGeometry(350,48,24),new THREE.MeshBasicMaterial({map:clouds,side:THREE.BackSide,transparent:true,depthWrite:false,fog:false,opacity:.72}));
     clouds.repeat.set(4,2);this.skyDome=dome;dome.userData.nativeIgnore=true;dome.position.y=-PLANET_RADIUS;this.scene.add(dome);
+  }
+  updateSky(ticks:number){
+    const camera={...this.view.center,angle:Math.round(this.cameraBearing*1024/Math.PI)&2047};
+    // 0x524a30 initializes the lens with one extra update on its first draw.
+    if(!this.skyLoaded){updateSkyArray(this.skyMotion,camera,ticks,this.skyGrid);this.skyLoaded=true;}
+    updateSkyArray(this.skyMotion,camera,ticks,this.skyGrid);
+    const width=this.container.clientWidth,height=this.container.clientHeight;
+    if(!width||!height)return;
+    for(const [i,mesh] of this.skyClouds.entries()){
+      mesh.visible=!this.overviewActive;if(!mesh.visible)continue;
+      // ponytail: the browser battlefield is the render surface. Its HUD is
+      // outside that surface, so include the original optional left strip.
+      // Restore native offsets when the original UI layout is integrated.
+      const layer=skyCloudLayer(this.skyGrid,width,height,height,i?192:256,true,true,true,true);
+      const {position,uv,fade}=mesh.geometry.attributes;
+      layer.vertices.forEach((v,j)=>{position.setXYZ(j,v.x*2/width-1,1-v.y*2/height,1);uv.setXY(j,v.u,v.v);fade.setX(j,(v.color>>>24)/255);});
+      position.needsUpdate=uv.needsUpdate=fade.needsUpdate=true;
+      const count=layer.triangles.length*3;
+      if(mesh.geometry.index?.count!==count)mesh.geometry.setIndex(layer.triangles.flat());
+    }
   }
   listen(target: EventTarget, name: string, handler: EventListener) { target.addEventListener(name, handler); this.disposeListeners.push(() => target.removeEventListener(name, handler)); }
   setSize() { const { width, height } = this.container.getBoundingClientRect(); this.renderer.setSize(width, height); this.camera.aspect = width / Math.max(1, height); this.camera.updateProjectionMatrix();this.updateView(); }
@@ -473,6 +514,7 @@ export class GameScene {
     }
   }
   animate = (now: number) => {
+    const skyTicks=Math.min(0x1000000,Math.imul(Math.floor(now)-Math.floor(this.previous||now),64)>>>0);
     const dt = Math.min(.1, (now - (this.previous || now)) / 1000); this.previous = now;
     tick(this.world,dt*this.world.speed);this.playWorldSounds();
     if (this.terrainVersion !== this.world.terrainVersion) { this.rebuildTerrain(); this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); }
@@ -558,6 +600,7 @@ export class GameScene {
     this.water.geometry=this.overviewActive?geometry('overview-water',()=>new THREE.PlaneGeometry(256,256,128,128).rotateX(-Math.PI/2)):geometry('ground-water',()=>new THREE.PlaneGeometry(252,252,126,126).rotateX(-Math.PI/2));
     this.water.position.set(this.overviewActive?0:Math.floor(this.viewPoint.x/2)*2,0,this.overviewActive?0:Math.floor(this.viewPoint.z/2)*2);
     if(this.skyDome)this.skyDome.visible=this.overviewActive;
+    this.updateSky(skyTicks);
     // ponytail: initial mission palette; connect live system-palette changes
     // when the original palette scheduler is integrated.
     const sky=defeatSky(this.world.outcome.skyCounter,this.world.outcome.lastDefeated,skyPalette.colors,

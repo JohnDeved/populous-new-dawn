@@ -43,12 +43,13 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** capture the current opening level and representative gameplay
-states, compare them with the original reference material, rank the most obvious
-discrepancies, and implement the highest-impact visible correction. Use before/
-after browser captures for rendering/UI work and real interaction or gameplay
-checks for controls/mechanics. Keep native comparisons for recovered behavior;
-they do not replace visual inspection or prove overall look-and-feel parity.
+**Next action:** correct terrain color/shading and water appearance against the
+original references, then the oversized HUD and non-native labels. The opening
+comparison identified these as the largest remaining visible gaps after restoring
+the normal view's original projected cloud layers. Use before/after browser
+captures for rendering/UI work and real interaction or gameplay checks for
+controls/mechanics. Keep native comparisons for recovered behavior; they do not
+replace visual inspection or prove overall look-and-feel parity.
 
 Preserve the existing verified ports and completed routing integration. Detailed
 history and remaining implementation boundaries live in the completion checklist

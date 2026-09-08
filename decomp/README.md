@@ -1599,3 +1599,23 @@ state/animation ownership. Position/velocity and exact final task arrival still
 come from the browser controller. Full physics, collision recovery, ordinary
 order queues/states, vehicle actions and full-map rendering remain unfinished.
 The existing native ports are reused; the raw export count remains **646**.
+
+### Projected sky reconstruction
+
+The current manifest contains **652** raw exports. `app/sky.ts` ports the lens
+transform/update (`00523720`, `00523830`), sampled UV grid (`00517310`), viewport
+grid (`00517290`) and cloud commands (`00517420`). `004b60d0` identifies the
+original textures. `scripts/import-original.py` now also requires
+`data/skylens.dat`; source hashes remain in the asset provenance manifest.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-clouds.py /path/to/d3dpoptb.exe
+node scripts/check-browser-sky.mjs
+```
+
+The CPU check executes all callees through the real triangle allocator: 128
+updates, 4,992 triangles, exact coordinates/UV/color/flags and full motion-grid
+hashes. The browser check requires a running local preview and covers both
+visible layers, opaque-world occlusion, controls and viewport changes. Device
+rasterization, original HUD offsets and full palette/clock scheduling remain
+explicit integration boundaries; see the reverse-engineering log.

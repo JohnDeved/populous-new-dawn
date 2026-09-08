@@ -3217,3 +3217,40 @@ campaign targets. The next task is a browser/reference comparison and the larges
 visible correction. Decompilation remains part of the project, driven first by
 those visible targets or their concrete blockers. Full engine parity, saves and
 multiplayer remain in scope; no completion criteria were removed.
+
+## 2026-09-08 — Original projected sky in the normal camera
+
+The normal browser view hid its cloud dome, leaving only a flat gradient.
+Recovered `00523720` lens transformation, `00523830` camera-relative motion,
+`00517310` grid interpolation, `00517290` screen coordinates and `00517420`
+cloud triangle generation now drive two screen-space WebGL layers. Scheduling
+follows the existing `00517630` type-2 branch (sizes 256 and 192), with the
+initial extra update from `00524a30`. `004b60d0` identifies the three sky textures.
+The six new raw exports bring the manifest to **652**.
+
+The importer now retains `data/skylens.dat` (16,848 bytes, SHA256
+`4004b11ed6ce1d1240a86588b7bc22abc7d6160f5d048d1b97888ea234ea3b3d`)
+as signed integer data and `dsky0-c2.png` as `clouds-high.png`. Executable tables
+provide 31 screen points, 42 triangles and the eight floating-point constants.
+Camera coordinates are **signed** words here, even though other routines read
+the same wrapped storage unsigned. Rotation follows half the heading delta;
+cloud drift uses the independent integer millisecond clock ×64 from `0049c9f0`.
+
+`check-native-clouds.py` compares **128 updates and 4,992 allocated triangles**,
+running all native callees through `0047d8a0`. State, full lens-grid bytes,
+screen coordinates, UVs, fades, device flags and vertex order match, including
+heading/coordinate wraps and differing surface sizes. As in projection checks,
+the CPU uses MSVC double-precision FPU control (`0x27f`).
+
+`check-browser-sky.mjs` verifies both textures change actual sky pixels while
+leaving opaque ground/water pixels unchanged, keyboard rotation, cloud motion
+independent of simulation pause, resize and return from overview. Before/after
+and rotated screenshots were inspected. The original optional six triangles
+cover the **left margin**, not the top; the browser includes them because its HUD
+is outside the render surface.
+
+Remaining boundaries: browser viewport sizing, overview dome, texture filtering
+and WebGL blending are adapters, not legacy Direct3D raster parity. The clock is
+fed from RAF milliseconds rather than the original Windows render loop. Full
+palette scheduling and device capability fallbacks are not integrated. Terrain
+shading/water and original HUD layout remain the next visible priorities.

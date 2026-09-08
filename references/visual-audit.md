@@ -25,3 +25,26 @@ The user explicitly replaced the earlier low-poly direction with the original ga
 Implemented: native building and tree meshes, original layered 2D unit animations with eight viewing directions, native shaman headdresses, original spell/building/unit icons, gold panel texture, landscape bank c colours/displacement and sky layers. Level-one terrain and initial objects still come from the original level. Native compounds fit the existing tangent-plane foundations. Original-game imagery supersedes the earlier generated cover and low-poly direction.
 
 See [native asset formats and source hashes](native-assets.md) for the import pipeline and remaining renderer differences.
+
+## 8 September 2026 — Visible-fidelity priority
+
+Opening view inspected at 1440×1000, with additional comparisons against
+`village.jpg`, `images-2.jpg`, `user-world.png`, `user-village.jpg`, `images-1.jpg`
+and `populus-3.png`. Ranked discrepancies:
+
+1. Terrain remains too yellow and its detail/shading too uniform. The shader
+   still guesses height/color and lighting weights despite using original assets.
+   Water/shore texture motion is also approximate. This is the next target.
+2. The normal view had a flat sky: its cloud dome was only visible in overview.
+   Now corrected with the original lens data and both original cloud textures.
+   Native camera motion, UVs and fades are CPU-compared; keyboard rotation,
+   independent clock, viewport resize and GPU world occlusion pass in-browser.
+3. The HUD remains oversized, with approximate fonts/layout and extra floating
+   labels. Original textures/icons alone do not establish interface parity.
+4. Sprite/effect scheduling, shadows, ground detail and object activity still
+   need representative gameplay captures beyond the opening settlement.
+
+Before/after captures: `/private/tmp/populous-visible-before.png`,
+`/private/tmp/populous-visible-sky-after.png` and
+`/private/tmp/populous-visible-sky-rotated.png`. The latter two are reproducible
+with `node scripts/check-browser-sky.mjs` while the local server runs.

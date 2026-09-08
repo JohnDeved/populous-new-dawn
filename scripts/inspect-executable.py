@@ -92,6 +92,9 @@ if len(sys.argv)>2:
         'normalLimit':value(0x5a80fd+i*62,1),'alternateLimit':value(0x5a80fe+i*62,1),
         'rate':value(0x5a810a+i*62,2)} for i in range(22)]
     rules['spellRangeBands']=[value(0x5aa538+i*4) for i in range(8)]
+    rules['skyPoints']=[list(struct.unpack('<ii',read(0x58f910+i*8,8))) for i in range(31)]
+    rules['skyTriangles']=[list(struct.unpack('<iii',read(0x58fa08+i*12,12))) for i in range(42)]
+    rules['skyConstants']=list(struct.unpack('<8f',read(0x58fc00,32)))
     rules['pathLandLimit']=value(0x5aa450)
     rules['terrainCategoryDirections']=[struct.unpack('<b',read(0x5aa329+i*14,1))[0] for i in range(16)]
     rules['terrainCategoryFlags']=[value(0x5aa328+i*14,1) for i in range(16)]

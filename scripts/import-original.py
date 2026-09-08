@@ -194,8 +194,10 @@ def main():
         data=read('data/'+name);assert len(data)==w*h
         rgba=b''.join((bytes([(v+128)%256]*3) if gray else palette[v*4:v*4+3])+b'\xff' for v in data)
         png(output/({'bigf0-c.dat':'land-colours','disp0-c.dat':'land-detail','watdisp.dat':'water-detail'}[name]+'.png'),w,h,rgba)
-    for src,dst in [('dsky0-c1.png','clouds.png'),('dsky0-cb.png','sky.png')]:
+    for src,dst in [('dsky0-c1.png','clouds.png'),('dsky0-c2.png','clouds-high.png'),('dsky0-cb.png','sky.png')]:
         data=read('data/d3d/'+src);(output/dst).write_bytes(data)
+    lens=read('data/skylens.dat');assert len(lens)==81*26*8
+    (project/'app/original-skylens.json').write_text(json.dumps(list(struct.unpack('<4212i',lens)),separators=(',',':'))+'\n')
     (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'compositedFrames':len(rendered),'sha256':hashes},indent=2)+'\n')
     print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} composite animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 

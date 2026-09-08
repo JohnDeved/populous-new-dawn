@@ -48,6 +48,8 @@
     "data/disp0-c.dat": "d68d33c50badc5a002955cdba53010b9ebcddc70cfb89db3d6c369f3ab37b33c",
     "data/watdisp.dat": "259e75c803810c16f2166b86191b1d43090f28a6fac8b3b3df28477873ca1238",
     "data/d3d/dsky0-c1.png": "a35881872b309a4bccf519db587c2bd2048414c8ab47dbfbe229a1531da272ad",
-    "data/d3d/dsky0-cb.png": "262a1a22ae912ae7c29acb34c8cd08d61794838394f0794531f6003353e0f192"
+    "data/d3d/dsky0-c2.png": "7e11732f407adcd8f93d346ae4d04515d351381e685776856cb0289c9a17b317",
+    "data/d3d/dsky0-cb.png": "262a1a22ae912ae7c29acb34c8cd08d61794838394f0794531f6003353e0f192",
+    "data/skylens.dat": "4004b11ed6ce1d1240a86588b7bc22abc7d6160f5d048d1b97888ea234ea3b3d"
   }
 }
