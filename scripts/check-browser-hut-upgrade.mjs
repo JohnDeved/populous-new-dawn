@@ -76,6 +76,10 @@ try {
     const s=window.testScene,b=window.upgradeHut
     if(b.level!==2 || s.buildingMeshes.get(b.id)?.children[0].userData.nativeModel!==b.object)return false
     s.world.speed=0;return true
+  }).catch(async error=>{
+    console.error(await page.evaluate(()=>({hut:window.upgradeHut,speed:window.testScene.world.speed,status:window.testScene.world.status,
+      residents:window.upgradeResidents,logs:window.testScene.world.trees.filter(t=>t.model===11)})))
+    throw error
   })
   const replacement=await page.evaluate(()=>({object:window.upgradeHut.object,progress:window.upgradeHut.progress,upgrading:window.upgradeHut.upgrading}))
   assert.equal(replacement.object,original+1);assert.ok(replacement.progress>=1/3&&replacement.progress<1);assert.ok(replacement.upgrading)

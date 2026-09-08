@@ -56,6 +56,8 @@ if len(sys.argv)>2:
     rules['sceneryFlags']=[value(0x5a79b0+i*24+21,1) for i in range(20)]
     rules['sceneryResourceFlags']=[value(0x5a79b0+i*24+20) for i in range(20)]
     rules['sceneryWood']=[value(0x5a79b0+i*24+4,2) for i in range(20)]
+    rules['sceneryGrowth']=[value(0x5a79b0+i*24+6,2) for i in range(20)]
+    rules['sceneryReplantDelay']=[value(0x5a79b0+i*24+8,2) for i in range(20)]
     rules['objectTextureAlpha']=[bool(value(0x5d2910+i*4)) for i in range(256)]
     rules['buildingCapacity']=[value(0x5a7228+i*76+32,1) for i in range(20)]
     rules['buildingTrainedModel']=[value(0x5a7228+i*76+49,1) for i in range(20)]

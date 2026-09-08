@@ -798,9 +798,13 @@
             "tests/fixtures/hut-upgrade.json",
             "app/timber.ts",
             "scripts/check-native-timber.py",
-            "tests/timber.test.mjs"
+            "tests/timber.test.mjs",
+            "app/tree-growth.ts",
+            "scripts/check-native-tree-growth.py",
+            "tests/tree-growth.test.mjs",
+            "scripts/check-browser-tree-growth.mjs"
           ],
-          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Reached-source fetch command 7 now uses native twenty-turn tree work, three-turn log pickup, row-6 work animation and cues 1/10. Transfer limits and harvested tree scale match original consumers in 1860 native phase calls; portable and live browser checks cover work/carry, PCM and GPU shrink. Search/arrival, automatic-construction ordering, frame-gated sound and delayed replant remain open."
+          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Reached-source fetch command 7 now uses native twenty-turn tree work, three-turn log pickup, row-6 work animation and cues 1/10. Transfer limits and harvested tree scale match original consumers in 1860 native phase calls; portable and live browser checks cover work/carry, PCM and GPU shrink. Search/arrival, automatic-construction ordering, frame-gated sound and delayed replant remain open. Tree regrowth now uses per-object counter/rate. Native depletion delays, full indexed site search, collision/occupancy exclusions, 256-turn retries and 100-wood saplings are integrated. Compared 576 growth calls, 18 depletion records and 128 full delayed search/controller calls. Full-delay simulation and live GPU growth/shade checks pass. Allocation caps, mixed-class ownership, insertion scheduling and remaining vegetation visibility remain open."
         },
         {
           "id": "economy.housing",

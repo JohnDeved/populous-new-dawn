@@ -333,3 +333,19 @@ runs timed out once at ignition and once at cleanup; no runtime fire change was
 needed. The check now waits for observed camera rotation rather than a fixed
 250 ms and emits world/effect diagnostics on those waits. Real-time browser
 scheduling remains a source of test sensitivity; native fire comparisons pass.
+
+## Tree renewal — v112
+
+Revisited `populus-3.png`, `user-gameplay.jpg`, `user-campaigns.jpg`, `user-village.jpg`
+and `settlement.webp`. Their landscape banks and levels differ; no arbitrary
+recoloring of the verified first-mission bank was justified. The concrete activity
+gap addressed here is depleted vegetation never returning.
+
+Inspected `/private/tmp/populous-tree-sapling-v112.png` and
+`/private/tmp/populous-tree-regrown-v112.png`, following the full native delayed
+request in the live simulation. The sapling has 102 wood at the captured browser
+frame and grows to 400; the same mesh/scene comparison changes 818 GPU pixels.
+The old tree stays removed and native scenery shade returns for the new identity.
+The browser test also captures the empty site before planting. Full original
+frame matching, construction-stage appearance and the existing approximate
+building-proximity suppression of vegetation remain open visual comparisons.

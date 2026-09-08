@@ -4417,3 +4417,12 @@ See [the timber evidence and explicit controller boundaries](../decomp/README.md
 Native comparisons cover 1,860 calls; portable and browser checks retain the full
 visible upgrade sequence. Automatic construction scheduling and replanting are
 still open, so this does not establish full timber economy parity.
+
+## Native tree growth and delayed replacement
+
+Tree growth now uses per-object phases/rates from `004a6f40`. `004a79f0` depletion
+requests feed `004a8370` and the complete `004a8440` indexed replant search; failed
+sites retry after 256 turns and successful saplings start at 100 wood. Native
+comparisons cover growth, allocation records, search/terrain/collision and retry
+state, with full-delay live tests and browser GPU growth/shade checks.
+See [tree growth evidence and remaining ownership boundaries](../decomp/README.md#tree-growth-and-delayed-replanting--2026-09-09).

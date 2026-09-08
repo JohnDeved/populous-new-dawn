@@ -2759,3 +2759,61 @@ separate state/order lifecycle and calls `004391a0`, whose 32-turn random facing
 and motion-group side effects remain outside the shared live harvesting adapter.
 The timber checkpoint stays partial; direct command scheduling and all consumers
 must be integrated before claiming complete economy parity.
+
+## Tree growth and delayed replanting — 2026-09-09
+
+`004a6f40` samples growth on each scenery object's byte counter (`counter & 15`),
+using its signed growth short and model capacity. A full tree restores its default
+growth from descriptor +6. The live tree records now keep this phase/rate instead
+of sharing a world-turn check and TREE1 constant. New trees start their own phase.
+
+Depletion below 100 wood in `004a79f0` creates hidden class-5/model-17 scenery.
+Its allocation record carries the original class/model and descriptor +8 delay:
+4,000 turns for all six configured trees, shortened to half plus one eighth
+(2,500) when the receiving tribe's playerType is 1. Harvesting and burning both
+reach this producer. The separate `004a7bd0` expiry-removal branch does **not**
+create a replant request; the live adapter preserves that distinction.
+
+`004a8370` decrements a signed 32-bit delay. At <= 0 it calls `004a8440`; site or
+allocation failure schedules another attempt in 256 turns. Successful allocation
+sets the tree's original growth rate and 100 wood through `004a79f0`, then removes
+the hidden request. Existing scenery initialization centers the allocated corner
+on its 512-unit cell. Rendering reuses the original tree model and wood-to-scale
+calculation, so the sapling visibly grows and recovers its native ground shade.
+
+The complete site search reuses `0049a2f0/0049a3f0/0049a5d0` via indexed-search.ts:
+type 2, angle zero, rings 0..16, including repeated ring starts. It requires dry
+category flag 1; rejects cell mask 0x10606; rejects scenery except model 17; and
+rejects class-10/model-16 objects unless landFlags bit 8 is set. All four walk bits
+must pass the existing `00518200` reconstruction. Coordinates wrap before probing.
+The live occupied-cell adapter includes trees/logs, worship objects, the currently
+rendered reincarnation stones and fires; buildings use the native footprint flags.
+
+```sh
+python scripts/check-native-tree-growth.py /path/to/d3dpoptb.exe
+python scripts/check-native-tree-growth.py /path/to/d3dpoptb.exe --record
+node --test tests/tree-growth.test.mjs
+node scripts/check-browser-tree-growth.mjs
+```
+
+Comparisons cover 576 complete growth-controller calls with terrain/state side
+effects supplied, 18 actual depletion allocation records, and 128 complete delayed
+updates with original site search, indexed records and collision bytes executing.
+The latter include 55 successful sapling creations, nine allocator failures after
+finding a site, exhausted pools/sites, wrapped coordinates, flag/occupancy/walk
+exclusions and signed delay boundaries. The original wood/scale consumers execute;
+allocation and removal are observed consumers. These captures also run portably.
+The live test waits all 4,000 turns before creation and follows 100 -> 400 wood;
+a separate case covers burning depletion versus expiry. The browser runs the full
+delay at accelerated simulation speed and checks model size, GPU pixels and shade.
+
+Allocation limits, global object insertion/order, initial counter staggering and
+complete mixed-class scenery ownership remain open. Browser retained dead tree
+records and request arrays are adapters, not the original allocator. The existing
+renderer also retains its approximate building-proximity vegetation suppression;
+full original geometry/placement visibility remains a separate fidelity gap.
+This does not complete the timber or scenery lifecycle checkpoints.
+
+Six new exports bring the manifest to 866; re-exported `004a6210` and `004a80b0`
+match their previous hashes. `004a8860/004a8950` (rising/sinking scenery), `004a8b00`
+and `004a9030` are retained supporting research, not new completed ports.

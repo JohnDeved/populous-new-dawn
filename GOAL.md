@@ -493,3 +493,20 @@ frame-gated audio and delayed replanting remain open. Timber stays partial.
 Continue comparing visible first-mission world/activity and original captures;
 retain the desktop camera, artwork and sprite regression baseline. Full game
 parity remains unfinished, with discovery open.
+
+### Latest visible integration: tree regrowth and replanting
+
+Depleted trees now leave a native delayed replant request. The original indexed
+search chooses a dry, unoccupied, walkable cell; blocked/allocation-failed attempts
+retry after 256 turns. New trees appear at 100 wood and visibly grow to their model
+capacity. Existing trees use their own 16-turn growth phase and descriptor rate.
+Harvesting and burning share depletion; fire expiry alone does not invent a request.
+Native checks cover 576 growth calls, 18 depletion allocations and 128 complete
+replant/search calls. Portable tests wait the full 4,000-turn delay; browser checks
+show sapling/full size and restored shade through the live simulation.
+
+Full allocator limits, shared scenery/command ownership, original insertion and
+counter scheduling remain open. The original tree renderer's remaining placement
+and visibility differences need comparison, alongside building construction stages
+and close-view world lighting. Continue visible fidelity work using references;
+do not treat native component checks as matched full frames or full game parity.
