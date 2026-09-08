@@ -274,7 +274,8 @@ test('native economy uses fixed turns, population bands and real hut upgrades',(
  const grow=createWorld(),h=grow.buildings.find(b=>b.team==='blue'),residents=grow.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,3);
  for(const u of residents){u.inside=h.id;u.work=h.id;u.path=[];}
  const count=grow.units.length;h.timer=breedingWork(grow,h)-8;grow.turn=3;h.counter=3;grow.time=.25;tick(grow,1/12);assert.equal(grow.units.length,count+1);assert.equal(h.timer,0);
- grow.turn=15;grow.time=15/12;h.upgrade=2392;tick(grow,1/12);assert.equal(h.level,2);assert.equal(h.progress,0);assert.equal(h.logs,0,'mature huts require upgrade timber');assert.equal(h.upgrading,true);
+ grow.trees.push({...entrance(grow,h),id:grow.nextId++,model:11,logs:3});
+ grow.turn=15;h.counter=15;grow.time=15/12;h.upgrade=2392;tick(grow,1/12);assert.equal(h.level,2);assert.equal(h.progress,1/3);assert.equal(h.logs,1,'native replacement begins with 100 work and available entrance timber');assert.equal(h.upgrading,true);
  advance(grow,70);assert.equal(h.progress,1);assert.equal(h.logs,3);assert.equal(h.upgrading,false);foundations(grow);
  const capped=createWorld();while(capped.units.filter(u=>u.team==='blue').length<populationLimit(capped,'blue'))addUnit(capped,'blue','brave',HOME);
  const ch=capped.buildings.find(b=>b.team==='blue');ch.timer=99999;tick(capped,1/3);assert.equal(ch.timer,0);assert.equal(capped.units.filter(u=>u.team==='blue').length,12,'breeding stops at the settlement population limit');
@@ -1738,7 +1739,7 @@ test('hut families are selected once, shared with shapes and retained through up
  }
  assert.deepEqual([...families].sort((a,b)=>a-b),[107,119,131]);
  const u=w.units.find(u=>u.team==='blue'&&u.kind==='brave');u.inside=b.id;u.work=b.id;
- b.upgrade=rules.hutUpgradeWork[0];w.turn=15;tick(w,1/12);
- assert.equal(b.level,2);assert.equal(b.object,id+1);assert.equal(b.progress,0);
+ b.upgrade=rules.hutUpgradeWork[0];b.counter=15;w.turn=15;w.trees.push({...entrance(w,b),id:w.nextId++,model:11,logs:3});tick(w,1/12);
+ assert.equal(b.level,2);assert.equal(b.object,id+1);assert.equal(b.progress,1/3);
  const legacy={...b};delete legacy.object;assert.equal(buildingObject(legacy),132);
 });

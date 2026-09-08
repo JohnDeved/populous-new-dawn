@@ -463,3 +463,17 @@ cleanup. Global housing remains partial: native person allocation/state ownershi
 wild-person notification, class-9 plans, counter staggering and upgrades remain.
 Continue visible settlement behavior and critical gameplay while preserving
 original artwork, camera/control and sprite regressions. Full parity is unfinished.
+
+
+### Latest visible integration: timber before hut upgrades
+
+Huts now begin fetching timber at 75% maturity and wait for sufficient wood in
+the entrance cell before changing models. Residents visibly carry and drop the
+original log sprites; the replacement retains its family and starts at 100 work.
+Shared hauling code serves ordinary construction and upgrade preparation. Native
+comparisons cover 2,079 complete decision calls and 256 cell timber counts; portable
+and browser tests complete the full visible gather, stage and reconstruction loop.
+Housing and timber checkpoints remain partial: native resource searches, transfer
+and harvest timing, order ownership, replacement allocation and scheduling remain.
+Continue visible settlement and critical gameplay work without treating these
+consumer adapters as full native engine parity.

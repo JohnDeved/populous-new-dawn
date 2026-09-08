@@ -305,3 +305,14 @@ check measures flash GPU pixels, observes the newborn walking out, verifies full
 opacity and sixteen-turn expiry, and checks original cue40 PCM playback. This is
 backed by native socket/controller/animation comparisons, not an original matched
 video-frame claim. Complete native newborn person-state ownership remains open.
+
+
+## Original timber staging before upgrades — 2026-09-08
+
+Inspected `/private/tmp/populous-hut-timber-v110.png` and
+`/private/tmp/populous-hut-upgrading-v110.png`. A carrying resident deposits the
+original HFX23 log graphic at the hut entrance while the complete hut remains
+standing. With enough timber, its next-family model appears in the native first
+construction stage. The browser test measures 166 log pixels and observes the
+entire reconstruction completing. Native clock/resource accounting is compared;
+full worker order, harvesting timing and replacement allocation are still adapters.

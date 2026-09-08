@@ -790,9 +790,14 @@
           "status": "partial",
           "evidence": [
             "tests/game.test.mjs",
-            "scripts/check-native-scenery-fire.py"
+            "scripts/check-native-scenery-fire.py",
+            "app/hut-upgrade.ts",
+            "scripts/check-native-hut-upgrade.py",
+            "scripts/check-browser-hut-upgrade.mjs",
+            "tests/hut-upgrade.test.mjs",
+            "tests/fixtures/hut-upgrade.json"
           ],
-          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified."
+          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters."
         },
         {
           "id": "economy.housing",
@@ -806,9 +811,14 @@
             "scripts/check-native-hut-birth.py",
             "scripts/check-browser-hut-birth.mjs",
             "tests/hut-birth.test.mjs",
-            "tests/fixtures/hut-birth.json"
+            "tests/fixtures/hut-birth.json",
+            "app/hut-upgrade.ts",
+            "scripts/check-native-hut-upgrade.py",
+            "scripts/check-browser-hut-upgrade.mjs",
+            "tests/hut-upgrade.test.mjs",
+            "tests/fixtures/hut-upgrade.json"
           ],
-          "note": "Bands and admission primitives compared. Hut birth clock/phase/pending gates, separate spawn and flash sockets, neighbor redirect and cell-centered home destination now match 2304 complete native controller cases; 2304 completion clocks match cost minus 54. Browser newborns visibly leave rather than teleporting into housing. Native HFX1441 feedback has 128 initialization/grounding comparisons, 2688 animation records and 16-turn removal; live GPU and original cue 40 PCM playback checked. 288 captured controller cases run portably. Full person allocation/state/home ownership, wild-person notification, class-9 plans, allocation counter staggering, global ordering and remaining hut/upgrade lifecycle stay open."
+          "note": "Bands and admission primitives compared. Hut birth clock/phase/pending gates, separate spawn and flash sockets, neighbor redirect and cell-centered home destination now match 2304 complete native controller cases; 2304 completion clocks match cost minus 54. Browser newborns visibly leave rather than teleporting into housing. Native HFX1441 feedback has 128 initialization/grounding comparisons, 2688 animation records and 16-turn removal; live GPU and original cue 40 PCM playback checked. 288 captured controller cases run portably. Full person allocation/state/home ownership, wild-person notification, class-9 plans, allocation counter staggering, global ordering and remaining hut/upgrade lifecycle stay open. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters."
         },
         {
           "id": "economy.training",

@@ -4394,3 +4394,15 @@ motion. Original entrance flash and player birth audio are integrated and checke
 through browser GPU pixels and an actual PCM source. Native person ownership and
 wild-person/class-9/allocation paths remain open. See [the controller evidence
 and reproducible commands](../decomp/README.md#hut-birth-controller-and-entrance-feedback--2026-09-08).
+
+
+## Timber-gated hut upgrades — 2026-09-08
+
+The original gathers before upgrading, with 75% maturity and a 128-building-turn
+fetch phase; the browser previously gathered only after changing the building.
+Reconstructed the decision clock and entrance-cell wood accounting, then connected
+them to visible resident hauling and original log sprites. The replacement begins
+at the native 100 work and keeps its hut family. Native decision and wood-count
+oracles plus a full live reconstruction check now cover this integration. Successful
+native allocation and resource/order scheduling remain open. See [the evidence
+and commands](../decomp/README.md#hut-maturity-and-timber-staging--2026-09-08).

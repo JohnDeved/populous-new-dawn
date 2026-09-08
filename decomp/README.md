@@ -2653,3 +2653,58 @@ global scheduling remain open. Population/cost providers retain the current
 opening-class adapter. Three exports bring the manifest to 853. `0050c260` was
 examined but is not the birth effect's updater: both switch dispatchers subtract
 one from their selectors. Retain it as research, not a claimed port.
+
+
+## Hut maturity and timber staging — 2026-09-08
+
+`004050c0` uses each building's byte counter, not the world turn: every sixteen
+turns, signed occupant count adds eight units per occupant to signed maturity.
+Work clamps at the descriptor threshold (2,400 for the opening huts). Zero occupants
+clear the unavailable-wood flag. An upgrade request requires `0040b4f0` to report
+no missing timber. Every 128 building turns, maturity at least threshold*12/16
+may instead request a resident's fetch/deliver/return order chain. Native empty
+resource searches can set flags3 bit0x1000; the browser exposes that stored state
+but its worker selection and nearest reachable source remain existing adapters.
+
+`0040b4f0` uses the next model's buildingLife as required wood. `004a77d0` totals
+signed scenery amounts in the entrance cell, using descriptor DWORD +20 mask 0x4.
+This includes qualifying standing trees as well as logs. It is different from
+renderer flag byte+21; `sceneryResourceFlags` now records that complete native
+word from the verified EXE. Neighboring cells do not contribute. Browser signed
+coordinates are compared with a 16-bit cell mask, so entrance piles across the
+coordinate seam cannot be mistakenly fetched and dropped forever.
+
+Residents now stage original model11/HFX23 logs at the entrance before an upgrade.
+Dropping requests cue11, as in `004d58c0`. The existing scene already renders these
+imported log sprites. Once the 300 required wood is present, the live replacement
+keeps object+1 and starts with 100 construction work: `004050c0` creates/links the
+plan through `00498140`, zeros its work, then calls `004ba2c0(plan,100)`. The current
+building retains its browser identity; successful native allocation, linked-plan
+ownership and order transfer are not claimed ports. Subsequent construction and
+harvesting still use the shared existing work producer. That producer was extracted
+once and reused by upgrade hauling, retaining explicit limits instead of duplicating
+it. Full-native resource search/harvest/transfer timing and occupancy remain open.
+
+```sh
+python scripts/check-native-hut-upgrade.py /path/to/d3dpoptb.exe
+python scripts/check-native-hut-upgrade.py /path/to/d3dpoptb.exe --record
+node --test tests/hut-upgrade.test.mjs
+node scripts/check-browser-hut-upgrade.mjs
+```
+
+The decision oracle executes 2,079 complete `004050c0` calls with supplied wood
+availability, order eligibility/search and refused replacement allocations. It
+compares signed work/occupants, all relevant 16/128-turn boundaries, query order,
+unavailable flags and emitted fetch/upgrade requests. It does not establish the
+successful replacement branch. A separate 256-case oracle executes complete
+`004a77d0` cell lists with all twenty scenery models, signed amounts and adjacent
+cell exclusion. Portable fixtures retain 432 decisions and sixteen wood cases.
+The live simulation test carries three distinct logs to the entrance before
+upgrading, preserves the initial complete building, then finishes reconstruction.
+Browser checks see original log GPU pixels, carrying followers, the drop cue,
+changed native family model and successful completion. Inspected captures:
+`/private/tmp/populous-hut-timber-v110.png` and
+`/private/tmp/populous-hut-upgrading-v110.png`.
+
+One new export (`0040b4f0`) brings the manifest to 854; re-exported plan helpers
+match their existing hashes. Global housing and timber checkpoints remain partial.

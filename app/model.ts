@@ -1,3 +1,4 @@
+import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
 import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
@@ -199,6 +200,7 @@ export type Building = Point & {
   angle: number
   counter: number
   birthPending?: boolean
+  woodUnavailable?: boolean
   damageState: (DamageBuilding & { plan: BuildingPlan }) | null
   burn?: BuildingBurn
 }
@@ -2773,6 +2775,76 @@ export function tick(w: World, dt: number) {
     stepTurn(w)
   }
 }
+function entranceWood(w: World, b: Building) {
+  return looseWoodInCell(
+    buildingOutsidePoint(buildingPose(b)),
+    w.trees.map(t => ({
+      ...nativePosition(w, t),
+      model: t.model,
+      wood: Math.round(t.logs * 100),
+    }))
+  )
+}
+
+function findBuildingWood(w: World, u: Unit, b: Building) {
+  const door = buildingOutsidePoint(buildingPose(b))
+  return w.trees
+    .filter(t => {
+      if (t.logs < 1) return false
+      if (b.progress < 1) return true
+      const p = nativePosition(w, t)
+      return !!(((p.x ^ door.x) | (p.y ^ door.y)) & 0xfe00)
+    })
+    .sort((a, c) => distance(a, u) - distance(c, u))
+    .find(t => findPath(w, u, t).length)
+}
+
+// Shared live hauling adapter; native harvesting timing/order ownership remain open.
+function haulBuildingWood(w: World, b: Building, workers: Unit[], cost: number) {
+  for (const u of workers) {
+    if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
+      if (b.progress === 1) {
+        const point = buildingDoor(b)
+        w.trees.push({ ...point, id: w.nextId++, model: 11, logs: u.cargo })
+        sound(w, 0xb, u)
+      } else b.logs += u.cargo
+      u.cargo = 0
+      u.tree = null
+    }
+    if (
+      b.progress < 1 &&
+      b.logs + workers.reduce((n, a) => n + (a.cargo || a.tree !== null ? 1 : 0), 0) < cost &&
+      !u.cargo &&
+      u.tree === null
+    ) {
+      const tree = findBuildingWood(w, u, b)
+      if (tree) {
+        u.tree = tree.id
+        route(w, u, tree)
+        u.timer = 0
+      }
+    }
+    if (u.tree !== null && !u.cargo) {
+      const tree = w.trees.find(t => t.id === u.tree)
+      if (!tree) {
+        u.tree = null
+        continue
+      }
+      if (distance(u, tree) < 1 && !u.path.length) {
+        u.timer += 1 / TURNS_PER_SECOND
+        if (u.timer >= 2) {
+          if (tree.logs >= 1) {
+            tree.logs--
+            u.cargo = 1
+          } else u.tree = null
+          u.timer = 0
+          route(w, u, entrance(w, b))
+        }
+      }
+    }
+  }
+}
+
 function stepTurn(w: World) {
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
@@ -2953,42 +3025,7 @@ function stepTurn(w: World) {
     if (b.progress < 1) {
       const cost = BUILDINGS.find(s => s.id === b.kind)!.cost
       const workers = w.units.filter(u => u.work === b.id && u.hp > 0 && u.kind === 'brave')
-      for (const u of workers) {
-        if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
-          b.logs += u.cargo
-          u.cargo = 0
-          u.tree = null
-        }
-        if (
-          b.logs + workers.reduce((n, a) => n + (a.cargo || a.tree !== null ? 1 : 0), 0) < cost &&
-          !u.cargo &&
-          u.tree === null
-        ) {
-          const tree = w.trees
-            .filter(t => t.logs >= 1)
-            .sort((a, c) => distance(a, u) - distance(c, u))
-            .find(t => findPath(w, u, t).length)
-          if (tree) {
-            u.tree = tree.id
-            route(w, u, tree)
-            u.timer = 0
-          }
-        }
-        if (u.tree !== null && !u.cargo) {
-          const tree = w.trees.find(t => t.id === u.tree)!
-          if (distance(u, tree) < 1 && !u.path.length) {
-            u.timer += dt
-            if (u.timer >= 2) {
-              if (tree.logs >= 1) {
-                tree.logs--
-                u.cargo = 1
-              } else u.tree = null
-              u.timer = 0
-              route(w, u, entrance(w, b))
-            }
-          }
-        }
-      }
+      haulBuildingWood(w, b, workers, cost)
       if (b.logs >= cost)
         b.progress = Math.min(
           1,
@@ -3056,26 +3093,41 @@ function stepTurn(w: World) {
         // ponytail: native newborn home/state ownership still uses the live route adapter.
         route(w, u, browserPosition(points.destination))
       }
-      if ((w.turn & 15) === 0 && inhabitants.length && b.level < 3) {
-        b.upgrade += 8 * inhabitants.length
-        if (b.upgrade >= rules.hutUpgradeWork[b.level - 1]) {
-          // ponytail: gather upgrade timber after maturation; native huts prefetch it at 75%.
-          b.upgrade = 0
-          // 0x4050c0 retains the chosen family by passing object + 1 to the replacement.
-          b.object = buildingObject(b) + 1
-          b.level++
-          b.damageState = null
-          b.progress = 0
-          b.logs = 0
-          b.timer = 0
-          b.upgrading = true
-          for (const u of inhabitants) {
+      const haulers = w.units.filter(
+        u => u.work === b.id && u.inside === null && u.hp > 0 && u.kind === 'brave'
+      )
+      haulBuildingWood(w, b, haulers, 0)
+      const upgrade =
+        !(w.manaWorld.gameFlags & 32) &&
+        stepHutUpgrade(b, inhabitants.length, () =>
+          Math.max(0, rules.buildingLife[b.level + 1] - entranceWood(w, b))
+        )
+      if (upgrade === 'fetch') {
+        const u = inhabitants.find(u => u.kind === 'brave' && !u.fight && !u.casting)
+        if (u) {
+          const tree = findBuildingWood(w, u, b)
+          if (tree) {
             release(w, u)
-            const p = entrance(w, b)
-            u.x = p.x
-            u.z = p.z
-            u.work = u.kind === 'brave' ? b.id : null
-          }
+            Object.assign(u, buildingDoor(b))
+            u.work = b.id
+            u.tree = tree.id
+            route(w, u, tree)
+          } else b.woodUnavailable = true
+        }
+      } else if (upgrade === 'upgrade') {
+        b.upgrade = 0
+        // 0x4050c0 retains the family and starts its replacement plan with 100 work.
+        b.object = buildingObject(b) + 1
+        b.level++
+        b.damageState = null
+        b.progress = 100 / rules.buildingLife[b.level]
+        b.logs = 1
+        b.timer = 0
+        b.upgrading = true
+        for (const u of inhabitants) {
+          release(w, u)
+          Object.assign(u, buildingDoor(b))
+          u.work = u.kind === 'brave' ? b.id : null
         }
       }
     }
