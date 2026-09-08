@@ -552,3 +552,21 @@ all its original model consumers. Native distance fading remains in place;
 full world lighting, painter order and exact clipping/raster output are still
 unverified. Continue visible world/activity/HUD comparisons rather than treating
 component-level renderer checks as full original-frame parity.
+
+
+### Latest visible integration: animated shaman portrait
+
+The HUD now uses the original portrait borders, position, background feedback
+and current directional shaman animation. It shares the world sprite layers,
+omits the standing shadow and preserves action poses outside the frame. Native
+comparisons cover 322 controller states, 408 directional poses and three border
+compositions; 200 actual browser poses match original pixel hashes. Hover,
+selection, animation, camera input and death/absence/reincarnation pass, together
+with existing unit-sprite, health and spell-button regressions. There are 91
+portable regressions and 883 identified decompilation exports.
+
+Native resolution rounding, control ownership, full presentation scheduling and
+shaman state producers remain open. HUD and the full-game goal remain partial.
+Continue comparing visible world lighting/terrain and first-mission activity
+against original captures, alongside remaining population/mana/control artwork.
+Keep discovery open and do not award broad checkpoint credit for component work.

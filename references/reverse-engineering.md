@@ -4462,3 +4462,12 @@ for CPU, source-pixel and browser comparisons and remaining ownership limits.
 its shared original-model factory. See [native/GPU evidence](../decomp/README.md#ordinary-model-face-culling--2026-09-09).
 The existing distance-fade instructions remain unchanged; broader lighting and
 painter ownership are separate open work.
+
+
+### Animated shaman portrait
+
+`0049fe70` supplies original frame geometry/background states; `00450e60` reuses
+current directional animation with the standing shadow suppressed. The scene
+now shares its resolved world frame with the HUD canvas. Native and browser
+pixel comparisons, pose overflow and remaining resolution/control limits are
+recorded in [the portrait evidence](../decomp/README.md#animated-shaman-portrait--2026-09-09).

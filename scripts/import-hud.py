@@ -65,6 +65,19 @@ for name,frame_width,frame_height in [('charge',26,5),('health',10,22)]:
                 src=((y%h)*w+x%w)*4;at=((top+y)*frame_width+left+x)*4
                 if data[src+3]:pixels[at:at+4]=data[src:src+4]
     a.png(output/f'hud-{name}.png',frame_width,frame_height,pixels)
+# 0x49fe70/0x4a1f50: portrait borders at the original 30×35 logical size.
+for name,start in [('portrait',713),('portrait-hover',731),('portrait-selected',722)]:
+    pixels=bytearray(30*35*4)
+    draws=[(8,4,4,22,27),(4,8,0,14,4),(5,8,31,14,4),
+           (6,0,8,4,19),(7,26,8,4,19),(0,0,0,8,8),
+           (1,22,0,8,8),(2,0,27,8,8),(3,22,27,8,8)]
+    for offset,left,top,draw_width,draw_height in draws:
+        w,h,data=bank[start+offset]
+        for y in range(draw_height):
+            for x in range(draw_width):
+                src=((y%h)*w+x%w)*4;at=((top+y)*30+left+x)*4
+                if data[src+3]:pixels[at:at+4]=data[src:src+4]
+    a.png(output/f'hud-{name}.png',30,35,pixels)
 pixels=bytearray(100*99*4)
 for i in range(4):
     w,h,data=bank[690+i];assert (w,h)==(50,49 if i<2 else 50)
@@ -75,4 +88,4 @@ for name,i in [('panel',706),('commands',712)]:a.png(output/f'hud-{name}.png',*b
 meta=dict(executableSha256=identity['sha256'],sha256=hashes,width=width,height=height,rects=rects,alphaColors=alpha_colors,spriteColors=[alpha[i*4096+0x2f82] for i in range(13)])
 meta['colors']=['#'+palette[i*4:i*4+3].hex() for i in range(256)]
 (ROOT/'app/original-hud.json').write_text(json.dumps(meta,separators=(',',':'))+'\n')
-print(f'Imported {len(entries)} native HUD sprites/glyphs, eight borders, charge/health frames and minimap frame')
+print(f'Imported {len(entries)} native HUD sprites/glyphs, eight borders, charge/health/portrait frames and minimap frame')

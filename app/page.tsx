@@ -50,6 +50,7 @@ export default function Home() {
   const [hover, setHover] = useState<string | null>(null)
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
+    portrait = useRef<HTMLCanvasElement>(null),
     dialog = useRef<HTMLDialogElement>(null)
   const engine = useRef<GameScene | null>(null),
     audio = useRef<Soundscape | null>(null)
@@ -73,11 +74,12 @@ export default function Home() {
       })
     import('./scene')
       .then(({ GameScene }) => {
-        if (disposed || !viewport.current || !minimap.current) return
+        if (disposed || !viewport.current || !minimap.current || !portrait.current) return
         try {
           engine.current = new GameScene(
             viewport.current,
             minimap.current,
+            portrait.current,
             world,
             update,
             (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
@@ -350,7 +352,7 @@ export default function Home() {
               engine.current?.focus(shaman ?? HOME, { animate: true })
             }}
           >
-            <img src="/original/portrait.png" alt="" />
+            <canvas ref={portrait} width={100} height={480} aria-hidden="true" />
           </button>
           <button
             className="help-button"

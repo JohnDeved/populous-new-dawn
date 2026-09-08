@@ -2996,3 +2996,53 @@ ignition, scenery rebuilding and all 336 unit sprite poses. The hover test now
 uses the existing fixed pan key `D`: its former `ArrowRight` action rotates
 around the centered stone head under the restored native bindings and therefore
 does not reliably move the pointer off that head. Runtime bindings were unchanged.
+
+
+## Animated shaman portrait — 2026-09-09
+
+`0049fe70` places the portrait at logical (33,114), size 30×35. It draws HFX
+713–721 (normal), 731–739 (hover/press), or 722–730 (selected), fills the
+25×30 interior at (35,116), and anchors the person at (47,144). The background
+uses palette 172, hover/press 130, or 243 when native state is 25/29,
+health is at least maximum minus 225, and presentation-counter bit 2 is set.
+Absence clears the interior and emits no person. State meanings and full control
+selection/enabling ownership are not inferred from these drawing conditions.
+
+`00450e60` selects the shaman's live animation row/frame, adjusts direction with
+camera heading, applies tribe row offsets and VSTART mirroring, and calls the
+original no-tribe layer renderer in portrait mode with shadow suppression.
+The browser shares its resolved world frame and `spriteLayers` implementation;
+it does not create a separate animation map or portrait texture set. A small
+canvas preserves poses that extend beyond the control's border. The existing
+static portrait is replaced by live animation, including camera turns, casting
+and absence/reincarnation. The button retains keyboard access and focus behavior.
+
+The native comparison executes the complete controller in 322 background/state
+cases and the complete directional/layer path in 408 blue/red poses: every
+imported shaman action, eight directions, first/last cycle steps. Original HSPR,
+VFRA, VELE and VSTART data supply loaded tables. Coordinate adapters receive
+logical 640×480; only palette and final sprite/quad consumers are supplied.
+All three imported border PNGs agree with original frame submissions. Captured
+rectangles, colors and independent original-pixel hashes are retained in
+`tests/fixtures/hud-portrait.json`; normal checks reject fixture drift.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-hud-portrait.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node scripts/check-browser-hud-portrait.mjs
+```
+
+The actual scene/canvas matches all 200 blue-shaman capture hashes, including
+mirrors, transparent regions, absent shadows and out-of-frame limbs. Browser
+checks also cover two desktop layouts, hover, selection, live animation, camera
+input and actual death/removal/reincarnation. The existing 336 GPU sprite poses,
+24 health states and 24 spell-button states pass. Portable regressions total 91;
+883 exports pass identity/hash checks. The new maintained TS module passes
+ox-standard; ESLint has zero errors and two existing image warnings. Fallow
+reports maintainability 85.4 (good), with pre-existing repository debt still open.
+
+The HUD keeps the existing uniform logical-resolution adapter. Original portrait
+mode applies separate 30/32 fixed-point X/Y scaling above 640 pixels; that exact
+per-resolution rounding remains open. The 24 Hz presentation counter is a browser
+adapter, not a port of the full native outer-frame clock. Complete native shaman
+state ownership, control selection/disabled dispatch, other tribes as the player,
+other panels and whole original-frame matching remain unfinished.

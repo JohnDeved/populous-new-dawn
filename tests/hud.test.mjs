@@ -19,3 +19,18 @@ test('HUD atlas metadata matches the PNG and contains every imported sprite',()=
   for(const [id,r] of Object.entries(hud.rects))
     assert.ok(r.x>=0&&r.y>=0&&r.x+r.w<=hud.width&&r.y+r.h<=hud.height,id)
 })
+
+import portrait from './fixtures/hud-portrait.json' with {type:'json'}
+import units from '../app/original-units.json' with {type:'json'}
+import views from '../app/original-camera.json' with {type:'json'}
+import {portraitBackground} from '../app/hud-portrait.ts'
+import {spriteLayers} from '../app/sprite-layers.ts'
+test('portrait backgrounds and shadow-free directional layers match native captures',()=>{
+  assert.equal(portrait.executableSha256,manifest.executableSha256)
+  for(const c of portrait.backgrounds)assert.equal(portraitBackground(c.shaman,c.counter,c.hover),c.color)
+  for(const c of portrait.cases){
+    const cycle=units.animations[c.signature][c.action][c.direction]
+    assert.equal(cycle.frames[c.step],c.frame);assert.equal(cycle.flip,c.flip)
+    assert.deepEqual(spriteLayers(units.frames[c.frame].layers,units.pieces,{flags:2|Number(c.flip)},views.views[0]),c.draws)
+  }
+})

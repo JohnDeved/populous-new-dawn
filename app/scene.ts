@@ -1,3 +1,4 @@
+import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { animateLiveObjects } from './live-people.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
@@ -453,6 +454,7 @@ export class GameScene {
   previous = 0
   uiTimer = 0
   personAnimationTime = 0
+  personAnimationFrame = 0
   terrainVersion = -1
   treeSignature = ''
   onChange: () => void
@@ -467,11 +469,13 @@ export class GameScene {
   disposeListeners: (() => void)[] = []
   container: HTMLElement
   mini: HTMLCanvasElement
+  portrait: HTMLCanvasElement
   minimapBackground = document.createElement('canvas')
 
   constructor(
     container: HTMLElement,
     minimap: HTMLCanvasElement,
+    portrait: HTMLCanvasElement,
     world: World,
     onChange: () => void,
     onSound: (
@@ -483,6 +487,7 @@ export class GameScene {
   ) {
     this.container = container
     this.mini = minimap
+    this.portrait = portrait
     this.world = world
     this.onChange = onChange
     this.onSound = onSound
@@ -1621,6 +1626,7 @@ export class GameScene {
       cell = nativeUnits.cell
     const frame = nativeUnits.frames[index]
     g.userData.frame = index
+    g.userData.frameFlip = cycle.flip
     const shaman = g.userData.signature?.endsWith('shaman') || g.userData.shaman,
       flags = this.view.config.scaledSprites ? 0x100 : 0,
       depth = this.view.project(g.position, (g.position.y * 128) / 45).z,
@@ -2385,9 +2391,30 @@ export class GameScene {
       this.personAnimationTime += dt
       while (this.personAnimationTime >= 1 / 24) {
         animateLiveObjects(this.world)
+        this.personAnimationFrame++
         this.personAnimationTime -= 1 / 24
       }
     }
+    const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    const portraitMesh = shaman && this.unitMeshes.get(shaman.id)
+    drawPortrait(
+      this.portrait,
+      texture(nativeUnits.atlas).image as HTMLImageElement,
+      portraitMesh?.userData.frame,
+      portraitMesh?.userData.frameFlip ?? false,
+      portraitBackground(
+        shaman
+          ? {
+              health: Math.round(shaman.hp * 20),
+              maximum: Math.round(maxHp('shaman') * 20),
+              state: shaman.native?.state ?? 0,
+            }
+          : null,
+        this.personAnimationFrame,
+        this.portrait.parentElement?.matches(':hover,:active') ?? false
+      ),
+      this.view.config
+    )
     this.uiTimer += dt
     if (this.uiTimer > 0.2) {
       this.onChange()

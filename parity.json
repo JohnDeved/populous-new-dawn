@@ -399,9 +399,12 @@
             "app/hud-health.ts",
             "scripts/check-native-hud-health.py",
             "scripts/check-browser-hud-health.mjs",
-            "tests/hud.test.mjs"
+            "tests/hud.test.mjs",
+            "app/hud-portrait.ts",
+            "scripts/check-native-hud-portrait.py",
+            "scripts/check-browser-hud-portrait.mjs"
           ],
-          "note": "Opening HUD subset implemented. Original spell ready/inactive/hover icons, permanent/reward/selected frames, empty/gift stock markers, 1\u20134-shot logical positions and layered charging fills agree with 763 complete native calls. Supported spells follow native mana-cost slot order. Browser checks compare 24 live art states and actual charging controls; broader HUD interactions pass at two sizes with completed camera transitions. Full slot availability/disabled/locked dispatch, charge sparks, native resolution scaling, all panels, messages and minimap behavior remain unverified. Native shaman health frame/colors/integer fill match 2,091 controller calls, 24 browser states and 880 screenshot pixels; death/absence/reincarnation integration checked. HUD atlas dimensions now match its PNG, guarded by bounds checks. Animated portrait and population/mana controls remain open."
+          "note": "Opening HUD subset implemented. Original spell ready/inactive/hover icons, permanent/reward/selected frames, empty/gift stock markers, 1\u20134-shot logical positions and layered charging fills agree with 763 complete native calls. Supported spells follow native mana-cost slot order. Browser checks compare 24 live art states and actual charging controls; broader HUD interactions pass at two sizes with completed camera transitions. Full slot availability/disabled/locked dispatch, charge sparks, native resolution scaling, all panels, messages and minimap behavior remain unverified. Native shaman health frame/colors/integer fill match 2,091 controller calls, 24 browser states and 880 screenshot pixels; death/absence/reincarnation integration checked. HUD atlas dimensions now match its PNG, guarded by bounds checks. Animated shaman portrait now shares live directional frames and shadow-free layers: 322 native controller states, 408 directional poses, three original borders and 200 browser pixel hashes agree. Hover, selection, animation, camera input and actual death/absence/reincarnation pass. Native resolution rounding, full control/state ownership, presentation scheduling and population/mana controls remain open."
         },
         {
           "id": "interface.commands",
