@@ -1,3 +1,4 @@
+import {createLivePerson,initializeLiveCelebration,stepLiveCelebration,type LivePerson} from './live-people.ts';
 import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from './native-math.ts';
 import {createNativeTerrain,queueTerrain,processTerrain,type NativeTerrain} from './native-terrain.ts';
 import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './territory.ts';
@@ -30,7 +31,7 @@ type Fight = { group: number; opponent: number; action: 'approach'|'ready'|'atta
 type NativePoint = { x:number; y:number; h:number };
 export type Projectile = { id:number; spell:Spell; team:Team; caster:number; target:Point; source:Point; position:NativePoint; destination:NativePoint; origin:NativePoint; phase:'windup'|'flying'|'arrived'; remaining:number; turns:number; visuals:Effect[] };
 type Battle = Point & { id: number; members: number[]; angle: number };
-export type Unit = Point & { vault: VaultTask | null; id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
+export type Unit = Point & { native:LivePerson|null; vault: VaultTask | null; id: number; team: Team; kind: UnitKind; hp: number; path: Point[]; target: number | null; cooldown: number; work: number | null; inside: number | null; cargo: number; tree: number | null; timer: number; guard: boolean; lift: number; vx: number; vz: number; idleTurns: number; heading: number; fighting: boolean; fight: Fight|null; casting: {spell: Spell; point: Point; remaining: number} | null };
 export type Building = Point & { id: number; team: Team; kind: BuildingKind; hp: number; progress: number; timer: number; foundation: number; level: number; logs: number; upgrade: number; upgrading: boolean; angle: number; counter:number; collapse:(DamageBuilding & {plan:BuildingPlan})|null };
 export type Shrine = Point & WorshipState & { id: number; kind: 'bridge' | 'lightning' | 'vault'; name: string; progress: number; duration: number; uses: number; forced: boolean; model: number; morph: ModelMorph | null; angle: number };
 export type Tree = Point & { id: number; logs: number; model: number };
@@ -219,6 +220,7 @@ export function groundBuilding(w: World, b: Building) {
   w.terrainVersion++;
 }
 export function walkable(terrain: number[], p: Point) { return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > .45; }
+export const buildingBlocksStep=(b:Building,start:Point,next:Point)=>b.progress===1&&distance(b,next)<2.35&&distance(b,start)>=2.35;
 // ponytail: a 49×49 A* grid is enough for this island; use a heap and cached flow fields for hundreds of followers.
 export function findPath(terrain: number[], start: Point, end: Point, buildings: Building[] = []): Point[] {
   if (!walkable(terrain, end)) return [];
@@ -239,7 +241,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
     for (const [dx, dz] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) {
       const next = { x: p.x + dx, z: p.z + dz };
       // ponytail: allow the destination cell to reach its exact door; replace coarse A* with the native pathfinder.
-      if ((!doorGoal || cell(next)!==goal) && buildings.some(b=>b.progress===1&&distance(b,next)<2.35&&distance(b,start)>=2.35) || !walkable(terrain, next) || Math.abs(height(terrain, next.x, next.z) - height(terrain, p.x, p.z)) > 2.8) continue;
+      if ((!doorGoal || cell(next)!==goal) && buildings.some(b=>buildingBlocksStep(b,start,next)) || !walkable(terrain, next) || Math.abs(height(terrain, next.x, next.z) - height(terrain, p.x, p.z)) > 2.8) continue;
       const id = cell(next), cost = costs.get(current)! + 2;
       if (closed.has(id) || cost >= (costs.get(id) ?? Infinity)) continue;
       came.set(id, current); costs.set(id, cost);
@@ -269,7 +271,7 @@ export type World = {
 };
 function route(w:World,start:Point,end:Point){return findPath(w.terrain,start,end,w.buildings);}
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
-  const u: Unit = { vault:null, x:p.x, z:p.z, id: w.nextId++, team, kind, hp: maxHp(kind), path: [], target: null, cooldown: 0, work: null, inside:null, cargo:0, tree:null, timer:0, guard:false, lift:0, vx:0, vz:0,idleTurns:0,heading:Math.PI,fighting:false,fight:null,casting:null };
+  const u: Unit = { native:null, vault:null, x:p.x, z:p.z, id: w.nextId++, team, kind, hp: maxHp(kind), path: [], target: null, cooldown: 0, work: null, inside:null, cargo:0, tree:null, timer:0, guard:false, lift:0, vx:0, vz:0,idleTurns:0,heading:Math.PI,fighting:false,fight:null,casting:null };
   w.units.push(u); return u;
 }
 export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, complete = true) {
@@ -743,7 +745,7 @@ function stepOutcome(w:World) {
   const tribes=w.manaTribes.map((t,id)=>{
     const team=id===0?'blue':id===1?'red':null;
     const people=w.units.filter(u=>u.team===team&&u.hp>0).map(unit=>({unit,model:unit.kind==='shaman'?7:unit.kind==='warrior'?3:2,
-      state:0,previousState:0,flags2:unit.inside===null?0:0x800000,flags3:0,hp:Math.round(unit.hp*20)}));
+      state:unit.native?.state??0,previousState:unit.native?.previousState??0,flags2:unit.native?.flags2??(unit.inside===null?0:0x800000),flags3:unit.native?.flags3??0,hp:Math.round(unit.hp*20)}));
     return {...t,flags:w.castingTribes[id].flags,population:people.length,people};
   });
   const context={...w.outcome,turn:w.turn,landFlags:w.land.landFlags,playerTribe:w.manaWorld.playerTribe};
@@ -751,10 +753,9 @@ function stepOutcome(w:World) {
     camera:id=>{w.outcome.cameraTribe=id;w.outcome.cameraRequest++;},completeLevel:index=>{w.outcome.completedLevel=index;},
     cancelInput:()=>{w.selected=[];w.mode=null;},
     reveal:()=>{for(let i=0;i<w.land.flags.length;i++)w.land.flags[i]|=8;},
-    releasePerson:p=>{release(p.unit);p.unit.path=[];},damage:(p,amount)=>{p.unit.hp-=amount/20;},
-    // Native debris/sky visuals, celebration states,
-    // persistent campaign saves and network result delivery remain unported.
-    defeat:id=>cleanupDefeatedTribe(w,id),initPerson:()=>{},networkResult:()=>{},
+    releasePerson:p=>{p.unit.native??=createLivePerson(w,p.unit);release(p.unit);p.unit.path=[];},damage:(p,amount)=>{p.unit.hp-=amount/20;},
+    // Persistent campaign saves and network result delivery remain unported.
+    defeat:id=>cleanupDefeatedTribe(w,id),initPerson:p=>initializeLiveCelebration(w,p.unit),networkResult:()=>{},
   });
   w.land.landFlags=context.landFlags;w.outcome.progressFlags=context.progressFlags;w.outcome.lastDefeated=context.lastDefeated;
   tribes.forEach((t,id)=>{w.manaTribes[id].defeatTimer=t.defeatTimer;w.manaTribes[id].flags2=t.flags2;});
@@ -872,7 +873,7 @@ function damageSpell(w:World,spell:'blast'|'lightning',p:Point,caster:Pick<Unit,
 // with native person records/order ownership when that lifecycle is integrated.
 const liveManaOrders={records:[],cursor:1,active:0};
 function manaPeople(w:World){
-  return w.units.map(u=>({class:1,model:u.team==='wild'?1:u.kind==='shaman'?7:u.kind==='warrior'?3:2,
+  return w.units.map(u=>u.native??({class:1,model:u.team==='wild'?1:u.kind==='shaman'?7:u.kind==='warrior'?3:2,
     tribe:u.team==='red'?1:0,state:10,flags2:u.inside!==null?0x800000:0,flags4:u.hp>0?0x20000000:0,
     assignment:0,commandStatus:u.work!==null||u.path.length>0||u.target!==null||u.guard?1:0,
     commands:[],commandCursor:0,immediateCommand:0}));
@@ -925,7 +926,7 @@ function stepTurn(w:World){
   w.effects=w.effects.filter(f=>f.age<f.duration);
   processProjectiles(w);
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0;
-  if((w.turn&15)===0)for(const t of w.trees)if(t.logs>0&&t.logs<4)t.logs=Math.min(4,t.logs+constants.TREE1_WOOD_GROW/100);
+  if((w.turn&15)===0)for(const t of w.trees)if(t.model<=6&&t.logs>0&&t.logs<4)t.logs=Math.min(4,t.logs+constants.TREE1_WOOD_GROW/100);
   w.wood=w.trees.reduce((s,t)=>s+Math.floor(t.logs),0);
   for(const shrine of w.shrines) {
     if(!shrine.active)continue;
@@ -1020,6 +1021,7 @@ function stepTurn(w:World){
     u.fighting=false;if(u.hp<=0)continue;u.cooldown=Math.max(0,u.cooldown-dt);
     if(u.lift>0){u.x+=u.vx*dt;u.z+=u.vz*dt;u.lift=Math.max(0,u.lift-dt);if(!u.lift&&!walkable(w.terrain,u))u.hp=0;continue;}
     if(!walkable(w.terrain,u)){u.hp=0;continue;}
+    if(u.native?.state===41){stepLiveCelebration(w,u);continue;}
     if(u.fight)continue;
     if(u.casting){u.casting.remaining-=dt;if(u.casting.remaining<=1e-8)u.casting=null;continue;}
     if (u.vault) processVaultTask(w,u);
@@ -1066,8 +1068,8 @@ function stepTurn(w:World){
   w.units=w.units.filter(u=>u.hp>0);w.buildings=w.buildings.filter(b=>b.hp>0);w.selected=w.selected.filter(id=>w.units.some(u=>u.id===id));
   cleanBattles(w);
   for(const team of ['blue','red'] as const){const key=team==='blue'?'respawn':'redRespawn';if(w[key]>0){w[key]=Math.max(0,w[key]-dt);if(w[key]===0&&w.units.some(u=>u.team===team)){const u=addUnit(w,team,'shaman',team==='blue'?HOME:ENEMY);if(team==='blue'&&!w.selected.length)w.selected=[u.id];effect(w,'birth',u);}}}
-  // ponytail: the result overlay remains while native celebration states
-  // and progression presentation are being reconstructed.
+  // The result overlay remains while followers continue their native celebration.
+  // Full progression presentation is still being reconstructed.
   if(w.land.landFlags&0x2000000){w.redRespawn=0;w.status='won';}
   if(w.land.landFlags&0x4000000){w.respawn=0;w.status='lost';}
 }

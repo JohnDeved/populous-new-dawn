@@ -100,6 +100,14 @@ def main():
     elements = list(struct.iter_unpack('<HhhHH',read('data/vele-0.ani')))
     frames = list(struct.iter_unpack('<HBBBBH',read('data/vfra-0.ani')))
     starts = list(struct.iter_unpack('<HH',read('data/vstart-0.ani')))
+    # 0x42c320 counts the VFRA chain once for each distinct start frame.
+    frame_counts=[]
+    for first,_ in starts:
+        frame=first;seen=set()
+        while frame and frame not in seen:
+            assert frame<len(frames);seen.add(frame);frame=frames[frame][-1]
+        assert frame in (0,first)
+        frame_counts.append(len(seen)&255)
     # VELE references legacy six-byte TAB records, numbered from one. VFRA chains
     # retain each body/weapon/clothing layer's signed offset and original timing.
     def composite(frame, team, kind):
@@ -126,7 +134,7 @@ def main():
     for team in ['blue','red','wild']:
         for kind in (['brave'] if team=='wild' else ['brave','warrior','shaman']):
             # Executable animation map at 0x5a6d50 -> object table 0x5a6858.
-            states = {'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'strike':104,'special':200,'recoil':112,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416}
+            states = {'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'strike':104,'special':200,'recoil':112,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416,'dance':96}
             if team=='wild':states={k:0 if k=='walk' else 8 for k in states}
             if kind=='shaman':
                 states={'walk':616,'idle':424,'selected':744,'work':456,'chop':456,'attack':456,'strike':456,'special':552,'recoil':424,'pray':552,'cast':648,'airborne':488,'die':352,'drown':616}
@@ -151,7 +159,7 @@ def main():
         for row in range(h):pixels[((y+row)*width+x)*4:((y+row)*width+x+w)*4]=data[row*w*4:(row+1)*w*4]
     png(output/'units.png',width,height,pixels)
     info=[{'w':w,'h':h,'x':x,'y':y} for w,h,x,y,data in rendered]
-    (project/'app/original-units.json').write_text(json.dumps({'width':width,'height':height,'cell':cell,'columns':32,'fps':12,'frames':info,'animations':metadata},separators=(',',':')))
+    (project/'app/original-units.json').write_text(json.dumps({'width':width,'height':height,'cell':cell,'columns':32,'fps':12,'frameCounts':frame_counts,'frames':info,'animations':metadata},separators=(',',':')))
     hfx_data=read('data/hfx0-0.dat');hfx=sprites(hfx_data,palette)
     # 0x476570: HFX high nibble selects an AL0 colour, low nibble is 0..15 alpha.
     alpha=read('data/al0-c.dat');assert len(alpha)==65536
@@ -159,12 +167,12 @@ def main():
     effects=sprites(hfx_data,fx_palette,alpha=True)
     # 0x4673b0 draws type-1 objects from HFX, including the small trail particles.
     # Trail draw type 1 uses the ordinary palette; the Blast head uses nibble alpha.
-    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,4),'spellTrail':(0x142,4)}
+    fx_sequences={'impact':(1180,14),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,4),'spellTrail':(0x142,4),'log':(23,1)}
     fx_frames=[];fx_meta={};cell=256
     for name,(start,count) in fx_sequences.items():
         fx_meta[name]=[]
         for i in range(start,start+count):
-            w,h,data=(hfx if name in ('blastTrail','spellTrail') else effects)[i];assert w<=cell and h<=cell
+            w,h,data=(hfx if name in ('blastTrail','spellTrail','log') else effects)[i];assert w<=cell and h<=cell
             fx_meta[name].append({'index':len(fx_frames),'w':w,'h':h,'source':i});fx_frames.append((w,h,data))
     fw=2048;fh=((len(fx_frames)+7)//8)*cell;pixels=bytearray(fw*fh*4)
     for i,(w,h,data) in enumerate(fx_frames):

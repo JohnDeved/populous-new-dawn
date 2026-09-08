@@ -2447,3 +2447,57 @@ own native celebrant records. This pass resolves the animation consumer boundary
 and verifies controller composition; it does not claim visible celebration or
 complete animation parity. The manifest retains **565** raw exports, including
 the animation helpers, sprite loader and traced presentation-clock routines.
+
+
+## Live celebration records and grounded motion integration
+
+`app/live-people.ts` now connects the outcome handoff to `initializePersonState`,
+`stepCelebration`, native animation setters and `stepObjectAnimation`. Braves,
+warriors and shamans retain the same person record across turns and rendered
+frames. Victory releases legacy work/orders, exits buildings, drops carried logs,
+and runs the recovered nine-phase controller, including synchronized circles and
+chains. The renderer chooses the actual native object/frame rather than a generic
+age-based dance. Original dance cycles and normal-palette HFX sprite 23 are
+imported; cargo drops request original sound cue 11. The atlas now contains 1,956
+composites and exposes all 792 native frame counts.
+
+`app/person-motion.ts` ports the grounded facing prefix of `004e6d00` and the
+complete horizontal slope-velocity routine `004e93f0`. Turning rates and velocity
+limits come from the configured native physics table. The comparison checks
+**4,096 facing calls** (stopping before the first terrain query) and **4,096 full
+velocity calls**, including signed widths, angle wrapping, slow turns, slope
+bounds, query coordinates and velocity overflow. Height samples are supplied at
+the terrain-query boundary; the live consumer uses the previously verified
+native terrain-height routine.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-person-motion.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+All **49 regression tests**, typechecking and the production build pass. Lint
+reports seven existing image-element warnings and no errors. The new regression
+checks owned record mutation, cargo/sound events, building exits, circles/chains,
+no return to legacy work, no loose-log regrowth, and paused/frozen animation.
+Browser QA covers all three supported classes, movement, actual rendered atlas
+frames, pause, circle/chain transitions and restart without page errors. Visual
+isolation confirms the original follower poses render correctly.
+
+**Integration boundaries remain explicit.** Victory bootstraps records from the
+legacy units; ordinary orders and native allocation are not migrated. Ground
+motion retains the existing dry-land/building collision adapter and direct
+remaining-distance shortening; full `004e6d00`, its cone gate, impulses, falling,
+obstacle recovery, path groups and cell-list ordering remain unported. External
+legacy impulses reconcile position before the next native grounded step. Building
+exits reuse the existing native entrance geometry but not the complete occupant
+lifecycle. Log drops preserve centering and two jitter RNG draws; native free-cell
+search, allocation ordering and loose-log lifecycle remain adapters. Live vehicle
+and firewarrior classes are not available. Animation uses a separate paused
+24 Hz presentation adapter after drawing; native configurable timing, visibility
+catch-up, footprint effects and general object scheduling remain unfinished.
+The result overlay and progression are also still browser implementations.
+
+The manifest now verifies **568 raw exports**, adding `004d43a0`, `004e9050` and
+`004e9950` as retained evidence for the next motion/lifecycle work. Raw exports
+are not claims of reconstructed or integrated behavior.

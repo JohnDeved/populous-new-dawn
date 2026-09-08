@@ -2,7 +2,7 @@
 
 The user supplied `/Users/johann/Downloads/PopulousTB-Setup.zip` and explicitly requested original-file extraction and asset fidelity. The Inno Setup payload was read with Binary Refinery in a temporary Python environment. The Windows game was not launched. Isolated native movement instructions are now exercised in a CPU emulator for comparison. The game executable and external converters are not runtime dependencies.
 
-`python3 scripts/import-original.py /path/to/extracted/game` regenerates the browser assets using only Python's standard library. It validates bank magic/counts, RLE row boundaries, face and point indices, animation chains, layer offsets and texture dimensions. [`public/original/provenance.json`](../public/original/provenance.json) records SHA-256 hashes for every input, the 24 selected model IDs, 7,953 source frames and 1,876 composited frames.
+`python3 scripts/import-original.py /path/to/extracted/game` regenerates the browser assets using only Python's standard library. It validates bank magic/counts, RLE row boundaries, face and point indices, animation chains, layer offsets and texture dimensions. [`public/original/provenance.json`](../public/original/provenance.json) records SHA-256 hashes for every input, the 24 selected model IDs, 7,953 source frames and 1,956 composited frames.
 
 ## Geometry
 
@@ -17,6 +17,8 @@ The 256×1024 `BL320-C.DAT` atlas contains 32×32 tiles. `PAL0-C.DAT` contains 2
 `HSPR0-0.DAT` is a PSFB bank: eight-byte header, eight-byte width/height/absolute-offset entries, signed run-length encoded rows. Zero terminates a row; negative runs skip transparent pixels; positive runs copy palette indices.
 
 `VSTART-0.ANI` contains four-byte start/mirroring records; `VFRA-0.ANI` contains eight-byte frame/next-frame records; `VELE-0.ANI` contains ten-byte sprite/offset/layer/next-element records. Sprite references address six-byte legacy TAB entries, numbered from one. These tables supply the original signed body/clothing/weapon offsets and frame cycles. Frame rectangles preserve their signed native origins rather than clipping extended poses to a fixed foot-centred cell. Team-colour overlays and warrior weapon layers are composited from source pixels. Blue and Dakini shamans use their distinct native headdresses. Eight viewing directions include the native mirrored sequences.
+
+The importer also retains all 792 native animation frame counts, the original brave/warrior dance cycles and normal-palette HFX sprite 23 for dropped logs. Live celebrations select their sprite object and frame from persistent native animation records; other unit states still use the legacy animation adapter.
 
 The browser uses camera-facing 2D sprites anchored at the original foot origin. Selection and health overlays remain browser-drawn. Animation states map simulation walking, idle, working, carrying and combat onto native cycles; this is not a port of every original animation-state transition.
 

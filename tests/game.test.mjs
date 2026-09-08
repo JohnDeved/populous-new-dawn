@@ -1144,3 +1144,34 @@ test('result camera crosses the world seam, releases input and retains native sk
  assert.equal(events.filter(e=>e==='sound').length,2,'sky ticks at 16 and 0 without requiring a simulation turn');
  assert.deepEqual(result.saved,{x:65500,y:20,angle:2040});
 });
+
+
+test('victory owns persistent native followers, drops cargo and renders a separate paused animation clock', async () => {
+ const {animateLivePeople}=await import('../app/live-people.ts');
+ const {setAnimationObject}=await import('../app/animation.ts');
+ const w=createWorld();w.units=w.units.filter(u=>u.team==='blue');
+ const worker=w.units.find(u=>u.kind==='brave'),hut=w.buildings.find(b=>b.team==='blue');
+ Object.assign(worker,{x:hut.x,z:hut.z,inside:hut.id,work:hut.id,cargo:2,path:[HOME]});
+ w.units.find(u=>u.kind==='brave'&&u!==worker).kind='warrior';
+ w.turn=31;w.ai.variables[57]=1;tick(w,1/12);
+ assert.equal(w.status,'won');assert.ok(w.units.every(u=>u.native?.state===41));
+ assert.equal(worker.inside,null);assert.equal(worker.work,null);assert.deepEqual(worker.path,[]);assert.equal(worker.cargo,0);
+ assert.equal(w.trees.filter(t=>t.model===11).length,2);
+ assert.equal(w.sounds.filter(s=>s.cue===11).length,2);
+ assert.ok(Math.hypot(worker.x-hut.x,worker.z-hut.z)>2,'occupant exits before celebration motion');
+ const shaman=w.units.find(u=>u.kind==='shaman');assert.equal(shaman.native.substate,8);
+ const records=w.units.map(u=>u.native),braves=w.units.filter(u=>u.kind!=='shaman');
+ for(const [i,u] of braves.entries()){
+  Object.assign(u,{x:7,z:33});Object.assign(u.native,{x:3840,y:55040,anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40000000,link:0,target:0,speed:0});
+ }
+ const phases=new Set();
+ for(let i=0;i<96;i++){tick(w,1/12);animateLivePeople(w);animateLivePeople(w);for(const u of w.units)phases.add(u.native.substate);}
+ assert.ok(phases.has(5)&&phases.has(6),'circle members enter native chain states');
+ assert.ok(w.units.every((u,i)=>u.native===records[i]),'controllers retain the same person records');
+ assert.ok(w.units.every(u=>u.work===null&&u.inside===null),'legacy auto-housing cannot take over celebrations');
+ assert.ok(w.trees.filter(t=>t.model===11).every(t=>t.logs===1),'loose logs do not regrow');
+ const p=worker.native;setAnimationObject(p,14,40);p.f1=p.f2=0;
+ animateLivePeople(w);assert.equal(p.f2,1,'animation mutates the owned record');
+ w.paused=true;animateLivePeople(w);assert.equal(p.f2,1);
+ w.paused=false;p.renderFlags|=2;animateLivePeople(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
+});

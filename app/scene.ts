@@ -1,3 +1,4 @@
+import {animateLivePeople} from './live-people.ts';
 import { soundAttenuation } from './audio';
 import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
 import {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion} from './camera-motion.ts';
@@ -117,6 +118,7 @@ export class GameScene {
   frame = 0;
   previous = 0;
   uiTimer = 0;
+  personAnimationTime = 0;
   terrainVersion = -1;
   treeSignature = '';
   onChange: () => void;
@@ -248,7 +250,12 @@ export class GameScene {
   }
   makeDecorations() {
     for(const tree of this.world.trees){
-      if(tree.logs<1||this.world.buildings.some(b=>distance(b,tree)<3.7))continue;
+      if(tree.logs<1)continue;
+      if(tree.model===11){
+        const f:Effect={...tree,kind:'trail',sprite:{sequence:'log',frame:0},age:0,duration:1};
+        const g=this.makeFx(f);this.animateFx(g,f);g.userData.point=tree;this.decorations.add(g);continue;
+      }
+      if(this.world.buildings.some(b=>distance(b,tree)<3.7))continue;
       const g=new THREE.Group();g.add(nativeModel([13,14,15,16,17,18][Math.max(0,tree.model-1)]));this.locate(g,tree);g.userData.point=tree;this.decorations.add(g);
     }
     for(const center of [HOME,ENEMY])for(let i=0;i<8;i++){
@@ -401,10 +408,11 @@ export class GameScene {
   focus(p:Point=HOME){this.overviewActive=false;this.controls.enabled=false;this.cameraBearing=0;this.viewZoom=0;this.viewPoint={...p};this.updateView();}
   overview(){this.overviewActive=true;this.controls.enabled=!this.world.inputMask;this.camera.position.set(30,155,0);this.controls.update();this.orientCamera();}
   zoom(amount:number){if(this.overviewActive){const offset=this.camera.position.clone().sub(this.controls.target).multiplyScalar(amount).clampLength(PLANET_RADIUS+14,PLANET_RADIUS+190);this.camera.position.copy(this.controls.target).add(offset);this.controls.update();}else this.viewZoom=Math.max(-16384,Math.min(16384,this.viewZoom+(amount-1)*32768));this.updateView();}
-  animatePerson(body:THREE.Sprite,g:THREE.Group,heading:number,directions:{frames:number[];flip:boolean}[],age:number,once=false){
+  animatePerson(body:THREE.Sprite,g:THREE.Group,heading:number,directions:{frames:number[];flip:boolean}[],age:number,once=false,frameNumber?:number){
     const direction=spriteDirection(Math.round(this.cameraBearing*1024/Math.PI),Math.round((Math.PI-heading)*1024/Math.PI));
-    const cycle=directions[direction],step=Math.floor(age*nativeUnits.fps),index=cycle.frames[once?Math.min(step,cycle.frames.length-1):step%cycle.frames.length],cell=nativeUnits.cell;
+    const cycle=directions[direction],step=frameNumber??Math.floor(age*nativeUnits.fps),index=cycle.frames[once?Math.min(step,cycle.frames.length-1):step%cycle.frames.length],cell=nativeUnits.cell;
     const frame=nativeUnits.frames[index],map=body.material.map!;
+    g.userData.frame=index;
     map.repeat.set((cycle.flip?-frame.w:frame.w)/nativeUnits.width,frame.h/nativeUnits.height);
     map.offset.set((index%nativeUnits.columns*cell+(cycle.flip?frame.w:0))/nativeUnits.width,1-(Math.floor(index/nativeUnits.columns)*cell+frame.h)/nativeUnits.height);
     body.center.set(cycle.flip?1+frame.x/frame.w:-frame.x/frame.w,1+frame.y/frame.h);const shaman=g.userData.signature?.endsWith('shaman')||g.userData.shaman,flags=this.view.config.scaledSprites?0x100:0;
@@ -484,7 +492,12 @@ export class GameScene {
       const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[g.userData.signature];
       const state=unitAnimation(this.world,u);
       if(g.userData.state!==state){g.userData.state=state;g.userData.since=this.world.time;}
-      this.animatePerson(body,g,u.heading,animations[state]??animations.idle,this.world.time-(u.fight?u.fight.started/12:g.userData.since),!!u.fight&&['attack','strike','special','recoil'].includes(u.fight.action));
+      if(u.native){
+        const source=u.native.object+(u.team==='red'&&u.kind==='shaman'?8:0);
+        const directions=Object.values(animations).find(d=>('source' in d[0])&&d[0].source===source);
+        if(!directions)throw new Error(`Unimported follower animation ${g.userData.signature}/${source}`);
+        this.animatePerson(body,g,u.heading,directions,0,false,u.native.f2);
+      }else this.animatePerson(body,g,u.heading,animations[state]??animations.idle,this.world.time-(u.fight?u.fight.started/12:g.userData.since),!!u.fight&&['attack','strike','special','recoil'].includes(u.fight.action));
       g.userData.selection.visible=this.world.selected.includes(u.id);
       g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id);
       g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = Math.max(.001, u.hp / maxHp(u.kind));
@@ -552,6 +565,10 @@ export class GameScene {
     this.skyFlash.visible=!!sky;
     if(sky)this.skyFlash.material.uniforms.rgba.value.set((sky.color>>>16&255)/255,(sky.color>>>8&255)/255,(sky.color&255)/255,(sky.color>>>24)/255);
     this.view.prepare(this.scene);this.renderer.render(this.scene, this.camera);
+    if(!this.world.paused){
+      this.personAnimationTime+=dt;
+      while(this.personAnimationTime>=1/24){animateLivePeople(this.world);this.personAnimationTime-=1/24;}
+    }
     this.uiTimer += dt; if (this.uiTimer > .2) { this.onChange(); this.drawMinimap(); this.uiTimer = 0; }
     this.frame = requestAnimationFrame(this.animate);
   };

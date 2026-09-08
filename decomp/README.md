@@ -995,3 +995,16 @@ initializations. Movement/world effects, loaded morph-duration tables and live
 person/render scheduling remain boundaries. See the animation section of
 [the evidence log](../references/reverse-engineering.md) for exact coverage and
 presentation-clock findings. The export manifest contains 565 raw functions.
+
+
+### Live celebration and initial motion integration
+
+Live braves, warriors and shamans now own persistent native celebration and
+animation records through `app/live-people.ts`. `app/person-motion.ts` reconstructs
+the grounded facing prefix of `004e6d00` and full `004e93f0` slope velocity.
+`scripts/check-native-person-motion.py EXE` compares 4,096 cases of each;
+`scripts/check-browser-celebration.mjs` checks live handoff, movement, rendered
+frames, pause, circles/chains and restart. All 49 gameplay tests pass.
+The manifest now contains 568 raw exports. Full physics, pathfinding, ordinary
+orders, native allocation and presentation scheduling are still incomplete;
+see the live-integration section of the evidence log for the exact boundaries.
