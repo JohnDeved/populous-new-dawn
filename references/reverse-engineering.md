@@ -2750,3 +2750,64 @@ vehicle/passenger consumer. It immediately returns for motion-group zero, the
 current celebration bootstrap, but remains required for ordinary orders.
 The manifest now retains **581 raw exports**. Full physics and game parity remain
 open.
+
+
+## 2026-09-08 — complete person physics driver composition
+
+Reconstructed the complete `004e6d00` driver in `app/person-physics.ts` and
+its `004e9be0` collision bounce. The original can insert a person twice in one
+turn: impulse displacement/capping/gravity/bounce/clamping/insertion precede the
+ordinary grounded or airborne pass. Grounded falling and airborne falling have
+different facing, sound and settling behavior. Airborne landing performs damage,
+voice, animation and class-7/model-3 allocation before drift/friction/bounce and
+state settling. Final clamping/insertion, support clearing, five-cell reveal
+probe and path-group consumption retain their native order and integer widths.
+
+`terrainPointHeight` in `app/native-terrain.ts` reads the stored triangle flag,
+including pending terrain edits, rather than recalculating the diagonal from
+corner heights. Its return is the signed low word consumed by motion. Live
+celebrants now use this query. The existing import/resampling height helper is
+unchanged. `scripts/inspect-executable.py` imports configured gravity (+0x12),
+friction (+0x14/+0x16), fall damage (`005aa534`, 700) and the building support
+field (+0x26). Newly exported `00463750` confirms the impulse clamp ordering.
+
+Validation commands:
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-physics-driver.py /path/to/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-person-physics.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+The driver oracle compares **4,096 native bounce cases and 16,384 complete
+physics turns**: 8,192 standalone turns and 128 continuous 64-turn trajectories.
+It executes original terrain/math, collision/access, steering/recovery, drift
+and settling callees. Supplied world consumers compare arguments and ordered
+snapshots of every owned motion field. Damage also changes life before later
+sound decisions; insertion changes stored position before subsequent motion.
+Cases include all 20 physics rows, seams, signed extrema, supported/unsupported
+terrain, building permissions/support, blocked recovery, slow turns, impulse
+and flight flags, landing/fight transitions and reveal. Native branch counters
+assert coverage of impulse, both falling paths, landing, movement, arrival,
+failed recovery, turn hold, settling, launch sounds and reveal. The dependency
+oracle now passes **49,152 calls**, adding 4,096 stored-diagonal height cases.
+
+**Integration limit:** the full driver is reconstructed, not yet the live
+physics dispatcher. Cell-list insertion, object allocation, damage/audio,
+state release/initialization, fight checks, building route queries, reveal and
+`004eadc0` path groups remain consumer boundaries in the complete-turn oracle.
+The continuous trajectories run physics without intervening person controllers;
+they are not complete gameplay replays. Live airborne landing must join shared
+state/order dispatch before replacing the remaining legacy motion adapter.
+An entirely blocked wrapped bounce diagonal throws after a full 8,192-step
+cycle; the original never terminates for that invalid world configuration.
+There are now **582 raw exports**. Full engine/game parity is unfinished.
+
+
+All **52 gameplay regressions**, typechecking and production build pass after
+the live stored-diagonal query change. Browser victory handoff, movement,
+original atlas frames, pause, circles/chains, registered-footprint detours and
+restart pass without page errors. Lint reports zero errors and the same seven
+existing image warnings. The export checker verifies all 582 manifests/entries
+against the supplied executable identity and rejects unknown builds.

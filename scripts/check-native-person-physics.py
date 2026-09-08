@@ -24,13 +24,13 @@ def compare(js,data,expected,label):
 land=dict(heights=[rng.choice([rng.randrange(1025),-32768,32767]) if i%4==0 else rng.randrange(1025) for i in range(16384)],flags=[rng.randrange(2) for _ in range(16384)],categories=[0 if i<8192 else rng.randrange(16) for i in range(16384)])
 for i in range(16384):write(0x8a03e4+i*16,'Ih',land['flags'][i],land['heights'][i]);write(0x8a03e4+i*16+12,'B',land['categories'][i])
 def position():return dict(x=rng.choice([rng.randrange(65536),0,511,32767,65535]),y=rng.choice([rng.randrange(65536),0,511,32768,65535]))
-for mode,address in [('range',0x44f750),('slope',0x4ebd10),('drift',0x4ebc20)]:
+for mode,address in [('height',0x44e940),('range',0x44f750),('slope',0x4ebd10),('drift',0x4ebc20)]:
  cases=[];expected=[]
  for i in range(4096):
   q=position();write(to,'HHh',q['x'],q['y'],rng.randrange(-32768,32768));cpu.mem_write(out,bytes([0x5a])*6)
-  value=call(address,to) if mode=='range' else call(address,to,out)
-  expected.append((value if value<0x80000000 else value-0x100000000) if mode=='range' else dict(zip(['x','y','z'],struct.unpack('<hhh',cpu.mem_read(out,6)))));cases.append(q)
- compare("import {terrainSlopeRange,terrainSlopeVelocity,terrainDrift} from './app/native-terrain.ts';const f={range:terrainSlopeRange,slope:terrainSlopeVelocity,drift:terrainDrift}[input.mode];console.log(JSON.stringify(input.cases.map(p=>f(input.land,p))));",dict(mode=mode,land=land,cases=cases),expected,mode)
+  value=call(address,q['x'],q['y']) if mode=='height' else call(address,to) if mode=='range' else call(address,to,out)
+  expected.append(((value+32768)&65535)-32768 if mode=='height' else (value if value<0x80000000 else value-0x100000000) if mode=='range' else dict(zip(['x','y','z'],struct.unpack('<hhh',cpu.mem_read(out,6)))));cases.append(q)
+ compare("import {terrainPointHeight,terrainSlopeRange,terrainSlopeVelocity,terrainDrift} from './app/native-terrain.ts';const f={height:terrainPointHeight,range:terrainSlopeRange,slope:terrainSlopeVelocity,drift:terrainDrift}[input.mode];console.log(JSON.stringify(input.cases.map(p=>f(input.land,p))));",dict(mode=mode,land=land,cases=cases),expected,mode)
 for mode,address in [('ordinary',0x4e78f0),('impulse',0x4e7980)]:
  cases=[];expected=[]
  for i in range(4096):

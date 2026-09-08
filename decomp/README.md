@@ -45,7 +45,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | `00586074`, `004e6a70` | `scripts/inspect-executable.py`, `app/model.ts` | Integer angle/sine tables and movement; route selection still browser A* |
 | `0041af80`, `0041b0c0`, `00403280` | `app/model.ts` | Mana, breeding and upgrades partially ported |
 | `00518fb0`, `004a39c0`, `0051e3d0`, `005199f0` | `app/model.ts`, `app/scene.ts` | Group slots, attack states/damage and reactions; full fight scheduling unfinished |
-| `004e93f0`, `004e6d00`, `004ebc20` | `app/model.ts` | Ground recoil only; slope/air/collision integration unfinished |
+| `004e93f0`, `004e6d00`, `004ebc20`, `004e9be0` | `app/person-motion.ts`, `app/person-physics.ts`, `app/native-terrain.ts` | Complete physics driver CPU-compared with explicit world consumers; grounded celebrant adapter live, full airborne/state integration unfinished |
 | `0050b740`, `00511f70`, `0050ee00` | `app/model.ts`, `app/scene.ts` | Partial Blast/Lightning/Land Bridge ports |
 | `004c1d10`, `004c21e0`, `004bae30`, `004bbf30` | Existing approximate casting in `app/model.ts` | Shot pipeline traced, not yet ported |
 | `00409200`, `004092a0` | Existing building HP in `app/model.ts` | Native structural damage traced, not yet ported |
@@ -1061,3 +1061,27 @@ regressions and browser checks pass. Shared ordinary velocity caps are live;
 complete physics and landing-state/order dispatch are not yet integrated.
 The manifest contains 581 exports, including unported path consumer `004eadc0`.
 See the evidence log for exact fixture boundaries and remaining dependencies.
+
+
+## Complete person physics driver
+
+`app/person-physics.ts::stepPersonPhysics` reconstructs all branches of
+`004e6d00`, composing the reviewed motion, collision, recovery, terrain and
+settling routines. `bouncePerson` reconstructs `004e9be0`; `terrainPointHeight`
+uses `0044e940`'s stored diagonal and signed low word. `00463750` supplies the
+reviewed impulse height clamp. Gravity, both frictions, fall damage and the
+building support field are imported from the configured executable tables.
+
+Run `scripts/check-native-physics-driver.py EXE`: 4,096 complete bounce cases,
+8,192 standalone driver turns, and 128 continuous 64-turn trajectories (16,384
+full turns). Native height/math/collision/access/recovery/drift/settling execute;
+cell insertion, allocation, damage/audio, state/fight, building route queries,
+reveal and path-group consumers are supplied and compared with ordered full
+motion snapshots. Branch hit assertions include failed recovery and turn hold.
+The dependency oracle `scripts/check-native-person-physics.py EXE` now checks
+49,152 calls, including 4,096 stored-diagonal height queries with signed extrema.
+
+Live celebrants use the stored-diagonal height query. The complete driver is
+not yet their live dispatcher: landing must reconnect shared states/orders and
+native animation ownership, and cell/object/path consumer lifecycle is still
+unfinished. The manifest contains 582 raw exports. Full parity remains open.

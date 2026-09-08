@@ -1,5 +1,5 @@
 import type {World,Unit} from './model.ts';
-import {nativePosition,browserPosition,nativeTerrainHeight,height,buildingPose,entrance,sound} from './model.ts';
+import {nativePosition,browserPosition,height,buildingPose,entrance,sound} from './model.ts';
 import {initializePersonState,type StatefulPerson} from './person-state.ts';
 import {stepCelebration,type Celebrant,type CelebrationEffects} from './celebration.ts';
 import {setAnimationObject,setPersonAnimation,stepObjectAnimation,type Animation} from './animation.ts';
@@ -7,6 +7,7 @@ import {turnPerson,groundVelocity,positionsOverlap,stepMotionRecovery,recoverGro
 import {buildingApproachPoint,buildingOutsidePoint} from './building-shapes.ts';
 import {personStepCollision,buildingBlocksPerson,type CollisionWorld,type CollisionObject} from './person-collision.ts';
 import {limitPersonVelocity} from './person-physics.ts';
+import {terrainPointHeight} from './native-terrain.ts';
 import {positionDistance,random} from './native-math.ts';
 import rules from './original-rules.json' with {type:'json'};
 import sprites from './original-units.json' with {type:'json'};
@@ -102,7 +103,7 @@ export function stepLiveCelebration(w:World,u:Unit){
   const position=nativePosition(w,u);p.x=position.x&65535;p.y=position.y&65535;p.h=position.h;
   const turning=turnPerson(p); // Native class-1 motion precedes its state controller.
   if(p.speed&&!(p.flags2&0x84000)){
-    const terrain=(x:number,y:number)=>nativeTerrainHeight(w.land.heights,x,y);
+    const terrain=(x:number,y:number)=>terrainPointHeight(w.land,{x,y});
     let speed=p.speed;
     const destination={x:p.turnAngle,y:p.turnY};
     if((p.flags2&0x200)&&!(p.flags2&128)&&positionsOverlap(p,56,destination,1024))speed=Math.min(speed,positionDistance(p,destination));

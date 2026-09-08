@@ -18,6 +18,14 @@ type Ground=Pick<NativeTerrain,'heights'|'flags'>;
 type Position={x:number;y:number};
 function heightCorners(land:Ground,i:number){const h=land.heights;return [h[i],h[neighbor(i,0,1)],h[neighbor(i,1,1)],h[neighbor(i,1,0)]];}
 
+// 0x44e940, signed low word: use the stored diagonal, including pending edits.
+export function terrainPointHeight(land:Ground,p:Position){
+  const i=((p.y&65535)>>9)*128+((p.x&65535)>>9),[a,b,c,d]=heightCorners(land,i),x=(p.x&510)>>1,y=(p.y&510)>>1;
+  const h=land.flags[i]&1?(x+y<256?a+(((d-a)*x)>>8)+(((b-a)*y)>>8):c+(((d-c)*(256-y))>>8)+(((b-c)*(256-x))>>8)):
+    (y<x?a+(((c-d)*y)>>8)+(((d-a)*x)>>8):a+(((c-b)*x)>>8)+(((b-a)*y)>>8));
+  return (h<<16)>>16;
+}
+
 export function createNativeTerrain(heights:ArrayLike<number>):NativeTerrain {
   return {heights:Int16Array.from(heights),flags:new Uint32Array(16384),cliffs:new Uint8Array(16384),
     categories:new Uint8Array(16384),shadows:new Uint8Array(16384),buildingIds:new Uint16Array(16384),owners:new Uint8Array(16384),walkMasks:[new Uint8Array(8192),new Uint8Array(8192)],queued:[],textureUpdates:[],

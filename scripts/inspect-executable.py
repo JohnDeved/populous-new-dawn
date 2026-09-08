@@ -72,6 +72,10 @@ if len(sys.argv)>2:
     rules['personImpulseLimits']=[list(struct.unpack('<hh',read(0x5a7b90+i*26+12,4))) for i in range(20)]
     rules['personSlopeLimits']=[value(0x5a7b90+i*26+16,2) for i in range(20)]
     rules['personPhysicsFlags']=[value(0x5a7b90+i*26+24,2) for i in range(20)]
+    rules['personGravity']=[value(0x5a7b90+i*26+18,2) for i in range(20)]
+    rules['personFriction']=[[value(0x5a7b90+i*26+offset,2) for offset in (20,22)] for i in range(20)]
+    rules['personFallDamage']=value(0x5aa534)
+    rules['buildingSupportHeight']=[value(0x5a7228+i*76+38,2) for i in range(20)]
     rules['personVelocityLimits']=[value(0x5a7b90+i*26+8,2) for i in range(20)]
     rules['personAnimationObjects']=list(struct.unpack('<234h',read(0x5a6d50,234*2)))
     rules['animationObjects']=[list(struct.unpack('<hh',read(0x5a6858+i*4,4))) for i in range(161)]
