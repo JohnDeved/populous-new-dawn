@@ -1,10 +1,11 @@
 import type {World,Unit} from './model.ts';
-import {nativePosition,browserPosition,nativeTerrainHeight,walkable,height,buildingBlocksStep,buildingContainsPoint,buildingPose,entrance,sound} from './model.ts';
+import {nativePosition,browserPosition,nativeTerrainHeight,height,buildingContainsPoint,buildingPose,entrance,sound} from './model.ts';
 import {initializePersonState,type StatefulPerson} from './person-state.ts';
 import {stepCelebration,type Celebrant,type CelebrationEffects} from './celebration.ts';
 import {setAnimationObject,setPersonAnimation,stepObjectAnimation,type Animation} from './animation.ts';
 import {turnPerson,groundVelocity,positionsOverlap,stepMotionRecovery,recoverGroundObstacle,type RecoveryPerson} from './person-motion.ts';
 import {buildingApproachPoint,buildingOutsidePoint} from './building-shapes.ts';
+import {personStepCollision,buildingBlocksPerson,type CollisionWorld,type CollisionObject} from './person-collision.ts';
 import {positionDistance,random} from './native-math.ts';
 import rules from './original-rules.json' with {type:'json'};
 import sprites from './original-units.json' with {type:'json'};
@@ -83,6 +84,18 @@ export function initializeLiveCelebration(w:World,u:Unit){
   tribes.forEach((t,i)=>{w.manaTribes[i].flags2=t.flags;});w.randomState=state.randomState;u.cargo=p.cargo/100;
 }
 
+function collisionWorld(w:World):CollisionWorld{
+  // ponytail: native cell occupancy and object lifecycle are not yet shared.
+  // Keep completed-building footprints as the existing live-world adapter.
+  const objects=new Map<number,CollisionObject>();
+  for(const b of w.buildings)objects.set(b.id,{...nativePosition(w,b),class:2,state:b.progress===1?2:1,flags2:0,tribe:b.team==='blue'?0:1,related:0});
+  for(const u of w.units)objects.set(u.id,{...nativePosition(w,u),class:1,state:u.native?.state??10,flags2:u.hp>0?(u.native?.flags2??0):1,tribe:u.team==='blue'?0:1,related:0});
+  return {objects,walkMask:w.land.walkMasks[0],boatAt:()=>false,cell:pos=>{
+    const i=((pos.y&65535)>>9)*128+((pos.x&65535)>>9),b=w.buildings.find(b=>buildingContainsPoint(b,browserPosition(pos)));
+    return {flags:w.land.flags[i]|(b?0x200:0),category:w.land.categories[i],building:b?.id??0};
+  }};
+}
+
 export function stepLiveCelebration(w:World,u:Unit){
   const p=u.native!;p.counter=(p.counter+1)&255;
   // External spell impulses still move the legacy unit; reconcile that handoff.
@@ -94,10 +107,10 @@ export function stepLiveCelebration(w:World,u:Unit){
     const destination={x:p.turnAngle,y:p.turnY};
     if((p.flags2&0x200)&&!(p.flags2&128)&&positionsOverlap(p,56,destination,1024))speed=Math.min(speed,positionDistance(p,destination));
     const building=w.buildings.find(b=>buildingContainsPoint(b,u));
-    // ponytail: native occupancy/access records are not yet shared with the
-    // live world. Keep its collision boundary; use original recovery/geometry.
-    const blocked=(to:{x:number;y:number})=>{const point=browserPosition(to);return Number(!walkable(w.terrain,point)||w.buildings.some(b=>buildingBlocksStep(b,u,point)));};
-    if(speed)stepMotionRecovery(p,!!building,()=>true,outside=>{
+    const collision=collisionWorld(w);
+    // The cropped browser world boundary remains until full-map rendering.
+    const blocked=(to:{x:number;y:number})=>{const point=browserPosition(to);return Math.abs(point.x)>=47||Math.abs(point.z)>=47?3:personStepCollision(collision,p,to);};
+    if(speed)stepMotionRecovery(p,!!building,()=>!!buildingBlocksPerson(collision,p,collision.cell(p)),outside=>{
       if(!building)throw new Error('Missing building during native exit recovery');
       const pose=buildingPose(building);return outside?buildingOutsidePoint(pose):buildingApproachPoint(pose,p);
     });

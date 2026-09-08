@@ -76,8 +76,10 @@ if len(sys.argv)>2:
         'rate':value(0x5a810a+i*62,2)} for i in range(22)]
     rules['spellRangeBands']=[value(0x5aa538+i*4) for i in range(8)]
     rules['terrainCategoryFlags']=[value(0x5aa328+i*14,1) for i in range(16)]
+    rules['terrainCategoryMasks']=[list(read(0x5aa32e+i*14,8)) for i in range(16)]
     rules['terrainCategories']=list(read(0x5aa318,16))
     rules['landHeightConstant']=value(0x5aa450)
+    rules['alternateLandHeightConstant']=value(0x5aa454)
     rules['territoryWidths']=[list(read(address,length)) for address,length in [(0x5d56b4,5),(0x5d56bc,7),(0x5d56c8,9),(0x5d56d8,11)]]
     assert [rules['sine'][i] for i in [0,512,1024,1536]]==[0,65536,0,-65536]
     assert rules['atan'][0]==0 and rules['atan'][256]==256

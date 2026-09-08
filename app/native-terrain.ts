@@ -3,6 +3,7 @@ import {nativeTerrainCross} from './native-math.ts';
 
 export type NativeTerrain = {
   heights:Int16Array;flags:Uint32Array;cliffs:Uint8Array;categories:Uint8Array;shadows:Uint8Array;
+  walkMasks:Uint8Array[];
   queued:number[];textureUpdates:number[];dirty:Uint8Array;landFlags:number;
   attempts:number;duplicates:number;recursing:boolean;
 };
@@ -15,8 +16,30 @@ const waterBorder=[[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[-1,2],[0,2],[1,2],[2,2],
 
 export function createNativeTerrain(heights:ArrayLike<number>):NativeTerrain {
   return {heights:Int16Array.from(heights),flags:new Uint32Array(16384),cliffs:new Uint8Array(16384),
-    categories:new Uint8Array(16384),shadows:new Uint8Array(16384),queued:[],textureUpdates:[],
+    categories:new Uint8Array(16384),shadows:new Uint8Array(16384),walkMasks:[new Uint8Array(8192),new Uint8Array(8192)],queued:[],textureUpdates:[],
     dirty:new Uint8Array(16384),landFlags:0,attempts:0,duplicates:0,recursing:false};
+}
+
+// 0x422bd0: choose three corners for a quarter-cell off the diagonal, all
+// four when it straddles the diagonal. Native min/max start at 1024 and zero.
+export function terrainQuarterPassable(land:Pick<NativeTerrain,'heights'|'flags'>,cell:number,limit:number){
+  const i=indexOf(cell),h=land.heights,a=h[i],b=h[neighbor(i,0,1)],c=h[neighbor(i,1,1)],d=h[neighbor(i,1,0)];
+  const quarter=cell&1?(cell&256?2:3):(cell>>8)&1;
+  const corners=land.flags[i]&1?quarter===0?[a,b,d]:quarter===2?[b,c,d]:[a,b,c,d]:
+    quarter===1?[a,b,c]:quarter===3?[a,c,d]:[a,b,c,d];
+  return Math.max(0,...corners)-Math.min(1024,...corners)<=limit;
+}
+
+// 0x422a60: refresh both 256×256 bit maps in a wrapped (4r+1) square.
+export function updateWalkMasks(land:Pick<NativeTerrain,'heights'|'flags'|'walkMasks'>,center:number,radius:number){
+  radius=(radius<<16)>>16;
+  if(radius<0)throw new RangeError('Negative native walk-mask radius');
+  const limits=[rules.landHeightConstant,rules.alternateLandHeightConstant];
+  for(let pass=0;pass<2;pass++)for(let y=0;y<radius*4+1;y++)for(let x=0;x<radius*4+1;x++){
+    const cell=(((center&255)-radius*2+x)&255)|((((center>>>8)-radius*2+y)&255)<<8);
+    const allowed=!(land.flags[indexOf(cell)]&0x80004)&&terrainQuarterPassable(land,cell,limits[pass]);
+    const mask=land.walkMasks[pass],byte=cell>>3,bit=1<<(cell&7);mask[byte]=allowed?mask[byte]|bit:mask[byte]&~bit;
+  }
 }
 
 // 0x44df40. Complete simulation passes; texture consumers retain their original

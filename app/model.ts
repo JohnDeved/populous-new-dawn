@@ -1,6 +1,6 @@
 import {createLivePerson,initializeLiveCelebration,stepLiveCelebration,type LivePerson} from './live-people.ts';
 import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from './native-math.ts';
-import {createNativeTerrain,queueTerrain,processTerrain,type NativeTerrain} from './native-terrain.ts';
+import {createNativeTerrain,queueTerrain,processTerrain,updateWalkMasks,type NativeTerrain} from './native-terrain.ts';
 import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './territory.ts';
 import {processTribes,processOutcome,type TribeTurnState,type OutcomeWorld} from './tribe-turns.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
@@ -182,6 +182,7 @@ for(const [x,y,h] of level.heights)originalTerrain[y*128+x]=h;
 // ponytail: original texture assets still supply rendering; native texture
 // consumers join this queue when palette/texture rebuilding is integrated.
 queueTerrain(originalLand,0,64,1,{surface:()=>{},globe:()=>{}});
+updateWalkMasks(originalLand,0,64);
 export function makeTerrain() {
   return Array.from({length: GRID*GRID}, (_,i) => {
     const x=i%GRID-48,z=Math.floor(i/GRID)-48,h=nativeTerrainHeight(originalTerrain,(x+8)*256,(-z-8)*256)/45;
@@ -660,7 +661,9 @@ function syncNativeTerrain(w:World) {
     if(w.land.heights[i]!==h){w.land.heights[i]=h;changed.push(cell);}
   }
   for(const cell of changed)queueTerrain(w.land,cell,1,0,terrainTextures);
-  processTerrain(w.land,terrainTextures);w.landVersion=w.terrainVersion;
+  processTerrain(w.land,terrainTextures);
+  for(const cell of changed)updateWalkMasks(w.land,cell,1);
+  w.landVersion=w.terrainVersion;
 }
 function refreshTribeTerritory(w:World,id:number) {
   const team=id===0?'blue':id===1?'red':null;
@@ -1021,8 +1024,8 @@ function stepTurn(w:World){
   for(const u of w.units) {
     u.fighting=false;if(u.hp<=0)continue;u.cooldown=Math.max(0,u.cooldown-dt);
     if(u.lift>0){u.x+=u.vx*dt;u.z+=u.vz*dt;u.lift=Math.max(0,u.lift-dt);if(!u.lift&&!walkable(w.terrain,u))u.hp=0;continue;}
-    if(!walkable(w.terrain,u)){u.hp=0;continue;}
     if(u.native?.state===41){stepLiveCelebration(w,u);continue;}
+    if(!walkable(w.terrain,u)){u.hp=0;continue;}
     if(u.fight)continue;
     if(u.casting){u.casting.remaining-=dt;if(u.casting.remaining<=1e-8)u.casting=null;continue;}
     if (u.vault) processVaultTask(w,u);

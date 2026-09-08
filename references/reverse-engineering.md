@@ -2561,3 +2561,68 @@ are retained for the next integration; these raw exports are not verified ports.
 Native failed-recovery airborne dispatch, path recomputation, cell-list ownership,
 falling, impulses, landing and general person lifecycle remain unfinished.
 The manifest now retains **574** raw exports. Full parity is still open.
+
+
+## Native terrain collision, building access and quarter-cell walk maps
+
+`app/person-collision.ts` reconstructs `005178d0` (step collision), `00517f10`
+(building access) and `0044f980` (coastal support). Return codes distinguish
+building obstruction, restricted cells, blocked walk bits and unsupported
+surfaces. Construction/repair/entry/target-following flag precedence, tribe and
+work-target permissions, boat exceptions and building-exit overrides are kept.
+The work-target relation uses signed word **+0x92**, confirmed in the actual x86
+instruction at `0051803b`; the imported metadata's field name was misleading.
+Coastal support uses the original eight reversed-Y mask rows per terrain category
+and preserves the returned bit value. The inspector imports these 128 mask bytes
+from `005aa32e` with 14-byte record stride.
+
+`app/native-terrain.ts` reconstructs complete `00422bd0` and `00422a60`. The former
+selects three terrain corners off the diagonal and four on the diagonal for each
+quarter-cell, preserving native minimum/maximum seeds 1024/0. The latter updates
+two 8,192-byte, 256×256 walk maps in a wrapped (4r+1)-square region using the two
+configured terrain limits. Restricted/scenery cell bits 0x80004 clear walk bits.
+The original default pointer at `0096aa74` selects the primary map `0096aaba`;
+several path queries temporarily select `0096caba` and restore the primary map.
+The checked updater restores that pointer as well. Address references were
+located with the repository's `ExportCallers.java` byte-checked workflow.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-person-collision.py /path/to/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-terrain.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+The new oracle checks **4,096 coastal-support calls**, **8,192 building-access
+calls**, **8,192 composed collision calls**, **8,192 quarter-cell height checks**
+and **24 complete sequential dual-map updates**, including full-map and wrapped
+regions and preservation of untouched bits. Native building/surface callees and
+walk-mask terrain calculations execute unchanged. Boat lookup alone is supplied
+in the collision composition, and its call count is compared. Valid object
+references are the building-access domain; invalid native pointers are not
+supported inputs. Signed height extrema and the native min/max initialization
+are exercised independently of ordinary map heights. Existing terrain validation
+still passes all **260 queue/process checkpoints**, including ocean and original
+first-mission initialization.
+
+Live initialization now builds both masks after the original terrain queue;
+terrain synchronization refreshes the affected mask regions after heights and
+flags are updated. Live celebrants call the native classifier and primary mask
+for movement and recovery probes. Their grounded turn bypasses the legacy
+height-only death guard; unsupported terrain is handled through the native step
+classifier. The new gameplay regression verifies blocked/allowed mask changes
+and that the old height cutoff cannot kill a supported native follower.
+All **51 regressions**, typechecking and production build pass. Browser QA covers
+native detours, original frames, pause, circle/chain transitions and restart with
+no page errors. Lint has seven existing image-element warnings and no errors.
+
+**Remaining boundaries:** building occupancy still comes from the browser's
+completed-building radius, and legacy object/plan state is adapted into collision
+records. Exact native footprint registration, plans, boats, object allocation and
+full access-state ownership remain unfinished. The original building-access
+routine is verified, but all its ordinary-order consumers are not yet live.
+The browser crop boundary remains; rendering is not yet a complete native map.
+Native failed-recovery airborne dispatch, falling, impulses, landing/drowning,
+path recomputation and general person lifecycle still require integration. The
+terrain synchronization producer still begins with the cropped browser grid.
+The manifest now verifies **576 raw exports**. Full game parity is unfinished.

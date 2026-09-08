@@ -1194,3 +1194,19 @@ test('live blocked followers retain native detour steering and recovery timers',
  assert.equal(p.motionTimer,timer-1,'the next grounded step consumes the recovery timer');
  assert.equal(p.heading,heading,'normal facing cannot overwrite active recovery steering');
 });
+
+test('live celebrants obey native walk masks and survive the legacy ground-height cutoff', async () => {
+ const {createLivePerson}=await import('../app/live-people.ts');
+ const {default:rules}=await import('../app/original-rules.json',{with:{type:'json'}});
+ const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
+ w.units=[u];w.buildings=[];w.turn=33;w.landVersion=w.terrainVersion;
+ w.terrain.fill(.1);w.land.heights.fill(100);w.land.flags.fill(0);
+ w.land.categories.fill(rules.terrainCategoryFlags.findIndex(f=>f&1));
+ Object.assign(u,{x:7,z:33,inside:null,work:null});u.native=createLivePerson(w,u);
+ Object.assign(u.native,{state:41,substate:1,flags2:128,counter:0,heading:512,angle:512,turnAngle:512,speed:20,assignment:0,animationMode:0,commandPhase:100,timer:100});
+ w.land.walkMasks[0].fill(0);tick(w,1/12);
+ assert.ok(w.units.includes(u)&&u.hp>0,'native support replaces the legacy height death guard');
+ assert.deepEqual({x:u.x,z:u.z},{x:7,z:33},'blocked native mask rejects every detour');
+ w.land.walkMasks[0].fill(255);tick(w,1/12);
+ assert.notDeepEqual({x:u.x,z:u.z},{x:7,z:33},'native mask update allows the next grounded step');
+});

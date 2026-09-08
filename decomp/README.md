@@ -1021,3 +1021,17 @@ Live celebrants use these routines with the existing world collision adapters;
 collision classification, occupancy, path recomputation and full physics remain
 open. The export manifest now verifies 574 raw functions; see the evidence log
 for supplied consumer boundaries and the corrected square-proximity finding.
+
+
+### Terrain collision and walkability
+
+`app/person-collision.ts` ports `005178d0`, `00517f10` and `0044f980`;
+`app/native-terrain.ts` adds `00422bd0` and `00422a60`. Run
+`scripts/check-native-person-collision.py EXE` for 28,672 point/permission checks
+and 24 complete dual-map updates. Building/surface callees execute natively;
+boat lookup is supplied. Existing terrain checks retain all 260 checkpoints.
+Live celebrants now use native terrain collision and updated walk maps; building
+occupancy and ordinary order/lifecycle integration remain adapters. All 51 game
+regressions and the browser detour/restart check pass. The manifest verifies 576
+raw exports; exact coverage and the +0x92 metadata correction are in the evidence
+log.
