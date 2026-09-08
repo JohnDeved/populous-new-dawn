@@ -3764,3 +3764,78 @@ Current strips use the browser alpha-blend/overlay adapter, so the comparisons
 prove recovered geometry and drawing inputs, not pixel-identical whole frames.
 Ground target/placement tiles and visible fire/building activity are next;
 full game parity remains unfinished.
+
+
+## Original connected ground overlays — 2026-09-08
+
+The circular building-placement marker has been replaced with the original
+BL320 connected tiles, grounded at the native terrain vertices and using the same
+bank-2 shape-mask traversal as building occupancy. This is a rendering port with
+an explicit browser placement-controller adapter, not complete placement parity.
+
+Evidence from `d3dpoptb.exe` SHA-256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`:
+
+- `0046d070` queues each terrain triangle and dispatches marked cells to
+  `00474ba0`. Native vertex order changes with terrain flag 1.
+- `00474ba0` chooses edges/corners from four cardinal neighbors, then diagonal
+  neighbors when all cardinal cells connect. Coordinates wrap at 128 cells.
+  The resulting tile index is 0–7 or 15; masks 0x80/0x400 add 48, and 0x100
+  adds 64 before the red branch subtracts 16. Invalid vertices use 0xffff2020.
+  Terrain flag 1 rotates UVs by three quarter-turns. The second triangle uses
+  the opposite UV rotation. Flag 0x800 instead selects tile 242 and the direction
+  table at 005a885a. The helper implements that branch; live doorway selection
+  remains outside this change.
+- `0046eb80` copies the source triangle, reads six fixed-point UV components
+  from 005a2f30 and allocates a 68-byte type-8 polygon. `00474ba0` overrides
+  its draw flags to 31 and preserves the source triangle's rotation byte.
+  Pool exhaustion and absent input triangles are handled by native allocation.
+- `0042af10` initializes the UV table to zero or `(32 << 16) - 1` for this
+  texture size. Its executable initializer block 0042b076–0042b18b runs in
+  the native comparison, avoiding a test-supplied copy of the UV table.
+- The draw dispatch's assembly at `0046a7ca–0046a7e2` reads the type-8 tile
+  byte at +0x42 and uses `005d2510 + tile*4`. Ghidra's nearby inferred union
+  fields/array bases are misleading; the assembly confirms direct bank-2
+  indexing. `004b6e60` creates those texture entries from the corresponding
+  32×32 BL320 tile; existing `atlas.png` already contains this original artwork.
+  Native animated BL320 redirection is in `0044fbd0` and remains unintegrated.
+
+Implementation:
+
+- `app/ground-overlay.ts` reconstructs tile/tint/rotation selection and the
+  original triangle/UV arrangement. `scripts/check-native-ground-overlay.py`
+  executes **2,624 original calls**, covering all 256 neighboring masks in both
+  terrain diagonals and five mask modes, arrows, wrap boundaries, missing
+  triangles and pool exhaustion. Both the original UV initializer and allocator
+  execute; the reconstructed output matches the original records.
+- `buildingFootprintCells` shares the existing native mask-bit-1 traversal with
+  `registerBuildingFootprint`, avoiding a second footprint approximation.
+  The existing native footprint check still passes **632 complete map/consumer
+  comparisons and 4,096 cell-shade comparisons** after the extraction.
+- `Scene.updatePlacement` builds a small terrain mesh only when its native cell,
+  building kind, validity or terrain version changes. It uses the original
+  atlas and exact stored vertex heights, with the renderer's native projection.
+  Transient preview flags never mutate simulation terrain ownership. The old
+  procedural circle and its terrain-ring updater have been removed.
+- `scripts/check-browser-ground-overlay.mjs` uses actual HUD selection and mouse
+  clicks. It checks nine hut cells, 54 grounded vertices, atlas UVs, **5,603
+  visible GPU pixels**, cell transitions, a camera turn, native red tint,
+  rejection of overlapping construction, leaving the world for the HUD,
+  successful placement and Escape cancellation. No browser errors. Screenshots
+  `/private/tmp/populous-ground-placement.png` and
+  `/private/tmp/populous-ground-invalid.png` were visually inspected.
+
+Remaining boundaries: the browser's validator still decides validity for the
+whole footprint; native per-cell marking, the plan-preview controller, selected
+orientation and entrance arrow, plan allocation and exact anchor ownership are
+not integrated. Validity rules still use the earlier construction adapter.
+The browser samples the atlas with half-texel insets and uses WebGL depth offset,
+alpha blending and sRGB material tinting; native texture padding, filter/LOD,
+blend flags and painter order need separate comparison. Native output records
+and visible browser pixels do not establish whole-frame pixel parity.
+Additional exports `00403f00`, `004b81e0`, `004b8470`, `004b8bb0` preserve the
+related foundation/plan investigation; their full controllers are not ported here.
+
+The inspected desktop captures show unit cutouts and building surfaces that need
+comparison against isolated original sprite/model renders. Audit these visible
+issues before adding more internal simulation ports.

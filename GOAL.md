@@ -43,8 +43,13 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** recreate ground target/placement tiles, then scenery fire and
-building activity/destruction. Keep checking these during first-mission play.
+**Next action:** audit the visible unit cutouts and building surfaces against
+original sprite/mesh captures, then scenery fire and building activity/destruction.
+Placement previews now use original connected terrain tiles, stored terrain
+vertices and the shared native building footprint. The original plan-preview
+controller, per-cell validity, doorway arrows, rotation controls and remaining
+ground targets are still open; the browser validator supplies preview validity.
+Keep checking these during first-mission play.
 Lightning now uses its displaced upper flash, three native eight-segment shapes,
 recursive screen-space branches and original procedural strip texture; full
 painter/blend ownership and its damage/fire side effects remain open. Blast's

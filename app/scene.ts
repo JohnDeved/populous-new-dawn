@@ -10,7 +10,7 @@ import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldToo
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { buildingObject, buildingStage, nativePosition, browserPosition, sound, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellTargetError, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { buildingObject, buildingStage, nativePosition, browserPosition, sound, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellTargetError, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModelData from './original-models.json';
 import {modelStage,type NativeModel} from './model-faces.ts';
@@ -23,6 +23,8 @@ import nativeEffects from './original-effects.json';
 import nativeHud from './original-hud.json';
 import {spellCursor} from './spell-casting.ts';
 import {spellHalo,haloBucket} from './spell-halo.ts';
+import {buildingFootprintCells} from './building-shapes.ts';
+import {groundOverlay,groundOverlayTriangles} from './ground-overlay.ts';
 import {lightningLines,lightningQuad,lightningTexture,type Lightning} from './lightning.ts';
 import rules from './original-rules.json';
 
@@ -120,7 +122,8 @@ export class GameScene {
   objects = new THREE.Group();
   decorations = new THREE.Group();
   shrineMeshes = new Map<number, {g:THREE.Group}>();
-  cursor = ring(2.5, 0xe1c38b, .1);
+  cursor = new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshBasicMaterial({map:texture('atlas'),vertexColors:true,transparent:true,alphaTest:.01,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));
+  placementState='';
   range = new THREE.Group();
   halo={angle:0};
   hoveredSpell=0;
@@ -293,7 +296,35 @@ export class GameScene {
     const a=p.x*Math.PI/128,b=p.z*Math.PI/256,n=new THREE.Vector3(Math.sin(a)*Math.cos(b),Math.cos(a)*Math.cos(b),Math.sin(b));
     return n.dot(this.camera.position.clone().add(new THREE.Vector3(0,70,0)))>70+h;
   }
-  groundRing(mesh:THREE.Mesh,p:Point,radius:number){const pos=mesh.geometry.attributes.position;for(let i=0;i<pos.count;i++){const a=i%65/64*Math.PI*2,r=i<65?radius-.1:radius;const q={x:p.x+Math.cos(a)*r,z:p.z+Math.sin(a)*r};const v={x:q.x,y:(Math.max(0,height(this.world.terrain,q.x,q.z))+.16)*45/128,z:q.z};pos.setXYZ(i,v.x,v.y,v.z);}pos.needsUpdate=true;mesh.geometry.computeBoundingSphere();}
+  updatePlacement(){
+    const w=this.world,kind=w.mode as Building['kind'],p=this.pointer;
+    this.cursor.visible=!!p&&!!kind&&!SPELLS.some(s=>s.id===w.mode)&&!w.inputMask&&w.status==='playing';
+    if(!p||!this.cursor.visible){this.placementState='';return;}
+    // ponytail: the browser placement validator supplies validity until the
+    // native plan preview/cell-marking controller owns these transient flags.
+    const invalid=!!placementError(w,kind,p),native=nativePosition(w,p);
+    const pose={object:buildingObject({kind,team:'blue',level:1}),angle:0,anchorX:native.x&0xfe00,anchorY:native.y&0xfe00};
+    const key=[kind,pose.anchorX,pose.anchorY,invalid,w.landVersion].join(',');
+    if(key===this.placementState)return;this.placementState=key;
+    const cells=buildingFootprintCells(pose),flags=new Uint32Array(w.land.flags),mask=invalid?0x180:0x80;
+    // These are presentation marks, not persistent terrain ownership flags.
+    for(let i=0;i<flags.length;i++)flags[i]&=~0x1980;
+    for(const i of cells)flags[i]|=mask;
+    const positions:number[]=[],uv:number[]=[],colors:number[]=[];
+    for(const i of cells){
+      const overlay=groundOverlay(flags,i,mask),tint=new THREE.Color(overlay.color&0xffffff);
+      const x=(i&127)*512,y=(i>>7)*512,origin=browserPosition({x,y});
+      for(const triangle of groundOverlayTriangles(flags[i]&1,overlay.rotation))for(let v=0;v<3;v++){
+        const dx=triangle.positions[v*2],dy=triangle.positions[v*2+1],j=((((i>>7)+dy)&127)<<7)|(((i&127)+dx)&127);
+        positions.push(origin.x+dx*2,w.land.heights[j]/128,origin.z-dy*2);
+        uv.push((overlay.tile%8*32+.5+triangle.uv[v*2]*31)/256,1-(Math.floor(overlay.tile/8)*32+.5+triangle.uv[v*2+1]*31)/1024);
+        colors.push(tint.r,tint.g,tint.b);
+      }
+    }
+    this.cursor.geometry.dispose();const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+    this.cursor.geometry=geo;this.cursor.userData.cells=cells;this.cursor.userData.invalid=invalid;
+  }
 
   rebuildTerrain() {
     const w=this.world,positions:number[]=[],uv:number[]=[],surfaces:number[]=[],lights:number[]=[];
@@ -695,8 +726,7 @@ export class GameScene {
       this.viewPoint.x,this.viewPoint.z,this.cameraBearing,this.viewZoom,this.overviewActive,
       ...this.camera.position.toArray(),this.container.clientWidth,this.container.clientHeight].join(',');
     if(pointerState!==this.pointerState){this.pointer=this.pointerScreen&&this.world.mode?this.pick(this.pointerScreen):null;this.pointerState=pointerState;}
-    this.cursor.visible=!!this.pointer&&!!this.world.mode&&!spec&&!this.world.inputMask;
-    if(this.pointer&&this.cursor.visible){const kind=this.world.mode as Building['kind'];this.groundRing(this.cursor,this.pointer,footprint(kind));this.cursor.material.color.setHex(placementError(this.world,kind,this.pointer)?0xec6e59:0xebd398);}
+    this.updatePlacement();
     this.spellPointer.hidden=!spec||!this.pointerScreen||!!this.world.inputMask||this.world.status!=='playing';
     if(spec&&this.pointerScreen&&!this.spellPointer.hidden){
       const rect=this.container.getBoundingClientRect();

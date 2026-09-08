@@ -14,14 +14,23 @@ function shape(b: BuildingShapePose) {
   return result;
 }
 
+// Shared native mask traversal for occupancy and the browser placement preview.
+export function buildingFootprintCells(b:BuildingShapePose){
+  const s=shape(b),cx=(b.anchorX>>>8)&254,cy=(b.anchorY>>>8)&254,cells:number[]=[];
+  for(let y=0;y<s.height;y++)for(let x=0;x<s.width;x++)if(data.cells[s.offset+y*s.width+x]&1){
+    const px=(cx-s.x+x*2)&255,py=(cy-s.y+y*2)&255;
+    cells.push((py>>1)*128+(px>>1));
+  }
+  return cells;
+}
+
 // 0x403a00: update only shape-mask bit 1 cells. Modes 0/1 remove/register;
 // mode 4 clears terrain-damage bit 0x20000 without a shade recomputation.
 export function registerBuildingFootprint(land:BuildingCells,b:RegisteredBuilding,mode:number,
   shade:(index:number)=>number,refresh:(cell:number,radius:number)=>void){
   const s=shape(b),cx=(b.anchorX>>>8)&254,cy=(b.anchorY>>>8)&254;
   const owner=mode===1?(b.tribe+1)&255:0,id=mode===1?b.id:0;
-  for(let y=0;y<s.height;y++)for(let x=0;x<s.width;x++)if(data.cells[s.offset+y*s.width+x]&1){
-    const px=(cx-s.x+x*2)&255,py=(cy-s.y+y*2)&255,i=(py>>1)*128+(px>>1);
+  for(const i of buildingFootprintCells(b)){
     land.owners[i]=(land.owners[i]&240)|owner;
     land.buildingIds[i]=((land.buildingIds[i]^id)&1023)^land.buildingIds[i];
     land.flags[i]|=16;
