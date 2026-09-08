@@ -3414,3 +3414,56 @@ minimap rasterization and complete object status panels remain unfinished.
 Menu/pause/settings and short command prompts are browser controls. The next
 visible priority is selection/targeting and spell feedback, followed by building
 activity/destruction; this pass does not establish full interface parity.
+
+
+## 2026-09-08 — original follower selection arrows
+
+The person branch in `004673b0` draws HFX **53**, a **9×7** downward arrow, above
+selected local followers. Instructions `00469415`–`004694f2` gate on the displayed
+owner, class 1 and bit 0x80 at object offset 0x7a. The same bit is read by the
+campaign's shaman-selected query in `0048cc60` and by the group-command path in
+`004359b0`, confirming its selection meaning. These are not the ground circles
+previously invented by the browser.
+
+`selectionArrow` in `app/projection.ts` reconstructs this branch. Horizontal
+placement subtracts half the scaled arrow width, with native integer rounding;
+vertical placement subtracts the rendered **VFRA header height**. Composite
+bounds can extend beyond that header because of clothing/weapons, so their image
+height is not an interchangeable input. `0042c320` copies the header dimensions
+from source VFRA bytes 2 and 3. The importer now retains source frame IDs and
+both header dimensions for all **2,216** composited frames, and imports
+`public/original/selection.png` from the original HFX bank. Existing input hashes
+continue to identify these assets.
+
+The live renderer replaces selected-unit ring geometry with that sprite. It
+updates the arrow alongside each person pose, uses the existing native sprite
+scaler for shamans/scaled views and keeps ordinary world depth testing. Only
+local selected people display it. Browser selection-list ownership still
+supplies the native selection-bit input. Death-effect sprites have no selection
+indicator. The marker uses nearest filtering, consistent with the other native
+unit/effect sprites.
+
+`check-native-selection-indicator.py` executes **1,024** native decisions and
+rectangles, including owner/class/selection gates and scaled/unscaled paths.
+The original `00476090` scaler executes; only final sprite submission is
+supplied. `check-browser-selection.mjs` checks actual GPU changes from visible
+markers, group/shaman selection, twelve real walk poses with varying native
+header heights, and rejection of enemy-owner indicators. A marker obscured by
+world geometry is not expected to change GPU pixels, so the visible-marker test
+compares the selected group rather than assuming its first member is exposed.
+No depth-test bypass was introduced. Captures were inspected at
+`/private/tmp/populous-selection-braves.png` and
+`/private/tmp/populous-selection-shaman.png`.
+
+The real HUD/command/worship interaction check also passes; all 66 regression
+tests, typecheck and lint pass (three existing image warnings). Seven additional
+raw exports bring the manifest to **679**, retaining the circle, health and
+sprite-queue routines inspected during this investigation. They are not all
+integrated ports. The existing native group-selection oracle is preserved.
+
+Remaining boundaries: live person sprite scaling still supplies the prior
+signed unit bucket (+1/-1) rather than the complete native painter-queue depth.
+Full ordering, terrain/object occlusion and presentation flags remain unported.
+Selection-box graphics, health bars, shadows, spell targeting/range graphics
+and full effect timing still use browser adapters. Next work remains on those
+visible targets, beginning with spell cursors and travel/impact feedback.

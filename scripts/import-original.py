@@ -130,7 +130,7 @@ def main():
                     dx,dy=x-left+(w-1-sx if flags&1 else sx),y-top+sy
                     if data[(sy*w+sx)*4+3]:pixels[(dy*width+dx)*4:(dy*width+dx)*4+4]=data[(sy*w+sx)*4:(sy*w+sx)*4+4]
         return width,height,left,top,pixels
-    metadata = {}; rendered = []; cache = {}
+    metadata = {}; rendered = []; source_frames = []; cache = {}
     for team in ['blue','red','wild']:
         for kind in (['brave'] if team=='wild' else ['brave','warrior','shaman']):
             # Executable animation map at 0x5a6d50 -> object table 0x5a6858.
@@ -148,7 +148,7 @@ def main():
                     while frame not in seen:
                         assert 0<frame<len(frames);seen.add(frame)
                         key=(frame,team,kind)
-                        if key not in cache:cache[key]=len(rendered);rendered.append(composite(frame,team,kind))
+                        if key not in cache:cache[key]=len(rendered);rendered.append(composite(frame,team,kind));source_frames.append(frame)
                         cycle.append(cache[key]);frame=frames[frame][-1]
                     directions.append({'frames':cycle,'flip':bool(mirror),'source':start+direction})
                 metadata[f'{team}-{kind}'][state]=directions
@@ -159,7 +159,7 @@ def main():
         x=i%32*cell;y=i//32*cell
         for row in range(h):pixels[((y+row)*width+x)*4:((y+row)*width+x+w)*4]=data[row*w*4:(row+1)*w*4]
     png(output/'units.png',width,height,pixels)
-    info=[{'w':w,'h':h,'x':x,'y':y} for w,h,x,y,data in rendered]
+    info=[{'w':w,'h':h,'x':x,'y':y,'source':source_frames[i],'nativeWidth':frames[source_frames[i]][1],'nativeHeight':frames[source_frames[i]][2]} for i,(w,h,x,y,data) in enumerate(rendered)]
     (project/'app/original-units.json').write_text(json.dumps({'width':width,'height':height,'cell':cell,'columns':32,'fps':12,'frameCounts':frame_counts,'frames':info,'animations':metadata},separators=(',',':')))
     hfx_data=read('data/hfx0-0.dat');hfx=sprites(hfx_data,palette)
     # 0x476570: HFX high nibble selects an AL0 colour, low nibble is 0..15 alpha.
@@ -187,7 +187,7 @@ def main():
     for k,v in re.findall(r'^\s*P3CONST_(\S+)\s*=\s*(-?\d+)',data.decode('ascii'),re.M):constants.setdefault(k,int(v))
     assert constants['LIFE_BRAVE']==1000 and constants['BRAVE_SPEED']==70
     (project/'app/original-constants.json').write_text(json.dumps(constants,indent=2)+'\n')
-    icons={'blast':355,'lightning':356,'bridge':365,'brave':666,'warrior':668,'shaman':664,'buildings':676,'spells':678,'followers':680,'gold':712,'hut':1028,'tower':1029,'camp':1030,'temple':1032}
+    icons={'selection':53,'blast':355,'lightning':356,'bridge':365,'brave':666,'warrior':668,'shaman':664,'buildings':676,'spells':678,'followers':680,'gold':712,'hut':1028,'tower':1029,'camp':1030,'temple':1032}
     for name,i in icons.items():png(output/(name+'.png'),*hfx[i])
     png(output/'portrait.png',*bank[6879])
     for name,w,h,gray in [('bigf0-c.dat',256,1152,False),('disp0-c.dat',256,256,True),('watdisp.dat',256,256,True)]:

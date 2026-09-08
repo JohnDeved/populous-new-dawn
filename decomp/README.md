@@ -1649,3 +1649,13 @@ compares 606 calls; only the final glyph raster consumer is supplied.
 `node scripts/check-browser-hud.mjs` checks live desktop layout and controls.
 See the reverse-engineering log for original artwork provenance and remaining
 font, menu-ordering and hover-controller differences.
+
+
+### Person selection indicator
+
+`app/projection.ts` reconstructs `00469415`–`004694f2`, the selection-arrow branch
+inside `004673b0`. `scripts/check-native-selection-indicator.py EXE` compares
+1,024 native gate/rectangle cases, retaining the original sprite scaler.
+`node scripts/check-browser-selection.mjs` checks the original arrow in GPU
+pixels and across animation poses. Source VFRA dimensions and HFX 53 are retained
+by `scripts/import-original.py`. Full native painter ordering remains open.

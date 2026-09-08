@@ -16,7 +16,7 @@ import nativeModelData from './original-models.json';
 import {modelStage,type NativeModel} from './model-faces.ts';
 const nativeModels: Record<number,NativeModel> = nativeModelData;
 import {morphCoordinate} from './morph.ts';
-import {spriteDirection,spriteCoordinate} from './projection.ts';
+import {spriteDirection,spriteCoordinate,selectionArrow} from './projection.ts';
 import {RenderView} from './render-view.ts';
 import nativeUnits from './original-units.json';
 import nativeEffects from './original-effects.json';
@@ -29,7 +29,7 @@ function texture(kind: string) {
   const t=new THREE.TextureLoader().load(`/original/${kind}.png`);
   t.colorSpace=kind.endsWith('detail')?THREE.NoColorSpace:THREE.SRGBColorSpace;
   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
-  if(kind==='units'||kind==='effects'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
+  if(kind==='units'||kind==='effects'||kind==='selection'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
   textures.set(kind,t);return t;
 }
 function nativeModel(id:number,scale=2,stage=4){
@@ -55,10 +55,10 @@ function makeUnit(u: Unit) {
   // Frame-specific offsets keep native feet, headdresses and death poses anchored.
   g.add(sprite);
   const shadow=ring(.36,0x171b12,.35);shadow.position.y=.015;(shadow.material as THREE.MeshBasicMaterial).opacity=.32;g.add(shadow);
-  const selection=ring(.55,0xffff6c,.045);selection.position.y=.04;g.add(selection);
+  const selection=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('selection').clone(),alphaTest:.5,depthWrite:false,toneMapped:false}));selection.visible=false;g.add(selection);
   const health=new THREE.Group();part(health,box(.8,.055,.02),material(0x20251a),0,2.1);
   const healthFill=part(health,box(.78,.04,.025),material(teamColor[u.team]),0,2.1,.01);g.add(health);
-  g.userData={unit:u.id,signature:`${u.team}-${u.kind}`,sprite,selection,health,healthFill,heading:0,frame:-1};return g;
+  g.userData={unit:u.id,owner:u.team==='blue'?0:u.team==='red'?1:-1,signature:`${u.team}-${u.kind}`,sprite,selection,health,healthFill,heading:0,frame:-1};return g;
 }
 function makeBuilding(b: Building,stage:number) {
   const g=new THREE.Group(),id=buildingObject(b);
@@ -495,6 +495,13 @@ export class GameScene {
     body.center.set(cycle.flip?1+frame.x/frame.w:-frame.x/frame.w,1+frame.y/frame.h);const shaman=g.userData.signature?.endsWith('shaman')||g.userData.shaman,flags=this.view.config.scaledSprites?0x100:0;
     const size=(n:number)=>shaman||flags?spriteCoordinate(n,shaman?-1:1,flags,this.view.config):n;
     body.scale.set(Math.max(1,size(frame.w)),Math.max(1,size(frame.h)),1);
+    const arrow=g.userData.selection as THREE.Sprite|undefined;
+    if(arrow){
+      // Selection ownership currently comes from the browser command list.
+      const r=selectionArrow({owner:g.userData.owner,player:0,type:1,selectionFlags:this.world.selected.includes(g.userData.unit)?128:0,x:0,y:0,frameHeight:size(frame.nativeHeight),scaled:!!(shaman||flags),bucket:shaman?-1:1,flags},this.view.config);
+      arrow.visible=!!r&&r.width>0&&r.height>0;
+      if(r&&arrow.visible){arrow.scale.set(r.width,r.height,1);arrow.center.set(-r.x/r.width,1+r.y/r.height);}
+    }
     body.material.rotation=0;
   }
   makeFx(f: Effect) {
@@ -577,7 +584,6 @@ export class GameScene {
         if(!directions)throw new Error(`Unimported follower animation ${g.userData.signature}/${source}`);
         this.animatePerson(body,g,u.heading,directions,0,false,u.native.f2);
       }else this.animatePerson(body,g,u.heading,animations[state]??animations.idle,this.world.time-(u.fight?u.fight.started/12:g.userData.since),!!u.fight&&['attack','strike','special','recoil'].includes(u.fight.action));
-      g.userData.selection.visible=this.world.selected.includes(u.id);
       g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id);
       g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = Math.max(.001, u.hp / maxHp(u.kind));
     }

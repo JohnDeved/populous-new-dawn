@@ -84,3 +84,14 @@ Capture: `/private/tmp/populous-native-hud-after.png`, reproduced by
 command subset; original slot ordering, full native font/color/layout behavior
 and control scheduling remain open. Next comparisons should show actual spell
 impacts, selection/targeting and building activity, beyond the opening view.
+
+
+### Selection feedback
+
+Selected followers now show the original HFX 53 arrow above the current native
+animation-frame height. The invented ground selection rings are removed.
+`node scripts/check-browser-selection.mjs` captures braves and the shaman,
+checks GPU-visible markers and exercises varying real walk poses. Depth testing
+still lets nearby world geometry obscure a marker. Native rectangle/gating
+comparisons do not prove the browser's complete painter ordering or occlusion.
+Spell cursors, range indicators and travel/impact effects are the next target.

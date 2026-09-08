@@ -126,6 +126,16 @@ export function spriteCoordinate(value:number,bucket:number,flags:number,view:Pi
   return Math.max(-256,Math.min(256,n));
 }
 
+// Selection-arrow branch at 0x469415..0x4694f2 in the native person renderer.
+// HFX 53 is 9×7. frameHeight is the rendered VFRA header height, not the
+// composite image bounds; a headdress or weapon can extend outside that box.
+export function selectionArrow(p:{owner:number;player:number;type:number;selectionFlags:number;x:number;y:number;frameHeight:number;scaled:boolean;bucket:number;flags:number},view:Pick<CameraConfig,'scale'|'spriteScale'|'shamanScale'>){
+  if(p.owner!==p.player||p.type!==1||!(p.selectionFlags&128))return null;
+  const width=p.scaled?spriteCoordinate(9,p.bucket,p.flags,view):9;
+  const height=p.scaled?spriteCoordinate(7,p.bucket,p.flags,view):7;
+  return {x:(p.x-Math.trunc(width/2))|0,y:(p.y-p.frameHeight)|0,width,height};
+}
+
 // 0x4171f0 uses a signed product, not Euclidean nearest-resolution distance.
 export function cameraConfigIndex(width:number,height:number) {
   let best=0,bestScore=0xfffffff;

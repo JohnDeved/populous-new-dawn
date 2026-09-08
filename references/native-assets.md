@@ -20,7 +20,7 @@ The 256×1024 `BL320-C.DAT` atlas contains 32×32 tiles. `PAL0-C.DAT` contains 2
 
 The importer also retains all 792 native animation frame counts, the original brave/warrior dance cycles and normal-palette HFX sprite 23 for dropped logs. Live celebrations select their sprite object and frame from persistent native animation records; other unit states still use the legacy animation adapter.
 
-The browser uses camera-facing 2D sprites anchored at the original foot origin. Selection and health overlays remain browser-drawn. Animation states map simulation walking, idle, working, carrying and combat onto native cycles; this is not a port of every original animation-state transition.
+The browser uses camera-facing 2D sprites anchored at the original foot origin. Selection now uses original HFX 53 and CPU-compared placement from each rendered VFRA header height. Health overlays remain browser-drawn. Animation states map simulation walking, idle, working, carrying and combat onto native cycles; this is not a port of every original animation-state transition.
 
 ## Landscape and HUD
 
