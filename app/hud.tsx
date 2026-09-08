@@ -1,6 +1,7 @@
 import native from './original-hud.json'
 import { hudGlyph } from './hud-font.ts'
 import type { spellButton } from './spell-button.ts'
+import { healthBarPixels } from './hud-health.ts'
 
 export function HudSprite({ id }: { id: number | string }) {
   const r = (native.rects as Record<string, { x: number; y: number; w: number; h: number }>)[id]
@@ -20,6 +21,24 @@ export function NativeText({ text, font = 0 }: { text: string; font?: 0 | 2 }) {
         <HudSprite key={i} id={hudGlyph(c.charCodeAt(0), font)} />
       ))}
     </span>
+  )
+}
+
+export function ShamanHealth({ health, maximum }: { health: number; maximum: number }) {
+  const pixels = healthBarPixels(Math.round(health * 20), Math.round(maximum * 20))
+  return (
+    <div
+      className="health-bar"
+      role="meter"
+      aria-label="Shaman health"
+      aria-valuemin={0}
+      aria-valuemax={maximum}
+      aria-valuenow={Math.max(0, Math.min(maximum, health))}
+    >
+      <span style={{ backgroundColor: native.colors[172] }}>
+        <i style={{ height: Math.max(0, pixels), backgroundColor: native.colors[130] }} />
+      </span>
+    </div>
   )
 }
 

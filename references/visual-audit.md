@@ -378,3 +378,16 @@ frame identities and palette fill widths/colors, then uses actual right clicks t
 disable/enable charging. The broader HUD test passes at both desktop sizes after
 waiting for the already-restored overview transition. Complete UI scaling, native
 control availability, charge sparks and full original-frame matching remain open.
+
+## Shaman health display — v115
+
+Inspected `/private/tmp/populous-health-hud-v115.png` and the cropped meter.
+The old 9×21 CSS ridge/cream bar is replaced with the native 10×22 frame at
+`(64,126)`, white fill and almost-black empty area. Health advances in original
+whole-pixel steps. The half-health crop matches all 880 pixels of the original
+frame plus native fill at 2× desktop scale. Browser comparisons cover 24 health
+states at 1440×1000 and 1280×720 and the real removal/reincarnation path.
+
+The full-world capture still shows unmatched distant lighting and the remaining
+approximate portrait/status controls. This is a health-meter comparison, not
+full-screen parity. See the native evidence in `decomp/README.md`.

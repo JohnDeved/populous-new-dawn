@@ -530,3 +530,14 @@ Full slot availability/disabled/locked dispatch, charge sparks, UI resolution
 scaling, all status panels, messages and minimap behavior remain open. Continue
 visible first-mission comparison, especially world lighting, construction activity
 and native HUD/control ownership. Full game parity remains unfinished.
+
+### Latest visible integration: native shaman health
+
+The shaman meter uses the original 10×22 frame, palette and integer fill, with
+empty state during absence and full health on live reincarnation. Compared 2,091
+native controller calls, original palette initialization and health/charge frame
+submissions; 24 browser states at two desktop sizes and a pixel comparison pass.
+The HUD importer now preserves real atlas dimensions, with a PNG/bounds regression
+check. Full HUD ownership, animated portrait, population/mana display, native
+resolution scaling and full world-frame matching remain open. Continue visible
+world-lighting and native HUD/activity comparisons; full parity stays unfinished.

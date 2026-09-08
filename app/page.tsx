@@ -8,13 +8,14 @@ import {
   tell,
   guardShaman,
   rotateBuildingPlan,
+  maxHp,
   type UnitKind,
 } from './model'
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
 import { messageText, removeMessage } from './messages'
-import { HudSprite, NativeText, SpellButtonArt } from './hud'
+import { HudSprite, NativeText, SpellButtonArt, ShamanHealth } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
@@ -359,16 +360,7 @@ export default function Home() {
           >
             ?
           </button>
-          <div
-            className="health-bar"
-            role="meter"
-            aria-label="Shaman health"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.ceil(shaman?.hp ?? 0)}
-          >
-            <i style={{ height: `${shaman?.hp ?? 0}%` }} />
-          </div>
+          <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
           <button
             className="tribe-flag dakini"
             title={`Dakini: ${red.length} followers`}

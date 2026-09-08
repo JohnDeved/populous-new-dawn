@@ -2900,3 +2900,50 @@ exported UI dispatch routines are supporting research, not completed ports.
 Disabled/locked/empty control ownership, all spell slots, other game modes/tribes,
 charge-spark RNG/lifetime, resolution parameterization and full raster/painter
 matching remain open. This advances the HUD checkpoint without completing it.
+
+## Shaman health meter — 2026-09-09
+
+`004a0050` draws the shaman's HUD health meter. The native packed control record
+at `005caf3d` stores both position pairs `(64,126)` and dimensions `(10,22)`;
+its renderer callback is at `005caf4d`. The runtime adapter supplies those logical
+coordinates. The function reads the current player's tribe `+0x89d` shaman pointer,
+maximum life at person `+0x6c` and current life at `+0x6e` (signed shorts).
+It draws the `005ca9e0` frame, clears a two-pixel inset, then fills upward by
+`truncate(18 * current / maximum)` pixels. Missing shaman or zero maximum leaves
+an empty meter; health above maximum fills it. Hidden controls submit nothing.
+
+Executed `0042adc0` palette initialization on the shipped palette: foreground
+`0089c6f4` is palette 130 (`#ffffff`), background `0089c6f5` is palette 172
+(`#0b0f0b`). The browser uses those imported colors, the original frame, integer
+fill heights and accessible health readings. The live adapter converts its
+health units back to the original twentieths before integer division.
+
+`check-native-hud-health.py` executes 2,091 complete `004a0050` calls, including
+all 0–2001 current-life values against maximum 2000, additional maxima/boundaries,
+all four tribe pointer slots, null shaman and hidden control. The native health
+and frame controllers execute unchanged. Logical-coordinate consumers are
+supplied; palette constructors and final sprite/quad/fill queue submissions are
+captured. `0047dfd0` is thiscall with `ret 0x28`; palette constructor `00415f70`
+is thiscall with `ret 4`. Rasterized source sprites at the native frame submission
+positions match both imported health and charge PNGs. This checks original
+source-pixel composition, not the entire D3D renderer.
+
+Browser checks compare 24 native-derived health states at two desktop sizes,
+exact bounds and colors, accessibility, and live death/removal/reincarnation.
+The half-health screenshot agrees on all 880 rendered pixels with the native
+frame and fill at 2× scale. The new frame importer also avoids overwriting the
+HUD atlas dimensions: the v114 charge loop had left metadata at 4×4 although
+the PNG is 1024×189. PNG-header and all-sprite-bounds checks now prevent that
+metadata regression; existing artwork and atlas coordinates stay identical.
+
+```sh
+node scripts/check-browser-hud-health.mjs
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-hud-health.py /private/tmp/populous-reference/native/d3dpoptb.exe --browser
+node --test tests/hud.test.mjs
+```
+
+One new raw export brings the manifest to 880 routines. HUD ownership, native
+resolution parameterization, animated shaman portrait, population/mana controls,
+remaining panels/messages/minimap and complete original frame matching remain
+open. The browser reincarnation check proves health-display integration with
+its current lifecycle; it does not establish native reincarnation timing parity.

@@ -50,18 +50,21 @@ for name,start in [('button',821),('button-selected',830),('button-hover',839),
                 at=((top+yy)*wout+left+xx)*4;src=((yy%h)*w+xx%w)*4;pixels[at:at+4]=data[src:src+4]
     a.png(output/f'hud-{name}.png',wout,hout,pixels)
     print(name,columns,rows)
-# 0x49daf0's 26x5 charging frame uses 0x4a1f50's overlapping 4px corners.
-# CSS border-image would shrink these corners to fit the short rectangle.
-pixels=bytearray(26*5*4)
-for sprite,left,top,width,height in [(1018,4,0,18,4),(1019,4,1,18,4),
-                                     (1014,0,0,4,4),(1015,22,0,4,4),
-                                     (1016,0,1,4,4),(1017,22,1,4,4)]:
-    w,h,data=bank[sprite]
-    for y in range(height):
-        for x in range(width):
-            src=((y%h)*w+x%w)*4;at=((top+y)*26+left+x)*4
-            if data[src+3]:pixels[at:at+4]=data[src:src+4]
-a.png(output/'hud-charge.png',26,5,pixels)
+# 0x4a1f50: native charge/health frames, including overlapping 4px corners.
+# CSS border-image would shrink corners to fit the short charge rectangle.
+for name,frame_width,frame_height in [('charge',26,5),('health',10,22)]:
+    pixels=bytearray(frame_width*frame_height*4)
+    draws=[(1018,4,0,frame_width-8,4),(1019,4,frame_height-4,frame_width-8,4)]
+    if frame_height>8:draws.extend([(1020,0,4,4,frame_height-8),(1021,frame_width-4,4,4,frame_height-8)])
+    draws.extend([(1014,0,0,4,4),(1015,frame_width-4,0,4,4),
+                  (1016,0,frame_height-4,4,4),(1017,frame_width-4,frame_height-4,4,4)])
+    for sprite,left,top,draw_width,draw_height in draws:
+        w,h,data=bank[sprite]
+        for y in range(draw_height):
+            for x in range(draw_width):
+                src=((y%h)*w+x%w)*4;at=((top+y)*frame_width+left+x)*4
+                if data[src+3]:pixels[at:at+4]=data[src:src+4]
+    a.png(output/f'hud-{name}.png',frame_width,frame_height,pixels)
 pixels=bytearray(100*99*4)
 for i in range(4):
     w,h,data=bank[690+i];assert (w,h)==(50,49 if i<2 else 50)
@@ -72,4 +75,4 @@ for name,i in [('panel',706),('commands',712)]:a.png(output/f'hud-{name}.png',*b
 meta=dict(executableSha256=identity['sha256'],sha256=hashes,width=width,height=height,rects=rects,alphaColors=alpha_colors,spriteColors=[alpha[i*4096+0x2f82] for i in range(13)])
 meta['colors']=['#'+palette[i*4:i*4+3].hex() for i in range(256)]
 (ROOT/'app/original-hud.json').write_text(json.dumps(meta,separators=(',',':'))+'\n')
-print(f'Imported {len(entries)} native HUD sprites/glyphs, eight borders, charge frame and minimap frame')
+print(f'Imported {len(entries)} native HUD sprites/glyphs, eight borders, charge/health frames and minimap frame')

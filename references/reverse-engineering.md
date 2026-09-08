@@ -4446,3 +4446,11 @@ through a compact presentation helper and original artwork. See
 OpenPop's `SpellButton.cpp`/`Panel.cpp` were consulted as secondary layout leads;
 implementation and comparisons use the supplied executable. Existing upstream
 license/provenance records apply; no upstream implementation was copied.
+
+### Native shaman health
+
+Traced `004a0050`, its packed control record and `0042adc0` palette initialization.
+The native frame and fill replace the CSS health approximation. Original control
+geometry differs from the secondary OpenPop layout; the shipped executable is
+used. See [health-meter evidence](../decomp/README.md#shaman-health-meter--2026-09-09)
+for CPU, source-pixel and browser comparisons and remaining ownership limits.
