@@ -73,11 +73,20 @@ try{
   const u=window.testStore.getWorld().units.find(u=>u.id===window.detourPerson);
   return u.native.heading!==512&&(u.x!==window.detourStart.x||u.z!==window.detourStart.z);
  }),'blocked live follower selects and moves along a native detour');
+ await page.evaluate(()=>{
+  const w=window.testStore.getWorld(),followers=w.units.filter(u=>u.kind!=='shaman').slice(0,2),routes=w.motionRoutes;
+  routes.active=1;routes.last=1;new DataView(routes.records.buffer).setInt16(109,2,true);routes.records[111]=1;
+  window.routeFollowers=followers.map(u=>u.id);
+  for(const u of followers)Object.assign(u.native,{substate:1,flags2:0x40020000,assignment:16,animationMode:0,speed:0,motionGroup:1,motionIndex:5});
+ });
+ await page.waitForFunction(()=>{const w=window.testStore.getWorld();return window.routeFollowers.every(id=>w.units.find(u=>u.id===id).native.motionGroup===0)&&w.motionRoutes.active===0;});
+ assert.ok(await page.evaluate(()=>{const r=window.testStore.getWorld().motionRoutes.records;return r[109]===0&&r[110]===0&&r[111]===0;}),'last live follower frees the shared route');
  await page.waitForFunction(()=>!window.testStore.getWorld().outcome.cameraPlaying);
  await page.waitForSelector('.end-screen button');await page.locator('.end-screen button').click();
  await page.waitForFunction(()=>window.testStore.getWorld().status==='playing');
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().units.every(u=>u.native===null)));
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().objectCells.heads.every(id=>!id)));
+ assert.ok(await page.evaluate(()=>window.testStore.getWorld().motionRoutes.records.every(n=>n===0)));
  assert.deepEqual(errors,[]);
- console.log('PASS: live victory handoff, movement, original atlas frames, pause, circles, chains, obstacle detours and restart; no page errors');
+ console.log('PASS: live victory handoff, movement, original atlas frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
 }finally{await browser.close();}

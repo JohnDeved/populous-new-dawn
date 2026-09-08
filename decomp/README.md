@@ -1245,3 +1245,41 @@ search, ownership, compaction and the resting controller's reposition request
 through follower arrival and departure. There are 612 raw exports and 57 gameplay
 regressions. Ordinary idle behavior still awaits live scheduling and remaining
 path/world-consumer integration; these ports do not replace it yet.
+
+## Shared routes and destination planning
+
+`app/person-routes.ts` reconstructs `004ea460` release, `004e9dd0` direct
+destination assignment, `004ea4c0` point lookup, `004ea550` reuse (low-word
+result), `004ea300` vehicle-wait flag updates, `004e9e80` destination planning
+and the `004e9d80` wrapper. Route construction (`004ea970`), advancement
+(`004eadc0`), vehicle landing adjustment (`004ec3f0`), building outside/access,
+coastal direction and vehicle readiness remain explicit consumers.
+
+The native pool at `00955c29` contains 400 usable 109-byte records plus reserved
+record zero. Reference count is a signed word, flags are byte +2, base/end cells
+start at +4/+8, 24 intermediate records start at +12, and length is byte +108.
+Active count and last-used index are signed words at `009557b0`/`009557ae`.
+Release preserves flag-4 records at zero users and leaves motionIndex untouched
+when motionGroup is already zero. Reuse scans backwards for only active-count
+slots, counting empty slots against that budget. Exact endpoints, nearby starts,
+vehicle exclusions, reserved routes and toroidal byte-coordinate distance are
+preserved. Destination planning retains original skip/throttle gates, building
+exit and coastal offsets, fresh reference counts, fallback ownership and ordered
+route consumers. It does not supply an approximate pathfinding algorithm.
+
+Run `scripts/check-native-person-routes.py EXE`: 14,336 comparisons (2,048 each
+for release, direct assignment, lookup, reuse, vehicle flags, planning and its
+wrapper). Original reuse, point lookup, route release/attachment and vehicle
+flag logic execute within planning; the consumers listed above are supplied.
+Checks compare every owned person field, route-pool SHA-256, global counters and
+ordered callbacks. They cover reference-count limits, route flags, pool wrapping,
+reuse matches/misses, terrain adjustments, vehicle paths and consumer failure.
+
+Live celebration now uses the same shared route pool for release and direct
+destination assignment, replacing the zero-group-only adapter. A regression
+composes native route reuse with two live celebrants releasing their shared
+record and restart clearing the pool. There are 617 raw exports and 58 gameplay
+regressions. Planned destinations in the live preparation/order adapter still
+need native construction/advancement before full route following can be enabled.
+The newly exported `004f2480` is a byte read at person +0xaf; its lifecycle remains
+to be identified before replacing the idle controller's corresponding consumer.

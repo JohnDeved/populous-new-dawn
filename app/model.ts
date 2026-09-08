@@ -1,5 +1,6 @@
 import {createLivePerson,initializeLiveCelebration,stepLiveCelebration,syncLivePersonCells,type LivePerson} from './live-people.ts';
 import type {ObjectCells} from './object-cells.ts';
+import {createMotionRoutes,type MotionRoutes} from './person-routes.ts';
 import {nativeAngle,nativeStep,random,positionDistance,nativeTerrainCross} from './native-math.ts';
 import {createNativeTerrain,queueTerrain,processTerrain,updateWalkMasks,type NativeTerrain} from './native-terrain.ts';
 import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './territory.ts';
@@ -255,6 +256,7 @@ export function findPath(terrain: number[], start: Point, end: Point, buildings:
 }
 export type World = {
   objectCells:ObjectCells;
+  motionRoutes:MotionRoutes;
   ai:ScriptState & {states:number;flags:number;enemyTribe:number;defencePosition:number;defenceRadius:number;spellEntries:{model:number;mana:number;range:number;people:number;mode:number}[];reincarnation:boolean;includeIncompleteBuildings:boolean;pendingCommands:{opcode:number;args:number[]}[]};
   messages: MessageState;
   flyby: Flyby;
@@ -298,6 +300,7 @@ function missionAI(){
 export function createWorld(): World {
   const w: World = { flyby:createFlyby(),inputMask:128,lastMessage:-1,ai:missionAI(), messages:createMessages(), spellCasts:Array.from({length:4},()=>Array(22).fill(0)), gifts:[], giftCounts:{blast:0,bridge:0,lightning:0},
     objectCells:{heads:new Uint16Array(16384),objects:new Map()},
+    motionRoutes:createMotionRoutes(),
     land:{...structuredClone(originalLand),regions:new Uint8Array(16384),searchMarks:new Uint8Array(16384),searchTag:255},landVersion:-1,buildingFootprints:new Map(),
     spellScan:{cursor:0,limit:0,paused:0,targets:[0,0,0,0]},
     castingTribes:Array.from({length:4},(_,id)=>createTribeCasting(id!==0)),

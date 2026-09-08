@@ -1329,3 +1329,27 @@ test('native resting ownership allocates distinct slots and compacts after a fol
  assert.deepEqual(idleSlotPosition(w.slotOffsets,cell,second.anchorFlags),center);
  assert.ok(restingSlotAvailable(w,second));assert.ok(w.search.every((v,i)=>i%12!==0||v===0),'every search releases its handle');
 });
+
+test('native route reuse shares ownership and live celebration releases each follower', async () => {
+ const {createLivePerson,initializeLiveCelebration,stepLiveCelebration}=await import('../app/live-people.ts');
+ const {planPersonDestination}=await import('../app/person-routes.ts');
+ const w=createWorld();w.units=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').slice(0,2);
+ for(const u of w.units){Object.assign(u,{x:7,z:33,inside:null,work:null});u.native=createLivePerson(w,u);initializeLiveCelebration(w,u);}
+ w.land.flags.fill(0);w.land.buildingIds.fill(0);w.land.categories.fill(0);
+ const [first,second]=w.units.map(u=>u.native),routes=w.motionRoutes,v=new DataView(routes.records.buffer),a=109;
+ const to={x:(first.x+1024)&65535,y:first.y};
+ v.setInt16(a,1,true);routes.records[a+2]=1;routes.records[a+4]=first.x>>8;routes.records[a+5]=first.y>>8;
+ routes.records[a+8]=to.x>>8;routes.records[a+9]=to.y>>8;routes.active=1;routes.last=1;first.motionGroup=1;
+ second.flags2|=0x2000000;
+ const unexpected=()=>{throw Error('An existing route should be reused');};
+ let advanced=0;
+ const route=planPersonDestination({routes,skip:0,checkingPerson:0,levelFlags2:0,humanLimit:0,computerLimit:0,
+  tribes:Array.from({length:4},()=>({playerType:1,requests:0})),land:w.land,vehicles:new Map()},second,to,
+  {outside:unexpected,buildingBlocks:unexpected,coastDirection:unexpected,build:unexpected,vehicleReady:unexpected,advance:()=>advanced++});
+ assert.equal(route,1);assert.equal(advanced,1);assert.equal(second.motionGroup,1);assert.equal(v.getInt16(a,true),2);assert.equal(routes.active,1);
+ stepLiveCelebration(w,w.units[0]);
+ assert.equal(first.motionGroup,0);assert.equal(v.getInt16(a,true),1);assert.equal(routes.records[a+2],1);
+ stepLiveCelebration(w,w.units[1]);
+ assert.equal(second.motionGroup,0);assert.equal(v.getInt16(a,true),0);assert.equal(routes.records[a+2],0);assert.equal(routes.active,0);
+ assert.ok(createWorld().motionRoutes.records.every(n=>n===0),'restart discards previous route ownership');
+});

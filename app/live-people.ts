@@ -3,6 +3,7 @@ import {nativePosition,browserPosition,height,buildingPose,entrance,sound} from 
 import {initializePersonState,personAnimationObject,type StatefulPerson} from './person-state.ts';
 import {preparePersonTurn,stepPersonReaction} from './person-update.ts';
 import {stepPersonOrders} from './person-order-update.ts';
+import {releasePersonRoute,setDirectPersonDestination} from './person-routes.ts';
 import {stepCelebration,type Celebrant,type CelebrationEffects} from './celebration.ts';
 import {setAnimationObject,setPersonAnimation,stepObjectAnimation,type Animation} from './animation.ts';
 import {turnPerson,groundVelocity,positionsOverlap,stepMotionRecovery,recoverGroundObstacle,type RecoveryPerson} from './person-motion.ts';
@@ -60,10 +61,6 @@ function context(w:World){
     cellPeople:(c:number)=>[...objectsInCell(w.objectCells,c)].map(p=>people.get(p.id)!)};
   const animationWorld={playerTribe:w.manaWorld.playerTribe,gameFlags:w.manaWorld.gameFlags,sessionSubstate:null,
     tribes:w.manaTribes.map((t,i)=>({flags:w.castingTribes[i].flags,playerType:t.playerType})),objects:new Map()};
-  const releaseMotion=(p:LivePerson)=>{
-    if(p.motionGroup)throw new Error('Native motion-group ownership is not integrated');
-    p.motionIndex=0;
-  };
   const effects:CelebrationEffects={
     animation:(person,object,upper)=>{
       const p=person as LivePerson;
@@ -71,12 +68,8 @@ function context(w:World){
       else{const [start,draw]=rules.animationObjects[object];setAnimationObject(p,draw,start);}
     },
     animationTiming:person=>{const p=person as LivePerson,d=rules.animationDescriptors[p.draw];return {hold:d.hold,duration:(d.step+1)*sprites.frameCounts[p.object]};},
-    releaseMotion:person=>releaseMotion(person as LivePerson),
-    destination:(person,to)=>{
-      const p=person as LivePerson;releaseMotion(p);
-      p.goalX=p.destinationX=p.turnAngle=to.x&65535;p.goalY=p.destinationY=p.turnY=to.y&65535;
-      p.flags2=((p.flags2&~128)|0x1000)>>>0;
-    },
+    releaseMotion:person=>releasePersonRoute(w.motionRoutes,person as LivePerson),
+    destination:(person,to)=>setDirectPersonDestination(w.motionRoutes,person as LivePerson,to),
     dropLog:person=>{
       // 0x4a6cc0's cell centering and two jitter draws. Native free-cell search,
       // allocation ordering and loose-log lifecycle still use browser adapters.
