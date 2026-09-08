@@ -3580,3 +3580,50 @@ browser renderer. These checks establish the recovered inputs and geometry,
 not pixel-identical frames or full range/effect parity. Three additional raw
 exports retain the halo and investigated ground-overlay helpers. Ground target
 tiles, spell travel/impact spawners and construction/destruction are next.
+
+
+## Original Blast impact flash — 2026-09-08
+
+The native spell-2 table at `005a80f8 + 2*62` allocates effects
+`[5,3,78,38,0]` in `004c1d10`. Effect 38 selects state `0x24`, grounds its
+position through `00445c20`/`0044e940`, and calls `004ee700` with draw 30 and
+HFX1099. Its nine frames are **1099–1107**, not the previously imported
+1180–1193 sequence belonging to effect 62. Descriptor 30 advances `f1` by four
+per presentation update; the existing complete `004ee7b0` reconstruction sets
+object `0x650` after the ninth frame. `0050a750` separately deletes the effect
+object on its ninth simulation turn.
+
+The live effect now owns that native animation record and uses the same
+presentation adapter as native people. Rendering honors the terminal object,
+original frame sizes and integer horizontal centering, with the artwork's
+alpha instead of an additional lifetime fade. Grounding queries the stored
+native terrain diagonal. The synthetic expanding Three.js ring was removed:
+`0050b740` expands a target scan, not a visible ring. `0050b630` emits sound
+`0xa1` for effect 78 before effect 38 emits `0xb2`; both now reach the existing
+sound event adapter at impact, in addition to the projectile's earlier cue.
+
+`check-native-blast-flash.py EXE` runs 128 initializations at varied wrapped
+positions, the real terrain query and animation setter/updater, 2,688 animation
+records and the nine-turn effect dispatcher lifetime. It also verifies native
+impact sound order, the light request and imported frame IDs. World registration,
+class callbacks, audio/light consumers and final object free are stubbed at
+explicit boundaries; native initializer/state selection still execute.
+The game regression checks actual deletion on turn nine and preservation while
+paused. The existing `check-browser-spell-halo.mjs` now additionally checks a
+real Blast impact's GPU pixels, native object/draw, one sprite with no ring,
+height anchor, full material opacity, pause, animation termination before
+object removal, and cleanup after simulation resumes. The paused impact capture
+`/private/tmp/populous-halo-impact.png` was inspected. All 66 regressions,
+typecheck, browser check and production build pass; lint retains three existing
+image warnings. The export manifest contains 691 functions.
+
+Remaining visible work: effect 3 and projectile trails have a second phase in
+`0050bd70`/`0050beb0` that is not yet integrated; effect 5 (`0050c510`) ignites
+burnable scenery; effect 78's three physical scan passes remain a browser damage
+adapter. Native local terrain lighting is requested by the flash initializer
+but is not rendered. Shared native timer ownership, overview sprite scaling,
+complete palette/blend and painter behavior remain open. The current 24 Hz
+presentation clock and 12 Hz simulation clock are adapters, not evidence of full
+frame timing parity. Six raw exports retain grounding and investigated effect
+helpers. `00478ee0` concerns landscape restoration, despite a misleading metadata
+name, and was not used to implement Blast. Full game parity remains unfinished.

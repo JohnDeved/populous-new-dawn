@@ -1,4 +1,4 @@
-import {animateLivePeople} from './live-people.ts';
+import {animateLiveObjects} from './live-people.ts';
 import { soundAttenuation } from './audio';
 import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
 import {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion} from './camera-motion.ts';
@@ -531,7 +531,6 @@ export class GameScene {
     const sequence=f.sprite?.sequence??(f.kind==='blast'?'impact':f.kind==='death'?'smoke':f.kind==='bridge'?'sparkle':f.kind);
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture('effects').clone(),transparent:true,depthWrite:false,toneMapped:false}));
     sprite.center.set(.5,0);g.add(sprite);g.userData.sprite=sprite;g.userData.sequence=sequence;
-    if(f.kind==='blast'){const shock=ring(.2,0xe1e7ed,.08);shock.position.y=.08;g.add(shock);g.userData.shock=shock;}
     if(f.kind==='lightning'){
       const bolt=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xcce9ff,transparent:true,depthWrite:false}));g.add(bolt);g.userData.bolt=bolt;
     }
@@ -539,11 +538,14 @@ export class GameScene {
   }
   animateFx(g:THREE.Group,f:Effect){
     const sprite=g.userData.sprite as THREE.Sprite;
+    sprite.visible=f.animation?.object!==0x650;
+    if(!sprite.visible)return;
     if(f.unit){const animations=(nativeUnits.animations as Record<string,Record<string,{frames:number[];flip:boolean}[]>>)[`${f.unit.team}-${f.unit.kind}`];this.animatePerson(sprite,g,f.unit.heading,animations.die,f.age,true);sprite.material.opacity=Math.min(1,(f.duration-f.age)*3);return;}
     const sequence=(nativeEffects.animations as Record<string,{index:number;w:number;h:number}[]>)[g.userData.sequence];
-    const frame=sequence[Math.min(sequence.length-1,f.sprite?.sequence==='blastShot'?f.sprite.frame:Math.floor(f.age*12))];
-    effectFrame(sprite,frame);sprite.material.opacity=Math.min(1,(f.duration-f.age)*5);
-    if(g.userData.shock){const shock=g.userData.shock as THREE.Mesh;shock.scale.setScalar(1+Math.min(1,f.age/.25)*25);(shock.material as THREE.MeshBasicMaterial).opacity=Math.max(0,1-f.age/.35);}
+    const index=f.animation?(f.animation.f1&65535)>>>2:f.sprite?.sequence==='blastShot'?f.sprite.frame:Math.floor(f.age*12);
+    const frame=sequence[Math.min(sequence.length-1,index)];
+    effectFrame(sprite,frame);sprite.material.opacity=f.animation?1:Math.min(1,(f.duration-f.age)*5);
+    if(f.animation)sprite.center.set(Math.floor(frame.w/2)/frame.w,0);
     if(g.userData.bolt){
       const bolt=g.userData.bolt as THREE.LineSegments,phase=Math.floor(f.age*24),points:number[]=[];
       if(g.userData.phase!==phase){
@@ -699,7 +701,7 @@ export class GameScene {
     this.view.prepare(this.scene);this.renderer.render(this.scene, this.camera);
     if(!this.world.paused){
       this.personAnimationTime+=dt;
-      while(this.personAnimationTime>=1/24){animateLivePeople(this.world);this.personAnimationTime-=1/24;}
+      while(this.personAnimationTime>=1/24){animateLiveObjects(this.world);this.personAnimationTime-=1/24;}
     }
     this.uiTimer += dt; if (this.uiTimer > .2) { this.onChange(); this.drawMinimap(); this.uiTimer = 0; }
     this.frame = requestAnimationFrame(this.animate);

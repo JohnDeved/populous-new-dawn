@@ -223,8 +223,8 @@ test('native sound cues preserve sample identity, cast phases and simulation ran
  const w=make(),ids=w.nextId,rng=w.randomState;assert.ok(cast(w,'blast',{x:4,z:0}));
  assert.deepEqual(w.sounds.map(e=>e.cue),[0x76]);assert.equal(w.nextId,ids+1);assert.equal(w.randomState,rng);
  for(let i=0;i<5;i++)tick(w,1/12);assert.equal(w.sounds.length,1);
- tick(w,1/12);assert.deepEqual(w.sounds.map(e=>e.cue),[0x76,0xa1]);assert.equal(w.effects.some(e=>e.kind==='blast'),false);impact(w,'blast');assert.deepEqual(w.sounds.map(e=>e.cue),[0x76,0xa1,0xb2]);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,9]);
- const canceled=make();assert.ok(cast(canceled,'blast',{x:4,z:0}));canceled.selected=[canceled.units[0].id];command(canceled,{x:1,z:0});impact(canceled,'blast');assert.deepEqual(canceled.sounds.map(e=>e.cue),[0x76,0xa1,0xb2]);
+ tick(w,1/12);assert.deepEqual(w.sounds.map(e=>e.cue),[0x76,0xa1]);assert.equal(w.effects.some(e=>e.kind==='blast'),false);impact(w,'blast');assert.deepEqual(w.sounds.map(e=>e.cue),[0x76,0xa1,0xa1,0xb2]);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,9,9]);
+ const canceled=make();assert.ok(cast(canceled,'blast',{x:4,z:0}));canceled.selected=[canceled.units[0].id];command(canceled,{x:1,z:0});impact(canceled,'blast');assert.deepEqual(canceled.sounds.map(e=>e.cue),[0x76,0xa1,0xa1,0xb2]);
  const a=make(),b=make();cast(a,'blast',{x:4,z:0});cast(b,'blast',{x:4,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a.sounds,b.sounds);
 });
 
@@ -236,7 +236,10 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
  tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,1,'no jitter on the first Blast movement turn');
  tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,1335621054,'four trailing particles consume eight simulation draws');
- tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,10]);
+ tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,10,10]);
+ const flash=w.effects.find(e=>e.kind==='blast');assert.equal(flash.animation.object,1099);assert.equal(flash.duration,9/12);
+ tick(w,8/12);assert.ok(w.effects.includes(flash));w.paused=true;tick(w,1);assert.ok(w.effects.includes(flash));
+ w.paused=false;tick(w,1/12);assert.ok(!w.effects.includes(flash),'native flash removed on its ninth active turn');
  const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,2308592903);assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
  const a=make(),b=make();a.shots.bridge=b.shots.bridge=1;cast(a,'bridge',{x:10,z:0});cast(b,'bridge',{x:10,z:0});for(let i=0;i<30;i++)tick(a,1/30);for(let i=0;i<144;i++)tick(b,1/144);assert.deepEqual(a,b,'flight, effects and simulation RNG are independent of rendering FPS');
  const dead=make();dead.manaTribes[0].available=0;cast(dead,'blast',{x:10,z:0});dead.units[0].hp=0;tick(dead,1/12);assert.equal(dead.projectiles.length,0);assert.equal(dead.shots.blast,3,'caster death removes a pending spell without refunding the spent shot');
@@ -1147,7 +1150,7 @@ test('result camera crosses the world seam, releases input and retains native sk
 
 
 test('victory owns persistent native followers, drops cargo and renders a separate paused animation clock', async () => {
- const {animateLivePeople}=await import('../app/live-people.ts');
+ const {animateLiveObjects}=await import('../app/live-people.ts');
  const {setAnimationObject}=await import('../app/animation.ts');
  const w=createWorld();w.units=w.units.filter(u=>u.team==='blue');
  const worker=w.units.find(u=>u.kind==='brave'),hut=w.buildings.find(b=>b.team==='blue');
@@ -1165,15 +1168,15 @@ test('victory owns persistent native followers, drops cargo and renders a separa
   Object.assign(u,{x:7,z:33});Object.assign(u.native,{anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40020000,link:0,target:0,speed:0});
  }
  const phases=new Set();
- for(let i=0;i<96;i++){tick(w,1/12);animateLivePeople(w);animateLivePeople(w);for(const u of w.units)phases.add(u.native.substate);}
+ for(let i=0;i<96;i++){tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w);for(const u of w.units)phases.add(u.native.substate);}
  assert.ok(phases.has(5)&&phases.has(6),'circle members enter native chain states');
  assert.ok(w.units.every((u,i)=>u.native===records[i]),'controllers retain the same person records');
  assert.ok(w.units.every(u=>u.work===null&&u.inside===null),'legacy auto-housing cannot take over celebrations');
  assert.ok(w.trees.filter(t=>t.model===11).every(t=>t.logs===1),'loose logs do not regrow');
  const p=worker.native;setAnimationObject(p,14,40);p.f1=p.f2=0;
- animateLivePeople(w);assert.equal(p.f2,1,'animation mutates the owned record');
- w.paused=true;animateLivePeople(w);assert.equal(p.f2,1);
- w.paused=false;p.renderFlags|=2;animateLivePeople(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
+ animateLiveObjects(w);assert.equal(p.f2,1,'animation mutates the owned record');
+ w.paused=true;animateLiveObjects(w);assert.equal(p.f2,1);
+ w.paused=false;p.renderFlags|=2;animateLiveObjects(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
 });
 
 test('live blocked followers retain native detour steering and recovery timers', async () => {

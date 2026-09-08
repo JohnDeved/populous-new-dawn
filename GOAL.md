@@ -43,8 +43,12 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare visible spell travel/impacts and ground target tiles
-during first-mission play, then construction activity and destruction. Casting
+**Next action:** continue visible spell travel/impacts and ground target tiles
+during first-mission play, then construction activity and destruction. Blast's
+impact now uses original HFX1099–1107, the native animation setter/updater,
+stored-diagonal grounding, nine-turn object lifetime and both impact cues;
+the invented shockwave ring is removed. Its supporting trail, terrain lighting,
+burning scenery and native multi-turn knockback remain open. Casting
 range now uses the native rotating 85-particle halo, terrain heights, original
 frames and shadow sprites, including hover previews; its complete native timer
 and painter ownership remain open. Spell pointers use native POINT artwork, unavailable markers

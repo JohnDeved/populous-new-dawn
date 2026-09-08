@@ -172,8 +172,10 @@ export function stepLiveCelebration(w:World,u:Unit){
 
 // Presentation adapter: called after drawing at the selected 24 Hz native rate.
 // Native rate configuration, visibility catch-up and footprint visuals are pending.
-export function animateLivePeople(w:World){
+export function animateLiveObjects(w:World){
   if(w.paused||(w.land.landFlags&2))return;
   for(const u of w.units)if(u.native)stepObjectAnimation(u.native,
+    {counter:0,levelFlags:0,levelFlags2:w.levelFlags2},{frameCounts:sprites.frameCounts,modelFrames:[],morphDurations:[]},()=>{});
+  for(const f of w.effects)if(f.animation)stepObjectAnimation(f.animation,
     {counter:0,levelFlags:0,levelFlags2:w.levelFlags2},{frameCounts:sprites.frameCounts,modelFrames:[],morphDurations:[]},()=>{});
 }

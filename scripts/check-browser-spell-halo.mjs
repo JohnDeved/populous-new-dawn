@@ -50,11 +50,17 @@ try{
  await page.mouse.click(target.x,target.y);
  await page.waitForFunction(()=>{const s=window.testScene;return s.world.effects.some(f=>f.kind==='blast'&&s.fxMeshes.has(f.id));});
  const impact=await page.evaluate(()=>{
-  const s=window.testScene;s.world.speed=0;const f=s.world.effects.find(f=>f.kind==='blast'),g=s.fxMeshes.get(f.id),body=g.userData.sprite;
+  const s=window.testScene;s.world.speed=0;s.world.paused=true;const f=s.world.effects.find(f=>f.kind==='blast'),g=s.fxMeshes.get(f.id),body=g.userData.sprite;window.testFlash=f;
   const r=s.renderer,gl=r.getContext(),w=gl.drawingBufferWidth,h=gl.drawingBufferHeight,before=new Uint8Array(w*h*4),after=new Uint8Array(before.length);
   r.render(s.scene,s.camera);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,before);body.visible=false;r.render(s.scene,s.camera);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,after);body.visible=true;
-  let pixels=0;for(let i=0;i<before.length;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])pixels++;return {pixels,source:body.material.map.image.src};
+  let pixels=0;for(let i=0;i<before.length;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])pixels++;return {pixels,source:body.material.map.image.src,object:f.animation.object,draw:f.animation.draw,frame:f.animation.f1,children:g.children.length,height:g.position.y*128,nativeHeight:Math.round(f.height*45),opacity:body.material.opacity};
  });assert.ok(impact.pixels>100,JSON.stringify(impact));assert.match(impact.source,/effects.png$/);
+ assert.equal(impact.object,1099);assert.equal(impact.draw,30);assert.equal(impact.children,1,'no invented shockwave ring');assert.equal(impact.height,impact.nativeHeight);assert.equal(impact.opacity,1);
  await page.screenshot({path:'/private/tmp/populous-halo-impact.png'});
+ await page.waitForTimeout(100);assert.equal(await page.evaluate(()=>window.testFlash.animation.f1),impact.frame,'pause freezes the native flash');
+ await page.evaluate(()=>{window.testScene.world.paused=false;});
+ await page.waitForFunction(()=>{const s=window.testScene;return window.testFlash.animation.object===0x650&&!s.fxMeshes.get(window.testFlash.id).userData.sprite.visible;});
+ assert.ok(await page.evaluate(()=>window.testScene.world.effects.includes(window.testFlash)),'native animation finishes before object lifetime');
+ await page.evaluate(()=>{window.testScene.world.speed=1;});await page.waitForFunction(()=>!window.testScene.world.effects.includes(window.testFlash));
  assert.deepEqual(errors,[]);console.log(`PASS: 85 native sprite/shadow pairs, exact terrain-height anchors, hover/selected priority, animated visible GPU pixels (${changed}), camera rotation, pause, missing shaman and cancel; no browser errors`);
 }finally{await browser.close();}
