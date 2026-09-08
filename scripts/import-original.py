@@ -201,6 +201,8 @@ def main():
     terrain=[read('data/'+name) for name in ['pal0-c.dat','bigf0-c.dat','cliff0-c.dat','disp0-c.dat','fade0-c.dat']]
     assert list(map(len,terrain))==[1024,294912,8192,65536,16384]
     (output/'landscape.bin').write_bytes(b''.join(terrain))
+    waves=read('data/watdisp.dat');assert len(waves)==65536
+    (output/'waves.bin').write_bytes(waves)
     (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'compositedFrames':len(rendered),'sha256':hashes},indent=2)+'\n')
     print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} composite animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 

@@ -60,13 +60,13 @@ print('PASS: 256 native terrain textures (262,144 indexed pixels), native amplit
 # Compare reflected atlas tiles from the actual opening map, after an edit.
 js="""import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';import {createWorld} from './app/model.ts';import {readTerrainTextures,terrainAtlas,terrainBrightness} from './app/terrain-texture.ts';
 const hash=a=>createHash('sha256').update(a).digest('hex'),raw=readFileSync('public/original/landscape.bin'),t=readTerrainTextures(raw.buffer.slice(raw.byteOffset,raw.byteOffset+raw.byteLength)),w=createWorld();
-let atlas=terrainAtlas(w.land,t);if(atlas.updated!==2304)throw Error('Missing opening tiles');atlas=terrainAtlas(w.land,t,atlas);if(atlas.updated)throw Error('Unchanged atlas rebuilt');
+let atlas=terrainAtlas(w.land,t);if(atlas.updated!==16384)throw Error('Missing opening tiles');atlas=terrainAtlas(w.land,t,atlas);if(atlas.updated)throw Error('Unchanged atlas rebuilt');
 const i=w.land.heights.findIndex(h=>h>20);w.land.heights[i]+=5;w.land.shadows[i]^=7;
-atlas=terrainAtlas(w.land,t,atlas);if(!atlas.updated||atlas.updated>=2304)throw Error('Edit did not invalidate neighboring tiles');
+atlas=terrainAtlas(w.land,t,atlas);if(!atlas.updated||atlas.updated>=16384)throw Error('Edit did not invalidate neighboring tiles');
 if(hash(atlas.pixels)!==hash(terrainAtlas(w.land,t).pixels))throw Error('Incremental atlas differs from fresh rebuild');
-const tiles=[];for(const [x,z] of [[0,0],[47,0],[0,47],[47,47],[19,19],[20,19],[19,20],[20,20],[24,40],[25,40],[28,40],[28,38]]){
- const p=new Uint8Array(4096);for(let y=0;y<32;y++)p.set(atlas.pixels.subarray(((z*32+31-y)*1536+x*32)*4,((z*32+31-y)*1536+x*32+32)*4),y*128);
- tiles.push({cell:((108+x)&127)|(((19-z)&127)<<7),hash:hash(p)});
+const tiles=[];for(const [x,z] of [[0,0],[127,0],[0,127],[127,127],[59,59],[60,59],[59,60],[60,60],[64,80],[65,80],[68,80],[68,78]]){
+ const p=new Uint8Array(4096);for(let y=0;y<32;y++)p.set(atlas.pixels.subarray(((z*32+31-y)*4096+x*32)*4,((z*32+31-y)*4096+x*32+32)*4),y*128);
+ tiles.push({cell:((68+x)&127)|(((59-z)&127)<<7),hash:hash(p)});
 }console.log(JSON.stringify({heights:[...w.land.heights],cliffs:[...w.land.cliffs],brightness:Array.from({length:16384},(_,i)=>terrainBrightness(w.land,i,[147,147,147])),tiles}));"""
 r=subprocess.run(['node','--input-type=module','-e',js],capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
 d=json.loads(r.stdout)

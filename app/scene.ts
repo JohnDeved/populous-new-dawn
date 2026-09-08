@@ -4,12 +4,13 @@ import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
 import {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion} from './camera-motion.ts';
 import {defeatSky,createSkyMotion,updateSkyArray,skyCloudLayer} from './sky.ts';
 import {readTerrainTextures,terrainAtlas,type TerrainTextures} from './terrain-texture.ts';
+import {waterTexture,waterPoint,waterCell} from './water.ts';
 import skyPalette from './original-sky.json';
 import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldTooltipObject,tooltipPalette} from './tooltips.ts';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { buildingObject, buildingStage, nativePosition, browserPosition, sound, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellInRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { buildingObject, buildingStage, nativePosition, browserPosition, sound, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellInRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModelData from './original-models.json';
 import {modelStage,type NativeModel} from './model-faces.ts';
@@ -90,9 +91,11 @@ export class GameScene {
   renderer: THREE.WebGLRenderer;
   controls: OrbitControls;
   terrain: THREE.InstancedMesh;
-  water: THREE.Mesh;
-  terrainData: THREE.DataTexture;
-  terrainMap=new THREE.DataTexture(new Uint8Array(1536*1536*4),1536,1536);
+  waves:Uint8Array|null=null;
+  waterMap=new THREE.DataTexture(new Uint8Array(256*256*4),256,256);
+  waterState='';
+  waterScroll={value:0};
+  terrainMap=new THREE.DataTexture(new Uint8Array(4096*4096*4),4096,4096);
   terrainTextures:TerrainTextures|null=null;
   terrainAtlasState:ReturnType<typeof terrainAtlas>|undefined;
   terrainLoad=new AbortController();
@@ -167,47 +170,33 @@ export class GameScene {
     this.controls.mouseButtons = { LEFT: null as unknown as THREE.MOUSE, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: THREE.MOUSE.ROTATE };
     this.controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
     this.controls.update();
-    this.terrainData = new THREE.DataTexture(new Float32Array(world.terrain), GRID, GRID, THREE.RedFormat, THREE.FloatType); this.terrainData.needsUpdate = true;
     this.terrainMap.colorSpace=THREE.SRGBColorSpace;
     this.terrainMap.magFilter=this.terrainMap.minFilter=THREE.LinearFilter;
-    void fetch('/original/landscape.bin',{signal:this.terrainLoad.signal}).then(response=>{
+    this.waterMap.colorSpace=THREE.SRGBColorSpace;this.waterMap.wrapS=this.waterMap.wrapT=THREE.RepeatWrapping;
+    this.waterMap.magFilter=this.waterMap.minFilter=THREE.LinearFilter;
+    void Promise.all(['landscape.bin','waves.bin'].map(name=>fetch(`/original/${name}`,{signal:this.terrainLoad.signal}).then(response=>{
       if(!response.ok)throw new Error(`Terrain texture load failed: ${response.status}`);return response.arrayBuffer();
-    }).then(buffer=>{if(!this.terrainLoad.signal.aborted){this.terrainTextures=readTerrainTextures(buffer);this.updateTerrainTexture();}})
+    }))).then(([buffer,waves])=>{if(!this.terrainLoad.signal.aborted){
+      if(waves.byteLength!==65536)throw new Error('Invalid original wave table');
+      this.terrainTextures=readTerrainTextures(buffer);this.waves=new Uint8Array(waves);
+      const indexed=waterTexture(this.terrainTextures,0),pixels=this.waterMap.image.data as Uint8Array,palette=this.terrainTextures.palette;
+      indexed.forEach((c,i)=>pixels.set([palette[c*4],palette[c*4+1],palette[c*4+2],255],i*4));this.waterMap.needsUpdate=true;
+      this.updateTerrainTexture();this.waterState='';
+    }})
       .catch(error=>{if(!this.terrainLoad.signal.aborted)console.error(error);});
     this.terrain = new THREE.InstancedMesh(new THREE.BufferGeometry(), new THREE.ShaderMaterial({
-      uniforms:{map:{value:this.terrainMap}},
-      vertexShader:`varying vec2 land; void main(){land=(uv+48.)/96.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-      fragmentShader:`uniform sampler2D map;varying vec2 land;
-      void main(){gl_FragColor=texture2D(map,land);
+      uniforms:{map:{value:this.terrainMap},waterMap:{value:this.waterMap},scroll:this.waterScroll},
+      vertexShader:`attribute float surface;attribute float light;varying vec2 land;varying vec2 waterUV;varying float sea;varying float shade;
+        void main(){land=(uv+128.)/256.;waterUV=vec2(uv.x+8.,-uv.y-8.)/16.;sea=surface;shade=light;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader:`uniform sampler2D map;uniform sampler2D waterMap;uniform float scroll;varying vec2 land;varying vec2 waterUV;varying float sea;varying float shade;
+      void main(){gl_FragColor=sea>.5?texture2D(waterMap,waterUV+scroll):texture2D(map,land);
       #include <colorspace_fragment>
+      if(sea>.5)gl_FragColor.rgb*=shade;
       }`
     }),9);
     const tiles=[[0,0],...[-256,0,256].flatMap(x=>[-256,0,256].filter(z=>x!==0||z!==0).map(z=>[x,z]))];
     tiles.forEach(([x,z],i)=>this.terrain.setMatrixAt(i,new THREE.Matrix4().makeTranslation(x,0,z)));
     this.terrain.userData.nativeRelative=true;this.terrain.receiveShadow = true; this.terrain.castShadow = true; this.scene.add(this.terrain);
-    const waterGeo = geometry('ground-water',()=>new THREE.PlaneGeometry(252,252,126,126).rotateX(-Math.PI/2));
-    this.water = new THREE.Mesh(waterGeo, new THREE.ShaderMaterial({
-      uniforms: { time: { value: 0 }, heights: { value: this.terrainData }, detail:{value:texture('land-detail')},colours:{value:texture('land-colours')} },
-      vertexShader: `varying vec3 vPos; uniform float time; void main() { vec3 p=position; p.y=.06+sin(p.x*.5+time)*cos(p.z*.4+time*.7)*.012; vPos=(modelMatrix*vec4(p,1.)).xyz; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0); }`,
-      fragmentShader: `varying vec3 vPos; uniform float time; uniform sampler2D heights; uniform sampler2D detail; uniform sampler2D colours; void main(){
-        vec2 map=mod(vPos.xz+128.,256.)-128.;
-        vec2 grid=map+48.,base=floor(grid),f=fract(grid);float h=-3.;
-        if(all(greaterThanEqual(grid,vec2(0.)))&&all(lessThan(grid,vec2(96.)))){
-          float a=texture2D(heights,(base+.5)/97.).r,b=texture2D(heights,(base+vec2(1.5,.5))/97.).r,c=texture2D(heights,(base+vec2(.5,1.5))/97.).r,d=texture2D(heights,(base+1.5)/97.).r;
-          vec4 corners=floor(vec4(a,b,c,d)*45.+.5);float mean=floor(dot(corners,vec4(.25)));vec4 delta=abs(corners-mean);
-          bool cross=max(delta.x,delta.w)>max(delta.y,delta.z);
-          h=cross?(f.x+f.y<=1.?a+f.x*(b-a)+f.y*(c-a):d+(1.-f.x)*(c-d)+(1.-f.y)*(b-d)):(f.y<f.x?a+f.x*(b-a)+f.y*(d-b):a+f.x*(d-c)+f.y*(c-a));
-        }
-        vec2 wave=map/12.+vec2(time*.009,time*.004);
-        float grain=texture2D(detail,wave).r;
-        float light=clamp(150.+(grain-.5)*105.,30.,240.);
-        float shore=1.-smoothstep(-.15,.35,abs(h-.16));
-        vec3 color=texture2D(colours,vec2(light/256.,1.-.5/1152.)).rgb;
-        color+=shore*smoothstep(.48,.63,grain)*vec3(.23,.25,.23);
-        gl_FragColor=vec4(color,1.);
-        #include <colorspace_fragment>
-      }`,
-    })); this.water.userData.nativeRelative=true;this.water.position.y=0;this.scene.add(this.water);
     this.scene.add(this.objects, this.decorations, this.cursor, this.range); this.cursor.visible = false; this.range.visible = false;
     this.rebuildTerrain(); this.makeDecorations(); this.makeShrines(); this.focus({x:2,z:30});this.drawMinimap();
     this.dragBox = document.createElement('div'); this.dragBox.className = 'selection-box'; container.appendChild(this.dragBox);
@@ -286,16 +275,16 @@ export class GameScene {
   groundRing(mesh:THREE.Mesh,p:Point,radius:number){const pos=mesh.geometry.attributes.position;for(let i=0;i<pos.count;i++){const a=i%65/64*Math.PI*2,r=i<65?radius-.1:radius;const q={x:p.x+Math.cos(a)*r,z:p.z+Math.sin(a)*r};const v={x:q.x,y:(Math.max(0,height(this.world.terrain,q.x,q.z))+.16)*45/128,z:q.z};pos.setXYZ(i,v.x,v.y,v.z);}pos.needsUpdate=true;mesh.geometry.computeBoundingSphere();}
 
   rebuildTerrain() {
-    const w=this.world,positions:number[]=[],uv:number[]=[];
-    const add=(x:number,z:number)=>{const h=w.terrain[(z+48)*GRID+x+48];positions.push(x,Math.round(h*45)/128,z);uv.push(x,z);};
-    for(let z=-48;z<48;z++)for(let x=-48;x<48;x++){
-      const i=(z+48)*GRID+x+48,t=w.terrain;
-      if(terrainCross(t[i],t[i+1],t[i+GRID],t[i+GRID+1])){add(x,z);add(x,z+1);add(x+1,z);add(x+1,z);add(x,z+1);add(x+1,z+1);}
-      else{add(x,z);add(x+1,z+1);add(x+1,z);add(x,z);add(x,z+1);add(x+1,z+1);}
+    const w=this.world,positions:number[]=[],uv:number[]=[],surfaces:number[]=[],lights:number[]=[];
+    const add=(x:number,z:number,sea:number)=>{const i=this.landIndex(x,z);positions.push(x,w.land.heights[i]/128,z);uv.push(x,z);surfaces.push(sea);lights.push(1);};
+    for(let z=-128;z<128;z+=2)for(let x=-128;x<128;x+=2){
+      const i=this.landIndex(x,z+2),sea=Number(waterCell(w.land,i));
+      if(!(w.land.flags[i]&1)){add(x,z,sea);add(x,z+2,sea);add(x+2,z,sea);add(x+2,z,sea);add(x,z+2,sea);add(x+2,z+2,sea);}
+      else{add(x,z,sea);add(x+2,z+2,sea);add(x+2,z,sea);add(x,z,sea);add(x,z+2,sea);add(x+2,z+2,sea);}
     }
     this.terrain.geometry.dispose();const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-    this.terrain.geometry=mergeVertices(geo);geo.dispose();
-    (this.terrainData.image.data as Float32Array).set(w.terrain); this.terrainData.needsUpdate = true; this.terrainVersion = w.terrainVersion;
+    geo.setAttribute('surface',new THREE.Float32BufferAttribute(surfaces,1));geo.setAttribute('light',new THREE.Float32BufferAttribute(lights,1));
+    this.terrain.geometry=mergeVertices(geo);geo.dispose();this.terrainVersion=w.landVersion;this.waterState='';
     for (const d of this.decorations.children) { const p = d.userData.point as Point | undefined; if (p) { this.locate(d,p); d.visible = walkable(w.terrain, p); } }
     const bg = this.minimapBackground; bg.width = GRID; bg.height = GRID; const ctx = bg.getContext('2d')!; const data = ctx.createImageData(GRID, GRID);
     for (let i = 0; i < w.terrain.length; i++) { const h = w.terrain[i]; const c = h < .4 ? [25, 55, 63] : h < 1.2 ? [153, 146, 106] : h > 7 ? [114, 121, 113] : [71 + h * 4, 93 + h * 3, 61 + h * 2]; data.data.set([...c, 255], i * 4); } ctx.putImageData(data, 0, 0);
@@ -305,8 +294,23 @@ export class GameScene {
     const w=this.world;
     if(this.terrainMapVersion===w.landVersion&&w.land.shadows.every((v,i)=>v===this.terrainShadows[i]))return;
     this.terrainAtlasState=terrainAtlas(w.land,this.terrainTextures,this.terrainAtlasState);
-    if(this.terrainAtlasState.updated){this.terrainMap.image={data:this.terrainAtlasState.pixels,width:1536,height:1536};this.terrainMap.needsUpdate=true;}
+    if(this.terrainAtlasState.updated){this.terrainMap.image={data:this.terrainAtlasState.pixels,width:4096,height:4096};this.terrainMap.needsUpdate=true;}
     this.terrainMapVersion=w.landVersion;this.terrainShadows.set(w.land.shadows);
+  }
+  landIndex(x:number,z:number){return ((Math.round((-z-8)/2)&127)<<7)|(Math.round((x+8)/2)&127);}
+  updateWater(){
+    if(!this.waves)return;
+    const w=this.world,key=`${w.turn}:${w.landVersion}:${this.terrain.geometry.id}`;
+    if(key===this.waterState)return;this.waterState=key;
+    // ponytail: simulation turns feed both clocks until the native outer
+    // command loop is live; the original texture uses its separate outer turn.
+    this.waterScroll.value=(w.turn&255)/256;
+    const pos=this.terrain.geometry.getAttribute('position'),light=this.terrain.geometry.getAttribute('light');
+    for(let j=0;j<pos.count;j++){
+      const i=this.landIndex(pos.getX(j),pos.getZ(j)),p=waterPoint(w.land,i,w.turn,this.waves);
+      pos.setY(j,p.height/128);light.setX(j,p.color<32?p.color*8/255:1);
+    }
+    pos.needsUpdate=light.needsUpdate=true;
   }
   makeDecorations() {
     for(const tree of this.world.trees){
@@ -333,7 +337,7 @@ export class GameScene {
   }
   pick(event: PointerEvent): Point | null {
     const rect=this.renderer.domElement.getBoundingClientRect();this.mouse.set((event.clientX-rect.left)/rect.width*2-1,1-(event.clientY-rect.top)/rect.height*2);
-    return this.view.pick(this.mouse,[this.terrain,this.water],this.camera)?.point??null;
+    return this.view.pick(this.mouse,[this.terrain],this.camera)?.point??null;
   }
   pointerDown = ((event: PointerEvent) => { this.down = { x: event.clientX, y: event.clientY, button: event.button };this.dragLast={x:event.clientX,y:event.clientY}; this.renderer.domElement.setPointerCapture(event.pointerId); }) as EventListener;
   pointerMove = ((event: PointerEvent) => {
@@ -536,7 +540,7 @@ export class GameScene {
     const skyTicks=Math.min(0x1000000,Math.imul(Math.floor(now)-Math.floor(this.previous||now),64)>>>0);
     const dt = Math.min(.1, (now - (this.previous || now)) / 1000); this.previous = now;
     tick(this.world,dt*this.world.speed);this.playWorldSounds();
-    if (this.terrainVersion !== this.world.terrainVersion) { this.rebuildTerrain(); this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); }
+    if (this.terrainVersion !== this.world.landVersion) { this.rebuildTerrain(); this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); }
     this.updateTerrainTexture();
     const trees=this.world.trees.map(t=>t.logs>=1?'1':'0').join('');if(trees!==this.treeSignature){this.treeSignature=trees;this.releaseGroup(this.decorations);this.decorations.clear();this.makeDecorations();}
     const movingX = Number(this.keys.has('d') || this.keys.has('arrowright')) - Number(this.keys.has('a') || this.keys.has('arrowleft'));
@@ -615,10 +619,8 @@ export class GameScene {
     if(shaman&&spec&&this.range.visible)this.groundRing(this.range,shaman,spellRange(this.world,shaman,spec.model));
     this.cursor.visible=!!this.pointer&&!!this.world.mode;
     if(this.pointer&&this.world.mode){const p=this.pointer;this.groundRing(this.cursor,p,spec?2:footprint(this.world.mode as Building['kind']));const valid=spec?!!shaman&&spellInRange(this.world,shaman,spec.model,p)&&!(!walkable(this.world.terrain,p)&&spec.id==='bridge'):!placementError(this.world,this.world.mode as Building['kind'],p);this.cursor.material.color.setHex(valid?0xebd398:0xec6e59);}
-    (this.water.material as THREE.ShaderMaterial).uniforms.time.value = this.world.time;
     this.terrain.count=this.overviewActive?1:9;
-    this.water.geometry=this.overviewActive?geometry('overview-water',()=>new THREE.PlaneGeometry(256,256,128,128).rotateX(-Math.PI/2)):geometry('ground-water',()=>new THREE.PlaneGeometry(252,252,126,126).rotateX(-Math.PI/2));
-    this.water.position.set(this.overviewActive?0:Math.floor(this.viewPoint.x/2)*2,0,this.overviewActive?0:Math.floor(this.viewPoint.z/2)*2);
+    this.updateWater();
     if(this.skyDome)this.skyDome.visible=this.overviewActive;
     this.updateSky(skyTicks);
     // ponytail: initial mission palette; connect live system-palette changes
@@ -636,5 +638,5 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate);
   };
   releaseGroup(g: THREE.Object3D) { const materials = new Set<THREE.Material>(); g.traverse(o => { if(o instanceof THREE.Sprite){o.material.map?.dispose();materials.add(o.material);} if (o instanceof THREE.Mesh || o instanceof THREE.Line) { if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m)); } }); materials.forEach(m => m.dispose()); }
-  dispose() { cancelAnimationFrame(this.frame); this.terrainLoad.abort();this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.terrainData.dispose();this.terrainMap.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
+  dispose() { cancelAnimationFrame(this.frame); this.terrainLoad.abort();this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.waterMap.dispose();this.terrainMap.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
 }

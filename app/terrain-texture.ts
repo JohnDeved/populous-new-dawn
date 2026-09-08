@@ -43,22 +43,22 @@ export function terrainTile(land:Terrain,brightness:Uint8Array,i:number,t:Terrai
   return out;
 }
 
-// The visible 96×96 browser crop spans 48×48 native cells. Reflect native Y
-// when copying each tile; textures still use the complete native corner data.
+// Full native map, reflected into browser X/Z. Rendering includes the coast
+// beyond the simulation crop; only changed cells rebuild their indexed tiles.
 type TerrainAtlas={pixels:Uint8Array;cells:Uint32Array;updated:number};
 export function terrainAtlas(land:Terrain,t:TerrainTextures,previous?:TerrainAtlas):TerrainAtlas{
-  const brightness=new Uint8Array(16384),cells=new Uint32Array(16384),out=previous?.pixels??new Uint8Array(1536*1536*4);
+  const brightness=new Uint8Array(16384),cells=new Uint32Array(16384),out=previous?.pixels??new Uint8Array(4096*4096*4);
   for(let i=0;i<brightness.length;i++){
     brightness[i]=terrainBrightness(land,i,[147,147,147]);
     cells[i]=(land.heights[i]&65535)|(land.cliffs[i]<<16)|(brightness[i]<<24);
   }
   let updated=0;
-  for(let z=0;z<48;z++)for(let x=0;x<48;x++){
-    const cell=((108+x)&127)|(((19-z)&127)<<7);
+  for(let z=0;z<128;z++)for(let x=0;x<128;x++){
+    const cell=((68+x)&127)|(((59-z)&127)<<7);
     if(previous&&[cell,neighbor(cell,1,0),neighbor(cell,0,1),neighbor(cell,1,1)].every(i=>cells[i]===previous.cells[i]))continue;
     const tile=terrainTile(land,brightness,cell,t);updated++;
     for(let y=0;y<32;y++)for(let px=0;px<32;px++){
-      const at=((z*32+31-y)*1536+x*32+px)*4,color=tile[y*32+px]*4;
+      const at=((z*32+31-y)*4096+x*32+px)*4,color=tile[y*32+px]*4;
       out[at]=t.palette[color];out[at+1]=t.palette[color+1];out[at+2]=t.palette[color+2];out[at+3]=255;
     }
   }

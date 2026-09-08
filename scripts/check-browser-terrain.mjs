@@ -39,7 +39,7 @@ try{
   s.terrainMap.image.data.forEach((v,i)=>{if(v!==window.terrainBefore[i])changed++;});
   return {changed,version:w.terrainVersion,before:window.versionBefore,updates:window.tileUpdates};
  });
- assert.ok(result.changed>1000);assert.ok(result.version>result.before);assert.ok(result.updates.some(n=>n>0)&&result.updates.every(n=>n<2304));
+ assert.ok(result.changed>1000);assert.ok(result.version>result.before);assert.ok(result.updates.some(n=>n>0)&&result.updates.every(n=>n<16384));
  await page.screenshot({path:'/private/tmp/populous-terrain-bridge.png'});
  // A shade update without a terrain-height version change still refreshes.
  await page.evaluate(()=>{const s=window.testScene,i=s.world.land.heights.findIndex(h=>h>20);window.shadeCell=i;window.shadeStamp=s.terrainAtlasState.cells[i];s.world.land.shadows[i]^=7;});

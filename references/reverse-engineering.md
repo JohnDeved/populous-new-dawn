@@ -3302,3 +3302,54 @@ pixel routine accepts fog and stain counts, but the live world does not yet
 supply their original ownership/scheduling. Atlas filtering and texture-coordinate
 insets are WebGL adapters. Water, shoreline rendering, overview and the minimap
 remain approximate; next work stays focused on those visible gaps and the HUD.
+
+
+## 2026-09-08 — native water and full-map rendering
+
+Recovered `004bdcb0` generates the 256×256 indexed water texture from signed
+DISP and BIGF. `app/water.ts` reconstructs the complete pixel loop; its caller
+owns the resource-ready gate. The live shader scrolls the turn-zero texture by
+integer texels, equivalent to the native loop's wrapped displacement lookup.
+The original WATDISP table is imported as `public/original/waves.bin` (65,536
+bytes), with source provenance retained by the importer.
+
+The point-generation block of `0046cb90`, including the `0046cfc0` shore
+predicate, supplies heights and grayscale diffuse values. The shore predicate
+uses bit 0x80 of the category's **last mask byte**; direction metadata is not an
+interchangeable table. Two wrapped WATDISP samples determine wet-point height
+and light. Native `004673b0` selects the water texture for category flag 2 and
+multiplies encoded RGB by the point diffuse value. The browser performs that
+multiplication after output color conversion. Four new exports bring the
+manifest to **661**; raw pseudocode remains distinct from reviewed behavior.
+
+Rendering now covers all **128×128 native cells**, with a 4096×4096 terrain atlas
+and the stored native diagonals. This includes the coastal transition beyond
+the old z=48 crop, eliminating the visible cut at the southern shore. Land and
+water share point heights, including duplicated vertices at texture boundaries.
+The separate water plane, guessed sine waves and heightmap-based shore shader
+have been removed. Picking uses the same mesh; nine periodic copies remain in
+normal view and one in overview. Atlas invalidation still rebuilds only changed
+tiles, although the complete RGBA atlas occupies 64 MiB on the desktop target.
+
+`check-native-water.py` passes **32 complete native texture calls / 2,097,152
+indexed pixels** and **512 native mesh points**, exercising contiguous and
+wrapped rows, all sixteen shore categories, turn wrapping and point flags.
+The original shore classifier and point generation execute; only the final
+projection consumer is supplied. `check-browser-water.mjs` checks GPU water
+changes, vertex animation, 256-turn wrap, pause, shared shore vertices, full-map
+extent and overview switching without browser errors. Both opening and southern
+shore captures were inspected. The updated terrain oracle passes its existing
+pixel/lighting comparisons and twelve full-atlas tile comparisons. Real-browser
+Land Bridge and celebration/route/arrival checks pass with the larger mesh.
+Typecheck, all 66 regression tests and lint pass (seven existing image warnings).
+
+Remaining boundaries: simulation and deformation still use the existing
+cropped/resampled producer, and ordinary orders retain its bounds; rendering the
+full map does not complete full-world gameplay. The browser simulation turn
+currently feeds both wave and texture clocks, whereas the original texture uses
+a separate outer-loop turn. Full native coastal polygon splitting/blending,
+fog, palette scheduling, filtering/UV insets and texture LOD/cache dispatch
+remain unported. Overview is still a browser projection adapter. These checks
+do not establish whole-frame pixel parity. Next priority is the visibly
+oversized HUD, original fonts/icons/layout and non-native labels, followed by
+controls and critical gameplay feedback.
