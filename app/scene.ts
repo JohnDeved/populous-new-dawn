@@ -183,7 +183,13 @@ function nativeModel(id: number, scale = 2, stage = 4) {
   })
   const mesh = new THREE.Mesh(
     geo.clone(),
-    new THREE.MeshBasicMaterial({ map: texture('atlas'), side: THREE.DoubleSide, alphaTest: 0.5 })
+    // Native screen-space winding is clockwise after the WebGL Y inversion.
+    // 0x4708d0 culls rear faces; 0x471c40 keeps both construction-stage sides.
+    new THREE.MeshBasicMaterial({
+      map: texture('atlas'),
+      side: stage === 4 ? THREE.BackSide : THREE.DoubleSide,
+      alphaTest: 0.5,
+    })
   )
   mesh.scale.setScalar(scale)
   mesh.userData.nativeModel = id

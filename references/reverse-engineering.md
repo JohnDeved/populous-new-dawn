@@ -4454,3 +4454,11 @@ The native frame and fill replace the CSS health approximation. Original control
 geometry differs from the secondary OpenPop layout; the shipped executable is
 used. See [health-meter evidence](../decomp/README.md#shaman-health-meter--2026-09-09)
 for CPU, source-pixel and browser comparisons and remaining ownership limits.
+
+### Original complete-model culling
+
+`0046d970` supplies the signed screen-area test used by `004708d0`; construction
+`00471c40` instead keeps both windings. The browser now distinguishes the two in
+its shared original-model factory. See [native/GPU evidence](../decomp/README.md#ordinary-model-face-culling--2026-09-09).
+The existing distance-fade instructions remain unchanged; broader lighting and
+painter ownership are separate open work.

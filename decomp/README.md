@@ -2947,3 +2947,52 @@ resolution parameterization, animated shaman portrait, population/mana controls,
 remaining panels/messages/minimap and complete original frame matching remain
 open. The browser reincarnation check proves health-display integration with
 its current lifecycle; it does not establish native reincarnation timing parity.
+
+## Ordinary model face culling — 2026-09-09
+
+The original `004708d0` ordinary model renderer calls `0046d970` for each
+triangle and queues it only for positive screen-space signed area. This applies
+to both ordinary and tribe-colored texture branches. In contrast, construction
+renderer `00471c40` retains both windings and reverses rear-facing triangles before
+queueing them. The browser had used `DoubleSide` for every original model.
+`nativeModel()` now uses WebGL clockwise-facing culling for complete models
+(`THREE.BackSide`, because native screen Y is inverted into NDC) and retains
+`DoubleSide` for stages 0–3. The shared factory covers buildings, scenery, stone
+heads, vaults, reincarnation stones and the original fire model.
+
+`check-native-model-facing.py` executes 40 complete original ordinary/construction
+renderer calls with **no callee stubs**. A synthetic one-triangle object supplies
+front/rear and depth-sloping variants, all five renderer stages and both ordinary
+and tribe-texture descriptor branches. Original transforms, camera projection,
+normal lookup, screen-space culling and polygon allocation execute. The capture
+records projected vertices and the actual queued triangle count; it is not a full
+scene or original D3D raster comparison. Only nondegenerate in-bounds cases are
+claimed here; native clipping-edge/float-precision equivalence remains open.
+
+The browser comparison creates all stages through the live building renderer,
+then exercises their actual materials with the same controlled raw coordinates
+and native camera settings. All 40 submission decisions agree: construction
+shows both sides; completed rear triangles produce zero GPU pixels, while the
+front triangles contribute 14,280 or 13,482 pixels. A scene comparison at four
+bearings differs from the previous unconditional two-sided renderer on 6,480,
+7,536, 4,373 and 3,783 pixels. These differences show visible integration, not
+pixel agreement with full original reference frames.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-model-facing.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node scripts/check-browser-model-facing.mjs
+```
+
+The investigation began with dark distant models. `004718c0`/`00471a80` explicitly
+apply the existing depth fade; that fade was not removed. Broader sunlight/state,
+mesh visibility, clipping and painter-order comparisons remain required. A new
+`0046d970` export brings the manifest to 881 routines. Full renderer parity is
+unfinished; this does not claim original death/debris culling or all special
+object transformation paths.
+
+Regression checks also pass for 990 model normal/shade passes, 2,216 construction
+face/cap calls, browser lighting, model hover/owner gates, real building and tree
+ignition, scenery rebuilding and all 336 unit sprite poses. The hover test now
+uses the existing fixed pan key `D`: its former `ArrowRight` action rotates
+around the centered stone head under the restored native bindings and therefore
+does not reliably move the pointer off that head. Runtime bindings were unchanged.

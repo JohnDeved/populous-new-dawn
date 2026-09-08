@@ -391,3 +391,18 @@ states at 1440×1000 and 1280×720 and the real removal/reincarnation path.
 The full-world capture still shows unmatched distant lighting and the remaining
 approximate portrait/status controls. This is a health-meter comparison, not
 full-screen parity. See the native evidence in `decomp/README.md`.
+
+## Original model winding — v116
+
+Reviewed `user-world.png`, `user-village.jpg` and the latest first-mission capture.
+Native code explicitly darkens distant faces, so the depth fade was retained.
+The investigation instead confirmed that complete models were incorrectly drawn
+from both sides. `004708d0` culls rear triangles; `00471c40` intentionally retains
+both sides during construction/damage stages. The browser now follows that split.
+
+Inspected `/private/tmp/populous-model-facing-v116.png`. Comparing the corrected
+renderer with forced old two-sided materials at four camera bearings changes
+6,480 / 7,536 / 4,373 / 3,783 world pixels. Separate native/browser material probes
+agree on 40 front/rear/sloping-triangle cases across all five stages. Full-frame
+lighting, occlusion and raster matching remain open; the horizon darkness was not
+claimed fixed by changing face culling.

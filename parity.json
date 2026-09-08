@@ -138,9 +138,11 @@
           "evidence": [
             "scripts/check-native-models.py",
             "scripts/check-native-building-faces.py",
-            "app/scene.ts"
+            "app/scene.ts",
+            "scripts/check-native-model-facing.py",
+            "scripts/check-browser-model-facing.mjs"
           ],
-          "note": "Native geometry, stage face visibility and exposed-face UVs integrated."
+          "note": "Native geometry, stage face visibility and exposed-face UVs integrated. Completed models now use original clockwise screen-facing culling; stages 0\u20133 retain both sides. Forty complete native calls (no callee stubs) and 40 live-material GPU probes agree. Four village bearings show visible integration. Full clipping/painter/raster matching is not claimed."
         },
         {
           "id": "graphics.orientation",

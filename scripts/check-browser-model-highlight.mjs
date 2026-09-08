@@ -61,10 +61,10 @@ try {
   assert.equal(await highlight(head.id),0)
   await page.keyboard.press('Escape')
   await page.waitForFunction(id=>window.testScene.hoveredObject===id,head.id)
-  // Moving the camera must refresh a stationary pointer's target.
-  await page.keyboard.down('ArrowRight')
+  // Pan off the centered target; native ArrowRight rotates around it.
+  await page.keyboard.down('d')
   await page.waitForFunction(id=>window.testScene.hoveredObject!==id,head.id)
-  await page.keyboard.up('ArrowRight')
+  await page.keyboard.up('d')
   assert.equal(await highlight(head.id),0)
   const enemy=await target('enemy')
   await page.mouse.move(enemy.x,enemy.y)

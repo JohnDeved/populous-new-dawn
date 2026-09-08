@@ -541,3 +541,14 @@ The HUD importer now preserves real atlas dimensions, with a PNG/bounds regressi
 check. Full HUD ownership, animated portrait, population/mana display, native
 resolution scaling and full world-frame matching remain open. Continue visible
 world-lighting and native HUD/activity comparisons; full parity stays unfinished.
+
+### Latest visible integration: original model face culling
+
+Completed models now follow original screen-space face culling; construction and
+damage stages retain the original two-sided drawing. Forty native calls without
+callee stubs and forty actual browser material probes agree, with visible changes
+at four village camera bearings. The shared factory fixes the policy once for
+all its original model consumers. Native distance fading remains in place;
+full world lighting, painter order and exact clipping/raster output are still
+unverified. Continue visible world/activity/HUD comparisons rather than treating
+component-level renderer checks as full original-frame parity.
