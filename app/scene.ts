@@ -60,7 +60,12 @@ import nativeModelData from './original-models.json'
 import { modelStage, type NativeModel } from './model-faces.ts'
 const nativeModels: Record<number, NativeModel> = nativeModelData
 import { morphCoordinate } from './morph.ts'
-import { spriteDirection, spriteCoordinate, selectionArrow } from './projection.ts'
+import {
+  spriteDirection,
+  spriteCoordinate,
+  selectionArrow,
+  scaledEffectSize,
+} from './projection.ts'
 import { RenderView } from './render-view.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
@@ -1311,6 +1316,8 @@ export class GameScene {
       })
     )
     sprite.center.set(0.5, 0)
+    if (f.smoke)
+      sprite.material.color.setStyle(`rgb(${nativeEffects.buildingSmokeColor.join(',')})`)
     g.add(sprite)
     g.userData.sprite = sprite
     g.userData.sequence = sequence
@@ -1366,8 +1373,22 @@ export class GameScene {
         : Math.floor(f.age * 12)
     const frame = sequence[Math.min(sequence.length - 1, index)]
     effectFrame(sprite, frame)
+    if (f.smoke) {
+      const depth = this.view.project(f, f.height ?? this.y(f)).z
+      const size = scaledEffectSize(
+        frame,
+        f.smoke,
+        depth,
+        this.view.config.scaledSprites ? 0x100 : 0,
+        this.view.config
+      )
+      sprite.scale.set(size.width, size.height, 1)
+    }
     sprite.material.opacity = f.animation ? 1 : Math.min(1, (f.duration - f.age) * 5)
-    if (f.animation) sprite.center.set(Math.floor(frame.w / 2) / frame.w, 0)
+    if (f.animation) {
+      const width = f.smoke ? sprite.scale.x : frame.w
+      sprite.center.set(width ? Math.trunc(width / 2) / width : 0.5, 0)
+    }
   }
   animateLightning(mesh: THREE.Mesh, b: Lightning) {
     mesh.visible = !!b.segments.length

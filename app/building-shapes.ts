@@ -1,6 +1,6 @@
 import data from './original-shapes.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
-import { nativeAngle, nativeStep } from './native-math.ts'
+import { nativeAngle, nativeStep, random } from './native-math.ts'
 
 export type BuildingShapePose = { object: number; angle: number; anchorX: number; anchorY: number }
 export type RegisteredBuilding = BuildingShapePose & { id: number; tribe: number }
@@ -19,6 +19,18 @@ function shape(b: BuildingShapePose) {
   if (!result)
     throw new RangeError(`No native building shape for object ${b.object}, angle ${b.angle}`)
   return result
+}
+
+// 0x40b320: choose a smoke socket from the current object's rotated shape.
+// Socket bytes are x/unused/y in 32-unit coordinates; shape origins use 256 units.
+export function buildingSmokePoint(b: BuildingShapePose, rng: { randomState: number }) {
+  const s = shape(b)
+  if (!s.smoke.length) return null
+  const [x, , y] = s.smoke[random(rng) % s.smoke.length]
+  return {
+    x: short(b.anchorX + x * 32 - s.x * 256),
+    y: short(b.anchorY + y * 32 - s.y * 256),
+  }
 }
 
 // Shared native mask traversal for occupancy and the browser placement preview.

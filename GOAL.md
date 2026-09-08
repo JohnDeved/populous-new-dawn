@@ -45,7 +45,11 @@ work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
 **Next action:** continue scenery fire and building activity/destruction, checking
-visible results against original captures. The sprite audit found intact unit
+visible results against original captures. Collapse smoke now uses native rotated
+shape sockets, RNG consumption, HFX1345–1360, palette 7, fixed-point growth/shrink,
+depth-scaled sizing and native lifetime. Verified against 632 native allocations,
+512 lifecycle steps and 512 size calculations, plus real browser collapse.
+Tree ignition/fire propagation and building debris remain open. The sprite audit found intact unit
 artwork; the nearby striped shapes were reincarnation stones. Their invented
 radius-2.8 circle is now replaced with the original eight cell-snapped offsets,
 site-relative headings and stored-diagonal terrain heights. Native normal site

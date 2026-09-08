@@ -1,6 +1,7 @@
 import { terrainSupportsPerson } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
+import { createBuildingSmoke, stepBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
 import {
   createLivePathfinding,
@@ -44,6 +45,7 @@ import {
 } from './tribe-turns.ts'
 import {
   buildingOutsidePoint,
+  buildingSmokePoint,
   registerBuildingFootprint,
   nativeCellShade,
   type RegisteredBuilding,
@@ -189,11 +191,13 @@ export type Tree = Point & { id: number; logs: number; model: number }
 export type SoundEvent = Point & { serial: number; cue: number; turn: number }
 export type Effect = Point & {
   id: number
-  kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail'
+  kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
   lightning?: Lightning
+  smoke?: BuildingSmoke
+  groundVersion?: number
   age: number
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
@@ -1995,7 +1999,14 @@ function stepCollapsingBuilding(w: World, b: Building) {
       state.occupants--
     },
     smoke: () => {
-      smoke.fx = effect(w, 'death', b)
+      const point = buildingSmokePoint(buildingPose(b), context)
+      if (!point) return null
+      const cloud = createBuildingSmoke(w.land, point, context)
+      smoke.fx = effect(w, 'buildingSmoke', browserPosition(point))
+      smoke.fx.animation = smoke.fx.smoke = cloud
+      smoke.fx.height = cloud.h / 45
+      smoke.fx.groundVersion = w.landVersion
+      smoke.fx.duration = Infinity
       return smoke
     },
     debris: () => {},
@@ -2015,7 +2026,7 @@ function stepCollapsingBuilding(w: World, b: Building) {
     (buildingHp(b.kind) * Math.max(0, state.plan.remaining)) / rules.buildingLife[state.model]
   )
   w.randomState = context.randomState
-  if (smoke.fx) smoke.fx.duration = smoke.duration / TURNS_PER_SECOND
+  if (smoke.fx?.smoke) smoke.fx.smoke.lifetime = smoke.duration
 }
 function stepOutcome(w: World) {
   if (w.manaWorld.loadFlags & 0x200 || w.manaWorld.gameFlags & 32) return
@@ -2464,6 +2475,12 @@ function stepTurn(w: World) {
   w.gifts = w.gifts.filter(g => g.remaining > 0)
   for (const fx of w.effects) {
     fx.age += dt
+    if (fx.smoke) {
+      if (fx.groundVersion !== w.landVersion) fx.smoke.flags2 |= 4
+      fx.groundVersion = w.landVersion
+      if (!stepBuildingSmoke(w.land, fx.smoke)) fx.duration = fx.age
+      moveVisual(fx, fx.smoke)
+    }
     if (fx.animation && 'remaining' in fx.animation) {
       const alive = stepSpellTrail(w.land, fx.animation)
       moveVisual(fx, fx.animation)

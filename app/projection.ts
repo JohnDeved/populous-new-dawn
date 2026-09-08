@@ -210,6 +210,25 @@ export function spriteCoordinate(
   return Math.max(-256, Math.min(256, n))
 }
 
+// 0x46f9e0 queues scaled HFX at this depth bucket; 0x4673b0 sizes its rectangle.
+export function scaledEffectSize(
+  frame: { w: number; h: number },
+  effect: { scaleX: number; scaleY: number },
+  depth: number,
+  flags: number,
+  view: Pick<CameraConfig, 'scale' | 'spriteScale' | 'shamanScale'>
+) {
+  const distance = (depth + 0x6f80) | 0
+  const bucket = (distance < 64 ? 0 : Math.min(3584, distance >> 4)) + 1
+  const width = Math.imul(frame.w, effect.scaleX) >> 8
+  const height = Math.imul(frame.h, effect.scaleY) >> 8
+  if (!(flags & 0x380)) return { width, height }
+  return {
+    width: spriteCoordinate(width, bucket, flags, view),
+    height: spriteCoordinate(height, bucket, flags, view),
+  }
+}
+
 // Selection-arrow branch at 0x469415..0x4694f2 in the native person renderer.
 // HFX 53 is 9×7. frameHeight is the rendered VFRA header height, not the
 // composite image bounds; a headdress or weapon can extend outside that box.

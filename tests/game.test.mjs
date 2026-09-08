@@ -1107,7 +1107,7 @@ test('defeat seeds native building collapse and staged damage ejects occupants b
  assert.equal(b.collapse.plan.remaining,rules.buildingLife[model]-100);assert.equal(b.collapse.stage,2);
  assert.equal(occupant.inside,null);assert.equal(occupant.work,null);assert.equal(occupant.hp,maxHp('brave'));
  assert.equal(b.collapse.plan.repairDelay,rules.buildingRepairDelay);
- assert.ok(w.effects.some(f=>f.kind==='death'&&f.duration>=rules.buildingSmokeDuration/12));
+ assert.ok(w.effects.some(f=>f.kind==='buildingSmoke'&&f.smoke.lifetime>=rules.buildingSmokeDuration));
  assert.ok(w.sounds.some(s=>s.cue===0x34));
  for(let i=0;i<200&&w.buildings.includes(b);i++)tick(w,1/12);
  assert.equal(b.collapse.stage,0);assert.equal(b.hp,0);assert.ok(!w.buildings.includes(b));

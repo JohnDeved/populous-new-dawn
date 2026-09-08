@@ -3873,3 +3873,53 @@ evidence, not new ports. `0x4a7eb0` contains stone rise/sink behavior; `0x514240
 is a separate shaman-placement path. The browser still initializes two static
 first-mission sites; creation order/timing, particles/sounds, rise/sink, relocation,
 removal and complete tribe lifecycle remain unported here.
+
+
+## Original building-collapse smoke — 2026-09-08
+
+The browser collapse adapter used a generic `death` puff (HFX1224) at the building
+center. Native `0x4092a0` instead calls `0x40b320`, selects a smoke socket from the
+current object's rotated shape, and allocates class-7/model-76. The shape record
+contains up to six triples at offset 26, terminated by zero in the third byte.
+Coordinates use first/third bytes at scale 32, relative to the shape origin and
+building anchor. The middle byte is unused by this routine. Shape import now
+preserves these sockets; `buildingSmokePoint` reuses the existing shape lookup.
+
+Effect 76 initializes through `0x5119d0`: state 62, HFX1345, descriptor 48,
+16/256 x/y scale, palette 7, looping 16-frame animation, and lifetime 96..159 from
+simulation RNG. The damage caller then consumes another RNG value and replaces
+lifetime with the imported smoke duration plus its low byte. Socket selection,
+effect initialization and caller override retain that RNG order in the browser.
+No-socket shapes allocate nothing and consume neither allocation RNG draw.
+
+`app/building-smoke.ts` reconstructs `0x50be00`: grow by 16 to 256, hold, shrink
+when fewer than 16 turns remain, clear the native flags, re-ground on terrain
+invalidation, and remove at expiration. Negative lifetimes remain permanent.
+The live adapter uses the shared native animation clock and marks ground changes
+from `landVersion` until original effect registration owns invalidation.
+
+Rendering follows scaled-HFX queue `0x46f9e0` and the type-18 branch of `0x4673b0`.
+The queue's depth bucket is `(z + 0x6f80) / 16`, lower cutoff 64 and upper cap
+0xe00; traversal passes bucket+1 to `0x476090`. Dimensions first multiply by the
+signed 8.8 scales, then use the existing resolution/depth conversion when enabled.
+Palette 7 selects AL0+7*4096 before `0x516270`; its imported tint is black.
+`import-original.py` now includes HFX1345–1360 and this tint, and
+`inspect-executable.py` imports descriptors through 48.
+
+`scripts/check-native-building-smoke.py EXE` compares 632 socket/allocation cases
+(all 158 objects × four directions), 512 lifecycle/terrain/flag cases, and 512
+native sizing/bucket calculations. The animation harness additionally verifies
+2,352 setters and 3,136 updater cases across the expanded descriptors.
+`scripts/check-browser-building-smoke.mjs` triggers the live collapse adapter,
+checks growth, frame cycling, exact grounding, actual GPU contribution (737
+pixels in the recorded run), camera rotation, shrinkage and removal. The atlas
+change is also covered by the existing browser Lightning check.
+
+Inherited symbols are hypotheses: the function labeled `process_building_smoke`
+at `0x5149f0` actually updates expanding terrain rings, whereas the function labeled
+`process_small_sparkle` at `0x50be00` handles this scaled smoke lifetime. The new
+scenery state exports (`0x4a6f40`, `0x4a6fd0`, `0x4a7170`, `0x4a73d0`) are evidence
+for continuing fire work, not implemented scenery parity. Tree ignition/spread,
+fire damage, building debris, full plan ownership and native painter/blend order
+remain open. This change covers collapse smoke rather than the whole destruction
+system.

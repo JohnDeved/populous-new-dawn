@@ -49,7 +49,12 @@ def building_shapes(data, objects):
         width,height,x,y,ix,iy,ox,oy=struct.unpack_from('<4B4b',data,i*48)
         offset=struct.unpack_from('<I',data,i*48+44)[0]
         assert offset+width*height <= len(data)-64*48
-        shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset))
+        smoke=[]
+        for j in range(6):
+            point=list(struct.unpack_from('<3B',data,i*48+26+j*3))
+            if not point[2]:break
+            smoke.append(point)
+        shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset,smoke=smoke))
     indices=[list(struct.unpack_from('<4b',objects,i+44)) for i in range(0,len(objects),54)]
     assert all(0 <= n < len(shapes) for row in indices for n in row)
     return dict(objects=indices,shapes=shapes,cells=list(data[64*48:]))
@@ -168,7 +173,7 @@ def main():
     effects=sprites(hfx_data,fx_palette,alpha=True)
     # 0x4673b0 draws type-1 objects from HFX, including the small trail particles.
     # Trail draw type 1 uses the ordinary palette; the Blast head uses nibble alpha.
-    fx_sequences={'impact':(1099,9),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,8),'spellTrail':(0x142,8),'log':(23,1),'halo':(1466,12),'haloShadow':(70,1)}
+    fx_sequences={'impact':(1099,9),'smoke':(1224,16),'sparkle':(1288,16),'hit':(1294,6),'splash':(1304,16),'lightning':(1361,8),'birth':(1441,16),'blastShot':(0x460,8),'blastTrail':(0x13a,8),'spellTrail':(0x142,8),'log':(23,1),'halo':(1466,12),'haloShadow':(70,1),'buildingSmoke':(1345,16)}
     fx_frames=[];fx_meta={};cell=256
     for name,(start,count) in fx_sequences.items():
         fx_meta[name]=[]
@@ -182,7 +187,8 @@ def main():
     png(output/'effects.png',fw,fh,pixels)
     # 0x46b294 selects AL0; 0x516270 derives the halo's vertex tint from it.
     halo_color=list(palette[alpha[0x2f82]*4:alpha[0x2f82]*4+3])
-    (project/'app/original-effects.json').write_text(json.dumps({'width':fw,'height':fh,'haloColor':halo_color,'animations':fx_meta},separators=(',',':')))
+    smoke_color=list(palette[alpha[7*4096+0x2f82]*4:alpha[7*4096+0x2f82]*4+3])
+    (project/'app/original-effects.json').write_text(json.dumps({'width':fw,'height':fh,'haloColor':halo_color,'buildingSmokeColor':smoke_color,'animations':fx_meta},separators=(',',':')))
     data=read('levels/constant.dat')
     if data[:2]==b'@~':data=b'  '+bytes((~(v^(1<<((i-3)&7))))&255 for i,v in enumerate(data))[2:]
     constants={}

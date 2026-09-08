@@ -97,3 +97,8 @@ Raw decompiler output belongs in `decomp/`, not in maintained TypeScript.
 positions, facing, keyboard camera rotation and grounding after terrain edits.
 For executable comparisons run `python scripts/check-native-reincarnation.py EXE`
 with the decompilation environment described in `decomp/README.md`.
+
+
+`node scripts/check-browser-building-smoke.mjs` exercises live collapse smoke,
+frame cycling, camera rotation, growth and expiry. Compare its geometry and
+lifecycle with `python scripts/check-native-building-smoke.py EXE`.
