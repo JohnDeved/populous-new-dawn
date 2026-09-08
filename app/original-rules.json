@@ -2521,6 +2521,25 @@
   ],
   "buildingRepairDelay": 1200,
   "buildingSmokeDuration": 6000,
+  "cameraRampUp": [
+    6,
+    25,
+    65,
+    90
+  ],
+  "cameraRampDown": [
+    100,
+    95,
+    85,
+    60,
+    45,
+    25,
+    12,
+    10,
+    6,
+    4,
+    2
+  ],
   "personTraining": [
     {
       "weight": 0,

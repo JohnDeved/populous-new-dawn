@@ -66,8 +66,8 @@ export function nativeStep3D(p:NativePoint,yaw:number,pitch:number,length:number
   const horizontal=Math.imul(rules.sine[pitch&2047],length)>>16;
   return {x:short(p.x+(Math.imul(rules.sine[yaw&2047],horizontal)>>16)),y:short(p.y+(Math.imul(rules.sine[(yaw+512)&2047],horizontal)>>16)),h:short(p.h+(Math.imul(rules.sine[(pitch+512)&2047],length>>1)>>16))};
 }
-const nativePosition=(w:World,p:Point):NativePoint=>({x:short(Math.round((p.x+8)*256)),y:short(Math.round((-p.z-8)*256)),h:Math.round(height(w.terrain,p.x,p.z)*45)});
-const browserPosition=(p:NativePoint):Point=>({x:short(p.x-2048)/256,z:-short(p.y+2048)/256});
+export const nativePosition=(w:World,p:Point):NativePoint=>({x:short(Math.round((p.x+8)*256)),y:short(Math.round((-p.z-8)*256)),h:Math.round(height(w.terrain,p.x,p.z)*45)});
+export const browserPosition=(p:Pick<NativePoint,'x'|'y'>):Point=>({x:short(p.x-2048)/256,z:-short(p.y+2048)/256});
 const nativeDistance=(a:NativePoint,b:NativePoint)=>Math.floor(Math.hypot(short(a.x-b.x),short(a.y-b.y),a.h-b.h));
 function shotAngles(p:NativePoint,d:NativePoint){const dx=short(d.x-p.x),dy=short(d.y-p.y);return [nativeAngle(dx,-dy),nativeAngle(Math.max(Math.abs(dx),Math.abs(dy)),-2*(d.h-p.h))];}
 function meleeExchange(w:World,u:Unit,target:Unit,choice:number){
@@ -260,7 +260,7 @@ export type World = {
   land:NativeTerrain & Territory;landVersion:number;spellScan:SpellTargetScan;
   castingTribes: TribeCasting[]; manaWorld: ManaWorld; manaTribes: (ManaTribe & TribeTurnState)[]; manaNotices: {flags:number;message:number}[];
   tribeCount:number;levelFlags2:number;
-  outcome:Omit<OutcomeWorld,'turn'|'landFlags'|'playerTribe'> & {cameraTribe:number|null;completedLevel:number|null;skyCounter:number};
+  outcome:Omit<OutcomeWorld,'turn'|'landFlags'|'playerTribe'> & {cameraTribe:number|null;cameraRequest:number;cameraPlaying:boolean;completedLevel:number|null;skyCounter:number};
   terrain: number[]; terrainVersion: number; units: Unit[]; buildings: Building[]; effects: Effect[]; projectiles:Projectile[]; shrines: Shrine[]; trees: Tree[]; fights: Battle[]; sounds: SoundEvent[]; soundSerial:number;
   mana: number; wood: number; shots: Record<Spell, number>; charging: boolean; unlockedCamp: boolean;
   time: number; turn: number; pendingTime: number; randomState: number; nextId: number; selected: number[]; mode: Spell | BuildingKind | null;
@@ -295,7 +295,7 @@ export function createWorld(): World {
     spellScan:{cursor:0,limit:0,paused:0,targets:[0,0,0,0]},
     castingTribes:Array.from({length:4},(_,id)=>createTribeCasting(id!==0)),
     tribeCount:2,levelFlags2:0,
-    outcome:{campaignTribes:2,level:1,progressFlags:0,lastDefeated:0,defeatedCounts:[0,0,0,0],alliances:[0,0,0,0],cameraTribe:null,completedLevel:null,skyCounter:0},
+    outcome:{campaignTribes:2,level:1,progressFlags:0,lastDefeated:0,defeatedCounts:[0,0,0,0],alliances:[0,0,0,0],cameraTribe:null,cameraRequest:0,cameraPlaying:false,completedLevel:null,skyCounter:0},
     manaWorld:{playerTribe:0,gameFlags:0,loadFlags:0,levelFlags:0,manaFlags:0,turn:0,rateSample:0,
       spells:Array.from({length:4},()=>({available:4,disabled:0,stocks:Array(22).fill(0)}))},
     manaTribes:Array.from({length:4},(_,id)=>({id,spellOwner:id,playerType:id===0?2:1,active:id<2,defeatTimer:0,flags2:0,mana:0,pending:0,available:constants.START_MANA,
@@ -323,7 +323,7 @@ export function createWorld(): World {
   return w;
 }
 // 0x492920: marker queries read the coarse vertex; odd coordinate bits are ignored.
-export function nativeCellPoint(packed:number):Point{return browserPosition({x:(packed&254)<<8,y:packed&0xfe00,h:0});}
+export function nativeCellPoint(packed:number):Point{return browserPosition({x:(packed&254)<<8,y:packed&0xfe00});}
 export function markerHeight(terrain:number[],index:number){
   if(!Number.isInteger(index)||index<0||index>=level.markers.length)throw new RangeError('Invalid campaign marker');
   const packed=level.markers[index],p=nativeCellPoint(packed);
@@ -518,7 +518,7 @@ function buildingPose(b:Building) {
 }
 function buildingDoor(b: Building) {
   const point=buildingOutsidePoint(buildingPose(b));
-  return browserPosition({...point,h:0});
+  return browserPosition(point);
 }
 export function entrance(w: World, b: Point, radius=4) {
   if ('level' in b && 'team' in b && 'kind' in b && 'angle' in b) {
@@ -748,11 +748,11 @@ function stepOutcome(w:World) {
   });
   const context={...w.outcome,turn:w.turn,landFlags:w.land.landFlags,playerTribe:w.manaWorld.playerTribe};
   processOutcome(context,tribes,{
-    camera:id=>{w.outcome.cameraTribe=id;},completeLevel:index=>{w.outcome.completedLevel=index;},
+    camera:id=>{w.outcome.cameraTribe=id;w.outcome.cameraRequest++;},completeLevel:index=>{w.outcome.completedLevel=index;},
     cancelInput:()=>{w.selected=[];w.mode=null;},
     reveal:()=>{for(let i=0;i<w.land.flags.length;i++)w.land.flags[i]|=8;},
     releasePerson:p=>{release(p.unit);p.unit.path=[];},damage:(p,amount)=>{p.unit.hp-=amount/20;},
-    // Native camera playback, debris/sky effects, celebration states,
+    // Native debris/sky visuals, celebration states,
     // persistent campaign saves and network result delivery remain unported.
     defeat:id=>cleanupDefeatedTribe(w,id),initPerson:()=>{},networkResult:()=>{},
   });
@@ -1066,8 +1066,8 @@ function stepTurn(w:World){
   w.units=w.units.filter(u=>u.hp>0);w.buildings=w.buildings.filter(b=>b.hp>0);w.selected=w.selected.filter(id=>w.units.some(u=>u.id===id));
   cleanBattles(w);
   for(const team of ['blue','red'] as const){const key=team==='blue'?'respawn':'redRespawn';if(w[key]>0){w[key]=Math.max(0,w[key]-dt);if(w[key]===0&&w.units.some(u=>u.team===team)){const u=addUnit(w,team,'shaman',team==='blue'?HOME:ENEMY);if(team==='blue'&&!w.selected.length)w.selected=[u.id];effect(w,'birth',u);}}}
-  // ponytail: the result overlay remains while native end-camera playback,
-  // celebration states and progression presentation are being reconstructed.
+  // ponytail: the result overlay remains while native celebration states
+  // and progression presentation are being reconstructed.
   if(w.land.landFlags&0x2000000){w.redRespawn=0;w.status='won';}
   if(w.land.landFlags&0x4000000){w.respawn=0;w.status='lost';}
 }

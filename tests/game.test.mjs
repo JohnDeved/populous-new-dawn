@@ -465,7 +465,7 @@ test('native outcome phases honor campaign opponents, forced results and defeat 
  tick(won,31/12);assert.equal(won.status,'playing');assert.equal(won.manaTribes[1].defeatTimer,0);
  tick(won,1/12);assert.equal(won.status,'won');assert.equal(won.turn,32);
  assert.equal(won.manaTribes[1].defeatTimer,1);assert.equal(won.outcome.defeatedCounts[0],1);
- assert.equal(won.outcome.cameraTribe,1);assert.equal(won.outcome.completedLevel,0);assert.equal(won.outcome.progressFlags&1,1);
+ assert.equal(won.outcome.cameraTribe,1);assert.equal(won.outcome.cameraRequest,1);assert.equal(won.outcome.completedLevel,0);assert.equal(won.outcome.progressFlags&1,1);
  assert.deepEqual(won.selected,[]);assert.ok(won.buildings.some(b=>b.team==='red'),'empty buildings do not postpone campaign victory');
  const lost=createWorld();lost.units=[];lost.turn=31;tick(lost,1/12);
  assert.equal(lost.status,'lost','simultaneous campaign extinction is a player loss');assert.equal(lost.manaTribes[1].defeatTimer,0);
@@ -1121,4 +1121,26 @@ test('results preserve pending turns, collapse defeated settlements and reject n
   assert.equal(w.outcome.defeatedCounts[0],team==='blue'?1:0,'continued results do not count defeat twice');
   assert.equal(w.status,team==='blue'?'won':'lost');
  }
+});
+
+test('result camera crosses the world seam, releases input and retains native sky timing', async () => {
+ const {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion}=await import('../app/camera-motion.ts');
+ const motion=createCameraMotion(),result=createResultCamera(),view={x:65500,y:20,angle:2040};
+ const events=[],context={skyCounter:20,newTurn:false};
+ beginResultCamera(result,0,0,view,{x:300,y:65500});
+ beginResultCamera(result,0,0,view,{x:999,y:999});
+ assert.deepEqual(result.target,{x:300,y:65500,angle:-1},'an overlapping result must not replace the route');
+ const effects={lock:()=>events.push('lock'),unlock:()=>events.push('unlock'),clearInteraction:()=>events.push('clear'),sound:()=>events.push('sound')};
+ let crossed=false,frames=0;
+ for(;result.active&&frames<256;frames++){
+  stepResultCamera(result,motion,view,context,effects);
+  stepCameraMotion(motion,view,0,{rotate:()=>events.push('rotate'),globe:()=>events.push('globe')});
+  if(view.x<100)crossed=true;
+ }
+ assert.ok(crossed,'movement takes the wrapped route');assert.ok(frames>4&&frames<256);
+ assert.deepEqual(view,{x:300,y:65500,angle:2040});assert.equal(motion.active,0);
+ while(context.skyCounter)stepResultCamera(result,motion,view,context,effects);
+ assert.deepEqual(events.filter(e=>e!=='sound'),['lock','clear','globe','unlock']);
+ assert.equal(events.filter(e=>e==='sound').length,2,'sky ticks at 16 and 0 without requiring a simulation turn');
+ assert.deepEqual(result.saved,{x:65500,y:20,angle:2040});
 });

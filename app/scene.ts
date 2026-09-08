@@ -1,10 +1,11 @@
 import { soundAttenuation } from './audio';
 import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
+import {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion} from './camera-motion.ts';
 import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldTooltipObject,tooltipPalette} from './tooltips.ts';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { buildingObject, buildingStage, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellInRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { buildingObject, buildingStage, nativePosition, browserPosition, sound, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellInRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModelData from './original-models.json';
 import {modelStage,type NativeModel} from './model-faces.ts';
@@ -93,6 +94,12 @@ export class GameScene {
   cameraBearing = 0;
   flybyTime = 0;
   wasFlying = false;
+  resultCamera=createResultCamera();
+  resultMotion=createCameraMotion();
+  resultView={x:0,y:0,angle:0};
+  resultRequest=0;
+  resultTime=0;
+  resultTurn=0;
   tooltip = createTooltip();
   tooltipElement = document.createElement('div');
   down = { x: 0, y: 0, button: 0 };
@@ -301,6 +308,39 @@ export class GameScene {
   orientCamera(){if(this.overviewActive){this.camera.lookAt(this.controls.target);this.camera.updateMatrixWorld();}this.updateView();}
   pan(x:number,z:number){const a=this.cameraBearing;this.viewPoint={x:this.viewPoint.x+x*Math.cos(a)+z*Math.sin(a),z:this.viewPoint.z+z*Math.cos(a)-x*Math.sin(a)};for(const key of ['x','z'] as const)this.viewPoint[key]=((this.viewPoint[key]+128)%256+256)%256-128;}
   skipIntroduction() { interruptFlyby(this.world.flyby, this.flybyCamera); if (!(this.world.flyby.flags & 1)) this.world.inputMask &= ~64; this.onChange(); }
+  updateResultCamera(dt:number) {
+    const w=this.world,s=this.resultCamera,motion=this.resultMotion;
+    if(this.resultRequest!==w.outcome.cameraRequest) {
+      this.resultRequest=w.outcome.cameraRequest;
+      if(!s.active)this.resultView={...nativePosition(w,this.viewPoint),angle:Math.round(this.cameraBearing*1024/Math.PI)&2047};
+      // ponytail: first-mission tribe origins and no replay file mode; the
+      // shared native tribe/camera store replaces this presentation adapter.
+      beginResultCamera(s,w.manaWorld.gameFlags,0,this.resultView,nativePosition(w,w.outcome.cameraTribe===0?HOME:ENEMY));
+    }
+    const active=!!(s.active||motion.active);
+    // Use the existing 24 Hz presentation convention until draw_main's frame
+    // throttling and its shared camera/flyby ordering are fully integrated.
+    if(!w.paused){
+      this.resultTime+=dt;
+      while(this.resultTime>=1/24){
+        const context={skyCounter:w.outcome.skyCounter,newTurn:this.resultTurn!==w.turn};this.resultTurn=w.turn;
+        stepResultCamera(s,motion,this.resultView,context,{
+          lock:()=>{w.inputMask|=4;this.keys.clear();},unlock:()=>{w.inputMask&=~4;},
+          clearInteraction:()=>{
+            if(w.flyby.flags&1){w.flyby.flags&=~1;this.flybyCamera.zoom=0;this.viewZoom=0;w.inputMask&=~64;this.wasFlying=false;}
+            w.mode=null;this.tooltip.draw=0;
+          },
+          sound:()=>sound(w,0xa2,browserPosition(this.resultView)),
+        });
+        w.outcome.skyCounter=context.skyCounter;
+        stepCameraMotion(motion,this.resultView,this.overviewActive?2:0,{rotate:()=>{},globe:()=>{}});
+        this.resultTime-=1/24;
+      }
+    }
+    w.outcome.cameraPlaying=!!s.active;
+    if(active){this.overviewActive=false;this.controls.enabled=false;this.viewPoint=browserPosition(this.resultView);this.cameraBearing=this.resultView.angle*Math.PI/1024;this.updateView();}
+    return active;
+  }
   updateFlyby(dt: number) {
     const state = this.world.flyby, active = !!(state.flags & 1);
     this.controls.enabled = this.overviewActive&&!this.world.inputMask;
@@ -405,7 +445,7 @@ export class GameScene {
   playWorldSounds(){
     for(const event of this.world.sounds)if(event.serial>this.soundSerial){
       this.soundSerial=event.serial;
-      if(event.cue===0xe3){this.onSound(event.cue,1,0);continue;} // Native notification cue is not positional.
+      if(event.cue===0xe3||event.cue===0xa2){this.onSound(event.cue,1,0);continue;} // Native notification and defeat-sky cues are not positional.
       const dx=Math.round((event.x-this.viewPoint.x)*256),dz=Math.round((event.z-this.viewPoint.z)*256);
       const screen=this.screen(event);
       // Native distance curve and projected pan; the full native mixer is still unported.
@@ -420,7 +460,7 @@ export class GameScene {
     const movingX = Number(this.keys.has('d') || this.keys.has('arrowright')) - Number(this.keys.has('a') || this.keys.has('arrowleft'));
     const movingZ = Number(this.keys.has('s') || this.keys.has('arrowdown')) - Number(this.keys.has('w') || this.keys.has('arrowup'));
     if(!this.world.inputMask&&!this.overviewActive){this.pan(movingX*dt*20,movingZ*dt*20);this.cameraBearing+=(Number(this.keys.has('e'))-Number(this.keys.has('q')))*dt;}
-    if(!this.updateFlyby(dt)){if(this.overviewActive)this.controls.update();this.orientCamera();}
+    if(!this.updateResultCamera(dt)&&!this.updateFlyby(dt)){if(this.overviewActive)this.controls.update();this.orientCamera();}
     this.renderTooltip();
     for (const [id, g] of this.unitMeshes) if (!this.world.units.some(u => u.id === id)) { this.objects.remove(g); this.releaseGroup(g); this.unitMeshes.delete(id); }
     for (const u of this.world.units) {

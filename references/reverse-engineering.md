@@ -2240,3 +2240,53 @@ The browser's opaque result overlay, native end-camera movement, celebration
 person states, sky/debris effects and persistent progression remain unfinished.
 The manifest now verifies **541** raw exports.
 Typecheck/build pass; lint has seven existing image warnings and zero errors.
+
+
+## Native result-camera movement
+
+`app/camera-motion.ts` reconstructs `00417d80` (planning), `00418270`
+(movement), `0041b610` (result initiation) and `0041b6d0` (controller).
+The ramps come from the executable's `0059bbd0` / `0059bbd8` tables through
+`inspect-executable.py`. The port retains signed-short arithmetic, native
+wrapped distance and angle helpers, four acceleration frames, eleven braking
+rows, synchronized translation/rotation, replanning and draw-mode-2 snapping.
+It preserves the planner's retained overshoot sums rather than smoothing them.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-camera-motion.py /path/to/d3dpoptb.exe
+```
+
+The oracle compares **256 journeys**, **291 plans** and **7,921 complete
+movement calls**, including seam crossings, tiny distances, half-world routes,
+rotation boundaries, interrupted routes, instant completion and inactive calls.
+The original distance, angle and sine movement routines execute unchanged;
+only the globe-update consumer is supplied. All motion fields, schedules,
+positions, angles, render flags, water invalidation and callback ordering match.
+A second batch compares **256 result initiations** and **12,288 composed
+controller/movement frames**, with the actual planner and movement bodies.
+It covers overlapping requests, game/replay gates, return phases, input
+lock/unlock, interaction-clear requests and sky-counter sound timing. Input,
+interaction and sound consumers are supplied at their native call boundaries.
+
+The controller runs before movement in `draw_main`. Phase 0 finishes into
+phase 3; it does **not** automatically introduce a dwell or return. Phases 1/2
+handle an externally requested return. Sky-counter decrements do not depend on
+a simulation turn; cue `0xa2` fires at 16-step boundaries, including zero.
+
+The live scene now consumes outcome-camera requests, moves to the defeated
+tribe's opening origin, preserves bearing and locks input during playback.
+It cancels an active introduction and clears the interaction mode. The existing
+result overlay waits until playback finishes, while simulation and settlement
+collapse continue. Defeat-sky sounds use the existing non-positional audio path.
+Playwright verified both victory and loss: intermediate movement, exact target,
+input release, two sky sounds, delayed result UI, continued turns and clean
+restart, with no page errors. All **48** regressions and typechecking pass.
+
+Integration boundaries remain explicit: this uses the existing **24 Hz** browser
+presentation clock, first-mission origin adapter and no replay-file mode. The
+full native frame throttle, shared camera/flyby ordering, renderer invalidation
+store, sky visuals, celebration person states, debris and campaign progression
+are unfinished. The result overlay is still a browser substitute. This extends
+the previous result-camera investigation; it does not establish full end-sequence
+or camera parity. The manifest verifies **544** raw exports, adding movement,
+generic camera-request and interaction-cleanup routines.
