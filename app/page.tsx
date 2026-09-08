@@ -121,7 +121,7 @@ export default function Home() {
       if (e.key.toLowerCase() === 'h') select(world, 'shaman')
       if (e.key.toLowerCase() === 'f') {
         const u = world.units.find(u => world.selected.includes(u.id))
-        engine.current?.focus(u ?? HOME)
+        engine.current?.focus(u ?? HOME, { animate: true })
       }
       if (e.key.toLowerCase() === 'b') {
         setTab('buildings')
@@ -345,7 +345,7 @@ export default function Home() {
             title="Shaman · H"
             onClick={() => {
               choose('shaman')
-              engine.current?.focus(shaman ?? HOME)
+              engine.current?.focus(shaman ?? HOME, { animate: true })
             }}
           >
             <img src="/original/portrait.png" alt="" />
@@ -374,7 +374,7 @@ export default function Home() {
             aria-label="Focus Dakini tribe"
             onClick={() => {
               const u = red.find(u => u.kind === 'shaman') ?? red[0]
-              if (u) engine.current?.focus(u)
+              if (u) engine.current?.focus(u, { animate: true })
             }}
           />
           <span className="tribe-flag chumara" />
@@ -674,7 +674,9 @@ export default function Home() {
           </button>
           <button onClick={() => engine.current?.zoom(0.82)}>Zoom in</button>
           <button onClick={() => engine.current?.zoom(1.22)}>Zoom out</button>
-          <button onClick={() => engine.current?.focus(HOME)}>Focus settlement</button>
+          <button onClick={() => engine.current?.focus(HOME, { animate: true })}>
+            Focus settlement
+          </button>
         </div>
         <h3>Your powers, at a glance</h3>
         <div className="help-grid">

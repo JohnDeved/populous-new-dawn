@@ -119,3 +119,40 @@ for i,(a,b) in enumerate(zip(expected,actual)):
                 p=Path('/private/tmp/populous-result-camera-failure.json');p.write_text(json.dumps(dict(case=cases[i],frame=frame,native=x,browser=y),indent=2));raise AssertionError((i,frame,str(p)))
         raise AssertionError(('length',i,len(a),len(b)))
 print(f'PASS: 256 native result-camera initiations and {result_frames:,} composed controller/movement frames, including return/lockout/sky sound paths')
+
+# Complete 0x417ca0 focus requests, retaining the real planner and movement.
+# Immediate, duplicate, retargeted and wrapped requests share the same state.
+cases=[];expected=[]
+for i in range(256):
+    cpu.mem_write(0x89bbff,bytes(31));cpu.mem_write(0x5fe250,bytes(96))
+    c=dict(x=rng.randrange(65536),y=rng.randrange(65536),angle=rng.randrange(2048))
+    write(0x89d1ec,'HH',c['x'],c['y']);write(0x89d1fa,'h',c['angle'])
+    write(0x89c6f0,'b',0);write(0x87ca1c,'I',256);write(0x5d45d8,'B',0);events=[]
+    commands=[];states=[]
+    target=dict(x=rng.randrange(65536),y=rng.randrange(65536),angle=c['angle'] if i&1 else -1)
+    for step in range(24):
+        if step in (0,1,7,14):
+            if step==7:target=dict(x=(target['x']+32769)&65535,y=(target['y']-32769)&65535,angle=rng.choice([-1,0,2047]))
+            immediate=step==14 or (step==0 and i%3==0)
+            commands.append(dict(target=target.copy(),immediate=immediate))
+            write(point,'HH',target['x'],target['y']);call(0x417ca0,point,target['angle'],int(immediate))
+        else:
+            commands.append(dict(drawMode=0));write(0x89c6c1,'h',0);call(0x418270)
+        states.append(snapshot())
+    cases.append(dict(camera=c,commands=commands));expected.append(states)
+js="""import {createCameraMotion,requestCameraFocus,stepCameraMotion} from './app/camera-motion.ts';
+let input='';for await(const c of process.stdin)input+=c;
+console.log(JSON.stringify(JSON.parse(input).map(c=>{
+ const s=createCameraMotion(),camera=c.camera,events=[];let renderFlags=256,waterDirty=0;
+ const effects={rotate:()=>{renderFlags|=128},globe:()=>{events.push({...camera});waterDirty=1}};
+ return c.commands.map(cmd=>{
+  if(cmd.target){if(requestCameraFocus(s,camera,cmd.target,cmd.immediate))effects.globe();events.push('clear')}
+  else stepCameraMotion(s,camera,cmd.drawMode,effects);
+  return structuredClone({state:s,camera,renderFlags,waterDirty,events});
+ });
+})));"""
+r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
+actual=json.loads(r.stdout)
+for i,(a,b) in enumerate(zip(expected,actual)):
+    for frame,(x,y) in enumerate(zip(a,b)):assert x==y,('focus',i,frame,x,y)
+print('PASS: 1,024 complete native focus requests and 5,120 subsequent movement steps (immediate, duplicate, retargeted and wrapped)')

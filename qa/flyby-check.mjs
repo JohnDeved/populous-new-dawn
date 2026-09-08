@@ -12,19 +12,27 @@ try {
  await page.getByRole('tooltip').filter({hasText:'Dakini Warrior Training Hut.'}).waitFor({timeout:12000});
  await page.screenshot({path:'qa/opening-flyby.png'});
  await page.getByRole('button',{name:'Pause game',exact:true}).click();
- const label=page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true,includeHidden:true});
- const tooltipBefore=await tooltip.boundingBox();const before=await label.boundingBox();await page.waitForTimeout(400);assert.deepEqual(await label.boundingBox(),before,'pause holds the flyby camera');assert.deepEqual(await tooltip.boundingBox(),tooltipBefore,'pause holds the tooltip');
+ const snapshot=()=>page.evaluate(()=>{
+  const main=document.querySelector('main');let fiber=main[Object.keys(main).find(k=>k.startsWith('__reactFiber'))];
+  for(;fiber;fiber=fiber.return)for(let hook=fiber.memoizedState;hook;hook=hook.next)
+   if(hook.memoizedState?.current?.unitMeshes){
+    const scene=hook.memoizedState.current,w=scene.world;
+    return {camera:{...scene.flybyCamera},inputMask:w.inputMask,selected:[...w.selected],braves:w.units.filter(u=>u.team==='blue'&&u.kind==='brave').map(u=>u.id)};
+   }
+  throw Error('Missing game scene');
+ });
+ const tooltipBefore=await tooltip.boundingBox();const before=await snapshot();await page.waitForTimeout(400);assert.deepEqual(await snapshot(),before,'pause holds the flyby camera');assert.deepEqual(await tooltip.boundingBox(),tooltipBefore,'pause holds the tooltip');
  await page.getByRole('button',{name:'Resume game',exact:true}).click();
  await tooltip.filter({hasText:'Vault of Knowledge:'}).waitFor({timeout:12000});await page.screenshot({path:'qa/opening-vault-tooltip.png'});
  await tooltip.filter({hasText:'Stone Head:'}).waitFor({timeout:12000});await page.screenshot({path:'qa/opening-head-tooltip.png'});
  await skip.waitFor({state:'hidden',timeout:15000});assert.ok(await tooltip.isHidden(),'last tooltip expires before natural completion');
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();
- assert.match(await page.getByRole('button',{name:'Select all braves',exact:true}).getAttribute('class'),/selected/,'natural completion releases gameplay controls');
+ const completed=await snapshot();assert.equal(completed.inputMask,0);assert.deepEqual(completed.selected,completed.braves,'natural completion releases gameplay controls');
  await page.screenshot({path:'qa/opening-complete.png'});
  await page.getByRole('button',{name:'Menu',exact:true}).click();await page.getByRole('button',{name:'Restart world',exact:true}).click();
  await skip.waitFor({timeout:15000});await page.waitForTimeout(1000);
  await page.keyboard.press('Escape');await skip.waitFor({state:'hidden',timeout:5000});
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();
- assert.match(await page.getByRole('button',{name:'Select all braves',exact:true}).getAttribute('class'),/selected/,'interruption releases gameplay controls');
+ const interrupted=await snapshot();assert.equal(interrupted.inputMask,0);assert.deepEqual(interrupted.selected,interrupted.braves,'interruption releases gameplay controls');
  assert.deepEqual(errors,[]);console.log('PASS: opening narration, three original tooltips, pause, natural completion, restart and keyboard interruption');
 } finally {await browser.close();}

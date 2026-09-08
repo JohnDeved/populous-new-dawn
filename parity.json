@@ -72,9 +72,12 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-camera-motion.py",
-            "scripts/check-native-projection.py"
+            "scripts/check-native-projection.py",
+            "app/camera-motion.ts",
+            "scripts/check-browser-camera-focus.mjs",
+            "qa/flyby-check.mjs"
           ],
-          "note": "Remaining camera input/scheduling and visibility differences need comparison."
+          "note": "Original focus requests/planner/mover now drive real portrait/tribe/F/minimap journeys, preserving heading and zoom. Native request/retarget/wrap checks and browser input/takeover/pause/overview regressions pass. Full input speeds, native frame scheduling, minimap mapping, overview transitions and visibility remain incomplete."
         },
         {
           "id": "world.wrap",

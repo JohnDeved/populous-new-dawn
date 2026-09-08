@@ -2018,3 +2018,43 @@ at scaled texel boundaries; it does not certify bit-identical scaled rasterizati
 A deliberate wrong-atlas UV mutation was rejected by this check. Existing live
 selection and real Blast shadow/landing checks also pass. Broader animation-state
 ownership and all original tribes/classes are not certified by these fixtures.
+
+
+## Focus commands preserve the current camera
+
+The live minimap, shaman portrait, tribe flag and F/settlement focus commands now
+use `00417ca0` through `requestCameraFocus`, then the existing `00417d80` planner
+and `00418270` mover. The negative target angle preserves heading. Focus does not
+reset the camera's zoom: neither request branch writes the view configuration.
+The immediate branch is retained for initial view setup; ordinary UI commands
+request the original acceleration/cruise/braking journey. Duplicate requests,
+retargeting and 16-bit wrap use the same motion state as result-camera sequences.
+
+`0047c350` records a selected-person focus path with angle -1 and immediate=0;
+`004aab80` case 0x59 and `0047b460` record other ordinary focus requests. The
+mouse-control routine `004adbb0` cancels camera motion when drag modes take over.
+Only these reviewed branches are evidence; complete modal/command routing is
+not reconstructed by the browser's current control bindings. The exported
+`00418950`, `00417510`, `00417b70`, `00417c40` are reference for remaining native
+view-mode/zoom/turn transitions, not new port-completion claims.
+
+`scripts/check-native-camera-motion.py EXE` now adds 1,024 complete focus requests
+and 5,120 subsequent motion steps. The original request/planner/mover execute;
+globe refresh and interaction-cleanup calls are intercepted. Camera fields, every
+motion-planner field, render flags, water invalidation and consumer event order
+match immediate, duplicate and retargeted/wrapped requests. Existing 256 journeys
+(7,921 steps), 256 result initiations and 12,288 composed result-controller frames
+also pass after simplifying the readable TS planner's thresholds and counters.
+
+`node scripts/check-browser-camera-focus.mjs` exercises real portrait/tribe/F and
+minimap controls. It checks intermediate motion, preserved heading/zoom, target
+arrival, retargeting, spell-target cleanup, keyboard/mouse takeover, paused and
+world-seam travel, and Enter during a journey. Shared scene motion fields were
+renamed from result-only names. Camera keys remain usable with a HUD button
+focused, while editable controls and dialogs retain their keyboard behavior.
+
+Presentation still uses the existing 24 Hz adapter. Full native frame throttling,
+keyboard/edge-scroll speed, command/modal ownership, minimap coordinates/coverage
+and overview projection/transitions remain unfinished. Flyby regression selectors
+were updated to inspect the current camera and follower selection; removed world
+buttons and old selected CSS classes are no longer treated as the UI contract.

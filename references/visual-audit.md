@@ -205,3 +205,18 @@ Inspected `/private/tmp/populous-model-highlight.png` over the opening stone hea
 pixels, 5,387 pixels versus ordinary lighting, real press/release, spell targeting,
 canvas exit, ownership/construction gates and camera movement beneath an unmoving
 pointer. Full native picking/modal ownership and other colored effects remain open.
+
+
+### Focus travel and view preservation
+
+The focus/minimap handler was jumping to its target and forcing rotation/zoom to
+zero. Native `00417ca0` requests a planned journey with angle -1 for ordinary
+focus; neither request branch resets zoom. The live controls now share the native
+camera planner/mover already used for result sequences, including toroidal wrap.
+Inspected `/private/tmp/populous-camera-focus-moving.png` and
+`/private/tmp/populous-camera-focus-arrived.png` after rotating/zooming the opening
+view and clicking the Dakini flag. The view travels through intermediate points
+and retains its settings. Reproduce with `node scripts/check-browser-camera-focus.mjs`.
+The original opening tour still completes, pauses and restarts through current UI.
+Native keyboard/edge-scroll speeds, full minimap mapping and globe transitions
+remain separate visible-control gaps; this is not complete camera parity.

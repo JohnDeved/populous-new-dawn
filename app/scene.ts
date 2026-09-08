@@ -6,6 +6,7 @@ import { soundAttenuation } from './audio'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
 import {
   createCameraMotion,
+  requestCameraFocus,
   createResultCamera,
   beginResultCamera,
   stepResultCamera,
@@ -354,10 +355,10 @@ export class GameScene {
   flybyTime = 0
   wasFlying = false
   resultCamera = createResultCamera()
-  resultMotion = createCameraMotion()
-  resultView = { x: 0, y: 0, angle: 0 }
+  cameraMotion = createCameraMotion()
+  cameraPosition = { x: 0, y: 0, angle: 0 }
   resultRequest = 0
-  resultTime = 0
+  cameraTime = 0
   resultTurn = 0
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
@@ -592,10 +593,13 @@ export class GameScene {
       if (this.world.inputMask) return
       const p = e as PointerEvent,
         rect = minimap.getBoundingClientRect()
-      this.focus({
-        x: ((p.clientX - rect.left) / rect.width) * SIZE - 48,
-        z: ((p.clientY - rect.top) / rect.height) * SIZE - 48,
-      })
+      this.focus(
+        {
+          x: ((p.clientX - rect.left) / rect.width) * SIZE - 48,
+          z: ((p.clientY - rect.top) / rect.height) * SIZE - 48,
+        },
+        { animate: true }
+      )
     })
     this.frame = requestAnimationFrame(this.animate)
   }
@@ -1029,6 +1033,7 @@ export class GameScene {
     ) {
       const dx = event.clientX - this.dragLast.x,
         dy = event.clientY - this.dragLast.y
+      if (dx || dy) this.cameraMotion.active = 0
       if (event.buttons === 2) {
         this.cameraBearing += dx * 0.008
         this.pan(0, dy * 0.06)
@@ -1130,17 +1135,20 @@ export class GameScene {
     this.onChange()
   }) as EventListener
   keyDown = ((event: KeyboardEvent) => {
-    if (this.world.inputMask) return
+    const key = event.key.toLowerCase()
     if (
-      (event.target as HTMLElement).closest('button,input,dialog,a') ||
+      this.world.inputMask ||
+      !['w', 'a', 's', 'd', 'q', 'e', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(
+        key
+      ) ||
+      (event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]') ||
       event.ctrlKey ||
       event.metaKey ||
       event.altKey
     )
       return
-    this.keys.add(event.key.toLowerCase())
-    if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key))
-      event.preventDefault()
+    this.keys.add(key)
+    event.preventDefault()
   }) as EventListener
   orientCamera() {
     if (this.overviewActive) {
@@ -1150,6 +1158,7 @@ export class GameScene {
     this.updateView()
   }
   pan(x: number, z: number) {
+    if (x || z) this.cameraMotion.active = 0
     const a = this.cameraBearing
     this.viewPoint = {
       x: this.viewPoint.x + x * Math.cos(a) + z * Math.sin(a),
@@ -1163,14 +1172,14 @@ export class GameScene {
     if (!(this.world.flyby.flags & 1)) this.world.inputMask &= ~64
     this.onChange()
   }
-  updateResultCamera(dt: number) {
+  updateCameraMotion(dt: number) {
     const w = this.world,
       s = this.resultCamera,
-      motion = this.resultMotion
+      motion = this.cameraMotion
     if (this.resultRequest !== w.outcome.cameraRequest) {
       this.resultRequest = w.outcome.cameraRequest
       if (!s.active)
-        this.resultView = {
+        this.cameraPosition = {
           ...nativePosition(w, this.viewPoint),
           angle: Math.round((this.cameraBearing * 1024) / Math.PI) & 2047,
         }
@@ -1180,19 +1189,19 @@ export class GameScene {
         s,
         w.manaWorld.gameFlags,
         0,
-        this.resultView,
+        this.cameraPosition,
         nativePosition(w, w.outcome.cameraTribe === 0 ? HOME : ENEMY)
       )
     }
     const active = !!(s.active || motion.active)
     // Use the existing 24 Hz presentation convention until draw_main's frame
     // throttling and its shared camera/flyby ordering are fully integrated.
-    if (!w.paused) {
-      this.resultTime += dt
-      while (this.resultTime >= 1 / 24) {
+    if (!w.paused || (motion.active && !s.active)) {
+      this.cameraTime += dt
+      while (this.cameraTime >= 1 / 24) {
         const context = { skyCounter: w.outcome.skyCounter, newTurn: this.resultTurn !== w.turn }
         this.resultTurn = w.turn
-        stepResultCamera(s, motion, this.resultView, context, {
+        stepResultCamera(s, motion, this.cameraPosition, context, {
           lock: () => {
             w.inputMask |= 4
             this.keys.clear()
@@ -1211,22 +1220,24 @@ export class GameScene {
             w.mode = null
             this.tooltip.draw = 0
           },
-          sound: () => sound(w, 0xa2, browserPosition(this.resultView)),
+          sound: () => sound(w, 0xa2, browserPosition(this.cameraPosition)),
         })
         w.outcome.skyCounter = context.skyCounter
-        stepCameraMotion(motion, this.resultView, this.overviewActive ? 2 : 0, {
+        stepCameraMotion(motion, this.cameraPosition, this.overviewActive ? 2 : 0, {
           rotate: () => {},
           globe: () => {},
         })
-        this.resultTime -= 1 / 24
+        this.cameraTime -= 1 / 24
       }
     }
     w.outcome.cameraPlaying = !!s.active
     if (active) {
-      this.overviewActive = false
-      this.controls.enabled = false
-      this.viewPoint = browserPosition(this.resultView)
-      this.cameraBearing = (this.resultView.angle * Math.PI) / 1024
+      if (s.active) {
+        this.overviewActive = false
+        this.controls.enabled = false
+      }
+      this.viewPoint = browserPosition(this.cameraPosition)
+      this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
       this.updateView()
     }
     return active
@@ -1303,13 +1314,29 @@ export class GameScene {
     element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
     element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
   }
-  focus(p: Point = HOME) {
+  focus(p: Point = HOME, { animate = false } = {}) {
+    if (animate && this.world.inputMask) return
     this.overviewActive = false
     this.controls.enabled = false
-    this.cameraBearing = 0
-    this.viewZoom = 0
-    this.viewPoint = { ...p }
-    this.updateView()
+    this.cameraPosition = {
+      ...nativePosition(this.world, this.viewPoint),
+      angle: Math.round((this.cameraBearing * 1024) / Math.PI) & 2047,
+    }
+    requestCameraFocus(
+      this.cameraMotion,
+      this.cameraPosition,
+      {
+        ...nativePosition(this.world, p),
+        angle: -1,
+      },
+      !animate
+    )
+    this.world.mode = null
+    this.tooltip.draw = 0
+    if (!animate) {
+      this.viewPoint = browserPosition(this.cameraPosition)
+      this.updateView()
+    }
   }
   overview() {
     this.overviewActive = true
@@ -1803,9 +1830,11 @@ export class GameScene {
       Number(this.keys.has('w') || this.keys.has('arrowup'))
     if (!this.world.inputMask && !this.overviewActive) {
       this.pan(movingX * dt * 20, movingZ * dt * 20)
-      this.cameraBearing += (Number(this.keys.has('e')) - Number(this.keys.has('q'))) * dt
+      const turn = Number(this.keys.has('e')) - Number(this.keys.has('q'))
+      if (turn) this.cameraMotion.active = 0
+      this.cameraBearing += turn * dt
     }
-    if (!this.updateResultCamera(dt) && !this.updateFlyby(dt)) {
+    if (!this.updateCameraMotion(dt) && !this.updateFlyby(dt)) {
       if (this.overviewActive) this.controls.update()
       this.orientCamera()
     }

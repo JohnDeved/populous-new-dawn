@@ -16,8 +16,12 @@ const angleDirection = (a: number, b: number) => {
   return Math.sign(d)
 }
 
-export type CameraPosition = { x: number; y: number; angle: number }
-export type CameraMotion = {
+export interface CameraPosition {
+  x: number
+  y: number
+  angle: number
+}
+export interface CameraMotion {
   active: number
   target: CameraPosition
   source: CameraPosition
@@ -56,7 +60,7 @@ export const createCameraMotion = (): CameraMotion => ({
   turns: Array.from({ length: 11 }, () => [0, 0]),
 })
 
-export type ResultCamera = {
+export interface ResultCamera {
   active: number
   phase: number
   counter: number
@@ -137,6 +141,30 @@ export function stepResultCamera(
   }
 }
 
+// 0x417ca0. The caller clears command/hover state after every request.
+// True means an immediate jump needs globe/water refresh.
+export function requestCameraFocus(
+  s: CameraMotion,
+  camera: CameraPosition,
+  target: CameraPosition,
+  immediate = false
+) {
+  const x = target.x & 65535,
+    y = target.y & 65535,
+    angle = short(target.angle)
+  if (!immediate && s.active && s.target.x === x && s.target.y === y && s.target.angle === angle)
+    return false
+  s.active = 0
+  if (!immediate) {
+    planCameraMotion(s, camera, { x, y, angle })
+    return false
+  }
+  camera.x = x
+  camera.y = y
+  if (angle >= 0) camera.angle = angle
+  return true
+}
+
 // 0x417d80. Preserve its final ramp sums, including the overshoot retained
 // when synchronizing translation/rotation cruise lengths.
 export function planCameraMotion(s: CameraMotion, camera: CameraPosition, target: CameraPosition) {
@@ -147,7 +175,7 @@ export function planCameraMotion(s: CameraMotion, camera: CameraPosition, target
     y: target.y & 65535,
     angle: short(target.angle) < 0 ? short(camera.angle) : short(target.angle),
   }
-  const distance = positionDistance(s.source, s.target),
+  const moveDistance = positionDistance(s.source, s.target),
     angle = angleDistance(s.target.angle, camera.angle),
     direction = angleDirection(s.target.angle, camera.angle)
   const plan = (distance: number, speed: number, step: number) => {
@@ -167,11 +195,11 @@ export function planCameraMotion(s: CameraMotion, camera: CameraPosition, target
       cruise: speed ? Math.trunc((distance - start - end) / speed) : 0,
     }
   }
-  const move = plan(
-      distance,
-      distance <= 2048 ? 256 : distance <= 6144 ? 768 : distance <= 14336 ? 1536 : 2048,
-      16
-    ),
+  let moveSpeed = 256
+  if (moveDistance > 2048) moveSpeed = 768
+  if (moveDistance > 6144) moveSpeed = 1536
+  if (moveDistance > 14336) moveSpeed = 2048
+  const move = plan(moveDistance, moveSpeed, 16),
     turn = plan(angle, 91, 4)
   const duration = Math.max(move.cruise, turn.cruise)
   for (const axis of [move, turn])
@@ -227,7 +255,7 @@ export function stepCameraMotion(
     } else if (s.phase === 1) {
       if (s.frame === 0) {
         const schedule = (
-          distance: number,
+          remainingDistance: number,
           speed: number,
           remaining: number,
           min: number,
@@ -237,29 +265,31 @@ export function stepCameraMotion(
             if (!speed) return [0, 0]
             const step = Math.max(min, scaled(r, Math.abs(speed)))
             let count = 0
-            while (distance > 0 && step <= distance - remaining) {
+            while (remainingDistance > 0 && step <= remainingDistance - remaining) {
               count = short(count + 1)
-              distance -= step
+              remainingDistance -= step
             }
             remaining -= step
             return [short(step * sign), count]
           })
         s.moves = schedule(distance, s.moveSpeed, s.moveDown, 4, 1)
         s.turns = schedule(angle, s.turnSpeed, Math.abs(s.turnDown), 2, direction)
-        s.moveIndex = s.turnIndex = s.moveCount = s.turnCount = 0
+        Object.assign(s, { moveIndex: 0, turnIndex: 0, moveCount: 0, turnCount: 0 })
       }
       s.frame = (s.frame + 1) & 255
       while (!s.moves[s.moveIndex][1] && s.moveIndex < 10) s.moveIndex++
       s.moveCount = (s.moveCount + 1) & 255
-      move = s.moves[s.moveIndex][0]
-      if (s.moves[s.moveIndex][1] <= s.moveCount) {
+      const [moveStep, moveRepeats] = s.moves[s.moveIndex]
+      move = moveStep
+      if (moveRepeats <= s.moveCount) {
         s.moveCount = 0
         if (s.moveIndex < 10) s.moveIndex++
       }
       while (!s.turns[s.turnIndex][1] && s.turnIndex < 10) s.turnIndex++
       s.turnCount = (s.turnCount + 1) & 255
-      turn = s.turns[s.turnIndex][0]
-      if (s.turns[s.turnIndex][1] <= s.turnCount) {
+      const [turnStep, turnRepeats] = s.turns[s.turnIndex]
+      turn = turnStep
+      if (turnRepeats <= s.turnCount) {
         s.turnCount = 0
         if (s.turnIndex < 10) s.turnIndex++
       }
