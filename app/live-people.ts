@@ -8,16 +8,16 @@ import {buildingApproachPoint,buildingOutsidePoint} from './building-shapes.ts';
 import {personStepCollision,buildingBlocksPerson,type CollisionWorld,type CollisionObject} from './person-collision.ts';
 import {limitPersonVelocity} from './person-physics.ts';
 import {terrainPointHeight} from './native-terrain.ts';
+import {insertObjectIntoCell,removeObjectFromCell,moveObjectInCells,objectsInCell,type CellObject} from './object-cells.ts';
 import {positionDistance,random} from './native-math.ts';
 import rules from './original-rules.json' with {type:'json'};
 import sprites from './original-units.json' with {type:'json'};
 
-export type LivePerson=StatefulPerson & Celebrant & Animation & RecoveryPerson & {
+export type LivePerson=StatefulPerson & Celebrant & Animation & RecoveryPerson & CellObject & {
   stamp:number;morphTimer:number;morphFrames:number;building:number|null;goalX:number;goalY:number;destinationX:number;destinationY:number;
   motionGroup:number;motionIndex:number;
 };
 const short=(n:number)=>(n<<16)>>16;
-const cell=(p:Celebrant)=>((p.x>>>8)&254)|(p.y&0xfe00);
 
 // Bootstrap the existing browser follower at the handoff to native state 41.
 // Legacy orders/physics are not native records; their full migration is pending.
@@ -32,13 +32,29 @@ export function createLivePerson(w:World,u:Unit):LivePerson{
     animationMode:0,commandAux:0,commandPhase:0,object:0,draw:0,morph:0,palette:0,renderFlags:0,f1:0,f2:0,stamp:0,morphTimer:0,morphFrames:0,
     statusFlags:0,workFlags:0,reservationNext:0,formationCell:0,motionTimer:0,motionMode:0,motionGroup:0,motionIndex:0,recoveryCounter:0,supportHeight:0,
     selectionFlags:selected?128:0,commands:Array(8).fill(0),commandCursor:0,immediateCommand:0,
-    orderLocation:0,commandStatus:0,workTarget:0};
+    orderLocation:0,commandStatus:0,workTarget:0,cellNext:0,cellPrevious:0,displacement:{x:0,y:0,h:0}};
+}
+
+// Legacy allocation/deletion and spell movement still own ordinary units.
+// Reconcile that boundary; native movement then maintains persistent cell order.
+// ponytail: victory bootstrap supplies initial order; full native allocation
+// must establish membership for ordinary units and the remaining object classes.
+export function syncLivePersonCells(w:World){
+  const people=new Map(w.units.filter(u=>u.native&&u.hp>0).map(u=>[u.id,u.native!]));
+  for(const [id,p] of w.objectCells.objects)if(people.get(id)!==p){removeObjectFromCell(w.objectCells,p);w.objectCells.objects.delete(id);}
+  for(const u of w.units){
+    const p=people.get(u.id);if(!p)continue;
+    if(!w.objectCells.objects.has(p.id)){w.objectCells.objects.set(p.id,p);insertObjectIntoCell(w.objectCells,p,p);}
+    const to=nativePosition(w,u);to.x&=65535;to.y&=65535;
+    if(to.x!==p.x||to.y!==p.y||to.h!==p.h)moveObjectInCells(w.objectCells,p,to);
+  }
+  return people;
 }
 
 function context(w:World){
-  const people=new Map(w.units.filter(u=>u.native&&u.hp>0).map(u=>[u.id,u.native!]));
+  const people=syncLivePersonCells(w);
   const state={randomState:w.randomState,people,shamans:w.manaTribes.map((_,i)=>w.units.find(u=>u.hp>0&&u.kind==='shaman'&&u.team===(i===0?'blue':i===1?'red':null))?.id??0),
-    cellPeople:(c:number)=>[...people.values()].filter(p=>cell(p)===c)};
+    cellPeople:(c:number)=>[...objectsInCell(w.objectCells,c)].map(p=>people.get(p.id)!)};
   const animationWorld={playerTribe:w.manaWorld.playerTribe,gameFlags:w.manaWorld.gameFlags,sessionSubstate:null,
     tribes:w.manaTribes.map((t,i)=>({flags:w.castingTribes[i].flags,playerType:t.playerType})),objects:new Map()};
   const releaseMotion=(p:LivePerson)=>{
@@ -68,7 +84,7 @@ function context(w:World){
     leaveBuilding:person=>{
       const p=person as LivePerson,u=w.units.find(u=>u.id===p.id)!,b=w.buildings.find(b=>b.id===p.building);
       // Reuse the native entrance adapter; occupant linked-list migration remains.
-      if(b){Object.assign(u,entrance(w,b,4));const pos=nativePosition(w,u);p.x=pos.x&65535;p.y=pos.y&65535;p.h=pos.h;}
+      if(b){Object.assign(u,entrance(w,b,4));moveObjectInCells(w.objectCells,p,nativePosition(w,u));}
       p.building=null;u.inside=null;p.flags2=(p.flags2&~0x800000)>>>0;
     },
     projectile:()=>{throw new Error('Live firewarriors are not yet implemented');},
@@ -98,9 +114,8 @@ function collisionWorld(w:World):CollisionWorld{
 }
 
 export function stepLiveCelebration(w:World,u:Unit){
+  const {state,effects}=context(w);
   const p=u.native!;p.counter=(p.counter+1)&255;
-  // External spell impulses still move the legacy unit; reconcile that handoff.
-  const position=nativePosition(w,u);p.x=position.x&65535;p.y=position.y&65535;p.h=position.h;
   const turning=turnPerson(p); // Native class-1 motion precedes its state controller.
   if(p.speed&&!(p.flags2&0x84000)){
     const terrain=(x:number,y:number)=>terrainPointHeight(w.land,{x,y});
@@ -124,9 +139,9 @@ export function stepLiveCelebration(w:World,u:Unit){
       else recoverGroundObstacle(p,next,!!building,terrain,blocked);
       // Native failed-recovery airborne dispatch remains in the physics work.
     }
-    p.x=next.x;p.y=next.y;p.h=next.h;Object.assign(u,browserPosition(next));
+    moveObjectInCells(w.objectCells,p,next);Object.assign(u,browserPosition(next));
   }
-  const {state,effects}=context(w);stepCelebration(state,p,effects);w.randomState=state.randomState;
+  stepCelebration(state,p,effects);w.randomState=state.randomState;
   u.heading=Math.PI-p.angle*Math.PI/1024;u.cargo=p.cargo/100;
   // Presentation remains grounded on the same resampled surface as other units.
   p.h=short(Math.round(height(w.terrain,u.x,u.z)*45));

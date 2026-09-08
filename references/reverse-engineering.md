@@ -2811,3 +2811,57 @@ original atlas frames, pause, circles/chains, registered-footprint detours and
 restart pass without page errors. Lint reports zero errors and the same seven
 existing image warnings. The export checker verifies all 582 manifests/entries
 against the supplied executable identity and rejects unknown builds.
+
+
+## 2026-09-08 — native cell lists and live neighbor ordering
+
+Reconstructed all of `004ee470` (insert), `004ee4f0` (remove), and `004ee580`
+(move) in `app/object-cells.ts`. These are doubly linked lists indexed by native
+16-bit object IDs. Insertions prepend and set flags2 bit `0x20000`; removals
+splice both neighbors and clear that flag while retaining the removed record's
+own links. Motion changes lists only when either 512-unit cell changes. It
+always copies the position and, with flags3 bit `0x100` but not `0x200`, stores
+signed-word displacement in offsets `0x43/0x45/0x47`.
+
+The live celebration adapter now keeps persistent cell heads/links and scans
+neighbors in native list order, replacing iteration over the browser's unit
+array. Ground movement and building exits update these lists; death/removal,
+record replacement and legacy spell movement reconcile through one helper.
+Only live native person records are currently registered. Their initial order
+comes from the victory handoff, so this does not claim original allocation
+order before that handoff or complete membership for other object classes.
+The remaining unit/allocator migration must establish that original history.
+
+Validation:
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-object-cells.py /path/to/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-physics-driver.py /path/to/d3dpoptb.exe
+npm run check
+node scripts/check-browser-celebration.mjs
+```
+
+The cell oracle executes **8,192 sequential native operations**: 1,480 inserts,
+1,365 removals and 5,347 moves. It compares all 16,384 cell heads and all owned
+fields of 128 persistent objects after every operation, without supplied native
+callees. Cases include interior/head/tail splices, reinsertion, unchanged cells,
+seams, position-argument aliasing, signed height/displacement and both delta
+flags. The full physics oracle now lets **original `004ee580` execute**; all
+16,384 complete turns still match, including hashes of every cell head,
+neighbor links, membership flags, displacement and ordered remaining consumers.
+This removes the earlier supplied insertion boundary from that comparison.
+
+A live regression checks arrival order, same-cell stability, removal of dead
+records, empty-world cleanup and restart. Browser QA also checks linked-list
+integrity against rendered followers. Existing circle fixtures now teleport the
+browser unit through the integration boundary rather than overwriting a linked
+native position without moving its cell membership. All **53 gameplay checks**
+pass. Full airborne landing/state dispatch, shared object allocation and path
+groups remain unintegrated. `004ed8a0` allocation and `004ee300` global-list
+rebuild are retained as raw evidence for that work; the export count is **586**.
+
+
+Typechecking, the production build and browser cell integrity, original frames,
+pause, circle/chain, detour and restart checks pass. Lint remains at zero errors
+and seven existing image warnings. The manifest checker verifies 586 exports
+against the supplied executable and unknown-build rejection.

@@ -18,8 +18,14 @@ try{
  await page.waitForTimeout(2000);
  const snapshot=await page.evaluate(()=>{
   const w=window.testStore.getWorld();w.paused=true;
-  return {status:w.status,units:w.units.map(u=>({id:u.id,x:u.x,z:u.z,kind:u.kind,p:u.native})),initial:window.initialPeople};
+  const seen=new Set();let valid=true;
+  for(let i=0;i<w.objectCells.heads.length;i++){
+   let id=w.objectCells.heads[i],previous=0;
+   while(id){const p=w.objectCells.objects.get(id);if(!p||seen.has(id)||p.cellPrevious!==previous||((p.y>>9)*128+(p.x>>9))!==i){valid=false;break;}seen.add(id);previous=id;id=p.cellNext;}
+  }
+  return {status:w.status,cellIntegrity:valid&&seen.size===w.objectCells.objects.size&&seen.size===w.units.length,units:w.units.map(u=>({id:u.id,x:u.x,z:u.z,kind:u.kind,p:u.native})),initial:window.initialPeople};
  });
+ assert.ok(snapshot.cellIntegrity,'rendered live followers retain consistent native cell lists');
  assert.equal(snapshot.status,'won');assert.ok(snapshot.units.filter(u=>u.kind!=='shaman').some(u=>{const p=snapshot.initial.find(p=>p.id===u.id);return p.x!==u.x||p.z!==u.z;}));
  assert.equal(snapshot.units.find(u=>u.kind==='shaman').p.substate,8);
  await page.waitForTimeout(100);
@@ -31,8 +37,8 @@ try{
  await page.evaluate(()=>{
   const w=window.testStore.getWorld(),braves=w.units.filter(u=>u.kind!=='shaman');
   for(let i=0;i<braves.length;i++){
-   const u=braves[i],p=u.native;p.x=3840;p.y=55040;p.h=100;p.anchorX=p.x;p.anchorY=p.y;u.x=7;u.z=33;
-   p.substate=i?4:3;p.flags2=0x40000000;p.link=0;p.target=0;p.speed=0;
+   const u=braves[i],p=u.native;p.anchorX=3840;p.anchorY=55040;u.x=7;u.z=33;
+   p.substate=i?4:3;p.flags2=0x40020000;p.link=0;p.target=0;p.speed=0;
   }
   w.paused=false;window.observedPhases=[];
   window.phaseWatcher=setInterval(()=>{const w=window.testStore.getWorld();window.observedPhases.push(...w.units.map(u=>u.native.substate));},10);
@@ -58,6 +64,7 @@ try{
  await page.waitForSelector('.end-screen button');await page.locator('.end-screen button').click();
  await page.waitForFunction(()=>window.testStore.getWorld().status==='playing');
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().units.every(u=>u.native===null)));
+ assert.ok(await page.evaluate(()=>window.testStore.getWorld().objectCells.heads.every(id=>!id)));
  assert.deepEqual(errors,[]);
  console.log('PASS: live victory handoff, movement, original atlas frames, pause, circles, chains, obstacle detours and restart; no page errors');
 }finally{await browser.close();}

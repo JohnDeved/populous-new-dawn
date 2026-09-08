@@ -1085,3 +1085,22 @@ Live celebrants use the stored-diagonal height query. The complete driver is
 not yet their live dispatcher: landing must reconnect shared states/orders and
 native animation ownership, and cell/object/path consumer lifecycle is still
 unfinished. The manifest contains 582 raw exports. Full parity remains open.
+
+
+## Persistent object cell lists
+
+`app/object-cells.ts` reconstructs complete `004ee470` insertion, `004ee4f0`
+removal and `004ee580` motion/cell transfer. All preserve the native doubly
+linked ordering, membership flag, unchanged detached link fields and optional
+signed displacement words. `scripts/check-native-object-cells.py EXE` compares
+8,192 sequential operations, all 16,384 cell heads and 128 object records after
+every operation, without supplied callees. The complete physics driver oracle
+now executes native `004ee580`, comparing every cell head and neighbor link
+alongside the existing 16,384 turns and ordered remaining consumer calls.
+
+Live celebration lookup now walks persistent native cell order. Existing
+allocation/deletion, legacy spell movement and initial victory membership are
+reconciled explicitly by `syncLivePersonCells`; ordinary units and other object
+classes still await native allocation/lifecycle integration. `004ed8a0` and
+`004ee300` are retained as reviewed raw evidence, not full ports. There are 586
+exports; all 53 gameplay regressions and browser cell-list integrity checks pass.

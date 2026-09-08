@@ -1162,7 +1162,7 @@ test('victory owns persistent native followers, drops cargo and renders a separa
  const shaman=w.units.find(u=>u.kind==='shaman');assert.equal(shaman.native.substate,8);
  const records=w.units.map(u=>u.native),braves=w.units.filter(u=>u.kind!=='shaman');
  for(const [i,u] of braves.entries()){
-  Object.assign(u,{x:7,z:33});Object.assign(u.native,{x:3840,y:55040,anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40000000,link:0,target:0,speed:0});
+  Object.assign(u,{x:7,z:33});Object.assign(u.native,{anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40020000,link:0,target:0,speed:0});
  }
  const phases=new Set();
  for(let i=0;i<96;i++){tick(w,1/12);animateLivePeople(w);animateLivePeople(w);for(const u of w.units)phases.add(u.native.substate);}
@@ -1225,4 +1225,22 @@ test('live completed-building footprints relocate and clear on removal', async (
  assert.ok(old.every(i=>!(w.land.flags[i]&0x200)),'old footprint cannot remain as invisible collision');
  b.hp=0;syncBuildingFootprints(w);assert.deepEqual(occupied(),[]);
  assert.ok(moved.every(i=>!(w.land.flags[i]&0x200)),'removed buildings release their cells');
+});
+
+test('live native cell order follows arrivals and removes dead records', async () => {
+ const {createLivePerson,syncLivePersonCells}=await import('../app/live-people.ts');
+ const {objectsInCell}=await import('../app/object-cells.ts');
+ const w=createWorld();w.units=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,3);
+ for(const u of w.units){Object.assign(u,{x:7,z:33});u.native=createLivePerson(w,u);}
+ syncLivePersonCells(w);
+ const [first,second,third]=w.units,cell=((first.native.x>>>8)&254)|(first.native.y&0xfe00);
+ const occupants=()=>[...objectsInCell(w.objectCells,cell)].map(p=>p.id);
+ assert.deepEqual(occupants(),[third.id,second.id,first.id]);
+ first.x+=4;syncLivePersonCells(w);assert.deepEqual(occupants(),[third.id,second.id]);
+ first.x-=4;syncLivePersonCells(w);assert.deepEqual(occupants(),[first.id,third.id,second.id]);
+ first.x+=.01;syncLivePersonCells(w);assert.deepEqual(occupants(),[first.id,third.id,second.id],'same-cell motion retains neighbor order');
+ first.hp=0;syncLivePersonCells(w);assert.deepEqual(occupants(),[third.id,second.id]);
+ assert.equal(third.native.cellPrevious,0);assert.equal(w.objectCells.objects.has(first.id),false);
+ w.units=[];syncLivePersonCells(w);assert.equal(w.objectCells.objects.size,0);assert.ok(w.objectCells.heads.every(id=>!id));
+ assert.ok(createWorld().objectCells.heads.every(id=>!id),'restart has no stale cell heads');
 });
