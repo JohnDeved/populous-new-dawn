@@ -21,7 +21,7 @@ The first mission opens with its original camera tour. Press Escape/Space or cli
 4. Place a Warrior Training Hut near your settlement. Free braves fetch eight logs and build it. Select braves and click the completed hut to train them.
 5. Bridge from the central island to the Dakini. Defeat their followers; Lightning is particularly useful against their shaman.
 
-Click to select/order; drag to select groups; Shift adds followers. Right/middle drag and WASD rotate around the planet, scroll zooms, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; camera keys or dragging take over from an active journey. Enter or ◎ shows the planet overview.
+Click to select/order; drag to select groups; Shift adds followers. WASD/arrows pan around the planet, Q/E or right drag rotate, middle drag pans, scroll zooms, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; panning or dragging takes over from an active journey. Enter or ◎ shows the planet overview.
 
 `1–3`: Blast / Land Bridge / Lightning. `B`: buildings. `H`: shaman. `F`: focus. `G`: guard shaman. `Space`: pause. `Esc`: cancel targeting. Right-click Blast's card to toggle charging and redirect mana to training.
 
@@ -37,6 +37,7 @@ node qa/browser-check.mjs
 node qa/flyby-check.mjs
 npm run test:sprites
 node scripts/check-browser-camera-focus.mjs
+node scripts/check-browser-camera-input.mjs
 ```
 
 `npm run test:sprites` checks a frozen atlas hash, 336 original-engine pose fixtures,

@@ -288,3 +288,16 @@ pointer. Eight isolated GPU colors include both hover phases bypassing sunlight
 and distance fade. HUD/worship controls still pass. Full native picking, modal
 and all-tribe targeting ownership, other colored effects and dynamic lights remain
 open. Keep visible feedback and lighting comparisons ahead of isolated internals.
+
+### Latest visible integration: camera focus and desktop movement
+
+Normal portrait/tribe/F/minimap focus commands use the original wrapped camera
+journeys, preserving rotation and zoom. Desktop keyboard and mouse controls now
+use native integer movement, pan/turn speeds, axis order and wrapped coordinates.
+Right drag rotates without vertical drift; middle drag pans. Native focus and
+mixed keyboard/drag comparisons plus actual browser input, pause/lock, timing and
+takeover checks pass. Shared camera capture/movement replace duplicated conversion
+and floating-point pan paths. Full settings, frame/input sampling, edge scrolling,
+minimap mapping, overview transitions and visibility remain open. Continue with
+visible world/rendering and control comparisons; this does not complete the camera
+checkpoint or change the full-game goal.

@@ -1,5 +1,15 @@
 import rules from './original-rules.json' with { type: 'json' }
-type Point = { x: number; z: number }
+interface Point {
+  x: number
+  z: number
+}
+
+// 0x4e6a70: signed-short distance, fixed-point sine, unsigned toroidal position.
+export function movePosition(p: { x: number; y: number }, angle: number, distance: number) {
+  const length = (distance << 16) >> 16
+  p.x = (p.x + (Math.imul(rules.sine[angle & 2047], length) >> 16)) & 65535
+  p.y = (p.y + (Math.imul(rules.sine[(angle + 512) & 2047], length) >> 16)) & 65535
+}
 
 // 0x44df40: bit 0 chooses B-C when A or D is furthest from the rounded mean.
 export function nativeTerrainCross(a: number, b: number, c: number, d: number) {
@@ -52,23 +62,10 @@ export function nativeAngle(dx: number, dz: number) {
     z = Math.abs(dz)
   if (!x && !z) return 0
   const a = rules.atan[Math.floor((Math.min(x, z) * 256) / Math.max(x, z))]
-  return (
-    (dx >= 0
-      ? dz < 0
-        ? x < z
-          ? a
-          : 512 - a
-        : x < z
-          ? 1024 - a
-          : 512 + a
-      : dz < 0
-        ? x < z
-          ? 2048 - a
-          : 1536 + a
-        : x < z
-          ? 1024 + a
-          : 1536 - a) & 2047
-  )
+  let angle = x < z ? a : 512 - a
+  if (dz >= 0) angle = 1024 - angle
+  if (dx < 0) angle = 2048 - angle
+  return angle & 2047
 }
 // 0x4e6a70: signed high word of a 16.16 sine product, then reflect native Y.
 export function nativeStep(p: Point, angle: number, length: number): Point {

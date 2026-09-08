@@ -56,7 +56,7 @@ try{
     const value=view.uniforms[key].value,location=gl.getUniformLocation(program,key);
     if(key==='nativeBasis')gl.uniform3iv(location,value);else if(key==='nativeCenter')gl.uniform2iv(location,value);else gl.uniform4iv(location,value);
    }
-   const basis=f.modelMatrix(angle);gl.uniform3iv(gl.getUniformLocation(program,'nativeObjectBasis'),new Int32Array(basis));gl.uniform1f(gl.getUniformLocation(program,'nativeModelScale'),model.scale);
+   const basis=f.modelMatrix(angle);gl.uniform3iv(gl.getUniformLocation(program,'nativeObjectBasis'),new Int32Array(basis));gl.uniform1f(gl.getUniformLocation(program,'nativeModelScale'),model.scale);gl.uniform1f(gl.getUniformLocation(program,'nativeObjectScale'),model.scale);
    gl.bindBuffer(gl.ARRAY_BUFFER,input);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(model.p),gl.STATIC_DRAW);
    gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER,output);gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER,model.p.length*4,gl.STREAM_READ);
    const actual=new Float32Array(model.p.length);
@@ -87,16 +87,17 @@ try{
    if(!hit||Math.hypot(hit.point.x-expected.x,hit.point.z-expected.z)>1e-6)throw new Error(JSON.stringify({angle,hit:hit?.point,expected}));checked++;
   }
 
+  // Exercise unwrapped render centers directly: focus commands normalize their targets.
   // Periodic copies must pick the same map point without folding seam triangles.
   for(const [x,z] of [[256,0],[-256,0],[0,256],[0,-256],[256,256]]){
-   scene.focus({x:m.HOME.x+x,z:m.HOME.z+z});scene.updateView();
+   scene.viewPoint={x:m.HOME.x+x,z:m.HOME.z+z};scene.updateView();
    const p=triangles[0],projected=p.map(p=>scene.view.screen({x:p.x+x,y:p.y,z:p.z+z},scene.camera,true));
    scene.mouse.set(projected.reduce((n,p)=>n+p.x/3,0),projected.reduce((n,p)=>n+p.y/3,0));
    const hit=scene.view.pick(scene.mouse,[scene.terrain],scene.camera),expected={x:p.reduce((n,p)=>n+p.x/3,0),z:p.reduce((n,p)=>n+p.z/3,0)};
    if(!hit||Math.hypot(hit.point.x-expected.x,hit.point.z-expected.z)>1e-6)throw new Error(JSON.stringify({tile:[x,z],hit:hit?.point,expected}));checked++;
   }
 
-  scene.focus(m.HOME);scene.pan(256,0);const wrapped=Math.hypot(scene.viewPoint.x-m.HOME.x,scene.viewPoint.z-m.HOME.z)<1e-9;
+  scene.focus(m.HOME);scene.focus({x:m.HOME.x+256,z:m.HOME.z});const wrapped=Math.hypot(scene.viewPoint.x-m.HOME.x,scene.viewPoint.z-m.HOME.z)<1e-9;
   scene.dispose();host.remove();return {checked,wrapped};
  });
  assert.ok(picking.checked>0&&picking.wrapped);assert.deepEqual(errors,[]);console.log(`PASS: ${picking.checked} visible triangle picks invert the rendered projection; camera wraps at 256 map units`);

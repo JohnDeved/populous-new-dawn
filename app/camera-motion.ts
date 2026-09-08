@@ -1,5 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
-import { positionDistance, nativeAngle } from './native-math.ts'
+import { positionDistance, nativeAngle, movePosition } from './native-math.ts'
 
 const short = (n: number) => (n << 16) >> 16
 const up = rules.cameraRampUp.map(n => short(Math.trunc((n * 4096) / 100)))
@@ -306,11 +306,7 @@ export function stepCameraMotion(
     }
     finished = (!move && !turn) || (nearMove && nearTurn)
     if (!finished) {
-      if (move) {
-        camera.x = (camera.x + (Math.imul(rules.sine[heading], short(move)) >> 16)) & 65535
-        camera.y =
-          (camera.y + (Math.imul(rules.sine[(heading + 512) & 2047], short(move)) >> 16)) & 65535
-      }
+      if (move) movePosition(camera, heading, move)
       if (turn) {
         effects.rotate()
         camera.angle = (camera.angle + short(turn)) & 2047

@@ -220,3 +220,16 @@ and retains its settings. Reproduce with `node scripts/check-browser-camera-focu
 The original opening tour still completes, pauses and restarts through current UI.
 Native keyboard/edge-scroll speeds, full minimap mapping and globe transitions
 remain separate visible-control gaps; this is not complete camera parity.
+
+### Desktop camera input, 2026-09-08
+
+Replaced arbitrary floating-point camera speeds with original keyboard and mouse
+movement. Browser input checks compare eight original keyboard outcomes, diagonal
+and opposing directions, paused/locked input, fixed presentation timing, focus
+interruption and right/middle drags. Right drag now rotates without vertical drift;
+middle drag pans with native integer coordinates. Inspected
+`/private/tmp/populous-camera-input.png` after rotating the live first-mission
+camera; original model/sprite rendering is retained. Native keyboard and drag-axis
+state comparisons pass (8,192 / 6,153 calls). Full pointer sampling, edge scrolling,
+settings/zoom/overview controls and whole-frame rendering remain open. The camera
+checkpoint stays partial; these counts do not award a complete subsystem.

@@ -2058,3 +2058,51 @@ keyboard/edge-scroll speed, command/modal ownership, minimap coordinates/coverag
 and overview projection/transitions remain unfinished. Flyby regression selectors
 were updated to inspect the current camera and follower selection; removed world
 buttons and old selected CSS classes are no longer treated as the UI contract.
+
+## Native desktop camera input
+
+`app/camera-input.ts` reconstructs the movement and velocity outputs of complete
+`004424b0` keyboard processing and `00442880` / `00442920` / `004429c0` mouse axes.
+`004adbb0` modes 1/2 supply their order: pan forwards then sideways at 12 native
+units per pixel, or rotate by horizontal pixels alone. Vertical rotation drag no
+longer pans. Keyboard speed is 7,680 units / max(20, frame rate), rotation is
+640 / max(20, frame rate), truncated to signed shorts; fast-pan bit 0x40 quadruples
+pan speed. Opposing bits have native precedence, and rotation precedes both pan
+axes. Optional fixed-point input scaling and momentum retention preserve signed
+multiplication, truncation and 16-bit wrapping.
+
+Momentum lives at `008926c7`/`c9`/`cb`. Its enable bit is at **00895da4 bit 0x400**,
+not the identically named metadata global at 0089c66d. Retention is
+clamp(short at 00895dad * 8 + 120, 0, 255). `00417c00` and `00419a60` stop constant
+turn/follow modes; they do not cancel a focus journey. `004424b0` cancels the
+focus mover on pan input; `004adbb0` does so on either drag mode. These distinctions
+are retained in the scene adapter. Full follow-mode/interaction ownership is open.
+
+```
+.tools/decomp/oracle/bin/python scripts/check-native-camera-input.py /path/to/d3dpoptb.exe
+node scripts/check-browser-camera-input.mjs # development server required
+```
+
+The CPU check runs 8,192 complete keyboard calls and 6,153 complete drag-axis calls
+in 256 mixed 48-step sequences. It compares camera positions/headings and all
+three momentum fields after every call, including all button bytes, opposing keys,
+fast diagonals, wrapped seams, low/high frame rates, signed scaling, clamped
+retention and decay-only frames. Only globe-texture notifications and interaction
+cleanup are intercepted; their complete UI/cache effects are **not** certified.
+
+The browser check uses real DOM key and pointer events, eight camera outputs
+captured from the original keyboard routine, and deterministic presentation steps.
+It covers Q/E, WASD/arrows, simultaneous/opposing keys, render-rate independence,
+release without drift, paused/locked controls, a focused HUD button, focus
+interruption, rotated panning and horizontal/vertical mouse dragging. The existing
+focus, projection and opening-tour checks remain part of the regression workflow.
+
+The scene uses the existing **24 Hz, momentum-off** presentation adapter. Native
+momentum/scaling math is compared but the original settings UI, persisted defaults,
+fast-pan binding, pointer sampling cadence, edge-scroll mapping and full command
+ownership are not integrated. This is not full camera parity. Original movement
+is shared with focus journeys through `movePosition`; the obsolete floating-point
+scene pan path was removed. Camera capture is shared and keeps unsigned X/Y
+without unnecessarily sampling terrain height. The octant-angle helper is now
+three readable reflections instead of nested ternaries; original journey/planner
+comparisons still pass.
