@@ -323,7 +323,7 @@ function makeBuilding(b: Building, stage: number) {
   part(health, box(2.5, 0.09, 0.05), material(0x201d16), 0, top)
   const healthFill = part(health, box(2.5, 0.09, 0.06), material(teamColor[b.team]), 0, top, 0.01)
   g.add(health)
-  g.userData = { building: b.id, signature: `${b.level}-${stage}`, health, healthFill }
+  g.userData = { building: b.id, signature: `${id}-${stage}`, health, healthFill }
   return g
 }
 
@@ -1711,6 +1711,7 @@ export class GameScene {
       return g
     }
     if (f.debris) {
+      if (!f.debris.visible) return g
       const geometry = new THREE.BufferGeometry()
       geometry.setAttribute(
         'position',
@@ -1804,6 +1805,7 @@ export class GameScene {
       return
     }
     if (f.debris) {
+      if (!f.debris.visible) return
       const mesh = g.children[0] as THREE.Mesh
       const positions = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
       positions.array.set(debrisVertices(f.debris))
@@ -2165,7 +2167,7 @@ export class GameScene {
     for (const b of this.world.buildings) {
       const stage = buildingStage(b)
       let g = this.buildingMeshes.get(b.id)
-      if (g && g.userData.signature !== `${b.level}-${stage}`) {
+      if (g && g.userData.signature !== `${buildingObject(b)}-${stage}`) {
         this.objects.remove(g)
         this.releaseGroup(g)
         this.buildingMeshes.delete(b.id)

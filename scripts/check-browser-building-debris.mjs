@@ -11,6 +11,8 @@ try {
     const scene = window.testScene, world = scene.world
     world.manaWorld.gameFlags = 32
     const building = world.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
+    building.object = 109
+    building.level = 3
     const model = building.level
     building.damageState = {
       model, state: 2, flags2: 0, flags3: 0, buildingFlags: 64, counter: 0,
@@ -27,14 +29,20 @@ try {
     if (scene.world.effects.some(f => f.debris && f.duration <= 0)) throw new Error('Dead initial fragment retained')
     const fragments = scene.world.effects.filter(f => f.debris && f.duration > 0)
     window.debrisIds = fragments.map(f => f.id)
-    return fragments.map(f => ({ id: f.id, h: f.debris.h, heading: f.debris.heading }))
+    return fragments.map(f => ({ id: f.id, visible: f.debris.visible, h: f.debris.h, heading: f.debris.heading }))
   })
   assert.ok(first.length > 3)
+  assert.ok(first.some(f => !f.visible), 'Original picking-only fragments retain their lifetime')
   await page.waitForFunction(() => window.debrisIds.every(id => window.testScene.fxMeshes.has(id)))
   const displayed = await page.evaluate(() => {
     const scene = window.testScene
     const groups = window.debrisIds.map(id => scene.fxMeshes.get(id))
     for (const group of groups) {
+      const fragment = scene.world.effects.find(f => scene.fxMeshes.get(f.id) === group)
+      if (!fragment.debris.visible) {
+        if (group.children.length) throw new Error('Picking-only debris became visible')
+        continue
+      }
       const mesh = group.children[0]
       if (!mesh.isMesh || !mesh.material.map.image.src.includes('atlas')) throw new Error('Missing original fragment texture')
       if (![3, 6].includes(mesh.geometry.attributes.position.count)) throw new Error('Invalid face topology')
@@ -65,7 +73,7 @@ try {
   const impacts = await page.evaluate(() => window.testScene.world.sounds.filter(s => s.cue === 0x13 || s.cue === 0x2c).length)
   assert.ok(impacts > 0)
   assert.deepEqual(errors, [])
-  console.log(`PASS: live collapse emits ${first.length} original textured faces (${pixels} GPU pixels), flight/spin, camera rotation, impact cues and mesh cleanup; no browser errors`)
+  console.log(`PASS: live collapse emits ${first.length} original faces (${first.filter(f=>!f.visible).length} picking-only) (${pixels} GPU pixels), flight/spin, camera rotation, impact cues and mesh cleanup; no browser errors`)
 } finally {
   await browser.close()
 }

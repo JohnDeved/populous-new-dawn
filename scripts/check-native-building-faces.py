@@ -48,6 +48,7 @@ def capture(id,stage,tribe,patch=None):
     count=(read(0x75d508,'I')-polygons)//70;triangles+=count;result=[];scale=read(obj+12,'i')*3
     start=read(obj+24,'I')
     for a in range(polygons,polygons+count*70,70):
+        if read(a+69,'B') == 0:continue # 0x4673b0 skips picking-only submissions.
         assert read(a,'B')==6;tile=(read(a+68,'B')-1)&255;vertices=[]
         for off in [6,26,46]:
             idx=int(read(a+off,'f')-100);x,y,z=struct.unpack('<3h',cpu.mem_read(start+idx*6,6))
@@ -57,8 +58,8 @@ def capture(id,stage,tribe,patch=None):
     cases.append(dict(id=id,stage=stage,patch=patch));expected.append(sorted(result))
     write(obj+2,'h',nf);cpu.mem_write(face,saved)
 
-for id in [79,80,95,96,103,104,131,132,133,134,135,136]:
-    for stage in range(4):capture(id,stage,int(id in [80,96,104,134,135,136]))
+for id in [79,80,95,96,103,104,*range(107,143)]:
+    for stage in range(4):capture(id,stage,(id-107)%12//3 if id>=107 else int(id in [80,96,104]))
 for flags in range(256):
     for n in [3,4]:
         for stage in range(4):capture(131,stage,0,dict(n=n,flags=flags))

@@ -280,3 +280,18 @@ an arrow, corners, release, pause and modal/drag/leave/blur gates. Inspected
 unit artwork and HUD remain in place. Existing view, focus, movement and sprite
 checks pass. Native comparisons cover command selection/merging and edge gates;
 full event ownership, settings and world-view controls remain open.
+
+
+## Hut family silhouettes — 2026-09-08
+
+Compared local `village.jpg`, `images-3.jpg` and `user-gameplay.jpg` against the
+running original-textured scene. The browser had only one hut family; original
+screenshots show varied roof silhouettes and compounds. Imported all three
+families, levels and tribe colors using the native selector. Inspected captures
+`/private/tmp/populous-hut-107-v108.png`, `populous-hut-119-v108.png` and
+`populous-hut-131-v108.png`: distinct roofs, walls and fences remain grounded and
+retain original atlas detail. All 36 variants contribute real GPU pixels.
+Construction caps and invisible picking faces now follow the original stage
+and collapse rules. These are local model/integration comparisons, not matched
+original full-frame screenshots. Original whole-scene lighting, painter order,
+settlement scheduling and exact opening allocation RNG remain open.

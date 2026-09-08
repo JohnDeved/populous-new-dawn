@@ -2,6 +2,7 @@ import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 import { random, nativeAngle, nativeStep } from './native-math.ts'
 import models from './original-models.json' with { type: 'json' }
 import artwork from './original-fire.json' with { type: 'json' }
+import { modelStage } from './model-faces.ts'
 
 type Ground = Pick<NativeTerrain, 'heights' | 'flags' | 'categories'>
 const short = (n: number) => (n << 16) >> 16
@@ -162,13 +163,16 @@ export function stepSceneryFire(
   return alive
 }
 
+const fireModelUV = modelStage(models[5], 4).uv
+
 // Per-object ANIBL texture frame on the original fire mesh.
 export function fireUV(frame: number) {
   const { 5: model } = models
-  const uv = [...model.uv]
+  const uv = [...fireModelUV]
   const tile = artwork.frames[frame]
   let vertex = 0
   model.tiles.forEach((source, face) => {
+    if (!model.modes[face]) return
     const count = model.faces[face * 2] === 3 ? 3 : 6
     if (source === artwork.tile) {
       for (let i = vertex; i < vertex + count; i++) {

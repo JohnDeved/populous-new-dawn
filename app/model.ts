@@ -60,6 +60,7 @@ import {
 } from './tribe-turns.ts'
 import {
   buildingOutsidePoint,
+  chooseBuildingObject,
   buildingSmokePoint,
   buildingFirePoints,
   registerBuildingFootprint,
@@ -183,6 +184,7 @@ export type Unit = Point & {
 }
 export type Building = Point & {
   id: number
+  object?: number
   team: Team
   kind: BuildingKind
   hp: number
@@ -897,6 +899,7 @@ export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, 
     id: w.nextId++,
     team,
     kind,
+    object: chooseBuildingObject(buildingModel({ kind, level: 1 }), team === 'blue' ? 0 : 1, w),
     hp: buildingHp(kind),
     progress: complete ? 1 : 0,
     timer: 0,
@@ -1065,6 +1068,7 @@ export function createWorld(): World {
     if (o.type === 2 && o.owner !== 255) {
       const b = addBuilding(w, o.owner === 0 ? 'blue' : 'red', o.model === 7 ? 'camp' : 'hut', o)
       b.level = o.model === 3 ? 3 : 1
+      b.object = buildingObject(b) + b.level - 1
       b.angle = (o.angle / 2048) * Math.PI * 2
     }
     if (o.type === 1)
@@ -1509,21 +1513,14 @@ export function buildingStage(b: Building) {
   return b.damageState?.stage ?? buildingWorkStage(Math.trunc(b.progress * life), life)
 }
 // Share the displayed object identity with native footprint/entrance lookup.
-export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {
-  return b.kind === 'hut'
-    ? (b.team === 'blue' ? 131 : 134) + b.level - 1
-    : b.kind === 'camp'
-      ? b.team === 'blue'
-        ? 103
-        : 104
-      : b.kind === 'tower'
-        ? b.team === 'blue'
-          ? 79
-          : 80
-        : b.team === 'blue'
-          ? 95
-          : 96
+export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level' | 'object'>) {
+  if (b.object !== undefined) return b.object
+  // Older browser state retains its previously displayed family.
+  const tribe = b.team === 'blue' ? 0 : 1
+  if (b.kind === 'hut') return 131 + tribe * 3 + b.level - 1
+  return rules.buildingObjects[buildingModel(b)] + tribe
 }
+
 export function buildingPose(b: Building) {
   return {
     object: buildingObject(b),
@@ -3048,6 +3045,8 @@ function stepTurn(w: World) {
         if (b.upgrade >= rules.hutUpgradeWork[b.level - 1]) {
           // ponytail: gather upgrade timber after maturation; native huts prefetch it at 75%.
           b.upgrade = 0
+          // 0x4050c0 retains the chosen family by passing object + 1 to the replacement.
+          b.object = buildingObject(b) + 1
           b.level++
           b.damageState = null
           b.progress = 0

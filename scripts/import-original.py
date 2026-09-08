@@ -98,8 +98,8 @@ def main():
     (project/'app/original-shapes.json').write_text(json.dumps(building_shapes(shape_data,objects),separators=(',',':'))+'\n')
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
-    # Models actually used in this mission, including every hut upgrade and both tribes.
-    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,95,96,103,104,*range(131,137)]
+    # Models actually used in this mission, including every hut family, upgrade and all four tribe colors.
+    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,95,96,103,104,*range(107,143)]
     animation_tiles = read('data/anibl0-0.dat')
     assert len(animation_tiles) == 500
     fire = animation_tiles[20:40] # ANIBL record 1, consumed by 0x4f0f60.
@@ -108,10 +108,10 @@ def main():
     for i in selected:
         _, nf, np, _, _, _, scale, sf, _, sp, _, *_ = struct.unpack_from('<Hhhbbii4I6h4b3h',objects,i*54)
         assert nf>0 and np>0 and scale>0 and sf>0 and sp>0
-        p, uv, order, face_stages, tiles, normals = [], [], [], [], [], []
+        p, uv, order, face_stages, tiles, normals, modes = [], [], [], [], [], [], []
         for face in range(sf-1,sf+nf-1):
-            # 0x4673b0: texture mode 0 participates in picking, not raster drawing.
-            if faces[face*60+7] == 0: continue
+            # Keep mode-zero faces: collapse allocates them and consumes RNG too.
+            modes.append(faces[face*60+7])
             _, tile, _, n, _ = struct.unpack_from('<hhHBb',faces,face*60)
             assert n in (3,4) and 0<=tile<256
             face_stages.extend([n, faces[face*60+59]]) # 0x471c40: visibility/cap bits, not texture-size byte +7.
@@ -128,7 +128,7 @@ def main():
                 p.extend(round(v/(scale*3),6) for v in (x,y,-z))
                 uv.extend([round((tile%8+texcoords[k*2]/0x200000)/8,7),round(1-(tile//8+texcoords[k*2+1]/0x200000)/32,7)])
         assert len(p)//3 == len(uv)//2 and len(p)%9 == 0
-        models[i] = {'p':p,'uv':uv,'scale':scale,'faces':face_stages,'tiles':tiles,'normals':normals}
+        models[i] = {'p':p,'uv':uv,'scale':scale,'faces':face_stages,'tiles':tiles,'normals':normals,'modes':modes}
         topology[i] = (scale, order)
     assert all(topology[i] == topology[152] for i in (153,154,155)), 'Vault morph topology differs'
     (project/'app/original-models.json').write_text(json.dumps(models,separators=(',',':')))

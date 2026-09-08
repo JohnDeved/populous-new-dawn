@@ -15,7 +15,7 @@ def call(a,*args):
     assert cpu.reg_read(UC_X86_REG_EIP)==stop
     return cpu.reg_read(UC_X86_REG_EAX)
 def compare(expression,cases,expected,label):
-    r=subprocess.run(['node','--input-type=module','-e',"import * as f from './app/model-lighting.ts';import models from './app/original-models.json' with {type:'json'};let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map("+expression+")));"],input=json.dumps(cases),text=True,capture_output=True,cwd=ROOT)
+    r=subprocess.run(['node','--input-type=module','-e',"import {modelStage} from './app/model-faces.ts';import * as f from './app/model-lighting.ts';import models from './app/original-models.json' with {type:'json'};let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map("+expression+")));"],input=json.dumps(cases),text=True,capture_output=True,cwd=ROOT)
     assert r.returncode==0,r.stderr
     actual=json.loads(r.stdout);assert len(actual)==len(expected)
     for i,(a,b) in enumerate(zip(actual,expected)):assert a==b,(label,i,cases[i],a,b)
@@ -71,7 +71,7 @@ for id,data in models.items():
                 normal=read(face+j*60,'h');shade=read(0x89bc8e+normal,'B')
                 shades += [shade]*(3 if read(face+j*60+6,'B')==3 else 6)
             cases.append(dict(id=id,heading=heading,scale=scale));expected.append(shades)
-compare("c=>{const d=models[c.id];return f.modelLighting(d,d.p,4,c.heading,c.scale).shades}",cases,expected,'complete model normal/shade passes')
+compare("c=>{const d=models[c.id];return f.modelLighting(d,modelStage(d,4).p,4,c.heading,c.scale).shades}",cases,expected,'complete model normal/shade passes')
 
 # Complete triangle queue checks retain original depth attenuation and emission.
 array=unit+256

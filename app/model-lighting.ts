@@ -1,7 +1,7 @@
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle } from './native-math.ts'
 import { modelMatrix, modelPoint, multiplyShift16 } from './projection.ts'
-import type { NativeModel } from './model-faces.ts'
+import { modelFaceVisible, type NativeModel } from './model-faces.ts'
 
 // 0x401790, with the default sunlight parameters from 0x401040.
 export function sunlightShades(x = 147, z = 147, y = 147, ambient = 28, strength = 15) {
@@ -78,7 +78,7 @@ export function modelLighting(
   let vertex = 0
   for (let face = 0; face < data.faces.length / 2; face++) {
     const count = data.faces[face * 2] === 3 ? 3 : 6
-    if (stage !== 4 && !(data.faces[face * 2 + 1] & (1 << stage))) continue
+    if (!modelFaceVisible(data, face, stage)) continue
     const point = (offset: number) =>
       [0, 1, 2].map(axis =>
         Math.round(positions[(vertex + offset) * 3 + axis] * data.scale * 3 * (axis === 2 ? -1 : 1))

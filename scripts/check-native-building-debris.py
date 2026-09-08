@@ -100,6 +100,7 @@ def hook(c, address, size, user):
         count = read(face_address + 6, 'B')
         value.update(face=face_index - first_face, cap=bool(read(fragment + 0x9e, 'B')),
                      vertices=[list(struct.unpack('<3h', c.mem_read(fragment + 0x7a + i * 6, 6))) for i in range(count)])
+        value['visible'] = value['cap'] or read(face_address + 7, 'B') != 0
         # 0x470160's cap and tribe texture selection, using the original face data.
         tile = read(face_address + 2, 'h')
         uv = list(struct.unpack('<8i', c.mem_read(face_address + 8, 32)))
@@ -132,7 +133,7 @@ def call(address, *args):
     assert cpu.reg_read(UC_X86_REG_EIP) == stop, hex(cpu.reg_read(UC_X86_REG_EIP))
 
 cases, expected = [], []
-for model in [79, 80, 95, 96, 103, 104, 131, 132, 133, 134, 135, 136]:
+for model in [79, 80, 95, 96, 103, 104, *range(107,143)]:
     for stage in range(5):
         for angle in [0, 256, 777, 1536, 2047]:
             source = dict(x=rng.choice([0, 65535, rng.randrange(65536)]),
@@ -200,7 +201,7 @@ let s='';for await(const b of process.stdin)s+=b;
 const {land,cases,motionCases,splashCases,animationKeys,keys}=JSON.parse(s);
 const pick=p=>Object.fromEntries(keys.map(k=>[k,structuredClone(p[k])]));
 const emission=cases.map(c=>{const rng={randomState:c.seed};
- const fragments=[...collapseBuildingFaces(land,models[c.model],c.source,c.stage,rng)].map(p=>({...pick(p),face:p.face,cap:p.cap,vertices:p.vertices,uv:p.uv}));
+ const fragments=[...collapseBuildingFaces(land,models[c.model],c.source,c.stage,rng)].map(p=>({...pick(p),face:p.face,cap:p.cap,visible:p.visible,vertices:p.vertices,uv:p.uv}));
  return {fragments,randomState:rng.randomState};});
 const motion=motionCases.map(c=>{const p=c.p,rng={randomState:c.seed},impacts=[],timeline=[];let alive=true;
  for(let i=0;i<32;i++){if(alive)alive=stepBuildingDebris(land,p,rng,water=>impacts.push(water));
@@ -219,7 +220,7 @@ for name, inputs, wanted in [('emission', cases, expected), ('motion', motion_ca
     assert len(actual[name]) == len(wanted)
     for index, (a, e) in enumerate(zip(actual[name], wanted)):
         if name == 'emission':
-            assert len(a['fragments']) == len(e['fragments'])
+            assert len(a['fragments']) == len(e['fragments']), (index, inputs[index], len(a['fragments']), len(e['fragments']))
             for browser_face, native_face in zip(a['fragments'], e['fragments']):
                 browser_uv, native_uv = browser_face.pop('uv'), native_face.pop('uv')
                 assert len(browser_uv) == len(native_uv)

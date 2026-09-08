@@ -36,7 +36,7 @@ try {
   const visible = await page.evaluate(() => {
     const scene = window.testScene, b = window.burningBuilding
     return {
-      pose: { object: 131 + b.level - 1, angle: Math.round(b.angle * 1024 / Math.PI) & 2047,
+      pose: { object: b.object, angle: Math.round(b.angle * 1024 / Math.PI) & 2047,
         anchorX: Math.round((b.x + 8) * 256) & 0xfe00, anchorY: Math.round((-b.z - 8) * 256) & 0xfe00 },
       fires: window.buildingFires.map(f => ({ id: f.id, x: f.fire.x, y: f.fire.y,
         maxScale: f.fire.maxScale, height: scene.fxMeshes.get(f.id).position.y * 128, h: f.fire.h,

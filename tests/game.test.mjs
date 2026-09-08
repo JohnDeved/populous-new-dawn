@@ -7,7 +7,7 @@ import originalScript from '../app/original-script.json' with {type:'json'};
 import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '../app/tooltips.ts';
 import {modelMatrix,modelPoint} from '../app/projection.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
-import {campaignCommand,recordSpellCast,rotateBuildingPlan,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
+import {campaignCommand,recordSpellCast,rotateBuildingPlan,addBuilding,buildingObject,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
 import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 test('scenery shade follows cell occupants through overlap, depletion and regrowth', async () => {
@@ -223,8 +223,8 @@ test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
 
 test('native transformed compound bases stay on their ground pads',()=>{
  const w=createWorld();
- for(const [index,id] of [[0,136],[1,104],[2,131],[3,131]]){
-  const b=w.buildings[index],data=nativeModels[id],basis=modelMatrix(Math.round(b.angle*1024/Math.PI));
+ for(const b of w.buildings){
+  const id=buildingObject(b),data=nativeModels[id],basis=modelMatrix(Math.round(b.angle*1024/Math.PI));
   for(let i=0;i<data.p.length;i+=3){
    const raw=[Math.round(data.p[i]*data.scale*3),Math.round(data.p[i+1]*data.scale*3),Math.round(-data.p[i+2]*data.scale*3)];
    if(Math.abs(raw[1])>5)continue;
@@ -299,7 +299,7 @@ test('native integer movement and combat exchanges preserve timing, retaliation 
  const moving=createWorld();moving.terrain.fill(3);moving.buildings=[];moving.units=[];
  const walker=addUnit(moving,'blue','brave',{x:0,z:0});addUnit(moving,'red','brave',{x:40,z:40});walker.path=[{x:10,z:0}];tick(moving,1/12);
  assert.equal(walker.x,70/256);assert.equal(walker.z,0);assert.equal(walker.heading,Math.PI/2);
- const rng=createWorld();assert.deepEqual(Array.from({length:6},()=>random(rng)),[1275068418,1896767491,2517695575,2629181784,3921238491,2630906275]);
+ const rng={randomState:1};assert.deepEqual(Array.from({length:6},()=>random(rng)),[1275068418,1896767491,2517695575,2629181784,3921238491,2630906275]);
  const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.units=[];w.buildings=[];w.randomState=seed;const a=addUnit(w,'blue','warrior',{x:0,z:0}),b=addUnit(w,'red','brave',{x:180/256,z:0}),group={id:w.nextId++,x:0,z:0,angle:512,members:[a.id,b.id]};w.fights=[group];for(const [u,other] of [[a,b],[b,a]])u.fight={group:group.id,opponent:other.id,action:'ready',started:0,until:0};return w;};
  const a=duel(),b=structuredClone(a);b.units.reverse();tick(a,1/12);tick(b,1/12);b.units.sort((a,b)=>a.id-b.id);assert.deepEqual(b,a,'one coordinated exchange is independent of unit array order');
  assert.equal(a.units[0].hp,87);assert.equal(a.units[1].hp,32,'the brave retaliates with its pre-hit health');
@@ -367,7 +367,7 @@ test('native Lightning delays the upper flash and regenerates eight segments for
 });
 
 test('native spell allocation, discrete flight, RNG trails and delayed impact',()=>{
- const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
+ const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.randomState=1;w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
  assert.deepEqual(nativeStep3D({x:32760,y:-32760,h:32760},2047,511,-321),{x:32760,y:32455,h:32759},'negative odd length and short wrapping verified against x86');
  const w=make();cast(w,'blast',{x:10,z:0});assert.equal(w.shots.blast,3);assert.deepEqual(w.projectiles[0].target,{x:11,z:-1});tick(w,6/12);
  assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
@@ -1237,7 +1237,12 @@ test('defeat seeds native building collapse and staged damage ejects occupants b
 
 test('building display stages follow remaining work and retain separate complete meshes', async () => {
  const {buildingStage,buildingObject}=await import('../app/model.ts');
- const {modelStage}=await import('../app/model-faces.ts');
+ const {modelStage,modelFaceVisible}=await import('../app/model-faces.ts');
+ const hidden=nativeModels[109];
+ assert.equal(hidden.modes[73],0);assert.equal(hidden.faces[147],63);
+ assert.equal(modelFaceVisible(hidden,73,0),true,'construction cap draws a normally hidden face');
+ assert.equal(modelFaceVisible(hidden,73,2),false,'uncapped picking face stays hidden');
+ assert.equal(modelFaceVisible(hidden,73,4),false);
  const w=createWorld(),b=w.buildings.find(b=>b.kind==='hut'),source=nativeModels[buildingObject(b)],before=structuredClone(source);
  const stages=[0,.25,.5,.75,1].map(progress=>{b.progress=progress;return buildingStage(b);});
  assert.deepEqual(stages,[0,1,2,3,4]);
@@ -1245,7 +1250,7 @@ test('building display stages follow remaining work and retain separate complete
   const mesh=modelStage(source,stage);assert.ok(mesh.p.length);assert.equal(mesh.p.length/3,mesh.uv.length/2);
   assert.notDeepEqual(mesh.uv,source.uv,'unfinished surfaces retain their native cap material');
  }
- assert.strictEqual(modelStage(source,4),source);assert.deepEqual(source,before,'one damaged copy cannot mutate completed buildings');
+ assert.equal(modelStage(source,4).p.length, source.faces.reduce((n,count,i)=>i%2 || !source.modes[i/2]?n:n+(count===3?9:18),0));assert.deepEqual(source,before,'one damaged copy cannot mutate completed buildings');
  b.progress=1;b.damageState={stage:2};assert.equal(buildingStage(b),2,'damage takes priority over completed construction');
 });
 
@@ -1717,4 +1722,23 @@ test('live followers share routes, advance before exact arrival and release ever
  const result=createWorld(),followers=result.units.filter(u=>u.team==='blue'&&u.kind==='brave');result.selected=followers.map(u=>u.id);command(result,goal);
  assert.ok(result.pathfinding.people.size>0);result.units=result.units.filter(u=>u.team==='blue');result.turn=31;result.ai.variables[57]=1;tick(result,1/12);
  assert.equal(result.status,'won');assert.equal(result.pathfinding.people.size,0);assert.equal(result.motionRoutes.active,0,'victory releases ordinary routes before native celebration takes over');
+});
+
+test('hut families are selected once, shared with shapes and retained through upgrades',async()=>{
+ const {default:rules}=await import('../app/original-rules.json',{with:{type:'json'}});
+ const w=createWorld(),b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut');
+ assert.deepEqual(w.buildings.map(buildingObject),[112,104,119,119]);
+ const seed=w.randomState,id=buildingObject(b);
+ assert.equal(buildingPose(b).object,id);assert.equal(buildingObject(structuredClone(b)),id);
+ assert.equal(w.randomState,seed,'drawing and shape queries must not reroll the hut');
+ const families=new Set();
+ for(let seed=1;seed<=32;seed++){
+  w.randomState=seed;const hut=addBuilding(w,'blue','hut',{x:0,z:0});families.add(hut.object);
+  assert.ok(nativeModels[hut.object]);w.buildings.pop();
+ }
+ assert.deepEqual([...families].sort((a,b)=>a-b),[107,119,131]);
+ const u=w.units.find(u=>u.team==='blue'&&u.kind==='brave');u.inside=b.id;u.work=b.id;
+ b.upgrade=rules.hutUpgradeWork[0];w.turn=15;tick(w,1/12);
+ assert.equal(b.level,2);assert.equal(b.object,id+1);assert.equal(b.progress,0);
+ const legacy={...b};delete legacy.object;assert.equal(buildingObject(legacy),132);
 });

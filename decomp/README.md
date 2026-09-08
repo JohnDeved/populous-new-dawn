@@ -2547,3 +2547,56 @@ open. Native projection/morph comparisons do not claim that complete outer UI
 controller has been CPU-compared. The newly exported instant-mode/menu handlers
 are retained as research, not claimed ports. Nine new hashes bring the verified
 manifest to 850 exports. Camera and whole-frame raster checkpoints remain partial.
+
+
+## Original hut families and retained collapse faces — 2026-09-08
+
+`0040b170` selects a building's signed object short at unit+99. Descriptor flag
+0x2000 selects one of three hut families with one game RNG draw at 0x89d178:
+base object + (random % 3) * 12 + signed tribe * 3. Flag 0x4000 adds signed tribe
+to non-hut bases without RNG. All 20 descriptor models, six owner byte values
+and 16 seeds each match 1,920 complete native calls, without stubbed callees.
+`004050c0` supplies current object + 1 to a replacement on upgrade; `00403610`
+initializes the replacement then applies that supplied identity. The browser
+retains the family through its existing upgrade producer. Full replacement
+allocation, decoration RNG and global initialization order are not yet ported;
+this does not establish the exact opening family sequence of an original run.
+
+The importer now includes objects 107–142: three families, three levels, four
+tribes (55 total mission models). One stored building identity is shared by
+rendering, footprint/entrance lookup and collapse. The scene rebuilds on identity
+or damage-stage changes. Legacy browser state without an identity preserves its
+previous family. New assets use the existing verified bank-2 source hashes.
+
+Expanding collapse checks exposed a root-cause importer error: mode-zero picking
+faces were discarded, but `00407860` still allocates them and consumes RNG.
+Models now retain all faces and their texture modes. The shared display predicate
+omits mode zero except when `00471c40` substitutes a visible construction cap.
+`00470160` retains the same distinction for fragments. Invisible debris continues
+its physics/impact/RNG lifetime without a drawable mesh. Lighting follows the
+same filtered face sequence. Native comparisons now cover 1,050 collapse calls,
+30,665 faces, 8,192 flight snapshots, 128 splash initializations, 2,216 construction
+calls (17,948 queued triangles before mode-zero raster filtering), and 990 model
+lighting passes. Existing native shader, normal and sunlight comparisons pass.
+
+```sh
+python scripts/check-native-building-objects.py /path/to/d3dpoptb.exe
+python scripts/check-native-building-faces.py /path/to/d3dpoptb.exe
+python scripts/check-native-building-debris.py /path/to/d3dpoptb.exe
+python scripts/check-native-model-lighting.py /path/to/d3dpoptb.exe
+node scripts/check-browser-building-objects.mjs
+node scripts/check-browser-building-debris.mjs
+```
+
+The browser variant check renders every one of the 36 models, checks finite
+geometry, live identity replacement and 29,415–57,743 changed GPU pixels.
+Portable gameplay checks retain family selection, non-mutating shape/display
+queries, upgrade identity and capped versus uncapped picking-face behavior.
+Complete hut activity/upgrade scheduling, all other models and original matched
+full-frame rendering remain open; graphics.variants stays partial.
+
+The fire UV animation adapter uses the filtered drawable face sequence too;
+its Lightning/tree-fire browser check confirms animated original UVs, actual GPU
+pixels, grounding, shrinking trees, sound, smoke and cleanup. The expanded live
+hut-collapse check observes four invisible fragments and verifies their groups
+have no drawable children while ordinary faces remain textured and moving.

@@ -30,6 +30,16 @@ function shape(b: BuildingShapePose) {
   return result
 }
 
+// 0x40b170: huts choose one of three families; other tribe-colored buildings
+// use consecutive objects. Only the hut branch consumes the game RNG.
+export function chooseBuildingObject(model: number, tribe: number, rng: { randomState: number }) {
+  tribe = (tribe << 24) >> 24
+  const base = rules.buildingObjects[model],
+    flags = rules.buildingFlags[model]
+  if (flags & 0x2000) return short(base + (random(rng) % 3) * 12 + tribe * 3)
+  return short(base + (flags & 0x4000 ? tribe : 0))
+}
+
 // 0x40b320: choose a smoke socket from the current object's rotated shape.
 // Socket bytes are x/unused/y in 32-unit coordinates; shape origins use 256 units.
 export function buildingSmokePoint(b: BuildingShapePose, rng: { randomState: number }) {

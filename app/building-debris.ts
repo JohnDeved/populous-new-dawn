@@ -11,6 +11,7 @@ export interface BuildingDebris extends DirectedEffect {
   vertices: number[][]
   uv: number[]
   cap: boolean
+  visible: boolean
   heading: number
   tilt: number
   roll: number
@@ -90,6 +91,7 @@ export function* collapseBuildingFaces(
       h,
       face,
       cap,
+      visible: cap || model.modes[face] !== 0,
       vertices: points.map(p => [
         short(p[0] + (short(source.x - x) >> 1)),
         short(p[1] - h + source.h),
