@@ -1255,8 +1255,8 @@ and the `004e9d80` wrapper. Route construction (`004ea970`), advancement
 (`004eadc0`), vehicle landing adjustment (`004ec3f0`), building outside/access,
 coastal direction and vehicle readiness remain explicit consumers.
 
-The native pool at `00955c29` contains 400 usable 109-byte records plus reserved
-record zero. Reference count is a signed word, flags are byte +2, base/end cells
+The native pool at `00955c29` addresses 400 109-byte records plus reserved record zero; construction
+uses the distinct allocation boundary documented below. Reference count is a signed word, flags are byte +2, base/end cells
 start at +4/+8, 24 intermediate records start at +12, and length is byte +108.
 Active count and last-used index are signed words at `009557b0`/`009557ae`.
 Release preserves flag-4 records at zero users and leaves motionIndex untouched
@@ -1283,3 +1283,45 @@ regressions. Planned destinations in the live preparation/order adapter still
 need native construction/advancement before full route following can be enabled.
 The newly exported `004f2480` is a byte read at person +0xaf; its lifecycle remains
 to be identified before replacing the idle controller's corresponding consumer.
+
+## Route construction and failed-search caching
+
+`buildPersonRoute` reconstructs complete `004ea970` (low-word result), composing
+the native allocation scan, failed endpoint cache, near/far airship fallbacks,
+result copying and flag decisions. `ageFailedRoutes` and `clearFailedRoute`
+reconstruct `004ec390`/`004ec680`. `attachPersonRoute` shares `004ea3b0` and the
+reserved variant `004ea400`; destination planning now uses that shared helper.
+The path-search primitive `00420840` and airship chooser `00466920` are exported
+but still supplied consumers, as is route advancement. The unhalved byte-cell
+distance in `00450590` uses the existing wrapped coordinate helper.
+
+Instruction `004eaa58` compares the allocation pointer against `00960679` and
+wraps on greater-than-or-equal: allocation probes slots **1–399**, up to 400
+times. This differs from reuse, whose backwards scan can visit slot 400.
+Only zero reference counts qualify; reservation flags do not prevent allocation.
+The cursor at `009557ac` advances even when the subsequent search fails.
+
+Failed-search records at `00955bd9` are eight 10-byte entries. Any nonzero signed
+timer can match masked endpoint bytes. A miss replaces the first minimum timer
+with 16, preserving unused bytes. Aging decrements every nonzero signed word,
+including underflow; explicit invalidation clears all matching timers. The result
+buffer at `009557d0` holds two 4-byte endpoints, 256 4-byte path records and the
+byte count at `00955bd8`. Construction copies at most **23** points and derives
+vehicle flags only from the copied points. It preserves stale destination-record
+bytes, does not attach the person and does not increment active-route count.
+
+Run `scripts/check-native-route-build.py EXE`: 8,192 comparisons, 2,048 each for
+aging, invalidation, construction and construction inside native destination
+planning. Only path search, airship choice/readiness and advancement are supplied.
+Every route-pool and search-result byte, all cache bytes, cursor/counts, owned
+person fields, endpoint XY changes and callback order are compared. Cases include
+full allocation, slot-400-only availability, signed timers, cache hits, expiry,
+callback changes to eligibility, both vehicle fallbacks and result truncation.
+The route oracle now adds direct/reserved attachment, for 18,432 comparisons.
+
+The 59th gameplay regression follows a cached failure through expiry, successful
+construction, 23-point storage and reserved ownership release. Browser checks
+retain shared-route release and restart coverage. There are 624 raw exports.
+The live adapter still requires core path search and advancement before ordinary
+followers can use full native route following; passing construction fixtures does
+not establish that integration.

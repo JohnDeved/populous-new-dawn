@@ -1353,3 +1353,31 @@ test('native route reuse shares ownership and live celebration releases each fol
  assert.equal(second.motionGroup,0);assert.equal(v.getInt16(a,true),0);assert.equal(routes.records[a+2],0);assert.equal(routes.active,0);
  assert.ok(createWorld().motionRoutes.records.every(n=>n===0),'restart discards previous route ownership');
 });
+
+test('native route construction retries expired failures and stores the original bounded path', async () => {
+ const {createLivePerson}=await import('../app/live-people.ts');
+ const {buildPersonRoute,ageFailedRoutes,attachPersonRoute,releasePersonRoute}=await import('../app/person-routes.ts');
+ const world=createWorld(),unit=world.units.find(u=>u.kind==='brave'&&u.team==='blue'),p=createLivePerson(world,unit),w=world.motionRoutes;
+ const v=new DataView(w.records.buffer),from={x:10,y:20},to={x:60,y:80},tribe={flags:0};
+ for(let i=1;i<400;i++)v.setInt16(i*109,1,true);
+ const unexpected=()=>{throw Error('Unexpected route search');};
+ assert.equal(buildPersonRoute(w,p,from,to,0,tribe,{findVehicle:unexpected,search:unexpected}),0,'slot 400 is outside the allocation scan');
+ w.records.fill(0);w.cursor=399;let calls=0,success=false;
+ const e={findVehicle:unexpected,search:()=>{
+  calls++;if(!success)return 1;
+  w.pathResult.set([from.x,from.y,0,0,to.x,to.y,0,0]);w.pathResult[1032]=24;
+  for(let i=0;i<24;i++)w.pathResult.set([10+i,20+i,i===23?1:0,0],8+i*4);
+  return 0;
+ }};
+ assert.equal(buildPersonRoute(w,p,from,to,0,tribe,e),0);assert.equal(calls,1);assert.equal(w.cursor,1);
+ assert.ok(p.flags4&0x10000000);
+ for(let i=0;i<15;i++){ageFailedRoutes(w);assert.equal(buildPersonRoute(w,p,from,to,0,tribe,e),0);}
+ assert.equal(calls,1,'cached failure prevents repeated path searches');
+ ageFailedRoutes(w);success=true;
+ const id=buildPersonRoute(w,p,from,to,0,tribe,e);assert.equal(id,2);assert.equal(calls,2);assert.equal(p.flags4&0x10000000,0);
+ assert.equal(w.records[id*109+108],23);assert.equal(w.records[id*109+2]&1,0,'a truncated point cannot contribute vehicle flags');
+ assert.deepEqual([...w.records.slice(id*109+4,id*109+12)],[10,20,0,0,60,80,0,0]);
+ assert.equal(w.active,0,'construction does not yet own a route');
+ attachPersonRoute(w,p,id,true);assert.equal(w.active,1);releasePersonRoute(w,p);
+ assert.equal(w.active,0);assert.equal(v.getInt16(id*109,true),0);assert.ok(w.records[id*109+2]&4,'reserved route survives its last owner');
+});
