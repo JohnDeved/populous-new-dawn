@@ -18,6 +18,9 @@ type Ground=Pick<NativeTerrain,'heights'|'flags'>;
 type Position={x:number;y:number};
 function heightCorners(land:Ground,i:number){const h=land.heights;return [h[i],h[neighbor(i,0,1)],h[neighbor(i,1,1)],h[neighbor(i,1,0)]];}
 
+// Complete 0x44f600, unlike triangle range: four corners and no 0/1024 bounds.
+export function terrainCellHeightRange(land:Ground,cell:number){const h=heightCorners(land,indexOf(cell));return Math.max(...h)-Math.min(...h);}
+
 // 0x44e940, signed low word: use the stored diagonal, including pending edits.
 export function terrainPointHeight(land:Ground,p:Position){
   const i=((p.y&65535)>>9)*128+((p.x&65535)>>9),[a,b,c,d]=heightCorners(land,i),x=(p.x&510)>>1,y=(p.y&510)>>1;

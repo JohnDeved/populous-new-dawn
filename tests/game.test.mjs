@@ -1295,3 +1295,37 @@ test('native idle approach composes with shared state and original resting anima
  assert.equal(p.state,19);assert.equal(p.stateObject,1);assert.equal(p.flags2&0x40000000,0);assert.equal(w.randomState,seed);
  assert.equal(w.poseRandom.randomState,456,'resting does not consume the separate pose-pause RNG');
 });
+
+test('native resting ownership allocates distinct slots and compacts after a follower leaves', async () => {
+ const {createLivePerson}=await import('../app/live-people.ts');
+ const {insertObjectIntoCell,removeObjectFromCell,objectsInCell}=await import('../app/object-cells.ts');
+ const {createIndexedSearch}=await import('../app/indexed-search.ts');
+ const {createRestingSlots,findRestingSlot,restingSlotAvailable,rebuildRestingSlots}=await import('../app/resting-slots.ts');
+ const {idleSlotPosition,stepRestingPerson}=await import('../app/person-idle.ts');
+ const rules=(await import('../app/original-rules.json',{with:{type:'json'}})).default;
+ const world=createWorld(),ps=world.units.filter(u=>u.kind==='brave'&&u.team==='blue').slice(0,2).map(u=>createLivePerson(world,u));
+ world.land.heights.fill(100);world.land.flags.fill(0);world.land.categories.fill(rules.terrainCategoryFlags.findIndex(f=>f&1));
+ const cell=0x2020,center={x:0x2100,y:0x2100};
+ for(const p of ps){
+  Object.assign(p,center,{state:19,substate:5,flags2:0,assignment:1,anchorX:center.x,anchorY:center.y,formationCell:0,anchorFlags:0,counter:4});
+  world.objectCells.objects.set(p.id,p);insertObjectIntoCell(world.objectCells,p,p);
+ }
+ const unexpected=()=>{throw Error('Unexpected resting world consumer');};
+ const w={land:world.land,orders:{records:[],cursor:0,active:0},cellObjects:c=>objectsInCell(world.objectCells,c),outside:unexpected,
+  search:createIndexedSearch(),slotOffsets:createRestingSlots(),randomState:123,poseRandom:{randomState:456},turn:2,shamans:new Map()};
+ const [first,second]=ps;
+ assert.ok(findRestingSlot(w,first));assert.equal(first.anchorFlags,0x11);
+ assert.deepEqual(idleSlotPosition(w.slotOffsets,cell,first.anchorFlags),center);
+ assert.ok(findRestingSlot(w,second));assert.equal(second.anchorFlags,2);
+ assert.equal(first.formationCell,cell);assert.equal(second.formationCell,cell);
+ rebuildRestingSlots(w,cell);
+ assert.deepEqual(ps.map(p=>p.anchorFlags),[0x21,0x22]);assert.ok(ps.every(p=>restingSlotAvailable(w,p)));
+ assert.equal(restingSlotAvailable(w,second,cell,0x11),false,'another shape cannot claim an occupied slot');
+ const effects={occupied:()=>false,setAnimation:unexpected,releaseMotion:unexpected,validSlot:unexpected,findSlot:unexpected,
+  directDestination:unexpected,insert:unexpected,height:unexpected,allocateLog:unexpected,sound:unexpected,refreshCell:unexpected,frameCount:unexpected};
+ stepRestingPerson(w,second,effects);assert.equal(second.substate,1);assert.equal(second.assignment&2,0);
+ removeObjectFromCell(world.objectCells,first);rebuildRestingSlots(w,cell);
+ assert.equal(second.anchorFlags,0x11);assert.ok(second.assignment&2,'survivor is asked to return to the center');
+ assert.deepEqual(idleSlotPosition(w.slotOffsets,cell,second.anchorFlags),center);
+ assert.ok(restingSlotAvailable(w,second));assert.ok(w.search.every((v,i)=>i%12!==0||v===0),'every search releases its handle');
+});

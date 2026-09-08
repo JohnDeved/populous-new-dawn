@@ -1207,3 +1207,41 @@ spy rendering remains outside the current supported live classes. There are 609
 raw exports and 56 gameplay regressions, including a composed approach/resting
 handoff and real-browser gesture rendering. Ordinary live idle scheduling remains
 unintegrated until its native search/slot/world consumers are available.
+
+## Indexed searches and resting-position ownership
+
+`scripts/import-search.py DATA/mwsearch.dat` imports the original 8,320-byte
+search table into `app/original-search.json`, checking its SHA-256
+`0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0`.
+Use `scripts/extract-reference.py` with `data/mwsearch.dat` to reproduce extraction
+from the supplied installer. Loader `0049a5f0` reads directly into `008929cd`;
+that address contains the data, not a pointer. There are 32 ring offset/count
+pairs followed by 8,192 signed coordinate bytes.
+
+`app/indexed-search.ts` reconstructs `0049a2f0`, `0049a3f0` and `0049a5d0`.
+The shared pool retains all bytes of the original 16 records, including reserved
+slot zero, stale fields, the aliased type-1/type-2 fields, explicit release and
+the repeated first point at each type-2 ring boundary. Undefined search types
+are rejected; stepping an exhausted handle is outside the supported lifecycle.
+
+`app/resting-slots.ts` reproduces the fresh-world `0042c210` startup geometry
+(44 positions, with shape zero aliasing six), `004d55a0` cell eligibility with
+the original `004f62c0` current-command predicate, `004d5420` slot validity,
+`004d5120` slot search and `004d56f0` group compaction. Vehicle eligibility uses
+the imported model flag byte at `005a794d + model*23`. Terrain rejection composes
+the four-corner `0044f600` height range and original coastal point predicate.
+Occupancy follows native cell order, compares slot low nibbles independently
+of shape and requests repositioning when group membership changes.
+
+Run `scripts/check-native-resting-slots.py EXE`: 16,384 sequential indexed-search
+operations compare every record byte, startup checks compare every offset, and
+2,048 cases each compare cell eligibility, slot validity, search and compaction.
+Native search, terrain, command and linked-list routines execute; only the
+building outside-point consumer is supplied. Slot-validity fixtures use owned
+slots within their shape; invalid shape/slot combinations read unrelated native
+storage. Search pool exhaustion, stale bytes, marked objects and failed terrain
+eligibility are included. A gameplay regression composes actual linked cells,
+search, ownership, compaction and the resting controller's reposition request
+through follower arrival and departure. There are 612 raw exports and 57 gameplay
+regressions. Ordinary idle behavior still awaits live scheduling and remaining
+path/world-consumer integration; these ports do not replace it yet.

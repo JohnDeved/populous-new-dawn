@@ -2693,6 +2693,13 @@
     32,
     0
   ],
+  "vehicleRestFlags": [
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
   "restingAnimationFrameSource": 712,
   "personMana": [
     0,
