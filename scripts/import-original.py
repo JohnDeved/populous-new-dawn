@@ -146,26 +146,15 @@ def main():
         frame_counts.append(len(seen)&255)
     # VELE references legacy six-byte TAB records, numbered from one. VFRA chains
     # retain each body/weapon/clothing layer's signed offset and original timing.
-    def composite(frame, team, kind):
+    def frame_layers(frame):
         layers=[];element=frames[frame][0];visited=set()
         while element:
             assert element<len(elements) and element not in visited;visited.add(element)
             pos,x,y,flags,element=elements[element]
-            layer,variant=(flags>>4)&31,flags>>9
-            include=(layer==0 and variant!=1) or (layer==1 and variant==(1 if team=='red' else 0) and kind!='shaman') or (layer==2 and variant==2 and kind=='warrior')
-            if include:
-                assert pos%6==0 and 0<pos//6<=len(bank)
-                w,h,data=bank[pos//6-1];layers.append((x,y,w,h,data,flags))
-        assert layers
-        left=min(a[0] for a in layers);top=min(a[1] for a in layers)
-        width=max(x+w for x,y,w,h,data,flags in layers)-left;height=max(y+h for x,y,w,h,data,flags in layers)-top
-        pixels=bytearray(width*height*4)
-        for x,y,w,h,data,flags in layers:
-            for sy in range(h):
-                for sx in range(w):
-                    dx,dy=x-left+(w-1-sx if flags&1 else sx),y-top+sy
-                    if data[(sy*w+sx)*4+3]:pixels[(dy*width+dx)*4:(dy*width+dx)*4+4]=data[(sy*w+sx)*4:(sy*w+sx)*4+4]
-        return width,height,left,top,pixels
+            assert pos%6==0 and 0<pos//6<=len(bank)
+            piece=pos//6-1
+            layers.append({'piece':piece,'x':x,'y':y,'flags':flags})
+        return layers
     metadata = {}; rendered = []; source_frames = []; cache = {}
     for team in ['blue','red','wild']:
         for kind in (['brave'] if team=='wild' else ['brave','warrior','shaman']):
@@ -184,19 +173,26 @@ def main():
                     while frame not in seen:
                         assert 0<frame<len(frames);seen.add(frame)
                         key=(frame,team,kind)
-                        if key not in cache:cache[key]=len(rendered);rendered.append(composite(frame,team,kind));source_frames.append(frame)
+                        if key not in cache:cache[key]=len(rendered);rendered.append(frame_layers(frame));source_frames.append(frame)
                         cycle.append(cache[key]);frame=frames[frame][-1]
                     directions.append({'frames':cycle,'flip':bool(mirror),'source':start+direction})
                 metadata[f'{team}-{kind}'][state]=directions
+    # Keep raw pieces: the original scales offsets and rectangles separately,
+    # and enables/disables layers at draw time (including standing shadows).
+    used=sorted({layer['piece'] for layers in rendered for layer in layers})
+    piece_index={source:i for i,source in enumerate(used)}
     cell=1
-    while cell<max(max(w,h) for w,h,x,y,data in rendered):cell*=2
-    width=cell*32;height=((len(rendered)+31)//32)*cell;pixels=bytearray(width*height*4)
-    for i,(w,h,left,top,data) in enumerate(rendered):
+    while cell<max(max(bank[i][:2]) for i in used):cell*=2
+    width=cell*32;height=((len(used)+31)//32)*cell;pixels=bytearray(width*height*4)
+    pieces=[]
+    for i,piece_source in enumerate(used):
+        w,h,data=bank[piece_source];pieces.append({'source':piece_source,'w':w,'h':h})
         x=i%32*cell;y=i//32*cell
         for row in range(h):pixels[((y+row)*width+x)*4:((y+row)*width+x+w)*4]=data[row*w*4:(row+1)*w*4]
-    png(output/'units.png',width,height,pixels)
-    info=[{'w':w,'h':h,'x':x,'y':y,'source':source_frames[i],'nativeWidth':frames[source_frames[i]][1],'nativeHeight':frames[source_frames[i]][2]} for i,(w,h,x,y,data) in enumerate(rendered)]
-    (project/'app/original-units.json').write_text(json.dumps({'width':width,'height':height,'cell':cell,'columns':32,'fps':12,'frameCounts':frame_counts,'frames':info,'animations':metadata},separators=(',',':')))
+    png(output/'unit-layers.png',width,height,pixels)
+    info=[{'source':source_frames[i],'nativeWidth':frames[source_frames[i]][1],'nativeHeight':frames[source_frames[i]][2],
+        'layers':[{**layer,'piece':piece_index[layer['piece']]} for layer in layers]} for i,layers in enumerate(rendered)]
+    (project/'app/original-units.json').write_text(json.dumps({'atlas':'unit-layers','width':width,'height':height,'cell':cell,'columns':32,'fps':12,'frameCounts':frame_counts,'frames':info,'pieces':pieces,'animations':metadata},separators=(',',':')))
     hfx_data=read('data/hfx0-0.dat');hfx=sprites(hfx_data,palette)
     # 0x476570: HFX high nibble selects an AL0 colour, low nibble is 0..15 alpha.
     fx_palette=b''.join(palette[alpha[(v|15)*256]*4:alpha[(v|15)*256]*4+3]+bytes([(v&15)*17]) for v in range(256))
@@ -241,7 +237,7 @@ def main():
     (output/'landscape.bin').write_bytes(b''.join(terrain))
     waves=read('data/watdisp.dat');assert len(waves)==65536
     (output/'waves.bin').write_bytes(waves)
-    (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'compositedFrames':len(rendered),'sha256':hashes},indent=2)+'\n')
-    print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} composite animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
+    (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'animationFrames':len(rendered),'spritePieces':len(pieces),'sha256':hashes},indent=2)+'\n')
+    print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} layered animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 
 if __name__=='__main__':main()

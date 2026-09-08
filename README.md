@@ -35,7 +35,14 @@ npm run build
 # With the development server running and Google Chrome installed:
 node qa/browser-check.mjs
 node qa/flyby-check.mjs
+npm run test:sprites
 ```
+
+`npm run test:sprites` checks a frozen atlas hash, 336 original-engine pose fixtures,
+actual GPU artwork at native resolution, scaled layer rectangles, selection and
+Blast shadows. Run it after sprite, atlas, animation or projection changes. The
+fixture generator requires the original executable; updating fixtures is an
+explicit `--record` operation after reviewing native comparisons, not part of tests.
 
 Tests cover the original setup, closed island crossings, worship/discoveries, timber delivery, explicit training, mana allocation, complete mission victory, defeat, reincarnation and spherical foundation geometry. Playwright exercises the visible mission controls, construction, training, audio, pause, planet rotation and restart.
 

@@ -14,7 +14,6 @@ import {
 import { defeatSky, createSkyMotion, updateSkyArray, skyCloudLayer } from './sky.ts'
 import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import { waterTexture, waterPoint, waterCell } from './water.ts'
-import { vertexLighting } from './projection.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { modelLighting, modelHighlight } from './model-lighting.ts'
 import skyPalette from './original-sky.json'
@@ -68,6 +67,7 @@ import { modelStage, type NativeModel } from './model-faces.ts'
 const nativeModels: Record<number, NativeModel> = nativeModelData
 import { morphCoordinate } from './morph.ts'
 import {
+  vertexLighting,
   spriteDirection,
   spriteCoordinate,
   spriteBucket,
@@ -77,6 +77,7 @@ import {
 } from './projection.ts'
 import { RenderView } from './render-view.ts'
 import nativeUnits from './original-units.json'
+import { spriteLayers } from './sprite-layers.ts'
 import nativeEffects from './original-effects.json'
 import nativeHud from './original-hud.json'
 import { spellCursor } from './spell-casting.ts'
@@ -105,7 +106,7 @@ function texture(kind: string) {
     kind.endsWith('detail') || kind === 'lightning-bolt' ? THREE.NoColorSpace : THREE.SRGBColorSpace
   t.wrapS = t.wrapT = THREE.RepeatWrapping
   t.anisotropy = 8
-  if (kind === 'units' || kind === 'effects' || kind === 'selection') {
+  if (kind === nativeUnits.atlas || kind === 'effects' || kind === 'selection') {
     t.magFilter = t.minFilter = THREE.NearestFilter
     t.generateMipmaps = false
   }
@@ -224,14 +225,7 @@ function part(
   return m
 }
 function makeUnit(u: Unit) {
-  const g = new THREE.Group(),
-    map = texture('units').clone()
-  map.repeat.set(nativeUnits.cell / nativeUnits.width, nativeUnits.cell / nativeUnits.height)
-  const sprite = new THREE.Sprite(
-    new THREE.SpriteMaterial({ map, alphaTest: 0.5, depthWrite: true, toneMapped: false })
-  )
-  // Frame-specific offsets keep native feet, headdresses and death poses anchored.
-  g.add(sprite)
+  const g = new THREE.Group()
   const shadow = new THREE.Sprite(
     new THREE.SpriteMaterial({
       map: texture('effects').clone(),
@@ -261,7 +255,7 @@ function makeUnit(u: Unit) {
     unit: u.id,
     owner: u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1,
     signature: `${u.team}-${u.kind}`,
-    sprite,
+    layers: [],
     shadow,
     selection,
     health,
@@ -1106,16 +1100,16 @@ export class GameScene {
         this.world.units
           .filter(u => u.team === 'blue' && u.inside === null && this.visible(u))
           .find(u => {
-            const body = this.unitMeshes.get(u.id)?.userData.sprite as THREE.Sprite | undefined
-            if (!body) return false
+            const bounds = this.unitMeshes.get(u.id)?.userData.bounds
+            if (!bounds) return false
             const q = this.screen(u),
               px = ((q.x + 1) * rect.width) / 2,
               py = ((1 - q.y) * rect.height) / 2
             return (
-              x >= px - body.center.x * body.scale.x &&
-              x <= px + (1 - body.center.x) * body.scale.x &&
-              y >= py - (1 - body.center.y) * body.scale.y &&
-              y <= py + body.center.y * body.scale.y
+              x >= px + bounds.left &&
+              x <= px + bounds.right &&
+              y >= py + bounds.top &&
+              y <= py + bounds.bottom
             )
           }) ??
         this.world.units
@@ -1337,7 +1331,6 @@ export class GameScene {
     this.updateView()
   }
   animatePerson(
-    body: THREE.Sprite,
     g: THREE.Group,
     heading: number,
     directions: { frames: number[]; flip: boolean }[],
@@ -1354,18 +1347,8 @@ export class GameScene {
       index =
         cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length],
       cell = nativeUnits.cell
-    const frame = nativeUnits.frames[index],
-      map = body.material.map!
+    const frame = nativeUnits.frames[index]
     g.userData.frame = index
-    map.repeat.set(
-      (cycle.flip ? -frame.w : frame.w) / nativeUnits.width,
-      frame.h / nativeUnits.height
-    )
-    map.offset.set(
-      ((index % nativeUnits.columns) * cell + (cycle.flip ? frame.w : 0)) / nativeUnits.width,
-      1 - (Math.floor(index / nativeUnits.columns) * cell + frame.h) / nativeUnits.height
-    )
-    body.center.set(cycle.flip ? 1 + frame.x / frame.w : -frame.x / frame.w, 1 + frame.y / frame.h)
     const shaman = g.userData.signature?.endsWith('shaman') || g.userData.shaman,
       flags = this.view.config.scaledSprites ? 0x100 : 0,
       depth = this.view.project(g.position, (g.position.y * 128) / 45).z,
@@ -1373,7 +1356,58 @@ export class GameScene {
     g.userData.spriteBucket = bucket
     const size = (n: number) =>
       shaman || flags ? spriteCoordinate(n, bucket, flags, this.view.config) : n
-    body.scale.set(Math.max(0, size(frame.w)), Math.max(0, size(frame.h)), 1)
+    const descriptor = rules.animationDescriptors[g.userData.draw ?? 14]
+    const draws = spriteLayers(
+      frame.layers,
+      nativeUnits.pieces,
+      {
+        owner: shaman ? -1 : g.userData.owner,
+        person: descriptor.person,
+        variant: descriptor.variant,
+        flags: (g.userData.drawFlags ?? 0) | (cycle.flip ? 1 : 0),
+        bucket,
+        scale: !!(shaman || flags),
+        levelFlags: flags,
+      },
+      this.view.config
+    )
+    const layers = g.userData.layers as THREE.Sprite[]
+    const bounds = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }
+    for (let i = 0; i < draws.length; i++) {
+      const draw = draws[i]
+      let layer = layers[i]
+      if (!layer) {
+        layer = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: texture(nativeUnits.atlas).clone(),
+            alphaTest: 0.5,
+            depthWrite: true,
+            toneMapped: false,
+          })
+        )
+        layers.push(layer)
+        g.add(layer)
+      }
+      layer.visible = draw.w > 0 && draw.h > 0
+      layer.userData.piece = draw.piece
+      if (!layer.visible) continue
+      const piece = nativeUnits.pieces[draw.piece],
+        map = layer.material.map!,
+        flip = !!(draw.flags & 1)
+      map.repeat.set((flip ? -piece.w : piece.w) / nativeUnits.width, piece.h / nativeUnits.height)
+      map.offset.set(
+        ((draw.piece % nativeUnits.columns) * cell + (flip ? piece.w : 0)) / nativeUnits.width,
+        1 - (Math.floor(draw.piece / nativeUnits.columns) * cell + piece.h) / nativeUnits.height
+      )
+      layer.center.set(-draw.x / draw.w, 1 + draw.y / draw.h)
+      layer.scale.set(draw.w, draw.h, 1)
+      bounds.left = Math.min(bounds.left, draw.x)
+      bounds.top = Math.min(bounds.top, draw.y)
+      bounds.right = Math.max(bounds.right, draw.x + draw.w)
+      bounds.bottom = Math.max(bounds.bottom, draw.y + draw.h)
+    }
+    for (let i = draws.length; i < layers.length; i++) layers[i].visible = false
+    g.userData.bounds = bounds
     const arrow = g.userData.selection as THREE.Sprite | undefined
     if (arrow) {
       // Selection ownership currently comes from the browser command list.
@@ -1398,7 +1432,6 @@ export class GameScene {
         arrow.center.set(-r.x / r.width, 1 + r.y / r.height)
       }
     }
-    body.material.rotation = 0
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
@@ -1432,14 +1465,10 @@ export class GameScene {
     }
     this.locate(g, f, f.height)
     if (f.unit) {
-      const map = texture('units').clone(),
-        sprite = new THREE.Sprite(
-          new THREE.SpriteMaterial({ map, alphaTest: 0.5, toneMapped: false })
-        )
-      sprite.center.set(0.5, 0.25)
-      sprite.scale.setScalar(nativeUnits.cell)
-      g.add(sprite)
-      g.userData.sprite = sprite
+      g.userData.layers = []
+      g.userData.owner = f.unit.team === 'blue' ? 0 : f.unit.team === 'red' ? 1 : -1
+      g.userData.draw = f.unit.kind === 'warrior' ? 15 : 14
+      g.userData.drawFlags = 2
       g.userData.shaman = f.unit.kind === 'shaman'
       return g
     }
@@ -1515,10 +1544,6 @@ export class GameScene {
       positions.needsUpdate = true
       return
     }
-    const sprite = g.userData.sprite as THREE.Sprite
-    if (f.lightning) this.animateLightning(g.userData.bolt, f.lightning)
-    sprite.visible = f.animation?.object !== 0x650 && !(f.animation && f.animation.renderFlags & 16)
-    if (!sprite.visible) return
     if (f.unit) {
       const animations = (
         nativeUnits.animations as Record<
@@ -1526,10 +1551,15 @@ export class GameScene {
           Record<string, { frames: number[]; flip: boolean }[]>
         >
       )[`${f.unit.team}-${f.unit.kind}`]
-      this.animatePerson(sprite, g, f.unit.heading, animations.die, f.age, true)
-      sprite.material.opacity = Math.min(1, (f.duration - f.age) * 3)
+      this.animatePerson(g, f.unit.heading, animations.die, f.age, true)
+      for (const layer of g.userData.layers as THREE.Sprite[])
+        layer.material.opacity = Math.min(1, (f.duration - f.age) * 3)
       return
     }
+    const sprite = g.userData.sprite as THREE.Sprite
+    if (f.lightning) this.animateLightning(g.userData.bolt, f.lightning)
+    sprite.visible = f.animation?.object !== 0x650 && !(f.animation && f.animation.renderFlags & 16)
+    if (!sprite.visible) return
     const sequence = (
       nativeEffects.animations as Record<
         string,
@@ -1824,7 +1854,10 @@ export class GameScene {
           shadow.center.set(-r.x / r.width, 1 + r.y / r.height)
         }
       }
-      const body = g.userData.sprite as THREE.Sprite
+      g.userData.draw = u.native?.draw ?? (u.kind === 'warrior' ? 15 : 14)
+      const renderFlags = u.native?.renderFlags ?? 0
+      g.userData.drawFlags =
+        (renderFlags & 0xa000 || u.lift > 0 ? 2 : 0) | (renderFlags & 0x4000 ? 4 : 0)
       const animations = (
         nativeUnits.animations as Record<
           string,
@@ -1843,10 +1876,9 @@ export class GameScene {
         )
         if (!directions)
           throw new Error(`Unimported follower animation ${g.userData.signature}/${source}`)
-        this.animatePerson(body, g, u.heading, directions, 0, false, u.native.f2)
+        this.animatePerson(g, u.heading, directions, 0, false, u.native.f2)
       } else
         this.animatePerson(
-          body,
           g,
           u.heading,
           animations[state] ?? animations.idle,

@@ -4533,6 +4533,8 @@
       "hold": 1,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 6
@@ -4541,6 +4543,8 @@
       "hold": 4,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 16388
@@ -4549,6 +4553,8 @@
       "hold": 0,
       "step": 2,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 34
@@ -4557,6 +4563,8 @@
       "hold": 0,
       "step": 2,
       "mode": 3,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4565,6 +4573,8 @@
       "hold": 0,
       "step": 4,
       "mode": 4,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 8
@@ -4573,6 +4583,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 162
@@ -4581,6 +4593,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4589,6 +4603,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 18
@@ -4597,6 +4613,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4605,6 +4623,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4613,6 +4633,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 162
@@ -4621,6 +4643,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4629,6 +4653,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4637,6 +4663,8 @@
       "hold": 0,
       "step": 0,
       "mode": 2,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4645,6 +4673,8 @@
       "hold": 0,
       "step": 0,
       "mode": 2,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4653,6 +4683,8 @@
       "hold": 0,
       "step": 0,
       "mode": 2,
+      "person": 2,
+      "variant": 2,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4661,6 +4693,8 @@
       "hold": 0,
       "step": 0,
       "mode": 2,
+      "person": 3,
+      "variant": 1,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4669,6 +4703,8 @@
       "hold": 0,
       "step": 0,
       "mode": 2,
+      "person": 2,
+      "variant": 3,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4677,6 +4713,8 @@
       "hold": 0,
       "step": 1,
       "mode": 2,
+      "person": 2,
+      "variant": 1,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4685,6 +4723,8 @@
       "hold": 0,
       "step": 1,
       "mode": 2,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4693,6 +4733,8 @@
       "hold": 0,
       "step": 1,
       "mode": 2,
+      "person": 2,
+      "variant": 2,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4701,6 +4743,8 @@
       "hold": 0,
       "step": 1,
       "mode": 2,
+      "person": 3,
+      "variant": 1,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4709,6 +4753,8 @@
       "hold": 0,
       "step": 1,
       "mode": 2,
+      "person": 2,
+      "variant": 3,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4717,6 +4763,8 @@
       "hold": 0,
       "step": 1,
       "mode": 2,
+      "person": 2,
+      "variant": 1,
       "palette": 240,
       "reset": 0,
       "flags": 0
@@ -4725,6 +4773,8 @@
       "hold": 8,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 16388
@@ -4733,6 +4783,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4741,6 +4793,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4749,6 +4803,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4757,6 +4813,8 @@
       "hold": 0,
       "step": 2,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 34
@@ -4765,6 +4823,8 @@
       "hold": 4,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 0,
       "flags": 4
@@ -4773,6 +4833,8 @@
       "hold": 9,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 0,
       "flags": 4
@@ -4781,6 +4843,8 @@
       "hold": 12,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 0,
       "flags": 4
@@ -4789,6 +4853,8 @@
       "hold": 8,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 0,
       "flags": 4
@@ -4797,6 +4863,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4805,6 +4873,8 @@
       "hold": 0,
       "step": 0,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 0,
       "reset": 0,
       "flags": 4
@@ -4813,6 +4883,8 @@
       "hold": 0,
       "step": 0,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4821,6 +4893,8 @@
       "hold": 0,
       "step": 2,
       "mode": 0,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 0,
       "flags": 2
@@ -4829,6 +4903,8 @@
       "hold": 20,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 0,
       "reset": 1,
       "flags": 4
@@ -4837,6 +4913,8 @@
       "hold": 9,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 240,
       "reset": 1,
       "flags": 4
@@ -4845,6 +4923,8 @@
       "hold": 14,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 1,
       "flags": 4
@@ -4853,6 +4933,8 @@
       "hold": 16,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 1,
       "flags": 4
@@ -4861,6 +4943,8 @@
       "hold": 8,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 1,
       "flags": 4
@@ -4869,6 +4953,8 @@
       "hold": 6,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 15,
       "reset": 1,
       "flags": 4
@@ -4877,6 +4963,8 @@
       "hold": 14,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 0,
       "reset": 1,
       "flags": 4
@@ -4885,6 +4973,8 @@
       "hold": 16,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 0,
       "reset": 1,
       "flags": 4
@@ -4893,6 +4983,8 @@
       "hold": 8,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 0,
       "reset": 1,
       "flags": 4
@@ -4901,6 +4993,8 @@
       "hold": 6,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 0,
       "reset": 1,
       "flags": 4
@@ -4909,6 +5003,8 @@
       "hold": 4,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 0,
       "reset": 1,
       "flags": 4
@@ -4917,6 +5013,8 @@
       "hold": 16,
       "step": 4,
       "mode": 1,
+      "person": 0,
+      "variant": 0,
       "palette": 7,
       "reset": 0,
       "flags": 4

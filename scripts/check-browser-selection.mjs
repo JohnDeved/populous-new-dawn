@@ -32,9 +32,9 @@ try{
  await page.waitForFunction(()=>{const s=window.testScene,v=[...s.unitMeshes.values()].filter(g=>g.userData.selection.visible);return v.length===1&&v[0].userData.signature==='blue-shaman';});
  // Exercise real walk-frame poses with different native header heights.
  const poses=await page.evaluate(directions=>{
-  const s=window.testScene,u=s.world.units.find(u=>u.kind==='shaman'&&u.team==='blue'),g=s.unitMeshes.get(u.id),body=g.userData.sprite,out=[];
+  const s=window.testScene,u=s.world.units.find(u=>u.kind==='shaman'&&u.team==='blue'),g=s.unitMeshes.get(u.id),out=[];
   for(let i=0;i<12;i++){
-   s.animatePerson(body,g,u.heading,directions,i/12,false);
+   s.animatePerson(g,u.heading,directions,i/12,false);
    const a=g.userData.selection;out.push({index:g.userData.frame,offset:(1-a.center.y)*a.scale.y,view:s.view.config,bucket:g.userData.spriteBucket});
   }
   return out;

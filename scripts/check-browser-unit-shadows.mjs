@@ -2,9 +2,11 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
-import { spriteShadow, spriteBucket, spriteCoordinate } from '../app/projection.ts'
+import { spriteShadow, spriteBucket } from '../app/projection.ts'
 import effects from '../app/original-effects.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
+import { spriteLayers } from '../app/sprite-layers.ts'
+import rules from '../app/original-rules.json' with { type: 'json' }
 
 const browser = await chromium.launch({ headless: true })
 try {
@@ -25,7 +27,7 @@ try {
   const initial = await page.evaluate(() => {
     const s = window.testScene
     return [...s.unitMeshes.values()].map(g => ({
-      frame: g.userData.frame, size: g.userData.sprite.scale.toArray(), bucket: g.userData.spriteBucket,
+      frame: g.userData.frame, layers: g.userData.layers.filter(l => l.visible).map(l => ({piece:l.userData.piece,size:l.scale.toArray()})), owner:g.userData.owner, draw:g.userData.draw, drawFlags:g.userData.drawFlags, bucket: g.userData.spriteBucket,
       depth: s.view.project(g.position, g.position.y * 128 / 45).z,
       bias: g.userData.depthBias, shaman: g.userData.signature.endsWith('shaman'), view: s.view.config,
       ring: g.children.some(c => c.isMesh && c.geometry.type === 'RingGeometry'),
@@ -35,8 +37,9 @@ try {
     assert.equal(item.ring, false)
     assert.equal(item.bucket, spriteBucket(item.depth, item.bias) * (item.shaman ? -1 : 1))
     const flags = item.view.scaledSprites ? 0x100 : 0, frame = units.frames[item.frame]
-    const width = item.shaman || flags ? spriteCoordinate(frame.w, item.bucket, flags, item.view) : frame.w
-    assert.equal(item.size[0], Math.max(0, width))
+    const d = rules.animationDescriptors[item.draw]
+    const draws = spriteLayers(frame.layers, units.pieces, {owner:item.shaman?-1:item.owner,person:d.person,variant:d.variant,flags:item.drawFlags,bucket:item.bucket,scale:!!(item.shaman||flags),levelFlags:flags}, item.view).filter(d=>d.w>0&&d.h>0)
+    assert.deepEqual(item.layers, draws.map(d=>({piece:d.piece,size:[d.w,d.h,1]})))
   }
   assert.ok(new Set(initial.map(p => p.bucket)).size > 1, 'Units use their actual depth, not a fixed bucket')
   await page.keyboard.press('1')
@@ -69,10 +72,11 @@ try {
     let changed = 0
     for (let i = 0; i < before.length; i += 4)
       if (before[i] !== after[i] || before[i+1] !== after[i+1] || before[i+2] !== after[i+2]) changed++
-    return { changed, h, bodyH: g.position.y * 128, size: shadow.scale.toArray(), center: shadow.center.toArray(),
+    return { standingShadow:g.userData.layers.some(l=>l.visible&&l.userData.piece===0), changed, h, bodyH: g.position.y * 128, size: shadow.scale.toArray(), center: shadow.center.toArray(),
       depth: s.view.project(u, h / 45).z, view: s.view.config, source: shadow.material.map.image.src,
       repeat: shadow.material.map.repeat.toArray(), offset: shadow.material.map.offset.toArray() }
   })
+  assert.equal(airborne.standingShadow, false, 'Standing shadow must be suppressed in flight')
   assert.ok(airborne.changed > 5, `Shadow contributes only ${airborne.changed} GPU pixels`)
   assert.ok(airborne.bodyH > airborne.h, 'Shadow stays on ground below the flying unit')
   assert.match(airborne.source, /effects.png$/)

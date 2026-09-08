@@ -132,9 +132,13 @@
             "scripts/check-native-animation.py",
             "app/scene.ts",
             "scripts/check-native-unit-shadows.py",
-            "scripts/check-browser-unit-shadows.mjs"
+            "scripts/check-browser-unit-shadows.mjs",
+            "app/sprite-layers.ts",
+            "scripts/check-native-sprite-layers.py",
+            "scripts/check-browser-sprite-layers.mjs",
+            "tests/sprite-layers.test.mjs"
           ],
-          "note": "Eight-way selection and native body depth buckets/scaling integrated; complete action/state ownership and render-position interpolation remain open."
+          "note": "Original per-layer tribe/person selection, mirrored signed offsets, separate rectangle scaling and standing-shadow gating integrated. 6,648 native comparisons, 2,672 source RGBA pieces and 336 frozen native/GPU poses checked. Full action/state ownership, remaining tribes/classes, ghost blending and render-position interpolation remain open."
         },
         {
           "id": "graphics.animation",
@@ -173,7 +177,7 @@
             "scripts/check-native-model-highlight.py",
             "scripts/check-browser-model-highlight.mjs"
           ],
-          "note": "Terrain diffuse/additive conversion, scenery shade, airborne shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete."
+          "note": "Terrain diffuse/additive conversion, scenery shade, standing/airborne sprite shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete."
         },
         {
           "id": "graphics.raster",

@@ -21,7 +21,8 @@
     "lint:standard": "oxlint app",
     "quality:health": "fallow health --hotspots --targets",
     "quality:dupes": "fallow dupes",
-    "quality:unused": "fallow dead-code"
+    "quality:unused": "fallow dead-code",
+    "test:sprites": "node --test tests/sprite-layers.test.mjs && node scripts/check-browser-sprite-layers.mjs && node scripts/check-browser-unit-shadows.mjs && node scripts/check-browser-selection.mjs"
   },
   "dependencies": {
     "react": "19.2.6",

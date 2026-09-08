@@ -41,7 +41,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | `0044a2f0`, `004a24c0`, `004a1f50`, `00415f70`, `00516a00` | `scripts/import-messages.py`, `app/scene.ts`, `app/globals.css` | Color operands, indexed conversion, opaque rectangle vertices and native border artwork recovered; font/layout/projection and other blend states unported |
 | `0048eae0`, `00430bd0`, `00430e40`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and discovery/settlement/vault tutorial branches CPU-compared; full notification UI/scheduler pending |
 | `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
-| `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows/compositing; some reaction layers still approximated |
+| `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows and per-layer sprite selection; full state ownership remains open |
 | `00586074`, `004e6a70` | `scripts/inspect-executable.py`, `app/model.ts` | Integer angle/sine tables and movement; route selection still browser A* |
 | `0041af80`, `0041b0c0`, `00403280` | `app/model.ts` | Mana, breeding and upgrades partially ported |
 | `00518fb0`, `004a39c0`, `0051e3d0`, `005199f0` | `app/model.ts`, `app/scene.ts` | Group slots, attack states/damage and reactions; full fight scheduling unfinished |
@@ -1970,3 +1970,51 @@ press/release, spell mode, leaving the canvas and camera movement. Eight GPU
 lighting samples verify both overrides bypass light/fade math. Full original
 picking ownership and the modal/all-tribe controller in `0046e030` remain adapters;
 `00451370` is retained as evidence for that controller's input-state gate.
+
+
+## Original person sprite layers and regression coverage
+
+`0045efd0`, `0045f4a0` and `0045f9d0` walk VELE layers for no-tribe,
+tribe and person-variant draws. `app/sprite-layers.ts` selects those layers,
+mirrors their signed offsets before scaling, and scales each rectangle separately.
+The importer now keeps original HSPR pieces in `unit-layers.png`, with an explicit
+atlas name in the metadata. It no longer bakes clothing/weapons into body frames
+or drops the standing shadow (type 0, variant 1). Renaming the atlas prevents
+old complete-frame textures being paired with the new piece layout in caches.
+Loaded VFRA draw records have a six-byte stride; file records are eight bytes.
+
+Draw flag 2 suppresses the standing layer; the person painter derives it from
+render flags `0xa000`. Draw flag 4 contributes low sprite flag 8; mirroring XORs
+low flag 1. Original descriptors provide the person/variant values. Live flight
+also suppresses the standing layer while the existing HFX22 shadow stays grounded.
+Death effects share the layer renderer. Picking uses visible layer bounds; the
+selection arrow still uses the independent VFRA header height.
+
+`005162e0` / `00516430` normally submit white sprite tint. The model distance
+lighting must not be applied to ordinary people. `004f95a0` records low layer
+flags; flag 4 alone does not select its ghost/palette blend branch. Ghost palette
+flag 8, alternate high-resolution UI draw mode 2, exact mixed-object painter
+ordering, original picking ownership and complete action scheduling remain open.
+The scene currently renders ordinary opaque HSPR artwork for those blend cases.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-sprite-layers.py /path/to/d3dpoptb.exe
+npm run test:sprites # development server required
+```
+
+The native check executes 6,648 complete renderer calls across every imported
+frame, three owner modes, mirrored/unmirrored flags, descriptor variants, signed
+depth buckets and camera scales. Only final sprite submissions are intercepted;
+original layer selection and scaling execute. All 2,672 atlas pieces are compared
+byte-for-byte with the source RGBA. A separate 336-pose fixture covers the seven
+imported tribe/class combinations, eight directions and idle/walk/work/attack/
+airborne/death poses. Tests pin its atlas hash and frame identities. Regenerate
+with `--record` only after reviewing original-engine and asset comparisons.
+
+The browser checks actual scaled layer rectangles against native submissions and
+compares 82,780 coloured GPU pixels at 1:1 resolution (RGB rounding tolerance 1).
+Native-resolution comparison avoids driver-dependent nearest-sampling decisions
+at scaled texel boundaries; it does not certify bit-identical scaled rasterization.
+A deliberate wrong-atlas UV mutation was rejected by this check. Existing live
+selection and real Blast shadow/landing checks also pass. Broader animation-state
+ownership and all original tribes/classes are not certified by these fixtures.
