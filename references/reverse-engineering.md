@@ -2200,3 +2200,43 @@ errors occurred. Captures hide the pause overlay only in the QA page so the mesh
 can be inspected. The export manifest now verifies **538** files, including the
 staged and complete renderers, UV initializer and investigated boundary routines.
 Build and typecheck pass; lint reports seven existing image warnings and zero errors.
+
+
+## Simulation continues after a result
+
+The offline `004a5590` loop and `004ec6f0` inner gate do not stop when land flags
+`0x2000000` (victory) or `0x4000000` (loss) are set. The native pause bit still
+blocks the inner increment. The previous browser `status !== 'playing'` checks
+in `tick()` froze buildings, effects, defeat timers and fractional-turn carry
+as soon as a result appeared. Those checks are removed; command, casting and
+building-placement entry points retain their result guards.
+
+`check-native-tribe-turns.py` now includes all four combinations of result bits
+in its **512** actual offline outer-loop traces, across native pause/outer-skip
+flags, 0–3 subturns and unsigned-turn boundaries. It runs the original inner gate
+and increment, skipping the remaining object body through its original epilogue.
+These traces verify continued scheduling, not full native object integration.
+The script's **2,048** complete tribe-processor comparisons also pass.
+
+All **47** regressions pass. A new live victory/loss regression checks pending
+fractional turns, rejected gameplay commands, manual pause, continued defeat
+timers to 97, one-time defeat statistics and full removal of the defeated
+settlement through the recovered collapse adapter. Playwright confirms that
+both real result screens remain usable while world turns advance and buildings
+disappear; restart resets the result state. No page errors occurred. This retires
+the result freeze described in the preceding entries, but does not establish
+complete post-result person behavior or presentation parity.
+
+Further end-sequence evidence is retained as raw exports:
+
+- `0041b6d0` drives the camera transition/return state machine, input lock/unlock,
+  and sky-counter decrement/sound requests. It does not pause world simulation.
+- `00417d80` plans native toroidal camera translation and rotation using integer
+  acceleration/braking profiles. Its camera motion implementation remains to port.
+- `004e4f40`, called after outcome decisions, polls campaign reward availability;
+  it is not a result-screen timer.
+
+The browser's opaque result overlay, native end-camera movement, celebration
+person states, sky/debris effects and persistent progression remain unfinished.
+The manifest now verifies **541** raw exports.
+Typecheck/build pass; lint has seven existing image warnings and zero errors.

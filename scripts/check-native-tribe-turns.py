@@ -89,7 +89,8 @@ write(0xd0c784,'I',0x2000000);write(0x89d161,'B',12);write(0x89d184,'I',1)
 write(0x89bb81,'B',0);write(0x89c669,'I',0);write(0x96a860,'I',0)
 write(0x890324,'I',0);write(0x890330,'I',0);write(0x96eabf,'B',0)
 for i in range(512):
-    land=rng.choice([0,2,0x800000,0x800002]);turn=rng.choice([0,15,71,0x7fffffff,0xffffffff]);subturns=i%4
+    land=rng.choice([0,2,0x800000,0x800002])|[0,0x2000000,0x4000000,0x6000000][(i//4)%4]
+    turn=rng.choice([0,15,71,0x7fffffff,0xffffffff]);subturns=i%4
     write(0x89c661,'I',land);write(0x89d188,'I',turn);write(0x895dac,'b',subturns-1);write(0x5cd92c,'I',99)
     write(stack,'I',stop);cpu.reg_write(UC_X86_REG_ESP,stack);trace=[]
     cpu.emu_start(0x4a5590,stop,timeout=1000000,count=1000000)
@@ -101,4 +102,4 @@ for i in range(512):
         if not land&2:turn=(turn+1)&0xffffffff;wanted.append(['increment',turn])
     assert trace==wanted,(i,land,trace,wanted)
     assert read(0x89d188,'I')==turn
-print('PASS: 512 actual offline outer-loop phase traces with original inner gate/increment')
+print('PASS: 512 actual offline outer-loop phase traces, including victory/loss flags, with original inner gate/increment')

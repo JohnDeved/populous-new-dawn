@@ -1071,8 +1071,8 @@ test('defeat seeds native building collapse and staged damage ejects occupants b
  assert.ok(defeated.buildings.filter(b=>b.team==='blue').every(b=>b.collapse===null));
  const ruins=defeated.buildings.filter(b=>b.team==='red');assert.ok(ruins.length);
  assert.ok(ruins.every(b=>b.collapse.buildingFlags&64));
- // Isolate the live object adapter while both tribes remain alive: the result UI
- // currently freezes later turns, and is not evidence of post-result processing.
+ // Isolate the live object adapter from outcome processing; the separate result
+ // regression exercises continuous destruction after a real victory or defeat.
  const w=createWorld(),b=w.buildings.find(b=>b.team==='red'&&b.kind==='hut');
  w.manaWorld.gameFlags=32;w.terrain.fill(3);w.buildings=[b];w.units=[];
  const occupant=addUnit(w,'red','brave',b);occupant.inside=b.id;occupant.work=b.id;
@@ -1101,4 +1101,24 @@ test('building display stages follow remaining work and retain separate complete
  }
  assert.strictEqual(modelStage(source,4),source);assert.deepEqual(source,before,'one damaged copy cannot mutate completed buildings');
  b.progress=1;b.collapse={stage:2};assert.equal(buildingStage(b),2,'damage takes priority over completed construction');
+});
+
+test('results preserve pending turns, collapse defeated settlements and reject new orders', () => {
+ for(const team of ['blue','red']) {
+  const w=createWorld(),defeated=team==='blue'?'red':'blue';w.units=w.units.filter(u=>u.team===team);
+  const doomed=w.buildings.filter(b=>b.team===defeated).map(b=>b.id);assert.ok(doomed.length);
+  tick(w,31.5/12);assert.equal(w.status,'playing');assert.equal(w.turn,31);
+  tick(w,4/12);assert.equal(w.status,team==='blue'?'won':'lost');assert.equal(w.turn,35);
+  assert.ok(Math.abs(w.pendingTime-1/24)<1e-8,'a result must not discard the fractional turn');
+  const before={shots:{...w.shots},buildings:w.buildings.length,paths:w.units.map(u=>structuredClone(u.path))};
+  w.selected=w.units.map(u=>u.id);command(w,{x:0,z:0});
+  assert.equal(cast(w,'blast',{x:0,z:0}),false);assert.equal(placeBuilding(w,'hut',{x:0,z:0}),false);
+  assert.deepEqual(w.shots,before.shots);assert.equal(w.buildings.length,before.buildings);assert.deepEqual(w.units.map(u=>u.path),before.paths);
+  w.paused=true;tick(w,1);assert.equal(w.turn,35);w.paused=false;
+  tick(w,512/12);assert.equal(w.turn,547);
+  assert.ok(doomed.every(id=>!w.buildings.some(b=>b.id===id)),'defeated buildings finish their staged destruction');
+  assert.equal(w.manaTribes[defeated==='blue'?0:1].defeatTimer,97);
+  assert.equal(w.outcome.defeatedCounts[0],team==='blue'?1:0,'continued results do not count defeat twice');
+  assert.equal(w.status,team==='blue'?'won':'lost');
+ }
 });

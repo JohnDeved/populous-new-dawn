@@ -879,13 +879,14 @@ function manaPeople(w:World){
 }
 export function manaRate(w:World){return generatedMana(liveManaOrders,manaPeople(w),w.manaTribes)[0]*TURNS_PER_SECOND/(rules.manaUpdateMask+1)/1000;}
 export function tick(w:World,dt:number){
-  if(w.paused||w.status!=='playing')return;
+  if(w.paused)return;
   if(!Number.isFinite(dt)||dt<0)throw new RangeError('Simulation delta must be finite and nonnegative');
   w.pendingTime+=dt;
-  while(w.pendingTime+1e-9>=1/TURNS_PER_SECOND&&w.status==='playing'){
+  // 0x4a5590 / 0x4ec6f0 keep processing after the land victory/loss bits are set.
+  // The result is presentation state, not a simulation pause.
+  while(w.pendingTime+1e-9>=1/TURNS_PER_SECOND){
     w.pendingTime=Math.max(0,w.pendingTime-1/TURNS_PER_SECOND);if(w.pendingTime<1e-9)w.pendingTime=0;stepTurn(w);
   }
-  if(w.status!=='playing')w.pendingTime=0;
 }
 function stepTurn(w:World){
   // 0x4a5590: tribe work observes the previous completed object turn.
@@ -1065,8 +1066,8 @@ function stepTurn(w:World){
   w.units=w.units.filter(u=>u.hp>0);w.buildings=w.buildings.filter(b=>b.hp>0);w.selected=w.selected.filter(id=>w.units.some(u=>u.id===id));
   cleanBattles(w);
   for(const team of ['blue','red'] as const){const key=team==='blue'?'respawn':'redRespawn';if(w[key]>0){w[key]=Math.max(0,w[key]-dt);if(w[key]===0&&w.units.some(u=>u.team===team)){const u=addUnit(w,team,'shaman',team==='blue'?HOME:ENEMY);if(team==='blue'&&!w.selected.length)w.selected=[u.id];effect(w,'birth',u);}}}
-  // ponytail: retain the browser's result screen/freeze until native end-of-level
-  // presentation and post-result object simulation are ported.
+  // ponytail: the result overlay remains while native end-camera playback,
+  // celebration states and progression presentation are being reconstructed.
   if(w.land.landFlags&0x2000000){w.redRespawn=0;w.status='won';}
   if(w.land.landFlags&0x4000000){w.respawn=0;w.status='lost';}
 }
