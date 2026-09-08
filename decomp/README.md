@@ -982,3 +982,16 @@ recovered. Native vehicle/passenger handling, complete person physics and object
 scheduling remain explicit dependencies. This pass adds reviewed reconstruction
 and executable comparison evidence, not visible victory-animation parity. The
 existing **555** raw exports already contain these entry points and their helpers.
+
+
+### Native animation composition
+
+`app/animation.ts` ports `004ee700`, `004d4040`, `004ee7b0` and `004ee770`.
+Run `scripts/check-native-animation.py EXE` for setter, object-update and
+allocation-list comparisons, and `scripts/check-native-celebration.py EXE
+--animations` for celebrations composed with native frame setters and updates.
+The latter now checks 81,920 animation updates and 128 real state-41
+initializations. Movement/world effects, loaded morph-duration tables and live
+person/render scheduling remain boundaries. See the animation section of
+[the evidence log](../references/reverse-engineering.md) for exact coverage and
+presentation-clock findings. The export manifest contains 565 raw functions.

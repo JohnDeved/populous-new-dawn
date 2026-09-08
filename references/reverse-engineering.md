@@ -2390,3 +2390,60 @@ recovered. Native vehicle/passenger handling, complete person physics and object
 scheduling remain explicit dependencies. This pass adds reviewed reconstruction
 and executable comparison evidence, not visible victory-animation parity. The
 existing **555** raw exports already contain these entry points and their helpers.
+
+
+## Native animation setters, frame updates and celebration composition
+
+`app/animation.ts` reconstructs `004ee700` (raw object setter), `004d4040`
+(person setter), `004ee7b0` (animation update) and `004ee770` (the two allocation
+lists). `inspect-executable.py` imports 161 object/start/draw pairs at `005a6858`
+and 40 eleven-byte descriptors at `005a6af8`. The updater preserves sprite delays,
+frame-byte wrap, visibility stamps, footprint request gates, model sequences,
+morph timing/completion and the seven terminating effect objects. The setters
+retain `f2`, conditionally retain `f1`, and apply the original passenger poses,
+selection/visibility flags and tribe rules. These are reviewed ports of the
+supplied executable, not recovered source code.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-animation.py /path/to/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-celebration.py /path/to/d3dpoptb.exe --animations
+```
+
+The animation oracle compares **1,920 raw setters**, **2,560 object updates**,
+**2,048 person setters** and **4,096 allocation-list updates** over eight objects,
+including pause and sequential frames. All native animation callees execute;
+footprint emission is supplied. Frame counts are reconstructed from the supplied
+VSTART/VFRA chains; model sequences use the actual `aniob0-0.dat` bytes. Morph
+durations are explicitly supplied at the loaded-table boundary. Valid imported
+object/descriptor and model-sequence indices are the checked domain; invalid
+native pointers and unloaded table indices are not supported browser inputs.
+
+The celebration oracle's new `--animations` mode executes **40,960 celebration
+controller calls** with **81,920 native animation updates**, plus **128 state-41
+initializations** using the real native setters. Browser composition calls the
+new setters/updater against the same original frame counts. All tracked person
+fields, object/frame/palette values, RNG and ordered world requests match. These
+fixtures contain ten valid people, including a shaman and firewarrior; movement,
+allocation, sound, building exits and projectile consumers remain supplied.
+Footprints are disabled through the native level flag in this composition.
+The two animation steps per controller turn are an explicit test schedule,
+not evidence that native rendering always runs at twice the simulation rate.
+The existing broad celebration oracle and all **48** gameplay regressions pass.
+
+Clock evidence: `004a4450` increments `00897981` once per presentation-loop
+iteration. `004a4960` runs the animation lists after drawing, with activation and
+multiplayer readiness gates; `004ee770` skips both lists on land pause bit 2.
+`004b2670` reports window activation, not frame readiness. The main loop waits
+on separate deadlines: `0049cfe0` selects 60, 24, 20 or 14 FPS with bit priority
+2 > 4 > 1, and `0049cfc0` selects that limiter only for game interface state 2
+with a nonzero session rate byte. Otherwise the separate byte at `0089ce62`
+supplies the deadline. Main-loop timing, configuration/loading of those rate
+bytes and render-stamp catch-up are not yet ported. Updating animation on each
+browser RAF or each simulation turn would not preserve this contract.
+
+**Live wiring remains unfinished:** `GameScene.animatePerson` still uses its
+legacy age-based atlas frame selection, and the outcome adapter still does not
+own native celebrant records. This pass resolves the animation consumer boundary
+and verifies controller composition; it does not claim visible celebration or
+complete animation parity. The manifest retains **565** raw exports, including
+the animation helpers, sprite loader and traced presentation-clock routines.

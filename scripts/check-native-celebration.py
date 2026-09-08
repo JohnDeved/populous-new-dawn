@@ -2,6 +2,8 @@
 Usage: python scripts/check-native-celebration.py /path/to/d3dpoptb.exe
 Cell/object lists are real native data; animation, movement, allocation and
 projectile consumers are supplied at call boundaries. No person physics claimed.
+Add --animations to compose valid ten-person celebrations with the real native
+setters, original VFRA frame counts and two animation updates per controller turn.
 """
 import json,random,struct,subprocess,sys
 from pathlib import Path
@@ -24,10 +26,23 @@ def call(a,*args):
 def actor(a):return {k:read(a+o,f) for k,(o,f) in fields.items()}
 def cell(p):return ((p['x']>>8)&254)|(p['y']&0xfe00)
 events=[];drops=0;fixture={}
+full_animation='--animations' in sys.argv
+frame_counts=[]
+if full_animation:
+ fields.update(object=(0x33,'H'),draw=(0x3a,'B'),morph=(0x3b,'B'),palette=(0x3c,'B'),stamp=(0x18,'I'))
+ frames=list(struct.iter_unpack('<HBBBBH',(exe.parent/'data/vfra-0.ani').read_bytes()))
+ for start,_ in struct.iter_unpack('<HH',(exe.parent/'data/vstart-0.ani').read_bytes()):
+  frame=start;seen=set()
+  while frame and frame not in seen:seen.add(frame);frame=frames[frame][-1]
+  assert frame in [0,start];frame_counts.append(len(seen)&255)
+ write(0x59df44,'I',0x2030000)
+ for i,n in enumerate(frame_counts):write(0x2030000+i*6+1,'B',n)
+ write(0x895da8,'I',8) # Footprint suppression; footprint boundary has its own oracle.
 # Stubbed animation consumers leave the supplied frame record unchanged.
 # Signed hold=-3 and duration=(signed delay 2 + 1)*7 exercise caller writes.
-write(0x59df44,'I',0x2030000);write(0x2030001,'B',7)
-write(0x5a6ad7+3*11+1,'b',-3);write(0x5a6ad7+3*11+3,'b',2)
+if not full_animation:
+ write(0x59df44,'I',0x2030000);write(0x2030001,'B',7)
+ write(0x5a6ad7+3*11+1,'b',-3);write(0x5a6ad7+3*11+3,'b',2)
 object_table={i:list(struct.unpack('<HH',cpu.mem_read(0x5a6858+i*4,4))) for i in range(-128,512)}
 def leaf(cpu,a,size,user):
  global drops
@@ -45,9 +60,10 @@ def leaf(cpu,a,size,user):
  elif a==0x407490:events.append(['leave',read(args[1]+0x24,'H')])
  elif a==0x51fbf0:events.append(['projectile',read(p+0x24,'H'),read(args[2],'H'),read(args[2]+2,'H'),read(args[2]+4,'h')]);assert args[1]==0
  cpu.reg_write(UC_X86_REG_EAX,result);cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
-for a in [0x4d4040,0x4ee700,0x4ea460,0x4e9dd0,0x4ed8a0,0x48a050,0x407490,0x51fbf0]:cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a)
+for a in [0x4d4040,0x4ee700,0x4ea460,0x4e9dd0,0x4ed8a0,0x48a050,0x407490,0x51fbf0]:
+ if not (full_animation and a in [0x4d4040,0x4ee700]):cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a)
 rng=random.Random(0x4e0af0);cases=[];expected=[]
-for trial in range(2496):
+for trial in range(2304 if full_animation else 0,2496):
  phase=trial%9;origin=rng.choice([0,256,65000,32700]);people=[]
  for i in range(1,11):
   p={k:0 for k in fields};p.update(id=i,**{'class':1},model=rng.randrange(9),state=41,substate=rng.randrange(9),tribe=rng.randrange(2),counter=rng.randrange(256),
@@ -85,6 +101,9 @@ for trial in range(2496):
    events=[]
    for p in people:
     a=ptr(p['id']);write(a+0x2e,'B',(read(a+0x2e,'B')+1)&255);call(0x4e0af0,a)
+   if full_animation:
+    for _ in range(2):
+     for p in people:call(0x4ee7b0,ptr(p['id']))
    traces.append(snapshot())
   expected.append(traces)
  else:
@@ -93,7 +112,8 @@ for trial in range(2496):
   else:call(0x4e2610,ptr(1),c['helper'])
   expected.append(snapshot())
  cases.append(c)
-js="""import {initializePersonState} from './app/person-state.ts';
+js="""import {setAnimationObject,setPersonAnimation,stepObjectAnimation} from './app/animation.ts';
+import {initializePersonState} from './app/person-state.ts';
 import {stepCelebration,setChainAction} from './app/celebration.ts';import rules from './app/original-rules.json' with {type:'json'};
 let input='';for await(const c of process.stdin)input+=c;const data=JSON.parse(input);
 console.log(JSON.stringify(data.cases.map(c=>{
@@ -103,9 +123,14 @@ console.log(JSON.stringify(data.cases.map(c=>{
   releaseMotion:p=>events.push(['motion',p.id]),destination:(p,to)=>events.push(['destination',p.id,to.x&65535,to.y&65535]),
   dropLog:p=>{events.push(['drop',p.x,p.y]);return drops++<c.drops;},sound:(p,cue)=>events.push(['sound',p.id,cue]),leaveBuilding:p=>events.push(['leave',p.id]),
   projectile:(p,to)=>events.push(['projectile',p.id,to.x,to.y,to.h])};
+ if(data.fullAnimation){
+  const aw={playerTribe:0,gameFlags:0,sessionSubstate:null,tribes:Array.from({length:4},()=>({flags:0,playerType:0})),objects:new Map()};
+  effects.animation=(p,o,upper)=>{if(upper)setPersonAnimation(p,o,aw,{frameCounts:data.frameCounts});else {const [start,draw]=rules.animationObjects[o];setAnimationObject(p,draw,start);}};
+  effects.animationTiming=p=>({hold:rules.animationDescriptors[p.draw].hold,duration:(rules.animationDescriptors[p.draw].step+1)*data.frameCounts[p.object]});
+ }
  const keys=Object.keys(c.people[0]);
  const snapshot=()=>structuredClone({people:c.people.map(p=>Object.fromEntries(keys.map(k=>[k,p[k]]))),randomState:w.randomState,events});
- if(c.timeline){const traces=[];for(let f=0;f<c.timeline;f++){events.length=0;for(const p of c.people){p.counter=(p.counter+1)&255;stepCelebration(w,p,effects);}traces.push(snapshot());}return traces;}
+ if(c.timeline){const traces=[];for(let f=0;f<c.timeline;f++){events.length=0;for(const p of c.people){p.counter=(p.counter+1)&255;stepCelebration(w,p,effects);}if(data.fullAnimation)for(let i=0;i<2;i++)for(const p of c.people)stepObjectAnimation(p,{counter:0,levelFlags:8,levelFlags2:0},{frameCounts:data.frameCounts,modelFrames:[],morphDurations:[]},()=>{throw Error('unexpected footprints');});traces.push(snapshot());}return traces;}
  if(c.initialize){
   const p=c.people[0];Object.assign(p,{previousState:0,selectionFlags:0,commands:Array(8).fill(0),commandCursor:0,immediateCommand:0,orderLocation:0,commandStatus:0,workTarget:0,statusFlags:0,workFlags:0,reservationNext:0,formationCell:0,motionTimer:0,motionMode:0});
   Object.assign(w,{instantFacing:false,levelFlags:0,orders:{records:[],cursor:0,active:0},tribes:Array.from({length:4},()=>({x:0,y:0,angle:0,selectedCount:0,flags:0}))});
@@ -113,11 +138,14 @@ console.log(JSON.stringify(data.cases.map(c=>{
  }else if(c.helper===null)stepCelebration(w,c.people[0],effects);else setChainAction(c.people[0],c.helper,effects);
  return snapshot();
 })));"""
-r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(dict(cases=cases,objects=object_table)),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
+r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(dict(cases=cases,objects=object_table,fullAnimation=full_animation,frameCounts=frame_counts)),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
 actual=json.loads(r.stdout);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
  if a!=b:
   path=Path('/private/tmp/populous-celebration-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(path)))
+if full_animation:
+ print('PASS: 128 state-41 initializations and 40,960 controller calls composed with real setters and 81,920 animation updates; all frame fields, people, RNG and world requests match')
+ sys.exit(0)
 print('PASS: 128 composed native state-41 initializations with the real celebration controller')
 print('PASS: 40,960 sequential native calls across 64 ten-person timelines; movement and animation consumers supplied')
 print('PASS: 2,048 complete native celebration calls across all nine substates and 256 chain-action calls; all people, RNG and ordered effects match')

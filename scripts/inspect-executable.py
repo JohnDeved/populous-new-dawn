@@ -66,6 +66,8 @@ if len(sys.argv)>2:
     rules['personModels']=[{'nextState':value(0x5a7060+i*50+4,1),'physics':value(0x5a7060+i*50+6,1),'flags':value(0x5a7060+i*50+48,2)} for i in range(9)]
     rules['personSpeeds']=[value(0x5a7b90+i*26+4,2) for i in range(20)]
     rules['personAnimationObjects']=list(struct.unpack('<234h',read(0x5a6d50,234*2)))
+    rules['animationObjects']=[list(struct.unpack('<hh',read(0x5a6858+i*4,4))) for i in range(161)]
+    rules['animationDescriptors']=[dict(hold=struct.unpack('<b',read(0x5a6af8+i*11+1,1))[0],step=struct.unpack('<b',read(0x5a6af8+i*11+3,1))[0],mode=value(0x5a6af8+i*11+4,1),palette=value(0x5a6af8+i*11+7,1),reset=value(0x5a6af8+i*11+8,1),flags=value(0x5a6af8+i*11+9,2)) for i in range(40)]
     rules['spellCharging']=[{'mode':value(0x5a80d0+i*62,2),'cost':value(0x5a80d4+i*62),
         'normalRange':value(0x5a80ee+i*62),'alternateRange':value(0x5a80f2+i*62),
         'normalLimit':value(0x5a80fd+i*62,1),'alternateLimit':value(0x5a80fe+i*62,1),
