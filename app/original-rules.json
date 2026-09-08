@@ -2693,6 +2693,13 @@
     32,
     0
   ],
+  "vehicleCapacity": [
+    0,
+    5,
+    5,
+    2,
+    2
+  ],
   "vehicleRestFlags": [
     0,
     0,

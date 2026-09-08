@@ -190,3 +190,14 @@ export function buildPersonRoute(w:MotionRoutes,p:RouteBuildPerson,from:Point,to
   for(let i=0;i<count;i++)if(w.pathResult[10+i*4])w.records[a+2]|=1;
   return id;
 }
+
+// Complete 0x4ebab0. Check the next vehicle leg, or the final flagged target;
+// the original uses boat lookup even for the route's alternate-vehicle flag.
+export function routeVehicleAvailable(w:MotionRoutes,p:Pick<RoutedPerson,'motionGroup'|'motionIndex'>,boarding:(cell:number)=>number){
+  const a=p.motionGroup*109,d=w.records,flags=d[a+2],count=d[a+108];let at=-1;
+  if(flags&1){
+    if(!count){if(d[a+6])at=a+4;}
+    else for(let i=p.motionIndex<<24>>24;i<count;i++)if(d[a+14+i*4]){at=a+12+i*4;break;}
+  }else if(flags&2)at=a+(count?8+count*4:4);
+  return at<0||!!boarding((d[at]&254)|((d[at+1]&254)<<8));
+}

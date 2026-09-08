@@ -3122,3 +3122,29 @@ a 16-turn cache entry. The same layouts execute in the native comparison. This
 removes the supplied obstacle solver from the composed route-construction test.
 Ordinary live routing, route advancement, boat/building world consumers and full
 person scheduling/physics still need integration; full parity remains unfinished.
+
+## 2026-09-08 — Route advancement, boat eligibility and landing reservations
+
+`app/route-advance.ts` reconstructs complete `004eadc0`, composing native shared
+route release. The route module also reconstructs `004ebab0` vehicle-leg checks.
+`app/vehicle-routing.ts` supplies original occupancy, disembarking/approach
+eligibility, readiness, first-boat selection, alternative landing search and
+shared landing-target reservations. Capacity bytes are imported; boat navigation
+flags retain their +0x92/+0x94 memory alias. Details and addresses are recorded in
+[the decompilation guide](../decomp/README.md#route-advancement-and-vehicle-routing).
+
+**4,096 route comparisons** check complete pool/person/vehicle/passenger state
+and ordered world consumers. **8,192 vehicle comparisons** include actual boat
+routines inside path probing and original indexed searches, comparing complete
+reservation/search buffers. Boarding/disembarking actions and landing geometry
+are still supplied to the advancement oracle; building access remains supplied
+to the probe oracle.
+
+The suite now has **64 gameplay regressions**. Composed planning/search/advancement
+shares a detour between two followers, advances their centered waypoints and
+releases each reference at the exact goal. The fixture places followers at
+waypoints, so it does not claim full physics replay. Another regression checks
+first-boat rejection and distinct landing reservations. Full ordinary live route
+ownership and movement integration remain open; the legacy adapter is still used
+outside reconstructed celebration. Six additional raw exports bring the manifest
+to **644**. Full game and engine parity remain unfinished.

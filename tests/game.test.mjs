@@ -1468,3 +1468,59 @@ test('native obstacle solving builds a world-seam detour and rejects a blocked d
   }
  }
 });
+
+test('native planned routes use the recovered solver and advance shared followers to their goal', async () => {
+ const {createLivePerson}=await import('../app/live-people.ts');
+ const {buildPersonRoute,planPersonDestination,routeVehicleAvailable}=await import('../app/person-routes.ts');
+ const {advancePersonRoute}=await import('../app/route-advance.ts');
+ const {searchPersonPath,collectSearchPath}=await import('../app/path-search.ts');
+ const {createPathSolver,solvePersonPath}=await import('../app/path-solver.ts');
+ const {createPathGeometry,preparePathCandidates,choosePathCandidate,clearPathSegment,smoothSearchPath,measureSearchPath}=await import('../app/path-geometry.ts');
+ const {boardingVehicle,vehicleCellFree,vehicleCanDisembark,vehicleReady}=await import('../app/vehicle-routing.ts');
+ const rules=(await import('../app/original-rules.json',{with:{type:'json'}})).default;
+ const world=createWorld(),ps=world.units.filter(u=>u.kind==='brave'&&u.team==='blue').slice(0,2).map(u=>createLivePerson(world,u)),routes=world.motionRoutes;
+ for(const p of ps)Object.assign(p,{x:250*256,y:20*256,flags2:0x2000000,flags4:0,vehicle:0,counter:0});
+ const categories=new Uint8Array(16384).fill(rules.terrainCategoryFlags.findIndex(f=>f&1)),flags=new Uint32Array(16384),walkMasks=[new Uint8Array(8192).fill(255),new Uint8Array(8192).fill(255)];
+ for(const mask of walkMasks)for(let x=252;x<=257;x++)for(let y=18;y<=22;y++){const bit=y*256+(x&255);mask[bit>>3]&=~(1<<(bit&7));}
+ const tribes=Array.from({length:4},()=>({playerType:1,requests:0,flags:0,active:true,defeatTimer:0})),vehicles=new Map(),people=new Map(ps.map(p=>[p.id,p]));
+ const land={flags,categories,buildingIds:new Uint16Array(16384)},boatWorld={flags,categories,cellObjects:()=>[],boatsEnabled:0,vehicles,people,tribes};
+ const path={data:new Uint8Array(2580),count:0},g=createPathGeometry(),solver=createPathSolver(),state={searches:0,landLimit:0,checkingPerson:0,limit:0,vehicles:0,mode:0,currentBoat:0,candidateCount:0,candidateIndex:0,truncated:0,walkMask:0};
+ const w={...boatWorld,state,path,result:routes.pathResult,walkMasks,landLimit:32,humanLimit:64,computerLimit:64},measure={dirty:1,distance:0,tribes:0};
+ const unexpected=()=>{throw Error('Unexpected world consumer for a land route');};
+ const advance=p=>advancePersonRoute({routes,vehicles,people},p,{boarding:unexpected,board:unexpected,routeAvailable:p=>routeVehicleAvailable(routes,p,cell=>boardingVehicle(boatWorld,p,cell)),approach:unexpected,alternativeLanding:unexpected,landingBlocked:unexpected,prepareLanding:unexpected,leaveVehicle:unexpected,clearOrders:unexpected});
+ const planner={routes,skip:0,checkingPerson:0,levelFlags2:0,humanLimit:0,computerLimit:0,land,vehicles,tribes};
+ const build=(p,a,b)=>buildPersonRoute(routes,p,a,b,0,tribes[p.tribe],{findVehicle:unexpected,search:(_,p,a,b,option,allow)=>{
+  const e={buildingAccess:unexpected,boardingBoat:cell=>boardingVehicle(boatWorld,p,cell),disembark:(id,to)=>vehicleCanDisembark(boatWorld,vehicles.get(id),to),boatCell:(cell,id)=>vehicleCellFree(boatWorld,cell,id)};
+  return searchPersonPath(w,p,Uint8Array.of(a.x,a.y,0,0),Uint8Array.of(b.x,b.y,0,0),option,allow,{prepare:()=>preparePathCandidates(w,g),choose:i=>choosePathCandidate(w,g,i),solve:()=>solvePersonPath(w,g,solver,p,e),smooth:()=>smoothSearchPath(path,0,(a,b,k)=>clearPathSegment(w,g,p,a,b,k,e)),measure:()=>measureSearchPath(path,g.line,measure,new Uint8Array(16384),tribes),collect:()=>{state.truncated=Number(collectSearchPath(path,w.result,0));}});
+ }});
+ for(const p of ps)assert.equal(planPersonDestination(planner,p,{x:6*256,y:20*256},{outside:unexpected,buildingBlocks:unexpected,coastDirection:unexpected,build,vehicleReady:id=>vehicleReady(boatWorld,vehicles.get(id)),advance}),1);
+ const view=new DataView(routes.records.buffer);assert.equal(solver.attempts,1);assert.equal(view.getInt16(109,true),2);
+ for(const [i,p] of ps.entries()){
+  const visited=[];
+  for(let step=0;p.motionGroup&&step<4;step++){
+   visited.push([p.destinationX>>8,p.destinationY>>8]);p.x=p.destinationX;p.y=p.destinationY;advance(p);
+  }
+  assert.deepEqual(visited,[[251,23],[3,23],[7,21]]);assert.equal(p.motionGroup,0);assert.equal(p.motionIndex,0);
+  assert.deepEqual([p.destinationX,p.destinationY,p.turnAngle,p.turnY],[6*256,20*256,6*256,20*256]);assert.ok(p.flags2&0x1000);
+  assert.equal(view.getInt16(109,true),1-i);assert.equal(routes.active,1-i);
+ }
+});
+
+test('native boarding checks the first boat and landing requests reserve distinct original search cells', async () => {
+ const {boardingVehicle,vehicleReady,vehicleCanDisembark,adjustVehicleDestination}=await import('../app/vehicle-routing.ts');
+ const {createIndexedSearch}=await import('../app/indexed-search.ts');
+ const rules=(await import('../app/original-rules.json',{with:{type:'json'}})).default;
+ const model=rules.vehicleCapacity.findIndex((c,i)=>c>0&&!(rules.vehicleRestFlags[i]&1)),airModel=rules.vehicleRestFlags.findIndex(f=>f&1);
+ const boat={id:2,class:4,model,x:0x2100,y:0x2100,physics:0,speed:-1,navigationFlags:0,passengerCount:0,passengers:[1],reservation:0};
+ const second={...boat,id:3},air={...boat,id:4,model:airModel},flags=new Uint32Array(16384).fill(0x1000000);
+ const category=rules.terrainCategoryFlags.findIndex(f=>(f&60)&&!(f&16)),categories=new Uint8Array(16384).fill(category),tribes=[{playerType:1}];
+ let occupants=[boat,second];const w={flags,categories,boatsEnabled:1,vehicles:new Map([[2,boat],[3,second],[4,air]]),people:new Map([[1,{tribe:0}]]),tribes,cellObjects:cell=>cell===0x2020?occupants:[]};
+ assert.ok(vehicleReady(w,boat));boat.passengerCount=rules.vehicleCapacity[model];assert.equal(boardingVehicle(w,{tribe:0},0x2020),0,'a full first boat does not select the second');
+ boat.passengerCount=0;boat.reservation=1;assert.equal(boardingVehicle(w,{tribe:0},0x2020),0);
+ tribes[0].playerType=2;assert.equal(boardingVehicle(w,{tribe:0},0x2020),2);tribes[0].playerType=1;boat.reservation=0;
+ assert.equal(vehicleCanDisembark(w,boat,boat),false);occupants=[boat];assert.ok(vehicleCanDisembark(w,boat,boat));
+ const slots={search:createIndexedSearch(),records:new Uint8Array(48),count:0},a={x:0x2100,y:0x2100},b={...a};
+ adjustVehicleDestination(w,slots,air,a);adjustVehicleDestination(w,slots,air,b);
+ assert.notDeepEqual(a,b);assert.notDeepEqual(a,{x:0x2100,y:0x2100});assert.equal(slots.count,2);
+ assert.equal(slots.records[2],1);assert.equal(slots.records[5],1);assert.ok(slots.search.every((v,i)=>i%12!==0||v===0));
+});

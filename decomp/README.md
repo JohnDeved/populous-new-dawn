@@ -1460,11 +1460,78 @@ four attempts, six detours and 572 solver steps, no route, and the original
 The previous 7,168 geometry comparisons still pass after cache sharing changes.
 
 The full solver is reconstructed but not yet the ordinary live follower adapter.
-Route advancement, vehicle target adjustment, concrete boat/building consumers,
-and full ordinary person scheduling/physics remain integration work. These
+The next section reconstructs advancement and boat/target eligibility. Concrete
+boarding/disembarking, landing geometry, building access ownership and ordinary
+person scheduling/physics remain integration work. These
 results do not establish full game or live movement parity.
 
 The three boat consumers are now preserved as raw exports for the next integration
 step; exporting them does not implement their behavior. The manifest contains
 **638 raw exports**. Typechecking, all 62 gameplay regressions, production build
 and the existing live celebration browser check pass.
+
+## Route advancement and vehicle routing
+
+`app/route-advance.ts` reconstructs complete `004eadc0`: arrival tests, waypoint
+advancement, boarding/disembarking branches, vehicle approach targets, passenger
+synchronization, reroute propagation and shared-route release. It reuses the
+existing ownership helpers. `app/person-routes.ts` adds complete `004ebab0`,
+checking the next vehicle leg or flagged endpoint using original boat lookup.
+
+Arrival retains the native 224/576-unit thresholds and the 640-unit vehicle
+approach window. Wrapped axis distance uses **65535 - distance**, as compiled,
+not a substituted 65536 modulus. Waypoint coordinates become even-cell centers;
+the final ordinary destination returns to the person's exact goal. Passenger
+loops read current slot contents and ownership, including repeated disembarking
+passes and mutations caused by the boarding/clear-order consumers. Vehicle
+navigation flags are the original dword at **+0x92**; its upper-byte status at
+**+0x94** is part of that same field, not a duplicate state property.
+
+`app/vehicle-routing.ts` reconstructs `00465510` other-vehicle occupancy,
+`00464f90` disembarking eligibility, `004650d0` approach eligibility, `00465650`
+readiness, `004663c0` boarding selection with `004f2490`'s reservation byte,
+`00464ce0` alternative landing search, and `004ec3f0` target adjustment. Capacity
+bytes at `005a7938 + model*23 + 8` are imported with the original rules.
+
+Boarding considers only the first eligible boat in native cell order; if it is
+full, busy, too fast or reserved for a human player, the routine does not try a
+second boat. Passenger count/capacity and speed limits retain signed comparisons.
+The passenger array starts at **+0x7a**, and reservation is byte **+0xa2**. Other
+class-4 objects block landing cells even when their dead flag is set. Boats need
+marked eligible shore cells for disembarking; airborne vehicles use their own
+flag test. Alternative landing preserves the original exact target on initial
+success or total failure and uses cell centers for searched alternatives.
+
+Landing target adjustment composes the original indexed search and shared
+16-by-3-byte reservations at **00969d92**, counted by signed word **00969d8e**.
+It searches and releases its handle, skips occupied/reserved cells and reserves
+only when capacity remains. The outer scheduler's reservation-clear phase still
+needs integration. Inconsistent reservation counts are rejected rather than
+walking beyond the original array into unrelated memory.
+
+Run `scripts/check-native-route-advance.py EXE`: **4,096 comparisons**, 2,048 each
+for vehicle-leg availability and complete advancement. It compares the full
+401-record pool, all person and passenger fields, vehicle navigation flags and
+slots, counters and ordered consumer snapshots. Native route release and
+availability execute inside advancement. Boarding, airborne lookup, landing
+geometry, passenger removal and order clearing are supplied, including mutations
+to route ownership, flags, targets and passenger slots.
+
+Run `scripts/check-native-vehicle-routing.py EXE`: **8,192 comparisons**, 1,024
+each for occupancy, disembarking, approach, readiness, boarding, target adjustment,
+alternative landing and composed path probing. The probe uses the actual native
+boat routines; only building access is supplied. Indexed searches use the
+verified original `MWSEARCH.DAT`; complete search/reservation bytes are compared.
+
+Two gameplay regressions bring the suite to **64**. One composes planning, reuse,
+construction, complete search/solver/postprocessing and advancement: two followers
+share the original seam-crossing detour, visit centered waypoints and release the
+route independently at the exact goal. Positions are advanced to waypoints by the
+fixture; this is not a full physics replay. The other verifies first-boat rejection,
+human reservations, landing occupancy and distinct shared landing reservations.
+
+The manifest now contains **644 raw exports**. Ordinary live movement still uses
+the browser route adapter. Native boarding/disembarking actions, landing-position
+geometry, building-access ownership, reservation scheduling and ordinary native
+person/physics integration remain open. Exported consumers are not completed
+world actions, and these checks do not establish full engine parity.
