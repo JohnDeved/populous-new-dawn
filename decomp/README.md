@@ -1659,3 +1659,13 @@ inside `004673b0`. `scripts/check-native-selection-indicator.py EXE` compares
 `node scripts/check-browser-selection.mjs` checks the original arrow in GPU
 pixels and across animation poses. Source VFRA dimensions and HFX 53 are retained
 by `scripts/import-original.py`. Full native painter ordering remains open.
+
+### Spell cursor artwork and warnings
+
+`app/spell-casting.ts` reconstructs the standard spell-mode branch of `00524cf0`.
+`scripts/check-native-spell-cursor.py EXE` compares 2,048 native sprite decisions
+and offsets, with target/readiness queries and raster submission supplied.
+`scripts/import-hud.py` imports POINT icons/range frames and HFX 589; spell
+records come from `scripts/inspect-executable.py`. Run
+`node scripts/check-browser-spell-cursor.mjs` for actual pointer/cast integration.
+Other cursor modes, native outer-turn ownership and ground overlays remain open.

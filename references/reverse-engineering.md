@@ -3467,3 +3467,56 @@ Full ordering, terrain/object occlusion and presentation flags remain unported.
 Selection-box graphics, health bars, shadows, spell targeting/range graphics
 and full effect timing still use browser adapters. Next work remains on those
 visible targets, beginning with spell cursors and travel/impact feedback.
+
+## Original spell pointer feedback — 2026-09-08
+
+`00524cf0`'s standard spell interface draws from **POINT**, not HFX, for the
+spell icon. The signed word at `005a80dc + model*62` selects Blast 41,
+Lightning 49 and Land Bridge 48. It draws at mouse `(x,y-16)` without the
+person sprite scaler. Unavailable targets or readiness other than 3 add
+**HFX 589** at the unsigned offsets in `005a810c/0d + model*62`. This differs
+from simply changing a ground ring's color.
+
+For normal mode, a valid globe hit and target result -2 additionally draw a
+walking person at `(x+31,y-16)`. The descriptor reached through `005a7dff`
+selects POINT 80–83; the native outer turn `0089d184` supplies modulo-four
+phase. The browser now imports these assets through the existing HUD atlas,
+retains their original dimensions, and reconstructs the sprite decisions in
+`app/spell-casting.ts`. No new rendering dependency is needed.
+
+`scripts/check-native-spell-cursor.py EXE` executes **2,048** calls to the
+original `00524cf0`, covering all 22 spell records, target results, readiness,
+globe hit/miss, normal/alternate rules and screen positions. The standard spell
+interface is selected; target validation (`004c24f0`), readiness (`004c28a0`),
+the shared cursor-blocking query and final sprite submission are supplied.
+This proves sprite decisions and offsets for those inputs, not the entire
+native UI state machine or rasterizer. Three raw exports bring the manifest
+to **682**; readiness/special-mode exports remain evidence, not full ports.
+
+Live cursor feedback shares the existing command target checks through
+`spellTargetError`, including a missing/busy shaman, native range calculation,
+the browser map boundary and dry-shore rule. Stock remains the browser's
+first-mission readiness adapter. A stationary pointer is picked again when
+the camera, mode, terrain or viewport changes; leaving the world clears it.
+Terrain picking is cached between those changes, avoiding a full projected
+mesh scan every render frame. The invented small spell target ring is removed.
+
+`node scripts/check-browser-spell-cursor.mjs` checks real keyboard/mouse input,
+all three spell icons, DOM offsets, range animation, no stock, a wet shore, a
+busy shaman, camera rotation beneath a stationary pointer, HUD leave, and
+both rejected and successful casts. It captures ready/range states at
+`/private/tmp/populous-cursor-ready.png` and
+`/private/tmp/populous-cursor-range.png`.
+
+Both captures were inspected. The cursor browser check and existing HUD/command
+check pass, as do 66 regression tests, typecheck and production build. Lint
+reports only the three existing image warnings. The importer retains 423 HUD
+sprites/glyphs in the shared atlas.
+
+Remaining visible boundaries: the operating-system arrow, native cursor mode
+ownership, special alternate/minimap modes, building/order cursors and counts,
+ground tile/range overlays and full spell effects. The walking cursor currently
+uses the browser simulation turn; native outer-turn ownership is still open.
+The casting circle and building placement ring remain browser geometry. Native
+palette scheduling, device-pixel scaling and complete renderer parity are not
+established by the cursor comparison.

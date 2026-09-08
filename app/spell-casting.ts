@@ -142,6 +142,24 @@ export function spellPaymentType(gameFlags: number, ownerFlags: number, stock: S
   return !count && !(ownerFlags & 8) ? 1 : 3;
 }
 
+// 0x524cf0, standard spell-mode branch. Coordinates are relative to the mouse.
+// Target validation and readiness are inputs from 0x4c24f0 / 0x4c28a0.
+export function spellCursor(model:number,turn:number,target:number,readiness:number,onGlobe:boolean,gameFlags=0) {
+  const draws:{id:string|number;x:number;y:number}[]=[];
+  if(!model)return draws;
+  const d=rules.spellCharging[model];
+  if(!d.cursor)return draws;
+  draws.push({id:`point${d.cursor}`,x:0,y:-16});
+  if(!onGlobe||target<0||readiness!==3){
+    draws.push({id:589,x:d.cursorBlockedOffset[0],y:d.cursorBlockedOffset[1]-16});
+    if(!(gameFlags&32)&&onGlobe&&target===-2){
+      const [start,count]=rules.spellRangeCursor;
+      draws.push({id:`point${start+(turn>>>0)%count}`,x:31,y:-16});
+    }
+  }
+  return draws;
+}
+
 // Payment portion of 0x4f4de0: stock is consumed before allocation, even if it
 // fails. A zero availability type still supplies the price; callers gate casts.
 export function prepareSpellPayment(w: Pick<ManaWorld,'gameFlags'|'spells'>, owner: number, ownerFlags: number, model: number) {

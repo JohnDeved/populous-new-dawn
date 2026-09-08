@@ -12,8 +12,11 @@ a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
 palette=read('data/pal0-c.dat');bank=a.sprites(read('data/hfx0-0.dat'),palette)
 output=ROOT/'public/original'
 # HFX identities are checked against the shipped spell records and artwork.
-ids=[54,55,65,66,*range(354,390),*range(664,682),875,1028,1029,1030]
+ids=[54,55,65,66,*range(354,390),589,*range(664,682),875,1028,1029,1030]
 entries={str(i):bank[i] for i in ids}
+# 0x524cf0 selects spell artwork from POINT, warning marks from HFX.
+points=a.sprites(read('data/point0-0.dat'),palette)
+entries.update({f'point{i}':points[i] for i in [*range(38,58),*range(80,84)]})
 for font in [0,2]:
     for i,glyph in enumerate(a.sprites(read(f'data/font{font}-0.dat'),palette)):
         entries[f'font{font}-{i}']=glyph

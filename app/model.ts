@@ -608,16 +608,25 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
   for(const {u} of workers){release(w,u);u.work=b.id;route(w,u,entrance(w,b));}
   w.mode=null;tell(w,`${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`);return true;
 }
+// Shared browser target adapter: cursor feedback and click rejection must agree.
+// Native person flags and complete globe targeting are still being integrated.
+export function spellTargetError(w:World,spell:Spell,p:Point) {
+  const spec=SPELLS.find(s=>s.id===spell),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+  if(!spec)return {code:-1,message:''};
+  if(!shaman)return {code:-1,message:'Your shaman is reincarnating.'};
+  if(shaman.lift>0||shaman.casting||!canShamanCast(w.castingTribes[0],w.manaTribes[0].playerType,{state:0,flags2:0,flags4:0}))return {code:-1,message:'Your shaman must finish her current action.'};
+  if(!spellInRange(w,shaman,spec.model,p))return {code:-2,message:'Beyond your reach. Move your shaman closer.'};
+  if(Math.abs(p.x)>45||Math.abs(p.z)>45)return {code:-3,message:'Choose a target within the world.'};
+  if(spell==='bridge'&&(!walkable(w.terrain,p)||!walkable(w.terrain,shaman)))return {code:-3,message:'Land Bridge must join two dry shores. Aim at land on the opposite island.'};
+  return null;
+}
 export function cast(w: World, spell: Spell, p: Point) {
   if(w.paused||w.status!=='playing')return false;
-  const spec=SPELLS.find(s=>s.id===spell),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
-  if(!spec)return false;
-  if(!shaman){tell(w,'Your shaman is reincarnating.');return false;}
-  if(shaman.lift>0||shaman.casting||!canShamanCast(w.castingTribes[0],w.manaTribes[0].playerType,{state:0,flags2:0,flags4:0})){tell(w,'Your shaman must finish her current action.');return false;}
+  const error=spellTargetError(w,spell,p);
+  if(error?.code===-1){if(error.message)tell(w,error.message);return false;}
   if(w.shots[spell]<=0){tell(w,spell==='blast'?'Blast is charging. Braves working or inside huts generate more mana.':'Worship the stone head to receive this spell.');return false;}
-  if(!spellInRange(w,shaman,spec.model,p)){tell(w,'Beyond your reach. Move your shaman closer.');return false;}
-  if(Math.abs(p.x)>45||Math.abs(p.z)>45){tell(w,'Choose a target within the world.');return false;}
-  if(spell==='bridge'&&(!walkable(w.terrain,p)||!walkable(w.terrain,shaman))){tell(w,'Land Bridge must join two dry shores. Aim at land on the opposite island.');return false;}
+  if(error){tell(w,error.message);return false;}
+  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman')!;
   release(w,shaman);shaman.heading=Math.atan2(p.x-shaman.x,p.z-shaman.z);
   beginCast(w,shaman,spell,p);w.mode=null;
   return true;

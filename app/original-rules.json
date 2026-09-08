@@ -4554,6 +4554,11 @@
     {
       "mode": 0,
       "cost": 0,
+      "cursor": 0,
+      "cursorBlockedOffset": [
+        0,
+        0
+      ],
       "normalRange": 0,
       "alternateRange": 0,
       "normalLimit": 0,
@@ -4563,6 +4568,11 @@
     {
       "mode": 0,
       "cost": 12000,
+      "cursor": 41,
+      "cursorBlockedOffset": [
+        0,
+        0
+      ],
       "normalRange": 2048,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4572,6 +4582,11 @@
     {
       "mode": 1,
       "cost": 10000,
+      "cursor": 41,
+      "cursorBlockedOffset": [
+        11,
+        9
+      ],
       "normalRange": 3072,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4581,6 +4596,11 @@
     {
       "mode": 1,
       "cost": 80000,
+      "cursor": 49,
+      "cursorBlockedOffset": [
+        10,
+        8
+      ],
       "normalRange": 6144,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4590,6 +4610,11 @@
     {
       "mode": 1,
       "cost": 90000,
+      "cursor": 44,
+      "cursorBlockedOffset": [
+        13,
+        9
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 3,
@@ -4599,6 +4624,11 @@
     {
       "mode": 1,
       "cost": 40000,
+      "cursor": 46,
+      "cursorBlockedOffset": [
+        18,
+        8
+      ],
       "normalRange": 6144,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4608,6 +4638,11 @@
     {
       "mode": 1,
       "cost": 50000,
+      "cursor": 45,
+      "cursorBlockedOffset": [
+        14,
+        9
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4617,6 +4652,11 @@
     {
       "mode": 1,
       "cost": 85000,
+      "cursor": 47,
+      "cursorBlockedOffset": [
+        12,
+        10
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 3,
@@ -4626,6 +4666,11 @@
     {
       "mode": 1,
       "cost": 400000,
+      "cursor": 54,
+      "cursorBlockedOffset": [
+        14,
+        9
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 2,
@@ -4635,6 +4680,11 @@
     {
       "mode": 1,
       "cost": 18000,
+      "cursor": 43,
+      "cursorBlockedOffset": [
+        13,
+        10
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4644,6 +4694,11 @@
     {
       "mode": 1,
       "cost": 210000,
+      "cursor": 50,
+      "cursorBlockedOffset": [
+        15,
+        9
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 2,
@@ -4653,6 +4708,11 @@
     {
       "mode": 1,
       "cost": 100000,
+      "cursor": 53,
+      "cursorBlockedOffset": [
+        15,
+        9
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 3,
@@ -4662,6 +4722,11 @@
     {
       "mode": 1,
       "cost": 70000,
+      "cursor": 48,
+      "cursorBlockedOffset": [
+        14,
+        9
+      ],
       "normalRange": 5120,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4671,6 +4736,11 @@
     {
       "mode": 1,
       "cost": 510000,
+      "cursor": 55,
+      "cursorBlockedOffset": [
+        14,
+        9
+      ],
       "normalRange": 3072,
       "alternateRange": 7168,
       "normalLimit": 1,
@@ -4680,6 +4750,11 @@
     {
       "mode": 1,
       "cost": 175000,
+      "cursor": 52,
+      "cursorBlockedOffset": [
+        12,
+        9
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 2,
@@ -4689,6 +4764,11 @@
     {
       "mode": 1,
       "cost": 125000,
+      "cursor": 51,
+      "cursorBlockedOffset": [
+        11,
+        10
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 3,
@@ -4698,6 +4778,11 @@
     {
       "mode": 1,
       "cost": 800000,
+      "cursor": 56,
+      "cursorBlockedOffset": [
+        15,
+        10
+      ],
       "normalRange": 3072,
       "alternateRange": 7168,
       "normalLimit": 1,
@@ -4707,6 +4792,11 @@
     {
       "mode": 1,
       "cost": 10000,
+      "cursor": 42,
+      "cursorBlockedOffset": [
+        14,
+        9
+      ],
       "normalRange": 8192,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4716,6 +4806,11 @@
     {
       "mode": 2,
       "cost": 999999,
+      "cursor": 40,
+      "cursorBlockedOffset": [
+        12,
+        9
+      ],
       "normalRange": 8192,
       "alternateRange": 7168,
       "normalLimit": 1,
@@ -4725,6 +4820,11 @@
     {
       "mode": 1,
       "cost": 60000,
+      "cursor": 39,
+      "cursorBlockedOffset": [
+        12,
+        8
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4734,6 +4834,11 @@
     {
       "mode": 2,
       "cost": 999999,
+      "cursor": 38,
+      "cursorBlockedOffset": [
+        13,
+        9
+      ],
       "normalRange": 4096,
       "alternateRange": 7168,
       "normalLimit": 4,
@@ -4743,12 +4848,22 @@
     {
       "mode": 2,
       "cost": 999999,
+      "cursor": 57,
+      "cursorBlockedOffset": [
+        16,
+        10
+      ],
       "normalRange": 65536,
       "alternateRange": 7168,
       "normalLimit": 4,
       "alternateLimit": 0,
       "rate": 120
     }
+  ],
+  "spellRangeCursor": [
+    80,
+    4,
+    0
   ],
   "spellRangeBands": [
     204,

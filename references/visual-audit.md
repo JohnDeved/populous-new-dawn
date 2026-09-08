@@ -95,3 +95,14 @@ checks GPU-visible markers and exercises varying real walk poses. Depth testing
 still lets nearby world geometry obscure a marker. Native rectangle/gating
 comparisons do not prove the browser's complete painter ordering or occlusion.
 Spell cursors, range indicators and travel/impact effects are the next target.
+
+### Spell pointer feedback
+
+The pointer now carries native POINT spell artwork, HFX 589 unavailable marks
+and the four-frame POINT walking indicator for out-of-range targets. Native
+offsets replace the invented small ground target ring. Screenshots:
+`/private/tmp/populous-cursor-ready.png` and
+`/private/tmp/populous-cursor-range.png`, reproduced by
+`node scripts/check-browser-spell-cursor.mjs`. The operating-system arrow and
+large casting circle still differ; ground targeting and spell impacts remain
+the next visible comparison. Pointer tests do not prove whole-frame fidelity.

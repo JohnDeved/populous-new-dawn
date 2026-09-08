@@ -10,7 +10,7 @@ import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldToo
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { buildingObject, buildingStage, nativePosition, browserPosition, sound, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellInRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { buildingObject, buildingStage, nativePosition, browserPosition, sound, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellTargetError, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModelData from './original-models.json';
 import {modelStage,type NativeModel} from './model-faces.ts';
@@ -20,6 +20,8 @@ import {spriteDirection,spriteCoordinate,selectionArrow} from './projection.ts';
 import {RenderView} from './render-view.ts';
 import nativeUnits from './original-units.json';
 import nativeEffects from './original-effects.json';
+import nativeHud from './original-hud.json';
+import {spellCursor} from './spell-casting.ts';
 
 const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 };
 const material = (color: number, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra });
@@ -112,6 +114,9 @@ export class GameScene {
   range = ring(34, 0x6dc9ee, .1);
   mouse = new THREE.Vector2();
   pointer: Point | null = null;
+  pointerScreen:{clientX:number;clientY:number}|null=null;
+  pointerState='';
+  spellPointer=document.createElement('div');
   viewPoint: Point = HOME;
   flybyCamera: FlybyCamera = {x: 17 * 256, y: -41 * 256, angle: 0, zoom: 0};
   cameraBearing = 0;
@@ -158,6 +163,9 @@ export class GameScene {
     this.tooltipElement.style.backgroundColor = `rgb(${tooltipPalette.background.join(',')})`;
     this.tooltipElement.style.color = `rgb(${tooltipPalette.foreground.join(',')})`;
     this.tooltipElement.hidden = true; container.appendChild(this.tooltipElement);
+    this.spellPointer.className='spell-pointer';this.spellPointer.setAttribute('aria-hidden','true');
+    for(let i=0;i<3;i++){const sprite=document.createElement('i');sprite.className='hud-sprite';this.spellPointer.appendChild(sprite);}
+    this.spellPointer.hidden=true;container.appendChild(this.spellPointer);
     this.scene.fog = new THREE.FogExp2(0x9aadb5, .001);
     this.scene.add(new THREE.HemisphereLight(0xc6d6e3, 0x777258, 2.0));
     const sun = new THREE.DirectionalLight(0xfff2d5, 2.6); sun.position.set(-35, 90, 65); sun.castShadow = true;
@@ -203,7 +211,7 @@ export class GameScene {
     this.resize = new ResizeObserver(() => this.setSize()); this.resize.observe(container); this.setSize();
     this.listen(this.renderer.domElement, 'pointerdown', this.pointerDown);
     this.listen(this.renderer.domElement, 'pointermove', this.pointerMove);
-    this.listen(this.renderer.domElement, 'pointerleave', ()=>{this.hoveredObject=null;});
+    this.listen(this.renderer.domElement, 'pointerleave', ()=>{this.hoveredObject=null;this.pointerScreen=null;this.pointer=null;this.pointerState='';});
     this.listen(this.renderer.domElement, 'pointerup', this.pointerUp);
     this.listen(this.renderer.domElement, 'contextmenu', e => e.preventDefault());
     this.listen(this.renderer.domElement,'wheel',e=>{if(!this.overviewActive&&!this.world.inputMask){e.preventDefault();this.zoom(Math.exp((e as WheelEvent).deltaY*.001));}});
@@ -335,7 +343,7 @@ export class GameScene {
       g.userData.shrine=shrine.id;this.shrineMeshes.set(shrine.id,{g});
     }
   }
-  pick(event: PointerEvent): Point | null {
+  pick(event: {clientX:number;clientY:number}): Point | null {
     const rect=this.renderer.domElement.getBoundingClientRect();this.mouse.set((event.clientX-rect.left)/rect.width*2-1,1-(event.clientY-rect.top)/rect.height*2);
     return this.view.pick(this.mouse,[this.terrain],this.camera)?.point??null;
   }
@@ -348,12 +356,12 @@ export class GameScene {
   }
   pointerDown = ((event: PointerEvent) => { this.down = { x: event.clientX, y: event.clientY, button: event.button };this.dragLast={x:event.clientX,y:event.clientY}; this.renderer.domElement.setPointerCapture(event.pointerId); }) as EventListener;
   pointerMove = ((event: PointerEvent) => {
+    this.pointerScreen={clientX:event.clientX,clientY:event.clientY};
     if(!this.world.inputMask&&!this.overviewActive&&(event.buttons===2||event.buttons===4)){
       const dx=event.clientX-this.dragLast.x,dy=event.clientY-this.dragLast.y;
       if(event.buttons===2){this.cameraBearing+=dx*.008;this.pan(0,dy*.06);}else this.pan(-dx*.06,-dy*.06);
       this.dragLast={x:event.clientX,y:event.clientY};this.updateView();
     }
-    this.pointer = this.world.mode?this.pick(event):null;
     this.hoveredObject=!event.buttons&&!this.world.mode&&!this.world.inputMask?this.pickWorldObject(event)?.id??null:null;
     if (event.buttons === 1 && event.pointerType !== 'touch' && !this.world.mode) {
       const rect = this.container.getBoundingClientRect(); Object.assign(this.dragBox.style, { display: 'block', left: `${Math.min(this.down.x, event.clientX) - rect.left}px`, top: `${Math.min(this.down.y, event.clientY) - rect.top}px`, width: `${Math.abs(event.clientX - this.down.x)}px`, height: `${Math.abs(event.clientY - this.down.y)}px` });
@@ -624,8 +632,24 @@ export class GameScene {
     this.range.visible = !!this.world.mode && SPELLS.some(s => s.id === this.world.mode) && !!shaman;
     const spec=SPELLS.find(s=>s.id===this.world.mode);
     if(shaman&&spec&&this.range.visible)this.groundRing(this.range,shaman,spellRange(this.world,shaman,spec.model));
-    this.cursor.visible=!!this.pointer&&!!this.world.mode;
-    if(this.pointer&&this.world.mode){const p=this.pointer;this.groundRing(this.cursor,p,spec?2:footprint(this.world.mode as Building['kind']));const valid=spec?!!shaman&&spellInRange(this.world,shaman,spec.model,p)&&!(!walkable(this.world.terrain,p)&&spec.id==='bridge'):!placementError(this.world,this.world.mode as Building['kind'],p);this.cursor.material.color.setHex(valid?0xebd398:0xec6e59);}
+    // Picking projects the entire terrain; repeat when the pointer/view changes.
+    const pointerState=[this.world.mode,this.pointerScreen?.clientX,this.pointerScreen?.clientY,this.world.landVersion,
+      this.viewPoint.x,this.viewPoint.z,this.cameraBearing,this.viewZoom,this.overviewActive,
+      ...this.camera.position.toArray(),this.container.clientWidth,this.container.clientHeight].join(',');
+    if(pointerState!==this.pointerState){this.pointer=this.pointerScreen&&this.world.mode?this.pick(this.pointerScreen):null;this.pointerState=pointerState;}
+    this.cursor.visible=!!this.pointer&&!!this.world.mode&&!spec&&!this.world.inputMask;
+    if(this.pointer&&this.cursor.visible){const kind=this.world.mode as Building['kind'];this.groundRing(this.cursor,this.pointer,footprint(kind));this.cursor.material.color.setHex(placementError(this.world,kind,this.pointer)?0xec6e59:0xebd398);}
+    this.spellPointer.hidden=!spec||!this.pointerScreen||!!this.world.inputMask||this.world.status!=='playing';
+    if(spec&&this.pointerScreen&&!this.spellPointer.hidden){
+      const rect=this.container.getBoundingClientRect();
+      this.spellPointer.style.left=`${this.pointerScreen.clientX-rect.left}px`;this.spellPointer.style.top=`${this.pointerScreen.clientY-rect.top}px`;
+      // Native outer-turn ownership and full player records remain adapters.
+      const draws=spellCursor(spec.model,this.world.turn,this.pointer?spellTargetError(this.world,spec.id,this.pointer)?.code??1:-1,this.world.shots[spec.id]>0?3:0,!!this.pointer,this.world.manaWorld.gameFlags);
+      Array.from(this.spellPointer.children).forEach((child,i)=>{
+        const sprite=child as HTMLElement,d=draws[i];sprite.hidden=!d;
+        if(d){const r=(nativeHud.rects as Record<string,{x:number;y:number;w:number;h:number}>)[d.id];sprite.dataset.sprite=String(d.id);Object.assign(sprite.style,{left:`${d.x}px`,top:`${d.y}px`,width:`${r.w}px`,height:`${r.h}px`,backgroundPosition:`-${r.x}px -${r.y}px`});}
+      });
+    }
     this.terrain.count=this.overviewActive?1:9;
     this.updateWater();
     if(this.skyDome)this.skyDome.visible=this.overviewActive;
@@ -645,5 +669,5 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate);
   };
   releaseGroup(g: THREE.Object3D) { const materials = new Set<THREE.Material>(); g.traverse(o => { if(o instanceof THREE.Sprite){o.material.map?.dispose();materials.add(o.material);} if (o instanceof THREE.Mesh || o instanceof THREE.Line) { if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m)); } }); materials.forEach(m => m.dispose()); }
-  dispose() { cancelAnimationFrame(this.frame); this.terrainLoad.abort();this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.waterMap.dispose();this.terrainMap.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove(); }
+  dispose() { cancelAnimationFrame(this.frame); this.terrainLoad.abort();this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.waterMap.dispose();this.terrainMap.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove();this.spellPointer.remove(); }
 }

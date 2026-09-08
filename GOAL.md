@@ -43,9 +43,11 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare spell-targeting cursors/range feedback and visible spell
+**Next action:** compare ground range/target feedback and visible spell
 travel/impacts during first-mission play, then construction activity and
-destruction. Selected followers now use the native above-head arrow and
+destruction. Spell pointers now use native POINT artwork, unavailable markers
+and the out-of-range walking animation; full ground overlays and cursor ownership
+remain open. Selected followers now use the native above-head arrow and
 animation-frame height instead of invented ground rings. The HUD
 now uses compact native artwork, bitmap counts and model-hover descriptions;
 exact native menu ordering, font/palette scheduling and control ownership remain
