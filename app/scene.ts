@@ -3,6 +3,7 @@ import { soundAttenuation } from './audio';
 import {stepFlyby,interruptFlyby,type FlybyCamera} from './flyby.ts';
 import {createCameraMotion,createResultCamera,beginResultCamera,stepResultCamera,stepCameraMotion} from './camera-motion.ts';
 import {defeatSky,createSkyMotion,updateSkyArray,skyCloudLayer} from './sky.ts';
+import {readTerrainTextures,terrainAtlas,type TerrainTextures} from './terrain-texture.ts';
 import skyPalette from './original-sky.json';
 import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldTooltipObject,tooltipPalette} from './tooltips.ts';
 import * as THREE from 'three';
@@ -91,6 +92,12 @@ export class GameScene {
   terrain: THREE.InstancedMesh;
   water: THREE.Mesh;
   terrainData: THREE.DataTexture;
+  terrainMap=new THREE.DataTexture(new Uint8Array(1536*1536*4),1536,1536);
+  terrainTextures:TerrainTextures|null=null;
+  terrainAtlasState:ReturnType<typeof terrainAtlas>|undefined;
+  terrainLoad=new AbortController();
+  terrainMapVersion:number|null=null;
+  terrainShadows=new Uint8Array(16384);
   unitMeshes = new Map<number, THREE.Group>();
   buildingMeshes = new Map<number, THREE.Group>();
   buildingLabels = new Map<number, HTMLButtonElement>();
@@ -161,13 +168,17 @@ export class GameScene {
     this.controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
     this.controls.update();
     this.terrainData = new THREE.DataTexture(new Float32Array(world.terrain), GRID, GRID, THREE.RedFormat, THREE.FloatType); this.terrainData.needsUpdate = true;
+    this.terrainMap.colorSpace=THREE.SRGBColorSpace;
+    this.terrainMap.magFilter=this.terrainMap.minFilter=THREE.LinearFilter;
+    void fetch('/original/landscape.bin',{signal:this.terrainLoad.signal}).then(response=>{
+      if(!response.ok)throw new Error(`Terrain texture load failed: ${response.status}`);return response.arrayBuffer();
+    }).then(buffer=>{if(!this.terrainLoad.signal.aborted){this.terrainTextures=readTerrainTextures(buffer);this.updateTerrainTexture();}})
+      .catch(error=>{if(!this.terrainLoad.signal.aborted)console.error(error);});
     this.terrain = new THREE.InstancedMesh(new THREE.BufferGeometry(), new THREE.ShaderMaterial({
-      uniforms:{colours:{value:texture('land-colours')},detail:{value:texture('land-detail')}},
-      vertexShader:`attribute float altitude; varying vec2 land; varying float h; varying vec3 norm; void main(){land=uv;h=altitude;norm=normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-      fragmentShader:`uniform sampler2D colours;uniform sampler2D detail;varying vec2 land;varying float h;varying vec3 norm;
-      void main(){float grain=texture2D(detail,land/16.).r*255.-128.;float shade=64.+grain*.20+(dot(normalize(norm),normalize(vec3(-.5,1.,.4)))-.75)*42.;
-      float level=clamp(h*45.+140.+smoothstep(0.,1.,h)*150.+grain*.22,0.,1151.);
-      gl_FragColor=texture2D(colours,vec2(clamp(shade,1.,254.)/256.,1.-(level+.5)/1152.));
+      uniforms:{map:{value:this.terrainMap}},
+      vertexShader:`varying vec2 land; void main(){land=(uv+48.)/96.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader:`uniform sampler2D map;varying vec2 land;
+      void main(){gl_FragColor=texture2D(map,land);
       #include <colorspace_fragment>
       }`
     }),9);
@@ -275,19 +286,27 @@ export class GameScene {
   groundRing(mesh:THREE.Mesh,p:Point,radius:number){const pos=mesh.geometry.attributes.position;for(let i=0;i<pos.count;i++){const a=i%65/64*Math.PI*2,r=i<65?radius-.1:radius;const q={x:p.x+Math.cos(a)*r,z:p.z+Math.sin(a)*r};const v={x:q.x,y:(Math.max(0,height(this.world.terrain,q.x,q.z))+.16)*45/128,z:q.z};pos.setXYZ(i,v.x,v.y,v.z);}pos.needsUpdate=true;mesh.geometry.computeBoundingSphere();}
 
   rebuildTerrain() {
-    const w=this.world,positions:number[]=[],altitudes:number[]=[],uv:number[]=[];
-    const add=(x:number,z:number)=>{const h=w.terrain[(z+48)*GRID+x+48],p={x,y:Math.round(h*45)/128,z};positions.push(p.x,p.y,p.z);altitudes.push(h);uv.push(x,z);};
+    const w=this.world,positions:number[]=[],uv:number[]=[];
+    const add=(x:number,z:number)=>{const h=w.terrain[(z+48)*GRID+x+48];positions.push(x,Math.round(h*45)/128,z);uv.push(x,z);};
     for(let z=-48;z<48;z++)for(let x=-48;x<48;x++){
       const i=(z+48)*GRID+x+48,t=w.terrain;
       if(terrainCross(t[i],t[i+1],t[i+GRID],t[i+GRID+1])){add(x,z);add(x,z+1);add(x+1,z);add(x+1,z);add(x,z+1);add(x+1,z+1);}
       else{add(x,z);add(x+1,z+1);add(x+1,z);add(x,z);add(x,z+1);add(x+1,z+1);}
     }
-    this.terrain.geometry.dispose();const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('altitude',new THREE.Float32BufferAttribute(altitudes,1));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-    const smooth=mergeVertices(geo);smooth.computeVertexNormals();geo.dispose();this.terrain.geometry=smooth;
+    this.terrain.geometry.dispose();const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    this.terrain.geometry=mergeVertices(geo);geo.dispose();
     (this.terrainData.image.data as Float32Array).set(w.terrain); this.terrainData.needsUpdate = true; this.terrainVersion = w.terrainVersion;
     for (const d of this.decorations.children) { const p = d.userData.point as Point | undefined; if (p) { this.locate(d,p); d.visible = walkable(w.terrain, p); } }
     const bg = this.minimapBackground; bg.width = GRID; bg.height = GRID; const ctx = bg.getContext('2d')!; const data = ctx.createImageData(GRID, GRID);
     for (let i = 0; i < w.terrain.length; i++) { const h = w.terrain[i]; const c = h < .4 ? [25, 55, 63] : h < 1.2 ? [153, 146, 106] : h > 7 ? [114, 121, 113] : [71 + h * 4, 93 + h * 3, 61 + h * 2]; data.data.set([...c, 255], i * 4); } ctx.putImageData(data, 0, 0);
+  }
+  updateTerrainTexture(){
+    if(!this.terrainTextures)return;
+    const w=this.world;
+    if(this.terrainMapVersion===w.landVersion&&w.land.shadows.every((v,i)=>v===this.terrainShadows[i]))return;
+    this.terrainAtlasState=terrainAtlas(w.land,this.terrainTextures,this.terrainAtlasState);
+    if(this.terrainAtlasState.updated){this.terrainMap.image={data:this.terrainAtlasState.pixels,width:1536,height:1536};this.terrainMap.needsUpdate=true;}
+    this.terrainMapVersion=w.landVersion;this.terrainShadows.set(w.land.shadows);
   }
   makeDecorations() {
     for(const tree of this.world.trees){
@@ -518,6 +537,7 @@ export class GameScene {
     const dt = Math.min(.1, (now - (this.previous || now)) / 1000); this.previous = now;
     tick(this.world,dt*this.world.speed);this.playWorldSounds();
     if (this.terrainVersion !== this.world.terrainVersion) { this.rebuildTerrain(); this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); }
+    this.updateTerrainTexture();
     const trees=this.world.trees.map(t=>t.logs>=1?'1':'0').join('');if(trees!==this.treeSignature){this.treeSignature=trees;this.releaseGroup(this.decorations);this.decorations.clear();this.makeDecorations();}
     const movingX = Number(this.keys.has('d') || this.keys.has('arrowright')) - Number(this.keys.has('a') || this.keys.has('arrowleft'));
     const movingZ = Number(this.keys.has('s') || this.keys.has('arrowdown')) - Number(this.keys.has('w') || this.keys.has('arrowup'));
@@ -616,5 +636,5 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate);
   };
   releaseGroup(g: THREE.Object3D) { const materials = new Set<THREE.Material>(); g.traverse(o => { if(o instanceof THREE.Sprite){o.material.map?.dispose();materials.add(o.material);} if (o instanceof THREE.Mesh || o instanceof THREE.Line) { if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m)); } }); materials.forEach(m => m.dispose()); }
-  dispose() { cancelAnimationFrame(this.frame); this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.terrainData.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
+  dispose() { cancelAnimationFrame(this.frame); this.terrainLoad.abort();this.resize.disconnect(); this.disposeListeners.forEach(f => f()); this.controls.dispose(); this.releaseGroup(this.scene); this.terrainData.dispose();this.terrainMap.dispose();this.view.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); this.dragBox.remove();this.tooltipElement.remove();this.shrineMeshes.forEach(s=>s.label.remove());this.buildingLabels.forEach(label=>label.remove()); }
 }

@@ -34,7 +34,8 @@ and `populus-3.png`. Ranked discrepancies:
 
 1. Terrain remains too yellow and its detail/shading too uniform. The shader
    still guesses height/color and lighting weights despite using original assets.
-   Water/shore texture motion is also approximate. This is the next target.
+   **Corrected in the following terrain pass below.** Water/shore texture motion
+   remains approximate and is the next target.
 2. The normal view had a flat sky: its cloud dome was only visible in overview.
    Now corrected with the original lens data and both original cloud textures.
    Native camera motion, UVs and fades are CPU-compared; keyboard rotation,
@@ -48,3 +49,21 @@ Before/after captures: `/private/tmp/populous-visible-before.png`,
 `/private/tmp/populous-visible-sky-after.png` and
 `/private/tmp/populous-visible-sky-rotated.png`. The latter two are reproducible
 with `node scripts/check-browser-sky.mjs` while the local server runs.
+
+### Native terrain texture pass
+
+Replaced the guessed terrain shader with the original 32×32 indexed texture
+calculation. The terrain now has the shipped bank-c soil/grass detail, original
+cliff remapping and shaded building compounds. Original screenshots use several
+landscape banks; their different colors are not a reason to tint this mission's
+verified bank by eye. The opening and a completed Land Bridge were inspected.
+
+`check-browser-terrain.mjs` captures `/private/tmp/populous-terrain-after.png`
+and `/private/tmp/populous-terrain-bridge.png`; the prior sky-only build is retained
+locally as `/private/tmp/populous-terrain-before.png`. An actual targeted click
+casts Land Bridge; its changed native cells update the atlas after terrain
+synchronization. Incremental atlas output matches a fresh rebuild.
+
+Remaining visible differences include water/shore behavior, dynamic light and
+scenery shadow scheduling, native texture-cache filtering/LOD and HUD layout.
+Native texture pixels matching does not establish whole-frame visual parity.

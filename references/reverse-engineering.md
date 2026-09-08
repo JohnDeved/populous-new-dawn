@@ -3254,3 +3254,51 @@ and WebGL blending are adapters, not legacy Direct3D raster parity. The clock is
 fed from RAF milliseconds rather than the original Windows render loop. Full
 palette scheduling and device capability fallbacks are not integrated. Terrain
 shading/water and original HUD layout remain the next visible priorities.
+
+## 2026-09-08 — Native terrain texture generation in the live renderer
+
+`004bf860` generates 32×32 **indexed** textures, using bilinear fixed-point
+brightness, height and cliff fields, signed displacement and a diagonal
+displacement difference for fine shading. Height selects the amplitude table
+initialized by `004bd700`, then `BIGF` and `CLIFF` select the final palette index.
+Fog fade and accumulated stain shading are subsequent indexed lookups. The old
+browser shader guessed height offsets, displacement weights and normal lighting;
+that path has been removed from terrain rendering.
+
+`app/terrain-texture.ts` reconstructs those pixel calculations. The cell-lighting
+block from existing `004bdd40` supplies brightness. Full native `00401040` and its
+`00401790` callee confirm the opening light vector stays `[147,147,147]`.
+`004be330` records dispatch to the texture generators and cache behavior. Five
+new raw exports bring the manifest to **657**.
+
+The importer packages the original palette, BIGF, CLIFF, signed DISP and FADE
+tables as `public/original/landscape.bin` (386,048 bytes); each source file's hash
+is retained in provenance. A 1536×1536 RGBA atlas covers the existing 48×48 native
+cell crop, reflecting native Y when copying tile rows. Source height, cliff and
+brightness changes invalidate every touching tile. Unchanged tiles retain their
+pixels, avoiding a full-crop rebuild during each Land Bridge update. Native
+height synchronization has its own version: texture refresh follows `landVersion`,
+so a browser geometry edit cannot cause the old native texture to be cached as
+the new version. Shade-only changes invalidate independently.
+
+`check-native-terrain-texture.py` passes **256 full native texture calls / 262,144
+indexed pixels**, with the original amplitude-table initializer, both fog modes
+and linked native stain accumulation. Only allocation is supplied; the texture
+routine has no stubs. It also compares **256 brightness writes**, stopping before
+cache side effects, and **12 opening-map RGBA tiles** from the reflected atlas.
+An incremental terrain/shade edit matches a fresh full rebuild exactly. Test
+inputs respect the normal terrain processor's zero-cliff/zero-height invariant.
+
+`check-browser-terrain.mjs` verifies the atlas reaches GPU pixels, casts a real
+Land Bridge through pointer input, waits for native synchronization and checks
+changed texture pixels and partial tile rebuilding. Shade-only invalidation and
+browser errors are checked. Opening and bridge screenshots were inspected.
+
+Remaining boundaries: this uses the 32-pixel native generator throughout the
+browser crop, rather than reproducing the 16-pixel/cache/LOD dispatcher. The
+opening sunlight vector and existing building-shadow fields are live inputs;
+dynamic sunlight and complete scenery-shadow lifecycle remain unported. The
+pixel routine accepts fog and stain counts, but the live world does not yet
+supply their original ownership/scheduling. Atlas filtering and texture-coordinate
+insets are WebGL adapters. Water, shoreline rendering, overview and the minimap
+remain approximate; next work stays focused on those visible gaps and the HUD.

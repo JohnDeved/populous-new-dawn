@@ -1619,3 +1619,22 @@ hashes. The browser check requires a running local preview and covers both
 visible layers, opaque-world occlusion, controls and viewport changes. Device
 rasterization, original HUD offsets and full palette/clock scheduling remain
 explicit integration boundaries; see the reverse-engineering log.
+
+### Native terrain textures
+
+The manifest now contains **657** exports. `app/terrain-texture.ts` reconstructs
+`004bf860` indexed surface generation, the amplitude table from `004bd700` and
+the lighting block of `004bdd40`. New exports also record initialization
+(`00401040`, `00401790`) and dispatch (`004be330`).
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-terrain-texture.py /path/to/d3dpoptb.exe
+node scripts/check-browser-terrain.mjs
+```
+
+The importer requires `pal0-c.dat`, `bigf0-c.dat`, `cliff0-c.dat`, `disp0-c.dat`
+and `fade0-c.dat`, retaining original bytes and source hashes. The CPU check runs
+256 native textures, 256 lighting blocks and 12 opening-map atlas comparisons,
+plus incremental invalidation. The browser check casts Land Bridge and verifies
+texture refresh after native terrain synchronization. Native raster/cache/LOD,
+dynamic lighting and live fog/stain ownership remain open integration work.

@@ -198,6 +198,9 @@ def main():
         data=read('data/d3d/'+src);(output/dst).write_bytes(data)
     lens=read('data/skylens.dat');assert len(lens)==81*26*8
     (project/'app/original-skylens.json').write_text(json.dumps(list(struct.unpack('<4212i',lens)),separators=(',',':'))+'\n')
+    terrain=[read('data/'+name) for name in ['pal0-c.dat','bigf0-c.dat','cliff0-c.dat','disp0-c.dat','fade0-c.dat']]
+    assert list(map(len,terrain))==[1024,294912,8192,65536,16384]
+    (output/'landscape.bin').write_bytes(b''.join(terrain))
     (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'compositedFrames':len(rendered),'sha256':hashes},indent=2)+'\n')
     print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} composite animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 
