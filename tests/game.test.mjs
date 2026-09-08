@@ -1088,3 +1088,17 @@ test('defeat seeds native building collapse and staged damage ejects occupants b
  for(let i=0;i<200&&w.buildings.includes(b);i++)tick(w,1/12);
  assert.equal(b.collapse.stage,0);assert.equal(b.hp,0);assert.ok(!w.buildings.includes(b));
 });
+
+test('building display stages follow remaining work and retain separate complete meshes', async () => {
+ const {buildingStage,buildingObject}=await import('../app/model.ts');
+ const {modelStage}=await import('../app/model-faces.ts');
+ const w=createWorld(),b=w.buildings.find(b=>b.kind==='hut'),source=nativeModels[buildingObject(b)],before=structuredClone(source);
+ const stages=[0,.25,.5,.75,1].map(progress=>{b.progress=progress;return buildingStage(b);});
+ assert.deepEqual(stages,[0,1,2,3,4]);
+ for(let stage=0;stage<4;stage++){
+  const mesh=modelStage(source,stage);assert.ok(mesh.p.length);assert.equal(mesh.p.length/3,mesh.uv.length/2);
+  assert.notDeepEqual(mesh.uv,source.uv,'unfinished surfaces retain their native cap material');
+ }
+ assert.strictEqual(modelStage(source,4),source);assert.deepEqual(source,before,'one damaged copy cannot mutate completed buildings');
+ b.progress=1;b.collapse={stage:2};assert.equal(buildingStage(b),2,'damage takes priority over completed construction');
+});

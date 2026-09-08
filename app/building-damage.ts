@@ -29,6 +29,10 @@ export type DamageBuilding = {model:number;state:number;flags2:number;flags3:num
   counter:number;damage:number;stage:number;attacker:number;occupants:number};
 export type BuildingPlan = {remaining:number;repairDelay:number;attacker:number};
 
+export function buildingWorkStage(remaining:number,life:number) {
+  return remaining<life?(remaining<1?0:Math.max(0,Math.min(3,byte(Math.trunc((remaining*4-1)/(life-1)))))):4;
+}
+
 // Complete 0x4ba2c0 with the caller's resolved live building and overlay.
 // Positive work and negative damage share this routine and signed-short storage.
 export function changeBuildingWork(plan:BuildingPlan,amount:number,b:DamageBuilding|null,overlay:{stage:number}|null,
@@ -37,12 +41,11 @@ export function changeBuildingWork(plan:BuildingPlan,amount:number,b:DamageBuild
   plan.remaining=short(plan.remaining+short(amount));
   if(!b)return false;
   const old=b.stage,life=rules.buildingLife[b.model];let destroyed=false;
+  b.stage=buildingWorkStage(plan.remaining,life);
   if(plan.remaining<life) {
-    if(plan.remaining<1){destroyed=true;b.stage=0;}
-    else b.stage=Math.max(0,Math.min(3,byte(Math.trunc((plan.remaining*4-1)/(life-1)))));
+    destroyed=plan.remaining<1;
     if(b.stage!==old)effects.move(b);
   }else {
-    b.stage=4;
     if(!(b.flags2&0x100000)){effects.release(b);b.state=2;effects.init(b);}
   }
   const changed=destroyed||b.stage!==old;

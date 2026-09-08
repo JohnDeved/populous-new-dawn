@@ -4,10 +4,11 @@ import {createTooltip,showObjectTooltip,stepTooltip,forcedTooltipObject,worldToo
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
-import { buildingObject, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellInRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
+import { buildingObject, buildingStage, GRID, SIZE, HOME, ENEMY, PLANET_RADIUS, terrainCross, footprint, placementError, height, walkable, distance, maxHp, buildingHp, cast, command, placeBuilding, spellRange, spellInRange, SPELLS, tick, type World, type Point, type Unit, type Building, type Effect, unitAnimation } from './model';
 
 import nativeModelData from './original-models.json';
-const nativeModels: Record<number,{p:number[];uv:number[];scale:number}> = nativeModelData;
+import {modelStage,type NativeModel} from './model-faces.ts';
+const nativeModels: Record<number,NativeModel> = nativeModelData;
 import {morphCoordinate} from './morph.ts';
 import {spriteDirection,spriteCoordinate} from './projection.ts';
 import {RenderView} from './render-view.ts';
@@ -25,15 +26,14 @@ function texture(kind: string) {
   if(kind==='units'||kind==='effects'){t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}
   textures.set(kind,t);return t;
 }
-function nativeModel(id:number,scale=2){
+function nativeModel(id:number,scale=2,stage=4){
   const data=nativeModels[id];
-  const geo=geometry(`original-${id}`,()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(data.p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(data.uv,2));g.computeVertexNormals();return g;});
+  const geo=geometry(`original-${id}-${stage}`,()=>{const {p,uv}=modelStage(data,stage),g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();return g;});
   const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:texture('atlas'),side:THREE.DoubleSide,alphaTest:.5}));
-  mesh.scale.setScalar(scale);mesh.userData.nativeModel=id;mesh.userData.nativeScale=data.scale;return mesh;
+  mesh.scale.setScalar(scale);mesh.userData.nativeModel=id;mesh.userData.stage=stage;mesh.userData.nativeScale=data.scale;return mesh;
 }
 const meshes = new Map<string, THREE.BufferGeometry>();
 function geometry(key: string, create: () => THREE.BufferGeometry) { if (!meshes.has(key)) meshes.set(key, create()); return meshes.get(key)!; }
-const cylinder = (top: number, bottom: number, h: number, segments = 8) => geometry(`c${top},${bottom},${h},${segments}`, () => new THREE.CylinderGeometry(top, bottom, h, segments));
 const box = (x: number, y: number, z: number) => geometry(`b${x},${y},${z}`, () => new THREE.BoxGeometry(x, y, z));
 function part(group: THREE.Group, geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 0) {
   const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; group.add(m); return m;
@@ -54,16 +54,13 @@ function makeUnit(u: Unit) {
   const healthFill=part(health,box(.78,.04,.025),material(teamColor[u.team]),0,2.1,.01);g.add(health);
   g.userData={unit:u.id,signature:`${u.team}-${u.kind}`,sprite,selection,health,healthFill,heading:0,frame:-1};return g;
 }
-function makeBuilding(b: Building) {
+function makeBuilding(b: Building,stage:number) {
   const g=new THREE.Group(),id=buildingObject(b);
-  const model=nativeModel(id,b.kind==='temple'?1.65:2);g.add(model);
+  const model=nativeModel(id,b.kind==='temple'?1.65:2,stage);g.add(model);
   const health=new THREE.Group(),top=b.kind==='tower'?6:4.8;
   part(health,box(2.5,.09,.05),material(0x201d16),0,top);
   const healthFill=part(health,box(2.5,.09,.06),material(teamColor[b.team]),0,top,.01);g.add(health);
-  const scaffold=new THREE.Group(),wood=material(0x695337);
-  for(const x of [-2.4,2.4])for(const z of [-2.4,2.4])part(scaffold,cylinder(.055,.075,3.8,5),wood,x,1.9,z);
-  for(const y of [1.1,2.3,3.5]){part(scaffold,box(4.8,.08,.1),wood,0,y,-2.4);part(scaffold,box(.1,.08,4.8),wood,-2.4,y,0);part(scaffold,box(.1,.08,4.8),wood,2.4,y,0);}
-  g.add(scaffold);g.userData={building:b.id,signature:b.level,health,healthFill,scaffold,architecture:[model]};return g;
+  g.userData={building:b.id,signature:`${b.level}-${stage}`,health,healthFill};return g;
 }
 
 export class GameScene {
@@ -442,8 +439,9 @@ export class GameScene {
     }
     for (const [id, g] of this.buildingMeshes) if (!this.world.buildings.some(b => b.id === id)) { this.objects.remove(g); this.releaseGroup(g); this.buildingMeshes.delete(id);this.buildingLabels.get(id)?.remove();this.buildingLabels.delete(id); }
     for (const b of this.world.buildings) {
-      let g = this.buildingMeshes.get(b.id);if(g&&g.userData.signature!==b.level){this.objects.remove(g);this.releaseGroup(g);this.buildingMeshes.delete(b.id);g=undefined;} if (!g) { g = makeBuilding(b); this.buildingMeshes.set(b.id, g); this.objects.add(g); if (b.progress < 1) { this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); } }
-      this.locate(g,b,b.foundation);this.orientModel(g,b.angle);g.userData.scaffold.visible=b.progress<1;for(const child of g.userData.architecture)child.visible=b.progress>.35; g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1; g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = b.progress < 1 ? Math.max(.01, b.progress) : Math.max(.001, b.hp / buildingHp(b.kind));
+      const stage=buildingStage(b);
+      let g = this.buildingMeshes.get(b.id);if(g&&g.userData.signature!==`${b.level}-${stage}`){this.objects.remove(g);this.releaseGroup(g);this.buildingMeshes.delete(b.id);g=undefined;} if (!g) { g = makeBuilding(b,stage); this.buildingMeshes.set(b.id, g); this.objects.add(g); if (b.progress < 1) { this.releaseGroup(this.decorations); this.decorations.clear(); this.makeDecorations(); } }
+      this.locate(g,b,b.foundation);this.orientModel(g,b.angle);g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1; g.userData.health.quaternion.copy(g.quaternion.clone().invert().multiply(this.camera.quaternion)); g.userData.healthFill.scale.x = b.progress < 1 ? Math.max(.01, b.progress) : Math.max(.001, b.hp / buildingHp(b.kind));
       if(b.team==='blue'&&(b.kind==='camp'||b.progress<1)){
         let label=this.buildingLabels.get(b.id);if(!label){label=document.createElement('button');label.className='shrine-label building-label';label.onclick=()=>{command(this.world,b);this.onChange();};this.container.appendChild(label);this.buildingLabels.set(b.id,label);}
         const name=b.kind==='camp'?'Warrior Training Hut':'Hut',p=this.screen(b,b.foundation+5);

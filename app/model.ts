@@ -4,7 +4,7 @@ import {markBuildingTerritory,refreshBuildingTerritory,type Territory} from './t
 import {processTribes,processOutcome,type TribeTurnState,type OutcomeWorld} from './tribe-turns.ts';
 import {buildingOutsidePoint} from './building-shapes.ts';
 import {nativeTrainingCost} from './building-occupants.ts';
-import {defeatTribe,advanceCollapse,processBuildingDamage,changeBuildingWork,type DamageBuilding,type BuildingPlan} from './building-damage.ts';
+import {defeatTribe,advanceCollapse,processBuildingDamage,changeBuildingWork,buildingWorkStage,type DamageBuilding,type BuildingPlan} from './building-damage.ts';
 import {distributeMana,generatedMana,generateFollowerMana,type ManaWorld,type ManaTribe} from './mana.ts';
 export {nativeAngle,nativeStep,random} from './native-math.ts';
 import {nativeSpellRange,prepareSpellPayment,debitSpellMana,createTribeCasting,
@@ -501,6 +501,12 @@ export function select(w: World, kind: UnitKind | 'all') { w.selected=w.units.fi
 function release(u: Unit) { u.vault=null; u.work=null; u.inside=null; u.tree=null; u.target=null; u.guard=false; u.timer=0; u.casting=null;u.fighting=false;u.fight=null;u.idleTurns=0; }
 export function buildingModel(b:Pick<Building,'kind'|'level'>) {
   return b.kind==='hut'?b.level:b.kind==='tower'?4:b.kind==='temple'?5:7;
+}
+export function buildingStage(b:Building) {
+  // ponytail: construction progress adapts native remaining work until the
+  // original plan/construction processor replaces the browser work producer.
+  const life=rules.buildingLife[buildingModel(b)];
+  return b.collapse?.stage??buildingWorkStage(Math.trunc(b.progress*life),life);
 }
 // Share the displayed object identity with native footprint/entrance lookup.
 export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level'>) {

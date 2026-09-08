@@ -2153,3 +2153,50 @@ requests and removal in the rendered game, followed by the existing victory,
 restart and defeat UI checks. No page errors occurred. Typecheck/build pass;
 lint has seven existing image warnings and zero errors. The stage check observes
 simulation state; mesh filtering and exact smoke visuals are not validated parity.
+
+
+## Original construction and damaged-building meshes
+
+`app/model-faces.ts` ports the face visibility and alternate texture selection
+from `00471c40`. Each bank-2 face's byte at **+0x3b** supplies four visibility
+bits and four matching exposed-surface bits. Byte +7 is the texture size field,
+not the stage mask. `import-original.py` retains each original face's vertex
+count and mask alongside its existing expanded positions and UVs.
+
+For stages 0–3, visible faces either keep their original atlas coordinates or use
+tile **250**, texture-size mode 7 and the fixed coordinates initialized by
+`0040cde0`: `(0,0), (2097150,0), (2097150,2097150), (0,2097150)` at the imported
+32-pixel texture size. Completed stage 4 retains the complete model and existing
+normal rendering path. `004030c0` switches buildings being built/repaired to
+object kind 10, whose render dispatch uses the staged renderer; completed state
+2 restores its normal object kind through `004049d0`.
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-building-faces.py /path/to/d3dpoptb.exe
+```
+
+The oracle runs **2,096** complete `00471c40` calls and compares **5,479** emitted
+triangles against the browser meshes: all twelve currently displayed building
+models at four incomplete stages, and triangle/quad fixtures covering every
+byte mask. It uses the original bank files with recorded hashes and the actual
+`0040cde0` UV initializer. Normals and an in-bounds projection are supplied;
+comparison preserves vertex/UV pairing but normalizes triangle order and winding.
+This proves face selection and atlas coordinates for the tested assets, not the
+original clipping, shading, depth sorting, rasterizer or whole render dispatch.
+
+The live renderer now replaces the generic construction scaffold and the old
+35% whole-building visibility threshold with these original face groups. It
+uses recovered remaining-work stages for construction and the native collapse
+stage for damage, caching separate geometry for every model/stage. Complete
+models and shared source data remain intact. Browser construction progress still
+adapts remaining work; timber/construction/repair timing is not native parity.
+Flying debris, fire and full post-result simulation remain unfinished.
+
+All **46** regressions pass. The existing **3,584** damage comparisons still pass
+after sharing the native work-to-stage calculation with the live renderer.
+Playwright checks the actual GPU geometry buffers and UVs at all five construction
+stages, then damages a completed building and checks the stage change. No page
+errors occurred. Captures hide the pause overlay only in the QA page so the mesh
+can be inspected. The export manifest now verifies **538** files, including the
+staged and complete renderers, UV initializer and investigated boundary routines.
+Build and typecheck pass; lint reports seven existing image warnings and zero errors.
