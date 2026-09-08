@@ -3075,3 +3075,27 @@ follower scheduler. Native indexed search (`0049a2f0`, `0049a3f0`, `0049a5d0`),
 original slot-table loading, slot validation/allocation and world ownership must
 be composed next. Their raw exports, including slot search/validation, preserve
 the evidence. Full physics/health/class scheduling and game parity remain open.
+
+## 2026-09-08 — Wrapped path geometry and native smoothing
+
+The next pathfinding layer is reconstructed in `app/path-geometry.ts`: wrap
+candidate preparation/selection, native four-direction line stepping, cached
+terrain and vehicle-transition probes, repeated path smoothing and distance/
+tribe measurement. The imported direction table comes from `0059bd90` in the
+verified executable. Address mappings, memory alias details and remaining
+consumer boundaries are recorded in [the decompilation guide](../decomp/README.md#wrapped-path-geometry-and-smoothing).
+
+`scripts/check-native-path-geometry.py EXE` passes **7,168 native comparisons**
+across seven modes. Native segment clearance and smoothing execute the actual
+line/probe routines; building access and three boat consumers are supplied.
+Candidate checks exclude only neighbor flag words written from an uninitialized
+native stack local. Defined candidate bytes, full path/result buffers, shared
+state and consumer arguments match. Measurement uses terrain region byte +15
+and the original active/defeat predicate.
+
+The **61st gameplay regression** composes these routines with route construction,
+search control and collection. Across the world seam, an open route reduces to
+one endpoint and 16 quarter-cell steps; blocking its first step retains a detour
+with two nodes and 24 steps. The obstacle solver supplies that initial path.
+Full obstacle solving, route advancement and ordinary follower scheduling remain
+unfinished; the new ports do not yet change live follower pathfinding.

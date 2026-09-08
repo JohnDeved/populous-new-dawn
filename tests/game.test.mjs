@@ -1407,3 +1407,33 @@ test('native path search packs a trimmed route and preserves distinct vehicle re
   assert.deepEqual(attempts,retry?[[1,1],[0,1],[1,1],[0,1],[0,0]]:[[1,1]]);
  }
 });
+
+test('native wrapped route smoothing respects blocked steps and measures retained segments', async () => {
+ const {createLivePerson}=await import('../app/live-people.ts');
+ const {buildPersonRoute}=await import('../app/person-routes.ts');
+ const {searchPersonPath,collectSearchPath}=await import('../app/path-search.ts');
+ const {createPathGeometry,preparePathCandidates,choosePathCandidate,clearPathSegment,smoothSearchPath,measureSearchPath}=await import('../app/path-geometry.ts');
+ const rules=(await import('../app/original-rules.json',{with:{type:'json'}})).default;
+ for(const blocked of [false,true]){
+  const world=createWorld(),p=createLivePerson(world,world.units.find(u=>u.kind==='brave'&&u.team==='blue')),routes=world.motionRoutes;
+  const path={data:new Uint8Array(2580),count:0},g=createPathGeometry(),v=new DataView(path.data.buffer);
+  const state={searches:0,landLimit:0,checkingPerson:0,limit:0,vehicles:0,mode:0,currentBoat:0,candidateCount:0,candidateIndex:0,truncated:0,walkMask:0};
+  const categories=new Uint8Array(16384).fill(rules.terrainCategoryFlags.findIndex(f=>f&1)),walkMasks=[new Uint8Array(8192).fill(255),new Uint8Array(8192).fill(255)];
+  if(blocked)for(const mask of walkMasks){const bit=20*256+251;mask[bit>>3]&=~(1<<(bit&7));}
+  const w={state,path,result:routes.pathResult,categories,flags:new Uint32Array(16384),walkMasks,boatsEnabled:0,landLimit:32,humanLimit:32,computerLimit:32,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
+  const unexpected=()=>{throw Error('Unexpected boat or building consumer');},probe={buildingAccess:unexpected,boardingBoat:unexpected,disembark:unexpected,boatCell:unexpected};
+  const measure={dirty:1,distance:0,tribes:0},regions=new Uint8Array(16384).fill(0x30),tribes=[{active:true,defeatTimer:0},{active:false,defeatTimer:0}];
+  const consumers={prepare:()=>preparePathCandidates(w,g),choose:i=>choosePathCandidate(w,g,i),solve:()=>{
+   assert.equal(v.getInt32(0,true),5370);assert.equal(v.getInt32(10,true),5382,'target wraps across the world seam');
+   // Obstacle solver remains supplied; exercise its actual postprocessing chain.
+   path.count=3;for(const [i,x,y] of [[0,250,28],[1,262,28],[2,262,24]]){v.setInt32(20+i*10,5120+x,true);v.setInt32(24+i*10,5120+y,true);}
+   return 0;
+  },smooth:()=>smoothSearchPath(path,0,(a,b,k)=>clearPathSegment(w,g,p,a,b,k,probe)),
+   measure:()=>measureSearchPath(path,g.line,measure,regions,tribes),collect:()=>{state.truncated=Number(collectSearchPath(path,w.result,0));}};
+  const id=buildPersonRoute(routes,p,{x:250,y:20},{x:6,y:24},0,{flags:0},{findVehicle:unexpected,search:(_,p,a,b,option,vehicles)=>searchPersonPath(w,p,Uint8Array.of(a.x,a.y,0,0),Uint8Array.of(b.x,b.y,0,0),option,vehicles,consumers)});
+  assert.equal(id,1);assert.equal(state.walkMask,0);assert.equal(measure.dirty,0);assert.equal(measure.tribes,1);
+  assert.equal(measure.distance,blocked?24:16);assert.equal(path.count,blocked?2:1);assert.equal(routes.records[109+108],path.count);
+  const points=Array.from({length:path.count},(_,i)=>[...routes.records.slice(109+12+i*4,109+15+i*4)]);
+  assert.deepEqual(points,blocked?[[250,28,0],[6,24,0]]:[[6,24,0]]);
+ }
+});

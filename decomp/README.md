@@ -1330,8 +1330,8 @@ not establish that integration.
 
 `app/path-search.ts` reconstructs complete `00420840` search control,
 `004665c0` boat lookup and `00421960` result collection. Search preparation,
-candidate setup, obstacle solving, smoothing and measurement remain explicit
-consumers. Their newly exported routines preserve the next dependency layer;
+candidate setup, obstacle solving, smoothing and measurement are explicit
+consumers. The geometry layer below now supplies preparation and postprocessing;
 exported pseudocode is not an implemented solver.
 
 Search classifies the two four-byte endpoints, retains their unused fourth byte,
@@ -1364,6 +1364,54 @@ remaining obstacle-search algorithm.
 
 A composed gameplay regression passes both normal and vehicle-retry results
 through the native collector and route constructor, retaining their distinct
-person flags. There are 632 raw exports and 60 gameplay regressions. Full live
-pathfinding still needs the exported preparation/solver/postprocessing routines
-and route advancement connected to ordinary follower ownership.
+person flags. Full live pathfinding still needs obstacle solving and route
+advancement connected to ordinary follower ownership.
+
+## Wrapped path geometry and smoothing
+
+`app/path-geometry.ts` reconstructs `00420dd0` candidate preparation, `00420f80`
+candidate selection's defined coordinate writes, `00421f30` line setup,
+`00422020` step probing, `00421cb0` segment clearance, `00421b70` repeated
+smoothing and `00422df0` measurement with `00419480` tribe filtering.
+`scripts/inspect-executable.py` imports the four original ten-byte direction
+records at `0059bd90` into `original-rules.json`.
+
+The 120-byte candidate buffer preserves the alias between four wrap offsets
+and eight neighboring target rows. A fallback index of four therefore reads
+neighbor zero; a two-candidate setup leaves unused offsets intact. Candidate
+selection writes neighbor flag words from an uninitialized native stack local.
+Their values are not recovered behavior: the port retains those uninterpreted
+bytes and the oracle excludes only those undefined writes from comparison.
+All defined coordinates and remaining candidate bytes are compared.
+
+Line stepping retains signed arithmetic, half-error initialization and native
+axis tie choices. Probing checks the selected quarter-cell walk mask before the
+terrain-cell cache. The cached boat pointer is the same `currentBoat` field used
+by search, not a second copy. Successful transitions invalidate the cell key
+while preserving the cached result byte. Building access, boarding, disembarking
+and boat-cell checks remain required consumers. Disembarking receives the
+current even cell in world units; boat-cell checks receive the next quarter cell.
+
+Smoothing tries four nodes ahead first and repeats until no shortcuts remain,
+preserving node flags, retained prefixes and unused buffer tails. Measurement
+counts quarter-cell steps, includes each segment's start and excludes its end,
+and reads terrain **region byte +15**, not owner byte +11. Inactive tribes and
+those with signed defeat timers of at least 97 are removed from its high-nibble
+mask. A clean metric record is left untouched.
+
+Run `scripts/check-native-path-geometry.py EXE`: **7,168 comparisons**, 1,024 each
+for preparation, candidate selection, line setup, repeated probes, segment
+clearance, smoothing and measurement. Native line setup/probing execute inside
+clearance and smoothing; only the four building/boat consumers are supplied.
+Checks include full defined buffers, shared globals, ordered consumer arguments,
+cache hits/misses, both masks, world seams, identical endpoints, signed overflow
+in line setup, boat transitions, blocked shortcuts and tribe filtering.
+
+A gameplay regression composes route construction, search control, preparation,
+selection, actual smoothing/measurement and collection around a supplied solver
+path. It verifies a shortcut across the world seam and a retained detour when
+its first step is blocked. All **61 gameplay regressions** pass. The manifest
+contains **635 raw exports**, including the next obstacle-following dependencies
+`004222d0` and `004229a0`; those two exports are not implemented ports. Full
+obstacle solving, route advancement and ordinary live follower ownership remain
+open. These comparisons do not establish full live pathfinding parity.

@@ -64,6 +64,7 @@ if len(sys.argv)>2:
     rules['personTraining']=[{'weight':value(0x5a7060+i*50+31,2),'humanMana':value(0x5a7060+i*50+36),'computerMana':value(0x5a7060+i*50+40)} for i in range(9)]
     rules['personHealing']=[value(0x5a7060+i*50+26,1) for i in range(9)]
     rules['vehicleRestFlags']=[value(0x5a7938+i*23+21,1) for i in range(5)]
+    rules['pathSteps']=[dict(zip(['x','y'],struct.unpack('<ii',read(0x59bd90+i*10,8)))) for i in range(4)]
     rules['restingAnimationFrameSource']=value(0x5a6adc,2)
     rules['personMana']=[value(0x5a7060+i*50+14,2) for i in range(9)]
     rules['personThreat']=[value(0x5a7060+i*50+35,1) for i in range(9)]
