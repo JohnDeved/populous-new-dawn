@@ -1381,3 +1381,29 @@ test('native route construction retries expired failures and stores the original
  attachPersonRoute(w,p,id,true);assert.equal(w.active,1);releasePersonRoute(w,p);
  assert.equal(w.active,0);assert.equal(v.getInt16(id*109,true),0);assert.ok(w.records[id*109+2]&4,'reserved route survives its last owner');
 });
+
+test('native path search packs a trimmed route and preserves distinct vehicle retry flags', async () => {
+ const {createLivePerson}=await import('../app/live-people.ts');
+ const {buildPersonRoute}=await import('../app/person-routes.ts');
+ const {searchPersonPath,collectSearchPath}=await import('../app/path-search.ts');
+ const rules=(await import('../app/original-rules.json',{with:{type:'json'}})).default;
+ const command=rules.personCommands.findIndex(c=>c.flags&0x4000);
+ for(const retry of [false,true]){
+  const world=createWorld(),p=createLivePerson(world,world.units.find(u=>u.kind==='brave'&&u.team==='blue')),routes=world.motionRoutes;
+  const path={data:new Uint8Array(2580),count:2},v=new DataView(path.data.buffer);
+  for(const [i,x,kind] of [[0,5130,0],[1,5132,0],[2,5131,1],[3,5132,0]]){v.setInt32(i*10,x,true);v.setInt32(i*10+4,5140,true);v.setUint16(i*10+8,kind,true);}
+  const state={searches:0,landLimit:0,checkingPerson:0,limit:0,vehicles:0,mode:0,currentBoat:0,candidateCount:0,candidateIndex:0,truncated:0,walkMask:0};
+  const categories=new Uint8Array(16384);categories.fill(rules.terrainCategoryFlags.findIndex(f=>f&1));
+  const w={state,path,result:routes.pathResult,categories,boatsEnabled:1,landLimit:32,humanLimit:32,computerLimit:32,tribes:Array.from({length:4},()=>({playerType:1})),cellObjects:()=>[]};
+  const outcomes=retry?[2,1,1,1,0]:[0],attempts=[],choices=[];let pass=0;
+  const consumers={prepare:()=>{state.candidateCount=2;},choose:i=>choices.push(i),solve:()=>{attempts.push([state.walkMask,state.vehicles]);state.currentBoat=2;return outcomes[pass++];},
+   smooth:()=>{},measure:()=>{},collect:()=>{state.truncated=Number(collectSearchPath(path,routes.pathResult,command));}};
+  const id=buildPersonRoute(routes,p,{x:10,y:20},{x:12,y:20},0,{flags:32},{findVehicle:()=>{throw Error('No airship search expected');},search:(_,p,a,b,option,vehicles)=>{
+   return searchPersonPath(w,p,Uint8Array.of(a.x,a.y,0,0),Uint8Array.of(b.x,b.y,0,0),option,vehicles,consumers);
+  }});
+  assert.equal(id,1);assert.equal(state.truncated,1);assert.equal(state.walkMask,0);assert.equal(!!(p.flags4&0x4000000),!retry);
+  assert.equal(routes.records[109+108],1);assert.deepEqual([...routes.records.slice(109+12,109+15)],[11,20,1]);assert.ok(routes.records[111]&1);
+  assert.deepEqual(choices,retry?[0,1,2]:[0],'retry uses the index after the candidate loop');
+  assert.deepEqual(attempts,retry?[[1,1],[0,1],[1,1],[0,1],[0,0]]:[[1,1]]);
+ }
+});

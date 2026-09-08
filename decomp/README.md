@@ -1325,3 +1325,45 @@ retain shared-route release and restart coverage. There are 624 raw exports.
 The live adapter still requires core path search and advancement before ordinary
 followers can use full native route following; passing construction fixtures does
 not establish that integration.
+
+## Path-search control and result packing
+
+`app/path-search.ts` reconstructs complete `00420840` search control,
+`004665c0` boat lookup and `00421960` result collection. Search preparation,
+candidate setup, obstacle solving, smoothing and measurement remain explicit
+consumers. Their newly exported routines preserve the next dependency layer;
+exported pseudocode is not an implemented solver.
+
+Search classifies the two four-byte endpoints, retains their unused fourth byte,
+sets the original kind bytes and updates the shared result header. Boat lookup
+uses the first eligible vehicle in native cell order and does not filter dead
+flags. Search preserves equal-endpoint and water rejection, per-tribe limits,
+candidate/mode loops across both walk masks, and the sticky secondary result.
+The vehicle retry uses the candidate index after the loop and does not propagate
+the collector's trim flag to the person, unlike ordinary success. Every normal
+return restores the primary walk mask. The first native argument is unused.
+
+The identical inlined path compaction blocks retain the last node in consecutive
+equal-XY runs, including its flags. Collection inserts midpoint nodes at spans of
+128 or greater, preserves each output record's fourth byte, wraps the byte count,
+and conditionally trims one or two final land points following a vehicle leg.
+Its descriptor comes from the current **queued** command, including cancelled
+records and slot zero; it does not select an immediate command. The collection
+API takes that resolved model. Inputs exceeding the native 256-point output
+buffer are rejected rather than reproducing an out-of-bounds memory write.
+
+Run `scripts/check-native-path-search.py EXE`: 8,192 comparisons, 2,048 each for
+boat lookup, collection, search control and native collection inside search.
+Checks compare all endpoint bytes, person flags, owned search globals, complete
+path/result buffers and ordered consumers. Cases include identical endpoints,
+water/vehicle modes, failed searches and retries, duplicate XY with distinct
+flags, midpoint insertion, tail trimming and valid buffers through the 256-point
+byte-count wrap. Preparation/solver/smoothing/measurement are supplied, and only
+the standalone control mode supplies collection. These checks do not prove the
+remaining obstacle-search algorithm.
+
+A composed gameplay regression passes both normal and vehicle-retry results
+through the native collector and route constructor, retaining their distinct
+person flags. There are 632 raw exports and 60 gameplay regressions. Full live
+pathfinding still needs the exported preparation/solver/postprocessing routines
+and route advancement connected to ordinary follower ownership.
