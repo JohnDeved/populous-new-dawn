@@ -22,8 +22,13 @@ export type PersonStateEffects = {
   setAnimation: (person: StatefulPerson, object: number) => void;
   celebrate?: () => void;
   specialBattle?: () => void;
+  idleApproach?: () => void;
+  resting?: () => void;
 };
 const short = (n: number) => (n << 16) >> 16;
+
+// Complete 0x402e30; read the model after any preceding world callbacks.
+export function defaultPersonState(p:{model:number},gameFlags:number){return (gameFlags&2)&&p.model===7?39:rules.personModels[p.model].nextState;}
 
 // Shared native speed draw used by 0x4d2740, 0x432260 and fight recovery.
 export function randomPersonSpeed(w: {randomState: number}, p: Pick<StatefulPerson, 'physics' | 'flags3'>) {
@@ -37,18 +42,17 @@ export function randomPersonSpeed(w: {randomState: number}, p: Pick<StatefulPers
 // 0x4d4f40: dropping a fight assignment draws speed and resets its animation.
 export function recoverPersonMovement(w: {randomState: number}, p: StatefulPerson, setAnimation: PersonStateEffects['setAnimation']) {
   p.speed = randomPersonSpeed(w, p);
-  let row = p.cargo ? 5 : 1;
-  if (p.flags2 & 0x80000) {
-    row = p.flags4 & 0x400 ? 12 : 2;
-    if (row === 2) p.flags2 = (p.flags2 & ~0x8000) >>> 0;
-  }
-  setAnimation(p, rules.personAnimationObjects[row * 9 + p.model]);
+  setPersonAnimationRow(p,p.cargo?5:1,setAnimation);
 }
 
 // 0x4d4ee0: stopping keeps cargo/airborne animation choices, without an RNG draw.
 export function stopPersonMovement(p: StatefulPerson, setAnimation: PersonStateEffects['setAnimation']) {
   p.speed = 0;
-  let row = p.cargo ? 4 : 0;
+  setPersonAnimationRow(p,p.cargo?4:0,setAnimation);
+}
+
+// Complete 0x4d3ff0, shared by idle, movement and recovery controllers.
+export function setPersonAnimationRow(p:StatefulPerson,row:number,setAnimation:PersonStateEffects['setAnimation']){
   if (p.flags2 & 0x80000) {
     row = p.flags4 & 0x400 ? 12 : 2;
     if (row === 2) p.flags2 = (p.flags2 & ~0x8000) >>> 0;
@@ -106,7 +110,7 @@ function faceSelection(w: PersonStateWorld, p: StatefulPerson, effects: PersonSt
 // Other state bodies are not silently approximated. World consumers remain
 // required callbacks until their native terrain, animation and list ports land.
 export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, effects: PersonStateEffects) {
-  if (![1,10,14,36,39,41].includes(p.state)) throw new RangeError(`Unported person-state initializer ${p.state}`);
+  if (![1,10,14,17,19,36,39,41].includes(p.state)) throw new RangeError(`Unported person-state initializer ${p.state}`);
   const oldFlags = rules.personStateFlags[p.previousState], stateFlags = rules.personStateFlags[p.state];
   const model = rules.personModels[p.model];
   if (oldFlags === undefined || !model) throw new RangeError('Unsupported native person state/model');
@@ -146,6 +150,12 @@ export function initializePersonState(w: PersonStateWorld, p: StatefulPerson, ef
     p.assignment &= ~4; p.flags4 = (p.flags4 & ~0x40000) >>> 0; p.speed = 0;
     p.selectionFlags |= 0x81; p.flags3 = (p.flags3 & ~1) >>> 0; p.flags2 = (p.flags2 | 0x1000000) >>> 0;
     faceSelection(w, p, effects); p.assignment |= 16; p.animationMode = 1;
+  }else if(p.state===17){
+    if(!effects.idleApproach)throw new Error('State 17 requires its idle approach initializer');
+    effects.idleApproach();
+  }else if(p.state===19){
+    if(!effects.resting)throw new Error('State 19 requires its resting initializer');
+    effects.resting();
   }else if(p.state===39){
     if(!effects.specialBattle)throw new Error('State 39 requires its special battle initializer');
     effects.specialBattle();
@@ -182,7 +192,7 @@ export function releaseSelectedPeople(w: PersonStateWorld, people: StatefulPerso
     resetPersonMotion(p);
     if (p.flags2 & 0x100000) continue;
     const next = (w.levelFlags & 2) && p.model === 7 ? 39 : rules.personModels[p.model]?.nextState;
-    if (![1,10,14,36,39,41].includes(next)) throw new RangeError(`Unported person-state initializer ${next}`);
+    if (![1,10,14,17,19,36,39,41].includes(next)) throw new RangeError(`Unported person-state initializer ${next}`);
     p.previousState = p.state; p.state = next; initializePersonState(w, p, effects);
   }
 }

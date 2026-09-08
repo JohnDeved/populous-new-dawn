@@ -63,6 +63,7 @@ if len(sys.argv)>2:
     rules['cameraRampDown']=[struct.unpack('<h',read(0x59bbd8+i*2,2))[0] for i in range(11)]
     rules['personTraining']=[{'weight':value(0x5a7060+i*50+31,2),'humanMana':value(0x5a7060+i*50+36),'computerMana':value(0x5a7060+i*50+40)} for i in range(9)]
     rules['personHealing']=[value(0x5a7060+i*50+26,1) for i in range(9)]
+    rules['restingAnimationFrameSource']=value(0x5a6adc,2)
     rules['personMana']=[value(0x5a7060+i*50+14,2) for i in range(9)]
     rules['personThreat']=[value(0x5a7060+i*50+35,1) for i in range(9)]
     rules['personCommands']=[{'people':value(0x5a7dc4+i*22),'flags':value(0x5a7dca+i*22)} for i in range(35)]
@@ -79,7 +80,7 @@ if len(sys.argv)>2:
     rules['buildingSupportHeight']=[value(0x5a7228+i*76+38,2) for i in range(20)]
     rules['personVelocityLimits']=[value(0x5a7b90+i*26+8,2) for i in range(20)]
     rules['personAnimationObjects']=list(struct.unpack('<234h',read(0x5a6d50,234*2)))
-    rules['animationObjects']=[list(struct.unpack('<hh',read(0x5a6858+i*4,4))) for i in range(161)]
+    rules['animationObjects']=[list(struct.unpack('<hh',read(0x5a6858+i*4,4))) for i in range(164)]
     rules['animationDescriptors']=[dict(hold=struct.unpack('<b',read(0x5a6af8+i*11+1,1))[0],step=struct.unpack('<b',read(0x5a6af8+i*11+3,1))[0],mode=value(0x5a6af8+i*11+4,1),palette=value(0x5a6af8+i*11+7,1),reset=value(0x5a6af8+i*11+8,1),flags=value(0x5a6af8+i*11+9,2)) for i in range(45)]
     rules['tribeEffectPalettes']=[value(0x5a89c8+i*5+3,1) for i in range(4)]
     rules['spellCharging']=[{'mode':value(0x5a80d0+i*62,2),'cost':value(0x5a80d4+i*62),

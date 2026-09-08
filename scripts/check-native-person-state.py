@@ -26,7 +26,9 @@ def call(a,*args):
 
 def leaf(cpu,address,size,user):
     sp=cpu.reg_read(UC_X86_REG_ESP);a,b=struct.unpack('<II',cpu.mem_read(sp+4,8))
-    if address==0x4dfac0:actions.append(['specialBattle'])
+    if address==0x4d6f90:actions.append(['idleApproach'])
+    elif address==0x4d7330:actions.append(['resting'])
+    elif address==0x4dfac0:actions.append(['specialBattle'])
     elif address==0x4e0af0:actions.append(['celebration'])
     elif address==0x4d4040:actions.append(['animation',(b<<16>>16)&65535])
     elif address==0x409580:actions.append(['training',struct.unpack('<H',cpu.mem_read(a+0x24,2))[0]])
@@ -34,7 +36,7 @@ def leaf(cpu,address,size,user):
     elif address==0x4ea460:actions.append(['motion'])
     elif address==0x432260:actions.append(['orders'])
     cpu.reg_write(UC_X86_REG_EAX,0);cpu.reg_write(UC_X86_REG_EIP,struct.unpack('<I',cpu.mem_read(sp,4))[0]);cpu.reg_write(UC_X86_REG_ESP,sp+4)
-hooks={a:cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a) for a in [0x4d4040,0x409580,0x4d56f0,0x4ea460,0x432260,0x4e0af0,0x4dfac0]}
+hooks={a:cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a) for a in [0x4d4040,0x409580,0x4d56f0,0x4ea460,0x432260,0x4e0af0,0x4dfac0,0x4d6f90,0x4d7330]}
 
 fields={'model':(0x2b,'B'),'state':(0x2c,'B'),'substate':(0x2d,'B'),'x':(0x3d,'H'),'y':(0x3f,'H'),
  'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),'assignment':(0x76,'H'),
@@ -73,7 +75,7 @@ def snapshot(c):
     return dict(person=out,tribes=ts,randomState=struct.unpack('<I',cpu.mem_read(0x89d178,4))[0],actions=actions)
 
 cases=[];expected=[]
-for trial in range(4096):
+for trial in range(5120):
     u={key:rng.randrange(256 if fmt in ['B','b'] else 65536) for key,(_,fmt) in fields.items()}
     for key in ['flags2','flags3','flags4']:u[key]=rng.getrandbits(32)
     for key in ['speed','timer']:u[key]=rng.randrange(-128,256)
@@ -82,6 +84,7 @@ for trial in range(4096):
         commandCursor=rng.randrange(8),immediateCommand=rng.choice([0,1,2,256,257]),angle=rng.randrange(2048))
     if u['previousState']!=14:u['vehicle']=rng.choice([0,100])
     if trial>=1536:u.update(state=41 if trial<2048 else 36 if trial<2560 else 39 if trial<3072 else 1,vehicle=0)
+    if trial>=4096:u.update(state=17 if trial<4608 else 19,vehicle=0)
     c=dict(person=u,orders=[[i,dict(model=rng.choice([6,8,8]),flags=trial%2,a=rng.choice([100,101]))] for i in [1,2,256,257]],
         randomState=rng.getrandbits(32),facingFlags=trial%4*8,
         tribes=[dict(x=rng.randrange(65536),y=rng.randrange(65536),angle=rng.randrange(2048),selectedCount=rng.choice([0,1,7,-1]),flags=rng.getrandbits(32)) for _ in range(4)])
@@ -90,7 +93,7 @@ for trial in range(4096):
 js="""import {initializePersonState} from './app/person-state.ts';import {emptyPersonOrder} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
 console.log(JSON.stringify(JSON.parse(s).map(c=>{const actions=[],p=c.person,records=Array.from({length:800},emptyPersonOrder);for(const [id,o] of c.orders)Object.assign(records[id],o);
 const w={randomState:c.randomState,instantFacing:!!c.facingFlags,levelFlags:0,tribes:c.tribes,orders:{records,cursor:1,active:0}};
-initializePersonState(w,p,{specialBattle:()=>actions.push(['specialBattle']),celebrate:()=>actions.push(['celebration']),deselectPassengers:()=>{throw Error('uncovered passenger mutation');},rebuildTrainingQueue:id=>actions.push(['training',id]),
+initializePersonState(w,p,{idleApproach:()=>actions.push(['idleApproach']),resting:()=>actions.push(['resting']),specialBattle:()=>actions.push(['specialBattle']),celebrate:()=>actions.push(['celebration']),deselectPassengers:()=>{throw Error('uncovered passenger mutation');},rebuildTrainingQueue:id=>actions.push(['training',id]),
 rebuildFormation:cell=>actions.push(['formation',cell]),releaseMotion:()=>actions.push(['motion']),startOrders:()=>actions.push(['orders']),setAnimation:(_,id)=>actions.push(['animation',id&65535])});
 return {person:p,tribes:w.tribes,randomState:w.randomState,actions};})));"""
 def browser(js,cases):
@@ -99,7 +102,7 @@ actual=browser(js,cases);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
     if a!=b:
         path=Path('/private/tmp/populous-state-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(path)))
-print('PASS: 4096 native state-1/10/14/36/39/41 initializers, flags, RNG, selection counts and camera-relative facing; world effects supplied')
+print('PASS: 5120 native state-1/10/14/17/19/36/39/41 initializers, flags, RNG, selection counts and camera-relative facing; world effects supplied')
 
 cases=[];expected=[]
 for state in range(46):

@@ -16,6 +16,16 @@ export function terrainSupportsPerson(category:number,p:Point){
   return 0;
 }
 
+// Complete 0x518200: resting cells require all four quarter-cell walk bits.
+export function restingCellCollision(cell:Pick<CollisionCell,'flags'|'category'>,walkMask:ArrayLike<number>,p:Point,coastal=false){
+  if(cell.flags&512)return 1;
+  if(cell.flags&4)return 2;
+  if(!(rules.terrainCategoryFlags[cell.category&15]&(coastal?61:1)))return 4;
+  const x=(p.x>>8)&254,y=(p.y>>8)&254;
+  for(const bit of [y*256+x,y*256+x+1,(y+1)*256+x,(y+1)*256+x+1])if(!(walkMask[bit>>3]&(1<<(bit&7))))return 3;
+  return 0;
+}
+
 // 0x517f10: construction, repair, entry and target-following permissions.
 export function buildingBlocksPerson(w:CollisionWorld,p:CollisionPerson,cell:CollisionCell){
   const id=cell.building&1023,b=w.objects.get(id),flags=p.flags4;

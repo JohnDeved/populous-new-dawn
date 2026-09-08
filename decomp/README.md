@@ -1178,3 +1178,32 @@ Raw metadata can misname overlapping fields: compiled command 25 clears the
 matched effect's word +0x70, and command 29 tests target word +0x7a. Those offsets
 are confirmed by instructions and CPU comparison, not inferred field names.
 There are 599 raw exports and 55 gameplay regression tests.
+
+
+## Idle approach and resting states
+
+`app/person-idle.ts` reconstructs complete `004d6f90` approach initialization,
+`004d7330` resting initialization, `004d73e0` resting controller and `004d5650`
+slot coordinates. It also supplies the state-17 same-cell/anchor recheck block.
+`restingCellCollision` reconstructs `00518200`; `stepPersonPose` reconstructs
+`004d6b10` with the separate RNG at `0089bc72`. `setPersonAnimationRow` shares
+complete `004d3ff0` across movement and idle code. Shared state initialization
+accepts 17/19 through mandatory consumers. Slot cell +0x80 remains `formationCell`,
+and slot flags +0x82 remain `anchorFlags`, avoiding duplicate state properties.
+
+Run `scripts/check-native-idle.py EXE`: 24,576 comparisons, 4,096 each for pose,
+slot position, resting-cell eligibility, resting initialization/controller and
+approach initialization. Native math, both RNGs, animation-row selection, terrain
+height, overlap and zero-group motion release execute. Slot search/ownership,
+object insertion/allocation, path/order consumers and the upper setter are supplied.
+Slot tables are explicit fixture inputs; original runtime table loading is open.
+The raw indexed search allocator/iterator/release exports are evidence, not ports.
+
+Shared initialization passes 5,120 cases across 1/10/14/17/19/36/39/41. The runtime
+animation table now includes objects 161–163; the state-19 gesture duration uses
+fixed frame source 712 at `005a6adc`, even for a different current object. Original
+brave/warrior gesture sprites are extracted, bringing the atlas to 2,216 frames;
+spy rendering remains outside the current supported live classes. There are 609
+raw exports and 56 gameplay regressions, including a composed approach/resting
+handoff and real-browser gesture rendering. Ordinary live idle scheduling remains
+unintegrated until its native search/slot/world consumers are available.

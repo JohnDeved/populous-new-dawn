@@ -32,6 +32,15 @@ try{
  const rendered=await page.evaluate(()=>window.testStore.getWorld().units.map(u=>({kind:u.kind,object:u.native.object,f2:u.native.f2,frame:window.testScene.unitMeshes.get(u.id).userData.frame})));
  for(const r of rendered){const dirs=Object.values(sprites.animations[`blue-${r.kind}`]).find(d=>d[0].source===r.object);assert.ok(dirs);assert.ok(dirs.some(d=>d.frames[r.f2%d.frames.length]===r.frame));}
  const paused=await page.evaluate(()=>window.testStore.getWorld().units.map(u=>[u.native.f1,u.native.f2]));await page.waitForTimeout(250);assert.deepEqual(await page.evaluate(()=>window.testStore.getWorld().units.map(u=>[u.native.f1,u.native.f2])),paused);
+ await page.evaluate(()=>{
+  const units=window.testStore.getWorld().units.filter(u=>u.kind==='brave'||u.kind==='warrior');
+  window.idlePoseBackup=units.map(u=>({id:u.id,object:u.native.object,f2:u.native.f2}));
+  for(const u of units){u.native.object=u.kind==='brave'?712:728;u.native.f2=0;}
+ });
+ await page.waitForTimeout(100);
+ const idlePoses=await page.evaluate(()=>window.testStore.getWorld().units.filter(u=>u.kind==='brave'||u.kind==='warrior').map(u=>({kind:u.kind,frame:window.testScene.unitMeshes.get(u.id).userData.frame})));
+ for(const pose of idlePoses)assert.ok(sprites.animations[`blue-${pose.kind}`].idleGesture.some(d=>d.frames[0]===pose.frame),'original resting gesture reaches the rendered atlas');
+ await page.evaluate(()=>{for(const saved of window.idlePoseBackup){const p=window.testStore.getWorld().units.find(u=>u.id===saved.id).native;p.object=saved.object;p.f2=saved.f2;}});
  // A preparation interrupt returns through state 10 and the empty-order
  // victory decision, including state initialization and the new sprite pose.
  await page.evaluate(()=>{const w=window.testStore.getWorld(),p=w.units.find(u=>u.kind==='shaman').native;p.flags2|=16;w.paused=false;});

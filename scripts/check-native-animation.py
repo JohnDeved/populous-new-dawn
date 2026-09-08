@@ -101,7 +101,7 @@ compare('step',cases,expected)
 
 cases=[];expected=[]
 for trial in range(2048):
- u=person(14);obj=rng.randrange(161)
+ u=person(14);obj=rng.randrange(len(rules['animationObjects']))
  w=dict(playerTribe=trial%4,gameFlags=rng.choice([0,2]),sessionSubstate=rng.choice([None,0,1,2,255]),
   tribes=[dict(flags=rng.choice([0,8,0x80000,0x80008]),playerType=rng.choice([0,1,2])) for _ in range(4)],
   objects=[[1,dict(flags2=0,**{'class':4},passenger=rng.choice([0,2]),speed=0)],

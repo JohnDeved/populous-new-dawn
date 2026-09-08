@@ -1269,3 +1269,29 @@ test('interrupted victory followers resume through native orders and rejoin cele
  assert.ok(p.object>0);assert.equal(p.substate,8);
  stepLiveCelebration(w,u);assert.equal(p.state,41,'resumption remains owned by the native controller');
 });
+
+test('native idle approach composes with shared state and original resting animation', async () => {
+ const {createLivePerson}=await import('../app/live-people.ts');
+ const {initializePersonState}=await import('../app/person-state.ts');
+ const {initializeIdleApproach,initializeRestingPerson,stepRestingPerson}=await import('../app/person-idle.ts');
+ const {setPersonAnimation}=await import('../app/animation.ts');
+ const sprites=(await import('../app/original-units.json',{with:{type:'json'}})).default;
+ const world=createWorld(),unit=world.units.find(u=>u.kind==='shaman'&&u.team==='blue'),p=createLivePerson(world,unit);
+ Object.assign(p,{state:17,previousState:10,flags3:0,assignment:0,stateObject:321,goalX:p.x,goalY:p.y});
+ const w={randomState:123,poseRandom:{randomState:456},turn:2,slotOffsets:[],shamans:new Map(),instantFacing:false,levelFlags:0,
+  tribes:Array.from({length:4},()=>({x:0,y:0,angle:0,selectedCount:0,flags:0})),orders:{records:[],cursor:0,active:0}};
+ const unowned=()=>{throw Error('Unexpected idle world consumer');};
+ const setAnimation=(_,object)=>setPersonAnimation(p,object,{playerTribe:0,gameFlags:0,sessionSubstate:null,tribes:Array.from({length:4},()=>({flags:0,playerType:1})),objects:new Map()},sprites);
+ const resting={setAnimation,releaseMotion:()=>{},occupied:()=>false,validSlot:unowned,findSlot:unowned,directDestination:unowned,
+  insert:unowned,height:unowned,allocateLog:unowned,sound:unowned,refreshCell:unowned,frameCount:o=>sprites.frameCounts[o]};
+ const effects={setAnimation,releaseMotion:()=>{},deselectPassengers:unowned,rebuildTrainingQueue:unowned,rebuildFormation:unowned,startOrders:unowned,
+  resting:()=>initializeRestingPerson(w,p,resting),idleApproach:()=>initializeIdleApproach(0,p,{...resting,collision:()=>0,
+   searchStart:unowned,searchNext:unowned,searchEnd:unowned,destination:unowned,allocateOrder:unowned,adjacentBuilding:unowned,buildingPoint:unowned,
+   prepareOrder:unowned,clearOrders:unowned,attachOrder:unowned,initialize:()=>initializePersonState(w,p,effects)})};
+ initializePersonState(w,p,effects);
+ assert.equal(p.state,19);assert.equal(p.previousState,17);assert.equal(p.substate,8);assert.equal(p.speed,0);assert.equal(p.stateObject,0);
+ assert.equal(p.object,424,'original shaman resting sprite sequence');
+ const seed=w.randomState;stepRestingPerson(w,p,resting);
+ assert.equal(p.state,19);assert.equal(p.stateObject,1);assert.equal(p.flags2&0x40000000,0);assert.equal(w.randomState,seed);
+ assert.equal(w.poseRandom.randomState,456,'resting does not consume the separate pose-pause RNG');
+});

@@ -3014,3 +3014,64 @@ restart checks pass without page errors.
 remaining state bodies (including idle state 17), full class-1 scheduling,
 airborne physics, health and native path/vehicle consumers remain unintegrated.
 This is verified dispatch and victory resumption, not full engine parity.
+
+
+## 2026-09-08 — Idle approach, resting and original gesture sprites
+
+`app/person-idle.ts` reconstructs `004d6f90`, `004d7330` and `004d73e0`.
+Approach initialization preserves stationary-model eligibility, signed proximity,
+indexed search and failure behavior, anchor routing, vehicle/building transitions
+and preacher command creation. The state-17 controller returns resting state 19
+only after slow turning ends and the goal cell matches; interrupted or periodically
+blocked anchors request resumption. Search type 2 uses angle zero and range 0..32;
+the original allocator clamps its last radius to 31. Indexed search and command
+ownership remain supplied consumers, not invented scans or successful no-ops.
+
+The resting controller preserves all substates: finding/checking a slot, moving
+and settling, dropping cargo, random turns, stationary rest, facing/reacting to the
+shaman and model-specific gestures. Timer widths, same-call fallthrough, two RNG
+draws per idle decision and formation repositioning flags are retained. `004d5650`
+slot coordinates use explicit shape-offset tables. The slot fields are the same
+`formationCell` (+0x80) and `anchorFlags` (+0x82) used by shared initialization and
+order anchoring, so there is no second copy of those native words/bytes.
+
+`00518200` resting-cell eligibility checks buildings, restrictions, category flags
+and all four quarter-cell walk bits. `004d6b10` pose pauses use RNG **0089bc72**,
+separate from simulation RNG **0089d178**. Native instructions also confirm a
+peculiarity in resting gesture timing: frame count comes from the fixed animation
+source at **005a6adc** (712), while its rate uses the current draw descriptor.
+The reconstruction retains that behavior rather than using the current object's
+frame count. Animation objects 161–163 are now imported, and shared row selection
+`004d3ff0` is reused by idle, movement and stopping.
+
+`scripts/check-native-idle.py EXE` passes **24,576 native comparisons**: 4,096 each
+for pose pauses, slot coordinates, cell eligibility, resting initialization,
+resting updates and approach initialization. It checks owned fields, both RNGs
+and ordered consumer snapshots across flags, widths, slot shapes, allocation
+failures, shaman presence/proximity and search outcomes. Native math/RNG, row and
+animation selection, height, overlap and motion release with group zero execute.
+Slot ownership/search, upper animation setting, insertion, allocation and path/
+order consumers are supplied. Offset tables and frame counts are fixture data,
+not evidence that original runtime slot-table loading is integrated.
+
+The shared-state oracle passes **5,120 initializers** across 1/10/14/17/19/36/39/41
+with state bodies supplied, plus its existing 6,624 animation selections, 1,280
+order/reconciliation cases, 640 speed/recovery cases and 128 training handoffs.
+The animation oracle covers the expanded object table and retains its 2,160
+setters, 2,880 updates, 2,048 upper setters and 4,096 allocation-list updates.
+A gameplay regression composes real shared initialization with approach and
+resting initialization for a stationary shaman, including original sprite 424.
+
+The original brave (source 712) and warrior (728) gesture sequences were missing
+from the atlas. `import-original.py` now extracts both for blue/red followers;
+the atlas contains **2,216 composite frames**. A browser check renders those
+sequences while paused and verifies their atlas frames before restoring the
+simulation. All **56 gameplay tests**, typechecking and browser recovery, frames,
+pause, circles/chains, obstacle detours, cell integrity and restart checks pass.
+Ten new raw exports bring the manifest to **609**.
+
+**Remaining boundary:** idle states are reconstructed, not yet the ordinary live
+follower scheduler. Native indexed search (`0049a2f0`, `0049a3f0`, `0049a5d0`),
+original slot-table loading, slot validation/allocation and world ownership must
+be composed next. Their raw exports, including slot search/validation, preserve
+the evidence. Full physics/health/class scheduling and game parity remain open.

@@ -1,10 +1,24 @@
 import rules from './original-rules.json' with {type:'json'};
+import {random} from './native-math.ts';
 
 export type Animation={object:number;draw:number;morph:number;palette:number;renderFlags:number;f1:number;f2:number};
 export type AnimatedUnit=Animation & {stamp:number;flags3:number;morphTimer:number;morphFrames:number};
 export type AnimationData={frameCounts:ArrayLike<number>;modelFrames:readonly (readonly number[])[];morphDurations:ArrayLike<number>};
 export type PersonAnimation=Animation & {model:number;state:number;flags2:number;flags3:number;flags4:number;assignment:number;tribe:number;vehicle:number};
 const short=(n:number)=>(n<<16)>>16;
+
+// Complete 0x4d6b10. Uses the separate 0x89bc72 RNG, never simulation RNG.
+export function stepPersonPose(p:Animation & {animationMode:number;assignment:number;commandPhase:number},poseRandom:{randomState:number}){
+  if(p.animationMode===1){
+    if(p.assignment&16){p.renderFlags&=~2;p.assignment&=~16;p.f1=0;p.f2=0;}
+    else if(!p.f2&&!p.f1){p.animationMode=2;p.assignment|=16;}
+  }
+  if(p.animationMode===2){
+    if(p.assignment&16){p.renderFlags|=2;p.assignment&=~16;p.f1=0;p.f2=0;p.commandPhase=(random(poseRandom)&7)+4;}
+    p.commandPhase=(p.commandPhase-1)&255;
+    if(!p.commandPhase){p.animationMode=1;p.assignment|=16;}
+  }
+}
 
 // 0x4ee700. Changing objects deliberately retains f2 and may retain f1.
 export function setAnimationObject(s:Animation,draw:number,object:number){
