@@ -120,6 +120,15 @@ function texture(kind: string) {
     kind.endsWith('detail') || kind === 'lightning-bolt' ? THREE.NoColorSpace : THREE.SRGBColorSpace
   t.wrapS = t.wrapT = THREE.RepeatWrapping
   t.anisotropy = 8
+  if (kind === 'atlas' || kind === 'clouds' || kind === 'clouds-high') {
+    // 0x47cc60 / 0x47d6f0: ordinary smoothed textures use bilinear
+    // filtering of encoded palette colors, without mipmaps or anisotropy.
+    t.colorSpace = THREE.NoColorSpace
+    t.userData.encodedColors = true
+    t.magFilter = t.minFilter = THREE.LinearFilter
+    t.generateMipmaps = false
+    t.anisotropy = 1
+  }
   if (kind === nativeUnits.atlas || kind === 'effects' || kind === 'selection') {
     t.magFilter = t.minFilter = THREE.NearestFilter
     t.generateMipmaps = false
@@ -481,9 +490,9 @@ export class GameScene {
     }
     this.controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }
     this.controls.update()
-    this.terrainMap.colorSpace = THREE.SRGBColorSpace
+    this.terrainMap.colorSpace = THREE.NoColorSpace
     this.terrainMap.magFilter = this.terrainMap.minFilter = THREE.LinearFilter
-    this.waterMap.colorSpace = THREE.SRGBColorSpace
+    this.waterMap.colorSpace = THREE.NoColorSpace
     this.waterMap.wrapS = this.waterMap.wrapT = THREE.RepeatWrapping
     this.waterMap.magFilter = this.waterMap.minFilter = THREE.LinearFilter
     void Promise.all(
@@ -544,7 +553,6 @@ export class GameScene {
           varying vec3 diffuse, specular;
           void main() {
             gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV + scroll) : texture2D(map, land);
-            #include <colorspace_fragment>
             gl_FragColor.rgb = clamp(gl_FragColor.rgb * diffuse + specular, 0., 1.);
           }`,
       }),
@@ -642,7 +650,6 @@ export class GameScene {
             'attribute float fade; varying vec2 cloudUV; varying float cloudAlpha; void main(){cloudUV=vec2(uv.x,1.-uv.y);cloudAlpha=fade;gl_Position=vec4(position.xy,1.,1.);}',
           fragmentShader: `uniform sampler2D map; varying vec2 cloudUV; varying float cloudAlpha;
           void main(){gl_FragColor=texture2D(map,cloudUV);gl_FragColor.a*=cloudAlpha;
-          #include <colorspace_fragment>
           }`,
           transparent: true,
           depthWrite: false,

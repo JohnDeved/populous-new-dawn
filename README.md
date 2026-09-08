@@ -141,3 +141,8 @@ lifecycle with `python scripts/check-native-building-smoke.py EXE`.
 original textures, flight/spin, camera rotation, impact sounds and cleanup.
 `python scripts/check-native-building-debris.py EXE` compares the original face
 emitter, initialization RNG, directed physics, land/water impacts and splash setup.
+
+`node scripts/check-browser-texture-filter.mjs` checks live texture settings and
+80 GPU palette samples across models, terrain, water and both cloud layers.
+`python scripts/check-native-texture-filter.py EXE` executes original renderer
+initialization/filter transitions; it does not emulate original GPU rasterization.

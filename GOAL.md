@@ -301,3 +301,13 @@ and floating-point pan paths. Full settings, frame/input sampling, edge scrollin
 minimap mapping, overview transitions and visibility remain open. Continue with
 visible world/rendering and control comparisons; this does not complete the camera
 checkpoint or change the full-game goal.
+
+### Latest visible integration: texture sampling
+
+Models and clouds now use native bilinear filtering without mipmaps/anisotropy;
+models, ground, water and clouds interpolate encoded palette colors. Complete
+native renderer initialization/state checks and 80 browser GPU palette probes
+cover the change, with existing lighting, water, terrain and sprite regressions.
+The raster checkpoint remains partial: complete sampler ownership/settings,
+legacy formats, clipping, ordering and matched original frames are still open.
+Continue visible rendering and controls before isolated hidden engine systems.

@@ -2106,3 +2106,41 @@ scene pan path was removed. Camera capture is shared and keeps unsigned X/Y
 without unnecessarily sampling terrain height. The octant-angle helper is now
 three readable reflections instead of nested ternaries; original journey/planner
 comparisons still pass.
+
+### Texture filtering and encoded palette colors, 2026-09-08
+
+Complete `0047cc60` initialization sets D3D texture min/mag states 17/18 to
+nearest (1) or bilinear (2). Complete `0047d6f0` changes both on draw flag 0x20,
+except global-filter mode `ui_struct+0x640 == 1`, which keeps the initial choice.
+These paths select no mip filtering or anisotropy. The comparison intercepts
+only COM material-handle/render-state calls: six initializations and 4,096 state
+transitions execute in the supplied binary. Additional exports `005166c0`,
+`00517100` and `005171d0` retain investigation evidence, not completed ports.
+
+```
+.tools/decomp/oracle/bin/python scripts/check-native-texture-filter.py /path/to/d3dpoptb.exe
+node scripts/check-browser-texture-filter.mjs # development server required
+```
+
+Ordinary model and cloud textures previously inherited Three's mipmap/anisotropic
+defaults. They now use bilinear sampling without mipmaps; terrain/water already
+selected bilinear. All five material paths sample encoded palette bytes before
+lighting. Standard Three model materials decode after sampling to enter its
+linear material pipeline; output conversion then restores the sampled color
+before the existing native lighting hook. Custom ground/cloud shaders use the
+encoded sample directly. Unit/effect/selection point sampling is retained.
+
+Encoded-color filtering follows the legacy API interpretation, not a captured
+native GPU oracle. Microsoft's [gamma documentation](https://learn.microsoft.com/en-us/windows/win32/direct3d9/gamma)
+describes the later explicit sRGB read/write facilities; its
+[linear filtering documentation](https://learn.microsoft.com/en-us/windows/win32/direct3d9/linear-texture-filtering)
+describes weighted bilinear samples. The native state check proves state selection,
+not original hardware rasterization. The browser check verifies live sampler
+settings and 80 RGB outputs using 2×2 original-palette calibration textures in
+the actual model, terrain, water and two cloud materials. Canvas2D readback of
+translucent PNGs is unsuitable as an exact oracle because premultiplication can
+alter their RGB; direct palette calibration avoids that conversion.
+
+Full graphics settings and batch-to-sampler ownership, UV/padding conventions,
+texture cache/LOD, legacy pixel formats/dithering, clipping, painter ordering and
+matched original frames remain open. The raster checkpoint stays partial.

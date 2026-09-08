@@ -23,10 +23,12 @@ try{
  }),'native terrain texture reaches actual GPU pixels');
  await page.evaluate(()=>{
   const s=window.testScene,w=s.world,u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
-  Object.assign(u,{x:0,z:20,path:[],casting:null});w.selected=[u.id];w.shots.bridge=1;w.mode='bridge';w.speed=3;s.focus({x:0,z:14});
+  Object.assign(u,{x:0,z:20,path:[],casting:null});w.selected=[u.id];w.shots.bridge=1;w.speed=3;s.focus({x:0,z:14});
   window.terrainBefore=s.terrainMap.image.data.slice();window.versionBefore=w.terrainVersion;
   window.tileUpdates=[];const update=s.updateTerrainTexture.bind(s);s.updateTerrainTexture=()=>{const old=s.terrainAtlasState;update();if(old!==s.terrainAtlasState)window.tileUpdates.push(s.terrainAtlasState.updated);};
  });
+ await page.keyboard.press('2');
+ await page.waitForFunction(()=>window.testScene.world.mode==='bridge');
  await page.waitForTimeout(100);
  const target=await page.evaluate(()=>{const s=window.testScene,p=s.screen({x:0,z:4}),r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2};});
  await page.mouse.click(target.x,target.y);

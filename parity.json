@@ -193,9 +193,14 @@
             "references/visual-audit.md",
             "decomp/generated/004673b0.c",
             "scripts/check-browser-scenery-fire.mjs",
-            "scripts/check-browser-building-fire.mjs"
+            "scripts/check-browser-building-fire.mjs",
+            "app/render-view.ts",
+            "scripts/check-native-texture-filter.py",
+            "scripts/check-browser-texture-filter.mjs",
+            "decomp/generated/0047cc60.c",
+            "decomp/generated/0047d6f0.c"
           ],
-          "note": "Non-drawing texture-mode-0 faces now omitted from raster meshes. Remaining filtering, clipping, painter order, native picking ownership and matched original-frame comparisons are open."
+          "note": "Non-drawing texture-mode-0 faces are omitted. Native texture initialization/state selection is CPU-checked; ordinary model/cloud/terrain/water materials now filter encoded palette colors bilinearly without mipmaps or anisotropy. 80 GPU calibration samples and unchanged unit point sampling are checked. Full graphics settings, per-batch sampler ownership, texture formats/UV padding, clipping, painter order, native picking and matched original frames remain open."
         },
         {
           "id": "graphics.variants",

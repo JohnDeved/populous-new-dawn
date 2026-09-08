@@ -233,3 +233,20 @@ camera; original model/sprite rendering is retained. Native keyboard and drag-ax
 state comparisons pass (8,192 / 6,153 calls). Full pointer sampling, edge scrolling,
 settings/zoom/overview controls and whole-frame rendering remain open. The camera
 checkpoint stays partial; these counts do not award a complete subsystem.
+
+### Texture sampling, 2026-09-08
+
+Inspected `/private/tmp/populous-texture-filter-before.png` and
+`/private/tmp/populous-texture-filter-after.png` at the same opening camera
+(x=2, z=30, heading=0), alongside `images-1.jpg`, `user-world.png` and
+`user-campaigns.jpg`. The change is subtle at this zoom: original model and cloud
+textures now use bilinear sampling without mipmaps/anisotropy, and ground,
+water, models and clouds interpolate encoded palette colors. No mission palette
+was recolored to resemble a reference using a different landscape set.
+
+Reproduce with `node scripts/check-browser-texture-filter.mjs`: 80 GPU palette
+calibration samples exercise all five material paths. Original CPU renderer
+state checks, model lighting, clouds, water, terrain deformation and sprite
+regressions pass. The terrain fixture now selects Land Bridge after focus,
+because native focus clears spell targeting. Whole-frame visual parity is open;
+these checks do not reproduce the original GPU's complete raster output.

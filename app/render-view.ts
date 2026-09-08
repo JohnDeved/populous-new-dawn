@@ -353,12 +353,24 @@ export class RenderView {
             )
           }
         const compile = material.onBeforeCompile.bind(material),
-          programKey = material.customProgramCacheKey()
+          programKey = material.customProgramCacheKey(),
+          encodedColors =
+            material instanceof THREE.MeshBasicMaterial && !!material.map?.userData.encodedColors
         material.onBeforeCompile = (
           shader: Parameters<THREE.Material['onBeforeCompile']>[0],
           renderer: THREE.WebGLRenderer
         ) => {
           compile(shader, renderer)
+          // Filter original palette bytes first. Decode the result only when
+          // entering Three's material pipeline, which re-encodes at output.
+          if (encodedColors)
+            shader.fragmentShader = shader.fragmentShader.replace(
+              '#include <map_fragment>',
+              THREE.ShaderChunk.map_fragment.replace(
+                'diffuseColor *= sampledDiffuseColor;',
+                'diffuseColor *= sRGBTransferEOTF(sampledDiffuseColor);'
+              )
+            )
           Object.assign(shader.uniforms, this.uniforms, local)
           shader.vertexShader = nativeVertexShader + shader.vertexShader
           if (object instanceof THREE.Sprite) {
@@ -389,7 +401,7 @@ export class RenderView {
               )
         }
         material.customProgramCacheKey = () =>
-          `${object instanceof THREE.Sprite ? 'native-sprite' : 'native-mesh'}-${programKey}`
+          `${object instanceof THREE.Sprite ? 'native-sprite' : 'native-mesh'}-${encodedColors}-${programKey}`
         material.needsUpdate = true
       }
     })
