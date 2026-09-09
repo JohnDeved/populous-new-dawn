@@ -70,11 +70,13 @@ export function modelLighting(
   positions: ArrayLike<number>,
   stage: number,
   heading: number,
-  size = data.scale
+  size = data.scale,
+  tilt = 0,
+  roll = 0
 ) {
   const shades: number[] = [],
     anchors: number[] = [],
-    basis = modelMatrix(heading)
+    basis = modelMatrix(heading, tilt, roll)
   let vertex = 0
   for (let face = 0; face < data.faces.length / 2; face++) {
     const count = data.faces[face * 2] === 3 ? 3 : 6

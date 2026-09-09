@@ -4480,3 +4480,19 @@ flicker, movement and removal in `004010b0`–`004015f0`/`004ee190`. Original Bl
 and fire requests now feed the existing terrain diffuse/specular renderer;
 building fire respects its first-socket light flag. See [native and browser
 lighting evidence](../decomp/README.md#local-terrain-lighting--2026-09-09).
+
+### Building ground response and sinking
+
+The original `00408080` foundation controller and `00503550` sinking object now
+have native comparisons and live browser consumers. See [the decompilation
+record](../decomp/README.md#buildings-on-deforming-ground--2026-09-09) for addresses,
+reproduction boundaries and retained gaps. Shared height stepping and debris
+emission avoid separate approximate terrain-damage effects. Run:
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-building-terrain.py PATH/TO/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-building-sinking.py PATH/TO/d3dpoptb.exe
+.tools/decomp/oracle/bin/python scripts/check-native-building-debris.py PATH/TO/d3dpoptb.exe
+node --test tests/building-terrain.test.mjs
+node scripts/check-browser-building-terrain.mjs
+```

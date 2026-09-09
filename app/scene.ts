@@ -240,15 +240,19 @@ function updateModelLighting(object: THREE.Object3D) {
   if (!(object instanceof THREE.Mesh) || object.userData.nativeModel === undefined) return
   const { nativeModel: id, nativeSize, stage } = object.userData,
     heading = object.parent?.userData.nativeHeading ?? 0,
+    tilt = object.parent?.userData.nativeTilt ?? 0,
+    roll = object.parent?.userData.nativeRoll ?? 0,
     position = object.geometry.getAttribute('position') as THREE.BufferAttribute,
-    key = `${heading}-${nativeSize}-${position.version}`
+    key = `${heading}-${tilt}-${roll}-${nativeSize}-${position.version}`
   if (object.userData.lightKey === key) return
   const { shades, anchors } = modelLighting(
     nativeModels[id],
     position.array,
     stage,
     heading,
-    nativeSize
+    nativeSize,
+    tilt,
+    roll
   )
   for (const [name, values, size] of [
     ['faceShade', shades, 1],
@@ -1737,6 +1741,12 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
+    if (f.sinking) {
+      const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
+      mesh.name = 'sinking-building'
+      g.add(mesh)
+      return g
+    }
     if (f.fire) {
       const mesh = nativeModel(5)
       mesh.material.transparent = true
@@ -1822,6 +1832,12 @@ export class GameScene {
     return g
   }
   animateFx(g: THREE.Group, f: Effect) {
+    if (f.sinking) {
+      g.userData.nativeHeading = f.sinking.angle
+      g.userData.nativeTilt = f.sinking.tilt
+      g.userData.nativeRoll = f.sinking.roll
+      return
+    }
     if (f.fire) {
       const mesh = g.children[0] as THREE.Mesh
       mesh.userData.nativeSize = f.fire.scale

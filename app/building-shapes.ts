@@ -121,6 +121,10 @@ export function buildingGradeVertices(b: BuildingShapePose) {
   return shapeCells(shape(b), b.anchorX, b.anchorY, 2)
 }
 
+export function buildingShapeCells(b: BuildingShapePose) {
+  return shapeCells(shape(b), b.anchorX, b.anchorY, 255)
+}
+
 // Height branch of 0x4b8220, including 0x44fd80's signed average. Round ties
 // downward before clamping. Model 10 keeps its existing height; docks use one.
 export function buildingPlanHeight(
@@ -186,7 +190,7 @@ export function levelBuildingGround(
 export function buildingRepairArea(b: BuildingShapePose) {
   const s = shape(b)
   return {
-    cells: shapeCells(s, b.anchorX, b.anchorY, 255).map(c => c.index),
+    cells: buildingShapeCells(b).map(c => c.index),
     center: ((b.anchorX >>> 8) & 254) | (b.anchorY & 0xfe00),
     radius: (Math.max(s.width, s.height) + 1) >> 1,
   }

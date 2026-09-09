@@ -121,9 +121,15 @@
           "status": "partial",
           "evidence": [
             "scripts/check-browser-terrain.mjs",
-            "scripts/check-native-terrain.py"
+            "scripts/check-native-terrain.py",
+            "app/building-terrain.ts",
+            "app/building-sinking.ts",
+            "scripts/check-native-building-terrain.py",
+            "scripts/check-native-building-sinking.py",
+            "tests/building-terrain.test.mjs",
+            "scripts/check-browser-building-terrain.mjs"
           ],
-          "note": "Land Bridge integrated; other deformation and full lifecycle remain open."
+          "note": "Land Bridge integrated; other deformation and full lifecycle remain open. Allocated buildings now settle original grade vertices on four-turn phases, collapse on excessive slope, and sink when the native flooded-vertex threshold is exceeded. Native comparisons cover 1,520 terrain controllers, 12,800 sinking snapshots and both debris-emission modes (1,260 calls/44,284 faces); portable live scenarios cover all orientations. Browser pixels, original mesh/stage, tilt, drift and cleanup pass. Shared height/debris helpers retain readable TS. Collapse explosions, full panic/evacuation movement, native allocation/counters/dispatch, attacker statistics and linked/dock ownership remain open. An occupied-hut regression also prevents terrain-only drowning from killing occupants before the building evacuation phase. All 129 portable checks, 336 sprite poses, rotated construction and Lightning/fire/repair pass."
         }
       ]
     },
@@ -324,9 +330,15 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-building-debris.py",
-            "scripts/check-browser-building-debris.mjs"
+            "scripts/check-browser-building-debris.mjs",
+            "app/building-terrain.ts",
+            "app/building-sinking.ts",
+            "scripts/check-native-building-terrain.py",
+            "scripts/check-native-building-sinking.py",
+            "tests/building-terrain.test.mjs",
+            "scripts/check-browser-building-terrain.mjs"
           ],
-          "note": "Faces, flight and impacts integrated; lighting, allocation limits and attachments remain open."
+          "note": "Faces, flight and impacts integrated; lighting, allocation limits and attachments remain open. Allocated buildings now settle original grade vertices on four-turn phases, collapse on excessive slope, and sink when the native flooded-vertex threshold is exceeded. Native comparisons cover 1,520 terrain controllers, 12,800 sinking snapshots and both debris-emission modes (1,260 calls/44,284 faces); portable live scenarios cover all orientations. Browser pixels, original mesh/stage, tilt, drift and cleanup pass. Shared height/debris helpers retain readable TS. Collapse explosions, full panic/evacuation movement, native allocation/counters/dispatch, attacker statistics and linked/dock ownership remain open."
         },
         {
           "id": "effects.fire",
@@ -861,9 +873,15 @@
             "tests/terrain-notifications.test.mjs",
             "tests/fixtures/building-validity.json",
             "tests/fixtures/terrain-notifications.json",
-            "scripts/check-browser-ground-overlay.mjs"
+            "scripts/check-browser-ground-overlay.mjs",
+            "app/building-terrain.ts",
+            "app/building-sinking.ts",
+            "scripts/check-native-building-terrain.py",
+            "scripts/check-native-building-sinking.py",
+            "tests/building-terrain.test.mjs",
+            "scripts/check-browser-building-terrain.mjs"
           ],
-          "note": "Native geometry/origins, rotated foundations, crew registration, capacity-limited deliveries, constructed-plan dispatch/repair holdoff and task-1/2/9 activity are integrated. Player placement now preserves uneven ground and displays original connected plan artwork. Unbuilt decisions prioritize initial timber and grade, require footprint clearance and a ready departure, and expire unstaffed plans. Task-8 workers use native vertices, approach/facing, stamping sprites, frame timers, descriptor height steps and cue 2. Hut-family selection and scaffold allocation wait for preparation. Compared 2816 native unbuilt decisions and 3072 complete leveling calls, alongside existing approach/work/departure, ground and crew oracles. Portable scenarios cover huts/training buildings in all rotations, initial timber, clearance, allocation/completion, cancellation, abandonment and timber obstacles. Browser checks verify visible ground plans, original directional leveling frames and delayed scaffold geometry. Tasks 3/4 now use native footprint scanning, approach/inspection, harvesting, timber drop, bush fire/retreat, person eligibility, waits and indexed-search displacement; compared 4224/2688 native calls. Four live rotations cover multiple bystanders, continuous movement, allocation/completion, pause/cancel and search release. Browser checks exercise original harvesting frames and PCM cue 1. Placement and plan revalidation now share native per-cell validity: rotated tile masks, protected scenery, occupied neighbors, slope limits and shore rules (3040 complete native calls). Height notifications match 512 native cases and revalidate nearby plans after leveling/deformation; incomplete scaffolds reserve their footprint. Old fixtures overlapping a reincarnation stone were relocated; rejection is now a regression. Live fog ownership, preview reach/capacity, constructed-building terrain response, full class indexing, command records and pool limits remain adapters; global route invalidation, command/plan signals, allocation caps, movement/collision/turn scheduling, camera-relative resting interest, panic and frame-gated audio remain open. Broad construction stays partial."
+          "note": "Native geometry/origins, rotated foundations, crew registration, capacity-limited deliveries, constructed-plan dispatch/repair holdoff and task-1/2/9 activity are integrated. Player placement now preserves uneven ground and displays original connected plan artwork. Unbuilt decisions prioritize initial timber and grade, require footprint clearance and a ready departure, and expire unstaffed plans. Task-8 workers use native vertices, approach/facing, stamping sprites, frame timers, descriptor height steps and cue 2. Hut-family selection and scaffold allocation wait for preparation. Compared 2816 native unbuilt decisions and 3072 complete leveling calls, alongside existing approach/work/departure, ground and crew oracles. Portable scenarios cover huts/training buildings in all rotations, initial timber, clearance, allocation/completion, cancellation, abandonment and timber obstacles. Browser checks verify visible ground plans, original directional leveling frames and delayed scaffold geometry. Tasks 3/4 now use native footprint scanning, approach/inspection, harvesting, timber drop, bush fire/retreat, person eligibility, waits and indexed-search displacement; compared 4224/2688 native calls. Four live rotations cover multiple bystanders, continuous movement, allocation/completion, pause/cancel and search release. Browser checks exercise original harvesting frames and PCM cue 1. Placement and plan revalidation now share native per-cell validity: rotated tile masks, protected scenery, occupied neighbors, slope limits and shore rules (3040 complete native calls). Height notifications match 512 native cases and revalidate nearby plans after leveling/deformation; incomplete scaffolds reserve their footprint. Old fixtures overlapping a reincarnation stone were relocated; rejection is now a regression. Live fog ownership, preview reach/capacity, constructed-building terrain response, full class indexing, command records and pool limits remain adapters; global route invalidation, command/plan signals, allocation caps, movement/collision/turn scheduling, camera-relative resting interest, panic and frame-gated audio remain open. Broad construction stays partial. Allocated buildings now settle original grade vertices on four-turn phases, collapse on excessive slope, and sink when the native flooded-vertex threshold is exceeded. Native comparisons cover 1,520 terrain controllers, 12,800 sinking snapshots and both debris-emission modes (1,260 calls/44,284 faces); portable live scenarios cover all orientations. Browser pixels, original mesh/stage, tilt, drift and cleanup pass. Shared height/debris helpers retain readable TS. Collapse explosions, full panic/evacuation movement, native allocation/counters/dispatch, attacker statistics and linked/dock ownership remain open."
         },
         {
           "id": "economy.wood",

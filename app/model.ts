@@ -128,6 +128,12 @@ import {
 } from './building-shapes.ts'
 import { nativeTrainingCost } from './building-occupants.ts'
 import {
+  stepBuildingTerrain,
+  stepTerrainCollapse,
+  type BuildingTerrain,
+} from './building-terrain.ts'
+import { stepSinkingBuilding, type SinkingBuilding } from './building-sinking.ts'
+import {
   defeatTribe,
   advanceCollapse,
   processBuildingDamage,
@@ -264,6 +270,7 @@ export type Building = Point & {
   woodUnavailable?: boolean
   damageState: (DamageBuilding & { plan: BuildingPlan }) | null
   burn?: BuildingBurn
+  terrainState?: BuildingTerrain & { dirty: boolean }
 }
 export type Shrine = Point &
   WorshipState & {
@@ -296,7 +303,17 @@ export type SoundEvent = Point & {
 export type Effect = Point & {
   id: number
   team?: Team
-  kind: Spell | 'birth' | 'hit' | 'death' | 'splash' | 'trail' | 'buildingSmoke' | 'debris' | 'fire'
+  kind:
+    | Spell
+    | 'birth'
+    | 'hit'
+    | 'death'
+    | 'splash'
+    | 'trail'
+    | 'buildingSmoke'
+    | 'debris'
+    | 'fire'
+    | 'sinking'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
@@ -304,6 +321,7 @@ export type Effect = Point & {
   smoke?: BuildingSmoke
   debris?: BuildingDebris
   fire?: SceneryFire
+  sinking?: SinkingBuilding & { stage: number }
   turnsRemaining?: number
   groundVersion?: number
   age: number
@@ -941,7 +959,10 @@ export const buildingBlocksStep = (b: Building, start: Point, next: Point) =>
   buildingContainsPoint(b, next) && !buildingContainsPoint(b, start)
 // Terrain support follows the original coastal mask, including low dry shore.
 // ponytail: the movement adapter still owns only the rendered map crop.
-export function supportsFollower(w: World, p: Point) {
+export function supportsFollower(w: World, p: Point & { inside?: number | null }) {
+  // Occupants remain with their building until its controller ejects them.
+  // Terrain-only route points still use the ordinary coastal support predicate.
+  if (p.inside != null && w.buildings.some(b => b.id === p.inside && b.hp > 0)) return true
   if (Math.abs(p.x) >= 47 || Math.abs(p.z) >= 47) return false
   const n = nativePosition(w, p),
     cell = ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
@@ -2226,14 +2247,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
         animation,
         destination: to => destination(to, true),
         releaseMotion,
-        terrainChanged: index => {
-          const cell = ((index & 127) << 1) | ((index >> 7) << 9)
-          queueTerrain(w.land, cell, 2, 1, terrainTextures)
-          processTerrain(w.land, terrainTextures)
-          updateWalkMasks(w.land, cell, 3)
-          notifyHeightChange(w, cell, 1)
-          refreshTerrainSurface(w)
-        },
+        terrainChanged: index => changedBuildingGround(w, index),
         sound: cue => sound(w, cue, u),
       }
     )
@@ -2612,6 +2626,10 @@ function notifyHeightChange(w: World, cell: number, radius: number) {
     id => {
       const b = w.buildings.find(b => (b.id & 1023) === id)
       if (b?.preparation) b.preparation.revalidate = true
+      else if (b && b.hp > 0) {
+        b.terrainState ??= { flooded: 0, delay: 0, reason: 0, dirty: true }
+        b.terrainState.dirty = true
+      }
       if (b?.damageState) b.damageState.flags2 |= 4
       const u = w.units.find(u => u.id === id)
       if (u?.native) u.native.flags2 |= 4
@@ -2619,8 +2637,8 @@ function notifyHeightChange(w: World, cell: number, radius: number) {
       const fx = w.effects.find(fx => fx.id === id)
       if (fx?.fire) fx.fire.groundDirty = true
       if (fx?.smoke) fx.smoke.flags2 |= 4
-      // Rendered tree heights already follow landVersion. Complete constructed-
-      // building terrain response and global route invalidation remain unported.
+      // Rendered tree heights already follow landVersion. Global route
+      // invalidation remains with the native command/movement integration.
     }
   )
 }
@@ -2791,6 +2809,120 @@ function ensureBuildingDamage(b: Building) {
   })
 }
 
+function changedBuildingGround(w: World, index: number) {
+  const cell = ((index & 127) << 1) | ((index >> 7) << 9)
+  queueTerrain(w.land, cell, 2, 1, terrainTextures)
+  processTerrain(w.land, terrainTextures)
+  updateWalkMasks(w.land, cell, 3)
+  notifyHeightChange(w, cell, 1)
+  refreshTerrainSurface(w)
+}
+
+function emitBuildingDebris(w: World, b: Building, stage: number, rng: { randomState: number }) {
+  const source = {
+    ...nativePosition(w, b),
+    h: Math.round(b.foundation * 45),
+    angle: buildingPose(b).angle,
+    flags3: b.damageState?.flags3 ?? 0,
+    tribe: b.team === 'blue' ? 0 : 1,
+    stage: buildingStage(b),
+  }
+  for (const fragment of collapseBuildingFaces(
+    w.land,
+    debrisModels[buildingObject(b)],
+    source,
+    stage,
+    rng
+  )) {
+    const fx = effect(w, 'debris', browserPosition(fragment))
+    fx.debris = fragment
+    fx.duration = Infinity
+    if (!stepDebrisEffect(w, fx, rng)) w.effects.splice(w.effects.indexOf(fx), 1)
+  }
+}
+
+function stepBuildingGroundResponse(w: World, b: Building) {
+  const terrain = b.terrainState
+  if (!terrain || b.preparation) return
+  if (terrain.dirty && !((b.damageState?.flags2 ?? 0) & 0x2000000)) {
+    const state = {
+      ...buildingPose(b),
+      ...terrain,
+      model: buildingModel(b),
+      counter: b.counter,
+      state: b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
+      flags2: (b.damageState?.flags2 ?? 0) | 4,
+      h: Math.round(b.foundation * 45),
+    }
+    stepBuildingTerrain(w.land, state, {
+      // These linked indicator/attachment and dock-warning objects have no live
+      // owner yet. The first mission's playable buildings do not allocate them.
+      indicator: () => {},
+      attachment: () => {},
+      dock: () => {},
+      terrainChanged: index => changedBuildingGround(w, index),
+      occupants: () => {
+        for (const u of w.units) {
+          if (u.inside !== b.id || u.hp <= 0 || !u.native || !(u.native.flags2 & 0x20000)) continue
+          const p = nativePosition(w, u),
+            i = (p.y >> 9) * 128 + (p.x >> 9)
+          if ((w.land.buildingIds[i] & 1023) === (b.id & 1023))
+            u.native.h = terrainPointHeight(w.land, p)
+        }
+      },
+      collapse: () => {
+        state.flags2 |= 0x100000
+        state.delay = 2
+        ensureBuildingDamage(b).state = 3
+      },
+    })
+    Object.assign(terrain, {
+      flooded: state.flooded,
+      delay: state.delay,
+      reason: state.reason,
+      dirty: !!(state.flags2 & 4),
+    })
+    b.foundation = state.h / 45
+    if (b.damageState) b.damageState.flags2 = state.flags2
+  }
+  if (b.damageState?.state !== 3) return
+  stepTerrainCollapse(terrain, {
+    eject: () => evacuateBuilding(w, b),
+    destroy: reason => {
+      if (reason === 1) emitBuildingDebris(w, b, -1, w)
+      else if (reason === 2) {
+        const fx = effect(w, 'sinking', b)
+        fx.sinking = {
+          ...buildingPose(b),
+          ...nativePosition(w, b),
+          h: Math.round(b.foundation * 45),
+          stage: buildingStage(b),
+          counter: (w.effectCounter - 1) & 255,
+          remaining: 80,
+          phase: 0,
+          tilt: 0,
+          roll: 0,
+          direction: 0,
+          target: 0,
+          speed: 0,
+          fallSpeed: 0,
+          spin: 0,
+          spinDirection: 0,
+          sector: 0,
+          shoreScore: 0,
+        }
+        fx.height = b.foundation
+        fx.duration = Infinity
+      }
+      // The class-7/model-1 collapse explosion and attacker statistics still
+      // need their consumers; detached faces and sinking retain native motion.
+      b.hp = 0
+      for (const u of w.units.filter(u => u.work === b.id || u.inside === b.id)) release(w, u)
+      if (b.burn?.soundPlaying) sound(w, 0x53, b, b.id).stop = true
+    },
+  })
+}
+
 function evacuateBuilding(w: World, b: Building) {
   for (const u of w.units.filter(u => u.inside === b.id && u.hp > 0)) {
     release(w, u)
@@ -2875,28 +3007,7 @@ function stepDamagedBuilding(w: World, b: Building) {
       smoke.cloud = emitBuildingSmoke(w, b, context)
       return smoke.cloud ? smoke : null
     },
-    debris: oldStage => {
-      const position = nativePosition(w, b)
-      const source = {
-        ...position,
-        h: terrainPointHeight(w.land, position),
-        angle: buildingPose(b).angle,
-        flags3: state.flags3,
-        tribe: b.team === 'blue' ? 0 : 1,
-      }
-      for (const fragment of collapseBuildingFaces(
-        w.land,
-        debrisModels[buildingObject(b)],
-        source,
-        oldStage,
-        context
-      )) {
-        const fx = effect(w, 'debris', browserPosition(fragment))
-        fx.debris = fragment
-        fx.duration = Infinity
-        if (!stepDebrisEffect(w, fx, context)) w.effects.splice(w.effects.indexOf(fx), 1)
-      }
-    },
+    debris: oldStage => emitBuildingDebris(w, b, oldStage, context),
     canRespond: () => false,
     reserve: () => {},
     removePlan: () => {},
@@ -3693,6 +3804,11 @@ function stepTurn(w: World) {
     fx.age += dt
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
+    if (fx.sinking) {
+      fx.sinking.counter = (fx.sinking.counter + 1) & 255
+      if (!stepSinkingBuilding(w.land, fx.sinking)) fx.duration = fx.age
+      moveVisual(fx, fx.sinking)
+    }
     if (fx.smoke) {
       if (fx.groundVersion !== w.landVersion) fx.smoke.flags2 |= 4
       fx.groundVersion = w.landVersion
@@ -3802,6 +3918,8 @@ function stepTurn(w: World) {
   for (const b of w.buildings) {
     if (b.hp <= 0) continue
     b.counter = (b.counter + 1) & 255
+    stepBuildingGroundResponse(w, b)
+    if (b.hp <= 0 || b.damageState?.state === 3) continue
     if (b.damageState) {
       stepDamagedBuilding(w, b)
       if (b.hp > 0 && b.burn && b.damageState.state === 4) stepBurningBuilding(w, b)
@@ -4093,7 +4211,7 @@ function stepTurn(w: World) {
       b.team === 'blue' ? 11 : w.ai.defenceRadius,
       true
     )
-    effect(w, 'death', b)
+    if (!b.terrainState?.reason) effect(w, 'death', b)
   }
   removeDeadLiveRoutes(w)
   w.units = w.units.filter(u => u.hp > 0)

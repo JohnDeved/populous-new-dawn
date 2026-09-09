@@ -3766,3 +3766,70 @@ model-origin/scaffold assumptions; the check now follows current verified behavi
 Fallow reports 84.9 maintainability, 2.8 average complexity and no dead exports.
 Existing dependency/cycle debt remains. Focused ox-standard and changed-app ESLint
 checks pass. Construction and world deformation remain partial in the parity ledger.
+
+### Buildings on deforming ground — 2026-09-09
+
+`app/building-terrain.ts` reconstructs `00408080`: original rotated grade
+vertices, signed average height, four-turn gate, descriptor ground step/tolerance,
+newly flooded-vertex delay, strict 20/32 flooding threshold, local slope failure,
+and the final clean pass that releases terrain-dirty flags. Descriptor offsets
+68/70 are now extracted reproducibly. Worker leveling and building settling share
+`stepTerrainHeight` (`0044fde0`), keeping notification order and signed writes.
+`0040b860`'s six-cell dock lane predicate is also reconstructed. The native oracle
+executes the original shape traversal, averaging, height stepping and dock test;
+it supplies queue/notification consumers, class initialization, indicator removal
+and warning allocation. All 1,520 cases agree; portable captures cover rotations,
+wrapped anchors, height extremes, flooded cells, phase gates and protected states.
+Linked occupant/attachment objects are not populated in this native oracle.
+
+`00406f40` ejects occupants when the state-3 initializer's two-turn delay reaches
+one, then destroys at zero. Uneven-ground destruction calls `00407860` with stage
+-1 and no reduced launch override: current construction-stage face masks/caps and
+the initializer's stronger speed, upward launch, bounce and spin now remain intact.
+The existing debris oracle now covers both damage and terrain-collapse modes:
+1,260 calls, 44,284 faces, 8,192 flight snapshots and 128 splash initializers.
+
+Flooding retains the building mesh/stage as class-10/model-19 (`00500a30`), with
+an 80-turn lifetime. `app/building-sinking.ts` reconstructs `00503550`, `00503e60`
+and its angle interpolation: original water-category probes (including overlapping
+neighbor counts), retained wet-side direction, tipping, acceleration, wrapped
+drift, fall speed, spin reversal and clamped pitch/roll. All 12,800 native snapshots
+agree, including four orientations, wrapped positions, wet/dry/mixed ground and
+advanced tilts. Only cell relocation and object removal are intercepted; native
+shape, terrain-category and angle routines execute. Portable trajectories preserve
+the complete 80-turn sequence. Render projection and model lighting now receive
+pitch/roll alongside heading, using the existing fixed-point model matrix.
+
+Live terrain notifications now reach allocated buildings. Small changes settle
+without entering repair. Terrain collapse retains its model through evacuation,
+then releases workers/occupancy and emits detached faces or a sinking mesh. The
+browser check covers a real first-mission hut, GPU face/mesh pixels, original
+model and stage, tilt, drift, height and 80-turn cleanup. Four-orientation portable
+scenarios check healthy settling and both destruction paths. Recovered controller
+fields stay separate from the live repair state; shared debris emission removes
+the duplicate damage/terrain rendering path.
+
+Boundaries: the class-7/model-1 collapse explosion (`0050b6f0` configures it),
+attacker statistics, native allocation failures/stack ownership, pool counts,
+class counters and mixed-class dispatch remain open. The browser evacuation
+adapter still supplies door placement; complete original panic movement is not
+claimed. Dock warnings and linked indicator/attachment objects are reconstructed
+consumers but have no live first-mission owner. Vault-specific state 5 (`00407060`)
+is exported for later work; it is separate from ordinary building sinking.
+`00408d00` and `00500e20` are research exports, not additional parity credit.
+The identified export manifest contains 948 files. Construction, deformation,
+and full debris parity remain partial; discovery remains open.
+
+Final validation: all 129 portable checks pass. The occupied-hut regression found
+and fixed premature drowning inside standing buildings: the shared follower
+support predicate now retains living building occupants until evacuation, while
+terrain-only route points still use the coastal predicate. Real browser terrain
+collapse renders 49 detached faces (7,054 pixels); sinking retains its original
+mesh/stage (3,977 pixels), and removing pitch/roll changes 4,213 pixels, proving
+that the recovered tilt reaches GPU projection. Timed drift and cleanup pass.
+All four ground-plan/leveling/scaffold rotations, the full Lightning/fire/repair
+sequence with PCM work cues, and all 336 frozen GPU sprite poses pass. Fallow
+reports 84.8 maintainability, 2.8 average complexity, no dead exports, and the
+existing three cycles/three unused dependencies. Focused ox-standard checks and
+changed-app ESLint pass. The whole-app ox-standard run still reports existing
+style debt in older modules; that broader migration is not claimed complete.

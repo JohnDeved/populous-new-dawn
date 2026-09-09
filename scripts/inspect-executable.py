@@ -69,6 +69,8 @@ if len(sys.argv)>2:
     rules['buildingPreparationWork']=[value(0x5a7228+i*76+24,2) for i in range(20)]
     rules['buildingLevelWorkers']=[value(0x5a7228+i*76+31,1) for i in range(20)]
     rules['buildingLevelStep']=[value(0x5a7228+i*76+66,2) for i in range(20)]
+    rules['buildingGroundStep']=[value(0x5a7228+i*76+68,2) for i in range(20)]
+    rules['buildingGroundTolerance']=[value(0x5a7228+i*76+70,2) for i in range(20)]
     rules['buildingPreparationTasks']=[value(0x5a80c1+i*2,1) for i in range(7)]
     rules['buildingWorkRadius']=[value(0x5a7228+i*76+34,2) for i in range(20)]
     rules['buildingLife']=[value(0x5a7228+i*76+26,2) for i in range(20)]

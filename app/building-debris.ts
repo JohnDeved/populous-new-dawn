@@ -21,7 +21,11 @@ export interface BuildingDebris extends DirectedEffect {
 const short = (n: number) => (n << 16) >> 16
 
 // 0x407860's collapse mode: null retains the face; boolean selects its texture.
-function lostFace(flags: number, stage: number): boolean | null {
+function lostFace(flags: number, stage: number, sourceStage = 4): boolean | null {
+  if (stage < 0) {
+    if (sourceStage >= 4) return false
+    return flags & (1 << sourceStage) ? !!(flags & (16 << sourceStage)) : null
+  }
   if (stage === 4) return !(flags & 15) || (flags & 0x88) === 0x88 ? false : null
   if (stage === 0) return flags & 1 ? !!(flags & 16) : null
   const current = 1 << stage
@@ -30,13 +34,22 @@ function lostFace(flags: number, stage: number): boolean | null {
   return flags & previous && flags & (previous << 4) ? false : null
 }
 
-// Collapse caller arguments to 0x407860: (0,1,oldStage,0,1,-1,-1,0).
+// Structural damage uses (0,1,oldStage,0,1,-1,-1,0). Terrain collapse uses
+// stage -1, the source's current stage, and the initializer's stronger launch.
 // Yield one allocation at a time: its first motion/impact must run before the
 // next fragment consumes RNG, just as in the original face loop.
 export function* collapseBuildingFaces(
   land: Ground,
   model: NativeModel,
-  source: { x: number; y: number; h: number; angle: number; flags3: number; tribe: number },
+  source: {
+    x: number
+    y: number
+    h: number
+    angle: number
+    flags3: number
+    tribe: number
+    stage?: number
+  },
   oldStage: number,
   rng: { randomState: number }
 ): Generator<BuildingDebris> {
@@ -44,7 +57,7 @@ export function* collapseBuildingFaces(
   let vertex = 0
   for (let face = 0; face < model.faces.length / 2; face++) {
     const count = model.faces[face * 2]
-    const cap = lostFace(model.faces[face * 2 + 1], oldStage)
+    const cap = lostFace(model.faces[face * 2 + 1], oldStage, source.stage)
     const first = vertex
     vertex += count === 3 ? 3 : 6
     if (cap === null) continue
@@ -71,11 +84,16 @@ export function* collapseBuildingFaces(
     // 0x502460 initializes travel and spin, then the collapse caller overrides
     // their strengths. Keep the initializer's six draws even when overwritten.
     const yaw = random(rng) & 2047
-    random(rng) // Initial speed, replaced with 32 below.
-    random(rng) // Initial vertical launch and bounce strength.
-    for (let axis = 0; axis < 3; axis++) random(rng) // Initial spin.
-    const upward = (random(rng) & 31) + 64
-    const spin = [random(rng) & 0x15, random(rng) & 0xa9, random(rng) & 0x15]
+    let speed = (random(rng) & 255) + 64,
+      upward = (random(rng) & 127) + 128,
+      bounce = upward,
+      spin = Array.from({ length: 3 }, () => (random(rng) % 170) + 22)
+    if (oldStage >= 0) {
+      speed = 32
+      upward = (random(rng) & 31) + 64
+      bounce = 24
+      spin = [random(rng) & 0x15, random(rng) & 0xa9, random(rng) & 0x15]
+    }
     const triangles = count === 3 ? [0, 1, 2] : [0, 1, 2, 0, 2, 3]
     const tile = model.tiles[face]
     const tribeTile = rules.textureFlags[tile] & 1 ? (tile + source.tribe) & 255 : tile
@@ -100,7 +118,7 @@ export function* collapseBuildingFaces(
       uv,
       flags2: 0x80,
       flags4: 0,
-      speed: 32,
+      speed,
       yaw,
       pitch: 512,
       velocity: { x: 0, y: upward, z: 0 },
@@ -108,7 +126,7 @@ export function* collapseBuildingFaces(
       tilt: 0,
       roll: 0,
       spin,
-      bounce: 24,
+      bounce,
     }
   }
 }

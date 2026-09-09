@@ -299,7 +299,11 @@ export class RenderView {
             screen: THREE.Vector4[] = [],
             scale = object.userData.nativeScale
           const origin = new THREE.Vector3().setFromMatrixPosition(transform),
-            basis = modelMatrix(object.parent?.userData.nativeHeading ?? 0),
+            basis = modelMatrix(
+              object.parent?.userData.nativeHeading ?? 0,
+              object.parent?.userData.nativeTilt ?? 0,
+              object.parent?.userData.nativeRoll ?? 0
+            ),
             unwrapped = !!object.userData.nativeRelative
           for (let i = 0; i < position.count; i++) {
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
@@ -378,7 +382,11 @@ export class RenderView {
             local.nativeObjectScale.value =
               object.userData.nativeSize ?? object.userData.nativeScale
             local.nativeObjectBasis.value.set(
-              modelMatrix(object.parent?.userData.nativeHeading ?? 0)
+              modelMatrix(
+                object.parent?.userData.nativeHeading ?? 0,
+                object.parent?.userData.nativeTilt ?? 0,
+                object.parent?.userData.nativeRoll ?? 0
+              )
             )
           }
         const compile = material.onBeforeCompile.bind(material),

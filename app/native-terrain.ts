@@ -59,6 +59,24 @@ const waterBorder = [
 ]
 type Ground = Pick<NativeTerrain, 'heights' | 'flags'>
 type Position = { x: number; y: number }
+
+// 0x44fde0: one signed-height step; the caller supplies terrain notifications.
+export function stepTerrainHeight(
+  heights: Int16Array,
+  index: number,
+  target: number,
+  step: number,
+  changed: (index: number) => void
+) {
+  target = (target << 16) >> 16
+  step = (step << 16) >> 16
+  const difference = target - heights[index]
+  if (!difference) return true
+  const complete = Math.abs(difference) <= step
+  heights[index] = complete ? target : heights[index] + Math.sign(difference) * step
+  changed(index)
+  return complete
+}
 function heightCorners(land: Ground, i: number) {
   const h = land.heights
   return [h[i], h[neighbor(i, 0, 1)], h[neighbor(i, 1, 1)], h[neighbor(i, 1, 0)]]

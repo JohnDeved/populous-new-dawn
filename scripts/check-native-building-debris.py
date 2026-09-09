@@ -134,15 +134,16 @@ def call(address, *args):
 
 cases, expected = [], []
 for model in [79, 80, 95, 96, 103, 104, *range(107,143)]:
-    for stage in range(5):
+    for stage in range(-1,5):
         for angle in [0, 256, 777, 1536, 2047]:
             source = dict(x=rng.choice([0, 65535, rng.randrange(65536)]),
                           y=rng.choice([0, 65535, rng.randrange(65536)]),
                           h=rng.randrange(513), angle=angle,
-                          flags3=rng.choice([0, 0x100000]), tribe=rng.randrange(4))
+                          flags3=rng.choice([0, 0x100000]), tribe=rng.randrange(4), stage=rng.randrange(5))
             seed = rng.randrange(2**32)
             cpu.mem_write(unit, bytes(256))
             write(unit + 0x33, 'H', model)
+            write(unit + 0x78, 'B', source['stage'])
             write(unit + 0x26, 'H', angle)
             write(unit + 0x14, 'I', source['flags3'])
             write(unit + 0x2f, 'B', source['tribe'])
@@ -150,7 +151,7 @@ for model in [79, 80, 95, 96, 103, 104, *range(107,143)]:
             write(0x89d178, 'I', seed)
             first_face = (read(objects + model * 54 + 16, 'I') - faces) // 60
             emitted = []
-            call(0x407860, unit, 0, 1, stage, 0, 1, -1, -1, 0)
+            call(0x407860, unit, 0, 1, stage, 0, int(stage>=0), -1, -1, 0)
             cases.append(dict(model=model, stage=stage, source=source, seed=seed))
             expected.append(dict(fragments=emitted, randomState=read(0x89d178, 'I')))
 

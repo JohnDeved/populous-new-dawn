@@ -8,7 +8,7 @@ import {
   type StatefulPerson,
   type PersonStateEffects,
 } from './person-state.ts'
-import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
+import { stepTerrainHeight, terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 import type { Animation } from './animation.ts'
 import type { Builder } from './building-workers.ts'
 
@@ -147,14 +147,13 @@ export function stepBuildingLevel(
       if (!vertex) throw new RangeError('Invalid builder grade vertex')
       const target =
         (plan.model === 13 || plan.model === 14) && vertex.mask & 128 ? 0 : short(plan.height)
-      const before = land.heights[vertex.index],
-        difference = target - before,
-        step = short(rules.buildingLevelStep[plan.model])
-      const complete = Math.abs(difference) <= step
-      if (difference) {
-        land.heights[vertex.index] = complete ? target : before + Math.sign(difference) * step
-        effects.terrainChanged(vertex.index)
-      }
+      const complete = stepTerrainHeight(
+        land.heights,
+        vertex.index,
+        target,
+        rules.buildingLevelStep[plan.model],
+        effects.terrainChanged
+      )
       next(complete ? Phase.Rest : Phase.Pause)
       plan.revalidate = false
       person.h = terrainPointHeight(land, person)

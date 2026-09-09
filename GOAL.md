@@ -824,3 +824,24 @@ ownership, object/command pools, global route invalidation and native camera red
 ownership remain open. Known-scope coverage stays 17.7% (17/96), with discovery open;
 these additions improve the partial construction checkpoint without claiming full
 construction or terrain-deformation parity.
+
+### Latest visible integration: buildings on deforming ground
+
+Allocated buildings now respond to height-change notifications. Small differences
+settle on original four-turn phases without creating a repair state. Uneven
+foundations collapse into original stage-selected model faces; sufficiently
+flooded buildings retain their mesh, tip toward water, drift and sink over the
+native 80-turn lifetime. Evacuation precedes removal by one turn. Model projection
+and lighting accept the recovered pitch/roll, and shared height/debris helpers
+keep the TypeScript paths concise. Compared 1,520 terrain controllers, 12,800
+sinking snapshots and expanded both native debris-emission modes. Portable live
+scenarios cover all four orientations and both destruction paths; the browser
+check verifies real model pixels, tilt, drift and cleanup.
+
+Next: compare full first-mission frames again, then recover the remaining visible
+collapse explosion and panic/evacuation movement where that comparison exposes
+gaps. Keep UI/controls and critical first-mission play ahead of isolated hidden
+bookkeeping. Native pools/counters/mixed-class scheduling, dock warning and linked
+attachment ownership, attacker statistics and Vault-specific sinking remain open.
+Known-scope coverage remains 17.7% (17/96), discovery is open, and full game parity
+is unfinished.
