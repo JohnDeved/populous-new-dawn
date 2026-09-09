@@ -566,9 +566,14 @@
               "id": "graphics.raster.queue",
               "title": "Complete cell/object submission, ties and batching",
               "status": "partial",
-              "note": "Non-person chain ownership and full native batching remain incomplete. Deferred alpha primitive ordering is assessed under materials.order.",
+              "note": "Sprite-before-model cell passes and retained native-person arrival order are integrated. 480 complete native cell dispatches and eight browser equal-bucket overlaps cover insertion permutations, same-cell moves and departure/return. Legacy people, non-person chain ownership, all descriptor-specific dispatch gates and full native batching remain incomplete. Deferred alpha primitive ordering is assessed under materials.order.",
               "evidence": [
                 "app/painter.ts",
+                "app/object-cells.ts",
+                "scripts/check-native-cell-render-order.py",
+                "tests/fixtures/cell-render-order.json",
+                "scripts/check-browser-sprite-order.mjs",
+                "decomp/generated/0046ec80.c",
                 "decomp/generated/004673b0.c"
               ]
             },

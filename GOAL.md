@@ -83,7 +83,12 @@ work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
 **Next action:** continue matched first-mission frame comparisons and recover
-source cell/object submission ownership where ties visibly disagree. Deferred
+remaining source cell/object ownership where ties visibly disagree. The ground
+painter now submits sprite-based objects before models within each cell and uses
+retained native-person list order, including departure/return changes. Compared
+480 complete native mixed-cell dispatches and eight equal-bucket browser overlaps.
+Legacy people and other classes still use creation-order adapters; complete
+descriptor dispatch and batching remain unverified. Deferred
 alpha drawing now retains native command order across sprite layers and individual
 transparent model triangles, including interleaving inside a mesh. Seventy native
 queues/774 deferred alpha records and twelve controlled browser overlaps agree;

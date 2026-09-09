@@ -7,6 +7,7 @@ import {
   polygonBucket,
 } from './painter-order.ts'
 import type { RenderView } from './render-view.ts'
+import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
 
 interface Command {
   slot: number
@@ -14,7 +15,7 @@ interface Command {
   cell: number
   object: number
   face: number
-  ground: number
+  phase: number
   order: number
 }
 
@@ -23,6 +24,7 @@ interface Command {
 export class Painter {
   view: RenderView
   landFlags: Uint32Array = new Uint32Array(16384)
+  cells?: ObjectCells
   ranges = new WeakMap<THREE.Object3D, [number, number]>()
   transparentMeshes: {
     mesh: THREE.Mesh
@@ -64,6 +66,7 @@ export class Painter {
     const commands: Command[] = [],
       view = this.view,
       basis = view.uniforms.nativeBasis.value
+    const cellOrder = this.cells ? cellObjectOrder(this.cells) : new Map<number, number>()
     const depth = (p: { x: number; y: number; z: number }) =>
       (Math.imul(p.x, basis[6]) + Math.imul(p.y, basis[7]) + Math.imul(p.z, basis[8])) >> 14
     const world = new THREE.Vector3(),
@@ -81,10 +84,11 @@ export class Painter {
       const group = object.parent!,
         metadata = group.userData
       const id = metadata.unit ?? metadata.building ?? metadata.shrine ?? metadata.point?.id
-      // ponytail: non-person object chains are not retained by the simulation yet.
-      // Preserve creation order within their cells until all native lists are live.
+      // ponytail: only native people retain cell chains so far. Legacy people
+      // and other object classes still need original allocation/list ownership.
       const sourceOrder =
         object.userData.painterSequence ??
+        cellOrder.get(metadata.unit) ??
         (id === undefined ? (sprite ? group.id : object.id) : -id)
       const rotation = modelMatrix(
         metadata.nativeHeading ?? 0,
@@ -174,14 +178,16 @@ export class Painter {
             cell,
             object: sourceOrder,
             face: sprite ? -group.children.indexOf(object) : triangle,
-            ground: object.userData.painterSequence === undefined ? Number(ground) : 0,
+            // 0x46ec80: sprite pass, then model pass; 0x46d070 adds land last.
+            phase:
+              object.userData.painterSequence === undefined ? (ground ? 2 : sprite ? 0 : 1) : 0,
             order: 0,
           })
         }
       }
     }
     commands.sort(
-      (a, b) => a.cell - b.cell || a.ground - b.ground || a.object - b.object || a.face - b.face
+      (a, b) => a.cell - b.cell || a.phase - b.phase || a.object - b.object || a.face - b.face
     )
     commands.forEach((command, i) => {
       command.order = i

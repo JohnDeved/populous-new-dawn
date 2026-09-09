@@ -9,6 +9,49 @@ import {
   polygonBucket,
 } from '../app/painter-order.ts'
 import faces from './fixtures/model-facing.json' with { type: 'json' }
+import cells from './fixtures/cell-render-order.json' with { type: 'json' }
+import {
+  cellObjectOrder,
+  insertObjectIntoCell,
+  moveObjectInCells,
+  objectsInCell,
+} from '../app/object-cells.ts'
+
+test('cell render order matches native mixed passes and retained arrival order', () => {
+  assert.equal(cells.executableSha256, camera.executableSha256)
+  let world
+  for (const c of cells.cases) {
+    if (c.movement === 'initial') {
+      world = { heads: new Uint16Array(16384), objects: new Map() }
+      for (const id of c.insertion) {
+        const object = {
+          id,
+          x: 256,
+          y: 256,
+          h: 0,
+          flags2: 0,
+          flags3: 0,
+          cellNext: 0,
+          cellPrevious: 0,
+        }
+        world.objects.set(id, object)
+        insertObjectIntoCell(world, object, object)
+      }
+    } else
+      moveObjectInCells(world, world.objects.get(c.insertion[0]), {
+        x: c.movement === 'leave' ? 768 : 257,
+        y: 256,
+        h: 0,
+      })
+    const chain = [...objectsInCell(world, 0)].map(p => p.id),
+      order = cellObjectOrder(world)
+    assert.deepEqual(chain, c.chain)
+    const submitted = [...chain]
+      .reverse()
+      .sort((a, b) => cells.phases[a - 1] - cells.phases[b - 1] || order.get(a) - order.get(b))
+    assert.deepEqual(submitted, c.submitted)
+  }
+})
 test('mixed polygon buckets, reverse insertion ties and raster depths match native captures', () => {
   assert.equal(fixture.executableSha256, camera.executableSha256)
   for (const c of fixture.cases) {

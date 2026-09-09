@@ -2508,6 +2508,7 @@ export class GameScene {
           : 0
     })
     this.view.painter.landFlags = this.world.land.flags
+    this.view.painter.cells = this.world.objectCells
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
     if (!this.world.paused) {

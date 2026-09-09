@@ -1,4 +1,4 @@
-export type CellObject = {
+export interface CellObject {
   id: number
   x: number
   y: number
@@ -9,7 +9,10 @@ export type CellObject = {
   cellPrevious: number
   displacement: { x: number; y: number; h: number }
 }
-export type ObjectCells = { heads: Uint16Array; objects: Map<number, CellObject> }
+export interface ObjectCells {
+  heads: Uint16Array
+  objects: Map<number, CellObject>
+}
 const index = (p: { x: number; y: number }) => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
 const short = (n: number) => (n << 16) >> 16
 
@@ -62,4 +65,15 @@ export function* objectsInCell(w: ObjectCells, cell: number) {
     yield p
     id = p.cellNext
   }
+}
+
+// 0x46ec80 walks the retained head/next chain in each render pass.
+export function cellObjectOrder(w: ObjectCells) {
+  const order = new Map<number, number>()
+  for (let id of w.heads)
+    for (let rank = 0; id; rank++) {
+      order.set(id, rank)
+      id = w.objects.get(id)!.cellNext
+    }
+  return order
 }

@@ -4146,3 +4146,48 @@ Parity revision 3 separates deferred alpha ordering from remaining blend/depth
 modes and source-queue ownership. The new scope's pre-verification baseline is
 recorded independently of its verified gain. Full original source chains, native
 batch limits, other blend/state modes and matched full frames remain unfinished.
+
+
+## Cell render passes and retained person order — after v139
+
+The complete 0046ec80 cell renderer walks the same head/next chain twice, first
+for sprites/effects and then for ordinary models/construction. 0046d070 calls
+this dispatcher before enqueueing the cell's terrain. The native descriptor
+byte at 005a6af8 + descriptor * 11 selects the dispatcher class; it is not the
+imported animation descriptor's mode field.
+
+`check-native-cell-render-order.py EXE` executes all 120 insertion permutations
+of five records (descriptors 14, 15, 2, 10 and 48). Each permutation captures
+initial order, same-cell motion, departure and return, totaling 480 complete
+cell dispatches. Original 004ee470 insertion and 004ee580 movement execute
+unchanged. Four polygon consumers are observed instead of rasterized:
+0046f080, 0046f9e0, 004708d0 and 00471c40. Their called object IDs must follow
+stable sprite/model passes over the retained chain. The executable-bound fixture
+is checked by the portable test against the actual browser cell-list helpers.
+Other descriptor types and hidden/drawn flag gates are outside this capture.
+
+The shared painter now orders supported sprites before models before land, then
+applies bucket sorting and reverse-insertion ties. People already owned by native
+movement use their retained cell-chain ranks instead of object-ID order. Legacy
+people and other object classes still use their existing ID/creation adapter;
+they have not been inserted into the person-only simulation pool. Explicit
+captured polygon sequences retain their original enqueue order in diagnostics.
+
+The browser overlap check adds eight equal-bucket cases using live person-cell
+synchronization and controlled colored quads. Scene creation order is reversed;
+same-cell moves preserve order, departure removes the follower and return puts
+it at the head. A later-ID model in the same bucket must still render behind the
+sprite pass. Actual GPU colors distinguish all these outcomes. These controlled
+quads prove ordering, not original sprite artwork or whole-frame agreement.
+
+This improves the partial graphics.raster.queue requirement without declaring
+complete source ownership or changing its score. Legacy/non-person chains,
+allocation order, all dispatch gates, native capacity/flush behavior and matched
+original frames remain open.
+
+Validation: 140 portable tests, type checking and parity metadata pass. Original
+cell-list replay still matches 8,192 sequential operations. All twelve controlled
+native/live depth comparisons, 392 sprite poses, selection, airborne shadows,
+placement/rotation and real collapse-smoke checks pass without browser errors.
+The smoke frame was inspected. Focused ESLint and oxlint checks pass (remaining
+style warnings); Fallow reports 85.1 maintainability and mean cyclomatic 2.8.
