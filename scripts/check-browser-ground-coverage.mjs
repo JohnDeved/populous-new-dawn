@@ -11,15 +11,22 @@ import { prepareTerrainCopiesBaseline, installTerrainCopiesBaseline } from './te
 
 prepareTerrainCopiesBaseline()
 const browser = await chromium.launch({ headless: true })
-const cases = []
+const cases = [], reportState = {}
 try {
   const { page, errors } = await openGame(browser)
   await installTerrainCopiesBaseline(page)
   await page.evaluate(() => window.selectTerrainCopies(false))
-  await page.evaluate(() => {
+  await page.waitForFunction(() => !!window.testScene.waves && !!window.testScene.terrainTextures)
+  const terrainState = await page.evaluate(async () => {
     const s = window.testScene
+    const { createWorld } = await import('/app/model.ts')
     s.world.speed = 0
     cancelAnimationFrame(s.frame)
+    s.world = createWorld()
+    s.world.speed = 0
+    s.rebuildTerrain()
+    s.updateWater()
+    s.view.painter.landFlags = s.world.land.flags
     // Isolate coverage from black terrain lighting, sky, models and textures.
     // A new material still goes through the actual native projection hooks.
     const terrain = s.terrain.clone()
@@ -34,7 +41,10 @@ try {
     s.view.prepare(scene)
     window.coverageScene = scene
     window.coverageTerrain = terrain
+    const hash = await crypto.subtle.digest('SHA-256', terrain.geometry.getAttribute('position').array)
+    return { turn: s.world.turn, geometrySha256: [...new Uint8Array(hash)].map(n => n.toString(16).padStart(2, '0')).join('') }
   })
+  Object.assign(reportState, terrainState)
   for (const [width, height] of [[740, 480], [1920, 1080], [3440, 1440], [3840, 2160]]) {
     await page.setViewportSize({ width, height })
     await page.waitForFunction(({ width, height }) => {
@@ -92,6 +102,7 @@ const report = {
   date: new Date().toISOString(),
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   scope: 'Normal ground view only; isolated white terrain through live native shaders. Original nine terrain copies retained. Expanded bounds are diagnostic, not shipped. Triangle counts measure submitted work, not GPU time or FPS.',
+  terrainState: reportState,
   cases,
 }
 const output = process.argv[2] ?? '/private/tmp/populous-ground-coverage.json'

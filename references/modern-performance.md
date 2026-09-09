@@ -942,3 +942,22 @@ retained as `performance/2026-09-09-early-projection.{json,patch}`. Reproduce wi
 `check-browser-early-projection.mjs --measure` after applying that candidate patch;
 the script refuses to run if the candidate is absent. The original measured
 terrain-copy layout is the report's baseline commit, before copy selection.
+
+### Coverage fixture reproducibility correction
+
+A final replay reproduced all 64 historical submission counts but failed an
+additional attempt to match historical pixel counts exactly (up to 2,477 pixels
+of coverage difference). The old diagnostic cloned whichever terrain geometry
+was present during startup, without waiting for the wave data or recording the
+water turn. Its same-frame native/expanded comparisons remain valid; its absolute
+pixel counts are not a deterministic startup fixture.
+
+The diagnostic now waits for original wave/terrain data, rebuilds a fresh first
+mission at turn zero, applies its water geometry, then freezes and hashes the
+cloned positions. Two independent browser startups now match all 64 cases exactly
+with geometry SHA-256 `79cb2490e161801e9d6ec0240b32561f0b62365ee53f611f3fd28051d8776f86`.
+The pinned opening ultrawide case restores 121,105 pixels with the 16-cell
+expansion; submission counts remain 66,096 / 109,296 / 152,496. The historical
+report is preserved, and the controlled fixture is recorded separately as
+[turn-zero coverage](performance/2026-09-09-ground-coverage-pinned.json).
+This is a diagnostic correction, with no additional runtime change or parity credit.
