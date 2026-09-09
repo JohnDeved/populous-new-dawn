@@ -816,9 +816,13 @@
             "scripts/check-native-timber-delivery.py",
             "scripts/check-browser-construction.mjs",
             "tests/timber.test.mjs",
-            "tests/fixtures/timber-delivery.json"
+            "tests/fixtures/timber-delivery.json",
+            "app/building-workers.ts",
+            "scripts/check-native-building-workers.py",
+            "tests/building-workers.test.mjs",
+            "tests/fixtures/building-workers.json"
           ],
-          "note": "Native geometry/stages integrated; validity, plan registration and construction lifecycle incomplete. Construction now advances by capacity-limited timber transfers after the native eight-turn delivery pause, replacing the separate twelve-seconds-per-worker rule. Each arriving log updates the original stage immediately; shared repair work uses the same transfer. Compared 576 complete delivery-phase calls through native wait, transfer and plan-stage updates. Actual browser placement, three carried-log waits, visible stage changes and complete hut upgrade pass; pause/cancellation and unchanged damage/fire checks pass. Full construction decision dispatcher, plan allocation, worker positioning/terrain preparation, idle work cycles, shared-wait random facing and repair-delay ownership remain open."
+          "note": "Native geometry/stages and timber-driven work are integrated. Each delivery waits eight turns and advances capacity-limited construction/repair immediately; 576 complete native delivery calls and live three-stage construction agree. Original descriptor capacities replace the fixed three-worker limit: small huts admit six, warrior training buildings sixteen. Registration preserves duplicates and first-free slot order, prunes dead/reassigned workers and rejects surplus assignments. Compared 1280 complete admissions across all 20 descriptors and 512 complete pruning calls without intercepted callees. Browser placement, duplicate/full-crew right-click orders, replacement slots and completion pass. Full building validity, plan allocation, task dispatch, worker positioning/terrain preparation, idle work cycles, shared-wait random facing and repair-delay ownership remain open; browser work orders still supply eligibility."
         },
         {
           "id": "economy.wood",

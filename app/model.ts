@@ -1,3 +1,4 @@
+import { assignBuilder, pruneBuilders } from './building-workers.ts'
 import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
 import {
@@ -217,6 +218,7 @@ export type Building = Point & {
   upgrading: boolean
   angle: number
   counter: number
+  builders?: number[]
   birthPending?: boolean
   woodUnavailable?: boolean
   damageState: (DamageBuilding & { plan: BuildingPlan }) | null
@@ -1729,6 +1731,20 @@ export function entrance(w: World, b: Point, radius = 4) {
     })).find(p => walkable(w.terrain, p)) ?? b
   )
 }
+// Native slots retain registration order. Browser work orders supply eligibility
+// until the complete native person/plan command ownership is connected.
+function constructionWorkers(w: World, b: Building) {
+  const slots = (b.builders ??= Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0))
+  const workers = new Map(
+    w.units
+      .filter(u => u.work === b.id && u.hp > 0 && u.team === b.team && u.kind === 'brave')
+      .map(u => [u.id, u])
+  )
+  pruneBuilders(slots, id => workers.has(id))
+  for (const u of workers.values()) if (!assignBuilder(slots, u.id)) release(w, u)
+  return slots.filter(Boolean).map(id => workers.get(id)!)
+}
+
 // The live adapter still enters occupants directly; command-8's staged entry
 // awaits the native path/occupancy consumers. Arrival is measured at its door.
 function atBuildingEntrance(w: World, p: Point, b: Building) {
@@ -1744,11 +1760,22 @@ export function command(w: World, p: Point) {
       u => u.team === 'red' && u.inside === null && u.lift === 0 && distance(u, p) < 1.5
     ) ?? (building?.team === 'red' ? building : undefined)
   const friendly = building?.team === 'blue' ? building : undefined
-  let count = 0
+  let count = 0,
+    constructionFull = false
+  if (friendly && friendly.progress < 1) constructionWorkers(w, friendly)
   for (const u of w.units.filter(u => w.selected.includes(u.id))) {
     if (shrine && shrine.kind === 'vault' && u.kind !== 'shaman') continue
     if (friendly && (friendly.kind !== 'hut' || friendly.progress < 1) && u.kind !== 'brave')
       continue
+    if (
+      friendly &&
+      friendly.progress < 1 &&
+      !friendly.builders!.includes(u.id) &&
+      !friendly.builders!.includes(0)
+    ) {
+      constructionFull = true
+      continue
+    }
     const goal = shrine
       ? entrance(w, shrine, 2)
       : friendly
@@ -1758,6 +1785,7 @@ export function command(w: World, p: Point) {
           : (enemy ?? p)
     const path = planRoute(w, u, goal)
     if (!path) continue
+    if (friendly && friendly.progress < 1) assignBuilder(friendly.builders!, u.id)
     release(w, u)
     acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null
@@ -1780,9 +1808,11 @@ export function command(w: World, p: Point) {
           : enemy
             ? 'Your followers march to battle.'
             : 'Your followers are on the move.'
-      : shrine?.kind === 'vault'
-        ? 'Select your shaman to worship the Vault of Knowledge.'
-        : 'No land route. Bring your shaman to the shore and make a Land Bridge.'
+      : constructionFull
+        ? 'This building already has its full construction crew.'
+        : shrine?.kind === 'vault'
+          ? 'Select your shaman to worship the Vault of Knowledge.'
+          : 'No land route. Bring your shaman to the shore and make a Land Bridge.'
   )
 }
 
@@ -1869,14 +1899,16 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     .sort((a, b) => distance(a, p) - distance(b, p))
     .map(u => ({ u, path: findPath(w, u, p) }))
     .filter(a => a.path.length)
-    .slice(0, 3)
+    .slice(0, rules.buildingMaxWorkers[buildingModel({ kind, level: 1 })])
   if (!workers.length) {
     tell(w, 'A free brave must be able to reach the building site.')
     return false
   }
   const b = addBuilding(w, 'blue', kind, p, false)
   b.angle = (plan.angle * Math.PI) / 1024
+  b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0)
   for (const { u } of workers) {
+    assignBuilder(b.builders, u.id)
     release(w, u)
     u.work = b.id
     route(w, u, entrance(w, b))
@@ -3186,7 +3218,7 @@ function stepTurn(w: World) {
     const inhabitants = w.units.filter(u => u.inside === b.id && u.hp > 0)
     if (b.progress < 1) {
       const cost = rules.buildingLife[buildingModel(b)] / 100
-      const workers = w.units.filter(u => u.work === b.id && u.hp > 0 && u.kind === 'brave')
+      const workers = constructionWorkers(w, b)
       haulBuildingWood(w, b, workers, cost)
       if (b.progress === 1) {
         if (!b.upgrading && !b.damageState) w.stats.built++
@@ -3265,6 +3297,7 @@ function stepTurn(w: World) {
         b.object = buildingObject(b) + 1
         b.level++
         b.damageState = null
+        b.builders = undefined
         b.progress = 100 / rules.buildingLife[b.level]
         b.logs = 1
         b.timer = 0

@@ -57,4 +57,45 @@ try{
   assert.equal(await page.evaluate(()=>window.testScene.world.stats.built),1)
   assert.deepEqual(errors,[])
   console.log('PASS: real hut placement, three live delivery pauses with original carried-log sprites, native stage sequence and visible GPU geometry:',JSON.stringify(snapshots))
+  await page.close()
+
+  const {page:crewPage,errors:crewErrors}=await openGame(browser)
+  await crewPage.evaluate(()=>{
+    const s=window.testScene,w=s.world
+    w.speed=0;w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').map(u=>u.id)
+    s.focus({x:4,z:32});s.onChange()
+  })
+  await crewPage.waitForFunction(()=>!window.testScene.cameraMotion.active)
+  await crewPage.getByRole('button',{name:'buildings B',exact:true}).click()
+  await crewPage.getByRole('button',{name:'Hut, 3 wood',exact:true}).click()
+  const site=await crewPage.evaluate(()=>{
+    const s=window.testScene,p={x:4.3,z:32.3},q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect()
+    return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2}
+  })
+  await crewPage.mouse.move(site.x,site.y)
+  await crewPage.waitForFunction(()=>window.testScene.cursor.visible&&!window.testScene.cursor.userData.invalid)
+  await crewPage.mouse.click(site.x,site.y)
+  const initial=await crewPage.evaluate(()=>{
+    const s=window.testScene,w=s.world,b=w.buildings.find(b=>b.progress===0)
+    window.building=b
+    window.spare={...w.units.find(u=>u.id===b.builders[0]),id:w.nextId++,work:null,path:[]}
+    w.units.push(window.spare);w.selected=[b.builders[0],window.spare.id];s.onChange()
+    return b.builders
+  })
+  assert.equal(initial.filter(Boolean).length,6,'the first mission assigns all six braves')
+  await crewPage.mouse.click(site.x,site.y,{button:'right'})
+  assert.deepEqual(await crewPage.evaluate(()=>window.building.builders),initial)
+  assert.equal(await crewPage.evaluate(()=>window.spare.work),null,'full crew rejects a seventh worker')
+  await crewPage.evaluate(()=>{
+    const s=window.testScene,w=s.world
+    w.units.find(u=>u.id===window.building.builders[1]).hp=0
+    w.selected=[window.spare.id];s.onChange()
+  })
+  await crewPage.mouse.click(site.x,site.y,{button:'right'})
+  assert.equal(await crewPage.evaluate(()=>window.building.builders[1]===window.spare.id&&window.spare.work===window.building.id),true)
+  await crewPage.evaluate(()=>{window.testScene.world.speed=4})
+  await crewPage.waitForFunction(()=>window.building.progress===1)
+  assert.equal(await crewPage.evaluate(()=>window.testScene.world.stats.built),1)
+  assert.deepEqual(crewErrors,[])
+  console.log('PASS: six-brave browser placement, duplicate/full-crew right-click orders, replacement in the first vacant slot and completed construction')
 }finally{await browser.close()}

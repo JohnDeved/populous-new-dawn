@@ -651,3 +651,20 @@ and idle work cycles, shared-wait random facing and repair-delay ownership remai
 open. Continue the original construction lifecycle and visible first-mission
 activity, with full world-frame comparison still pending. Broad construction and
 HUD checkpoints remain partial; discovery is open and full parity is unfinished.
+
+### Latest critical integration: original construction crews
+
+Building descriptors now set construction crew limits: six for a small hut,
+sixteen for a warrior training building. Registration preserves order, rejects
+surplus workers, keeps duplicate orders in their existing slots and reuses the
+first slot freed by death or reassignment. Compared 1,280 complete native
+admissions and 512 pruning calls without intercepted callees. Actual browser
+placement assigns all six starting braves; duplicate/full-crew right-clicks,
+replacement and completed construction pass. There are 102 portable checks and
+913 identified exports.
+
+Browser work orders still supply eligibility. Full plan allocation and task
+dispatch, native worker positions/idle work, terrain preparation and repair-delay
+ownership remain open. Continue those visible construction behaviors and original
+first-mission frame comparisons. Known-scope coverage remains 17.7% (17/96), with
+discovery open and the broad construction checkpoint partial.

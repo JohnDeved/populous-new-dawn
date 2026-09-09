@@ -3280,3 +3280,41 @@ The manifest contains 909 routines. Full plan allocation, dispatcher ownership,
 terrain preparation, workers' native positions/idle activity, repair-delay
 ownership and complete allocation scheduling remain open. This is an integrated
 transfer-path correction, not complete construction or engine parity.
+
+## Construction crew admission and registration — 2026-09-09
+
+`004b9cc0` admits a person into a class-9 plan using the building descriptor's
+unsigned-short capacity at offset `0x14`. It preserves existing registration;
+otherwise it fills the first empty slot and increments the assigned count.
+`004ba1b0` removes deleted, classless, dead, wrong-state, wrong-plan or wrong-tribe
+registrations without compacting the slot array. The browser imports all twenty
+descriptor capacities and applies the same slot operations to placement, later
+orders and active construction. Small/medium/large huts allow 6/8/10 workers;
+towers allow 12, temples 20 and warrior training buildings 16. Upgrades start a
+fresh slot array sized for the replacement model. The former fixed limit was 3.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-workers.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-workers.test.mjs
+node scripts/check-browser-construction.mjs
+```
+
+The native comparison executes 1,280 complete admissions across all twenty
+descriptor capacities and 512 complete pruning calls, without intercepted
+callees. It compares acceptance, every slot and the assigned count for valid
+nonzero person IDs. Portable captures retain the same cases; live tests cover
+hut/training-building limits, duplicates, full crews, death and reassignment.
+Full-crew rejection happens before path allocation; a regression confirms it
+cannot leave an unowned route behind.
+The browser check uses real placement and right-click commands, admits all six
+starting braves, rejects a seventh, reuses a dead worker's slot and completes
+construction. Existing delivery poses and visible mesh stages remain checked.
+
+New exports `004b8150`, `004b9cc0`, `004ba1b0` and `004ba260` bring the manifest to
+913 routines. Browser work orders currently provide eligibility; complete native
+person/plan command ownership and class-9 scheduling remain unported. In particular,
+`004ba260` groups workers by task/readiness, and `004b8bb0` dispatches fetching on
+sixteen-turn phases, handles repair delay and waits for worker departure before
+removing the plan. `004b8470` additionally owns unbuilt-plan terrain preparation
+and building allocation. Those controllers, native idle activity/positions and
+departure are the next construction work; admission alone does not reproduce them.

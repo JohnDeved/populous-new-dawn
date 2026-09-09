@@ -19,6 +19,7 @@ test('residents fetch and stage timber before their hut upgrades', () => {
   const w=createWorld(), b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut')
   const residents=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,3)
   for(const u of residents){u.inside=b.id;u.work=b.id;u.path=[]}
+  b.builders=[...residents.map(u=>u.id),0,0,0]
   b.counter=127;b.upgrade=1776;b.timer=-20000
   const original=buildingObject(b), history=new Set();let began=false,finished=false,sawCargo=false
   for(let turn=0;turn<1200;turn++){
@@ -30,6 +31,7 @@ test('residents fetch and stage timber before their hut upgrades', () => {
       assert.equal(wood,3,'all upgrade timber must already be at the entrance')
       assert.equal(b.progress,1/3);assert.equal(b.logs,1)
       assert.equal(buildingObject(b),original+1)
+      assert.equal(b.builders,undefined,'replacement starts a fresh construction crew')
     }
     if(!began){assert.equal(b.progress,1);assert.equal(b.logs,3)}
     if(b.level===2 && b.progress===1){finished=true;break}
@@ -37,4 +39,5 @@ test('residents fetch and stage timber before their hut upgrades', () => {
   assert.ok(sawCargo);assert.ok(history.has(1)&&history.has(2)&&history.has(3),'haulers must not recycle their own entrance stock')
   assert.ok(began&&finished,'native thresholds must connect to a complete playable upgrade')
   assert.equal(b.logs,3);assert.ok(w.sounds.some(s=>s.cue===11))
+  assert.equal(b.builders.length,8,'the upgraded model admits its larger native crew')
 })
