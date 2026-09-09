@@ -11,7 +11,7 @@ experienced-player expectations while improving performance and presentation.
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
 | High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Unit bodies, shadows and hit targets now follow fractional turn positions, checked at 5–240 Hz; full native displacement ownership remains partial. Flybys, globe motion, transitions and result cameras still need smoothing. |
 | Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
-| Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers and per-model anchor checks preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Per-vertex projection, sorting, sprite draw calls and resource lifetime remain to review. |
+| Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers and per-model anchor checks preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Unit health bars now use two instanced submissions with identical checked pixels/depths, including 4K buffers and removal/reuse. Per-vertex projection, sorting, transparent sprite draw calls and wider resource lifetime remain to review. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
 | Audio and presentation timing | Read review; issues open | WebAudio owns sample duration and pitch; buffers are cached and ended nodes disconnect. Simulation sounds still drain once per render, so catch-up events can bunch. Cloud wind/half-heading drift is corrected below; full presentation-event scheduling remains open. |
@@ -593,3 +593,86 @@ live selection regressions pass. New clock/motion modules pass ox-standard; Fall
 maintainability remains 85.8, average cyclomatic 2.8 and p90 5. Full native per-class
 interpolation ownership remains partial in the ledger; modern smoothness alone does
 not earn whole-engine parity credit.
+
+
+## Instanced unit health bars
+
+The selected-army profile identified hundreds of opaque health meshes alongside
+transparent person layers and selection arrows. `HealthBars` retains the existing
+person meshes as the source of visibility, transforms, team colors and native
+per-triangle painter slots, then submits the background/fill shapes as two
+`InstancedMesh` draws. It restores source visibility after rendering, so selection,
+queries, updates and disposal continue to use the existing scene. Only ground-view
+unit health bars are batched; building bars, transparent sprites and overview retain
+their current paths. This optimizes the browser's existing health-bar presentation;
+it does not claim that its 3D bar artwork is an original-game reconstruction.
+
+Per-instance attributes carry the source painter offset and authoritative cell.
+The native depth texture and polygon queue stay unchanged; all submitted triangles
+retain their original slots. The shared projection hook now includes the instance
+transform in lighting's view position as well as in the projected position. Without
+that, the initial comparison caught one-byte color differences on some damaged
+bars. No tolerance was added: the corrected path matches every RGBA byte checked.
+
+Batches grow to twice the required capacity, retain that capacity across removals,
+and upload only the active matrix/color/cell/slot spans. Growth releases the old
+batch resources. Scene disposal releases both retained geometries, materials and
+instance buffers. This adds two small geometry copies and instance buffers, while
+retaining the original source meshes and CPU painter work. It is a submission
+optimization, not a claim of reduced total memory or eliminated per-person work.
+
+`check-browser-health-bars.mjs` compares batching disabled/enabled in 16 cases:
+unselected/selected opening, damaged mixed-team crowds at six headings, 1920×1080,
+3440×1440 and 3840×2160 render buffers, 1920×1080 at DPR 1.8, removal, complete
+removal, recreated source meshes and overview bypass. These explicit GPU buffer
+sizes test rendering equivalence, not physical display changes or HUD layout.
+Every RGBA byte, native painter depth slot and submitted triangle count agrees.
+Source visibility is restored, temporary batch meshes are detached, retained
+capacity survives reuse and disposal removes both GPU geometries.
+[Raw comparison](performance/2026-09-09-health-bars-equivalence.json).
+The mixed-team crowd falls from 1,079 to 685 calls (394 fewer); selected opening
+falls from 97 to 85. The native depth overlaps, translucent sprite/mesh ordering,
+392 imported sprite poses, real Blast shadow, live selection and nine motion
+cadences also pass. TypeScript, all 152 portable tests, parity consistency and the
+production build pass. The new module passes ox-standard; Fallow remains 85.8,
+average cyclomatic 2.8 and p90 5.
+
+Reproduce the paired whole-frame measurement with:
+
+```
+node scripts/profile-game.mjs --headed --compare-health-bars /tmp/health-bars.json
+```
+
+The existing moving-order workload resets the world/camera for each run, orders
+blue people to (10,34) and adds 200 braves for the crowd. Each scenario uses six
+old/new/new/old/old/new runs with one second settling and four seconds profiling.
+Both modes retain the same unit interpolation, gameplay and renderer; the flag
+only toggles instanced health submission. The comparison therefore includes its
+collection, buffer-update and GPU-submission costs together.
+
+
+[Raw paired hardware report](performance/2026-09-09-health-bars-hardware.json):
+Apple M5/macOS arm64, Node 24.18, headed Chrome 153, ANGLE Metal, 1440×1000/DPR 1.
+Medians of each mode's three per-run statistics:
+
+| Workload | Separate CPU median / p95 | Instanced CPU median / p95 | Separate / instanced frame-gap p95 | Separate / instanced calls | Triangles (both) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Opening orders | 6.0 / 8.5 ms | 6.0 / 8.4 ms | 10.1 / 7.8 ms | 97 / 85 | 68,769 |
+| Selected crowd orders | 11.6 / 14.8 ms | 10.7 / 13.9 ms | 15.0 / 14.4 ms | 1,072 / 670 | 74,619 |
+
+The crowd uses 37.5% fewer draws and 7.8% less median JS frame work. All six crowd
+runs end with 47 people still moving. Separate-draw CPU medians are 11.6 ms in all
+three runs; instanced medians are 10.7, 11.3 and 10.6 ms. Opening median cost is
+unchanged. Absolute timings differ from earlier audit sessions, so only this
+paired comparison supports the improvement claim. Both modes retain any allocated
+batch capacity between samples; this is not a before/after memory-savings result.
+
+Stutter remains: instanced maximum frame gaps reach 100.3 ms in the opening and
+128.6 ms in the crowd. This benchmark measures whole JS frame work and RAF gaps,
+not GPU execution time or physical monitor presentation. Pixel equality at 4K
+is not a 4K performance certification. The last crowd CPU profile still spends
+1,829 ms of its four-second sample inside `Painter.update`, with native visibility
+and projection also prominent. The remaining 670 calls include transparent person
+layers and selection arrows. CPU painter work, transparent batching and the other
+unfinished audit rows remain targets; this optimization adds no native parity
+credit and does not finish the modern-hardware goal.

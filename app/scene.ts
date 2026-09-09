@@ -335,6 +335,9 @@ function makeUnit(u: Unit) {
   const health = new THREE.Group()
   part(health, box(0.8, 0.055, 0.02), material(0x20251a), 0, 2.1)
   const healthFill = part(health, box(0.78, 0.04, 0.025), material(teamColor[u.team]), 0, 2.1, 0.01)
+  health.children.forEach((mesh, shape) => {
+    mesh.userData.healthShape = shape
+  })
   g.add(health)
   g.userData = {
     unit: u.id,

@@ -9,19 +9,21 @@ import { preparePainterBaseline, installPainterBaseline, painterBaselineCommit }
 const headed = process.argv.includes('--headed')
 const comparePainter = process.argv.includes('--compare-painter')
 const compareUnitMotion = process.argv.includes('--compare-unit-motion')
+const compareHealthBars = process.argv.includes('--compare-health-bars')
+const movingProfile = compareUnitMotion || compareHealthBars
 if (comparePainter) preparePainterBaseline()
 const browser = await chromium.launch({ headless: !headed })
 try {
   const { page, errors } = await openGame(browser),
     cdp = await page.context().newCDPSession(page)
   if (comparePainter) await installPainterBaseline(page)
-  if (compareUnitMotion) await page.evaluate(async () => {
+  if (movingProfile) await page.evaluate(async () => {
     const s = window.testScene,
       { createWorld, addUnit, command } = await import('/app/model.ts'),
       { unitPosition } = await import('/app/unit-motion.ts')
     const position = s.unitMotion.position,
       beforeTurn = s.gameClock.beforeTurn, afterTurn = s.gameClock.afterTurn
-    window.resetUnitMotionProfile = (smooth, crowd) => {
+    window.resetMovingProfile = (smooth, crowd) => {
       s.world = createWorld()
       s.world.flyby.flags &= ~1
       s.world.inputMask = 0
@@ -48,7 +50,7 @@ try {
   const steppedCamera = process.argv.includes('--stepped-camera')
   const compareCamera = process.argv.includes('--compare-camera')
   const compareSky = process.argv.includes('--compare-sky')
-  assert.ok([compareSky, compareCamera, comparePainter, compareUnitMotion].filter(Boolean).length <= 1,
+  assert.ok([compareSky, compareCamera, comparePainter, compareUnitMotion, compareHealthBars].filter(Boolean).length <= 1,
     'Compare one presentation change at a time')
   if (compareSky) {
     await page.setViewportSize({ width: 3440, height: 1440 })
@@ -97,15 +99,18 @@ try {
   }, fullTerrain)
   const runs = []
   let crowdAdded = false
-  const scenarios = compareUnitMotion ? ['opening', 'crowd'].flatMap(s=>Array(6).fill(s))
+  const scenarios = movingProfile ? ['opening', 'crowd'].flatMap(s=>Array(6).fill(s))
     : comparePainter ? ['opening', 'camera', 'crowd'].flatMap(s => Array(6).fill(s))
     : compareSky ? Array(6).fill('opening') : compareCamera ? Array(6).fill('camera') : ['opening', 'camera', 'crowd']
   for (const [index, scenario] of scenarios.entries()) {
     // Release the previous run before resetting its pose; RAF can run between awaits.
     await page.keyboard.up('q')
     const smoothUnits = compareUnitMotion ? [false,true,true,false,false,true][index%6] : true
-    if (compareUnitMotion) await page.evaluate(({smooth,crowd})=>window.resetUnitMotionProfile(smooth,crowd),
-      {smooth:smoothUnits,crowd:scenario==='crowd'})
+    const batchedHealth = compareHealthBars ? [false,true,true,false,false,true][index%6] : true
+    if (movingProfile) await page.evaluate(({smooth,crowd,batched})=>{
+      window.testScene.view.healthBars.enabled=batched
+      window.resetMovingProfile(smooth,crowd)
+    }, {smooth:smoothUnits,crowd:scenario==='crowd',batched:batchedHealth})
     const optimizedPainter = comparePainter ? [false, true, true, false, false, true][index % 6] : true
     if (comparePainter) await page.evaluate(optimized => window.selectPainter(optimized), optimizedPainter)
     const coveredSky = compareSky ? [false, true, true, false, false, true][index] : true
@@ -131,7 +136,7 @@ try {
         s.focus({ x: 2, z: 30 })
       }, smoothCamera)
     if (scenario === 'camera') await page.keyboard.down('q')
-    if (scenario === 'crowd' && !crowdAdded && !compareUnitMotion) {
+    if (scenario === 'crowd' && !crowdAdded && !movingProfile) {
       crowdAdded = true
       await page.evaluate(async () => {
         const s = window.testScene,
@@ -174,6 +179,7 @@ try {
       coveredSky,
       optimizedPainter,
       smoothUnits,
+      batchedHealth,
       ...data,
       frames: undefined,
       frameCount: data.frames.length,
@@ -214,12 +220,13 @@ try {
     compareSky,
     comparePainter,
     compareUnitMotion,
+    compareHealthBars,
     painterBaselineCommit: comparePainter ? painterBaselineCommit : undefined,
     runtime: process.version,
     cpu: cpus()[0].model,
     os: platform(),
     arch: arch(),
-    mode: `${headed ? 'Headed' : 'Headless'} Chromium, 1 second settling and 4 second CPU sample per scenario; ${compareUnitMotion ? 'each run starts a fresh simulation and sends blue people to (10,34); crowd adds 200 braves' : 'crowd adds 200 stationary braves for renderer stress'}`,
+    mode: `${headed ? 'Headed' : 'Headless'} Chromium, 1 second settling and 4 second CPU sample per scenario; ${movingProfile ? 'each run starts a fresh simulation and sends blue people to (10,34); crowd adds 200 braves' : 'crowd adds 200 stationary braves for renderer stress'}`,
     ...environment,
     runs,
   }

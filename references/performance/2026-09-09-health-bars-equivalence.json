@@ -1,0 +1,356 @@
+{
+  "cases": [
+    {
+      "name": "unselected opening",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 79,
+      "afterCalls": 79,
+      "triangles": [
+        68613,
+        68613
+      ],
+      "retained": [
+        16,
+        16
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "selected opening",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 97,
+      "afterCalls": 85,
+      "triangles": [
+        68769,
+        68769
+      ],
+      "retained": [
+        16,
+        16
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "damaged crowd heading 0",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        74553,
+        74553
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "damaged crowd heading 256",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        74139,
+        74139
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "damaged crowd heading 512",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        75345,
+        75345
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "damaged crowd heading 1024",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        74553,
+        74553
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "damaged crowd heading 1536",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        75345,
+        75345
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "damaged crowd heading 2047",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        73365,
+        73365
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "render size 1920x1080 DPR 1",
+      "buffer": [
+        1920,
+        1080
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        74553,
+        74553
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "render size 3440x1440 DPR 1",
+      "buffer": [
+        3440,
+        1440
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        74553,
+        74553
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "render size 3840x2160 DPR 1",
+      "buffer": [
+        3840,
+        2160
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        74553,
+        74553
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "render size 1920x1080 DPR 1.8",
+      "buffer": [
+        3456,
+        1944
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 1079,
+      "afterCalls": 685,
+      "triangles": [
+        74553,
+        74553
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "removed units and selection",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 119,
+      "afterCalls": 101,
+      "triangles": [
+        68873,
+        68873
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "all people removed",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 46,
+      "afterCalls": 46,
+      "triangles": [
+        68527,
+        68527
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "new meshes reuse retained batches",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 119,
+      "afterCalls": 101,
+      "triangles": [
+        68873,
+        68873
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    },
+    {
+      "name": "overview bypass",
+      "buffer": [
+        1240,
+        1000
+      ],
+      "changedPixels": 0,
+      "changedDepths": 0,
+      "deltas": {},
+      "beforeCalls": 119,
+      "afterCalls": 119,
+      "triangles": [
+        297689,
+        297689
+      ],
+      "retained": [
+        396,
+        396
+      ],
+      "hiddenAfterDraw": 0,
+      "attachedAfterDraw": 0
+    }
+  ]
+}
