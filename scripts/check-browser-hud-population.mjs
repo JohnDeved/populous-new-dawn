@@ -37,7 +37,7 @@ try{
   await page.evaluate(()=>{const s=window.testScene;s.world.units=window.populationOriginal;s.world.selected=[];s.onChange()})
   for(const size of [{width:1440,height:1000},{width:1280,height:720}]){
     await page.setViewportSize(size)
-    const bounds=await controls.evaluateAll(buttons=>{const style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'));return buttons.map(b=>{const r=b.getBoundingClientRect();return [Math.round(r.x/sx),Math.round(r.y/sy),Math.round(r.width/sx),Math.round(r.height/sy)]})})
+    const bounds=await controls.evaluateAll(buttons=>{const style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale')),sy=parseFloat(style.getPropertyValue('--hud-scale'));return buttons.map(b=>{const r=b.getBoundingClientRect();return [Math.round(r.x/sx),Math.round(r.y/sy),Math.round(r.width/sx),Math.round(r.height/sy)]})})
     assert.deepEqual(bounds,Array.from({length:6},(_,i)=>[i*16,153,15,36]))
   }
   await page.getByRole('button',{name:'Select all braves',exact:true}).click()

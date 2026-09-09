@@ -12,7 +12,7 @@ experienced-player expectations while improving performance and presentation.
 | High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Units, flybys, globe motion, transitions and result cameras still need smoothing. |
 | Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Water still recomputes shared vertex samples;  Profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
 | Models, sprites, painter and effects | Profiled | Painter traversal now skips unsubmitted terrain faces.  Measure submissions, batching, geometry updates, allocations and resource lifetime; retain native draw/sprite regressions. |
-| HUD and minimap | Partially reviewed | Minimap native colors/transforms and modern dense rows verified. Original border uses fixed corners/tiled edges; stretched circle is still an adapter. Full HUD/display audit remains. |
+| HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
 | Audio and presentation timing | Read review; issues open | WebAudio owns sample duration and pitch; buffers are cached and ended nodes disconnect. Simulation sounds still drain once per render, so catch-up events can bunch. Sky movement also loses integer fractions per frame; high-refresh drift needs correction. |
 | Resources, loading and memory | Read review; measurements pending | Scene disposes listeners, observers, renderer, owned geometry/materials and textures; shared atlas caches survive restarts. Globe rebuilds geometry on camera movement; Live DPR changes now resize the renderer and star pixels while retaining CSS projection. Measure restart/resize/effect lifetime and live display-scale changes. |
@@ -254,3 +254,47 @@ calls; 256 camera journeys/291 plans/7,921 movement calls; 256 result initiation
 and 12,288 composed frames; 1,024 focus requests and 5,120 following steps. These
 checks certify the unchanged native controllers, not the new fractional frames.
 The browser smoothing/pixel/input checks cover the deliberate presentation change.
+
+## Modern HUD sizing correction (2026-09-09)
+
+User review rejected the independent viewport X/Y scaling introduced in
+06b07bd74965bd2e77b9bb6b6953615c8c42f029. Original logical control coordinates and
+artwork are retained, but a single CSS transform now preserves their proportions.
+Automatic scale uses half-step increments, fits the original 640×480 layout and
+caps at 250%. Only the panel background extends to the bottom of a taller window;
+icons, minimap, meters and portrait do not stretch to fill it. Settings offers
+100–400% with the same fit limit, saved locally when browser storage is available.
+The preference survives a reload and returns to the chosen size after a small
+window is enlarged. No dependency, per-frame layout handler or simulation change
+is introduced; the existing ResizeObserver resizes the battlefield.
+
+| CSS viewport | Previous sidebar | Automatic sidebar now | Original-art scale now |
+| --- | ---: | ---: | ---: |
+| 1280×720 | 200 px | 150 px | 1.5× |
+| 1920×1080 | 300 px | 200 px | 2× |
+| 3440×1440 | 537.5 px | 250 px | 2.5× |
+| 3840×2160 | 600 px | 250 px | 2.5× |
+
+The minimap uses the actual displayed rectangle: at 4K its default raster changes
+from 600×432 (259,200 pixels) to 250×240 (60,000 pixels), 76.9% fewer pixels per
+map buffer. This is a buffer-size calculation, **not an FPS claim**: the wider
+battlefield also draws more world pixels. This patch adds no GPU passes and
+reuses the cached minimap renderer. The user can choose larger controls rather
+than accepting a maximum size tied to monitor width or device pixel ratio.
+
+`check-browser-hud-scale.mjs` checks ten window sizes from 640×480 through 5120-wide
+and 4K, uniform original health/portrait/minimap geometry, full-height background,
+renderer resizing, settings reachability, fit limits, persistence and disabled
+storage. Existing HUD artwork/state and minimap tests retain their native logical
+comparisons; their physical-size assumptions now follow the uniform scale.
+This is a deliberate modern compatibility correction with no new native parity
+credit. Complete native control roster, minimap frame tiling and resampling
+fidelity remain unfinished.
+
+Validation passed: all 147 Node tests, typecheck/build, HUD size/persistence,
+24 minimap browser/native pixel-transform comparisons, and the native HUD
+health/portrait/population/mana/spell checks. Fallow maintainability remains 85.6.
+Visual review at 1920×1080 and 3440×1440 confirms the proportional sidebar;
+it also exposes black areas outside the ground globe against the sky on wide
+views. That world/sky coverage defect remains a priority in the rendering audit;
+HUD sizing does not resolve it or certify the whole modern-display experience.

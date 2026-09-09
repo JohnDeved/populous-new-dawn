@@ -19,7 +19,7 @@ try{
       const expected=c.colors.map(n=>{const h=hud.colors[n];return `rgb(${[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(', ')})`})
       await page.waitForFunction(colors=>JSON.stringify([...document.querySelectorAll('.mana-meter i')].map(i=>i.style.backgroundColor))===JSON.stringify(colors),expected)
       const state=await meter.evaluate(m=>{
-        const r=m.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'))
+        const r=m.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale')),sy=parseFloat(style.getPropertyValue('--hud-scale'))
         return {bounds:[Math.round(r.x/sx),Math.round(r.y/sy),Math.round(r.width/sx),Math.round(r.height/sy)],stripes:[...m.querySelectorAll('i')].map(i=>{const b=i.getBoundingClientRect();return [Math.round((b.x-r.x)/sx),Math.round((b.y-r.y)/sy),Math.round(b.width/sx),Math.round(b.height/sy)]})}
       })
       assert.deepEqual(state.bounds,[4,190,92,13])

@@ -42,6 +42,16 @@ export default function Home() {
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [volume, setVolume] = useState(0.35)
+  const [hudSize, setHudSize] = useState('auto')
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('hud-size')
+      // oxlint-disable-next-line react/set-state-in-effect -- Restore browser storage after hydration.
+      if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) setHudSize(saved)
+    } catch {
+      // Storage can be disabled; the size control still works for this session.
+    }
+  }, [])
   const [menu, setMenu] = useState(false)
   const [ready, setReady] = useState(false)
   const [desktopNotice, setDesktopNotice] = useState(true)
@@ -49,13 +59,16 @@ export default function Home() {
   const shell = useRef<HTMLElement>(null)
   useEffect(() => {
     const resize = () => {
-      shell.current?.style.setProperty('--hud-scale-x', String(window.innerWidth / 640))
-      shell.current?.style.setProperty('--hud-scale-y', String(window.innerHeight / 480))
+      // Scale artwork uniformly; extra screen height extends only the panel background.
+      const fit = Math.min(window.innerWidth / 640, window.innerHeight / 480)
+      const preferred =
+        hudSize === 'auto' ? Math.min(2.5, Math.max(1, Math.floor(fit * 2) / 2)) : Number(hudSize)
+      shell.current?.style.setProperty('--hud-scale', String(Math.min(preferred, fit)))
     }
     resize()
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
-  }, [])
+  }, [hudSize])
   const [hover, setHover] = useState<string | null>(null)
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
@@ -653,6 +666,29 @@ export default function Home() {
             Focus settlement
           </button>
         </div>
+        <label className="hud-settings">
+          HUD size
+          <select
+            aria-label="HUD size"
+            value={hudSize}
+            onChange={e => {
+              setHudSize(e.target.value)
+              try {
+                localStorage.setItem('hud-size', e.target.value)
+              } catch {
+                // Keep the session preference when storage is unavailable.
+              }
+            }}
+          >
+            <option value="auto">Automatic</option>
+            {[1, 1.5, 2, 2.5, 3, 4].map(size => (
+              <option key={size} value={size}>
+                {size * 100}%
+              </option>
+            ))}
+          </select>
+          <span>Fits your window without stretching.</span>
+        </label>
         <h3>Your powers, at a glance</h3>
         <div className="help-grid">
           <span>Click</span>

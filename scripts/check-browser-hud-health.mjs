@@ -8,7 +8,7 @@ try {
   await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;window.healthShaman=s.world.units.find(u=>u.kind==='shaman'&&u.team==='blue')})
   const meter=page.getByRole('meter',{name:'Shaman health',exact:true})
   const measurements=()=>meter.evaluate(m=>{
-    const r=m.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'))
+    const r=m.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale')),sy=parseFloat(style.getPropertyValue('--hud-scale'))
     const bg=m.querySelector('span'),fill=m.querySelector('i'),b=bg.getBoundingClientRect(),f=fill.getBoundingClientRect()
     return {x:Math.round(r.x/sx),y:Math.round(r.y/sy),w:Math.round(r.width/sx),h:Math.round(r.height/sy),background:getComputedStyle(bg).backgroundColor,color:getComputedStyle(fill).backgroundColor,
       top:Math.round((f.y-r.y)/sy),width:Math.round(f.width/sx),height:Math.round(f.height/sy),inner:[Math.round((b.x-r.x)/sx),Math.round((b.y-r.y)/sy),Math.round(b.width/sx),Math.round(b.height/sy)],frame:getComputedStyle(m).backgroundImage}

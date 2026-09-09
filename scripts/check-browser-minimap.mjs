@@ -26,9 +26,8 @@ try {
   ]) {
     await page.setViewportSize({ width, height })
     await page.waitForFunction(
-      width =>
-        document.querySelector('.native-hud').getBoundingClientRect().width === (width * 100) / 640,
-      width
+      scale => Math.abs(document.querySelector('.native-hud').getBoundingClientRect().width - scale * 100) < .1,
+      Math.min(2.5, Math.floor(Math.min(width / 640, height / 480) * 2) / 2)
     )
     for (const heading of [0, 256, 512, 1024]) {
       cases.push(
@@ -107,10 +106,12 @@ try {
       )
     }
   }
-  assert.equal(new Set(cases.map(c => c.screenHash)).size, cases.length)
+  // Equal HUD sizes intentionally produce identical maps on differently sized monitors.
+  const uniqueViews = new Set(cases.map(c => `${c.width}/${c.height}/${c.heading}`))
+  assert.equal(new Set(cases.map(c => c.screenHash)).size, uniqueViews.size)
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.waitForFunction(
-    () => document.querySelector('.native-hud').getBoundingClientRect().width === 225
+    () => document.querySelector('.native-hud').getBoundingClientRect().width === 200
   )
   // Real clicks use the displayed, rotated coordinates and preserve the bearing.
   const mini = page.getByLabel('Minimap. Click to move the camera.', { exact: true })

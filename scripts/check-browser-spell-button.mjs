@@ -27,7 +27,7 @@ try {
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
     const actual=await button.evaluate(b=>{
       const box=b.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),
-        sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'))
+        sx=parseFloat(style.getPropertyValue('--hud-scale')),sy=parseFloat(style.getPropertyValue('--hud-scale'))
       return {frame:getComputedStyle(b).borderImageSource,width:Math.round(box.width/sx),height:Math.round(box.height/sy),
         sprites:[...b.querySelectorAll('.spell-art .hud-sprite')].map(s=>{
           const r=s.getBoundingClientRect();return {position:getComputedStyle(s).backgroundPosition,x:Math.round((r.x-box.x)/sx),y:Math.round((r.y-box.y)/sy),w:Math.round(r.width/sx),h:Math.round(r.height/sy)}

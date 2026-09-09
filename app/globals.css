@@ -1,11 +1,11 @@
 @import 'tailwindcss';
 :root{font-family:Arial,sans-serif;color:#f1e4c1;font-size:12px}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#213a46}
-button,a,input{touch-action:manipulation}button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}button:disabled{cursor:default;opacity:.4}
-button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid white;outline-offset:1px}a{color:inherit}h1,h2,h3,p{margin:0}h1,h2,h3{font-family:Georgia,serif}kbd{font:10px Arial,sans-serif}
-.game-shell{--hud-scale-x:1;--hud-scale-y:1;--side:calc(100px * var(--hud-scale-x));height:100dvh;position:relative;isolation:isolate;overflow:hidden}
+button,a,input,select{touch-action:manipulation}button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}button:disabled{cursor:default;opacity:.4}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid white;outline-offset:1px}a{color:inherit}h1,h2,h3,p{margin:0}h1,h2,h3{font-family:Georgia,serif}kbd{font:10px Arial,sans-serif}
+.game-shell{--hud-scale:1;--side:calc(100px * var(--hud-scale));height:100dvh;position:relative;isolation:isolate;overflow:hidden}
 .world-viewport{position:absolute;inset:0 0 0 var(--side);background:#82a4b4}.world-viewport>canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}.world-vignette{display:none}
-.native-hud{position:absolute;left:0;top:0;width:100px;height:480px;transform:scale(var(--hud-scale-x),var(--hud-scale-y));transform-origin:top left;background:url('/original/hud-panel.png');color:#634535;z-index:4;image-rendering:pixelated}
+.native-hud{position:absolute;left:0;top:0;width:100px;height:calc(100dvh / var(--hud-scale));transform:scale(var(--hud-scale));transform-origin:top left;background:url('/original/hud-panel.png');color:#634535;z-index:4;image-rendering:pixelated}
 .hud-sprite{display:inline-block;flex:none;background-image:url('/original/hud.png');background-repeat:no-repeat;image-rendering:pixelated;vertical-align:top;pointer-events:none}
 .spell-pointer{position:absolute;pointer-events:none;z-index:6}.spell-pointer .hud-sprite{position:absolute}.spell-pointer [hidden]{display:none}
 .minimap-wrap{position:absolute;left:0;top:0;width:100px;height:99px;overflow:hidden;background:#142d38}
@@ -57,3 +57,5 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 
 .native-tooltip { position: absolute; z-index: 12; padding: 0; border: 4px solid transparent; border-image: url("/original/tooltip-border.png") 4 repeat; pointer-events: none; }
 .native-tooltip canvas { display: block; image-rendering: pixelated; }
+
+.hud-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.hud-settings select{font:inherit;color:#e9dcbb;background:#24291e;border:1px solid #a89667;padding:6px}.hud-settings span{font-size:11px}

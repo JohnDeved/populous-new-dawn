@@ -32,7 +32,7 @@ try {
   },{units,cases:fixture.cases.filter(c=>c.signature==='blue-shaman')})
   for(const size of [{width:1440,height:1000},{width:1280,height:720}]){
     await page.setViewportSize(size)
-    const bounds=await portrait.evaluate(b=>{const r=b.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'));return [Math.round(r.x/sx),Math.round(r.y/sy),Math.round(r.width/sx),Math.round(r.height/sy)]})
+    const bounds=await portrait.evaluate(b=>{const r=b.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale')),sy=parseFloat(style.getPropertyValue('--hud-scale'));return [Math.round(r.x/sx),Math.round(r.y/sy),Math.round(r.width/sx),Math.round(r.height/sy)]})
     assert.deepEqual(bounds,[33,114,30,35])
     await portrait.hover()
     const hover=await page.evaluate(()=>{const s=window.testScene;s.animate(s.previous);cancelAnimationFrame(s.frame);return [...s.portrait.getContext('2d').getImageData(35,116,1,1).data]})

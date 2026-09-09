@@ -933,13 +933,14 @@
               "id": "interface.hud.axis-scale",
               "title": "Independent desktop HUD X/Y coordinate scaling",
               "status": "verified",
-              "note": "64 original coordinate conversions and eight browser viewport sizes verify the 640\u00d7480 axis ratios and sidebar/health bounds within one native pixel. Exact integer control placement and resampling are explicitly outside this requirement.",
+              "note": "The original independent X/Y conversion is documented by 64 executable comparisons. Per user direction on 2026-09-09, the browser deliberately replaces aspect-ratio stretching with bounded uniform scaling, a saved size control and full-height panel background. Ten viewport checks preserve original logical health, portrait and minimap coordinates, verify renderer resizing and keep settings reachable. This modern compatibility correction earns no additional native credit. Exact integer placement and resampling remain separate.",
               "evidence": [
                 "app/page.tsx",
                 "app/globals.css",
                 "scripts/check-native-hud.py",
                 "scripts/check-browser-hud-scale.mjs",
-                "tests/fixtures/hud-scale.json"
+                "tests/fixtures/hud-scale.json",
+                "references/modern-performance.md"
               ]
             },
             {
@@ -997,7 +998,7 @@
               "id": "interface.hud.control-layout",
               "title": "Complete native control placement and rasterization across resolutions",
               "status": "partial",
-              "note": "Independent axis ratios are verified separately. Native integer rounding, all control rectangles, clipping, unavailable-state blending and per-pixel resampling still need original and browser comparisons.",
+              "note": "Original logical geometry and modern uniform sizing are checked separately. Complete control rectangles, clipping, unavailable-state blending and resampling still need original and browser comparisons. Native independent-axis stretching is intentionally replaced under the modern-display requirement.",
               "evidence": [
                 "app/page.tsx",
                 "app/globals.css",

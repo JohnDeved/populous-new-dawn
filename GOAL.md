@@ -16,7 +16,9 @@ tasks when a compatibility issue affects play.
 - **HUD and displays:** keep text, controls, markers and hit targets readable and
   aligned across ordinary desktop, widescreen, ultrawide, 1440p/4K and high-DPI
   displays. Test resizing and display-scale changes; prevent clipping, stretching,
-  overlap and unused or unreachable controls.
+  overlap and unused or unreachable controls. Supersede the legacy independent
+  HUD axis scaling from 06b07bd with uniform artwork proportions, bounded automatic
+  sizing and a saved user size preference; wider screens must gain battlefield space.
 - **Graphics:** fix aspect-ratio, projection, culling, picking, texture/buffer and
   precision problems exposed by wider or higher-resolution viewports. Native
   fixed-size allocations are evidence of the old implementation, not limits to
