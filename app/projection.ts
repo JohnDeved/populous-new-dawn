@@ -197,6 +197,25 @@ export function polygonMeshBounds(bounds: number[], heading: number) {
   return rows
 }
 
+// 0x467130 / 0x46d070: each cell belongs to the next vertex row;
+// its span includes the start column and excludes the end column.
+export function meshCellVisible(
+  bounds: number[][],
+  point: { x: number; y: number },
+  center: { x: number; y: number },
+  unwrapped = false
+) {
+  // Determine the cell before reducing coordinates to half-map precision.
+  // An odd camera coordinate must not move objects on a cell boundary.
+  const offset = (coordinate: number, origin: number) => {
+    const cell = (coordinate >> 9) - (origin >> 9)
+    return unwrapped ? cell : ((cell + 64) & 127) - 64
+  }
+  const x = offset(point.x, center.x) + 110,
+    span = bounds[offset(point.y, center.y) + 111]
+  return !!span && span[0] > 0 && x >= span[0] && x < span[1]
+}
+
 // 0x4673b0's eight-way VSTART offset, before tribe-specific animation selection.
 export function spriteDirection(cameraHeading: number, objectHeading: number) {
   return ((((cameraHeading << 16) >> 16) - ((objectHeading << 16) >> 16) - 0x380) & 0x700) >> 8

@@ -3958,3 +3958,45 @@ assignments and used a spread for DOM children while removing the scene's remain
 ox-standard errors; no new abstraction or dependency was added. Fallow still exposes
 legacy complexity/import debt. Browser camera and all 96 texture-filter samples
 pass, and the production build succeeds.
+
+
+## Native visible-cell boundaries — v136
+
+Recovered `00467130`'s ground-row traversal and its `0046d070` cell loop. A cell
+uses the following vertex row's bounds, and the column span is half-open. The
+browser instead used the current row and included the end column. It also reduced
+positions to half-map precision before determining the cell: odd camera coordinates
+could shift an exact boundary into its neighbor. Visibility now determines the
+512-unit cell first, with separate wrapped object and unwrapped terrain-copy paths.
+`RenderView.visible`, picking and the shared GPU visibility shader use these rules.
+An obsolete fractional-center uniform and unused model-world calculation were removed.
+
+`scripts/check-native-visible-cells.py EXE [--record]` executes native frame setup,
+row traversal and complete cell enumeration. Vertex projection and object consumers
+are intercepted, terrain polygon generation is bypassed through the native graphics
+flag/class branch, and execution stops before frame postprocessing. It compares
+64 traversals, 135,021 visited cells and all 1,048,576 cell-membership decisions
+across four resolution groups, four presets, eight headings and wrapped centers.
+The executable-bound portable fixture additionally checks four subcell positions
+and unwrapped equivalents. The new raw export brings the manifest to 951.
+
+The real shared shader and CPU view agree with 1,216 native-captured boundary
+probes. GPU probes deliberately fix screen projection so an offscreen point cannot
+hide a wrong visibility decision. Live scenery survives four rotations/rebuilds;
+ground interaction covers picking, four placement rotations, invalid rejection,
+placement and terrain invalidation. All 392 sprite poses/290 frames/93,898 colored
+pixels still match the existing atlas fixtures. The scenery regression now recreates
+close proximity explicitly: subsequent native building-anchor corrections had moved
+its original tree/hut pair outside the obsolete filter's radius.
+
+Scope: visible-cell membership, not full original occlusion. Cell concealment/reveal,
+object-specific flags and pool ownership, painter/depth ordering, native picking
+and matched whole frames remain open. Distant model darkening remains native;
+this change does not claim that the far silhouettes have been resolved. Next compare
+the native concealment/reveal gates in the playable first-mission views.
+
+Final validation: 136 portable tests, TypeScript/parity consistency, changed-file
+ESLint and focused ox-standard pass (existing warnings remain). Fallow reports
+85.0 maintainability and 2.8 average complexity, with existing three import cycles
+and unused dependencies. The production build succeeds. Known-scope coverage stays
+17/96 (17.7%), discovery stays open, and full game parity is unfinished.

@@ -77,8 +77,13 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare distant object visibility and occlusion with original
-captures in the playable normal (0), close (3) and bird's-eye (2) views. The v134
+**Next action:** inspect native cell concealment/reveal gates and compare distant
+object visibility/occlusion with original captures in the playable normal (0),
+close (3) and bird's-eye (2) views. Visible-cell membership now uses the following
+vertex row, half-open columns and full-coordinate cell determination. Native
+traversal comparisons cover 1,048,576 membership decisions; 1,216 GPU/CPU boundary
+probes, live ground interaction and all 392 sprite poses pass. Full concealment,
+painter/depth ordering and matched original frames remain open. The v134
 jagged-perimeter capture used preset 1, outside ordinary zoom controls; completed
 normal/close transitions did not reproduce those side gaps. Preserve native
 terrain bounds and model lighting until a comparison proves a difference.

@@ -459,3 +459,18 @@ terrain, palette and distant-model darkening are retained. Native sky coordinate
 UVs and fade comparisons plus real shader checks support this change; they do not
 prove a complete original-frame match. Investigate distant object visibility and
 occlusion in the playable presets next.
+
+
+## Cell visibility boundaries — v136
+
+Inspected `/private/tmp/populous-visible-cells-after.png` in normal view. The native
+sky and existing first-mission appearance remain intact. Corrected the shared
+visibility boundary after original traversal comparisons proved a one-row ownership
+offset, a half-open end column and an odd-coordinate rounding mismatch. The 1,216
+GPU boundary probes isolate the real visibility shader from projection; scenery,
+placement/picking and all 392 sprite poses also pass in the browser.
+
+The central first-mission frame still shows dark distant models. Boundary correctness
+does not establish complete original occlusion. Keep native lighting; next inspect
+cell concealment/reveal gates and compare the playable camera presets with original
+captures before changing the far silhouettes.

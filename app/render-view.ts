@@ -10,6 +10,7 @@ import {
   projectPoint,
   circularMeshBounds,
   polygonMeshBounds,
+  meshCellVisible,
   type Projection,
   type CameraConfig,
 } from './projection.ts'
@@ -64,6 +65,13 @@ vec4 nativeProject(ivec3 p){
  vec3 screen=nativeScreenPoint(p);
  return vec4(screen.x*2./float(nativeScreen.x)-1.,1.-screen.y*2./float(nativeScreen.y),screen.z/16384.-1.,1.);
 }
+vec2 nativeCellPoint(vec3 world){
+ ivec2 coordinate=ivec2(round(vec2(world.x+8.,-world.z-8.)*256.));
+ ivec2 center=nativeRelative>0.?nativeRawCenter:nativeCenter;
+ ivec2 cell=(coordinate>>9)-(center>>9);
+ if(nativeRelative<=0.)cell=((cell+64)&ivec2(127))-64;
+ return vec2(cell)+vec2(coordinate&ivec2(511))/512.;
+}
 ivec3 nativeOrigin(vec3 world){
  ivec2 coordinate=ivec2(round(vec2(world.x+8.,-world.z-8.)*256.));
  ivec2 relative=nativeRelative>0.?(coordinate-nativeRawCenter)>>1:ivec2(nativeDelta(coordinate.x,nativeCenter.x),nativeDelta(coordinate.y,nativeCenter.y));
@@ -81,23 +89,21 @@ vec4 nativePosition(vec3 position){
   ivec3 origin=nativeOrigin(modelMatrix[3].xyz);
   p=ivec3(nativeDot(scaled,nativeObjectBasis[0]),nativeDot(scaled,nativeObjectBasis[1]),nativeDot(scaled,nativeObjectBasis[2]))>>14;
   p+=origin;
-  nativeCell=vec2(origin.xz);
-  world=modelMatrix[3].xyz+vec3(p.x-origin.x,p.y-origin.y,-(p.z-origin.z))/128.;
- }else nativeCell=vec2(p.xz);
+  nativeCell=nativeCellPoint(modelMatrix[3].xyz);
+ }else nativeCell=nativeCellPoint(world);
  return nativeProject(p);
 }
 `
 const fragment = `
 uniform float nativeMode;
 uniform sampler2D nativeBounds;
-uniform vec2 nativeCellFraction;
 varying vec2 nativeCell;
 bool nativeCellVisible(){
- vec2 cell=(nativeCell+nativeCellFraction)/256.+110.;
- int row=int(floor(cell.y));
+ vec2 cell=nativeCell+110.;
+ int row=int(floor(cell.y))+1;
  if(row<0||row>=222)return false;
  vec2 span=texelFetch(nativeBounds,ivec2(row,0),0).rg;
- return span.x>0.&&cell.x>=span.x&&cell.x<=span.y;
+ return span.x>0.&&cell.x>=span.x&&cell.x<span.y;
 }
 `
 
@@ -132,7 +138,6 @@ export class RenderView {
     nativeRawCenter: { value: new Int32Array(2) },
     nativeMode: { value: 1 },
     nativeBounds: { value: this.boundsTexture },
-    nativeCellFraction: { value: new THREE.Vector2() },
   }
   update(
     width: number,
@@ -185,10 +190,6 @@ export class RenderView {
     this.uniforms.nativeCenter.value.set([this.center.x, this.center.y])
     this.uniforms.nativeMode.value = overview ? 0 : 1
     this.uniforms.nativeRawCenter.value.set([this.rawCenter.x, this.rawCenter.y])
-    this.uniforms.nativeCellFraction.value.set(
-      (this.center.x & 510) >> 1,
-      (this.center.y & 510) >> 1
-    )
   }
   relative(p: { x: number; z: number }, height: number, unwrapped = false) {
     const x = Math.round((p.x + 8) * 256),
@@ -213,11 +214,12 @@ export class RenderView {
   visible(p: { x: number; z: number }, unwrapped = false) {
     if (this.overview)
       return globeVisible(this.center, Math.round((p.x + 8) * 256), Math.round((-p.z - 8) * 256))
-    const q = this.relative(p, 0, unwrapped),
-      x = (q.x + ((this.center.x & 510) >> 1)) / 256 + 110,
-      row = Math.floor((q.z + ((this.center.y & 510) >> 1)) / 256) + 110
-    const span = this.bounds[row]
-    return !!span && span[0] > 0 && x >= span[0] && x <= span[1]
+    return meshCellVisible(
+      this.bounds,
+      { x: Math.round((p.x + 8) * 256), y: Math.round((-p.z - 8) * 256) },
+      unwrapped ? this.rawCenter : this.center,
+      unwrapped
+    )
   }
   project(p: { x: number; z: number }, height: number) {
     return projectPoint(this.relative(p, height), this.projection)

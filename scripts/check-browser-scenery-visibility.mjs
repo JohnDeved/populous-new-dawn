@@ -11,11 +11,21 @@ try {
     const t=w.trees.find(t=>t.id===3),b=w.buildings.find(b=>b.id===1)
     s.focus(t);s.updateView()
     window.nearHutTree=t
-    return {distance:Math.hypot(t.x-b.x,t.z-b.z),logs:t.logs,
+    // Native building anchors moved since this regression was introduced.
+    // Explicitly recreate close proximity so the removed distance filter
+    // remains covered without changing the original first-mission placement.
+    const original={x:b.x,z:b.z}
+    b.x=t.x+1;b.z=t.z
+    s.releaseGroup(s.decorations);s.decorations.clear();s.makeDecorations()
+    const crowded=s.decorations.children.some(g=>g.userData.point===t)
+    Object.assign(b,original)
+    s.releaseGroup(s.decorations);s.decorations.clear();s.makeDecorations()
+    return {crowded,tree:{x:t.x,z:t.z,id:t.id},building:{x:b.x,z:b.z,id:b.id},distance:Math.hypot(t.x-b.x,t.z-b.z),logs:t.logs,
       rendered:s.decorations.children.some(g=>g.userData.point===t)}
   })
-  assert.ok(state.distance<3.7 && state.logs>=1)
+  assert.ok(state.distance>3.7 && state.distance<5 && state.logs>=1,JSON.stringify(state))
   assert.ok(state.rendered,'original first-mission tree beside hut must have a mesh')
+  assert.ok(state.crowded,'a nearby building must not suppress the tree')
   const pixels = await page.evaluate(() => {
     const s=window.testScene,t=window.nearHutTree,result=[]
     for(let turn=0;turn<4;turn++) {
