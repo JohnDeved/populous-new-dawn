@@ -82,14 +82,16 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** trace native object-texture format selection and palette
-quantization, then compare matched first-mission frames. RGB edge preparation now
-follows the original row/column procedure in the existing RGBA8 import, with
-13,276 transparent texels prepared and 64 GPU samples checked. Four complete
-native initializations agree for 4444/1555 source patterns and padded rows.
-The selected texture format still matters: quantization can change whether a
-pixel is zero, particularly AL palette-zero colors. Keep this limitation explicit
-until format selection and its effect on the atlas are recovered. Model, cap, fire and debris UVs now use the original default
+**Next action:** compare matched first-mission frames and address the largest
+remaining visible differences in terrain/models, effects and HUD/controls.
+Object textures now use the native alpha-capable ARGB4444 selection, palette
+quantization and row/column edge preparation. The complete original selector
+passes 128 capability/availability cases; all 262,144 source-bank texels pass
+through original palette/AL conversion and edge initialization. 128 actual GPU
+samples cover prepared transparent colors, quantized visible colors and bilinear
+filtering. Alpha is unchanged. Hardware fallback selection is CPU-compared, but
+the browser currently targets the alpha-capable 4444 path; full settings/cache
+ownership and matched whole-frame fidelity remain open. Model, cap, fire and debris UVs now use the original default
 half-texel inset. Sixty final native UV submissions, all cap/debris comparisons,
 42 live models and 16 GPU tile-edge probes pass. Cache allocation/fallback, all
 graphics settings and full-frame fidelity remain open.

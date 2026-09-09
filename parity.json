@@ -610,7 +610,7 @@
               "id": "graphics.raster.texture-cache",
               "title": "Full original texture-cache and UV/fog fallback behavior",
               "status": "partial",
-              "note": "Default model, construction-cap, fire and debris UVs now use native half-texel centers. Sixty original submissions compare filtering, cache placement, cap/fractional/outside coordinates; 42 live models and 16 GPU tile-edge probes pass. Full cache allocation, fallback, fog and graphics-setting ownership remain open. Original row/column RGB edge expansion is now applied during RGBA8 object-atlas import. Four complete native 256-tile initializations compare 4444/1555 patterns and padded rows; 64 GPU samples and 7569 brighter scene pixels retain alpha. Native texture-format selection/quantization remains open and can change zero-pixel decisions, especially AL palette-zero texels; this does not complete cache/material parity.",
+              "note": "Default model, construction-cap, fire and debris UVs use native half-texel centers. Sixty original submissions compare filtering, cache placement and cap/fractional/outside coordinates; 42 live models and 16 GPU tile-edge probes pass. Object import now quantizes to the native alpha-capable ARGB4444 format before row/column RGB edge expansion. Compared 128 complete format selections and all 262,144 actual source texels through original palette/AL conversion and full edge initialization; 128 uploaded GPU samples retain quantized colors, transparent RGB and bilinear alpha. Four additional 4444/1555 pattern initializations retain padding and wrapper ownership. Full cache allocation/fallback, fog, live hardware/graphics-setting ownership and whole-frame fidelity remain open; the browser targets the 4444 path.",
               "evidence": [
                 "app/terrain-texture.ts",
                 "app/model-faces.ts",
@@ -621,7 +621,9 @@
                 "scripts/import-original.py",
                 "scripts/check-native-texture-edges.py",
                 "scripts/check-browser-texture-edges.mjs",
-                "tests/fixtures/texture-edges.json"
+                "tests/fixtures/texture-edges.json",
+                "decomp/generated/005218d0.c",
+                "decomp/generated/00521d90.c"
               ]
             },
             {

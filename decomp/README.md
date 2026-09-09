@@ -4326,3 +4326,40 @@ so especially AL-tile edge results cannot yet be claimed exact. Trace the native
 format selector next; full cache population/fallback, material states and matched
 original frames also remain open. The partial cache requirement gains evidence,
 not verification credit.
+
+## Object texture format and palette quantization — after v143
+
+This resolves the RGBA8 limitation described above for the native alpha-capable
+object path. Hardware initialization 00520cd0 classifies enumerated formats by
+channel bit counts. The complete selector 005218d0 chooses blended-object mode
+2 before test mode 4, then color-key mode 1; alpha modes prefer ARGB4444 and
+fall back to ARGB1555. Without either alpha format it uses the opaque format and
+color-key capability. Its separate cutout selection prefers 1555, with a
+device-capability override. Disassembly confirms 004b6e60 reads the blended
+object format at UI+0x1da8, rather than the misleading inferred `d3+0x6c` type.
+
+`check-native-texture-edges.py EXE` now executes all 128 combinations of
+capabilities, format availability and cutout override through the full selector.
+It then selects 4444 and runs the entire 256-tile initializer with the actual
+hash-checked bl320/palette/AL files. Surface lock/unlock, palette GetEntries,
+surface/cache creation and allocation are supplied; 0042f640, mask decoding
+00521d90, both original pixel converters and both edge loops execute unchanged.
+All 262,144 final texels agree with the imported PNG after normalized 4444
+decoding. The existing four synthetic 4444/1555 and padded-row cases still pass.
+
+The importer truncates each channel to four bits before edge preparation and
+expands it to normalized RGBA8 for browser storage. This changes 221,169 visible
+texels and prepares 17,245 transparent edge texels. Every alpha byte is retained.
+In particular, the original AL palette-zero RGB (13,15,6) becomes a zero word,
+allowing the native edge procedure to fill it. This removes the previous
+zero-word decision discrepancy without adding a runtime shader or loader.
+
+The browser regression checks 128 actual PNG/GPU center and bilinear samples,
+including visible quantized colors and transparent prepared colors. Compared
+with the same quantized atlas before edge preparation, 7,545 opening-scene
+pixels become brighter, none dimmer, with unchanged output opacity. This is an
+edge-preparation comparison, not a claim that quantization itself always brightens
+pixels. Real Lightning fire, model UVs, textured debris and sprite regressions
+remain the integration checks. The browser targets the alpha-capable 4444 path;
+hardware fallbacks, complete device enumeration, graphics-setting ownership,
+cache population/fallback and matched original whole frames remain open.

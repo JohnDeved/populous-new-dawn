@@ -31,9 +31,13 @@ def object_atlas(data, palette, alpha, alpha_tiles):
     return output
 
 
+def object_texture(pixels):
+    """0x5218d0 selects ARGB4444 for alpha-capable object textures; quantize before filtering."""
+    return object_texture_edges(bytes((value >> 4) * 17 for value in pixels))
+
+
 def object_texture_edges(pixels):
     """0x4b6e60: expand RGB into zero texels, rows then columns within each 32px tile."""
-    # ponytail: retain RGBA8 until native texture-format selection/quantization is recovered.
     assert len(pixels) == 256 * 1024 * 4
     pixels = bytearray(pixels)
     for tile in range(256):
@@ -119,7 +123,7 @@ def main():
     atlas = read('data/bl320-c.dat'); assert len(atlas) == 256*1024
     alpha=read('data/al0-c.dat');assert len(alpha)==65536
     rules=json.loads((project/'app/original-rules.json').read_text())
-    png(output/'atlas.png', 256, 1024, object_texture_edges(object_atlas(atlas,palette,alpha,rules['objectTextureAlpha'])))
+    png(output/'atlas.png', 256, 1024, object_texture(object_atlas(atlas,palette,alpha,rules['objectTextureAlpha'])))
     objects, faces, points = [read(f'objects/{n}0-{object_bank}.dat') for n in ['objs','facs','pnts']]
     shape_data=read('objects/shapes.dat')
     (project/'app/original-shapes.json').write_text(json.dumps(building_shapes(shape_data,objects),separators=(',',':'))+'\n')

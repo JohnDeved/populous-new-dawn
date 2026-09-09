@@ -6,11 +6,11 @@ import { NoBlending } from 'three'
 import { openGame } from './browser-game.mjs'
 import fixture from '../tests/fixtures/texture-edges.json' with { type: 'json' }
 import camera from '../app/original-camera.json' with { type: 'json' }
-import rules from '../app/original-rules.json' with { type: 'json' }
 
 const browser = await chromium.launch({ headless: true })
 try {
   assert.equal(fixture.executableSha256, camera.executableSha256)
+  assert.equal(fixture.format, 'ARGB4444')
   const { page, errors } = await openGame(browser)
   const response = await page.request.get(
     `${process.env.POPULOUS_URL ?? 'http://localhost:3000'}/original/atlas.png`
@@ -21,7 +21,7 @@ try {
       .digest('hex'),
     fixture.atlasSha256
   )
-  const visible = await page.evaluate(alphaTiles => {
+  const visible = await page.evaluate(() => {
     const s = window.testScene,
       r = s.renderer,
       gl = r.getContext()
@@ -69,10 +69,7 @@ try {
     }
     let texels = 0
     for (let i = 0; i < pixels.length; i += 4)
-      if (
-        !pixels[i + 3] &&
-        !alphaTiles[((1023 - Math.floor(i / 1024)) >> 5) * 8 + (((i / 4) % 256) >> 5)]
-      ) {
+      if (!pixels[i + 3]) {
         texels += Number(!!(pixels[i] || pixels[i + 1] || pixels[i + 2]))
         pixels.fill(0, i, i + 3)
       }
@@ -109,7 +106,7 @@ try {
       if (corrected[i + 3] !== before[i + 3]) throw Error('Edge preparation changed opacity')
     }
     return { texels, brighter, dimmer }
-  }, rules.objectTextureAlpha)
+  })
   assert.equal(visible.texels, fixture.changedTexels)
   assert.ok(visible.brighter > 100, JSON.stringify(visible))
   assert.equal(visible.dimmer, 0)
