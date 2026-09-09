@@ -4,18 +4,24 @@ import { writeFileSync } from 'node:fs'
 import { cpus, platform, arch } from 'node:os'
 import { chromium } from '@playwright/test'
 import { openGame, originalSkyShaders } from './browser-game.mjs'
+import { preparePainterBaseline, installPainterBaseline, painterBaselineCommit } from './painter-baseline.mjs'
 
-const browser = await chromium.launch({ headless: true })
+const headed = process.argv.includes('--headed')
+const comparePainter = process.argv.includes('--compare-painter')
+if (comparePainter) preparePainterBaseline()
+const browser = await chromium.launch({ headless: !headed })
 try {
   const { page, errors } = await openGame(browser),
     cdp = await page.context().newCDPSession(page)
+  if (comparePainter) await installPainterBaseline(page)
   await cdp.send('Profiler.enable')
   await cdp.send('Performance.enable')
   const fullTerrain = process.argv.includes('--full-terrain')
   const steppedCamera = process.argv.includes('--stepped-camera')
   const compareCamera = process.argv.includes('--compare-camera')
   const compareSky = process.argv.includes('--compare-sky')
-  assert.ok(!(compareSky && compareCamera), 'Compare one presentation change at a time')
+  assert.ok([compareSky, compareCamera, comparePainter].filter(Boolean).length <= 1,
+    'Compare one presentation change at a time')
   if (compareSky) {
     await page.setViewportSize({ width: 3440, height: 1440 })
     await page.waitForFunction(() => window.testScene.container.clientWidth === 3190)
@@ -57,12 +63,19 @@ try {
       userAgent: navigator.userAgent,
       viewport: [innerWidth, innerHeight],
       pixelRatio: devicePixelRatio,
+      screen: { width: screen.width, height: screen.height, availableWidth: screen.availWidth, availableHeight: screen.availHeight },
       renderer: info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
     }
   }, fullTerrain)
   const runs = []
-  const scenarios = compareSky ? Array(6).fill('opening') : compareCamera ? Array(6).fill('camera') : ['opening', 'camera', 'crowd']
+  let crowdAdded = false
+  const scenarios = comparePainter ? ['opening', 'camera', 'crowd'].flatMap(s => Array(6).fill(s))
+    : compareSky ? Array(6).fill('opening') : compareCamera ? Array(6).fill('camera') : ['opening', 'camera', 'crowd']
   for (const [index, scenario] of scenarios.entries()) {
+    // Release the previous run before resetting its pose; RAF can run between awaits.
+    await page.keyboard.up('q')
+    const optimizedPainter = comparePainter ? [false, true, true, false, false, true][index % 6] : true
+    if (comparePainter) await page.evaluate(optimized => window.selectPainter(optimized), optimizedPainter)
     const coveredSky = compareSky ? [false, true, true, false, false, true][index] : true
     if (compareSky)
       await page.evaluate(covered => {
@@ -75,7 +88,7 @@ try {
     const smoothCamera = compareCamera
       ? [false, true, true, false, false, true][index]
       : !steppedCamera
-    if (compareCamera)
+    if (compareCamera || comparePainter)
       await page.evaluate(smooth => {
         const s = window.testScene
         s.previewCamera = smooth ? window.originalCameraPreview : () => false
@@ -86,8 +99,8 @@ try {
         s.focus({ x: 2, z: 30 })
       }, smoothCamera)
     if (scenario === 'camera') await page.keyboard.down('q')
-    if (scenario === 'crowd') {
-      await page.keyboard.up('q')
+    if (scenario === 'crowd' && !crowdAdded) {
+      crowdAdded = true
       await page.evaluate(async () => {
         const s = window.testScene,
           { addUnit } = await import('/app/model.ts')
@@ -126,6 +139,7 @@ try {
       scenario,
       smoothCamera,
       coveredSky,
+      optimizedPainter,
       ...data,
       frames: undefined,
       frameCount: data.frames.length,
@@ -159,15 +173,18 @@ try {
   assert.deepEqual(errors, [])
   const report = {
     date: new Date().toISOString(),
+    headed,
     fullTerrain,
     steppedCamera,
     compareCamera,
     compareSky,
+    comparePainter,
+    painterBaselineCommit: comparePainter ? painterBaselineCommit : undefined,
     runtime: process.version,
     cpu: cpus()[0].model,
     os: platform(),
     arch: arch(),
-    mode: 'Headless Chromium, 1 second settling and 4 second CPU sample per scenario; crowd adds 200 stationary braves for renderer stress',
+    mode: `${headed ? 'Headed' : 'Headless'} Chromium, 1 second settling and 4 second CPU sample per scenario; crowd adds 200 stationary braves for renderer stress`,
     ...environment,
     runs,
   }

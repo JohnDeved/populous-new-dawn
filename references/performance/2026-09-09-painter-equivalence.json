@@ -1,0 +1,247 @@
+{
+  "baseline": "b69306d1524258cd9b04db2ebee5305133f2961c",
+  "cases": [
+    {
+      "name": "view 2/30/0/0",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "view 2/30/256/0",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 68199,
+        "pick": {
+          "x": -3.7957166392092176,
+          "z": 35.79571663920922
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 68199,
+        "pick": {
+          "x": -3.7957166392092176,
+          "z": 35.79571663920922
+        }
+      }
+    },
+    {
+      "name": "view 2/30/512/0",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 69405,
+        "pick": {
+          "x": -6.186379928315432,
+          "z": 30
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 69405,
+        "pick": {
+          "x": -6.186379928315432,
+          "z": 30
+        }
+      }
+    },
+    {
+      "name": "view 127/-127/1024/0",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 127.01443724219212,
+          "z": 121.28227754861518
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 127.01443724219212,
+          "z": 121.28227754861518
+        }
+      }
+    },
+    {
+      "name": "view -127/127/1536/2",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 37149,
+        "pick": {
+          "x": -119.38878701263349,
+          "z": 126.98570350297587
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 37149,
+        "pick": {
+          "x": -119.38878701263349,
+          "z": 126.98570350297587
+        }
+      }
+    },
+    {
+      "name": "view 2/30/0/4",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 37149,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 37149,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "warm terrain cache",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "terrain deformation invalidates centers",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 1.9979062337446294,
+          "z": 38.29322884765139
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 1.9979062337446294,
+          "z": 38.29322884765139
+        }
+      }
+    },
+    {
+      "name": "replacement position attribute",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 2.007763488080286,
+          "z": 37.735369728874616
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 2.007763488080286,
+          "z": 37.735369728874616
+        }
+      }
+    },
+    {
+      "name": "transforms and model headings change with cached centers",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 1.9925518036957897,
+          "z": 39.12681771136556
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 68613,
+        "pick": {
+          "x": 1.9925518036957897,
+          "z": 39.12681771136556
+        }
+      }
+    },
+    {
+      "name": "overview bypass",
+      "depthSlots": 297984,
+      "changedDepths": 0,
+      "changedPixels": 0,
+      "before": {
+        "calls": 79,
+        "triangles": 297429,
+        "pick": {
+          "x": 2,
+          "z": 30
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 297429,
+        "pick": {
+          "x": 2,
+          "z": 30
+        }
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@ experienced-player expectations while improving performance and presentation.
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
 | High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Units, flybys, globe motion, transitions and result cameras still need smoothing. |
 | Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
-| Models, sprites, painter and effects | Profiled | Painter traversal now skips unsubmitted terrain faces.  Measure submissions, batching, geometry updates, allocations and resource lifetime; retain native draw/sprite regressions. |
+| Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers and per-model anchor checks preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Per-vertex projection, sorting, sprite draw calls and resource lifetime remain to review. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
 | Audio and presentation timing | Read review; issues open | WebAudio owns sample duration and pitch; buffers are cached and ended nodes disconnect. Simulation sounds still drain once per render, so catch-up events can bunch. Cloud wind/half-heading drift is corrected below; full presentation-event scheduling remains open. |
@@ -440,3 +440,81 @@ not measure GPU drawing, whole-game frame time or hardware FPS. The correction
 introduces no draw pass, shader, texture or geometry. The existing grid calculation
 already takes only a few microseconds here, so further caching is not justified
 by this measurement; larger render-loop costs remain the performance priority.
+
+## Painter geometry work on the Mac GPU
+
+The [headed hardware baseline](performance/2026-09-09-hardware-baseline.json)
+identifies painter processing as the largest sampled JS cost in opening, rotating
+camera and 215-person scenes. Unlike the earlier SwiftShader runs, Chromium reports
+`ANGLE Metal Renderer: Apple M5`. The viewport and browser-reported screen are
+Playwright-emulated 1440×1000 at DPR 1; these values do not establish the physical
+monitor's resolution or refresh rate. This is the development build with Chrome's
+CPU sampler enabled, not a production performance certification.
+
+`Painter` now retains local triangle centers by position-attribute identity and
+version. Geometry edits invalidate them, replacement attributes start fresh, and
+weak keys release the cache when source attributes become unreachable. Float64
+centers preserve the previous JS addition order and precision before native cell
+rounding. The terrain cache retains 786,432 bytes (0.75 MiB); it is CPU-only and
+adds no GPU buffer, upload, draw or triangle. Native models test their common
+anchor's visibility once per instance instead of once per face. Transforms,
+projection, native buckets, cell/object/face ordering and alpha handling are still
+computed from the live state. Simulation, inputs and animation clocks are untouched.
+
+`check-browser-painter-work.mjs` compares the retained browser implementation from
+`b69306d1524258cd9b04db2ebee5305133f2961c` with the current painter in the same scene.
+All depth slots, RGBA bytes, draw counts, triangle counts and center picks agree in
+11 cases: six heading/zoom/seam poses, a warm cache, terrain deformation, attribute
+replacement, changed transforms/model headings and overview bypass. The baseline
+is reconstructed from Git into ignored `.tools/performance/` by a shared test
+helper; it is not shipped. [Raw comparison](performance/2026-09-09-painter-equivalence.json).
+A portable check covers cache reuse, float precision, interleaved positions and
+attribute-version invalidation.
+
+The native executable comparison still passes 70 mixed queues / 1,036 triangles,
+774 deferred alpha records and 55 model-bias arrays. All twelve native GPU overlap
+cases, eight sprite overlaps, four interleaved mesh/sprite overlaps, eight native
+cell/pass ties and 392 sprite poses pass. Typecheck, all 149 portable tests, parity
+consistency and production build pass. Selected source lint has no errors; Fallow
+reports maintainability 85.8, average cyclomatic 2.8 and p90 5. Existing lint
+warnings, three dependency cycles and three unused dependencies remain.
+
+Reproduce the alternating whole-frame comparison with:
+
+```
+node scripts/profile-game.mjs --headed --compare-painter /tmp/painter-paired.json
+```
+
+Each opening/camera/crowd workload runs six samples in old/new/new/old/old/new order,
+with one second settling and four seconds profiling each. Camera input is released
+before resetting each run's pose so a pending RAF cannot rotate the next static
+workload. The crowd adds 200 stationary braves once. Static comparison scenarios
+freeze simulation; camera samples hold Q. Both implementations share the current
+sky, camera, sprite and terrain-submission code.
+
+[Raw corrected paired hardware report](performance/2026-09-09-painter-hardware-paired.json),
+Apple M5/macOS arm64, Node 24.18, headed Chrome 153/Metal, 1440×1000/DPR 1.
+The table takes the median of each mode's three per-run statistics:
+
+| Workload | Before CPU median / p95 | Current CPU median / p95 | Before / current frame-gap p95 | Draw calls |
+| --- | ---: | ---: | ---: | ---: |
+| Opening | 5.0 / 5.8 ms | 4.2 / 4.9 ms | 7.7 / 7.3 ms | 79 / 79 |
+| Rotating camera | 5.4 / 6.2 ms | 4.4 / 5.2 ms | 7.8 / 7.4 ms | 79 / 79 |
+| 215-person crowd | 7.1 / 8.2 ms | 6.3 / 7.3 ms | 10.7 / 8.0 ms | 479 / 479 |
+
+Median JS frame work falls by 16%, 19% and 11% respectively. Static submission
+counts are identical in every run: 68,613 opening and 69,413 crowd triangles.
+Camera triangle medians vary with sampled headings (68,955–69,099); the separate
+fixed-pose comparison verifies exact equality. Both implementations retain the
+same GPU drawing and shader paths. The benchmark samples whole JS frames and RAF
+gaps, not GPU execution time or physical display presentation. It does not prove
+those monitors can display the inferred frame rate, or certify 4K/high-DPI loads.
+
+Long frames remain: current runs include maximum gaps of 43–110 ms, and the last
+crowd run's maximum exceeds the baseline runs despite better median/p95 costs.
+Do not report this as a complete stutter fix. Painter vertex projection/visibility
+and command sorting remain major costs; the crowd still issues 479 draw calls.
+Unit motion smoothing, larger gameplay/effect workloads, production profiling,
+resource-lifetime measurement and the other audit rows remain open. This removes
+redundant browser work while preserving the existing parity boundary, so it adds
+no native completion credit.

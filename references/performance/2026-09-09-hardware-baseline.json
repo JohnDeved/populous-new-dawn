@@ -1,0 +1,298 @@
+{
+  "date": "2026-09-09T17:31:27.983Z",
+  "headed": true,
+  "fullTerrain": false,
+  "steppedCamera": false,
+  "compareCamera": false,
+  "compareSky": false,
+  "runtime": "v24.18.0",
+  "cpu": "Apple M5",
+  "os": "darwin",
+  "arch": "arm64",
+  "mode": "Headed Chromium, 1 second settling and 4 second CPU sample per scenario; crowd adds 200 stationary braves for renderer stress",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "pixelRatio": 1,
+  "screen": {
+    "width": 1440,
+    "height": 1000,
+    "availableWidth": 1440,
+    "availableHeight": 1000
+  },
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+  "runs": [
+    {
+      "scenario": "opening",
+      "smoothCamera": true,
+      "coveredSky": true,
+      "units": 15,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "frameCount": 728,
+      "frameGapMs": {
+        "p50": 4,
+        "p95": 7.399999999999636,
+        "max": 243
+      },
+      "cpuFrameMs": {
+        "p50": 4.799999952316284,
+        "p95": 6.700000047683716
+      },
+      "drawCalls": 86,
+      "triangles": 68627,
+      "heapBytes": 197609992,
+      "topSelfMs": [
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 1315.299
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 418.638
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 323.411
+        },
+        {
+          "name": "(program) :0",
+          "ms": 284.293
+        },
+        {
+          "name": "texSubImage2D :0",
+          "ms": 181.361
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 148.006
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 99.047
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 87.081
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 76.072
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 75.356
+        },
+        {
+          "name": "getProgramInfoLog :0",
+          "ms": 75.004
+        },
+        {
+          "name": "updateWater app/scene.ts:1354",
+          "ms": 63.702
+        },
+        {
+          "name": "add http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4166",
+          "ms": 61.162
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 60.751
+        },
+        {
+          "name": "fromBufferAttribute http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4894",
+          "ms": 56.059
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 47.772
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "smoothCamera": true,
+      "coveredSky": true,
+      "units": 15,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "frameCount": 736,
+      "frameGapMs": {
+        "p50": 6.399999999997817,
+        "p95": 7.700000000000728,
+        "max": 71.5
+      },
+      "cpuFrameMs": {
+        "p50": 5,
+        "p95": 7.200000047683716
+      },
+      "drawCalls": 79,
+      "triangles": 69045,
+      "heapBytes": 66562152,
+      "topSelfMs": [
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 1026.089
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 546.623
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 239.053
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 232.282
+        },
+        {
+          "name": "(program) :0",
+          "ms": 159.757
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 155.139
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 152.732
+        },
+        {
+          "name": "add http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4166",
+          "ms": 139.469
+        },
+        {
+          "name": "fromBufferAttribute http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4894",
+          "ms": 130.16
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 85.783
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 78.125
+        },
+        {
+          "name": "updateWater app/scene.ts:1354",
+          "ms": 71.896
+        },
+        {
+          "name": "scene.onBeforeRender app/render-view.ts:348",
+          "ms": 62.708
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 53.703
+        },
+        {
+          "name": "getY http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12890",
+          "ms": 46.819
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 43.777
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "smoothCamera": true,
+      "coveredSky": true,
+      "units": 215,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "frameCount": 529,
+      "frameGapMs": {
+        "p50": 7.200000000000728,
+        "p95": 10.700000000000728,
+        "max": 103.80000000000291
+      },
+      "cpuFrameMs": {
+        "p50": 7.299999952316284,
+        "p95": 8
+      },
+      "drawCalls": 479,
+      "triangles": 69863,
+      "heapBytes": 143435840,
+      "topSelfMs": [
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 797.191
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 438.295
+        },
+        {
+          "name": "(program) :0",
+          "ms": 200.904
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 164.159
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 156.733
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 147.32
+        },
+        {
+          "name": "add http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4166",
+          "ms": 118.881
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 102.505
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 90.168
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:566",
+          "ms": 84.596
+        },
+        {
+          "name": "fromBufferAttribute http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4894",
+          "ms": 84.208
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 79.362
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 75.987
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 62.644
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 57.195
+        },
+        {
+          "name": "multiplyMatrices http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:8110",
+          "ms": 52.718
+        }
+      ]
+    }
+  ]
+}

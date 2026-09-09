@@ -25,6 +25,10 @@ export class Painter {
   view: RenderView
   landFlags: Uint32Array = new Uint32Array(16384)
   cells?: ObjectCells
+  centers = new WeakMap<
+    THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+    { version: number; positions: THREE.BufferAttribute }
+  >()
   ranges = new WeakMap<THREE.Object3D, [number, number]>()
   transparentMeshes: {
     mesh: THREE.Mesh
@@ -34,6 +38,26 @@ export class Painter {
   texture = new THREE.DataTexture(new Float32Array(1024), 1024, 1, THREE.RedFormat, THREE.FloatType)
   constructor(view: RenderView) {
     this.view = view
+  }
+
+  triangleCenters(position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute) {
+    const version = 'data' in position ? position.data.version : position.version
+    let cached = this.centers.get(position)
+    if (!cached || cached.version !== version) {
+      // Retain JS precision: float32 centers can cross native cell boundaries.
+      const positions = new THREE.BufferAttribute(new Float64Array(position.count), 3),
+        center = new THREE.Vector3(),
+        vertex = new THREE.Vector3()
+      for (let i = 0; i < position.count; i += 3) {
+        center.set(0, 0, 0)
+        for (let j = 0; j < 3; j++) center.add(vertex.fromBufferAttribute(position, i + j))
+        center.multiplyScalar(1 / 3)
+        positions.setXYZ(i / 3, center.x, center.y, center.z)
+      }
+      cached = { version, positions }
+      this.centers.set(position, cached)
+    }
+    return cached.positions
   }
 
   update(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
@@ -83,6 +107,7 @@ export class Painter {
       const index = geometry.index,
         submitted = index ? Math.min(index.count, geometry.drawRange.count) / 3 : triangles
       const scale = object.userData.nativeScale as number | undefined
+      const centers = sprite || scale ? null : this.triangleCenters(position)
       const group = object.parent!,
         metadata = group.userData
       const id = metadata.unit ?? metadata.building ?? metadata.shrine ?? metadata.point?.id
@@ -106,16 +131,15 @@ export class Painter {
         }
         const origin = new THREE.Vector3().setFromMatrixPosition(transform)
         const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
+        // Every face of a native model uses the same anchor cell.
+        if ((sprite || scale) && !view.visible(origin, unwrapped)) continue
         for (let face = 0; face < submitted; face++) {
           const triangle = index ? index.getX(face * 3) / 3 : face
           if (sprite || scale) anchor.copy(origin)
           else {
-            anchor.set(0, 0, 0)
-            for (let j = 0; j < 3; j++)
-              anchor.add(world.fromBufferAttribute(position, triangle * 3 + j))
-            anchor.multiplyScalar(1 / 3).applyMatrix4(transform)
+            anchor.fromBufferAttribute(centers!, triangle).applyMatrix4(transform)
+            if (!view.visible(anchor, unwrapped)) continue
           }
-          if (!view.visible(anchor, unwrapped)) continue
           const x = Math.round((anchor.x + 8) * 256),
             y = Math.round((-anchor.z - 8) * 256)
           const center = unwrapped ? view.rawCenter : view.center

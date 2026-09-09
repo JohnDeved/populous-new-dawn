@@ -567,14 +567,17 @@
               "id": "graphics.raster.primitive-order",
               "title": "Mixed triangle bucket and constant-depth primitives",
               "status": "verified",
-              "note": "Original ground/model buckets, raised flags, signed model/face biases and constant float32 command depths are integrated in the shared renderer. All 1,036 captured triangles and twelve browser overlap cases agree, including shared source materials. Complete source submission ownership and whole-frame fidelity are separate unfinished requirements.",
+              "note": "Original ground/model buckets, raised flags, signed model/face biases and constant float32 command depths are integrated in the shared renderer. All 1,036 captured triangles and twelve browser overlap cases agree, including shared source materials. Complete source submission ownership and whole-frame fidelity are separate unfinished requirements. Modern performance: retained triangle centers and one model-anchor visibility check preserve all painter slots, GPU pixels and picking in eleven compared browser cases, including geometry invalidation. Native overlap and sprite regressions still pass; this optimization adds no native-parity credit. Hardware measurements and remaining costs are tracked in the modernization audit.",
               "evidence": [
                 "scripts/check-native-painter-order.py",
                 "scripts/check-browser-painter-order.mjs",
                 "app/painter-order.ts",
                 "app/painter.ts",
                 "tests/painter-order.test.mjs",
-                "tests/fixtures/painter-order.json"
+                "tests/fixtures/painter-order.json",
+                "scripts/check-browser-painter-work.mjs",
+                "tests/painter-centers.test.mjs",
+                "references/modern-performance.md"
               ]
             },
             {
