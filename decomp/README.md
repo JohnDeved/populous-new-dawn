@@ -4022,3 +4022,39 @@ Seven retained exports document the header/load paths; there are now 958 verifie
 exports. No runtime implementation changed and v136 remains the playable build.
 Other missions, saved/editor/multiplayer overrides, cell reveal, concealment bytes
 and complete occlusion remain open. Next compare native painter/depth ordering.
+
+
+## Native polygon ordering captured — after v136
+
+`check-native-painter-order.py EXE [--record]` captures 70 mixed ground/model
+queues and 1,036 triangles into `tests/fixtures/painter-order.json`. Complete
+`0046e930` (ground) and `004718c0` (model) enqueue routines execute, followed by
+`004673b0`, `0047d8a0`, `0047c7e0` and the final triangle emitter `004f9380`.
+Texture-cache records are supplied, the batch receiver is redirected to allocated
+storage, and the three cache-maintenance calls from `0047c7e0` are skipped.
+The capture includes queue buckets/order, each final triangle's constant depth,
+rhw=1 and output indices. Re-running without `--record` verifies the stored
+executable-bound capture. This does not emulate original hardware rasterization,
+full model/terrain traversal, texture batching, alpha passes or an entire frame.
+
+Buckets run from 0xe00 down to zero; their linked lists prepend new polygons.
+Equal-bucket polygons therefore draw in reverse insertion order. `0047c7e0`
+assigns successively nearer depths to the resulting commands; `004f9380` copies
+one command depth into all three vertices. Geometric depth is not interpolated
+across their screen coverage. Ground flag 0x40 adds 0x100 before bucket division;
+model bias is applied after division. `004708d0` derives model bias from both
+object and face records; the current importer does not retain these fields.
+Original quad model faces are submitted as two individually bucketed triangles.
+
+`node scripts/check-browser-painter-order.mjs` compares six captured pairs with
+the actual shared native-position shader. It holds screen coverage fixed,
+retains live geometric depth for the current pass, and replays captured native
+constant depths for the reference pass. The native pass selects the expected
+winner at all 38,646 fully covered pixels; the current pass differs at 30,231.
+Multisample edges are excluded. `--require-parity` deliberately fails while that
+live-renderer discrepancy remains. It is a diagnostic, not an integration pass.
+
+There are 959 verified exports. No runtime change is included in this capture;
+v136 remains live. Integrate mixed command ordering, biases and tie ownership
+before claiming this gap fixed. Full-scene native submission, clipping, alpha
+passes, picking and matched first-mission frames remain unverified.

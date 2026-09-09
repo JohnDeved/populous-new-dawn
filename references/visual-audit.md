@@ -484,3 +484,16 @@ distant models would contradict that evidence. No rendering was changed by this
 audit; the v136 capture and playable build remain the baseline. Compare native
 polygon depth buckets/painter order next; complete first-mission frame fidelity
 is still unverified.
+
+
+## Polygon-depth discrepancy reproduced — after v136
+
+Six isolated browser overlap comparisons now reproduce a concrete renderer gap:
+30,231 of 38,646 fully covered pixels differ from captured native command depth.
+`check-browser-painter-order.mjs --require-parity` exposes the known failure.
+Original triangle depths are constant after bucket sorting and reverse insertion
+ties; the current shader interpolates geometric depth. Ground/model biases also
+matter. See `decomp/README.md` and `tests/fixtures/painter-order.json` for scope.
+This is controlled overlap evidence, not a matched first-mission screenshot;
+distant silhouettes remain unexplained. Next integrate shared polygon ordering
+and compare the playable camera views without changing native lighting or fog.

@@ -4655,3 +4655,13 @@ See `decomp/README.md` for exact instruction spans and the loader-scope limit.
 There are 958 verified exports. No runtime change was warranted; distant object
 silhouettes now require painter/depth comparison. Full reveal/concealment ownership
 remains required for other modes and missions.
+
+
+## Mixed polygon order — after v136
+
+New complete native queue/batch/triangle captures cover 70 queues and 1,036
+triangles. They establish reverse insertion ties, constant raster depth and
+terrain/model bias placement. The corresponding browser diagnostic finds 30,231
+interior pixel differences across six controlled overlaps. Exact routine/hook
+scope and commands are recorded in `decomp/README.md`. Full renderer integration
+remains open; this evidence does not add verified game-parity credit.

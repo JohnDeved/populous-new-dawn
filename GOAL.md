@@ -77,8 +77,16 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare native polygon depth buckets/painter ordering and distant
-object occlusion in the playable normal (0), close (3) and bird's-eye (2) views.
+**Next action:** integrate the native polygon ordering into the shared renderer,
+then compare terrain, models, sprites and picking in playable normal (0), close
+(3) and bird's-eye (2) views. The native mixed-queue capture now proves constant
+triangle depths, far-to-near buckets, reverse insertion ties and terrain/model
+biases. The live shader disagrees in six isolated overlap cases (30,231 interior
+pixels); `node scripts/check-browser-painter-order.mjs --require-parity` exposes
+this known failure. Preserve original cell/object submission order and model
+face biases; sorting whole Three objects or changing only model depth would not
+recreate the mixed queue. This diagnostic does not yet explain whole-frame
+silhouettes or establish original-frame occlusion.
 The supplied first-mission header and native loader forwarding/selection agree
 that its fog flags are zero; 768 flag/override cases and the live initial world
 are checked. Preserve that setting. Full concealment/reveal ownership for other
