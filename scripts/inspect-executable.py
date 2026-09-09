@@ -62,6 +62,7 @@ if len(sys.argv)>2:
     rules['buildingCapacity']=[value(0x5a7228+i*76+32,1) for i in range(20)]
     rules['buildingTrainedModel']=[value(0x5a7228+i*76+49,1) for i in range(20)]
     rules['buildingMaxWorkers']=[value(0x5a7228+i*76+20,2) for i in range(20)]
+    rules['buildingMinWorkers']=[value(0x5a7228+i*76+18,2) for i in range(20)]
     rules['buildingLife']=[value(0x5a7228+i*76+26,2) for i in range(20)]
     rules['buildingDamageThreshold']=[value(0x5a7228+i*76+46,2) for i in range(20)]
     rules['buildingRepairDelay']=value(0x5aa4fc)

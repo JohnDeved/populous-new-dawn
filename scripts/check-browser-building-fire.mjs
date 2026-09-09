@@ -66,6 +66,7 @@ try {
   })
   assert.equal(await page.evaluate(() => window.burningBuilding.damageState.plan.remaining), 200)
   assert.ok(await page.evaluate(() => window.testScene.world.effects.some(f => f.smoke)))
+  await page.evaluate(() => { window.repairSmokeTemplate = structuredClone(window.testScene.world.effects.find(f => f.smoke)) })
   await page.screenshot({ path: '/private/tmp/populous-building-fire-damaged.png' })
   await page.evaluate(() => { window.testScene.world.speed = 1 })
   await page.waitForFunction(() => {
@@ -94,8 +95,53 @@ try {
   assert.equal(await page.evaluate(() => window.buildingVoiceStarted), true)
   await page.waitForFunction(() => window.buildingVoiceEnded)
   assert.equal(await page.evaluate(() => window.testScene.ownedSounds.has(window.burningBuilding.id)), false)
+  await page.evaluate(() => {
+    const s=window.testScene,w=s.world
+    w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2).map(u=>u.id)
+    s.onChange()
+  })
+  await page.mouse.click(target.x,target.y,{button:'right'})
+  assert.ok(await page.evaluate(()=>window.burningBuilding.damageState.plan.repairDelay>1000))
+  await page.evaluate(()=>{window.testScene.world.speed=4})
+  await page.waitForFunction(()=>{
+    if(window.burningBuilding.damageState.plan.repairDelay>900)return false
+    window.testScene.world.speed=0;return true
+  })
+  assert.equal(await page.evaluate(()=>window.burningBuilding.progress),2/3)
+  assert.equal(await page.evaluate(()=>window.testScene.world.units.filter(u=>u.work===window.burningBuilding.id).length),2)
+  assert.ok(await page.evaluate(()=>window.testScene.world.units.filter(u=>u.work===window.burningBuilding.id).every(u=>u.tree===null&&!u.cargo)))
+  await page.screenshot({path:'/private/tmp/populous-repair-waiting.png'})
+  await page.evaluate(()=>{window.testScene.world.speed=4})
+  await page.waitForFunction(()=>{
+    const delay=window.burningBuilding.damageState.plan.repairDelay
+    if(delay>8||delay<1)return false
+    window.testScene.world.speed=0;return true
+  },null,{timeout:45000})
+  // A fresh smoke fixture exercises the cleanup consumer at actual repair resumption.
+  // Smoke from the initial fire normally expires before the full holdoff ends.
+  const smokeId=await page.evaluate(()=>{
+    const w=window.testScene.world,fx=window.repairSmokeTemplate
+    fx.id=w.nextId++;Object.assign(fx.smoke,{lifetime:100,scaleX:256,scaleY:256});window.repairSmoke=fx;w.effects.push(fx)
+    return fx.id
+  })
+  await page.waitForFunction(id=>window.testScene.fxMeshes.has(id),smokeId)
+  const smokePixels=await effectPixels(page,[smokeId])
+  assert.ok(smokePixels>20,`Repair smoke rendered only ${smokePixels} pixels`)
+  await page.evaluate(()=>{window.testScene.world.speed=4})
+  await page.waitForFunction(()=>{
+    if(window.burningBuilding.damageState.plan.repairDelay!==0)return false
+    window.testScene.world.speed=0;return true
+  })
+  const resumed=await page.evaluate(()=>({life:window.repairSmoke.smoke.lifetime,fetching:window.testScene.world.units.filter(u=>u.work===window.burningBuilding.id&&u.builder?.task===7).length}))
+  assert.ok(resumed.life>0&&resumed.life<=16,JSON.stringify(resumed))
+  assert.equal(resumed.fetching,1,'two builders dispatch one hauler after the holdoff')
+  await page.evaluate(()=>{window.testScene.world.speed=4})
+  await page.waitForFunction(()=>window.burningBuilding.progress===1)
+  assert.ok(await page.evaluate(()=>!window.testScene.world.effects.includes(window.repairSmoke)))
+  assert.equal(await page.evaluate(()=>window.burningBuilding.damageState.state),2)
+  await page.screenshot({path:'/private/tmp/populous-repair-complete.png'})
   assert.deepEqual(errors, [])
-  console.log(`PASS: real Lightning building hit, ${ids.length} original fire sockets (${pixels} GPU pixels), scale/grounding, timed structural damage, smoke, cleanup and owned voice cancellation; no browser errors`)
+  console.log(`PASS: real Lightning hit, ${ids.length} fire sockets (${pixels} GPU pixels), damage/evacuation/voice cleanup, full repair holdoff, one of two workers fetching, smoke retirement (${smokePixels} GPU pixels) and completed repair; no browser errors`)
 } finally {
   await browser.close()
 }

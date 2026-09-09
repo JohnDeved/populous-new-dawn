@@ -820,9 +820,14 @@
             "app/building-workers.ts",
             "scripts/check-native-building-workers.py",
             "tests/building-workers.test.mjs",
-            "tests/fixtures/building-workers.json"
+            "tests/fixtures/building-workers.json",
+            "scripts/check-native-construction-crew.py",
+            "scripts/check-native-repair-smoke.py",
+            "tests/fixtures/construction-crew.json",
+            "tests/fixtures/repair-smoke.json",
+            "app/building-shapes.ts"
           ],
-          "note": "Native geometry/stages and timber-driven work are integrated. Each delivery waits eight turns and advances capacity-limited construction/repair immediately; 576 complete native delivery calls and live three-stage construction agree. Original descriptor capacities replace the fixed three-worker limit: small huts admit six, warrior training buildings sixteen. Registration preserves duplicates and first-free slot order, prunes dead/reassigned workers and rejects surplus assignments. Compared 1280 complete admissions across all 20 descriptors and 512 complete pruning calls without intercepted callees. Browser placement, duplicate/full-crew right-click orders, replacement slots and completion pass. Full building validity, plan allocation, task dispatch, worker positioning/terrain preparation, idle work cycles, shared-wait random facing and repair-delay ownership remain open; browser work orders still supply eligibility."
+          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, complete worker readiness/idle positioning, person command ownership, panic motion and departure remain adapters. The constructed-plan completion gate is compared but live completion still releases browser workers directly; mixed-class scheduling/counter ownership remains open."
         },
         {
           "id": "economy.wood",
@@ -893,9 +898,16 @@
             "scripts/check-native-timber-delivery.py",
             "scripts/check-browser-construction.mjs",
             "tests/timber.test.mjs",
-            "tests/fixtures/timber-delivery.json"
+            "tests/fixtures/timber-delivery.json",
+            "scripts/check-native-construction-crew.py",
+            "scripts/check-native-repair-smoke.py",
+            "tests/fixtures/construction-crew.json",
+            "tests/fixtures/repair-smoke.json",
+            "tests/building-workers.test.mjs",
+            "app/building-workers.ts",
+            "app/building-shapes.ts"
           ],
-          "note": "Native damage/fire phases integrated; exact repair and plan ownership remain adapters. Construction now advances by capacity-limited timber transfers after the native eight-turn delivery pause, replacing the separate twelve-seconds-per-worker rule. Each arriving log updates the original stage immediately; shared repair work uses the same transfer. Compared 576 complete delivery-phase calls through native wait, transfer and plan-stage updates. Actual browser placement, three carried-log waits, visible stage changes and complete hut upgrade pass; pause/cancellation and unchanged damage/fire checks pass. Full construction decision dispatcher, plan allocation, worker positioning/terrain preparation, idle work cycles, shared-wait random facing and repair-delay ownership remain open."
+          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, complete worker readiness/idle positioning, person command ownership, panic motion and departure remain adapters. The constructed-plan completion gate is compared but live completion still releases browser workers directly; mixed-class scheduling/counter ownership remains open."
         },
         {
           "id": "economy.classes",

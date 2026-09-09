@@ -1,4 +1,10 @@
-import { assignBuilder, pruneBuilders } from './building-workers.ts'
+import {
+  assignBuilder,
+  pruneBuilders,
+  stepConstructionCrew,
+  BuilderTask,
+  type Builder,
+} from './building-workers.ts'
 import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
 import {
@@ -82,6 +88,7 @@ import {
   chooseBuildingObject,
   buildingSmokePoint,
   buildingFirePoints,
+  buildingRepairArea,
   registerBuildingFootprint,
   refreshSceneryShadow,
   nativeCellShade,
@@ -192,6 +199,7 @@ export type Unit = Point & {
   tree: number | null
   harvest?: { remaining: number }
   delivery?: { remaining: number }
+  builder?: Builder
   timer: number
   guard: boolean
   lift: number
@@ -1573,6 +1581,7 @@ function release(w: World, u: Unit) {
   u.tree = null
   u.harvest = undefined
   u.delivery = undefined
+  u.builder = undefined
   u.target = null
   u.guard = false
   u.timer = 0
@@ -1743,6 +1752,46 @@ function constructionWorkers(w: World, b: Building) {
   pruneBuilders(slots, id => workers.has(id))
   for (const u of workers.values()) if (!assignBuilder(slots, u.id)) release(w, u)
   return slots.filter(Boolean).map(id => workers.get(id)!)
+}
+
+function dispatchConstructionCrew(w: World, b: Building, workers: Unit[]) {
+  const state = b.damageState?.plan,
+    plan = {
+      model: buildingModel(b),
+      counter: b.counter,
+      burning: !!b.burn,
+      work: state?.remaining ?? Math.round(b.progress * rules.buildingLife[buildingModel(b)]),
+      repairDelay: state?.repairDelay ?? 0,
+    }
+  const crew = workers.map(u => {
+    u.builder ??= { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
+    // Existing movement/hauling supplies task readiness until native command 10
+    // and its idle-work/approach controllers own the live person record.
+    if (u.cargo || u.tree !== null) u.builder.task = BuilderTask.Fetch
+    else if (u.builder.task === BuilderTask.Approach && !u.path.length)
+      u.builder.task = BuilderTask.Work
+    return u.builder
+  })
+  stepConstructionCrew(plan, crew, {
+    evacuate: worker => release(w, workers.find(u => u.builder === worker)!),
+    resume: () => {
+      const area = buildingRepairArea(buildingPose(b)),
+        cells = new Set(area.cells)
+      for (const fx of w.effects) {
+        const smoke = fx.smoke
+        if (
+          smoke &&
+          smoke.lifetime > 0 &&
+          cells.has(((smoke.y & 65535) >> 9) * 128 + ((smoke.x & 65535) >> 9))
+        )
+          smoke.lifetime = 16
+      }
+      queueTerrain(w.land, area.center, area.radius, 1, terrainTextures)
+      processTerrain(w.land, terrainTextures)
+    },
+  })
+  if (state) state.repairDelay = plan.repairDelay
+  return workers.filter(u => u.builder?.task === BuilderTask.Fetch)
 }
 
 // The live adapter still enters occupants directly; command-8's staged entry
@@ -2961,10 +3010,10 @@ function findBuildingWood(w: World, u: Unit, b: Building) {
     .find(t => findPath(w, u, t).length)
 }
 
-// Shared live hauling adapter; native routing and automatic-construction orders remain open.
-function haulBuildingWood(w: World, b: Building, workers: Unit[], cost: number) {
+// Shared hauling adapter; automatic resource search and full person-command ownership remain open.
+function haulBuildingWood(w: World, b: Building, workers: Unit[], constructing: boolean) {
   for (const u of workers) {
-    if (cost && b.progress === 1) break
+    if (constructing && b.progress === 1) break
     if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
       if (b.progress === 1) {
         const point = buildingDoor(b)
@@ -2997,13 +3046,13 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[], cost: number) 
       }
       u.delivery = undefined
       u.tree = null
+      if (constructing && u.builder) {
+        u.builder.task = BuilderTask.Work
+        u.builder.restart = true
+        continue
+      }
     }
-    if (
-      b.progress < 1 &&
-      b.logs + workers.reduce((n, a) => n + (a.cargo || a.tree !== null ? 1 : 0), 0) < cost &&
-      !u.cargo &&
-      u.tree === null
-    ) {
+    if (b.progress < 1 && !u.cargo && u.tree === null) {
       const tree = findBuildingWood(w, u, b)
       if (tree) {
         u.tree = tree.id
@@ -3212,14 +3261,14 @@ function stepTurn(w: World) {
     if (b.damageState) {
       stepDamagedBuilding(w, b)
       if (b.hp > 0 && b.burn && b.damageState.state === 4) stepBurningBuilding(w, b)
+      if (b.hp > 0 && b.burn) dispatchConstructionCrew(w, b, constructionWorkers(w, b))
       if (b.hp <= 0 || b.burn || (b.damageState.buildingFlags & 64 && b.damageState.state !== 2))
         continue
     }
     const inhabitants = w.units.filter(u => u.inside === b.id && u.hp > 0)
     if (b.progress < 1) {
-      const cost = rules.buildingLife[buildingModel(b)] / 100
       const workers = constructionWorkers(w, b)
-      haulBuildingWood(w, b, workers, cost)
+      haulBuildingWood(w, b, dispatchConstructionCrew(w, b, workers), true)
       if (b.progress === 1) {
         if (!b.upgrading && !b.damageState) w.stats.built++
         b.upgrading = false
@@ -3273,7 +3322,7 @@ function stepTurn(w: World) {
       const haulers = w.units.filter(
         u => u.work === b.id && u.inside === null && u.hp > 0 && u.kind === 'brave'
       )
-      haulBuildingWood(w, b, haulers, 0)
+      haulBuildingWood(w, b, haulers, false)
       const upgrade =
         !(w.manaWorld.gameFlags & 32) &&
         stepHutUpgrade(b, inhabitants.length, () =>

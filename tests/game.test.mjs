@@ -88,9 +88,15 @@ test('Lightning ignites only its building footprint, then evacuates, damages and
   assert.ok(w.lights.every(l => !l || !fires.some(f => f.id === l.owner)), 'extinguished building releases its light');
   assert.equal(building.progress, 2 / 3);
   assert.equal(building.logs, 2);
+  assert.ok(building.damageState.plan.repairDelay > 1000, 'native damage starts the repair holdoff');
+  until(w, () => building.damageState.plan.repairDelay === 1, 105);
+  advance(w, 2);
+  assert.equal(building.damageState.plan.repairDelay, 1, 'an unstaffed repair waits at one');
   select(w, 'brave');
   command(w, building);
-  until(w, () => building.progress === 1, 90);
+  until(w, () => building.damageState.plan.repairDelay === 0, 20);
+  assert.equal(building.progress, 2 / 3, 'repair waits for the original delay before fetching');
+  until(w, () => building.progress === 1, 45);
   assert.equal(building.damageState.state, 2);
   assert.equal(building.damageState.plan.remaining, 300);
   assert.equal(building.hp, hp);

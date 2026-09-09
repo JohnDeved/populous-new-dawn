@@ -668,3 +668,23 @@ dispatch, native worker positions/idle work, terrain preparation and repair-dela
 ownership remain open. Continue those visible construction behaviors and original
 first-mission frame comparisons. Known-scope coverage remains 17.7% (17/96), with
 discovery open and the broad construction checkpoint partial.
+
+### Latest critical integration: construction dispatch and repair holdoff
+
+Constructed plans now dispatch roughly half their registered crew to fetch timber
+on original sixteen-turn decision phases. Deliveries return workers to the waiting
+pool. Repair delay counts down per turn, waits at one without a crew, and resumes
+on a staffed decision phase. Resumption shortens nearby smoke to sixteen turns
+using every nonempty shape cell, then refreshes terrain. Compared 5,120 complete
+native plan calls and 1,264 complete smoke-cleanup calls. Browser construction,
+upgrades and the full Lightning → holdoff → one-of-two hauling → repaired hut
+sequence pass, including visible smoke retirement. There are 105 portable checks
+and 919 identified exports.
+
+Next connect native worker positions, idle work/animation/readiness and departure
+to this dispatcher. Its completion gate is compared, but live completion still
+releases browser workers directly. Unbuilt-plan terrain preparation/allocation,
+full person command ownership, panic movement and mixed-class scheduling remain
+open. Continue original first-mission frame comparisons alongside this visible
+activity work. Known-scope coverage remains 17.7% (17/96); discovery is open and
+full parity is unfinished.

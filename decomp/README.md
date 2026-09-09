@@ -3318,3 +3318,56 @@ sixteen-turn phases, handles repair delay and waits for worker departure before
 removing the plan. `004b8470` additionally owns unbuilt-plan terrain preparation
 and building allocation. Those controllers, native idle activity/positions and
 departure are the next construction work; admission alone does not reproduce them.
+
+## Constructed-plan dispatch and repair resumption — 2026-09-09
+
+`004b8bb0` now supplies the browser's constructed-plan work decisions. Every
+sixteen turns it promotes ready workers, in registration order, toward a fetching
+target of `max(1, assigned / 2)`. Existing fetchers count toward that target.
+Minimum crew comes from descriptor offset `0x12`. Delivery returns its worker to
+task 2 through the recovered `00495520` transition instead of immediately fetching
+again. Browser construction no longer separately estimates logs already promised
+by workers; the original work capacity and assigned tasks govern dispatch.
+
+The unsigned repair timer decrements while above one on every plan turn. With
+enough workers, decision phases also decrement its signed value; reaching zero
+calls `0040afd0`. An unstaffed damaged plan consequently holds at one. Native
+burning-building decisions evacuate workers and suppress new tasks. The compared
+completion path waits for task-9 phase 6, while task-1 workers do not block removal.
+
+`0040afd0` traverses every nonzero shape cell through `004b9ef0`, shortens positive
+model-76 smoke lifetimes to sixteen, and queues a texture refresh with the native
+rounded shape radius. The shared shape traversal now accepts a mask so repair
+and ordinary occupied-footprint operations retain their different cell policies.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-construction-crew.py /private/tmp/populous-reference/native/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-repair-smoke.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-workers.test.mjs
+node scripts/check-browser-construction.mjs
+node scripts/check-browser-hut-upgrade.mjs
+node scripts/check-browser-building-fire.mjs
+```
+
+Compared 5,120 complete plan calls across all twenty descriptors, crew sizes,
+task/readiness combinations, phases, signed delay boundaries, fire and completion.
+Native pruning/classification execute. Final motion/state lifecycle leaves,
+smoke resumption and object removal are recorded consumers; fire fixtures exercise
+unlocked workers outside occupied cells. Another 1,264 complete cleanup calls cover
+all object headings, both building and plan inputs, wrapped coordinates, smoke
+lifetimes and other effect models. Only the final terrain queue is intercepted.
+Portable captures retain 640 plan decisions and 181 smoke cases. Live tests cover
+two workers/one hauler, full construction/upgrades, an unstaffed hold at one and
+repair after staffing. The browser checks actual Lightning and right-click repair,
+the full holdoff, dispatch, restored geometry and 531 smoke pixels. A fresh mature
+smoke fixture exercises retirement at resumption because the initial fire smoke
+normally expires before the complete delay.
+
+The six new exports retain approach, inner movement, waiting, wandering arrival,
+plan-center lookup and repair traversal (`00438ca0`, `00438db0`, `00439240`,
+`00439480`, `004ba130`, `004b9ef0`), bringing the manifest to 919. Native `004958f0`
+idle work and `00497690` departure are next: browser paths/hauling currently supply
+task readiness, and live completion still releases workers directly. The full
+completion gate is compared but not yet connected to native departure. Unbuilt-plan
+allocation/terrain preparation, panic movement, original person-command ownership
+and mixed-class counter scheduling remain open. Full construction stays partial.

@@ -70,13 +70,13 @@ export function buildingFirePoints(b: BuildingShapePose) {
 }
 
 // Shared native mask traversal for occupancy and the browser placement preview.
-function shapeCells(s: ReturnType<typeof shape>, anchorX: number, anchorY: number) {
+function shapeCells(s: ReturnType<typeof shape>, anchorX: number, anchorY: number, mask = 1) {
   const cx = (anchorX >>> 8) & 254,
     cy = (anchorY >>> 8) & 254,
     cells: number[] = []
   for (let y = 0; y < s.height; y++)
     for (let x = 0; x < s.width; x++)
-      if (data.cells[s.offset + y * s.width + x] & 1) {
+      if (data.cells[s.offset + y * s.width + x] & mask) {
         const px = (cx - s.x + x * 2) & 255,
           py = (cy - s.y + y * 2) & 255
         cells.push((py >> 1) * 128 + (px >> 1))
@@ -86,6 +86,17 @@ function shapeCells(s: ReturnType<typeof shape>, anchorX: number, anchorY: numbe
 
 export function buildingFootprintCells(b: BuildingShapePose) {
   return shapeCells(shape(b), b.anchorX, b.anchorY)
+}
+
+// 0x40afd0 / 0x4b9ef0: repair includes every nonempty shape cell, not just
+// occupied ground. Positive-lived model-76 smoke there is shortened to 16 turns.
+export function buildingRepairArea(b: BuildingShapePose) {
+  const s = shape(b)
+  return {
+    cells: shapeCells(s, b.anchorX, b.anchorY, 255),
+    center: ((b.anchorX >>> 8) & 254) | (b.anchorY & 0xfe00),
+    radius: (Math.max(s.width, s.height) + 1) >> 1,
+  }
 }
 
 // 0x403c10: scenery always uses the first shape, with shape 1 as the zero fallback.
