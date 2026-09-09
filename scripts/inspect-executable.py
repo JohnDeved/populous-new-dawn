@@ -48,6 +48,8 @@ if len(sys.argv)>2:
     assert friction==[28,28,28]
     rules['groundFriction']=friction[0]
     rules['personStateFlags']=[value(0x5a6f79+i*5) for i in range(46)]
+    rules['buildingSlopeLimit']=value(0x5aa458)
+    rules['buildingSteepSlopeLimit']=value(0x5aa45c)
     rules['buildingFlags']=[value(0x5a7228+i*76+72) for i in range(20)]
     rules['buildingObjects']=[value(0x5a7228+i*76,2) for i in range(20)]
     rules['buildingShade']=[struct.unpack('<b',read(0x5a7228+i*76+53,1))[0] for i in range(20)]

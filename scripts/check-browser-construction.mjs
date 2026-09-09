@@ -24,13 +24,13 @@ try{
     const s=window.testScene,w=s.world
     w.speed=0;window.builder=w.units.find(u=>u.team==='blue'&&u.kind==='brave')
     window.builder.cargo=1;window.existingTrees=w.trees.map(t=>t.id)
-    w.selected=[window.builder.id];s.focus({x:4,z:32});s.onChange()
+    w.selected=[window.builder.id];s.focus({x:-2,z:32});s.onChange()
   })
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
   await page.getByRole('button',{name:'buildings B',exact:true}).click()
   await page.getByRole('button',{name:'Hut, 3 wood',exact:true}).click()
   const point=await page.evaluate(()=>{
-    const s=window.testScene,p={x:4.3,z:32.3},q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect()
+    const s=window.testScene,p={x:-1.7,z:32.3},q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect()
     return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2}
   })
   await page.mouse.move(point.x,point.y)
@@ -125,13 +125,13 @@ try{
   await crewPage.evaluate(()=>{
     const s=window.testScene,w=s.world
     w.speed=0;w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').map(u=>u.id)
-    s.focus({x:4,z:32});s.onChange()
+    s.focus({x:-2,z:32});s.onChange()
   })
   await crewPage.waitForFunction(()=>!window.testScene.cameraMotion.active)
   await crewPage.getByRole('button',{name:'buildings B',exact:true}).click()
   await crewPage.getByRole('button',{name:'Hut, 3 wood',exact:true}).click()
   const site=await crewPage.evaluate(()=>{
-    const s=window.testScene,p={x:4.3,z:32.3},q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect()
+    const s=window.testScene,p={x:-1.7,z:32.3},q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect()
     return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2}
   })
   await crewPage.mouse.move(site.x,site.y)

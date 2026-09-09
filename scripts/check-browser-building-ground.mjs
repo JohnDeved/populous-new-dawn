@@ -21,7 +21,7 @@ try {
   const {page,errors}=await openGame(browser)
   await page.evaluate(()=>{
    const s=window.testScene,w=s.world;w.speed=0;w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').map(u=>u.id)
-   window.originalGround=Array.from(w.land.heights);s.focus({x:4,z:32});s.onChange()
+   window.originalGround=Array.from(w.land.heights);s.focus({x:-2,z:32});s.onChange()
   })
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
   if(!direction)await page.screenshot({path:'/private/tmp/populous-foundations-after.png'})
@@ -29,7 +29,7 @@ try {
   await page.getByRole('button',{name:'Hut, 3 wood',exact:true}).click()
   for(let i=0;i<direction;i++)await page.keyboard.press('Space')
   const point=await page.evaluate(()=>{
-   const s=window.testScene,p={x:4.3,z:32.3},q=s.screen(p,s.y(p)),r=s.container.getBoundingClientRect()
+   const s=window.testScene,p={x:-1.7,z:32.3},q=s.screen(p,s.y(p)),r=s.container.getBoundingClientRect()
    return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2}
   })
   await page.mouse.move(point.x,point.y)
@@ -80,7 +80,7 @@ try {
    return {b,changes,pixels,mesh:g.position.toArray(),heading:g.userData.nativeHeading,terrainVersion:s.terrainVersion,landVersion:w.landVersion}
   })
   const {b}=result,buildingShape={object:b.object,angle:direction*512,anchorX:b.anchor.x,anchorY:b.anchor.y}
-  assert.deepEqual(b.anchor,{x:3072,y:54784})
+  assert.deepEqual(b.anchor,{x:1536,y:54784})
   const native=buildingPosition(buildingShape),position=browserPosition(native),mask=new Set(buildingGradeVertices(buildingShape).map(c=>c.index))
   assert.deepEqual({x:b.x,z:b.z},position)
   assert.deepEqual(result.mesh,[position.x,Math.round(b.foundation*45)/128,position.z])

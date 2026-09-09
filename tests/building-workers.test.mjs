@@ -68,7 +68,7 @@ test('live plan capacities, duplicate orders and replacement workers share regis
     const original=w.units.find(u=>u.team==='blue'&&u.kind==='brave')
     const people=Array.from({length:limit+2},()=>({...original,id:w.nextId++,path:[],work:null,inside:null}))
     w.units.push(...people);w.selected=people.map(u=>u.id)
-    assert.ok(placeBuilding(w,kind,{x:4,z:32}))
+    assert.ok(placeBuilding(w,kind,{x:-2,z:32}))
     const b=w.buildings.at(-1)
     assert.equal(b.builders.filter(Boolean).length,limit)
     assert.equal(people.filter(u=>u.work===b.id).length,limit)

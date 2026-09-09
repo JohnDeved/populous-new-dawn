@@ -5,6 +5,7 @@ import departureFixture from './fixtures/building-departure.json' with {type:'js
 import fixtureWork from './fixtures/building-work.json' with {type:'json'}
 import manifest from '../decomp/exports.json' with {type:'json'}
 import rules from '../app/original-rules.json' with {type:'json'}
+import constants from '../app/original-constants.json' with {type:'json'}
 import {stepBuildingWork,stepBuildingDeparture,stepBuildingApproach} from '../app/building-work.ts'
 import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
 import {createWorld,placeBuilding,tick,command,unitAnimation,unitAnimationSource} from '../app/model.ts'
@@ -34,7 +35,7 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
   assert.ok(AUDIO_CUES.includes(20),'building-work audio must be available when sound is enabled')
   const w=createWorld();w.manaWorld.gameFlags=32
   w.selected=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
-  assert.ok(placeBuilding(w,'hut',{x:4,z:32}))
+  assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
   const b=w.buildings.at(-1),phases=new Set();let worker
   for(let turn=0;turn<1000&&!worker;turn++){
     tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w)
@@ -73,7 +74,7 @@ test('crews leave finished huts in all four orientations before the plan release
   for(const count of [1,2,6])for(let direction=0;direction<4;direction++){
     const w=createWorld();w.manaWorld.gameFlags=32;w.buildingDirections.hut=direction
     const crew=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').slice(0,count)
-    w.selected=crew.map(u=>u.id);assert.ok(placeBuilding(w,'hut',{x:4,z:32}))
+    w.selected=crew.map(u=>u.id);assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
     const b=w.buildings.at(-1)
     for(let n=0;n<2000&&b.progress<1;n++)tick(w,1/12)
     assert.equal(b.progress,1);assert.ok(crew.every(u=>u.work===b.id&&u.builder))
@@ -82,7 +83,8 @@ test('crews leave finished huts in all four orientations before the plan release
       for(const u of crew)if(u.builder.task===9)seen.add(u.builder.phase)
       tick(w,1/12)
       crew.forEach((u,i)=>{
-        assert.ok(Math.hypot(u.x-before[i].x,u.z-before[i].z)<=(u.builder?.person?.speed??0)/256+2/256,'departure must move continuously, including release')
+        // A fetcher can finish its current route before the next plan decision.
+        assert.ok(Math.hypot(u.x-before[i].x,u.z-before[i].z)<=(u.builder?.task===7?constants.BRAVE_SPEED:u.builder?.person?.speed??0)/256+2/256,'departure must move continuously, including release')
         assert.equal(u.inside,null,'construction ownership prevents automatic housing')
       })
       if(crew.every(u=>!u.builder)){
@@ -102,7 +104,7 @@ test('player construction orders approach natively and deposit carried logs befo
     const w=createWorld();w.manaWorld.gameFlags=32;w.buildingDirections.hut=direction
     const u=w.units.find(u=>u.kind==='brave'&&u.team==='blue');u.cargo=cargo;w.selected=[u.id]
     const oldTrees=new Set(w.trees.map(t=>t.id))
-    assert.ok(placeBuilding(w,'hut',{x:4,z:32}));const b=w.buildings.at(-1)
+    assert.ok(placeBuilding(w,'hut',{x:-2,z:32}));const b=w.buildings.at(-1)
     assert.equal(u.builder.task,1)
     tick(w,1/12)
     assert.equal(u.builder.phase,15);assert.equal(u.builder.task,1)

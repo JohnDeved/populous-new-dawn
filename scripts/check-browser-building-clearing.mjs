@@ -31,7 +31,7 @@ try {
     w.speed = 0
     w.manaWorld.gameFlags = 32
     w.selected = w.units.filter(u => u.team === 'blue' && u.kind === 'brave').map(u => u.id)
-    s.focus({ x: 4, z: 32 })
+    s.focus({ x: -2, z: 32 })
     s.onChange()
   })
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
@@ -39,7 +39,7 @@ try {
   await page.getByRole('button', { name: 'Hut, 3 wood', exact: true }).click()
   const point = await page.evaluate(() => {
     const s = window.testScene,
-      p = { x: 4.3, z: 32.3 },
+      p = { x: -1.7, z: 32.3 },
       q = s.screen(p, s.y(p)),
       r = s.container.getBoundingClientRect()
     return { x: r.left + ((q.x + 1) * r.width) / 2, y: r.top + ((1 - q.y) * r.height) / 2 }

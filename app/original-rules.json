@@ -2409,6 +2409,8 @@
     1125,
     0
   ],
+  "buildingSlopeLimit": 160,
+  "buildingSteepSlopeLimit": 160,
   "buildingFlags": [
     30,
     13502,

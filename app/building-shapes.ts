@@ -88,8 +88,11 @@ function shapeCells(s: ReturnType<typeof shape>, anchorX: number, anchorY: numbe
   return cells
 }
 
+export function buildingFootprintTiles(b: BuildingShapePose) {
+  return shapeCells(shape(b), b.anchorX, b.anchorY)
+}
 export function buildingFootprintCells(b: BuildingShapePose) {
-  return shapeCells(shape(b), b.anchorX, b.anchorY).map(c => c.index)
+  return buildingFootprintTiles(b).map(c => c.index)
 }
 
 // 0x403d50: the map anchor and the displayed model origin are different points.

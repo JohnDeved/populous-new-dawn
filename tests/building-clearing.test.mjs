@@ -138,7 +138,7 @@ test('live clearers harvest on-site trees, carry and deposit logs, then move bys
     w.manaWorld.gameFlags = 32
     w.buildingDirections.hut = direction
     w.selected = w.units.filter(u => u.kind === 'brave' && u.team === 'blue').map(u => u.id)
-    assert.ok(placeBuilding(w, 'hut', { x: 4, z: 32 }))
+    assert.ok(placeBuilding(w, 'hut', { x: -2, z: 32 }))
     const b = w.buildings.at(-1),
       cells = buildingFootprintCells(buildingPose(b)),
       mask = new Set(cells)
@@ -215,7 +215,7 @@ test('clearing pauses without advancing and cancellation releases its native ani
   const w = createWorld()
   w.manaWorld.gameFlags = 32
   w.selected = w.units.filter(u => u.kind === 'brave' && u.team === 'blue').map(u => u.id)
-  assert.ok(placeBuilding(w, 'hut', { x: 4, z: 32 }))
+  assert.ok(placeBuilding(w, 'hut', { x: -2, z: 32 }))
   const b = w.buildings.at(-1),
     i = buildingFootprintCells(buildingPose(b))[0]
   Object.assign(
@@ -245,7 +245,7 @@ test('clearing bushes starts the original fire and retreats before the site is a
   const w = createWorld()
   w.manaWorld.gameFlags = 32
   w.selected = w.units.filter(u => u.kind === 'brave' && u.team === 'blue').map(u => u.id)
-  assert.ok(placeBuilding(w, 'hut', { x: 4, z: 32 }))
+  assert.ok(placeBuilding(w, 'hut', { x: -2, z: 32 }))
   const b = w.buildings.at(-1),
     cell = buildingFootprintCells(buildingPose(b))[0]
   const tree = w.trees.find(t => t.model === 1)
@@ -255,10 +255,12 @@ test('clearing bushes starts the original fire and retreats before the site is a
   tree.model = 7
   tree.logs = 1
   let burning = false,
-    retreating = false
+    retreating = false,
+    visibleFire = false
   for (let n = 0; n < 500 && b.preparation; n++) {
     tick(w, 1 / 12)
     burning ||= !!tree.burn?.started && tree.logs === 1
+    visibleFire ||= w.effects.some(fx => fx.fire && Math.hypot(fx.x - tree.x, fx.z - tree.z) < 0.01)
     retreating ||= w.units.some(
       u => u.builder?.task === 3 && u.builder.phase === SceneryPhase.Retreat
     )
@@ -266,5 +268,5 @@ test('clearing bushes starts the original fire and retreats before the site is a
   assert.ok(burning && retreating)
   assert.equal(tree.logs, 0)
   assert.equal(b.preparation, undefined)
-  assert.ok(w.effects.some(fx => fx.fire && Math.hypot(fx.x - tree.x, fx.z - tree.z) < 0.01))
+  assert.ok(visibleFire)
 })

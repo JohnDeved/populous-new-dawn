@@ -3700,3 +3700,69 @@ GPU sprite poses pass with no browser errors. Fallow reports 84.8 maintainabilit
 2.8 average complexity and no dead exports; its existing dependency/cycle findings
 remain. Focused ox-standard checks for the three construction controllers and
 ESLint for all six touched app modules pass. No global checkpoint credit is added.
+
+## Placement validity and height-change notifications — 2026-09-09
+
+`building-validity.ts` reconstructs complete `0044ee50`, sharing existing native
+height-range (`0044f600`) and water-neighborhood (`0044ebe0`) code. Neighbor overlap
+`0044f220` and foreign guard-tower-plan permission `004baaf0` preserve native order
+and gates. The cell's mask controls ordinary dry surroundings versus shore-building
+requirements. Protected scenery, unexplored ground, occupied cells, slope limits,
+plan exceptions and exact accumulated tribe feedback bits are compared. Both
+slope limits are extracted from the supplied constants/executable (currently 160).
+`buildingFootprintTiles` exposes the original tile masks without duplicating shape
+traversal; preview geometry continues to use the separate entrance-aware helper.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-validity.py /private/tmp/populous-reference/native/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-terrain-notifications.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-validity.test.mjs tests/terrain-notifications.test.mjs
+node scripts/check-browser-ground-overlay.mjs
+```
+
+The validity oracle runs 3,040 native calls with no intercepted callees, including
+19 building models, native slope boundaries, both computer-search modes, category
+and mask combinations, linked protected-object chains, plan IDs, guard-tower
+exceptions, native failure precedence and wrapped edges. There are 435 portable
+snapshots. Native object links use +0x20; a protected second object explicitly
+checks that the native chain is followed.
+
+`terrain-notifications.ts` reconstructs the height-change object-notification
+portion of `0044f2f0`: visit linked cell objects, then the four touching building
+cells in original order. Mark actual building cells with 0x20000 and notify their
+registered object even when repeated. The 512-case oracle compares actual native
+flag writes, including their order and duplicate visits, with 103 portable cases.
+Independent landscape redraw, walk-mask rebuilding and route consumers are
+intercepted; tribe views are inactive. This is not a claim for the routine's
+attack branch, active native camera redraw, or global route invalidation.
+
+Live placement and unbuilt-plan revalidation share the validator. The cell view
+supplies live scenery, worship heads, the Vault of Knowledge footprint and original
+reincarnation stones; complete scaffolds now retain occupancy during construction.
+Leveling and compatibility-grid deformation submit height notifications; notified
+plans use original validity and release their crew on failure. Existing native
+people and fire/smoke records receive their terrain-dirty signals. Constructed
+building terrain response, full object indexing, original fog and preview
+territory/capacity queries remain open. The current preview still uses settlement
+proximity for placement reach. The imported `004206d0`, `004951b0` and `004baaf0`
+bring the identified export manifest to 938; unported exports earn no parity credit.
+
+The former test site at browser (4,32) overlaps a reincarnation stone and is now
+correctly rejected. Construction fixtures move to (-2,32), valid for both supported
+building types in all four rotations. Existing fire tests now observe fire while
+it exists rather than assuming it outlives all site preparation. Departure checks
+retain their strict native movement bound, using the ordinary brave speed while a
+fetching worker awaits the plan's next completion decision. Neither change relaxes
+the rendering baseline or permits teleporting. Full first-mission gameplay remains
+part of the portable regressions.
+
+Final validation: all 125 portable checks pass. Real browser placement contributes
+6,765 preview pixels and 308 entrance-arrow pixels, rejects protected stones and
+occupied sites, and removes invalid plans/artwork after a terrain edit. Foundations,
+leveling, site clearing, construction/departure and Lightning/fire/repair pass;
+all 336 frozen GPU sprite poses retain their hashes. Browser failures in the old
+fixture were stale canvas selection, camera-focus cancellation and pre-native
+model-origin/scaffold assumptions; the check now follows current verified behavior.
+Fallow reports 84.9 maintainability, 2.8 average complexity and no dead exports.
+Existing dependency/cycle debt remains. Focused ox-standard and changed-app ESLint
+checks pass. Construction and world deformation remain partial in the parity ledger.

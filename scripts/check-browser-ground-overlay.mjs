@@ -1,8 +1,13 @@
 // Start npm run dev, then node scripts/check-browser-ground-overlay.mjs.
 import { chromium } from '@playwright/test'
 import assert from 'node:assert/strict'
-import { buildingPlanCells } from '../app/building-shapes.ts'
+import {
+  buildingPlanCells,
+  buildingFootprintCells,
+  buildingPosition,
+} from '../app/building-shapes.ts'
 import { openGame } from './browser-game.mjs'
+import { browserPosition } from '../app/model.ts'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
@@ -16,6 +21,7 @@ try {
     s.focus({ x: 2, z: 34 })
     s.onChange()
   })
+  await page.waitForFunction(() => !window.testScene.cameraMotion.active)
   await page.getByRole('button', { name: 'buildings B', exact: true }).click()
   await page.getByRole('button', { name: 'Hut, 3 wood', exact: true }).click()
   async function move(p) {
@@ -26,14 +32,39 @@ try {
       return { x: r.left + ((q.x + 1) * r.width) / 2, y: r.top + ((1 - q.y) * r.height) / 2 }
     }, p)
     await page.mouse.move(q.x, q.y)
-    await page.waitForFunction(p => {
-      const s = window.testScene,
-        q = s.pointer
-      return s.cursor.visible && q && Math.hypot(q.x - p.x, q.z - p.z) < 0.2
-    }, p)
+    await page
+      .waitForFunction(p => {
+        const s = window.testScene,
+          q = s.pointer
+        return s.cursor.visible && q && Math.hypot(q.x - p.x, q.z - p.z) < 0.2
+      }, p)
+      .catch(async error => {
+        console.error(
+          'Placement pointer mismatch',
+          await page.evaluate(
+            ({ p, q }) => ({
+              target: p,
+              mouse: q,
+              point: window.testScene.pointer,
+              bearing: window.testScene.cameraBearing,
+              cursor: window.testScene.cursor.userData,
+              mode: window.testScene.world.mode,
+              motion: window.testScene.cameraMotion,
+            }),
+            { p, q }
+          )
+        )
+        await page.screenshot({ path: '/private/tmp/populous-placement-pointer-failure.png' })
+        throw error
+      })
     return q
   }
-  await move({ x: 4.3, z: 32.3 })
+  const stone = await move({ x: 4.3, z: 32.3 })
+  await page.waitForFunction(() => window.testScene.cursor.userData.invalid)
+  const originalCount = await page.evaluate(() => window.testScene.world.buildings.length)
+  await page.mouse.click(stone.x, stone.y)
+  assert.equal(await page.evaluate(() => window.testScene.world.buildings.length), originalCount)
+  await move({ x: -1.7, z: 32.3 })
   const valid = await page.evaluate(() => {
     const s = window.testScene,
       m = s.cursor,
@@ -87,14 +118,14 @@ try {
     valid.arrowPixels > 10,
     `Entrance arrow contributed only ${valid.arrowPixels} GPU pixels`
   )
-  const pose = { object: 107, angle: 0, anchorX: 3072, anchorY: 54784 }
+  const pose = { object: 107, angle: 0, anchorX: 1536, anchorY: 54784 }
   const expected = buildingPlanCells(pose)
   assert.deepEqual(valid.cells, [...expected.cells, expected.entrance])
   assert.equal(valid.vertices, valid.cells.length * 6)
   assert.ok(valid.uv.every(v => v >= 0 && v <= 1))
   await page.screenshot({ path: '/private/tmp/populous-ground-placement.png' })
   // Space rotates the entrance, keeps simulation unpaused, and wraps after four turns.
-  await page.locator('.world-viewport canvas').focus()
+  await page.locator('.world-viewport canvas[tabindex]').focus()
   for (let turn = 1; turn <= 4; turn++) {
     await page.keyboard.press('Space')
     const direction = turn & 3,
@@ -120,7 +151,7 @@ try {
     bearing: window.testScene.cameraBearing,
     point: { ...window.testScene.pointer },
   }))
-  await page.locator('.world-viewport canvas').focus()
+  await page.locator('.world-viewport canvas[tabindex]').focus()
   await page.keyboard.down('q')
   await page.waitForTimeout(250)
   await page.keyboard.up('q')
@@ -151,7 +182,9 @@ try {
   await page.mouse.move(100, 500)
   await page.waitForFunction(() => !window.testScene.cursor.visible)
   await page.evaluate(() => window.testScene.focus({ x: 2, z: 34 }))
-  const good = await move({ x: 4.3, z: 32.3 })
+  await page.waitForFunction(() => !window.testScene.cameraMotion.active)
+  await page.getByRole('button', { name: 'Hut, 3 wood', exact: true }).click()
+  const good = await move({ x: -1.7, z: 32.3 })
   await page.mouse.click(good.x, good.y)
   await page.waitForFunction(n => window.testScene.world.buildings.length === n + 1, count)
   await page.waitForFunction(
@@ -161,22 +194,49 @@ try {
     const b = window.testScene.world.buildings.at(-1)
     return { x: b.x, z: b.z, angle: b.angle }
   })
-  assert.deepEqual(placed, { x: 4, z: 34, angle: Math.PI / 2 })
+  assert.deepEqual(placed, {
+    ...browserPosition(buildingPosition({ ...pose, angle: 512 })),
+    angle: Math.PI / 2,
+  })
   await page.waitForFunction(() => {
     const s = window.testScene,
       b = s.world.buildings.at(-1)
-    return s.buildingMeshes.get(b.id)?.userData.nativeHeading === 512
+    return s.plans.has(b.id) && !s.buildingMeshes.has(b.id)
   })
   await page.screenshot({ path: '/private/tmp/populous-ground-placed-rotated.png' })
   // Cancellation also clears a live preview.
   await page.getByRole('button', { name: 'Hut, 3 wood', exact: true }).click()
-  await move({ x: 4.3, z: 32.3 })
-  await page.locator('.world-viewport canvas').focus()
+  await move({ x: -1.7, z: 32.3 })
+  await page.locator('.world-viewport canvas[tabindex]').focus()
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !window.testScene.cursor.visible)
+  // A later terrain edit must invalidate the placed plan and retire its artwork.
+  const cell = buildingFootprintCells({ ...pose, angle: 512 })[0]
+  const vertex = browserPosition({ x: (cell & 127) * 512, y: (cell >> 7) * 512 })
+  const planId = await page.evaluate(() => window.testScene.world.buildings.at(-1).id)
+  await page.evaluate(
+    ({ vertex, planId }) => {
+      const w = window.testScene.world
+      if (!w.buildings.find(b => b.id === planId)?.preparation)
+        throw new Error('Expected unbuilt plan')
+      w.terrain[(vertex.z + 48) * 97 + vertex.x + 48] += 10
+      w.terrainVersion++
+      w.speed = 1
+    },
+    { vertex, planId }
+  )
+  await page.waitForFunction(id => {
+    const s = window.testScene
+    return (
+      !s.world.buildings.some(b => b.id === id) && !s.plans.has(id) && !s.buildingMeshes.has(id)
+    )
+  }, planId)
+  assert.ok(
+    await page.evaluate(id => window.testScene.world.units.every(u => u.work !== id), planId)
+  )
   assert.deepEqual(errors, [])
   console.log(
-    `PASS: original placement tiles and entrance (${valid.cells.length} cells, ${valid.pixels} GPU pixels; ${valid.arrowPixels} arrow pixels), grounding, four Space rotations without pausing, camera turn, invalid rejection, snapped/oriented placement and cancellation; no browser errors`
+    `PASS: original placement tiles and entrance (${valid.cells.length} cells, ${valid.pixels} GPU pixels; ${valid.arrowPixels} arrow pixels), grounding, four Space rotations without pausing, camera turn, invalid rejection, snapped/oriented placement, cancellation, protected stones and terrain invalidation with plan-artwork removal; no browser errors`
   )
 } finally {
   await browser.close()

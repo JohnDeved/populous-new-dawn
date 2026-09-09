@@ -805,3 +805,22 @@ visible first-mission comparisons. Native command/object allocation limits, full
 command eligibility ownership, nonresource objects, plan signals, movement/collision
 scheduling and camera-relative resting interest remain open. Broad construction
 stays partial; known-scope coverage remains 17.7% (17/96), with discovery open.
+
+### Latest visible integration: native placement validity and terrain notifications
+
+Placement now checks original rotated footprint tiles and their masks rather than
+an oversized square. Native per-cell rules handle occupied neighbors, plan overlap,
+protected scenery, local height limits, dry ground and shore-building masks.
+Incomplete scaffolds reserve their cells. Reincarnation stones correctly reject
+placement; the old construction fixtures overlapped one and now use a verified
+clear site. The same validator rechecks plans after terrain edits. Height-change
+notifications visit native object chains and the four building cells touching each
+vertex; invalid plans release their workers and remove their ground artwork.
+Compared 3,040 complete native validity calls and 512 height-notification cases.
+
+Next: continue full first-mission visual comparisons and recover constructed
+buildings' response to terrain deformation. Full placement reach/capacity and fog
+ownership, object/command pools, global route invalidation and native camera redraw
+ownership remain open. Known-scope coverage stays 17.7% (17/96), with discovery open;
+these additions improve the partial construction checkpoint without claiming full
+construction or terrain-deformation parity.

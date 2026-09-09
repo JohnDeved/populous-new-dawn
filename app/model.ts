@@ -17,6 +17,8 @@ import {
   type ClearingPerson,
 } from './building-clearing.ts'
 import { restingCellAvailable } from './resting-slots.ts'
+import { buildingCellValid } from './building-validity.ts'
+import { notifyTerrainObjects } from './terrain-notifications.ts'
 import { turnPerson } from './person-motion.ts'
 import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
@@ -106,6 +108,8 @@ import {
 } from './tribe-turns.ts'
 import {
   buildingFootprintCells,
+  buildingFootprintTiles,
+  type BuildingShapePose,
   buildingOutsidePoint,
   buildingInsidePoint,
   buildingPosition,
@@ -811,30 +815,91 @@ export function footprintPoints(kind: BuildingKind, p: Point) {
     for (let x = Math.floor(p.x - r); x <= Math.ceil(p.x + r); x++) points.push({ x, z })
   return points
 }
+function checkBuildingSite(w: World, pose: BuildingShapePose, model: number, team: Team, plan = 0) {
+  syncNativeTerrain(w)
+  syncLandscapeObjects(w)
+  const tribe = {
+    tribe: team === 'blue' ? 0 : 1,
+    playerType: w.manaTribes[team === 'blue' ? 0 : 1].playerType,
+    flags: 0,
+  }
+  // ponytail: build a read-only cell view until all scenery and shrine classes
+  // share the world's native object index.
+  const land = { ...w.land, flags: w.land.flags.slice(), buildingIds: w.land.buildingIds.slice() }
+  const buildings = new Map(
+    w.buildings
+      .filter(b => b.hp > 0)
+      .map(b => [b.id & 1023, { model: buildingModel(b), tribe: b.team === 'blue' ? 0 : 1 }])
+  )
+  const scenery = new Map<number, { class: number; model: number }[]>()
+  const add = (p: NativePoint, model: number) => {
+    const i = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+    const row = scenery.get(i) ?? []
+    row.push({ class: 5, model })
+    scenery.set(i, row)
+    land.flags[i] |= 2
+  }
+  for (const tree of w.trees) if (tree.logs > 0) add(nativePosition(w, tree), tree.model)
+  for (const shrine of w.shrines) {
+    if (shrine.kind !== 'vault') {
+      add(nativePosition(w, shrine), 9)
+      continue
+    }
+    const p = nativePosition(w, shrine),
+      id = shrine.id & 1023
+    buildings.set(id, { model: 18, tribe: 255 })
+    for (const i of buildingFootprintCells({
+      object: rules.buildingObjects[18],
+      angle: Math.round((shrine.angle * 1024) / Math.PI) & 2047,
+      anchorX: p.x & 0xfe00,
+      anchorY: p.y & 0xfe00,
+    })) {
+      land.flags[i] |= 512
+      land.buildingIds[i] = (land.buildingIds[i] & 0xfc00) | id
+    }
+  }
+  for (const center of [HOME, ENEMY])
+    for (const stone of reincarnationStones(land, nativePosition(w, center))) add(stone, 12)
+  const world = {
+    land,
+    // ponytail: the live first mission has no fog ownership; connect these
+    // original visibility gates when level loading owns the native fog flags.
+    landFlags: 0,
+    levelFlags: 0,
+    building: (id: number) => {
+      const b = buildings.get(id)
+      if (!b) throw new Error(`Missing placement object ${id}`)
+      return b
+    },
+    scenery: (i: number) => scenery.get(i) ?? [],
+  }
+  const valid = buildingFootprintTiles(pose).every(({ index, mask }) =>
+    buildingCellValid(
+      world,
+      tribe,
+      ((index & 127) << 1) | ((index >> 7) << 9),
+      mask,
+      model,
+      plan,
+      tribe.playerType === 1
+    )
+  )
+  return { valid, flags: tribe.flags }
+}
 export function placementError(w: World, kind: BuildingKind, p: Point) {
   const plan = buildingPlanPose(w, kind, p)
-  p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
-  const points = footprintPoints(kind, p),
-    heights = points.map(q => surface(w.terrain, q))
-  if (points.some(q => !walkable(w.terrain, q)))
+  const result = checkBuildingSite(w, plan, buildingModel({ kind, level: 1 }), 'blue')
+  if (!result.valid) {
+    if (result.flags & 0x800000) return 'Leave room around the other buildings and their entrances.'
+    if (result.flags & 0x10000000) return 'This slope is too steep. Choose a level building site.'
+    if (result.flags & 0x20000000) return 'Leave the worship site clear.'
     return 'The whole building needs dry land, including its fence and doorway.'
-  if (Math.max(...heights) - Math.min(...heights) > 2.4)
-    return 'This slope is too steep. Choose a level building site.'
+  }
+  p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
+  // ponytail: placement reach still uses settlement proximity until the full
+  // preview controller's territory and capacity queries are connected.
   if (!w.buildings.some(b => b.team === 'blue' && distance(b, p) < 16) && distance(HOME, p) > 16)
     return 'Build next to your settlement or reincarnation site.'
-  if (
-    w.buildings.some(b => {
-      const pose = buildingPose(b),
-        anchor = browserPosition({ x: pose.anchorX, y: pose.anchorY })
-      return (
-        Math.abs(anchor.x - p.x) < footprint(kind) + footprint(b.kind) + 2 &&
-        Math.abs(anchor.z - p.z) < footprint(kind) + footprint(b.kind) + 2
-      )
-    })
-  )
-    return 'Leave room around the other buildings and their entrances.'
-  if (w.shrines.some(s => distance(s, p) < footprint(kind) + 3))
-    return 'Leave the worship site clear.'
   return null
 }
 export function groundBuilding(w: World, b: Building, prepare = b.progress < 1) {
@@ -1777,7 +1842,7 @@ function cellShade(w: World, i: number) {
 export function syncLandscapeObjects(w: World) {
   const current = new Map(
     w.buildings
-      .filter(b => b.hp > 0 && (b.preparation || b.progress === 1))
+      .filter(b => b.hp > 0)
       .map(b => [
         b.id,
         { ...buildingPose(b), id: b.id, tribe: b.team === 'blue' ? 0 : 1, plan: !!b.preparation },
@@ -1951,8 +2016,7 @@ function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
   const action = stepUnbuiltPlan(
     plan,
     crew,
-    // ponytail: dry-land validation until 0x44ee50 owns all per-cell rules.
-    () => [...cells].every(i => w.land.heights[i] > 0),
+    () => checkBuildingSite(w, pose, plan.model, b.team, b.id).valid,
     () => {
       const people = w.units.filter(u => u.hp > 0 && u.inside === null && onSite(u)),
         scenery = w.trees.filter(t => t.logs > 0 && onSite(t))
@@ -2167,6 +2231,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
           queueTerrain(w.land, cell, 2, 1, terrainTextures)
           processTerrain(w.land, terrainTextures)
           updateWalkMasks(w.land, cell, 3)
+          notifyHeightChange(w, cell, 1)
           refreshTerrainSurface(w)
         },
         sound: cue => sound(w, cue, u),
@@ -2527,6 +2592,38 @@ const terrainTextures = { surface: () => {}, globe: () => {} }
 // ponytail: construction/deformation still write the cropped browser grid.
 // Feed its native vertices through the recovered queue until those producers
 // write the full native map directly; interpolated browser vertices are ignored.
+function notifyHeightChange(w: World, cell: number, radius: number) {
+  const objects = new Map<number, number[]>()
+  const add = (o: Point & { id: number }) => {
+    const p = nativePosition(w, o),
+      i = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+    const row = objects.get(i) ?? []
+    row.push(o.id)
+    objects.set(i, row)
+  }
+  w.units.filter(u => u.hp > 0 && u.inside === null).forEach(add)
+  w.trees.filter(t => t.logs > 0).forEach(add)
+  w.effects.forEach(add)
+  notifyTerrainObjects(
+    w.land,
+    cell,
+    radius,
+    i => objects.get(i) ?? [],
+    id => {
+      const b = w.buildings.find(b => (b.id & 1023) === id)
+      if (b?.preparation) b.preparation.revalidate = true
+      if (b?.damageState) b.damageState.flags2 |= 4
+      const u = w.units.find(u => u.id === id)
+      if (u?.native) u.native.flags2 |= 4
+      if (u?.builder?.person) u.builder.person.flags2 |= 4
+      const fx = w.effects.find(fx => fx.id === id)
+      if (fx?.fire) fx.fire.groundDirty = true
+      if (fx?.smoke) fx.smoke.flags2 |= 4
+      // Rendered tree heights already follow landVersion. Complete constructed-
+      // building terrain response and global route invalidation remain unported.
+    }
+  )
+}
 function syncNativeTerrain(w: World) {
   if (w.landVersion === w.terrainVersion) return
   const changed: number[] = []
@@ -2543,7 +2640,10 @@ function syncNativeTerrain(w: World) {
     }
   for (const cell of changed) queueTerrain(w.land, cell, 1, 0, terrainTextures)
   processTerrain(w.land, terrainTextures)
-  for (const cell of changed) updateWalkMasks(w.land, cell, 1)
+  for (const cell of changed) {
+    updateWalkMasks(w.land, cell, 1)
+    notifyHeightChange(w, cell, 1)
+  }
   w.landVersion = w.terrainVersion
 }
 function refreshTribeTerritory(w: World, id: number) {

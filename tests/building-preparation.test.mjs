@@ -43,7 +43,7 @@ test('live plans retain uneven ground, level visibly and wait for timber and cre
   const w=createWorld();w.manaWorld.gameFlags=32;w.unlockedCamp=true;w.buildingDirections[kind]=direction
   w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').map(u=>u.id)
   const before=w.land.heights.slice(),seed=w.randomState
-  assert.ok(placeBuilding(w,kind,{x:4,z:32}))
+  assert.ok(placeBuilding(w,kind,{x:-2,z:32}))
   const b=w.buildings.at(-1),plan=b.preparation,vertices=buildingGradeVertices(buildingPose(b)),mask=new Set(vertices.map(v=>v.index))
   assert.ok(plan);assert.deepEqual(w.land.heights,before,'placement must not terraform')
   // Route creation may draw speed/RNG; the hut family is selected only at allocation.
@@ -78,12 +78,12 @@ test('live plans retain uneven ground, level visibly and wait for timber and cre
 test('unattended plans expire and redirected leveling workers release their sprite and route',()=>{
  const w=createWorld();w.manaWorld.gameFlags=32
  w.units=w.units.filter(u=>u.kind!=='brave')
- assert.ok(placeBuilding(w,'hut',{x:4,z:32}))
+ assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
  const b=w.buildings.at(-1);assert.ok(b.preparation);assert.ok(!b.builders.some(Boolean))
  b.preparation.timeout=50;b.counter=127;tick(w,1/12)
  assert.ok(!w.buildings.includes(b));assert.ok(!w.land.buildingIds.some(id=>(id&1023)===b.id))
  const v=createWorld();v.manaWorld.gameFlags=32;v.selected=v.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
- assert.ok(placeBuilding(v,'hut',{x:4,z:32}))
+ assert.ok(placeBuilding(v,'hut',{x:-2,z:32}))
  const plan=v.buildings.at(-1)
  for(let n=0;n<1000&&!v.units.some(u=>u.builder?.task===8);n++)tick(v,1/12)
  const worker=v.units.find(u=>u.builder?.task===8);assert.ok(worker)
@@ -91,10 +91,10 @@ test('unattended plans expire and redirected leveling workers release their spri
  tick(v,1/12);assert.ok(!plan.builders.includes(worker.id))
 })
 
-test('preparation adapters clear on-site timber before allocation without deleting its resource',()=>{
+test('native preparation clears on-site timber before allocation without deleting its resource',()=>{
  const w=createWorld();w.manaWorld.gameFlags=32
  w.selected=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
- assert.ok(placeBuilding(w,'hut',{x:4,z:32}))
+ assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
  const b=w.buildings.at(-1),i=buildingFootprintCells(buildingPose(b))[0]
  // Use the public native coordinate adapter at the wrapped map seam.
  const tree=w.trees.find(t=>t.model===1&&t.logs===4)
