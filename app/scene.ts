@@ -370,9 +370,12 @@ export class GameScene {
     new THREE.ShaderMaterial({
       uniforms: { map: { value: texture('sky') }, height: { value: 1 } },
       vertexShader: `uniform float height; varying vec2 skyUV;
-        void main(){skyUV=uv;gl_Position=vec4(position.x,1.-(1.-position.y)*height,1.,1.);}`,
-      fragmentShader:
-        'uniform sampler2D map; varying vec2 skyUV; void main(){gl_FragColor=texture2D(map,skyUV);}',
+        void main(){skyUV=vec2(uv.x,1.-(1.-uv.y)/max(height,0.000001));gl_Position=vec4(position.xy,1.,1.);}`,
+      fragmentShader: `uniform sampler2D map; varying vec2 skyUV;
+        void main(){
+          float edge=0.5/float(textureSize(map,0).y);
+          gl_FragColor=texture2D(map,vec2(skyUV.x,clamp(skyUV.y,edge,1.-edge)));
+        }`,
       transparent: true,
       depthWrite: false,
       toneMapped: false,
@@ -817,12 +820,13 @@ export class GameScene {
     const width = this.container.clientWidth,
       height = this.container.clientHeight
     if (!width || !height) return
-    // 0x517630 uses the current camera horizon for both backdrop and clouds.
+    // Keep the native horizon/UV scale. Wide views can expose space below it;
+    // extend the backdrop edge color there without stretching clouds or terrain.
     const horizon = this.view.config.horizon
-    this.skyBackdrop.visible = !this.overviewActive && horizon > 0
+    this.skyBackdrop.visible = !this.overviewActive
     this.skyBackdrop.material.uniforms.height.value = horizon / height
     for (const [i, mesh] of this.skyClouds.entries()) {
-      mesh.visible = this.skyBackdrop.visible
+      mesh.visible = this.skyBackdrop.visible && horizon > 0
       if (!mesh.visible) continue
       // ponytail: the browser battlefield is the render surface. Its HUD is
       // outside that surface, so include the original optional left strip.

@@ -137,6 +137,8 @@ try {
             let x = u,
               y = v
             if (name.startsWith('cloud')) y = 1 - v
+            // Invert the backdrop's screen-to-horizon UV mapping for this sample.
+            if (name === 'sky') y = 1 - (1 - v) * mesh.material.uniforms.height.value
             if (name === 'water') {
               x = u * 16 - 8
               y = -v * 16 - 8

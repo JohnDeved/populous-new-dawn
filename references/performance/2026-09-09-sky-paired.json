@@ -1,0 +1,561 @@
+{
+  "date": "2026-09-09T16:57:58.236Z",
+  "fullTerrain": false,
+  "steppedCamera": false,
+  "compareCamera": false,
+  "compareSky": true,
+  "runtime": "v24.18.0",
+  "cpu": "Apple M5",
+  "os": "darwin",
+  "arch": "arm64",
+  "mode": "Headless Chromium, 1 second settling and 4 second CPU sample per scenario; crowd adds 200 stationary braves for renderer stress",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "viewport": [
+    3440,
+    1440
+  ],
+  "pixelRatio": 1,
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+  "runs": [
+    {
+      "scenario": "opening",
+      "smoothCamera": true,
+      "coveredSky": false,
+      "units": 12,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 7,
+      "frameCount": 63,
+      "frameGapMs": {
+        "p50": 66.69999999999891,
+        "p95": 66.79999999999927,
+        "max": 216.60000000000036
+      },
+      "cpuFrameMs": {
+        "p50": 5.299999952316284,
+        "p95": 6.799999952316284
+      },
+      "drawCalls": 79,
+      "triangles": 68613,
+      "heapBytes": 73446016,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3775.888
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 147.19
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 41.507
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 36.393
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 22.38
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 15.02
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 9.052
+        },
+        {
+          "name": "(anonymous) app/render-view.ts:349",
+          "ms": 8.714
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 7.556
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:563",
+          "ms": 7.133
+        },
+        {
+          "name": "s.animate :12",
+          "ms": 7.121
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 6.02
+        },
+        {
+          "name": "(anonymous) app/painter.ts:121",
+          "ms": 5.786
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 4.525
+        },
+        {
+          "name": "modelTriangleVisible app/painter-order.ts:12",
+          "ms": 4.516
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 4.507
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "smoothCamera": true,
+      "coveredSky": true,
+      "units": 12,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 7,
+      "frameCount": 57,
+      "frameGapMs": {
+        "p50": 66.70000000000073,
+        "p95": 83.39999999999964,
+        "max": 100
+      },
+      "cpuFrameMs": {
+        "p50": 5.5,
+        "p95": 6.900000095367432
+      },
+      "drawCalls": 79,
+      "triangles": 68613,
+      "heapBytes": 62883072,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3710.965
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 138.342
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 46.831
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 41.26
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 34.778
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 6.087
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 4.525
+        },
+        {
+          "name": "restore :0",
+          "ms": 4.201
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 4.153
+        },
+        {
+          "name": "s.animate :12",
+          "ms": 4.134
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 3.165
+        },
+        {
+          "name": "polygonBucket app/painter-order.ts:2",
+          "ms": 3.114
+        },
+        {
+          "name": "texSubImage2D :0",
+          "ms": 3.056
+        },
+        {
+          "name": "bindTexture http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:47387",
+          "ms": 3.02
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 3.011
+        },
+        {
+          "name": "getBoundingClientRect :0",
+          "ms": 3.01
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "smoothCamera": true,
+      "coveredSky": true,
+      "units": 12,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 7,
+      "frameCount": 56,
+      "frameGapMs": {
+        "p50": 66.70000000000073,
+        "p95": 83.40000000000146,
+        "max": 116.70000000000073
+      },
+      "cpuFrameMs": {
+        "p50": 5.300000190734863,
+        "p95": 6.599999904632568
+      },
+      "drawCalls": 79,
+      "triangles": 68613,
+      "heapBytes": 77448560,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3679.945
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 127.243
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 44.615
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 40.568
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 23.322
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 10.377
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 7.497
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 7.356
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 7.109
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 6.031
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:334",
+          "ms": 5.973
+        },
+        {
+          "name": "scene.onBeforeRender app/render-view.ts:348",
+          "ms": 5.341
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:563",
+          "ms": 4.512
+        },
+        {
+          "name": "(anonymous) app/painter.ts:121",
+          "ms": 3.827
+        },
+        {
+          "name": "(idle) :0",
+          "ms": 3.072
+        },
+        {
+          "name": "drawImage :0",
+          "ms": 3.03
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "smoothCamera": true,
+      "coveredSky": false,
+      "units": 12,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 7,
+      "frameCount": 61,
+      "frameGapMs": {
+        "p50": 66.70000000000073,
+        "p95": 83.39999999999782,
+        "max": 116.69999999999709
+      },
+      "cpuFrameMs": {
+        "p50": 5.400000095367432,
+        "p95": 6.299999952316284
+      },
+      "drawCalls": 79,
+      "triangles": 68613,
+      "heapBytes": 76196136,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3733.173
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 150.482
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 39.96
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 35.11
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 25.344
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 9.04
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 7.539
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 6.136
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 6.03
+        },
+        {
+          "name": "(anonymous) app/painter.ts:121",
+          "ms": 6.029
+        },
+        {
+          "name": "scene.onBeforeRender app/render-view.ts:348",
+          "ms": 6.019
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 4.558
+        },
+        {
+          "name": "upload http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:44974",
+          "ms": 4.539
+        },
+        {
+          "name": "texSubImage2D :0",
+          "ms": 3.026
+        },
+        {
+          "name": "s.animate :12",
+          "ms": 3.023
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:563",
+          "ms": 3.021
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "smoothCamera": true,
+      "coveredSky": false,
+      "units": 12,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 7,
+      "frameCount": 61,
+      "frameGapMs": {
+        "p50": 66.70000000000073,
+        "p95": 83.29999999999927,
+        "max": 116.70000000000073
+      },
+      "cpuFrameMs": {
+        "p50": 5.300000190734863,
+        "p95": 6.1000001430511475
+      },
+      "drawCalls": 79,
+      "triangles": 68613,
+      "heapBytes": 75755512,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3679.403
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 139.424
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 48.834
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 38.659
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 26.442
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 9.997
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 9.227
+        },
+        {
+          "name": "drawImage :0",
+          "ms": 7.328
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 7.322
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 6.049
+        },
+        {
+          "name": "scene.onBeforeRender app/render-view.ts:348",
+          "ms": 4.541
+        },
+        {
+          "name": "texSubImage2D :0",
+          "ms": 4.517
+        },
+        {
+          "name": "updateTerrainTexture app/scene.ts:1324",
+          "ms": 4.515
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 4.514
+        },
+        {
+          "name": "updateSky app/scene.ts:1132",
+          "ms": 3.068
+        },
+        {
+          "name": "now :0",
+          "ms": 3.052
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "smoothCamera": true,
+      "coveredSky": true,
+      "units": 12,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 7,
+      "frameCount": 55,
+      "frameGapMs": {
+        "p50": 83.29999999999563,
+        "p95": 83.40000000000146,
+        "max": 133.1999999999971
+      },
+      "cpuFrameMs": {
+        "p50": 5.400000095367432,
+        "p95": 6.1000001430511475
+      },
+      "drawCalls": 79,
+      "triangles": 68613,
+      "heapBytes": 89427204,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3714.201
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 133.483
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 45.261
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 38.042
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 28.189
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 9.04
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 7.146
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 6.034
+        },
+        {
+          "name": "texSubImage2D :0",
+          "ms": 6.021
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 5.931
+        },
+        {
+          "name": "scene.onBeforeRender app/render-view.ts:348",
+          "ms": 4.524
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 4.519
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 4.095
+        },
+        {
+          "name": "(anonymous) app/scene.ts:1327",
+          "ms": 3.03
+        },
+        {
+          "name": "modelMatrix app/projection.ts:88",
+          "ms": 3.022
+        },
+        {
+          "name": "getBoundingClientRect :0",
+          "ms": 3.022
+        }
+      ]
+    }
+  ]
+}

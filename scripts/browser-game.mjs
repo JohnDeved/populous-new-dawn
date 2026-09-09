@@ -53,3 +53,10 @@ export async function settleView(page) {
     cancelAnimationFrame(scene.frame)
   })
 }
+
+// Retained pre-modernization backdrop for pixel and paired frame-cost comparisons.
+export const originalSkyShaders = {
+  vertexShader: `uniform float height; varying vec2 skyUV;
+    void main(){skyUV=uv;gl_Position=vec4(position.x,1.-(1.-position.y)*height,1.,1.);}`,
+  fragmentShader: 'uniform sampler2D map; varying vec2 skyUV; void main(){gl_FragColor=texture2D(map,skyUV);}',
+}

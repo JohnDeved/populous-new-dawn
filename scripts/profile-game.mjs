@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { cpus, platform, arch } from 'node:os'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, originalSkyShaders } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: true })
 try {
@@ -14,6 +14,17 @@ try {
   const fullTerrain = process.argv.includes('--full-terrain')
   const steppedCamera = process.argv.includes('--stepped-camera')
   const compareCamera = process.argv.includes('--compare-camera')
+  const compareSky = process.argv.includes('--compare-sky')
+  assert.ok(!(compareSky && compareCamera), 'Compare one presentation change at a time')
+  if (compareSky) {
+    await page.setViewportSize({ width: 3440, height: 1440 })
+    await page.waitForFunction(() => window.testScene.container.clientWidth === 3190)
+    await page.evaluate(shaders => {
+      const s = window.testScene, original = s.skyBackdrop.material.clone()
+      Object.assign(original, shaders)
+      window.skyMaterials = [original, s.skyBackdrop.material]
+    }, originalSkyShaders)
+  }
   await page.evaluate(() => {
     window.originalCameraPreview = window.testScene.previewCamera
   })
@@ -50,8 +61,17 @@ try {
     }
   }, fullTerrain)
   const runs = []
-  const scenarios = compareCamera ? Array(6).fill('camera') : ['opening', 'camera', 'crowd']
+  const scenarios = compareSky ? Array(6).fill('opening') : compareCamera ? Array(6).fill('camera') : ['opening', 'camera', 'crowd']
   for (const [index, scenario] of scenarios.entries()) {
+    const coveredSky = compareSky ? [false, true, true, false, false, true][index] : true
+    if (compareSky)
+      await page.evaluate(covered => {
+        const s = window.testScene
+        s.skyBackdrop.material = window.skyMaterials[Number(covered)]
+        s.world.speed = 0
+        s.cameraBearing = 0
+        s.focus({ x: 2, z: 30 })
+      }, coveredSky)
     const smoothCamera = compareCamera
       ? [false, true, true, false, false, true][index]
       : !steppedCamera
@@ -105,6 +125,7 @@ try {
     runs.push({
       scenario,
       smoothCamera,
+      coveredSky,
       ...data,
       frames: undefined,
       frameCount: data.frames.length,
@@ -134,12 +155,14 @@ try {
         .map(([name, us]) => ({ name, ms: us / 1000 })),
     })
   }
+  if (compareSky) await page.evaluate(() => window.skyMaterials[0].dispose())
   assert.deepEqual(errors, [])
   const report = {
     date: new Date().toISOString(),
     fullTerrain,
     steppedCamera,
     compareCamera,
+    compareSky,
     runtime: process.version,
     cpu: cpus()[0].model,
     os: platform(),

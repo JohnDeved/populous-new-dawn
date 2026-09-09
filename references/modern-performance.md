@@ -10,7 +10,7 @@ experienced-player expectations while improving performance and presentation.
 | --- | --- | --- |
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
 | High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Units, flybys, globe motion, transitions and result cameras still need smoothing. |
-| Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Water still recomputes shared vertex samples;  Profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
+| Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
 | Models, sprites, painter and effects | Profiled | Painter traversal now skips unsubmitted terrain faces.  Measure submissions, batching, geometry updates, allocations and resource lifetime; retain native draw/sprite regressions. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
@@ -298,3 +298,70 @@ Visual review at 1920×1080 and 3440×1440 confirms the proportional sidebar;
 it also exposes black areas outside the ground globe against the sky on wide
 views. That world/sky coverage defect remains a priority in the rendering audit;
 HUD sizing does not resolve it or certify the whole modern-display experience.
+
+## Wide-screen sky coverage (2026-09-09)
+
+The fixed native ground region can expose the clear surface below the original
+sky rectangle on modern wide/tall viewports. The backdrop now uses its existing
+two triangles across the viewport, preserving the native horizon as its texture
+scale. Below that horizon it samples the bottom texel row; vertical sampling is
+clamped to texel centers to prevent the repeating sky texture from mixing its
+opposite edge into the horizon. Clouds retain their original geometry, UVs and
+fade, and the defeat flash retains its original rectangle. Overview still hides
+all ground-sky layers. Zero-height ground skies use the edge color as a fallback.
+
+This is a background coverage correction, **not a terrain clipping fix**. A
+full-region diagnostic removed black pixels but visual inspection showed invalid
+ground projected over the whole scene. Multiplying native polygon extents also
+produced vertical terrain strips. Those approaches were rejected. Do not use a
+zero-black-pixel count as evidence of correct visibility. The native terrain
+region and projection remain unchanged. Resolving its jagged perimeter and
+extending terrain safely needs proper near-plane/range handling and further
+original draw-pipeline investigation. The backdrop extension makes that remaining
+perimeter visible against sky rather than black; the overall widescreen audit is
+still unfinished.
+
+`check-browser-sky-coverage.mjs` compares actual old/new shaders at 12 viewport/view
+states (640×480 battlefield through ultrawide/4K; normal, close and bird views).
+Its white-background diagnostic distinguishes translucent edges from opaque
+ground: opaque ground pixels, projection, bounds and center picks remain identical.
+Existing upper sky pixels differ by at most one channel value from floating-point
+interpolation, excluding the intentional texel-edge correction. Translucent
+edges correctly blend with the new backdrop. The test also verifies overview
+hides the backdrop. [Raw pixel/submission comparisons](performance/2026-09-09-sky-coverage.json)
+retain filled-area counts and submission counters. There is no added draw call or
+triangle for existing nonzero-height skies; the formerly empty zero-height sky
+adds one two-triangle backdrop. No extra terrain is submitted.
+
+The native cloud oracle still matches 128 lens updates, 4,992 cloud triangles,
+nine complete horizon dispatches and 756 outer-dispatch triangles. Existing browser
+sky tests retain twelve view/size states, all zoom frames, native cloud fades,
+flash bounds, independent sky motion, keyboard rotation and overview return.
+This compatibility correction earns no additional native parity credit. Sky wind
+rounding and frame-rate-independent cloud motion remain separate unfinished work.
+
+### Sky coverage cost
+
+`node scripts/profile-game.mjs --compare-sky references/performance/2026-09-09-sky-paired.json`
+alternates the retained original and extended backdrop in one browser, in the
+order old/new/new/old/old/new. Six opening-view runs at 3440×1440, DPR 1 use one
+second settling and four seconds sampling each. The renderer remains at 79 calls
+and 68,613 triangles in both modes. Median CPU frame time across runs is 5.3 ms
+old versus 5.4 ms new; median p95 is 6.3 versus 6.6 ms. Median frame gap across runs
+is 66.7 ms in both modes, but the final new-background run reaches 83.3 ms.
+[Raw paired runs](performance/2026-09-09-sky-paired.json) retain that variability.
+
+Conditions: Apple M5/macOS arm64, Node 24.18, headless Chromium with SwiftShader.
+These measurements do not certify hardware FPS or prove unchanged GPU cost.
+Filling previously empty pixels costs raster work; the implementation reuses the
+existing backdrop pass rather than rendering extra terrain or adding a second
+background layer. Representative hardware and wider renderer performance remain
+open audit requirements. The 147 portable tests, typecheck/build and native cloud
+oracle pass; the new shader comparison protects the specific compatibility change.
+
+The 96-sample real-material palette/filter check also passes. Its sky input now
+inverts the screen-to-horizon UV mapping before sampling the same 2×2 calibration
+texture; expected native bilinear palette values and tolerance are unchanged.
+Next investigate the fixed-resolution camera table, displayed projection scale,
+near-plane handling and terrain perimeter together before expanding row spans.
+The unsafe full-region diagnostic is not a correctness baseline for that work.

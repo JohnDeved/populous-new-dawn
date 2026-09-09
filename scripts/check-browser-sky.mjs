@@ -55,6 +55,7 @@ try {
         horizon: s.view.config.horizon,
         backdrop: s.skyBackdrop.material.uniforms.height.value * h,
         visible: s.skyBackdrop.visible,
+        cloudsVisible: s.skyClouds.some(m => m.visible),
         layers: s.skyClouds.map(m => {
           const p = m.geometry.attributes.position,
             a = m.geometry.attributes.fade
@@ -73,7 +74,8 @@ try {
     assert.equal(actual.horizon, expected.horizon)
     assert.ok(Math.abs(actual.flash - expected.flashHeight) < 1e-9)
     assert.ok(Math.abs(actual.backdrop - expected.quad[2][1]) < 1e-9)
-    assert.equal(actual.visible, expected.horizon > 0)
+    assert.equal(actual.visible, true, 'Ground backdrop also covers exposed areas below the horizon')
+    assert.equal(actual.cloudsVisible, expected.horizon > 0)
     if (expected.horizon)
       expected.layers.forEach((points, layer) =>
         points.forEach(([x, y, color], i) => {
