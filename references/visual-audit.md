@@ -521,3 +521,33 @@ Parity revision 2 counts independently verified requirements within fixed broad
 checkpoint shares. Its baseline adjustment credits previously reviewed work and
 is recorded as a measurement revision. Primitive ordering earns a separate real
 increment; full raster fidelity remains partial and discovery stays open.
+
+
+## Live-model submission replay — after v137
+
+`node scripts/capture-browser-models.mjs` captures real first-mission meshes,
+camera configuration and twelve screenshots in `/private/tmp`: normal, close and
+bird's-eye presets at four bearings. It checks the live painter's triangle
+eligibility and records reconstructed positions, shades and buckets.
+`python scripts/check-native-live-models.py EXE /private/tmp/populous-live-models.json`
+loads hash-verified original object/face/point banks and invokes complete 004708d0
+without intercepted callees. 366 model calls and 7,430 queued triangles agree.
+The supplied model poses are browser state; original simulation pose ownership is
+not inferred from this check. Vault morphs and noncompleted models are excluded;
+tribe texture selection, global cell traversal and final GPU pixels are separate.
+
+This exposed command-allocation differences hidden by the GPU's later clipping.
+0046d970 first rejects common left/right/bottom screen outcodes, then computes
+winding; it deliberately has no shared top-edge rejection. The painter now applies
+this completed-model gate before assigning depths. Construction keeps its separate
+two-sided behavior. Portable native winding fixtures and edge regressions protect
+the helper; the live capture checks actual submission slots.
+
+Distant model shades agree with the original, including shade 1. The original
+0046e930 terrain path also supports quadratic attenuation controlled by 0089ce45
+and byte 0089ce41; their initial mapped values are zero and direct writes found
+so far are debug controls. Runtime initialization/indirect ownership has not been
+established, so no terrain attenuation or lighting adjustment was made. The source
+screenshots are not matched first-mission camera captures. Continue mixed queue,
+alpha and original whole-frame comparison; this evidence does not resolve all
+visible differences and does not earn a new checkpoint fraction.

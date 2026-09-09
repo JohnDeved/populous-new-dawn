@@ -82,8 +82,15 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare first-mission terrain, models, sprites and picking in
-playable normal (0), close (3) and bird's-eye (2) views against original frames.
+**Next action:** compare mixed terrain/model/sprite occlusion and full first-mission
+frames, with source cell chains and alpha ordering the next concrete rendering
+boundaries. Twelve captured normal (0), close (3) and bird's-eye (2) views at four
+bearings now replay 366 live static models through the complete native renderer:
+7,430 submitted triangles agree on projection, shade, culling and bucket. The
+shared painter now rejects completed-model rear faces and common left/right/bottom
+outcodes before allocating command depths. Do not brighten distant models: their
+native numeric shading agrees in these live poses. Vault morphs, source object
+traversal, complete GPU frames and terrain attenuation settings remain unverified.
 Shared polygon ordering now integrates constant triangle depth, native buckets,
 reverse insertion ties, raised terrain flags and imported object/face biases.
 All 70 native queues/1,036 triangles and twelve isolated browser overlap cases

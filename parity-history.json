@@ -7182,5 +7182,176 @@
     },
     "completionReady": false,
     "note": "Integrated native triangle buckets, model biases and constant command depths; 1036 captured triangles and 12 browser overlaps agree, including shared materials. Sprite, placement and overview footprint regressions pass. Credits primitive ordering only; full submission, batches, alpha and frame fidelity remain open."
+  },
+  {
+    "date": "2026-09-09T12:51:27.723Z",
+    "revision": 2,
+    "baseCommit": "6a07b5ef5a296d23dd8a8447240dfb927b9e8fa1",
+    "ledgerHash": "a3cecea6930a3ca1636b3d2e95ff9b66bbb2d49fe3f31b0ccc828341fd9d5dba",
+    "scopeHash": "66d83861b6784ee3eab32e475950799af1da3af89185a06a62748b1205de2498",
+    "total": 96,
+    "verified": 17,
+    "partial": 55,
+    "missing": 24,
+    "unassessed": 0,
+    "earned": 19.63809523809524,
+    "requirements": 127,
+    "verifiedRequirements": 34,
+    "groups": [
+      {
+        "id": "world",
+        "title": "World and camera",
+        "total": 8,
+        "earned": 5,
+        "requirements": 8,
+        "verifiedRequirements": 5,
+        "verified": 5,
+        "partial": 3,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "graphics",
+        "title": "Models, sprites and lighting",
+        "total": 8,
+        "earned": 4.6380952380952385,
+        "requirements": 39,
+        "verifiedRequirements": 19,
+        "verified": 2,
+        "partial": 6,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "effects",
+        "title": "Effects and object lifecycles",
+        "total": 8,
+        "earned": 4,
+        "requirements": 8,
+        "verifiedRequirements": 4,
+        "verified": 4,
+        "partial": 3,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "interface",
+        "title": "Interface and desktop controls",
+        "total": 8,
+        "earned": 3,
+        "requirements": 8,
+        "verifiedRequirements": 3,
+        "verified": 3,
+        "partial": 4,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "audio",
+        "title": "Audio and music",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 6,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "simulation",
+        "title": "Simulation scheduling and randomness",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 7,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "movement",
+        "title": "Movement, collision and vehicles",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 5,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "combat",
+        "title": "Unit classes and combat",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "economy",
+        "title": "Buildings, resources and population",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 7,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "spells",
+        "title": "Spell rules and complete roster",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 4,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "campaign",
+        "title": "Campaign, AI and objectives",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "persistence",
+        "title": "Persistence and multiplayer",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 0,
+        "missing": 8,
+        "unassessed": 0
+      }
+    ],
+    "discovery": {
+      "status": "open",
+      "note": "The original engine and content inventory remain open. Broad checkpoints retain equal shares; explicit requirements now expose verified work inside graphics checkpoints. Other broad partial checkpoints can be decomposed as their evidence is reviewed. New discoveries enter the inventory with zero credit and a recorded scope revision.",
+      "evidence": [
+        "GOAL.md",
+        "references/reverse-engineering.md"
+      ]
+    },
+    "completionReady": false,
+    "note": "Live-model replay: 366 complete native calls and 7430 triangles across 12 playable views. Integrated completed-model screen rejection before painter depth allocation. Distant shading agrees; global traversal, alpha and frame fidelity remain open. Existing partial clipping scope refined; no new completion credit."
   }
 ]

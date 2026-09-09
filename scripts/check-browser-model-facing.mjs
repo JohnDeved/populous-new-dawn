@@ -19,8 +19,9 @@ try {
       const gl=s.renderer.getContext(),size=gl.drawingBufferWidth*gl.drawingBufferHeight*4
       const read=()=>{s.renderer.render(s.scene,s.camera);const p=new Uint8Array(size);gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,p);return p}
       const before=read(),sides=meshes.map(m=>m.material.side)
-      meshes.forEach(m=>{m.material.side=2;m.material.needsUpdate=true})
-      const after=read();meshes.forEach((m,i)=>{m.material.side=sides[i];m.material.needsUpdate=true});read()
+      // Replay the old two-sided path before both CPU submission and GPU culling.
+      meshes.forEach(m=>{m.userData.stage=-1;m.material.side=2;m.material.needsUpdate=true})
+      const after=read();meshes.forEach((m,i)=>{m.userData.stage=4;m.material.side=sides[i];m.material.needsUpdate=true});read()
       let changed=0;for(let i=0;i<size;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])changed++
       return changed
     },angle)

@@ -1,6 +1,11 @@
 import * as THREE from 'three'
-import { modelMatrix, modelPoint, spriteBucket } from './projection.ts'
-import { comparePolygons, painterDepth, polygonBucket } from './painter-order.ts'
+import { modelMatrix, modelPoint, projectPoint, spriteBucket } from './projection.ts'
+import {
+  comparePolygons,
+  modelTriangleVisible,
+  painterDepth,
+  polygonBucket,
+} from './painter-order.ts'
 import type { RenderView } from './render-view.ts'
 
 interface Command {
@@ -116,6 +121,7 @@ export class Painter {
               ) - 1
           else {
             const depths: number[] = []
+            const projected = []
             let raised = !!object.userData.painterRaised
             for (let j = 0; j < 3; j++) {
               world.fromBufferAttribute(position, triangle * 3 + j)
@@ -125,11 +131,15 @@ export class Painter {
                   Math.round(world.y * scale * 3),
                   Math.round(-world.z * scale * 3),
                 ]
-                depths.push(
-                  depth(
-                    modelPoint(raw, object.userData.nativeSize ?? scale, rotation, nativeOrigin)
-                  )
+                const point = modelPoint(
+                  raw,
+                  object.userData.nativeSize ?? scale,
+                  rotation,
+                  nativeOrigin
                 )
+                depths.push(depth(point))
+                if (object.userData.stage === 4)
+                  projected.push(projectPoint(point, view.projection))
               } else {
                 world.applyMatrix4(transform)
                 depths.push(depth(view.relative(world, (world.y * 128) / 45, unwrapped)))
@@ -142,6 +152,11 @@ export class Painter {
                 }
               }
             }
+            if (
+              projected.length &&
+              !modelTriangleVisible(projected, view.projection.width, view.projection.height)
+            )
+              continue
             bucket = polygonBucket(
               depths,
               bias?.getX(triangle * 3) ?? object.userData.painterBias ?? 0,
