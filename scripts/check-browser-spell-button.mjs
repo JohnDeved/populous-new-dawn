@@ -26,15 +26,17 @@ try {
     if(c.hovered)await button.hover()
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
     const actual=await button.evaluate(b=>{
-      const box=b.getBoundingClientRect(),scale=box.width/31
-      return {frame:getComputedStyle(b).borderImageSource,width:box.width/scale,height:box.height/scale,
+      const box=b.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),
+        sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'))
+      return {frame:getComputedStyle(b).borderImageSource,width:Math.round(box.width/sx),height:Math.round(box.height/sy),
         sprites:[...b.querySelectorAll('.spell-art .hud-sprite')].map(s=>{
-          const r=s.getBoundingClientRect();return {position:getComputedStyle(s).backgroundPosition,x:(r.x-box.x)/scale,y:(r.y-box.y)/scale,w:r.width/scale,h:r.height/scale}
+          const r=s.getBoundingClientRect();return {position:getComputedStyle(s).backgroundPosition,x:Math.round((r.x-box.x)/sx),y:Math.round((r.y-box.y)/sy),w:Math.round(r.width/sx),h:Math.round(r.height/sy)}
         }),
         fills:[...b.querySelectorAll('.native-charge>i')].map(f=>({width:parseFloat(f.style.width),color:f.style.backgroundColor})),
       }
     })
     assert.ok(actual.frame.endsWith(`/hud-${frames[expected[0][1]]}.png")`),actual.frame)
+    assert.equal(actual.width,31)
     assert.equal(actual.height,43)
     assert.deepEqual(actual.sprites,expected.filter(e=>e[0]==='sprite').map(([,id,x,y])=>{
       const r=hud.rects[id];return {position:`-${r.x}px -${r.y}px`.replaceAll('-0px','0px'),x,y,w:r.w,h:r.h}

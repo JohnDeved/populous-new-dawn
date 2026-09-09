@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const states = ['verified', 'partial', 'missing', 'unassessed']
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
-const percent = ({ earned, verified, total }) =>
-  `${((100 * (earned ?? verified)) / total).toFixed(1)}%`
+const coverage = ({ earned, verified, total }) => (100 * (earned ?? verified)) / total
+const percent = entry => `${coverage(entry).toFixed(2)}%`
 const read = name => JSON.parse(readFileSync(resolve(root, name), 'utf8'))
 
 function validateEvidence(paths, required, subject, base) {
@@ -154,28 +154,55 @@ export function validateRevision(ledger, previous) {
   )
 }
 
+// Old snapshots retain their original counts; never infer individual completions.
+export function assessmentChanges(entry, previous) {
+  if (
+    !previous ||
+    entry.revision !== previous.revision ||
+    !entry.verifiedIds ||
+    !previous.verifiedIds
+  )
+    return null
+  return {
+    verified: entry.verifiedIds.filter(id => !previous.verifiedIds.includes(id)),
+    reopened: previous.verifiedIds.filter(id => !entry.verifiedIds.includes(id)),
+  }
+}
+
 export function render(ledger, history) {
   const summary = summarize(ledger)
+  const items = ledger.groups.flatMap(g => g.items)
+  const coarse = items.filter(i => i.status === 'partial' && !i.requirements)
+  const latest = history.at(-1)
+  const changes = latest && assessmentChanges(latest, history.at(-2))
+  const assessment = changes
+    ? [
+        `Newly verified: ${changes.verified.length}. Reopened: ${changes.reopened.length}.`,
+        ...changes.verified.map(id => `- Verified: \`${id}\`.`),
+        ...changes.reopened.map(id => `- Reopened: \`${id}\`.`),
+      ].join('\n\n')
+    : 'Requirement-level changes are unavailable across a scope revision or an older snapshot. Treat a revised score as a new measurement baseline, not newly completed game behavior.'
   const rows = summary.groups.map(
     g =>
       `| ${g.title} | ${percent(g)} | ${g.verifiedRequirements}/${g.requirements} | ${g.verified}/${g.total} |`
   )
   const progress = history.map((entry, i) => {
     const previous = history[i - 1]
+    const changes = assessmentChanges(entry, previous)
     const delta =
       previous && previous.revision === entry.revision
-        ? `${(Number.parseFloat(percent(entry)) - Number.parseFloat(percent(previous))).toFixed(1)} pp`
+        ? `${(coverage(entry) - coverage(previous)).toFixed(2)} pp`
         : previous
           ? 'scope revision'
           : 'baseline'
     const note = entry.note.replaceAll('|', '\\|').replaceAll('\n', ' ')
-    return `| ${entry.date} | ${entry.revision} | ${percent(entry)} | ${entry.verified}/${entry.total} | ${delta} | ${note} |`
+    return `| ${entry.date} | ${entry.revision} | ${percent(entry)} | ${entry.verified}/${entry.total} | ${delta}${changes ? `; ${changes.verified.length} newly verified, ${changes.reopened.length} reopened` : ''} | ${note} |`
   })
   const details = ledger.groups.flatMap(group => [
     `### ${group.title}`,
     '',
     ...group.items.flatMap(item => [
-      `- **${item.status}** — ${item.title} (\`${item.id}\`). ${item.note}${item.evidence.length ? ` Evidence: ${item.evidence.map(p => `[${p}](${p})`).join(', ')}.` : ''}`,
+      `- **${item.status}** — ${item.title} (\`${item.id}\`).${item.requirements ? ` **${item.requirements.filter(r => r.status === 'verified').length}/${item.requirements.length} requirements verified; each earns ${(100 / summary.total / item.requirements.length).toFixed(2)} percentage points overall.**` : ''} ${item.note}${item.evidence.length ? ` Evidence: ${item.evidence.map(p => `[${p}](${p})`).join(', ')}.` : ''}`,
       ...(item.requirements ?? []).map(
         r =>
           `  - **${r.status}** — ${r.title} (\`${r.id}\`). ${r.note}${r.evidence.length ? ` Evidence: ${r.evidence.map(p => `[${p}](${p})`).join(', ')}.` : ''}`
@@ -191,6 +218,14 @@ export function render(ledger, history) {
     `**Graphics: ${percent(summary.groups.find(g => g.id === 'graphics') ?? summary)}.** Overall: ${summary.verifiedRequirements}/${summary.requirements} individual requirements verified; ${summary.verified}/${summary.total} broad checkpoints complete.`,
     '',
     `${summary.partial} partial; ${summary.missing} missing; ${summary.unassessed} unassessed. Checklist revision ${ledger.revision}.`,
+    '',
+    '**Latest assessment**',
+    '',
+    assessment,
+    '',
+    latest?.note ?? 'No assessment recorded.',
+    '',
+    `**Tracking blind spots: ${coarse.length} broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.`,
     '',
     `**Discovery: ${summary.discovery.status}.** ${summary.discovery.note}`,
     '',
@@ -218,7 +253,7 @@ export function render(ledger, history) {
     '',
     '## Update workflow',
     '',
-    '1. Edit `parity.json`: update status, evidence and remaining boundaries. Break broad partial checkpoints into explicit `requirements`; retain every unfinished part and give each requirement its own evidence. Parent completion must agree with its requirements. Preserve IDs for unchanged scope. Add discoveries as `unassessed`, then classify them as missing, partial or verified after investigation. Credit only compared and integrated behavior; reopen regressions.',
+    '1. Before implementing the next target, break its broad partial checkpoint into explicit `requirements`; retain every unfinished part and give each requirement its own evidence. Record that scope revision as a baseline first. Then update status, evidence and remaining boundaries as behavior is verified. Parent completion must agree with its requirements. Preserve IDs for unchanged scope. Add discoveries as `unassessed`, then classify them as missing, partial or verified after investigation. Credit only compared and integrated behavior; reopen regressions.',
     '2. Run the affected native/browser/game checks. Add or split checkpoints/groups freely as research requires, increment the revision, reopen discovery and explain the scope change; never silently shrink the denominator. There is no fixed checkpoint or group limit.',
     '3. Run `npm run parity:record -- "What changed and what was verified"`, then `npm run check`. Commit the ledger, history and generated report together.',
     '4. Use `npm run parity` for a compact summary or `npm run --silent parity -- --json` for machine-readable counts. Keep maintainability and decomp progress in GOAL.md; they are not gameplay completion credit.',
@@ -252,6 +287,11 @@ function main() {
       ledgerHash: hash(ledger),
       scopeHash: scopeHash(ledger),
       ...summary,
+      verifiedIds: ledger.groups.flatMap(g =>
+        g.items.flatMap(i =>
+          (i.requirements ?? [i]).filter(r => r.status === 'verified').map(r => r.id)
+        )
+      ),
       note,
     })
     writeFileSync(historyPath, `${JSON.stringify(history, null, 2)}\n`)

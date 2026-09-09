@@ -24,7 +24,13 @@ percentage, whole-checkpoint completion and partial/missing counts; this is a pl
 an estimate of effort remaining or an objective fraction of the original engine.
 Only compared, integrated behavior earns verified credit for its stated scope.
 Break broad partial checkpoints into explicit, independently evidenced requirements,
-retaining their unfinished scope. Each broad checkpoint keeps one equal share;
+retaining their unfinished scope. Do this for the active target **before** implementation
+and record the revised baseline separately, so subsequent completions have measurable
+gates instead of disappearing into an indefinitely partial checkpoint. The dashboard
+shows newly verified and reopened requirement IDs, each subdivided requirement's
+percentage-point contribution, and remaining checkpoints too coarse to show progress.
+Use two decimal places for accounting visibility, not as a claim of measurement certainty.
+Each broad checkpoint keeps one equal share;
 verified requirements earn fractions of that share. More subdivisions cannot raise
 its maximum weight. Scope revisions are measurement changes, not gameplay gains;
 never report their percentage differences as newly completed work.

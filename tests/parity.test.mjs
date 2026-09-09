@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
-import { render, scopeHash, summarize, validateRevision } from '../scripts/parity.mjs'
+import {
+  assessmentChanges,
+  render,
+  scopeHash,
+  summarize,
+  validateRevision,
+} from '../scripts/parity.mjs'
 
 test('parity credits verified scope only and rejects misleading or untraceable assessments', () => {
   const currentLedger = JSON.parse(readFileSync(new URL('../parity.json', import.meta.url), 'utf8'))
@@ -159,4 +165,49 @@ test('verified requirements advance a fixed checkpoint share without hiding unkn
   )
   assert.match(rendered, /scope revision/)
   assert.doesNotMatch(rendered, /25.0 pp/)
+})
+
+test('assessments expose small gains and regressions without crediting scope revisions', () => {
+  const ledger = JSON.parse(readFileSync(new URL('../parity.json', import.meta.url), 'utf8'))
+  const previous = {
+    date: 'before',
+    revision: 4,
+    verified: 17,
+    earned: 20,
+    total: 96,
+    verifiedIds: ['interface.hud.health'],
+    note: 'Baseline',
+  }
+  const current = {
+    ...previous,
+    date: 'after',
+    earned: 20 + 1 / 13,
+    verifiedIds: [...previous.verifiedIds, 'interface.hud.minimap-terrain'],
+    note: 'Verified map',
+  }
+  assert.deepEqual(assessmentChanges(current, previous), {
+    verified: ['interface.hud.minimap-terrain'],
+    reopened: [],
+  })
+  assert.match(render(ledger, [previous, current]), /0\.08 pp/)
+  assert.match(render(ledger, [previous, current]), /Newly verified: 1\. Reopened: 0\./)
+  const regression = {
+    ...current,
+    earned: previous.earned,
+    verifiedIds: ['interface.hud.minimap-terrain'],
+  }
+  assert.deepEqual(assessmentChanges(regression, current), {
+    verified: [],
+    reopened: ['interface.hud.health'],
+  })
+  assert.match(render(ledger, [current, regression]), /-0\.08 pp/)
+  // Equal total credit can hide one completion and one regression.
+  assert.deepEqual(assessmentChanges(regression, previous), {
+    verified: ['interface.hud.minimap-terrain'],
+    reopened: ['interface.hud.health'],
+  })
+  assert.deepEqual(assessmentChanges(previous, previous), { verified: [], reopened: [] })
+  assert.equal(assessmentChanges(current, { ...previous, revision: 3 }), null)
+  assert.equal(assessmentChanges(current, { ...previous, verifiedIds: undefined }), null)
+  assert.match(render(ledger, [previous, { ...current, revision: 5 }]), /scope revision/)
 })

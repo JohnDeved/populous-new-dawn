@@ -1,8 +1,8 @@
 {
-  "revision": 3,
+  "revision": 4,
   "discovery": {
     "status": "open",
-    "note": "The original engine and content inventory remain open. Broad checkpoints retain equal shares. Revision 3 separates deferred alpha ordering from the remaining blend-mode/state and source-queue ownership so this visible behavior can be independently assessed. New discoveries enter with zero credit and a recorded scope revision.",
+    "note": "The original engine and content inventory remain open. Revision 4 separates the HUD into independently assessable rendering, state, layout and minimap requirements while preserving all 96 broad checkpoint shares. Previously verified HUD work is rebased, not newly completed gameplay. New discoveries enter with zero credit and a recorded scope revision.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -865,7 +865,158 @@
             "decomp/generated/0044a1f0.c",
             "decomp/generated/0044a210.c"
           ],
-          "note": "Opening HUD subset implemented. Original spell ready/inactive/hover icons, permanent/reward/selected frames, empty/gift stock markers, 1\u20134-shot logical positions and layered charging fills agree with 763 complete native calls. Supported spells follow native mana-cost slot order. Browser checks compare 24 live art states and actual charging controls; broader HUD interactions pass at two sizes with completed camera transitions. Full slot availability/disabled/locked dispatch, charge sparks, native resolution scaling, all panels, messages and minimap behavior remain unverified. Native shaman health frame/colors/integer fill match 2,091 controller calls, 24 browser states and 880 screenshot pixels; death/absence/reincarnation integration checked. HUD atlas dimensions now match its PNG, guarded by bounds checks. Animated shaman portrait now shares live directional frames and shadow-free layers: 322 native controller states, 408 directional poses, three original borders and 200 browser pixel hashes agree. Hover, selection, animation, camera input and actual death/absence/reincarnation pass. Native resolution rounding, full control/state ownership, presentation scheduling remain open. Production meter now uses the native sampled/estimated mana rates, 44 stripes, threshold colors and warning/suppression modes: 1,948 complete native controllers, 30 browser states and 15 raster hashes agree. The mana-estimation tick rate now connects to the existing simulation clock. Actual Blast casting and charge toggles pass; native per-resolution scaling and UI override ownership remain open. Population/class counts now use original F00T digits, two/three-digit formatting, zero suppression, icon positions and hover/selected borders. Total excludes the shaman; housing retains its reserved allowance. 360 native count controllers, 7,198 housing/blink controllers and 38 browser pixel hashes agree, with live selection and follower removal. Complete alternate-count/control ownership, unavailable-control blending, unsupported classes and native per-resolution rounding remain open. Desktop HUD now scales horizontal and vertical coordinates independently from 640\u00d7480. Eight browser viewport sizes compare with 64 original coordinate conversions; the 1280\u00d7720 sidebar is 200px wide rather than 150px. Full fixed-point control layout, minimap terrain/rotation/markers and per-pixel resampling remain open."
+          "note": "Six rendering requirements now receive their verified fraction of this checkpoint. Complete HUD parity still requires spell dispatch, minimap terrain/markers/input, exact layout, native state ownership and remaining panels. This subdivision credits already validated behavior without claiming those outstanding systems are finished.",
+          "requirements": [
+            {
+              "id": "interface.hud.spell-art",
+              "title": "Spell-button artwork, stock markers and charge fills",
+              "status": "verified",
+              "note": "Compared ready/inactive/hover artwork, permanent/reward/selected borders, 1\u20134-shot positions and layered charge fills: 763 native calls and 24 browser art states. Supported-spell mana-cost ordering and live charging checked. Full slot dispatch and sparks are separate.",
+              "evidence": [
+                "app/spell-button.ts",
+                "scripts/check-native-spell-button.py",
+                "scripts/check-browser-spell-button.mjs",
+                "tests/spell-button.test.mjs"
+              ]
+            },
+            {
+              "id": "interface.hud.health",
+              "title": "Shaman health frame, palette and integer fill",
+              "status": "verified",
+              "note": "2,091 native controllers, 24 browser states and original frame/palette comparisons. Live death, absence and reincarnation checked. Full HUD state ownership and resolution rounding remain separate.",
+              "evidence": [
+                "app/hud-health.ts",
+                "scripts/check-native-hud-health.py",
+                "scripts/check-browser-hud-health.mjs",
+                "tests/hud.test.mjs"
+              ]
+            },
+            {
+              "id": "interface.hud.portrait",
+              "title": "Directional shaman portrait layers and borders",
+              "status": "verified",
+              "note": "322 native controller states, 440 poses and 216 browser pixel hashes. Live hover, selection, animation, camera direction and death/reincarnation checked. Native presentation scheduling and full state ownership remain separate.",
+              "evidence": [
+                "app/hud-portrait.ts",
+                "scripts/check-native-hud-portrait.py",
+                "scripts/check-browser-hud-portrait.mjs",
+                "tests/hud.test.mjs"
+              ]
+            },
+            {
+              "id": "interface.hud.mana",
+              "title": "Production-meter stripes, thresholds and warning display",
+              "status": "verified",
+              "note": "1,948 native controllers, 30 browser states and 15 raster hashes. Sampled/estimated rates connect to the simulation clock; Blast and charge-toggle integration checked. Override ownership and per-resolution rasterization remain separate.",
+              "evidence": [
+                "app/hud-mana.ts",
+                "scripts/check-native-hud-mana.py",
+                "scripts/check-browser-hud-mana.mjs",
+                "tests/fixtures/hud-mana.json"
+              ]
+            },
+            {
+              "id": "interface.hud.population",
+              "title": "Follower-count glyphs, class icons and housing feedback",
+              "status": "verified",
+              "note": "360 native count controllers, 7,198 housing/blink controllers and 38 browser pixel hashes. Live follower removal and supported-class selection checked. Alternate-count ownership, unavailable-control blending and unsupported classes remain separate.",
+              "evidence": [
+                "app/hud-population.ts",
+                "scripts/check-native-hud-population.py",
+                "scripts/check-browser-hud-population.mjs",
+                "tests/fixtures/hud-population.json"
+              ]
+            },
+            {
+              "id": "interface.hud.axis-scale",
+              "title": "Independent desktop HUD X/Y coordinate scaling",
+              "status": "verified",
+              "note": "64 original coordinate conversions and eight browser viewport sizes verify the 640\u00d7480 axis ratios and sidebar/health bounds within one native pixel. Exact integer control placement and resampling are explicitly outside this requirement.",
+              "evidence": [
+                "app/page.tsx",
+                "app/globals.css",
+                "scripts/check-native-hud.py",
+                "scripts/check-browser-hud-scale.mjs",
+                "tests/fixtures/hud-scale.json"
+              ]
+            },
+            {
+              "id": "interface.hud.spell-dispatch",
+              "title": "Complete spell-slot availability, locked states and charge sparks",
+              "status": "partial",
+              "note": "Supported spells use adapters for availability and ownership. Match every original disabled/locked/availability transition and spark lifecycle, with browser casts and charging across the complete spell roster.",
+              "evidence": [
+                "app/page.tsx",
+                "app/spell-button.ts",
+                "scripts/check-browser-spell-button.mjs"
+              ]
+            },
+            {
+              "id": "interface.hud.minimap-terrain",
+              "title": "Minimap terrain palette, toroidal scroll and camera rotation",
+              "status": "partial",
+              "note": "The shipped browser uses invented colors and a fixed 96-unit crop. Require native indexed terrain and camera-wrap comparisons plus integrated browser pixels at multiple positions, bearings and land changes. Native-only research does not complete this requirement.",
+              "evidence": [
+                "app/scene.ts",
+                "decomp/generated/004206e0.c",
+                "decomp/generated/00420100.c",
+                "decomp/generated/0041fce0.c"
+              ]
+            },
+            {
+              "id": "interface.hud.minimap-markers",
+              "title": "Minimap object markers, visibility and animated indicators",
+              "status": "partial",
+              "note": "Current dots and shrine markers are adapters. Compare original tribe/class palettes, shaman outlines, blinking indicators, fog/visibility and marker positions in the rotated live map.",
+              "evidence": [
+                "app/scene.ts",
+                "decomp/generated/004202d0.c"
+              ]
+            },
+            {
+              "id": "interface.hud.minimap-input",
+              "title": "Minimap picking and camera-command routing",
+              "status": "partial",
+              "note": "Current fixed-crop click mapping cannot match the recovered camera-relative map. Verify inverse mapping, wrap boundaries, button/modifier handling and original command dispatch through real browser clicks.",
+              "evidence": [
+                "app/scene.ts",
+                "scripts/check-browser-camera-focus.mjs"
+              ]
+            },
+            {
+              "id": "interface.hud.control-layout",
+              "title": "Complete native control placement and rasterization across resolutions",
+              "status": "partial",
+              "note": "Independent axis ratios are verified separately. Native integer rounding, all control rectangles, clipping, unavailable-state blending and per-pixel resampling still need original and browser comparisons.",
+              "evidence": [
+                "app/page.tsx",
+                "app/globals.css",
+                "scripts/check-browser-hud-scale.mjs"
+              ]
+            },
+            {
+              "id": "interface.hud.control-ownership",
+              "title": "Native HUD state ownership and presentation scheduling",
+              "status": "partial",
+              "note": "Rendered controls use browser state adapters. Verify original control/override ownership, alternate counts, class availability and presentation scheduling under actual simulation and input transitions.",
+              "evidence": [
+                "app/page.tsx",
+                "app/hud-population.ts",
+                "app/hud-mana.ts",
+                "app/hud-portrait.ts"
+              ]
+            },
+            {
+              "id": "interface.hud.remaining-panels",
+              "title": "Remaining HUD tabs, building panels and contextual controls",
+              "status": "partial",
+              "note": "Opening controls are implemented. Inventory and compare the remaining native HUD tabs, building/vehicle panels and contextual states, including the full supported content roster. Tooltips/messages and front-end menus retain their separate broad checkpoints.",
+              "evidence": [
+                "app/page.tsx",
+                "scripts/check-browser-hud.mjs"
+              ]
+            }
+          ]
         },
         {
           "id": "interface.commands",
