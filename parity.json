@@ -382,20 +382,25 @@
               "id": "graphics.lighting.models",
               "title": "Default model sunlight, face normals and depth attenuation",
               "status": "verified",
-              "note": "Default model lighting is compared and integrated.",
+              "note": "Default model lighting is compared and integrated. Model modes 3/4/32 now retain full diffuse brightness after shade conversion; warm specular is preserved for numeric shades. Ordinary modes 6/7 and construction-cap mode 7 retain attenuation. Compared 655 original material submissions, 40 live GPU color probes and real Lightning fire (413 pixels brighter than the old shaded path). Remaining blend states and texture-cache ownership are separate unfinished requirements.",
               "evidence": [
                 "scripts/check-native-model-lighting.py",
-                "scripts/check-browser-model-lighting.mjs"
+                "scripts/check-browser-model-lighting.mjs",
+                "scripts/check-native-model-materials.py",
+                "tests/fixtures/model-materials.json"
               ]
             },
             {
               "id": "graphics.lighting.highlight",
               "title": "Native hovered-model highlight",
               "status": "verified",
-              "note": "Original owned-object highlight colors and phase are compared.",
+              "note": "Original owned-object highlight colors and phase are compared. Full-bright model modes override packed hover diffuse too; numeric warm specular disappears for packed colors. Native material captures and actual GPU probes cover 200/255 hover values for modes 3/4/6/7/32.",
               "evidence": [
                 "scripts/check-native-model-highlight.py",
-                "scripts/check-browser-model-highlight.mjs"
+                "scripts/check-browser-model-highlight.mjs",
+                "scripts/check-native-model-materials.py",
+                "tests/fixtures/model-materials.json",
+                "scripts/check-browser-model-lighting.mjs"
               ]
             },
             {

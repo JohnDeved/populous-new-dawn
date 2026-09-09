@@ -7866,5 +7866,176 @@
     },
     "completionReady": false,
     "note": "Native cell sprite/model passes and retained person arrival order: 480 original dispatches and eight browser overlap cases; full source ownership remains partial."
+  },
+  {
+    "date": "2026-09-09T13:40:09.054Z",
+    "revision": 3,
+    "baseCommit": "c7f87b7094487bb0bd9a163779968058414c5672",
+    "ledgerHash": "0936c14dac94eb85827719f518a0efedabb11b7a98ad908a3b9f8092f0b211dc",
+    "scopeHash": "eace1ba431d9e562c11a2331a4980f8215f2a17a4ec7bddcff300aff9409d58f",
+    "total": 96,
+    "verified": 17,
+    "partial": 55,
+    "missing": 24,
+    "unassessed": 0,
+    "earned": 19.738095238095237,
+    "requirements": 128,
+    "verifiedRequirements": 35,
+    "groups": [
+      {
+        "id": "world",
+        "title": "World and camera",
+        "total": 8,
+        "earned": 5,
+        "requirements": 8,
+        "verifiedRequirements": 5,
+        "verified": 5,
+        "partial": 3,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "graphics",
+        "title": "Models, sprites and lighting",
+        "total": 8,
+        "earned": 4.738095238095238,
+        "requirements": 40,
+        "verifiedRequirements": 20,
+        "verified": 2,
+        "partial": 6,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "effects",
+        "title": "Effects and object lifecycles",
+        "total": 8,
+        "earned": 4,
+        "requirements": 8,
+        "verifiedRequirements": 4,
+        "verified": 4,
+        "partial": 3,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "interface",
+        "title": "Interface and desktop controls",
+        "total": 8,
+        "earned": 3,
+        "requirements": 8,
+        "verifiedRequirements": 3,
+        "verified": 3,
+        "partial": 4,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "audio",
+        "title": "Audio and music",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 6,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "simulation",
+        "title": "Simulation scheduling and randomness",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 7,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "movement",
+        "title": "Movement, collision and vehicles",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 5,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "combat",
+        "title": "Unit classes and combat",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "economy",
+        "title": "Buildings, resources and population",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 7,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "spells",
+        "title": "Spell rules and complete roster",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 4,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "campaign",
+        "title": "Campaign, AI and objectives",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "persistence",
+        "title": "Persistence and multiplayer",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 0,
+        "missing": 8,
+        "unassessed": 0
+      }
+    ],
+    "discovery": {
+      "status": "open",
+      "note": "The original engine and content inventory remain open. Broad checkpoints retain equal shares. Revision 3 separates deferred alpha ordering from the remaining blend-mode/state and source-queue ownership so this visible behavior can be independently assessed. New discoveries enter with zero credit and a recorded scope revision.",
+      "evidence": [
+        "GOAL.md",
+        "references/reverse-engineering.md"
+      ]
+    },
+    "completionReady": false,
+    "note": "Corrected full-bright model material modes and hover: 655 native submissions, 40 GPU probes and real Lightning fire. Existing lighting coverage repaired; no new credit."
   }
 ]

@@ -10,12 +10,20 @@ import {
 } from '../app/painter-order.ts'
 import faces from './fixtures/model-facing.json' with { type: 'json' }
 import cells from './fixtures/cell-render-order.json' with { type: 'json' }
+import { modelTextureModes } from '../app/model-faces.ts'
 import {
   cellObjectOrder,
   insertObjectIntoCell,
   moveObjectInCells,
   objectsInCell,
 } from '../app/object-cells.ts'
+
+test('construction caps replace face modes and hidden picking faces emit no material', () => {
+  const model = { faces: [3, 17, 4, 1, 3, 2], modes: [32, 6, 0] }
+  assert.deepEqual(modelTextureModes(model, 0), [7, 7, 7, 6, 6, 6, 6, 6, 6])
+  assert.deepEqual(modelTextureModes(model, 1), [])
+  assert.deepEqual(modelTextureModes(model, 4), [32, 32, 32, 6, 6, 6, 6, 6, 6])
+})
 
 test('cell render order matches native mixed passes and retained arrival order', () => {
   assert.equal(cells.executableSha256, camera.executableSha256)

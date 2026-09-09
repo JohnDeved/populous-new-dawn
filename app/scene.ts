@@ -79,7 +79,7 @@ import {
 } from './model'
 
 import nativeModelData from './original-models.json'
-import { modelDepthBias, modelStage, type NativeModel } from './model-faces.ts'
+import { modelDepthBias, modelStage, modelTextureModes, type NativeModel } from './model-faces.ts'
 const nativeModels: Record<number, NativeModel> = nativeModelData
 import { morphCoordinate } from './morph.ts'
 import {
@@ -192,6 +192,10 @@ function nativeModel(id: number, scale = 2, stage = 4) {
     g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3))
     g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
     g.setAttribute('painterBias', new THREE.Float32BufferAttribute(modelDepthBias(data, stage), 1))
+    g.setAttribute(
+      'textureMode',
+      new THREE.Float32BufferAttribute(modelTextureModes(data, stage), 1)
+    )
     g.computeVertexNormals()
     return g
   })
@@ -215,12 +219,15 @@ function nativeModel(id: number, scale = 2, stage = 4) {
     shader.vertexShader =
       `attribute float faceShade;
 attribute vec3 faceAnchor;
+attribute float textureMode;
 varying float modelLight;
+varying float modelTextureMode;
 ` + shader.vertexShader
     shader.vertexShader = shader.vertexShader.replace(
       '#include <begin_vertex>',
       `
       #include <begin_vertex>
+      modelTextureMode=textureMode;
       ivec3 anchor=ivec3(faceAnchor);
       anchor=ivec3(nativeMul(anchor.x,int(nativeObjectScale)),nativeMul(anchor.y,int(nativeObjectScale)),nativeMul(anchor.z,int(nativeObjectScale)))>>8;
       anchor=(ivec3(nativeDot(anchor,nativeObjectBasis[0]),nativeDot(anchor,nativeObjectBasis[1]),nativeDot(anchor,nativeObjectBasis[2]))>>14)+nativeOrigin(modelMatrix[3].xyz);
@@ -229,15 +236,18 @@ varying float modelLight;
     `
     )
     shader.fragmentShader =
-      'uniform float modelHighlight;\nvarying float modelLight;\n' + shader.fragmentShader
+      'uniform float modelHighlight;\nvarying float modelLight;\nvarying float modelTextureMode;\n' +
+      shader.fragmentShader
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <colorspace_fragment>',
       `
       #include <colorspace_fragment>
       int shade=int(modelLight+.5), strength=clamp(shade*5-160,0,256);
       vec3 highlight=vec3((ivec3(253,185,53)*strength)>>8)/255.;
-      gl_FragColor.rgb=modelHighlight>0.?gl_FragColor.rgb*modelHighlight/255.:
-        gl_FragColor.rgb*float(shade<32?shade*8:255)/255.+highlight;
+      float diffuse=modelHighlight>0.?modelHighlight:float(shade<32?shade*8:255);
+      // 0x4673b0 overrides diffuse after lighting, retaining numeric specular.
+      if(modelTextureMode==3.||modelTextureMode==4.||modelTextureMode==32.)diffuse=255.;
+      gl_FragColor.rgb=gl_FragColor.rgb*diffuse/255.+(modelHighlight>0.?vec3(0.):highlight);
     `
     )
   }

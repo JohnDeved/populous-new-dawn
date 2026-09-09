@@ -51,3 +51,14 @@ export function modelDepthBias(data: NativeModel, stage: number) {
     modelFaceVisible(data, face, stage) ? Array(data.faces[face * 2] === 3 ? 3 : 6).fill(bias) : []
   )
 }
+
+// 0x471c40 replaces construction caps with mode 7; other faces retain their mode.
+export function modelTextureModes(data: NativeModel, stage: number) {
+  return data.modes.flatMap((mode, face) =>
+    modelFaceVisible(data, face, stage)
+      ? Array(data.faces[face * 2] === 3 ? 3 : 6).fill(
+          stage !== 4 && data.faces[face * 2 + 1] & (16 << stage) ? 7 : mode
+        )
+      : []
+  )
+}

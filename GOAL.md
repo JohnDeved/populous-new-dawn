@@ -82,8 +82,14 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** continue matched first-mission frame comparisons and recover
-remaining source cell/object ownership where ties visibly disagree. The ground
+**Next action:** continue matched first-mission frame comparisons and compare
+model texture coordinates/cache mapping at the final native submission boundary.
+Model material modes 3/4/32 now keep full diffuse brightness, including hover,
+while retaining numeric warm specular. Construction caps use shaded mode 7.
+Compared 655 original material submissions, 40 GPU color probes and actual
+Lightning fire. This corrects material-mode selection; it does not resolve the
+distant ordinary models whose numeric shades already match the original.
+Continue remaining cell/object ownership where ties visibly disagree. The ground
 painter now submits sprite-based objects before models within each cell and uses
 retained native-person list order, including departure/return changes. Compared
 480 complete native mixed-cell dispatches and eight equal-bucket browser overlaps.

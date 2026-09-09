@@ -92,6 +92,30 @@ try {
   assert.ok(first.sound)
   const pixels = await effectPixels(page, [first.id])
   assert.ok(pixels > 100, `Fire contributed only ${pixels} pixels`)
+  const brightness = await page.evaluate(() => {
+    const s = window.testScene, mesh = s.fxMeshes.get(window.burnFire.id).children[0]
+    const modes = mesh.geometry.getAttribute('textureMode'), gl = s.renderer.getContext()
+    if (!Array.from(modes.array).every(mode => mode === 32)) throw Error('Fire lost its native full-bright material')
+    const read = () => {
+      s.renderer.render(s.scene, s.camera)
+      const pixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
+      gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+      return pixels
+    }
+    modes.array.fill(6); modes.needsUpdate = true
+    const before = read()
+    modes.array.fill(32); modes.needsUpdate = true
+    const after = read()
+    let brighter = 0, dimmer = 0
+    for (let i = 0; i < before.length; i += 4) {
+      const change = after[i] + after[i + 1] + after[i + 2] - before[i] - before[i + 1] - before[i + 2]
+      brighter += Number(change > 0)
+      dimmer += Number(change < 0)
+    }
+    return { brighter, dimmer }
+  })
+  assert.ok(brightness.brighter > 100, JSON.stringify(brightness))
+  assert.equal(brightness.dimmer, 0)
   await page.screenshot({ path: '/private/tmp/populous-scenery-fire.png' })
   await page.evaluate(() => { window.testScene.world.speed = 0.25 })
   await page.waitForFunction(frame => window.burnFire.fire.frame !== frame, first.frame)
@@ -124,7 +148,7 @@ try {
   })
   assert.equal(await page.evaluate(() => window.testScene.world.land.shadows[window.burnTreeCell] & 15), 0)
   assert.deepEqual(errors, [])
-  console.log(`PASS: scenery ground shade (${shadows.changed} GPU pixels); real Lightning ignites tree, original fire model/animated UVs (${pixels} GPU pixels), native grounding/scale, tree shrink, shade clears on removal, camera rotation, sound request, smoke and cleanup; no browser errors`)
+  console.log(`PASS: scenery ground shade (${shadows.changed} GPU pixels); real Lightning ignites tree, original fire model/animated UVs (${pixels} GPU pixels), full-bright material (${brightness.brighter} brighter pixels), native grounding/scale, tree shrink, shade clears on removal, camera rotation, sound request, smoke and cleanup; no browser errors`)
 } finally {
   await browser.close()
 }

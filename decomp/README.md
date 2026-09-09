@@ -4191,3 +4191,46 @@ native/live depth comparisons, 392 sprite poses, selection, airborne shadows,
 placement/rotation and real collapse-smoke checks pass without browser errors.
 The smoke frame was inspected. Focused ESLint and oxlint checks pass (remaining
 style warnings); Fallow reports 85.1 maintainability and mean cyclomatic 2.8.
+
+
+## Model material brightness selection — after v140
+
+The original 004673b0 model-polygon dispatcher converts numeric face shades into
+modulated diffuse plus warm specular. For modes 3, 4 and 32 it then overrides only
+the diffuse value with opaque white. Packed colors, including hover gray, receive
+no specular and still get the mode-specific white diffuse override. Modes 6/7
+retain their ordinary diffuse. Construction 00471c40 replaces cap faces with
+mode 7. The browser previously used one shaded material path for every face,
+incorrectly darkening fire and special monument surfaces.
+
+`check-native-model-materials.py EXE` captures 655 native triangle submissions:
+five modes, all numeric shades 0–127 and three packed colors. Original 004673b0
+executes through the final triangle consumer; texture-cache placement is supplied
+and execution stops at GPU submission. Three vertex color pairs must agree. The
+executable-bound fixture retains exact diffuse/specular words. This does not
+establish original texture-cache population, device blend factors or all modes.
+
+Model geometry now retains a per-vertex texture mode, including cap replacement.
+The shared model shader applies the original diffuse override after selecting
+numeric or hover lighting. `check-browser-model-lighting.mjs` verifies all 42 live
+models' mode attributes and compares 40 GPU samples directly with the captured
+native color words. Ordinary dark faces retain their original attenuation;
+full-bright modes keep numeric warm light but ignore packed hover modulation.
+
+A real Lightning strike checks the actual original fire model and compares it
+with its former shaded material: 413 pixels become brighter and none dimmer.
+Animation, original UVs, size/grounding, sound request, smoke and expiry still
+pass. The fire frame was inspected. Sprite artwork, airborne shadows and live
+selection also pass. Portable cap/hidden-face checks protect material assignment.
+
+This repairs behavior inside existing model-lighting/highlight coverage, so it
+adds no new parity credit. Other material modes, complete blend/depth settings,
+model UV/cache mapping and matched original frames remain open. The distant
+ordinary models still agree with the original numeric shades; this fix does not
+claim to resolve their whole-frame appearance.
+
+Validation: 141 portable tests, type checking, parity metadata and production
+build pass. All 40 completed/construction face probes and 20 translucent/cell-tie
+overlaps pass, alongside placement/rotation, sprite layers, shadows and selection.
+Focused ESLint and oxlint pass with existing style warnings; Fallow reports 85.1
+maintainability, mean cyclomatic complexity 2.8 and p90 5.
