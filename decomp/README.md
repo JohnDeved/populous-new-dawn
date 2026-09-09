@@ -4363,3 +4363,30 @@ pixels. Real Lightning fire, model UVs, textured debris and sprite regressions
 remain the integration checks. The browser targets the alpha-capable 4444 path;
 hardware fallbacks, complete device enumeration, graphics-setting ownership,
 cache population/fallback and matched original whole frames remain open.
+
+## Desktop HUD axis scaling and minimap investigation — after v144
+
+0044a1f0 maps a normalized X coordinate by screen width; 0044a210 maps Y by
+screen height with its half-height integer adjustment before division by 65536.
+0044b770 uses these independent dimensions for the selected map control.
+The browser's shared HUD transform now uses width/640 and height/480 rather than
+one height-derived scale capped at two. Its world viewport reserves the resulting
+sidebar width. This fixes the 150px sidebar at 1280×720 to the original 200px.
+
+`check-native-hud.py EXE` retains 606 original glyph comparisons and adds 64
+coordinate conversions at eight desktop sizes. Logical control positions and
+their normalized fixed-point inputs are supplied. `hud-scale.json` records the
+executable-bound outputs; `check-browser-hud-scale.mjs` checks raw sidebar/health
+bounds within one native integer pixel and the actual renderer's resize.
+Existing health, mana, population and portrait checks use independent axes;
+exact pixel hashes use integral 2× scaling, with widescreen geometry and gameplay
+checked separately. Complete menu initialization/layout, rounding and resampling
+remain open. This extends the partial HUD checkpoint without completing it.
+
+The [visual audit](../references/visual-audit.md) records first-mission video
+frames and the remaining minimap discrepancy. Newly reviewed exports 004206e0,
+00420100, 004202d0 and 0041fce0 cover indexed terrain, camera-relative map wrapping,
+eligible markers and heading-dependent texture sampling. 004b64e0 chooses a
+power-of-two surface from actual control dimensions; 00517760 forwards its blit.
+Those minimap routines are research evidence, not yet CPU-compared browser ports.
+Preserve their scope for the next integration rather than crediting the exports.

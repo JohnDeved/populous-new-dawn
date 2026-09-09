@@ -49,9 +49,8 @@ export default function Home() {
   const shell = useRef<HTMLElement>(null)
   useEffect(() => {
     const resize = () => {
-      const scale = Math.min(2, window.innerHeight / 480)
-      shell.current?.style.setProperty('--hud-scale', String(scale))
-      shell.current?.style.setProperty('--hud-height', `${window.innerHeight / scale}px`)
+      shell.current?.style.setProperty('--hud-scale-x', String(window.innerWidth / 640))
+      shell.current?.style.setProperty('--hud-scale-y', String(window.innerHeight / 480))
     }
     resize()
     window.addEventListener('resize', resize)

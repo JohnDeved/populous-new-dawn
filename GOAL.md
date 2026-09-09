@@ -82,8 +82,17 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare matched first-mission frames and address the largest
-remaining visible differences in terrain/models, effects and HUD/controls.
+**Next action:** integrate the original minimap terrain, camera-relative wrapping,
+rotation and markers using the newly reviewed 0041fce0/00420100/004202d0/004206e0
+path. The current fixed 96-unit crop and invented colors remain adapters. Native
+HUD coordinates scale X and Y independently; the browser now follows 640×480 axis
+ratios instead of a height-based scale capped at two. Eight desktop sizes compare
+with 64 original coordinate conversions; subpixel CSS rounding and complete native
+control layout remain open. A first-mission recording at 25/45 seconds confirms
+the original also has distant dark model silhouettes and tan low terrain; do not
+brighten or tint them without stronger evidence. The footage uses an unverified
+2022 executable/settings, so it is a visual reference, not an exact replay oracle.
+Continue effects, controls and critical gameplay alongside minimap/full-frame work.
 Object textures now use the native alpha-capable ARGB4444 selection, palette
 quantization and row/column edge preparation. The complete original selector
 passes 128 capability/availability cases; all 262,144 source-bank texels pass

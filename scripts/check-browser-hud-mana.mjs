@@ -12,19 +12,19 @@ try{
   const cases=fixture.cases.filter(c=>c.tribe.estimatedRate===100&&[0,1,89,178,179].includes(c.tribe.previousRate)&&!c.override)
   assert.equal(cases.length,15)
   let hashes=0,states=0
-  for(const size of [{width:1440,height:1000},{width:1280,height:720}]){
+  for(const size of [{width:1280,height:960},{width:1280,height:720}]){
     await page.setViewportSize(size)
     for(const c of cases){
       await page.evaluate(c=>{const s=window.testScene;Object.assign(s.world.manaTribes[0],c.tribe);Object.assign(s.world.manaWorld,c.world);s.onChange()},c)
       const expected=c.colors.map(n=>{const h=hud.colors[n];return `rgb(${[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(', ')})`})
       await page.waitForFunction(colors=>JSON.stringify([...document.querySelectorAll('.mana-meter i')].map(i=>i.style.backgroundColor))===JSON.stringify(colors),expected)
       const state=await meter.evaluate(m=>{
-        const r=m.getBoundingClientRect(),scale=parseFloat(getComputedStyle(document.querySelector('main')).getPropertyValue('--hud-scale'))
-        return {bounds:[r.x/scale,r.y/scale,r.width/scale,r.height/scale],stripes:[...m.querySelectorAll('i')].map(i=>{const b=i.getBoundingClientRect();return [(b.x-r.x)/scale,(b.y-r.y)/scale,b.width/scale,b.height/scale]})}
+        const r=m.getBoundingClientRect(),style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'))
+        return {bounds:[Math.round(r.x/sx),Math.round(r.y/sy),Math.round(r.width/sx),Math.round(r.height/sy)],stripes:[...m.querySelectorAll('i')].map(i=>{const b=i.getBoundingClientRect();return [Math.round((b.x-r.x)/sx),Math.round((b.y-r.y)/sy),Math.round(b.width/sx),Math.round(b.height/sy)]})}
       })
       assert.deepEqual(state.bounds,[4,190,92,13])
       assert.deepEqual(state.stripes,c.colors.map((_,i)=>[2+i*2,2,1,10]))
-      if(size.height===1000){
+      if(size.height===960){
         const png=await meter.screenshot()
         const hash=await page.evaluate(async bytes=>{
           const image=await createImageBitmap(new Blob([new Uint8Array(bytes)],{type:'image/png'}))

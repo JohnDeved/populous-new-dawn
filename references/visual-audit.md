@@ -585,3 +585,43 @@ Parity revision 3 separates deferred alpha ordering from remaining blend/depth
 modes and source-queue ownership. The new scope's pre-verification baseline is
 recorded independently of its verified gain. Full original source chains, native
 batch limits, other blend/state modes and matched full frames remain unfinished.
+
+
+## First-mission video and desktop HUD scaling — after v144
+
+Reviewed The Beginning's [first-mission recording](https://www.youtube.com/watch?v=VShnrE4mBPc)
+(published 2022-03-06), extracting decoded 1280×720 video frames at 25 and 45
+seconds through Playwright and the video element. Local reference copies are
+`level1-video-25s.png` and `level1-video-45s.png` (ignored imagery). The recording's
+executable identity, graphics settings and modifications are unknown. Its
+thumbnail is stylized and is not a pixel reference. The frames are visual
+evidence rather than a matched native replay.
+
+At 45 seconds the native distant buildings are dark silhouettes, while nearby
+terrain is tan and mottled. That supports retaining the compared distance-shading
+and bank-c terrain paths. It does not establish exact color, pose or pixel
+agreement. The main remaining differences visible here include minimap scale,
+colors/rotation, HUD contents/placement, knowledge icons and initial hut poses.
+These should take priority over further speculative distance-light changes.
+
+The recording's sidebar is 200 pixels wide at 1280×720. Our former height-based
+uniform scale made it 150 pixels wide. Native 0044a1f0/0044a210 independently map
+normalized coordinates to screen width/height; 0044b770 applies the same behavior
+to the selected minimap control. The browser now scales its 640×480 logical HUD
+independently on each axis. Eight desktop viewports check raw sidebar/health
+bounds against 64 original conversions, allowing one pixel for native integer
+truncation. Original control placement and fixed-point normalization remain
+separate inputs, and CSS does not reproduce every native rounding decision.
+
+The live renderer follows the changed viewport. Before/after 1280×720 screenshots
+are `/private/tmp/populous-hud-scale-before.png` and `...-after.png`. Existing
+health/mana/population/portrait checks now account for the two axes. Pixel-hash
+comparisons use 1280×960 (exact 2× scaling); geometry and interactions also run at
+widescreen sizes. Full HUD layout and pixel resampling remain unfinished.
+
+The native minimap path is now exported for the next integration. 004206e0 reads
+height/cliff/brightness-indexed terrain colors, 00420100 wraps the map around the
+camera's cell-snapped position, 004202d0 draws eligible native markers, and
+0041fce0 rotates its sampling coordinates by camera heading with a 5/6 factor.
+The current crop, arbitrary colors, stationary map and markers are still browser
+adapters. No minimap parity credit is claimed from these exports.

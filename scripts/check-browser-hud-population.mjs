@@ -7,6 +7,7 @@ import hud from '../app/original-hud.json' with {type:'json'}
 const browser=await chromium.launch({headless:true})
 try{
   const {page,errors}=await openGame(browser)
+  await page.setViewportSize({width:1280,height:960})
   await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;cancelAnimationFrame(s.frame);s.personAnimationFrame=0;s.animate(s.previous);cancelAnimationFrame(s.frame);window.populationOriginal=s.world.units;window.populationBuildings=s.world.buildings})
   const controls=page.locator('.tribe-classes button'),total=page.getByRole('button',{name:'Select all followers',exact:true})
   const cases=fixture.cases.filter(c=>[0,2,3].includes(c.model)&&[0,9,99,100,200].includes(c.count)&&!c.alternate&&(!c.selected||(c.model>0&&c.count>0)))
@@ -36,7 +37,7 @@ try{
   await page.evaluate(()=>{const s=window.testScene;s.world.units=window.populationOriginal;s.world.selected=[];s.onChange()})
   for(const size of [{width:1440,height:1000},{width:1280,height:720}]){
     await page.setViewportSize(size)
-    const bounds=await controls.evaluateAll(buttons=>{const scale=parseFloat(getComputedStyle(document.querySelector('main')).getPropertyValue('--hud-scale'));return buttons.map(b=>{const r=b.getBoundingClientRect();return [r.x/scale,r.y/scale,r.width/scale,r.height/scale]})})
+    const bounds=await controls.evaluateAll(buttons=>{const style=getComputedStyle(document.querySelector('main')),sx=parseFloat(style.getPropertyValue('--hud-scale-x')),sy=parseFloat(style.getPropertyValue('--hud-scale-y'));return buttons.map(b=>{const r=b.getBoundingClientRect();return [Math.round(r.x/sx),Math.round(r.y/sy),Math.round(r.width/sx),Math.round(r.height/sy)]})})
     assert.deepEqual(bounds,Array.from({length:6},(_,i)=>[i*16,153,15,36]))
   }
   await page.getByRole('button',{name:'Select all braves',exact:true}).click()
