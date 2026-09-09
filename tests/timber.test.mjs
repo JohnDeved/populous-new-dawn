@@ -72,7 +72,9 @@ test('live construction advances on each delivery, pauses and cancels cleanly',(
     tick(w,1/12);assert.equal(b.progress,log/3);assert.equal(b.logs,log);assert.equal(u.cargo,0)
     assert.equal(buildingStage(b),[1,2,4][log-1])
   }
-  assert.equal(w.stats.built,1);assert.equal(u.work,null)
+  assert.equal(w.stats.built,1);assert.equal(u.work,b.id)
+  for(let turn=0;turn<600&&(u.builder||extra.builder);turn++)tick(w,1/12)
+  assert.equal(u.work,null)
   assert.equal(extra.cargo,1,'completion preserves another worker’s surplus timber')
   assert.equal(extra.work,null)
   b.progress=0;b.logs=0;arrive();tick(w,1/12);w.selected=[u.id]

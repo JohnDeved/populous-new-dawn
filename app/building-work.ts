@@ -45,6 +45,21 @@ function face(person: Worker, to: Point, mask: number) {
   person.angle = person.flags2 & 0x8000 ? (angle + 1024) & 2047 : angle
 }
 
+function approach(
+  rng: { randomState: number },
+  person: Worker,
+  site: WorkSite,
+  enter: boolean,
+  effects: Pick<WorkEffects, 'destination' | 'animation'>
+) {
+  if (enter) person.flags4 = ((person.flags4 & 0xfffefff8) | 1) >>> 0
+  const point = enter ? site.center : site.outside
+  effects.destination(point, enter && near(person, site.outside, 312))
+  face(person, point, 2047)
+  person.assignment &= ~16
+  recoverPersonMovement(rng, person, effects.animation)
+}
+
 // Task 2, 0x4958f0, including its approach/arrival and wait consumers.
 export function stepBuildingWork(
   rng: { randomState: number },
@@ -95,16 +110,122 @@ export function stepBuildingWork(
       movePosition(point, random(rng) & 2047, site.building ? radius : radius >> 1)
       effects.destination(point, true)
       face(person, point, 2047)
-    } else {
-      if (task.phase === Phase.Enter) person.flags4 = ((person.flags4 & 0xfffefff8) | 1) >>> 0
-      const point = task.phase === Phase.Enter ? site.center : site.outside
-      effects.destination(point, task.phase === Phase.Enter && near(person, site.outside, 312))
-      face(person, point, 2047)
-    }
-    person.assignment &= ~16
-    recoverPersonMovement(rng, person, effects.animation)
+      person.assignment &= ~16
+      recoverPersonMovement(rng, person, effects.animation)
+    } else approach(rng, person, site, task.phase === Phase.Enter, effects)
   }
   const limit = task.phase === Phase.NearDoor ? 1080 : 112
   if (!(person.counter & 1) && near(person, { x: person.goalX, y: person.goalY }, limit))
     next(nextMovementPhase[task.phase])
+}
+
+const Departure = {
+  Door: 2,
+  Center: 3,
+  Rest: 4,
+  Settle: 5,
+  Ready: 6,
+  Turn: 18,
+  ClearSite: 19,
+  FaceSite: 21,
+} as const
+
+// Task 9, 0x497690. Readiness belongs to the plan's completion gate; reaching
+// phase 6 does not itself remove the worker or its assignment.
+export function stepBuildingDeparture(
+  rng: { randomState: number },
+  person: Worker,
+  task: Builder,
+  site: WorkSite & { onBuilding: boolean },
+  effects: Pick<WorkEffects, 'destination' | 'animation'> & { releaseMotion: () => void }
+) {
+  const next = (phase: number) => {
+    task.phase = phase
+    person.assignment |= 16
+  }
+  const steer = (angle: number) => {
+    effects.releaseMotion()
+    person.turnAngle = angle & 2047
+    person.flags2 = (person.flags2 | 0x1080) >>> 0
+  }
+  if (task.restart) {
+    task.restart = false
+    next(site.onBuilding ? Departure.Center : Departure.ClearSite)
+  }
+  const entering = !!(person.assignment & 16)
+  switch (task.phase) {
+    case Departure.Door:
+    case Departure.Center:
+      if (entering) approach(rng, person, site, task.phase === Departure.Center, effects)
+      if (!(person.counter & 1) && near(person, { x: person.goalX, y: person.goalY }, 112))
+        next(task.phase === Departure.Center ? Departure.Rest : Departure.Turn)
+      return
+    case Departure.ClearSite:
+      if (entering) {
+        person.assignment &= ~16
+        let angle = random(rng)
+        if (rules.buildingFlags[site.model] & 512)
+          angle =
+            nativeAngle(
+              short(site.outside.x - site.center.x),
+              -short(site.outside.y - site.center.y)
+            ) +
+            (angle & 1023) -
+            512
+        recoverPersonMovement(rng, person, effects.animation)
+        steer(angle)
+      }
+      if (!(person.counter & 3) && !(site.occupied & 1023)) next(Departure.FaceSite)
+      return
+    case Departure.Ready:
+      if (entering) {
+        person.assignment &= ~16
+        stopPersonMovement(person, effects.animation)
+      }
+      if (!(person.counter & 31) && site.occupied & 1023) next(Departure.Door)
+      return
+    case Departure.Rest:
+    case Departure.Settle:
+    case Departure.Turn:
+    case Departure.FaceSite:
+      if (entering) {
+        switch (task.phase) {
+          case Departure.Rest:
+            person.timer = (random(rng) & 7) + 1
+            break
+          case Departure.Settle:
+            person.timer = 6
+            break
+          case Departure.Turn:
+            person.timer = 5
+            steer(person.heading + (random(rng) % 796) - 398)
+            break
+          case Departure.FaceSite:
+            person.timer = 1
+            face(person, site.center, 2047)
+            break
+        }
+        person.assignment &= ~16
+        if (task.phase === Departure.Turn) recoverPersonMovement(rng, person, effects.animation)
+        else stopPersonMovement(person, effects.animation)
+      }
+      if (task.phase === Departure.Rest && !(person.counter & 31)) steer(random(rng))
+      person.timer = short(person.timer - 1)
+      if (!person.timer) {
+        switch (task.phase) {
+          case Departure.Rest:
+            next(Departure.Door)
+            break
+          case Departure.Settle:
+            next(Departure.Ready)
+            break
+          case Departure.Turn:
+            next(Departure.FaceSite)
+            break
+          case Departure.FaceSite:
+            next(Departure.Settle)
+            break
+        }
+      }
+  }
 }

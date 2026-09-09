@@ -81,6 +81,7 @@ test('Lightning ignites only its building footprint, then evacuates, damages and
   assert.equal(occupant.inside, null);
   assert.equal(building.damageState.plan.remaining, 300);
   until(w, () => building.burn.remaining === 79, 4);
+  assert.equal(occupant.inside,null,'automatic housing cannot reenter a burning hut');
   assert.equal(building.damageState.plan.remaining, 200);
   assert.equal(building.damageState.stage, 2);
   assert.ok(w.sounds.some(s => s.cue === 0x53 && s.stop && s.owner === building.id));
@@ -100,6 +101,8 @@ test('Lightning ignites only its building footprint, then evacuates, damages and
   assert.equal(building.damageState.state, 2);
   assert.equal(building.damageState.plan.remaining, 300);
   assert.equal(building.hp, hp);
+  until(w, () => !w.units.some(u=>u.work===building.id&&u.builder), 30);
+  assert.ok(building.builders.every(id=>id===0),'repaired buildings retain the same departure gate');
 });
 test('Lightning burns original scenery through smoke and cleanup without leaking fire state', () => {
   const w = createWorld();

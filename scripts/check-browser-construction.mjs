@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict'
 import {chromium} from '@playwright/test'
 import {openGame} from './browser-game.mjs'
+import {spriteDirection} from '../app/projection.ts'
 import sprites from '../app/original-units.json' with {type:'json'}
 const browser=await chromium.launch({headless:true})
 try{
@@ -53,10 +54,34 @@ try{
     await page.screenshot({path:`/private/tmp/populous-construction-v122-${log}.png`})
     if(log<3)await page.evaluate(()=>{window.testScene.world.speed=4})
   }
-  assert.equal(await page.evaluate(()=>window.builder.work),null)
+  assert.equal(await page.evaluate(()=>window.builder.work===window.building.id),true,'final delivery retains construction ownership')
+  await page.evaluate(()=>{window.testScene.world.speed=0.25})
+  for(const state of ['walk','idle']){
+    await page.waitForFunction(state=>{
+      const s=window.testScene,u=window.builder,p=u.builder?.person
+      if(u.builder?.task!==9||!p)return false
+      if(state==='walk'?!p.speed:u.builder.phase!==5||p.timer<2)return false
+      s.world.speed=0;s.world.paused=true;return true
+    },state)
+    await page.waitForFunction(state=>window.testScene.unitMeshes.get(window.builder.id).userData.state===state,state)
+    const pose=await page.evaluate(()=>{
+      const s=window.testScene,u=window.builder,p=u.builder.person,g=s.unitMeshes.get(u.id)
+      return {object:p.object,step:p.f2,heading:u.heading,bearing:s.cameraBearing,frame:g.userData.frame,flip:g.userData.frameFlip}
+    })
+    const directions=sprites.animations['blue-brave'][state]
+    assert.equal(pose.object,directions[0].source)
+    const direction=spriteDirection(Math.round(pose.bearing*1024/Math.PI),Math.round((Math.PI-pose.heading)*1024/Math.PI))
+    assert.equal(pose.frame,directions[direction].frames[pose.step%directions[direction].frames.length])
+    assert.equal(pose.flip,directions[direction].flip)
+    await page.screenshot({path:`/private/tmp/populous-departure-${state}.png`})
+    await page.evaluate(()=>{window.testScene.world.paused=false;window.testScene.world.speed=0.25})
+  }
+  await page.waitForFunction(()=>window.builder.work===null)
+  assert.equal(await page.evaluate(()=>window.builder.builder),undefined)
+  assert.ok(await page.evaluate(()=>window.building.builders.every(id=>id===0)))
   assert.equal(await page.evaluate(()=>window.testScene.world.stats.built),1)
   assert.deepEqual(errors,[])
-  console.log('PASS: real hut placement, three live delivery pauses with original carried-log sprites, native stage sequence and visible GPU geometry:',JSON.stringify(snapshots))
+  console.log('PASS: real hut placement, three live delivery pauses with original carried-log sprites, native stage sequence, staged departure walk/idle sprites, released crew and visible GPU geometry:',JSON.stringify(snapshots))
   await page.close()
 
   const {page:crewPage,errors:crewErrors}=await openGame(browser)
@@ -94,7 +119,7 @@ try{
   await crewPage.mouse.click(site.x,site.y,{button:'right'})
   assert.equal(await crewPage.evaluate(()=>window.building.builders[1]===window.spare.id&&window.spare.work===window.building.id),true)
   await crewPage.evaluate(()=>{window.testScene.world.speed=4})
-  await crewPage.waitForFunction(()=>window.building.progress===1)
+  await crewPage.waitForFunction(()=>window.building.progress===1&&window.building.builders.every(id=>id===0))
   assert.equal(await crewPage.evaluate(()=>window.testScene.world.stats.built),1)
   assert.deepEqual(crewErrors,[])
   console.log('PASS: six-brave browser placement, duplicate/full-crew right-click orders, replacement in the first vacant slot and completed construction')

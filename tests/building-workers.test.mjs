@@ -58,7 +58,9 @@ test('two live builders dispatch one hauler on the original sixteen-turn phase',
     assert.ok(workers.filter(u=>u.builder?.task===BuilderTask.Fetch).length<=1)
   }
   assert.equal(b.progress,1,'scheduled hauling connects to completed construction')
-  assert.ok(workers.every(u=>!u.builder&&u.work===null),'completion releases browser task ownership')
+  assert.ok(workers.every(u=>u.builder&&u.work===b.id),'delivery leaves the original departure gate active')
+  for(let turn=0;turn<600&&workers.some(u=>u.builder);turn++)tick(w,1/12)
+  assert.ok(workers.every(u=>!u.builder&&u.work===null),'departure releases task ownership')
 })
 test('live plan capacities, duplicate orders and replacement workers share registration',()=>{
   for(const [kind,limit] of [['hut',6],['camp',16]]){

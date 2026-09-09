@@ -707,3 +707,24 @@ Unbuilt-plan resting ownership, frame-gated audio scheduling, panic movement and
 mixed-class scheduling remain open. Keep comparing full original first-mission
 frames. Broad construction stays partial, known-scope coverage is 17.7% (17/96),
 discovery is open and the full game goal remains unfinished.
+
+### Latest visible integration: original builder departure
+
+The original task-9 controller and plan completion gate now own live departure.
+Final delivery retains the crew; workers follow the native center/door or clear-site
+sequence, pause, turn, settle and become ready before their assignment is removed.
+Completion no longer teleports workers. Original walk/idle/carry sprite ownership
+continues through departure, and surplus timber is preserved. Native comparisons
+cover 5,120 departure calls; one/two/six-worker scenarios cover all four hut
+orientations, continuous displacement, readiness, pause, cancellation and route
+cleanup. Browser departure poses and all 336 sprite baselines pass. There are 108
+portable checks and 922 identified exports.
+
+Next: initial command-10 approach and unbuilt-plan terrain preparation/allocation,
+then complete movement/collision, command ownership and mixed-class scheduling.
+Free departure turning is native; the browser traversal adapter still supplies
+movement. Class-9 removal maps to slot/assignment cleanup until full object
+ownership is connected. Panic movement and frame-gated audio remain open. Keep
+comparing full original first-mission frames. Broad construction remains partial;
+known-scope coverage stays 17.7% (17/96), discovery is open and full parity remains
+unfinished.

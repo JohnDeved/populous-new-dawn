@@ -3418,3 +3418,54 @@ movement. Full person-command ownership, native departure (`00497690`), unbuilt
 allocation/terrain preparation, panic movement, frame-gated audio/voice ownership
 and mixed-class scheduling remain open. Continue departure/completion integration
 and visible original-frame comparison; this does not complete broad construction.
+
+## Original builder departure and live completion gate — 2026-09-09
+
+Task 9 (`00497690`) now drives departure. Restart chooses the center/door path
+when the current native cell has building flag `0x200`; otherwise it chooses a
+free heading until the cell is clear. The center path pauses 1–8 turns, approaches
+the outside socket, turns by a random offset in [-398,397], walks for five turns,
+faces the site, settles for six turns and becomes ready. Ready workers recheck
+building occupancy every 32 turns. The free-heading branch retains the descriptor
+`0x200` door-cone choice used by models 13/14. Signed timer behavior, even/four-turn
+arrival gates, RNG order, stop/walk/carry poses and motion-release calls are kept.
+Named phases and the existing work approach helper avoid duplicating geometry,
+turning, speed or animation code.
+
+The live `004b8bb0` completion gate now owns assignment release. Final timber
+submission makes the building usable but retains the crew; the plan releases them
+only when the native readiness condition passes. Workers are no longer teleported
+to the door. Surplus timber survives departure. Original turning drives free
+movement; the existing browser traversal adapter still supplies displacement and
+collision. Initial approach, full command/route ownership and mixed-class update
+ordering remain open. Native plan-object removal still maps to browser slot and
+assignment cleanup rather than a fully integrated class-9 lifecycle.
+
+A regression exposed automatic housing sending evacuated braves back into a
+burning hut. Both automatic home selection and entry now reject burning huts;
+the existing unstaffed-repair test guards the resulting ownership and holdoff.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-work.py /private/tmp/populous-reference/native/d3dpoptb.exe --departure
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-work.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-work.test.mjs tests/building-workers.test.mjs tests/timber.test.mjs
+node scripts/check-browser-construction.mjs
+npm run test:sprites
+```
+
+Compared 5,120 complete departure calls, eight building models, all phases and
+unsupported returns, both restart branches, occupancy masks, boundary coordinates,
+all physics speed models and signed wait boundaries. Native geometry, direct
+movement targets, arrival, speed/RNG, animation-row selection and empty-route
+release execute; routed path submission and final animation are supplied leaves.
+The portable fixture retains 1,024 captures. The 2,688 work comparisons still pass.
+
+Live checks cover one/two/six workers in four hut orientations, every persistent
+center/door departure phase, displacement bounded by speed, the exact readiness
+and scheduling gate, pause, cancellation, route cleanup and surplus timber.
+Browser placement/delivery/departure checks inspect original walk/idle frames and
+flips, rendered building stages and six-person replacement crews. All 336 existing
+GPU sprite poses pass. Three new exports (`00439270`, `00439550`, `00439580`) bring
+the manifest to 922. Full construction stays partial: unbuilt allocation and terrain
+preparation, initial command approach, full movement/collision ownership, panic and
+frame-gated audio scheduling are still unported.

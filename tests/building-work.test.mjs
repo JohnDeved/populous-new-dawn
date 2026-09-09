@@ -1,20 +1,22 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import fixture from './fixtures/building-work.json' with {type:'json'}
+import departureFixture from './fixtures/building-departure.json' with {type:'json'}
+import fixtureWork from './fixtures/building-work.json' with {type:'json'}
 import manifest from '../decomp/exports.json' with {type:'json'}
 import rules from '../app/original-rules.json' with {type:'json'}
-import {stepBuildingWork} from '../app/building-work.ts'
+import {stepBuildingWork,stepBuildingDeparture} from '../app/building-work.ts'
 import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
 import {createWorld,placeBuilding,tick,command,unitAnimation,unitAnimationSource} from '../app/model.ts'
 import {animateLiveObjects} from '../app/live-people.ts'
 import {AUDIO_CUES} from '../app/audio.ts'
 
 test('building activity matches native geometry, clocks, speed, facing and animation requests',()=>{
-  assert.equal(fixture.executableSha256,manifest.executableSha256)
-  fixture.cases.forEach((c,i)=>{
+  assert.equal(fixtureWork.executableSha256,manifest.executableSha256);assert.equal(departureFixture.executableSha256,manifest.executableSha256)
+  for(const fixture of [fixtureWork,departureFixture])fixture.cases.forEach((c,i)=>{
     const p={...c.person,motionGroup:0,motionIndex:0},task={...c.task},rng={randomState:c.seed},events=[]
-    stepBuildingWork(rng,p,task,c.site,{
+    ;(task.task===9?stepBuildingDeparture:stepBuildingWork)(rng,p,task,c.site,{
       destination:(to,direct)=>{events.push(['destination',to,direct]);if(direct)setDirectPersonDestination(createMotionRoutes(),p,to);else{p.goalX=to.x;p.goalY=to.y}},
+      releaseMotion:()=>events.push(['releaseMotion']),
       animation:(_,id)=>events.push(['animation',id]),rest:()=>events.push(['rest']),sound:(cue,flags)=>events.push(['sound',cue,flags]),
     })
     delete p.motionGroup;delete p.motionIndex
@@ -49,5 +51,42 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
   assert.equal(worker.builder,undefined);assert.equal(unitAnimationSource(worker),null)
   for(let n=0;n<2000&&b.progress<1;n++)tick(w,1/12)
   assert.equal(b.progress,1)
+  assert.ok(w.units.some(u=>u.builder),'the last delivery does not instantly remove the construction crew')
+  for(let n=0;n<100&&!w.units.some(u=>u.builder?.task===9);n++)tick(w,1/12)
+  const departing=w.units.find(u=>u.builder?.task===9);assert.ok(departing)
+  w.paused=true;const departure=JSON.stringify(departing);tick(w,1);animateLiveObjects(w)
+  assert.equal(JSON.stringify(departing),departure);w.paused=false
+  w.selected=[departing.id];command(w,{x:-5,z:29})
+  assert.equal(departing.builder,undefined);assert.equal(unitAnimationSource(departing),null)
+  for(let n=0;n<600&&w.units.some(u=>u.builder);n++)tick(w,1/12)
   assert.ok(w.units.every(u=>!u.builder),'completion and cancellation release every activity source')
+})
+
+test('crews leave finished huts in all four orientations before the plan releases them',()=>{
+  const seen=new Set()
+  for(const count of [1,2,6])for(let direction=0;direction<4;direction++){
+    const w=createWorld();w.manaWorld.gameFlags=32;w.buildingDirections.hut=direction
+    const crew=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').slice(0,count)
+    w.selected=crew.map(u=>u.id);assert.ok(placeBuilding(w,'hut',{x:4,z:32}))
+    const b=w.buildings.at(-1)
+    for(let n=0;n<2000&&b.progress<1;n++)tick(w,1/12)
+    assert.equal(b.progress,1);assert.ok(crew.every(u=>u.work===b.id&&u.builder))
+    for(let n=0;n<600&&crew.some(u=>u.builder);n++){
+      const before=crew.map(u=>({x:u.x,z:u.z,task:u.builder.task,phase:u.builder.phase}))
+      for(const u of crew)if(u.builder.task===9)seen.add(u.builder.phase)
+      tick(w,1/12)
+      crew.forEach((u,i)=>{
+        assert.ok(Math.hypot(u.x-before[i].x,u.z-before[i].z)<=(u.builder?.person?.speed??0)/256+2/256,'departure must move continuously, including release')
+        assert.equal(u.inside,null,'construction ownership prevents automatic housing')
+      })
+      if(crew.every(u=>!u.builder)){
+        assert.ok(before.every(u=>u.task===1||u.task===9&&u.phase===6),'only the original readiness gate releases the crew')
+        assert.equal(b.counter&15,0,'staffed hut checks completion on its native phase')
+      }
+    }
+    assert.ok(crew.every(u=>!u.builder&&u.work===null))
+    assert.ok(b.builders.every(id=>id===0))
+    assert.ok(crew.every(u=>!w.pathfinding.people.has(u.id)),'departure must release its route ownership')
+  }
+  for(const phase of [2,3,4,5,6,18,21])assert.ok(seen.has(phase),'live departure phase '+phase)
 })
