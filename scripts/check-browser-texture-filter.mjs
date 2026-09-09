@@ -86,7 +86,7 @@ try {
         mesh.visible = true
         if (name.startsWith('cloud')) mesh.material.transparent = false
         const geometry = mesh.geometry,
-          uv = geometry.getAttribute('uv')
+          uv = geometry.getAttribute(name === 'terrain' ? 'landUv' : 'uv')
         if (name === 'terrain' || name === 'water') {
           const surface = geometry.getAttribute('surface'),
             light = geometry.getAttribute('light'),
@@ -136,10 +136,6 @@ try {
             let x = u,
               y = v
             if (name.startsWith('cloud')) y = 1 - v
-            if (name === 'terrain') {
-              x = u * 256 - 128
-              y = v * 256 - 128
-            }
             if (name === 'water') {
               x = u * 16 - 8
               y = -v * 16 - 8

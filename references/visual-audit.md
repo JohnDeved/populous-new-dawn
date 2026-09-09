@@ -424,3 +424,19 @@ lighting restored. The camera, terrain palette and distant model fade remain
 unchanged. Literal tooltip formatting tokens are also visible in the fire capture
 and remain a concrete UI discrepancy for a following pass. Full original-frame
 matching and the far-model darkness remain open.
+
+
+## Terrain sampling — v134
+
+Revisited `user-world.png` and captured the first mission before/after at
+1440×1000, ground preset 1, focus (2,30):
+`/private/tmp/populous-terrain-sampling-before.png` and
+`/private/tmp/populous-terrain-sampling-after.png`. First-mission bank-c colors
+remain original; differently colored reference missions do not justify a tint.
+The confirmed change is texel-center sampling, backed by 64 native triangle
+submissions and the actual terrain GPU comparison. Water retains its scrolling UVs.
+
+The low-angle capture still exposes a jagged terrain perimeter against the sky.
+Investigate native horizon clipping and visible-cell coverage next. Distant model
+darkening has native evidence and should not be removed as a speculative fix;
+its interaction with the horizon still needs a matched original-frame comparison.

@@ -77,9 +77,12 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare the running first mission against the original reference
-captures again, prioritizing terrain/coast colors, lighting, scale and the remaining
-visible placement/control gaps. Continue building activity/destruction as those
+**Next action:** investigate the jagged terrain perimeter visible against the sky
+in the low-angle first-mission capture. Compare native horizon clipping and
+visible-cell coverage before changing the native distant-model lighting. Terrain
+texel-center sampling now agrees with 64 original triangle submissions and the
+actual GPU shader; broad whole-frame fidelity remains open. Continue original
+reference comparisons for coast, lighting, scale and placement/control gaps. Continue building activity/destruction as those
 comparisons identify discrepancies. Collapse smoke now uses native rotated
 shape sockets, RNG consumption, HFX1345–1360, palette 7, fixed-point growth/shrink,
 depth-scaled sizing and native lifetime. Verified against 632 native allocations,

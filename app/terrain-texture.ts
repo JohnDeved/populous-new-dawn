@@ -132,3 +132,10 @@ export function terrainAtlas(
     }
   return { pixels: out, cells, updated }
 }
+
+// 0x4673b0: close terrain samples texel centers with the original smooth filter.
+// The alternate raw-coordinate graphics path deliberately bypasses this inset.
+export function terrainTextureBounds(size: number, smooth = true, raw = false) {
+  const inset = smooth && !raw ? 0.5 / size : 0
+  return [inset, 1 - inset]
+}

@@ -24,7 +24,12 @@ import {
   stepCameraMotion,
 } from './camera-motion.ts'
 import { defeatSky, createSkyMotion, updateSkyArray, skyCloudLayer } from './sky.ts'
-import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
+import {
+  readTerrainTextures,
+  terrainAtlas,
+  terrainTextureBounds,
+  type TerrainTextures,
+} from './terrain-texture.ts'
 import { waterTexture, waterPoint, waterCell } from './water.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { modelLighting, modelHighlight } from './model-lighting.ts'
@@ -592,6 +597,7 @@ export class GameScene {
           scroll: this.waterScroll,
         },
         vertexShader: `
+          attribute vec2 landUv;
           attribute float surface;
           attribute vec3 light;
           attribute vec3 highlight;
@@ -599,7 +605,7 @@ export class GameScene {
           varying float sea;
           varying vec3 diffuse, specular;
           void main() {
-            land = (uv + 128.) / 256.;
+            land = landUv;
             waterUV = vec2(uv.x + 8., -uv.y - 8.) / 16.;
             sea = surface;
             diffuse = light;
@@ -918,39 +924,52 @@ export class GameScene {
     const w = this.world,
       positions: number[] = [],
       uv: number[] = [],
+      landUV: number[] = [],
       surfaces: number[] = [],
       lights: number[] = []
-    const add = (x: number, z: number, sea: number) => {
-      const i = this.landIndex(x, z)
-      positions.push(x, w.land.heights[i] / 128, z)
-      uv.push(x, z)
-      surfaces.push(sea)
-      lights.push(1, 1, 1)
-    }
+    const [low, high] = terrainTextureBounds(32)
     for (let z = -128; z < 128; z += 2)
       for (let x = -128; x < 128; x += 2) {
         const i = this.landIndex(x, z + 2),
           sea = Number(waterCell(w.land, i))
-        if (!(w.land.flags[i] & 1)) {
-          add(x, z, sea)
-          add(x, z + 2, sea)
-          add(x + 2, z, sea)
-          add(x + 2, z, sea)
-          add(x, z + 2, sea)
-          add(x + 2, z + 2, sea)
-        } else {
-          add(x, z, sea)
-          add(x + 2, z + 2, sea)
-          add(x + 2, z, sea)
-          add(x, z, sea)
-          add(x, z + 2, sea)
-          add(x + 2, z + 2, sea)
+        const corners =
+          w.land.flags[i] & 1
+            ? [
+                [0, 0],
+                [1, 1],
+                [1, 0],
+                [0, 0],
+                [0, 1],
+                [1, 1],
+              ]
+            : [
+                [0, 0],
+                [0, 1],
+                [1, 0],
+                [1, 0],
+                [0, 1],
+                [1, 1],
+              ]
+        for (const [dx, dz] of corners) {
+          const px = x + dx * 2,
+            pz = z + dz * 2
+          positions.push(px, w.land.heights[this.landIndex(px, pz)] / 128, pz)
+          uv.push(px, pz)
+          // Each original terrain texture has its own inset endpoints. Keep
+          // these separate from world coordinates used by the scrolling sea.
+          landUV.push(
+            ((x + 128) / 2 + low + dx * (high - low)) / 128,
+            ((z + 128) / 2 + low + dz * (high - low)) / 128
+          )
+          surfaces.push(sea)
+          lights.push(1, 1, 1)
         }
       }
     this.terrain.geometry.dispose()
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
     geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+    geo.setAttribute('landUv', new THREE.Float32BufferAttribute(landUV, 2))
     geo.setAttribute('surface', new THREE.Float32BufferAttribute(surfaces, 1))
     geo.setAttribute('light', new THREE.Float32BufferAttribute(lights, 3))
     geo.setAttribute(

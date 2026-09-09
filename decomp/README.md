@@ -3889,3 +3889,31 @@ Final flight audit also connected wild followers' state-8 landing initializer in
 covers 5,632 initializers including 512 additional state-8 cases; live wild followers
 land and survive without an unsupported-state exception. Complete wild movement
 and lifecycle remain outside this initializer's verified scope.
+
+
+## Terrain texel-center sampling — v134
+
+The original close-land triangle dispatcher `004673b0` supplies inset UV
+endpoints when smooth filtering is active: half a texel at either edge. The
+browser previously sampled each atlas tile's outer edges. Land now has a separate
+UV attribute with the original 32-pixel tile endpoints; world coordinates still
+supply the scrolling sea. Terrain diagonals, heights and palette pixels are retained.
+
+`scripts/check-native-terrain-uv.py EXE` executes the original dispatcher up to
+Direct3D triangle submission and checks 64 cases: 16/32-pixel textures, eight UV
+orientations, smooth filtering and the raw-coordinate option. The portable fixture
+is tied to the executable SHA and compared on every native run. The GPU terrain
+check validates all cell endpoints and detects 336,038 changed pixels against
+edge sampling. The existing 80-sample material calibration now writes the separate
+land UV attribute and still verifies the same expected palette colors.
+
+This verifies triangle endpoints, not hardware rasterization or the complete
+texture cache. Cache fallback, other graphics settings, globe/model UV ownership,
+clipping and matched whole frames remain open. No broad parity checkpoint is closed.
+
+Validation: 134 portable tests, TypeScript and parity consistency pass. Browser
+terrain deformation, healthy building settling, collapse and sinking/tilt pass.
+Changed-file ESLint and focused ox-standard pass; Fallow reports 84.8
+maintainability and 2.8 average complexity, with existing repository debt retained.
+The production build succeeds. Known-scope coverage remains 17/96 (17.7%), with
+discovery open and the full goal unfinished.
