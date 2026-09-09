@@ -440,3 +440,22 @@ The low-angle capture still exposes a jagged terrain perimeter against the sky.
 Investigate native horizon clipping and visible-cell coverage next. Distant model
 darkening has native evidence and should not be removed as a speculative fix;
 its interaction with the horizon still needs a matched original-frame comparison.
+
+
+## Sky horizon and capture correction — v135
+
+The v134 perimeter capture explicitly selected preset 1, which ordinary zoom
+controls do not use. Repeated captures with completed transitions into normal (0),
+close (3) and bird's-eye (2) views. The conspicuous side gaps were not reproduced
+in the normal/close views; that earlier image does not justify enlarging native
+terrain bounds. Full clipping and painter-order comparisons remain open.
+
+The investigation found a separate visible integration error: native `00517630`
+uses camera horizon height for both backdrop and clouds, while the browser used
+window height. Inspected `/private/tmp/populous-horizon-preset-0.png` before and
+`/private/tmp/populous-sky-horizon-after.png` after. Clouds now compress toward the
+horizon and the original backdrop reaches its lower color there. Original camera,
+terrain, palette and distant-model darkening are retained. Native sky coordinates,
+UVs and fade comparisons plus real shader checks support this change; they do not
+prove a complete original-frame match. Investigate distant object visibility and
+occlusion in the playable presets next.

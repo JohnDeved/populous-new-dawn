@@ -1,5 +1,5 @@
 """Compare original sky lens motion, interpolation and retained D3D triangles.
-Usage: python scripts/check-native-clouds.py /path/to/d3dpoptb.exe
+Usage: python scripts/check-native-clouds.py /path/to/d3dpoptb.exe [--record]
 All native callees execute, including the triangle allocator. This checks draw
 commands, not the legacy device's rasterization or texture blending.
 """
@@ -64,3 +64,50 @@ for i,(a,b) in enumerate(zip(expected,actual)):
  for j,(x,y) in enumerate(zip(a['triangles'],b['triangles'])):assert x==y,('triangle',i,j,x,y)
  assert len(a['triangles'])==len(b['triangles'])
 print('PASS: 128 native sky updates and 4,992 allocated cloud triangles; signed camera wraps, half-angle rotation, lens UVs, viewport sizing, fade colors and device flags match')
+
+# Exercise the outer type-2 sky dispatcher too: it owns the horizon input, which
+# a comparison of the triangle leaf alone cannot verify in the live renderer.
+views=json.loads((root/'app/original-camera.json').read_text())
+wrapper=[]
+triangles=json.loads((root/'app/original-rules.json').read_text())['skyTriangles']
+write(0x5d54d0,'i',2);write(ui+0x6e0,'ii',1,1);write(0x89c661,'I',4)
+cpu.mem_write(0xcfc340,bytes(19968))
+for width,height,index in [(640,480,0),(1240,1000,3),(1720,1080,3)]:
+ for preset in [0,2,3]:
+  horizon=views['views'][index*5+preset]['horizon']
+  write(0x89c6cf,'hh',width,height);write(0x88f032,'h',horizon)
+  call(0x517290,width,height)
+  write(0x89c6c1,'hB',0,0);write(0x89c6d5,'hh',width,height)
+  call(0x429f90)
+  flashHeight=read(0x89c681,'i')//width
+  assert flashHeight==max(0,min(height,horizon))
+  write(renderer+0x20002a,'I',renderer+0x2a);write(renderer+0x1c,'H',0)
+  call(0x517630,1)
+  assert read(0xa69174,'i')==horizon and read(renderer+0x1c,'H')==85
+  base=renderer+0x2a
+  quad=[]
+  for j in range(4):
+   v=struct.unpack('<ffffIIff',cpu.mem_read(base+0x20+j*32,32))
+   quad.append([v[0],v[1],v[6],v[7]])
+  assert quad==[[0,0,0,0],[width,0,1,0],[width,horizon,1,1],[0,horizon,0,1]]
+  layers=[]
+  for layer in range(2):
+   points=[None]*31
+   for i,indices in enumerate(triangles):
+    for j,vertex in enumerate(reversed(indices)):
+     v=struct.unpack('<ffffIIff',cpu.mem_read(base+0xa0+(layer*42+i)*0x80+0x20+j*32,32))
+     value=[v[0],v[1],v[4]]
+     assert points[vertex] is None or points[vertex]==value
+     points[vertex]=value
+   if horizon:layers.append(points)
+   else:assert all(p[1]==0 for p in points)
+  wrapper.append(dict(width=width,height=height,index=index,preset=preset,horizon=horizon,flashHeight=flashHeight,quad=quad,layers=layers))
+js="""import {skyCloudLayer} from './app/sky.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>c.horizon?[256,192].map(size=>skyCloudLayer(new Int32Array(4992),c.width,c.height,c.horizon,size,true,true,true,true).vertices.map(v=>[v.x,v.y,v.color])):[])));"""
+r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(wrapper),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
+assert json.loads(r.stdout)==[c['layers'] for c in wrapper]
+fixture=root/'tests/fixtures/sky-horizon.json'
+result=dict(executableSha256=views['executableSha256'],cases=wrapper)
+if '--record' in sys.argv:fixture.write_text(json.dumps(result,separators=(',',':'))+'\n')
+else:assert json.loads(fixture.read_text())==result
+print('PASS: 9 complete native type-2 sky dispatches, backdrop UVs/bounds and 756 cloud triangles across normal, close and bird views; zero horizon collapses geometry')

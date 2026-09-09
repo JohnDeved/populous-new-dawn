@@ -3917,3 +3917,44 @@ Changed-file ESLint and focused ox-standard pass; Fallow reports 84.8
 maintainability and 2.8 average complexity, with existing repository debt retained.
 The production build succeeds. Known-scope coverage remains 17/96 (17.7%), with
 discovery open and the full goal unfinished.
+
+
+## Camera-sized sky and defeat flash — v135
+
+`00517630` copies the current camera horizon into the sky surface height, emits
+the full-UV backdrop quad over that height, then submits both type-2 cloud layers.
+The browser had stretched the backdrop and cloud geometry across the full window.
+Both now use the live camera horizon, including every zoom-transition frame.
+Zero-height skies have no visible area. Backdrop texture filtering now follows
+the existing encoded-palette bilinear path. `00429f90` separately clamps the
+ordinary ground-view defeat-flash surface to the viewport; the flash shader now
+uses the resulting rectangle instead of discarding its height.
+
+The extended `scripts/check-native-clouds.py EXE [--record]` executes nine complete
+outer dispatches and retains original backdrop bounds/UVs and 756 cloud triangles,
+including zero horizon. It also executes the nine flash-surface updates. Existing
+128 lens updates/4,992 triangles and 1,024 native defeat-flash allocations pass.
+`tests/fixtures/sky-horizon.json` is executable-bound and rechecked on native runs.
+The portable check compares captured cloud coordinates/fades with the existing port.
+
+Browser checks cover 12 view/size states, all zoom frames, backdrop and both cloud
+layers, zero horizon, real keyboard rotation, pause-independent cloud motion and
+overview return. The normal-view height comparison changes about 398,000 pixels.
+The isolated flash shader draws 527,000 pixels inside its native rectangle and
+zero outside. The filter calibration now covers 96 palette-color samples including
+the backdrop. Camera QA selects the battlefield canvas explicitly so a tooltip's
+canvas cannot make its locator ambiguous.
+
+Scope: original type-2 sky in the current ground-view adapter. Other sky modes,
+full draw-mode/viewport ownership, device blending and matched whole original frames
+remain open. Ordinary-view horizon screenshots supersede the earlier unused-preset-1
+capture; no speculative terrain bound or distant-model lighting changes were made.
+The full game goal remains unfinished, with discovery open and no new verified
+checkpoint credit.
+
+Final checks: 135 portable tests, TypeScript, parity consistency, changed-file
+ESLint and scene ox-standard pass (existing warnings remain). Expanded nine chained
+assignments and used a spread for DOM children while removing the scene's remaining
+ox-standard errors; no new abstraction or dependency was added. Fallow still exposes
+legacy complexity/import debt. Browser camera and all 96 texture-filter samples
+pass, and the production build succeeds.

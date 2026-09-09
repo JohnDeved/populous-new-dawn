@@ -77,12 +77,16 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** investigate the jagged terrain perimeter visible against the sky
-in the low-angle first-mission capture. Compare native horizon clipping and
-visible-cell coverage before changing the native distant-model lighting. Terrain
-texel-center sampling now agrees with 64 original triangle submissions and the
-actual GPU shader; broad whole-frame fidelity remains open. Continue original
-reference comparisons for coast, lighting, scale and placement/control gaps. Continue building activity/destruction as those
+**Next action:** compare distant object visibility and occlusion with original
+captures in the playable normal (0), close (3) and bird's-eye (2) views. The v134
+jagged-perimeter capture used preset 1, outside ordinary zoom controls; completed
+normal/close transitions did not reproduce those side gaps. Preserve native
+terrain bounds and model lighting until a comparison proves a difference.
+The sky backdrop/clouds now use the original camera horizon height through zoom;
+the defeat flash uses its native clamped surface. Nine complete native sky
+submissions, 756 cloud triangles, twelve browser view/size states and isolated
+GPU checks cover the integration. Continue coast, scale and placement/control
+comparisons alongside these remaining visible gaps. Continue building activity/destruction as those
 comparisons identify discrepancies. Collapse smoke now uses native rotated
 shape sockets, RNG consumption, HFX1345–1360, palette 7, fixed-point growth/shrink,
 depth-scaled sizing and native lifetime. Verified against 632 native allocations,

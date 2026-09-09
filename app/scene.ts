@@ -149,24 +149,28 @@ function texture(kind: string) {
       : new THREE.TextureLoader().load(`/original/${kind}.png`)
   if (kind === 'lightning-bolt') {
     t.needsUpdate = true
-    t.magFilter = t.minFilter = THREE.LinearFilter
+    t.minFilter = THREE.LinearFilter
+    t.magFilter = THREE.LinearFilter
     t.generateMipmaps = false
   }
   t.colorSpace =
     kind.endsWith('detail') || kind === 'lightning-bolt' ? THREE.NoColorSpace : THREE.SRGBColorSpace
-  t.wrapS = t.wrapT = THREE.RepeatWrapping
+  t.wrapT = THREE.RepeatWrapping
+  t.wrapS = THREE.RepeatWrapping
   t.anisotropy = 8
-  if (kind === 'atlas' || kind === 'clouds' || kind === 'clouds-high') {
+  if (kind === 'atlas' || kind === 'sky' || kind === 'clouds' || kind === 'clouds-high') {
     // 0x47cc60 / 0x47d6f0: ordinary smoothed textures use bilinear
     // filtering of encoded palette colors, without mipmaps or anisotropy.
     t.colorSpace = THREE.NoColorSpace
     t.userData.encodedColors = true
-    t.magFilter = t.minFilter = THREE.LinearFilter
+    t.minFilter = THREE.LinearFilter
+    t.magFilter = THREE.LinearFilter
     t.generateMipmaps = false
     t.anisotropy = 1
   }
   if (kind === nativeUnits.atlas || kind === 'effects' || kind === 'selection') {
-    t.magFilter = t.minFilter = THREE.NearestFilter
+    t.minFilter = THREE.NearestFilter
+    t.magFilter = THREE.NearestFilter
     t.generateMipmaps = false
   }
   textures.set(kind, t)
@@ -351,7 +355,19 @@ function makeBuilding(b: Building, stage: number) {
 export class GameScene {
   world: World
   view = new RenderView()
-  groundSky: THREE.Texture | null = null
+  skyBackdrop = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 2),
+    new THREE.ShaderMaterial({
+      uniforms: { map: { value: texture('sky') }, height: { value: 1 } },
+      vertexShader: `uniform float height; varying vec2 skyUV;
+        void main(){skyUV=uv;gl_Position=vec4(position.x,1.-(1.-position.y)*height,1.,1.);}`,
+      fragmentShader:
+        'uniform sampler2D map; varying vec2 skyUV; void main(){gl_FragColor=texture2D(map,skyUV);}',
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+    })
+  )
   ground = new THREE.Group()
   globe = new GlobeRenderer()
   space = new THREE.Color(0)
@@ -362,8 +378,9 @@ export class GameScene {
   skyFlash = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2),
     new THREE.ShaderMaterial({
-      uniforms: { rgba: { value: new THREE.Vector4() } },
-      vertexShader: 'void main(){gl_Position=vec4(position.xy,1.,1.);}',
+      uniforms: { rgba: { value: new THREE.Vector4() }, height: { value: 1 } },
+      vertexShader:
+        'uniform float height; void main(){gl_Position=vec4(position.x,1.-(1.-position.y)*height,1.,1.);}',
       fragmentShader: 'uniform vec4 rgba; void main(){gl_FragColor=rgba;}',
       transparent: true,
       depthWrite: false,
@@ -541,7 +558,7 @@ export class GameScene {
     this.spellPointer.hidden = true
     container.appendChild(this.spellPointer)
     this.scene.fog = new THREE.FogExp2(0x9aadb5, 0.001)
-    this.scene.add(new THREE.HemisphereLight(0xc6d6e3, 0x777258, 2.0))
+    this.scene.add(new THREE.HemisphereLight(0xc6d6e3, 0x777258, 2))
     const sun = new THREE.DirectionalLight(0xfff2d5, 2.6)
     sun.position.set(-35, 90, 65)
     sun.castShadow = true
@@ -557,10 +574,13 @@ export class GameScene {
     this.camera.up.set(0, 0, -1)
     this.camera.position.set(30, 155, 0)
     this.terrainMap.colorSpace = THREE.NoColorSpace
-    this.terrainMap.magFilter = this.terrainMap.minFilter = THREE.LinearFilter
+    this.terrainMap.minFilter = THREE.LinearFilter
+    this.terrainMap.magFilter = THREE.LinearFilter
     this.waterMap.colorSpace = THREE.NoColorSpace
-    this.waterMap.wrapS = this.waterMap.wrapT = THREE.RepeatWrapping
-    this.waterMap.magFilter = this.waterMap.minFilter = THREE.LinearFilter
+    this.waterMap.wrapT = THREE.RepeatWrapping
+    this.waterMap.wrapS = THREE.RepeatWrapping
+    this.waterMap.minFilter = THREE.LinearFilter
+    this.waterMap.magFilter = THREE.LinearFilter
     void Promise.all(
       ['landscape.bin', 'waves.bin'].map(name =>
         fetch(`/original/${name}`, { signal: this.terrainLoad.signal }).then(response => {
@@ -726,11 +746,10 @@ export class GameScene {
     this.skyFlash.userData.nativeIgnore = true
     this.skyFlash.visible = false
     this.scene.add(this.skyFlash)
-    const loader = new THREE.TextureLoader()
-    const sky = loader.load('/original/sky.png')
-    sky.colorSpace = THREE.SRGBColorSpace
-    this.groundSky = sky
-    this.scene.background = sky
+    this.skyBackdrop.renderOrder = -10003
+    this.skyBackdrop.frustumCulled = false
+    this.skyBackdrop.userData.nativeIgnore = true
+    this.scene.add(this.skyBackdrop)
     for (const [i, name] of ['clouds', 'clouds-high'].entries()) {
       const geo = new THREE.BufferGeometry()
       geo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(31 * 3), 3))
@@ -774,8 +793,12 @@ export class GameScene {
     const width = this.container.clientWidth,
       height = this.container.clientHeight
     if (!width || !height) return
+    // 0x517630 uses the current camera horizon for both backdrop and clouds.
+    const horizon = this.view.config.horizon
+    this.skyBackdrop.visible = !this.overviewActive && horizon > 0
+    this.skyBackdrop.material.uniforms.height.value = horizon / height
     for (const [i, mesh] of this.skyClouds.entries()) {
-      mesh.visible = !this.overviewActive
+      mesh.visible = this.skyBackdrop.visible
       if (!mesh.visible) continue
       // ponytail: the browser battlefield is the render surface. Its HUD is
       // outside that surface, so include the original optional left strip.
@@ -784,7 +807,7 @@ export class GameScene {
         this.skyGrid,
         width,
         height,
-        height,
+        horizon,
         i ? 192 : 256,
         true,
         true,
@@ -797,7 +820,9 @@ export class GameScene {
         uv.setXY(j, v.u, v.v)
         fade.setX(j, (v.color >>> 24) / 255)
       })
-      position.needsUpdate = uv.needsUpdate = fade.needsUpdate = true
+      fade.needsUpdate = true
+      uv.needsUpdate = true
+      position.needsUpdate = true
       const count = layer.triangles.length * 3
       if (mesh.geometry.index?.count !== count) mesh.geometry.setIndex(layer.triangles.flat())
     }
@@ -1058,7 +1083,9 @@ export class GameScene {
         (colors.specular & 255) / 255
       )
     }
-    pos.needsUpdate = light.needsUpdate = highlight.needsUpdate = true
+    highlight.needsUpdate = true
+    light.needsUpdate = true
+    pos.needsUpdate = true
   }
   makeDecorations() {
     for (const tree of this.world.trees) {
@@ -2409,7 +2436,7 @@ export class GameScene {
         !!this.pointer,
         this.world.manaWorld.gameFlags
       )
-      Array.from(this.spellPointer.children).forEach((child, i) => {
+      ;[...this.spellPointer.children].forEach((child, i) => {
         const sprite = child as HTMLElement,
           d = draws[i]
         sprite.hidden = !d
@@ -2432,7 +2459,7 @@ export class GameScene {
     this.updateWater()
     this.ground.visible = !this.overviewActive
     this.globe.visible = this.overviewActive
-    this.scene.background = this.overviewActive ? this.space : this.groundSky
+    this.scene.background = this.space
     if (this.overviewActive && this.terrainTextures) {
       this.globe.phase = (this.globe.phase + (skyTicks >>> 4)) | 0
       this.globe.update(this.view.globe, this.world, this.terrainTextures)
@@ -2449,17 +2476,23 @@ export class GameScene {
         y: 0,
         width: this.container.clientWidth,
         screenWidth: this.container.clientWidth,
-        surfaceOffset: this.container.clientWidth * this.container.clientHeight,
+        // 0x429f90 clamps the ground-view flash surface to the viewport.
+        surfaceOffset:
+          this.container.clientWidth *
+          Math.max(0, Math.min(this.container.clientHeight, this.view.config.horizon)),
       }
     )
     this.skyFlash.visible = !!sky && !this.overviewActive
-    if (sky)
+    if (sky) {
+      this.skyFlash.material.uniforms.height.value =
+        (sky.rect[3] - sky.rect[1]) / this.container.clientHeight
       this.skyFlash.material.uniforms.rgba.value.set(
         ((sky.color >>> 16) & 255) / 255,
         ((sky.color >>> 8) & 255) / 255,
         (sky.color & 255) / 255,
         (sky.color >>> 24) / 255
       )
+    }
     this.scene.traverse(object => {
       updateModelLighting(object)
       if (!object.userData.highlight) return

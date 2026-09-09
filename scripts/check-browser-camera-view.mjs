@@ -64,7 +64,7 @@ try {
   await advance()
   assert.deepEqual((await state()).config, start.config, 'Normal view restores every config field')
   // Wheel uses the same discrete command adapter as the keyboard and menu.
-  const canvas = page.locator('.world-viewport canvas'),
+  const canvas = page.locator('.world-viewport canvas[data-engine]'),
     rect = await canvas.boundingBox()
   await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2)
   await page.mouse.wheel(0, 120)

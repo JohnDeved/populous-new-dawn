@@ -35,6 +35,7 @@ try {
         { name: 'model', mesh: model, map: atlas },
         { name: 'terrain', mesh: s.terrain, map: s.terrainMap },
         { name: 'water', mesh: s.terrain, map: s.waterMap },
+        { name: 'sky', mesh: s.skyBackdrop, map: s.skyBackdrop.material.uniforms.map.value },
         ...s.skyClouds.map((mesh, i) => ({
           name: `cloud-${i}`,
           mesh,
@@ -185,11 +186,11 @@ try {
       mipmaps: false,
       anisotropy: 1,
     })
-  assert.equal(result.samples.length, 80)
+  assert.equal(result.samples.length, 96)
   for (const sample of result.samples) assert.ok(sample.matching > 4, JSON.stringify(sample))
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: 80 GPU palette-color samples across real model, terrain, water and both cloud materials; bilinear encoded-color averages, sampler settings and unchanged point-sampled units'
+    'PASS: 96 GPU palette-color samples across real model, terrain, water, sky backdrop and both cloud materials; bilinear encoded-color averages, sampler settings and unchanged point-sampled units'
   )
 } finally {
   await browser.close()

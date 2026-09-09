@@ -4573,3 +4573,37 @@ land UV attribute and still verifies the same expected palette colors.
 This verifies triangle endpoints, not hardware rasterization or the complete
 texture cache. Cache fallback, other graphics settings, globe/model UV ownership,
 clipping and matched whole frames remain open. No broad parity checkpoint is closed.
+
+
+## Camera-sized sky and defeat flash — v135
+
+`00517630` copies the current camera horizon into the sky surface height, emits
+the full-UV backdrop quad over that height, then submits both type-2 cloud layers.
+The browser had stretched the backdrop and cloud geometry across the full window.
+Both now use the live camera horizon, including every zoom-transition frame.
+Zero-height skies have no visible area. Backdrop texture filtering now follows
+the existing encoded-palette bilinear path. `00429f90` separately clamps the
+ordinary ground-view defeat-flash surface to the viewport; the flash shader now
+uses the resulting rectangle instead of discarding its height.
+
+The extended `scripts/check-native-clouds.py EXE [--record]` executes nine complete
+outer dispatches and retains original backdrop bounds/UVs and 756 cloud triangles,
+including zero horizon. It also executes the nine flash-surface updates. Existing
+128 lens updates/4,992 triangles and 1,024 native defeat-flash allocations pass.
+`tests/fixtures/sky-horizon.json` is executable-bound and rechecked on native runs.
+The portable check compares captured cloud coordinates/fades with the existing port.
+
+Browser checks cover 12 view/size states, all zoom frames, backdrop and both cloud
+layers, zero horizon, real keyboard rotation, pause-independent cloud motion and
+overview return. The normal-view height comparison changes about 398,000 pixels.
+The isolated flash shader draws 527,000 pixels inside its native rectangle and
+zero outside. The filter calibration now covers 96 palette-color samples including
+the backdrop. Camera QA selects the battlefield canvas explicitly so a tooltip's
+canvas cannot make its locator ambiguous.
+
+Scope: original type-2 sky in the current ground-view adapter. Other sky modes,
+full draw-mode/viewport ownership, device blending and matched whole original frames
+remain open. Ordinary-view horizon screenshots supersede the earlier unused-preset-1
+capture; no speculative terrain bound or distant-model lighting changes were made.
+The full game goal remains unfinished, with discovery open and no new verified
+checkpoint credit.
