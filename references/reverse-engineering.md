@@ -4643,3 +4643,15 @@ object-specific flags and pool ownership, painter/depth ordering, native picking
 and matched whole frames remain open. Distant model darkening remains native;
 this change does not claim that the far silhouettes have been resolved. Next compare
 the native concealment/reveal gates in the playable first-mission views.
+
+
+## First-mission fog audit — after v136
+
+The supplied first mission remains fog-free: header byte 98 is zero and native
+loader forwarding/selection preserves that setting. The new
+`scripts/check-native-first-mission-fog.py` verifies the header hash, original
+forwarded banks/flags, 768 fog-selection cases and the live world's initial flags.
+See `decomp/README.md` for exact instruction spans and the loader-scope limit.
+There are 958 verified exports. No runtime change was warranted; distant object
+silhouettes now require painter/depth comparison. Full reveal/concealment ownership
+remains required for other modes and missions.

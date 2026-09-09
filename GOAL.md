@@ -77,9 +77,12 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** inspect native cell concealment/reveal gates and compare distant
-object visibility/occlusion with original captures in the playable normal (0),
-close (3) and bird's-eye (2) views. Visible-cell membership now uses the following
+**Next action:** compare native polygon depth buckets/painter ordering and distant
+object occlusion in the playable normal (0), close (3) and bird's-eye (2) views.
+The supplied first-mission header and native loader forwarding/selection agree
+that its fog flags are zero; 768 flag/override cases and the live initial world
+are checked. Preserve that setting. Full concealment/reveal ownership for other
+missions and modes remains open. Visible-cell membership now uses the following
 vertex row, half-open columns and full-coordinate cell determination. Native
 traversal comparisons cover 1,048,576 membership decisions; 1,216 GPU/CPU boundary
 probes, live ground interaction and all 392 sprite poses pass. Full concealment,

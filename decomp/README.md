@@ -4000,3 +4000,25 @@ ESLint and focused ox-standard pass (existing warnings remain). Fallow reports
 85.0 maintainability and 2.8 average complexity, with existing three import cycles
 and unused dependencies. The production build succeeds. Known-scope coverage stays
 17/96 (17.7%), discovery stays open, and full game parity is unfinished.
+
+
+## First-mission fog audit — after v136
+
+The supplied `levl2001.hdr` byte 98 is zero. `00410d00` forwards this byte to
+`0042b590` / `0042b230`; its low bit supplies runtime level flag 2. Complete
+`00443910` clears flag 4, then sets it only when flag 2 is present and load flag
+`0x200` is absent. The live first mission's zero fog flags match this path.
+Concealment must not be enabled merely to hide the distant silhouettes.
+
+Run `scripts/check-native-first-mission-fog.py EXE EXTRACTED_LEVELS` with the native
+Python environment. It executes forwarding span `00410da2..00410dc1` and selection
+span `0042b286..0042b2a7`, including complete `00443910`. The original header hash
+and forwarded banks/flags `[12,0,0]` match the imported level; all 768 flag/override
+cases preserve unrelated bits and the native indicator. The current `createWorld`
+fog flags are checked against the original first mission. This does not emulate
+file loading, campaign setup, all loader side effects or reveal ownership.
+
+Seven retained exports document the header/load paths; there are now 958 verified
+exports. No runtime implementation changed and v136 remains the playable build.
+Other missions, saved/editor/multiplayer overrides, cell reveal, concealment bytes
+and complete occlusion remain open. Next compare native painter/depth ordering.

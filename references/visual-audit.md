@@ -474,3 +474,13 @@ The central first-mission frame still shows dark distant models. Boundary correc
 does not establish complete original occlusion. Keep native lighting; next inspect
 cell concealment/reveal gates and compare the playable camera presets with original
 captures before changing the far silhouettes.
+
+
+## Fog hypothesis checked — after v136
+
+Native first-mission header forwarding and 768 runtime flag selections confirm
+the current fog-free setting for the supplied header. Adding fog to conceal the
+distant models would contradict that evidence. No rendering was changed by this
+audit; the v136 capture and playable build remain the baseline. Compare native
+polygon depth buckets/painter order next; complete first-mission frame fidelity
+is still unverified.
