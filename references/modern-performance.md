@@ -1,7 +1,8 @@
 # Modernization audit
 
-Status: in progress. Highest priority before new parity features, per the user's
-2026-09-09 instructions. Preserve mechanics, intended timing, input response and
+Status: in progress. Latest 2026-09-09 direction: finish the current terrain
+optimization, then resume important gameplay and visual parity. Continue this
+audit alongside feature work; unfinished items remain explicit. Preserve mechanics, intended timing, input response and
 experienced-player expectations while improving performance and presentation.
 
 ## Review coverage
@@ -10,7 +11,7 @@ experienced-player expectations while improving performance and presentation.
 | --- | --- | --- |
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
 | High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Unit bodies, shadows and hit targets now follow fractional turn positions, checked at 5–240 Hz; full native displacement ownership remains partial. Flybys, globe motion, transitions and result cameras still need smoothing. |
-| Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans and omission of unused wrapped copies preserve pixels, active painter commands and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
+| Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans and omission of unused wrapped copies preserve pixels, active painter commands and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; normal/close lateral terrain cuts now have bounded expansion and native CPU face rejection; circular/bird coverage remains open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
 | Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers, per-model anchor checks and shared-corner projection preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Unit health bars now use two instanced submissions with identical checked pixels/depths, including 4K buffers and removal/reuse. Per-vertex projection, sorting, transparent sprite draw calls and wider resource lifetime remain to review. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
@@ -961,3 +962,89 @@ expansion; submission counts remain 66,096 / 109,296 / 152,496. The historical
 report is preserved, and the controlled fixture is recorded separately as
 [turn-zero coverage](performance/2026-09-09-ground-coverage-pinned.json).
 This is a diagnostic correction, with no additional runtime change or parity credit.
+
+
+## Wide ground coverage and native face rejection (2026-09-09)
+
+The smaller proportional HUD exposes more battlefield. The original fixed-width
+normal/close ground quadrilaterals then cut off visible terrain at their sides.
+`viewport-bounds.ts` widens those quadrilaterals laterally, retaining native
+near/far distances, taper, pitch and projection. A side/bottom projection envelope
+limits unnecessary close-view expansion. Cached terrain extrema include the full
+0–63 native wave range and refresh when terrain geometry is rebuilt.
+
+Expansion is bounded by the original signed radius and horizontal scale products.
+An initial two-cell margin failed at a rotated row edge (configuration 1, normal,
+3840-wide, heading 768, negative height); the retained four-cell margin passes the
+row-edge regression through 8K input sizes. This is a bounded modern correction,
+not proof that native projection supports arbitrary coordinates. Circular/bird
+views and extreme terrain/projection limits remain open.
+
+Simply widening the region increased painter work. Ordinary native ground calls
+`screen_clipping` (0x46d970) before queueing each face. The browser previously left
+that rejection to GPU front-face clipping. The painter now shares the existing
+model triangle gate, reversing imported ground winding, before sorting commands.
+Shared vertex projections reuse their output records. Native projection itself
+is unchanged. The direct native leaf comparison covers 1,564 float32 triangles,
+including both windings, shared side/bottom rejection, retained top-edge triangles
+and near-degenerate cases. Special level flag 8 and full ground queue ownership
+remain separate from this ordinary-ground gate.
+
+Queue compaction necessarily changes absolute depth-slot values. The retained
+painter comparison now records those changes and checks identical final pixels,
+draw submissions and picking, plus nonincreasing active commands. Earlier cache
+optimization reports retain their stronger identical-slot evidence at their
+original commits; that invariant does not apply across this queue change.
+
+Hardware comparison: headed Chrome 153, Apple M5, ANGLE Metal, 3440×1440 CSS,
+DPR 1; three alternating old/new pairs per workload, one-second settling and
+four-second CPU samples. These are medians of the three run medians/p95s:
+
+| Same expanded scene | GPU-only rejection CPU p50/p95 | CPU rejection p50/p95 |
+| --- | ---: | ---: |
+| Frozen opening | 3.4 / 3.7 ms | 3.0 / 3.3 ms |
+| Rotating camera | 4.1 / 4.6 ms | 3.5 / 4.0 ms |
+| Frozen 200-person crowd | 4.8 / 5.3 ms | 4.3 / 4.8 ms |
+
+The measured median reduction is 10.4–14.6%. Frame-gap p95 remains 9.2–9.3 ms.
+The complete wider-view feature still costs more than the previous cut-off view:
+opening 2.3→3.0 ms, rotation 2.5→3.6 ms, crowd 3.9→4.5 ms in a separate paired
+comparison. It draws additional visible ground; this is not claimed as an overall
+speedup over that incomplete view. Calls remain 79/479; opening submitted triangles
+increase 9,861→17,961. The complete comparison includes an 83.4 ms new-path outlier;
+it does not certify stutter-free performance, GPU time, other hardware or 4K speed.
+
+Raw comparisons and coverage checks accompany this section. Modern compatibility
+and implementation efficiency receive no new parity percentage credit.
+
+
+The first moving-crowd profile rejected the initial cache layout: CPU p50/p95
+rose from 7.3/10.4 to 12.1/18.1 ms, despite passing static comparisons. Ground
+source indices can be far apart in the non-indexed mesh. Preallocating the
+projection array to the source vertex count avoids sparse-growth behavior; the
+retained final comparison measures 7.4/10.6→6.4/9.9 ms for 200 extra ordered
+braves, and 4.1/7.1→3.3/6.3 ms for opening orders. Both paths retain 9.3 ms
+frame-gap p95 in the crowded case. This reserves more array slots; no memory
+reduction is claimed. The raw failed candidate remains alongside the final result.
+The frozen/complete-view measurements above precede this slot-reservation fix;
+the final moving comparison is the acceptance measurement for the cache change.
+
+Final checks: 128 isolated normal/close coverage cases match the larger lateral
+reference without removing native coverage; eight full-color ultrawide/4K views
+match reference pixels and 120 edge/center picks. Nineteen painter comparisons,
+41 terrain-copy comparisons, 392 original sprite poses, Blast shadows, selection,
+water and ten HUD window sizes pass. The normal 3440-wide opening restores
+121,105 isolated ground pixels; the checked maxima are 131,498 at 3440-wide and
+234,326 at 4K. These counts use the pinned terrain fixture, not startup timing.
+All 156 portable tests, native projection comparisons, typecheck and build pass.
+Fallow reports 85.9 maintainability, average cyclomatic 2.8, p90 5; existing
+three cycles and three unused dependencies remain. Broad ox-standard warnings
+remain, with no new rule errors. Screenshot review confirms intact HUD proportions
+and smooth lateral ground edges; distant model lighting remains a parity gap.
+
+Evidence under `references/performance/2026-09-09-viewport-*`: initial widening
+cost, complete-view comparison, frozen clipping comparison, rejected and final
+moving comparisons, pinned normal/close coverage, full-color/picking comparison,
+and final painter equivalence. Run `profile-game.mjs --headed --wide
+--compare-painter --moving-orders` for the retained old/new painter comparison.
+`--compare-viewport-bounds` compares the complete old/new ground presentation.

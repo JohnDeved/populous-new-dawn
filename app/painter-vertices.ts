@@ -60,7 +60,10 @@ export class PainterVertices {
       source: new Uint32Array(position.count),
       seen: new Uint8Array(position.count),
       depth: new Int32Array(position.count),
-      projected: [],
+      // Source indices span the whole non-indexed mesh; reserve its slots so
+      // sparse terrain writes do not turn this hot array into a dictionary.
+      // oxlint-disable-next-line unicorn/no-new-array -- Reserve source-indexed slots; measured moving-crowd regression without it.
+      projected: new Array(position.count),
     }
     if (!grid || !gridSources(position, cached.source)) {
       const sources = new Map<string, number>()

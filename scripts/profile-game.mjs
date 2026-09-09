@@ -10,24 +10,36 @@ import {
   painterBaselineCommit,
 } from './painter-baseline.mjs'
 
-import { prepareTerrainCopiesBaseline, installTerrainCopiesBaseline, terrainCopiesBaseline } from './terrain-copies-baseline.mjs'
+import {
+  prepareTerrainCopiesBaseline,
+  installTerrainCopiesBaseline,
+  terrainCopiesBaseline,
+} from './terrain-copies-baseline.mjs'
 
 const headed = process.argv.includes('--headed')
 const compareTerrainCopies = process.argv.includes('--compare-terrain-copies')
+const compareViewportBounds = process.argv.includes('--compare-viewport-bounds')
 const comparePainter = process.argv.includes('--compare-painter')
 const compareUnitMotion = process.argv.includes('--compare-unit-motion')
 const compareHealthBars = process.argv.includes('--compare-health-bars')
 const movingOrders = process.argv.includes('--moving-orders')
 const movingProfile = compareUnitMotion || compareHealthBars || movingOrders
-assert.ok(!movingOrders || comparePainter || compareTerrainCopies, '--moving-orders requires a painter or terrain comparison')
-if (compareTerrainCopies) prepareTerrainCopiesBaseline()
-if (comparePainter) preparePainterBaseline()
+assert.ok(
+  !movingOrders || comparePainter || compareTerrainCopies || compareViewportBounds,
+  '--moving-orders requires a painter or terrain comparison'
+)
+if (compareTerrainCopies || compareViewportBounds) prepareTerrainCopiesBaseline()
+if (comparePainter || compareViewportBounds) preparePainterBaseline()
 const browser = await chromium.launch({ headless: !headed })
 try {
   const { page, errors } = await openGame(browser),
     cdp = await page.context().newCDPSession(page)
-  if (comparePainter) await installPainterBaseline(page)
-  if (compareTerrainCopies) await installTerrainCopiesBaseline(page)
+  if (comparePainter || compareViewportBounds) await installPainterBaseline(page)
+  if (compareTerrainCopies || compareViewportBounds) await installTerrainCopiesBaseline(page)
+  if (compareViewportBounds || process.argv.includes('--wide')) {
+    await page.setViewportSize({ width: 3440, height: 1440 })
+    await page.waitForFunction(() => window.testScene.container.clientWidth === 3190)
+  }
   if (movingProfile)
     await page.evaluate(async () => {
       const s = window.testScene,
@@ -65,9 +77,15 @@ try {
   const compareCamera = process.argv.includes('--compare-camera')
   const compareSky = process.argv.includes('--compare-sky')
   assert.ok(
-    [compareSky, compareCamera, comparePainter, compareUnitMotion, compareHealthBars, compareTerrainCopies].filter(
-      Boolean
-    ).length <= 1,
+    [
+      compareSky,
+      compareCamera,
+      comparePainter,
+      compareUnitMotion,
+      compareHealthBars,
+      compareTerrainCopies,
+      compareViewportBounds,
+    ].filter(Boolean).length <= 1,
     'Compare one presentation change at a time'
   )
   if (compareSky) {
@@ -134,7 +152,7 @@ try {
   let crowdAdded = false
   const scenarios = movingProfile
     ? ['opening', 'crowd'].flatMap(s => Array(6).fill(s))
-    : comparePainter || compareTerrainCopies
+    : comparePainter || compareTerrainCopies || compareViewportBounds
       ? ['opening', 'camera', 'crowd'].flatMap(s => Array(6).fill(s))
       : compareSky
         ? Array(6).fill('opening')
@@ -180,6 +198,14 @@ try {
       : true
     if (compareTerrainCopies)
       await page.evaluate(optimized => window.selectTerrainCopies(optimized), compactTerrain)
+    const expandedViewport = compareViewportBounds
+      ? [false, true, true, false, false, true][index % 6]
+      : true
+    if (compareViewportBounds)
+      await page.evaluate(optimized => {
+        window.selectViewportBounds(optimized)
+        window.selectPainter(optimized)
+      }, expandedViewport)
     const coveredSky = compareSky ? [false, true, true, false, false, true][index] : true
     if (compareSky)
       await page.evaluate(covered => {
@@ -192,7 +218,10 @@ try {
     const smoothCamera = compareCamera
       ? [false, true, true, false, false, true][index]
       : !steppedCamera
-    if (compareCamera || ((comparePainter || compareTerrainCopies) && !movingProfile))
+    if (
+      compareCamera ||
+      ((comparePainter || compareTerrainCopies || compareViewportBounds) && !movingProfile)
+    )
       await page.evaluate(smooth => {
         const s = window.testScene
         s.previewCamera = smooth ? window.originalCameraPreview : () => false
@@ -255,7 +284,10 @@ try {
       }))
     assert.ok(data.frames.length > 5, 'Render loop stopped')
     const landTriangles = [...new Set(data.frames.map(f => f.landTriangles))]
-    if (scenario !== 'camera' && (comparePainter || compareTerrainCopies || movingProfile)) {
+    if (
+      scenario !== 'camera' &&
+      (comparePainter || compareTerrainCopies || compareViewportBounds || movingProfile)
+    ) {
       assert.deepEqual(
         data.endPose,
         startPose,
@@ -284,6 +316,7 @@ try {
       coveredSky,
       optimizedPainter,
       compactTerrain,
+      expandedViewport,
       smoothUnits,
       batchedHealth,
       ...data,
@@ -326,11 +359,16 @@ try {
     compareSky,
     comparePainter,
     compareTerrainCopies,
+    compareViewportBounds,
     terrainCopiesBaseline: compareTerrainCopies ? terrainCopiesBaseline : undefined,
     compareUnitMotion,
     compareHealthBars,
     movingOrders,
-    painterBaselineCommit: comparePainter ? painterBaselineCommit : undefined,
+    painterBaselineCommit:
+      comparePainter || compareViewportBounds ? painterBaselineCommit : undefined,
+    viewportComparison: compareViewportBounds
+      ? 'Native bounds and previous painter versus widened bounds and clipped ground queue'
+      : undefined,
     runtime: process.version,
     cpu: cpus()[0].model,
     os: platform(),

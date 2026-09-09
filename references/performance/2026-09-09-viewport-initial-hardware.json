@@ -1,0 +1,4553 @@
+{
+  "date": "2026-09-09T20:41:58.513Z",
+  "headed": true,
+  "fullTerrain": false,
+  "steppedCamera": false,
+  "compareCamera": false,
+  "compareSky": false,
+  "comparePainter": false,
+  "compareTerrainCopies": false,
+  "compareViewportBounds": true,
+  "compareUnitMotion": false,
+  "compareHealthBars": false,
+  "movingOrders": false,
+  "runtime": "v24.18.0",
+  "cpu": "Apple M5",
+  "os": "darwin",
+  "arch": "arm64",
+  "mode": "Headed Chromium, 1 second settling and 4 second CPU sample per scenario; crowd adds 200 stationary braves for renderer stress",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  "viewport": [
+    3440,
+    1440
+  ],
+  "pixelRatio": 1,
+  "screen": {
+    "width": 3440,
+    "height": 1440,
+    "availableWidth": 3440,
+    "availableHeight": 1440
+  },
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+  "runs": [
+    {
+      "scenario": "opening",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        7344
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 484,
+      "frameGapMs": {
+        "p50": 8.300000000000182,
+        "p95": 9.199999999998909,
+        "max": 159.19999999999982
+      },
+      "cpuFrameMs": {
+        "p50": 2.3000001907348633,
+        "p95": 2.799999952316284
+      },
+      "drawCalls": 79,
+      "triangles": 9861,
+      "heapBytes": 85353324,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2781.547
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 415.977
+        },
+        {
+          "name": "(program) :0",
+          "ms": 240.223
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 68.867
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 53.785
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 47.448
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 44.827
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 30.858
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 21.436
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 21.303
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 18.765
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 16.329
+        },
+        {
+          "name": "drawImage :0",
+          "ms": 16.071
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 14.867
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 14.759
+        },
+        {
+          "name": "(anonymous) app/scene.ts:1354",
+          "ms": 13.717
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15444
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.300000000001091,
+        "p95": 9.100000000000364,
+        "max": 33.29999999999927
+      },
+      "cpuFrameMs": {
+        "p50": 3.299999952316284,
+        "p95": 3.5999999046325684
+      },
+      "drawCalls": 79,
+      "triangles": 17961,
+      "heapBytes": 178285588,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2393.395
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 807.737
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 121.194
+        },
+        {
+          "name": "(program) :0",
+          "ms": 91.664
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 48.698
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 44.921
+        },
+        {
+          "name": "visible app/render-view.ts:228",
+          "ms": 39.931
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 38.55
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 32.176
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 32.077
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 31.303
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 24.457
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 21.379
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 16.279
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 15.667
+        },
+        {
+          "name": "updateTerrainTexture app/scene.ts:1351",
+          "ms": 14.866
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15444
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 482,
+      "frameGapMs": {
+        "p50": 8.299999999999272,
+        "p95": 9.299999999999272,
+        "max": 57.79999999999927
+      },
+      "cpuFrameMs": {
+        "p50": 3.3000001907348633,
+        "p95": 3.5999999046325684
+      },
+      "drawCalls": 79,
+      "triangles": 17961,
+      "heapBytes": 114314164,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2355.778
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 816.988
+        },
+        {
+          "name": "(program) :0",
+          "ms": 129.194
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 108.583
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 54.798
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 48.869
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 40.916
+        },
+        {
+          "name": "visible app/render-view.ts:228",
+          "ms": 39.398
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 32.282
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 29.567
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 29.424
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 21.185
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 21.079
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 18.65
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 13.438
+        },
+        {
+          "name": "updateTerrainTexture app/scene.ts:1351",
+          "ms": 12.541
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        7344
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 482,
+      "frameGapMs": {
+        "p50": 8.299999999999272,
+        "p95": 9.100000000002183,
+        "max": 67
+      },
+      "cpuFrameMs": {
+        "p50": 2.299999952316284,
+        "p95": 2.5
+      },
+      "drawCalls": 79,
+      "triangles": 9861,
+      "heapBytes": 88545732,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2860.6
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 427.795
+        },
+        {
+          "name": "(program) :0",
+          "ms": 125.462
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 56.529
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 50.701
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 46.038
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 33.942
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 26.09
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 24.616
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 24.134
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 16.126
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 14.97
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 12.522
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 12.521
+        },
+        {
+          "name": "modelTriangleVisible app/painter-order.ts:12",
+          "ms": 12.502
+        },
+        {
+          "name": "visible app/render-view.ts:228",
+          "ms": 11.308
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        7344
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.299999999999272,
+        "p95": 9.299999999999272,
+        "max": 50
+      },
+      "cpuFrameMs": {
+        "p50": 2.299999952316284,
+        "p95": 2.700000047683716
+      },
+      "drawCalls": 79,
+      "triangles": 9861,
+      "heapBytes": 74005372,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2831.248
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 408.106
+        },
+        {
+          "name": "(program) :0",
+          "ms": 116.682
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 57.654
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 52.626
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 48.723
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 43.214
+        },
+        {
+          "name": "modelTriangleVisible app/painter-order.ts:12",
+          "ms": 28.724
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 28.404
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 27.261
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 19.873
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 16.375
+        },
+        {
+          "name": "updateTerrainTexture app/scene.ts:1351",
+          "ms": 16.364
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 15.77
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 14.935
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 14.659
+        }
+      ]
+    },
+    {
+      "scenario": "opening",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15444
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.19999999999709,
+        "max": 50.10000000000582
+      },
+      "cpuFrameMs": {
+        "p50": 3.299999952316284,
+        "p95": 3.5999999046325684
+      },
+      "drawCalls": 79,
+      "triangles": 17961,
+      "heapBytes": 151930468,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2358.634
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 783.381
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 118.345
+        },
+        {
+          "name": "(program) :0",
+          "ms": 117.773
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 67.512
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 47.61
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 36.057
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 34.897
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 34.697
+        },
+        {
+          "name": "visible app/render-view.ts:228",
+          "ms": 32.336
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 29.848
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 27.443
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 23.343
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 22.37
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 18.2
+        },
+        {
+          "name": "modelTriangleVisible app/painter-order.ts:12",
+          "ms": 13.573
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -5520,
+          -1,
+          15426,
+          -5375,
+          15357,
+          -1923,
+          -14460,
+          -5709,
+          -5174
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        14896,
+        15188,
+        15004,
+        15000,
+        15048,
+        15124,
+        15052,
+        15148,
+        14960,
+        15068,
+        14912,
+        15140,
+        14948,
+        15028,
+        15008,
+        14888,
+        14864,
+        14736,
+        14596,
+        14980,
+        14916,
+        14752,
+        14832,
+        14920,
+        14908,
+        14880,
+        14992,
+        15024,
+        14900,
+        14816,
+        14936,
+        14844,
+        14928,
+        14956,
+        15040,
+        14952,
+        14872,
+        15044,
+        14944,
+        15100,
+        14792,
+        14724,
+        14932,
+        14996,
+        14856,
+        14732,
+        14512,
+        14524,
+        14484,
+        14440,
+        14348,
+        14604,
+        14452,
+        14408,
+        14424,
+        14688,
+        14356,
+        14588,
+        14340,
+        14436,
+        14420,
+        14460,
+        14472,
+        14676,
+        14812,
+        14780,
+        14764,
+        14784,
+        14804,
+        14756,
+        14548,
+        14748,
+        14600,
+        14720,
+        14852,
+        14728,
+        14648,
+        14684,
+        14572,
+        14824,
+        14820,
+        14640,
+        14744,
+        14696,
+        14580,
+        14620,
+        14644,
+        14680,
+        14556,
+        14632,
+        14624,
+        14664,
+        14516,
+        14576,
+        14760,
+        14660,
+        14636,
+        14608,
+        14568,
+        7338,
+        7366,
+        7304,
+        7306,
+        7238,
+        7352,
+        7294,
+        7284,
+        7276,
+        7400,
+        7308,
+        7288,
+        7330,
+        7398,
+        7376,
+        7372,
+        7226,
+        7344,
+        7334,
+        7532,
+        7542,
+        7432,
+        7504,
+        7536,
+        7586,
+        7578,
+        7510,
+        7534,
+        7626,
+        7566,
+        7462,
+        7506,
+        7526,
+        7456,
+        7610,
+        7484,
+        7494,
+        7528,
+        7522,
+        7460,
+        7580,
+        7524,
+        7562,
+        7486,
+        7530,
+        7434,
+        7502,
+        7420,
+        7474,
+        7574,
+        7514,
+        7468,
+        7444,
+        7416,
+        7500,
+        7466,
+        7368,
+        7298,
+        7490,
+        7458,
+        7402,
+        7454,
+        7464,
+        7440,
+        7496,
+        7512,
+        7450,
+        7408,
+        7422,
+        7478,
+        7520,
+        7476,
+        7448,
+        7436,
+        7438,
+        7472,
+        7550,
+        7396,
+        7394,
+        7378,
+        7498,
+        7428,
+        7412,
+        7256,
+        7262,
+        7242,
+        7220,
+        7174,
+        7302,
+        7204,
+        7212,
+        7178,
+        7170,
+        7218,
+        7210,
+        7312,
+        7406,
+        7390,
+        7382,
+        7392,
+        7274,
+        7374,
+        7300,
+        7360,
+        7426,
+        7364,
+        7324,
+        7286,
+        7342,
+        7410,
+        7320,
+        7348,
+        7290,
+        7310,
+        7322,
+        7340,
+        7278,
+        7332,
+        7258,
+        7380,
+        7318,
+        7370,
+        7568,
+        7602,
+        7598,
+        15056,
+        15084,
+        14988,
+        15160,
+        14972,
+        15060,
+        14868,
+        14840,
+        15072,
+        14876,
+        14788,
+        14492,
+        14364,
+        14520,
+        14488,
+        14704,
+        14708,
+        14976
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 2.8666394827999153,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 950
+        },
+        "buttons": 16,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -15764,
+          -1,
+          -4466,
+          1556,
+          15357,
+          -5493,
+          4186,
+          -5709,
+          -14776
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 484,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9,
+        "max": 41.599999999998545
+      },
+      "cpuFrameMs": {
+        "p50": 2.5,
+        "p95": 2.9000000953674316
+      },
+      "drawCalls": 79,
+      "triangles": 16865,
+      "heapBytes": 110018904,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2718.84
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 473.8
+        },
+        {
+          "name": "(program) :0",
+          "ms": 93.548
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 85.616
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 76.044
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 49.33
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 47.153
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 32.337
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 26.125
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 22.28
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 17.569
+        },
+        {
+          "name": "upload http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:44974",
+          "ms": 15.034
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 13.808
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 13.569
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 12.675
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 11.15
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -5756,
+          0,
+          15339,
+          -5346,
+          15357,
+          -2006,
+          -14378,
+          -5709,
+          -5395
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        47052,
+        46938,
+        46986,
+        47016,
+        47046,
+        46884,
+        47118,
+        47064,
+        46620,
+        46902,
+        46668,
+        46776,
+        47316,
+        46926,
+        46644,
+        46548,
+        46794,
+        46404,
+        46500,
+        46590,
+        46476,
+        46362,
+        46512,
+        46470,
+        46170,
+        46650,
+        46530,
+        46200,
+        46536,
+        46692,
+        47034,
+        46626,
+        46632,
+        46566,
+        46554,
+        46506,
+        46482,
+        46572,
+        46824,
+        46698,
+        46218,
+        46770,
+        46446,
+        47028,
+        46614,
+        46380,
+        46254,
+        46224,
+        46524,
+        46302,
+        46326,
+        46236,
+        45426,
+        45342,
+        45984,
+        45912,
+        30364,
+        30440,
+        30708,
+        30568,
+        30420,
+        30492,
+        30408,
+        30888,
+        30304,
+        30296,
+        30384,
+        30544,
+        30648,
+        30372,
+        30100,
+        45828,
+        45570,
+        45150,
+        45258,
+        46230,
+        45690,
+        46002,
+        46194,
+        46176,
+        46188,
+        45588,
+        45858,
+        45978,
+        45846,
+        46008,
+        46296,
+        45702,
+        46266,
+        45960,
+        46092,
+        45948,
+        46248,
+        45924,
+        45774,
+        45618,
+        45624,
+        45816,
+        46050,
+        46026,
+        45900,
+        45534,
+        45432,
+        45756,
+        45942,
+        45768,
+        45558,
+        45522,
+        45516,
+        45810,
+        45390,
+        45270,
+        45882,
+        45612,
+        45486,
+        45564,
+        45696,
+        45492,
+        45414,
+        45396,
+        45726,
+        45798,
+        46164,
+        45498,
+        45660,
+        45870,
+        45786,
+        45384,
+        46086,
+        45348,
+        45306,
+        45156,
+        45762,
+        45936,
+        45582,
+        30136,
+        30488,
+        30548,
+        30256,
+        30412,
+        30344,
+        30316,
+        30496,
+        30208,
+        30400,
+        30432,
+        31268,
+        31344,
+        31412,
+        31424,
+        31396,
+        31200,
+        31276,
+        31460,
+        31308,
+        31300,
+        31668,
+        15540,
+        47040,
+        46968,
+        47214,
+        47178,
+        46974,
+        46686,
+        47502,
+        47106,
+        47082,
+        47088,
+        46818,
+        46914,
+        31096,
+        31032,
+        31196,
+        31256,
+        31184,
+        30936,
+        31000,
+        31060,
+        30984,
+        30908,
+        31008,
+        30980,
+        30780,
+        31152,
+        31020,
+        30800,
+        31024,
+        31128,
+        31292,
+        31084,
+        31076,
+        30816,
+        30900,
+        31004,
+        30988,
+        30892,
+        31216,
+        31132,
+        30812,
+        31180,
+        30964,
+        30896,
+        31144,
+        30920,
+        31064,
+        31016,
+        30672,
+        30868,
+        30644,
+        30824,
+        30656,
+        30608,
+        15220,
+        15254,
+        15284,
+        15264,
+        15246,
+        15204,
+        15444,
+        15152,
+        15148,
+        15192,
+        15092,
+        15222,
+        15186,
+        15050,
+        30552,
+        30628,
+        30336,
+        30172,
+        30820,
+        30688,
+        30668,
+        30796,
+        30600,
+        30792,
+        30392,
+        30516,
+        30760,
+        30564,
+        31044,
+        30864,
+        30680,
+        30844,
+        30852,
+        30728,
+        30632,
+        30832,
+        30856,
+        30416,
+        30468,
+        30616,
+        30700,
+        30684,
+        30356,
+        30288,
+        30512,
+        30348,
+        30540,
+        30260,
+        30180,
+        30504,
+        30588,
+        30324,
+        30376,
+        30464,
+        30328,
+        30276,
+        30484,
+        45876,
+        30232,
+        30360,
+        30104,
+        30508,
+        30840,
+        15194,
+        31296,
+        31768,
+        31360,
+        46734,
+        47184,
+        46950,
+        47070,
+        47232,
+        46212,
+        46728,
+        46320,
+        46542,
+        46560,
+        46338,
+        46584,
+        46344,
+        46716,
+        46596,
+        46122,
+        45966,
+        45630,
+        30560,
+        30528,
+        30380,
+        30184,
+        30444,
+        45504,
+        46662
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 2.900524504811989,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 950
+        },
+        "buttons": 16,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -15905,
+          -1,
+          -3932,
+          1370,
+          15356,
+          -5543,
+          3685,
+          -5709,
+          -14908
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 482,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.200000000004366,
+        "max": 33.400000000001455
+      },
+      "cpuFrameMs": {
+        "p50": 4.1000001430511475,
+        "p95": 4.599999904632568
+      },
+      "drawCalls": 79,
+      "triangles": 48081,
+      "heapBytes": 159936756,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 1945.522
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 923.862
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 170.446
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 144.544
+        },
+        {
+          "name": "(program) :0",
+          "ms": 105.466
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 75.769
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 75.145
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 50.151
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 47.314
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 42.883
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 32.308
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 30.783
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 22.518
+        },
+        {
+          "name": "(anonymous) app/painter.ts:161",
+          "ms": 22.402
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 22.394
+        },
+        {
+          "name": "fromBufferAttribute http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4894",
+          "ms": 17.426
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -5756,
+          0,
+          15339,
+          -5346,
+          15357,
+          -2006,
+          -14378,
+          -5709,
+          -5395
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        47052,
+        47016,
+        47046,
+        46884,
+        47118,
+        47064,
+        46536,
+        46902,
+        46668,
+        46776,
+        47316,
+        46926,
+        46644,
+        46548,
+        46794,
+        46404,
+        46500,
+        46590,
+        46476,
+        46362,
+        46512,
+        46470,
+        46170,
+        46650,
+        46530,
+        46200,
+        46692,
+        46626,
+        46632,
+        46566,
+        46554,
+        46284,
+        46482,
+        46572,
+        46824,
+        46698,
+        46218,
+        46770,
+        46446,
+        47028,
+        46614,
+        46380,
+        46596,
+        46224,
+        46524,
+        46302,
+        46326,
+        46236,
+        45426,
+        45342,
+        45984,
+        45912,
+        30364,
+        30440,
+        30708,
+        30568,
+        30528,
+        30492,
+        30408,
+        30888,
+        30304,
+        30296,
+        30384,
+        30544,
+        30648,
+        30372,
+        30100,
+        45828,
+        45570,
+        45150,
+        45258,
+        45990,
+        46032,
+        46002,
+        46194,
+        45900,
+        46188,
+        45588,
+        45858,
+        45978,
+        45846,
+        45954,
+        46008,
+        46296,
+        45702,
+        46266,
+        46278,
+        46092,
+        45948,
+        46248,
+        45924,
+        45774,
+        45618,
+        45624,
+        45816,
+        46050,
+        46026,
+        45534,
+        45432,
+        45756,
+        45942,
+        45768,
+        45558,
+        45522,
+        45516,
+        45810,
+        45390,
+        45504,
+        45270,
+        45882,
+        45612,
+        45486,
+        45564,
+        45696,
+        45492,
+        45414,
+        45396,
+        45726,
+        45876,
+        46164,
+        45660,
+        45870,
+        45786,
+        45384,
+        46086,
+        45348,
+        45540,
+        45156,
+        45762,
+        45936,
+        45582,
+        30136,
+        30488,
+        30548,
+        30256,
+        30412,
+        30344,
+        30316,
+        30496,
+        30376,
+        30388,
+        30432,
+        31268,
+        31344,
+        31412,
+        31424,
+        31396,
+        31200,
+        31276,
+        31460,
+        31308,
+        31300,
+        31668,
+        15540,
+        47256,
+        46968,
+        46938,
+        47178,
+        46974,
+        46686,
+        47502,
+        47106,
+        47082,
+        47088,
+        46818,
+        47232,
+        46986,
+        46914,
+        31096,
+        31032,
+        31180,
+        31256,
+        31184,
+        30936,
+        31000,
+        31060,
+        30984,
+        30908,
+        31008,
+        30980,
+        30780,
+        31100,
+        31196,
+        31020,
+        30800,
+        31024,
+        31128,
+        31292,
+        31084,
+        31076,
+        31044,
+        30900,
+        31004,
+        30988,
+        30892,
+        31216,
+        31132,
+        30812,
+        30964,
+        30896,
+        31144,
+        30624,
+        31064,
+        30816,
+        31016,
+        30672,
+        30868,
+        30644,
+        30824,
+        30284,
+        30420,
+        30656,
+        30608,
+        15220,
+        15254,
+        15284,
+        15264,
+        15246,
+        15204,
+        15444,
+        15152,
+        15148,
+        15192,
+        15092,
+        15324,
+        15186,
+        15050,
+        30552,
+        30628,
+        30336,
+        30172,
+        30820,
+        30688,
+        30668,
+        30796,
+        30600,
+        30792,
+        30392,
+        30572,
+        30760,
+        30564,
+        30864,
+        30468,
+        30844,
+        30852,
+        30728,
+        30632,
+        30832,
+        30856,
+        30516,
+        30416,
+        30616,
+        30700,
+        30684,
+        30356,
+        30288,
+        30512,
+        30348,
+        30540,
+        30360,
+        30328,
+        30180,
+        30324,
+        30588,
+        30276,
+        30264,
+        30484,
+        30556,
+        45690,
+        30232,
+        30104,
+        30508,
+        15194,
+        30208,
+        30400,
+        31296,
+        31404,
+        31768,
+        31360,
+        46734,
+        47184,
+        46950,
+        47070,
+        46728,
+        46320,
+        46542,
+        46506,
+        46338,
+        46584,
+        46344,
+        46122,
+        45966,
+        45630,
+        30560,
+        30380,
+        30184,
+        30444,
+        30504,
+        46230,
+        46074
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 2.8509413370089995,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 950
+        },
+        "buttons": 16,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -15693,
+          -1,
+          -4707,
+          1640,
+          15356,
+          -5469,
+          4412,
+          -5709,
+          -14709
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.200000000004366,
+        "max": 50.099999999998545
+      },
+      "cpuFrameMs": {
+        "p50": 4.199999809265137,
+        "p95": 4.5
+      },
+      "drawCalls": 79,
+      "triangles": 48087,
+      "heapBytes": 66974180,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 1958.677
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 968.998
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 168.217
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 143.692
+        },
+        {
+          "name": "(program) :0",
+          "ms": 104.637
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 81.409
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 48.565
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 43.905
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 42.217
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 33.622
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 28.685
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 28.504
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 27.991
+        },
+        {
+          "name": "(anonymous) app/painter.ts:161",
+          "ms": 18.669
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 18.656
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 15.628
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -5803,
+          0,
+          15321,
+          -5339,
+          15356,
+          -2023,
+          -14361,
+          -5709,
+          -5439
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15056,
+        15160,
+        15048,
+        15124,
+        15052,
+        15148,
+        14868,
+        15004,
+        15068,
+        14840,
+        15072,
+        14948,
+        14980,
+        14936,
+        14888,
+        14832,
+        14864,
+        15000,
+        14932,
+        14736,
+        14596,
+        14916,
+        14804,
+        14920,
+        14908,
+        14928,
+        14880,
+        14992,
+        15024,
+        14900,
+        14816,
+        14844,
+        14956,
+        15040,
+        14952,
+        14896,
+        14872,
+        14876,
+        14944,
+        15100,
+        14792,
+        14788,
+        14756,
+        14996,
+        14856,
+        14824,
+        14680,
+        14512,
+        14524,
+        14484,
+        14440,
+        14348,
+        14604,
+        14452,
+        14408,
+        14424,
+        14520,
+        14588,
+        14340,
+        14436,
+        14420,
+        14624,
+        14676,
+        14812,
+        14976,
+        14764,
+        14696,
+        14548,
+        14748,
+        14784,
+        14600,
+        14720,
+        14716,
+        14852,
+        14732,
+        14728,
+        14648,
+        14572,
+        14684,
+        14820,
+        14688,
+        14640,
+        14744,
+        14836,
+        14580,
+        14620,
+        14644,
+        14556,
+        14796,
+        14664,
+        14592,
+        14660,
+        14752,
+        14516,
+        14780,
+        14576,
+        14636,
+        14608,
+        14740,
+        14568,
+        7348,
+        7366,
+        7304,
+        7306,
+        7238,
+        7418,
+        7412,
+        7284,
+        7276,
+        7400,
+        7346,
+        7288,
+        7330,
+        7338,
+        7376,
+        7372,
+        7342,
+        7262,
+        7334,
+        7532,
+        7542,
+        7562,
+        7504,
+        7474,
+        7536,
+        7586,
+        7578,
+        7534,
+        7602,
+        7566,
+        7462,
+        7506,
+        7526,
+        7598,
+        7456,
+        7610,
+        7484,
+        7476,
+        7528,
+        7502,
+        7494,
+        7460,
+        7580,
+        7524,
+        7486,
+        7530,
+        7434,
+        7420,
+        7574,
+        7490,
+        7468,
+        7444,
+        7416,
+        7422,
+        7480,
+        7466,
+        7368,
+        7356,
+        7458,
+        7402,
+        7432,
+        7454,
+        7464,
+        7440,
+        7496,
+        7512,
+        7450,
+        7408,
+        7478,
+        7520,
+        7390,
+        7436,
+        7438,
+        7472,
+        7396,
+        7394,
+        7378,
+        7498,
+        7428,
+        7448,
+        7340,
+        7256,
+        7308,
+        7242,
+        7174,
+        7302,
+        7226,
+        7246,
+        7212,
+        7182,
+        7260,
+        7294,
+        7170,
+        7244,
+        7218,
+        7210,
+        7312,
+        7352,
+        7354,
+        7488,
+        7298,
+        7328,
+        7392,
+        7300,
+        7360,
+        7358,
+        7426,
+        7364,
+        7324,
+        7286,
+        7410,
+        7344,
+        7320,
+        7290,
+        7274,
+        7310,
+        7322,
+        7278,
+        7398,
+        7296,
+        7258,
+        7318,
+        7370,
+        7202,
+        7514,
+        7568,
+        7570,
+        7510,
+        7554,
+        15184,
+        15084,
+        15008,
+        14972,
+        14960,
+        14712,
+        14912,
+        14456,
+        14616,
+        14536,
+        14492,
+        14364,
+        14488,
+        14472,
+        14704,
+        14708
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 2.849026928985719,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 950
+        },
+        "buttons": 16,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -15693,
+          -1,
+          -4707,
+          1640,
+          15356,
+          -5469,
+          4412,
+          -5709,
+          -14709
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.099999999998545,
+        "max": 49.900000000001455
+      },
+      "cpuFrameMs": {
+        "p50": 2.5,
+        "p95": 2.9000000953674316
+      },
+      "drawCalls": 79,
+      "triangles": 16865,
+      "heapBytes": 163925780,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2731.82
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 474.541
+        },
+        {
+          "name": "(program) :0",
+          "ms": 109.215
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 96.118
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 69.731
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 47.338
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 37.654
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 31.174
+        },
+        {
+          "name": "updateTerrainTexture app/scene.ts:1351",
+          "ms": 25.06
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 18.556
+        },
+        {
+          "name": "(anonymous) app/painter.ts:161",
+          "ms": 17.543
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 17.461
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 16.457
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 16.28
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 15.147
+        },
+        {
+          "name": "drawImage :0",
+          "ms": 15.038
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -5756,
+          0,
+          15339,
+          -5346,
+          15357,
+          -2006,
+          -14378,
+          -5709,
+          -5395
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15188,
+        15160,
+        15048,
+        15028,
+        15052,
+        15148,
+        14868,
+        15004,
+        15068,
+        14912,
+        15140,
+        14948,
+        15008,
+        14984,
+        14832,
+        14864,
+        15000,
+        14960,
+        14736,
+        14596,
+        14980,
+        14916,
+        14752,
+        14920,
+        14908,
+        14880,
+        14992,
+        15024,
+        14900,
+        14800,
+        14936,
+        14844,
+        14928,
+        14956,
+        15040,
+        14952,
+        14896,
+        14872,
+        15044,
+        14944,
+        15100,
+        14792,
+        14724,
+        14932,
+        14996,
+        14856,
+        14732,
+        14512,
+        14524,
+        14484,
+        14440,
+        14348,
+        14604,
+        14452,
+        14408,
+        14424,
+        14688,
+        14356,
+        14588,
+        14340,
+        14436,
+        14420,
+        14460,
+        14624,
+        14676,
+        14812,
+        14816,
+        14780,
+        14764,
+        14784,
+        14804,
+        14576,
+        14548,
+        14748,
+        14600,
+        14720,
+        14852,
+        14728,
+        14648,
+        14684,
+        14572,
+        14824,
+        14820,
+        14640,
+        14744,
+        14696,
+        14580,
+        14620,
+        14644,
+        14680,
+        14556,
+        14632,
+        14664,
+        14516,
+        14760,
+        14660,
+        14636,
+        14608,
+        14568,
+        7338,
+        7366,
+        7330,
+        7238,
+        7352,
+        7294,
+        7250,
+        7276,
+        7400,
+        7308,
+        7288,
+        7376,
+        7372,
+        7226,
+        7344,
+        7334,
+        7532,
+        7542,
+        7562,
+        7504,
+        7536,
+        7586,
+        7578,
+        7510,
+        7534,
+        7626,
+        7566,
+        7462,
+        7506,
+        7526,
+        7456,
+        7610,
+        7484,
+        7494,
+        7528,
+        7522,
+        7458,
+        7460,
+        7500,
+        7524,
+        7486,
+        7530,
+        7434,
+        7502,
+        7420,
+        7474,
+        7574,
+        7514,
+        7444,
+        7416,
+        7432,
+        7466,
+        7368,
+        7298,
+        7490,
+        7402,
+        7454,
+        7464,
+        7440,
+        7512,
+        7450,
+        7408,
+        7468,
+        7422,
+        7478,
+        7520,
+        7476,
+        7448,
+        7436,
+        7438,
+        7472,
+        7550,
+        7396,
+        7394,
+        7378,
+        7498,
+        7428,
+        7412,
+        7256,
+        7262,
+        7242,
+        7220,
+        7174,
+        7302,
+        7204,
+        7212,
+        7178,
+        7170,
+        7218,
+        7210,
+        7312,
+        7406,
+        7382,
+        7392,
+        7274,
+        7374,
+        7300,
+        7360,
+        7358,
+        7426,
+        7364,
+        7324,
+        7286,
+        7342,
+        7410,
+        7320,
+        7348,
+        7290,
+        7310,
+        7322,
+        7340,
+        7278,
+        7398,
+        7332,
+        7258,
+        7390,
+        7380,
+        7318,
+        7304,
+        7284,
+        7306,
+        7568,
+        7602,
+        7598,
+        15056,
+        15084,
+        14988,
+        15124,
+        14972,
+        15060,
+        14840,
+        15072,
+        14888,
+        14876,
+        14788,
+        14756,
+        14492,
+        14364,
+        14488,
+        14704,
+        14708,
+        14976
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 2.868171009218531,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 950
+        },
+        "buttons": 16,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -15777,
+          -1,
+          -4418,
+          1539,
+          15356,
+          -5498,
+          4141,
+          -5709,
+          -14788
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 482,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9,
+        "max": 50
+      },
+      "cpuFrameMs": {
+        "p50": 2.5,
+        "p95": 2.9000000953674316
+      },
+      "drawCalls": 79,
+      "triangles": 16857,
+      "heapBytes": 95521152,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2693.66
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 442.98
+        },
+        {
+          "name": "(program) :0",
+          "ms": 103.381
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 72.349
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 66.806
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 57.587
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 48.847
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 33.575
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 32.695
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 26.928
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 26.47
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 17.672
+        },
+        {
+          "name": "updateTerrainTexture app/scene.ts:1351",
+          "ms": 16.715
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 16.329
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 13.775
+        },
+        {
+          "name": "modelTriangleVisible app/painter-order.ts:12",
+          "ms": 13.537
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -5756,
+          0,
+          15339,
+          -5346,
+          15357,
+          -2006,
+          -14378,
+          -5709,
+          -5395
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        47052,
+        46986,
+        46968,
+        47046,
+        46884,
+        47118,
+        47064,
+        46620,
+        46902,
+        46668,
+        46776,
+        47316,
+        46926,
+        46644,
+        46548,
+        46794,
+        46404,
+        46500,
+        46590,
+        46476,
+        46362,
+        46512,
+        46470,
+        46170,
+        46650,
+        46866,
+        46200,
+        46536,
+        46692,
+        46626,
+        46632,
+        46566,
+        46554,
+        46506,
+        46482,
+        46338,
+        46824,
+        46812,
+        46698,
+        46572,
+        46770,
+        46446,
+        46344,
+        46614,
+        45936,
+        46254,
+        46224,
+        46530,
+        46524,
+        46302,
+        46326,
+        46236,
+        45426,
+        45342,
+        45744,
+        45912,
+        30364,
+        30440,
+        30708,
+        30568,
+        30420,
+        30492,
+        30408,
+        30888,
+        30304,
+        30484,
+        30384,
+        30544,
+        30648,
+        30372,
+        30100,
+        45828,
+        45570,
+        45150,
+        45258,
+        46230,
+        46032,
+        46002,
+        46194,
+        45900,
+        46188,
+        45588,
+        45858,
+        45978,
+        46008,
+        46296,
+        45702,
+        46266,
+        45960,
+        46092,
+        45948,
+        46248,
+        46284,
+        45774,
+        45804,
+        45624,
+        45816,
+        45924,
+        46050,
+        46026,
+        45534,
+        45432,
+        45942,
+        45768,
+        45558,
+        45522,
+        45516,
+        45810,
+        45390,
+        45270,
+        45618,
+        45882,
+        45612,
+        45486,
+        45564,
+        45696,
+        45300,
+        45414,
+        45396,
+        45726,
+        45876,
+        46164,
+        45498,
+        45660,
+        45870,
+        45786,
+        45264,
+        46086,
+        45348,
+        45540,
+        45156,
+        45762,
+        45582,
+        30136,
+        30488,
+        30548,
+        30256,
+        30412,
+        30344,
+        30316,
+        30496,
+        30208,
+        30400,
+        30432,
+        31268,
+        31344,
+        31412,
+        31424,
+        31396,
+        31200,
+        31276,
+        31552,
+        31308,
+        31300,
+        31668,
+        15540,
+        47040,
+        46938,
+        47178,
+        46734,
+        46686,
+        47502,
+        47106,
+        47082,
+        47088,
+        46818,
+        47232,
+        47016,
+        46914,
+        31096,
+        30984,
+        31180,
+        31256,
+        31184,
+        30936,
+        31000,
+        31060,
+        30908,
+        31008,
+        30980,
+        30780,
+        31100,
+        31196,
+        31020,
+        30800,
+        31024,
+        31128,
+        31292,
+        31084,
+        31088,
+        30816,
+        31036,
+        31004,
+        30988,
+        30892,
+        31216,
+        31132,
+        31048,
+        30964,
+        30896,
+        31144,
+        30624,
+        31064,
+        30748,
+        30672,
+        30868,
+        30644,
+        30824,
+        30284,
+        30608,
+        15220,
+        15254,
+        15284,
+        15264,
+        15246,
+        15204,
+        15152,
+        15148,
+        15192,
+        15272,
+        15324,
+        15186,
+        15050,
+        30552,
+        30628,
+        30336,
+        30172,
+        30820,
+        30688,
+        30668,
+        30796,
+        30600,
+        30792,
+        30716,
+        30516,
+        30760,
+        30564,
+        31044,
+        30864,
+        30680,
+        30844,
+        30852,
+        30728,
+        30632,
+        30856,
+        30416,
+        30468,
+        30616,
+        30700,
+        30684,
+        30356,
+        30288,
+        30528,
+        30512,
+        30348,
+        30404,
+        30360,
+        30392,
+        30180,
+        30324,
+        30376,
+        30464,
+        30260,
+        30328,
+        30296,
+        45690,
+        45384,
+        30232,
+        30204,
+        30104,
+        30508,
+        30840,
+        15194,
+        31404,
+        31768,
+        31360,
+        47184,
+        46728,
+        46320,
+        46542,
+        46584,
+        46458,
+        46716,
+        46596,
+        46122,
+        45630,
+        45984,
+        30560,
+        30380,
+        30184,
+        30444,
+        30504,
+        45504,
+        46662,
+        45954
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 12,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 2.866830923602226,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 950
+        },
+        "buttons": 16,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          -15764,
+          -1,
+          -4466,
+          1556,
+          15357,
+          -5493,
+          4186,
+          -5709,
+          -14776
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.200000000004366,
+        "max": 41.69999999999709
+      },
+      "cpuFrameMs": {
+        "p50": 4.1000001430511475,
+        "p95": 4.5
+      },
+      "drawCalls": 79,
+      "triangles": 48087,
+      "heapBytes": 62677028,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 1981.103
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 971.63
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 165.503
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 134.78
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 89.538
+        },
+        {
+          "name": "(program) :0",
+          "ms": 89.014
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 47.332
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 44.906
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 38.592
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 33.161
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 29.876
+        },
+        {
+          "name": "(anonymous) app/painter.ts:161",
+          "ms": 28.805
+        },
+        {
+          "name": "updateTerrainVisibility app/render-view.ts:354",
+          "ms": 19.86
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 19.672
+        },
+        {
+          "name": "modelTriangleVisible app/painter-order.ts:12",
+          "ms": 16.286
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 13.99
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        7344
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 212,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 482,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.19999999999709,
+        "max": 58.29999999998836
+      },
+      "cpuFrameMs": {
+        "p50": 3.9000000953674316,
+        "p95": 4.299999952316284
+      },
+      "drawCalls": 479,
+      "triangles": 10661,
+      "heapBytes": 58976104,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2043.448
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 585.413
+        },
+        {
+          "name": "(program) :0",
+          "ms": 110.049
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 75.521
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 73.958
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 68.218
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 54.13
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 46.342
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 46.334
+        },
+        {
+          "name": "object.onBeforeRender app/render-view.ts:408",
+          "ms": 44.985
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 42.371
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 42.025
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 33.618
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 30.387
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 30.015
+        },
+        {
+          "name": "renderObject http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51636",
+          "ms": 27.546
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15444
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 212,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.10000000000582,
+        "max": 65.70000000001164
+      },
+      "cpuFrameMs": {
+        "p50": 4.8999998569488525,
+        "p95": 5.299999952316284
+      },
+      "drawCalls": 479,
+      "triangles": 18761,
+      "heapBytes": 80236908,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 1566.866
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 938.274
+        },
+        {
+          "name": "(program) :0",
+          "ms": 146.032
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 93.781
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 90.199
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 61.253
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 58.15
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 54.68
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 49.241
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 48.866
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 47.361
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 41.634
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 41.258
+        },
+        {
+          "name": "copyArray http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:44465",
+          "ms": 33.892
+        },
+        {
+          "name": "uniform2iv :0",
+          "ms": 29.8
+        },
+        {
+          "name": "relative app/render-view.ts:211",
+          "ms": 28.621
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15444
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 212,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 482,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.299999999988358,
+        "max": 82.60000000000582
+      },
+      "cpuFrameMs": {
+        "p50": 4.8999998569488525,
+        "p95": 5.400000095367432
+      },
+      "drawCalls": 479,
+      "triangles": 18761,
+      "heapBytes": 104038996,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 1562.869
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 967.989
+        },
+        {
+          "name": "(program) :0",
+          "ms": 169.534
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 86.502
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 80.902
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 71.176
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 62.658
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 57.465
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 50.966
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 43.516
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 37.574
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 32.563
+        },
+        {
+          "name": "traverseVisible http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9852",
+          "ms": 32.057
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 31.168
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 29.64
+        },
+        {
+          "name": "projectObject http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51508",
+          "ms": 28.522
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        7344
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 212,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.299999999988358,
+        "max": 65.80000000000291
+      },
+      "cpuFrameMs": {
+        "p50": 3.799999952316284,
+        "p95": 4.199999809265137
+      },
+      "drawCalls": 479,
+      "triangles": 10661,
+      "heapBytes": 70938840,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2074.659
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 600.571
+        },
+        {
+          "name": "(program) :0",
+          "ms": 132.948
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 82.603
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 72.333
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 67.661
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 54.524
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 47.593
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 37.383
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 34.849
+        },
+        {
+          "name": "multiplyMatrices http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:8110",
+          "ms": 34.641
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 30.938
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 27.638
+        },
+        {
+          "name": "sort http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:46130",
+          "ms": 26.199
+        },
+        {
+          "name": "renderObject http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51636",
+          "ms": 25.779
+        },
+        {
+          "name": "upload http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:44974",
+          "ms": 22.352
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        7344
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": false,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 212,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 482,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.10000000000582,
+        "max": 58.29999999998836
+      },
+      "cpuFrameMs": {
+        "p50": 3.799999952316284,
+        "p95": 4.1000001430511475
+      },
+      "drawCalls": 479,
+      "triangles": 10661,
+      "heapBytes": 126225680,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 2062.194
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 616.091
+        },
+        {
+          "name": "(program) :0",
+          "ms": 121.675
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 82.683
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 57.309
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 49.012
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 47.493
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 41.734
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 41.253
+        },
+        {
+          "name": "multiplyMatrices http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:8110",
+          "ms": 41.065
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 36.094
+        },
+        {
+          "name": "renderObject http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51636",
+          "ms": 32.149
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 31.357
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 31.026
+        },
+        {
+          "name": "upload http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:44974",
+          "ms": 30.678
+        },
+        {
+          "name": "object.onBeforeRender app/render-view.ts:408",
+          "ms": 29.734
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "startPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "landTriangles": [
+        15444
+      ],
+      "smoothCamera": true,
+      "coveredSky": true,
+      "optimizedPainter": true,
+      "compactTerrain": true,
+      "expandedViewport": true,
+      "smoothUnits": true,
+      "batchedHealth": true,
+      "units": 212,
+      "movingUnits": 0,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "cameraState": {
+        "bearing": 0,
+        "position": {
+          "x": 2560,
+          "y": 55808,
+          "angle": 0
+        },
+        "buttons": 0,
+        "velocity": {
+          "turn": 0,
+          "forward": 0,
+          "side": 0
+        },
+        "flyby": 20,
+        "wasFlying": false,
+        "result": 0,
+        "focus": 0,
+        "transition": null,
+        "turn": 74
+      },
+      "endPose": {
+        "center": {
+          "x": 2560,
+          "y": -9728
+        },
+        "basis": [
+          16384,
+          0,
+          0,
+          0,
+          15357,
+          5708,
+          0,
+          -5708,
+          15357
+        ],
+        "viewport": [
+          3440,
+          1440
+        ]
+      },
+      "frameCount": 483,
+      "frameGapMs": {
+        "p50": 8.30000000000291,
+        "p95": 9.299999999988358,
+        "max": 50
+      },
+      "cpuFrameMs": {
+        "p50": 4.800000190734863,
+        "p95": 5.200000047683716
+      },
+      "drawCalls": 479,
+      "triangles": 18761,
+      "heapBytes": 156065248,
+      "topSelfMs": [
+        {
+          "name": "(idle) :0",
+          "ms": 1607.505
+        },
+        {
+          "name": "update app/painter.ts:38",
+          "ms": 929.986
+        },
+        {
+          "name": "(program) :0",
+          "ms": 134.496
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 89.456
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 83.861
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 58.958
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 56.309
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 55.559
+        },
+        {
+          "name": "meshCellVisible app/projection.ts:196",
+          "ms": 53.17
+        },
+        {
+          "name": "updateMatrixWorld http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9899",
+          "ms": 47.244
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 42.544
+        },
+        {
+          "name": "traverseVisible http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9852",
+          "ms": 37.384
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:569",
+          "ms": 35.737
+        },
+        {
+          "name": "projectObject http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51508",
+          "ms": 34.999
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 32.372
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 30.165
+        }
+      ]
+    }
+  ]
+}

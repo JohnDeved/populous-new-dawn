@@ -105,6 +105,7 @@ export class Painter {
       const [offset, triangles] = this.ranges.get(object)!,
         sprite = object instanceof THREE.Sprite
       const ground = !!object.userData.painterGround,
+        clipGround = ground && !!object.userData.terrainGrid,
         unwrapped = !!object.userData.nativeRelative
       const geometry = object.geometry,
         position = geometry.getAttribute('position'),
@@ -191,9 +192,17 @@ export class Painter {
                     vertices.projected[vertex] = projectPoint(point, view.projection)
                 } else {
                   world.applyMatrix4(transform)
-                  vertices.depth[vertex] = depth(
-                    view.relative(world, (world.y * 128) / 45, unwrapped)
-                  )
+                  const cameraRelative = view.relative(world, (world.y * 128) / 45, unwrapped)
+                  if (clipGround) {
+                    const point = projectPoint(
+                      cameraRelative,
+                      view.projection,
+                      false,
+                      vertices.projected[vertex]
+                    )
+                    vertices.projected[vertex] = point
+                    vertices.depth[vertex] = point.z
+                  } else vertices.depth[vertex] = depth(cameraRelative)
                   if (ground) {
                     const i =
                       ((Math.round((-world.z - 8) / 2) & 127) << 7) |
@@ -205,8 +214,12 @@ export class Painter {
               }
               depths[j] = vertices.depth[vertex]
               raised ||= vertices.seen[vertex] === 2
-              if (scale && object.userData.stage === 4) projected.push(vertices.projected[vertex])
+              if (clipGround || (scale && object.userData.stage === 4))
+                projected.push(vertices.projected[vertex])
             }
+            // Ground geometry reverses native triangle order when converting Z.
+            // Match 0x46d070's screen_clipping gate before queuing those faces.
+            if (clipGround) projected.reverse()
             if (
               projected.length &&
               !modelTriangleVisible(projected, view.projection.width, view.projection.height)

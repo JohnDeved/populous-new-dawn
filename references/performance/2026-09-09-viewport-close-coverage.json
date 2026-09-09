@@ -1,0 +1,3596 @@
+{
+  "date": "2026-09-09T21:04:50.848Z",
+  "commit": "e3c6cdb93228dc9038bc395a5d1ba4e9df006353",
+  "scope": "Normal/close preset recorded separately; isolated white terrain through live native shaders. Original nine terrain copies retained. Padding 16/32 is a diagnostic reference; padding -1 is the current viewport expansion. Triangle counts measure submitted work, not GPU time or FPS.",
+  "preset": 3,
+  "terrainState": {
+    "turn": 0,
+    "geometrySha256": "79cb2490e161801e9d6ec0240b32561f0b62365ee53f611f3fd28051d8776f86"
+  },
+  "cases": [
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 107484,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 109280,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 113770,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 117540,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 114489,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 111697,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 111562,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 109871,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 107691,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 107263,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 106902,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 106863,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 106585,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 106847,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 106522,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 106977,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1924,
+          "calls": 1,
+          "triangles": 34632
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 771200,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1954,
+          "calls": 1,
+          "triangles": 35172
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 774965,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 783834,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1987,
+          "calls": 1,
+          "triangles": 35766
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 788982,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 789969,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1954,
+          "calls": 1,
+          "triangles": 35172
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 780469,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 782462,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1987,
+          "calls": 1,
+          "triangles": 35766
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 776897,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 770925,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1954,
+          "calls": 1,
+          "triangles": 35172
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 769856,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 769562,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1987,
+          "calls": 1,
+          "triangles": 35766
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 769463,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 769114,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 1954,
+          "calls": 1,
+          "triangles": 35172
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 769622,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 769746,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 1987,
+          "calls": 1,
+          "triangles": 35766
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 768841,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 1970,
+          "calls": 1,
+          "triangles": 35460
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 0,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1705309,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3074,
+          "calls": 1,
+          "triangles": 55332
+        }
+      ],
+      "padding16": {
+        "added": 35991,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 35991,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 35991,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1721484,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 21832,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 21832,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 21832,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1724561,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3087,
+          "calls": 1,
+          "triangles": 55566
+        }
+      ],
+      "padding16": {
+        "added": 45956,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 45956,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 45956,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1700527,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 58979,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 58979,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 58979,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1722932,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3074,
+          "calls": 1,
+          "triangles": 55332
+        }
+      ],
+      "padding16": {
+        "added": 36940,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 36940,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 36940,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1710173,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 40061,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 40061,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 40061,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1721004,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3087,
+          "calls": 1,
+          "triangles": 55566
+        }
+      ],
+      "padding16": {
+        "added": 31112,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 31112,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 31112,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1719071,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 40972,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 40972,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 40972,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1702816,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3074,
+          "calls": 1,
+          "triangles": 55332
+        }
+      ],
+      "padding16": {
+        "added": 36739,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 36739,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 36739,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1717557,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 22198,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 22198,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 22198,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1713322,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3087,
+          "calls": 1,
+          "triangles": 55566
+        }
+      ],
+      "padding16": {
+        "added": 25407,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 25407,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 25407,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1682703,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 56601,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 56601,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 56601,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1698688,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3074,
+          "calls": 1,
+          "triangles": 55332
+        }
+      ],
+      "padding16": {
+        "added": 38872,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 38872,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 38872,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1699995,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 37838,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 37838,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 37838,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1714405,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3087,
+          "calls": 1,
+          "triangles": 55566
+        }
+      ],
+      "padding16": {
+        "added": 25397,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 25397,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 25397,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1705254,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3048,
+          "calls": 1,
+          "triangles": 54864
+        }
+      ],
+      "padding16": {
+        "added": 32600,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 32600,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 32600,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3023470,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3634,
+          "calls": 1,
+          "triangles": 65412
+        }
+      ],
+      "padding16": {
+        "added": 120910,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 120910,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 120910,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3059494,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 86924,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 86924,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 86924,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3068520,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3637,
+          "calls": 1,
+          "triangles": 65466
+        }
+      ],
+      "padding16": {
+        "added": 112637,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 112637,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 112637,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3012463,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 149777,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 149777,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 149777,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3026736,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3634,
+          "calls": 1,
+          "triangles": 65412
+        }
+      ],
+      "padding16": {
+        "added": 136534,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 136534,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 136534,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3037047,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 116709,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 116709,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 116709,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3064368,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3637,
+          "calls": 1,
+          "triangles": 65466
+        }
+      ],
+      "padding16": {
+        "added": 93660,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 93660,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 93660,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3056088,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 107042,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 107042,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 107042,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3023976,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3634,
+          "calls": 1,
+          "triangles": 65412
+        }
+      ],
+      "padding16": {
+        "added": 117187,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 117187,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 117187,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3056803,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 86927,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 86927,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 86927,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3057487,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3637,
+          "calls": 1,
+          "triangles": 65466
+        }
+      ],
+      "padding16": {
+        "added": 84660,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 84660,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 84660,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2995963,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 146063,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 146063,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 146063,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3002370,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        },
+        {
+          "padding": -1,
+          "cells": 3634,
+          "calls": 1,
+          "triangles": 65412
+        }
+      ],
+      "padding16": {
+        "added": 137703,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 137703,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 137703,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3028295,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 111959,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 111959,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 111959,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3058899,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        },
+        {
+          "padding": -1,
+          "cells": 3637,
+          "calls": 1,
+          "triangles": 65466
+        }
+      ],
+      "padding16": {
+        "added": 83969,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 83969,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 83969,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3040306,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        },
+        {
+          "padding": -1,
+          "cells": 3682,
+          "calls": 1,
+          "triangles": 66276
+        }
+      ],
+      "padding16": {
+        "added": 100078,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 100078,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      },
+      "modern": {
+        "added": 100078,
+        "removed": 0
+      },
+      "modernVsReference": {
+        "added": 0,
+        "removed": 0
+      }
+    }
+  ]
+}

@@ -79,11 +79,21 @@ use Fallow, ox-standard and Ponytail in the regular development workflow.
 Reconstruct original behavior in idiomatic game code, keeping raw decompiler
 output and address-level bookkeeping in the decompilation evidence.
 
-## Highest priority: modernize the existing implementation before extending parity
+## Current execution order: finish terrain optimization, then visible parity
 
-Latest user direction, 2026-09-09: apply the modern performance, rendering,
-uncapped-frame-rate and maintainability requirements to **all existing work**
-before resuming new parity features. This supersedes the next-feature order below.
+Latest user direction, 2026-09-09: finish and validate the current terrain
+performance improvement, then resume important gameplay mechanics and visuals.
+This supersedes the requirement to finish the entire modernization audit before
+adding parity features. Keep clean, concise code, modern web/hardware support,
+uncapped timing and measured performance as acceptance criteria for every change.
+Retain unfinished audit findings; prioritize them when they affect the feature
+being implemented rather than delaying all visible gameplay work.
+
+## Modernization foundation and continuing requirements
+
+Retained 2026-09-09 requirements: apply modern performance, rendering,
+uncapped-frame-rate and maintainability standards throughout existing and new
+work, following the revised execution order above.
 The target is a superior modern presentation with the mechanics, timing, input
 response and gameplay feel an experienced original-game player expects.
 
@@ -96,8 +106,7 @@ mechanics or add input latency to make motion appear smoother.
 
 Track findings, measurements, fixes and remaining limits in
 [the modernization audit](references/modern-performance.md). The initial elapsed-time cap fix and whole-frame baseline are now recorded;
-continue with the largest remaining measured problems. Review every listed area before returning to new
-parity features. Green checks for one rendering primitive or a fast conversion
+continue with the largest remaining measured problems. Continue reviewing these areas alongside visible parity work, following the revised execution order above. Green checks for one rendering primitive or a fast conversion
 microbenchmark cannot complete this audit or establish overall smoothness.
 
 Achieve full game and engine parity through an ongoing decompilation and browser reimplementation of the user-supplied Populous: The Beginning. Make the reverse-engineering work a maintained part of `/Users/johann/populous-browser`: reproducible tool setup, executable identities, address-based exports, reviewed reconstructions, findings and native comparison checks. Research available symbols and reusable projects, reuse applicable work with recorded provenance and license terms, and verify cross-version metadata against the supplied executable. Translate recovered behavior into the browser engine instead of replacing it with approximate game rules. Preserve the complete scope above; first-level parity is the immediate integration target, not the definition of completion. Prioritize visible graphics, rendering, effects, UI, controls and critical gameplay before less-visible internals, as specified below. Publish validated builds and leave all unverified differences explicit until the entire game meets the completion checklist.

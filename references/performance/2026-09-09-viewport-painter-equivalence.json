@@ -1,0 +1,557 @@
+{
+  "baseline": "e3c6cdb93228dc9038bc395a5d1ba4e9df006353",
+  "cases": [
+    {
+      "name": "view 2/30/0/0",
+      "depthSlots": 35840,
+      "changedDepths": 8516,
+      "activeCommands": [
+        8516,
+        2840
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        3904,
+        3904
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "view 2/30/256/0",
+      "depthSlots": 35840,
+      "changedDepths": 8335,
+      "activeCommands": [
+        8335,
+        2669
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        3916,
+        3916
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9815,
+        "pick": {
+          "x": -3.7957166392092176,
+          "z": 35.79571663920922
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9815,
+        "pick": {
+          "x": -3.7957166392092176,
+          "z": 35.79571663920922
+        }
+      }
+    },
+    {
+      "name": "view 2/30/512/0",
+      "depthSlots": 35840,
+      "changedDepths": 8008,
+      "activeCommands": [
+        8008,
+        2165
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        3948,
+        3948
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9949,
+        "pick": {
+          "x": -6.186379928315432,
+          "z": 30
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9949,
+        "pick": {
+          "x": -6.186379928315432,
+          "z": 30
+        }
+      }
+    },
+    {
+      "name": "view 127/-127/1024/0",
+      "depthSlots": 134144,
+      "changedDepths": 7344,
+      "activeCommands": [
+        7344,
+        1612
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        4011,
+        4011
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 31893,
+        "pick": {
+          "x": 127.01438496018943,
+          "z": 121.28469559123806
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 31893,
+        "pick": {
+          "x": 127.01438496018943,
+          "z": 121.28469559123806
+        }
+      }
+    },
+    {
+      "name": "view -127/127/1536/2",
+      "depthSlots": 134144,
+      "changedDepths": 3848,
+      "activeCommands": [
+        3848,
+        1595
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        2205,
+        2205
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 17909,
+        "pick": {
+          "x": -119.36693267393503,
+          "z": 126.98523097673376
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 17909,
+        "pick": {
+          "x": -119.36693267393503,
+          "z": 126.98523097673376
+        }
+      }
+    },
+    {
+      "name": "view 2/30/0/4",
+      "depthSlots": 134144,
+      "changedDepths": 4498,
+      "activeCommands": [
+        4498,
+        2243
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        2117,
+        2117
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 6365,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 6365,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "warm terrain cache",
+      "depthSlots": 134144,
+      "changedDepths": 8516,
+      "activeCommands": [
+        8516,
+        2840
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        3904,
+        3904
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "raised land flags change without geometry edits",
+      "depthSlots": 134144,
+      "changedDepths": 8516,
+      "activeCommands": [
+        8516,
+        2840
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        3904,
+        3904
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "raised land exclusion flag",
+      "depthSlots": 134144,
+      "changedDepths": 8516,
+      "activeCommands": [
+        8516,
+        2840
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        3904,
+        3904
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "render size 3440x1440 DPR 1",
+      "depthSlots": 134144,
+      "changedDepths": 17858,
+      "activeCommands": [
+        17858,
+        4478
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        8616,
+        8616
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 19161,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 19161,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "close seam 3440x1440 DPR 1",
+      "depthSlots": 134144,
+      "changedDepths": 6404,
+      "activeCommands": [
+        6404,
+        773
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        3585,
+        3585
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 28133,
+        "pick": null
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 28133,
+        "pick": null
+      }
+    },
+    {
+      "name": "render size 3840x2160 DPR 1",
+      "depthSlots": 134144,
+      "changedDepths": 19358,
+      "activeCommands": [
+        19358,
+        4783
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        9412,
+        9412
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 56553,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 56553,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "close seam 3840x2160 DPR 1",
+      "depthSlots": 134144,
+      "changedDepths": 7496,
+      "activeCommands": [
+        7496,
+        938
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        4159,
+        4159
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 32501,
+        "pick": null
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 32501,
+        "pick": null
+      }
+    },
+    {
+      "name": "render size 1920x1080 DPR 1.8",
+      "depthSlots": 134144,
+      "changedDepths": 11258,
+      "activeCommands": [
+        11258,
+        3512
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        5272,
+        5272
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 12561,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 12561,
+        "pick": {
+          "x": 2,
+          "z": 38.33211678832117
+        }
+      }
+    },
+    {
+      "name": "close seam 1920x1080 DPR 1.8",
+      "depthSlots": 134144,
+      "changedDepths": 4220,
+      "activeCommands": [
+        4220,
+        461
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        2427,
+        2427
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 19397,
+        "pick": null
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 19397,
+        "pick": null
+      }
+    },
+    {
+      "name": "terrain deformation invalidates centers",
+      "depthSlots": 134144,
+      "changedDepths": 8441,
+      "activeCommands": [
+        8441,
+        3136
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        21899,
+        21899
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 1.9979062337446294,
+          "z": 38.29322884765139
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 1.9979062337446294,
+          "z": 38.29322884765139
+        }
+      }
+    },
+    {
+      "name": "replacement position attribute",
+      "depthSlots": 134144,
+      "changedDepths": 8441,
+      "activeCommands": [
+        8441,
+        3134
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        21899,
+        21899
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2.007763488080286,
+          "z": 37.735369728874616
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 2.007763488080286,
+          "z": 37.735369728874616
+        }
+      }
+    },
+    {
+      "name": "transforms and model headings change with cached centers",
+      "depthSlots": 134144,
+      "changedDepths": 8503,
+      "activeCommands": [
+        8503,
+        3078
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        22124,
+        22124
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 1.9925518036957897,
+          "z": 39.12681771136556
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 9861,
+        "pick": {
+          "x": 1.9925518036957897,
+          "z": 39.12681771136556
+        }
+      }
+    },
+    {
+      "name": "overview bypass",
+      "depthSlots": 134144,
+      "changedDepths": 8503,
+      "activeCommands": [
+        8503,
+        3078
+      ],
+      "changedPixels": 0,
+      "relativeCalls": [
+        0,
+        0
+      ],
+      "before": {
+        "calls": 79,
+        "triangles": 297429,
+        "pick": {
+          "x": 2,
+          "z": 30
+        }
+      },
+      "after": {
+        "calls": 79,
+        "triangles": 297429,
+        "pick": {
+          "x": 2,
+          "z": 30
+        }
+      }
+    }
+  ]
+}

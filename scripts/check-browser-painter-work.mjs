@@ -1,4 +1,5 @@
-// Compare all painter depth slots and GPU pixels with the retained implementation.
+// Ground clipping compacts the painter queue; compare visible pixels and picks
+// against the previous GPU-only culling path. Retain changed depth counts as evidence.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
@@ -9,17 +10,19 @@ import {
   painterBaselineCommit,
 } from './painter-baseline.mjs'
 
-preparePainterBaseline()
+const baseline = painterBaselineCommit
+preparePainterBaseline(baseline)
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
   await installPainterBaseline(page)
-  const cases = await page.evaluate(() => {
+  const cases = await page.evaluate(async () => {
     const s = window.testScene,
       r = s.renderer,
       gl = r.getContext()
     cancelAnimationFrame(s.frame)
     s.world.speed = 0
+    const { cameraPreset } = await import('/app/projection.ts')
     const cases = []
     const compare = name => {
       const capture = optimized => {
@@ -46,6 +49,10 @@ try {
           pixels,
           relativeCalls,
           depth: s.view.painter.texture.image.data.slice(),
+          activeCommands: s.view.painter.texture.image.data.reduce(
+            (n, value) => n + Number(value < 1),
+            0
+          ),
           calls: r.info.render.calls,
           triangles: r.info.render.triangles,
           pick: s.view.pick({ x: 0, y: 0 }, [s.terrain, s.objects], s.camera)?.point ?? null,
@@ -63,6 +70,7 @@ try {
         name,
         depthSlots: before.depth.length,
         changedDepths: differences(before.depth, after.depth),
+        activeCommands: [before.activeCommands, after.activeCommands],
         changedPixels: differences(before.pixels, after.pixels),
         relativeCalls: [before.relativeCalls, after.relativeCalls],
         before: { calls: before.calls, triangles: before.triangles, pick: before.pick },
@@ -104,6 +112,17 @@ try {
       r.setSize(width, height, false)
       s.view.update(width, height, { x: 2, z: 30 }, 0, 0, false)
       compare(`render size ${width}x${height} DPR ${ratio}`)
+      s.view.update(
+        width,
+        height,
+        { x: 126, z: -126 },
+        Math.PI / 4,
+        0,
+        false,
+        width,
+        cameraPreset(3, 3)
+      )
+      compare(`close seam ${width}x${height} DPR ${ratio}`)
     }
     r.setPixelRatio(1)
     r.setSize(s.container.clientWidth, s.container.clientHeight, false)
@@ -131,19 +150,18 @@ try {
     compare('overview bypass')
     return cases
   })
+  writeFileSync(
+    process.argv[2] ?? '/private/tmp/populous-painter-work.json',
+    JSON.stringify({ baseline, cases }, null, 2) + '\n'
+  )
   for (const c of cases) {
-    assert.equal(c.changedDepths, 0, c.name)
+    assert.ok(c.activeCommands[1] <= c.activeCommands[0], c.name)
     assert.equal(c.changedPixels, 0, c.name)
     assert.deepEqual(c.after, c.before, c.name)
   }
   assert.deepEqual(errors, [])
-  const report = { baseline: painterBaselineCommit, cases }
-  writeFileSync(
-    process.argv[2] ?? '/private/tmp/populous-painter-work.json',
-    JSON.stringify(report, null, 2) + '\n'
-  )
   console.log(
-    `PASS: identical depth slots, pixels, draw submissions and picking in ${cases.length} painter cases`
+    `PASS: identical pixels, draw submissions and picking with compacted ground queues in ${cases.length} painter cases`
   )
 } finally {
   await browser.close()

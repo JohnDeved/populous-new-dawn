@@ -1082,6 +1082,9 @@ export class GameScene {
       new THREE.Float32BufferAttribute(new Float32Array(lights.length), 3)
     )
     this.terrain.geometry = geo
+    // Two unsigned wave samples divided by eight produce heights from 0 to 63.
+    this.view.terrainHeights = [Math.min(0, ...w.land.heights), Math.max(63, ...w.land.heights)]
+    this.updateView()
     this.terrainVersion = w.landVersion
     this.waterState = ''
     for (const d of this.decorations.children) {

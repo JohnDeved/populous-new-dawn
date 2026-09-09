@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
+import { widenGroundBounds } from './viewport-bounds.ts'
 import { HealthBars } from './health-bars.ts'
 import { visibleTerrainCells, visibleTerrainCopies, terrainTiles } from './terrain-visibility.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
@@ -148,6 +149,7 @@ export class RenderView {
       programKey: string
     }
   >()
+  terrainHeights: [number, number] = [0, 63]
   config = cameraConfig(0)
   projection: Projection = {
     ...this.config,
@@ -210,7 +212,10 @@ export class RenderView {
     }
     this.bounds =
       this.config.boundsMode === 1
-        ? polygonMeshBounds(this.config.bounds, angle)
+        ? polygonMeshBounds(
+            widenGroundBounds(this.config, width, height, this.terrainHeights),
+            angle
+          )
         : circularMeshBounds(this.config.diameter)
     const pixels = this.boundsTexture.image.data as Float32Array
     for (let i = 0; i < 222; i++) pixels.set(this.bounds[i], i * 2)

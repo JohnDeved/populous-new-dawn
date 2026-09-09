@@ -13,7 +13,7 @@ export const comparePolygons = (
   b: { bucket: number; order: number }
 ) => b.bucket - a.bucket || b.order - a.order
 
-// 0x46d970: completed models reject shared left/right/bottom outcodes, then
+// 0x46d970: ordinary ground and completed models reject shared left/right/bottom outcodes, then
 // rear-facing triangles. There is deliberately no shared top-edge rejection.
 export function modelTriangleVisible(
   points: { screenX: number; screenY: number }[],

@@ -4751,3 +4751,26 @@ turn; it is deliberately not prediction of the next turn. The original first dra
 can already have a nonzero counter fraction; the modern phase starts at the actual
 turn boundary. See [the modernization audit](modern-performance.md) for measured
 response times, pixel/control checks, performance and the remaining limitations.
+
+
+## Resumed visible parity: follower panic and fire trails — 2026-09-09
+
+After the modern terrain correction, investigate follower reactions to burning
+and collapsing buildings. `00408ab0` ejects occupants at burn counter 119, clears
+flag 0x10, writes 24 to person byte +0xa4 and enters state 26 if unprotected.
+`004d2740` initializes that state with animation row 25, speed 110, timer 64,
+random heading and turning flags. The class-1 dispatcher subtracts one from state
+before its switch: state 26 is **case 0x19**, not case 0x1a. It requests cue 0x51
+and handles the timer/recovery path. Preserve shared movement/physics ownership
+rather than introducing another frame-based movement loop.
+
+New exports clarify an earlier inferred name: +0xa4, currently `panicTimer` in
+TypeScript, is consumed by `004d9200` to emit class-7/model-3 particles every turn
+and model-10 particles while the unsigned counter exceeds eight. The emitter
+uses current height +16, copies the previous position to both particles, sets
+flags2 0x4000 and flags3 0x100, and decrements the byte even if allocation fails.
+It is an **effect emission counter**, not the state-26 duration. Rename it when
+connecting that consumer; do not use its 24 turns as the panic lifetime.
+`004d92b0`, dispatched under flag4 0x4000, is a separate temporary-tribe restoration
+path, not panic movement. Exports are evidence for the next implementation;
+neither consumer nor full panic movement is newly integrated or credited here.

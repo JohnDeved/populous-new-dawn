@@ -371,7 +371,8 @@ export function cameraConfig(index: number, zoom = 0, range = 16384): CameraConf
 export function projectPoint(
   p: { x: number; y: number; z: number; flags?: number },
   v: Projection,
-  clip = true
+  clip = true,
+  output?: ProjectedPoint
 ): ProjectedPoint {
   const m = v.matrix
   const x = (Math.imul(p.x, m[0]) + Math.imul(p.z, m[2])) >> 14
@@ -398,5 +399,12 @@ export function projectPoint(
     else if (screenY < 0) flags |= 8
     else if (screenY >= v.height) flags |= 16
   }
-  return { x, y, z, screenX, screenY, flags }
+  const result = output ?? { x: 0, y: 0, z: 0, screenX: 0, screenY: 0, flags: 0 }
+  result.x = x
+  result.y = y
+  result.z = z
+  result.screenX = screenX
+  result.screenY = screenY
+  result.flags = flags
+  return result
 }
