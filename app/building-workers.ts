@@ -17,7 +17,15 @@ export function pruneBuilders(slots: number[], eligible: (id: number) => boolean
   })
 }
 
-export const BuilderTask = { Approach: 1, Work: 2, Fetch: 7, Leave: 9 } as const
+export const BuilderTask = {
+  Approach: 1,
+  Work: 2,
+  ClearScenery: 3,
+  ClearPeople: 4,
+  Fetch: 7,
+  Level: 8,
+  Leave: 9,
+} as const
 export interface Builder {
   task: number
   busy: number
@@ -35,6 +43,95 @@ interface ConstructionPlan {
 function setTask(worker: Builder, task: number) {
   worker.task = task
   worker.restart = true
+}
+
+export interface UnbuiltPlan {
+  model: number
+  counter: number
+  dirty: boolean
+  revalidate: boolean
+  timeout: number
+}
+export interface SiteObstacles {
+  timber: boolean
+  grade: boolean
+  scenery: number
+  friendly: number
+  enemies: number
+  vehicles: number
+  crew: number
+  wooden: boolean
+}
+
+// 0x4b8470 after registration pruning. The caller owns footprint queries,
+// allocation/removal and the assignment-entry flag after allocation attempts.
+export function stepUnbuiltPlan(
+  plan: UnbuiltPlan,
+  workers: Builder[],
+  validate: () => boolean,
+  scan: () => SiteObstacles
+): 'allocate' | 'remove' | null {
+  if (plan.revalidate) {
+    plan.revalidate = false
+    if (!validate()) return 'remove'
+  }
+  const count = workers.length,
+    minimum = rules.buildingMinWorkers[plan.model]
+  if (!count) {
+    if (count < rules.buildingTimeoutWorkers[plan.model] && !(plan.counter & 127)) {
+      plan.timeout = (plan.timeout + 1) & 255
+      if (plan.timeout > 50) return 'remove'
+    }
+    return null
+  }
+  const ready = workers.filter(w => w.task === BuilderTask.Work && !w.busy)
+  if (count < minimum) {
+    if (ready.length < count)
+      for (const worker of workers)
+        if (worker.task !== BuilderTask.Work && worker.task !== BuilderTask.Approach)
+          setTask(worker, BuilderTask.Work)
+    return null
+  }
+  const leaving = workers.filter(w => w.task === BuilderTask.Leave).length
+  if (plan.counter & 15 || !(plan.dirty || ready.length || count <= leaving + ready.length))
+    return null
+  plan.dirty = false
+  const obstacles = scan()
+  const needed = [
+    Number(obstacles.timber),
+    Number(obstacles.grade && plan.model !== 10),
+    obstacles.scenery,
+    obstacles.friendly,
+    obstacles.enemies,
+    obstacles.vehicles,
+    obstacles.crew,
+  ].map(n => n & 255)
+  if (needed.every(n => !n) && workers.some(w => w.task === BuilderTask.Leave && w.phase === 6)) {
+    for (const worker of workers) {
+      setTask(worker, BuilderTask.Work)
+      worker.phase = 21
+    }
+    return 'allocate'
+  }
+  const restartWork = leaving === count && !needed[6]
+  const tasks = Array<number>(10).fill(0)
+  for (const w of workers) if (w.task !== BuilderTask.Work || !w.busy) tasks[w.task]++
+  let assigned = 0
+  for (let i = 0; i < 6 && assigned < ready.length; i++) {
+    const task = rules.buildingPreparationTasks[i]
+    let limit = 1
+    if (i === 1) limit = rules.buildingLevelWorkers[plan.model]
+    else if (i === 2 && obstacles.wooden) limit = rules.buildingLevelWorkers[plan.model] >> 1
+    while (needed[i] && tasks[task] < limit && assigned < ready.length) {
+      setTask(ready[assigned++], task)
+      tasks[task]++
+    }
+  }
+  if (leaving + ready.length - assigned === count && needed[6])
+    for (const worker of workers)
+      if (worker.task !== BuilderTask.Leave) setTask(worker, BuilderTask.Leave)
+  if (restartWork) setTask(workers[0], BuilderTask.Work)
+  return null
 }
 
 // 0x4b8bb0, after registration pruning. Workers retain their plan-slot order.

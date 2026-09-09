@@ -769,3 +769,23 @@ immediate in the live adapter; this change recovers its geometry/height and fixe
 visible model placement, not its timing. Keep original-frame comparisons and
 critical first-mission gameplay ahead of isolated backend work. Known-scope
 coverage stays 17.7% (17/96), discovery is open and full parity remains unfinished.
+
+### Latest visible integration: worker-driven site preparation
+
+Player plans now retain uneven terrain and display original connected ground
+artwork. The native unbuilt-plan dispatcher assigns initial timber and leveling,
+waits for footprint clearance and a ready departing worker, then allocates the
+scaffold. Task-8 workers approach original vertices, stamp in the original sprite
+animation, change heights by descriptor steps and play cue 2. Unstaffed plans
+expire on the original phase. Compared 2,816 native plan decisions and 3,072
+complete leveling calls; live hut/training-building tests cover all rotations,
+allocation, completion, departure, cancellation and timber obstacles. Browser
+checks verify visible plan artwork, directional leveling frames and delayed models.
+All 116 portable regressions and 336 frozen GPU sprite poses pass.
+
+Next: replace the remaining scenery/person-clearing adapters with native tasks
+3/4 and connect full per-cell validity/terrain notifications. Object-pool limits,
+plan-signal ownership, full movement/collision scheduling and camera-relative
+resting interest remain open. Continue visible first-mission comparisons; broad
+construction remains partial, known-scope coverage stays 17.7% (17/96), and discovery
+and full game parity remain unfinished.

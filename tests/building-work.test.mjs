@@ -40,7 +40,7 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
     tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w)
     for(const u of w.units.filter(u=>u.work===b.id&&u.builder?.task===2)){
       phases.add(u.builder.phase)
-      if(u.builder.phase===4&&u.builder.person?.speed===0&&u.builder.person.timer>2)worker=u
+      if(!b.preparation&&u.builder.phase===4&&u.builder.person?.speed===0&&u.builder.person.timer>2)worker=u
     }
   }
   assert.ok(worker,'an assigned non-hauler must reach the original work loop')

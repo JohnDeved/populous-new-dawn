@@ -5,7 +5,7 @@ import {openGame} from './browser-game.mjs'
 import {spriteDirection} from '../app/projection.ts'
 import sprites from '../app/original-units.json' with {type:'json'}
 async function checkBuilderPose(page,state,path){
-  await page.waitForFunction(state=>window.testScene.unitMeshes.get(window.builder.id).userData.state===state,state)
+  await page.waitForFunction(state=>window.testScene.unitMeshes.get(window.builder.id).userData.state===state,state).catch(async error=>{console.error('pose mismatch',state,await page.evaluate(()=>({unit:window.builder,draw:window.testScene.unitMeshes.get(window.builder.id)?.userData.state})));throw error})
   const pose=await page.evaluate(()=>{
     const s=window.testScene,u=window.builder,p=u.builder.person,g=s.unitMeshes.get(u.id)
     return {object:p.object,step:p.f2,heading:u.heading,bearing:s.cameraBearing,frame:g.userData.frame,flip:g.userData.frameFlip}
@@ -82,6 +82,11 @@ try{
     assert.ok(sprites.animations['blue-brave'].carryIdle.some(d=>d.frames.includes(waiting.frame)))
     await page.evaluate(()=>{window.testScene.world.speed=4})
     await page.waitForFunction(log=>{const s=window.testScene,b=window.building;if(b.logs!==log)return false;s.world.speed=0;return true},log)
+    if(log===1){
+      assert.equal(await page.evaluate(()=>window.building.progress),0,'initial timber is preparation, not a scaffold')
+      await page.evaluate(()=>{window.testScene.world.speed=4})
+      await page.waitForFunction(()=>{if(window.building.preparation)return false;window.testScene.world.speed=0;return true})
+    }
     const expected=[1,2,4][log-1]
     await page.waitForFunction(stage=>window.testScene.buildingMeshes.get(window.building.id)?.children[0].userData.stage===stage,expected)
     const snapshot=await page.evaluate(()=>{

@@ -2,10 +2,14 @@ import {
   assignBuilder,
   pruneBuilders,
   stepConstructionCrew,
+  stepUnbuiltPlan,
+  type UnbuiltPlan,
   BuilderTask,
   type Builder,
 } from './building-workers.ts'
 import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from './building-work.ts'
+import { stepBuildingLevel } from './building-preparation.ts'
+import { faceTribe } from './person-state.ts'
 import { turnPerson } from './person-motion.ts'
 import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
@@ -93,6 +97,7 @@ import {
   type OutcomeWorld,
 } from './tribe-turns.ts'
 import {
+  buildingFootprintCells,
   buildingOutsidePoint,
   buildingInsidePoint,
   buildingPosition,
@@ -241,6 +246,7 @@ export type Building = Point & {
   upgrading: boolean
   angle: number
   counter: number
+  preparation?: UnbuiltPlan & { height: number; alternateHeight: number; work: number }
   builders?: number[]
   birthPending?: boolean
   woodUnavailable?: boolean
@@ -666,14 +672,13 @@ function processBattles(w: World) {
   w.fights = w.fights.filter(b => b.members.length > 1)
 }
 function builderActivity(u: Unit) {
-  switch (u.builder?.task) {
-    case BuilderTask.Approach:
-      return stepBuildingApproach
-    case BuilderTask.Work:
-      return stepBuildingWork
-    case BuilderTask.Leave:
-      return stepBuildingDeparture
-  }
+  const task = u.builder?.task
+  return (
+    task === BuilderTask.Approach ||
+    task === BuilderTask.Work ||
+    task === BuilderTask.Level ||
+    task === BuilderTask.Leave
+  )
 }
 export function unitAnimationSource(u: Unit) {
   if (u.native) return u.native
@@ -696,7 +701,9 @@ export function unitAnimation(w: World, u: Unit) {
   if (u.fighting) return 'attack'
   if (builderActivity(u) && u.builder?.person) {
     if (u.builder.person.speed) return u.cargo ? 'carry' : 'walk'
-    if (u.builder.task === BuilderTask.Work) return 'work'
+    if (u.builder.task === BuilderTask.Level && u.builder.phase === 28) return 'dance'
+    if (u.builder.task === BuilderTask.Work && !w.buildings.find(b => b.id === u.work)?.preparation)
+      return 'work'
     return u.cargo ? 'carryIdle' : 'idle'
   }
   if (u.path.length) return u.cargo ? 'carry' : 'walk'
@@ -818,14 +825,14 @@ export function placementError(w: World, kind: BuildingKind, p: Point) {
     return 'Leave the worship site clear.'
   return null
 }
-export function groundBuilding(w: World, b: Building) {
+export function groundBuilding(w: World, b: Building, prepare = b.progress < 1) {
   syncNativeTerrain(w)
   const pose = buildingPose(b),
     model = buildingModel(b)
-  if (b.progress < 1) {
+  if (prepare) {
     const target = buildingPlanHeight(w.land, pose, model, 0, 0)
-    // ponytail: immediate site preparation remains until task 8 and unbuilt-plan
-    // allocation own its timing. The target and affected vertices are native.
+    // Direct building insertion prepares immediately; player plans are graded
+    // by their workers and pass false during delayed allocation.
     for (const c of buildingGradeVertices(pose)) w.land.heights[c.index] = target
   }
   levelBuildingGround(w.land.heights, pose, model, (cell, radius) => {
@@ -834,6 +841,9 @@ export function groundBuilding(w: World, b: Building) {
     updateWalkMasks(w.land, cell, radius + 1)
   })
   b.foundation = terrainPointHeight(w.land, buildingPosition(pose)) / 45
+  refreshTerrainSurface(w)
+}
+function refreshTerrainSurface(w: World) {
   // Resample the compatibility grid after native writes; keep collision, picking
   // and the rendered native terrain on the same surface.
   for (let i = 0; i < w.terrain.length; i++) {
@@ -892,7 +902,7 @@ export type World = {
   lights: TerrainLights
   lightView: { x: number; y: number }
   lightRevision: number
-  buildingFootprints: Map<number, RegisteredBuilding>
+  buildingFootprints: Map<number, RegisteredBuilding & { plan: boolean }>
   sceneryShadows: Map<number, SceneryShapePose>
   spellScan: SpellTargetScan
   castingTribes: TribeCasting[]
@@ -990,7 +1000,7 @@ export function addBuilding(
   kind: BuildingKind,
   p: Point,
   complete = true,
-  { angle = 0, level: buildingLevel = 1 } = {}
+  { angle = 0, level: buildingLevel = 1, plan = false } = {}
 ) {
   const b: Building = {
     x: p.x,
@@ -999,11 +1009,13 @@ export function addBuilding(
     anchor: { x: Math.round((p.x + 8) * 256) & 0xfe00, y: Math.round((-p.z - 8) * 256) & 0xfe00 },
     team,
     kind,
-    object: chooseBuildingObject(
-      buildingModel({ kind, level: buildingLevel }),
-      team === 'blue' ? 0 : 1,
-      w
-    ),
+    object: plan
+      ? rules.buildingObjects[buildingModel({ kind, level: buildingLevel })]
+      : chooseBuildingObject(
+          buildingModel({ kind, level: buildingLevel }),
+          team === 'blue' ? 0 : 1,
+          w
+        ),
     hp: buildingHp(kind),
     progress: complete ? 1 : 0,
     timer: 0,
@@ -1017,7 +1029,20 @@ export function addBuilding(
     damageState: null,
   }
   Object.assign(b, browserPosition(buildingPosition(buildingPose(b))))
-  groundBuilding(w, b)
+  if (plan) {
+    syncNativeTerrain(w)
+    b.preparation = {
+      model: buildingModel(b),
+      counter: 0,
+      dirty: true,
+      revalidate: false,
+      timeout: 0,
+      height: buildingPlanHeight(w.land, buildingPose(b), buildingModel(b), 0, 0),
+      alternateHeight: 0,
+      work: 0,
+    }
+    b.foundation = terrainPointHeight(w.land, buildingPosition(buildingPose(b))) / 45
+  } else groundBuilding(w, b)
   w.buildings.push(b)
   if (complete && kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   return b
@@ -1740,12 +1765,28 @@ function cellShade(w: World, i: number) {
 export function syncLandscapeObjects(w: World) {
   const current = new Map(
     w.buildings
-      .filter(b => b.hp > 0 && b.progress === 1)
-      .map(b => [b.id, { ...buildingPose(b), id: b.id, tribe: b.team === 'blue' ? 0 : 1 }])
+      .filter(b => b.hp > 0 && (b.preparation || b.progress === 1))
+      .map(b => [
+        b.id,
+        { ...buildingPose(b), id: b.id, tribe: b.team === 'blue' ? 0 : 1, plan: !!b.preparation },
+      ])
   )
   const shade = (i: number) => cellShade(w, i)
-  const update = (b: RegisteredBuilding, mode: number) =>
-    registerBuildingFootprint(w.land, b, mode, shade, () => {})
+  const update = (b: RegisteredBuilding & { plan: boolean }, mode: number) => {
+    if (!b.plan) return registerBuildingFootprint(w.land, b, mode, shade, () => {})
+    // 0x4b9190 modes 2/3/4: reserve cells without marking an actual building.
+    for (const i of buildingFootprintCells(b)) {
+      if (mode === 1) {
+        w.land.flags[i] |= 0x410
+        w.land.buildingIds[i] = (w.land.buildingIds[i] & 0xfc00) | (b.id & 1023)
+        w.land.owners[i] = (w.land.owners[i] & 0xf0) | (b.tribe + 1)
+      } else {
+        w.land.flags[i] = (w.land.flags[i] & ~0x4400) | 16
+        w.land.buildingIds[i] &= 0xfc00
+        w.land.owners[i] &= 0xf0
+      }
+    }
+  }
   for (const [id, old] of w.buildingFootprints) {
     const next = current.get(id)
     if (
@@ -1880,6 +1921,112 @@ function dispatchConstructionCrew(w: World, b: Building, workers: Unit[]) {
   return workers.filter(u => u.builder?.task === BuilderTask.Fetch)
 }
 
+// Plan decisions are native; scenery harvesting and displacement still use the
+// existing browser order adapter until tasks 3/4 own their full command lifecycle.
+function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
+  const plan = b.preparation!,
+    pose = buildingPose(b),
+    cells = new Set(buildingFootprintCells(pose)),
+    cell = (p: Point) => {
+      const n = nativePosition(w, p)
+      return ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
+    },
+    onSite = (p: Point) => cells.has(cell(p)),
+    crew = workers.map(
+      u => (u.builder ??= { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true })
+    )
+  plan.counter = b.counter
+  const action = stepUnbuiltPlan(
+    plan,
+    crew,
+    // ponytail: dry-land validation until 0x44ee50 owns all per-cell rules.
+    () => [...cells].every(i => w.land.heights[i] > 0),
+    () => {
+      const people = w.units.filter(u => u.hp > 0 && u.inside === null && onSite(u)),
+        scenery = w.trees.filter(t => t.logs > 0 && onSite(t))
+      return {
+        timber: plan.work < rules.buildingPreparationWork[plan.model],
+        grade: buildingGradeVertices(pose).some(
+          v => Math.abs(w.land.heights[v.index] - plan.height) > 1
+        ),
+        scenery: scenery.length,
+        friendly: people.filter(u => u.team === b.team && u.work !== b.id).length,
+        enemies: people.filter(u => u.team !== b.team).length,
+        vehicles: 0,
+        crew: people.filter(u => u.team === b.team && u.work === b.id).length,
+        wooden: scenery.some(t => !!(rules.sceneryResourceFlags[t.model] & 16)),
+      }
+    }
+  )
+  if (action === 'remove') {
+    workers.forEach(u => release(w, u))
+    w.buildings = w.buildings.filter(other => other !== b)
+    return
+  }
+  if (action === 'allocate') {
+    b.object = chooseBuildingObject(plan.model, b.team === 'blue' ? 0 : 1, w)
+    b.progress = plan.work / rules.buildingLife[plan.model]
+    b.preparation = undefined
+    Object.assign(b, browserPosition(buildingPosition(buildingPose(b))))
+    // Workers already graded the site. Allocation performs only the original
+    // model foundation pass, without the legacy immediate-plan preparation.
+    groundBuilding(w, b, false)
+    for (const u of workers) if (u.builder?.person) u.builder.person.assignment |= 16
+    return
+  }
+  haulBuildingWood(
+    w,
+    b,
+    workers.filter(u => u.builder?.task === BuilderTask.Fetch),
+    true
+  )
+  for (const u of workers) {
+    const task = u.builder!
+    if (task.task === 5 || task.task === 6) {
+      // 0x495520 returns task 2 immediately for these two preparation requests.
+      task.task = BuilderTask.Work
+      task.restart = true
+    }
+    if (task.task === BuilderTask.ClearScenery) {
+      // ponytail: reuse the existing timber adapter; native task-3 targeting,
+      // obstacle destruction and pause phases remain the next integration slice.
+      const tree = w.trees.find(t => t.logs > 0 && onSite(t))
+      if (u.cargo) {
+        if (!u.path.length && atBuildingEntrance(w, u, b)) {
+          w.trees.push({ id: w.nextId++, ...buildingDoor(b), logs: u.cargo, model: 11 })
+          u.cargo = 0
+          u.tree = null
+          sound(w, 11, u)
+        } else if (!u.path.length) route(w, u, buildingDoor(b))
+      } else if (!tree) {
+        u.tree = null
+        u.harvest = undefined
+        task.task = BuilderTask.Work
+        task.restart = true
+      } else {
+        if (u.tree !== tree.id) {
+          u.tree = tree.id
+          u.harvest = undefined
+          route(w, u, tree)
+        }
+        haulBuildingWood(w, b, [u], false)
+      }
+    }
+    if (task.task === BuilderTask.ClearPeople) {
+      // ponytail: native task-4's command allocation/spiral search is pending;
+      // ordinary friendly orders already support moving occupants off the plan.
+      for (const other of w.units.filter(
+        a => a.hp > 0 && a.team === b.team && a.work !== b.id && onSite(a)
+      )) {
+        release(w, other)
+        route(w, other, buildingDoor(b))
+      }
+      task.task = BuilderTask.Work
+      task.restart = true
+    }
+  }
+}
+
 function processBuilderWork(w: World, u: Unit, b: Building) {
   const task = u.builder!,
     p = (task.person ??= createLivePerson(w, u)),
@@ -1900,55 +2047,97 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
     u.delivery = undefined
   }
   const cell = (p.y >> 9) * 128 + (p.x >> 9)
-  const step = builderActivity(u)!
-
-  step(
-    w,
-    p,
-    task,
-    {
-      model: buildingModel(b),
-      building: b.id,
-      occupied: w.land.buildingIds[cell],
-      onBuilding: !!(w.land.flags[cell] & 512),
-      angle: 0, // Class-9 draw heading stays zero; its rotated shape is stored separately.
-      center: buildingInsidePoint(pose),
-      outside: buildingOutsidePoint(pose),
-    },
-    {
-      destination: (to, direct) => {
-        // Activity owns exact targets; ordinary path/collision integration still
-        // supplies movement until the full native person controller is connected.
-        clearLivePath(w, u)
-        setDirectPersonDestination(w.motionRoutes, p, to)
-        if (direct) u.path = [browserPosition(to)]
-        else route(w, u, browserPosition(to))
-      },
-      animation: (_, object) => {
-        setLivePersonAnimation(w, p, object)
-        if (!p.speed) clearLivePath(w, u)
-      },
-      outsideBuilding: point => {
-        const index = (point.y >> 9) * 128 + (point.x >> 9)
-        if (!(w.land.flags[index] & 512)) return point
-        const building = w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023))
-        if (!building) throw new Error('Missing building at construction resting anchor')
-        return buildingOutsidePoint(buildingPose(building))
-      },
-      allocateLog: () => {
-        w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
-        return true // ponytail: unbounded scenery collection until native object-pool allocation is connected.
-      },
-      releaseMotion: () => {
-        releasePersonRoute(w.motionRoutes, p)
-        clearLivePath(w, u)
-      },
-      sound: cue => sound(w, cue, u),
-      rest: () => {
-        throw new Error('Unbuilt-plan allocation and resting ownership are not connected')
-      },
+  const destination = (to: { x: number; y: number }, direct = false) => {
+    clearLivePath(w, u)
+    setDirectPersonDestination(w.motionRoutes, p, to)
+    if (direct) u.path = [browserPosition(to)]
+    else route(w, u, browserPosition(to))
+  }
+  const animation = (_: unknown, object: number) => {
+    setLivePersonAnimation(w, p, object)
+    if (!p.speed) clearLivePath(w, u)
+  }
+  const releaseMotion = () => {
+    releasePersonRoute(w.motionRoutes, p)
+    clearLivePath(w, u)
+  }
+  if (task.task === BuilderTask.Level && b.preparation) {
+    turnPerson(p)
+    const result = stepBuildingLevel(
+      w,
+      p,
+      task,
+      b.preparation,
+      w.land,
+      () => buildingGradeVertices(pose),
+      {
+        animation,
+        destination: to => destination(to, true),
+        releaseMotion,
+        terrainChanged: index => {
+          const cell = ((index & 127) << 1) | ((index >> 7) << 9)
+          queueTerrain(w.land, cell, 2, 1, terrainTextures)
+          processTerrain(w.land, terrainTextures)
+          updateWalkMasks(w.land, cell, 3)
+          refreshTerrainSurface(w)
+        },
+        sound: cue => sound(w, cue, u),
+      }
+    )
+    if (result === 2) {
+      task.task = BuilderTask.Work
+      task.restart = true
     }
-  )
+  } else {
+    const step =
+      task.task === BuilderTask.Approach
+        ? stepBuildingApproach
+        : task.task === BuilderTask.Leave
+          ? stepBuildingDeparture
+          : stepBuildingWork
+    step(
+      w,
+      p,
+      task,
+      {
+        model: buildingModel(b),
+        building: b.preparation ? 0 : b.id,
+        occupied: w.land.buildingIds[cell],
+        onBuilding: !!(w.land.flags[cell] & 512),
+        angle: 0,
+        center: buildingInsidePoint(pose),
+        outside: buildingOutsidePoint(pose),
+      },
+      {
+        destination,
+        animation,
+        releaseMotion,
+        outsideBuilding: point => {
+          const index = (point.y >> 9) * 128 + (point.x >> 9)
+          if (!(w.land.flags[index] & 512)) return point
+          const building = w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023))
+          if (!building) throw new Error('Missing building at construction resting anchor')
+          return buildingOutsidePoint(buildingPose(building))
+        },
+        allocateLog: () => {
+          w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+          return true // ponytail: unbounded scenery until native object-pool allocation is connected.
+        },
+        sound: cue => sound(w, cue, u),
+        rest: () =>
+          faceTribe(
+            {
+              instantFacing: false,
+              // Shared live selection adapter supplies tribe interest until camera
+              // ownership is connected to native tribe records.
+              tribes: w.manaTribes.map(() => ({ x: 0, y: 0, angle: 0 })),
+            },
+            p,
+            { releaseMotion }
+          ),
+      }
+    )
+  }
   u.cargo = p.cargo / 100
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
@@ -2110,11 +2299,10 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     .map(u => ({ u, path: findPath(w, u, p) }))
     .filter(a => a.path.length)
     .slice(0, rules.buildingMaxWorkers[buildingModel({ kind, level: 1 })])
-  if (!workers.length) {
-    tell(w, 'A free brave must be able to reach the building site.')
-    return false
-  }
-  const b = addBuilding(w, 'blue', kind, p, false, { angle: (plan.angle * Math.PI) / 1024 })
+  const b = addBuilding(w, 'blue', kind, p, false, {
+    angle: (plan.angle * Math.PI) / 1024,
+    plan: true,
+  })
   b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0)
   for (const { u } of workers) {
     assignBuilder(b.builders, u.id)
@@ -3184,15 +3372,21 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[], constructing: 
       } else {
         u.delivery ??= { remaining: 8 }
         if (!stepTimberDelivery(u.delivery)) continue
-        const capacity = rules.buildingLife[buildingModel(b)],
-          work = b.damageState?.plan.remaining ?? Math.round(b.progress * capacity),
+        const capacity = b.preparation
+            ? rules.buildingPreparationWork[buildingModel(b)]
+            : rules.buildingLife[buildingModel(b)],
+          work =
+            b.preparation?.work ??
+            b.damageState?.plan.remaining ??
+            Math.round(b.progress * capacity),
           amount = timberTransfer(
             Math.round(u.cargo * 100),
             work,
             capacity,
             Math.round(u.cargo * 100)
           )
-        b.progress = (work + amount) / capacity
+        if (b.preparation) b.preparation.work = work + amount
+        else b.progress = (work + amount) / capacity
         b.logs = (work + amount) / 100
         u.cargo -= amount / 100
         if (b.damageState) {
@@ -3425,6 +3619,10 @@ function stepTurn(w: World) {
       if (b.hp > 0 && b.burn) dispatchConstructionCrew(w, b, constructionWorkers(w, b))
       if (b.hp <= 0 || b.burn || (b.damageState.buildingFlags & 64 && b.damageState.state !== 2))
         continue
+    }
+    if (b.preparation) {
+      prepareBuildingSite(w, b, constructionWorkers(w, b))
+      continue
     }
     const inhabitants = w.units.filter(u => u.inside === b.id && u.hp > 0)
     if (b.progress < 1 || b.builders?.some(Boolean)) {

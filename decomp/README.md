@@ -3585,3 +3585,65 @@ painter parity. Selection controls also pass. Fallow reports 85.0 maintainabilit
 2.9 average cyclomatic complexity and no dead exports; existing model.ts lint and
 complexity debt remains. The touched shape module passes ox-standard and both
 changed app modules pass existing ESLint.
+
+## Unbuilt plans and worker leveling — 2026-09-09
+
+`building-workers.ts` reconstructs `004b8470` after registration pruning. Native
+16-turn decisions retain worker slot order and prioritize initial timber, terrain
+grade, scenery, friendly people, enemies and vehicles. Allocation requires a clear
+footprint and a task-9 worker in phase 6; unstaffed plans time out after fifty
+128-turn increments. Extracted descriptor fields preserve timeout thresholds,
+preparation work, leveling crew quotas and height steps. `004b9d50` is now retained
+in the 933-export manifest alongside the existing grade traversal `004b9e20`.
+
+`building-preparation.ts` reconstructs task 8 (`00497030`): random grade-vertex
+selection, adjacent occupied-tile facing, direct movement, original waits,
+row-7 stamping, frame-count timers, carrying/shaman rise, descriptor-sized height
+changes and the original terrain/sound submissions. It shares movement, animation,
+RNG and terrain helpers; `faceTribe` also reuses the existing `004eec80` port for
+unlinked work rests instead of duplicating it.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-unbuilt-plan.py /private/tmp/populous-reference/native/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-level.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-preparation.test.mjs
+node scripts/check-browser-building-ground.mjs
+node scripts/check-browser-construction.mjs
+```
+
+The plan oracle compares 2,816 original decisions, including allocation failures,
+validation, quotas, obstacles, worker counts and timeout-byte wrap. Shape traversals,
+object lists, pruning, task classification and native priority dispatch execute;
+validity results and final allocation/removal leaves are supplied. The leveling
+oracle compares 3,072 complete calls across six building models, all rotations,
+wrapped positions, signed timer/height boundaries, native animation setters,
+movement recovery and grade writes. Only terrain queue/notification leaves and
+sound are intercepted. Original VSTART/VFRA chains supply native frame counts.
+Portable fixtures retain every fifth case and execute the shared animation setter.
+
+Live placement now preserves terrain and the base plan shape. Hut-family selection
+waits for allocation, and the retained map anchor remains distinct from the model
+origin. Preparation work is separate from visible construction progress. Plan
+occupancy reuses the existing footprint registry without setting building bit 512;
+placed overlays reuse the preview geometry/atlas helper. Workers level the original
+vertices and wait for clearance before the first scaffold. Ground resampling is
+shared with allocated foundations. Cue 2 is preloaded with the existing native PCM.
+
+Scenery harvesting and friendly displacement currently reuse browser order adapters;
+full tasks 3/4, nonresource obstacles and the native command/spiral search remain
+open. Live validity remains a dry-land check, terrain notifications do not yet
+own every nearby object's response, and class-9/object-pool allocation is represented
+by the existing browser building record. Ordinary route/collision/update order,
+tribe camera-interest records and frame-gated audio remain partial. These boundaries
+prevent broad construction parity credit. Direct insertion helpers retain immediate
+preparation for explicit already-allocated fixtures; player placement uses workers.
+
+Validation for this integration: 116 portable checks and the complete playable
+first-mission regression pass. Four browser rotations show 8,830–9,825 plan pixels,
+175–278 pixels from original directional leveling sprites, and 1,577–2,093 scaffold
+pixels after allocation. The 336 frozen GPU sprite poses remain unchanged; complete
+one/six-worker construction, carried timber and departure pass. Focused ox-standard
+checks for the new controllers and existing ESLint for all touched app modules
+pass. Fallow reports 84.8 maintainability, 2.9 average cyclomatic complexity and no
+dead exports; the existing three import cycles and broader lint/complexity debt
+remain. No checkpoint credit is added for these component-level checks.

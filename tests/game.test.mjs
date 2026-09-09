@@ -211,7 +211,7 @@ test('opening tooltips resolve mission cells and have an independent lifetime', 
 function until(w,ready,seconds){for(let i=0;i<seconds*12&&!ready()&&w.status==='playing';i++)tick(w,1/12);assert.ok(ready(),'gameplay condition reached within its turn budget');}
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
 function foundations(w) {
- for (const b of w.buildings) for (const {index} of buildingGradeVertices(buildingPose(b))) {
+ for (const b of w.buildings.filter(b=>!b.preparation)) for (const {index} of buildingGradeVertices(buildingPose(b))) {
   const p=browserPosition({x:(index&127)*512,y:(index>>7)*512});
   assert.ok(walkable(w.terrain,p),'native foundation vertices stay on dry land');
   assert.ok(Math.abs(worldPoint(w.terrain,p).y-b.foundation*45/128)<1e-9,'native mask vertices support the building');

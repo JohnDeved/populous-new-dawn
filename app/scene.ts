@@ -42,6 +42,7 @@ import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import {
   buildingObject,
   buildingPlanPose,
+  buildingPose,
   buildingStage,
   nativePosition,
   browserPosition,
@@ -106,7 +107,7 @@ import nativeEffects from './original-effects.json'
 import nativeHud from './original-hud.json'
 import { spellCursor } from './spell-casting.ts'
 import { spellHalo, haloBucket } from './spell-halo.ts'
-import { buildingPlanCells } from './building-shapes.ts'
+import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
 import { lightningLines, lineQuad, lightningTexture, type Lightning } from './lightning.ts'
 import rules from './original-rules.json'
@@ -424,6 +425,7 @@ export class GameScene {
       polygonOffsetUnits: -1,
     })
   )
+  plans = new Map<number, THREE.Mesh>()
   placementState = ''
   range = new THREE.Group()
   halo = { angle: 0 }
@@ -860,12 +862,22 @@ export class GameScene {
     const key = [kind, pose.anchorX, pose.anchorY, pose.angle, invalid, w.landVersion].join(',')
     if (key === this.placementState) return
     this.placementState = key
+    this.cursor.geometry.dispose()
+    const { geometry, cells, entrance } = this.planGeometry(pose, invalid)
+    this.cursor.geometry = geometry
+    this.cursor.userData.cells = cells
+    this.cursor.userData.entrance = entrance
+    this.cursor.userData.invalid = invalid
+  }
+
+  planGeometry(pose: BuildingShapePose, invalid = false, placed = false) {
     const { cells, entrance } = buildingPlanCells(pose)
-    const flags = new Uint32Array(w.land.flags)
+    const w = this.world,
+      flags = new Uint32Array(w.land.flags)
     // These are presentation marks, not persistent terrain ownership flags.
     for (let i = 0; i < flags.length; i++) flags[i] &= ~0x1980
-    for (const i of cells) flags[i] |= invalid ? 0x190 : 0x90
-    if (entrance !== null) {
+    for (const i of cells) flags[i] |= placed ? 0x410 : invalid ? 0x190 : 0x90
+    if (!placed && entrance !== null) {
       flags[entrance] |= 0x800
       if (!cells.includes(entrance)) cells.push(entrance)
     }
@@ -873,7 +885,7 @@ export class GameScene {
       uv: number[] = [],
       colors: number[] = []
     for (const i of cells) {
-      const overlay = groundOverlay(flags, i, flags[i] & 0x180, pose.angle / 512),
+      const overlay = groundOverlay(flags, i, placed ? 0x400 : flags[i] & 0x180, pose.angle / 512),
         tint = new THREE.Color(overlay.color & 0xffffff)
       const x = (i & 127) * 512,
         y = (i >> 7) * 512,
@@ -891,15 +903,11 @@ export class GameScene {
           colors.push(tint.r, tint.g, tint.b)
         }
     }
-    this.cursor.geometry.dispose()
-    const geo = new THREE.BufferGeometry()
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
-    this.cursor.geometry = geo
-    this.cursor.userData.cells = cells
-    this.cursor.userData.entrance = entrance
-    this.cursor.userData.invalid = invalid
+    const geometry = new THREE.BufferGeometry()
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+    return { geometry, cells, entrance }
   }
 
   rebuildTerrain() {
@@ -2195,13 +2203,37 @@ export class GameScene {
       )
       g.userData.healthFill.scale.x = Math.max(0.001, u.hp / maxHp(u.kind))
     }
+    for (const [id, mesh] of this.plans)
+      if (!this.world.buildings.some(b => b.id === id && b.preparation)) {
+        mesh.removeFromParent()
+        mesh.geometry.dispose()
+        this.plans.delete(id)
+      }
+    for (const b of this.world.buildings.filter(b => b.preparation)) {
+      let mesh = this.plans.get(b.id)
+      if (!mesh) {
+        mesh = new THREE.Mesh(new THREE.BufferGeometry(), this.cursor.material)
+        this.plans.set(b.id, mesh)
+        this.ground.add(mesh)
+      }
+      const pose = buildingPose(b),
+        key = [pose.object, pose.angle, pose.anchorX, pose.anchorY, this.world.terrainVersion].join(
+          ','
+        )
+      if (mesh.userData.signature !== key) {
+        mesh.geometry.dispose()
+        mesh.geometry = this.planGeometry(pose, false, true).geometry
+        mesh.userData.signature = key
+      }
+    }
     for (const [id, g] of this.buildingMeshes)
-      if (!this.world.buildings.some(b => b.id === id)) {
+      if (!this.world.buildings.some(b => b.id === id && !b.preparation)) {
         this.objects.remove(g)
         this.releaseGroup(g)
         this.buildingMeshes.delete(id)
       }
     for (const b of this.world.buildings) {
+      if (b.preparation) continue
       const stage = buildingStage(b)
       let g = this.buildingMeshes.get(b.id)
       if (g && g.userData.signature !== `${buildingObject(b)}-${stage}`) {

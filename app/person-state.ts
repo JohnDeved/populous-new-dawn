@@ -132,7 +132,11 @@ export function personAnimationObject(
 // 0x4eec80: selected people face the tribe's camera-relative interest point.
 // With neither native global flag set, request a turn and release motion;
 // land_flags_1 bit 8 or opened_files_flags bit 16 instead sets yaw immediately.
-function faceSelection(w: PersonStateWorld, p: StatefulPerson, effects: PersonStateEffects) {
+export function faceTribe(
+  w: { instantFacing: boolean; tribes: { x: number; y: number; angle: number }[] },
+  p: StatefulPerson,
+  effects: Pick<PersonStateEffects, 'releaseMotion'>
+) {
   let angle = p.angle
   if (p.tribe !== -1) {
     const tribe = w.tribes[p.tribe]
@@ -230,7 +234,7 @@ export function initializePersonState(
     p.selectionFlags |= 0x81
     p.flags3 = (p.flags3 & ~1) >>> 0
     p.flags2 = (p.flags2 | 0x1000000) >>> 0
-    faceSelection(w, p, effects)
+    faceTribe(w, p, effects)
     p.assignment |= 16
     p.animationMode = 1
   } else if (p.state === 17) {
