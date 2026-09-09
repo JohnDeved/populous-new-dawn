@@ -24,12 +24,17 @@ export class Painter {
   view: RenderView
   landFlags: Uint32Array = new Uint32Array(16384)
   ranges = new WeakMap<THREE.Object3D, [number, number]>()
+  transparentMeshes: {
+    mesh: THREE.Mesh
+    material: THREE.Material | THREE.Material[]
+    groups: THREE.BufferGeometry['groups']
+  }[] = []
   texture = new THREE.DataTexture(new Float32Array(1024), 1024, 1, THREE.RedFormat, THREE.FloatType)
   constructor(view: RenderView) {
     this.view = view
   }
 
-  update(scene: THREE.Scene) {
+  update(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
     const objects: (THREE.Mesh | THREE.Sprite)[] = []
     let length = 0
     scene.traverseVisible(object => {
@@ -188,7 +193,56 @@ export class Painter {
     commands.forEach((command, i) => {
       pixels[command.slot] = painterDepth(i / stretch)
     })
+    // 0x47c7e0 retains command order in its deferred alpha list. A transparent
+    // mesh may straddle a sprite, so expose each triangle to Three's draw sorter.
+    for (const object of objects) {
+      if (!(object instanceof THREE.Mesh)) continue
+      const materials = Array.isArray(object.material) ? object.material : [object.material]
+      if (!materials.some(m => m.transparent)) continue
+      const geometry = object.geometry
+      this.transparentMeshes.push({
+        mesh: object,
+        material: object.material,
+        groups: geometry.groups,
+      })
+      const groups = Array.isArray(object.material)
+        ? geometry.groups
+        : [{ start: 0, count: geometry.getAttribute('position').count, materialIndex: 0 }]
+      geometry.groups = groups.flatMap(group =>
+        Array.from({ length: group.count / 3 }, (_, i) => ({
+          start: group.start + i * 3,
+          count: 3,
+          materialIndex: group.materialIndex,
+        }))
+      )
+      object.material = materials
+    }
+    const drawDepth = (item: THREE.RenderItem) =>
+      this.depth(
+        item.object,
+        ((item.group as unknown as { start: number } | null)?.start ?? 0) / 3,
+        0
+      )
+    renderer.setTransparentSort((a: THREE.RenderItem, b: THREE.RenderItem) => {
+      const ad = drawDepth(a),
+        bd = drawDepth(b)
+      return (
+        a.groupOrder - b.groupOrder ||
+        a.renderOrder - b.renderOrder ||
+        (!this.view.overview && ad !== null && bd !== null ? bd - ad : b.z - a.z) ||
+        a.id - b.id
+      )
+    })
     this.texture.needsUpdate = true
+  }
+
+  afterRender() {
+    // Keep scene material edits and geometry ownership unchanged between frames.
+    while (this.transparentMeshes.length) {
+      const { mesh, material, groups } = this.transparentMeshes.pop()!
+      mesh.material = material
+      mesh.geometry.groups = groups
+    }
   }
 
   depth(object: THREE.Object3D, triangle: number, instance: number) {

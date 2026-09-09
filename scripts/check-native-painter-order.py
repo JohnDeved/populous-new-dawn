@@ -129,7 +129,22 @@ for group in groups:
     assert list(struct.unpack('<' + 'H' * (len(group) * 3),
                               cpu.mem_read(indices, len(group) * 6))) == list(range(len(group) * 3))
     assert all(depths[a] > depths[b] for a, b in zip(ordered, ordered[1:]))
-    cases.append(dict(triangles=group, buckets=buckets, order=ordered, rasterDepths=depths))
+    # A second complete batch preparation mixes opaque and both alpha modes.
+    # 0x47c7e0 appends alpha records to a FIFO, retaining their painter order.
+    write(ui + 0x6cc, 'II', 2, 4)
+    alpha_flags = [0, 1, 2, 0x40]
+    for i in range(len(group)):
+        write(context + 0x2a + i * 128 + 12, 'I', alpha_flags[i % 4])
+    call(0x47c7e0)
+    alpha_order = []
+    p = read(context + 0x248036, 'I')
+    while p:
+        assert len(alpha_order) < len(group), 'Cyclic alpha chain'
+        alpha_order.append(round(read(p + 32, 'f') / 10))
+        p = read(p + 8, 'I')
+    assert alpha_order == [tag for i, tag in enumerate(ordered) if i % 4]
+    cases.append(dict(triangles=group, buckets=buckets, order=ordered, rasterDepths=depths,
+                      alphaOrder=alpha_order))
 # Retain the original signed object/face bias inputs, tied to source hashes.
 source = Path(sys.argv[1]).parent / 'objects'
 raw_objects = (source / 'objs0-2.dat').read_bytes()
@@ -152,4 +167,5 @@ if '--record' in sys.argv:
 else:
     assert json.loads(fixture.read_text()) == result
 print(f'PASS: {len(cases)} native mixed queues, {sum(len(c["triangles"]) for c in cases)} triangles; '
-      f'far-to-near buckets, reverse insertion ties, constant final triangle depth and rhw=1; {len(models)} source-bound model bias arrays')
+      f'far-to-near buckets, reverse insertion ties, constant final triangle depth and rhw=1; '
+      f'{sum(len(c["alphaOrder"]) for c in cases)} deferred alpha records; {len(models)} source-bound model bias arrays')

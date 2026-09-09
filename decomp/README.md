@@ -4112,3 +4112,37 @@ established, so no terrain attenuation or lighting adjustment was made. The sour
 screenshots are not matched first-mission camera captures. Continue mixed queue,
 alpha and original whole-frame comparison; this evidence does not resolve all
 visible differences and does not earn a new checkpoint fraction.
+
+
+## Deferred transparency ordering — after v138
+
+0047c7e0 puts alpha-mode records in a FIFO through record +8; 0047ce50 consumes
+that chain after opaque batching. The native painter check now repeats each of
+70 captured queues with mixed opaque/alpha mode flags and verifies all 774 alpha
+records in command order. The fixture retains this alphaOrder alongside original
+bucket order/depth values. Cache-maintenance calls remain intercepted as described
+above; mode inputs are supplied. This does not prove every original render-state
+selection or device blend factor.
+
+The browser previously sorted translucent objects with Three's fallback camera,
+which does not describe the original projection. Eight controlled overlapping
+sprites reproduce incorrect blends under camera/insertion changes. Transparent
+meshes also require individual triangle ordering when they straddle a sprite.
+The renderer now exposes those triangles through temporary geometry draw groups
+and sorts them with the same constant-depth stream used for opaque occlusion.
+After rendering, original material/group references are restored in reverse order,
+including shared geometry. Screen overlays retain their explicit ordering and
+world overview retains its separate renderer.
+
+`check-browser-sprite-order.mjs` checks eight sprite overlaps and four interleaved
+mesh/sprite cases. The latter produce RGB 64/128/32; replaying the old whole-object
+path disagrees. Shared geometry/material restoration is asserted. Real Lightning
+fire, original collapse smoke, all 392 sprite poses, spell halos, placement/rotation
+and overview effects pass. The fire screenshot was inspected. The smoke regression
+now targets the engine canvas explicitly; its prior selector also matched the
+noninteractive overlay canvas.
+
+Parity revision 3 separates deferred alpha ordering from remaining blend/depth
+modes and source-queue ownership. The new scope's pre-verification baseline is
+recorded independently of its verified gain. Full original source chains, native
+batch limits, other blend/state modes and matched full frames remain unfinished.

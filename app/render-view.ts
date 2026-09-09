@@ -382,9 +382,10 @@ export class RenderView {
     return best as { point: { x: number; z: number }; object: THREE.Object3D; depth: number } | null
   }
   prepare(scene: THREE.Scene) {
-    scene.onBeforeRender = () => {
-      if (!this.overview) this.painter.update(scene)
+    scene.onBeforeRender = renderer => {
+      if (!this.overview) this.painter.update(scene, renderer)
     }
+    scene.onAfterRender = () => this.painter.afterRender()
     scene.traverse(object => {
       if (object.userData.nativeIgnore) return
       if (

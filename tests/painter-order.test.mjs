@@ -25,6 +25,10 @@ test('mixed polygon buckets, reverse insertion ties and raster depths match nati
       commands.map(p => p.order),
       c.order
     )
+    assert.deepEqual(
+      commands.filter((_, i) => i % 4).map(p => p.order),
+      c.alphaOrder
+    )
     commands.forEach((p, i) => assert.equal(painterDepth(i), c.rasterDepths[p.order]))
   }
 })

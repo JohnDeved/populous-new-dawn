@@ -95,7 +95,7 @@ try {
   assert.ok(displayed.pixels > 20, JSON.stringify(displayed))
   await page.waitForFunction(frame => window.testScene.world.effects.find(fx => fx.id === window.smokeTestId).animation.f1 !== frame, displayed.frame)
   await page.screenshot({ path: '/private/tmp/populous-building-smoke.png' })
-  await page.locator('.world-viewport canvas').focus()
+  await page.locator('.world-viewport canvas[data-engine]').focus()
   const bearing = await page.evaluate(() => window.testScene.cameraBearing)
   await page.keyboard.down('q')
   await page.waitForTimeout(250)

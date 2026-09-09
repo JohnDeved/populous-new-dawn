@@ -82,9 +82,13 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** compare mixed terrain/model/sprite occlusion and full first-mission
-frames, with source cell chains and alpha ordering the next concrete rendering
-boundaries. Twelve captured normal (0), close (3) and bird's-eye (2) views at four
+**Next action:** continue matched first-mission frame comparisons and recover
+source cell/object submission ownership where ties visibly disagree. Deferred
+alpha drawing now retains native command order across sprite layers and individual
+transparent model triangles, including interleaving inside a mesh. Seventy native
+queues/774 deferred alpha records and twelve controlled browser overlaps agree;
+real fire, collapse smoke, halo, placement and overview effects pass. Complete
+blend-mode/depth-state selection, source chains and native batching remain open. Twelve captured normal (0), close (3) and bird's-eye (2) views at four
 bearings now replay 366 live static models through the complete native renderer:
 7,430 submitted triangles agree on projection, shade, culling and bucket. The
 shared painter now rejects completed-model rear faces and common left/right/bottom

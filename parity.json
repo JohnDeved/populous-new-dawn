@@ -1,8 +1,8 @@
 {
-  "revision": 2,
+  "revision": 3,
   "discovery": {
     "status": "open",
-    "note": "The original engine and content inventory remain open. Broad checkpoints retain equal shares; explicit requirements now expose verified work inside graphics checkpoints. Other broad partial checkpoints can be decomposed as their evidence is reviewed. New discoveries enter the inventory with zero credit and a recorded scope revision.",
+    "note": "The original engine and content inventory remain open. Broad checkpoints retain equal shares. Revision 3 separates deferred alpha ordering from the remaining blend-mode/state and source-queue ownership so this visible behavior can be independently assessed. New discoveries enter with zero credit and a recorded scope revision.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -285,7 +285,7 @@
             "references/reverse-engineering.md",
             "scripts/check-browser-scenery-fire.mjs"
           ],
-          "note": "Original atlas alpha decoder verified; full painter/blend ownership unverified.",
+          "note": "Original atlas alpha decoding, default sampling and deferred alpha ordering are verified for their named scopes. Transparent mesh triangles and sprite layers now share native command order. Full palette/mode selection, depth state and graphics settings remain incomplete.",
           "requirements": [
             {
               "id": "graphics.materials.alpha",
@@ -316,10 +316,25 @@
               "evidence": []
             },
             {
+              "id": "graphics.materials.order",
+              "title": "Deferred alpha ordering for sprites and model triangles",
+              "status": "verified",
+              "note": "Native deferred alpha FIFO preserves the mixed command stream: 70 queues and 774 alpha records compared. Eight sprite overlaps and four interleaved transparent mesh/sprite overlaps produce expected GPU blending through camera/insertion changes; shared geometry/material ownership is restored after drawing. Real fire, collapse smoke, halo, placement, sprite layers and overview effects pass. Source command generation and complete native blend/depth modes remain separate unfinished scope.",
+              "evidence": [
+                "app/painter.ts",
+                "scripts/check-native-painter-order.py",
+                "tests/fixtures/painter-order.json",
+                "scripts/check-browser-sprite-order.mjs",
+                "scripts/check-browser-scenery-fire.mjs",
+                "scripts/check-browser-building-smoke.mjs",
+                "scripts/check-browser-spell-halo.mjs"
+              ]
+            },
+            {
               "id": "graphics.materials.blending",
               "title": "Complete alpha and additive pass ownership",
               "status": "partial",
-              "note": "Mixed-class transparent ordering is not verified.",
+              "note": "Full alpha/additive mode selection, depth state and special pass ownership remain incomplete. Deferred triangle/sprite ordering is assessed separately.",
               "evidence": [
                 "app/scene.ts",
                 "decomp/generated/0047c7e0.c"
@@ -549,9 +564,9 @@
             },
             {
               "id": "graphics.raster.queue",
-              "title": "Complete cell/object submission, ties, batching and alpha order",
+              "title": "Complete cell/object submission, ties and batching",
               "status": "partial",
-              "note": "Non-person chain ownership, full batching and transparent ordering remain incomplete.",
+              "note": "Non-person chain ownership and full native batching remain incomplete. Deferred alpha primitive ordering is assessed under materials.order.",
               "evidence": [
                 "app/painter.ts",
                 "decomp/generated/004673b0.c"
