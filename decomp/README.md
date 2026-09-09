@@ -3878,8 +3878,14 @@ original launch pose (145 changed GPU pixels), native height and shadow, both
 impact cues, original landing spark and cell cleanup. Expanded sprite GPU checks
 pass 392 poses/290 frames/93,898 colored pixels with the served atlas hash;
 healthy building settling, 49-face collapse and sinking/tilt regressions still pass.
-`npm run check` passes 132 tests, TypeScript and parity consistency; the production
+`npm run check` passes 133 tests, TypeScript and parity consistency; the production
 build succeeds and 950 exports verify. Focused ox-standard has no errors (existing
 warnings remain), changed-app ESLint passes; Fallow reports 84.7 maintainability,
 2.8 average complexity and the existing three import cycles/unused dependencies.
 Full-app legacy lint and engine ownership debt remain open.
+
+Final flight audit also connected wild followers' state-8 landing initializer in
+`004d2740` through the shared state initializer. The existing native oracle now
+covers 5,632 initializers including 512 additional state-8 cases; live wild followers
+land and survive without an unsupported-state exception. Complete wild movement
+and lifecycle remain outside this initializer's verified scope.

@@ -69,3 +69,16 @@ test('Blast and landing damage share original shields, protection, attacker and 
     assert.deepEqual(c.p, fixture.damageExpected[i])
   })
 })
+
+test('wild followers land into their original state 8 without losing the unit', () => {
+  const {w} = flatWorld()
+  const wild = addUnit(w, 'wild', 'brave', { x: 1, z: -1 })
+  assert.ok(cast(w, 'blast', {x:0,z:0}))
+  while(w.projectiles.length) tick(w,1/12)
+  for(let i=0;i<3;i++)tick(w,1/12)
+  const person = wild.flight
+  assert.ok(person); assert.equal(person.model,1); assert.equal(person.tribe,-1)
+  for(let i=0;i<160 && wild.flight;i++)tick(w,1/12)
+  assert.equal(wild.flight,undefined); assert.equal(person.state,8)
+  assert.ok(w.units.includes(wild) && wild.hp>0)
+})

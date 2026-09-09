@@ -188,7 +188,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 10, 14, 17, 19, 36, 39, 41].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 36, 39, 41].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -246,7 +246,8 @@ export function initializePersonState(
   if (p.state === 1) {
     p.speed = 0
     p.timer = (random(w) % 50) + 50
-  } else if (p.state === 10) effects.startOrders(p)
+  } else if (p.state === 8) p.target = 0
+  else if (p.state === 10) effects.startOrders(p)
   else if (p.state === 14) {
     const tribe = w.tribes[p.tribe]
     tribe.selectedCount = (tribe.selectedCount + 1) | 0
@@ -317,7 +318,7 @@ export function releaseSelectedPeople(
     resetPersonMotion(p)
     if (p.flags2 & 0x100000) continue
     const next = w.levelFlags & 2 && p.model === 7 ? 39 : rules.personModels[p.model]?.nextState
-    if (![1, 10, 14, 17, 19, 36, 39, 41].includes(next))
+    if (![1, 8, 10, 14, 17, 19, 36, 39, 41].includes(next))
       throw new RangeError(`Unported person-state initializer ${next}`)
     p.previousState = p.state
     p.state = next

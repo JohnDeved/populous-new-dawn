@@ -75,7 +75,7 @@ def snapshot(c):
     return dict(person=out,tribes=ts,randomState=struct.unpack('<I',cpu.mem_read(0x89d178,4))[0],actions=actions)
 
 cases=[];expected=[]
-for trial in range(5120):
+for trial in range(5632):
     u={key:rng.randrange(256 if fmt in ['B','b'] else 65536) for key,(_,fmt) in fields.items()}
     for key in ['flags2','flags3','flags4']:u[key]=rng.getrandbits(32)
     for key in ['speed','timer']:u[key]=rng.randrange(-128,256)
@@ -85,6 +85,7 @@ for trial in range(5120):
     if u['previousState']!=14:u['vehicle']=rng.choice([0,100])
     if trial>=1536:u.update(state=41 if trial<2048 else 36 if trial<2560 else 39 if trial<3072 else 1,vehicle=0)
     if trial>=4096:u.update(state=17 if trial<4608 else 19,vehicle=0)
+    if trial>=5120:u.update(state=8,vehicle=0)
     c=dict(person=u,orders=[[i,dict(model=rng.choice([6,8,8]),flags=trial%2,a=rng.choice([100,101]))] for i in [1,2,256,257]],
         randomState=rng.getrandbits(32),facingFlags=trial%4*8,
         tribes=[dict(x=rng.randrange(65536),y=rng.randrange(65536),angle=rng.randrange(2048),selectedCount=rng.choice([0,1,7,-1]),flags=rng.getrandbits(32)) for _ in range(4)])
@@ -102,7 +103,7 @@ actual=browser(js,cases);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
     if a!=b:
         path=Path('/private/tmp/populous-state-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(path)))
-print('PASS: 5120 native state-1/10/14/17/19/36/39/41 initializers, flags, RNG, selection counts and camera-relative facing; world effects supplied')
+print('PASS: 5632 native state-1/8/10/14/17/19/36/39/41 initializers, flags, RNG, selection counts and camera-relative facing; world effects supplied')
 
 cases=[];expected=[]
 for state in range(46):

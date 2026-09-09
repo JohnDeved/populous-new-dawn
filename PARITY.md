@@ -83,6 +83,7 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-09T10:08:00.447Z | 1 | 17.7% | 17/96 | 0.0 pp | Final terrain-build validation: 129 portable checks; GPU tilt contrast, occupied-hut evacuation, four construction rotations, Lightning/fire/repair and 336 frozen sprite poses pass. 17/96 known checkpoints remain verified; full parity and discovery stay open. |
 | 2026-09-09T10:38:55.282Z | 1 | 17.7% | 17/96 | 0.0 pp | Integrated original three-pass Blast and collapse waves, native follower flight/landing and shared sparks. Native: 256 waves, 512 damage, 8192 physics, 4096 bounce, 7068 sprite draws. Preserved all 336 prior poses/2672 RGBA pieces; added 56 launch poses/220 original pieces. Scope stays partial; discovery open. |
 | 2026-09-09T10:41:07.258Z | 1 | 17.7% | 17/96 | 0.0 pp | Desktop Blast flight, native launch pose/height/shadow, impact cues and landing spark pass. Sprite GPU coverage: 392 poses/290 frames; terrain settle/collapse/sink regressions pass. 132 portable tests, typecheck, production build and 950 exports pass. Known scope remains 17/96; full dispatch, shake and allocation ownership remain partial. |
+| 2026-09-09T10:43:52.764Z | 1 | 17.7% | 17/96 | 0.0 pp | Final Blast lifecycle audit: wild followers now land into original state 8. 5632 native initializers and 133 portable tests pass; prior browser Blast, sprite and terrain checks pass. No checkpoint status or denominator changes. |
 
 ## Update workflow
 
