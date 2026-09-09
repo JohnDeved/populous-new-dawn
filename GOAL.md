@@ -19,10 +19,15 @@ Achieve full game and engine parity through an ongoing decompilation and browser
 ### Global parity tracking
 
 Maintain [the parity dashboard](PARITY.md) and its versioned capability checklist
-in `parity.json`. Report the global verified-checkpoint percentage, subsystem
-breakdown and partial/missing counts as progress; this is a planning metric, not
+in `parity.json`. Report evidence-backed requirement progress, a prominent graphics
+percentage, whole-checkpoint completion and partial/missing counts; this is a planning metric, not
 an estimate of effort remaining or an objective fraction of the original engine.
 Only compared, integrated behavior earns verified credit for its stated scope.
+Break broad partial checkpoints into explicit, independently evidenced requirements,
+retaining their unfinished scope. Each broad checkpoint keeps one equal share;
+verified requirements earn fractions of that share. More subdivisions cannot raise
+its maximum weight. Scope revisions are measurement changes, not gameplay gains;
+never report their percentage differences as newly completed work.
 Record relevant evidence and remaining boundaries after substantive parity work;
 reopen regressions. Tests and decompiled routines do not independently add points.
 Keep stable checkpoint IDs and scope; increment the checklist revision and explain
@@ -77,16 +82,17 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** integrate the native polygon ordering into the shared renderer,
-then compare terrain, models, sprites and picking in playable normal (0), close
-(3) and bird's-eye (2) views. The native mixed-queue capture now proves constant
-triangle depths, far-to-near buckets, reverse insertion ties and terrain/model
-biases. The live shader disagrees in six isolated overlap cases (30,231 interior
-pixels); `node scripts/check-browser-painter-order.mjs --require-parity` exposes
-this known failure. Preserve original cell/object submission order and model
-face biases; sorting whole Three objects or changing only model depth would not
-recreate the mixed queue. This diagnostic does not yet explain whole-frame
-silhouettes or establish original-frame occlusion.
+**Next action:** compare first-mission terrain, models, sprites and picking in
+playable normal (0), close (3) and bird's-eye (2) views against original frames.
+Shared polygon ordering now integrates constant triangle depth, native buckets,
+reverse insertion ties, raised terrain flags and imported object/face biases.
+All 70 native queues/1,036 triangles and twelve isolated browser overlap cases
+agree, including shared materials. The live sprite and placement regressions pass.
+Complete simulation cell/object chains, native batch/alpha ownership, clipping
+and full-frame occlusion remain open; creation ordering and large-frame depth
+scaling are explicit adapters. Do not treat the isolated primitive comparison as
+proof that distant silhouettes or full native picking are resolved.
+
 The supplied first-mission header and native loader forwarding/selection agree
 that its fog flags are zero; 768 flag/override cases and the live initial world
 are checked. Preserve that setting. Full concealment/reveal ownership for other

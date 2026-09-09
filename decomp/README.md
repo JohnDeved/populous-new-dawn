@@ -4058,3 +4058,27 @@ There are 959 verified exports. No runtime change is included in this capture;
 v136 remains live. Integrate mixed command ordering, biases and tie ownership
 before claiming this gap fixed. Full-scene native submission, clipping, alpha
 passes, picking and matched first-mission frames remain unverified.
+
+
+## Polygon ordering integrated — v137 candidate
+
+The shared renderer now gives terrain/model triangles and sprite layers constant
+command depths. Original polygon buckets, reverse insertion ties, raised-ground
+flags and signed object/face biases are retained; the importer verifies all 55
+model bias arrays against original records. The portable fixture covers all 70
+native queues/1,036 triangles. Twelve controlled browser comparisons (separate
+and shared materials) now agree at all 77,292 interior pixels. Each object owns
+its draw uniforms while retaining shared textures and cached shader programs.
+
+The 392-pose sprite, placement/picking and globe-footprint regressions pass.
+Old shadow and relocation fixtures now use physical flight separation and the
+simulation's map anchor respectively. The inspected live terrain frame preserves
+native lighting and fog; distant dark models remain unresolved. The isolated
+ordering check is not a matched original-frame comparison. Full non-person cell
+chains, batch/alpha ownership, native clipping and picking remain incomplete;
+source creation ordering and large-frame depth scaling are explicit adapters.
+
+Parity revision 2 counts independently verified requirements within fixed broad
+checkpoint shares. Its baseline adjustment credits previously reviewed work and
+is recorded as a measurement revision. Primitive ordering earns a separate real
+increment; full raster fidelity remains partial and discovery stays open.

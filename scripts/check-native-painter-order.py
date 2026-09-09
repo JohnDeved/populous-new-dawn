@@ -4,6 +4,7 @@ Runs complete 0046e930/004718c0, 004673b0, 0047d8a0, 0047c7e0 and
 004f9380. Supplies texture-cache records, redirects the batch receiver, and
 skips three cache-maintenance calls. No GPU or complete scene is emulated.
 """
+import hashlib
 import json
 import random
 import struct
@@ -129,6 +130,21 @@ for group in groups:
                               cpu.mem_read(indices, len(group) * 6))) == list(range(len(group) * 3))
     assert all(depths[a] > depths[b] for a, b in zip(ordered, ordered[1:]))
     cases.append(dict(triangles=group, buckets=buckets, order=ordered, rasterDepths=depths))
+# Retain the original signed object/face bias inputs, tied to source hashes.
+source = Path(sys.argv[1]).parent / 'objects'
+raw_objects = (source / 'objs0-2.dat').read_bytes()
+raw_faces = (source / 'facs0-2.dat').read_bytes()
+provenance = json.loads((ROOT / 'public/original/provenance.json').read_text())['sha256']
+for name, data in [('objs', raw_objects), ('facs', raw_faces)]:
+    assert hashlib.sha256(data).hexdigest() == provenance[f'objects/{name}0-2.dat']
+models = json.loads((ROOT / 'app/original-models.json').read_text())
+for key, model in models.items():
+    start = struct.unpack_from('<I', raw_objects, int(key) * 54 + 16)[0] - 1
+    count = struct.unpack_from('<h', raw_objects, int(key) * 54 + 2)[0]
+    object_bias = struct.unpack_from('<b', raw_objects, int(key) * 54 + 6)[0]
+    expected = [-object_bias - struct.unpack_from('<b', raw_faces, face * 60 + 58)[0]
+                for face in range(start, start + count)]
+    assert model['biases'] == expected, key
 result = dict(executableSha256=identity['sha256'], cases=cases)
 fixture = ROOT / 'tests/fixtures/painter-order.json'
 if '--record' in sys.argv:
@@ -136,4 +152,4 @@ if '--record' in sys.argv:
 else:
     assert json.loads(fixture.read_text()) == result
 print(f'PASS: {len(cases)} native mixed queues, {sum(len(c["triangles"]) for c in cases)} triangles; '
-      'far-to-near buckets, reverse insertion ties, constant final triangle depth and rhw=1')
+      f'far-to-near buckets, reverse insertion ties, constant final triangle depth and rhw=1; {len(models)} source-bound model bias arrays')

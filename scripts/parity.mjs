@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const states = ['verified', 'partial', 'missing', 'unassessed']
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
-const percent = ({ verified, total }) => `${((100 * verified) / total).toFixed(1)}%`
+const percent = ({ earned, verified, total }) =>
+  `${((100 * (earned ?? verified)) / total).toFixed(1)}%`
 const read = name => JSON.parse(readFileSync(resolve(root, name), 'utf8'))
 
 function validateEvidence(paths, required, subject, base) {
@@ -50,6 +51,9 @@ export function summarize(ledger, base = root) {
       id: group.id,
       title: group.title,
       total: group.items.length,
+      earned: 0,
+      requirements: 0,
+      verifiedRequirements: 0,
       verified: 0,
       partial: 0,
       missing: 0,
@@ -65,10 +69,53 @@ export function summarize(ledger, base = root) {
       )
       validateEvidence(item.evidence, ['verified', 'partial'].includes(item.status), item.id, base)
       counts[item.status]++
+      const requirements = item.requirements ?? [item]
+      assert(Array.isArray(requirements) && requirements.length, `Empty requirements: ${item.id}`)
+      if (item.requirements) {
+        for (const requirement of requirements) {
+          identify(requirement)
+          assert(requirement.id.startsWith(`${item.id}.`), `Wrong checkpoint: ${requirement.id}`)
+          assert(!requirement.requirements, 'Only one requirement level is supported')
+          assert(states.includes(requirement.status), `Invalid status: ${requirement.id}`)
+          assert(
+            typeof requirement.note === 'string' && requirement.note.trim(),
+            `Missing scope/boundary: ${requirement.id}`
+          )
+          validateEvidence(
+            requirement.evidence,
+            ['verified', 'partial'].includes(requirement.status),
+            requirement.id,
+            base
+          )
+        }
+        const allVerified = requirements.every(r => r.status === 'verified')
+        assert(
+          (item.status === 'verified') === allVerified,
+          `Parent completion disagrees with requirements: ${item.id}`
+        )
+        assert(
+          !requirements.some(r => ['verified', 'partial'].includes(r.status)) ||
+            ['verified', 'partial'].includes(item.status),
+          `Parent hides progress: ${item.id}`
+        )
+      }
+      const verified = requirements.filter(r => r.status === 'verified').length
+      counts.requirements += requirements.length
+      counts.verifiedRequirements += verified
+      counts.earned += verified / requirements.length
     }
     return counts
   })
-  const total = { total: 0, verified: 0, partial: 0, missing: 0, unassessed: 0 }
+  const total = {
+    total: 0,
+    verified: 0,
+    partial: 0,
+    missing: 0,
+    unassessed: 0,
+    earned: 0,
+    requirements: 0,
+    verifiedRequirements: 0,
+  }
   for (const group of groups) for (const key of Object.keys(total)) total[key] += group[key]
   return {
     ...total,
@@ -83,7 +130,13 @@ export function scopeHash(ledger) {
     ledger.groups.map(({ id, title, items }) => ({
       id,
       title,
-      items: items.map(({ id, title }) => ({ id, title })),
+      items: items.map(({ id, title, requirements }) => ({
+        id,
+        title,
+        ...(requirements
+          ? { requirements: requirements.map(({ id, title }) => ({ id, title })) }
+          : {}),
+      })),
     }))
   )
 }
@@ -105,29 +158,37 @@ export function render(ledger, history) {
   const summary = summarize(ledger)
   const rows = summary.groups.map(
     g =>
-      `| ${g.title} | ${percent(g)} | ${g.verified}/${g.total} | ${g.partial} | ${g.missing} | ${g.unassessed} |`
+      `| ${g.title} | ${percent(g)} | ${g.verifiedRequirements}/${g.requirements} | ${g.verified}/${g.total} |`
   )
   const progress = history.map((entry, i) => {
     const previous = history[i - 1]
-    const delta = previous
-      ? `${((100 * entry.verified) / entry.total - (100 * previous.verified) / previous.total).toFixed(1)} pp`
-      : 'baseline'
+    const delta =
+      previous && previous.revision === entry.revision
+        ? `${(Number.parseFloat(percent(entry)) - Number.parseFloat(percent(previous))).toFixed(1)} pp`
+        : previous
+          ? 'scope revision'
+          : 'baseline'
     const note = entry.note.replaceAll('|', '\\|').replaceAll('\n', ' ')
     return `| ${entry.date} | ${entry.revision} | ${percent(entry)} | ${entry.verified}/${entry.total} | ${delta} | ${note} |`
   })
   const details = ledger.groups.flatMap(group => [
     `### ${group.title}`,
     '',
-    ...group.items.map(
-      item =>
-        `- **${item.status}** — ${item.title} (\`${item.id}\`). ${item.note}${item.evidence.length ? ` Evidence: ${item.evidence.map(p => `[${p}](${p})`).join(', ')}.` : ''}`
-    ),
+    ...group.items.flatMap(item => [
+      `- **${item.status}** — ${item.title} (\`${item.id}\`). ${item.note}${item.evidence.length ? ` Evidence: ${item.evidence.map(p => `[${p}](${p})`).join(', ')}.` : ''}`,
+      ...(item.requirements ?? []).map(
+        r =>
+          `  - **${r.status}** — ${r.title} (\`${r.id}\`). ${r.note}${r.evidence.length ? ` Evidence: ${r.evidence.map(p => `[${p}](${p})`).join(', ')}.` : ''}`
+      ),
+    ]),
     '',
   ])
   return [
     '# Game parity progress',
     '',
-    `**${percent(summary)} verified coverage of known scope — ${summary.verified}/${summary.total} checkpoints.**`,
+    `**${percent(summary)} evidence-backed progress across known scope.**`,
+    '',
+    `**Graphics: ${percent(summary.groups.find(g => g.id === 'graphics') ?? summary)}.** Overall: ${summary.verifiedRequirements}/${summary.requirements} individual requirements verified; ${summary.verified}/${summary.total} broad checkpoints complete.`,
     '',
     `${summary.partial} partial; ${summary.missing} missing; ${summary.unassessed} unassessed. Checklist revision ${ledger.revision}.`,
     '',
@@ -137,14 +198,14 @@ export function render(ledger, history) {
     '',
     `Ready for final parity review: **${summary.completionReady ? 'yes' : 'no'}**. Even 100% of known checkpoints is not a full-game claim while discovery is open. An audited scope requires recorded evidence of a full content/system inventory review; new discoveries reopen it. This tool never automatically completes the project goal.`,
     '',
-    'This is a planning metric against a versioned capability checklist, not an objective percentage of the original engine or an estimate of effort remaining. Each checkpoint has equal weight; scope and difficulty differ. Partial work receives no completion credit. Tests, exported functions and developer tooling do not earn extra points.',
+    'This is a planning metric against a versioned capability checklist, not an objective percentage of the original engine or an estimate of effort remaining. Each broad checkpoint retains one equal share of the total. Within a decomposed checkpoint, only verified requirements earn their fraction of that share. Splitting a checkpoint cannot increase its maximum contribution. Unverified partial work receives no credit. Tests, exported functions and developer tooling do not earn extra points.',
     '',
     'Verified means the named scope has original-engine evidence and browser/game integration evidence reviewed for that scope. A verified rendering primitive does not certify its entire subsystem. Evidence links record the assessment; `parity:check` validates metadata and report freshness, not the execution or success of native/browser checks. Re-run relevant checks before crediting or retaining a changed behavior.',
     '',
     '## By subsystem',
     '',
-    '| Subsystem | Known-scope coverage | Verified | Partial | Missing | Unassessed |',
-    '| --- | ---: | ---: | ---: | ---: | ---: |',
+    '| Subsystem | Progress | Verified requirements | Complete checkpoints |',
+    '| --- | ---: | ---: | ---: |',
     ...rows,
     '',
     '## History',
@@ -157,7 +218,7 @@ export function render(ledger, history) {
     '',
     '## Update workflow',
     '',
-    '1. Edit `parity.json`: update status, evidence and remaining boundaries. Preserve IDs for unchanged scope. Add discoveries as `unassessed`, then classify them as missing, partial or verified after investigation. Credit only compared and integrated behavior; reopen regressions.',
+    '1. Edit `parity.json`: update status, evidence and remaining boundaries. Break broad partial checkpoints into explicit `requirements`; retain every unfinished part and give each requirement its own evidence. Parent completion must agree with its requirements. Preserve IDs for unchanged scope. Add discoveries as `unassessed`, then classify them as missing, partial or verified after investigation. Credit only compared and integrated behavior; reopen regressions.',
     '2. Run the affected native/browser/game checks. Add or split checkpoints/groups freely as research requires, increment the revision, reopen discovery and explain the scope change; never silently shrink the denominator. There is no fixed checkpoint or group limit.',
     '3. Run `npm run parity:record -- "What changed and what was verified"`, then `npm run check`. Commit the ledger, history and generated report together.',
     '4. Use `npm run parity` for a compact summary or `npm run --silent parity -- --json` for machine-readable counts. Keep maintainability and decomp progress in GOAL.md; they are not gameplay completion credit.',
@@ -220,14 +281,14 @@ function main() {
     return
   }
   console.log(
-    `Game parity: ${percent(summary)} verified coverage of known scope (${summary.verified}/${summary.total}); ${summary.partial} partial, ${summary.missing} missing, ${summary.unassessed} unassessed. Revision ${ledger.revision}.`
+    `Game parity: ${percent(summary)} verified coverage of known scope (${summary.verifiedRequirements}/${summary.requirements} requirements; ${summary.verified}/${summary.total} whole checkpoints); ${summary.partial} partial, ${summary.missing} missing, ${summary.unassessed} unassessed. Revision ${ledger.revision}.`
   )
   console.log(
     `Discovery: ${summary.discovery.status}. Ready for final parity review: ${summary.completionReady ? 'yes' : 'no'}. Unknown scope is not yet quantifiable.`
   )
   for (const group of summary.groups)
     console.log(
-      `${group.title}: ${percent(group)} (${group.verified}/${group.total}), ${group.partial} partial, ${group.missing} missing, ${group.unassessed} unassessed`
+      `${group.title}: ${percent(group)} (${group.verifiedRequirements}/${group.requirements} requirements; ${group.verified}/${group.total} checkpoints), ${group.partial} partial, ${group.missing} missing, ${group.unassessed} unassessed`
     )
   console.log(
     'Scope, evidence and history: PARITY.md. Checkpoint coverage is not an estimate of effort remaining.'

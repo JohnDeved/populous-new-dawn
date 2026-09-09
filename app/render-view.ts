@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { Painter } from './painter.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
   cameraConfig,
@@ -18,6 +19,9 @@ import {
 // WebGL2 port of the CPU-compared projection. Unsigned operations preserve x86
 // wrap explicitly; splitting the final sum avoids premature float32 rounding.
 export const nativeVertexShader = `
+uniform sampler2D nativePainter;
+uniform ivec2 nativePainterRange;
+uniform float nativePainterSprite;
 uniform ivec3 nativeBasis[3];
 uniform ivec3 nativeObjectBasis[3];
 uniform ivec4 nativeSettings;
@@ -91,7 +95,15 @@ vec4 nativePosition(vec3 position){
   p+=origin;
   nativeCell=nativeCellPoint(modelMatrix[3].xyz);
  }else nativeCell=nativeCellPoint(world);
- return nativeProject(p);
+ vec4 projected=nativeProject(p);
+ if(nativeMode>0.&&nativePainterRange.x>=0){
+  int slot=nativePainterRange.x+(nativePainterSprite>0.?0:gl_VertexID/3);
+  #ifdef USE_INSTANCING
+  slot+=gl_InstanceID*nativePainterRange.y;
+  #endif
+  projected.z=texelFetch(nativePainter,ivec2(slot%1024,slot/1024),0).r*2.-1.;
+ }
+ return projected;
 }
 `
 const fragment = `
@@ -108,6 +120,15 @@ bool nativeCellVisible(){
 `
 
 export class RenderView {
+  painter = new Painter(this)
+  materials = new WeakMap<
+    THREE.Material,
+    {
+      owner: THREE.Object3D
+      compile: THREE.Material['onBeforeCompile']
+      programKey: string
+    }
+  >()
   config = cameraConfig(0)
   projection: Projection = {
     ...this.config,
@@ -131,6 +152,7 @@ export class RenderView {
     THREE.FloatType
   )
   uniforms = {
+    nativePainter: { value: this.painter.texture },
     nativeBasis: { value: new Int32Array(9) },
     nativeSettings: { value: new Int32Array(4) },
     nativeScreen: { value: new Int32Array(4) },
@@ -343,7 +365,9 @@ export class RenderView {
             const v = ((c.y - a.y) * (mouse.x - c.x) + (a.x - c.x) * (mouse.y - c.y)) / determinant,
               t = 1 - u - v
             if (u < 0 || v < 0 || t < 0) continue
-            const depth = u * a.z + v * b.z + t * c.z
+            const depth =
+              (!this.overview ? this.painter.depth(object, i / 3, instance) : null) ??
+              u * a.z + v * b.z + t * c.z
             if (depth < -1 || depth > 1 || (best && depth >= best.depth)) continue
             const weights = [u / a.w, v / b.w, t / c.w],
               sum = weights.reduce((a, b) => a + b),
@@ -358,6 +382,9 @@ export class RenderView {
     return best as { point: { x: number; z: number }; object: THREE.Object3D; depth: number } | null
   }
   prepare(scene: THREE.Scene) {
+    scene.onBeforeRender = () => {
+      if (!this.overview) this.painter.update(scene)
+    }
     scene.traverse(object => {
       if (object.userData.nativeIgnore) return
       if (
@@ -369,32 +396,59 @@ export class RenderView {
       )
         return
       object.frustumCulled = false
+      if (object instanceof THREE.Mesh && object.geometry.index) {
+        const indexed = object.geometry
+        object.geometry = indexed.toNonIndexed()
+        indexed.dispose()
+      }
+      // Each object needs its own native uniforms. Retain shared textures and
+      // cached programs while giving shared source materials separate draw state.
+      const ownMaterial = (material: THREE.Material) => {
+        const state = this.materials.get(material)
+        if (!state || state.owner === object) return material
+        const copy = material.clone()
+        copy.onBeforeCompile = state.compile
+        copy.customProgramCacheKey = () => state.programKey
+        return copy
+      }
+      object.material = Array.isArray(object.material)
+        ? object.material.map(ownMaterial)
+        : ownMaterial(object.material)
+      object.onBeforeRender = (_renderer, _scene, _camera, _geometry, material) => {
+        const local = material.userData.nativeUniforms
+        if (!local) return
+        local.nativePainterRange.value.set(
+          !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
+        )
+        local.nativeModelScale.value = object.userData.nativeScale ?? 0
+        local.nativeObjectScale.value =
+          object.userData.nativeSize ?? object.userData.nativeScale ?? 0
+        local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
+        local.nativeObjectBasis.value.set(
+          modelMatrix(
+            object.parent?.userData.nativeHeading ?? 0,
+            object.parent?.userData.nativeTilt ?? 0,
+            object.parent?.userData.nativeRoll ?? 0
+          )
+        )
+      }
       for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
-        if (material.userData.nativeView === this) continue
-        material.userData.nativeView = this
+        if (this.materials.has(material)) continue
         material.fog = false
         const local = {
+          nativePainterRange: { value: new Int32Array([-1, 0]) },
+          nativePainterSprite: { value: object instanceof THREE.Sprite ? 1 : 0 },
           nativeModelScale: { value: object.userData.nativeScale ?? 0 },
           nativeObjectScale: { value: object.userData.nativeScale ?? 0 },
           nativeRelative: { value: object.userData.nativeRelative ? 1 : 0 },
           nativeObjectBasis: { value: new Int32Array(modelMatrix(0)) },
         }
-        if (object.userData.nativeScale)
-          object.onBeforeRender = () => {
-            local.nativeObjectScale.value =
-              object.userData.nativeSize ?? object.userData.nativeScale
-            local.nativeObjectBasis.value.set(
-              modelMatrix(
-                object.parent?.userData.nativeHeading ?? 0,
-                object.parent?.userData.nativeTilt ?? 0,
-                object.parent?.userData.nativeRoll ?? 0
-              )
-            )
-          }
+        material.userData.nativeUniforms = local
         const compile = material.onBeforeCompile.bind(material),
           programKey = material.customProgramCacheKey(),
           encodedColors =
             material instanceof THREE.MeshBasicMaterial && !!material.map?.userData.encodedColors
+        this.materials.set(material, { owner: object, compile, programKey })
         material.onBeforeCompile = (
           shader: Parameters<THREE.Material['onBeforeCompile']>[0],
           renderer: THREE.WebGLRenderer
@@ -447,5 +501,6 @@ export class RenderView {
   }
   dispose() {
     this.boundsTexture.dispose()
+    this.painter.texture.dispose()
   }
 }

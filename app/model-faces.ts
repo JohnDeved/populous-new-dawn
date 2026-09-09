@@ -6,6 +6,7 @@ export interface NativeModel {
   tiles: number[]
   normals: number[][]
   modes: number[]
+  biases: number[]
 }
 
 export function modelCapUV(corner: number) {
@@ -43,4 +44,10 @@ export function modelStage(data: NativeModel, stage: number) {
     vertex += corners.length
   }
   return { p, uv }
+}
+
+export function modelDepthBias(data: NativeModel, stage: number) {
+  return data.biases.flatMap((bias, face) =>
+    modelFaceVisible(data, face, stage) ? Array(data.faces[face * 2] === 3 ? 3 : 6).fill(bias) : []
+  )
 }

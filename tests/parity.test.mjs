@@ -98,3 +98,65 @@ test('parity credits verified scope only and rejects misleading or untraceable a
     readFileSync(new URL('../PARITY.md', import.meta.url), 'utf8')
   )
 })
+
+test('verified requirements advance a fixed checkpoint share without hiding unknown scope', () => {
+  const requirement = (key, status) => ({
+    id: `example.work.${key}`,
+    title: key,
+    status,
+    note: 'Test scope',
+    evidence: ['tests/parity.test.mjs'],
+  })
+  const ledger = {
+    revision: 1,
+    discovery: { status: 'open', note: 'Open', evidence: [] },
+    groups: [
+      {
+        id: 'example',
+        title: 'Example',
+        items: [
+          {
+            id: 'example.work',
+            title: 'Work',
+            status: 'partial',
+            note: 'Incomplete',
+            evidence: ['tests/parity.test.mjs'],
+            requirements: [requirement('one', 'verified'), requirement('two', 'missing')],
+          },
+        ],
+      },
+    ],
+  }
+  let summary = summarize(ledger)
+  assert.equal(summary.earned, 0.5)
+  assert.equal(summary.verified, 0)
+  assert.equal(summary.verifiedRequirements, 1)
+  const parent = ledger.groups[0].items[0]
+  const prior = { revision: 1, scopeHash: scopeHash(ledger) }
+  parent.requirements.push(requirement('discovered', 'unassessed'))
+  assert.equal(summarize(ledger).earned, 1 / 3)
+  assert.throws(() => validateRevision(ledger, prior), /Scope changed/)
+  ledger.revision++
+  validateRevision(ledger, prior)
+  parent.status = 'verified'
+  assert.throws(() => summarize(ledger), /Parent completion/)
+  parent.requirements.forEach(r => {
+    r.status = 'verified'
+  })
+  summary = summarize(ledger)
+  assert.equal(summary.earned, 1)
+  assert.equal(summary.completionReady, false)
+  parent.requirements.push(requirement('extra', 'verified'))
+  assert.equal(summarize(ledger).earned, 1, 'More subdivisions cannot increase a checkpoint share')
+  parent.requirements[0].evidence = []
+  assert.throws(() => summarize(ledger), /Evidence required/)
+  const rendered = render(
+    JSON.parse(readFileSync(new URL('../parity.json', import.meta.url), 'utf8')),
+    [
+      { date: 'before', revision: 1, verified: 1, total: 2, note: 'Old scope' },
+      { date: 'after', revision: 2, verified: 1, earned: 1.5, total: 2, note: 'New scope' },
+    ]
+  )
+  assert.match(rendered, /scope revision/)
+  assert.doesNotMatch(rendered, /25.0 pp/)
+})

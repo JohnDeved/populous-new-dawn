@@ -1,5 +1,5 @@
 // Differential diagnostic: native captured triangle order versus live depth shader.
-// Use --require-parity to fail on the known geometric-depth discrepancy.
+// Use --require-parity to enforce all captured overlap outcomes.
 // Screen coverage is fixed to isolate ordering; this is not a whole-scene comparison.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -20,7 +20,8 @@ try {
     s.view.boundsTexture.image.data.set(Array.from({ length: 222 }, () => [1, 221]).flat())
     s.view.boundsTexture.needsUpdate = true
     const results = []
-    for (const c of cases) {
+    for (const shared of [false, true]) for (const c of cases) {
+      let sharedMaterial
       const scene = new s.scene.constructor()
       for (const [i, triangle] of c.triangles.entries()) {
         const geometry = s.skyBackdrop.geometry.clone()
@@ -30,14 +31,21 @@ try {
           triangle.depths.flatMap(z => [0, 0, -z / 128])
         ), 3))
         geometry.setAttribute('coverage', new Attribute(new Float32Array([-0.9, -0.9, 0.9, -0.9, -0.9, 0.9]), 2))
-        const material = new s.terrain.material.constructor({
-          uniforms: { captured: { value: 0 }, depth: { value: c.rasterDepths[i] } },
-          vertexShader: `attribute vec2 coverage;uniform float captured;uniform float depth;
-void main(){vec3 p=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);
-gl_Position.xy=coverage;if(captured>0.)gl_Position.z=depth*2.-1.;}`,
-          fragmentShader: `void main(){gl_FragColor=vec4(${i === 0 ? '1.,0.,0.' : '0.,1.,0.'},1.);}`,
+        geometry.setAttribute('capturedDepth', new Attribute(new Float32Array(3).fill(c.rasterDepths[i]), 1))
+        geometry.setAttribute('pigment', new Attribute(new Float32Array(Array.from({length:3},()=>i===0?[1,0,0]:[0,1,0]).flat()),3))
+        const material = sharedMaterial ?? new s.terrain.material.constructor({
+          uniforms: { captured: { value: 0 } },
+          vertexShader: `attribute vec2 coverage;attribute float capturedDepth;attribute vec3 pigment;varying vec3 tint;uniform float captured;
+void main(){tint=pigment;vec3 p=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);
+gl_Position.xy=coverage;if(captured>0.)gl_Position.z=capturedDepth*2.-1.;}`,
+          fragmentShader: 'varying vec3 tint;void main(){gl_FragColor=vec4(tint,1.);}',
         })
+        if (shared) sharedMaterial = material
         const mesh = new s.skyBackdrop.constructor(geometry, material)
+        mesh.userData.painterGround = triangle.kind === 'ground'
+        mesh.userData.painterRaised = !!triangle.flags
+        mesh.userData.painterBias = triangle.bias
+        mesh.userData.painterSequence = i
         mesh.position.set(-8, 0, -8)
         scene.add(mesh)
       }
@@ -60,7 +68,7 @@ gl_Position.xy=coverage;if(captured>0.)gl_Position.z=depth*2.-1.;}`,
           if (pixels[0][p] !== pixels[1][p] || pixels[0][p + 1] !== pixels[1][p + 1]) changed++
         }
       }
-      results.push({ buckets: c.buckets, nativeWinner: winner, covered, changed, invalidReference })
+      results.push({ shared, buckets: c.buckets, nativeWinner: winner, covered, changed, invalidReference })
       scene.children.forEach(m => { m.geometry.dispose(); m.material.dispose() })
     }
     return results
@@ -72,8 +80,8 @@ gl_Position.xy=coverage;if(captured>0.)gl_Position.z=depth*2.-1.;}`,
   }
   console.log(JSON.stringify(results, null, 2))
   const changed = results.reduce((sum, r) => sum + r.changed, 0)
-  console.log(`${changed} pixels differ across six isolated native/live depth comparisons; whole-scene occlusion remains unverified.`)
-  if (process.argv.includes('--require-parity')) assert.equal(changed, 0, 'Native painter ordering is not integrated')
+  console.log(`${changed} pixels differ across twelve isolated native/live depth comparisons; whole-scene occlusion remains unverified.`)
+  if (process.argv.includes('--require-parity')) assert.equal(changed, 0, 'Native painter overlap differs')
 } finally {
   await browser.close()
 }

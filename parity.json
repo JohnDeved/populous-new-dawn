@@ -1,8 +1,8 @@
 {
-  "revision": 1,
+  "revision": 2,
   "discovery": {
     "status": "open",
-    "note": "The original engine and complete content inventory are still being researched. These 96 checkpoints are the current known scope, not a closed inventory; further decompilation and original-game comparisons may reveal new systems or split existing checkpoints.",
+    "note": "The original engine and content inventory remain open. Broad checkpoints retain equal shares; explicit requirements now expose verified work inside graphics checkpoints. Other broad partial checkpoints can be decomposed as their evidence is reviewed. New discoveries enter the inventory with zero credit and a recorded scope revision.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -179,7 +179,62 @@
             "scripts/check-browser-sprite-layers.mjs",
             "tests/sprite-layers.test.mjs"
           ],
-          "note": "Original per-layer tribe/person selection, mirrored signed offsets, separate rectangle scaling and standing-shadow gating integrated. 6,648 native comparisons, 2,672 source RGBA pieces and 336 frozen native/GPU poses checked. Full action/state ownership, remaining tribes/classes, ghost blending and render-position interpolation remain open."
+          "note": "Original per-layer tribe/person selection, mirrored signed offsets, separate rectangle scaling and standing-shadow gating integrated. 6,648 native comparisons, 2,672 source RGBA pieces and 336 frozen native/GPU poses checked. Full action/state ownership, remaining tribes/classes, ghost blending and render-position interpolation remain open.",
+          "requirements": [
+            {
+              "id": "graphics.sprites.layers",
+              "title": "Imported unit pieces, tribe layers, signed offsets and mirroring",
+              "status": "verified",
+              "note": "Compared original selection and pixels for the imported playable classes; remaining class/state coverage is separate.",
+              "evidence": [
+                "scripts/check-native-sprite-layers.py",
+                "scripts/check-browser-sprite-layers.mjs"
+              ]
+            },
+            {
+              "id": "graphics.sprites.shadows",
+              "title": "Standing and airborne shadow selection and placement",
+              "status": "verified",
+              "note": "Original shadow gates, sizing and anchors are integrated.",
+              "evidence": [
+                "scripts/check-native-unit-shadows.py",
+                "scripts/check-browser-unit-shadows.mjs"
+              ]
+            },
+            {
+              "id": "graphics.sprites.states",
+              "title": "Complete action-to-sprite state ownership",
+              "status": "partial",
+              "note": "Remaining action and scheduling ownership is not verified.",
+              "evidence": [
+                "app/live-people.ts",
+                "references/reverse-engineering.md"
+              ]
+            },
+            {
+              "id": "graphics.sprites.roster",
+              "title": "Remaining tribes and unit-class sprite variants",
+              "status": "missing",
+              "note": "Complete original roster has not been compared and integrated.",
+              "evidence": []
+            },
+            {
+              "id": "graphics.sprites.ghosts",
+              "title": "Ghost, invisibility and special sprite blending",
+              "status": "missing",
+              "note": "Special blend ownership is not complete.",
+              "evidence": []
+            },
+            {
+              "id": "graphics.sprites.interpolation",
+              "title": "Original presentation-position interpolation",
+              "status": "partial",
+              "note": "Live movement is adapted; complete original interpolation is unverified.",
+              "evidence": [
+                "app/scene.ts"
+              ]
+            }
+          ]
         },
         {
           "id": "graphics.animation",
@@ -189,7 +244,38 @@
             "scripts/check-native-animation.py",
             "scripts/check-browser-celebration.mjs"
           ],
-          "note": "Native setters/updaters and celebrations compared; remaining states and scheduling open."
+          "note": "Native setters/updaters and celebrations compared; remaining states and scheduling open.",
+          "requirements": [
+            {
+              "id": "graphics.animation.celebration",
+              "title": "Original celebration poses and visible playback",
+              "status": "verified",
+              "note": "Native animation setters and celebration browser behavior are compared.",
+              "evidence": [
+                "scripts/check-browser-celebration.mjs",
+                "scripts/check-native-animation.py"
+              ]
+            },
+            {
+              "id": "graphics.animation.states",
+              "title": "Complete animation state transitions",
+              "status": "partial",
+              "note": "Remaining transition owners and states need integration.",
+              "evidence": [
+                "scripts/check-native-animation.py",
+                "app/live-people.ts"
+              ]
+            },
+            {
+              "id": "graphics.animation.clock",
+              "title": "Original outer presentation scheduling",
+              "status": "partial",
+              "note": "24 Hz browser adapter remains; full native outer timing is not integrated.",
+              "evidence": [
+                "app/scene.ts"
+              ]
+            }
+          ]
         },
         {
           "id": "graphics.materials",
@@ -199,7 +285,54 @@
             "references/reverse-engineering.md",
             "scripts/check-browser-scenery-fire.mjs"
           ],
-          "note": "Original atlas alpha decoder verified; full painter/blend ownership unverified."
+          "note": "Original atlas alpha decoder verified; full painter/blend ownership unverified.",
+          "requirements": [
+            {
+              "id": "graphics.materials.alpha",
+              "title": "Original object-atlas alpha decoding",
+              "status": "verified",
+              "note": "Source palette/AL/nibble decoding is compared and reaches original fire meshes.",
+              "evidence": [
+                "scripts/import-original.py",
+                "scripts/check-browser-scenery-fire.mjs",
+                "references/reverse-engineering.md"
+              ]
+            },
+            {
+              "id": "graphics.materials.sampling",
+              "title": "Default encoded-color bilinear sampling and sprite point sampling",
+              "status": "verified",
+              "note": "Ordinary terrain/model/water/sky/cloud samplers are compared; full settings remain separate.",
+              "evidence": [
+                "scripts/check-native-texture-filter.py",
+                "scripts/check-browser-texture-filter.mjs"
+              ]
+            },
+            {
+              "id": "graphics.materials.palettes",
+              "title": "Complete alternate palette and color-mode coverage",
+              "status": "missing",
+              "note": "Every original palette consumer and mode is not verified.",
+              "evidence": []
+            },
+            {
+              "id": "graphics.materials.blending",
+              "title": "Complete alpha and additive pass ownership",
+              "status": "partial",
+              "note": "Mixed-class transparent ordering is not verified.",
+              "evidence": [
+                "app/scene.ts",
+                "decomp/generated/0047c7e0.c"
+              ]
+            },
+            {
+              "id": "graphics.materials.settings",
+              "title": "Original graphics settings and per-batch sampler ownership",
+              "status": "missing",
+              "note": "Full settings/state dispatch remains unported.",
+              "evidence": []
+            }
+          ]
         },
         {
           "id": "graphics.lighting",
@@ -228,7 +361,74 @@
             "scripts/check-browser-terrain-light.mjs",
             "tests/terrain-light.test.mjs"
           ],
-          "note": "Terrain diffuse/additive conversion, scenery shade, standing/airborne sprite shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete. The separate native globe diffuse/specular and rim-light calculations agree for 18,532 complete triangles and now render in world view. Local terrain lights now integrate original Blast/fire requests, first building-fire socket, 50-slot allocation, 7\u00d77 wrapped falloff, private flicker, saturation, moving owners and cleanup. Compared 288 complete native calls/235 lifecycle snapshots and actual browser casts (35,655/29,909 changed ground pixels); portable tests preserve occupancy, pause and owner lifetime. Full producer coverage, allocation/free order, original graphics settings, sun rotation and full-frame matching remain open."
+          "note": "Terrain diffuse/additive conversion, scenery shade, standing/airborne sprite shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete. The separate native globe diffuse/specular and rim-light calculations agree for 18,532 complete triangles and now render in world view. Local terrain lights now integrate original Blast/fire requests, first building-fire socket, 50-slot allocation, 7\u00d77 wrapped falloff, private flicker, saturation, moving owners and cleanup. Compared 288 complete native calls/235 lifecycle snapshots and actual browser casts (35,655/29,909 changed ground pixels); portable tests preserve occupancy, pause and owner lifetime. Full producer coverage, allocation/free order, original graphics settings, sun rotation and full-frame matching remain open.",
+          "requirements": [
+            {
+              "id": "graphics.lighting.models",
+              "title": "Default model sunlight, face normals and depth attenuation",
+              "status": "verified",
+              "note": "Default model lighting is compared and integrated.",
+              "evidence": [
+                "scripts/check-native-model-lighting.py",
+                "scripts/check-browser-model-lighting.mjs"
+              ]
+            },
+            {
+              "id": "graphics.lighting.highlight",
+              "title": "Native hovered-model highlight",
+              "status": "verified",
+              "note": "Original owned-object highlight colors and phase are compared.",
+              "evidence": [
+                "scripts/check-native-model-highlight.py",
+                "scripts/check-browser-model-highlight.mjs"
+              ]
+            },
+            {
+              "id": "graphics.lighting.local",
+              "title": "Opening spell/fire terrain light allocation, falloff and cleanup",
+              "status": "verified",
+              "note": "Compared producer subset and lifecycle are integrated; other producers remain separate.",
+              "evidence": [
+                "scripts/check-native-terrain-light.py",
+                "scripts/check-browser-terrain-light.mjs"
+              ]
+            },
+            {
+              "id": "graphics.lighting.globe",
+              "title": "Globe diffuse, specular and rim lighting",
+              "status": "verified",
+              "note": "Native globe triangle colors are integrated.",
+              "evidence": [
+                "scripts/check-native-globe.py",
+                "scripts/check-browser-globe.mjs"
+              ]
+            },
+            {
+              "id": "graphics.lighting.sun",
+              "title": "Dynamic sunlight propagation and sun rotation",
+              "status": "partial",
+              "note": "Default sunlight is present; full dynamic ownership remains open.",
+              "evidence": [
+                "app/model-lighting.ts"
+              ]
+            },
+            {
+              "id": "graphics.lighting.producers",
+              "title": "Remaining colored light producers and full allocation ordering",
+              "status": "partial",
+              "note": "Complete original producer and mixed allocation ownership remains open.",
+              "evidence": [
+                "app/terrain-light.ts"
+              ]
+            },
+            {
+              "id": "graphics.lighting.debris",
+              "title": "Full debris lighting and attachment shading",
+              "status": "missing",
+              "note": "Complete debris lighting is not integrated.",
+              "evidence": []
+            }
+          ]
         },
         {
           "id": "graphics.raster",
@@ -281,7 +481,127 @@
             "tests/fixtures/painter-order.json",
             "decomp/generated/0046e930.c"
           ],
-          "note": "Texture-mode-0 faces are retained for collapse/RNG and omitted from raster drawing unless a construction cap replaces their material. Native texture initialization/state selection is CPU-checked; ordinary model/cloud/terrain/water materials now filter encoded palette colors bilinearly without mipmaps or anisotropy. 80 GPU calibration samples and unchanged unit point sampling are checked. Full graphics settings, per-batch sampler ownership, texture formats/UV padding, clipping, painter order, native picking and matched original frames remain open. The native globe mesh/projection/shades and star submissions are compared and integrated, with original HFX building/discovery icons and portable native fixtures. Full globe marker rasterization/queues, overview effects and texture-cache UV/fog remain open. Native projected building footprints, AL tribe colors/alpha, shared visible-cell icon eligibility, owner-only hut counts and garrison symbols are now integrated. Comparisons cover 3,072 cell projections, 4,096 complete footprint calls and 384 icon controllers (480/600/768px high); browser checks cover actual colored quads/pixels, relocation/destruction, tower occupants and anchor fog. Tall viewports avoid native signed icon-scale overflow. Full concealment/plan/vehicle ownership, presentation counter, marker raster/queues and overview effects remain open. Overview now integrates native 32-strip pulsing spell range and original unscaled projectile tails, hold/frame selection, AL tint and owner/fog/hidden gates. Native comparisons cover 256 complete circles, 256 phase updates and 512 complete effect-cell queue/painter cases; live browser checks cover actual range/trail pixels, real Blast, pause/input, fog, tint, expiry and ground return. Complete mixed-class painter/visibility ownership, other circle/effect classes, tower fans and matched full frames remain open. Native ground/world transition now integrates ground zoom/rotation, 21/18-pixel flat callbacks, projection/lighting morph, disabled blended picking, restored bearing and saved-preset toggle versus zoom return. Comparisons cover 1,344 projections/picks, 93,240 final mesh triangles and 100 complete morph lifetimes, with 24 mesh and ten lifetime portable captures. Ground preset-4 comparisons total 360 transitions/6,960 frames. Browser stage/input/pause/picking/interruption checks pass. Full outer dispatch/audio, recentering and original scaled frame scheduling remain open; 24 Hz presentation is still an adapter. Removed arbitrary building-distance vegetation suppression after 1,440 complete native cell-dispatch calls confirmed independent tree submissions. The original first-mission tree beside a hut is visible through four camera bearings and scenery rebuilds; regression fails with the old filter. Full painter/raster matching remains unverified. Close-land atlas UV endpoints now use native texel centers, separate from scrolling sea coordinates. Compared 64 original triangle submissions across 16/32-pixel textures, eight orientations and filtering/raw-coordinate modes; portable executable-bound fixture and actual full-terrain GPU endpoint/contrast checks pass. Full texture-cache fallback, other UV consumers and low-angle horizon clipping remain open. Type-2 sky now uses live native camera horizon height for backdrop/clouds and the clamped defeat-flash rectangle. Nine complete native sky dispatches and surface updates, 756 cloud triangles, 12 browser view/size states, all zoom frames and isolated GPU flash bounds pass; texture calibration expands to 96 samples. The earlier jagged-perimeter capture used nonstandard preset 1; ordinary normal/close views do not reproduce those side gaps. Full sky modes, outer viewport/draw-mode ownership and matched original frames remain open. Ground/object cell membership now uses the following vertex row, half-open column spans and cell determination before half-coordinate truncation. Compared 64 native traversals, 135,021 visited cells and all 1,048,576 membership decisions; portable subcell/wrap cases and 1,216 shared-shader/CPU boundary probes pass. Live scenery, ground picking/placement and all 392 sprite poses remain checked. Complete concealment/reveal, painter/depth order and original-frame occlusion remain open. First-mission fog audit: the supplied header byte 98 is zero; original loader forwarding and 768 native flag selections agree with the live initial fog-free state. No rendering change was warranted. Other loader/mode overrides and reveal/concealment ownership remain open; compare painter/depth ordering next. Native mixed-queue capture now covers 70 queues/1,036 triangles through final constant raster depth. Six shared-shader overlap comparisons expose 30,231 differing interior pixels; the explicit parity gate remains failing until mixed ordering, biases and ties are integrated. Full-scene attribution remains open."
+          "note": "Texture-mode-0 faces are retained for collapse/RNG and omitted from raster drawing unless a construction cap replaces their material. Native texture initialization/state selection is CPU-checked; ordinary model/cloud/terrain/water materials now filter encoded palette colors bilinearly without mipmaps or anisotropy. 80 GPU calibration samples and unchanged unit point sampling are checked. Full graphics settings, per-batch sampler ownership, texture formats/UV padding, clipping, painter order, native picking and matched original frames remain open. The native globe mesh/projection/shades and star submissions are compared and integrated, with original HFX building/discovery icons and portable native fixtures. Full globe marker rasterization/queues, overview effects and texture-cache UV/fog remain open. Native projected building footprints, AL tribe colors/alpha, shared visible-cell icon eligibility, owner-only hut counts and garrison symbols are now integrated. Comparisons cover 3,072 cell projections, 4,096 complete footprint calls and 384 icon controllers (480/600/768px high); browser checks cover actual colored quads/pixels, relocation/destruction, tower occupants and anchor fog. Tall viewports avoid native signed icon-scale overflow. Full concealment/plan/vehicle ownership, presentation counter, marker raster/queues and overview effects remain open. Overview now integrates native 32-strip pulsing spell range and original unscaled projectile tails, hold/frame selection, AL tint and owner/fog/hidden gates. Native comparisons cover 256 complete circles, 256 phase updates and 512 complete effect-cell queue/painter cases; live browser checks cover actual range/trail pixels, real Blast, pause/input, fog, tint, expiry and ground return. Complete mixed-class painter/visibility ownership, other circle/effect classes, tower fans and matched full frames remain open. Native ground/world transition now integrates ground zoom/rotation, 21/18-pixel flat callbacks, projection/lighting morph, disabled blended picking, restored bearing and saved-preset toggle versus zoom return. Comparisons cover 1,344 projections/picks, 93,240 final mesh triangles and 100 complete morph lifetimes, with 24 mesh and ten lifetime portable captures. Ground preset-4 comparisons total 360 transitions/6,960 frames. Browser stage/input/pause/picking/interruption checks pass. Full outer dispatch/audio, recentering and original scaled frame scheduling remain open; 24 Hz presentation is still an adapter. Removed arbitrary building-distance vegetation suppression after 1,440 complete native cell-dispatch calls confirmed independent tree submissions. The original first-mission tree beside a hut is visible through four camera bearings and scenery rebuilds; regression fails with the old filter. Full painter/raster matching remains unverified. Close-land atlas UV endpoints now use native texel centers, separate from scrolling sea coordinates. Compared 64 original triangle submissions across 16/32-pixel textures, eight orientations and filtering/raw-coordinate modes; portable executable-bound fixture and actual full-terrain GPU endpoint/contrast checks pass. Full texture-cache fallback, other UV consumers and low-angle horizon clipping remain open. Type-2 sky now uses live native camera horizon height for backdrop/clouds and the clamped defeat-flash rectangle. Nine complete native sky dispatches and surface updates, 756 cloud triangles, 12 browser view/size states, all zoom frames and isolated GPU flash bounds pass; texture calibration expands to 96 samples. The earlier jagged-perimeter capture used nonstandard preset 1; ordinary normal/close views do not reproduce those side gaps. Full sky modes, outer viewport/draw-mode ownership and matched original frames remain open. Ground/object cell membership now uses the following vertex row, half-open column spans and cell determination before half-coordinate truncation. Compared 64 native traversals, 135,021 visited cells and all 1,048,576 membership decisions; portable subcell/wrap cases and 1,216 shared-shader/CPU boundary probes pass. Live scenery, ground picking/placement and all 392 sprite poses remain checked. Complete concealment/reveal, painter/depth order and original-frame occlusion remain open. First-mission fog audit: the supplied header byte 98 is zero; original loader forwarding and 768 native flag selections agree with the live initial fog-free state. No rendering change was warranted. Other loader/mode overrides and reveal/concealment ownership remain open; compare painter/depth ordering next. Native mixed-queue capture covers 70 queues/1,036 triangles through final constant raster depth. The shared renderer now integrates per-triangle buckets, reverse insertion ties, ground raised flags and imported model/face biases. Twelve isolated native/live comparisons, including shared materials, agree at all 77,292 interior pixels. Sprite layers, ground picking/placement and globe footprints pass. Full simulation submission chains, batching/alpha ownership, clipping and original-frame occlusion remain open.",
+          "requirements": [
+            {
+              "id": "graphics.raster.cell-bounds",
+              "title": "Native visible-cell row/column boundaries",
+              "status": "verified",
+              "note": "Native traversals and shared GPU/CPU boundaries are compared.",
+              "evidence": [
+                "scripts/check-native-visible-cells.py",
+                "scripts/check-browser-visible-cells.mjs"
+              ]
+            },
+            {
+              "id": "graphics.raster.terrain-uv",
+              "title": "Close-terrain texel-center UV endpoints",
+              "status": "verified",
+              "note": "Both source sizes and all orientations are compared; live atlas uses original endpoints.",
+              "evidence": [
+                "scripts/check-native-terrain-uv.py",
+                "scripts/check-browser-terrain-uv.mjs"
+              ]
+            },
+            {
+              "id": "graphics.raster.sky-horizon",
+              "title": "Type-2 sky horizon, clouds and defeat-flash bounds",
+              "status": "verified",
+              "note": "Native horizon dispatch and playable camera/resize checks are compared.",
+              "evidence": [
+                "scripts/check-native-clouds.py",
+                "scripts/check-browser-sky.mjs"
+              ]
+            },
+            {
+              "id": "graphics.raster.transition",
+              "title": "Ground/globe camera morph and restored input",
+              "status": "verified",
+              "note": "Native morph primitives and live zoom/picking transitions are compared; outer scheduling is separate.",
+              "evidence": [
+                "scripts/check-browser-camera-view.mjs",
+                "references/reverse-engineering.md"
+              ]
+            },
+            {
+              "id": "graphics.raster.footprints",
+              "title": "Overview building footprints and basic icons",
+              "status": "verified",
+              "note": "Original footprint projections and HUD symbols are integrated.",
+              "evidence": [
+                "scripts/check-browser-globe.mjs",
+                "references/reverse-engineering.md"
+              ]
+            },
+            {
+              "id": "graphics.raster.primitive-order",
+              "title": "Mixed triangle bucket and constant-depth primitives",
+              "status": "verified",
+              "note": "Original ground/model buckets, raised flags, signed model/face biases and constant float32 command depths are integrated in the shared renderer. All 1,036 captured triangles and twelve browser overlap cases agree, including shared source materials. Complete source submission ownership and whole-frame fidelity are separate unfinished requirements.",
+              "evidence": [
+                "scripts/check-native-painter-order.py",
+                "scripts/check-browser-painter-order.mjs",
+                "app/painter-order.ts",
+                "app/painter.ts",
+                "tests/painter-order.test.mjs",
+                "tests/fixtures/painter-order.json"
+              ]
+            },
+            {
+              "id": "graphics.raster.queue",
+              "title": "Complete cell/object submission, ties, batching and alpha order",
+              "status": "partial",
+              "note": "Non-person chain ownership, full batching and transparent ordering remain incomplete.",
+              "evidence": [
+                "app/painter.ts",
+                "decomp/generated/004673b0.c"
+              ]
+            },
+            {
+              "id": "graphics.raster.clipping",
+              "title": "All original polygon clipping and culling paths",
+              "status": "partial",
+              "note": "Basic model culling is integrated; full clipping is unverified.",
+              "evidence": [
+                "app/render-view.ts",
+                "decomp/generated/0046d970.c"
+              ]
+            },
+            {
+              "id": "graphics.raster.concealment",
+              "title": "All mission/mode reveal and concealment ownership",
+              "status": "partial",
+              "note": "First mission fog-free setting is verified; other reveal and mode paths remain open.",
+              "evidence": [
+                "scripts/check-native-first-mission-fog.py"
+              ]
+            },
+            {
+              "id": "graphics.raster.texture-cache",
+              "title": "Full original texture-cache and UV/fog fallback behavior",
+              "status": "partial",
+              "note": "Default atlas paths work; full cache/fog ownership remains open.",
+              "evidence": [
+                "app/terrain-texture.ts"
+              ]
+            },
+            {
+              "id": "graphics.raster.overview",
+              "title": "Remaining overview markers and effects",
+              "status": "partial",
+              "note": "Full marker/effect queues and raster coverage are unverified.",
+              "evidence": [
+                "app/globe-renderer.ts"
+              ]
+            },
+            {
+              "id": "graphics.raster.frames",
+              "title": "Matched whole frames in original playable camera views",
+              "status": "missing",
+              "note": "Isolated comparisons do not establish whole-frame fidelity.",
+              "evidence": []
+            }
+          ]
         },
         {
           "id": "graphics.variants",
@@ -296,7 +616,48 @@
             "scripts/check-native-building-debris.py",
             "tests/game.test.mjs"
           ],
-          "note": "Vault morph math reconstructed. All three original hut families, three levels and four tribe meshes imported (36 models). Complete 0x40b170 selector matches 1,920 native calls including signed owners and RNG. Live identity drives rendering, shapes, entrances and debris; upgrades preserve family. All 36 models have browser GPU coverage. Picking-only faces retained for collapse/RNG and filtered at drawing, with construction-cap exception; 2,216 native stage calls and 1,050 collapse calls compared. Full allocation/initialization RNG scheduling, replacement lifecycle, vault scheduler and remaining objects stay open."
+          "note": "Vault morph math reconstructed. All three original hut families, three levels and four tribe meshes imported (36 models). Complete 0x40b170 selector matches 1,920 native calls including signed owners and RNG. Live identity drives rendering, shapes, entrances and debris; upgrades preserve family. All 36 models have browser GPU coverage. Picking-only faces retained for collapse/RNG and filtered at drawing, with construction-cap exception; 2,216 native stage calls and 1,050 collapse calls compared. Full allocation/initialization RNG scheduling, replacement lifecycle, vault scheduler and remaining objects stay open.",
+          "requirements": [
+            {
+              "id": "graphics.variants.huts",
+              "title": "Original hut families, levels and tribe models",
+              "status": "verified",
+              "note": "All 36 imported hut models and live identity selection are compared.",
+              "evidence": [
+                "references/reverse-engineering.md",
+                "app/original-models.json"
+              ]
+            },
+            {
+              "id": "graphics.variants.stages",
+              "title": "Native construction face visibility and cap replacement",
+              "status": "verified",
+              "note": "Original stage masks and cap UVs are integrated.",
+              "evidence": [
+                "app/model-faces.ts",
+                "references/reverse-engineering.md"
+              ]
+            },
+            {
+              "id": "graphics.variants.vault",
+              "title": "Complete vault morph and object lifecycle",
+              "status": "partial",
+              "note": "Morph primitives are reconstructed; full lifecycle remains open.",
+              "evidence": [
+                "app/scene.ts",
+                "references/reverse-engineering.md"
+              ]
+            },
+            {
+              "id": "graphics.variants.remaining",
+              "title": "Remaining variants and original allocation/initialization",
+              "status": "partial",
+              "note": "Full original variant roster and lifecycle are not verified.",
+              "evidence": [
+                "references/reverse-engineering.md"
+              ]
+            }
+          ]
         }
       ]
     },

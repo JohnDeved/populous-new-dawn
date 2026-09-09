@@ -58,7 +58,7 @@ try {
   assert.deepEqual(initial.visible.sort(), [...eligible].sort())
   assert.ok(initial.translucent > 200, 'Native alpha 48 must reach actual canvas pixels')
   await page.screenshot({ path: '/private/tmp/populous-globe-footprints-v104.png' })
-  // Real simulation refresh removes and re-registers the native rotated shape.
+  // Move the retained map anchor; simulation derives the model origin and re-registers its native shape.
   const step = () => page.evaluate(() => {
     const s = window.testScene
     s.world.speed = 1
@@ -68,7 +68,7 @@ try {
   })
   const footprint = state => state.cells.filter(c => c.id === state.buildings.find(b => b.tribe === 0).id && c.flags & 512).map(c => c.cell)
   const before = footprint(initial)
-  await page.evaluate(() => { window.globeBuilding.angle += Math.PI / 2; window.globeBuilding.x += 4 })
+  await page.evaluate(() => { window.globeBuilding.angle += Math.PI / 2; window.globeBuilding.anchor.x = (window.globeBuilding.anchor.x + 1024) & 65535 })
   await step()
   const rotated = await capture()
   assert.notDeepEqual(footprint(rotated), before, 'Relocation must move the visible native footprint')

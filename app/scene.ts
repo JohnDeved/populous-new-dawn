@@ -43,7 +43,6 @@ import {
   tooltipPalette,
 } from './tooltips.ts'
 import * as THREE from 'three'
-import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import {
   buildingObject,
   buildingPlanPose,
@@ -80,7 +79,7 @@ import {
 } from './model'
 
 import nativeModelData from './original-models.json'
-import { modelStage, type NativeModel } from './model-faces.ts'
+import { modelDepthBias, modelStage, type NativeModel } from './model-faces.ts'
 const nativeModels: Record<number, NativeModel> = nativeModelData
 import { morphCoordinate } from './morph.ts'
 import {
@@ -192,6 +191,7 @@ function nativeModel(id: number, scale = 2, stage = 4) {
       g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3))
     g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+    g.setAttribute('painterBias', new THREE.Float32BufferAttribute(modelDepthBias(data, stage), 1))
     g.computeVertexNormals()
     return g
   })
@@ -655,6 +655,7 @@ export class GameScene {
       this.terrain.setMatrixAt(i, new THREE.Matrix4().makeTranslation(x, 0, z))
     )
     this.terrain.userData.nativeRelative = true
+    this.terrain.userData.painterGround = true
     this.terrain.receiveShadow = true
     this.terrain.castShadow = true
     this.ground.add(this.terrain, this.objects, this.decorations, this.cursor, this.range)
@@ -1001,8 +1002,7 @@ export class GameScene {
       'highlight',
       new THREE.Float32BufferAttribute(new Float32Array(lights.length), 3)
     )
-    this.terrain.geometry = mergeVertices(geo)
-    geo.dispose()
+    this.terrain.geometry = geo
     this.terrainVersion = w.landVersion
     this.waterState = ''
     for (const d of this.decorations.children) {
@@ -1855,6 +1855,7 @@ export class GameScene {
     g.add(sprite)
     g.userData.sprite = sprite
     g.userData.sequence = sequence
+    if (f.smoke) g.userData.depthBias = -128
     if (f.kind === 'lightning') {
       const bolt = new THREE.Mesh(
         new THREE.BufferGeometry(),
@@ -2506,6 +2507,7 @@ export class GameScene {
             )
           : 0
     })
+    this.view.painter.landFlags = this.world.land.flags
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
     if (!this.world.paused) {

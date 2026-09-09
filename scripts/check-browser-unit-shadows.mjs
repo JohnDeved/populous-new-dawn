@@ -54,7 +54,8 @@ try {
   await page.mouse.click(target.x, target.y)
   await page.waitForFunction(() => {
     const s = window.testScene, u = window.shadowTarget, g = s.unitMeshes.get(u.id)
-    if (!(u.lift > 0 && u.lift < 0.9 && g?.userData.shadow.visible)) return false
+    // Native flight keeps lift at 1 until landing; use its actual ground separation.
+    if (!u.flight || !g?.userData.shadow.visible || g.userData.shadow.position.y >= 0) return false
     s.world.speed = 0
     return true
   })
