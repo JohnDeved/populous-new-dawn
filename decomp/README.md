@@ -4234,3 +4234,51 @@ build pass. All 40 completed/construction face probes and 20 translucent/cell-ti
 overlaps pass, alongside placement/rotation, sprite layers, shadows and selection.
 Focused ESLint and oxlint pass with existing style warnings; Fallow reports 85.1
 maintainability, mean cyclomatic complexity 2.8 and p90 5.
+
+
+## Model texture coordinates and atlas edges — after v141
+
+004673b0 transforms model-local fixed-point UVs using the texture-cache rectangle
+and texel size. With texture_min_mag_value (005d54c8) enabled, the endpoints move
+from tile edges to texel centers: 0.5/32 through 31.5/32 for object tiles. The
+supplied executable's mapped default is 1, and the checker asserts it. Disabling
+the mode retains raw endpoints. The mapping is affine, including fractional and
+out-of-tile source values; it is not a clamp. The browser formerly used tile
+edges even with its bilinear sampler, blending unrelated neighboring atlas tiles.
+
+`check-native-model-materials.py EXE` now also captures 60 final triangle UV sets,
+covering both filter settings, two cache placements, modes 3/4/6/7/32 and three
+coordinate sets. Those include construction's 2097150 fixed-point endpoint,
+fractions and outside coordinates. Texture-cache placement is supplied; original
+004673b0 runs to the final triangle consumer. `model-uv.json` binds the capture to
+the executable. Portable checks normalize each cache rectangle into four actual
+atlas tiles and verify source/cap endpoints within 1e-7 normalized UV units.
+
+The shared modelTextureUV helper applies this mapping to stage meshes, caps and
+tribe-selected debris. Fire animation starts from the corrected stage UVs and
+retains its original integer tile shifts. Original imported asset coordinates
+remain unchanged. Native construction (2,216 calls/17,948 triangles) and debris
+(1,260 calls/44,284 faces) checks now compare their retained native coordinates
+through this independently captured final mapping. Position/state comparisons
+remain unchanged; UV tolerance accounts for seven-decimal imported coordinates.
+
+`check-browser-model-uv.mjs` verifies all 7,035 UV vertices in 42 live models and
+compares actual opening-scene pixels with the previous mapping (57,018 changed
+pixels). Sixteen controlled tile-corner probes use the actual model material
+and sampler: every corrected sample has the intended tile color, while every old
+edge sample contains a neighboring color. Before/after frames were inspected.
+Real Lightning fire retains animation, ground/scale, sound, smoke and cleanup.
+
+This corrects texture presentation inside existing model coverage and improves
+the partial texture-cache requirement; no new parity credit is claimed. Full
+cache population/fallback, alpha-edge color preparation, setting ownership and
+matched whole original frames remain unverified.
+
+Validation: 142 portable tests, type checking, parity metadata and production
+build pass. Live collapse retains 32 original fragments (four picking-only),
+1,227 GPU pixels, motion/spin, camera control, impacts and removal. Fragment
+UVs are asserted at the actual GPU attribute. Placement/rotation, 392 sprite
+poses, airborne shadows and selection pass without browser errors. The debris
+check's obsolete canvas selector now targets the engine canvas explicitly.
+Focused ESLint/oxlint pass with style warnings; Fallow reports maintainability
+85.1, mean cyclomatic complexity 2.8 and p90 5.

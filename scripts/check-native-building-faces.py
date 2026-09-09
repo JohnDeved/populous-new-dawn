@@ -53,7 +53,8 @@ def capture(id,stage,tribe,patch=None):
         for off in [6,26,46]:
             idx=int(read(a+off,'f')-100);x,y,z=struct.unpack('<3h',cpu.mem_read(start+idx*6,6))
             u,v=struct.unpack('<2i',cpu.mem_read(a+off+8,8))
-            vertices.append([round(x/scale,6),round(y/scale,6),round(-z/scale,6),round((tile%8+u/0x200000)/8,7),round(1-(tile//8+v/0x200000)/32,7)])
+            # Final bilinear model mapping, captured independently by model-materials.
+            vertices.append([round(x/scale,6),round(y/scale,6),round(-z/scale,6),(tile%8+(.5+31*u/0x200000)/32)/8,1-(tile//8+(.5+31*v/0x200000)/32)/32])
         result.append(sorted(vertices))
     cases.append(dict(id=id,stage=stage,patch=patch));expected.append(sorted(result))
     write(obj+2,'h',nf);cpu.mem_write(face,saved)
@@ -69,12 +70,13 @@ const cmp=(a,b)=>{a=a.flat();b=b.flat();for(let i=0;i<a.length;i++)if(a[i]!==b[i
 console.log(JSON.stringify(JSON.parse(input).map(c=>{
  let d=models[c.id];if(c.patch){const count=c.patch.n===3?3:6;d={...d,p:d.p.slice(0,count*3),uv:d.uv.slice(0,count*2),faces:[c.patch.n,c.patch.flags]};}
  const {p,uv}=modelStage(d,c.stage),tris=[];
- for(let i=0;i<p.length/3;i+=3){const vertices=[];for(let k=i;k<i+3;k++)vertices.push([...p.slice(k*3,k*3+3),...uv.slice(k*2,k*2+2).map(n=>Math.round(n*1e7)/1e7)]);tris.push(vertices.sort(cmp));}
+ for(let i=0;i<p.length/3;i+=3){const vertices=[];for(let k=i;k<i+3;k++)vertices.push([...p.slice(k*3,k*3+3),...uv.slice(k*2,k*2+2)]);tris.push(vertices.sort(cmp));}
  return tris.sort(cmp);
 })));"""
 r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
 actual=json.loads(r.stdout);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
-    if a!=b:
+    # Positions remain exact. Imported atlas UVs have seven decimal digits.
+    if len(a)!=len(b) or any(len(x)!=len(y) or any(p[:3]!=q[:3] or any(abs(u-v)>=1e-7 for u,v in zip(p[3:],q[3:])) for p,q in zip(x,y)) for x,y in zip(a,b)):
         p=Path('/private/tmp/populous-building-faces-failure.json');p.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(p)))
 print(f'PASS: {len(cases):,} complete native stage-renderer calls, {triangles:,} triangles: original models, all 256 face flags, triangle/quad cap UVs')

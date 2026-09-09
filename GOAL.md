@@ -82,8 +82,12 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** continue matched first-mission frame comparisons and compare
-model texture coordinates/cache mapping at the final native submission boundary.
+**Next action:** continue matched first-mission frame comparisons and investigate
+remaining texture-cache/alpha-edge preparation or visible effects where native
+submissions disagree. Model, cap, fire and debris UVs now use the original default
+half-texel inset. Sixty final native UV submissions, all cap/debris comparisons,
+42 live models and 16 GPU tile-edge probes pass. Cache allocation/fallback, all
+graphics settings and full-frame fidelity remain open.
 Model material modes 3/4/32 now keep full diffuse brightness, including hover,
 while retaining numeric warm specular. Construction caps use shaded mode 7.
 Compared 655 original material submissions, 40 GPU color probes and actual

@@ -110,8 +110,8 @@ def hook(c, address, size, user):
             tile = (tile + read(fragment + 0x2f, 'B')) & 255
         corners = [0, 1, 2] if count == 3 else [0, 1, 2, 0, 2, 3]
         value['uv'] = [v for i in corners for v in
-                       [(tile % 8 + uv[i * 2] / 0x200000) / 8,
-                        1 - (tile // 8 + uv[i * 2 + 1] / 0x200000) / 32]]
+                       [(tile % 8 + (.5 + 31 * uv[i * 2] / 0x200000) / 32) / 8,
+                        1 - (tile // 8 + (.5 + 31 * uv[i * 2 + 1] / 0x200000) / 32) / 32]]
         emitted.append(value)
     elif address == 0x4ee580:
         position = read(sp + 8, 'I')

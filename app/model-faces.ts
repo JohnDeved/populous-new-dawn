@@ -9,11 +9,22 @@ export interface NativeModel {
   biases: number[]
 }
 
+// 0x4673b0: bilinear object tiles span texel centers, 0.5 through 31.5.
+// Input is the source atlas coordinate; keep the tile explicit at shared edges.
+export function modelTextureUV(tile: number, u: number, v: number) {
+  const x = tile & 7,
+    y = tile >> 3
+  return [
+    (x + (0.5 + (u * 8 - x) * 31) / 32) / 8,
+    1 - (y + (0.5 + ((1 - v) * 32 - y) * 31) / 32) / 32,
+  ]
+}
+
 export function modelCapUV(corner: number) {
   const edge = (0x200000 - 2) / 0x200000
   const u = corner === 1 || corner === 2 ? edge : 0
   const v = corner >= 2 ? edge : 0
-  return [(2 + u) / 8, 1 - (31 + v) / 32]
+  return modelTextureUV(250, (2 + u) / 8, 1 - (31 + v) / 32)
 }
 
 // Mode zero is pick-only unless a construction cap replaces its material.
@@ -28,7 +39,6 @@ export function modelFaceVisible(data: NativeModel, face: number, stage: number)
 // their texture with tile 250. 0x40cde0 maps that cap to a 32-pixel tile minus
 // two fixed-point units. Stage 4 uses the normal complete-object renderer.
 export function modelStage(data: NativeModel, stage: number) {
-  if (stage === 4 && !data.modes.includes(0)) return data
   const p: number[] = [],
     uv: number[] = []
   for (let f = 0, vertex = 0; f < data.faces.length; f += 2) {
@@ -39,7 +49,14 @@ export function modelStage(data: NativeModel, stage: number) {
       for (let k = 0; k < corners.length; k++) {
         p.push(...data.p.slice((vertex + k) * 3, (vertex + k + 1) * 3))
         if (stage !== 4 && flags & (16 << stage)) uv.push(...modelCapUV(corners[k]))
-        else uv.push(...data.uv.slice((vertex + k) * 2, (vertex + k + 1) * 2))
+        else
+          uv.push(
+            ...modelTextureUV(
+              data.tiles[f / 2],
+              data.uv[(vertex + k) * 2],
+              data.uv[(vertex + k) * 2 + 1]
+            )
+          )
       }
     vertex += corners.length
   }

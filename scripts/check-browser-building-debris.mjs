@@ -47,6 +47,8 @@ try {
       if (!mesh.isMesh || !mesh.material.map.image.src.includes('atlas')) throw new Error('Missing original fragment texture')
       if (![3, 6].includes(mesh.geometry.attributes.position.count)) throw new Error('Invalid face topology')
       if (!Array.from(mesh.geometry.attributes.position.array).every(Number.isFinite)) throw new Error('Invalid fragment coordinates')
+      const expectedUV = new Float32Array(fragment.debris.uv)
+      if (!mesh.geometry.attributes.uv.array.every((value, i) => value === expectedUV[i])) throw new Error('Fragment lost its final native UV mapping')
     }
     return { positions: groups.map(g => g.position.toArray()) }
   })
@@ -60,7 +62,7 @@ try {
     return f && f.debris.h !== previous.h && f.debris.heading !== previous.heading
   }), first)
   await page.evaluate(() => { window.testScene.world.speed = 0 })
-  await page.locator('.world-viewport canvas').focus()
+  await page.locator('.world-viewport canvas[data-engine]').focus()
   const bearing = await page.evaluate(() => window.testScene.cameraBearing)
   await page.keyboard.down('q')
   await page.waitForTimeout(250)

@@ -1,4 +1,4 @@
-import { modelCapUV, type NativeModel } from './model-faces.ts'
+import { modelCapUV, modelTextureUV, type NativeModel } from './model-faces.ts'
 import { modelMatrix, modelPoint } from './projection.ts'
 import { moveDirectedEffect, type DirectedEffect } from './effect-motion.ts'
 import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
@@ -101,7 +101,7 @@ export function* collapseBuildingFaces(
       if (cap) return modelCapUV(corner)
       const u = model.uv[(first + index) * 2] + ((tribeTile % 8) - (tile % 8)) / 8
       const v = model.uv[(first + index) * 2 + 1] - ((tribeTile >> 3) - (tile >> 3)) / 32
-      return [u, v]
+      return modelTextureUV(tribeTile, u, v)
     })
     yield {
       x,
