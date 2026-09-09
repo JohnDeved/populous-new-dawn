@@ -62,7 +62,7 @@ effects.orders.prepare=(order,model,x,y,flags)=>{actions.push(['prepare',w.order
 effects.allocateTrainee=(model,tribe,x,y,angle)=>{
  actions.push(['allocate',1,model,tribe,x,y,0,[short(x),short(y),short(angle),0,0],1]);
  if(allocated>=c.failAfter)return;
- const p=w.people.get(200+allocated++);Object.assign(p,{class:1,model,tribe,x,y,height:0,angle});
+ const p=w.people.get(200+allocated++);Object.assign(p,{class:1,model,tribe,x,y,h:0,angle});
  w.tribes[tribe].personCounts[model]=short(w.tribes[tribe].personCounts[model]+1);return p;
 };
 effects.orders.deleteObject=id=>{actions.push(['delete',id]);const p=w.people.get(id);if(p){

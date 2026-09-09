@@ -71,6 +71,7 @@ function burningOccupant(direction = 0) {
   for (let i = 0; i < 100 && u.inside !== null; i++) tick(w, 1 / 12)
   assert.equal(u.inside, null)
   assert.equal(u.native?.state, 26)
+  assert.ok(Math.hypot(u.x - b.x, u.z - b.z) < 1.5, 'first panic step starts inside the hut, without a door teleport')
   return { w, b, u }
 }
 

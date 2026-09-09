@@ -36,6 +36,20 @@ try {
     window.panicBuilding = b
     window.panicPeople = people
     window.panicModel = model
+    window.evacuationSteps = []
+    if (!nearby) {
+      const afterTurn = s.gameClock.afterTurn,
+        pending = new Set(people),
+        start = { x: position.x, z: position.z }
+      s.gameClock.afterTurn = () => {
+        afterTurn()
+        for (const u of pending) {
+          if (u.inside !== null) continue
+          window.evacuationSteps.push({ id: u.id, distance: Math.hypot(u.x - start.x, u.z - start.z) })
+          pending.delete(u)
+        }
+      }
+    }
     w.manaWorld.gameFlags = 32
     w.shots.lightning = 1
     w.speed = 0
@@ -167,6 +181,7 @@ try {
     })
     return {
       poses,
+      evacuation: window.evacuationSteps,
       particles: w.effects
         .filter(f => f.animation?.displacement)
         .map(f => ({ id: f.id, sequence: f.sprite.sequence })),
@@ -178,6 +193,10 @@ try {
     assert.equal(p.object, p.expected)
     assert.equal(p.speed, 110)
     assert.ok(p.visible && p.layers > 0)
+  }
+  if (!nearby) {
+    assert.equal(initial.evacuation.length, 6)
+    assert.ok(initial.evacuation.every(p => p.distance < 1.5), 'first visible panic step must not teleport to a door')
   }
   await page.screenshot({ path: '/private/tmp/populous-panic-visible-debug.png' })
   const pixels = {}

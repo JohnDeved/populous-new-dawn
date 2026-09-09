@@ -1135,3 +1135,31 @@ for both the legacy transform path and restoration of the shared path (see
 [`pixel evidence`](performance/2026-09-10-fire-atlas-pixels.json)). The broader
 392 GPU unit-pose, airborne-shadow and selection regressions pass. All 163 portable
 checks pass; Fallow remains 85.9 maintainability, average cyclomatic 2.8, p90 5.
+
+
+### Occupant exits after shared atlas modernization (2026-09-10)
+
+The native exit integration adds event-time restoration only; it does not add
+per-frame work or per-person atlas copies. Shared typed state replaces the old
+inferred velocity/formation names and reuses reviewed geometry and flag handling.
+The fixed 12 Hz simulation, separate animation clock and fractional presentation
+remain unchanged; panic outcomes still agree at 5, 30, 60, 120, 144 and 240 Hz.
+
+`node scripts/check-browser-person-panic.mjs --headed` measured the real six-person
+burning-hut evacuation on Chrome 153 / Apple M5 ANGLE Metal, 1440×1000 CSS pixels,
+DPR 1. Over 502 frames, CPU p50/p95 was **2.6/6.2 ms**; frame gaps p50/p95/max were
+**8.3/9.3/16.6 ms** (roughly 120 FPS), with up to 84 personal particles and 249 draw
+calls. No new 2048×4608 or 2048×5824 sprite atlas upload occurred. Small dynamic
+texture uploads remain; this is not a claim of zero GPU uploads. Evidence:
+`references/performance/2026-09-10-building-exits.json`.
+
+This is a regression budget for this scene, not a paired speedup over the earlier
+nearby-flame benchmark: the camera, particle count and browser scheduling differ.
+The established atlas before/after and exact pixel comparison remain the evidence
+for the modern representation's performance advantage. Neither measurement
+claims identical performance across all displays, missions or hardware.
+
+Fallow reports maintainability **85.9**, average cyclomatic complexity **2.8**
+and p90 **5**. Changed application files pass formatting/type checks. Ox-standard
+still reports existing debt in the large integration modules; this is not a
+repository-wide lint-clean claim.

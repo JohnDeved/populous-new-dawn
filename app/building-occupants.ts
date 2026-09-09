@@ -14,16 +14,14 @@ export type BuildingOccupant = OrderedPerson & {
   tribe: number
   renderFlags: number
   clip: number
-  height: number
-  velocityX: number
-  velocityY: number
-  velocityZ: number
-  homeX: number
-  homeY: number
-  formationSlot: number
+  h: number
+  displacement: { x: number; y: number; h: number }
+  anchorX: number
+  anchorY: number
+  anchorFlags: number
   angle: number
   turnAngle: number
-  facingAngle: number
+  heading: number
 }
 export type OccupiedBuilding = BuildingShapePose &
   Pick<TrainingBuilding, 'id' | 'class' | 'model' | 'flags2' | 'flags3' | 'activity' | 'inside'> & {
@@ -34,7 +32,7 @@ export type OccupiedBuilding = BuildingShapePose &
     entryDelay: number
     lastActivity: number
   }
-export type OccupancyWorld = {
+export interface OccupancyWorld {
   people: Map<number, BuildingOccupant>
   orders: OrderPool
   towerTribes: number
@@ -45,7 +43,7 @@ export type OccupancyWorld = {
 }
 // Required world consumers: vehicle removal, land-cell membership, tower
 // placement, construction-plan geometry and occupancy indicator allocation.
-export type OccupancyEffects = {
+export interface OccupancyEffects {
   orders: OrderEffects
   leaveVehicle: (person: BuildingOccupant) => void
   adjacentBuilding: (person: BuildingOccupant, model: number) => number
@@ -144,15 +142,7 @@ export function setPersonOccupancy(
       if (p.flags2 & 0x20000) effects.removeCell(p)
     }
   } else if (mode === 1) {
-    p.renderFlags &= ~16
-    p.assignment &= ~4
-    p.flags4 = (p.flags4 | 256) >>> 0
-    p.flags2 = (p.flags2 & ~0x804000) >>> 0
-    if (!(p.flags2 & 0x20000)) effects.insertCell(p)
-    p.height = effects.terrainHeight(p.x, p.y) & 65535
-    p.velocityX = 0
-    p.velocityY = 0
-    p.velocityZ = 0
+    restoreBuildingOccupant(p, effects.terrainHeight, () => effects.insertCell(p))
   } else if (mode === 3) {
     effects.leaveVehicle(p)
     p.flags2 = (p.flags2 | 0x800000) >>> 0
@@ -209,10 +199,48 @@ export function leaveBuilding(w: OccupancyWorld, p: BuildingOccupant, effects: O
 }
 
 // Shared outside target in removal and training conversion.
-export function buildingExitPoint(b: OccupiedBuilding, effects: OccupancyEffects) {
-  const outside = b.class === 9 ? effects.planExitPoint(b) : buildingOutsidePoint(b)
+export function buildingExitPoint(b: BuildingShapePose, outside = buildingOutsidePoint(b)) {
   const exit = nativeStep({ x: outside.x / 256, z: -outside.y / 256 }, (b.angle + 512) & 2047, 512)
   return { x: Math.round(exit.x * 256) & 65535, y: Math.round(-exit.z * 256) & 65535 }
+}
+
+// Mode 1 of 0x4d80e0. Keep XY and physical velocity; clear only the previous
+// motion deltas, so revealing an occupant cannot interpolate from stale motion.
+export function restoreBuildingOccupant(
+  p: Pick<
+    BuildingOccupant,
+    'x' | 'y' | 'h' | 'displacement' | 'renderFlags' | 'assignment' | 'flags2' | 'flags4'
+  >,
+  terrainHeight: (x: number, y: number) => number,
+  insertCell: () => void
+) {
+  p.renderFlags &= ~16
+  p.assignment &= ~4
+  p.flags4 = (p.flags4 | 256) >>> 0
+  p.flags2 = (p.flags2 & ~0x804000) >>> 0
+  if (!(p.flags2 & 0x20000)) insertCell()
+  p.h = short(terrainHeight(p.x, p.y))
+  p.displacement.x = 0
+  p.displacement.y = 0
+  p.displacement.h = 0
+}
+
+// Placement tail of 0x407490, shared with the live occupancy adapter.
+export function faceBuildingExit(
+  p: Pick<
+    BuildingOccupant,
+    'x' | 'y' | 'anchorX' | 'anchorY' | 'anchorFlags' | 'flags2' | 'turnAngle' | 'heading' | 'angle'
+  >,
+  { x, y }: { x: number; y: number }
+) {
+  p.anchorX = (x & 0xfe00) + 256
+  p.anchorY = (y & 0xfe00) + 256
+  p.anchorFlags = 0
+  const angle = nativeAngle(short(x - p.x), -short(y - p.y))
+  if (p.flags2 & 128) p.turnAngle = angle
+  p.heading = angle
+  p.angle = p.flags2 & 0x8000 ? (angle + 1024) & 2047 : angle
+  p.flags2 = (p.flags2 | 16) >>> 0
 }
 
 // 0x407490. Restore the person at its current location, then set the outside
@@ -241,15 +269,7 @@ export function removeBuildingOccupant(
   if (b.model === 4) w.towerTribes = (w.towerTribes | (1 << (b.tribe & 31))) & 255
   if (rules.buildingFlags[b.model] & 1) updateTrainingOccupants(w, b)
   effects.updateIndicator(b)
-  const { x, y } = buildingExitPoint(b, effects)
-  p.homeX = (x & 0xfe00) + 256
-  p.homeY = (y & 0xfe00) + 256
-  p.formationSlot = 0
-  const angle = nativeAngle(short(x - p.x), -short(y - p.y))
-  if (p.flags2 & 128) p.turnAngle = angle
-  p.facingAngle = angle
-  p.angle = p.flags2 & 0x8000 ? (angle + 1024) & 2047 : angle
-  p.flags2 = (p.flags2 | 16) >>> 0
+  faceBuildingExit(p, buildingExitPoint(b, b.class === 9 ? effects.planExitPoint(b) : undefined))
   b.entryDelay = 12
   b.activity &= ~1024
   if (rules.buildingFlags[b.model] & 32) b.lastActivity = w.turn >>> 0

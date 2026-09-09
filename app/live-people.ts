@@ -5,7 +5,6 @@ import {
   browserPosition,
   height,
   buildingPose,
-  entrance,
   sound,
   unitAnimationSource,
   buildingModel,
@@ -37,6 +36,11 @@ import {
   type RecoveryPerson,
 } from './person-motion.ts'
 import { buildingApproachPoint, buildingOutsidePoint } from './building-shapes.ts'
+import {
+  buildingExitPoint,
+  restoreBuildingOccupant,
+  faceBuildingExit,
+} from './building-occupants.ts'
 import {
   personStepCollision,
   buildingBlocksPerson,
@@ -171,6 +175,30 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
   }
 }
 
+// Share native exit placement without allocating a synthetic occupancy world.
+// ponytail: ordinary occupants still belong to the browser unit list; native
+// six-slot admission, training repricing and order ownership remain to be wired.
+export function leaveLiveBuilding(w: World, u: Unit) {
+  const b = w.buildings.find(building => building.id === u.inside)
+  if (!b) return
+  const p = u.flight ?? u.native ?? createLivePerson(w, u)
+  restoreBuildingOccupant(
+    p,
+    (x, y) => terrainPointHeight(w.land, { x, y }),
+    () => {
+      if (u.native === p || u.flight === p) {
+        w.objectCells.objects.set(p.id, p)
+        insertObjectIntoCell(w.objectCells, p, p)
+      }
+    }
+  )
+  faceBuildingExit(p, buildingExitPoint(buildingPose(b)))
+  p.building = null
+  u.inside = null
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
+  return p
+}
+
 // Legacy allocation/deletion and spell movement still own ordinary units.
 // Reconcile that boundary; native movement then maintains persistent cell order.
 // ponytail: victory bootstrap supplies initial order; full native allocation
@@ -265,17 +293,7 @@ function context(w: World) {
     },
     sound: (p, cue) => sound(w, cue, browserPosition(p)),
     leaveBuilding: person => {
-      const p = person as LivePerson,
-        u = w.units.find(u => u.id === p.id)!,
-        b = w.buildings.find(b => b.id === p.building)
-      // Reuse the native entrance adapter; occupant linked-list migration remains.
-      if (b) {
-        Object.assign(u, entrance(w, b, 4))
-        moveObjectInCells(w.objectCells, p, nativePosition(w, u))
-      }
-      p.building = null
-      u.inside = null
-      p.flags2 = (p.flags2 & ~0x800000) >>> 0
+      leaveLiveBuilding(w, w.units.find(u => u.id === person.id)!)
     },
     projectile: () => {
       throw new Error('Live firewarriors are not yet implemented')

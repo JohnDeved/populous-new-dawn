@@ -1084,3 +1084,25 @@ anchors/facing; the current browser door teleport is wrong. Then resume critical
 first-mission mechanics and visible comparisons. Broader propagation, native
 occupancy slots/order ownership, full class scheduling and full game parity remain
 open. Discovery stays open; this progress does not complete the fire checkpoint.
+
+
+### Latest visible integration: followers leave buildings in place
+
+The measured shared-atlas optimization is complete. Native exit restoration,
+rotated exit anchors/facing and cleared motion deltas now replace door teleports
+across live damage, burning, terrain collapse, upgrade and training release.
+Celebration retains its own drop-log/exit ordering. Shared occupancy types use
+readable position/displacement/anchor names; ordinary sprite ownership is kept.
+11,200 occupancy comparisons, 1,024 conversion cases and 538 portable native
+captures cover the shared reconstruction. The real six-follower evacuation ran
+at roughly 120 FPS on the M5 GPU with 6.2 ms CPU p95 and zero large atlas reuploads;
+conditions and limits are recorded in `references/modern-performance.md`.
+
+Next: integrate the original staged building entry and occupant admission into
+first-mission housing/training, where the browser still hides followers as soon
+as they reach the door. Use existing reviewed command/queue/occupancy controllers
+and check visible entry, capacity and conversion behavior before broader hidden
+bookkeeping. Keep native mechanics, clean concise TS, uncapped smooth rendering
+and measured modern performance together. Full slot/order/allocation ownership,
+remaining classes, campaign and full engine parity are unfinished. Discovery
+stays open; this bounded correction does not complete a broad economy checkpoint.

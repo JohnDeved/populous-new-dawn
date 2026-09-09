@@ -4846,3 +4846,38 @@ The current browser `evacuateBuilding` still teleports to `buildingDoor`; native
 removal leaves XY unchanged, restores height/cell visibility and supplies the exit
 anchor instead. Complete live occupancy state/slots and terrain-collapse movement
 must be connected without replacing the reviewed native helper with another copy.
+
+
+### Live occupant exit placement (2026-09-10)
+
+The live door teleport contradicted the already reconstructed `0x407490` and
+mode 1 of `0x4d80e0`. Shared `restoreBuildingOccupant`, `buildingExitPoint` and
+`faceBuildingExit` now serve both the complete occupancy reconstruction and live
+release. XY stays unchanged; restoration clears hidden/training flags, restores
+land membership and terrain height, and zeros signed **motion deltas**, not
+physical velocity. The exit anchor and facing retain rotated shape geometry,
+16-bit seam wrapping, backwards-facing behavior and the native default-state bit.
+
+Occupancy person names now agree with live people: `h`, `displacement`,
+`anchorX/Y`, `anchorFlags` and `heading`. The native oracle keeps its explicit
+memory offsets and translates at that boundary. No duplicate exit-angle formula,
+synthetic occupancy world, frame callback or new dependency was introduced.
+
+Live task cancellation shares the exit for damage, fire, terrain collapse,
+training, upgrade fetching and reconstruction. Celebration retains its separate
+native sequence: release tasks, drop carried logs, restore the occupant, clear
+bit 16. Burning evacuation also clears bit 16 before starting state 26 and sets
+the separate 24-turn trail counter. Ordinary collapse does not ignite people.
+
+Validation: all 11,200 occupancy comparisons and 1,024 training-conversion cases
+still match the supplied executable. `check-native-occupants.py EXE --record`
+records 538 portable restoration/placement captures; expected values come from
+native memory. Live tests cover four building kinds in four orientations,
+ordinary/retained sprite ownership, cell-list uniqueness, physical-velocity
+preservation, command cancellation, panic and celebration. The real Lightning
+browser scenario records all six first exit turns without a door jump.
+
+Scope remains bounded: the live unit list supplies ordinary membership; full
+six-slot admission, entry queues/delays, training repricing, command ownership,
+allocation order and mixed-class cell chains are not integrated by this change.
+Ordinary people do not acquire a persistent native animation record just to exit.

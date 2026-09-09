@@ -90,7 +90,7 @@ export function stepTrainingConversion(
   const inside = buildingInsidePoint(b),
     command = allocatePersonOrder(w.orders)
   if (command) {
-    const outside = buildingExitPoint(b, effects)
+    const outside = buildingExitPoint(b, b.class === 9 ? effects.planExitPoint(b) : undefined)
     effects.orders.prepare(w.orders.records[command], 3, outside.x, outside.y, 32)
   }
   let ghosts = 0

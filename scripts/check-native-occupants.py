@@ -1,5 +1,6 @@
 """Compare building admission, occupancy flags, order cleanup and training costs.
-Usage: python scripts/check-native-occupants.py /path/to/d3dpoptb.exe
+Usage: python scripts/check-native-occupants.py /path/to/d3dpoptb.exe [--record]
+--record retains native restoration/exit-placement captures for portable tests.
 Admission, slot scans, conversion weights, cost arithmetic, visibility flags and
 command reference release run natively. Transport/cell/tower/indicator consumers
 and construction-plan exit geometry are supplied; this does not prove native pathfinding.
@@ -10,7 +11,7 @@ from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
 from decomp import native_cpu,configure_native_constants,load_native_shapes
 root=Path(__file__).resolve().parents[1]
-cpu,_=native_cpu(Path(sys.argv[1]));configure_native_constants(cpu,Path(sys.argv[1]));cpu.mem_map(0x2000000,0x40000)
+cpu,identity=native_cpu(Path(sys.argv[1]));configure_native_constants(cpu,Path(sys.argv[1]));cpu.mem_map(0x2000000,0x40000)
 cpu.mem_map(0x2040000,0x10000);load_native_shapes(cpu,Path(sys.argv[1]),0x2040000,0x2043000)
 base,stack,stop=0x2000000,0x203d000,0x203e000
 rng=random.Random(0x407150);actions=[];current=None
@@ -93,15 +94,26 @@ def case():
         tribes=[dict(personCounts=[0]*9,playerType=2,buildingIds=[100]) for _ in range(4)],tower=0,special=0)
 js_prefix="""import {stepTrainingPerson} from './app/training.ts';import {enterBuilding,removeBuildingOccupant,leaveBuilding,repriceTraining,setPersonOccupancy,trainingOccupantWeight,nativeTrainingCost} from './app/building-occupants.ts';
 let s='';for await(const c of process.stdin)s+=c;const result=JSON.parse(s).map(c=>{
+// The oracle retains flat memory field labels; engine people use the shared
+// position/displacement/anchor names, not the old inferred velocity labels.
+const names={height:'h',homeX:'anchorX',homeY:'anchorY',formationSlot:'anchorFlags',facingAngle:'heading'};
+for(const p of c.people){
+ for(const [old,key] of Object.entries(names)){p[key]=p[old];delete p[old];}
+ p.h=(p.h<<16)>>16;p.displacement={x:p.velocityX,y:p.velocityY,h:p.velocityZ};
+ delete p.velocityX;delete p.velocityY;delete p.velocityZ;
+}
+const memoryPerson=person=>{const {displacement,...p}=person;
+ for(const [old,key] of Object.entries(names)){p[old]=p[key];delete p[key];}
+ p.height&=65535;return {...p,velocityX:displacement.x,velocityY:displacement.y,velocityZ:displacement.h};};
 const actions=[],b=c.building,w={people:new Map(c.people.map(p=>[p.id,p])),orders:{records:c.orders,cursor:1,active:c.active},towerTribes:c.towerTribes,tribes:c.tribes,
  turn:c.turn,buildingAt:()=>c.terrainBuilding,buildings:new Map([[b.id,b],[101,{...b,id:101,class:c.otherClass,inside:0,occupants:[0,0,0,0,0,0]}]])};
 const effects={orders:{prepare:()=>{throw Error('unexpected prepare')},stopWork:p=>{if(p.workTarget===100)actions.push(['work',100]);},releaseSpell:()=>{throw Error('uncovered spell cancellation')},
  deleteObject:id=>actions.push(['delete',id]),releaseFight:p=>actions.push(['fight',p.id])},leaveVehicle:p=>actions.push(['vehicle',p.id]),
  adjacentBuilding:(p,model)=>{actions.push(['adjacent',p.id,model]);return model===4?c.tower:c.special;},towerPosition:id=>{actions.push(['tower',id]);return {x:1234,y:4321,clip:321};},
- terrainHeight:(x,y)=>{actions.push(['height',x&65535,y&65535]);return 65400;},moveToCell:(p,x,y,h)=>{actions.push(['move',p.id,x,y,h]);p.x=x;p.y=y;p.height=h;},
+ terrainHeight:(x,y)=>{actions.push(['height',x&65535,y&65535]);return 65400;},moveToCell:(p,x,y,h)=>{actions.push(['move',p.id,x,y,h]);p.x=x;p.y=y;p.h=(h<<16)>>16;},
  insertCell:p=>actions.push(['insert',p.id]),removeCell:p=>actions.push(['remove',p.id]),updateIndicator:b=>actions.push(['indicator',b.id]),
  planExitPoint:b=>{actions.push(['plan',b.id]);return {x:3072,y:4096};}};
-const snapshot=result=>({people:c.people,building:b,orders:w.orders.records,active:w.orders.active,towerTribes:w.towerTribes,actions:structuredClone(actions),result});
+const snapshot=result=>({people:c.people.map(memoryPerson),building:b,orders:w.orders.records,active:w.orders.active,towerTribes:w.towerTribes,actions:structuredClone(actions),result});
 """
 def compare(cases,expected,js,label):
     r=subprocess.run(['node','--input-type=module','-e',js_prefix+js+'});console.log(JSON.stringify(result));'],input=json.dumps(cases),text=True,capture_output=True,cwd=root)
@@ -112,7 +124,25 @@ def compare(cases,expected,js,label):
             path=Path('/private/tmp/populous-occupant-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((label,i,str(path)))
     print(f'PASS: {len(cases)} native {label}')
 
+def exit_person(p):
+    # Shared engine names, while memory offsets above stay explicit.
+    out={key:p[key] for key in ['x','y','flags2','flags4','renderFlags','assignment','angle','turnAngle']}
+    out.update(h=(p['height']+32768)%65536-32768,
+        displacement=dict(x=p['velocityX'],y=p['velocityY'],h=p['velocityZ']),
+        anchorX=p['homeX'],anchorY=p['homeY'],anchorFlags=p['formationSlot'],heading=p['facingAngle'])
+    return out
+
+def record_exit(c,expected,id_,placement=False):
+    original=next(p for p in c['people'] if p['id']==id_)
+    after=next(p for p in expected['people'] if p['id']==id_)
+    entry=dict(person=exit_person(original),expected=exit_person(after),
+        inserted=['insert',id_] in expected['actions'])
+    if placement:
+        entry['building']={key:c['building'][key] for key in ['object','angle','anchorX','anchorY','class']}
+    return entry
+
 if __name__ == '__main__':
+    exits=[]
     cases=[];expected=[]
     for trial in range(1728):
         c=case();model=trial%9;count=rng.choice([-32768,-1,0,3,4,7,8,11,12,15,16,20,21,32767]);amount=rng.choice([0,1,2,3,7,127,65535,2147483647,-1,-2147483648]);kind=trial%4
@@ -139,6 +169,7 @@ if __name__ == '__main__':
         for i,o in enumerate(c['orders']):o['references']=sum(p['commands'].count(i)+(p['immediateCommand']==i) for p in c['people']) if i else 0
         c['active']=sum(o['references']>0 for o in c['orders'])
         fixture(c);call(0x4d80e0,addr(1),c['mode']);cases.append(c);expected.append(snapshot(c,0))
+    exits.extend(record_exit(c,e,1) for c,e in zip(cases,expected) if c['mode']&255==1)
     compare(cases,expected,'setPersonOccupancy(w,c.people[0],c.mode,effects);return snapshot(0);','occupancy-mode transitions, visibility, tower placement and actual command reference cleanup; spatial/transport leaves supplied')
 
     cases=[];expected=[]
@@ -203,3 +234,10 @@ if __name__ == '__main__':
     compare(cases,expected,"""let value=0;if(c.op===0)value=removeBuildingOccupant(w,c.nullBuilding?undefined:b,w.people.get(c.person),effects)?.id||0;
     else if(c.op===1)leaveBuilding(w,w.people.get(c.person||1),effects);else repriceTraining(w,b);return snapshot(value);""",
      'occupant removals, containing-building lookup and repricing, including signed counts, map seams and construction-plan exits; only plan geometry and existing spatial/transport/indicator leaves supplied')
+
+    exits.extend(record_exit(c,e,e['result'],True) for c,e in zip(cases,expected)
+        if c['op']==0 and e['result'] and c['building']['occupants'].count(e['result'])==1)
+    if '--record' in sys.argv:
+        (root/'tests/fixtures/building-exits.json').write_text(json.dumps(
+            dict(executableSha256=identity['sha256'],cases=exits),separators=(',',':'))+'\n')
+        print(f'Recorded {len(exits)} native restoration/exit placement captures')

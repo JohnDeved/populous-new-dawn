@@ -795,7 +795,7 @@
             "scripts/check-native-scenery-fire.py",
             "scripts/check-browser-building-fire.mjs"
           ],
-          "note": "Burning-building occupants and eligible followers in flame-socket cells now use original panic/cry/trail behavior. Native traversal includes repeated sockets, protection and RNG. Full propagation, repair/sunlight ownership, persistent class-cell order and live evacuation placement remain open.",
+          "note": "Burning-building occupants and eligible followers in flame-socket cells now use original panic/cry/trail behavior. Native traversal includes repeated sockets, protection and RNG. Full propagation, repair/sunlight ownership, persistent class-cell order and full live occupancy bookkeeping remain open. Evacuation now restores people at existing XY with original exit anchors/facing instead of teleporting to doors.",
           "requirements": [
             {
               "id": "effects.fire.burning",
@@ -819,9 +819,14 @@
                 "scripts/check-native-person-panic.py",
                 "tests/person-panic.test.mjs",
                 "scripts/check-browser-person-panic.mjs",
-                "references/reverse-engineering.md"
+                "references/reverse-engineering.md",
+                "app/building-occupants.ts",
+                "scripts/check-native-occupants.py",
+                "tests/building-exits.test.mjs",
+                "tests/fixtures/building-exits.json",
+                "references/performance/2026-09-10-building-exits.json"
               ],
-              "note": "Bounded occupant panic: native state-26 initializer/controller, 65-step duration, shared motion and original animation/owned PCM cues, four building orientations and 5\u2013240 Hz outcomes. Door placement and full ordinary-command ownership remain adapters; nearby ignition/propagation are separate open work."
+              "note": "Bounded occupant panic: native state-26 initializer/controller, 65-step duration, shared motion and original animation/owned PCM cues, four building orientations and 5\u2013240 Hz outcomes. Exit restoration and rotated anchor/facing now share the native occupancy reconstruction (538 portable captures); full ordinary-command/slot ownership remains adapted; nearby ignition/propagation are separate open work."
             },
             {
               "id": "effects.fire.trails",
@@ -1599,9 +1604,14 @@
             "scripts/check-native-hut-upgrade.py",
             "scripts/check-browser-hut-upgrade.mjs",
             "tests/hut-upgrade.test.mjs",
-            "tests/fixtures/hut-upgrade.json"
+            "tests/fixtures/hut-upgrade.json",
+            "app/building-occupants.ts",
+            "app/live-people.ts",
+            "tests/building-exits.test.mjs",
+            "tests/fixtures/building-exits.json",
+            "references/performance/2026-09-10-building-exits.json"
           ],
-          "note": "Bands and admission primitives compared. Hut birth clock/phase/pending gates, separate spawn and flash sockets, neighbor redirect and cell-centered home destination now match 2304 complete native controller cases; 2304 completion clocks match cost minus 54. Browser newborns visibly leave rather than teleporting into housing. Native HFX1441 feedback has 128 initialization/grounding comparisons, 2688 animation records and 16-turn removal; live GPU and original cue 40 PCM playback checked. 288 captured controller cases run portably. Full person allocation/state/home ownership, wild-person notification, class-9 plans, allocation counter staggering, global ordering and remaining hut/upgrade lifecycle stay open. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters."
+          "note": "Bands and admission primitives compared. Hut birth clock/phase/pending gates, separate spawn and flash sockets, neighbor redirect and cell-centered home destination now match 2304 complete native controller cases; 2304 completion clocks match cost minus 54. Browser newborns visibly leave rather than teleporting into housing. Native HFX1441 feedback has 128 initialization/grounding comparisons, 2688 animation records and 16-turn removal; live GPU and original cue 40 PCM playback checked. 288 captured controller cases run portably. Full person allocation/state/home ownership, wild-person notification, class-9 plans, allocation counter staggering, global ordering and remaining hut/upgrade lifecycle stay open. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open."
         },
         {
           "id": "economy.training",
@@ -1610,9 +1620,15 @@
           "evidence": [
             "scripts/check-native-training-queue.py",
             "scripts/check-native-training-conversion.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "app/building-occupants.ts",
+            "app/live-people.ts",
+            "scripts/check-native-occupants.py",
+            "tests/building-exits.test.mjs",
+            "tests/fixtures/building-exits.json",
+            "references/performance/2026-09-10-building-exits.json"
           ],
-          "note": "Selected queue/conversion paths verified; all specialist classes and dispatch incomplete."
+          "note": "Selected queue/conversion paths verified; all specialist classes and dispatch incomplete. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open."
         },
         {
           "id": "economy.repair",
@@ -1633,9 +1649,15 @@
             "tests/fixtures/repair-smoke.json",
             "tests/building-workers.test.mjs",
             "app/building-workers.ts",
-            "app/building-shapes.ts"
+            "app/building-shapes.ts",
+            "app/building-occupants.ts",
+            "app/live-people.ts",
+            "scripts/check-native-occupants.py",
+            "tests/building-exits.test.mjs",
+            "tests/fixtures/building-exits.json",
+            "references/performance/2026-09-10-building-exits.json"
           ],
-          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, person command ownership and panic motion remain adapters. Original task-1 approach, task-2 work and task-9 departure now feed live readiness and completion; mixed-class scheduling/counter ownership remains open."
+          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, person command ownership and panic motion remain adapters. Original task-1 approach, task-2 work and task-9 departure now feed live readiness and completion; mixed-class scheduling/counter ownership remains open. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open."
         },
         {
           "id": "economy.classes",

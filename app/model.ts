@@ -76,6 +76,7 @@ import {
   setLivePersonAnimation,
   initializeLiveCelebration,
   initializeLivePanic,
+  leaveLiveBuilding,
   buildingFirePeople,
   stepLivePerson,
   stepLiveImpulse,
@@ -1775,10 +1776,15 @@ export function select(w: World, kind: UnitKind | 'all') {
   w.mode = null
 }
 function release(w: World, u: Unit) {
+  const occupant = u.inside !== null ? leaveLiveBuilding(w, u) : undefined
+  u.inside = null
+  releaseTasks(w, u)
+  return occupant
+}
+function releaseTasks(w: World, u: Unit) {
   clearLivePath(w, u)
   u.vault = null
   u.work = null
-  u.inside = null
   u.tree = null
   u.harvest = undefined
   u.delivery = undefined
@@ -2933,11 +2939,11 @@ function stepBuildingGroundResponse(w: World, b: Building) {
 
 function evacuateBuilding(w: World, b: Building, burning = false) {
   for (const u of w.units.filter(u => u.inside === b.id && u.hp > 0)) {
-    release(w, u)
-    Object.assign(u, buildingDoor(b))
+    const p = release(w, u)!
     if (burning) {
       u.burnTrail = 24
-      if (u.native) u.native.flags2 &= ~16
+      u.native = p
+      p.flags2 &= ~16
       initializeLivePanic(w, u)
     }
   }
@@ -3009,10 +3015,7 @@ function stepDamagedBuilding(w: World, b: Building) {
       changeBuildingWork(p, n, state, null, { move: () => {}, release: () => {}, init: () => {} }),
     removeOccupant: () => {
       const u = w.units.find(u => u.inside === b.id && u.hp > 0)
-      if (u) {
-        release(w, u)
-        Object.assign(u, buildingDoor(b))
-      }
+      if (u) release(w, u)
       state.occupants--
     },
     smoke: () => {
@@ -3080,7 +3083,8 @@ function stepOutcome(w: World) {
     },
     releasePerson: p => {
       p.unit.native ??= createLivePerson(w, p.unit)
-      release(w, p.unit)
+      // Celebration owns its native occupant exit after dropping carried logs.
+      releaseTasks(w, p.unit)
     },
     damage: (p, amount) => {
       p.unit.hp -= amount / 20
@@ -4054,9 +4058,6 @@ function stepTurn(w: World) {
         trainee.kind = 'warrior'
         trainee.hp = maxHp('warrior')
         release(w, trainee)
-        const p = entrance(w, b, 4)
-        trainee.x = p.x
-        trainee.z = p.z
         b.timer = 0
         if (b.team === 'blue') w.stats.trained++
         effect(w, 'birth', trainee)
@@ -4099,7 +4100,6 @@ function stepTurn(w: World) {
           const tree = findBuildingWood(w, u, b)
           if (tree) {
             release(w, u)
-            Object.assign(u, buildingDoor(b))
             u.work = b.id
             u.tree = tree.id
             route(w, u, tree)
@@ -4119,7 +4119,6 @@ function stepTurn(w: World) {
         b.upgrading = true
         for (const u of inhabitants) {
           release(w, u)
-          Object.assign(u, buildingDoor(b))
           u.work = u.kind === 'brave' ? b.id : null
         }
       }

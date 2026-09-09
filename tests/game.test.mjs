@@ -991,8 +991,8 @@ test('building admission preserves native slot order, training activity and shar
  const person=(id,model,tribe=0)=>({id,class:1,model,tribe,state:10,substate:5,x:1000,y:2000,
   flags2:0,flags3:0,flags4:0,assignment:0,renderFlags:0,commands:[1,0,0,0,0,0,0,0],
   commandCursor:0,immediateCommand:0,commandStatus:8,workTarget:100,orderLocation:123,
-  height:100,velocityX:1,velocityY:2,velocityZ:3,clip:0,
-  homeX:0,homeY:0,formationSlot:3,angle:0,turnAngle:0,facingAngle:0});
+  h:100,displacement:{x:1,y:2,h:3},clip:0,
+  anchorX:0,anchorY:0,anchorFlags:3,angle:0,turnAngle:0,heading:0});
  const brave=person(1,2),warrior=person(2,3),guest=person(3,2,1);
  const records=Array.from({length:800},emptyPersonOrder);Object.assign(records[1],{model:8,references:3,a:100});
  const w={people:new Map([[1,brave],[2,warrior],[3,guest]]),orders:{records,cursor:2,active:1},towerTribes:0,
@@ -1022,9 +1022,9 @@ test('building admission preserves native slot order, training activity and shar
  b.inside=5;const full=structuredClone(b);assert.equal(enterBuilding(w,guest,b,effects),0);assert.deepEqual(b,full);
  guest.model=7;assert.equal(enterBuilding(w,guest,b,effects),1);
  assert.equal(brave.flags2&0x804000,0,'shaman admission executes the real occupant exit');
- assert.equal(brave.formationSlot,0);assert.equal(b.entryDelay,12);
+ assert.equal(brave.anchorFlags,0);assert.equal(b.entryDelay,12);
  assert.deepEqual([brave.x,brave.y],[1000,2000],'exit restores the person without teleporting');
- assert.equal(brave.homeX&511,256);assert.equal(brave.homeY&511,256);
+ assert.equal(brave.anchorX&511,256);assert.equal(brave.anchorY&511,256);
  // A nonzero terrain index suppresses list fallback, even when no building exists.
  w.buildingAt=()=>101;const occupied=structuredClone(b);
  leaveBuilding(w,warrior,effects);assert.deepEqual(b,occupied);
@@ -1037,8 +1037,8 @@ test('building admission preserves native slot order, training activity and shar
  assert.equal(enterBuilding(w,brave,b,effects),1);assert.equal(brave.commands[0],0);assert.equal(records[1].references,2);
  assert.equal(brave.renderFlags&16,16);assert.equal(brave.flags2&0x804000,0x804000);
  setPersonOccupancy(w,brave,1,effects);
- assert.equal(brave.renderFlags&16,0);assert.equal(brave.flags2&0x804000,0);assert.equal(brave.height,321);
- assert.deepEqual([brave.velocityX,brave.velocityY,brave.velocityZ],[0,0,0]);
+ assert.equal(brave.renderFlags&16,0);assert.equal(brave.flags2&0x804000,0);assert.equal(brave.h,321);
+ assert.deepEqual(brave.displacement,{x:0,y:0,h:0});
  assert.ok(events.some(e=>e[0]==='insert'));
 });
 
@@ -1049,8 +1049,8 @@ test('training replaces a whole batch, inherits the first occupant order tail an
   const person=(id,model)=>({id,class:1,model,tribe:0,state:10,substate:13,x:0,y:0,
    flags2:0x800000,flags3:0,flags4:0,assignment:4,selectionFlags:0,renderFlags:0,
    commands:[1,0,0,0,0,0,0,0],commandCursor:0,immediateCommand:0,commandStatus:8,
-   workTarget:100,orderLocation:0,height:0,velocityX:0,velocityY:0,velocityZ:0,clip:0,
-   homeX:0,homeY:0,formationSlot:0,angle:0,turnAngle:0,facingAngle:0,reservationNext:0});
+   workTarget:100,orderLocation:0,h:0,displacement:{x:0,y:0,h:0},clip:0,
+   anchorX:0,anchorY:0,anchorFlags:0,angle:0,turnAngle:0,heading:0,reservationNext:0});
   const warrior=person(1,3),braves=[person(2,2),person(3,2)];warrior.commands=[1,2,0,3,0,0,0,0];
   const records=Array.from({length:800},emptyPersonOrder);
   Object.assign(records[1],{model:8,references:3,a:100});
@@ -1331,7 +1331,8 @@ test('victory owns persistent native followers, drops cargo and renders a separa
  assert.equal(worker.inside,null);assert.equal(worker.work,null);assert.deepEqual(worker.path,[]);assert.equal(worker.cargo,0);
  assert.equal(w.trees.filter(t=>t.model===11).length,2);
  assert.equal(w.sounds.filter(s=>s.cue===11).length,2);
- assert.ok(Math.hypot(worker.x-hut.x,worker.z-hut.z)>2,'occupant exits before celebration motion');
+ assert.deepEqual([worker.x,worker.z],[hut.x,hut.z],'occupant is revealed in place before celebration motion');
+ assert.equal(worker.native.flags2&0x804010,0,'celebration clears occupancy and the default-state request');
  const shaman=w.units.find(u=>u.kind==='shaman');assert.equal(shaman.native.substate,8);
  const records=w.units.map(u=>u.native),braves=w.units.filter(u=>u.kind!=='shaman');
  for(const [i,u] of braves.entries()){
