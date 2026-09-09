@@ -9,7 +9,7 @@ experienced-player expectations while improving performance and presentation.
 | Area | State | Evidence / next check |
 | --- | --- | --- |
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
-| High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Units, flybys, globe motion, transitions and result cameras still need smoothing. |
+| High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Unit bodies, shadows and hit targets now follow fractional turn positions, checked at 5–240 Hz; full native displacement ownership remains partial. Flybys, globe motion, transitions and result cameras still need smoothing. |
 | Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
 | Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers and per-model anchor checks preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Per-vertex projection, sorting, sprite draw calls and resource lifetime remain to review. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
@@ -518,3 +518,78 @@ Unit motion smoothing, larger gameplay/effect workloads, production profiling,
 resource-lifetime measurement and the other audit rows remain open. This removes
 redundant browser work while preserving the existing parity boundary, so it adds
 no native completion credit.
+
+
+## Unit motion between simulation turns
+
+The native body/shadow queues (`0046f080` / `0046f850`) draw the previous position
+plus displacement times a presentation fraction. `004ed700` stamps the person
+record after its controller. The browser now captures positions around each actual
+simulation turn and uses elapsed fractional turn time instead of last second's
+measured frame/turn ratio. Reusable vectors and a weak map keep presentation state
+outside gameplay records and avoid new per-frame position allocations. This retains
+the native previous-to-current curve; it does not predict future movement. The
+original first draw can already have a nonzero frame-counter fraction, whereas
+our phase starts at the actual turn boundary. The previous-turn visual delay and
+remaining native flag/displacement/support-height ownership are explicit boundaries,
+not a claim of identical outer scheduling. See [native evidence](reverse-engineering.md#person-render-position-interpolation--2026-09-09).
+
+Bodies and shadows use the displayed position; shadow height samples the ground
+beneath it. Visibility and painter cell ties retain the authoritative current cell.
+Click bounds, drag selection and tooltip anchors follow the displayed body. Picking
+also resolves an airborne body when the pointer has no terrain intersection.
+Class/team changes, building transitions, explicit placement and new unit identities
+cut stale motion history. Sprite frame selection and authored animation cadence stay
+unchanged; interpolating positions does not invent additional sprite frames.
+
+`check-native-unit-interpolation.py` executes 1,024 native body/shadow pairs and
+four controller-stamp cases. Of these, 814 coordinate cases match exactly; the
+remaining continuous fractions differ by at most one native coordinate unit from
+integer truncation. Portable fixtures preserve executable provenance. Whole-world
+regressions compare observer-enabled schedules against simulation without observers,
+including RNG, movement, construction, Blast, combat and celebrations at three speeds.
+
+`check-browser-unit-motion.mjs` runs the actual Scene loop at 5/12/24/30/60/120/144/240 Hz
+and irregular intervals. All reach the same two-second endpoint and 24 simulation
+turns / 48 animation updates. At 240 Hz, 16 movement turns produce 320 distinct
+visible positions; at 60 Hz they produce 80. First displayed movement occurs within
+one browser frame after the first simulated move. Drawing is stubbed for this
+schedule sweep; separate real GPU probes verify three isolated person frames differ,
+paused motion freezes, airborne selection works and an authoritative-cell-only gate
+still draws 350 person pixels. [Raw checks](performance/2026-09-09-unit-motion.json).
+
+Reproduce the hardware comparison with:
+
+```
+node scripts/profile-game.mjs --headed --compare-unit-motion /tmp/unit-motion.json
+```
+
+Each workload runs old/new/new/old/old/new, settling one second and profiling four.
+Each run resets the world/camera and orders the blue units to the same destination;
+the crowd adds 200 braves. The baseline disables snapshots and uses direct current
+positions. Both modes contain the current cell-uniform and selection changes, so
+this isolates interpolation cost, not the entire change from version 151.
+[Raw hardware report](performance/2026-09-09-unit-motion-hardware.json): Apple M5,
+macOS arm64, Node 24.18, headed Chrome 153, ANGLE Metal, 1440×1000/DPR 1.
+Medians of each mode's three per-run statistics:
+
+| Workload | Direct CPU median / p95 | Interpolated CPU median / p95 | Direct / interpolated frame-gap p95 | Draw calls / triangles (both) |
+| --- | ---: | ---: | ---: | ---: |
+| Opening orders | 4.1 / 6.1 ms | 4.1 / 6.1 ms | 7.2 / 7.2 ms | 97 / 68,769 |
+| Selected crowd orders | 12.7 / 15.9 ms | 12.7 / 16.0 ms | 17.9 / 17.9 ms | 1,072 / 74,619 |
+
+No measurable median increase appears at this precision. This is not proof of zero
+cost, GPU execution time or physical display FPS. Opening orders finish during each
+sample; 47–50 crowd units still move at its end. Direct crowd CPU medians range
+11.5–12.9 ms and interpolated medians 12.6–12.7 ms. Interpolated maximum frame gaps
+still reach 85.6 ms. Selected crowds remain a performance limit: 1,072 draw calls
+and 12.7 ms JS work do not support robust high-refresh play. Sprite/selection/health
+submission is the next measured rendering target. Production, 4K and other hardware
+remain unverified.
+
+TypeScript, 152 portable tests, parity consistency and production build pass.
+Native painter overlaps, sprite ordering, all 392 sprite poses, moving shadows and
+live selection regressions pass. New clock/motion modules pass ox-standard; Fallow
+maintainability remains 85.8, average cyclomatic 2.8 and p90 5. Full native per-class
+interpolation ownership remains partial in the ledger; modern smoothness alone does
+not earn whole-engine parity credit.

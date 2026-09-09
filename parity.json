@@ -233,9 +233,14 @@
               "id": "graphics.sprites.interpolation",
               "title": "Original presentation-position interpolation",
               "status": "partial",
-              "note": "Live movement is adapted; complete original interpolation is unverified.",
+              "note": "Native body/shadow interpolation curve and controller stamp checked against the executable; live elapsed-time turn snapshots, moving shadows and displayed-body selection verified at 5\u2013240 Hz. Complete per-class flags, displacement writers, support-height and outer counter scheduling remain partial.",
               "evidence": [
-                "app/scene.ts"
+                "app/unit-motion.ts",
+                "app/scene.ts",
+                "scripts/check-native-unit-interpolation.py",
+                "scripts/check-browser-unit-motion.mjs",
+                "tests/fixtures/unit-interpolation.json",
+                "references/modern-performance.md"
               ]
             }
           ]

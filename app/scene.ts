@@ -4,6 +4,7 @@ import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { advanceGame } from './game-clock.ts'
+import { UnitMotion } from './unit-motion.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
@@ -502,7 +503,13 @@ export class GameScene {
   frame = 0
   previous: number | null = null
   uiTimer = 0
-  gameClock = { animationTime: 0, animationFrame: 0 }
+  unitMotion = new UnitMotion()
+  gameClock = {
+    animationTime: 0,
+    animationFrame: 0,
+    beforeTurn: () => this.unitMotion.beforeTurn(this.world),
+    afterTurn: () => this.unitMotion.afterTurn(this.world),
+  }
   terrainVersion = -1
   treeSignature = ''
   onChange: () => void
@@ -921,6 +928,34 @@ export class GameScene {
   screen(p: Point, h = this.y(p)) {
     return this.view.screen(new THREE.Vector3(p.x, (h * 45) / 128, p.z), this.camera)
   }
+  unitScreen(id: number, height = 0) {
+    const group = this.unitMeshes.get(id)
+    if (!group?.visible || !this.view.visible(group.userData.cellPosition ?? group.position))
+      return null
+    const position = group.position.clone()
+    position.y += height
+    const p = this.view.screen(position, this.camera)
+    return p.z < -1 || p.z > 1 ? null : p
+  }
+  pickUnit(event: { clientX: number; clientY: number }) {
+    const rect = this.renderer.domElement.getBoundingClientRect(),
+      x = event.clientX - rect.left,
+      y = event.clientY - rect.top
+    return this.world.units.find(u => {
+      if (u.team !== 'blue' || u.inside !== null) return false
+      const bounds = this.unitMeshes.get(u.id)?.userData.bounds,
+        p = this.unitScreen(u.id)
+      if (!bounds || !p) return false
+      const px = ((p.x + 1) * rect.width) / 2,
+        py = ((1 - p.y) * rect.height) / 2
+      return (
+        x >= px + bounds.left &&
+        x <= px + bounds.right &&
+        y >= py + bounds.top &&
+        y <= py + bounds.bottom
+      )
+    })
+  }
   visible(p: Point, h = this.y(p)) {
     const q = this.screen(p, h)
     if (q.z < -1 || q.z > 1) return false
@@ -1273,7 +1308,8 @@ export class GameScene {
         const ids = this.world.units
           .filter(u => {
             if (u.team !== 'blue') return false
-            const p = this.screen(u, this.y(u) + 1)
+            const p = this.unitScreen(u.id, 45 / 128)
+            if (!p) return false
             const x = ((p.x + 1) / 2) * rect.width + rect.left,
               y = ((-p.y + 1) / 2) * rect.height + rect.top
             return (
@@ -1289,7 +1325,8 @@ export class GameScene {
       }
       return
     }
-    let p = this.pick(event)
+    const clickedUnit = event.button === 0 && !this.world.mode ? this.pickUnit(event) : undefined
+    let p = this.pick(event) ?? clickedUnit
     if (!p) return
     if (!this.world.mode) {
       const object = this.pickWorldObject(event)
@@ -1307,26 +1344,8 @@ export class GameScene {
       if (!ok) this.onSound(0x25)
       else if (!SPELLS.some(s => s.id === mode)) this.onSound(0x24)
     } else {
-      // Sprite dimensions are screen pixels in the native renderer.
-      const rect = this.renderer.domElement.getBoundingClientRect(),
-        x = event.clientX - rect.left,
-        y = event.clientY - rect.top
       const picked =
-        this.world.units
-          .filter(u => u.team === 'blue' && u.inside === null && this.visible(u))
-          .find(u => {
-            const bounds = this.unitMeshes.get(u.id)?.userData.bounds
-            if (!bounds) return false
-            const q = this.screen(u),
-              px = ((q.x + 1) * rect.width) / 2,
-              py = ((1 - q.y) * rect.height) / 2
-            return (
-              x >= px + bounds.left &&
-              x <= px + bounds.right &&
-              y >= py + bounds.top &&
-              y <= py + bounds.bottom
-            )
-          }) ??
+        clickedUnit ??
         this.world.units
           .filter(u => u.team === 'blue' && u.inside === null && distance(u, p) < 2.1)
           .sort((a, b) => distance(a, p) - distance(b, p))[0]
@@ -1630,8 +1649,11 @@ export class GameScene {
       element = this.tooltipElement
     element.hidden = !state.draw || !state.text || !object
     if (element.hidden || !object) return
-    const p = this.screen(object, this.y(object) + (object.type === 1 ? 128 : 512) / 45)
-    if (!this.visible(object)) {
+    const p =
+      object.type === 1
+        ? this.unitScreen(object.id, 1)
+        : this.screen(object, this.y(object) + 512 / 45)
+    if (!p || (object.type !== 1 && !this.visible(object))) {
       element.hidden = true
       return
     }
@@ -2249,7 +2271,6 @@ export class GameScene {
     if (!this.updateCameraMotion(dt) && !this.updateFlyby(dt)) {
       this.updateView()
     }
-    this.renderTooltip()
     for (const [id, g] of this.unitMeshes)
       if (!this.world.units.some(u => u.id === id)) {
         this.objects.remove(g)
@@ -2269,9 +2290,11 @@ export class GameScene {
         this.unitMeshes.set(u.id, g)
         this.objects.add(g)
       }
-      this.locate(g, u)
-      if (u.flight) g.position.y = u.flight.h / 128
-      else g.position.y += ((0.04 + Math.sin(u.lift * Math.PI) * 2) * 45) / 128
+      this.unitMotion.position(this.world, u, g.position)
+      g.quaternion.identity()
+      g.userData.nativeHeading = 0
+      g.userData.cellPosition = u
+      g.userData.health.userData.cellPosition = u
       g.visible = u.inside === null
       const animationSource = unitAnimationSource(u)
       g.userData.depthBias =
@@ -2282,9 +2305,9 @@ export class GameScene {
       // 0x4d32b0's tail enables person shadows only for airborne physics (0x400).
       shadow.visible = !!((animationSource?.flags4 ?? 0) & 0x400) || u.lift > 0
       if (shadow.visible) {
-        const ground = terrainPointHeight(this.world.land, nativePosition(this.world, u))
+        const ground = terrainPointHeight(this.world.land, nativePosition(this.world, g.position))
         shadow.position.y = ground / 128 - g.position.y
-        const depth = this.view.project(u, ground / 45).z
+        const depth = this.view.project(g.position, ground / 45).z
         const r = spriteShadow(
           nativeEffects.animations.unitShadow[0],
           depth,
@@ -2334,6 +2357,7 @@ export class GameScene {
       )
       g.userData.healthFill.scale.x = Math.max(0.001, u.hp / maxHp(u.kind))
     }
+    this.renderTooltip()
     for (const [id, mesh] of this.plans)
       if (!this.world.buildings.some(b => b.id === id && b.preparation)) {
         mesh.removeFromParent()

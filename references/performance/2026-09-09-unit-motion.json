@@ -1,0 +1,176 @@
+{
+  "runs": [
+    {
+      "hz": 5,
+      "visibleMoves": 8,
+      "simulationMoves": 7,
+      "firstVisible": 0.2,
+      "firstSimulation": 0.2,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 12,
+      "visibleMoves": 16,
+      "simulationMoves": 16,
+      "firstVisible": 0.16666666666666666,
+      "firstSimulation": 0.08333333333333333,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 24,
+      "visibleMoves": 32,
+      "simulationMoves": 16,
+      "firstVisible": 0.125,
+      "firstSimulation": 0.08333333333333333,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 30,
+      "visibleMoves": 41,
+      "simulationMoves": 16,
+      "firstVisible": 0.1,
+      "firstSimulation": 0.1,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 60,
+      "visibleMoves": 80,
+      "simulationMoves": 16,
+      "firstVisible": 0.09999999999999999,
+      "firstSimulation": 0.08333333333333333,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 120,
+      "visibleMoves": 160,
+      "simulationMoves": 16,
+      "firstVisible": 0.09166666666666666,
+      "firstSimulation": 0.08333333333333333,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 144,
+      "visibleMoves": 192,
+      "simulationMoves": 16,
+      "firstVisible": 0.0902777777777778,
+      "firstSimulation": 0.08333333333333336,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 240,
+      "visibleMoves": 320,
+      "simulationMoves": 16,
+      "firstVisible": 0.0875,
+      "firstSimulation": 0.08333333333333333,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    },
+    {
+      "hz": 0,
+      "visibleMoves": 7,
+      "simulationMoves": 5,
+      "firstVisible": 0.30000000000000004,
+      "firstSimulation": 0.30000000000000004,
+      "position": [
+        10,
+        0.7328125,
+        34
+      ],
+      "turn": 24,
+      "frame": 48
+    }
+  ],
+  "paused": [
+    7.2734375,
+    0.85,
+    33
+  ],
+  "pausedAfter": [
+    7.2734375,
+    0.85,
+    33
+  ],
+  "pixelChanges": [
+    5,
+    233
+  ],
+  "selected": true,
+  "currentCellVisible": true,
+  "displayedCellVisible": false,
+  "anchoredPixels": 350,
+  "cellDebug": {
+    "cx": 112,
+    "cy": 109,
+    "center": {
+      "x": 2560,
+      "y": 55808
+    },
+    "current": [
+      7.546875,
+      33
+    ],
+    "displayed": [
+      4.546875,
+      4.8515625,
+      33
+    ],
+    "from": {
+      "x": 1.546875,
+      "y": 4.8515625,
+      "z": 33
+    },
+    "to": {
+      "x": 7.546875,
+      "y": 4.8515625,
+      "z": 33
+    },
+    "phase": 0.041666666666666664
+  }
+}

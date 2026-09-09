@@ -132,16 +132,17 @@ export class Painter {
         const origin = new THREE.Vector3().setFromMatrixPosition(transform)
         const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
         // Every face of a native model uses the same anchor cell.
-        if ((sprite || scale) && !view.visible(origin, unwrapped)) continue
+        if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin, unwrapped)) continue
         for (let face = 0; face < submitted; face++) {
           const triangle = index ? index.getX(face * 3) / 3 : face
           if (sprite || scale) anchor.copy(origin)
           else {
             anchor.fromBufferAttribute(centers!, triangle).applyMatrix4(transform)
-            if (!view.visible(anchor, unwrapped)) continue
+            if (!view.visible(metadata.cellPosition ?? anchor, unwrapped)) continue
           }
-          const x = Math.round((anchor.x + 8) * 256),
-            y = Math.round((-anchor.z - 8) * 256)
+          const cellAnchor = metadata.cellPosition ?? anchor,
+            x = Math.round((cellAnchor.x + 8) * 256),
+            y = Math.round((-cellAnchor.z - 8) * 256)
           const center = unwrapped ? view.rawCenter : view.center
           const relative = (coordinate: number, center: number) => {
             const cell = (coordinate >> 9) - (center >> 9)

@@ -4700,3 +4700,54 @@ for the modernization audit rather than claiming full HUD completion.
 The conversion optimization and modern-display correction are measured and
 qualified in [modern-performance.md](modern-performance.md). New parity features
 are paused while the existing implementation undergoes that broader audit.
+
+## Person render-position interpolation — 2026-09-09
+
+`0046f080` starts a person body at current position minus the signed displacement
+at +0x43/+0x45/+0x47. With flags3 bit 0x100, unpaused land, a nonzero presentation
+counter difference and a nonzero measured frame rate, it adds displacement times
+`measured turns * elapsed presentation frames / measured frames`. Body height
+also includes signed support height at +0x1c. `0046f850` uses the same horizontal
+interpolation, then samples terrain for the shadow. `0049c9f0` estimates the two
+rates from counter differences once per second. Newly retained `004ed700` writes
+the presentation stamp at +0x18 **after** the class controller returns.
+
+The existing `004ee580` cell-list reconstruction writes signed displacement when
+flags3 0x100 is set and 0x200 is clear. Its 8,192 sequential native comparisons
+still pass. The new `check-native-unit-interpolation.py` executes 1,024 complete
+body/shadow queue pairs, supplying projection and the shadow-height consumer.
+814 cases have exact integral coordinates; continuous fractional browser positions
+remain within one native coordinate unit of the original integer truncation in
+the other 210 cases. Four original person-dispatch tails verify stamp ordering;
+the person controller itself is supplied in those four calls. A 64-case fixture
+retains executable-tagged original projection inputs for portable checks. There
+are now 972 hashed address exports.
+
+The browser's `UnitMotion` observes each completed simulation turn, including all
+catch-up turns, and interpolates its retained endpoints using elapsed simulation
+time. It keeps fractions at modern refresh rates instead of reproducing the old
+last-second FPS estimate, counter rounding or overshoot. Snapshot and output
+positions are reused; no per-frame person-position allocation is required by the
+renderer. It does not initialize native person records or change sprite selection.
+Spawning, building entry/exit, class/team conversion and explicit out-of-turn
+placement bypass stale history. Pause holds the displayed position.
+
+Sprite layers, airborne shadows, selection arrows, health bars and tooltips use
+the displayed body position. Shadows sample ground at the interpolated X/Z.
+Painter ordering and the fragment visibility gate retain the person's authoritative
+cell, matching `0046ec80`'s source-cell dispatch before the queue interpolates its
+projection input. Pointer selection uses the displayed bounds, including airborne
+sprites with no terrain behind them; the former terrain-first return prevented
+those clicks from reaching selection.
+
+This is the original interpolation **curve** with a modern elapsed-time adapter,
+not a recovered complete outer scheduler. Native per-class interpolation flags,
+every displacement writer/multiple-move case, native support-height ownership for
+all states, original presentation counter phase and complete allocation/dispatch
+remain open. Current browser controllers provide whole-turn endpoint snapshots.
+Command processing, simulation timing, RNG, collision and combat positions remain
+authoritative and unchanged. Visual interpolation spans the previous completed
+turn; it is deliberately not prediction of the next turn. The original first draw
+can already have a nonzero counter fraction; the modern phase starts at the actual
+turn boundary. See [the modernization audit](modern-performance.md) for measured
+response times, pixel/control checks, performance and the remaining limitations.

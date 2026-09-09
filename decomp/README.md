@@ -4390,3 +4390,27 @@ eligible markers and heading-dependent texture sampling. 004b64e0 chooses a
 power-of-two surface from actual control dimensions; 00517760 forwards its blit.
 Those minimap routines are research evidence, not yet CPU-compared browser ports.
 Preserve their scope for the next integration rather than crediting the exports.
+
+## Moving-person render interpolation
+
+`0046f080`/`0046f850` interpolate from current position minus signed displacement;
+body height adds support height, shadows query ground at the interpolated point.
+`004ed700` stamps the completed person controller, while `0049c9f0` supplies the
+old measured turn/frame ratio. The new native checker compares 1,024 body/shadow
+queue pairs and four post-controller stamps; projection, shadow height and the
+stamp test's person-controller consumer are supplied. Fractional browser coordinates
+intentionally retain precision (within one native unit of integer truncation);
+814 integral cases are exact. Existing cell/displacement checks still cover 8,192
+sequential operations. The manifest now hashes 972 exports.
+
+```
+.tools/decomp/oracle/bin/python scripts/check-native-unit-interpolation.py /path/to/d3dpoptb.exe
+node scripts/check-browser-unit-motion.mjs
+```
+
+`app/unit-motion.ts` supplies continuous turn-endpoint presentation without changing
+the simulation, RNG or native sprite records. Original flag/writer ownership and
+the complete outer scheduler remain partial; elapsed time replaces the legacy FPS
+estimate. [Findings and boundaries](../references/reverse-engineering.md#person-render-position-interpolation--2026-09-09)
+and [desktop measurements](../references/modern-performance.md) describe the live
+integration and its explicit presentation delay.

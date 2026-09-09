@@ -1,7 +1,7 @@
-import { tick, type World } from './model.ts'
+import { tick, type World, type TurnObserver } from './model.ts'
 import { animateLiveObjects } from './live-people.ts'
 
-export interface GameClock {
+export interface GameClock extends TurnObserver {
   animationTime: number
   animationFrame: number
 }
@@ -15,7 +15,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
   const interval = 1 / 24
   while (seconds > 0) {
     const elapsed = Math.min(seconds, interval - clock.animationTime)
-    tick(w, elapsed * w.speed)
+    tick(w, elapsed * w.speed, clock)
     seconds = Math.max(0, seconds - elapsed)
     clock.animationTime += elapsed
     if (clock.animationTime + 1e-9 >= interval) {

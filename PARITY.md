@@ -10,7 +10,7 @@
 
 Newly verified: 0. Reopened: 0.
 
-Retained painter centers and model-anchor culling preserve depth slots, pixels, picking and native overlap/sprite checks; paired Metal profiles reduce median JS frame cost 11-19%, with remaining stutter and parity limits documented.
+Native-checked unit interpolation and modern high-refresh presentation; gameplay state unchanged, paired Metal cost recorded, complete interpolation ownership still partial.
 
 **Tracking blind spots: 48 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
@@ -117,6 +117,7 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-09T16:58:20.903Z | 4 | 21.12% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Cover exposed wide-screen sky background while preserving native cloud scale and world projection; no extra native parity credit |
 | 2026-09-09T17:26:04.623Z | 4 | 21.12% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Make cloud wind and half-heading parallax frame-independent using camera-step snapshots and fractional presentation; modern timing correction without new native parity credit |
 | 2026-09-09T17:46:53.432Z | 4 | 21.12% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Retained painter centers and model-anchor culling preserve depth slots, pixels, picking and native overlap/sprite checks; paired Metal profiles reduce median JS frame cost 11-19%, with remaining stutter and parity limits documented. |
+| 2026-09-09T18:34:35.042Z | 4 | 21.12% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Native-checked unit interpolation and modern high-refresh presentation; gameplay state unchanged, paired Metal cost recorded, complete interpolation ownership still partial. |
 
 ## Update workflow
 
@@ -148,7 +149,7 @@ Scope changes require a new checklist revision. Scores across different revision
   - **partial** — Complete action-to-sprite state ownership (`graphics.sprites.states`). Remaining action and scheduling ownership is not verified. Evidence: [app/live-people.ts](app/live-people.ts), [references/reverse-engineering.md](references/reverse-engineering.md).
   - **missing** — Remaining tribes and unit-class sprite variants (`graphics.sprites.roster`). Complete original roster has not been compared and integrated.
   - **missing** — Ghost, invisibility and special sprite blending (`graphics.sprites.ghosts`). Special blend ownership is not complete.
-  - **partial** — Original presentation-position interpolation (`graphics.sprites.interpolation`). Live movement is adapted; complete original interpolation is unverified. Evidence: [app/scene.ts](app/scene.ts).
+  - **partial** — Original presentation-position interpolation (`graphics.sprites.interpolation`). Native body/shadow interpolation curve and controller stamp checked against the executable; live elapsed-time turn snapshots, moving shadows and displayed-body selection verified at 5–240 Hz. Complete per-class flags, displacement writers, support-height and outer counter scheduling remain partial. Evidence: [app/unit-motion.ts](app/unit-motion.ts), [app/scene.ts](app/scene.ts), [scripts/check-native-unit-interpolation.py](scripts/check-native-unit-interpolation.py), [scripts/check-browser-unit-motion.mjs](scripts/check-browser-unit-motion.mjs), [tests/fixtures/unit-interpolation.json](tests/fixtures/unit-interpolation.json), [references/modern-performance.md](references/modern-performance.md).
 - **partial** — All animation transitions and presentation timing (`graphics.animation`). **1/3 requirements verified; each earns 0.35 percentage points overall.** Native setters/updaters and celebrations compared; remaining states and scheduling open. Evidence: [scripts/check-native-animation.py](scripts/check-native-animation.py), [scripts/check-browser-celebration.mjs](scripts/check-browser-celebration.mjs).
   - **verified** — Original celebration poses and visible playback (`graphics.animation.celebration`). Native animation setters and celebration browser behavior are compared. Evidence: [scripts/check-browser-celebration.mjs](scripts/check-browser-celebration.mjs), [scripts/check-native-animation.py](scripts/check-native-animation.py).
   - **partial** — Complete animation state transitions (`graphics.animation.states`). Remaining transition owners and states need integration. Evidence: [scripts/check-native-animation.py](scripts/check-native-animation.py), [app/live-people.ts](app/live-people.ts).

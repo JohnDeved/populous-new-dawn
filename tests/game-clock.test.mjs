@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, command, tick, cast, placeBuilding, addUnit } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
+import { UnitMotion } from '../app/unit-motion.ts'
 
 const schedules = [
   ...[5, 30, 60, 120, 144, 240].map(hz => [1 / hz]),
@@ -17,9 +18,15 @@ function advance(w, clock, seconds, schedule) {
 test('render cadence cannot change gameplay, RNG or owned animation state', () => {
   for (const scenario of ['movement', 'celebration', 'construction', 'blast', 'combat'])
     for (const speed of [0.25, 1, 2]) {
-      const results = schedules.map(schedule => {
+      const results = schedules.map((schedule, index) => {
         const w = createWorld(),
           clock = { animationTime: 0, animationFrame: 0 }
+        // The first schedule is the unchanged simulation; all others observe turns.
+        if (index) {
+          const motion = new UnitMotion()
+          clock.beforeTurn = () => motion.beforeTurn(w)
+          clock.afterTurn = () => motion.afterTurn(w)
+        }
         w.speed = speed
         if (scenario === 'celebration') {
           w.units = w.units.filter(u => u.team === 'blue')

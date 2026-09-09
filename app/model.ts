@@ -3709,7 +3709,11 @@ export function manaRate(w: World) {
     1000
   )
 }
-export function tick(w: World, dt: number) {
+export interface TurnObserver {
+  beforeTurn?: () => void
+  afterTurn?: () => void
+}
+export function tick(w: World, dt: number, observer?: TurnObserver) {
   if (w.paused) return
   if (!Number.isFinite(dt) || dt < 0)
     throw new RangeError('Simulation delta must be finite and nonnegative')
@@ -3719,7 +3723,9 @@ export function tick(w: World, dt: number) {
   while (w.pendingTime + 1e-9 >= 1 / TURNS_PER_SECOND) {
     w.pendingTime = Math.max(0, w.pendingTime - 1 / TURNS_PER_SECOND)
     if (w.pendingTime < 1e-9) w.pendingTime = 0
+    observer?.beforeTurn?.()
     stepTurn(w)
+    observer?.afterTurn?.()
   }
 }
 function entranceWood(w: World, b: Building) {

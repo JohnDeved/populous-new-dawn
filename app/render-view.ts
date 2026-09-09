@@ -32,6 +32,7 @@ uniform ivec2 nativeRawCenter;
 uniform float nativeModelScale;
 uniform float nativeObjectScale;
 uniform float nativeRelative;
+uniform vec4 nativeCellAnchor;
 uniform float nativeMode;
 varying vec2 nativeCell;
 int nativeMul(int a,int b){return int(uint(a)*uint(b));}
@@ -96,6 +97,7 @@ vec4 nativePosition(vec3 position){
   p+=origin;
   nativeCell=nativeCellPoint(modelMatrix[3].xyz);
  }else nativeCell=nativeCellPoint(world);
+ if(nativeCellAnchor.w>0.)nativeCell=nativeCellPoint(nativeCellAnchor.xyz);
  vec4 projected=nativeProject(p);
  if(nativeMode>0.&&nativePainterRange.x>=0){
   int slot=nativePainterRange.x+(nativePainterSprite>0.?0:gl_VertexID/3);
@@ -445,6 +447,8 @@ export class RenderView {
         local.nativeObjectScale.value =
           object.userData.nativeSize ?? object.userData.nativeScale ?? 0
         local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
+        const cell = object.parent?.userData.cellPosition
+        local.nativeCellAnchor.value.set(cell?.x ?? 0, 0, cell?.z ?? 0, cell ? 1 : 0)
         local.nativeObjectBasis.value.set(
           modelMatrix(
             object.parent?.userData.nativeHeading ?? 0,
@@ -462,6 +466,7 @@ export class RenderView {
           nativeModelScale: { value: object.userData.nativeScale ?? 0 },
           nativeObjectScale: { value: object.userData.nativeScale ?? 0 },
           nativeRelative: { value: object.userData.nativeRelative ? 1 : 0 },
+          nativeCellAnchor: { value: new THREE.Vector4() },
           nativeObjectBasis: { value: new Int32Array(modelMatrix(0)) },
         }
         material.userData.nativeUniforms = local
