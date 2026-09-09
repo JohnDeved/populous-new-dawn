@@ -795,3 +795,52 @@ performance and 4K frame budgets are not established by these headed development
 runs. The 4K checks above establish output equivalence only. Painter traversal and
 sorting, transparent sprite submission, larger effect/terrain-rebuild workloads,
 wide-screen terrain clipping and the remaining modernization audit stay open.
+
+## Ground draw-region diagnosis (2026-09-09)
+
+The remaining sawtooth terrain/sky edge is reproducible independently of the
+sky material, HUD, lighting and sprites. `check-browser-ground-coverage.mjs`
+clones the live first-level terrain into a black scene with an opaque white
+material. It retains the native GPU projection hook, front-face culling, real
+terrain heights, indexed cell selection, nine wrapped instances and painter.
+The ordinary ground view is compared with the same quadrilateral widened
+by 16 and 32 cells on each side. Near/far distances and all projection parameters
+are unchanged. These expansions are **diagnostics, not a shipped correction**.
+
+64 cases cover four CSS resolutions, eight headings and two camera centers,
+including a toroidal seam. Both expansions preserve every baseline covered
+pixel at the 50% multisample threshold. Their footprints converge within one
+pixel across the matrix. At the opening center and heading on 3440×1440, the
+16-cell expansion restores 120,316 terrain pixels. It submits 109,296 ground
+triangles versus 66,096 before (+65.4%); 32 cells submit 152,496 with the same
+footprint in this pose. A single instanced draw still processes nine copies of
+each selected cell, even though most copies are rejected later.
+
+| CSS viewport | Added terrain pixels, 16-cell expansion (range across 16 poses) |
+| --- | ---: |
+| 740×480 (640 px battlefield) | 0 |
+| 1920×1080 | 3–782 |
+| 3440×1440 | 103,630–133,018 |
+| 3840×2160 | 191,287–236,906 |
+
+[Raw coverage and submission counts](performance/2026-09-09-ground-coverage.json)
+record the baseline source commit. Reproduce with
+`node scripts/check-browser-ground-coverage.mjs [output.json]`; the default writes
+to `/private/tmp` so rerunning cannot silently replace historical evidence.
+No GPU-time, CPU-time or FPS result is inferred from these counts. The isolated
+mask deliberately does not compare terrain color, object occlusion or picking.
+
+The native normal-land caller `0046d070` invokes `0046d970` before `0046e930`:
+shared left/right/bottom rejection and positive projected winding. The browser
+terrain material already uses GPU front-face culling. Missing CPU execution of
+that leaf alone therefore does not establish missing raster winding rejection.
+Native special-land mode (level flag 8), full original ground queue ownership and
+near-plane/far-range handling still need separate verification.
+
+Next: derive a viewport-dependent visible footprint, reduce the repeated wrapped
+terrain submissions, then check ground, models, sprites and picking together.
+Retain the fixed-region reference for differential checks. Do not multiply both
+polygon axes: the earlier experiment produced invalid near-camera strips.
+Normal-view lateral convergence does not certify close/bird views, transitions,
+all terrain heights or projection overflow. The terrain correction remains open;
+this diagnostic earns no new parity percentage and changes no shipped assets.

@@ -1,0 +1,2695 @@
+{
+  "date": "2026-09-09T19:49:22.239Z",
+  "commit": "d26eaf8d7af1a846fd3af20fe8ab71393afbcce1",
+  "scope": "Normal ground view only; isolated white terrain through live native shaders. Expanded bounds are diagnostic, not shipped. Triangle counts measure submitted work, not GPU time or FPS.",
+  "cases": [
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 206318,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 205132,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 202581,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 202691,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 202774,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 202629,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 202388,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 203140,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202467,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202620,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202669,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202720,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202725,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1394,
+          "calls": 1,
+          "triangles": 25092
+        },
+        {
+          "padding": 16,
+          "cells": 3186,
+          "calls": 1,
+          "triangles": 57348
+        },
+        {
+          "padding": 32,
+          "cells": 4978,
+          "calls": 1,
+          "triangles": 89604
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202761,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202861,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1437,
+          "calls": 1,
+          "triangles": 25866
+        },
+        {
+          "padding": 16,
+          "cells": 3197,
+          "calls": 1,
+          "triangles": 57546
+        },
+        {
+          "padding": 32,
+          "cells": 4957,
+          "calls": 1,
+          "triangles": 89226
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 740,
+      "height": 480,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 202553,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 1408,
+          "calls": 1,
+          "triangles": 25344
+        },
+        {
+          "padding": 16,
+          "cells": 3202,
+          "calls": 1,
+          "triangles": 57636
+        },
+        {
+          "padding": 32,
+          "cells": 4996,
+          "calls": 1,
+          "triangles": 89928
+        }
+      ],
+      "padding16": {
+        "added": 0,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 0,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1165087,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 6,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 6,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1172019,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 178,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 178,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1160745,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 13,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 13,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1160583,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 82,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 82,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1160538,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 8,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 8,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1160867,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 34,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 34,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1160550,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 31,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 31,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 1170595,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 782,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 782,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160510,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 15,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 15,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160433,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 4,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 4,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160739,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 26,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 26,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160506,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 188,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 188,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160231,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 84,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 84,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160637,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 66,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 66,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160222,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 3,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 3,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 1160304,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 51,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 51,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2186364,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 120316,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 120316,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2203007,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 110903,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 110903,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2195366,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 133018,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 133018,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2173561,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 128908,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 128908,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2170223,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 132168,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 132168,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2173292,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 129391,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 129391,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2196294,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 129539,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 129539,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 2193406,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 119640,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 119640,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2181232,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 120653,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 120653,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2192373,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 109516,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 109516,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2198423,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 103876,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 103876,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2172594,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 129444,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 129444,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2171190,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 131098,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 131098,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2174428,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 127660,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 127660,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2198167,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 103630,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 103630,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 2184502,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 117258,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 117259,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 1,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 0,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3509382,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 218890,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 218890,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 256,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3533510,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 202213,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 202213,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 512,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3528059,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 236906,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 236906,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 768,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3495134,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 229187,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 229187,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1024,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3492952,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 231049,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 231049,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1280,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3491959,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 232509,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 232509,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1536,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3529287,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 233839,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 233839,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1792,
+      "center": {
+        "x": 2,
+        "z": 30
+      },
+      "nativePixels": 3522410,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 212668,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 212668,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 0,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3503982,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 219806,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 219806,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 256,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3522758,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 200929,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 200929,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 512,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3530858,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 193173,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 193173,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 768,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3493344,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 230540,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 230540,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1024,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3494475,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3672,
+          "calls": 1,
+          "triangles": 66096
+        },
+        {
+          "padding": 16,
+          "cells": 6072,
+          "calls": 1,
+          "triangles": 109296
+        },
+        {
+          "padding": 32,
+          "cells": 8472,
+          "calls": 1,
+          "triangles": 152496
+        }
+      ],
+      "padding16": {
+        "added": 229542,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 229542,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1280,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3494954,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 229151,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 229151,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1536,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3532318,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3716,
+          "calls": 1,
+          "triangles": 66888
+        },
+        {
+          "padding": 16,
+          "cells": 6084,
+          "calls": 1,
+          "triangles": 109512
+        },
+        {
+          "padding": 32,
+          "cells": 8451,
+          "calls": 1,
+          "triangles": 152118
+        }
+      ],
+      "padding16": {
+        "added": 191287,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 191287,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 0,
+        "removed": 0
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "heading": 1792,
+      "center": {
+        "x": 126,
+        "z": -126
+      },
+      "nativePixels": 3512401,
+      "draws": [
+        {
+          "padding": 0,
+          "cells": 3649,
+          "calls": 1,
+          "triangles": 65682
+        },
+        {
+          "padding": 16,
+          "cells": 6164,
+          "calls": 1,
+          "triangles": 110952
+        },
+        {
+          "padding": 32,
+          "cells": 8433,
+          "calls": 1,
+          "triangles": 151794
+        }
+      ],
+      "padding16": {
+        "added": 211260,
+        "removed": 0
+      },
+      "padding32": {
+        "added": 211261,
+        "removed": 0
+      },
+      "convergence": {
+        "added": 1,
+        "removed": 0
+      }
+    }
+  ]
+}
