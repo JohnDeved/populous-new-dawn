@@ -1,0 +1,55 @@
+diff --git a/app/render-view.ts b/app/render-view.ts
+index 8941565..a15d473 100644
+--- a/app/render-view.ts
++++ b/app/render-view.ts
+@@ -89,6 +89,28 @@ ivec3 nativeOrigin(vec3 world){
+  return ivec3(relative.x,int(round(world.y*128.)),relative.y);
+ }
+ vec4 nativePosition(vec3 position){
++ // The painter already rejects invisible triangles. Skip their transforms and
++ // integer curved-world projection; every vertex in a face shares this slot.
++ float polygonDepth=0.;
++ bool ordered=false;
++ #ifdef NATIVE_HEALTH_INSTANCES
++ if(nativeMode>0.){
++  int slot=int(nativeHealthSlot)+gl_VertexID/3;
++  polygonDepth=texelFetch(nativePainter,ivec2(slot%1024,slot/1024),0).r;
++  ordered=true;
++ }
++ #else
++ if(nativeMode>0.&&nativePainterRange.x>=0){
++  int slot=nativePainterRange.x+(nativePainterSprite>0.?0:gl_VertexID/3);
++  #ifdef USE_INSTANCING
++  slot+=gl_InstanceID*nativePainterRange.y;
++  #endif
++  polygonDepth=texelFetch(nativePainter,ivec2(slot%1024,slot/1024),0).r;
++  ordered=true;
++ }
++ #endif
++ if(ordered&&polygonDepth>1.)return vec4(0.,0.,2.,1.);
++
+  vec3 world=(modelMatrix*vec4(position,1.)).xyz;
+  #ifdef USE_INSTANCING
+  world=(modelMatrix*instanceMatrix*vec4(position,1.)).xyz;
+@@ -107,20 +129,7 @@ vec4 nativePosition(vec3 position){
+  nativeCell=nativeCellPoint(vec3(nativeHealthCell.x,0.,nativeHealthCell.y));
+  #endif
+  vec4 projected=nativeProject(p);
+- #ifdef NATIVE_HEALTH_INSTANCES
+- if(nativeMode>0.){
+-  int slot=int(nativeHealthSlot)+gl_VertexID/3;
+-  projected.z=texelFetch(nativePainter,ivec2(slot%1024,slot/1024),0).r*2.-1.;
+- }
+- #else
+- if(nativeMode>0.&&nativePainterRange.x>=0){
+-  int slot=nativePainterRange.x+(nativePainterSprite>0.?0:gl_VertexID/3);
+-  #ifdef USE_INSTANCING
+-  slot+=gl_InstanceID*nativePainterRange.y;
+-  #endif
+-  projected.z=texelFetch(nativePainter,ivec2(slot%1024,slot/1024),0).r*2.-1.;
+- }
+- #endif
++ if(ordered)projected.z=polygonDepth*2.-1.;
+  return projected;
+ }
+ `

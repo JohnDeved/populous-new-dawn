@@ -10,7 +10,7 @@ experienced-player expectations while improving performance and presentation.
 | --- | --- | --- |
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
 | High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Unit bodies, shadows and hit targets now follow fractional turn positions, checked at 5–240 Hz; full native displacement ownership remains partial. Flybys, globe motion, transitions and result cameras still need smoothing. |
-| Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
+| Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans and omission of unused wrapped copies preserve pixels, active painter commands and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
 | Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers, per-model anchor checks and shared-corner projection preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Unit health bars now use two instanced submissions with identical checked pixels/depths, including 4K buffers and removal/reuse. Per-vertex projection, sorting, transparent sprite draw calls and wider resource lifetime remain to review. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
@@ -844,3 +844,101 @@ polygon axes: the earlier experiment produced invalid near-camera strips.
 Normal-view lateral convergence does not certify close/bird views, transitions,
 all terrain heights or projection overflow. The terrain correction remains open;
 this diagnostic earns no new parity percentage and changes no shipped assets.
+
+## Reject unused wrapped terrain copies (2026-09-09)
+
+Visible ground rows now select which of the existing nine terrain copies can
+contain a submitted cell. The 128×128 source geometry, cell index buffer, tile
+translations and their original relative order are retained. A copy with no
+visible cell is omitted before both painter traversal and GPU submission.
+Instance matrices upload only when the selected copies change. Overview bypass
+restores the original copy set; the ground renderer remains hidden during the
+actual globe view. The one unconditional nine-copy reset in the animation loop
+is removed. No shader, projection, simulation, mesh detail or draw boundary is
+changed by this optimization.
+
+The opening ground submission drops from 66,096 to 7,344 triangles (88.9%) in the
+same single instanced draw. The opening whole scene drops from 68,613 to 9,861,
+with the same 79 draw calls. A seam case keeps four copies: 29,376 ground triangles
+instead of 66,096. These are submitted-triangle reductions, not FPS percentages.
+The painter texture retains its high-water capacity after a larger frame; this
+patch makes no retained-memory reduction claim.
+
+`check-browser-terrain-copies.mjs` compares 41 frozen scenes against the actual
+previous visibility method retained from `be78f473d1358cb1d437a2c7a6c2fe7bc91484eb`.
+It verifies every RGBA byte, active painter command/depth (keyed by original
+object, tile translation and source face), three terrain/model picks per view,
+and unchanged draw calls. Cases include eight headings, both seams, close/bird
+presets, ultrawide/4K/DPR 1.8, deliberately expanded lateral bounds, deformed
+vertices, changed land flags, attribute replacement and overview bypass. Whole
+painter buffers are intentionally not compared: compacting instance slots moves
+otherwise identical commands. The portable test independently scans original
+cell visibility to verify selected tiles in 54 heading/center/expanded-bound
+combinations, plus empty bounds. All 155 portable tests and typechecking pass.
+
+Validation also passes the 392 native GPU sprite poses, Blast shadow, selection,
+indexed-terrain equivalence, water/overview and 16 health-bar batching checks. The
+production build succeeds; Fallow maintainability remains 85.8, average cyclomatic
+2.8 and p90 5. Existing lint warnings remain, with no new errors.
+
+The earlier ground-coverage diagnostic explicitly restores the original nine
+copies, preserving its historical submission-cost baseline. The hardware profiler
+adds `--compare-terrain-copies`, optionally with `--moving-orders`; it uses the
+retained old selector and alternates old/new/new/old/old/new. Its fixed-camera and
+per-run constant-ground-submission guards remain enabled.
+
+### Measured frame cost
+
+Headed Chrome 153 / ANGLE Metal / Apple M5, 1440×1000 CSS viewport, DPR 1.
+Values below are medians of three run medians/p95s per implementation. Each run
+settles for one second and measures the next four seconds of the live frame loop.
+
+| Workload | Previous CPU median / p95 | Selected-copy CPU median / p95 | Median reduction |
+| --- | ---: | ---: | ---: |
+| Frozen opening | 3.5 / 3.8 ms | 2.5 / 2.9 ms | 28.6% |
+| Rotating camera | 3.7 / 4.0 ms | 2.7 / 3.0 ms | 27.0% |
+| Frozen 200-brave crowd | 5.5 / 6.6 ms | 4.3 / 4.9 ms | 21.8% |
+| Opening with move orders | 4.4 / 7.6 ms | 3.1 / 6.0 ms | 29.5% |
+| Selected crowd with move orders | 9.0 / 12.7 ms | 7.2 / 10.8 ms | 20.0% |
+
+Draw calls remain 79/79/479/85/670 respectively. All fixed poses remain unchanged
+through each run and agree across implementations. Rotating views naturally
+sample differing headings and copy counts. Moving crowd runs all end at turn 62
+with 43 moving units; opening runs end at turn 60–62 after the short move finishes.
+The fresh-world moving fixture retains the existing React-store boundary described
+in the earlier unit-motion audit; it is not a complete campaign/UI playthrough.
+
+The moving crowd's median run p95 frame gap improves from 16.7 to 9.3 ms; other
+p95 gaps remain about 9.2–9.3 ms. New maximum gaps still reach 83.3 ms. These short
+local CPU samples do not certify sustained refresh rates, all hardware or 4K GPU
+performance. They support removing unnecessary terrain work without lowering
+visual fidelity. The visible draw-region defect remains open and no new native
+parity credit is recorded.
+
+Raw evidence: [41 exact comparisons](performance/2026-09-09-terrain-copies-equivalence.json),
+[static/camera profiles](performance/2026-09-09-terrain-copies-hardware.json),
+[moving-order profiles](performance/2026-09-09-terrain-copies-moving-hardware.json).
+
+### Rejected early shader experiment
+
+Before selecting whole terrain copies, an early GPU rejection was tested. It
+looked up the existing painter depth before transforming a vertex, returning an
+outside-clip position for rejected faces. Twenty full RGBA/depth/draw/pick cases
+were identical, including health instances and overview bypass. Headed Chrome
+153 / ANGLE Metal / Apple M5 elapsed queries at a 3440×1440 render size measured:
+
+| Frozen scene with 80 added selected braves | Old median / p95 | Early-rejection median / p95 |
+| --- | ---: | ---: |
+| Original draw region | 1.266 / 1.832 ms | 1.246 / 1.919 ms |
+| Diagnostic lateral expansion | 1.358 / 2.835 ms | 1.317 / 2.054 ms |
+
+Each group contains 30 samples after six warmup pairs, with pair order reversed
+each iteration; disjoint queries fail the experiment. Queries surround the full
+renderer call, including uploads and driver scheduling, and can include submission
+bubbles. They do not measure display FPS or isolate shader execution. The median
+improvement is small (1.6–3.0%) relative to variation, with a worse unexpanded p95.
+The extra shader branch is **not shipped**. The report and candidate patch are
+retained as `performance/2026-09-09-early-projection.{json,patch}`. Reproduce with
+`check-browser-early-projection.mjs --measure` after applying that candidate patch;
+the script refuses to run if the candidate is absent. The original measured
+terrain-copy layout is the report's baseline commit, before copy selection.

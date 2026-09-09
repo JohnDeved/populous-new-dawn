@@ -1,0 +1,866 @@
+{
+  "baseline": "be78f473d1358cb1d437a2c7a6c2fe7bc91484eb",
+  "cases": [
+    {
+      "name": "2/30 heading 0",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8516,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9861,
+        "terrainTriangles": 7344,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "2/30 heading 256",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8335,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9815,
+        "terrainTriangles": 7298,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "2/30 heading 512",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8008,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 69405,
+        "terrainTriangles": 66888,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9949,
+        "terrainTriangles": 7432,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "2/30 heading 768",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7823,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 2,
+        "calls": 79,
+        "triangles": 17113,
+        "terrainTriangles": 14596,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "2/30 heading 1024",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7938,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 2,
+        "calls": 79,
+        "triangles": 17205,
+        "terrainTriangles": 14688,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "2/30 heading 1280",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7850,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 2,
+        "calls": 79,
+        "triangles": 17113,
+        "terrainTriangles": 14596,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "2/30 heading 1536",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8007,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 69405,
+        "terrainTriangles": 66888,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9949,
+        "terrainTriangles": 7432,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "2/30 heading 2047",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8382,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 67425,
+        "terrainTriangles": 64908,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9729,
+        "terrainTriangles": 7212,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 0",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7344,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31893,
+        "terrainTriangles": 29376,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 256",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 512",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7432,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 69405,
+        "terrainTriangles": 66888,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 32245,
+        "terrainTriangles": 29728,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 768",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 1024",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7344,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31893,
+        "terrainTriangles": 29376,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 1280",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 1536",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7432,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 69405,
+        "terrainTriangles": 66888,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 32245,
+        "terrainTriangles": 29728,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "127/-127 heading 2047",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7212,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 67425,
+        "terrainTriangles": 64908,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31365,
+        "terrainTriangles": 28848,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 0",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7344,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31893,
+        "terrainTriangles": 29376,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 256",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 512",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7432,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 69405,
+        "terrainTriangles": 66888,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 32245,
+        "terrainTriangles": 29728,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 768",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 1024",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7344,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31893,
+        "terrainTriangles": 29376,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 1280",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 1536",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7432,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 69405,
+        "terrainTriangles": 66888,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 32245,
+        "terrainTriangles": 29728,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "-127/127 heading 2047",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7212,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 67425,
+        "terrainTriangles": 64908,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31365,
+        "terrainTriangles": 28848,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "preset 2 at seam",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8468,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 78729,
+        "terrainTriangles": 76212,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 36389,
+        "terrainTriangles": 33872,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "preset 3 at seam",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 2816,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 27861,
+        "terrainTriangles": 25344,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 13781,
+        "terrainTriangles": 11264,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "1920x1080 DPR 1",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8558,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9861,
+        "terrainTriangles": 7344,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "3440x1440 DPR 1",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8558,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9861,
+        "terrainTriangles": 7344,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "3840x2160 DPR 1",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8558,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9861,
+        "terrainTriangles": 7344,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "1920x1080 DPR 1.8",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 8558,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68613,
+        "terrainTriangles": 66096,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 1,
+        "calls": 79,
+        "triangles": 9861,
+        "terrainTriangles": 7344,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 2/30 heading 0",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 18158,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 155013,
+        "terrainTriangles": 152496,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 2,
+        "calls": 79,
+        "triangles": 36405,
+        "terrainTriangles": 33888,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 2/30 heading 256",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 18161,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 154311,
+        "terrainTriangles": 151794,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 69981,
+        "terrainTriangles": 67464,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 2/30 heading 512",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 17964,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 154635,
+        "terrainTriangles": 152118,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 2,
+        "calls": 79,
+        "triangles": 36321,
+        "terrainTriangles": 33804,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 2/30 heading 1024",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 17597,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 155013,
+        "terrainTriangles": 152496,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 3,
+        "calls": 79,
+        "triangles": 53349,
+        "terrainTriangles": 50832,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 127/-127 heading 0",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 17454,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 155013,
+        "terrainTriangles": 152496,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 70293,
+        "terrainTriangles": 67776,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 127/-127 heading 256",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 16866,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 154311,
+        "terrainTriangles": 151794,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 69981,
+        "terrainTriangles": 67464,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 127/-127 heading 512",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 16904,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 154635,
+        "terrainTriangles": 152118,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 70125,
+        "terrainTriangles": 67608,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "expanded 127/-127 heading 1024",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 17247,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 155013,
+        "terrainTriangles": 152496,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 70293,
+        "terrainTriangles": 67776,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "deformed terrain and raised flags",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "replacement geometry attribute",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 7298,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 68199,
+        "terrainTriangles": 65682,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 4,
+        "calls": 79,
+        "triangles": 31709,
+        "terrainTriangles": 29192,
+        "painterBytes": 1191936
+      }
+    },
+    {
+      "name": "overview bypass restores original copies",
+      "changedBytes": 0,
+      "sameCommands": true,
+      "samePicks": true,
+      "commands": 0,
+      "before": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 297429,
+        "terrainTriangles": 294912,
+        "painterBytes": 1191936
+      },
+      "after": {
+        "copies": 9,
+        "calls": 79,
+        "triangles": 297429,
+        "terrainTriangles": 294912,
+        "painterBytes": 1191936
+      }
+    }
+  ]
+}

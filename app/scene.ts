@@ -1,3 +1,4 @@
+import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import { minimapPick } from './minimap.ts'
@@ -669,14 +670,8 @@ export class GameScene {
       }),
       9
     )
-    const tiles = [
-      [0, 0],
-      ...[-256, 0, 256].flatMap(x =>
-        [-256, 0, 256].filter(z => x !== 0 || z !== 0).map(z => [x, z])
-      ),
-    ]
-    tiles.forEach(([x, z], i) =>
-      this.terrain.setMatrixAt(i, new THREE.Matrix4().makeTranslation(x, 0, z))
+    terrainTiles.forEach(([x, z], i) =>
+      this.terrain.setMatrixAt(i, new THREE.Matrix4().makeTranslation(x * 256, 0, z * 256))
     )
     this.terrain.userData.nativeRelative = true
     this.terrain.userData.painterGround = true
@@ -2549,7 +2544,6 @@ export class GameScene {
         }
       })
     }
-    this.terrain.count = 9
     this.updateWater()
     this.ground.visible = !this.overviewActive
     this.globe.visible = this.overviewActive

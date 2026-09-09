@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
 import { HealthBars } from './health-bars.ts'
-import { visibleTerrainCells } from './terrain-visibility.ts'
+import { visibleTerrainCells, visibleTerrainCopies, terrainTiles } from './terrain-visibility.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
   cameraConfig,
@@ -405,6 +405,25 @@ export class RenderView {
   }
   updateTerrainVisibility(object: THREE.Object3D) {
     if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return
+    if (object instanceof THREE.InstancedMesh) {
+      const tiles = this.overview
+          ? terrainTiles
+          : visibleTerrainCopies(this.bounds, this.rawCenter),
+        matrices = object.instanceMatrix.array
+      if (
+        object.count !== tiles.length ||
+        tiles.some(
+          ([x, z], i) => matrices[i * 16 + 12] !== x * 256 || matrices[i * 16 + 14] !== z * 256
+        )
+      ) {
+        const matrix = new THREE.Matrix4()
+        tiles.forEach(([x, z], i) =>
+          object.setMatrixAt(i, matrix.makeTranslation(x * 256, 0, z * 256))
+        )
+        object.instanceMatrix.needsUpdate = true
+        object.count = tiles.length
+      }
+    }
     const geometry = object.geometry,
       vertices = geometry.getAttribute('position').count
     if (!geometry.index) geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(vertices), 1))

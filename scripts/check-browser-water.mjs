@@ -188,7 +188,7 @@ try {
   await page.evaluate(() => window.testScene.focus())
   await page.waitForFunction(() => {
     const s = window.testScene
-    return !s.overviewActive && !s.overviewStage && s.ground.visible && !s.globe.visible && s.terrain.count === 9
+    return !s.overviewActive && !s.overviewStage && s.ground.visible && !s.globe.visible && s.terrain.count > 0
   })
   assert.deepEqual(errors, [])
   console.log(

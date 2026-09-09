@@ -10,19 +10,24 @@ import {
   painterBaselineCommit,
 } from './painter-baseline.mjs'
 
+import { prepareTerrainCopiesBaseline, installTerrainCopiesBaseline, terrainCopiesBaseline } from './terrain-copies-baseline.mjs'
+
 const headed = process.argv.includes('--headed')
+const compareTerrainCopies = process.argv.includes('--compare-terrain-copies')
 const comparePainter = process.argv.includes('--compare-painter')
 const compareUnitMotion = process.argv.includes('--compare-unit-motion')
 const compareHealthBars = process.argv.includes('--compare-health-bars')
 const movingOrders = process.argv.includes('--moving-orders')
 const movingProfile = compareUnitMotion || compareHealthBars || movingOrders
-assert.ok(!movingOrders || comparePainter, '--moving-orders requires --compare-painter')
+assert.ok(!movingOrders || comparePainter || compareTerrainCopies, '--moving-orders requires a painter or terrain comparison')
+if (compareTerrainCopies) prepareTerrainCopiesBaseline()
 if (comparePainter) preparePainterBaseline()
 const browser = await chromium.launch({ headless: !headed })
 try {
   const { page, errors } = await openGame(browser),
     cdp = await page.context().newCDPSession(page)
   if (comparePainter) await installPainterBaseline(page)
+  if (compareTerrainCopies) await installTerrainCopiesBaseline(page)
   if (movingProfile)
     await page.evaluate(async () => {
       const s = window.testScene,
@@ -60,7 +65,7 @@ try {
   const compareCamera = process.argv.includes('--compare-camera')
   const compareSky = process.argv.includes('--compare-sky')
   assert.ok(
-    [compareSky, compareCamera, comparePainter, compareUnitMotion, compareHealthBars].filter(
+    [compareSky, compareCamera, comparePainter, compareUnitMotion, compareHealthBars, compareTerrainCopies].filter(
       Boolean
     ).length <= 1,
     'Compare one presentation change at a time'
@@ -129,7 +134,7 @@ try {
   let crowdAdded = false
   const scenarios = movingProfile
     ? ['opening', 'crowd'].flatMap(s => Array(6).fill(s))
-    : comparePainter
+    : comparePainter || compareTerrainCopies
       ? ['opening', 'camera', 'crowd'].flatMap(s => Array(6).fill(s))
       : compareSky
         ? Array(6).fill('opening')
@@ -170,6 +175,11 @@ try {
       : true
     if (comparePainter)
       await page.evaluate(optimized => window.selectPainter(optimized), optimizedPainter)
+    const compactTerrain = compareTerrainCopies
+      ? [false, true, true, false, false, true][index % 6]
+      : true
+    if (compareTerrainCopies)
+      await page.evaluate(optimized => window.selectTerrainCopies(optimized), compactTerrain)
     const coveredSky = compareSky ? [false, true, true, false, false, true][index] : true
     if (compareSky)
       await page.evaluate(covered => {
@@ -182,7 +192,7 @@ try {
     const smoothCamera = compareCamera
       ? [false, true, true, false, false, true][index]
       : !steppedCamera
-    if (compareCamera || (comparePainter && !movingProfile))
+    if (compareCamera || ((comparePainter || compareTerrainCopies) && !movingProfile))
       await page.evaluate(smooth => {
         const s = window.testScene
         s.previewCamera = smooth ? window.originalCameraPreview : () => false
@@ -245,7 +255,7 @@ try {
       }))
     assert.ok(data.frames.length > 5, 'Render loop stopped')
     const landTriangles = [...new Set(data.frames.map(f => f.landTriangles))]
-    if (scenario !== 'camera' && (comparePainter || movingProfile)) {
+    if (scenario !== 'camera' && (comparePainter || compareTerrainCopies || movingProfile)) {
       assert.deepEqual(
         data.endPose,
         startPose,
@@ -273,6 +283,7 @@ try {
       smoothCamera,
       coveredSky,
       optimizedPainter,
+      compactTerrain,
       smoothUnits,
       batchedHealth,
       ...data,
@@ -314,6 +325,8 @@ try {
     compareCamera,
     compareSky,
     comparePainter,
+    compareTerrainCopies,
+    terrainCopiesBaseline: compareTerrainCopies ? terrainCopiesBaseline : undefined,
     compareUnitMotion,
     compareHealthBars,
     movingOrders,

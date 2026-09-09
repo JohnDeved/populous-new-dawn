@@ -7,10 +7,15 @@ import { execFileSync } from 'node:child_process'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 
+import { prepareTerrainCopiesBaseline, installTerrainCopiesBaseline } from './terrain-copies-baseline.mjs'
+
+prepareTerrainCopiesBaseline()
 const browser = await chromium.launch({ headless: true })
 const cases = []
 try {
   const { page, errors } = await openGame(browser)
+  await installTerrainCopiesBaseline(page)
+  await page.evaluate(() => window.selectTerrainCopies(false))
   await page.evaluate(() => {
     const s = window.testScene
     s.world.speed = 0
@@ -86,7 +91,7 @@ try {
 const report = {
   date: new Date().toISOString(),
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-  scope: 'Normal ground view only; isolated white terrain through live native shaders. Expanded bounds are diagnostic, not shipped. Triangle counts measure submitted work, not GPU time or FPS.',
+  scope: 'Normal ground view only; isolated white terrain through live native shaders. Original nine terrain copies retained. Expanded bounds are diagnostic, not shipped. Triangle counts measure submitted work, not GPU time or FPS.',
   cases,
 }
 const output = process.argv[2] ?? '/private/tmp/populous-ground-coverage.json'
