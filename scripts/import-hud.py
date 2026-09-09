@@ -28,6 +28,8 @@ for font in [3,4,5,6,7]:
         entries[f'f00t{font}-{i}']=glyph
 # 0x41d730: original world-view building, occupant and discovery icons.
 entries.update({str(i):bank[i] for i in [*range(0x74,0xaa),0x434,0x43b]})
+# 0x4202d0/0x5255b0: minimap discoveries and filled/outline shaman circles.
+entries.update({str(i):bank[i] for i in [59,*range(1500,1538)]})
 width=1024;x=y=row=0;rects={}
 for key,(w,h,_) in entries.items():
     assert w<=width

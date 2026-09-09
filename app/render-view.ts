@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
+import { visibleTerrainCells } from './terrain-visibility.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
   cameraConfig,
@@ -295,6 +296,7 @@ export class RenderView {
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || !object.visible) return
         object.updateWorldMatrix(true, false)
+        this.updateTerrainVisibility(object)
         const geometry = object.geometry,
           position = geometry.getAttribute('position'),
           index = geometry.getIndex()
@@ -329,7 +331,10 @@ export class RenderView {
               object.parent?.userData.nativeRoll ?? 0
             ),
             unwrapped = !!object.userData.nativeRelative
-          for (let i = 0; i < position.count; i++) {
+          const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
+          for (let vertex = 0; vertex < count; vertex++) {
+            const i = index ? index.getX(vertex) : vertex
+            if (screen[i]) continue
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
             if (scale) {
               const raw = [
@@ -344,10 +349,9 @@ export class RenderView {
               })
               p = new THREE.Vector3(q.x, q.y, -q.z).multiplyScalar(1 / 128).add(origin)
             } else p.applyMatrix4(transform)
-            world.push(p)
-            screen.push(this.screen(p, camera, unwrapped))
+            world[i] = p
+            screen[i] = this.screen(p, camera, unwrapped)
           }
-          const count = index ? index.count : position.count
           for (let i = 0; i < count; i += 3) {
             const ids = index
               ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
@@ -366,7 +370,7 @@ export class RenderView {
               t = 1 - u - v
             if (u < 0 || v < 0 || t < 0) continue
             const depth =
-              (!this.overview ? this.painter.depth(object, i / 3, instance) : null) ??
+              (!this.overview ? this.painter.depth(object, ids[0] / 3, instance) : null) ??
               u * a.z + v * b.z + t * c.z
             if (depth < -1 || depth > 1 || (best && depth >= best.depth)) continue
             const weights = [u / a.w, v / b.w, t / c.w],
@@ -381,8 +385,24 @@ export class RenderView {
       })
     return best as { point: { x: number; z: number }; object: THREE.Object3D; depth: number } | null
   }
+  updateTerrainVisibility(object: THREE.Object3D) {
+    if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return
+    const geometry = object.geometry,
+      vertices = geometry.getAttribute('position').count
+    if (!geometry.index) geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(vertices), 1))
+    const index = geometry.index!,
+      cells = this.overview ? null : visibleTerrainCells(this.bounds, this.rawCenter)
+    let count = 0
+    for (let cell = 0; cell < vertices / 6; cell++) {
+      if (cells && !cells[cell]) continue
+      for (let vertex = cell * 6; vertex < cell * 6 + 6; vertex++) index.setX(count++, vertex)
+    }
+    index.needsUpdate = true
+    geometry.setDrawRange(0, count)
+  }
   prepare(scene: THREE.Scene) {
     scene.onBeforeRender = renderer => {
+      scene.traverseVisible(object => this.updateTerrainVisibility(object))
       if (!this.overview) this.painter.update(scene, renderer)
     }
     scene.onAfterRender = () => this.painter.afterRender()
@@ -397,7 +417,7 @@ export class RenderView {
       )
         return
       object.frustumCulled = false
-      if (object instanceof THREE.Mesh && object.geometry.index) {
+      if (object instanceof THREE.Mesh && object.geometry.index && !object.userData.terrainGrid) {
         const indexed = object.geometry
         object.geometry = indexed.toNonIndexed()
         indexed.dispose()

@@ -1,0 +1,282 @@
+{
+  "date": "2026-09-09T16:00:07.677Z",
+  "fullTerrain": false,
+  "runtime": "v24.18.0",
+  "cpu": "Apple M5",
+  "os": "darwin",
+  "arch": "arm64",
+  "mode": "Headless Chromium, 1 second settling and 4 second CPU sample per scenario; crowd adds 200 stationary braves for renderer stress",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "pixelRatio": 1,
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+  "runs": [
+    {
+      "scenario": "opening",
+      "units": 15,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "frameCount": 121,
+      "frameGapMs": {
+        "p50": 33.30000000000109,
+        "p95": 33.400000000001455,
+        "max": 183.29999999999927
+      },
+      "cpuFrameMs": {
+        "p50": 6.299999952316284,
+        "p95": 9.900000095367432
+      },
+      "drawCalls": 86,
+      "triangles": 68627,
+      "heapBytes": 89161684,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3186.351
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 231.712
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 87.877
+        },
+        {
+          "name": "updateWater app/scene.ts:1337",
+          "ms": 85.211
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 66.958
+        },
+        {
+          "name": "texSubImage2D :0",
+          "ms": 37.548
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 35.182
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 34.467
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 27.532
+        },
+        {
+          "name": "waterPoint app/water.ts:12",
+          "ms": 24.139
+        },
+        {
+          "name": "scene.onBeforeRender app/render-view.ts:348",
+          "ms": 19.923
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 18.051
+        },
+        {
+          "name": "fromBufferAttribute http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4894",
+          "ms": 17.647
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 16.491
+        },
+        {
+          "name": "add http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4166",
+          "ms": 13.546
+        },
+        {
+          "name": "projectPoint app/projection.ts:364",
+          "ms": 13.521
+        }
+      ]
+    },
+    {
+      "scenario": "camera",
+      "units": 15,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "frameCount": 125,
+      "frameGapMs": {
+        "p50": 33.30000000000109,
+        "p95": 33.400000000001455,
+        "max": 83.39999999999964
+      },
+      "cpuFrameMs": {
+        "p50": 7.1000001430511475,
+        "p95": 11.200000047683716
+      },
+      "drawCalls": 79,
+      "triangles": 69135,
+      "heapBytes": 84165020,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3109.433
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 238.564
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 124.544
+        },
+        {
+          "name": "updateWater app/scene.ts:1337",
+          "ms": 91.086
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 46.819
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 45.115
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 43.588
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 38.672
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 31.374
+        },
+        {
+          "name": "waterPoint app/water.ts:12",
+          "ms": 29.94
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 28.268
+        },
+        {
+          "name": "add http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4166",
+          "ms": 28.092
+        },
+        {
+          "name": "fromBufferAttribute http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4894",
+          "ms": 22.277
+        },
+        {
+          "name": "(garbage collector) :0",
+          "ms": 14.613
+        },
+        {
+          "name": "cellObjectOrder app/object-cells.ts:50",
+          "ms": 9.322
+        },
+        {
+          "name": "multiplyScalar http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4265",
+          "ms": 9.07
+        }
+      ]
+    },
+    {
+      "scenario": "crowd",
+      "units": 215,
+      "memory": {
+        "geometries": 49,
+        "textures": 11
+      },
+      "programs": 6,
+      "frameCount": 110,
+      "frameGapMs": {
+        "p50": 33.39999999999782,
+        "p95": 50,
+        "max": 83.39999999999782
+      },
+      "cpuFrameMs": {
+        "p50": 7.799999952316284,
+        "p95": 9.100000143051147
+      },
+      "drawCalls": 479,
+      "triangles": 69125,
+      "heapBytes": 137891576,
+      "topSelfMs": [
+        {
+          "name": "(program) :0",
+          "ms": 3165.638
+        },
+        {
+          "name": "update app/painter.ts:15",
+          "ms": 175.613
+        },
+        {
+          "name": "visible app/render-view.ts:208",
+          "ms": 108.741
+        },
+        {
+          "name": "exports.jsxDEV http://localhost:3000/node_modules/.vite/deps/react_jsx-dev-runtime.js:191",
+          "ms": 42.05
+        },
+        {
+          "name": "applyMatrix4 http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4334",
+          "ms": 38.692
+        },
+        {
+          "name": "modelPoint app/projection.ts:143",
+          "ms": 32.077
+        },
+        {
+          "name": "comparePolygons app/painter-order.ts:9",
+          "ms": 29.874
+        },
+        {
+          "name": "add http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:4166",
+          "ms": 27.944
+        },
+        {
+          "name": "WebGLRenderer.render http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51425",
+          "ms": 26.81
+        },
+        {
+          "name": "WebGLRenderer.renderBufferDirect http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:51229",
+          "ms": 20.523
+        },
+        {
+          "name": "GameScene.animate app/scene.ts:558",
+          "ms": 19.57
+        },
+        {
+          "name": "modelMatrix app/projection.ts:88",
+          "ms": 19.012
+        },
+        {
+          "name": "sort http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:46130",
+          "ms": 16.561
+        },
+        {
+          "name": "traverse http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:9839",
+          "ms": 16.554
+        },
+        {
+          "name": "relative app/render-view.ts:191",
+          "ms": 16.281
+        },
+        {
+          "name": "getX http://localhost:3000/node_modules/.vite/deps/three.module-CFwxRC9E.js:12867",
+          "ms": 14.864
+        }
+      ]
+    }
+  ]
+}

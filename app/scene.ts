@@ -1,7 +1,9 @@
 import { populationMeter } from './hud-population.ts'
+import { MinimapRenderer } from './minimap-renderer.ts'
+import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
-import { animateLiveObjects } from './live-people.ts'
+import { advanceGame } from './game-clock.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
@@ -51,8 +53,6 @@ import {
   nativePosition,
   browserPosition,
   sound,
-  GRID,
-  SIZE,
   HOME,
   ENEMY,
   placementError,
@@ -67,7 +67,6 @@ import {
   spellRange,
   spellTargetError,
   SPELLS,
-  tick,
   type World,
   type Point,
   type Tree,
@@ -493,10 +492,9 @@ export class GameScene {
   keys = new Set<string>()
   resize: ResizeObserver
   frame = 0
-  previous = 0
+  previous: number | null = null
   uiTimer = 0
-  personAnimationTime = 0
-  personAnimationFrame = 0
+  gameClock = { animationTime: 0, animationFrame: 0 }
   terrainVersion = -1
   treeSignature = ''
   onChange: () => void
@@ -512,7 +510,7 @@ export class GameScene {
   container: HTMLElement
   mini: HTMLCanvasElement
   portrait: HTMLCanvasElement
-  minimapBackground = document.createElement('canvas')
+  minimap = new MinimapRenderer()
 
   constructor(
     container: HTMLElement,
@@ -538,8 +536,6 @@ export class GameScene {
       alpha: true,
       powerPreference: 'high-performance',
     })
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8))
-    this.globe.stars.material.uniforms.pixelRatio.value = this.renderer.getPixelRatio()
     this.renderer.shadowMap.enabled = false
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.toneMapping = THREE.NoToneMapping
@@ -666,6 +662,7 @@ export class GameScene {
     )
     this.terrain.userData.nativeRelative = true
     this.terrain.userData.painterGround = true
+    this.terrain.userData.terrainGrid = true
     this.terrain.receiveShadow = true
     this.terrain.castShadow = true
     this.ground.add(this.terrain, this.objects, this.decorations, this.cursor, this.range)
@@ -727,23 +724,37 @@ export class GameScene {
     this.listen(window, 'pointercancel', () => {
       this.navigationPointer = null
     })
-    this.listen(window, 'blur', () => {
+    const pause = () => {
+      this.previous = null
       this.globeMotion.dragging = false
       this.globeMotion.velocity = { x: 0, y: 0 }
       this.keys.clear()
       this.navigationPointer = null
       this.world.paused = true
       this.onChange()
+    }
+    this.listen(window, 'blur', pause)
+    this.listen(document, 'visibilitychange', () => {
+      this.previous = null
+      if (document.hidden) pause()
     })
     this.listen(minimap, 'pointerdown', e => {
       if (this.world.inputMask) return
       const p = e as PointerEvent,
         rect = minimap.getBoundingClientRect()
       this.focus(
-        {
-          x: ((p.clientX - rect.left) / rect.width) * SIZE - 48,
-          z: ((p.clientY - rect.top) / rect.height) * SIZE - 48,
-        },
+        browserPosition(
+          minimapPick(
+            this.mini.width,
+            this.mini.height,
+            nativePosition(this.world, this.viewPoint),
+            Math.round((this.cameraBearing * 1024) / Math.PI),
+            {
+              x: ((p.clientX - rect.left) / rect.width) * this.mini.width,
+              y: ((p.clientY - rect.top) / rect.height) * this.mini.height,
+            }
+          )
+        ),
         { animate: true }
       )
     })
@@ -844,6 +855,8 @@ export class GameScene {
   }
   setSize() {
     const { width, height } = this.container.getBoundingClientRect()
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8))
+    this.globe.stars.material.uniforms.pixelRatio.value = this.renderer.getPixelRatio()
     this.renderer.setSize(width, height)
     this.camera.aspect = width / Math.max(1, height)
     this.camera.updateProjectionMatrix()
@@ -1022,24 +1035,6 @@ export class GameScene {
         d.visible = walkable(w.terrain, p)
       }
     }
-    const bg = this.minimapBackground
-    bg.width = GRID
-    bg.height = GRID
-    const ctx = bg.getContext('2d')!
-    const data = ctx.createImageData(GRID, GRID)
-    for (let i = 0; i < w.terrain.length; i++) {
-      const h = w.terrain[i]
-      const c =
-        h < 0.4
-          ? [25, 55, 63]
-          : h < 1.2
-            ? [153, 146, 106]
-            : h > 7
-              ? [114, 121, 113]
-              : [71 + h * 4, 93 + h * 3, 61 + h * 2]
-      data.data.set([...c, 255], i * 4)
-    }
-    ctx.putImageData(data, 0, 0)
   }
   updateTerrainTexture() {
     if (!this.terrainTextures) return
@@ -1390,7 +1385,7 @@ export class GameScene {
     // throttling and its shared camera/flyby ordering are fully integrated.
     if (!w.paused || !s.active) {
       this.cameraTime += dt
-      while (this.cameraTime >= 1 / 24) {
+      while (this.cameraTime + 1e-9 >= 1 / 24) {
         this.stepViewChange()
         if (!w.inputMask && !this.overviewStage && !document.querySelector('dialog[open]')) {
           let buttons = 0
@@ -1476,7 +1471,7 @@ export class GameScene {
           rotate: () => {},
           globe: () => {},
         })
-        this.cameraTime -= 1 / 24
+        this.cameraTime = Math.max(0, this.cameraTime - 1 / 24)
       }
     }
     w.outcome.cameraPlaying = !!s.active
@@ -1510,7 +1505,7 @@ export class GameScene {
     // original frame throttling remains unported.
     if (!this.world.paused) {
       this.flybyTime += dt
-      while (this.flybyTime >= 1 / 24) {
+      while (this.flybyTime + 1e-9 >= 1 / 24) {
         for (const event of stepFlyby(state, this.flybyCamera, 24)) {
           if (event.kind === 5)
             showObjectTooltip(
@@ -1522,7 +1517,7 @@ export class GameScene {
         // Native render_land_ui consumes the request before the next frame.
         this.tooltip.draw = 0
         stepTooltip(this.tooltip, !!worldTooltipObject(this.world, this.tooltip.target), 24)
-        this.flybyTime -= 1 / 24
+        this.flybyTime = Math.max(0, this.flybyTime - 1 / 24)
       }
     }
     if (!active && !this.wasFlying) return false
@@ -2084,36 +2079,15 @@ export class GameScene {
     }
   }
   drawMinimap() {
-    const ctx = this.mini.getContext('2d')
-    if (!ctx) return
-    const s = this.mini.width
-    ctx.clearRect(0, 0, s, s)
-    ctx.drawImage(this.minimapBackground, 0, 0, s, s)
-    const at = (p: Point) => [((p.x + 48) / 96) * s, ((p.z + 48) / 96) * s]
-    for (const b of this.world.buildings) {
-      ctx.fillStyle = b.team === 'blue' ? '#54bffe' : '#ef8069'
-      const [x, z] = at(b)
-      ctx.fillRect(x - 2, z - 2, 4, 4)
-    }
-    for (const u of this.world.units) {
-      ctx.fillStyle = u.team === 'blue' ? '#82d5ff' : u.team === 'red' ? '#f78b74' : '#d8d5b3'
-      const [x, z] = at(u)
-      ctx.beginPath()
-      ctx.arc(x, z, u.kind === 'shaman' ? 3 : 1.5, 0, Math.PI * 2)
-      ctx.fill()
-    }
-    for (const shrine of this.world.shrines) {
-      const [x, z] = at(shrine)
-      ctx.fillStyle = shrine.active ? '#f5cf86' : '#777e6c'
-      ctx.beginPath()
-      ctx.arc(x, z, 3, 0, Math.PI * 2)
-      ctx.fill()
-    }
-    const [x, z] = at(this.viewPoint)
-    ctx.strokeStyle = '#f1e0b599'
-    ctx.lineWidth = 1
-    const size = this.overviewActive ? 80 : this.view.config.diameter
-    ctx.strokeRect(x - size / 2, z - size / 3, size, size * 0.67)
+    if (this.terrainTextures)
+      this.minimap.draw(
+        this.mini,
+        this.world,
+        this.terrainTextures,
+        nativePosition(this.world, this.viewPoint),
+        Math.round((this.cameraBearing * 1024) / Math.PI),
+        this.terrainAtlasState
+      )
   }
   orderSound() {
     const units = this.world.units.filter(u => this.world.selected.includes(u.id))
@@ -2154,13 +2128,12 @@ export class GameScene {
       }
   }
   animate = (now: number) => {
-    const skyTicks = Math.min(
-      0x1000000,
-      Math.imul(Math.floor(now) - Math.floor(this.previous || now), 64) >>> 0
-    )
-    const dt = Math.min(0.1, (now - (this.previous || now)) / 1000)
+    if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
+    const previous = this.previous ?? now,
+      skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
+      dt = Math.max(0, now - previous) / 1000
     this.previous = now
-    tick(this.world, dt * this.world.speed)
+    advanceGame(this.world, this.gameClock, dt)
     this.playWorldSounds()
     if (this.terrainVersion !== this.world.landVersion) {
       this.rebuildTerrain()
@@ -2521,17 +2494,9 @@ export class GameScene {
     this.view.painter.cells = this.world.objectCells
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
-    if (!this.world.paused) {
-      this.personAnimationTime += dt
-      while (this.personAnimationTime >= 1 / 24) {
-        animateLiveObjects(this.world)
-        this.personAnimationFrame++
-        this.personAnimationTime -= 1 / 24
-      }
-    }
     this.container.parentElement!.style.setProperty(
       '--population-full-color',
-      nativeHud.colors[populationMeter(1, 1, this.personAnimationFrame).color]
+      nativeHud.colors[populationMeter(1, 1, this.gameClock.animationFrame).color]
     )
     const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     const portraitMesh = shaman && this.unitMeshes.get(shaman.id)
@@ -2548,7 +2513,7 @@ export class GameScene {
               state: shaman.native?.state ?? 0,
             }
           : null,
-        this.personAnimationFrame,
+        this.gameClock.animationFrame,
         this.portrait.parentElement?.matches(':hover,:active') ?? false
       ),
       this.view.config
@@ -2556,9 +2521,9 @@ export class GameScene {
     this.uiTimer += dt
     if (this.uiTimer > 0.2) {
       this.onChange()
-      this.drawMinimap()
       this.uiTimer = 0
     }
+    this.drawMinimap()
     this.frame = requestAnimationFrame(this.animate)
   }
   releaseGroup(g: THREE.Object3D) {

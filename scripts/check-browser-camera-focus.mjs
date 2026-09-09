@@ -6,7 +6,7 @@ const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
   await page.evaluate(() => { const s=window.testScene;s.world.speed=0;s.focus({x:2,z:30}) })
-  const canvas=page.locator('.world-viewport canvas')
+  const canvas=page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.',{exact:true})
   await canvas.hover()
   await page.keyboard.down('q');await page.waitForTimeout(180);await page.keyboard.up('q')
   await page.mouse.wheel(0,-240)

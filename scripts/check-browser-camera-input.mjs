@@ -49,7 +49,7 @@ try {
   await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
   await page.keyboard.down('d');await step();await page.keyboard.up('d')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
-  const canvas=page.locator('.world-viewport canvas'),rect=await canvas.boundingBox()
+  const canvas=page.locator('canvas[aria-label="Island battlefield. Click to select, right-click to move, drag to select a group."]'),rect=await canvas.boundingBox()
   const center={x:Math.round(rect.x+rect.width/2),y:Math.round(rect.y+rect.height/2)}
   const drag=async(button,dx,dy)=>{
     await page.mouse.move(center.x,center.y);await page.mouse.down({button})

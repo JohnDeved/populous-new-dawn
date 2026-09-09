@@ -9,7 +9,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 .hud-sprite{display:inline-block;flex:none;background-image:url('/original/hud.png');background-repeat:no-repeat;image-rendering:pixelated;vertical-align:top;pointer-events:none}
 .spell-pointer{position:absolute;pointer-events:none;z-index:6}.spell-pointer .hud-sprite{position:absolute}.spell-pointer [hidden]{display:none}
 .minimap-wrap{position:absolute;left:0;top:0;width:100px;height:99px;overflow:hidden;background:#142d38}
-.minimap-wrap canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;border-radius:50%}
+.minimap-wrap canvas{position:absolute;inset:0;width:100%;height:96px;cursor:crosshair;border-radius:50%}
 .map-frame{position:absolute;inset:0;width:100px;height:99px;pointer-events:none}
 .dock-tabs{position:absolute;left:3px;top:85px;display:flex;gap:0;z-index:2}
 .dock-tabs button{width:31px;height:27px;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-tab.png') 8 10 fill repeat;padding:0}

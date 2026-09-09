@@ -80,6 +80,8 @@ export class Painter {
       const geometry = object.geometry,
         position = geometry.getAttribute('position'),
         bias = geometry.getAttribute('painterBias')
+      const index = geometry.index,
+        submitted = index ? Math.min(index.count, geometry.drawRange.count) / 3 : triangles
       const scale = object.userData.nativeScale as number | undefined
       const group = object.parent!,
         metadata = group.userData
@@ -104,7 +106,8 @@ export class Painter {
         }
         const origin = new THREE.Vector3().setFromMatrixPosition(transform)
         const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
-        for (let triangle = 0; triangle < triangles; triangle++) {
+        for (let face = 0; face < submitted; face++) {
+          const triangle = index ? index.getX(face * 3) / 3 : face
           if (sprite || scale) anchor.copy(origin)
           else {
             anchor.set(0, 0, 0)

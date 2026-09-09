@@ -317,8 +317,8 @@ export default function Home() {
         <div className="minimap-wrap">
           <canvas
             ref={minimap}
-            width={220}
-            height={220}
+            width={100}
+            height={96}
             aria-label="Minimap. Click to move the camera."
           />
           <img className="map-frame" src="/original/hud-map-frame.png" alt="" />

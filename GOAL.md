@@ -4,6 +4,71 @@ Status: unfinished. The first mission is playable; full game parity has not been
 
 Recreate the user-supplied original for desktop browsers. Match its world and camera, original graphics and audio, controls, simulation, all gameplay classes, campaign, saves and multiplayer. Desktop keyboard/mouse and a monitor are the target; mobile support is not required. Continue publishing validated playable builds to the existing private Site.
 
+## Main priority: modern desktop compatibility
+
+User direction, 2026-09-09: parity must coexist with a smooth, performant game that
+looks good on modern hardware, web technology and displays. Preserve the original
+gameplay rules, timing and visual identity while correcting legacy resolution,
+aspect-ratio, buffer-size and frame-rate defects. Reproducing those defects is not
+a completion requirement. This applies throughout the work, before deeper parity
+tasks when a compatibility issue affects play.
+
+- **HUD and displays:** keep text, controls, markers and hit targets readable and
+  aligned across ordinary desktop, widescreen, ultrawide, 1440p/4K and high-DPI
+  displays. Test resizing and display-scale changes; prevent clipping, stretching,
+  overlap and unused or unreachable controls.
+- **Graphics:** fix aspect-ratio, projection, culling, picking, texture/buffer and
+  precision problems exposed by wider or higher-resolution viewports. Native
+  fixed-size allocations are evidence of the old implementation, not limits to
+  impose on the browser renderer.
+- **Timing:** preserve original game speed using elapsed time and the intended
+  simulation clock. Rendering, input, animation, effects, camera and audio must
+  behave correctly at low, ordinary and high refresh rates, under frame-time
+  spikes, after tab suspension and when resuming. Nothing may speed up or slow
+  down merely because the display refresh rate or machine performance changes.
+- **Uncapped rendering:** user direction, 2026-09-09: do not impose a fixed 30/60
+  fps rendering cap. Present at the browser/display's available refresh rate.
+  Higher frame rates must produce smoother movement, camera motion and effects,
+  using interpolation where the original simulation advances in discrete turns.
+  Animation clocks, sprite-frame selection, effects and audio must depend on
+  elapsed game time, never rendered-frame counts. Preserve authored animation
+  cadence without tying game speed to display refresh. Verify low, high and
+  irregular frame rates; high-refresh presentation must improve smoothness as
+  well as leave simulation outcomes and intended durations unchanged.
+- **Performance:** aim for smooth presentation at the display's refresh rate,
+  with a practical 60 fps baseline on representative modern desktop hardware.
+  Profile frame time, stutter, memory and allocation pressure in real gameplay,
+  including populated scenes and heavy effects. Fix bottlenecks; do not hide
+  timing errors by changing game rules. Headless/software-renderer results alone
+  cannot establish hardware performance.
+- **Verification:** keep desktop geometry/rendering regressions and elapsed-time
+  checks at representative 30/60/120/144 Hz schedules, including irregular frame
+  times. Record tested browser, hardware, resolution and limitations for actual
+  performance measurements. Full completion requires these compatibility checks
+  as well as the original-behavior checklist.
+
+Document deliberate compatibility corrections with their native evidence, reason
+and regression check. Keep them distinct from accidental parity differences and
+from verified original behavior; they do not create extra parity points or erase
+unfinished scope.
+
+**Performance takes precedence over copying implementation details.** User direction,
+2026-09-09: never sacrifice performance merely to reproduce the original code path.
+Target observable gameplay, timing and visual parity, not the original renderer's
+architecture, allocations or scheduling accidents. Prefer modern web/GPU techniques,
+batching, instancing, caching, appropriate data layouts and better algorithms when
+they deliver the intended result more efficiently. These are options to evaluate,
+not a requirement to add complexity or dependencies.
+
+Prove and document each such choice: record the native behavior being preserved,
+the implementation alternative and reason, a runnable comparison/regression check,
+and before/after performance measurements under the same representative workload.
+Report measurement conditions and limits; distinguish microbenchmarks from complete
+game frame times. Do not claim a performance improvement from intuition alone, and
+do not weaken correctness checks to make an optimization pass. If fidelity and
+performance conflict, find a better implementation or document a modern compatibility
+correction rather than accepting a slower native-style port solely for parity.
+
 ## Revised working objective
 
 Treat clean, readable, maintainable, concise and simple TypeScript as a main
@@ -11,6 +76,27 @@ priority throughout parity work. Allocate time to refactoring existing ports;
 use Fallow, ox-standard and Ponytail in the regular development workflow.
 Reconstruct original behavior in idiomatic game code, keeping raw decompiler
 output and address-level bookkeeping in the decompilation evidence.
+
+## Highest priority: modernize the existing implementation before extending parity
+
+Latest user direction, 2026-09-09: apply the modern performance, rendering,
+uncapped-frame-rate and maintainability requirements to **all existing work**
+before resuming new parity features. This supersedes the next-feature order below.
+The target is a superior modern presentation with the mechanics, timing, input
+response and gameplay feel an experienced original-game player expects.
+
+Audit and improve the existing render loop, simulation clocks, camera/input,
+unit movement/animation, terrain/water/lighting, models/sprites/effects, HUD,
+audio, gameplay systems and asset/resource lifecycle. Use measured profiles and
+native/gameplay regressions to guide refactoring; prefer clear, concise modules
+and modern efficient implementations over literal ports. Do not casually change
+mechanics or add input latency to make motion appear smoother.
+
+Track findings, measurements, fixes and remaining limits in
+[the modernization audit](references/modern-performance.md). The initial elapsed-time cap fix and whole-frame baseline are now recorded;
+continue with the largest remaining measured problems. Review every listed area before returning to new
+parity features. Green checks for one rendering primitive or a fast conversion
+microbenchmark cannot complete this audit or establish overall smoothness.
 
 Achieve full game and engine parity through an ongoing decompilation and browser reimplementation of the user-supplied Populous: The Beginning. Make the reverse-engineering work a maintained part of `/Users/johann/populous-browser`: reproducible tool setup, executable identities, address-based exports, reviewed reconstructions, findings and native comparison checks. Research available symbols and reusable projects, reuse applicable work with recorded provenance and license terms, and verify cross-version metadata against the supplied executable. Translate recovered behavior into the browser engine instead of replacing it with approximate game rules. Preserve the complete scope above; first-level parity is the immediate integration target, not the definition of completion. Prioritize visible graphics, rendering, effects, UI, controls and critical gameplay before less-visible internals, as specified below. Publish validated builds and leave all unverified differences explicit until the entire game meets the completion checklist.
 
@@ -88,17 +174,34 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** integrate the original minimap terrain, camera-relative wrapping,
-rotation and markers using the newly reviewed 0041fce0/00420100/004202d0/004206e0
-path. The current fixed 96-unit crop and invented colors remain adapters. Native
-HUD coordinates scale X and Y independently; the browser now follows 640×480 axis
-ratios instead of a height-based scale capped at two. Eight desktop sizes compare
-with 64 original coordinate conversions; subpixel CSS rounding and complete native
-control layout remain open. A first-mission recording at 25/45 seconds confirms
-the original also has distant dark model silhouettes and tan low terrain; do not
-brighten or tint them without stronger evidence. The footage uses an unverified
-2022 executable/settings, so it is a visual reference, not an exact replay oracle.
-Continue effects, controls and critical gameplay alongside minimap/full-frame work.
+**Next action:** continue the modernization audit before new parity work. The
+100 ms cap is removed; simulation and animation now advance chronologically, with
+identical world states across 5–240 Hz and irregular schedules. Indexed terrain
+submission/picking retains the native visibility and painter rules while reducing
+measured CPU/GPU work. Live DPR changes and same-frame audio voice limits are fixed.
+
+Next resolve 24 Hz camera/unit presentation without adding input latency, sky
+fractional drift and sound scheduling across catch-up turns. Profile water/shared
+vertex work, populated gameplay, heavy effects, loading/restart resource lifetime
+and wide/high-DPI displays. Complete the entire audit table before returning to
+new parity features. See `references/modern-performance.md` for runnable checks,
+measurements and explicit remaining limitations.
+
+The minimap now uses original terrain colors, camera-relative world wrapping and
+rotation, with native tribe colors and shaman-circle artwork. Twenty-four browser
+captures cover six resolutions through ultrawide/4K; original native generators and
+UV submissions agree, and dense rows avoid the original 256×256 buffer limit.
+Full mixed-object marker ordering/visibility/discovery ownership and native click
+command dispatch remain open. The border still needs the original nine-patch
+layout: reviewed `0049d070`/`004a1f50` and table `005cab30` use fixed sprite corners
+and tiled edges within a scaled 100×96 control, not the current stretched circular
+surround. Follow the timing work with that visible HUD correction.
+
+A first-mission recording at 25/45 seconds confirms the original also has distant
+dark model silhouettes and tan low terrain; do not brighten or tint them without
+stronger evidence. The footage uses an unverified 2022 executable/settings, so it is
+a visual reference, not an exact replay oracle. Continue effects, controls and
+critical gameplay alongside minimap/full-frame work.
 Object textures now use the native alpha-capable ARGB4444 selection, palette
 quantization and row/column edge preparation. The complete original selector
 passes 128 capability/availability cases; all 262,144 source-bank texels pass

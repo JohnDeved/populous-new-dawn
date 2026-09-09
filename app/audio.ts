@@ -97,7 +97,12 @@ export class Soundscape {
     const buffer = this.buffers.get(variant.key)
     if (!buffer) return finished?.()
     // ponytail: browser voice cap; the original priority/stealing scheduler is not ported yet.
-    if (this.active.size >= 64) this.active.values().next().value?.stop()
+    if (this.active.size >= 64) {
+      const oldest = this.active.values().next().value!
+      oldest.stop()
+      // 'ended' is asynchronous: release the slot now, including same-frame bursts.
+      this.active.delete(oldest)
+    }
     const ctx = this.context,
       source = ctx.createBufferSource(),
       gain = ctx.createGain(),

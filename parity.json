@@ -865,7 +865,7 @@
             "decomp/generated/0044a1f0.c",
             "decomp/generated/0044a210.c"
           ],
-          "note": "Six rendering requirements now receive their verified fraction of this checkpoint. Complete HUD parity still requires spell dispatch, minimap terrain/markers/input, exact layout, native state ownership and remaining panels. This subdivision credits already validated behavior without claiming those outstanding systems are finished.",
+          "note": "Seven rendering requirements receive their verified fraction of this checkpoint. The original minimap terrain, wrapping and rotation now join the earlier HUD work. Complete HUD parity still requires spell dispatch, full minimap markers/input, exact layout, native state ownership and remaining panels.",
           "requirements": [
             {
               "id": "interface.hud.spell-art",
@@ -954,32 +954,40 @@
             {
               "id": "interface.hud.minimap-terrain",
               "title": "Minimap terrain palette, toroidal scroll and camera rotation",
-              "status": "partial",
-              "note": "The shipped browser uses invented colors and a fixed 96-unit crop. Require native indexed terrain and camera-wrap comparisons plus integrated browser pixels at multiple positions, bearings and land changes. Native-only research does not complete this requirement.",
+              "status": "verified",
+              "note": "Original height/cliff palette, vertical orientation, snapped camera-relative toroidal scrolling and sine-table quad rotation are integrated. 64 complete native paths compare 1,816,872 indexed pixels and 256 UV vertices. 24 live-browser terrain RGBA hashes and submitted transforms match native routines at six desktop sizes through ultrawide/4K; legacy wrapped pixels match the original buffer. Beyond 256\u00d7256, dense browser rows intentionally preserve the verified scroll without the native allocation limit. Browser terrain edits invalidate the cache. Complete frame/padding/resampling fidelity, fog reveal ownership, object markers and native click dispatch remain in their separate unfinished requirements.",
               "evidence": [
-                "app/scene.ts",
-                "decomp/generated/004206e0.c",
-                "decomp/generated/00420100.c",
-                "decomp/generated/0041fce0.c"
+                "app/minimap.ts",
+                "app/minimap-renderer.ts",
+                "scripts/check-native-minimap.py",
+                "scripts/check-browser-minimap.mjs",
+                "tests/minimap.test.mjs",
+                "tests/fixtures/minimap.json",
+                "references/reverse-engineering.md"
               ]
             },
             {
               "id": "interface.hud.minimap-markers",
               "title": "Minimap object markers, visibility and animated indicators",
               "status": "partial",
-              "note": "Current dots and shrine markers are adapters. Compare original tribe/class palettes, shaman outlines, blinking indicators, fog/visibility and marker positions in the rotated live map.",
+              "note": "Original class/tribe palettes, snapped positions, inherited point sizes, shaman circle sprites and blinking-discovery commands match 64 complete native controllers and circle selectors. Live ordinary objects now use those marker commands; unit/building changes and browser artwork are exercised. Mixed-object allocation order, initial inherited building size, full visibility ownership and discovery-object production remain adapters; not complete.",
               "evidence": [
-                "app/scene.ts",
-                "decomp/generated/004202d0.c"
+                "app/minimap.ts",
+                "app/minimap-renderer.ts",
+                "scripts/check-native-minimap.py",
+                "scripts/check-browser-minimap.mjs",
+                "tests/fixtures/minimap-markers.json"
               ]
             },
             {
               "id": "interface.hud.minimap-input",
               "title": "Minimap picking and camera-command routing",
               "status": "partial",
-              "note": "Current fixed-crop click mapping cannot match the recovered camera-relative map. Verify inverse mapping, wrap boundaries, button/modifier handling and original command dispatch through real browser clicks.",
+              "note": "Clicks now invert the displayed camera-relative terrain, retain camera heading and use the existing focus journey. Browser checks cover four bearings, replacement journeys, manual takeover, pause/seam travel and overview interruption. Original button/modifier routing and command ownership remain unported; geometric inversion alone does not complete this requirement.",
               "evidence": [
+                "app/minimap.ts",
                 "app/scene.ts",
+                "scripts/check-browser-minimap.mjs",
                 "scripts/check-browser-camera-focus.mjs"
               ]
             },

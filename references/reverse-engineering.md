@@ -4665,3 +4665,38 @@ terrain/model bias placement. The corresponding browser diagnostic finds 30,231
 interior pixel differences across six controlled overlaps. Exact routine/hook
 scope and commands are recorded in `decomp/README.md`. Full renderer integration
 remains open; this evidence does not add verified game-parity credit.
+
+
+## Minimap terrain, wrapping and markers — 2026-09-09
+
+Reconstructed complete `004206e0` height/cliff palette lookup, `00420100`
+camera-cell wrapping and `0041fce0` sine-table quad rotation. Sixty-four native
+cases compare 1,816,872 indexed pixels, unchanged row padding and 256 UV vertices.
+The renderer shares this transform with marker placement and geometric click
+inversion; the old fixed 96-unit crop and invented colors are removed.
+
+`004202d0` and `005255b0` supply marker palettes, snapped coordinates, inherited
+point sizes and original HFX circle artwork. Sixty-four complete controller cases
+cover four tribes, wild people, visibility/fog gates, size inheritance, scale
+shifts and blinking discoveries. Buildings inherit the previous marker size; the
+first size is an uninitialized native local. The browser explicitly seeds one
+pixel until a person or stone establishes it. Mixed-object allocation order,
+visibility ownership and discovery-object production remain adapters; this is
+not complete minimap marker parity. Native input command ownership is also open.
+
+Twenty-four browser captures at six resolutions through ultrawide/4K compare
+actual terrain/wrapped RGBA and submitted Canvas transforms. Original buffers
+are used for comparisons within 256×256; larger canvases retain the verified
+scroll with dense rows as a documented modern-display correction. Real clicks,
+seam travel, terrain invalidation, focus journeys, HUD controls and unit-sprite
+regressions pass. Final D3D sampling/padding and frame layout are not certified.
+
+`0049d070` uses the scaled 100×96 control at callback record `005cb4f9`, selecting
+`005cab30` for ordinary desktop resolutions. `004a1f50` places HFX 690–693 as
+fixed-size corners and tiles HFX 694–697 between them. The current stretched
+circular surround is therefore still a layout adapter. This finding is retained
+for the modernization audit rather than claiming full HUD completion.
+
+The conversion optimization and modern-display correction are measured and
+qualified in [modern-performance.md](modern-performance.md). New parity features
+are paused while the existing implementation undergoes that broader audit.

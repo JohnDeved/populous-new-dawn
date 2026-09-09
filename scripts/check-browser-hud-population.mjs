@@ -8,7 +8,7 @@ const browser=await chromium.launch({headless:true})
 try{
   const {page,errors}=await openGame(browser)
   await page.setViewportSize({width:1280,height:960})
-  await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;cancelAnimationFrame(s.frame);s.personAnimationFrame=0;s.animate(s.previous);cancelAnimationFrame(s.frame);window.populationOriginal=s.world.units;window.populationBuildings=s.world.buildings})
+  await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;cancelAnimationFrame(s.frame);s.gameClock.animationFrame=0;s.animate(s.previous);cancelAnimationFrame(s.frame);window.populationOriginal=s.world.units;window.populationBuildings=s.world.buildings})
   const controls=page.locator('.tribe-classes button'),total=page.getByRole('button',{name:'Select all followers',exact:true})
   const cases=fixture.cases.filter(c=>[0,2,3].includes(c.model)&&[0,9,99,100,200].includes(c.count)&&!c.alternate&&(!c.selected||(c.model>0&&c.count>0)))
   assert.equal(cases.length,38)
@@ -47,11 +47,12 @@ try{
   // The presentation counter freezes with pause, just as the portrait does.
   const flashes=await page.evaluate(()=>{
     const s=window.testScene;s.world.paused=true;const values=[]
-    for(const frame of [0,256,288,292,293,295,296,511,512]){s.personAnimationFrame=frame;s.animate(s.previous);cancelAnimationFrame(s.frame);values.push(s.container.parentElement.style.getPropertyValue('--population-full-color'))}
+    for(const frame of [0,256,288,292,293,295,296,511,512]){s.gameClock.animationFrame=frame;s.animate(s.previous);cancelAnimationFrame(s.frame);values.push(s.container.parentElement.style.getPropertyValue('--population-full-color'))}
     s.world.paused=false;return values
   })
   assert.deepEqual(flashes,[0,256,288,292,293,295,296,511,512].map(frame=>hud.colors[fixture.meters.find(c=>c.capacity===1&&c.population===1&&c.frame===frame%512).color]))
-  await page.evaluate(()=>{const s=window.testScene;window.populationVictim=s.world.units.find(u=>u.team==='blue'&&u.kind==='brave');window.populationBefore=s.world.units.filter(u=>u.team==='blue'&&u.kind!=='shaman'&&u.hp>0).length;window.populationVictim.hp=0;s.world.speed=1;s.animate(s.previous)})
+  // This check suspended RAF while editing fixtures; restart its wall clock too.
+  await page.evaluate(()=>{const s=window.testScene;window.populationVictim=s.world.units.find(u=>u.team==='blue'&&u.kind==='brave');window.populationBefore=s.world.units.filter(u=>u.team==='blue'&&u.kind!=='shaman'&&u.hp>0).length;window.populationVictim.hp=0;s.world.speed=1;s.previous=null;s.animate(performance.now())})
   await page.waitForFunction(()=>!window.testScene.world.units.includes(window.populationVictim))
   await page.waitForFunction(()=>document.querySelector('.population-button .follower-number').getAttribute('aria-label')===String(window.populationBefore-1))
   await page.evaluate(()=>{window.testScene.world.speed=0})

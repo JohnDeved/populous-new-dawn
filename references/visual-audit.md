@@ -625,3 +625,19 @@ camera's cell-snapped position, 004202d0 draws eligible native markers, and
 0041fce0 rotates its sampling coordinates by camera heading with a 5/6 factor.
 The current crop, arbitrary colors, stationary map and markers are still browser
 adapters. No minimap parity credit is claimed from these exports.
+
+
+## Minimap integration — 2026-09-09
+
+The opening map now displays all three first-mission islands at the recovered
+whole-world scale, with original terrain colors, camera-relative scrolling and
+rotation. Native shaman-ring artwork and tribe markers replace invented dots and
+the camera rectangle. Compared the running game with the existing 45-second
+first-mission video frame; the island arrangement and scale now agree visually.
+The unverified video build remains a reference, not the native pixel oracle.
+
+The circular surround is still wrong at larger resolutions: native `0049d070`
+and `004a1f50` use fixed corner sprites and tiled edges. This is explicitly
+retained as an unfinished layout issue. Full marker and click-command ownership
+also remain incomplete. Six-resolution browser/native comparisons and a
+pixel-equivalent conversion benchmark are documented in modern-performance.md.
