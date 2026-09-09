@@ -1,8 +1,8 @@
 {
-  "revision": 6,
+  "revision": 7,
   "discovery": {
     "status": "open",
-    "note": "Discovery remains open. Revision 6 separates housing entry, occupancy, births, upgrades and global population ownership before live admission work. The new baseline preserves the prior score; unknown mechanics can still expand scope.",
+    "note": "Discovery remains open. Revision 7 separates first-mission warrior training from other schools, special occupants and shared engine ownership. Unknown mechanics can still expand scope.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1620,7 +1620,7 @@
               "evidence": [
                 "app/training.ts",
                 "scripts/check-native-training-queue.py",
-                "app/live-housing.ts",
+                "app/live-building-entry.ts",
                 "scripts/check-native-building-entry.py",
                 "tests/housing-entry.test.mjs",
                 "scripts/check-browser-housing-entry.mjs",
@@ -1683,9 +1683,64 @@
             "scripts/check-native-occupants.py",
             "tests/building-exits.test.mjs",
             "tests/fixtures/building-exits.json",
-            "references/performance/2026-09-10-building-exits.json"
+            "references/performance/2026-09-10-building-exits.json",
+            "app/live-building-entry.ts",
+            "scripts/check-browser-training.mjs",
+            "tests/training-entry.test.mjs",
+            "scripts/check-native-movement-order.py",
+            "references/performance/2026-09-10-training.json"
           ],
-          "note": "Selected queue/conversion paths verified; all specialist classes and dispatch incomplete. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open."
+          "note": "First-mission warrior training now integrates native approach/queue/capacity/slot admission, mode-3 visibility, persistent mana funding and whole-batch replacement, with original exit-order preparation and actual exit walking. Shared native comparison suites and complete mission/browser checks pass. Other training classes, special paths, complete global allocation/command tails and panel/indicator ownership remain unfinished.",
+          "requirements": [
+            {
+              "id": "economy.training.warriors",
+              "title": "First-mission warrior training approach, queue, admission, funding and batch conversion",
+              "status": "verified",
+              "evidence": [
+                "app/live-building-entry.ts",
+                "app/training.ts",
+                "app/training-conversion.ts",
+                "scripts/check-native-training-queue.py",
+                "scripts/check-native-training-conversion.py",
+                "scripts/check-native-occupants.py",
+                "scripts/check-native-movement-order.py",
+                "scripts/check-browser-training.mjs",
+                "tests/training-entry.test.mjs",
+                "tests/game.test.mjs",
+                "references/performance/2026-09-10-training.json"
+              ],
+              "note": "Bounded first-mission warrior cycle: five visible residents, native rotated queue sockets/priority/admission delay, physical slot reuse, original funding and whole-batch replacement; exit orders apply native coast/building correction before actual movement. Native comparisons, four-orientation/cancellation/5\u2013240 Hz checks, complete mission and real browser sprite/input checks pass. Other schools, special paths, global allocation/order ownership and native training UI remain separate unfinished requirements."
+            },
+            {
+              "id": "economy.training.schools",
+              "title": "All other training schools and resulting person classes",
+              "status": "partial",
+              "evidence": [
+                "app/training-conversion.ts"
+              ],
+              "note": "Native shared conversion compared; preacher, spy and firewarrior live classes remain open."
+            },
+            {
+              "id": "economy.training.special",
+              "title": "Special occupants, priority, ejection and exceptional training paths",
+              "status": "partial",
+              "evidence": [
+                "app/training.ts",
+                "app/building-occupants.ts"
+              ],
+              "note": "Shared controllers compared; all native shaman, ghost and special-mode interactions remain to integrate and verify."
+            },
+            {
+              "id": "economy.training.ownership",
+              "title": "Global allocation, shared command tails, registration and training UI ownership",
+              "status": "partial",
+              "evidence": [
+                "app/person-orders.ts",
+                "app/training-conversion.ts"
+              ],
+              "note": "Reviewed primitives exist; full allocation/rollback, ordinary command dispatch, all indicators and panel ownership remain open."
+            }
+          ]
         },
         {
           "id": "economy.repair",

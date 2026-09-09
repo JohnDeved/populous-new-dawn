@@ -4931,3 +4931,65 @@ tower admission remain open. Tower socket routine `00404540` was exported and
 reviewed: shape triples and model/socket offsets determine XY, terrain height
 and clipping. That discovery is retained for the next admission integration;
 it has not been substituted with a guessed tower height.
+
+## Live first-mission warrior training (2026-09-10)
+
+The warrior hut now uses the same reviewed command-8 entry as housing, with the
+original five-person capacity, linked queue sockets, congestion counters, head
+admission delay and first-empty physical slot. Queued warriors yield to an
+untrained successor through the original controller; callback destinations and
+animation updates now act on the supplied person, including that successor.
+Cancellation removes the actual command reference and rebuilds the queue while
+its person record is still available. Departures preserve the remaining slots.
+
+Mode 3 of `004d80e0` retains commands and cell membership and does not set the
+render-hide bit. Training residents therefore retain their original idle sprite
+source inside; the existing painter handles building occlusion. Mode 0 house
+residents still hide and clear their commands. The shared entry module was
+renamed `live-building-entry.ts` to reflect both consumers. Native conversion's
+per-building phase now uses the shared `counter` name instead of `tickPhase`.
+
+The one-person mana/cast adapter is replaced with persistent native activity,
+training cost and stored mana feeding `distributeMana`. `00405b80` converts the
+whole funded weight into replacement people, with original cost bands and
+queue/refund/removal ordering; it no longer changes a brave's type in place or
+invents a hut-birth flash. The native level-flag-32 development gate now also
+suppresses live conversion. Original exit orders are allocated/shared through
+the reviewed 800-record command allocator and released at the ordinary movement
+handoff. The full mission test exercises discovery, building, funding, training,
+spell gifts, assault and victory with the replacement warrior identities.
+
+Conversion exposed a missing world consumer: `00438730` corrects movement order
+3 before attaching it. The reconstruction preserves its unchanged-record early
+return, flag merge, toroidal coastal correction, and building correction using
+the original input cell even after coastal movement. `004ec630` is newly exported;
+its `004655f0` category lookup and sine movement execute natively in the new
+1,024-case comparison. Only the separately verified building outside-point lookup
+is supplied. Captures are retained in `tests/fixtures/movement-order.json`.
+The source export is tied to the existing executable identity.
+
+Portable training integration checks cover four building orientations, five
+visible residents, three queued followers, native queue-point tolerances,
+cancellation/chain preservation, physical slot reuse, already-trained priority,
+whole-batch replacement and exit movement. Render schedules at 5/30/60/120/144/240
+Hz produce identical RNG, positions, admissions and shared references. The browser
+check issues a real right-click, measures 685 rendered queue pixels, observes
+five replacement identities with original warrior walking frames and their
+5.71-unit exit journeys. Hardware conditions are recorded in the performance
+reference; this is a gameplay integration check, not proof of every training class.
+
+Remaining ownership boundaries are explicit: browser allocation/registration has
+no native allocation-failure limit; the shared building command pool is not yet
+the ordinary command dispatcher. Conversion hands its exit to the existing
+ordinary route adapter after preserving the native shared-reference operations.
+Following arbitrary user command tails, all specialist schools/classes, ghost and
+special occupancy paths, complete mixed-class scheduling, training indicators
+and native panel behavior still need live integration. Source resident identity
+is reconciled with `u.inside` at legacy/load boundaries; this is not a claim of
+complete engine slot/allocation ownership.
+
+Validation for this integration: 1,540 native queue operations, 2,689 command-8
+cases, 11,200 occupancy comparisons, 1,024 conversion scenarios and 1,024 new
+movement-order cases pass. All 976 exports pass executable/hash verification.
+The 392-pose GPU sprite suite, shadows/selection, staged housing, celebration,
+hut upgrade and complete fire-repair browser regressions also pass.

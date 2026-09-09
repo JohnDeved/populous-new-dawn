@@ -12,7 +12,7 @@ from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
 o=runpy.run_path(str(Path(__file__).with_name('check-native-occupants.py')))
 cpu=o['cpu'];read=o['read'];write=o['write'];addr=o['addr'];call=o['call']
 o['fields']['reservationNext']=(0x85,'H')
-o['bfields'].update(tickPhase=(0x2e,'B'),storedMana=(0x98,'H'))
+o['bfields'].update(counter=(0x2e,'B'),storedMana=(0x98,'H'))
 rng=random.Random(0x405b80);current=None;allocated=0
 def counter(tribe,model,delta):
     a=0x89d1c8+tribe*0xc65+0xa27+model*2;write(a,'H',(read(a,'H')+delta)&65535)
@@ -79,7 +79,7 @@ for batch in range(8):
         c=o['case']();b=c['building'];i=batch*128+trial
         b.update(model=5+i%5,object=[95,103,131,154][i%4],angle=(i%4)*512,
           anchorX=rng.randrange(128)*512,anchorY=rng.randrange(128)*512,tribe=i%4,
-          activity=8|(128 if i%4 else 0),tickPhase=rng.choice([0,1,15,16,255]),
+          activity=8|(128 if i%4 else 0),counter=rng.choice([0,1,15,16,255]),
           trainingCost=rng.choice([0,1,100,4375,65535]),storedMana=rng.choice([0,100,4375,65535]),
           flags3=rng.getrandbits(32),lastActivity=rng.getrandbits(32))
         trained=rules['buildingTrainedModel'][b['model']];capacity=rules['buildingCapacity'][b['model']]

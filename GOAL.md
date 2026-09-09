@@ -1126,3 +1126,22 @@ mechanics and original artwork ahead of hidden bookkeeping, with clean shared TS
 uncapped smooth presentation and measured modern hardware performance throughout.
 Full slot/order/allocation ownership, class scheduling, campaign and engine parity
 remain unfinished; discovery stays open.
+
+### Latest visible integration: original warrior training
+
+Warrior huts now hold five trainees, queue overflow at original shape sockets,
+preserve visible mode-3 residents and replace a funded batch with new warriors.
+The original controller owns queue priority, admission delay and slot reuse.
+Shared native movement-order preparation corrects coastal/building exit targets;
+warriors visibly walk out with original sprites. The old one-person conversion
+and invented birth flash are removed. Checks cover real input, queue pixels,
+batch identities, full first-mission play and 5–240 Hz deterministic state.
+The M5 queue approach measured roughly 120 FPS with 6.6 ms CPU p95.
+
+Next: original training/occupant UI feedback and tower socket/clipping admission,
+then continue critical first-mission controls, visible effects and campaign
+comparisons. Review original frames to choose the next visible mismatch. Keep
+shared readable TypeScript, native gameplay timing, uncapped presentation and
+measured modern GPU performance together. All other training schools/classes,
+full allocator/command-tail ownership, special occupants, class scheduling,
+campaign and complete engine parity remain open. Discovery stays open.

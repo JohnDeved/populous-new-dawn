@@ -1188,3 +1188,29 @@ Fallow reports maintainability 85.8, average cyclomatic 2.8 and p90 5. Existing
 repository-wide ox-standard debt remains; the new housing module has no lint
 errors. Native-facing memory labels remain at the oracle boundary rather than
 being duplicated in live TypeScript fields.
+
+## Native warrior queues and batch conversion
+
+`node scripts/check-browser-training.mjs --headed` exercised eight ordered braves:
+five entered the original warrior hut and three waited at native queue positions.
+The native conversion then created five warriors that walked out using original
+sprites. One existing animation loop, shared atlas textures and the existing
+fractional unit presentation handle the added behavior. Admission/conversion
+advance on native turns; 5–240 Hz comparisons preserve RNG, queue, occupancy,
+shared command records and resulting unit positions.
+
+Chrome 153 / ANGLE Metal / Apple M5, 1440×1000 CSS pixels, DPR 1, normal speed:
+545 measured approach frames, CPU p50 2.8 ms / p95 6.6 ms, frame gaps p50 8.3 ms /
+p95 9.3 ms / max 9.4 ms, at most 103 draw submissions. This is consistent with
+roughly 120 FPS scheduling. Camera setup finished before measurement and screenshots
+and GPU readbacks followed it; no heavy checks ran alongside the hardware sample.
+Raw report: `references/performance/2026-09-10-training.json`. It is a bounded
+scenario, not a paired speedup or whole-game performance guarantee.
+
+The world adapter counts people in one pass instead of filtering the whole unit
+list for each tribe/model pair. Movement, queue logic, facing, admission, native
+orders and conversion reuse their existing controllers. Fallow reports 85.7
+maintainability, average cyclomatic 2.8, p90 5 and 12 circular dependencies. Shared
+live adapters still depend on the central model; broader module-boundary cleanup
+remains open. ox-standard's existing repository-wide debt is not treated as a
+passing lint gate. The new/renamed entry module has no lint errors after formatting.

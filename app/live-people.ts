@@ -1,3 +1,5 @@
+import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
+export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
   type Unit,
@@ -63,7 +65,6 @@ import {
 } from './object-cells.ts'
 import { positionDistance, random } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
-import { clearLivePath } from './live-pathfinding.ts'
 import sprites from './original-units.json' with { type: 'json' }
 
 export type LivePerson = StatefulPerson &
@@ -180,6 +181,8 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
 // ponytail: ordinary occupants still belong to the browser unit list; native
 // six-slot admission, training repricing and order ownership remain to be wired.
 export function leaveLiveBuilding(w: World, u: Unit) {
+  const entry = leaveBuildingEntry(w, u)
+  if (entry) return entry
   const b = w.buildings.find(building => building.id === u.inside)
   if (!b) return
   const p = u.flight ?? u.native ?? createLivePerson(w, u)
@@ -345,7 +348,7 @@ function initializeLivePerson(
 export function initializeLivePanic(w: World, u: Unit) {
   const p = u.flight ?? u.native ?? createLivePerson(w, u)
   if (p.flags2 & 0x100000) return
-  cancelHousingEntry(w, u)
+  cancelBuildingEntry(w, u)
   u.native = p
   p.previousState = p.state
   p.state = 26
@@ -353,13 +356,6 @@ export function initializeLivePanic(w: World, u: Unit) {
   initializeLivePerson(w, u, ctx)
   w.selected = w.selected.filter(id => id !== u.id)
   w.randomState = ctx.state.randomState
-}
-
-export function cancelHousingEntry(w: World, u: Unit) {
-  if (!u.entry) return
-  releasePersonRoute(w.motionRoutes, u.entry.person)
-  u.entry = undefined
-  clearLivePath(w, u)
 }
 
 // Existing ordinary allocation order is also used by Blast's cell adapter.

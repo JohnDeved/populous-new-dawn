@@ -1057,7 +1057,7 @@ test('training replaces a whole batch, inherits the first occupant order tail an
   Object.assign(records[2],{model:3,references:1,a:1000,b:2000});
   Object.assign(records[3],{model:3,references:1,flags:1,a:3000,b:4000});
   const b={id:100,class:2,model:7,tribe:0,flags2:0,flags3:0,activity:8|128,inside:3,
-   occupants:[1,2,3,0,0,0],trainingTimer:0,trainingCost:0,storedMana:65535,tickPhase:0,queueHead:0,
+   occupants:[1,2,3,0,0,0],trainingTimer:0,trainingCost:0,storedMana:65535,counter:0,queueHead:0,
    object:103,angle:512,anchorX:0,anchorY:0,entryDelay:0,lastActivity:0};
   const w={people:new Map([warrior,...braves].map(p=>[p.id,p])),orders:{records,cursor:4,active:3},
    buildings:new Map([[100,b]]),turn:1234,buildingAt:()=>100,towerTribes:0,playerTribe:0,

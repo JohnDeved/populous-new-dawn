@@ -19,7 +19,7 @@ import {
 
 type Trainee = BuildingOccupant & { reservationNext: number }
 export type ConvertingBuilding = OccupiedBuilding & {
-  tickPhase: number
+  counter: number
   storedMana: number
   queueHead: number
 }
@@ -55,7 +55,7 @@ export function stepTrainingConversion(
   const trained = rules.buildingTrainedModel[b.model],
     capacity = rules.buildingCapacity[b.model]
   if (!(b.activity & 128)) {
-    if (b.tickPhase & 15 || !b.inside) return
+    if (b.counter & 15 || !b.inside) return
     const first = live(w, b.occupants[0])
     if (!first || (first.model !== trained && first.model !== 7) || !b.queueHead) return
     const head = live(w, b.queueHead)
@@ -81,7 +81,7 @@ export function stepTrainingConversion(
   }
 
   effects.updateTrainingPanel(b)
-  const repriced = !b.trainingCost || !(b.tickPhase & 15)
+  const repriced = !b.trainingCost || !(b.counter & 15)
   if (repriced) repriceTraining(w, b)
   if (b.trainingCost > b.storedMana) return
   b.storedMana = b.trainingCost

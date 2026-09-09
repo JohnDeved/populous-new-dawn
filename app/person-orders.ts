@@ -1,3 +1,4 @@
+import { movePosition } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 // Original ten-byte command record: model/flags, reference count, object, payload.
@@ -319,4 +320,36 @@ export function commitPersonOrders(
   group.cursor = 0
   for (const order of group.records) Object.assign(order, emptyPersonOrder())
   return success
+}
+
+// 0x438730 for movement command 3, including unchanged-record short circuit.
+// Coast correction happens first; building lookup still uses the original cell.
+export function prepareMovementOrder(
+  order: PersonOrder,
+  point: { x: number; y: number },
+  flags: number,
+  land: { categories: Uint8Array; flags: Uint16Array | Uint32Array; buildingIds: Uint16Array },
+  outside: (id: number) => { x: number; y: number }
+) {
+  const x = point.x & 65535,
+    y = point.y & 65535
+  if (order.model === 3 && order.a === x && order.b === y) return
+  order.model = 3
+  order.flags |= flags & 255
+  order.a = x
+  order.b = y
+  const cell = (y >> 9) * 128 + (x >> 9),
+    category = land.categories[cell] & 15
+  if (rules.terrainCategoryFlags[category] & 60) {
+    const angle = (rules.terrainCategoryDirections[category] & 7) << 8
+    const to = { x: (x & 0xfe00) + 256, y: (y & 0xfe00) + 256 }
+    movePosition(to, angle, 512)
+    order.a = to.x
+    order.b = to.y
+  }
+  if (land.flags[cell] & 512) {
+    const to = outside(land.buildingIds[cell] & 1023)
+    order.a = to.x & 65535
+    order.b = to.y & 65535
+  }
 }

@@ -1,0 +1,147 @@
+{
+  "headed": true,
+  "queued": {
+    "commanded": true,
+    "inside": 5,
+    "queue": [
+      45,
+      46,
+      47
+    ],
+    "pixels": 685,
+    "people": [
+      {
+        "id": 40,
+        "substate": 13,
+        "visible": true,
+        "object": 48,
+        "frame": 24,
+        "layers": 3
+      },
+      {
+        "id": 41,
+        "substate": 13,
+        "visible": true,
+        "object": 48,
+        "frame": 20,
+        "layers": 3
+      },
+      {
+        "id": 42,
+        "substate": 13,
+        "visible": true,
+        "object": 48,
+        "frame": 24,
+        "layers": 3
+      },
+      {
+        "id": 43,
+        "substate": 13,
+        "visible": true,
+        "object": 48,
+        "frame": 20,
+        "layers": 3
+      },
+      {
+        "id": 44,
+        "substate": 13,
+        "visible": true,
+        "object": 48,
+        "frame": 20,
+        "layers": 3
+      },
+      {
+        "id": 45,
+        "substate": 3,
+        "visible": true,
+        "object": 48,
+        "frame": 34,
+        "layers": 3
+      },
+      {
+        "id": 46,
+        "substate": 3,
+        "visible": true,
+        "object": 48,
+        "frame": 20,
+        "layers": 3
+      },
+      {
+        "id": 47,
+        "substate": 3,
+        "visible": true,
+        "object": 48,
+        "frame": 38,
+        "layers": 3
+      }
+    ],
+    "performance": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "frames": 545,
+      "cpu": {
+        "p50": 2.799999952316284,
+        "p95": 6.6000001430511475
+      },
+      "gaps": {
+        "p50": 8.300000000001091,
+        "p95": 9.300000000000182,
+        "max": 9.400000000001455
+      },
+      "maxDrawCalls": 103
+    }
+  },
+  "converted": {
+    "replaced": true,
+    "count": 5,
+    "warriors": [
+      {
+        "visible": true,
+        "walking": true,
+        "path": 2,
+        "x": -1.0703125,
+        "z": 33.03125
+      },
+      {
+        "visible": true,
+        "walking": true,
+        "path": 2,
+        "x": -1.0703125,
+        "z": 33.03125
+      },
+      {
+        "visible": true,
+        "walking": true,
+        "path": 2,
+        "x": -1.0703125,
+        "z": 33.03125
+      },
+      {
+        "visible": true,
+        "walking": true,
+        "path": 2,
+        "x": -1.0703125,
+        "z": 33.03125
+      },
+      {
+        "visible": true,
+        "walking": true,
+        "path": 2,
+        "x": -1.0703125,
+        "z": 33.03125
+      }
+    ]
+  },
+  "moved": [
+    5.713031849215988,
+    5.713031849215988,
+    5.713031849215988,
+    5.713031849215988,
+    5.713031849215988
+  ]
+}

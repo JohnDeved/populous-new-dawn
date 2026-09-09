@@ -1,3 +1,4 @@
+import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
 import {
   assignBuilder,
@@ -76,7 +77,7 @@ import {
   setLivePersonAnimation,
   initializeLiveCelebration,
   initializeLivePanic,
-  cancelHousingEntry,
+  cancelBuildingEntry,
   leaveLiveBuilding,
   buildingFirePeople,
   stepLivePerson,
@@ -85,7 +86,13 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import type { ObjectCells } from './object-cells.ts'
-import { stepHousingEntry, type HousingEntry, type HousingBuilding } from './live-housing.ts'
+import {
+  stepBuildingEntry,
+  buildingAdmission,
+  stepLiveTraining,
+  type BuildingEntry,
+  type BuildingAdmission,
+} from './live-building-entry.ts'
 import { stepBuildingEntryClocks } from './training.ts'
 import {
   createMotionRoutes,
@@ -231,7 +238,7 @@ export type Projectile = {
 }
 type Battle = Point & { id: number; members: number[]; angle: number }
 export type Unit = Point & {
-  entry?: HousingEntry
+  entry?: BuildingEntry
   native: LivePerson | null
   burnTrail?: number
   flight?: LivePerson
@@ -260,7 +267,7 @@ export type Unit = Point & {
   casting: { spell: Spell; point: Point; remaining: number } | null
 }
 export type Building = Point & {
-  admission?: HousingBuilding
+  admission?: BuildingAdmission
   id: number
   anchor?: { x: number; y: number }
   object?: number
@@ -427,7 +434,7 @@ export const maxHp = (kind: UnitKind) =>
       ? constants.LIFE_WARR
       : constants.LIFE_BRAVE) / 20
 export const buildingHp = (kind: BuildingKind) => (kind === 'hut' ? 170 : 260)
-export const housing = (b: Building) => (b.kind === 'hut' ? rules.hutCapacity[b.level - 1] : 1)
+export const housing = (b: Building) => rules.buildingCapacity[buildingModel(b)]
 export function population(w: World, team: Team) {
   return 1 + w.units.filter(u => u.team === team && u.kind !== 'shaman' && u.hp > 0).length
 }
@@ -991,6 +998,7 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
 }
 export type World = {
   objectCells: ObjectCells
+  buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
   ai: ScriptState & {
@@ -1212,6 +1220,11 @@ export function createWorld(): World {
     gifts: [],
     giftCounts: { blast: 0, bridge: 0, lightning: 0 },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
+    buildingOrders: {
+      records: Array.from({ length: 800 }, emptyPersonOrder),
+      cursor: 1,
+      active: 0,
+    },
     motionRoutes: createMotionRoutes(),
     pathfinding: createLivePathfinding(),
     land: {
@@ -1788,7 +1801,7 @@ function release(w: World, u: Unit) {
   return occupant
 }
 function releaseTasks(w: World, u: Unit) {
-  cancelHousingEntry(w, u)
+  cancelBuildingEntry(w, u)
   clearLivePath(w, u)
   u.vault = null
   u.work = null
@@ -2330,8 +2343,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
 
-// The live adapter still enters occupants directly; command-8's staged entry
-// awaits the native path/occupancy consumers. Arrival is measured at its door.
+// Door arrival for timber delivery and remaining tower/temple admission adapters.
 function atBuildingEntrance(w: World, p: Point, b: Building) {
   const door = entrance(w, b)
   return Math.abs(p.x - door.x) < 112 / 256 && Math.abs(p.z - door.z) < 112 / 256
@@ -2350,7 +2362,11 @@ export function command(w: World, p: Point) {
   if (friendly && friendly.progress < 1) constructionWorkers(w, friendly)
   for (const u of w.units.filter(u => w.selected.includes(u.id))) {
     if (shrine && shrine.kind === 'vault' && u.kind !== 'shaman') continue
-    if (friendly && (friendly.kind !== 'hut' || friendly.progress < 1) && u.kind !== 'brave')
+    if (
+      friendly &&
+      (friendly.progress < 1 || !['hut', 'camp'].includes(friendly.kind)) &&
+      u.kind !== 'brave'
+    )
       continue
     if (
       friendly &&
@@ -4005,17 +4021,7 @@ function stepTurn(w: World) {
     const camps = w.buildings.filter(
       b => b.team === team && b.kind === 'camp' && b.progress === 1 && b.hp > 0
     )
-    // ponytail: live occupancy/conversion still admits one trainee; native slots
-    // and batch costs replace this adapter when the occupant lifecycle is wired in.
-    const buildings = camps.map(b => ({
-      id: b.id,
-      model: 7,
-      flags3: 0,
-      manaNext: 0,
-      trainingCost: trainingCost(w, team),
-      storedMana: b.timer,
-      activity: w.units.some(u => u.inside === b.id && u.kind === 'brave' && u.hp > 0) ? 128 : 0,
-    }))
+    const buildings = camps.map(b => buildingAdmission(w, b))
     distributeMana(w.manaWorld, tribe, buildings, {
       // 0x499970 only permits its tutorial reminder on original levels 6–10.
       shouldNotifyFull: () => false,
@@ -4061,15 +4067,7 @@ function stepTurn(w: World) {
       if (wasIncomplete) continue
     }
     if (b.kind === 'camp') {
-      const trainee = inhabitants.find(u => u.kind === 'brave')
-      if (trainee && b.timer >= trainingCost(w, b.team)) {
-        trainee.kind = 'warrior'
-        trainee.hp = maxHp('warrior')
-        release(w, trainee)
-        b.timer = 0
-        if (b.team === 'blue') w.stats.trained++
-        effect(w, 'birth', trainee)
-      }
+      stepLiveTraining(w, b)
     } else if (b.kind === 'hut') {
       if (
         !(w.manaWorld.gameFlags & 32) &&
@@ -4171,14 +4169,17 @@ function stepTurn(w: World) {
     if (u.work !== null && !work) release(w, u)
     if (u.inside !== null) {
       const b = w.buildings.find(b => b.id === u.inside && b.hp > 0)
-      if (b) continue
+      if (b) {
+        if (b.kind === 'camp' && u.entry) stepBuildingEntry(w, u, b)
+        continue
+      }
       release(w, u)
       u.hp -= 10
     }
     if (
       work &&
       'hp' in work &&
-      work.kind === 'hut' &&
+      (work.kind === 'hut' || work.kind === 'camp') &&
       work.progress === 1 &&
       !work.burn &&
       !u.builder &&
@@ -4186,11 +4187,11 @@ function stepTurn(w: World) {
       !u.harvest &&
       !u.delivery
     ) {
-      stepHousingEntry(w, u, work)
+      stepBuildingEntry(w, u, work)
       continue
     }
     // An unavailable hut hands control back to the existing work controller.
-    cancelHousingEntry(w, u)
+    cancelBuildingEntry(w, u)
     if (
       work &&
       'kind' in work &&

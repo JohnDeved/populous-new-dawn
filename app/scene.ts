@@ -2318,7 +2318,7 @@ export class GameScene {
       g.userData.nativeHeading = 0
       g.userData.cellPosition = u
       g.userData.health.userData.cellPosition = u
-      g.visible = u.inside === null
+      g.visible = u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))
       const animationSource = unitAnimationSource(u)
       g.userData.depthBias =
         animationSource && animationSource.flags3 & 0x400
