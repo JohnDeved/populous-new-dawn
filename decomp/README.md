@@ -3528,3 +3528,60 @@ scheduling and object-pool allocation limits remain open. The live log allocator
 uses the existing unbounded browser scenery collection; failure behavior is proved
 by native captures rather than a browser pool-limit claim. Broad construction is
 still partial.
+
+## Building foundations and actual model origins — 2026-09-09
+
+`00403f00` now supplies allocated-building ground writes in `building-shapes.ts`.
+It samples all four corners of each occupied tile, retaining duplicate samples
+for descriptor-selected averaging, or selecting the minimum bounded initially at
+1024. It clamps the result to at least one, writes the descriptor-selected mask
+in original order, preserves the rotated dock water-edge decrements and submits
+the original terrain queue center/radius. The browser uses the existing native
+terrain processing and walk-mask consumers, then resamples its compatibility grid.
+The previous arbitrary square pad is removed.
+
+`00403d50` supplies the model's actual position relative to its saved map anchor.
+The importer retains the original object-reference offsets at +48/+52 minus
++32/+36; the native comparisons verify these against bank-2 object records.
+Buildings retain their anchor separately from their displayed/targeted position.
+Mission models/angles are supplied before grounding; hut upgrades retain the
+anchor and update the replacement origin. Shape sockets, occupancy, entrances and
+placement separation continue to use the anchor. Terrain/model synchronization
+passes the complete first-mission discovery/build/train/combat test.
+
+The height branch of `004b8220`, including native `004b9e20` grade-vertex traversal,
+`0044fd80` signed averaging, outside-height mode, 64-unit rounding with lower ties,
+clamps and special-model branches, is compared and used for new plan foundations.
+The live adapter still applies that preparation immediately. Full task-8 leveling,
+scenery/person clearance, initial timber, allocation timing and unattended-plan
+removal remain unimplemented. The newly exported `004043f0` and `0044fde0` preserve
+research for those workers; they are not claimed as integrated ports.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-ground.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-ground.test.mjs
+node scripts/check-browser-building-ground.mjs
+```
+
+Compared 1,216 original ground/origin calls and 1,088 plan-height initializers:
+all four rotations, original building descriptors/families/tribes, signed and
+rounding boundaries, nonuniform terrain and wrapped map edges. Only final terrain
+queue submission, cell insertion and model-10 cliff setup are intercepted; ground
+sampling, shape selection and averaging execute natively. Ninety-six captured
+cases run without the original executable. Existing native footprint/shade checks
+still pass (632/4,096 cases). Four actual Space rotations and mouse placements
+verify anchors, rendered origins, native grade vertices, retained surrounding
+heights and 1,260–1,615 visible scaffold pixels. Construction, repair and sprite
+checks remain separate; complete native allocation and painter ordering are open.
+
+All 111 portable checks, actual construction/departure and Lightning/repair pass.
+The 336 frozen GPU unit poses retain their original hashes. The shadow fixture's
+old lane is now behind the correctly positioned hut: GPU isolation measured zero
+visible shadow pixels with that roof and 36 with the buildings hidden. The fixture
+now removes the red village while retaining its native terrain; the same real
+Blast, artwork, flight/ground separation and landing assertions pass with 36 pixels.
+This is fixture isolation, not a change to depth testing or a claim of full native
+painter parity. Selection controls also pass. Fallow reports 85.0 maintainability,
+2.9 average cyclomatic complexity and no dead exports; existing model.ts lint and
+complexity debt remains. The touched shape module passes ox-standard and both
+changed app modules pass existing ESLint.

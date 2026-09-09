@@ -3,12 +3,14 @@ import test from 'node:test';
 import {createHash} from 'node:crypto';
 import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
+import {buildingGradeVertices,buildingPosition} from '../app/building-shapes.ts';
+import {browserPosition} from '../app/model.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
 import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '../app/tooltips.ts';
 import {modelMatrix,modelPoint} from '../app/projection.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast,rotateBuildingPlan,addBuilding,buildingObject,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, footprintPoints, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 test('scenery shade follows cell occupants through overlap, depletion and regrowth', async () => {
   const {syncLandscapeObjects}=await import('../app/model.ts');
@@ -48,7 +50,8 @@ test('rotated building plans keep their anchor, entrance routes and orientation 
     select(w, 'brave');
     assert.ok(placeBuilding(w, 'hut', point));
     const b = w.buildings.at(-1);
-    assert.deepEqual({ x: b.x, z: b.z }, { x: 4, z: 34 });
+    assert.deepEqual(b.anchor, { x: plan.anchorX, y: plan.anchorY });
+    assert.deepEqual({ x: b.x, z: b.z }, browserPosition(buildingPosition(buildingPose(b))));
     assert.equal(buildingPose(b).anchorX, plan.anchorX);
     assert.equal(buildingPose(b).anchorY, plan.anchorY);
     const workers = w.units.filter(u => u.work === b.id);
@@ -207,7 +210,13 @@ test('opening tooltips resolve mission cells and have an independent lifetime', 
 });
 function until(w,ready,seconds){for(let i=0;i<seconds*12&&!ready()&&w.status==='playing';i++)tick(w,1/12);assert.ok(ready(),'gameplay condition reached within its turn budget');}
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
-function foundations(w){for(const b of w.buildings){for(const p of footprintPoints(b.kind,b)){assert.ok(walkable(w.terrain,p),'foundation vertices stay on dry land');assert.ok(Math.abs(worldPoint(w.terrain,p).y-b.foundation*45/128)<1e-9,'supporting vertices share the native foundation height');}for(const dx of [-2.8,0,2.8])for(const dz of [-2.8,0,2.8]){assert.ok(Math.abs(worldPoint(w.terrain,{x:b.x+dx,z:b.z+dz}).y-b.foundation*45/128)<1e-9,'interpolated ground supports the whole building');}}}
+function foundations(w) {
+ for (const b of w.buildings) for (const {index} of buildingGradeVertices(buildingPose(b))) {
+  const p=browserPosition({x:(index&127)*512,y:(index>>7)*512});
+  assert.ok(walkable(w.terrain,p),'native foundation vertices stay on dry land');
+  assert.ok(Math.abs(worldPoint(w.terrain,p).y-b.foundation*45/128)<1e-9,'native mask vertices support the building');
+ }
+}
 test('original level layout, native foundations, and the complete mission',()=>{
  const w=createWorld();assert.deepEqual(HOME,{x:9,z:33});assert.deepEqual(ENEMY,{x:1,z:-37});assert.equal(w.units.filter(u=>u.team==='blue'&&u.kind==='brave').length,6);assert.equal(w.buildings.length,4);assert.equal(w.shrines.length,3);assert.equal(w.units.filter(u=>u.team==='red').length,5);
  assert.ok(w.units.every(u=>walkable(w.terrain,u)));assert.equal(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},ENEMY).length,0);foundations(w);
@@ -243,7 +252,7 @@ test('native transformed compound bases stay on their ground pads',()=>{
    const p=modelPoint(raw,data.scale,basis,{x:0,y:Math.round(b.foundation*45),z:0});
    const ground=worldPoint(w.terrain,{x:b.x+p.x/128,z:b.z-p.z/128});
    const gap=p.y/128-ground.y;
-   assert.ok(gap>=-1/128&&gap<=3/128,`native model ${id} base gap ${gap}`);
+   assert.ok(gap>=-1/128-1e-9&&gap<=3/128+1e-9,`native model ${id} base gap ${gap}`);
   }
  }
 });
@@ -313,7 +322,7 @@ test('native integer movement and combat exchanges preserve timing, retaliation 
  const walker=addUnit(moving,'blue','brave',{x:0,z:0});addUnit(moving,'red','brave',{x:40,z:40});walker.path=[{x:10,z:0}];tick(moving,1/12);
  assert.equal(walker.x,70/256);assert.equal(walker.z,0);assert.equal(walker.heading,Math.PI/2);
  const rng={randomState:1};assert.deepEqual(Array.from({length:6},()=>random(rng)),[1275068418,1896767491,2517695575,2629181784,3921238491,2630906275]);
- const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.units=[];w.buildings=[];w.randomState=seed;const a=addUnit(w,'blue','warrior',{x:0,z:0}),b=addUnit(w,'red','brave',{x:180/256,z:0}),group={id:w.nextId++,x:0,z:0,angle:512,members:[a.id,b.id]};w.fights=[group];for(const [u,other] of [[a,b],[b,a]])u.fight={group:group.id,opponent:other.id,action:'ready',started:0,until:0};return w;};
+ const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.units=[];w.buildings=[];w.randomState=seed;const a=addUnit(w,'blue','warrior',{x:0,z:0}),b=addUnit(w,'red','brave',{x:180/256,z:0}),group={id:w.nextId++,x:0,z:0,angle:512,members:[a.id,b.id]};w.fights=[group];for(const [u,other] of [[a,b],[b,a]])u.fight={group:group.id,opponent:other.id,action:'ready',started:0,until:0};return w;};
  const a=duel(),b=structuredClone(a);b.units.reverse();tick(a,1/12);tick(b,1/12);b.units.sort((a,b)=>a.id-b.id);assert.deepEqual(b,a,'one coordinated exchange is independent of unit array order');
  assert.equal(a.units[0].hp,87);assert.equal(a.units[1].hp,32,'the brave retaliates with its pre-hit health');
  assert.equal(a.units[0].fight.action,'attack');assert.equal(a.units[1].fight.action,'recoil');
@@ -328,7 +337,7 @@ test('native integer movement and combat exchanges preserve timing, retaliation 
 });
 
 test('native fight slots form four-person groups and release on interruption',()=>{
- const w=createWorld();w.terrain.fill(3);w.units=[];w.buildings=[];
+ const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.units=[];w.buildings=[];
  const center=addUnit(w,'blue','warrior',{x:0,z:0});
  for(let i=0;i<4;i++)addUnit(w,'red','brave',{x:.4+i*.1,z:0});
  tick(w,1/12);assert.equal(w.fights.length,1);assert.equal(w.fights[0].members.length,4,'one center and at most three attackers');
@@ -354,7 +363,7 @@ test('native sound cues preserve sample identity, cast phases and simulation ran
  assert.equal(cueVariant(0x18,1).key,'sound-42');assert.equal(audio.samples.sound['42'].name,'Sv_sel02');
  assert.equal(cueVariant(0xd,1).key,'fight-3');assert.equal(audio.samples.fight['3'].name,'Punch11');
  assert.equal(cueVariant(0,1),null);assert.equal(soundAttenuation(0),1);assert.equal(soundAttenuation(0x4800000),.5);assert.equal(soundAttenuation(0x9000000),0);
- const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');w.units[0].x=0;w.units[0].z=0;const enemy=w.units.find(u=>u.team==='red');enemy.x=30;enemy.z=30;return w;};
+ const make=()=>{const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');w.units[0].x=0;w.units[0].z=0;const enemy=w.units.find(u=>u.team==='red');enemy.x=30;enemy.z=30;return w;};
  const w=make(),ids=w.nextId,rng=w.randomState;assert.ok(cast(w,'blast',{x:4,z:0}));
  assert.deepEqual(w.sounds.map(e=>e.cue),[0x76]);assert.equal(w.nextId,ids+1);assert.equal(w.randomState,rng);
  for(let i=0;i<5;i++)tick(w,1/12);assert.equal(w.sounds.length,1);
@@ -365,7 +374,7 @@ test('native sound cues preserve sample identity, cast phases and simulation ran
 
 
 test('native Lightning delays the upper flash and regenerates eight segments for three turns',()=>{
- const w=createWorld();w.terrain.fill(3);w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');
+ const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.buildings=[];w.units=w.units.filter(u=>u.kind==='shaman');
  Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});w.shots.lightning=1;
  assert.ok(cast(w,'lightning',{x:10,z:0}));impact(w,'lightning');
  const f=w.effects.find(e=>e.kind==='lightning'),turn=w.turn;
@@ -380,7 +389,7 @@ test('native Lightning delays the upper flash and regenerates eight segments for
 });
 
 test('native spell allocation, discrete flight, RNG trails and delayed impact',()=>{
- const make=()=>{const w=createWorld();w.terrain.fill(3);w.buildings=[];w.randomState=1;w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
+ const make=()=>{const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.buildings=[];w.randomState=1;w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
  assert.deepEqual(nativeStep3D({x:32760,y:-32760,h:32760},2047,511,-321),{x:32760,y:32455,h:32759},'negative odd length and short wrapping verified against x86');
  const w=make();cast(w,'blast',{x:10,z:0});assert.equal(w.shots.blast,3);assert.deepEqual(w.projectiles[0].target,{x:11,z:-1});tick(w,6/12);
  assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
@@ -1158,7 +1167,7 @@ test('live spell reach follows terrain height and enemy casts require and spend 
 test('native casting lockout survives animation and computer usage recovers one charge at a time', async () => {
  const {canShamanCast,computerSpellAllowed,stepComputerCastCooldown,registerSpellCooldown,createTribeCasting}=await import('../app/spell-casting.ts');
  const w=createWorld(),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
- w.units=w.units.filter(u=>u.kind==='shaman');w.terrain.fill(3);Object.assign(shaman,{x:0,z:0});
+ w.units=w.units.filter(u=>u.kind==='shaman');w.terrain.fill(3);w.terrainVersion++;Object.assign(shaman,{x:0,z:0});
  assert.ok(cast(w,'blast',{x:4,z:0}));assert.equal(w.castingTribes[0].cooldown,12);
  tick(w,6/12);assert.equal(shaman.casting,null);assert.equal(cast(w,'blast',{x:4,z:0}),false,'animation ending does not end the tribe lockout');
  tick(w,5/12);assert.equal(cast(w,'blast',{x:4,z:0}),false);tick(w,1/12);assert.ok(cast(w,'blast',{x:4,z:0}));
@@ -1177,7 +1186,7 @@ test('spell targeting preserves native cell allowances and wrapped coordinate se
  const {spellInRange}=await import('../app/model.ts');
  const {validateSpellTarget,createTribeCasting,filterSpellEntries}=await import('../app/spell-casting.ts');
  const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),target=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
- w.terrain.fill(3);w.inputMask=0;w.ai.variables[57]=1;
+ w.terrain.fill(3);w.terrainVersion++;w.inputMask=0;w.ai.variables[57]=1;
  w.units=w.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');
  Object.assign(red,{x:0,z:0,target:target.id});Object.assign(target,{x:10.8,z:0,path:[],target:null,inside:null,work:null});
  w.turn=16;w.spellScan.cursor=80;w.manaTribes[1].mana=20000;w.manaTribes[1].available=0;
@@ -1212,7 +1221,7 @@ test('native spell scans retain slots and Blast scoring avoids friendly concentr
  dispatchSpellTargets(world,scan,entries,ranges,caster,0,0,{regionFlags:()=>0,categoryFlags:()=>1,cast:()=>assert.fail('No spell enabled')});
  assert.deepEqual(scan.targets,[0,4,0,0],'an unusable weighted first area leaves later slots for another dispatch');
  const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),blue=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2),allies=w.units.filter(u=>u.team==='red'&&u.kind==='brave').slice(0,2),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
- w.terrain.fill(3);w.inputMask=0;w.ai.variables[57]=1;w.units=[shaman,...blue,red,...allies];
+ w.terrain.fill(3);w.terrainVersion++;w.inputMask=0;w.ai.variables[57]=1;w.units=[shaman,...blue,red,...allies];
  Object.assign(shaman,{x:30,z:30});Object.assign(red,{x:0,z:0,target:blue[0].id});
  for(const [i,u] of blue.entries())Object.assign(u,{x:i?6:4,z:0,path:[],work:null,inside:null});
  for(const u of allies)Object.assign(u,{x:4,z:0,path:[],work:null,inside:null});
@@ -1233,7 +1242,7 @@ test('defeat seeds native building collapse and staged damage ejects occupants b
  // Isolate the live object adapter from outcome processing; the separate result
  // regression exercises continuous destruction after a real victory or defeat.
  const w=createWorld(),b=w.buildings.find(b=>b.team==='red'&&b.kind==='hut');
- w.manaWorld.gameFlags=32;w.terrain.fill(3);w.buildings=[b];w.units=[];
+ w.manaWorld.gameFlags=32;w.terrain.fill(3);w.terrainVersion++;w.buildings=[b];w.units=[];
  const occupant=addUnit(w,'red','brave',b);occupant.inside=b.id;occupant.work=b.id;
  const model=buildingModel(b),threshold=rules.buildingDamageThreshold[model];
  b.damageState={model,state:2,flags2:0,flags3:0,buildingFlags:64,counter:0,damage:threshold,
@@ -1384,7 +1393,7 @@ test('live completed-building footprints relocate and clear on removal', async (
  const w=createWorld(),b=w.buildings.find(b=>b.team==='blue');w.buildings=[b];syncLandscapeObjects(w);
  const occupied=()=>Array.from(w.land.buildingIds).flatMap((id,i)=>(id&1023)===b.id?[i]:[]);
  const old=occupied();assert.ok(old.length>0);assert.ok(old.every(i=>w.land.flags[i]&0x200));
- b.x+=16;b.angle=Math.PI/2;syncLandscapeObjects(w);
+ b.x+=16;b.anchor.x=(b.anchor.x+4096)&65535;b.angle=Math.PI/2;syncLandscapeObjects(w);
  const moved=occupied();assert.ok(moved.length>0);assert.ok(moved.every(i=>!old.includes(i)));
  assert.ok(old.every(i=>!(w.land.flags[i]&0x200)),'old footprint cannot remain as invisible collision');
  b.hp=0;syncLandscapeObjects(w);assert.deepEqual(occupied(),[]);

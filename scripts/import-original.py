@@ -76,7 +76,12 @@ def building_shapes(data, objects):
         shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset,smoke=smoke,fire=fire))
     indices=[list(struct.unpack_from('<4b',objects,i+44)) for i in range(0,len(objects),54)]
     assert all(0 <= n < len(shapes) for row in indices for n in row)
-    return dict(objects=indices,shapes=shapes,cells=list(data[64*48:]))
+    # 0x403d50: object origin relative to its bounding-box reference.
+    origins=[[
+        struct.unpack_from('<h',objects,i+48)[0]-struct.unpack_from('<h',objects,i+32)[0],
+        struct.unpack_from('<h',objects,i+52)[0]-struct.unpack_from('<h',objects,i+36)[0],
+    ] for i in range(0,len(objects),54)]
+    return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]))
 
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]

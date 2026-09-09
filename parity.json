@@ -151,9 +151,13 @@
           "evidence": [
             "scripts/check-native-building-shapes.py",
             "scripts/check-native-building-plan.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "scripts/check-native-building-ground.py",
+            "tests/fixtures/building-ground.json",
+            "tests/building-ground.test.mjs",
+            "scripts/check-browser-building-ground.mjs"
           ],
-          "note": "All four construction orientations and shared plan anchors checked."
+          "note": "All four construction orientations and shared plan anchors checked. Original allocated-building ground masks, descriptor minimum/average height rules, rotated water edges and terrain refresh now replace the arbitrary square pad. Actual model origins are separate from retained map anchors; native model/angle precede grounding, including mission loading and upgrade origins. New plans use original grade vertices, outside-height mode and quantized foundation rules. Compared 1216 native ground/origin calls and 1088 plan-height initializers; browser rotation/placement verifies all four orientations and visible scaffolds. Worker-driven preparation and delayed allocation remain open; no broad construction credit added."
         },
         {
           "id": "graphics.sprites",
@@ -832,9 +836,13 @@
             "tests/fixtures/building-work.json",
             "scripts/check-browser-building-fire.mjs",
             "tests/fixtures/building-departure.json",
-            "tests/fixtures/building-approach.json"
+            "tests/fixtures/building-approach.json",
+            "scripts/check-native-building-ground.py",
+            "tests/fixtures/building-ground.json",
+            "tests/building-ground.test.mjs",
+            "scripts/check-browser-building-ground.mjs"
           ],
-          "note": "Native geometry/stages, crew limits, capacity-limited deliveries and constructed-plan fetching/repair dispatch are integrated. Task-1 approach, task-2 work and task-9 departure use original shape targets, anchors, movement speed/RNG, facing, waits, poses and readiness. Initial carried timber is deposited before work; final delivery retains workers through the native departure gate. Compared 3072 approach, 2688 work and 5120 departure calls; prior evidence covers 5120 crew decisions and 1264 repair-smoke controllers. Live scenarios cover carrying/empty-handed commands and one/two/six workers across four hut orientations, pause, cancellation, continuous departure, route cleanup and surplus wood. Browser approach/deposit/work/departure sprites, full construction/repair and all 336 existing GPU sprite poses pass. The live world still allocates a linked building immediately. Unbuilt-plan initialization/terrain preparation/allocation, full command and plan-signal ownership, object-pool limits, motion/collision/turn scheduling, panic and frame-gated audio remain open; broad construction stays partial."
+          "note": "Native geometry/stages, crew limits, capacity-limited deliveries and constructed-plan fetching/repair dispatch are integrated. Task-1 approach, task-2 work and task-9 departure use original shape targets, anchors, movement speed/RNG, facing, waits, poses and readiness. Initial carried timber is deposited before work; final delivery retains workers through the native departure gate. Compared 3072 approach, 2688 work and 5120 departure calls; prior evidence covers 5120 crew decisions and 1264 repair-smoke controllers. Live scenarios cover carrying/empty-handed commands and one/two/six workers across four hut orientations, pause, cancellation, continuous departure, route cleanup and surplus wood. Browser approach/deposit/work/departure sprites, full construction/repair and all 336 existing GPU sprite poses pass. The live world still allocates a linked building immediately. Unbuilt-plan initialization/terrain preparation/allocation, full command and plan-signal ownership, object-pool limits, motion/collision/turn scheduling, panic and frame-gated audio remain open; broad construction stays partial. Original allocated-building ground masks, descriptor minimum/average height rules, rotated water edges and terrain refresh now replace the arbitrary square pad. Actual model origins are separate from retained map anchors; native model/angle precede grounding, including mission loading and upgrade origins. New plans use original grade vertices, outside-height mode and quantized foundation rules. Compared 1216 native ground/origin calls and 1088 plan-height initializers; browser rotation/placement verifies all four orientations and visible scaffolds. Worker-driven preparation and delayed allocation remain open; no broad construction credit added."
         },
         {
           "id": "economy.wood",
@@ -914,7 +922,7 @@
             "app/building-workers.ts",
             "app/building-shapes.ts"
           ],
-          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, complete worker readiness/idle positioning, person command ownership, panic motion and departure remain adapters. The constructed-plan completion gate is compared but live completion still releases browser workers directly; mixed-class scheduling/counter ownership remains open."
+          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, person command ownership and panic motion remain adapters. Original task-1 approach, task-2 work and task-9 departure now feed live readiness and completion; mixed-class scheduling/counter ownership remains open."
         },
         {
           "id": "economy.classes",

@@ -15,6 +15,9 @@ try {
     const s = window.testScene, w = s.world
     w.speed = 0
     window.shadowTarget = w.units.find(u => u.team === 'red' && u.kind === 'shaman')
+    // Keep native ground but clear the village from this visibility fixture:
+    // the corrected hut origin puts its roof across the target's shadow.
+    w.buildings = w.buildings.filter(b => b.team !== 'red')
     const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     shaman.x = window.shadowTarget.x - 5
     shaman.z = window.shadowTarget.z

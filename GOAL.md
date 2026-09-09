@@ -750,3 +750,22 @@ ownership, object-pool limits, complete motion/collision/turn scheduling, panic 
 frame-gated audio remain open. Keep comparing full original first-mission frames.
 Known-scope coverage remains 17.7% (17/96); discovery is open and full parity remains
 unfinished.
+
+### Latest visible integration: original foundations and model origins
+
+Building ground now follows the original rotated tile/corner masks and descriptor
+height rules. Removed the oversized square pads. Models use their original offset
+from a separately retained map anchor; mission rotation/level is applied before
+grounding, and upgrades retain their anchor. New plans select the original
+quantized foundation height. Compared 1,216 native ground/origin calls and 1,088
+plan-height initializers; portable coverage checks all supported building kinds,
+rotations, terrain synchronization and untouched neighboring ground. Actual browser
+Space rotation, placement and visible scaffold geometry pass in all four directions.
+There are 111 portable checks and 932 identified exports.
+
+Next remains the unbuilt-plan lifecycle: task-8 worker leveling, footprint clearing,
+initial timber, worker clearance and delayed allocation. Preparation is still
+immediate in the live adapter; this change recovers its geometry/height and fixes
+visible model placement, not its timing. Keep original-frame comparisons and
+critical first-mission gameplay ahead of isolated backend work. Known-scope
+coverage stays 17.7% (17/96), discovery is open and full parity remains unfinished.

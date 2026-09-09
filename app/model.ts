@@ -95,6 +95,10 @@ import {
 import {
   buildingOutsidePoint,
   buildingInsidePoint,
+  buildingPosition,
+  buildingGradeVertices,
+  buildingPlanHeight,
+  levelBuildingGround,
   chooseBuildingObject,
   buildingSmokePoint,
   buildingFirePoints,
@@ -223,6 +227,7 @@ export type Unit = Point & {
 }
 export type Building = Point & {
   id: number
+  anchor?: { x: number; y: number }
   object?: number
   team: Team
   kind: BuildingKind
@@ -799,11 +804,14 @@ export function placementError(w: World, kind: BuildingKind, p: Point) {
   if (!w.buildings.some(b => b.team === 'blue' && distance(b, p) < 16) && distance(HOME, p) > 16)
     return 'Build next to your settlement or reincarnation site.'
   if (
-    w.buildings.some(
-      b =>
-        Math.abs(b.x - p.x) < footprint(kind) + footprint(b.kind) + 2 &&
-        Math.abs(b.z - p.z) < footprint(kind) + footprint(b.kind) + 2
-    )
+    w.buildings.some(b => {
+      const pose = buildingPose(b),
+        anchor = browserPosition({ x: pose.anchorX, y: pose.anchorY })
+      return (
+        Math.abs(anchor.x - p.x) < footprint(kind) + footprint(b.kind) + 2 &&
+        Math.abs(anchor.z - p.z) < footprint(kind) + footprint(b.kind) + 2
+      )
+    })
   )
     return 'Leave room around the other buildings and their entrances.'
   if (w.shrines.some(s => distance(s, p) < footprint(kind) + 3))
@@ -811,13 +819,31 @@ export function placementError(w: World, kind: BuildingKind, p: Point) {
   return null
 }
 export function groundBuilding(w: World, b: Building) {
-  // A shared native height keeps the building and its supporting terrain together.
-  const points = footprintPoints(b.kind, b)
-  b.foundation =
-    Math.round((points.reduce((sum, p) => sum + surface(w.terrain, p), 0) / points.length) * 45) /
-    45
-  for (const p of points) w.terrain[(p.z + 48) * GRID + p.x + 48] = b.foundation
+  syncNativeTerrain(w)
+  const pose = buildingPose(b),
+    model = buildingModel(b)
+  if (b.progress < 1) {
+    const target = buildingPlanHeight(w.land, pose, model, 0, 0)
+    // ponytail: immediate site preparation remains until task 8 and unbuilt-plan
+    // allocation own its timing. The target and affected vertices are native.
+    for (const c of buildingGradeVertices(pose)) w.land.heights[c.index] = target
+  }
+  levelBuildingGround(w.land.heights, pose, model, (cell, radius) => {
+    queueTerrain(w.land, cell, radius, 1, terrainTextures)
+    processTerrain(w.land, terrainTextures)
+    updateWalkMasks(w.land, cell, radius + 1)
+  })
+  b.foundation = terrainPointHeight(w.land, buildingPosition(pose)) / 45
+  // Resample the compatibility grid after native writes; keep collision, picking
+  // and the rendered native terrain on the same surface.
+  for (let i = 0; i < w.terrain.length; i++) {
+    const x = (i % GRID) - 48,
+      z = Math.floor(i / GRID) - 48
+    const h = terrainPointHeight(w.land, { x: (x + 8) * 256, y: (-z - 8) * 256 }) / 45
+    w.terrain[i] = h || -0.35
+  }
   w.terrainVersion++
+  w.landVersion = w.terrainVersion
 }
 export function walkable(terrain: number[], p: Point) {
   return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > 0.45
@@ -958,26 +984,39 @@ export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
   w.units.push(u)
   return u
 }
-export function addBuilding(w: World, team: Team, kind: BuildingKind, p: Point, complete = true) {
+export function addBuilding(
+  w: World,
+  team: Team,
+  kind: BuildingKind,
+  p: Point,
+  complete = true,
+  { angle = 0, level: buildingLevel = 1 } = {}
+) {
   const b: Building = {
     x: p.x,
     z: p.z,
     id: w.nextId++,
+    anchor: { x: Math.round((p.x + 8) * 256) & 0xfe00, y: Math.round((-p.z - 8) * 256) & 0xfe00 },
     team,
     kind,
-    object: chooseBuildingObject(buildingModel({ kind, level: 1 }), team === 'blue' ? 0 : 1, w),
+    object: chooseBuildingObject(
+      buildingModel({ kind, level: buildingLevel }),
+      team === 'blue' ? 0 : 1,
+      w
+    ),
     hp: buildingHp(kind),
     progress: complete ? 1 : 0,
     timer: 0,
     foundation: 0,
-    level: 1,
+    level: buildingLevel,
     logs: complete ? (BUILDINGS.find(b => b.id === kind)?.cost ?? 0) : 0,
     upgrade: 0,
     upgrading: false,
-    angle: 0,
+    angle,
     counter: 0,
     damageState: null,
   }
+  Object.assign(b, browserPosition(buildingPosition(buildingPose(b))))
   groundBuilding(w, b)
   w.buildings.push(b)
   if (complete && kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
@@ -1138,10 +1177,10 @@ export function createWorld(): World {
   }
   for (const o of level.objects) {
     if (o.type === 2 && o.owner !== 255) {
-      const b = addBuilding(w, o.owner === 0 ? 'blue' : 'red', o.model === 7 ? 'camp' : 'hut', o)
-      b.level = o.model === 3 ? 3 : 1
-      b.object = buildingObject(b) + b.level - 1
-      b.angle = (o.angle / 2048) * Math.PI * 2
+      addBuilding(w, o.owner === 0 ? 'blue' : 'red', o.model === 7 ? 'camp' : 'hut', o, true, {
+        level: o.model === 3 ? 3 : 1,
+        angle: (o.angle / 2048) * Math.PI * 2,
+      })
     }
     if (o.type === 1)
       addUnit(
@@ -1644,8 +1683,8 @@ export function buildingPose(b: Building) {
   return {
     object: buildingObject(b),
     angle: Math.round((b.angle * 2048) / (Math.PI * 2)) & 2047,
-    anchorX: Math.round((b.x + 8) * 256) & 0xfe00,
-    anchorY: Math.round((-b.z - 8) * 256) & 0xfe00,
+    anchorX: b.anchor?.x ?? Math.round((b.x + 8) * 256) & 0xfe00,
+    anchorY: b.anchor?.y ?? Math.round((-b.z - 8) * 256) & 0xfe00,
   }
 }
 
@@ -2075,8 +2114,7 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     tell(w, 'A free brave must be able to reach the building site.')
     return false
   }
-  const b = addBuilding(w, 'blue', kind, p, false)
-  b.angle = (plan.angle * Math.PI) / 1024
+  const b = addBuilding(w, 'blue', kind, p, false, { angle: (plan.angle * Math.PI) / 1024 })
   b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0)
   for (const { u } of workers) {
     assignBuilder(b.builders, u.id)
@@ -3463,6 +3501,7 @@ function stepTurn(w: World) {
         // 0x4050c0 retains the family and starts its replacement plan with 100 work.
         b.object = buildingObject(b) + 1
         b.level++
+        Object.assign(b, browserPosition(buildingPosition(buildingPose(b))))
         b.damageState = null
         b.builders = undefined
         b.progress = 100 / rules.buildingLife[b.level]

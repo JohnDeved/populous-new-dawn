@@ -1,6 +1,7 @@
 import data from './original-shapes.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, nativeStep, random } from './native-math.ts'
+import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 
 export interface BuildingShapePose {
   object: number
@@ -73,19 +74,108 @@ export function buildingFirePoints(b: BuildingShapePose) {
 function shapeCells(s: ReturnType<typeof shape>, anchorX: number, anchorY: number, mask = 1) {
   const cx = (anchorX >>> 8) & 254,
     cy = (anchorY >>> 8) & 254,
-    cells: number[] = []
+    cells: { index: number; mask: number }[] = []
   for (let y = 0; y < s.height; y++)
     for (let x = 0; x < s.width; x++)
       if (data.cells[s.offset + y * s.width + x] & mask) {
         const px = (cx - s.x + x * 2) & 255,
           py = (cy - s.y + y * 2) & 255
-        cells.push((py >> 1) * 128 + (px >> 1))
+        cells.push({
+          index: (py >> 1) * 128 + (px >> 1),
+          mask: data.cells[s.offset + y * s.width + x],
+        })
       }
   return cells
 }
 
 export function buildingFootprintCells(b: BuildingShapePose) {
-  return shapeCells(shape(b), b.anchorX, b.anchorY)
+  return shapeCells(shape(b), b.anchorX, b.anchorY).map(c => c.index)
+}
+
+// 0x403d50: the map anchor and the displayed model origin are different points.
+export function buildingPosition(b: BuildingShapePose) {
+  const s = shape(b),
+    q = Math.trunc(short(b.angle) / 512),
+    [x, y] = data.origins[b.object]
+  const offsets = [
+    [x, y],
+    [y, 512 - x],
+    [512 - x, 512 - y],
+    [512 - y, x],
+  ]
+  return {
+    x:
+      (b.anchorX + offsets[q][0] + ((q === 2 || q === 3 ? s.width * 2 - 6 : 0) - s.x + 2) * 256) &
+      65535,
+    y:
+      (b.anchorY + offsets[q][1] + ((q === 1 || q === 2 ? s.height * 2 - 6 : 0) - s.y + 2) * 256) &
+      65535,
+  }
+}
+
+// 0x4b9e20: grade vertices are mask bit 2, not occupied tiles (bit 1).
+export function buildingGradeVertices(b: BuildingShapePose) {
+  return shapeCells(shape(b), b.anchorX, b.anchorY, 2)
+}
+
+// Height branch of 0x4b8220, including 0x44fd80's signed average. Round ties
+// downward before clamping. Model 10 keeps its existing height; docks use one.
+export function buildingPlanHeight(
+  land: Pick<NativeTerrain, 'heights' | 'flags'>,
+  b: BuildingShapePose,
+  model: number,
+  current: number,
+  levelFlags: number
+) {
+  if (model === 10) return short(current)
+  if (model === 13 || model === 14) return 1
+  const vertices = buildingGradeVertices(b)
+  if (!vertices.length) throw new RangeError('Building plan has no grade vertices')
+  const h =
+    levelFlags & 0x4000
+      ? terrainPointHeight(land, buildingOutsidePoint(b))
+      : Math.trunc(
+          vertices.reduce((sum, c) => sum + short(land.heights[c.index]), 0) / vertices.length
+        )
+  return Math.max(64, Math.min(1024, (h + 31) & ~63))
+}
+
+function cellCorners(i: number) {
+  const east = (i & ~127) | ((i + 1) & 127),
+    south = (i + 128) & 16383
+  return [i, south, (east + 128) & 16383, east]
+}
+
+// Complete 0x403f00: grade four corners per occupied tile. Duplicates count
+// in the average and writes retain traversal order, including dock water edges.
+export function levelBuildingGround(
+  heights: Int16Array,
+  b: BuildingShapePose,
+  model: number,
+  refresh: (cell: number, radius: number) => void
+) {
+  const s = shape(b),
+    flags = rules.buildingFlags[model]
+  const sampled = buildingFootprintCells(b)
+    .flatMap(cellCorners)
+    .map(i => heights[i])
+  let height = Math.min(1024, ...sampled)
+  if (flags & 0x20000)
+    height = sampled.length ? Math.trunc(sampled.reduce((a, h) => a + h, 0) / sampled.length) : 0
+  height = Math.max(1, height)
+  const lowered = [
+    [1, 2],
+    [2, 3],
+    [0, 3],
+    [0, 1],
+  ][Math.trunc(short(b.angle) / 512)]
+  for (const c of shapeCells(s, b.anchorX, b.anchorY, flags & 0x40000 ? 5 : 1)) {
+    const edge = (model === 13 || model === 14) && c.mask & 8
+    cellCorners(c.index).forEach((i, corner) => {
+      heights[i] = height - (edge && lowered.includes(corner) ? 1 : 0)
+    })
+  }
+  refresh(((b.anchorX >>> 8) & 254) | (b.anchorY & 0xfe00), Math.max(s.width >> 1, s.height >> 1))
 }
 
 // 0x40afd0 / 0x4b9ef0: repair includes every nonempty shape cell, not just
@@ -93,7 +183,7 @@ export function buildingFootprintCells(b: BuildingShapePose) {
 export function buildingRepairArea(b: BuildingShapePose) {
   const s = shape(b)
   return {
-    cells: shapeCells(s, b.anchorX, b.anchorY, 255),
+    cells: shapeCells(s, b.anchorX, b.anchorY, 255).map(c => c.index),
     center: ((b.anchorX >>> 8) & 254) | (b.anchorY & 0xfe00),
     radius: (Math.max(s.width, s.height) + 1) >> 1,
   }
@@ -108,7 +198,7 @@ export function refreshSceneryShadow(
   refresh: (cell: number, radius: number) => void
 ) {
   const s = data.shapes[data.objects[p.object][0] || 1]
-  for (const i of shapeCells(s, p.anchorX, p.anchorY)) {
+  for (const { index: i } of shapeCells(s, p.anchorX, p.anchorY)) {
     land.flags[i] |= 16
     land.shadows[i] = (land.shadows[i] & 240) | (Math.min(15, shade(i)) & 255)
   }
