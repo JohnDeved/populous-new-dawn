@@ -1048,3 +1048,38 @@ moving comparisons, pinned normal/close coverage, full-color/picking comparison,
 and final painter equivalence. Run `profile-game.mjs --headed --wide
 --compare-painter --moving-orders` for the retained old/new painter comparison.
 `--compare-viewport-bounds` compares the complete old/new ground presentation.
+
+
+## Burning followers: native clocks, shared rendering — 2026-09-09
+
+After finishing the wide-terrain optimization, visible gameplay resumes with
+burning-building occupant panic and personal trails. The integration reuses the
+existing person movement, spell-trail phases, sprite renderer and fractional unit
+interpolator. It adds no render-frame simulation loop or dependency. Native
+12 Hz turn endpoints and the existing animation clock are preserved; portable
+live-world outcomes agree at 5–240 Hz and irregular frame schedules.
+
+`node scripts/check-browser-person-panic.mjs --headed` exercised actual Lightning
+input against a hut containing six followers, original panic poses and both
+particle types. GPU isolation found 974 spark pixels and 1,138 bright-particle
+pixels. All six followers survived, their emission counters expired and particle
+objects were removed. The audio probe observed 27 actual source starts with
+nonzero PCM, 21 completions and no more than six concurrent panic voices.
+
+On Apple M5 / Chrome 153 / ANGLE Metal at 1440×1000, DPR 1, the moving scene
+sample recorded 390 rendered frames: CPU median **2.5 ms**, p95 **6.8 ms**;
+frame gaps median **8.3 ms**, p95 **10 ms**, maximum **75.1 ms**. Peak personal
+particles were 84, with 249 total draw calls. Raw evidence:
+[`2026-09-09-person-panic.json`](performance/2026-09-09-person-panic.json).
+This is an absolute feature-cost observation, not a claimed speedup or a guarantee
+for other hardware, larger crowds, 4K or every frame. It retains the modern
+renderer while matching native controllers; original mixed-class draw stamps and
+complete native voice priority/stealing remain open. The browser audio check now
+requires playback: counting cue requests had falsely passed before cue 0x51 was
+added to the preload list.
+
+Validation after integration: all 159 portable checks, 392 GPU unit poses,
+Blast shadows, selection and the complete Lightning/fire/repair browser scenario
+pass. Fallow reports maintainability 85.9, average cyclomatic complexity 2.8 and
+p90 5. New panic/trail modules pass ox-standard lint; existing large integration
+files retain earlier lint debt, so this is not a claim of a lint-clean repository.

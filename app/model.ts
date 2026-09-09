@@ -1,3 +1,4 @@
+import { stepPersonFireTrail } from './person-panic.ts'
 import {
   assignBuilder,
   pruneBuilders,
@@ -74,7 +75,8 @@ import {
   createLivePerson,
   setLivePersonAnimation,
   initializeLiveCelebration,
-  stepLiveCelebration,
+  initializeLivePanic,
+  stepLivePerson,
   stepLiveImpulse,
   syncLivePersonCells,
   type LivePerson,
@@ -225,6 +227,7 @@ export type Projectile = {
 type Battle = Point & { id: number; members: number[]; angle: number }
 export type Unit = Point & {
   native: LivePerson | null
+  burnTrail?: number
   flight?: LivePerson
   vault: VaultTask | null
   id: number
@@ -2927,12 +2930,15 @@ function stepBuildingGroundResponse(w: World, b: Building) {
   })
 }
 
-function evacuateBuilding(w: World, b: Building) {
+function evacuateBuilding(w: World, b: Building, burning = false) {
   for (const u of w.units.filter(u => u.inside === b.id && u.hp > 0)) {
     release(w, u)
     Object.assign(u, buildingDoor(b))
+    if (burning) {
+      u.burnTrail = 24
+      initializeLivePanic(w, u)
+    }
   }
-  // Ejection is integrated; native panic state 26 still needs its movement/animation port.
 }
 
 function emitBuildingSmoke(w: World, b: Building, rng: { randomState: number }) {
@@ -2952,7 +2958,7 @@ function stepBurningBuilding(w: World, b: Building) {
     burn = b.burn!
   state.occupants = w.units.filter(u => u.inside === b.id && u.hp > 0).length
   stepBuildingBurn(state, burn, {
-    eject: () => evacuateBuilding(w, b),
+    eject: () => evacuateBuilding(w, b, true),
     sound: () => {
       sound(w, 0x53, b, b.id)
       burn.soundPlaying = true
@@ -3528,7 +3534,7 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
       flags4: 0,
       velocity: { x: 0, y: 0, z: 0 },
       vehicle: 0,
-      panicTimer: 0,
+      burnTrail: 0,
       life: 0,
       shake: 0,
       shakeOrigin: 0,
@@ -3578,6 +3584,7 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
     const u = units.get(p.id)
     if (!u) continue
     u.hp = p.life / 20
+    u.burnTrail = p.burnTrail
     if (p.flags2 & 0x80000) {
       if (!u.flight) release(w, u)
       u.flight = p
@@ -4118,6 +4125,12 @@ function stepTurn(w: World) {
 
   processBattles(w)
   const contacts: [Unit, Unit][] = []
+  const burningPeople = w.units
+    .filter(u => u.burnTrail && u.hp > 0)
+    .map(u => ({
+      unit: u,
+      previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
+    }))
   syncLandscapeObjects(w)
   for (const u of w.units) {
     u.fighting = false
@@ -4127,8 +4140,8 @@ function stepTurn(w: World) {
     }
     if (u.hp <= 0) continue
     u.cooldown = Math.max(0, u.cooldown - dt)
-    if (u.native?.state === 41) {
-      stepLiveCelebration(w, u)
+    if (u.native?.state === 41 || u.native?.state === 26) {
+      stepLivePerson(w, u)
       continue
     }
     if (!supportsFollower(w, u)) {
@@ -4268,6 +4281,36 @@ function stepTurn(w: World) {
         }
       }
     } else u.idleTurns = 0
+  }
+  for (const { unit: u, previous } of burningPeople) {
+    if (u.hp <= 0 && !u.flight) continue
+    const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }
+    stepPersonFireTrail(
+      person,
+      {
+        x: short(person.x - previous.x),
+        y: short(person.y - previous.y),
+        h: short(person.h - previous.h),
+      },
+      (model, point) => {
+        const fx = effect(w, 'trail', browserPosition(point))
+        const trail = createSpellTrail(
+          w.land,
+          point,
+          model,
+          (w.effectCounter - 1) & 255,
+          w.cosmeticRandom
+        )
+        fx.animation = trail
+        fx.sprite = { sequence: model === 3 ? 'blastTrail' : 'blastShot', frame: 0 }
+        fx.duration = Infinity
+        moveVisual(fx, trail)
+        return trail
+      }
+    )
+    u.burnTrail = person.burnTrail
+    if (u.native) u.native.burnTrail = u.burnTrail
+    if (u.flight) u.flight.burnTrail = u.burnTrail
   }
   for (const [u, target] of contacts.sort((a, b) => a[0].id - b[0].id))
     if (

@@ -36,7 +36,7 @@ export interface BlastTarget {
   h: number
   velocity: { x: number; y: number; z: number }
   vehicle: number
-  panicTimer: number
+  burnTrail: number
   life: number
   shake: number
   shakeOrigin: number
@@ -154,7 +154,7 @@ export function stepBlastWave<T extends BlastTarget>(
                 p.state = 26
                 effects.panic(p)
               }
-              p.panicTimer = 24
+              p.burnTrail = 24
             }
             p.flags2 = (p.flags2 | 0x82000) >>> 0
             if (!wave.applied) p.flags3 |= 8
@@ -171,7 +171,7 @@ export function stepBlastWave<T extends BlastTarget>(
             effects.animation(p)
             if (!friendly) {
               if (wave.scatter && cell === center && p.tribe !== -1 && p.tribe !== 255)
-                p.panicTimer = (random(w) & 15) + 16
+                p.burnTrail = (random(w) & 15) + 16
               effects.damage(p, w.special ? p.life + 1 : rules.blastPersonDamage)
               if (p.flags4 & 0x800 && cell === center) effects.remove(p)
             }

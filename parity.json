@@ -1,8 +1,8 @@
 {
-  "revision": 4,
+  "revision": 5,
   "discovery": {
     "status": "open",
-    "note": "The original engine and content inventory remain open. Revision 4 separates the HUD into independently assessable rendering, state, layout and minimap requirements while preserving all 96 broad checkpoint shares. Previously verified HUD work is rebased, not newly completed gameplay. New discoveries enter with zero credit and a recorded scope revision.",
+    "note": "Discovery remains open. Revision 5 separates building fire, follower panic, person fire trails, propagation/repair and sunlight. The subdivision baseline preserved the previous score; bounded panic and trail requirements now have native and live browser evidence. Unknown systems can still expand the denominator.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -794,7 +794,64 @@
             "scripts/check-native-scenery-fire.py",
             "scripts/check-browser-building-fire.mjs"
           ],
-          "note": "Ignition and burn phases verified; panic, sunlight, propagation and repair timing incomplete."
+          "note": "Burning-building occupants now use original panic initialization, timed movement, cries and personal trails. Nearby ignition, propagation, complete repair/sunlight ownership and full native evacuation placement remain open.",
+          "requirements": [
+            {
+              "id": "effects.fire.burning",
+              "title": "Complete building/scenery ignition and burning controllers",
+              "status": "partial",
+              "evidence": [
+                "scripts/check-native-building-fire.py",
+                "scripts/check-native-scenery-fire.py",
+                "scripts/check-browser-building-fire.mjs"
+              ],
+              "note": "Existing burn stages and flames; full ownership and repair still open."
+            },
+            {
+              "id": "effects.fire.panic",
+              "title": "Building occupant panic initialization, timed movement and presentation",
+              "status": "verified",
+              "evidence": [
+                "app/person-panic.ts",
+                "app/live-people.ts",
+                "scripts/check-native-person-state.py",
+                "scripts/check-native-person-panic.py",
+                "tests/person-panic.test.mjs",
+                "scripts/check-browser-person-panic.mjs",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Bounded occupant panic: native state-26 initializer/controller, 65-step duration, shared motion and original animation/owned PCM cues, four building orientations and 5\u2013240 Hz outcomes. Door placement and full ordinary-command ownership remain adapters; nearby ignition/propagation are separate open work."
+            },
+            {
+              "id": "effects.fire.trails",
+              "title": "Follower fire-trail emission, particle phases and presentation",
+              "status": "verified",
+              "evidence": [
+                "app/person-panic.ts",
+                "app/spell-trails.ts",
+                "scripts/check-native-person-panic.py",
+                "scripts/check-native-spell-trails.py",
+                "tests/person-panic.test.mjs",
+                "scripts/check-browser-person-panic.mjs",
+                "references/performance/2026-09-09-person-panic.json"
+              ],
+              "note": "Complete native emitter compared for all byte values and allocation failures; original model-3/10 factories/phases, separate emission/lifetime clocks, visible GPU pixels and cleanup. Shared fractional renderer uses copied signed motion deltas. Full mixed-class first-draw scheduling and allocator ownership remain tracked engine limits."
+            },
+            {
+              "id": "effects.fire.propagation",
+              "title": "Fire propagation and repair interactions",
+              "status": "missing",
+              "evidence": [],
+              "note": "Not reconstructed end to end."
+            },
+            {
+              "id": "effects.fire.sunlight",
+              "title": "Fire sunlight and full lighting ownership",
+              "status": "missing",
+              "evidence": [],
+              "note": "Dynamic lighting remains partial."
+            }
+          ]
         },
         {
           "id": "effects.reincarnation",

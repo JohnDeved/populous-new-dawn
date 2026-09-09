@@ -5,7 +5,7 @@ import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { advanceGame } from './game-clock.ts'
-import { UnitMotion } from './unit-motion.ts'
+import { UnitMotion, interpolateUnitPosition } from './unit-motion.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
@@ -71,6 +71,7 @@ import {
   spellRange,
   spellTargetError,
   SPELLS,
+  TURNS_PER_SECOND,
   type World,
   type Point,
   type Tree,
@@ -1991,6 +1992,20 @@ export class GameScene {
     return g
   }
   animateFx(g: THREE.Group, f: Effect) {
+    const displacement =
+      f.animation && 'displacement' in f.animation ? f.animation.displacement : undefined
+    if (displacement) {
+      const to = { x: f.x, y: (f.height! * 45) / 128, z: f.z }
+      const from = {
+        x: f.x - displacement.x / 256,
+        y: to.y - displacement.h / 128,
+        z: f.z + displacement.y / 256,
+      }
+      g.position.copy(
+        interpolateUnitPosition(from, to, Math.min(1, this.world.pendingTime * TURNS_PER_SECOND))
+      )
+      g.userData.cellPosition = f
+    }
     if (f.wave) return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle
@@ -2227,10 +2242,13 @@ export class GameScene {
                 if (fire) fire.soundPlaying = false
                 const burn = this.world.buildings.find(b => b.id === event.owner)?.burn
                 if (burn) burn.soundPlaying = false
+                const person = this.world.units.find(u => u.id === event.owner)
+                if (person?.native) person.native.flags4 &= ~16
+                if (person?.flight) person.flight.flags4 &= ~16
                 this.ownedSounds.delete(event.owner!)
               }
         )
-        if (stop && event.owner !== undefined) this.ownedSounds.set(event.owner, stop)
+        if (event.owner !== undefined && stop) this.ownedSounds.set(event.owner, stop)
       }
   }
   animate = (now: number) => {

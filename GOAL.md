@@ -1044,3 +1044,20 @@ bookkeeping. Native pools/counters/mixed-class scheduling, dock warning and link
 attachment ownership, attacker statistics and Vault-specific sinking remain open.
 Known-scope coverage remains 17.7% (17/96), discovery is open, and full game parity
 is unfinished.
+
+### Latest visible integration: burning followers
+
+The modern terrain coverage/culling improvement is finished and measured. Visible
+parity work has resumed: burning huts now eject followers into original state-26
+panic, with native speed, animation, duration, random heading and owned cries.
+Original personal fire trails emit on their separate counter and use the existing
+particle phases and fractional renderer interpolation. Ordinary terrain collapse
+does not ignite evacuees. Portable native captures and live browser/audio checks
+cover these paths; performance evidence is in `references/modern-performance.md`.
+
+Next: recover nearby-person ignition and remaining native evacuation placement,
+then continue critical first-mission mechanics and visible effects. Keep clean TS,
+shared controllers, uncapped presentation and measured desktop performance as
+ongoing constraints. Do not resume an exhaustive hidden-system audit ahead of
+visible gameplay. Full propagation, ordinary command ownership and full game
+parity remain unfinished; discovery stays open.

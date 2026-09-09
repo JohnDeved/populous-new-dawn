@@ -3,11 +3,18 @@ import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 import { moveDirectedEffect } from './effect-motion.ts'
 import { random } from './native-math.ts'
 
+const trailTypes = {
+  3: { state: 3, draw: 1, object: 314 },
+  4: { state: 5, draw: 1, object: 322 },
+  10: { state: 9, draw: 29, object: 1120 },
+} as const
+
 type Ground = Pick<NativeTerrain, 'heights' | 'flags'>
 export type SpellTrail = AnimatedUnit & {
   x: number
   y: number
   h: number
+  displacement?: { x: number; y: number; h: number }
   state: number
   remaining: number
   flags2: number
@@ -19,15 +26,16 @@ export type SpellTrail = AnimatedUnit & {
 }
 const short = (n: number) => (n << 16) >> 16
 
-// Effect 3 / 4 initializers, 0x50bf60 / 0x50c380, after common allocation.
+// Effect 3 / 4 / 10 initializers, 0x50bf60 / 0x50c380 / 0x50c410, after allocation.
 // counter is the class-7 allocation byte; the RNG is 0x89bc72, not game RNG.
 export function createSpellTrail(
   land: Ground,
   position: { x: number; y: number; h: number },
-  model: 3 | 4,
+  model: 3 | 4 | 10,
   counter: number,
   cosmetic: { randomState: number }
 ): SpellTrail {
+  const type = trailTypes[model]
   const p: SpellTrail = {
     x: position.x & 65535,
     y: position.y & 65535,
@@ -43,7 +51,7 @@ export function createSpellTrail(
     flags3: 0,
     morphTimer: 0,
     morphFrames: 0,
-    state: model === 3 ? 3 : 5,
+    state: type.state,
     remaining: 4,
     flags2: model === 3 ? 0x40180 : 0x40080,
     flags4: model === 3 ? 0x100 : 0,
@@ -53,7 +61,7 @@ export function createSpellTrail(
     velocity: { x: 0, y: 0, z: 0 },
   }
   p.h = Math.max(short(p.h), terrainPointHeight(land, p))
-  setAnimationObject(p, 1, model === 3 ? 314 : 322)
+  setAnimationObject(p, type.draw, type.object)
   if (model === 3) random(cosmetic)
   return p
 }

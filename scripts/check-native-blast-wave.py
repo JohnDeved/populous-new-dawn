@@ -12,7 +12,7 @@ exe=Path(sys.argv[1]);cpu,identity=native_cpu(exe);configure_native_constants(cp
 cpu.mem_map(0x2000000,0x40000);wave,objects,stack,stop=0x2000000,0x2001000,0x203d000,0x203e000
 search=(exe.parent/'data/mwsearch.dat').read_bytes();assert hashlib.sha256(search).hexdigest()=='0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0';cpu.mem_write(0x8929cd,search)
 rng=random.Random(0x50b740);events=[];alive=True;native_damage=False
-fields={'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'tribe':(0x2f,'b'),'state':(0x2c,'B'),'previousState':(0x7d,'B'),'flags2':(12,'I'),'flags3':(20,'I'),'flags4':(16,'I'),'x':(0x3d,'H'),'y':(0x3f,'H'),'h':(0x41,'h'),'vehicle':(0x9f,'H'),'panicTimer':(0xa4,'B'),'life':(0x6e,'h'),'shake':(0x65,'B'),'shakeOrigin':(0x61,'H')}
+fields={'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'tribe':(0x2f,'b'),'state':(0x2c,'B'),'previousState':(0x7d,'B'),'flags2':(12,'I'),'flags3':(20,'I'),'flags4':(16,'I'),'x':(0x3d,'H'),'y':(0x3f,'H'),'h':(0x41,'h'),'vehicle':(0x9f,'H'),'burnTrail':(0xa4,'B'),'life':(0x6e,'h'),'shake':(0x65,'B'),'shakeOrigin':(0x61,'H')}
 wave_fields={'x':(0x3d,'H'),'y':(0x3f,'H'),'h':(0x41,'h'),'tribe':(0x2f,'b'),'remaining':(0x68,'i'),'radius':(0x70,'h'),'maxRadius':(0x72,'h'),'range':(0x6c,'i'),'spread':(0x76,'h'),'horizontal':(0x74,'h'),'vertical':(0x78,'h'),'friendlyFire':(0x7b,'B'),'applied':(0x7c,'B'),'panic':(0x7a,'B'),'scatter':(0x7d,'B')}
 def write(a,f,*v):cpu.mem_write(a,struct.pack('<'+f,*v))
 def read(a,f):return struct.unpack('<'+f,cpu.mem_read(a,struct.calcsize('<'+f)))[0]
@@ -44,7 +44,7 @@ for n in range(256):
   cls=[1,1,1,1,2,5,4][i%7];dx,dy=(i%5)-2,(i//5)-2
   x=(center['x']+dx*512+(i%3)*128)&65535;y=(center['y']+dy*512+(i%2)*128)&65535
   model=rng.choice([1,2,3,7,8]) if cls==1 else rng.choice([1,4,7,11]) if cls==5 else 1
-  p=dict(id=i,**{'class':cls},model=model,tribe=rng.choice([-1,0,1,2,3]),state=rng.choice([1,10,26]),previousState=3,flags2=rng.choice([0,0x100000]),flags3=rng.choice([0,0,0x8000,0x20000]),flags4=rng.choice([0,256,256,256|2048]),x=x,y=y,h=128,vehicle=int(n%9==0 and cls==1),panicTimer=0,life=200,shake=0,shakeOrigin=0,velocity=dict(x=rng.randrange(-30,31),y=rng.randrange(-30,31),z=rng.randrange(-30,31)))
+  p=dict(id=i,**{'class':cls},model=model,tribe=rng.choice([-1,0,1,2,3]),state=rng.choice([1,10,26]),previousState=3,flags2=rng.choice([0,0x100000]),flags3=rng.choice([0,0,0x8000,0x20000]),flags4=rng.choice([0,256,256,256|2048]),x=x,y=y,h=128,vehicle=int(n%9==0 and cls==1),burnTrail=0,life=200,shake=0,shakeOrigin=0,velocity=dict(x=rng.randrange(-30,31),y=rng.randrange(-30,31),z=rng.randrange(-30,31)))
   records.append(p);index=(y>>9)*128+(x>>9)
   c=cells.setdefault(index,dict(index=index,people=[],building=0))
   if cls==2 and n&32:c['building']=i

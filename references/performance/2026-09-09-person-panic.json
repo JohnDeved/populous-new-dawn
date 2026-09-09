@@ -1,0 +1,474 @@
+{
+  "headed": true,
+  "initial": {
+    "poses": [
+      {
+        "id": 13,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 373
+      },
+      {
+        "id": 14,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 369
+      },
+      {
+        "id": 15,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 373
+      },
+      {
+        "id": 16,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 373
+      },
+      {
+        "id": 17,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 373
+      },
+      {
+        "id": 18,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 361
+      }
+    ],
+    "particles": [
+      {
+        "id": 119,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 120,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 121,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 122,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 123,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 124,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 125,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 126,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 127,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 128,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 129,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 130,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 132,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 133,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 134,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 135,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 136,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 137,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 138,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 139,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 140,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 141,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 142,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 143,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 145,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 146,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 147,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 148,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 149,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 150,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 151,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 152,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 153,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 154,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 155,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 156,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 158,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 159,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 160,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 161,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 162,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 163,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 164,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 165,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 166,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 167,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 168,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 169,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 171,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 172,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 173,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 174,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 175,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 176,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 177,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 178,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 179,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 180,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 181,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 182,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 184,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 185,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 186,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 187,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 188,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 189,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 190,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 191,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 192,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 193,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 194,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 195,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 197,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 198,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 199,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 200,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 201,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 202,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 203,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 204,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 205,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 206,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 207,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 208,
+        "sequence": "blastShot"
+      }
+    ],
+    "audio": {
+      "requests": 7,
+      "starts": 7,
+      "completed": 1,
+      "audible": 7,
+      "maxActive": 6
+    }
+  },
+  "pixels": {
+    "blastTrail": 974,
+    "blastShot": 1138
+  },
+  "motion": [
+    [
+      -2.2841796875,
+      0.6875,
+      36.6220703125
+    ],
+    [
+      -2.1259765625,
+      0.703125,
+      36.4990234375
+    ]
+  ],
+  "performance": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "frames": 390,
+    "cpu": {
+      "p50": 2.5,
+      "p95": 6.800000190734863
+    },
+    "gaps": {
+      "p50": 8.300000000001091,
+      "p95": 10,
+      "max": 75.10000000000036
+    },
+    "maxParticles": 84,
+    "maxDrawCalls": 249,
+    "audio": {
+      "requests": 27,
+      "starts": 27,
+      "completed": 21,
+      "audible": 27,
+      "maxActive": 6
+    }
+  },
+  "end": {
+    "remaining": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "particles": 0,
+    "alive": 6
+  }
+}

@@ -1,4 +1,4 @@
-"""Compare original effect 3/4 initialization, physics and both trail phases.
+"""Compare original effect 3/4/10 initialization, physics and both trail phases.
 Only class callbacks, cell insertion and final free are intercepted. Native
 terrain queries, directed physics, caps, animation and phase dispatch execute.
 Usage: python scripts/check-native-spell-trails.py EXE
@@ -36,12 +36,12 @@ def snapshot():
  return dict(p=out,alive=alive,randomState=read(0x89bc72,'I'))
 
 cases=[];expected=[]
-for i in range(256):
- model=3+i%2;position=dict(x=rng.randrange(65536),y=rng.randrange(65536),h=rng.randrange(-512,2049));counter=i
+for i in range(384):
+ model=[3,4,10][i%3];position=dict(x=rng.randrange(65536),y=rng.randrange(65536),h=rng.randrange(-512,2049));counter=i&255
  seed=rng.randrange(2**32);write(0x89bc72,'I',seed)
  cpu.mem_write(p,bytes(256));write(p+0x2a,'BB',7,model);write(p+0x30,'B',10);write(p+0x2e,'B',counter)
  write(p+0x3d,'HHh',position['x'],position['y'],position['h']);alive=True
- call(0x50bf60 if model==3 else 0x50c380);initial=snapshot()
+ call(0x50bf60 if model==3 else 0x50c380 if model==4 else 0x50c410);initial=snapshot()
  # Half the cases retain live defaults. The others exercise directed motion,
  # stopped motion, indefinite lifetime and the alternate phase palette path.
  override={}
@@ -72,4 +72,4 @@ if actual!=expected:
  i=next(i for i,(a,e) in enumerate(zip(actual,expected)) if a!=e)
  Path('/private/tmp/populous-trail-failure.json').write_text(json.dumps(dict(case=cases[i],native=expected[i],browser=actual[i]),indent=2))
  raise AssertionError(f'Case {i}: /private/tmp/populous-trail-failure.json')
-print('PASS: 256 native trail initializations and 2816 timeline snapshots; native directed physics, terrain, caps, animation, phase transition, deletion and cosmetic RNG execute')
+print('PASS: 384 native trail initializations and 4224 timeline snapshots; native directed physics, terrain, caps, animation, phase transition, deletion and cosmetic RNG execute')

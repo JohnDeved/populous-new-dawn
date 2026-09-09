@@ -1,20 +1,24 @@
 # Game parity progress
 
-**21.12% evidence-backed progress across known scope.**
+**21.54% evidence-backed progress across known scope.**
 
-**Graphics: 59.23%.** Overall: 42/140 individual requirements verified; 17/96 broad checkpoints complete.
+**Graphics: 59.23%.** Overall: 44/144 individual requirements verified; 17/96 broad checkpoints complete.
 
-55 partial; 24 missing; 0 unassessed. Checklist revision 4.
+55 partial; 24 missing; 0 unassessed. Checklist revision 5.
 
 **Latest assessment**
 
-Newly verified: 0. Reopened: 0.
+Newly verified: 2. Reopened: 0.
 
-Native-checked unit interpolation and modern high-refresh presentation; gameplay state unchanged, paired Metal cost recorded, complete interpolation ownership still partial.
+- Verified: `effects.fire.panic`.
 
-**Tracking blind spots: 48 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
+- Verified: `effects.fire.trails`.
 
-**Discovery: open.** The original engine and content inventory remain open. Revision 4 separates the HUD into independently assessable rendering, state, layout and minimap requirements while preserving all 96 broad checkpoint shares. Previously verified HUD work is rebased, not newly completed gameplay. New discoveries enter with zero credit and a recorded scope revision.
+Integrate verified burning-occupant panic and personal fire trails; native comparisons, live GPU/PCM checks and refresh-independent outcomes. Broader fire remains partial.
+
+**Tracking blind spots: 47 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
+
+**Discovery: open.** Discovery remains open. Revision 5 separates building fire, follower panic, person fire trails, propagation/repair and sunlight. The subdivision baseline preserved the previous score; bounded panic and trail requirements now have native and live browser evidence. Unknown systems can still expand the denominator.
 
 Unknown scope is not assigned an invented size or percentage. This checklist is expandable: add checkpoints or entire subsystems as research reveals them. Use `unassessed` for newly identified behavior whose implementation/parity has not been investigated; it enters the denominator immediately and receives no verified credit. Split overly broad checkpoints when discoveries justify it, with a recorded revision.
 
@@ -30,7 +34,7 @@ Verified means the named scope has original-engine evidence and browser/game int
 | --- | ---: | ---: | ---: |
 | World and camera | 62.50% | 5/8 | 5/8 |
 | Models, sprites and lighting | 59.23% | 20/40 | 2/8 |
-| Effects and object lifecycles | 50.00% | 4/8 | 4/8 |
+| Effects and object lifecycles | 55.00% | 6/12 | 4/8 |
 | Interface and desktop controls | 44.23% | 10/20 | 3/8 |
 | Audio and music | 0.00% | 0/8 | 0/8 |
 | Simulation scheduling and randomness | 0.00% | 0/8 | 0/8 |
@@ -118,6 +122,8 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-09T17:26:04.623Z | 4 | 21.12% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Make cloud wind and half-heading parallax frame-independent using camera-step snapshots and fractional presentation; modern timing correction without new native parity credit |
 | 2026-09-09T17:46:53.432Z | 4 | 21.12% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Retained painter centers and model-anchor culling preserve depth slots, pixels, picking and native overlap/sprite checks; paired Metal profiles reduce median JS frame cost 11-19%, with remaining stutter and parity limits documented. |
 | 2026-09-09T18:34:35.042Z | 4 | 21.12% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Native-checked unit interpolation and modern high-refresh presentation; gameplay state unchanged, paired Metal cost recorded, complete interpolation ownership still partial. |
+| 2026-09-09T21:18:46.773Z | 5 | 21.12% | 17/96 | scope revision | Revision 5 baseline: split fire/panic/trails before implementation; no new verified gameplay. |
+| 2026-09-09T21:43:25.976Z | 5 | 21.54% | 17/96 | 0.42 pp; 2 newly verified, 0 reopened | Integrate verified burning-occupant panic and personal fire trails; native comparisons, live GPU/PCM checks and refresh-independent outcomes. Broader fire remains partial. |
 
 ## Update workflow
 
@@ -195,7 +201,12 @@ Scope changes require a new checklist revision. Scores across different revision
 - **verified** — Opening spell projectile trail geometry (`effects.trails`). Native trail primitives integrated; complete spell roster remains open. Overview now integrates native 32-strip pulsing spell range and original unscaled projectile tails, hold/frame selection, AL tint and owner/fog/hidden gates. Native comparisons cover 256 complete circles, 256 phase updates and 512 complete effect-cell queue/painter cases; live browser checks cover actual range/trail pixels, real Blast, pause/input, fog, tint, expiry and ground return. Complete mixed-class painter/visibility ownership, other circle/effect classes, tower fans and matched full frames remain open. Evidence: [scripts/check-native-spell-trails.py](scripts/check-native-spell-trails.py), [scripts/check-browser-spell-trails.mjs](scripts/check-browser-spell-trails.mjs), [scripts/check-native-globe-effects.py](scripts/check-native-globe-effects.py), [scripts/check-browser-globe-effects.mjs](scripts/check-browser-globe-effects.mjs).
 - **verified** — Building collapse smoke sockets and particle lifecycle (`effects.smoke`). Native rotated sockets, frame sequence, sizing and lifetime compared. Evidence: [scripts/check-native-building-smoke.py](scripts/check-native-building-smoke.py), [scripts/check-browser-building-smoke.mjs](scripts/check-browser-building-smoke.mjs).
 - **partial** — Complete building debris behavior and rendering (`effects.debris`). Faces, flight and impacts integrated; lighting, allocation limits and attachments remain open. Allocated buildings now settle original grade vertices on four-turn phases, collapse on excessive slope, and sink when the native flooded-vertex threshold is exceeded. Native comparisons cover 1,520 terrain controllers, 12,800 sinking snapshots and both debris-emission modes (1,260 calls/44,284 faces); portable live scenarios cover all orientations. Browser pixels, original mesh/stage, tilt, drift and cleanup pass. Shared height/debris helpers retain readable TS. Collapse now allocates the shared original Blast force controller and cue 0xa1. Full panic/evacuation movement, native allocation/counters/dispatch, attacker statistics and linked/dock ownership remain open. Evidence: [scripts/check-native-building-debris.py](scripts/check-native-building-debris.py), [scripts/check-browser-building-debris.mjs](scripts/check-browser-building-debris.mjs), [app/building-terrain.ts](app/building-terrain.ts), [app/building-sinking.ts](app/building-sinking.ts), [scripts/check-native-building-terrain.py](scripts/check-native-building-terrain.py), [scripts/check-native-building-sinking.py](scripts/check-native-building-sinking.py), [tests/building-terrain.test.mjs](tests/building-terrain.test.mjs), [scripts/check-browser-building-terrain.mjs](scripts/check-browser-building-terrain.mjs).
-- **partial** — Complete building/scenery fire and propagation (`effects.fire`). Ignition and burn phases verified; panic, sunlight, propagation and repair timing incomplete. Evidence: [scripts/check-native-building-fire.py](scripts/check-native-building-fire.py), [scripts/check-native-scenery-fire.py](scripts/check-native-scenery-fire.py), [scripts/check-browser-building-fire.mjs](scripts/check-browser-building-fire.mjs).
+- **partial** — Complete building/scenery fire and propagation (`effects.fire`). **2/5 requirements verified; each earns 0.21 percentage points overall.** Burning-building occupants now use original panic initialization, timed movement, cries and personal trails. Nearby ignition, propagation, complete repair/sunlight ownership and full native evacuation placement remain open. Evidence: [scripts/check-native-building-fire.py](scripts/check-native-building-fire.py), [scripts/check-native-scenery-fire.py](scripts/check-native-scenery-fire.py), [scripts/check-browser-building-fire.mjs](scripts/check-browser-building-fire.mjs).
+  - **partial** — Complete building/scenery ignition and burning controllers (`effects.fire.burning`). Existing burn stages and flames; full ownership and repair still open. Evidence: [scripts/check-native-building-fire.py](scripts/check-native-building-fire.py), [scripts/check-native-scenery-fire.py](scripts/check-native-scenery-fire.py), [scripts/check-browser-building-fire.mjs](scripts/check-browser-building-fire.mjs).
+  - **verified** — Building occupant panic initialization, timed movement and presentation (`effects.fire.panic`). Bounded occupant panic: native state-26 initializer/controller, 65-step duration, shared motion and original animation/owned PCM cues, four building orientations and 5–240 Hz outcomes. Door placement and full ordinary-command ownership remain adapters; nearby ignition/propagation are separate open work. Evidence: [app/person-panic.ts](app/person-panic.ts), [app/live-people.ts](app/live-people.ts), [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [scripts/check-native-person-panic.py](scripts/check-native-person-panic.py), [tests/person-panic.test.mjs](tests/person-panic.test.mjs), [scripts/check-browser-person-panic.mjs](scripts/check-browser-person-panic.mjs), [references/reverse-engineering.md](references/reverse-engineering.md).
+  - **verified** — Follower fire-trail emission, particle phases and presentation (`effects.fire.trails`). Complete native emitter compared for all byte values and allocation failures; original model-3/10 factories/phases, separate emission/lifetime clocks, visible GPU pixels and cleanup. Shared fractional renderer uses copied signed motion deltas. Full mixed-class first-draw scheduling and allocator ownership remain tracked engine limits. Evidence: [app/person-panic.ts](app/person-panic.ts), [app/spell-trails.ts](app/spell-trails.ts), [scripts/check-native-person-panic.py](scripts/check-native-person-panic.py), [scripts/check-native-spell-trails.py](scripts/check-native-spell-trails.py), [tests/person-panic.test.mjs](tests/person-panic.test.mjs), [scripts/check-browser-person-panic.mjs](scripts/check-browser-person-panic.mjs), [references/performance/2026-09-09-person-panic.json](references/performance/2026-09-09-person-panic.json).
+  - **missing** — Fire propagation and repair interactions (`effects.fire.propagation`). Not reconstructed end to end.
+  - **missing** — Fire sunlight and full lighting ownership (`effects.fire.sunlight`). Dynamic lighting remains partial.
 - **partial** — Reincarnation effects and site lifecycle (`effects.reincarnation`). Eight stone positions/headings verified; site creation, rise/sink and relocation incomplete. Evidence: [scripts/check-native-reincarnation.py](scripts/check-native-reincarnation.py), [scripts/check-browser-reincarnation.mjs](scripts/check-browser-reincarnation.mjs).
 - **missing** — All remaining environmental and spell effects (`effects.remaining`). Other spell/vehicle/weather effects require reconstruction and integration.
 

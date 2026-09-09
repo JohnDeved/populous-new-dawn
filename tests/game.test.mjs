@@ -1350,7 +1350,7 @@ test('victory owns persistent native followers, drops cargo and renders a separa
 });
 
 test('live blocked followers retain native detour steering and recovery timers', async () => {
- const {createLivePerson,stepLiveCelebration}=await import('../app/live-people.ts');
+ const {createLivePerson,stepLivePerson}=await import('../app/live-people.ts');
  const {syncLandscapeObjects,browserPosition}=await import('../app/model.ts');
  const w=createWorld(),u=w.units.find(u=>u.kind==='brave'&&u.team==='blue'),b=w.buildings.find(b=>b.team==='blue');
  w.units=[u];w.buildings=[b];w.terrain.fill(100/45);w.land.heights.fill(100);
@@ -1360,13 +1360,13 @@ test('live blocked followers retain native detour steering and recovery timers',
  Object.assign(u,{...start,inside:null,work:null});
  u.native=createLivePerson(w,u);const p=u.native;
  Object.assign(p,{state:41,substate:1,flags2:128,counter:0,heading:512,angle:512,turnAngle:512,speed:20,assignment:0,animationMode:0,commandPhase:100,timer:100});
- const before={x:u.x,z:u.z};stepLiveCelebration(w,u);
+ const before={x:u.x,z:u.z};stepLivePerson(w,u);
  assert.ok(p.flags2&0x800,'collision starts native steering recovery');
  assert.equal(p.motionMode,1);assert.equal(p.recoveryCounter,1);
  assert.notEqual(p.heading,512);assert.ok(p.motionTimer>0);
  assert.notDeepEqual({x:u.x,z:u.z},before,'a free probe advances the live follower');
  assert.equal(w.land.flags[(p.y>>9)*128+(p.x>>9)]&0x200,0,'the chosen probe stays outside the original footprint');
- const timer=p.motionTimer,heading=p.heading;w.buildings=[];syncLandscapeObjects(w);stepLiveCelebration(w,u);
+ const timer=p.motionTimer,heading=p.heading;w.buildings=[];syncLandscapeObjects(w);stepLivePerson(w,u);
  assert.equal(p.motionTimer,timer-1,'the next grounded step consumes the recovery timer');
  assert.equal(p.heading,heading,'normal facing cannot overwrite active recovery steering');
 });
@@ -1419,28 +1419,28 @@ test('live native cell order follows arrivals and removes dead records', async (
 });
 
 test('live native preparation consumes reroutes and completes slow turns and reactions', async () => {
- const {createLivePerson,stepLiveCelebration}=await import('../app/live-people.ts');
+ const {createLivePerson,stepLivePerson}=await import('../app/live-people.ts');
  const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');w.units=[u];u.native=createLivePerson(w,u);
  const p=u.native;Object.assign(p,{state:41,substate:8,timer:100,speed:0,counter:0,flags2:0x80000804,slowTurn:2,motionTimer:9,motionMode:7,reactionTimer:5,reactionDuration:1});
  p.flags4|=0x300000;p.goalX=(p.x+100)&65535;p.goalY=(p.y+100)&65535;
- stepLiveCelebration(w,u);
+ stepLivePerson(w,u);
  assert.equal(p.slowTurn,1);assert.equal(p.flags2&0x80000000,0);assert.equal(p.motionTimer,0);assert.equal(p.motionMode,0);
  assert.equal(p.destinationX,p.goalX);assert.equal(p.destinationY,p.goalY);
  assert.equal(p.reactionTimer,0);assert.equal(p.reactionDuration,0);assert.equal(p.flags4&0x300000,0);
- stepLiveCelebration(w,u);assert.equal(p.slowTurn,0);assert.ok(p.object>0,'ending a slow turn refreshes the native person animation');
+ stepLivePerson(w,u);assert.equal(p.slowTurn,0);assert.ok(p.object>0,'ending a slow turn refreshes the native person animation');
 });
 
 test('interrupted victory followers resume through native orders and rejoin celebration', async () => {
- const {createLivePerson,initializeLiveCelebration,stepLiveCelebration}=await import('../app/live-people.ts');
+ const {createLivePerson,initializeLiveCelebration,stepLivePerson}=await import('../app/live-people.ts');
  const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');w.units=[u];
  w.land.landFlags|=0x2000000;u.native=createLivePerson(w,u);initializeLiveCelebration(w,u);
  const p=u.native;p.flags2|=16;p.flags4|=0x400000;p.anchorFlags=255;
- stepLiveCelebration(w,u);
+ stepLivePerson(w,u);
  assert.equal(p.state,41);assert.equal(p.previousState,10,'resumes through the native empty-order handoff');
  assert.equal(p.flags2&16,0);assert.equal(p.flags4&0x400000,0);assert.equal(p.anchorFlags,0);
  assert.equal(p.anchorX&511,256);assert.equal(p.anchorY&511,256);
  assert.ok(p.object>0);assert.equal(p.substate,8);
- stepLiveCelebration(w,u);assert.equal(p.state,41,'resumption remains owned by the native controller');
+ stepLivePerson(w,u);assert.equal(p.state,41,'resumption remains owned by the native controller');
 });
 
 test('native idle approach composes with shared state and original resting animation', async () => {
@@ -1504,7 +1504,7 @@ test('native resting ownership allocates distinct slots and compacts after a fol
 });
 
 test('native route reuse shares ownership and live celebration releases each follower', async () => {
- const {createLivePerson,initializeLiveCelebration,stepLiveCelebration}=await import('../app/live-people.ts');
+ const {createLivePerson,initializeLiveCelebration,stepLivePerson}=await import('../app/live-people.ts');
  const {planPersonDestination}=await import('../app/person-routes.ts');
  const w=createWorld();w.units=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').slice(0,2);
  for(const u of w.units){Object.assign(u,{x:7,z:33,inside:null,work:null});u.native=createLivePerson(w,u);initializeLiveCelebration(w,u);}
@@ -1520,9 +1520,9 @@ test('native route reuse shares ownership and live celebration releases each fol
   tribes:Array.from({length:4},()=>({playerType:1,requests:0})),land:w.land,vehicles:new Map()},second,to,
   {outside:unexpected,buildingBlocks:unexpected,coastDirection:unexpected,build:unexpected,vehicleReady:unexpected,advance:()=>advanced++});
  assert.equal(route,1);assert.equal(advanced,1);assert.equal(second.motionGroup,1);assert.equal(v.getInt16(a,true),2);assert.equal(routes.active,1);
- stepLiveCelebration(w,w.units[0]);
+ stepLivePerson(w,w.units[0]);
  assert.equal(first.motionGroup,0);assert.equal(v.getInt16(a,true),1);assert.equal(routes.records[a+2],1);
- stepLiveCelebration(w,w.units[1]);
+ stepLivePerson(w,w.units[1]);
  assert.equal(second.motionGroup,0);assert.equal(v.getInt16(a,true),0);assert.equal(routes.records[a+2],0);assert.equal(routes.active,0);
  assert.ok(createWorld().motionRoutes.records.every(n=>n===0),'restart discards previous route ownership');
 });

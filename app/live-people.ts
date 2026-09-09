@@ -18,6 +18,7 @@ import {
   type StatefulPerson,
 } from './person-state.ts'
 import { damagePerson, preparePersonTurn, stepPersonReaction } from './person-update.ts'
+import { stepPersonPanic } from './person-panic.ts'
 import { stepPersonOrders } from './person-order-update.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { stepCelebration, type Celebrant, type CelebrationEffects } from './celebration.ts'
@@ -80,7 +81,7 @@ export type LivePerson = StatefulPerson &
     reactionDuration: number
     anchorFlags: number
     damageAttacker: number
-    panicTimer: number
+    burnTrail: number
   }
 const short = (n: number) => (n << 16) >> 16
 
@@ -166,7 +167,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     velocity: { x: 0, y: 0, z: 0 },
     life: short(Math.round(u.hp * 20)),
     damageAttacker: 255,
-    panicTimer: 0,
+    burnTrail: u.burnTrail ?? 0,
   }
 }
 
@@ -322,6 +323,19 @@ function initializeLivePerson(
   u.cargo = p.cargo / 100
 }
 
+export function initializeLivePanic(w: World, u: Unit) {
+  const p = u.native ?? createLivePerson(w, u)
+  if (p.flags2 & 0x100000) return
+  u.native = p
+  p.flags2 &= ~16
+  p.previousState = p.state
+  p.state = 26
+  const ctx = context(w)
+  initializeLivePerson(w, u, ctx)
+  w.selected = w.selected.filter(id => id !== u.id)
+  w.randomState = ctx.state.randomState
+}
+
 export function initializeLiveCelebration(w: World, u: Unit) {
   const ctx = context(w),
     p = u.native!
@@ -434,7 +448,7 @@ export function stepLiveImpulse(w: World, u: Unit) {
   }
 }
 
-export function stepLiveCelebration(w: World, u: Unit) {
+export function stepLivePerson(w: World, u: Unit) {
   const ctx = context(w),
     { state, effects } = ctx
   const p = u.native!
@@ -492,7 +506,28 @@ export function stepLiveCelebration(w: World, u: Unit) {
     Object.assign(u, browserPosition(next))
   }
   if (p.state === 41) stepCelebration(state, p, effects)
-  else if (p.state === 10) {
+  else if (p.state === 26) {
+    const next = stepPersonPanic(p, w.manaWorld.gameFlags, {
+      sound: () => {
+        p.flags4 = (p.flags4 | 16) >>> 0
+        sound(w, 0x51, u, u.id)
+      },
+      outside: point => {
+        const cell = (point.y >> 9) * 128 + (point.x >> 9)
+        if (!(w.land.flags[cell] & 512)) return point
+        const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+        return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
+      },
+    })
+    if (next && !(p.flags2 & 0x100000)) {
+      p.previousState = p.state
+      p.state = next
+      initializeLivePerson(w, u, ctx)
+      // Native panic ends here; ordinary live orders still use the existing controller.
+      u.native = null
+      releasePersonRoute(w.motionRoutes, p)
+    }
+  } else if (p.state === 10) {
     // Victory followers can resume through an empty order queue. Ordinary live
     // command/vehicle ownership and the remaining state dispatcher are pending.
     const unowned = () => {

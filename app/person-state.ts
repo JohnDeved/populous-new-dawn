@@ -188,7 +188,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 36, 39, 41].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 26, 36, 39, 41].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -266,6 +266,16 @@ export function initializePersonState(
   } else if (p.state === 19) {
     if (!effects.resting) throw new Error('State 19 requires its resting initializer')
     effects.resting()
+  } else if (p.state === 26) {
+    effects.setAnimation(p, rules.personAnimationObjects[25 * 9 + p.model])
+    p.flags4 = (p.flags4 | 128) >>> 0
+    p.speed = 110
+    deselect()
+    p.timer = 64
+    const angle = random(w) & 2047
+    effects.releaseMotion(p)
+    p.flags2 = (p.flags2 | 0x1080) >>> 0
+    p.turnAngle = angle
   } else if (p.state === 39) {
     if (!effects.specialBattle) throw new Error('State 39 requires its special battle initializer')
     effects.specialBattle()
@@ -318,7 +328,7 @@ export function releaseSelectedPeople(
     resetPersonMotion(p)
     if (p.flags2 & 0x100000) continue
     const next = w.levelFlags & 2 && p.model === 7 ? 39 : rules.personModels[p.model]?.nextState
-    if (![1, 8, 10, 14, 17, 19, 36, 39, 41].includes(next))
+    if (![1, 8, 10, 14, 17, 19, 26, 36, 39, 41].includes(next))
       throw new RangeError(`Unported person-state initializer ${next}`)
     p.previousState = p.state
     p.state = next

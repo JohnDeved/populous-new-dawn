@@ -4753,24 +4753,50 @@ turn boundary. See [the modernization audit](modern-performance.md) for measured
 response times, pixel/control checks, performance and the remaining limitations.
 
 
-## Resumed visible parity: follower panic and fire trails — 2026-09-09
+## Integrated follower panic and fire trails — 2026-09-09
 
-After the modern terrain correction, investigate follower reactions to burning
-and collapsing buildings. `00408ab0` ejects occupants at burn counter 119, clears
-flag 0x10, writes 24 to person byte +0xa4 and enters state 26 if unprotected.
-`004d2740` initializes that state with animation row 25, speed 110, timer 64,
-random heading and turning flags. The class-1 dispatcher subtracts one from state
-before its switch: state 26 is **case 0x19**, not case 0x1a. It requests cue 0x51
-and handles the timer/recovery path. Preserve shared movement/physics ownership
-rather than introducing another frame-based movement loop.
+`00408ab0` ejects burning-building occupants at counter 119, clears flag2
+0x10, writes 24 to byte +0xa4 and enters state 26 if unprotected. Terrain-only
+collapse/sinking (`00406f40`) evacuates without those panic or fire writes.
+`004d2740` initializes panic with animation row 25, speed 110, timer 64,
+random heading, deselection and route release. Shared native turning and ground
+movement run before the state controller; no second movement loop was added.
 
-New exports clarify an earlier inferred name: +0xa4, currently `panicTimer` in
-TypeScript, is consumed by `004d9200` to emit class-7/model-3 particles every turn
-and model-10 particles while the unsigned counter exceeds eight. The emitter
-uses current height +16, copies the previous position to both particles, sets
-flags2 0x4000 and flags3 0x100, and decrements the byte even if allocation fails.
-It is an **effect emission counter**, not the state-26 duration. Rename it when
-connecting that consumer; do not use its 24 turns as the panic lifetime.
-`004d92b0`, dispatched under flag4 0x4000, is a separate temporary-tribe restoration
-path, not panic movement. Exports are evidence for the next implementation;
-neither consumer nor full panic movement is newly integrated or credited here.
+The class-1 dispatcher subtracts one before switching: state 26 is case 0x19.
+Its block `004d3832`–`004d3ae1` requests owned cue 0x51, decrements a signed
+16-bit timer, and on expiry chooses the original default state and resets the
+anchor outside a building footprint. The 64 initializer therefore lasts 65
+controller steps. Browser completion releases the sound flag; all three original
+samples (sound-253/254/255) are preloaded. A live Web Audio probe caught a missing
+preload that request counting alone had hidden. It now requires real source
+starts with nonzero PCM, completion/replay and at most one active voice per person.
+
+Byte +0xa4 is now named `burnTrail`, replacing the misleading `panicTimer`.
+Complete emitter `004d9200` allocates class-7/model-3 each turn and model-10 while
+the byte exceeds eight, at current height +16. Both get flags2 0x4000 and flags3
+0x100; the byte decrements even if allocations fail. A 24-turn emission produces
+24 sparks and 16 bright particles, independently of the panic duration.
+
+Correction to the earlier research entry: person +0x43/+0x45/+0x47 contains signed
+**motion deltas**, not previous positions. `004ee580` writes those deltas and
+queue `0046f080` subtracts them to recover the start point before interpolating.
+Particles copy the deltas. Factories `0050bf60` and `0050c410` supply states 3/9,
+objects 314/1120 and four-turn lifetimes, then share the existing second phase.
+The existing renderer interpolator samples these endpoints between native turns;
+phase lifetimes and sprite clocks remain independent of display FPS.
+
+Evidence: `check-native-person-state.py` now covers 6,144 initializers, including
+512 panic cases. `check-native-person-panic.py` compares 512 controller blocks and
+512 complete emissions (all counter bytes, signed wrapping and failed allocations).
+`check-native-spell-trails.py` compares 384 factories and 4,224 phase snapshots.
+Portable regressions replay captured native outputs and run real Lightning/hut
+ejection in all four orientations, through 5/30/60/120/144/240 Hz and irregular
+frame schedules. The headed browser check verifies original panic poses, both
+particle types contributing pixels, fractional movement, audible voices and cleanup.
+
+Boundaries: initial door placement remains an adapter; complete native ejection
+placement, nearby-person ignition in `00408840`, fire propagation, full ordinary
+person orders and mixed-class first-draw scheduling remain open. `004d92b0` is
+separate temporary-tribe restoration, not panic. Panic returns to the existing
+ordinary-order controller at its original state-transition boundary. This is a
+bounded fire-response integration, not complete fire or person-engine parity.
