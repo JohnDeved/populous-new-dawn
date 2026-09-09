@@ -5,7 +5,7 @@ import {
   BuilderTask,
   type Builder,
 } from './building-workers.ts'
-import { stepBuildingWork, stepBuildingDeparture } from './building-work.ts'
+import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from './building-work.ts'
 import { turnPerson } from './person-motion.ts'
 import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
@@ -660,14 +660,20 @@ function processBattles(w: World) {
   }
   w.fights = w.fights.filter(b => b.members.length > 1)
 }
+function builderActivity(u: Unit) {
+  switch (u.builder?.task) {
+    case BuilderTask.Approach:
+      return stepBuildingApproach
+    case BuilderTask.Work:
+      return stepBuildingWork
+    case BuilderTask.Leave:
+      return stepBuildingDeparture
+  }
+}
 export function unitAnimationSource(u: Unit) {
   if (u.native) return u.native
-  return (u.builder?.task === BuilderTask.Work || u.builder?.task === BuilderTask.Leave) &&
-    !u.fight &&
-    !u.fighting &&
-    !u.casting &&
-    !u.lift
-    ? (u.builder.person ?? null)
+  return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
+    ? (u.builder?.person ?? null)
     : null
 }
 
@@ -683,10 +689,11 @@ export function unitAnimation(w: World, u: Unit) {
           ? 'walk'
           : u.fight.action
   if (u.fighting) return 'attack'
-  if (u.builder?.task === BuilderTask.Leave && u.builder.person)
-    return u.builder.person.speed ? (u.cargo ? 'carry' : 'walk') : u.cargo ? 'carryIdle' : 'idle'
-  if (u.builder?.task === BuilderTask.Work && u.builder.person)
-    return u.builder.person.speed ? 'walk' : 'work'
+  if (builderActivity(u) && u.builder?.person) {
+    if (u.builder.person.speed) return u.cargo ? 'carry' : 'walk'
+    if (u.builder.task === BuilderTask.Work) return 'work'
+    return u.cargo ? 'carryIdle' : 'idle'
+  }
   if (u.path.length) return u.cargo ? 'carry' : 'walk'
   if (u.cargo) return 'carryIdle'
   if (u.harvest) return 'work'
@@ -1796,13 +1803,16 @@ function dispatchConstructionCrew(w: World, b: Building, workers: Unit[]) {
       repairDelay: state?.repairDelay ?? 0,
     }
   const crew = workers.map(u => {
-    u.builder ??= { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
-    // Paths/hauling hand off to task 2; its native activity loop then owns busy
-    // readiness. Full command-10 ownership and initial approach remain separate.
-    if (u.builder.task !== BuilderTask.Leave && (u.cargo || u.tree !== null))
+    // Existing hauling orders may attach directly; player commands explicitly
+    // begin task 1 and retain their carried timber until its arrival/drop consumer.
+    u.builder ??= {
+      task: u.cargo || u.tree !== null ? BuilderTask.Fetch : BuilderTask.Approach,
+      busy: 0,
+      phase: 0,
+      restart: true,
+    }
+    if (u.builder.task === BuilderTask.Work && (u.cargo || u.tree !== null))
       u.builder.task = BuilderTask.Fetch
-    else if (u.builder.task === BuilderTask.Approach && !u.path.length)
-      u.builder.task = BuilderTask.Work
     return u.builder
   })
   const finished = stepConstructionCrew(plan, crew, {
@@ -1851,7 +1861,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
     u.delivery = undefined
   }
   const cell = (p.y >> 9) * 128 + (p.x >> 9)
-  const step = leaving ? stepBuildingDeparture : stepBuildingWork
+  const step = builderActivity(u)!
 
   step(
     w,
@@ -1862,6 +1872,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
       building: b.id,
       occupied: w.land.buildingIds[cell],
       onBuilding: !!(w.land.flags[cell] & 512),
+      angle: 0, // Class-9 draw heading stays zero; its rotated shape is stored separately.
       center: buildingInsidePoint(pose),
       outside: buildingOutsidePoint(pose),
     },
@@ -1878,6 +1889,17 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
         setLivePersonAnimation(w, p, object)
         if (!p.speed) clearLivePath(w, u)
       },
+      outsideBuilding: point => {
+        const index = (point.y >> 9) * 128 + (point.x >> 9)
+        if (!(w.land.flags[index] & 512)) return point
+        const building = w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023))
+        if (!building) throw new Error('Missing building at construction resting anchor')
+        return buildingOutsidePoint(buildingPose(building))
+      },
+      allocateLog: () => {
+        w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+        return true // ponytail: unbounded scenery collection until native object-pool allocation is connected.
+      },
       releaseMotion: () => {
         releasePersonRoute(w.motionRoutes, p)
         clearLivePath(w, u)
@@ -1888,6 +1910,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
       },
     }
   )
+  u.cargo = p.cargo / 100
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
 
@@ -1935,6 +1958,8 @@ export function command(w: World, p: Point) {
     release(w, u)
     acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null
+    if (friendly && friendly.progress < 1)
+      u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
     u.target = enemy?.id ?? null
     if (shrine?.kind === 'vault')
       u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 }
@@ -2057,6 +2082,7 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     assignBuilder(b.builders, u.id)
     release(w, u)
     u.work = b.id
+    u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
     route(w, u, entrance(w, b))
   }
   w.mode = null
@@ -3548,18 +3574,10 @@ function stepTurn(w: World) {
       const shaman = w.units.find(a => a.team === u.team && a.kind === 'shaman')
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
-    if (
-      (u.builder?.task === BuilderTask.Work || u.builder?.task === BuilderTask.Leave) &&
-      work &&
-      'hp' in work
-    )
-      processBuilderWork(w, u, work)
+    if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (u.path.length) {
       const next = u.path[0],
-        length =
-          u.builder?.task === BuilderTask.Work || u.builder?.task === BuilderTask.Leave
-            ? (u.builder.person?.speed ?? unitSpeed(u))
-            : unitSpeed(u)
+        length = builderActivity(u) ? (u.builder?.person?.speed ?? unitSpeed(u)) : unitSpeed(u)
       if (!supportsFollower(w, next)) {
         clearLivePath(w, u)
         continue
@@ -3588,12 +3606,7 @@ function stepTurn(w: World) {
       if (supportsFollower(w, p)) Object.assign(u, p)
     } else if (target && u.target !== null)
       route(w, u, 'progress' in target ? entrance(w, target) : target)
-    else if (
-      work &&
-      u.tree === null &&
-      u.builder?.task !== BuilderTask.Work &&
-      u.builder?.task !== BuilderTask.Leave
-    )
+    else if (work && u.tree === null && !builderActivity(u))
       u.heading = Math.atan2(work.x - u.x, work.z - u.z)
     if (u.kind === 'brave' && !u.path.length && u.work === null && u.target === null && !u.guard) {
       u.idleTurns++

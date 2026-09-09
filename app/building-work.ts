@@ -4,10 +4,13 @@ import {
   recoverPersonMovement,
   stopPersonMovement,
   setPersonAnimationRow,
+  resetPersonMotion,
   type StatefulPerson,
   type PersonStateEffects,
 } from './person-state.ts'
 import type { Builder } from './building-workers.ts'
+import { setPersonAnchor } from './person-order-update.ts'
+import { dropCarriedTimber } from './timber.ts'
 
 interface Point {
   x: number
@@ -58,6 +61,55 @@ function approach(
   face(person, point, 2047)
   person.assignment &= ~16
   recoverPersonMovement(rng, person, effects.animation)
+}
+
+// Task 1 in 0x495520, after command validation and plan registration. The caller
+// owns dispatch/plan signals; arrival hands off to task 2 even if a log allocation fails.
+export function stepBuildingApproach(
+  rng: { randomState: number },
+  person: Worker & { anchorX: number; anchorY: number; anchorFlags: number },
+  task: Builder,
+  site: WorkSite & { angle: number },
+  effects: Pick<WorkEffects, 'destination' | 'animation' | 'sound'> & {
+    outsideBuilding: (point: Point) => Point
+    allocateLog: () => boolean
+  }
+) {
+  if (task.restart) {
+    task.restart = false
+    const anchor = { ...site.outside }
+    movePosition(anchor, (site.angle + 512) & 2047, 512)
+    setPersonAnchor(person, effects.outsideBuilding(anchor))
+    let point = { ...site.outside }
+    if (!person.cargo) {
+      if (site.building) {
+        if (rules.buildingFlags[site.model] & 256 && (site.occupied & 1023) === site.building) {
+          point = { ...site.center }
+          resetPersonMotion(person)
+        }
+        person.flags4 = ((person.flags4 & 0xfffefff8) | 1) >>> 0
+      } else {
+        point = { ...site.center }
+        movePosition(point, random(rng) & 2047, rules.buildingWorkRadius[site.model] >> 1)
+      }
+    }
+    effects.destination(point, false)
+    face(person, point, 2047)
+    task.phase = 15
+    person.assignment |= 16
+    if (!near(person, point, 1648)) person.assignment |= 8
+  }
+  if (task.phase !== 15) return
+  if (person.assignment & 16) {
+    person.assignment &= ~16
+    recoverPersonMovement(rng, person, effects.animation)
+  }
+  if (!(person.counter & 1) && near(person, { x: person.goalX, y: person.goalY }, 112)) {
+    dropCarriedTimber(person, effects.allocateLog, () => effects.sound(11, 0))
+    person.assignment &= ~8
+    task.task = 2
+    task.restart = true
+  }
 }
 
 // Task 2, 0x4958f0, including its approach/arrival and wait consumers.

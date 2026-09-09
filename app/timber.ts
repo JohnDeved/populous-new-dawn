@@ -1,5 +1,21 @@
 import rules from './original-rules.json' with { type: 'json' }
 
+// 0x4d58c0: one loose log per hundred carried units; failed allocation preserves
+// the remainder. World allocation/insertion and the cue belong to the caller.
+export function dropCarriedTimber(
+  person: { cargo: number },
+  allocate: () => boolean,
+  sound: () => void
+) {
+  let cargo = (person.cargo << 16) >> 16
+  while (cargo > 0) {
+    if (!allocate()) break
+    cargo -= 100
+    sound()
+  }
+  person.cargo = Math.max(0, cargo)
+}
+
 // 0x4340a0's harvesting phase. Routing and follow-up orders belong to its caller.
 export function startTimberHarvest(personModel: number, sceneryModel: number) {
   return { remaining: sceneryModel === 11 ? 3 : rules.personHarvestTurns[personModel] }

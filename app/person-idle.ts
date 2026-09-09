@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
+import { dropCarriedTimber } from './timber.ts'
 import { random, nativeAngle } from './native-math.ts'
 import { positionsOverlap } from './person-motion.ts'
 import { stepPersonPose, type Animation } from './animation.ts'
@@ -219,16 +220,7 @@ export function stepRestingPerson(w: IdleWorld, p: IdlePerson, e: IdleEffects) {
     if (p.flags2 & 128) p.turnAngle = p.heading
     p.angle = p.flags2 & 0x8000 ? (p.heading + 1024) & 2047 : p.heading
   }
-  const drop = () => {
-    let cargo = p.cargo
-    if (!cargo) return
-    while (cargo > 0) {
-      if (!e.allocateLog()) break
-      cargo -= 100
-      e.sound(11)
-    }
-    p.cargo = Math.max(0, cargo)
-  }
+  const drop = () => dropCarriedTimber(p, e.allocateLog, () => e.sound(11))
   if (!e.occupied() && !(p.flags4 & 0x800)) p.stateObject = (p.stateObject + 1) & 65535
   if (p.flags2 & 0x2004)
     return positionsOverlap(p, 56, { x: p.goalX, y: p.goalY }, 512) ? 0 : p.previousState

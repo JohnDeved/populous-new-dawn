@@ -831,9 +831,10 @@
             "tests/building-work.test.mjs",
             "tests/fixtures/building-work.json",
             "scripts/check-browser-building-fire.mjs",
-            "tests/fixtures/building-departure.json"
+            "tests/fixtures/building-departure.json",
+            "tests/fixtures/building-approach.json"
           ],
-          "note": "Native geometry/stages, crew limits, capacity-limited deliveries and constructed-plan fetching/repair dispatch are integrated. Task-2 work activity and task-9 departure now use original shape targets, movement speed/RNG, facing, waits, poses and readiness. The completion gate retains workers through departure instead of teleporting and releasing them on final delivery. Compared 2688 work and 5120 departure calls; prior evidence covers 5120 crew decisions and 1264 repair-smoke controllers. Portable scenarios cover one/two/six workers in all four hut orientations, continuous movement, pause, cancellation, route cleanup and surplus timber. Browser departure walk/idle poses and all 336 existing GPU sprite poses pass. Native unbuilt-plan allocation/terrain preparation, complete person command ownership, motion/collision/turn scheduling, panic movement and frame-gated audio scheduling remain open; broad construction stays partial."
+          "note": "Native geometry/stages, crew limits, capacity-limited deliveries and constructed-plan fetching/repair dispatch are integrated. Task-1 approach, task-2 work and task-9 departure use original shape targets, anchors, movement speed/RNG, facing, waits, poses and readiness. Initial carried timber is deposited before work; final delivery retains workers through the native departure gate. Compared 3072 approach, 2688 work and 5120 departure calls; prior evidence covers 5120 crew decisions and 1264 repair-smoke controllers. Live scenarios cover carrying/empty-handed commands and one/two/six workers across four hut orientations, pause, cancellation, continuous departure, route cleanup and surplus wood. Browser approach/deposit/work/departure sprites, full construction/repair and all 336 existing GPU sprite poses pass. The live world still allocates a linked building immediately. Unbuilt-plan initialization/terrain preparation/allocation, full command and plan-signal ownership, object-pool limits, motion/collision/turn scheduling, panic and frame-gated audio remain open; broad construction stays partial."
         },
         {
           "id": "economy.wood",

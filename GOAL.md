@@ -728,3 +728,25 @@ ownership is connected. Panic movement and frame-gated audio remain open. Keep
 comparing full original first-mission frames. Broad construction remains partial;
 known-scope coverage stays 17.7% (17/96), discovery is open and full parity remains
 unfinished.
+
+### Latest visible integration: original builder approach and timber deposit
+
+Player construction orders now enter native task 1, retaining their carry pose and
+wood until the original arrival check. Approach sets the resting anchor, chooses
+the native door/inside target and hands off to work on its even-turn arrival gate.
+Carried timber is deposited as loose logs with the original cue before subsequent
+hauling; dropping does not directly advance construction. Shared timber-drop code
+also serves resting people. Compared 3,072 complete native approach calls; live
+empty-handed/carrying orders pass in all four hut orientations through completion
+and departure. Browser carrying/deposit sprites and rendered construction pass.
+There are 109 portable checks and 927 identified exports.
+
+Next is the full unbuilt-plan controller (`004b8470`) and initialization
+(`004b8220`): terrain grade, footprint obstacles, preparation-task priorities,
+worker clearance, delayed building allocation and unattended-plan removal. The
+browser still creates a linked building immediately, so unlinked approach behavior
+is native-compared but awaits that lifecycle. Command registration/dirty-byte
+ownership, object-pool limits, complete motion/collision/turn scheduling, panic and
+frame-gated audio remain open. Keep comparing full original first-mission frames.
+Known-scope coverage remains 17.7% (17/96); discovery is open and full parity remains
+unfinished.

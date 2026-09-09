@@ -3469,3 +3469,62 @@ GPU sprite poses pass. Three new exports (`00439270`, `00439550`, `00439580`) br
 the manifest to 922. Full construction stays partial: unbuilt allocation and terrain
 preparation, initial command approach, full movement/collision ownership, panic and
 frame-gated audio scheduling are still unported.
+
+## Original builder approach and carried-timber deposit — 2026-09-09
+
+Task 1 in `00495520` now owns the live initial construction approach after command
+validation/registration. It derives the resting anchor from the plan's outside
+socket, shifted 512 units by its draw heading plus 512; `00432520` redirects that
+anchor out of an occupied building, and `00402e70` centers both coordinates in
+512-unit cells. Plan draw heading and rotated shape orientation are separate.
+The linked-building branch chooses the inside socket only when descriptor bit
+`0x100` allows it and the person occupies that exact building. Otherwise it uses
+the door. Unlinked plans choose a random point within half the work radius.
+
+The original 1,648-unit signed square controls the formation assignment bit.
+Phase 15 recovers native walking/carry animation and speed/RNG, checks the 112-unit
+arrival square on even person turns, and hands off to work. On arrival `004d58c0`
+deposits carried wood as one log per 100 units and requests cue 11 for each
+successful allocation. Allocation failure retains the remainder but still ends
+approach. This operation is shared with the resting-person controller through
+`dropCarriedTimber`; its previous inline copy was removed. One builder-activity
+selector now supplies dispatch, movement ownership and native sprite selection.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-work.py /private/tmp/populous-reference/native/d3dpoptb.exe --approach
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-idle.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-work.test.mjs
+node scripts/check-browser-construction.mjs
+```
+
+Compared 3,072 complete `00495520` calls starting with a valid registered task-1
+person. Cases cover eight building models, rotations, linked/unlinked targets,
+blocked anchors, short/wrapped arrival and formation boundaries, movement recovery,
+carried partial/negative/multiple logs, allocation failures and plan dirty signals.
+Native geometry, anchor helpers, movement reset/speed, facing, arrival and the full
+timber-drop loop execute. Routed destination submission, allocation and final
+animation/audio calls are supplied leaves. The portable fixture retains 615 calls.
+The 2,688 work and 5,120 departure comparisons still pass; the shared drop refactor
+also passes 4,096 complete resting-person calls and the existing idle-family checks.
+
+Live scenarios cover empty-handed and carrying commands in all four hut
+orientations, anchor alignment, pause, cancellation, exact deposit position,
+unchanged construction work on deposit, later hauling, completion and departure.
+Browser checks inspect the original carrying frame and flip, the dropped log
+(77 GPU pixels), all three delivered construction stages, departure poses and
+six-person registration/replacement. Five exports (`00401ae0`, `00409dd0`,
+`004324c0`, `004982e0`, `004b8220`) bring the manifest to 927.
+
+The live world still represents a placed plan with a browser building, so initial
+approach currently uses its linked branch. Full unbuilt allocation, terrain
+preparation and priority dispatch in `004b8470` remain next. That controller checks
+shape validity and grade, counts workers/obstacles inside its footprint, dispatches
+timber/leveling/clearing tasks, waits for site clearance and a ready departure, then
+allocates the building; unattended plans age on the 128-turn phase. `004b8220`
+initializes the plan and quantizes its foundation height. Port those consumers and
+the class-9 lifecycle before claiming unbuilt-plan parity. Original command-list
+validation/registration, plan dirty-byte ownership, full route/motion/collision
+scheduling and object-pool allocation limits remain open. The live log allocator
+uses the existing unbounded browser scenery collection; failure behavior is proved
+by native captures rather than a browser pool-limit claim. Broad construction is
+still partial.

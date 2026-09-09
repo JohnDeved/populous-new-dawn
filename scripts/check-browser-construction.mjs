@@ -4,12 +4,26 @@ import {chromium} from '@playwright/test'
 import {openGame} from './browser-game.mjs'
 import {spriteDirection} from '../app/projection.ts'
 import sprites from '../app/original-units.json' with {type:'json'}
+async function checkBuilderPose(page,state,path){
+  await page.waitForFunction(state=>window.testScene.unitMeshes.get(window.builder.id).userData.state===state,state)
+  const pose=await page.evaluate(()=>{
+    const s=window.testScene,u=window.builder,p=u.builder.person,g=s.unitMeshes.get(u.id)
+    return {object:p.object,step:p.f2,heading:u.heading,bearing:s.cameraBearing,frame:g.userData.frame,flip:g.userData.frameFlip}
+  })
+  const directions=sprites.animations['blue-brave'][state]
+  assert.equal(pose.object,directions[0].source)
+  const direction=spriteDirection(Math.round(pose.bearing*1024/Math.PI),Math.round((Math.PI-pose.heading)*1024/Math.PI))
+  assert.equal(pose.frame,directions[direction].frames[pose.step%directions[direction].frames.length])
+  assert.equal(pose.flip,directions[direction].flip)
+  await page.screenshot({path})
+}
 const browser=await chromium.launch({headless:true})
 try{
   const {page,errors}=await openGame(browser)
   await page.evaluate(()=>{
     const s=window.testScene,w=s.world
     w.speed=0;window.builder=w.units.find(u=>u.team==='blue'&&u.kind==='brave')
+    window.builder.cargo=1;window.existingTrees=w.trees.map(t=>t.id)
     w.selected=[window.builder.id];s.focus({x:4,z:32});s.onChange()
   })
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
@@ -26,7 +40,35 @@ try{
   await page.mouse.move(1300,950)
   await page.evaluate(()=>{const s=window.testScene;window.building=s.world.buildings.find(b=>b.progress===0);s.focus(window.building);s.startGroundView(2)})
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
-  await page.evaluate(()=>{window.testScene.world.speed=4})
+  await page.evaluate(()=>{window.testScene.world.speed=0.25})
+  await page.waitForFunction(()=>{
+    const w=window.testScene.world,u=window.builder
+    if(u.builder?.task!==1||!u.builder.person?.speed)return false
+    w.speed=0;w.paused=true;return true
+  })
+  assert.equal(await page.evaluate(()=>window.builder.cargo),1)
+  await checkBuilderPose(page,'carry','/private/tmp/populous-approach-carry.png')
+  await page.evaluate(()=>{window.testScene.world.paused=false;window.testScene.world.speed=0.25})
+  await page.waitForFunction(()=>{
+    const w=window.testScene.world,u=window.builder
+    if(u.builder?.task!==2||u.cargo)return false
+    w.speed=0;w.paused=true
+    window.depositedLog=w.trees.find(t=>t.model===11&&!window.existingTrees.includes(t.id))
+    return true
+  })
+  assert.equal(await page.evaluate(()=>window.building.progress),0)
+  assert.equal(await page.evaluate(()=>window.depositedLog?.logs),1)
+  await page.waitForFunction(()=>window.testScene.decorations.children.some(g=>g.userData.point?.id===window.depositedLog.id))
+  const logPixels=await page.evaluate(()=>{
+    const s=window.testScene,g=s.decorations.children.find(g=>g.userData.point?.id===window.depositedLog.id),gl=s.renderer.getContext()
+    const read=()=>{s.renderer.render(s.scene,s.camera);const p=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4);gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,p);return p}
+    const before=read();g.visible=false;const after=read();g.visible=true
+    let pixels=0;for(let i=0;i<before.length;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])pixels++
+    return pixels
+  })
+  assert.ok(logPixels>0,'the original dropped-log sprite must reach the GPU')
+  await page.screenshot({path:'/private/tmp/populous-approach-deposit.png'})
+  await page.evaluate(()=>{window.testScene.world.paused=false;window.testScene.world.speed=4})
   const snapshots=[]
   for(let log=1;log<=3;log++){
     await page.waitForFunction(log=>{
@@ -63,17 +105,7 @@ try{
       if(state==='walk'?!p.speed:u.builder.phase!==5||p.timer<2)return false
       s.world.speed=0;s.world.paused=true;return true
     },state)
-    await page.waitForFunction(state=>window.testScene.unitMeshes.get(window.builder.id).userData.state===state,state)
-    const pose=await page.evaluate(()=>{
-      const s=window.testScene,u=window.builder,p=u.builder.person,g=s.unitMeshes.get(u.id)
-      return {object:p.object,step:p.f2,heading:u.heading,bearing:s.cameraBearing,frame:g.userData.frame,flip:g.userData.frameFlip}
-    })
-    const directions=sprites.animations['blue-brave'][state]
-    assert.equal(pose.object,directions[0].source)
-    const direction=spriteDirection(Math.round(pose.bearing*1024/Math.PI),Math.round((Math.PI-pose.heading)*1024/Math.PI))
-    assert.equal(pose.frame,directions[direction].frames[pose.step%directions[direction].frames.length])
-    assert.equal(pose.flip,directions[direction].flip)
-    await page.screenshot({path:`/private/tmp/populous-departure-${state}.png`})
+    await checkBuilderPose(page,state,`/private/tmp/populous-departure-${state}.png`)
     await page.evaluate(()=>{window.testScene.world.paused=false;window.testScene.world.speed=0.25})
   }
   await page.waitForFunction(()=>window.builder.work===null)
@@ -81,7 +113,7 @@ try{
   assert.ok(await page.evaluate(()=>window.building.builders.every(id=>id===0)))
   assert.equal(await page.evaluate(()=>window.testScene.world.stats.built),1)
   assert.deepEqual(errors,[])
-  console.log('PASS: real hut placement, three live delivery pauses with original carried-log sprites, native stage sequence, staged departure walk/idle sprites, released crew and visible GPU geometry:',JSON.stringify(snapshots))
+  console.log(`PASS: native approach/carry and dropped-log sprite (${logPixels} GPU pixels), real hut placement, three live delivery pauses with original carried-log sprites, native stage sequence, staged departure walk/idle sprites, released crew and visible GPU geometry:`,JSON.stringify(snapshots))
   await page.close()
 
   const {page:crewPage,errors:crewErrors}=await openGame(browser)
@@ -103,7 +135,7 @@ try{
   const initial=await crewPage.evaluate(()=>{
     const s=window.testScene,w=s.world,b=w.buildings.find(b=>b.progress===0)
     window.building=b
-    window.spare={...w.units.find(u=>u.id===b.builders[0]),id:w.nextId++,work:null,path:[]}
+    window.spare={...w.units.find(u=>u.id===b.builders[0]),id:w.nextId++,work:null,path:[],builder:undefined}
     w.units.push(window.spare);w.selected=[b.builders[0],window.spare.id];s.onChange()
     return b.builders
   })

@@ -44,7 +44,7 @@ test('two live builders dispatch one hauler on the original sixteen-turn phase',
   const w=createWorld(),b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut')
   b.progress=0;b.logs=0;b.counter=0;w.manaWorld.gameFlags=32
   const workers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2)
-  for(const u of workers)Object.assign(u,{...entrance(w,b),work:b.id,inside:null,path:[],cargo:0,tree:null})
+  for(const u of workers)Object.assign(u,{...entrance(w,b),work:b.id,inside:null,path:[],cargo:0,tree:null,builder:{task:BuilderTask.Work,busy:0,phase:0,restart:true}})
   for(let turn=1;turn<16;turn++){
     tick(w,1/12)
     assert.ok(workers.every(u=>u.builder.task===BuilderTask.Work&&u.tree===null))

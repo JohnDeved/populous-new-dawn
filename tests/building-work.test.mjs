@@ -1,10 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import approachFixture from './fixtures/building-approach.json' with {type:'json'}
 import departureFixture from './fixtures/building-departure.json' with {type:'json'}
 import fixtureWork from './fixtures/building-work.json' with {type:'json'}
 import manifest from '../decomp/exports.json' with {type:'json'}
 import rules from '../app/original-rules.json' with {type:'json'}
-import {stepBuildingWork,stepBuildingDeparture} from '../app/building-work.ts'
+import {stepBuildingWork,stepBuildingDeparture,stepBuildingApproach} from '../app/building-work.ts'
 import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
 import {createWorld,placeBuilding,tick,command,unitAnimation,unitAnimationSource} from '../app/model.ts'
 import {animateLiveObjects} from '../app/live-people.ts'
@@ -12,15 +13,20 @@ import {AUDIO_CUES} from '../app/audio.ts'
 
 test('building activity matches native geometry, clocks, speed, facing and animation requests',()=>{
   assert.equal(fixtureWork.executableSha256,manifest.executableSha256);assert.equal(departureFixture.executableSha256,manifest.executableSha256)
-  for(const fixture of [fixtureWork,departureFixture])fixture.cases.forEach((c,i)=>{
+  for(const fixture of [fixtureWork,departureFixture,approachFixture])fixture.cases.forEach((c,i)=>{
+    assert.equal(fixture.executableSha256,manifest.executableSha256)
     const p={...c.person,motionGroup:0,motionIndex:0},task={...c.task},rng={randomState:c.seed},events=[]
-    ;(task.task===9?stepBuildingDeparture:stepBuildingWork)(rng,p,task,c.site,{
+    const initial=task.task
+    if(initial===1&&task.restart)p.flags4=(p.flags4&0xfffefff8)>>>0
+    ;(initial===1?stepBuildingApproach:initial===9?stepBuildingDeparture:stepBuildingWork)(rng,p,task,c.site,{
       destination:(to,direct)=>{events.push(['destination',to,direct]);if(direct)setDirectPersonDestination(createMotionRoutes(),p,to);else{p.goalX=to.x;p.goalY=to.y}},
+      outsideBuilding:to=>c.site.anchorBlocked?c.site.outside:to,
+      allocateLog:()=>{const ok=events.filter(e=>e[0]==='allocateLog'&&e[1]).length<c.allocationLimit;events.push(['allocateLog',ok]);return ok},
       releaseMotion:()=>events.push(['releaseMotion']),
       animation:(_,id)=>events.push(['animation',id]),rest:()=>events.push(['rest']),sound:(cue,flags)=>events.push(['sound',cue,flags]),
     })
     delete p.motionGroup;delete p.motionIndex
-    assert.deepEqual({person:p,task,randomState:rng.randomState,events},fixture.expected[i])
+    assert.deepEqual({person:p,task,randomState:rng.randomState,events,...(initial===1?{signal:c.site.signal|(task.task===2?1:0)}:{})},fixture.expected[i])
   })
 })
 
@@ -89,4 +95,36 @@ test('crews leave finished huts in all four orientations before the plan release
     assert.ok(crew.every(u=>!w.pathfinding.people.has(u.id)),'departure must release its route ownership')
   }
   for(const phase of [2,3,4,5,6,18,21])assert.ok(seen.has(phase),'live departure phase '+phase)
+})
+
+test('player construction orders approach natively and deposit carried logs before fetching',()=>{
+  for(const cargo of [0,1])for(let direction=0;direction<4;direction++){
+    const w=createWorld();w.manaWorld.gameFlags=32;w.buildingDirections.hut=direction
+    const u=w.units.find(u=>u.kind==='brave'&&u.team==='blue');u.cargo=cargo;w.selected=[u.id]
+    const oldTrees=new Set(w.trees.map(t=>t.id))
+    assert.ok(placeBuilding(w,'hut',{x:4,z:32}));const b=w.buildings.at(-1)
+    assert.equal(u.builder.task,1)
+    tick(w,1/12)
+    assert.equal(u.builder.phase,15);assert.equal(u.builder.task,1)
+    assert.equal(u.builder.person.anchorFlags,0)
+    assert.equal(u.builder.person.anchorX&511,256);assert.equal(u.builder.person.anchorY&511,256)
+    w.paused=true;const before=JSON.stringify(u);tick(w,1);animateLiveObjects(w)
+    assert.equal(JSON.stringify(u),before);w.paused=false
+    if(cargo&&direction===0){
+      command(w,{x:u.x+2,z:u.z});assert.equal(u.builder,undefined);assert.equal(u.cargo,1)
+      command(w,b);assert.equal(u.builder.task,1)
+    }
+    let arrival
+    for(let n=0;n<300&&u.builder.task===1;n++){
+      arrival={x:u.x,z:u.z};tick(w,1/12)
+      if(u.builder.task===1)assert.equal(u.cargo,cargo,'approach retains carried wood until arrival')
+    }
+    assert.equal(u.builder.task,2);assert.equal(u.builder.restart,true)
+    assert.equal(u.cargo,0);assert.equal(b.progress,0,'approach deposits timber without advancing construction')
+    const dropped=w.trees.filter(t=>!oldTrees.has(t.id)&&t.model===11)
+    assert.equal(dropped.length,cargo)
+    if(cargo){assert.equal(dropped[0].logs,1);assert.equal(dropped[0].x,arrival.x);assert.equal(dropped[0].z,arrival.z);assert.ok(w.sounds.some(s=>s.cue===11))}
+    for(let n=0;n<2000&&(b.progress<1||u.builder);n++)tick(w,1/12)
+    assert.equal(b.progress,1);assert.equal(u.builder,undefined)
+  }
 })
