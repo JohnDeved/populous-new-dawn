@@ -161,6 +161,17 @@ def main():
             layers.append({'piece':piece,'x':x,'y':y,'flags':flags})
         return layers
     metadata = {}; rendered = []; source_frames = []; cache = {}
+    def animation(team,kind,start):
+        directions=[]
+        for direction in range(8):
+            frame,mirror=starts[start+direction]; cycle=[]; seen=set()
+            while frame not in seen:
+                assert 0<frame<len(frames);seen.add(frame)
+                key=(frame,team,kind)
+                if key not in cache:cache[key]=len(rendered);rendered.append(frame_layers(frame));source_frames.append(frame)
+                cycle.append(cache[key]);frame=frames[frame][-1]
+            directions.append({'frames':cycle,'flip':bool(mirror),'source':start+direction})
+        return directions
     for team in ['blue','red','wild']:
         for kind in (['brave'] if team=='wild' else ['brave','warrior','shaman']):
             # Executable animation map at 0x5a6d50 -> object table 0x5a6858.
@@ -172,19 +183,19 @@ def main():
                 states={k:v+(8 if team=='red' else 0) for k,v in states.items()}
             metadata[f'{team}-{kind}'] = {}
             for state,start in states.items():
-                directions=[]
-                for direction in range(8):
-                    frame,mirror=starts[start+direction]; cycle=[]; seen=set()
-                    while frame not in seen:
-                        assert 0<frame<len(frames);seen.add(frame)
-                        key=(frame,team,kind)
-                        if key not in cache:cache[key]=len(rendered);rendered.append(frame_layers(frame));source_frames.append(frame)
-                        cycle.append(cache[key]);frame=frames[frame][-1]
-                    directions.append({'frames':cycle,'flip':bool(mirror),'source':start+direction})
-                metadata[f'{team}-{kind}'][state]=directions
+                metadata[f'{team}-{kind}'][state]=animation(team,kind,start)
+    # Append new native poses after established frame/piece slots. Existing
+    # standing/action fixtures retain their exact indices and original RGBA.
+    used=sorted({layer['piece'] for layers in rendered for layer in layers})
+    for signature,states in metadata.items():
+        team,kind=signature.split('-')
+        model=1 if team=='wild' else {'brave':2,'warrior':3,'shaman':7}[kind]
+        obj=rules['personAnimationObjects'][2*9+model]
+        start=rules['animationObjects'][obj][0]+(8 if kind=='shaman' and team=='red' else 0)
+        states['launch']=animation(team,kind,start)
     # Keep raw pieces: the original scales offsets and rectangles separately,
     # and enables/disables layers at draw time (including standing shadows).
-    used=sorted({layer['piece'] for layers in rendered for layer in layers})
+    used+=sorted({layer['piece'] for layers in rendered for layer in layers}-set(used))
     piece_index={source:i for i,source in enumerate(used)}
     cell=1
     while cell<max(max(bank[i][:2]) for i in used):cell*=2

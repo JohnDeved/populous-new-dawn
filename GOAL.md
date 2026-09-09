@@ -128,7 +128,13 @@ the invented shockwave ring is removed. Projectile trails now use both native
 phases, staggered initial frames, the separate cosmetic RNG and recovered motion;
 Blast sparks rise and Lightning/Land Bridge trails persist through their second
 phase. The impact's separate effect-3 allocation, terrain lighting, burning
-scenery and native multi-turn knockback remain open. Casting
+scenery remain open. The native three-pass Blast force controller and full impulse/airborne physics
+now drive live followers, with original landing sparks and imported launch poses.
+Compared: 256 wave passes, 512 damage calls, 8,192 physics snapshots, 4,096 bounces
+and 7,068 sprite layer draws. Original 336 pose fixtures and 2,672 RGBA pieces
+are preserved; 56 launch fixtures and 220 original pieces extend coverage.
+Full mixed-class scheduling, shake rendering, allocation limits, ordinary state
+ownership and matched original gameplay footage remain open. Casting
 range now uses the native rotating 85-particle halo, terrain heights, original
 frames and shadow sprites, including hover previews; its complete native timer
 and painter ownership remain open. Spell pointers use native POINT artwork, unavailable markers

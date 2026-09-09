@@ -9,7 +9,9 @@ import {
 } from './building-workers.ts'
 import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from './building-work.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
-import { faceTribe } from './person-state.ts'
+import { faceTribe, personAnimationObject } from './person-state.ts'
+import { damagePerson } from './person-update.ts'
+import { createBlastWave, stepBlastWave, type BlastWave, type BlastTarget } from './blast-wave.ts'
 import {
   stepBuildingScenery,
   stepBuildingPeople,
@@ -73,6 +75,7 @@ import {
   setLivePersonAnimation,
   initializeLiveCelebration,
   stepLiveCelebration,
+  stepLiveImpulse,
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
@@ -222,6 +225,7 @@ export type Projectile = {
 type Battle = Point & { id: number; members: number[]; angle: number }
 export type Unit = Point & {
   native: LivePerson | null
+  flight?: LivePerson
   vault: VaultTask | null
   id: number
   team: Team
@@ -240,8 +244,6 @@ export type Unit = Point & {
   timer: number
   guard: boolean
   lift: number
-  vx: number
-  vz: number
   idleTurns: number
   heading: number
   fighting: boolean
@@ -314,6 +316,7 @@ export type Effect = Point & {
     | 'debris'
     | 'fire'
     | 'sinking'
+    | 'blastWave'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
@@ -322,6 +325,7 @@ export type Effect = Point & {
   debris?: BuildingDebris
   fire?: SceneryFire
   sinking?: SinkingBuilding & { stage: number }
+  wave?: BlastWave
   turnsRemaining?: number
   groundVersion?: number
   age: number
@@ -713,6 +717,7 @@ function builderActivity(u: Unit) {
   )
 }
 export function unitAnimationSource(u: Unit) {
+  if (u.flight) return u.flight
   if (u.native) return u.native
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
     ? (u.builder?.person ?? null)
@@ -1081,8 +1086,6 @@ export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
     timer: 0,
     guard: false,
     lift: 0,
-    vx: 0,
-    vz: 0,
     idleTurns: 0,
     heading: Math.PI,
     fighting: false,
@@ -2889,8 +2892,10 @@ function stepBuildingGroundResponse(w: World, b: Building) {
   stepTerrainCollapse(terrain, {
     eject: () => evacuateBuilding(w, b),
     destroy: reason => {
-      if (reason === 1) emitBuildingDebris(w, b, -1, w)
-      else if (reason === 2) {
+      if (reason === 1) {
+        emitBuildingDebris(w, b, -1, w)
+        emitBlastWave(w, b, b.team, true)
+      } else if (reason === 2) {
         const fx = effect(w, 'sinking', b)
         fx.sinking = {
           ...buildingPose(b),
@@ -2914,8 +2919,7 @@ function stepBuildingGroundResponse(w: World, b: Building) {
         fx.height = b.foundation
         fx.duration = Infinity
       }
-      // The class-7/model-1 collapse explosion and attacker statistics still
-      // need their consumers; detached faces and sinking retain native motion.
+      // Native attacker statistics and mixed-class allocation ordering remain open.
       b.hp = 0
       for (const u of w.units.filter(u => u.work === b.id || u.inside === b.id)) release(w, u)
       if (b.burn?.soundPlaying) sound(w, 0x53, b, b.id).stop = true
@@ -3157,6 +3161,17 @@ function moveVisual(f: Effect, p: NativePoint) {
   Object.assign(f, browserPosition(p))
   f.height = p.h / 45
 }
+// Class-7/model-3 sparks are shared by landings, debris and fire embers.
+export function emitGroundSpark(w: World, position: NativePoint) {
+  const fx = effect(w, 'trail', browserPosition(position))
+  const trail = createSpellTrail(w.land, position, 3, (w.effectCounter - 1) & 255, w.cosmeticRandom)
+  fx.animation = trail
+  fx.sprite = { sequence: 'blastTrail', frame: 0 }
+  fx.duration = Infinity
+  moveVisual(fx, trail)
+  return trail
+}
+
 function stepDebrisEffect(w: World, fx: Effect, rng: { randomState: number }) {
   const fragment = fx.debris!
   const alive = stepBuildingDebris(w.land, fragment, rng, water => {
@@ -3164,18 +3179,7 @@ function stepDebrisEffect(w: World, fx: Effect, rng: { randomState: number }) {
     if (water) {
       effect(w, 'splash', position)
     } else {
-      const spark = effect(w, 'trail', position)
-      spark.sprite = { sequence: 'blastTrail', frame: 0 }
-      const trail = createSpellTrail(
-        w.land,
-        fragment,
-        3,
-        (w.effectCounter - 1) & 255,
-        w.cosmeticRandom
-      )
-      spark.animation = trail
-      spark.duration = Infinity
-      moveVisual(spark, trail)
+      emitGroundSpark(w, fragment)
       sound(w, 0x13, position)
     }
   })
@@ -3344,20 +3348,9 @@ function stepScenery(w: World) {
         fire.soundPlaying = true // Cleared when its audio voice ends.
       },
       ember: (position, speed, flags) => {
-        const spark = effect(w, 'trail', browserPosition(position))
-        const trail = createSpellTrail(
-          w.land,
-          position,
-          3,
-          (w.effectCounter - 1) & 255,
-          w.cosmeticRandom
-        )
+        const trail = emitGroundSpark(w, position)
         trail.speed = speed
         trail.flags4 |= flags
-        spark.animation = trail
-        spark.sprite = { sequence: 'blastTrail', frame: 0 }
-        spark.duration = Infinity
-        moveVisual(spark, trail)
       },
       smoke: () => {
         const cloud = createBuildingSmoke(w.land, fire, w)
@@ -3481,6 +3474,120 @@ function processProjectiles(w: World) {
     shot.turns++
   }
 }
+function emitBlastWave(w: World, point: Point, team: Team, collapse = false) {
+  const position = nativePosition(w, point)
+  position.h = terrainPointHeight(w.land, position)
+  const fx = effect(w, 'blastWave', point)
+  fx.wave = createBlastWave(
+    position,
+    team === 'blue' ? 0 : 1,
+    !collapse && !!(w.manaWorld.loadFlags & 0x04000000)
+  )
+  fx.duration = Infinity
+  sound(w, 0xa1, point)
+}
+
+// Native force/damage dispatch with live object adapters. Ordinary allocation
+// still supplies cell order; complete mixed-class lists and shake rendering remain open.
+function stepLiveBlastWave(w: World, wave: BlastWave) {
+  syncLandscapeObjects(w)
+  const units = new Map(w.units.filter(u => u.hp > 0 || u.flight).map(u => [u.id, u]))
+  const buildings = new Map(w.buildings.filter(b => b.hp > 0).map(b => [b.id, b]))
+  const cells = new Map<number, BlastTarget[]>()
+  const records = new Map<number, BlastTarget>()
+  const people = new Map<number, LivePerson>()
+  const add = (p: BlastTarget) => {
+    records.set(p.id, p)
+    const index = (p.y >> 9) * 128 + (p.x >> 9)
+    const cell = cells.get(index) ?? []
+    cell.unshift(p)
+    cells.set(index, cell)
+  }
+  for (const u of units.values()) {
+    if (u.inside !== null) continue
+    const p = u.flight ?? u.native ?? createLivePerson(w, u)
+    // Ordinary browser people have not yet run the native allocation flags.
+    // Vehicles, invisibility and shield flags retain their values on native records.
+    if (!u.native && !u.flight) p.flags4 |= 256
+    p.life = Math.round(u.hp * 20)
+    people.set(p.id, p)
+    add(Object.assign(p, { shake: 0, shakeOrigin: 0 }))
+  }
+  for (const b of buildings.values()) {
+    const position = nativePosition(w, b)
+    add({
+      ...position,
+      id: b.id,
+      class: 2,
+      model: buildingModel(b),
+      tribe: b.team === 'blue' ? 0 : 1,
+      state: b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
+      previousState: 0,
+      flags2: b.damageState?.flags2 ?? 0,
+      flags3: b.damageState?.flags3 ?? 0,
+      flags4: 0,
+      velocity: { x: 0, y: 0, z: 0 },
+      vehicle: 0,
+      panicTimer: 0,
+      life: 0,
+      shake: 0,
+      shakeOrigin: 0,
+    })
+  }
+  const state = {
+    randomState: w.randomState,
+    search: w.indexedSearch,
+    land: w.land,
+    alliances: w.outcome.alliances,
+    special: !!(w.manaWorld.loadFlags & 0x04000000),
+  }
+  const alive = stepBlastWave(
+    state,
+    wave,
+    {
+      cell: index => cells.get(index) ?? [],
+      building: id => records.get(id),
+    },
+    {
+      panic: () => {
+        throw new Error('Live panic waves require the state-26 controller')
+      },
+      animation: p => {
+        const u = units.get(p.id)
+        if (!u) return
+        const person = people.get(p.id)!
+        const object = personAnimationObject(person)
+        if (object !== -1) setLivePersonAnimation(w, person, object)
+      },
+      damage: (p, amount) => damagePerson(people.get(p.id)!, w.levelFlags2, wave.tribe, amount),
+      buildingDamage: (p, amount) => {
+        if (w.levelFlags2 & 0x04000000 || p.flags3 & 128) return
+        const b = ensureBuildingDamage(buildings.get(p.id)!)
+        b.damage = ((b.damage + amount) << 16) >> 16
+        if (wave.tribe !== -1 && wave.tribe !== 255) b.attacker = wave.tribe
+      },
+      vehicleDamage: () => {
+        throw new Error('Live vehicle damage has no vehicle owner')
+      },
+      remove: p => {
+        p.life = 0
+      },
+    }
+  )
+  for (const p of people.values()) {
+    const u = units.get(p.id)
+    if (!u) continue
+    u.hp = p.life / 20
+    if (p.flags2 & 0x80000) {
+      if (!u.flight) release(w, u)
+      u.flight = p
+      u.lift = 1
+    }
+  }
+  w.randomState = state.randomState
+  return alive
+}
+
 function finishCast(
   w: World,
   shaman: Pick<Unit, 'id' | 'team' | 'x' | 'z'>,
@@ -3488,6 +3595,7 @@ function finishCast(
   p: Point,
   endpoint?: NativePoint
 ) {
+  if (spell === 'blast') emitBlastWave(w, p, shaman.team)
   const upper = spell === 'lightning' && endpoint ? browserPosition(endpoint) : p,
     fx = effect(w, spell, upper)
   if (spell === 'lightning') {
@@ -3504,7 +3612,6 @@ function finishCast(
   }
   // Spell 2 allocates effect 78 (0x50b630) before effect 38 (0x509c10).
   if (spell === 'blast') {
-    sound(w, 0xa1, p)
     sound(w, 0xb2, p)
   } else if (spell === 'bridge') {
     sound(w, 0xab, p)
@@ -3559,40 +3666,20 @@ function damageSpell(
   p: Point,
   caster: Pick<Unit, 'id' | 'team' | 'x' | 'z'>
 ) {
-  const radius = spell === 'blast' ? 3 : 3.6
-  // Lightning electrocutes the native 2×2 map cell; it does not apply Blast's radial launch.
-  if (spell === 'lightning') {
-    let killed = 0
-    for (const u of w.units)
-      if (
-        u.hp > 0 &&
-        u.inside === null &&
-        !(u.kind === 'shaman' && u.team === caster.team) &&
-        Math.floor(u.x / 2) === Math.floor(p.x / 2) &&
-        Math.floor(-u.z / 2) === Math.floor(-p.z / 2) &&
-        killed <= constants.LIGHTNING_NUM_KILLS
-      ) {
-        u.hp = 0
-        killed++
-      }
-    return
-  }
+  if (spell !== 'lightning') return
+  let killed = 0
   for (const u of w.units)
-    if (!u.inside && u.id !== caster.id && distance(u, p) < radius) {
-      if (u.team !== caster.team) u.hp -= 50 / 20
-      const dx = distance(u, p) < 0.2 ? p.x - caster.x : u.x - p.x,
-        dz = distance(u, p) < 0.2 ? p.z - caster.z : u.z - p.z,
-        d = Math.hypot(dx, dz) || 1
-      const strength = ((Math.max(0.15, 1 - distance(u, p) / 5) * 140) / 256) * TURNS_PER_SECOND
-      u.vx = (dx / d) * strength
-      u.vz = (dz / d) * strength
-      u.lift = 1
-      clearLivePath(w, u)
-      u.inside = null
-      u.casting = null
-      u.fight = null
+    if (
+      u.hp > 0 &&
+      u.inside === null &&
+      !(u.kind === 'shaman' && u.team === caster.team) &&
+      Math.floor(u.x / 2) === Math.floor(p.x / 2) &&
+      Math.floor(-u.z / 2) === Math.floor(-p.z / 2) &&
+      killed <= constants.LIGHTNING_NUM_KILLS
+    ) {
+      u.hp = 0
+      killed++
     }
-  for (const b of w.buildings) if (distance(b, p) < radius + 1.5) b.hp -= 20
 }
 // ponytail: current braves/warriors/shaman use the live order adapter. Replace it
 // with native person records/order ownership when that lifecycle is integrated.
@@ -3803,6 +3890,7 @@ function stepTurn(w: World) {
   for (const fx of w.effects) {
     fx.age += dt
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
+    if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
     if (fx.sinking) {
       fx.sinking.counter = (fx.sinking.counter + 1) & 255
@@ -4027,16 +4115,12 @@ function stepTurn(w: World) {
   syncLandscapeObjects(w)
   for (const u of w.units) {
     u.fighting = false
-    if (u.hp <= 0) continue
-    u.cooldown = Math.max(0, u.cooldown - dt)
-    // ponytail: Blast flight/landing retains its height cutoff until the native airborne dispatcher owns it.
-    if (u.lift > 0) {
-      u.x += u.vx * dt
-      u.z += u.vz * dt
-      u.lift = Math.max(0, u.lift - dt)
-      if (!u.lift && !walkable(w.terrain, u)) u.hp = 0
+    if (u.flight) {
+      stepLiveImpulse(w, u)
       continue
     }
+    if (u.hp <= 0) continue
+    u.cooldown = Math.max(0, u.cooldown - dt)
     if (u.native?.state === 41) {
       stepLiveCelebration(w, u)
       continue
@@ -4193,14 +4277,14 @@ function stepTurn(w: World) {
       !target.casting
     )
       joinBattle(w, u, target)
-  for (const u of w.units.filter(u => u.hp <= 0 && u.kind === 'shaman'))
+  for (const u of w.units.filter(u => u.hp <= 0 && !u.flight && u.kind === 'shaman'))
     if (w.units.some(a => a.team === u.team && a.hp > 0)) {
       if (u.team === 'blue') {
         w.respawn = 12
         tell(w, 'Your shaman will reincarnate in 12 seconds.')
       } else if (w.ai.reincarnation) w.redRespawn = 12
     }
-  for (const u of w.units.filter(u => u.hp <= 0)) {
+  for (const u of w.units.filter(u => u.hp <= 0 && !u.flight)) {
     const f = effect(w, supportsFollower(w, u) ? 'death' : 'splash', u)
     if (f.kind === 'death') f.unit = { team: u.team, kind: u.kind, heading: u.heading }
   }
@@ -4214,7 +4298,7 @@ function stepTurn(w: World) {
     if (!b.terrainState?.reason) effect(w, 'death', b)
   }
   removeDeadLiveRoutes(w)
-  w.units = w.units.filter(u => u.hp > 0)
+  w.units = w.units.filter(u => u.hp > 0 || u.flight)
   w.buildings = w.buildings.filter(b => b.hp > 0)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
   syncLivePersonCells(w)

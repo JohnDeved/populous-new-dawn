@@ -288,9 +288,14 @@
           "status": "verified",
           "evidence": [
             "scripts/check-native-blast-flash.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "app/blast-wave.ts",
+            "scripts/check-native-blast-wave.py",
+            "scripts/check-native-physics-driver.py",
+            "tests/blast-wave.test.mjs",
+            "scripts/check-browser-blast-wave.mjs"
           ],
-          "note": "Original frames, grounding, nine-turn lifetime and impact cues integrated."
+          "note": "Original frames, grounding, nine-turn lifetime and impact cues integrated. Original three-pass force controller now drives live Blast and terrain collapse. Native checks cover 256 indexed passes and 512 damage calls; live flight reuses the compared physics driver and original landing sparks. Launch poses are imported from animation row 2. Full mixed-class scheduling, shake rendering, allocation limits, ordinary state ownership and matched original footage remain open."
         },
         {
           "id": "effects.lightning",
@@ -338,7 +343,7 @@
             "tests/building-terrain.test.mjs",
             "scripts/check-browser-building-terrain.mjs"
           ],
-          "note": "Faces, flight and impacts integrated; lighting, allocation limits and attachments remain open. Allocated buildings now settle original grade vertices on four-turn phases, collapse on excessive slope, and sink when the native flooded-vertex threshold is exceeded. Native comparisons cover 1,520 terrain controllers, 12,800 sinking snapshots and both debris-emission modes (1,260 calls/44,284 faces); portable live scenarios cover all orientations. Browser pixels, original mesh/stage, tilt, drift and cleanup pass. Shared height/debris helpers retain readable TS. Collapse explosions, full panic/evacuation movement, native allocation/counters/dispatch, attacker statistics and linked/dock ownership remain open."
+          "note": "Faces, flight and impacts integrated; lighting, allocation limits and attachments remain open. Allocated buildings now settle original grade vertices on four-turn phases, collapse on excessive slope, and sink when the native flooded-vertex threshold is exceeded. Native comparisons cover 1,520 terrain controllers, 12,800 sinking snapshots and both debris-emission modes (1,260 calls/44,284 faces); portable live scenarios cover all orientations. Browser pixels, original mesh/stage, tilt, drift and cleanup pass. Shared height/debris helpers retain readable TS. Collapse now allocates the shared original Blast force controller and cue 0xa1. Full panic/evacuation movement, native allocation/counters/dispatch, attacker statistics and linked/dock ownership remain open."
         },
         {
           "id": "effects.fire",
@@ -1006,9 +1011,14 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-spell-targets.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "app/blast-wave.ts",
+            "scripts/check-native-blast-wave.py",
+            "scripts/check-native-physics-driver.py",
+            "tests/blast-wave.test.mjs",
+            "scripts/check-browser-blast-wave.mjs"
           ],
-          "note": "Projectile and impact reconstructed; full knockback, collisions and scheduling remain open."
+          "note": "Integrated original expanding indexed wave, repeated slope-sensitive impulses, allied final-pass/cap gates, native building damage accumulation, shielded person damage, velocity/gravity/bounce/landing and original landing sparks. Native comparisons: 256 wave passes, 512 damage calls, 8192 physics snapshots and 4096 bounces. Full object/cell allocation order, person state dispatch, shake rendering, special/vehicle consumers, complete damage feedback and original end-to-end scheduling remain open."
         },
         {
           "id": "spells.lightning",

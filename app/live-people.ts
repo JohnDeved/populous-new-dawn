@@ -1,5 +1,6 @@
-import type { World, Unit } from './model.ts'
 import {
+  type World,
+  type Unit,
   nativePosition,
   browserPosition,
   height,
@@ -7,13 +8,16 @@ import {
   entrance,
   sound,
   unitAnimationSource,
+  buildingModel,
+  supportsFollower,
+  emitGroundSpark,
 } from './model.ts'
 import {
   initializePersonState,
   personAnimationObject,
   type StatefulPerson,
 } from './person-state.ts'
-import { preparePersonTurn, stepPersonReaction } from './person-update.ts'
+import { damagePerson, preparePersonTurn, stepPersonReaction } from './person-update.ts'
 import { stepPersonOrders } from './person-order-update.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { stepCelebration, type Celebrant, type CelebrationEffects } from './celebration.ts'
@@ -38,7 +42,12 @@ import {
   type CollisionWorld,
   type CollisionObject,
 } from './person-collision.ts'
-import { limitPersonVelocity } from './person-physics.ts'
+import {
+  limitPersonVelocity,
+  markPersonAirborne,
+  stepPersonPhysics,
+  type PhysicsPerson,
+} from './person-physics.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
   insertObjectIntoCell,
@@ -55,6 +64,7 @@ export type LivePerson = StatefulPerson &
   Celebrant &
   Animation &
   RecoveryPerson &
+  PhysicsPerson &
   CellObject & {
     stamp: number
     morphTimer: number
@@ -69,6 +79,8 @@ export type LivePerson = StatefulPerson &
     reactionTimer: number
     reactionDuration: number
     anchorFlags: number
+    damageAttacker: number
+    panicTimer: number
   }
 const short = (n: number) => (n << 16) >> 16
 
@@ -76,7 +88,7 @@ const short = (n: number) => (n << 16) >> 16
 // Legacy orders/physics are not native records; their full migration is pending.
 export function createLivePerson(w: World, u: Unit): LivePerson {
   const pos = nativePosition(w, u),
-    model = u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2
+    model = u.team === 'wild' ? 1 : u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2
   const selected = w.selected.includes(u.id),
     angle = Math.round(((Math.PI - u.heading) * 1024) / Math.PI) & 2047
   return {
@@ -86,7 +98,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     state: selected ? 14 : 10,
     previousState: 0,
     substate: 0,
-    tribe: u.team === 'blue' ? 0 : 1,
+    tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
     x: pos.x & 65535,
     y: pos.y & 65535,
     h: pos.h,
@@ -151,6 +163,10 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     reactionTimer: 0,
     reactionDuration: 0,
     anchorFlags: 0,
+    velocity: { x: 0, y: 0, z: 0 },
+    life: short(Math.round(u.hp * 20)),
+    damageAttacker: 255,
+    panicTimer: 0,
   }
 }
 
@@ -159,7 +175,11 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
 // ponytail: victory bootstrap supplies initial order; full native allocation
 // must establish membership for ordinary units and the remaining object classes.
 export function syncLivePersonCells(w: World) {
-  const people = new Map(w.units.filter(u => u.native && u.hp > 0).map(u => [u.id, u.native!]))
+  const people = new Map(
+    w.units
+      .filter(u => (u.flight || u.native) && (u.hp > 0 || u.flight))
+      .map(u => [u.id, (u.flight ?? u.native)!])
+  )
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
       removeObjectFromCell(w.objectCells, p)
@@ -172,6 +192,7 @@ export function syncLivePersonCells(w: World) {
       w.objectCells.objects.set(p.id, p)
       insertObjectIntoCell(w.objectCells, p, p)
     }
+    if (u.flight) continue
     const to = nativePosition(w, u)
     to.x &= 65535
     to.y &= 65535
@@ -262,8 +283,12 @@ function context(w: World) {
   return { state, effects }
 }
 
-function initializeLivePerson(w: World, u: Unit, { state, effects }: ReturnType<typeof context>) {
-  const p = u.native!
+function initializeLivePerson(
+  w: World,
+  u: Unit,
+  { state, effects }: ReturnType<typeof context>,
+  p = u.native!
+) {
   const tribes = w.manaTribes.map((t, i) => ({
     x: 0,
     y: 0,
@@ -339,6 +364,73 @@ export function collisionWorld(w: World): CollisionWorld {
         building: w.land.buildingIds[i],
       }
     },
+  }
+}
+
+// Native impulse/airborne physics owns the complete flight, then hands ordinary
+// orders back to the existing browser controller after the native settle state.
+export function stepLiveImpulse(w: World, u: Unit) {
+  const p = u.flight!
+  const ctx = context(w)
+  const animate = () => {
+    const object = personAnimationObject(p)
+    if (object !== -1) setLivePersonAnimation(w, p, object)
+  }
+  const initialize = () => initializeLivePerson(w, u, ctx, p)
+  p.counter = (p.counter + 1) & 255
+  preparePersonTurn(p, w.manaWorld.gameFlags, {
+    initialize,
+    animation: animate,
+    destination: to => ctx.effects.destination(p, to),
+  })
+  stepPersonReaction(p)
+  markPersonAirborne(w.land, p)
+  const collision = collisionWorld(w)
+  stepPersonPhysics(
+    {
+      land: w.land,
+      collision,
+      gameFlags: w.manaWorld.gameFlags,
+      levelFlags: w.manaWorld.levelFlags,
+      playerTribe: w.manaWorld.playerTribe,
+      buildingModel: id => buildingModel(w.buildings.find(b => b.id === id)!),
+      route: outside => {
+        const b = w.buildings.find(b => b.id === (collision.cell(p).building & 1023))
+        if (!b) throw new Error('Missing building during impulse recovery')
+        return outside
+          ? buildingOutsidePoint(buildingPose(b))
+          : buildingApproachPoint(buildingPose(b), p)
+      },
+    },
+    p,
+    {
+      insert: to => moveObjectInCells(w.objectCells, p, to),
+      sound: cue => sound(w, cue, browserPosition(p)),
+      damage: (attacker, amount, mode) => damagePerson(p, w.levelFlags2, attacker, amount, mode),
+      animation: animate,
+      release: () => releasePersonRoute(w.motionRoutes, p),
+      initialize,
+      allocate: (unitClass, model, _tribe, to) => {
+        if (unitClass !== 7 || model !== 3) throw new Error('Unsupported airborne allocation')
+        emitGroundSpark(w, to)
+      },
+      // Reveal, path-group and fight-resumption ownership remain open.
+      reveal: () => {},
+      path: () => {},
+      class3: () => {},
+      canFight: () => false,
+      readyToFight: () => false,
+    }
+  )
+  p.flags2 = (p.flags2 & ~0x2004) >>> 0
+  Object.assign(u, browserPosition(p))
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
+  u.hp = p.life / 20
+  w.randomState = ctx.state.randomState
+  if (!(p.flags2 & 0x80000)) {
+    u.flight = undefined
+    u.lift = 0
+    if (!supportsFollower(w, u)) u.hp = 0
   }
 }
 

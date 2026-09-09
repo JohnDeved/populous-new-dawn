@@ -1741,6 +1741,7 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
+    if (f.wave) return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
       mesh.name = 'sinking-building'
@@ -1832,6 +1833,7 @@ export class GameScene {
     return g
   }
   animateFx(g: THREE.Group, f: Effect) {
+    if (f.wave) return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle
       g.userData.nativeTilt = f.sinking.tilt
@@ -2155,7 +2157,8 @@ export class GameScene {
         this.objects.add(g)
       }
       this.locate(g, u)
-      g.position.y += ((0.04 + Math.sin(u.lift * Math.PI) * 2) * 45) / 128
+      if (u.flight) g.position.y = u.flight.h / 128
+      else g.position.y += ((0.04 + Math.sin(u.lift * Math.PI) * 2) * 45) / 128
       g.visible = u.inside === null
       const animationSource = unitAnimationSource(u)
       g.userData.depthBias =
@@ -2164,7 +2167,6 @@ export class GameScene {
           : -300
       const shadow = g.userData.shadow as THREE.Sprite
       // 0x4d32b0's tail enables person shadows only for airborne physics (0x400).
-      // Blast's current flight adapter exposes lift until full physics owns it.
       shadow.visible = !!((animationSource?.flags4 ?? 0) & 0x400) || u.lift > 0
       if (shadow.visible) {
         const ground = terrainPointHeight(this.world.land, nativePosition(this.world, u))

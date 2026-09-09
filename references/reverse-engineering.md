@@ -4496,3 +4496,53 @@ emission avoid separate approximate terrain-damage effects. Run:
 node --test tests/building-terrain.test.mjs
 node scripts/check-browser-building-terrain.mjs
 ```
+
+## 2026-09-09 — shared Blast/collapse wave and native follower flight
+
+`app/blast-wave.ts` reconstructs `0050b630`/`0050b740` and the alliance
+helper `00416d70`; `004da080` now supplies shared person damage in
+`app/person-update.ts`. Source identity is the manifest's D3D executable
+SHA-256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+The type-2 indexed search intentionally retains repeated cell visits and the
+native friendly flag's lifetime across object classes. Range-scaled impulses,
+vertical force, allied final-pass/five-visit cap, shields, signed life storage,
+building damage accumulation and remaining/radius progression retain native rules.
+
+Blast and reason-1 terrain collapse allocate the same hidden three-turn force
+controller and cue 0xa1. The visual Blast flash remains a separate object.
+Live flight reuses `stepPersonPhysics` (`004e6d00`) for velocity caps, slope force,
+gravity, bounce, spin, landing damage and settling. The renderer uses native height;
+landing, debris and fire share effect-3 spark allocation. Ordinary browser orders
+resume after settling. Airborne bodies survive negative life until landing.
+
+The first real-browser attempt exposed a missing imported pose: animation row 2
+is distinct from row 12's airborne pose. The importer now reads launch identities
+from native tables and appends their frames/pieces. All prior 336 fixture poses
+and 2,672 piece hashes remain identical; 56 launch fixtures and 220 original pieces
+extend coverage. No old golden expectations were silently rebaselined.
+
+Checks: `scripts/check-native-blast-wave.py EXE --record` compares 256 complete
+native wave passes and 512 direct damage calls (64 of each retained for Node).
+`scripts/check-native-physics-driver.py EXE` compares 8,192 full driver snapshots
+and 4,096 bounce calls. `scripts/check-native-sprite-layers.py EXE --record` compares
+7,068 native layer submissions, 2,892 original RGBA pieces and 392 durable poses.
+`tests/blast-wave.test.mjs` checks live three-pass allied launch, native motion,
+landing and subsequent command acceptance. Existing immediate-Blast assertions
+now wait for the documented native wave passes.
+
+Limits: live ordinary allocations still supply approximate mixed-class/cell order;
+scenery shake rendering, native first-hit building feedback, panic/vehicle consumers,
+complete person state dispatch, reveal/path-group ownership and native allocation
+limits remain open. These checks do not establish whole-game or whole-frame parity.
+The global known-scope checkpoint score remains 17/96 (17.7%); discovery stays open.
+
+Validated desktop integration: actual mouse Blast, three wave passes, pause,
+original launch pose (145 changed GPU pixels), native height and shadow, both
+impact cues, original landing spark and cell cleanup. Expanded sprite GPU checks
+pass 392 poses/290 frames/93,898 colored pixels with the served atlas hash;
+healthy building settling, 49-face collapse and sinking/tilt regressions still pass.
+`npm run check` passes 132 tests, TypeScript and parity consistency; the production
+build succeeds and 950 exports verify. Focused ox-standard has no errors (existing
+warnings remain), changed-app ESLint passes; Fallow reports 84.7 maintainability,
+2.8 average complexity and the existing three import cycles/unused dependencies.
+Full-app legacy lint and engine ownership debt remain open.

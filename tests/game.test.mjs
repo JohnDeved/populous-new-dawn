@@ -268,7 +268,7 @@ test('native animation identity, casting interruption, gradual terrain and blast
  w.selected=[shaman.id];const shots=w.shots.blast;assert.ok(cast(w,'blast',shaman));assert.equal(unitAnimation(w,shaman),'cast');command(w,{x:10,z:32});advance(w,.6);assert.equal(w.shots.blast,shots-1,'native spell allocation spends the charge before animation finishes');assert.equal(shaman.casting,null);assert.ok(w.projectiles.length,'movement does not delete the independent spell');impact(w,'blast');
  while(w.castingTribes[0].cooldown)tick(w,1/12);
  shaman.x=0;shaman.z=20;shaman.path=[];w.shots.bridge=1;const before=[...w.terrain];assert.ok(cast(w,'bridge',{x:0,z:4}));impact(w,'bridge');tick(w,1/12);const rise=w.effects.find(e=>e.kind==='bridge');assert.ok(rise.land.length>0);const sample=rise.land.find(p=>p.to-p.from>1);assert.ok(w.terrain[sample.index]>before[sample.index]&&w.terrain[sample.index]<sample.to);advance(w,6);assert.equal(w.terrain[sample.index],sample.to);foundations(w);
- shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));impact(w,'blast');assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
+ shaman.x=0;shaman.z=0;brave.x=2;brave.z=0;brave.team='red';brave.work=null;brave.inside=null;const hp=brave.hp;assert.ok(cast(w,'blast',brave));impact(w,'blast');tick(w,1/12);assert.ok(brave.hp>0&&brave.hp<hp,'blast injures and launches a healthy follower instead of instantly killing');assert.ok(brave.lift>0);assert.equal(unitAnimation(w,brave),'airborne');
  const hut=w.buildings.find(b=>b.team==='blue');for(const [angle,x,z] of [[0,-3,44.5],[Math.PI/2,-6.5,41],[Math.PI,-3,37.25],[3*Math.PI/2,.75,41]]){hut.angle=angle;assert.deepEqual(entrance(w,hut),{x,z},'door routes use native rotated shape offsets and coarse anchors');}
 });
 
@@ -311,7 +311,7 @@ test('lightning hits a native map cell and Blast leaves allied health intact',()
  assert.ok(!w.units.includes(hit));assert.equal(outside.hp,maxHp('brave'));assert.equal(outside.lift,0,'adjacent cells receive no invented radial lightning damage');
  while(w.castingTribes[0].cooldown)tick(w,1/12);
  const ally=addUnit(w,'blue','brave',{x:2,z:0});const hp=ally.hp;
- assert.ok(cast(w,'blast',ally));impact(w,'blast');assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');
+ assert.ok(cast(w,'blast',ally));impact(w,'blast');for(let i=0;i<3;i++)tick(w,1/12);assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');
 });
 
 test('native integer movement and combat exchanges preserve timing, retaliation and replay',async()=>{
@@ -346,7 +346,7 @@ test('native fight slots form four-person groups and release on interruption',()
  for(let i=1;i<4;i++){const p=fightPosition(b,i);assert.ok(Math.abs(Math.hypot(p.x-b.x,p.z-b.z)-180/256)<.006);}
  const replay=structuredClone(w);for(let i=0;i<30;i++)tick(w,1/30);for(let i=0;i<144;i++)tick(replay,1/144);assert.deepEqual(replay,w,'group movement and RNG do not depend on render rate');
  const slots=w.fights[0].members.map((_,i)=>fightPosition(w.fights[0],i));assert.equal(new Set(slots.map(p=>`${p.x}:${p.z}`)).size,4);
- const shaman=addUnit(w,'blue','shaman',{x:3,z:0});assert.ok(cast(w,'blast',center));impact(w,'blast');
+ const shaman=addUnit(w,'blue','shaman',{x:3,z:0});assert.ok(cast(w,'blast',center));impact(w,'blast');for(let i=0;i<3;i++)tick(w,1/12);
  assert.equal(center.fight,null);assert.ok(center.lift>0);assert.equal(w.fights.length,0,'launched participants leave no stale fight group');assert.equal(shaman.lift,0);
  const swap=createWorld();swap.terrain.fill(3);swap.units=[];swap.buildings=[];
  const a=addUnit(swap,'blue','brave',{x:0,z:0}),enemy=addUnit(swap,'red','warrior',{x:.6,z:0});addUnit(swap,'blue','brave',{x:1,z:0});tick(swap,1/12);

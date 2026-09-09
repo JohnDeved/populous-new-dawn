@@ -5784,5 +5784,269 @@
     },
     "completionReady": false,
     "note": "Final terrain-build validation: 129 portable checks; GPU tilt contrast, occupied-hut evacuation, four construction rotations, Lightning/fire/repair and 336 frozen sprite poses pass. 17/96 known checkpoints remain verified; full parity and discovery stay open."
+  },
+  {
+    "date": "2026-09-09T10:38:55.282Z",
+    "revision": 1,
+    "baseCommit": "cf18f09fb526521c2dad43e25fa7f63527798fcc",
+    "ledgerHash": "66416feae79fe07c87ca91c7aa4fb1fa6442677f034ca8abde265ec8353c7844",
+    "scopeHash": "931ace354b2d7020d17dc1796b0b262738ac538636f75fa3ddbc59a433cdc8c1",
+    "total": 96,
+    "verified": 17,
+    "partial": 55,
+    "missing": 24,
+    "unassessed": 0,
+    "groups": [
+      {
+        "id": "world",
+        "title": "World and camera",
+        "total": 8,
+        "verified": 5,
+        "partial": 3,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "graphics",
+        "title": "Models, sprites and lighting",
+        "total": 8,
+        "verified": 2,
+        "partial": 6,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "effects",
+        "title": "Effects and object lifecycles",
+        "total": 8,
+        "verified": 4,
+        "partial": 3,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "interface",
+        "title": "Interface and desktop controls",
+        "total": 8,
+        "verified": 3,
+        "partial": 4,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "audio",
+        "title": "Audio and music",
+        "total": 8,
+        "verified": 0,
+        "partial": 6,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "simulation",
+        "title": "Simulation scheduling and randomness",
+        "total": 8,
+        "verified": 0,
+        "partial": 7,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "movement",
+        "title": "Movement, collision and vehicles",
+        "total": 8,
+        "verified": 1,
+        "partial": 5,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "combat",
+        "title": "Unit classes and combat",
+        "total": 8,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "economy",
+        "title": "Buildings, resources and population",
+        "total": 8,
+        "verified": 1,
+        "partial": 7,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "spells",
+        "title": "Spell rules and complete roster",
+        "total": 8,
+        "verified": 1,
+        "partial": 4,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "campaign",
+        "title": "Campaign, AI and objectives",
+        "total": 8,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "persistence",
+        "title": "Persistence and multiplayer",
+        "total": 8,
+        "verified": 0,
+        "partial": 0,
+        "missing": 8,
+        "unassessed": 0
+      }
+    ],
+    "discovery": {
+      "status": "open",
+      "note": "The original engine and complete content inventory are still being researched. These 96 checkpoints are the current known scope, not a closed inventory; further decompilation and original-game comparisons may reveal new systems or split existing checkpoints.",
+      "evidence": [
+        "GOAL.md",
+        "references/reverse-engineering.md"
+      ]
+    },
+    "completionReady": false,
+    "note": "Integrated original three-pass Blast and collapse waves, native follower flight/landing and shared sparks. Native: 256 waves, 512 damage, 8192 physics, 4096 bounce, 7068 sprite draws. Preserved all 336 prior poses/2672 RGBA pieces; added 56 launch poses/220 original pieces. Scope stays partial; discovery open."
+  },
+  {
+    "date": "2026-09-09T10:41:07.258Z",
+    "revision": 1,
+    "baseCommit": "cf18f09fb526521c2dad43e25fa7f63527798fcc",
+    "ledgerHash": "66416feae79fe07c87ca91c7aa4fb1fa6442677f034ca8abde265ec8353c7844",
+    "scopeHash": "931ace354b2d7020d17dc1796b0b262738ac538636f75fa3ddbc59a433cdc8c1",
+    "total": 96,
+    "verified": 17,
+    "partial": 55,
+    "missing": 24,
+    "unassessed": 0,
+    "groups": [
+      {
+        "id": "world",
+        "title": "World and camera",
+        "total": 8,
+        "verified": 5,
+        "partial": 3,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "graphics",
+        "title": "Models, sprites and lighting",
+        "total": 8,
+        "verified": 2,
+        "partial": 6,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "effects",
+        "title": "Effects and object lifecycles",
+        "total": 8,
+        "verified": 4,
+        "partial": 3,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "interface",
+        "title": "Interface and desktop controls",
+        "total": 8,
+        "verified": 3,
+        "partial": 4,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "audio",
+        "title": "Audio and music",
+        "total": 8,
+        "verified": 0,
+        "partial": 6,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "simulation",
+        "title": "Simulation scheduling and randomness",
+        "total": 8,
+        "verified": 0,
+        "partial": 7,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "movement",
+        "title": "Movement, collision and vehicles",
+        "total": 8,
+        "verified": 1,
+        "partial": 5,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "combat",
+        "title": "Unit classes and combat",
+        "total": 8,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "economy",
+        "title": "Buildings, resources and population",
+        "total": 8,
+        "verified": 1,
+        "partial": 7,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "spells",
+        "title": "Spell rules and complete roster",
+        "total": 8,
+        "verified": 1,
+        "partial": 4,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "campaign",
+        "title": "Campaign, AI and objectives",
+        "total": 8,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "persistence",
+        "title": "Persistence and multiplayer",
+        "total": 8,
+        "verified": 0,
+        "partial": 0,
+        "missing": 8,
+        "unassessed": 0
+      }
+    ],
+    "discovery": {
+      "status": "open",
+      "note": "The original engine and complete content inventory are still being researched. These 96 checkpoints are the current known scope, not a closed inventory; further decompilation and original-game comparisons may reveal new systems or split existing checkpoints.",
+      "evidence": [
+        "GOAL.md",
+        "references/reverse-engineering.md"
+      ]
+    },
+    "completionReady": false,
+    "note": "Desktop Blast flight, native launch pose/height/shadow, impact cues and landing spark pass. Sprite GPU coverage: 392 poses/290 frames; terrain settle/collapse/sink regressions pass. 132 portable tests, typecheck, production build and 950 exports pass. Known scope remains 17/96; full dispatch, shake and allocation ownership remain partial."
   }
 ]

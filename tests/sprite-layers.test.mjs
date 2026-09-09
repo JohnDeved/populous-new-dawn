@@ -10,7 +10,7 @@ test('unit atlas and all tribe/state/direction layers match reviewed original-en
   const atlas = readFileSync(new URL(`../public/original/${units.atlas}.png`, import.meta.url))
   assert.equal(createHash('sha256').update(atlas).digest('hex'), fixtures.atlasSha256, 'Atlas changed: compare original RGBA before updating fixtures')
   assert.equal(units.pieces.length, fixtures.pieceHashes.length)
-  assert.equal(fixtures.cases.length, 336)
+  assert.equal(fixtures.cases.length, 392)
   for (const c of fixtures.cases) {
     const cycle = units.animations[c.signature][c.state][c.direction]
     assert.equal(cycle.frames[c.step], c.frame)

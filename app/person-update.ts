@@ -9,7 +9,7 @@ type PreparationPerson = StatefulPerson & {
   goalX: number
   goalY: number
 }
-type PreparationEffects = {
+interface PreparationEffects {
   initialize: () => void
   animation: () => void
   destination: (point: { x: number; y: number }) => void
@@ -149,4 +149,19 @@ export function updatePersonHealth(
     p.flags2 = (flags & ~8) >>> 0
     if (p.state !== 31 && !(flags & 0x100000)) transition(31)
   }
+}
+
+// 0x4da080: shields reduce damage before signed-short life storage.
+export function damagePerson(
+  p: { life: number; flags3: number; tribe: number; damageAttacker: number },
+  levelFlags2: number,
+  attacker: number,
+  amount: number,
+  mode = 0
+) {
+  if (levelFlags2 & 0x04000000 || (!mode && p.flags3 & 0x8000)) return
+  if (p.flags3 & 0x80000) amount >>= rules.shieldDamageShift & 31
+  p.life = short(p.life - short(amount))
+  if (p.tribe !== -1 && p.tribe !== 255 && attacker !== -1 && attacker !== 255)
+    p.damageAttacker = attacker & 255
 }

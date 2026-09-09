@@ -69,10 +69,10 @@ print(f'PASS: {len(cases):,} complete native layer draws; {len(hashes):,} atlas 
 fixtures=[]
 for signature,states in units['animations'].items():
     team,kind=signature.split('-');shaman=kind=='shaman';owner=-1 if shaman or team=='wild' else 0 if team=='blue' else 1
-    for state in ('idle','walk','work','attack','airborne','die'):
+    for state in ('idle','walk','work','attack','airborne','die','launch'):
         for direction,cycle in enumerate(states[state]):
             step=(direction*3)%len(cycle['frames']);frame=cycle['frames'][step]
-            options=dict(owner=owner,person=2 if kind=='warrior' else 0,variant=2 if kind=='warrior' else 0,flags=int(cycle['flip'])|(2 if state in ('airborne','die') else 0),bucket=-2000 if shaman else 2000,scale=True,levelFlags=0x100)
+            options=dict(owner=owner,person=2 if kind=='warrior' else 0,variant=2 if kind=='warrior' else 0,flags=int(cycle['flip'])|(2 if state in ('airborne','die','launch') else 0),bucket=-2000 if shaman else 2000,scale=True,levelFlags=0x100)
             view=views[0]
             fixtures.append(dict(signature=signature,state=state,direction=direction,step=step,frame=frame,options=options,view=view,draws=native(frame,options,view),pixels=native(frame,{**options,'scale':shaman,'levelFlags':0},{**view,'shamanScale':256})))
 fixture=dict(atlasSha256=hashlib.sha256((ROOT/f"public/original/{units['atlas']}.png").read_bytes()).hexdigest(),executableSha256=hashlib.sha256(exe.read_bytes()).hexdigest(),pieceHashes=hashes,cases=fixtures)
