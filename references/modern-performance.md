@@ -11,7 +11,7 @@ experienced-player expectations while improving performance and presentation.
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
 | High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Unit bodies, shadows and hit targets now follow fractional turn positions, checked at 5–240 Hz; full native displacement ownership remains partial. Flybys, globe motion, transitions and result cameras still need smoothing. |
 | Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
-| Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers and per-model anchor checks preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Unit health bars now use two instanced submissions with identical checked pixels/depths, including 4K buffers and removal/reuse. Per-vertex projection, sorting, transparent sprite draw calls and wider resource lifetime remain to review. |
+| Models, sprites, painter and effects | Painter work reduced | Retained float64 triangle centers, per-model anchor checks and shared-corner projection preserve depth slots, pixels and picking through geometry edits. Native overlap and sprite regressions pass; headed Metal frame comparisons recorded below. Unit health bars now use two instanced submissions with identical checked pixels/depths, including 4K buffers and removal/reuse. Per-vertex projection, sorting, transparent sprite draw calls and wider resource lifetime remain to review. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
 | Audio and presentation timing | Read review; issues open | WebAudio owns sample duration and pitch; buffers are cached and ended nodes disconnect. Simulation sounds still drain once per render, so catch-up events can bunch. Cloud wind/half-heading drift is corrected below; full presentation-event scheduling remains open. |
@@ -461,8 +461,8 @@ anchor's visibility once per instance instead of once per face. Transforms,
 projection, native buckets, cell/object/face ordering and alpha handling are still
 computed from the live state. Simulation, inputs and animation clocks are untouched.
 
-`check-browser-painter-work.mjs` compares the retained browser implementation from
-`b69306d1524258cd9b04db2ebee5305133f2961c` with the current painter in the same scene.
+`check-browser-painter-work.mjs` at version 151 (commit `2df812c42cfbca52254c3b61d2928500e84add66`) compared the retained browser implementation from
+`b69306d1524258cd9b04db2ebee5305133f2961c` with that version’s painter in the same scene. Reproduce this historical comparison from that checkout; the current helper baseline is advanced for subsequent work.
 All depth slots, RGBA bytes, draw counts, triangle counts and center picks agree in
 11 cases: six heading/zoom/seam poses, a warm cache, terrain deformation, attribute
 replacement, changed transforms/model headings and overview bypass. The baseline
@@ -676,3 +676,122 @@ and projection also prominent. The remaining 670 calls include transparent perso
 layers and selection arrows. CPU painter work, transparent batching and the other
 unfinished audit rows remain targets; this optimization adds no native parity
 credit and does not finish the modern-hardware goal.
+
+
+## Shared-corner painter calculations
+
+Native depth ordering remains unchanged. The browser's non-indexed mesh vertices
+repeat the same positions across adjoining faces; the painter now transforms each
+shared corner once per instance/frame, then reuses its integer depth and, for
+completed models, projected screen coordinates. It still generates the same
+per-face commands, applies the same cell and winding gates, sorts the same native
+buckets/ties and writes the same depth slots. Raw model, triangle-depth and
+projected-point arrays are reused within a frame. Model rotation is constructed
+only for model geometry, and object-constant cell/pass work is outside the face loop.
+
+`PainterVertices` retains exact local-coordinate identity with weak attribute keys.
+It observes normal/interleaved attribute versions, verifies that previously shared
+corners still agree after edits, and rebuilds the mapping when a corner splits.
+Projection results and raised-ground flags are recomputed for every instance/frame;
+camera, transforms, scale, land flags and clipping do not require fragile cache keys.
+Native terrain uses its 129×129 corner grid to build the mapping without string
+hashing. Grid coordinates and shared heights are checked; irregular edits fall back
+to exact XYZ keys. The opening terrain has 98,304 source vertices but only 16,641
+unique positions. Mapping, visit flags and integer depth buffers retain 884,736
+bytes (0.844 MiB), in addition to the existing center cache. This is CPU storage;
+it adds no GPU buffer, triangle, draw or depth-texture upload.
+
+The first generic XYZ-map implementation improved warm calculations but regressed
+new-terrain median CPU time from 3.8 to 12.1 ms. The checked grid path removes that
+cost rather than hiding it behind a warm-only benchmark.
+[Initial diagnostic](performance/2026-09-09-painter-vertices-initial-cost.json).
+
+`bench-painter-work.mjs` runs the actual painter without GPU drawing, using 12 warmup
+pairs and 18 alternating-order pairs per case. The water case changes all duplicate
+heights together and increments the attribute version; it tests invalidation cost,
+not the complete water renderer. The cold case clones the terrain position
+attribute before each pair, forcing new center/mapping entries. Every depth slot
+is compared after every pair. Apple M5/macOS arm64, headed Chrome 153:
+
+| Isolated painter workload | Separate median / p95 | Shared median / p95 |
+| --- | ---: | ---: |
+| Warm geometry | 3.5 / 3.8 ms | 2.7 / 2.9 ms |
+| Changed water heights | 3.8 / 4.1 ms | 3.3 / 3.5 ms |
+| New terrain attribute | 3.9 / 4.2 ms | 3.5 / 3.7 ms |
+
+[Raw corrected CPU comparison](performance/2026-09-09-painter-vertices-cost.json).
+These are isolated painter timings, not frame times or FPS. Generic irregular
+geometry still pays for an exact XYZ map when first seen or split; the native
+terrain path avoids that string-map cost. Full terrain rebuilding, atlas uploads
+and other construction/loading work are outside this microbenchmark.
+
+`check-browser-painter-work.mjs` compares against version 153's complete painter,
+`d7f33d90e498755cdc1db0802c6729423bd098a0`, in the same scene. The retained helper
+reads its baseline from Git into ignored `.tools/performance/`; it is not shipped.
+All RGBA bytes, depth slots, draw/triangle counts and center picks agree in 16 cases:
+headings/zoom/seams, warm reuse, raised-land flags changed without geometry edits,
+exclusion flags, 3440×1440/4K/high-DPI render buffers, split vertices, replacement
+attributes, model headings/transforms and overview bypass. The opening calls the
+native coordinate conversion 3,912 times instead of 22,188 (82.4% fewer); irregular
+split geometry intentionally shares less. These counters exclude model-local
+projection and are not whole-frame performance measurements.
+[Raw rendering comparison](performance/2026-09-09-painter-vertices-equivalence.json).
+
+Portable checks cover interleaved attributes, shared motion, splits, replacement
+and invalid grid candidates. TypeScript, all 154 tests, parity consistency and
+production build pass. The original executable check still matches 70 mixed queues,
+1,036 triangles, 774 deferred alpha records and 55 model bias arrays. Native GPU
+depth overlaps, translucent sprite/mesh order, 392 sprite poses, Blast shadows and
+live selection pass. The health-bar comparison also retains identical pixels and
+cleanup. New cache code passes ox-standard; Fallow remains 85.8, average cyclomatic
+2.8 and p90 5. No original-behavior requirement is newly completed by this renderer
+optimization, so the parity percentage stays unchanged.
+
+Reproduce the whole-frame comparisons with:
+
+```
+node scripts/profile-game.mjs --headed --compare-painter /tmp/painter-static.json
+node scripts/profile-game.mjs --headed --compare-painter --moving-orders /tmp/painter-moving.json
+```
+
+The first command covers frozen opening/crowd scenes and a rotating camera. The
+second resets the world and issues the existing opening/crowd movement orders,
+covering actual water updates and active gameplay. Each workload uses six
+old/new/new/old/old/new runs, one second settling and four seconds profiling.
+Both implementations share the current renderer, health batching and unit motion.
+
+
+The profiler now clears residual input/camera state, ignores physical mouse edge
+panning during its keyboard workload, records starting/ending poses and checks
+fixed-view terrain counts throughout each sample. Earlier runs with drifting views
+were rejected. The retained moving run also records camera controls and simulation
+turns: crowd samples all finish on turn 62 with 43 people still moving.
+
+[Static/camera hardware report](performance/2026-09-09-painter-vertices-hardware.json)
+and [active-gameplay hardware report](performance/2026-09-09-painter-vertices-moving-hardware.json):
+Apple M5/macOS arm64, Node 24.18, headed Chrome 153, ANGLE Metal, 1440×1000/DPR 1.
+Medians of each mode's three per-run statistics:
+
+| Workload | Separate CPU median / p95 | Shared CPU median / p95 | Separate / shared frame-gap p95 | Calls (both) |
+| --- | ---: | ---: | ---: | ---: |
+| Frozen opening | 4.1 / 4.3 ms | 3.4 / 3.7 ms | 9.3 / 9.3 ms | 79 |
+| Rotating camera | 4.1 / 4.4 ms | 3.6 / 3.8 ms | 9.3 / 9.3 ms | 79 |
+| Frozen crowd | 5.7 / 6.1 ms | 5.1 / 5.8 ms | 9.3 / 9.3 ms | 479 |
+| Opening orders | 5.8 / 8.6 ms | 3.8 / 6.9 ms | 9.1 / 9.3 ms | 85 |
+| Selected crowd orders | 10.8 / 14.5 ms | 7.6 / 11.4 ms | 17.0 / 9.3 ms | 670 |
+
+Median JS work falls by 17.1%, 12.2%, 10.5%, 34.5% and 29.6% respectively.
+Fixed-scene triangle medians agree in every run: 68,613 frozen opening, 69,413
+frozen crowd, 68,769 opening orders and 74,619 crowd orders. Camera triangle counts
+vary with sampled headings; the fixed-pose pixel/depth checks establish equality
+at matching views. Active-crowd separate medians are 10.8–10.9 ms and shared medians
+7.6–7.8 ms. This comparison covers the actual Scene loop, but its fresh simulation
+fixtures do not constitute a full UI/campaign playthrough.
+
+The static workloads gain CPU headroom without a material frame-gap change.
+Shared maximum gaps still reach 74.9 ms in the static workloads and 108.1 ms in
+active gameplay. GPU execution time, physical display presentation, production
+performance and 4K frame budgets are not established by these headed development
+runs. The 4K checks above establish output equivalence only. Painter traversal and
+sorting, transparent sprite submission, larger effect/terrain-rebuild workloads,
+wide-screen terrain clipping and the remaining modernization audit stay open.

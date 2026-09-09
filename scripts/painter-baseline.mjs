@@ -2,11 +2,13 @@
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, writeFileSync } from 'node:fs'
 
-export const painterBaselineCommit = 'b69306d1524258cd9b04db2ebee5305133f2961c'
+export const painterBaselineCommit =
+  process.env.POPULOUS_PAINTER_BASELINE ?? 'd7f33d90e498755cdc1db0802c6729423bd098a0'
 export function preparePainterBaseline() {
   const root = new URL('../', import.meta.url)
   const source = execFileSync('git', ['show', `${painterBaselineCommit}:app/painter.ts`], {
-    cwd: root, encoding: 'utf8',
+    cwd: root,
+    encoding: 'utf8',
   }).replaceAll("from './", "from '../../app/")
   mkdirSync(new URL('.tools/performance/', root), { recursive: true })
   writeFileSync(new URL('.tools/performance/painter-baseline.ts', root), source)

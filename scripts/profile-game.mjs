@@ -4,65 +4,87 @@ import { writeFileSync } from 'node:fs'
 import { cpus, platform, arch } from 'node:os'
 import { chromium } from '@playwright/test'
 import { openGame, originalSkyShaders } from './browser-game.mjs'
-import { preparePainterBaseline, installPainterBaseline, painterBaselineCommit } from './painter-baseline.mjs'
+import {
+  preparePainterBaseline,
+  installPainterBaseline,
+  painterBaselineCommit,
+} from './painter-baseline.mjs'
 
 const headed = process.argv.includes('--headed')
 const comparePainter = process.argv.includes('--compare-painter')
 const compareUnitMotion = process.argv.includes('--compare-unit-motion')
 const compareHealthBars = process.argv.includes('--compare-health-bars')
-const movingProfile = compareUnitMotion || compareHealthBars
+const movingOrders = process.argv.includes('--moving-orders')
+const movingProfile = compareUnitMotion || compareHealthBars || movingOrders
+assert.ok(!movingOrders || comparePainter, '--moving-orders requires --compare-painter')
 if (comparePainter) preparePainterBaseline()
 const browser = await chromium.launch({ headless: !headed })
 try {
   const { page, errors } = await openGame(browser),
     cdp = await page.context().newCDPSession(page)
   if (comparePainter) await installPainterBaseline(page)
-  if (movingProfile) await page.evaluate(async () => {
-    const s = window.testScene,
-      { createWorld, addUnit, command } = await import('/app/model.ts'),
-      { unitPosition } = await import('/app/unit-motion.ts')
-    const position = s.unitMotion.position,
-      beforeTurn = s.gameClock.beforeTurn, afterTurn = s.gameClock.afterTurn
-    window.resetMovingProfile = (smooth, crowd) => {
-      s.world = createWorld()
-      s.world.flyby.flags &= ~1
-      s.world.inputMask = 0
-      s.wasFlying = false
-      s.previous = null
-      s.gameClock.animationTime = s.gameClock.animationFrame = 0
-      s.gameClock.beforeTurn = smooth ? beforeTurn : undefined
-      s.gameClock.afterTurn = smooth ? afterTurn : undefined
-      s.unitMotion.frames = new WeakMap()
-      s.unitMotion.position = smooth ? position : unitPosition
-      s.cameraPreviewButtons = null
-      s.cameraBearing = 0
-      s.cameraTime = 0
-      s.focus({ x: 2, z: 30 })
-      if (crowd) for (let i=0;i<200;i++)
-        addUnit(s.world,'blue','brave',{x:-8+(i%20),z:23+Math.floor(i/20)})
-      s.world.selected = s.world.units.filter(u=>u.team==='blue').map(u=>u.id)
-      command(s.world,{x:10,z:34})
-    }
-  })
+  if (movingProfile)
+    await page.evaluate(async () => {
+      const s = window.testScene,
+        { createWorld, addUnit, command } = await import('/app/model.ts'),
+        { unitPosition } = await import('/app/unit-motion.ts')
+      const position = s.unitMotion.position,
+        beforeTurn = s.gameClock.beforeTurn,
+        afterTurn = s.gameClock.afterTurn
+      window.resetMovingProfile = (smooth, crowd) => {
+        s.world = createWorld()
+        s.world.flyby.flags &= ~1
+        s.world.inputMask = 0
+        s.wasFlying = false
+        s.previous = null
+        s.gameClock.animationTime = s.gameClock.animationFrame = 0
+        s.gameClock.beforeTurn = smooth ? beforeTurn : undefined
+        s.gameClock.afterTurn = smooth ? afterTurn : undefined
+        s.unitMotion.frames = new WeakMap()
+        s.unitMotion.position = smooth ? position : unitPosition
+        s.cameraPreviewButtons = null
+        s.cameraBearing = 0
+        s.cameraTime = 0
+        s.focus({ x: 2, z: 30 })
+        if (crowd)
+          for (let i = 0; i < 200; i++)
+            addUnit(s.world, 'blue', 'brave', { x: -8 + (i % 20), z: 23 + Math.floor(i / 20) })
+        s.world.selected = s.world.units.filter(u => u.team === 'blue').map(u => u.id)
+        command(s.world, { x: 10, z: 34 })
+      }
+    })
   await cdp.send('Profiler.enable')
   await cdp.send('Performance.enable')
   const fullTerrain = process.argv.includes('--full-terrain')
   const steppedCamera = process.argv.includes('--stepped-camera')
   const compareCamera = process.argv.includes('--compare-camera')
   const compareSky = process.argv.includes('--compare-sky')
-  assert.ok([compareSky, compareCamera, comparePainter, compareUnitMotion, compareHealthBars].filter(Boolean).length <= 1,
-    'Compare one presentation change at a time')
+  assert.ok(
+    [compareSky, compareCamera, comparePainter, compareUnitMotion, compareHealthBars].filter(
+      Boolean
+    ).length <= 1,
+    'Compare one presentation change at a time'
+  )
   if (compareSky) {
     await page.setViewportSize({ width: 3440, height: 1440 })
     await page.waitForFunction(() => window.testScene.container.clientWidth === 3190)
     await page.evaluate(shaders => {
-      const s = window.testScene, original = s.skyBackdrop.material.clone()
+      const s = window.testScene,
+        original = s.skyBackdrop.material.clone()
       Object.assign(original, shaders)
       window.skyMaterials = [original, s.skyBackdrop.material]
     }, originalSkyShaders)
   }
   await page.evaluate(() => {
-    window.originalCameraPreview = window.testScene.previewCamera
+    const s = window.testScene,
+      navigation = s.navigationButtons
+    // The camera workload uses held Q. Physical mouse movement must not pan
+    // otherwise fixed runs while the headed browser is being profiled.
+    s.navigationButtons = () => {
+      s.navigationPointer = null
+      return navigation.call(s)
+    }
+    window.originalCameraPreview = s.previewCamera
   })
   if (steppedCamera)
     await page.evaluate(() => {
@@ -87,32 +109,67 @@ try {
         cpu: performance.now() - start,
         calls: s.renderer.info.render.calls,
         triangles: s.renderer.info.render.triangles,
+        landTriangles: (s.terrain.geometry.drawRange.count * s.terrain.count) / 3,
       })
     }
     return {
       userAgent: navigator.userAgent,
       viewport: [innerWidth, innerHeight],
       pixelRatio: devicePixelRatio,
-      screen: { width: screen.width, height: screen.height, availableWidth: screen.availWidth, availableHeight: screen.availHeight },
+      screen: {
+        width: screen.width,
+        height: screen.height,
+        availableWidth: screen.availWidth,
+        availableHeight: screen.availHeight,
+      },
       renderer: info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
     }
   }, fullTerrain)
   const runs = []
   let crowdAdded = false
-  const scenarios = movingProfile ? ['opening', 'crowd'].flatMap(s=>Array(6).fill(s))
-    : comparePainter ? ['opening', 'camera', 'crowd'].flatMap(s => Array(6).fill(s))
-    : compareSky ? Array(6).fill('opening') : compareCamera ? Array(6).fill('camera') : ['opening', 'camera', 'crowd']
+  const scenarios = movingProfile
+    ? ['opening', 'crowd'].flatMap(s => Array(6).fill(s))
+    : comparePainter
+      ? ['opening', 'camera', 'crowd'].flatMap(s => Array(6).fill(s))
+      : compareSky
+        ? Array(6).fill('opening')
+        : compareCamera
+          ? Array(6).fill('camera')
+          : ['opening', 'camera', 'crowd']
   for (const [index, scenario] of scenarios.entries()) {
     // Release the previous run before resetting its pose; RAF can run between awaits.
     await page.keyboard.up('q')
-    const smoothUnits = compareUnitMotion ? [false,true,true,false,false,true][index%6] : true
-    const batchedHealth = compareHealthBars ? [false,true,true,false,false,true][index%6] : true
-    if (movingProfile) await page.evaluate(({smooth,crowd,batched})=>{
-      window.testScene.view.healthBars.enabled=batched
-      window.resetMovingProfile(smooth,crowd)
-    }, {smooth:smoothUnits,crowd:scenario==='crowd',batched:batchedHealth})
-    const optimizedPainter = comparePainter ? [false, true, true, false, false, true][index % 6] : true
-    if (comparePainter) await page.evaluate(optimized => window.selectPainter(optimized), optimizedPainter)
+    await page.evaluate(() => {
+      const s = window.testScene
+      s.keys.clear()
+      s.navigationPointer = null
+      s.cameraVelocity = { turn: 0, forward: 0, side: 0 }
+      s.cameraMotion.active = 0
+      s.world.flyby.flags &= ~1
+      s.wasFlying = false
+      s.viewTransition = null
+      s.viewPreset = 0
+      s.viewZoom = 0
+    })
+    const smoothUnits = compareUnitMotion
+      ? [false, true, true, false, false, true][index % 6]
+      : true
+    const batchedHealth = compareHealthBars
+      ? [false, true, true, false, false, true][index % 6]
+      : true
+    if (movingProfile)
+      await page.evaluate(
+        ({ smooth, crowd, batched }) => {
+          window.testScene.view.healthBars.enabled = batched
+          window.resetMovingProfile(smooth, crowd)
+        },
+        { smooth: smoothUnits, crowd: scenario === 'crowd', batched: batchedHealth }
+      )
+    const optimizedPainter = comparePainter
+      ? [false, true, true, false, false, true][index % 6]
+      : true
+    if (comparePainter)
+      await page.evaluate(optimized => window.selectPainter(optimized), optimizedPainter)
     const coveredSky = compareSky ? [false, true, true, false, false, true][index] : true
     if (compareSky)
       await page.evaluate(covered => {
@@ -125,7 +182,7 @@ try {
     const smoothCamera = compareCamera
       ? [false, true, true, false, false, true][index]
       : !steppedCamera
-    if (compareCamera || comparePainter)
+    if (compareCamera || (comparePainter && !movingProfile))
       await page.evaluate(smooth => {
         const s = window.testScene
         s.previewCamera = smooth ? window.originalCameraPreview : () => false
@@ -148,8 +205,14 @@ try {
       })
     }
     await page.waitForTimeout(1000)
-    await page.evaluate(() => {
+    const startPose = await page.evaluate(() => {
+      const s = window.testScene
       window.frameSamples = []
+      return {
+        center: { ...s.view.rawCenter },
+        basis: [...s.view.uniforms.nativeBasis.value],
+        viewport: [innerWidth, innerHeight],
+      }
     })
     await cdp.send('Profiler.start')
     await page.waitForTimeout(4000)
@@ -158,11 +221,41 @@ try {
       data = await page.evaluate(() => ({
         frames: window.frameSamples,
         units: window.testScene.world.units.length,
-        movingUnits: window.testScene.world.units.filter(u=>u.path.length || u.flight || u.fight).length,
+        movingUnits: window.testScene.world.units.filter(u => u.path.length || u.flight || u.fight)
+          .length,
         memory: window.testScene.renderer.info.memory,
         programs: window.testScene.renderer.info.programs.length,
+        cameraState: {
+          bearing: window.testScene.cameraBearing,
+          position: { ...window.testScene.cameraPosition },
+          buttons: window.testScene.navigationButtons(),
+          velocity: { ...window.testScene.cameraVelocity },
+          flyby: window.testScene.world.flyby.flags,
+          wasFlying: window.testScene.wasFlying,
+          result: window.testScene.resultCamera.active,
+          focus: window.testScene.cameraMotion.active,
+          transition: window.testScene.viewTransition,
+          turn: window.testScene.world.turn,
+        },
+        endPose: {
+          center: { ...window.testScene.view.rawCenter },
+          basis: [...window.testScene.view.uniforms.nativeBasis.value],
+          viewport: [innerWidth, innerHeight],
+        },
       }))
     assert.ok(data.frames.length > 5, 'Render loop stopped')
+    const landTriangles = [...new Set(data.frames.map(f => f.landTriangles))]
+    if (scenario !== 'camera' && (comparePainter || movingProfile)) {
+      assert.deepEqual(
+        data.endPose,
+        startPose,
+        `Fixed camera drifted in ${scenario} run ${index}: ${JSON.stringify(data.cameraState)}`
+      )
+      assert.equal(landTriangles.length, 1, 'Fixed terrain submission changed during sample')
+      const previous = runs.find(r => r.scenario === scenario)
+      if (previous)
+        assert.deepEqual(startPose, previous.startPose, 'Fixed camera differed between runs')
+    }
     const quantile = (values, q) =>
         values.sort((a, b) => a - b)[Math.floor((values.length - 1) * q)],
       gaps = data.frames.slice(1).map((f, i) => f.time - data.frames[i].time),
@@ -175,6 +268,8 @@ try {
     })
     runs.push({
       scenario,
+      startPose,
+      landTriangles,
       smoothCamera,
       coveredSky,
       optimizedPainter,
@@ -221,6 +316,7 @@ try {
     comparePainter,
     compareUnitMotion,
     compareHealthBars,
+    movingOrders,
     painterBaselineCommit: comparePainter ? painterBaselineCommit : undefined,
     runtime: process.version,
     cpu: cpus()[0].model,

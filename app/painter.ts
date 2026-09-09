@@ -7,6 +7,7 @@ import {
   polygonBucket,
 } from './painter-order.ts'
 import type { RenderView } from './render-view.ts'
+import { PainterVertices } from './painter-vertices.ts'
 import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
 
 interface Command {
@@ -22,6 +23,7 @@ interface Command {
 // One depth stream is shared by terrain, models and sprite layers. The GPU
 // fetches a constant per-triangle value; texture batching cannot change it.
 export class Painter {
+  vertices = new PainterVertices()
   view: RenderView
   landFlags: Uint32Array = new Uint32Array(16384)
   cells?: ObjectCells
@@ -96,6 +98,9 @@ export class Painter {
     const world = new THREE.Vector3(),
       anchor = new THREE.Vector3(),
       local = new THREE.Matrix4()
+    const depths = [0, 0, 0],
+      projected: ReturnType<typeof projectPoint>[] = [],
+      raw = [0, 0, 0]
     for (const object of objects) {
       const [offset, triangles] = this.ranges.get(object)!,
         sprite = object instanceof THREE.Sprite
@@ -108,6 +113,7 @@ export class Painter {
         submitted = index ? Math.min(index.count, geometry.drawRange.count) / 3 : triangles
       const scale = object.userData.nativeScale as number | undefined
       const centers = sprite || scale ? null : this.triangleCenters(position)
+      const vertices = sprite ? null : this.vertices.get(position, !!object.userData.terrainGrid)
       const group = object.parent!,
         metadata = group.userData
       const id = metadata.unit ?? metadata.building ?? metadata.shrine ?? metadata.point?.id
@@ -117,13 +123,24 @@ export class Painter {
         object.userData.painterSequence ??
         cellOrder.get(metadata.unit) ??
         (id === undefined ? (sprite ? group.id : object.id) : -id)
-      const rotation = modelMatrix(
-        metadata.nativeHeading ?? 0,
-        metadata.nativeTilt ?? 0,
-        metadata.nativeRoll ?? 0
-      )
+      const rotation = scale
+        ? modelMatrix(
+            metadata.nativeHeading ?? 0,
+            metadata.nativeTilt ?? 0,
+            metadata.nativeRoll ?? 0
+          )
+        : null
+      const center = unwrapped ? view.rawCenter : view.center
+      const relative = (coordinate: number, center: number) => {
+        const cell = (coordinate >> 9) - (center >> 9)
+        return unwrapped ? cell : ((cell + 64) & 127) - 64
+      }
+      // 0x46ec80: sprite pass, then model pass; 0x46d070 adds land last.
+      const phase =
+        object.userData.painterSequence === undefined ? (ground ? 2 : sprite ? 0 : 1) : 0
       const instances = object instanceof THREE.InstancedMesh ? object.count : 1
       for (let instance = 0; instance < instances; instance++) {
+        vertices?.seen.fill(0)
         const transform = object.matrixWorld.clone()
         if (object instanceof THREE.InstancedMesh) {
           object.getMatrixAt(instance, local)
@@ -143,51 +160,52 @@ export class Painter {
           const cellAnchor = metadata.cellPosition ?? anchor,
             x = Math.round((cellAnchor.x + 8) * 256),
             y = Math.round((-cellAnchor.z - 8) * 256)
-          const center = unwrapped ? view.rawCenter : view.center
-          const relative = (coordinate: number, center: number) => {
-            const cell = (coordinate >> 9) - (center >> 9)
-            return unwrapped ? cell : ((cell + 64) & 127) - 64
-          }
           const cell = (relative(y, center.y) + 110) * 222 + relative(x, center.x) + 110
           let bucket: number
-          if (sprite)
+          if (!vertices)
             bucket =
               spriteBucket(
                 depth(nativeOrigin),
                 object === metadata.shadow ? -192 : (metadata.depthBias ?? -300)
               ) - 1
           else {
-            const depths: number[] = []
-            const projected = []
+            projected.length = 0
             let raised = !!object.userData.painterRaised
             for (let j = 0; j < 3; j++) {
-              world.fromBufferAttribute(position, triangle * 3 + j)
-              if (scale) {
-                const raw = [
-                  Math.round(world.x * scale * 3),
-                  Math.round(world.y * scale * 3),
-                  Math.round(-world.z * scale * 3),
-                ]
-                const point = modelPoint(
-                  raw,
-                  object.userData.nativeSize ?? scale,
-                  rotation,
-                  nativeOrigin
-                )
-                depths.push(depth(point))
-                if (object.userData.stage === 4)
-                  projected.push(projectPoint(point, view.projection))
-              } else {
-                world.applyMatrix4(transform)
-                depths.push(depth(view.relative(world, (world.y * 128) / 45, unwrapped)))
-                if (ground) {
-                  const i =
-                    ((Math.round((-world.z - 8) / 2) & 127) << 7) |
-                    (Math.round((world.x + 8) / 2) & 127)
-                  const flags = this.landFlags[i]
-                  raised ||= !!(flags & 0x200) && !(flags & 0x100000)
+              const vertex = vertices.source[triangle * 3 + j]
+              if (!vertices.seen[vertex]) {
+                vertices.seen[vertex] = 1
+                world.fromBufferAttribute(position, vertex)
+                if (scale) {
+                  raw[0] = Math.round(world.x * scale * 3)
+                  raw[1] = Math.round(world.y * scale * 3)
+                  raw[2] = Math.round(-world.z * scale * 3)
+                  const point = modelPoint(
+                    raw,
+                    object.userData.nativeSize ?? scale,
+                    rotation!,
+                    nativeOrigin
+                  )
+                  vertices.depth[vertex] = depth(point)
+                  if (object.userData.stage === 4)
+                    vertices.projected[vertex] = projectPoint(point, view.projection)
+                } else {
+                  world.applyMatrix4(transform)
+                  vertices.depth[vertex] = depth(
+                    view.relative(world, (world.y * 128) / 45, unwrapped)
+                  )
+                  if (ground) {
+                    const i =
+                      ((Math.round((-world.z - 8) / 2) & 127) << 7) |
+                      (Math.round((world.x + 8) / 2) & 127)
+                    const flags = this.landFlags[i]
+                    if (flags & 0x200 && !(flags & 0x100000)) vertices.seen[vertex] = 2
+                  }
                 }
               }
+              depths[j] = vertices.depth[vertex]
+              raised ||= vertices.seen[vertex] === 2
+              if (scale && object.userData.stage === 4) projected.push(vertices.projected[vertex])
             }
             if (
               projected.length &&
@@ -206,9 +224,7 @@ export class Painter {
             cell,
             object: sourceOrder,
             face: sprite ? -group.children.indexOf(object) : triangle,
-            // 0x46ec80: sprite pass, then model pass; 0x46d070 adds land last.
-            phase:
-              object.userData.painterSequence === undefined ? (ground ? 2 : sprite ? 0 : 1) : 0,
+            phase,
             order: 0,
           })
         }
