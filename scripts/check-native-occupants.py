@@ -96,7 +96,7 @@ js_prefix="""import {stepTrainingPerson} from './app/training.ts';import {enterB
 let s='';for await(const c of process.stdin)s+=c;const result=JSON.parse(s).map(c=>{
 // The oracle retains flat memory field labels; engine people use the shared
 // position/displacement/anchor names, not the old inferred velocity labels.
-const names={height:'h',homeX:'anchorX',homeY:'anchorY',formationSlot:'anchorFlags',facingAngle:'heading'};
+const names={height:'h',homeX:'anchorX',homeY:'anchorY',formationSlot:'anchorFlags',facingAngle:'heading',tickPhase:'counter'};
 for(const p of c.people){
  for(const [old,key] of Object.entries(names)){p[key]=p[old];delete p[old];}
  p.h=(p.h<<16)>>16;p.displacement={x:p.velocityX,y:p.velocityY,h:p.velocityZ};

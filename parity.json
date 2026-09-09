@@ -1,8 +1,8 @@
 {
-  "revision": 5,
+  "revision": 6,
   "discovery": {
     "status": "open",
-    "note": "Discovery remains open. Revision 5 separates building fire, follower panic, person fire trails, propagation/repair and sunlight. The subdivision baseline preserved the previous score; bounded panic and trail requirements now have native and live browser evidence. Unknown systems can still expand the denominator.",
+    "note": "Discovery remains open. Revision 6 separates housing entry, occupancy, births, upgrades and global population ownership before live admission work. The new baseline preserves the prior score; unknown mechanics can still expand scope.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1611,7 +1611,64 @@
             "tests/fixtures/building-exits.json",
             "references/performance/2026-09-10-building-exits.json"
           ],
-          "note": "Bands and admission primitives compared. Hut birth clock/phase/pending gates, separate spawn and flash sockets, neighbor redirect and cell-centered home destination now match 2304 complete native controller cases; 2304 completion clocks match cost minus 54. Browser newborns visibly leave rather than teleporting into housing. Native HFX1441 feedback has 128 initialization/grounding comparisons, 2688 animation records and 16-turn removal; live GPU and original cue 40 PCM playback checked. 288 captured controller cases run portably. Full person allocation/state/home ownership, wild-person notification, class-9 plans, allocation counter staggering, global ordering and remaining hut/upgrade lifecycle stay open. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open."
+          "note": "Bands and admission primitives compared. Hut birth clock/phase/pending gates, separate spawn and flash sockets, neighbor redirect and cell-centered home destination now match 2304 complete native controller cases; 2304 completion clocks match cost minus 54. Browser newborns visibly leave rather than teleporting into housing. Native HFX1441 feedback has 128 initialization/grounding comparisons, 2688 animation records and 16-turn removal; live GPU and original cue 40 PCM playback checked. 288 captured controller cases run portably. Full person allocation/state/home ownership, wild-person notification, class-9 plans, allocation counter staggering, global ordering and remaining hut/upgrade lifecycle stay open. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Staged house entry now uses command 8, native routing/movement and mode-0 admission. Training/tower admission, six-slot ownership and ordinary command dispatch remain open.",
+          "requirements": [
+            {
+              "id": "economy.housing.entry",
+              "title": "Original first-mission housing approach and staged entry",
+              "status": "verified",
+              "evidence": [
+                "app/training.ts",
+                "scripts/check-native-training-queue.py",
+                "app/live-housing.ts",
+                "scripts/check-native-building-entry.py",
+                "tests/housing-entry.test.mjs",
+                "scripts/check-browser-housing-entry.mjs",
+                "references/performance/2026-09-10-housing-entry.json",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Bounded first-mission house approach/entry: native command 8, actual outside-to-interior movement and alternate-turn 112-unit threshold, mode-0 hide/cell removal and scoped command release. Three hut sizes/four orientations, capacity, cancellation/panic/re-planning and 5\u2013240 Hz state equality checked; real browser input and visible GPU sprites verified. Full global order/slot/class ownership and training/tower admission remain separate incomplete requirements."
+            },
+            {
+              "id": "economy.housing.occupancy",
+              "title": "Occupant slots, admission, release and indicators",
+              "status": "partial",
+              "evidence": [
+                "app/building-occupants.ts",
+                "scripts/check-native-occupants.py"
+              ],
+              "note": "Exit placement integrated; full slots/admission/indicators remain open."
+            },
+            {
+              "id": "economy.housing.birth",
+              "title": "Native birth scheduling, allocation and newborn ownership",
+              "status": "partial",
+              "evidence": [
+                "app/hut-birth.ts",
+                "tests/hut-birth.test.mjs"
+              ],
+              "note": "Controller and visible feedback integrated; allocation, home states and notifications remain open."
+            },
+            {
+              "id": "economy.housing.upgrade",
+              "title": "Complete hut maturity and upgrade lifecycle",
+              "status": "partial",
+              "evidence": [
+                "app/hut-upgrade.ts",
+                "tests/hut-upgrade.test.mjs"
+              ],
+              "note": "Visible maturity/fetch/reconstruction integrated; full allocation/order lifecycle remains open."
+            },
+            {
+              "id": "economy.housing.population",
+              "title": "All population limits, registration and housing ownership",
+              "status": "partial",
+              "evidence": [
+                "tests/game.test.mjs"
+              ],
+              "note": "First-mission counts are adapted; full registration, class scheduling and population ownership remain open."
+            }
+          ]
         },
         {
           "id": "economy.training",

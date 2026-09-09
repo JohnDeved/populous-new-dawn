@@ -1,12 +1,19 @@
-import type { World, Unit, Point } from './model.ts'
-import { nativePosition, browserPosition, buildingPose, supportsFollower } from './model.ts'
+import {
+  nativePosition,
+  browserPosition,
+  buildingPose,
+  supportsFollower,
+  type World,
+  type Unit,
+  type Point,
+} from './model.ts'
 import { createLivePerson, collisionWorld, type LivePerson } from './live-people.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { buildingBlocksPerson, pathCellBlocked } from './person-collision.ts'
 import { terrainCellHeightRange } from './native-terrain.ts'
 import {
   buildPersonRoute,
-  planPersonDestination,
+  setPlannedPersonDestination,
   personRoutePosition,
   releasePersonRoute,
   routeVehicleAvailable,
@@ -56,10 +63,14 @@ export function createLivePathfinding() {
 
 // Ordinary routing owns its person fields here until the native state/animation
 // dispatcher owns ordinary followers. Query records are released by the caller.
-export function planLivePath(w: World, u: Unit, end: Point): LivePerson | null {
+export function planLivePath(
+  w: World,
+  u: Unit,
+  end: Point,
+  p = createLivePerson(w, u)
+): LivePerson | null {
   if (!supportsFollower(w, end)) return null
-  const p = createLivePerson(w, u),
-    r = w.pathfinding,
+  const r = w.pathfinding,
     { state, path, geometry: g, solver } = r,
     collision = collisionWorld(w)
   p.flags2 = (p.flags2 | 0x2000000) >>> 0
@@ -71,7 +82,7 @@ export function planLivePath(w: World, u: Unit, end: Point): LivePerson | null {
     defeatTimer: t.defeatTimer,
   }))
   const unsupported = () => {
-    throw Error('Live native vehicle actions are not integrated')
+    throw new Error('Live native vehicle actions are not integrated')
   }
   // The browser world currently has no vehicle objects. Empty vehicle lookups
   // are exact for that world; adding vehicles requires their real object records.
@@ -118,54 +129,60 @@ export function planLivePath(w: World, u: Unit, end: Point): LivePerson | null {
   }
   const goal = nativePosition(w, end)
   try {
-    planPersonDestination(planner, p, goal, {
-      outside: id => {
-        const b = w.buildings.find(b => b.id === id)
-        if (!b) throw Error(`Missing native route building ${id}`)
-        return buildingOutsidePoint(buildingPose(b))
+    setPlannedPersonDestination(
+      planner,
+      p,
+      goal,
+      {
+        outside: id => {
+          const b = w.buildings.find(b => b.id === id)
+          if (!b) throw new Error(`Missing native route building ${id}`)
+          return buildingOutsidePoint(buildingPose(b))
+        },
+        buildingBlocks: cell =>
+          !!pathCellBlocked(
+            collision,
+            p,
+            cell,
+            () => terrainCellHeightRange(w.land, cell),
+            state.landLimit,
+            () => u.inside ?? 0
+          ),
+        coastDirection: to =>
+          rules.terrainCategoryDirections[
+            w.land.categories[((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)] & 15
+          ],
+        vehicleReady: unsupported,
+        advance: () => advanceLiveRoute(w, p),
+        build: (_, from, to) =>
+          buildPersonRoute(w.motionRoutes, p, from, to, 0, tribes[p.tribe], {
+            findVehicle: () => null,
+            search: (_, person, a, b, option, vehicles) =>
+              searchPersonPath(
+                searchWorld,
+                person,
+                Uint8Array.of(a.x, a.y, 0, 0),
+                Uint8Array.of(b.x, b.y, 0, 0),
+                option,
+                vehicles,
+                {
+                  prepare: () => preparePathCandidates(searchWorld, g),
+                  choose: i => choosePathCandidate(searchWorld, g, i),
+                  solve: () => solvePersonPath(searchWorld, g, solver, p, probe),
+                  smooth: () =>
+                    smoothSearchPath(path, 0, (a, b, k) =>
+                      clearPathSegment(searchWorld, g, p, a, b, k, probe)
+                    ),
+                  measure: () => measureSearchPath(path, g.line, r.measure, w.land.regions, tribes),
+                  collect: () => {
+                    state.truncated = Number(collectSearchPath(path, w.motionRoutes.pathResult, 0))
+                  },
+                }
+              ),
+          }),
       },
-      buildingBlocks: cell =>
-        !!pathCellBlocked(
-          collision,
-          p,
-          cell,
-          () => terrainCellHeightRange(w.land, cell),
-          state.landLimit,
-          () => u.inside ?? 0
-        ),
-      coastDirection: to =>
-        rules.terrainCategoryDirections[
-          w.land.categories[((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)] & 15
-        ],
-      vehicleReady: unsupported,
-      advance: () => advanceLiveRoute(w, p),
-      build: (_, from, to) =>
-        buildPersonRoute(w.motionRoutes, p, from, to, 0, tribes[p.tribe], {
-          findVehicle: () => null,
-          search: (_, person, a, b, option, vehicles) =>
-            searchPersonPath(
-              searchWorld,
-              person,
-              Uint8Array.of(a.x, a.y, 0, 0),
-              Uint8Array.of(b.x, b.y, 0, 0),
-              option,
-              vehicles,
-              {
-                prepare: () => preparePathCandidates(searchWorld, g),
-                choose: i => choosePathCandidate(searchWorld, g, i),
-                solve: () => solvePersonPath(searchWorld, g, solver, p, probe),
-                smooth: () =>
-                  smoothSearchPath(path, 0, (a, b, k) =>
-                    clearPathSegment(searchWorld, g, p, a, b, k, probe)
-                  ),
-                measure: () => measureSearchPath(path, g.line, r.measure, w.land.regions, tribes),
-                collect: () => {
-                  state.truncated = Number(collectSearchPath(path, w.motionRoutes.pathResult, 0))
-                },
-              }
-            ),
-        }),
-    })
+      () => {}
+    )
     r.skip = planner.skip
     if (
       !(p.flags4 & 0x10000000) &&
@@ -219,7 +236,7 @@ export function acceptLivePath(w: World, u: Unit, p: LivePerson | null) {
 
 function advanceLiveRoute(w: World, p: LivePerson) {
   const unsupported = () => {
-    throw Error('Live native vehicle actions are not integrated')
+    throw new Error('Live native vehicle actions are not integrated')
   }
   advancePersonRoute(
     { routes: w.motionRoutes, vehicles: new Map(), people: w.pathfinding.people },

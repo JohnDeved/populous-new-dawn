@@ -4881,3 +4881,53 @@ Scope remains bounded: the live unit list supplies ordinary membership; full
 six-slot admission, entry queues/delays, training repricing, command ownership,
 allocation order and mixed-class cell chains are not integrated by this change.
 Ordinary people do not acquire a persistent native animation record just to exit.
+
+## Live staged hut entry (2026-09-10)
+
+First-mission housing now consumes the existing complete command-8 controller
+(`00434610`) rather than hiding followers at the outside door. Native order
+startup establishes its target and original walking object; outside arrival,
+interior steering, alternate-turn 112-unit admission square and full-capacity
+rejection retain the native controller's ordering. The existing mode-0 occupancy
+routine clears the scoped command reference and removes the visible person from
+its native cell only at admission. Live animation ownership returns to ordinary
+units on completion, cancellation, panic or handoff to unavailable-hut work.
+
+The path integration exposed a missing call layer: `planPersonDestination` fills
+the planned destination but its `004e9d80` wrapper establishes the first steering
+target. `planLivePath` now uses that complete wrapper, with its existing no-vehicle
+world. Shared ground movement serves entry, panic and celebration; preparation's
+existing steering-recovery tail handles delayed re-planning. Training's duplicate
+facing math now uses `faceBuildingPoint`, and its person fields use the shared
+`counter`/`heading` names, with memory labels confined to oracle adapters.
+
+The class-2 admission clocks are recovered from `004032e0..004032f2` and
+`0040335f..004033a3`. The new native comparison executes those two blocks with
+1,024 byte/flag/counter combinations and records portable captures. It excludes
+the damage work between those blocks and does not claim the complete class-2
+scheduler. Entry delay, congestion timeout, count and flag updates run once per
+live building turn. Existing comparisons passed 1,540 queue operations, 2,689
+command-8 cases, 11,200 occupancy cases and 1,024 conversion scenarios after the
+shared field/facing changes. All 975 tracked exports pass identity/hash checks.
+
+Portable integration checks cover all three hut sizes and four orientations,
+simultaneous capacity, movement into the interior, original animation object,
+command reference release, cancellation, panic, re-planning and unavailable-hut
+handoff. Identical 5/30/60/120/144/240 Hz schedules preserve positions, RNG,
+admission state and sprite clocks. The real browser right-click check observes
+309 rendered sprite pixels while entry remains visible; three followers then
+become hidden inside the native threshold without any step exceeding 0.369
+browser units. All 172 portable checks pass. Browser regressions also passed
+392 sprite poses plus shadows/selection, construction, birth/PCM, upgrade, fire
+through completed repair, and celebration through route release/restart.
+
+Boundaries: this integrates house models 1–3. Ordinary commands still belong to
+the browser and entry owns a scoped two-record command pool; global exhaustion,
+order ownership, six-slot ordering and indicator allocation are not certified.
+Occupancy identities still derive from the live unit list. Burning/incomplete
+hut availability retains the browser's existing work handoff. Complete class-1
+interruption/terrain/fight scheduling, vehicles, training queues/conversion and
+tower admission remain open. Tower socket routine `00404540` was exported and
+reviewed: shape triples and model/socket offsets determine XY, terrain height
+and clipping. That discovery is retained for the next admission integration;
+it has not been substituted with a guessed tower height.

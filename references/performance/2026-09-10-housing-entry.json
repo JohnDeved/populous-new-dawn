@@ -1,0 +1,55 @@
+{
+  "headed": true,
+  "visible": {
+    "commanded": true,
+    "inside": null,
+    "visible": true,
+    "layers": 3,
+    "object": 40,
+    "expected": 40,
+    "pixels": 309,
+    "performance": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "frames": 425,
+      "cpu": {
+        "p50": 2.5,
+        "p95": 6
+      },
+      "gaps": {
+        "p50": 8.300000000000182,
+        "p95": 8.800000000000182,
+        "max": 9.399999999999636
+      },
+      "maxDrawCalls": 87
+    }
+  },
+  "admitted": {
+    "people": [
+      {
+        "hidden": true,
+        "sourceCleared": true,
+        "dx": 0,
+        "dy": -4
+      },
+      {
+        "hidden": true,
+        "sourceCleared": true,
+        "dx": 1,
+        "dy": 47
+      },
+      {
+        "hidden": true,
+        "sourceCleared": true,
+        "dx": -3,
+        "dy": 54
+      }
+    ],
+    "maxStep": 0.36880461724756786
+  }
+}

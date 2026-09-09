@@ -27,12 +27,12 @@ def call(a,*args):
     assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
     return cpu.reg_read(UC_X86_REG_EAX)
 fields={'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'state':(0x2c,'B'),'substate':(0x2d,'B'),
- 'tickPhase':(0x2e,'B'),'physics':(0x30,'B'),'x':(0x3d,'H'),'y':(0x3f,'H'),
+ 'counter':(0x2e,'B'),'physics':(0x30,'B'),'x':(0x3d,'H'),'y':(0x3f,'H'),
  'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),'assignment':(0x76,'H'),
  'selectionFlags':(0x7a,'B'),'commandCursor':(0xa6,'B'),'immediateCommand':(0x9b,'H'),
  'workTarget':(0x89,'H'),'speed':(0x5f,'h'),'timer':(0x70,'h'),'target':(0x72,'h'),
  'reservationNext':(0x85,'H'),'cargo':(0x78,'H'),'angle':(0x26,'H'),'turnAngle':(0x57,'H'),
- 'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'facingAngle':(0x5d,'H'),'commandPhase':(0xaa,'B'),'commandAux':(0xa9,'B')}
+ 'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'heading':(0x5d,'H'),'commandPhase':(0xaa,'B'),'commandAux':(0xa9,'B')}
 bfields={'object':(0x33,'h'),'angle':(0x26,'H'),'anchorX':(0x7a,'H'),'anchorY':(0x7c,'H'),'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),
  'activity':(0x9c,'H'),'queueHead':(0xa2,'H'),'queueFrom':(0xac,'B'),'inside':(0xa6,'B'),
  'entering':(0xad,'B'),'entryDelay':(0xab,'B'),'entryTimer':(0xae,'B')}
@@ -127,7 +127,7 @@ for a in [0x4e9d80,0x4e9dd0,0x4d4040,0x4ea460,0x40a3f0,0x4d58c0,0x407150,0x4da5b
 cases=[];expected=[]
 for trial in range(2688):
     c=case();p=c['people'][0];b=c['building'];substate=trial%14
-    p.update(substate=substate,tickPhase=rng.choice([0,0,1,2,15,16,255]),commandAux=rng.choice([0,0,1,2,255]),
+    p.update(substate=substate,counter=rng.choice([0,0,1,2,15,16,255]),commandAux=rng.choice([0,0,1,2,255]),
       commandPhase=rng.choice([0,1,127,128,255]),speed=rng.choice([0,0,70]),timer=rng.choice([-32768,0,1,2,256,32767]),
       flags2=rng.choice([0,0,0,4,0x80,0x2000,0x8000,0x80000,0x800000]),flags3=rng.choice([0,32,32,0x80020]),
       flags4=rng.choice([0,0,2,0x400,0x800,0x10007]),assignment=rng.randrange(65536),cargo=rng.choice([0,100,200]),

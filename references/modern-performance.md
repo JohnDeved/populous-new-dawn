@@ -1163,3 +1163,28 @@ Fallow reports maintainability **85.9**, average cyclomatic complexity **2.8**
 and p90 **5**. Changed application files pass formatting/type checks. Ox-standard
 still reports existing debt in the large integration modules; this is not a
 repository-wide lint-clean claim.
+
+## Staged housing entry: native mechanics on the shared modern renderer
+
+`node scripts/check-browser-housing-entry.mjs --headed` verifies actual right-click
+input, three native staged entries and original visible sprite layers. The
+hardware run used Chrome 153 / ANGLE Metal / Apple M5, 1440×1000 CSS pixels,
+DPR 1, normal simulation speed and the original first-mission village. No other
+heavy checks ran during measurement. Camera setup completed before recording;
+GPU pixel reads and screenshots occurred after the measured approach.
+
+Across 425 frames, CPU time was 2.5 ms p50 / 6.0 ms p95. Frame gaps were 8.3 ms
+p50 / 8.8 ms p95 / 9.4 ms maximum, consistent with roughly 120 Hz scheduling;
+maximum draw submissions were 87. Raw report:
+`references/performance/2026-09-10-housing-entry.json`. This is a bounded scenario
+measurement, not a paired speedup, whole-game budget or guarantee on other GPUs.
+
+Entry reuses the shared ground movement, routes, sprite atlas and fractional
+presentation. No new texture copies, render loop or frame-rate-dependent timers
+were added. Portable 5–240 Hz comparisons preserve exact entry positions, RNG,
+occupancy and animation clock state. The ordinary unit list remains the source
+of resident counts; full global allocation/slot ownership is still pending.
+Fallow reports maintainability 85.8, average cyclomatic 2.8 and p90 5. Existing
+repository-wide ox-standard debt remains; the new housing module has no lint
+errors. Native-facing memory labels remain at the oracle boundary rather than
+being duplicated in live TypeScript fields.

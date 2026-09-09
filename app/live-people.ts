@@ -63,6 +63,7 @@ import {
 } from './object-cells.ts'
 import { positionDistance, random } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import { clearLivePath } from './live-pathfinding.ts'
 import sprites from './original-units.json' with { type: 'json' }
 
 export type LivePerson = StatefulPerson &
@@ -206,12 +207,12 @@ export function leaveLiveBuilding(w: World, u: Unit) {
 export function syncLivePersonCells(w: World) {
   const people = new Map(
     w.units
-      .filter(u => (u.flight || u.native) && (u.hp > 0 || u.flight))
-      .map(u => [u.id, (u.flight ?? u.native)!])
+      .filter(u => (u.flight || u.native || u.entry) && (u.hp > 0 || u.flight))
+      .map(u => [u.id, (u.flight ?? u.native ?? u.entry?.person)!])
   )
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
-      removeObjectFromCell(w.objectCells, p)
+      if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
       w.objectCells.objects.delete(id)
     }
   for (const u of w.units) {
@@ -344,6 +345,7 @@ function initializeLivePerson(
 export function initializeLivePanic(w: World, u: Unit) {
   const p = u.flight ?? u.native ?? createLivePerson(w, u)
   if (p.flags2 & 0x100000) return
+  cancelHousingEntry(w, u)
   u.native = p
   p.previousState = p.state
   p.state = 26
@@ -351,6 +353,13 @@ export function initializeLivePanic(w: World, u: Unit) {
   initializeLivePerson(w, u, ctx)
   w.selected = w.selected.filter(id => id !== u.id)
   w.randomState = ctx.state.randomState
+}
+
+export function cancelHousingEntry(w: World, u: Unit) {
+  if (!u.entry) return
+  releasePersonRoute(w.motionRoutes, u.entry.person)
+  u.entry = undefined
+  clearLivePath(w, u)
 }
 
 // Existing ordinary allocation order is also used by Blast's cell adapter.
@@ -516,20 +525,8 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
   }
 }
 
-export function stepLivePerson(w: World, u: Unit) {
-  const ctx = context(w),
-    { state, effects } = ctx
-  const p = u.native!
-  p.counter = (p.counter + 1) & 255
-  preparePersonTurn(p, w.manaWorld.gameFlags, {
-    initialize: () => initializeLivePerson(w, u, ctx),
-    animation: () => {
-      const object = personAnimationObject(p)
-      if (object !== -1) effects.animation(p, object, true)
-    },
-    destination: point => effects.destination(p, point),
-  })
-  stepPersonReaction(p)
+// Ground motion is shared by panic, celebration and staged building entry.
+export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
   const turning = turnPerson(p) // Native class-1 motion precedes its state controller.
   if (p.speed && !(p.flags2 & 0x84000)) {
     const terrain = (x: number, y: number) => terrainPointHeight(w.land, { x, y })
@@ -573,6 +570,23 @@ export function stepLivePerson(w: World, u: Unit) {
     moveObjectInCells(w.objectCells, p, next)
     Object.assign(u, browserPosition(next))
   }
+}
+
+export function stepLivePerson(w: World, u: Unit) {
+  const ctx = context(w),
+    { state, effects } = ctx
+  const p = u.native!
+  p.counter = (p.counter + 1) & 255
+  preparePersonTurn(p, w.manaWorld.gameFlags, {
+    initialize: () => initializeLivePerson(w, u, ctx),
+    animation: () => {
+      const object = personAnimationObject(p)
+      if (object !== -1) effects.animation(p, object, true)
+    },
+    destination: point => effects.destination(p, point),
+  })
+  stepPersonReaction(p)
+  moveLivePerson(w, u, p)
   if (p.state === 41) stepCelebration(state, p, effects)
   else if (p.state === 26) {
     updateLivePanic(w, u, ctx, p)

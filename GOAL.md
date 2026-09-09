@@ -1106,3 +1106,23 @@ bookkeeping. Keep native mechanics, clean concise TS, uncapped smooth rendering
 and measured modern performance together. Full slot/order/allocation ownership,
 remaining classes, campaign and full engine parity are unfinished. Discovery
 stays open; this bounded correction does not complete a broad economy checkpoint.
+
+### Latest visible integration: native staged housing entry
+
+Followers now approach the original outside door, visibly walk toward the native
+interior and become occupants only at the original admission threshold. This
+uses shared command-8, occupancy, route and movement controllers; entry's scoped
+animation is released on admission or cancellation. All hut sizes/orientations,
+capacity, interruption and 5–240 Hz timing have portable checks; real browser
+right-click input and visible sprite pixels are covered. The M5 approach measured
+roughly 120 FPS with 6.0 ms CPU p95. Details and limits are in the reverse-engineering
+and modern-performance references.
+
+Next: integrate original training admission/queues and conversion through the
+reviewed controllers. Training capacity is five in the native table; the current
+live one-at-a-time adapter remains to replace. Tower socket/clipping routine
+00404540 is now retained in the repo for its later live integration. Keep visible
+mechanics and original artwork ahead of hidden bookkeeping, with clean shared TS,
+uncapped smooth presentation and measured modern hardware performance throughout.
+Full slot/order/allocation ownership, class scheduling, campaign and engine parity
+remain unfinished; discovery stays open.

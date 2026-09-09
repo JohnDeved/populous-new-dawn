@@ -76,6 +76,7 @@ import {
   setLivePersonAnimation,
   initializeLiveCelebration,
   initializeLivePanic,
+  cancelHousingEntry,
   leaveLiveBuilding,
   buildingFirePeople,
   stepLivePerson,
@@ -84,6 +85,8 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import type { ObjectCells } from './object-cells.ts'
+import { stepHousingEntry, type HousingEntry, type HousingBuilding } from './live-housing.ts'
+import { stepBuildingEntryClocks } from './training.ts'
 import {
   createMotionRoutes,
   ageFailedRoutes,
@@ -228,6 +231,7 @@ export type Projectile = {
 }
 type Battle = Point & { id: number; members: number[]; angle: number }
 export type Unit = Point & {
+  entry?: HousingEntry
   native: LivePerson | null
   burnTrail?: number
   flight?: LivePerson
@@ -256,6 +260,7 @@ export type Unit = Point & {
   casting: { spell: Spell; point: Point; remaining: number } | null
 }
 export type Building = Point & {
+  admission?: HousingBuilding
   id: number
   anchor?: { x: number; y: number }
   object?: number
@@ -724,6 +729,7 @@ function builderActivity(u: Unit) {
 export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.native) return u.native
+  if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
     ? (u.builder?.person ?? null)
     : null
@@ -1782,6 +1788,7 @@ function release(w: World, u: Unit) {
   return occupant
 }
 function releaseTasks(w: World, u: Unit) {
+  cancelHousingEntry(w, u)
   clearLivePath(w, u)
   u.vault = null
   u.work = null
@@ -4026,6 +4033,7 @@ function stepTurn(w: World) {
   for (const b of w.buildings) {
     if (b.hp <= 0) continue
     b.counter = (b.counter + 1) & 255
+    if (b.admission) stepBuildingEntryClocks(b.admission, b.counter)
     stepBuildingGroundResponse(w, b)
     if (b.hp <= 0 || b.damageState?.state === 3) continue
     if (b.damageState) {
@@ -4167,6 +4175,22 @@ function stepTurn(w: World) {
       release(w, u)
       u.hp -= 10
     }
+    if (
+      work &&
+      'hp' in work &&
+      work.kind === 'hut' &&
+      work.progress === 1 &&
+      !work.burn &&
+      !u.builder &&
+      u.tree === null &&
+      !u.harvest &&
+      !u.delivery
+    ) {
+      stepHousingEntry(w, u, work)
+      continue
+    }
+    // An unavailable hut hands control back to the existing work controller.
+    cancelHousingEntry(w, u)
     if (
       work &&
       'kind' in work &&

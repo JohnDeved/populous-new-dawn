@@ -232,7 +232,7 @@ test('original level layout, native foundations, and the complete mission',()=>{
  // Fight through the remaining defenders using the units that were actually trained above.
  select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.buildings.find(b=>b.team==='red')??w.units.find(u=>u.team==='red'&&u.inside===null);if(!enemy)break;command(w,enemy);advance(w,8);}
  // Use another earned Lightning gift if a defender survives the assault.
- if(w.status==='playing'){select(w,'shaman');command(w,{x:0,z:-22});advance(w,40);const last=w.units.find(u=>u.team==='red');assert.ok(last);assert.ok(cast(w,'lightning',last));impact(w,'lightning');}
+ if(w.status==='playing'){select(w,'shaman');command(w,{x:0,z:-22});advance(w,40);if(w.status==='playing'){const last=w.units.find(u=>u.team==='red');assert.ok(last);assert.ok(cast(w,'lightning',last));impact(w,'lightning');}}
  assert.equal(w.status,'won','the first mission can be won through the full discovery/build/train/combat loop');
 });
 test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
@@ -937,10 +937,10 @@ test('native training queue yields to an untrained follower and releases its new
  const records=Array.from({length:800},emptyPersonOrder);
  Object.assign(records[1],{model:8,references:2,a:100});
  Object.assign(records[2],{model:8,flags:1,references:1,a:100});
- const person=(id,model,phase,next)=>({id,class:1,model,state:10,substate:3,tickPhase:0,physics:2,
+ const person=(id,model,phase,next)=>({id,class:1,model,state:10,substate:3,counter:0,physics:2,
   flags2:0,flags3:32,flags4:0,assignment:8,commands:[1,0,0,0,0,0,0,0],commandCursor:0,
   immediateCommand:0,workTarget:100,target:100,reservationNext:next,commandPhase:phase,commandAux:0,
-  x:256,y:64384,goalX:256,goalY:64384,speed:0,cargo:0,timer:256,angle:0,turnAngle:0,facingAngle:0});
+  x:256,y:64384,goalX:256,goalY:64384,speed:0,cargo:0,timer:256,angle:0,turnAngle:0,heading:0});
  const specialist=person(1,4,0,2),brave=person(2,2,1,0);
  const b={id:100,class:2,model:5,object:95,angle:0,anchorX:0,anchorY:0,flags2:0,flags3:0,activity:8,queueHead:1,queueFrom:0,
   inside:5,entering:0,entryDelay:0,entryTimer:0};

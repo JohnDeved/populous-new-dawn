@@ -5,7 +5,7 @@ import {
   buildingQueuePoint,
   type BuildingShapePose,
 } from './building-shapes.ts'
-import { nativeAngle } from './native-math.ts'
+import { faceBuildingPoint } from './building-work.ts'
 import { currentPersonOrder, type OrderPool } from './person-orders.ts'
 import {
   recoverPersonMovement,
@@ -16,10 +16,10 @@ import type { StartingPerson } from './person-order-start.ts'
 
 export type TrainingPerson = StartingPerson & {
   class: number
-  tickPhase: number
+  counter: number
   goalX: number
   goalY: number
-  facingAngle: number
+  heading: number
 }
 export type TrainingQueue = { id: number; queueHead: number; queueFrom: number; activity: number }
 export type TrainingBuilding = TrainingQueue &
@@ -187,11 +187,8 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
   const position = (index: number) => buildingQueuePoint(b, index)
   const phase = (person: QueuePerson) => (person as TrainingPerson).commandPhase
   const face = (point: { x: number; y: number }) => {
-    const angle = nativeAngle(short(point.x - p.x), -short(point.y - p.y))
-    if (p.flags2 & 128) p.turnAngle = angle
-    p.facingAngle = angle
-    p.angle = p.flags2 & 0x8000 ? (angle + 1024) & 2047 : angle
-    return angle
+    faceBuildingPoint(p, point, 2047)
+    return p.heading
   }
   if (p.substate === 0) {
     p.workTarget = p.target & 65535
@@ -230,7 +227,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
       p.assignment |= 8
       const tail = changed ? trainingQueuePerson(w, b, -1) : undefined
       if (tail) move(p, position(byte(phase(tail))))
-      if (!(p.tickPhase & 1)) {
+      if (!(p.counter & 1)) {
         if (
           queued &&
           near(0x538) &&
@@ -282,7 +279,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
           const trained = rules.buildingTrainedModel[b.model]
           const next = live(w.people, p.reservationNext)
           if (
-            !(p.tickPhase & 15) &&
+            !(p.counter & 15) &&
             !p.commandAux &&
             p.model === trained &&
             next &&
@@ -333,7 +330,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
           } else blocked = true
         }
         if (!blocked) {
-          if (!(p.tickPhase & 1) && near(112)) {
+          if (!(p.counter & 1) && near(112)) {
             effects.enterBuilding(p, b)
             if (!(flags & 65)) {
               p.selectionFlags &= ~1
@@ -354,7 +351,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
       move(p, buildingOutsidePoint(b))
     // falls through
     case 7:
-      if (!(p.tickPhase & 1) && near(112)) {
+      if (!(p.counter & 1) && near(112)) {
         p.substate = 4
         effects.dropCargo(p)
       }
@@ -366,7 +363,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
       move(p, buildingOutsidePoint(b))
     // falls through
     case 9:
-      if (!(p.tickPhase & 1) && near(112)) p.substate = 0
+      if (!(p.counter & 1) && near(112)) p.substate = 0
       break
     case 10:
       p.commandAux = 0
@@ -380,4 +377,19 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
       stopPersonMovement(p, effects.setAnimation)
   }
   return 0
+}
+
+// Entry clocks in 0x403280, before the building's state controller.
+export function stepBuildingEntryClocks(
+  b: Pick<TrainingBuilding, 'flags3' | 'entryDelay' | 'entryTimer' | 'entering'>,
+  counter: number
+) {
+  if (b.entryDelay) b.entryDelay = (b.entryDelay - 1) & 255
+  if (!(b.flags3 & 64)) {
+    if (b.entryTimer) {
+      b.entryTimer = (b.entryTimer - 1) & 255
+      if (!b.entryTimer) b.entering = 0
+    }
+  } else if (!b.entering) b.flags3 = (b.flags3 & ~64) >>> 0
+  else if (!(counter & 7)) b.entering = (b.entering - 1) & 255
 }
