@@ -24,6 +24,7 @@ import {
   beginResultCamera,
   stepResultCamera,
   stepCameraMotion,
+  interpolateCamera,
 } from './camera-motion.ts'
 import { defeatSky, createSkyMotion, updateSkyArray, skyCloudLayer } from './sky.ts'
 import {
@@ -483,6 +484,7 @@ export class GameScene {
   cameraPosition = { x: 0, y: 0, angle: 0 }
   resultRequest = 0
   cameraTime = 0
+  cameraPreviewButtons: number | null = null
   resultTurn = 0
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
@@ -1348,6 +1350,9 @@ export class GameScene {
     if (!modifier) event.preventDefault()
   }) as EventListener
   captureCamera() {
+    // A changed input, mouse drag or focus request starts at the displayed view.
+    if (this.cameraPreviewButtons !== null) this.cameraTime = 0
+    this.cameraPreviewButtons = null
     this.cameraPosition = {
       x: Math.round((this.viewPoint.x + 8) * 256) & 65535,
       y: Math.round((-this.viewPoint.z - 8) * 256) & 65535,
@@ -1359,10 +1364,47 @@ export class GameScene {
     if (!(this.world.flyby.flags & 1)) this.world.inputMask &= ~64
     this.onChange()
   }
+  navigationButtons() {
+    if (this.world.inputMask || this.overviewStage || document.querySelector('dialog[open]'))
+      return 0
+    let buttons = 0
+    for (const key of this.keys)
+      buttons = mergeCameraInput(
+        buttons,
+        cameraCommand(cameraKeys[key] ?? 0, {
+          control: this.keys.has('control'),
+          fast: this.keys.has('shift'),
+          overview: this.overviewActive,
+        })
+      )
+    const pointer = this.navigationPointer
+    if (pointer && !(pointer.buttons & 6))
+      buttons = mergeCameraInput(
+        buttons,
+        cameraEdgeButtons(
+          pointer.x,
+          pointer.y,
+          document.documentElement.clientWidth,
+          document.documentElement.clientHeight
+        )
+      )
+    return buttons
+  }
   updateCameraMotion(dt: number) {
     const w = this.world,
       s = this.resultCamera,
       motion = this.cameraMotion
+    let buttons = this.navigationButtons()
+    if (this.cameraPreviewButtons !== null) {
+      if (buttons !== this.cameraPreviewButtons || this.resultRequest !== w.outcome.cameraRequest)
+        this.captureCamera()
+      else {
+        // Do not feed a rendered fraction back into the next native step.
+        this.viewPoint = browserPosition(this.cameraPosition)
+        this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
+        this.cameraPreviewButtons = null
+      }
+    }
     if (this.resultRequest !== w.outcome.cameraRequest) {
       this.resultRequest = w.outcome.cameraRequest
       if (!s.active) {
@@ -1381,34 +1423,19 @@ export class GameScene {
     }
     let active = !!(s.active || motion.active)
     if (!active) this.captureCamera()
+    if (buttons & 15) {
+      motion.active = 0
+      w.mode = null
+      this.tooltip.draw = 0
+    }
     // Use the existing 24 Hz presentation convention until draw_main's frame
     // throttling and its shared camera/flyby ordering are fully integrated.
     if (!w.paused || !s.active) {
       this.cameraTime += dt
       while (this.cameraTime + 1e-9 >= 1 / 24) {
         this.stepViewChange()
+        buttons = this.navigationButtons()
         if (!w.inputMask && !this.overviewStage && !document.querySelector('dialog[open]')) {
-          let buttons = 0
-          for (const key of this.keys)
-            buttons = mergeCameraInput(
-              buttons,
-              cameraCommand(cameraKeys[key] ?? 0, {
-                control: this.keys.has('control'),
-                fast: this.keys.has('shift'),
-                overview: this.overviewActive,
-              })
-            )
-          const pointer = this.navigationPointer
-          if (pointer && !(pointer.buttons & 6))
-            buttons = mergeCameraInput(
-              buttons,
-              cameraEdgeButtons(
-                pointer.x,
-                pointer.y,
-                document.documentElement.clientWidth,
-                document.documentElement.clientHeight
-              )
-            )
           if (buttons || Object.values(this.cameraVelocity).some(Boolean)) {
             if (buttons & 15) {
               motion.active = 0
@@ -1481,9 +1508,36 @@ export class GameScene {
       }
       this.viewPoint = browserPosition(this.cameraPosition)
       this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
-      this.updateView()
     }
+    if (this.previewCamera(buttons)) active = true
+    if (active) this.updateView()
     return active
+  }
+  previewCamera(buttons: number) {
+    if (
+      (!buttons && !this.cameraMotion.active) ||
+      buttons !== this.navigationButtons() ||
+      this.cameraTime <= 1e-9 ||
+      this.resultCamera.active ||
+      this.overviewActive ||
+      this.overviewStage ||
+      this.viewTransition ||
+      this.world.flyby.flags & 1
+    )
+      return false
+    // Preview one native step without advancing its state or side effects.
+    // The focus controller replaces schedules but does not mutate their rows,
+    // so a shallow copy is sufficient; no per-frame deep clone is needed.
+    const next = { ...this.cameraPosition }
+    stepCameraInput(next, { ...this.cameraVelocity }, buttons, 24)
+    stepCameraMotion({ ...this.cameraMotion }, next, 0, { rotate: () => {}, globe: () => {} })
+    const preview = interpolateCamera(this.cameraPosition, next, this.cameraTime * 24)
+    // Keep browserPosition's canonical map copy without truncating the fraction.
+    const wrap = (n: number) => THREE.MathUtils.euclideanModulo(n + 128, 256) - 128
+    this.viewPoint = { x: wrap(preview.x / 256 - 8), z: -wrap(preview.y / 256 + 8) }
+    this.cameraBearing = (preview.angle * Math.PI) / 1024
+    this.cameraPreviewButtons = buttons
+    return true
   }
   updateFlyby(dt: number) {
     const state = this.world.flyby,
@@ -1634,6 +1688,7 @@ export class GameScene {
     }
   }
   startGroundView(preset: number, bearing?: number) {
+    if (this.cameraPreviewButtons !== null) this.captureCamera()
     const frames = viewTransitionFrames(24)
     this.viewPreset = preset
     this.viewZoom = 0

@@ -9,7 +9,7 @@ experienced-player expectations while improving performance and presentation.
 | Area | State | Evidence / next check |
 | --- | --- | --- |
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
-| High-refresh motion and camera/input | Pending | Measure visible movement and response at 30/60/120/144 Hz and irregular schedules; avoid adding a turn of input latency. |
+| High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Units, flybys, globe motion, transitions and result cameras still need smoothing. |
 | Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Water still recomputes shared vertex samples;  Profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
 | Models, sprites, painter and effects | Profiled | Painter traversal now skips unsubmitted terrain faces.  Measure submissions, batching, geometry updates, allocations and resource lifetime; retain native draw/sprite regressions. |
 | HUD and minimap | Partially reviewed | Minimap native colors/transforms and modern dense rows verified. Original border uses fixed corners/tiled edges; stretched circle is still an adapter. Full HUD/display audit remains. |
@@ -133,9 +133,9 @@ for that clock-only check; separate browser tests cover rendered output.
 
 Blur pauses and clears input; both visibility transitions reset the timestamp.
 Hidden time is not replayed on resume. Active frame time is retained. Camera and
-flyby accumulator boundaries now tolerate floating-point rounding. Their visible
-motion is still stepped at 24 Hz, and full camera/result/animation/audio chronology
-remains open. This fix does **not** complete high-refresh smoothing or the audit.
+flyby accumulator boundaries now tolerate floating-point rounding. Ground keyboard navigation and focus journeys now preview fractional native
+steps (see below); flybys, globe/transition/result motion and full
+camera/result/animation/audio chronology remain open. This fix does **not** complete high-refresh smoothing or the audit.
 
 ## Display changes, audio bursts and maintainability
 
@@ -173,3 +173,84 @@ population HUD, minimap, live DPR changes and audio bursts. The minimap retains
 its 24 native/browser capture comparisons. This checkpoint is not a completed
 modernization audit; the open items in the coverage table still block returning
 to new parity features.
+
+## Ground camera presentation between native steps
+
+The ground camera still commits the recovered navigation/focus updates at 24 Hz.
+Between those boundaries it previews the next native input and focus step on
+shallow state copies, then displays the appropriate fraction along the short
+wrapped map/heading arc. Previewing does not advance the owned controller or run
+its side effects. Camera projection is updated once for the final displayed view;
+no deep clone, second world simulation or extra rendering pass is needed.
+
+This deliberately improves the old discrete presentation. It does not interpolate
+from the previous committed view (which would add a step of input latency).
+Changing/releasing navigation, dragging the mouse or issuing a focus request
+retains the displayed fraction as the new starting view, rounded to the native
+coordinate/heading precision. Continued held input never feeds previews back into
+owned state. Ground preview positions use the same canonical wrapped map copy as
+`browserPosition` while retaining fractional precision. Input gates are still
+re-evaluated after each native view-transition step.
+
+`scripts/check-browser-camera-smoothing.mjs` checks actual Scene state and
+projection at 5, 30, 60, 120, 144 and 240 Hz plus an irregular schedule. Forward
+movement, rotation, and combined pan/turn produce identical native endpoints;
+every frame changes the projected view. Actual keyboard events respond on the
+first 240 Hz frame, release without undoing the displayed fraction and remain
+stationary with momentum disabled. A focus journey has identical controller
+state at every native boundary and 243 distinct positions across 25 native steps
+at 240 Hz. Three real GPU renders between native boundaries repeat identical
+pixels with preview disabled, but change over a million pixels per frame with
+preview enabled. Existing camera-input/focus, globe-transition, sprite-layer and
+terrain submission/picking regressions remain required.
+
+The native 24 Hz movement convention is still an adapter, not a claim that the
+full original frame scheduler is integrated. Globe dragging/inertia, zoom/morph,
+flybys, result-camera choreography and unit movement remain separate work. Full
+input-event timestamp/replay equivalence and physical high-refresh hardware
+validation are still open.
+
+### Camera cost measurement
+
+`node scripts/bench-camera-smoothing.mjs /tmp/camera.json` measures the actual
+Scene camera/input/flyby/view-update path in one browser. Both modes update the
+projection on every frame, including the original inactive-camera fallback.
+There are 1,200 warmup frames per mode and nine alternating-order batches of 2,400
+frames at each cadence. GPU drawing is intentionally excluded from this CPU
+microbenchmark; it cannot certify total frame time or hardware FPS.
+
+Separate whole-frame diagnostic reports are retained for
+[stepped](performance/2026-09-09-stepped-camera.json) and
+[smooth](performance/2026-09-09-smooth-camera.json) camera modes, selectable with
+`profile-game.mjs --stepped-camera`. Those runs were noisy: the unchanged opening
+workload also became slower in the second process, and rotation CPU medians were
+5.6 versus 9.8 ms. They do **not** establish unchanged whole-game performance.
+The alternating in-browser benchmark isolates camera overhead; ongoing hardware
+and whole-game profiling remains a requirement rather than being waived.
+
+The final isolated measurements (Apple M5, macOS arm64, headless Chrome 153) are:
+
+| Cadence | Stepped camera median | Fractional camera median | Added CPU time per frame |
+| --- | ---: | ---: | ---: |
+| 60 Hz | 0.01058 ms | 0.01175 ms | 1.17 microseconds |
+| 240 Hz | 0.00983 ms | 0.01058 ms | 0.75 microseconds |
+
+[Raw alternating CPU batches](performance/2026-09-09-camera-smoothing-cpu.json)
+retain all measurements and endpoint comparisons. A second whole-frame check,
+`profile-game.mjs --compare-camera`, alternates stepped/smooth camera modes in
+one browser, resetting the same opening view each run. Its six runs use the order
+stepped/smooth/smooth/stepped/stepped/smooth, each with one second settling and
+four seconds sampled. Median CPU frame time across the three runs is 5.3 ms
+stepped versus 5.7 ms smooth; median p95 is 6.8 versus 7.2 ms. Median frame spacing
+is 33.3 ms for both in SwiftShader. [Raw paired runs](performance/2026-09-09-camera-paired.json)
+show the variability. Smoother moving views can refresh dependent presentation
+work more often, so the isolated microsecond result must not be substituted for
+the measured 0.4 ms whole-frame difference. No extra draw passes are introduced.
+These software-renderer observations support the chosen inexpensive preview
+approach; they do not certify hardware performance or finish the audit.
+
+Final native comparisons also pass: 8,192 complete keyboard and 6,153 drag-axis
+calls; 256 camera journeys/291 plans/7,921 movement calls; 256 result initiations
+and 12,288 composed frames; 1,024 focus requests and 5,120 following steps. These
+checks certify the unchanged native controllers, not the new fractional frames.
+The browser smoothing/pixel/input checks cover the deliberate presentation change.

@@ -21,6 +21,17 @@ export interface CameraPosition {
   y: number
   angle: number
 }
+
+// Interpolate displayed views along the short arc across map/heading seams.
+export function interpolateCamera(from: CameraPosition, to: CameraPosition, fraction: number) {
+  const wrap = (value: number, size: number) => ((value % size) + size) % size
+  const angle = wrap(to.angle - from.angle + 1024, 2048) - 1024
+  return {
+    x: wrap(from.x + short(to.x - from.x) * fraction, 65536),
+    y: wrap(from.y + short(to.y - from.y) * fraction, 65536),
+    angle: wrap(from.angle + angle * fraction, 2048),
+  }
+}
 export interface CameraMotion {
   active: number
   target: CameraPosition

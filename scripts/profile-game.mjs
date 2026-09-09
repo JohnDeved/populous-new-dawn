@@ -12,6 +12,15 @@ try {
   await cdp.send('Profiler.enable')
   await cdp.send('Performance.enable')
   const fullTerrain = process.argv.includes('--full-terrain')
+  const steppedCamera = process.argv.includes('--stepped-camera')
+  const compareCamera = process.argv.includes('--compare-camera')
+  await page.evaluate(() => {
+    window.originalCameraPreview = window.testScene.previewCamera
+  })
+  if (steppedCamera)
+    await page.evaluate(() => {
+      window.testScene.previewCamera = () => false
+    })
   const environment = await page.evaluate(fullTerrain => {
     const s = window.testScene,
       gl = s.renderer.getContext(),
@@ -41,7 +50,21 @@ try {
     }
   }, fullTerrain)
   const runs = []
-  for (const scenario of ['opening', 'camera', 'crowd']) {
+  const scenarios = compareCamera ? Array(6).fill('camera') : ['opening', 'camera', 'crowd']
+  for (const [index, scenario] of scenarios.entries()) {
+    const smoothCamera = compareCamera
+      ? [false, true, true, false, false, true][index]
+      : !steppedCamera
+    if (compareCamera)
+      await page.evaluate(smooth => {
+        const s = window.testScene
+        s.previewCamera = smooth ? window.originalCameraPreview : () => false
+        s.world.speed = 0
+        s.cameraPreviewButtons = null
+        s.cameraTime = 0
+        s.cameraBearing = 0
+        s.focus({ x: 2, z: 30 })
+      }, smoothCamera)
     if (scenario === 'camera') await page.keyboard.down('q')
     if (scenario === 'crowd') {
       await page.keyboard.up('q')
@@ -81,6 +104,7 @@ try {
     })
     runs.push({
       scenario,
+      smoothCamera,
       ...data,
       frames: undefined,
       frameCount: data.frames.length,
@@ -114,6 +138,8 @@ try {
   const report = {
     date: new Date().toISOString(),
     fullTerrain,
+    steppedCamera,
+    compareCamera,
     runtime: process.version,
     cpu: cpus()[0].model,
     os: platform(),

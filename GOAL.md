@@ -180,9 +180,11 @@ identical world states across 5–240 Hz and irregular schedules. Indexed terrai
 submission/picking retains the native visibility and painter rules while reducing
 measured CPU/GPU work. Live DPR changes and same-frame audio voice limits are fixed.
 
-Next resolve 24 Hz camera/unit presentation without adding input latency, sky
-fractional drift and sound scheduling across catch-up turns. Profile water/shared
-vertex work, populated gameplay, heavy effects, loading/restart resource lifetime
+Ground keyboard navigation and focus now preview fractional native steps, with
+verified 5–240 Hz response, unchanged native endpoints and no release snap.
+Next resolve unit, flyby, globe/transition/result presentation, sky fractional
+drift and sound scheduling across catch-up turns without adding input latency.
+Profile water/shared vertex work, populated gameplay, heavy effects, loading/restart resource lifetime
 and wide/high-DPI displays. Complete the entire audit table before returning to
 new parity features. See `references/modern-performance.md` for runnable checks,
 measurements and explicit remaining limitations.

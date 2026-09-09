@@ -1,0 +1,210 @@
+{
+  "date": "2026-09-09T16:22:58.286Z",
+  "cpu": "Apple M5",
+  "os": "darwin",
+  "arch": "arm64",
+  "workload": "Actual Scene camera/input/flyby/view-update path, GPU drawing excluded; 1200 warmup frames per mode, nine alternating batches of 2400 frames",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "rows": [
+    {
+      "hz": 60,
+      "steppedMs": 0.01058333327372869,
+      "smoothMs": 0.011750000019868215,
+      "deltaMicroseconds": 1.1666667461395255,
+      "batches": [
+        {
+          "stepped": {
+            "ms": 0.010958333313465119,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.011750000019868215,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.01058333327372869,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.012125000059604644,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.011041666666666667,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.011458333333333333,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.01058333327372869,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.013624999920527141,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.010708333353201548,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.011875,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.010583333373069763,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.011750000019868215,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.01058333327372869,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.011541666686534882,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.010541666646798451,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.011541666587193807,
+            "angle": 1664
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.010541666646798451,
+            "angle": 1664
+          },
+          "smooth": {
+            "ms": 0.01125,
+            "angle": 1664
+          }
+        }
+      ]
+    },
+    {
+      "hz": 240,
+      "steppedMs": 0.009833333293596903,
+      "smoothMs": 0.01058333327372869,
+      "deltaMicroseconds": 0.7499999801317859,
+      "batches": [
+        {
+          "stepped": {
+            "ms": 0.009791666666666667,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.010666666726271312,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.009666666686534882,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.010416666666666666,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.009875000019868215,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.01049999992052714,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.00975000003973643,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.010541666646798451,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.009833333293596903,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.010916666686534881,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.009875000019868215,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.01058333327372869,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.009875000019868215,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.010749999980131784,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.009875000019868215,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.010708333353201548,
+            "angle": 1952
+          }
+        },
+        {
+          "stepped": {
+            "ms": 0.009791666666666667,
+            "angle": 1952
+          },
+          "smooth": {
+            "ms": 0.010541666746139527,
+            "angle": 1952
+          }
+        }
+      ]
+    }
+  ]
+}
