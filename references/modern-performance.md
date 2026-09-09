@@ -9,12 +9,12 @@ experienced-player expectations while improving performance and presentation.
 | Area | State | Evidence / next check |
 | --- | --- | --- |
 | Frame loop and clock ownership | Core fix verified | Removed the 100 ms time cap, interleaved simulation and animation, reset clocks on blur/visibility changes. Node and actual Scene checks cover 5–240 Hz. Camera/flyby/result ordering and audio scheduling still need review. |
-| High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Units, flybys, globe motion, transitions and result cameras still need smoothing. |
+| High-refresh motion and camera/input | Ground navigation and focus improved | Fractional native-step previews produce distinct ground views at 5–240 Hz and irregular schedules without a delayed first response. Native endpoints and focus schedules remain identical. Cloud wind/parallax now uses retained fractions and camera-step snapshots, with identical endpoints at 0.5–240 Hz. Units, flybys, globe motion, transitions and result cameras still need smoothing. |
 | Terrain, water, lighting and visibility | Submission optimized | Indexed native row spans preserve pixels and picking while reducing CPU/GPU work. Wide-screen sky background now covers exposed areas; terrain perimeter and expanded-region clipping remain open. Water still recomputes shared vertex samples; profile first mission, changing terrain, shadows and heavy effects; test wide/high-DPI displays. |
 | Models, sprites, painter and effects | Profiled | Painter traversal now skips unsubmitted terrain faces.  Measure submissions, batching, geometry updates, allocations and resource lifetime; retain native draw/sprite regressions. |
 | HUD and minimap | Partially reviewed | Uniform bounded HUD sizing replaces axis stretching; saved size preference and ten desktop/window sizes checked. Minimap native colors/transforms and modern dense rows verified. Fixed native frame corners/tiled edges and full HUD/display audit remain. |
 | Simulation and gameplay systems | Clock regression added | Complete world-state comparisons cover movement, construction work, Blast, combat and native celebrations at three speeds and seven frame schedules. Long campaign playthroughs and larger combat/effect loads still require clock/performance coverage. |
-| Audio and presentation timing | Read review; issues open | WebAudio owns sample duration and pitch; buffers are cached and ended nodes disconnect. Simulation sounds still drain once per render, so catch-up events can bunch. Sky movement also loses integer fractions per frame; high-refresh drift needs correction. |
+| Audio and presentation timing | Read review; issues open | WebAudio owns sample duration and pitch; buffers are cached and ended nodes disconnect. Simulation sounds still drain once per render, so catch-up events can bunch. Cloud wind/half-heading drift is corrected below; full presentation-event scheduling remains open. |
 | Resources, loading and memory | Read review; measurements pending | Scene disposes listeners, observers, renderer, owned geometry/materials and textures; shared atlas caches survive restarts. Globe rebuilds geometry on camera movement; Live DPR changes now resize the renderer and star pixels while retaining CSS projection. Measure restart/resize/effect lifetime and live display-scale changes. |
 | Readability and maintainability | Started | Fallow baseline: maintainability 85.3, average cyclomatic 2.8, p90 5, three cycles and three unused dependencies. Review measured hot paths before refactoring. |
 
@@ -365,3 +365,78 @@ texture; expected native bilinear palette values and tolerance are unchanged.
 Next investigate the fixed-resolution camera table, displayed projection scale,
 near-plane handling and terrain perimeter together before expanding row spans.
 The unsafe full-region diagnostic is not a correctness baseline for that work.
+
+## Frame-independent cloud motion (2026-09-09)
+
+The previous browser called recovered `0x523830` once per rendered frame. Its
+integer wind increments and `turn >> 1` discard different fractions at different
+refresh rates. That exact routine stays in `sky.ts` for the executable oracle;
+the live presentation now uses the small `sky-motion.ts` reconstruction with
+floating-point state. It retains the original wind rates (2,125 and 1,125 native
+coordinate units per second), wrapped camera translation and half-heading rotation.
+An analytical average of the rotating basis integrates wind and camera parallax
+along each linear camera segment. It avoids accumulating render-sample rounding.
+
+The Scene commits motion at existing native camera/flyby step boundaries, then
+renders a copy advanced through the remaining fraction. A slow render therefore
+retains intervening camera bends, and a fast render cannot feed its preview back
+into the next owned step. Input changes adopt the already displayed sky together
+with the already displayed camera. Paused flybys/results commit stationary-camera
+wind independently; blur retains the existing timestamp reset and does not replay
+hidden time. Native lens-grid precision, clouds, backdrop and flash geometry remain
+unchanged. The live loop no longer passes rounded millisecond ticks to cloud motion.
+
+A one-second comparison of the previous per-render leaf invocation demonstrates
+the problem (native angle units; camera turns by 400 units):
+
+| Render rate | Previous wind X/Y | Continuous wind X/Y | Previous sky turn | Continuous sky turn |
+| --- | --- | --- | ---: | ---: |
+| 5 Hz | 2125 / 1125 | 2125 / 1125 | 200 | 200 |
+| 60 Hz | 2120 / 1120 | 2125 / 1125 | 180 | 200 |
+| 144 Hz | 2000 / 1000 | 2125 / 1125 | 144 | 200 |
+| 240 Hz | 2000 / 1000 | 2125 / 1125 | 160 | 200 |
+
+This describes the earlier browser scheduling of the recovered leaf, not a claim
+that the original game's complete scheduler ran at these refresh rates. The
+compatibility fix is intentionally not bit-for-bit old rounding and earns no
+additional native parity credit.
+
+`tests/sky-motion.test.mjs` checks native wind constants, arbitrary subdivision of
+stationary/panning/rotating/combined segments, map and angle wraps, long elapsed
+time and invalid-time rejection. `check-browser-sky-clock.mjs` exercises 72 real
+camera/sky sequences: 0.5, 5, 24, 30, 60, 120, 144 and 240 Hz plus irregular frames,
+with idle, forward movement, turning, combined navigation, focus journeys, flyby,
+paused flyby and result camera. Owned and rendered endpoints agree within 2e-7
+coordinate units. Every frame changes the lens UVs. Three real GPU renders at
+240 Hz change 96,305 and 96,147 pixels between successive frames. The actual Scene
+frame-loop check keeps wind running with a paused world and verifies blur does not
+replay hidden time. [Raw clock/pixel results](performance/2026-09-09-sky-clock.json)
+retain all cases. The camera-only pixel regression explicitly holds sky drawing
+still so autonomous cloud motion cannot masquerade as camera movement.
+
+All 148 portable tests, typecheck/build, native cloud oracle, browser camera
+smoothing/input/focus, sky/zoom/flash, game-clock and all 392 sprite-pose checks pass.
+Fallow maintainability remains 85.6; selected source lint has no errors. The existing
+24 Hz camera/flyby convention is still an adapter. Cross-domain event timestamps,
+unit movement, other camera presentation, audio cadence and full engine scheduling
+remain open, as does the wider rendering/perimeter audit.
+
+### Sky motion CPU cost
+
+`bench-sky-motion.mjs` compares motion plus the full native lens-grid calculation
+with 1,000 warmup frames per mode and nine alternating batches of 2,000 frames.
+The modern mode includes all 24 Hz camera snapshots and each rendered preview.
+On Apple M5/macOS arm64, Node 24.18:
+
+| Cadence | Previous path | Continuous path | Added CPU time per frame |
+| --- | ---: | ---: | ---: |
+| 5 Hz | 5.543 microseconds | 6.034 microseconds | 0.491 microseconds |
+| 60 Hz | 5.508 microseconds | 5.605 microseconds | 0.097 microseconds |
+| 240 Hz | 5.549 microseconds | 5.612 microseconds | 0.063 microseconds |
+
+[Raw alternating batches and rate comparison](performance/2026-09-09-sky-motion-cpu.json)
+make the measurement reproducible. This isolates the changed CPU work; it does
+not measure GPU drawing, whole-game frame time or hardware FPS. The correction
+introduces no draw pass, shader, texture or geometry. The existing grid calculation
+already takes only a few microseconds here, so further caching is not justified
+by this measurement; larger render-loop costs remain the performance priority.

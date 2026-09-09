@@ -531,12 +531,16 @@
               "id": "graphics.raster.sky-horizon",
               "title": "Type-2 sky horizon, clouds and defeat-flash bounds",
               "status": "verified",
-              "note": "Native horizon dispatch, cloud geometry/fades and defeat flash remain compared. The modern browser deliberately extends the backdrop edge color below the horizon and clamps vertical texture edges to cover exposed wide-screen background without stretching clouds. Twelve actual shader comparisons retain opaque ground pixels, projection, visibility bounds and picks. Terrain perimeter/clipping and sky clock rounding remain open; this compatibility correction earns no additional native credit.",
+              "note": "Native horizon dispatch, cloud geometry/fades and defeat flash remain compared. The modern browser deliberately extends the backdrop edge color below the horizon and clamps vertical texture edges to cover exposed wide-screen background without stretching clouds. Twelve actual shader comparisons retain opaque ground pixels, projection, visibility bounds and picks. Cloud wind and half-heading parallax now retain fractions at camera-step boundaries, with 72 actual browser sequences at 0.5\u2013240 Hz, irregular frames, flyby pause and GPU substep motion. The original rounded leaf remains executable-compared. Terrain perimeter/clipping and full presentation scheduling remain open; this compatibility correction earns no additional native credit.",
               "evidence": [
                 "scripts/check-native-clouds.py",
                 "scripts/check-browser-sky.mjs",
                 "scripts/check-browser-sky-coverage.mjs",
-                "references/modern-performance.md"
+                "references/modern-performance.md",
+                "app/sky-motion.ts",
+                "tests/sky-motion.test.mjs",
+                "scripts/check-browser-sky-clock.mjs",
+                "scripts/bench-sky-motion.mjs"
               ]
             },
             {

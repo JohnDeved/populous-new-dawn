@@ -26,7 +26,8 @@ import {
   stepCameraMotion,
   interpolateCamera,
 } from './camera-motion.ts'
-import { defeatSky, createSkyMotion, updateSkyArray, skyCloudLayer } from './sky.ts'
+import { defeatSky, createSkyMotion, updateSkyArray, fillSkyArray, skyCloudLayer } from './sky.ts'
+import { advanceSkyMotion } from './sky-motion.ts'
 import {
   readTerrainTextures,
   terrainAtlas,
@@ -385,6 +386,8 @@ export class GameScene {
   globe = new GlobeRenderer()
   space = new THREE.Color(0)
   skyMotion = createSkyMotion()
+  skyOwned = createSkyMotion()
+  skyRemainder = 0
   skyGrid = new Int32Array(26 * 96 * 2)
   skyLoaded = false
   skyClouds: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>[] = []
@@ -806,17 +809,31 @@ export class GameScene {
     }
   }
 
-  updateSky(ticks: number) {
-    const camera = {
-      ...this.view.center,
-      angle: Math.round((this.cameraBearing * 1024) / Math.PI) & 2047,
-    }
-    // 0x524a30 initializes the lens with one extra update on its first draw.
+  commitSky(camera: { x: number; y: number; angle: number }, remainder: number) {
     if (!this.skyLoaded) {
-      updateSkyArray(this.skyMotion, camera, ticks, this.skyGrid)
+      updateSkyArray(this.skyOwned, camera, 0, this.skyGrid)
       this.skyLoaded = true
     }
-    updateSkyArray(this.skyMotion, camera, ticks, this.skyGrid)
+    remainder = Math.max(0, remainder)
+    advanceSkyMotion(this.skyOwned, camera, Math.max(0, this.skyRemainder - remainder))
+    this.skyRemainder = remainder
+  }
+  updateSky() {
+    const camera = {
+      x: (this.viewPoint.x + 8) * 256,
+      y: (-this.viewPoint.z - 8) * 256,
+      angle: (this.cameraBearing * 1024) / Math.PI,
+    }
+    if (!this.skyLoaded || (this.world.paused && (this.wasFlying || this.resultCamera.active)))
+      this.commitSky(camera, 0)
+    Object.assign(this.skyMotion, this.skyOwned)
+    advanceSkyMotion(this.skyMotion, camera, this.skyRemainder)
+    fillSkyArray(
+      this.skyGrid,
+      Math.round(this.skyMotion.angle) & 2047,
+      Math.trunc(this.skyMotion.x * 512),
+      Math.trunc(this.skyMotion.y * 512)
+    )
     const width = this.container.clientWidth,
       height = this.container.clientHeight
     if (!width || !height) return
@@ -1355,7 +1372,11 @@ export class GameScene {
   }) as EventListener
   captureCamera() {
     // A changed input, mouse drag or focus request starts at the displayed view.
-    if (this.cameraPreviewButtons !== null) this.cameraTime = 0
+    if (this.cameraPreviewButtons !== null) {
+      this.cameraTime = 0
+      Object.assign(this.skyOwned, this.skyMotion)
+      this.skyRemainder = 0
+    }
     this.cameraPreviewButtons = null
     this.cameraPosition = {
       x: Math.round((this.viewPoint.x + 8) * 256) & 65535,
@@ -1432,6 +1453,7 @@ export class GameScene {
       w.mode = null
       this.tooltip.draw = 0
     }
+    this.skyRemainder += dt
     // Use the existing 24 Hz presentation convention until draw_main's frame
     // throttling and its shared camera/flyby ordering are fully integrated.
     if (!w.paused || !s.active) {
@@ -1503,6 +1525,7 @@ export class GameScene {
           globe: () => {},
         })
         this.cameraTime = Math.max(0, this.cameraTime - 1 / 24)
+        if (!(w.flyby.flags & 1)) this.commitSky(this.cameraPosition, this.cameraTime)
       }
     }
     w.outcome.cameraPlaying = !!s.active
@@ -1576,6 +1599,7 @@ export class GameScene {
         this.tooltip.draw = 0
         stepTooltip(this.tooltip, !!worldTooltipObject(this.world, this.tooltip.target), 24)
         this.flybyTime = Math.max(0, this.flybyTime - 1 / 24)
+        if (active) this.commitSky(this.flybyCamera, this.flybyTime)
       }
     }
     if (!active && !this.wasFlying) return false
@@ -2507,7 +2531,7 @@ export class GameScene {
       this.globe.phase = (this.globe.phase + (skyTicks >>> 4)) | 0
       this.globe.update(this.view.globe, this.world, this.terrainTextures)
     }
-    this.updateSky(skyTicks)
+    this.updateSky()
     // ponytail: initial mission palette; connect live system-palette changes
     // when the original palette scheduler is integrated.
     const sky = defeatSky(

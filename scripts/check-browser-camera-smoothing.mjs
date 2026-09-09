@@ -143,8 +143,11 @@ try {
   const pixels = await page.evaluate(() => {
     const s = window.testScene,
       preview = s.previewCamera,
+      skyUpdate = s.updateSky,
       gl = s.renderer.getContext(),
       results = []
+    // Isolate camera pixels from independently advancing cloud motion.
+    s.updateSky = () => {}
     for (const smooth of [false, true]) {
       window.resetNavigation()
       s.cameraBearing = 0
@@ -182,6 +185,7 @@ try {
       results.push({ smooth, changed })
     }
     s.previewCamera = preview
+    s.updateSky = skyUpdate
     return results
   })
   assert.deepEqual(pixels[0].changed, [0, 0], 'The old camera repeats pixels between native steps')

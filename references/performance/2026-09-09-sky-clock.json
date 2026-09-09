@@ -1,0 +1,2069 @@
+{
+  "runs": [
+    {
+      "mode": "idle",
+      "hz": 24,
+      "frame": 48,
+      "distinct": 48,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "idle",
+      "hz": 0.5,
+      "frame": 1,
+      "distinct": 1,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "idle",
+      "hz": 5,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 4.579669976578771e-16
+    },
+    {
+      "mode": "idle",
+      "hz": 30,
+      "frame": 60,
+      "distinct": 60,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000218,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000218,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "idle",
+      "hz": 60,
+      "frame": 120,
+      "distinct": 120,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "idle",
+      "hz": 120,
+      "frame": 240,
+      "distinct": 240,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "idle",
+      "hz": 144,
+      "frame": 288,
+      "distinct": 288,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "idle",
+      "hz": 240,
+      "frame": 480,
+      "distinct": 480,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "idle",
+      "hz": 0,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 2050,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 6.938893903907228e-17
+    },
+    {
+      "mode": "forward",
+      "hz": 24,
+      "frame": 48,
+      "distinct": 48,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "forward",
+      "hz": 0.5,
+      "frame": 1,
+      "distinct": 1,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "forward",
+      "hz": 5,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 4.579669976578771e-16
+    },
+    {
+      "mode": "forward",
+      "hz": 30,
+      "frame": 60,
+      "distinct": 60,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000218,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000218,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "forward",
+      "hz": 60,
+      "frame": 120,
+      "distinct": 120,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "forward",
+      "hz": 120,
+      "frame": 240,
+      "distinct": 240,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "forward",
+      "hz": 144,
+      "frame": 288,
+      "distinct": 288,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "forward",
+      "hz": 240,
+      "frame": 480,
+      "distinct": 480,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "forward",
+      "hz": 0,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 65000,
+        "y": 15560,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 4786.000000000233,
+        "y": 52226,
+        "previousX": 65000,
+        "previousY": 15560
+      },
+      "remainder": 6.938893903907228e-17
+    },
+    {
+      "mode": "rotate",
+      "hz": 24,
+      "frame": 48,
+      "distinct": 48,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "rotate",
+      "hz": 0.5,
+      "frame": 1,
+      "distinct": 1,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "rotate",
+      "hz": 5,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 4.579669976578771e-16
+    },
+    {
+      "mode": "rotate",
+      "hz": 30,
+      "frame": 60,
+      "distinct": 60,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "rotate",
+      "hz": 60,
+      "frame": 120,
+      "distinct": 120,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "rotate",
+      "hz": 120,
+      "frame": 240,
+      "distinct": 240,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "rotate",
+      "hz": 144,
+      "frame": 288,
+      "distinct": 288,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "rotate",
+      "hz": 240,
+      "frame": 480,
+      "distinct": 480,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "rotate",
+      "hz": 0,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 65000,
+        "y": 200,
+        "angle": 800
+      },
+      "motion": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "owned": {
+        "angle": 1424,
+        "previousAngle": 800,
+        "x": 4197.478828920677,
+        "y": 63474.689512934856,
+        "previousX": 65000,
+        "previousY": 200
+      },
+      "remainder": 6.938893903907228e-17
+    },
+    {
+      "mode": "combined",
+      "hz": 24,
+      "frame": 48,
+      "distinct": 48,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.950536690056,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.950536690056,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "combined",
+      "hz": 0.5,
+      "frame": 1,
+      "distinct": 1,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.950536690056,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.950536690056,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "combined",
+      "hz": 5,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 4.579669976578771e-16
+    },
+    {
+      "mode": "combined",
+      "hz": 30,
+      "frame": 60,
+      "distinct": 60,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.950536690056,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.950536690056,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "combined",
+      "hz": 60,
+      "frame": 120,
+      "distinct": 120,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "combined",
+      "hz": 120,
+      "frame": 240,
+      "distinct": 240,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "combined",
+      "hz": 144,
+      "frame": 288,
+      "distinct": 288,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "combined",
+      "hz": 240,
+      "frame": 480,
+      "distinct": 480,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "combined",
+      "hz": 0,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 9251,
+        "y": 4329,
+        "angle": 1248
+      },
+      "motion": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "owned": {
+        "angle": 624,
+        "previousAngle": 1248,
+        "x": 62678.95053669004,
+        "y": 51328.99911959548,
+        "previousX": 9251,
+        "previousY": 4329
+      },
+      "remainder": 6.938893903907228e-17
+    },
+    {
+      "mode": "focus",
+      "hz": 24,
+      "frame": 48,
+      "distinct": 48,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "focus",
+      "hz": 0.5,
+      "frame": 1,
+      "distinct": 1,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "focus",
+      "hz": 5,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 4.579669976578771e-16
+    },
+    {
+      "mode": "focus",
+      "hz": 30,
+      "frame": 60,
+      "distinct": 60,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "focus",
+      "hz": 60,
+      "frame": 120,
+      "distinct": 120,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "focus",
+      "hz": 120,
+      "frame": 240,
+      "distinct": 240,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "focus",
+      "hz": 144,
+      "frame": 288,
+      "distinct": 288,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "focus",
+      "hz": 240,
+      "frame": 480,
+      "distinct": 480,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "focus",
+      "hz": 0,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 8448,
+        "y": 59648,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 61337.99999999959,
+        "y": 8138,
+        "previousX": 8448,
+        "previousY": 59648
+      },
+      "remainder": 6.938893903907228e-17
+    },
+    {
+      "mode": "flyby",
+      "hz": 24,
+      "frame": 48,
+      "distinct": 48,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "flyby",
+      "hz": 0.5,
+      "frame": 1,
+      "distinct": 1,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "flyby",
+      "hz": 5,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 4.579669976578771e-16
+    },
+    {
+      "mode": "flyby",
+      "hz": 30,
+      "frame": 60,
+      "distinct": 60,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "flyby",
+      "hz": 60,
+      "frame": 120,
+      "distinct": 120,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "flyby",
+      "hz": 120,
+      "frame": 240,
+      "distinct": 240,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "flyby",
+      "hz": 144,
+      "frame": 288,
+      "distinct": 288,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "flyby",
+      "hz": 240,
+      "frame": 480,
+      "distinct": 480,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "flyby",
+      "hz": 0,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 2071.904922586662,
+        "y": 29.069205420615617,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 6.938893903907228e-17
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 24,
+      "frame": 72,
+      "distinct": 72,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283189,
+        "y": 1189.7641509402893,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283189,
+        "y": 1189.7641509402893,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 0.5,
+      "frame": 3,
+      "distinct": 3,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283335,
+        "y": 1189.7641509401437,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283335,
+        "y": 1189.7641509401437,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 8.187894806610529e-16
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 5,
+      "frame": 15,
+      "distinct": 15,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283335,
+        "y": 1189.7641509401146,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283335,
+        "y": 1189.7641509401146,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 2.3592239273284576e-16
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 30,
+      "frame": 90,
+      "distinct": 90,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283538,
+        "y": 1189.7641509401146,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283538,
+        "y": 1189.7641509401146,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 2.0816681711721685e-17
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 60,
+      "frame": 180,
+      "distinct": 180,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283538,
+        "y": 1189.7641509401146,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283538,
+        "y": 1189.7641509401146,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 120,
+      "frame": 360,
+      "distinct": 360,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283538,
+        "y": 1189.7641509409877,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283538,
+        "y": 1189.7641509409877,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 144,
+      "frame": 432,
+      "distinct": 432,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.6202982838295,
+        "y": 1189.7641509392124,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.6202982838295,
+        "y": 1189.7641509392124,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 240,
+      "frame": 720,
+      "distinct": 720,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298281705,
+        "y": 1189.7641509391833,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298281705,
+        "y": 1189.7641509391833,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "paused-flyby",
+      "hz": 0,
+      "frame": 15,
+      "distinct": 15,
+      "camera": {
+        "x": 2217,
+        "y": 2206,
+        "angle": 69,
+        "zoom": 0
+      },
+      "motion": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283335,
+        "y": 1189.7641509401437,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "owned": {
+        "angle": 34.5,
+        "previousAngle": 69,
+        "x": 4177.620298283335,
+        "y": 1189.7641509401437,
+        "previousX": 2217,
+        "previousY": 2206
+      },
+      "remainder": 6.938893903907228e-17
+    },
+    {
+      "mode": "result",
+      "hz": 24,
+      "frame": 48,
+      "distinct": 48,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "result",
+      "hz": 0.5,
+      "frame": 1,
+      "distinct": 1,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "result",
+      "hz": 5,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 4.579669976578771e-16
+    },
+    {
+      "mode": "result",
+      "hz": 30,
+      "frame": 60,
+      "distinct": 60,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "result",
+      "hz": 60,
+      "frame": 120,
+      "distinct": 120,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "result",
+      "hz": 120,
+      "frame": 240,
+      "distinct": 240,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "result",
+      "hz": 144,
+      "frame": 288,
+      "distinct": 288,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 6.938893903907228e-18
+    },
+    {
+      "mode": "result",
+      "hz": 240,
+      "frame": 480,
+      "distinct": 480,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 0
+    },
+    {
+      "mode": "result",
+      "hz": 0,
+      "frame": 10,
+      "distinct": 10,
+      "camera": {
+        "x": 25000,
+        "y": 15000,
+        "angle": 0
+      },
+      "motion": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "owned": {
+        "angle": 0,
+        "previousAngle": 0,
+        "x": 44785.99999999959,
+        "y": 52786,
+        "previousX": 25000,
+        "previousY": 15000
+      },
+      "remainder": 6.938893903907228e-17
+    }
+  ],
+  "pause": {
+    "start": {
+      "angle": 0,
+      "previousAngle": 0,
+      "x": 536,
+      "y": 65336,
+      "previousX": 65000,
+      "previousY": 200
+    },
+    "moved": {
+      "angle": 0,
+      "previousAngle": 0,
+      "x": 2661.0000000001164,
+      "y": 925,
+      "previousX": 65000,
+      "previousY": 200
+    },
+    "afterBlur": {
+      "angle": 0,
+      "previousAngle": 0,
+      "x": 2661.0000000001164,
+      "y": 925,
+      "previousX": 65000,
+      "previousY": 200
+    },
+    "turns": 0
+  },
+  "pixels": [
+    96305,
+    96147
+  ]
+}

@@ -25,7 +25,7 @@ try {
         frames = []
       for (let i = 0; i < 18; i++) {
         s.updateCameraMotion(1 / 24)
-        s.updateSky(0)
+        s.updateSky()
         frames.push([
           s.view.config.horizon,
           s.skyBackdrop.material.uniforms.height.value * s.container.clientHeight,
@@ -152,10 +152,10 @@ try {
     }
     const horizon = s.view.config.horizon
     s.view.config.horizon = h
-    s.updateSky(0)
+    s.updateSky()
     const stretched = read()
     s.view.config.horizon = horizon
-    s.updateSky(0)
+    s.updateSky()
     read()
     let changed = 0
     for (let i = 0; i < full.length; i += 4)
