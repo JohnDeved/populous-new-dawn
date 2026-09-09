@@ -1,5 +1,5 @@
 """Compare native building ignition/socket placement and burn-phase dispatch.
-Usage: python scripts/check-native-building-fire.py EXE
+Usage: python scripts/check-native-building-fire.py EXE [--record]
 Executes 0x408cb0 -> 0x408840 and 0x408ab0. Allocation, people, sound,
 plan ownership and lifecycle callbacks are intercepted. Fire lifecycle and
 structural work arithmetic have separate native comparison checks.
@@ -15,7 +15,7 @@ from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EIP, UC_X86_REG_ESP
 from decomp import ROOT, native_cpu, load_native_shapes, configure_native_constants
 
 exe = Path(sys.argv[1])
-cpu, _ = native_cpu(exe)
+cpu, identity = native_cpu(exe)
 configure_native_constants(cpu, exe)
 cpu.mem_map(0x2000000, 0x40000)
 load_native_shapes(cpu, exe, 0x2000000, 0x2004000)
@@ -46,7 +46,7 @@ events, allocations, mode, fail = [], [], 'ignite', False
 def hook(c, address, size, user):
     sp = c.reg_read(UC_X86_REG_ESP)
     p = read(sp + 4, 'I')
-    if address == 0x4ed640 and mode == 'ignite':
+    if address == 0x4ed640 and mode == 'ignite' and read(p + 0x2a, 'B') == 2:
         c.reg_write(UC_X86_REG_EIP, 0x408840)
         return
     result = 0
@@ -58,9 +58,11 @@ def hook(c, address, size, user):
         assert (snap, smoke, unused) == (0, 1, 0)
         x, y, h = struct.unpack('<hhh', c.mem_read(position, 6))
         allocations.append(dict(x=x, y=y, h=h, size=scale, light=bool(light)))
-        if not fail:
+        if not (fail if isinstance(fail, bool) else fail & (1 << (len(allocations)-1))):
             result = fire + (len(allocations) - 1) * 256
             c.mem_write(result, bytes(256))
+    elif address == 0x4ed640 and mode == 'nearby' and read(p + 0x2a, 'B') == 1:
+        events.append(['panic', read(p + 0x24, 'H')])
     elif address == 0x407490:
         if 'eject' not in events: events.append('eject')
     elif address == 0x48a050:
@@ -133,12 +135,63 @@ for i in range(512):
     steps.append(dict(b=b, burn=burn))
     step_expected.append(dict(state=read(building+0x2c,'B'), remaining=read(building+0xa7,'b'), events=events))
 
+# Complete initializer traversal with actual mixed-class cell chains. The person
+# initializer is intercepted here; its original RNG/animation has a separate oracle.
+near_cases, near_expected = [], []
+valid = [(c, e) for c, e in zip(cases, expected) if e['allocations']]
+for trial in range(512):
+    c, e = valid[trial % len(valid)]
+    pose = c['pose']
+    cpu.mem_write(building, bytes(256))
+    write(building+0x2a, 'BBB', 2, 1, 4)
+    tribe = trial % 4
+    write(building+0x2f, 'B', tribe)
+    write(building+0x33, 'H', pose['object'])
+    write(building+0x26, 'h', pose['angle'])
+    write(building+0x7a, 'HH', pose['anchorX'], pose['anchorY'])
+    write(0x892443, 'I', context)
+    cpu.mem_write(0x890390, bytes(256))
+    for index in range(16384): write(0x8a03e4+index*16+6, 'H', 0)
+    records, cells = [], {}
+    for i in range(24):
+        socket = e['allocations'][i % len(e['allocations'])]
+        x, y = socket['x'] & 65535, socket['y'] & 65535
+        if i % 7 == 0: x = (x+1024) & 65535
+        person = dict(id=i+1, **{'class':1 if i%6 else 5}, model=i%9,
+                      tribe=tribe if i%3 else (tribe+1)%4, flags2=0x100000 if i%5==0 else 0,
+                      state=10, previousState=3, burnTrail=i, x=x, y=y)
+        records.append(person)
+        cells.setdefault((y>>9)*128+(x>>9), []).append(i+1)
+        p = people+i*256
+        cpu.mem_write(p, bytes(256))
+        write(p+0x24, 'H', i+1)
+        write(p+0x2a, 'BBB', person['class'], person['model'], person['state'])
+        write(p+0x2f, 'B', person['tribe'])
+        write(p+0xc, 'I', person['flags2'])
+        write(p+0x7d, 'B', person['previousState'])
+        write(p+0xa4, 'B', person['burnTrail'])
+        write(0x890390+(i+1)*4, 'I', p)
+    for index, ids in cells.items():
+        write(0x8a03e4+index*16+6, 'H', ids[0])
+        for a, b in zip(ids, ids[1:]): write(people+(a-1)*256+0x20, 'H', b)
+    seed = rng.getrandbits(32)
+    write(0x89d178, 'I', seed)
+    mode, fail, events, allocations = 'nearby', trial % 64, [], []
+    call(0x408840, building)
+    near_cases.append(dict(pose=pose, tribe=tribe, seed=seed, fail=fail, records=records))
+    result = []
+    for person in records:
+        p = people+(person['id']-1)*256
+        result.append(dict(person, state=read(p+0x2c,'B'), previousState=read(p+0x7d,'B'), burnTrail=read(p+0xa4,'B')))
+    near_expected.append(dict(records=result, events=events, randomState=read(0x89d178,'I')))
+
 js = """
 import {igniteBuilding,stepBuildingBurn} from './app/building-damage.ts';
 import {buildingFirePoints} from './app/building-shapes.ts';
+import {ignitePeopleInFireCell} from './app/person-panic.ts';
 import {terrainPointHeight} from './app/native-terrain.ts';
 let input='';for await(const chunk of process.stdin)input+=chunk;
-const {cases,steps,land}=JSON.parse(input);
+const {cases,steps,land,near_cases}=JSON.parse(input);
 const ignite=cases.map(c=>{let remaining=0,soundPlaying=false;const allocations=[];
  igniteBuilding(c.b,c.attacker,()=>{remaining=127;for(const p of buildingFirePoints(c.pose)){
   allocations.push({...p,h:terrainPointHeight(land,p)});if(!c.fail)soundPlaying=true;
@@ -146,14 +199,24 @@ const ignite=cases.map(c=>{let remaining=0,soundPlaying=false;const allocations=
 const step=steps.map(c=>{const events=[];stepBuildingBurn(c.b,c.burn,Object.fromEntries(
  ['eject','sound','damage','finish'].map(event=>[event,()=>events.push(event)])));
  return {state:c.b.state,remaining:c.burn.remaining,events};});
-console.log(JSON.stringify({ignite,step}));
+const nearby=near_cases.map(c=>{const w={randomState:c.seed},events=[];
+ buildingFirePoints(c.pose).forEach((point,i)=>{if(c.fail&(1<<i))return;
+ const people=c.records.filter(p=>(p.x&0xfe00)===(point.x&0xfe00)&&(p.y&0xfe00)===(point.y&0xfe00));
+ ignitePeopleInFireCell(w,c.tribe,people,p=>{p.previousState=p.state;p.state=26;events.push(['panic',p.id]);});
+ });return {records:c.records,events,randomState:w.randomState};});
+console.log(JSON.stringify({ignite,step,nearby}));
 """
 result = json.loads(subprocess.check_output(['node', '--input-type=module', '-e', js],
-    input=json.dumps(dict(cases=cases, steps=steps, land=land)).encode(), cwd=ROOT))
-for kind, inputs, wanted in [('ignite', cases, expected), ('step', steps, step_expected)]:
+    input=json.dumps(dict(cases=cases, steps=steps, land=land, near_cases=near_cases)).encode(), cwd=ROOT))
+for kind, inputs, wanted in [('ignite', cases, expected), ('step', steps, step_expected), ('nearby', near_cases, near_expected)]:
     for i, (actual, native) in enumerate(zip(result[kind], wanted)):
         if actual != native:
             path = Path('/private/tmp/populous-building-fire-failure.json')
             path.write_text(json.dumps(dict(kind=kind, case=inputs[i], native=native, browser=actual), indent=2))
             raise AssertionError(str(path))
 print(f'PASS: {len(cases)} native building ignition/socket cases and 512 burn-phase dispatch cases')
+
+if '--record' in sys.argv:
+    fixture = dict(executableSha256=identity['sha256'], cases=[dict(case=c,expected=e) for c,e in zip(near_cases,near_expected)])
+    (ROOT/'tests/fixtures/building-fire-people.json').write_text(json.dumps(fixture,separators=(',',':'))+'\n')
+print('PASS: 512 complete native building-fire cell traversals, mixed classes/tribes/models, protected people, repeated sockets, allocation failures and RNG')

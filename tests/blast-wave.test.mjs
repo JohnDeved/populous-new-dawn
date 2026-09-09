@@ -1,3 +1,4 @@
+import { initializeLivePanic } from '../app/live-people.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import fixture from './fixtures/blast-wave.json' with { type: 'json' }
@@ -81,4 +82,25 @@ test('wild followers land into their original state 8 without losing the unit', 
   for(let i=0;i<160 && wild.flight;i++)tick(w,1/12)
   assert.equal(wild.flight,undefined); assert.equal(person.state,8)
   assert.ok(w.units.includes(wild) && wild.hp>0)
+})
+
+test('a burning airborne follower keeps one panic clock and releases its native pose after landing', () => {
+  const { w } = flatWorld()
+  const ally = addUnit(w, 'blue', 'brave', { x: 1, z: -1 })
+  assert.ok(cast(w, 'blast', { x: 0, z: 0 }))
+  for (let i = 0; i < 100 && !ally.flight; i++) tick(w, 1 / 12)
+  const p = ally.flight
+  assert.ok(p)
+  initializeLivePanic(w, ally)
+  assert.equal(ally.native, p)
+  assert.equal(p.timer, 64)
+  tick(w, 1 / 12)
+  assert.equal(p.timer, 63)
+  for (let i = 0; i < 160 && ally.flight; i++) tick(w, 1 / 12)
+  assert.equal(ally.flight, undefined)
+  assert.equal(ally.native, null, 'ordinary commands regain their animation source after settling')
+  assert.ok(ally.hp > 0)
+  w.selected = [ally.id]
+  command(w, { x: ally.x + 3, z: ally.z })
+  assert.ok(ally.path.length)
 })

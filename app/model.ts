@@ -76,6 +76,7 @@ import {
   setLivePersonAnimation,
   initializeLiveCelebration,
   initializeLivePanic,
+  buildingFirePeople,
   stepLivePerson,
   stepLiveImpulse,
   syncLivePersonCells,
@@ -2936,6 +2937,7 @@ function evacuateBuilding(w: World, b: Building, burning = false) {
     Object.assign(u, buildingDoor(b))
     if (burning) {
       u.burnTrail = 24
+      if (u.native) u.native.flags2 &= ~16
       initializeLivePanic(w, u)
     }
   }
@@ -3226,6 +3228,7 @@ function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
     const state = ensureBuildingDamage(building)
     igniteBuilding(state, tribe, () => {
       building.burn = { remaining: 127, soundPlaying: false }
+      const ignitePeople = buildingFirePeople(w)
       for (const point of buildingFirePoints(buildingPose(building))) {
         createFire(w, browserPosition(point), {
           size: point.size,
@@ -3236,8 +3239,8 @@ function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
           suppressEmbers: true,
         })
         building.burn.soundPlaying = true
+        ignitePeople(point, building.team === 'blue' ? 0 : 1)
       }
-      // ponytail: native nearby-person panic remains unported.
     })
   }
   const trees = w.trees.filter(tree => {

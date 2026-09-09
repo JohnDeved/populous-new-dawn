@@ -1061,3 +1061,26 @@ shared controllers, uncapped presentation and measured desktop performance as
 ongoing constraints. Do not resume an exhaustive hidden-system audit ahead of
 visible gameplay. Full propagation, ordinary command ownership and full game
 parity remain unfinished; discovery stays open.
+
+
+### Latest visible integration: nearby fire reactions and shared sprite atlases
+
+Original building flame sockets now ignite eligible followers in their own map
+cells. Same-tribe/model filtering, protected-state handling, repeated visits and
+RNG agree with 512 complete native initializer traversals. Ground and airborne
+panic share one controller; settling returns ordinary units to their normal
+animation/command adapter. Full object-cell allocation/order remains unfinished.
+
+The live scene exposed repeated 38 MB effects-atlas uploads when particles were
+created. Per-sprite shader UVs now share one atlas upload, preserving native frames
+and painter behavior. The measured six-follower scene eliminated 17 uploads and
+reduced CPU p95 from 71.3 to 12.7 ms; conditions and limits are recorded in
+`references/modern-performance.md`. Continue measuring modern performance as
+features expose real costs, without detouring into unrelated hidden systems.
+
+Next: integrate the existing reviewed `removeBuildingOccupant` and occupancy-mode
+helpers into live evacuation. They release people at their existing XY with exit
+anchors/facing; the current browser door teleport is wrong. Then resume critical
+first-mission mechanics and visible comparisons. Broader propagation, native
+occupancy slots/order ownership, full class scheduling and full game parity remain
+open. Discovery stays open; this progress does not complete the fire checkpoint.

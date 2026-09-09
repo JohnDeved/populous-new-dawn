@@ -11,7 +11,7 @@ try{
  await page.waitForFunction(()=>window.testScene.world.flyby.flags&1);await page.keyboard.press('Escape');
  await page.waitForFunction(()=>!window.testScene.world.inputMask&&window.testScene.terrainTextures);
  for(const [spell,key,sequence,start] of [['blast','1','blastTrail',314],['lightning','3','spellTrail',322],['bridge','2','spellTrail',322]]){
-  await page.evaluate(spell=>{const s=window.testScene,w=s.world;w.paused=false;w.speed=1;w.shots[spell]=4;w.castingTribes[0].cooldown=0;s.focus({x:8,z:30});s.onChange();},spell);
+  await page.evaluate(spell=>{const s=window.testScene,w=s.world;w.paused=false;w.speed=0.25;w.shots[spell]=4;w.castingTribes[0].cooldown=0;s.focus({x:8,z:30});s.onChange();},spell);
   await page.keyboard.press(key);
   const target=await page.evaluate(()=>{const s=window.testScene,q=s.screen({x:16,z:33}),r=s.container.getBoundingClientRect();return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2};});
   await page.mouse.click(target.x,target.y);
@@ -33,7 +33,7 @@ try{
    const sprites=s.world.effects.filter(e=>e.sprite?.sequence===f.sprite.sequence).map(e=>s.fxMeshes.get(e.id)?.userData.sprite).filter(s=>s?.visible);for(const s of sprites)s.visible=false;
    s.renderer.render(s.scene,s.camera);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,b);for(const s of sprites)s.visible=true;
    let pixels=0;for(let i=0;i<a.length;i+=4)if(a[i]!==b[i]||a[i+1]!==b[i+1]||a[i+2]!==b[i+2])pixels++;
-   return {p:structuredClone(f.animation),height:g.position.y*128,size:[body.scale.x,body.scale.y],offset:[body.material.map.offset.x,body.material.map.offset.y],opacity:body.material.opacity,pixels};
+   return {p:structuredClone(f.animation),height:g.position.y*128,size:[body.scale.x,body.scale.y],offset:body.userData.atlasTransform.toArray().slice(2),opacity:body.material.opacity,pixels};
   });
   assert.equal(second.p.object,start+4);assert.ok(second.p.remaining>=1&&second.p.remaining<=3);assert.equal(second.height,second.p.h);assert.equal(second.opacity,1);assert.ok(second.pixels>0);
   const frame=atlas.animations[sequence][4+(second.p.f1>>>2)];assert.deepEqual(second.size,[frame.w,frame.h]);

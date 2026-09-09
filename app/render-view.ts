@@ -486,6 +486,8 @@ export class RenderView {
       object.onBeforeRender = (_renderer, _scene, _camera, _geometry, material) => {
         const local = material.userData.nativeUniforms
         if (!local) return
+        if (object.userData.atlasTransform)
+          local.nativeAtlasTransform.value = object.userData.atlasTransform
         local.nativePainterRange.value.set(
           !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
         )
@@ -514,6 +516,9 @@ export class RenderView {
           nativeRelative: { value: object.userData.nativeRelative ? 1 : 0 },
           nativeCellAnchor: { value: new THREE.Vector4() },
           nativeObjectBasis: { value: new Int32Array(modelMatrix(0)) },
+          nativeAtlasTransform: {
+            value: object.userData.atlasTransform ?? new THREE.Vector4(1, 1, 0, 0),
+          },
         }
         material.userData.nativeUniforms = local
         const compile = material.onBeforeCompile.bind(material),
@@ -539,6 +544,14 @@ export class RenderView {
           Object.assign(shader.uniforms, this.uniforms, local)
           shader.vertexShader = nativeVertexShader + shader.vertexShader
           if (object instanceof THREE.Sprite) {
+            // Per-draw UVs retain independent frames without cloning/re-uploading the atlas.
+            if (object.userData.atlasTransform)
+              shader.vertexShader =
+                'uniform vec4 nativeAtlasTransform;\n' +
+                shader.vertexShader.replace(
+                  '#include <uv_vertex>',
+                  '#include <uv_vertex>\nvMapUv = uv * nativeAtlasTransform.xy + nativeAtlasTransform.zw;'
+                )
             shader.vertexShader = shader.vertexShader.replace(
               'gl_Position = projectionMatrix * mvPosition;',
               'gl_Position=nativePosition(vec3(0.)); gl_Position.xy+=rotatedPosition*vec2(2./float(nativeScreen.x),2./float(nativeScreen.y))*gl_Position.w;'
@@ -570,7 +583,7 @@ export class RenderView {
               )
         }
         material.customProgramCacheKey = () =>
-          `${object instanceof THREE.Sprite ? 'native-sprite' : 'native-mesh'}-${encodedColors}-${programKey}`
+          `${object instanceof THREE.Sprite ? 'native-sprite' : 'native-mesh'}-${encodedColors}-${!!object.userData.atlasTransform}-${programKey}`
         material.needsUpdate = true
       }
     })

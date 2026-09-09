@@ -78,7 +78,7 @@ try {
       if (before[i] !== after[i] || before[i+1] !== after[i+1] || before[i+2] !== after[i+2]) changed++
     return { standingShadow:g.userData.layers.some(l=>l.visible&&l.userData.piece===0), changed, h, bodyH: g.position.y * 128, size: shadow.scale.toArray(), center: shadow.center.toArray(),
       depth: s.view.project(u, h / 45).z, view: s.view.config, source: shadow.material.map.image.src,
-      repeat: shadow.material.map.repeat.toArray(), offset: shadow.material.map.offset.toArray() }
+      repeat: shadow.userData.atlasTransform.toArray().slice(0,2), offset: shadow.userData.atlasTransform.toArray().slice(2) }
   })
   assert.equal(airborne.standingShadow, false, 'Standing shadow must be suppressed in flight')
   assert.ok(airborne.changed > 5, `Shadow contributes only ${airborne.changed} GPU pixels`)

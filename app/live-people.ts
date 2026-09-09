@@ -18,7 +18,7 @@ import {
   type StatefulPerson,
 } from './person-state.ts'
 import { damagePerson, preparePersonTurn, stepPersonReaction } from './person-update.ts'
-import { stepPersonPanic } from './person-panic.ts'
+import { stepPersonPanic, ignitePeopleInFireCell } from './person-panic.ts'
 import { stepPersonOrders } from './person-order-update.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { stepCelebration, type Celebrant, type CelebrationEffects } from './celebration.ts'
@@ -324,16 +324,41 @@ function initializeLivePerson(
 }
 
 export function initializeLivePanic(w: World, u: Unit) {
-  const p = u.native ?? createLivePerson(w, u)
+  const p = u.flight ?? u.native ?? createLivePerson(w, u)
   if (p.flags2 & 0x100000) return
   u.native = p
-  p.flags2 &= ~16
   p.previousState = p.state
   p.state = 26
   const ctx = context(w)
   initializeLivePerson(w, u, ctx)
   w.selected = w.selected.filter(id => id !== u.id)
   w.randomState = ctx.state.randomState
+}
+
+// Existing ordinary allocation order is also used by Blast's cell adapter.
+// ponytail: full mixed-class persistent cell ownership remains a separate engine port.
+export function buildingFirePeople(w: World) {
+  const cells = new Map<number, LivePerson[]>()
+  const units = new Map<number, Unit>()
+  for (const u of w.units) {
+    if (u.inside !== null || (u.hp <= 0 && !u.flight)) continue
+    const p = u.flight ?? u.native ?? createLivePerson(w, u)
+    const cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+    const people = cells.get(cell) ?? []
+    people.unshift(p)
+    cells.set(cell, people)
+    units.set(p.id, u)
+  }
+  return (point: { x: number; y: number }, tribe: number) => {
+    const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+    const people = cells.get(cell) ?? []
+    ignitePeopleInFireCell(w, tribe, people, p => {
+      const u = units.get(p.id)!
+      u.native = p
+      initializeLivePanic(w, u)
+    })
+    for (const p of people) units.get(p.id)!.burnTrail = p.burnTrail
+  }
 }
 
 export function initializeLiveCelebration(w: World, u: Unit) {
@@ -436,6 +461,7 @@ export function stepLiveImpulse(w: World, u: Unit) {
       readyToFight: () => false,
     }
   )
+  if (p.state === 26) updateLivePanic(w, u, ctx, p)
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
@@ -443,8 +469,32 @@ export function stepLiveImpulse(w: World, u: Unit) {
   w.randomState = ctx.state.randomState
   if (!(p.flags2 & 0x80000)) {
     u.flight = undefined
+    if (u.native === p && p.state !== 26 && p.state !== 41) u.native = null
     u.lift = 0
     if (!supportsFollower(w, u)) u.hp = 0
+  }
+}
+
+function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: LivePerson) {
+  const next = stepPersonPanic(p, w.manaWorld.gameFlags, {
+    sound: () => {
+      p.flags4 = (p.flags4 | 16) >>> 0
+      sound(w, 0x51, u, u.id)
+    },
+    outside: point => {
+      const cell = (point.y >> 9) * 128 + (point.x >> 9)
+      if (!(w.land.flags[cell] & 512)) return point
+      const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+      return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
+    },
+  })
+  if (next && !(p.flags2 & 0x100000)) {
+    p.previousState = p.state
+    p.state = next
+    initializeLivePerson(w, u, ctx, p)
+    // Native panic ends here; ordinary live orders still use the existing controller.
+    u.native = null
+    releasePersonRoute(w.motionRoutes, p)
   }
 }
 
@@ -507,26 +557,7 @@ export function stepLivePerson(w: World, u: Unit) {
   }
   if (p.state === 41) stepCelebration(state, p, effects)
   else if (p.state === 26) {
-    const next = stepPersonPanic(p, w.manaWorld.gameFlags, {
-      sound: () => {
-        p.flags4 = (p.flags4 | 16) >>> 0
-        sound(w, 0x51, u, u.id)
-      },
-      outside: point => {
-        const cell = (point.y >> 9) * 128 + (point.x >> 9)
-        if (!(w.land.flags[cell] & 512)) return point
-        const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-        return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
-      },
-    })
-    if (next && !(p.flags2 & 0x100000)) {
-      p.previousState = p.state
-      p.state = next
-      initializeLivePerson(w, u, ctx)
-      // Native panic ends here; ordinary live orders still use the existing controller.
-      u.native = null
-      releasePersonRoute(w.motionRoutes, p)
-    }
+    updateLivePanic(w, u, ctx, p)
   } else if (p.state === 10) {
     // Victory followers can resume through an empty order queue. Ordinary live
     // command/vehicle ownership and the remaining state dispatcher are pending.

@@ -1,0 +1,1853 @@
+{
+  "headed": true,
+  "nearby": true,
+  "initial": {
+    "poses": [
+      {
+        "id": 13,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 364
+      },
+      {
+        "id": 14,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 364
+      },
+      {
+        "id": 15,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 364
+      },
+      {
+        "id": 16,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 360
+      },
+      {
+        "id": 17,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 360
+      },
+      {
+        "id": 18,
+        "state": 26,
+        "timer": 55,
+        "speed": 110,
+        "object": 416,
+        "expected": 416,
+        "visible": true,
+        "layers": 2,
+        "frame": 364
+      }
+    ],
+    "particles": [
+      {
+        "id": 108,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 109,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 110,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 111,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 112,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 113,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 114,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 115,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 116,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 117,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 119,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 120,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 121,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 122,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 123,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 124,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 125,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 126,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 128,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 129,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 130,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 131,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 132,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 133,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 134,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 135,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 137,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 138,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 139,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 140,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 141,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 142,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 143,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 145,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 146,
+        "sequence": "blastShot"
+      },
+      {
+        "id": 147,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 148,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 149,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 150,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 151,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 153,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 154,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 155,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 156,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 157,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 158,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 160,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 161,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 162,
+        "sequence": "blastTrail"
+      },
+      {
+        "id": 163,
+        "sequence": "blastTrail"
+      }
+    ],
+    "audio": {
+      "requests": 9,
+      "starts": 9,
+      "completed": 3,
+      "audible": 9,
+      "maxActive": 6
+    }
+  },
+  "pixels": {
+    "blastTrail": 434,
+    "blastShot": 53
+  },
+  "motion": [
+    [
+      -2.9267578125,
+      0.578125,
+      38.8095703125
+    ],
+    [
+      -2.9365234375,
+      0.578125,
+      38.5849609375
+    ]
+  ],
+  "performance": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "frames": 125,
+    "cpu": {
+      "p50": 4.099999904632568,
+      "p95": 12.700000047683716
+    },
+    "gaps": {
+      "p50": 33.30000000000109,
+      "p95": 33.5,
+      "max": 34.29999999999927
+    },
+    "uploads": [
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0.09999990463256836,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      },
+      {
+        "ms": 0.10000014305114746,
+        "width": 1024,
+        "height": 67,
+        "bytes": 274432
+      },
+      {
+        "ms": 0,
+        "width": 222,
+        "height": 1,
+        "bytes": 1776
+      }
+    ],
+    "maxParticles": 50,
+    "maxDrawCalls": 215,
+    "audio": {
+      "requests": 27,
+      "starts": 27,
+      "completed": 21,
+      "audible": 27,
+      "maxActive": 6
+    }
+  },
+  "end": {
+    "remaining": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "particles": 0,
+    "alive": 6
+  }
+}

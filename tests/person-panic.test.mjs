@@ -1,8 +1,15 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import firePeople from './fixtures/building-fire-people.json' with { type: 'json' }
+import { buildingFirePoints } from '../app/building-shapes.ts'
+import { createLivePerson, buildingFirePeople } from '../app/live-people.ts'
 import fixture from './fixtures/person-panic.json' with { type: 'json' }
 import manifest from '../decomp/exports.json' with { type: 'json' }
-import { stepPersonPanic, stepPersonFireTrail } from '../app/person-panic.ts'
+import {
+  stepPersonPanic,
+  stepPersonFireTrail,
+  ignitePeopleInFireCell,
+} from '../app/person-panic.ts'
 import {
   createWorld,
   tick,
@@ -10,6 +17,8 @@ import {
   select,
   addBuilding,
   nativePosition,
+  browserPosition,
+  buildingPose,
   unitAnimationSource,
 } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
@@ -117,4 +126,74 @@ test('panic motion, animation and fire trails are independent of presentation fr
   const expected = run(Array(144).fill(1 / 144))
   for (const hz of [5, 30, 60, 120, 240]) assert.deepEqual(run(Array(hz).fill(1 / hz)), expected)
   assert.deepEqual(run([0.37, 0.01, 0.4, 0.02, 0.2]), expected)
+})
+
+test('native building flames traverse matching cells in order, including repeated sockets and failed allocations', () => {
+  assert.equal(firePeople.executableSha256, manifest.executableSha256)
+  for (const { case: source, expected } of firePeople.cases) {
+    const c = structuredClone(source),
+      w = { randomState: c.seed },
+      events = []
+    buildingFirePoints(c.pose).forEach((point, i) => {
+      if (c.fail & (1 << i)) return
+      const people = c.records.filter(
+        p => (p.x & 0xfe00) === (point.x & 0xfe00) && (p.y & 0xfe00) === (point.y & 0xfe00)
+      )
+      ignitePeopleInFireCell(w, c.tribe, people, p => {
+        p.previousState = p.state
+        p.state = 26
+        events.push(['panic', p.id])
+      })
+    })
+    assert.deepEqual({ records: c.records, events, randomState: w.randomState }, expected)
+  }
+})
+
+test('live flame-cell adapter preserves protected followers, immunity, tribe and hidden occupants', () => {
+  const w = createWorld(),
+    b = w.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
+  const point = buildingFirePoints(buildingPose(b))[0]
+  const people = w.units.filter(u => u.team === 'blue' && u.kind === 'brave').slice(0, 6)
+  for (const u of people) Object.assign(u, browserPosition(point), { inside: null, path: [] })
+  const [normal, protectedUnit, immune, enemy, inside, outside] = people
+  protectedUnit.native = createLivePerson(w, protectedUnit)
+  protectedUnit.native.flags2 |= 0x100000
+  immune.native = createLivePerson(w, immune)
+  immune.native.model = 7
+  enemy.team = 'red'
+  inside.inside = b.id
+  Object.assign(outside, browserPosition({ x: point.x + 1024, y: point.y }))
+  const ignite = buildingFirePeople(w)
+  ignite(point, 0)
+  assert.equal(normal.native.state, 26)
+  assert.equal(normal.native.timer, 64)
+  assert.ok(normal.burnTrail >= 8 && normal.burnTrail <= 15)
+  assert.notEqual(protectedUnit.native.state, 26)
+  assert.ok(protectedUnit.burnTrail >= 8 && protectedUnit.burnTrail <= 15)
+  for (const u of [immune, enemy, inside, outside]) {
+    assert.notEqual(u.native?.state, 26)
+    assert.ok(!u.burnTrail)
+  }
+  const first = w.randomState
+  ignite(point, 0)
+  assert.notEqual(w.randomState, first, 'a second socket revisits this cell')
+  assert.equal(normal.native.timer, 64)
+})
+
+test('real Lightning ignition reaches nearby surviving followers before occupant evacuation', () => {
+  const w = createWorld()
+  w.manaWorld.gameFlags = 32
+  const b = w.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
+  const u = w.units.find(u => u.team === 'blue' && u.kind === 'brave')
+  // This flame cell is outside the bolt's lethal cell; direct-hit people die first.
+  const point = buildingFirePoints(buildingPose(b))[2]
+  Object.assign(u, browserPosition(point), { inside: null, work: null, path: [] })
+  w.shots.lightning = 1
+  select(w, 'shaman')
+  assert.ok(cast(w, 'lightning', b))
+  for (let i = 0; i < 20 && !b.burn; i++) tick(w, 1 / 12)
+  assert.equal(u.native?.state, 26)
+  assert.equal(u.native.timer, 63)
+  assert.ok(u.hp > 0 && b.burn.remaining > 119)
+  assert.ok(u.burnTrail >= 7 && u.burnTrail <= 14)
 })

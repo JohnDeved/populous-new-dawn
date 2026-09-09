@@ -1083,3 +1083,55 @@ Blast shadows, selection and the complete Lightning/fire/repair browser scenario
 pass. Fallow reports maintainability 85.9, average cyclomatic complexity 2.8 and
 p90 5. New panic/trail modules pass ox-standard lint; existing large integration
 files retain earlier lint debt, so this is not a claim of a lint-clean repository.
+
+
+## Share sprite atlases during new fire reactions — 2026-09-10
+
+Nearby-follower ignition exposed recurring render stalls. Chrome's sampling
+profiler attributed roughly 1,047 ms of the four-second moving-scene sample to
+`texSubImage2D`. An instrumented WebGL call then identified the image: the
+2048×4608 original effects atlas, 37,748,736 RGBA bytes. Creating another particle
+cloned its Three texture; `Texture.copy` marks the shared `Source` dirty, causing
+another upload of the unchanged image. This also affected newly allocated unit
+layers and the halo/shadow atlas consumers.
+
+The renderer now shares the original atlas texture and stores each sprite's
+repeat/offset in its existing per-object shader uniforms. Source images, palette,
+frame selection, filtering, alpha, geometry, orientation and painter ordering stay
+unchanged. Destruction releases particle materials while retaining shared atlas
+ownership. This avoids both repeated source invalidation and private texture
+wrappers; no pool, cache eviction scheme or new dependency was added.
+
+Paired headed Chrome 153 / Apple M5 / ANGLE Metal runs at 1440×1000, DPR 1, used
+six nearby followers, actual Lightning ignition, the same opposite-facing camera,
+50 peak personal particles and 215 peak draw calls. No other profiling/check jobs
+ran concurrently. In a 4.2-second sample:
+
+| Measure | Cloned texture transforms | Shared atlas uniforms |
+| --- | ---: | ---: |
+| Effects-atlas uploads | 17 | 0 |
+| Time inside those uploads | 1,046.6 ms | 0 ms |
+| CPU frame median | 4.3 ms | 4.1 ms |
+| CPU frame p95 | 71.3 ms | 12.7 ms |
+| Frame-gap median | 33.4 ms | 33.3 ms |
+| Frame-gap p95 | 66.7 ms | 33.5 ms |
+
+Raw runs: [`before`](performance/2026-09-10-fire-atlas-before.json) and
+[`after`](performance/2026-09-10-fire-atlas-after.json). This run was scheduled at
+about 30 Hz by the browser/display; it does not certify high-refresh throughput
+or other hardware. The game still uses uncapped requestAnimationFrame with native
+simulation/animation clocks. The demonstrated improvement is removal of repeated
+large uploads and the associated CPU stalls, not a universal FPS guarantee.
+
+`check-browser-person-panic.mjs --nearby --compare-atlas` compares actual rendered
+RGBA bytes against the previous cloned-texture UV path, restores the shared path,
+and checks that subsequent particle creation uploads neither original sprite
+atlas. It also verifies real PCM playback, owned-voice completion and particle
+cleanup. Sprite/shadow/spell regressions continue to check native frames, scales,
+mirroring and visible pixels; UV assertions now read the per-object transform.
+
+The frozen comparison covered 286 sprites and produced zero differing RGBA bytes
+for both the legacy transform path and restoration of the shared path (see
+[`pixel evidence`](performance/2026-09-10-fire-atlas-pixels.json)). The broader
+392 GPU unit-pose, airborne-shadow and selection regressions pass. All 163 portable
+checks pass; Fallow remains 85.9 maintainability, average cyclomatic 2.8, p90 5.

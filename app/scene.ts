@@ -180,9 +180,10 @@ function texture(kind: string) {
   return t
 }
 function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: number; h: number }) {
-  const map = sprite.material.map!
-  map.repeat.set(frame.w / nativeEffects.width, frame.h / nativeEffects.height)
-  map.offset.set(
+  const uv = (sprite.userData.atlasTransform ??= new THREE.Vector4())
+  uv.set(
+    frame.w / nativeEffects.width,
+    frame.h / nativeEffects.height,
     ((frame.index % 8) * 256) / nativeEffects.width,
     1 - (Math.floor(frame.index / 8) * 256 + frame.h) / nativeEffects.height
   )
@@ -315,7 +316,7 @@ function makeUnit(u: Unit) {
   const g = new THREE.Group()
   const shadow = new THREE.Sprite(
     new THREE.SpriteMaterial({
-      map: texture('effects').clone(),
+      map: texture('effects'),
       alphaTest: 0.5,
       depthWrite: false,
       toneMapped: false,
@@ -1843,12 +1844,13 @@ export class GameScene {
       if (!layer) {
         layer = new THREE.Sprite(
           new THREE.SpriteMaterial({
-            map: texture(nativeUnits.atlas).clone(),
+            map: texture(nativeUnits.atlas),
             alphaTest: 0.5,
             depthWrite: true,
             toneMapped: false,
           })
         )
+        layer.userData.atlasTransform = new THREE.Vector4()
         layers.push(layer)
         g.add(layer)
       }
@@ -1856,10 +1858,11 @@ export class GameScene {
       layer.userData.piece = draw.piece
       if (!layer.visible) continue
       const piece = nativeUnits.pieces[draw.piece],
-        map = layer.material.map!,
+        uv = (layer.userData.atlasTransform ??= new THREE.Vector4()),
         flip = !!(draw.flags & 1)
-      map.repeat.set((flip ? -piece.w : piece.w) / nativeUnits.width, piece.h / nativeUnits.height)
-      map.offset.set(
+      uv.set(
+        (flip ? -piece.w : piece.w) / nativeUnits.width,
+        piece.h / nativeUnits.height,
         ((draw.piece % nativeUnits.columns) * cell + (flip ? piece.w : 0)) / nativeUnits.width,
         1 - (Math.floor(draw.piece / nativeUnits.columns) * cell + piece.h) / nativeUnits.height
       )
@@ -1955,12 +1958,13 @@ export class GameScene {
             : f.kind)
     const sprite = new THREE.Sprite(
       new THREE.SpriteMaterial({
-        map: texture('effects').clone(),
+        map: texture('effects'),
         transparent: true,
         depthWrite: false,
         toneMapped: false,
       })
     )
+    sprite.userData.atlasTransform = new THREE.Vector4(1, 1, 0, 0)
     sprite.center.set(0.5, 0)
     if (f.smoke)
       sprite.material.color.setStyle(`rgb(${nativeEffects.buildingSmokeColor.join(',')})`)
@@ -2158,7 +2162,7 @@ export class GameScene {
         g = new THREE.Group()
         const body = new THREE.Sprite(
           new THREE.SpriteMaterial({
-            map: texture('effects').clone(),
+            map: texture('effects'),
             transparent: true,
             depthWrite: false,
             toneMapped: false,
@@ -2169,7 +2173,7 @@ export class GameScene {
         body.center.set(0.5, 0)
         const shadow = new THREE.Sprite(
           new THREE.SpriteMaterial({
-            map: texture('effects').clone(),
+            map: texture('effects'),
             alphaTest: 0.5,
             depthWrite: false,
             toneMapped: false,
@@ -2655,7 +2659,12 @@ export class GameScene {
     const materials = new Set<THREE.Material>()
     g.traverse(o => {
       if (o instanceof THREE.Sprite) {
-        o.material.map?.dispose()
+        // Atlas images belong to the shared texture cache, not individual particles.
+        if (
+          o.material.map !== textures.get('effects') &&
+          o.material.map !== textures.get(nativeUnits.atlas)
+        )
+          o.material.map?.dispose()
         materials.add(o.material)
       }
       if (o instanceof THREE.Mesh || o instanceof THREE.Line) {

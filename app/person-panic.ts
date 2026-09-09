@@ -1,3 +1,5 @@
+import rules from './original-rules.json' with { type: 'json' }
+import { random } from './native-math.ts'
 import { defaultPersonState, type StatefulPerson } from './person-state.ts'
 import { setPersonAnchor } from './person-order-update.ts'
 
@@ -48,4 +50,21 @@ export function stepPersonFireTrail(
     particle.displacement = { ...displacement }
   }
   p.burnTrail = (p.burnTrail - 1) & 255
+}
+
+// 0x408840: one successful building-flame allocation visits its cell chain.
+// Repeated sockets deliberately revisit people; even protected people get a trail.
+export function ignitePeopleInFireCell<
+  T extends { class: number; model: number; tribe: number; flags2: number; burnTrail: number },
+>(w: { randomState: number }, tribe: number, people: Iterable<T>, panic: (person: T) => void) {
+  for (const person of people) {
+    if (
+      person.class !== 1 ||
+      person.tribe !== tribe ||
+      rules.personModels[person.model].flags & 0x100
+    )
+      continue
+    if (!(person.flags2 & 0x100000)) panic(person)
+    person.burnTrail = (random(w) & 7) + 8
+  }
 }
