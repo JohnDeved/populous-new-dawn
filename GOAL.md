@@ -789,3 +789,19 @@ plan-signal ownership, full movement/collision scheduling and camera-relative
 resting interest remain open. Continue visible first-mission comparisons; broad
 construction remains partial, known-scope coverage stays 17.7% (17/96), and discovery
 and full game parity remain unfinished.
+
+### Latest visible integration: native site-clearing workers
+
+Scenery/person preparation now runs original tasks 3/4. Builders approach and
+inspect footprint obstacles, harvest with original action frames and cue 1, carry
+and drop timber, ignite removed bushes and retreat. Bystanders wait for the native
+search/displacement phase, then walk out before scaffold allocation. Shared waits
+also simplify the leveling controller. Compared 4,224 native scenery calls, 2,688
+person calls and expanded destruction/fire cases; 121 portable checks cover the
+live paths, rotations, cancellation and construction completion.
+
+Next: connect per-cell validity and terrain-change notifications, and continue
+visible first-mission comparisons. Native command/object allocation limits, full
+command eligibility ownership, nonresource objects, plan signals, movement/collision
+scheduling and camera-relative resting interest remain open. Broad construction
+stays partial; known-scope coverage remains 17.7% (17/96), with discovery open.

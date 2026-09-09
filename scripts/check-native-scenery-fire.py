@@ -137,14 +137,16 @@ for index in range(128):
     expected.append(dict(initial=initial, cosmetic=initial_cosmetic, timeline=timeline))
 
 tree_cases, tree_expected = [], []
-for model in range(1, 7):
+for model in [1, 2, 3, 4, 5, 6, 7, 8, 11]:
     for wood in [100, 104, 200, 396, 400]:
         cpu.mem_write(unit, bytes(256))
-        write(unit + 0x2a, 'BBB', 5, model, 5)
-        write(unit + 0x33, 'H', model + 12)
-        write(unit + 0x7c, 'h', 76)
+        write(unit + 0x2a, 'BBB', 5, model, 1)
+        object_id = json.loads((ROOT / 'app/original-rules.json').read_text())['sceneryObjects'][model]
+        write(unit + 0x33, 'H', object_id)
+        call(0x4a7b60, unit, 0, 0)
+        assert read(unit + 0x2c, 'B') == 5 and read(unit + 0x7c, 'h') == 76
         write(unit + 0x84, 'h', wood)
-        scale = read(objects + (model + 12) * 54 + 12, 'i')
+        scale = read(objects + object_id * 54 + 12, 'i')
         write(unit + 0x68, 'i', scale)
         write(0x892443, 'I', context)
         alive, timeline = True, []
@@ -228,4 +230,4 @@ for kind, inputs, wanted in [('fire', cases, expected), ('tree', tree_cases, tre
             path = Path('/private/tmp/populous-fire-failure.json')
             path.write_text(json.dumps(dict(kind=kind, case=inputs[index], native=e, browser=a), indent=2))
             raise AssertionError(f'{kind} case {index}: {path}')
-print('PASS: 128 native fire initializations/lifetime settings, 10,240 fire snapshots, 2,400 burning-tree snapshots and 512 camera-facing angles; ground, growth/shrink, animation, embers, smoke, sound requests and RNG')
+print('PASS: 128 native fire initializations/lifetime settings, 10,240 fire snapshots, 3,600 burning tree/bush/log snapshots and native destruction initialization and 512 camera-facing angles; ground, growth/shrink, animation, embers, smoke, sound requests and RNG')

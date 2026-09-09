@@ -3,7 +3,7 @@ import sprites from './original-units.json' with { type: 'json' }
 import { movePosition, random } from './native-math.ts'
 import {
   recoverPersonMovement,
-  stopPersonMovement,
+  stepPersonWait,
   setPersonAnimationRow,
   type StatefulPerson,
   type PersonStateEffects,
@@ -67,18 +67,7 @@ export function stepBuildingLevel(
       }
       if (!resting && carrying && person.timer === 2)
         setPersonAnimationRow(person, person.cargo ? 5 : 1, effects.animation)
-      if (entering) {
-        person.assignment &= ~16
-        stopPersonMovement(person, effects.animation)
-      }
-      if (resting && !(person.counter & 31)) {
-        const angle = random(rng) & 2047
-        effects.releaseMotion()
-        person.turnAngle = angle
-        person.flags2 = (person.flags2 | 0x1080) >>> 0
-      }
-      person.timer = short(person.timer - 1)
-      if (!person.timer) {
+      if (stepPersonWait(rng, person, effects, resting)) {
         if (resting) next(Phase.Approach)
         else next(carrying ? Phase.Rise : Phase.Stamp)
       }

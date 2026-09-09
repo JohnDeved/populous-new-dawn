@@ -81,6 +81,28 @@ export function stopPersonMovement(
   setPersonAnimationRow(p, p.cargo ? 4 : 0, setAnimation)
 }
 
+// 0x4391a0 / 0x439240: stop on entry, optionally turn on the 32-turn phase,
+// then finish only when the signed timer reaches zero.
+export function stepPersonWait(
+  rng: { randomState: number },
+  p: StatefulPerson & { counter: number },
+  effects: { animation: PersonStateEffects['setAnimation']; releaseMotion: () => void },
+  randomFacing: boolean
+) {
+  if (p.assignment & 16) {
+    p.assignment &= ~16
+    stopPersonMovement(p, effects.animation)
+  }
+  if (randomFacing && !(p.counter & 31)) {
+    const angle = random(rng) & 2047
+    effects.releaseMotion()
+    p.turnAngle = angle
+    p.flags2 = (p.flags2 | 0x1080) >>> 0
+  }
+  p.timer = short(p.timer - 1)
+  return p.timer === 0
+}
+
 // Complete 0x4d3ff0, shared by idle, movement and recovery controllers.
 export function setPersonAnimationRow(
   p: StatefulPerson,

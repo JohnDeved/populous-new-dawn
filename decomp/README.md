@@ -3647,3 +3647,56 @@ checks for the new controllers and existing ESLint for all touched app modules
 pass. Fallow reports 84.8 maintainability, 2.9 average cyclomatic complexity and no
 dead exports; the existing three import cycles and broader lint/complexity debt
 remain. No checkpoint credit is added for these component-level checks.
+
+## Native construction-site clearing — 2026-09-09
+
+`building-clearing.ts` reconstructs complete scenery task 3 (`00495d70`) and
+person task 4 (`00496220`). Shared arrival/facing and wait helpers replace duplicate
+leveling code. The exported `004392a0` and `004393d0` helpers bring the identified
+manifest to 935 exports. Existing command inspection `004df1c0` remains unchanged.
+
+Scenery workers scan the original rotated footprint in cell order, approach and
+inspect targets, use row-6 harvesting and cue 1, retain timber until deposit, and
+use the original removal/retreat phases. The unexpected guard in the native scan
+reads person +0x90 (command slot 2, bit 10), not the target scenery's flags. Bush
+removal calls the existing state-5 burning lifecycle: native initialization sets
+76 turns; resource depletion can remove the bush sooner while its fire continues.
+Loose logs take the separate pickup branch. Person clearing retains eligibility,
+waits, search direction and wrapped cells, allocation failures and displacement
+requests. People receive walking orders only after the native clearing phase.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-clearing.py /private/tmp/populous-reference/native/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-clearing.py /private/tmp/populous-reference/native/d3dpoptb.exe --people
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-scenery-fire.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-clearing.test.mjs
+node scripts/check-browser-building-clearing.mjs
+```
+
+The oracle compares 4,224 scenery and 2,688 person calls. Native footprint traversal,
+shared waits, RNG, eligibility and indexed searches execute; animation assignment,
+route ownership, sound, timber transfer and command allocation/attachment are
+supplied callbacks. It compares callbacks, post-callback mutations, search pool
+release and land flags as well as the complete relevant worker record. There are
+604 scenery and 384 person snapshots runnable without the executable. The extended
+fire oracle compares native destruction initialization and 3,600 burning snapshots
+across trees, bushes and loose logs; existing fire/atlas comparisons still pass.
+The shared wait refactor also retains all 3,072 native leveling comparisons.
+
+Live tests cover all four hut rotations, harvest/carry/drop phases, multiple
+bystanders, continuous movement instead of teleporting, allocation/completion and
+departure, search release, pause/cancel and bush fire. Browser clearance checks use
+actual placement, original directional harvesting frames and nonempty Web Audio
+PCM, then wait for bystander commands and completed construction. Construction and
+sprite regressions remain separate checks. Full native movement/collision, object
+and command-pool limits, command eligibility ownership, nonresource object classes,
+plan dirty signals and per-cell terrain validation remain explicit live boundaries.
+No broad construction checkpoint is promoted to verified.
+
+Final validation: all 121 portable checks pass. Actual browser clearance renders
+55 harvesting pixels with original frame/flip and PCM cue 1. Four foundation
+rotations, construction stages/departure, Lightning/fire/repair and all 336 frozen
+GPU sprite poses pass with no browser errors. Fallow reports 84.8 maintainability,
+2.8 average complexity and no dead exports; its existing dependency/cycle findings
+remain. Focused ox-standard checks for the three construction controllers and
+ESLint for all six touched app modules pass. No global checkpoint credit is added.

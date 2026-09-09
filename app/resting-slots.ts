@@ -55,7 +55,10 @@ export function createRestingSlots() {
 }
 
 // Complete 0x4d55a0, composing the current-command predicate at 0x4f62c0.
-export function restingCellAvailable(w: RestingWorld, cell: number) {
+export function restingCellAvailable(
+  w: Pick<RestingWorld, 'land' | 'orders' | 'cellObjects'>,
+  cell: number
+) {
   const i = index(cell)
   if (w.land.flags[i] & 0x4206) return false
   if (!(rules.terrainCategoryFlags[w.land.categories[i] & 15] & 1)) return false

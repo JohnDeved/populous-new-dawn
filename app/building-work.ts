@@ -31,7 +31,7 @@ interface WorkEffects {
   sound: (cue: number, flags: number) => void
 }
 const short = (n: number) => (n << 16) >> 16
-const near = (a: Point, b: Point, limit: number) =>
+export const nearBuildingPoint = (a: Point, b: Point, limit: number) =>
   Math.abs(short(a.x) - short(b.x)) < limit && Math.abs(short(a.y) - short(b.y)) < limit
 const Phase = { NearDoor: 54, Approach: 1, Enter: 3, Wander: 23, Work: 4 } as const
 const nextMovementPhase: Record<number, number> = {
@@ -41,7 +41,7 @@ const nextMovementPhase: Record<number, number> = {
   [Phase.Wander]: Phase.Work,
 }
 
-function face(person: Worker, to: Point, mask: number) {
+export function faceBuildingPoint(person: Worker, to: Point, mask: number) {
   const angle = nativeAngle(short(to.x - person.x), -short(to.y - person.y)) & mask
   if (person.flags2 & 128) person.turnAngle = angle
   person.heading = angle
@@ -57,8 +57,8 @@ function approach(
 ) {
   if (enter) person.flags4 = ((person.flags4 & 0xfffefff8) | 1) >>> 0
   const point = enter ? site.center : site.outside
-  effects.destination(point, enter && near(person, site.outside, 312))
-  face(person, point, 2047)
+  effects.destination(point, enter && nearBuildingPoint(person, site.outside, 312))
+  faceBuildingPoint(person, point, 2047)
   person.assignment &= ~16
   recoverPersonMovement(rng, person, effects.animation)
 }
@@ -94,17 +94,20 @@ export function stepBuildingApproach(
       }
     }
     effects.destination(point, false)
-    face(person, point, 2047)
+    faceBuildingPoint(person, point, 2047)
     task.phase = 15
     person.assignment |= 16
-    if (!near(person, point, 1648)) person.assignment |= 8
+    if (!nearBuildingPoint(person, point, 1648)) person.assignment |= 8
   }
   if (task.phase !== 15) return
   if (person.assignment & 16) {
     person.assignment &= ~16
     recoverPersonMovement(rng, person, effects.animation)
   }
-  if (!(person.counter & 1) && near(person, { x: person.goalX, y: person.goalY }, 112)) {
+  if (
+    !(person.counter & 1) &&
+    nearBuildingPoint(person, { x: person.goalX, y: person.goalY }, 112)
+  ) {
     dropCarriedTimber(person, effects.allocateLog, () => effects.sound(11, 0))
     person.assignment &= ~8
     task.task = 2
@@ -134,7 +137,7 @@ export function stepBuildingWork(
     if (person.assignment & 16) {
       person.assignment &= ~16
       if (site.building) {
-        face(person, site.center, 255) // This action retains the original eight-bit heading mask.
+        faceBuildingPoint(person, site.center, 255) // This action retains the original eight-bit heading mask.
         person.speed = 0
         setPersonAnimationRow(person, 6, effects.animation)
         effects.sound(20, 16)
@@ -161,13 +164,16 @@ export function stepBuildingWork(
         radius = rules.buildingWorkRadius[site.model]
       movePosition(point, random(rng) & 2047, site.building ? radius : radius >> 1)
       effects.destination(point, true)
-      face(person, point, 2047)
+      faceBuildingPoint(person, point, 2047)
       person.assignment &= ~16
       recoverPersonMovement(rng, person, effects.animation)
     } else approach(rng, person, site, task.phase === Phase.Enter, effects)
   }
   const limit = task.phase === Phase.NearDoor ? 1080 : 112
-  if (!(person.counter & 1) && near(person, { x: person.goalX, y: person.goalY }, limit))
+  if (
+    !(person.counter & 1) &&
+    nearBuildingPoint(person, { x: person.goalX, y: person.goalY }, limit)
+  )
     next(nextMovementPhase[task.phase])
 }
 
@@ -209,7 +215,10 @@ export function stepBuildingDeparture(
     case Departure.Door:
     case Departure.Center:
       if (entering) approach(rng, person, site, task.phase === Departure.Center, effects)
-      if (!(person.counter & 1) && near(person, { x: person.goalX, y: person.goalY }, 112))
+      if (
+        !(person.counter & 1) &&
+        nearBuildingPoint(person, { x: person.goalX, y: person.goalY }, 112)
+      )
         next(task.phase === Departure.Center ? Departure.Rest : Departure.Turn)
       return
     case Departure.ClearSite:
@@ -254,7 +263,7 @@ export function stepBuildingDeparture(
             break
           case Departure.FaceSite:
             person.timer = 1
-            face(person, site.center, 2047)
+            faceBuildingPoint(person, site.center, 2047)
             break
         }
         person.assignment &= ~16
