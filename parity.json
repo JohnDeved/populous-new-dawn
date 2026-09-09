@@ -825,9 +825,14 @@
             "scripts/check-native-repair-smoke.py",
             "tests/fixtures/construction-crew.json",
             "tests/fixtures/repair-smoke.json",
-            "app/building-shapes.ts"
+            "app/building-shapes.ts",
+            "app/building-work.ts",
+            "scripts/check-native-building-work.py",
+            "tests/building-work.test.mjs",
+            "tests/fixtures/building-work.json",
+            "scripts/check-browser-building-fire.mjs"
           ],
-          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, complete worker readiness/idle positioning, person command ownership, panic motion and departure remain adapters. The constructed-plan completion gate is compared but live completion still releases browser workers directly; mixed-class scheduling/counter ownership remains open."
+          "note": "Native geometry/stages, crew limits, capacity-limited deliveries and constructed-plan fetching/repair dispatch are integrated. Task-2 activity now moves through original door/entry/wander/work phases, with shape-based targets, descriptor radius, movement speed/RNG, busy readiness, short pauses, native directional animations and cue 20. Compared 2688 complete activity calls; live placement, repair work sprites and PCM, cancellation, completion and 336 existing GPU sprite poses pass. Prior evidence covers 5120 crew decisions and 1264 repair-smoke controllers. Native unbuilt-plan allocation/terrain preparation, complete person command ownership, motion/collision/turn scheduling, panic movement and departure remain adapters. The completion gate is compared but live completion still releases browser workers directly; frame-gated audio scheduling is also open."
         },
         {
           "id": "economy.wood",

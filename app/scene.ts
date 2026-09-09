@@ -70,6 +70,7 @@ import {
   type Building,
   type Effect,
   unitAnimation,
+  unitAnimationSource,
 } from './model'
 
 import nativeModelData from './original-models.json'
@@ -2132,12 +2133,15 @@ export class GameScene {
       this.locate(g, u)
       g.position.y += ((0.04 + Math.sin(u.lift * Math.PI) * 2) * 45) / 128
       g.visible = u.inside === null
+      const animationSource = unitAnimationSource(u)
       g.userData.depthBias =
-        u.native && u.native.flags3 & 0x400 ? ((u.native.morph << 24) >> 24) * 16 : -300
+        animationSource && animationSource.flags3 & 0x400
+          ? ((animationSource.morph << 24) >> 24) * 16
+          : -300
       const shadow = g.userData.shadow as THREE.Sprite
       // 0x4d32b0's tail enables person shadows only for airborne physics (0x400).
       // Blast's current flight adapter exposes lift until full physics owns it.
-      shadow.visible = !!((u.native?.flags4 ?? 0) & 0x400) || u.lift > 0
+      shadow.visible = !!((animationSource?.flags4 ?? 0) & 0x400) || u.lift > 0
       if (shadow.visible) {
         const ground = terrainPointHeight(this.world.land, nativePosition(this.world, u))
         shadow.position.y = ground / 128 - g.position.y
@@ -2154,8 +2158,8 @@ export class GameScene {
           shadow.center.set(-r.x / r.width, 1 + r.y / r.height)
         }
       }
-      g.userData.draw = u.native?.draw ?? (u.kind === 'warrior' ? 15 : 14)
-      const renderFlags = u.native?.renderFlags ?? 0
+      g.userData.draw = animationSource?.draw ?? (u.kind === 'warrior' ? 15 : 14)
+      const renderFlags = animationSource?.renderFlags ?? 0
       g.userData.drawFlags =
         (renderFlags & 0xa000 || u.lift > 0 ? 2 : 0) | (renderFlags & 0x4000 ? 4 : 0)
       const animations = (
@@ -2169,14 +2173,14 @@ export class GameScene {
         g.userData.state = state
         g.userData.since = this.world.time
       }
-      if (u.native) {
-        const source = u.native.object + (u.team === 'red' && u.kind === 'shaman' ? 8 : 0)
+      if (animationSource) {
+        const source = animationSource.object + (u.team === 'red' && u.kind === 'shaman' ? 8 : 0)
         const directions = Object.values(animations).find(
           d => 'source' in d[0] && d[0].source === source
         )
         if (!directions)
           throw new Error(`Unimported follower animation ${g.userData.signature}/${source}`)
-        this.animatePerson(g, u.heading, directions, 0, false, u.native.f2)
+        this.animatePerson(g, u.heading, directions, 0, false, animationSource.f2)
       } else
         this.animatePerson(
           g,

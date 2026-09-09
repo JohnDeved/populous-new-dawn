@@ -1,5 +1,13 @@
 import type { World, Unit } from './model.ts'
-import { nativePosition, browserPosition, height, buildingPose, entrance, sound } from './model.ts'
+import {
+  nativePosition,
+  browserPosition,
+  height,
+  buildingPose,
+  entrance,
+  sound,
+  unitAnimationSource,
+} from './model.ts'
 import {
   initializePersonState,
   personAnimationObject,
@@ -172,6 +180,24 @@ export function syncLivePersonCells(w: World) {
   return people
 }
 
+export function setLivePersonAnimation(w: World, p: LivePerson, object: number) {
+  setPersonAnimation(
+    p,
+    object,
+    {
+      playerTribe: w.manaWorld.playerTribe,
+      gameFlags: w.manaWorld.gameFlags,
+      sessionSubstate: null,
+      tribes: w.manaTribes.map((t, i) => ({
+        flags: w.castingTribes[i].flags,
+        playerType: t.playerType,
+      })),
+      objects: new Map(),
+    },
+    sprites
+  )
+}
+
 function context(w: World) {
   const people = syncLivePersonCells(w)
   const state = {
@@ -188,20 +214,10 @@ function context(w: World) {
     ),
     cellPeople: (c: number) => [...objectsInCell(w.objectCells, c)].map(p => people.get(p.id)!),
   }
-  const animationWorld = {
-    playerTribe: w.manaWorld.playerTribe,
-    gameFlags: w.manaWorld.gameFlags,
-    sessionSubstate: null,
-    tribes: w.manaTribes.map((t, i) => ({
-      flags: w.castingTribes[i].flags,
-      playerType: t.playerType,
-    })),
-    objects: new Map(),
-  }
   const effects: CelebrationEffects = {
     animation: (person, object, upper) => {
       const p = person as LivePerson
-      if (upper) setPersonAnimation(p, object, animationWorld, sprites)
+      if (upper) setLivePersonAnimation(w, p, object)
       else {
         const [start, draw] = rules.animationObjects[object]
         setAnimationObject(p, draw, start)
@@ -446,14 +462,16 @@ export function stepLiveCelebration(w: World, u: Unit) {
 // Native rate configuration, visibility catch-up and footprint visuals are pending.
 export function animateLiveObjects(w: World) {
   if (w.paused || w.land.landFlags & 2) return
-  for (const u of w.units)
-    if (u.native)
+  for (const u of w.units) {
+    const source = unitAnimationSource(u)
+    if (source)
       stepObjectAnimation(
-        u.native,
+        source,
         { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
         () => {}
       )
+  }
   for (const f of w.effects)
     if (f.animation)
       stepObjectAnimation(

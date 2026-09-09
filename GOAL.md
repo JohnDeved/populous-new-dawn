@@ -688,3 +688,22 @@ full person command ownership, panic movement and mixed-class scheduling remain
 open. Continue original first-mission frame comparisons alongside this visible
 activity work. Known-scope coverage remains 17.7% (17/96); discovery is open and
 full parity is unfinished.
+
+### Latest visible integration: original builder work activity
+
+Task-2 builders now approach the door, enter, walk around the site and pause in
+the original work animation. Native shape points and descriptor radii determine
+targets; movement speed/RNG, busy readiness, facing and work clocks follow the
+recovered controller. The work pose uses the shared original animation source and
+presentation clock, with cue 20's five original PCM samples preloaded. Compared
+2,688 complete native activity calls. Browser work poses, directional frames,
+audible work, construction and the complete repair sequence pass, alongside all
+336 GPU sprite poses. There are 107 portable checks and 919 identified exports.
+
+Continue with native departure and completion ownership, then initial command
+approach/unbuilt-plan preparation. Activity targets are native; the ordinary
+browser movement adapter still supplies path traversal/collision and update order.
+Unbuilt-plan resting ownership, frame-gated audio scheduling, panic movement and
+mixed-class scheduling remain open. Keep comparing full original first-mission
+frames. Broad construction stays partial, known-scope coverage is 17.7% (17/96),
+discovery is open and the full game goal remains unfinished.

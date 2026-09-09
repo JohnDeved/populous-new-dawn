@@ -5,6 +5,7 @@ import {
   BuilderTask,
   type Builder,
 } from './building-workers.ts'
+import { stepBuildingWork } from './building-work.ts'
 import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
 import {
@@ -54,13 +55,19 @@ import {
 } from './live-pathfinding.ts'
 import {
   createLivePerson,
+  setLivePersonAnimation,
   initializeLiveCelebration,
   stepLiveCelebration,
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
 import type { ObjectCells } from './object-cells.ts'
-import { createMotionRoutes, ageFailedRoutes, type MotionRoutes } from './person-routes.ts'
+import {
+  createMotionRoutes,
+  ageFailedRoutes,
+  setDirectPersonDestination,
+  type MotionRoutes,
+} from './person-routes.ts'
 import {
   nativeAngle,
   nativeStep,
@@ -85,6 +92,7 @@ import {
 } from './tribe-turns.ts'
 import {
   buildingOutsidePoint,
+  buildingInsidePoint,
   chooseBuildingObject,
   buildingSmokePoint,
   buildingFirePoints,
@@ -199,7 +207,7 @@ export type Unit = Point & {
   tree: number | null
   harvest?: { remaining: number }
   delivery?: { remaining: number }
-  builder?: Builder
+  builder?: Builder & { person?: LivePerson }
   timer: number
   guard: boolean
   lift: number
@@ -650,6 +658,13 @@ function processBattles(w: World) {
   }
   w.fights = w.fights.filter(b => b.members.length > 1)
 }
+export function unitAnimationSource(u: Unit) {
+  if (u.native) return u.native
+  return u.builder?.task === BuilderTask.Work && !u.fight && !u.fighting && !u.casting && !u.lift
+    ? (u.builder.person ?? null)
+    : null
+}
+
 export function unitAnimation(w: World, u: Unit) {
   if (u.lift > 0) return 'airborne'
   if (u.casting) return 'cast'
@@ -662,6 +677,8 @@ export function unitAnimation(w: World, u: Unit) {
           ? 'walk'
           : u.fight.action
   if (u.fighting) return 'attack'
+  if (u.builder?.task === BuilderTask.Work && u.builder.person)
+    return u.builder.person.speed ? 'walk' : 'work'
   if (u.path.length) return u.cargo ? 'carry' : 'walk'
   if (u.cargo) return 'carryIdle'
   if (u.harvest) return 'work'
@@ -1765,8 +1782,8 @@ function dispatchConstructionCrew(w: World, b: Building, workers: Unit[]) {
     }
   const crew = workers.map(u => {
     u.builder ??= { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
-    // Existing movement/hauling supplies task readiness until native command 10
-    // and its idle-work/approach controllers own the live person record.
+    // Paths/hauling hand off to task 2; its native activity loop then owns busy
+    // readiness. Full command-10 ownership and initial approach remain separate.
     if (u.cargo || u.tree !== null) u.builder.task = BuilderTask.Fetch
     else if (u.builder.task === BuilderTask.Approach && !u.path.length)
       u.builder.task = BuilderTask.Work
@@ -1792,6 +1809,51 @@ function dispatchConstructionCrew(w: World, b: Building, workers: Unit[]) {
   })
   if (state) state.repairDelay = plan.repairDelay
   return workers.filter(u => u.builder?.task === BuilderTask.Fetch)
+}
+
+function processBuilderWork(w: World, u: Unit, b: Building) {
+  const task = u.builder!,
+    p = (task.person ??= createLivePerson(w, u)),
+    pose = buildingPose(b)
+  Object.assign(p, nativePosition(w, u))
+  p.x &= 65535
+  p.y &= 65535
+  p.counter = w.turn & 255
+  p.state = 10
+  p.cargo = Math.round(u.cargo * 100)
+  // 0x495520 clears movement mode when a construction subtask restarts.
+  if (task.restart) p.flags4 = (p.flags4 & 0xfffefff8) >>> 0
+  stepBuildingWork(
+    w,
+    p,
+    task,
+    {
+      model: buildingModel(b),
+      building: b.id,
+      occupied: w.land.buildingIds[(p.y >> 9) * 128 + (p.x >> 9)],
+      center: buildingInsidePoint(pose),
+      outside: buildingOutsidePoint(pose),
+    },
+    {
+      destination: (to, direct) => {
+        // Activity owns exact targets; ordinary path/collision integration still
+        // supplies movement until the full native person controller is connected.
+        clearLivePath(w, u)
+        setDirectPersonDestination(w.motionRoutes, p, to)
+        if (direct) u.path = [browserPosition(to)]
+        else route(w, u, browserPosition(to))
+      },
+      animation: (_, object) => {
+        setLivePersonAnimation(w, p, object)
+        if (!p.speed) clearLivePath(w, u)
+      },
+      sound: cue => sound(w, cue, u),
+      rest: () => {
+        throw new Error('Unbuilt-plan allocation and resting ownership are not connected')
+      },
+    }
+  )
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
 
 // The live adapter still enters occupants directly; command-8's staged entry
@@ -3454,9 +3516,14 @@ function stepTurn(w: World) {
       const shaman = w.units.find(a => a.team === u.team && a.kind === 'shaman')
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
+    if (u.builder?.task === BuilderTask.Work && work && 'hp' in work && work.progress < 1)
+      processBuilderWork(w, u, work)
     if (u.path.length) {
       const next = u.path[0],
-        length = unitSpeed(u)
+        length =
+          u.builder?.task === BuilderTask.Work
+            ? (u.builder.person?.speed ?? unitSpeed(u))
+            : unitSpeed(u)
       if (!supportsFollower(w, next)) {
         clearLivePath(w, u)
         continue
@@ -3479,7 +3546,8 @@ function stepTurn(w: World) {
       stepLiveRoute(w, u)
     } else if (target && u.target !== null)
       route(w, u, 'progress' in target ? entrance(w, target) : target)
-    else if (work && u.tree === null) u.heading = Math.atan2(work.x - u.x, work.z - u.z)
+    else if (work && u.tree === null && u.builder?.task !== BuilderTask.Work)
+      u.heading = Math.atan2(work.x - u.x, work.z - u.z)
     if (u.kind === 'brave' && !u.path.length && u.work === null && u.target === null && !u.guard) {
       u.idleTurns++
       if (u.idleTurns > 16 && (w.turn & 15) === 0) {

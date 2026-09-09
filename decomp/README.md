@@ -3371,3 +3371,50 @@ task readiness, and live completion still releases workers directly. The full
 completion gate is compared but not yet connected to native departure. Unbuilt-plan
 allocation/terrain preparation, panic movement, original person-command ownership
 and mixed-class counter scheduling remain open. Full construction stays partial.
+
+## Original builder work activity — 2026-09-09
+
+`004958f0` task 2 now drives live idle building activity. The worker approaches
+the door (phases 54/1), enters (3), chooses a point around the original shape's
+inside socket (23), and pauses at work (4). Descriptor offset `0x22` supplies the
+radius; an unallocated plan halves it. The controller retains its signed arrival
+comparisons, even-turn arrival checks, busy byte and native random movement speed.
+Work pauses use 16–31 turns and original row 6/cue 20; the unbuilt branch uses
+8–15 turns and the separate resting-facing consumer. Work's eight-bit facing
+mask is retained rather than normalized to the other phases' eleven-bit mask.
+
+The TypeScript uses named phases and existing geometry, random, movement and
+animation helpers. A shared live animation-source selector feeds both the renderer
+and presentation clock, preserving ordinary/fighting/airborne sprites when work
+does not own the pose. New orders and completion discard the activity source.
+Cue 20's five already-extracted sounds are now preloaded; the live PCM check caught
+the missing preload before publication. Native person animation submission is
+shared with celebration rather than duplicated.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-work.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-work.test.mjs
+node scripts/check-browser-construction.mjs
+node scripts/check-browser-building-fire.mjs
+npm run test:sprites
+```
+
+The comparison executes 2,688 complete controllers across six supported building
+models, every activity phase and unsupported-phase returns, three person models,
+original physics speeds, wrap/signed boundaries, restart/readiness flags and
+linked/unlinked plan states. Geometry, direct destination release, arrival checks,
+wait decrement, movement speed/RNG and pose selection execute natively. Routed
+path submission, final animation/sound consumers and resting-facing are supplied
+leaves. The portable fixture retains 538 captures. Live checks cover actual
+placement, native work activity, animation advancement, pause, cancellation and
+completion. Browser repair checks compare directional work frames and observe
+nonempty original PCM. All 336 existing GPU sprite poses, unit shadows and
+selection checks pass. There are 107 portable checks; the export count stays 919.
+
+The live plan is already linked to a browser building, so unbuilt-plan resting
+is an explicit unsupported boundary. Exact targets and controller outputs are
+integrated, while ordinary path traversal/collision and turn ordering still serve
+movement. Full person-command ownership, native departure (`00497690`), unbuilt
+allocation/terrain preparation, panic movement, frame-gated audio/voice ownership
+and mixed-class scheduling remain open. Continue departure/completion integration
+and visible original-frame comparison; this does not complete broad construction.

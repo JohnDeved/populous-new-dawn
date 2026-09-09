@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame, effectPixels } from './browser-game.mjs'
 import { buildingFirePoints } from '../app/building-shapes.ts'
+import { spriteDirection } from '../app/projection.ts'
+import sprites from '../app/original-units.json' with {type:'json'}
 
 const browser = await chromium.launch({ headless: true })
 try {
@@ -11,6 +13,12 @@ try {
   await page.getByRole('button', { name: 'Mute sound', exact: true }).waitFor()
   await page.evaluate(() => {
     const scene = window.testScene
+    const play=scene.onSound,start=AudioBufferSourceNode.prototype.start
+    scene.onSound=(cue,...args)=>{window.workCue=cue;try{return play(cue,...args)}finally{window.workCue=null}}
+    AudioBufferSourceNode.prototype.start=function(...args){
+      if(window.workCue===20&&this.buffer?.getChannelData(0).some(v=>v!==0))window.heardBuildingWork=true
+      return start.apply(this,args)
+    }
     window.burningBuilding = scene.world.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
     scene.world.shots.lightning = 1
     scene.world.speed = 0.25
@@ -110,6 +118,31 @@ try {
   assert.equal(await page.evaluate(()=>window.burningBuilding.progress),2/3)
   assert.equal(await page.evaluate(()=>window.testScene.world.units.filter(u=>u.work===window.burningBuilding.id).length),2)
   assert.ok(await page.evaluate(()=>window.testScene.world.units.filter(u=>u.work===window.burningBuilding.id).every(u=>u.tree===null&&!u.cargo)))
+  await page.evaluate(()=>{window.testScene.world.speed=1})
+  await page.waitForFunction(()=>{
+    const w=window.testScene.world,u=w.units.find(u=>u.work===window.burningBuilding.id&&u.builder?.task===2&&u.builder.phase===4&&u.builder.person?.speed===0&&u.builder.person.timer>2)
+    if(!u)return false
+    window.workingBuilder=u;w.speed=0;w.paused=true;return true
+  })
+  await page.waitForFunction(()=>window.testScene.unitMeshes.get(window.workingBuilder.id).userData.state==='work')
+  const pose=await page.evaluate(()=>{
+    const s=window.testScene,u=window.workingBuilder,p=u.builder.person,g=s.unitMeshes.get(u.id)
+    return {object:p.object,step:p.f2,heading:u.heading,bearing:s.cameraBearing,frame:g.userData.frame,flip:g.userData.frameFlip,heard:!!window.heardBuildingWork}
+  })
+  const directions=sprites.animations['blue-brave'].work
+  assert.equal(pose.object,directions[0].source)
+  const direction=spriteDirection(Math.round(pose.bearing*1024/Math.PI),Math.round((Math.PI-pose.heading)*1024/Math.PI))
+  assert.equal(pose.frame,directions[direction].frames[pose.step%directions[direction].frames.length])
+  assert.equal(pose.flip,directions[direction].flip)
+  assert.ok(pose.heard,'original building-work cue must reach Web Audio as nonempty PCM')
+  await page.screenshot({path:'/private/tmp/populous-builder-work.png'})
+  await page.evaluate(()=>{window.testScene.world.paused=false})
+  await page.waitForFunction(frame=>{
+    if(window.workingBuilder.builder.person.f2===frame)return false
+    window.testScene.world.paused=true;return true
+  },pose.step)
+  await page.waitForFunction(frame=>window.testScene.unitMeshes.get(window.workingBuilder.id).userData.frame!==frame,pose.frame)
+  await page.evaluate(()=>{window.testScene.world.paused=false})
   await page.screenshot({path:'/private/tmp/populous-repair-waiting.png'})
   await page.evaluate(()=>{window.testScene.world.speed=4})
   await page.waitForFunction(()=>{
@@ -141,7 +174,7 @@ try {
   assert.equal(await page.evaluate(()=>window.burningBuilding.damageState.state),2)
   await page.screenshot({path:'/private/tmp/populous-repair-complete.png'})
   assert.deepEqual(errors, [])
-  console.log(`PASS: real Lightning hit, ${ids.length} fire sockets (${pixels} GPU pixels), damage/evacuation/voice cleanup, full repair holdoff, one of two workers fetching, smoke retirement (${smokePixels} GPU pixels) and completed repair; no browser errors`)
+  console.log(`PASS: real Lightning hit, ${ids.length} fire sockets (${pixels} GPU pixels), native builder work pose/directional frames/PCM, full repair holdoff, one of two workers fetching, smoke retirement (${smokePixels} GPU pixels) and completed repair; no browser errors`)
 } finally {
   await browser.close()
 }
