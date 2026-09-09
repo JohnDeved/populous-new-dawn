@@ -29,7 +29,7 @@ tfields={'spellOwner':(0xc22,'b'),'playerType':(0xc1f,'B'),'mana':(0x94d,'i'),'p
 bfields={'id':(0x24,'H'),'model':(0x2b,'B'),'flags3':(0x14,'I'),'activity':(0x9c,'H'),
  'trainingCost':(0x96,'H'),'storedMana':(0x98,'H'),'manaNext':(0xa0,'H')}
 wfields={'playerTribe':(0x89c6f0,'b'),'gameFlags':(0x89d17c,'I'),'loadFlags':(0x89c665,'I'),
- 'levelFlags':(0x895da8,'I'),'manaFlags':(0x89c66d,'I'),'turn':(0x89d188,'I'),'rateSample':(0x89d161,'B')}
+ 'levelFlags':(0x895da8,'I'),'manaFlags':(0x89c66d,'I'),'turn':(0x89d188,'I'),'turnsPerSecond':(0x89d161,'B')}
 def fixture(c):
     global current,events
     current=c;events=[];cpu.mem_write(base,bytes(0x10000));cpu.mem_write(0x890390,bytes(4096));cpu.mem_write(0x89d1c8,bytes(4*0xc65))
@@ -71,7 +71,7 @@ for batch in range(8):
         buildings=[dict(id=100+j,model=rng.randrange(20),flags3=rng.getrandbits(32),activity=rng.randrange(256),
           trainingCost=rng.choice([0,1,31,32,1024,3500,4375,65535]),storedMana=rng.choice([0,1,99,100,3500,65535]),manaNext=123) for j in range(rng.randrange(8))]
         w=dict(playerTribe=rng.randrange(4),gameFlags=rng.choice([0,0,32,256,288]),loadFlags=rng.choice([0,0x4000000]),levelFlags=0,
-          manaFlags=rng.randrange(256),turn=rng.choice([0,1439,1440,10000]),rateSample=rng.choice([0,1,4,127,255]),
+          manaFlags=rng.randrange(256),turn=rng.choice([0,1439,1440,10000]),turnsPerSecond=rng.choice([0,1,4,127,255]),
           spells=[dict(available=rng.getrandbits(22),disabled=rng.getrandbits(22),stocks=[rng.choice([0,1,3,4,15,32,65,255]) for _ in range(22)]) for _ in range(4)])
         c=dict(tribe=t,buildings=buildings,world=w,notifyFull=i%2)
         fixture(c);call(0x41ad70,t['spellOwner'],base+0xf000,base+0xf004,base+0xf008)

@@ -1036,7 +1036,7 @@ export function createWorld(): World {
       levelFlags: 0,
       manaFlags: 0,
       turn: 0,
-      rateSample: 0,
+      turnsPerSecond: TURNS_PER_SECOND,
       spells: Array.from({ length: 4 }, () => ({
         available: 4,
         disabled: 0,

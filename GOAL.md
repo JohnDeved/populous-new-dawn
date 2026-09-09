@@ -601,3 +601,19 @@ object anchoring remain open. Continue visible first-mission world/activity,
 lighting and native population/mana/control comparisons. Full parity and the
 open-ended discovery inventory remain unfinished; this component improvement
 does not complete the broad messages/UI checkpoint.
+
+### Latest visible integration: native mana-production meter
+
+The long HUD bar now shows original production-versus-demand stripes and warning
+feedback. Its native frame, colors, integer thresholds and line endpoints match
+1,948 controller calls; 30 browser states and 15 raster hashes agree. A real Blast
+cast and charging toggles exercise the production feedback. The previously zero
+mana timing input now uses the existing simulation clock under its clearer name,
+`turnsPerSecond`. All 96 portable regressions pass; full mana distribution still
+matches 1,024 native comparisons.
+
+Continue with population/class controls and housing capacity: current total counts
+include the shaman, whereas the original totals five follower classes; zero-count
+labels, digit padding, borders and capacity feedback also need their native
+controllers. Exact HUD resolution rounding, all panels/control ownership and the
+complete clock/menu remain open. Full parity and discovery remain unfinished.

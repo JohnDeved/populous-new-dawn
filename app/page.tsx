@@ -15,7 +15,7 @@ import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
 import { messageText, removeMessage } from './messages'
-import { HudSprite, NativeText, SpellButtonArt, ShamanHealth } from './hud'
+import { HudSprite, NativeText, SpellButtonArt, ShamanHealth, ManaMeter } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
@@ -416,16 +416,7 @@ export default function Home() {
             </button>
           ))}
         </section>
-        <div
-          className="tiny-mana"
-          role="meter"
-          aria-label="Blast charge progress"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(world.mana * 10)}
-        >
-          <i style={{ width: `${world.mana * 10}%` }} />
-        </div>
+        <ManaMeter tribe={world.manaTribes[0]} world={world.manaWorld} />
         <section className="command-dock" aria-label="Command panel">
           {tab === 'spells' && (
             <div className="spell-list">

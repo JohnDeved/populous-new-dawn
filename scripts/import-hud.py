@@ -56,7 +56,7 @@ for name,start in [('button',821),('button-selected',830),('button-hover',839),
     print(name,columns,rows)
 # 0x4a1f50: native charge/health frames, including overlapping 4px corners.
 # CSS border-image would shrink corners to fit the short charge rectangle.
-for name,frame_width,frame_height in [('charge',26,5),('health',10,22)]:
+for name,frame_width,frame_height in [('charge',26,5),('health',10,22),('mana',92,13)]:
     pixels=bytearray(frame_width*frame_height*4)
     draws=[(1018,4,0,frame_width-8,4),(1019,4,frame_height-4,frame_width-8,4)]
     if frame_height>8:draws.extend([(1020,0,4,4,frame_height-8),(1021,frame_width-4,4,4,frame_height-8)])

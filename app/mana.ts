@@ -33,7 +33,7 @@ export type ManaWorld = {
   levelFlags: number
   manaFlags: number
   turn: number
-  rateSample: number
+  turnsPerSecond: number
   spells: SpellStock[]
 }
 export type ManaEffects = {
@@ -225,7 +225,7 @@ export function distributeMana(
       rate = short(d.rate)
     if (rate) {
       let estimate = 0
-      const interval = divide(Math.imul(w.rateSample, rate), rules.manaUpdateMask + 1)
+      const interval = divide(Math.imul(w.turnsPerSecond, rate), rules.manaUpdateMask + 1)
       if (interval) estimate = (divide(Math.imul(d.cost, charging.active), interval) + half) | 0
       t.estimatedRate = estimate
       if (

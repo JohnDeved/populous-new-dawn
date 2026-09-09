@@ -26,7 +26,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 .tribe-classes{position:absolute;left:1px;top:153px;width:97px;display:grid;grid-template-columns:repeat(6,1fr)}
 .tribe-classes button{position:relative;height:35px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border:1px solid #eec768}
 .tribe-classes button>.hud-sprite{position:absolute;left:0;top:2px}.tribe-classes .native-text{position:relative;z-index:1}.population-button>i{height:22px;width:6px;border:1px ridge #e2c87b;background:#bcd18c;margin-bottom:3px}
-.tiny-mana{position:absolute;left:3px;top:190px;width:92px;height:12px;border:2px ridge #f5d783;background:#173d35}.tiny-mana>i{display:block;height:100%;background:#a4cda4}
+.mana-meter{position:absolute;left:4px;top:190px;width:92px;height:13px;background:url("/original/hud-mana.png");image-rendering:pixelated}.mana-meter>span{position:absolute;left:2px;top:2px;width:88px;height:9px}.mana-meter i{position:absolute;top:0;width:1px;height:10px}
 .command-dock{position:absolute;left:0;top:204px;width:100px;bottom:0;padding:7px 2px;background:url('/original/hud-commands.png');border:2px ridge #e4b152;border-bottom:0}
 .spell-list,.building-list,.follower-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px}
 .spell-card,.building-card,.follower-list button{position:relative;min-width:0;height:43px;padding:0;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-button.png') 8 fill repeat}

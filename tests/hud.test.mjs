@@ -42,3 +42,26 @@ test('tooltip bitmap placement and wrapping match the original desktop controlle
   for(const c of tooltip.cases)
     assert.deepEqual(tooltipLayout(c.text,...c.screen),{width:c.width,height:c.height,draws:c.draws})
 })
+
+import mana from './fixtures/hud-mana.json' with {type:'json'}
+import {manaMeter} from '../app/hud-mana.ts'
+import {createWorld,tick,TURNS_PER_SECOND} from '../app/model.ts'
+test('mana production stripes follow native rates, warning bands and controller modes',()=>{
+  assert.equal(mana.executableSha256,manifest.executableSha256)
+  for(const c of mana.cases)assert.deepEqual(manaMeter(c.tribe,c.world,c.override),c.colors)
+})
+test('live mana estimation uses the simulation clock and follows charging toggles',()=>{
+  const w=createWorld()
+  assert.equal(w.manaWorld.turnsPerSecond,TURNS_PER_SECOND)
+  w.shots.blast=0
+  tick(w,1)
+  assert.ok(w.manaTribes[0].previousRate>0)
+  assert.ok(w.manaTribes[0].estimatedRate>0)
+  assert.equal(w.manaWorld.manaFlags&1,0)
+  w.charging=false;tick(w,1)
+  assert.equal(w.manaWorld.manaFlags&1,1)
+  assert.deepEqual(manaMeter(w.manaTribes[0],w.manaWorld),Array(44).fill(139))
+  w.charging=true;tick(w,1)
+  assert.equal(w.manaWorld.manaFlags&1,0)
+  assert.ok(manaMeter(w.manaTribes[0],w.manaWorld).some(c=>c!==139))
+})

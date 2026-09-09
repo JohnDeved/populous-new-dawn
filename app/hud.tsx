@@ -1,3 +1,5 @@
+import { manaMeter } from './hud-mana.ts'
+import type { ManaTribe, ManaWorld } from './mana.ts'
 import native from './original-hud.json'
 import { hudGlyph } from './hud-font.ts'
 import type { spellButton } from './spell-button.ts'
@@ -61,5 +63,25 @@ export function SpellButtonArt({ view }: { view: ReturnType<typeof spellButton> 
         </span>
       )}
     </span>
+  )
+}
+
+export function ManaMeter({ tribe, world }: { tribe: ManaTribe; world: ManaWorld }) {
+  const colors = manaMeter(tribe, world)
+  return (
+    <div
+      className="mana-meter"
+      role="meter"
+      aria-label="Mana production"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round((colors.filter(c => c === 130 || c === 231).length / 44) * 100)}
+    >
+      <span style={{ backgroundColor: native.colors[172] }}>
+        {colors.map((color, i) => (
+          <i key={i} style={{ left: i * 2, backgroundColor: native.colors[color] }} />
+        ))}
+      </span>
+    </div>
   )
 }

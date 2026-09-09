@@ -3148,3 +3148,50 @@ All 94 portable checks, existing HUD/portrait/unit-sprite browser regressions,
 ESLint (two existing image warnings), new-module ox-standard and production build
 pass. Fallow reports maintainability 85.4 (good), with zero dead exports and the
 existing three dependency cycles/unused dependencies still tracked separately.
+
+## Mana-production display and clock input — 2026-09-09
+
+`0049e8b0` draws the HUD's production meter at logical `(4,190)`, size `92×13`.
+It reads tribe fields `+0x95d` (produced mana) and `+0x961` (estimated demand),
+not the current Blast charge. With positive demand, the upper range is demand
+plus its truncated `200/256` fraction; produced mana is capped to this range.
+Without positive demand, the original uses `256/256`. The inner 88 pixels have
+44 one-pixel stripes at two-pixel intervals. Their color band changes at
+`trunc(88*200/256)=68`; native dim/bright pairs are `175/130` and `225/231`.
+Game flag `0x20` hides stripes, while mana flag 1 without the UI override uses
+the native red warning color. Original palette initialization supplies background
+172 and warning 139 for the opening palette. The `00516810` vertical-line wrapper
+includes its last Y pixel: stripes are 10 pixels high over a 9-pixel background.
+The original `005ca9e0` frame is imported at its actual 92×13 size.
+
+The browser now consumes these existing simulation fields. Tracing their producer
+also identified an integration error: the field previously named `rateSample`
+was permanently zero. In `004a5590`, the same native byte `0089d161` divides 1,000
+to establish the turn interval; `0041a590` uses it to estimate demand. It is now
+named `turnsPerSecond` and initialized from the browser's existing 12-turn clock.
+Full native speed-menu, replay and outer-loop clock ownership remain separate;
+this fixes the current scheduler-to-mana input without changing its tick rate.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-hud-mana.py /private/tmp/populous-reference/native/d3dpoptb.exe
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-mana.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node scripts/check-browser-hud-mana.mjs
+```
+
+The comparison executes 1,948 complete native meter calls over four tribes,
+zero/positive demand, every stripe threshold, capped production and both mode
+gates/override. Only coordinate adapters and final raster queues are supplied;
+palette conversion, line expansion and frame drawing execute. The frame PNG,
+submitted rectangles, colors and recorded pixel hashes agree. Browser checks
+cover 30 states at two desktop sizes and 15 original raster hashes, plus a real
+Blast cast and charge-off/on feedback. The full mana distributor still matches
+1,024 native cases. All 96 portable regressions pass, including a live positive
+demand calculation and warning recovery after charging resumes.
+
+The existing HUD uses uniform logical scaling; native per-resolution rounding,
+UI override ownership, dynamic palettes and full original-frame matching remain
+open. Population/class controls are the next visible gap: `004a0800` totals five
+follower classes (excluding the shaman), and `004a0510` suppresses zero class
+counts and formats nonzero counts with two/three digits. These two exports are
+research evidence only; their complete controls and housing meter are unported.
+The identified export count is 902. Broad HUD and full-game parity stay partial.
