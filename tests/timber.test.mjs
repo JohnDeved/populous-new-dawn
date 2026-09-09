@@ -38,3 +38,45 @@ test('live builders harvest trees in twenty turns and pick up logs in three',()=
     assert.equal(u.harvest,undefined,'new orders cancel the old harvesting phase')
   }
 })
+
+import deliveryFixture from './fixtures/timber-delivery.json' with {type:'json'}
+import {stepTimberDelivery} from '../app/timber.ts'
+import {buildingStage,entrance} from '../app/model.ts'
+import {changeBuildingWork} from '../app/building-damage.ts'
+test('delivery waits, timber and construction stages match complete native calls',()=>{
+  assert.equal(deliveryFixture.executableSha256,manifest.executableSha256)
+  deliveryFixture.cases.forEach((c,i)=>{
+    const e=deliveryFixture.expected[i],wait={remaining:c.entering?8:c.timer},done=stepTimberDelivery(wait)
+    assert.equal(wait.remaining,e.timer);assert.equal(done,e.result===2)
+    const amount=done?timberTransfer(c.cargo,c.work,rules.buildingLife[c.model],c.cargo):0
+    const plan={remaining:c.work,attacker:3},b={model:c.model,stage:c.stage,state:1,flags2:0,attacker:3},events=[]
+    changeBuildingWork(plan,amount,b,null,{move:()=>events.push('move'),release:()=>events.push('release'),init:()=>events.push('init')})
+    assert.equal(c.cargo-amount,e.cargo);assert.equal(plan.remaining,e.work)
+    assert.equal(b.stage,e.stage);assert.equal(b.state,e.state);assert.deepEqual(events,e.events)
+    if(c.entering)assert.deepEqual(e.animations,[rules.personAnimationObjects[(c.cargo?4:0)*9+2]])
+  })
+})
+test('live construction advances on each delivery, pauses and cancels cleanly',()=>{
+  const w=createWorld(),b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut'),u=w.units.find(u=>u.team==='blue'&&u.kind==='brave')
+  b.progress=0;b.logs=0
+  const extra=w.units.find(p=>p.team==='blue'&&p.kind==='brave'&&p!==u)
+  const arrive=()=>{clearLivePath(w,u);Object.assign(u,{...entrance(w,b),inside:null,work:b.id,tree:null,cargo:1})}
+  for(let log=1;log<=3;log++){
+    arrive()
+    if(log===3){clearLivePath(w,extra);Object.assign(extra,{...entrance(w,b),inside:null,work:b.id,tree:null,cargo:1})}
+    for(let turn=1;turn<=7;turn++){
+      tick(w,1/12);assert.equal(b.progress,(log-1)/3)
+      assert.equal(u.cargo,1);assert.equal(u.delivery.remaining,8-turn);assert.equal(unitAnimation(w,u),'carryIdle')
+    }
+    w.paused=true;tick(w,1);assert.equal(u.delivery.remaining,1);w.paused=false
+    tick(w,1/12);assert.equal(b.progress,log/3);assert.equal(b.logs,log);assert.equal(u.cargo,0)
+    assert.equal(buildingStage(b),[1,2,4][log-1])
+  }
+  assert.equal(w.stats.built,1);assert.equal(u.work,null)
+  assert.equal(extra.cargo,1,'completion preserves another worker’s surplus timber')
+  assert.equal(extra.work,null)
+  b.progress=0;b.logs=0;arrive();tick(w,1/12);w.selected=[u.id]
+  command(w,{x:u.x+2,z:u.z});assert.equal(u.delivery,undefined)
+  for(let turn=0;turn<16;turn++)tick(w,1/12)
+  assert.equal(b.progress,0,'an abandoned plan must not advance without a delivery')
+})

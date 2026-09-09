@@ -634,3 +634,20 @@ remaining follower classes and native resolution rounding remain open. Continue
 visible world rendering, construction/activity and critical first-mission gameplay
 comparisons. Broad HUD parity stays partial; known-scope coverage remains 17.7%
 (17/96 verified checkpoints), with discovery open and full parity unfinished.
+
+### Latest critical integration: timber-driven construction
+
+Construction now advances as each brave delivers timber after the original
+eight-turn pause. Removed the arbitrary twelve-seconds-per-worker timer and its
+incorrect post-delivery hammering pose. Original work capacity determines each
+mesh stage; repair uses the shared native transfer and stage update. Compared
+576 complete delivery-phase calls; actual browser placement, three original
+carried-log waits and visibly different scaffold/completed meshes pass. A complete
+hut upgrade and existing building-fire checks pass. There are 100 portable
+regressions and 909 identified exports.
+
+Full plan allocation/decision dispatch, terrain preparation, worker positioning
+and idle work cycles, shared-wait random facing and repair-delay ownership remain
+open. Continue the original construction lifecycle and visible first-mission
+activity, with full world-frame comparison still pending. Broad construction and
+HUD checkpoints remain partial; discovery is open and full parity is unfinished.

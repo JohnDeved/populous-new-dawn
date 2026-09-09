@@ -1,6 +1,11 @@
 import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
-import { startTimberHarvest, stepTimberHarvest, timberTransfer } from './timber.ts'
+import {
+  startTimberHarvest,
+  stepTimberHarvest,
+  stepTimberDelivery,
+  timberTransfer,
+} from './timber.ts'
 import {
   stepTreeGrowth,
   replantDelay,
@@ -185,6 +190,7 @@ export type Unit = Point & {
   cargo: number
   tree: number | null
   harvest?: { remaining: number }
+  delivery?: { remaining: number }
   timer: number
   guard: boolean
   lift: number
@@ -659,16 +665,6 @@ export function unitAnimation(w: World, u: Unit) {
     )
   )
     return 'pray'
-  if (
-    w.buildings.some(
-      b =>
-        b.id === u.work &&
-        b.progress < 1 &&
-        b.logs >= (BUILDINGS.find(s => s.id === b.kind)?.cost ?? Infinity) &&
-        distance(b, u) <= 4.2
-    )
-  )
-    return 'work'
   return w.selected.includes(u.id) ? 'selected' : 'idle'
 }
 export { nativeTerrainCross } from './native-math.ts'
@@ -1574,6 +1570,7 @@ function release(w: World, u: Unit) {
   u.inside = null
   u.tree = null
   u.harvest = undefined
+  u.delivery = undefined
   u.target = null
   u.guard = false
   u.timer = 0
@@ -1586,8 +1583,8 @@ export function buildingModel(b: Pick<Building, 'kind' | 'level'>) {
   return b.kind === 'hut' ? b.level : b.kind === 'tower' ? 4 : b.kind === 'temple' ? 5 : 7
 }
 export function buildingStage(b: Building) {
-  // ponytail: construction progress adapts native remaining work until the
-  // original plan/construction processor replaces the browser work producer.
+  // The browser stores native plan work as a fraction of the model
+  // capacity; complete plan allocation and order dispatch remain separate.
   const life = rules.buildingLife[buildingModel(b)]
   return b.damageState?.stage ?? buildingWorkStage(Math.trunc(b.progress * life), life)
 }
@@ -2935,13 +2932,38 @@ function findBuildingWood(w: World, u: Unit, b: Building) {
 // Shared live hauling adapter; native routing and automatic-construction orders remain open.
 function haulBuildingWood(w: World, b: Building, workers: Unit[], cost: number) {
   for (const u of workers) {
+    if (cost && b.progress === 1) break
     if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
       if (b.progress === 1) {
         const point = buildingDoor(b)
         w.trees.push({ ...point, id: w.nextId++, model: 11, logs: u.cargo })
         sound(w, 0xb, u)
-      } else b.logs += u.cargo
-      u.cargo = 0
+        u.cargo = 0
+      } else {
+        u.delivery ??= { remaining: 8 }
+        if (!stepTimberDelivery(u.delivery)) continue
+        const capacity = rules.buildingLife[buildingModel(b)],
+          work = b.damageState?.plan.remaining ?? Math.round(b.progress * capacity),
+          amount = timberTransfer(
+            Math.round(u.cargo * 100),
+            work,
+            capacity,
+            Math.round(u.cargo * 100)
+          )
+        b.progress = (work + amount) / capacity
+        b.logs = (work + amount) / 100
+        u.cargo -= amount / 100
+        if (b.damageState) {
+          const state = b.damageState
+          changeBuildingWork(state.plan, amount, state, null, {
+            move: () => {},
+            release: () => {},
+            init: () => {},
+          })
+          b.hp = buildingHp(b.kind) * b.progress
+        }
+      }
+      u.delivery = undefined
       u.tree = null
     }
     if (
@@ -3163,26 +3185,9 @@ function stepTurn(w: World) {
     }
     const inhabitants = w.units.filter(u => u.inside === b.id && u.hp > 0)
     if (b.progress < 1) {
-      const cost = BUILDINGS.find(s => s.id === b.kind)!.cost
+      const cost = rules.buildingLife[buildingModel(b)] / 100
       const workers = w.units.filter(u => u.work === b.id && u.hp > 0 && u.kind === 'brave')
       haulBuildingWood(w, b, workers, cost)
-      if (b.logs >= cost)
-        b.progress = Math.min(
-          1,
-          b.progress +
-            (workers.filter(u => atBuildingEntrance(w, u, b) && !u.path.length).length * dt) / 12
-        )
-      if (b.damageState) {
-        // Reuse the current construction work producer until native repair scheduling lands.
-        const state = b.damageState,
-          remaining = Math.trunc(b.progress * rules.buildingLife[state.model])
-        changeBuildingWork(state.plan, remaining - state.plan.remaining, state, null, {
-          move: () => {},
-          release: () => {},
-          init: () => {},
-        })
-        b.hp = buildingHp(b.kind) * b.progress
-      }
       if (b.progress === 1) {
         if (!b.upgrading && !b.damageState) w.stats.built++
         b.upgrading = false

@@ -811,9 +811,14 @@
           "evidence": [
             "scripts/check-native-building-plan.py",
             "scripts/check-native-building-damage.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "app/timber.ts",
+            "scripts/check-native-timber-delivery.py",
+            "scripts/check-browser-construction.mjs",
+            "tests/timber.test.mjs",
+            "tests/fixtures/timber-delivery.json"
           ],
-          "note": "Native geometry/stages integrated; validity, plan registration and construction lifecycle incomplete."
+          "note": "Native geometry/stages integrated; validity, plan registration and construction lifecycle incomplete. Construction now advances by capacity-limited timber transfers after the native eight-turn delivery pause, replacing the separate twelve-seconds-per-worker rule. Each arriving log updates the original stage immediately; shared repair work uses the same transfer. Compared 576 complete delivery-phase calls through native wait, transfer and plan-stage updates. Actual browser placement, three carried-log waits, visible stage changes and complete hut upgrade pass; pause/cancellation and unchanged damage/fire checks pass. Full construction decision dispatcher, plan allocation, worker positioning/terrain preparation, idle work cycles, shared-wait random facing and repair-delay ownership remain open."
         },
         {
           "id": "economy.wood",
@@ -833,9 +838,12 @@
             "app/tree-growth.ts",
             "scripts/check-native-tree-growth.py",
             "tests/tree-growth.test.mjs",
-            "scripts/check-browser-tree-growth.mjs"
+            "scripts/check-browser-tree-growth.mjs",
+            "scripts/check-native-timber-delivery.py",
+            "scripts/check-browser-construction.mjs",
+            "tests/fixtures/timber-delivery.json"
           ],
-          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Reached-source fetch command 7 now uses native twenty-turn tree work, three-turn log pickup, row-6 work animation and cues 1/10. Transfer limits and harvested tree scale match original consumers in 1860 native phase calls; portable and live browser checks cover work/carry, PCM and GPU shrink. Search/arrival, automatic-construction ordering, frame-gated sound and delayed replant remain open. Tree regrowth now uses per-object counter/rate. Native depletion delays, full indexed site search, collision/occupancy exclusions, 256-turn retries and 100-wood saplings are integrated. Compared 576 growth calls, 18 depletion records and 128 full delayed search/controller calls. Full-delay simulation and live GPU growth/shade checks pass. Allocation caps, mixed-class ownership, insertion scheduling and remaining vegetation visibility remain open."
+          "note": "Real logs and tree shrink exist; complete native work and replant schedule unverified. Upgrade maturity now uses native per-building 16/128-turn phases, starts fetching at 75%, and waits for 300 wood in the entrance cell. Original log sprites and drop cue show staged timber before family-preserving reconstruction begins at 100 work. Compared 2079 complete native decision calls and 256 cell timber totals; portable/native/browser checks cover the complete live gather, stage, upgrade and construction sequence. Native resource search, harvesting/transfer timing, person order ownership and successful replacement allocation remain adapters. Reached-source fetch command 7 now uses native twenty-turn tree work, three-turn log pickup, row-6 work animation and cues 1/10. Transfer limits and harvested tree scale match original consumers in 1860 native phase calls; portable and live browser checks cover work/carry, PCM and GPU shrink. Search/arrival, automatic-construction ordering, frame-gated sound and delayed replant remain open. Tree regrowth now uses per-object counter/rate. Native depletion delays, full indexed site search, collision/occupancy exclusions, 256-turn retries and 100-wood saplings are integrated. Compared 576 growth calls, 18 depletion records and 128 full delayed search/controller calls. Full-delay simulation and live GPU growth/shade checks pass. Allocation caps, mixed-class ownership, insertion scheduling and remaining vegetation visibility remain open. Construction now advances by capacity-limited timber transfers after the native eight-turn delivery pause, replacing the separate twelve-seconds-per-worker rule. Each arriving log updates the original stage immediately; shared repair work uses the same transfer. Compared 576 complete delivery-phase calls through native wait, transfer and plan-stage updates. Actual browser placement, three carried-log waits, visible stage changes and complete hut upgrade pass; pause/cancellation and unchanged damage/fire checks pass. Full construction decision dispatcher, plan allocation, worker positioning/terrain preparation, idle work cycles, shared-wait random facing and repair-delay ownership remain open."
         },
         {
           "id": "economy.housing",
@@ -876,9 +884,14 @@
           "evidence": [
             "scripts/check-native-building-damage.py",
             "scripts/check-native-building-fire.py",
-            "scripts/check-browser-building-fire.mjs"
+            "scripts/check-browser-building-fire.mjs",
+            "app/timber.ts",
+            "scripts/check-native-timber-delivery.py",
+            "scripts/check-browser-construction.mjs",
+            "tests/timber.test.mjs",
+            "tests/fixtures/timber-delivery.json"
           ],
-          "note": "Native damage/fire phases integrated; exact repair and plan ownership remain adapters."
+          "note": "Native damage/fire phases integrated; exact repair and plan ownership remain adapters. Construction now advances by capacity-limited timber transfers after the native eight-turn delivery pause, replacing the separate twelve-seconds-per-worker rule. Each arriving log updates the original stage immediately; shared repair work uses the same transfer. Compared 576 complete delivery-phase calls through native wait, transfer and plan-stage updates. Actual browser placement, three carried-log waits, visible stage changes and complete hut upgrade pass; pause/cancellation and unchanged damage/fire checks pass. Full construction decision dispatcher, plan allocation, worker positioning/terrain preparation, idle work cycles, shared-wait random facing and repair-delay ownership remain open."
         },
         {
           "id": "economy.classes",

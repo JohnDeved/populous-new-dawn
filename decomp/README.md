@@ -3237,3 +3237,46 @@ presentation counter. Native alternate-table producers, complete control policy,
 unavailable-control blending, per-resolution rounding and full outer-clock
 ownership remain open. Unsupported follower classes stay unavailable. This
 component work does not complete the broad HUD checkpoint or full game parity.
+
+## Timber delivery advances construction — 2026-09-09
+
+`00495520` dispatches construction command stages. Its stage 7 calls the shared
+`00496750` hauling controller; phase 5 initializes an eight-turn wait, executes
+`004391a0`, then transfers all carried timber through `004a7860`. The class-9
+recipient uses its building model's work capacity and `004ba2c0` for stage and
+completion changes. There is no separate worker-count-scaled construction timer
+on this transfer path. The original wait decrements a signed short and completes
+only at zero; its entry selects the carried/rest pose through `004d4ee0`.
+
+The live browser now uses that delay and existing capacity-limited transfer.
+A hut advances through native stages 1, 2 and 4 as its three logs arrive. The
+former twelve-seconds-per-worker accumulation and synthetic final hammering pose
+are removed. Repairs reuse the native plan update; cancellation clears pending
+delivery, and a completed plan cannot consume another worker's surplus cargo.
+Original completed-hut upgrade stockpiling remains separate from plan delivery.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-timber-delivery.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node scripts/check-browser-construction.mjs
+node scripts/check-browser-hut-upgrade.mjs
+node scripts/check-browser-building-fire.mjs
+```
+
+The native check runs 576 complete phase-5 calls over six building models,
+partial/full work, zero/partial/excess cargo, entry and signed timer boundaries.
+Original plan coordinates, resource-search registration, wait, carried/rest
+animation selection, transfer limits and plan-stage changes execute. Only final
+animation requests and building movement/release/initialization consumers are
+supplied. The person's counter is fixed away from the shared wait's random-facing
+phase; that ownership is not claimed. Recorded native captures run portably.
+Live tests cover each delivery's carry pose, exact timer, pause/cancellation and
+visible scaffold changes. Existing complete upgrades, harvesting, fire/damage
+and grounding checks remain passing.
+
+Five additional exports (`004935c0`, `00495520`, `004958f0`, `00496220`,
+`00497690`) retain resource-search registration and the surrounding construction
+decision, worker activity and clearance paths for continued reconstruction.
+The manifest contains 909 routines. Full plan allocation, dispatcher ownership,
+terrain preparation, workers' native positions/idle activity, repair-delay
+ownership and complete allocation scheduling remain open. This is an integrated
+transfer-path correction, not complete construction or engine parity.

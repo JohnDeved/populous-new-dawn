@@ -10,6 +10,13 @@ export function stepTimberHarvest(work: { remaining: number }) {
   return work.remaining <= 0
 }
 
+// 0x496750 phase 5 transfers carried timber after exactly eight object turns.
+// Unlike harvesting, this shared native wait finishes only when the short reaches zero.
+export function stepTimberDelivery(work: { remaining: number }) {
+  work.remaining = ((work.remaining - 1) << 16) >> 16
+  return work.remaining === 0
+}
+
 // 0x4a7860: transfer cannot exceed the source, request or recipient capacity.
 export function timberTransfer(
   available: number,
