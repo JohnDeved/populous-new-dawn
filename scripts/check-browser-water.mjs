@@ -180,12 +180,16 @@ try {
   await page.evaluate(() => window.testScene.focus({ x: 0, z: 50 }))
   await page.waitForTimeout(100)
   await page.screenshot({ path: '/private/tmp/populous-water-southern-shore.png' })
-  await page.evaluate(() => (window.testScene.overviewActive = true))
-  await page.waitForTimeout(100)
-  assert.ok(await page.evaluate(() => window.testScene.terrain.count === 1))
+  await page.getByRole('button', { name: 'Planet overview', exact: true }).click()
+  await page.waitForFunction(() => {
+    const s = window.testScene
+    return s.overviewActive && !s.overviewStage && s.globe.visible && !s.ground.visible
+  })
   await page.evaluate(() => window.testScene.focus())
-  await page.waitForTimeout(100)
-  assert.ok(await page.evaluate(() => window.testScene.terrain.count === 9))
+  await page.waitForFunction(() => {
+    const s = window.testScene
+    return !s.overviewActive && !s.overviewStage && s.ground.visible && !s.globe.visible && s.terrain.count === 9
+  })
   assert.deepEqual(errors, [])
   console.log(
     `PASS: coastline diffuse shading (${result.coastPixels} GPU pixels), additive warm light (${result.warmPixels} pixels), no water highlights; wave animation/wrap/pause, shared coast heights and overview; no browser errors`

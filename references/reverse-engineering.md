@@ -4471,3 +4471,12 @@ current directional animation with the standing shadow suppressed. The scene
 now shares its resolved world frame with the HUD canvas. Native and browser
 pixel comparisons, pose overflow and remaining resolution/control limits are
 recorded in [the portrait evidence](../decomp/README.md#animated-shaman-portrait--2026-09-09).
+
+
+### Local terrain lights
+
+Recovered the fifty-source pool, wrapped 7×7 cell contributions, falloff, private
+flicker, movement and removal in `004010b0`–`004015f0`/`004ee190`. Original Blast
+and fire requests now feed the existing terrain diffuse/specular renderer;
+building fire respects its first-socket light flag. See [native and browser
+lighting evidence](../decomp/README.md#local-terrain-lighting--2026-09-09).

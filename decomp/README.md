@@ -3046,3 +3046,57 @@ per-resolution rounding remains open. The 24 Hz presentation counter is a browse
 adapter, not a port of the full native outer-frame clock. Complete native shaman
 state ownership, control selection/disabled dispatch, other tribes as the player,
 other panels and whole original-frame matching remain unfinished.
+
+
+## Local terrain lighting — 2026-09-09
+
+`004010b0` allocates the first free one of fifty light slots and immediately
+refreshes terrain. `00401350` clears prior contributions, follows the owning
+object, rejects lights beyond the original wrapped camera distance and applies
+one private-RNG flicker value per light. `004015f0` visits the native 7×7 patch,
+uses wrapped three-dimensional squared distance and height falloff, and clamps
+combined light to 31. `00401230` subtracts stored contributions before refresh;
+`00401140`/`004ee190` remove the owner while retaining other lights and the lower
+ten building-occupancy bits. The module keeps these operations in readable TS
+and shares native terrain-height and RNG helpers.
+
+Blast effect 38 requests strength 4/flicker 4 in `00509c10`; native scenery-fire
+initialization `004a6b20` requests strength 3/flicker 4 when its light argument
+is set. These requests now reach the browser. Building fire uses the existing
+native socket `light` field: only the first designated socket enables a light.
+Source deletion releases its light; flames live beyond the building's separate
+burn counter, so cleanup follows the actual flame lifetime. Scene camera input
+supplies the native light-view position. Changes invalidate the existing terrain
+vertex-light buffer, including allocations within the same simulation turn.
+No new shader, arbitrary tint or light-strength approximation was added.
+
+The native check runs 288 complete x86 calls without callee stubs, retaining 235
+lifecycle snapshots. Cases cover full-pool refusal, saturation/overlap, first-hole
+reuse, motion and view across map seams, height changes, graphics-enable/pause
+gates, non-consumption of gameplay RNG, and exact occupancy restoration after
+all removals. Fifty slot records and whole-terrain hashes are checked at every
+snapshot. Native graphics flags here live at `00895da4`, distinct from the
+simulation flags at `0089c66d`; the browser explicitly enables local lighting
+without changing simulation flags. The independent sun-rotation flag is disabled
+in this comparison and its scheduler remains unported.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-terrain-light.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node scripts/check-browser-terrain-light.mjs
+```
+
+Actual browser casts produce 35,655 changed ground pixels for Blast (32 lit
+cells) and 29,909 for building fire; over 99% become brighter. The comparison
+removes only packed terrain light temporarily, retaining effects and geometry.
+Both light lifetimes clean up without residual illumination. The portable
+suite has 93 passing regressions, including paused/immediate Blast lighting and
+first-socket building ownership. Existing native Blast, scenery/fire and building
+ignition/burn comparisons pass. New TS passes ox-standard; ESLint retains two
+existing image warnings, and Fallow reports maintainability 85.3 (good) with
+pre-existing repository debt. Five new exports bring the manifest to 888.
+
+Full native object-allocation/deferred-free order, all other light-producing
+classes, original graphics-menu settings, sun rotation, complete renderer/painter
+matching and original full-frame comparisons remain open. The current browser
+simulation clock and end-of-turn ownership adapter remain partial. This advances
+the existing lighting checkpoint without claiming the complete lighting system.

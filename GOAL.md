@@ -570,3 +570,20 @@ shaman state producers remain open. HUD and the full-game goal remain partial.
 Continue comparing visible world lighting/terrain and first-mission activity
 against original captures, alongside remaining population/mana/control artwork.
 Keep discovery open and do not award broad checkpoint credit for component work.
+
+
+### Latest visible integration: Blast and fire illuminate terrain
+
+Original local light requests now reach the terrain renderer. The fifty-source
+pool, wrapped 7×7 falloff, private flicker, overlap saturation, moving owners and
+cleanup match 288 native calls across 235 lifecycle snapshots. Blast and scenery
+fire use their original strengths; building fire enables only its designated
+first socket. Actual browser casts change 35,655/29,909 ground pixels, with lights
+removed when the owning effects expire. All 93 portable regressions pass.
+
+Full light-producer coverage, original allocation/free order, graphics settings,
+sun rotation and complete original-frame rendering remain open. Keep comparing
+terrain/lighting, distant models and visible first-mission activity. Literal native
+tooltip formatting tokens in the latest fire capture are another visible gap to
+address. The broad lighting checkpoint stays partial; discovery and full game
+parity remain unfinished.

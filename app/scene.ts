@@ -809,6 +809,7 @@ export class GameScene {
     g.userData.nativeHeading = Math.round((angle * 1024) / Math.PI) & 2047
   }
   updateView() {
+    this.world.lightView = nativePosition(this.world, this.viewPoint)
     this.view.globeBlend = this.overviewActive ? this.globeMorph.value : 0
     this.view.globeFlatScale = this.overviewStage === 'exit' ? 18 : 21
     this.view.update(
@@ -991,7 +992,7 @@ export class GameScene {
   updateWater() {
     if (!this.waves) return
     const w = this.world,
-      key = `${w.turn}:${w.landVersion}:${this.terrain.geometry.id}`
+      key = `${w.turn}:${w.landVersion}:${w.lightRevision}:${this.terrain.geometry.id}`
     if (key === this.waterState) return
     this.waterState = key
     // ponytail: simulation turns feed both clocks until the native outer

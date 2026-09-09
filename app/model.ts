@@ -1,3 +1,4 @@
+import { addTerrainLight, updateTerrainLights, type TerrainLights } from './terrain-light.ts'
 import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
 import { startTimberHarvest, stepTimberHarvest, timberTransfer } from './timber.ts'
 import {
@@ -824,6 +825,9 @@ export type World = {
   giftCounts: Record<Spell, number>
   land: NativeTerrain & Territory
   landVersion: number
+  lights: TerrainLights
+  lightView: { x: number; y: number }
+  lightRevision: number
   buildingFootprints: Map<number, RegisteredBuilding>
   sceneryShadows: Map<number, SceneryShapePose>
   spellScan: SpellTargetScan
@@ -1003,6 +1007,9 @@ export function createWorld(): World {
       searchTag: 255,
     },
     landVersion: -1,
+    lights: Array(50).fill(null),
+    lightView: { x: 0, y: 0 },
+    lightRevision: 0,
     buildingFootprints: new Map(),
     sceneryShadows: new Map(),
     spellScan: { cursor: 0, limit: 0, paused: 0, targets: [0, 0, 0, 0] },
@@ -1157,6 +1164,7 @@ export function createWorld(): World {
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
+  w.lightView = nativePosition(w, HOME)
   return w
 }
 // 0x492920: marker queries read the coarse vertex; odd coordinate bits are ignored.
@@ -1513,8 +1521,46 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
     }
   }
   w.effects.push(f)
+  if (kind === 'blast') registerTerrainLight(w, f, 4)
   return f
 }
+function lightPosition(w: World, f: Effect) {
+  return (
+    f.fire ?? {
+      ...nativePosition(w, f),
+      h: Math.round((f.height ?? height(w.terrain, f.x, f.z)) * 45),
+    }
+  )
+}
+function registerTerrainLight(w: World, f: Effect, strength: number) {
+  if (
+    addTerrainLight(w.lights, {
+      owner: f.id,
+      strength,
+      flicker: 4,
+      flags: 0,
+      position: lightPosition(w, f),
+    })
+  )
+    refreshTerrainLights(w)
+}
+function refreshTerrainLights(w: World) {
+  if (
+    updateTerrainLights(
+      w.land,
+      w.lights,
+      id => {
+        const f = w.effects.find(f => f.id === id)
+        return f && lightPosition(w, f)
+      },
+      w.lightView,
+      w.randomState,
+      true // Desktop rendering enables native dynamic landscape lighting.
+    )
+  )
+    w.lightRevision++
+}
+
 export function select(w: World, kind: UnitKind | 'all') {
   w.selected = w.units
     .filter(u => u.team === 'blue' && (kind === 'all' || u.kind === kind))
@@ -2413,7 +2459,14 @@ function stepDebrisEffect(w: World, fx: Effect, rng: { randomState: number }) {
 function createFire(
   w: World,
   p: Point,
-  options: { size: number; snap: boolean; smoke: boolean; turns: number; suppressEmbers?: boolean }
+  options: {
+    size: number
+    snap: boolean
+    smoke: boolean
+    turns: number
+    suppressEmbers?: boolean
+    light?: boolean
+  }
 ) {
   const fx = effect(w, 'fire', p)
   fx.fire = createSceneryFire(w.land, nativePosition(w, p), options, w.cosmeticRandom)
@@ -2423,6 +2476,7 @@ function createFire(
   fx.duration = Infinity
   fx.groundVersion = w.landVersion
   moveVisual(fx, fx.fire)
+  if (options.light !== false) registerTerrainLight(w, fx, 3)
 }
 
 // 0x511ae0's first bolt turn: ignite burnable scenery in the target cell;
@@ -2438,6 +2492,7 @@ function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
       for (const point of buildingFirePoints(buildingPose(building))) {
         createFire(w, browserPosition(point), {
           size: point.size,
+          light: point.light,
           snap: false,
           smoke: true,
           turns: 135,
@@ -2445,7 +2500,7 @@ function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
         })
         building.burn.soundPlaying = true
       }
-      // ponytail: native nearby-person panic and sunlight ownership remain unported.
+      // ponytail: native nearby-person panic remains unported.
     })
   }
   const trees = w.trees.filter(tree => {
@@ -3411,6 +3466,7 @@ function stepTurn(w: World) {
       }
     }
   }
+  refreshTerrainLights(w) // 0x4ec6f0: lighting follows the completed object turn.
   ageFailedRoutes(w.motionRoutes) // 0x4ec6f0: after object and terrain work.
   // The result overlay remains while followers continue their native celebration.
   // Full progression presentation is still being reconstructed.

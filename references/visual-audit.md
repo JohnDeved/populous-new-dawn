@@ -406,3 +406,21 @@ renderer with forced old two-sided materials at four camera bearings changes
 agree on 40 front/rear/sloping-triangle cases across all five stages. Full-frame
 lighting, occlusion and raster matching remain open; the horizon darkness was not
 claimed fixed by changing face culling.
+
+
+## Blast and fire ground lighting — v118
+
+Revisited `populus-3.png`, `user-village.jpg` and `images-1.jpg`. Their different
+landscape banks do not justify recoloring the verified first-mission bank. The
+missing local-light producer was a concrete discrepancy: existing terrain shader
+comparisons accepted light inputs, but original spell/fire requests never supplied
+them. Native allocation, attenuation, flicker and cleanup are now connected.
+
+Inspected `/private/tmp/populous-blast-ground-light-v118.png` and
+`/private/tmp/populous-fire-ground-light-v118.png`. Actual casts illuminate nearby
+ground through the existing warm-light channel. With geometry/effects retained,
+removing only packed light changes 35,655/29,909 GPU pixels; over 99% brighten with
+lighting restored. The camera, terrain palette and distant model fade remain
+unchanged. Literal tooltip formatting tokens are also visible in the fire capture
+and remain a concrete UI discrepancy for a following pass. Full original-frame
+matching and the far-model darkness remain open.

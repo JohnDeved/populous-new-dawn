@@ -212,9 +212,13 @@
             "scripts/check-native-globe.py",
             "scripts/check-browser-globe.mjs",
             "tests/globe.test.mjs",
-            "tests/fixtures/globe.json"
+            "tests/fixtures/globe.json",
+            "app/terrain-light.ts",
+            "scripts/check-native-terrain-light.py",
+            "scripts/check-browser-terrain-light.mjs",
+            "tests/terrain-light.test.mjs"
           ],
-          "note": "Terrain diffuse/additive conversion, scenery shade, standing/airborne sprite shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete. The separate native globe diffuse/specular and rim-light calculations agree for 18,532 complete triangles and now render in world view."
+          "note": "Terrain diffuse/additive conversion, scenery shade, standing/airborne sprite shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete. The separate native globe diffuse/specular and rim-light calculations agree for 18,532 complete triangles and now render in world view. Local terrain lights now integrate original Blast/fire requests, first building-fire socket, 50-slot allocation, 7\u00d77 wrapped falloff, private flicker, saturation, moving owners and cleanup. Compared 288 complete native calls/235 lifecycle snapshots and actual browser casts (35,655/29,909 changed ground pixels); portable tests preserve occupancy, pause and owner lifetime. Full producer coverage, allocation/free order, original graphics settings, sun rotation and full-frame matching remain open."
         },
         {
           "id": "graphics.raster",

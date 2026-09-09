@@ -74,7 +74,9 @@ test('Lightning ignites only its building footprint, then evacuates, damages and
   until(w, () => !!building.burn, 5);
   assert.equal(building.hp, hp, 'ignition does not apply the old immediate HP subtraction');
   assert.equal(neighbor.damageState, null);
-  assert.ok(w.effects.filter(f => f.fire?.suppressEmbers).length > 1, 'original shape supplies multiple fire sockets');
+  const fires = w.effects.filter(f => f.fire?.suppressEmbers);
+  assert.ok(fires.length > 1, 'original shape supplies multiple fire sockets');
+  assert.equal(w.lights.filter(l => l && fires.some(f => f.id === l.owner)).length, 1, 'only the first native building flame socket requests light');
   until(w, () => building.burn.remaining === 119, 2);
   assert.equal(occupant.inside, null);
   assert.equal(building.damageState.plan.remaining, 300);
@@ -82,7 +84,8 @@ test('Lightning ignites only its building footprint, then evacuates, damages and
   assert.equal(building.damageState.plan.remaining, 200);
   assert.equal(building.damageState.stage, 2);
   assert.ok(w.sounds.some(s => s.cue === 0x53 && s.stop && s.owner === building.id));
-  until(w, () => !building.burn, 8);
+  until(w, () => !building.burn && fires.every(f => !w.effects.includes(f)), 8);
+  assert.ok(w.lights.every(l => !l || !fires.some(f => f.id === l.owner)), 'extinguished building releases its light');
   assert.equal(building.progress, 2 / 3);
   assert.equal(building.logs, 2);
   select(w, 'brave');
