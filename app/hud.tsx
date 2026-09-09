@@ -1,7 +1,7 @@
+import { followerNumber, followerIcon, populationMeter } from './hud-population.ts'
 import { manaMeter } from './hud-mana.ts'
 import type { ManaTribe, ManaWorld } from './mana.ts'
 import native from './original-hud.json'
-import { hudGlyph } from './hud-font.ts'
 import type { spellButton } from './spell-button.ts'
 import { healthBarPixels } from './hud-health.ts'
 
@@ -13,16 +13,6 @@ export function HudSprite({ id }: { id: number | string }) {
       aria-hidden="true"
       style={{ width: r.w, height: r.h, backgroundPosition: `-${r.x}px -${r.y}px` }}
     />
-  )
-}
-
-export function NativeText({ text, font = 0 }: { text: string; font?: 0 | 2 }) {
-  return (
-    <span className="native-text" role="img" aria-label={text}>
-      {Array.from(text, (c, i) => (
-        <HudSprite key={i} id={hudGlyph(c.charCodeAt(0), font)} />
-      ))}
-    </span>
   )
 }
 
@@ -83,5 +73,69 @@ export function ManaMeter({ tribe, world }: { tribe: ManaTribe; world: ManaWorld
         ))}
       </span>
     </div>
+  )
+}
+
+export function FollowerNumber({ count, total = false }: { count: number; total?: boolean }) {
+  const label = followerNumber(count, total)
+  return (
+    <span
+      className="follower-number"
+      role="img"
+      aria-label={String(count)}
+      style={{ left: label.x, top: label.y }}
+    >
+      {label.ids.map((id, i) => (
+        <HudSprite key={i} id={id} />
+      ))}
+    </span>
+  )
+}
+
+export function PopulationMeter({
+  population,
+  capacity,
+}: {
+  population: number
+  capacity: number
+}) {
+  const meter = populationMeter(population, capacity, 0)
+  return (
+    <span
+      className="population-meter"
+      role="meter"
+      aria-label="Population capacity"
+      aria-valuemin={0}
+      aria-valuemax={Math.max(1, capacity)}
+      aria-valuenow={Math.min(population, Math.max(1, capacity))}
+      aria-valuetext={`${population} of ${capacity}`}
+    >
+      <span style={{ backgroundColor: native.colors[130] }}>
+        <i
+          style={{
+            height: meter.pixels,
+            backgroundColor:
+              population >= capacity
+                ? 'var(--population-full-color, #ff2500)'
+                : native.colors[meter.color],
+          }}
+        />
+      </span>
+    </span>
+  )
+}
+
+export function FollowerIcon({ sprite }: { sprite: number }) {
+  return (
+    <span className="follower-icon" aria-hidden="true">
+      {[sprite, sprite + 1].map(id => {
+        const p = followerIcon(id)
+        return (
+          <span key={id} style={{ left: p.x, top: p.y }}>
+            <HudSprite id={id} />
+          </span>
+        )
+      })}
+    </span>
   )
 }

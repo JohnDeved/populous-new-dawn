@@ -23,7 +23,7 @@ for font in [0,2]:
     for i,glyph in enumerate(a.sprites(read(f'data/font{font}-0.dat'),palette)):
         entries[f'font{font}-{i}']=glyph
 # 0x44a2f0/0x42ac70 use F00T, whose brace positions contain mouse artwork.
-for font in [3,4]:
+for font in [3,4,5,6,7]:
     for i,glyph in enumerate(a.sprites(read(f'data/f00t{font}-0.dat'),palette)):
         entries[f'f00t{font}-{i}']=glyph
 # 0x41d730: original world-view building, occupant and discovery icons.
@@ -56,7 +56,7 @@ for name,start in [('button',821),('button-selected',830),('button-hover',839),
     print(name,columns,rows)
 # 0x4a1f50: native charge/health frames, including overlapping 4px corners.
 # CSS border-image would shrink corners to fit the short charge rectangle.
-for name,frame_width,frame_height in [('charge',26,5),('health',10,22),('mana',92,13)]:
+for name,frame_width,frame_height in [('charge',26,5),('health',10,22),('mana',92,13),('population',7,22)]:
     pixels=bytearray(frame_width*frame_height*4)
     draws=[(1018,4,0,frame_width-8,4),(1019,4,frame_height-4,frame_width-8,4)]
     if frame_height>8:draws.extend([(1020,0,4,4,frame_height-8),(1021,frame_width-4,4,4,frame_height-8)])
@@ -69,6 +69,18 @@ for name,frame_width,frame_height in [('charge',26,5),('health',10,22),('mana',9
                 src=((y%h)*w+x%w)*4;at=((top+y)*frame_width+left+x)*4
                 if data[src+3]:pixels[at:at+4]=data[src:src+4]
     a.png(output/f'hud-{name}.png',frame_width,frame_height,pixels)
+# 0x4a1dd0: 15×36 follower buttons, with a filled center and 4px corners.
+for name,start in [('follower',1005),('follower-hover',1014),('follower-selected',996)]:
+    pixels=bytearray(15*36*4)
+    draws=[(8,4,4,7,28),(4,4,0,7,4),(5,4,32,7,4),(6,0,4,4,28),(7,11,4,4,28),
+           (0,0,0,4,4),(1,11,0,4,4),(2,0,32,4,4),(3,11,32,4,4)]
+    for offset,left,top,draw_width,draw_height in draws:
+        w,h,data=bank[start+offset]
+        for y in range(draw_height):
+            for x in range(draw_width):
+                src=((y%h)*w+x%w)*4;at=((top+y)*15+left+x)*4
+                if data[src+3]:pixels[at:at+4]=data[src:src+4]
+    a.png(output/f'hud-{name}.png',15,36,pixels)
 # 0x49fe70/0x4a1f50: portrait borders at the original 30×35 logical size.
 for name,start in [('portrait',713),('portrait-hover',731),('portrait-selected',722)]:
     pixels=bytearray(30*35*4)

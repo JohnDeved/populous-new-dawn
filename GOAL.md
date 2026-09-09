@@ -617,3 +617,20 @@ include the shaman, whereas the original totals five follower classes; zero-coun
 labels, digit padding, borders and capacity feedback also need their native
 controllers. Exact HUD resolution rounding, all panels/control ownership and the
 complete clock/menu remain open. Full parity and discovery remain unfinished.
+
+### Latest visible integration: original follower counts and housing display
+
+The population row now uses original gold digits, native two/three-digit count
+formatting, zero suppression, class icon positions and hover/selected borders.
+The displayed total excludes the shaman; the narrow housing meter retains its
+reserved population allowance and original full-capacity blink mask. Native
+comparisons cover 360 count controllers and 7,198 housing/blink controllers;
+38 actual browser button images match native pixel hashes. Desktop layouts,
+live class selection and follower removal/count updates pass. The export
+manifest contains 904 identified routines; 98 portable checks pass.
+
+Complete alternate-count/control ownership, unavailable-control blending, the
+remaining follower classes and native resolution rounding remain open. Continue
+visible world rendering, construction/activity and critical first-mission gameplay
+comparisons. Broad HUD parity stays partial; known-scope coverage remains 17.7%
+(17/96 verified checkpoints), with discovery open and full parity unfinished.

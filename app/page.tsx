@@ -9,13 +9,23 @@ import {
   guardShaman,
   rotateBuildingPlan,
   maxHp,
+  population,
+  populationLimit,
   type UnitKind,
 } from './model'
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
 import { messageText, removeMessage } from './messages'
-import { HudSprite, NativeText, SpellButtonArt, ShamanHealth, ManaMeter } from './hud'
+import {
+  HudSprite,
+  FollowerNumber,
+  FollowerIcon,
+  PopulationMeter,
+  SpellButtonArt,
+  ShamanHealth,
+  ManaMeter,
+} from './hud'
 import { spellButton, spellOrder } from './spell-button'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
@@ -382,8 +392,11 @@ export default function Home() {
             title="Select all followers"
             onClick={() => choose('all')}
           >
-            <i />
-            <NativeText text={String(blue.length)} font={2} />
+            <PopulationMeter
+              population={population(world, 'blue')}
+              capacity={populationLimit(world, 'blue')}
+            />
+            <FollowerNumber count={population(world, 'blue') - 1} total />
           </button>
           {(
             [
@@ -395,24 +408,16 @@ export default function Home() {
               key={u.kind}
               aria-label={`Select all ${u.label.toLowerCase()}`}
               title={u.label}
+              aria-pressed={selected.length > 0 && selected.every(s => s.kind === u.kind)}
               onClick={() => choose(u.kind)}
             >
-              <HudSprite
-                id={
-                  u.sprite + Number(selected.length > 0 && selected.every(s => s.kind === u.kind))
-                }
-              />
-              <NativeText text={String(blue.filter(b => b.kind === u.kind).length)} font={2} />
+              <FollowerIcon sprite={u.sprite} />
+              <FollowerNumber count={blue.filter(b => b.hp > 0 && b.kind === u.kind).length} />
             </button>
           ))}
-          {[
-            { name: 'Firewarriors', sprite: 670 },
-            { name: 'Preachers', sprite: 672 },
-            { name: 'Spies', sprite: 674 },
-          ].map(u => (
-            <button key={u.name} disabled aria-label={u.name} title={u.name}>
-              <HudSprite id={u.sprite} />
-              <NativeText text="0" font={2} />
+          {['Firewarriors', 'Preachers', 'Spies'].map(name => (
+            <button key={name} disabled aria-label={name} title={name}>
+              <FollowerNumber count={0} />
             </button>
           ))}
         </section>

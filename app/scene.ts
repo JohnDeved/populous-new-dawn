@@ -1,3 +1,4 @@
+import { populationMeter } from './hud-population.ts'
 import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { animateLiveObjects } from './live-people.ts'
@@ -2409,6 +2410,10 @@ export class GameScene {
         this.personAnimationTime -= 1 / 24
       }
     }
+    this.container.parentElement!.style.setProperty(
+      '--population-full-color',
+      nativeHud.colors[populationMeter(1, 1, this.personAnimationFrame).color]
+    )
     const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     const portraitMesh = shaman && this.unitMeshes.get(shaman.id)
     drawPortrait(

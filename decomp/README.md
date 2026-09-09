@@ -3195,3 +3195,45 @@ follower classes (excluding the shaman), and `004a0510` suppresses zero class
 counts and formats nonzero counts with two/three digits. These two exports are
 research evidence only; their complete controls and housing meter are unported.
 The identified export count is 902. Broad HUD and full-game parity stay partial.
+
+## Follower counts and housing display — 2026-09-09
+
+`004a0800` totals the five ordinary follower classes, excluding the shaman.
+`004a0510` draws individual classes, suppressing zero labels and unavailable
+icons/counts. Both use original F00T4 below 100 and F00T6 at 100+, formatting
+with `%02d`/`%03d`; alternate tribe counts use F00T5/7. Counts are centered using
+stored glyph widths at logical Y=26. Class icons center at
+`(7-trunc(width/2), 18-trunc((height+8)/2))`; hover/held selects the adjacent icon.
+Selection alone changes the border, not the icon. `004a1dd0` chooses 15×36
+normal/hover/selected frames beginning at sprites 1005/1014/996.
+
+The housing meter has a 7×22 frame with a 3×18 interior. Below capacity it draws
+at least one green pixel, otherwise truncating `18*population/capacity`. At or
+above capacity it is full red except when `(spriteAnimationCounter & 0x124) ==
+0x124`, which turns it green. Native palette initialization supplies white 130,
+red 139 and green 228. `0041b380` includes a reserved shaman allowance in housing
+usage; `0041b330` sums weighted completed huts plus the tribe allowance, capped
+at 200. The existing browser population/capacity helpers match the supported
+first-mission path and are reused. These two exports bring the manifest to 904.
+
+```sh
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-hud-population.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node scripts/check-browser-hud-population.mjs
+```
+
+The comparison executes 360 complete count controllers across five classes and
+the total, four tribes, ten counts, normal/alternate tables and normal/hover/
+selected states. All imported F00T4–7 glyph pixels match the source banks.
+Another 7,198 complete housing controllers cover capacities, fill thresholds and
+all 512 low animation-counter states for full meters. Only logical-coordinate
+adapters, loaded-bank lookup, CRT integer formatting and final raster queues
+are supplied; native count/table/font selection, glyph metrics, frame submission,
+capacity/population calculation and palette conversion execute. Browser tests
+compare 38 actual button images to native raster hashes and exercise two desktop
+layouts, real class selection, original blink feedback and follower removal.
+
+The browser uses its existing ordinary count/selection ownership and 24 Hz
+presentation counter. Native alternate-table producers, complete control policy,
+unavailable-control blending, per-resolution rounding and full outer-clock
+ownership remain open. Unsupported follower classes stay unavailable. This
+component work does not complete the broad HUD checkpoint or full game parity.
