@@ -439,9 +439,13 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-messages.py",
-            "scripts/check-native-tooltips.py"
+            "scripts/check-native-tooltips.py",
+            "app/tooltip-layout.ts",
+            "scripts/check-native-tooltip-layout.py",
+            "scripts/check-browser-tooltip-layout.mjs",
+            "tests/fixtures/tooltip-layout.json"
           ],
-          "note": "Opening callouts and selected notification branches verified; remaining forced tooltips/localization open."
+          "note": "Opening callouts and selected notifications verified. Ordinary English F00T tooltip fonts/mouse artwork, 13-width layout selection and wrapping match 222 complete native controllers/9,669 glyph placements; browser raster hashes cover five sizes. Scrolling/localized callouts, complete native hover ownership and exact object anchoring remain open."
         },
         {
           "id": "interface.menus",

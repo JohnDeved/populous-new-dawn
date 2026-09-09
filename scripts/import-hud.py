@@ -22,6 +22,10 @@ entries.update({f'point{i}':points[i] for i in [*range(38,58),*range(80,84)]})
 for font in [0,2]:
     for i,glyph in enumerate(a.sprites(read(f'data/font{font}-0.dat'),palette)):
         entries[f'font{font}-{i}']=glyph
+# 0x44a2f0/0x42ac70 use F00T, whose brace positions contain mouse artwork.
+for font in [3,4]:
+    for i,glyph in enumerate(a.sprites(read(f'data/f00t{font}-0.dat'),palette)):
+        entries[f'f00t{font}-{i}']=glyph
 # 0x41d730: original world-view building, occupant and discovery icons.
 entries.update({str(i):bank[i] for i in [*range(0x74,0xaa),0x434,0x43b]})
 width=1024;x=y=row=0;rects={}

@@ -34,3 +34,11 @@ test('portrait backgrounds and shadow-free directional layers match native captu
     assert.deepEqual(spriteLayers(units.frames[c.frame].layers,units.pieces,{flags:2|Number(c.flip)},views.views[0]),c.draws)
   }
 })
+
+import tooltip from './fixtures/tooltip-layout.json' with {type:'json'}
+import {tooltipLayout} from '../app/tooltip-layout.ts'
+test('tooltip bitmap placement and wrapping match the original desktop controller',()=>{
+  assert.equal(tooltip.executableSha256,manifest.executableSha256)
+  for(const c of tooltip.cases)
+    assert.deepEqual(tooltipLayout(c.text,...c.screen),{width:c.width,height:c.height,draws:c.draws})
+})

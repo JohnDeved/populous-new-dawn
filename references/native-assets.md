@@ -79,6 +79,10 @@ The same importer now reads executable tooltip name tables and their 72 English
 strings into `app/original-tooltips.json`. It records the language, palette and
 HFX hashes and verifies the tooltip color operands in the executable. The native
 window table selects HFX 591–598, packed as a 12×12 nine-patch with transparent
-center in `public/original/tooltip-border.png`. Tooltip text currently uses CSS
-font metrics; the original bitmap-font rendering and full UI blending remain
-unported. See the forced-tooltip evidence in `reverse-engineering.md`.
+center in `public/original/tooltip-border.png`. Ordinary English tooltips now use
+original F00T3/F00T4 bitmap glyphs, including mouse-button artwork, with native
+desktop wrapping and centering. The similarly named FONT banks are different
+assets. `scripts/import-hud.py` records their source hashes; the native layout
+comparison and actual browser canvas hashes cover 222 cases. Scrolling, other
+languages, native hover ownership, exact anchoring and full UI blending remain
+open. See `../decomp/README.md` for extraction and comparison commands.

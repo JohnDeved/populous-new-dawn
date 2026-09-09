@@ -38,7 +38,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | Original entries | Browser implementation | Evidence and limit |
 | --- | --- | --- |
 | `0044d7f0`, `004f0f90`, `0044db60`, `0044b100` | `app/tooltips.ts`, `app/scene.ts` | Forced object tooltip names and lifetime CPU-compared; first-mission cell adapter is approximate; hover and modes 3–10 unported |
-| `0044a2f0`, `004a24c0`, `004a1f50`, `00415f70`, `00516a00` | `scripts/import-messages.py`, `app/scene.ts`, `app/globals.css` | Color operands, indexed conversion, opaque rectangle vertices and native border artwork recovered; font/layout/projection and other blend states unported |
+| `0044a2f0`, `004a24c0`, `004a1f50`, `00415f70`, `00516a00` | `scripts/import-messages.py`, `app/scene.ts`, `app/globals.css` | Color operands, indexed conversion, opaque rectangle vertices and native border artwork recovered; ordinary English bitmap text/layout now compared below; projection and other blend states pending |
 | `0048eae0`, `00430bd0`, `00430e40`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and discovery/settlement/vault tutorial branches CPU-compared; full notification UI/scheduler pending |
 | `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
 | `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows and per-layer sprite selection; full state ownership remains open |
@@ -74,8 +74,8 @@ and `qa/flyby-check.mjs`, not proven equivalent to the native occupancy table.
 An additional 256 indexed color conversions and 256 opaque window quad emissions
 run the original color and rectangle routines. Only final polygon submission and
 border drawing are intercepted. This verifies RGB order and rectangle expansion;
-it does not prove CSS font metrics, nine-patch rasterization, inherited blend
-state or native camera projection. `scripts/import-messages.py` checks the actual
+it does not prove nine-patch rasterization, inherited blend state or native
+camera projection. English bitmap font/layout evidence is recorded below. `scripts/import-messages.py` checks the actual
 background/text instruction operands and imports the eight border sprites.
 
 ## Validation of this setup
@@ -3100,3 +3100,51 @@ classes, original graphics-menu settings, sun rotation, complete renderer/painte
 matching and original full-frame comparisons remain open. The current browser
 simulation clock and end-of-turn ownership adapter remain partial. This advances
 the existing lighting checkpoint without claiming the complete lighting system.
+
+## Native tooltip bitmap text — 2026-09-09
+
+The English branch of `0044a2f0` selects font pointer 3 above 600 pixels of screen
+height, otherwise pointer 4. `0042ac70` and the packed loader records at `005a3d70`
+bind these to **F00T3/F00T4**, not similarly named FONT3/FONT4. F00T stores the
+left/right mouse-button artwork at character positions 123–125: `{}` and `|}`
+are adjacent original glyphs, not escape sequences. Rendering the raw strings
+with Arial exposed their literal character codes. The shared HUD importer now
+includes these two original banks with source hashes; existing HUD fonts remain
+separately identified.
+
+`app/tooltip-layout.ts` reconstructs the controller's thirteen candidate widths,
+minimum width, strict-first penalty selection, punctuation/space wrapping,
+127-character line capacity, stored glyph advances and centered line positions.
+`00527960`, `00516b80`, `00516c80` and `00527aa0` provide the English bitmap path.
+The hardware glyph path submits white modulation of already-colored artwork;
+applying the controller's palette-80 operand as a CSS text tint would be wrong.
+Canvas draws the imported glyphs directly and only redraws when text or screen
+size changes. Accessible labels expand the mouse symbols into readable actions.
+
+```sh
+python scripts/extract-reference.py /Users/johann/Downloads/PopulousTB-Setup.zip /private/tmp/populous-reference/native 'data/f00t3-0.dat' 'data/f00t4-0.dat'
+python3 scripts/import-hud.py /private/tmp/populous-reference/native
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-tooltip-layout.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node scripts/check-browser-tooltip-layout.mjs
+```
+
+The comparison executes 222 complete native tooltip-controller calls, including
+all imported English strings, punctuation and long-line cases, at five desktop
+sizes. Only the already-compared window renderer, loaded sprite-bank lookup and
+final glyph queue are supplied; native font selection, width search, wrapping,
+metrics and glyph submission all execute. All 448 imported glyphs match source
+pixels, and 9,669 submitted glyph placements match TypeScript. Portable evidence
+includes native layout records and raster hashes. Browser checks compare the
+actual tooltip canvas against those hashes and exercise real building-mesh hover.
+The existing HUD check now reads the accessible tooltip label.
+
+This covers the ordinary English tooltip text path. Scrolling callouts, other
+languages, complete native hover delay/ownership, native object-anchor projection
+and border/raster blend equivalence remain open. Current projection and viewport
+clamping are still browser adapters. Ten new identified exports bring the
+manifest to 898; full UI/game parity remains unfinished.
+
+All 94 portable checks, existing HUD/portrait/unit-sprite browser regressions,
+ESLint (two existing image warnings), new-module ox-standard and production build
+pass. Fallow reports maintainability 85.4 (good), with zero dead exports and the
+existing three dependency cycles/unused dependencies still tracked separately.

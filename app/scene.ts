@@ -1,3 +1,4 @@
+import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { animateLiveObjects } from './live-people.ts'
 import { reincarnationStones } from './reincarnation.ts'
@@ -446,6 +447,7 @@ export class GameScene {
   resultTurn = 0
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
+  tooltipCanvas = document.createElement('canvas')
   down = { x: 0, y: 0, button: 0 }
   dragBox: HTMLDivElement
   keys = new Set<string>()
@@ -512,7 +514,8 @@ export class GameScene {
     this.tooltipElement.className = 'native-tooltip'
     this.tooltipElement.setAttribute('role', 'tooltip')
     this.tooltipElement.style.backgroundColor = `rgb(${tooltipPalette.background.join(',')})`
-    this.tooltipElement.style.color = `rgb(${tooltipPalette.foreground.join(',')})`
+    this.tooltipCanvas.setAttribute('aria-hidden', 'true')
+    this.tooltipElement.appendChild(this.tooltipCanvas)
     this.tooltipElement.hidden = true
     container.appendChild(this.tooltipElement)
     this.spellPointer.className = 'spell-pointer'
@@ -1485,8 +1488,18 @@ export class GameScene {
       element.hidden = true
       return
     }
-    element.textContent = state.text
+    element.setAttribute(
+      'aria-label',
+      state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
+    )
     const { width, height } = this.container.getBoundingClientRect()
+    drawTooltip(
+      this.tooltipCanvas,
+      texture('hud').image as HTMLImageElement,
+      state.text,
+      window.innerWidth,
+      Math.trunc(height)
+    )
     element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
     element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
   }

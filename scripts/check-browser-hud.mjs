@@ -48,7 +48,7 @@ try{
   throw new Error('No visible mesh hit on opening stone head');
  });
  await page.mouse.move(target.x,target.y);await page.waitForFunction(()=>!document.querySelector('.native-tooltip').hidden);
- assert.match(await page.locator('.native-tooltip').textContent(),/Stone Head|worship|Worship/);
+ assert.match(await page.locator('.native-tooltip').getAttribute('aria-label'),/Stone Head|worship|Worship/);
  await page.mouse.click(target.x,target.y);assert.ok(await page.evaluate(id=>window.testScene.world.units.some(u=>u.work===id),target.id));
  await page.mouse.move(400,950);await page.waitForTimeout(100);
  await page.screenshot({path:'/private/tmp/populous-native-hud-after.png'});

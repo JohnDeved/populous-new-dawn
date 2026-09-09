@@ -587,3 +587,17 @@ terrain/lighting, distant models and visible first-mission activity. Literal nat
 tooltip formatting tokens in the latest fire capture are another visible gap to
 address. The broad lighting checkpoint stays partial; discovery and full game
 parity remain unfinished.
+
+### Latest visible integration: original tooltip fonts and mouse icons
+
+Tooltips now draw original F00T bitmap glyphs, including mouse-button symbols,
+with native desktop font selection, word wrapping and centered line spacing.
+The executable comparison covers 222 complete controllers and 9,669 glyph
+placements; all 448 imported glyphs match source artwork. Native raster hashes
+provide browser regression coverage. The portable suite has 94 checks.
+
+Scrolling callouts, localization, complete native hover ownership and exact
+object anchoring remain open. Continue visible first-mission world/activity,
+lighting and native population/mana/control comparisons. Full parity and the
+open-ended discovery inventory remain unfinished; this component improvement
+does not complete the broad messages/UI checkpoint.
