@@ -31,6 +31,28 @@ def object_atlas(data, palette, alpha, alpha_tiles):
     return output
 
 
+def object_texture_edges(pixels):
+    """0x4b6e60: expand RGB into zero texels, rows then columns within each 32px tile."""
+    # ponytail: retain RGBA8 until native texture-format selection/quantization is recovered.
+    assert len(pixels) == 256 * 1024 * 4
+    pixels = bytearray(pixels)
+    for tile in range(256):
+        origin = ((tile // 8) * 32 * 256 + (tile % 8) * 32) * 4
+        for across, down in [(4, 256 * 4), (256 * 4, 4)]:
+            for line in range(32):
+                previous_at = origin + line * down
+                previous = pixels[previous_at:previous_at + 4]
+                for position in range(1, 32):
+                    current_at = origin + line * down + position * across
+                    current = pixels[current_at:current_at + 4]
+                    if not any(previous) and any(current):
+                        pixels[previous_at:previous_at + 3] = current[:3]
+                    elif any(previous) and not any(current):
+                        pixels[current_at:current_at + 3] = previous[:3]
+                    previous_at, previous = current_at, current
+    return pixels
+
+
 def sprites(data, palette, alpha=False):
     assert data[:4] == b'PSFB', 'Invalid sprite bank'
     count = struct.unpack_from('<I', data, 4)[0]
@@ -97,7 +119,7 @@ def main():
     atlas = read('data/bl320-c.dat'); assert len(atlas) == 256*1024
     alpha=read('data/al0-c.dat');assert len(alpha)==65536
     rules=json.loads((project/'app/original-rules.json').read_text())
-    png(output/'atlas.png', 256, 1024, object_atlas(atlas,palette,alpha,rules['objectTextureAlpha']))
+    png(output/'atlas.png', 256, 1024, object_texture_edges(object_atlas(atlas,palette,alpha,rules['objectTextureAlpha'])))
     objects, faces, points = [read(f'objects/{n}0-{object_bank}.dat') for n in ['objs','facs','pnts']]
     shape_data=read('objects/shapes.dat')
     (project/'app/original-shapes.json').write_text(json.dumps(building_shapes(shape_data,objects),separators=(',',':'))+'\n')

@@ -1,2 +1,4 @@
 # Optional CPU oracles: scripts/check-native-math.py and scripts/check-native-script.py
 unicorn==2.1.4
+# Decode imported PNGs in the native texture-edge comparison.
+Pillow==11.3.0

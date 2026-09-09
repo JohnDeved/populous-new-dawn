@@ -610,14 +610,18 @@
               "id": "graphics.raster.texture-cache",
               "title": "Full original texture-cache and UV/fog fallback behavior",
               "status": "partial",
-              "note": "Default model, construction-cap, fire and debris UVs now use native half-texel centers. Sixty original submissions compare filtering, cache placement, cap/fractional/outside coordinates; 42 live models and 16 GPU tile-edge probes pass. Full cache allocation, fallback, fog and graphics-setting ownership remain open.",
+              "note": "Default model, construction-cap, fire and debris UVs now use native half-texel centers. Sixty original submissions compare filtering, cache placement, cap/fractional/outside coordinates; 42 live models and 16 GPU tile-edge probes pass. Full cache allocation, fallback, fog and graphics-setting ownership remain open. Original row/column RGB edge expansion is now applied during RGBA8 object-atlas import. Four complete native 256-tile initializations compare 4444/1555 patterns and padded rows; 64 GPU samples and 7569 brighter scene pixels retain alpha. Native texture-format selection/quantization remains open and can change zero-pixel decisions, especially AL palette-zero texels; this does not complete cache/material parity.",
               "evidence": [
                 "app/terrain-texture.ts",
                 "app/model-faces.ts",
                 "scripts/check-native-model-materials.py",
                 "tests/fixtures/model-uv.json",
                 "scripts/check-browser-model-uv.mjs",
-                "tests/terrain-uv.test.mjs"
+                "tests/terrain-uv.test.mjs",
+                "scripts/import-original.py",
+                "scripts/check-native-texture-edges.py",
+                "scripts/check-browser-texture-edges.mjs",
+                "tests/fixtures/texture-edges.json"
               ]
             },
             {

@@ -8208,5 +8208,176 @@
     },
     "completionReady": false,
     "note": "Native half-texel model/cap/fire/debris UVs: 60 original submissions, 42 live models and 16 GPU tile-edge probes. Existing model coverage repaired; full cache ownership remains partial."
+  },
+  {
+    "date": "2026-09-09T14:12:21.372Z",
+    "revision": 3,
+    "baseCommit": "915ae25f097f0a66fba5655b1cadeba78fe1bebd",
+    "ledgerHash": "fe73258577c922194a6b08e92f3be421b1009fd8ad65f9df4c66b9e25b8f178e",
+    "scopeHash": "eace1ba431d9e562c11a2331a4980f8215f2a17a4ec7bddcff300aff9409d58f",
+    "total": 96,
+    "verified": 17,
+    "partial": 55,
+    "missing": 24,
+    "unassessed": 0,
+    "earned": 19.738095238095237,
+    "requirements": 128,
+    "verifiedRequirements": 35,
+    "groups": [
+      {
+        "id": "world",
+        "title": "World and camera",
+        "total": 8,
+        "earned": 5,
+        "requirements": 8,
+        "verifiedRequirements": 5,
+        "verified": 5,
+        "partial": 3,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "graphics",
+        "title": "Models, sprites and lighting",
+        "total": 8,
+        "earned": 4.738095238095238,
+        "requirements": 40,
+        "verifiedRequirements": 20,
+        "verified": 2,
+        "partial": 6,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "effects",
+        "title": "Effects and object lifecycles",
+        "total": 8,
+        "earned": 4,
+        "requirements": 8,
+        "verifiedRequirements": 4,
+        "verified": 4,
+        "partial": 3,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "interface",
+        "title": "Interface and desktop controls",
+        "total": 8,
+        "earned": 3,
+        "requirements": 8,
+        "verifiedRequirements": 3,
+        "verified": 3,
+        "partial": 4,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "audio",
+        "title": "Audio and music",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 6,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "simulation",
+        "title": "Simulation scheduling and randomness",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 7,
+        "missing": 1,
+        "unassessed": 0
+      },
+      {
+        "id": "movement",
+        "title": "Movement, collision and vehicles",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 5,
+        "missing": 2,
+        "unassessed": 0
+      },
+      {
+        "id": "combat",
+        "title": "Unit classes and combat",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "economy",
+        "title": "Buildings, resources and population",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 7,
+        "missing": 0,
+        "unassessed": 0
+      },
+      {
+        "id": "spells",
+        "title": "Spell rules and complete roster",
+        "total": 8,
+        "earned": 1,
+        "requirements": 8,
+        "verifiedRequirements": 1,
+        "verified": 1,
+        "partial": 4,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "campaign",
+        "title": "Campaign, AI and objectives",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 5,
+        "missing": 3,
+        "unassessed": 0
+      },
+      {
+        "id": "persistence",
+        "title": "Persistence and multiplayer",
+        "total": 8,
+        "earned": 0,
+        "requirements": 8,
+        "verifiedRequirements": 0,
+        "verified": 0,
+        "partial": 0,
+        "missing": 8,
+        "unassessed": 0
+      }
+    ],
+    "discovery": {
+      "status": "open",
+      "note": "The original engine and content inventory remain open. Broad checkpoints retain equal shares. Revision 3 separates deferred alpha ordering from the remaining blend-mode/state and source-queue ownership so this visible behavior can be independently assessed. New discoveries enter with zero credit and a recorded scope revision.",
+      "evidence": [
+        "GOAL.md",
+        "references/reverse-engineering.md"
+      ]
+    },
+    "completionReady": false,
+    "note": "Recovered object-texture RGB edge expansion: four native initializations, 64 GPU probes and 7569 brighter scene pixels. RGBA8/native-format differences remain explicit; cache parity stays partial."
   }
 ]

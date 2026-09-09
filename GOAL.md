@@ -82,9 +82,14 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** continue matched first-mission frame comparisons and investigate
-remaining texture-cache/alpha-edge preparation or visible effects where native
-submissions disagree. Model, cap, fire and debris UVs now use the original default
+**Next action:** trace native object-texture format selection and palette
+quantization, then compare matched first-mission frames. RGB edge preparation now
+follows the original row/column procedure in the existing RGBA8 import, with
+13,276 transparent texels prepared and 64 GPU samples checked. Four complete
+native initializations agree for 4444/1555 source patterns and padded rows.
+The selected texture format still matters: quantization can change whether a
+pixel is zero, particularly AL palette-zero colors. Keep this limitation explicit
+until format selection and its effect on the atlas are recovered. Model, cap, fire and debris UVs now use the original default
 half-texel inset. Sixty final native UV submissions, all cap/debris comparisons,
 42 live models and 16 GPU tile-edge probes pass. Cache allocation/fallback, all
 graphics settings and full-frame fidelity remain open.

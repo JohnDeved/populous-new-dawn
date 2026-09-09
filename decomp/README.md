@@ -4282,3 +4282,47 @@ poses, airborne shadows and selection pass without browser errors. The debris
 check's obsolete canvas selector now targets the engine canvas explicitly.
 Focused ESLint/oxlint pass with style warnings; Fallow reports maintainability
 85.1, mean cyclomatic complexity 2.8 and p90 5.
+
+
+## Transparent object-texture edge colors — after v142
+
+Complete 004b6e60 traverses 256 object tiles after surface creation/conversion.
+It scans adjacent pixel pairs left-to-right within each row, then top-to-bottom
+within each column. When exactly one saved pixel is zero, it copies the other's
+RGB into that pixel with alpha cleared. The saved current value is taken before
+its write, so this is not unrestricted propagation. The second pass can use the
+horizontal colors. Tile boundaries and row padding are never crossed.
+
+`check-native-texture-edges.py EXE` runs four complete initializations. COM
+surfaces, cache creation, allocation and initial pixel data are supplied; original
+traversal, both edge loops and sprite-wrapper initialization execute. ARGB4444
+and ARGB1555 patterns use 32- and 37-word row strides, including isolated colors,
+zero-alpha colors, opaque black and random pixels. All 1,048,576 texels agree
+with the import helper after decoding the supplied format. Alpha bytes, padding,
+256 allocations and both wrapper lists are retained. Pillow 11.3.0 is pinned in
+`decomp/requirements.txt` for the actual PNG comparison.
+
+The imported atlas applies the recovered procedure to its existing RGBA8 pixels.
+13,276 transparent pixels gain RGB; every alpha byte and visible texel is unchanged.
+The source hashes and PNG are checked against the import pipeline. The browser
+probe verifies the served hash, 64 actual PNG/GPU center and bilinear samples,
+and RGB retention under zero alpha. An opaque test material initially forced
+output alpha to 255; the probe now disables blending while retaining texture
+alpha. No alternate runtime loader is needed: the current PNG upload preserves
+hidden RGB correctly.
+
+The opening-scene comparison reads the uploaded texture directly, then resets
+only prepared non-AL zero-alpha colors to reproduce the previous atlas. Canvas2D
+is not an oracle because it discards hidden RGB. AL tiles already retain palette
+zero RGB (13,15,6), which the baseline preserves. 7,569 scene pixels lose dark
+fringes with no dimmer pixels or opacity changes. Before/after frames were
+inspected; actual fire and all 16 model UV edge probes pass.
+
+This is still a format adapter, not complete original texture preparation. Native
+004b6e60 operates on 16-bit words; the browser currently retains 8-bit palette
+channels. Original format selection/quantization has not been established.
+Quantization changes zero-word decisions (palette zero becomes zero in 4444),
+so especially AL-tile edge results cannot yet be claimed exact. Trace the native
+format selector next; full cache population/fallback, material states and matched
+original frames also remain open. The partial cache requirement gains evidence,
+not verification credit.
