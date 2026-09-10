@@ -1,0 +1,71 @@
+{
+  "views": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "geometry": {
+        "native": [
+          216,
+          63
+        ],
+        "actual": [
+          432,
+          126
+        ],
+        "left": 604,
+        "top": 226.375
+      },
+      "painting": {
+        "cached": 0,
+        "uncached": 30
+      }
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "deviceScaleFactor": 1,
+      "geometry": {
+        "native": [
+          216,
+          63
+        ],
+        "actual": [
+          540,
+          157.5
+        ],
+        "left": 1575,
+        "top": 414.875
+      },
+      "painting": {
+        "cached": 0,
+        "uncached": 30
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 2,
+      "geometry": {
+        "native": [
+          216,
+          63
+        ],
+        "actual": [
+          432,
+          126
+        ],
+        "left": 844,
+        "top": 266.375
+      },
+      "painting": {
+        "cached": 0,
+        "uncached": 30
+      }
+    }
+  ],
+  "pixelStates": 64,
+  "method": "Headless Chromium on macOS, software rendering. Compare ten unchanged panel updates with the same ten updates after invalidating only the canvas cache.",
+  "result": "Zero drawImage calls with caching versus thirty without, in all three viewport/DPI cases. Original canvas output is separately compared to source HFX and native draw commands.",
+  "limits": "Operation-count comparison, not hardware FPS certification. The canvas follows interpolated unit positions each render; panel lifetime uses the existing elapsed 24 Hz presentation adapter."
+}

@@ -132,7 +132,10 @@ Track the requested queue explicitly:
    rules, pressed-target/modifier latching, Shift order override and single voices.
    Construction panels now share active person selection ownership: blocked workers
    stay excluded and native single/group mode bits reach the real builder record.
-   Complete HUD/vehicle ownership, buffering, alternate input modes and feedback remain open.
+   Neutral right-click now opens the original person health/order panel; occupant
+   right-click focus opens it directly. Native icon order/artwork/lifetime and live
+   desktop input are compared. Order-icon actions, bitmap transitions and full
+   HUD/vehicle ownership, buffering and alternate input modes remain open.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,
    toroidal clamping, packed release commands, native cell bounds, ordinary outdoor
    follower admission, empty-area retention and group voices now match executable

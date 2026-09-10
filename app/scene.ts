@@ -1,3 +1,4 @@
+import { PersonPanels } from './person-panels.ts'
 import { unitHealthGauge } from './unit-health.ts'
 import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
@@ -544,6 +545,7 @@ export class GameScene {
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
+  personPanels = new PersonPanels(this)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
@@ -1344,6 +1346,17 @@ export class GameScene {
   }
   pointerDown = ((event: PointerEvent) => {
     this.pointerButtons = event.buttons
+    if (
+      event.button === 2 &&
+      !(event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) &&
+      !this.world.selected.length &&
+      !this.world.mode &&
+      !this.world.inputMask &&
+      !this.overviewActive
+    ) {
+      const person = this.pickUnit(event)
+      if (person) this.personPanels.open(person.id)
+    }
     const unit =
       event.button === 0 &&
       !this.world.mode &&
@@ -1953,6 +1966,7 @@ export class GameScene {
     g.userData.spriteBucket = bucket
     const size = (n: number) =>
       shaman || flags ? spriteCoordinate(n, bucket, flags, this.view.config) : n
+    g.userData.nativeFrameHeight = frame.nativeHeight
     g.userData.frameHeight = size(frame.nativeHeight)
     const descriptor = rules.animationDescriptors[g.userData.draw ?? 14]
     const draws = spriteLayers(
@@ -2790,6 +2804,7 @@ export class GameScene {
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
     this.renderBuildingPanels()
+    this.personPanels.update(texture('hud').image as HTMLImageElement)
     this.container.parentElement!.style.setProperty(
       '--population-full-color',
       nativeHud.colors[populationMeter(1, 1, this.gameClock.animationFrame).color]
@@ -2856,6 +2871,7 @@ export class GameScene {
     this.tooltipElement.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()
     this.buildingPanels.clear()
+    this.personPanels.dispose()
     this.spellPointer.remove()
   }
 }

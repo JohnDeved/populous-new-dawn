@@ -7327,3 +7327,63 @@ This corrects a live ownership defect within existing partial selection scope;
 full person panels, vehicle/passenger expansion, command buffering, hit ownership
 and native focus/audio ownership remain unverified. No extra parity credit or
 hardware performance claim is assigned to this correction.
+
+
+### Native person inspection panels (2026-09-10)
+
+The default right-button press record at `005d6598` emits action 114 when
+`004feed0` accepts neutral input mode and active world picking, with no keyboard
+modifiers. Release action 115
+clears the held flag. `0047ae00` / `0047b1d0` opens an owned person's panel;
+`004adbb0` keeps it refreshed while held or while the pointer remains on the
+inspected object. This is separate from selected-group right-release deselection.
+A building-occupant right-click calls `00504590(person, 1)`, bypassing the inside
+building redirect and starting the visible panel phase directly.
+
+`004369f0` supplies up to eight order icons: a valid immediate order first, then
+seven circular queue slots (eight if no immediate order was admitted). Cancelled
+records and empty slots do not emit an icon. Command 7 flag 8 switches its icon to
+37; command 22 targeting a live model-1/2 vehicle switches to 32. The descriptor
+icons are now reproducibly imported from `005a7db9 + model*22`; they are not a
+hand-authored mapping. The traversal also preserves the original reset of an
+out-of-range byte cursor to slot zero.
+
+Kind 2 of `00504bc0` supplies the six-pixel health column and centered command row,
+with a reserved eight-icon panel width, native frame colors, HFX 25–39 glyphs,
+palette-150 shadows and HFX 52's translucent tail. An empty queue uses icon 39.
+The shared HFX atlas now includes these original masks. `00504920` supplies the
+three-stage 3/20/3 presentation lifetime, held refresh and removal. `00509000` /
+`005090f0` place the panel above the person's initial sprite height. The browser
+uses the rendered unit position between simulation turns, so the attachment moves
+smoothly on higher-refresh displays; indoor people use their retained native height.
+
+The browser now opens these panels with neutral right-click inspection and with
+building-occupant right-click focus. Selection and movement ownership are unchanged.
+`app/person-panel.ts` contains the readable command/layout/lifetime rules;
+`app/person-panels.ts` owns their small DOM canvases and presentation integration.
+Unchanged health/orders reuse the canvas. Ten identical updates produce zero
+`drawImage` calls versus thirty when bypassing the cache, at desktop, ultrawide
+and 2x DPI. This is an operation-count comparison, not a hardware FPS claim;
+`references/performance/2026-09-10-person-panels.json` records the workload and limits.
+
+`check-native-person-panel.py` executes 512 icon traversals and 512 complete panel
+draw calls, 32 complete lifetime sequences, both shipped right-button bindings and
+36 context-predicate cases plus 1,152 complete modifier/context binding lookups.
+Only terminal drawing, effect placement/allocation and
+deletion consumers are supplied for the respective checks. Portable captures are
+bound to the verified executable. 64 browser canvases match source HFX/native draw
+submissions within one byte of alpha rounding. Real right-click inspection,
+selected-group deselection, an actual movement command, pause/expiry, canvas reuse
+and proportional desktop/ultrawide/high-DPI layout pass; the original first mission
+was also inspected visually. Existing ordinary click/deselect and tower input,
+focus, exit and dismantling regressions pass. All 293 portable tests, TypeScript,
+formatting, new-module lint and 1,109 export hashes pass.
+
+Remaining scope is explicit: command-icon input, native bitmap
+transition effects, panel hover/pressed tint, full allocation and mixed-panel
+ownership, concealed/enemy/vehicle inspection, precise mixed-object hit selection,
+all-view panel occlusion and native outer timing/settings. The current DOM canvas
+shows the original static artwork during the lifetime stages; it does not claim
+the transition raster effect. Legacy work without native order records is still
+outside complete queue display parity. No new verified coverage is assigned to
+these partial contextual-panel and mixed-selection requirements.

@@ -30,6 +30,7 @@ function createPanel(scene: GameScene, b: Building) {
       )
       if (!u || (u.inside !== b.id && !(b.progress < 1 && b.builders?.includes(u.id)))) return
       scene.focus(u, { animate: true })
+      scene.personPanels.open(u.id, true)
       scene.onSound(0x6a)
     })
     panel.appendChild(button)
