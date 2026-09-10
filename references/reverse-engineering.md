@@ -6301,3 +6301,63 @@ completed-building phase 3, ranged phases 10/11, shared command lifecycle and li
 queue restoration. The tested destruction request is not proof that the world
 consumer is complete. These are staged mechanics with no new live visual claim or
 whole melee-lifecycle credit.
+
+## 2026-09-10 — completed-building attack phases
+
+`combat-building.ts` reconstructs building-target substate 3 of `0051a2a0`:
+entrance approach (30), entry (31), occupant challenge (37), strike positioning
+(23), timed strikes (46), and model-19 positioning/continuous attack (52/53).
+The controller retains entry flags, signed 64-visit approach timers, even-counter
+arrival checks, the delayed 16-visit occupant challenge, and randomized 8–23-visit
+strike bursts. Defender removal clears flags2 bit 16 before requesting encounter
+mode 1. Invalid/allied targets and failed removal restart search. Entering an
+attacked building reveals invisibility through the original visibility mask and
+sound request. Saboteur special attacks clear disguise to the attacker's tribe.
+
+The approach helpers `00438f20`, `00439030`, and `00439480` now use shared movement
+recovery/facing and original shape entrance geometry. Building entry and plan
+entry differ only in collision permission (4 versus 1), so they share one private
+implementation. Positioning uses the building table's word at +34, verified in
+assembly at `0051b1b0`; this is the already imported `buildingWorkRadius`.
+
+`shakeBuilding` reconstructs `00407810`: burning buildings ignore shaking; first
+entry clears the render bit and resets tilt/roll, while repeated hits renew the
+signed duration without resetting the pose. `damageBuildingByPerson` reconstructs
+`00409140`: level protection/building immunity suppress damage, otherwise the
+signed damage accumulator receives **person table byte +22 shifted right two**.
+This is not melee fight damage. The importer now retains this table. Attacker
+ownership, first player attack alert, packed alert cell and tribe flag are preserved.
+Structural damage application and destruction still belong to building updates.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-attack.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-plan-attack.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/building-attack.test.mjs tests/plan-attack.test.mjs
+```
+
+**16,305 native executions** agree: 6,144 whole command-19 visits initialized in
+building attacks; 4,096 entrance/position/damage/shake helper calls; and 64 sequences
+with 6,065 visits across all seven action phases. The check compares person/building
+fields, damage alerts, tribe flags, RNG, ordered consumer snapshots and intermediate
+sequence states. 361 portable captures retain seven sequences. Models 2–7, signed
+coordinate/timer boundaries, ordinary/airborne/cargo animations, protected damage,
+invisibility, defender availability/removal, and burning/already-shaking buildings
+are exercised. The complete previous 10,624-call plan oracle also passes after
+sharing entry code. Five newly exported helpers bring the manifest to 1,037.
+
+Original geometry, trigonometry, animation, movement recovery, RNG, shake, damage,
+reveal and disguise logic execute natively. **Supplied consumers:** route destinations,
+defender query/removal, encounter dispatch, audio and motion-reservation release.
+Sequences advance the counter and put the person at its goal between visits;
+they certify phase ordering, not real path traversal or whole-game scheduling.
+
+One deliberate compatibility correction: model-19 free-position search detects a
+full repeated coordinate cycle and cancels when every visited point is occupied.
+The original loops forever in that case. Valid searches retain identical positions
+and RNG; a separate portable regression checks termination within 65,536 probes.
+
+**Integration remains open:** real `0051e300` defender traversal, occupant removal
+and building encounters, plan destruction, ordinary command composition and shared
+queue/world ownership. Ranged phases 10/11 remain unimplemented. These staged
+branches do not alter playable combat or earn full lifecycle credit. Compose the
+ordinary controller next; avoid further unrelated helper work before live ownership.

@@ -1459,80 +1459,39 @@ saved browser-task snapshots for the original queue. Global class scheduling,
 allocator limits, building encounters and specialist classes remain unfinished.
 The melee lifecycle stays partial; these verified parts do not complete its gate.
 
-### In progress: original attack-order controller and shared queues
+### In progress: compose the original attack controller and shared queues
 
-Complete pursuit entry/update (`00439850`), selected-target setup (`00520300`),
-area eligibility (`00438af0`) and full-fight waiting-position search (`0051f750`)
-are now reconstructed and compared directly against the executable. The waiting
-query removes unused native height calculations with equivalent positions and RNG.
-These dependencies are not yet connected to ordinary live command ownership.
+Verified staged parts now include pursuit/setup/area eligibility, fight waiting
+positions, fight/person/housed/busy-target approaches, retry, command-19/21
+search/start and automatic retargeting, exact approach-point queries, plan attacks,
+and completed-building attacks. See `references/reverse-engineering.md` and the
+native comparison scripts for bounded evidence; these are not a live lifecycle.
 
-Continue the real `0051a2a0` command-19/21 phases and compose them with existing
-startup/update/advance helpers and the shared order pool. Preserve actual queued
-movement/work through combat and restore it through native completion. Do not add
-another pool or approximate task snapshots. Then proceed to campaign attacks and
-visible spell behavior. Full game scope and partial lifecycle status remain intact.
+The latest building-target phase 3 implementation matches 16,305 native calls,
+including 64 multi-visit sequences across all seven action phases. Geometry,
+movement recovery, animation, shake, damage, RNG, invisibility and disguise execute
+natively. Destination/occupant/encounter/audio consumers are supplied. 361 portable
+captures retain the checks. Plan/building entry share existing code, with the full
+10,624-call plan regression passing. No new live combat or lifecycle credit.
 
+After the music/ambient work below, compose ordinary `0051a2a0` phases with actual world consumers and the existing
+startup/update/advance helpers and shared `w.buildingOrders` pool. Finish defender
+query/removal and building encounters, actual plan destruction and command
+completion. Preserve queued movement/work through native ownership; never add a
+second pool or saved browser task/path replay. Ranged phases 10/11 remain open.
+Keep this live integration ahead of further unrelated helper reconstruction,
+then return to first-mission campaign attacks and visible spells.
 
-### Attack-order controller: verified approach branches, integration still open
+The broad performance pass is complete. New mechanics stay fixed-turn, rendering
+uncapped, and TS clean and readable. Profile the composed controller when live.
+The entire game scope and all unfinished lifecycle requirements remain active.
 
-The fight/person/housed/busy-target and retry branches of `0051a2a0` now have
-12,288 native comparisons and 397 portable captures. Shared idle gestures replace
-the duplicate outdoor-encounter implementation, with native and browser regression
-checks. This does not yet replace ordinary live attack-order ownership.
+### Next priority: music and ambient sound
 
-Next finish search/start and building/plan attack branches, then compose real world
-consumers with the existing shared order pool and startup/update/advance helpers.
-Retain command-21 periodic retargeting, queued-work restoration and native completion;
-no saved browser-task replay. Return to first-mission attacks and visible spell
-behavior after this integration. The broad performance pass is finished; new
-mechanics remain fixed-turn and presentation uncapped. Full parity remains open.
-
-
-### Attack-order search and automatic retarget scheduling
-
-Command-19/21 common entry, search/start, retry dispatch, eight-record march
-aggregation, target-type transitions, automatic fallback and periodic local scans
-now match 8,192 native front-half executions. This composes existing movement,
-animation and wait helpers; it preserves independent completion/restart results.
-The byte for march participation is +0x1e (assembly verified), not +0x7c or the
-animation stamp. 283 portable captures retain the new evidence.
-
-Next reconstruct the actual approach-point query (`0051c110`) and building/plan
-attack phases, then compose the controller with world consumers and shared queue
-ownership. The current search comparison supplies target/area/destination consumers
-and stops before attack dispatch; do not claim a complete or live command body.
-Campaign attacks and visible spells remain next after this integration. Preserve
-the complete game scope, readable TS and modern-performance constraints.
-
-
-### Attack approach points now use verified geometry and collision
-
-The complete `0051c110` query is reconstructed through existing whole-cell
-collision, indexed searches and building entrance geometry. 1,024 complete native
-calls execute without replaced comparison consumers; 147 captures retain all three
-outcomes and every search-pool byte. Fully occupied area scans stop after one world
-lap, preserving native results with 73,225 versus 277,001 cell probes in the sample.
-This is measured operation-count reduction, not a live FPS claim.
-
-Continue building/plan attack phases of `0051a2a0`, then compose these verified
-search/approach parts with the shared queue and real world consumers. Ordinary live
-ownership/restoration and campaign attacks remain unfinished. Do not credit complete
-lifecycle parity or introduce task snapshots. Keep mechanics fixed-turn, rendering
-uncapped and code readable; the broad performance pass remains complete.
-
-
-### Construction-plan attack phases reconstructed
-
-Plan entrance geometry (`004ba130`/`004b9fc0`), approach (`00438db0`) and attack
-phases 4/5 of `0051a2a0` now match 10,624 native calls, including 128 complete
-19-visit approach/attack sequences. 364 portable captures retain fields, animation,
-RNG and ordered destination/destruction requests. Existing shape, collision,
-movement and animation code is reused.
-
-Next implement completed-building attack phase 3, then compose ordinary controller
-phases and shared queue/world ownership. Actual plan removal (`004b9190`) is still a
-required world consumer, not certified by checking its request. Ranged attack phases,
-allocation/scheduling, campaign attacks and the full game scope remain open.
-No live queue restoration or whole melee-lifecycle credit is claimed for these
-staged parts. Keep readable TS, fixed-turn mechanics and uncapped presentation.
+Latest user direction, 2026-09-10: finish the current building-attack work, then
+continue music and ambient sounds. Inspect the supplied original audio and native
+playback/ambience selection, reuse existing browser audio ownership, and implement
+an audible first-mission experience. Preserve clean code, fixed-time scheduling,
+modern browser audio activation, user volume control and efficient playback.
+Validate playback, pause/resume, muting and resource cleanup in a real browser.
+Do not claim complete audio parity from asset extraction alone.

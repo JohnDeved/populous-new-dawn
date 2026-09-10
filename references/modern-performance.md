@@ -1853,3 +1853,22 @@ retains its pre-existing nested ternary warnings in `buildingModel`, outside the
 new geometry. Fallow: maintainability 85.6, average cyclomatic 2.7/p90 5, twelve
 existing cycles. No live rendering or controller path changed, so no new hardware
 or FPS claim is made. Profile the composed controller once integrated.
+
+## 2026-09-10 — building attacks retain the simulation clock
+
+Completed-building attacks reuse original shape geometry, integer movement,
+animation and existing damage primitives. Plan/building entry share a single
+implementation. Timers advance on simulation visits; no rendered-frame counter,
+new animation clock, queue or dependency was introduced. Named action phases and
+focused helpers replace the decompiler's goto/temporary-variable structure.
+
+16,305 native executions and 361 portable captures cover the new branches. The
+10,624-call plan comparison passes after the shared-entry refactor. An invalid
+fully occupied world now cancels model-19 positioning after a repeated coordinate
+cycle instead of hanging; valid searches still match the original. This correction
+has a runnable termination regression, not an invented hardware-speedup claim.
+
+No live renderer/controller path changes in this stage. Profile the composed
+controller on hardware after queue/world integration. ox-standard reports no new
+findings. Fallow maintainability remains 85.6, average cyclomatic 2.8/p90 5, with
+twelve existing cycles; its repository-wide threshold findings remain open.

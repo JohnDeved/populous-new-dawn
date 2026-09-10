@@ -71,6 +71,50 @@ export interface BuildingBurn {
   soundPlaying: boolean
 }
 
+// Complete 0x407810: renew shaking without resetting a shake already in progress.
+export function shakeBuilding(
+  b: {
+    state: number
+    buildingFlags: number
+    renderFlags: number
+    tilt: number
+    roll: number
+    remaining: number
+  },
+  duration: number
+) {
+  if (b.state === 4) return
+  if (!(b.buildingFlags & 2)) {
+    b.renderFlags &= ~32
+    b.buildingFlags |= 2
+    b.tilt = 0
+    b.roll = 0
+  }
+  b.remaining = duration > 0 ? byte(duration) : 16
+}
+
+// Complete 0x409140. Strikes accumulate damage; the building update applies it.
+export function damageBuildingByPerson(
+  w: {
+    levelFlags2: number
+    playerTribe: number
+    attackAlert: number
+    attackCell: number
+    tribes: { flags: number }[]
+  },
+  b: { x: number; y: number; tribe: number; flags3: number; damage: number; attacker: number },
+  p: { model: number; tribe: number }
+) {
+  if (w.levelFlags2 & 0x4000000 || b.flags3 & 128) return
+  b.damage = short(b.damage + rules.personBuildingDamage[p.model])
+  if (p.tribe !== -1) b.attacker = p.tribe & 255
+  if (b.tribe === w.playerTribe && !w.attackAlert) {
+    w.attackAlert = 1
+    w.attackCell = ((b.x >>> 8) | (b.y & 0xff00)) & 0xfefe
+    w.tribes[w.playerTribe].flags = (w.tribes[w.playerTribe].flags | 0x8000) >>> 0
+  }
+}
+
 // 0x408cb0: protected models and buildings already burning ignore ignition.
 export function igniteBuilding(b: DamageBuilding, attacker: number, start: () => void) {
   if (rules.buildingFlags[b.model] & 0x10000 || b.state === 4) return

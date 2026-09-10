@@ -130,26 +130,74 @@ export function withinCombatArea(
   return near(p, center, radius + 56)
 }
 
-// Complete 0x438db0: approach a construction plan through its native entrance.
-// Nearby exits allow a direct destination; facing wraps, arrival comparisons do not.
+interface EntranceEffects extends MotionEffects {
+  inside: () => Point
+  outside: () => Point
+  directDestination: (point: Point) => void
+}
+
+// 0x438db0 and 0x439030 differ only in the permitted structure collision bit.
 export function approachCombatPlan(
   rng: { randomState: number },
   p: PursuingPerson & { counter: number },
-  e: MotionEffects & {
-    inside: () => Point
-    outside: () => Point
-    directDestination: (point: Point) => void
-  }
+  e: EntranceEffects
+) {
+  return enterCombatStructure(rng, p, e, 1)
+}
+
+export function enterCombatBuilding(
+  rng: { randomState: number },
+  p: PursuingPerson & { counter: number },
+  e: EntranceEffects
+) {
+  return enterCombatStructure(rng, p, e, 4)
+}
+
+function enterCombatStructure(
+  rng: { randomState: number },
+  p: PursuingPerson & { counter: number },
+  e: EntranceEffects,
+  permission: number
 ) {
   if (p.assignment & 16) {
     p.assignment &= ~16
-    p.flags4 = ((p.flags4 & ~0x10007) | 1) >>> 0
+    p.flags4 = ((p.flags4 & ~0x10007) | permission) >>> 0
     const inside = e.inside(),
       outside = e.outside()
     if (near(outside, p, 312)) e.directDestination(inside)
     else e.destination(inside)
     faceTarget(p, inside)
     recoverPersonMovement(rng, p, e.animation)
+  }
+  return !(p.counter & 1) && near({ x: p.goalX, y: p.goalY }, p, 112)
+}
+
+// Complete 0x438f20: stop outside the entrance before attempting entry.
+export function approachCombatBuilding(
+  rng: { randomState: number },
+  p: PursuingPerson & { counter: number },
+  radius: number,
+  e: MotionEffects & { outside: () => Point }
+) {
+  if (p.assignment & 16) {
+    p.assignment &= ~16
+    const outside = e.outside()
+    e.destination(outside)
+    faceTarget(p, outside)
+    recoverPersonMovement(rng, p, e.animation)
+  }
+  return !(p.counter & 1) && near({ x: p.goalX, y: p.goalY }, p, radius + 56)
+}
+
+// Complete 0x439480: movement recovery and arrival for a preselected strike point.
+export function approachCombatPosition(
+  rng: { randomState: number },
+  p: PursuingPerson & { counter: number },
+  animation: PersonStateEffects['setAnimation']
+) {
+  if (p.assignment & 16) {
+    p.assignment &= ~16
+    recoverPersonMovement(rng, p, animation)
   }
   return !(p.counter & 1) && near({ x: p.goalX, y: p.goalY }, p, 112)
 }
