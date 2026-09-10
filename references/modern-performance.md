@@ -2165,3 +2165,26 @@ Real headless browser checks cover desktop/ultrawide/2x-DPI hit regions and
 same-artwork person replacement. Fixed-turn reward admission is shared with the
 native-count oracle and does not depend on render rate. No mechanics or pixels
 were traded for the bounded query.
+
+
+### 2026-09-11: building-aware drag release
+
+Original building admission rules now run on the existing native person and terrain
+records. Reusing authoritative XY avoids the previous two browser-position and
+terrain-height conversions for each native candidate; no new spatial index,
+simulation owner or per-frame work is introduced. The remaining legacy owner
+adapter stays explicit. Mechanics are checked against complete executable calls.
+
+`node scripts/bench-drag-selection.mjs` loads the previous `selectArea` body from
+commit `89b2e5c40a15757d01010a0caf29d2b90c37469c`, using Node's built-in TypeScript
+stripping and the same existing dependencies. On the same 200-person ordinary
+scene, selecting 120 people, it asserts equal selection flags and voice cues.
+After 1,000 warm-up calls, nine rounds of 1,000 releases measured median input CPU
+of 18.075917 microseconds before and 15.829375 after on Apple M5 / Node v24.18.0
+(about 12% less). This final run was isolated from the build/test jobs. This measures a release command, not rendered frame time or
+hardware GPU performance. Historical source must be present to repeat the baseline.
+
+Real headless browser checks retain camera/seam/ultrawide/high-DPI input and exact
+selection GPU equivalence, plus actual training entry and queued-person selection.
+No rendering clock, geometry, original sprite or simulation rate was changed.
+Results are in `performance/2026-09-11-drag-occupants.json`.

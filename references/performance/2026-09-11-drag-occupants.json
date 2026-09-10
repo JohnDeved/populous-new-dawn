@@ -1,0 +1,128 @@
+{
+  "scope": "Area-selection input CPU microbenchmark; headless GPU correctness checks, not hardware FPS certification.",
+  "benchmark": {
+    "baseline": "89b2e5c40a15757d01010a0caf29d2b90c37469c",
+    "node": "v24.18.0",
+    "cpu": "Apple M5",
+    "people": 200,
+    "selected": 120,
+    "iterations": 1000,
+    "rounds": 9,
+    "medianMicroseconds": {
+      "before": 18.075917000000004,
+      "after": 15.82937499999997
+    }
+  },
+  "dragRegression": {
+    "scope": "Native fill/edges/corners share batches separated only by intervening alpha draws. Batched and per-triangle GPU pixels match. Software-renderer correctness check; not hardware FPS or a speedup benchmark.",
+    "samples": [
+      {
+        "angle": 0,
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "center": 0,
+        "changed": 34280,
+        "mismatch": 0,
+        "drawCalls": 29,
+        "baseCalls": 26,
+        "unbatchedCalls": 288,
+        "selectionDraws": 3,
+        "triangles": 262,
+        "renderPixelRatio": 1,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+      },
+      {
+        "angle": 512,
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "center": 0,
+        "changed": 32240,
+        "mismatch": 0,
+        "drawCalls": 29,
+        "baseCalls": 26,
+        "unbatchedCalls": 276,
+        "selectionDraws": 3,
+        "triangles": 250,
+        "renderPixelRatio": 1,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+      },
+      {
+        "angle": 1024,
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "center": 0,
+        "changed": 29830,
+        "mismatch": 0,
+        "drawCalls": 29,
+        "baseCalls": 26,
+        "unbatchedCalls": 293,
+        "selectionDraws": 3,
+        "triangles": 267,
+        "renderPixelRatio": 1,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+      },
+      {
+        "angle": 1536,
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "center": 0,
+        "changed": 32362,
+        "mismatch": 0,
+        "drawCalls": 29,
+        "baseCalls": 26,
+        "unbatchedCalls": 281,
+        "selectionDraws": 3,
+        "triangles": 255,
+        "renderPixelRatio": 1,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+      },
+      {
+        "angle": 256,
+        "width": 3440,
+        "height": 1440,
+        "deviceScaleFactor": 1,
+        "center": 0,
+        "changed": 9452,
+        "mismatch": 0,
+        "drawCalls": 27,
+        "baseCalls": 26,
+        "unbatchedCalls": 165,
+        "selectionDraws": 1,
+        "triangles": 139,
+        "renderPixelRatio": 1,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+      },
+      {
+        "angle": 0,
+        "width": 1920,
+        "height": 1080,
+        "deviceScaleFactor": 2,
+        "center": 120,
+        "changed": 110449,
+        "mismatch": 0,
+        "drawCalls": 29,
+        "baseCalls": 26,
+        "unbatchedCalls": 288,
+        "selectionDraws": 3,
+        "triangles": 262,
+        "renderPixelRatio": 1.8,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+      }
+    ],
+    "sloped": {
+      "heights": [
+        9,
+        117
+      ],
+      "retained": true,
+      "selectionPixels": 28861,
+      "vertices": 843,
+      "allocatedBytes": 24576
+    }
+  },
+  "liveCheck": "scripts/check-browser-drag-occupants.mjs: native phase-12 entry, phase-13 interior exclusion, outside queue selection, preserved orders/RNG"
+}

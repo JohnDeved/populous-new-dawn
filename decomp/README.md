@@ -4571,3 +4571,14 @@ or proprietary object data are embedded in the check. Portable captured inputs
 and outputs retain the executable hash. The live ordinary stone-head panel now
 uses these rules; exact `0043c600` standing-slot lookup is distinct from reward
 admission. Vault anchors, general triggers and full input ownership remain open.
+
+
+## 2026-09-11 — building-aware area selection
+
+`check-native-drag-occupants.py EXE [--record]` executes 1,024 full `004449d0`
+commands and verifies 4,096 person records. The actual `004e3430`, `004de610`,
+`004de680` and `0040a3f0` calls run against supplied native cell chains, building
+records and shared command slots. Only UI refresh and voice playback are hooked;
+selection flags/voice choice match and all other person bytes stay unchanged.
+The portable captures retain the executable hash. No new binary export was needed.
+Vehicle/passenger admission and full native traversal/speaker order remain open.

@@ -168,6 +168,13 @@ differences in actual play and preserving the existing regression checks.
    checks cover this integration; the seven-point polygon hole is repaired. Keep
    zero-area/alternate-render/extreme-capacity checks open, and move to mixed-class/
    occupant picking, HUD selection ownership and modal/command-buffer behavior.
+   Building-aware person admission now follows the actual native land-membership,
+   completed-tower and active training-phase gates. A real phase-12 trainee can be
+   selected before the phase-13 interior exclusion. Native full-command comparisons,
+   real entry/queue browser input, camera/seam/display regressions and the measured
+   200-person release workload pass. This is not vehicle/passenger selection or
+   complete native object traversal/speaker ordering. Continue HUD selection
+   ownership and mixed-object picking next; retain all those unfinished gates.
 
 Ordinary marching is now live through the shared order pool, native physics,
 routing and sprite ownership. Native comparisons, 279 portable tests and actual

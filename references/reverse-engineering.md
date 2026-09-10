@@ -7679,3 +7679,58 @@ Validation at delivery: all 306 portable tests (including full first mission and
 worship FPS replay), typecheck, parity metadata, production build and 1,119 native
 export hashes pass. The changed worship/panel TS modules pass targeted oxlint;
 pre-existing repository-wide lint issues remain outside this slice.
+
+
+### 2026-09-11: building-aware drag admission
+
+`004449d0` does not reject every person recorded as inside a building. Its class-1
+branch calls `004e3430` with the override enabled, then `004de610` and `004de680`.
+Thus flags4 bit 128 blocks admission, while bit 0x800 alone does not. A person with
+flags2 bit 0x800000 is excluded when the building in their terrain cell is a model-4
+completed tower. A state-10/substate-13 person is excluded when their actual current
+order is uncancelled command 8 and that cell's building has descriptor flag 1.
+Other training phases are eligible. Order target IDs and browser `inside` metadata
+are not substitutes for the native terrain lookup. `0040a3f0` reads the cell's
+0x200 flag and masked low-ten-bit building index.
+
+`canDragPerson` keeps those gates readable in the existing selection module.
+`selectArea` now uses authoritative native position and actual land-list membership
+for registered people. Unregistered legacy people retain the previous occupancy
+adapter until their object ownership is migrated. Selection still does not create
+native simulation owners. Polygon/clamping, first-eligible replacement, empty-area
+retention, Ctrl addition and voices keep their existing implementations. The same
+change avoids two browser-position/terrain-height conversions per native person.
+
+`check-native-drag-occupants.py EXE [--record]` executes 1,024 complete area commands
+with 4,096 people, real cell chains and original tower/training/current-order lookup.
+Inputs vary land membership, hidden/blocked flags, packed terrain indices, building
+state, phase, cancellation, all eight command cursors and distinct immediate orders.
+Only UI refresh and final sound playback are supplied. Selection flags and voices
+match; every other native person byte is unchanged. Portable captures additionally
+assert unchanged browser orders, units and RNG. A real training-entry test proves
+phase 12 is selectable despite occupancy, then phase 13 is excluded without
+interrupting training.
+
+`check-browser-drag-occupants.mjs` performs actual terrain drag input during those
+entry phases and against a full camp with two queued people. Native order records
+and RNG remain unchanged; screenshots retain the original sprites and queue.
+The existing full drag browser check passes five camera bearings, map seams,
+Ctrl/empty-area behavior, ultrawide/2x-DPI, original sloped terrain, and exact
+batched/unbatched selection pixels. The 200-person release microbenchmark and
+these headless GPU results are retained in
+`references/performance/2026-09-11-drag-occupants.json`.
+
+This delivery does not complete mixed selection: vehicle/passenger objects and
+selection propagation, complete native cell traversal and voice-speaker ordering,
+HUD/modal/command-buffer ownership, alternate input/render modes and the remaining
+full-game scope stay open. Continue those visible controls, with clean TS and
+uncapped presentation as constraints.
+
+
+Review also retained the legacy fetching-builder position adapter: inactive
+construction poses cannot supply the current hit location. A portable regression
+keeps a fetching builder selectable at the browser position without acquiring a
+native owner or relocating the saved construction pose. Final validation passes
+all 309 portable tests, typecheck, parity metadata, production build and 1,119
+native export hashes. The new selection helper passes targeted oxlint; existing
+repository-wide lint issues remain outside this slice.

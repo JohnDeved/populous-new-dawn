@@ -26,12 +26,18 @@ import {
 import { automaticMeleeTarget, nativePersonModel, nativePersonTribe } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
-import { deselectPerson, emptyPersonOrder, type OrderPool } from './person-orders.ts'
+import {
+  currentPersonOrder,
+  deselectPerson,
+  emptyPersonOrder,
+  type OrderPool,
+} from './person-orders.ts'
 import {
   clickPersonSelection,
   markPersonSelected,
   selectedPersonVoice,
   selectedGroupVoices,
+  canDragPerson,
 } from './person-selection.ts'
 import {
   dragCommandCorners,
@@ -2263,14 +2269,32 @@ export function selectArea(
   const people = selectionPeople(w)
   const ids = new Set(
     w.units
-      .filter(
-        u =>
-          u.team === 'blue' &&
-          canOrder(u) &&
-          u.inside === null &&
-          inDragCells(nativePosition(w, u), bounds) &&
-          inDragSelection(nativePosition(w, u), corners)
-      )
+      .filter(u => {
+        if (u.team !== 'blue' || u.hp <= 0) return false
+        const active = unitAnimationSource(u) ?? u.native ?? u.entry?.person
+        const p = active ?? u.builder?.person
+        // Registered native occupants retain their actual land-list membership.
+        // Legacy people have no list owner yet; keep their existing occupancy gate.
+        if (p && w.objectCells.objects.get(u.id) === p) {
+          if (!(p.flags2 & 0x20000)) return false
+        } else if (u.inside !== null) return false
+        const point = active ?? nativePosition(w, u)
+        if (!inDragCells(point, bounds) || !inDragSelection(point, corners)) return false
+        if (!p) return true
+        const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+        const b =
+          w.land.flags[cell] & 512
+            ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+            : undefined
+        return canDragPerson(
+          p,
+          currentPersonOrder(w.buildingOrders, p),
+          b && {
+            model: buildingModel(b),
+            state: b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
+          }
+        )
+      })
       .map(u => u.id)
   )
   const eligible = new Set(people.filter(p => ids.has(p.id) && !(p.flags4 & 128)).map(p => p.id))
