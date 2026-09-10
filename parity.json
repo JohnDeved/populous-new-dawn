@@ -1303,9 +1303,16 @@
             "tests/background-audio.test.mjs",
             "tests/fixtures/background-audio.json",
             "scripts/check-browser-background-audio.mjs",
-            "references/performance/2026-09-10-background-audio.json"
+            "references/performance/2026-09-10-background-audio.json",
+            "app/terrain-ambience.ts",
+            "scripts/check-native-terrain-ambience.py",
+            "tests/terrain-ambience.test.mjs",
+            "tests/fixtures/terrain-ambience.json",
+            "scripts/check-browser-terrain-ambience.mjs",
+            "references/performance/2026-09-10-terrain-ambience.json",
+            "references/performance/2026-09-10-terrain-ambience-ultrawide.json"
           ],
-          "note": "Ordinary lowland/highland/coast/sea and globe layers plus tree/gull accents are audible. Weighting, tie order and accent decisions match 4,096 native calls; 4,096 further calls verify gain-byte arithmetic. Playing ordinary voices now follow current weights without restart; browser checks land/water return transitions, globe gain exception and reset cleanup. The bounded 81-cell camera-neighborhood/visible-tree adapter, exact far-polygon/object counts, special landscapes, shield ambience and full native voice arbitration remain open."
+          "note": "Ordinary layers/accents and playing gains are integrated with native comparisons. The camera-neighborhood adapter is replaced by accepted terrain triangles and the original depth cutoff: 256 native lists/8070 triangles plus real browser terrain-list replays agree. Sampling reuses painter work at the existing 4 Hz audio-input cadence; pixels/depths are unchanged. Exact native scene membership/cadence, tree/object ownership, special renderer flags/landscapes, shield ambience and voice arbitration remain open."
         },
         {
           "id": "audio.music",

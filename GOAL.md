@@ -1504,12 +1504,14 @@ selection/ambience comparisons and a real-browser audio check cover this bounded
 work. Playback uses streaming and the audio clock, with pause/resume, master/music
 volume, muted/restarted cleanup and uncapped-FPS timing checks.
 
-Continue audio parity through exact renderer-derived environmental counts, native
-activity ownership, special-landscape substitutions, frontend
-music selection and voice scheduling. Current camera-neighborhood/fight adapters
-remain explicit. Active ordinary ambient gains now follow the current weights
+Continue audio parity through native tree/object and activity ownership,
+special-landscape substitutions, frontend music selection and voice scheduling.
+Terrain counts now use accepted renderer triangles and the original depth cutoff;
+256 native lists/8,070 triangles and live submitted-list replays verify this bounded
+integration. Exact whole-scene membership, special renderer flags and native timing
+remain open. Tree/fight adapters remain explicit. Active ordinary ambient gains now follow the current weights
 without restarting samples; 4,096 native volume comparisons and real-browser
-land/water/globe transitions cover the update. Exact world counts, special
+land/water/globe transitions cover the update. Exact object counts, special
 landscape mixing and native voice arbitration remain unfinished.
 Do not block audible gameplay on unrelated decompilation. The
 building-controller/shared-queue integration above remains the following gameplay

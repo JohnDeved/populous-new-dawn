@@ -1918,3 +1918,33 @@ volume arithmetic passes 4,096 additional comparisons. No hardware frame-time or
 speedup claim is made; exact renderer counts and native cadence ownership remain
 open. Environmental samples now restart after completion at the next 50 ms visit,
 while percussion continues to use its existing audio-clock lookahead scheduler.
+
+
+## 2026-09-10 — renderer-derived terrain ambience at bounded cadence
+
+Replaced the 81-cell camera-neighborhood approximation with the original submitted
+terrain-triangle/depth-midpoint rules. The painter reuses its existing accepted
+faces, buckets and toroidal instance membership. A reusable 43,020-byte histogram
+collects only when the enabled audio input timer requests a snapshot (4 Hz); other
+frames skip classification. The next rendered frame fills the same snapshot held
+by audio. There is no second terrain projection, sorting pass, per-triangle
+allocation, retained frame list or dependency. Tree/activity ownership remains
+partial.
+
+The paired headless Chromium CPU comparison uses the pre-change painter at
+`c30d8827d48e7bb0548d4082540b44c656752492`, unchanged scenes and alternating run order,
+with eight warmups and 40 retained samples per mode. At 1440×1000, median painter
+time was 1.4 ms before, 1.3 ms without a requested sample and 1.3 ms while collecting;
+all p95 values were 1.5 ms. At 3440×1000, medians were 2.6/2.7/2.8 ms and p95
+2.9/2.9/3.0 ms respectively. The sampled ultrawide difference is about 0.2 ms on
+four frames per second; timer granularity/noise limits smaller comparisons. These
+are isolated painter CPU measurements, not a claimed speedup or hardware FPS.
+
+Twelve actual views (six at each width) preserve every captured pixel and painter
+depth relative to the previous code. Independently reconstructed submitted lists
+replay through native ground drawing with matching audio counters. The separate
+256-list/8,070-triangle native regression covers clipping-input boundary ties,
+empty lists, raised bias, signed terrain heights and category high bits. GPU
+consumers and texture-cache data are supplied; exact original full-scene membership
+and special rendering modes are not certified. Existing browser audio output,
+pause/mute/restart, original track/drum decoding and resource checks also pass.

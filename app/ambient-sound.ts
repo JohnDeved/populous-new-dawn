@@ -11,7 +11,7 @@ export interface SoundEnvironment {
 }
 
 // 0x489a30 + 0x489770, ordinary landscape: rank the five environmental layers.
-// Counts are view-dependent; the browser supplies a bounded camera neighborhood.
+// Counts come from the renderer's submitted terrain triangles.
 export function ambientWeights(s: SoundEnvironment) {
   let weights = [0, 0, 0, 0, 0]
   if (s.overview) weights[3] = 255

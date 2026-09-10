@@ -9,6 +9,8 @@ import {
 import type { RenderView } from './render-view.ts'
 import { PainterVertices } from './painter-vertices.ts'
 import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
+import { TerrainAmbience } from './terrain-ambience.ts'
+import type { NativeTerrain } from './native-terrain.ts'
 
 interface Command {
   slot: number
@@ -26,6 +28,9 @@ export class Painter {
   vertices = new PainterVertices()
   view: RenderView
   landFlags: Uint32Array = new Uint32Array(16384)
+  land?: Pick<NativeTerrain, 'heights' | 'categories'>
+  terrainAmbience = new TerrainAmbience()
+  pendingSoundEnvironment?: ReturnType<TerrainAmbience['result']>
   cells?: ObjectCells
   centers = new WeakMap<
     THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
@@ -63,6 +68,8 @@ export class Painter {
   }
 
   update(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
+    const sampleAmbience = this.pendingSoundEnvironment && this.land
+    if (sampleAmbience) this.terrainAmbience.clear()
     const objects: (THREE.Mesh | THREE.Sprite)[] = []
     let length = 0
     scene.traverseVisible(object => {
@@ -231,6 +238,15 @@ export class Painter {
               ground && raised
             )
           }
+          if (clipGround && sampleAmbience) {
+            const tile = triangle >> 1,
+              terrainCell = (((59 - (tile >> 7)) & 127) << 7) | (((tile & 127) - 60) & 127)
+            this.terrainAmbience.add(
+              bucket,
+              sampleAmbience.heights[terrainCell],
+              sampleAmbience.categories[terrainCell]
+            )
+          }
           commands.push({
             slot: offset + instance * triangles + triangle,
             bucket,
@@ -242,6 +258,10 @@ export class Painter {
           })
         }
       }
+    }
+    if (sampleAmbience) {
+      Object.assign(this.pendingSoundEnvironment!, this.terrainAmbience.result())
+      this.pendingSoundEnvironment = undefined
     }
     commands.sort(
       (a, b) => a.cell - b.cell || a.phase - b.phase || a.object - b.object || a.face - b.face

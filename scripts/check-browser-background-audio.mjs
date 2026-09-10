@@ -111,15 +111,19 @@ try {
   const environment = await page.evaluate(() => {
     const a = window.testAudio,
       s = window.testScene
-    const home = s.soundEnvironment()
+    const sample = point => {
+      s.viewPoint = point
+      s.updateView()
+      const environment = s.soundEnvironment()
+      s.renderer.render(s.scene, s.camera)
+      return environment
+    }
+    const home = sample({ ...s.viewPoint })
     let ocean
-    for (let i = 0; i < s.world.land.heights.length; i++)
-      if (s.world.land.heights[i] <= 0) {
-        s.viewPoint = { x: (i & 127) * 2 - 8, z: -(i >> 7) * 2 - 8 }
-        const candidate = s.soundEnvironment()
-        if (candidate.water > (ocean?.water ?? -1)) ocean = candidate
-        if (candidate.water === 81) break
-      }
+    for (const point of [{x:80,z:80},{x:-80,z:-80},{x:127,z:-127},{x:-127,z:127}]) {
+      const candidate = sample(point)
+      if (candidate.water > (ocean?.water ?? -1)) ocean = candidate
+    }
     a.environment = ocean ?? home
     a.updateBackground()
     return { home, ocean, layers: [...a.ambientVoices.keys()] }

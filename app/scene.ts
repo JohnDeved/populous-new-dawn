@@ -2257,26 +2257,16 @@ export class GameScene {
       )
   }
   soundEnvironment(): SoundEnvironment {
-    const center = nativePosition(this.world, this.viewPoint),
-      land = this.world.land
+    // Sample the next rendered view at the existing 4 Hz audio-input cadence.
+    const painter = this.view.painter
     const result: SoundEnvironment = {
-      total: 81,
-      low: 0,
-      high: 0,
-      water: 0,
+      ...painter.terrainAmbience.result(),
       trees: false,
       overview: this.overviewActive,
       activity: 0,
     }
-    // ponytail: bounded camera-neighborhood adapter; replace with the original
-    // far-polygon counters when mixed renderer/audio ownership is integrated.
-    for (let y = -4; y <= 4; y++)
-      for (let x = -4; x <= 4; x++) {
-        const cell = (((center.y >> 9) + y) & 127) * 128 + (((center.x >> 9) + x) & 127)
-        if (rules.terrainCategoryFlags[land.categories[cell]] & 2) result.water++
-        else if (land.heights[cell] < 513) result.low++
-        else result.high++
-      }
+    // Audio owns this snapshot; the next rendered frame fills its terrain counts.
+    painter.pendingSoundEnvironment = result
     result.trees = this.world.trees.some(
       t => t.model > 0 && t.model < 7 && t.logs > 0 && this.visible(t)
     )
@@ -2712,6 +2702,7 @@ export class GameScene {
           : 0
     })
     this.view.painter.landFlags = this.world.land.flags
+    this.view.painter.land = this.world.land
     this.view.painter.cells = this.world.objectCells
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)

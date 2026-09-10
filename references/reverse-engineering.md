@@ -6416,13 +6416,43 @@ from the existing original cue table, and accent variation uses the original
 sample→gain→pan order. Special lava/hell landscape substitutions and shield ambience
 remain open.
 
-**Live world inputs are bounded adapters:** an 81-cell wrapped neighborhood around
-the camera supplies lowland/highland/water counts, visible trees enable accents,
-and player approach/fight actions choose activity 1/2. The original collects far
-rendered polygon counts (`004673b0`) and rendered object counts (`0046ec80`), while
-`004ec6f0` supplies exact music activity from native attack ownership. These browser
-adapters are explicitly partial; full world/renderer/music ownership is not yet
-certified. Active ordinary layers now update their gain every 50 ms using
+**Live terrain inputs now use the rendered ground queue:** `0046e930` tracks
+minimum/maximum terrain buckets; `004673b0` counts triangles only when
+`bucket + 1 < min + floor((max - min) / 2)`. Earlier notes called these “far”
+polygons; the predicate selects the lower-depth part of the submitted terrain.
+Category low nibble → terrain flag bit 2 identifies water; signed original cell
+height below 513 identifies lowland, otherwise highland. The original counters
+are copied to the audio inputs by `00467130`.
+
+`TerrainAmbience` accumulates these classifications while the existing painter
+processes accepted terrain faces. It reuses projection, clipping, toroidal copies
+and buckets, including raised-ground bias. The audio input timer requests a
+snapshot at 4 Hz only while enabled, and the next rendered frame updates that same
+snapshot. Unrequested render frames do not collect counts. The previous 81-cell
+camera-neighborhood scan is removed. Native special renderer flags, exact whole
+original scene membership and temporal ownership remain open; this is ordinary
+first-mission terrain input parity for the submitted list, not a full-frame claim.
+Visible-tree eligibility and player approach/fight music activity remain adapters;
+`0046ec80` and `004ec6f0` still require complete object/attack ownership.
+
+`check-native-terrain-ambience.py` executes 256 whole native queue/draw lists with
+8,070 triangles, retaining portable captures. Cases include empty/equal-depth
+views, raised bias, signed height thresholds and categories with high bits.
+The browser check independently reconstructs accepted terrain lists from geometry
+and painter GPU depth slots. Replaying them through native `004673b0` agrees on
+all counts. The same captures compare previous/current pixels and depths without
+changes, and measure paired CPU painter cost. Texture-cache records are supplied
+and GPU submission is replaced in native execution; full original frames are not
+emulated. Reproduce both ordinary and ultrawide browser inputs with:
+
+```
+node scripts/check-browser-terrain-ambience.mjs --record
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-terrain-ambience.py /private/tmp/populous-reference/native/d3dpoptb.exe --browser references/performance/2026-09-10-terrain-ambience.json
+POPULOUS_AUDIO_WIDTH=3440 node scripts/check-browser-terrain-ambience.mjs --record
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-terrain-ambience.py /private/tmp/populous-reference/native/d3dpoptb.exe --browser references/performance/2026-09-10-terrain-ambience-ultrawide.json
+```
+
+Active ordinary layers now update their gain every 50 ms using
 `004895c0` byte truncation, without replacing or overlapping the current sample.
 `0048a900` applies this update even when a playing cue leaves the top-three list;
 it continues silently when its environmental weight reaches zero. The globe cue
