@@ -4997,7 +4997,7 @@ hut upgrade and complete fire-repair browser regressions also pass.
 ## Floating warrior-training feedback (2026-09-10)
 
 `draw_ui_panel` at `00504bc0`, effect kind 5, supplies the original five-person
-occupant row, selection marks, charge layers, evacuation-button artwork and
+occupant row, selection marks, charge layers, dismantling-button artwork and
 pointing tail. The logical width is 120 pixels; height is 62 without a charge
 bar and 68 with it. Occupants are read from physical building slots, skipping
 holes; icons are HFX `73 + person model`. The selection marker tests the actual
@@ -5008,7 +5008,7 @@ the pointing tail uses inverse alpha 170, and the hardware rectangle producer
 `00516890`/`00516a00` emits alpha 171 for panel backgrounds. Frame lines remain
 opaque. The distinction is retained in the browser canvas.
 
-The original presentation phase block `004a470b..004a472d` derives the evacuation
+The original presentation phase block `004a470b..004a472d` derives the dismantling
 blink from game turn bit 1 and insufficient-mana blink from bit 2. Browser
 render frequency does not advance these phases. `00509000` gives ordinary
 class-2 buildings zero additional panel anchor height; the displayed tail follows
@@ -5019,7 +5019,7 @@ positioning and animation controller is not yet integrated.
 `check-native-training-panel.py` runs 384 complete kind-5 draw calls and the real
 hardware rectangle producer; final GPU submissions and palette setters are
 supplied. It exercises empty/full/mixed occupant rows, physical holes, selection,
-charging, insufficient-mana visibility and evacuation artwork phases. 276 draw
+charging, insufficient-mana visibility and dismantling artwork phases. 276 draw
 traces match entirely. 108 high-cost traces differ only in the intentional charge
 overflow correction below. Portable tests retain every capture. Browser checks
 compare 24 original-art canvases (195,840 pixels, at most one color byte of
@@ -5047,11 +5047,69 @@ this were exact legacy behavior.
 This increment is read-only training feedback. The scene observes local training
 activity and hover; it does not claim the original class-10 effect allocation,
 32-slot panel pool, hover lifetime, fade/stacking, drag/input controller or dynamic
-palette/ghost changes. The evacuation and occupant button artwork is present;
+palette/ghost changes. The dismantling and occupant button artwork is present;
 its commands are not wired yet. `0047b460` contains the input path (its inferred
-jump tables need instruction-level verification). The inspected evacuation branch
+jump tables need instruction-level verification). The inspected dismantling branch
 emits tribe command `0x40` with a requested toggle and building ID. Do not replace
-that command with an invented immediate evacuation rule. Keep native panel input,
+that command with an invented immediate dismantling rule. Keep native panel input,
 its actual command consumer and tower socket/clipping admission as the next
 visible/core-gameplay targets. Other panel kinds, buildings and specialist schools
 remain in the open parity inventory.
+
+
+## Training occupant controls and command correction (2026-09-10)
+
+The executable bytes correct an initial interpretation of `0047b460`'s broken
+Ghidra jump tables. An ordinary friendly building-occupant left-click emits
+**tribe command 0x2a, arg1 6, arg2 person ID** at `0047b7f8`; it does **not** emit
+0x43 or remove a resident. Modifier bit 1 emits 0x61 with a toggle determined by
+the clicked person's selection byte and the building ID. `004a9d90` maps left/right
+Shift scan codes 0x2a/0x36 to the modifier bits normalized by `004aa1c0`. Control
+and Alt alone therefore retain the single-person action. A right-click requests
+camera focus (`00417ca0`) and person-panel opening (`00504590`), without changing
+selection. Accepted panel clicks emit UI cue 0x6a. Input suppression, invalid event
+codes, land flag 0x800 and a busy temporary command buffer retain their native gates.
+
+`check-native-training-selection.py` executes all 384 combinations through the
+original input routine, including a physical slot hole, right-click coordinates
+and emitted command payloads. Only the hostile-building predicate and terminal
+UI/audio/camera consumers are supplied. No recovered jump table is guessed.
+
+The original `process_tribe_cmd` (`0043e8e0`) supplies single-person toggling and
+six-slot group selection. Selecting calls the real eligibility leaf `004e3430`:
+flags2 bit 128 blocks selection, while bit 0x800 is allowed for this input mode.
+Single selection sets selectionFlags bit 128 and flags3 bit 0x10000000; group
+selection clears the latter. Deselection clears selectionFlags bit 128 and
+flags3 bit 128. Other bits remain intact. The clicked member determines whether
+the whole group is selected or deselected, including mixed selections; unrelated
+selected units remain selected. 512 native command cases compare all these fields
+against the small shared `selectTrainingOccupants` helper. UI-mode setup
+(`0047a550`) and secondary selection voices (`00489c40`) are supplied consumers;
+passenger recursion is outside this ordinary training-building scope.
+
+The live panel now exposes ordinary desktop buttons over the original canvas
+occupant slots. Display order skips empty physical slots, but actions retain
+actual unit IDs. Enter/Space and focus outlines provide keyboard access. Single
+and Shift actions update the existing selected-unit roster and native fields;
+right-click uses the existing interpolated native camera controller. Browser QA
+covers selection/deselection, preserved external selections, blocking, keyboard
+activation, right-click focus, five desktop scales, physical holes, and actual
+selection-to-movement orders. A released trainee stays at its current XY before
+walking along the existing route; remaining trainees keep training. No invented
+panel ejection rule was introduced.
+
+The building button is **dismantling**, not a generic evacuation toggle. Its
+command 0x40 calls `0040a0c0`, rewrites appropriate approach/work orders to person
+command 10, and sends existing occupants onto that shared order. Command 10's
+`00497a30` performs approach, work, timber recovery and departure; `00498140`
+ensures the linked construction plan. The earlier artwork field `ejecting` is
+renamed `dismantling`; historical native draw payloads are unchanged. These
+controllers remain the next gameplay integration, rather than being replaced
+with immediate removal/destruction.
+
+Remaining boundaries: original command buffering/turn dispatch, complete
+selection-state ownership, secondary selection voices, opening the contextual
+person panel, native hover/pressed tint, panel effect allocation/lifetime/fading,
+dynamic palettes, dismantling, other panel types and special/passenger occupants.
+The live selection roster and ordinary movement adapter remain explicitly shared
+with existing browser input. This bounded completion does not claim those systems.

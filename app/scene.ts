@@ -1,6 +1,7 @@
 import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
 import { drawTrainingPanel } from './training-panel.ts'
+import { selectBuildingOccupants } from './live-building-entry.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
@@ -503,7 +504,7 @@ export class GameScene {
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
-  trainingPanels = new Map<number, HTMLCanvasElement>()
+  trainingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0 }
   dragBox: HTMLDivElement
   keys = new Set<string>()
@@ -1680,11 +1681,11 @@ export class GameScene {
   }
   renderTrainingPanels() {
     const { width, height } = this.container.getBoundingClientRect()
-    for (const [id, canvas] of this.trainingPanels) {
+    for (const [id, panel] of this.trainingPanels) {
       if (!this.world.buildings.some(b => b.id === id && b.hp > 0)) {
-        canvas.remove()
+        panel.remove()
         this.trainingPanels.delete(id)
-      } else canvas.hidden = true
+      } else panel.hidden = true
     }
     if (this.overviewActive || this.world.inputMask) return
     for (const b of this.world.buildings) {
@@ -1694,19 +1695,48 @@ export class GameScene {
       // ponytail: live activity/hover drives this first panel integration;
       // replace with the native panel pool/lifetime when its controller is ported.
       if (!admission || (!(admission.activity & 128) && this.hoveredObject !== b.id)) continue
-      let canvas = this.trainingPanels.get(b.id)
-      if (!canvas) {
-        canvas = document.createElement('canvas')
-        canvas.className = 'training-panel'
-        canvas.setAttribute('role', 'img')
-        this.trainingPanels.set(b.id, canvas)
-        this.container.appendChild(canvas)
+      let panel = this.trainingPanels.get(b.id)
+      if (!panel) {
+        panel = document.createElement('div')
+        panel.className = 'training-panel'
+        panel.setAttribute('role', 'group')
+        const canvas = document.createElement('canvas')
+        canvas.setAttribute('aria-hidden', 'true')
+        panel.appendChild(canvas)
+        for (let i = 0; i < 5; i++) {
+          const button = document.createElement('button')
+          button.type = 'button'
+          button.style.left = `${3 + i * 17}px`
+          button.addEventListener('click', event => {
+            if (this.world.inputMask || this.overviewActive) return
+            selectBuildingOccupants(this.world, b, Number(button.dataset.person), event.shiftKey)
+            this.onSound(0x6a)
+            this.onChange()
+            this.renderTrainingPanels()
+          })
+          button.addEventListener('contextmenu', event => {
+            event.preventDefault()
+            if (this.world.inputMask || this.overviewActive) return
+            const u = this.world.units.find(u => u.id === Number(button.dataset.person) && u.hp > 0)
+            if (u?.inside !== b.id) return
+            this.focus(u, { animate: true })
+            this.onSound(0x6a)
+          })
+          panel.appendChild(button)
+        }
+        // HUD controls must not become camera drags or battlefield orders.
+        for (const type of ['pointerdown', 'pointerup', 'pointermove'])
+          panel.addEventListener(type, event => event.stopPropagation())
+        this.trainingPanels.set(b.id, panel)
+        this.container.appendChild(panel)
       }
+      const canvas = panel.firstElementChild as HTMLCanvasElement
       const occupants = admission.occupants.flatMap(id => {
-        const u = id && this.world.units.find(u => u.id === id)
+        const u = id && this.world.units.find(u => u.id === id && u.hp > 0 && u.inside === b.id)
         return u
           ? [
               {
+                id: u.id,
                 model: u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2,
                 selected: this.world.selected.includes(u.id),
               },
@@ -1717,21 +1747,37 @@ export class GameScene {
         cost = admission.trainingCost,
         p = this.screen(b)
       drawTrainingPanel(canvas, texture('hud').image as HTMLImageElement, {
-        occupants,
+        occupants: occupants.map(({ model, selected }) => ({ model, selected })),
         progress,
         cost,
         active: !!(admission.activity & 128),
-        ejecting: !!(admission.activity & 0x8000),
+        dismantling: !!(admission.activity & 0x8000),
         warning: !!(admission.flags3 & 0x1000),
         turn: this.world.turn,
       })
-      canvas.hidden = false
-      canvas.setAttribute(
+      panel.hidden = false
+      panel.setAttribute(
         'aria-label',
         `Warrior training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
       )
-      canvas.style.left = `${((p.x + 1) * width) / 2}px`
-      canvas.style.top = `${((1 - p.y) * height) / 2}px`
+      panel.style.left = `${((p.x + 1) * width) / 2}px`
+      panel.style.top = `${((1 - p.y) * height) / 2}px`
+      panel.style.width = `${canvas.width}px`
+      panel.style.height = `${canvas.height}px`
+      panel.style.setProperty('--occupant-top', `${admission.activity & 128 && cost ? 7 : 1}px`)
+      for (let i = 0; i < 5; i++) {
+        const button = panel.children[i + 1] as HTMLButtonElement,
+          person = occupants[i]
+        button.hidden = !person
+        if (!person) continue
+        button.dataset.person = String(person.id)
+        button.setAttribute(
+          'aria-label',
+          `Trainee ${i + 1}: ${person.model === 7 ? 'shaman' : person.model === 3 ? 'warrior' : 'brave'}`
+        )
+        button.setAttribute('aria-pressed', String(person.selected))
+        button.title = 'Click to select; Shift-click for all occupants; right-click to focus'
+      }
     }
   }
   cancelOverview() {

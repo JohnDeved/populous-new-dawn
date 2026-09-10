@@ -1,8 +1,8 @@
 {
-  "revision": 8,
+  "revision": 9,
   "discovery": {
     "status": "open",
-    "note": "Discovery remains open. Revision 8 separates floating warrior-training panel artwork and charge/occupant feedback from unfinished panel input, scheduling and other contextual panels. Unknown mechanics can still expand scope.",
+    "note": "Discovery remains open. Revision 9 separates warrior-training occupant selection from remaining contextual controls. Dismantling, person-panel opening, command scheduling, panel lifetime and other panel kinds remain unfinished. New discoveries can still expand scope.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1105,7 +1105,7 @@
               "id": "interface.hud.training-art",
               "title": "Floating warrior-training panel artwork, occupant slots and layered charge feedback",
               "status": "verified",
-              "note": "Steady-state kind-5 warrior-training artwork and read-only live feedback: original five-slot silhouettes, selection marks, native charge layers, default palette/ghost alpha and turn-driven warning/control artwork. 384 full native draw calls (276 identical traces; 108 differ only in a documented visual integer-overflow correction), 24 browser pixel states, actual five-person entry, camera anchoring and five uniform desktop sizes through 4K pass. Cached bitmap work and M5 frame time measured. Native panel input/evacuation commands, allocation/lifetime/fade, dynamic palettes and other panel kinds remain separate unfinished scope.",
+              "note": "Steady-state kind-5 warrior-training artwork and live feedback: original five-slot silhouettes, selection marks, native charge layers, default palette/ghost alpha and turn-driven warning/control artwork. 384 full native draw calls (276 identical traces; 108 differ only in a documented visual integer-overflow correction), 24 browser pixel states, actual five-person entry, camera anchoring and five uniform desktop sizes through 4K pass. Cached bitmap work and M5 frame time measured. Dismantling and remaining native panel commands, allocation/lifetime/fade, dynamic palettes and other panel kinds remain separate unfinished scope.",
               "evidence": [
                 "app/training-panel.ts",
                 "app/hud-charge.ts",
@@ -1116,6 +1116,22 @@
                 "references/performance/2026-09-10-training-panels.json",
                 "references/reverse-engineering.md",
                 "references/modern-performance.md"
+              ]
+            },
+            {
+              "id": "interface.hud.training-selection",
+              "title": "Warrior-training occupant selection and group toggles",
+              "status": "verified",
+              "note": "Ordinary warrior-training occupant selection: native single-click toggling, Shift group toggling based on the clicked member, eligibility and selection/work flags. 384 original input cases and 512 command comparisons pass. Live keyboard/mouse selection, external selection preservation, blocking, actual movement orders, physical-slot holes and five desktop hit-area scales pass; source-art/sprite regressions and M5 performance remain checked. Original command buffering/turn dispatch, full selection-state ownership, secondary voices, contextual person-panel opening, hover/pressed tint and dismantling remain separate open scope.",
+              "evidence": [
+                "app/training.ts",
+                "app/live-building-entry.ts",
+                "app/scene.ts",
+                "scripts/check-native-training-selection.py",
+                "scripts/check-browser-training-panel.mjs",
+                "references/reverse-engineering.md",
+                "references/modern-performance.md",
+                "references/performance/2026-09-10-training-selection.json"
               ]
             },
             {

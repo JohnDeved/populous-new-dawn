@@ -1140,19 +1140,24 @@ measured modern GPU performance together. All other training schools/classes,
 full allocator/command-tail ownership, special occupants, class scheduling,
 campaign and complete engine parity remain open. Discovery stays open.
 
-### Current continuation: contextual panel input and tower admission
+### Current continuation: dismantling and tower admission
 
-The terrain and shared-atlas improvements are validated; visible gameplay work
-has resumed under the modern performance requirements. Warrior training now has
-its original steady-state five-person occupant/progress artwork, including the
-selection markers, transparent backing and tail. The high-mana charge overflow
-is corrected in shared readable HUD arithmetic. Native draw comparisons, actual
-browser pixels/input-to-admission, desktop scaling and an M5 frame-time sample
-are recorded. This is read-only panel feedback: the evacuation/occupant commands,
-original effect/panel allocation, hover lifetime/fade and dynamic palettes remain
-unfinished. The next visible gameplay task is to connect that original input
-controller and actual command effects, followed by tower socket/clipping
-admission. Do not substitute an invented instant evacuation for the native
-command. Continue first-mission controls, effects and campaign comparisons after
-these integrations. Full game parity and the broader modernization audit remain
+The current terrain and shared-atlas performance improvements are finished and
+validated. Important visible gameplay work has resumed with the same modern
+performance, uncapped timing and clean-code acceptance criteria. The original
+five-person training panel now supports single-person selection, Shift group
+toggling, keyboard activation and camera focus. Selected trainees can receive
+normal movement orders and walk out without teleporting or removing the others.
+Native input/selection comparisons, actual browser interactions, source-art pixel
+checks and modern desktop geometry are recorded.
+
+Next: connect the panel's original **dismantling** command and timber-recovery
+behavior, then tower socket/clipping admission. The command trace corrected the
+earlier evacuation label: 0x40 starts dismantling through person command 10;
+ordinary occupant clicks emit selection command 0x2a with flags 6, not removal.
+Keep the original mechanics rather than inventing instant destruction/ejection.
+Person-panel opening, hover/pressed tint, secondary selection voices, original
+command/selection-state ownership and panel allocation/lifetime remain open.
+Continue critical first-mission controls, effects and campaign comparisons after
+these integrations. Full parity and the broader modernization audit remain
 unfinished; discovery stays open.

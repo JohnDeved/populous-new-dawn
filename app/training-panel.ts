@@ -6,7 +6,7 @@ export interface TrainingPanelState {
   active: boolean
   cost: number
   progress: number
-  ejecting: boolean
+  dismantling: boolean
   warning: boolean
   turn: number
 }
@@ -61,7 +61,7 @@ export function trainingPanel(s: TrainingPanelState) {
   }
   frame(x + rowWidth, y, button.w + 4, rowHeight)
   events.push(
-    ['sprite', s.ejecting ? (s.turn & 2 ? 47 : 46) : 49, x + rowWidth + 3, y + 3, -1, false],
+    ['sprite', s.dismantling ? (s.turn & 2 ? 47 : 46) : 49, x + rowWidth + 3, y + 3, -1, false],
     ['sprite', 52, x + Math.trunc((contentWidth - tail.w) / 2), y + rowHeight, -1, false]
   )
   return { width, height: y + rowHeight + tail.h, events }
@@ -75,7 +75,7 @@ export function drawTrainingPanel(
   if (!atlas?.complete || !atlas.naturalWidth) return
   const key = JSON.stringify({
     ...state,
-    turn: (state.warning ? state.turn & 4 : 0) | (state.ejecting ? state.turn & 2 : 0),
+    turn: (state.warning ? state.turn & 4 : 0) | (state.dismantling ? state.turn & 2 : 0),
   })
   if (canvas.dataset.layout === key) return
   const layout = trainingPanel(state)

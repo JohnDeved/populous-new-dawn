@@ -48,9 +48,9 @@ cases = []
 for count in range(6):
     for cost in (0, 1, 480, 8192, 65535):
         for progress in sorted({0, cost // 3, cost, 65535}):
-            for ejecting, warning, turn in ((False,False,0),(True,False,2),(True,True,4),(False,True,0)):
+            for dismantling, warning, turn in ((False,False,0),(True,False,2),(True,True,4),(False,True,0)):
                 c = dict(occupants=[dict(model=(2, 3, 7, 2, 3)[j], selected=j == 1) for j in range(count)], cost=cost, progress=progress,
-                         active=cost > 0, ejecting=ejecting, warning=warning, turn=turn)
+                         active=cost > 0, dismantling=dismantling, warning=warning, turn=turn)
                 cpu.mem_write(building + 0x86, bytes(12))
                 # Holes in physical slots must not become gaps in the displayed row.
                 for j, p in enumerate(c['occupants']):
@@ -58,7 +58,7 @@ for count in range(6):
                     write(address + 0x2a, 'BB', 1, p['model']); write(address + 0x7a, 'B', 128 if p['selected'] else 0)
                     write(building + 0x86 + ((j+1) % 6)*2, 'H', 10+j)
                 write(building + 0xa6, 'B', count); write(building + 0x96, 'HHH', cost, progress, 0)
-                write(building + 0x9c, 'H', (128 if c['active'] else 0) | (0x8000 if c['ejecting'] else 0))
+                write(building + 0x9c, 'H', (128 if c['active'] else 0) | (0x8000 if c['dismantling'] else 0))
                 write(building + 0x14, 'I', 0x1000 if c['warning'] else 0)
                 write(0x89d184, 'I', turn)
                 cpu.reg_write(UC_X86_REG_ESP, stack); cpu.emu_start(0x4a470b, 0x4a472d, count=100)

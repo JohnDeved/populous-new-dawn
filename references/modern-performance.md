@@ -1245,3 +1245,33 @@ on the projected building; extra width remains battlefield space. Fallow reports
 85.8 maintainability, average cyclomatic 2.8 and p90 5. Existing integration-module
 lint/dependency debt remains open. Complete panel input/lifetime, dynamic palettes,
 whole-game performance and other hardware/high-DPI coverage remain unfinished.
+
+
+## Interactive training occupants (2026-09-10)
+
+Training controls reuse the cached native-art canvas and the browser's ordinary
+button event/focus machinery. Five small transparent buttons use the same uniform
+HUD transform as their icons; no per-frame listeners, new RAF, WebGL textures,
+render cap, simulation clock or React animation loop were introduced. Their
+selection action reuses existing native occupancy/order/movement consumers when
+players issue subsequent orders. Original bit operations live in one short named
+helper, separate from the DOM and live-world adapter.
+
+The same eight-person queue workload ran headed on Chrome 153 / ANGLE Metal /
+Apple M5 at 1440×1000 CSS pixels, DPR 1. Across 545 measured approach frames,
+CPU p50 was **2.9 ms**, p95 **6.9 ms**; frame gaps p50 **8.3 ms**, p95 **9.5 ms**,
+maximum **10.4 ms**; maximum WebGL draw calls **103**. The preceding read-only
+panel sample was 2.9/6.7 ms CPU and 8.3/9.0 ms frame gaps. This bounded comparison
+remains consistent with roughly 120 FPS; it does not establish a speedup, a
+statistically significant regression or whole-game performance. No heavy checks
+ran during the hardware measurement. Raw report:
+`references/performance/2026-09-10-training-selection.json`.
+
+The stationary panel still repaints its bitmap zero times across 30 browser RAF
+frames. All 195,840 source-art pixels remain matched; mouse hit regions scale
+with the icon row at five desktop sizes through ultrawide/4K. Actual keyboard,
+mouse, camera-focus, physical-slot reuse and movement-order checks pass. Fallow
+reports maintainability 85.8, average cyclomatic 2.8, p90 5 and 12 existing module
+cycles. Broader module/DOM lifecycle cleanup and high-DPI/other-device/heavy-effects
+profiling remain open. Native command buffering, panel lifetime, full selection
+states and voices remain separate parity boundaries.

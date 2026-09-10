@@ -21,7 +21,12 @@ export type TrainingPerson = StartingPerson & {
   goalY: number
   heading: number
 }
-export type TrainingQueue = { id: number; queueHead: number; queueFrom: number; activity: number }
+export interface TrainingQueue {
+  id: number
+  queueHead: number
+  queueFrom: number
+  activity: number
+}
 export type TrainingBuilding = TrainingQueue &
   BuildingShapePose & {
     class: number
@@ -46,7 +51,33 @@ type QueuePerson = Pick<
   | 'immediateCommand'
   | 'reservationNext'
 >
-type QueueWorld = { people: Map<number, QueuePerson>; orders: OrderPool }
+interface QueueWorld {
+  people: Map<number, QueuePerson>
+  orders: OrderPool
+}
+
+// Building-panel selection: tribe commands 0x2a (flags 6) and 0x61.
+// The clicked occupant determines the whole group's toggle direction. Selecting
+// one trainee retains its work; selecting the group clears that resume flag.
+export function selectTrainingOccupants(
+  occupants: Pick<TrainingPerson, 'id' | 'flags2' | 'flags3' | 'selectionFlags'>[],
+  clicked: number,
+  group: boolean
+) {
+  const person = occupants.find(p => p.id === clicked)
+  if (!person) return
+  const selecting = !(person.selectionFlags & 128)
+  for (const p of group ? occupants : [person]) {
+    if (!selecting) {
+      p.selectionFlags &= ~128
+      p.flags3 = (p.flags3 & ~128) >>> 0
+    } else if (!(p.flags2 & 128)) {
+      p.selectionFlags |= 128
+      p.flags3 = (group ? p.flags3 & ~0x10000000 : p.flags3 | 0x10000000) >>> 0
+    }
+  }
+}
+
 export type TrainingWorld = QueueWorld & {
   randomState: number
   people: Map<number, TrainingPerson>
@@ -54,7 +85,7 @@ export type TrainingWorld = QueueWorld & {
 }
 // Path requests, cargo objects and occupant/work updates still require
 // native world consumers. A straight-line queue or teleport is not a substitute.
-export type TrainingEffects = {
+export interface TrainingEffects {
   setAnimation: PersonStateEffects['setAnimation']
   releaseMotion: (p: TrainingPerson) => void
   adjacentBuilding: (p: TrainingPerson) => number

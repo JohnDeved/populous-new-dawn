@@ -22,7 +22,12 @@ import {
   trainingOccupantWeight,
   type OccupancyEffects,
 } from './building-occupants.ts'
-import { stepTrainingPerson, rebuildTrainingQueue, type TrainingBuilding } from './training.ts'
+import {
+  stepTrainingPerson,
+  rebuildTrainingQueue,
+  selectTrainingOccupants,
+  type TrainingBuilding,
+} from './training.ts'
 import { stepTrainingConversion, type ConvertingBuilding } from './training-conversion.ts'
 import { startPersonOrders } from './person-order-start.ts'
 import {
@@ -224,6 +229,28 @@ export function leaveBuildingEntry(w: World, u: Unit) {
   return p
 }
 
+export function selectBuildingOccupants(w: World, b: Building, clicked: number, group: boolean) {
+  if (w.inputMask || w.land.landFlags & 0x800 || b.team !== 'blue' || b.hp <= 0) return
+  const selected = new Set(w.selected)
+  const occupants =
+    b.admission?.occupants.flatMap(id => {
+      const u = id && w.units.find(unit => unit.id === id && unit.hp > 0 && unit.inside === b.id)
+      if (!u) return []
+      const p = u.entry?.person ?? createLivePerson(w, u)
+      // Shared browser selection still owns the displayed roster. Keep native
+      // selection bits in step until all selection-state/command dispatch is live.
+      p.selectionFlags = (p.selectionFlags & ~128) | (selected.has(id) ? 128 : 0)
+      return [p]
+    }) ?? []
+  selectTrainingOccupants(occupants, clicked, group)
+  for (const p of occupants) {
+    if (p.selectionFlags & 128) selected.add(p.id)
+    else selected.delete(p.id)
+  }
+  w.selected = [...selected]
+  w.mode = null
+}
+
 export function cancelBuildingEntry(w: World, u: Unit) {
   if (!u.entry) return
   const p = u.entry.person
@@ -335,7 +362,7 @@ export function stepLiveTraining(w: World, b: Building) {
       },
     },
     // The renderer observes admission for panel art; native allocation/lifetime
-    // and interactive panel commands still need their original UI controller.
+    // and remaining panel commands still need their original UI controller.
     updateTrainingPanel: () => {},
     addMana: (tribe, amount) => {
       w.manaTribes[tribe].available = (w.manaTribes[tribe].available + amount) | 0
