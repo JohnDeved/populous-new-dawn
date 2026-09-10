@@ -216,7 +216,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 21, 25, 26, 29, 36, 39, 41].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 25, 26, 29, 36, 39, 41, 44].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -313,6 +313,9 @@ export function initializePersonState(
     effects.releaseMotion(p)
     p.flags2 = (p.flags2 | 0x1080) >>> 0
     p.turnAngle = angle
+  } else if (p.state === 44) {
+    p.speed = 0
+    p.flags2 = (p.flags2 | 0x40100000) >>> 0
   } else if (p.state === 39) {
     if (!effects.specialBattle) throw new Error('State 39 requires its special battle initializer')
     effects.specialBattle()
@@ -335,6 +338,23 @@ export function initializePersonState(
     if (tribe.flags & 64 && !(rules.personStateFlags[p.state] & 0x2000))
       tribe.flags = (tribe.flags | 1024) >>> 0
   }
+}
+
+// 0x4d32b0 state 44: two visits before the shock pose, death on visit eighteen.
+// Physics and animation clocks continue independently of this person-state clock.
+export function stepElectrocution(
+  p: StatefulPerson,
+  setAnimation: PersonStateEffects['setAnimation']
+) {
+  p.substate = (p.substate + 1) & 255
+  if (p.substate === 2) setAnimation(p, rules.personAnimationObjects[27 * 9 + p.model])
+  else if (p.substate === 18) {
+    p.flags2 = (p.flags2 & ~0x100000) >>> 0
+    p.previousState = p.state
+    p.state = 3
+    return true
+  }
+  return false
 }
 
 // 0x4c8490 phase 4. The reservation marker is assignment bit 0x800 at +0x77,

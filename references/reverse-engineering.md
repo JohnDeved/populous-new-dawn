@@ -6634,3 +6634,68 @@ and processing order, route invalidation and complete object consequences remain
 unfinished. Flatten and Erosion remain missing. The parity ledger now separates
 verified Land Bridge height evolution from those explicit remaining requirements;
 this does not complete the terrain-spell checkpoint.
+
+## Lightning strike and electrocution (2026-09-10)
+
+The previous browser adapter killed and removed people as soon as the projectile
+arrived. `00511f70` instead allocates the upper flash and bolt generator, then
+visits the target cell. Only class-1 people are eligible; model 8, the casting
+tribe's model-7 shaman and flags3 `0x20000`/`0x8000` are excluded. Its inclusive
+`killed <= LIGHTNING_NUM_KILLS` permits seven victims with the shipped constant 6.
+There is no life-positive gate. `004da0d0` attributes damage only when victim and
+attacker both have tribes. State lock `0x100000` prevents entering state 44, not
+life removal or attribution. The browser now invokes this controller during upper
+flash dispatch rather than immediate projectile arrival.
+
+`004d2740` initializes state 44 through the common cleanup/RNG/animation path,
+sets speed zero and locks the state. In `004d32b0`, visit 2 chooses animation row
+27 and visit 18 clears the lock and enters state 3. Import now retains 28 animation
+rows and all 168 object-table entries up to the adjacent descriptor table. The
+native ordinary electrocution pose uses source 776; shaman/wild model entries use
+their own native rows, rather than an invented shared pose. New frame/piece slots
+append: all 2,856 prior frames, 3,201 piece slots and established animation cycles
+remain identical. All 3,216 resulting atlas pieces match the original RGBA.
+
+The generator's first `00511ae0` visit also creates a class-7/model-1 wave, after
+building/scenery ignition. It writes remaining 3, radius 2, maximum 5, range 1280,
+horizontal 140, vertical 98, spread 2, friendly fire and scatter enabled, even in
+the special load mode. This reuses `createBlastWave`/`stepBlastWave`, including
+original allied final-pass rules, impulse physics and damage. Newly allocated
+waves begin on the following browser simulation turn. Native corpse/status and
+full mixed-class list scheduling remain unverified adapters. In particular the
+remote/player state-42 shaman branch is not implemented by this slice.
+
+Live people remain rendered through state 44, including while airborne; landing
+must not discard their state. Input/order gates exclude zero-life or locked
+people across click/box/HUD selection, movement, guarding, construction and casting.
+Death at state-3 handoff still uses existing browser corpse/reincarnation handling.
+Ordinary person cell order and allocation limits remain explicit unfinished work.
+
+Validation:
+
+- `check-native-lightning-strike.py EXE [--record]`: 256 original strike lists
+  (including allocation failures), 2,304 actual state-44 dispatcher calls and
+  first-generator wave fields. Allocation, common physics/status and state-entry
+  consumers are supplied; target rules, attribution, phase branch and table lookup
+  execute natively. Durable captures are not produced by TypeScript.
+- `check-native-person-state.py EXE`: 8,192 shared initializers, including 512
+  state-44 cases, plus existing animation/order/recovery checks.
+- `check-native-sprite-layers.py EXE`: 8,808 full original layer draws and every
+  atlas piece's original pixels; 576 durable pose/direction captures.
+- `tests/lightning-strike.test.mjs`: staged real cast, protected target, retained
+  victims, original pose, separate scatter wave, survivor flight, selection/order
+  rejection and cleanup. Outcomes/phase histories agree at 5/30/60/120/144/240 Hz
+  and irregular schedules. Updated first-mission expectations retain the visible
+  electrocution lifetime instead of demanding immediate disappearance.
+- `check-browser-lightning-strike.mjs`: actual keyboard/mouse cast, original
+  source-776 pose contributing 287 GPU pixels, separate wave, survivor flight and
+  removed unit/mesh. Existing bolt geometry, sprite layers/shadows/selection checks
+  remain in place.
+
+Modern implementation: reuse the retained layered-sprite atlas/batching, existing
+fixed-turn person physics and uncapped presentation. Allocate native adapters only
+for people in the struck cell. No additional renderer, shader or per-render
+simulation scan was added. Recorded headless Chromium measurements at 1440×1000
+are simulation median 0.10 ms/p95 0.40 ms and presentation median 6.5 ms/p95 10.5 ms;
+these describe this workload, not hardware FPS or a before/after speedup. The small
+atlas append is 5,284 compressed bytes. See the checked-in performance report.

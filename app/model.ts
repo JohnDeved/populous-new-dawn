@@ -101,6 +101,8 @@ import {
   setLivePersonAnimation,
   initializeLiveCelebration,
   initializeLivePanic,
+  strikeLiveLightning,
+  stepLiveElectrocution,
   cancelBuildingEntry,
   leaveLiveBuilding,
   buildingFirePeople,
@@ -2105,9 +2107,13 @@ function refreshTerrainLights(w: World) {
     w.lightRevision++
 }
 
+export function canOrder(u: Unit) {
+  return u.hp > 0 && !((unitAnimationSource(u)?.flags2 ?? 0) & 0x100000)
+}
+
 export function select(w: World, kind: UnitKind | 'all') {
   w.selected = w.units
-    .filter(u => u.team === 'blue' && (kind === 'all' || u.kind === kind))
+    .filter(u => u.team === 'blue' && canOrder(u) && (kind === 'all' || u.kind === kind))
     .map(u => u.id)
   w.mode = null
 }
@@ -2671,14 +2677,14 @@ export function command(w: World, p: Point) {
     building = w.buildings.find(b => distance(b, p) < 3.1)
   const enemy =
     w.units.find(
-      u => u.team === 'red' && u.inside === null && u.lift === 0 && distance(u, p) < 1.5
+      u => u.team === 'red' && u.hp > 0 && u.inside === null && u.lift === 0 && distance(u, p) < 1.5
     ) ?? (building?.team === 'red' ? building : undefined)
   const friendly = building?.team === 'blue' ? building : undefined,
     dismantling = !!((friendly?.admission?.activity ?? 0) & 0x8000)
   let count = 0,
     constructionFull = false
   if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
-  for (const u of w.units.filter(u => w.selected.includes(u.id))) {
+  for (const u of w.units.filter(u => canOrder(u) && w.selected.includes(u.id))) {
     if (shrine && shrine.kind === 'vault' && u.kind !== 'shaman') continue
     if (
       friendly &&
@@ -2781,9 +2787,11 @@ function processVaultTask(w: World, u: Unit) {
 }
 
 export function guardShaman(w: World) {
-  const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+  const shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && u.kind === 'shaman')
   if (!shaman) return
-  for (const u of w.units.filter(u => w.selected.includes(u.id) && u.kind !== 'shaman')) {
+  for (const u of w.units.filter(
+    u => canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman'
+  )) {
     const guard = !u.guard
     release(w, u)
     u.guard = guard
@@ -2805,13 +2813,17 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     return false
   }
   const selected = w.units.filter(
-    u => u.team === 'blue' && u.kind === 'brave' && w.selected.includes(u.id)
+    u => u.team === 'blue' && canOrder(u) && u.kind === 'brave' && w.selected.includes(u.id)
   )
   const workers = (
     selected.length
       ? selected
       : w.units.filter(
-          u => u.team === 'blue' && u.kind === 'brave' && (u.work === null || u.inside !== null)
+          u =>
+            u.team === 'blue' &&
+            canOrder(u) &&
+            u.kind === 'brave' &&
+            (u.work === null || u.inside !== null)
         )
   )
     .sort((a, b) => distance(a, p) - distance(b, p))
@@ -2838,7 +2850,7 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
 // Native person flags and complete globe targeting are still being integrated.
 export function spellTargetError(w: World, spell: Spell, p: Point) {
   const spec = SPELLS.find(s => s.id === spell),
-    shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && u.kind === 'shaman')
   if (!spec) return { code: -1, message: '' }
   if (!shaman) return { code: -1, message: 'Your shaman is reincarnating.' }
   if (
@@ -3825,24 +3837,27 @@ function processProjectiles(w: World) {
     shot.turns++
   }
 }
-function emitBlastWave(w: World, point: Point, team: Team, collapse = false) {
+function emitBlastWave(w: World, point: Point, team: Team, standardForce = false) {
   const position = nativePosition(w, point)
   position.h = terrainPointHeight(w.land, position)
   const fx = effect(w, 'blastWave', point)
   fx.wave = createBlastWave(
     position,
     team === 'blue' ? 0 : 1,
-    !collapse && !!(w.manaWorld.loadFlags & 0x04000000)
+    !standardForce && !!(w.manaWorld.loadFlags & 0x04000000)
   )
   fx.duration = Infinity
   sound(w, 0xa1, point)
+  return fx.wave
 }
 
 // Native force/damage dispatch with live object adapters. Ordinary allocation
 // still supplies cell order; complete mixed-class lists and shake rendering remain open.
 function stepLiveBlastWave(w: World, wave: BlastWave) {
   syncLandscapeObjects(w)
-  const units = new Map(w.units.filter(u => u.hp > 0 || u.flight).map(u => [u.id, u]))
+  const units = new Map(
+    w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44).map(u => [u.id, u])
+  )
   const buildings = new Map(w.buildings.filter(b => b.hp > 0).map(b => [b.id, b]))
   const cells = new Map<number, BlastTarget[]>()
   const records = new Map<number, BlastTarget>()
@@ -3976,31 +3991,9 @@ function finishCast(
     w.stats.bridges++
     tell(w, 'The earth rises. Lead your followers across the new Land Bridge.')
   } else {
-    damageSpell(w, spell, p, shaman)
     if (shaman.team === 'blue')
       tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
   }
-}
-function damageSpell(
-  w: World,
-  spell: 'blast' | 'lightning',
-  p: Point,
-  caster: Pick<Unit, 'id' | 'team' | 'x' | 'z'>
-) {
-  if (spell !== 'lightning') return
-  let killed = 0
-  for (const u of w.units)
-    if (
-      u.hp > 0 &&
-      u.inside === null &&
-      !(u.kind === 'shaman' && u.team === caster.team) &&
-      Math.floor(u.x / 2) === Math.floor(p.x / 2) &&
-      Math.floor(-u.z / 2) === Math.floor(-p.z / 2) &&
-      killed <= constants.LIGHTNING_NUM_KILLS
-    ) {
-      u.hp = 0
-      killed++
-    }
 }
 // ponytail: current braves/warriors/shaman use the live order adapter. Replace it
 // with native person records/order ownership when that lifecycle is integrated.
@@ -4246,9 +4239,18 @@ function stepTurn(w: World) {
         fx.lightning.seed = w.randomState
         setAnimationObject(fx.animation!, 41, 1361)
         sound(w, 0xa2, fx)
+        strikeLiveLightning(w, fx.lightning.target, fx.lightning.tribe)
       } else {
-        if (fx.lightning.turn === 0)
+        if (fx.lightning.turn === 0) {
           igniteLightningScenery(w, fx.lightning.target, fx.lightning.tribe)
+          const wave = emitBlastWave(
+            w,
+            browserPosition(fx.lightning.target),
+            fx.lightning.tribe === 0 ? 'blue' : 'red',
+            true
+          )
+          wave.scatter = true
+        }
         stepLightning(w.land, fx.lightning, w)
       }
     }
@@ -4462,6 +4464,10 @@ function stepTurn(w: World) {
   for (const u of w.units) {
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
+    if (u.native?.state === 44) {
+      stepLiveElectrocution(w, u)
+      continue
+    }
     if (u.flight) {
       stepLiveImpulse(w, u)
       continue
@@ -4690,14 +4696,15 @@ function stepTurn(w: World) {
       !target.casting
     )
       joinBattle(w, u, target)
-  for (const u of w.units.filter(u => u.hp <= 0 && !u.flight && u.kind === 'shaman'))
+  const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44)
+  for (const u of dead.filter(u => u.kind === 'shaman'))
     if (w.units.some(a => a.team === u.team && a.hp > 0)) {
       if (u.team === 'blue') {
         w.respawn = 12
         tell(w, 'Your shaman will reincarnate in 12 seconds.')
       } else if (w.ai.reincarnation) w.redRespawn = 12
     }
-  for (const u of w.units.filter(u => u.hp <= 0 && !u.flight)) {
+  for (const u of dead) {
     const f = effect(w, supportsFollower(w, u) ? 'death' : 'splash', u)
     if (f.kind === 'death') f.unit = { team: u.team, kind: u.kind, heading: u.heading }
   }
@@ -4711,7 +4718,7 @@ function stepTurn(w: World) {
     if (!b.terrainState?.reason && !b.dismantled) effect(w, 'death', b)
   }
   removeDeadLiveRoutes(w)
-  w.units = w.units.filter(u => u.hp > 0 || u.flight)
+  w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   w.buildings = w.buildings.filter(b => b.hp > 0)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
   syncLivePersonCells(w)

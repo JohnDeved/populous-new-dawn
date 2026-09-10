@@ -15,15 +15,18 @@ import {
   buildingModel,
   supportsFollower,
   emitGroundSpark,
+  releaseTasks,
 } from './model.ts'
 import {
   initializePersonState,
   stateAfterFight,
   personAnimationObject,
+  stepElectrocution,
   type StatefulPerson,
 } from './person-state.ts'
 import { damagePerson, preparePersonTurn, stepPersonReaction } from './person-update.ts'
 import { stepPersonPanic, ignitePeopleInFireCell } from './person-panic.ts'
+import { strikeLightning } from './lightning.ts'
 import { stepPersonOrders } from './person-order-update.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { stepCelebration, type Celebrant, type CelebrationEffects } from './celebration.ts'
@@ -214,7 +217,11 @@ export function leaveLiveBuilding(w: World, u: Unit) {
 export function syncLivePersonCells(w: World) {
   const people = new Map(
     w.units
-      .filter(u => (u.flight || u.fight?.motion || u.native || u.entry) && (u.hp > 0 || u.flight))
+      .filter(
+        u =>
+          (u.flight || u.fight?.motion || u.native || u.entry) &&
+          (u.hp > 0 || u.flight || u.native?.state === 44)
+      )
       .map(u => [u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!])
   )
   for (const [id, p] of w.objectCells.objects)
@@ -375,6 +382,34 @@ export function initializeLivePanic(w: World, u: Unit) {
   initializeLivePerson(w, u, ctx)
   w.selected = w.selected.filter(id => id !== u.id)
   w.randomState = ctx.state.randomState
+}
+
+export function strikeLiveLightning(w: World, point: { x: number; y: number }, tribe: number) {
+  const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+  const units = new Map<number, Unit>()
+  const people: LivePerson[] = []
+  // Ordinary allocation still supplies cell order, as in the live Blast adapter.
+  for (const u of w.units) {
+    if (u.inside !== null || (u.hp <= 0 && !u.flight && u.native?.state !== 44)) continue
+    const existing = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
+    const position = existing ?? nativePosition(w, u)
+    if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell) continue
+    const p = existing ?? createLivePerson(w, u)
+    if (!existing) p.flags4 |= 256
+    p.life = Math.round(u.hp * 20)
+    units.set(p.id, u)
+    people.unshift(p)
+  }
+  strikeLightning(people, tribe, p => {
+    const u = units.get(p.id)!
+    releaseTasks(w, u)
+    u.native = p
+    const ctx = context(w)
+    initializeLivePerson(w, u, ctx, p)
+    w.randomState = ctx.state.randomState
+    w.selected = w.selected.filter(id => id !== u.id)
+  })
+  for (const p of people) units.get(p.id)!.hp = p.life / 20
 }
 
 // Existing ordinary allocation order is also used by Blast's cell adapter.
@@ -665,10 +700,19 @@ export function stepLiveImpulse(w: World, u: Unit) {
   stepLivePhysics(w, u, p)
   if (!(p.flags2 & 0x80000) && u.fight?.action !== 'push') {
     u.flight = undefined
-    if (u.native === p && p.state !== 26 && p.state !== 41) u.native = null
+    if (u.native === p && ![26, 41, 44].includes(p.state)) u.native = null
     u.lift = 0
     if (!supportsFollower(w, u)) u.hp = 0
   }
+}
+
+export function stepLiveElectrocution(w: World, u: Unit) {
+  const p = u.native!
+  if (u.flight) stepLiveImpulse(w, u)
+  else stepLivePhysics(w, u, p)
+  stepElectrocution(p, (_, object) => setLivePersonAnimation(w, p, object))
+  // State 3 is handed to ordinary live death cleanup; its full native corpse
+  // lifecycle remains separate from this verified electrocution controller.
 }
 
 function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: LivePerson) {

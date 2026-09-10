@@ -1,6 +1,8 @@
 import { nativeAngle, nativeStep, positionDistance, random } from './native-math.ts'
 import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import constants from './original-constants.json' with { type: 'json' }
+import type { StatefulPerson } from './person-state.ts'
 
 interface Point {
   x: number
@@ -25,6 +27,35 @@ export interface LightningLine {
   width: number
 }
 const short = (n: number) => (n << 16) >> 16
+
+// 0x511f70 / 0x4da0d0. The caller supplies the target cell in linked-list order.
+// The inclusive native limit permits LIGHTNING_NUM_KILLS + 1 victims.
+export function strikeLightning<
+  T extends Pick<
+    StatefulPerson,
+    'model' | 'tribe' | 'flags2' | 'flags3' | 'state' | 'previousState'
+  > & { class: number; life: number; damageAttacker: number },
+>(people: Iterable<T>, tribe: number, initialize: (person: T) => void) {
+  let killed = 0
+  for (const p of people) {
+    if (killed > constants.LIGHTNING_NUM_KILLS) break
+    if (
+      p.class !== 1 ||
+      p.model === 8 ||
+      (p.model === 7 && p.tribe === tribe) ||
+      p.flags3 & 0x28000
+    )
+      continue
+    p.life = 0
+    killed++
+    if (p.tribe !== -1 && tribe !== -1) p.damageAttacker = tribe
+    if (!(p.flags2 & 0x100000)) {
+      p.previousState = p.state
+      p.state = 44
+      initialize(p)
+    }
+  }
+}
 
 // 0x511ae0 geometry. Its first-turn damage/fire allocations remain world adapters.
 export function stepLightning(land: Ground, b: Lightning, game: { randomState: number }) {

@@ -113,8 +113,8 @@ if len(sys.argv)>2:
     rules['personFallDamage']=value(0x5aa534)
     rules['buildingSupportHeight']=[value(0x5a7228+i*76+38,2) for i in range(20)]
     rules['personVelocityLimits']=[value(0x5a7b90+i*26+8,2) for i in range(20)]
-    rules['personAnimationObjects']=list(struct.unpack('<234h',read(0x5a6d50,234*2)))
-    rules['animationObjects']=[list(struct.unpack('<hh',read(0x5a6858+i*4,4))) for i in range(164)]
+    rules['personAnimationObjects']=list(struct.unpack('<252h',read(0x5a6d50,252*2)))
+    rules['animationObjects']=[list(struct.unpack('<hh',read(0x5a6858+i*4,4))) for i in range(168)]
     rules['animationDescriptors']=[dict(hold=struct.unpack('<b',read(0x5a6af8+i*11+1,1))[0],step=struct.unpack('<b',read(0x5a6af8+i*11+3,1))[0],mode=value(0x5a6af8+i*11+4,1),person=value(0x5a6af8+i*11+5,1),variant=value(0x5a6af8+i*11+6,1),palette=value(0x5a6af8+i*11+7,1),reset=value(0x5a6af8+i*11+8,1),flags=value(0x5a6af8+i*11+9,2)) for i in range(49)]
     rules['tribeEffectPalettes']=[value(0x5a89c8+i*5+3,1) for i in range(4)]
     rules['spellCharging']=[{'mode':value(0x5a80d0+i*62,2),'cost':value(0x5a80d4+i*62),

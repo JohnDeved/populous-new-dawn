@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-10",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "visible": {
+    "pixels": 287,
+    "state": 44,
+    "phase": 2,
+    "object": 776,
+    "draw": 14,
+    "frame": 2928,
+    "layers": 4,
+    "lightning": 1,
+    "wave": {
+      "x": 5888,
+      "y": 55040,
+      "h": 50,
+      "tribe": 0,
+      "remaining": 3,
+      "radius": 2,
+      "maxRadius": 5,
+      "range": 1280,
+      "spread": 2,
+      "horizontal": 140,
+      "vertical": 98,
+      "friendlyFire": true,
+      "applied": false,
+      "panic": false,
+      "scatter": true
+    }
+  },
+  "flight": true,
+  "removed": true,
+  "simulationMs": {
+    "median": 0.10000014305114746,
+    "p95": 0.39999985694885254
+  },
+  "presentationMs": {
+    "median": 6.5,
+    "p95": 10.5
+  },
+  "maxDrawCalls": 101,
+  "limits": "Headless Chromium CPU measurements, not hardware FPS or a before/after performance claim. Reuses native sprite batching and existing impulse physics; no per-render simulation work."
+}

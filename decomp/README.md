@@ -4505,3 +4505,14 @@ and splitting calls, with entry/allocation supplied and real slot selection,
 release writes and RNG. Portable captures cover this controller boundary; they
 do not prove command restoration or complete group cleanup. See the reinforcement
 findings in `references/reverse-engineering.md` for integration and remaining work.
+
+## 2026-09-10 — Lightning strike and electrocution
+
+The manifest now hashes 1,046 exports, adding `004da0d0` attribution.
+`check-native-lightning-strike.py EXE [--record]` executes `00511f70`, the state-44
+branch of `004d32b0` and `00511ae0` wave configuration. Allocation, common person
+physics/status and state-entry consumers are supplied. Shared entry is checked
+separately by 512 added `004d2740` comparisons. The imported table now covers
+state-44 sprite objects; original RGBA and every old frame/piece slot are retained.
+See the Lightning findings in `references/reverse-engineering.md` for live browser
+checks and explicit allocation/scheduling/remote-shaman/death boundaries.

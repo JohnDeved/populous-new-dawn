@@ -239,6 +239,13 @@ def main():
         if team=='wild' or kind=='shaman':continue
         for state,start in [('stagger',128),('idleShift',384),('idleLook',392),('idleScratch',400)]:
             states[state]=animation(team,kind,start)
+    used+=sorted({layer['piece'] for layers in rendered for layer in layers}-set(used))
+    for signature,states in metadata.items():
+        team,kind=signature.split('-')
+        model=1 if team=='wild' else {'brave':2,'warrior':3,'shaman':7}[kind]
+        obj=rules['personAnimationObjects'][27*9+model]
+        start=rules['animationObjects'][obj][0]+(8 if kind=='shaman' and team=='red' else 0)
+        states['electrocution']=animation(team,kind,start)
     # Keep raw pieces: the original scales offsets and rectangles separately,
     # and enables/disables layers at draw time (including standing shadows).
     used+=sorted({layer['piece'] for layers in rendered for layer in layers}-set(used))

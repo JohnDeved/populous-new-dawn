@@ -83,6 +83,7 @@ import {
   type Effect,
   unitAnimation,
   unitAnimationSource,
+  canOrder,
 } from './model'
 
 import nativeModelData from './original-models.json'
@@ -977,7 +978,7 @@ export class GameScene {
       x = event.clientX - rect.left,
       y = event.clientY - rect.top
     return this.world.units.find(u => {
-      if (u.team !== 'blue' || u.inside !== null) return false
+      if (u.team !== 'blue' || !canOrder(u) || u.inside !== null) return false
       const bounds = this.unitMeshes.get(u.id)?.userData.bounds,
         p = this.unitScreen(u.id)
       if (!bounds || !p) return false
@@ -1359,7 +1360,7 @@ export class GameScene {
         const rect = this.renderer.domElement.getBoundingClientRect()
         const ids = this.world.units
           .filter(u => {
-            if (u.team !== 'blue') return false
+            if (u.team !== 'blue' || !canOrder(u)) return false
             const p = this.unitScreen(u.id, 45 / 128)
             if (!p) return false
             const x = ((p.x + 1) / 2) * rect.width + rect.left,
@@ -1399,7 +1400,9 @@ export class GameScene {
       const picked =
         clickedUnit ??
         this.world.units
-          .filter(u => u.team === 'blue' && u.inside === null && distance(u, p) < 2.1)
+          .filter(
+            u => u.team === 'blue' && canOrder(u) && u.inside === null && distance(u, p) < 2.1
+          )
           .sort((a, b) => distance(a, p) - distance(b, p))[0]
       if (picked) {
         this.world.selected = event.shiftKey

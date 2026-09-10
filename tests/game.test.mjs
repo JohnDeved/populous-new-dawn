@@ -228,7 +228,7 @@ test('original level layout, native foundations, and the complete mission',()=>{
  assert.ok(placeBuilding(w,'camp',{x:-2,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
  select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
  select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-22}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},ENEMY).length);assert.equal(bridge.active,false);foundations(w);
- command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');assert.equal(w.redRespawn,0,'the native first-mission script disables Dakini reincarnation');assert.ok(!w.units.includes(enemyShaman));
+ command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');tick(w,1/12);assert.equal(enemyShaman.hp,0);assert.equal(enemyShaman.native.state,44);until(w,()=>!w.units.includes(enemyShaman),8);assert.equal(w.redRespawn,0,'the native first-mission script disables Dakini reincarnation');
  // Fight through the remaining defenders using the units that were actually trained above.
  select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.buildings.find(b=>b.team==='red')??w.units.find(u=>u.team==='red'&&u.inside===null);if(!enemy)break;command(w,enemy);advance(w,8);}
  // Use another earned Lightning gift if a defender survives the assault.
@@ -308,7 +308,7 @@ test('lightning hits a native map cell and Blast leaves allied health intact',()
  shaman.x=0;shaman.z=0;w.units=w.units.filter(u=>u.kind==='shaman');
  const hit=addUnit(w,'blue','brave',{x:2.2,z:.2}),outside=addUnit(w,'blue','brave',{x:1.9,z:.2});
  w.shots.lightning=1;assert.ok(cast(w,'lightning',{x:2.3,z:.3}));impact(w,'lightning');
- assert.ok(!w.units.includes(hit));assert.equal(outside.hp,maxHp('brave'));assert.equal(outside.lift,0,'adjacent cells receive no invented radial lightning damage');
+ assert.ok(w.units.includes(hit),'projectile arrival precedes strike dispatch');tick(w,1/12);assert.equal(hit.hp,0);assert.equal(hit.native.state,44);assert.equal(outside.hp,maxHp('brave'));assert.equal(outside.lift,0,'the later shockwave is separate from the cell strike');
  while(w.castingTribes[0].cooldown)tick(w,1/12);
  const ally=addUnit(w,'blue','brave',{x:2,z:0});const hp=ally.hp;
  assert.ok(cast(w,'blast',ally));impact(w,'blast');for(let i=0;i<3;i++)tick(w,1/12);assert.equal(ally.hp,hp);assert.ok(ally.lift>0,'allies can be launched without taking Blast damage');

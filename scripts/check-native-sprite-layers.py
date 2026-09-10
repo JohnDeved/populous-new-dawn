@@ -69,7 +69,7 @@ print(f'PASS: {len(cases):,} complete native layer draws; {len(hashes):,} atlas 
 fixtures=[]
 for signature,states in units['animations'].items():
     team,kind=signature.split('-');shaman=kind=='shaman';owner=-1 if shaman or team=='wild' else 0 if team=='blue' else 1
-    for state in ('idle','walk','work','attack','airborne','die','launch','stagger','idleShift','idleLook','idleScratch'):
+    for state in ('idle','walk','work','attack','airborne','die','launch','stagger','idleShift','idleLook','idleScratch','electrocution'):
         if state not in states:continue
         for direction,cycle in enumerate(states[state]):
             step=(direction*3)%len(cycle['frames']);frame=cycle['frames'][step]

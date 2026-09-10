@@ -100,6 +100,15 @@ allocation, alternate anchors, route invalidation and remaining terrain spells
 remain open. Continue choosing complete player-visible improvements; inspect
 combat orders, spell interactions and first-mission opponent behavior next.
 
+Lightning strike eligibility, electrocution and the first-bolt shockwave are now
+integrated and checked against native execution and real browser pixels. Full
+allocation/scheduling, special remote-shaman handling and corpse ownership remain
+open. Next, investigate the user-reported delay
+between Blast's fireball impact and people being thrown. Trace projectile arrival,
+impact/wave creation, object visits and rendered interpolation against the original;
+remove additional browser delay while preserving native timing. Add an integrated
+impact-to-knockback regression, including low/high/irregular render schedules.
+
 Previous user direction, 2026-09-09: finish and validate the current terrain
 performance improvement, then resume important gameplay mechanics and visuals.
 This supersedes the requirement to finish the entire modernization audit before
