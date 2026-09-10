@@ -2889,6 +2889,28 @@
     false,
     false
   ],
+  "buildingAttackers": [
+    0,
+    4,
+    5,
+    6,
+    2,
+    6,
+    6,
+    6,
+    6,
+    6,
+    1,
+    5,
+    4,
+    9,
+    9,
+    9,
+    9,
+    0,
+    0,
+    0
+  ],
   "buildingCapacity": [
     0,
     3,
@@ -3581,7 +3603,9 @@
       "flags": 0,
       "idleRange": 0,
       "orderedRange": 0,
-      "scanMask": 0
+      "scanMask": 0,
+      "fightRank": 0,
+      "fightDamage": 0
     },
     {
       "nextState": 8,
@@ -3590,7 +3614,9 @@
       "flags": 1,
       "idleRange": 0,
       "orderedRange": 0,
-      "scanMask": 3
+      "scanMask": 3,
+      "fightRank": 0,
+      "fightDamage": 0
     },
     {
       "nextState": 10,
@@ -3599,7 +3625,9 @@
       "flags": 2223,
       "idleRange": 5,
       "orderedRange": 1,
-      "scanMask": 3
+      "scanMask": 3,
+      "fightRank": 1,
+      "fightDamage": 60
     },
     {
       "nextState": 10,
@@ -3608,7 +3636,9 @@
       "flags": 2735,
       "idleRange": 5,
       "orderedRange": 1,
-      "scanMask": 3
+      "scanMask": 3,
+      "fightRank": 2,
+      "fightDamage": 360
     },
     {
       "nextState": 10,
@@ -3617,7 +3647,9 @@
       "flags": 19087,
       "idleRange": 3,
       "orderedRange": 1,
-      "scanMask": 1
+      "scanMask": 1,
+      "fightRank": 1,
+      "fightDamage": 60
     },
     {
       "nextState": 10,
@@ -3626,7 +3658,9 @@
       "flags": 2223,
       "idleRange": 0,
       "orderedRange": 0,
-      "scanMask": 3
+      "scanMask": 3,
+      "fightRank": 1,
+      "fightDamage": 60
     },
     {
       "nextState": 10,
@@ -3635,7 +3669,9 @@
       "flags": 14447,
       "idleRange": 11,
       "orderedRange": 5,
-      "scanMask": 3
+      "scanMask": 3,
+      "fightRank": 3,
+      "fightDamage": 60
     },
     {
       "nextState": 10,
@@ -3644,7 +3680,9 @@
       "flags": 7455,
       "idleRange": 3,
       "orderedRange": 1,
-      "scanMask": 3
+      "scanMask": 3,
+      "fightRank": 2,
+      "fightDamage": 60
     },
     {
       "nextState": 28,
@@ -3653,7 +3691,9 @@
       "flags": 4368,
       "idleRange": 7,
       "orderedRange": 7,
-      "scanMask": 3
+      "scanMask": 3,
+      "fightRank": 0,
+      "fightDamage": 60
     }
   ],
   "engagementHeightFactors": [

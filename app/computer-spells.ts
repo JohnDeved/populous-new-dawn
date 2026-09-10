@@ -39,7 +39,10 @@ const summaryGroup = [
 ] as const
 
 // 0x4de7b0. The upper two bits identify a completed disguise's apparent tribe.
-export function spyDisguisedFrom(p: SpellTargetUnit, tribe: number) {
+export function spyDisguisedFrom(
+  p: Pick<SpellTargetUnit, 'model' | 'tribe' | 'disguise'>,
+  tribe: number
+) {
   return p.model === 5 && (p.disguise & 63 ? p.tribe === tribe : p.disguise >>> 6 === tribe)
 }
 

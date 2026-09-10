@@ -1,3 +1,4 @@
+import type { Building } from './model.ts'
 import data from './original-shapes.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, nativeStep, random } from './native-math.ts'
@@ -385,4 +386,8 @@ export function buildingQueuePoint(b: BuildingShapePose, index: number): Point {
     point = stepPoint(point, angle, 128)
   }
   return point
+}
+
+export function buildingModel(b: Pick<Building, 'kind' | 'level'>) {
+  return b.kind === 'hut' ? b.level : b.kind === 'tower' ? 4 : b.kind === 'temple' ? 5 : 7
 }

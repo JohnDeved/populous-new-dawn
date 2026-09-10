@@ -1326,3 +1326,26 @@ open. Keep the lifecycle requirement partial and its percentage unchanged until
 its completion gate is met. Use the findings in the latest reverse-engineering
 entry; do not return to the superseded team-distance shortcut. Preserve the full
 unfinished campaign, all classes, saves and multiplayer scope.
+
+
+### Latest combat integration: original area targets and attacker reservations
+
+The current performance improvement is complete. Ordinary automatic attacks now
+use native mixed-object detection, stable distance/class priorities and attacker
+reservations instead of selecting the first enemy in the browser array. Squads
+spread over unreserved opponents; nearby buildings retain their attack between
+scan visits. Original walking/combat sprites and fixed-turn timing remain intact.
+The selector uses a measured faster stable standard-library sort, with complete
+native comparisons, portable captures, live tests and modern GPU profiles recorded.
+Target query code is separate from movement/sprite ownership; no package or render
+clock was added. The bounded target-selection requirement is verified; complete
+melee lifecycle is still partial.
+
+Next: original automatic command-21 allocation, same-cell response sharing and
+previous-order restoration, then prefight/group dispatch and first-mission campaign
+attacks with visible spell effects. Use the newly retained native command exports;
+do not substitute another heuristic target scan. Browser group admission/replacement,
+mixed-class allocation/cell ties, counter phase, specialist classes/plan variants,
+full damage/effects, all campaign content, saves and multiplayer remain unfinished.
+Keep clean readable TypeScript, native mechanics, uncapped presentation and measured
+modern performance together. Discovery remains open and the full goal stays active.

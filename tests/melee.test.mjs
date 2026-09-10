@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addUnit, tick, random, fightPosition, meleeDamage, command } from '../app/model.ts'
-import { automaticMeleeTarget, createLivePerson } from '../app/live-people.ts'
+import { createLivePerson } from '../app/live-people.ts'
+import { automaticMeleeTarget } from '../app/live-combat.ts'
 
 test('automatic engagement uses equal tribe ranges, whole cells and original scan cadence', () => {
   for (const team of ['blue', 'red']) {

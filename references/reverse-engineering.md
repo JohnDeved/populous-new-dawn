@@ -5630,3 +5630,62 @@ filters/priorities, ritual ownership, special scanners, global scan inhibition a
 command restoration must be integrated before complete engagement is verified.
 The new group-validity and ranged-visibility exports are research, not ports.
 Lifecycle remains partial; no requirement or parity percentage credit was added.
+
+
+## 2026-09-10 — mixed combat targets and attacker reservations
+
+Recovered complete ordinary selector `0051c4c0`, fight-admission query `0051dcc0`,
+reservation writer `0051fe40` and plan predicate `004baab0`. The complete threat
+scan `0051eab0` now also covers mixed fight/building/plan objects, water categories,
+alliances, disguise and specialist eligibility. Person rank/damage and building
+attacker limits are extracted from the supplied executable, not hand-authored.
+
+`app/combat-targets.ts` collects at most 64 candidates in wrapped row/cell/list
+order, deduplicates building footprints and uses stable distance sorting. Bands
+are `(distance - nearestDistance) >>> 9` for **every** record. A misleading Ghidra
+alias initially suggested a changing base; whole-native execution disproved that
+interpretation. Within a band, joinable fights precede people, buildings and plans.
+An available unreserved candidate wins before the saturated fallback; full fights
+have their separate forced-order fallback. Admission tests count three tribe slots
+and compare class ranks. Reservations preserve native byte wrapping, flags and
+48/32-turn values; ordinary countdown reuses `stepPersonReaction`. Native class-10
+fight records do not run that countdown.
+
+`check-native-combat-targets.py` runs **2,048 complete threat scans and 2,048 complete
+selectors**, with all native callees and no behavioral hooks. It compares target ID,
+returned class and every object's reservation fields, and asserts no RNG advance.
+Coverage includes seams, odd/rectangular areas, stable ties, dense 64-object caps,
+all five result types, both player types, all live/specialist person models,
+reservation saturation, plans and group admission. Portable original outputs in
+`tests/fixtures/combat-targets.json` replay without the executable. Native exports
+retain their executable identity and hashes in the manifest.
+
+`app/live-combat.ts` integrates the recovered query without manufacturing native
+sprite records. It preserves native chain order where already owned, adapts
+ordinary idle/movement states, lazily reads building footprints and commits chosen
+target reservations. Shared building/person model mappings avoid a new runtime
+import cycle. Source admission determines automatic-order flags; a detected person
+does not indiscriminately enable building attacks. Existing attack targets survive
+between scan visits, including close buildings, instead of repeatedly reserving
+and attacking only on detection turns.
+
+Live tests cover closer-target choice, saturation/fallback/countdown, mixed
+buildings/people, fight priority, squad distribution and persistent building attack.
+Whole-world outcomes agree at 5/30/60/144/240 Hz and irregular schedules. A browser
+squad assigns three warriors to the nearer shaman and one to the next while
+retaining original walking frames and sprite ownership. Existing combat/recoil,
+392-pose GPU, Blast-shadow and selection checks remain passing. Isolated sorting
+and headed crowd/combat measurements are in the modern-performance reference.
+
+**Limits and next work:** the primitive's admission test is not actual group member
+replacement/splitting. Browser groups still cap at four and adapt group membership,
+center, initial angle and counter phase. `0051a2a0`'s complete area-order controller
+has many pursuit/attack phases; `0051e150` creates model-9 prefights before actual
+melee, while `0051de60` creates model-8 groups target-first with an RNG heading.
+`00520300`, `0051c110`, `00438af0`, `0051ddc0` and `0051f750` are retained research,
+not claimed ports. Next connect actual command-21 allocation and `00520480` same-cell
+sharing through the existing order pool and preserve prior work on completion.
+Specialist selectors (`0051ce50`, `0051d0b0`), special plan variants, full mixed-class
+cell/allocation ownership, allied/special lifecycle effects and complete campaign
+attacks remain open. The bounded query requirement is verified; melee lifecycle
+and the full engine are not. No native original-source recovery is claimed.

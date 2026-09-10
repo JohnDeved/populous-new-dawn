@@ -1,3 +1,5 @@
+import { automaticMeleeTarget } from './live-combat.ts'
+import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
 import { relocateFight } from './melee-placement.ts'
 import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
@@ -89,7 +91,6 @@ import {
   approachLiveMelee,
   stepLiveMeleeMotion,
   syncLivePersonCells,
-  automaticMeleeTarget,
   type LivePerson,
 } from './live-people.ts'
 import type { ObjectCells } from './object-cells.ts'
@@ -132,6 +133,7 @@ import {
   type OutcomeWorld,
 } from './tribe-turns.ts'
 import {
+  buildingModel,
   buildingFootprintCells,
   buildingFootprintTiles,
   type BuildingShapePose,
@@ -245,8 +247,14 @@ export type Projectile = {
   turns: number
   visuals: Effect[]
 }
-type Battle = Point & { id: number; members: number[]; angle: number }
+type Battle = Point & {
+  id: number
+  members: number[]
+  angle: number
+  attackReservation?: AttackReservation
+}
 export type Unit = Point & {
+  attackReservation?: AttackReservation
   supportHeight?: number
   entry?: BuildingEntry
   native: LivePerson | null
@@ -277,6 +285,7 @@ export type Unit = Point & {
   casting: { spell: Spell; point: Point; remaining: number } | null
 }
 export type Building = Point & {
+  attackReservation?: AttackReservation
   admission?: BuildingAdmission
   dismantled?: boolean
   id: number
@@ -1870,9 +1879,7 @@ export function releaseTasks(w: World, u: Unit) {
   u.fight = null
   u.idleTurns = 0
 }
-export function buildingModel(b: Pick<Building, 'kind' | 'level'>) {
-  return b.kind === 'hut' ? b.level : b.kind === 'tower' ? 4 : b.kind === 'temple' ? 5 : 7
-}
+export { buildingModel } from './building-shapes.ts'
 export function buildingStage(b: Building) {
   // The browser stores native plan work as a fraction of the model
   // capacity; complete plan allocation and order dispatch remain separate.
@@ -4092,6 +4099,7 @@ function stepTurn(w: World) {
   for (const b of w.buildings) {
     if (b.hp <= 0) continue
     b.counter = (b.counter + 1) & 255
+    if (b.attackReservation) stepAttackReservation(b.attackReservation, b.counter)
     if (b.admission) stepBuildingEntryClocks(b.admission, b.counter)
     stepBuildingGroundResponse(w, b)
     if (b.hp <= 0 || b.damageState?.state === 3) continue
@@ -4194,6 +4202,7 @@ function stepTurn(w: World) {
     }))
   syncLandscapeObjects(w)
   for (const u of w.units) {
+    if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
     if (u.flight) {
       stepLiveImpulse(w, u)
@@ -4281,10 +4290,16 @@ function stepTurn(w: World) {
       u.target = null
       target = automaticMeleeTarget(w, u)
     }
+    const targetDistance = target ? distance(u, target) : Infinity
+    const reach = target && 'progress' in target ? 4.3 : 1.7
     if (target) {
       u.heading = Math.atan2(target.x - u.x, target.z - u.z)
+      if (u.target === null && u.work === null) {
+        u.target = target.id
+        if (targetDistance >= reach) route(w, u, target)
+      }
     }
-    if (target && distance(u, target) < ('progress' in target ? 4.3 : 1.7)) {
+    if (target && targetDistance < reach) {
       if ('progress' in target) {
         u.fighting = true
         if (!u.cooldown) {
@@ -4294,10 +4309,6 @@ function stepTurn(w: World) {
         }
       } else contacts.push([u, target])
       continue
-    }
-    if (target && u.target === null && !u.work) {
-      u.target = target.id
-      route(w, u, target)
     }
     if (u.guard && !u.path.length) {
       const shaman = w.units.find(a => a.team === u.team && a.kind === 'shaman')

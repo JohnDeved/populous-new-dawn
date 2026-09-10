@@ -1,8 +1,8 @@
 {
-  "revision": 17,
+  "revision": 18,
   "discovery": {
     "status": "open",
-    "note": "Revision 17 separates melee approach and ready-slot transitions before implementation; allocation and the remaining lifecycle remain open.",
+    "note": "Revision 18 separates ordinary area-command target selection and attacker reservations before implementation; complete alert orders, restoration and remaining melee lifecycle stay open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1553,6 +1553,25 @@
                 "references/performance/2026-09-10-melee-approach.json"
               ],
               "note": "4,096 original approach/ready blocks and 96 x 16-turn composed original control/preparation/physics trajectories match the actual live adapter. Speed RNG, signed arrival boundaries, stopped/outer facing, route release, collision, slope motion, retained cells/height and cargo animation verified; original group/allocation/counter ownership and post-arrival attack selection remain separate. Portable 5\u2013240 Hz and irregular replay, live eight-direction arrival/recoil, browser sprites and measured on-demand reconciliation."
+            },
+            {
+              "id": "combat.melee.targets",
+              "title": "Ordinary area-command candidate selection, target priorities and attacker reservations",
+              "status": "verified",
+              "evidence": [
+                "decomp/generated/0051c4c0.c",
+                "decomp/generated/0051fe40.c",
+                "decomp/generated/0051dcc0.c",
+                "app/combat-targets.ts",
+                "app/live-combat.ts",
+                "scripts/check-native-combat-targets.py",
+                "tests/fixtures/combat-targets.json",
+                "tests/combat-targets.test.mjs",
+                "scripts/check-browser-combat-targets.mjs",
+                "references/reverse-engineering.md",
+                "references/modern-performance.md"
+              ],
+              "note": "2,048 complete native mixed-object threat scans and 2,048 complete ordinary area selectors match target/type and all reservation fields, including stable distance bands, class priorities, 64-candidate cap, fight admission test and saturated fallback. Live people/building/fight selection, squad distribution, persistent attacks, original poses and 5\u2013240 Hz replay verified. Native special classes/plan variants are primitive-only; full automatic order allocation/sharing/restoration, actual prefight/group replacement/splitting and mixed-class allocation/cell-order ownership remain lifecycle work."
             },
             {
               "id": "combat.melee.lifecycle",

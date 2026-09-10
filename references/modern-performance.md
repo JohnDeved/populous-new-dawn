@@ -1496,3 +1496,53 @@ array target search is quadratic across a scan visit; move it to native area-ord
 cell ownership when that controller lands. The present profile supports this
 bounded gameplay step, not unlimited populations. Sprite, selection and live
 movement checks pass, including deterministic 5–240 Hz/irregular replay.
+
+
+## 2026-09-10 — native target priorities with modern stable sorting
+
+The recovered selector uses stable standard-library sorting instead of the
+original repeated adjacent-swap passes. `scripts/bench-combat-targets.mjs` verifies
+identical stable order for 2,048 lists of 64 candidates, including equal distances.
+Nine alternating warmed samples on Apple M5 / Node v24.18.0: reconstructed
+bubble-sort median **13.451 ms**, standard-library `toSorted`
+**6.137 ms**. This isolates candidate ranking in JavaScript;
+it does not benchmark the original executable, the full query or rendered FPS.
+The 64-candidate cap, cell ties, distance bands, priority and RNG are unchanged.
+
+Live queries run on simulation scan visits, not render frames. They allocate
+candidate records only within the native area and read building records lazily.
+Existing native cell-chain order is reused where available. The browser broadphase
+still checks the follower array for each scanner, so population scaling remains
+quadratic; native mixed-class cell ownership is the replacement path. This scoped
+integration does not justify unlimited-army or whole-engine performance claims.
+Reservations and their expiry advance by simulation turns. Target selection never
+takes over sprite ownership and introduces no new animation or render clock.
+
+Final headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, no simultaneous
+builds or source changes:
+
+- Six staged active fights: **1680 callbacks**, CPU p50/p95
+  **1.5/2.1 ms**,
+  p99 **4.6 ms**, max
+  **6.2 ms**, 104 draws.
+- 96 separated idle warriors, six seconds of recurring no-match scans after
+  landscape synchronization/sprite creation: **1674 callbacks**,
+  CPU p50/p95 **2.4/3.3 ms**, p99
+  **5.3 ms**, max **7.1 ms**.
+  18 scan-bearing frames: p50/p95
+  **5.3/5.8 ms**, max
+  **6.3 ms**, 378 draws.
+
+These are unpaired warmed workload samples. Prior release figures are retained
+above; only the isolated ranking benchmark establishes a speedup. Browser callback
+cadence is not physical monitor FPS. Earlier first-use terrain-replacement spikes
+remain an open loading/rebuild audit item. Full raw evidence and live squad choices
+are in `performance/2026-09-10-combat-targets.json`.
+
+Validation: 4,096 complete native calls, portable captured cases, **217 tests**,
+5–240 Hz and irregular live replay, browser squad assignment/poses and existing
+combat/recoil/approach, 392 GPU sprite poses, Blast shadows and selection pass.
+Typecheck, production build, formatting and the two new modules' oxlint pass.
+Fallow: maintainability 85.5, cyclomatic average 2.7/p90 5, twelve existing cycles;
+no new runtime import cycle. Query code is extracted from movement/sprite handling,
+and the existing building model, disguise and reaction helpers are reused.
