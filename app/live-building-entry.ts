@@ -4,6 +4,7 @@ import {
   buildingPose,
   browserPosition,
   ensureBuildingDamage,
+  releaseTasks,
   sound,
   type Building,
   type Unit,
@@ -327,8 +328,15 @@ export function selectBuildingOccupants(w: World, b: Building, clicked: number, 
   if (w.inputMask || w.land.landFlags & 0x800 || b.team !== 'blue' || b.hp <= 0) return
   const selected = new Set(w.selected)
   const occupants =
-    b.admission?.occupants.flatMap(id => {
-      const u = id && w.units.find(unit => unit.id === id && unit.hp > 0 && unit.inside === b.id)
+    (b.progress < 1 ? b.builders : b.admission?.occupants)?.flatMap(id => {
+      const u =
+        id &&
+        w.units.find(
+          unit =>
+            unit.id === id &&
+            unit.hp > 0 &&
+            (b.progress < 1 ? unit.work === b.id : unit.inside === b.id)
+        )
       if (!u) return []
       const p = u.entry?.person ?? createLivePerson(w, u)
       // Shared browser selection still owns the displayed roster. Keep native
@@ -371,6 +379,17 @@ export function dismantleBuilding(w: World, b: Building) {
       }
     },
   })
+  // Construction still owns browser work tasks rather than shared native orders.
+  // Apply the same reassignment to those workers, preserving position and cargo.
+  if (admission.activity & 0x8000) {
+    for (const u of w.units)
+      if (u.work === b.id && u.builder && u.hp > 0 && u.team === b.team) {
+        releaseTasks(w, u)
+        u.work = b.id
+        u.entry = begin(w, u, b)
+      }
+    b.builders?.fill(0)
+  }
 }
 
 export function cancelBuildingEntry(w: World, u: Unit) {

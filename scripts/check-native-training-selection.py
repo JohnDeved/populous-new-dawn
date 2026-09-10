@@ -98,3 +98,34 @@ console.log(JSON.stringify(JSON.parse(s).map(c=>{selectTrainingOccupants(c.occup
 actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(cases).encode(),cwd=ROOT))
 assert actual==[c['expected'] for c in cases]
 print(f'PASS: {input_count} original panel input cases and {len(cases)} complete selection-command flag comparisons; physical holes, modifiers, suppression, busy buffers, camera focus and selection eligibility')
+
+# Construction-plan icons resolve the plan's worker slots, while its negative
+# control slot resolves the linked building before emitting command 0x40.
+plan=0x200b000
+write(0x890390+4*4,'I',plan);write(plan+0x24,'H',4);write(plan+0x2a,'B',9)
+write(plan+0x92,'H',2);write(plan+0x6a,'6H',10,0,0,11,0,12)
+plan_inputs=0
+for event,group,selected,blocked,busy,linked in itertools.product((0xf0,0xf1),(0,1),(0,128),(0,0x800),(0,99),(False,True)):
+ for slot in (-1,3):
+  write(0x895fb0,'B',1);write(0x895fb3,'H',4);write(0x895fb5,'h',slot)
+  write(plan+0x92,'H',2 if linked else 0);write(building+0x9c,'H',0x8000 if selected else 0)
+  write(people+256+0x7a,'B',selected);write(0x89c661,'I',blocked)
+  cpu.mem_write(0x897997,bytes(15));write(0x897997+12,'B',busy)
+  events=[];call(0x47b460,event,group,0)
+  emitted=read(0x897997+12,'B')
+  if event==0xf0 and not blocked and not busy and (slot>=0 or linked):
+   expected=(0x40 if slot<0 else 0x61 if group else 0x2a)
+   assert emitted==expected,(slot,group,emitted)
+   assert read(0x897997+8,'I')==(2 if slot<0 else 4 if group else 11)
+   assert read(0x897997+4,'I')==(int(not selected) if slot<0 or group else 6)
+  else:assert emitted==busy
+  if event==0xf1 and slot>=0:assert events==[['sound',0x6a],['focus',1300,2400],['person-panel',1]]
+  plan_inputs+=1
+# Original group selection dispatch uses the same eligibility leaf for plan workers.
+write(0x89c661,'I',0);write(plan+0x9e,'B',1);write(plan+0x9a,'B',3)
+for selected in (0,1):
+ for i in range(3):
+  write(people+i*256+0xc,'III',0,0,0);write(people+i*256+0x7a,'B',128 if not selected else 0)
+ write(command,'IIIBBB',0,selected,4,0x61,0,0);call(0x43e8e0,tribe,command)
+ assert all(bool(read(people+i*256+0x7a,'B')&128)==bool(selected) for i in range(3))
+print(f'PASS: {plan_inputs} original plan worker/control input cases and both plan group-selection states')

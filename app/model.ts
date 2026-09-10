@@ -1803,7 +1803,7 @@ function release(w: World, u: Unit) {
   releaseTasks(w, u)
   return occupant
 }
-function releaseTasks(w: World, u: Unit) {
+export function releaseTasks(w: World, u: Unit) {
   cancelBuildingEntry(w, u)
   clearLivePath(w, u)
   u.vault = null
@@ -4186,7 +4186,10 @@ function stepTurn(w: World) {
     if (
       work &&
       'hp' in work &&
-      (work.kind === 'hut' || work.kind === 'camp' || work.kind === 'tower') &&
+      (work.kind === 'hut' ||
+        work.kind === 'camp' ||
+        work.kind === 'tower' ||
+        !!((work.admission?.activity ?? 0) & 0x8000)) &&
       (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
       !work.burn &&
       !u.builder &&

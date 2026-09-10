@@ -1332,3 +1332,37 @@ Formatting passes; repository-wide ox-standard continues to report existing
 lint debt. Native-comparison scripts retain low-level field detail, while live
 TypeScript shares named socket, pose and support-height helpers. Broader scheduler,
 module-cycle cleanup, high-DPI and heavy-effects profiling remain unfinished.
+
+
+## Construction controls and shared panel rendering (2026-09-10)
+
+Building-panel DOM handling now lives in `app/building-panels.ts` rather than the
+large scene controller. Training and construction share canvas painting, native
+frame/control drawing, normal DOM buttons and task/selection helpers. The panel
+rebuilds its bitmap only when meaningful state changes; a stationary live canvas
+performed zero drawImage calls across 30 RAF frames. Buttons follow native icon
+positions and the existing uniform HUD scale. Panels rebuild their button count
+only when model capacity changes, avoiding stale controls after a hut upgrade.
+Focused/hovered controls survive cancellation; input locks and overview still hide
+them. No new texture per panel, render loop, framework or frame-rate cap is added.
+
+The original unlinked two-row plan reports a canvas 28 logical pixels too short.
+The native oracle records the defect; the browser preserves every draw submission
+and allocates the full height. This is a deliberate modern clipping correction,
+not invented artwork or additional native completion credit. Geometry checks keep
+the full canvas, hit regions and tail aligned at five desktop sizes through
+3440×1440 and 3840×2160. Other hardware/high-DPI coverage remains open.
+
+An isolated headed Chrome 153 / ANGLE Metal / Apple M5 sample, 1440×1000 CSS pixels,
+DPR 1, captured 2,422 frames of the four-builder restart/removal scenario. CPU
+p50 was **2.5 ms**, p95 **3.6 ms**; RAF gaps p50 **3.6 ms**, p95 **3.9 ms**, maximum
+**14.6 ms**; at most **93** WebGL submissions. No heavy tools or application edits
+overlapped the sample. Callback cadence is not proof of physical display refresh;
+this differs from preceding tower/eight-worker workloads and is not a paired
+speedup or whole-game performance claim. Raw report:
+`references/performance/2026-09-10-construction-panels.json`.
+
+Fallow reports maintainability 85.6, average cyclomatic complexity 2.8, p90 5 and
+twelve existing module cycles. Original comparisons and portable captures remain
+separate from readable live TypeScript. Repository-wide lint debt and the broader
+module/scheduler modernization audit remain open.

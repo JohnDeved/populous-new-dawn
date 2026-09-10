@@ -46,7 +46,7 @@ try {
   for(const [width,height,scale] of [[1440,1000,2],[1920,1080,2],[2560,1440,2.5],[3440,1440,2.5],[3840,2160,2.5]]){
     await page.setViewportSize({width,height})
     await page.waitForFunction(({width,scale})=>window.testScene.container.clientWidth===width-scale*100,{width,scale})
-    await page.evaluate(()=>window.testScene.renderTrainingPanels())
+    await page.evaluate(()=>window.testScene.renderBuildingPanels())
     const g=await panel.evaluate(panel=>{
       const canvas=panel.querySelector('canvas')
       const s=window.testScene,r=panel.getBoundingClientRect(),v=s.container.getBoundingClientRect(),p=s.screen(window.panelCheck.b)
@@ -91,7 +91,7 @@ try {
   assert.ok(focus.active);assert.deepEqual(focus.selected,[shaman]);assert.equal(focus.inside,5)
   await page.evaluate(()=>window.testScene.focus(window.panelCheck.b))
   // A physical slot hole must resolve the next visible icon to its real person.
-  await page.evaluate(()=>{window.testScene.world.selected=[];window.testScene.renderTrainingPanels()})
+  await page.evaluate(()=>{window.testScene.world.selected=[];window.testScene.renderBuildingPanels()})
   await buttons.nth(1).click()
   assert.deepEqual(await selected(),[roster[1]])
   const exit=await page.evaluate(()=>{
@@ -102,7 +102,7 @@ try {
   await page.mouse.click(exit.x,exit.y,{button:'right'})
   const departed=await page.evaluate(()=>{
     const {b,departing:u}=window.panelCheck
-    window.testScene.renderTrainingPanels()
+    window.testScene.renderBuildingPanels()
     return{inside:b.admission.inside,slots:b.admission.occupants,position:[u.x,u.z],entry:!!u.entry,work:u.work,path:u.path.length}
   })
   assert.equal(departed.inside,4);assert.equal(departed.slots[1],0)
@@ -132,11 +132,11 @@ try {
   },cases)
   writeFileSync('/private/tmp/populous-training-panel-pixels.json',JSON.stringify(pixels))
   // Camera turns move the tail with the building; globe/blocked input hides it.
-  await page.evaluate(()=>{const s=window.testScene;s.cameraBearing+=Math.PI/2;s.updateView();s.renderTrainingPanels()})
+  await page.evaluate(()=>{const s=window.testScene;s.cameraBearing+=Math.PI/2;s.updateView();s.renderBuildingPanels()})
   await page.screenshot({path:'/private/tmp/populous-training-panel-rotated.png'})
-  await page.evaluate(()=>{const s=window.testScene;s.world.inputMask=64;s.renderTrainingPanels()})
+  await page.evaluate(()=>{const s=window.testScene;s.world.inputMask=64;s.renderBuildingPanels()})
   await panel.waitFor({state:'hidden'})
-  await page.evaluate(()=>{const s=window.testScene;s.world.inputMask=0;window.panelCheck.b.hp=0;s.renderTrainingPanels()})
+  await page.evaluate(()=>{const s=window.testScene;s.world.inputMask=0;window.panelCheck.b.hp=0;s.renderBuildingPanels()})
   assert.equal(await page.locator('.training-panel').count(),0)
   assert.deepEqual(errors,[])
   writeFileSync('/private/tmp/populous-training-panel-browser.json',JSON.stringify({geometry,cached,pixelStates:pixels.length},null,2)+'\n')

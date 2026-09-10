@@ -1,7 +1,6 @@
 import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
-import { drawTrainingPanel } from './training-panel.ts'
-import { selectBuildingOccupants, dismantleBuilding } from './live-building-entry.ts'
+import { renderBuildingPanels } from './building-panels.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
@@ -504,7 +503,7 @@ export class GameScene {
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
-  trainingPanels = new Map<number, HTMLDivElement>()
+  buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0 }
   dragBox: HTMLDivElement
   keys = new Set<string>()
@@ -1679,136 +1678,8 @@ export class GameScene {
     element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
     element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
   }
-  renderTrainingPanels() {
-    const { width, height } = this.container.getBoundingClientRect()
-    for (const [id, panel] of this.trainingPanels) {
-      if (!this.world.buildings.some(b => b.id === id && b.hp > 0)) {
-        panel.remove()
-        this.trainingPanels.delete(id)
-      } else panel.hidden = true
-    }
-    if (this.overviewActive || this.world.inputMask) return
-    for (const b of this.world.buildings) {
-      if (
-        b.kind !== 'camp' ||
-        b.team !== 'blue' ||
-        (b.progress < 1 && !((b.admission?.activity ?? 0) & 0x8000)) ||
-        b.hp <= 0 ||
-        !this.visible(b)
-      )
-        continue
-      const admission = b.admission
-      // ponytail: live activity/hover drives this first panel integration;
-      // replace with the native panel pool/lifetime when its controller is ported.
-      if (!admission || (!(admission.activity & (128 | 0x8000)) && this.hoveredObject !== b.id))
-        continue
-      let panel = this.trainingPanels.get(b.id)
-      if (!panel) {
-        panel = document.createElement('div')
-        panel.className = 'training-panel'
-        panel.setAttribute('role', 'group')
-        const canvas = document.createElement('canvas')
-        canvas.setAttribute('aria-hidden', 'true')
-        panel.appendChild(canvas)
-        for (let i = 0; i < 5; i++) {
-          const button = document.createElement('button')
-          button.type = 'button'
-          button.style.left = `${3 + i * 17}px`
-          button.addEventListener('click', event => {
-            if (this.world.inputMask || this.overviewActive) return
-            selectBuildingOccupants(this.world, b, Number(button.dataset.person), event.shiftKey)
-            this.onSound(0x6a)
-            this.onChange()
-            this.renderTrainingPanels()
-          })
-          button.addEventListener('contextmenu', event => {
-            event.preventDefault()
-            if (this.world.inputMask || this.overviewActive) return
-            const u = this.world.units.find(u => u.id === Number(button.dataset.person) && u.hp > 0)
-            if (u?.inside !== b.id) return
-            this.focus(u, { animate: true })
-            this.onSound(0x6a)
-          })
-          panel.appendChild(button)
-        }
-        const dismantle = document.createElement('button')
-        dismantle.type = 'button'
-        dismantle.className = 'dismantle-control'
-        dismantle.addEventListener('click', () => {
-          if (this.world.inputMask || this.overviewActive) return
-          dismantleBuilding(this.world, b)
-          this.onSound(0x6a)
-          this.onChange()
-          this.renderTrainingPanels()
-        })
-        panel.appendChild(dismantle)
-        // HUD controls must not become camera drags or battlefield orders.
-        for (const type of ['pointerdown', 'pointerup', 'pointermove'])
-          panel.addEventListener(type, event => event.stopPropagation())
-        this.trainingPanels.set(b.id, panel)
-        this.container.appendChild(panel)
-      }
-      const canvas = panel.firstElementChild as HTMLCanvasElement
-      const occupants = admission.occupants.flatMap(id => {
-        const u = id && this.world.units.find(u => u.id === id && u.hp > 0 && u.inside === b.id)
-        return u
-          ? [
-              {
-                id: u.id,
-                model: u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2,
-                selected: this.world.selected.includes(u.id),
-              },
-            ]
-          : []
-      })
-      const progress = b.timer,
-        cost = admission.trainingCost,
-        p = this.screen(b)
-      drawTrainingPanel(canvas, texture('hud').image as HTMLImageElement, {
-        occupants: occupants.map(({ model, selected }) => ({ model, selected })),
-        progress,
-        cost,
-        active: !!(admission.activity & 128),
-        dismantling: !!(admission.activity & 0x8000),
-        warning: !!(admission.flags3 & 0x1000),
-        turn: this.world.turn,
-        controlHover: panel.lastElementChild!.matches(':hover'),
-        controlPressed: panel.lastElementChild!.matches(':active'),
-      })
-      panel.hidden = false
-      panel.setAttribute(
-        'aria-label',
-        `Warrior training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
-      )
-      panel.style.left = `${((p.x + 1) * width) / 2}px`
-      panel.style.top = `${((1 - p.y) * height) / 2}px`
-      panel.style.width = `${canvas.width}px`
-      panel.style.height = `${canvas.height}px`
-      panel.style.setProperty('--occupant-top', `${admission.activity & 128 && cost ? 7 : 1}px`)
-      for (let i = 0; i < 5; i++) {
-        const button = panel.children[i + 1] as HTMLButtonElement,
-          person = occupants[i]
-        button.hidden = !person
-        if (!person) continue
-        button.dataset.person = String(person.id)
-        button.setAttribute(
-          'aria-label',
-          `Trainee ${i + 1}: ${person.model === 7 ? 'shaman' : person.model === 3 ? 'warrior' : 'brave'}`
-        )
-        button.setAttribute('aria-pressed', String(person.selected))
-        button.title = 'Click to select; Shift-click for all occupants; right-click to focus'
-      }
-      const dismantle = panel.lastElementChild as HTMLButtonElement
-      dismantle.setAttribute('aria-pressed', String(!!(admission.activity & 0x8000)))
-      dismantle.setAttribute(
-        'aria-label',
-        admission.activity & 0x8000 ? 'Cancel dismantling' : 'Dismantle warrior hut'
-      )
-      dismantle.title =
-        admission.activity & 0x8000
-          ? 'Cancel dismantling'
-          : 'Dismantle warrior hut and recover timber'
-    }
+  renderBuildingPanels() {
+    renderBuildingPanels(this, texture('hud').image as HTMLImageElement)
   }
   cancelOverview() {
     if (!this.overviewActive && !this.overviewStage) return
@@ -2758,7 +2629,7 @@ export class GameScene {
     this.view.painter.cells = this.world.objectCells
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
-    this.renderTrainingPanels()
+    this.renderBuildingPanels()
     this.container.parentElement!.style.setProperty(
       '--population-full-color',
       nativeHud.colors[populationMeter(1, 1, this.gameClock.animationFrame).color]
@@ -2827,8 +2698,8 @@ export class GameScene {
     this.renderer.domElement.remove()
     this.dragBox.remove()
     this.tooltipElement.remove()
-    for (const canvas of this.trainingPanels.values()) canvas.remove()
-    this.trainingPanels.clear()
+    for (const canvas of this.buildingPanels.values()) canvas.remove()
+    this.buildingPanels.clear()
     this.spellPointer.remove()
   }
 }

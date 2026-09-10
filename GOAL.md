@@ -1201,3 +1201,21 @@ tower attacks/spells, AI reassignment, complete native command/allocation/state
 ownership, other classes, campaign and full engine parity remain unfinished.
 Discovery stays open; finishing this bounded admission feature does not finish
 the tower subsystem or the modernization audit.
+
+
+### Latest visible integration: construction-plan controls
+
+Incomplete ordinary buildings now show original worker/timber rows and their
+linked dismantling control. Workers support single/group/keyboard selection;
+active builders can switch to dismantling, cancel and restart without losing
+position or cargo. Native draw/input captures and source-art browser pixels are
+recorded. The browser corrects the original unlinked-panel height defect and
+reuses cached canvases with uniform modern HUD scaling. Panel DOM handling was
+extracted from the large scene module; native frame/control painting is shared.
+
+Next: guard-tower contextual occupant selection and critical first-mission
+mechanics/effects/campaign comparisons. Continue native evidence, complete live
+scenarios, clean shared code and measured modern performance together. Full panel
+allocation/lifetime, person panels and secondary voices, global construction/order
+ownership, specialist classes, campaign and full engine parity remain unfinished.
+Discovery stays open; the remaining modernization findings still apply.

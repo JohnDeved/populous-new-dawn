@@ -5227,3 +5227,61 @@ spells, preacher/firewarrior/spy classes, tower territory/reveal bookkeeping,
 AI reassignment and order-location counters, original command completion/global
 allocation ownership and complete native scheduling. The state-21 live controller
 currently handles the held pose; broader occupied-person behavior remains open.
+
+
+## Construction-plan panels and live worker reassignment (2026-09-10)
+
+`00504060` selects panel kind 1 for class-9 construction plans. Kind 8 on an
+incomplete building itself has no worker/timber content: reusing the completed
+training panel was the wrong representation. `00504bc0` reads the plan's worker
+slots at +0x6a, linked building at +0x92, structural timber at +0x96, worker count
+at +0x9a and model at +0x9e. Native model tables supply worker capacity and timber
+capacity. The browser displays those rows with the existing original HFX palette,
+frames, physical-slot compaction, selection marks, missing-timber blink and tail.
+HFX40 and its two small palette masks join the existing shared HUD atlas.
+
+`check-native-construction-panel.py` compares 630 complete original draw calls:
+all ordinary model entries 1–16, worker counts/slot holes, linked and unlinked
+plans, empty/partial/full timber, warning phases, dismantling and control
+hover/pressed states. Only final palette/line/fill/sprite consumers are supplied.
+The worker enumeration and drawing decisions execute in the original function.
+The source-HFX browser comparison checks 32 canvases and 470,208 RGBA pixels,
+allowing one byte for Canvas alpha rounding. Portable tests retain all captures.
+Occupant hover/pressed tint is not part of this bounded artwork claim.
+
+A native defect is preserved in the oracle and corrected in the browser: for an
+**unlinked** plan with more than seven worker slots, measurement reserves one
+worker row while drawing two. The browser allocates 28 extra logical pixels;
+all original draw submissions, width and positions stay identical. This prevents
+the lower timber/tail region from being clipped. Linked plans already measure
+their two rows correctly. The canvas correction earns no additional parity credit.
+
+The original input handler `0047b460` resolves ordinary worker slots through the
+plan, but resolves control slot -1 through its linked building before sending
+command 0x40. An expanded oracle passes 128 plan input cases, with single-person
+command 0x2a/flags 6, group command 0x61, right-click focus/person-panel consumers,
+linked-building target, activation/cancellation, busy buffer and blocked gates.
+Both native plan group-selection states execute through `0043e8e0`. The existing
+2,048 selection eligibility comparisons remain green. Browser controls share the
+same reviewed selection/dismantling helpers and restore ordinary movement orders;
+native command buffering, secondary voices and person-panel opening remain open.
+
+Construction workers still use a browser work-task adapter, so the shared
+activation handler now applies original dismantling reassignment to those tasks
+as well as native entry orders. It reuses task cleanup and command-10 startup,
+preserves XY and cargo, and clears construction registration. This fixes workers
+remaining in construction after the panel requested dismantling. Incomplete
+hut, warrior hut, guard tower and temple scenarios cover selection, activation,
+cancellation and eventual removal after restart. Native command-10 comparison
+still passes 2,048 complete calls and 128 activation/cancellation calls; it does
+not certify complete native construction-order allocation/ownership.
+
+Live browser checks exercise right-click construction assignment, worker click,
+Shift group selection and keyboard activation, active-builder reassignment,
+cancellation held across real simulation turns, restart, full dismantling and
+panel cleanup. Five desktop geometries cover 1440×1000 through ultrawide/4K.
+A focused or hovered control remains usable during cancellation; blocked input
+and overview still hide the panel. Panel visibility uses activity/hover/focus
+until the native panel pool/lifetime is reconstructed. Other panel types, initial
+plan allocation/removal, specialist occupants, dynamic palettes, scheduler and
+full contextual-control ownership remain unfinished.

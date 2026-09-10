@@ -4428,3 +4428,14 @@ parser and state consumer boundaries are documented in
 Run `node scripts/check-browser-tower-entry.mjs --headed` for actual entry/exit,
 raised sprite pixels, pose, roof occlusion and the bounded hardware sample.
 Ordinary tower admission is integrated; specialist/AI behavior remains unported.
+
+
+## Construction-plan panel comparisons
+
+`check-native-construction-panel.py EXE [--browser]` checks 630 complete kind-1
+`00504bc0` draw calls and optionally 32 live canvases against original HFX pixels.
+`check-native-training-selection.py EXE` adds 128 class-9 worker/control input
+cases and plan group-selection dispatch. The existing manifest remains at 991
+exports. An unlinked two-row plan's original measurement clips one row; the
+browser keeps draw positions and corrects the canvas height. See
+[findings and boundaries](../references/reverse-engineering.md#construction-plan-panels-and-live-worker-reassignment-2026-09-10).

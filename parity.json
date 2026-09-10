@@ -1,5 +1,5 @@
 {
-  "revision": 11,
+  "revision": 12,
   "discovery": {
     "status": "open",
     "note": "Discovery remains open. Revision 10 isolates ordinary warrior-hut dismantling from the broader repair/damage lifecycle before live integration; all remaining buildings, special structures and global order ownership remain open.",
@@ -1144,6 +1144,23 @@
                 "app/page.tsx",
                 "scripts/check-browser-hud.mjs"
               ]
+            },
+            {
+              "id": "interface.hud.construction-panel",
+              "title": "Construction-plan worker/timber artwork and dismantling controls",
+              "status": "verified",
+              "evidence": [
+                "app/construction-panel.ts",
+                "app/building-panels.ts",
+                "scripts/check-native-construction-panel.py",
+                "scripts/check-native-training-selection.py",
+                "tests/construction-panel.test.mjs",
+                "tests/fixtures/construction-panel.json",
+                "scripts/check-browser-construction-panel.mjs",
+                "references/performance/2026-09-10-construction-panels.json",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Bounded ordinary construction-plan worker/timber rows, selection marks, warning/control phases and linked dismantling control. 630 original draw calls, 128 plan input cases and native group selection compared; 32 browser canvases/470208 RGBA pixels match source HFX. Live mouse/Shift/keyboard selection, active-builder reassignment, cancel/restart/removal, cached painting and five desktop geometries checked. Original unlinked two-row height defect corrected without changing draw submissions. Native panel allocation/lifetime, occupant hover tint, person panels/secondary voices, dynamic palettes and full construction/global command ownership remain separate unfinished scope."
             }
           ]
         },

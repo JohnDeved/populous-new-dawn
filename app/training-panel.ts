@@ -12,11 +12,34 @@ export interface TrainingPanelState {
   controlHover?: boolean
   controlPressed?: boolean
 }
-type Draw =
+export type PanelDraw =
   | ['fill', number, number[], number]
   | ['line', number, number[]]
   | ['sprite', number, number, number, number, boolean]
 const rects = hud.rects as Record<string, { x: number; y: number; w: number; h: number }>
+
+export function panelFrame(events: PanelDraw[], left: number, top: number, w: number, h: number) {
+  events.push(
+    ['fill', 154, [left + 1, top + 1, left + w - 1, top + h - 1], 171],
+    ['line', 157, [left, top, left, top + h]],
+    ['line', 157, [left, top, left + w, top]],
+    ['line', 150, [left + w - 1, top, left + w - 1, top + h - 1]],
+    ['line', 150, [left, top + h - 1, left + w, top + h - 1]]
+  )
+}
+
+export function panelControl(
+  events: PanelDraw[],
+  x: number,
+  y: number,
+  s: Pick<TrainingPanelState, 'dismantling' | 'turn' | 'controlHover' | 'controlPressed'>
+) {
+  let sprite = s.controlHover ? 50 : 49
+  if (s.dismantling) sprite = s.turn & 2 ? 47 : 46
+  events.push(['sprite', sprite, x, y, -1, false])
+  if (s.controlHover && s.controlPressed)
+    events.push(['sprite', s.dismantling ? 48 : 51, x, y, -1, false])
+}
 
 // 0x504bc0, kind 5: one row of five physical occupants, a charge bar and tail.
 // Panel allocation, input commands and lifetime are separate from its artwork.
@@ -30,23 +53,14 @@ export function trainingPanel(s: TrainingPanelState) {
     x = Math.trunc((width - contentWidth) / 2),
     y = s.active && s.cost ? 6 : 0,
     rowHeight = icon.h + 5,
-    events: Draw[] = []
-  function frame(left: number, top: number, w: number, h: number) {
-    events.push(
-      ['fill', 154, [left + 1, top + 1, left + w - 1, top + h - 1], 171],
-      ['line', 157, [left, top, left, top + h]],
-      ['line', 157, [left, top, left + w, top]],
-      ['line', 150, [left + w - 1, top, left + w - 1, top + h - 1]],
-      ['line', 150, [left, top + h - 1, left + w, top + h - 1]]
-    )
-  }
+    events: PanelDraw[] = []
   if (y) {
-    frame(x, 0, contentWidth, 6)
+    panelFrame(events, x, 0, contentWidth, 6)
     if (!s.warning || s.turn & 4)
       for (const fill of chargeFills(s.progress * 4096, s.cost * 4096, contentWidth - 2))
         events.push(['fill', fill.palette, [x + 1, 1, x + 1 + fill.width, 4], 255])
   }
-  frame(x, y, rowWidth, rowHeight)
+  panelFrame(events, x, y, rowWidth, rowHeight)
   for (let i = 0; i < 5; i++) {
     const person = s.occupants[i],
       left = x + 1 + i * (icon.w + 1)
@@ -61,11 +75,8 @@ export function trainingPanel(s: TrainingPanelState) {
         events.push(['sprite', 53, left + Math.trunc((icon.w - rects[53].w) / 2), y, -1, false])
     }
   }
-  frame(x + rowWidth, y, button.w + 4, rowHeight)
-  const control = s.dismantling ? (s.turn & 2 ? 47 : 46) : s.controlHover ? 50 : 49
-  events.push(['sprite', control, x + rowWidth + 3, y + 3, -1, false])
-  if (s.controlHover && s.controlPressed)
-    events.push(['sprite', s.dismantling ? 48 : 51, x + rowWidth + 3, y + 3, -1, false])
+  panelFrame(events, x + rowWidth, y, button.w + 4, rowHeight)
+  panelControl(events, x + rowWidth + 3, y + 3, s)
   events.push(['sprite', 52, x + Math.trunc((contentWidth - tail.w) / 2), y + rowHeight, -1, false])
   return { width, height: y + rowHeight + tail.h, events }
 }
@@ -82,6 +93,15 @@ export function drawTrainingPanel(
   })
   if (canvas.dataset.layout === key) return
   const layout = trainingPanel(state)
+  paintPanel(canvas, atlas, layout)
+  canvas.dataset.layout = key
+}
+
+export function paintPanel(
+  canvas: HTMLCanvasElement,
+  atlas: HTMLImageElement,
+  layout: { width: number; height: number; events: PanelDraw[] }
+) {
   canvas.width = layout.width
   canvas.height = layout.height
   const context = canvas.getContext('2d')!
@@ -104,5 +124,4 @@ export function drawTrainingPanel(
       } else context.fillRect(left, top, Math.max(1, right - left), Math.max(1, bottom - top))
     }
   }
-  canvas.dataset.layout = key
 }

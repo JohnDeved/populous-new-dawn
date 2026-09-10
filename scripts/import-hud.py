@@ -15,11 +15,11 @@ alpha_colors=[alpha[((i<<4)|15)*256] for i in range(16)]
 output=ROOT/'public/original'
 # HFX identities are checked against the shipped spell records and artwork.
 ids=[54,55,65,66,67,68,*range(354,408),589,*range(664,682),875,1028,1029,1030]
-ids.extend([*range(46,54),*range(74,82)]) # 0x504bc0: building-panel controls and occupants.
+ids.extend([40,*range(46,54),*range(74,82)]) # 0x504bc0: building-panel controls and occupants.
 entries={str(i):bank[i] for i in ids}
 # 0x47dda0's solid-color mask bank. Keep these tiny immutable silhouettes in
 # the shared atlas; no per-frame canvas readback or duplicated runtime textures.
-for i in range(74,81):
+for i in [40,*range(74,81)]:
     w,h,data=bank[i]
     for name,opacity in [('shadow',255),('empty',85)]:
         pixels=bytearray(data)
