@@ -152,3 +152,70 @@ test('shamans and the native level flag suppress ordinary attack knockback', () 
     assert.equal(attacker.fight.remaining, kind !== 'shaman' && !flags ? 3 : 6)
   }
 })
+
+test('fight sites use the native 32-turn search and retain groups when no site is available', async () => {
+  const { nativePosition, browserPosition } = await import('../app/model.ts')
+  const { w } = group()
+  tick(w, 1 / 12) // Synchronize the flat terrain before applying native cell restrictions.
+  const b = w.fights[0], original = { x: b.x, z: b.z }, p = nativePosition(w, b)
+  const cell = p => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+  w.land.flags[cell(p)] |= 4
+  w.turn = 30
+  tick(w, 1 / 12)
+  assert.deepEqual({ x: b.x, z: b.z }, original, 'no radial search on intervening turns')
+  tick(w, 1 / 12)
+  assert.notEqual(cell(nativePosition(w, b)), cell(p))
+  assert.deepEqual({ x: b.x, z: b.z }, browserPosition(nativePosition(w, b)))
+  const relocated = { x: b.x, z: b.z }
+  w.land.flags.fill(4); w.turn = 63
+  tick(w, 1 / 12)
+  assert.deepEqual({ x: b.x, z: b.z }, relocated)
+  assert.equal(w.fights.length, 1, 'failed searches keep the fight alive')
+  assert.ok(w.units.every(u => u.fight?.group === b.id))
+  for (let i = 1; i < 16; i++) assert.equal(w.indexedSearch[i * 12], 0, 'search slot released')
+})
+
+test('fight sites leave original building footprints even between periodic search visits', async () => {
+  const { nativePosition, browserPosition, buildingPose } = await import('../app/model.ts')
+  const { buildingOutsidePoint } = await import('../app/building-shapes.ts')
+  const building = createWorld().buildings[0], { w } = group()
+  tick(w, 1 / 12)
+  w.buildings = [building]
+  const b = w.fights[0], p = nativePosition(w, b), i = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+  w.land.flags[i] |= 512; w.land.buildingIds[i] = building.id | 0xfc00
+  tick(w, 1 / 12)
+  assert.deepEqual({ x: b.x, z: b.z }, browserPosition(buildingOutsidePoint(buildingPose(building))))
+})
+
+test('sequential fight searches avoid other fight centers and release exhausted searches', async () => {
+  const { relocateFight } = await import('../app/melee-placement.ts')
+  const { createIndexedSearch } = await import('../app/indexed-search.ts')
+  const rules = (await import('../app/original-rules.json', { with: { type: 'json' } })).default
+  const category = rules.terrainCategoryFlags.findIndex(f => f & 1), search = createIndexedSearch()
+  const fight = { id: 1, x: 256, y: 256, h: 100, angle: 512, counter: 0, model: 8, flags2: 0, flags4: 0, tribe: 255, workTarget: 0, target: 0 }
+  const cell = p => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+  let heights = 0
+  const w = { search, collision: { cell: () => ({ flags: 0, category, building: 0 }), walkMask: new Uint8Array(8192).fill(255), objects: new Map(), boatAt: () => false }, occupied: (p, except) => { assert.equal(except, 1); return cell(p) === 0 }, outside: () => assert.fail('no building'), height: () => { heights++; return 100 } }
+  for (let i = 1; i < 16; i++) search[i * 12] = 1
+  relocateFight(w, fight)
+  assert.equal(cell(fight), 0, 'allocation exhaustion retains the center')
+  assert.equal(heights, 0)
+  search.fill(0); relocateFight(w, fight)
+  assert.notEqual(cell(fight), 0)
+  assert.equal(heights, 1, 'only the accepted point is interpolated')
+})
+
+test('live groups relocate sequentially without sharing another fight center', async () => {
+  const { nativePosition } = await import('../app/model.ts'), { w } = group()
+  tick(w, 1 / 12)
+  const first = w.fights[0], a = addUnit(w, 'blue', 'brave', { x: 0, z: 0 }), b = addUnit(w, 'red', 'warrior', { x: 180 / 256, z: 0 })
+  const second = { ...first, id: w.nextId++, members: [a.id, b.id] }
+  w.fights.push(second)
+  for (const u of [a,b]) u.fight = { group: second.id, opponent: u === a ? b.id : a.id, action: 'strike', started: 0, remaining: 100 }
+  const cell = f => { const p = nativePosition(w,f); return ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9) }
+  const original = cell(first)
+  w.turn = 31; tick(w, 1 / 12)
+  assert.notEqual(cell(first), original)
+  assert.equal(cell(second), original, 'later groups see the earlier group has vacated this cell')
+  assert.equal(w.fights.length, 2)
+})

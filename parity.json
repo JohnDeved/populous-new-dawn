@@ -1,8 +1,8 @@
 {
-  "revision": 15,
+  "revision": 16,
   "discovery": {
     "status": "open",
-    "note": "Revision 15 separates melee action/recoil timing and native knockback integration from remaining fight lifecycle work before implementation. Discovery remains open.",
+    "note": "Revision 16 separates native fight-site validity and relocation from remaining melee lifecycle work before integration. Discovery remains open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1489,7 +1489,7 @@
             "scripts/check-native-person-state.py",
             "tests/game.test.mjs"
           ],
-          "note": "Ready/busy attack decisions, action/recoil timing and native knockback integrated. Group allocation, approach/RNG, relocation, damage modifiers, effects and command ownership remain open.",
+          "note": "Ready/busy decisions, recovery/knockback and fight-site relocation integrated. Group allocation/counter phase, approach/RNG, damage modifiers, effects and command ownership remain open.",
           "requirements": [
             {
               "id": "combat.melee.decisions",
@@ -1519,14 +1519,31 @@
               "note": "405 original action/recoil traces, 384 knockback entries and shared native physics comparisons; live slope settling, poses/sounds, cell/HP handoff, recentering and 5\u2013240 Hz/irregular replay. Global grouping, approach RNG, relocation, damage modifiers and order ownership remain separate."
             },
             {
+              "id": "combat.melee.placement",
+              "title": "Fight-site validity, building exit and periodic terrain relocation",
+              "status": "verified",
+              "evidence": [
+                "app/melee-placement.ts",
+                "app/model.ts",
+                "decomp/generated/00519d10.c",
+                "decomp/generated/0051e4b0.c",
+                "scripts/check-native-melee-placement.py",
+                "tests/melee.test.mjs",
+                "scripts/check-browser-melee.mjs",
+                "scripts/bench-melee-placement.mjs",
+                "references/performance/2026-09-10-melee-placement.json"
+              ],
+              "note": "2,048 original validity/relocation calls with full collision, indexed search, building geometry, terrain height and cell movement; identical positions and search bytes with fewer pure height queries. Live 32-turn gating, building exits, other-fight occupancy and failure retention; native allocator counter phase and complete grouping remain in lifecycle, with world turn supplying the current adapter phase."
+            },
+            {
               "id": "combat.melee.lifecycle",
-              "title": "Complete melee grouping, approach, relocation, damage, effects and order handoff",
+              "title": "Complete melee grouping, approach, damage, effects and order handoff",
               "status": "partial",
               "evidence": [
                 "scripts/check-native-person-state.py",
                 "tests/game.test.mjs"
               ],
-              "note": "Native group lifetime, approach and terrain relocation, damage modifiers, effects and full command ownership remain open; action/recoil timing and knockback now have a separate requirement."
+              "note": "Native group allocation/lifetime and per-class allocator counter phase, initial member order/angle RNG, approach speed/RNG, damage modifiers, effects and full command ownership remain open. Site validity and relocation have a separate supplied-controller-visit requirement."
             }
           ]
         },

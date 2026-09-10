@@ -1,4 +1,5 @@
 import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
+import { relocateFight } from './melee-placement.ts'
 import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
 import {
@@ -74,6 +75,7 @@ import {
   removeDeadLiveRoutes,
 } from './live-pathfinding.ts'
 import {
+  collisionWorld,
   createLivePerson,
   setLivePersonAnimation,
   initializeLiveCelebration,
@@ -567,6 +569,44 @@ export function fightPosition(b: Battle, index: number) {
         180
       )
 }
+function relocateBattle(w: World, b: Battle, force = false) {
+  const p = nativePosition(w, b),
+    cell = (p: { x: number; y: number }) => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+  if (!force && w.turn & 31 && !(w.land.flags[cell(p)] & 512)) return
+  // Only build the occupancy index on a relocation visit. Earlier groups have
+  // already moved, so later groups see their current cells, as in the original.
+  const occupied = new Set(w.fights.filter(a => a !== b).map(a => cell(nativePosition(w, a))))
+  const fight = {
+    ...p,
+    id: b.id,
+    angle: b.angle,
+    counter: w.turn,
+    model: 8,
+    tribe: 255,
+    flags2: 0,
+    flags4: 0,
+    workTarget: 0,
+    target: 0,
+  }
+  // ponytail: class allocation/scheduler phase is still adapted to the world
+  // turn; replace this phase when native mixed-class object ownership lands.
+  relocateFight(
+    {
+      collision: collisionWorld(w),
+      search: w.indexedSearch,
+      occupied: p => occupied.has(cell(p)),
+      outside: id => {
+        const building = w.buildings.find(b => b.id === id)
+        if (!building) throw new Error(`Missing fight-site building ${id}`)
+        return buildingOutsidePoint(buildingPose(building))
+      },
+      height: p => terrainPointHeight(w.land, p),
+    },
+    fight,
+    force
+  )
+  Object.assign(b, browserPosition(fight))
+}
 function joinBattle(w: World, u: Unit, target: Unit) {
   let b = w.fights.find(b => b.id === target.fight?.group)
   if (b) {
@@ -589,6 +629,7 @@ function joinBattle(w: World, u: Unit, target: Unit) {
       angle: nativeAngle(Math.round((target.x - u.x) * 256), Math.round((target.z - u.z) * 256)),
     }
     w.fights.push(b)
+    relocateBattle(w, b, true)
     release(w, target)
     target.fight = { group: b.id, opponent: u.id, action: 'approach', started: w.turn }
   }
@@ -629,29 +670,11 @@ function processBattles(w: World) {
       const r = (random(w) % 341) + 113
       b.angle = (b.angle + (r & 1 ? -r : r)) & 2047
     }
-    // ponytail: dry, clear slots approximate 0x519d10's native cell search; terrain-mask relocation remains unported.
+    relocateBattle(w, b)
+    // Approach movement is still adapted; fight-site placement uses native masks.
     const clear = (p: Point) =>
       walkable(w.terrain, p) &&
       !w.buildings.some(h => h.hp > 0 && h.progress === 1 && distance(h, p) < 2.35)
-    if (!b.members.every((_, i) => clear(fightPosition(b, i)))) {
-      const candidates = [
-        { x: b.x, z: b.z },
-        ...Array.from({ length: 24 }, (_, i) => ({
-          x: b.x + Math.sin((i * Math.PI) / 4) * (1 + Math.floor(i / 8)) * 2,
-          z: b.z + Math.cos((i * Math.PI) / 4) * (1 + Math.floor(i / 8)) * 2,
-        })),
-      ]
-      const p = candidates.find(p =>
-        b.members.every((_, i) => clear(fightPosition({ ...b, ...p }, i)))
-      )
-      if (!p) {
-        for (const u of members) u.fight = null
-        b.members = []
-        continue
-      }
-      b.x = p.x
-      b.z = p.z
-    }
     let recenter = false
     for (let i = 0; i < members.length; i++) {
       const u = members[i],

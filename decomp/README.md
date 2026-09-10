@@ -4450,3 +4450,15 @@ checks the existing `004d56f0` consumer now connected to occupied-tower reassign
 The manifest remains at 991 exports. See
 [tower control findings](../references/reverse-engineering.md#ordinary-guard-tower-occupant-controls-2026-09-10)
 for supplied consumers and unfinished gameplay/ownership boundaries.
+
+## Fight-site validity and relocation
+
+The manifest now hashes 993 exports, adding `0051e4b0` and the caller `0051de60`.
+Run `check-native-melee-placement.py EXE` for 2,048 complete native placement and
+validity calls. Collision, building geometry, height, indexed search and cell
+movement all execute natively; no consumer is replaced. The test supplies
+allocation state/counter phase. The live adapter and chosen-point-only height
+optimization are covered by `tests/melee.test.mjs`, `check-browser-melee.mjs
+--headed` and `bench-melee-placement.mjs`. Original group allocation, initial
+angle/member ordering and global scheduler phase remain open. See
+[fight-site findings](../references/reverse-engineering.md#native-fight-site-placement-2026-09-10).

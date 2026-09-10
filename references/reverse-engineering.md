@@ -5456,3 +5456,52 @@ At the ordinary browser/native pose handoff, the existing elapsed-turn pose supp
 the retained frame; full persistent native animation ownership still belongs to
 the global person integration. Substate verification does not complete these wider
 mechanics.
+
+## Native fight-site placement (2026-09-10)
+
+`0051e4b0` rejects center flags `0x206` and coastal category flags `0x3c`,
+then optionally rejects another class-10/model-8 object in the same cell. The
+fight itself is excluded by identity. Four radius-180 probes, spaced 512 angle
+units apart, use the complete `005178d0` person collision routine. The envelope
+has four points even for a two-person fight.
+
+`00519d10` first moves a fight out of a building footprint using `004044b0` and
+the masked building ID. This happens on every visit. Other invalid sites trigger
+search only on a forced visit or when the class-counter low five bits are zero.
+The type-2 indexed search traverses rings 0–8 in the authored angle-dependent
+order. Candidates are native 512-coordinate cell centers with toroidal wrapping.
+It releases the search slot and moves to the first valid candidate; exhausted
+searches and allocation failures retain the existing fight. The old browser
+radial/every-turn search and blocked-fight cancellation are removed.
+
+The live adapter calls forced placement on creation, shares terrain masks,
+building geometry and the indexed-search pool, and indexes other fight centers
+once per relocation visit. Sequential calls see earlier groups' relocated cells.
+It does not add per-render work or a new update loop. Height interpolation is a
+pure terrain read that is irrelevant to validity; only a chosen destination is
+sampled. The native oracle compares final coordinates, height and all search-pool
+bytes across 2,048 cases, running original collision, building geometry, height,
+search and cell movement without replacing any consumers. Coverage includes
+all categories, blocked masks/flags, self/other object classes, toroidal edges,
+force/counter gates, successful/failed searches and pool exhaustion. Height calls
+fall from 33,817 to 814 for identical results.
+
+Portable/live checks cover intervening turns, periodic relocation, building exit,
+failed-search retention, occupied cells and pool exhaustion. The browser checks
+also retain the existing combat sprites and slope recoil tests. A paired warmed
+Node workload of 3,072 site searches drops median CPU from 2.247 to 1.923 ms;
+this measures search cost, not frame-rate improvement. The separate headed
+combat sample records 1,678 active-fight callbacks at CPU p50/p95 1.4/2.0 ms,
+RAF gaps 3.6/4.3 ms (max 7.2 ms), maximum 104 draws, Chrome 153/ANGLE Metal
+Apple M5, 1440×1000 DPR 1. No heavy tools or edits overlapped profiling.
+See `references/performance/2026-09-10-melee-placement.json`.
+
+Boundary: the primitive receives the controller counter; the live adapter still
+supplies world turn. `004ed8a0` seeds per-object counters from per-class allocator
+state, while `004ec6f0` visits fights before incrementing ordinary object counters.
+Full mixed-class allocation and scheduler phase remain unported. Newly exported
+`0051de60` also shows target-first membership/center, an initial `random % 360`
+angle and forced placement. Only the placement call is integrated here; member
+allocation/order, initial angle/RNG and prefight handoff remain open. Native
+approach movement, complete damage/effects, command dispatch and campaign attacks
+are not claimed complete by this bounded placement requirement.

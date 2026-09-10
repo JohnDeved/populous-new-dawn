@@ -1392,3 +1392,40 @@ repository-wide debt and broader native scheduling/modernization remain open.
 Shared state initialization now calls the already compared resting-slot consumer
 when a tower occupant is reassigned, preserving the original mechanic without a
 new update loop or speculative formation subsystem.
+
+## Fight-site search without redundant height sampling (2026-09-10)
+
+The original interpolates every candidate height before validity testing, then
+interpolates the accepted point again. Validity reads only XY and collision data.
+`app/melee-placement.ts` shares the native collision/search helpers and samples
+height only for actual moves. The original executable produces identical final
+coordinates, height and search-pool bytes in 2,048 cases: 814 browser height
+queries versus 33,817 original queries. Allocation/search failure retains the
+fight and releases any allocated search record.
+
+`node scripts/bench-melee-placement.mjs` compares the original sampling order with
+the production implementation, reusing the same terrain and validity helpers.
+It asserts identical output and alternates eleven warmed samples on Node 24.18.0,
+Apple M5. For 3,072 restricted-terrain queries per sample, median CPU is **2.247 ms
+before, 1.923 ms after** (14.4% lower); height reads are **38,064 versus 3,048**.
+This is a bounded CPU search improvement, not a claim about game/display FPS.
+
+Live relocation builds an occupancy set only when the turn gate or building
+escape requires a visit. Rendering stays uncapped on its existing RAF; all
+placement is simulation-turn work. A separate isolated headed combat acceptance
+sample records 1,678 callbacks: CPU p50/p95 **1.4/2.0 ms**, callback gaps
+**3.6/4.3 ms**, maximum **7.2 ms**, at most **104** WebGL draws. Chrome 153/ANGLE
+Metal Apple M5, 1440×1000 CSS pixels, DPR 1. This is not a paired whole-game or
+physical-refresh benchmark. Raw search and browser data:
+`references/performance/2026-09-10-melee-placement.json`.
+
+Native allocation/counter phase, approach movement and whole-game scheduler
+ownership remain separate work. The original placement algorithm is isolated
+from the live adapter with named fields; no decompiler-shaped state machine,
+new dependency, render loop or generalized cache is introduced.
+
+Validation: 204 portable tests, typecheck/build/format checks, native timing and
+placement oracles, combat browser checks and sprite/shadow/selection regressions.
+The new placement module has no oxlint findings. Fallow reports maintainability
+85.6, average cyclomatic complexity 2.7, p90 5 and twelve existing module cycles;
+repository-wide lint/complexity debt and broader modernization remain open.

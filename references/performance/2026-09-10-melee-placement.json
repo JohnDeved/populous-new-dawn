@@ -1,0 +1,385 @@
+{
+  "nativeComparisons": 2048,
+  "nativeHeightQueries": 33817,
+  "browserHeightQueries": 814,
+  "pairedSearchBenchmark": {
+    "workload": "256 deterministic restricted-terrain fight sites, 12 repetitions per sample; 11 interleaved warmed samples. CPU search cost only; no display FPS or whole-game speedup claim.",
+    "node": "v24.18.0",
+    "cpu": "Apple M5",
+    "queries": 3072,
+    "original": {
+      "medianMs": 2.246707999999998,
+      "heightCalls": 38064,
+      "samples": [
+        2.2282500000000027,
+        2.262332999999998,
+        2.246915999999999,
+        2.2595409999999987,
+        2.265625,
+        2.371124999999992,
+        2.2235000000000014,
+        2.2322499999999934,
+        2.246707999999998,
+        2.2182499999999976,
+        2.228834000000006
+      ]
+    },
+    "chosenPointOnly": {
+      "medianMs": 1.9228750000000048,
+      "heightCalls": 3048,
+      "samples": [
+        1.919832999999997,
+        1.949708000000001,
+        1.936290999999997,
+        1.903458999999998,
+        1.9697910000000007,
+        1.9650419999999968,
+        1.9073750000000018,
+        1.9178330000000017,
+        1.9287919999999872,
+        1.9228750000000048,
+        1.9202919999999892
+      ]
+    }
+  },
+  "browser": {
+    "headed": true,
+    "recoil": [
+      {
+        "action": "push",
+        "remaining": 1,
+        "x": 1.2578125,
+        "z": 32,
+        "h": 426,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 1.68359375,
+        "z": 32,
+        "h": 388,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 2.26171875,
+        "z": 32,
+        "h": 336,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 2.9921875,
+        "z": 32,
+        "h": 272,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 3.71484375,
+        "z": 32,
+        "h": 206,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 4.46484375,
+        "z": 32,
+        "h": 169,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 5.16796875,
+        "z": 32,
+        "h": 153,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 5.82421875,
+        "z": 32,
+        "h": 139,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 6.43359375,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 6.93359375,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.32421875,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.60546875,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.77734375,
+        "z": 32,
+        "h": 135,
+        "airborne": false,
+        "hp": 50
+      },
+      {
+        "action": "approach",
+        "remaining": 0,
+        "x": 7.77734375,
+        "z": 32,
+        "airborne": false,
+        "hp": 50
+      }
+    ],
+    "placement": {
+      "before": {
+        "x": 0,
+        "z": 32
+      },
+      "between": {
+        "x": 0,
+        "z": 32
+      },
+      "after": {
+        "x": 3,
+        "z": 31
+      },
+      "retained": {
+        "x": 3,
+        "z": 31
+      },
+      "origin": 13828,
+      "destination": 13829,
+      "members": [
+        {
+          "group": 137,
+          "sprite": "strike"
+        },
+        {
+          "group": 137,
+          "sprite": "strike"
+        }
+      ],
+      "group": 137
+    },
+    "workload": "Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.",
+    "states": [
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "special",
+          "frame": 207,
+          "hp": 50,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "warrior",
+          "team": "blue",
+          "state": "special",
+          "frame": 664,
+          "hp": 90,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "shaman",
+          "team": "blue",
+          "state": "special",
+          "frame": 1031,
+          "hp": 100,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 116,
+          "hp": 32,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "warrior",
+          "team": "blue",
+          "state": "strike",
+          "frame": 573,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "shaman",
+          "team": "blue",
+          "state": "strike",
+          "frame": 1006,
+          "hp": 82,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ]
+    ],
+    "performance": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "frames": 1678,
+      "cpu": {
+        "p50": 1.4000000953674316,
+        "p95": 2
+      },
+      "gaps": {
+        "p50": 3.600000000000364,
+        "p95": 4.300000000000182,
+        "max": 7.199999999999818
+      },
+      "maxDrawCalls": 104
+    }
+  }
+}

@@ -1271,3 +1271,19 @@ Next: replace approximate melee approach and terrain-mask fight relocation, then
 continue original campaign attack dispatch and visible spell behavior. Preserve
 the entire unfinished game/engine scope, modern desktop performance and clean,
 shared TypeScript. Discovery stays open.
+
+### Latest combat integration: original fight-site placement
+
+Fight groups now leave building footprints and search original terrain masks and
+other-fight occupancy in the authored indexed order. Failed searches retain the
+fight instead of cancelling it. Native comparisons cover 2,048 complete calls;
+live/browser tests preserve combat and recoil sprites. Sampling height only for
+accepted sites produces identical results with fewer terrain reads and measured
+lower search CPU cost. Rendering stays uncapped and placement remains turn-based.
+
+Next: original melee approach speed, collision and RNG, then prefight/group
+allocation and campaign attack dispatch with visible effects. Native allocator
+counter phase, initial member/angle choice and full command ownership are still
+open; the live adapter supplies world-turn phase to the verified placement
+primitive. Preserve all unfinished game/engine scope, readable shared TypeScript,
+modern desktop performance and source-backed behavior. Discovery stays open.
