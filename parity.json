@@ -1305,7 +1305,7 @@
             "scripts/check-browser-background-audio.mjs",
             "references/performance/2026-09-10-background-audio.json"
           ],
-          "note": "Ordinary lowland/highland/coast/sea and globe layers plus tree/gull accents now audible. Weighting, tie order and accent decisions match 4,096 native calls. Browser supplies a bounded 81-cell camera-neighborhood and visible-tree adapter; exact far-polygon/object counts, continuous native gain updates, special landscapes and shield ambience remain open."
+          "note": "Ordinary lowland/highland/coast/sea and globe layers plus tree/gull accents are audible. Weighting, tie order and accent decisions match 4,096 native calls; 4,096 further calls verify gain-byte arithmetic. Playing ordinary voices now follow current weights without restart; browser checks land/water return transitions, globe gain exception and reset cleanup. The bounded 81-cell camera-neighborhood/visible-tree adapter, exact far-polygon/object counts, special landscapes, shield ambience and full native voice arbitration remain open."
         },
         {
           "id": "audio.music",

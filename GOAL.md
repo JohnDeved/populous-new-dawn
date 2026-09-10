@@ -1505,8 +1505,12 @@ work. Playback uses streaming and the audio clock, with pause/resume, master/mus
 volume, muted/restarted cleanup and uncapped-FPS timing checks.
 
 Continue audio parity through exact renderer-derived environmental counts, native
-activity ownership, continuous mixing, special-landscape substitutions, frontend
+activity ownership, special-landscape substitutions, frontend
 music selection and voice scheduling. Current camera-neighborhood/fight adapters
-remain explicit. Do not block audible gameplay on unrelated decompilation. The
+remain explicit. Active ordinary ambient gains now follow the current weights
+without restarting samples; 4,096 native volume comparisons and real-browser
+land/water/globe transitions cover the update. Exact world counts, special
+landscape mixing and native voice arbitration remain unfinished.
+Do not block audible gameplay on unrelated decompilation. The
 building-controller/shared-queue integration above remains the following gameplay
 target; the full-game scope remains active.

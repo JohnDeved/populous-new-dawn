@@ -1898,3 +1898,23 @@ muting, restart and release. See the retained background-audio report and native
 comparison notes. ox-standard is clean in the new audio modules; existing page
 warnings remain outside this change. Fallow maintainability is 85.6, average
 cyclomatic 2.8/p90 5, with twelve existing cycles.
+
+
+## 2026-09-10 — update playing ambience without replacing sources
+
+Ordinary environmental layers now change existing GainNode parameters on the
+50 ms audio scheduler, rather than holding stale volume until sample completion.
+One live handle per cue replaces estimated sample end timestamps. The native
+active-cue gate forbids overlapping copies of a layer; completion releases its
+handle. Silent out-of-view layers finish naturally, and reset/mute clear handles
+immediately with identity-checked asynchronous cleanup. The existing 64-voice cap
+still applies; full native voice priority remains unfinished.
+
+This changes at most five gain parameters per scheduler visit, independent of
+render FPS, and allocates no new AudioNodes to change a playing layer's volume.
+The browser regression checks object identity across lowland/water transitions
+and exact expected gains, including the original globe-layer exception. Native
+volume arithmetic passes 4,096 additional comparisons. No hardware frame-time or
+speedup claim is made; exact renderer counts and native cadence ownership remain
+open. Environmental samples now restart after completion at the next 50 ms visit,
+while percussion continues to use its existing audio-clock lookahead scheduler.

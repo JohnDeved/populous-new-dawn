@@ -1,6 +1,12 @@
 import native from './original-sound.json' with { type: 'json' }
 import { Music } from './music.ts'
-import { ambientLayers, ambientAccent, type SoundEnvironment } from './ambient-sound.ts'
+import {
+  ambientLayers,
+  ambientWeights,
+  ambientGain,
+  ambientAccent,
+  type SoundEnvironment,
+} from './ambient-sound.ts'
 // First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
 export const AUDIO_CUES = [
   0x26, 0x53, 0x6, 0x13, 0x2c, 0x34, 0xb, 0xd, 0xe, 0x18, 0x19, 0x24, 0x25, 0x27, 0x2b, 0x32, 0x37,
@@ -44,7 +50,7 @@ export class Soundscape {
   generation = 0
   backgroundTimer: ReturnType<typeof setInterval> | null = null
   nextAccent = 0
-  ambientEnds = new Map<number, number>()
+  ambientVoices = new Map<number, { gain: GainNode; stop: () => void }>()
   environment: SoundEnvironment = {
     total: 1,
     low: 1,
@@ -84,17 +90,28 @@ export class Soundscape {
       this.music.schedule()
     }
     const now = this.context.currentTime
+    // Keep playing samples alive as the view changes, including layers which
+    // leave the top three. Native 0x48a900 updates these voices until they end.
+    for (const { cue, weight } of ambientWeights(this.environment))
+      // 0x4895c0 returns before driver submission for the globe layer (33).
+      if (cue !== 33)
+        this.ambientVoices
+          .get(cue)
+          ?.gain.gain.setValueAtTime(ambientGain(weight, native.cues[cue].volume), now)
     for (const { cue, weight } of ambientLayers(this.environment)) {
-      const end = this.ambientEnds.get(cue) ?? now
-      if (end > now + 0.2) continue
+      if (this.ambientVoices.has(cue)) continue
       const variant = cueVariant(cue, this.randomState)
       if (!variant) continue
       this.randomState = variant.state
-      const buffer = this.buffers.get(variant.key)
-      if (!buffer) continue
-      const start = Math.max(end, now + 0.03)
-      this.playSample(variant, weight / 256, 0, undefined, start)
-      this.ambientEnds.set(cue, start + buffer.duration)
+      let voice: ReturnType<Soundscape['playSample']>
+      voice = this.playSample(variant, 1, 0, () => {
+        // An ended callback from before reset/mute must not remove its successor.
+        if (this.ambientVoices.get(cue) === voice) this.ambientVoices.delete(cue)
+      })
+      if (voice) {
+        voice.gain.gain.setValueAtTime(ambientGain(weight, native.cues[cue].volume), now)
+        this.ambientVoices.set(cue, voice)
+      }
     }
     // A delayed timer schedules from now; no storm of stale ambience after a stall.
     if (this.nextAccent < now - 0.25) this.nextAccent = now
@@ -164,12 +181,12 @@ export class Soundscape {
   stopAll() {
     for (const source of this.active) source.stop()
     this.active.clear()
+    this.ambientVoices.clear()
   }
   reset() {
     this.stopAll()
     this.randomState = 1
     this.music?.reset()
-    this.ambientEnds.clear()
     this.nextAccent = 0
   }
   mute() {
@@ -179,7 +196,6 @@ export class Soundscape {
     if (this.context && this.context.state !== 'closed') void this.context.suspend()
     if (this.backgroundTimer) clearInterval(this.backgroundTimer)
     this.backgroundTimer = null
-    this.ambientEnds.clear()
     this.stopAll()
     if (this.master && this.context) this.master.gain.setValueAtTime(0, this.context.currentTime)
   }
@@ -193,17 +209,19 @@ export class Soundscape {
     const variant = cueVariant(cue, this.randomState)
     if (!variant) return finished?.()
     this.randomState = variant.state
-    return this.playSample(variant, attenuation, pan, finished)
+    return this.playSample(variant, attenuation, pan, finished)?.stop
   }
   private playSample(
     variant: NonNullable<ReturnType<typeof cueVariant>>,
     attenuation: number,
     pan: number,
-    finished?: () => void,
-    when = 0
+    finished?: () => void
   ) {
     const buffer = this.buffers.get(variant.key)
-    if (!buffer || !this.context || !this.master) return finished?.()
+    if (!buffer || !this.context || !this.master) {
+      finished?.()
+      return
+    }
     // ponytail: browser voice cap; the original priority/stealing scheduler is not ported yet.
     if (this.active.size >= 64) {
       const oldest = this.active.values().next().value!
@@ -234,8 +252,8 @@ export class Soundscape {
       },
       { once: true }
     )
-    source.start(when)
-    return () => source.stop()
+    source.start()
+    return { stop: () => source.stop(), gain }
   }
   dispose() {
     this.disposed = true

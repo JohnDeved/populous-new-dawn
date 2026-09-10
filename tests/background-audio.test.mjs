@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { Music, nextDrum } from '../app/music.ts'
-import { ambientLayers, ambientAccent } from '../app/ambient-sound.ts'
+import { ambientLayers, ambientAccent, ambientGain } from '../app/ambient-sound.ts'
 import fixture from './fixtures/background-audio.json' with { type: 'json' }
 
 test('music sections and ordinary ambient decisions match captured original execution', () => {
+  for (const { input, expected } of fixture.gains)
+    assert.equal(ambientGain(input.weight, input.volume), expected)
   for (const { input, expected } of fixture.music) {
     const { s, count } = structuredClone(input)
     assert.deepEqual({ sample: nextDrum(s, count), s }, expected)

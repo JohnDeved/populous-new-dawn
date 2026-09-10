@@ -6422,8 +6422,24 @@ and player approach/fight actions choose activity 1/2. The original collects far
 rendered polygon counts (`004673b0`) and rendered object counts (`0046ec80`), while
 `004ec6f0` supplies exact music activity from native attack ownership. These browser
 adapters are explicitly partial; full world/renderer/music ownership is not yet
-certified. Ambient layers update at subsequent sample boundaries; exact continuous
-native gain updates and voice arbitration remain open.
+certified. Active ordinary layers now update their gain every 50 ms using
+`004895c0` byte truncation, without replacing or overlapping the current sample.
+`0048a900` applies this update even when a playing cue leaves the top-three list;
+it continues silently when its environmental weight reaches zero. The globe cue
+33 returns before driver gain submission in `004895c0`, so its initial gain stays
+until the sample ends. Only absent top-three cues start, matching the active-cue
+gate in `00489770`; source completion permits the next variant. The browser keeps
+one handle per ambient cue, and old ended callbacks cannot remove a replacement
+after reset/mute. Native voice arbitration remains open.
+
+An additional 4,096 executions of complete `004895c0` with driver submission
+disabled compare output-volume bytes across all five ordinary cues, weights 0–511
+and base volumes 0–127. The checker retains 241 sampled gain cases alongside the
+existing percussion/ambient captures. This is evidence for the volume arithmetic;
+driver dispatch ownership is established by code inspection, not emulated driver
+calls. The browser check crosses lowland→water→lowland and verifies zero/restored
+gains on the **same** playing voices, the unchanged globe gain, and replacement
+survival after asynchronous completion of a stopped voice.
 
 ### Modern timing and validation
 

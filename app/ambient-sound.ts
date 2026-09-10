@@ -12,7 +12,7 @@ export interface SoundEnvironment {
 
 // 0x489a30 + 0x489770, ordinary landscape: rank the five environmental layers.
 // Counts are view-dependent; the browser supplies a bounded camera neighborhood.
-export function ambientLayers(s: SoundEnvironment) {
+export function ambientWeights(s: SoundEnvironment) {
   let weights = [0, 0, 0, 0, 0]
   if (s.overview) weights[3] = 255
   else if (s.total)
@@ -23,7 +23,16 @@ export function ambientLayers(s: SoundEnvironment) {
       0,
       Math.trunc((s.water * 256) / s.total),
     ]
-  const layers = weights.map((weight, i) => ({ cue: [29, 30, 31, 33, 32][i], weight }))
+  return weights.map((weight, i) => ({ cue: [29, 30, 31, 33, 32][i], weight }))
+}
+
+// 0x4895c0: native byte volume, including truncation before master volume.
+export function ambientGain(weight: number, volume: number) {
+  return (Math.floor((weight * volume) / 256) & 255) / 127
+}
+
+export function ambientLayers(s: SoundEnvironment) {
+  const layers = ambientWeights(s)
   // Five entries only. Native exchanges also reorder ties, which changes cue RNG.
   for (let i = 0; i < layers.length; i++)
     for (let j = i + 1; j < layers.length; j++)

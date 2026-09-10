@@ -61,6 +61,53 @@ try {
     peaks.music = Math.max(peaks.music, value[1])
   }
   assert.ok(peaks.mix > 0.001 && peaks.music > 0.001, JSON.stringify(peaks))
+  const mixing = await page.evaluate(async () => {
+    const a = window.testAudio
+    clearInterval(a.backgroundTimer)
+    a.backgroundTimer = null
+    a.stopAll()
+    const original = a.environment
+    const lowland = { total: 81, low: 81, high: 0, water: 0, trees: false, overview: false, activity: 0 }
+    a.environment = lowland
+    a.updateBackground()
+    const land = a.ambientVoices.get(29)
+    await new Promise(resolve => setTimeout(resolve, 60))
+    const initial = land.gain.gain.value
+    a.environment = { ...lowland, low: 0, water: 81 }
+    a.updateBackground()
+    await new Promise(resolve => setTimeout(resolve, 60))
+    const sea = a.ambientVoices.get(32)
+    const overWater = { land: land.gain.gain.value, sea: sea.gain.gain.value }
+    a.environment = lowland
+    a.updateBackground()
+    await new Promise(resolve => setTimeout(resolve, 60))
+    const returned = { land: land.gain.gain.value, sea: sea.gain.gain.value }
+    const sameVoices = a.ambientVoices.get(29) === land && a.ambientVoices.get(32) === sea
+    a.environment = { ...lowland, overview: true }
+    a.updateBackground()
+    const globe = a.ambientVoices.get(33)
+    a.environment = lowland
+    a.updateBackground()
+    await new Promise(resolve => setTimeout(resolve, 60))
+    const globeGain = globe.gain.gain.value
+    a.stopAll()
+    a.environment = lowland
+    a.updateBackground()
+    const replacement = a.ambientVoices.get(29)
+    await new Promise(resolve => setTimeout(resolve, 60))
+    const restartRetained = replacement !== land && a.ambientVoices.get(29) === replacement
+    a.environment = original
+    await a.setPaused(false)
+    return { initial, overWater, returned, sameVoices, globeGain, restartRetained }
+  })
+  assert.ok(Math.abs(mixing.initial - 32 / 127) < 1e-7)
+  assert.equal(mixing.overWater.land, 0)
+  assert.ok(Math.abs(mixing.overWater.sea - 32 / 127) < 1e-7)
+  assert.equal(mixing.returned.sea, 0)
+  assert.equal(mixing.returned.land, mixing.initial)
+  assert.equal(mixing.sameVoices, true)
+  assert.ok(Math.abs(mixing.globeGain - 31 / 127) < 1e-7)
+  assert.equal(mixing.restartRetained, true)
   const environment = await page.evaluate(() => {
     const a = window.testAudio,
       s = window.testScene
@@ -75,7 +122,7 @@ try {
       }
     a.environment = ocean ?? home
     a.updateBackground()
-    return { home, ocean, layers: [...a.ambientEnds.keys()] }
+    return { home, ocean, layers: [...a.ambientVoices.keys()] }
   })
   assert.ok(environment.layers.length > 0)
   assert.ok(environment.ocean.water > 0)
@@ -120,10 +167,11 @@ try {
     await page.evaluate(() => ({
       enabled: window.testAudio.enabled,
       voices: window.testAudio.active.size,
+      ambience: window.testAudio.ambientVoices.size,
       timer: window.testAudio.backgroundTimer,
       paused: window.testAudio.music.element.paused,
     })),
-    { enabled: false, voices: 0, timer: null, paused: true }
+    { enabled: false, voices: 0, ambience: 0, timer: null, paused: true }
   )
   await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
   await page.waitForFunction(
@@ -218,6 +266,7 @@ try {
     const reset = {
       time: music.element.currentTime,
       voices: a.active.size,
+      ambience: a.ambientVoices.size,
       drums: music.sources.size,
     }
     a.dispose()
@@ -233,7 +282,7 @@ try {
     }
   })
   assert.deepEqual(disposal, {
-    reset: { time: 0, voices: 0, drums: 0 },
+    reset: { time: 0, voices: 0, ambience: 0, drums: 0 },
     state: 'closed',
     voices: 0,
     buffers: 0,
@@ -253,6 +302,7 @@ try {
           viewport: { width: 1440, height: 1000 },
           before,
           peaks,
+          mixing,
           environment,
           timing,
           controls,
@@ -267,7 +317,7 @@ try {
     )
   console.log(
     'PASS: real UI audio activation, original streamed music and environmental samples produce signal; pause/resume, music gain, percussion scheduling, mute/re-enable, restart and disposal',
-    JSON.stringify({ before, peaks, environment, timing, assets, disposal })
+    JSON.stringify({ before, peaks, mixing, environment, timing, assets, disposal })
   )
 } finally {
   await browser.close()

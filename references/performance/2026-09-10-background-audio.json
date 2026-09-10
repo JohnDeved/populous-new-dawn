@@ -14,15 +14,29 @@
     "buffers": 180
   },
   "peaks": {
-    "mix": 0.07864522933959961,
-    "music": 0.31857195496559143
+    "mix": 0.09398908913135529,
+    "music": 0.38259977102279663
+  },
+  "mixing": {
+    "initial": 0.25196850299835205,
+    "overWater": {
+      "land": 0,
+      "sea": 0.25196850299835205
+    },
+    "returned": {
+      "land": 0.25196850299835205,
+      "sea": 0
+    },
+    "sameVoices": true,
+    "globeGain": 0.24409449100494385,
+    "restartRetained": true
   },
   "environment": {
     "home": {
       "total": 81,
-      "low": 69,
+      "low": 79,
       "high": 0,
-      "water": 12,
+      "water": 2,
       "trees": true,
       "overview": false,
       "activity": 0
@@ -38,14 +52,13 @@
     },
     "layers": [
       29,
-      32,
-      30
+      32
     ]
   },
   "timing": {
     "gain": 0,
     "sources": 1,
-    "future": 3.8899546485260768
+    "future": 3.8899546485260785
   },
   "controls": {
     "music": 0.5,
@@ -57,27 +70,27 @@
       {
         "duration": 230.347982,
         "expected": 230.34775510204082,
-        "peak": 0.20018696784973145
+        "peak": 0.17937420308589935
       },
       {
         "duration": 320.626984,
         "expected": 320.6269387755102,
-        "peak": 0.29540127515792847
+        "peak": 0.29093676805496216
       },
       {
         "duration": 284.107982,
         "expected": 284.1077551020408,
-        "peak": 0.1844502091407776
+        "peak": 0.16161081194877625
       },
       {
         "duration": 307.147982,
         "expected": 307.14775510204083,
-        "peak": 0.09192696958780289
+        "peak": 0.2070731818675995
       },
       {
         "duration": 360.907982,
         "expected": 360.9077551020408,
-        "peak": 0.324025958776474
+        "peak": 0.32402878999710083
       }
     ],
     "drums": 29,
@@ -88,6 +101,7 @@
     "reset": {
       "time": 0,
       "voices": 0,
+      "ambience": 0,
       "drums": 0
     },
     "state": "closed",

@@ -22,7 +22,7 @@ def hook(c,a,size,user):
  elif a==0x48a050:events.append([read(sp+8,'I'),read(sp+12,'I')])
  c.reg_write(UC_X86_REG_EAX,value);c.reg_write(UC_X86_REG_EIP,read(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+(8 if a in [0x56cdb0,0x56ce40,0x56e030,0x56e0d0,0x56e0f0,0x56d200] else 4))
 for a in [0x56ccf0,0x56cdb0,0x56ce40,0x56ce50,0x56e030,0x4998b0,0x56e070,0x56e0d0,0x56e0f0,0x56d200,0x48a050]:cpu.hook_add(UC_HOOK_CODE,hook,begin=a,end=a)
-music=[];ambient=[]
+music=[];ambient=[];gains=[]
 for n in range(4096):
  s=dict(activity=n%3,variation=rng.randrange(256),release=bool(n&4),battle=bool(n&8));count=3+(n&1)
  write(p+4,'II',2|int(s['release'])*4|int(s['battle'])*8,s['activity']);write(0x5ae2f8,'B',s['variation'])
@@ -39,12 +39,19 @@ for n in range(4096):
  assert cpu.reg_read(UC_X86_REG_EIP)==stop
  layers=[dict(cue=c,weight=read(0x98ce78+[29,30,31,33,32].index(c)*4,'I')) for c,flags in events if flags==5]
  ambient.append(dict(input=dict(s=s,randomState=seed),expected=dict(layers=layers,accents=[c for c,flags in events if flags==1],randomState=read(0x89bc72,'I'))))
-js="""import {nextDrum} from './app/music.ts';import {ambientLayers,ambientAccent} from './app/ambient-sound.ts';let text='';for await(const c of process.stdin)text+=c;const d=JSON.parse(text);console.log(JSON.stringify({music:d.music.map(c=>({sample:nextDrum(c.s,c.count),s:c.s})),ambient:d.ambient.map(c=>{const w={randomState:c.randomState},accents=[];ambientAccent(w,c.s,c=>accents.push(c));return {layers:ambientLayers(c.s),accents,randomState:w.randomState};})}));"""
-r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(dict(music=[c['input'] for c in music],ambient=[c['input'] for c in ambient])),capture_output=True,text=True,cwd=ROOT);assert r.returncode==0,r.stderr
+for n in range(4096):
+ weight=n%512;volume=rng.randrange(128);cue=[29,30,31,33,32][n%5];layer=n%5
+ write(p+0x10,'H',cue);write(p+0x14,'B',volume);write(p+0x1a,'B',layer)
+ write(0x98ce78+layer*4,'I',weight);write(0x895dcd,'B',0)
+ write(stack,'III',stop,p,0);cpu.reg_write(UC_X86_REG_ESP,stack)
+ cpu.emu_start(0x4895c0,stop,count=1000);assert cpu.reg_read(UC_X86_REG_EIP)==stop
+ gains.append(dict(input=dict(weight=weight,volume=volume),expected=read(p+0x16,'B')/127))
+js="""import {nextDrum} from './app/music.ts';import {ambientLayers,ambientAccent,ambientGain} from './app/ambient-sound.ts';let text='';for await(const c of process.stdin)text+=c;const d=JSON.parse(text);console.log(JSON.stringify({gains:d.gains.map(c=>ambientGain(c.weight,c.volume)),music:d.music.map(c=>({sample:nextDrum(c.s,c.count),s:c.s})),ambient:d.ambient.map(c=>{const w={randomState:c.randomState},accents=[];ambientAccent(w,c.s,c=>accents.push(c));return {layers:ambientLayers(c.s),accents,randomState:w.randomState};})}));"""
+r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(dict(gains=[c['input'] for c in gains],music=[c['input'] for c in music],ambient=[c['input'] for c in ambient])),capture_output=True,text=True,cwd=ROOT);assert r.returncode==0,r.stderr
 actual=json.loads(r.stdout)
-for name,cases in [('music',music),('ambient',ambient)]:
+for name,cases in [('music',music),('ambient',ambient),('gains',gains)]:
  for i,c in enumerate(cases):
   if c['expected']!=actual[name][i]:raise AssertionError((name,i,c,actual[name][i]))
-print('PASS: 4096 native percussion descriptor selections and 4096 native ordinary ambience weighting/sorting/accent decisions; hardware and cue consumers supplied')
+print('PASS: 4096 native percussion descriptor selections and 4096 native ordinary ambience weighting/sorting/accent decisions, and 4096 native live gain calculations; hardware and cue consumers supplied')
 if '--record' in sys.argv:
- (ROOT/'tests/fixtures/background-audio.json').write_text(json.dumps(dict(identity=identity,music=music[::17],ambient=ambient[::17]),separators=(',',':'))+'\n')
+ (ROOT/'tests/fixtures/background-audio.json').write_text(json.dumps(dict(identity=identity,music=music[::17],ambient=ambient[::17],gains=gains[::17]),separators=(',',':'))+'\n')
