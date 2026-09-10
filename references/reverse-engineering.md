@@ -7478,3 +7478,53 @@ three viewport/DPI cases. These are software-renderer operation counts, not a
 hardware frame-rate claim. The existing person-panel input regression and Blast
 initializer regression pass. All 295 portable tests, TypeScript, formatting and
 1,114 export hashes pass; the marker's visible sparkle was inspected in-browser.
+
+### 2026-09-10 — worship inspection artwork and standing slots (not yet live)
+
+The kind-3 stone-head and kind-13 vault branches of `00504bc0` share worship and
+recharge progress, follower glyphs, selection arrows and the original tail. The
+new `worshipPanel` uses the existing HUD atlas and canvas painter. 260 complete
+executable draw traces cover required counts 1/2/4/7/8/9/16, empty/partial/full
+rosters, enabled/recharging heads, zero/half/full work, shaman-only heads and the
+vault's command-33 shaman lookup. A failed lookup inside the native worship count
+draws a faded brave; an unused recharging slot draws two opaque silhouettes. The
+second row uses brave placeholders even for shaman-only heads, as the original
+separate row branch does. Hover/pressed tint and exceptional trigger settings are
+not covered by this bounded artwork reconstruction.
+
+The native height result omits the second row for these panel kinds. Its actual
+draw submissions extend 28 pixels below the reported extent. The browser layout
+allocates those extra 28 pixels while retaining exact submissions and width;
+this prevents canvas clipping without changing mechanics. `check-browser-worship-panel.mjs`
+captures all 260 canvases. `check-native-worship-panel.py --browser` compares
+1,739,264 RGBA pixels against independently decoded source HFX/palette artwork
+and native draw submissions, allowing one-byte canvas alpha rounding. The gallery
+was visually inspected. These are artwork checks, not live display/input or FPS
+certification.
+
+`00429ad0` initializes fifty worship offsets in alternating left/right arcs,
+starting with three places at radius 448 and increasing the arc size by two and
+radius by 256. It uses integer angle steps and the existing native sine helper.
+`0043c600` rotates those offsets by the head's quadrant around its coarse-cell
+center, searches each native cell list and admits the first exact-position,
+same-tribe person with zero signed-short speed. It does not test work assignment
+or a nearby radius. `worshipPositions` reuses the existing fixed-point movement
+helper; 600 positions across all four rotations, map seams and interior coordinates
+match the real initializer and roster lookup. Another 1,800 lookups exclude moving
+people, including speeds whose low byte is zero. Slot ordering, cell-list ties and
+the complete admission/order controller still need live integration.
+
+64 original `0047b460` input cases confirm ordinary head clicks emit command 42
+with flags 6 and a person ID; Shift emits command 113 with select/deselect state
+and the head ID. Right-click requests cue 106, native camera focus and the person's
+inspection panel. Blocked and occupied command buffers retain their contents.
+These are executable input evidence, not a claim that the browser controls are
+connected. Next recover the standing-slot admission/controller and replace the
+existing proximity roster before connecting the panels to live worship.
+
+The identical pixel oracle from four existing panel checks is now shared in
+`scripts/panel_pixels.py`. Person, training, construction and tower native checks
+still pass against their retained browser captures (170 canvases, 1,694,976 pixels),
+including construction's existing height correction and the unchanged one-byte
+alpha tolerance. All 296 portable checks and TypeScript pass. No gameplay credit
+or overall parity increase is assigned to these unintegrated reconstructions.

@@ -1,6 +1,8 @@
+import { movePosition } from './native-math.ts'
+
 // Reviewed portions of 0x485b00 (level settings) and 0x4fb270 (worship triggers).
 // Follower eligibility, world scheduling and reward objects are supplied by the engine.
-export type WorshipState = {
+export interface WorshipState {
   work: number
   target: number
   required: number
@@ -89,4 +91,26 @@ export function stepWorship(
 
 export function worshipProgress(s: WorshipState) {
   return s.target > 0 && s.required > 0 ? s.work / (s.target * s.required * s.required) : 0
+}
+
+// 0x429ad0: fifty worship positions in alternating left/right arcs.
+const worshipOffsets: { x: number; y: number }[] = []
+for (let count = 3, radius = 448; worshipOffsets.length < 50; count += 2, radius += 256) {
+  const step = Math.trunc(284 / (count - 1))
+  for (let i = 0; i < count && worshipOffsets.length < 50; i++) {
+    const p = { x: 0, y: 0 }
+    movePosition(p, Math.ceil(i / 2) * step * (i & 1 ? -1 : 1), -radius)
+    worshipOffsets.push({ x: (p.x << 16) >> 16, y: (p.y << 16) >> 16 })
+  }
+}
+
+// 0x43c600: rotate around the coarse-cell center and wrap native coordinates.
+export function worshipPositions(head: { x: number; y: number; angle: number }) {
+  const quarter = Math.trunc(head.angle / 512)
+  return worshipOffsets.map(({ x, y }) => {
+    if (quarter === 1) [x, y] = [y, -x]
+    else if (quarter === 2) [x, y] = [-x, -y]
+    else if (quarter === 3) [x, y] = [-y, x]
+    return { x: ((head.x & 0xfe00) + 256 + x) & 65535, y: ((head.y & 0xfe00) + 256 + y) & 65535 }
+  })
 }

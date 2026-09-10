@@ -1360,9 +1360,17 @@
                 "tests/fixtures/order-marker.json",
                 "decomp/generated/00509c10.c",
                 "decomp/generated/0050a750.c",
-                "decomp/generated/004edbd0.c"
+                "decomp/generated/004edbd0.c",
+                "app/worship-panel.ts",
+                "app/worship.ts",
+                "scripts/check-native-worship-panel.py",
+                "scripts/check-browser-worship-panel.mjs",
+                "tests/worship-panel.test.mjs",
+                "tests/fixtures/worship-panel.json",
+                "decomp/generated/00429ad0.c",
+                "decomp/generated/0043c600.c"
               ],
-              "note": "Construction-panel selection now reuses the active person adapter, fixing temporary-copy eligibility and lost selection/mode writes for builders. Native panel commands, actual active-worker flags, external-group retention and unchanged simulation/orders/RNG are checked; real clicks and Shift selection pass at five desktop sizes. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Order-icon right-click and keyboard focus now follow the displayed record using native target rules and camera motion, with 175 native resolutions, 256 original input cases and browser queue-preservation/hover/keyboard checks. The original physical-slot misnavigation is deliberately corrected. Point destinations now emit native model-61/HFX1294 sparkle frames, the -160 height offset, four-visit lifetime and second UI cue; 128 native emissions, 2688 animation states, source-atlas bytes and desktop GPU/pause/removal checks pass. Complete target-panel ownership, bitmap transitions and full panel/vehicle/hit ownership remain open."
+              "note": "Construction-panel selection now reuses the active person adapter, fixing temporary-copy eligibility and lost selection/mode writes for builders. Native panel commands, actual active-worker flags, external-group retention and unchanged simulation/orders/RNG are checked; real clicks and Shift selection pass at five desktop sizes. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Order-icon right-click and keyboard focus now follow the displayed record using native target rules and camera motion, with 175 native resolutions, 256 original input cases and browser queue-preservation/hover/keyboard checks. The original physical-slot misnavigation is deliberately corrected. Point destinations now emit native model-61/HFX1294 sparkle frames, the -160 height offset, four-visit lifetime and second UI cue; 128 native emissions, 2688 animation states, source-atlas bytes and desktop GPU/pause/removal checks pass. Complete target-panel ownership, bitmap transitions and full panel/vehicle/hit ownership remain open. Worship panel artwork and fifty-slot standing geometry are reconstructed and CPU/pixel compared, but are not connected to live worship ownership yet. This preparation earns no verified gameplay credit."
             }
           ]
         },

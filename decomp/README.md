@@ -4528,3 +4528,14 @@ original palette darkening checked by `scripts/check-native-terrain-texture.py`;
 frame-rate independence, actual movement, GPU pixels and incremental uploads.
 Full animation/visibility/settings and alternate 16-pixel cache ownership remain
 open. Newly exported `0047acb0`/`0047ae00` are unreviewed selection research.
+
+## 2026-09-10 — worship inspection reconstruction
+
+`check-native-worship-panel.py <exe> [--record] [--browser]` compares stone-head
+and vault panel draws, original head-panel input, the fifty-slot initializer
+`00429ad0` and rotated roster positions from `0043c600`. `--browser` consumes
+canvases captured by `node scripts/check-browser-worship-panel.mjs`; the shared
+source-art comparator is `scripts/panel_pixels.py`. Reviewed reconstruction and
+remaining live ownership work are recorded in the reverse-engineering log.
+The manifest now verifies 1,116 address exports. These additions do not complete
+the original worship command/admission controller or connect the new panels to play.

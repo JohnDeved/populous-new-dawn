@@ -79,10 +79,10 @@ use Fallow, ox-standard and Ponytail in the regular development workflow.
 Reconstruct original behavior in idiomatic game code, keeping raw decompiler
 output and address-level bookkeeping in the decompilation evidence.
 
-## Current execution order: group spacing and native selection next
+## Current execution order: group movement and native selection
 
-Latest user direction, 2026-09-10: finish the current building-combat integration,
-then prioritize how followers move as a group, unit footprints, how groups stand,
+Latest user direction, 2026-09-10: finish the current contextual-inspection slice,
+then continue prioritizing how followers move as a group, unit footprints, how groups stand,
 selection and deselection, and native 3D drag selection. This order supersedes older
 "Next" paragraphs below; those retain unfinished scope, not an instruction to
 postpone this queue. Continue the biggest noticeable improvements while preserving
@@ -114,7 +114,9 @@ orders and 576 GPU sprite poses cover this bounded slice. Shared state snapshots
 are now lazy; the documented 200-person comparison preserves exact state while
 reducing initialization cost. Full native movement and selection remain open.
 
-Track the requested queue explicitly:
+Track the requested queue explicitly. The bounded deliveries below do not finish
+these areas: retain their remaining work in this order, prioritizing noticeable
+differences in actual play and preserving the existing regression checks.
 
 1. **Group movement — bounded implementation delivered.** Ordinary ground orders
    share native commands and use original marching recruitment, slot geometry,
@@ -139,6 +141,10 @@ Track the requested queue explicitly:
    queues/selection. Native physical-slot misnavigation is deliberately corrected.
    Point destinations now emit the original model-61 sparkle, height offset,
    four-visit lifetime and second UI cue, reusing the existing atlas and renderer.
+   Worship-panel artwork and fifty-slot standing geometry now have native and
+   browser-pixel comparisons. Next connect the original worship slot/admission
+   ownership and contextual controls; the current proximity adapter is insufficient
+   for an exact roster. These reconstructions are not live gameplay parity yet.
    Complete target-panel ownership, bitmap transitions, HUD/vehicle ownership,
    buffering and alternate input modes remain open.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,
