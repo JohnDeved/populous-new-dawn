@@ -6572,3 +6572,65 @@ FPS or speedup claim. Reports retain individual samples and browser versions.
 Native object allocation/list ownership, original whole-scene membership, exact
 audio-input cadence and special landscapes remain partial. Native replay supplies
 the browser's candidate membership and model consumers, not an original GPU frame.
+
+## 2026-09-10 — original Land Bridge terrain and ground trails
+
+Land Bridge previously scanned the cropped browser grid, raised a smooth strip,
+excluded building footprints and placed one sparkle at the destination. It now
+uses `0050ee00`, `0050f010` and `0050ecc0` directly on native terrain. The first
+visit records the wrapped major axis, cross-axis stride and endpoint height
+increment. Each following visit processes four vertices per cross-section in
+order (0, +1, +2, -1), including both ends, sampling the starting-cell height
+again. Target heights have a minimum of 90; the per-visit difference is capped
+by `LAND_BRIDGE_MAX_CHANGE` (256), divided by the remaining duration, and clamped
+to 0–1024. The spell can lower existing ground. The controller removes itself on
+visit 63 with the shipped duration of 64. Same-cell casts retain the original
+repeated row visits; axes and coordinates wrap across the map seam.
+
+Every vertex visit emits original effect 3, with its initial remaining count
+overridden to two. The existing native trail initializer, movement, animation and
+second phase supply the visible sparks; the isolated destination sparkle is
+gone. Terrain writes feed the recovered redraw queue, terrain processing, walk
+masks and object notifications. The compatibility grid is resampled after native
+writes, keeping picking and existing route adapters on the rendered surface.
+New effects created during an effect processor pass wait for the following turn;
+the array loop retains its initial length rather than allocating a copy.
+
+`check-native-land-bridge.py EXE --record` runs **96 complete original lifetimes,
+6,048 turns**, comparing every terrain height, controller field, ordered trail
+position and notification. Inputs include both axes/signs, diagonal and same-cell
+casts, seams, half-world distances, negative heights and heights above 1024. Raw
+exports and 10 portable complete captures are retained. Trail allocation and
+terrain consumers are supplied in these isolated controller comparisons.
+
+`check-browser-land-bridge.mjs --record` casts through actual keyboard/mouse input,
+observes ground trails (3,540 attributable GPU pixels in the retained run), checks
+all 63 controller turns, terrain refresh, and final cleanup. Passing its report
+to the native check with `--browser FILE` executes the original terrain queue and
+processing too: all live height fields and controller states agree. The full
+first-mission scenario passes. Full bridge outcomes agree at 5/30/60/120/144/240 Hz
+and an irregular schedule containing stalls.
+
+The additional effects exposed an existing packed-handle bug: browser IDs grow
+without bound, but terrain reserves ten bits for building references beside its
+lighting bits. Houses allocated after ID 1023 could not be found by route queries.
+Building creation now chooses an unused ten-bit ID once the browser counter
+exceeds that range, checking all live object classes to avoid aliasing. A retained
+regression allocates multiple buildings after ID 8192 and exercises terrain
+registration and routing. This is an explicit browser allocation adapter, not a
+claim that full native object allocation or capacity handling has been ported.
+
+Terrain deformation now reuses geometry attributes and existing scenery models
+instead of rebuilding their allocations each turn; trees/logs and reincarnation
+stones update their ground positions. The browser check compares actual pixels
+against the pre-change rebuild from `f1d7cba42eb0afe2a2f4fad9441269a81697b426`.
+Paired CPU rebuild medians were **3.8 → 1.2 ms**, p95 **4.3 → 1.3 ms**, over 40
+retained samples per implementation after warmup. This is a headless Chromium
+rebuild measurement, not hardware FPS or a whole-frame speedup claim; the report
+also retains slower complete presentation timings and their limits.
+
+Full cast/target and alternate-anchor ownership, original mixed-class allocation
+and processing order, route invalidation and complete object consequences remain
+unfinished. Flatten and Erosion remain missing. The parity ledger now separates
+verified Land Bridge height evolution from those explicit remaining requirements;
+this does not complete the terrain-spell checkpoint.

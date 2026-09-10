@@ -1,18 +1,18 @@
 # Game parity progress
 
-**24.02% evidence-backed progress across known scope.**
+**24.23% evidence-backed progress across known scope.**
 
-**Graphics: 59.23%.** Overall: 59/165 individual requirements verified; 17/96 broad checkpoints complete.
+**Graphics: 59.23%.** Overall: 60/169 individual requirements verified; 17/96 broad checkpoints complete.
 
-57 partial; 22 missing; 0 unassessed. Checklist revision 20.
+57 partial; 22 missing; 0 unassessed. Checklist revision 21.
 
 **Latest assessment**
 
-Newly verified: 0. Reopened: 0.
+Requirement-level changes are unavailable across a scope revision or an older snapshot. Treat a revised score as a new measurement baseline, not newly completed game behavior.
 
-Tree ambience now uses rendered cells and original camera-offset/wrapped-distance rules; 4096 native visits and 12 browser-list replays pass. Prioritize largest noticeable gameplay/visual improvements next.
+Land Bridge native height evolution verified: 96 full lifetimes, all 63 turns of a real browser cast, first-mission traversal and uncapped timing. Original ground trails live; retained terrain/scenery allocations reduce measured rebuild cost.
 
-**Tracking blind spots: 44 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
+**Tracking blind spots: 43 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
 **Discovery: open.** Revision 19 separates the ordinary outdoor encounter animation/knockback sequence before implementation. Building encounters, admission/allocation, command ownership and the remaining melee lifecycle retain their unfinished scope.
 
@@ -37,7 +37,7 @@ Verified means the named scope has original-engine evidence and browser/game int
 | Movement, collision and vehicles | 12.50% | 1/8 | 1/8 |
 | Unit classes and combat | 10.71% | 6/14 | 0/8 |
 | Buildings, resources and population | 26.04% | 5/17 | 1/8 |
-| Spell rules and complete roster | 12.50% | 1/8 | 1/8 |
+| Spell rules and complete roster | 15.00% | 2/12 | 1/8 |
 | Campaign, AI and objectives | 0.00% | 0/8 | 0/8 |
 | Persistence and multiplayer | 0.00% | 0/8 | 0/8 |
 
@@ -169,6 +169,7 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-10T14:26:01.570Z | 20 | 24.02% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Ordinary ambience now uses rendered terrain triangles and native depth cutoff; 256 native queues and 12 browser views/replays, unchanged pixels and paired CPU cost. Full ambience remains partial. |
 | 2026-09-10T14:37:15.614Z | 20 | 24.02% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Simulation-owned battle music activity replaces action-label inference; 4096 native encounters, 405 fight traces and real-browser pre-strike/quiet transitions pass. Full attack command ownership remains partial. |
 | 2026-09-10T14:52:34.113Z | 20 | 24.02% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Tree ambience now uses rendered cells and original camera-offset/wrapped-distance rules; 4096 native visits and 12 browser-list replays pass. Prioritize largest noticeable gameplay/visual improvements next. |
+| 2026-09-10T15:13:32.255Z | 21 | 24.23% | 17/96 | scope revision | Land Bridge native height evolution verified: 96 full lifetimes, all 63 turns of a real browser cast, first-mission traversal and uncapped timing. Original ground trails live; retained terrain/scenery allocations reduce measured rebuild cost. |
 
 ## Update workflow
 
@@ -365,7 +366,12 @@ Scope changes require a new checklist revision. Scores across different revision
 - **verified** — Opening spell range, payment and casting cooldowns (`spells.entry`). Native range/readiness/payment and lockouts integrated for opening spells. Evidence: [scripts/check-native-spell-casting.py](scripts/check-native-spell-casting.py), [scripts/check-native-cast-cooldowns.py](scripts/check-native-cast-cooldowns.py), [tests/game.test.mjs](tests/game.test.mjs).
 - **partial** — Complete Blast behavior and interactions (`spells.blast`). Integrated original expanding indexed wave, repeated slope-sensitive impulses, allied final-pass/cap gates, native building damage accumulation, shielded person damage, velocity/gravity/bounce/landing and original landing sparks. Native comparisons: 256 wave passes, 512 damage calls, 8192 physics snapshots and 4096 bounces. Full object/cell allocation order, person state dispatch, shake rendering, special/vehicle consumers, complete damage feedback and original end-to-end scheduling remain open. Evidence: [scripts/check-native-spell-targets.py](scripts/check-native-spell-targets.py), [tests/game.test.mjs](tests/game.test.mjs), [app/blast-wave.ts](app/blast-wave.ts), [scripts/check-native-blast-wave.py](scripts/check-native-blast-wave.py), [scripts/check-native-physics-driver.py](scripts/check-native-physics-driver.py), [tests/blast-wave.test.mjs](tests/blast-wave.test.mjs), [scripts/check-browser-blast-wave.mjs](scripts/check-browser-blast-wave.mjs).
 - **partial** — Complete Lightning damage and side effects (`spells.lightning`). Bolt and ignition integrated; all targets, sunlight and damage/fire effects incomplete. Evidence: [scripts/check-native-lightning.py](scripts/check-native-lightning.py), [scripts/check-native-building-fire.py](scripts/check-native-building-fire.py), [tests/game.test.mjs](tests/game.test.mjs).
-- **partial** — All terrain-changing spells (`spells.terrain`). Land Bridge playable; full deformation and remaining terrain spells unimplemented. Evidence: [scripts/check-browser-terrain.mjs](scripts/check-browser-terrain.mjs), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — All terrain-changing spells (`spells.terrain`). **1/5 requirements verified; each earns 0.21 percentage points overall.** Land Bridge now changes native terrain directly and emits original ground trails along the crossing. 96 complete native controller lifetimes and every turn of a real browser cast match terrain heights. Full spell allocation, targeting/alternate anchors, mixed-class ordering and all remaining terrain spells are unfinished. Evidence: [app/land-bridge.ts](app/land-bridge.ts), [app/model.ts](app/model.ts), [app/scene.ts](app/scene.ts), [decomp/generated/0050ee00.c](decomp/generated/0050ee00.c), [decomp/generated/0050f010.c](decomp/generated/0050f010.c), [decomp/generated/0050ecc0.c](decomp/generated/0050ecc0.c), [scripts/check-native-land-bridge.py](scripts/check-native-land-bridge.py), [scripts/check-browser-land-bridge.mjs](scripts/check-browser-land-bridge.mjs), [tests/land-bridge.test.mjs](tests/land-bridge.test.mjs), [tests/fixtures/land-bridge.json](tests/fixtures/land-bridge.json), [references/performance/2026-09-10-land-bridge.json](references/performance/2026-09-10-land-bridge.json), [references/reverse-engineering.md](references/reverse-engineering.md).
+  - **verified** — Land Bridge native height evolution and controller lifetime (`spells.terrain.bridge-heights`). 96 complete native lifetimes/6048 turns compare all heights, ordered vertex visits, trail positions, notifications and controller state across directions, seams, same-cell and long crossings. A real UI cast replays all 63 terrain/controller turns through original terrain queue/processing; 5–240 Hz and irregular schedules agree. This bounded gate is height evolution, not full cast/object lifecycle. Evidence: [app/land-bridge.ts](app/land-bridge.ts), [app/model.ts](app/model.ts), [app/scene.ts](app/scene.ts), [decomp/generated/0050ee00.c](decomp/generated/0050ee00.c), [decomp/generated/0050f010.c](decomp/generated/0050f010.c), [decomp/generated/0050ecc0.c](decomp/generated/0050ecc0.c), [scripts/check-native-land-bridge.py](scripts/check-native-land-bridge.py), [scripts/check-browser-land-bridge.mjs](scripts/check-browser-land-bridge.mjs), [tests/land-bridge.test.mjs](tests/land-bridge.test.mjs), [tests/fixtures/land-bridge.json](tests/fixtures/land-bridge.json), [references/performance/2026-09-10-land-bridge.json](references/performance/2026-09-10-land-bridge.json), [references/reverse-engineering.md](references/reverse-engineering.md).
+  - **partial** — Complete Land Bridge cast, visual and object lifecycle (`spells.terrain.bridge-lifecycle`). Original two-turn ground trails and existing native animation/motion are live; actual GPU pixels and cleanup checked. Full native allocation/list order, spell dispatcher, alternate anchors, interactions and terrain-driven route invalidation remain open. Evidence: [app/land-bridge.ts](app/land-bridge.ts), [app/model.ts](app/model.ts), [app/scene.ts](app/scene.ts), [decomp/generated/0050ee00.c](decomp/generated/0050ee00.c), [decomp/generated/0050f010.c](decomp/generated/0050f010.c), [decomp/generated/0050ecc0.c](decomp/generated/0050ecc0.c), [scripts/check-native-land-bridge.py](scripts/check-native-land-bridge.py), [scripts/check-browser-land-bridge.mjs](scripts/check-browser-land-bridge.mjs), [tests/land-bridge.test.mjs](tests/land-bridge.test.mjs), [tests/fixtures/land-bridge.json](tests/fixtures/land-bridge.json), [references/performance/2026-09-10-land-bridge.json](references/performance/2026-09-10-land-bridge.json), [references/reverse-engineering.md](references/reverse-engineering.md).
+  - **missing** — Complete Flatten deformation and lifecycle (`spells.terrain.flatten`). Not implemented in the live spell roster.
+  - **missing** — Complete Erosion deformation and lifecycle (`spells.terrain.erosion`). Not implemented in the live spell roster.
+  - **partial** — Shared terrain-spell occupancy, movement and object consequences (`spells.terrain.ownership`). Terrain notifications, building revalidation and walk-mask updates exist. Full mixed-class reactions, command-route invalidation, concurrent deformation and other terrain-spell interactions remain open; disaster spells retain their separate roster checkpoint. Evidence: [app/terrain-notifications.ts](app/terrain-notifications.ts), [app/building-terrain.ts](app/building-terrain.ts), [app/model.ts](app/model.ts).
 - **missing** — Creature/summoning spells and spawned behavior (`spells.summons`). Full summon spell roster and creatures not implemented.
 - **missing** — Conversion, concealment and defensive spells (`spells.status`). Full status/utility spell roster not implemented.
 - **missing** — Disaster and area attack spells (`spells.disasters`). Remaining destructive spell roster and effects not implemented.

@@ -1063,12 +1063,30 @@ export class GameScene {
   }
 
   rebuildTerrain() {
-    const w = this.world,
-      positions: number[] = [],
-      uv: number[] = [],
-      landUV: number[] = [],
-      surfaces: number[] = [],
-      lights: number[] = []
+    const w = this.world
+    let geo = this.terrain.geometry
+    if (geo.getAttribute('position')?.count !== 128 * 128 * 6) {
+      geo.dispose()
+      geo = new THREE.BufferGeometry()
+      for (const [name, size] of [
+        ['position', 3],
+        ['uv', 2],
+        ['landUv', 2],
+        ['surface', 1],
+        ['light', 3],
+        ['highlight', 3],
+      ] as const)
+        geo.setAttribute(
+          name,
+          new THREE.Float32BufferAttribute(new Float32Array(128 * 128 * 6 * size), size)
+        )
+      this.terrain.geometry = geo
+    }
+    const positions = geo.getAttribute('position'),
+      uv = geo.getAttribute('uv'),
+      landUV = geo.getAttribute('landUv'),
+      surfaces = geo.getAttribute('surface')
+    let vertex = 0
     const [low, high] = terrainTextureBounds(32)
     for (let z = -128; z < 128; z += 2)
       for (let x = -128; x < 128; x += 2) {
@@ -1095,30 +1113,22 @@ export class GameScene {
         for (const [dx, dz] of corners) {
           const px = x + dx * 2,
             pz = z + dz * 2
-          positions.push(px, w.land.heights[this.landIndex(px, pz)] / 128, pz)
-          uv.push(px, pz)
+          positions.setXYZ(vertex, px, w.land.heights[this.landIndex(px, pz)] / 128, pz)
+          uv.setXY(vertex, px, pz)
           // Each original terrain texture has its own inset endpoints. Keep
           // these separate from world coordinates used by the scrolling sea.
-          landUV.push(
+          landUV.setXY(
+            vertex,
             ((x + 128) / 2 + low + dx * (high - low)) / 128,
             ((z + 128) / 2 + low + dz * (high - low)) / 128
           )
-          surfaces.push(sea)
-          lights.push(1, 1, 1)
+          surfaces.setX(vertex, sea)
+          vertex++
         }
       }
-    this.terrain.geometry.dispose()
-    const geo = new THREE.BufferGeometry()
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
-    geo.setAttribute('landUv', new THREE.Float32BufferAttribute(landUV, 2))
-    geo.setAttribute('surface', new THREE.Float32BufferAttribute(surfaces, 1))
-    geo.setAttribute('light', new THREE.Float32BufferAttribute(lights, 3))
-    geo.setAttribute(
-      'highlight',
-      new THREE.Float32BufferAttribute(new Float32Array(lights.length), 3)
-    )
-    this.terrain.geometry = geo
+    for (const attribute of [positions, uv, landUV, surfaces]) attribute.needsUpdate = true
+    geo.boundingBox = null
+    geo.boundingSphere = null
     // Two unsigned wave samples divided by eight produce heights from 0 to 63.
     this.view.terrainHeights = [Math.min(0, ...w.land.heights), Math.max(63, ...w.land.heights)]
     this.updateView()
@@ -1130,6 +1140,8 @@ export class GameScene {
         this.locate(d, p)
         d.visible = walkable(w.terrain, p)
       }
+      const stone = d.userData.groundPoint as Point | undefined
+      if (stone) d.position.y = terrainPointHeight(w.land, nativePosition(w, stone)) / 128
     }
   }
   updateTerrainTexture() {
@@ -1201,6 +1213,7 @@ export class GameScene {
         }
         const g = this.makeFx(f)
         this.animateFx(g, f)
+        this.locate(g, tree)
         g.userData.point = tree
         this.decorations.add(g)
         continue
@@ -1216,6 +1229,7 @@ export class GameScene {
       for (const stone of stones) {
         const group = new THREE.Group()
         group.name = 'reincarnation-stone'
+        group.userData.groundPoint = browserPosition(stone)
         group.add(nativeModel(30))
         this.locate(group, browserPosition(stone), stone.h / 45)
         this.orientModel(group, (stone.heading * Math.PI) / 1024)
@@ -1944,7 +1958,7 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
-    if (f.wave) return g
+    if (f.wave || f.bridge) return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
       mesh.name = 'sinking-building'
@@ -2052,7 +2066,7 @@ export class GameScene {
       )
       g.userData.cellPosition = f
     }
-    if (f.wave) return
+    if (f.wave || f.bridge) return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle
       g.userData.nativeTilt = f.sinking.tilt
@@ -2320,9 +2334,6 @@ export class GameScene {
     this.playWorldSounds()
     if (this.terrainVersion !== this.world.landVersion) {
       this.rebuildTerrain()
-      this.releaseGroup(this.decorations)
-      this.decorations.clear()
-      this.makeDecorations()
     }
     this.updateTerrainTexture()
     const trees = this.world.trees.map(t => (t.logs >= 1 ? '1' : '0')).join('')

@@ -1,5 +1,5 @@
 {
-  "revision": 20,
+  "revision": 21,
   "discovery": {
     "status": "open",
     "note": "Revision 19 separates the ordinary outdoor encounter animation/knockback sequence before implementation. Building encounters, admission/allocation, command ownership and the remaining melee lifecycle retain their unfinished scope.",
@@ -2219,10 +2219,87 @@
           "title": "All terrain-changing spells",
           "status": "partial",
           "evidence": [
-            "scripts/check-browser-terrain.mjs",
-            "tests/game.test.mjs"
+            "app/land-bridge.ts",
+            "app/model.ts",
+            "app/scene.ts",
+            "decomp/generated/0050ee00.c",
+            "decomp/generated/0050f010.c",
+            "decomp/generated/0050ecc0.c",
+            "scripts/check-native-land-bridge.py",
+            "scripts/check-browser-land-bridge.mjs",
+            "tests/land-bridge.test.mjs",
+            "tests/fixtures/land-bridge.json",
+            "references/performance/2026-09-10-land-bridge.json",
+            "references/reverse-engineering.md"
           ],
-          "note": "Land Bridge playable; full deformation and remaining terrain spells unimplemented."
+          "note": "Land Bridge now changes native terrain directly and emits original ground trails along the crossing. 96 complete native controller lifetimes and every turn of a real browser cast match terrain heights. Full spell allocation, targeting/alternate anchors, mixed-class ordering and all remaining terrain spells are unfinished.",
+          "requirements": [
+            {
+              "id": "spells.terrain.bridge-heights",
+              "title": "Land Bridge native height evolution and controller lifetime",
+              "status": "verified",
+              "evidence": [
+                "app/land-bridge.ts",
+                "app/model.ts",
+                "app/scene.ts",
+                "decomp/generated/0050ee00.c",
+                "decomp/generated/0050f010.c",
+                "decomp/generated/0050ecc0.c",
+                "scripts/check-native-land-bridge.py",
+                "scripts/check-browser-land-bridge.mjs",
+                "tests/land-bridge.test.mjs",
+                "tests/fixtures/land-bridge.json",
+                "references/performance/2026-09-10-land-bridge.json",
+                "references/reverse-engineering.md"
+              ],
+              "note": "96 complete native lifetimes/6048 turns compare all heights, ordered vertex visits, trail positions, notifications and controller state across directions, seams, same-cell and long crossings. A real UI cast replays all 63 terrain/controller turns through original terrain queue/processing; 5\u2013240 Hz and irregular schedules agree. This bounded gate is height evolution, not full cast/object lifecycle."
+            },
+            {
+              "id": "spells.terrain.bridge-lifecycle",
+              "title": "Complete Land Bridge cast, visual and object lifecycle",
+              "status": "partial",
+              "evidence": [
+                "app/land-bridge.ts",
+                "app/model.ts",
+                "app/scene.ts",
+                "decomp/generated/0050ee00.c",
+                "decomp/generated/0050f010.c",
+                "decomp/generated/0050ecc0.c",
+                "scripts/check-native-land-bridge.py",
+                "scripts/check-browser-land-bridge.mjs",
+                "tests/land-bridge.test.mjs",
+                "tests/fixtures/land-bridge.json",
+                "references/performance/2026-09-10-land-bridge.json",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Original two-turn ground trails and existing native animation/motion are live; actual GPU pixels and cleanup checked. Full native allocation/list order, spell dispatcher, alternate anchors, interactions and terrain-driven route invalidation remain open."
+            },
+            {
+              "id": "spells.terrain.flatten",
+              "title": "Complete Flatten deformation and lifecycle",
+              "status": "missing",
+              "evidence": [],
+              "note": "Not implemented in the live spell roster."
+            },
+            {
+              "id": "spells.terrain.erosion",
+              "title": "Complete Erosion deformation and lifecycle",
+              "status": "missing",
+              "evidence": [],
+              "note": "Not implemented in the live spell roster."
+            },
+            {
+              "id": "spells.terrain.ownership",
+              "title": "Shared terrain-spell occupancy, movement and object consequences",
+              "status": "partial",
+              "evidence": [
+                "app/terrain-notifications.ts",
+                "app/building-terrain.ts",
+                "app/model.ts"
+              ],
+              "note": "Terrain notifications, building revalidation and walk-mask updates exist. Full mixed-class reactions, command-route invalidation, concurrent deformation and other terrain-spell interactions remain open; disaster spells retain their separate roster checkpoint."
+            }
+          ]
         },
         {
           "id": "spells.summons",

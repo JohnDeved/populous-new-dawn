@@ -79,7 +79,7 @@ use Fallow, ox-standard and Ponytail in the regular development workflow.
 Reconstruct original behavior in idiomatic game code, keeping raw decompiler
 output and address-level bookkeeping in the decompilation evidence.
 
-## Current execution order: finish tree ambience, then biggest noticeable improvements
+## Current execution order: biggest noticeable improvements
 
 Latest user direction, 2026-09-10: finish the current tree-ambience correction,
 then prioritize changes with the largest noticeable impact on playing the game.
@@ -90,6 +90,15 @@ systems when they are needed for the selected visible result. Remaining audio
 edge cases and the staged attack-controller work are candidates, not prerequisites
 that delay higher-impact work. Preserve full-game scope, clean code, modern
 performance and original mechanics; record evidence without inflating parity.
+
+Tree ambience is delivered. The next visible slice replaces Land Bridge's
+approximate browser-grid strip with native terrain evolution and ground trails.
+96 complete original lifetimes and a real browser cast verify its height changes;
+the first-mission playthrough and low/high/irregular timing checks pass. Terrain
+buffers and scenery models are retained during deformation. Full spell/object
+allocation, alternate anchors, route invalidation and remaining terrain spells
+remain open. Continue choosing complete player-visible improvements; inspect
+combat orders, spell interactions and first-mission opponent behavior next.
 
 Previous user direction, 2026-09-09: finish and validate the current terrain
 performance improvement, then resume important gameplay mechanics and visuals.

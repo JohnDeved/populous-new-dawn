@@ -34,7 +34,7 @@ try{
  await page.mouse.click(target.x,target.y);
  await page.waitForFunction(()=>window.testScene.world.shots.bridge===0,{},{timeout:3000});
  await page.waitForFunction(()=>{
-  const s=window.testScene,w=s.world;return w.stats.bridges>0&&!w.effects.some(f=>f.land)&&w.landVersion===w.terrainVersion&&s.terrainMapVersion===w.landVersion;
+  const s=window.testScene,w=s.world;return w.stats.bridges>0&&!w.effects.some(f=>f.bridge)&&w.landVersion===w.terrainVersion&&s.terrainMapVersion===w.landVersion;
  },{},{timeout:15000});
  const result=await page.evaluate(()=>{
   const s=window.testScene,w=s.world;w.paused=true;let changed=0;

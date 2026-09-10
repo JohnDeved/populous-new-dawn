@@ -5,7 +5,7 @@ import manifest from '../decomp/exports.json' with {type:'json'}
 import shapes from '../app/original-shapes.json' with {type:'json'}
 import {buildingPosition,levelBuildingGround,buildingPlanHeight,buildingGradeVertices} from '../app/building-shapes.ts'
 import {terrainPointHeight} from '../app/native-terrain.ts'
-import {createWorld,addBuilding,buildingPose,buildingModel,nativePosition,worldPoint,browserPosition} from '../app/model.ts'
+import {createWorld,addBuilding,syncLandscapeObjects,findPath,HOME,buildingPose,buildingModel,nativePosition,worldPoint,browserPosition} from '../app/model.ts'
 
 test('native building origins, exact ground writes and plan height initialization',()=>{
  assert.equal(fixture.executableSha256,manifest.executableSha256)
@@ -41,5 +41,20 @@ test('live rotated foundations use native vertices and preserve surrounding terr
   assert.equal(nativePosition(w,b).h,Math.round(target))
   assert.equal(w.landVersion,w.terrainVersion)
   assert.equal(buildingModel(b),{hut:1,tower:4,temple:5,camp:7}[kind])
+ }
+})
+
+test('buildings retain distinct terrain handles after long effect-heavy games',()=>{
+ const w=createWorld()
+ w.nextId=8192
+ const used=new Set([w.units,w.buildings,w.trees,w.shrines,w.effects,w.fights,w.projectiles].flatMap(objects=>objects.map(o=>o.id)))
+ for(const x of [-8,8]){
+  const b=addBuilding(w,'blue','hut',{x,z:32})
+  assert.ok(b.id>0&&b.id<1024&&!used.has(b.id))
+  used.add(b.id)
+  syncLandscapeObjects(w)
+  assert.ok(w.land.buildingIds.some(value=>(value&1023)===b.id))
+  const brave=w.units.find(u=>u.kind==='brave'&&u.team==='blue')
+  assert.doesNotThrow(()=>findPath(w,{...brave,x:b.x,z:b.z},HOME))
  }
 })

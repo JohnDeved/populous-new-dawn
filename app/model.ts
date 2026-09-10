@@ -82,6 +82,7 @@ import {
 import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
+import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
 import {
   createLivePathfinding,
   findLivePath,
@@ -391,7 +392,7 @@ export type Effect = Point & {
   age: number
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
-  land?: { index: number; from: number; to: number }[]
+  bridge?: LandBridge
 }
 export const TURNS_PER_SECOND = 12
 export const SPELLS: {
@@ -1415,6 +1416,20 @@ export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
   w.units.push(u)
   return u
 }
+function buildingId(w: World) {
+  if (w.nextId < 1024) return w.nextId++
+  // Terrain packs a ten-bit building handle beside lighting. Browser effects
+  // have unbounded IDs, so they must not push new buildings out of that range.
+  // Full native allocation/list ownership remains separate from this adapter.
+  const used = new Set(
+    [w.units, w.buildings, w.trees, w.shrines, w.effects, w.fights, w.projectiles].flatMap(
+      objects => objects.map(o => o.id)
+    )
+  )
+  for (let id = 1023; id > 0; id--) if (!used.has(id)) return id
+  throw new Error('No free terrain building handles')
+}
+
 export function addBuilding(
   w: World,
   team: Team,
@@ -1426,7 +1441,7 @@ export function addBuilding(
   const b: Building = {
     x: p.x,
     z: p.z,
-    id: w.nextId++,
+    id: buildingId(w),
     anchor: { x: Math.round((p.x + 8) * 256) & 0xfe00, y: Math.round((-p.z - 8) * 256) & 0xfe00 },
     team,
     kind,
@@ -3955,41 +3970,10 @@ function finishCast(
     sound(w, 0x29, p)
   }
   if (spell === 'bridge') {
-    fx.land = []
-    const length = distance(shaman, p),
-      start = height(w.terrain, shaman.x, shaman.z),
-      end = height(w.terrain, p.x, p.z)
-    for (let i = 0; i < w.terrain.length; i++) {
-      const q = { x: (i % GRID) - 48, z: Math.floor(i / GRID) - 48 }
-      const t = Math.max(
-        0,
-        Math.min(
-          1,
-          ((q.x - shaman.x) * (p.x - shaman.x) + (q.z - shaman.z) * (p.z - shaman.z)) /
-            Math.max(0.01, length * length)
-        )
-      )
-      const d = distance(q, {
-        x: shaman.x + (p.x - shaman.x) * t,
-        z: shaman.z + (p.z - shaman.z) * t,
-      })
-      if (
-        d < 3 &&
-        !w.buildings.some(
-          b =>
-            Math.abs(b.x - q.x) <= footprint(b.kind) + 1 &&
-            Math.abs(b.z - q.z) <= footprint(b.kind) + 1
-        )
-      ) {
-        const to = Math.max(
-          w.terrain[i],
-          Math.max(1.4, start * (1 - t) + end * t) * (1 - Math.max(0, d - 2) * 0.55)
-        )
-        if (to > w.terrain[i]) fx.land.push({ index: i, from: w.terrain[i], to })
-      }
-    }
+    fx.bridge = createLandBridge(nativePosition(w, shaman), nativePosition(w, p))
+    fx.team = shaman.team
+    fx.duration = Infinity
     w.stats.bridges++
-    w.terrainVersion++
     tell(w, 'The earth rises. Lead your followers across the new Land Bridge.')
   } else {
     damageSpell(w, spell, p, shaman)
@@ -4231,7 +4215,11 @@ function stepTurn(w: World) {
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
   stepScenery(w)
-  for (const fx of w.effects) {
+  // New class-7 effects are inserted before the current native list cursor;
+  // their first processor visit belongs to the following simulation turn.
+  const effectCount = w.effects.length
+  for (let index = 0; index < effectCount; index++) {
+    const fx = w.effects[index]
     fx.age += dt
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
     if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
@@ -4264,11 +4252,40 @@ function stepTurn(w: World) {
         stepLightning(w.land, fx.lightning, w)
       }
     }
-    if (fx.land) {
-      const t = Math.min(1, fx.age / fx.duration)
-      for (const p of fx.land)
-        w.terrain[p.index] = Math.max(w.terrain[p.index], p.from + (p.to - p.from) * t)
-      w.terrainVersion++
+    if (fx.bridge) {
+      const changed = new Set<number>()
+      const alive = stepLandBridge(
+        w.land,
+        fx.bridge,
+        p => {
+          const trail = effect(w, 'trail', browserPosition(p))
+          trail.sprite = { sequence: 'blastTrail', frame: 0 }
+          const animation = createSpellTrail(
+            w.land,
+            p,
+            3,
+            (w.effectCounter - 1) & 255,
+            w.cosmeticRandom
+          )
+          animation.remaining = 2
+          trail.animation = animation
+          trail.height = animation.h / 45
+          trail.duration = Infinity
+        },
+        cell => {
+          queueTerrain(w.land, cell, 2, 1, terrainTextures)
+          changed.add(cell)
+        }
+      )
+      if (changed.size) {
+        processTerrain(w.land, terrainTextures)
+        for (const cell of changed) {
+          updateWalkMasks(w.land, cell, 3)
+          notifyHeightChange(w, cell, 2)
+        }
+        refreshTerrainSurface(w)
+      }
+      if (!alive) fx.duration = fx.age
     }
   }
   w.effects = w.effects.filter(f => f.age < f.duration)
