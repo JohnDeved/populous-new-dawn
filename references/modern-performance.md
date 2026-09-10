@@ -1664,3 +1664,32 @@ schedules. Fallow reports maintainability 85.5, average cyclomatic 2.7/p90 5 and
 12 existing dependency cycles. The encounter and person-state modules pass
 ox-standard; pre-existing live-person warnings remain. Full lifecycle and broader
 hardware/population coverage remain open.
+
+## 2026-09-10 — live fight reinforcement and splitting
+
+Reinforcements now reuse native target selection's slot decision, rather than
+maintaining a contradictory admission shortcut. A small typed controller handles
+replacement/splitting; native persistent slots are separate from center-first
+presentation order. Running this only on admission avoids adding a render-frame
+scan or another simulation clock. All movement/animation still uses the shared
+fixed-turn and elapsed-presentation path. No dependency was added and no native
+mechanical rule was dropped for performance.
+
+Headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, six seconds, eight
+initial fights growing to 48 people and sixteen fights through live commands:
+**1,666 callbacks**, CPU p50/p95 **1.9/3.8 ms**, p99 **5.5 ms**, maximum **12 ms**;
+217 maximum draw calls. Admission, replacement and split frames are included;
+terrain and initial sprites were loaded first. No concurrent heavy checks, builds
+or app edits. The evidence file `performance/2026-09-10-melee-groups.json` retains
+staged member assignments, visible poses, distributions and worst frames.
+This is an unpaired bounded sample, not a speedup claim or physical display FPS.
+Larger populations and global allocator/counter ownership remain unverified.
+
+5–240 Hz and irregular replays retain identical units, groups, RNG and sounds.
+Native admission/splitting has 4,096 comparisons, with entry/allocation supplied;
+the shared target detector/selector regression passes. New controller and shared
+target helper have no ox-standard findings. Fallow: maintainability 85.5, average
+cyclomatic 2.7/p90 5, twelve existing dependency cycles. Existing overhead health
+bars remain visibly detached from sprites in the ground-view capture; this is a
+separate rendering defect for native placement/gating review, not a completed
+visual-parity claim.

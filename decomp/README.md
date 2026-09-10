@@ -4496,3 +4496,12 @@ portable captures only after native agreement. `check-native-person-state.py EXE
 now includes generic state-25/29 entry with specialized world bodies supplied.
 `inspect-executable.py` retains the distinct +6 running-speed table. See the
 outdoor-encounter findings for evidence and unported building/command boundaries.
+
+## 2026-09-10 — fight admission and split groups
+
+The manifest hashes 1,027 exports, adding the release helper `004a3920`.
+`check-native-melee-groups.py EXE [--record]` executes 4,096 original admission
+and splitting calls, with entry/allocation supplied and real slot selection,
+release writes and RNG. Portable captures cover this controller boundary; they
+do not prove command restoration or complete group cleanup. See the reinforcement
+findings in `references/reverse-engineering.md` for integration and remaining work.

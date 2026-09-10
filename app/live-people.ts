@@ -447,9 +447,10 @@ export function collisionWorld(w: World): CollisionWorld {
   }
 }
 
-function createMeleePerson(w: World, u: Unit) {
+export function createMeleePerson(w: World, u: Unit) {
   const p = createLivePerson(w, u)
   p.state = 25
+  p.workFlags = u.fight?.group ?? 0
   p.flags2 |= 0x40200200 // 0x5184e0: arrival clamp and instant combat facing.
   p.h = terrainPointHeight(w.land, p)
   return p
@@ -464,8 +465,12 @@ function initializeGroundCombat(w: World, p: LivePerson) {
   p.substate = 0
 }
 
-export function enterLiveCombat(w: World, u: Unit, state: 25 | 29) {
-  const p = u.fight?.motion ?? createLivePerson(w, u)
+export function enterLiveCombat(
+  w: World,
+  u: Unit,
+  state: 25 | 29,
+  p = u.fight?.motion ?? createLivePerson(w, u)
+) {
   const flags = p.flags4 & 0x10007
   if (!(p.flags2 & 0x100000)) {
     p.previousState = p.state

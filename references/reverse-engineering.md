@@ -5835,3 +5835,56 @@ replacement/splitting, specialist classes, housed/vehicle targets and full melee
 lifecycle remain unfinished. Only the explicitly bounded outdoor encounter
 requirement earns credit; discovery remains open. The export manifest has 1,026
 entries, adding `00518480`.
+
+## Fight reinforcements, replacement and splitting (2026-09-10)
+
+`0051ddc0` now supplies ordinary live group admission instead of the old
+four-person cap/reversal shortcut. The existing `availableFightSlot` port of
+`0051dcc0` is shared with target selection: reject unrelated tribes, return 255
+for specialist dispatch, fill the first empty slot while fewer than three members
+of this tribe are present, otherwise replace the first weaker friendly model.
+This is a rank comparison, not nearest-person or lowest-health selection.
+`004a3920` clears the displaced person's group/work target and sets recovery flag
+16; it does not delete the native normal command queue.
+
+`0051df90` counts both tribes in six persistent slots. If each has at least two
+members, it takes the **last occupied slot of each tribe** for a new fight. The
+new group's membership order follows the parent tribe order, its angle draws
+RNG % 360, both people reset to approach, and the parent's center ID becomes zero.
+Allocation failure instead releases both selected people without drawing RNG.
+Both branches clear those slots and decrement the original count by two.
+
+`app/melee-groups.ts` keeps the recovered controller independent of browser
+presentation. The live adapter retains six original slots and derives a compact,
+center-first processing list. Reordering that list no longer corrupts later
+admission/replacement/split decisions. `00518fb0` selects/recenters on the next
+group visit; the old test that expected immediate recentering on admission was
+corrected to this observed call order. The center ID also makes a split's reset
+and a newly allocated fight's first recenter/half-turn explicit.
+
+Evidence:
+
+- `check-native-melee-groups.py EXE`: 4,096 complete `0051ddc0`/`0051df90` calls,
+  with real slot selection, replacement-release helper and RNG. Person entry and
+  allocation are observed world consumers. Compare all member/group fields and
+  consumer ordering, holes, ranks, protected members, specialist sentinel, all
+  four tribes, allocation failure and count/angle/RNG. 133 portable captures.
+- Five live/portable tests cover three-per-tribe rejection, first weaker replacement,
+  native release fields, last-slot pairing, distinct groups, retained membership
+  through center changes and 5/30/60/120/144/240 Hz plus irregular replay.
+- `check-browser-melee-groups.mjs --headed`: eight fights receive reinforcements,
+  replace weak allies, and split into sixteen fights. Original visible poses and
+  no browser errors; staged membership captures and measured hardware frames are
+  retained in `performance/2026-09-10-melee-groups.json`.
+- Shared target selection rechecked against 2,048 native detectors and 2,048
+  native selectors. Existing melee/recoil/approach and outdoor encounter checks
+  retain their independent coverage.
+
+The manifest now has 1,027 exports, adding `004a3920`; `00519a70` was re-read and
+retained unchanged. Its full raw-slot cleanup, distance release, signed group
+references and reservation adjustments still need direct reconstruction/tests.
+The live release adapter still does not restore original command ownership;
+marking the native person's recovery bit alone does not implement that lifecycle.
+The browser group allocator is unbounded, global class-counter/cell-order ownership
+is unfinished, and specialist classes remain primitive-only. Full melee stays
+partial; this step earns no additional whole-lifecycle credit.

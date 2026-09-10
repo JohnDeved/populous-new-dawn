@@ -1571,7 +1571,7 @@
                 "references/reverse-engineering.md",
                 "references/modern-performance.md"
               ],
-              "note": "2,048 complete native mixed-object threat scans and 2,048 complete ordinary area selectors match target/type and all reservation fields, including stable distance bands, class priorities, 64-candidate cap, fight admission test and saturated fallback. Live people/building/fight selection, squad distribution, persistent attacks, original poses and 5\u2013240 Hz replay verified. Native special classes/plan variants are primitive-only; full automatic order allocation/sharing/restoration, actual prefight/group replacement/splitting and mixed-class allocation/cell-order ownership remain lifecycle work."
+              "note": "2,048 complete native mixed-object threat scans and 2,048 complete ordinary area selectors match target/type and all reservation fields, including stable distance bands, class priorities, 64-candidate cap, fight admission test and saturated fallback. Live people/building/fight selection, squad distribution, persistent attacks, original poses and 5\u2013240 Hz replay verified. Native special classes/plan variants are primitive-only; full automatic order allocation/sharing/restoration, complete prefight/group cleanup and mixed-class allocation/cell-order ownership remain lifecycle work."
             },
             {
               "id": "combat.melee.encounter",
@@ -1599,9 +1599,13 @@
                 "references/performance/2026-09-10-melee-engagement.json",
                 "app/combat-orders.ts",
                 "scripts/check-native-combat-orders.py",
-                "tests/combat-orders.test.mjs"
+                "tests/combat-orders.test.mjs",
+                "app/melee-groups.ts",
+                "scripts/check-native-melee-groups.py",
+                "tests/melee-groups.test.mjs",
+                "scripts/check-browser-melee-groups.mjs"
               ],
-              "note": "Native eligibility/range gates and wrapped whole-cell boundaries replace team-distance acquisition. Current tribes share idle pursuit; explicit attacks bypass periodic detection. 8,192 native gate/range comparisons and 4,096 person-only scans plus live/browser cadence checks. Still partial: automatic area-order allocation/sharing, mixed-object target priority, command restoration/interruption, class-counter phase, group lifecycle/member ordering/angle RNG, damage modifiers and effects. Ordinary move command and counter state are adapters; full melee is not verified. Complete ordinary alert initialization/sharing is reconstructed against 1,024 full native calls, but its shared order pool and retained normal queues are not yet connected to ordinary live combat. Full native scan dispatch and coastal command preparation now feed live queries. Queue completion callbacks are correctly identified as saved-vehicle then saved-building restoration; no generic route snapshot restoration is claimed."
+              "note": "Native range/eligibility, mixed-object target priority/reservations, pursuit refresh, outdoor encounter, approach and ordinary damage decisions are integrated with separately bounded checks. Ordinary reinforcement now shares the native admission selector: three per tribe, first weaker-ally replacement, persistent slots and last-of-each-tribe splitting. 4,096 native admission/split calls plus live/browser and 5\u2013240 Hz checks; allocation/state-entry are supplied consumers. Complete lifecycle remains partial: native member cleanup/displacement/death and release recovery, shared ordinary command-19/21 ownership/restoration, specialist classes, mixed-class allocator/counter/cell-order phase, all damage modifiers/effects and building encounters. Native alert initialization/sharing has 1,024 complete comparisons but is not connected to the ordinary shared queues. Saved vehicle/building consumers are identified; no generic task snapshot is claimed."
             }
           ]
         },

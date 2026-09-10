@@ -344,6 +344,7 @@ test('native fight slots form four-person groups and release on interruption',()
  for(let i=0;i<4;i++)addUnit(w,'red','brave',{x:.4+i*.1,z:0});
  tick(w,1/12);assert.equal(w.fights.length,1);assert.equal(w.fights[0].members.length,4,'one center and at most three attackers');
  assert.equal(w.units.filter(u=>u.fight).length,4);assert.equal(center.hp,90,'contact first creates and stages a fight');
+ tick(w,1/12); // Native group visitation selects the center after admission.
  const b=w.fights[0];assert.equal(b.members[0],center.id);
  for(let i=1;i<4;i++){const p=fightPosition(b,i);assert.ok(Math.abs(Math.hypot(p.x-b.x,p.z-b.z)-180/256)<.006);}
  const replay=structuredClone(w);for(let i=0;i<30;i++)tick(w,1/30);for(let i=0;i<144;i++)tick(replay,1/144);assert.deepEqual(replay,w,'group movement and RNG do not depend on render rate');
@@ -353,7 +354,7 @@ test('native fight slots form four-person groups and release on interruption',()
  const swap=createWorld();swap.terrain.fill(3);swap.units=[];swap.buildings=[];
  swap.manaWorld.gameFlags|=64;
  swap.turn=3;
- const a=addUnit(swap,'blue','brave',{x:0,z:0}),enemy=addUnit(swap,'red','warrior',{x:.6,z:0});addUnit(swap,'blue','brave',{x:1,z:0});tick(swap,1/12);
+ const a=addUnit(swap,'blue','brave',{x:0,z:0}),enemy=addUnit(swap,'red','warrior',{x:.6,z:0});addUnit(swap,'blue','brave',{x:1,z:0});tick(swap,1/12);tick(swap,1/12);
  assert.equal(swap.fights[0].members[0],enemy.id,'adding another member moves the outnumbered tribe into the center');
  swap.selected=[a.id];command(swap,{x:10,z:0});assert.equal(a.fight,null,'a new order releases the old fight assignment');
 });

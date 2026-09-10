@@ -123,9 +123,9 @@ export function eligibleCombatPerson(w: CombatTargetWorld, p: CombatPerson, targ
 // 0x51dcc0: three members per tribe, then replace a weaker friendly member.
 // 255 is the native specialist sentinel, distinct from an ordinary empty slot.
 export function availableFightSlot(
-  w: Pick<CombatTargetWorld, 'objects'>,
-  fight: CombatFight,
-  p: CombatPerson
+  w: { objects: ReadonlyMap<number, Pick<CombatPerson, 'tribe' | 'model'>> },
+  fight: Pick<CombatFight, 'members' | 'tribes'>,
+  p: Pick<CombatPerson, 'tribe' | 'model'>
 ) {
   if (!fight.tribes.includes(p.tribe)) return 0
   if (rules.personModels[p.model].flags & 64) return 255

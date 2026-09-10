@@ -1404,3 +1404,22 @@ phases, allocator/counter phase, specialist classes, whole melee lifecycle and a
 remaining game scope stay open. Keep clean TS, native mechanics and uncapped,
 measured modern rendering together. The prior terrain performance pass is complete;
 do not let another speculative performance rewrite displace visible gameplay.
+
+### Current visible integration: reinforcement and fight splitting
+
+Ordinary reinforcements now use the same native admission decision as target
+selection: three members per tribe, first weaker friendly replacement, then
+last-of-each-tribe splitting when both sides have reinforcements. Persistent native
+slots are retained separately from the center-first processing order; center
+changes happen on the group visit. This replaces the old four-person/reverse-array
+shortcut. Native comparison, live deterministic replay, original rendered poses
+and an admission/split-bearing hardware workload are recorded.
+
+Continue original group cleanup and real command-19/21 ownership/restoration,
+then first-mission attacks and visible spell behavior. The combat screenshot also
+shows existing overhead health bars floating well above the sprites: inspect the
+original positioning/gating and correct that visible defect next. Allocation
+limits/counter phase, specialist classes, complete release/death recovery and all
+remaining game scope remain unfinished. No extra lifecycle percentage credit is
+claimed before its full gate is met. Preserve clean code, native behavior and
+measured modern rendering; the previous performance pass remains complete.

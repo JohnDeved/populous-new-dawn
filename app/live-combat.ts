@@ -79,9 +79,12 @@ function combatWorld(w: World, source: CombatPerson, range: number) {
         model: fight.encounter ? 9 : 8,
         tribe: -1,
         flags2: 0,
-        members: [...fight.members, ...Array(Math.max(0, 6 - fight.members.length)).fill(0)],
-        tribes: [...new Set(members.map(tribe))],
-        center: fight.members[0],
+        members: fight.slots ?? [
+          ...fight.members,
+          ...Array(Math.max(0, 6 - fight.members.length)).fill(0),
+        ],
+        tribes: fight.tribes ?? [...new Set(members.map(tribe))],
+        center: fight.center ?? fight.members[0],
       },
       fight,
       true

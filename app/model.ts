@@ -1,3 +1,4 @@
+import { joinMeleeGroup, type MeleeGroup } from './melee-groups.ts'
 import { EncounterPhase } from './melee-encounter.ts'
 import { automaticMeleeTarget } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
@@ -88,6 +89,7 @@ import {
   enterLiveCombat,
   stepLiveEncounter,
   createLivePerson,
+  createMeleePerson,
   setLivePersonAnimation,
   initializeLiveCelebration,
   initializeLivePanic,
@@ -261,6 +263,9 @@ type Battle = Point & {
   members: number[]
   angle: number
   encounter?: [number, number]
+  slots?: number[]
+  tribes?: number[]
+  center?: number
   attackReservation?: AttackReservation
 }
 export type Unit = Point & {
@@ -646,16 +651,8 @@ function joinBattle(w: World, u: Unit, target: Unit) {
   let b = w.fights.find(b => b.id === target.fight?.group)
   if (b) {
     if (b.encounter) return // A model-9 encounter already owns both participants.
-    if (b.members.length >= 4) return
-    const center = w.units.find(a => a.id === b!.members[0])!
-    if (u.team === center.team) {
-      if (b.members.length !== 2) return
-      b.members.reverse()
-      b.x = target.x
-      b.z = target.z
-      b.angle = (b.angle + 1024) & 2047
-    }
-    b.members.push(u.id)
+    reinforceBattle(w, b, u)
+    return
   } else {
     b = {
       id: w.nextId++,
@@ -690,8 +687,83 @@ function joinBattle(w: World, u: Unit, target: Unit) {
     processEncounter(w, b)
     return
   }
-  release(w, u)
-  u.fight = { group: b.id, opponent: target.id, action: 'approach', started: w.turn }
+}
+
+// Persistent native slots remain separate from the center-first presentation order.
+function reinforceBattle(w: World, b: Battle, recruit: Unit) {
+  b.slots ??= [...b.members, ...Array(6 - b.members.length).fill(0)]
+  const units = new Map(
+    w.units.filter(u => b.slots!.includes(u.id) || u === recruit).map(u => [u.id, u])
+  )
+  const people = new Map(
+    [...units.values()].map(u => [
+      u.id,
+      u.fight ? (u.fight.motion ??= createMeleePerson(w, u)) : createLivePerson(w, u),
+    ])
+  )
+  b.tribes ??= [...new Set(b.members.map(id => people.get(id)!.tribe))]
+  const group: MeleeGroup = {
+    id: b.id,
+    members: b.slots,
+    tribes: b.tribes,
+    center: b.center ?? b.members[0],
+    count: b.slots.filter(Boolean).length,
+    angle: b.angle,
+  }
+  const state = { randomState: w.randomState, objects: people }
+  let created: MeleeGroup | undefined
+  const admitted = joinMeleeGroup(state, group, people.get(recruit.id)!, {
+    enter: p => {
+      enterLiveCombat(w, recruit, 25, people.get(p.id)!)
+      state.randomState = w.randomState
+      release(w, recruit)
+    },
+    // ponytail: browser group allocation is unbounded; replace with the native
+    // mixed-class pool when its ownership/limits are integrated.
+    allocate: () =>
+      (created = {
+        id: w.nextId++,
+        members: [],
+        tribes: [],
+        count: 0,
+        center: 0,
+        angle: 0,
+      }),
+  })
+  if (!admitted) return
+  w.randomState = state.randomState
+  b.center = group.center
+  b.members = group.members.filter(Boolean)
+  if (created)
+    w.fights.push({
+      id: created.id,
+      x: b.x,
+      z: b.z,
+      angle: created.angle,
+      center: 0,
+      members: created.members.filter(Boolean),
+      slots: created.members,
+      tribes: created.tribes,
+    })
+  for (const [id, p] of people) {
+    const u = units.get(id)!
+    if (!p.workFlags) {
+      clearFightAssignment(u)
+      continue
+    }
+    if (u === recruit || p.workFlags !== u.fight?.group) {
+      const battle = w.fights.find(fight => fight.id === p.workFlags)!
+      const opponent = battle.members.find(id => people.get(id)!.tribe !== p.tribe)!
+      u.fight = {
+        group: battle.id,
+        opponent,
+        action: 'approach',
+        animation: 'idle',
+        started: w.turn,
+        motion: p,
+      }
+    }
+  }
 }
 
 function processEncounter(w: World, b: Battle) {
@@ -707,6 +779,9 @@ function processEncounter(w: World, b: Battle) {
   // Class allocation order/counter phase still belong to the browser adapter.
   b.id = w.nextId++
   b.members = [defender.id, attacker.id]
+  b.slots = [...b.members, 0, 0, 0, 0]
+  b.tribes = [defender.fight!.motion!.tribe, attacker.fight!.motion!.tribe]
+  b.center = 0
   b.x = defender.x
   b.z = defender.z
   delete b.encounter
@@ -739,6 +814,7 @@ function cleanBattles(w: World) {
         u => u.id === id && u.hp > 0 && u.lift === 0 && u.inside === null && u.fight?.group === b.id
       )
     )
+    if (b.slots) b.slots = b.slots.map(id => (b.members.includes(id) ? id : 0))
     const members = b.members.map(id => w.units.find(u => u.id === id)!)
     if (members.length < 2 || members.every(u => u.team === members[0].team)) {
       for (const u of members) clearFightAssignment(u)
@@ -754,18 +830,22 @@ function processBattles(w: World) {
       processEncounter(w, b)
       continue
     }
-    const members = b.members.map(id => w.units.find(u => u.id === id)!)
-    // 0x5199f0: the outnumbered tribe supplies the center of a three/four-person fight.
-    if (members.length > 2) {
-      const center = members.findIndex(u => members.filter(a => a.team === u.team).length === 1)
-      if (center > 0) {
-        ;[members[0], members[center]] = [members[center], members[0]]
-        b.members = members.map(u => u.id)
-        b.x = members[0].x
-        b.z = members[0].z
-        b.angle = (b.angle + 1024) & 2047
-      }
+    const members = (b.slots ?? b.members)
+      .filter(Boolean)
+      .map(id => w.units.find(u => u.id === id)!)
+    // 0x5199f0 chooses the lone fighter as center; persistent slots do not swap.
+    const center =
+      members.length > 2
+        ? members.findIndex(u => members.filter(a => a.team === u.team).length === 1)
+        : 0
+    if (center > 0) [members[0], members[center]] = [members[center], members[0]]
+    if ((b.center ?? b.members[0]) !== members[0].id) {
+      b.x = members[0].x
+      b.z = members[0].z
+      b.angle = (b.angle + 1024) & 2047
     }
+    b.center = members[0].id
+    b.members = members.map(u => u.id)
     if ((w.turn & 31) === 0 && (random(w) & 1) === 0) {
       const r = (random(w) % 341) + 113
       b.angle = (b.angle + (r & 1 ? -r : r)) & 2047
