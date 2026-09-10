@@ -6078,3 +6078,55 @@ Fight approach uses action phases 34/38/39/40; building attack uses
 replacing the live adapter. Reuse the existing shared `buildingOrders` pool and
 person-order startup/update/advance primitives; do not add a second combat pool or
 saved browser-task replay. No complete lifecycle credit or visible change is claimed.
+
+## 2026-09-10 — attack-order fight/person approach and retry phases
+
+`app/combat-approach.ts` reconstructs ordinary branches of `0051a2a0` using the
+existing pursuit, movement-stop and wait helpers:
+
+- Fight targets (substate 1): approach, unavailable-group positioning, alternating
+  inward/outward facing, native jitter and idle gestures, member-count changes,
+  reservation release and join/retry decisions. Action phases are 34/38/39/40;
+  byte +0xaa caches the observed member count. Position entry may decrement the
+  timer in both pursuit and the enclosing phase, as the executable does.
+- Person targets (2/6/8): alliance/life rejection, periodic housed-target probes,
+  pursuit/contact, temporary building ownership during housed approach, and waiting
+  for a busy encounter before retargeting. The shared wait still executes when the
+  target becomes available, preserving RNG and consumer order.
+- Retry (7): entry initializes the wait and then visits it again in the same call,
+  preserving render bit 16 across the first visit. Expiry returns to target search.
+
+The original idle-gesture routine `004d4da0` is now shared with outdoor encounters
+in `person-state.ts`. It draws RNG only for standing objects and preserves the
+signed-byte duration. There is no second animation clock or copied wait routine.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-fight-approach.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-melee-encounter.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/combat-approach.test.mjs
+node scripts/check-browser-encounter.mjs --headed
+npm run test:sprites
+```
+
+The new oracle executes **12,288 visits** to the real command body: 4,096 fight,
+4,096 person and 4,096 retry cases. Original pursuit, idle, wait, animation selection,
+facing and RNG execute; every tracked person/group field and ordered consumer
+snapshot is compared. Inputs cover ordinary braves/warriors/shamans, signed timer
+and coordinate boundaries, cargo, reflected facing, unavailable fights, invalid
+person targets and housed/busy targets. 397 portable captures retain executable
+identity. The outdoor encounter regression separately passes 4,096 native visits.
+
+World destination/path planning, availability, waiting-position query, cell move,
+height, motion release, housed-building approach, final joining, encounter creation
+and retarget selection are supplied consumers. Outer common flags and final
+join/retry/retarget dispatch are comparison-harness glue, not a completed controller.
+The housed query is compared only within its supplied contract; building-entry
+mechanics are not thereby verified. Automatic command-21 periodic retargeting is
+not exercised by these command-19 visits.
+
+**Integration remains open:** search/start, building/plan attacks, automatic retarget
+scheduling, world consumers and real shared queue startup/update/completion. These
+branches are staged; the live adapter still owns ordinary attack orders. Do not
+claim complete command ownership/restoration or increase lifecycle credit. The
+live change in this version is the equivalent shared idle routine. Browser combat
+poses/physics/sound/handoff and the original sprite regression are checked.

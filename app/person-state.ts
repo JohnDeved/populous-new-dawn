@@ -93,6 +93,22 @@ export function stopPersonMovement(
   setPersonAnimationRow(p, p.cargo ? 4 : 0, setAnimation)
 }
 
+// Complete 0x4d4da0. Only standing objects draw the idle-gesture RNG.
+export function stepPersonIdleGesture(
+  rng: { randomState: number },
+  p: StatefulPerson & { object: number; draw: number; slowTurn: number },
+  chance: number,
+  animation: PersonStateEffects['setAnimation'],
+  frameCount: (object: number) => number
+) {
+  if (![48, 80, 208].includes(p.object)) setPersonAnimationRow(p, p.cargo ? 4 : 0, animation)
+  else if (random(rng) % chance === 0) {
+    animation(p, rules.personAnimationObjects[(21 + (random(rng) % 3)) * 9 + p.model])
+    const duration = (rules.animationDescriptors[p.draw].step + 1) * frameCount(p.object)
+    p.slowTurn = (duration << 24) >> 24
+  }
+}
+
 // 0x4391a0 / 0x439240: stop on entry, optionally turn on the 32-turn phase,
 // then finish only when the signed timer reaches zero.
 export function stepPersonWait(

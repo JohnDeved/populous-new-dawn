@@ -6,7 +6,12 @@ import {
   type MotionRoutes,
   type RoutedPerson,
 } from './person-routes.ts'
-import { setPersonAnimationRow, stopPersonMovement, type StatefulPerson } from './person-state.ts'
+import {
+  setPersonAnimationRow,
+  stopPersonMovement,
+  stepPersonIdleGesture,
+  type StatefulPerson,
+} from './person-state.ts'
 import type { Animation } from './animation.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
@@ -52,15 +57,6 @@ function face(w: EncounterWorld, p: EncounterPerson, target: EncounterPerson, sn
   return angle
 }
 
-// 0x4d4da0: idle gestures draw RNG only from one of the three standing objects.
-function idle(w: EncounterWorld, p: EncounterPerson, e: EncounterEffects) {
-  if (![48, 80, 208].includes(p.object)) setPersonAnimationRow(p, p.cargo ? 4 : 0, e.animation)
-  else if (random(w) % 8 === 0) {
-    e.animation(p, rules.personAnimationObjects[(21 + (random(w) % 3)) * 9 + p.model])
-    p.slowTurn = (duration(p) << 24) >> 24
-  }
-}
-
 function change(p: EncounterPerson, phase: number) {
   p.substate = phase
   p.flags2 = (p.flags2 | 0x40000000) >>> 0
@@ -92,7 +88,7 @@ export function stepMeleeEncounter(
           stopPersonMovement(p, e.animation)
           face(w, p, target, false)
         }
-        idle(w, p, e)
+        stepPersonIdleGesture(w, p, 8, e.animation, object => sprites.frameCounts[object])
         if (p.timer < 1) return fight ? 'fight' : 'cancelled'
         break
       case EncounterPhase.Approach:

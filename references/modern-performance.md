@@ -1772,3 +1772,27 @@ This is a proven reduction in query work, not a measured hardware/frame-time gai
 The query and complete pursuit dependencies await integration into the live
 command-19/21 controller. The current published game retains its existing adapter;
 no new live performance or visual-parity claim is made for these staged ports.
+
+
+## 2026-09-10 — share idle gestures while reconstructing attack orders
+
+Fight/person approach and retry use existing pursuit/wait/animation primitives.
+The ordinary outdoor encounter now shares `004d4da0` idle gestures with these
+branches. No new renderer, animation clock, dependency or per-frame simulation.
+The attack-order branches remain staged pending queue/world integration; performance
+of those future live paths is not claimed here.
+
+The shared live idle change passes the six-second, 16-new-encounter browser sample:
+headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, 1,675 callbacks, CPU
+p50/p95 **1.5/2.2 ms**, p99 **4.5 ms**, maximum **10.5 ms**, at most 175 draw calls.
+301 callbacks contain opening encounters (p50/p95 **1.4/2.1 ms**), followed by live
+melee. Original attack/recoil/recovery poses, sound, handoff and no first-hit atlas
+upload pass. No builds, heavy checks or app edits ran during the sample.
+`performance/2026-09-10-combat-approach.json` retains the workload and observations.
+This is an unpaired CPU regression sample, not a speedup, physical display FPS,
+GPU-time or whole-engine claim. Broader hardware and population coverage stay open.
+
+242 tests pass. The new module has no ox-standard findings. Fallow reports 85.5
+maintainability, average cyclomatic 2.7/p90 5 and twelve existing dependency cycles;
+legacy adapter debt remains explicit. The full sprite/shadow/selection checks
+protect the shared animation change.

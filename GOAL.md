@@ -1472,3 +1472,18 @@ startup/update/advance helpers and the shared order pool. Preserve actual queued
 movement/work through combat and restore it through native completion. Do not add
 another pool or approximate task snapshots. Then proceed to campaign attacks and
 visible spell behavior. Full game scope and partial lifecycle status remain intact.
+
+
+### Attack-order controller: verified approach branches, integration still open
+
+The fight/person/housed/busy-target and retry branches of `0051a2a0` now have
+12,288 native comparisons and 397 portable captures. Shared idle gestures replace
+the duplicate outdoor-encounter implementation, with native and browser regression
+checks. This does not yet replace ordinary live attack-order ownership.
+
+Next finish search/start and building/plan attack branches, then compose real world
+consumers with the existing shared order pool and startup/update/advance helpers.
+Retain command-21 periodic retargeting, queued-work restoration and native completion;
+no saved browser-task replay. Return to first-mission attacks and visible spell
+behavior after this integration. The broad performance pass is finished; new
+mechanics remain fixed-turn and presentation uncapped. Full parity remains open.
