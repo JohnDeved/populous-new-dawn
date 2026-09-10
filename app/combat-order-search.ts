@@ -1,3 +1,6 @@
+import rules from './original-rules.json' with { type: 'json' }
+import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
+import { pathCellBlocked, type CollisionWorld, type CollisionPerson } from './person-collision.ts'
 import { positionDistance } from './native-math.ts'
 import { emptyPersonOrder, type PersonOrder } from './person-orders.ts'
 import {
@@ -139,4 +142,84 @@ export function prepareCombatOrderVisit(
   if (p.substate !== 0 && p.substate !== 7 && automatic && !(p.counter & 3))
     restart = retargetCombatOrder(p, 0, e) ?? false
   return { complete, restart }
+}
+
+const cellCenter = (cell: number) => ({
+  x: ((cell & 254) + 1) * 256,
+  y: (((cell >>> 8) & 254) + 1) * 256,
+})
+
+// Complete 0x51c110: explicit targets use their enclosing building's entrance;
+// area orders use the original indexed rings when their center is blocked.
+export function findCombatApproachPoint(
+  p: CollisionPerson,
+  order: PersonOrder,
+  w: {
+    collision: CollisionWorld
+    search: Uint8Array
+    landLimit: number
+    heightRange: (cell: number) => number
+    outside: (building: number) => Point
+  }
+): Point & { kind: number } {
+  const { collision } = w
+  if (!(rules.personCommands[order.model].flags & 0x800)) {
+    const target = order.a ? collision.objects.get(order.a) : undefined
+    if (!target || !target.class || target.flags2 & 1) return { x: p.x, y: p.y, kind: 1 }
+    const cell = collision.cell(target)
+    if (cell.flags & 512) return { ...w.outside(cell.building & 1023), kind: 2 }
+    return { x: target.x, y: target.y, kind: 1 }
+  }
+  const point = cellCenter(order.a)
+  const width = order.b & 255,
+    height = order.b >>> 8
+  const left = ((order.a & 255) - width) & 255
+  const top = ((order.a >>> 8) - height) & 255
+  let open = false
+  // Each axis repeats after 128 coarse cells; one lap proves full occupancy.
+  const rows = Math.min(height + 1, 128),
+    columns = Math.min(width + 1, 128)
+  for (let row = 0; row < rows && !open; row++) {
+    for (let col = 0; col < columns; col++) {
+      const cell = ((left + col * 2) & 255) | (((top + row * 2) & 255) << 8)
+      if (!(collision.cell(cellCenter(cell)).flags & 512)) {
+        open = true
+        break
+      }
+    }
+  }
+  if (!open) {
+    const cell = collision.cell(cellCenter(left | (top << 8)))
+    return { ...w.outside(cell.building & 1023), kind: 2 }
+  }
+  const blocked = (cell: number) =>
+    pathCellBlocked(
+      collision,
+      p,
+      cell,
+      () => w.heightRange(cell & 0xfefe),
+      w.landLimit,
+      () => {
+        const current = collision.cell(p)
+        return current.flags & 512 ? current.building & 1023 : 0
+      }
+    )
+  if (!blocked(order.a)) return { ...point, kind: 1 }
+  const id = startIndexedSearch(w.search, 2, 0, 0, 16)
+  if (!id) return { ...point, kind: 1 }
+  let result = { ...point, kind: 0 }
+  for (
+    let offset = nextIndexedSearch(w.search, id);
+    offset;
+    offset = nextIndexedSearch(w.search, id)
+  ) {
+    const cell =
+      (((order.a & 255) + offset.x * 2) & 255) | ((((order.a >>> 8) + offset.y * 2) & 255) << 8)
+    if (!blocked(cell)) {
+      result = { ...cellCenter(cell), kind: 1 }
+      break
+    }
+  }
+  endIndexedSearch(w.search, id)
+  return result
 }

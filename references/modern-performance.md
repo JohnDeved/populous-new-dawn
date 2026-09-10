@@ -1812,3 +1812,27 @@ maintainability, average cyclomatic 2.7/p90 5, twelve existing dependency cycles
 The new module is not on a live path yet, so no hardware/frame-time improvement or
 regression measurement is claimed. Existing uncapped rendering and fixed-turn
 mechanics remain unchanged; measure the composed controller when integrated.
+
+
+## 2026-09-10 — skip repeated toroidal occupancy probes
+
+The new attack approach query reuses existing collision, shape and search code.
+Original area extents can span 256 coarse steps per axis on a 128×128-cell world,
+revisiting the same occupancy flags. The modern implementation scans each axis at
+most once. Occupancy is a pure read during this synchronous query; after one full
+lap, further laps cannot reveal another cell. Original first-cell fallback,
+collision order after this scan, indexed-ring order, pool bytes and outcomes remain
+unchanged.
+
+The complete native oracle observes original loop address `0051c1de`. Across 103
+fully occupied area cases: **277,001 native versus 73,225 modern occupancy probes**
+(about 74% fewer). All 1,024 query comparisons agree, including maximum extents,
+wrap and exhausted searches. The portable check also limits occupied-area scanning
+to one lap. Reproduce with `check-native-combat-approach-point.py --record` and the
+supplied executable; see the reverse-engineering notes for the full command.
+
+No rendering or live simulation path changed, so this is an operation-count proof,
+not an FPS or hardware speedup claim. Measure the eventual composed controller
+when integrated. 244 tests pass; ox-standard reports no findings in the changed
+module. Fallow: maintainability 85.6, average cyclomatic 2.7/p90 5, twelve existing
+cycles. No dependencies or separate animation clocks were added.

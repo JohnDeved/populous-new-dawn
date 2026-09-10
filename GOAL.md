@@ -1504,3 +1504,19 @@ ownership. The current search comparison supplies target/area/destination consum
 and stops before attack dispatch; do not claim a complete or live command body.
 Campaign attacks and visible spells remain next after this integration. Preserve
 the complete game scope, readable TS and modern-performance constraints.
+
+
+### Attack approach points now use verified geometry and collision
+
+The complete `0051c110` query is reconstructed through existing whole-cell
+collision, indexed searches and building entrance geometry. 1,024 complete native
+calls execute without replaced comparison consumers; 147 captures retain all three
+outcomes and every search-pool byte. Fully occupied area scans stop after one world
+lap, preserving native results with 73,225 versus 277,001 cell probes in the sample.
+This is measured operation-count reduction, not a live FPS claim.
+
+Continue building/plan attack phases of `0051a2a0`, then compose these verified
+search/approach parts with the shared queue and real world consumers. Ordinary live
+ownership/restoration and campaign attacks remain unfinished. Do not credit complete
+lifecycle parity or introduce task snapshots. Keep mechanics fixed-turn, rendering
+uncapped and code readable; the broad performance pass remains complete.

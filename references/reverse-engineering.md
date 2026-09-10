@@ -6182,3 +6182,60 @@ release. Those call contracts are checked, not their full world integration.
 Command 28's special-target branch and the attack phases are not certified by this
 comparison. Search is staged and has no live game effect until the remaining
 controller and actual shared queue consumers are composed. No lifecycle credit.
+
+
+## 2026-09-10 — complete attack approach-point query
+
+`findCombatApproachPoint` in `app/combat-order-search.ts` reconstructs `0051c110`:
+
+- Explicit target orders retain the current position for missing/deleted/unallocated
+  targets. A target in a building uses that building's original outside entrance;
+  otherwise the target position is used.
+- Area orders first choose their coarse-cell center. The wrapped rectangle scan
+  tests whether any cell lacks building occupancy. A fully occupied rectangle uses
+  the building at the rectangle's first cell, not necessarily the center building.
+- With an open cell somewhere in the rectangle, native whole-cell collision tests
+  the center. A blocked center searches original type-2 rings 0–16 and chooses the
+  first allowed cell. It preserves indexed-search allocation, repeated ring points,
+  terminal state and release bytes. No search slot returns kind 1 with the original
+  center; an allocated but exhausted search returns kind 0 with that center. A
+  building entrance returns kind 2. These outcomes are deliberately distinct.
+
+Existing `pathCellBlocked`, indexed-search helpers and `buildingOutsidePoint` do
+the work; there is no alternative collision implementation or new search pool.
+Area flags repeat after 128 coarse cells on each toroidal axis. Scanning at most
+one lap eliminates repeated pure occupancy reads while retaining the first-cell
+fallback and every collision/search/entrance result.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-combat-approach-point.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/combat-approach-point.test.mjs
+npm run check
+```
+
+**1,024 complete native queries pass, with no consumers replaced during comparison.**
+Original target lookup, adjacent-building lookup, shape entrance calculation,
+whole-cell collision, terrain height bounds, indexed search and pool release all
+execute. Setup supplies the shape loader's file-I/O leaves, then removes those hooks;
+actual native shape relocation and original `MWSEARCH.DAT` are retained. Read-only
+observers record outside-point and height calls. The oracle compares result point,
+kind, ordered calls and all 192 search-pool bytes. Inputs include commands 19/21/28,
+missing/deleted targets, rotated/edge building entrances, coordinate wrap, signed
+heights and limits, person permission flags, forbidden terrain, completely occupied
+areas, maximum radius bytes, exhausted pools and fully failed searches.
+
+147 portable captures retain executable identity and all three outcomes (85 kind-1,
+43 kind-0, 19 kind-2). A portable operation ceiling also guards the one-lap bound.
+For 103 fully occupied area cases, original assembly at `0051c1de` performs **277,001
+occupancy probes**, while the modern scan performs **73,225**. Comparison confirms
+equivalent observable query state. This is a bounded operation-count result, not a
+hardware timing or whole-engine speedup claim.
+
+The query is still staged with the attack-order front half; it does not complete
+live queue ownership or building/plan attacks. Next reconstruction notes: plan attack
+phases 4/5 require enemy class 9 and a zero signed word at **+0x92** (assembly
+`0051b6b6`), not the plan kind byte +0x9e. Their approach dependency is `00438db0`;
+plan entrances are `004ba130`/`004b9fc0`, with kind-10 exit collision selection.
+Building phase 3 still includes ordinary approach/occupant handling and special
+model-19 positioning. These branches must be implemented before claiming the full
+ordinary command body. No additional melee-lifecycle credit.
