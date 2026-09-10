@@ -104,7 +104,7 @@ for model in [2, 3, 7]:
             write(target + 0x2a, '4B', 1, 2, 0, 0)
             write(p + 0x3d, 'HHh', 2048, 63488, 135)
             write(p + 0x5d, 'H', angle)
-            write(p + 0xc, 'I', 0x40001080); write(p + 0x10, 'I', 0x20000000)
+            write(p + 0xc, 'I', 0x40201280); write(p + 0x10, 'I', 0x20000000)
             write(group + 0x2e, 'B', 1); write(group + 0x68, 'B', 2)
             write(group + 0x6c, 'H', 1); write(group + 0x70, '2H', 1, 2)
             write(0x890394, '2I', p, target); write(0x89d178, 'I', seed)

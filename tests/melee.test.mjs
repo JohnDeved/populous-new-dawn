@@ -86,7 +86,7 @@ function assertCells(w) {
     assert.ok(p, 'every cell link resolves')
     id = p.cellNext
   }
-  for (const u of w.units) if (u.flight) assert.ok(visited.has(u.id))
+  for (const u of w.units) if (u.flight || u.fight?.motion) assert.ok(visited.has(u.id))
 }
 
 test('knockback waits for terrain physics to settle and preserves cell ownership', () => {
@@ -218,4 +218,73 @@ test('live groups relocate sequentially without sharing another fight center', a
   assert.notEqual(cell(first), original)
   assert.equal(cell(second), original, 'later groups see the earlier group has vacated this cell')
   assert.equal(w.fights.length, 2)
+})
+
+function approachFixture(direction = 0) {
+  const c = group('warrior', 0, 2)
+  c.attacker.fight.action = 'approach'
+  c.attacker.x += Math.cos(direction) * 2
+  c.attacker.z += Math.sin(direction) * 2
+  c.w.randomState = 1
+  return c
+}
+
+test('native approach reaches its slot from every direction and waits one turn to chase a moved slot', () => {
+  for (let direction = 0; direction < 8; direction++) {
+    const { w, attacker } = approachFixture(direction * Math.PI / 4)
+    const speeds = new Set()
+    let turns = 0
+    do { tick(w, 1 / 12); speeds.add(attacker.fight.motion.speed); assertCells(w) } while (attacker.fight.action !== 'ready' && ++turns < 24)
+    assert.ok(turns < 24, `direction ${direction} must arrive without circling`)
+    assert.ok(speeds.size > 2, 'approach redraws native speed on every visit')
+    assert.deepEqual([attacker.x, attacker.z + 0], [180 / 256, 0])
+    assert.equal(attacker.fight.motion.speed, 0)
+    assert.ok(attacker.fight.motion.flags2 & 0x200, 'native arrival clamp retained')
+    w.fights[0].x += .5
+    const point = { x: attacker.x, z: attacker.z }
+    tick(w, 1 / 12)
+    assert.equal(attacker.fight.action, 'approach')
+    assert.deepEqual({ x: attacker.x, z: attacker.z }, point, 'ready-to-approach transition does not move early')
+    tick(w, 1 / 12)
+    assert.ok(attacker.x > point.x)
+  }
+})
+
+test('approach uses native cell collision and preserves the person across attack, recoil and new orders', async () => {
+  const { nativePosition } = await import('../app/model.ts')
+  const { w, attacker } = approachFixture()
+  tick(w, 1 / 12)
+  const p = attacker.fight.motion, before = [attacker.x, attacker.z]
+  w.land.flags.fill(4)
+  tick(w, 1 / 12)
+  assert.deepEqual([attacker.x, attacker.z], before, 'native restricted cells block an otherwise dry browser surface')
+  assert.equal(attacker.fight.motion, p)
+  w.land.flags.fill(0)
+  for (let i = 0; i < 12; i++) tick(w, 1 / 12)
+  assert.equal(attacker.fight.action, 'ready')
+  assert.equal(attacker.fight.motion, p)
+  assertCells(w)
+  w.selected = [attacker.id]
+  const position = nativePosition(w, attacker)
+  command(w, { x: 12, z: 0 })
+  assert.equal(attacker.fight, null)
+  assert.deepEqual(nativePosition(w, attacker), position)
+  // Native command/engagement ownership remains separate: remove the nearby contact.
+  w.units.find(u => u !== attacker).x = 30
+  tick(w, 1 / 12)
+  assert.ok(attacker.x > position.x / 256 - 8)
+  assert.ok(!w.objectCells.objects.has(attacker.id), 'adapted ordinary order releases retained combat cells')
+})
+
+test('approach, native animation and subsequent combat stay identical across frame rates', async () => {
+  const { advanceGame } = await import('../app/game-clock.ts')
+  const run = frames => {
+    const { w } = approachFixture(Math.PI / 4), clock = { animationTime: 0, animationFrame: 0 }
+    for (const dt of frames) advanceGame(w, clock, dt)
+    assert.ok(w.pendingTime < 1e-9)
+    return { ...w, pendingTime: 0 }
+  }
+  const baseline = run(Array(180).fill(1 / 60))
+  for (const fps of [5, 30, 144, 240]) assert.deepEqual(run(Array(fps * 3).fill(1 / fps)), baseline, `${fps} Hz`)
+  assert.deepEqual(run(Array.from({length:30}, () => [.01, .09]).flat()), baseline)
 })

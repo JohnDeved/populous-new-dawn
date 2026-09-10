@@ -1287,3 +1287,22 @@ counter phase, initial member/angle choice and full command ownership are still
 open; the live adapter supplies world-turn phase to the verified placement
 primitive. Preserve all unfinished game/engine scope, readable shared TypeScript,
 modern desktop performance and source-backed behavior. Discovery stays open.
+
+### Latest combat integration: native approach and ready-slot movement
+
+Fighters now draw original approach speed, use native destinations/collision/slope
+physics, stop at the original tolerance and wait the original turn before chasing
+a relocated slot. Retained motion records preserve recoil recovery, native height,
+cell ownership and original walking/carrying poses while rendering stays smoothly
+interpolated. Native blocks and composed live trajectories, portable cadence
+replay and browser checks pass. Redundant physics context/cell rebuilding is
+removed with measured identical-state CPU savings.
+
+Next: original command interruption and prefight/group dispatch, including whether
+and when a movement order allows a fighter to disengage; then first-mission AI
+attack scheduling and visible effects. The current legacy contact scan can
+immediately reacquire an opponent, which needs original behavior comparison.
+Class allocator/counter phase, initial group angle/member ordering, full damage
+modifiers/effects, other unit classes, all campaign content, saves and multiplayer
+remain unfinished. Keep readable shared TypeScript, modern performance and the
+entire game/engine objective; discovery stays open.

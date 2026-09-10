@@ -1,22 +1,22 @@
 # Game parity progress
 
-**23.56% evidence-backed progress across known scope.**
+**23.61% evidence-backed progress across known scope.**
 
-**Graphics: 59.23%.** Overall: 55/160 individual requirements verified; 17/96 broad checkpoints complete.
+**Graphics: 59.23%.** Overall: 56/161 individual requirements verified; 17/96 broad checkpoints complete.
 
-55 partial; 24 missing; 0 unassessed. Checklist revision 16.
+55 partial; 24 missing; 0 unassessed. Checklist revision 17.
 
 **Latest assessment**
 
 Newly verified: 1. Reopened: 0.
 
-- Verified: `combat.melee.placement`.
+- Verified: `combat.melee.approach`.
 
-Verified native fight-site placement: 2,048 complete original calls, live terrain/building/occupancy integration, blocked-fight retention and measured chosen-point height optimization. Allocation/counter phase and full melee lifecycle remain open.
+Verified native melee approach and ready transitions: 4,096 native blocks plus 1,536 composed native/live movement turns, original speed RNG/collision/arrival flags, live sprites and uncapped cadence replay; removed redundant physics reconciliation with measured equivalent-state CPU benefit. Group allocation and command/engagement ownership remain open.
 
 **Tracking blind spots: 43 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
-**Discovery: open.** Revision 16 separates native fight-site validity and relocation from remaining melee lifecycle work before integration. Discovery remains open.
+**Discovery: open.** Revision 17 separates melee approach and ready-slot transitions before implementation; allocation and the remaining lifecycle remain open.
 
 Unknown scope is not assigned an invented size or percentage. This checklist is expandable: add checkpoints or entire subsystems as research reveals them. Use `unassessed` for newly identified behavior whose implementation/parity has not been investigated; it enters the denominator immediately and receives no verified credit. Split overly broad checkpoints when discoveries justify it, with a recorded revision.
 
@@ -37,7 +37,7 @@ Verified means the named scope has original-engine evidence and browser/game int
 | Audio and music | 0.00% | 0/8 | 0/8 |
 | Simulation scheduling and randomness | 0.00% | 0/8 | 0/8 |
 | Movement, collision and vehicles | 12.50% | 1/8 | 1/8 |
-| Unit classes and combat | 9.38% | 3/11 | 0/8 |
+| Unit classes and combat | 10.00% | 4/12 | 0/8 |
 | Buildings, resources and population | 26.04% | 5/17 | 1/8 |
 | Spell rules and complete roster | 12.50% | 1/8 | 1/8 |
 | Campaign, AI and objectives | 0.00% | 0/8 | 0/8 |
@@ -147,6 +147,8 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-10T07:16:16.612Z | 15 | 23.47% | 17/96 | 0.35 pp; 1 newly verified, 0 reopened | Verified ordinary melee action/recoil timing and native knockback: original-controller traces and initialization, shared native physics, live slope/HP/cell/order handoffs, uncapped replay and headed browser evidence; full lifecycle remains open. |
 | 2026-09-10T07:27:09.645Z | 16 | 23.30% | 17/96 | scope revision | Revision 16 baseline: isolate fight-site validity and relocation before integration, retain all grouping/approach/damage/effect/order scope; no new verified behavior. |
 | 2026-09-10T07:43:53.756Z | 16 | 23.56% | 17/96 | 0.26 pp; 1 newly verified, 0 reopened | Verified native fight-site placement: 2,048 complete original calls, live terrain/building/occupancy integration, blocked-fight retention and measured chosen-point height optimization. Allocation/counter phase and full melee lifecycle remain open. |
+| 2026-09-10T07:49:29.432Z | 17 | 23.40% | 17/96 | scope revision | Scope baseline: separate native melee approach and ready-slot transitions before replacing the constant-speed browser approximation; no new verification credit. |
+| 2026-09-10T08:06:37.287Z | 17 | 23.61% | 17/96 | 0.21 pp; 1 newly verified, 0 reopened | Verified native melee approach and ready transitions: 4,096 native blocks plus 1,536 composed native/live movement turns, original speed RNG/collision/arrival flags, live sprites and uncapped cadence replay; removed redundant physics reconciliation with measured equivalent-state CPU benefit. Group allocation and command/engagement ownership remain open. |
 
 ## Update workflow
 
@@ -296,11 +298,12 @@ Scope changes require a new checklist revision. Scores across different revision
 
 ### Unit classes and combat
 
-- **partial** — Complete melee exchanges and fight state machine (`combat.melee`). **3/4 requirements verified; each earns 0.26 percentage points overall.** Ready/busy decisions, recovery/knockback and fight-site relocation integrated. Group allocation/counter phase, approach/RNG, damage modifiers, effects and command ownership remain open. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete melee exchanges and fight state machine (`combat.melee`). **4/5 requirements verified; each earns 0.21 percentage points overall.** Ready/busy decisions, recovery/knockback, fight-site relocation and native approach/ready motion integrated. Group allocation/counter phase, initial angle/member order, damage modifiers, effects and command ownership remain open. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
   - **verified** — Ready fighter attack choices against ready and busy group opponents (`combat.melee.decisions`). 30,240 original decision-block cases plus live ready/busy group damage, preserved defender actions, browser combat sprites and 5–240 Hz replay. Full controller and leaving-target order handoff remain in the lifecycle requirement. Evidence: [app/melee.ts](app/melee.ts), [scripts/check-native-melee-decisions.py](scripts/check-native-melee-decisions.py), [tests/melee.test.mjs](tests/melee.test.mjs), [scripts/check-browser-melee.mjs](scripts/check-browser-melee.mjs), [references/performance/2026-09-10-melee-decisions.json](references/performance/2026-09-10-melee-decisions.json).
   - **verified** — Ordinary attack/recoil timing and terrain-aware knockback (`combat.melee.recovery`). 405 original action/recoil traces, 384 knockback entries and shared native physics comparisons; live slope settling, poses/sounds, cell/HP handoff, recentering and 5–240 Hz/irregular replay. Global grouping, approach RNG, relocation, damage modifiers and order ownership remain separate. Evidence: [scripts/check-native-melee-timing.py](scripts/check-native-melee-timing.py), [scripts/check-native-physics-driver.py](scripts/check-native-physics-driver.py), [scripts/check-native-person-motion.py](scripts/check-native-person-motion.py), [tests/melee.test.mjs](tests/melee.test.mjs), [scripts/check-browser-melee.mjs](scripts/check-browser-melee.mjs), [references/performance/2026-09-10-melee-recovery.json](references/performance/2026-09-10-melee-recovery.json).
   - **verified** — Fight-site validity, building exit and periodic terrain relocation (`combat.melee.placement`). 2,048 original validity/relocation calls with full collision, indexed search, building geometry, terrain height and cell movement; identical positions and search bytes with fewer pure height queries. Live 32-turn gating, building exits, other-fight occupancy and failure retention; native allocator counter phase and complete grouping remain in lifecycle, with world turn supplying the current adapter phase. Evidence: [app/melee-placement.ts](app/melee-placement.ts), [app/model.ts](app/model.ts), [decomp/generated/00519d10.c](decomp/generated/00519d10.c), [decomp/generated/0051e4b0.c](decomp/generated/0051e4b0.c), [scripts/check-native-melee-placement.py](scripts/check-native-melee-placement.py), [tests/melee.test.mjs](tests/melee.test.mjs), [scripts/check-browser-melee.mjs](scripts/check-browser-melee.mjs), [scripts/bench-melee-placement.mjs](scripts/bench-melee-placement.mjs), [references/performance/2026-09-10-melee-placement.json](references/performance/2026-09-10-melee-placement.json).
-  - **partial** — Complete melee grouping, approach, damage, effects and order handoff (`combat.melee.lifecycle`). Native group allocation/lifetime and per-class allocator counter phase, initial member order/angle RNG, approach speed/RNG, damage modifiers, effects and full command ownership remain open. Site validity and relocation have a separate supplied-controller-visit requirement. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
+  - **verified** — Melee approach speed, destination, ready-slot transitions and native motion (`combat.melee.approach`). 4,096 original approach/ready blocks and 96 x 16-turn composed original control/preparation/physics trajectories match the actual live adapter. Speed RNG, signed arrival boundaries, stopped/outer facing, route release, collision, slope motion, retained cells/height and cargo animation verified; original group/allocation/counter ownership and post-arrival attack selection remain separate. Portable 5–240 Hz and irregular replay, live eight-direction arrival/recoil, browser sprites and measured on-demand reconciliation. Evidence: [app/melee.ts](app/melee.ts), [app/live-people.ts](app/live-people.ts), [app/model.ts](app/model.ts), [app/unit-motion.ts](app/unit-motion.ts), [scripts/check-native-melee-approach.py](scripts/check-native-melee-approach.py), [scripts/check-native-melee-timing.py](scripts/check-native-melee-timing.py), [scripts/check-native-physics-driver.py](scripts/check-native-physics-driver.py), [tests/melee.test.mjs](tests/melee.test.mjs), [scripts/check-browser-melee.mjs](scripts/check-browser-melee.mjs), [scripts/bench-melee-motion.mjs](scripts/bench-melee-motion.mjs), [references/performance/2026-09-10-melee-approach.json](references/performance/2026-09-10-melee-approach.json).
+  - **partial** — Complete melee grouping, approach, damage, effects and order handoff (`combat.melee.lifecycle`). Native group allocation/lifetime and class-counter phase, initial member order/angle RNG, damage modifiers, effects and full command ownership remain open. Approach and site placement have separate verified requirements. The legacy contact scan can reacquire a fighter immediately after a move command; compare original command/prefight scheduling before changing that behavior. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
 - **partial** — Complete brave work, combat and task transitions (`combat.braves`). Opening work loop playable; all task transitions not matched. Evidence: [scripts/check-native-person-update.py](scripts/check-native-person-update.py), [tests/game.test.mjs](tests/game.test.mjs).
 - **partial** — Complete warrior attack, pursuit and recovery (`combat.warriors`). Selected recovery/formation controllers compared; complete class scheduling open. Evidence: [scripts/check-native-person-recovery.py](scripts/check-native-person-recovery.py), [tests/game.test.mjs](tests/game.test.mjs).
 - **missing** — Firewarrior attacks, range and behavior (`combat.firewarriors`). Full firewarrior class not implemented.

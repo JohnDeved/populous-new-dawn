@@ -1429,3 +1429,38 @@ placement oracles, combat browser checks and sprite/shadow/selection regressions
 The new placement module has no oxlint findings. Fallow reports maintainability
 85.6, average cyclomatic complexity 2.7, p90 5 and twelve existing module cycles;
 repository-wide lint/complexity debt and broader modernization remain open.
+
+## Shared native combat motion with on-demand state context (2026-09-10)
+
+Melee approach now uses the same person preparation, terrain/collision physics,
+cell lists and sprite animation helpers as existing impulse movement. The original
+speed RNG and ready-slot timing stay on simulation turns. Native motion records
+survive recoil and supply height to the existing smooth render interpolation;
+there is no new RAF or FPS-dependent movement. Portable replay passes at 5–240 Hz
+and irregular cadence; nine actual Scene cadences and distinct 240 Hz pixels pass.
+
+The common physics adapter previously built a celebration/order context on every
+visit, including a complete cell-list reconciliation. Ordinary grounded combat
+needs none of those consumers. Context is now created only for actual state
+initialization/panic; direct destinations use the existing route helper directly.
+`node scripts/bench-melee-motion.mjs` compares eager reconciliation with the
+production path for 64 retained combat people × 24 visits. It asserts identical
+whole worlds, excludes fixture cloning and alternates nine warmed samples.
+On Node 24.18.0/Apple M5, median CPU drops **8.211 → 4.859 ms (40.8%)**. This
+isolates removed reconciliation overhead; it is not a previous-release, whole-game
+or display-frame-rate claim.
+
+The isolated headed six-fight acceptance sample records **1,679** callbacks:
+CPU p50/p95 **1.5/2.0 ms**, p99 **4.6 ms**, max **6.7 ms**; callback gaps
+**3.6/4.1 ms**, max **4.5 ms**, at most **104** WebGL submissions. Chrome 153,
+ANGLE Metal Apple M5, 1440×1000 CSS pixels, DPR 1. No heavy checks/edits overlapped
+profiling. Both reports are in
+`references/performance/2026-09-10-melee-approach.json`.
+
+Validation: 4,096 native approach blocks, 1,536 composed native/live motion turns,
+existing timing/physics oracles, 207 portable tests, build/typecheck/format and
+browser combat/sprite/shadow/selection/interpolation checks. Fallow remains 85.6
+maintainability, average cyclomatic 2.7, p90 5 and twelve existing cycles. The melee
+and unit-motion modules have no oxlint findings; broader repository debt remains.
+Full allocator/state/command ownership and large-army/multiple-hardware profiling
+are still open.

@@ -1,8 +1,8 @@
 {
-  "revision": 16,
+  "revision": 17,
   "discovery": {
     "status": "open",
-    "note": "Revision 16 separates native fight-site validity and relocation from remaining melee lifecycle work before integration. Discovery remains open.",
+    "note": "Revision 17 separates melee approach and ready-slot transitions before implementation; allocation and the remaining lifecycle remain open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1489,7 +1489,7 @@
             "scripts/check-native-person-state.py",
             "tests/game.test.mjs"
           ],
-          "note": "Ready/busy decisions, recovery/knockback and fight-site relocation integrated. Group allocation/counter phase, approach/RNG, damage modifiers, effects and command ownership remain open.",
+          "note": "Ready/busy decisions, recovery/knockback, fight-site relocation and native approach/ready motion integrated. Group allocation/counter phase, initial angle/member order, damage modifiers, effects and command ownership remain open.",
           "requirements": [
             {
               "id": "combat.melee.decisions",
@@ -1536,6 +1536,25 @@
               "note": "2,048 original validity/relocation calls with full collision, indexed search, building geometry, terrain height and cell movement; identical positions and search bytes with fewer pure height queries. Live 32-turn gating, building exits, other-fight occupancy and failure retention; native allocator counter phase and complete grouping remain in lifecycle, with world turn supplying the current adapter phase."
             },
             {
+              "id": "combat.melee.approach",
+              "title": "Melee approach speed, destination, ready-slot transitions and native motion",
+              "status": "verified",
+              "evidence": [
+                "app/melee.ts",
+                "app/live-people.ts",
+                "app/model.ts",
+                "app/unit-motion.ts",
+                "scripts/check-native-melee-approach.py",
+                "scripts/check-native-melee-timing.py",
+                "scripts/check-native-physics-driver.py",
+                "tests/melee.test.mjs",
+                "scripts/check-browser-melee.mjs",
+                "scripts/bench-melee-motion.mjs",
+                "references/performance/2026-09-10-melee-approach.json"
+              ],
+              "note": "4,096 original approach/ready blocks and 96 x 16-turn composed original control/preparation/physics trajectories match the actual live adapter. Speed RNG, signed arrival boundaries, stopped/outer facing, route release, collision, slope motion, retained cells/height and cargo animation verified; original group/allocation/counter ownership and post-arrival attack selection remain separate. Portable 5\u2013240 Hz and irregular replay, live eight-direction arrival/recoil, browser sprites and measured on-demand reconciliation."
+            },
+            {
               "id": "combat.melee.lifecycle",
               "title": "Complete melee grouping, approach, damage, effects and order handoff",
               "status": "partial",
@@ -1543,7 +1562,7 @@
                 "scripts/check-native-person-state.py",
                 "tests/game.test.mjs"
               ],
-              "note": "Native group allocation/lifetime and per-class allocator counter phase, initial member order/angle RNG, approach speed/RNG, damage modifiers, effects and full command ownership remain open. Site validity and relocation have a separate supplied-controller-visit requirement."
+              "note": "Native group allocation/lifetime and class-counter phase, initial member order/angle RNG, damage modifiers, effects and full command ownership remain open. Approach and site placement have separate verified requirements. The legacy contact scan can reacquire a fighter immediately after a move command; compare original command/prefight scheduling before changing that behavior."
             }
           ]
         },

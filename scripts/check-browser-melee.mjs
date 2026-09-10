@@ -84,7 +84,7 @@ try {
     const s = window.testScene, f = window.meleeCheck.frames, gl = s.renderer.getContext(), info = gl.getExtension('WEBGL_debug_renderer_info')
     const gaps = f.slice(1).map((v, i) => v.time - f[i].time), q = (a, p) => a.sort((a,b) => a-b)[Math.floor((a.length-1)*p)]
     return { userAgent: navigator.userAgent, renderer: gl.getParameter(info.UNMASKED_RENDERER_WEBGL), viewport: [1440,1000], dpr: devicePixelRatio, frames: f.length,
-      cpu: { p50: q(f.map(v => v.cpu), .5), p95: q(f.map(v => v.cpu), .95) },
+      cpu: { p50: q(f.map(v => v.cpu), .5), p95: q(f.map(v => v.cpu), .95), p99: q(f.map(v => v.cpu), .99), max: Math.max(...f.map(v => v.cpu)) },
       gaps: { p50: q(gaps, .5), p95: q(gaps, .95), max: Math.max(...gaps) }, maxDrawCalls: Math.max(...f.map(v => v.calls)) }
   })
   await page.evaluate(async () => {
@@ -118,6 +118,36 @@ try {
   assert.equal(recoil.at(-1).action, 'approach')
   assert.equal(recoil.at(-1).airborne, false)
   assert.ok(recoil.at(-1).x > recoil[0].x)
+  await page.evaluate(async () => {
+    const s = window.testScene, w = s.world, m = await import('/app/model.ts'), h = window.meleeCheck
+    w.speed = 0; w.units = []; w.buildings = []; w.fights = []; w.turn = 10
+    w.terrain.fill(3); w.terrainVersion++
+    h.approaches = []; h.approachTrace = []
+    for (let i = 0; i < 6; i++) {
+      const x = (i%3)*4-4, z = 30+Math.floor(i/3)*4
+      const a = m.addUnit(w,'red','warrior',{x,z}), b = m.addUnit(w,'blue',['brave','warrior','shaman'][i%3],{x:x+2.5,z:z+1})
+      if(i>=3)b.cargo=1
+      const f = {id:w.nextId++,x,z,angle:512,members:[a.id,b.id]};w.fights.push(f)
+      a.fight={group:f.id,opponent:b.id,action:'strike',remaining:100,started:0}
+      b.fight={group:f.id,opponent:a.id,action:'approach',started:0}
+      h.approaches.push(b)
+    }
+    const after = s.gameClock.afterTurn
+    s.gameClock.afterTurn = () => {
+      after()
+      h.approachTrace.push(h.approaches.map(u=>({id:u.id,action:u.fight?.action,x:u.x,z:u.z,speed:u.fight?.motion?.speed,object:u.fight?.motion?.object})))
+      if(h.approaches.every(u=>u.fight?.action==='ready')){w.speed=0;h.approachDone=true;s.gameClock.afterTurn=after}
+    }
+    s.focus({x:0,z:32});s.onChange();w.speed=1
+  })
+  await page.waitForFunction(() => window.meleeCheck.approaches.every(u => u.fight?.motion && window.testScene.unitMeshes.get(u.id)?.userData.state === 'walk'))
+  const approachSprites = await page.evaluate(() => window.meleeCheck.approaches.map(u=>({kind:u.kind,cargo:u.cargo,frame:window.testScene.unitMeshes.get(u.id).userData.frame,object:u.fight.motion.object})))
+  for(const p of approachSprites) assert.ok(Object.values(sprites.animations[`blue-${p.kind}`]).some(d=>d[0].source===p.object&&d.some(dir=>dir.frames.includes(p.frame))))
+  await page.screenshot({path:'/private/tmp/populous-melee-approach.png'})
+  await page.waitForFunction(() => window.meleeCheck.approachDone)
+  const approach = await page.evaluate(() => ({sprites:window.meleeCheck.approaches.map(u=>({kind:u.kind,cargo:u.cargo,action:u.fight.action,speed:u.fight.motion.speed})),trace:window.meleeCheck.approachTrace}))
+  assert.ok(approach.trace.length > 2 && approach.trace.length < 20)
+  assert.ok(approach.sprites.every(p=>p.action==='ready'&&p.speed===0))
   const placement = await page.evaluate(async () => {
     const s = window.testScene, w = s.world, m = await import('/app/model.ts')
     w.speed = 0; w.units = []; w.buildings = []; w.fights = []
@@ -145,6 +175,6 @@ try {
   assert.ok(placement.members.every(u => u.group === placement.group && u.sprite === 'strike'))
   assert.deepEqual(errors, [])
   assert.ok(performance.frames > 20)
-  writeFileSync('/private/tmp/populous-melee-browser.json', JSON.stringify({ headed, recoil, placement, workload: 'Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.', states, performance }, null, 2) + '\n')
+  writeFileSync('/private/tmp/populous-melee-browser.json', JSON.stringify({ headed, recoil, approach, approachSprites, placement, workload: 'Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.', states, performance }, null, 2) + '\n')
   console.log('PASS: all three live classes render opportunistic special/strike attacks, busy defenders retain their animation, native slope recoil outlives its animation timer and settles, live battle frames have no browser errors', performance)
 } finally { await browser.close() }

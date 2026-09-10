@@ -5505,3 +5505,71 @@ angle and forced placement. Only the placement call is integrated here; member
 allocation/order, initial angle/RNG and prefight handoff remain open. Native
 approach movement, complete damage/effects, command dispatch and campaign attacks
 are not claimed complete by this bounded placement requirement.
+
+## Melee approach and ready-slot transitions (2026-09-10)
+
+`00519183..0051935f/0051947e` in `00518fb0` handles approach and ready phases
+before attack selection. Every approach visit calls `004d4f40`, drawing configured
+speed and selecting the cargo/airborne movement animation. Arrival compares signed
+coordinates independently with an inclusive eleven-unit tolerance; the subtraction
+itself does not fold the seam. Arrival moves to the exact slot/terrain height,
+changes to ready and stops via `004d4ee0`. Outer fighters face the center and
+release their motion route. If an already-ready fighter's slot has moved, it
+switches to approach without drawing speed or issuing a destination until its
+next visit. Direct destinations use the existing `004e9dd0` port.
+
+The browser retains a native person for combat motion. Fight controllers set
+destinations before the ordinary unit loop runs shared preparation/reaction and
+`004e6d00` physics. Constant straight-line movement and radial building clearance
+are removed. Native collision masks, slope speed, recovery, velocity limits and
+cell-list splices now govern approach. The same person survives attack/recoil
+handoff; HP remains synchronized with the existing damage adapter. End-of-turn
+cell reconciliation no longer overwrites its native height. Rendering uses that
+height and the shared interpolation/presentation clock, with original movement
+and carrying animation objects.
+
+New export `005184e0` establishes `0x200` arrival clamping and `0x200000` combat
+facing. These flags are needed by both approach bootstrap and knockback bootstrap.
+A regression found that omitting them from the latter caused endless circling
+after recoil. The shared constructor now supplies them; the knockback native
+fixture includes those established state-25 flags before entering substate 7.
+This does not claim the full class initializer, including selection, special
+models and preceding world cleanup, is integrated.
+
+Evidence:
+
+- `check-native-melee-approach.py`: 4,096 original control-block cases with real
+  speed RNG, slot geometry, terrain height, cell movement, route release and
+  animation setters. Compares flags, phase, animation fields, destinations,
+  route bytes and random state; group/index inputs are supplied and the block
+  stops before attack selection. A further 96 × 16-turn comparison composes
+  original control/preparation/reaction/airborne eligibility/physics and matches
+  the **actual live adapter** across classes, cargo, slopes and restricted cells.
+  Reveal/path-list consumers are supplied; allocation and global scheduling remain
+  outside this contract.
+- Existing timing/knockback and full physics oracles pass: 405 action traces,
+  384 impulse entries, 4,096 bounce calls and 16,384 native physics turns.
+- 207 portable tests pass, including eight-direction arrival without circling,
+  delayed pursuit of a moved slot, restricted-cell blocking, retained cell/HP
+  ownership, post-recoil resumed fighting and 5/30/60/144/240 Hz plus irregular
+  replay. The isolated command handoff test removes nearby contacts first.
+- Headed browser checks render original walking/carrying/arrival objects for all
+  three live classes, alongside attacks and slope recoil. Sprite/shadow/selection
+  and nine Scene-cadence interpolation regressions pass.
+
+The physics adapter builds the celebration/order context only when a state
+consumer requests it. Removing eager per-person cell reconciliation yields equal
+whole worlds in a 64-person × 24-visit paired workload: median 8.211 versus
+4.859 ms. This isolates reconciliation overhead, not old-release or display FPS.
+The separate headed combat sample has 1,679 active-fight callbacks: CPU p50/p95
+1.5/2.0 ms, p99 4.6 ms, maximum 6.7 ms; RAF gaps p50/p95 3.6/4.1 ms, maximum
+4.5 ms; maximum 104 draws. Chrome 153/ANGLE Metal Apple M5, 1440×1000 DPR 1.
+No heavy tools/edits overlapped that sample. Raw evidence:
+`references/performance/2026-09-10-melee-approach.json`.
+
+Still open: original prefight/group creation, per-class counter phase, initial
+membership/angle RNG, full damage modifiers/effects and command/AI ownership.
+The legacy contact scan can immediately reacquire an opponent after a move order;
+compare original command interruption and prefight dispatch before changing this
+behavior. Full engine, all classes/campaign missions, saves and multiplayer remain
+unfinished. This requirement covers approach/motion, not complete combat.

@@ -30,8 +30,9 @@ export function interpolateUnitPosition(
 
 export function unitPosition(w: World, u: Unit, result: Position = { x: 0, y: 0, z: 0 }) {
   result.x = u.x
-  result.y = u.flight
-    ? u.flight.h / 128
+  const motion = u.flight ?? u.fight?.motion
+  result.y = motion
+    ? motion.h / 128
     : Math.round(height(w.terrain, u.x, u.z) * 45) / 128 +
       ((0.04 + Math.sin(u.lift * Math.PI) * 2) * 45) / 128
   const source = unitAnimationSource(u),

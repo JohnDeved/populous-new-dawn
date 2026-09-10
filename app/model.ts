@@ -86,6 +86,8 @@ import {
   stepLivePerson,
   stepLiveImpulse,
   startMeleeKnockback,
+  approachLiveMelee,
+  stepLiveMeleeMotion,
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
@@ -224,6 +226,7 @@ type Fight = {
   remaining?: number
   animation?: MeleeAttack | 'recoil' | 'walk' | 'idle'
   knockback?: boolean
+  motion?: LivePerson
 }
 type NativePoint = { x: number; y: number; h: number }
 export type Projectile = {
@@ -527,6 +530,7 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
       Math.PI) /
       1024
   u.fight = {
+    motion: u.fight!.motion,
     group: u.fight!.group,
     opponent: target.id,
     action,
@@ -535,17 +539,28 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
     remaining: meleeDuration(u.kind, action) - 1,
   }
   // Busy opponents take damage without losing their current action or facing.
-  if (target.fight?.action === 'ready') {
+  const defending = target.fight?.action === 'ready'
+  if (defending && target.fight) {
     const knockback =
       action === 'attack' && target.kind !== 'shaman' && !(w.manaWorld.levelFlags & 64)
     target.heading = u.heading + Math.PI
     target.fight = {
+      motion: target.fight.motion,
       group: target.fight.group,
       opponent: u.id,
       action: 'recoil',
       animation: 'idle',
       started: w.turn,
       knockback,
+    }
+  }
+  for (const fighter of defending ? [u, target] : [u]) {
+    const p = fighter.fight?.motion
+    if (p && fighter.fight!.action !== 'approach' && fighter.fight!.action !== 'ready') {
+      p.speed = 0
+      p.heading = p.angle = Math.round(((Math.PI - fighter.heading) * 1024) / Math.PI) & 2047
+      p.turnAngle = p.heading
+      p.flags2 = (p.flags2 | 0x1080) >>> 0
     }
   }
   target.hp = Math.max(0, (Math.round(target.hp * 20) - Math.round(damage * 20)) / 20)
@@ -671,10 +686,6 @@ function processBattles(w: World) {
       b.angle = (b.angle + (r & 1 ? -r : r)) & 2047
     }
     relocateBattle(w, b)
-    // Approach movement is still adapted; fight-site placement uses native masks.
-    const clear = (p: Point) =>
-      walkable(w.terrain, p) &&
-      !w.buildings.some(h => h.hp > 0 && h.progress === 1 && distance(h, p) < 2.35)
     let recenter = false
     for (let i = 0; i < members.length; i++) {
       const u = members[i],
@@ -695,6 +706,7 @@ function processBattles(w: World) {
             )
           }
         } else if (!person || !(person.flags2 & 0x80000)) {
+          f.motion = u.flight
           u.flight = undefined
           f.action = 'approach'
           f.animation = 'walk'
@@ -723,25 +735,16 @@ function processBattles(w: World) {
         f.remaining = undefined
         continue
       }
-      const p = fightPosition(b, i),
-        dx = Math.round((p.x - u.x) * 256),
-        dz = Math.round((p.z - u.z) * 256)
-      if (Math.abs(dx) > 11 || Math.abs(dz) > 11) {
-        f.action = 'approach'
-        f.animation = 'walk'
-        const angle = nativeAngle(dx, dz),
-          next = nativeStep(u, angle, Math.min(unitSpeed(u), Math.floor(Math.hypot(dx, dz))))
-        if (clear(next)) {
-          u.x = next.x
-          u.z = next.z
-        }
-        u.heading = Math.PI - (angle * Math.PI) / 1024
+      if (
+        !approachLiveMelee(
+          w,
+          u,
+          nativePosition(w, fightPosition(b, i)),
+          nativePosition(w, b),
+          i !== 0
+        )
+      )
         continue
-      }
-      u.x = p.x
-      u.z = p.z
-      f.action = 'ready'
-      f.animation = 'idle'
       const choice = random(w) & 15,
         targetIndex = i === 0 ? 1 + (random(w) % (members.length - 1)) : 0,
         target = members[targetIndex]
@@ -782,6 +785,7 @@ function builderActivity(u: Unit) {
 }
 export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
+  if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
   if (u.native) return u.native
   if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
@@ -4204,7 +4208,10 @@ function stepTurn(w: World) {
       u.hp = 0
       continue
     }
-    if (u.fight) continue
+    if (u.fight) {
+      if (u.fight.motion) stepLiveMeleeMotion(w, u)
+      continue
+    }
     if (u.casting) {
       u.casting.remaining -= dt
       if (u.casting.remaining <= 1e-8) u.casting = null

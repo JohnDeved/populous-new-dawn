@@ -1,5 +1,5 @@
 import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
-import { meleeAnimationObject } from './melee.ts'
+import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
@@ -212,8 +212,8 @@ export function leaveLiveBuilding(w: World, u: Unit) {
 export function syncLivePersonCells(w: World) {
   const people = new Map(
     w.units
-      .filter(u => (u.flight || u.native || u.entry) && (u.hp > 0 || u.flight))
-      .map(u => [u.id, (u.flight ?? u.native ?? u.entry?.person)!])
+      .filter(u => (u.flight || u.fight?.motion || u.native || u.entry) && (u.hp > 0 || u.flight))
+      .map(u => [u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!])
   )
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
@@ -240,7 +240,7 @@ export function syncLivePersonCells(w: World) {
       w.objectCells.objects.set(p.id, p)
       insertObjectIntoCell(w.objectCells, p, p)
     }
-    if (u.flight) continue
+    if (u.flight || u.fight?.motion) continue
     const to = nativePosition(w, u)
     to.x &= 65535
     to.y &= 65535
@@ -444,12 +444,20 @@ export function collisionWorld(w: World): CollisionWorld {
   }
 }
 
-// 0x518fb0 substate 7: keep the recoil pose and let shared physics own the slide.
-export function startMeleeKnockback(w: World, u: Unit) {
+function createMeleePerson(w: World, u: Unit) {
   const p = createLivePerson(w, u)
   p.state = 25
+  p.flags2 |= 0x40200200 // 0x5184e0: arrival clamp and instant combat facing.
+  p.h = terrainPointHeight(w.land, p)
+  return p
+}
+
+// 0x518fb0 substate 7: keep the recoil pose and let shared physics own the slide.
+export function startMeleeKnockback(w: World, u: Unit) {
+  const p = u.fight?.motion ?? createMeleePerson(w, u)
+  p.state = 25
   p.substate = 7
-  p.flags2 |= 0x83080
+  p.flags2 = ((p.flags2 & ~0x40000000) | 0x83080) >>> 0
   p.flags3 |= 0x8000000
   p.flags4 |= 0x2000
   setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
@@ -464,30 +472,74 @@ export function startMeleeKnockback(w: World, u: Unit) {
   u.flight = p
 }
 
-// Native impulse/airborne physics owns the complete flight, then hands ordinary
-// orders back to the existing browser controller after the native settle state.
-export function stepLiveImpulse(w: World, u: Unit) {
-  const p = u.flight!
+// Fight control sets destinations first; ordinary person physics moves everyone
+// afterward, preserving group decisions independently of participant list order.
+export function approachLiveMelee(
+  w: World,
+  u: Unit,
+  slot: { x: number; y: number },
+  center: { x: number; y: number },
+  outer: boolean
+) {
+  const f = u.fight!
+  f.motion ??= createMeleePerson(w, u)
+  const p = f.motion
+  p.substate = f.action === 'approach' ? 0 : 1
+  const state = { randomState: w.randomState, routes: w.motionRoutes }
+  const ready = approachMeleeSlot(state, p, slot, center, outer, {
+    animation: (_, object) => setLivePersonAnimation(w, p, object),
+    move: point => {
+      registerLivePerson(w, p)
+      moveObjectInCells(w.objectCells, p, {
+        x: point.x & 65535,
+        y: point.y & 65535,
+        h: terrainPointHeight(w.land, point),
+      })
+      Object.assign(u, browserPosition(p))
+    },
+  })
+  w.randomState = state.randomState
+  f.action = p.substate === 1 ? 'ready' : 'approach'
+  f.animation = p.speed ? 'walk' : 'idle'
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
+  return ready
+}
+
+export function stepLiveMeleeMotion(w: World, u: Unit) {
+  const p = u.fight!.motion!
+  stepLivePhysics(w, u, p)
+  if (p.flags2 & 0x80000) u.flight = p
+  if (p.state !== 25) u.fight = null
+}
+
+function registerLivePerson(w: World, p: LivePerson) {
   const previous = w.objectCells.objects.get(p.id)
   if (previous !== p) {
     if (previous && previous.flags2 & 0x20000) removeObjectFromCell(w.objectCells, previous)
     w.objectCells.objects.set(p.id, p)
     insertObjectIntoCell(w.objectCells, p, p)
   }
+}
+
+// Grounded combat and airborne impulses share the original person physics.
+function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
+  registerLivePerson(w, p)
   // Ordinary combat still owns browser HP; don't restore an opportunistic hit
   // from the preceding physics snapshot when the defender is being pushed.
   p.life = short(Math.round(u.hp * 20))
-  const ctx = context(w)
+  // Ordinary combat physics needs no celebration/order world snapshot.
+  let ctx: ReturnType<typeof context> | undefined
+  const stateContext = () => (ctx ??= context(w))
   const animate = () => {
     const object = personAnimationObject(p)
     if (object !== -1) setLivePersonAnimation(w, p, object)
   }
-  const initialize = () => initializeLivePerson(w, u, ctx, p)
+  const initialize = () => initializeLivePerson(w, u, stateContext(), p)
   p.counter = (p.counter + 1) & 255
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize,
     animation: animate,
-    destination: to => ctx.effects.destination(p, to),
+    destination: to => setDirectPersonDestination(w.motionRoutes, p, to),
   })
   stepPersonReaction(p)
   markPersonAirborne(w.land, p)
@@ -528,12 +580,17 @@ export function stepLiveImpulse(w: World, u: Unit) {
       readyToFight: () => false,
     }
   )
-  if (p.state === 26) updateLivePanic(w, u, ctx, p)
+  if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.hp = p.life / 20
-  w.randomState = ctx.state.randomState
+  if (ctx) w.randomState = ctx.state.randomState
+}
+
+export function stepLiveImpulse(w: World, u: Unit) {
+  const p = u.flight!
+  stepLivePhysics(w, u, p)
   if (!(p.flags2 & 0x80000) && u.fight?.action !== 'push') {
     u.flight = undefined
     if (u.native === p && p.state !== 26 && p.state !== 41) u.native = null

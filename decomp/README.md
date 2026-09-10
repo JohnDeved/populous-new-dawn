@@ -4462,3 +4462,15 @@ optimization are covered by `tests/melee.test.mjs`, `check-browser-melee.mjs
 --headed` and `bench-melee-placement.mjs`. Original group allocation, initial
 angle/member ordering and global scheduler phase remain open. See
 [fight-site findings](../references/reverse-engineering.md#native-fight-site-placement-2026-09-10).
+
+## Melee approach and composed person motion
+
+The manifest now hashes 994 exports, adding the state-25 body `005184e0`.
+`check-native-melee-approach.py EXE` checks 4,096 approach/ready control blocks
+with native speed/animation/route/terrain consumers, then 96 × 16 composed
+control/preparation/physics turns against the actual live adapter. The composed
+check supplies reveal/path-list consumers and group allocation/index inputs.
+`check-native-melee-timing.py` now seeds the established state-25 arrival/facing
+flags before checking knockback. Full global scheduling, initializer cleanup,
+command interruption and prefight allocation remain unported. See
+[approach findings](../references/reverse-engineering.md#melee-approach-and-ready-slot-transitions-2026-09-10).
