@@ -22,10 +22,15 @@ import {
   cancelLiveBuildingAttack,
   liveBuildingAttackTarget,
 } from './live-building-combat.ts'
-import { automaticMeleeTarget, nativePersonTribe } from './live-combat.ts'
+import { automaticMeleeTarget, nativePersonModel, nativePersonTribe } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import { deselectPerson, emptyPersonOrder, type OrderPool } from './person-orders.ts'
+import {
+  clickPersonSelection,
+  markPersonSelected,
+  selectedPersonVoice,
+} from './person-selection.ts'
 import { relocateFight } from './melee-placement.ts'
 import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
@@ -2155,10 +2160,52 @@ export function canOrder(u: Unit) {
 }
 
 export function select(w: World, kind: UnitKind | 'all') {
-  w.selected = w.units
-    .filter(u => u.team === 'blue' && canOrder(u) && (kind === 'all' || u.kind === kind))
-    .map(u => u.id)
+  setSelection(
+    w,
+    w.units
+      .filter(u => u.team === 'blue' && canOrder(u) && (kind === 'all' || u.kind === kind))
+      .map(u => u.id)
+  )
   w.mode = null
+}
+
+function selectionPeople(w: World) {
+  const selected = new Set(w.selected)
+  return w.units
+    .filter(u => u.team === 'blue' && u.hp > 0)
+    .map(u => {
+      // Selection must not create a simulation owner before a real controller handoff.
+      const p = unitAnimationSource(u) ??
+        u.native ?? {
+          id: u.id,
+          flags3: 0,
+          flags4: 0,
+          selectionFlags: 0,
+        }
+      // The displayed roster owns selection until every native input producer is live.
+      p.selectionFlags = (p.selectionFlags & ~128) | (selected.has(u.id) ? 128 : 0)
+      return p
+    })
+}
+
+export function setSelection(w: World, ids: number[]) {
+  const selected = new Set(ids)
+  const people = selectionPeople(w)
+  for (const p of people) {
+    const next = selected.has(p.id) && !(p.flags4 & 128)
+    if (next !== !!(p.selectionFlags & 128)) markPersonSelected(p, next)
+  }
+  w.selected = people.filter(p => p.selectionFlags & 128).map(p => p.id)
+}
+
+export function selectUnit(w: World, id: number, extend: boolean) {
+  const people = selectionPeople(w)
+  const newlySelected = clickPersonSelection(people, id, extend)
+  w.selected = people.filter(p => p.selectionFlags & 128).map(p => p.id)
+  if (newlySelected) {
+    const u = w.units.find(unit => unit.id === id)!
+    sound(w, selectedPersonVoice(nativePersonModel(u)), u)
+  }
 }
 
 // Native right-click/Escape cancels a targeting mode before clearing followers.

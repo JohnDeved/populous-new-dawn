@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
+import { markPersonSelected } from './person-selection.ts'
 import {
   buildingInsidePoint,
   buildingOutsidePoint,
@@ -68,13 +69,7 @@ export function selectTrainingOccupants(
   if (!person) return
   const selecting = !(person.selectionFlags & 128)
   for (const p of group ? occupants : [person]) {
-    if (!selecting) {
-      p.selectionFlags &= ~128
-      p.flags3 = (p.flags3 & ~128) >>> 0
-    } else if (!(p.flags4 & 128)) {
-      p.selectionFlags |= 128
-      p.flags3 = (group ? p.flags3 & ~0x10000000 : p.flags3 | 0x10000000) >>> 0
-    }
+    if (!selecting || !(p.flags4 & 128)) markPersonSelected(p, selecting, !group)
   }
 }
 

@@ -720,7 +720,9 @@ export default function Home() {
           <span>Right-click / Escape</span>
           <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
           <span>Drag on land</span>
-          <strong>Select a group · Shift adds to selection</strong>
+          <strong>Select a group · Ctrl adds to selection</strong>
+          <span>Ctrl-click / Shift-click</span>
+          <strong>Toggle a follower / Give an order through friendly followers</strong>
           <span>Right / middle drag</span>
           <strong>Right drag turns the view · middle drag moves it</strong>
           <span>Scroll · = / −</span>

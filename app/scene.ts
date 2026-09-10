@@ -73,6 +73,8 @@ import {
   cast,
   command,
   cancelInteraction,
+  selectUnit,
+  setSelection,
   placeBuilding,
   spellRange,
   spellTargetError,
@@ -534,7 +536,7 @@ export class GameScene {
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
   buildingPanels = new Map<number, HTMLDivElement>()
-  down = { x: 0, y: 0, button: 0 }
+  down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   dragBox: HTMLDivElement
   keys = new Set<string>()
   resize: ResizeObserver
@@ -1328,7 +1330,22 @@ export class GameScene {
   }
   pointerDown = ((event: PointerEvent) => {
     this.pointerButtons = event.buttons
-    this.down = { x: event.clientX, y: event.clientY, button: event.button }
+    const unit =
+      event.button === 0 &&
+      !this.world.mode &&
+      !this.world.inputMask &&
+      !this.overviewActive &&
+      !(this.world.selected.length && (event.shiftKey || (event.altKey && event.ctrlKey)))
+        ? this.pickUnit(event)?.id
+        : undefined
+    this.down = {
+      x: event.clientX,
+      y: event.clientY,
+      button: event.button,
+      unit,
+      extend: event.ctrlKey,
+    }
+    if (unit !== undefined) this.onSound(0x6a)
     this.dragLast = { x: event.clientX, y: event.clientY }
     if (
       this.overviewActive &&
@@ -1403,7 +1420,10 @@ export class GameScene {
             )
           })
           .map(u => u.id)
-        this.world.selected = event.shiftKey ? [...new Set([...this.world.selected, ...ids])] : ids
+        setSelection(
+          this.world,
+          this.down.extend ? [...new Set([...this.world.selected, ...ids])] : ids
+        )
         this.onChange()
       }
       return
@@ -1414,7 +1434,9 @@ export class GameScene {
       return
     }
     if (event.button !== 0) return
-    const clickedUnit = event.button === 0 && !this.world.mode ? this.pickUnit(event) : undefined
+    const clickedUnit = !this.world.mode
+      ? this.world.units.find(u => u.id === this.down.unit)
+      : undefined
     let p = this.pick(event) ?? clickedUnit
     if (!p) return
     if (!this.world.mode) {
@@ -1429,20 +1451,8 @@ export class GameScene {
       if (!ok) this.onSound(0x25)
       else if (!SPELLS.some(s => s.id === mode)) this.onSound(0x24)
     } else {
-      const picked =
-        clickedUnit ??
-        this.world.units
-          .filter(
-            u => u.team === 'blue' && canOrder(u) && u.inside === null && distance(u, p) < 2.1
-          )
-          .sort((a, b) => distance(a, p) - distance(b, p))[0]
-      if (picked) {
-        this.world.selected = event.shiftKey
-          ? this.world.selected.includes(picked.id)
-            ? this.world.selected.filter(id => id !== picked.id)
-            : [...this.world.selected, picked.id]
-          : [picked.id]
-        this.onSound(picked.kind === 'shaman' ? 0x18 : picked.kind === 'warrior' ? 0x43 : 0x58)
+      if (clickedUnit) {
+        selectUnit(this.world, clickedUnit.id, this.down.extend)
       } else if (this.world.selected.length) {
         command(this.world, p)
         this.orderSound()

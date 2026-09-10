@@ -7026,3 +7026,73 @@ dismantling cases remove their own surviving followers so the next building clic
 does not accidentally select one. Fallow still flags existing controller complexity;
 ox-standard still reports pre-existing type-style/nested-expression debt. This input
 change adds no per-frame work and makes no hardware FPS or performance-gain claim.
+
+
+### Default ordinary player click selection (2026-09-10)
+
+The runtime default differs from the bare executable image: `0042bfa0`
+(`clear_level_global_vars`) sets `00895da8 & 0x10000`. This selects tribe command
+`0x7b` on ordinary click release, rather than the alternate `0x2a` mode. The full
+reset executes in the check; palette/globe/auxiliary reset consumers are intercepted.
+The shipped mouse binding records at `005d6478/84/90` resolve through `00489470`:
+left press actions `0x6e/0x6f` differ by Ctrl, and release action `0x71` uses the
+modifier captured at press. Shift and Alt are ignored for choosing these bindings.
+`004fef20` permits idle/selected UI contexts; `004fefa0` permits drag/person-release
+contexts. Separate Shift-building/vehicle predicates are exported but not yet ported.
+
+`004aab80` captures the friendly person ID at press, emits click sound `0x6a`, and
+enters person UI mode 15. Releasing over another hover target still submits the
+pressed ID and Ctrl bit. With an existing selection, Shift or Alt+Ctrl instead
+enters order mode 16, allowing orders through a friendly sprite. `004de610` prevents
+selection of people inside a particular native building state; browser direct
+sprite picking currently excludes all inside occupants and retains panel selection.
+The default on-foot bridge is implemented; full alternate modes are not claimed.
+
+The complete `0043e8e0` tribe command `0x7b` behaves as follows:
+
+- New eligible person: Ctrl adds; otherwise clear the tribe selection before adding.
+- Already-selected person: Ctrl removes; unmodified click preserves the entire group.
+- New ineligible person (`flags4 & 128`): preserve the previous group.
+- Selecting sets selection bit 7 and clears keep-work flag `0x10000000`.
+  Removing clears selection bit 7 and flags3 bit 7; it does not copy bit 7 to bit 0
+  as global deselection does. Unrelated flags, orders, states and motion survive.
+- `00489c40` single voices: model 4 uses `0x57`, model 5 `0x56`, shaman 7 `0x18`,
+  other classes `0x58`. Warrior `0x43` was incorrect: it is a two-person group cue.
+
+`app/person-selection.ts` shares the flag operation with existing training panels.
+The live bridge updates active native records without allocating new simulation
+owners. An initial eager bootstrap exposed invalid resting ownership during the
+complete first-mission test; selecting a legacy person must only change its roster
+selection until a real controller handoff constructs movement state. That root cause
+is covered by a regression asserting unchanged legacy unit objects and continued
+shared orders. Removed the guessed 2.1-world-unit selection fallback: click ownership
+now comes from the displayed sprite bounds, with the target and Ctrl latched at press.
+
+`scripts/check-native-person-selection.py` executes 1,024 full tribe commands over
+4,096 person records, checking every byte outside the five selection/flag bytes is
+unchanged and comparing TS flags and native single voices. It also verifies runtime
+default initialization, 288 original modifier binding cases and 16 press/release
+combinations including modifier release and changed hover. Only downstream UI/sound
+consumers are captured for commands; eligibility, person writes and voice decisions
+execute natively. `check-native-training-selection.py` retains existing panel rules.
+`tests/person-selection.test.mjs` covers group flags, legacy ownership and continued
+native orders. `check-browser-person-selection.mjs` clicks actual sprite bounds at
+1440×1000, 3440×1440 and 1920×1080 at 2× DPI, checking Ctrl latching/add/remove,
+group preservation, warrior voice, Shift orders, unchanged movement and arrows.
+
+Performance boundary: selection scans only on input, using the existing unit roster;
+there is no new per-turn/per-frame selection pass, dependency, animation clock or
+render cap. It retains existing interpolated sprite picking coordinates. These checks
+prove selection semantics and ownership, not hardware frame rate or exact native
+painter hit ownership. World-projected drag geometry, native drag/press transitions,
+alpha/occlusion/mixed-class picking, full HUD and passenger ownership, buffered input,
+focus consumers, alternate setting modes and group voice scheduling remain unfinished.
+The existing screen rectangle temporarily uses the corrected Ctrl-add modifier;
+that does not constitute native 3D drag selection parity.
+
+Validation: 285 portable tests, typecheck, build, formatting and 1,079 export hashes
+pass. Original deselection and training-panel comparisons pass. Browser sprite
+clicks, right-click/Escape, selection arrows, 576 GPU sprite poses, airborne shadows,
+training and tower admission/exit pass. The new selection module is ox-standard
+clean; whole-repo ox-standard retains existing debt and Fallow reports existing
+controller complexity (maintainability 85.4). No hardware performance gain is claimed.
