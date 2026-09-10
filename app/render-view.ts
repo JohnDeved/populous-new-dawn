@@ -146,6 +146,7 @@ export class RenderView {
     pixelScaleY: 0.0625,
   }
   center = { x: 0, y: 0 }
+  angle = 0
   rawCenter = { x: 0, y: 0 }
   overview = false
   bounds = circularMeshBounds(50)
@@ -185,6 +186,7 @@ export class RenderView {
     this.center = { x: this.rawCenter.x & 65535, y: this.rawCenter.y & 65535 }
     const angle = Math.round((heading * 1024) / Math.PI) & 2047,
       matrix = cameraMatrix(angle, this.config.pitch)
+    this.angle = angle
     this.projection = {
       ...this.projection,
       ...this.config,

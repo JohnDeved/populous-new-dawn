@@ -96,10 +96,25 @@ try {
         }
       }
       const { total, low, water, high } = after.environment
+      const treeCandidates = s.decorations.children
+        .filter(
+          g =>
+            g.visible &&
+            g.userData.point?.model > 0 &&
+            g.userData.point.model < 7 &&
+            s.view.visible(g.position)
+        )
+        .map(g => ({
+          model: g.userData.point.model,
+          x: Math.round((g.position.x + 8) * 256) & 65535,
+          y: Math.round((-g.position.z - 8) * 256) & 65535,
+        }))
       cases.push({
         view: { x, z, heading, zoom },
         triangles,
         expected: { total, low, water, high },
+        treeCandidates,
+        expectedTrees: after.environment.trees,
       })
     }
     const samples = [[], [], []]
@@ -147,7 +162,11 @@ try {
   console.log(
     'PASS: six actual views preserve pixels/depths and feed completed terrain snapshots; paired painter CPU timings',
     JSON.stringify({
-      cases: report.cases.map(({ triangles, ...c }) => ({ ...c, triangles: triangles.length })),
+      cases: report.cases.map(({ triangles, treeCandidates, ...c }) => ({
+        ...c,
+        triangles: triangles.length,
+        treeCandidates: treeCandidates.length,
+      })),
       statistics: report.statistics.map(({ samples, ...s }) => s),
       retainedBytes: report.retainedBytes,
     })

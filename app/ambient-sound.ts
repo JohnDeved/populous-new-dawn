@@ -1,4 +1,23 @@
-import { random } from './native-math.ts'
+import { random, movePosition } from './native-math.ts'
+
+// 0x48b2c0: the listener is 4096 native units behind the camera's map position.
+export function soundListener(center: { x: number; y: number }, angle: number) {
+  const listener = { ...center }
+  movePosition(listener, angle, -4096)
+  return listener
+}
+
+// 0x46ec80 counts tree models 1–6 in drawn cells only when this probe is positive.
+// Distances 0–3 are deliberately excluded by the native low-two-bit mask.
+export function treeAmbienceAudible(
+  p: { x: number; y: number },
+  listener: { x: number; y: number }
+) {
+  const x = ((p.x - listener.x) << 16) >> 16,
+    y = ((p.y - listener.y) << 16) >> 16,
+    squared = x * x + y * y
+  return squared > 3 && squared <= 0x9000000
+}
 
 export interface SoundEnvironment {
   total: number

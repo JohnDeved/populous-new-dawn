@@ -1310,9 +1310,12 @@
             "tests/fixtures/terrain-ambience.json",
             "scripts/check-browser-terrain-ambience.mjs",
             "references/performance/2026-09-10-terrain-ambience.json",
-            "references/performance/2026-09-10-terrain-ambience-ultrawide.json"
+            "references/performance/2026-09-10-terrain-ambience-ultrawide.json",
+            "decomp/generated/0048b2c0.c",
+            "scripts/check-native-scenery-visibility.py",
+            "tests/fixtures/tree-ambience.json"
           ],
-          "note": "Ordinary layers/accents and playing gains are integrated with native comparisons. The camera-neighborhood adapter is replaced by accepted terrain triangles and the original depth cutoff: 256 native lists/8070 triangles plus real browser terrain-list replays agree. Sampling reuses painter work at the existing 4 Hz audio-input cadence; pixels/depths are unchanged. Exact native scene membership/cadence, tree/object ownership, special renderer flags/landscapes, shield ambience and voice arbitration remain open."
+          "note": "Ordinary layers/accents and playing gains are integrated with native comparisons. Accepted terrain triangles use the original depth cutoff: 256 native lists/8070 triangles plus real browser terrain-list replays agree. Tree eligibility uses rendered cells and original camera-offset/wrapped-distance rules: 4096 full native cell visits and 12 browser candidate-list replays agree. Sampling reuses painter work at the existing 4 Hz cadence; pixels/depths are unchanged. Exact native scene membership/cadence, full object ownership, special renderer flags/landscapes, shield ambience and voice arbitration remain open."
         },
         {
           "id": "audio.music",

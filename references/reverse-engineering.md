@@ -6537,3 +6537,38 @@ turn reaches activity 0. No direct write to the tested audio activity is used.
 Original percussion descriptor selection and sample playback remain covered by
 the existing audio tests. Complete attack-order, frontend and stream-transition
 ownership are still unfinished; this does not certify the whole music checkpoint.
+
+## 2026-09-10 — tree ambience follows the native listener
+
+`0046ec80` counts ordinary scenery models 1–6 in visited cells, after its
+hidden/already-drawn and model-pool checks but before face projection. Its call
+to `0048b2c0` is an audio distance probe despite the community queue-related name.
+The probe copies the player camera position, moves it -4096 native units along
+the camera heading through `004e6a70`, then uses the wrapped squared XY distance
+from `00450450`. Distances above `0x9000000` return -1; the caller masks the low
+two bits and accepts only positive results. Thus distances 0–3 also fail.
+
+The browser now applies that rule to actual tree models in visited cells during
+the existing painter traversal, before face culling. This replaces the separate
+world-tree scan and its projected-depth visibility shortcut. The boolean result
+stops further distance checks once a qualifying tree is found; no random calls
+are skipped. Sampling retains the existing 4 Hz request cadence, independent of
+rendered-frame rate, and adds no persistent tree list or second scene traversal.
+
+`check-native-scenery-visibility.py` retains 1,440 cell-dispatch checks and adds
+4,096 complete native cell visits with the real distance probe, including radius
+boundaries, the near-listener mask, toroidal seams, headings and player tribes.
+241 portable captures retain the results. Its `--browser` option replays actual
+tree candidates from `check-browser-terrain-ambience.mjs`: six camera views at
+1440×1000 and six at 3440×1000 agree, including views containing distant tree
+candidates that must not enable tree ambience. Render pixels and painter depths
+remain unchanged in every view.
+
+Retained headless Chromium CPU measurements compare the pre-ambience painter,
+current unsampled painter, and current sampled painter. Medians were
+1.3/1.3/1.3 ms at 1440×1000 and 2.7/2.5/2.5 ms at 3440×1000; p95 values were
+1.5/1.5/1.5 and 2.9/2.7/2.6 ms. These are noisy CPU-only timings, not a hardware
+FPS or speedup claim. Reports retain individual samples and browser versions.
+Native object allocation/list ownership, original whole-scene membership, exact
+audio-input cadence and special landscapes remain partial. Native replay supplies
+the browser's candidate membership and model consumers, not an original GPU frame.

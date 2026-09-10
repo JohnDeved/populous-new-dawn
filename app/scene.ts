@@ -2267,9 +2267,6 @@ export class GameScene {
     }
     // Audio owns this snapshot; the next rendered frame fills its terrain counts.
     painter.pendingSoundEnvironment = result
-    result.trees = this.world.trees.some(
-      t => t.model > 0 && t.model < 7 && t.logs > 0 && this.visible(t)
-    )
     return result
   }
   orderSound() {

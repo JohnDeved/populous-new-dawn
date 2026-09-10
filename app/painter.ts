@@ -11,6 +11,7 @@ import { PainterVertices } from './painter-vertices.ts'
 import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
 import { TerrainAmbience } from './terrain-ambience.ts'
 import type { NativeTerrain } from './native-terrain.ts'
+import { soundListener, treeAmbienceAudible, type SoundEnvironment } from './ambient-sound.ts'
 
 interface Command {
   slot: number
@@ -30,7 +31,7 @@ export class Painter {
   landFlags: Uint32Array = new Uint32Array(16384)
   land?: Pick<NativeTerrain, 'heights' | 'categories'>
   terrainAmbience = new TerrainAmbience()
-  pendingSoundEnvironment?: ReturnType<TerrainAmbience['result']>
+  pendingSoundEnvironment?: SoundEnvironment
   cells?: ObjectCells
   centers = new WeakMap<
     THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
@@ -69,7 +70,11 @@ export class Painter {
 
   update(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
     const sampleAmbience = this.pendingSoundEnvironment && this.land
-    if (sampleAmbience) this.terrainAmbience.clear()
+    const listener = sampleAmbience && soundListener(this.view.center, this.view.angle)
+    if (sampleAmbience) {
+      this.terrainAmbience.clear()
+      this.pendingSoundEnvironment!.trees = false
+    }
     const objects: (THREE.Mesh | THREE.Sprite)[] = []
     let length = 0
     scene.traverseVisible(object => {
@@ -158,6 +163,14 @@ export class Painter {
         const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
         // Every face of a native model uses the same anchor cell.
         if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin, unwrapped)) continue
+        if (listener && scale && !this.pendingSoundEnvironment!.trees) {
+          const tree = metadata.point
+          if (tree?.model > 0 && tree.model < 7)
+            this.pendingSoundEnvironment!.trees = treeAmbienceAudible(
+              { x: Math.round((origin.x + 8) * 256), y: Math.round((-origin.z - 8) * 256) },
+              listener
+            )
+        }
         for (let face = 0; face < submitted; face++) {
           const triangle = index ? index.getX(face * 3) / 3 : face
           if (sprite || scale) anchor.copy(origin)

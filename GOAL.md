@@ -79,9 +79,19 @@ use Fallow, ox-standard and Ponytail in the regular development workflow.
 Reconstruct original behavior in idiomatic game code, keeping raw decompiler
 output and address-level bookkeeping in the decompilation evidence.
 
-## Current execution order: finish terrain optimization, then visible parity
+## Current execution order: finish tree ambience, then biggest noticeable improvements
 
-Latest user direction, 2026-09-09: finish and validate the current terrain
+Latest user direction, 2026-09-10: finish the current tree-ambience correction,
+then prioritize changes with the largest noticeable impact on playing the game.
+Assess the current playable build and choose concrete gaps in core gameplay,
+spell effects, controls, HUD and world presentation. Prefer complete playable
+improvements over further isolated native helpers. Decompile and integrate deeper
+systems when they are needed for the selected visible result. Remaining audio
+edge cases and the staged attack-controller work are candidates, not prerequisites
+that delay higher-impact work. Preserve full-game scope, clean code, modern
+performance and original mechanics; record evidence without inflating parity.
+
+Previous user direction, 2026-09-09: finish and validate the current terrain
 performance improvement, then resume important gameplay mechanics and visuals.
 This supersedes the requirement to finish the entire modernization audit before
 adding parity features. Keep clean, concise code, modern web/hardware support,
@@ -1474,19 +1484,19 @@ natively. Destination/occupant/encounter/audio consumers are supplied. 361 porta
 captures retain the checks. Plan/building entry share existing code, with the full
 10,624-call plan regression passing. No new live combat or lifecycle credit.
 
-After the music/ambient work below, compose ordinary `0051a2a0` phases with actual world consumers and the existing
+When combat is selected under the noticeable-impact priority above, compose ordinary `0051a2a0` phases with actual world consumers and the existing
 startup/update/advance helpers and shared `w.buildingOrders` pool. Finish defender
 query/removal and building encounters, actual plan destruction and command
 completion. Preserve queued movement/work through native ownership; never add a
 second pool or saved browser task/path replay. Ranged phases 10/11 remain open.
-Keep this live integration ahead of further unrelated helper reconstruction,
+Keep this live integration ahead of further unrelated combat helper reconstruction,
 then return to first-mission campaign attacks and visible spells.
 
 The broad performance pass is complete. New mechanics stay fixed-turn, rendering
 uncapped, and TS clean and readable. Profile the composed controller when live.
 The entire game scope and all unfinished lifecycle requirements remain active.
 
-### Next priority: music and ambient sound
+### Audio work delivered; finish current tree ambience correction
 
 Latest user direction, 2026-09-10: finish the current building-attack work, then
 continue music and ambient sounds. Inspect the supplied original audio and native
@@ -1504,13 +1514,14 @@ selection/ambience comparisons and a real-browser audio check cover this bounded
 work. Playback uses streaming and the audio clock, with pause/resume, master/music
 volume, muted/restarted cleanup and uncapped-FPS timing checks.
 
-Continue audio parity through native tree/object and activity ownership,
+Remaining audio parity includes native tree/object and activity ownership,
 special-landscape substitutions, frontend music selection and voice scheduling.
 Terrain counts now use accepted renderer triangles and the original depth cutoff;
 256 native lists/8,070 triangles and live submitted-list replays verify this bounded
 integration. Exact whole-scene membership, special renderer flags and native timing
-remain open. Visible-tree eligibility and ordinary attack-target ownership remain
-adapters. Music activity now resets each simulation turn and is raised by encounter
+remain open. Tree eligibility now uses rendered cells and the original listener
+offset/wrapped radius; complete native object ownership remains open. Ordinary
+attack-target ownership remains an adapter. Music activity now resets each simulation turn and is raised by encounter
 and valid fight-member visits, including approach/ready phases before a strike.
 4,096 complete native encounter calls and 405 fight traces include this signal;
 real-browser encounter→battle music→quiet propagation is checked. The full native
@@ -1520,5 +1531,5 @@ without restarting samples; 4,096 native volume comparisons and real-browser
 land/water/globe transitions cover the update. Exact object counts, special
 landscape mixing and native voice arbitration remain unfinished.
 Do not block audible gameplay on unrelated decompilation. The
-building-controller/shared-queue integration above remains the following gameplay
-target; the full-game scope remains active.
+next task is selected for the biggest noticeable improvement under the execution
+order above; the full-game scope remains active.
