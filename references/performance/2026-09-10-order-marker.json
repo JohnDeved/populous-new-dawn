@@ -1,0 +1,88 @@
+{
+  "views": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "pixels": 119,
+      "rendering": {
+        "without": {
+          "calls": 22,
+          "triangles": 8042,
+          "textures": 11
+        },
+        "withMarker": {
+          "calls": 23,
+          "triangles": 8044,
+          "textures": 11
+        },
+        "sprites": 1
+      },
+      "paused": true,
+      "alive": [
+        true,
+        true,
+        true,
+        false
+      ],
+      "removed": true
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "deviceScaleFactor": 1,
+      "pixels": 119,
+      "rendering": {
+        "without": {
+          "calls": 22,
+          "triangles": 16142,
+          "textures": 11
+        },
+        "withMarker": {
+          "calls": 23,
+          "triangles": 16144,
+          "textures": 11
+        },
+        "sprites": 1
+      },
+      "paused": true,
+      "alive": [
+        true,
+        true,
+        true,
+        false
+      ],
+      "removed": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 2,
+      "pixels": 388,
+      "rendering": {
+        "without": {
+          "calls": 22,
+          "triangles": 10142,
+          "textures": 11
+        },
+        "withMarker": {
+          "calls": 23,
+          "triangles": 10144,
+          "textures": 11
+        },
+        "sprites": 1
+      },
+      "paused": true,
+      "alive": [
+        true,
+        true,
+        true,
+        false
+      ],
+      "removed": true
+    }
+  ],
+  "method": "Headless Chromium on macOS with software rendering. Freeze the same scene, render with the marker hidden and visible, and read renderer.info. Measure the actual order-icon emission; compare the source HFX pixels separately.",
+  "result": "One existing-atlas sprite adds one draw call and two triangles with zero additional GPU textures in all three viewport/DPI cases. Native effect initialization, animation and lifetime are reused; no new renderer or atlas was introduced.",
+  "limits": "Operation counts and visible pixels, not a hardware FPS certification. Full native painter allocation, mixed-class occlusion and native outer settings remain unfinished."
+}

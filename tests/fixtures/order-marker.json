@@ -1,0 +1,93 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "ground": 384,
+  "height": 224,
+  "point": {
+    "x": 65535,
+    "y": 1
+  },
+  "turns": 4,
+  "frames": [
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 0,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 4,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 8,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 12,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 16,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 20,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 0,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 4,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    },
+    {
+      "object": 1294,
+      "renderFlags": 260,
+      "f1": 8,
+      "f2": 0,
+      "draw": 46,
+      "morph": 0,
+      "palette": 0
+    }
+  ]
+}

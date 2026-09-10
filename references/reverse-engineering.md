@@ -7435,3 +7435,46 @@ oxlint, production build and 1,111 export hashes pass. The 64 panel canvases ret
 838,656 source-HFX/native RGBA pixel comparisons within one-byte alpha rounding.
 Existing ordinary click/modifier/voice and deselection/order-preservation browser
 regressions pass; the original first-level view was also visually inspected.
+
+### 2026-09-10 — original order destination sparkle
+
+Point-order focus now calls the recovered `004afff0` behavior: class-7/model-61
+secondary allocation, grounded position minus 160 native height units, lifetime
+four, and a second UI cue 106. Object-target focus does not create a point marker.
+The initializer `00509c10` switches on **model minus one**: model 61 selects state
+48, draw 46 and HFX1294–1299. The adjacent model 62 uses different artwork and a
+different processor; it is not the destination effect. `0050a750` switches on
+**state minus one**, deleting this state on the fourth processor visit.
+
+The existing `effect()` owner, original-animation adapter and sprite renderer
+supply the implementation. No extra atlas or texture clone is needed: the six
+frames already exist in the hit sequence and match the original nibble-alpha HFX
+bytes. The animation uses the elapsed 24 Hz adapter and four simulation visits
+use the existing 12 Hz turn clock. Pausing freezes both. `004edbd0` does not
+increment the shared class counter, so browser inspection likewise leaves the
+gameplay effect counter unchanged. Full native allocation/index/list ownership
+and outer clock/settings remain separate unfinished requirements.
+
+`check-native-order-marker.py` executes the original emitter, complete initializer,
+terrain interpolation, animation and effect processor across 128 points, including
+wrapped coordinates and varied terrain. Only allocation, class lifecycle callbacks,
+UI audio and final free are supplied. 2,688 animation states, four-visit deletion,
+UI cue and all six source/atlas frame byte comparisons pass. The small portable
+capture is executable-bound; render-rate replay covers 5–240 Hz and irregular
+frames with exact removal visits, frozen pause state and unchanged RNG/counter.
+The existing renderer is reused for the type-1 descriptor; complete mixed painter
+allocation, palette changes and all-view occlusion are not newly certified here.
+
+Actual browser order-icon clicks create visible GPU pixels and both UI cue requests
+without changing the queue or gameplay counter. Desktop, ultrawide and 2x DPI
+checks cover pause, all four visits and GPU-object disposal. Remaining contextual
+scope includes linked worship/other-class target panels, hover/pressed tint, bitmap
+transitions and complete ownership; those remain partial in the parity ledger.
+
+The recorded rendering comparison is
+[order-marker rendering cost](performance/2026-09-10-order-marker.json): one shared-atlas
+sprite adds one draw call and two triangles, with zero new GPU textures across all
+three viewport/DPI cases. These are software-renderer operation counts, not a
+hardware frame-rate claim. The existing person-panel input regression and Blast
+initializer regression pass. All 295 portable tests, TypeScript, formatting and
+1,114 export hashes pass; the marker's visible sparkle was inspected in-browser.

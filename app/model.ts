@@ -418,6 +418,7 @@ export type Effect = Point & {
     | 'fire'
     | 'sinking'
     | 'blastWave'
+    | 'orderMarker'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
@@ -2073,7 +2074,8 @@ function castVoice(w: World, u: Unit, spell: Spell) {
 export function effect(w: World, kind: Effect['kind'], p: Point) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.
   // Debris (class 10) and fire (class 5) have separate native counters.
-  if (kind !== 'debris' && kind !== 'fire') w.effectCounter = (w.effectCounter + 1) & 255
+  if (kind !== 'debris' && kind !== 'fire' && kind !== 'orderMarker')
+    w.effectCounter = (w.effectCounter + 1) & 255
   const f: Effect = {
     x: p.x,
     z: p.z,
@@ -2087,7 +2089,13 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
           ? 0.5
           : 1.7,
   }
-  if (kind === 'blast' || kind === 'lightning' || kind === 'splash' || kind === 'birth') {
+  if (
+    kind === 'blast' ||
+    kind === 'lightning' ||
+    kind === 'splash' ||
+    kind === 'birth' ||
+    kind === 'orderMarker'
+  ) {
     // Effect 38: 0x509c10 grounds the flash (0x445c20), sets draw 30/HFX1099;
     // state 0x24 in 0x50a750 removes its object after nine simulation turns.
     // Lightning starts hidden: one pending turn, then eight turns of upper flash.
@@ -2108,7 +2116,15 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
       morphTimer: 0,
       morphFrames: 0,
     }
-    if (kind === 'birth') {
+    if (kind === 'orderMarker') {
+      // 0x4afff0 overrides class-7/model-61: grounded HFX1294, lowered 160,
+      // four processor visits. Secondary allocation preserves the class counter.
+      f.height -= 160 / 45
+      f.turnsRemaining = 4
+      f.duration = 4 / TURNS_PER_SECOND
+      f.sprite = { sequence: 'hit', frame: 0 }
+      setAnimationObject(f.animation, 46, 1294)
+    } else if (kind === 'birth') {
       // 0x404c80 overrides effect 60's initial draw 44/HFX1288 with 41/HFX1441.
       setAnimationObject(f.animation, 44, 1288)
       setAnimationObject(f.animation, 41, 1441)

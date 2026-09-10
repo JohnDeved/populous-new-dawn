@@ -137,8 +137,10 @@ Track the requested queue explicitly:
    desktop input are compared. Order icons now focus their displayed destination or
    live target with original camera motion; right-click and keyboard actions preserve
    queues/selection. Native physical-slot misnavigation is deliberately corrected.
-   Destination marker effects, complete target-panel ownership, bitmap transitions,
-   HUD/vehicle ownership, buffering and alternate input modes remain open.
+   Point destinations now emit the original model-61 sparkle, height offset,
+   four-visit lifetime and second UI cue, reusing the existing atlas and renderer.
+   Complete target-panel ownership, bitmap transitions, HUD/vehicle ownership,
+   buffering and alternate input modes remain open.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,
    toroidal clamping, packed release commands, native cell bounds, ordinary outdoor
    follower admission, empty-area retention and group voices now match executable

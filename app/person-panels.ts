@@ -1,5 +1,5 @@
 import type { GameScene } from './scene.ts'
-import { browserPosition, maxHp, nativePosition, unitAnimationSource } from './model.ts'
+import { browserPosition, effect, maxHp, nativePosition, unitAnimationSource } from './model.ts'
 import {
   personOrderFocus,
   personOrderIcons,
@@ -184,6 +184,10 @@ export class PersonPanels {
     scene.focus(browserPosition(point), { animate: true })
     scene.onSound(0x6a)
     if (point.target) this.open(point.target, true)
+    else {
+      effect(world, 'orderMarker', browserPosition(point))
+      scene.onSound(0x6a)
+    }
   }
   dispose() {
     for (const panel of this.panels.values()) panel.element.remove()

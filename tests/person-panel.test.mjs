@@ -51,3 +51,42 @@ test('order focus matches native targets and follows the displayed queue record'
   assert.equal(personOrderFocus({...records[1],model:14}), null)
   assert.deepEqual(personOrderFocus({...records[1],model:11,a:65535}), {x:65280,y:65280,target:0})
 })
+
+import markerFixture from './fixtures/order-marker.json' with { type: 'json' }
+import { createWorld, effect, browserPosition } from '../app/model.ts'
+import { animateLiveObjects } from '../app/live-people.ts'
+import { advanceGame } from '../app/game-clock.ts'
+import effectAtlas from '../app/original-effects.json' with { type: 'json' }
+
+test('destination marker preserves native attachment, frames and lifetime at every render rate', () => {
+  assert.equal(markerFixture.executableSha256, exports.executableSha256)
+  const make = () => {
+    const w = createWorld()
+    w.units=[];w.buildings=[];w.shrines=[];w.trees=[];w.effects=[];w.speed=1
+    w.land.heights.fill(markerFixture.ground);w.land.flags.fill(0);w.land.landFlags=0
+    const counter=w.effectCounter, random=w.randomState
+    const f=effect(w,'orderMarker',browserPosition(markerFixture.point))
+    assert.equal(w.effectCounter,counter)
+    assert.equal(w.randomState,random)
+    assert.equal(Math.round(f.height*45),markerFixture.height)
+    assert.equal(f.turnsRemaining,markerFixture.turns)
+    return {w,f}
+  }
+  const {w,f}=make()
+  for (const expected of markerFixture.frames) {
+    assert.deepEqual(Object.fromEntries(Object.keys(expected).map(k=>[k,f.animation[k]])),expected)
+    animateLiveObjects(w)
+  }
+  assert.deepEqual(effectAtlas.animations.hit.map(f=>f.source),[1294,1295,1296,1297,1298,1299])
+  for (const schedule of [...[5,30,60,120,144,240].map(hz=>[1/hz]),[.007,.013,.28,.2]]) {
+    const {w,f}=make(),visits=[],clock={animationTime:0,animationFrame:0,afterTurn:()=>visits.push(w.effects.includes(f))}
+    w.paused=true;advanceGame(w,clock,30)
+    assert.equal(f.age,0);assert.equal(f.animation.f1,0)
+    w.paused=false
+    for(let elapsed=0,i=0;elapsed<.5-1e-9;i++) {
+      const dt=Math.min(.5-elapsed,schedule[i%schedule.length]);advanceGame(w,clock,dt);elapsed+=dt
+    }
+    assert.deepEqual(visits.slice(0,4),[true,true,true,false])
+    assert.equal(w.effects.includes(f),false)
+  }
+})
