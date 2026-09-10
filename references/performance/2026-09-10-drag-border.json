@@ -1,0 +1,101 @@
+{
+  "scope": "Terrain fill adds no draw calls; terrain-split edge/corner batch adds one. Software-renderer correctness check; not hardware FPS or a speedup benchmark.",
+  "samples": [
+    {
+      "angle": 0,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 31811,
+      "borderPixels": 4411,
+      "noExtraDraws": true,
+      "oneBorderDraw": true,
+      "drawCalls": 27,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 512,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 29743,
+      "borderPixels": 3811,
+      "noExtraDraws": true,
+      "oneBorderDraw": true,
+      "drawCalls": 27,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 1024,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 29058,
+      "borderPixels": 5662,
+      "noExtraDraws": true,
+      "oneBorderDraw": true,
+      "drawCalls": 27,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 1536,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 31109,
+      "borderPixels": 5275,
+      "noExtraDraws": true,
+      "oneBorderDraw": true,
+      "drawCalls": 27,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 256,
+      "width": 3440,
+      "height": 1440,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 9173,
+      "borderPixels": 4607,
+      "noExtraDraws": true,
+      "oneBorderDraw": true,
+      "drawCalls": 27,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 0,
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 2,
+      "center": 120,
+      "changed": 102690,
+      "borderPixels": 13503,
+      "noExtraDraws": true,
+      "oneBorderDraw": true,
+      "drawCalls": 27,
+      "renderPixelRatio": 1.8,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    }
+  ],
+  "sloped": {
+    "heights": [
+      71,
+      28,
+      7,
+      82
+    ],
+    "retained": true,
+    "borderPixels": 4725,
+    "vertices": 390,
+    "allocatedBytes": 12288
+  }
+}

@@ -1273,9 +1273,14 @@
                 "decomp/generated/00423900.c",
                 "decomp/generated/004673b0.c",
                 "scripts/check-browser-drag-selection.mjs",
-                "references/performance/2026-09-10-drag-selection.json"
+                "references/performance/2026-09-10-drag-selection.json",
+                "app/drag-border.ts",
+                "scripts/check-native-drag-border.py",
+                "tests/drag-border.test.mjs",
+                "references/performance/2026-09-10-drag-border.json",
+                "decomp/generated/00423700.c"
               ],
-              "note": "Original tile-15 translucent fill follows the actual terrain in the existing shader with zero extra draw calls. Native temporary polygon-pool construction is avoided. Exact fill UV/tessellation, tile-23 edges/tile-31 corners, eight-pixel extrusion, horizon suppression and mixed painter ordering are unfinished; software-renderer checks are not a hardware FPS claim."
+              "note": "Original tile-15 fill remains in the terrain shader. Tiles 23/31 now supply terrain-split edges/corners in one reusable GPU batch, with native eight-pixel extrusion and half-tile UVs verified against 256 native submissions and 512 perimeter splits. Native separate selection buckets, mixed alpha ordering, exact fill UV/four-triangle tessellation, clipped triangle list ordering and horizon suppression remain unfinished; the current border reuses terrain depth. Software-renderer checks establish draw counts and pixels, not hardware FPS."
             },
             {
               "id": "interface.commands.input-ownership",

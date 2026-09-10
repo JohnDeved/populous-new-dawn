@@ -123,7 +123,7 @@ import {
   unwrapDragCorners,
   dragMoved,
 } from './drag-selection.ts'
-import { dragOverlayShader } from './drag-overlay.ts'
+import { dragOverlayShader, DragBorder } from './drag-overlay.ts'
 import { nativeAngle, positionDistance } from './native-math.ts'
 import { GlobeRenderer } from './globe-renderer.ts'
 import { beginGlobeDrag, stepGlobeMotion, type GlobeMotion } from './globe.ts'
@@ -548,6 +548,7 @@ export class GameScene {
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
     null
+  dragBorder: DragBorder
   dragActive = { value: false }
   dragQuad = { value: Array.from({ length: 4 }, () => new THREE.Vector2()) }
   keys = new Set<string>()
@@ -747,6 +748,9 @@ export class GameScene {
     this.terrain.userData.nativeRelative = true
     this.terrain.userData.painterGround = true
     this.terrain.userData.terrainGrid = true
+    this.dragBorder = new DragBorder(texture('atlas'), this.view, this.terrain)
+    this.dragBorder.material.uniforms.dragActive = this.dragActive
+    this.scene.add(this.dragBorder)
     this.terrain.receiveShadow = true
     this.terrain.castShadow = true
     this.ground.add(this.terrain, this.objects, this.decorations, this.cursor, this.range)
@@ -1428,6 +1432,7 @@ export class GameScene {
     }
     if (end) drag.end = dragEndpoint(drag.start, end, this.view.angle)
     this.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
+    this.dragBorder.visible = this.dragActive.value
     if (!this.dragActive.value) return
     const angle = nativeAngle(
       ((drag.end.x - drag.start.x) << 16) >> 16,
@@ -1437,6 +1442,13 @@ export class GameScene {
       dragCorners(drag.start, this.view.angle, angle, positionDistance(drag.start, drag.end))
     )
     corners.forEach((p, i) => this.dragQuad.value[i].set(p.x, p.y))
+    this.dragBorder.update(
+      corners,
+      ((angle - this.view.angle) & 2047) >> 9,
+      this.world.land,
+      this.view,
+      this.terrain
+    )
   }
   pointerUp = ((event: PointerEvent) => {
     this.pointerButtons = event.buttons
@@ -2692,6 +2704,7 @@ export class GameScene {
           : null
       this.pointerState = pointerState
     }
+    this.dragBorder.visible = this.dragActive.value
     const hovered =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
     const hoveredBuilding = this.world.buildings.find(b => b.id === this.hoveredObject)

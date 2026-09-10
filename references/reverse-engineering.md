@@ -7177,3 +7177,55 @@ ox-standard clean. Native drag comparisons and actual browser drag checks pass;
 sprite clicking, deselection, selection arrows and all 576 GPU sprite poses retain
 their regression checks. Whole-repo lint debt and the raster/ownership gaps above
 remain open. No hardware FPS improvement is claimed.
+
+### Native selection borders and corners (2026-09-10)
+
+`004673b0` type `0x1c` copies two projected endpoints for edges, or one for a
+corner. It extrudes eight screen pixels down/left/up/right. Corners combine two
+successive axes. The renderer submits two triangles using original atlas tile 23
+(edges) or 31 (corners), sampling the lower half of each texture. The 21-bit UV
+endpoints retain their sub-texel difference from normalized 0/1 coordinates.
+`app/drag-border.ts` reconstructs these quads and texture coordinates directly;
+`scripts/check-native-drag-border.py` compares 256 native submissions across all
+four orientations, fractional coordinates and points outside the viewport. The
+texture-cache placement and GPU boundary are intercepted, not the geometry or UV
+calculation. Both triangles are captured with the actual six-argument callee cleanup.
+
+The complete `00424320` perimeter splitter is also executed for 512 bounded
+segments, including wrapped seams. Cell-side intersections use float32 slopes and
+half-unit rounding. Both diagonals are crossed every 512 native units; their
+arithmetic adds a quarter unit to Y, with the corresponding X adjustment. The
+native x87 control word is set to the MSVC runtime's double-precision mode, as in
+existing projection checks. JavaScript comparisons preserve these actual rounding
+rules instead of inferring evenly spaced edge samples. `00423700` confirms that
+new perimeter/center vertices use the existing original terrain height calculation.
+The live border projects these sampled heights through the existing native camera.
+
+`00425060` assigns orientation flags relative to the drag quadrant. `00422fc0`
+suppresses the border when either side's squared length is at most 1024. The live
+renderer uses those corner/edge directions and the same small-span boundary.
+
+Modern implementation: all edge/corner triangles share one mesh and the existing
+atlas. Buffer capacity grows only when required and subsequent updates reuse the
+same arrays; only populated ranges upload. Idle frames hide the border entirely.
+There is one additional draw during a drag; the fill continues to use the existing
+terrain draw. Original rendering submits two triangles per edge/corner through its
+polygon list. This is a structural batching improvement, not a hardware FPS claim.
+The browser check records draw counts, visible border pixels and buffer reuse,
+including the original first mission's uneven terrain. CSS-sized projection keeps
+the eight-pixel feedback legible at high DPI without tying it to animation frames.
+
+Remaining raster boundaries are explicit: the border currently samples the matching
+terrain copy's painter depth, rather than reproducing the separate native selection
+buckets and mixed alpha submission order. Exact clipped triangle-list ownership,
+near-horizon suppression and the fill's original four-triangle tessellation/UVs are
+still open. Those affect overlapping objects and steep/horizon views; the complete
+selection-feedback requirement remains partial. No overall parity credit is added
+for completing only this part of that requirement.
+
+Validation: 288 portable tests, typecheck, production build, formatting and 1,099
+export identities pass. Both drag modules are ox-standard clean. Native drag and
+border comparisons pass. Browser drag checks cover five bearings, ultrawide/high-DPI
+screens, a wrapped seam, original first-level slopes and idle removal; sprite clicks,
+deselection and 576 GPU sprite poses retain their passing regressions. The original
+terrain sample uses 390 border vertices in 12,288 bytes of retained buffer capacity.
