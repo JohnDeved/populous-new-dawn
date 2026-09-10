@@ -18,7 +18,7 @@ test('outdoor encounter calls match captured original fields, timing, RNG and so
       height:(x,y)=>terrainPointHeight(land,{x,y}),sound:(p,cue)=>sounds.push([p.id,cue]),
     })
     if(outcome!=='waiting')for(const p of c.people)p.workFlags=0
-    assert.deepEqual({people:c.people,randomState:w.randomState,sounds,outcome},expected)
+    assert.deepEqual({people:c.people,randomState:w.randomState,musicActivity:w.musicActivity,sounds,outcome},expected)
   }
 })
 
@@ -36,6 +36,7 @@ test('all playable encounter pairs show the opening strike, physical stagger and
     const hp=[a.hp,b.hp];let completed=false,encounterId
     for(let i=0;i<120;i++){
       advanceGame(w,clock,1/12)
+      if(w.fights[0])assert.equal(w.musicActivity,2,'positioning and the opening encounter already count as battle music')
       if(w.fights[0]?.encounter)encounterId=w.fights[0].id
       poses.add(a.fight?.motion?.substate===6?'opening':'approach')
       if(b.fight?.motion?.substate===7){poses.add('stagger');if(Math.hypot(b.x-1,b.z)>.01)poses.add('moved')}
@@ -59,7 +60,7 @@ test('encounters and their animations stay deterministic across render schedules
   const run=frames=>{
     const {w,a,b}=encounter(),clock={animationTime:0,animationFrame:0}
     for(const dt of frames)advanceGame(w,clock,dt)
-    return {a,b,fights:w.fights,randomState:w.randomState,sounds:w.sounds,turn:w.turn}
+    return {a,b,fights:w.fights,randomState:w.randomState,sounds:w.sounds,musicActivity:w.musicActivity,turn:w.turn}
   }
   const baseline=run(Array(120).fill(1/60))
   for(const fps of [5,30,120,144,240])assert.deepEqual(run(Array(fps*2).fill(1/fps)),baseline)
@@ -77,4 +78,20 @@ test('the native skip-intro flag and player cancellation do not leave stuck enco
   assert.equal(w.fights.length,0);assert.equal(a.fight,null);assert.equal(b.fight,null)
   assert.deepEqual(motions.map(p=>p.workFlags),[0,0])
   assert.ok(a.path.length)
+})
+
+
+test('simulation owns quiet, attack and battle music activity across pause and cancellation', () => {
+  const {w,b}=encounter(),clock={animationTime:0,animationFrame:0}
+  b.x=16
+  advanceGame(w,clock,1/12)
+  assert.equal(w.musicActivity,1,'a distant attack raises activity before a fight exists')
+  w.paused=true
+  advanceGame(w,clock,1)
+  assert.equal(w.musicActivity,1,'pause retains the last simulated activity')
+  w.paused=false
+  w.units=[]
+  w.fights=[]
+  advanceGame(w,clock,1/12)
+  assert.equal(w.musicActivity,0,'the next quiet turn clears previous activity')
 })

@@ -1509,7 +1509,13 @@ special-landscape substitutions, frontend music selection and voice scheduling.
 Terrain counts now use accepted renderer triangles and the original depth cutoff;
 256 native lists/8,070 triangles and live submitted-list replays verify this bounded
 integration. Exact whole-scene membership, special renderer flags and native timing
-remain open. Tree/fight adapters remain explicit. Active ordinary ambient gains now follow the current weights
+remain open. Visible-tree eligibility and ordinary attack-target ownership remain
+adapters. Music activity now resets each simulation turn and is raised by encounter
+and valid fight-member visits, including approach/ready phases before a strike.
+4,096 complete native encounter calls and 405 fight traces include this signal;
+real-browser encounter→battle music→quiet propagation is checked. The full native
+attack command queue remains necessary to finish activity ownership.
+Active ordinary ambient gains now follow the current weights
 without restarting samples; 4,096 native volume comparisons and real-browser
 land/water/globe transitions cover the update. Exact object counts, special
 landscape mixing and native voice arbitration remain unfinished.

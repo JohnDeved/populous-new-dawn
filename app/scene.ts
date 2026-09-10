@@ -2263,20 +2263,13 @@ export class GameScene {
       ...painter.terrainAmbience.result(),
       trees: false,
       overview: this.overviewActive,
-      activity: 0,
+      activity: this.world.musicActivity,
     }
     // Audio owns this snapshot; the next rendered frame fills its terrain counts.
     painter.pendingSoundEnvironment = result
     result.trees = this.world.trees.some(
       t => t.model > 0 && t.model < 7 && t.logs > 0 && this.visible(t)
     )
-    for (const u of this.world.units)
-      if (u.team === 'blue' && u.fight) {
-        result.activity = Math.max(
-          result.activity,
-          u.fight.action === 'approach' || u.fight.action === 'ready' ? 1 : 2
-        )
-      }
     return result
   }
   orderSound() {

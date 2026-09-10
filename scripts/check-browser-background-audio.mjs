@@ -262,6 +262,36 @@ try {
     assert.ok(Math.abs(track.duration - track.expected) < 0.06)
     assert.ok(track.peak > 0.001)
   }
+  const combatMusic = await page.evaluate(async () => {
+    const { addUnit, command, tick } = await import('/app/model.ts')
+    const w = window.testScene.world
+    w.speed = 0
+    w.units = []
+    w.buildings = []
+    w.fights = []
+    w.shrines = []
+    w.terrain.fill(3)
+    w.terrainVersion++
+    const attacker = addUnit(w, 'blue', 'warrior', { x: 0, z: 0 })
+    const defender = addUnit(w, 'red', 'warrior', { x: 1, z: 0 })
+    const life = [attacker.hp, defender.hp]
+    w.selected = [attacker.id]
+    command(w, defender)
+    tick(w, 1 / 12)
+    return { activity: w.musicActivity, state: attacker.fight?.motion?.state, life, after: [attacker.hp, defender.hp] }
+  })
+  assert.equal(combatMusic.activity, 2)
+  assert.equal(combatMusic.state, 29)
+  assert.deepEqual(combatMusic.after, combatMusic.life)
+  await page.waitForFunction(() => window.testAudio.music.section.activity === 2)
+  await page.evaluate(async () => {
+    const { tick } = await import('/app/model.ts')
+    const w = window.testScene.world
+    w.units = []
+    w.fights = []
+    tick(w, 1 / 12)
+  })
+  await page.waitForFunction(() => window.testAudio.music.section.activity === 0)
   const disposal = await page.evaluate(async () => {
     const a = window.testAudio,
       music = a.music,
@@ -310,6 +340,7 @@ try {
           environment,
           timing,
           controls,
+          combatMusic,
           assets,
           disposal,
           limitation:
@@ -321,7 +352,7 @@ try {
     )
   console.log(
     'PASS: real UI audio activation, original streamed music and environmental samples produce signal; pause/resume, music gain, percussion scheduling, mute/re-enable, restart and disposal',
-    JSON.stringify({ before, peaks, mixing, environment, timing, assets, disposal })
+    JSON.stringify({ before, peaks, mixing, environment, timing, combatMusic, assets, disposal })
   )
 } finally {
   await browser.close()

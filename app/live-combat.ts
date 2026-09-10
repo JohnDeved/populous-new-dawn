@@ -17,7 +17,7 @@ const models = { brave: 2, warrior: 3, shaman: 7 }
 export const nativePersonModel = (u: Pick<Unit, 'team' | 'kind'>) =>
   u.team === 'wild' ? 1 : models[u.kind]
 const tribes = { wild: -1, blue: 0, red: 1 }
-const tribe = (u: Pick<Unit, 'team'>) => tribes[u.team]
+export const nativePersonTribe = (u: Pick<Unit, 'team'>) => tribes[u.team]
 const position = (u: { x: number; z: number }) => ({
   x: Math.round((u.x + 8) * 256) & 65535,
   y: Math.round((-u.z - 8) * 256) & 65535,
@@ -36,7 +36,7 @@ function person(u: Unit): CombatPerson {
     id: u.id,
     class: 1,
     model: nativePersonModel(u),
-    tribe: tribe(u),
+    tribe: nativePersonTribe(u),
     flags2: (p?.flags2 ?? 0) | (u.inside === null ? 0 : 0x800000),
     flags4: (p?.flags4 ?? 0) | held.flags4 | (u.lift > 0 ? 0x400 : 0),
     state: p?.state ?? state,
@@ -83,7 +83,7 @@ function combatWorld(w: World, source: CombatPerson, range: number) {
           ...fight.members,
           ...Array(Math.max(0, 6 - fight.members.length)).fill(0),
         ],
-        tribes: fight.tribes ?? [...new Set(members.map(tribe))],
+        tribes: fight.tribes ?? [...new Set(members.map(nativePersonTribe))],
         center: fight.center ?? fight.members[0],
       },
       fight,
@@ -120,7 +120,7 @@ function combatWorld(w: World, source: CombatPerson, range: number) {
         id: b.id,
         class: b.progress === 1 ? 2 : 9,
         model: buildingModel(b),
-        tribe: tribe(b),
+        tribe: nativePersonTribe(b),
         flags2: 0,
         planKind: 0, // Ordinary live plans; native special plan kinds remain unallocated.
         activity: b.admission?.activity ?? 0,

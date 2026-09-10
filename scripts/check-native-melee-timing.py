@@ -55,13 +55,16 @@ for model in [2, 3, 7]:
                 write(group + 0x2e, 'B', 1); write(group + 0x68, 'B', 2)
                 write(group + 0x6c, 'H', 1); write(group + 0x70, '2H', 1, 2)
                 write(0x890394, '2I', p, target)
+                player = 0 if len(cases) % 2 else 3
+                write(0x89c6f0, 'B', player)
                 trace = []
                 for _ in range(12):
+                    write(0x89d167, 'B', 0)
                     sounds.clear(); call(0x518fb0, group)
                     state = read(p + 0x2d, 'B')
-                    trace.append([state, read(p + 0x70, 'h') if state in [2,3,4,5,6] else None, sounds.copy()])
+                    trace.append([state, read(p + 0x70, 'h') if state in [2,3,4,5,6] else None, sounds.copy(), read(0x89d167, 'B')])
                     if state in [0, 7]: break
-                cases.append(dict(model=model, targetModel=target_model, phase=phase, timer=timer))
+                cases.append(dict(model=model, targetModel=target_model, phase=phase, timer=timer, playerTribe=player))
                 expected.append(trace)
 js = """
 import {createWorld,addUnit,tick} from './app/model.ts';
@@ -69,6 +72,7 @@ let input='';for await(const c of process.stdin)input+=c;
 const kinds={2:'brave',3:'warrior',7:'shaman'}, actions={2:'attack',3:'strike',4:'special',5:'recoil',6:'recoil'};
 console.log(JSON.stringify(JSON.parse(input).map(c=>{
  const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.units=[];w.buildings=[];
+ w.manaWorld.playerTribe=c.playerTribe;
  const target=addUnit(w,'red',kinds[c.targetModel],{x:0,z:0}),p=addUnit(w,'blue',kinds[c.model],{x:180/256,z:0});
  const b={id:w.nextId++,x:0,z:0,angle:512,members:[target.id,p.id]};w.fights=[b];
  target.fight={group:b.id,opponent:p.id,action:'strike',started:0,remaining:32767};
@@ -76,7 +80,7 @@ console.log(JSON.stringify(JSON.parse(input).map(c=>{
  const trace=[];
  for(let i=0;i<12;i++){
   w.sounds=[];tick(w,1/12);const f=p.fight,state={approach:0,push:7,attack:2,strike:3,special:4,recoil:c.phase}[f.action];
-  trace.push([state,state===0||state===7?null:f.remaining,w.sounds.filter(s=>[13,14,39,43,50].includes(s.cue)).map(s=>s.cue)]);
+  trace.push([state,state===0||state===7?null:f.remaining,w.sounds.filter(s=>[13,14,39,43,50].includes(s.cue)).map(s=>s.cue),w.musicActivity]);
   if(state===0||state===7)break;
  }
  return trace;
@@ -85,7 +89,7 @@ console.log(JSON.stringify(JSON.parse(input).map(c=>{
 actual = json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(cases).encode(),cwd=ROOT))
 assert len(actual) == len(expected)
 for c, a, e in zip(cases, actual, expected): assert a == e, (c, a, e)
-print(f'PASS: {len(cases)} original melee action/recoil traces, animation-table initialization, signed timers, next-turn transitions and completion sounds across all three live classes/targets; grouping/damage/physics consumers remain separate.')
+print(f'PASS: {len(cases)} original melee action/recoil traces, animation-table initialization, signed timers, next-turn transitions and completion sounds/music activity across all three live classes/targets; grouping/damage/physics consumers remain separate.')
 
 # Substate-7 entry executes the native impulse helper and its RNG draw. Supply a
 # flat height consumer; the full terrain/physics oracle separately covers slopes.

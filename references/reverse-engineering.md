@@ -6432,8 +6432,9 @@ snapshot. Unrequested render frames do not collect counts. The previous 81-cell
 camera-neighborhood scan is removed. Native special renderer flags, exact whole
 original scene membership and temporal ownership remain open; this is ordinary
 first-mission terrain input parity for the submitted list, not a full-frame claim.
-Visible-tree eligibility and player approach/fight music activity remain adapters;
-`0046ec80` and `004ec6f0` still require complete object/attack ownership.
+Visible-tree eligibility remains an adapter; `0046ec80` still requires full object
+ownership. Music activity is now owned by simulation visits as described below;
+ordinary attack target selection and full native command ownership remain partial.
 
 `check-native-terrain-ambience.py` executes 256 whole native queue/draw lists with
 8,070 triangles, retaining portable captures. Cases include empty/equal-depth
@@ -6501,3 +6502,38 @@ Tests also preserve percussion timestamps at 30/60/120/144/240 Hz and irregular
 schedules, with a separate stale-start regression. Existing 200-cue/64-voice cleanup
 and DPR checks pass. Music playback earns its bounded requirement; full adaptive
 ownership and complete audio lifecycle remain partial.
+
+
+## 2026-09-10 — simulation-owned music activity
+
+The browser no longer infers music activity from current sprite/action labels in
+`GameScene.soundEnvironment`. `World.musicActivity` is cleared at the start of
+each object turn, following `004ec6f0`, and retained while the game is paused.
+Native writers show that battle music starts **before** the first strike:
+
+- `00518630` sets 2 when both encounter participants exist, have different tribes,
+  and either belongs to the player, before processing their state-29 actions.
+- `00518fb0` sets 2 when visiting a valid state-25 player participant in an active
+  roster, including approach and ready phases. Other retained reaction states do
+  not enter this branch.
+- `0051a2a0` raises 0 to 1 for a player attack command; it never lowers 2. The live
+  target-processing branch supplies this intent until the native shared command
+  queue is integrated. This last ownership boundary remains an explicit adapter.
+
+The existing native encounter oracle now compares the music byte as well as
+poses, timers, motion, RNG, sounds and terminal behavior for **4,096 full calls**.
+Inputs cover previous activity, same-tribe cancellation and non-player encounters.
+The fight timing oracle now includes music activity in **405 multi-visit traces**
+through `00518fb0`, with player and non-player involvement; its existing supplied
+roster, relocation and damage consumers remain documented limits. All 384 recoil
+initializations still pass. Portable encounter captures retain the new field.
+
+Live tests cover distant attack activity, immediate encounter/battle activity,
+quiet-turn reset and pause retention. The 5/30/60/120/144/240 Hz and irregular
+encounter regression now also compares the music state. The real-browser check
+creates a controlled opening encounter, observes activity 2 before any damage,
+waits for the live audio scheduler to receive it, then verifies the next quiet
+turn reaches activity 0. No direct write to the tested audio activity is used.
+Original percussion descriptor selection and sample playback remain covered by
+the existing audio tests. Complete attack-order, frontend and stream-transition
+ownership are still unfinished; this does not certify the whole music checkpoint.

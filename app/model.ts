@@ -7,7 +7,7 @@ import {
   type FightParticipant,
 } from './melee-groups.ts'
 import { EncounterPhase } from './melee-encounter.ts'
-import { automaticMeleeTarget } from './live-combat.ts'
+import { automaticMeleeTarget, nativePersonTribe } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
@@ -927,6 +927,7 @@ function processBattles(w: World) {
         f.action === 'encounter'
       )
         continue
+      if (nativePersonTribe(u) === w.manaWorld.playerTribe) w.musicActivity = 2
       if (f.action === 'push') {
         if (f.remaining === undefined) {
           startMeleeKnockback(w, u)
@@ -1359,6 +1360,7 @@ export type World = {
   unlockedCamp: boolean
   time: number
   turn: number
+  musicActivity: number
   pendingTime: number
   randomState: number
   cosmeticRandom: { randomState: number }
@@ -1607,6 +1609,7 @@ export function createWorld(): World {
     unlockedCamp: false,
     time: 0,
     turn: 0,
+    musicActivity: 0,
     pendingTime: 0,
     randomState: 1,
     cosmeticRandom: { randomState: 1 },
@@ -4201,6 +4204,7 @@ function stepTurn(w: World) {
     )
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
+  w.musicActivity = 0 // 0x4ec6f0: current object turn owns the music activity.
   w.time = w.turn / TURNS_PER_SECOND
   // 0x4ec6f0 resets per-turn route requests and search counters before objects.
   w.pathfinding.solver.tribeRequests.fill(0)
@@ -4530,6 +4534,10 @@ function stepTurn(w: World) {
     const targetDistance = target ? distance(u, target) : Infinity
     const reach = target && 'progress' in target ? 4.3 : 1.7
     if (target) {
+      // 0x51a2a0 raises quiet music to activity without overriding battle music.
+      // ponytail: target ownership remains the live attack adapter until the
+      // shared native command controller is integrated.
+      if (!w.musicActivity && nativePersonTribe(u) === w.manaWorld.playerTribe) w.musicActivity = 1
       u.heading = Math.atan2(target.x - u.x, target.z - u.z)
       if (u.target === null && u.work === null) {
         u.target = target.id

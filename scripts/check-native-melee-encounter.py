@@ -41,30 +41,32 @@ for n in range(4096):
   p={k:0 for k in fields};model=rng.choice([2,3,7]);obj,draw=rules['animationObjects'][rules['personAnimationObjects'][rng.choice([0,1,10,11,21])*9+model]]
   p.update(id=id_,**{'class':1},model=model,tribe=id_-1,state=29,substate=rng.choice([0,4,5,6,7,8]),physics=rules['personModels'][model]['physics'],x=(x+(0 if id_==1 else rng.choice([-315,-314,0,314,315,1000])))&65535,y=y,h=100,flags2=rng.choice([0,0x40000000,0x40008080,0x80000,0x40080000]),flags3=rng.choice([0,0x80000]),flags4=rng.choice([0,0x400]),speed=rng.randrange(100),timer=rng.choice([-32768,-1,0,1,2,3,39,40,32767]),cargo=rng.choice([0,100]),object=obj,draw=draw,f1=1,angle=rng.randrange(2048),heading=rng.randrange(2048),workFlags=3)
   if n%13==0 and id_==2:p['state']=17
+  if n%23==0:p['tribe']=id_
   if n%17==0:p['tribe']=0
   p['velocity']={k:rng.randrange(-100,100) for k in ['x','y','z']}
   cpu.mem_write(address,bytes(256))
   for k,(off,f) in fields.items():write(address+off,f,p[k])
   write(address+0x49,'3h',*p['velocity'].values());people.append(p)
- seed=rng.getrandbits(32);flags=64 if n%5==0 else 0
+ seed=rng.getrandbits(32);flags=64 if n%5==0 else 0;activity=n%3
+ write(0x89d167,'B',activity)
  cpu.mem_write(group,bytes(256));write(group+0x6a,'2H',1,2);write(0x89d178,'I',seed);write(0x89d17c,'I',flags)
  write(stack,'2I',stop,group);cpu.reg_write(UC_X86_REG_ESP,stack);sounds=[];outcome='waiting'
  cpu.emu_start(0x518630,stop,count=100000);assert cpu.reg_read(UC_X86_REG_EIP)==stop
- cases.append(dict(people=people,randomState=seed,gameFlags=flags))
- expected.append(dict(people=[snapshot(attacker),snapshot(defender)],randomState=read(0x89d178,'I'),sounds=sounds,outcome=outcome))
+ cases.append(dict(people=people,randomState=seed,gameFlags=flags,playerTribe=0,musicActivity=activity))
+ expected.append(dict(people=[snapshot(attacker),snapshot(defender)],randomState=read(0x89d178,'I'),musicActivity=read(0x89d167,'B'),sounds=sounds,outcome=outcome))
 js="""
 import {stepMeleeEncounter} from './app/melee-encounter.ts';import {createMotionRoutes} from './app/person-routes.ts';import {setPersonAnimation} from './app/animation.ts';import {terrainPointHeight} from './app/native-terrain.ts';import sprites from './app/original-units.json' with {type:'json'};
 let text='';for await(const c of process.stdin)text+=c;const input=JSON.parse(text),land={heights:input.heights,flags:Uint32Array.from({length:16384},(_,i)=>i&1)};
 console.log(JSON.stringify(input.cases.map(c=>{const w={...c,routes:createMotionRoutes()},sounds=[];
 const outcome=stepMeleeEncounter(w,...c.people,{animation:(p,object)=>setPersonAnimation(p,object,{playerTribe:0,gameFlags:c.gameFlags,sessionSubstate:null,tribes:Array.from({length:4},()=>({flags:0,playerType:0})),objects:new Map()},sprites),height:(x,y)=>terrainPointHeight(land,{x,y}),sound:(p,cue)=>sounds.push([p.id,cue])});
 if(outcome!=='waiting')for(const p of c.people)p.workFlags=0;
-return {people:c.people,randomState:w.randomState,sounds,outcome};})));
+return {people:c.people,randomState:w.randomState,musicActivity:w.musicActivity,sounds,outcome};})));
 """
 r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(dict(cases=cases,heights=heights)),capture_output=True,text=True,cwd=ROOT);assert r.returncode==0,r.stderr
 actual=json.loads(r.stdout);assert len(actual)==len(expected)
 for i,(a,e) in enumerate(zip(actual,expected)):
  if a!=e:
   path=Path('/private/tmp/populous-encounter-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=e,browser=a),indent=2));raise AssertionError((i,str(path)))
-print('PASS: 4096 original outdoor encounter controller calls, poses/timers/facing, speed and impulse RNG, slope velocity, ordered sound and completion/cancellation.')
+print('PASS: 4096 original outdoor encounter controller calls, poses/timers/facing, speed and impulse RNG, slope velocity, ordered sound, music activity and completion/cancellation.')
 if '--record' in sys.argv:
  (ROOT/'tests/fixtures/melee-encounter.json').write_text(json.dumps(dict(heights=heights,cases=[dict(input=cases[i],expected=expected[i]) for i in range(0,4096,29)]),separators=(',',':'))+'\n')

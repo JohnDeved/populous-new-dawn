@@ -487,6 +487,8 @@ export function enterLiveCombat(
 export function stepLiveEncounter(w: World, attacker: Unit, defender: Unit) {
   const state = {
     randomState: w.randomState,
+    playerTribe: w.manaWorld.playerTribe,
+    musicActivity: w.musicActivity,
     gameFlags: w.manaWorld.gameFlags,
     routes: w.motionRoutes,
   }
@@ -496,6 +498,7 @@ export function stepLiveEncounter(w: World, attacker: Unit, defender: Unit) {
     sound: (p, cue) => sound(w, cue, browserPosition(p)),
   })
   w.randomState = state.randomState
+  w.musicActivity = state.musicActivity
   for (const u of [attacker, defender]) {
     const p = u.fight!.motion!
     u.heading = Math.PI - (p.angle * Math.PI) / 1024

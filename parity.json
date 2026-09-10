@@ -1327,9 +1327,16 @@
             "tests/background-audio.test.mjs",
             "tests/fixtures/background-audio.json",
             "scripts/check-browser-background-audio.mjs",
-            "references/performance/2026-09-10-background-audio.json"
+            "references/performance/2026-09-10-background-audio.json",
+            "app/melee-encounter.ts",
+            "app/live-people.ts",
+            "app/model.ts",
+            "scripts/check-native-melee-encounter.py",
+            "scripts/check-native-melee-timing.py",
+            "tests/melee-encounter.test.mjs",
+            "tests/fixtures/melee-encounter.json"
           ],
-          "note": "Original streaming music and selected-bank percussion are live. The 4,096-case native percussion selector is integrated with a temporary player fight/approach activity adapter; exact activity ownership, frontend modes and complete native lifecycle remain open.",
+          "note": "Original streaming music and selected-bank percussion are live. Fixed-turn encounter and valid fight-participant visits now drive battle activity, including pre-strike positioning; native encounter/fight traces and browser propagation pass. Ordinary attack-target ownership, frontend modes and complete stream lifecycle remain open.",
           "requirements": [
             {
               "id": "audio.music.playback",
@@ -1361,9 +1368,16 @@
                 "tests/background-audio.test.mjs",
                 "tests/fixtures/background-audio.json",
                 "scripts/check-browser-background-audio.mjs",
-                "references/performance/2026-09-10-background-audio.json"
+                "references/performance/2026-09-10-background-audio.json",
+                "app/melee-encounter.ts",
+                "app/live-people.ts",
+                "app/model.ts",
+                "scripts/check-native-melee-encounter.py",
+                "scripts/check-native-melee-timing.py",
+                "tests/melee-encounter.test.mjs",
+                "tests/fixtures/melee-encounter.json"
               ],
-              "note": "Percussion descriptor selection matches 4,096 native cases and is integrated with audio-clock scheduling; 30\u2013240 Hz/irregular timestamp checks pass. Exact native gameplay activity ownership and complete original stream-driver transitions remain open; player fight/approach adapter is explicit."
+              "note": "Native percussion descriptor selection and audio-clock scheduling are integrated. Music activity resets per object turn; encounters and state-25 player fight visits set battle intensity before striking. 4096 native encounter calls and 405 fight traces include the signal; live low/high/irregular timing and browser encounter-to-music/quiet transitions pass. Ordinary attack commands still use live target intent until the shared native queue is integrated; complete stream transitions remain open."
             },
             {
               "id": "audio.music.lifecycle",

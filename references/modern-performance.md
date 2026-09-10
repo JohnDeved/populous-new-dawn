@@ -1948,3 +1948,20 @@ empty lists, raised bias, signed terrain heights and category high bits. GPU
 consumers and texture-cache data are supplied; exact original full-scene membership
 and special rendering modes are not certified. Existing browser audio output,
 pause/mute/restart, original track/drum decoding and resource checks also pass.
+
+
+## 2026-09-10 — music activity follows simulation visits
+
+Removed the audio input timer's scan of unit fight/action labels. A single scalar
+is now cleared on the fixed object turn and updated by existing encounter, fight
+and attack visits. Audio reads the result; rendering rate cannot advance it, and
+pause retains it. The actual percussion scheduler still uses AudioContext time.
+The existing tribe mapping is shared with live combat rather than duplicated.
+No audio node, timer, queue, dependency or second simulation pass was introduced.
+
+Native encounter/fight comparisons and live low/high/irregular-frame-rate tests
+include the music state. Browser evidence confirms a pre-strike encounter reaches
+battle music and a quiet turn clears it. No CPU/hardware speedup is claimed for
+removing this small scan. Ordinary attack intent still uses the existing live
+target adapter until shared command integration, while native tree eligibility,
+full voice ownership and frontend music remain open.

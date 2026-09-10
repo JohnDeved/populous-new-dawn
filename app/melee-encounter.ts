@@ -33,6 +33,8 @@ export type EncounterPerson = StatefulPerson &
   }
 interface EncounterWorld {
   randomState: number
+  playerTribe: number
+  musicActivity: number
   gameFlags: number
   routes: MotionRoutes
 }
@@ -72,6 +74,7 @@ export function stepMeleeEncounter(
   e: EncounterEffects
 ): 'waiting' | 'fight' | 'cancelled' {
   if (attacker.tribe === defender.tribe) return 'cancelled'
+  if (attacker.tribe === w.playerTribe || defender.tribe === w.playerTribe) w.musicActivity = 2
   let fight = false
   for (const [p, target] of [
     [attacker, defender],
