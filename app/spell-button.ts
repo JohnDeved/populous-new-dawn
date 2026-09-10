@@ -1,5 +1,6 @@
 import rules from './original-rules.json' with { type: 'json' }
 import hud from './original-hud.json' with { type: 'json' }
+import { chargeFills } from './hud-charge.ts'
 
 interface SpellButtonState {
   model: number
@@ -44,26 +45,10 @@ export function spellButton(s: SpellButtonState) {
     x: 15 - Math.trunc(rects[icon].w / 2),
     y: 21 - Math.trunc(rects[icon].h / 2),
   })
-  const fills: { palette: number; width: number }[] = []
-  if (s.permanent && s.charging && !s.hovered && rule.mode !== 2) {
-    let divisor = Math.trunc(rule.cost / 24),
-      shade = 240
-    for (let next = divisor; next > 24; next = Math.trunc(next / 24)) {
-      divisor = next
-      shade--
-    }
-    for (; divisor < rule.cost; divisor *= 24) {
-      shade = Math.min(239, shade)
-      fills.push({
-        palette: shade++,
-        width: Math.min(24, Math.trunc(((s.progress % divisor) * 24) / divisor)),
-      })
-    }
-    fills.push({
-      palette: 222,
-      width: rule.cost > 0 ? Math.min(24, Math.trunc((24 * s.progress) / rule.cost)) : 24,
-    })
-  }
+  const fills =
+    s.permanent && s.charging && !s.hovered && rule.mode !== 2
+      ? chargeFills(s.progress, rule.cost, 24)
+      : []
   const frame = `button${s.permanent ? '' : '-gift'}${['', '-selected', '-hover'][state]}`
   return { border, frame, sprites, fills }
 }

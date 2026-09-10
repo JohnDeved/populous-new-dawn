@@ -185,20 +185,14 @@ fixes a critical gameplay failure; otherwise defer standalone internal parity
 work. Do not spend successive turns on hidden subsystems simply because more
 native routines are available to port.
 
-**Next action:** continue the modernization audit before new parity work. The
-100 ms cap is removed; simulation and animation now advance chronologically, with
-identical world states across 5–240 Hz and irregular schedules. Indexed terrain
-submission/picking retains the native visibility and painter rules while reducing
-measured CPU/GPU work. Live DPR changes and same-frame audio voice limits are fixed.
-
-Ground keyboard navigation and focus now preview fractional native steps, with
-verified 5–240 Hz response, unchanged native endpoints and no release snap.
-Next resolve unit, flyby, globe/transition/result presentation, sky fractional
-drift and sound scheduling across catch-up turns without adding input latency.
-Profile water/shared vertex work, populated gameplay, heavy effects, loading/restart resource lifetime
-and wide/high-DPI displays. Complete the entire audit table before returning to
-new parity features. See `references/modern-performance.md` for runnable checks,
-measurements and explicit remaining limitations.
+**Modernization follow-up:** the terrain submission/picking optimization is
+validated and the execution order above now takes precedence: continue visible
+parity while addressing performance issues in the affected systems. Preserve the
+remaining audit items, including unit/flyby/globe/transition presentation, sky drift,
+catch-up audio, heavy effects, resource lifetime and wide/high-DPI coverage.
+The removed elapsed-time cap, indexed terrain, live DPR handling and shared sprite
+atlases are the tested foundation; they do not complete the whole modernization
+audit. See `references/modern-performance.md` for evidence and open limitations.
 
 The minimap now uses original terrain colors, camera-relative world wrapping and
 rotation, with native tribe colors and shaman-circle artwork. Twenty-four browser
@@ -1145,3 +1139,20 @@ shared readable TypeScript, native gameplay timing, uncapped presentation and
 measured modern GPU performance together. All other training schools/classes,
 full allocator/command-tail ownership, special occupants, class scheduling,
 campaign and complete engine parity remain open. Discovery stays open.
+
+### Current continuation: contextual panel input and tower admission
+
+The terrain and shared-atlas improvements are validated; visible gameplay work
+has resumed under the modern performance requirements. Warrior training now has
+its original steady-state five-person occupant/progress artwork, including the
+selection markers, transparent backing and tail. The high-mana charge overflow
+is corrected in shared readable HUD arithmetic. Native draw comparisons, actual
+browser pixels/input-to-admission, desktop scaling and an M5 frame-time sample
+are recorded. This is read-only panel feedback: the evacuation/occupant commands,
+original effect/panel allocation, hover lifetime/fade and dynamic palettes remain
+unfinished. The next visible gameplay task is to connect that original input
+controller and actual command effects, followed by tower socket/clipping
+admission. Do not substitute an invented instant evacuation for the native
+command. Continue first-mission controls, effects and campaign comparisons after
+these integrations. Full game parity and the broader modernization audit remain
+unfinished; discovery stays open.

@@ -4993,3 +4993,65 @@ cases, 11,200 occupancy comparisons, 1,024 conversion scenarios and 1,024 new
 movement-order cases pass. All 976 exports pass executable/hash verification.
 The 392-pose GPU sprite suite, shadows/selection, staged housing, celebration,
 hut upgrade and complete fire-repair browser regressions also pass.
+
+## Floating warrior-training feedback (2026-09-10)
+
+`draw_ui_panel` at `00504bc0`, effect kind 5, supplies the original five-person
+occupant row, selection marks, charge layers, evacuation-button artwork and
+pointing tail. The logical width is 120 pixels; height is 62 without a charge
+bar and 68 with it. Occupants are read from physical building slots, skipping
+holes; icons are HFX `73 + person model`. The selection marker tests the actual
+person selection byte at `+0x7a`, not cargo or assignment. Empty slots use HFX75.
+The hardware mask bank (`00516370`, `0047dda0`, `004f95a0`) supplies colored
+silhouettes. The native default ghost value is 85: empty icons have alpha 85,
+the pointing tail uses inverse alpha 170, and the hardware rectangle producer
+`00516890`/`00516a00` emits alpha 171 for panel backgrounds. Frame lines remain
+opaque. The distinction is retained in the browser canvas.
+
+The original presentation phase block `004a470b..004a472d` derives the evacuation
+blink from game turn bit 1 and insufficient-mana blink from bit 2. Browser
+render frequency does not advance these phases. `00509000` gives ordinary
+class-2 buildings zero additional panel anchor height; the displayed tail follows
+the projected building position. Browser CSS applies the same uniform HUD scale,
+preserving artwork proportions on wide screens. The full original effect/panel
+positioning and animation controller is not yet integrated.
+
+`check-native-training-panel.py` runs 384 complete kind-5 draw calls and the real
+hardware rectangle producer; final GPU submissions and palette setters are
+supplied. It exercises empty/full/mixed occupant rows, physical holes, selection,
+charging, insufficient-mana visibility and evacuation artwork phases. 276 draw
+traces match entirely. 108 high-cost traces differ only in the intentional charge
+overflow correction below. Portable tests retain every capture. Browser checks
+compare 24 original-art canvases (195,840 pixels, at most one color byte of
+premultiplication rounding), actual five-person admission, cached bitmaps, camera
+rotation, five desktop sizes through 4K, blocked-input hiding and destroyed-building
+cleanup. The shared spell charge helper still passes all 763 native spell-button
+comparisons.
+
+### Compatibility correction: training charge overflow
+
+Native drawing shifts the 16-bit stored mana and cost left by 12, then performs
+signed 32-bit products while expanding the layered bar. At cost 8192 and above,
+layer divisors can wrap; high stored values also overflow the final width product.
+For example, cost/stored mana 65535 produces a one-pixel main fill in the native
+120-pixel panel instead of filling its 114-pixel interior. The browser uses wide
+JavaScript arithmetic in the shared `chargeFills` helper. It retains the original
+layer palette/geometry in the non-overflow domain and preserves bounded,
+monotonically increasing main fill through all 65,536 stored-mana values. This
+fix changes only visual feedback, not funding, training thresholds or timing.
+Native erroneous captures remain in the fixture; they are not rewritten as if
+this were exact legacy behavior.
+
+### Open contextual-panel scope
+
+This increment is read-only training feedback. The scene observes local training
+activity and hover; it does not claim the original class-10 effect allocation,
+32-slot panel pool, hover lifetime, fade/stacking, drag/input controller or dynamic
+palette/ghost changes. The evacuation and occupant button artwork is present;
+its commands are not wired yet. `0047b460` contains the input path (its inferred
+jump tables need instruction-level verification). The inspected evacuation branch
+emits tribe command `0x40` with a requested toggle and building ID. Do not replace
+that command with an invented immediate evacuation rule. Keep native panel input,
+its actual command consumer and tower socket/clipping admission as the next
+visible/core-gameplay targets. Other panel kinds, buildings and specialist schools
+remain in the open parity inventory.

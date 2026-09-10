@@ -334,7 +334,8 @@ export function stepLiveTraining(w: World, b: Building) {
         cancelBuildingEntry(w, u)
       },
     },
-    // Native training-panel activation and indicators remain a UI integration.
+    // The renderer observes admission for panel art; native allocation/lifetime
+    // and interactive panel commands still need their original UI controller.
     updateTrainingPanel: () => {},
     addMana: (tribe, amount) => {
       w.manaTribes[tribe].available = (w.manaTribes[tribe].available + amount) | 0

@@ -15,7 +15,18 @@ alpha_colors=[alpha[((i<<4)|15)*256] for i in range(16)]
 output=ROOT/'public/original'
 # HFX identities are checked against the shipped spell records and artwork.
 ids=[54,55,65,66,67,68,*range(354,408),589,*range(664,682),875,1028,1029,1030]
+ids.extend([*range(46,54),*range(74,82)]) # 0x504bc0: building-panel controls and occupants.
 entries={str(i):bank[i] for i in ids}
+# 0x47dda0's solid-color mask bank. Keep these tiny immutable silhouettes in
+# the shared atlas; no per-frame canvas readback or duplicated runtime textures.
+for i in range(74,81):
+    w,h,data=bank[i]
+    for name,opacity in [('shadow',255),('empty',85)]:
+        pixels=bytearray(data)
+        for at in range(0,len(pixels),4):
+            pixels[at:at+3]=palette[172*4:172*4+3]
+            if pixels[at+3]:pixels[at+3]=opacity # Native initial color_related_1 = 0x55.
+        entries[f'panel-{i}-{name}']=(w,h,pixels)
 # 0x524cf0 selects spell artwork from POINT, warning marks from HFX.
 points=a.sprites(read('data/point0-0.dat'),palette)
 entries.update({f'point{i}':points[i] for i in [*range(38,58),*range(80,84)]})

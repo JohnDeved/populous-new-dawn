@@ -1,5 +1,6 @@
 import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
+import { drawTrainingPanel } from './training-panel.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
@@ -502,6 +503,7 @@ export class GameScene {
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
+  trainingPanels = new Map<number, HTMLCanvasElement>()
   down = { x: 0, y: 0, button: 0 }
   dragBox: HTMLDivElement
   keys = new Set<string>()
@@ -567,6 +569,7 @@ export class GameScene {
       'Island battlefield. Click to select, right-click to move, drag to select a group.'
     )
     this.renderer.domElement.tabIndex = 0
+    this.renderer.domElement.className = 'battlefield'
     container.appendChild(this.renderer.domElement)
     this.tooltipElement.className = 'native-tooltip'
     this.tooltipElement.setAttribute('role', 'tooltip')
@@ -1675,6 +1678,62 @@ export class GameScene {
     element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
     element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
   }
+  renderTrainingPanels() {
+    const { width, height } = this.container.getBoundingClientRect()
+    for (const [id, canvas] of this.trainingPanels) {
+      if (!this.world.buildings.some(b => b.id === id && b.hp > 0)) {
+        canvas.remove()
+        this.trainingPanels.delete(id)
+      } else canvas.hidden = true
+    }
+    if (this.overviewActive || this.world.inputMask) return
+    for (const b of this.world.buildings) {
+      if (b.kind !== 'camp' || b.team !== 'blue' || b.progress < 1 || b.hp <= 0 || !this.visible(b))
+        continue
+      const admission = b.admission
+      // ponytail: live activity/hover drives this first panel integration;
+      // replace with the native panel pool/lifetime when its controller is ported.
+      if (!admission || (!(admission.activity & 128) && this.hoveredObject !== b.id)) continue
+      let canvas = this.trainingPanels.get(b.id)
+      if (!canvas) {
+        canvas = document.createElement('canvas')
+        canvas.className = 'training-panel'
+        canvas.setAttribute('role', 'img')
+        this.trainingPanels.set(b.id, canvas)
+        this.container.appendChild(canvas)
+      }
+      const occupants = admission.occupants.flatMap(id => {
+        const u = id && this.world.units.find(u => u.id === id)
+        return u
+          ? [
+              {
+                model: u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2,
+                selected: this.world.selected.includes(u.id),
+              },
+            ]
+          : []
+      })
+      const progress = b.timer,
+        cost = admission.trainingCost,
+        p = this.screen(b)
+      drawTrainingPanel(canvas, texture('hud').image as HTMLImageElement, {
+        occupants,
+        progress,
+        cost,
+        active: !!(admission.activity & 128),
+        ejecting: !!(admission.activity & 0x8000),
+        warning: !!(admission.flags3 & 0x1000),
+        turn: this.world.turn,
+      })
+      canvas.hidden = false
+      canvas.setAttribute(
+        'aria-label',
+        `Warrior training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
+      )
+      canvas.style.left = `${((p.x + 1) * width) / 2}px`
+      canvas.style.top = `${((1 - p.y) * height) / 2}px`
+    }
+  }
   cancelOverview() {
     if (!this.overviewActive && !this.overviewStage) return
     this.cameraBearing = this.overviewReturn.bearing
@@ -2623,6 +2682,7 @@ export class GameScene {
     this.view.painter.cells = this.world.objectCells
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
+    this.renderTrainingPanels()
     this.container.parentElement!.style.setProperty(
       '--population-full-color',
       nativeHud.colors[populationMeter(1, 1, this.gameClock.animationFrame).color]
@@ -2691,6 +2751,8 @@ export class GameScene {
     this.renderer.domElement.remove()
     this.dragBox.remove()
     this.tooltipElement.remove()
+    for (const canvas of this.trainingPanels.values()) canvas.remove()
+    this.trainingPanels.clear()
     this.spellPointer.remove()
   }
 }

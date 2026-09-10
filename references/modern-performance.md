@@ -1214,3 +1214,34 @@ maintainability, average cyclomatic 2.8, p90 5 and 12 circular dependencies. Sha
 live adapters still depend on the central model; broader module-boundary cleanup
 remains open. ox-standard's existing repository-wide debt is not treated as a
 passing lint gate. The new/renamed entry module has no lint errors after formatting.
+
+## Training panels on the modern HUD
+
+Original HFX icons and the small immutable silhouette masks share the existing HUD
+atlas. A native-size Canvas2D bitmap is composited at the saved uniform HUD scale;
+its position follows the existing render loop. Content is cached by actual panel
+state, with only the two relevant native turn bits retained in the cache key.
+No extra render loop, React update per frame, image readback, cloned WebGL atlas or
+simulation clock was added. Thirty real stationary browser frames trigger zero
+bitmap repaints; 24 freshly painted canvases still match original source artwork
+and native submissions. This is measured avoided repaint work, not a claimed
+whole-frame speedup. The shared spell/training charge helper removes duplicated
+layer arithmetic, and corrects the original charge-only integer overflow.
+
+`node scripts/check-browser-training.mjs --headed` used the same eight-person
+queue approach as the previous training measurement, now with floating feedback.
+Chrome 153, ANGLE Metal / Apple M5, 1440×1000 CSS pixels, DPR 1, normal speed:
+545 frames, CPU p50 **2.9 ms**, p95 **6.7 ms**; frame gaps p50 **8.3 ms**, p95
+**9.0 ms**, maximum **10.4 ms**; at most **103** WebGL submissions. The earlier
+sample without panels was 2.8/6.6 ms CPU with the same 103 submissions. Both are
+consistent with approximately 120 FPS in this scenario; the 0.1 ms CPU difference
+is not evidence of a meaningful speedup or regression. No heavy checks ran during
+this hardware measurement. Source report:
+`references/performance/2026-09-10-training-panels.json`.
+
+Five live panel geometry checks cover 1440×1000 through 3840×2160, including
+3440×1440 ultrawide. The 120×68 logical panel scales uniformly and its tail stays
+on the projected building; extra width remains battlefield space. Fallow reports
+85.8 maintainability, average cyclomatic 2.8 and p90 5. Existing integration-module
+lint/dependency debt remains open. Complete panel input/lifetime, dynamic palettes,
+whole-game performance and other hardware/high-DPI coverage remain unfinished.
