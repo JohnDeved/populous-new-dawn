@@ -323,7 +323,7 @@ test('live groups relocate sequentially without sharing another fight center', a
   const { nativePosition } = await import('../app/model.ts'), { w } = group()
   tick(w, 1 / 12)
   const first = w.fights[0], a = addUnit(w, 'blue', 'brave', { x: 0, z: 0 }), b = addUnit(w, 'red', 'warrior', { x: 180 / 256, z: 0 })
-  const second = { ...first, id: w.nextId++, members: [a.id, b.id] }
+  const second = { ...first, id: w.nextId++, members: [a.id, b.id], slots: [a.id,b.id,0,0,0,0], tribes: [0,1], center: a.id }
   w.fights.push(second)
   for (const u of [a,b]) u.fight = { group: second.id, opponent: u === a ? b.id : a.id, action: 'strike', started: 0, remaining: 100 }
   const cell = f => { const p = nativePosition(w,f); return ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9) }

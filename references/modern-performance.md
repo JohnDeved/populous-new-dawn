@@ -1734,3 +1734,26 @@ belongs to its historical checkout (before removal, commit `718bf01`); current
 Fallow reports maintainability 85.5, average cyclomatic 2.7/p90 5 and twelve
 existing dependency cycles. The new pure rule has no ox-standard findings; the
 render path removes more production code than it adds.
+
+## 2026-09-10 — fight cleanup and recovery without a new rendering path
+
+Cleanup remains turn-driven. Pure six-slot rules live beside existing admission
+and splitting; shared person initialization, animation and physics handle recovery.
+A per-pass person map replaces repeated membership searches in cleanup. No new
+framework, render-frame timer, recovery animation loop or task-snapshot layer.
+
+The existing six-second headed Chrome 153 / ANGLE Metal Apple M5 workload creates
+eight fights, admits reinforcements, replaces weaker people and splits into sixteen
+fights. At 1440×1000 DPR 1, 1,674 measured callbacks: CPU p50 **1.6 ms**, p95 **3.3
+ms**, p99 **5.0 ms**, max **9.4 ms**; at most 215 draw calls. No app edits, builds or
+heavy checks ran during sampling. This unpaired integration sample is not a speedup,
+GPU elapsed-time or physical display-FPS measurement; other hardware remains open.
+`performance/2026-09-10-fight-cleanup.json` retains the staged workload and results.
+
+A separate paused browser stage verifies last-opponent death, exactly one winning
+tribe increment, recovered original idle sprites and walking after a new command.
+The existing multi-class strike/recoil/approach browser check also passes; fixed
+turn/RNG replay remains identical at 5–240 Hz and irregular frame intervals.
+Fallow remains 85.5 maintainability, average cyclomatic 2.7/p90 5, twelve existing
+cycles. The pure cleanup module has no ox-standard findings; broader legacy
+adapter lint debt remains, and is not reported as a clean repository-wide lint.

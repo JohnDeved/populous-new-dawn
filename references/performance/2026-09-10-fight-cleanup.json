@@ -1,0 +1,2065 @@
+{
+  "headed": true,
+  "pairs": [
+    {
+      "original": 40,
+      "replacement": 102,
+      "reinforcement": 119
+    },
+    {
+      "original": 42,
+      "replacement": 103,
+      "reinforcement": 120
+    },
+    {
+      "original": 44,
+      "replacement": 104,
+      "reinforcement": 121
+    },
+    {
+      "original": 46,
+      "replacement": 105,
+      "reinforcement": 122
+    },
+    {
+      "original": 48,
+      "replacement": 106,
+      "reinforcement": 123
+    },
+    {
+      "original": 50,
+      "replacement": 107,
+      "reinforcement": 124
+    },
+    {
+      "original": 52,
+      "replacement": 108,
+      "reinforcement": 125
+    },
+    {
+      "original": 54,
+      "replacement": 109,
+      "reinforcement": 126
+    }
+  ],
+  "stages": [
+    {
+      "turn": 75,
+      "groups": [
+        {
+          "id": 56,
+          "members": [
+            39,
+            40
+          ],
+          "slots": [
+            39,
+            40,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 58,
+          "members": [
+            41,
+            42
+          ],
+          "slots": [
+            41,
+            42,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 60,
+          "members": [
+            43,
+            44
+          ],
+          "slots": [
+            43,
+            44,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 62,
+          "members": [
+            45,
+            46
+          ],
+          "slots": [
+            45,
+            46,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 64,
+          "members": [
+            47,
+            48
+          ],
+          "slots": [
+            47,
+            48,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 66,
+          "members": [
+            49,
+            50
+          ],
+          "slots": [
+            49,
+            50,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 68,
+          "members": [
+            51,
+            52
+          ],
+          "slots": [
+            51,
+            52,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 70,
+          "members": [
+            53,
+            54
+          ],
+          "slots": [
+            53,
+            54,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "people": [
+        {
+          "id": 39,
+          "team": "red",
+          "group": 56,
+          "kind": "warrior"
+        },
+        {
+          "id": 40,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 41,
+          "team": "red",
+          "group": 58,
+          "kind": "warrior"
+        },
+        {
+          "id": 42,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 43,
+          "team": "red",
+          "group": 60,
+          "kind": "warrior"
+        },
+        {
+          "id": 44,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 45,
+          "team": "red",
+          "group": 62,
+          "kind": "warrior"
+        },
+        {
+          "id": 46,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 47,
+          "team": "red",
+          "group": 64,
+          "kind": "warrior"
+        },
+        {
+          "id": 48,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 49,
+          "team": "red",
+          "group": 66,
+          "kind": "warrior"
+        },
+        {
+          "id": 50,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 51,
+          "team": "red",
+          "group": 68,
+          "kind": "warrior"
+        },
+        {
+          "id": 52,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 53,
+          "team": "red",
+          "group": 70,
+          "kind": "warrior"
+        },
+        {
+          "id": 54,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        }
+      ]
+    },
+    {
+      "turn": 77,
+      "groups": [
+        {
+          "id": 56,
+          "members": [
+            39,
+            40,
+            71
+          ],
+          "slots": [
+            39,
+            40,
+            71,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 58,
+          "members": [
+            41,
+            42,
+            72
+          ],
+          "slots": [
+            41,
+            42,
+            72,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 60,
+          "members": [
+            43,
+            44,
+            73
+          ],
+          "slots": [
+            43,
+            44,
+            73,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 62,
+          "members": [
+            45,
+            46,
+            74
+          ],
+          "slots": [
+            45,
+            46,
+            74,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 64,
+          "members": [
+            47,
+            48,
+            75
+          ],
+          "slots": [
+            47,
+            48,
+            75,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 66,
+          "members": [
+            49,
+            50,
+            76
+          ],
+          "slots": [
+            49,
+            50,
+            76,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 68,
+          "members": [
+            51,
+            52,
+            77
+          ],
+          "slots": [
+            51,
+            52,
+            77,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 70,
+          "members": [
+            53,
+            54,
+            78
+          ],
+          "slots": [
+            53,
+            54,
+            78,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "people": [
+        {
+          "id": 39,
+          "team": "red",
+          "group": 56,
+          "kind": "warrior"
+        },
+        {
+          "id": 40,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 41,
+          "team": "red",
+          "group": 58,
+          "kind": "warrior"
+        },
+        {
+          "id": 42,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 43,
+          "team": "red",
+          "group": 60,
+          "kind": "warrior"
+        },
+        {
+          "id": 44,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 45,
+          "team": "red",
+          "group": 62,
+          "kind": "warrior"
+        },
+        {
+          "id": 46,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 47,
+          "team": "red",
+          "group": 64,
+          "kind": "warrior"
+        },
+        {
+          "id": 48,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 49,
+          "team": "red",
+          "group": 66,
+          "kind": "warrior"
+        },
+        {
+          "id": 50,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 51,
+          "team": "red",
+          "group": 68,
+          "kind": "warrior"
+        },
+        {
+          "id": 52,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 53,
+          "team": "red",
+          "group": 70,
+          "kind": "warrior"
+        },
+        {
+          "id": 54,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        },
+        {
+          "id": 71,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 72,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 73,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 74,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 75,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 76,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 77,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 78,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        }
+      ]
+    },
+    {
+      "turn": 79,
+      "groups": [
+        {
+          "id": 56,
+          "members": [
+            39,
+            40,
+            71,
+            83
+          ],
+          "slots": [
+            39,
+            40,
+            71,
+            83,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 58,
+          "members": [
+            41,
+            42,
+            72,
+            84
+          ],
+          "slots": [
+            41,
+            42,
+            72,
+            84,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 60,
+          "members": [
+            43,
+            44,
+            73,
+            85
+          ],
+          "slots": [
+            43,
+            44,
+            73,
+            85,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 62,
+          "members": [
+            45,
+            46,
+            74,
+            86
+          ],
+          "slots": [
+            45,
+            46,
+            74,
+            86,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 64,
+          "members": [
+            47,
+            48,
+            75,
+            87
+          ],
+          "slots": [
+            47,
+            48,
+            75,
+            87,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 66,
+          "members": [
+            49,
+            50,
+            76,
+            88
+          ],
+          "slots": [
+            49,
+            50,
+            76,
+            88,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 68,
+          "members": [
+            51,
+            52,
+            77,
+            89
+          ],
+          "slots": [
+            51,
+            52,
+            77,
+            89,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 70,
+          "members": [
+            53,
+            54,
+            78,
+            90
+          ],
+          "slots": [
+            53,
+            54,
+            78,
+            90,
+            0,
+            0
+          ]
+        }
+      ],
+      "people": [
+        {
+          "id": 39,
+          "team": "red",
+          "group": 56,
+          "kind": "warrior"
+        },
+        {
+          "id": 40,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 41,
+          "team": "red",
+          "group": 58,
+          "kind": "warrior"
+        },
+        {
+          "id": 42,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 43,
+          "team": "red",
+          "group": 60,
+          "kind": "warrior"
+        },
+        {
+          "id": 44,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 45,
+          "team": "red",
+          "group": 62,
+          "kind": "warrior"
+        },
+        {
+          "id": 46,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 47,
+          "team": "red",
+          "group": 64,
+          "kind": "warrior"
+        },
+        {
+          "id": 48,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 49,
+          "team": "red",
+          "group": 66,
+          "kind": "warrior"
+        },
+        {
+          "id": 50,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 51,
+          "team": "red",
+          "group": 68,
+          "kind": "warrior"
+        },
+        {
+          "id": 52,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 53,
+          "team": "red",
+          "group": 70,
+          "kind": "warrior"
+        },
+        {
+          "id": 54,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        },
+        {
+          "id": 71,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 72,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 73,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 74,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 75,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 76,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 77,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 78,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        },
+        {
+          "id": 83,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 84,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 85,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 86,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 87,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 88,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 89,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 90,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        }
+      ]
+    },
+    {
+      "turn": 81,
+      "groups": [
+        {
+          "id": 56,
+          "members": [
+            39,
+            102,
+            71,
+            83
+          ],
+          "slots": [
+            39,
+            102,
+            71,
+            83,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 58,
+          "members": [
+            41,
+            103,
+            72,
+            84
+          ],
+          "slots": [
+            41,
+            103,
+            72,
+            84,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 60,
+          "members": [
+            43,
+            104,
+            73,
+            85
+          ],
+          "slots": [
+            43,
+            104,
+            73,
+            85,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 62,
+          "members": [
+            45,
+            105,
+            74,
+            86
+          ],
+          "slots": [
+            45,
+            105,
+            74,
+            86,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 64,
+          "members": [
+            47,
+            106,
+            75,
+            87
+          ],
+          "slots": [
+            47,
+            106,
+            75,
+            87,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 66,
+          "members": [
+            49,
+            107,
+            76,
+            88
+          ],
+          "slots": [
+            49,
+            107,
+            76,
+            88,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 68,
+          "members": [
+            51,
+            108,
+            77,
+            89
+          ],
+          "slots": [
+            51,
+            108,
+            77,
+            89,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 70,
+          "members": [
+            53,
+            109,
+            78,
+            90
+          ],
+          "slots": [
+            53,
+            109,
+            78,
+            90,
+            0,
+            0
+          ]
+        }
+      ],
+      "people": [
+        {
+          "id": 39,
+          "team": "red",
+          "group": 56,
+          "kind": "warrior"
+        },
+        {
+          "id": 40,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 41,
+          "team": "red",
+          "group": 58,
+          "kind": "warrior"
+        },
+        {
+          "id": 42,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 43,
+          "team": "red",
+          "group": 60,
+          "kind": "warrior"
+        },
+        {
+          "id": 44,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 45,
+          "team": "red",
+          "group": 62,
+          "kind": "warrior"
+        },
+        {
+          "id": 46,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 47,
+          "team": "red",
+          "group": 64,
+          "kind": "warrior"
+        },
+        {
+          "id": 48,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 49,
+          "team": "red",
+          "group": 66,
+          "kind": "warrior"
+        },
+        {
+          "id": 50,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 51,
+          "team": "red",
+          "group": 68,
+          "kind": "warrior"
+        },
+        {
+          "id": 52,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 53,
+          "team": "red",
+          "group": 70,
+          "kind": "warrior"
+        },
+        {
+          "id": 54,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 71,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 72,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 73,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 74,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 75,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 76,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 77,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 78,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        },
+        {
+          "id": 83,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 84,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 85,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 86,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 87,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 88,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 89,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 90,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        },
+        {
+          "id": 102,
+          "team": "blue",
+          "group": 56,
+          "kind": "warrior"
+        },
+        {
+          "id": 103,
+          "team": "blue",
+          "group": 58,
+          "kind": "warrior"
+        },
+        {
+          "id": 104,
+          "team": "blue",
+          "group": 60,
+          "kind": "warrior"
+        },
+        {
+          "id": 105,
+          "team": "blue",
+          "group": 62,
+          "kind": "warrior"
+        },
+        {
+          "id": 106,
+          "team": "blue",
+          "group": 64,
+          "kind": "warrior"
+        },
+        {
+          "id": 107,
+          "team": "blue",
+          "group": 66,
+          "kind": "warrior"
+        },
+        {
+          "id": 108,
+          "team": "blue",
+          "group": 68,
+          "kind": "warrior"
+        },
+        {
+          "id": 109,
+          "team": "blue",
+          "group": 70,
+          "kind": "warrior"
+        }
+      ]
+    },
+    {
+      "turn": 83,
+      "groups": [
+        {
+          "id": 56,
+          "members": [
+            39,
+            102,
+            71
+          ],
+          "slots": [
+            39,
+            102,
+            71,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 58,
+          "members": [
+            41,
+            103,
+            72
+          ],
+          "slots": [
+            41,
+            103,
+            72,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 60,
+          "members": [
+            43,
+            104,
+            73
+          ],
+          "slots": [
+            43,
+            104,
+            73,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 62,
+          "members": [
+            45,
+            105,
+            74
+          ],
+          "slots": [
+            45,
+            105,
+            74,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 64,
+          "members": [
+            47,
+            106,
+            75
+          ],
+          "slots": [
+            47,
+            106,
+            75,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 66,
+          "members": [
+            49,
+            107,
+            76
+          ],
+          "slots": [
+            49,
+            107,
+            76,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 68,
+          "members": [
+            51,
+            108,
+            77
+          ],
+          "slots": [
+            51,
+            108,
+            77,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 70,
+          "members": [
+            53,
+            109,
+            78
+          ],
+          "slots": [
+            53,
+            109,
+            78,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 129,
+          "members": [
+            119,
+            83
+          ],
+          "slots": [
+            119,
+            83,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 130,
+          "members": [
+            120,
+            84
+          ],
+          "slots": [
+            120,
+            84,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 131,
+          "members": [
+            121,
+            85
+          ],
+          "slots": [
+            121,
+            85,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 132,
+          "members": [
+            122,
+            86
+          ],
+          "slots": [
+            122,
+            86,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 133,
+          "members": [
+            123,
+            87
+          ],
+          "slots": [
+            123,
+            87,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 134,
+          "members": [
+            124,
+            88
+          ],
+          "slots": [
+            124,
+            88,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 135,
+          "members": [
+            125,
+            89
+          ],
+          "slots": [
+            125,
+            89,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": 136,
+          "members": [
+            126,
+            90
+          ],
+          "slots": [
+            126,
+            90,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "people": [
+        {
+          "id": 39,
+          "team": "red",
+          "group": 56,
+          "kind": "warrior"
+        },
+        {
+          "id": 40,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 41,
+          "team": "red",
+          "group": 58,
+          "kind": "warrior"
+        },
+        {
+          "id": 42,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 43,
+          "team": "red",
+          "group": 60,
+          "kind": "warrior"
+        },
+        {
+          "id": 44,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 45,
+          "team": "red",
+          "group": 62,
+          "kind": "warrior"
+        },
+        {
+          "id": 46,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 47,
+          "team": "red",
+          "group": 64,
+          "kind": "warrior"
+        },
+        {
+          "id": 48,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 49,
+          "team": "red",
+          "group": 66,
+          "kind": "warrior"
+        },
+        {
+          "id": 50,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 51,
+          "team": "red",
+          "group": 68,
+          "kind": "warrior"
+        },
+        {
+          "id": 52,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 53,
+          "team": "red",
+          "group": 70,
+          "kind": "warrior"
+        },
+        {
+          "id": 54,
+          "team": "blue",
+          "kind": "brave"
+        },
+        {
+          "id": 71,
+          "team": "blue",
+          "group": 56,
+          "kind": "brave"
+        },
+        {
+          "id": 72,
+          "team": "blue",
+          "group": 58,
+          "kind": "brave"
+        },
+        {
+          "id": 73,
+          "team": "blue",
+          "group": 60,
+          "kind": "brave"
+        },
+        {
+          "id": 74,
+          "team": "blue",
+          "group": 62,
+          "kind": "brave"
+        },
+        {
+          "id": 75,
+          "team": "blue",
+          "group": 64,
+          "kind": "brave"
+        },
+        {
+          "id": 76,
+          "team": "blue",
+          "group": 66,
+          "kind": "brave"
+        },
+        {
+          "id": 77,
+          "team": "blue",
+          "group": 68,
+          "kind": "brave"
+        },
+        {
+          "id": 78,
+          "team": "blue",
+          "group": 70,
+          "kind": "brave"
+        },
+        {
+          "id": 83,
+          "team": "blue",
+          "group": 129,
+          "kind": "brave"
+        },
+        {
+          "id": 84,
+          "team": "blue",
+          "group": 130,
+          "kind": "brave"
+        },
+        {
+          "id": 85,
+          "team": "blue",
+          "group": 131,
+          "kind": "brave"
+        },
+        {
+          "id": 86,
+          "team": "blue",
+          "group": 132,
+          "kind": "brave"
+        },
+        {
+          "id": 87,
+          "team": "blue",
+          "group": 133,
+          "kind": "brave"
+        },
+        {
+          "id": 88,
+          "team": "blue",
+          "group": 134,
+          "kind": "brave"
+        },
+        {
+          "id": 89,
+          "team": "blue",
+          "group": 135,
+          "kind": "brave"
+        },
+        {
+          "id": 90,
+          "team": "blue",
+          "group": 136,
+          "kind": "brave"
+        },
+        {
+          "id": 102,
+          "team": "blue",
+          "group": 56,
+          "kind": "warrior"
+        },
+        {
+          "id": 103,
+          "team": "blue",
+          "group": 58,
+          "kind": "warrior"
+        },
+        {
+          "id": 104,
+          "team": "blue",
+          "group": 60,
+          "kind": "warrior"
+        },
+        {
+          "id": 105,
+          "team": "blue",
+          "group": 62,
+          "kind": "warrior"
+        },
+        {
+          "id": 106,
+          "team": "blue",
+          "group": 64,
+          "kind": "warrior"
+        },
+        {
+          "id": 107,
+          "team": "blue",
+          "group": 66,
+          "kind": "warrior"
+        },
+        {
+          "id": 108,
+          "team": "blue",
+          "group": 68,
+          "kind": "warrior"
+        },
+        {
+          "id": 109,
+          "team": "blue",
+          "group": 70,
+          "kind": "warrior"
+        },
+        {
+          "id": 119,
+          "team": "red",
+          "group": 129,
+          "kind": "warrior"
+        },
+        {
+          "id": 120,
+          "team": "red",
+          "group": 130,
+          "kind": "warrior"
+        },
+        {
+          "id": 121,
+          "team": "red",
+          "group": 131,
+          "kind": "warrior"
+        },
+        {
+          "id": 122,
+          "team": "red",
+          "group": 132,
+          "kind": "warrior"
+        },
+        {
+          "id": 123,
+          "team": "red",
+          "group": 133,
+          "kind": "warrior"
+        },
+        {
+          "id": 124,
+          "team": "red",
+          "group": 134,
+          "kind": "warrior"
+        },
+        {
+          "id": 125,
+          "team": "red",
+          "group": 135,
+          "kind": "warrior"
+        },
+        {
+          "id": 126,
+          "team": "red",
+          "group": 136,
+          "kind": "warrior"
+        }
+      ]
+    }
+  ],
+  "poses": [
+    {
+      "id": 47,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1716
+    },
+    {
+      "id": 48,
+      "team": "blue",
+      "kind": "brave",
+      "visible": true,
+      "frame": 250
+    },
+    {
+      "id": 51,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1743
+    },
+    {
+      "id": 71,
+      "team": "blue",
+      "kind": "brave",
+      "visible": true,
+      "frame": 214
+    },
+    {
+      "id": 72,
+      "team": "blue",
+      "kind": "brave",
+      "visible": true,
+      "frame": 118
+    },
+    {
+      "id": 73,
+      "team": "blue",
+      "kind": "brave",
+      "visible": true,
+      "frame": 220
+    },
+    {
+      "id": 74,
+      "team": "blue",
+      "kind": "brave",
+      "visible": true,
+      "frame": 6
+    },
+    {
+      "id": 75,
+      "team": "blue",
+      "kind": "brave",
+      "visible": true,
+      "frame": 247
+    },
+    {
+      "id": 76,
+      "team": "blue",
+      "kind": "brave",
+      "visible": true,
+      "frame": 263
+    },
+    {
+      "id": 102,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 569
+    },
+    {
+      "id": 103,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 686
+    },
+    {
+      "id": 104,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 661
+    },
+    {
+      "id": 105,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 731
+    },
+    {
+      "id": 106,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 497
+    },
+    {
+      "id": 107,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 485
+    },
+    {
+      "id": 108,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 562
+    },
+    {
+      "id": 109,
+      "team": "blue",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 459
+    },
+    {
+      "id": 119,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1657
+    },
+    {
+      "id": 120,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1752
+    },
+    {
+      "id": 121,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1738
+    },
+    {
+      "id": 122,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1685
+    },
+    {
+      "id": 123,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1645
+    },
+    {
+      "id": 124,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1732
+    },
+    {
+      "id": 125,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1546
+    },
+    {
+      "id": 126,
+      "team": "red",
+      "kind": "warrior",
+      "visible": true,
+      "frame": 1560
+    }
+  ],
+  "performance": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "count": 1674,
+    "cpu": {
+      "p50": 1.5999999046325684,
+      "p95": 3.299999952316284,
+      "p99": 5,
+      "max": 9.400000095367432
+    },
+    "maxDrawCalls": 215,
+    "maxGroups": 16,
+    "worstFrames": [
+      {
+        "cpu": 9.400000095367432,
+        "turn": 77,
+        "groups": 8,
+        "calls": 123
+      },
+      {
+        "cpu": 7.900000095367432,
+        "turn": 81,
+        "groups": 8,
+        "calls": 199
+      },
+      {
+        "cpu": 7.1000001430511475,
+        "turn": 79,
+        "groups": 8,
+        "calls": 158
+      },
+      {
+        "cpu": 7.099999904632568,
+        "turn": 82,
+        "groups": 16,
+        "calls": 201
+      },
+      {
+        "cpu": 6.6000001430511475,
+        "turn": 74,
+        "groups": 8,
+        "calls": 88
+      },
+      {
+        "cpu": 6.6000001430511475,
+        "turn": 80,
+        "groups": 8,
+        "calls": 164
+      },
+      {
+        "cpu": 6.6000001430511475,
+        "turn": 83,
+        "groups": 16,
+        "calls": 201
+      },
+      {
+        "cpu": 5.900000095367432,
+        "turn": 78,
+        "groups": 8,
+        "calls": 127
+      }
+    ]
+  },
+  "cleanup": {
+    "id": 443,
+    "groups": 0,
+    "fight": null,
+    "state": 10,
+    "previousState": 25,
+    "workFlags": 0,
+    "wins": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "idle": {
+      "state": "idle",
+      "frame": 491,
+      "visible": true
+    },
+    "walk": {
+      "state": "walk",
+      "frame": 463,
+      "visible": true
+    }
+  },
+  "workload": "Eight live fights gain reinforcements, replace weaker members and split over six seconds. Includes admission and split frames, after terrain/base-sprite setup. Bounded unpaired CPU sample, not physical display FPS or whole-game performance.",
+  "scope": "Native cleanup and recovery integrated into the existing six-second fight admission/split workload. Unpaired CPU callback sample; no before/after, GPU elapsed or physical FPS claim. Separate paused browser stage checks last-opponent death, winner credit and original idle/walk poses."
+}

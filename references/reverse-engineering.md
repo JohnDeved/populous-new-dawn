@@ -5943,3 +5943,66 @@ icons, building gauges, rebound input profiles or all mixed-class painter owners
 The atlas covers valid living-person health 0..maximum; corrupt/negative-life
 rendering and nondefault global ghost-alpha modes are not claimed. No new full
 interface or combat-lifecycle gate is marked verified.
+
+## 2026-09-10 — native fight cleanup, center selection and recovery
+
+`00519a70` resolves six persistent members and retains allocated, living people
+whose signed group reference matches and whose state-table flags include combat
+bit 16 (states 11/12/14/25). Invalid allocated members lose their reference;
+removal clears group reservation bit `0x100000` and decrements a nonzero byte
+reaction timer. Deleted/unallocated records are not written. The squared wrapped
+XY distance must exceed `0x400000` to release someone: exactly eight browser
+units remains valid, but an additional 1/256 on the other axis can cross it.
+Signed 32-bit overflow of the sum also matches the executable.
+
+Persistent slots and the compact output array are distinct. The native distance
+pass clears the persistent slot using its **compact index**, even after earlier
+removals left holes. Its single forward compaction pass does not retry consecutive
+holes. The pure port retains both behaviors. The native copy reads one trailing
+stack word; the oracle supplies zero there, and the browser adapter filters zero
+IDs before processing rather than dereferencing absent people. This memory-layout
+artifact is not a reconstructed object ID or a claim of arbitrary-stack parity.
+
+`005199f0` picks the last member of the first tribe unless that tribe has more than
+one member, then picks the last member of the other tribe; two-person groups use
+index zero. The returned center key comes from the corresponding persistent slot,
+while the position/processing swap uses the compact person. Center changes retain
+the original half-turn and relocation. Group actions only run for state 25 even
+though cleanup permits airborne/reaction states.
+
+The terminal tail of `00518fb0` clears references through the first `count`
+persistent slots, calls `0041b550(winner,0,1)` and deletes the group. Statistic zero
+uses signed 32-bit addition; neutral winner 255 does not increment a tribe. The
+person dispatcher subsequently runs `00518560`: a missing/deleted group selects
+the model's default state (model 7 uses 39 when game flag 2 is set), subject to the
+outer protected-transition bit. Live recovery reuses `initializePersonState`,
+including its original flags, animation selection and RNG. Releasing an airborne
+fighter's browser assignment now also clears its retained physics reference.
+
+Reproduce:
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-fight-cleanup.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/fight-cleanup.test.mjs tests/melee.test.mjs
+node scripts/check-browser-melee-groups.mjs --headed
+```
+
+The oracle compares 4,096 complete cleanup calls without replacing callees, 488
+center choices, 512 terminal group dispatches with the real statistic function
+(only object deletion supplied), and 324 state-recovery decisions. Portable native
+captures and live tests cover death, exact separation boundaries, interruption,
+protected recovery, single winner credit, resumed player commands and identical
+RNG/state at 5/30/60/120/144/240 Hz plus irregular frames. Shared person-state
+initializers (7,680 native cases) and reinforcement/splitting (4,096) still pass.
+The browser verifies original survivor idle/walk frames, existing melee/recoil,
+reinforcement and split scenarios, without browser errors. Its isolated attack
+fixture now isolates people together with their groups: temporarily removing
+other live groups otherwise correctly triggers recovery for their people.
+
+1,032 exports are recorded, adding `0041b550`. This is **not** full ordinary queue
+restoration: the existing browser order adapter resumes after native state
+initialization. Real command-19/21 ownership, allocation limits, global mixed-class
+visit/counter phase, building encounters and specialist classes remain open.
+Cleanup still runs at existing browser turn boundaries; primitive wrap coverage
+does not remove the current live terrain-crop limit. No additional complete melee
+lifecycle percentage credit is claimed.

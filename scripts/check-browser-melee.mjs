@@ -26,15 +26,17 @@ try {
       groups.push(members)
     }
     // Isolate each decision so both newly reachable actions render for all classes.
-    const fights = w.fights
+    const fights = w.fights, units = w.units
     for (let i = 0; i < fights.length; i++) {
       let seed = 0
       while ((m.random({ randomState: seed }) & 15) !== Math.floor(i / 3)) seed++
       w.randomState = seed
       w.fights = [fights[i]]
+      w.units = groups[i]
       w.speed = 1; m.tick(w, 1 / 12); w.speed = 0
     }
     w.fights = fights
+    w.units = units
     s.focus({ x: 0, z: 32 }); s.startGroundView(3)
     for (let i = 0; i < 18; i++) s.updateCameraMotion(1 / 24)
     s.onChange()

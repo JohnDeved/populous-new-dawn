@@ -87,7 +87,45 @@ try {
   }
   assert.deepEqual(errors, [])
   await page.screenshot({ path: '/private/tmp/populous-melee-groups.png' })
-  const result = { headed, ...report, workload: 'Eight live fights gain reinforcements, replace weaker members and split over six seconds. Includes admission and split frames, after terrain/base-sprite setup. Bounded unpaired CPU sample, not physical display FPS or whole-game performance.' }
+  const cleanup = await page.evaluate(async () => {
+    const s = window.testScene, w = s.world, m = await import('/app/model.ts')
+    w.speed = 0; w.units = []; w.buildings = []; w.shrines = []; w.fights = []; w.pendingTime = 0
+    w.stats.battlesWon.fill(0)
+    const red = m.addUnit(w, 'red', 'warrior', { x: 0, z: 32 })
+    const blue = m.addUnit(w, 'blue', 'warrior', { x: 1, z: 32 })
+    const step = () => { w.speed = 1; m.tick(w, 1 / 12); w.speed = 0 }
+    w.selected = [blue.id]; m.command(w, red); step()
+    if (w.fights.length !== 1) throw new Error('The real attack command must create a fight')
+    const person = blue.fight.motion
+    red.hp = 0; step(); w.selected = []
+    s.focus({ x: 0, z: 32 }); s.onChange()
+    return { id: blue.id, groups: w.fights.length, fight: blue.fight, state: person.state,
+      previousState: person.previousState, workFlags: person.workFlags, wins: [...w.stats.battlesWon] }
+  })
+  assert.equal(cleanup.groups, 0); assert.equal(cleanup.fight, null)
+  assert.equal(cleanup.state, 10); assert.equal(cleanup.previousState, 25); assert.equal(cleanup.workFlags, 0)
+  assert.deepEqual(cleanup.wins, [1, 0, 0, 0])
+  await page.waitForFunction(id => {
+    const s = window.testScene, g = s.unitMeshes.get(id)
+    return s.unitMeshes.size === 1 && g?.visible && g.userData.state === 'idle'
+  }, cleanup.id)
+  const pose = () => page.evaluate(id => {
+    const g = window.testScene.unitMeshes.get(id)
+    return { state: g.userData.state, frame: g.userData.frame, visible: g.visible }
+  }, cleanup.id)
+  cleanup.idle = await pose()
+  await page.evaluate(async id => {
+    const w = window.testScene.world, m = await import('/app/model.ts'), u = w.units.find(u => u.id === id)
+    w.selected = [id]; m.command(w, { x: u.x + 4, z: u.z + 4 })
+    w.speed = 1; m.tick(w, 1 / 12); w.speed = 0
+  }, cleanup.id)
+  await page.waitForFunction(id => window.testScene.unitMeshes.get(id)?.userData.state === 'walk', cleanup.id)
+  cleanup.walk = await pose()
+  for (const p of [cleanup.idle, cleanup.walk])
+    assert.ok(sprites.animations['blue-warrior'][p.state].some(d => d.frames.includes(p.frame)))
+  assert.deepEqual(errors, [])
+  await page.screenshot({ path: '/private/tmp/populous-fight-cleanup.png' })
+  const result = { headed, ...report, cleanup, workload: 'Eight live fights gain reinforcements, replace weaker members and split over six seconds. Includes admission and split frames, after terrain/base-sprite setup. Bounded unpaired CPU sample, not physical display FPS or whole-game performance.' }
   writeFileSync('/private/tmp/populous-melee-groups-browser.json', JSON.stringify(result,null,2)+'\n')
-  console.log('PASS: live reinforcements, stronger-member replacement, 16 split fights, original rendered poses; no browser errors', report.performance)
+  console.log('PASS: live reinforcements, stronger-member replacement, 16 split fights, death cleanup, recovery and original idle/walk poses; no browser errors', report.performance)
 } finally { await browser.close() }

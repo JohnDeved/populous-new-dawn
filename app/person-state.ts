@@ -52,6 +52,15 @@ export function defaultPersonState(p: { model: number }, gameFlags: number) {
   return gameFlags & 2 && p.model === 7 ? 39 : rules.personModels[p.model].nextState
 }
 
+// Complete 0x518560: a removed/released group returns control to ordinary orders.
+export function stateAfterFight(
+  p: { model: number },
+  gameFlags: number,
+  group?: { class: number; flags2: number }
+) {
+  return group && group.class && !(group.flags2 & 1) ? 0 : defaultPersonState(p, gameFlags)
+}
+
 // Shared native speed draw used by 0x4d2740, 0x432260 and fight recovery.
 export function randomPersonSpeed(
   w: { randomState: number },

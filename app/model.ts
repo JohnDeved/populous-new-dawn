@@ -1,4 +1,11 @@
-import { joinMeleeGroup, type MeleeGroup } from './melee-groups.ts'
+import {
+  joinMeleeGroup,
+  cleanFightRoster,
+  releaseFightRoster,
+  fightCenter,
+  type MeleeGroup,
+  type FightParticipant,
+} from './melee-groups.ts'
 import { EncounterPhase } from './melee-encounter.ts'
 import { automaticMeleeTarget } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
@@ -266,6 +273,7 @@ type Battle = Point & {
   slots?: number[]
   tribes?: number[]
   center?: number
+  winner?: number
   attackReservation?: AttackReservation
 }
 export type Unit = Point & {
@@ -804,47 +812,103 @@ function processEncounter(w: World, b: Battle) {
   relocateBattle(w, b, true)
 }
 function clearFightAssignment(u: Unit) {
+  if (u.flight && u.flight.workFlags === u.fight?.group) u.flight.workFlags = 0
   if (u.fight?.motion) u.fight.motion.workFlags = 0
   u.fight = null
 }
 function cleanBattles(w: World) {
+  const rosters = new Map<number, number[]>()
+  if (!w.fights.length) return rosters
+  const units = new Map(w.units.map(u => [u.id, u])),
+    people = new Map<number, FightParticipant>()
+  for (const u of w.units) {
+    const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
+    people.set(u.id, {
+      ...nativePosition(w, u),
+      id: u.id,
+      class: p?.class ?? 1,
+      tribe: u.team === 'blue' ? 0 : u.team === 'red' ? 1 : 255,
+      state: p?.state ?? (u.fight ? 25 : 10),
+      flags2: p?.flags2 ?? 0,
+      life: short(Math.round(u.hp * 20)),
+      workFlags: p?.workFlags ?? u.fight?.group ?? 0,
+    })
+  }
   for (const b of w.fights) {
-    b.members = b.members.filter(id =>
-      w.units.some(
-        u => u.id === id && u.hp > 0 && u.lift === 0 && u.inside === null && u.fight?.group === b.id
+    if (b.encounter) {
+      // Model-9 encounters have their own two-person controller, not model-8 slots.
+      if (
+        b.members.every(id => {
+          const u = units.get(id)
+          return u && u.hp > 0 && u.fight?.group === b.id
+        })
       )
-    )
-    if (b.slots) b.slots = b.slots.map(id => (b.members.includes(id) ? id : 0))
-    const members = b.members.map(id => w.units.find(u => u.id === id)!)
-    if (members.length < 2 || members.every(u => u.team === members[0].team)) {
-      for (const u of members) clearFightAssignment(u)
+        continue
+      for (const id of b.members) {
+        const u = units.get(id)
+        if (u?.fight?.group === b.id) {
+          clearFightAssignment(u)
+          people.get(id)!.workFlags = 0
+        }
+      }
       b.members = []
+      continue
+    }
+    const reservation = b.attackReservation ?? { flags4: 0, reactionTimer: 0, reactionDuration: 0 }
+    const group = {
+      ...nativePosition(w, b),
+      ...reservation,
+      id: b.id,
+      members: b.slots ?? [...b.members, ...Array(6 - b.members.length).fill(0)],
+      tribes: b.tribes ?? [255, 255],
+      count: b.members.length,
+      winner: b.winner ?? 255,
+    }
+    const result = cleanFightRoster(group, people)
+    b.slots = group.members
+    b.tribes = group.tribes
+    b.winner = group.winner
+    reservation.flags4 = group.flags4
+    reservation.reactionTimer = group.reactionTimer
+    if (result.active) rosters.set(b.id, result.people.filter(Boolean))
+    b.members = result.active ? b.members.filter(id => result.people.includes(id)) : []
+    if (!result.active) {
+      releaseFightRoster(group, people)
+      if (group.winner !== 255)
+        w.stats.battlesWon[group.winner] = (w.stats.battlesWon[group.winner] + 1) | 0
     }
   }
+  for (const [id, p] of people) {
+    const u = units.get(id)!,
+      motion = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
+    if (motion) motion.workFlags = p.workFlags
+    if (u.fight && motion && motion.state !== 29 && !(rules.personStateFlags[motion.state] & 16))
+      u.fight = null
+  }
   w.fights = w.fights.filter(b => b.members.length > 1)
+  return rosters
 }
 function processBattles(w: World) {
-  cleanBattles(w)
+  const rosters = cleanBattles(w)
   for (const b of w.fights) {
     if (b.encounter) {
       processEncounter(w, b)
       continue
     }
-    const members = (b.slots ?? b.members)
-      .filter(Boolean)
-      .map(id => w.units.find(u => u.id === id)!)
-    // 0x5199f0 chooses the lone fighter as center; persistent slots do not swap.
-    const center =
-      members.length > 2
-        ? members.findIndex(u => members.filter(a => a.team === u.team).length === 1)
-        : 0
-    if (center > 0) [members[0], members[center]] = [members[center], members[0]]
-    if ((b.center ?? b.members[0]) !== members[0].id) {
+    const ids = rosters.get(b.id)!,
+      members = ids.map(id => w.units.find(u => u.id === id)!)
+    const center = fightCenter(
+      { members: b.slots!, tribes: b.tribes!, count: members.length },
+      ids,
+      new Map(members.map(u => [u.id, { tribe: u.team === 'blue' ? 0 : 1 }]))
+    )
+    if (center.index > 0) [members[0], members[center.index]] = [members[center.index], members[0]]
+    if ((b.center ?? b.members[0]) !== center.id) {
       b.x = members[0].x
       b.z = members[0].z
       b.angle = (b.angle + 1024) & 2047
     }
-    b.center = members[0].id
+    b.center = center.id
     b.members = members.map(u => u.id)
     if ((w.turn & 31) === 0 && (random(w) & 1) === 0) {
       const r = (random(w) % 341) + 113
@@ -855,7 +919,14 @@ function processBattles(w: World) {
     for (let i = 0; i < members.length; i++) {
       const u = members[i],
         f = u.fight!
-      if (u.hp <= 0 || f.action === 'encounter') continue
+      // Cleanup retains airborne/reaction states, but only state 25 takes fight actions.
+      if (
+        u.hp <= 0 ||
+        !f ||
+        ((u.flight ?? f.motion)?.state ?? 25) !== 25 ||
+        f.action === 'encounter'
+      )
+        continue
       if (f.action === 'push') {
         if (f.remaining === undefined) {
           startMeleeKnockback(w, u)
@@ -1303,7 +1374,7 @@ export type World = {
   status: 'playing' | 'won' | 'lost'
   respawn: number
   redRespawn: number
-  stats: { built: number; cast: number; bridges: number; trained: number }
+  stats: { built: number; cast: number; bridges: number; trained: number; battlesWon: number[] }
 }
 function planRoute(w: World, u: Unit, end: Point) {
   syncNativeTerrain(w)
@@ -1551,7 +1622,7 @@ export function createWorld(): World {
     status: 'playing',
     respawn: 0,
     redRespawn: 0,
-    stats: { built: 0, cast: 0, bridges: 0, trained: 0 },
+    stats: { built: 0, cast: 0, bridges: 0, trained: 0, battlesWon: [0, 0, 0, 0] },
   }
   for (const o of level.objects) {
     if (o.type === 2 && o.owner !== 255) {

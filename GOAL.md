@@ -1443,3 +1443,18 @@ Next implement native fight cleanup and actual command-19/21 ownership/restorati
 then first-mission campaign attacks and visible spell behavior. Keep allocation,
 specialist classes and the full unfinished game scope explicit. No additional
 whole-control or melee-lifecycle percentage credit is claimed for a bounded fix.
+
+### Current integration: original fight cleanup and recovery
+
+Native ownership/state/life gates, squared separation distance, persistent-slot
+cleanup, center choice and winner counters now drive ordinary live fights.
+Survivors use the existing person-state initializer after their group disappears;
+player interruption during knockback also clears airborne fight ownership.
+Native comparisons, deterministic 5–240 Hz replay and browser death/idle/walk
+checks cover this bounded change. Rendering and simulation clocks stay separate.
+
+Next implement actual ordinary command-19/21 queue ownership and restoration,
+then first-mission campaign attacks and visible spell behavior. Do not substitute
+saved browser-task snapshots for the original queue. Global class scheduling,
+allocator limits, building encounters and specialist classes remain unfinished.
+The melee lifecycle stays partial; these verified parts do not complete its gate.

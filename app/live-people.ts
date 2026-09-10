@@ -18,6 +18,7 @@ import {
 } from './model.ts'
 import {
   initializePersonState,
+  stateAfterFight,
   personAnimationObject,
   type StatefulPerson,
 } from './person-state.ts'
@@ -631,6 +632,23 @@ function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       readyToFight: () => false,
     }
   )
+  if (p.state === 25) {
+    const group = p.workFlags && w.fights.some(b => b.id === p.workFlags)
+    const next = stateAfterFight(
+      p,
+      w.manaWorld.gameFlags,
+      group ? { class: 10, flags2: 0 } : undefined
+    )
+    if (next && !(p.flags2 & 0x100000)) {
+      p.previousState = p.state
+      p.state = next
+      initialize()
+      // Ordinary live orders still use the browser adapter after native recovery.
+      // Do not preserve a fabricated task snapshot in place of the native queue.
+      releasePersonRoute(w.motionRoutes, p)
+      u.fight = null
+    }
+  }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))

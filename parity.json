@@ -1607,9 +1607,13 @@
                 "app/melee-groups.ts",
                 "scripts/check-native-melee-groups.py",
                 "tests/melee-groups.test.mjs",
-                "scripts/check-browser-melee-groups.mjs"
+                "scripts/check-browser-melee-groups.mjs",
+                "scripts/check-native-fight-cleanup.py",
+                "tests/fight-cleanup.test.mjs",
+                "tests/fixtures/fight-cleanup.json",
+                "references/performance/2026-09-10-fight-cleanup.json"
               ],
-              "note": "Native range/eligibility, mixed-object target priority/reservations, pursuit refresh, outdoor encounter, approach and ordinary damage decisions are integrated with separately bounded checks. Ordinary reinforcement now shares the native admission selector: three per tribe, first weaker-ally replacement, persistent slots and last-of-each-tribe splitting. 4,096 native admission/split calls plus live/browser and 5\u2013240 Hz checks; allocation/state-entry are supplied consumers. Complete lifecycle remains partial: native member cleanup/displacement/death and release recovery, shared ordinary command-19/21 ownership/restoration, specialist classes, mixed-class allocator/counter/cell-order phase, all damage modifiers/effects and building encounters. Native alert initialization/sharing has 1,024 complete comparisons but is not connected to the ordinary shared queues. Saved vehicle/building consumers are identified; no generic task snapshot is claimed."
+              "note": "Native range/eligibility, target priority/reservations, pursuit refresh, outdoor encounter, approach and ordinary damage decisions have bounded checks. Reinforcement uses native three-per-tribe admission, first weaker-ally replacement and last-slot splitting. Cleanup now checks original ownership/state/life gates, wrapped squared distance, persistent slots, reservations, center selection, winner counters and state-25 recovery: 4,096 cleanup, 488 center, 512 terminal and 324 recovery native comparisons, live browser cleanup and 5\u2013240 Hz replay. Complete lifecycle remains partial: real ordinary command-19/21 queue ownership/restoration, allocation limits and mixed-class scheduling, building encounters and specialist classes remain unfinished. Browser ordinary orders still take over after native default-state initialization; no fabricated saved-task restoration or whole-lifecycle credit."
             }
           ]
         },
