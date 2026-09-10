@@ -105,6 +105,13 @@ try {
     fixture.cases.filter((_, i) => i % 20 === 0)
   )
   writeFileSync('/private/tmp/populous-construction-panel-pixels.json', JSON.stringify(pixels))
+  await page.evaluate(async () => {
+    const { tick } = await import('/app/model.ts')
+    const s = window.testScene, { people } = window.planCheck
+    for (let i = 0; i < 30 && people.some(u => !u.builder?.person); i++) tick(s.world, 1 / 12)
+    if (people.some(u => !u.builder?.person)) throw new Error('Workers never entered native construction')
+    people[1].builder.person.flags4 |= 128
+  })
   const geometry = []
   for (const [width, height] of [
     [1440, 1000],
@@ -143,8 +150,28 @@ try {
         ([x, y, w, h]) => x >= 0 && y >= 0 && x + w <= g.actual[0] + 1 && y + h <= g.actual[1] + 1
       )
     )
+    await page.evaluate(async () => {
+      const { setSelection } = await import('/app/model.ts')
+      setSelection(window.testScene.world, [])
+      window.testScene.renderBuildingPanels()
+    })
+    await worker.click()
+    assert.deepEqual(await page.evaluate(() => window.testScene.world.selected), [], 'blocked worker icon')
+    const first = panel.getByRole('button', { name: 'Worker 1: brave' })
+    await first.click()
+    assert.deepEqual(await page.evaluate(() => {
+      const p = window.planCheck.people[0].builder.person
+      return [!!(p.selectionFlags & 128), !!(p.flags3 & 0x10000000)]
+    }), [true, true], 'single-icon flags must reach the real worker')
+    await panel.getByRole('button', { name: 'Worker 3: brave' }).click({ modifiers: ['Shift'] })
+    assert.deepEqual(await page.evaluate(() => window.planCheck.people.map(u => [
+      !!(u.builder.person.selectionFlags & 128), !!(u.builder.person.flags3 & 0x10000000)
+    ])), [[true, false], [false, false], [true, false], [true, false]])
+    await first.click({ modifiers: ['Shift'] })
+    assert.deepEqual(await page.evaluate(() => window.testScene.world.selected), [])
     geometry.push({ width, height, ...g })
   }
+  await page.evaluate(() => { window.planCheck.people[1].builder.person.flags4 &= ~128 })
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.waitForFunction(() => window.testScene.container.clientWidth === 1240)
   const before = await page.evaluate(() => window.planCheck.people.map(u => [u.x, u.z, u.cargo]))
@@ -251,7 +278,7 @@ try {
       '\n'
   )
   console.log(
-    'PASS: original construction workers/timber, mouse/Shift/keyboard selection, cached canvas, five desktop sizes, active-builder reassignment and dismantle/cancel/restart/removal',
+    'PASS: original construction workers/timber, mouse/Shift/keyboard selection with active worker eligibility/flags, cached canvas, five desktop sizes, active-builder reassignment and dismantle/cancel/restart/removal',
     performance
   )
 } finally {

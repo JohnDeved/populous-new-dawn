@@ -130,6 +130,8 @@ Track the requested queue explicitly:
    selection flags. Player clicks do not enter AI reservation state 14; the bootstrap
    assumption is removed. Default on-foot clicks now use native replacement/Ctrl-toggle
    rules, pressed-target/modifier latching, Shift order override and single voices.
+   Construction panels now share active person selection ownership: blocked workers
+   stay excluded and native single/group mode bits reach the real builder record.
    Complete HUD/vehicle ownership, buffering, alternate input modes and feedback remain open.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,
    toroidal clamping, packed release commands, native cell bounds, ordinary outdoor

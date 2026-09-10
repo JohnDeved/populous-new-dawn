@@ -7294,3 +7294,36 @@ Validation: 290 portable tests, TypeScript, formatting, production build and
 parity-ledger checks pass; all 1,101 decompilation export hashes verify. The new
 selection modules pass oxlint. Browser checks cover actual click/deselect/orders,
 576 sprite poses, native drag interactions and batched/unbatched pixel equality.
+
+
+### Construction selection owns the active person (2026-09-10)
+
+A live construction worker was reproducibly admitted through its panel despite
+`flags4 & 128` on its actual builder record. The panel adapter used an entry
+record when present, otherwise `createLivePerson`; for builders that second path
+constructed a temporary person with default eligibility. The roster changed, but
+the active worker never received the native selection/mode writes. Earlier panel
+integration checks only asserted the roster, so they did not detect this mismatch.
+
+Building panels now reuse `selectionPeople`, as ordinary click/drag selection does.
+The adapter retains an existing worker record even when its animation is supplied
+by another path, and keeps legacy selection ephemeral until a simulation handoff.
+It does not create movement ownership merely for selection. Native commands 0x2a
+(flags 6) and 0x61 still use the existing `selectTrainingOccupants` reconstruction;
+no order, construction, routing, animation or RNG rules are changed.
+
+The original executable comparison passes 384 panel input cases, 2,048 complete
+selection commands, 128 plan input cases, both plan group states and 72 tower
+input-to-command paths. The new construction regression starts actual workers,
+checks blocked admission, single/group flag writes and external-group retention,
+and verifies unchanged simulation state, command pool and RNG. Actual browser
+click/Shift checks exercise active worker flags at five sizes from 1440x1000 to
+3840x2160, alongside keyboard selection and dismantle/cancel/restart/removal.
+All 291 portable tests, typecheck, formatting and production build pass. Ordinary
+sprite clicks (including ultrawide/2x DPI) and tower panel input/exit regressions
+also pass.
+
+This corrects a live ownership defect within existing partial selection scope;
+full person panels, vehicle/passenger expansion, command buffering, hit ownership
+and native focus/audio ownership remain unverified. No extra parity credit or
+hardware performance claim is assigned to this correction.

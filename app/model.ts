@@ -2177,14 +2177,16 @@ export function select(w: World, kind: UnitKind | 'all') {
   w.mode = null
 }
 
-function selectionPeople(w: World) {
+export function selectionPeople(w: World, units = w.units) {
   const selected = new Set(w.selected)
-  return w.units
+  return units
     .filter(u => u.team === 'blue' && u.hp > 0)
     .map(u => {
       // Selection must not create a simulation owner before a real controller handoff.
       const p = unitAnimationSource(u) ??
-        u.native ?? {
+        u.native ??
+        u.entry?.person ??
+        u.builder?.person ?? {
           id: u.id,
           flags3: 0,
           flags4: 0,

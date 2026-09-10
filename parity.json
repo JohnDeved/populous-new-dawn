@@ -1313,9 +1313,12 @@
                 "app/training.ts",
                 "scripts/check-native-training-selection.py",
                 "scripts/check-browser-model-highlight.mjs",
-                "scripts/check-browser-health-bars.mjs"
+                "scripts/check-browser-health-bars.mjs",
+                "app/live-building-entry.ts",
+                "tests/construction-panel.test.mjs",
+                "scripts/check-browser-construction-panel.mjs"
               ],
-              "note": "Existing follower sprites, owned training/tower panels, health displays and model hover rules work. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished."
+              "note": "Construction-panel selection now reuses the active person adapter, fixing temporary-copy eligibility and lost selection/mode writes for builders. Native panel commands, actual active-worker flags, external-group retention and unchanged simulation/orders/RNG are checked; real clicks and Shift selection pass at five desktop sizes. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished."
             }
           ]
         },

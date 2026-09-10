@@ -5,6 +5,7 @@ import {
   browserPosition,
   ensureBuildingDamage,
   releaseTasks,
+  selectionPeople,
   sound,
   type Building,
   type Unit,
@@ -340,23 +341,16 @@ export function leaveBuildingEntry(w: World, u: Unit) {
 export function selectBuildingOccupants(w: World, b: Building, clicked: number, group: boolean) {
   if (w.inputMask || w.land.landFlags & 0x800 || b.team !== 'blue' || b.hp <= 0) return
   const selected = new Set(w.selected)
-  const occupants =
+  const units =
     (b.progress < 1 ? b.builders : b.admission?.occupants)?.flatMap(id => {
       const u =
         id &&
         w.units.find(
-          unit =>
-            unit.id === id &&
-            unit.hp > 0 &&
-            (b.progress < 1 ? unit.work === b.id : unit.inside === b.id)
+          unit => unit.id === id && (b.progress < 1 ? unit.work === b.id : unit.inside === b.id)
         )
-      if (!u) return []
-      const p = u.entry?.person ?? createLivePerson(w, u)
-      // Shared browser selection still owns the displayed roster. Keep native
-      // selection bits in step until all selection-state/command dispatch is live.
-      p.selectionFlags = (p.selectionFlags & ~128) | (selected.has(id) ? 128 : 0)
-      return [p]
+      return u ? [u] : []
     }) ?? []
+  const occupants = selectionPeople(w, units)
   selectTrainingOccupants(occupants, clicked, group)
   for (const p of occupants) {
     if (p.selectionFlags & 128) selected.add(p.id)
