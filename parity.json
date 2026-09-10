@@ -1370,7 +1370,7 @@
                 "decomp/generated/00429ad0.c",
                 "decomp/generated/0043c600.c"
               ],
-              "note": "Construction-panel selection now reuses the active person adapter, fixing temporary-copy eligibility and lost selection/mode writes for builders. Native panel commands, actual active-worker flags, external-group retention and unchanged simulation/orders/RNG are checked; real clicks and Shift selection pass at five desktop sizes. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Order-icon right-click and keyboard focus now follow the displayed record using native target rules and camera motion, with 175 native resolutions, 256 original input cases and browser queue-preservation/hover/keyboard checks. The original physical-slot misnavigation is deliberately corrected. Point destinations now emit native model-61/HFX1294 sparkle frames, the -160 height offset, four-visit lifetime and second UI cue; 128 native emissions, 2688 animation states, source-atlas bytes and desktop GPU/pause/removal checks pass. Complete target-panel ownership, bitmap transitions and full panel/vehicle/hit ownership remain open. Worship panel artwork and fifty-slot standing geometry are reconstructed and CPU/pixel compared, but are not connected to live worship ownership yet. This preparation earns no verified gameplay credit."
+              "note": "Construction-panel selection now reuses the active person adapter, fixing temporary-copy eligibility and lost selection/mode writes for builders. Native panel commands, actual active-worker flags, external-group retention and unchanged simulation/orders/RNG are checked; real clicks and Shift selection pass at five desktop sizes. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Order-icon right-click and keyboard focus now follow the displayed record using native target rules and camera motion, with 175 native resolutions, 256 original input cases and browser queue-preservation/hover/keyboard checks. The original physical-slot misnavigation is deliberately corrected. Point destinations now emit native model-61/HFX1294 sparkle frames, the -160 height offset, four-visit lifetime and second UI cue; 128 native emissions, 2688 animation states, source-atlas bytes and desktop GPU/pause/removal checks pass. Complete target-panel ownership, bitmap transitions and full panel/vehicle/hit ownership remain open. Worship panel artwork remains CPU/pixel compared preparation. Ordinary spell-head movement, standing admission and prayer are now live; connecting the contextual panel and its selection/focus controls is next."
             }
           ]
         },
@@ -2702,9 +2702,17 @@
           "evidence": [
             "scripts/check-native-worship.py",
             "scripts/check-native-vault.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "app/live-worship.ts",
+            "app/person-worship.ts",
+            "scripts/check-native-person-worship.py",
+            "scripts/check-native-worship-place.py",
+            "scripts/check-native-person-routes.py",
+            "scripts/check-browser-worship.mjs",
+            "tests/live-worship.test.mjs",
+            "tests/route-endpoints.test.mjs"
           ],
-          "note": "Work/reward primitives verified; eligibility and complete lifecycle still adapted."
+          "note": "Ordinary first-mission spell heads now use shared command 27, native route probes, exact standing admission, prayer poses/audio and cursor expiry. Native bodies/searches/timers/endpoints, actual browser input/render/audio, interruption/death/panic, 5\u2013240 Hz replay and full mission pass. A documented final-frame handoff prevents prayer aliasing. General triggers, shaman-only/vehicle/vault command ownership, native failure/retry, head initialization/morphs, class scheduling, audio arbitration and contextual panels remain open; complete worship lifecycle stays partial."
         },
         {
           "id": "campaign.ai",

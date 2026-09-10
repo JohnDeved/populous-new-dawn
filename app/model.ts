@@ -1,7 +1,8 @@
+import { worshipOrder, liveWorshippers, worshipHeadPose } from './live-worship.ts'
 import {
   movementOrder,
-  startLiveMovement,
-  cancelLiveMovement,
+  startLiveOrder,
+  cancelLiveOrder,
   stepLiveMovement,
   stepLiveMarchingFormations,
   type LiveFormation,
@@ -258,7 +259,14 @@ import {
   type ScriptState,
   type PopScript,
 } from './popscript.ts'
-import { createWorship, stepWorship, worshipProgress, type WorshipState } from './worship.ts'
+import {
+  createWorship,
+  stepWorship,
+  stepWorshipHead,
+  worshipApproach,
+  worshipProgress,
+  type WorshipState,
+} from './worship.ts'
 import type { ModelMorph } from './morph.ts'
 import { createMessages, addMessage, messageStringId, type MessageState } from './messages.ts'
 import { stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
@@ -379,6 +387,8 @@ export type Shrine = Point &
   WorshipState & {
     id: number
     kind: 'bridge' | 'lightning' | 'vault'
+    nextSlot: number
+    slotTimer: number
     name: string
     progress: number
     duration: number
@@ -1073,7 +1083,7 @@ export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (u.native && (u.native.state !== 10 || [3, 19].includes(u.native.commandStatus)))
+  if (u.native && (u.native.state !== 10 || [3, 19, 27].includes(u.native.commandStatus)))
     return u.native
   if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
@@ -1439,7 +1449,7 @@ function planRoute(w: World, u: Unit, end: Point) {
 }
 function route(w: World, u: Unit, end: Point) {
   cancelLiveResting(w, u)
-  cancelLiveMovement(w, u)
+  cancelLiveOrder(w, u)
   return acceptLivePath(w, u, planRoute(w, u, end))
 }
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
@@ -1738,6 +1748,8 @@ export function createWorld(): World {
           : undefined
       w.shrines.push({
         ...worship,
+        nextSlot: 0,
+        slotTimer: 0,
         forced: false,
         morph: null,
         model: kind === 'vault' ? 154 : 45,
@@ -2305,7 +2317,7 @@ export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
   cancelLiveResting(w, u)
   if (!preserveOrders) {
     cancelLiveBuildingAttack(w, u)
-    cancelLiveMovement(w, u)
+    cancelLiveOrder(w, u)
   }
   cancelBuildingEntry(w, u)
   clearLivePath(w, u)
@@ -2870,8 +2882,12 @@ export function command(w: World, p: Point) {
   const friendly = building?.team === 'blue' ? building : undefined,
     dismantling = !!((friendly?.admission?.activity ?? 0) & 0x8000)
   syncNativeTerrain(w)
+  const headOrder = shrine && shrine.kind !== 'vault' ? worshipOrder(w, shrine) : 0
   const moveOrder = !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, p)) : 0
-  if (!shrine && !friendly && !enemy && !moveOrder) {
+  if (
+    (shrine && shrine.kind !== 'vault' && !headOrder) ||
+    (!shrine && !friendly && !enemy && !moveOrder)
+  ) {
     tell(w, 'No command slots available.')
     return
   }
@@ -2897,7 +2913,9 @@ export function command(w: World, p: Point) {
       continue
     }
     const goal = shrine
-      ? entrance(w, shrine, 2)
+      ? headOrder
+        ? browserPosition(worshipApproach(worshipHeadPose(w, shrine)))
+        : entrance(w, shrine, 2)
       : friendly
         ? entrance(w, friendly)
         : enemy && 'progress' in enemy
@@ -2907,9 +2925,9 @@ export function command(w: World, p: Point) {
     if (!path) continue
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
     release(w, u)
-    if (moveOrder) {
+    if (moveOrder || headOrder) {
       releasePersonRoute(w.motionRoutes, path)
-      startLiveMovement(w, u, moveOrder)
+      startLiveOrder(w, u, moveOrder || headOrder)
     } else acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null
     if (friendly && friendly.progress < 1 && !dismantling)
@@ -4499,16 +4517,9 @@ function stepTurn(w: World) {
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const shrine of w.shrines) {
+    if (shrine.kind !== 'vault') stepWorshipHead(shrine)
     if (!shrine.active) continue
     if (shrine.reset) shrine.forced = false
-    const worshippers = w.units.filter(
-      u =>
-        u.hp > 0 &&
-        u.work === shrine.id &&
-        distance(u, shrine) < 3 &&
-        !u.path.length &&
-        u.lift === 0
-    )
     let fired = false
     if (shrine.kind === 'vault') {
       const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
@@ -4523,8 +4534,8 @@ function stepTurn(w: World) {
       fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced)
       shrine.progress = shrine.target > 0 ? shrine.work / shrine.target : 0
     } else {
-      // ponytail: eligibility and per-object phase still use the browser's order/world state.
-      fired = stepWorship(shrine, w.turn, worshippers.length, shrine.forced)
+      // The trigger still uses world-turn phase until native mixed-class scheduling.
+      fired = stepWorship(shrine, w.turn, liveWorshippers(w, shrine).length, shrine.forced)
       shrine.progress = worshipProgress(shrine)
     }
     if (fired) {
@@ -4811,7 +4822,7 @@ function stepTurn(w: World) {
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
-    if (u.native?.commandStatus === 3) {
+    if (u.native && [3, 27].includes(u.native.commandStatus)) {
       stepLiveMovement(w, u)
     } else if (
       u.team !== 'wild' &&
@@ -4954,7 +4965,7 @@ function stepTurn(w: World) {
   for (const u of w.units)
     if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {
       cancelLiveBuildingAttack(w, u)
-      cancelLiveMovement(w, u)
+      cancelLiveOrder(w, u)
     }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   w.buildings = w.buildings.filter(b => b.hp > 0)

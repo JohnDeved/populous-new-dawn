@@ -7576,3 +7576,55 @@ must still attach native command-27 records, share raw route probing and endpoin
 correction, implement head cursor expiry, use the real cell-list roster and connect
 the panel controls. The earlier rendered-panel checks remain valid; this turn adds
 no shipped visual feature and no verified gameplay credit.
+
+
+### 2026-09-11: live first-mission spell-head worship
+
+Command 27 now shares the existing order pool, person startup/update/removal,
+physics, route ownership and animation renderer. `live-worship.ts` supplies the
+reconstructed controller's actual world consumers. `planLivePath` exposes its
+existing raw route builder for feasibility probes without attaching or releasing
+current movement; probe endpoints retain native byte wrapping. `004ea6b0` now
+matches 2,048 building/coast/vehicle comparisons, including odd input bytes and
+ordered correction consumers. The other nine 2,048-case route suites still pass.
+293 executable-bound correction captures are portable.
+
+Head visits (`004a8b00`, model 9 without pending terrain initialization/morph)
+decrement the slot timer and reset its cursor at zero. All 1,280 byte-timer/slot
+cases match the executable. The roster follows `0043c600`: first same-tribe,
+stationary class-1 person at each exact position, in cell-chain order. Browser
+work markers and a radius no longer determine spell-head admission. Native
+physics retains position/height, slot arrival clears route ownership, prayer uses
+original objects 64/744 and the separate pose RNG, and sound 82 loads all four
+already-imported original samples through existing owned Web Audio playback.
+
+Two integration defects were corrected. Route advancement and cell reconciliation
+were rounding an authoritative native height through the browser terrain surface;
+a one-unit discrepancy could repeatedly restart falling and stall movement after
+the vault. Native owners now keep native height, resampling only for externally
+changed position. The second is an explicit modern timing correction: the fixed
+24 Hz animation clock can wrap past a six-frame prayer's final frame between
+12 Hz command visits. The final prayer frame is retained until the controller
+observes it; its native phase-3 delay and pose RNG remain unchanged. This bounded
+animation handoff keeps the prayer/pause cycle independent of rendered FPS; it
+does not establish complete native render/visibility scheduling parity.
+
+Validation: 4,096 native command-body cases, 1,024 native slot searches, 1,280
+native head visits and 20,480 shared route comparisons; 303 portable tests,
+including the complete first mission, actual shared-order interruption/death,
+panic recovery, exact roster, height, prayer pause and 5–240 Hz/irregular replay.
+`check-browser-worship.mjs` checks real head clicks, seven distinct places, original
+rendered prayer frames, pause, four decoded original sounds, playback and cleanup.
+`check-browser-sprite-layers.mjs` retains 576 GPU poses / 430 original frames and
+served-atlas identity. Build and typecheck pass. Existing repository-wide oxlint
+issues remain; new worship code has no lint errors. No hardware FPS improvement
+is claimed from these headless correctness checks.
+
+Scope remains partial: the first-mission command admission retains the existing
+route preflight so unreachable heads preserve previous orders. Full native
+state-33 failure/retry and command-buffer admission are not yet integrated.
+General shaman-only trigger objects, vehicle worship, vault command 33, original
+head terrain initialization/morphs, allocation/class scheduling, full sound
+arbitration, and contextual-panel selection/focus controls remain open. The
+worship panel painter is still preparation, not a live panel. These boundaries
+must not disappear behind a full campaign-worship or selection parity claim.

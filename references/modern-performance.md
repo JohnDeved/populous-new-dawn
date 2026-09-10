@@ -2111,3 +2111,34 @@ The recovered controller and live composition stay separate; building combat
 shares command startup. ox-standard passes the changed live/controller files;
 existing repository-wide type-style lint debt remains. No broad dependency
 rewrite or test relaxation is used to hide a gameplay regression.
+
+
+### 2026-09-11: native worship timing and shared height ownership
+
+First-mission spell-head worship reuses the existing physics, cell chains, route
+builder, shared order pool, sprite atlas/renderer and owned Web Audio loader.
+Standing queries run on simulation visits; no render-loop roster scan, renderer,
+framework or clock was added. Feasibility probes preserve current route ownership.
+This is architecture reuse, not a measured claim of faster overall rendering.
+
+Native physics height must not round-trip through browser terrain interpolation.
+At the Lightning head, that conversion could leave a follower one unit above
+native ground and restart gravity indefinitely. `syncLivePersonCells` now retains
+an authoritative native height unless the browser position was externally moved;
+`stepLiveRoute` updates legacy adapters only. The complete first-mission test
+covers vault exit, Lightning-head approach, rewards and victory; native standing
+height is also asserted in `tests/live-worship.test.mjs`.
+
+**Deliberate timing correction:** native command 27 checks its prayer's final frame
+before starting the original 8–23-visit pause. At fixed 24 Hz animation / 12 Hz
+simulation, a six-frame loop can alias to 0,2,4 forever. Retain the final frame
+until the next simulation visit consumes it, rather than changing simulation
+speed, random delays or rendered FPS. The native phase body remains unchanged.
+Both braves and shamans now reach their pause. Exact histories, frames, poses,
+RNG and gifts match 5/30/60/120/144/240 Hz and irregular render schedules.
+
+Browser validation uses headless Chromium at 1440×1000 with real head input,
+original rendered prayer sprites and Web Audio decoding/playback/cleanup for
+samples sound-270 through sound-273. The 576-pose sprite regression also passes.
+These are correctness checks, not hardware FPS certification. Full native
+animation visibility/catch-up, audio arbitration and class scheduling remain open.

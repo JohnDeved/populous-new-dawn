@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import placeFixture from './fixtures/worship-place.json' with { type: 'json' }
 import fixture from './fixtures/person-worship.json' with { type: 'json' }
 import exports from '../decomp/exports.json' with { type: 'json' }
-import { findWorshipPlace } from '../app/worship.ts'
+import { findWorshipPlace, stepWorshipHead } from '../app/worship.ts'
 import { stepWorshipPerson } from '../app/person-worship.ts'
 
 test('worship placement preserves native two-pass search, occupancy, route order and failure flags', () => {
@@ -78,5 +78,13 @@ test('worship command preserves native approach, prayer, retry and presentation 
       { person: p, head: c.head, randomState: c.randomState, done, events },
       c.expected
     )
+  }
+})
+
+test('ordinary stone-head visits expire the standing-slot cursor at the native byte timer', () => {
+  for (const { nextSlot, slotTimer, expected } of placeFixture.timers) {
+    const head = { nextSlot, slotTimer }
+    stepWorshipHead(head)
+    assert.deepEqual(head, expected)
   }
 })

@@ -32,7 +32,7 @@ def leaf(cpu,a,size,u):
   events.append(['adjust',point(arg(1))]);write(arg(1),'HH',(read(arg(1),'H')+c['adjust'])&65535,read(arg(1)+2,'H'))
  cpu.reg_write(UC_X86_REG_EAX,value&0xffffffff);cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
 for a in [0x4044b0,0x518070,0x4655f0,0x4ea970,0x465650,0x4eadc0,0x4ec3f0]:cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a)
-js="""import {createHash} from 'node:crypto';import {createMotionRoutes,attachPersonRoute,releasePersonRoute,setDirectPersonDestination,personRoutePosition,reusablePersonRoute,updatePersonRouteVehicle,planPersonDestination,setPlannedPersonDestination} from './app/person-routes.ts';
+js="""import {createHash} from 'node:crypto';import {createMotionRoutes,attachPersonRoute,releasePersonRoute,setDirectPersonDestination,personRoutePosition,reusablePersonRoute,updatePersonRouteVehicle,planPersonDestination,setPlannedPersonDestination,correctRouteEndpoints} from './app/person-routes.ts';
 let s='';for await(const c of process.stdin)s+=c;const input=JSON.parse(s),land={flags:new Uint32Array(16384),categories:new Uint8Array(16384),buildingIds:new Uint16Array(16384)};
 console.log(JSON.stringify(input.cases.map(c=>{const routes=createMotionRoutes(),events=[],p=c.p;for(const [id,bytes] of c.records)routes.records.set(bytes,id*109);routes.active=c.active;routes.last=c.last;
 for(const t of c.tiles){land.flags[t.i]=t.flags;land.categories[t.i]=t.category;land.buildingIds[t.i]=t.building;}
@@ -41,10 +41,11 @@ const e={outside:id=>{events.push(['outside',id]);return {x:(1000+id*100)&65535,
 build:(p,a,b)=>{events.push(['build',a,b]);return c.build;},vehicleReady:id=>{events.push(['ready',id]);return !!c.ready;},advance:p=>{events.push(['advance',{...p}]);p.destinationX=(p.destinationX+17)&65535;}};
 let result=null;if(input.mode==='attach'||input.mode==='reserve')attachPersonRoute(routes,p,c.id,input.mode==='reserve');else if(input.mode==='release')releasePersonRoute(routes,p);else if(input.mode==='direct')setDirectPersonDestination(routes,p,c.to);else if(input.mode==='position')result=personRoutePosition(routes,c.id,c.index);
 else if(input.mode==='reuse')result=reusablePersonRoute(routes,p,c.from,c.to);else if(input.mode==='vehicle')updatePersonRouteVehicle(routes,p,e.vehicleReady);else if(input.mode==='plan')result=planPersonDestination(w,p,c.to,e);
+else if(input.mode==='correct'){correctRouteEndpoints(w,p,c.from,c.to,e);result={from:c.from,to:c.to};}
 else setPlannedPersonDestination(w,p,c.to,e,to=>{events.push(['adjust',{...to}]);to.x=(to.x+c.adjust)&65535;});
 for(const t of c.tiles){land.flags[t.i]=land.categories[t.i]=land.buildingIds[t.i]=0;}
 return {p,active:routes.active,last:routes.last,skip:w.skip,checkingPerson:w.checkingPerson,records:createHash('sha256').update(routes.records).digest('hex'),events,result};})));"""
-for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea460),('direct',0x4e9dd0),('position',0x4ea4c0),('reuse',0x4ea550),('vehicle',0x4ea300),('plan',0x4e9e80),('wrapper',0x4e9d80)]:
+for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea460),('direct',0x4e9dd0),('position',0x4ea4c0),('reuse',0x4ea550),('vehicle',0x4ea300),('plan',0x4e9e80),('wrapper',0x4e9d80),('correct',0x4ea6b0)]:
  cases=[];expected=[]
  for n in range(2048):
   ps={k:rng.randrange(65536) if f=='H' else rng.randrange(256) if f=='B' else rng.getrandbits(32) if f=='I' else 0 for k,(o,f) in fields.items()}
@@ -60,8 +61,9 @@ for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea46
     r=records[1][1];r[0]=1;r[1]=0;r[2]=0;r[4]=frm['x'];r[5]=frm['y'];r[8]=to['x'];r[9]=to['y'];frm['x']=(frm['x']+n%3)&255
   elif mode in ['plan','wrapper'] and n%4==0:
    r=records[1][1];r[0]=1;r[1]=0;r[2]=0;r[4]=ps['x']>>8;r[5]=ps['y']>>8;r[8]=to['x']>>8;r[9]=to['y']>>8
+  if mode=='correct':to={k:v&255 for k,v in to.items()}
   tiles={}
-  for q in [ps,to]:
+  for q in ([dict(x=frm['x']<<8,y=frm['y']<<8),dict(x=to['x']<<8,y=to['y']<<8)] if mode=='correct' else [ps,to]):
    i=(q['y']>>9)*128+(q['x']>>9);tiles[i]=dict(i=i,flags=rng.choice([0,0,512]),category=rng.randrange(16),building=rng.choice([0,2,3]))
    if tiles[i]['flags']&512 and not tiles[i]['building']:tiles[i]['building']=2
   c=dict(p=ps,records=records,active=rng.randrange(1,10),last=rng.randrange(1,9),skip=n%11==0,levelFlags2=0x400000 if n%7==0 else 0,computerLimit=n%4,humanLimit=n%5,
@@ -80,6 +82,9 @@ for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea46
   elif mode in ['release','vehicle']:call(address,p)
   elif mode=='position':
    result=dict(intermediate=bool(call(address,c['id'],c['index'],out)&255),**point(out))
+  elif mode=='correct':
+   write(out,'4B',frm['x'],frm['y'],0,0);write(out+4,'4B',to['x'],to['y'],0,0);call(address,p,out,out+4)
+   result=dict(from_=dict(x=read(out,'B'),y=read(out+1,'B')),to=dict(x=read(out+4,'B'),y=read(out+5,'B')));result['from']=result.pop('from_')
   elif mode=='reuse':write(out,'BBBB',frm['x'],frm['y'],to['x'],to['y']);result=call(address,p,out,out+2)&65535
   else:
    r=call(address,p,out)
@@ -91,3 +96,7 @@ for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea46
   if a!=b:
    path=Path('/private/tmp/populous-person-routes-failure.json');path.write_text(json.dumps(dict(mode=mode,index=i,case=cases[i],native=a,browser=b),indent=2));raise AssertionError((mode,i,str(path)))
  assert len(actual)==len(expected);print(f'PASS: 2,048 native route {mode} comparisons, owned fields, pool bytes and ordered consumers',flush=True)
+
+ if mode=='correct' and '--record' in sys.argv:
+  captures=[dict(**{k:c[k] for k in ['p','from','to','tiles','blocks','direction']},expected={k:e[k] for k in ['checkingPerson','events','result']}) for c,e in zip(cases[::7],expected[::7])]
+  (root/'tests/fixtures/route-endpoints.json').write_text(json.dumps(dict(cases=captures,executableSha256=hashlib.sha256(exe.read_bytes()).hexdigest()),separators=(',',':'))+'\n')

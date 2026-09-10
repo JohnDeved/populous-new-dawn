@@ -140,3 +140,9 @@ export function findWorshipPlace(
     }
   return null
 }
+
+// Ordinary model-9 head visit, 0x4a8b00. Terrain initialization and morphs
+// have separate owners; the standing cursor expires even without worshippers.
+export function stepWorshipHead(head: { nextSlot: number; slotTimer: number }) {
+  if (head.slotTimer && --head.slotTimer === 0) head.nextSlot = 0
+}

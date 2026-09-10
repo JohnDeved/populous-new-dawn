@@ -270,6 +270,10 @@ export function syncLivePersonCells(w: World) {
     const to = nativePosition(w, u)
     to.x &= 65535
     to.y &= 65535
+    // Native physics owns height. Re-rounding the browser surface can hold a
+    // grounded follower one unit above native terrain, restarting gravity forever.
+    if (unitAnimationSource(u) === p)
+      to.h = to.x === p.x && to.y === p.y ? p.h : terrainPointHeight(w.land, to)
     if (to.x !== p.x || to.y !== p.y || to.h !== p.h) moveObjectInCells(w.objectCells, p, to)
   }
   return people
@@ -392,7 +396,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
         },
       }),
     startOrders: p => {
-      if ([3, 19].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
+      if ([3, 19, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
         startLiveOrders(w, p as LivePerson, state)
       else if (p.immediateCommand || p.commands[p.commandCursor]) unexpected()
     },
@@ -944,14 +948,26 @@ export function animateLiveObjects(w: World) {
   if (w.paused || w.land.landFlags & 2) return
   for (const u of w.units) {
     const source = unitAnimationSource(u)
-    if (source)
+    if (source) {
+      // Command 27 polls the final frame at 12 Hz. Keep it observable when the
+      // elapsed 24 Hz animation clock would otherwise wrap past that visit.
+      const p = u.native
+      if (
+        source === p &&
+        p.state === 10 &&
+        p.commandStatus === 27 &&
+        p.substate === 2 &&
+        !p.f1 &&
+        p.f2 === sprites.frameCounts[p.object] - 1
+      )
+        continue
       stepObjectAnimation(
         source,
         { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
         () => stampFootprints(w.footprints, source.x, source.y)
       )
-    else if (
+    } else if (
       !(w.levelFlags2 & 0x10000) &&
       u.hp > 0 &&
       u.inside === null &&

@@ -4549,3 +4549,12 @@ now verifies 1,119 exports, adding `0043c340`, `004a8e70` and `004ea6b0`.
 The last export's nontrivial building/coast/vehicle branches remain unreviewed;
 the place oracle currently executes its ordinary dry-terrain path. Live command,
 route and roster integration is still unfinished.
+
+
+Live spell-head worship (2026-09-11): `check-native-person-routes.py --record`
+now covers complete `004ea6b0` building/coast/vehicle endpoint correction (2,048
+cases); `check-native-worship-place.py --record` also executes 1,280 ordinary
+`004a8b00` head timer visits. The existing command-27/place reconstructions are
+connected through `app/live-worship.ts`. See the latest reverse-engineering entry
+for live tests, deliberate prayer-frame handoff and remaining admission, retry,
+vehicle, vault, trigger, contextual-panel and scheduling boundaries.

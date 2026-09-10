@@ -23,7 +23,7 @@ import { releasePersonRoute, setDirectPersonDestination } from './person-routes.
 import { personAnimationObject } from './person-state.ts'
 import { finishPersonPreparation, stepPersonReaction } from './person-update.ts'
 import { attackCombatBuilding } from './combat-building.ts'
-import { startLiveOrders, cancelLiveMovement } from './live-movement.ts'
+import { startLiveOrders, cancelLiveOrder } from './live-movement.ts'
 import {
   allocatePersonOrder,
   attachPersonOrder,
@@ -73,7 +73,7 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
   if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 19) {
     cancelLiveResting(w, u)
     cancelLiveBuildingAttack(w, u)
-    cancelLiveMovement(w, u)
+    cancelLiveOrder(w, u)
     const id = allocatePersonOrder(w.buildingOrders)
     if (!id) return
     clearLivePath(w, u)

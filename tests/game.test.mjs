@@ -1,3 +1,6 @@
+import {syncLivePersonCells} from '../app/live-people.ts';
+import {worshipPositions} from '../app/worship.ts';
+import {nativePosition} from '../app/model.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {createHash} from 'node:crypto';
@@ -209,6 +212,12 @@ test('opening tooltips resolve mission cells and have an independent lifetime', 
  assert.equal(state.target,0,'an empty original cell cannot retain the previous target');
 });
 function until(w,ready,seconds){for(let i=0;i<seconds*12&&!ready()&&w.status==='playing';i++)tick(w,1/12);assert.ok(ready(),'gameplay condition reached within its turn budget');}
+function standAtHead(w,u,head) {
+ const point=worshipPositions({...nativePosition(w,head),angle:Math.round(head.angle*1024/Math.PI)&2047})[0]
+ Object.assign(u,browserPosition(point));syncLivePersonCells(w);w.selected=[u.id];command(w,head)
+ until(w,()=>u.native?.substate===2,2)
+}
+
 function impact(w,spell){const shot=w.projectiles.find(p=>p.team==='blue'&&p.spell===spell);assert.ok(shot);for(let i=0;i<120&&w.projectiles.includes(shot);i++)tick(w,1/12);assert.ok(!w.projectiles.includes(shot),'spell resolves within ten seconds');}
 function foundations(w) {
  for (const b of w.buildings.filter(b=>!b.preparation)) for (const {index} of buildingGradeVertices(buildingPose(b))) {
@@ -484,13 +493,13 @@ test('campaign counters track allocation and remaining head gifts through gamepl
  const head=fresh.shrines.find(s=>s.kind==='lightning'),brave=fresh.units.find(u=>u.team==='blue'&&u.kind==='brave');
  const headQuery={fields:[[0,19],[0,247],[1,0]]};
  campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],4,'query reports gifts remaining, not gifts already awarded');
- Object.assign(brave,{x:head.x,z:head.z,work:head.id,path:[]});
+ standAtHead(fresh,brave,head);
  const finish=(head)=>{Object.assign(head,{work:head.target*head.required**2-1,enabled:true,reset:false,cooldown:0});tick(fresh,1/3);};
  for(let remaining=3;remaining>=0;remaining--){finish(head);campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],remaining);}
  assert.equal(head.active,false);assert.equal(fresh.shots.lightning,0,'head depletion precedes reward delivery');until(fresh,()=>fresh.shots.lightning===4,8);
  campaignCommand(fresh,1077,[0,1,2],{fields:[[0,0],[2,1186],[1,0]]});assert.equal(fresh.ai.variables[0],4);
  removeHead(fresh,18,246);campaignCommand(fresh,1131,[0,1,2],headQuery);assert.equal(fresh.ai.variables[0],0,'absent heads return zero');
- const bridge=fresh.shrines.find(s=>s.kind==='bridge');Object.assign(brave,{x:bridge.x,z:bridge.z,work:bridge.id,path:[]});
+ const bridge=fresh.shrines.find(s=>s.kind==='bridge');standAtHead(fresh,brave,bridge);
  finish(bridge);assert.equal(bridge.remaining,0);assert.equal(bridge.active,true,'zero initial trigger count means unlimited');
  bridge.remaining=-1;finish(bridge);assert.equal(bridge.remaining,-1);assert.equal(bridge.active,false,'negative trigger counts fire once and retain their value');
  assert.throws(()=>campaignCommand(fresh,1077,[1119,1,2],program),/Unbound one-off spell stock/,'unported AI stock is not silently reported as zero');
@@ -501,15 +510,15 @@ test('campaign counters track allocation and remaining head gifts through gamepl
 test('worship decays without followers and continues at full spell stock', () => {
  const w = createWorld(), head = w.shrines.find(s => s.kind === 'bridge');
  const brave = w.units.find(u => u.team === 'blue' && u.kind === 'brave');
- Object.assign(brave, {x: head.x, z: head.z, work: head.id, path: []});
+ standAtHead(w,brave,head);head.work=0;head.reset=true;
  w.shots.bridge = 4;
  advance(w, 4);
  assert.equal(head.work, 12, 'full stock does not pause worship');
- brave.work = null;
+ command(w,{x:head.x+6,z:head.z+3});
  advance(w, 2);
  assert.equal(head.work, 6, 'leaving the head loses accumulated work');
- brave.work = head.id;
- until(w, () => head.uses === 1, 10);
+ command(w,head);
+ until(w, () => head.uses === 1, 15);
  assert.equal(w.gifts.length, 1);
  assert.equal(w.giftCounts.bridge, 0);
  removeHead(w, 2, 222);

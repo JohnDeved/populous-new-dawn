@@ -13,6 +13,8 @@ import { buildingBlocksPerson, pathCellBlocked } from './person-collision.ts'
 import { terrainCellHeightRange } from './native-terrain.ts'
 import {
   buildPersonRoute,
+  correctRouteEndpoints,
+  type RouteEffects,
   setPlannedPersonDestination,
   personRoutePosition,
   releasePersonRoute,
@@ -67,13 +69,14 @@ export function planLivePath(
   w: World,
   u: Unit,
   end: Point,
-  p = createLivePerson(w, u)
+  p = createLivePerson(w, u),
+  probeOnly = false
 ): LivePerson | null {
-  if (!supportsFollower(w, end)) return null
+  if (!probeOnly && !supportsFollower(w, end)) return null
   const r = w.pathfinding,
     { state, path, geometry: g, solver } = r,
     collision = collisionWorld(w)
-  p.flags2 = (p.flags2 | 0x2000000) >>> 0
+  if (!probeOnly) p.flags2 = (p.flags2 | 0x2000000) >>> 0
   const tribes = w.manaTribes.map((t, i) => ({
     playerType: t.playerType,
     requests: (solver.tribeRequests[i] << 16) >> 16,
@@ -127,62 +130,63 @@ export function planLivePath(
     land: w.land,
     vehicles: new Map(),
   }
-  const goal = nativePosition(w, end)
-  try {
-    setPlannedPersonDestination(
-      planner,
-      p,
-      goal,
-      {
-        outside: id => {
-          const b = w.buildings.find(b => b.id === id)
-          if (!b) throw new Error(`Missing native route building ${id}`)
-          return buildingOutsidePoint(buildingPose(b))
-        },
-        buildingBlocks: cell =>
-          !!pathCellBlocked(
-            collision,
-            p,
-            cell,
-            () => terrainCellHeightRange(w.land, cell),
-            state.landLimit,
-            () => u.inside ?? 0
+  const routeEffects: RouteEffects = {
+    outside: id => {
+      const b = w.buildings.find(b => b.id === id)
+      if (!b) throw new Error(`Missing native route building ${id}`)
+      return buildingOutsidePoint(buildingPose(b))
+    },
+    buildingBlocks: cell =>
+      !!pathCellBlocked(
+        collision,
+        p,
+        cell,
+        () => terrainCellHeightRange(w.land, cell),
+        state.landLimit,
+        () => u.inside ?? 0
+      ),
+    coastDirection: to =>
+      rules.terrainCategoryDirections[
+        w.land.categories[((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)] & 15
+      ],
+    vehicleReady: unsupported,
+    advance: () => advanceLiveRoute(w, p),
+    build: (_, from, to) =>
+      buildPersonRoute(w.motionRoutes, p, from, to, 0, tribes[p.tribe], {
+        findVehicle: () => null,
+        search: (_, person, a, b, option, vehicles) =>
+          searchPersonPath(
+            searchWorld,
+            person,
+            Uint8Array.of(a.x, a.y, 0, 0),
+            Uint8Array.of(b.x, b.y, 0, 0),
+            option,
+            vehicles,
+            {
+              prepare: () => preparePathCandidates(searchWorld, g),
+              choose: i => choosePathCandidate(searchWorld, g, i),
+              solve: () => solvePersonPath(searchWorld, g, solver, p, probe),
+              smooth: () =>
+                smoothSearchPath(path, 0, (a, b, k) =>
+                  clearPathSegment(searchWorld, g, p, a, b, k, probe)
+                ),
+              measure: () => measureSearchPath(path, g.line, r.measure, w.land.regions, tribes),
+              collect: () => {
+                state.truncated = Number(collectSearchPath(path, w.motionRoutes.pathResult, 0))
+              },
+            }
           ),
-        coastDirection: to =>
-          rules.terrainCategoryDirections[
-            w.land.categories[((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)] & 15
-          ],
-        vehicleReady: unsupported,
-        advance: () => advanceLiveRoute(w, p),
-        build: (_, from, to) =>
-          buildPersonRoute(w.motionRoutes, p, from, to, 0, tribes[p.tribe], {
-            findVehicle: () => null,
-            search: (_, person, a, b, option, vehicles) =>
-              searchPersonPath(
-                searchWorld,
-                person,
-                Uint8Array.of(a.x, a.y, 0, 0),
-                Uint8Array.of(b.x, b.y, 0, 0),
-                option,
-                vehicles,
-                {
-                  prepare: () => preparePathCandidates(searchWorld, g),
-                  choose: i => choosePathCandidate(searchWorld, g, i),
-                  solve: () => solvePersonPath(searchWorld, g, solver, p, probe),
-                  smooth: () =>
-                    smoothSearchPath(path, 0, (a, b, k) =>
-                      clearPathSegment(searchWorld, g, p, a, b, k, probe)
-                    ),
-                  measure: () => measureSearchPath(path, g.line, r.measure, w.land.regions, tribes),
-                  collect: () => {
-                    state.truncated = Number(collectSearchPath(path, w.motionRoutes.pathResult, 0))
-                  },
-                }
-              ),
-          }),
-      },
-      () => {}
-    )
+      }),
+  }
+  const goal = nativePosition(w, end)
+  if (probeOnly) {
+    const from = { x: p.x >> 8, y: p.y >> 8 },
+      to = { x: (goal.x >> 8) & 255, y: (goal.y >> 8) & 255 }
+    correctRouteEndpoints(planner, p, from, to, routeEffects)
+    return routeEffects.build(p, from, to) ? p : null
+  }
+  try {
+    setPlannedPersonDestination(planner, p, goal, routeEffects, () => {})
     r.skip = planner.skip
     if (
       !(p.flags4 & 0x10000000) &&
@@ -261,11 +265,13 @@ function advanceLiveRoute(w: World, p: LivePerson) {
 export function stepLiveRoute(w: World, u: Unit) {
   const p = w.pathfinding.people.get(u.id)
   if (!p) return
-  const to = nativePosition(w, u)
-  p.x = to.x & 65535
-  p.y = to.y & 65535
-  p.h = to.h
-  if (p !== u.native) p.counter = w.turn & 255
+  if (p !== u.native) {
+    const to = nativePosition(w, u)
+    p.x = to.x & 65535
+    p.y = to.y & 65535
+    p.h = to.h
+    p.counter = w.turn & 255
+  }
   advanceLiveRoute(w, p)
   if (!p.motionGroup && p.x === p.goalX && p.y === p.goalY) clearLivePath(w, u)
   else u.path = liveRoutePoints(w, p)

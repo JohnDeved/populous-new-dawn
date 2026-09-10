@@ -75,3 +75,19 @@ if '--record' in sys.argv:
  (ROOT/'tests/fixtures/worship-place.json').write_text(json.dumps(dict(executableSha256=identity['sha256'],cases=cases[::7]),separators=(',',':'))+'\n')
 assert {c['expected']['result']['mode'] if c['expected']['result'] else 0 for c in cases}=={0,1,2}
 print('PASS: 1,024 native worship-place searches, original endpoint/slot geometry, occupancy, query ordering and failure flags')
+
+# Ordinary head visits execute the whole native body with no pending terrain
+# reinitialization or morph. Include the full byte range, not only timer 16.
+timers=[]
+for timer in range(256):
+ for slot in [0,1,49,50,255]:
+  cpu.mem_write(head,bytes(256));write(head+0x2b,'B',9)
+  write(head+0x31,'BB',slot,timer);call(0x4a8b00,head)
+  timers.append(dict(nextSlot=slot,slotTimer=timer,expected=dict(nextSlot=read(head+0x31,'B'),slotTimer=read(head+0x32,'B'))))
+js="""import{stepWorshipHead}from'./app/worship.ts';let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map(c=>{const p={nextSlot:c.nextSlot,slotTimer:c.slotTimer};stepWorshipHead(p);return p})));"""
+actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(timers).encode(),cwd=ROOT))
+assert actual==[c['expected'] for c in timers]
+if '--record' in sys.argv:
+ path=ROOT/'tests/fixtures/worship-place.json';fixture=json.loads(path.read_text());fixture['timers']=timers
+ path.write_text(json.dumps(fixture,separators=(',',':'))+'\n')
+print('PASS: 1,280 native ordinary head visits, timer expiry and standing cursor reset')

@@ -7,6 +7,7 @@ import {
   stepLivePhysics,
   type LivePerson,
 } from './live-people.ts'
+import { stepLiveWorship } from './live-worship.ts'
 import { liveBuildingAttackTarget } from './live-building-combat.ts'
 import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
 import { releasePersonRoute } from './person-routes.ts'
@@ -49,7 +50,7 @@ const effects = (w: World): OrderEffects => ({
 
 export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 19].includes(order.model)) unsupported()
+  if (!order || ![3, 19, 27].includes(order.model)) unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,
@@ -101,7 +102,7 @@ export function movementOrder(w: World, to: { x: number; y: number }) {
   return id
 }
 
-export function startLiveMovement(w: World, u: Unit, id: number) {
+export function startLiveOrder(w: World, u: Unit, id: number) {
   const p = u.native ?? createLivePerson(w, u)
   u.native = p
   attachPersonOrder(w.buildingOrders, p, id, 0, effects(w))
@@ -109,9 +110,9 @@ export function startLiveMovement(w: World, u: Unit, id: number) {
   changeLivePersonState(w, u, 10)
 }
 
-export function cancelLiveMovement(w: World, u: Unit) {
+export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion
-  if (!p || currentPersonOrder(w.buildingOrders, p)?.model !== 3) return
+  if (!p || ![3, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
   clearPersonOrders(w.buildingOrders, p, effects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
@@ -169,7 +170,10 @@ export function stepLiveMovement(w: World, u: Unit) {
     },
     p,
     {
-      commands: { 3: order => Number(stepMovementOrder(p, order, w.land.categories, unsupported)) },
+      commands: {
+        3: order => Number(stepMovementOrder(p, order, w.land.categories, unsupported)),
+        27: () => Number(stepLiveWorship(w, u)),
+      },
       commandPosition: order => ({ x: order.a, y: order.b }),
       vehicleDestination: unsupported,
       vehicleReady: unsupported,
@@ -206,6 +210,7 @@ export function stepLiveMovement(w: World, u: Unit) {
     }
   )
   if (next) {
+    if (p.commandStatus === 27) u.work = null
     clearLivePath(w, u)
     changeLivePersonState(w, u, next)
   }

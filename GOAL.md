@@ -143,10 +143,13 @@ differences in actual play and preserving the existing regression checks.
    four-visit lifetime and second UI cue, reusing the existing atlas and renderer.
    Worship-panel artwork and fifty-slot standing geometry now have native and
    browser-pixel comparisons. Command 27's approach/arrival/prayer controller and
-   two-pass slot search now match native comparisons as well. Next connect live
-   route ownership, the head's slot cursor/timer, original worship admission and
-   contextual controls; the proximity adapter is insufficient for an exact roster.
-   These reconstructions are not live gameplay parity yet.
+   two-pass slot search now match native comparisons as well. Ordinary first-mission
+   spell-head worship is now connected to shared orders, raw route probes, exact
+   cell-list standing admission, original poses/audio and head cursor expiry.
+   Cancellation, panic recovery, rewards, full mission, browser input and 5–240 Hz
+   replay are checked. Next connect the worship contextual panels and their native
+   selection/focus controls. General triggers, vault command 33, route-failure retry,
+   mixed-class scheduling and head terrain/morph ownership remain unfinished.
    Complete target-panel ownership, bitmap transitions, HUD/vehicle ownership,
    buffering and alternate input modes remain open.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,

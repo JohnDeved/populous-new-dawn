@@ -1,6 +1,6 @@
 import rules from './original-rules.json' with { type: 'json' }
 import type { NativeTerrain } from './native-terrain.ts'
-import { cellDelta } from './native-math.ts'
+import { cellDelta, movePosition } from './native-math.ts'
 
 interface Point {
   x: number
@@ -182,13 +182,56 @@ export interface RouteWorld {
   land: Pick<NativeTerrain, 'flags' | 'categories' | 'buildingIds'>
   vehicles: ReadonlyMap<number, Point>
 }
-interface RouteEffects {
+export interface RouteEffects {
   outside: (id: number) => Point
   buildingBlocks: (cell: number) => boolean
   coastDirection: (to: Point) => number
   build: (p: RoutedPerson, from: Point, to: Point) => number
   vehicleReady: (id: number) => boolean
   advance: (p: RoutedPerson) => void
+}
+
+// 0x4ea6b0: raw route probes correct byte-coordinate endpoints before searching.
+// A correction to either end commits both coarse coordinates, including odd bytes.
+export function correctRouteEndpoints(
+  w: Pick<RouteWorld, 'land' | 'vehicles' | 'checkingPerson'>,
+  p: Pick<RoutedPerson, 'id' | 'vehicle'>,
+  from: Point,
+  to: Point,
+  e: Pick<RouteEffects, 'outside' | 'buildingBlocks' | 'coastDirection'>
+) {
+  const start = (from.y >> 1) * 128 + (from.x >> 1),
+    end = (to.y >> 1) * 128 + (to.x >> 1)
+  let a = { x: (from.x & 254) << 8, y: (from.y & 254) << 8 },
+    b = { x: (to.x & 254) << 8, y: (to.y & 254) << 8 },
+    changed = !!(w.land.flags[start] & 512)
+  if (changed) a = e.outside(w.land.buildingIds[start] & 1023)
+  if (w.land.flags[end] & 512) {
+    w.checkingPerson = p.id
+    if (e.buildingBlocks(to.x | (to.y << 8))) {
+      changed = true
+      b = e.outside(w.land.buildingIds[end] & 1023)
+    }
+  }
+  if (p.vehicle) {
+    a = { ...w.vehicles.get(p.vehicle)! }
+    changed = true
+  } else {
+    for (const [point, index] of [
+      [a, start],
+      [b, end],
+    ] as const)
+      if (rules.terrainCategoryFlags[w.land.categories[index] & 15] & 60) {
+        changed = true
+        movePosition(point, e.coastDirection(point) * 256 + 1024, 512)
+      }
+  }
+  if (changed) {
+    from.x = a.x >> 8
+    from.y = a.y >> 8
+    to.x = b.x >> 8
+    to.y = b.y >> 8
+  }
 }
 
 // Complete 0x4e9e80. Route construction and advancement remain required

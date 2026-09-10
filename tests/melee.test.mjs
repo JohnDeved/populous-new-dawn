@@ -117,7 +117,7 @@ test('idle followers of either tribe pursue detected enemies at every render cad
 
 function group(kind = 'warrior', choice = 0, count = 3, offset = 0) {
   const w = createWorld()
-  w.terrain.fill(3); w.terrainVersion++; w.units = []; w.buildings = []
+  w.terrain.fill(3); w.terrainVersion++; w.units = []; w.buildings = []; w.shrines = []
   const defender = addUnit(w, 'red', 'warrior', { x: offset / 256, z: 0 })
   const attacker = addUnit(w, 'blue', kind, { x: 180 / 256, z: 0 })
   const members = [defender, attacker]
@@ -384,10 +384,11 @@ test('approach uses native cell collision and preserves the person across attack
   assert.equal(attacker.fight, null)
   assert.deepEqual(nativePosition(w, attacker), position)
   // Native command/engagement ownership remains separate: remove the nearby contact.
-  w.units.find(u => u !== attacker).x = 30
-  tick(w, 1 / 12)
+  w.units = [attacker]
+  // Native orders turn toward their route before making forward progress.
+  for (let i = 0; i < 24; i++) tick(w, 1 / 12)
   assert.ok(attacker.x > position.x / 256 - 8)
-  assert.ok(!w.objectCells.objects.has(attacker.id), 'adapted ordinary order releases retained combat cells')
+  assert.equal(w.objectCells.objects.get(attacker.id), attacker.native, 'ordinary movement retains the native person in its cell')
 })
 
 test('approach, native animation and subsequent combat stay identical across frame rates', async () => {
