@@ -1836,3 +1836,20 @@ not an FPS or hardware speedup claim. Measure the eventual composed controller
 when integrated. 244 tests pass; ox-standard reports no findings in the changed
 module. Fallow: maintainability 85.6, average cyclomatic 2.7/p90 5, twelve existing
 cycles. No dependencies or separate animation clocks were added.
+
+
+## 2026-09-10 — construction-plan attacks reuse existing engine primitives
+
+Plan entrances use the imported shape table and shared resting-cell collision;
+four-exit selection is bounded. Approach uses existing wrapped facing, speed RNG,
+recovery and animation. Timed attack phases use the caller's simulation visits;
+there is no render-frame timer, extra animation system or duplicated queue.
+No dependencies or packed-memory emulation were added.
+
+10,624 native calls and 364 portable captures validate these staged mechanics,
+including 128 complete approach/attack sequences. All 245 repository tests pass.
+The new pursuit/attack code has no ox-standard findings; `building-shapes.ts`
+retains its pre-existing nested ternary warnings in `buildingModel`, outside the
+new geometry. Fallow: maintainability 85.6, average cyclomatic 2.7/p90 5, twelve
+existing cycles. No live rendering or controller path changed, so no new hardware
+or FPS claim is made. Profile the composed controller once integrated.

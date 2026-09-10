@@ -6239,3 +6239,65 @@ plan entrances are `004ba130`/`004b9fc0`, with kind-10 exit collision selection.
 Building phase 3 still includes ordinary approach/occupant handling and special
 model-19 positioning. These branches must be implemented before claiming the full
 ordinary command body. No additional melee-lifecycle credit.
+
+
+## 2026-09-10 — construction-plan entrances and attack phases
+
+`buildingPlanInsidePoint` / `buildingPlanOutsidePoint` in `building-shapes.ts`
+reconstruct complete `004ba130` / `004b9fc0`. Plans store a packed starting cell
+(+0x68), shape index (+0x9b) and kind (+0x9e), distinct from completed-building
+anchors. Ordinary plans use signed quarter-cell entrance offsets directly. Kind 10
+tries four consecutive rotated shape exits, requiring no building ID and a passing
+original resting-cell collision/walk-mask check; failure returns the starting-cell
+origin. Existing imported shapes and collision rules supply the geometry.
+
+`approachCombatPlan` in `combat-pursuit.ts` reconstructs complete `00438db0`:
+entry clears the assignment bit, selects native plan-entry permission, obtains both
+entrances, and chooses direct versus planned destination at the strict 312-unit
+signed-axis threshold. Wrapped facing precedes ordinary movement recovery and its
+RNG/animation. Arrival is checked only on even person-counter visits, with a strict
+112-unit signed-axis threshold. These comparisons intentionally differ from wrapped
+facing and Euclidean distance.
+
+`attackCombatPlan` in `combat-approach.ts` reconstructs `0051a2a0` phases 4/5:
+invalid class, allied ownership or nonzero related-building word +0x92 cancels.
+Approach entry sets a 64-visit signed timer and action 3; negative timeout cancels,
+and arrival enters phase 5 on the next visit. Attack entry stops movement and reads
+the low byte of the original row-7/row-4 object-table entry. Assembly uses a zero-
+extended byte, despite the decompiler's `char` expression. It bypasses the generic
+airborne row remap, then uses the real upper-body animation setter. Empty-handed
+attack resets f2 and copies the signed descriptor hold into f1; cargo retains its
+own pose. Assignment bit 128 and an 18-visit timer are set after animation.
+Losing the occupied plan cell cancels before decrement; timer expiry requests
+`004b9190(cell, 0, 0, 0, 3)` unless flags4 bit 0x800 suppresses destruction. Either
+expiry outcome restarts target search.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-plan-attack.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/plan-attack.test.mjs
+npm run check
+```
+
+The oracle runs 2,048 calls for each entrance, 2,048 complete approach calls and
+2,048 whole command-19 visits initialized in plan phases: **8,192 individual calls**.
+It also runs **128 consecutive 19-visit sequences** from valid approach entry through
+attack expiry/restart, totaling **10,624 native calls**. Every tracked person/plan
+field, RNG, ordered consumer snapshot and intermediate sequence state agrees.
+Models 2–7, all 64 ordinary shape records, four-exit plans, coordinate wrap, blocked
+exits, walk masks, cargo, reflected/airborne flags, invalid/converted/allied plans,
+lost cell ownership and signed timer boundaries are covered. Portable evidence has
+364 captures, including seven sequences and explicitly retained suppression cases.
+
+Original entrance geometry, adjacent cell checks, resting collision, walk masks,
+angle calculation, recovery speed, upper-body animation and RNG execute natively.
+Only route destination setters and final plan destruction are supplied during
+comparison; loader file-I/O hooks are removed after original shape relocation.
+Common controller flags and restart dispatch in the comparison harness are not a
+new live controller. Sequence counters are advanced explicitly by the harness;
+whole-game scheduling and render interpolation are not certified by these sequences.
+
+**Still open:** actual world plan destruction and associated ownership/effects,
+completed-building phase 3, ranged phases 10/11, shared command lifecycle and live
+queue restoration. The tested destruction request is not proof that the world
+consumer is complete. These are staged mechanics with no new live visual claim or
+whole melee-lifecycle credit.

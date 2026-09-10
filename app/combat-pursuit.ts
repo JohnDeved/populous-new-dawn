@@ -129,3 +129,27 @@ export function withinCombatArea(
   }
   return near(p, center, radius + 56)
 }
+
+// Complete 0x438db0: approach a construction plan through its native entrance.
+// Nearby exits allow a direct destination; facing wraps, arrival comparisons do not.
+export function approachCombatPlan(
+  rng: { randomState: number },
+  p: PursuingPerson & { counter: number },
+  e: MotionEffects & {
+    inside: () => Point
+    outside: () => Point
+    directDestination: (point: Point) => void
+  }
+) {
+  if (p.assignment & 16) {
+    p.assignment &= ~16
+    p.flags4 = ((p.flags4 & ~0x10007) | 1) >>> 0
+    const inside = e.inside(),
+      outside = e.outside()
+    if (near(outside, p, 312)) e.directDestination(inside)
+    else e.destination(inside)
+    faceTarget(p, inside)
+    recoverPersonMovement(rng, p, e.animation)
+  }
+  return !(p.counter & 1) && near({ x: p.goalX, y: p.goalY }, p, 112)
+}

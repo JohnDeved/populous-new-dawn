@@ -1,3 +1,4 @@
+import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, random } from './native-math.ts'
 import { stepCombatPursuit, PursuitResult, type PursuingPerson } from './combat-pursuit.ts'
 import {
@@ -257,4 +258,52 @@ export function retryCombatTarget(
     p.substate = 0
     p.flags2 = (p.flags2 | 0x40000000) >>> 0
   }
+}
+
+// Construction-plan branches 4/5 of 0x51a2a0. The related-building word must
+// remain zero; conversion or losing the occupied cell cancels the attack.
+export function attackCombatPlan(
+  p: CombatApproachPerson & { f1: number; f2: number },
+  plan: { id: number; class: number; tribe: number; related: number },
+  e: {
+    animation: PersonStateEffects['setAnimation']
+    approach: () => boolean
+    buildingAt: (point: Point) => number
+    destroy: (cell: number) => void // Native 0x4b9190 with mode 3.
+  }
+): 'continue' | 'restart' {
+  if (plan.class !== 9 || plan.related !== 0 || plan.tribe === p.tribe) return 'restart'
+  if (p.substate === 4) {
+    if (p.flags2 & 0x40000000) {
+      p.assignment |= 16
+      p.timer = 64
+      p.animationMode = 3
+      p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+    }
+    p.timer = short(p.timer - 1)
+    if (p.timer < 0) return 'restart'
+    if (e.approach()) {
+      p.substate = 5
+      p.flags2 = (p.flags2 | 0x40000000) >>> 0
+    }
+    return 'continue'
+  }
+  if (p.substate !== 5) throw new Error(`Unsupported plan attack state ${p.substate}`)
+  if (p.flags2 & 0x40000000) {
+    p.speed = 0
+    p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+    // This branch loads only the table's low byte, without airborne row remapping.
+    e.animation(p, rules.personAnimationObjects[(p.cargo ? 4 : 7) * 9 + p.model] & 255)
+    if (!p.cargo) {
+      p.f2 = 0
+      p.f1 = rules.animationDescriptors[p.draw].hold
+    }
+    p.assignment |= 128
+    p.timer = 18
+  }
+  if ((e.buildingAt(p) & 1023) !== plan.id) return 'restart'
+  p.timer = short(p.timer - 1)
+  if (p.timer > 0) return 'continue'
+  if (!(p.flags4 & 0x800)) e.destroy(((p.x >>> 8) & 254) | (p.y & 0xfe00))
+  return 'restart'
 }

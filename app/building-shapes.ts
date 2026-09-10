@@ -1,3 +1,4 @@
+import { restingCellCollision, type CollisionCell } from './person-collision.ts'
 import type { Building } from './model.ts'
 import data from './original-shapes.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
@@ -307,6 +308,36 @@ export function buildingOutsidePoint(b: BuildingShapePose): Point {
     x: (b.anchorX - s.x * 256 + s.outside[0] * 64) & 65535,
     y: (b.anchorY - s.y * 256 + s.outside[1] * 64) & 65535,
   }
+}
+
+export interface BuildingPlanPose {
+  cell: number
+  shape: number
+  planKind: number
+}
+function planShapePoint(plan: BuildingPlanPose, offset: readonly number[]): Point {
+  return {
+    x: (((plan.cell & 254) << 8) + offset[0] * 64) & 65535,
+    y: ((plan.cell & 0xfe00) + offset[1] * 64) & 65535,
+  }
+}
+
+// Complete 0x4ba130 / 0x4b9fc0. Plans store the footprint's starting cell,
+// not the completed building's anchor. Kind 10 tries four rotated exits.
+export function buildingPlanInsidePoint(plan: BuildingPlanPose): Point {
+  return planShapePoint(plan, data.shapes[plan.shape].inside)
+}
+export function buildingPlanOutsidePoint(
+  plan: BuildingPlanPose,
+  w: { cell: (point: Point) => CollisionCell; walkMask: ArrayLike<number> }
+): Point {
+  if (plan.planKind !== 10) return planShapePoint(plan, data.shapes[plan.shape].outside)
+  for (let rotation = 0; rotation < 4; rotation++) {
+    const point = planShapePoint(plan, data.shapes[plan.shape + rotation].outside)
+    const cell = w.cell(point)
+    if (!(cell.building & 1023) && !restingCellCollision(cell, w.walkMask, point)) return point
+  }
+  return planShapePoint(plan, [0, 0])
 }
 
 function wrappedDistanceSquared(a: Point, b: Point) {

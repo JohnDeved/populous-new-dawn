@@ -1520,3 +1520,19 @@ search/approach parts with the shared queue and real world consumers. Ordinary l
 ownership/restoration and campaign attacks remain unfinished. Do not credit complete
 lifecycle parity or introduce task snapshots. Keep mechanics fixed-turn, rendering
 uncapped and code readable; the broad performance pass remains complete.
+
+
+### Construction-plan attack phases reconstructed
+
+Plan entrance geometry (`004ba130`/`004b9fc0`), approach (`00438db0`) and attack
+phases 4/5 of `0051a2a0` now match 10,624 native calls, including 128 complete
+19-visit approach/attack sequences. 364 portable captures retain fields, animation,
+RNG and ordered destination/destruction requests. Existing shape, collision,
+movement and animation code is reused.
+
+Next implement completed-building attack phase 3, then compose ordinary controller
+phases and shared queue/world ownership. Actual plan removal (`004b9190`) is still a
+required world consumer, not certified by checking its request. Ranged attack phases,
+allocation/scheduling, campaign attacks and the full game scope remain open.
+No live queue restoration or whole melee-lifecycle credit is claimed for these
+staged parts. Keep readable TS, fixed-turn mechanics and uncapped presentation.
