@@ -5573,3 +5573,60 @@ The legacy contact scan can immediately reacquire an opponent after a move order
 compare original command interruption and prefight dispatch before changing this
 behavior. Full engine, all classes/campaign missions, saves and multiplayer remain
 unfinished. This requirement covers approach/motion, not complete combat.
+
+## 2026-09-10 — engagement eligibility, range and wrapped cell boundaries
+
+Reviewed supplied-executable `004d44e0`, `004d4690`, `0051ff60`, `0051e5e0`,
+`0051eab0` and `00520480`. This resolves the old assumption that the blue tribe
+reacts within three world units and the red tribe within eight. Both use the same
+class/command rules. Ordinary movement command 3 selects range 1: after rounding
+the radius to an even high-coordinate byte, the scanner checks only the current
+512-unit terrain cell. Idle brave/warrior range 5 scans five cells per axis.
+Consequently a nearby enemy across a cell edge need not interrupt movement, while
+a farther enemy inside the same cell can be detected. This is not an unconditional
+right to retreat; opponents can initiate combat too.
+
+`app/melee-engagement.ts` expresses eligibility and range in named TypeScript
+operations. Cancelled commands are ignored by eligibility; range still reads them
+unless flag 32 marks an automatic order. State, assignment, airborne, vehicle,
+command phase and class flags gate scanning. Firewarrior range includes original
+altitude factors and tower addition (compared at the primitive level; that class
+is not integrated into the playable browser roster). Descriptor extraction now
+includes command range mode and person idle/ordered ranges and scan masks.
+
+The live adapter applies those gates/bounds on four-turn brave/warrior visits,
+consumes pending scans and preserves the original shaman command restriction.
+Both tribes can pursue automatic targets; explicit attack orders do not wait for
+a scan visit. Reused class mappings remove a nested conditional in the existing
+person bootstrap. No new package, render clock or animation timer was added.
+
+`check-native-melee-engagement.py` passes 8,192 complete original eligibility/range
+calls, including callback count, command cancellation, state/phase edges, all eight
+person models and altitude boundaries. Ritual availability and adjacent-tower
+lookup are supplied consumers. Another 4,096 calls execute the complete native
+`0051eab0` with one eligible enemy and no buildings/fight objects: wrapped edges and
+whole-cell membership agree with constant-time modular bounds. This proves the
+area predicate for that domain, not a complete target-selection controller.
+
+`tests/melee.test.mjs` checks both tribes, adjacent-cell movement, same-cell detection,
+idle pursuit, alliances, pending scans, explicit attack and native inhibition;
+whole live worlds agree at 5/30/60/144/240 Hz and irregular schedules. The old group
+fixture now starts on a detection visit instead of assuming every turn scans.
+211 tests, typecheck, format and the new primitive's oxlint pass. Browser checks
+cover the live moving-warrior pose and immediate explicit engagement, combat/recoil/
+carrying poses, 392 GPU sprite poses, Blast shadows and selection. Fallow reports
+85.6 maintainability, average cyclomatic 2.7/p90 5; twelve existing cycles remain.
+
+Performance evidence is in `performance/2026-09-10-melee-engagement.json` and the
+modernization audit. The 96-person recurring-scan workload is separate from the
+staged combat sample. An unwarmed synthetic scene had a 76.5 ms outlier; retain it
+as a measurement limitation, not proof of steady gameplay performance.
+
+**Unfinished:** ordinary movement still supplies command 3 without native global
+order ownership; world turns supply scan phase. Current targets follow the browser
+array and existing contact/pursuit controller. Original automatic order 21 allocation,
+shared same-cell responses (`00520480`), mixed buildings/fight objects, full target
+filters/priorities, ritual ownership, special scanners, global scan inhibition and
+command restoration must be integrated before complete engagement is verified.
+The new group-validity and ranged-visibility exports are research, not ports.
+Lifecycle remains partial; no requirement or parity percentage credit was added.

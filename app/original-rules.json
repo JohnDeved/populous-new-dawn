@@ -3399,143 +3399,178 @@
   "personCommands": [
     {
       "people": 0,
-      "flags": 0
+      "flags": 0,
+      "rangeMode": 0
     },
     {
       "people": 252,
-      "flags": 0
+      "flags": 0,
+      "rangeMode": 0
     },
     {
       "people": 252,
-      "flags": 0
+      "flags": 0,
+      "rangeMode": 0
     },
     {
       "people": 252,
-      "flags": 72499257
+      "flags": 72499257,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 4202522
+      "flags": 4202522,
+      "rangeMode": 2
     },
     {
       "people": 128,
-      "flags": 33
+      "flags": 33,
+      "rangeMode": 2
     },
     {
       "people": 4,
-      "flags": 4718980
+      "flags": 4718980,
+      "rangeMode": 2
     },
     {
       "people": 4,
-      "flags": 4194457
+      "flags": 4194457,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 71827528
+      "flags": 71827528,
+      "rangeMode": 2
     },
     {
       "people": 4,
-      "flags": 4325433
+      "flags": 4325433,
+      "rangeMode": 2
     },
     {
       "people": 4,
-      "flags": 4194692
+      "flags": 4194692,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 71571616
+      "flags": 71571616,
+      "rangeMode": 1
     },
     {
       "people": 252,
-      "flags": 4481
+      "flags": 4481,
+      "rangeMode": 2
     },
     {
       "people": 32,
-      "flags": 1
+      "flags": 1,
+      "rangeMode": 2
     },
     {
       "people": 32,
-      "flags": 512
+      "flags": 512,
+      "rangeMode": 2
     },
     {
       "people": 32,
-      "flags": 2097153
+      "flags": 2097153,
+      "rangeMode": 2
     },
     {
       "people": 32,
-      "flags": 1024
+      "flags": 1024,
+      "rangeMode": 1
     },
     {
       "people": 16,
-      "flags": 131201
+      "flags": 131201,
+      "rangeMode": 1
     },
     {
       "people": 128,
-      "flags": 161
+      "flags": 161,
+      "rangeMode": 1
     },
     {
       "people": 252,
-      "flags": 80746528
+      "flags": 80746528,
+      "rangeMode": 2
     },
     {
       "people": 128,
-      "flags": 4202553
+      "flags": 4202553,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 15743008
+      "flags": 15743008,
+      "rangeMode": 1
     },
     {
       "people": 252,
-      "flags": 71385108
+      "flags": 71385108,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 67109120
+      "flags": 67109120,
+      "rangeMode": 2
     },
     {
       "people": 128,
-      "flags": 131105
+      "flags": 131105,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 71598265
+      "flags": 71598265,
+      "rangeMode": 1
     },
     {
       "people": 252,
-      "flags": 131257
+      "flags": 131257,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 8397082
+      "flags": 8397082,
+      "rangeMode": 3
     },
     {
       "people": 252,
-      "flags": 80740626
+      "flags": 80740626,
+      "rangeMode": 2
     },
     {
       "people": 252,
-      "flags": 5242930
+      "flags": 5242930,
+      "rangeMode": 2
     },
     {
       "people": 124,
-      "flags": 4194354
+      "flags": 4194354,
+      "rangeMode": 1
     },
     {
       "people": 16,
-      "flags": 8388737
+      "flags": 8388737,
+      "rangeMode": 1
     },
     {
       "people": 16,
-      "flags": 8519809
+      "flags": 8519809,
+      "rangeMode": 1
     },
     {
       "people": 128,
-      "flags": 8397066
+      "flags": 8397066,
+      "rangeMode": 3
     },
     {
       "people": 252,
-      "flags": 50339840
+      "flags": 50339840,
+      "rangeMode": 2
     }
   ],
   "personModels": [
@@ -3543,56 +3578,93 @@
       "nextState": 0,
       "idleState": 0,
       "physics": 0,
-      "flags": 0
+      "flags": 0,
+      "idleRange": 0,
+      "orderedRange": 0,
+      "scanMask": 0
     },
     {
       "nextState": 8,
       "idleState": 8,
       "physics": 0,
-      "flags": 1
+      "flags": 1,
+      "idleRange": 0,
+      "orderedRange": 0,
+      "scanMask": 3
     },
     {
       "nextState": 10,
       "idleState": 17,
       "physics": 2,
-      "flags": 2223
+      "flags": 2223,
+      "idleRange": 5,
+      "orderedRange": 1,
+      "scanMask": 3
     },
     {
       "nextState": 10,
       "idleState": 17,
       "physics": 14,
-      "flags": 2735
+      "flags": 2735,
+      "idleRange": 5,
+      "orderedRange": 1,
+      "scanMask": 3
     },
     {
       "nextState": 10,
       "idleState": 17,
       "physics": 15,
-      "flags": 19087
+      "flags": 19087,
+      "idleRange": 3,
+      "orderedRange": 1,
+      "scanMask": 1
     },
     {
       "nextState": 10,
       "idleState": 17,
       "physics": 16,
-      "flags": 2223
+      "flags": 2223,
+      "idleRange": 0,
+      "orderedRange": 0,
+      "scanMask": 3
     },
     {
       "nextState": 10,
       "idleState": 17,
       "physics": 17,
-      "flags": 14447
+      "flags": 14447,
+      "idleRange": 11,
+      "orderedRange": 5,
+      "scanMask": 3
     },
     {
       "nextState": 10,
       "idleState": 17,
       "physics": 18,
-      "flags": 7455
+      "flags": 7455,
+      "idleRange": 3,
+      "orderedRange": 1,
+      "scanMask": 3
     },
     {
       "nextState": 28,
       "idleState": 28,
       "physics": 19,
-      "flags": 4368
+      "flags": 4368,
+      "idleRange": 7,
+      "orderedRange": 7,
+      "scanMask": 3
     }
+  ],
+  "engagementHeightFactors": [
+    204,
+    230,
+    256,
+    281,
+    307,
+    332,
+    358,
+    384
   ],
   "personSpeeds": [
     40,

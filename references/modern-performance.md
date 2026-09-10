@@ -1464,3 +1464,35 @@ maintainability, average cyclomatic 2.7, p90 5 and twelve existing cycles. The m
 and unit-motion modules have no oxlint findings; broader repository debt remains.
 Full allocator/state/command ownership and large-army/multiple-hardware profiling
 are still open.
+
+## 2026-09-10 — engagement rules and recurring crowd scans
+
+Native scan bounds use modular whole-cell geometry rather than a rendered-frame
+clock or team-specific radius. The browser checks area membership with constant-time
+wrapped bounds; 4,096 full original person-only scans agree. A reproducible paired
+predicate benchmark (`scripts/bench-melee-engagement.mjs`) compares 32,768 queries
+against enumerating the same square cells. Nine alternating warmed samples on
+Apple M5/Node 24.18.0: median **0.881 → 0.353 ms**, identical answers. This isolates
+membership math; native cell-list traversal and whole target-query performance are
+not represented, so it is not an original-engine or previous-release speedup.
+
+Headed Chrome 153/ANGLE Metal Apple M5, 1440×1000 DPR 1, no concurrent heavy work:
+
+- Six staged active fights: 1,676 callbacks, CPU p50/p95 **1.5/2.1 ms**, p99
+  **4.8 ms**, maximum **6.7 ms**; maximum 104 draws.
+- 96 separated idle warriors, six seconds of recurring no-match scans after
+  landscape synchronization/sprite creation: 1,676 callbacks, CPU p50/p95
+  **2.5/3.0 ms**, p99 **5.5 ms**, maximum **7.0 ms**. Eighteen scan-bearing frames:
+  p50/p95 **5.3/5.7 ms**, maximum **5.8 ms**; maximum 378 draws.
+- The earlier unwarmed synthetic terrain replacement had a **76.5 ms** outlier.
+  Its cause was not traced; retain that run separately rather than presenting the
+  warmed sample as a loading-performance result. First-use/rebuild cost remains an
+  audit item. Profiling fixtures must preserve the live turn clock: resetting it
+  while effects remain creates invalid negative effect ages.
+
+Full evidence: `performance/2026-09-10-melee-engagement.json`. Browser callback
+cadence is not physical display FPS. No whole-game smoothness claim. The remaining
+array target search is quadratic across a scan visit; move it to native area-order
+cell ownership when that controller lands. The present profile supports this
+bounded gameplay step, not unlimited populations. Sprite, selection and live
+movement checks pass, including deterministic 5–240 Hz/irregular replay.

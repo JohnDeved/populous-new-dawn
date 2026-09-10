@@ -1306,3 +1306,23 @@ Class allocator/counter phase, initial group angle/member ordering, full damage
 modifiers/effects, other unit classes, all campaign content, saves and multiplayer
 remain unfinished. Keep readable shared TypeScript, modern performance and the
 entire game/engine objective; discovery stays open.
+
+### Latest combat integration: original engagement gates and cell ranges
+
+The current performance improvement is finished; continue important mechanics and
+visuals with the same clean-code, uncapped timing and hardware-profile gates.
+Ordinary followers now use native eligibility, command-dependent ranges and
+wrapped whole terrain cells instead of blue/red distance heuristics. Moving
+followers check their own cell, idle followers check a larger square, both tribes
+pursue detected enemies, and explicit attacks remain immediate. Comparisons cover
+8,192 native eligibility/range cases and 4,096 person-only scans. Live/browser
+movement, original sprites, 5–240 Hz/irregular replay and crowd profiling pass.
+
+Next: complete automatic area orders and prefight target selection/sharing, then
+first-mission campaign attacks and visible spell behavior. This step does not
+establish complete retreat/interruption parity: native mixed-object scans, command
+restoration, allocator/counter phase and initial group membership/angle remain
+open. Keep the lifecycle requirement partial and its percentage unchanged until
+its completion gate is met. Use the findings in the latest reverse-engineering
+entry; do not return to the superseded team-distance shortcut. Preserve the full
+unfinished campaign, all classes, saves and multiplayer scope.

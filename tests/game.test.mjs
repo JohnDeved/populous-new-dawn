@@ -338,6 +338,7 @@ test('native integer movement and combat exchanges preserve timing, retaliation 
 
 test('native fight slots form four-person groups and release on interruption',()=>{
  const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.units=[];w.buildings=[];
+ w.turn=3; // First contact is tested on an original four-turn detection visit.
  const center=addUnit(w,'blue','warrior',{x:0,z:0});
  for(let i=0;i<4;i++)addUnit(w,'red','brave',{x:.4+i*.1,z:0});
  tick(w,1/12);assert.equal(w.fights.length,1);assert.equal(w.fights[0].members.length,4,'one center and at most three attackers');
@@ -349,6 +350,7 @@ test('native fight slots form four-person groups and release on interruption',()
  const shaman=addUnit(w,'blue','shaman',{x:3,z:0});assert.ok(cast(w,'blast',center));impact(w,'blast');for(let i=0;i<3;i++)tick(w,1/12);
  assert.equal(center.fight,null);assert.ok(center.lift>0);assert.equal(w.fights.length,0,'launched participants leave no stale fight group');assert.equal(shaman.lift,0);
  const swap=createWorld();swap.terrain.fill(3);swap.units=[];swap.buildings=[];
+ swap.turn=3;
  const a=addUnit(swap,'blue','brave',{x:0,z:0}),enemy=addUnit(swap,'red','warrior',{x:.6,z:0});addUnit(swap,'blue','brave',{x:1,z:0});tick(swap,1/12);
  assert.equal(swap.fights[0].members[0],enemy.id,'adding another member moves the outnumbered tribe into the center');
  swap.selected=[a.id];command(swap,{x:10,z:0});assert.equal(a.fight,null,'a new order releases the old fight assignment');

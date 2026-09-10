@@ -1,6 +1,75 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addUnit, tick, random, fightPosition, meleeDamage, command } from '../app/model.ts'
+import { automaticMeleeTarget, createLivePerson } from '../app/live-people.ts'
+
+test('automatic engagement uses equal tribe ranges, whole cells and original scan cadence', () => {
+  for (const team of ['blue', 'red']) {
+    const w = createWorld(); w.units = []; w.buildings = []; w.turn = 4
+    const u = addUnit(w, team, 'warrior', { x: 1.9, z: -1 })
+    const enemy = addUnit(w, team === 'blue' ? 'red' : 'blue', 'brave', { x: 2.1, z: -1 })
+    assert.equal(automaticMeleeTarget(w, u), enemy, 'idle scan crosses the neighboring cell')
+    u.path = [{ x: -12, z: -1 }]
+    assert.equal(automaticMeleeTarget(w, u), undefined, 'move order ignores the enemy across the cell edge, even at close range')
+    enemy.x = .1
+    assert.equal(automaticMeleeTarget(w, u), enemy, 'the entire current cell remains eligible')
+    u.path = []; enemy.x = 5.9
+    assert.equal(automaticMeleeTarget(w, u), enemy, 'idle range includes two cells on each side')
+    enemy.x = 6
+    assert.equal(automaticMeleeTarget(w, u), undefined)
+    enemy.x = .1
+    for (const turn of [5, 6, 7]) { w.turn = turn; assert.equal(automaticMeleeTarget(w, u), undefined) }
+    w.turn = 8; assert.equal(automaticMeleeTarget(w, u), enemy)
+    w.outcome.alliances[team === 'blue' ? 0 : 1] = team === 'blue' ? 2 : 1
+    assert.equal(automaticMeleeTarget(w, u), undefined)
+  }
+})
+
+test('native inhibition and pending scans apply without giving idle shamans automatic attacks', () => {
+  const w = createWorld(); w.units = []; w.turn = 4
+  const u = addUnit(w, 'blue', 'warrior', { x: 1, z: -1 })
+  const enemy = addUnit(w, 'red', 'brave', { x: 1.5, z: -1 })
+  u.native = createLivePerson(w, u)
+  for (const flag of [4, 0]) {
+    u.native.assignment = flag
+    assert.equal(automaticMeleeTarget(w, u), flag ? undefined : enemy)
+  }
+  w.turn = 5; u.native.flags3 |= 0x800
+  assert.equal(automaticMeleeTarget(w, u), enemy)
+  assert.equal(u.native.flags3 & 0x800, 0)
+  assert.equal(automaticMeleeTarget(w, u), undefined)
+  w.turn = 8; u.native = null; u.kind = 'shaman'
+  assert.equal(automaticMeleeTarget(w, u), undefined)
+})
+
+test('live move orders cross nearby enemies without the old distance interruption', () => {
+  const w = createWorld(); w.units = []; w.buildings = []; w.terrain.fill(3); w.terrainVersion++
+  const u = addUnit(w, 'blue', 'warrior', { x: 1.9, z: -1 })
+  const enemy = addUnit(w, 'red', 'shaman', { x: 2.1, z: -1 })
+  // The opposing shaman has no attack order, so only the moving follower can initiate.
+  w.selected = [u.id]; command(w, { x: -12, z: -1 })
+  w.turn = 3; tick(w, 1 / 12)
+  assert.equal(u.fight, null); assert.equal(enemy.fight, null)
+  assert.ok(u.x < 1.9); assert.ok(u.path.length)
+  w.selected = [u.id]; command(w, enemy); tick(w, 1 / 12)
+  assert.ok(u.fight, 'explicit attacks remain immediate between detection visits')
+})
+
+test('idle followers of either tribe pursue detected enemies at every render cadence', () => {
+  const run = (team, frames) => {
+    const w = createWorld(); w.units = []; w.buildings = []; w.terrain.fill(3); w.terrainVersion++
+    const u = addUnit(w, team, 'warrior', { x: 1, z: -1 })
+    const enemy = addUnit(w, team === 'blue' ? 'red' : 'blue', 'shaman', { x: 5, z: -1 })
+    for (const dt of frames) tick(w, dt)
+    assert.equal(u.target, enemy.id); assert.ok(u.x > 1); assert.ok(u.path.length)
+    return { ...w, pendingTime: 0 }
+  }
+  for (const team of ['blue', 'red']) {
+    const baseline = run(team, Array(60).fill(1 / 60))
+    for (const fps of [5, 30, 144, 240]) assert.deepEqual(run(team, Array(fps).fill(1 / fps)), baseline)
+    assert.deepEqual(run(team, Array.from({length: 10}, () => [.01, .09]).flat()), baseline)
+  }
+})
 
 function group(kind = 'warrior', choice = 0, count = 3, offset = 0) {
   const w = createWorld()

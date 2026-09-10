@@ -173,8 +173,28 @@ try {
   assert.notEqual(placement.destination, placement.origin)
   assert.deepEqual(placement.retained, placement.after)
   assert.ok(placement.members.every(u => u.group === placement.group && u.sprite === 'strike'))
+  const engagement = await page.evaluate(async () => {
+    const s = window.testScene, w = s.world, m = await import('/app/model.ts')
+    w.speed = 0; w.units = []; w.buildings = []; w.fights = []; w.pendingTime = 0
+    w.terrain.fill(3); w.terrainVersion++
+    const u = m.addUnit(w, 'blue', 'warrior', { x: 1.9, z: 31 })
+    const enemy = m.addUnit(w, 'red', 'shaman', { x: 2.1, z: 31 })
+    const step = () => { w.speed = 1; m.tick(w, 1 / 12); w.speed = 0 }
+    w.selected = [u.id]; m.command(w, { x: -12, z: 31 }); w.turn = 3; step()
+    cancelAnimationFrame(s.frame); s.animate(s.previous)
+    const moving = { x: u.x, fight: u.fight, path: u.path.length, pose: s.unitMeshes.get(u.id)?.userData.state, frame: s.unitMeshes.get(u.id)?.userData.frame }
+    m.command(w, enemy); step()
+    return { moving, explicit: { group: u.fight?.group, opponentGroup: enemy.fight?.group, turn: w.turn } }
+  })
+  assert.ok(engagement.moving.x < 1.9 && engagement.moving.path > 0)
+  assert.equal(engagement.moving.fight, null)
+  assert.equal(engagement.moving.pose, 'walk')
+  assert.ok(sprites.animations['blue-warrior'].walk.some(d => d.frames.includes(engagement.moving.frame)))
+  assert.ok(engagement.explicit.group)
+  assert.equal(engagement.explicit.group, engagement.explicit.opponentGroup)
+  assert.equal(engagement.explicit.turn, 5, 'explicit attacks do not wait for periodic detection')
   assert.deepEqual(errors, [])
   assert.ok(performance.frames > 20)
-  writeFileSync('/private/tmp/populous-melee-browser.json', JSON.stringify({ headed, recoil, approach, approachSprites, placement, workload: 'Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.', states, performance }, null, 2) + '\n')
+  writeFileSync('/private/tmp/populous-melee-browser.json', JSON.stringify({ headed, recoil, approach, approachSprites, placement, engagement, workload: 'Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.', states, performance }, null, 2) + '\n')
   console.log('PASS: all three live classes render opportunistic special/strike attacks, busy defenders retain their animation, native slope recoil outlives its animation timer and settles, live battle frames have no browser errors', performance)
 } finally { await browser.close() }

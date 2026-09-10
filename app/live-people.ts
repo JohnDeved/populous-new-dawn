@@ -1,5 +1,7 @@
 import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
 import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
+import { canAutoEngage, engagementRange, inEngagementArea } from './melee-engagement.ts'
+import { currentPersonOrder } from './person-orders.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
@@ -92,12 +94,63 @@ export type LivePerson = StatefulPerson &
     burnTrail: number
   }
 const short = (n: number) => (n << 16) >> 16
+const unitModels = { brave: 2, warrior: 3, shaman: 7 }
+const engagementPoint = (u: Unit) => ({
+  x: Math.round((u.x + 8) * 256),
+  y: Math.round((-u.z - 8) * 256),
+})
+
+// The live first mission still adapts ordinary movement to command 3. Full
+// automatic area-order allocation, shared responses and target selection remain
+// in the command migration; these native gates replace the old team distances.
+export function automaticMeleeTarget(w: World, u: Unit) {
+  if (u.team === 'wild') return
+  const native = u.builder?.person ?? u.native
+  const model = unitModels[u.kind]
+  // Ordinary people still use the world phase until native allocation owns
+  // their counters. Avoid preparing an adapter on intervening visits.
+  if (w.turn & rules.personModels[model].scanMask && !((native?.flags3 ?? 0) & 0x800)) return
+  const p = native ?? {
+    model,
+    state: 10,
+    substate: 0,
+    flags2: 0,
+    flags3: 0,
+    flags4: 0,
+    assignment: 0,
+    vehicle: 0,
+    life: Math.round(u.hp * 20),
+    commandPhase: 0,
+    commandStatus: 0,
+    h: 0,
+  }
+  p.flags3 &= ~0x800
+  if (model === 7 && ![28, 19, 4].includes(p.commandStatus)) return
+  const order = native ? currentPersonOrder(w.buildingOrders, native) : undefined
+  const current = order ?? (u.path.length ? { model: 3, flags: 0 } : undefined)
+  // Ritual eligibility needs its actual command target; the legacy worship
+  // controller continues to own it rather than fabricating that native result.
+  if (current?.model === 27) return
+  if (!canAutoEngage(p, current, () => false)) return
+  const range = engagementRange(p, current, false)
+  if (!range) return
+  const source = engagementPoint(u)
+  // ponytail: target priority still follows the browser unit array. Replace it
+  // with the native area-order controller when ordinary orders own cell lists.
+  return w.units.find(t => {
+    if (t.team === u.team || t.team === 'wild' || t.hp <= 0 || t.inside !== null || t.lift > 0)
+      return false
+    const tribe = t.team === 'blue' ? 0 : 1
+    if (w.outcome.alliances[u.team === 'blue' ? 0 : 1] & (1 << tribe)) return false
+    return inEngagementArea(source, engagementPoint(t), range)
+  })
+}
 
 // Bootstrap the existing browser follower at the handoff to native state 41.
 // Legacy orders/physics are not native records; their full migration is pending.
 export function createLivePerson(w: World, u: Unit): LivePerson {
   const pos = nativePosition(w, u),
-    model = u.team === 'wild' ? 1 : u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2
+    model = u.team === 'wild' ? 1 : unitModels[u.kind]
   const selected = w.selected.includes(u.id),
     angle = Math.round(((Math.PI - u.heading) * 1024) / Math.PI) & 2047
   return {

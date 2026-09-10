@@ -1560,9 +1560,14 @@
               "status": "partial",
               "evidence": [
                 "scripts/check-native-person-state.py",
-                "tests/game.test.mjs"
+                "tests/game.test.mjs",
+                "app/melee-engagement.ts",
+                "scripts/check-native-melee-engagement.py",
+                "tests/melee.test.mjs",
+                "scripts/check-browser-engagement.mjs",
+                "references/performance/2026-09-10-melee-engagement.json"
               ],
-              "note": "Native group allocation/lifetime and class-counter phase, initial member order/angle RNG, damage modifiers, effects and full command ownership remain open. Approach and site placement have separate verified requirements. The legacy contact scan can reacquire a fighter immediately after a move command; compare original command/prefight scheduling before changing that behavior."
+              "note": "Native eligibility/range gates and wrapped whole-cell boundaries replace team-distance acquisition. Current tribes share idle pursuit; explicit attacks bypass periodic detection. 8,192 native gate/range comparisons and 4,096 person-only scans plus live/browser cadence checks. Still partial: automatic area-order allocation/sharing, mixed-object target priority, command restoration/interruption, class-counter phase, group lifecycle/member ordering/angle RNG, damage modifiers and effects. Ordinary move command and counter state are adapters; full melee is not verified."
             }
           ]
         },

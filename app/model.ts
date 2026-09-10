@@ -89,6 +89,7 @@ import {
   approachLiveMelee,
   stepLiveMeleeMotion,
   syncLivePersonCells,
+  automaticMeleeTarget,
   type LivePerson,
 } from './live-people.ts'
 import type { ObjectCells } from './object-cells.ts'
@@ -4278,15 +4279,7 @@ function stepTurn(w: World) {
       target = undefined
     if (!target) {
       u.target = null
-      target = w.units.find(
-        t =>
-          t.team !== u.team &&
-          t.team !== 'wild' &&
-          t.hp > 0 &&
-          t.inside === null &&
-          t.lift === 0 &&
-          distance(u, t) < (u.team === 'red' ? 8 : 3)
-      )
+      target = automaticMeleeTarget(w, u)
     }
     if (target) {
       u.heading = Math.atan2(target.x - u.x, target.z - u.z)
@@ -4302,7 +4295,7 @@ function stepTurn(w: World) {
       } else contacts.push([u, target])
       continue
     }
-    if (target && u.target === null && u.team === 'red' && !u.work) {
+    if (target && u.target === null && !u.work) {
       u.target = target.id
       route(w, u, target)
     }

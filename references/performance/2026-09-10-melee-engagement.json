@@ -1,0 +1,997 @@
+{
+  "nativeEligibilityAndRangeCases": 8192,
+  "nativePersonOnlyAreaScans": 4096,
+  "geometryBenchmark": {
+    "cpu": "Apple M5",
+    "node": "v24.18.0",
+    "queries": 32768,
+    "workload": "Equivalent membership predicates: enumerate the native square cell area versus constant-time wrapped cell bounds. Nine alternating warmed samples, setup excluded. This is not original executable performance, a whole target-query comparison, a previous-release speedup or display FPS.",
+    "enumerated": {
+      "medianMs": 0.8810840000000013,
+      "samples": [
+        0.8610830000000007,
+        0.8776670000000024,
+        0.8861249999999998,
+        0.8773330000000001,
+        0.8908750000000012,
+        0.8850410000000011,
+        0.8779170000000036,
+        0.8810840000000013,
+        0.887666000000003
+      ]
+    },
+    "bounds": {
+      "medianMs": 0.352958000000001,
+      "samples": [
+        0.31050000000000466,
+        0.32816600000000307,
+        0.7362080000000049,
+        0.352958000000001,
+        0.36274999999999835,
+        0.3632920000000013,
+        0.32870900000000347,
+        0.32595899999999745,
+        0.3545840000000027
+      ]
+    }
+  },
+  "liveCombat": {
+    "headed": true,
+    "recoil": [
+      {
+        "action": "push",
+        "remaining": 1,
+        "x": 1.2578125,
+        "z": 32,
+        "h": 426,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 1.68359375,
+        "z": 32,
+        "h": 388,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 2.26171875,
+        "z": 32,
+        "h": 336,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 2.9921875,
+        "z": 32,
+        "h": 272,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 3.71484375,
+        "z": 32,
+        "h": 206,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 4.46484375,
+        "z": 32,
+        "h": 169,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 5.16796875,
+        "z": 32,
+        "h": 153,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 5.82421875,
+        "z": 32,
+        "h": 139,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 6.43359375,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 6.93359375,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.32421875,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.60546875,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.77734375,
+        "z": 32,
+        "h": 135,
+        "airborne": false,
+        "hp": 50
+      },
+      {
+        "action": "approach",
+        "remaining": 0,
+        "x": 7.77734375,
+        "z": 32,
+        "airborne": false,
+        "hp": 50
+      }
+    ],
+    "approach": {
+      "sprites": [
+        {
+          "kind": "brave",
+          "cargo": 0,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "warrior",
+          "cargo": 0,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "shaman",
+          "cargo": 0,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "brave",
+          "cargo": 1,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "warrior",
+          "cargo": 1,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "shaman",
+          "cargo": 1,
+          "action": "ready",
+          "speed": 0
+        }
+      ],
+      "trace": [
+        [
+          {
+            "id": 143,
+            "action": "approach",
+            "x": -1.80078125,
+            "z": 30.8359375,
+            "speed": 82,
+            "object": 40
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 2.2421875,
+            "z": 30.859375,
+            "speed": 71,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 6.25390625,
+            "z": 30.8671875,
+            "speed": 67,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "approach",
+            "x": -1.796875,
+            "z": 34.83984375,
+            "speed": 81,
+            "object": 72
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 2.26171875,
+            "z": 34.87109375,
+            "speed": 65,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 6.24609375,
+            "z": 34.86328125,
+            "speed": 70,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "approach",
+            "x": -2.07421875,
+            "z": 30.68359375,
+            "speed": 76,
+            "object": 40
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 2.015625,
+            "z": 30.734375,
+            "speed": 63,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 6.01171875,
+            "z": 30.734375,
+            "speed": 67,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "approach",
+            "x": -2.09375,
+            "z": 34.67578125,
+            "speed": 82,
+            "object": 72
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 2.01171875,
+            "z": 34.734375,
+            "speed": 69,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 6.03515625,
+            "z": 34.75,
+            "speed": 58,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "approach",
+            "x": -2.34765625,
+            "z": 30.53125,
+            "speed": 76,
+            "object": 40
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 1.7890625,
+            "z": 30.609375,
+            "speed": 63,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 5.76171875,
+            "z": 30.59765625,
+            "speed": 69,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "approach",
+            "x": -2.359375,
+            "z": 34.53125,
+            "speed": 73,
+            "object": 72
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 1.76953125,
+            "z": 34.6015625,
+            "speed": 67,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 5.78125,
+            "z": 34.609375,
+            "speed": 70,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "approach",
+            "x": -2.60546875,
+            "z": 30.390625,
+            "speed": 71,
+            "object": 40
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 1.5546875,
+            "z": 30.48046875,
+            "speed": 64,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 5.515625,
+            "z": 30.4609375,
+            "speed": 68,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "approach",
+            "x": -2.6328125,
+            "z": 34.37890625,
+            "speed": 76,
+            "object": 72
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 1.546875,
+            "z": 34.48046875,
+            "speed": 62,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 5.52734375,
+            "z": 34.46875,
+            "speed": 70,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "approach",
+            "x": -2.87109375,
+            "z": 30.2421875,
+            "speed": 74,
+            "object": 40
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 1.33203125,
+            "z": 30.359375,
+            "speed": 62,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 5.26171875,
+            "z": 30.3203125,
+            "speed": 70,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "approach",
+            "x": -2.90234375,
+            "z": 34.23046875,
+            "speed": 75,
+            "object": 72
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 1.29296875,
+            "z": 34.33984375,
+            "speed": 70,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 5.2890625,
+            "z": 34.33984375,
+            "speed": 65,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "approach",
+            "x": -3.13671875,
+            "z": 30.09765625,
+            "speed": 73,
+            "object": 40
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 1.0703125,
+            "z": 30.21484375,
+            "speed": 72,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 5.0078125,
+            "z": 30.1796875,
+            "speed": 70,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "approach",
+            "x": -3.19921875,
+            "z": 34.0625,
+            "speed": 82,
+            "object": 72
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 1.078125,
+            "z": 34.21875,
+            "speed": 60,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 5.07421875,
+            "z": 34.21875,
+            "speed": 60,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "approach",
+            "x": -3.30859375,
+            "z": 29.99609375,
+            "speed": 81,
+            "object": 40
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 0.85546875,
+            "z": 30.09375,
+            "speed": 60,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 4.79296875,
+            "z": 30.05859375,
+            "speed": 60,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "approach",
+            "x": -3.30078125,
+            "z": 34,
+            "speed": 78,
+            "object": 72
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 0.8359375,
+            "z": 34.08203125,
+            "speed": 67,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 4.8515625,
+            "z": 34.09375,
+            "speed": 62,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 30,
+            "speed": 0,
+            "object": 48
+          },
+          {
+            "id": 146,
+            "action": "approach",
+            "x": 0.6953125,
+            "z": 30,
+            "speed": 67,
+            "object": 40
+          },
+          {
+            "id": 149,
+            "action": "approach",
+            "x": 4.69921875,
+            "z": 30,
+            "speed": 67,
+            "object": 616
+          },
+          {
+            "id": 152,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 34,
+            "speed": 0,
+            "object": 80
+          },
+          {
+            "id": 155,
+            "action": "approach",
+            "x": 0.69921875,
+            "z": 34,
+            "speed": 72,
+            "object": 72
+          },
+          {
+            "id": 158,
+            "action": "approach",
+            "x": 4.6953125,
+            "z": 34,
+            "speed": 71,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 143,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 30,
+            "speed": 0,
+            "object": 48
+          },
+          {
+            "id": 146,
+            "action": "ready",
+            "x": 0.703125,
+            "z": 30,
+            "speed": 0,
+            "object": 48
+          },
+          {
+            "id": 149,
+            "action": "ready",
+            "x": 4.703125,
+            "z": 30,
+            "speed": 0,
+            "object": 424
+          },
+          {
+            "id": 152,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 34,
+            "speed": 0,
+            "object": 80
+          },
+          {
+            "id": 155,
+            "action": "ready",
+            "x": 0.703125,
+            "z": 34,
+            "speed": 0,
+            "object": 80
+          },
+          {
+            "id": 158,
+            "action": "ready",
+            "x": 4.703125,
+            "z": 34,
+            "speed": 0,
+            "object": 424
+          }
+        ]
+      ]
+    },
+    "approachSprites": [
+      {
+        "kind": "brave",
+        "cargo": 0,
+        "frame": 13,
+        "object": 40
+      },
+      {
+        "kind": "warrior",
+        "cargo": 0,
+        "frame": 472,
+        "object": 40
+      },
+      {
+        "kind": "shaman",
+        "cargo": 0,
+        "frame": 953,
+        "object": 616
+      },
+      {
+        "kind": "brave",
+        "cargo": 1,
+        "frame": 322,
+        "object": 72
+      },
+      {
+        "kind": "warrior",
+        "cargo": 1,
+        "frame": 781,
+        "object": 72
+      },
+      {
+        "kind": "shaman",
+        "cargo": 1,
+        "frame": 953,
+        "object": 616
+      }
+    ],
+    "placement": {
+      "before": {
+        "x": 0,
+        "z": 32
+      },
+      "between": {
+        "x": 0,
+        "z": 32
+      },
+      "after": {
+        "x": 3,
+        "z": 29
+      },
+      "retained": {
+        "x": 3,
+        "z": 29
+      },
+      "origin": 13828,
+      "destination": 13957,
+      "members": [
+        {
+          "group": 162,
+          "sprite": "strike"
+        },
+        {
+          "group": 162,
+          "sprite": "strike"
+        }
+      ],
+      "group": 162
+    },
+    "engagement": {
+      "moving": {
+        "x": 1.66796875,
+        "fight": null,
+        "path": 2,
+        "pose": "walk",
+        "frame": 467
+      },
+      "explicit": {
+        "group": 165,
+        "opponentGroup": 165,
+        "turn": 5
+      }
+    },
+    "workload": "Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.",
+    "states": [
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "special",
+          "frame": 207,
+          "hp": 50,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "warrior",
+          "team": "blue",
+          "state": "special",
+          "frame": 664,
+          "hp": 90,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "shaman",
+          "team": "blue",
+          "state": "special",
+          "frame": 1031,
+          "hp": 100,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 116,
+          "hp": 32,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "warrior",
+          "team": "blue",
+          "state": "strike",
+          "frame": 573,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "shaman",
+          "team": "blue",
+          "state": "strike",
+          "frame": 1006,
+          "hp": 82,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ]
+    ],
+    "performance": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "frames": 1676,
+      "cpu": {
+        "p50": 1.5,
+        "p95": 2.1000001430511475,
+        "p99": 4.799999952316284,
+        "max": 6.700000047683716
+      },
+      "gaps": {
+        "p50": 3.600000000000364,
+        "p95": 3.7999999999992724,
+        "max": 7.300000000000182
+      },
+      "maxDrawCalls": 104
+    }
+  },
+  "recurringCrowd": {
+    "headed": true,
+    "workload": "96 idle warriors in two separated tribes, recurring no-match scans over six seconds, after replacement landscape synchronization and sprite creation. Includes rendering and simulation; current target-array traversal remains quadratic. Browser callback cadence is not physical display FPS, and this is not a paired speedup, loading profile or whole-game result.",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "cpu": {
+      "count": 1676,
+      "p50": 2.5,
+      "p95": 3,
+      "p99": 5.5,
+      "max": 7
+    },
+    "scanFrameCpu": {
+      "count": 18,
+      "p50": 5.299999952316284,
+      "p95": 5.700000047683716,
+      "p99": 5.700000047683716,
+      "max": 5.799999952316284
+    },
+    "gaps": {
+      "count": 1675,
+      "p50": 3.5999999999994543,
+      "p95": 4.299999999999272,
+      "p99": 4.5,
+      "max": 7.199999999998909
+    },
+    "maxDrawCalls": 378,
+    "people": 96,
+    "fights": 0,
+    "targets": 0
+  },
+  "unwarmedFixture": {
+    "headed": true,
+    "workload": "96 idle warriors in two separated tribes, recurring no-match scans over six seconds. Includes rendering and simulation; current target-array traversal remains quadratic. Browser callback cadence is not physical display FPS, and this is not a paired speedup or whole-game result.",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "cpu": {
+      "count": 1655,
+      "p50": 2.4000000953674316,
+      "p95": 3.200000047683716,
+      "p99": 5.400000095367432,
+      "max": 76.5
+    },
+    "scanFrameCpu": {
+      "count": 18,
+      "p50": 5.299999952316284,
+      "p95": 5.8999998569488525,
+      "p99": 5.8999998569488525,
+      "max": 7
+    },
+    "gaps": {
+      "count": 1654,
+      "p50": 3.600000000000364,
+      "p95": 4,
+      "p99": 4.399999999999636,
+      "max": 75
+    },
+    "maxDrawCalls": 378,
+    "people": 96,
+    "fights": 0,
+    "targets": 0
+  },
+  "limits": "The unwarmed synthetic landscape replacement recorded a 76.5 ms outlier; its cause was not traced. Steady gameplay is sampled separately after terrain synchronization. No whole-game smoothness, physical refresh-rate or paired release speedup claim. Automatic area orders, mixed-object scans, target priority, class counter allocation and complete interruption remain open."
+}
