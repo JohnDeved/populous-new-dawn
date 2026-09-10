@@ -27,7 +27,7 @@ try {
       r = s.container.getBoundingClientRect()
     return { x: r.x + ((p.x + 1) * r.width) / 2, y: r.y + ((1 - p.y) * r.height) / 2 }
   })
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   await page.mouse.move(1400, 50)
   await page.evaluate(() => {
     const s = window.testScene,
@@ -203,7 +203,7 @@ try {
       position: [u.x, u.z],
     }
   })
-  await page.mouse.click(exit.x, exit.y, { button: 'right' })
+  await page.mouse.click(exit.x, exit.y)
   const released = await page.evaluate(() => {
     const u = window.tower.u
     return { inside: u.inside, position: [u.x, u.z], offset: u.supportHeight, path: u.path.length }
@@ -224,7 +224,7 @@ try {
     JSON.stringify({ headed, result, occlusion, released }, null, 2) + '\n'
   )
   console.log(
-    'PASS: actual warrior right-click admission, elevated GPU sprite pixels, original held pose, four camera bearings, no-teleport exit and cleared height on movement',
+    'PASS: actual warrior left-click admission, elevated GPU sprite pixels, original held pose, four camera bearings, no-teleport exit and cleared height on movement',
     result
   )
 } finally {

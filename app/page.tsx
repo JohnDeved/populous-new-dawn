@@ -5,6 +5,7 @@ import {
   SPELLS,
   HOME,
   select,
+  cancelInteraction,
   tell,
   guardShaman,
   rotateBuildingPlan,
@@ -141,9 +142,7 @@ export default function Home() {
       if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
-        store.change(w => {
-          w.mode = null
-        })
+        store.change(cancelInteraction)
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
       if (e.key.toLowerCase() === 'h') select(world, 'shaman')
@@ -718,6 +717,8 @@ export default function Home() {
         <div className="help-grid">
           <span>Click</span>
           <strong>Select a follower or give a move / attack order</strong>
+          <span>Right-click / Escape</span>
+          <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
           <span>Drag on land</span>
           <strong>Select a group · Shift adds to selection</strong>
           <span>Right / middle drag</span>

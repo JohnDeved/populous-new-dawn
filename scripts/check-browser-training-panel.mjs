@@ -22,7 +22,7 @@ try {
     const s=window.testScene,p=s.screen(window.panelCheck.b),r=s.container.getBoundingClientRect()
     return{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}
   })
-  await page.mouse.click(point.x,point.y,{button:'right'});await page.mouse.move(1400,50)
+  await page.mouse.click(point.x,point.y);await page.mouse.move(1400,50)
   await page.evaluate(()=>{
     const s=window.testScene,after=s.gameClock.afterTurn
     s.gameClock.afterTurn=()=>{after();if(window.panelCheck.b.admission?.inside===5)s.world.speed=0}
@@ -99,7 +99,7 @@ try {
     window.panelCheck.departing=u
     return{x:r.x+(p.x+1)*r.width/2,y:r.y+(1-p.y)*r.height/2,position:[u.x,u.z]}
   })
-  await page.mouse.click(exit.x,exit.y,{button:'right'})
+  await page.mouse.click(exit.x,exit.y)
   const departed=await page.evaluate(()=>{
     const {b,departing:u}=window.panelCheck
     window.testScene.renderBuildingPanels()

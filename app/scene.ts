@@ -72,6 +72,7 @@ import {
   buildingHp,
   cast,
   command,
+  cancelInteraction,
   placeBuilding,
   spellRange,
   spellTargetError,
@@ -1407,6 +1408,12 @@ export class GameScene {
       }
       return
     }
+    if (event.button === 2) {
+      cancelInteraction(this.world)
+      this.onChange()
+      return
+    }
+    if (event.button !== 0) return
     const clickedUnit = event.button === 0 && !this.world.mode ? this.pickUnit(event) : undefined
     let p = this.pick(event) ?? clickedUnit
     if (!p) return
@@ -1414,11 +1421,7 @@ export class GameScene {
       const object = this.pickWorldObject(event)
       if (object) p = { x: object.x, z: object.z }
     }
-    if (event.button === 2) {
-      this.world.mode = null
-      command(this.world, p)
-      this.orderSound()
-    } else if (this.world.mode) {
+    if (this.world.mode) {
       const mode = this.world.mode
       const ok = SPELLS.some(s => s.id === mode)
         ? cast(this.world, mode as Parameters<typeof cast>[1], p)

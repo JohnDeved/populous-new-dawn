@@ -30,7 +30,7 @@ try {
       return { x: r.x + ((q.x + 1) * r.width) / 2, y: r.y + ((1 - q.y) * r.height) / 2 }
     }, p)
   let target = await ground()
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   await page.mouse.move(1400, 50)
   await page.evaluate(() => {
     const s = window.testScene,
@@ -174,7 +174,7 @@ try {
   })
   const before = await page.evaluate(() => [window.towerPanel.u.x, window.towerPanel.u.z])
   target = await ground({ x: 9, z: 37 })
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   assert.equal(await page.evaluate(() => window.towerPanel.u.inside), null)
   assert.deepEqual(
     await page.evaluate(() => [window.towerPanel.u.x, window.towerPanel.u.z]),
@@ -213,7 +213,7 @@ try {
   })
   await dismantle.click()
   target = await ground()
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   await page.mouse.move(1400, 50)
   await page.evaluate(() => {
     const s = window.testScene,

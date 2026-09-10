@@ -25,7 +25,7 @@ import {
 import { automaticMeleeTarget, nativePersonTribe } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
-import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
+import { deselectPerson, emptyPersonOrder, type OrderPool } from './person-orders.ts'
 import { relocateFight } from './melee-placement.ts'
 import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
@@ -2160,6 +2160,34 @@ export function select(w: World, kind: UnitKind | 'all') {
     .map(u => u.id)
   w.mode = null
 }
+
+// Native right-click/Escape cancels a targeting mode before clearing followers.
+export function cancelInteraction(w: World) {
+  if (w.mode) {
+    w.mode = null
+    return
+  }
+  if (!w.selected.length) return
+  const selected = new Set(w.selected)
+  for (const u of w.units) {
+    if (u.team !== 'blue') continue
+    // The displayed roster still owns selection across the legacy/native boundary.
+    // Clear every retained representation so resuming work cannot resurrect it.
+    for (const p of new Set([
+      u.native,
+      u.flight,
+      u.fight?.motion,
+      u.entry?.person,
+      u.builder?.person,
+    ])) {
+      if (!p) continue
+      p.selectionFlags = (p.selectionFlags & ~128) | (selected.has(u.id) ? 128 : 0)
+      deselectPerson(p)
+    }
+  }
+  w.selected = []
+}
+
 function release(w: World, u: Unit, preserveOrders = false) {
   const occupant = u.inside !== null ? leaveLiveBuilding(w, u) : undefined
   u.inside = null

@@ -32,6 +32,14 @@ export type OrderedPerson = {
   commandStatus: number
   workTarget: number
 }
+
+// Tribe command 0x1e (0x444f60 / 0x435c10): retain the last selection in bit 0,
+// then clear selection. Deselecting does not stop or replace the person's orders.
+export function deselectPerson(p: Pick<OrderedPerson, 'selectionFlags' | 'flags3'>) {
+  p.selectionFlags = (p.selectionFlags & ~129) | (p.selectionFlags >>> 7)
+  p.flags3 = (p.flags3 & ~128) >>> 0
+}
+
 // These are required native world consumers, not optional no-op callbacks.
 // stopWork resolves the live work target; releaseSpell owns tribe counters/RNG;
 // prepare owns native terrain/target correction (0x438730).

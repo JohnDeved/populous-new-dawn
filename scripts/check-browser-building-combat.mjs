@@ -16,7 +16,7 @@ try{
     w.selected=[window.attacker.id];s.focus({x:0,z:1});s.onChange()
   })
   const point=await page.evaluate(()=>{const s=window.testScene,p=s.screen(window.targetHut),r=s.container.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}})
-  await page.mouse.click(point.x,point.y,{button:'right'})
+  await page.mouse.click(point.x,point.y)
   assert.equal(await page.evaluate(()=>window.attacker.target),await page.evaluate(()=>window.targetHut.id))
   await page.evaluate(()=>{
     const s=window.testScene,w=s.world
@@ -60,7 +60,7 @@ try{
     s.animate(s.previous);cancelAnimationFrame(s.frame)
     const paused=JSON.stringify(position)===JSON.stringify(s.unitMeshes.get(u.id).position.toArray())
     w.paused=false;m.command(w,{x:10,z:8});w.paused=true
-    return {ejected,fought,resumed,references,paused,cancelled:w.buildingOrders.records[id].references===0&&u.native===null,peakEffects,peakDraws,timings}
+    return {ejected,fought,resumed,references,paused,cancelled:w.buildingOrders.records[id].references===0&&u.native?.commandStatus===3&&u.native.state===10&&u.path.length>0,peakEffects,peakDraws,timings}
   })
   for(const key of ['ejected','fought','resumed','paused','cancelled'])assert.equal(occupied[key],true,key)
   assert.equal(occupied.references,1)

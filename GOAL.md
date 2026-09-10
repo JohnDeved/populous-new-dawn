@@ -125,8 +125,11 @@ Track the requested queue explicitly:
    the ownership/visibility boundaries above remain open.
 3. **Standing groups — bounded implementation delivered.** Preserve resting slot
    ownership, spacing, facing, gestures and reshaping as movement orders take over.
-4. **Selection and deselection — queued.** Recover original selected-person states,
-   click/modifier rules, ownership changes and feedback, including interrupted tasks.
+4. **Selection and deselection — in progress.** Right-click/Escape cancellation and
+   ordinary follower deselection now preserve real orders and clear the original
+   selection flags. Player clicks do not enter AI reservation state 14; the bootstrap
+   assumption is removed. Finish click/modifier modes, selection ownership and feedback,
+   including interrupted tasks and vehicles.
 5. **Native 3D drag selection — queued.** Recreate original world-projected selection
    geometry and hit tests across camera rotation, terrain slopes and occlusion;
    verify desktop wide/high-DPI input and rendering alignment.
@@ -136,7 +139,7 @@ routing and sprite ownership. Native comparisons, 279 portable tests and actual
 browser orders cover this bounded integration. Lazy collision snapshots preserve
 state while reducing measured CPU work; the software-rendered crowd profile is
 explicitly not a hardware FPS certification. Full group lifecycle stays open.
-Next integrate selection state transitions and modifiers, then world-projected
+Next integrate player selection flags, input modes and modifiers, then world-projected
 drag geometry and hit tests. Use executable evidence and
 original visuals to resolve the exact footprint and selection behavior. Integrate
 real desktop interaction regressions across camera rotation, slopes, occlusion

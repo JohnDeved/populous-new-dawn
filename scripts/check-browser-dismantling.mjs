@@ -11,6 +11,12 @@ try {
     await page.evaluate(async cancel=>{
       const s=window.testScene,w=s.world,m=await import('/app/model.ts')
       w.speed=0;w.manaWorld.gameFlags=32
+      // Each case owns its followers. Survivors from the dismantled first camp
+      // otherwise stand on the second camp's click target and receive selection.
+      if(window.dismantling){
+        for(const u of window.dismantling.people)m.releaseTasks(w,u)
+        w.units=w.units.filter(u=>!window.dismantling.people.includes(u))
+      }
       const b=m.addBuilding(w,'blue','camp',{x:-2,z:32},true,{angle:Math.PI})
       const people=Array.from({length:8},(_,i)=>m.addUnit(w,'blue','brave',{x:7+i*.4,z:33}))
       window.dismantling={b,people,cancel,m,frames:[],stages:[],workFrames:[],phase:'entry'}
@@ -22,7 +28,7 @@ try {
       const s=window.testScene,p=s.screen(window.dismantling.b),r=s.container.getBoundingClientRect()
       return{x:r.x+(p.x+1)*r.width/2,y:r.y+(1-p.y)*r.height/2}
     })
-    await page.mouse.click(target.x,target.y,{button:'right'});await page.mouse.move(1400,50)
+    await page.mouse.click(target.x,target.y);await page.mouse.move(1400,50)
     await page.evaluate(()=>{
       const s=window.testScene,h=window.dismantling,after=s.gameClock.afterTurn
       s.gameClock.afterTurn=()=>{

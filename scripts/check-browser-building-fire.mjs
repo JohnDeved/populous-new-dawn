@@ -108,7 +108,7 @@ try {
     w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2).map(u=>u.id)
     s.onChange()
   })
-  await page.mouse.click(target.x,target.y,{button:'right'})
+  await page.mouse.click(target.x,target.y)
   assert.ok(await page.evaluate(()=>window.burningBuilding.damageState.plan.repairDelay>1000))
   await page.evaluate(()=>{window.testScene.world.speed=4})
   await page.waitForFunction(()=>{

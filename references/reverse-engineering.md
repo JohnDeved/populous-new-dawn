@@ -6972,3 +6972,57 @@ visible sprites, groups, interruption, pause and resting. Resting regression,
 option records the renderer and full-scene CPU/frame timing for 200 followers;
 the measured run used SwiftShader and cannot certify hardware refresh rates.
 See the modern-performance notes for the paired collision-snapshot measurement.
+# Ordinary player deselection — 2026-09-10
+
+The original default input records at `005d6574` and `005d6580` map right-button
+release and Escape press to input action `0x83`, guarded by `004ff460` (UI mode
+12 or 16). `process_cmd` (`004aab80`) emits tribe command `0x1e`; it does not emit
+a movement order. Targeting modes have their own cancellation binding (`0x7c`).
+
+The complete `00444f60` command path calls `00435c10`, which copies selection bit
+7 into bit 0 for every tribe person, clears the pending tribe command scratch via
+`00436ff0`, then clears person selection bit 7 and flags3 bit 7. Existing person
+states, route ownership, commands and other bytes remain untouched. Vehicle
+passenger recursion is visible in the export but is not yet integrated in play.
+The browser has no pending native tribe command scratch queue to clear yet.
+
+`scripts/check-native-deselection.py` executes 576 default binding/predicate cases,
+the full input-action dispatch, and 512 complete ordinary command calls covering
+2,048 person records and every possible selection byte. Only UI refresh is supplied
+at the command boundary. All other person bytes are checked, including state and
+orders. Portable captured flag cases live in `tests/fixtures/deselection.json`.
+
+Crucial ownership correction: player selection is not state 14. Complete command
+`0x2a` execution over all 46 initial person states leaves the state and order bytes
+unchanged. `004c8490` explicitly uses state 14 for AI training reservations. The
+existing browser bootstrap incorrectly chose 14 and flags3 bit 7 from the displayed
+selection roster; it now preserves only the actual selection marker. This does
+not remove the real state-14 initializer used by AI consumers.
+
+Live right-click/Escape now cancel an active tool first, then deselect. Empty-mode
+right clicks leave the previous-selection bit alone. The shared input helper
+clears all retained native/work representations once, preserving their orders;
+right dragging still rotates. Ground/building orders use left click. Existing
+building-panel right-click focus and spell-card right-click charging remain intact.
+Tests cover continued marching/resting and 5–240 Hz/irregular replay. The dedicated
+browser check covers actual inputs and selection-arrow removal at 1440×1000,
+3440×1440 and 1920×1080; sprite, footprint and marching regressions remain required.
+
+Unfinished: the complete left-click dispatcher distinguishes commands `0x2a` and
+`0x7b` using a native setting. The replacement branch preserves other selected units
+when clicking an already-selected person without the modifier. Default modifier
+records use Ctrl for the `0x6f` press action; Shift has separate actions. The current
+browser left-click/Shift shortcuts, HUD selection, full input buffering, voices,
+vehicles and world-projected drag selection still need integration. Do not force
+state 14 or pause ordinary work to imitate a selection pose. `004d6b10` is the shared
+state-11/12/14 gesture controller, not proof that player clicks enter those states.
+
+Validation: 283 portable tests, typecheck/build/format and 1,074 export hashes pass.
+Actual browser marching, resting, footprints, selection arrows, 576 sprite poses,
+building attack/fire, housing/training/towers, panels, dismantling and victory/restart
+pass with left-click orders. Older checks now assert retained native movement records
+and capture restart ownership before the first legitimate resting turn. Separate
+dismantling cases remove their own surviving followers so the next building click
+does not accidentally select one. Fallow still flags existing controller complexity;
+ox-standard still reports pre-existing type-style/nested-expression debt. This input
+change adds no per-frame work and makes no hardware FPS or performance-gain claim.

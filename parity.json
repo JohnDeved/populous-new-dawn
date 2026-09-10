@@ -1213,9 +1213,13 @@
             "app/unit-health.ts",
             "scripts/check-native-unit-health.py",
             "scripts/check-browser-health-bars.mjs",
-            "tests/unit-health.test.mjs"
+            "tests/unit-health.test.mjs",
+            "scripts/check-native-deselection.py",
+            "scripts/check-browser-deselection.mjs",
+            "tests/deselection.test.mjs",
+            "tests/fixtures/deselection.json"
           ],
-          "note": "First-mission controls and native hovered-model color/ownership rules work; stationary-pointer targets refresh on camera changes. Full native picking/modal/targeting ownership, bindings, group semantics and remaining command feedback are incomplete. The original held-Quote health display now uses native owner/class/damage/flag gates, scaled pose anchors, palette colors and translucent background. 2,048 executable comparisons, default key dispatch and 3,900 browser pixels are checked. One cached atlas quad replaces six native primitives and the former horizontal 3D bars; a 200-person hardware sample improves CPU callback cost. Query-mode health/activity icons, rebindable controls, building health and full mixed-class painter ownership remain open."
+          "note": "First-mission controls and native hovered-model color/ownership rules work; stationary-pointer targets refresh on camera changes. Full native picking/modal/targeting ownership, bindings, group semantics and remaining command feedback are incomplete. The original held-Quote health display now uses native owner/class/damage/flag gates, scaled pose anchors, palette colors and translucent background. 2,048 executable comparisons, default key dispatch and 3,900 browser pixels are checked. One cached atlas quad replaces six native primitives and the former horizontal 3D bars; a 200-person hardware sample improves CPU callback cost. Query-mode health/activity icons, rebindable controls, building health and full mixed-class painter ownership remain open. Ordinary right-click/Escape deselection now cancels targeting first, preserves active orders, and clears native selection flags. Compared 576 native binding cases, 512 full tribe commands/2,048 people and clicks across 46 initial states. Player clicks do not enter AI reservation state 14; the bootstrap assumption is removed. Live input/arrow checks at three desktop sizes and 5\u2013240 Hz/irregular movement replay cover this bounded correction. Full left-click/modifier modes, HUD selection ownership, buffering, vehicles, feedback and native 3D drag selection remain incomplete; this partial checkpoint receives no new completion credit."
         },
         {
           "id": "interface.targeting",

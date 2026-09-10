@@ -24,7 +24,7 @@ try {
     const s = window.testScene, p = s.screen(window.training.b), r = s.container.getBoundingClientRect()
     return { x: r.left + (p.x + 1) * r.width / 2, y: r.top + (1 - p.y) * r.height / 2 }
   })
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   await page.mouse.move(1400, 50)
   await page.evaluate(() => {
     const s = window.testScene, h = window.training, animate = s.animate, afterTurn = s.gameClock.afterTurn

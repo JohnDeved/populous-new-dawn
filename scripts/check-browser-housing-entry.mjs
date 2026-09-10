@@ -38,7 +38,7 @@ try {
     }
     throw Error('No clickable housing footprint')
   })
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   await page.mouse.move(1400, 50)
   await page.evaluate(() => {
     const s = window.testScene, h = window.housing, animate = s.animate, afterTurn = s.gameClock.afterTurn
@@ -82,7 +82,7 @@ try {
         frames: frames.length, cpu: { p50: q(frames.map(f => f.cpu), .5), p95: q(frames.map(f => f.cpu), .95) },
         gaps: { p50: q(gaps, .5), p95: q(gaps, .95), max: Math.max(...gaps) }, maxDrawCalls: Math.max(...frames.map(f => f.calls)) } }
   })
-  assert.ok(visible.commanded, 'real right-click orders all selected followers into the hut')
+  assert.ok(visible.commanded, 'real left-click orders all selected followers into the hut')
   assert.equal(visible.inside, null)
   assert.ok(visible.visible && visible.layers > 0 && visible.pixels > 0)
   assert.equal(visible.object, visible.expected)

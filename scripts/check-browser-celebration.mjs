@@ -16,11 +16,11 @@ try{
  });
  await page.waitForTimeout(100);
  const shore=await page.evaluate(()=>{const s=window.testScene,p=s.screen({x:9,z:25}),r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2};});
- await page.mouse.click(shore.x,shore.y,{button:'right'});
+ await page.mouse.click(shore.x,shore.y);
  const route=await page.evaluate(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker);window.walkGoal=u.path.at(-1);return {points:u.path,group:w.pathfinding.people.get(u.id)?.motionGroup,native:u.native};});
- assert.ok(route.points.length);assert.ok(route.group);assert.equal(route.native,null);
- await page.waitForFunction(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker),p=window.walkGoal;return u&&Math.hypot(u.x-p.x,u.z-p.z)<.05;},{},{timeout:15000});
- assert.ok(await page.evaluate(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker);return u.hp>0&&u.native===null&&!w.pathfinding.people.has(u.id);}),'right-clicked follower reaches the shore through native planning');
+ assert.ok(route.points.length);assert.ok(route.group);assert.equal(route.native.commandStatus,3);
+ await page.waitForFunction(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker),p=window.walkGoal;return u?.native?.state===19&&Math.hypot(u.x-p.x,u.z-p.z)<2;},{},{timeout:15000});
+ assert.ok(await page.evaluate(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker);return u.hp>0&&u.native.state===19&&!u.native.commands.some(Boolean)&&!w.pathfinding.people.has(u.id);}),'left-clicked follower reaches the shore and releases its movement order before native resting');
  await page.evaluate(()=>window.testStore.restart());await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld());await page.evaluate(()=>window.testScene=window.testSceneRef.current);
  await page.evaluate(()=>{
   const w=window.testStore.getWorld();w.units=w.units.filter(u=>u.team==='blue');w.units.find(u=>u.kind==='brave').kind='warrior';w.turn=31;w.pendingTime=0;w.paused=false;w.speed=1;w.ai.variables[57]=1;w.flyby.flags=0;w.inputMask=0;
@@ -94,11 +94,17 @@ try{
  await page.waitForFunction(()=>{const w=window.testStore.getWorld();return window.routeFollowers.every(id=>w.units.find(u=>u.id===id).native.motionGroup===0)&&w.motionRoutes.active===0;});
  assert.ok(await page.evaluate(()=>{const r=window.testStore.getWorld().motionRoutes.records;return r[109]===0&&r[110]===0&&r[111]===0;}),'last live follower frees the shared route');
  await page.waitForFunction(()=>!window.testStore.getWorld().outcome.cameraPlaying);
+ await page.evaluate(()=>{
+  const store=window.testStore,restart=store.restart,old=store.getWorld()
+  store.restart=()=>{
+   restart();const w=store.getWorld()
+   // Observe reset before the next turn legitimately allocates resting people.
+   window.restartClean=w!==old&&w.units.every(u=>u.native===null)&&w.objectCells.heads.every(id=>!id)&&w.motionRoutes.records.every(n=>n===0)
+  }
+ })
  await page.waitForSelector('.end-screen button');await page.locator('.end-screen button').click();
  await page.waitForFunction(()=>window.testStore.getWorld().status==='playing');
- assert.ok(await page.evaluate(()=>window.testStore.getWorld().units.every(u=>u.native===null)));
- assert.ok(await page.evaluate(()=>window.testStore.getWorld().objectCells.heads.every(id=>!id)));
- assert.ok(await page.evaluate(()=>window.testStore.getWorld().motionRoutes.records.every(n=>n===0)));
+ assert.equal(await page.evaluate(()=>window.restartClean),true);
  assert.deepEqual(errors,[]);
- console.log('PASS: right-click native route and shore arrival, live victory handoff, original atlas frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
+ console.log('PASS: left-click native route and shore arrival, live victory handoff, original atlas frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
 }finally{await browser.close();}

@@ -120,7 +120,8 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     id: u.id,
     class: 1,
     model,
-    state: selected ? 14 : 10,
+    // Player selection marks +0x7a; it does not enter the AI reservation state 14.
+    state: 10,
     previousState: 0,
     substate: 0,
     tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
@@ -131,7 +132,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     anchorY: pos.y & 65535,
     counter: (w.turn - 1) & 255,
     flags2: u.inside === null ? 0 : 0x800000,
-    flags3: selected ? 128 : 0,
+    flags3: 0,
     // Preserve the outdoor target eligibility previously supplied by each spell adapter.
     flags4: 0x20000000 | (u.inside === null ? 256 : 0),
     physics: rules.personModels[model].physics,

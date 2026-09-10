@@ -14,7 +14,7 @@ try {
  })
  const click=async point=>{
   const p=await page.evaluate(point=>{const s=window.testScene,p=s.screen(point),r=s.container.getBoundingClientRect();return{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}},point)
-  await page.mouse.click(p.x,p.y,{button:'right'})
+  await page.mouse.click(p.x,p.y)
  }
  await click({x:10,z:8})
  assert.equal(await page.evaluate(()=>window.testScene.world.units.filter(u=>u.path.length).length),12)
@@ -44,5 +44,5 @@ try {
  })
  assert.ok(result.moving);assert.ok(result.x>20);assert.ok(result.people.some(u=>u.shape===5));for(const u of result.people)assert.equal(u.shape,result.people.filter(v=>v.cell===u.cell).length)
  assert.deepEqual(errors,[])
- console.log('PASS: actual right-click group order, twelve visible original poses, native ring populations, pause and departure reshaping')
+ console.log('PASS: actual left-click group order, twelve visible original poses, native ring populations, pause and departure reshaping')
 } finally {await browser.close()}

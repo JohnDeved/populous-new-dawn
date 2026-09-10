@@ -32,7 +32,7 @@ try {
       r = s.container.getBoundingClientRect()
     return { x: r.x + ((p.x + 1) * r.width) / 2, y: r.y + ((1 - p.y) * r.height) / 2 }
   })
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   const panel = page.locator('.construction-panel:not([hidden])'),
     button = panel.locator('.dismantle-control')
   try {
@@ -188,7 +188,7 @@ try {
   await page.evaluate(
     () => (window.testScene.world.selected = window.planCheck.people.map(u => u.id))
   )
-  await page.mouse.click(target.x, target.y, { button: 'right' })
+  await page.mouse.click(target.x, target.y)
   await page.mouse.move(1400, 50)
   await page.evaluate(() => {
     const s = window.testScene,

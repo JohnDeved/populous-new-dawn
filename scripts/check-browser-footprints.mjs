@@ -15,10 +15,10 @@ try {
   s.focus({x:4,z:8});s.onChange()
  })
  const target=await page.evaluate(()=>{const s=window.testScene,p=s.screen({x:10,z:8}),r=s.container.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}})
- await page.mouse.click(target.x,target.y,{button:'right'})
+ await page.mouse.click(target.x,target.y)
  const live=await page.evaluate(()=>{
   const s=window.testScene,w=s.world,u=window.walker
-  if(!u.path.length)throw Error('Actual right-click did not issue movement')
+  if(!u.path.length)throw Error('Actual left-click did not issue movement')
   cancelAnimationFrame(s.frame);w.paused=true;w.speed=1;w.pendingTime=0;s.gameClock.animationTime=0
   const gl=s.renderer.getContext(),uploads=[],upload=gl.texSubImage2D.bind(gl)
   gl.texSubImage2D=(...args)=>{uploads.push({width:args[4],height:args[5]});return upload(...args)}

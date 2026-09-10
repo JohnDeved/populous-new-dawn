@@ -15,7 +15,7 @@ try {
  })
  const click=async point=>{
   const p=await page.evaluate(point=>{const s=window.testScene,p=s.screen(point),r=s.container.getBoundingClientRect();return{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}},point)
-  await page.mouse.click(p.x,p.y,{button:'right'})
+  await page.mouse.click(p.x,p.y)
  }
  await click({x:30,z:8})
  assert.equal(await page.evaluate(()=>window.testScene.world.buildingOrders.active),1)
@@ -69,5 +69,5 @@ try {
   console.log('PROFILE:',JSON.stringify(report))
  }
  assert.deepEqual(errors,[])
- console.log('PASS: real right-click shared movement, marching groups, visible original walking/gesture poses, pause, interruption and resting handoff')
+ console.log('PASS: real left-click shared movement, marching groups, visible original walking/gesture poses, pause, interruption and resting handoff')
 } finally {await browser.close()}
