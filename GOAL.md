@@ -114,8 +114,30 @@ orders and 576 GPU sprite poses cover this bounded slice. Shared state snapshots
 are now lazy; the documented 200-person comparison preserves exact state while
 reducing initialization cost. Full native movement and selection remain open.
 
-Next integrate original group movement/order ownership, selection state transitions and modifiers, and world-projected drag geometry and
-hit tests. Use executable evidence and
+Track the requested queue explicitly:
+
+1. **Group movement — bounded implementation delivered.** Ordinary ground orders
+   share native commands and use original marching recruitment, slot geometry,
+   catch-up speed and arrival. Cancellation/death and rest/panic handoffs are checked;
+   full avoidance, scheduling and general work/attack queue restoration remain open.
+2. **Unit footprints — bounded implementation delivered.** Keep its emission,
+   terrain-pixel and frame-rate regressions passing during the movement migration;
+   the ownership/visibility boundaries above remain open.
+3. **Standing groups — bounded implementation delivered.** Preserve resting slot
+   ownership, spacing, facing, gestures and reshaping as movement orders take over.
+4. **Selection and deselection — queued.** Recover original selected-person states,
+   click/modifier rules, ownership changes and feedback, including interrupted tasks.
+5. **Native 3D drag selection — queued.** Recreate original world-projected selection
+   geometry and hit tests across camera rotation, terrain slopes and occlusion;
+   verify desktop wide/high-DPI input and rendering alignment.
+
+Ordinary marching is now live through the shared order pool, native physics,
+routing and sprite ownership. Native comparisons, 279 portable tests and actual
+browser orders cover this bounded integration. Lazy collision snapshots preserve
+state while reducing measured CPU work; the software-rendered crowd profile is
+explicitly not a hardware FPS certification. Full group lifecycle stays open.
+Next integrate selection state transitions and modifiers, then world-projected
+drag geometry and hit tests. Use executable evidence and
 original visuals to resolve the exact footprint and selection behavior. Integrate
 real desktop interaction regressions across camera rotation, slopes, occlusion
 and wide/high-DPI displays. Keep native mechanics, uncapped elapsed-time

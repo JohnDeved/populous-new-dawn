@@ -72,7 +72,8 @@ test('simultaneous arrivals respect hut capacity and cancellation releases the s
   const before = [u.x, u.z]
   command(other.w, { x: 9, z: 30 })
   assert.equal(u.entry, undefined)
-  assert.equal(unitAnimationSource(u), null)
+  assert.equal(unitAnimationSource(u), u.native)
+  assert.equal(u.native.commandStatus, 3)
   assert.deepEqual([u.x, u.z], before)
   assert.ok(u.path.length)
   until(other.w, () => u.path.length === 0)

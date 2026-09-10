@@ -1,4 +1,5 @@
 import { movePosition } from './native-math.ts'
+import { positionsOverlap } from './person-motion.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 // Original ten-byte command record: model/flags, reference count, object, payload.
@@ -376,4 +377,53 @@ export function prepareCombatOrder(
   order.b = b
   const coastal = coastalDestination(categories, (a & 254) << 8, a & 0xfe00)
   if (coastal) order.a = ((coastal.x >>> 8) & 254) | (coastal.y & 0xfe00)
+}
+
+// 0x43bb60: command payloads use raw points or packed cell centers. The square
+// overlap shares the original 65535 seam fold with person/physics comparisons.
+export function personReachedOrder(
+  p: { x: number; y: number; model: number; flags4: number; vehicle: number },
+  order: PersonOrder,
+  vehicle: (id: number) => { x: number; y: number }
+) {
+  const flags = descriptor(order.model).flags
+  let to = { x: order.a, y: order.b }
+  if (flags & 0x804) {
+    const cell = flags & 4 ? order.b : order.a
+    to = { x: ((cell & 254) + 1) * 256, y: (((cell >>> 8) & 254) + 1) * 256 }
+  }
+  const radius = p.vehicle ? (p.flags4 & 0x2000000 ? 320 : 256) : rules.personArrivalRadius[p.model]
+  return positionsOverlap(p.vehicle ? vehicle(p.vehicle) : p, radius, to, 56)
+}
+
+// 0x4336c0, ordinary movement command 3 (also used by command 25).
+export function stepMovementOrder(
+  p: {
+    x: number
+    y: number
+    model: number
+    flags4: number
+    vehicle: number
+    counter: number
+    goalX: number
+    goalY: number
+  },
+  order: PersonOrder,
+  categories: Uint8Array,
+  vehicle: (id: number) => { x: number; y: number }
+) {
+  if (p.counter & 3) return false
+  const near = (a: { x: number; y: number }, b: { x: number; y: number }, r: number) =>
+    Math.abs(((a.x << 16) >> 16) - ((b.x << 16) >> 16)) < r &&
+    Math.abs(((a.y << 16) >> 16) - ((b.y << 16) >> 16)) < r
+  const goal = { x: p.goalX, y: p.goalY }
+  if (p.vehicle) {
+    const category = categories[(goal.y >> 9) * 128 + (goal.x >> 9)] & 15
+    if (p.flags4 & 0x2000000 || rules.terrainCategoryFlags[category] & 2) {
+      goal.x = (goal.x & 0xfe00) + 256
+      goal.y = (goal.y & 0xfe00) + 256
+    }
+    return near(goal, vehicle(p.vehicle), 353)
+  }
+  return p.flags4 & 0x4000000 ? near(goal, p, 568) : personReachedOrder(p, order, vehicle)
 }

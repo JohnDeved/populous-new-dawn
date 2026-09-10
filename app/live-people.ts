@@ -1,7 +1,7 @@
 import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
 import { stampFootprints } from './footprints.ts'
-import { startLiveBuildingOrders } from './live-building-combat.ts'
+import { startLiveOrders } from './live-movement.ts'
 import { currentPersonOrder } from './person-orders.ts'
 import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
 import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
@@ -103,6 +103,7 @@ export type LivePerson = StatefulPerson &
     anchorFlags: number
     disguise: number
     savedVehicle: number
+    formationDelay: number
     orderDelay: number
     damageAttacker: number
     burnTrail: number
@@ -192,6 +193,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     life: short(Math.round(u.hp * 20)),
     disguise: 0,
     savedVehicle: 0,
+    formationDelay: 0,
     orderDelay: 0,
     damageAttacker: 255,
     burnTrail: u.burnTrail ?? 0,
@@ -389,8 +391,8 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
         },
       }),
     startOrders: p => {
-      if (currentPersonOrder(w.buildingOrders, p)?.model === 19)
-        startLiveBuildingOrders(w, p as LivePerson, state)
+      if ([3, 19].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
+        startLiveOrders(w, p as LivePerson, state)
       else if (p.immediateCommand || p.commands[p.commandCursor]) unexpected()
     },
   })
@@ -489,27 +491,31 @@ export function initializeLiveCelebration(w: World, u: Unit) {
 
 export function collisionWorld(w: World): CollisionWorld {
   // Native footprint cells are shared; object/plan lifecycle is still adapted.
-  const objects = new Map<number, CollisionObject>()
-  for (const b of w.buildings)
-    objects.set(b.id, {
-      ...nativePosition(w, b),
-      class: 2,
-      state: b.progress === 1 ? 2 : 1,
-      flags2: 0,
-      tribe: b.team === 'blue' ? 0 : 1,
-      related: 0,
-    })
-  for (const u of w.units)
-    objects.set(u.id, {
-      ...nativePosition(w, u),
-      class: 1,
-      state: u.native?.state ?? 10,
-      flags2: u.hp > 0 ? (u.native?.flags2 ?? 0) : 1,
-      tribe: u.team === 'blue' ? 0 : 1,
-      related: 0,
-    })
+  let objects: Map<number, CollisionObject> | undefined
   return {
-    objects,
+    get objects() {
+      if (objects) return objects
+      objects = new Map()
+      for (const b of w.buildings)
+        objects.set(b.id, {
+          ...nativePosition(w, b),
+          class: 2,
+          state: b.progress === 1 ? 2 : 1,
+          flags2: 0,
+          tribe: b.team === 'blue' ? 0 : 1,
+          related: 0,
+        })
+      for (const u of w.units)
+        objects.set(u.id, {
+          ...nativePosition(w, u),
+          class: 1,
+          state: u.native?.state ?? 10,
+          flags2: u.hp > 0 ? (u.native?.flags2 ?? 0) : 1,
+          tribe: u.team === 'blue' ? 0 : 1,
+          related: 0,
+        })
+      return objects
+    },
     walkMask: w.land.walkMasks[0],
     boatAt: () => false,
     cell: pos => {
@@ -670,7 +676,7 @@ export function registerLivePerson(w: World, p: LivePerson) {
 }
 
 // Grounded combat and airborne impulses share the original person physics.
-function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
+export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   registerLivePerson(w, p)
   // Ordinary combat still owns browser HP; don't restore an opportunistic hit
   // from the preceding physics snapshot when the defender is being pushed.
@@ -741,9 +747,9 @@ function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       initialize()
       // Ordinary live orders still use the browser adapter after native recovery.
       // Do not preserve a fabricated task snapshot in place of the native queue.
-      releasePersonRoute(w.motionRoutes, p)
       u.fight = null
       if (currentPersonOrder(w.buildingOrders, p)) u.native = p
+      else releasePersonRoute(w.motionRoutes, p)
     }
   }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
@@ -751,6 +757,7 @@ function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.hp = p.life / 20
+  u.supportHeight = p.supportHeight || undefined
   if (ctx) w.randomState = ctx.state.randomState
 }
 
@@ -797,8 +804,10 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
     p.state = next
     initializeLivePerson(w, u, ctx, p)
     // Keep an owned command through recovery; legacy tasks have no native queue.
-    if (!currentPersonOrder(w.buildingOrders, p)) u.native = null
-    releasePersonRoute(w.motionRoutes, p)
+    if (!currentPersonOrder(w.buildingOrders, p)) {
+      u.native = null
+      releasePersonRoute(w.motionRoutes, p)
+    }
   }
 }
 

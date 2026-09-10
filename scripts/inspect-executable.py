@@ -95,6 +95,8 @@ if len(sys.argv)>2:
     rules['vehicleRestFlags']=[value(0x5a7938+i*23+21,1) for i in range(5)]
     rules['pathSearchStepLimit']=value(0x59bd8c)
     rules['pathSteps']=[dict(zip(['x','y'],struct.unpack('<ii',read(0x59bd90+i*10,8)))) for i in range(4)]
+    rules['marchingFormationOffsets']=[list(struct.unpack('<hh',read(0x5d6bc8+i*4,4))) for i in range(12)]
+    rules['personArrivalRadius']=[value(0x5a7060+i*50+46,1)*32 for i in range(9)]
     rules['restingAnimationFrameSource']=value(0x5a6adc,2)
     rules['personMana']=[value(0x5a7060+i*50+14,2) for i in range(9)]
     rules['personThreat']=[value(0x5a7060+i*50+35,1) for i in range(9)]

@@ -72,7 +72,8 @@ test('queue cancellation retains successors and occupant departure reuses the fi
   w.selected = [leaving.id]; command(w, { x: 9, z: 30 })
   assert.deepEqual(queue(w, b), [before[0], before[2]])
   assert.equal(leaving.entry, undefined)
-  assert.equal(w.buildingOrders.active, 7)
+  assert.equal(w.buildingOrders.active, 8) // Seven trainees and the new movement order.
+  assert.equal(leaving.native.commandStatus, 3)
   const original = b.admission.occupants.slice(), occupant = w.units.find(u => u.id === original[1])
   w.selected = [occupant.id]; command(w, { x: 8, z: 30 })
   assert.equal(b.admission.occupants[1], 0)

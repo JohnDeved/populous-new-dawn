@@ -72,5 +72,6 @@ test('command cancellation uses shared exit restoration without changing the rou
   assert.equal(u.inside, null)
   assert.deepEqual({ x: u.x, z: u.z }, start)
   assert.ok(u.path.length)
-  assert.equal(u.native, null)
+  assert.equal(u.native.commandStatus, 3)
+  assert.equal(u.native.flags2 & 0x800000, 0)
 })

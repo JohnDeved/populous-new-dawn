@@ -37,7 +37,7 @@ try {
  await click({x:22,z:8})
  const result=await page.evaluate(async()=>{
   const s=window.testScene,w=s.world,{advanceGame}=await import('/app/game-clock.ts'),u=w.units[0]
-  const moving=u.path.length>0&&!(u.native.assignment&1)&&window.restingModel.unitAnimationSource(u)===null
+  const moving=u.path.length>0&&!(u.native.assignment&1)&&window.restingModel.unitAnimationSource(u)===u.native&&u.native.commandStatus===3
   w.speed=1;for(let i=0;i<240;i++)advanceGame(w,s.gameClock,1/12)
   w.paused=true;s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
   return {moving,x:u.x,people:w.units.map(u=>({cell:u.native.formationCell,shape:u.native.anchorFlags>>4})),errors:[]}

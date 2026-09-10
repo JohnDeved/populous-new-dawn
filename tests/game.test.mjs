@@ -1717,8 +1717,8 @@ test('live native routes release query ownership, expire failures and walk low s
  for(let i=0;i<15;i++)tick(w,1/12);assert.equal(w.motionRoutes.failedSearches[cached],0);
  assert.deepEqual(findPath(w,u,ENEMY),[]);assert.ok(w.pathfinding.state.searches>0,'expired failure searches again');
  select(w,'shaman');command(w,shore);assert.ok(u.path.length);assert.deepEqual(u.path.at(-1),shore);
- assert.ok(w.pathfinding.people.get(u.id)?.motionGroup);assert.equal(u.native.state,10);assert.equal(u.native.commandStatus,0);assert.equal(unitAnimationSource(u),null,'ordinary routing retains flags but does not claim native animation ownership');
- until(w,()=>u.x===shore.x&&u.z===shore.z,15);advance(w,1);assert.ok(w.units.includes(u));assert.equal(u.hp,maxHp('shaman'));
+ assert.ok(w.pathfinding.people.get(u.id)?.motionGroup);assert.equal(u.native.state,10);assert.equal(u.native.commandStatus,3);assert.equal(unitAnimationSource(u),u.native,'native movement owns its original animation');
+ until(w,()=>u.native.commandStatus===0,15);advance(w,1);assert.ok(w.units.includes(u));assert.equal(u.hp,maxHp('shaman'));
  for(let id=1;id<=400;id++)assert.equal(new DataView(w.motionRoutes.records.buffer).getInt16(id*109,true),0);
  w.pathfinding.solver.tribeRequests.fill(123);tick(w,1/12);assert.ok(w.pathfinding.solver.tribeRequests.every(n=>n<123),'request limits observe this turn only');
 });

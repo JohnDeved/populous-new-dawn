@@ -1,20 +1,22 @@
 # Game parity progress
 
-**25.31% evidence-backed progress across known scope.**
+**25.48% evidence-backed progress across known scope.**
 
-**Graphics: 59.71%.** Overall: 64/174 individual requirements verified; 17/96 broad checkpoints complete.
+**Graphics: 59.71%.** Overall: 65/175 individual requirements verified; 17/96 broad checkpoints complete.
 
-57 partial; 22 missing; 0 unassessed. Checklist revision 24.
+57 partial; 22 missing; 0 unassessed. Checklist revision 25.
 
 **Latest assessment**
 
-Requirement-level changes are unavailable across a scope revision or an older snapshot. Treat a revised score as a new measurement baseline, not newly completed game behavior.
+Newly verified: 1. Reopened: 0.
 
-Revision 24 separates verified ordinary resting rings from the unfinished crowd/order lifecycle. Original slot/controller comparisons, live rings and departure/death reshaping, 5–240 Hz replay, browser orders/poses and a measured lazy-context comparison pass; full group movement and selection remain open.
+- Verified: `movement.groups.marching`.
+
+Verified ordinary native marching integration: shared move commands, original slots/catch-up/poses, arrival/rest/panic handoffs, native comparisons, 279 tests and real browser input. +0.3472 percentage points against the separately recorded revision-25 baseline; full group lifecycle remains partial.
 
 **Tracking blind spots: 41 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
-**Discovery: open.** Revision 24 separates ordinary resting-slot geometry/controller integration from the remaining crowd movement and formation lifecycle. One bounded resting requirement is verified; native movement orders, selection, specialist/vehicle behavior and discovery remain open.
+**Discovery: open.** Revision 25 separates ordinary marching-controller integration from the remaining group lifecycle. The scope split is recorded separately from verification; allocation/class scheduling, avoidance, general work/attack queue restoration, selection and specialist/vehicle behavior remain open.
 
 Unknown scope is not assigned an invented size or percentage. This checklist is expandable: add checkpoints or entire subsystems as research reveals them. Use `unassessed` for newly identified behavior whose implementation/parity has not been investigated; it enters the denominator immediately and receives no verified credit. Split overly broad checkpoints when discoveries justify it, with a recorded revision.
 
@@ -34,7 +36,7 @@ Verified means the named scope has original-engine evidence and browser/game int
 | Interface and desktop controls | 45.59% | 14/24 | 3/8 |
 | Audio and music | 4.17% | 1/10 | 0/8 |
 | Simulation scheduling and randomness | 0.00% | 0/8 | 0/8 |
-| Movement, collision and vehicles | 18.75% | 2/9 | 1/8 |
+| Movement, collision and vehicles | 20.83% | 3/10 | 1/8 |
 | Unit classes and combat | 10.71% | 6/14 | 0/8 |
 | Buildings, resources and population | 26.04% | 5/17 | 1/8 |
 | Spell rules and complete roster | 21.25% | 4/15 | 1/8 |
@@ -175,6 +177,9 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-10T16:26:59.854Z | 22 | 24.75% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Live building assault: native strikes/shaking, defender ejection and retained command recovery; groups/selection queued next; full lifecycle remains partial |
 | 2026-09-10T16:45:13.971Z | 23 | 24.79% | 17/96 | scope revision | Original follower footprints: native history and palette trails verified; group spacing and 3D selection remain next; discovery revision 23 |
 | 2026-09-10T17:13:22.704Z | 24 | 25.31% | 17/96 | scope revision | Revision 24 separates verified ordinary resting rings from the unfinished crowd/order lifecycle. Original slot/controller comparisons, live rings and departure/death reshaping, 5–240 Hz replay, browser orders/poses and a measured lazy-context comparison pass; full group movement and selection remain open. |
+| 2026-09-10T17:34:19.930Z | 24 | 25.31% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Queued native group movement and selection work; staged executable-compared marching and arrival controllers, with no new live parity credit. |
+| 2026-09-10T17:51:00.966Z | 25 | 25.14% | 17/96 | scope revision | Measurement revision 25: split ordinary marching integration from the still-partial group lifecycle. Baseline recorded separately; the denominator change is not gameplay progress. |
+| 2026-09-10T17:52:53.070Z | 25 | 25.48% | 17/96 | 0.35 pp; 1 newly verified, 0 reopened | Verified ordinary native marching integration: shared move commands, original slots/catch-up/poses, arrival/rest/panic handoffs, native comparisons, 279 tests and real browser input. +0.3472 percentage points against the separately recorded revision-25 baseline; full group lifecycle remains partial. |
 
 ## Update workflow
 
@@ -321,9 +326,10 @@ Scope changes require a new checklist revision. Scores across different revision
 - **partial** — Complete ground movement, slope and steering dispatch (`movement.ground`). Native primitives compared; full live state dispatch incomplete. Evidence: [scripts/check-native-person-motion.py](scripts/check-native-person-motion.py), [scripts/check-native-physics-driver.py](scripts/check-native-physics-driver.py).
 - **partial** — All person/building/scenery collision and access rules (`movement.collision`). Completed-building occupancy integrated; plan and access-state lifecycle remains open. Evidence: [scripts/check-native-person-collision.py](scripts/check-native-person-collision.py), [scripts/check-native-building-footprints.py](scripts/check-native-building-footprints.py).
 - **partial** — Falling, knockback, landing and drowning (`movement.airborne`). Native driver compared in isolation; complete live ownership and states not yet integrated. Evidence: [scripts/check-native-person-physics.py](scripts/check-native-person-physics.py), [scripts/check-native-physics-driver.py](scripts/check-native-physics-driver.py), [tests/game.test.mjs](tests/game.test.mjs).
-- **partial** — Group formations, crowd movement and avoidance (`movement.groups`). **1/2 requirements verified; each earns 0.52 percentage points overall.** Ordinary resting rings, settling, gestures and departure/death reshaping now use recovered controllers. Native movement orders, group destination distribution, avoidance and complete specialist/vehicle ownership remain open. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Group formations, crowd movement and avoidance (`movement.groups`). **2/3 requirements verified; each earns 0.35 percentage points overall.** Ordinary resting and marching controllers are live with original slots, gestures, catch-up speed, shared move orders and arrival handoff. Full scheduling/allocation, avoidance, general work/attack queues, selection and specialist/vehicle ownership remain open. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [tests/game.test.mjs](tests/game.test.mjs).
   - **verified** — Ordinary outdoor resting rings and live slot ownership (`movement.groups.resting`). Original geometry/search/ownership/controller comparisons and actual live groups, compaction, status retention, pause, 5–240 Hz replay and browser poses/orders verified for ordinary free followers. Full global scheduling, selected state, special classes and native command handoff remain lifecycle scope. Evidence: [app/live-resting.ts](app/live-resting.ts), [app/person-idle.ts](app/person-idle.ts), [app/resting-slots.ts](app/resting-slots.ts), [scripts/check-native-idle.py](scripts/check-native-idle.py), [scripts/check-native-resting-slots.py](scripts/check-native-resting-slots.py), [tests/resting-groups.test.mjs](tests/resting-groups.test.mjs), [scripts/check-browser-resting.mjs](scripts/check-browser-resting.mjs), [scripts/check-resting-performance.mjs](scripts/check-resting-performance.mjs), [references/performance/2026-09-10-resting.json](references/performance/2026-09-10-resting.json), [references/reverse-engineering.md](references/reverse-engineering.md).
-  - **partial** — Complete group movement, avoidance, orders and special-class formation lifecycle (`movement.groups.lifecycle`). Ordinary destinations still use the browser group-order adapter. Full movement/avoidance, selected-person transitions, specialist/vehicle resting, allocator and native queue ownership remain unfinished. Evidence: [app/model.ts](app/model.ts), [scripts/check-native-orders.py](scripts/check-native-orders.py), [tests/game.test.mjs](tests/game.test.mjs), [GOAL.md](GOAL.md).
+  - **verified** — Ordinary ground move orders, marching slots and live controller handoff (`movement.groups.marching`). Native comparisons plus shared command references, live recruitment/slots/speed, cancellation/death, rest/panic handoffs, original GPU poses and 5–240 Hz/irregular replay verify this bounded ordinary movement integration. Actual browser right-click and pause checks pass. Full global scheduling/allocation, rerouting/avoidance, general automatic work/attack restoration, selected-person states and vehicles remain lifecycle scope. Evidence: [app/live-movement.ts](app/live-movement.ts), [app/marching-formations.ts](app/marching-formations.ts), [scripts/check-native-marching.py](scripts/check-native-marching.py), [scripts/check-native-move-arrival.py](scripts/check-native-move-arrival.py), [tests/live-movement.test.mjs](tests/live-movement.test.mjs), [scripts/check-browser-marching.mjs](scripts/check-browser-marching.mjs), [references/reverse-engineering.md](references/reverse-engineering.md), [scripts/check-marching-performance.mjs](scripts/check-marching-performance.mjs), [references/performance/2026-09-10-marching.json](references/performance/2026-09-10-marching.json), [references/performance/2026-09-10-marching-browser.json](references/performance/2026-09-10-marching-browser.json).
+  - **partial** — Complete group movement, avoidance, orders and special-class formation lifecycle (`movement.groups.lifecycle`). Ordinary free ground orders now use native marching and arrival with shared command references. Full movement/avoidance and rerouting, native selected-person transitions, general work/attack queue restoration, specialist/vehicle behavior, allocator limits and complete class/counter scheduling remain unfinished. The browser still preflights unreachable commands and visits marching groups after followers. Evidence: [app/model.ts](app/model.ts), [app/live-movement.ts](app/live-movement.ts), [scripts/check-native-orders.py](scripts/check-native-orders.py), [app/marching-formations.ts](app/marching-formations.ts), [scripts/check-native-marching.py](scripts/check-native-marching.py), [scripts/check-native-move-arrival.py](scripts/check-native-move-arrival.py), [tests/marching-formations.test.mjs](tests/marching-formations.test.mjs), [references/reverse-engineering.md](references/reverse-engineering.md), [tests/game.test.mjs](tests/game.test.mjs), [GOAL.md](GOAL.md).
 - **missing** — Boat construction, boarding, navigation and combat (`movement.boats`). Full boat gameplay not implemented.
 - **missing** — Balloon construction, boarding, flight and combat (`movement.balloons`). Full balloon gameplay not implemented.
 - **partial** — All blocked, idle, panic and recovery states (`movement.recovery`). Selected native states reconstructed; complete recovery/panic integration incomplete. Evidence: [scripts/check-native-person-recovery.py](scripts/check-native-person-recovery.py), [scripts/check-native-idle.py](scripts/check-native-idle.py).

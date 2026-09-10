@@ -34,11 +34,16 @@ export function cellDistanceSquared(a: number, b: number) {
 export function cellsNear(a: number, b: number, radius: number) {
   return cellDelta(a, b) <= radius && cellDelta(a >>> 8, b >>> 8) <= radius
 }
-// 0x4503f0: shortest 16-bit toroidal distance, truncated by fast_sqrt.
-export function positionDistance(a: { x: number; y: number }, b: { x: number; y: number }) {
+// 0x450450: squared shortest 16-bit toroidal distance.
+export function positionDistanceSquared(a: { x: number; y: number }, b: { x: number; y: number }) {
   const x = Math.abs(((a.x - b.x) << 16) >> 16),
     y = Math.abs(((a.y - b.y) << 16) >> 16)
-  return Math.floor(Math.sqrt((x * x + y * y) >>> 0))
+  return (x * x + y * y) >>> 0
+}
+
+// 0x4503f0, truncated by fast_sqrt.
+export function positionDistance(a: { x: number; y: number }, b: { x: number; y: number }) {
+  return Math.floor(Math.sqrt(positionDistanceSquared(a, b)))
 }
 
 // 0x49c890: clockwise square rings, excluding the center, in doubled cells.

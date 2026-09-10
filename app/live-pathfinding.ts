@@ -265,7 +265,7 @@ export function stepLiveRoute(w: World, u: Unit) {
   p.x = to.x & 65535
   p.y = to.y & 65535
   p.h = to.h
-  p.counter = w.turn & 255
+  if (p !== u.native) p.counter = w.turn & 255
   advanceLiveRoute(w, p)
   if (!p.motionGroup && p.x === p.goalX && p.y === p.goalY) clearLivePath(w, u)
   else u.path = liveRoutePoints(w, p)

@@ -6881,8 +6881,94 @@ idle movement cannot move it outside the tested flame cell. Departure checks
 still require release of the old route while permitting the new resting route.
 The campaign route probe uses an actually trained warrior once all braves train.
 
-Remaining scope: ordinary group destination distribution still uses the browser
+Remaining scope: ordinary group destination dispatch still uses the browser
 command adapter; selected-person state 14, modifiers/deselection and native 3D
 drag selection are next. Full movement/avoidance, airborne terrain recovery,
 specialist/vehicle resting, native allocation limits and full queue ownership
 remain unfinished. These boundaries keep `movement.groups` partial.
+
+### Staged marching formations and movement arrival (2026-09-10)
+
+`app/marching-formations.ts` reconstructs `00501000` and the geometry, recruitment,
+leader search and slot maintenance at `00501700`, `005018c0`, `00501ab0`,
+`00501c00`, `00501e90`, `00501ff0` and `00502060`. Moving followers recruit
+compatible same-tribe/model units using the original indexed terrain search and
+retained cell order. The controller owns two twelve-slot layouts, catch-up speed,
+leader-paced advance, blocked/departed member removal, column compaction and
+walking gestures. Normal recruitment stops before the twelfth slot. Temporary
+formation steering (`004e9e50`) preserves the route's actual destination.
+
+`app/person-orders.ts` also reconstructs complete movement completion `004336c0`
+and payload arrival `0043bb60`: four-turn cadence, raw versus packed destinations,
+model radii, vehicle cell centering and signed/seam boundaries. Geometry and
+arrival tables are reproducibly extracted by `scripts/inspect-executable.py`.
+Shared toroidal squared distance, indexed search, animation rows and movement
+recovery are reused rather than copied into a second movement engine.
+
+Evidence against executable SHA-256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`:
+
+- `scripts/check-native-marching.py EXE`: 2,048 geometry calls, 2,048 controller
+  calls, 128 sequences of sixteen controller visits and 4,096 recruitment calls.
+  Actual native search/cell order, search pool bytes, RNGs, animation-row choice,
+  movement recovery, geometry and temporary steering execute. The upper animation
+  setter, object removal and group allocator are supplied consumers, including
+  allocation failure. This does not verify the native class-10 initializer.
+- `scripts/check-native-move-arrival.py EXE`: 16,384 calls across both arrival
+  routines, without intercepted native consumers.
+- `tests/marching-formations.test.mjs`: 160 retained marching cases (including
+  multi-visit sequences) and 512 paired arrival cases, bound to executable identity.
+  Typecheck and all 275 portable tests pass.
+
+These ports are staged, not live gameplay. Ordinary browser commands still send
+selected followers to a shared goal through the existing task/path adapter.
+Next recover class-10 initialization/dispatch (`00500e20`, `00500ec0`) and connect
+the shared person order pool, route steering and actual physics to the controller.
+Check rest/selection handoff, cancellation/death, sprite ownership and elapsed-time
+replay in live play before granting credit. Native object scheduling/allocation,
+avoidance, specialist/vehicle ownership and complete group lifecycle remain open;
+`00433800` is an unreviewed follow-person export, not a claimed port. No new parity
+credit, browser-visible change or performance improvement is claimed here.
+
+
+### Live ordinary marching orders and formation handoff (2026-09-10)
+
+`app/live-movement.ts` now composes those recovered routines with the actual
+shared `buildingOrders` pool, native route records, person physics, retained cell
+lists and original sprite animation. One command-3 record is shared by followers
+in a ground order. Native startup supplies speed and eligibility; recruitment
+uses same-tribe/model searches, marches in original slots, catches up stragglers,
+removes departures and hands completed followers to native resting states.
+Panic retains its real command and its newly restored route. Interruption/death
+release references; exhausted command allocation preserves existing orders.
+
+Common command startup is shared with building combat. A departing tower follower
+now copies the physics-owned support offset back to presentation. Rest-to-walk
+keeps the actual person and protection flags; native walk/gesture poses replace
+the old browser walking adapter. Automatic enemy detection still runs before
+ordinary movement. Formation stepping includes entry/building-owned people so
+an order handoff cannot mark a living occupant's record deleted.
+
+The already-retained `00500e20` initializer has no additional action for a fresh
+state-zero class-10 marching allocation; `00500ec0` handles other internal states.
+This does not establish native allocator limits or global class scheduling. The
+live adapter visits formations after people and allocates unbounded browser IDs.
+It retains the existing unreachable-order preflight; ordinary work, pursuit and
+combat still have legacy transitions, and full queued-order restoration,
+rerouting/avoidance, specialist/vehicle behavior and native selection stay open.
+
+Validation: the original marching and arrival comparisons above pass again;
+`npm run check` passes 279 tests. `tests/live-movement.test.mjs` verifies shared
+references, multiple groups, distinct positions, original walking poses, pause,
+new destinations, death, panic resumption and resting handoff, plus identical
+mechanics/footprints/poses at 5/30/60/120/144/240 Hz and irregular schedules.
+Existing cancellation assertions now require command 3 and its native walk pose
+instead of no native person/animation; released old records remain asserted.
+Building/tower/work/training and the complete first-mission regressions pass.
+
+`check-browser-marching.mjs` exercises actual right-click movement, original
+visible sprites, groups, interruption, pause and resting. Resting regression,
+576 GPU sprite poses, shadows and selection arrows also pass. Its `--profile`
+option records the renderer and full-scene CPU/frame timing for 200 followers;
+the measured run used SwiftShader and cannot certify hardware refresh rates.
+See the modern-performance notes for the paired collision-snapshot measurement.

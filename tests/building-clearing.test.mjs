@@ -236,7 +236,8 @@ test('clearing pauses without advancing and cancellation releases its native ani
   w.selected = [worker.id]
   command(w, { x: 9, z: 33 })
   assert.equal(worker.builder, undefined)
-  assert.equal(unitAnimationSource(worker), null)
+  assert.equal(unitAnimationSource(worker), worker.native)
+  assert.equal(worker.native.commandStatus, 3)
   tick(w, 1 / 12)
   assert.ok(!b.builders.includes(worker.id))
 })

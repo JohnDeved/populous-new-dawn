@@ -55,7 +55,7 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
   w.paused=true;const before=JSON.stringify(worker.builder);tick(w,1);animateLiveObjects(w)
   assert.equal(JSON.stringify(worker.builder),before);w.paused=false
   w.selected=[worker.id];command(w,{x:-5,z:29})
-  assert.equal(worker.builder,undefined);assert.equal(unitAnimationSource(worker),null)
+  assert.equal(worker.builder,undefined);assert.equal(unitAnimationSource(worker),worker.native);assert.equal(worker.native.commandStatus,3)
   for(let n=0;n<2000&&b.progress<1;n++)tick(w,1/12)
   assert.equal(b.progress,1)
   assert.ok(w.units.some(u=>u.builder),'the last delivery does not instantly remove the construction crew')
@@ -64,7 +64,7 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
   w.paused=true;const departure=JSON.stringify(departing);tick(w,1);animateLiveObjects(w)
   assert.equal(JSON.stringify(departing),departure);w.paused=false
   w.selected=[departing.id];command(w,{x:-5,z:29})
-  assert.equal(departing.builder,undefined);assert.equal(unitAnimationSource(departing),null)
+  assert.equal(departing.builder,undefined);assert.equal(unitAnimationSource(departing),departing.native);assert.equal(departing.native.commandStatus,3)
   for(let n=0;n<600&&w.units.some(u=>u.builder);n++)tick(w,1/12)
   assert.ok(w.units.every(u=>!u.builder),'completion and cancellation release every activity source')
 })

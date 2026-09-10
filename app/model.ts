@@ -1,3 +1,11 @@
+import {
+  movementOrder,
+  startLiveMovement,
+  cancelLiveMovement,
+  stepLiveMovement,
+  stepLiveMarchingFormations,
+  type LiveFormation,
+} from './live-movement.ts'
 import { cancelLiveResting, stepLiveResting } from './live-resting.ts'
 import { createFootprints, type Footprints } from './footprints.ts'
 import {
@@ -1051,7 +1059,8 @@ export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (u.native && (u.native.state !== 10 || u.native.commandStatus === 19)) return u.native
+  if (u.native && (u.native.state !== 10 || [3, 19].includes(u.native.commandStatus)))
+    return u.native
   if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
     ? (u.builder?.person ?? null)
@@ -1325,6 +1334,7 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
 }
 export type World = {
   objectCells: ObjectCells
+  marching: LiveFormation[]
   buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
@@ -1415,6 +1425,7 @@ function planRoute(w: World, u: Unit, end: Point) {
 }
 function route(w: World, u: Unit, end: Point) {
   cancelLiveResting(w, u)
+  cancelLiveMovement(w, u)
   return acceptLivePath(w, u, planRoute(w, u, end))
 }
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
@@ -1566,6 +1577,7 @@ export function createWorld(): World {
     gifts: [],
     giftCounts: { blast: 0, bridge: 0, lightning: 0 },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
+    marching: [],
     buildingOrders: {
       records: Array.from({ length: 800 }, emptyPersonOrder),
       cursor: 1,
@@ -2156,7 +2168,10 @@ function release(w: World, u: Unit, preserveOrders = false) {
 }
 export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
   cancelLiveResting(w, u)
-  if (!preserveOrders) cancelLiveBuildingAttack(w, u)
+  if (!preserveOrders) {
+    cancelLiveBuildingAttack(w, u)
+    cancelLiveMovement(w, u)
+  }
   cancelBuildingEntry(w, u)
   clearLivePath(w, u)
   u.vault = null
@@ -2719,6 +2734,12 @@ export function command(w: World, p: Point) {
     ) ?? (building?.team === 'red' ? building : undefined)
   const friendly = building?.team === 'blue' ? building : undefined,
     dismantling = !!((friendly?.admission?.activity ?? 0) & 0x8000)
+  syncNativeTerrain(w)
+  const moveOrder = !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, p)) : 0
+  if (!shrine && !friendly && !enemy && !moveOrder) {
+    tell(w, 'No command slots available.')
+    return
+  }
   let count = 0,
     constructionFull = false
   if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
@@ -2751,7 +2772,10 @@ export function command(w: World, p: Point) {
     if (!path) continue
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
     release(w, u)
-    acceptLivePath(w, u, path)
+    if (moveOrder) {
+      releasePersonRoute(w.motionRoutes, path)
+      startLiveMovement(w, u, moveOrder)
+    } else acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null
     if (friendly && friendly.progress < 1 && !dismantling)
       u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
@@ -4652,7 +4676,9 @@ function stepTurn(w: World) {
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
-    if (
+    if (u.native?.commandStatus === 3) {
+      stepLiveMovement(w, u)
+    } else if (
       u.team !== 'wild' &&
       !work &&
       !target &&
@@ -4722,6 +4748,7 @@ function stepTurn(w: World) {
       }
     } else u.idleTurns = 0
   }
+  stepLiveMarchingFormations(w)
   for (const { unit: u, previous } of burningPeople) {
     if (u.hp <= 0 && !u.flight) continue
     const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }
@@ -4790,7 +4817,10 @@ function stepTurn(w: World) {
   }
   removeDeadLiveRoutes(w)
   for (const u of w.units)
-    if (u.hp <= 0 && !u.flight && u.native?.state !== 44) cancelLiveBuildingAttack(w, u)
+    if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {
+      cancelLiveBuildingAttack(w, u)
+      cancelLiveMovement(w, u)
+    }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   w.buildings = w.buildings.filter(b => b.hp > 0)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))

@@ -2074,3 +2074,40 @@ Fallow still flags the existing large model/controller dependency cycle; this
 slice keeps native behavior in the existing small recovered modules and adds one
 live composition module. Whole-model dependency refactoring remains separate
 work, rather than claiming the repository passes every Fallow threshold.
+
+
+## Native marching integration and collision snapshots — 2026-09-10
+
+Ordinary movement now uses native physics, command timing and marching groups.
+Simulation stays at twelve turns per second, original animation uses its elapsed
+clock, and the renderer retains uncapped interpolation. No rendering-frame count
+controls recruitment, speed, arrival, gestures or footprint emission.
+
+`collisionWorld` previously materialized every person/building for every query,
+even though ordinary terrain collision does not read the object map. Its existing
+map is now built lazily on the first actual object lookup and reused within that
+query. Native collision rules and flags are unchanged; no persistent cache,
+invalidation system or new dependency was introduced.
+
+`node scripts/check-marching-performance.mjs` compares that path with explicit
+materialization of the former map once per person. For 200 followers over sixty
+native movement/formation turns, medians were **4.705 ms versus 0.207 ms per turn**.
+Exact person records, orders, formations, routes, cell heads and both RNGs match.
+Raw samples and runtime are in `performance/2026-09-10-marching.json`. This is a
+Node CPU microbenchmark excluding world setup, automatic combat queries and
+rendering, not a claim of a twentyfold whole-game improvement.
+
+`node scripts/check-browser-marching.mjs --profile` records a separate diagnostic
+200-person full-scene run: Apple M5, macOS arm64, headless Chromium 153,
+1440×1000 at DPR 1, **SwiftShader software rendering**. After thirty warmup frames,
+133 frames included up to nineteen marching groups. CPU frame median/p95 were
+3.8/8.3 ms; frame gaps were 33.3/33.4 ms. That software-renderer cadence is not a
+game FPS cap or proof of 60/144 Hz hardware performance. The raw report is
+`performance/2026-09-10-marching-browser.json`; broader hardware profiling remains
+open. This is a current baseline, not a paired GPU optimization comparison.
+
+Fallow health still identifies the existing large model/live-controller cycle.
+The recovered controller and live composition stay separate; building combat
+shares command startup. ox-standard passes the changed live/controller files;
+existing repository-wide type-style lint debt remains. No broad dependency
+rewrite or test relaxation is used to hide a gameplay regression.

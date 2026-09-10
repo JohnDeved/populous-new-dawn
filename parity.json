@@ -1,8 +1,8 @@
 {
-  "revision": 24,
+  "revision": 25,
   "discovery": {
     "status": "open",
-    "note": "Revision 24 separates ordinary resting-slot geometry/controller integration from the remaining crowd movement and formation lifecycle. One bounded resting requirement is verified; native movement orders, selection, specialist/vehicle behavior and discovery remain open.",
+    "note": "Revision 25 separates ordinary marching-controller integration from the remaining group lifecycle. The scope split is recorded separately from verification; allocation/class scheduling, avoidance, general work/attack queue restoration, selection and specialist/vehicle behavior remain open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1564,7 +1564,7 @@
             "scripts/check-native-orders.py",
             "tests/game.test.mjs"
           ],
-          "note": "Ordinary resting rings, settling, gestures and departure/death reshaping now use recovered controllers. Native movement orders, group destination distribution, avoidance and complete specialist/vehicle ownership remain open.",
+          "note": "Ordinary resting and marching controllers are live with original slots, gestures, catch-up speed, shared move orders and arrival handoff. Full scheduling/allocation, avoidance, general work/attack queues, selection and specialist/vehicle ownership remain open.",
           "requirements": [
             {
               "id": "movement.groups.resting",
@@ -1585,16 +1585,40 @@
               "note": "Original geometry/search/ownership/controller comparisons and actual live groups, compaction, status retention, pause, 5\u2013240 Hz replay and browser poses/orders verified for ordinary free followers. Full global scheduling, selected state, special classes and native command handoff remain lifecycle scope."
             },
             {
+              "id": "movement.groups.marching",
+              "title": "Ordinary ground move orders, marching slots and live controller handoff",
+              "status": "verified",
+              "evidence": [
+                "app/live-movement.ts",
+                "app/marching-formations.ts",
+                "scripts/check-native-marching.py",
+                "scripts/check-native-move-arrival.py",
+                "tests/live-movement.test.mjs",
+                "scripts/check-browser-marching.mjs",
+                "references/reverse-engineering.md",
+                "scripts/check-marching-performance.mjs",
+                "references/performance/2026-09-10-marching.json",
+                "references/performance/2026-09-10-marching-browser.json"
+              ],
+              "note": "Native comparisons plus shared command references, live recruitment/slots/speed, cancellation/death, rest/panic handoffs, original GPU poses and 5\u2013240 Hz/irregular replay verify this bounded ordinary movement integration. Actual browser right-click and pause checks pass. Full global scheduling/allocation, rerouting/avoidance, general automatic work/attack restoration, selected-person states and vehicles remain lifecycle scope."
+            },
+            {
               "id": "movement.groups.lifecycle",
               "title": "Complete group movement, avoidance, orders and special-class formation lifecycle",
               "status": "partial",
               "evidence": [
                 "app/model.ts",
+                "app/live-movement.ts",
                 "scripts/check-native-orders.py",
+                "app/marching-formations.ts",
+                "scripts/check-native-marching.py",
+                "scripts/check-native-move-arrival.py",
+                "tests/marching-formations.test.mjs",
+                "references/reverse-engineering.md",
                 "tests/game.test.mjs",
                 "GOAL.md"
               ],
-              "note": "Ordinary destinations still use the browser group-order adapter. Full movement/avoidance, selected-person transitions, specialist/vehicle resting, allocator and native queue ownership remain unfinished."
+              "note": "Ordinary free ground orders now use native marching and arrival with shared command references. Full movement/avoidance and rerouting, native selected-person transitions, general work/attack queue restoration, specialist/vehicle behavior, allocator limits and complete class/counter scheduling remain unfinished. The browser still preflights unreachable commands and visits marching groups after followers."
             }
           ]
         },

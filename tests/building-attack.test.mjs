@@ -81,7 +81,7 @@ test('occupied building ejects a defender and the same native command resumes af
   assert.ok(phases.has(37));assert.ok(ejected&&fought&&resumed)
   assert.equal(record.references,1);assert.equal(w.buildingOrders.active,1)
   w.selected=[u.id];command(w,{x:10,z:8})
-  assert.equal(record.references,0);assert.equal(w.buildingOrders.active,0);assert.equal(u.native,null)
+  assert.equal(record.references,0);assert.equal(w.buildingOrders.active,1);assert.equal(u.native.commandStatus,3)
   assert.ok(u.path.length,'new player orders interrupt the attack')
 })
 
@@ -127,6 +127,6 @@ test('cancelling or killing an attacker during its defender encounter releases t
     assert.equal(record.references,1)
     if(cancel){w.selected=[u.id];command(w,{x:10,z:8})}else u.hp=0
     advanceGame(w,clock,2/12)
-    assert.equal(record.references,0);assert.equal(w.buildingOrders.active,0)
+    assert.equal(record.references,0);assert.equal(w.buildingOrders.active,cancel?1:0)
   }
 })

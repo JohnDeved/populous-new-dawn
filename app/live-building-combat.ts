@@ -9,7 +9,6 @@ import {
   type World,
   type Unit,
   type Building,
-  buildingModel,
 } from './model.ts'
 import {
   createLivePerson,
@@ -24,7 +23,7 @@ import { releasePersonRoute, setDirectPersonDestination } from './person-routes.
 import { personAnimationObject } from './person-state.ts'
 import { finishPersonPreparation, stepPersonReaction } from './person-update.ts'
 import { attackCombatBuilding } from './combat-building.ts'
-import { startPersonOrders } from './person-order-start.ts'
+import { startLiveOrders, cancelLiveMovement } from './live-movement.ts'
 import {
   allocatePersonOrder,
   attachPersonOrder,
@@ -58,51 +57,6 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
   )
 }
 
-export function startLiveBuildingOrders(w: World, p: LivePerson, rng: { randomState: number }) {
-  const order = currentPersonOrder(w.buildingOrders, p)
-  if (order?.model !== 19) unsupported()
-  const state = {
-    randomState: rng.randomState,
-    instantFacing: false,
-    levelFlags: w.manaWorld.gameFlags,
-    orders: w.buildingOrders,
-    tribes: w.manaTribes.map(t => ({
-      x: 0,
-      y: 0,
-      angle: 0,
-      selectedCount: 0,
-      flags: t.flags2,
-      vehicleMode: 0,
-    })),
-  }
-  startPersonOrders(state, p, {
-    setAnimation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
-    setDestination: (person, x, y) => {
-      const unit = w.units.find(u => u.id === person.id)!
-      clearLivePath(w, unit)
-      acceptLivePath(
-        w,
-        unit,
-        planLivePath(w, unit, browserPosition({ x, y }), person as LivePerson)
-      )
-    },
-    commandPosition: unsupported,
-    allowVehicleOrder: unsupported,
-    initializeCommand: () => {
-      // Command 19's specialized initialization only changes the radius for model 19.
-      const b = liveBuildingAttackTarget(w, p)
-      if (b && buildingModel(b) === 19) order!.flags |= 4
-    },
-    adjacentBuilding: unsupported,
-    canStayForTarget: unsupported,
-    leaveBuilding: unsupported,
-    resetVehicleMovement: unsupported,
-    leaveSelectedVehicle: unsupported,
-    initializeState: unsupported,
-  })
-  rng.randomState = state.randomState
-}
-
 export function cancelLiveBuildingAttack(w: World, u: Unit) {
   const p = u.native ?? u.fight?.motion ?? u.flight
   if (!p || currentPersonOrder(w.buildingOrders, p)?.model !== 19) return
@@ -119,6 +73,7 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
   if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 19) {
     cancelLiveResting(w, u)
     cancelLiveBuildingAttack(w, u)
+    cancelLiveMovement(w, u)
     const id = allocatePersonOrder(w.buildingOrders)
     if (!id) return
     clearLivePath(w, u)
@@ -131,14 +86,14 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
     })
     attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(u))
     p.state = 10
-    startLiveBuildingOrders(w, p, w)
+    startLiveOrders(w, p, w)
     u.native = p
     u.target = b.id
   }
   if (u.native.state !== 10) {
     u.native.previousState = u.native.state
     u.native.state = 10
-    startLiveBuildingOrders(w, u.native, w)
+    startLiveOrders(w, u.native, w)
   }
   if (u.native.substate === 0) {
     u.native.substate = 3
