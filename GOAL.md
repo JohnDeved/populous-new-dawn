@@ -103,11 +103,15 @@ combat orders, spell interactions and first-mission opponent behavior next.
 Lightning strike eligibility, electrocution and the first-bolt shockwave are now
 integrated and checked against native execution and real browser pixels. Full
 allocation/scheduling, special remote-shaman handling and corpse ownership remain
-open. Next, investigate the user-reported delay
-between Blast's fireball impact and people being thrown. Trace projectile arrival,
-impact/wave creation, object visits and rendered interpolation against the original;
-remove additional browser delay while preserving native timing. Add an integrated
-impact-to-knockback regression, including low/high/irregular render schedules.
+open. Blast's reported impact delay is now traced through the original active-list
+loop: the head survives arrival, the following visit creates the flash/wave, enemies
+launch on the first wave pass and allies on the last. Corrected the browser's early
+head disappearance and missing scatter flag. Attached projectile sprites now share
+followers' elapsed-time interpolation; fixed mechanics remain unchanged. Native
+execution, portable impact/5–240 Hz tests and browser pixels/pause/timing pass.
+Full mixed-class allocation/scheduling remains open. Continue selecting the largest
+visible gameplay gap; ordinary attack-command ownership/restoration and first-mission
+opponent behavior remain strong candidates.
 
 Previous user direction, 2026-09-09: finish and validate the current terrain
 performance improvement, then resume important gameplay mechanics and visuals.

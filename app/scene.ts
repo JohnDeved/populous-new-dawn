@@ -8,6 +8,7 @@ import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { advanceGame } from './game-clock.ts'
 import { UnitMotion, interpolateUnitPosition } from './unit-motion.ts'
+import { ProjectileMotion } from './projectile-motion.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
@@ -538,11 +539,18 @@ export class GameScene {
   previous: number | null = null
   uiTimer = 0
   unitMotion = new UnitMotion()
+  projectileMotion = new ProjectileMotion()
   gameClock = {
     animationTime: 0,
     animationFrame: 0,
-    beforeTurn: () => this.unitMotion.beforeTurn(this.world),
-    afterTurn: () => this.unitMotion.afterTurn(this.world),
+    beforeTurn: () => {
+      this.unitMotion.beforeTurn(this.world)
+      this.projectileMotion.beforeTurn(this.world)
+    },
+    afterTurn: () => {
+      this.unitMotion.afterTurn(this.world)
+      this.projectileMotion.afterTurn(this.world)
+    },
   }
   terrainVersion = -1
   treeSignature = ''
@@ -2539,6 +2547,7 @@ export class GameScene {
         this.ground.add(g)
       }
       this.locate(g, f, f.height)
+      this.projectileMotion.position(this.world, f, g.position)
       this.animateFx(g, f)
     }
     for (const [id, entry] of this.shrineMeshes)

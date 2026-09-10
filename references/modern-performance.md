@@ -1965,3 +1965,27 @@ battle music and a quiet turn clears it. No CPU/hardware speedup is claimed for
 removing this small scan. Ordinary attack intent still uses the existing live
 target adapter until shared command integration, while native tree eligibility,
 full voice ownership and frontend music remain open.
+
+
+## 2026-09-10 — Blast movement shares the follower presentation clock
+
+Attached Blast artwork now interpolates retained endpoints using the same elapsed
+turn fraction as followers. The existing observer captures only five sprites per
+projectile at 12 Hz; a WeakMap releases histories with their effect objects.
+Rendering writes the existing Three.js position in place. It adds no timer,
+prediction, GPU submission, texture, dependency or simulation/RNG change. This
+modern presentation adapter fixes a visible timing mismatch; it does not replace
+the original enemy-first/allied-last wave mechanics. Arrival also retains the
+native head instead of removing it one visit early.
+
+The paired CPU microbenchmark uses 40 projectiles (200 attached sprites) and 800
+other effects, 240 presentation steps per batch and alternating direct/interpolated
+order over 12 batches (two warmups omitted). Headless Chromium 153.0.8010.12 at
+1440×1000 measured median 0.0033 ms/frame direct versus 0.0092 ms/frame interpolated:
+about 0.006 ms additional CPU for the smoothing. Histories and output objects are
+reused. This is not a speedup, complete frame measurement or hardware-FPS claim.
+The report and runnable browser check retain the conditions. Real input, arrival
+pixels, smooth positions, pause and exact first-launch visits pass; portable tests
+retain identical simulation outcomes and display samples from 5 through 240 Hz and
+irregular cadences. Full native outer scheduling and other effect-motion classes
+remain unfinished.

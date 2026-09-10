@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-10",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "headPixels": 114,
+  "smoothPositions": 21,
+  "timeline": [
+    {
+      "head": true,
+      "enemy": false,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": false,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": true
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": true
+    }
+  ],
+  "performance": {
+    "shots": 40,
+    "effects": 1000,
+    "directMs": 0.0033333331346511843,
+    "interpolatedMs": 0.009166666865348816
+  },
+  "limits": "Headless Chromium CPU microbenchmark, not hardware FPS or a performance improvement claim. Reused snapshots at 12 Hz, in-place interpolation at 240 Hz; fixed simulation and sprite clocks unchanged. Complete native mixed-class scheduling remains open."
+}

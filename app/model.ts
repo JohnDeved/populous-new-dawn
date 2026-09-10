@@ -3779,7 +3779,10 @@ function processProjectiles(w: World) {
       ) {
         shot.position = { ...d }
         shot.phase = 'arrived'
-        for (const f of shot.visuals) f.duration = f.age
+        // 0x4bb440 removes the four attached tails, but the shot's own head
+        // reaches the target and remains visible until deletion on its next visit.
+        moveVisual(shot.visuals[0], d)
+        for (const f of shot.visuals.slice(1)) f.duration = f.age
         continue
       }
       const [yaw, pitch] = shotAngles(p, d)
@@ -3962,7 +3965,8 @@ function finishCast(
   p: Point,
   endpoint?: NativePoint
 ) {
-  if (spell === 'blast') emitBlastWave(w, p, shaman.team)
+  // Effect 78 uses the default wave initializer, then enables scatter.
+  if (spell === 'blast') emitBlastWave(w, p, shaman.team).scatter = true
   const upper = spell === 'lightning' && endpoint ? browserPosition(endpoint) : p,
     fx = effect(w, spell, upper)
   if (spell === 'lightning') {

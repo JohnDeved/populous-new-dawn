@@ -6699,3 +6699,44 @@ simulation scan was added. Recorded headless Chromium measurements at 1440×1000
 are simulation median 0.10 ms/p95 0.40 ms and presentation median 6.5 ms/p95 10.5 ms;
 these describe this workload, not hardware FPS or a before/after speedup. The small
 atlas append is 5,284 compressed bytes. See the checked-in performance report.
+
+
+## Blast arrival and launch handoff — 2026-09-10
+
+The reported gap was traced through `004ec6f0` (main loop), `004ed700` (class
+visit), `004bae30`/`004bb440` (projectile), `004c1940`/`004c1d10` (waiting spell),
+`00509c10` (effect initialization) and `0050a750`/`0050b740` (wave visits).
+Ordinary Blast has no inline projectile payload at +0x7c. Its parent spell waits
+for projectile deletion before allocating effects 5, 3, 78 and 38. Arrival snaps
+the head to the target and deletes four attached tails; the head survives until
+its next visit. Effect 78 enables scatter after the ordinary wave initializer.
+
+`check-native-blast-impact.py EXE [--record]` executes the original active-list
+traversal with a newer projectile, waiting parent and older enemy/friendly people.
+Relative visits: arrival 1 keeps the head; visit 2 deletes it and allocates impact
+with cues 0xa1/0xb2; visit 3 applies enemy impulses; visit 5 applies allied impulses.
+Both impulses precede the corresponding person visit. The oracle supplies prepend
+allocation, unlink deletion and unrelated world consumers; only wave/flash/tail
+allocations succeed. Person bodies record impulse eligibility without integrating
+motion. This proves the bounded order, not complete allocation, mixed-list
+scheduling, person motion or original wall-clock rate. Existing wave/physics
+comparisons provide separate evidence. Six portable snapshots and the event log
+retain the executable identity.
+
+The browser previously expired all five attached sprites at arrival, without
+moving the head to the destination. Now the head reaches its endpoint and survives
+that turn; tails expire as before. Live Blast also enables the recovered scatter
+flag. No simulation turn or friendly launch gate was shortened. `ProjectileMotion`
+reuses the follower interpolation curve and existing turn observers for the five
+attached sprites. This is an elapsed-time presentation correction, not a claim
+that all native projectile render flags/counter phases have been recovered.
+
+`tests/blast-impact.test.mjs` compares the integrated arrival/first-launch timeline,
+endpoint, tails and scatter; equal elapsed samples at 5/30/60/120/144/240 Hz and
+irregular schedules retain identical worlds and displayed positions. Separate
+checks cover smooth intermediate positions, pause, wrapping, new sprites and
+explicit placement. Native person flags in the fixture indicate the first impulse
+has occurred, not continued airborne duration. The browser check casts through
+real keyboard/mouse input, sees 114 arrival-head pixels, 21 distinct positions
+across 40 high-refresh frames, unchanged paused position and the same launch order.
+See `references/performance/2026-09-10-blast-impact.json` for bounded CPU cost.

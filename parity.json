@@ -734,9 +734,13 @@
             "scripts/check-native-blast-wave.py",
             "scripts/check-native-physics-driver.py",
             "tests/blast-wave.test.mjs",
-            "scripts/check-browser-blast-wave.mjs"
+            "scripts/check-browser-blast-wave.mjs",
+            "scripts/check-native-blast-impact.py",
+            "tests/blast-impact.test.mjs",
+            "scripts/check-browser-blast-impact.mjs",
+            "references/performance/2026-09-10-blast-impact.json"
           ],
-          "note": "Original frames, grounding, nine-turn lifetime and impact cues integrated. Original three-pass force controller now drives live Blast and terrain collapse. Native checks cover 256 indexed passes and 512 damage calls; live flight reuses the compared physics driver and original landing sparks. Launch poses are imported from animation row 2. Full mixed-class scheduling, shake rendering, allocation limits, ordinary state ownership and matched original footage remain open."
+          "note": "Original frames, grounding, nine-turn lifetime and impact cues integrated. Original three-pass force controller now drives live Blast and terrain collapse. Native checks cover 256 indexed passes and 512 damage calls; live flight reuses the compared physics driver and original landing sparks. Launch poses are imported from animation row 2. Full mixed-class scheduling, shake rendering, allocation limits, ordinary state ownership and matched original footage remain open. Corrected early projectile-head disappearance, endpoint placement and missing effect-78 scatter. Native active-list execution and live checks retain head on arrival, impact on the next visit, enemy impulses on the first wave pass and allied impulses on the last. Attached artwork shares follower elapsed-time interpolation; portable 5–240 Hz/irregular schedules and actual browser pixels/pause/launch order pass. The oracle supplies allocation/deletion/person bodies; complete native scheduling remains open. This bounded correction adds no separate parity credit."
         },
         {
           "id": "effects.lightning",
@@ -2199,9 +2203,13 @@
             "scripts/check-native-blast-wave.py",
             "scripts/check-native-physics-driver.py",
             "tests/blast-wave.test.mjs",
-            "scripts/check-browser-blast-wave.mjs"
+            "scripts/check-browser-blast-wave.mjs",
+            "scripts/check-native-blast-impact.py",
+            "tests/blast-impact.test.mjs",
+            "scripts/check-browser-blast-impact.mjs",
+            "references/performance/2026-09-10-blast-impact.json"
           ],
-          "note": "Integrated original expanding indexed wave, repeated slope-sensitive impulses, allied final-pass/cap gates, native building damage accumulation, shielded person damage, velocity/gravity/bounce/landing and original landing sparks. Native comparisons: 256 wave passes, 512 damage calls, 8192 physics snapshots and 4096 bounces. Full object/cell allocation order, person state dispatch, shake rendering, special/vehicle consumers, complete damage feedback and original end-to-end scheduling remain open."
+          "note": "Integrated original expanding indexed wave, repeated slope-sensitive impulses, allied final-pass/cap gates, native building damage accumulation, shielded person damage, velocity/gravity/bounce/landing and original landing sparks. Native comparisons: 256 wave passes, 512 damage calls, 8192 physics snapshots and 4096 bounces. Full object/cell allocation order, person state dispatch, shake rendering, special/vehicle consumers, complete damage feedback and original end-to-end scheduling remain open. Corrected early projectile-head disappearance, endpoint placement and missing effect-78 scatter. Native active-list execution and live checks retain head on arrival, impact on the next visit, enemy impulses on the first wave pass and allied impulses on the last. Attached artwork shares follower elapsed-time interpolation; portable 5–240 Hz/irregular schedules and actual browser pixels/pause/launch order pass. The oracle supplies allocation/deletion/person bodies; complete native scheduling remains open. This bounded correction adds no separate parity credit."
         },
         {
           "id": "spells.lightning",

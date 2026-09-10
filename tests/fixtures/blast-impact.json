@@ -1,0 +1,164 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "timeline": [
+    {
+      "head": true,
+      "enemy": false,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": false,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": false
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": true
+    },
+    {
+      "head": false,
+      "enemy": true,
+      "ally": true
+    }
+  ],
+  "events": [
+    [
+      1,
+      "person",
+      3,
+      false
+    ],
+    [
+      1,
+      "person",
+      4,
+      false
+    ],
+    [
+      2,
+      "remove",
+      1,
+      8,
+      4
+    ],
+    [
+      2,
+      "allocate",
+      7,
+      5
+    ],
+    [
+      2,
+      "allocate",
+      7,
+      3
+    ],
+    [
+      2,
+      "allocate",
+      7,
+      78
+    ],
+    [
+      2,
+      "sound",
+      161
+    ],
+    [
+      2,
+      "allocate",
+      7,
+      38
+    ],
+    [
+      2,
+      "sound",
+      178
+    ],
+    [
+      2,
+      "remove",
+      2,
+      11,
+      2
+    ],
+    [
+      2,
+      "person",
+      3,
+      false
+    ],
+    [
+      2,
+      "person",
+      4,
+      false
+    ],
+    [
+      3,
+      "person",
+      3,
+      true
+    ],
+    [
+      3,
+      "person",
+      4,
+      false
+    ],
+    [
+      4,
+      "person",
+      3,
+      true
+    ],
+    [
+      4,
+      "person",
+      4,
+      false
+    ],
+    [
+      5,
+      "remove",
+      10,
+      7,
+      78
+    ],
+    [
+      5,
+      "person",
+      3,
+      true
+    ],
+    [
+      5,
+      "person",
+      4,
+      true
+    ],
+    [
+      6,
+      "person",
+      3,
+      true
+    ],
+    [
+      6,
+      "person",
+      4,
+      true
+    ]
+  ]
+}
