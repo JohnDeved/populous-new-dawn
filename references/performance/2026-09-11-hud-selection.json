@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-11",
+  "scope": "Original ordinary HUD follower selection and focus, input CPU only",
+  "benchmark": {
+    "node": "v24.18.0",
+    "cpu": "Apple M5",
+    "people": 200,
+    "iterations": 1000,
+    "rounds": 9,
+    "medianMicroseconds": {
+      "single": 4.630375000000014,
+      "five": 6.988584000000002,
+      "all": 9.474208000000033,
+      "focus": 5.0820830000000115
+    }
+  },
+  "measurement": "Median of nine 1000-operation rounds after warmup, 200 live people. Browser checks were stopped. No before/after optimization or hardware FPS claim.",
+  "browser": {
+    "engine": "Headless Chromium, Playwright 1.63.0",
+    "viewports": [
+      [
+        1440,
+        1000
+      ],
+      [
+        3440,
+        1440
+      ],
+      [
+        1920,
+        1080
+      ]
+    ],
+    "checks": [
+      "HUD single/Shift/Ctrl selection and focus cycling",
+      "macOS Ctrl-primary context menu adaptation; duplicate click and cancelled press rejection; keyboard activation",
+      "pause/input gate, Escape, existing marching orders",
+      "38 original HUD population/class pixel hashes",
+      "selection arrows, person clicks, deselection and building-aware 3D drag"
+    ]
+  },
+  "limits": [
+    "Native category-0/on-foot rules only; full vehicle/passenger and priority writer ownership remains open",
+    "No new render-frame work or FPS cap",
+    "Complete original input buffering/modal ownership is not established"
+  ],
+  "validation": {
+    "portableTests": 311,
+    "nativeExports": 1129,
+    "productionBuild": "passed"
+  }
+}

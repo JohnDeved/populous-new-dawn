@@ -25,7 +25,8 @@ try{
  }
  await page.setViewportSize({width:1440,height:1000});
  assert.equal(await page.locator('.shrine-label,.building-label,.chapter-heading,.controls-footer').count(),0);
- await page.getByRole('button',{name:'Select all braves',exact:true}).click();
+ await page.keyboard.press('Escape'); // Native HUD selection adds to the existing group.
+ await page.getByRole('button',{name:'Select brave',exact:true}).click({modifiers:['Shift']});
  assert.ok(await page.evaluate(()=>{const w=window.testScene.world;return w.selected.length===6&&w.selected.every(id=>w.units.find(u=>u.id===id).kind==='brave');}));
  const bearing=await page.evaluate(()=>window.testScene.cameraBearing);
  await page.keyboard.down('q');await page.waitForTimeout(150);await page.keyboard.up('q');

@@ -176,6 +176,18 @@ differences in actual play and preserving the existing regression checks.
    complete native object traversal/speaker ordering. Continue HUD selection
    ownership and mixed-object picking next; retain all those unfinished gates.
 
+Ordinary HUD follower controls now use original single/Shift-all/Ctrl-five
+selection, assignment-band/nearest searches, exact selection voices and right-click
+focus cycling with person panels. Native executable commands, modifier callbacks,
+portable fixtures and actual desktop controls preserve current movement orders.
+macOS Ctrl-primary clicks use pointer release because Chromium substitutes a
+context-menu event; Windows-style click delivery must not select twice. The
+separate portrait/H shortcut remains an existing convenience, not a newly verified
+native binding. Full category/vehicle/passenger ownership, priority-field writers,
+tribe-list allocation order, buffering and mixed-object picking remain open.
+Continue mixed-object hit resolution and visible selection feedback next.
+
+
 Ordinary marching is now live through the shared order pool, native physics,
 routing and sprite ownership. Native comparisons, 279 portable tests and actual
 browser orders cover this bounded integration. Lazy collision snapshots preserve

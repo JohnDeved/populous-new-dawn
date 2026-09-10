@@ -1,3 +1,4 @@
+import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipOrder, worshipHeadPose } from './live-worship.ts'
 import {
   movementOrder,
@@ -2235,6 +2236,48 @@ export function selectionPeople(w: World, units = w.units) {
       p.selectionFlags = (p.selectionFlags & ~128) | (selected.has(u.id) ? 128 : 0)
       return p
     })
+}
+
+// HUD queries read active positions without taking ownership of legacy simulation.
+export function hudPeople(w: World) {
+  const selected = new Set(w.selected)
+  return w.units
+    .filter(u => u.team === 'blue' && u.hp > 0)
+    .map(u => {
+      const active = unitAnimationSource(u) ?? u.native ?? u.entry?.person
+      const source = active ?? u.builder?.person
+      const point = active ?? nativePosition(w, u)
+      return {
+        id: u.id,
+        model: nativePersonModel(u),
+        x: point.x,
+        y: point.y,
+        assignment: source?.assignment ?? 0,
+        flags3: source?.flags3 ?? 0,
+        flags4: source?.flags4 ?? 0,
+        selectionFlags: ((source?.selectionFlags ?? 0) & ~128) | (selected.has(u.id) ? 128 : 0),
+        source,
+      }
+    })
+}
+
+export function selectFollowers(
+  w: World,
+  model: number,
+  point: { x: number; y: number },
+  mode: HudSelectionMode
+) {
+  const people = hudPeople(w)
+  const result = selectHudPeople(people, model, point, mode, !!(w.castingTribes[0].flags & 128))
+  for (const p of people)
+    if (p.source) {
+      p.source.flags3 = p.flags3
+      p.source.selectionFlags = p.selectionFlags
+    }
+  w.selected = people.filter(p => p.selectionFlags & 128).map(p => p.id)
+  w.mode = null
+  const speaker = w.units.find(u => u.id === result.speaker)
+  if (speaker) for (const cue of result.cues) sound(w, cue, speaker)
 }
 
 export function setSelection(w: World, ids: number[]) {

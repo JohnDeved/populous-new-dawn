@@ -2188,3 +2188,28 @@ Real headless browser checks retain camera/seam/ultrawide/high-DPI input and exa
 selection GPU equivalence, plus actual training entry and queued-person selection.
 No rendering clock, geometry, original sprite or simulation rate was changed.
 Results are in `performance/2026-09-11-drag-occupants.json`.
+
+
+### Native HUD controls on modern desktop input (2026-09-11)
+
+Ordinary follower buttons now use original single/Shift-all/Ctrl-five selection
+and right-click focus cycling. On macOS Chromium, Ctrl + primary mouse emits a
+`contextmenu` with `button=0` and no `click`. Treating every context menu as a right
+click incorrectly focuses a follower instead of selecting five. The shared React
+button handlers remember the pressed control and handle Ctrl-primary release once,
+suppress its context menu, and ignore duplicate pointer-generated click delivery.
+Cancelled/unowned releases do nothing; ordinary browser keyboard activation is
+retained. Actual browser input checks cover all three desktop sizes, keyboard
+Enter, a cancelled press and a Windows-style duplicate click. This is a platform
+compatibility correction, not an extra parity point.
+
+`bench-hud-selection.mjs` measures complete model adapters, flags and sound queue
+writes, with 200 live people, 1,000 warmups and nine 1,000-operation rounds. On
+Apple M5 / Node v24.18.0, medians were 4.63 µs for single, 6.99 µs for five,
+9.47 µs for all and 5.08 µs for initial focus. These are isolated input CPU costs;
+there is no equivalent before/after behavior being claimed as an optimization.
+HUD queries run only on input. No render-frame query, timer, FPS cap, simulation
+owner or package dependency was introduced. Existing original HUD raster and
+selection/drag checks pass. Headless Chromium results establish input/pixel
+correctness, not hardware GPU frame rate. Raw measurements and scope are retained
+in `references/performance/2026-09-11-hud-selection.json`.

@@ -36,7 +36,8 @@ try {
    return w.units.map(u=>u.x)
   })
   assert.ok(state.every(x=>x>4),'deselected followers continue moving')
-  await page.getByRole('button',{name:'Select all braves',exact:true}).click()
+  await page.evaluate(()=>{window.testScene.world.manaWorld.gameFlags&=~32})
+  await page.getByRole('button',{name:'Select brave',exact:true}).click({modifiers:['Shift']})
   await page.waitForFunction(()=>window.testScene.world.selected.length===6)
   // Right dragging rotates the camera without clearing the selected group.
   const box=await page.locator('.world-viewport canvas').first().boundingBox()

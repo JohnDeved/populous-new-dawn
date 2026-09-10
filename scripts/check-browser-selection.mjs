@@ -12,7 +12,8 @@ try{
  await page.waitForFunction(()=>window.testScene.world.flyby.flags&1,{},{timeout:15000});await page.keyboard.press('Escape');
  await page.waitForFunction(()=>!window.testScene.world.inputMask&&window.testScene.terrainTextures);
  await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;s.focus({x:2,z:30});s.onChange();});
- await page.getByRole('button',{name:'Select all braves',exact:true}).click();
+ await page.keyboard.press('Escape'); // Native HUD selection adds to the existing group.
+ await page.getByRole('button',{name:'Select brave',exact:true}).click({modifiers:['Shift']});
  await page.waitForFunction(()=>{const s=window.testScene;return [...s.unitMeshes.values()].filter(g=>g.userData.selection.visible).length===6;});
  const pixels=await page.evaluate(()=>{
   const s=window.testScene,u=s.world.units.find(u=>u.kind==='brave'&&u.team==='blue'&&s.unitMeshes.get(u.id)?.visible&&s.visible(u)),g=s.unitMeshes.get(u.id),a=g.userData.selection;

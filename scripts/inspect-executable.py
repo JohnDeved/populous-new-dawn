@@ -48,6 +48,7 @@ if len(sys.argv)>2:
     assert friction==[28,28,28]
     rules['groundFriction']=friction[0]
     rules['personStateFlags']=[value(0x5a6f79+i*5) for i in range(46)]
+    rules['hudSelectionPriority']=list(read(0x59cd94,7))
     rules['buildingSlopeLimit']=value(0x5aa458)
     rules['buildingSteepSlopeLimit']=value(0x5aa45c)
     rules['buildingFlags']=[value(0x5a7228+i*76+72) for i in range(20)]

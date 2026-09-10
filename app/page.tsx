@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from 'react'
 import {
   BUILDINGS,
   SPELLS,
@@ -60,6 +60,7 @@ export default function Home() {
   const [desktopNotice, setDesktopNotice] = useState(true)
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
+  const followerPress = useRef<EventTarget | null>(null)
   useEffect(() => {
     const resize = () => {
       // Scale artwork uniformly; extra screen height extends only the panel background.
@@ -212,10 +213,37 @@ export default function Home() {
       }
     }
   }
-  function choose(kind: UnitKind | 'all') {
-    select(world, kind)
-    audio.current?.cue(kind === 'shaman' ? 0x18 : kind === 'warrior' ? 0x43 : 0x58)
-    update()
+  function followerControl(kind: UnitKind | 'all') {
+    const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) =>
+      engine.current?.chooseFollowers(
+        { all: 0, brave: 2, warrior: 3, shaman: 7 }[kind],
+        event,
+        focus
+      )
+    return {
+      onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
+        followerPress.current = event.button === 0 ? event.currentTarget : null
+      },
+      onPointerCancel: () => {
+        followerPress.current = null
+      },
+      onClick: (event: MouseEvent<HTMLButtonElement>) => {
+        if (!event.ctrlKey || !event.detail) choose(event)
+      },
+      // macOS emits contextmenu instead of click for Ctrl + primary button.
+      // Handle its release once; retain native button activation for keyboard users.
+      onPointerUp: (event: MouseEvent<HTMLButtonElement>) => {
+        if (event.button === 0 && event.ctrlKey && followerPress.current === event.currentTarget) {
+          choose(event)
+          event.currentTarget.blur()
+        }
+        followerPress.current = null
+      },
+      onContextMenu: (event: MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault()
+        if (!(event.button === 0 && event.ctrlKey)) choose(event, true)
+      },
+    }
   }
   function restart() {
     audio.current?.reset()
@@ -392,7 +420,9 @@ export default function Home() {
             aria-label="Select and focus shaman"
             title="Shaman · H"
             onClick={() => {
-              choose('shaman')
+              select(world, 'shaman')
+              audio.current?.cue(0x18)
+              update()
               engine.current?.focus(shaman ?? HOME, { animate: true })
             }}
           >
@@ -422,9 +452,9 @@ export default function Home() {
         <section className="tribe-classes" aria-label="Followers">
           <button
             className="population-button"
-            aria-label="Select all followers"
-            title="Select all followers"
-            onClick={() => choose('all')}
+            aria-label="Select follower"
+            title="Select follower · Shift: all · Ctrl: five · Right-click: focus next"
+            {...followerControl('all')}
           >
             <PopulationMeter
               population={population(world, 'blue')}
@@ -440,10 +470,10 @@ export default function Home() {
           ).map(u => (
             <button
               key={u.kind}
-              aria-label={`Select all ${u.label.toLowerCase()}`}
-              title={u.label}
+              aria-label={`Select ${u.kind}`}
+              title={`${u.label} · Shift: all · Ctrl: five · Right-click: focus next`}
               aria-pressed={selected.length > 0 && selected.every(s => s.kind === u.kind)}
-              onClick={() => choose(u.kind)}
+              {...followerControl(u.kind)}
             >
               <FollowerIcon sprite={u.sprite} />
               <FollowerNumber count={blue.filter(b => b.hp > 0 && b.kind === u.kind).length} />
@@ -540,9 +570,9 @@ export default function Home() {
               ).map(u => (
                 <button
                   key={u.id}
-                  title={u.label}
+                  title={`${u.label} · Shift: all · Ctrl: five followers · Right-click: focus next`}
                   aria-label={`Select ${u.label.toLowerCase()}`}
-                  onClick={() => choose(u.id)}
+                  {...followerControl(u.id)}
                 >
                   <HudSprite id={u.sprite} />
                 </button>
@@ -723,6 +753,10 @@ export default function Home() {
           <strong>Select a group · Ctrl adds to selection</strong>
           <span>Ctrl-click / Shift-click</span>
           <strong>Toggle a follower / Give an order through friendly followers</strong>
+          <span>HUD follower buttons</span>
+          <strong>
+            Click adds one · Ctrl adds five · Shift adds all · Right-click focuses next
+          </strong>
           <span>Right / middle drag</span>
           <strong>Right drag turns the view · middle drag moves it</strong>
           <span>Scroll · = / −</span>

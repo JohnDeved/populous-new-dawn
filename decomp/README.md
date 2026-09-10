@@ -4582,3 +4582,13 @@ records and shared command slots. Only UI refresh and voice playback are hooked;
 selection flags/voice choice match and all other person bytes stay unchanged.
 The portable captures retain the executable hash. No new binary export was needed.
 Vehicle/passenger admission and full native traversal/speaker order remain open.
+
+
+HUD follower controls: `app/hud-selection.ts` ports ordinary category-0
+`00451720/004518c0/00451ac0` searches and `004de810` focus cycling; class/total
+callbacks `004a0f00/004a1010/004a1090/004a1120` feed producer `00450f30` and existing
+tribe commands. `004513e0` is retained as category evidence; its unused category-0
+result does not justify a separate TS classifier. Run
+`python scripts/check-native-hud-selection.py EXE [--record]` for complete native
+selection/focus and actual callback comparisons. Vehicles, category ownership and
+priority-field lifecycle writers remain open.

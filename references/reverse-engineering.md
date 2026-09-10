@@ -7734,3 +7734,45 @@ native owner or relocating the saved construction pose. Final validation passes
 all 309 portable tests, typecheck, parity metadata, production build and 1,119
 native export hashes. The new selection helper passes targeted oxlint; existing
 repository-wide lint issues remain outside this slice.
+
+
+### Original HUD follower selection and focus (2026-09-11)
+
+`004a0f00/004a1090` dispatch ordinary class/total left buttons through `00450f30`:
+click adds one (`7d`), Ctrl adds `MULTIPLE_SELECT_NUM=5` (`72`), and Shift adds the
+class (`53`) or all non-shamans (`48`). Shift takes precedence; Ctrl is ignored
+for the shaman. Existing selections survive. `00451720` searches unselected,
+unreserved people in assignment bands `[0,2,4,3,1,5,6]` (original bytes at
+`0059cd94`), within 6,144 toroidal position units of the camera cell center.
+The first populated band wins; distances truncate before strict comparison and
+list order breaks ties. With nearby mode disabled, `004518c0` falls back to the
+nearest eligible unselected person globally. All-selection includes reserved
+people but rejects flag 128. The five-person command submits no selection voice;
+single and all commands reuse the existing native voice rules.
+
+`004a1010/004a1120` send right clicks to `004de810`. Initial focus is nearest;
+subsequent clicks cycle through the tribe list and wrap, with a separate remembered
+identity for each class. Shift permits reserved people. Native camera focus and
+`00504590(person,0)` open the person panel without modifying selection or orders.
+The browser safely falls back after removal of a remembered person rather than
+following the executable's stale-pointer dereference. The HUD adapter reads active
+native positions and retains dormant-builder browser positions; selecting legacy
+people never creates a native simulation owner.
+
+`check-native-hud-selection.py` executes 1,024 complete commands / 12,288 people,
+1,024 focus cycles, 144 real left callback/producer combinations and 12 right
+callbacks. Only UI refresh, playback, camera movement and panel display are replaced
+at consumer boundaries. Selection flags/voices match and all other person bytes
+remain unchanged. Fixtures capture 84 selection and 84 focus cases for portable
+checks. Live browser checks exercise repeated clicks, both modifiers and precedence,
+class/total/shaman controls, focus cycling/panels, Escape, pause, input gating and
+marching-order preservation at three desktop sizes, including ultrawide.
+
+This is category-0/on-foot HUD behavior. Full specialist/vehicle/passenger owners,
+category-specific controls, assignment priority writers, exact native tribe-list
+allocation/ties, input consumption/buffering and full keyboard/settings ownership
+remain unverified. The portrait/H combined select/focus shortcut is unchanged and
+not credited as a recovered native binding. Runtime selection uses elapsed-free
+input operations; no render-frame work, FPS cap or replacement simulation owner
+was added. Modern Ctrl-click compatibility and CPU measurements are documented
+in `modern-performance.md`.

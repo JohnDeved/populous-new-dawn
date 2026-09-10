@@ -1,3 +1,4 @@
+import { focusHudPerson } from './hud-selection.ts'
 import { ObjectPanels } from './object-panels.ts'
 import { unitHealthGauge } from './unit-health.ts'
 import { terrainTiles } from './terrain-visibility.ts'
@@ -76,6 +77,8 @@ import {
   cancelInteraction,
   selectUnit,
   selectArea,
+  selectFollowers,
+  hudPeople,
   placeBuilding,
   spellRange,
   spellTargetError,
@@ -546,6 +549,7 @@ export class GameScene {
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
   objectPanels = new ObjectPanels(this)
+  hudFocus = Array<number>(8).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
@@ -1828,6 +1832,40 @@ export class GameScene {
     this.overviewStage = null
     this.overviewActive = false
     this.globeMorph.active = false
+  }
+  chooseFollowers(
+    model: number,
+    modifiers: { shiftKey: boolean; ctrlKey: boolean },
+    focus = false
+  ) {
+    const w = this.world
+    if (w.inputMask || this.overviewStage) return
+    if (!focus && (this.overviewActive || w.manaWorld.gameFlags & 32)) return
+    if (model === 7 && w.units.some(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0))
+      w.castingTribes[0].flags |= focus ? 0x1000 : 0x800
+    if (focus) {
+      const people = hudPeople(w)
+      const id = focusHudPerson(
+        people,
+        model,
+        this.cameraPosition,
+        this.hudFocus[model],
+        modifiers.shiftKey,
+        !!(w.castingTribes[0].flags & 128)
+      )
+      this.hudFocus[model] = id
+      const person = people.find(p => p.id === id)
+      if (person) {
+        this.focus(browserPosition(person), { animate: true })
+        this.objectPanels.open(id)
+      }
+    } else {
+      let mode: 'all' | 'five' | 'single' = 'single'
+      if (modifiers.shiftKey) mode = 'all'
+      else if (modifiers.ctrlKey && model !== 7) mode = 'five'
+      selectFollowers(w, model, this.cameraPosition, mode)
+    }
+    this.onChange()
   }
   focus(p: Point = HOME, { animate = false } = {}) {
     if (animate && this.world.inputMask) return
