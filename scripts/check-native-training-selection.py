@@ -129,3 +129,20 @@ for selected in (0,1):
  write(command,'IIIBBB',0,selected,4,0x61,0,0);call(0x43e8e0,tribe,command)
  assert all(bool(read(people+i*256+0x7a,'B')&128)==bool(selected) for i in range(3))
 print(f'PASS: {plan_inputs} original plan worker/control input cases and both plan group-selection states')
+
+# Ordinary guard towers reuse building selection commands with one occupied slot.
+write(building+0x2b,'B',4);write(building+0xa6,'B',1)
+tower_cases=0
+for model,slot,group,selected in itertools.product((2,3,7),range(6),(0,1),(0,128)):
+ cpu.mem_write(building+0x86,bytes(12));write(building+0x86+slot*2,'H',10)
+ write(people+0x2b,'B',model);write(people+0xc,'III',0,0,0);write(people+0x7a,'B',selected)
+ write(0x895fb0,'B',1);write(0x895fb3,'H',2);write(0x895fb5,'h',slot);write(0x89c661,'I',0)
+ cpu.mem_write(0x897997,bytes(15));events=[];call(0x47b460,0xf0,group,0)
+ assert read(0x897997+12,'B')==(0x61 if group else 0x2a)
+ assert read(0x897997+4,'I')==(int(not selected) if group else 6)
+ assert read(0x897997+8,'I')==(2 if group else 10)
+ assert events==[['sound',0x6a]]
+ cpu.mem_write(command,bytes(cpu.mem_read(0x897997,15)));call(0x43e8e0,tribe,command)
+ assert bool(read(people+0x7a,'B')&128)==(not selected)
+ tower_cases+=1
+print(f'PASS: {tower_cases} original tower input-to-selection commands across three live classes and all six physical slots')

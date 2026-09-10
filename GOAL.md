@@ -1219,3 +1219,23 @@ scenarios, clean shared code and measured modern performance together. Full pane
 allocation/lifetime, person panels and secondary voices, global construction/order
 ownership, specialist classes, campaign and full engine parity remain unfinished.
 Discovery stays open; the remaining modernization findings still apply.
+
+
+### Latest visible integration: guard-tower occupant controls
+
+The native single-occupant tower panel now supports mouse/Shift/keyboard selection,
+camera focus, empty-tower hover and dismantling controls. Selected occupants can
+receive ordinary movement orders and walk out without an XY teleport. Reassigning
+a tower occupant now connects the original resting-slot rebuild consumer; braves
+complete dismantling while warriors/shamans leave without performing that work.
+Native drawing/input comparisons, source-art pixels, browser scenarios and modern
+geometry/performance checks are recorded. The existing cached panel renderer and
+HUD atlas are shared; full panel lifetime/command ownership remain open.
+
+Next: original first-mission combat dispatch, beginning with the existing melee
+battle/targeting adapter, then campaign attack orders and visible spell effects.
+Compare the original decisions, damage, animation and timing before replacing
+approximations. Preserve clean shared TypeScript, uncapped presentation, native
+mechanics and measured modern performance. Specialist tower combat, person panels,
+secondary voices, allocation/scheduler ownership, campaign, saves, multiplayer and
+full engine parity remain unfinished. Discovery stays open.

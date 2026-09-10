@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fixture from './fixtures/training-panel.json' with {type:'json'}
 import manifest from '../decomp/exports.json' with {type:'json'}
-import {trainingPanel} from '../app/training-panel.ts'
+import {occupantPanel} from '../app/training-panel.ts'
 import {chargeFills} from '../app/hud-charge.ts'
 
 test('native training panels preserve slots, selection, palette, frames and turn-driven feedback',()=>{
@@ -10,7 +10,7 @@ test('native training panels preserve slots, selection, palette, frames and turn
   const charge=d=>d[0]==='fill'&&d[1]>=222&&d[1]<=239
   let corrected=0
   for(const c of fixture.cases){
-    const actual=trainingPanel(c)
+    const actual=occupantPanel(c)
     if(JSON.stringify(actual)===JSON.stringify(c.expected))continue
     corrected++
     assert.ok(c.cost>=8192&&c.active&&(!c.warning||c.turn&4))

@@ -114,7 +114,8 @@ try {
     [3840, 2160],
   ]) {
     await page.setViewportSize({ width, height })
-    await page.waitForFunction(() => window.testScene.renderer.domElement.width > 0)
+    await page.waitForFunction(width => window.testScene.container.clientWidth === width - (width >= 2560 ? 250 : 200), width)
+    await page.evaluate(() => window.testScene.renderBuildingPanels())
     const g = await panel.evaluate(p => {
       const c = p.querySelector('canvas'),
         r = p.getBoundingClientRect(),

@@ -1,5 +1,5 @@
 {
-  "revision": 12,
+  "revision": 13,
   "discovery": {
     "status": "open",
     "note": "Discovery remains open. Revision 10 isolates ordinary warrior-hut dismantling from the broader repair/damage lifecycle before live integration; all remaining buildings, special structures and global order ownership remain open.",
@@ -1161,6 +1161,24 @@
                 "references/reverse-engineering.md"
               ],
               "note": "Bounded ordinary construction-plan worker/timber rows, selection marks, warning/control phases and linked dismantling control. 630 original draw calls, 128 plan input cases and native group selection compared; 32 browser canvases/470208 RGBA pixels match source HFX. Live mouse/Shift/keyboard selection, active-builder reassignment, cancel/restart/removal, cached painting and five desktop geometries checked. Original unlinked two-row height defect corrected without changing draw submissions. Native panel allocation/lifetime, occupant hover tint, person panels/secondary voices, dynamic palettes and full construction/global command ownership remain separate unfinished scope."
+            },
+            {
+              "id": "interface.hud.tower-panel",
+              "title": "Ordinary guard-tower occupant panel and selection controls",
+              "status": "verified",
+              "evidence": [
+                "app/building-panels.ts",
+                "app/training-panel.ts",
+                "scripts/check-native-tower-panel.py",
+                "scripts/check-native-training-selection.py",
+                "scripts/check-native-resting-slots.py",
+                "tests/tower-panel.test.mjs",
+                "tests/fixtures/tower-panel.json",
+                "scripts/check-browser-tower-panel.mjs",
+                "references/performance/2026-09-10-tower-panels.json",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Bounded owned ordinary tower panel: native one-occupant artwork, selection marks and dismantling control states; 168 complete native draw calls, 72 input-to-selection paths, 42 browser canvases/124992 original RGBA pixels. Actual mouse/Shift/keyboard/focus, movement exit, empty mesh hover, dismantle/cancel/removal, cached painting and five desktop geometries pass. Occupied-tower reassignment connects the existing native resting-slot rebuild consumer. Full panel lifetime, person panels/voices, hover tint, enemy/specialist tower behavior and global scheduler/command ownership remain unfinished."
             }
           ]
         },

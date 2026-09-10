@@ -1,4 +1,4 @@
-"""Capture kind-5 draw_ui_panel with real HFX dimensions and physical occupant slots.
+"""Compare original kind-7 ordinary guard-tower panel drawing.
 Only palette setters and final line/rectangle/sprite consumers are supplied.
 Usage: python scripts/check-native-training-panel.py /path/to/d3dpoptb.exe [--record]
 """
@@ -44,61 +44,31 @@ def consume(cpu, a, size, user):
 for a in (0x415f70, 0x4525d0, 0x47d980, 0x5166c0, 0x5162e0, 0x516370):
     cpu.hook_add(UC_HOOK_CODE, consume, begin=a, end=a)
 
-cases = []
-for count in range(6):
-    for cost in (0, 1, 480, 8192, 65535):
-        for progress in sorted({0, cost // 3, cost, 65535}):
-            for dismantling, warning, turn in ((False,False,0),(True,False,2),(True,True,4),(False,True,0)):
-                c = dict(occupants=[dict(model=(2, 3, 7, 2, 3)[j], selected=j == 1) for j in range(count)], cost=cost, progress=progress,
-                         active=cost > 0, dismantling=dismantling, warning=warning, turn=turn)
-                cpu.mem_write(building + 0x86, bytes(12))
-                # Holes in physical slots must not become gaps in the displayed row.
-                for j, p in enumerate(c['occupants']):
-                    address = 0x2003000 + j * 256; write(0x890390 + (10+j)*4, 'I', address)
-                    write(address + 0x2a, 'BB', 1, p['model']); write(address + 0x7a, 'B', 128 if p['selected'] else 0)
-                    write(building + 0x86 + ((j+1) % 6)*2, 'H', 10+j)
-                write(building + 0xa6, 'B', count); write(building + 0x96, 'HHH', cost, progress, 0)
-                write(building + 0x9c, 'H', (128 if c['active'] else 0) | (0x8000 if c['dismantling'] else 0))
-                write(building + 0x14, 'I', 0x1000 if c['warning'] else 0)
-                write(0x89d184, 'I', turn)
-                cpu.reg_write(UC_X86_REG_ESP, stack); cpu.emu_start(0x4a470b, 0x4a472d, count=100)
-                assert read(0x897987, 'B') == ((turn >> 1) & 1)
-                assert read(0x897989, 'B') == ((turn >> 2) & 1)
-                write(0x5da074, 'I', 0)
-                events = []; call(0x504bc0, panel, building, 0, 0, panel+64, panel+66, 0, 0)
-                c['expected'] = dict(width=read(panel+64,'H'), height=read(panel+66,'H'), events=events)
-                cases.append(c)
-                if count == 5 and cost == 480 and progress == 160:
-                    for pressed in (False, True):
-                        hovered = dict(c, controlHover=True, controlPressed=pressed)
-                        write(0x89c6c1, 'I', 2); write(0x984580, 'ii', 100, 10)
-                        write(0x895faf, 'B', int(pressed)); write(0x5da074, 'I', 0)
-                        events = []; call(0x504bc0, panel, building, 0, 0, panel+64, panel+66, 0, 1)
-                        hovered['expected'] = dict(width=read(panel+64,'H'), height=read(panel+66,'H'), events=events)
-                        cases.append(hovered)
-                    write(0x895faf, 'B', 0)
-fixture = dict(executableSha256=identity['sha256'], cases=cases)
-if '--record' in sys.argv:
-    (ROOT/'tests/fixtures/training-panel.json').write_text(json.dumps(fixture,separators=(',',':'))+'\n')
-else:
-    assert json.loads((ROOT/'tests/fixtures/training-panel.json').read_text()) == fixture
-js = """import {occupantPanel} from './app/training-panel.ts'; let s='';for await(const c of process.stdin)s+=c;
-console.log(JSON.stringify(JSON.parse(s).map(occupantPanel)));"""
-actual = json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(cases).encode(),cwd=ROOT))
-exact = 0
-def charge(draw): return draw[0] == 'fill' and 222 <= draw[1] <= 239
-for c, result in zip(cases, actual):
-    if c['expected'] == result:
-        exact += 1
-        continue
-    # Deliberate modern correction, confined to overflowing charge products.
-    assert c['cost'] >= 8192 and c['active'] and (not c['warning'] or c['turn'] & 4)
-    assert (result['width'], result['height']) == (c['expected']['width'], c['expected']['height'])
-    assert [d for d in result['events'] if not charge(d)] == [d for d in c['expected']['events'] if not charge(d)]
-    fills = [d for d in result['events'] if charge(d)]
-    assert all(3 <= d[2][2] <= 117 for d in fills)
-    assert fills[-1] == ['fill',222,[3,1,3+min(114,c['progress']*114//c['cost']),4],255]
-print(f'PASS: {len(cases)} native training-panel calls; {exact} complete draw traces identical, {len(cases)-exact} confined to documented charge-overflow correction; native blink phases, real dimensions, physical slot holes and selection marks')
+# Table metadata gives the completed guard tower kind 7, with no birth/upgrade bars.
+assert read(0x5a7228+4*76+0x34,'B')==0
+assert read(0x5a7228+4*76+0x48,'I')&0x441==0
+write(effect+0x70,'BB',7,0);write(building+0x2b,'B',4)
+cases=[]
+for model in (0,2,3,4,5,6,7):
+ for selected in (False,True):
+  for slot in (0,5):
+   for dismantling,turn,hover,pressed in [(False,0,False,False),(False,0,True,False),(False,0,True,True),(True,0,False,False),(True,2,False,False),(True,2,True,True)]:
+    c=dict(capacity=1,occupants=[] if not model else [dict(model=model,selected=selected)],active=False,cost=0,progress=0,warning=False,dismantling=dismantling,turn=turn,controlHover=hover,controlPressed=pressed)
+    cpu.mem_write(building+0x86,bytes(12));p=0x2003000
+    write(0x890390+10*4,'I',p);write(p+0x2a,'BB',1,model);write(p+0x7a,'B',128 if selected else 0)
+    if model:write(building+0x86+slot*2,'H',10)
+    write(building+0xa6,'B',int(bool(model)));write(building+0x9c,'H',0x8000 if dismantling else 0)
+    write(0x897987,'B',(turn>>1)&1);write(0x89c6c1,'I',2);write(0x984580,'ii',30,10);write(0x895faf,'B',int(pressed));write(0x5da074,'I',0)
+    events=[];call(0x504bc0,panel,building,0,0,panel+64,panel+66,0,int(hover))
+    c['expected']=dict(width=read(panel+64,'H'),height=read(panel+66,'H'),events=events);cases.append(c)
+fixture=dict(executableSha256=identity['sha256'],cases=cases)
+path=ROOT/'tests/fixtures/tower-panel.json'
+if '--record' in sys.argv:path.write_text(json.dumps(fixture,separators=(',',':'))+'\n')
+else:assert json.loads(path.read_text())==fixture
+js="import{occupantPanel}from'./app/training-panel.ts';let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map(occupantPanel)))"
+actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(cases).encode(),cwd=ROOT))
+assert actual==[c['expected'] for c in cases]
+print(f'PASS: {len(cases)} complete original tower panel calls, slot holes, classes, selection, blink and control states')
 
 if '--browser' in sys.argv:
     import base64, importlib.util, io
@@ -107,7 +77,7 @@ if '--browser' in sys.argv:
     assets = importlib.util.module_from_spec(spec); spec.loader.exec_module(assets)
     palette = (exe.parent/'data/pal0-c.dat').read_bytes()
     bank = assets.sprites(raw, palette)
-    frames = json.loads(Path('/private/tmp/populous-training-panel-pixels.json').read_text())
+    frames = json.loads(Path('/private/tmp/populous-tower-panel-pixels.json').read_text())
     compared = 0
     for frame in frames:
         c = frame['state']; assert c in cases

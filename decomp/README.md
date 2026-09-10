@@ -4439,3 +4439,14 @@ cases and plan group-selection dispatch. The existing manifest remains at 991
 exports. An unlinked two-row plan's original measurement clips one row; the
 browser keeps draw positions and corrects the canvas height. See
 [findings and boundaries](../references/reverse-engineering.md#construction-plan-panels-and-live-worker-reassignment-2026-09-10).
+
+
+## Guard-tower panel and state handoff
+
+`check-native-tower-panel.py EXE [--browser]` compares 168 complete kind-7 panel
+calls and 42 source-art browser canvases. `check-native-training-selection.py`
+includes 72 native tower input-to-command selection paths. `check-native-resting-slots.py`
+checks the existing `004d56f0` consumer now connected to occupied-tower reassignment.
+The manifest remains at 991 exports. See
+[tower control findings](../references/reverse-engineering.md#ordinary-guard-tower-occupant-controls-2026-09-10)
+for supplied consumers and unfinished gameplay/ownership boundaries.

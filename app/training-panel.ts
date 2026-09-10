@@ -1,7 +1,8 @@
 import hud from './original-hud.json' with { type: 'json' }
 import { chargeFills } from './hud-charge.ts'
 
-export interface TrainingPanelState {
+export interface OccupantPanelState {
+  capacity?: 1 | 5
   occupants: { model: number; selected: boolean }[]
   active: boolean
   cost: number
@@ -32,7 +33,7 @@ export function panelControl(
   events: PanelDraw[],
   x: number,
   y: number,
-  s: Pick<TrainingPanelState, 'dismantling' | 'turn' | 'controlHover' | 'controlPressed'>
+  s: Pick<OccupantPanelState, 'dismantling' | 'turn' | 'controlHover' | 'controlPressed'>
 ) {
   let sprite = s.controlHover ? 50 : 49
   if (s.dismantling) sprite = s.turn & 2 ? 47 : 46
@@ -41,13 +42,13 @@ export function panelControl(
     events.push(['sprite', s.dismantling ? 48 : 51, x, y, -1, false])
 }
 
-// 0x504bc0, kind 5: one row of five physical occupants, a charge bar and tail.
+// 0x504bc0, kinds 5/7: one row of training/tower occupants, control and tail.
 // Panel allocation, input commands and lifetime are separate from its artwork.
-export function trainingPanel(s: TrainingPanelState) {
+export function occupantPanel(s: OccupantPanelState) {
   const icon = rects[75],
     button = rects[46],
     tail = rects[52],
-    rowWidth = (icon.w + 1) * 5 + 4,
+    rowWidth = (icon.w + 1) * (s.capacity ?? 5) + 4,
     contentWidth = rowWidth + button.w + 4,
     width = (contentWidth + 7) & ~7,
     x = Math.trunc((width - contentWidth) / 2),
@@ -61,7 +62,7 @@ export function trainingPanel(s: TrainingPanelState) {
         events.push(['fill', fill.palette, [x + 1, 1, x + 1 + fill.width, 4], 255])
   }
   panelFrame(events, x, y, rowWidth, rowHeight)
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < (s.capacity ?? 5); i++) {
     const person = s.occupants[i],
       left = x + 1 + i * (icon.w + 1)
     if (!person) events.push(['sprite', 75, left, y + 1, 172, true])
@@ -81,10 +82,10 @@ export function trainingPanel(s: TrainingPanelState) {
   return { width, height: y + rowHeight + tail.h, events }
 }
 
-export function drawTrainingPanel(
+export function drawOccupantPanel(
   canvas: HTMLCanvasElement,
   atlas: HTMLImageElement,
-  state: TrainingPanelState
+  state: OccupantPanelState
 ) {
   if (!atlas?.complete || !atlas.naturalWidth) return
   const key = JSON.stringify({
@@ -92,7 +93,7 @@ export function drawTrainingPanel(
     turn: (state.warning ? state.turn & 4 : 0) | (state.dismantling ? state.turn & 2 : 0),
   })
   if (canvas.dataset.layout === key) return
-  const layout = trainingPanel(state)
+  const layout = occupantPanel(state)
   paintPanel(canvas, atlas, layout)
   canvas.dataset.layout = key
 }

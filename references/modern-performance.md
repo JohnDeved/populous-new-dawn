@@ -1366,3 +1366,29 @@ Fallow reports maintainability 85.6, average cyclomatic complexity 2.8, p90 5 an
 twelve existing module cycles. Original comparisons and portable captures remain
 separate from readable live TypeScript. Repository-wide lint debt and the broader
 module/scheduler modernization audit remain open.
+
+
+## Guard-tower controls on the shared panel renderer (2026-09-10)
+
+The tower reuses the training panel's native one-row drawing and existing HUD
+atlas, parameterized for its original single occupant. DOM controls, selection,
+focus, dismantling and canvas painting remain shared. The stationary live tower
+canvas makes zero drawImage calls over 30 RAF frames; phase changes depend on
+simulation turns. No additional RAF, texture or frame-rate cap is introduced.
+Control hit regions and the anchored tail pass at five sizes from 1440×1000 to
+ultrawide/4K using the existing uniform HUD transform.
+
+The isolated headed Chrome 153 / ANGLE Metal / Apple M5 sample at 1440×1000 CSS
+pixels, DPR 1 captured 1,061 close-view entry frames: CPU p50 **1.6 ms**, p95
+**2.1 ms**; RAF gaps p50 **3.6 ms**, p95 **3.9 ms**, maximum **7.5 ms**; maximum
+**83** WebGL submissions. No heavy checks or application edits overlapped profiling.
+This is an entry/close-view sample rather than proof of whole-game performance or
+physical display refresh. It does not establish a paired speedup. Raw report:
+`references/performance/2026-09-10-tower-panels.json`.
+
+Fallow reports maintainability 85.7, average cyclomatic complexity 2.7, p90 5 and
+twelve existing module cycles. The touched panel modules have no oxlint errors;
+repository-wide debt and broader native scheduling/modernization remain open.
+Shared state initialization now calls the already compared resting-slot consumer
+when a tower occupant is reassigned, preserving the original mechanic without a
+new update loop or speculative formation subsystem.

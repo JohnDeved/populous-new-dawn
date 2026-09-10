@@ -44,7 +44,12 @@ import {
 } from './person-orders.ts'
 import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
-import { insertObjectIntoCell, removeObjectFromCell, moveObjectInCells } from './object-cells.ts'
+import {
+  insertObjectIntoCell,
+  removeObjectFromCell,
+  moveObjectInCells,
+  objectsInCell,
+} from './object-cells.ts'
 import { finishPersonPreparation, preparePersonTurn } from './person-update.ts'
 import {
   personAnimationObject,
@@ -57,6 +62,7 @@ import { buildingOutsidePoint, buildingSocketPoint } from './building-shapes.ts'
 import { dropCarriedTimber, timberTransfer } from './timber.ts'
 import { stepDismantling, toggleDismantling } from './building-dismantle.ts'
 import { changeBuildingWork } from './building-damage.ts'
+import { rebuildRestingSlots } from './resting-slots.ts'
 import { initializeIdleApproach } from './person-idle.ts'
 import { restingCellCollision } from './person-collision.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
@@ -185,7 +191,13 @@ function initializeBuildingPerson(w: World, p: EntryPerson) {
         if (p.model === 4) unsupported() // Preacher tower behavior is a separate unported class.
       },
       deselectPassengers: unsupported,
-      rebuildFormation: unsupported,
+      rebuildFormation: cell =>
+        rebuildRestingSlots(
+          {
+            cellObjects: cell => objectsInCell(w.objectCells, cell) as Iterable<LivePerson>,
+          },
+          cell
+        ),
     })
   initialize()
   w.randomState = startup.randomState

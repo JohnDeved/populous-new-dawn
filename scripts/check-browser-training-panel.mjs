@@ -121,11 +121,11 @@ try {
   // Exercise captured art states through the actual browser canvas at native size.
   const cases=fixture.cases.filter(c=>c.cost===480&&c.progress===160)
   const pixels=await page.evaluate(async cases=>{
-    const{drawTrainingPanel}=await import('/app/training-panel.ts')
+    const{drawOccupantPanel}=await import('/app/training-panel.ts')
     const atlas=new Image();atlas.src='/original/hud.png';await atlas.decode()
     const canvas=document.createElement('canvas'),results=[]
     for(const c of cases){
-      drawTrainingPanel(canvas,atlas,c)
+      drawOccupantPanel(canvas,atlas,c)
       results.push({state:c,png:canvas.toDataURL('image/png').split(',')[1]})
     }
     return results

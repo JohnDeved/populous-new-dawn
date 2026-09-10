@@ -5285,3 +5285,48 @@ and overview still hide the panel. Panel visibility uses activity/hover/focus
 until the native panel pool/lifetime is reconstructed. Other panel types, initial
 plan allocation/removal, specialist occupants, dynamic palettes, scheduler and
 full contextual-control ownership remain unfinished.
+
+
+## Ordinary guard-tower occupant controls (2026-09-10)
+
+The guard tower's original descriptor selects kind 7 in `00504060`. Its capacity
+is one, with no birth/upgrade side bars. `00504bc0` shares the single-row occupant,
+selection mark, dismantling control and tail artwork with kind-5 training panels.
+The browser now uses one `occupantPanel` renderer for both supported capacities,
+with a 48×62 logical tower canvas. Existing original sprites and palette masks
+suffice; no new image, atlas or alternate icon design was introduced.
+
+`check-native-tower-panel.py` executes 168 complete original draw calls, including
+empty towers, all ordinary class icons, selection, physical slots 0/5, original
+control hover/pressed states and dismantling blink phases. Only final draw/color
+consumers are captured; no layout decisions are supplied. Forty-two actual browser
+canvases match 124,992 original HFX RGBA pixels within one byte of alpha rounding.
+The input oracle adds 72 complete original input-to-selection command paths for
+braves, warriors and shamans across all six physical slots, exercising both
+single and group selection through the native command handler. Earlier training
+and plan-input matrices remain unchanged and passing.
+
+Live tower panels now expose the existing selection, camera-focus and dismantling
+handlers. They show an occupied tower during activity and an empty tower on actual
+mesh hover. Selection alone leaves its person inside; an ordinary movement order
+restores movement without an XY teleport. The original control can cancel or
+activate dismantling, and a brave can dismantle the empty tower to removal.
+Mouse, Shift group selection, Space activation, right-click focus, input masking,
+five modern desktop geometries, bitmap caching and cleanup pass in the browser.
+
+The new occupied-tower dismantling scenario exposed an unconnected state-initializer
+consumer: leaving state 21 can call `004d56f0` to rebuild resting slots. The entry
+adapter now invokes the existing `rebuildRestingSlots` reconstruction over its
+native cell list. No no-op or alternate exit state substitutes for that call.
+The existing oracle passes 2,048 rebuild cases plus 6,144 cell/valid/find cases,
+16,384 indexed-search operations and 44 startup slot positions. Live tests cover
+all three follower classes: each leaves when reassigned; only a brave accepts
+and completes the dismantling work. This does not complete resting-slot ownership
+for ordinary browser people or the global person scheduler.
+
+Remaining boundaries: native panel allocation/lifetime, person-panel opening,
+secondary selection voices, occupant hover tint and dynamic palettes; enemy tower
+panels, specialist tower attacks/spells, territory/reveal, AI reassignment and
+complete command/state/allocator ownership. The linked building and held-person
+mechanics remain separately tracked; a working control panel does not certify
+full tower gameplay or the complete native renderer.
