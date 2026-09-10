@@ -9,6 +9,8 @@ export interface TrainingPanelState {
   dismantling: boolean
   warning: boolean
   turn: number
+  controlHover?: boolean
+  controlPressed?: boolean
 }
 type Draw =
   | ['fill', number, number[], number]
@@ -60,10 +62,11 @@ export function trainingPanel(s: TrainingPanelState) {
     }
   }
   frame(x + rowWidth, y, button.w + 4, rowHeight)
-  events.push(
-    ['sprite', s.dismantling ? (s.turn & 2 ? 47 : 46) : 49, x + rowWidth + 3, y + 3, -1, false],
-    ['sprite', 52, x + Math.trunc((contentWidth - tail.w) / 2), y + rowHeight, -1, false]
-  )
+  const control = s.dismantling ? (s.turn & 2 ? 47 : 46) : s.controlHover ? 50 : 49
+  events.push(['sprite', control, x + rowWidth + 3, y + 3, -1, false])
+  if (s.controlHover && s.controlPressed)
+    events.push(['sprite', s.dismantling ? 48 : 51, x + rowWidth + 3, y + 3, -1, false])
+  events.push(['sprite', 52, x + Math.trunc((contentWidth - tail.w) / 2), y + rowHeight, -1, false])
   return { width, height: y + rowHeight + tail.h, events }
 }
 

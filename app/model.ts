@@ -88,6 +88,7 @@ import {
 import type { ObjectCells } from './object-cells.ts'
 import {
   stepBuildingEntry,
+  isDismantling,
   buildingAdmission,
   stepLiveTraining,
   type BuildingEntry,
@@ -268,6 +269,7 @@ export type Unit = Point & {
 }
 export type Building = Point & {
   admission?: BuildingAdmission
+  dismantled?: boolean
   id: number
   anchor?: { x: number; y: number }
   object?: number
@@ -1995,6 +1997,8 @@ function constructionWorkers(w: World, b: Building) {
           u.hp > 0 &&
           u.team === b.team &&
           u.kind === 'brave' &&
+          !((b.admission?.activity ?? 0) & 0x8000) &&
+          !isDismantling(w, u) &&
           (b.progress < 1 || u.builder)
       )
       .map(u => [u.id, u])
@@ -2356,10 +2360,11 @@ export function command(w: World, p: Point) {
     w.units.find(
       u => u.team === 'red' && u.inside === null && u.lift === 0 && distance(u, p) < 1.5
     ) ?? (building?.team === 'red' ? building : undefined)
-  const friendly = building?.team === 'blue' ? building : undefined
+  const friendly = building?.team === 'blue' ? building : undefined,
+    dismantling = !!((friendly?.admission?.activity ?? 0) & 0x8000)
   let count = 0,
     constructionFull = false
-  if (friendly && friendly.progress < 1) constructionWorkers(w, friendly)
+  if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
   for (const u of w.units.filter(u => w.selected.includes(u.id))) {
     if (shrine && shrine.kind === 'vault' && u.kind !== 'shaman') continue
     if (
@@ -2371,6 +2376,7 @@ export function command(w: World, p: Point) {
     if (
       friendly &&
       friendly.progress < 1 &&
+      !dismantling &&
       !friendly.builders!.includes(u.id) &&
       !friendly.builders!.includes(0)
     ) {
@@ -2386,11 +2392,11 @@ export function command(w: World, p: Point) {
           : (enemy ?? p)
     const path = planRoute(w, u, goal)
     if (!path) continue
-    if (friendly && friendly.progress < 1) assignBuilder(friendly.builders!, u.id)
+    if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
     release(w, u)
     acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null
-    if (friendly && friendly.progress < 1)
+    if (friendly && friendly.progress < 1 && !dismantling)
       u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
     u.target = enemy?.id ?? null
     if (shrine?.kind === 'vault')
@@ -2399,23 +2405,25 @@ export function command(w: World, p: Point) {
   }
   tell(
     w,
-    count
-      ? shrine
-        ? `Worshipping ${shrine.name}. ${shrine.kind === 'vault' ? 'Only your shaman can learn its secrets.' : 'One follower is enough.'}`
-        : friendly
-          ? friendly.progress < 1
-            ? 'Braves assigned to construction.'
-            : friendly.kind === 'camp'
-              ? 'Braves sent to train as warriors.'
-              : 'Braves sent to live in the hut.'
-          : enemy
-            ? 'Your followers march to battle.'
-            : 'Your followers are on the move.'
-      : constructionFull
-        ? 'This building already has its full construction crew.'
-        : shrine?.kind === 'vault'
-          ? 'Select your shaman to worship the Vault of Knowledge.'
-          : 'No land route. Bring your shaman to the shore and make a Land Bridge.'
+    count && dismantling
+      ? 'Braves assigned to dismantle the building and recover timber.'
+      : count
+        ? shrine
+          ? `Worshipping ${shrine.name}. ${shrine.kind === 'vault' ? 'Only your shaman can learn its secrets.' : 'One follower is enough.'}`
+          : friendly
+            ? friendly.progress < 1
+              ? 'Braves assigned to construction.'
+              : friendly.kind === 'camp'
+                ? 'Braves sent to train as warriors.'
+                : 'Braves sent to live in the hut.'
+            : enemy
+              ? 'Your followers march to battle.'
+              : 'Your followers are on the move.'
+        : constructionFull
+          ? 'This building already has its full construction crew.'
+          : shrine?.kind === 'vault'
+            ? 'Select your shaman to worship the Vault of Knowledge.'
+            : 'No land route. Bring your shaman to the shore and make a Land Bridge.'
   )
 }
 
@@ -2824,7 +2832,7 @@ function cleanupDefeatedTribe(w: World, id: number) {
       state.damage = p.damage
     }
 }
-function ensureBuildingDamage(b: Building) {
+export function ensureBuildingDamage(b: Building) {
   if (b.damageState) return b.damageState
   const model = buildingModel(b)
   const remaining = Math.trunc(
@@ -4167,6 +4175,10 @@ function stepTurn(w: World) {
       w.buildings.find(b => b.id === u.work && b.hp > 0) ??
       w.shrines.find(s => s.id === u.work && (s.active || u.vault?.head === s.id))
     if (u.work !== null && !work) release(w, u)
+    if (isDismantling(w, u) && work && 'hp' in work) {
+      stepBuildingEntry(w, u, work)
+      continue
+    }
     if (u.inside !== null) {
       const b = w.buildings.find(b => b.id === u.inside && b.hp > 0)
       if (b) {
@@ -4180,7 +4192,7 @@ function stepTurn(w: World) {
       work &&
       'hp' in work &&
       (work.kind === 'hut' || work.kind === 'camp') &&
-      work.progress === 1 &&
+      (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
       !work.burn &&
       !u.builder &&
       u.tree === null &&
@@ -4371,7 +4383,7 @@ function stepTurn(w: World) {
       b.team === 'blue' ? 11 : w.ai.defenceRadius,
       true
     )
-    if (!b.terrainState?.reason) effect(w, 'death', b)
+    if (!b.terrainState?.reason && !b.dismantled) effect(w, 'death', b)
   }
   removeDeadLiveRoutes(w)
   w.units = w.units.filter(u => u.hp > 0 || u.flight)

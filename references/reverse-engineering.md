@@ -5077,12 +5077,12 @@ UI/audio/camera consumers are supplied. No recovered jump table is guessed.
 
 The original `process_tribe_cmd` (`0043e8e0`) supplies single-person toggling and
 six-slot group selection. Selecting calls the real eligibility leaf `004e3430`:
-flags2 bit 128 blocks selection, while bit 0x800 is allowed for this input mode.
+flags4 (+0x10) bit 128 blocks selection, while bit 0x800 is allowed for this input mode.
 Single selection sets selectionFlags bit 128 and flags3 bit 0x10000000; group
 selection clears the latter. Deselection clears selectionFlags bit 128 and
 flags3 bit 128. Other bits remain intact. The clicked member determines whether
 the whole group is selected or deselected, including mixed selections; unrelated
-selected units remain selected. 512 native command cases compare all these fields
+selected units remain selected. 2,048 native command cases compare all these fields
 against the small shared `selectTrainingOccupants` helper. UI-mode setup
 (`0047a550`) and secondary selection voices (`00489c40`) are supplied consumers;
 passenger recursion is outside this ordinary training-building scope.
@@ -5113,3 +5113,59 @@ person panel, native hover/pressed tint, panel effect allocation/lifetime/fading
 dynamic palettes, dismantling, other panel types and special/passenger occupants.
 The live selection roster and ordinary movement adapter remain explicitly shared
 with existing browser input. This bounded completion does not claim those systems.
+
+
+## Live dismantling and corrected selection eligibility (2026-09-10)
+
+The earlier selection oracle mislabeled +0x10 as flags2. Live flags2 is +0x0c;
+flags4 is +0x10 and flags3 is +0x14. This could wrongly block turning residents.
+The shared helper now reads flags4, and the expanded 2,048-command oracle varies
+both words independently. A live portable regression verifies turning bit 128
+allows selection while command-eligibility bit 128 blocks it. The checklist was
+reopened before correction; the earlier 512-case claim did not prove this mapping.
+
+`app/building-dismantle.ts` reconstructs the complete person-command-10 controller
+`00497a30` with named phases. It reuses the original shape sockets, command
+eligibility (`00436b90`), RNG, movement recovery, work animation row, timers,
+repair holdoff and capacity-limited timber transfer. `check-native-dismantling.py`
+compares 2,048 complete native calls including person fields, RNG, consumer order,
+plan timber and model stages. Route, allocation and removal consumers are supplied;
+this is not an end-to-end original executable gameplay replay.
+
+The activation/cancel reconstruction (`0040a0c0`) rewrites matching shared orders
+and restarts state-10 workers. Its initial packed payload uses the **inside** shape
+socket; subsequent command initialization uses the outside socket. Another 128
+original calls compare that rewrite across four orientations, including target
+lookup from terrain and cancellation. These calls deliberately contain no
+residents: the ordinary six-slot assignment path uses existing reviewed order,
+state and occupancy helpers and is covered by live tests. Special structures and
+the original seventh following object word remain unported.
+
+64 original panel input calls establish command 0x40, target ID, enable/cancel
+payload, feedback and blocked/busy/suppressed gates. The real desktop button
+uses the cached native HFX art; eight additional hover/pressed captures bring
+panel checks to 392 full calls, 284 identical draw traces and 108 limited to the
+previously documented charge-overflow correction. 32 browser canvases compare
+261,120 RGBA pixels against those source-art submissions.
+
+Live entry now initializes the original person state before starting orders,
+instead of leaving selected entrants in state 14. This matters when dismantling
+reassigns queued braves. Construction registration excludes dismantling orders
+and buildings so repairs cannot consume those workers. The existing shared plan
+owns wood/stage mutation. Controlled removal suppresses the generic death flash.
+
+Portable scenarios cover five residents plus three queued workers, shared-order
+references, no teleport, original work phases, all eight timber units recovered,
+three or more model stages, cancellation, reassignment, four orientations and
+identical state/RNG at 5, 30, 60, 144 and 240 Hz. Actual browser right-click entry
+and button activation exercise visible workers, original sprite-frame ownership,
+staged removal, timber recovery, cancellation and panel cleanup.
+
+Remaining scope: full native allocator/command-buffer/command-completion ownership,
+class scheduling, special structures and their extra slots, other building panels,
+contextual controls for an incomplete building after cancellation, and original
+plan allocation/terrain preparation. The incomplete-plan panel is not yet present,
+so cancellation is usable but its UI restart path remains open. Ordinary troop
+selection voices/person panels and occupant hover tint remain unfinished; the
+new hover/pressed artwork applies to the dismantling control only. These bounds
+keep the broad repair and HUD checkpoints partial.

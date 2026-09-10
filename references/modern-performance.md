@@ -1275,3 +1275,30 @@ reports maintainability 85.8, average cyclomatic 2.8, p90 5 and 12 existing modu
 cycles. Broader module/DOM lifecycle cleanup and high-DPI/other-device/heavy-effects
 profiling remain open. Native command buffering, panel lifetime, full selection
 states and voices remain separate parity boundaries.
+
+
+## Dismantling with original worker behavior (2026-09-10)
+
+The new controller runs on the existing native turn clock and uses shared movement,
+animation, occupancy, command-pool and construction-plan helpers. Presentation
+continues on uncapped RAF. The original work phases and RNG delays are preserved;
+5/30/60/144/240 Hz tests produce identical final positions, timber, turns and RNG.
+A normal DOM button reuses the cached original-art canvas and uniform HUD scale;
+hover/pressed changes repaint only when its draw trace changes. No new textures,
+render loops or per-frame worker allocations were introduced by the controller.
+
+Headed Chrome 153, ANGLE Metal / Apple M5, 1440×1000 CSS pixels, DPR 1 measured
+736 dismantling frames: CPU p50 **2.6 ms**, p95 **6.3 ms**; frame gaps p50
+**8.3 ms**, p95 **10.3 ms**, maximum **16.6 ms**; at most **105** WebGL submissions.
+The script excludes the deliberate screenshot/pause boundary from frame gaps.
+No heavy checks or app edits overlapped profiling. This supports roughly 120 FPS
+in the eight-worker scenario, not a paired speedup or a whole-game performance
+claim. Raw report: `references/performance/2026-09-10-dismantling.json`.
+
+Named phases keep the command reconstruction separate from its live-world adapter.
+The entry adapter now shares one state initializer and simple dispatch branches.
+Fallow reports maintainability 85.7, average cyclomatic 2.8, p90 5, twelve existing
+module cycles. Formatting passes; repository-wide ox-standard still reports
+existing lint debt (including model/type style), so it is not claimed clean.
+The new dismantling module has no lint errors. Broader world-adapter cleanup,
+other hardware/high-DPI and heavy-effect profiling remain open.

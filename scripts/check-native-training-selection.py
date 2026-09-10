@@ -62,18 +62,36 @@ for event, modifier, suppress, active, selected, blocked, occupied in itertools.
     else:assert emitted==(99 if occupied else 0)
     input_count+=1
 
+dismantle_count=0
+for event,suppress,active,dismantling,blocked,occupied in itertools.product(
+        (0xf0,0xf1),(0,1),(0,1),(0,0x8000),(0,0x800),(False,True)):
+    write(0x895fb0,'B',active);write(0x895fb3,'H',2);write(0x895fb5,'h',-1)
+    write(building+0x9c,'H',dismantling);write(0x89c661,'I',blocked)
+    cpu.mem_write(0x897997,bytes(15));write(0x897997+12,'B',99 if occupied else 0)
+    events=[];result=call(0x47b460,event,0,suppress)
+    accepted=bool(active and not suppress and event==0xf0)
+    assert result==active
+    assert events==([['sound',0x6a]] if accepted else []),(event,suppress,active,events)
+    if accepted and not blocked and not occupied:
+        assert read(0x897997+12,'B')==0x40
+        assert read(0x897997+4,'I')==int(not dismantling)
+        assert read(0x897997+8,'I')==2
+    else:assert read(0x897997+12,'B')==(99 if occupied else 0)
+    dismantle_count+=1
+print(f'PASS: {dismantle_count} original dismantling panel input cases, activation/cancel payloads, suppression and busy/blocked command buffers')
+
 cases=[]
-for group, selected_mask, blocked_mask, flags3 in itertools.product((False,True),range(8),range(8),(0,128,0x10000000,0x90000180)):
+for group, selected_mask, blocked_mask, flags3, flags2 in itertools.product((False,True),range(8),range(8),(0,128,0x10000000,0x90000180),(0,128,0x800,0x880)):
     before=[]
     for i in range(3):
         p=people+i*256
-        flags2=128 if blocked_mask&(1<<i) else 0
+        flags4=(128 if blocked_mask&(1<<i) else 0) | (0x800 if i==2 else 0)
         selection=0x25 | (128 if selected_mask&(1<<i) else 0)
-        write(p+0x10,'II',flags2,flags3);write(p+0x7a,'B',selection)
-        before.append(dict(id=10+i,flags2=flags2,flags3=flags3,selectionFlags=selection))
+        write(p+0xc,'III',flags2,flags4,flags3);write(p+0x7a,'B',selection)
+        before.append(dict(id=10+i,flags2=flags2,flags4=flags4,flags3=flags3,selectionFlags=selection))
     write(command,'IIIBBB',0,int(not(selected_mask&2)) if group else 6,2 if group else 11,0x61 if group else 0x2a,0,0)
     call(0x43e8e0,tribe,command)
-    after=[dict(id=10+i,flags2=read(people+i*256+0x10,'I'),flags3=read(people+i*256+0x14,'I'),selectionFlags=read(people+i*256+0x7a,'B')) for i in range(3)]
+    after=[dict(id=10+i,flags2=read(people+i*256+0xc,'I'),flags4=read(people+i*256+0x10,'I'),flags3=read(people+i*256+0x14,'I'),selectionFlags=read(people+i*256+0x7a,'B')) for i in range(3)]
     cases.append(dict(occupants=before,clicked=11,group=group,expected=after))
 js="""import{selectTrainingOccupants}from'./app/training.ts';let s='';for await(const c of process.stdin)s+=c;
 console.log(JSON.stringify(JSON.parse(s).map(c=>{selectTrainingOccupants(c.occupants,c.clicked,c.group);return c.occupants})));"""

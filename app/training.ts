@@ -60,7 +60,7 @@ interface QueueWorld {
 // The clicked occupant determines the whole group's toggle direction. Selecting
 // one trainee retains its work; selecting the group clears that resume flag.
 export function selectTrainingOccupants(
-  occupants: Pick<TrainingPerson, 'id' | 'flags2' | 'flags3' | 'selectionFlags'>[],
+  occupants: Pick<TrainingPerson, 'id' | 'flags4' | 'flags3' | 'selectionFlags'>[],
   clicked: number,
   group: boolean
 ) {
@@ -71,7 +71,7 @@ export function selectTrainingOccupants(
     if (!selecting) {
       p.selectionFlags &= ~128
       p.flags3 = (p.flags3 & ~128) >>> 0
-    } else if (!(p.flags2 & 128)) {
+    } else if (!(p.flags4 & 128)) {
       p.selectionFlags |= 128
       p.flags3 = (group ? p.flags3 & ~0x10000000 : p.flags3 | 0x10000000) >>> 0
     }

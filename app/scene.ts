@@ -1,7 +1,7 @@
 import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
 import { drawTrainingPanel } from './training-panel.ts'
-import { selectBuildingOccupants } from './live-building-entry.ts'
+import { selectBuildingOccupants, dismantleBuilding } from './live-building-entry.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
@@ -1689,12 +1689,19 @@ export class GameScene {
     }
     if (this.overviewActive || this.world.inputMask) return
     for (const b of this.world.buildings) {
-      if (b.kind !== 'camp' || b.team !== 'blue' || b.progress < 1 || b.hp <= 0 || !this.visible(b))
+      if (
+        b.kind !== 'camp' ||
+        b.team !== 'blue' ||
+        (b.progress < 1 && !((b.admission?.activity ?? 0) & 0x8000)) ||
+        b.hp <= 0 ||
+        !this.visible(b)
+      )
         continue
       const admission = b.admission
       // ponytail: live activity/hover drives this first panel integration;
       // replace with the native panel pool/lifetime when its controller is ported.
-      if (!admission || (!(admission.activity & 128) && this.hoveredObject !== b.id)) continue
+      if (!admission || (!(admission.activity & (128 | 0x8000)) && this.hoveredObject !== b.id))
+        continue
       let panel = this.trainingPanels.get(b.id)
       if (!panel) {
         panel = document.createElement('div')
@@ -1724,6 +1731,17 @@ export class GameScene {
           })
           panel.appendChild(button)
         }
+        const dismantle = document.createElement('button')
+        dismantle.type = 'button'
+        dismantle.className = 'dismantle-control'
+        dismantle.addEventListener('click', () => {
+          if (this.world.inputMask || this.overviewActive) return
+          dismantleBuilding(this.world, b)
+          this.onSound(0x6a)
+          this.onChange()
+          this.renderTrainingPanels()
+        })
+        panel.appendChild(dismantle)
         // HUD controls must not become camera drags or battlefield orders.
         for (const type of ['pointerdown', 'pointerup', 'pointermove'])
           panel.addEventListener(type, event => event.stopPropagation())
@@ -1754,6 +1772,8 @@ export class GameScene {
         dismantling: !!(admission.activity & 0x8000),
         warning: !!(admission.flags3 & 0x1000),
         turn: this.world.turn,
+        controlHover: panel.lastElementChild!.matches(':hover'),
+        controlPressed: panel.lastElementChild!.matches(':active'),
       })
       panel.hidden = false
       panel.setAttribute(
@@ -1778,6 +1798,16 @@ export class GameScene {
         button.setAttribute('aria-pressed', String(person.selected))
         button.title = 'Click to select; Shift-click for all occupants; right-click to focus'
       }
+      const dismantle = panel.lastElementChild as HTMLButtonElement
+      dismantle.setAttribute('aria-pressed', String(!!(admission.activity & 0x8000)))
+      dismantle.setAttribute(
+        'aria-label',
+        admission.activity & 0x8000 ? 'Cancel dismantling' : 'Dismantle warrior hut'
+      )
+      dismantle.title =
+        admission.activity & 0x8000
+          ? 'Cancel dismantling'
+          : 'Dismantle warrior hut and recover timber'
     }
   }
   cancelOverview() {

@@ -1,8 +1,8 @@
 {
-  "revision": 9,
+  "revision": 10,
   "discovery": {
     "status": "open",
-    "note": "Discovery remains open. Revision 9 separates warrior-training occupant selection from remaining contextual controls. Dismantling, person-panel opening, command scheduling, panel lifetime and other panel kinds remain unfinished. New discoveries can still expand scope.",
+    "note": "Discovery remains open. Revision 10 isolates ordinary warrior-hut dismantling from the broader repair/damage lifecycle before live integration; all remaining buildings, special structures and global order ownership remain open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1122,7 +1122,7 @@
               "id": "interface.hud.training-selection",
               "title": "Warrior-training occupant selection and group toggles",
               "status": "verified",
-              "note": "Ordinary warrior-training occupant selection: native single-click toggling, Shift group toggling based on the clicked member, eligibility and selection/work flags. 384 original input cases and 512 command comparisons pass. Live keyboard/mouse selection, external selection preservation, blocking, actual movement orders, physical-slot holes and five desktop hit-area scales pass; source-art/sprite regressions and M5 performance remain checked. Original command buffering/turn dispatch, full selection-state ownership, secondary voices, contextual person-panel opening, hover/pressed tint and dismantling remain separate open scope.",
+              "note": "Ordinary warrior-training single/Shift group selection with corrected flags4 (+0x10) eligibility. 384 original input calls and 2,048 command comparisons vary flags2/flags4 independently; portable turning-versus-command eligibility regression and real browser keyboard/mouse input, slot holes, external selection, blocking, actual movement orders and five desktop scales pass. Source-art and 392 GPU sprite-pose checks pass. Original command buffering/turn dispatch, full selection-state ownership, secondary voices, person panels and occupant hover tint remain separate open scope.",
               "evidence": [
                 "app/training.ts",
                 "app/live-building-entry.ts",
@@ -1131,7 +1131,8 @@
                 "scripts/check-browser-training-panel.mjs",
                 "references/reverse-engineering.md",
                 "references/modern-performance.md",
-                "references/performance/2026-09-10-training-selection.json"
+                "references/performance/2026-09-10-training-selection.json",
+                "tests/dismantling.test.mjs"
               ]
             },
             {
@@ -1802,7 +1803,55 @@
             "tests/fixtures/building-exits.json",
             "references/performance/2026-09-10-building-exits.json"
           ],
-          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, person command ownership and panic motion remain adapters. Original task-1 approach, task-2 work and task-9 departure now feed live readiness and completion; mixed-class scheduling/counter ownership remains open. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open."
+          "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, person command ownership and panic motion remain adapters. Original task-1 approach, task-2 work and task-9 departure now feed live readiness and completion; mixed-class scheduling/counter ownership remains open. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open.",
+          "requirements": [
+            {
+              "id": "economy.repair.dismantling",
+              "title": "Ordinary warrior-hut dismantling, workers and timber recovery",
+              "status": "verified",
+              "note": "Ordinary warrior-hut activation/cancellation, reassigned residents/queued braves, worker phases, timber recovery and model stages. 2,048 complete command-10 comparisons, 128 activation calls without residents, 64 panel input cases, four-orientation live scenarios and 5\u2013240 Hz deterministic results pass. Actual browser input covers five residents plus three queued braves, original work sprite frames, no teleport, staged removal, all eight timber recovered and cancellation. Full native allocator/command-completion ownership, special structures/extra slots and incomplete-plan UI restart after cancellation remain separate unfinished scope.",
+              "evidence": [
+                "app/building-dismantle.ts",
+                "app/live-building-entry.ts",
+                "scripts/check-native-dismantling.py",
+                "scripts/check-native-training-selection.py",
+                "scripts/check-browser-dismantling.mjs",
+                "tests/dismantling.test.mjs",
+                "references/reverse-engineering.md",
+                "references/modern-performance.md",
+                "references/performance/2026-09-10-dismantling.json"
+              ]
+            },
+            {
+              "id": "economy.repair.remaining",
+              "title": "Remaining damage, evacuation, repair and demolition lifecycle",
+              "status": "partial",
+              "note": "Native geometry/stages, crew limits and capacity-limited timber deliveries are integrated. Original constructed-plan dispatch now assigns roughly half the crew to fetching on sixteen-turn phases. Repair delay decrements per turn, holds at one without workers and resumes on a staffed decision phase. Resumption shortens positive-lived model-76 smoke in all nonempty shape cells to sixteen turns and refreshes terrain. Compared 5120 complete plan calls and 1264 complete smoke-cleanup calls, alongside prior registration, delivery and damage checks. Live one-of-two fetching, unstaffed repair holdoff, complete construction/upgrade and browser burn/wait/repair are checked. Native plan allocation, unbuilt-plan terrain preparation, person command ownership and panic motion remain adapters. Original task-1 approach, task-2 work and task-9 departure now feed live readiness and completion; mixed-class scheduling/counter ownership remains open. Live occupant release now preserves XY, restores native ground/visibility and exit facing, and clears motion deltas without changing physical velocity. Damage, terrain collapse, upgrade, training and celebration share the reviewed helpers. Full staged admission, six-slot ownership and ordinary command dispatch remain open.",
+              "evidence": [
+                "scripts/check-native-building-damage.py",
+                "scripts/check-native-building-fire.py",
+                "scripts/check-browser-building-fire.mjs",
+                "app/timber.ts",
+                "scripts/check-native-timber-delivery.py",
+                "scripts/check-browser-construction.mjs",
+                "tests/timber.test.mjs",
+                "tests/fixtures/timber-delivery.json",
+                "scripts/check-native-construction-crew.py",
+                "scripts/check-native-repair-smoke.py",
+                "tests/fixtures/construction-crew.json",
+                "tests/fixtures/repair-smoke.json",
+                "tests/building-workers.test.mjs",
+                "app/building-workers.ts",
+                "app/building-shapes.ts",
+                "app/building-occupants.ts",
+                "app/live-people.ts",
+                "scripts/check-native-occupants.py",
+                "tests/building-exits.test.mjs",
+                "tests/fixtures/building-exits.json",
+                "references/performance/2026-09-10-building-exits.json"
+              ]
+            }
+          ]
         },
         {
           "id": "economy.classes",

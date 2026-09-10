@@ -1161,3 +1161,22 @@ command/selection-state ownership and panel allocation/lifetime remain open.
 Continue critical first-mission controls, effects and campaign comparisons after
 these integrations. Full parity and the broader modernization audit remain
 unfinished; discovery stays open.
+
+
+### Latest visible integration: staged warrior-hut dismantling
+
+The original panel button now assigns residents and queued braves to native
+command 10. Workers leave in place, walk to the original work sockets, dismantle
+the hut through its original model stages and recover timber. Cancellation,
+shared-order cleanup, source-art control states and original work sprites pass
+native and live browser checks. Selection eligibility now uses the correct native
+flag word with an expanded regression oracle. The eight-worker scenario measured
+roughly 120 FPS; deterministic outcomes match at 5–240 Hz. Details and limits are
+in the reverse-engineering and modern-performance references.
+
+Next: tower socket/clipping admission, then incomplete-building contextual controls
+(including restarting cancelled dismantling), followed by critical first-mission
+controls, effects and campaign comparisons. Keep visible mechanics, clean shared
+TypeScript and measured modern performance together. Full native allocation,
+command/state/class scheduling, special structures, all other panels, campaign
+and full engine parity remain unfinished. Discovery stays open.

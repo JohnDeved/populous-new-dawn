@@ -68,6 +68,15 @@ for count in range(6):
                 events = []; call(0x504bc0, panel, building, 0, 0, panel+64, panel+66, 0, 0)
                 c['expected'] = dict(width=read(panel+64,'H'), height=read(panel+66,'H'), events=events)
                 cases.append(c)
+                if count == 5 and cost == 480 and progress == 160:
+                    for pressed in (False, True):
+                        hovered = dict(c, controlHover=True, controlPressed=pressed)
+                        write(0x89c6c1, 'I', 2); write(0x984580, 'ii', 100, 10)
+                        write(0x895faf, 'B', int(pressed)); write(0x5da074, 'I', 0)
+                        events = []; call(0x504bc0, panel, building, 0, 0, panel+64, panel+66, 0, 1)
+                        hovered['expected'] = dict(width=read(panel+64,'H'), height=read(panel+66,'H'), events=events)
+                        cases.append(hovered)
+                    write(0x895faf, 'B', 0)
 fixture = dict(executableSha256=identity['sha256'], cases=cases)
 if '--record' in sys.argv:
     (ROOT/'tests/fixtures/training-panel.json').write_text(json.dumps(fixture,separators=(',',':'))+'\n')

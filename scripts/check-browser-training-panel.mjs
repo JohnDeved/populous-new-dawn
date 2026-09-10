@@ -60,7 +60,7 @@ try {
   await page.setViewportSize({width:1440,height:1000})
   await page.waitForFunction(()=>window.testScene.container.clientWidth===1240)
   await page.screenshot({path:'/private/tmp/populous-training-panel.png'})
-  const buttons=panel.locator('button:not([hidden])')
+  const buttons=panel.locator('button:not(.dismantle-control):not([hidden])')
   const roster=await page.evaluate(()=>window.panelCheck.b.admission.occupants.filter(Boolean))
   const selected=()=>page.evaluate(()=>window.testScene.world.selected)
   const inside=()=>page.evaluate(()=>window.panelCheck.b.admission.inside)
