@@ -56,7 +56,8 @@ test('live building assault enters, strikes, shakes and destroys via native dama
     assert.ok(w.sounds.some(s=>s.cue===1));assert.ok(w.effects.some(f=>f.debris)||w.sounds.some(s=>s.cue===0x34))
     advanceGame(w,clock,1/12)
     assert.equal(w.buildingOrders.active,0,'destroyed target releases its command reference')
-    assert.equal(u.native,null)
+    assert.ok([17,19].includes(u.native.state), 'the released attacker returns to native rest')
+    assert.equal(currentPersonOrder(w.buildingOrders,u.native),undefined)
   }
 })
 

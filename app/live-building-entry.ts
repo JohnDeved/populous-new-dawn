@@ -92,10 +92,11 @@ const person = (w: World, u: Unit): EntryPerson =>
   Object.assign(createLivePerson(w, u), { savedVehicle: 0, orderDelay: 0 })
 
 function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
-  const p = person(w, u),
+  const p = u.native ?? person(w, u),
     orders = w.buildingOrders,
     id = allocatePersonOrder(orders)
   if (!id) return
+  u.native = null
   Object.assign(orders.records[id], {
     model: b.admission?.activity && b.admission.activity & 0x8000 ? 10 : 8,
     a: b.id,

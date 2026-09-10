@@ -1,8 +1,8 @@
 {
-  "revision": 23,
+  "revision": 24,
   "discovery": {
     "status": "open",
-    "note": "Revision 23 exposes the previously implicit follower-footprint history and close-terrain shading requirement. Native emission/storage and palette rendering are verified; full animation/visibility ownership, alternate cache modes and the rest of whole-frame fidelity remain open. Full-game discovery remains open.",
+    "note": "Revision 24 separates ordinary resting-slot geometry/controller integration from the remaining crowd movement and formation lifecycle. One bounded resting requirement is verified; native movement orders, selection, specialist/vehicle behavior and discovery remain open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1564,7 +1564,39 @@
             "scripts/check-native-orders.py",
             "tests/game.test.mjs"
           ],
-          "note": "Group orders/fight slots exist; full native formation and steering behavior open."
+          "note": "Ordinary resting rings, settling, gestures and departure/death reshaping now use recovered controllers. Native movement orders, group destination distribution, avoidance and complete specialist/vehicle ownership remain open.",
+          "requirements": [
+            {
+              "id": "movement.groups.resting",
+              "title": "Ordinary outdoor resting rings and live slot ownership",
+              "status": "verified",
+              "evidence": [
+                "app/live-resting.ts",
+                "app/person-idle.ts",
+                "app/resting-slots.ts",
+                "scripts/check-native-idle.py",
+                "scripts/check-native-resting-slots.py",
+                "tests/resting-groups.test.mjs",
+                "scripts/check-browser-resting.mjs",
+                "scripts/check-resting-performance.mjs",
+                "references/performance/2026-09-10-resting.json",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Original geometry/search/ownership/controller comparisons and actual live groups, compaction, status retention, pause, 5\u2013240 Hz replay and browser poses/orders verified for ordinary free followers. Full global scheduling, selected state, special classes and native command handoff remain lifecycle scope."
+            },
+            {
+              "id": "movement.groups.lifecycle",
+              "title": "Complete group movement, avoidance, orders and special-class formation lifecycle",
+              "status": "partial",
+              "evidence": [
+                "app/model.ts",
+                "scripts/check-native-orders.py",
+                "tests/game.test.mjs",
+                "GOAL.md"
+              ],
+              "note": "Ordinary destinations still use the browser group-order adapter. Full movement/avoidance, selected-person transitions, specialist/vehicle resting, allocator and native queue ownership remain unfinished."
+            }
+          ]
         },
         {
           "id": "movement.boats",

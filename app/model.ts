@@ -1,3 +1,4 @@
+import { cancelLiveResting, stepLiveResting } from './live-resting.ts'
 import { createFootprints, type Footprints } from './footprints.ts'
 import {
   joinMeleeGroup,
@@ -120,7 +121,7 @@ import {
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
-import type { ObjectCells } from './object-cells.ts'
+import { removeObjectFromCell, type ObjectCells } from './object-cells.ts'
 import {
   stepBuildingEntry,
   isDismantling,
@@ -1050,7 +1051,7 @@ export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (u.native) return u.native
+  if (u.native && (u.native.state !== 10 || u.native.commandStatus === 19)) return u.native
   if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
     ? (u.builder?.person ?? null)
@@ -1413,6 +1414,7 @@ function planRoute(w: World, u: Unit, end: Point) {
   return planLivePath(w, u, end)
 }
 function route(w: World, u: Unit, end: Point) {
+  cancelLiveResting(w, u)
   return acceptLivePath(w, u, planRoute(w, u, end))
 }
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
@@ -2153,6 +2155,7 @@ function release(w: World, u: Unit, preserveOrders = false) {
   return occupant
 }
 export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
+  cancelLiveResting(w, u)
   if (!preserveOrders) cancelLiveBuildingAttack(w, u)
   cancelBuildingEntry(w, u)
   clearLivePath(w, u)
@@ -2475,8 +2478,13 @@ function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
 
 function processBuilderWork(w: World, u: Unit, b: Building) {
   const task = u.builder!,
-    p = (task.person ??= createLivePerson(w, u)),
+    p = (task.person ??= u.native ?? createLivePerson(w, u)),
     pose = buildingPose(b)
+  if (u.native === p) {
+    if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
+    w.objectCells.objects.delete(p.id)
+    u.native = null
+  }
   Object.assign(p, nativePosition(w, u))
   p.x &= 65535
   p.y &= 65535
@@ -3466,9 +3474,10 @@ function stepOutcome(w: World) {
       for (let i = 0; i < w.land.flags.length; i++) w.land.flags[i] |= 8
     },
     releasePerson: p => {
-      p.unit.native ??= createLivePerson(w, p.unit)
+      const person = p.unit.native ?? createLivePerson(w, p.unit)
       // Celebration owns its native occupant exit after dropping carried logs.
       releaseTasks(w, p.unit)
+      p.unit.native = person
     },
     damage: (p, amount) => {
       p.unit.hp -= amount / 20
@@ -3910,9 +3919,6 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
     if (u.inside !== null) continue
     const existing = u.flight ?? u.fight?.motion ?? u.native
     const p = existing ?? createLivePerson(w, u)
-    // Ordinary browser people have not yet run the native allocation flags.
-    // Vehicles, invisibility and shield flags retain their values on native records.
-    if (!u.native && !u.flight) p.flags4 |= 256
     p.life = Math.round(u.hp * 20)
     people.set(p.id, p)
     add(Object.assign(p, { shake: 0, shakeOrigin: 0 }))
@@ -4646,7 +4652,17 @@ function stepTurn(w: World) {
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
-    if (u.path.length) {
+    if (
+      u.team !== 'wild' &&
+      !work &&
+      !target &&
+      !u.guard &&
+      !u.harvest &&
+      !u.delivery &&
+      (!u.path.length || (u.native && [1, 17, 19].includes(u.native.state)))
+    ) {
+      stepLiveResting(w, u)
+    } else if (u.path.length) {
       const next = u.path[0],
         length = builderActivity(u) ? (u.builder?.person?.speed ?? unitSpeed(u)) : unitSpeed(u)
       if (!supportsFollower(w, next)) {
@@ -4759,6 +4775,7 @@ function stepTurn(w: World) {
       } else if (w.ai.reincarnation) w.redRespawn = 12
     }
   for (const u of dead) {
+    cancelLiveResting(w, u)
     const f = effect(w, supportsFollower(w, u) ? 'death' : 'splash', u)
     if (f.kind === 'death') f.unit = { team: u.team, kind: u.kind, heading: u.heading }
   }

@@ -107,8 +107,14 @@ GPU equivalence are checked. Incremental tile uploads preserve the result at muc
 lower transfer cost. Full native animation ownership/visibility catch-up, alternate
 16-pixel terrain cache, settings and save ownership remain open.
 
-Next compare original formation/spacing, resting-slot and movement ownership,
-selection state transitions and modifiers, and world-projected drag geometry and
+Ordinary resting formations are now live: original six-slot searches and ring
+geometry, ten-turn settling, inward facing, gestures and departure/death reshaping.
+Native comparisons, 273 portable tests, 5–240 Hz/irregular replay, real browser
+orders and 576 GPU sprite poses cover this bounded slice. Shared state snapshots
+are now lazy; the documented 200-person comparison preserves exact state while
+reducing initialization cost. Full native movement and selection remain open.
+
+Next integrate original group movement/order ownership, selection state transitions and modifiers, and world-projected drag geometry and
 hit tests. Use executable evidence and
 original visuals to resolve the exact footprint and selection behavior. Integrate
 real desktop interaction regressions across camera rotation, slopes, occlusion

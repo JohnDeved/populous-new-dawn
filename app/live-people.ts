@@ -1,3 +1,5 @@
+import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
+import { initializeRestingPerson } from './person-idle.ts'
 import { stampFootprints } from './footprints.ts'
 import { startLiveBuildingOrders } from './live-building-combat.ts'
 import { currentPersonOrder } from './person-orders.ts'
@@ -106,7 +108,7 @@ export type LivePerson = StatefulPerson &
     burnTrail: number
   }
 const short = (n: number) => (n << 16) >> 16
-// Bootstrap the existing browser follower at the handoff to native state 41.
+// Bootstrap the existing browser follower at the handoff to native controllers.
 // Legacy orders/physics are not native records; their full migration is pending.
 export function createLivePerson(w: World, u: Unit): LivePerson {
   const pos = nativePosition(w, u),
@@ -129,7 +131,8 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     counter: (w.turn - 1) & 255,
     flags2: u.inside === null ? 0 : 0x800000,
     flags3: selected ? 128 : 0,
-    flags4: 0x20000000,
+    // Preserve the outdoor target eligibility previously supplied by each spell adapter.
+    flags4: 0x20000000 | (u.inside === null ? 256 : 0),
     physics: rules.personModels[model].physics,
     speed: 0,
     angle,
@@ -288,20 +291,27 @@ export function setLivePersonAnimation(w: World, p: LivePerson, object: number) 
 }
 
 function context(w: World) {
-  const people = syncLivePersonCells(w)
+  let people: Map<number, LivePerson> | undefined
   const state = {
     randomState: w.randomState,
-    people,
-    shamans: w.manaTribes.map(
-      (_, i) =>
-        w.units.find(
-          u =>
-            u.hp > 0 &&
-            u.kind === 'shaman' &&
-            u.team === (i === 0 ? 'blue' : i === 1 ? 'red' : null)
-        )?.id ?? 0
-    ),
-    cellPeople: (c: number) => [...objectsInCell(w.objectCells, c)].map(p => people.get(p.id)!),
+    get people() {
+      return (people ??= syncLivePersonCells(w))
+    },
+    get shamans() {
+      return w.manaTribes.map(
+        (_, i) =>
+          w.units.find(
+            u =>
+              u.hp > 0 &&
+              u.kind === 'shaman' &&
+              u.team === (i === 0 ? 'blue' : i === 1 ? 'red' : null)
+          )?.id ?? 0
+      )
+    },
+    cellPeople: (c: number) => {
+      const people = state.people
+      return [...objectsInCell(w.objectCells, c)].map(p => people.get(p.id)!)
+    },
   }
   const effects: CelebrationEffects = {
     animation: (person, object, upper) => {
@@ -341,12 +351,8 @@ function context(w: World) {
   return { state, effects }
 }
 
-function initializeLivePerson(
-  w: World,
-  u: Unit,
-  { state, effects }: ReturnType<typeof context>,
-  p = u.native!
-) {
+function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>, p = u.native!) {
+  const { state, effects } = ctx
   const tribes = w.manaTribes.map((t, i) => ({
     x: 0,
     y: 0,
@@ -371,7 +377,17 @@ function initializeLivePerson(
     releaseMotion: p => effects.releaseMotion(p as LivePerson),
     deselectPassengers: unexpected,
     rebuildTrainingQueue: unexpected,
-    rebuildFormation: unexpected,
+    rebuildFormation: cell => rebuildLiveRestingSlots(w, cell),
+    idleApproach: () =>
+      initializeLiveIdleApproach(w, u, p, () => initializeLivePerson(w, u, ctx, p)),
+    resting: () =>
+      initializeRestingPerson(w, p, {
+        setAnimation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
+        releaseMotion: () => {
+          releasePersonRoute(w.motionRoutes, p)
+          clearLivePath(w, u)
+        },
+      }),
     startOrders: p => {
       if (currentPersonOrder(w.buildingOrders, p)?.model === 19)
         startLiveBuildingOrders(w, p as LivePerson, state)
@@ -382,6 +398,18 @@ function initializeLivePerson(
     w.manaTribes[i].flags2 = t.flags
   })
   u.cargo = p.cargo / 100
+}
+
+export function changeLivePersonState(w: World, u: Unit, next?: number) {
+  const p = u.native!
+  if (p.flags2 & 0x100000) return
+  if (next !== undefined) {
+    p.previousState = p.state
+    p.state = next
+  }
+  const ctx = context(w)
+  initializeLivePerson(w, u, ctx)
+  w.randomState = ctx.state.randomState
 }
 
 export function initializeLivePanic(w: World, u: Unit) {
@@ -408,7 +436,6 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     const position = existing ?? nativePosition(w, u)
     if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell) continue
     const p = existing ?? createLivePerson(w, u)
-    if (!existing) p.flags4 |= 256
     p.life = Math.round(u.hp * 20)
     units.set(p.id, u)
     people.unshift(p)
@@ -777,6 +804,7 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
 
 // Ground motion is shared by panic, celebration and staged building entry.
 export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
+  registerLivePerson(w, p)
   const turning = turnPerson(p) // Native class-1 motion precedes its state controller.
   if (p.speed && !(p.flags2 & 0x84000)) {
     const terrain = (x: number, y: number) => terrainPointHeight(w.land, { x, y })
@@ -823,6 +851,8 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
 }
 
 export function stepLivePerson(w: World, u: Unit) {
+  // Celebration/panic still accept legacy placement before their physics visit.
+  syncLivePersonCells(w)
   const ctx = context(w),
     { state, effects } = ctx
   const p = u.native!

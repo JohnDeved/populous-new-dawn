@@ -6843,3 +6843,46 @@ outer graphics scheduling/settings, alternate 16-pixel cache and save/load remai
 unfinished. `0047acb0`/`0047ae00` were exported while tracing the queued selection
 work; they are unreviewed evidence, not claimed selection ports. Group resting
 slots, movement ownership and native 3D selection are still the next priority.
+
+### Live ordinary resting groups (2026-09-10)
+
+`app/live-resting.ts` now composes the recovered `004d6f90` approach,
+`004d7330` initialization, `004d73e0` resting controller and `004d5120` /
+`004d5420` / `004d56f0` slot search/validation/rebuild with actual terrain,
+shared indexed search, retained cell lists, route allocation, sprite animation,
+timber drops and sound. Followers occupy the original one-to-six-person shapes,
+settle for ten turns, face the ring center, play original gestures and close gaps
+when another member leaves or dies. Shamans use their special stationary rest.
+Search exhaustion retains the native wait -> ordinary orders -> retry sequence.
+
+A completed browser task initializes the native state after its legacy visit;
+physics starts next turn. Ordinary routing retains person status while using its
+existing animation controller. Building entry takes the same person record;
+builders detach their record before their older position adapter updates it.
+This prevents duplicate terrain-list insertion and preserves shield/protection
+flags during rest-to-movement handoff. Outdoor target eligibility moved from
+separate spell adapters into the common bootstrap; this is preservation of the
+existing live boundary, not a claim to complete original object allocation.
+
+Validation reran 16,384 native indexed-search operations, all 44 slot offsets,
+8,192 cell/slot/search/rebuild cases and 24,576 pose/geometry/collision/initialization/
+rest/approach cases. These compare the original executable and explicitly supplied
+consumers; they are not a whole-game recording. Portable live checks cover groups
+of 1–6 and 12, exact positions/slot ownership, departure/death compaction, pause,
+protection retention, exhausted searches and 5–240 Hz/irregular replay. Actual
+browser right-click orders show original poses and shrinking rings; all 576 GPU
+sprite poses, ground shadows and selection-arrow regressions pass. Construction,
+spells, panic, combat, celebration and the complete first-mission test also pass.
+
+Existing tests now account explicitly for the four approach/rest speed draws of
+two idle shamans; the original Blast eight-draw and Lightning forty-draw particle
+budgets remain checked. A fire victim is introduced at bolt arrival so its prior
+idle movement cannot move it outside the tested flame cell. Departure checks
+still require release of the old route while permitting the new resting route.
+The campaign route probe uses an actually trained warrior once all braves train.
+
+Remaining scope: ordinary group destination distribution still uses the browser
+command adapter; selected-person state 14, modifiers/deselection and native 3D
+drag selection are next. Full movement/avoidance, airborne terrain recovery,
+specialist/vehicle resting, native allocation limits and full queue ownership
+remain unfinished. These boundaries keep `movement.groups` partial.

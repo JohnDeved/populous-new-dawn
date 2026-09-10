@@ -10,7 +10,7 @@ import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '.
 import {modelMatrix,modelPoint} from '../app/projection.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast,rotateBuildingPlan,addBuilding,buildingObject,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
+import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, unitAnimationSource, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 test('scenery shade follows cell occupants through overlap, depletion and regrowth', async () => {
   const {syncLandscapeObjects}=await import('../app/model.ts');
@@ -227,7 +227,7 @@ test('original level layout, native foundations, and the complete mission',()=>{
  command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',{x:guard.x+1,z:guard.z}));advance(w,2);assert.ok(!w.units.includes(guard),'Blast knocks the guard off the western coast');command(w,w.shrines.find(s=>s.kind==='vault'));until(w,()=>w.unlockedCamp,45);
  assert.ok(placeBuilding(w,'camp',{x:-2,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
  select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
- select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-22}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},ENEMY).length);assert.equal(bridge.active,false);foundations(w);
+ select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-22}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='warrior'),...HOME},ENEMY).length);assert.equal(bridge.active,false);foundations(w);
  command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');tick(w,1/12);assert.equal(enemyShaman.hp,0);assert.equal(enemyShaman.native.state,44);until(w,()=>!w.units.includes(enemyShaman),8);assert.equal(w.redRespawn,0,'the native first-mission script disables Dakini reincarnation');
  // Fight through the remaining defenders using the units that were actually trained above.
  select(w,'warrior');for(let attempt=0;attempt<30&&w.status==='playing';attempt++){const enemy=w.buildings.find(b=>b.team==='red')??w.units.find(u=>u.team==='red'&&u.inside===null);if(!enemy)break;command(w,enemy);advance(w,8);}
@@ -394,12 +394,13 @@ test('native Lightning delays the upper flash and regenerates eight segments for
 });
 
 test('native spell allocation, discrete flight, RNG trails and delayed impact',()=>{
+ const rngAfter=n=>{const state={randomState:1};for(let i=0;i<n;i++)random(state);return state.randomState;};
  const make=()=>{const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.buildings=[];w.randomState=1;w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
  assert.deepEqual(nativeStep3D({x:32760,y:-32760,h:32760},2047,511,-321),{x:32760,y:32455,h:32759},'negative odd length and short wrapping verified against x86');
  const w=make();cast(w,'blast',{x:10,z:0});assert.equal(w.shots.blast,3);assert.deepEqual(w.projectiles[0].target,{x:11,z:-1});tick(w,6/12);
  assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
- tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,1,'no jitter on the first Blast movement turn');
- tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,1335621054,'four trailing particles consume eight simulation draws');
+ tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,rngAfter(4),'two shamans initialize approach and rest (four speed draws); no first-turn Blast jitter');
+ tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,rngAfter(4+8),'four trailing particles consume eight draws after the four idle initialization draws');
  const spark=w.effects.find(e=>e.sprite?.sequence==='blastTrail'),sparkHeight=spark.animation.h;
  assert.equal(spark.animation.remaining,0);assert.notEqual(w.cosmeticRandom.randomState,1);
  tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,10,10]);
@@ -407,7 +408,7 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  assert.equal(spark.animation.state,4);assert.equal(spark.animation.object,318);assert.equal(spark.animation.h,sparkHeight+20,'jitter sparks rise on both processing turns');
  tick(w,8/12);assert.ok(w.effects.includes(flash));w.paused=true;tick(w,1);assert.ok(w.effects.includes(flash));
  w.paused=false;tick(w,1/12);assert.ok(!w.effects.includes(flash),'native flash removed on its ninth active turn');
- const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,2308592903);assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
+ const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,rngAfter(4+40));assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
  const trails=lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail');assert.equal(new Set(trails.map(e=>e.animation.f1)).size,4,'native class counter staggers initial poses');
  tick(lightning,4/12);assert.equal(trails[0].animation.state,4);assert.equal(trails[0].animation.object,326);assert.ok(lightning.effects.includes(trails[0]));
  tick(lightning,3/12);assert.ok(trails.every(e=>!lightning.effects.includes(e)),'four initial turns plus three second-phase turns');
@@ -1716,7 +1717,7 @@ test('live native routes release query ownership, expire failures and walk low s
  for(let i=0;i<15;i++)tick(w,1/12);assert.equal(w.motionRoutes.failedSearches[cached],0);
  assert.deepEqual(findPath(w,u,ENEMY),[]);assert.ok(w.pathfinding.state.searches>0,'expired failure searches again');
  select(w,'shaman');command(w,shore);assert.ok(u.path.length);assert.deepEqual(u.path.at(-1),shore);
- assert.ok(w.pathfinding.people.get(u.id)?.motionGroup);assert.equal(u.native,null,'routing does not claim animation or ordinary order ownership');
+ assert.ok(w.pathfinding.people.get(u.id)?.motionGroup);assert.equal(u.native.state,10);assert.equal(u.native.commandStatus,0);assert.equal(unitAnimationSource(u),null,'ordinary routing retains flags but does not claim native animation ownership');
  until(w,()=>u.x===shore.x&&u.z===shore.z,15);advance(w,1);assert.ok(w.units.includes(u));assert.equal(u.hp,maxHp('shaman'));
  for(let id=1;id<=400;id++)assert.equal(new DataView(w.motionRoutes.records.buffer).getInt16(id*109,true),0);
  w.pathfinding.solver.tribeRequests.fill(123);tick(w,1/12);assert.ok(w.pathfinding.solver.tribeRequests.every(n=>n<123),'request limits observe this turn only');

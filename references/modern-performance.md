@@ -2046,3 +2046,31 @@ older shipped footprint feature became faster. Headless timings do not establish
 hardware FPS. Full-map deformation transfer cost and native alternate texture
 cache ownership remain separate unfinished work. Fallow's existing hotspot and
 cycle reports remain open; this slice adds no framework or runtime dependency.
+
+### Resting groups: local membership and lazy state context (2026-09-10)
+
+Resting slots use the existing persistent terrain-cell lists rather than scanning
+all followers per slot. The common person initializer now obtains the full people
+snapshot and shaman lookup only when a consumer requests them. Ground motion
+registers its own record in O(1); legacy panic/celebration retain their necessary
+placement reconciliation. Idle shaman-facing gestures defer their shaman lookup
+until the original controller asks for it. No rendering-rate cap was added.
+
+`node scripts/check-resting-performance.mjs` compares 200 state-19 initializations
+with and without the previous eager reconciliation per person. On this Mac,
+Node v24.18.0, paired medians were 2.974 ms eager and 0.484 ms lazy; person fields,
+RNG and terrain-list heads are identical. Raw samples and limits are in
+`references/performance/2026-09-10-resting.json`. This CPU microbenchmark excludes
+setup and does not establish browser/hardware FPS. Existing selection-count and
+legacy-controller world scans remain potential profiling targets.
+
+`tests/resting-groups.test.mjs` retains exact turn histories, final person records
+and footprint counts at 5/30/60/120/144/240 Hz and irregular frame intervals.
+`check-browser-resting.mjs` verifies actual desktop orders, visible sprites,
+pause and departure reshaping without opening a new user-facing tab. The shared
+movement interpolation and elapsed animation clocks remain unchanged.
+
+Fallow still flags the existing large model/controller dependency cycle; this
+slice keeps native behavior in the existing small recovered modules and adds one
+live composition module. Whole-model dependency refactoring remains separate
+work, rather than claiming the repository passes every Fallow threshold.

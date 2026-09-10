@@ -1,3 +1,4 @@
+import { cancelLiveResting } from './live-resting.ts'
 import {
   buildingPose,
   browserPosition,
@@ -116,11 +117,12 @@ export function cancelLiveBuildingAttack(w: World, u: Unit) {
 // target selection and non-building command-19/21 consumers remain unfinished.
 export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
   if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 19) {
+    cancelLiveResting(w, u)
     cancelLiveBuildingAttack(w, u)
     const id = allocatePersonOrder(w.buildingOrders)
     if (!id) return
     clearLivePath(w, u)
-    const p = createLivePerson(w, u),
+    const p = u.native ?? createLivePerson(w, u),
       point = nativePosition(w, b)
     Object.assign(w.buildingOrders.records[id], {
       model: 19,

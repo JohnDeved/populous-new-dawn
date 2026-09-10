@@ -78,7 +78,9 @@ test('crews leave finished huts in all four orientations before the plan release
     const b=w.buildings.at(-1)
     for(let n=0;n<2000&&b.progress<1;n++)tick(w,1/12)
     assert.equal(b.progress,1);assert.ok(crew.every(u=>u.work===b.id&&u.builder))
+    const departingRoutes=new Map()
     for(let n=0;n<600&&crew.some(u=>u.builder);n++){
+      for(const u of crew){const p=w.pathfinding.people.get(u.id);if(p)departingRoutes.set(u.id,p)}
       const before=crew.map(u=>({x:u.x,z:u.z,task:u.builder.task,phase:u.builder.phase}))
       for(const u of crew)if(u.builder.task===9)seen.add(u.builder.phase)
       tick(w,1/12)
@@ -94,7 +96,11 @@ test('crews leave finished huts in all four orientations before the plan release
     }
     assert.ok(crew.every(u=>!u.builder&&u.work===null))
     assert.ok(b.builders.every(id=>id===0))
-    assert.ok(crew.every(u=>!w.pathfinding.people.has(u.id)),'departure must release its route ownership')
+    for(const u of crew){
+      const old=departingRoutes.get(u.id),next=w.pathfinding.people.get(u.id)
+      assert.equal(old?.motionGroup??0,0,'departure releases its motion-route reference')
+      if(next){assert.notEqual(next,old);assert.equal(next,u.native);assert.equal(next.state,17,'any replacement route belongs to the new idle approach')}
+    }
   }
   for(const phase of [2,3,4,5,6,18,21])assert.ok(seen.has(phase),'live departure phase '+phase)
 })

@@ -16,6 +16,7 @@ import {
   cast,
   select,
   addBuilding,
+  addUnit,
   nativePosition,
   browserPosition,
   buildingPose,
@@ -185,13 +186,15 @@ test('real Lightning ignition reaches nearby surviving followers before occupant
   const w = createWorld()
   w.manaWorld.gameFlags = 32
   const b = w.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
-  const u = w.units.find(u => u.team === 'blue' && u.kind === 'brave')
   // This flame cell is outside the bolt's lethal cell; direct-hit people die first.
   const point = buildingFirePoints(buildingPose(b))[2]
-  Object.assign(u, browserPosition(point), { inside: null, work: null, path: [] })
   w.shots.lightning = 1
   select(w, 'shaman')
   assert.ok(cast(w, 'lightning', b))
+  // Place the follower when the bolt arrives; idle formations may move someone
+  // away from this flame cell during the projectile's flight.
+  while (w.projectiles.length) tick(w, 1 / 12)
+  const u = addUnit(w, 'blue', 'brave', browserPosition(point))
   for (let i = 0; i < 20 && !b.burn; i++) tick(w, 1 / 12)
   assert.equal(u.native?.state, 26)
   assert.equal(u.native.timer, 63)
