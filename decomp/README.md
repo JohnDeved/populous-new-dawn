@@ -4539,3 +4539,13 @@ source-art comparator is `scripts/panel_pixels.py`. Reviewed reconstruction and
 remaining live ownership work are recorded in the reverse-engineering log.
 The manifest now verifies 1,116 address exports. These additions do not complete
 the original worship command/admission controller or connect the new panels to play.
+
+## 2026-09-11 — worship place search and command body
+
+Run `check-native-worship-place.py <exe>` and
+`check-native-person-worship.py <exe>` for original place-query ordering and the
+four command-27 phases. `--record` refreshes their portable captures. The manifest
+now verifies 1,119 exports, adding `0043c340`, `004a8e70` and `004ea6b0`.
+The last export's nontrivial building/coast/vehicle branches remain unreviewed;
+the place oracle currently executes its ordinary dry-terrain path. Live command,
+route and roster integration is still unfinished.

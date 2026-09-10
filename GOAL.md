@@ -142,9 +142,11 @@ differences in actual play and preserving the existing regression checks.
    Point destinations now emit the original model-61 sparkle, height offset,
    four-visit lifetime and second UI cue, reusing the existing atlas and renderer.
    Worship-panel artwork and fifty-slot standing geometry now have native and
-   browser-pixel comparisons. Next connect the original worship slot/admission
-   ownership and contextual controls; the current proximity adapter is insufficient
-   for an exact roster. These reconstructions are not live gameplay parity yet.
+   browser-pixel comparisons. Command 27's approach/arrival/prayer controller and
+   two-pass slot search now match native comparisons as well. Next connect live
+   route ownership, the head's slot cursor/timer, original worship admission and
+   contextual controls; the proximity adapter is insufficient for an exact roster.
+   These reconstructions are not live gameplay parity yet.
    Complete target-panel ownership, bitmap transitions, HUD/vehicle ownership,
    buffering and alternate input modes remain open.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,

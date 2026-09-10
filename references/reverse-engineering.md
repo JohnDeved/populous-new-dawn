@@ -7528,3 +7528,51 @@ still pass against their retained browser captures (170 canvases, 1,694,976 pixe
 including construction's existing height correction and the unchanged one-byte
 alpha tolerance. All 296 portable checks and TypeScript pass. No gameplay credit
 or overall parity increase is assigned to these unintegrated reconstructions.
+
+### 2026-09-11 — original worship command and place search (integration pending)
+
+`0043c340` searches from the head's current slot cursor through slot 49, first
+rejecting exact-position stationary people other than the searching person, then
+allowing occupied positions on its second pass. Both passes still require route
+feasibility; neither wraps back to positions before the cursor. An initial route
+probe targets `004a8e70`'s approach position, one cell in front of the head's
+coarse-cell center. Failed candidate probes clear the path-failure flag; failure
+of the initial approach probe retains the route builder's flag. Success returns
+the point, slot and pass (1 or 2). `findWorshipPlace` shares `worshipPositions` and
+the existing native math helper rather than duplicating the offset table.
+
+`check-native-worship-place.py` executes 1,024 real place searches and endpoint
+corrections on ordinary dry terrain. Only route feasibility is supplied. Complete
+query ordering, flags and outputs match, including self-occupancy, stationary
+enemies, moving people, non-person objects, full exhaustion and wrapped coordinates.
+The new `004ea6b0` export includes building, coastal and vehicle endpoint correction;
+those branches are **not newly verified** by these dry-terrain comparisons. They
+must be connected through the correct shared route consumers before live parity
+can be claimed; substituting a radius or the ordinary route planner is insufficient.
+
+`stepWorshipPerson` reconstructs command 27 (`0043bcc0`) for a target validated by
+the enclosing command dispatcher. Its four phases are approach, place admission,
+prayer animation and a paused prayer pose. Original signed-coordinate thresholds,
+counter masks, shaman admission, occupied-place retry, movement restart and
+sound 82 requests remain explicit. Free-slot admission writes a sixteen-visit
+head timer and advances/wraps its cursor. Exact arrival snaps to the chosen place,
+zeros velocity/speed, releases the route, and changes `turnAngle` from a target
+coordinate into the angle toward the head. It does not immediately assign the
+rendered heading. The `+0x57/+0x59` target is distinct from the route's `+0x53/+0x55`
+destination; executable comparisons caught that inferred-field ambiguity.
+
+Prayer delays draw 8–23 visits from `0x89bc72`, the separate presentation RNG,
+then decrement once on entry. They do not consume `0x89d178` gameplay RNG.
+`check-native-person-worship.py` compares 4,096 complete command-body calls with
+controlled route/placement/movement/presentation consumers, real native occupancy,
+signed ranges, frame gates and RNG. It checks command fields, head cursor/timer,
+callback order, termination and unchanged gameplay RNG. These are isolated
+controller comparisons, not composed live physics, animation or frame-rate proof.
+
+Portable captures retain varied branches rather than sampling only a repeating
+phase. `tests/person-worship.test.mjs` covers the search and controller against
+those executable-bound results. All 298 portable tests pass. The live migration
+must still attach native command-27 records, share raw route probing and endpoint
+correction, implement head cursor expiry, use the real cell-list roster and connect
+the panel controls. The earlier rendered-panel checks remain valid; this turn adds
+no shipped visual feature and no verified gameplay credit.

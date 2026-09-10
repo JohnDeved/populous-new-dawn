@@ -114,3 +114,29 @@ export function worshipPositions(head: { x: number; y: number; angle: number }) 
     return { x: ((head.x & 0xfe00) + 256 + x) & 65535, y: ((head.y & 0xfe00) + 256 + y) & 65535 }
   })
 }
+
+// 0x4a8e70: initial approach is one cell in front of the head.
+export function worshipApproach(head: { x: number; y: number; angle: number }) {
+  const point = { x: (head.x & 0xfe00) + 256, y: (head.y & 0xfe00) + 256 }
+  movePosition(point, ((Math.trunc(head.angle / 512) + 2) & 3) * 512, 512)
+  return point
+}
+
+// 0x43c340. The second pass accepts occupied slots; it still requires a route.
+export function findWorshipPlace(
+  head: { x: number; y: number; angle: number; nextSlot: number },
+  person: { flags4: number },
+  occupied: (point: { x: number; y: number }) => boolean,
+  reachable: (point: { x: number; y: number }) => boolean
+) {
+  if (!reachable(worshipApproach(head))) return null
+  const positions = worshipPositions(head)
+  for (let pass = 1; pass <= 2; pass++)
+    for (let slot = head.nextSlot; slot < positions.length; slot++) {
+      const point = positions[slot]
+      if (pass === 1 && occupied(point)) continue
+      if (reachable(point)) return { point, slot, mode: pass }
+      person.flags4 = (person.flags4 & ~0x10000000) >>> 0
+    }
+  return null
+}
