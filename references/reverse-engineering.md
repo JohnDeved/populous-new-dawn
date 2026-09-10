@@ -6130,3 +6130,55 @@ branches are staged; the live adapter still owns ordinary attack orders. Do not
 claim complete command ownership/restoration or increase lifecycle credit. The
 live change in this version is the equivalent shared idle routine. Browser combat
 poses/physics/sound/handoff and the original sprite regression are checked.
+
+
+## 2026-09-10 — attack search, march aggregation and automatic retargeting
+
+`app/combat-order-search.ts` reconstructs command 19/21's front half of `0051a2a0`,
+through target dispatch at `0051a8db` or its early return at `0051be34`. It handles
+common alert/entry flags, approach-point selection, ordinary movement recovery,
+firewarrior manual/automatic differences, scan scheduling and retry visits. Existing
+random speed, animation selection and retry helpers are reused.
+
+Search runs on entry or the four-visit counter phase. Ordinary people update an
+eight-record march table keyed by both order payload words; an existing entry still
+updates when the table is full. Counts wrap as bytes, minimum distance is retained,
+and new entries require wrapped distance strictly greater than 2,560. Assembly at
+`0051a56b`, `0051a58b` and `0051a5d4` identifies the participation byte as **+0x1e**.
+The initially inferred +0x7c offset was wrong; comparison caught it before release.
+The animation stamp is separate (+0x18). Record storage uses an ordinary bounded
+array rather than reproducing packed unaligned byte writes in TypeScript.
+
+Selection maps fight/person/building/plan target types to phases 1/2/3/4; firewarrior
+person/building phases become 10/11. Missing automatic targets trigger a second
+selection centered on the person's current coarse cell, with even engagement
+radius. Active automatic orders scan radius zero every fourth visit, including the
+same visit that first chose a target. This periodic scan replaces the pending
+restart decision, even when it finds nothing. Completion and restart stay separate
+until the attack phase/tail; combining them would change native behavior.
+`retargetCombatOrder` is shared by these local scans and available for busy-target
+retarget integration. No-result handling remains the caller's native rule.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-combat-search.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/combat-order-search.test.mjs
+npm run check
+```
+
+**8,192 native front-half executions pass**, comparing tracked person fields,
+ordered consumer snapshots, simulation RNG, alert, every march record and both
+pending results. Inputs cover models 2–7, commands 19/21, entry/counter scheduling,
+retry, cargo/airborne/passenger poses, signed timers, boundary distances, zero/full
+march tables, count wrap, selection/fallback failure and target types. Original
+recovery speed, animation setter, wait, idle and RNG execute. A valid stationary
+vehicle object supplies passenger animation lookup. Wild/angel/unused model records
+with invalid ordinary animation rows are outside this command test domain.
+283 portable captures include all six tested models and multiple-selection visits.
+
+The oracle deliberately stops before target validity and attack dispatch. It
+supplies `0051c110` approach points, `00438af0` area eligibility, `0051c3c0` target
+selection, `00520300` selected-target preparation, range, destination and motion
+release. Those call contracts are checked, not their full world integration.
+Command 28's special-target branch and the attack phases are not certified by this
+comparison. Search is staged and has no live game effect until the remaining
+controller and actual shared queue consumers are composed. No lifecycle credit.

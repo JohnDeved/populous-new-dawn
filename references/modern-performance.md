@@ -1796,3 +1796,19 @@ GPU-time or whole-engine claim. Broader hardware and population coverage stay op
 maintainability, average cyclomatic 2.7/p90 5 and twelve existing dependency cycles;
 legacy adapter debt remains explicit. The full sprite/shadow/selection checks
 protect the shared animation change.
+
+
+## 2026-09-10 — attack search uses existing turn primitives
+
+The staged attack-order front half reuses movement recovery, RNG, animation and
+wait/retry helpers. March aggregation uses a bounded eight-entry array with one
+search per native scan visit; it retains byte count wrapping and minimum distance.
+No packed-memory emulation, duplicate queue, new dependency or presentation timer.
+The required target/world callbacks correspond to existing native consumers.
+
+8,192 native boundary comparisons and 283 portable captures pass; 243 repository
+tests pass. The new module has no ox-standard findings. Fallow remains 85.5
+maintainability, average cyclomatic 2.7/p90 5, twelve existing dependency cycles.
+The new module is not on a live path yet, so no hardware/frame-time improvement or
+regression measurement is claimed. Existing uncapped rendering and fixed-turn
+mechanics remain unchanged; measure the composed controller when integrated.

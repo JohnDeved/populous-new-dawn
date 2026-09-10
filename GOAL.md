@@ -1487,3 +1487,20 @@ Retain command-21 periodic retargeting, queued-work restoration and native compl
 no saved browser-task replay. Return to first-mission attacks and visible spell
 behavior after this integration. The broad performance pass is finished; new
 mechanics remain fixed-turn and presentation uncapped. Full parity remains open.
+
+
+### Attack-order search and automatic retarget scheduling
+
+Command-19/21 common entry, search/start, retry dispatch, eight-record march
+aggregation, target-type transitions, automatic fallback and periodic local scans
+now match 8,192 native front-half executions. This composes existing movement,
+animation and wait helpers; it preserves independent completion/restart results.
+The byte for march participation is +0x1e (assembly verified), not +0x7c or the
+animation stamp. 283 portable captures retain the new evidence.
+
+Next reconstruct the actual approach-point query (`0051c110`) and building/plan
+attack phases, then compose the controller with world consumers and shared queue
+ownership. The current search comparison supplies target/area/destination consumers
+and stops before attack dispatch; do not claim a complete or live command body.
+Campaign attacks and visible spells remain next after this integration. Preserve
+the complete game scope, readable TS and modern-performance constraints.
