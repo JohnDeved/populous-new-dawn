@@ -198,3 +198,20 @@ export function setPersonAnimation(
   if (w.gameFlags & 2 && previous & 16 && w.sessionSubstate !== null && w.sessionSubstate < 2)
     p.renderFlags |= 16
 }
+
+// Complete 0x4d3250: play the original building-occupant pose once, then hold.
+export function startBuildingOccupantAnimation(
+  p: Animation & { model: number },
+  setAnimation: (object: number) => void,
+  frameCounts: ArrayLike<number>
+) {
+  const object = rules.personAnimationObjects[13 * 9 + p.model] & 255
+  setAnimation(object)
+  p.f2 = 0
+  p.f1 = 1
+  return (
+    (frameCounts[rules.animationObjects[object][0]] *
+      (rules.animationDescriptors[p.draw].step + 1)) &
+    255
+  )
+}

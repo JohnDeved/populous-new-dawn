@@ -13,7 +13,7 @@ export type BuildingOccupant = OrderedPerson & {
   class: number
   tribe: number
   renderFlags: number
-  clip: number
+  supportHeight: number
   h: number
   displacement: { x: number; y: number; h: number }
   anchorX: number
@@ -47,7 +47,7 @@ export interface OccupancyEffects {
   orders: OrderEffects
   leaveVehicle: (person: BuildingOccupant) => void
   adjacentBuilding: (person: BuildingOccupant, model: number) => number
-  towerPosition: (id: number) => { x: number; y: number; clip: number }
+  towerPosition: (id: number) => { x: number; y: number; supportHeight: number }
   terrainHeight: (x: number, y: number) => number
   moveToCell: (person: BuildingOccupant, x: number, y: number, height: number) => void
   insertCell: (person: BuildingOccupant) => void
@@ -132,7 +132,7 @@ export function setPersonOccupancy(
     const tower = effects.adjacentBuilding(p, 4)
     if (tower) {
       const point = effects.towerPosition(tower)
-      p.clip = point.clip & 65535
+      p.supportHeight = point.supportHeight & 65535
       const height = effects.terrainHeight(point.x, point.y)
       effects.moveToCell(p, point.x, point.y, height)
       return

@@ -28,7 +28,7 @@ fields={'homeX':(0x68,'H'),'homeY':(0x6a,'H'),'formationSlot':(0x82,'B'),'angle'
  'physics':(0x30,'B'),'speed':(0x5f,'h'),'cargo':(0x78,'H'),'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'tickPhase':(0x2e,'B'),
  'commandAux':(0xa9,'B'),'commandPhase':(0xaa,'B'),'animationMode':(0xa8,'B'),'selectionFlags':(0x7a,'B'),'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'state':(0x2c,'B'),'substate':(0x2d,'B'),
  'tribe':(0x2f,'b'),'x':(0x3d,'H'),'y':(0x3f,'H'),'height':(0x41,'H'),'velocityX':(0x43,'h'),'velocityY':(0x45,'h'),'velocityZ':(0x47,'h'),
- 'clip':(0x1c,'H'),'renderFlags':(0x35,'H'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),
+ 'supportHeight':(0x1c,'H'),'renderFlags':(0x35,'H'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),
  'assignment':(0x76,'H'),'commandCursor':(0xa6,'B'),'immediateCommand':(0x9b,'H'),
  'orderLocation':(0x83,'H'),'commandStatus':(0xa7,'B'),'workTarget':(0x89,'H'),'vehicle':(0x9f,'H')}
 bfields={'lastActivity':(0x7e,'I'),'queueHead':(0xa2,'H'),'queueFrom':(0xac,'B'),'entryDelay':(0xab,'B'),'entryTimer':(0xae,'B'),'entering':(0xad,'B'),
@@ -109,7 +109,7 @@ const actions=[],b=c.building,w={people:new Map(c.people.map(p=>[p.id,p])),order
  turn:c.turn,buildingAt:()=>c.terrainBuilding,buildings:new Map([[b.id,b],[101,{...b,id:101,class:c.otherClass,inside:0,occupants:[0,0,0,0,0,0]}]])};
 const effects={orders:{prepare:()=>{throw Error('unexpected prepare')},stopWork:p=>{if(p.workTarget===100)actions.push(['work',100]);},releaseSpell:()=>{throw Error('uncovered spell cancellation')},
  deleteObject:id=>actions.push(['delete',id]),releaseFight:p=>actions.push(['fight',p.id])},leaveVehicle:p=>actions.push(['vehicle',p.id]),
- adjacentBuilding:(p,model)=>{actions.push(['adjacent',p.id,model]);return model===4?c.tower:c.special;},towerPosition:id=>{actions.push(['tower',id]);return {x:1234,y:4321,clip:321};},
+ adjacentBuilding:(p,model)=>{actions.push(['adjacent',p.id,model]);return model===4?c.tower:c.special;},towerPosition:id=>{actions.push(['tower',id]);return {x:1234,y:4321,supportHeight:321};},
  terrainHeight:(x,y)=>{actions.push(['height',x&65535,y&65535]);return 65400;},moveToCell:(p,x,y,h)=>{actions.push(['move',p.id,x,y,h]);p.x=x;p.y=y;p.h=(h<<16)>>16;},
  insertCell:p=>actions.push(['insert',p.id]),removeCell:p=>actions.push(['remove',p.id]),updateIndicator:b=>actions.push(['indicator',b.id]),
  planExitPoint:b=>{actions.push(['plan',b.id]);return {x:3072,y:4096};}};
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     for trial in range(2048):
         c=case();p=c['people'][0];c['mode']=[0,1,2,3,4,255,256][trial%7]
         p.update(model=trial%9,flags2=rng.getrandbits(32),flags3=rng.getrandbits(32),flags4=rng.getrandbits(32),
-          assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),height=rng.randrange(65536),clip=rng.randrange(65536),
+          assignment=rng.randrange(65536),renderFlags=rng.randrange(65536),height=rng.randrange(65536),supportHeight=rng.randrange(65536),
           velocityX=rng.randrange(-32768,32768),velocityY=rng.randrange(-32768,32768),velocityZ=rng.randrange(-32768,32768),
           commandCursor=rng.randrange(8),immediateCommand=rng.choice([0,0,2]),orderLocation=rng.randrange(65536),commandStatus=8,
           commands=[rng.choice([0,1,1,2]) for _ in range(8)],state=rng.choice([10,33,14]),substate=rng.choice([0,1,3]))

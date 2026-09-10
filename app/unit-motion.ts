@@ -1,4 +1,4 @@
-import { height, TURNS_PER_SECOND, type Unit, type World } from './model.ts'
+import { height, unitAnimationSource, TURNS_PER_SECOND, type Unit, type World } from './model.ts'
 
 interface Position {
   x: number
@@ -34,6 +34,11 @@ export function unitPosition(w: World, u: Unit, result: Position = { x: 0, y: 0,
     ? u.flight.h / 128
     : Math.round(height(w.terrain, u.x, u.z) * 45) / 128 +
       ((0.04 + Math.sin(u.lift * Math.PI) * 2) * 45) / 128
+  const source = unitAnimationSource(u),
+    offset = source?.supportHeight ?? u.supportHeight ?? 0
+  if (offset)
+    result.y =
+      ((source?.h ?? Math.round(height(w.terrain, u.x, u.z) * 45)) + ((offset << 16) >> 16)) / 128
   result.z = u.z
   return result
 }

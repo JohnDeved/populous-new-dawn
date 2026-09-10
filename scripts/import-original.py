@@ -85,7 +85,17 @@ def sprites(data, palette, alpha=False):
 def resolve_object_bank(requested):
     return 2 if requested == 0 else requested # 0x40c670.
 
-def building_shapes(data, objects):
+def building_shapes(data, objects, smoke_offsets=b''):
+    # 0x404640 / 0x4047b0: optional model/orientation corrections, in four-unit coordinates.
+    offsets = [[[0,0,0] for _ in range(4)] for _ in range(30)]
+    for line in smoke_offsets.decode('ascii').splitlines():
+        fields=line.split('#',1)[0].split()
+        if not fields: continue
+        assert len(fields)==6 and fields[0]=='SMOKE', 'Malformed socket correction'
+        model,angle,x,h,y=map(int,fields[1:])
+        assert 0<=model<30 and 0<=angle<4 and all(-32768<=v<=32767 for v in (x,h,y))
+        offsets[model][angle]=[x,h,y]
+    corrected=[80,81,82,*range(110,119),*range(122,131),*range(134,143)]
     # 0x40c880 relocates 64 records (native 0x5ca2ec), each 48 bytes.
     assert len(data) >= 64*48 and len(objects)%54 == 0
     shapes=[]
@@ -99,7 +109,8 @@ def building_shapes(data, objects):
             if not point[2]:break
             smoke.append(point)
         fire=[list(struct.unpack_from('<3B',data,i*48+26+j*3)) for j in range(6)]
-        shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset,smoke=smoke,fire=fire))
+        sockets=[list(struct.unpack_from('<3B',data,i*48+8+j*3)) for j in range(6)]
+        shapes.append(dict(width=width,height=height,x=x,y=y,inside=[ix,iy],outside=[ox,oy],offset=offset,smoke=smoke,fire=fire,sockets=sockets))
     indices=[list(struct.unpack_from('<4b',objects,i+44)) for i in range(0,len(objects),54)]
     assert all(0 <= n < len(shapes) for row in indices for n in row)
     # 0x403d50: object origin relative to its bounding-box reference.
@@ -107,7 +118,7 @@ def building_shapes(data, objects):
         struct.unpack_from('<h',objects,i+48)[0]-struct.unpack_from('<h',objects,i+32)[0],
         struct.unpack_from('<h',objects,i+52)[0]-struct.unpack_from('<h',objects,i+36)[0],
     ] for i in range(0,len(objects),54)]
-    return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]))
+    return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]),socketOffsets={str(model):offsets[i] for i,model in enumerate(corrected)})
 
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]
@@ -126,7 +137,7 @@ def main():
     png(output/'atlas.png', 256, 1024, object_texture(object_atlas(atlas,palette,alpha,rules['objectTextureAlpha'])))
     objects, faces, points = [read(f'objects/{n}0-{object_bank}.dat') for n in ['objs','facs','pnts']]
     shape_data=read('objects/shapes.dat')
-    (project/'app/original-shapes.json').write_text(json.dumps(building_shapes(shape_data,objects),separators=(',',':'))+'\n')
+    (project/'app/original-shapes.json').write_text(json.dumps(building_shapes(shape_data,objects,read('data/smoke.txt')),separators=(',',':'))+'\n')
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
     # Models actually used in this mission, including every hut family, upgrade and all four tribe colors.

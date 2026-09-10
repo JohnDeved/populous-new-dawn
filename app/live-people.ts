@@ -51,6 +51,7 @@ import {
 } from './person-collision.ts'
 import {
   limitPersonVelocity,
+  personSupportHeight,
   markPersonAirborne,
   stepPersonPhysics,
   type PhysicsPerson,
@@ -156,7 +157,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     motionGroup: 0,
     motionIndex: 0,
     recoveryCounter: 0,
-    supportHeight: 0,
+    supportHeight: u.supportHeight ?? 0,
     selectionFlags: selected ? 128 : 0,
     commands: Array(8).fill(0),
     commandCursor: 0,
@@ -219,7 +220,20 @@ export function syncLivePersonCells(w: World) {
       w.objectCells.objects.delete(id)
     }
   for (const u of w.units) {
+    // Preserve the native display offset across ordinary browser order handoff.
+    // Occupancy freezes physics; ordinary movement resumes the native support check.
     const p = people.get(u.id)
+    const offset = p?.supportHeight ?? u.supportHeight
+    if (offset && !((p?.flags2 ?? 0) & 0x4000)) {
+      const point = nativePosition(w, u),
+        cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9),
+        flags = w.land.flags[cell]
+      const b =
+        flags & 512 ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023)) : undefined
+      const value = personSupportHeight(offset, flags, b ? buildingModel(b) : 0)
+      if (p) p.supportHeight = value
+      u.supportHeight = value || undefined
+    }
     if (!p) continue
     if (!w.objectCells.objects.has(p.id)) {
       w.objectCells.objects.set(p.id, p)

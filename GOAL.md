@@ -1180,3 +1180,24 @@ controls, effects and campaign comparisons. Keep visible mechanics, clean shared
 TypeScript and measured modern performance together. Full native allocation,
 command/state/class scheduling, special structures, all other panels, campaign
 and full engine parity remain unfinished. Discovery stays open.
+
+
+### Latest visible integration: guard-tower admission and raised occupants
+
+Ordinary guard towers now admit the three live follower classes through the
+original entry rules, use imported tribe/orientation-specific sockets and display
+height, play the original occupant pose once, and restore movement without an
+XY teleport. Shared physics and imported-sprite regressions accompany the native
+comparisons; 5–240 Hz schedules produce identical outcomes. The close-view
+hardware sample, CPU costs and camera/roof occlusion limits are recorded in the
+modern-performance and reverse-engineering references. No frame-rate cap or extra
+render loop was introduced.
+
+Next: incomplete-building contextual controls, including restarting cancelled
+dismantling; then tower selection controls and critical first-mission mechanics,
+effects and campaign comparisons. Keep native mechanics, visible fidelity,
+maintainable shared code and measured modern performance together. Specialist
+tower attacks/spells, AI reassignment, complete native command/allocation/state
+ownership, other classes, campaign and full engine parity remain unfinished.
+Discovery stays open; finishing this bounded admission feature does not finish
+the tower subsystem or the modernization audit.

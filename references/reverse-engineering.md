@@ -5169,3 +5169,61 @@ so cancellation is usable but its UI restart path remains open. Ordinary troop
 selection voices/person panels and occupant hover tint remain unfinished; the
 new hover/pressed artwork applies to the dismantling control only. These bounds
 keep the broad repair and HUD checkpoints partial.
+
+
+## Guard-tower admission, sockets and held occupants (2026-09-10)
+
+The live command-8 entry controller now admits braves, warriors and shamans to
+ordinary guard towers. The prior browser eligibility gate incorrectly restricted
+towers to braves. Entry retains native capacity one, routing, admission and ground
+cell membership, then initializes state 21 through the shared person initializer.
+Original occupant animation row 13 plays once and holds; its duration comes from
+the requested animation's frame chain and selected descriptor, including the
+native byte wrap. This avoids substituting the current vehicle/visibility object.
+
+`00404540` reads six X/height/Y sockets per shape. Its first three sockets apply
+`004047b0` corrections from the original `data/smoke.txt`, indexed by model and
+orientation. The importer now preserves both tables. The extracted text hashes to
+`48d460819cdbc7d32ae7253150752c3d2ea641b07d797d0914525545f5e19cb1`;
+provenance records it with the other user-supplied assets. New exports `00404640`
+and `004047b0` bring the checked manifest to 991 functions.
+`check-native-building-sockets.py` compares all 3,792 original socket calls across
+158 objects, four orientations and six slots, including integer wrapping and
+signed corrections. The parsed loader table and deterministic terrain heights
+are supplied; lookup/correction geometry executes in the original executable.
+The native text parser itself is not replayed by this oracle.
+
+The old occupancy field called `clip` was actually the existing person display
+height at +0x1c. Both paths now share `supportHeight`. Original body projection
+adds its signed value to ground height; tower admission changes the display
+position without moving the person to an airborne cell. Occupancy freezes physics.
+On an ordinary movement-order handoff, the browser retains the offset until the
+next simulation turn applies the shared native support rule. A guard tower has
+no active-physics support height, so that resumed turn clears it. Departure keeps
+XY rather than teleporting the follower to a doorway. Destruction also releases
+the person record, occupancy and offset.
+
+Expanded native evidence: 6,656 state-initializer calls (512 new state-21 cases),
+2,048 occupant animation calls, and the existing admission/removal matrices.
+Shared regressions pass 30,336 building approach/socket geometry cases, 12,288
+idle initialization/rest/approach cases and 16,384 full physics turns. The state-21
+oracle supplies occupancy, animation, motion-release and preacher-test consumers;
+those tested leaves do not establish the full native scheduler. The animation
+oracle executes the complete original pose routine with real source frame chains.
+
+Portable integration covers blue/red towers, four orientations and all three
+live classes, one-person capacity, source pose/hold, real cell membership,
+non-teleporting exit, destruction and identical simulation/RNG at 5–240 Hz.
+The headed browser check uses actual right-click entry/exit, detects 751 occupant
+sprite pixels through the lattice, and checks the original pose and height.
+Four camera bearings were visually inspected. A higher-view occlusion probe
+measures 42 occupant pixels with the tower present and 987 with its mesh hidden;
+no forced foreground rendering or guessed height correction was added. Earlier
+high-view samples had no exposed pixels. These checks establish live visibility
+and physical occlusion, not an exact original raster comparison at every camera.
+
+Remaining scope: guard-tower contextual selection panels, specialist attacks and
+spells, preacher/firewarrior/spy classes, tower territory/reveal bookkeeping,
+AI reassignment and order-location counters, original command completion/global
+allocation ownership and complete native scheduling. The state-21 live controller
+currently handles the held pose; broader occupied-person behavior remains open.

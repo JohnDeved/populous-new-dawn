@@ -70,6 +70,24 @@ export function buildingFirePoints(b: BuildingShapePose) {
   )
 }
 
+// 0x404540 / 0x4047b0. Shape socket bytes are X/height/Y; the first
+// three sockets apply the original model/orientation corrections from smoke.txt.
+// Height remains separate from terrain: occupants retain their ground-cell Z.
+export function buildingSocketPoint(b: BuildingShapePose, slot: number) {
+  if (!Number.isInteger(slot) || slot < 0 || slot > 5)
+    throw new RangeError('Invalid building socket')
+  const s = shape(b),
+    [x, h, y] = s.sockets[slot]
+  const offsets = data.socketOffsets as Record<string, number[][]>
+  const [dx, dh, dy] =
+    slot < 3 ? (offsets[b.object]?.[Math.trunc(short(b.angle) / 512)] ?? [0, 0, 0]) : [0, 0, 0]
+  return {
+    x: (b.anchorX - s.x * 256 + x * 32 + short(dx * 4)) & 65535,
+    y: (b.anchorY - s.y * 256 + y * 32 + short(dy * 4)) & 65535,
+    heightOffset: h * 16 + short(dh * 4),
+  }
+}
+
 // Shared native mask traversal for occupancy and the browser placement preview.
 function shapeCells(s: ReturnType<typeof shape>, anchorX: number, anchorY: number, mask = 1) {
   const cx = (anchorX >>> 8) & 254,

@@ -1302,3 +1302,33 @@ module cycles. Formatting passes; repository-wide ox-standard still reports
 existing lint debt (including model/type style), so it is not claimed clean.
 The new dismantling module has no lint errors. Broader world-adapter cleanup,
 other hardware/high-DPI and heavy-effect profiling remain open.
+
+
+## Guard-tower occupants on the shared modern renderer (2026-09-10)
+
+Tower entry reuses the original movement, command, animation, occupancy and cell
+helpers. One signed display-height field replaces a misleading duplicate field.
+Its renderer uses the existing shared sprite atlas and interpolated positions;
+there is no additional render loop, texture, unit mesh, frame-rate cap or global
+traversal. Native simulation rules advance on the existing turn clock, with
+identical outcomes and held animation at 5/30/60/144/240 Hz. Exit height cleanup
+uses the existing person-cell synchronization pass and native physics rule.
+
+The isolated headed Chrome 153 / ANGLE Metal / Apple M5 sample at 1440×1000 CSS
+pixels, DPR 1 recorded 1,061 close-view approach frames: CPU p50 **1.5 ms**, p95
+**2.0 ms**; RAF timestamp gaps p50 **3.6 ms**, p95 **3.9 ms**, maximum **7.2 ms**;
+maximum **83** WebGL submissions. No app edits or heavy checks overlapped the
+measurement. This is a different view/workload from earlier 120 Hz eight-worker
+samples, so it does not prove a speedup or a physical display refresh rate. It
+records observed browser callback cadence and CPU cost, not whole-game or other
+hardware performance. Raw report:
+`references/performance/2026-09-10-tower-entry.json`.
+
+The GPU visibility check keeps normal roof/lattice occlusion instead of drawing
+the occupant on top of the structure. Four camera-bearing screenshots supplement
+the native socket and imported-pose checks. Fallow reports maintainability 85.7,
+average cyclomatic complexity 2.8, p90 5 and twelve existing module cycles.
+Formatting passes; repository-wide ox-standard continues to report existing
+lint debt. Native-comparison scripts retain low-level field detail, while live
+TypeScript shares named socket, pose and support-height helpers. Broader scheduler,
+module-cycle cleanup, high-DPI and heavy-effects profiling remain unfinished.

@@ -239,6 +239,7 @@ export type Projectile = {
 }
 type Battle = Point & { id: number; members: number[]; angle: number }
 export type Unit = Point & {
+  supportHeight?: number
   entry?: BuildingEntry
   native: LivePerson | null
   burnTrail?: number
@@ -2347,7 +2348,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
 
-// Door arrival for timber delivery and remaining tower/temple admission adapters.
+// Door arrival for timber delivery and the remaining temple admission adapter.
 function atBuildingEntrance(w: World, p: Point, b: Building) {
   const door = entrance(w, b)
   return Math.abs(p.x - door.x) < 112 / 256 && Math.abs(p.z - door.z) < 112 / 256
@@ -2369,7 +2370,7 @@ export function command(w: World, p: Point) {
     if (shrine && shrine.kind === 'vault' && u.kind !== 'shaman') continue
     if (
       friendly &&
-      (friendly.progress < 1 || !['hut', 'camp'].includes(friendly.kind)) &&
+      (friendly.progress < 1 || !['hut', 'camp', 'tower'].includes(friendly.kind)) &&
       u.kind !== 'brave'
     )
       continue
@@ -2403,28 +2404,22 @@ export function command(w: World, p: Point) {
       u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 }
     count++
   }
-  tell(
-    w,
-    count && dismantling
-      ? 'Braves assigned to dismantle the building and recover timber.'
-      : count
-        ? shrine
-          ? `Worshipping ${shrine.name}. ${shrine.kind === 'vault' ? 'Only your shaman can learn its secrets.' : 'One follower is enough.'}`
-          : friendly
-            ? friendly.progress < 1
-              ? 'Braves assigned to construction.'
-              : friendly.kind === 'camp'
-                ? 'Braves sent to train as warriors.'
-                : 'Braves sent to live in the hut.'
-            : enemy
-              ? 'Your followers march to battle.'
-              : 'Your followers are on the move.'
-        : constructionFull
-          ? 'This building already has its full construction crew.'
-          : shrine?.kind === 'vault'
-            ? 'Select your shaman to worship the Vault of Knowledge.'
-            : 'No land route. Bring your shaman to the shore and make a Land Bridge.'
-  )
+  let message = 'No land route. Bring your shaman to the shore and make a Land Bridge.'
+  if (count) {
+    message = 'Your followers are on the move.'
+    if (dismantling) message = 'Braves assigned to dismantle the building and recover timber.'
+    else if (shrine)
+      message = `Worshipping ${shrine.name}. ${shrine.kind === 'vault' ? 'Only your shaman can learn its secrets.' : 'One follower is enough.'}`
+    else if (friendly) {
+      if (friendly.progress < 1) message = 'Braves assigned to construction.'
+      else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
+      else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
+      else message = 'Braves sent to live in the hut.'
+    } else if (enemy) message = 'Your followers march to battle.'
+  } else if (constructionFull) message = 'This building already has its full construction crew.'
+  else if (shrine?.kind === 'vault')
+    message = 'Select your shaman to worship the Vault of Knowledge.'
+  tell(w, message)
 }
 
 function processVaultTask(w: World, u: Unit) {
@@ -4182,7 +4177,7 @@ function stepTurn(w: World) {
     if (u.inside !== null) {
       const b = w.buildings.find(b => b.id === u.inside && b.hp > 0)
       if (b) {
-        if (b.kind === 'camp' && u.entry) stepBuildingEntry(w, u, b)
+        if ((b.kind === 'camp' || b.kind === 'tower') && u.entry) stepBuildingEntry(w, u, b)
         continue
       }
       release(w, u)
@@ -4191,7 +4186,7 @@ function stepTurn(w: World) {
     if (
       work &&
       'hp' in work &&
-      (work.kind === 'hut' || work.kind === 'camp') &&
+      (work.kind === 'hut' || work.kind === 'camp' || work.kind === 'tower') &&
       (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
       !work.burn &&
       !u.builder &&

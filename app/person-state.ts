@@ -41,6 +41,7 @@ export type PersonStateEffects = {
   specialBattle?: () => void
   idleApproach?: () => void
   resting?: () => void
+  occupying?: () => void
 }
 const short = (n: number) => (n << 16) >> 16
 
@@ -188,7 +189,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 26, 36, 39, 41].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 26, 36, 39, 41].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -266,6 +267,11 @@ export function initializePersonState(
   } else if (p.state === 19) {
     if (!effects.resting) throw new Error('State 19 requires its resting initializer')
     effects.resting()
+  } else if (p.state === 21) {
+    if (!effects.occupying) throw new Error('State 21 requires its occupancy consumers')
+    p.assignment |= 1
+    p.speed = 0
+    effects.occupying()
   } else if (p.state === 26) {
     effects.setAnimation(p, rules.personAnimationObjects[25 * 9 + p.model])
     p.flags4 = (p.flags4 | 128) >>> 0
@@ -328,7 +334,7 @@ export function releaseSelectedPeople(
     resetPersonMotion(p)
     if (p.flags2 & 0x100000) continue
     const next = w.levelFlags & 2 && p.model === 7 ? 39 : rules.personModels[p.model]?.nextState
-    if (![1, 8, 10, 14, 17, 19, 26, 36, 39, 41].includes(next))
+    if (![1, 8, 10, 14, 17, 19, 21, 26, 36, 39, 41].includes(next))
       throw new RangeError(`Unported person-state initializer ${next}`)
     p.previousState = p.state
     p.state = next

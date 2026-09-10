@@ -19,6 +19,7 @@ import {
 import {
   enterBuilding,
   removeBuildingOccupant,
+  setPersonOccupancy,
   repriceTraining,
   trainingOccupantWeight,
   type OccupancyEffects,
@@ -42,7 +43,7 @@ import {
 } from './person-orders.ts'
 import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
-import { insertObjectIntoCell, removeObjectFromCell } from './object-cells.ts'
+import { insertObjectIntoCell, removeObjectFromCell, moveObjectInCells } from './object-cells.ts'
 import { finishPersonPreparation, preparePersonTurn } from './person-update.ts'
 import {
   personAnimationObject,
@@ -51,13 +52,19 @@ import {
   resetPersonMotion,
 } from './person-state.ts'
 import { terrainPointHeight } from './native-terrain.ts'
-import { buildingOutsidePoint } from './building-shapes.ts'
+import { buildingOutsidePoint, buildingSocketPoint } from './building-shapes.ts'
 import { dropCarriedTimber, timberTransfer } from './timber.ts'
 import { stepDismantling, toggleDismantling } from './building-dismantle.ts'
 import { changeBuildingWork } from './building-damage.ts'
+import { initializeIdleApproach } from './person-idle.ts'
+import { restingCellCollision } from './person-collision.ts'
+import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
+import { setPersonAnchor, personStateAfterOrders } from './person-order-update.ts'
+import { startBuildingOccupantAnimation } from './animation.ts'
+import sprites from './original-units.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 
-type EntryPerson = LivePerson & { clip: number; savedVehicle: number; orderDelay: number }
+type EntryPerson = LivePerson & { savedVehicle: number; orderDelay: number }
 export interface BuildingEntry {
   person: EntryPerson
   orders: OrderPool
@@ -75,7 +82,7 @@ const orderEffects: OrderEffects = {
   releaseFight: unsupported,
 }
 const person = (w: World, u: Unit): EntryPerson =>
-  Object.assign(createLivePerson(w, u), { clip: 0, savedVehicle: 0, orderDelay: 0 })
+  Object.assign(createLivePerson(w, u), { savedVehicle: 0, orderDelay: 0 })
 
 function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
   const p = person(w, u),
@@ -89,11 +96,11 @@ function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
   attachPersonOrder(orders, p, id, 0, orderEffects)
   p.previousState = p.state
   p.state = defaultPersonState(p, w.manaWorld.gameFlags)
-  initializeBuildingOrders(w, p)
+  initializeBuildingPerson(w, p)
   return { person: p, orders }
 }
 
-function initializeBuildingOrders(w: World, p: EntryPerson) {
+function initializeBuildingPerson(w: World, p: EntryPerson) {
   const startup = {
     randomState: w.randomState,
     instantFacing: false,
@@ -126,21 +133,60 @@ function initializeBuildingOrders(w: World, p: EntryPerson) {
     leaveSelectedVehicle: unsupported,
     initializeState: unsupported,
   }
-  initializePersonState(startup, p, {
-    setAnimation: effects.setAnimation,
-    startOrders: () => startPersonOrders(startup, p, effects),
-    releaseMotion: () => {
-      releasePersonRoute(w.motionRoutes, p)
-      const u = w.units.find(u => u.id === p.id)
-      if (u) clearLivePath(w, u)
-    },
-    rebuildTrainingQueue: id => {
-      const b = w.buildings.find(b => b.id === id)?.admission
-      if (b) rebuildTrainingQueue(context(w), b)
-    },
-    deselectPassengers: unsupported,
-    rebuildFormation: unsupported,
-  })
+  const initialize = () =>
+    initializePersonState(startup, p, {
+      setAnimation: effects.setAnimation,
+      startOrders: () => startPersonOrders(startup, p, effects),
+      releaseMotion: () => {
+        releasePersonRoute(w.motionRoutes, p)
+        const u = w.units.find(u => u.id === p.id)
+        if (u) clearLivePath(w, u)
+      },
+      rebuildTrainingQueue: id => {
+        const b = w.buildings.find(b => b.id === id)?.admission
+        if (b) rebuildTrainingQueue(context(w), b)
+      },
+      idleApproach: () =>
+        initializeIdleApproach(w.manaWorld.gameFlags, p, {
+          setAnimation: effects.setAnimation,
+          collision: point => {
+            const cell = (point.y >> 9) * 128 + (point.x >> 9)
+            return restingCellCollision(
+              { flags: w.land.flags[cell], category: w.land.categories[cell] },
+              w.land.walkMasks[0],
+              point
+            )
+          },
+          height: point => terrainPointHeight(w.land, point),
+          searchStart: () => startIndexedSearch(w.indexedSearch, 2, 0, 0, 32),
+          searchNext: id => nextIndexedSearch(w.indexedSearch, id),
+          searchEnd: id => endIndexedSearch(w.indexedSearch, id),
+          destination: point => setDirectPersonDestination(w.motionRoutes, p, point),
+          allocateOrder: unsupported,
+          adjacentBuilding: unsupported,
+          buildingPoint: unsupported,
+          prepareOrder: unsupported,
+          occupied: unsupported,
+          clearOrders: unsupported,
+          attachOrder: unsupported,
+          initialize,
+        }),
+      occupying: () => {
+        p.timer = startBuildingOccupantAnimation(
+          p,
+          object => setLivePersonAnimation(w, p, object),
+          sprites.frameCounts
+        )
+        setPersonOccupancy(context(w), p, 0, occupancyEffects(w))
+        releasePersonRoute(w.motionRoutes, p)
+        const u = w.units.find(unit => unit.id === p.id)
+        if (u) clearLivePath(w, u)
+        if (p.model === 4) unsupported() // Preacher tower behavior is a separate unported class.
+      },
+      deselectPassengers: unsupported,
+      rebuildFormation: unsupported,
+    })
+  initialize()
   w.randomState = startup.randomState
 }
 
@@ -241,9 +287,18 @@ function occupancyEffects(w: World): OccupancyEffects {
       const id = w.land.buildingIds[cell] & 1023
       return w.buildings.some(b => b.id === id && (!model || buildingModel(b) === model)) ? id : 0
     },
-    towerPosition: unsupported,
+    towerPosition: id => {
+      const b = w.buildings.find(b => b.id === id)!
+      const point = buildingSocketPoint(buildingPose(b), 1)
+      return { ...point, supportHeight: point.heightOffset }
+    },
     terrainHeight: (x, y) => terrainPointHeight(w.land, { x, y }),
-    moveToCell: unsupported,
+    moveToCell: (person, x, y, h) => {
+      const p = person as EntryPerson
+      moveObjectInCells(w.objectCells, p, { x, y, h })
+      const u = w.units.find(unit => unit.id === p.id)!
+      Object.assign(u, browserPosition(p))
+    },
     insertCell: p => {
       w.objectCells.objects.set(p.id, p as EntryPerson)
       insertObjectIntoCell(w.objectCells, p as EntryPerson, p)
@@ -312,7 +367,7 @@ export function dismantleBuilding(w: World, b: Building) {
       if (!(p.flags2 & 0x100000)) {
         p.previousState = p.state
         p.state = defaultPersonState(p, w.manaWorld.gameFlags)
-        initializeBuildingOrders(w, p)
+        initializeBuildingPerson(w, p)
       }
     },
   })
@@ -327,6 +382,7 @@ export function cancelBuildingEntry(w: World, u: Unit) {
     if (b) rebuildTrainingQueue(context(w), b)
   }
   releasePersonRoute(w.motionRoutes, p)
+  u.supportHeight = p.supportHeight || undefined
   u.entry = undefined
   clearLivePath(w, u)
 }
@@ -335,8 +391,18 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
   const fresh = !u.entry
   u.entry ??= begin(w, u, b)
   if (!u.entry) return
-  const p = u.entry.person,
-    state = buildingAdmission(w, b),
+  const p = u.entry.person
+  if (p.state === 21) {
+    // Native state-21 pose freezes once its signed timer expires. AI reassignment
+    // and other occupied classes remain separate scheduler consumers.
+    p.counter = (p.counter + 1) & 255
+    if (p.timer) {
+      p.timer = ((p.timer - 1) << 16) >> 16
+      if (p.timer < 1) p.renderFlags |= 2
+    }
+    return
+  }
+  const state = buildingAdmission(w, b),
     ctx = context(w),
     order = currentPersonOrder(w.buildingOrders, p)!
   syncLivePersonCells(w)
@@ -363,7 +429,7 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
     if (order.model === 10)
       preparePersonTurn(p, w.manaWorld.gameFlags, {
         ...preparation,
-        initialize: () => initializeBuildingOrders(w, p),
+        initialize: () => initializeBuildingPerson(w, p),
       })
     else finishPersonPreparation(p, preparation)
     ctx.randomState = w.randomState
@@ -458,7 +524,19 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
   u.cargo = p.cargo / 100
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   if (done) {
-    cancelBuildingEntry(w, u)
+    if (u.inside !== null && state.model === 4) {
+      setPersonAnchor(p, buildingOutsidePoint(state))
+      p.previousState = p.state
+      p.state = personStateAfterOrders(
+        {
+          landFlags: w.land.landFlags,
+          playerTribe: w.manaWorld.playerTribe,
+          survivingTribes: () => w.manaTribes.filter(t => t.active && !t.defeatTimer).length,
+        },
+        p
+      )
+      initializeBuildingPerson(w, p)
+    } else cancelBuildingEntry(w, u)
     if (u.inside === null) u.work = null
   }
 }

@@ -27,6 +27,11 @@ type Velocity = { x: number; y: number; z: number }
 type Ground = Pick<NativeTerrain, 'heights' | 'flags' | 'categories' | 'walkMasks'>
 const short = (n: number) => (n << 16) >> 16
 
+// 0x4e76e8: active physics clears display offsets without building support.
+export function personSupportHeight(offset: number, flags: number, buildingModel: number) {
+  return flags & 0x200 && rules.buildingSupportHeight[buildingModel] ? offset : 0
+}
+
 // 0x4e78f0 / 0x4e7980: ordinary and impulse velocity caps, respectively.
 export function limitPersonVelocity(physics: number, v: Velocity, impulse = false) {
   const [xy, vertical] = impulse
@@ -338,11 +343,11 @@ export function stepPersonPhysics(
   const moved = effects.insert(to)
   if (p.supportHeight) {
     const cell = w.collision.cell(p)
-    if (
-      !(cell.flags & 0x200) ||
-      !rules.buildingSupportHeight[w.buildingModel(cell.building & 1023)]
+    p.supportHeight = personSupportHeight(
+      p.supportHeight,
+      cell.flags,
+      cell.flags & 0x200 ? w.buildingModel(cell.building & 1023) : 0
     )
-      p.supportHeight = 0
   }
   if (w.levelFlags & 4 && moved && p.tribe === w.playerTribe) {
     const heading = p.heading & 2047,

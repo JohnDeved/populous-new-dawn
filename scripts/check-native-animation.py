@@ -6,7 +6,7 @@ are supplied at the loaded-table boundary; only footprint emission is stubbed.
 import json,random,struct,subprocess,sys
 from pathlib import Path
 from unicorn import UC_HOOK_CODE
-from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP
+from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
 from decomp import native_cpu,configure_native_constants
 
 root=Path(__file__).resolve().parents[1];exe=Path(sys.argv[1]);cpu,_=native_cpu(exe)
@@ -65,12 +65,13 @@ metadata=(root/'.tools/decomp/pop3-rev/backup/backup.xml').read_text()
 address=int(re.search(r'<SYMBOL ADDRESS="([0-9a-f]+)" NAME="set_unit_footprints"',metadata)[1],16)
 cpu.hook_add(UC_HOOK_CODE,footprints,begin=address,end=address)
 def compare(kind,cases,expected):
- js="""import {setAnimationObject,setPersonAnimation,stepObjectAnimation,stepAnimations} from './app/animation.ts';
+ js="""import {setAnimationObject,setPersonAnimation,stepObjectAnimation,stepAnimations,startBuildingOccupantAnimation} from './app/animation.ts';
  let s='';for await(const c of process.stdin)s+=c;const {kind,cases,data}=JSON.parse(s);
  console.log(JSON.stringify(cases.map(c=>{
   const actions=[];
   if(kind==='set'){setAnimationObject(c.p,c.draw,c.object);return c.p;}
   if(kind==='upper'){c.w.objects=new Map(c.w.objects);setPersonAnimation(c.p,c.object,c.w,data);return c.p;}
+  if(kind==='occupant'){c.w.objects=new Map(c.w.objects);const timer=startBuildingOccupantAnimation(c.p,o=>setPersonAnimation(c.p,o,c.w,data),data.frameCounts);return {p:c.p,timer};}
   if(kind==='step'){stepObjectAnimation(c.p,c.w,data,()=>actions.push(0));return {p:c.p,actions};}
   const out=[];for(const w of c.timeline){stepAnimations(c.lists,w.landFlags,w,data,u=>actions.push(c.lists.flat().indexOf(u)));out.push({people:structuredClone(c.lists.flat()),actions:actions.splice(0)});}return out;
  })));"""
@@ -100,6 +101,7 @@ for draw in range(len(rules['animationDescriptors'])):
 compare('step',cases,expected)
 
 cases=[];expected=[]
+occupant_cases=[];occupant_expected=[]
 for trial in range(2048):
  u=person(14);obj=rng.randrange(len(rules['animationObjects']))
  w=dict(playerTribe=trial%4,gameFlags=rng.choice([0,2]),sessionSubstate=rng.choice([None,0,1,2,255]),
@@ -114,7 +116,10 @@ for trial in range(2048):
   a=p+id_*256;cpu.mem_write(a,bytes(256));write(0x890390+id_*4,'I',a)
   write(a+0xc,'I',o['flags2']);write(a+0x2a,'B',o['class']);write(a+0x7a,'H',o['passenger']);write(a+0x5f,'h',o['speed'])
  call(0x4d4040,p,obj);cases.append(dict(p=u,object=obj,w=w));expected.append(get())
+ occupied=dict(u,state=21);put(occupied);call(0x4d3250,p)
+ occupant_cases.append(dict(p=occupied,w=w));occupant_expected.append(dict(p=get(),timer=cpu.reg_read(UC_X86_REG_EAX)))
 compare('upper',cases,expected)
+compare('occupant',occupant_cases,occupant_expected)
 
 cases=[];expected=[]
 for trial in range(64):

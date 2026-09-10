@@ -1,0 +1,46 @@
+{
+  "headed": true,
+  "result": {
+    "inside": true,
+    "visible": true,
+    "pixels": 751,
+    "correctPose": true,
+    "height": 4.375,
+    "expectedHeight": 4.375,
+    "offset": 480,
+    "held": true,
+    "performance": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "frames": 1061,
+      "cpu": {
+        "p50": 1.5,
+        "p95": 2
+      },
+      "gaps": {
+        "p50": 3.5999999999994543,
+        "p95": 3.899999999999636,
+        "max": 7.199999999999818
+      },
+      "maxDrawCalls": 83
+    }
+  },
+  "occlusion": {
+    "covered": 42,
+    "exposed": 987
+  },
+  "released": {
+    "inside": null,
+    "position": [
+      -1.25,
+      31
+    ],
+    "offset": 480,
+    "path": 2
+  }
+}

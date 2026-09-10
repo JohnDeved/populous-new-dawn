@@ -4414,3 +4414,17 @@ the complete outer scheduler remain partial; elapsed time replaces the legacy FP
 estimate. [Findings and boundaries](../references/reverse-engineering.md#person-render-position-interpolation--2026-09-09)
 and [desktop measurements](../references/modern-performance.md) describe the live
 integration and its explicit presentation delay.
+
+
+## Guard-tower sockets and occupant pose
+
+The manifest now hashes 991 exports, including the smoke-offset loader/lookup
+`00404640` and `004047b0`. The importer includes original shape sockets and
+`data/smoke.txt` corrections. `check-native-building-sockets.py EXE` compares
+3,792 complete socket calls; the animation and person-state checks now include
+2,048 occupant-pose calls and 512 state-21 initializers respectively. The text
+parser and state consumer boundaries are documented in
+[the tower findings](../references/reverse-engineering.md#guard-tower-admission-sockets-and-held-occupants-2026-09-10).
+Run `node scripts/check-browser-tower-entry.mjs --headed` for actual entry/exit,
+raised sprite pixels, pose, roof occlusion and the bounded hardware sample.
+Ordinary tower admission is integrated; specialist/AI behavior remains unported.

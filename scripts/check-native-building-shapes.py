@@ -17,7 +17,7 @@ assert len(raw)==4604 and len(objs)==158*54
 cpu.mem_write(objects,objs);cpu.mem_write(shapes,raw);cpu.mem_write(0x895ec1,struct.pack('<I',objects));cpu.mem_write(0x59df3c,struct.pack('<I',shapes))
 assert struct.unpack('<I',cpu.mem_read(0x5ca2ec,4))[0]==64
 spec=importlib.util.spec_from_file_location('assets',root/'scripts/import-original.py');assets=importlib.util.module_from_spec(spec);spec.loader.exec_module(assets)
-imported=json.loads((root/'app/original-shapes.json').read_text());assert assets.building_shapes(raw,objs)==imported
+imported=json.loads((root/'app/original-shapes.json').read_text());assert assets.building_shapes(raw,objs,(source/'data/smoke.txt').read_bytes())==imported
 for invalid in [b'',raw[:3072]]:
     try:assets.building_shapes(invalid,objs)
     except AssertionError:pass
