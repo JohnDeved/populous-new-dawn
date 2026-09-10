@@ -1254,3 +1254,20 @@ fight relocation and native command ownership, then campaign attack dispatch
 and visible spell effects. Keep modern performance and clean code as acceptance
 criteria. Preserve the remaining full-game scope, including all specialist
 classes, campaign content, saves and multiplayer. Discovery remains open.
+
+### Latest combat integration: timed recovery and native knockback
+
+Ordinary attack/recoil phases use authored animation durations and native visit
+order; sounds and pose transitions follow the original expiry. Knockback now
+uses shared native terrain/collision/airborne physics and stays active until
+settling, with the original delayed return and fight recentering. Combat damage
+survives the physics handoff, and new impulse records join cell lists before
+moving. Native timing/initialization/physics comparisons, live slope and command
+scenarios, 5–240 Hz/irregular replay, sprite regressions and a headed frame-cost
+sample are recorded. Full native grouping, approach speed/RNG, terrain relocation,
+damage modifiers, effects and command/AI ownership remain open.
+
+Next: replace approximate melee approach and terrain-mask fight relocation, then
+continue original campaign attack dispatch and visible spell behavior. Preserve
+the entire unfinished game/engine scope, modern desktop performance and clean,
+shared TypeScript. Discovery stays open.

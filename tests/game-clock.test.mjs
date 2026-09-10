@@ -70,7 +70,7 @@ test('render cadence cannot change gameplay, RNG or owned animation state', () =
               opponent: other.id,
               action: 'ready',
               started: 0,
-              until: 0,
+              remaining: 0,
             }
         } else {
           w.selected = w.units.filter(u => u.team === 'blue').map(u => u.id)

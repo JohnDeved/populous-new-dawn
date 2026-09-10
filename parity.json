@@ -1,8 +1,8 @@
 {
-  "revision": 14,
+  "revision": 15,
   "discovery": {
     "status": "open",
-    "note": "Revision 14 separates ordinary melee attack decisions from the remaining group lifecycle, motion, damage, action timing, recovery, effects and global order ownership before integration. Discovery remains open.",
+    "note": "Revision 15 separates melee action/recoil timing and native knockback integration from remaining fight lifecycle work before implementation. Discovery remains open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1489,7 +1489,7 @@
             "scripts/check-native-person-state.py",
             "tests/game.test.mjs"
           ],
-          "note": "Ready/busy group attack decisions compared and integrated. Remaining grouping, relocation, damage modifiers, action/recoil scheduling, physics, effects and command handoff stay open.",
+          "note": "Ready/busy attack decisions, action/recoil timing and native knockback integrated. Group allocation, approach/RNG, relocation, damage modifiers, effects and command ownership remain open.",
           "requirements": [
             {
               "id": "combat.melee.decisions",
@@ -1505,14 +1505,28 @@
               "note": "30,240 original decision-block cases plus live ready/busy group damage, preserved defender actions, browser combat sprites and 5\u2013240 Hz replay. Full controller and leaving-target order handoff remain in the lifecycle requirement."
             },
             {
+              "id": "combat.melee.recovery",
+              "title": "Ordinary attack/recoil timing and terrain-aware knockback",
+              "status": "verified",
+              "evidence": [
+                "scripts/check-native-melee-timing.py",
+                "scripts/check-native-physics-driver.py",
+                "scripts/check-native-person-motion.py",
+                "tests/melee.test.mjs",
+                "scripts/check-browser-melee.mjs",
+                "references/performance/2026-09-10-melee-recovery.json"
+              ],
+              "note": "405 original action/recoil traces, 384 knockback entries and shared native physics comparisons; live slope settling, poses/sounds, cell/HP handoff, recentering and 5\u2013240 Hz/irregular replay. Global grouping, approach RNG, relocation, damage modifiers and order ownership remain separate."
+            },
+            {
               "id": "combat.melee.lifecycle",
-              "title": "Complete melee grouping, approach, relocation, damage, action timing, recovery, effects and order handoff",
+              "title": "Complete melee grouping, approach, relocation, damage, effects and order handoff",
               "status": "partial",
               "evidence": [
                 "scripts/check-native-person-state.py",
                 "tests/game.test.mjs"
               ],
-              "note": "Existing browser adapter remains approximate: native group lifetime, terrain relocation, complete action/recoil scheduling, physics, damage modifiers, effects and command ownership remain open."
+              "note": "Native group lifetime, approach and terrain relocation, damage modifiers, effects and full command ownership remain open; action/recoil timing and knockback now have a separate requirement."
             }
           ]
         },

@@ -11,7 +11,7 @@ try {
     const s = window.testScene, w = s.world, m = await import('/app/model.ts')
     w.speed = 0
     w.units = []; w.buildings = []; w.fights = []
-    w.terrain.fill(3); w.terrainVersion++; w.landVersion++
+    w.terrain.fill(3); w.terrainVersion++
     const groups = []
     for (let i = 0; i < 6; i++) {
       const kind = ['brave', 'warrior', 'shaman'][i % 3], x = (i % 3) * 4 - 4, z = 30 + Math.floor(i / 3) * 4
@@ -21,7 +21,7 @@ try {
       for (let j = 0; j < 3; j++) {
         const u = members[j]
         Object.assign(u, m.fightPosition(b, j))
-        u.fight = { group: b.id, opponent: members[j ? 0 : 1].id, action: j === 1 ? 'ready' : 'strike', started: w.turn, until: w.turn + 100 }
+        u.fight = { group: b.id, opponent: members[j ? 0 : 1].id, action: j === 1 ? 'ready' : 'strike', started: w.turn, remaining: 100 }
       }
       groups.push(members)
     }
@@ -52,6 +52,21 @@ try {
     assert.ok(defender.hp < 90)
     assert.ok(sprites.animations[`blue-${attacker.kind}`][action].some(d => d.frames.includes(attacker.frame)))
   }
+  // Expiring an attack changes the controller state before the next visit
+  // changes its pose. The displayed strike must hold, not restart at frame zero.
+  const held = await page.evaluate(async () => {
+    const s = window.testScene, w = s.world, m = await import('/app/model.ts')
+    const u = window.meleeCheck.groups[3][1]
+    u.fight.remaining = 1
+    u.fight.started = w.turn - 6
+    w.speed = 1; m.tick(w, 1 / 12); w.speed = 0
+    cancelAnimationFrame(s.frame); s.animate(s.previous)
+    const g = s.unitMeshes.get(u.id)
+    return { action: u.fight.action, pose: g.userData.state, frame: g.userData.frame }
+  })
+  assert.equal(held.action, 'approach')
+  assert.equal(held.pose, 'strike')
+  assert.ok(sprites.animations['blue-brave'].strike.some(d => d.frames.at(-1) === held.frame))
   await page.screenshot({ path: '/private/tmp/populous-melee.png' })
   await page.evaluate(() => {
     const s = window.testScene, h = window.meleeCheck, animate = s.animate
@@ -72,8 +87,39 @@ try {
       cpu: { p50: q(f.map(v => v.cpu), .5), p95: q(f.map(v => v.cpu), .95) },
       gaps: { p50: q(gaps, .5), p95: q(gaps, .95), max: Math.max(...gaps) }, maxDrawCalls: Math.max(...f.map(v => v.calls)) }
   })
+  await page.evaluate(async () => {
+    const s = window.testScene, w = s.world, m = await import('/app/model.ts'), h = window.meleeCheck
+    w.speed = 0; w.units = []; w.buildings = []; w.fights = []
+    w.terrain = w.terrain.map((_, i) => Math.max(3, 12 - Math.max(0, i % 97 - 48) * 2))
+    w.terrainVersion++
+    const a = m.addUnit(w, 'blue', 'warrior', { x: 0, z: 32 }), b = m.addUnit(w, 'red', 'brave', { x: 180 / 256, z: 32 })
+    const fight = { id: w.nextId++, x: 0, z: 32, angle: 512, members: [a.id, b.id] }
+    w.fights = [fight]
+    a.fight = { group: fight.id, opponent: b.id, action: 'strike', started: w.turn, remaining: 100 }
+    b.fight = { group: fight.id, opponent: a.id, action: 'push', started: w.turn }
+    b.heading = Math.PI * 1.5; w.randomState = 1
+    h.recoil = b; h.recoilTrace = []
+    const after = s.gameClock.afterTurn
+    s.gameClock.afterTurn = () => {
+      after()
+      h.recoilTrace.push({ action: b.fight?.action, remaining: b.fight?.remaining, x: b.x, z: b.z, h: b.flight?.h, airborne: !!(b.flight?.flags2 & 0x80000), hp: b.hp })
+      if (b.fight?.action === 'approach' && !b.flight) {
+        h.recovered = true; w.speed = 0; s.gameClock.afterTurn = after
+      }
+    }
+    s.focus({ x: 2, z: 32 }); s.onChange(); w.speed = 1
+  })
+  await page.waitForFunction(() => window.meleeCheck.recoil.fight.remaining === 0 && (window.meleeCheck.recoil.flight?.flags2 & 0x80000))
+  await page.screenshot({ path: '/private/tmp/populous-melee-slope.png' })
+  await page.waitForFunction(() => window.meleeCheck.recovered)
+  const recoil = await page.evaluate(() => window.meleeCheck.recoilTrace)
+  assert.ok(recoil.length > 3)
+  assert.ok(recoil.some(t => t.remaining === 0 && t.airborne))
+  assert.equal(recoil.at(-1).action, 'approach')
+  assert.equal(recoil.at(-1).airborne, false)
+  assert.ok(recoil.at(-1).x > recoil[0].x)
   assert.deepEqual(errors, [])
   assert.ok(performance.frames > 20)
-  writeFileSync('/private/tmp/populous-melee-browser.json', JSON.stringify({ headed, workload: 'Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.', states, performance }, null, 2) + '\n')
-  console.log('PASS: all three live classes render opportunistic special/strike attacks, busy defenders retain their animation, live battle frames have no browser errors', performance)
+  writeFileSync('/private/tmp/populous-melee-browser.json', JSON.stringify({ headed, recoil, workload: 'Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.', states, performance }, null, 2) + '\n')
+  console.log('PASS: all three live classes render opportunistic special/strike attacks, busy defenders retain their animation, native slope recoil outlives its animation timer and settles, live battle frames have no browser errors', performance)
 } finally { await browser.close() }

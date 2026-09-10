@@ -1,4 +1,5 @@
 import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
+import { meleeAnimationObject } from './melee.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
@@ -443,10 +444,39 @@ export function collisionWorld(w: World): CollisionWorld {
   }
 }
 
+// 0x518fb0 substate 7: keep the recoil pose and let shared physics own the slide.
+export function startMeleeKnockback(w: World, u: Unit) {
+  const p = createLivePerson(w, u)
+  p.state = 25
+  p.substate = 7
+  p.flags2 |= 0x83080
+  p.flags3 |= 0x8000000
+  p.flags4 |= 0x2000
+  setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
+  p.f1 = 1
+  // Carry the displayed recoil frame across the browser-to-native handoff.
+  // Ordinary fight poses still use elapsed turns rather than a retained person.
+  const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
+  p.f2 = Math.min(sprites.frameCounts[p.object] - 1, Math.max(0, Math.floor(elapsed * sprites.fps)))
+  groundVelocity(p.velocity, p, (random(w) % 70) + 35, (p.heading + 1024) & 2047, (x, y) =>
+    terrainPointHeight(w.land, { x, y })
+  )
+  u.flight = p
+}
+
 // Native impulse/airborne physics owns the complete flight, then hands ordinary
 // orders back to the existing browser controller after the native settle state.
 export function stepLiveImpulse(w: World, u: Unit) {
   const p = u.flight!
+  const previous = w.objectCells.objects.get(p.id)
+  if (previous !== p) {
+    if (previous && previous.flags2 & 0x20000) removeObjectFromCell(w.objectCells, previous)
+    w.objectCells.objects.set(p.id, p)
+    insertObjectIntoCell(w.objectCells, p, p)
+  }
+  // Ordinary combat still owns browser HP; don't restore an opportunistic hit
+  // from the preceding physics snapshot when the defender is being pushed.
+  p.life = short(Math.round(u.hp * 20))
   const ctx = context(w)
   const animate = () => {
     const object = personAnimationObject(p)
@@ -504,7 +534,7 @@ export function stepLiveImpulse(w: World, u: Unit) {
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.hp = p.life / 20
   w.randomState = ctx.state.randomState
-  if (!(p.flags2 & 0x80000)) {
+  if (!(p.flags2 & 0x80000) && u.fight?.action !== 'push') {
     u.flight = undefined
     if (u.native === p && p.state !== 26 && p.state !== 41) u.native = null
     u.lift = 0

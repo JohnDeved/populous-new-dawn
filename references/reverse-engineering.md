@@ -5382,3 +5382,77 @@ The new decision module passes ox-standard without findings. Fallow remains at
 85.7 maintainability, average cyclomatic complexity 2.7 (p90 5), 12 dependency
 cycles. Existing `model.ts` lint debt (type declarations and chained assignments)
 is still open; this check does not certify repository-wide lint cleanliness.
+
+### Melee action clocks and native knockback integration (2026-09-10)
+
+The ordinary fight adapter now advances explicit turns remaining. In `00518fb0`,
+attack substates 2/3/4 initialize their timers from the authored animation object
+and decrement on entry. Defender substates 5/6 initialize only when that defender
+is visited, so member ordering matters. Expiry changes the next state without
+running approach in the same visit. Completion sounds follow that expiry. The
+browser retains the displayed attack/recoil pose until the next phase selects
+another animation. Shaman recoil lasts seven turns; ordinary knockback recoil
+lasts four; the original level flag 0x40 suppresses ordinary attack knockback.
+There are no rendered-frame counters or refresh-dependent timers.
+
+Substate 7 now enters the existing shared native physics driver. Its RNG draw,
+impulse direction/strength, slope correction and flags follow the original.
+The two-turn counter changes the animation; it does not end sliding. The fighter
+remains in this phase until the native airborne/impulse flag clears, then the
+fight center moves to the original 512-coordinate cell center after all members
+have been processed. `004ec6f0` confirms fight controllers precede ordinary unit
+physics, matching this integration order. Friction, drift, falling, bounce,
+landing, support height and settling use the existing common physics code instead
+of a second planar recoil implementation.
+
+Two adapter handoffs were necessary. First, ordinary combat HP remains authoritative
+between turns; the impulse adapter now imports it before physics so a hit against
+a sliding opponent cannot be undone by its previous native snapshot. Second, new
+impulse records join the shared cell list before their first physics move, including
+replacement of an older record. The prior end-of-turn reconciliation alone could
+leave a cross-cell impulse moving an unregistered record. Both changes also apply
+to the existing Blast path; its live shadow/selection regressions pass.
+
+Evidence:
+- `check-native-melee-timing.py`: 405 traces through the original fight controller,
+  all three live attacker/target classes and substates 2–6, entered and retained
+  states, positive/zero/negative/wrapped signed timers, original animation setters
+  and source VFRA/VSTART duration data, transitions and completion sounds. Group
+  membership/relocation, damage and final sound/render consumers are supplied.
+  An additional 384 original substate-7 entries compare RNG, velocity, retained recoil frames and recovery
+  flags across 32 directions, four seeds and all three live classes. Its height
+  consumer is flat; this initialization check does not certify the entire group
+  lifecycle or physics world.
+- `check-native-physics-driver.py`: 16,384 full physics turns, including 128
+  64-turn trajectories, plus 4,096 bounce cases; all recorded driver branches
+  exercised. `check-native-person-motion.py`: 4,096 cases each for native facing,
+  slope velocity, obstacle probes, recovery and proximity. Existing world-consumer
+  boundaries remain stated by those oracles.
+- `tests/melee.test.mjs`: flat/slope settling, animation completion before sliding
+  ends, fight recentering, cell-list ownership, hits during recoil, order handoff,
+  shaman/level-flag suppression, and equal outcomes/native animation state at
+  5/30/60/144/240 Hz and irregular frames. Tiny floating clock residues are checked
+  below 1e-9 before comparing state, as in the existing game-clock checks.
+- `check-browser-melee.mjs`: original special/strike poses for every live class,
+  preserved busy defender poses, actual downhill recoil beyond its animation
+  timer, return to approach and no browser errors. Existing 392 GPU pose,
+  Blast-shadow and selection-arrow checks pass. All 200 tests, TypeScript and
+  formatting pass. Fallow remains 85.7 maintainability, average cyclomatic 2.7
+  (p90 5), 12 dependency cycles. New melee code passes ox-standard; existing
+  adapter/model lint debt remains tracked rather than certified clean.
+
+Modern acceptance profile: `performance/2026-09-10-melee-recovery.json`, headed
+Chrome 153/ANGLE Metal/Apple M5, 1440×1000 DPR 1, six staged three-person fights.
+1,677 active-fight callbacks: CPU p50/p95 1.5/2.1 ms, callback gaps 3.6/3.8 ms,
+maximum gap 7.1 ms, maximum 104 draw calls. A subsequent ramp scenario records the
+actual recovery trace. This is a feature acceptance sample, not a paired speedup
+or a whole-game/display-FPS claim. Shared modern rendering and uncapped interpolation
+remain unchanged; the native motion rules run only on simulation turns.
+
+Still open: full fight allocation/validity, native approach/recovery speed RNG,
+terrain-mask relocation, death/statistics and all damage modifiers, generic hit
+visual replacement, complete command/AI ownership and global person scheduling.
+At the ordinary browser/native pose handoff, the existing elapsed-turn pose supplies
+the retained frame; full persistent native animation ownership still belongs to
+the global person integration. Substate verification does not complete these wider
+mechanics.

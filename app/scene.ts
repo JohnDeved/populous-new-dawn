@@ -2378,7 +2378,7 @@ export class GameScene {
           u.heading,
           animations[state] ?? animations.idle,
           this.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
-          !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(u.fight.action)
+          !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state)
         )
       g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id)
       g.userData.health.quaternion.copy(

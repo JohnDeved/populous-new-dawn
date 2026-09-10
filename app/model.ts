@@ -1,5 +1,5 @@
 import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
-import { chooseMeleeAttack, type MeleeAttack } from './melee.ts'
+import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
 import {
   assignBuilder,
@@ -12,7 +12,7 @@ import {
 } from './building-workers.ts'
 import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from './building-work.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
-import { faceTribe, personAnimationObject } from './person-state.ts'
+import { faceTribe, personAnimationObject, setPersonAnimationRow } from './person-state.ts'
 import { damagePerson } from './person-update.ts'
 import { createBlastWave, stepBlastWave, type BlastWave, type BlastTarget } from './blast-wave.ts'
 import {
@@ -83,6 +83,7 @@ import {
   buildingFirePeople,
   stepLivePerson,
   stepLiveImpulse,
+  startMeleeKnockback,
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
@@ -218,9 +219,9 @@ type Fight = {
   opponent: number
   action: 'approach' | 'ready' | 'attack' | 'strike' | 'special' | 'recoil' | 'push'
   started: number
-  until: number
+  remaining?: number
+  animation?: MeleeAttack | 'recoil' | 'walk' | 'idle'
   knockback?: boolean
-  velocity?: Point
 }
 type NativePoint = { x: number; y: number; h: number }
 export type Projectile = {
@@ -517,8 +518,7 @@ function shotAngles(p: NativePoint, d: NativePoint) {
 function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
   const damage = meleeDamage(u),
-    counter = meleeDamage(target),
-    turns = u.kind === 'shaman' ? (action === 'special' ? 5 : 4) : action === 'attack' ? 6 : 7
+    counter = meleeDamage(target)
   u.heading =
     Math.PI -
     (nativeAngle(Math.round((target.x - u.x) * 256), Math.round((target.z - u.z) * 256)) *
@@ -528,19 +528,21 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
     group: u.fight!.group,
     opponent: target.id,
     action,
+    animation: action,
     started: w.turn,
-    until: w.turn + turns,
+    remaining: meleeDuration(u.kind, action) - 1,
   }
   // Busy opponents take damage without losing their current action or facing.
   if (target.fight?.action === 'ready') {
-    const knockback = action === 'attack' && target.kind !== 'shaman'
+    const knockback =
+      action === 'attack' && target.kind !== 'shaman' && !(w.manaWorld.levelFlags & 64)
     target.heading = u.heading + Math.PI
     target.fight = {
       group: target.fight.group,
       opponent: u.id,
       action: 'recoil',
+      animation: 'idle',
       started: w.turn,
-      until: w.turn + (knockback ? 4 : 7),
       knockback,
     }
   }
@@ -588,10 +590,10 @@ function joinBattle(w: World, u: Unit, target: Unit) {
     }
     w.fights.push(b)
     release(w, target)
-    target.fight = { group: b.id, opponent: u.id, action: 'approach', started: w.turn, until: 0 }
+    target.fight = { group: b.id, opponent: u.id, action: 'approach', started: w.turn }
   }
   release(w, u)
-  u.fight = { group: b.id, opponent: target.id, action: 'approach', started: w.turn, until: 0 }
+  u.fight = { group: b.id, opponent: target.id, action: 'approach', started: w.turn }
 }
 function cleanBattles(w: World) {
   for (const b of w.fights) {
@@ -650,40 +652,42 @@ function processBattles(w: World) {
       b.x = p.x
       b.z = p.z
     }
+    let recenter = false
     for (let i = 0; i < members.length; i++) {
       const u = members[i],
         f = u.fight!
       if (u.hp <= 0) continue
-      if (f.action === 'recoil' && w.turn >= f.until && f.knockback) {
-        const angle = (Math.round(((Math.PI - u.heading) * 1024) / Math.PI) + 1024) & 2047,
-          speed = (random(w) % 70) + 35
-        // 0x4e93f0: on level ground the impulse includes floor(speed/16).
-        const p = nativeStep({ x: 0, z: 0 }, angle, speed + (speed >> 4))
-        f.velocity = { x: p.x * 256, z: p.z * 256 }
-        f.action = 'push'
-        f.started = w.turn
-        f.until = w.turn + 2
-        u.x += p.x
-        u.z += p.z
-      }
       if (f.action === 'push') {
-        const v = f.velocity!
-        v.x = Math.sign(v.x) * Math.max(0, Math.abs(v.x) - rules.groundFriction)
-        v.z = Math.sign(v.z) * Math.max(0, Math.abs(v.z) - rules.groundFriction)
-        // ponytail: ground recoil uses native damping; airborne falls and slope forces need the full physics port.
-        const p = { x: u.x + v.x / 256, z: u.z + v.z / 256 }
-        if (clear(p)) {
-          u.x = p.x
-          u.z = p.z
-        } else {
-          v.x = 0
-          v.z = 0
+        if (f.remaining === undefined) {
+          startMeleeKnockback(w, u)
+          f.remaining = 2
         }
-        if (w.turn < f.until) continue
-        f.action = 'approach'
-      } else if (f.action !== 'approach' && f.action !== 'ready') {
-        if (w.turn < f.until) continue
-        // 0x518fb0 emits the fight sound when the action timer expires.
+        const person = u.flight
+        if (f.remaining > 0) {
+          f.remaining--
+          if (!f.remaining && person) {
+            person.speed = 0
+            setPersonAnimationRow(person, person.cargo ? 5 : 1, (_, object) =>
+              setLivePersonAnimation(w, person, object)
+            )
+          }
+        } else if (!person || !(person.flags2 & 0x80000)) {
+          u.flight = undefined
+          f.action = 'approach'
+          f.animation = 'walk'
+          recenter = true
+        }
+        continue
+      }
+      if (f.action !== 'approach' && f.action !== 'ready') {
+        if (f.remaining === undefined) {
+          f.remaining = meleeDuration(u.kind, f.action, f.knockback)
+          f.started = w.turn
+          f.animation = f.action
+        }
+        f.remaining = short(f.remaining - 1)
+        if (f.remaining > 0) continue
+        // 0x518fb0 expires the action here; approach resumes next turn.
         if (f.action === 'attack' || f.action === 'special') sound(w, 0xd, u)
         if (f.action === 'strike') {
           const target = w.units.find(a => a.id === f.opponent)
@@ -692,13 +696,16 @@ function processBattles(w: World) {
             if (target && target.kind !== 'warrior') sound(w, 0x32, target)
           } else sound(w, 0xe, u)
         }
-        f.action = 'approach'
+        f.action = f.action === 'recoil' && f.knockback ? 'push' : 'approach'
+        f.remaining = undefined
+        continue
       }
       const p = fightPosition(b, i),
         dx = Math.round((p.x - u.x) * 256),
         dz = Math.round((p.z - u.z) * 256)
       if (Math.abs(dx) > 11 || Math.abs(dz) > 11) {
         f.action = 'approach'
+        f.animation = 'walk'
         const angle = nativeAngle(dx, dz),
           next = nativeStep(u, angle, Math.min(unitSpeed(u), Math.floor(Math.hypot(dx, dz))))
         if (clear(next)) {
@@ -711,6 +718,7 @@ function processBattles(w: World) {
       u.x = p.x
       u.z = p.z
       f.action = 'ready'
+      f.animation = 'idle'
       const choice = random(w) & 15,
         targetIndex = i === 0 ? 1 + (random(w) % (members.length - 1)) : 0,
         target = members[targetIndex]
@@ -730,6 +738,10 @@ function processBattles(w: World) {
         members.length
       )
       if (action) meleeExchange(w, u, target, action)
+    }
+    if (recenter) {
+      const p = nativePosition(w, b)
+      Object.assign(b, browserPosition({ x: (p.x & 0xfe00) + 256, y: (p.y & 0xfe00) + 256 }))
     }
   }
   w.fights = w.fights.filter(b => b.members.length > 1)
@@ -757,6 +769,7 @@ export function unitAnimationSource(u: Unit) {
 export function unitAnimation(w: World, u: Unit) {
   if (u.lift > 0) return 'airborne'
   if (u.casting) return 'cast'
+  if (u.fight?.animation) return u.fight.animation
   if (u.fight)
     return u.fight.action === 'approach'
       ? 'walk'
