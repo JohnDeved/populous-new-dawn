@@ -1,0 +1,77 @@
+{
+  "scope": "Terrain-fragment overlay adds no draw calls. Software-renderer correctness check; not hardware FPS or a speedup benchmark.",
+  "samples": [
+    {
+      "angle": 0,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 27736,
+      "noExtraDraws": true,
+      "drawCalls": 26,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 512,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 26069,
+      "noExtraDraws": true,
+      "drawCalls": 26,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 1024,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 23599,
+      "noExtraDraws": true,
+      "drawCalls": 26,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 1536,
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 26060,
+      "noExtraDraws": true,
+      "drawCalls": 26,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 256,
+      "width": 3440,
+      "height": 1440,
+      "deviceScaleFactor": 1,
+      "center": 0,
+      "changed": 4855,
+      "noExtraDraws": true,
+      "drawCalls": 26,
+      "renderPixelRatio": 1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "angle": 0,
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 2,
+      "center": 120,
+      "changed": 89816,
+      "noExtraDraws": true,
+      "drawCalls": 26,
+      "renderPixelRatio": 1.8,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    }
+  ]
+}

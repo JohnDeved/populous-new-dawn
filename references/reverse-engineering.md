@@ -7096,3 +7096,84 @@ clicks, right-click/Escape, selection arrows, 576 GPU sprite poses, airborne sha
 training and tower admission/exit pass. The new selection module is ox-standard
 clean; whole-repo ox-standard retains existing debt and Fallow reports existing
 controller complexity (maintainability 85.4). No hardware performance gain is claimed.
+
+
+### Camera-oriented world drag selection (2026-09-10)
+
+`00443d30` consumes recorded input `0x6a` (start), `0x6b` (update), `0x6c`
+(release). Start copies a world XY into tribe offsets `8b3/8b7/8bb` and latches
+Ctrl in `8b1`. Update preserves the last valid point when the pointer is absent.
+Both camera-aligned components clamp to 10,240 native units (40 map units).
+Release packs camera and diagonal angles into ten bits each (half-angle precision)
+and the diagonal length into twelve bits (eight-unit precision), then emits tribe
+command `0x6d` or additive `0x79`. Rendering retains the unquantized endpoint.
+
+`004440a0` builds four clockwise corners. `00444430` unwraps crossed map seams;
+`00444270` computes the inclusive cell scan with an eight-unit low-side margin.
+`004445d0` accepts either inclusive triangle. The browser uses the same bounded
+geometry and native cell bounds rather than a screen rectangle or a guessed radius.
+Its double-precision cross products avoid unrelated signed-overflow artifacts;
+the bounded native cell query restricts admission, including degenerate thin drags.
+`app/drag-selection.ts` expresses this as readable geometry using existing native
+angle, distance, sine and movement helpers, not decompiler temporaries.
+
+`004449d0` traverses those cells, then checks owner/class, `004e3430` eligibility,
+`004de610` building exclusions and `004de680` an entry-stage exclusion. It clears
+existing selection only after the first eligible hit. Thus an empty drag keeps the
+previous group. Selected person flags use `004458d0`; orders and animation states
+are unchanged. `00489c40` emits specialist voices, then the ordinary group cue.
+The live bridge covers ordinary outside braves/warriors/shamans. Full native mixed
+cell allocation and cell-chain ties, passenger expansion, occupant entry exclusions,
+last-hit speaker position and complete HUD selection ownership remain open.
+
+`004adbb0` changes a held person press into a drag when the hovered person changes;
+a held ground-order press changes past 256 native units on either axis. Its seam
+arithmetic uses 65,535 minus the absolute signed-short difference. This is retained
+in the input threshold, independently of the 65,536-period geometry. Ctrl remains
+latched at mouse-down. The browser samples drag picking on changed render/input
+state and once at release; it adds no frame-count animation or fixed presentation cap.
+
+`scripts/check-native-drag-selection.py` executes 1,024 full start/update/release
+transactions and compares endpoints, commands, 4,096 corners, cell bounds and 13,312
+point tests. Cases include rotated camera bearings, seams, clamped spans,
+zero-length, thin and tiny drags. Another 128 complete native area commands compare
+1,024 live person flags and group voice sequences, checking every other person byte
+is unchanged. 110 complete `004adbb0` updates compare order-to-drag thresholds around
+both signed seams. UI refresh, playback and command-buffer consumers are captured;
+geometry, eligibility, flag updates and voice decisions execute natively. Portable
+captures and live ownership tests are in `tests/drag-selection.test.mjs`.
+
+`00422fc0` constructs a terrain-clipped selection mesh; `00423900` submits fill
+polygons using atlas tile 15, white diffuse 32 and native alpha. `004673b0` type
+`0x1c` separately draws tile-23 edges and tile-31 corners with an eight-pixel
+screen extrusion. These consumers and their terrain clipping helpers are exported.
+The browser now uses the original tile-15 RGBA in `app/drag-overlay.ts`, clipped in
+world coordinates inside the existing terrain shader. Terrain curvature and ground
+height follow the rendered triangles; buildings/units retain their normal drawing.
+The CSS selection rectangle is removed. Exact native fill UV/tessellation, border
+and corner extrusion, near-horizon suppression and mixed painter ordering remain
+partial. The shader fill is not claimed to reproduce the full native raster output.
+
+Modern implementation evidence: `00422fc0` clears 39,214 bytes of temporary pools
+per draw before building/clipping/projecting selection geometry. The shader needs
+only an active flag and eight corner-coordinate uniforms; it adds no mesh, vertex
+upload or draw call. Browser comparisons toggle the fill in the same scene and
+verify unchanged draw-call counts with changed terrain pixels. This removes that
+CPU pool/geometry work structurally; it is not a measured hardware FPS gain.
+`references/performance/2026-09-10-drag-selection.json` records software-renderer
+checks at five camera bearings, desktop/ultrawide, a wrapped seam and a 2×-DPI device
+(the existing renderer pixel-ratio budget remains visible in the measurements).
+
+The browser test clicks actual projected terrain and verifies two-person selection,
+Ctrl addition after releasing Ctrl before the mouse button, group voices and empty
+area retention. Its synthetic dry-land setup must clear shoreline categories:
+otherwise the native water updater correctly replaces its height with waves and
+invalidates the test's fixed-height target projections. No engine picking guard or
+selection tolerance was added to hide that fixture mismatch.
+
+Validation: 287 portable tests, typecheck, production build, formatting and 1,098
+export identities pass. The new geometry, overlay and selection modules are
+ox-standard clean. Native drag comparisons and actual browser drag checks pass;
+sprite clicking, deselection, selection arrows and all 576 GPU sprite poses retain
+their regression checks. Whole-repo lint debt and the raster/ownership gaps above
+remain open. No hardware FPS improvement is claimed.

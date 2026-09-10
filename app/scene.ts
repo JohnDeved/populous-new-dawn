@@ -74,7 +74,7 @@ import {
   command,
   cancelInteraction,
   selectUnit,
-  setSelection,
+  selectArea,
   placeBuilding,
   spellRange,
   spellTargetError,
@@ -116,6 +116,15 @@ import {
   type GlobeMorph,
 } from './camera-view.ts'
 import { RenderView } from './render-view.ts'
+import {
+  dragEndpoint,
+  dragCommand,
+  dragCorners,
+  unwrapDragCorners,
+  dragMoved,
+} from './drag-selection.ts'
+import { dragOverlayShader } from './drag-overlay.ts'
+import { nativeAngle, positionDistance } from './native-math.ts'
 import { GlobeRenderer } from './globe-renderer.ts'
 import { beginGlobeDrag, stepGlobeMotion, type GlobeMotion } from './globe.ts'
 import nativeUnits from './original-units.json'
@@ -537,7 +546,10 @@ export class GameScene {
   tooltipCanvas = document.createElement('canvas')
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
-  dragBox: HTMLDivElement
+  drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
+    null
+  dragActive = { value: false }
+  dragQuad = { value: Array.from({ length: 4 }, () => new THREE.Vector2()) }
   keys = new Set<string>()
   resize: ResizeObserver
   frame = 0
@@ -691,6 +703,9 @@ export class GameScene {
           map: { value: this.terrainMap },
           waterMap: { value: this.waterMap },
           scroll: this.waterScroll,
+          dragActive: this.dragActive,
+          dragQuad: this.dragQuad,
+          dragAtlas: { value: texture('atlas') },
         },
         vertexShader: `
           attribute vec2 landUv;
@@ -700,7 +715,9 @@ export class GameScene {
           varying vec2 land, waterUV;
           varying float sea;
           varying vec3 diffuse, specular;
+          varying vec2 dragPoint;
           void main() {
+            dragPoint = vec2(uv.x + 8., -uv.y - 8.) * 256.;
             land = landUv;
             waterUV = vec2(uv.x + 8., -uv.y - 8.) / 16.;
             sea = surface;
@@ -708,7 +725,9 @@ export class GameScene {
             specular = highlight;
             gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
           }`,
-        fragmentShader: `
+        fragmentShader:
+          dragOverlayShader +
+          `
           uniform sampler2D map, waterMap;
           uniform float scroll;
           varying vec2 land, waterUV;
@@ -717,6 +736,7 @@ export class GameScene {
           void main() {
             gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV + scroll) : texture2D(map, land);
             gl_FragColor.rgb = clamp(gl_FragColor.rgb * diffuse + specular, 0., 1.);
+            gl_FragColor = dragOverlay(gl_FragColor);
           }`,
       }),
       9
@@ -738,9 +758,6 @@ export class GameScene {
     this.makeShrines()
     this.focus({ x: 2, z: 30 })
     this.drawMinimap()
-    this.dragBox = document.createElement('div')
-    this.dragBox.className = 'selection-box'
-    container.appendChild(this.dragBox)
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
@@ -755,6 +772,8 @@ export class GameScene {
     this.listen(this.renderer.domElement, 'pointerup', this.pointerUp)
     this.listen(this.renderer.domElement, 'pointercancel', () => {
       this.pointerButtons = 0
+      this.drag = null
+      this.dragActive.value = false
       this.globeMotion.dragging = false
       this.globeMotion.velocity = { x: 0, y: 0 }
     })
@@ -1345,6 +1364,15 @@ export class GameScene {
       unit,
       extend: event.ctrlKey,
     }
+    this.drag = null
+    this.dragActive.value = false
+    if (event.button === 0 && !this.world.mode && !this.world.inputMask && !this.overviewActive) {
+      const origin = this.world.units.find(u => u.id === unit) ?? this.pick(event)
+      if (origin) {
+        const start = nativePosition(this.world, origin)
+        this.drag = { start, end: start, active: unit === undefined && !this.world.selected.length }
+      }
+    }
     if (unit !== undefined) this.onSound(0x6a)
     this.dragLast = { x: event.clientX, y: event.clientY }
     if (
@@ -1385,49 +1413,51 @@ export class GameScene {
       this.dragLast = { x: event.clientX, y: event.clientY }
       this.updateView()
     }
-    if (event.buttons === 1 && event.pointerType !== 'touch' && !this.world.mode) {
-      const rect = this.container.getBoundingClientRect()
-      Object.assign(this.dragBox.style, {
-        display: 'block',
-        left: `${Math.min(this.down.x, event.clientX) - rect.left}px`,
-        top: `${Math.min(this.down.y, event.clientY) - rect.top}px`,
-        width: `${Math.abs(event.clientX - this.down.x)}px`,
-        height: `${Math.abs(event.clientY - this.down.y)}px`,
-      })
-    }
   }) as EventListener
+  updateDrag(event: { clientX: number; clientY: number }) {
+    const drag = this.drag
+    if (!drag || this.world.mode || this.world.inputMask || this.overviewActive) {
+      this.dragActive.value = false
+      return
+    }
+    const picked = this.pick(event),
+      end = picked && nativePosition(this.world, picked)
+    if (!drag.active) {
+      if (this.down.unit !== undefined) drag.active = this.pickUnit(event)?.id !== this.down.unit
+      else if (end) drag.active = dragMoved(drag.start, end)
+    }
+    if (end) drag.end = dragEndpoint(drag.start, end, this.view.angle)
+    this.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
+    if (!this.dragActive.value) return
+    const angle = nativeAngle(
+      ((drag.end.x - drag.start.x) << 16) >> 16,
+      -(((drag.end.y - drag.start.y) << 16) >> 16)
+    )
+    const corners = unwrapDragCorners(
+      dragCorners(drag.start, this.view.angle, angle, positionDistance(drag.start, drag.end))
+    )
+    corners.forEach((p, i) => this.dragQuad.value[i].set(p.x, p.y))
+  }
   pointerUp = ((event: PointerEvent) => {
     this.pointerButtons = event.buttons
     if (!(event.buttons & 6)) this.globeMotion.dragging = false
     if (this.world.inputMask || this.overviewStage) return
-    this.dragBox.style.display = 'none'
-    const moved = Math.hypot(event.clientX - this.down.x, event.clientY - this.down.y)
-    if (moved > 7) {
-      if (event.button === 0 && event.pointerType !== 'touch' && !this.world.mode) {
-        const rect = this.renderer.domElement.getBoundingClientRect()
-        const ids = this.world.units
-          .filter(u => {
-            if (u.team !== 'blue' || !canOrder(u)) return false
-            const p = this.unitScreen(u.id, 45 / 128)
-            if (!p) return false
-            const x = ((p.x + 1) / 2) * rect.width + rect.left,
-              y = ((-p.y + 1) / 2) * rect.height + rect.top
-            return (
-              x >= Math.min(this.down.x, event.clientX) &&
-              x <= Math.max(this.down.x, event.clientX) &&
-              y >= Math.min(this.down.y, event.clientY) &&
-              y <= Math.max(this.down.y, event.clientY)
-            )
-          })
-          .map(u => u.id)
-        setSelection(
-          this.world,
-          this.down.extend ? [...new Set([...this.world.selected, ...ids])] : ids
-        )
-        this.onChange()
-      }
+    if (event.button === 0) this.updateDrag(event)
+    const drag = this.drag
+    this.drag = null
+    this.dragActive.value = false
+    if (event.button === 0 && drag?.active && !this.world.mode) {
+      selectArea(
+        this.world,
+        drag.start,
+        dragCommand(drag.start, drag.end, this.view.angle),
+        this.down.extend
+      )
+      this.onChange()
       return
     }
+    const moved = Math.hypot(event.clientX - this.down.x, event.clientY - this.down.y)
+    if (moved > 7 && event.button !== 0) return
     if (event.button === 2) {
       cancelInteraction(this.world)
       this.onChange()
@@ -2654,6 +2684,7 @@ export class GameScene {
       this.container.clientHeight,
     ].join(',')
     if (pointerState !== this.pointerState) {
+      if (this.pointerButtons === 1 && this.pointerScreen) this.updateDrag(this.pointerScreen)
       this.pointer = this.pointerScreen && this.world.mode ? this.pick(this.pointerScreen) : null
       this.hoveredObject =
         this.pointerScreen && !this.pointerButtons && !this.world.mode && !this.world.inputMask
@@ -2819,7 +2850,6 @@ export class GameScene {
     this.view.dispose()
     this.renderer.dispose()
     this.renderer.domElement.remove()
-    this.dragBox.remove()
     this.tooltipElement.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()
     this.buildingPanels.clear()

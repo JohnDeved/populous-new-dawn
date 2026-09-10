@@ -131,9 +131,12 @@ Track the requested queue explicitly:
    assumption is removed. Default on-foot clicks now use native replacement/Ctrl-toggle
    rules, pressed-target/modifier latching, Shift order override and single voices.
    Complete HUD/vehicle ownership, buffering, alternate input modes and feedback remain open.
-5. **Native 3D drag selection — next.** Recreate original world-projected selection
-   geometry and hit tests across camera rotation, terrain slopes and occlusion;
-   verify desktop wide/high-DPI input and rendering alignment.
+5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,
+   toroidal clamping, packed release commands, native cell bounds, ordinary outdoor
+   follower admission, empty-area retention and group voices now match executable
+   comparisons. A terrain-fragment overlay replaces the CSS rectangle without extra
+   draw calls. Finish original border/corner feedback, exact terrain texture sampling,
+   mixed-class/occupant picking and remaining modal/command-buffer ownership.
 
 Ordinary marching is now live through the shared order pool, native physics,
 routing and sprite ownership. Native comparisons, 279 portable tests and actual
@@ -142,8 +145,9 @@ state while reducing measured CPU work; the software-rendered crowd profile is
 explicitly not a hardware FPS certification. Full group lifecycle stays open.
 Default ordinary click flags and modifiers now match executable comparisons and
 actual desktop/ultrawide/high-DPI input. Selection reuses active native records and
-never creates movement owners for legacy units. Continue with world-projected
-drag geometry and hit tests, including press-mode transitions. Use executable evidence and
+never creates movement owners for legacy units. World-projected drag geometry, ordinary admission and press-mode transitions are
+now integrated. Continue with the native border/corner rendering and complete
+selection ownership rather than declaring the whole interface complete. Use executable evidence and
 original visuals to resolve the exact footprint and selection behavior. Integrate
 real desktop interaction regressions across camera rotation, slopes, occlusion
 and wide/high-DPI displays. Keep native mechanics, uncapped elapsed-time

@@ -30,7 +30,15 @@ import {
   clickPersonSelection,
   markPersonSelected,
   selectedPersonVoice,
+  selectedGroupVoices,
 } from './person-selection.ts'
+import {
+  dragCommandCorners,
+  dragCellBounds,
+  inDragCells,
+  unwrapDragCorners,
+  inDragSelection,
+} from './drag-selection.ts'
 import { relocateFight } from './melee-placement.ts'
 import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
@@ -2206,6 +2214,40 @@ export function selectUnit(w: World, id: number, extend: boolean) {
     const u = w.units.find(unit => unit.id === id)!
     sound(w, selectedPersonVoice(nativePersonModel(u)), u)
   }
+}
+
+export function selectArea(
+  w: World,
+  start: { x: number; y: number },
+  packed: number,
+  extend: boolean
+) {
+  const wrapped = dragCommandCorners(start, packed)
+  const corners = unwrapDragCorners(wrapped),
+    bounds = dragCellBounds(wrapped, (packed & 1023) * 2)
+  const people = selectionPeople(w)
+  const ids = new Set(
+    w.units
+      .filter(
+        u =>
+          u.team === 'blue' &&
+          canOrder(u) &&
+          u.inside === null &&
+          inDragCells(nativePosition(w, u), bounds) &&
+          inDragSelection(nativePosition(w, u), corners)
+      )
+      .map(u => u.id)
+  )
+  const eligible = new Set(people.filter(p => ids.has(p.id) && !(p.flags4 & 128)).map(p => p.id))
+  // The original clears the previous group only after finding an eligible member.
+  if (!eligible.size) return
+  if (!extend) for (const p of people) markPersonSelected(p, false)
+  for (const p of people) if (eligible.has(p.id)) markPersonSelected(p, true)
+  w.selected = people.filter(p => p.selectionFlags & 128).map(p => p.id)
+  const selected = new Set(w.selected),
+    group = w.units.filter(u => selected.has(u.id))
+  const speaker = w.units.findLast(u => eligible.has(u.id))!
+  for (const cue of selectedGroupVoices(group.map(nativePersonModel))) sound(w, cue, speaker)
 }
 
 // Native right-click/Escape cancels a targeting mode before clearing followers.
