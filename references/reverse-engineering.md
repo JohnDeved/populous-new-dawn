@@ -7229,3 +7229,68 @@ border comparisons pass. Browser drag checks cover five bearings, ultrawide/high
 screens, a wrapped seam, original first-level slopes and idle removal; sprite clicks,
 deselection and 576 GPU sprite poses retain their passing regressions. The original
 terrain sample uses 390 border vertices in 12,288 bytes of retained buffer capacity.
+
+### Selection mesh, raster order and modern batching (2026-09-10)
+
+`00422fc0` is now captured through its complete mesh-generation pipeline, including
+`00423390`, `00423e80`, `00424320`, `00424ab0` and `00424900`. The oracle captures
+vertices before projection and triangle lists at the two `00423900` boundaries;
+projection and queue consumption are supplied separately. `app/selection-mesh.ts`
+uses explicit cell/quarter adjacency, shared grid vertices, boundary membership and
+angle-sorted polygon fans. It preserves original allocation/fan order without porting
+register names or fixed scratch-pool layouts. 512 full native meshes match, including
+rotations, wrapped seams and the unusual shortest-cell scan used by very thin drags.
+
+One intentional repair is proven by native output: `00424900` writes the last
+triangle of a seven-point polygon into the same slot as the previous triangle,
+then overwrites it. The original loses triangle (0,5,6). The browser completes the
+fan, preventing the resulting hole. The fixture records this missing native triangle
+and its insertion position separately; comparisons do not silently bless the changed
+output. One of the 512 captured cases exercises this repair. This is a rendering
+correction; selection admission, simulation commands and RNG are unchanged.
+
+`app/selection-raster.ts` reconstructs complete `00423900` queue production. Unlike
+ordinary terrain, its bucket uses the maximum vertex depth, subtracts 352 before
+shifting, and applies the 13-bucket category adjustment afterward. Shared left/right/
+bottom outcodes gate submission; the third vertex has the original strict right-edge
+comparison. The signed screen area controls fill visibility. Back-facing borders
+are suppressed past bucket 2240, and corners move eight buckets forward and consume
+their flags once across shared vertices. 512 native queues compare all emitted
+records and buckets. No queue-construction callees are replaced in that oracle.
+
+`00467130` queues selection after the world traversal. The shared painter now adds
+selection at that point in insertion order, retaining the original per-record order
+and each border's two-triangle order. `SelectionOverlay` uses the existing original
+terrain height and unclipped `0046de00` camera reconstruction; actual point projection
+remains covered by the existing native projection oracle. The full tile-15 UVs are
+captured at the `004673b0` type-1b GPU boundary for 64 cases. Edges/corners retain the
+existing 256 native submissions and 512 perimeter comparisons.
+
+The former terrain-fragment fill and borrowed-terrain-depth border are removed.
+They could not represent the native clipped triangle UVs or selection's own depth
+order. One atlas mesh now holds the complete selection. Topology is cached while
+its corners/camera remain unchanged; geometry and index buffers retain capacity.
+The painter batches consecutive selection triangles and splits only when another
+transparent command must appear between them. This preserves alpha composition
+without issuing a draw for each triangle. No fixed presentation rate is introduced.
+
+`scripts/check-browser-drag-selection.mjs` compares the batched renderer against
+one draw per selection triangle in the same frame. Every GPU byte matches across
+five camera bearings, ultrawide and high-DPI displays, including a wrapped seam.
+The measured cases need 1–3 selection draws instead of 139–267 individual draws.
+The original first-level slope test also retains buffers and checks actual pointer
+selection, Ctrl latching, empty-area retention and idle removal. Measurements are
+in `references/performance/2026-09-10-selection-raster.json`; they establish draw
+counts and output equivalence, not a hardware FPS improvement over the earlier
+approximate shader. That comparison baseline is stated explicitly.
+
+Remaining boundaries: zero-area native texture fallback, extreme span/pool-capacity
+behavior, alternate filter/render configurations, and final complete original-frame
+comparisons. These remain in the partial feedback requirement. The current tests
+prove the reconstructed default mesh/raster paths and their browser integration;
+they do not establish complete interface or engine parity.
+
+Validation: 290 portable tests, TypeScript, formatting, production build and
+parity-ledger checks pass; all 1,101 decompilation export hashes verify. The new
+selection modules pass oxlint. Browser checks cover actual click/deselect/orders,
+576 sprite poses, native drag interactions and batched/unbatched pixel equality.

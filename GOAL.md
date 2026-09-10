@@ -135,9 +135,12 @@ Track the requested queue explicitly:
    toroidal clamping, packed release commands, native cell bounds, ordinary outdoor
    follower admission, empty-area retention and group voices now match executable
    comparisons. A terrain-fragment overlay replaces the CSS rectangle without extra
-   draw calls. Original textured border/corner extrusion and perimeter splitting now
-   run in one reusable GPU batch. Finish exact fill tessellation/UV, native selection
-   depth and horizon clipping, mixed-class/occupant picking and modal/buffer ownership.
+   draw calls in the earlier implementation. Default fill, borders and corners now
+   use the original four-triangle clipping, UVs and depth rules, with consecutive
+   alpha batches preserving draw order. Native comparisons and GPU equivalence
+   checks cover this integration; the seven-point polygon hole is repaired. Keep
+   zero-area/alternate-render/extreme-capacity checks open, and move to mixed-class/
+   occupant picking, HUD selection ownership and modal/command-buffer behavior.
 
 Ordinary marching is now live through the shared order pool, native physics,
 routing and sprite ownership. Native comparisons, 279 portable tests and actual
@@ -147,9 +150,10 @@ explicitly not a hardware FPS certification. Full group lifecycle stays open.
 Default ordinary click flags and modifiers now match executable comparisons and
 actual desktop/ultrawide/high-DPI input. Selection reuses active native records and
 never creates movement owners for legacy units. World-projected drag geometry, ordinary admission and press-mode transitions are
-now integrated. Border/corner textures, screen extrusion and terrain crossings are
-verified; full selection raster ordering remains partial. Continue with native
-selection depth, exact fill rendering and complete selection ownership. Use executable evidence and
+now integrated. Default selection mesh, UVs, depth and alpha ordering are covered by
+native comparisons and batched/unbatched GPU equivalence. Remaining raster edge
+cases stay explicit in the ledger. Continue with complete selection ownership,
+prioritizing visible mixed-target/entry/vehicle and HUD behavior. Use executable evidence and
 original visuals to resolve the exact footprint and selection behavior. Integrate
 real desktop interaction regressions across camera rotation, slopes, occlusion
 and wide/high-DPI displays. Keep native mechanics, uncapped elapsed-time

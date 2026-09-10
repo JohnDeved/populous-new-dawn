@@ -9,7 +9,7 @@ p,stack,stop=0x2000000,0x20fd000,0x20fe000
 w=lambda a,f,*v:c.mem_write(a,struct.pack('<'+f,*v))
 r=lambda a,f:struct.unpack('<'+f,c.mem_read(a,struct.calcsize('<'+f)))[0]
 w(0xafc2f4,'I',0x2020000)
-out=[];cases=[]
+out=[];cases=[];capture_count=2
 def hook(c,a,size,u):
  sp=c.reg_read(UC_X86_REG_ESP)
  if a==0x487e30:
@@ -17,7 +17,7 @@ def hook(c,a,size,u):
   c.reg_write(UC_X86_REG_EAX,0);c.reg_write(UC_X86_REG_EIP,r(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+20)
  else:
   out.append([list(struct.unpack('<8f',c.mem_read(r(sp+j*4,'I'),32))) for j in (1,2,3)])
-  if len(out)==2:c.reg_write(UC_X86_REG_EIP,stop)
+  if len(out)==capture_count:c.reg_write(UC_X86_REG_EIP,stop)
   else:c.reg_write(UC_X86_REG_EIP,r(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+28)
 for a in (0x487e30,0x47d8a0):c.hook_add(UC_HOOK_CODE,hook,begin=a,end=a)
 for trial in range(32):
@@ -65,3 +65,21 @@ fixture['crossings']=crossings
 if '--record' in sys.argv:p.write_text(json.dumps(fixture,separators=(',',':'))+'\n')
 else:assert json.loads(p.read_text())==fixture
 print(f'PASS: {len(crossings)} native perimeter splits across cell sides, both diagonals and wrapped seams')
+
+# Type 1b uses the whole fill tile and one triangle; execute its real UV consumer.
+capture_count=1;fills=[];polygon=0x2000000
+for trial in range(64):
+ c.mem_write(0x75d50c,bytes(3585*4));w(0x75d50c+3584*4,'I',polygon)
+ c.mem_write(polygon,bytes(70));w(polygon,'B',27);w(polygon+66,'BB',15,0)
+ points=[[100+trial/16,100-trial*32],[230-trial*8,100+trial/8],[100+trial/16,230+trial/8]]
+ for i,((x,y),(u,v)) in enumerate(zip(points,[(0,0),(2097151,2097151),(0,2097151)])):w(polygon+6+i*20,'ffIII',x,y,u,v,32)
+ w(stack,'I',stop);c.reg_write(UC_X86_REG_ESP,stack);out.clear();c.emu_start(0x4673b0,stop,count=200000)
+ assert len(out)==1
+ fills.append(dict(points=points,expected=[[v[0],v[1],v[6],v[7]] for v in out[0]]))
+js="""import {selectionFillUV} from './app/drag-border.ts';let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map(c=>c.points.map((p,i)=>[...p,...selectionFillUV[i]]))));"""
+actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(fills).encode(),cwd=ROOT))
+for result,case in zip(actual,fills):assert result==case['expected']
+fixture=dict(executableSha256=identity['sha256'],cases=fills);p=ROOT/'tests/fixtures/selection-fill.json'
+if '--record' in sys.argv:p.write_text(json.dumps(fixture,separators=(',',':'))+'\n')
+else:assert json.loads(p.read_text())==fixture
+print('PASS: 64 original type-1b fill triangles and exact default-bilinear UVs')

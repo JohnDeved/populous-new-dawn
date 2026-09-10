@@ -71,10 +71,5 @@ export function dragBorderCrossings(a: Point, b: Point) {
   }
   return points
 }
-export function dragBorderPoints(a: Point, b: Point) {
-  const points: Point[] = [a, b, ...dragBorderCrossings(a, b)],
-    dx = b.x - a.x,
-    dy = b.y - a.y
-  points.sort((p, q) => (p.x - q.x) * dx + (p.y - q.y) * dy)
-  return points.filter((p, i) => !i || p.x !== points[i - 1].x || p.y !== points[i - 1].y)
-}
+
+export const selectionFillUV = [[1 / 64, 1 / 64], dragBorderUV[2], [1 / 64, dragBorderUV[2][1]]]

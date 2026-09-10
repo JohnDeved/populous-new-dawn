@@ -27,25 +27,35 @@ try{
   await page.waitForFunction(()=>window.testScene.dragActive.value)
   assert.deepEqual(errors,[])
   const pixels=await page.evaluate(()=>{
-   const s=window.testScene,r=s.renderer,gl=r.getContext(),before=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4),after=new Uint8Array(before.length),fill=new Uint8Array(before.length)
+   const s=window.testScene,r=s.renderer,gl=r.getContext(),overlay=s.selectionOverlay
+   const before=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4),after=new Uint8Array(before.length),unbatched=new Uint8Array(before.length)
    r.render(s.scene,s.camera);const calls=r.info.render.calls
    gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,before)
-   s.dragBorder.visible=false;r.render(s.scene,s.camera)
-   const fillCalls=r.info.render.calls
-   gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,fill)
-   s.dragActive.value=false;r.render(s.scene,s.camera)
+   const prepare=s.scene.onBeforeRender
+   s.scene.onBeforeRender=(...args)=>{
+    prepare(...args)
+    overlay.geometry.groups=Array.from({length:overlay.geometry.drawRange.count/3},(_,i)=>({start:i*3,count:3,materialIndex:0}))
+   }
+   r.render(s.scene,s.camera);const unbatchedCalls=r.info.render.calls
+   gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,unbatched)
+   s.scene.onBeforeRender=prepare
+   overlay.visible=false;r.render(s.scene,s.camera);const baseCalls=r.info.render.calls
    gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,after)
-   const noExtraDraws=r.info.render.calls===fillCalls,oneBorderDraw=calls===fillCalls+1;s.dragActive.value=true;s.dragBorder.visible=true
-   let changed=0,borderPixels=0;for(let i=0;i<before.length;i+=4)if(before[i]!==fill[i]||before[i+1]!==fill[i+1]||before[i+2]!==fill[i+2])borderPixels++;for(let i=0;i<before.length;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])changed++
-   return {changed,borderPixels,noExtraDraws,oneBorderDraw,drawCalls:calls,renderPixelRatio:r.getPixelRatio(),renderer:gl.getParameter(gl.getExtension('WEBGL_debug_renderer_info').UNMASKED_RENDERER_WEBGL)}
+   overlay.visible=true
+   let changed=0,mismatch=0
+   for(let i=0;i<before.length;i++)if(before[i]!==unbatched[i])mismatch++
+   for(let i=0;i<before.length;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])changed++
+   return {changed,mismatch,drawCalls:calls,baseCalls,unbatchedCalls,selectionDraws:calls-baseCalls,triangles:overlay.geometry.drawRange.count/3,renderPixelRatio:r.getPixelRatio(),renderer:gl.getParameter(gl.getExtension('WEBGL_debug_renderer_info').UNMASKED_RENDERER_WEBGL)}
   })
-  assert.ok(pixels.changed>100,JSON.stringify(pixels));assert.ok(pixels.noExtraDraws);assert.ok(pixels.oneBorderDraw);assert.ok(pixels.borderPixels>50,JSON.stringify(pixels))
+  assert.deepEqual(errors,[])
+  assert.ok(pixels.changed>100,JSON.stringify(pixels));assert.equal(pixels.mismatch,0,JSON.stringify(pixels))
+  assert.ok(pixels.selectionDraws>0);assert.ok(pixels.drawCalls<pixels.unbatchedCalls)
   samples.push({angle,width,height,deviceScaleFactor,center,...pixels})
   if(angle===512)await page.screenshot({path:'/private/tmp/populous-world-drag.png'})
   await page.mouse.up()
-  assert.deepEqual(await page.evaluate(()=>window.testScene.world.selected),ids.slice(0,2))
+  assert.deepEqual(await page.evaluate(()=>window.testScene.world.selected),ids.slice(0,2),JSON.stringify({angle,center,width}))
   assert.equal(await page.evaluate(()=>window.testScene.dragActive.value),false)
-  await page.waitForFunction(()=>!window.testScene.dragBorder.visible)
+  await page.waitForFunction(()=>!window.testScene.selectionOverlay.visible)
   assert.equal(await page.evaluate(()=>window.testScene.world.sounds.at(-1).cue),0x43)
   const e=await screen({x:center+12,z:4}),f=await screen({x:center+18,z:14})
   await page.keyboard.down('Control');await page.mouse.move(e.x,e.y);await page.mouse.down()
@@ -69,28 +79,28 @@ try{
  },area)
  await original.page.mouse.move(targets[0].x,targets[0].y);await original.page.mouse.down()
  await original.page.mouse.move(targets[1].x,targets[1].y,{steps:12})
- await original.page.waitForFunction(()=>window.testScene.dragActive.value&&window.testScene.dragBorder.geometry.drawRange.count>0)
+ await original.page.waitForFunction(()=>window.testScene.dragActive.value&&window.testScene.selectionOverlay.geometry.drawRange.count>0)
  const sloped=await original.page.evaluate(async()=>{
-  const s=window.testScene,t=await import('/app/native-terrain.ts'),r=s.renderer,g=s.dragBorder.geometry
-  const heights=s.dragQuad.value.map(p=>t.terrainPointHeight(s.world.land,p))
+  const s=window.testScene,t=await import('/app/native-terrain.ts'),r=s.renderer,g=s.selectionOverlay.geometry
+  const values=s.selectionOverlay.triangles.flatMap(triangle=>triangle.map(p=>t.terrainPointHeight(s.world.land,p))),heights=[Math.min(...values),Math.max(...values)]
   const buffers=[g.attributes.position.array,g.attributes.uv.array,g.attributes.slot.array]
   s.updateDrag(s.pointerScreen)
   const retained=buffers.every((b,i)=>b===[g.attributes.position.array,g.attributes.uv.array,g.attributes.slot.array][i])
   r.render(s.scene,s.camera)
   const gl=r.getContext(),a=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4),b=new Uint8Array(a.length)
   gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,a)
-  s.dragBorder.visible=false;r.render(s.scene,s.camera)
+  s.selectionOverlay.visible=false;r.render(s.scene,s.camera)
   gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,b)
   let changed=0;for(let i=0;i<a.length;i+=4)if(a[i]!==b[i]||a[i+1]!==b[i+1]||a[i+2]!==b[i+2])changed++
-  s.dragBorder.visible=true
-  return {heights,retained,borderPixels:changed,vertices:g.drawRange.count,allocatedBytes:buffers.reduce((n,b)=>n+b.byteLength,0)}
+  s.selectionOverlay.visible=true
+  return {heights,retained,selectionPixels:changed,vertices:g.drawRange.count,allocatedBytes:buffers.reduce((n,b)=>n+b.byteLength,0)}
  })
  assert.ok(Math.max(...sloped.heights)>Math.min(...sloped.heights),JSON.stringify(sloped))
- assert.ok(sloped.retained);assert.ok(sloped.borderPixels>50,JSON.stringify(sloped))
+ assert.ok(sloped.retained);assert.ok(sloped.selectionPixels>50,JSON.stringify(sloped))
  await original.page.screenshot({path:'/private/tmp/populous-drag-original-terrain.png'})
- await original.page.mouse.up();await original.page.waitForFunction(()=>!window.testScene.dragBorder.visible)
+ await original.page.mouse.up();await original.page.waitForFunction(()=>!window.testScene.selectionOverlay.visible)
  assert.deepEqual(original.errors,[]);await original.page.close()
  assert.deepEqual(errors,[])
- writeFileSync(new URL('../references/performance/2026-09-10-drag-border.json',import.meta.url),JSON.stringify({scope:'Terrain fill adds no draw calls; terrain-split edge/corner batch adds one. Software-renderer correctness check; not hardware FPS or a speedup benchmark.',samples,sloped},null,2)+'\n')
- console.log('PASS: world-projected drag selection at five camera bearings, ultrawide/2x DPI, map seam, Ctrl addition, group voices, empty-area retention, terrain GPU pixels and zero extra fill draws and one border draw')
+ writeFileSync(new URL('../references/performance/2026-09-10-selection-raster.json',import.meta.url),JSON.stringify({scope:'Native fill/edges/corners share batches separated only by intervening alpha draws. Batched and per-triangle GPU pixels match. Software-renderer correctness check; not hardware FPS or a speedup benchmark.',samples,sloped},null,2)+'\n')
+ console.log('PASS: world-projected drag selection at five camera bearings, ultrawide/2x DPI, map seam, Ctrl addition, group voices, empty-area retention, terrain GPU pixels and exact batched/unbatched GPU equivalence')
 }finally{await browser.close()}

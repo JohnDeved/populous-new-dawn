@@ -1278,9 +1278,17 @@
                 "scripts/check-native-drag-border.py",
                 "tests/drag-border.test.mjs",
                 "references/performance/2026-09-10-drag-border.json",
-                "decomp/generated/00423700.c"
+                "decomp/generated/00423700.c",
+                "app/selection-mesh.ts",
+                "app/selection-raster.ts",
+                "scripts/check-native-selection-mesh.py",
+                "scripts/check-native-selection-raster.py",
+                "tests/selection-raster.test.mjs",
+                "references/performance/2026-09-10-selection-raster.json",
+                "decomp/generated/0046daa0.c",
+                "decomp/generated/0046dbb0.c"
               ],
-              "note": "Original tile-15 fill remains in the terrain shader. Tiles 23/31 now supply terrain-split edges/corners in one reusable GPU batch, with native eight-pixel extrusion and half-tile UVs verified against 256 native submissions and 512 perimeter splits. Native separate selection buckets, mixed alpha ordering, exact fill UV/four-triangle tessellation, clipped triangle list ordering and horizon suppression remain unfinished; the current border reuses terrain depth. Software-renderer checks establish draw counts and pixels, not hardware FPS."
+              "note": "Default selection now reconstructs four-triangle terrain clipping, per-triangle fill UVs, maximum-depth buckets, shared-corner consumption and near-horizon border suppression. 512 native meshes, 512 complete draw queues and 64 fill UV submissions match; one captured seven-point fan hole is deliberately repaired. The painter preserves alpha interleaving while batching 139\u2013267 selection triangles into 1\u20133 draws with byte-identical GPU output. Zero-area texture fallback, extreme span/pool-capacity behavior, alternate filtering/render settings and final full-frame original reference comparisons remain open; hardware FPS is not certified."
             },
             {
               "id": "interface.commands.input-ownership",

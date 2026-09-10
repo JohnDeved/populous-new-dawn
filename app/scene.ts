@@ -123,7 +123,7 @@ import {
   unwrapDragCorners,
   dragMoved,
 } from './drag-selection.ts'
-import { dragOverlayShader, DragBorder } from './drag-overlay.ts'
+import { SelectionOverlay } from './drag-overlay.ts'
 import { nativeAngle, positionDistance } from './native-math.ts'
 import { GlobeRenderer } from './globe-renderer.ts'
 import { beginGlobeDrag, stepGlobeMotion, type GlobeMotion } from './globe.ts'
@@ -548,9 +548,8 @@ export class GameScene {
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
     null
-  dragBorder: DragBorder
+  selectionOverlay: SelectionOverlay
   dragActive = { value: false }
-  dragQuad = { value: Array.from({ length: 4 }, () => new THREE.Vector2()) }
   keys = new Set<string>()
   resize: ResizeObserver
   frame = 0
@@ -704,9 +703,6 @@ export class GameScene {
           map: { value: this.terrainMap },
           waterMap: { value: this.waterMap },
           scroll: this.waterScroll,
-          dragActive: this.dragActive,
-          dragQuad: this.dragQuad,
-          dragAtlas: { value: texture('atlas') },
         },
         vertexShader: `
           attribute vec2 landUv;
@@ -716,9 +712,7 @@ export class GameScene {
           varying vec2 land, waterUV;
           varying float sea;
           varying vec3 diffuse, specular;
-          varying vec2 dragPoint;
           void main() {
-            dragPoint = vec2(uv.x + 8., -uv.y - 8.) * 256.;
             land = landUv;
             waterUV = vec2(uv.x + 8., -uv.y - 8.) / 16.;
             sea = surface;
@@ -726,9 +720,7 @@ export class GameScene {
             specular = highlight;
             gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
           }`,
-        fragmentShader:
-          dragOverlayShader +
-          `
+        fragmentShader: `
           uniform sampler2D map, waterMap;
           uniform float scroll;
           varying vec2 land, waterUV;
@@ -737,7 +729,6 @@ export class GameScene {
           void main() {
             gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV + scroll) : texture2D(map, land);
             gl_FragColor.rgb = clamp(gl_FragColor.rgb * diffuse + specular, 0., 1.);
-            gl_FragColor = dragOverlay(gl_FragColor);
           }`,
       }),
       9
@@ -748,9 +739,9 @@ export class GameScene {
     this.terrain.userData.nativeRelative = true
     this.terrain.userData.painterGround = true
     this.terrain.userData.terrainGrid = true
-    this.dragBorder = new DragBorder(texture('atlas'), this.view, this.terrain)
-    this.dragBorder.material.uniforms.dragActive = this.dragActive
-    this.scene.add(this.dragBorder)
+    this.selectionOverlay = new SelectionOverlay(texture('atlas'), this.view)
+    this.selectionOverlay.material.uniforms.dragActive = this.dragActive
+    this.scene.add(this.selectionOverlay)
     this.terrain.receiveShadow = true
     this.terrain.castShadow = true
     this.ground.add(this.terrain, this.objects, this.decorations, this.cursor, this.range)
@@ -1432,7 +1423,7 @@ export class GameScene {
     }
     if (end) drag.end = dragEndpoint(drag.start, end, this.view.angle)
     this.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
-    this.dragBorder.visible = this.dragActive.value
+    this.selectionOverlay.visible = this.dragActive.value
     if (!this.dragActive.value) return
     const angle = nativeAngle(
       ((drag.end.x - drag.start.x) << 16) >> 16,
@@ -1441,13 +1432,12 @@ export class GameScene {
     const corners = unwrapDragCorners(
       dragCorners(drag.start, this.view.angle, angle, positionDistance(drag.start, drag.end))
     )
-    corners.forEach((p, i) => this.dragQuad.value[i].set(p.x, p.y))
-    this.dragBorder.update(
+    this.selectionOverlay.update(
       corners,
+      this.view.angle,
       ((angle - this.view.angle) & 2047) >> 9,
       this.world.land,
-      this.view,
-      this.terrain
+      this.view
     )
   }
   pointerUp = ((event: PointerEvent) => {
@@ -2704,7 +2694,7 @@ export class GameScene {
           : null
       this.pointerState = pointerState
     }
-    this.dragBorder.visible = this.dragActive.value
+    this.selectionOverlay.visible = this.dragActive.value
     const hovered =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
     const hoveredBuilding = this.world.buildings.find(b => b.id === this.hoveredObject)

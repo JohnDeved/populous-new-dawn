@@ -15,6 +15,7 @@ import { soundListener, treeAmbienceAudible, type SoundEnvironment } from './amb
 
 interface Command {
   slot: number
+  alpha: boolean
   bucket: number
   cell: number
   object: number
@@ -79,14 +80,15 @@ export class Painter {
     let length = 0
     scene.traverseVisible(object => {
       if (
-        object.userData.nativeIgnore ||
+        (object.userData.nativeIgnore && !object.userData.selectionCommands) ||
         !(object instanceof THREE.Mesh || object instanceof THREE.Sprite)
       )
         return
       const material = Array.isArray(object.material) ? object.material[0] : object.material
-      if (!this.view.materials.has(material)) return
+      if (!this.view.materials.has(material) && !object.userData.selectionCommands) return
       const triangles =
-        object instanceof THREE.Sprite ? 1 : object.geometry.getAttribute('position').count / 3
+        object.userData.selectionCommands?.length ??
+        (object instanceof THREE.Sprite ? 1 : object.geometry.getAttribute('position').count / 3)
       this.ranges.set(object, [length, triangles])
       length += triangles * (object instanceof THREE.InstancedMesh ? object.count : 1)
       objects.push(object)
@@ -114,6 +116,28 @@ export class Painter {
       projected: ReturnType<typeof projectPoint>[] = [],
       raw = [0, 0, 0]
     for (const object of objects) {
+      const selection = object.userData.selectionCommands as
+        | { bucket: number; order: number }[]
+        | undefined
+      if (selection) {
+        const offset = this.ranges.get(object)![0]
+        selection.forEach((draw, i) =>
+          commands.push({
+            slot: offset + i,
+            bucket: draw.bucket,
+            cell: 0x7fffffff,
+            object: 0,
+            face: draw.order,
+            phase: 3,
+            order: 0,
+            alpha: true,
+          })
+        )
+        continue
+      }
+      const alpha = (Array.isArray(object.material) ? object.material : [object.material]).some(
+        m => m.transparent
+      )
       const [offset, triangles] = this.ranges.get(object)!,
         sprite = object instanceof THREE.Sprite
       const ground = !!object.userData.painterGround,
@@ -262,6 +286,7 @@ export class Painter {
           }
           commands.push({
             slot: offset + instance * triangles + triangle,
+            alpha,
             bucket,
             cell,
             object: sourceOrder,
@@ -301,6 +326,33 @@ export class Painter {
         material: object.material,
         groups: geometry.groups,
       })
+      if (object.userData.selectionCommands) {
+        const [offset, count] = this.ranges.get(object)!
+        let index = geometry.index
+        if (!index || index.count < count * 3) {
+          index = new THREE.BufferAttribute(
+            new Uint32Array(Math.max(128, 2 ** Math.ceil(Math.log2(count * 3)))),
+            1
+          ).setUsage(THREE.DynamicDrawUsage)
+          geometry.setIndex(index)
+        }
+        geometry.groups = []
+        let used = 0,
+          run = false
+        for (const command of commands) {
+          if (command.slot >= offset && command.slot < offset + count) {
+            if (!run) geometry.addGroup(used, 0, 0)
+            geometry.groups.at(-1)!.count += 3
+            for (let j = 0; j < 3; j++) index.setX(used++, (command.slot - offset) * 3 + j)
+            run = true
+          } else if (command.alpha) run = false
+        }
+        index.clearUpdateRanges()
+        index.addUpdateRange(0, used)
+        index.needsUpdate = true
+        object.material = materials
+        continue
+      }
       const groups = Array.isArray(object.material)
         ? geometry.groups
         : [{ start: 0, count: geometry.getAttribute('position').count, materialIndex: 0 }]
@@ -343,6 +395,8 @@ export class Painter {
 
   depth(object: THREE.Object3D, triangle: number, instance: number) {
     const range = this.ranges.get(object)
+    if (object instanceof THREE.Mesh && object.userData.selectionCommands && object.geometry.index)
+      triangle = object.geometry.index.getX(triangle * 3) / 3
     return range
       ? this.texture.image.data![range[0] + range[1] * instance + triangle] * 2 - 1
       : null
