@@ -171,7 +171,7 @@ def main():
                 p.extend(round(v/(scale*3),6) for v in (x,y,-z))
                 uv.extend([round((tile%8+texcoords[k*2]/0x200000)/8,7),round(1-(tile//8+texcoords[k*2+1]/0x200000)/32,7)])
         assert len(p)//3 == len(uv)//2 and len(p)%9 == 0
-        models[i] = {'p':p,'uv':uv,'scale':scale,'faces':face_stages,'tiles':tiles,'normals':normals,'modes':modes,'biases':biases}
+        models[i] = {'p':p,'uv':uv,'scale':scale,'faces':face_stages,'tiles':tiles,'normals':normals,'modes':modes,'biases':biases,'panelHeight':int(struct.unpack_from('<h',objects,i*54+40)[0]/2)}
         topology[i] = (scale, order)
     assert all(topology[i] == topology[152] for i in (153,154,155)), 'Vault morph topology differs'
     (project/'app/original-models.json').write_text(json.dumps(models,separators=(',',':')))

@@ -16,6 +16,7 @@ import { stepWorshipPerson } from './person-worship.ts'
 import { findWorshipPlace, worshipPositions } from './worship.ts'
 import { moveObjectInCells, objectsInCell } from './object-cells.ts'
 import { terrainPointHeight } from './native-terrain.ts'
+import { selectTrainingOccupants } from './training.ts'
 import sprites from './original-units.json' with { type: 'json' }
 
 export function worshipHeadPose(w: World, head: Shrine) {
@@ -32,12 +33,14 @@ function* standingPeople(w: World, point: { x: number; y: number }) {
 
 // 0x43c600 reads the first stationary friendly at each exact slot, regardless
 // of their current task. Reuse the live cell chains rather than a proximity scan.
-export function liveWorshippers(w: World, head: Shrine) {
+export function liveWorshippers(w: World, head: Shrine, limit = 50) {
   const people: LivePerson[] = []
+  if (limit <= 0) return people
   for (const point of worshipPositions(worshipHeadPose(w, head)))
     for (const p of standingPeople(w, point))
       if (p.tribe === w.manaWorld.playerTribe) {
         people.push(p)
+        if (people.length >= limit) return people
         break
       }
   return people
@@ -96,4 +99,17 @@ export function stepLiveWorship(w: World, u: Unit) {
   head.nextSlot = state.nextSlot
   head.slotTimer = state.slotTimer
   return done
+}
+
+export function selectWorshippers(w: World, head: Shrine, clicked: number, group: boolean) {
+  if (w.inputMask || w.land.landFlags & 0x800) return
+  const people = liveWorshippers(w, head)
+  selectTrainingOccupants(people, clicked, group)
+  const selected = new Set(w.selected)
+  for (const p of people) {
+    if (p.selectionFlags & 128) selected.add(p.id)
+    else selected.delete(p.id)
+  }
+  w.selected = [...selected]
+  w.mode = null
 }

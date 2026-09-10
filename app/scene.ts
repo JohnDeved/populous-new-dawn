@@ -1,4 +1,4 @@
-import { PersonPanels } from './person-panels.ts'
+import { ObjectPanels } from './object-panels.ts'
 import { unitHealthGauge } from './unit-health.ts'
 import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
@@ -545,7 +545,7 @@ export class GameScene {
   tooltip = createTooltip()
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
-  personPanels = new PersonPanels(this)
+  objectPanels = new ObjectPanels(this)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
@@ -1354,8 +1354,8 @@ export class GameScene {
       !this.world.inputMask &&
       !this.overviewActive
     ) {
-      const person = this.pickUnit(event)
-      if (person) this.personPanels.open(person.id)
+      const object = this.pickUnit(event) ?? this.pickWorldObject(event)
+      if (object) this.objectPanels.open(object.id)
     }
     const unit =
       event.button === 0 &&
@@ -2804,7 +2804,7 @@ export class GameScene {
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
     this.renderBuildingPanels()
-    this.personPanels.update(texture('hud').image as HTMLImageElement)
+    this.objectPanels.update(texture('hud').image as HTMLImageElement)
     this.container.parentElement!.style.setProperty(
       '--population-full-color',
       nativeHud.colors[populationMeter(1, 1, this.gameClock.animationFrame).color]
@@ -2871,7 +2871,7 @@ export class GameScene {
     this.tooltipElement.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()
     this.buildingPanels.clear()
-    this.personPanels.dispose()
+    this.objectPanels.dispose()
     this.spellPointer.remove()
   }
 }

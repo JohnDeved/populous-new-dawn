@@ -16,7 +16,7 @@ try {
       w.terrain.fill(384/45);w.terrainVersion++;w.land.heights.fill(384);w.land.flags.fill(0)
       const u=m.addUnit(w,'blue','brave',{x:0,z:8})
       m.setSelection(w,[u.id]);m.command(w,{x:8,z:8});m.cancelInteraction(w)
-      s.focus(u);s.onChange();s.personPanels.open(u.id,true);w.paused=true
+      s.focus(u);s.onChange();s.objectPanels.open(u.id,true);w.paused=true
       window.markerCues=[];const sound=s.onSound.bind(s);s.onSound=(cue,...args)=>{window.markerCues.push(cue);return sound(cue,...args)}
       return {queue:JSON.stringify([u.native.commands,u.native.commandCursor,w.buildingOrders.records]),counter:w.effectCounter}
     })

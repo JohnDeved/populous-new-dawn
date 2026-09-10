@@ -7360,7 +7360,7 @@ smoothly on higher-refresh displays; indoor people use their retained native hei
 The browser now opens these panels with neutral right-click inspection and with
 building-occupant right-click focus. Selection and movement ownership are unchanged.
 `app/person-panel.ts` contains the readable command/layout/lifetime rules;
-`app/person-panels.ts` owns their small DOM canvases and presentation integration.
+`app/object-panels.ts` owns their small DOM canvases and presentation integration.
 Unchanged health/orders reuse the canvas. Ten identical updates produce zero
 `drawImage` calls versus thirty when bypassing the cache, at desktop, ultrawide
 and 2x DPI. This is an operation-count comparison, not a hardware FPS claim;
@@ -7593,7 +7593,9 @@ Head visits (`004a8b00`, model 9 without pending terrain initialization/morph)
 decrement the slot timer and reset its cursor at zero. All 1,280 byte-timer/slot
 cases match the executable. The roster follows `0043c600`: first same-tribe,
 stationary class-1 person at each exact position, in cell-chain order. Browser
-work markers and a radius no longer determine spell-head admission. Native
+work markers no longer determine the panel roster. This delivery also applied that
+roster to rewards; the next entry corrects that mistake with the distinct native
+reward-admission branch. Native
 physics retains position/height, slot arrival clears route ownership, prayer uses
 original objects 64/744 and the separate pose RNG, and sound 82 loads all four
 already-imported original samples through existing owned Web Audio playback.
@@ -7628,3 +7630,52 @@ head terrain initialization/morphs, allocation/class scheduling, full sound
 arbitration, and contextual-panel selection/focus controls remain open. The
 worship panel painter is still preparation, not a live panel. These boundaries
 must not disappear behind a full campaign-worship or selection parity claim.
+
+### 2026-09-11: live stone-head inspection and corrected reward admission
+
+Ordinary spell heads now open their original contextual panel on neutral
+right-click and through person order-icon focus. `ObjectPanels` extends the existing
+person-panel owner instead of adding another lifecycle, painter or render loop.
+Head model height comes from signed object-record word +40 divided by two
+(`00509000`); model 45 is 656 native units above the head's ground anchor.
+Head panels retain their own lifetime when a person panel opens. Original artwork
+and the native cue 106 accompany single selection, Shift group toggle and
+right-click person focus. Selection changes the real person flags while preserving
+orders, RNG and selected people outside the roster. Blocked people stay excluded.
+
+This corrects an error in the previous delivery: exact standing slots are the
+`0043c600` panel/group-selection roster, not the `004fb270` reward roster. Timed
+ordinary heads sample an oriented, wrapped coarse-cell square, requiring class 1,
+a valid tribe, state 10/33, nonzero substate, zero speed, no flags4 bit 0x800 and
+an uncancelled active command 27. This branch does not require an exact slot or
+compare the command's target ID. Counts are retained between sampling visits;
+reset clears them. The first-mission adapter still consumes the player's count.
+
+`scripts/check-native-worship-admission.py EXE` executes 1,536 complete timed-head
+visits with real cell chains, four tribe counts and current/queued orders. Only
+presentation consumers are intercepted. It also executes 256 original command-113
+selection cases (supplying the roster but retaining native eligibility/flag writes)
+and 55 model-height consumers using original object records. `--record` writes
+executable-bound portable captures. The existing native panel geometry/art oracle
+is unchanged. Live tests distinguish off-slot reward contributors from idle
+exact-slot panel occupants and check modal/blocked/outside-selection behavior.
+
+`check-browser-head-panel.mjs` uses real model hit tests and pointer actions,
+verifies selection/focus and untouched queues/RNG, checks independent panel life,
+and resizes through ultrawide and 2x-DPI geometry. Replacing the first icon with
+an identical-model, identical-selection person must update the button target;
+person IDs are part of the panel update key. The existing person inspection/order
+focus browser regression also passes after the shared-owner rename. Panel lookup
+stops after its visible slots are filled; group selection still visits the full
+fifty-position roster. See the performance note for the measured bounded query.
+
+Still open: vault command-33 and building-anchor ownership, general/zero-target/
+shaman-only triggers, multi-tribe winner and conflict handling, per-object counter
+phase, bitmap transitions and complete input/command-buffer ownership. The first
+mission uses ordinary spell-head panels; this is not full worship or mixed-class
+selection parity. Continue the user's groups/selection/3D-drag queue.
+
+Validation at delivery: all 306 portable tests (including full first mission and
+worship FPS replay), typecheck, parity metadata, production build and 1,119 native
+export hashes pass. The changed worship/panel TS modules pass targeted oxlint;
+pre-existing repository-wide lint issues remain outside this slice.

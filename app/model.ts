@@ -1,4 +1,4 @@
-import { worshipOrder, liveWorshippers, worshipHeadPose } from './live-worship.ts'
+import { worshipOrder, worshipHeadPose } from './live-worship.ts'
 import {
   movementOrder,
   startLiveOrder,
@@ -143,7 +143,7 @@ import {
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
-import { removeObjectFromCell, type ObjectCells } from './object-cells.ts'
+import { removeObjectFromCell, objectsInCell, type ObjectCells } from './object-cells.ts'
 import {
   stepBuildingEntry,
   isDismantling,
@@ -264,6 +264,7 @@ import {
   stepWorship,
   stepWorshipHead,
   worshipApproach,
+  countWorshippers,
   worshipProgress,
   type WorshipState,
 } from './worship.ts'
@@ -389,6 +390,8 @@ export type Shrine = Point &
     kind: 'bridge' | 'lightning' | 'vault'
     nextSlot: number
     slotTimer: number
+    range: number
+    followers: number
     name: string
     progress: number
     duration: number
@@ -1750,6 +1753,8 @@ export function createWorld(): World {
         ...worship,
         nextSlot: 0,
         slotTimer: 0,
+        range: settings[1],
+        followers: 0,
         forced: false,
         morph: null,
         model: kind === 'vault' ? 154 : 45,
@@ -4519,7 +4524,10 @@ function stepTurn(w: World) {
   for (const shrine of w.shrines) {
     if (shrine.kind !== 'vault') stepWorshipHead(shrine)
     if (!shrine.active) continue
-    if (shrine.reset) shrine.forced = false
+    if (shrine.reset) {
+      shrine.forced = false
+      shrine.followers = 0
+    }
     let fired = false
     if (shrine.kind === 'vault') {
       const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
@@ -4531,11 +4539,18 @@ function stepTurn(w: World) {
         !shaman.fight &&
         !shaman.casting &&
         distance(shaman, shrine) < 3
+      if (shrine.enabled && !(w.turn & 3)) shrine.followers = Number(eligible)
       fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced)
       shrine.progress = shrine.target > 0 ? shrine.work / shrine.target : 0
     } else {
       // The trigger still uses world-turn phase until native mixed-class scheduling.
-      fired = stepWorship(shrine, w.turn, liveWorshippers(w, shrine).length, shrine.forced)
+      if (shrine.enabled && !(w.turn & 3))
+        shrine.followers = countWorshippers(
+          { ...worshipHeadPose(w, shrine), range: shrine.range },
+          w.buildingOrders,
+          cell => objectsInCell(w.objectCells, cell) as Iterable<LivePerson>
+        )[w.manaWorld.playerTribe]
+      fired = stepWorship(shrine, w.turn, shrine.followers, shrine.forced)
       shrine.progress = worshipProgress(shrine)
     }
     if (fired) {

@@ -4558,3 +4558,16 @@ cases); `check-native-worship-place.py --record` also executes 1,280 ordinary
 connected through `app/live-worship.ts`. See the latest reverse-engineering entry
 for live tests, deliberate prayer-frame handoff and remaining admission, retry,
 vehicle, vault, trigger, contextual-panel and scheduling boundaries.
+
+
+## 2026-09-11 — timed-head admission, selection and model height
+
+`check-native-worship-admission.py EXE [--record]` compares 1,536 original
+`004fb270` timed-head visits (real cell traversal/eligibility; presentation consumers
+supplied), 256 command-113 selection cases in `0043e8e0` (roster supplied; actual
+flag writes/eligibility retained) and 55 complete `00509000` model-height calls.
+The height check reads `objects/objs0-2.dat` beside the supplied PE; no executable
+or proprietary object data are embedded in the check. Portable captured inputs
+and outputs retain the executable hash. The live ordinary stone-head panel now
+uses these rules; exact `0043c600` standing-slot lookup is distinct from reward
+admission. Vault anchors, general triggers and full input ownership remain open.

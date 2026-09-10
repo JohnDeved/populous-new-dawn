@@ -1,4 +1,5 @@
 import { movePosition } from './native-math.ts'
+import { currentPersonOrder, type OrderPool, type OrderedPerson } from './person-orders.ts'
 
 // Reviewed portions of 0x485b00 (level settings) and 0x4fb270 (worship triggers).
 // Follower eligibility, world scheduling and reward objects are supplied by the engine.
@@ -145,4 +146,56 @@ export function findWorshipPlace(
 // have separate owners; the standing cursor expires even without worshippers.
 export function stepWorshipHead(head: { nextSlot: number; slotTimer: number }) {
   if (head.slotTimer && --head.slotTimer === 0) head.nextSlot = 0
+}
+
+// Timed spell-head branch of 0x4fb270. Reward admission is an oriented cell
+// square and an active worship order; exact standing slots belong to the panel.
+export function countWorshippers(
+  head: { x: number; y: number; angle: number; range: number },
+  orders: OrderPool,
+  cellPeople: (cell: number) => Iterable<
+    OrderedPerson & {
+      class: number
+      tribe: number
+      state: number
+      substate: number
+      speed: number
+    }
+  >
+) {
+  const counts = [0, 0, 0, 0],
+    radius = head.range * 2
+  let x = ((head.x >> 8) & 254) - radius,
+    y = ((head.y >> 8) & 254) - radius
+  switch (((head.angle + 1024) & 1536) >> 9) {
+    case 0:
+      y += radius
+      break
+    case 1:
+      x += radius
+      break
+    case 2:
+      y -= radius
+      break
+    case 3:
+      x -= radius
+      break
+  }
+  for (let row = 0; row <= head.range * 2; row++)
+    for (let column = 0; column <= head.range * 2; column++)
+      for (const p of cellPeople(((x + column * 2) & 255) | (((y + row * 2) & 255) << 8))) {
+        if (
+          p.class !== 1 ||
+          p.tribe < 0 ||
+          p.tribe > 3 ||
+          p.flags4 & 0x800 ||
+          ![10, 33].includes(p.state) ||
+          p.speed ||
+          !p.substate
+        )
+          continue
+        const order = currentPersonOrder(orders, p)
+        if (order?.model === 27 && !(order.flags & 1)) counts[p.tribe]++
+      }
+  return counts
 }

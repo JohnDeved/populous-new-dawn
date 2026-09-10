@@ -16,7 +16,7 @@ try {
       const s = window.testScene, w = s.world, m = await import('/app/model.ts')
       w.speed = 0; w.paused = false; w.selected = []; w.units = []; w.buildings = []; w.shrines = []; w.trees = []
       w.terrain.fill(3); w.terrainVersion++; w.manaWorld.gameFlags = 32
-      s.personPanels.dispose()
+      s.objectPanels.dispose()
       const u = m.addUnit(w, 'blue', 'brave', { x: 0, z: 8 })
       u.hp /= 2
       s.focus(u); s.onChange()
@@ -31,7 +31,7 @@ try {
       await page.keyboard.down(modifier)
       await page.mouse.click(p.x, p.y, { button: 'right' })
       await page.keyboard.up(modifier)
-      assert.equal(await page.evaluate(() => window.testScene.personPanels.panels.size), 0, modifier)
+      assert.equal(await page.evaluate(() => window.testScene.objectPanels.panels.size), 0, modifier)
     }
     await page.mouse.click(p.x, p.y, { button: 'right' })
     const panel = page.locator('.person-panel:not([hidden])')
@@ -61,11 +61,11 @@ try {
       let paints = 0
       ctx.drawImage = function(...a) { paints++; return draw.apply(this, a) }
       const atlas = new Image(); atlas.src = '/original/hud.png'; await atlas.decode()
-      for (let i = 0; i < 10; i++) window.testScene.personPanels.update(atlas)
+      for (let i = 0; i < 10; i++) window.testScene.objectPanels.update(atlas)
       const cached = paints
       for (let i = 0; i < 10; i++) {
-        for (const p of window.testScene.personPanels.panels.values()) p.key = ''
-        window.testScene.personPanels.update(atlas)
+        for (const p of window.testScene.objectPanels.panels.values()) p.key = ''
+        window.testScene.objectPanels.update(atlas)
       }
       ctx.drawImage = draw
       return {cached, uncached: paints-cached}
@@ -76,7 +76,7 @@ try {
       const origin = m.nativePosition(w, u)
       w.buildingOrders.records.splice(0, 10, ...Array.from({length:10}, (_, i) => ({model:3,flags:0,references:1,object:0,a:(origin.x+i*256)&65535,b:origin.y&65535})))
       p.commands = [1,2,3,4,5,6,7,8]; p.commandCursor = 3; p.immediateCommand = 0
-      s.personPanels.open(id,true)
+      s.objectPanels.open(id,true)
       window.orderFocusCalls = []
       const focus = s.focus.bind(s)
       s.focus = (...args) => { window.orderFocusCalls.push(args); return focus(...args) }
@@ -93,7 +93,7 @@ try {
     assert.deepEqual(await page.evaluate(() => window.orderFocusCalls.at(-1)[0]), orders.expected)
     assert.equal(await page.evaluate(() => window.testScene.pointerButtons), 0, 'panel right-click must not latch world camera input')
     await page.evaluate(id => {
-      const s=window.testScene;s.focus(s.world.units.find(u=>u.id===id));s.personPanels.open(id,true);window.orderFocusCalls=[]
+      const s=window.testScene;s.focus(s.world.units.find(u=>u.id===id));s.objectPanels.open(id,true);window.orderFocusCalls=[]
     }, id)
     await button.focus()
     await page.mouse.move(width-50,40)
@@ -109,23 +109,23 @@ try {
     const objectPoint = await page.evaluate(async id => {
       const s=window.testScene,w=s.world,u=w.units.find(u=>u.id===id),p=u.native
       w.buildingOrders.records[9] = {model:14,flags:0,references:1,object:0,a:id,b:0}
-      p.immediateCommand=9;s.focus(u);s.personPanels.open(id,true);window.orderFocusCalls=[]
+      p.immediateCommand=9;s.focus(u);s.objectPanels.open(id,true);window.orderFocusCalls=[]
       return {x:u.x,z:u.z}
     },id)
     await page.waitForFunction(() => document.querySelector('.person-panel button:not([hidden])')?.dataset.order === '9')
     await button.click({button:'right'})
     assert.deepEqual(await page.evaluate(() => window.orderFocusCalls.at(-1)[0]),objectPoint,'immediate object order focuses the real person')
-    assert.equal(await page.evaluate(id=>window.testScene.personPanels.panels.get(id).phase,id),1,'owned target inspection opens immediately')
+    assert.equal(await page.evaluate(id=>window.testScene.objectPanels.panels.get(id).phase,id),1,'owned target inspection opens immediately')
     await page.evaluate(id => {
       const s=window.testScene,w=s.world,p=w.units.find(u=>u.id===id).native
-      window.orderFocusCalls=[];w.inputMask=1;s.personPanels.focusOrder(id,9);w.inputMask=0
-      s.overviewActive=true;s.personPanels.focusOrder(id,9);s.overviewActive=false
-      p.immediateCommand=0;p.commands.fill(0);s.personPanels.focusOrder(id,4)
+      window.orderFocusCalls=[];w.inputMask=1;s.objectPanels.focusOrder(id,9);w.inputMask=0
+      s.overviewActive=true;s.objectPanels.focusOrder(id,9);s.overviewActive=false
+      p.immediateCommand=0;p.commands.fill(0);s.objectPanels.focusOrder(id,4)
     },id)
     assert.equal(await page.evaluate(() => window.orderFocusCalls.length),0,'stale button cannot focus an order no longer owned by the person')
     await page.waitForFunction(() => !document.querySelector('.person-panel button:not([hidden])'))
     await page.evaluate(id => {
-      const s=window.testScene;s.focus(s.world.units.find(u=>u.id===id));s.personPanels.open(id,true)
+      const s=window.testScene;s.focus(s.world.units.find(u=>u.id===id));s.objectPanels.open(id,true)
       document.activeElement?.blur()
     },id)
     await page.evaluate(() => { window.testScene.world.paused = true })

@@ -2142,3 +2142,26 @@ original rendered prayer sprites and Web Audio decoding/playback/cleanup for
 samples sound-270 through sound-273. The 576-pose sprite regression also passes.
 These are correctness checks, not hardware FPS certification. Full native
 animation visibility/catch-up, audio arbitration and class scheduling remain open.
+
+### 2026-09-11: bounded stone-head panel queries
+
+The native panel painter requests only its visible roster slots, while group
+selection walks up to fifty standing positions. The browser now shares that
+bounded distinction through `liveWorshippers`' optional limit; no additional cache,
+world scan or frame clock. Geometry still comes from the same native fifty-slot
+helper. Artwork is repainted only when the panel content or action identity changes.
+Counts and person IDs remain in that key so labels/buttons cannot silently go stale.
+
+`node scripts/bench-worship-panel.mjs` compares the previous full-roster query
+against the bounded one-slot query on the same settled seven-person first-mission
+head. It asserts equal visible output, warms 10,000 calls per implementation, then
+records the median of nine 10,000-call rounds. On Apple M5, Node v24.18.0, this run
+measured 2.236425 microseconds before and 0.456546 after (about 80% less query CPU).
+This is a small CPU microbenchmark, not a whole-game FPS or hardware-GPU claim;
+frame time still includes picking, projection and the rest of the scene.
+
+Existing elapsed-time panel lifetime and worship replay checks remain in force.
+Real headless browser checks cover desktop/ultrawide/2x-DPI hit regions and
+same-artwork person replacement. Fixed-turn reward admission is shared with the
+native-count oracle and does not depend on render rate. No mechanics or pixels
+were traded for the bounded query.

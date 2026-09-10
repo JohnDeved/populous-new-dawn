@@ -7,16 +7,20 @@ import {
   stepPersonPanel,
   type PersonPanelTime,
 } from './person-panel.ts'
+import { liveWorshippers, selectWorshippers } from './live-worship.ts'
+import { worshipPanel } from './worship-panel.ts'
+import models from './original-models.json' with { type: 'json' }
 import { paintPanel } from './training-panel.ts'
 import hud from './original-hud.json' with { type: 'json' }
 
-export class PersonPanels {
+export class ObjectPanels {
   panels = new Map<
     number,
     PersonPanelTime & {
       element: HTMLDivElement
       canvas: HTMLCanvasElement
       offset: number
+      kind: 'person' | 'head'
       key: string
     }
   >()
@@ -28,11 +32,12 @@ export class PersonPanels {
     const u = scene.world.units.find(
       person => person.id === id && person.hp > 0 && person.team === 'blue'
     )
-    if (!u) return
+    const head = scene.world.shrines.find(s => s.id === id && s.kind !== 'vault')
+    if (!u && !head) return
     let panel = this.panels.get(id)
     if (!panel) {
       for (const old of this.panels.values())
-        if (old.phase < 2) {
+        if (u && old.kind === 'person' && old.phase < 2) {
           old.remaining = 0
           old.hold = 0
         }
@@ -42,17 +47,22 @@ export class PersonPanels {
       element.className = 'person-panel'
       element.setAttribute('role', 'group')
       element.insertBefore(canvas, null)
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < (head?.required ?? 8); i++) {
         const button = document.createElement('button')
         button.type = 'button'
         button.hidden = true
         button.addEventListener('contextmenu', event => {
           event.preventDefault()
-          this.focusOrder(id, Number(button.dataset.order))
+          if (head) this.focusWorshipper(id, Number(button.dataset.person))
+          else this.focusOrder(id, Number(button.dataset.order))
         })
-        // Native pointer-left is inert; keyboard activation exposes the same action.
+        // Person order icons use right-click; keyboard activation also exposes focus.
         button.addEventListener('click', event => {
-          if (!event.detail) this.focusOrder(id, Number(button.dataset.order))
+          if (head) {
+            selectWorshippers(scene.world, head, Number(button.dataset.person), event.shiftKey)
+            scene.onSound(0x6a)
+            scene.onChange()
+          } else if (!event.detail) this.focusOrder(id, Number(button.dataset.order))
         })
         element.insertBefore(button, null)
       }
@@ -62,7 +72,10 @@ export class PersonPanels {
       panel = {
         element,
         canvas,
-        offset: (scene.unitMeshes.get(id)?.userData.nativeFrameHeight ?? 0) * 8,
+        kind: head ? 'head' : 'person',
+        offset: head
+          ? (models as Record<number, { panelHeight: number }>)[head.model].panelHeight
+          : (scene.unitMeshes.get(id)?.userData.nativeFrameHeight ?? 0) * 8,
         phase: -1,
         remaining: 0,
         hold: 20,
@@ -83,11 +96,14 @@ export class PersonPanels {
     const elapsed = scene.gameClock.animationFrame - this.frame
     this.frame = scene.gameClock.animationFrame
     if (!panels.size) return
-    const hovered = scene.pointerScreen && scene.pickUnit(scene.pointerScreen)?.id
+    const hovered =
+      scene.pointerScreen &&
+      (scene.pickUnit(scene.pointerScreen)?.id ?? scene.pickWorldObject(scene.pointerScreen)?.id)
     if (!(scene.pointerButtons & 2) && hovered !== this.inspected) this.inspected = null
     for (const [id, panel] of panels) {
       const u = world.units.find(person => person.id === id && person.hp > 0)
-      if (!u) {
+      const head = world.shrines.find(s => s.id === id && s.kind !== 'vault')
+      if (!u && !head) {
         panel.element.remove()
         panels.delete(id)
         continue
@@ -106,33 +122,70 @@ export class PersonPanels {
         continue
       }
       const { canvas, element } = panel
-      element.hidden = !!world.inputMask || scene.overviewActive || !scene.visible(u)
+      element.hidden = !!world.inputMask || scene.overviewActive || !scene.visible((u ?? head)!)
       if (element.hidden || !atlas.complete || !atlas.naturalWidth) continue
-      const p = unitAnimationSource(u) ?? u.native ?? u.entry?.person ?? u.builder?.person
+      const p = u && (unitAnimationSource(u) ?? u.native ?? u.entry?.person ?? u.builder?.person)
       const icons = p ? personOrderIcons(world.buildingOrders, p, world.objectCells.objects) : []
-      const health = Math.round(u.hp * 20),
-        maximum = Math.round(maxHp(u.kind) * 20)
-      const key = JSON.stringify([health, maximum, icons])
+      const health = u ? Math.round(u.hp * 20) : 0,
+        maximum = u ? Math.round(maxHp(u.kind) * 20) : 0
+      const count = head ? Math.min(head.required, head.followers) : 0
+      const people = head ? liveWorshippers(world, head, count) : []
+      const worship = head && {
+        required: head.required,
+        enabled: head.enabled,
+        work: head.work,
+        target: head.target,
+        growth: head.growth,
+        cooldown: head.cooldown,
+        shamanOnly: false,
+        people: Array.from({ length: count }, (_, i) =>
+          people[i]
+            ? { model: people[i].model, selected: !!(people[i].selectionFlags & 128) }
+            : null
+        ),
+      }
+      const key = JSON.stringify([
+        health,
+        maximum,
+        icons,
+        worship,
+        head?.followers,
+        people.map(person => person.id),
+      ])
       if (key !== panel.key) {
-        const layout = personPanel(
-          health,
-          maximum,
-          icons.map(i => i.sprite)
-        )
+        const layout = worship
+          ? worshipPanel(worship)
+          : personPanel(
+              health,
+              maximum,
+              icons.map(i => i.sprite)
+            )
         paintPanel(canvas, atlas, layout)
         // Use the actual main-sprite submissions for hit geometry; no second layout.
-        const draws = layout.events.filter(e => e[0] === 'sprite' && e[4] === -1 && e[1] !== 52)
+        const draws = layout.events.filter(
+          e => e[0] === 'sprite' && e[4] === -1 && e[1] !== 52 && e[1] !== 53
+        )
         const buttons = element.querySelectorAll('button')
         for (let i = 0; i < buttons.length; i++) {
           const button = buttons[i],
-            icon = icons[i],
+            icon = head
+              ? people[i] && { id: people[i].id, sprite: 73 + people[i].model }
+              : icons[i],
             draw = draws[i]
           button.hidden = !icon
           if (!icon || draw?.[0] !== 'sprite') continue
           const rect = (hud.rects as Record<number, { w: number; h: number }>)[icon.sprite]
           button.dataset.order = String(icon.id)
-          button.setAttribute('aria-label', `Focus order ${i + 1} destination`)
-          button.title = 'Right-click to view destination'
+          button.dataset.person = String(icon.id)
+          button.setAttribute(
+            'aria-label',
+            head
+              ? `Toggle worshipper ${i + 1}; Shift selects the group`
+              : `Focus order ${i + 1} destination`
+          )
+          button.title = head
+            ? 'Click to select; Shift-click for all worshippers; right-click to focus'
+            : 'Right-click to view destination'
           button.style.left = `${draw[2]}px`
           button.style.top = `${draw[3]}px`
           button.style.width = `${rect.w}px`
@@ -140,16 +193,32 @@ export class PersonPanels {
         }
         element.setAttribute(
           'aria-label',
-          `${u.kind}: ${Math.max(0, health)} of ${maximum} health; ${icons.length} orders`
+          head
+            ? `${head.name}: ${head.followers} worshippers; ${Math.round(head.progress * 100)}% complete`
+            : `${u!.kind}: ${Math.max(0, health)} of ${maximum} health; ${icons.length} orders`
         )
         panel.key = key
       }
       const point =
-        scene.unitScreen(id, panel.offset / 128) ??
-        scene.screen(u, ((p?.h ?? nativePosition(world, u).h) + panel.offset) / 45)
+        (u && scene.unitScreen(id, panel.offset / 128)) ??
+        scene.screen(
+          (u ?? head)!,
+          ((p?.h ?? nativePosition(world, (u ?? head)!).h) + panel.offset) / 45
+        )
       element.style.left = `${((point.x + 1) * scene.container.clientWidth) / 2}px`
       element.style.top = `${((1 - point.y) * scene.container.clientHeight) / 2}px`
     }
+  }
+  focusWorshipper(headId: number, personId: number) {
+    const { scene } = this,
+      { world } = scene
+    if (world.inputMask || scene.overviewActive) return
+    const head = world.shrines.find(s => s.id === headId)
+    const person = head && liveWorshippers(world, head).find(p => p.id === personId)
+    if (!person) return
+    scene.focus(browserPosition(person), { animate: true })
+    scene.onSound(0x6a)
+    this.open(personId, true)
   }
   focusOrder(person: number, id: number) {
     const { scene } = this,

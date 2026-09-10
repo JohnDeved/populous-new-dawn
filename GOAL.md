@@ -145,13 +145,19 @@ differences in actual play and preserving the existing regression checks.
    browser-pixel comparisons. Command 27's approach/arrival/prayer controller and
    two-pass slot search now match native comparisons as well. Ordinary first-mission
    spell-head worship is now connected to shared orders, raw route probes, exact
-   cell-list standing admission, original poses/audio and head cursor expiry.
+   cell-list standing positions, original poses/audio and head cursor expiry.
    Cancellation, panic recovery, rewards, full mission, browser input and 5–240 Hz
-   replay are checked. Next connect the worship contextual panels and their native
-   selection/focus controls. General triggers, vault command 33, route-failure retry,
+   replay are checked. Ordinary stone-head panels now share the person-panel runtime:
+   native artwork/model height, single/group selection, right-click person focus,
+   independent head/person lifetimes and wide/high-DPI hit geometry are checked.
+   Timed rewards now use native oriented-cell eligibility; exact standing positions
+   are for the panel roster, not reward admission. The same-model icon replacement
+   regression protects click identity. Vault panels/command 33, general triggers, route-failure retry,
    mixed-class scheduling and head terrain/morph ownership remain unfinished.
    Complete target-panel ownership, bitmap transitions, HUD/vehicle ownership,
-   buffering and alternate input modes remain open.
+   buffering and alternate input modes remain open. Continue mixed-class/occupant
+   selection and native drag admission under this queue; ordinary stone-head
+   inspection is now delivered and does not justify unrelated helper work.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,
    toroidal clamping, packed release commands, native cell bounds, ordinary outdoor
    follower admission, empty-area retention and group voices now match executable
