@@ -1693,3 +1693,44 @@ cyclomatic 2.7/p90 5, twelve existing dependency cycles. Existing overhead healt
 bars remain visibly detached from sprites in the ground-view capture; this is a
 separate rendering defect for native placement/gating review, not a completed
 visual-parity claim.
+
+## 2026-09-10 — native health gauges with less render work
+
+The broad performance pass is complete; this is a visible-parity correction with
+its performance checked. Native gauges are drawn on demand while Quote is held.
+A single shared 150×26 atlas contains the 25 integer fill heights, generated from
+actual native GPU submissions. One sprite quad replaces six original primitives;
+nearest sampling, original alpha and native painter ordering remain intact.
+The former horizontal box meshes and their special instancing implementation were
+removed, including health-only shader branches and render-time hide/restore state.
+The ordinary sprite/material/cache path suffices. No new dependency, clock or
+render-frame simulation was introduced.
+
+Same headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, 200 half-health
+braves, stationary camera, Quote held, paused simulation. Three sequential 3-second
+samples each, following loading, without concurrent builds/heavy checks/app edits:
+
+| Implementation | CPU p50, three runs | CPU p95, three runs | Draw calls | Triangles |
+| --- | --- | --- | --- | --- |
+| Previous horizontal boxes, instanced | 4.1 / 4.1 / 4.0 ms | 4.5 / 4.7 / 4.6 ms | 444 | 14,866 |
+| Native vertical atlas gauges | 3.3 / 3.2 / 3.2 ms | 3.6 / 3.6 / 3.6 ms | 642 | 10,466 |
+
+Median callback cost improves about 20% in this bounded workload despite more draw
+calls: removing hundreds of 3D box faces and their CPU painter preparation matters
+more here than combining their GPU submissions. Transparent gauges retain the
+ordinary object ordering. Without held health display, no gauges are submitted.
+This is a CPU measurement, not GPU elapsed time, physical display FPS, whole-game
+performance, or pixel equivalence with the incorrect previous geometry. Larger
+populations, other GPUs and 4K performance remain unmeasured here; desktop/DPR
+layout and native rendered pixels are independently checked.
+
+Evidence: `performance/2026-09-10-unit-health.json`; reproduce current samples with
+`node scripts/profile-unit-health.mjs`. The old `--compare-health-bars` experiment
+belongs to its historical checkout (before removal, commit `718bf01`); current
+`check-browser-health-bars.mjs` checks native pixels/input/lifetime instead.
+234 tests, 2,048 native draw decisions, 150 atlas quads, 32 native key lookups,
+3,900 browser gauge pixels and the 520-pose sprite/shadow/selection checks pass.
+
+Fallow reports maintainability 85.5, average cyclomatic 2.7/p90 5 and twelve
+existing dependency cycles. The new pure rule has no ox-standard findings; the
+render path removes more production code than it adds.

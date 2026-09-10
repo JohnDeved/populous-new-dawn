@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
 import { widenGroundBounds } from './viewport-bounds.ts'
-import { HealthBars } from './health-bars.ts'
 import { visibleTerrainCells, visibleTerrainCopies, terrainTiles } from './terrain-visibility.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
@@ -37,10 +36,6 @@ uniform float nativeRelative;
 uniform vec4 nativeCellAnchor;
 uniform float nativeMode;
 varying vec2 nativeCell;
-#ifdef NATIVE_HEALTH_INSTANCES
-attribute float nativeHealthSlot;
-attribute vec2 nativeHealthCell;
-#endif
 int nativeMul(int a,int b){return int(uint(a)*uint(b));}
 int nativeDot(ivec3 a,ivec3 b){return int(uint(nativeMul(a.x,b.x))+uint(nativeMul(a.y,b.y))+uint(nativeMul(a.z,b.z)));}
 int nativeShift16(int a,int b){
@@ -104,16 +99,7 @@ vec4 nativePosition(vec3 position){
   nativeCell=nativeCellPoint(modelMatrix[3].xyz);
  }else nativeCell=nativeCellPoint(world);
  if(nativeCellAnchor.w>0.)nativeCell=nativeCellPoint(nativeCellAnchor.xyz);
- #ifdef NATIVE_HEALTH_INSTANCES
- nativeCell=nativeCellPoint(vec3(nativeHealthCell.x,0.,nativeHealthCell.y));
- #endif
  vec4 projected=nativeProject(p);
- #ifdef NATIVE_HEALTH_INSTANCES
- if(nativeMode>0.){
-  int slot=int(nativeHealthSlot)+gl_VertexID/3;
-  projected.z=texelFetch(nativePainter,ivec2(slot%1024,slot/1024),0).r*2.-1.;
- }
- #else
  if(nativeMode>0.&&nativePainterRange.x>=0){
   int slot=nativePainterRange.x+(nativePainterSprite>0.?0:gl_VertexID/3);
   #ifdef USE_INSTANCING
@@ -121,7 +107,6 @@ vec4 nativePosition(vec3 position){
   #endif
   projected.z=texelFetch(nativePainter,ivec2(slot%1024,slot/1024),0).r*2.-1.;
  }
- #endif
  return projected;
 }
 `
@@ -140,7 +125,6 @@ bool nativeCellVisible(){
 
 export class RenderView {
   painter = new Painter(this)
-  healthBars = new HealthBars()
   materials = new WeakMap<
     THREE.Material,
     {
@@ -447,11 +431,9 @@ export class RenderView {
       scene.traverseVisible(object => this.updateTerrainVisibility(object))
       if (!this.overview) {
         this.painter.update(scene, renderer)
-        this.healthBars.update(scene, this.painter)
       }
     }
     scene.onAfterRender = () => {
-      this.healthBars.afterRender()
       this.painter.afterRender()
     }
     scene.traverse(object => {
@@ -589,7 +571,6 @@ export class RenderView {
     })
   }
   dispose() {
-    this.healthBars.dispose()
     this.boundsTexture.dispose()
     this.painter.texture.dispose()
   }

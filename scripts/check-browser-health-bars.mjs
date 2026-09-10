@@ -1,152 +1,97 @@
+// Native atlas pixels, live input/gates, viewport scaling and shared texture lifetime.
 import assert from 'node:assert/strict'
-import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
-  const cases = await page.evaluate(async () => {
-    const s = window.testScene,
-      { addUnit, createWorld } = await import('/app/model.ts')
-    s.world = createWorld()
-    s.world.flyby.flags &= ~1
-    s.world.inputMask = 0
-    s.world.speed = 0
-    s.focus({ x: 2, z: 30 })
-    s.animate(s.previous)
-    cancelAnimationFrame(s.frame)
-    const results = [],
-      gl = s.renderer.getContext()
-    const compare = name => {
-      const capture = enabled => {
-        s.view.healthBars.enabled = enabled
-        s.renderer.render(s.scene, s.camera)
-        const pixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
-        gl.readPixels(
-          0,
-          0,
-          gl.drawingBufferWidth,
-          gl.drawingBufferHeight,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          pixels
-        )
-        return {
-          pixels,
-          depth: s.view.painter.texture.image.data.slice(),
-          ...s.renderer.info.render,
+  await page.evaluate(async () => {
+    const s = window.testScene, m = await import('/app/model.ts')
+    s.world.speed = 0; s.world.units = []; s.world.buildings = []; s.world.selected = []
+    const blue = m.addUnit(s.world, 'blue', 'brave', { x: 0, z: 30 })
+    const red = m.addUnit(s.world, 'red', 'brave', { x: 2, z: 30 })
+    const healthy = m.addUnit(s.world, 'blue', 'shaman', { x: -2, z: 30 })
+    blue.hp = red.hp = 25
+    s.world.selected = [blue.id, healthy.id]
+    s.focus({ x: 0, z: 30 })
+    window.healthPeople = { blue: blue.id, red: red.id, healthy: healthy.id }
+  })
+  await page.waitForFunction(() => window.testScene.unitMeshes.size === 3)
+  const visible = () => page.evaluate(() => [...window.testScene.unitMeshes.values()].filter(g => g.userData.health.visible).map(g => g.userData.unit))
+  const tick = () => page.evaluate(() => { const s = window.testScene; s.animate(s.previous); cancelAnimationFrame(s.frame) })
+  await tick(); assert.deepEqual(await visible(), [])
+  await page.keyboard.down('Quote'); await tick()
+  const ids = await page.evaluate(() => window.healthPeople)
+  assert.deepEqual(await visible(), [ids.blue])
+  await page.keyboard.down('Shift'); await page.keyboard.up('Quote'); await tick()
+  assert.deepEqual(await visible(), [], 'release works after modifiers change')
+  await page.keyboard.down('Quote'); await tick()
+  assert.deepEqual(await visible(), [], 'modified press does not activate the gauge')
+  await page.keyboard.up('Quote'); await page.keyboard.up('Shift')
+  await page.keyboard.down('Quote'); await tick()
+  assert.deepEqual(await visible(), [ids.blue])
+  const sizes = []
+  for (const [width, height, dpr] of [[1440,1000,1],[1920,1080,1],[3440,1440,1],[3840,2160,1],[1440,1000,2]]) {
+    await page.setViewportSize({ width, height })
+    sizes.push(await page.evaluate(dpr => {
+      const s = window.testScene
+      s.renderer.setPixelRatio(dpr); s.setSize(); s.animate(s.previous); cancelAnimationFrame(s.frame)
+      const g = s.unitMeshes.get(window.healthPeople.blue), h = g.userData.health
+      return { scale: [h.scale.x,h.scale.y], anchor: [(1-h.center.y)*h.scale.y, g.userData.frameHeight], visible:h.visible }
+    }, dpr))
+  }
+  for (const p of sizes) {
+    assert.deepEqual(p.scale, [6,26]); assert.ok(p.visible)
+    assert.ok(Math.abs(p.anchor[0] - 26 - Math.trunc(p.anchor[1]*24/32)) < 1e-8)
+  }
+  await page.setViewportSize({ width:1440, height:1000 })
+  await page.evaluate(() => { const s = window.testScene; s.renderer.setPixelRatio(1); s.setSize(); s.animate(s.previous); cancelAnimationFrame(s.frame) })
+  await page.screenshot({ path:'/private/tmp/populous-unit-health.png' })
+  await page.evaluate(() => { window.testScene.world.inputMask = 64 })
+  await tick(); assert.deepEqual(await visible(), [], 'scripted input suppression hides gauges')
+  await page.evaluate(() => { window.testScene.world.inputMask = 0; window.dispatchEvent(new Event('blur')) })
+  await tick(); assert.deepEqual(await visible(), [], 'focus loss clears held display')
+  await page.keyboard.up('Quote')
+  const pixels = await page.evaluate(async () => {
+    const s = window.testScene, gl = s.renderer.getContext(), Scene = s.scene.constructor, Group = s.unitMeshes.values().next().value.constructor
+    const source = s.unitMeshes.get(window.healthPeople.blue).userData.health
+    await source.material.map.image.decode()
+    const image = source.material.map.image, canvas = document.createElement('canvas')
+    canvas.width = image.width; canvas.height = image.height
+    const context = canvas.getContext('2d'); context.drawImage(image,0,0)
+    const expected = context.getImageData(0,0,image.width,image.height).data
+    const scene = new Scene(), group = new Group(), gauge = source.clone()
+    gauge.material = source.material.clone(); gauge.userData.atlasTransform = source.userData.atlasTransform.clone()
+    gauge.center.set(.5,0); gauge.scale.set(6,26,1); gauge.visible = true
+    group.add(gauge); scene.add(group)
+    s.renderer.setPixelRatio(1); s.renderer.setSize(128,128,false); s.renderer.setClearColor(0x204060,1)
+    s.view.update(128,128,{x:0,z:0},0,0,false,640)
+    s.view.projection.centerX = 64; s.view.projection.centerY = 80
+    s.view.uniforms.nativeScreen.value.set([128,128,64,80])
+    s.view.prepare(scene)
+    const actual = new Uint8Array(128*128*4)
+    let differences = 0, maximumError = 0
+    for (let fill = 0; fill < 25; fill++) {
+      gauge.userData.atlasTransform.set(1/25,1,fill/25,0)
+      s.renderer.render(scene,s.camera); gl.readPixels(0,0,128,128,gl.RGBA,gl.UNSIGNED_BYTE,actual)
+      for (let y=0; y<26; y++) for (let x=0; x<6; x++) {
+        const at = (y*150+fill*6+x)*4, to = ((127-(54+y))*128+61+x)*4, alpha = expected[at+3]/255
+        for (let channel=0;channel<3;channel++) {
+          const value = Math.round(expected[at+channel]*alpha + [32,64,96][channel]*(1-alpha))
+          const error = Math.abs(actual[to+channel]-value)
+          maximumError = Math.max(maximumError,error)
+          if (error > 1) differences++
         }
       }
-      const before = capture(false),
-        after = capture(true)
-      let changedPixels = 0,
-        changedDepths = 0
-      const deltas = {}
-      for (let i = 0; i < before.pixels.length; i++)
-        if (before.pixels[i] !== after.pixels[i]) {
-          changedPixels++
-          const d = after.pixels[i] - before.pixels[i]
-          deltas[d] = (deltas[d] ?? 0) + 1
-        }
-      for (let i = 0; i < before.depth.length; i++)
-        if (before.depth[i] !== after.depth[i]) changedDepths++
-      results.push({
-        name,
-        buffer: [gl.drawingBufferWidth, gl.drawingBufferHeight],
-        changedPixels,
-        changedDepths,
-        deltas,
-        beforeCalls: before.calls,
-        afterCalls: after.calls,
-        triangles: [before.triangles, after.triangles],
-        retained: s.view.healthBars.batches.map(b => b.instanceMatrix.count),
-        hiddenAfterDraw: s.view.healthBars.hidden.length,
-        attachedAfterDraw: s.view.healthBars.batches.filter(b => b.parent).length,
-      })
     }
-    compare('unselected opening')
-    s.world.selected = s.world.units.filter(u => u.team === 'blue').map(u => u.id)
-    s.animate(s.previous)
-    cancelAnimationFrame(s.frame)
-    compare('selected opening')
-    for (let i = 0; i < 200; i++) {
-      const u = addUnit(s.world, i % 4 === 0 ? 'red' : 'blue', 'brave', {
-        x: -8 + (i % 20),
-        z: 23 + Math.floor(i / 20),
-      })
-      u.hp = 1 + (i % 64)
-    }
-    s.world.selected = s.world.units.filter(u => u.team === 'blue').map(u => u.id)
-    s.animate(s.previous)
-    cancelAnimationFrame(s.frame)
-    for (const heading of [0, 256, 512, 1024, 1536, 2047]) {
-      s.view.update(
-        s.container.clientWidth,
-        s.container.clientHeight,
-        { x: 2, z: 30 },
-        (heading * Math.PI) / 1024,
-        0,
-        false
-      )
-      compare(`damaged crowd heading ${heading}`)
-    }
-    for (const [width, height, ratio] of [
-      [1920, 1080, 1],
-      [3440, 1440, 1],
-      [3840, 2160, 1],
-      [1920, 1080, 1.8],
-    ]) {
-      s.renderer.setPixelRatio(ratio)
-      s.renderer.setSize(width, height, false)
-      s.view.update(width, height, { x: 2, z: 30 }, 0, 0, false)
-      compare(`render size ${width}x${height} DPR ${ratio}`)
-    }
-    s.renderer.setPixelRatio(1)
-    s.renderer.setSize(s.container.clientWidth, s.container.clientHeight, false)
-    s.world.units.splice(-190)
-    s.world.selected = []
-    s.animate(s.previous)
-    cancelAnimationFrame(s.frame)
-    compare('removed units and selection')
-    const units = s.world.units
-    s.world.units = []
-    s.animate(s.previous)
-    cancelAnimationFrame(s.frame)
-    compare('all people removed')
-    s.world.units = units
-    s.animate(s.previous)
-    cancelAnimationFrame(s.frame)
-    compare('new meshes reuse retained batches')
-    s.view.overview = true
-    s.view.uniforms.nativeMode.value = 0
-    compare('overview bypass')
-    const geometries = s.renderer.info.memory.geometries
-    s.view.healthBars.dispose()
-    if (s.renderer.info.memory.geometries !== geometries - 2)
-      throw Error('Batch geometry GPU resources not released')
-    if (s.view.healthBars.batches.length) throw Error('Batches retained after disposal')
-    return results
+    gauge.material.dispose()
+    // Removing one person must never dispose the shared gauge atlas.
+    let disposed = false
+    source.material.map.addEventListener('dispose', () => { disposed = true })
+    s.releaseGroup(s.unitMeshes.get(window.healthPeople.blue))
+    return { differences, maximumError, checked:25*6*26, disposed }
   })
-  console.log(JSON.stringify(cases, null, 2))
-  for (const c of cases) {
-    assert.equal(c.changedPixels, 0, c.name)
-    assert.equal(c.changedDepths, 0, c.name)
-    assert.equal(c.triangles[0], c.triangles[1], c.name)
-    assert.equal(c.hiddenAfterDraw, 0, c.name)
-    assert.equal(c.attachedAfterDraw, 0, c.name)
-  }
-  assert.ok(
-    cases.find(c => c.name === 'damaged crowd heading 0').afterCalls <
-      cases.find(c => c.name === 'damaged crowd heading 0').beforeCalls - 300
-  )
+  assert.equal(pixels.differences,0,JSON.stringify(pixels)); assert.equal(pixels.disposed,false)
   assert.deepEqual(errors, [])
-  writeFileSync(
-    process.argv[2] ?? '/private/tmp/populous-health-bars.json',
-    JSON.stringify({ cases }, null, 2) + '\n'
-  )
-  console.log(
-    `PASS: ${cases.length} health-bar batching cases preserve RGBA, painter slots and triangle counts; source visibility and lifecycle restored`
-  )
-} finally {
-  await browser.close()
-}
+  console.log('PASS: 3900 native gauge pixels (including background alpha), held-key/modifier/owner/health gates, five desktop/DPR layouts and shared atlas lifetime', pixels)
+} finally { await browser.close() }

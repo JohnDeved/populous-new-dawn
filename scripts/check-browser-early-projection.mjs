@@ -27,7 +27,7 @@ try {
     let early = true, compiled = 0
     const select = value => {
       early = value
-      const materials = new Set(s.view.healthBars.batches.map(b => b.material))
+      const materials = new Set()
       s.scene.traverse(o => {
         for (const m of Array.isArray(o.material) ? o.material : [o.material])
           if (m && s.view.materials.has(m)) materials.add(m)
@@ -117,10 +117,7 @@ try {
     s.animate(s.previous)
     cancelAnimationFrame(s.frame)
     view(1240, 1000)
-    compare('selected damaged crowd with health instances')
-    s.view.healthBars.enabled = false
-    compare('individual health meshes')
-    s.view.healthBars.enabled = true
+    compare('selected damaged crowd')
     s.view.overview = true
     s.view.uniforms.nativeMode.value = 0
     compare('unordered overview bypass')

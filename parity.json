@@ -1190,9 +1190,13 @@
             "scripts/check-native-selection.py",
             "qa/browser-check.mjs",
             "scripts/check-native-model-highlight.py",
-            "scripts/check-browser-model-highlight.mjs"
+            "scripts/check-browser-model-highlight.mjs",
+            "app/unit-health.ts",
+            "scripts/check-native-unit-health.py",
+            "scripts/check-browser-health-bars.mjs",
+            "tests/unit-health.test.mjs"
           ],
-          "note": "First-mission controls and native hovered-model color/ownership rules work; stationary-pointer targets refresh on camera changes. Full native picking/modal/targeting ownership, bindings, group semantics and remaining command feedback are incomplete."
+          "note": "First-mission controls and native hovered-model color/ownership rules work; stationary-pointer targets refresh on camera changes. Full native picking/modal/targeting ownership, bindings, group semantics and remaining command feedback are incomplete. The original held-Quote health display now uses native owner/class/damage/flag gates, scaled pose anchors, palette colors and translucent background. 2,048 executable comparisons, default key dispatch and 3,900 browser pixels are checked. One cached atlas quad replaces six native primitives and the former horizontal 3D bars; a 200-person hardware sample improves CPU callback cost. Query-mode health/activity icons, rebindable controls, building health and full mixed-class painter ownership remain open."
         },
         {
           "id": "interface.targeting",

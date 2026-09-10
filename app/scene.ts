@@ -1,3 +1,4 @@
+import { unitHealthGauge } from './unit-health.ts'
 import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
 import { renderBuildingPanels } from './building-panels.ts'
@@ -189,7 +190,12 @@ function loadTexture(kind: string) {
     t.generateMipmaps = false
     t.anisotropy = 1
   }
-  if (kind === nativeUnits.atlas || kind === 'effects' || kind === 'selection') {
+  if (
+    kind === nativeUnits.atlas ||
+    kind === 'effects' ||
+    kind === 'selection' ||
+    kind === 'unit-health'
+  ) {
     t.minFilter = THREE.NearestFilter
     t.magFilter = THREE.NearestFilter
     t.generateMipmaps = false
@@ -354,12 +360,13 @@ function makeUnit(u: Unit) {
   )
   selection.visible = false
   g.add(selection)
-  const health = new THREE.Group()
-  part(health, box(0.8, 0.055, 0.02), material(0x20251a), 0, 2.1)
-  const healthFill = part(health, box(0.78, 0.04, 0.025), material(teamColor[u.team]), 0, 2.1, 0.01)
-  health.children.forEach((mesh, shape) => {
-    mesh.userData.healthShape = shape
-  })
+  // Six native rectangles share one atlas quad; transparent ordering stays with
+  // this person in the existing painter, including terrain and spell occlusion.
+  const health = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: texture('unit-health'), depthWrite: false, toneMapped: false })
+  )
+  health.visible = false
+  health.userData.atlasTransform = new THREE.Vector4()
   g.add(health)
   g.userData = {
     unit: u.id,
@@ -369,7 +376,6 @@ function makeUnit(u: Unit) {
     shadow,
     selection,
     health,
-    healthFill,
     heading: 0,
     frame: -1,
   }
@@ -578,10 +584,12 @@ export class GameScene {
       powerPreference: 'high-performance',
     })
     // Upload the shared effects atlas during loading, before the first hit or spell.
-    const effects = loadTexture('effects')
-    void effects.ready.then(loaded => {
-      if (loaded && !this.terrainLoad.signal.aborted) this.renderer.initTexture(effects.texture)
-    })
+    for (const name of ['effects', 'unit-health']) {
+      const asset = loadTexture(name)
+      void asset.ready.then(loaded => {
+        if (loaded && !this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
+      })
+    }
     this.renderer.shadowMap.enabled = false
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.toneMapping = THREE.NoToneMapping
@@ -1393,17 +1401,20 @@ export class GameScene {
     this.onChange()
   }) as EventListener
   keyDown = ((event: KeyboardEvent) => {
-    const key = (event.code.startsWith('Numpad') ? event.code : event.key).toLowerCase()
+    const key = (
+      event.code === 'Quote' || event.code.startsWith('Numpad') ? event.code : event.key
+    ).toLowerCase()
     const zoomIn = key === '=' || key === '+',
       zoomOut = key === '-',
       modifier = key === 'control' || key === 'shift'
     if (
       this.world.inputMask ||
-      (!cameraKeys[key] && !zoomIn && !zoomOut && !modifier) ||
+      (!cameraKeys[key] && !zoomIn && !zoomOut && !modifier && key !== 'quote') ||
       (event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]') ||
       (event.ctrlKey && key.length === 1) ||
       event.metaKey ||
-      event.altKey
+      event.altKey ||
+      (key === 'quote' && (event.ctrlKey || event.shiftKey))
     )
       return
     if (event.ctrlKey) this.keys.add('control')
@@ -1850,6 +1861,7 @@ export class GameScene {
     g.userData.spriteBucket = bucket
     const size = (n: number) =>
       shaman || flags ? spriteCoordinate(n, bucket, flags, this.view.config) : n
+    g.userData.frameHeight = size(frame.nativeHeight)
     const descriptor = rules.animationDescriptors[g.userData.draw ?? 14]
     const draws = spriteLayers(
       frame.layers,
@@ -2329,6 +2341,11 @@ export class GameScene {
         this.releaseGroup(g)
         this.unitMeshes.delete(id)
       }
+    const showHealth =
+      this.keys.has('quote') &&
+      !this.world.inputMask &&
+      !this.overviewStage &&
+      !document.querySelector('dialog[open]')
     for (const u of this.world.units) {
       let g = this.unitMeshes.get(u.id)
       if (g && g.userData.signature !== `${u.team}-${u.kind}`) {
@@ -2346,7 +2363,6 @@ export class GameScene {
       g.quaternion.identity()
       g.userData.nativeHeading = 0
       g.userData.cellPosition = u
-      g.userData.health.userData.cellPosition = u
       g.visible = u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))
       const animationSource = unitAnimationSource(u)
       g.userData.depthBias =
@@ -2403,11 +2419,24 @@ export class GameScene {
           this.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
           !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state)
         )
-      g.userData.health.visible = u.hp < maxHp(u.kind) || this.world.selected.includes(u.id)
-      g.userData.health.quaternion.copy(
-        g.quaternion.clone().invert().multiply(this.camera.quaternion)
-      )
-      g.userData.healthFill.scale.x = Math.max(0.001, u.hp / maxHp(u.kind))
+      const gauge = unitHealthGauge({
+        enabled: !!showHealth,
+        owner: g.userData.owner,
+        player: 0,
+        type: 1,
+        flags3: animationSource?.flags3 ?? 0,
+        flags4: animationSource?.flags4 ?? 0,
+        health: u.hp,
+        maximum: maxHp(u.kind),
+        frameHeight: g.userData.frameHeight,
+      })
+      const health = g.userData.health as THREE.Sprite
+      health.visible = !!gauge
+      if (gauge) {
+        health.scale.set(gauge.width, gauge.height, 1)
+        health.center.set(-gauge.x / gauge.width, 1 + gauge.y / gauge.height)
+        health.userData.atlasTransform.set(1 / 25, 1, Math.max(0, Math.min(24, gauge.fill)) / 25, 0)
+      }
     }
     this.renderTooltip()
     for (const [id, mesh] of this.plans)
@@ -2686,15 +2715,12 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate)
   }
   releaseGroup(g: THREE.Object3D) {
-    const materials = new Set<THREE.Material>()
+    const materials = new Set<THREE.Material>(),
+      sharedTextures = new Set([...textures.values()].map(asset => asset.texture))
     g.traverse(o => {
       if (o instanceof THREE.Sprite) {
         // Atlas images belong to the shared texture cache, not individual particles.
-        if (
-          o.material.map !== textures.get('effects')?.texture &&
-          o.material.map !== textures.get(nativeUnits.atlas)?.texture
-        )
-          o.material.map?.dispose()
+        if (o.material.map && !sharedTextures.has(o.material.map)) o.material.map.dispose()
         materials.add(o.material)
       }
       if (o instanceof THREE.Mesh || o instanceof THREE.Line) {

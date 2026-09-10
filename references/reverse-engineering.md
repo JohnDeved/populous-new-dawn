@@ -5888,3 +5888,58 @@ marking the native person's recovery bit alone does not implement that lifecycle
 The browser group allocator is unbounded, global class-counter/cell-order ownership
 is unfinished, and specialist classes remain primitive-only. Full melee stays
 partial; this step earns no additional whole-lifecycle credit.
+
+## 2026-09-10 — original held-key follower health gauges
+
+The former selected/damaged-person horizontal boxes were browser placeholders,
+not original geometry. Native `004673b0` block `00468e1c–00468e8a` requires render
+flag 8, class 1, local ownership and signed health below maximum; person flags3
+`0x1000` or flags4 `0x800` suppress it. Its anchor is projected person position,
+with Y reduced by truncation of the already-scaled pose height ×24/32.
+
+`00525450` submits a 4×24 background, four one-pixel bevel edges and a 4-pixel-wide
+white fill of `trunc(health*24/(maximum || 1))`. Executing `00516500`, `005166c0`
+and `00516a00` through their final quad submission confirms the complete 6×26
+extent, palette entries 154/157/150 and native-initialized white entry 130. Default
+background alpha is 171/255 (`256 - 005da07c`, initially 85). Border/fill are opaque.
+Native GPU quad coordinates, rather than Ghidra's inferred line endpoint types,
+were used to generate all 25 ordinary fill states in `public/original/unit-health.png`.
+
+Default input records at `005d6238/005d6244` bind scan 0x28 (physical Quote key) to
+command 100 on unmodified press and 101 on release with any modifiers. Both need
+an active level. Native `00489470` and `004aab80` execute in the oracle, including
+preserving unrelated render bits. Browser focus loss clears held input; forms,
+modal UI and scripted input suppression retain normal browser protections.
+
+`app/unit-health.ts` contains the readable visibility/anchor/fill rule. Scene
+rendering shares the ordinary sprite projector, fractional person position, atlas
+UVs, authoritative cell gates and painter ordering. Atlas merging replaces six
+native primitives with one quad and preserves its translucent background; it does
+not introduce a canvas overlay or a frame-dependent animation. The palette atlas
+is shared across people, preuploaded during loading and kept alive through person
+removal. Existing shared-texture disposal now checks actual cache ownership.
+
+Reproduce with:
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-unit-health.py /private/tmp/populous-reference/native/d3dpoptb.exe
+node --test tests/unit-health.test.mjs
+node scripts/check-browser-health-bars.mjs
+node scripts/profile-unit-health.mjs
+```
+
+The native oracle compares 2,048 render-branch decisions and complete eligible
+quad streams, 32 default key lookups and associated real health commands, plus
+150 native quads for the 25-frame atlas. Only GPU queue submission and the
+Windows CRT ceil entry are supplied; native line angles, arithmetic, palette
+selection and drawing functions execute. `--record` recreates the atlas and 96
+portable cases. Browser checks compare 3,900 pixels with at most one byte of
+alpha-blend rounding, live press/release/modifier behavior, friendly/damaged gates,
+five desktop/DPR layouts and shared atlas lifetime. The 520-pose sprite, shadow
+and selection regression checks pass unchanged.
+
+Limits: this is the default held-key display, not right-click query health/activity
+icons, building gauges, rebound input profiles or all mixed-class painter ownership.
+The atlas covers valid living-person health 0..maximum; corrupt/negative-life
+rendering and nondefault global ghost-alpha modes are not claimed. No new full
+interface or combat-lifecycle gate is marked verified.

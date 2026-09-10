@@ -23,7 +23,7 @@ The first mission opens with its original camera tour. Press Escape/Space or cli
 
 Click to select/order; drag to select groups; Shift adds followers. Up/down arrows move forward/back; left/right arrows rotate, Ctrl+left/right pan sideways, and Shift speeds up panning. The outer screen edges scroll, including beside the sidebar. WASD pans, Q/E or right drag rotates, middle drag pans, scroll or = / − switches view, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; panning or dragging takes over from an active journey. Enter or ◎ shows the planet overview.
 
-`1–3`: Blast / Land Bridge / Lightning. `B`: buildings. `H`: shaman. `F`: focus. `G`: guard shaman. `Space`: pause. `Esc`: cancel targeting. Right-click Blast's card to toggle charging and redirect mana to training.
+`1–3`: Blast / Land Bridge / Lightning. `B`: buildings. `H`: shaman. `F`: focus. `G`: guard shaman. `Space`: pause. `Esc`: cancel targeting. Hold the apostrophe/Quote key to show damaged friendly followers’ health. Right-click Blast's card to toggle charging and redirect mana to training.
 
 Send braves inside huts to increase mana flow and breeding. Builders collect actual timber; there is no automatic global wood income. Buildings need a dry, level footprint near the settlement. Followers drown in water, and Blast can knock them off a shore. A shaman reincarnates while followers survive.
 

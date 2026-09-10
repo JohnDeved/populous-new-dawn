@@ -21,9 +21,8 @@ const compareTerrainCopies = process.argv.includes('--compare-terrain-copies')
 const compareViewportBounds = process.argv.includes('--compare-viewport-bounds')
 const comparePainter = process.argv.includes('--compare-painter')
 const compareUnitMotion = process.argv.includes('--compare-unit-motion')
-const compareHealthBars = process.argv.includes('--compare-health-bars')
 const movingOrders = process.argv.includes('--moving-orders')
-const movingProfile = compareUnitMotion || compareHealthBars || movingOrders
+const movingProfile = compareUnitMotion || movingOrders
 assert.ok(
   !movingOrders || comparePainter || compareTerrainCopies || compareViewportBounds,
   '--moving-orders requires a painter or terrain comparison'
@@ -82,7 +81,6 @@ try {
       compareCamera,
       comparePainter,
       compareUnitMotion,
-      compareHealthBars,
       compareTerrainCopies,
       compareViewportBounds,
     ].filter(Boolean).length <= 1,
@@ -177,16 +175,12 @@ try {
     const smoothUnits = compareUnitMotion
       ? [false, true, true, false, false, true][index % 6]
       : true
-    const batchedHealth = compareHealthBars
-      ? [false, true, true, false, false, true][index % 6]
-      : true
     if (movingProfile)
       await page.evaluate(
-        ({ smooth, crowd, batched }) => {
-          window.testScene.view.healthBars.enabled = batched
+        ({ smooth, crowd }) => {
           window.resetMovingProfile(smooth, crowd)
         },
-        { smooth: smoothUnits, crowd: scenario === 'crowd', batched: batchedHealth }
+        { smooth: smoothUnits, crowd: scenario === 'crowd' }
       )
     const optimizedPainter = comparePainter
       ? [false, true, true, false, false, true][index % 6]
@@ -318,7 +312,6 @@ try {
       compactTerrain,
       expandedViewport,
       smoothUnits,
-      batchedHealth,
       ...data,
       frames: undefined,
       frameCount: data.frames.length,
@@ -362,7 +355,6 @@ try {
     compareViewportBounds,
     terrainCopiesBaseline: compareTerrainCopies ? terrainCopiesBaseline : undefined,
     compareUnitMotion,
-    compareHealthBars,
     movingOrders,
     painterBaselineCommit:
       comparePainter || compareViewportBounds ? painterBaselineCommit : undefined,

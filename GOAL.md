@@ -1423,3 +1423,23 @@ limits/counter phase, specialist classes, complete release/death recovery and al
 remaining game scope remain unfinished. No extra lifecycle percentage credit is
 claimed before its full gate is met. Preserve clean code, native behavior and
 measured modern rendering; the previous performance pass remains complete.
+
+### Current priority: gameplay and visible parity after the performance pass
+
+The modern rendering/performance pass is complete. Continue important gameplay
+mechanics and visuals; do not start another broad speculative performance rewrite.
+Keep fixed-turn mechanics, uncapped presentation, readable TypeScript and measured
+modern hardware performance as constraints on each new feature.
+
+Original held-key unit health gauges now replace the floating horizontal boxes.
+Their visibility, scaled-pose anchors, palette, fill and background alpha are
+checked against native execution and browser pixels. A shared immutable atlas
+reduces six original primitives to one quad per visible gauge, removes obsolete
+box batching/shader code, and improves CPU time in the 200-person hardware sample.
+The native sprite regression suite still passes. Full query-mode indicators,
+building health, all input ownership and broader hardware coverage remain open.
+
+Next implement native fight cleanup and actual command-19/21 ownership/restoration,
+then first-mission campaign attacks and visible spell behavior. Keep allocation,
+specialist classes and the full unfinished game scope explicit. No additional
+whole-control or melee-lifecycle percentage credit is claimed for a bounded fix.

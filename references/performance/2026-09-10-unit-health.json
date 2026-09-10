@@ -1,0 +1,98 @@
+{
+  "beforeCommit": "718bf019da82d87b02bf9819c8878cc3906b8225",
+  "before": {
+    "device": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1
+    },
+    "runs": [
+      {
+        "count": 698,
+        "cpu": {
+          "p50": 4.099999904632568,
+          "p95": 4.5,
+          "p99": 5.200000047683716,
+          "max": 7.5
+        },
+        "calls": 444,
+        "triangles": 14866
+      },
+      {
+        "count": 700,
+        "cpu": {
+          "p50": 4.099999904632568,
+          "p95": 4.700000047683716,
+          "p99": 5.200000047683716,
+          "max": 7
+        },
+        "calls": 444,
+        "triangles": 14866
+      },
+      {
+        "count": 708,
+        "cpu": {
+          "p50": 4,
+          "p95": 4.6000001430511475,
+          "p99": 4.8999998569488525,
+          "max": 7.5
+        },
+        "calls": 444,
+        "triangles": 14866
+      }
+    ],
+    "workload": "200 half-health braves, held Quote, stationary ground view, paused simulation, three sequential 3-second samples after loading. CPU callback time, not physical display FPS or a whole-game benchmark."
+  },
+  "after": {
+    "device": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1
+    },
+    "runs": [
+      {
+        "count": 833,
+        "cpu": {
+          "p50": 3.299999952316284,
+          "p95": 3.6000001430511475,
+          "p99": 4,
+          "max": 7
+        },
+        "calls": 642,
+        "triangles": 10466
+      },
+      {
+        "count": 834,
+        "cpu": {
+          "p50": 3.200000047683716,
+          "p95": 3.6000001430511475,
+          "p99": 4.1000001430511475,
+          "max": 7.299999952316284
+        },
+        "calls": 642,
+        "triangles": 10466
+      },
+      {
+        "count": 836,
+        "cpu": {
+          "p50": 3.200000047683716,
+          "p95": 3.5999999046325684,
+          "p99": 4.099999904632568,
+          "max": 7.299999952316284
+        },
+        "calls": 642,
+        "triangles": 10466
+      }
+    ],
+    "workload": "200 half-health braves, held Quote, stationary ground view, paused simulation, three sequential 3-second samples after loading. CPU callback time, not physical display FPS or a whole-game benchmark."
+  },
+  "comparison": "Same 200 half-health braves, camera, held key and hardware, sequential before/after sessions without concurrent heavy work. Prior version draws its horizontal boxes; new version draws native vertical gauges. This is a CPU cost comparison, not image equivalence, physical refresh rate or measured GPU elapsed time."
+}
