@@ -1872,3 +1872,29 @@ No live renderer/controller path changes in this stage. Profile the composed
 controller on hardware after queue/world integration. ox-standard reports no new
 findings. Fallow maintainability remains 85.6, average cyclomatic 2.8/p90 5, with
 twelve existing cycles; its repository-wide threshold findings remain open.
+
+## 2026-09-10 — streaming original music with an independent audio clock
+
+The original MP2 music driver streams rather than retaining every decoded track.
+The browser preserves that resource strategy using a native media element and
+Web Audio gain, while retaining only the selected drum bank's short decoded clips.
+The tested 48 kHz Chromium run retained **4,423,608 bytes of percussion PCM**, with
+one timing-only silent descriptor. Long drones are absent from the AudioBuffer
+cache. This counts application-owned percussion buffers; browser-internal streaming
+buffers, total process memory and hardware FPS were not measured. No speedup versus
+the original streaming driver is claimed.
+
+A 50 ms scheduler submits percussion/ambient sources against AudioContext time;
+render FPS neither schedules beats nor changes their speed. Pure scheduling checks
+compare equal timestamps across 30/60/120/144/240 Hz and irregular calls. A delayed
+callback skips stale starts. Ambient random decisions run at a fixed 24 Hz instead
+of inheriting unlocked render FPS. The 81-cell environment adapter refreshes at
+4 Hz only while audio is enabled; exact renderer-derived counts remain parity work.
+Pause/mute stop scheduling, and disposal clears source/buffer/media ownership.
+
+Browser evidence covers real UI activation, all five music streams and 29 PCM drum
+clips, output signal, camera-dependent ambience, pause/resume, gain, settings layout,
+muting, restart and release. See the retained background-audio report and native
+comparison notes. ox-standard is clean in the new audio modules; existing page
+warnings remain outside this change. Fallow maintainability is 85.6, average
+cyclomatic 2.8/p90 5, with twelve existing cycles.

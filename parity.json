@@ -1,5 +1,5 @@
 {
-  "revision": 19,
+  "revision": 20,
   "discovery": {
     "status": "open",
     "note": "Revision 19 separates the ordinary outdoor encounter animation/knockback sequence before implementation. Building encounters, admission/allocation, command ownership and the remaining melee lifecycle retain their unfinished scope.",
@@ -1293,25 +1293,93 @@
         {
           "id": "audio.ambience",
           "title": "Environmental ambience scheduling",
-          "status": "missing",
-          "evidence": [],
-          "note": "Original ambience scheduler not implemented."
+          "status": "partial",
+          "evidence": [
+            "scripts/import-music.py",
+            "app/original-music.json",
+            "app/music.ts",
+            "app/ambient-sound.ts",
+            "scripts/check-native-background-audio.py",
+            "tests/background-audio.test.mjs",
+            "tests/fixtures/background-audio.json",
+            "scripts/check-browser-background-audio.mjs",
+            "references/performance/2026-09-10-background-audio.json"
+          ],
+          "note": "Ordinary lowland/highland/coast/sea and globe layers plus tree/gull accents now audible. Weighting, tie order and accent decisions match 4,096 native calls. Browser supplies a bounded 81-cell camera-neighborhood and visible-tree adapter; exact far-polygon/object counts, continuous native gain updates, special landscapes and shield ambience remain open."
         },
         {
           "id": "audio.music",
           "title": "Adaptive music and transitions",
-          "status": "missing",
-          "evidence": [],
-          "note": "Original adaptive music not implemented."
+          "status": "partial",
+          "evidence": [
+            "scripts/import-music.py",
+            "app/original-music.json",
+            "app/music.ts",
+            "app/ambient-sound.ts",
+            "scripts/check-native-background-audio.py",
+            "tests/background-audio.test.mjs",
+            "tests/fixtures/background-audio.json",
+            "scripts/check-browser-background-audio.mjs",
+            "references/performance/2026-09-10-background-audio.json"
+          ],
+          "note": "Original streaming music and selected-bank percussion are live. The 4,096-case native percussion selector is integrated with a temporary player fight/approach activity adapter; exact activity ownership, frontend modes and complete native lifecycle remain open.",
+          "requirements": [
+            {
+              "id": "audio.music.playback",
+              "title": "Original drone tracks and percussion banks playable through browser audio",
+              "status": "verified",
+              "evidence": [
+                "scripts/import-music.py",
+                "app/original-music.json",
+                "app/music.ts",
+                "app/ambient-sound.ts",
+                "scripts/check-native-background-audio.py",
+                "tests/background-audio.test.mjs",
+                "tests/fixtures/background-audio.json",
+                "scripts/check-browser-background-audio.mjs",
+                "references/performance/2026-09-10-background-audio.json"
+              ],
+              "note": "All 5 original MP2 drones imported as browser-streamable AAC/M4A (documented lossy compatibility transcode), 29 byte-exact stereo drum clips plus 10 silent timing descriptors. Live first-mission drone and selected-bank playback, all asset durations/channels and non-silent output confirmed in Chromium; master/music gain and cleanup checked. This gate is playback, not complete native music-mode/ownership parity."
+            },
+            {
+              "id": "audio.music.selection",
+              "title": "Native adaptive percussion selection and activity transitions",
+              "status": "partial",
+              "evidence": [
+                "scripts/import-music.py",
+                "app/original-music.json",
+                "app/music.ts",
+                "app/ambient-sound.ts",
+                "scripts/check-native-background-audio.py",
+                "tests/background-audio.test.mjs",
+                "tests/fixtures/background-audio.json",
+                "scripts/check-browser-background-audio.mjs",
+                "references/performance/2026-09-10-background-audio.json"
+              ],
+              "note": "Percussion descriptor selection matches 4,096 native cases and is integrated with audio-clock scheduling; 30\u2013240 Hz/irregular timestamp checks pass. Exact native gameplay activity ownership and complete original stream-driver transitions remain open; player fight/approach adapter is explicit."
+            },
+            {
+              "id": "audio.music.lifecycle",
+              "title": "Complete music lifecycle, frontend modes and settings",
+              "status": "partial",
+              "evidence": [
+                "scripts/check-browser-background-audio.mjs",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Modern browser pause/resume, volume, mute/re-enable, restart and disposal checked. Original frontend modes, precise loop/stream transitions and all session ownership remain unfinished."
+            }
+          ]
         },
         {
           "id": "audio.pause",
           "title": "Audio pause, restart and game-state transitions",
           "status": "partial",
           "evidence": [
-            "qa/browser-check.mjs"
+            "qa/browser-check.mjs",
+            "scripts/check-browser-background-audio.mjs",
+            "references/performance/2026-09-10-background-audio.json"
           ],
-          "note": "Browser lifecycle works; original pause/transition behavior not fully compared."
+          "note": "Browser music/context positions freeze on game/menu pause, resume correctly, and mute/restart/disposal release scheduled playback and buffers as intended; real UI and streamed media tested. Complete original transition/ownership behavior not yet compared."
         }
       ]
     },

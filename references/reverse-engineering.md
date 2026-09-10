@@ -6361,3 +6361,97 @@ and building encounters, plan destruction, ordinary command composition and shar
 queue/world ownership. Ranged phases 10/11 remain unimplemented. These staged
 branches do not alter playable combat or earn full lifecycle credit. Compose the
 ordinary controller next; avoid further unrelated helper work before live ownership.
+
+## 2026-09-10 — original streamed music and environmental audio
+
+The latest user direction moves music and ambient sound ahead of further combat
+integration. The live game now plays the original long music recordings, adaptive
+percussion sections, ordinary environmental beds, tree/bird accents and the globe
+soundscape. The existing sound button enables the shared AudioContext. Settings
+provide master/music gain, and game pause, menu, mute, restart and disposal own
+background playback as well as effects.
+
+### Assets and format evidence
+
+`import-music.py` validates the supplied executable and bank identities, extracts
+all ten percussion banks (29 stereo PCM samples plus ten timing descriptors) and
+all five `popdrones22.sdt` recordings. The drones are MPEG-2 Layer II, not PCM:
+flag 37 and MP2 frame headers explain why the earlier PCM importer rejected them.
+Track durations are approximately 230.35, 320.63, 284.11, 307.15 and 360.91 seconds.
+The [PopSoundEditor author's format documentation](https://toksisitee.github.io/blog/pop-sound-editor)
+independently confirms MP2 music versus PCM sound/drum banks. Its GPLv3 source was
+consulted as reference; no implementation code was incorporated.
+
+The first drum entry has flag 131 and **no PCM payload**. The following bytes are
+the next entry's header. Native `005707c9` tests bit 128 and reaches the timed-silence
+constructor `00577880`; `00577920` advances its byte count without copying samples.
+The importer retains this entry as duration metadata, avoiding header noise and
+unnecessary silent WAV files. All 29 ordinary drum WAVs round-trip byte-for-byte.
+
+The supplied MP2 recordings are transcoded with pinned imageio-ffmpeg 0.6.0 /
+FFmpeg 7.1 to fast-start AAC/M4A at 160 kbps for native browser streaming. This is
+a **lossy compatibility transcode**, not a claim of decoded PCM identity. Source
+bank/payload hashes, original decoded PCM hashes, encoded output hashes, exact
+frame counts and tool version are retained in `original-music.json`. Browser
+metadata durations differ from decoded originals by less than 0.0003 seconds.
+Corrupt bank counts/offsets/truncation/unsupported encodings fail before use.
+
+### Music and ambience behavior
+
+`Music` follows `0048b500` gameplay selection: audio RNG chooses drone 2–5 and
+percussion bank 0–9. The menu recording (1) is imported and browser-tested; complete
+original frontend-mode ownership remains open. `nextDrum` reconstructs the
+percussion selector in `0048c230`: quiet silence, activity section 2, combat section
+3 with section 4 every fourth combat phrase when available, and the original
+release flags. Its native descriptor flags/variation byte match 4,096 executions.
+The comparison stops after descriptor selection, before driver submission; it does
+not certify the original streaming driver.
+
+`ambientLayers` and `ambientAccent` reproduce ordinary-landscape weighting,
+original five-entry exchange order (including reordered ties), top-three layer
+selection, and tree/gull/overview probabilities from `00489a30` / `00489770`.
+4,096 native calls compare the returned layer order/weights, accent requests and
+RNG. Hardware leaves and cue creation are supplied. Cue gains/sample variants come
+from the existing original cue table, and accent variation uses the original
+sample→gain→pan order. Special lava/hell landscape substitutions and shield ambience
+remain open.
+
+**Live world inputs are bounded adapters:** an 81-cell wrapped neighborhood around
+the camera supplies lowland/highland/water counts, visible trees enable accents,
+and player approach/fight actions choose activity 1/2. The original collects far
+rendered polygon counts (`004673b0`) and rendered object counts (`0046ec80`), while
+`004ec6f0` supplies exact music activity from native attack ownership. These browser
+adapters are explicitly partial; full world/renderer/music ownership is not yet
+certified. Ambient layers update at subsequent sample boundaries; exact continuous
+native gain updates and voice arbitration remain open.
+
+### Modern timing and validation
+
+The drone streams through a media element routed into Web Audio. Only the selected
+bank's short percussion clips decode. Percussion uses `AudioContext.currentTime`
+with look-ahead scheduling; the original silent entry's exact duration stays on
+the same clock. Accents use a fixed 24 Hz presentation cadence, independent of
+rendered frames. Stalls skip expired audio starts instead of emitting a catch-up
+burst. Pausing freezes both the audio context and media position and stops the
+background timer; resuming retains positions. Mute preserves music position,
+stops effects/ambience and the scheduler. Restart stops sources and resets playback;
+disposal closes the context, clears buffers and releases the media source.
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/import-music.py /private/tmp/populous-reference/native --check
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-background-audio.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/background-audio.test.mjs
+node scripts/check-browser-background-audio.mjs --record
+node scripts/check-browser-display-audio.mjs
+```
+
+The real-UI Chromium check confirms non-silent output from all five streamed
+recordings, all 29 drum decodes/durations/channels, live camera environment changes,
+percussion scheduling, exact paused positions, resume, independent music gain,
+non-overflowing settings controls, mute/re-enable, reset and disposal. The retained
+report is `references/performance/2026-09-10-background-audio.json`. This proves
+browser signal and lifecycle, not a human listening comparison or hardware FPS.
+Tests also preserve percussion timestamps at 30/60/120/144/240 Hz and irregular
+schedules, with a separate stale-start regression. Existing 200-cue/64-voice cleanup
+and DPR checks pass. Music playback earns its bounded requirement; full adaptive
+ownership and complete audio lifecycle remain partial.

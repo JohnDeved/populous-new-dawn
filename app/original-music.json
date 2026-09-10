@@ -1,0 +1,491 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "ffmpeg": "7.1",
+  "banks": {
+    "popdrum022.sdt": "b5f1ab0310bacf6599cb194df7e5a3cf912a09997d37427a16bd2888d3d6285e",
+    "popdrum122.sdt": "91f42a1b028a7929fdfa78231f00a527a6467f0f6e358d64641f93b742775f31",
+    "popdrum222.sdt": "47c030e747516294c1d50ab53a20e02d252865b6fb6153ef290b92cc4dc7abca",
+    "popdrum322.sdt": "e4c8ed74e3d07b94bd4fcfb5917596eb7f68f41ae5f2eeac8e6c8451e897fbd1",
+    "popdrum422.sdt": "661890f224d5a35e95e80a4a7c61f5a658caa0da7f229488133f096241d8d0e4",
+    "popdrum522.sdt": "aadc25f8f9e724167019e06be1d5beb43dc8bbc8f9767b0d9fc19612d8251786",
+    "popdrum622.sdt": "ecee2594789ceb108433ed2525d2454e67cb2b54877cf41d4be1311a4107e05e",
+    "popdrum722.sdt": "8b0f57c522570717e052438731cc0b78fd45d3470417fdd8497640cf8f21a268",
+    "popdrum822.sdt": "b45e9f2b2caca355e7e48bd1c6d31331cfe3df1c79df7e34cbc849c9d7d382e0",
+    "popdrum922.sdt": "817161a11f0906ea6dac1c3ee2bf0c6c7f6075b248f935b18d06cffde4161c40",
+    "popdrones22.sdt": "6ec9fbb8a04714e4bada576e11130b6956cf1213697c6ea70194b7115eecb53d"
+  },
+  "drones": [
+    {
+      "id": 1,
+      "name": "idea11",
+      "rate": 22050,
+      "frames": 5079168,
+      "flags": 37,
+      "sourceBytes": 3224868,
+      "sourceSha256": "0ea07555ca92660dd5baa18d7b95803583eb7125b5ea72edab2e060b999c0aef",
+      "decodedPcmSha256": "7fab05e0e77dd48300756554c3f7b2b3759cbe92123f56212c30c164732309fb",
+      "file": "drone-1.m4a",
+      "fileSha256": "ff509f0f53cc70608039dbf1d01a32f3bf7606f8eebe198386576fd42ea0d31c"
+    },
+    {
+      "id": 2,
+      "name": "idea13",
+      "rate": 22050,
+      "frames": 7069824,
+      "flags": 37,
+      "sourceBytes": 4488777,
+      "sourceSha256": "6703be08d5a9e747615351bb383ce1c3f982d164377e1fc7c543da794c54d374",
+      "decodedPcmSha256": "b0eb64a74a3e3b2fea0507a8cf9e186e58c1e6c7397468d15b1c5fc44f3ecf20",
+      "file": "drone-2.m4a",
+      "fileSha256": "f7c2c18308c59308ebcd58d690c11b733012d6bfdc71e6a36e336ccd97914a81"
+    },
+    {
+      "id": 3,
+      "name": "idea16",
+      "rate": 22050,
+      "frames": 6264576,
+      "flags": 37,
+      "sourceBytes": 3977508,
+      "sourceSha256": "190684055976fc3bf476eef199ffe44d4c46116c75d62c599052baf52772dc1f",
+      "decodedPcmSha256": "7edb69a4d832161f933cca84d6955e367352f9551ee0a5a42d7f50cd73c2f09a",
+      "file": "drone-3.m4a",
+      "fileSha256": "6ab45c921c220c7dc305d123eee166bfeaf5609c128129895c683762d1d7f768"
+    },
+    {
+      "id": 4,
+      "name": "idea17",
+      "rate": 22050,
+      "frames": 6772608,
+      "flags": 37,
+      "sourceBytes": 4300068,
+      "sourceSha256": "0f560e880ee3bb3eb6bf7fcaed74ae2c8a228a08cb997d2f67d0be833f40f50b",
+      "decodedPcmSha256": "ac2706f0967814059b0a4fc3928f514775ccd808d277e22345df13ed25d6a28e",
+      "file": "drone-4.m4a",
+      "fileSha256": "64870c6004712451c5b9bac234da3520ab0d87a71e18dfa23009159c5a59980e"
+    },
+    {
+      "id": 5,
+      "name": "idea19",
+      "rate": 22050,
+      "frames": 7958016,
+      "flags": 37,
+      "sourceBytes": 5052708,
+      "sourceSha256": "4ddd28c4cdc94f1b20173d3eee34db4e9ddd9368afa6cc9cf3dea7b3c0113040",
+      "decodedPcmSha256": "6c422094b7e0067dd1bd994217c76fbc845eb1f39231a3701860f576a5aaf692",
+      "file": "drone-5.m4a",
+      "fileSha256": "47a94229de99c91cc07bf0d2de95e7231c7cbcade913ee6aff3273abde854d4e"
+    }
+  ],
+  "drums": [
+    [
+      {
+        "id": 1,
+        "name": "10a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "10a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "8d948456f5e1dc132213d5008cf9bf3eeb04868104d4cff073401333a310e075",
+        "file": "drum-0-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "10b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "18a9f045c5fa5c3066aea84a1c29790c989763f4ba30c8ea42f766701ad99e0f",
+        "file": "drum-0-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "10c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "c80deda361051c9d01a37cc567dba0b30855de27990776c70fae7f5f7108552c",
+        "file": "drum-0-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "1a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "1a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "87508fe72049bc9a4b6676445be2deec88a4bf8c54a33f8fcf35724fbd4fdeca",
+        "file": "drum-1-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "1b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "28516d376dc115a33900908619da503e0f5d24488d406cbfcef034e7179ad986",
+        "file": "drum-1-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "1c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "3bbdb664d3918346416add2de1bc5c8da7e5a87369b47aa6246a87c73378bbff",
+        "file": "drum-1-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "2a",
+        "rate": 22050,
+        "frames": 169342,
+        "flags": 131,
+        "sourceBytes": 677368,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "2a",
+        "rate": 22050,
+        "frames": 169342,
+        "flags": 3,
+        "sourceBytes": 677368,
+        "sourceSha256": "f8c79ee1152ddd539fc6b5d35656a6242f766944fe4b5f3542482c6a04a2d5ab",
+        "file": "drum-2-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "2b",
+        "rate": 22050,
+        "frames": 169342,
+        "flags": 3,
+        "sourceBytes": 677368,
+        "sourceSha256": "e76d0fcf0724dc45ae1e32302a51a627fb79e126cc733141133e703ce9cb6f42",
+        "file": "drum-2-3.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "3a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "3a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "c12039f2072f2a3d53bfc929b2f8ab66c11d7f1265e1739db69530227db2974c",
+        "file": "drum-3-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "3b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "9ccb621d1c01331e925ce8f491a83536d3c27175c1c2ae08b8ebc237674835d2",
+        "file": "drum-3-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "3c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "8669161e4a7313c5dc4f436777cbb1e23d4d984dba2a649d7be7ab52a1c99ee9",
+        "file": "drum-3-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "4a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "4c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "2ab7215b016dd1f4b6db9332089c1e72c344d219ed1827374c38d4a21adba830",
+        "file": "drum-4-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "4b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "f76360354448c39ed9c6de96cbf10c0c43cc10af307d4e38875fa68afe865045",
+        "file": "drum-4-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "4a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "a95d008c0edc51428eeac2fa7b031c9f61acbaebbab9b32d4bd23ee1d55bac5e",
+        "file": "drum-4-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "5a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "5a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "a1e6c67ac448a235d30e1df8ff1764c3a57e6419fa0af49f02b69e8e411b7ea1",
+        "file": "drum-5-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "5b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "da26f5429b0c691be9021b4f51d72d76daecb8b68a951ad97aa2a74788d40e86",
+        "file": "drum-5-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "5c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "98ef23fa879cbe997438dfb0a689b8b85987567d0cb9efbcb8fbb721c5a791ba",
+        "file": "drum-5-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "6a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "6a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "7344342de4a6667baff414ea85e26211ba98aa38656eeb0f3cacca7790ed283b",
+        "file": "drum-6-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "6b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "e97a74291237df41b33d9e841206eafc3116c8fa721dffe3feca0194a6517643",
+        "file": "drum-6-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "6c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "c7e6345fde8ecba654fae8afeb1692a04091362ff300f43b91687fd8782ebf51",
+        "file": "drum-6-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "7a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "7a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "a11e66c3a2834799687065be7c4b01026b3ed7e269e763e238f23904fe61612c",
+        "file": "drum-7-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "7b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "e5ea20c1e7d0a6c0c8620c8156635a052080c1bde3877a0ca2cd7beae744faa0",
+        "file": "drum-7-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "7c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "9018a446fa2509977010468e79d6a6975c1b2f9fac8af9f45ae640c473f7da83",
+        "file": "drum-7-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "8a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "8c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "3e5f9d013dd708fcee763f8872823a21f62cef78899a01e9838a0f3950b5ed87",
+        "file": "drum-8-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "8b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "ab32f6fcba65be5ed788e5c36f1fc0a265e472be7ba50896b7a9632bbca00ab8",
+        "file": "drum-8-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "8a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "a5d0db979f1052547bca20d646c59fe8a04bd8d8db00a868f3924aa49fc798a8",
+        "file": "drum-8-4.wav"
+      }
+    ],
+    [
+      {
+        "id": 1,
+        "name": "9a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 131,
+        "sourceBytes": 338684,
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file": null
+      },
+      {
+        "id": 2,
+        "name": "9a",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "9b0044949a0e3946865586ae8a81987b34c4ca97afb3761d08bdbc0b8d2470bf",
+        "file": "drum-9-2.wav"
+      },
+      {
+        "id": 3,
+        "name": "9b",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "61e4edece72be805918476cf0037fcdb4d938f7efa1aa6852e668781cf144c61",
+        "file": "drum-9-3.wav"
+      },
+      {
+        "id": 4,
+        "name": "9c",
+        "rate": 22050,
+        "frames": 84671,
+        "flags": 3,
+        "sourceBytes": 338684,
+        "sourceSha256": "8b8f246c1a8c7fa83c45dad5171fdde56c5cadc4b6d22a10b0c4fc6aeb8766bd",
+        "file": "drum-9-4.wav"
+      }
+    ]
+  ]
+}

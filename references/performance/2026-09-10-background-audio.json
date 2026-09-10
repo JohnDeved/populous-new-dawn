@@ -1,0 +1,101 @@
+{
+  "browser": "153.0.8010.12",
+  "headless": true,
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "before": {
+    "bank": 1,
+    "drone": 4,
+    "state": "running",
+    "musicPaused": false,
+    "decodedMusic": 4,
+    "buffers": 180
+  },
+  "peaks": {
+    "mix": 0.07864522933959961,
+    "music": 0.31857195496559143
+  },
+  "environment": {
+    "home": {
+      "total": 81,
+      "low": 69,
+      "high": 0,
+      "water": 12,
+      "trees": true,
+      "overview": false,
+      "activity": 0
+    },
+    "ocean": {
+      "total": 81,
+      "low": 0,
+      "high": 0,
+      "water": 81,
+      "trees": true,
+      "overview": false,
+      "activity": 0
+    },
+    "layers": [
+      29,
+      32,
+      30
+    ]
+  },
+  "timing": {
+    "gain": 0,
+    "sources": 1,
+    "future": 3.8899546485260768
+  },
+  "controls": {
+    "music": 0.5,
+    "fits": true,
+    "overflow": false
+  },
+  "assets": {
+    "durations": [
+      {
+        "duration": 230.347982,
+        "expected": 230.34775510204082,
+        "peak": 0.20018696784973145
+      },
+      {
+        "duration": 320.626984,
+        "expected": 320.6269387755102,
+        "peak": 0.29540127515792847
+      },
+      {
+        "duration": 284.107982,
+        "expected": 284.1077551020408,
+        "peak": 0.1844502091407776
+      },
+      {
+        "duration": 307.147982,
+        "expected": 307.14775510204083,
+        "peak": 0.09192696958780289
+      },
+      {
+        "duration": 360.907982,
+        "expected": 360.9077551020408,
+        "peak": 0.324025958776474
+      }
+    ],
+    "drums": 29,
+    "retainedDrumBytes": 4423608,
+    "sampleRate": 48000
+  },
+  "disposal": {
+    "reset": {
+      "time": 0,
+      "voices": 0,
+      "drums": 0
+    },
+    "state": "closed",
+    "voices": 0,
+    "buffers": 0,
+    "music": null,
+    "timer": null,
+    "src": null
+  },
+  "limitation": "Audio decode/output/lifecycle and retained PCM buffer evidence; not human listening or hardware frame-time/total-process-memory measurement."
+}

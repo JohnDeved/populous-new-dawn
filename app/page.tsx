@@ -42,6 +42,8 @@ export default function Home() {
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [volume, setVolume] = useState(0.35)
+  const [musicVolume, setMusicVolume] = useState(0.65)
+  const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
   useEffect(() => {
     try {
@@ -177,18 +179,39 @@ export default function Home() {
       dialog.current?.showModal()
     } else if (dialog.current?.open) dialog.current.close()
   }, [menu, world, store])
+  useEffect(() => {
+    void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
+      audio.current?.mute()
+      setSound(false)
+    })
+  }, [world.paused])
+  useEffect(() => {
+    const refresh = () => {
+      if (audio.current?.enabled && engine.current)
+        audio.current.environment = engine.current.soundEnvironment()
+    }
+    refresh()
+    const timer = setInterval(refresh, 250)
+    return () => clearInterval(timer)
+  }, [])
   async function toggleSound() {
     if (sound) {
       audio.current?.mute()
       setSound(false)
-    } else
+    } else {
+      setSoundPending(true)
       try {
-        await audio.current?.enable()
-        setSound(true)
+        if (engine.current && audio.current)
+          audio.current.environment = engine.current.soundEnvironment()
+        setSound(!!(await audio.current?.enable()))
       } catch {
+        audio.current?.mute()
         tell(world, 'Audio could not start. Try the sound button again.')
         update()
+      } finally {
+        setSoundPending(false)
       }
+    }
   }
   function choose(kind: UnitKind | 'all') {
     select(world, kind)
@@ -533,6 +556,8 @@ export default function Home() {
             aria-label={sound ? 'Mute sound' : 'Enable sound'}
             title={sound ? 'Mute sound' : 'Enable sound'}
             onClick={toggleSound}
+            disabled={soundPending}
+            aria-busy={soundPending}
           >
             {sound ? '♪' : '♫'}
           </button>
@@ -721,11 +746,16 @@ export default function Home() {
           Blast can knock them off a shore.
         </p>
         <div className="audio-settings">
-          <button className="secondary-button" onClick={toggleSound}>
+          <button
+            className="secondary-button"
+            onClick={toggleSound}
+            disabled={soundPending}
+            aria-busy={soundPending}
+          >
             {sound ? '♪ Sound on' : '♫ Enable sound'}
           </button>
           <label>
-            Volume{' '}
+            Master volume{' '}
             <input
               type="range"
               min="0"
@@ -739,6 +769,21 @@ export default function Home() {
               }}
             />
           </label>
+          <label>
+            Music volume{' '}
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step=".05"
+              value={musicVolume}
+              onChange={e => {
+                const v = Number(e.target.value)
+                setMusicVolume(v)
+                audio.current?.setMusicVolume(v)
+              }}
+            />
+          </label>
         </div>
         <details className="reference-details">
           <summary>About this recreation & references</summary>
@@ -748,9 +793,10 @@ export default function Home() {
             unit animations, HUD artwork and landscape bank c were decoded from the supplied game
             archive. The browser renderer approximates the original lighting, terrain displacement
             and water animation. Selection voices, spell cues and combat sounds use the original
-            recordings. Adaptive music, ambience and the complete native sound scheduler are still
-            being reconstructed. Village growth and mana use rules traced from the executable.
-            Combat state selection, pathfinding and defensive AI still differ from the original.
+            recordings. Original music and percussion now play alongside environmental sounds; exact
+            world mixing, activity ownership and the complete native sound scheduler are still being
+            reconstructed. Village growth and mana use rules traced from the executable. Combat
+            state selection, pathfinding and defensive AI still differ from the original.
           </p>
           <div>
             <a

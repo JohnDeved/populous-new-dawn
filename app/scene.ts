@@ -13,6 +13,7 @@ import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
 import { timberScale } from './timber.ts'
 import { soundAttenuation } from './audio'
+import type { SoundEnvironment } from './ambient-sound.ts'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
 import {
   cameraCommand,
@@ -2254,6 +2255,39 @@ export class GameScene {
         Math.round((this.cameraBearing * 1024) / Math.PI),
         this.terrainAtlasState
       )
+  }
+  soundEnvironment(): SoundEnvironment {
+    const center = nativePosition(this.world, this.viewPoint),
+      land = this.world.land
+    const result: SoundEnvironment = {
+      total: 81,
+      low: 0,
+      high: 0,
+      water: 0,
+      trees: false,
+      overview: this.overviewActive,
+      activity: 0,
+    }
+    // ponytail: bounded camera-neighborhood adapter; replace with the original
+    // far-polygon counters when mixed renderer/audio ownership is integrated.
+    for (let y = -4; y <= 4; y++)
+      for (let x = -4; x <= 4; x++) {
+        const cell = (((center.y >> 9) + y) & 127) * 128 + (((center.x >> 9) + x) & 127)
+        if (rules.terrainCategoryFlags[land.categories[cell]] & 2) result.water++
+        else if (land.heights[cell] < 513) result.low++
+        else result.high++
+      }
+    result.trees = this.world.trees.some(
+      t => t.model > 0 && t.model < 7 && t.logs > 0 && this.visible(t)
+    )
+    for (const u of this.world.units)
+      if (u.team === 'blue' && u.fight) {
+        result.activity = Math.max(
+          result.activity,
+          u.fight.action === 'approach' || u.fight.action === 'ready' ? 1 : 2
+        )
+      }
+    return result
   }
   orderSound() {
     const units = this.world.units.filter(u => this.world.selected.includes(u.id))

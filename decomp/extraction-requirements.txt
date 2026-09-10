@@ -1,2 +1,4 @@
 # Optional: read the user-supplied Inno archive, without executing its installer.
 binary-refinery==0.10.11
+# Decode original MPEG-2 Layer II music into browser-streamable AAC.
+imageio-ffmpeg==0.6.0

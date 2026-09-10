@@ -1495,3 +1495,18 @@ an audible first-mission experience. Preserve clean code, fixed-time scheduling,
 modern browser audio activation, user volume control and efficient playback.
 Validate playback, pause/resume, muting and resource cleanup in a real browser.
 Do not claim complete audio parity from asset extraction alone.
+
+
+Music/ambient first implementation is now live in source: five original drone
+recordings, ten percussion banks (29 PCM clips plus ten silent descriptors), native
+percussion selection and ordinary ambient layer/accent decisions. 8,192 original
+selection/ambience comparisons and a real-browser audio check cover this bounded
+work. Playback uses streaming and the audio clock, with pause/resume, master/music
+volume, muted/restarted cleanup and uncapped-FPS timing checks.
+
+Continue audio parity through exact renderer-derived environmental counts, native
+activity ownership, continuous mixing, special-landscape substitutions, frontend
+music selection and voice scheduling. Current camera-neighborhood/fight adapters
+remain explicit. Do not block audible gameplay on unrelated decompilation. The
+building-controller/shared-queue integration above remains the following gameplay
+target; the full-game scope remains active.
