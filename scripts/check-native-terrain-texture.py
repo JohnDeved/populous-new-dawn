@@ -52,7 +52,7 @@ js="""import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto
 const raw=readFileSync('public/original/landscape.bin'),t=readTerrainTextures(raw.buffer.slice(raw.byteOffset,raw.byteOffset+raw.byteLength));let s='';for await(const b of process.stdin)s+=b;
 console.log(JSON.stringify(JSON.parse(s).map(c=>{const land=createNativeTerrain(new Int16Array(16384)),brightness=new Uint8Array(16384);
  for(let j=0;j<4;j++){const i=c.ids[j];for(const k of ['heights','cliffs','shadows','flags'])land[k][i]=c[k][j];brightness[i]=c.brightness[j];}
- const stains=c.overlay?new Uint8Array(1024):undefined;if(stains)for(const [x,y] of c.marks)stains[y*32+x]=Math.min(12,stains[y*32+x]+3);
+ const stains=c.overlay?new Uint8Array(1024):undefined;if(stains)for(const [x,y] of c.marks)stains[y*32+x]++;
  return {light:terrainBrightness(land,c.cell,c.sun),globe:createHash('sha256').update(terrainTile(land,brightness,c.cell,t,false,undefined,8)).digest('hex'),texture:createHash('sha256').update(terrainTile(land,brightness,c.cell,t,c.fog,stains)).digest('hex')};})));"""
 r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),capture_output=True,text=True,cwd=root);assert r.returncode==0,r.stderr
 actual=json.loads(r.stdout);assert len(actual)==len(expected)

@@ -79,7 +79,7 @@ use Fallow, ox-standard and Ponytail in the regular development workflow.
 Reconstruct original behavior in idiomatic game code, keeping raw decompiler
 output and address-level bookkeeping in the decompilation evidence.
 
-## Current execution order: groups and native selection next
+## Current execution order: group spacing and native selection next
 
 Latest user direction, 2026-09-10: finish the current building-combat integration,
 then prioritize how followers move as a group, unit footprints, how groups stand,
@@ -99,9 +99,17 @@ movement/work queue restoration, plans, specialized structures/classes, allocati
 limits and complete native scheduling remain unfinished. These do not delay the
 new groups/selection priority.
 
+Walking/carrying footprint history and close-terrain rendering are now integrated:
+four original stains per eligible animation visit, toroidal placement, capped
+per-cell history, global replacement order and palette darkening. Native emissions
+and texture pixels, elapsed-rate replay, real right-click movement and partial/full
+GPU equivalence are checked. Incremental tile uploads preserve the result at much
+lower transfer cost. Full native animation ownership/visibility catch-up, alternate
+16-pixel terrain cache, settings and save ownership remain open.
+
 Next compare original formation/spacing, resting-slot and movement ownership,
-footprint artwork/placement/lifetime, selection state transitions and modifiers,
-and world-projected drag geometry and hit tests. Use executable evidence and
+selection state transitions and modifiers, and world-projected drag geometry and
+hit tests. Use executable evidence and
 original visuals to resolve the exact footprint and selection behavior. Integrate
 real desktop interaction regressions across camera rotation, slopes, occlusion
 and wide/high-DPI displays. Keep native mechanics, uncapped elapsed-time

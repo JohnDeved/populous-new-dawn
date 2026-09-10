@@ -1,3 +1,4 @@
+import { createFootprints, type Footprints } from './footprints.ts'
 import {
   joinMeleeGroup,
   cleanFightRoster,
@@ -1393,6 +1394,7 @@ export type World = {
   cosmeticRandom: { randomState: number }
   effectCounter: number
   nextId: number
+  footprints: Footprints
   selected: number[]
   mode: Spell | BuildingKind | null
   buildingDirections: Record<BuildingKind, number>
@@ -1658,6 +1660,7 @@ export function createWorld(): World {
     cosmeticRandom: { randomState: 1 },
     effectCounter: 0,
     nextId: 1,
+    footprints: createFootprints(),
     selected: [],
     mode: null,
     buildingDirections: { hut: 0, tower: 0, temple: 0, camp: 0 },

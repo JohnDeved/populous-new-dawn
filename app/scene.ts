@@ -37,6 +37,7 @@ import { advanceSkyMotion } from './sky-motion.ts'
 import {
   readTerrainTextures,
   terrainAtlas,
+  updateFootprintTiles,
   terrainTextureBounds,
   type TerrainTextures,
 } from './terrain-texture.ts'
@@ -477,6 +478,7 @@ export class GameScene {
   waterScroll = { value: 0 }
   terrainMap = new THREE.DataTexture(new Uint8Array(4096 * 4096 * 4), 4096, 4096)
   terrainTextures: TerrainTextures | null = null
+  terrainUpload = new THREE.DataTexture()
   terrainAtlasState: ReturnType<typeof terrainAtlas> | undefined
   terrainLoad = new AbortController()
   terrainMapVersion: number | null = null
@@ -1155,19 +1157,38 @@ export class GameScene {
   }
   updateTerrainTexture() {
     if (!this.terrainTextures) return
-    const w = this.world
-    if (
-      this.terrainMapVersion === w.landVersion &&
-      w.land.shadows.every((v, i) => v === this.terrainShadows[i])
-    )
-      return
-    this.terrainAtlasState = terrainAtlas(w.land, this.terrainTextures, this.terrainAtlasState)
-    if (this.terrainAtlasState.updated) {
-      this.terrainMap.image = { data: this.terrainAtlasState.pixels, width: 4096, height: 4096 }
-      this.terrainMap.needsUpdate = true
+    const w = this.world,
+      marks = w.footprints
+    const terrainChanged =
+      this.terrainMapVersion !== w.landVersion ||
+      !w.land.shadows.every((v, i) => v === this.terrainShadows[i])
+    let fullUpload = false
+    if (terrainChanged) {
+      this.terrainAtlasState = terrainAtlas(
+        w.land,
+        this.terrainTextures,
+        this.terrainAtlasState,
+        32,
+        marks.pixels
+      )
+      fullUpload = this.terrainAtlasState.updated > 0
+      this.terrainMapVersion = w.landVersion
+      this.terrainShadows.set(w.land.shadows)
     }
-    this.terrainMapVersion = w.landVersion
-    this.terrainShadows.set(w.land.shadows)
+    if (!this.terrainAtlasState || (!fullUpload && !marks.dirty.size)) return
+    this.terrainMap.image = { data: this.terrainAtlasState.pixels, width: 4096, height: 4096 }
+    // An unbound DataTexture supplies CPU pixels directly: one subimage upload
+    // per tile, with no staging copies, extra draw calls or 64 MiB atlas upload.
+    this.terrainUpload.image = this.terrainMap.image
+    const region = new THREE.Box2()
+    updateFootprintTiles(this.terrainAtlasState, w.land, this.terrainTextures, marks, (x, y) => {
+      if (fullUpload) return
+      region.min.set(x, y)
+      region.max.set(x + 32, y + 32)
+      this.renderer.copyTextureToTexture(this.terrainUpload, this.terrainMap, region, region.min)
+    })
+    marks.dirty.clear()
+    if (fullUpload) this.terrainMap.needsUpdate = true
   }
   landIndex(x: number, z: number) {
     return ((Math.round((-z - 8) / 2) & 127) << 7) | (Math.round((x + 8) / 2) & 127)

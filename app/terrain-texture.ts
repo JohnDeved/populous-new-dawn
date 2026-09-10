@@ -40,7 +40,7 @@ export function terrainTile(
   i: number,
   t: TerrainTextures,
   fog = false,
-  stains?: Uint8Array,
+  stains?: Uint8Array | Uint16Array,
   size: 8 | 32 = 32
 ) {
   const corners = [i, neighbor(i, 1, 0), neighbor(i, 1, 1), neighbor(i, 0, 1)]
@@ -78,7 +78,10 @@ export function terrainTile(
         ((row[1] & 0xffff00ff) >> 8) + ((Math.imul(amplitude, d) & 0xfffffc03) >> 2) + shade
       let color = t.cliffs[(row[2] >> 18) * 128 + t.colors[at]]
       if (fog) color = t.fade[((row[3] & 0xffff00ff) >> 8) + color]
-      if (stains) color = t.fade[(32 + stains[y * 32 + x]) * 256 + color]
+      if (stains) {
+        const stain = Math.min(12, stains[y * 32 + x] * 3)
+        color = t.fade[(32 + stain) * 256 + color]
+      }
       out[y * size + x] = color
       for (let k = 0; k < 4; k++) row[k] = (row[k] + step[k]) | 0
     }
@@ -97,7 +100,8 @@ export function terrainAtlas(
   land: Terrain,
   t: TerrainTextures,
   previous?: TerrainAtlas,
-  size: 8 | 32 = 32
+  size: 8 | 32 = 32,
+  footprints?: ReadonlyMap<number, Uint16Array>
 ): TerrainAtlas {
   const width = size * 128,
     brightness = new Uint8Array(16384),
@@ -118,7 +122,15 @@ export function terrainAtlas(
         )
       )
         continue
-      const tile = terrainTile(land, brightness, cell, t, false, undefined, size)
+      const tile = terrainTile(
+        land,
+        brightness,
+        cell,
+        t,
+        false,
+        size === 32 ? footprints?.get(cell) : undefined,
+        size
+      )
       updated++
       for (let y = 0; y < size; y++)
         for (let px = 0; px < size; px++) {
@@ -138,4 +150,43 @@ export function terrainAtlas(
 export function terrainTextureBounds(size: number, smooth = true, raw = false) {
   const inset = smooth && !raw ? 0.5 / size : 0
   return [inset, 1 - inset]
+}
+
+// Foot traffic changes only its affected tiles, never terrain geometry or light.
+// Upload one rectangular region per tile through the renderer's native API.
+export function updateFootprintTiles(
+  atlas: TerrainAtlas,
+  land: Terrain,
+  textures: TerrainTextures,
+  footprints: { pixels: ReadonlyMap<number, Uint16Array>; dirty: Set<number> },
+  update: (x: number, y: number) => void
+) {
+  const brightness = new Uint8Array(16384)
+  for (const cell of footprints.dirty) {
+    for (const i of [cell, neighbor(cell, 1, 0), neighbor(cell, 0, 1), neighbor(cell, 1, 1)])
+      brightness[i] = terrainBrightness(land, i, [147, 147, 147])
+    const tile = terrainTile(
+        land,
+        brightness,
+        cell,
+        textures,
+        false,
+        footprints.pixels.get(cell),
+        32
+      ),
+      x = ((cell & 127) - 68) & 127,
+      z = (59 - (cell >> 7)) & 127
+    for (let y = 0; y < 32; y++) {
+      const start = ((z * 32 + 31 - y) * 4096 + x * 32) * 4
+      for (let px = 0; px < 32; px++) {
+        const color = tile[y * 32 + px] * 4,
+          at = start + px * 4
+        atlas.pixels[at] = textures.palette[color]
+        atlas.pixels[at + 1] = textures.palette[color + 1]
+        atlas.pixels[at + 2] = textures.palette[color + 2]
+        atlas.pixels[at + 3] = 255
+      }
+    }
+    update(x * 32, z * 32)
+  }
 }

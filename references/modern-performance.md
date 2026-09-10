@@ -2018,3 +2018,31 @@ Conditions and the runnable check are retained in
 `performance/2026-09-10-building-combat.json`. Cross-cadence tests produce identical
 worlds at 5/30/60/120/144/240 Hz and irregular schedules. Broader hardware and dense
 whole-scene profiling remains part of the continuing modernization work.
+
+## 2026-09-10 — footprint updates without full terrain transfers
+
+Native footprint history/emission and palette darkening are retained (see
+`references/reverse-engineering.md`). Per-cell unsaturated density counts replace
+repeated linked-list traversal during shading; the original history remains the
+source of replacement decisions. Identically saturated pixels need no upload.
+
+The renderer reuses its existing terrain atlas and Three's `copyTextureToTexture`
+API with an unbound CPU `DataTexture` and a 32×32 source region. This sends one
+rectangular `texSubImage2D` per changed tile, without staging pixel copies, extra
+meshes or draw calls. A full terrain edit keeps its existing rebuild path.
+
+Reproduce with `node scripts/check-browser-footprints.mjs` and a running dev
+server. `references/performance/2026-09-10-footprints.json` records the browser,
+viewport and paired samples. In the nine-tile walk scenario, transfers fell from
+**67,108,864 to 36,864 bytes/update** (64 MiB to 36 KiB, **99.945% less**), using
+nine rectangular uploads instead of one full upload. Median update time including
+`gl.finish()` was **2.7 ms full / 0.2 ms tiled** in headless Chromium. Both modes
+shade the same cells, use the same atlas and alternate order across twelve pairs.
+Actual GPU output agrees byte-for-byte; 236 visible trail pixels differ from the
+same scene with trails removed.
+
+This is a measured implementation-alternative comparison, not a claim that an
+older shipped footprint feature became faster. Headless timings do not establish
+hardware FPS. Full-map deformation transfer cost and native alternate texture
+cache ownership remain separate unfinished work. Fallow's existing hotspot and
+cycle reports remain open; this slice adds no framework or runtime dependency.

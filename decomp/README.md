@@ -4516,3 +4516,15 @@ separately by 512 added `004d2740` comparisons. The imported table now covers
 state-44 sprite objects; original RGBA and every old frame/piece slot are retained.
 See the Lightning findings in `references/reverse-engineering.md` for live browser
 checks and explicit allocation/scheduling/remote-shaman/death boundaries.
+
+### Follower footprint history and close-terrain shading
+
+Run `scripts/check-native-footprints.py EXE [--record]` with the native Python
+environment for 18,904 complete `004bf630` emissions / 75,616 `004bf740` storage
+calls. No consumers are stubbed. Portable hashes cover the full history and cell
+lists, including wrap, cell saturation and ring reuse. The retained renderer uses
+original palette darkening checked by `scripts/check-native-terrain-texture.py`;
+`tests/footprints.test.mjs` and `scripts/check-browser-footprints.mjs` cover density,
+frame-rate independence, actual movement, GPU pixels and incremental uploads.
+Full animation/visibility/settings and alternate 16-pixel cache ownership remain
+open. Newly exported `0047acb0`/`0047ae00` are unreviewed selection research.

@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-10",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "live": {
+    "cursor": 292,
+    "paused": true,
+    "tiles": 9,
+    "position": {
+      "x": 9.421875,
+      "z": 5.453125
+    },
+    "uploads": 79
+  },
+  "visual": {
+    "pixels": 240,
+    "mismatch": 0
+  },
+  "performance": {
+    "tiles": 9,
+    "fullMs": 2.700000047683716,
+    "tilesMs": 0.20000004768371582,
+    "bytesPerUpdate": {
+      "full": 67108864,
+      "tiles": 36864
+    },
+    "callsPerUpdate": {
+      "full": 1,
+      "tiles": 9
+    }
+  },
+  "limits": "Headless Chromium; timings include GPU completion and do not establish hardware FPS. Paired same-scene texture updates compare a full-atlas implementation alternative with rectangular tile uploads, not an earlier shipped footprint feature. Ordinary movement still supplies browser-owned animation eligibility; original visibility catch-up and all animation/state ownership remain open."
+}

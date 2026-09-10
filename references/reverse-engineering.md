@@ -6795,3 +6795,51 @@ shake pixels, pause, defender ejection, fight, resumption and cancellation pass.
 Full allocation/list order, generalized selection/command dispatch, all original
 building classes and complete game parity remain open. Next visible work is the
 user-requested groups, footprints, selection/deselection and 3D drag selection.
+
+## 2026-09-10 — original follower footprints on the terrain
+
+`004ee7b0` calls `004bf630` on each eligible mode-2 animation visit for objects
+0, 40, 72 and 216, unless rendering is held, visibility gating rejects the visit,
+level-flags-2 bit 0x10000 or level-flags bit 8 disables the producer. These are
+terrain stains, not separate foot-shaped sprites. Shaman objects do not qualify.
+The four coordinates are `(x,y)`, `(x-16,y)`, `(x-16,y-16)`, `(x,y-16)`, wrapping
+unsigned 16-bit axes. `004bf740` retains a 65,536-slot circular allocation cursor
+and native per-cell FIFO lists. A cell at 1,500 marks reuses its oldest mark.
+On reuse of an occupied cursor slot, the original removes the *head of that
+slot's owning cell*, which need not be the requested slot after saturation.
+There is no elapsed-time fade: later allocations displace old history.
+
+`004bf860` collects the cell's stains in a 32×32 mask. Each mark adds three, capped
+at twelve; the palette remap starts at 00970ae0 (fade-bank row 32). Each texel
+covers 16 native coordinates. `004be330` also has a 16×16 variant with doubled
+texel coverage; that alternate cache path remains outside our close-terrain renderer.
+The existing globe 8×8 routine does not consume these marks.
+
+`app/footprints.ts` keeps the exact native history and maintains unsaturated
+per-pixel counts, so removing an old mark reduces shading correctly even after
+repeated traffic. Saturation is applied at draw time. State is plain data so
+structured cloning preserves replay comparisons. Marks belong to the world;
+terrain edits recompute their colors without discarding the history. Native
+animation sources call the emitter directly. Remaining browser-owned ordinary
+walk/carry states supply eligibility at the same elapsed 24 Hz animation cadence.
+No simulation RNG, unit sprite frame or movement rule is changed.
+
+Evidence:
+- `scripts/check-native-footprints.py EXE [--record]`: **18,904 complete calls /
+  75,616 allocations**, with no intercepted native calls. Compares complete
+  history/list memory at eight checkpoints; checks original cache notifications.
+- `scripts/check-native-terrain-texture.py EXE`: **256** native ground/globe
+  texture cases (**278,528 indexed pixels**), actual linked-stain accumulation,
+  cliff/fog remaps and twelve opening-map reflected atlas tiles.
+- `tests/footprints.test.mjs`: portable executable-bound history, density versus
+  actual retained lists, saturated-update suppression, partial/full atlas equality,
+  real movement at 5/30/60/120/144/240 Hz, pause and producer disabling.
+- `scripts/check-browser-footprints.mjs`: actual right-click movement and **236**
+  changed ground pixels. Partial and full GPU uploads yield **zero differing bytes**.
+  A paired upload measurement is recorded in the performance notes.
+
+Boundaries: complete native animation ownership, offscreen visibility catch-up,
+outer graphics scheduling/settings, alternate 16-pixel cache and save/load remain
+unfinished. `0047acb0`/`0047ae00` were exported while tracing the queued selection
+work; they are unreviewed evidence, not claimed selection ports. Group resting
+slots, movement ownership and native 3D selection are still the next priority.

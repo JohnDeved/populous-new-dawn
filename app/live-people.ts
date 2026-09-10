@@ -1,3 +1,4 @@
+import { stampFootprints } from './footprints.ts'
 import { startLiveBuildingOrders } from './live-building-combat.ts'
 import { currentPersonOrder } from './person-orders.ts'
 import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
@@ -14,6 +15,7 @@ import {
   buildingPose,
   sound,
   unitAnimationSource,
+  unitAnimation,
   buildingModel,
   supportsFollower,
   emitGroundSpark,
@@ -897,7 +899,7 @@ export function stepLivePerson(w: World, u: Unit) {
 }
 
 // Presentation adapter: called after drawing at the selected 24 Hz native rate.
-// Native rate configuration, visibility catch-up and footprint visuals are pending.
+// Native rate configuration and visibility catch-up remain pending.
 export function animateLiveObjects(w: World) {
   if (w.paused || w.land.landFlags & 2) return
   for (const u of w.units) {
@@ -907,8 +909,20 @@ export function animateLiveObjects(w: World) {
         source,
         { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
-        () => {}
+        () => stampFootprints(w.footprints, source.x, source.y)
       )
+    else if (
+      !(w.levelFlags2 & 0x10000) &&
+      u.hp > 0 &&
+      u.inside === null &&
+      u.kind !== 'shaman' &&
+      ['walk', 'carry'].includes(unitAnimation(w, u))
+    ) {
+      // Ordinary browser movement still owns its animation state. Use the same
+      // 24 Hz emission cadence as its native walk/carry object, not render FPS.
+      const p = nativePosition(w, u)
+      stampFootprints(w.footprints, p.x, p.y)
+    }
   }
   for (const f of w.effects)
     if (f.animation)

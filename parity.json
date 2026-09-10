@@ -1,8 +1,8 @@
 {
-  "revision": 22,
+  "revision": 23,
   "discovery": {
     "status": "open",
-    "note": "Revision 22 separates Lightning cell-hit rules, electrocution state, secondary effects and full lifecycle. This exposes bounded verified behavior while retaining allocation, scheduler, remote-shaman and death ownership gaps; full-game discovery remains open.",
+    "note": "Revision 23 exposes the previously implicit follower-footprint history and close-terrain shading requirement. Native emission/storage and palette rendering are verified; full animation/visibility ownership, alternate cache modes and the rest of whole-frame fidelity remain open. Full-game discovery remains open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -152,7 +152,7 @@
             "scripts/check-native-model-materials.py",
             "scripts/check-browser-model-uv.mjs"
           ],
-          "note": "Native geometry, stage face visibility and exposed-face UVs integrated. Completed models now use original clockwise screen-facing culling; stages 0–3 retain both sides. Forty complete native calls (no callee stubs) and 40 live-material GPU probes agree. Four village bearings show visible integration. Full clipping/painter/raster matching is not claimed. Default final model UV mapping now uses native texel centers, removing neighboring-atlas bleed. Original cap and debris stage comparisons include the independently captured final UV mapping; 42 live models/7035 vertices and 16 tile-edge GPU probes pass."
+          "note": "Native geometry, stage face visibility and exposed-face UVs integrated. Completed models now use original clockwise screen-facing culling; stages 0\u20133 retain both sides. Forty complete native calls (no callee stubs) and 40 live-material GPU probes agree. Four village bearings show visible integration. Full clipping/painter/raster matching is not claimed. Default final model UV mapping now uses native texel centers, removing neighboring-atlas bleed. Original cap and debris stage comparisons include the independently captured final UV mapping; 42 live models/7035 vertices and 16 tile-edge GPU probes pass."
         },
         {
           "id": "graphics.orientation",
@@ -233,7 +233,7 @@
               "id": "graphics.sprites.interpolation",
               "title": "Original presentation-position interpolation",
               "status": "partial",
-              "note": "Native body/shadow interpolation curve and controller stamp checked against the executable; live elapsed-time turn snapshots, moving shadows and displayed-body selection verified at 5–240 Hz. Complete per-class flags, displacement writers, support-height and outer counter scheduling remain partial.",
+              "note": "Native body/shadow interpolation curve and controller stamp checked against the executable; live elapsed-time turn snapshots, moving shadows and displayed-body selection verified at 5\u2013240 Hz. Complete per-class flags, displacement writers, support-height and outer counter scheduling remain partial.",
               "evidence": [
                 "app/unit-motion.ts",
                 "app/scene.ts",
@@ -385,7 +385,7 @@
             "scripts/check-browser-terrain-light.mjs",
             "tests/terrain-light.test.mjs"
           ],
-          "note": "Terrain diffuse/additive conversion, scenery shade, standing/airborne sprite shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete. The separate native globe diffuse/specular and rim-light calculations agree for 18,532 complete triangles and now render in world view. Local terrain lights now integrate original Blast/fire requests, first building-fire socket, 50-slot allocation, 7×7 wrapped falloff, private flicker, saturation, moving owners and cleanup. Compared 288 complete native calls/235 lifecycle snapshots and actual browser casts (35,655/29,909 changed ground pixels); portable tests preserve occupancy, pause and owner lifetime. Full producer coverage, allocation/free order, original graphics settings, sun rotation and full-frame matching remain open.",
+          "note": "Terrain diffuse/additive conversion, scenery shade, standing/airborne sprite shadows, model sunlight/depth fading and hovered-model gray/white overrides are compared and integrated. Dynamic sunlight propagation, other colored effects, debris lighting and full lifecycle/renderer ownership remain incomplete. The separate native globe diffuse/specular and rim-light calculations agree for 18,532 complete triangles and now render in world view. Local terrain lights now integrate original Blast/fire requests, first building-fire socket, 50-slot allocation, 7\u00d77 wrapped falloff, private flicker, saturation, moving owners and cleanup. Compared 288 complete native calls/235 lifecycle snapshots and actual browser casts (35,655/29,909 changed ground pixels); portable tests preserve occupancy, pause and owner lifetime. Full producer coverage, allocation/free order, original graphics settings, sun rotation and full-frame matching remain open.",
           "requirements": [
             {
               "id": "graphics.lighting.models",
@@ -537,7 +537,7 @@
               "id": "graphics.raster.sky-horizon",
               "title": "Type-2 sky horizon, clouds and defeat-flash bounds",
               "status": "verified",
-              "note": "Native horizon dispatch, cloud geometry/fades and defeat flash remain compared. The modern browser deliberately extends the backdrop edge color below the horizon and clamps vertical texture edges to cover exposed wide-screen background without stretching clouds. Twelve actual shader comparisons retain opaque ground pixels, projection, visibility bounds and picks. Cloud wind and half-heading parallax now retain fractions at camera-step boundaries, with 72 actual browser sequences at 0.5–240 Hz, irregular frames, flyby pause and GPU substep motion. The original rounded leaf remains executable-compared. Terrain perimeter/clipping and full presentation scheduling remain open; this compatibility correction earns no additional native credit.",
+              "note": "Native horizon dispatch, cloud geometry/fades and defeat flash remain compared. The modern browser deliberately extends the backdrop edge color below the horizon and clamps vertical texture edges to cover exposed wide-screen background without stretching clouds. Twelve actual shader comparisons retain opaque ground pixels, projection, visibility bounds and picks. Cloud wind and half-heading parallax now retain fractions at camera-step boundaries, with 72 actual browser sequences at 0.5\u2013240 Hz, irregular frames, flyby pause and GPU substep motion. The original rounded leaf remains executable-compared. Terrain perimeter/clipping and full presentation scheduling remain open; this compatibility correction earns no additional native credit.",
               "evidence": [
                 "scripts/check-native-clouds.py",
                 "scripts/check-browser-sky.mjs",
@@ -658,6 +658,21 @@
               "status": "missing",
               "note": "Isolated comparisons do not establish whole-frame fidelity.",
               "evidence": []
+            },
+            {
+              "id": "graphics.raster.unit-trails",
+              "title": "Follower footprint history, density and close-terrain palette rendering",
+              "status": "verified",
+              "note": "Complete native emitter/storage calls cover 75,616 allocations, both seams, 1,500-mark cell saturation and global ring reuse; original linked-stain texture generation is independently compared. Live walking/carrying adds marks at elapsed animation cadence. Actual right-click movement, 236 changed ground pixels and exact full/partial GPU equality pass. Complete animation ownership/visibility catch-up and 16-pixel cache/settings remain with their unfinished requirements.",
+              "evidence": [
+                "app/footprints.ts",
+                "app/terrain-texture.ts",
+                "scripts/check-native-footprints.py",
+                "scripts/check-native-terrain-texture.py",
+                "tests/footprints.test.mjs",
+                "tests/fixtures/footprints.json",
+                "scripts/check-browser-footprints.mjs"
+              ]
             }
           ]
         },
@@ -740,7 +755,7 @@
             "scripts/check-browser-blast-impact.mjs",
             "references/performance/2026-09-10-blast-impact.json"
           ],
-          "note": "Original frames, grounding, nine-turn lifetime and impact cues integrated. Original three-pass force controller now drives live Blast and terrain collapse. Native checks cover 256 indexed passes and 512 damage calls; live flight reuses the compared physics driver and original landing sparks. Launch poses are imported from animation row 2. Full mixed-class scheduling, shake rendering, allocation limits, ordinary state ownership and matched original footage remain open. Corrected early projectile-head disappearance, endpoint placement and missing effect-78 scatter. Native active-list execution and live checks retain head on arrival, impact on the next visit, enemy impulses on the first wave pass and allied impulses on the last. Attached artwork shares follower elapsed-time interpolation; portable 5–240 Hz/irregular schedules and actual browser pixels/pause/launch order pass. The oracle supplies allocation/deletion/person bodies; complete native scheduling remains open. This bounded correction adds no separate parity credit."
+          "note": "Original frames, grounding, nine-turn lifetime and impact cues integrated. Original three-pass force controller now drives live Blast and terrain collapse. Native checks cover 256 indexed passes and 512 damage calls; live flight reuses the compared physics driver and original landing sparks. Launch poses are imported from animation row 2. Full mixed-class scheduling, shake rendering, allocation limits, ordinary state ownership and matched original footage remain open. Corrected early projectile-head disappearance, endpoint placement and missing effect-78 scatter. Native active-list execution and live checks retain head on arrival, impact on the next visit, enemy impulses on the first wave pass and allied impulses on the last. Attached artwork shares follower elapsed-time interpolation; portable 5\u2013240 Hz/irregular schedules and actual browser pixels/pause/launch order pass. The oracle supplies allocation/deletion/person bodies; complete native scheduling remains open. This bounded correction adds no separate parity credit."
         },
         {
           "id": "effects.lightning",
@@ -830,7 +845,7 @@
                 "tests/fixtures/building-exits.json",
                 "references/performance/2026-09-10-building-exits.json"
               ],
-              "note": "Bounded occupant panic: native state-26 initializer/controller, 65-step duration, shared motion and original animation/owned PCM cues, four building orientations and 5–240 Hz outcomes. Exit restoration and rotated anchor/facing now share the native occupancy reconstruction (538 portable captures); full ordinary-command/slot ownership remains adapted; nearby ignition/propagation are separate open work."
+              "note": "Bounded occupant panic: native state-26 initializer/controller, 65-step duration, shared motion and original animation/owned PCM cues, four building orientations and 5\u2013240 Hz outcomes. Exit restoration and rotated anchor/facing now share the native occupancy reconstruction (538 portable captures); full ordinary-command/slot ownership remains adapted; nearby ignition/propagation are separate open work."
             },
             {
               "id": "effects.fire.trails",
@@ -961,7 +976,7 @@
               "id": "interface.hud.spell-art",
               "title": "Spell-button artwork, stock markers and charge fills",
               "status": "verified",
-              "note": "Compared ready/inactive/hover artwork, permanent/reward/selected borders, 1–4-shot positions and layered charge fills: 763 native calls and 24 browser art states. Supported-spell mana-cost ordering and live charging checked. Full slot dispatch and sparks are separate.",
+              "note": "Compared ready/inactive/hover artwork, permanent/reward/selected borders, 1\u20134-shot positions and layered charge fills: 763 native calls and 24 browser art states. Supported-spell mana-cost ordering and live charging checked. Full slot dispatch and sparks are separate.",
               "evidence": [
                 "app/spell-button.ts",
                 "scripts/check-native-spell-button.py",
@@ -1046,7 +1061,7 @@
               "id": "interface.hud.minimap-terrain",
               "title": "Minimap terrain palette, toroidal scroll and camera rotation",
               "status": "verified",
-              "note": "Original height/cliff palette, vertical orientation, snapped camera-relative toroidal scrolling and sine-table quad rotation are integrated. 64 complete native paths compare 1,816,872 indexed pixels and 256 UV vertices. 24 live-browser terrain RGBA hashes and submitted transforms match native routines at six desktop sizes through ultrawide/4K; legacy wrapped pixels match the original buffer. Beyond 256×256, dense browser rows intentionally preserve the verified scroll without the native allocation limit. Browser terrain edits invalidate the cache. Complete frame/padding/resampling fidelity, fog reveal ownership, object markers and native click dispatch remain in their separate unfinished requirements.",
+              "note": "Original height/cliff palette, vertical orientation, snapped camera-relative toroidal scrolling and sine-table quad rotation are integrated. 64 complete native paths compare 1,816,872 indexed pixels and 256 UV vertices. 24 live-browser terrain RGBA hashes and submitted transforms match native routines at six desktop sizes through ultrawide/4K; legacy wrapped pixels match the original buffer. Beyond 256\u00d7256, dense browser rows intentionally preserve the verified scroll without the native allocation limit. Browser terrain edits invalidate the cache. Complete frame/padding/resampling fidelity, fog reveal ownership, object markers and native click dispatch remain in their separate unfinished requirements.",
               "evidence": [
                 "app/minimap.ts",
                 "app/minimap-renderer.ts",
@@ -1602,7 +1617,7 @@
                 "scripts/check-browser-melee.mjs",
                 "references/performance/2026-09-10-melee-decisions.json"
               ],
-              "note": "30,240 original decision-block cases plus live ready/busy group damage, preserved defender actions, browser combat sprites and 5–240 Hz replay. Full controller and leaving-target order handoff remain in the lifecycle requirement."
+              "note": "30,240 original decision-block cases plus live ready/busy group damage, preserved defender actions, browser combat sprites and 5\u2013240 Hz replay. Full controller and leaving-target order handoff remain in the lifecycle requirement."
             },
             {
               "id": "combat.melee.recovery",
@@ -1616,7 +1631,7 @@
                 "scripts/check-browser-melee.mjs",
                 "references/performance/2026-09-10-melee-recovery.json"
               ],
-              "note": "405 original action/recoil traces, 384 knockback entries and shared native physics comparisons; live slope settling, poses/sounds, cell/HP handoff, recentering and 5–240 Hz/irregular replay. Global grouping, approach RNG, relocation, damage modifiers and order ownership remain separate."
+              "note": "405 original action/recoil traces, 384 knockback entries and shared native physics comparisons; live slope settling, poses/sounds, cell/HP handoff, recentering and 5\u2013240 Hz/irregular replay. Global grouping, approach RNG, relocation, damage modifiers and order ownership remain separate."
             },
             {
               "id": "combat.melee.placement",
@@ -1652,7 +1667,7 @@
                 "scripts/bench-melee-motion.mjs",
                 "references/performance/2026-09-10-melee-approach.json"
               ],
-              "note": "4,096 original approach/ready blocks and 96 x 16-turn composed original control/preparation/physics trajectories match the actual live adapter. Speed RNG, signed arrival boundaries, stopped/outer facing, route release, collision, slope motion, retained cells/height and cargo animation verified; original group/allocation/counter ownership and post-arrival attack selection remain separate. Portable 5–240 Hz and irregular replay, live eight-direction arrival/recoil, browser sprites and measured on-demand reconciliation."
+              "note": "4,096 original approach/ready blocks and 96 x 16-turn composed original control/preparation/physics trajectories match the actual live adapter. Speed RNG, signed arrival boundaries, stopped/outer facing, route release, collision, slope motion, retained cells/height and cargo animation verified; original group/allocation/counter ownership and post-arrival attack selection remain separate. Portable 5\u2013240 Hz and irregular replay, live eight-direction arrival/recoil, browser sprites and measured on-demand reconciliation."
             },
             {
               "id": "combat.melee.targets",
@@ -1671,7 +1686,7 @@
                 "references/reverse-engineering.md",
                 "references/modern-performance.md"
               ],
-              "note": "2,048 complete native mixed-object threat scans and 2,048 complete ordinary area selectors match target/type and all reservation fields, including stable distance bands, class priorities, 64-candidate cap, fight admission test and saturated fallback. Live people/building/fight selection, squad distribution, persistent attacks, original poses and 5–240 Hz replay verified. Native special classes/plan variants are primitive-only; full automatic order allocation/sharing/restoration, complete prefight/group cleanup and mixed-class allocation/cell-order ownership remain lifecycle work."
+              "note": "2,048 complete native mixed-object threat scans and 2,048 complete ordinary area selectors match target/type and all reservation fields, including stable distance bands, class priorities, 64-candidate cap, fight admission test and saturated fallback. Live people/building/fight selection, squad distribution, persistent attacks, original poses and 5\u2013240 Hz replay verified. Native special classes/plan variants are primitive-only; full automatic order allocation/sharing/restoration, complete prefight/group cleanup and mixed-class allocation/cell-order ownership remain lifecycle work."
             },
             {
               "id": "combat.melee.encounter",
@@ -1683,7 +1698,7 @@
                 "scripts/check-browser-encounter.mjs",
                 "references/reverse-engineering.md"
               ],
-              "note": "Verified bounded ordinary outdoor phases 4–8: 4,096 native comparisons, original poses/timers/RNG/impulses, game-flag bypass, cancellation and live brave/warrior/shaman physics/handoff at 5–240 Hz. Building encounters, exact trigger/allocator phase, mixed groups, specialist classes and full queue restoration remain lifecycle work."
+              "note": "Verified bounded ordinary outdoor phases 4\u20138: 4,096 native comparisons, original poses/timers/RNG/impulses, game-flag bypass, cancellation and live brave/warrior/shaman physics/handoff at 5\u2013240 Hz. Building encounters, exact trigger/allocator phase, mixed groups, specialist classes and full queue restoration remain lifecycle work."
             },
             {
               "id": "combat.melee.lifecycle",
@@ -1739,7 +1754,7 @@
                 "scripts/check-browser-building-combat.mjs",
                 "references/performance/2026-09-10-building-combat.json"
               ],
-              "note": "Native range/eligibility, target selection/reservations, outdoor encounter, ordinary melee damage, reinforcement and cleanup have bounded native and live checks. Staged command dependencies now cover pursuit/setup/area checks (12,288 comparisons), waiting positions (1,024), fight/person/housed/busy/retry branches (12,288), search/start/automatic retarget front halves (8,192), exact approach-point query (1,024), plan attacks (10,624) and completed-building attacks (16,305). Building evidence includes 64 sequences and 361 portable captures with real geometry, recovery, animation, RNG, damage and shaking; route, occupant, encounter, audio and reservation consumers are supplied. These staged ports do not replace live ordinary command ownership. Real command-19/21 queue integration/restoration, plan destruction, defender traversal/removal and building encounters, ranged/specialist phases, allocation limits and mixed-class scheduling remain unfinished. No saved browser-task replay or additional whole-lifecycle credit. Live completed-building assault now integrates native approach/entry, work poses, damage accumulation, shaking, defender ejection and outdoor combat. An actual shared-pool command-19 record survives the fight and resumes the assault; cancellation/death release it. Compared 8192 outdoor/building encounter calls, 16305 attack/helper calls and 1024 building prefixes; live destruction by all playable classes, retained-order recovery, 5–240 Hz replay and browser pixels/input/pause pass. Full command-19/21 selection/sharing, other queued work/movement, plans, special targets and native allocation/scheduling remain unfinished; this bounded integration does not complete the lifecycle gate."
+              "note": "Native range/eligibility, target selection/reservations, outdoor encounter, ordinary melee damage, reinforcement and cleanup have bounded native and live checks. Staged command dependencies now cover pursuit/setup/area checks (12,288 comparisons), waiting positions (1,024), fight/person/housed/busy/retry branches (12,288), search/start/automatic retarget front halves (8,192), exact approach-point query (1,024), plan attacks (10,624) and completed-building attacks (16,305). Building evidence includes 64 sequences and 361 portable captures with real geometry, recovery, animation, RNG, damage and shaking; route, occupant, encounter, audio and reservation consumers are supplied. These staged ports do not replace live ordinary command ownership. Real command-19/21 queue integration/restoration, plan destruction, defender traversal/removal and building encounters, ranged/specialist phases, allocation limits and mixed-class scheduling remain unfinished. No saved browser-task replay or additional whole-lifecycle credit. Live completed-building assault now integrates native approach/entry, work poses, damage accumulation, shaking, defender ejection and outdoor combat. An actual shared-pool command-19 record survives the fight and resumes the assault; cancellation/death release it. Compared 8192 outdoor/building encounter calls, 16305 attack/helper calls and 1024 building prefixes; live destruction by all playable classes, retained-order recovery, 5\u2013240 Hz replay and browser pixels/input/pause pass. Full command-19/21 selection/sharing, other queued work/movement, plans, special targets and native allocation/scheduling remain unfinished; this bounded integration does not complete the lifecycle gate."
             }
           ]
         },
@@ -1948,7 +1963,7 @@
                 "references/performance/2026-09-10-housing-entry.json",
                 "references/reverse-engineering.md"
               ],
-              "note": "Bounded first-mission house approach/entry: native command 8, actual outside-to-interior movement and alternate-turn 112-unit threshold, mode-0 hide/cell removal and scoped command release. Three hut sizes/four orientations, capacity, cancellation/panic/re-planning and 5–240 Hz state equality checked; real browser input and visible GPU sprites verified. Full global order/slot/class ownership and training/tower admission remain separate incomplete requirements."
+              "note": "Bounded first-mission house approach/entry: native command 8, actual outside-to-interior movement and alternate-turn 112-unit threshold, mode-0 hide/cell removal and scoped command release. Three hut sizes/four orientations, capacity, cancellation/panic/re-planning and 5\u2013240 Hz state equality checked; real browser input and visible GPU sprites verified. Full global order/slot/class ownership and training/tower admission remain separate incomplete requirements."
             },
             {
               "id": "economy.housing.occupancy",
@@ -1993,7 +2008,7 @@
               "id": "economy.housing.tower-entry",
               "title": "Ordinary guard-tower admission, raised occupants and exit restoration",
               "status": "verified",
-              "note": "Bounded ordinary tower admission for live braves, warriors and shamans: native command-8 approach/capacity, tribe/orientation sockets and height, state-21 pose/hold, ground-cell membership and non-teleporting exit. Compared 3792 native socket calls, 2048 pose calls and 512 additional state initializers; shared occupancy/physics regressions pass. Blue/red, four orientations, capacity/destruction and 5–240 Hz equality checked; actual right-click browser entry/exit, imported pose, elevated GPU pixels and roof occlusion verified. Tower selection panels, specialist attacks/spells, territory/reveal, AI reassignment and full native scheduler/command ownership remain unfinished. No exact all-view original raster claim.",
+              "note": "Bounded ordinary tower admission for live braves, warriors and shamans: native command-8 approach/capacity, tribe/orientation sockets and height, state-21 pose/hold, ground-cell membership and non-teleporting exit. Compared 3792 native socket calls, 2048 pose calls and 512 additional state initializers; shared occupancy/physics regressions pass. Blue/red, four orientations, capacity/destruction and 5\u2013240 Hz equality checked; actual right-click browser entry/exit, imported pose, elevated GPU pixels and roof occlusion verified. Tower selection panels, specialist attacks/spells, territory/reveal, AI reassignment and full native scheduler/command ownership remain unfinished. No exact all-view original raster claim.",
               "evidence": [
                 "app/live-building-entry.ts",
                 "app/building-shapes.ts",
@@ -2050,7 +2065,7 @@
                 "tests/game.test.mjs",
                 "references/performance/2026-09-10-training.json"
               ],
-              "note": "Bounded first-mission warrior cycle: five visible residents, native rotated queue sockets/priority/admission delay, physical slot reuse, original funding and whole-batch replacement; exit orders apply native coast/building correction before actual movement. Native comparisons, four-orientation/cancellation/5–240 Hz checks, complete mission and real browser sprite/input checks pass. Other schools, special paths, global allocation/order ownership and native training UI remain separate unfinished requirements."
+              "note": "Bounded first-mission warrior cycle: five visible residents, native rotated queue sockets/priority/admission delay, physical slot reuse, original funding and whole-batch replacement; exit orders apply native coast/building correction before actual movement. Native comparisons, four-orientation/cancellation/5\u2013240 Hz checks, complete mission and real browser sprite/input checks pass. Other schools, special paths, global allocation/order ownership and native training UI remain separate unfinished requirements."
             },
             {
               "id": "economy.training.schools",
@@ -2116,7 +2131,7 @@
               "id": "economy.repair.dismantling",
               "title": "Ordinary warrior-hut dismantling, workers and timber recovery",
               "status": "verified",
-              "note": "Ordinary warrior-hut activation/cancellation, reassigned residents/queued braves, worker phases, timber recovery and model stages. 2,048 complete command-10 comparisons, 128 activation calls without residents, 64 panel input cases, four-orientation live scenarios and 5–240 Hz deterministic results pass. Actual browser input covers five residents plus three queued braves, original work sprite frames, no teleport, staged removal, all eight timber recovered and cancellation. Full native allocator/command-completion ownership, special structures/extra slots and incomplete-plan UI restart after cancellation remain separate unfinished scope.",
+              "note": "Ordinary warrior-hut activation/cancellation, reassigned residents/queued braves, worker phases, timber recovery and model stages. 2,048 complete command-10 comparisons, 128 activation calls without residents, 64 panel input cases, four-orientation live scenarios and 5\u2013240 Hz deterministic results pass. Actual browser input covers five residents plus three queued braves, original work sprite frames, no teleport, staged removal, all eight timber recovered and cancellation. Full native allocator/command-completion ownership, special structures/extra slots and incomplete-plan UI restart after cancellation remain separate unfinished scope.",
               "evidence": [
                 "app/building-dismantle.ts",
                 "app/live-building-entry.ts",
@@ -2214,7 +2229,7 @@
             "scripts/check-browser-blast-impact.mjs",
             "references/performance/2026-09-10-blast-impact.json"
           ],
-          "note": "Integrated original expanding indexed wave, repeated slope-sensitive impulses, allied final-pass/cap gates, native building damage accumulation, shielded person damage, velocity/gravity/bounce/landing and original landing sparks. Native comparisons: 256 wave passes, 512 damage calls, 8192 physics snapshots and 4096 bounces. Full object/cell allocation order, person state dispatch, shake rendering, special/vehicle consumers, complete damage feedback and original end-to-end scheduling remain open. Corrected early projectile-head disappearance, endpoint placement and missing effect-78 scatter. Native active-list execution and live checks retain head on arrival, impact on the next visit, enemy impulses on the first wave pass and allied impulses on the last. Attached artwork shares follower elapsed-time interpolation; portable 5–240 Hz/irregular schedules and actual browser pixels/pause/launch order pass. The oracle supplies allocation/deletion/person bodies; complete native scheduling remains open. This bounded correction adds no separate parity credit."
+          "note": "Integrated original expanding indexed wave, repeated slope-sensitive impulses, allied final-pass/cap gates, native building damage accumulation, shielded person damage, velocity/gravity/bounce/landing and original landing sparks. Native comparisons: 256 wave passes, 512 damage calls, 8192 physics snapshots and 4096 bounces. Full object/cell allocation order, person state dispatch, shake rendering, special/vehicle consumers, complete damage feedback and original end-to-end scheduling remain open. Corrected early projectile-head disappearance, endpoint placement and missing effect-78 scatter. Native active-list execution and live checks retain head on arrival, impact on the next visit, enemy impulses on the first wave pass and allied impulses on the last. Attached artwork shares follower elapsed-time interpolation; portable 5\u2013240 Hz/irregular schedules and actual browser pixels/pause/launch order pass. The oracle supplies allocation/deletion/person bodies; complete native scheduling remains open. This bounded correction adds no separate parity credit."
         },
         {
           "id": "spells.lightning",
@@ -2277,7 +2292,7 @@
                 "references/performance/2026-09-10-lightning-strike.json",
                 "references/reverse-engineering.md"
               ],
-              "note": "512 additional original shared state-44 initializers and 2304 actual person-dispatch calls cover all models and byte phases. Live victims retain native sprite state, enter the row-27 pose on visit 2 and hand off to state 3 on visit 18. GPU pose/cleanup and 5–240 Hz/irregular schedules checked. Full post-handoff corpse lifecycle is separate."
+              "note": "512 additional original shared state-44 initializers and 2304 actual person-dispatch calls cover all models and byte phases. Live victims retain native sprite state, enter the row-27 pose on visit 2 and hand off to state 3 on visit 18. GPU pose/cleanup and 5\u2013240 Hz/irregular schedules checked. Full post-handoff corpse lifecycle is separate."
             },
             {
               "id": "spells.lightning.secondary",
@@ -2361,7 +2376,7 @@
                 "references/performance/2026-09-10-land-bridge.json",
                 "references/reverse-engineering.md"
               ],
-              "note": "96 complete native lifetimes/6048 turns compare all heights, ordered vertex visits, trail positions, notifications and controller state across directions, seams, same-cell and long crossings. A real UI cast replays all 63 terrain/controller turns through original terrain queue/processing; 5–240 Hz and irregular schedules agree. This bounded gate is height evolution, not full cast/object lifecycle."
+              "note": "96 complete native lifetimes/6048 turns compare all heights, ordered vertex visits, trail positions, notifications and controller state across directions, seams, same-cell and long crossings. A real UI cast replays all 63 terrain/controller turns through original terrain queue/processing; 5\u2013240 Hz and irregular schedules agree. This bounded gate is height evolution, not full cast/object lifecycle."
             },
             {
               "id": "spells.terrain.bridge-lifecycle",
