@@ -1,11 +1,13 @@
 import rules from './original-rules.json' with { type: 'json' }
-import { movePosition } from './native-math.ts'
+import { movePosition, nativeAngle, random } from './native-math.ts'
 import {
   personStepCollision,
   type CollisionPerson,
   type CollisionWorld,
 } from './person-collision.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
+
+const short = (n: number) => (n << 16) >> 16
 
 interface Point {
   x: number
@@ -71,4 +73,28 @@ export function relocateFight(w: FightPlacementWorld, fight: FightSite, force = 
   } finally {
     endIndexedSearch(w.search, search)
   }
+}
+
+// 0x51f750: seek a free position on the 448-unit ring around a full fight.
+// The second pass starts at a random angle and permits occupied positions.
+// occupied must test exact XY against all objects except the supplied person ID.
+export function fightWaitingPosition(
+  w: Pick<FightPlacementWorld, 'collision' | 'occupied'> & { randomState: number },
+  person: CollisionPerson & Point & { id: number },
+  center: Point
+) {
+  for (let pass = 0; pass < 2; pass++) {
+    const angle = pass
+      ? (random(w) & 31) << 6
+      : nativeAngle(short(person.x - center.x), -short(person.y - center.y)) & ~63
+    for (let i = 1; i <= 32; i++) {
+      const to = { x: center.x, y: center.y }
+      const offset = Math.trunc(i / 2) * (i & 1 ? -64 : 64)
+      movePosition(to, (angle + offset) & 2047, 448)
+      // Native computes a height here, but collision and occupancy only read XY.
+      if (personStepCollision(w.collision, person, to)) continue
+      if (pass || !w.occupied(to, person.id)) return to
+    }
+  }
+  return { x: center.x, y: center.y }
 }

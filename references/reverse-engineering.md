@@ -6006,3 +6006,75 @@ visit/counter phase, building encounters and specialist classes remain open.
 Cleanup still runs at existing browser turn boundaries; primitive wrap coverage
 does not remove the current live terrain-crop limit. No additional complete melee
 lifecycle percentage credit is claimed.
+
+## 2026-09-10 — complete attack-order pursuit dependencies
+
+Continuing the real command-19/21 migration, `app/combat-pursuit.ts` now reconstructs
+three complete native dependencies, rather than just the previously integrated
+destination-refresh predicate:
+
+- `00439850`: assignment-bit entry, recovery speed/animation/RNG, destination and
+  wrapped facing; target allocation/deletion and vehicle eligibility; signed
+  16-bit timeout; destination refresh and arrival; blocked-route result overriding
+  prior outcomes. Results are moving/arrived/lost/blocked (0/1/2/3). The caller
+  initializes the timer. Zero decrements to -1; it is not a pre-decrement timeout.
+  Arrival uses strict signed-axis comparisons against radius+56. Entry facing
+  wraps coordinate differences, while destination/arrival comparisons do not.
+- `00520300`: selected-target motion setup. Ordinary classes recover movement and
+  request vehicle travel toward the command position. Ranged followers face their
+  target, check firing readiness and either stop, retain moving-vehicle motion,
+  abandon a nearby/unusable pursuit or recover movement. Assignment bit 8 clears
+  before any consumer; original consumer order and RNG remain intact.
+- `00438af0`: attack-area eligibility. Vehicle readiness, explicit target versus
+  packed-area center, destination override, per-axis area extent, the original
+  flag-4 range and ranged-class circle length all retain their distinct behavior.
+
+`fightWaitingPosition` in `app/melee-placement.ts` reconstructs complete `0051f750`.
+It searches a 448-native-unit ring around the fight in alternating 64-angle steps,
+starting toward the arriving follower. Pass one excludes any other object at the
+exact candidate XY. Only after all 32 positions fail does it draw one random
+starting angle; pass two permits occupancy. Both passes retain original collision
+checks. Failure returns the fight center. This is a position query, not movement.
+
+Evidence:
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-combat-pursuit.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-melee-placement.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/combat-pursuit.test.mjs
+```
+
+The new pursuit oracle executes 4,096 calls per dependency (12,288 total), comparing
+all tracked person fields, return results, RNG and ordered consumer snapshots.
+Original recovery/stop animation selection, facing and RNG execute directly;
+animation submission, destinations, vehicle/ranged readiness and range lookup are
+supplied world consumers. It covers all nine model records, flags, signed timer
+and coordinate boundaries, missing/deleted targets, cancellation/failure precedence
+and cargo/airborne animation selection. Entering with a missing raw target pointer
+is a native invalid-memory path and is rejected explicitly by the TS port.
+333 portable captures retain the executable identity.
+
+The expanded placement oracle executes 1,024 waiting queries in addition to the
+existing 2,048 placement/relocation cases. No native consumers are replaced: original
+terrain, collision, trigonometry, object-cell traversal and RNG all run. Cases
+include wrapped coordinates, restrictions, walk-mask failures, a first candidate
+occupied by another object, and all 32 first-pass positions occupied. Portable
+waiting captures retain coordinates and RNG without copying irrelevant height data.
+
+The original waiting search calculates a height for each candidate, then passes it
+to `005178d0`, which only reads XY. No subsequent consumer observes that candidate
+height. The modern query skips those calculations: **0 versus 16,401** height queries
+for the 1,024 equivalent waiting cases. This is an operation-count proof, not a
+hardware timing or full-frame speedup claim.
+
+These are reviewed dependencies for the original order controller, **not yet live
+command ownership/restoration**. `0051a2a0` is the shared command-19/21 body; its
+Ghidra switch labels in `00432590` are offsets from command 3, not command IDs.
+Its phases cover search (0), fight approach/wait (1), person pursuit (2), building
+attack (3), plan approach/destruction (4/5), housed-person approach (6), retry wait
+(7), busy-encounter wait (8), ranged attacks (10/11) and special-target wait (12).
+Fight approach uses action phases 34/38/39/40; building attack uses
+23/30/31/37/46/52/53. The full body and queue/world consumers must be composed before
+replacing the live adapter. Reuse the existing shared `buildingOrders` pool and
+person-order startup/update/advance primitives; do not add a second combat pool or
+saved browser-task replay. No complete lifecycle credit or visible change is claimed.

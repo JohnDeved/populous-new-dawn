@@ -1757,3 +1757,18 @@ turn/RNG replay remains identical at 5–240 Hz and irregular frame intervals.
 Fallow remains 85.5 maintainability, average cyclomatic 2.7/p90 5, twelve existing
 cycles. The pure cleanup module has no ox-standard findings; broader legacy
 adapter lint debt remains, and is not reported as a clean repository-wide lint.
+
+## 2026-09-10 — remove unused work from native reinforcement positioning
+
+The reconstructed `0051f750` waiting-position query retains native ring traversal,
+collision, occupancy, fallback and RNG. The original calculates each candidate's
+height before collision, but collision only reads XY and the query returns XY.
+The modern implementation omits that unused calculation. The full native oracle
+executes without replaced consumers and confirms equal results: **0 browser versus
+16,401 native height queries** across 1,024 waiting scenarios, including occupied
+rings, wrapped positions, terrain restrictions and complete failure.
+
+This is a proven reduction in query work, not a measured hardware/frame-time gain.
+The query and complete pursuit dependencies await integration into the live
+command-19/21 controller. The current published game retains its existing adapter;
+no new live performance or visual-parity claim is made for these staged ports.

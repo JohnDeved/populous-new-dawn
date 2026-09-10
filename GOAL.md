@@ -1458,3 +1458,17 @@ then first-mission campaign attacks and visible spell behavior. Do not substitut
 saved browser-task snapshots for the original queue. Global class scheduling,
 allocator limits, building encounters and specialist classes remain unfinished.
 The melee lifecycle stays partial; these verified parts do not complete its gate.
+
+### In progress: original attack-order controller and shared queues
+
+Complete pursuit entry/update (`00439850`), selected-target setup (`00520300`),
+area eligibility (`00438af0`) and full-fight waiting-position search (`0051f750`)
+are now reconstructed and compared directly against the executable. The waiting
+query removes unused native height calculations with equivalent positions and RNG.
+These dependencies are not yet connected to ordinary live command ownership.
+
+Continue the real `0051a2a0` command-19/21 phases and compose them with existing
+startup/update/advance helpers and the shared order pool. Preserve actual queued
+movement/work through combat and restore it through native completion. Do not add
+another pool or approximate task snapshots. Then proceed to campaign attacks and
+visible spell behavior. Full game scope and partial lifecycle status remain intact.
