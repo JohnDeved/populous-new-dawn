@@ -76,7 +76,7 @@ function combatWorld(w: World, source: CombatPerson, range: number) {
         ...reservation(fight),
         id: fight.id,
         class: 10,
-        model: 8,
+        model: fight.encounter ? 9 : 8,
         tribe: -1,
         flags2: 0,
         members: [...fight.members, ...Array(Math.max(0, 6 - fight.members.length)).fill(0)],

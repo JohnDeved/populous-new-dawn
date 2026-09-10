@@ -1,5 +1,6 @@
 import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
 import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
+import { stepMeleeEncounter } from './melee-encounter.ts'
 import { nativePersonModel } from './live-combat.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
@@ -344,6 +345,8 @@ function initializeLivePerson(
     throw new Error('Legacy handoff contains an unowned native assignment')
   }
   initializePersonState(initWorld, p, {
+    encounter: () => initializeGroundCombat(w, p),
+    fight: () => initializeGroundCombat(w, p),
     celebrate: () => stepCelebration(state, p, effects),
     setAnimation: (p, o) => effects.animation(p as LivePerson, o, true),
     releaseMotion: p => effects.releaseMotion(p as LivePerson),
@@ -452,6 +455,49 @@ function createMeleePerson(w: World, u: Unit) {
   return p
 }
 
+// 0x518480; currently playable classes need no spy-disguise consumer. Ordinary
+// outdoor fight entry also uses this grounding after releasing its old work.
+function initializeGroundCombat(w: World, p: LivePerson) {
+  p.flags4 = (p.flags4 & ~0x400) >>> 0
+  p.h = terrainPointHeight(w.land, p)
+  p.flags2 = (p.flags2 | 0x40200200) >>> 0
+  p.substate = 0
+}
+
+export function enterLiveCombat(w: World, u: Unit, state: 25 | 29) {
+  const p = u.fight?.motion ?? createLivePerson(w, u)
+  const flags = p.flags4 & 0x10007
+  if (!(p.flags2 & 0x100000)) {
+    p.previousState = p.state
+    p.state = state
+    const ctx = context(w)
+    initializeLivePerson(w, u, ctx, p)
+    w.randomState = ctx.state.randomState
+  }
+  if (state === 29) p.flags4 = (p.flags4 | flags) >>> 0
+  return p
+}
+
+export function stepLiveEncounter(w: World, attacker: Unit, defender: Unit) {
+  const state = {
+    randomState: w.randomState,
+    gameFlags: w.manaWorld.gameFlags,
+    routes: w.motionRoutes,
+  }
+  const outcome = stepMeleeEncounter(state, attacker.fight!.motion!, defender.fight!.motion!, {
+    animation: (p, object) => setLivePersonAnimation(w, p as LivePerson, object),
+    height: (x, y) => terrainPointHeight(w.land, { x, y }),
+    sound: (p, cue) => sound(w, cue, browserPosition(p)),
+  })
+  w.randomState = state.randomState
+  for (const u of [attacker, defender]) {
+    const p = u.fight!.motion!
+    u.heading = Math.PI - (p.angle * Math.PI) / 1024
+    if (p.flags2 & 0x80000) u.flight = p
+  }
+  return outcome
+}
+
 // 0x518fb0 substate 7: keep the recoil pose and let shared physics own the slide.
 export function startMeleeKnockback(w: World, u: Unit) {
   const p = u.fight?.motion ?? createMeleePerson(w, u)
@@ -509,7 +555,7 @@ export function stepLiveMeleeMotion(w: World, u: Unit) {
   const p = u.fight!.motion!
   stepLivePhysics(w, u, p)
   if (p.flags2 & 0x80000) u.flight = p
-  if (p.state !== 25) u.fight = null
+  if (p.state !== 25 && p.state !== 29) u.fight = null
 }
 
 function registerLivePerson(w: World, p: LivePerson) {

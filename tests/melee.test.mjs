@@ -253,11 +253,12 @@ test('sliding recoil, native animation and recovery are independent of render ca
   assert.deepEqual(run(Array.from({length: 20}, () => [.01, .09]).flat()), baseline, 'irregular frames')
 })
 
-test('shamans and the native level flag suppress ordinary attack knockback', () => {
+test('shamans and the native game flag suppress ordinary attack knockback', () => {
   for (const kind of ['brave', 'warrior', 'shaman']) for (const flags of [0, 64]) {
     const { w, defender, attacker } = group(kind, 0, 2)
     defender.fight.action = 'ready'
-    w.manaWorld.levelFlags |= flags
+    w.manaWorld.gameFlags |= flags
+    w.manaWorld.levelFlags = flags ? 0 : 64 // Separate flags must not suppress recoil.
     tick(w, 1 / 12)
     assert.equal(defender.fight.action, 'attack')
     assert.equal(attacker.fight.action, 'recoil')

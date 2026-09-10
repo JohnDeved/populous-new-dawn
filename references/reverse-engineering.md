@@ -5787,3 +5787,51 @@ The routing readability cleanup also passes 18,432 native release/attachment,
 reuse, point, vehicle and destination comparisons plus 8,192 failed-cache/build/
 composed-plan comparisons. These retain the documented supplied-consumer scope
 of `check-native-person-routes.py` and `check-native-route-build.py`.
+
+## Outdoor encounter before melee (2026-09-10)
+
+Recovered `00518630` phases 4–8 now run in `app/melee-encounter.ts` for ordinary
+outdoor brave/warrior/shaman encounters. `0051e150` supplies the immediate first
+visit, attacker approach/defender wait and state-29 ownership; `00518480` supplies
+ordinary grounding. The attacker approaches at the `004d5010` running speed
+(physics-record offset +6), not walking speed +4. The defender faces and waits;
+row-10 attack duration controls row-11 stagger, two separate RNG draws produce
+the slope impulse, cue 13 accompanies completion, and reapproach waits for the
+defender to settle. The wait helper `004d4da0` uses idle rows 21–23. `0051de60`
+supplies defender-first membership, defender-centered placement and RNG % 360
+angle when the encounter hands off to the existing fight controller.
+
+Both skip-intro and ordinary melee knockback suppression read **gameFlags** at
+`0089d17c`, not the separate browser levelFlags field. Confirmed instructions:
+`00518856` and `005195de` test byte `[0089d17c], 0x40`. The old knockback adapter
+used the wrong field; a regression now varies both independently.
+
+Evidence:
+
+- `check-native-melee-encounter.py EXE`: 4,096 complete outdoor controller calls;
+  native animation, running-speed RNG, facing, route and slope callees execute.
+  Terminal deletion/fight allocation and sound submission are observed consumers.
+  Signed positions/timers, 315-unit proximity, cancellation, flags, poses, RNG and
+  ordered sound agree. 142 portable captures are retained for ordinary tests.
+- `check-native-person-state.py EXE`: 7,680 shared state initializers, now including
+  25/29; specialized world bodies remain supplied consumers. Additional 6,624
+  selectors, 1,280 startup cases, 640 speed calls and 128 training handoffs pass.
+- `tests/melee-encounter.test.mjs`: nine playable class pairs, no premature damage,
+  physical displacement, sound, defender-first handoff, cancellation and identical
+  state/animation/sound trajectories at 5/30/60/120/144/240 Hz and irregular timing.
+- Appended brave/warrior stagger and three idle gestures for blue/red owners;
+  shaman gestures reuse original standing source. All old frames/pieces retain
+  their indices/content. Native sprite comparison covers 8,568 complete draws
+  (2,856 frames × three owner paths) and all 3,201 original RGBA pieces. The GPU
+  regression expands from 392 to 520 reviewed poses; shadows/selection also pass.
+- `check-browser-encounter.mjs --headed`: original opening/stagger/idle poses,
+  actual live displacement, sound and completed fight; its first-hit atlas-upload
+  guard detects the rendering stall described in modern-performance.md.
+
+The native oracle does not execute full initial allocation, terminal fight
+creation, building stages 1–3 or global scheduler phase. The live adapter retains
+browser IDs/dispatch and existing admission limits. Queue restoration, mixed-group
+replacement/splitting, specialist classes, housed/vehicle targets and full melee
+lifecycle remain unfinished. Only the explicitly bounded outdoor encounter
+requirement earns credit; discovery remains open. The export manifest has 1,026
+entries, adding `00518480`.

@@ -101,6 +101,7 @@ if len(sys.argv)>2:
     rules['personModels']=[{'nextState':value(0x5a7060+i*50+4,1),'idleState':value(0x5a7060+i*50+5,1),'physics':value(0x5a7060+i*50+6,1),'flags':value(0x5a7060+i*50+48,2),'idleRange':value(0x5a7060+i*50+24,1),'orderedRange':value(0x5a7060+i*50+25,1),'scanMask':value(0x5a7060+i*50+47,1),'fightRank':value(0x5a7060+i*50+23,1),'fightDamage':value(0x5a7060+i*50+27,2)} for i in range(9)]
     rules['engagementHeightFactors']=[value(0x5aa558+i*4) for i in range(8)]
     rules['personSpeeds']=[value(0x5a7b90+i*26+4,2) for i in range(20)]
+    rules['personRunningSpeeds']=[value(0x5a7b90+i*26+6,2) for i in range(20)]
     rules['personTurning']=[value(0x5a7b90+i*26,2) for i in range(20)]
     rules['personVerticalLimits']=[value(0x5a7b90+i*26+10,2) for i in range(20)]
     rules['personImpulseLimits']=[list(struct.unpack('<hh',read(0x5a7b90+i*26+12,4))) for i in range(20)]

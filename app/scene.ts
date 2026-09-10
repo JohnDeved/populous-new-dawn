@@ -144,14 +144,31 @@ const cameraKeys: Record<string, number> = {
 const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 }
 const material = (color: number, extra = {}) =>
   new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra })
-const textures = new Map<string, THREE.Texture>()
+const textures = new Map<string, { texture: THREE.Texture; ready: Promise<boolean> }>()
 function texture(kind: string) {
-  if (textures.has(kind)) return textures.get(kind)!
+  return loadTexture(kind).texture
+}
+function loadTexture(kind: string) {
+  const cached = textures.get(kind)
+  if (cached) return cached
+  let loaded!: (success: boolean) => void
+  const ready = new Promise<boolean>(resolve => {
+    loaded = resolve
+  })
   const t =
     kind === 'lightning-bolt'
       ? new THREE.DataTexture(lightningTexture(), 32, 32)
-      : new THREE.TextureLoader().load(`/original/${kind}.png`)
+      : new THREE.TextureLoader().load(
+          `/original/${kind}.png`,
+          () => loaded(true),
+          undefined,
+          error => {
+            console.error(`Texture load failed: ${kind}`, error)
+            loaded(false)
+          }
+        )
   if (kind === 'lightning-bolt') {
+    loaded(true)
     t.needsUpdate = true
     t.minFilter = THREE.LinearFilter
     t.magFilter = THREE.LinearFilter
@@ -177,8 +194,9 @@ function texture(kind: string) {
     t.magFilter = THREE.NearestFilter
     t.generateMipmaps = false
   }
-  textures.set(kind, t)
-  return t
+  const result = { texture: t, ready }
+  textures.set(kind, result)
+  return result
 }
 function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: number; h: number }) {
   const uv = (sprite.userData.atlasTransform ??= new THREE.Vector4())
@@ -558,6 +576,11 @@ export class GameScene {
       antialias: true,
       alpha: true,
       powerPreference: 'high-performance',
+    })
+    // Upload the shared effects atlas during loading, before the first hit or spell.
+    const effects = loadTexture('effects')
+    void effects.ready.then(loaded => {
+      if (loaded && !this.terrainLoad.signal.aborted) this.renderer.initTexture(effects.texture)
     })
     this.renderer.shadowMap.enabled = false
     this.renderer.shadowMap.type = THREE.PCFShadowMap
@@ -2668,8 +2691,8 @@ export class GameScene {
       if (o instanceof THREE.Sprite) {
         // Atlas images belong to the shared texture cache, not individual particles.
         if (
-          o.material.map !== textures.get('effects') &&
-          o.material.map !== textures.get(nativeUnits.atlas)
+          o.material.map !== textures.get('effects')?.texture &&
+          o.material.map !== textures.get(nativeUnits.atlas)?.texture
         )
           o.material.map?.dispose()
         materials.add(o.material)

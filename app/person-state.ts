@@ -23,14 +23,14 @@ export type StatefulPerson = OrderedPerson & {
   motionTimer: number
   motionMode: number
 }
-export type PersonStateWorld = {
+export interface PersonStateWorld {
   randomState: number
   instantFacing: boolean
   levelFlags: number
   orders: OrderPool
   tribes: { x: number; y: number; angle: number; selectedCount: number; flags: number }[]
 }
-export type PersonStateEffects = {
+export interface PersonStateEffects {
   deselectPassengers: (person: StatefulPerson) => void
   rebuildTrainingQueue: (target: number) => void
   rebuildFormation: (cell: number) => void
@@ -42,6 +42,8 @@ export type PersonStateEffects = {
   idleApproach?: () => void
   resting?: () => void
   occupying?: () => void
+  fight?: () => void
+  encounter?: () => void
 }
 const short = (n: number) => (n << 16) >> 16
 
@@ -189,7 +191,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 21, 26, 36, 39, 41].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 25, 26, 29, 36, 39, 41].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -272,6 +274,10 @@ export function initializePersonState(
     p.assignment |= 1
     p.speed = 0
     effects.occupying()
+  } else if (p.state === 25 || p.state === 29) {
+    const enter = p.state === 25 ? effects.fight : effects.encounter
+    if (!enter) throw new Error(`State ${p.state} requires its combat initializer`)
+    enter()
   } else if (p.state === 26) {
     effects.setAnimation(p, rules.personAnimationObjects[25 * 9 + p.model])
     p.flags4 = (p.flags4 | 128) >>> 0
@@ -360,7 +366,8 @@ export function stepFightRecovery(
     if (p.substate === 0) {
       p.assignment |= 0x200
       p.flags2 = (p.flags2 | 128) >>> 0
-      p.heading = p.turnAngle = nativeAngle(short(target!.x - p.x), -short(target!.y - p.y))
+      p.heading = nativeAngle(short(target!.x - p.x), -short(target!.y - p.y))
+      p.turnAngle = p.heading
       p.angle = p.flags2 & 0x8000 ? (p.heading + 1024) & 2047 : p.heading
       p.substate = 1
       p.flags2 = (p.flags2 | 0x40000000) >>> 0

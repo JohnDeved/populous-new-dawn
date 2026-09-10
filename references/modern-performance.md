@@ -1617,3 +1617,50 @@ and branches. The touched route module has no ox-standard errors; its existing
 local-function-scoping warning remains. Fallow reports maintainability 85.5,
 average cyclomatic 2.7/p90 5 and twelve existing dependency cycles. This cleanup
 does not claim a measured speedup or complete the wider code-health audit.
+
+## 2026-09-10 — outdoor encounters and first-hit upload
+
+Visible original encounter behavior now shares the native route, person-motion,
+animation and RNG helpers. A separate readable phase controller avoids expanding
+the frame loop; there is no new package, per-frame simulation or animation clock.
+Named phases and shared assignment cleanup replace scattered adapter branching.
+Person-state types and a chained facing assignment were simplified while touched.
+
+The new 16-pair encounter-to-melee workload exposed a repeatable **83.6–89.2 ms**
+frame on the first ordinary melee hit. CDP sampling attributed ~75 ms to
+`texSubImage2D`; direct upload instrumentation identified the **2048×4608 effects
+atlas**, with one 74 ms upload during the combat interval. Merely loading its PNG
+had left GPU upload deferred because earlier shadow sprites were hidden.
+
+The shared texture cache now exposes load completion; the scene initializes the
+same effects texture on its renderer during scene loading. Three.js owns the
+GPU resource, caches are reused, failed loads report errors, and disposed scenes
+skip the callback. This moves an unavoidable upload earlier; it does not reduce
+atlas pixels or claim to eliminate loading cost. No native mechanics or effects
+pixels were changed. A browser regression rejects effects-atlas uploads during
+the actual first-hit workload, rather than warming effects in the test itself.
+
+Same headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, six seconds of
+16 new encounters followed by melee, without concurrent builds/checks/app edits:
+
+- Before, instrumented: 1,618 callbacks, CPU p50/p95 **3.0/4.2 ms**, p99 **6.6 ms**,
+  max **83.6 ms**; effects upload **74 ms**. An earlier uninstrumented sample was
+  **1.8/2.5 ms**, max **89.2 ms**; do not interpret median differences as a speedup.
+- After, same upload instrumentation: 1,675 callbacks, CPU p50/p95 **1.8/2.6 ms**,
+  p99 **4.8 ms**, max **11.6 ms**; **zero effects-atlas uploads** in combat.
+  Encounter-bearing frames: 303, p50/p95 **1.4/2.6 ms**, max **5.3 ms**. 178 draws.
+- Existing six-fight workload: p50/p95 **1.5/2.2 ms**, max **6.4 ms**; 104 draws.
+
+Evidence: `performance/2026-09-10-melee-encounter.json` retains distributions,
+worst frames, source/dimensions of uploads and observed encounter poses. These
+sequential bounded samples establish the first-hit stall's source and its removal
+from combat. They do not establish physical display FPS, statistically improved
+steady-state throughput, loading performance or full-game smoothness.
+
+Validation: 228 tests; 4,096 native encounter calls; expanded shared initializer
+comparisons; 520 GPU sprite poses, live shadows/selection, ordinary melee and
+target/pursuit regressions. Outcomes/animations agree at 5–240 Hz and irregular
+schedules. Fallow reports maintainability 85.5, average cyclomatic 2.7/p90 5 and
+12 existing dependency cycles. The encounter and person-state modules pass
+ox-standard; pre-existing live-person warnings remain. Full lifecycle and broader
+hardware/population coverage remain open.

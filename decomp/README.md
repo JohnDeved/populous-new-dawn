@@ -4485,3 +4485,14 @@ destination consumer; they do not establish full command lifecycle parity.
 See `references/reverse-engineering.md` for boundaries and the live checks.
 The manifest now hashes 1,025 exports, retaining associated arrival/fight helpers
 for continuing real command integration.
+
+## 2026-09-10 — outdoor encounters
+
+The manifest hashes 1,026 exports, adding `00518480`. Run
+`check-native-melee-encounter.py EXE` for 4,096 original outdoor `00518630` calls;
+terminal delete/fight creation and sound are observed consumers, while animation,
+running speed, routes and slope impulse execute natively. `--record` refreshes
+portable captures only after native agreement. `check-native-person-state.py EXE`
+now includes generic state-25/29 entry with specialized world bodies supplied.
+`inspect-executable.py` retains the distinct +6 running-speed table. See the
+outdoor-encounter findings for evidence and unported building/command boundaries.

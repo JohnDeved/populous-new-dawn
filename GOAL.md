@@ -1387,3 +1387,20 @@ attacks and visible spell behavior. Entry/speed, pursuit timeout/failure, housed
 and vehicle targets, group admission and normal queue restoration remain open.
 Preserve clean TS, modern hardware performance and the full unfinished game scope;
 the lifecycle requirement remains partial and discovery stays open.
+
+### Current visible integration: original outdoor encounters
+
+Ordinary outdoor combat now plays the native approach, opening strike, stagger,
+physical recoil and reapproach before creating the defender-centered fight.
+The controller uses shared routing, animation, RNG and person physics with named
+phases; its recovered logic is independently compared to the executable. Original
+idle gestures and stagger layers are imported without changing existing poses.
+A measured first-hit texture upload stall was removed by preparing the shared
+atlas during scene loading; no simulation timing or original pixels were traded.
+
+Continue original command ownership/restoration and group admission/splitting,
+then first-mission campaign attacks and visible spell behavior. Building encounter
+phases, allocator/counter phase, specialist classes, whole melee lifecycle and all
+remaining game scope stay open. Keep clean TS, native mechanics and uncapped,
+measured modern rendering together. The prior terrain performance pass is complete;
+do not let another speculative performance rewrite displace visible gameplay.

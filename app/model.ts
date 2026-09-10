@@ -1,3 +1,4 @@
+import { EncounterPhase } from './melee-encounter.ts'
 import { automaticMeleeTarget } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
@@ -16,7 +17,12 @@ import {
 } from './building-workers.ts'
 import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from './building-work.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
-import { faceTribe, personAnimationObject, setPersonAnimationRow } from './person-state.ts'
+import {
+  faceTribe,
+  personAnimationObject,
+  setPersonAnimationRow,
+  stopPersonMovement,
+} from './person-state.ts'
 import { damagePerson } from './person-update.ts'
 import { createBlastWave, stepBlastWave, type BlastWave, type BlastTarget } from './blast-wave.ts'
 import {
@@ -79,6 +85,8 @@ import {
 } from './live-pathfinding.ts'
 import {
   collisionWorld,
+  enterLiveCombat,
+  stepLiveEncounter,
   createLivePerson,
   setLivePersonAnimation,
   initializeLiveCelebration,
@@ -225,7 +233,7 @@ export type Point = { x: number; z: number }
 type Fight = {
   group: number
   opponent: number
-  action: 'approach' | 'ready' | 'attack' | 'strike' | 'special' | 'recoil' | 'push'
+  action: 'encounter' | 'approach' | 'ready' | 'attack' | 'strike' | 'special' | 'recoil' | 'push'
   started: number
   remaining?: number
   animation?: MeleeAttack | 'recoil' | 'walk' | 'idle'
@@ -252,6 +260,7 @@ type Battle = Point & {
   id: number
   members: number[]
   angle: number
+  encounter?: [number, number]
   attackReservation?: AttackReservation
 }
 export type Unit = Point & {
@@ -553,7 +562,7 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   const defending = target.fight?.action === 'ready'
   if (defending && target.fight) {
     const knockback =
-      action === 'attack' && target.kind !== 'shaman' && !(w.manaWorld.levelFlags & 64)
+      action === 'attack' && target.kind !== 'shaman' && !(w.manaWorld.gameFlags & 64)
     target.heading = u.heading + Math.PI
     target.fight = {
       motion: target.fight.motion,
@@ -636,6 +645,7 @@ function relocateBattle(w: World, b: Battle, force = false) {
 function joinBattle(w: World, u: Unit, target: Unit) {
   let b = w.fights.find(b => b.id === target.fight?.group)
   if (b) {
+    if (b.encounter) return // A model-9 encounter already owns both participants.
     if (b.members.length >= 4) return
     const center = w.units.find(a => a.id === b!.members[0])!
     if (u.team === center.team) {
@@ -650,17 +660,77 @@ function joinBattle(w: World, u: Unit, target: Unit) {
     b = {
       id: w.nextId++,
       members: [u.id, target.id],
-      x: u.x,
-      z: u.z,
-      angle: nativeAngle(Math.round((target.x - u.x) * 256), Math.round((target.z - u.z) * 256)),
+      encounter: [u.id, target.id],
+      x: target.x,
+      z: target.z,
+      angle: 0,
     }
     w.fights.push(b)
-    relocateBattle(w, b, true)
-    release(w, target)
-    target.fight = { group: b.id, opponent: u.id, action: 'approach', started: w.turn }
+    for (const [person, opponent, phase] of [
+      [u, target, EncounterPhase.Approach],
+      [target, u, EncounterPhase.Wait],
+    ] as const) {
+      const motion = enterLiveCombat(w, person, 29)
+      release(w, person)
+      motion.substate = phase
+      motion.flags2 = (motion.flags2 | 0x40000000) >>> 0
+      motion.workFlags = b.id
+      person.fight = {
+        group: b.id,
+        opponent: opponent.id,
+        action: 'encounter',
+        started: w.turn,
+        motion,
+      }
+    }
+    // 0x51e150 stops the defender before visiting the encounter immediately.
+    stopPersonMovement(target.fight!.motion!, (_, object) =>
+      setLivePersonAnimation(w, target.fight!.motion!, object)
+    )
+    processEncounter(w, b)
+    return
   }
   release(w, u)
   u.fight = { group: b.id, opponent: target.id, action: 'approach', started: w.turn }
+}
+
+function processEncounter(w: World, b: Battle) {
+  const [attacker, defender] = b.encounter!.map(id => w.units.find(u => u.id === id)!)
+  const outcome = stepLiveEncounter(w, attacker, defender)
+  if (outcome === 'waiting') return
+  if (outcome === 'cancelled') {
+    for (const u of [attacker, defender]) clearFightAssignment(u)
+    b.members = []
+    return
+  }
+  // 0x51de60: the defender becomes the first member and original fight center.
+  // Class allocation order/counter phase still belong to the browser adapter.
+  b.id = w.nextId++
+  b.members = [defender.id, attacker.id]
+  b.x = defender.x
+  b.z = defender.z
+  delete b.encounter
+  for (const [u, target] of [
+    [attacker, defender],
+    [defender, attacker],
+  ]) {
+    const motion = enterLiveCombat(w, u, 25)
+    motion.workFlags = b.id
+    u.fight = {
+      group: b.id,
+      opponent: target.id,
+      action: 'approach',
+      animation: 'idle',
+      started: w.turn,
+      motion,
+    }
+  }
+  b.angle = random(w) % 360
+  relocateBattle(w, b, true)
+}
+function clearFightAssignment(u: Unit) {
+  if (u.fight?.motion) u.fight.motion.workFlags = 0
+  u.fight = null
 }
 function cleanBattles(w: World) {
   for (const b of w.fights) {
@@ -671,7 +741,7 @@ function cleanBattles(w: World) {
     )
     const members = b.members.map(id => w.units.find(u => u.id === id)!)
     if (members.length < 2 || members.every(u => u.team === members[0].team)) {
-      for (const u of members) u.fight = null
+      for (const u of members) clearFightAssignment(u)
       b.members = []
     }
   }
@@ -680,6 +750,10 @@ function cleanBattles(w: World) {
 function processBattles(w: World) {
   cleanBattles(w)
   for (const b of w.fights) {
+    if (b.encounter) {
+      processEncounter(w, b)
+      continue
+    }
     const members = b.members.map(id => w.units.find(u => u.id === id)!)
     // 0x5199f0: the outnumbered tribe supplies the center of a three/four-person fight.
     if (members.length > 2) {
@@ -701,7 +775,7 @@ function processBattles(w: World) {
     for (let i = 0; i < members.length; i++) {
       const u = members[i],
         f = u.fight!
-      if (u.hp <= 0) continue
+      if (u.hp <= 0 || f.action === 'encounter') continue
       if (f.action === 'push') {
         if (f.remaining === undefined) {
           startMeleeKnockback(w, u)
@@ -796,6 +870,7 @@ function builderActivity(u: Unit) {
 }
 export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
+  if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
   if (u.native) return u.native
   if (u.entry) return u.entry.person
@@ -808,6 +883,16 @@ export function unitAnimation(w: World, u: Unit) {
   if (u.lift > 0) return 'airborne'
   if (u.casting) return 'cast'
   if (u.fight?.animation) return u.fight.animation
+  if (u.fight?.action === 'encounter') {
+    const p = u.fight.motion!
+    return p.substate === EncounterPhase.Strike
+      ? 'attack'
+      : p.substate === EncounterPhase.Knockback
+        ? 'stagger'
+        : p.speed
+          ? 'walk'
+          : 'idle'
+  }
   if (u.fight)
     return u.fight.action === 'approach'
       ? 'walk'
@@ -1877,7 +1962,7 @@ export function releaseTasks(w: World, u: Unit) {
   u.timer = 0
   u.casting = null
   u.fighting = false
-  u.fight = null
+  clearFightAssignment(u)
   u.idleTurns = 0
 }
 export { buildingModel } from './building-shapes.ts'
