@@ -5689,3 +5689,65 @@ Specialist selectors (`0051ce50`, `0051d0b0`), special plan variants, full mixed
 cell/allocation ownership, allied/special lifecycle effects and complete campaign
 attacks remain open. The bounded query requirement is verified; melee lifecycle
 and the full engine are not. No native original-source recovery is claimed.
+
+
+## 2026-09-10 — automatic alert ownership and coastal dispatch
+
+Recovered ordinary `0051e5e0` and same-cell `00520480` in `app/combat-orders.ts`.
+Detection precedes allocation; a full order pool still returns the detected threat
+without changing any follower. Successful allocation prepares command 21, marks
+the source for reinitialization, attaches the immediate command and shares that
+single record with matching same-cell class/model/tribe/state/command-status people.
+Recipients already holding an immediate order are skipped. The special-source flag
+requires the same recipient flag. Sharing does **not** rerun recipient eligibility.
+Normal queues stay intact and reference counts are owned by the existing helpers.
+
+`check-native-combat-orders.py` passes 1,024 **complete original initializer calls**,
+with all native callees and no behavioral hooks. Inputs include all four detection
+results, mixed persons/fights/buildings/plans, shore categories, allocator wrap/full
+pools, existing ordinary immediate orders and matching/nonmatching cell peers.
+All tracked person fields, every byte of the 800-record pool, allocation counters and RNG
+are compared. Owned spell/fight/work cleanup is outside this fixture domain and
+remains a required world consumer. Another 1,024 complete `00438730` calls verify
+command-21 coastal preparation, wrapped centers, radius retention and the
+identical-record early return. Portable executable captures cover both routines.
+
+`004d4690` now has a reviewed shared dispatcher in `app/melee-engagement.ts`.
+Periodic visits set a pending bit; consumption clears it before level flag
+`0x02000000`, range and eligibility checks. Preacher, shaman, firewarrior and special
+responses select their original distinct scanner. The live ordinary query uses
+this dispatcher, including the previously ignored campaign suppression flag;
+unported specialist response bodies no longer fall through to ordinary melee.
+Explicit attacks continue through their existing command path. The ordinary live
+adapter still supplies world-turn scan phase and does not overwrite native counters.
+
+The expanded engagement oracle compares 8,192 original eligibility/range/dispatch
+cases (all five dispatch outcomes and consumer call counts) plus 4,096 complete
+person-only area traversals. Ritual/tower lookup, firewarrior readiness and dispatched
+response bodies are supplied consumers in this dispatcher check; the separate
+ordinary initializer check above executes its native body and callees fully.
+
+Live command-21 preparation now moves coastal alert centers by the original
+one-cell landward correction. The adapter includes the newly exposed outer ring;
+each actual scan retains its exact native square and 64-candidate cap. A portable
+and browser scenario detects an enemy in the original cell but correctly selects
+from the corrected inland cell. Coastal point calculation is shared with movement
+orders; their 1,024 original preparation regressions remain passing.
+
+Tracing `004366b0` exposed misleading old callback names: `0043d2f0` tries the saved
+**vehicle**, then `0043d0e0` tries the saved **friendly building**. They are not a
+saved-path replay. Corrected `advancePersonOrder` and its native oracle names;
+16,384 advance/idle/update/composed comparisons still pass. The saved-building
+routine chooses entry for an intact building or construction for an incomplete
+one and checks class eligibility; the saved-vehicle routine validates capacity,
+reachability and distance. Exports are retained for the next ownership integration.
+
+**Still unfinished:** the live target adapter has not attached the new shared
+response records or preserved ordinary work queues through fight entry. Replacing
+that lifecycle requires the real command-19/21 body, startup/advancement and world
+cleanup consumers, including saved vehicle/building requests. Do not implement a
+browser task/path snapshot as a substitute. `releaseTasks` currently clears the
+legacy work state on fight entry. Native scan placement after state/health dispatch,
+per-object phases, specialist bodies and full prefight/group lifecycle are also
+open. The new initializer is primitive-level evidence; lifecycle stays partial
+and this work earns no additional verified requirement credit.

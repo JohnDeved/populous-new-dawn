@@ -13,7 +13,7 @@ cpu.mem_map(0x2000000,0x10000);p,stack,stop=0x2000000,0x200e000,0x200f000
 fields={'model':(0x2b,'B'),'state':(0x2c,'B'),'substate':(0x2d,'B'),'counter':(0x2e,'B'),'tribe':(0x2f,'b'),'x':(0x3d,'H'),'y':(0x3f,'H'),'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'anchorX':(0x68,'H'),'anchorY':(0x6a,'H'),'anchorFlags':(0x82,'B'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),'assignment':(0x76,'H'),'previousState':(0x7d,'B'),'commandCursor':(0xa6,'B'),'commandStatus':(0xa7,'B'),'immediateCommand':(0x9b,'H'),'vehicle':(0x9f,'H')}
 ofields={'class':(0x2a,'B'),'model':(0x2b,'B'),'flags2':(0xc,'I'),'tribe':(0x2f,'b'),'x':(0x3d,'H'),'y':(0x3f,'H'),'timer':(0x70,'h'),'signal':(0x7a,'H')}
 commands={3:0x4336c0,4:0x433800,6:0x495520,7:0x4340a0,8:0x434610,10:0x497a30,11:0x519f10,13:0x439a00,15:0x439d30,17:0x43a4d0,18:0x433a10,19:0x51a2a0,22:0x435160,27:0x43bcc0,28:0x51fce0,30:0x43daa0,33:0x43c7a0}
-consumers={0x4364d0:'remove',0x43d2f0:'resumeRoute',0x43d0e0:'resumeVehicle',0x436870:'prepareNext',0x432df0:'configure',0x4d4f40:'recover',0x4389c0:'commandPosition',0x435550:'vehicleDestination',0x466f30:'vehicleReady',0x466c80:'leaveVehicle',0x4de760:'changeTribe',0x4de740:'effectiveTribe',0x4044b0:'outside',0x4e9d80:'destination',0x4d58c0:'arrival',0x4d4ee0:'stop',0x4391c0:'formation',0x4366b0:'advance',0x4ed640:'initialize'}
+consumers={0x4364d0:'remove',0x43d2f0:'resumeVehicle',0x43d0e0:'resumeBuilding',0x436870:'prepareNext',0x432df0:'configure',0x4d4f40:'recover',0x4389c0:'commandPosition',0x435550:'vehicleDestination',0x466f30:'vehicleReady',0x466c80:'leaveVehicle',0x4de760:'changeTribe',0x4de740:'effectiveTribe',0x4044b0:'outside',0x4e9d80:'destination',0x4d58c0:'arrival',0x4d4ee0:'stop',0x4391c0:'formation',0x4366b0:'advance',0x4ed640:'initialize'}
 # Resolve the formation call from instructions rather than inferred metadata.
 from capstone import Cs,CS_ARCH_X86,CS_MODE_32
 calls=[int(i.op_str,16) for i in Cs(CS_ARCH_X86,CS_MODE_32).disasm(bytes(cpu.mem_read(0x432a3e,31)),0x432a3e) if i.mnemonic=='call']
@@ -42,7 +42,7 @@ def leaf(cpu,a,size,u):
   result=case['commandResult'];write(p+0x14,'I',case['commandFlags3'])
  elif name=='remove':
   slot=args[0];write(p+(0x9b if slot<0 else 0x8b+slot*2),'H',0);write(p+0xa7,'B',0)
- elif name in ['resumeRoute','resumeVehicle','vehicleDestination','vehicleReady','leaveVehicle','advance']:result=case[name]
+ elif name in ['resumeVehicle','resumeBuilding','vehicleDestination','vehicleReady','leaveVehicle','advance']:result=case[name]
  elif name=='commandPosition':write(read(sp+8,'I'),'HH',case['point']['x'],case['point']['y'])
  elif name=='outside':write(read(sp+8,'I'),'HH',case['outside']['x'],case['outside']['y'])
  elif name=='changeTribe':write(p+0x2f,'b',(args[0]+128)%256-128)
@@ -57,7 +57,7 @@ console.log(JSON.stringify(input.cases.map(c=>{const p=c.p,pool={records:c.order
 const snapshot=()=>structuredClone({p,orders:pool.records,objects:[...objects.values()]}),log=(name,...args)=>events.push([name,args,snapshot()]);
 const e={commands:Object.fromEntries(input.commands.map(model=>[model,()=>{log('command',model);p.flags3=c.commandFlags3;return c.commandResult;}])),
 remove:slot=>{log('remove',slot);if(slot<0)p.immediateCommand=0;else p.commands[slot]=0;p.commandStatus=0;},
-resumeRoute:()=>{log('resumeRoute');return c.resumeRoute;},resumeVehicle:()=>{log('resumeVehicle');return c.resumeVehicle;},prepareNext:()=>log('prepareNext'),configure:()=>log('configure'),recover:()=>log('recover'),
+resumeVehicle:()=>{log('resumeVehicle');return c.resumeVehicle;},resumeBuilding:()=>{log('resumeBuilding');return c.resumeBuilding;},prepareNext:()=>log('prepareNext'),configure:()=>log('configure'),recover:()=>log('recover'),
 commandPosition:o=>{log('commandPosition',pool.records.indexOf(o));return {...c.point};},vehicleDestination:(to,mode)=>{log('vehicleDestination',to,mode);return c.vehicleDestination;},vehicleReady:id=>{log('vehicleReady',id);return c.vehicleReady;},leaveVehicle:()=>{log('leaveVehicle');return c.leaveVehicle;},changeTribe:t=>{log('changeTribe',t);p.tribe=(t+128)%256-128;},effectiveTribe:()=>{log('effectiveTribe');return c.effectiveTribe;},
 cellObjects:()=>[objects.get(3),objects.get(4)],outside:to=>{if(c.building){log('outside',to);return {...c.outside};}return to;},destination:to=>log('destination',to),arrival:mode=>log('arrival',mode),stop:()=>log('stop'),formation:()=>log('formation'),advance:()=>{log('advance');return c.advance;},initialize:()=>{log('initialize');p.flags2=c.initializedFlags;}};
 const w={orders:pool,landFlags:c.landFlags,levelFlags2:c.levelFlags2,playerTribe:c.playerTribe,objects,survivingTribes:()=>c.tribes.filter(t=>t.active&&!t.defeatTimer).length};
@@ -74,7 +74,7 @@ for mode,address in [('advance',0x4366b0),('idle',0x4e32a0),('update',0x432590),
    if o['model']==29:o['a']=3
   ob=[dict(**{'class':rng.choice([0,1,3,10])},model=rng.choice([1,16]),flags2=rng.choice([0,1]),tribe=rng.randrange(4),x=rng.randrange(65536),y=rng.randrange(65536),timer=rng.randrange(-32768,32768),signal=rng.choice([0,1,65535])) for _ in range(4)]
   ob[3].update(**{'class':10},model=16)
-  case=dict(p=pp,orders=oo,objects=ob,landFlags=rng.choice([0,8,0x2000000,0x4000000,0x6000000,0x6000008]),levelFlags2=rng.choice([0,0x40000]),playerTribe=rng.randrange(4),tribes=[dict(active=rng.randrange(2),defeatTimer=rng.choice([0,0,1,-1])) for _ in range(4)],building=bool(i&1),point=dict(x=rng.randrange(65536),y=rng.randrange(65536)),outside=dict(x=rng.randrange(65536),y=rng.randrange(65536)),commandResult=rng.choice([0,1,128,256,257]),commandFlags3=rng.getrandbits(32),effectiveTribe=rng.choice([-1,0,1,2,3]),initializedFlags=rng.getrandbits(32),**{k:bool(rng.randrange(2)) for k in ['resumeRoute','resumeVehicle','vehicleDestination','vehicleReady','leaveVehicle','advance']})
+  case=dict(p=pp,orders=oo,objects=ob,landFlags=rng.choice([0,8,0x2000000,0x4000000,0x6000000,0x6000008]),levelFlags2=rng.choice([0,0x40000]),playerTribe=rng.randrange(4),tribes=[dict(active=rng.randrange(2),defeatTimer=rng.choice([0,0,1,-1])) for _ in range(4)],building=bool(i&1),point=dict(x=rng.randrange(65536),y=rng.randrange(65536)),outside=dict(x=rng.randrange(65536),y=rng.randrange(65536)),commandResult=rng.choice([0,1,128,256,257]),commandFlags3=rng.getrandbits(32),effectiveTribe=rng.choice([-1,0,1,2,3]),initializedFlags=rng.getrandbits(32),**{k:bool(rng.randrange(2)) for k in ['resumeVehicle','resumeBuilding','vehicleDestination','vehicleReady','leaveVehicle','advance']})
   if i%3==0:pp['goalX']=pp['x'];pp['goalY']=pp['y']
   cpu.mem_write(p,bytes(0x500))
   for k,(off,f) in fields.items():write(p+off,f,pp[k])

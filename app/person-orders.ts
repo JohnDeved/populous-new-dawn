@@ -243,8 +243,8 @@ export function advancePersonOrder(
   p: OrderedPerson,
   effects: {
     remove: (slot: number) => void
-    resumeRoute: () => boolean
     resumeVehicle: () => boolean
+    resumeBuilding: () => boolean
     prepareNext: () => void
     configure: () => void
     recover: () => void
@@ -262,7 +262,7 @@ export function advancePersonOrder(
       break
     }
   }
-  if (found < 0 && !repeat && (effects.resumeRoute() || effects.resumeVehicle())) found = 0
+  if (found < 0 && !repeat && (effects.resumeVehicle() || effects.resumeBuilding())) found = 0
   if (found >= 0) {
     p.commandCursor = found
     if (!repeat) effects.prepareNext()
@@ -338,18 +338,42 @@ export function prepareMovementOrder(
   order.flags |= flags & 255
   order.a = x
   order.b = y
-  const cell = (y >> 9) * 128 + (x >> 9),
-    category = land.categories[cell] & 15
-  if (rules.terrainCategoryFlags[category] & 60) {
-    const angle = (rules.terrainCategoryDirections[category] & 7) << 8
-    const to = { x: (x & 0xfe00) + 256, y: (y & 0xfe00) + 256 }
-    movePosition(to, angle, 512)
-    order.a = to.x
-    order.b = to.y
+  const cell = (y >> 9) * 128 + (x >> 9)
+  const coastal = coastalDestination(land.categories, x, y)
+  if (coastal) {
+    order.a = coastal.x
+    order.b = coastal.y
   }
   if (land.flags[cell] & 512) {
     const to = outside(land.buildingIds[cell] & 1023)
     order.a = to.x & 65535
     order.b = to.y & 65535
   }
+}
+
+function coastalDestination(categories: Uint8Array, x: number, y: number) {
+  const category = categories[(y >> 9) * 128 + (x >> 9)] & 15
+  if (!(rules.terrainCategoryFlags[category] & 60)) return null
+  const to = { x: (x & 0xfe00) + 256, y: (y & 0xfe00) + 256 }
+  movePosition(to, (rules.terrainCategoryDirections[category] & 7) << 8, 512)
+  return to
+}
+
+// 0x438730 for automatic area command 21. The radius word survives coastal
+// correction; only the packed center moves. An identical command keeps its flags.
+export function prepareCombatOrder(
+  order: PersonOrder,
+  area: { a: number; b: number },
+  flags: number,
+  categories: Uint8Array
+) {
+  const a = area.a & 65535,
+    b = area.b & 65535
+  if (order.model === 21 && order.a === a && order.b === b) return
+  order.model = 21
+  order.flags |= flags & 255
+  order.a = a
+  order.b = b
+  const coastal = coastalDestination(categories, (a & 254) << 8, a & 0xfe00)
+  if (coastal) order.a = ((coastal.x >>> 8) & 254) | (coastal.y & 0xfe00)
 }

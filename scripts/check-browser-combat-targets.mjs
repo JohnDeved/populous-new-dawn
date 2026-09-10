@@ -34,7 +34,22 @@ try {
   }
   await page.screenshot({path:'/private/tmp/populous-combat-targets.png'})
   assert.deepEqual(errors, [])
-  const result = { choices, poses }
+  const coastal = await page.evaluate(async () => {
+    const w=window.testScene.world, m=await import('/app/model.ts'), combat=await import('/app/live-combat.ts')
+    w.speed=0;w.units=[];w.buildings=[];w.fights=[];w.land.categories.fill(0);w.land.flags.fill(0);w.land.buildingIds.fill(0);w.land.owners.fill(0)
+    w.turn += (4 - (w.turn & 3)) & 3
+    const u=m.addUnit(w,'blue','warrior',{x:1,z:31})
+    m.addUnit(w,'red','shaman',{x:1.5,z:31})
+    const inland=m.addUnit(w,'red','shaman',{x:1,z:33}), p=m.nativePosition(w,u)
+    w.land.categories[((p.y&65535)>>9)*128+((p.x&65535)>>9)]=2
+    u.path=[{x:10,z:31}];w.levelFlags2|=0x2000000
+    const suppressed=combat.automaticMeleeTarget(w,u)?.id??null
+    w.levelFlags2&=~0x2000000
+    const target=combat.automaticMeleeTarget(w,u)?.id??null
+    return {suppressed,target,expected:inland.id,native:u.native}
+  })
+  assert.equal(coastal.suppressed,null);assert.equal(coastal.target,coastal.expected);assert.equal(coastal.native,null)
+  const result = { choices, poses, coastal }
   writeFileSync('/private/tmp/populous-combat-targets-browser.json', JSON.stringify(result,null,2)+'\n')
   console.log('PASS: live squad assigns three warriors to the nearer target and one to the next, retaining original walking sprites', result)
 } finally { await browser.close() }

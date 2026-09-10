@@ -1,7 +1,7 @@
 import type { World, Unit, Building } from './model.ts'
 import { buildingModel } from './building-shapes.ts'
-import { canAutoEngage, engagementRange, inEngagementArea } from './melee-engagement.ts'
-import { currentPersonOrder } from './person-orders.ts'
+import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
+import { currentPersonOrder, emptyPersonOrder, prepareCombatOrder } from './person-orders.ts'
 import {
   detectCombatThreat,
   selectCombatTarget,
@@ -146,26 +146,37 @@ export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undef
     commandStatus: 0,
     h: 0,
   }
-  p.flags3 &= ~0x800
-  if (model === 7 && ![28, 19, 4].includes(p.commandStatus)) return
   const order = native ? currentPersonOrder(w.buildingOrders, native) : undefined
   const current = order ?? (u.path.length ? { model: 3, flags: 0 } : undefined)
   // Ritual ownership and full automatic order allocation/sharing/restoration
   // remain in the command migration; do not invent the ritual eligibility result.
-  if (current?.model === 27 || !canAutoEngage(p, current, () => false)) return
+  // The ordinary live roster uses the melee scanner. Specialist response
+  // controllers must own their distinct searches rather than fall through here.
+  const scan = { ...p, counter: w.turn & 255 }
+  const scanner = automaticCombatScanner(
+    scan,
+    current,
+    w.levelFlags2,
+    () => false,
+    false,
+    () => false
+  )
+  p.flags3 = scan.flags3
+  if (scanner !== 'melee' || current?.model === 27) return
   const range = engagementRange(p, current, false)
   if (!range) return
   const radius = Math.trunc(range / 2) * 2
   const area = { a: ((source.x >>> 8) & 254) | (source.y & 0xfe00), b: radius | (radius << 8) }
-  const { world, owners } = combatWorld(w, source, range)
   const buildings = !!(rules.personStateFlags[p.state] & 8) && !p.vehicle
+  const response = emptyPersonOrder()
+  prepareCombatOrder(response, area, 32 | (buildings ? 16 : 0), w.land.categories)
+  // Coastal preparation can move the order center by one cell. Include that
+  // outer ring in the adapter; each native scan still traverses its exact area.
+  const { world, owners } = combatWorld(w, source, range + (response.a === area.a ? 0 : 2))
   const threat = detectCombatThreat(world, source, area, buildings, buildings)
   if (!threat) return
-  const result = selectCombatTarget(world, source, {
-    ...area,
-    model: 21,
-    flags: 32 | (buildings ? 16 : 0) | (threat === 3 ? 2 : 0),
-  })
+  if (threat === 3) response.flags |= 2
+  const result = selectCombatTarget(world, source, response)
   if (!result) return
   const { target } = result
   const owner = owners.get(target.id)!

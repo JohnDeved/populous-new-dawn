@@ -75,3 +75,40 @@ export function inEngagementArea(
     Math.abs(cellDelta(source.y, target.y)) <= radius
   )
 }
+
+// 0x4d4690 dispatches after the person's state/health visit. Pending scans are
+// consumed even when a level flag or eligibility check suppresses the response.
+export function automaticCombatScanner(
+  p: Person & { counter: number; flags3: number; commandStatus: number; h: number },
+  order: Order,
+  levelFlags2: number,
+  ritualAvailable: () => boolean,
+  inTower: boolean,
+  firewarriorReady: () => boolean
+): 'melee' | 'preacher' | 'firewarrior' | 'special' | null {
+  if (!(p.counter & rules.personModels[p.model].scanMask)) p.flags3 = (p.flags3 | 0x800) >>> 0
+  if (!(p.flags3 & 0x800)) return null
+  p.flags3 = (p.flags3 & ~0x800) >>> 0
+  if (
+    !engagementRange(p, order, inTower) ||
+    levelFlags2 & 0x2000000 ||
+    !canAutoEngage(p, order, ritualAvailable)
+  )
+    return null
+  if (p.flags4 & 0x800) return 'special'
+  if (p.model === 4) {
+    const ordered = p.state === 10 || p.state === 33
+    if (
+      ordered &&
+      order &&
+      !(order.flags & 1) &&
+      [17, 31, 32].includes(order.model) &&
+      p.assignment & 64
+    )
+      return null
+    return 'preacher'
+  }
+  if (p.model === 6) return firewarriorReady() ? 'firewarrior' : null
+  if (p.model === 7) return [28, 19, 4].includes(p.commandStatus) ? 'preacher' : null
+  return 'melee'
+}

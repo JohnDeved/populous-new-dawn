@@ -1546,3 +1546,40 @@ Typecheck, production build, formatting and the two new modules' oxlint pass.
 Fallow: maintainability 85.5, cyclomatic average 2.7/p90 5, twelve existing cycles;
 no new runtime import cycle. Query code is extracted from movement/sprite handling,
 and the existing building model, disguise and reaction helpers are reused.
+
+
+## 2026-09-10 — automatic scan dispatch and coastal response preparation
+
+Live scanning now consumes pending flags through the reviewed native dispatcher,
+respects campaign suppression, and prepares the coastal alert center with the same
+coast calculation as movement orders. It still runs on simulation visits and
+retains the early no-scan exit. Coastal queries include one extra candidate ring
+only when preparation actually shifts the center; each native collector still
+uses its exact authored area/cap. No new animation timer, render loop, dependency
+or sprite-state owner was added. Original shared command allocation is separately
+reconstructed and native-tested; its full live queue integration remains open.
+
+Headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, no concurrent builds,
+heavy checks or application edits during measurement:
+
+- 96 separated idle warriors, six seconds after terrain/sprite synchronization:
+  1,675 callbacks, CPU p50/p95 **2.5/3.1 ms**, p99 **5.3 ms**, max **6.6 ms**;
+  18 scan-bearing frames p50/p95 **5.4/5.5 ms**, max **5.7 ms**; 378 draws.
+- Six staged active fights: 1,678 callbacks, CPU p50/p95 **1.5/2.1 ms**, p99
+  **4.7 ms**, max **5.9 ms**; 104 draws.
+
+Raw evidence: `performance/2026-09-10-combat-alerts.json`. These are unpaired,
+warmed, bounded workload samples, not speedup, loading or whole-engine claims.
+Callback cadence is not physical display FPS. Quadratic follower broadphase,
+first-use rebuild costs and broader hardware/population coverage remain open.
+
+Native checks cover full alert allocation/sharing and coastal preparation, every
+scanner dispatch outcome, pending flags/consumer counts, and existing movement /
+queue behavior after sharing coast math and correcting restoration consumer names.
+Portable captures, live coastal target/suppression, original squad walking poses,
+combat/recoil/approach, 392 GPU sprite poses, Blast shadows and selection pass.
+Existing 5–240 Hz and irregular combat/squad replays remain deterministic.
+Build/typecheck/format and changed scanner/controller modules' oxlint pass.
+Fallow: maintainability 85.6, average cyclomatic 2.7/p90 5, twelve existing cycles.
+No additional verified requirement credit: ordinary live command ownership and
+completion/restoration still need their actual world consumers.

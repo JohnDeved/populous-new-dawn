@@ -1349,3 +1349,23 @@ mixed-class allocation/cell ties, counter phase, specialist classes/plan variant
 full damage/effects, all campaign content, saves and multiplayer remain unfinished.
 Keep clean readable TypeScript, native mechanics, uncapped presentation and measured
 modern performance together. Discovery remains open and the full goal stays active.
+
+
+### Current command migration: shared automatic responses
+
+Original response allocation/sharing now has a complete native-tested controller.
+Live queries use original global scan suppression, specialist dispatch selection
+and coastal command-21 preparation, including the shifted search edge. Native
+counters and sprite ownership are preserved. Queue completion consumer names were
+corrected after tracing their saved-vehicle and saved-building behavior.
+
+Next connect the recovered initializer's shared order records to the ordinary live
+person controller and retain normal command queues through fight entry/completion.
+Use `startPersonOrders`, `stepPersonOrders` and `advancePersonOrder` with actual
+command-19/21 bodies and world consumers. The current `releaseTasks` fight handoff
+still loses legacy work; a path/task snapshot would not implement original queue
+semantics. Saved building/vehicle restoration exports are retained for this work.
+This primitive recovery and the live gating/coast fixes do not complete automatic
+orders or grant a new parity requirement. Continue campaign attacks and visible
+spell behavior once the command handoff is integrated. Keep all unfinished game
+scope, clean TS, uncapped timing, measured modern performance and open discovery.

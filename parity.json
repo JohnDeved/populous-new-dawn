@@ -1584,9 +1584,12 @@
                 "scripts/check-native-melee-engagement.py",
                 "tests/melee.test.mjs",
                 "scripts/check-browser-engagement.mjs",
-                "references/performance/2026-09-10-melee-engagement.json"
+                "references/performance/2026-09-10-melee-engagement.json",
+                "app/combat-orders.ts",
+                "scripts/check-native-combat-orders.py",
+                "tests/combat-orders.test.mjs"
               ],
-              "note": "Native eligibility/range gates and wrapped whole-cell boundaries replace team-distance acquisition. Current tribes share idle pursuit; explicit attacks bypass periodic detection. 8,192 native gate/range comparisons and 4,096 person-only scans plus live/browser cadence checks. Still partial: automatic area-order allocation/sharing, mixed-object target priority, command restoration/interruption, class-counter phase, group lifecycle/member ordering/angle RNG, damage modifiers and effects. Ordinary move command and counter state are adapters; full melee is not verified."
+              "note": "Native eligibility/range gates and wrapped whole-cell boundaries replace team-distance acquisition. Current tribes share idle pursuit; explicit attacks bypass periodic detection. 8,192 native gate/range comparisons and 4,096 person-only scans plus live/browser cadence checks. Still partial: automatic area-order allocation/sharing, mixed-object target priority, command restoration/interruption, class-counter phase, group lifecycle/member ordering/angle RNG, damage modifiers and effects. Ordinary move command and counter state are adapters; full melee is not verified. Complete ordinary alert initialization/sharing is reconstructed against 1,024 full native calls, but its shared order pool and retained normal queues are not yet connected to ordinary live combat. Full native scan dispatch and coastal command preparation now feed live queries. Queue completion callbacks are correctly identified as saved-vehicle then saved-building restoration; no generic route snapshot restoration is claimed."
             }
           ]
         },
