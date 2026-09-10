@@ -1,22 +1,22 @@
 # Game parity progress
 
-**22.78% evidence-backed progress across known scope.**
+**23.30% evidence-backed progress across known scope.**
 
-**Graphics: 59.23%.** Overall: 52/157 individual requirements verified; 17/96 broad checkpoints complete.
+**Graphics: 59.23%.** Overall: 53/158 individual requirements verified; 17/96 broad checkpoints complete.
 
-55 partial; 24 missing; 0 unassessed. Checklist revision 13.
+55 partial; 24 missing; 0 unassessed. Checklist revision 14.
 
 **Latest assessment**
 
 Newly verified: 1. Reopened: 0.
 
-- Verified: `interface.hud.tower-panel`.
+- Verified: `combat.melee.decisions`.
 
-Verify owned guard-tower occupant panel and controls: 168 native draw calls, 72 input-to-selection paths, 124992 source-art browser pixels, actual selection/focus/exit/dismantling and modern desktop checks. Shared native resting-slot handoff connected; full tower combat and global ownership remain open.
+Verified melee ready/busy group attack decisions against 30,240 original-code cases, live damage and action preservation, 5–240 Hz replay and headed browser combat rendering; full fight lifecycle remains open.
 
-**Tracking blind spots: 44 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
+**Tracking blind spots: 43 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
-**Discovery: open.** Discovery remains open. Revision 10 isolates ordinary warrior-hut dismantling from the broader repair/damage lifecycle before live integration; all remaining buildings, special structures and global order ownership remain open.
+**Discovery: open.** Revision 14 separates ordinary melee attack decisions from the remaining group lifecycle, motion, damage, action timing, recovery, effects and global order ownership before integration. Discovery remains open.
 
 Unknown scope is not assigned an invented size or percentage. This checklist is expandable: add checkpoints or entire subsystems as research reveals them. Use `unassessed` for newly identified behavior whose implementation/parity has not been investigated; it enters the denominator immediately and receives no verified credit. Split overly broad checkpoints when discoveries justify it, with a recorded revision.
 
@@ -37,7 +37,7 @@ Verified means the named scope has original-engine evidence and browser/game int
 | Audio and music | 0.00% | 0/8 | 0/8 |
 | Simulation scheduling and randomness | 0.00% | 0/8 | 0/8 |
 | Movement, collision and vehicles | 12.50% | 1/8 | 1/8 |
-| Unit classes and combat | 0.00% | 0/8 | 0/8 |
+| Unit classes and combat | 6.25% | 1/9 | 0/8 |
 | Buildings, resources and population | 26.04% | 5/17 | 1/8 |
 | Spell rules and complete roster | 12.50% | 1/8 | 1/8 |
 | Campaign, AI and objectives | 0.00% | 0/8 | 0/8 |
@@ -141,6 +141,8 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-10T06:20:54.415Z | 12 | 22.76% | 17/96 | 0.07 pp; 1 newly verified, 0 reopened | Verify construction-plan worker/timber artwork and linked dismantling controls: 630 native draw calls, 128 input cases, 470208 source-art browser pixels, live selection/reassignment/cancel/restart and desktop checks. Native canvas-height defect corrected; broader panel/command ownership remains open. |
 | 2026-09-10T06:25:51.312Z | 13 | 22.72% | 17/96 | scope revision | Revision 13 isolates ordinary guard-tower occupant artwork and controls before implementation; no completion credit yet. |
 | 2026-09-10T06:38:46.369Z | 13 | 22.78% | 17/96 | 0.06 pp; 1 newly verified, 0 reopened | Verify owned guard-tower occupant panel and controls: 168 native draw calls, 72 input-to-selection paths, 124992 source-art browser pixels, actual selection/focus/exit/dismantling and modern desktop checks. Shared native resting-slot handoff connected; full tower combat and global ownership remain open. |
+| 2026-09-10T06:45:44.061Z | 14 | 22.78% | 17/96 | scope revision | Revision 14 baseline: split melee attack decisions from all remaining fight lifecycle requirements before implementation; no newly verified behavior. |
+| 2026-09-10T06:53:04.968Z | 14 | 23.30% | 17/96 | 0.52 pp; 1 newly verified, 0 reopened | Verified melee ready/busy group attack decisions against 30,240 original-code cases, live damage and action preservation, 5–240 Hz replay and headed browser combat rendering; full fight lifecycle remains open. |
 
 ## Update workflow
 
@@ -290,7 +292,9 @@ Scope changes require a new checklist revision. Scores across different revision
 
 ### Unit classes and combat
 
-- **partial** — Complete melee exchanges and fight state machine (`combat.melee`). HP-scaled exchanges and fight groups exist; remaining substates/scheduling open. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
+- **partial** — Complete melee exchanges and fight state machine (`combat.melee`). **1/2 requirements verified; each earns 0.52 percentage points overall.** Ready/busy group attack decisions compared and integrated. Remaining grouping, relocation, damage modifiers, action/recoil scheduling, physics, effects and command handoff stay open. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
+  - **verified** — Ready fighter attack choices against ready and busy group opponents (`combat.melee.decisions`). 30,240 original decision-block cases plus live ready/busy group damage, preserved defender actions, browser combat sprites and 5–240 Hz replay. Full controller and leaving-target order handoff remain in the lifecycle requirement. Evidence: [app/melee.ts](app/melee.ts), [scripts/check-native-melee-decisions.py](scripts/check-native-melee-decisions.py), [tests/melee.test.mjs](tests/melee.test.mjs), [scripts/check-browser-melee.mjs](scripts/check-browser-melee.mjs), [references/performance/2026-09-10-melee-decisions.json](references/performance/2026-09-10-melee-decisions.json).
+  - **partial** — Complete melee grouping, approach, relocation, damage, action timing, recovery, effects and order handoff (`combat.melee.lifecycle`). Existing browser adapter remains approximate: native group lifetime, terrain relocation, complete action/recoil scheduling, physics, damage modifiers, effects and command ownership remain open. Evidence: [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [tests/game.test.mjs](tests/game.test.mjs).
 - **partial** — Complete brave work, combat and task transitions (`combat.braves`). Opening work loop playable; all task transitions not matched. Evidence: [scripts/check-native-person-update.py](scripts/check-native-person-update.py), [tests/game.test.mjs](tests/game.test.mjs).
 - **partial** — Complete warrior attack, pursuit and recovery (`combat.warriors`). Selected recovery/formation controllers compared; complete class scheduling open. Evidence: [scripts/check-native-person-recovery.py](scripts/check-native-person-recovery.py), [tests/game.test.mjs](tests/game.test.mjs).
 - **missing** — Firewarrior attacks, range and behavior (`combat.firewarriors`). Full firewarrior class not implemented.

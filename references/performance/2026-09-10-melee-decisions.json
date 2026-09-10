@@ -1,0 +1,182 @@
+{
+  "headed": true,
+  "workload": "Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.",
+  "states": [
+    [
+      {
+        "kind": "warrior",
+        "team": "red",
+        "state": "strike",
+        "frame": 1664,
+        "hp": 87,
+        "action": "strike"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "special",
+        "frame": 207,
+        "hp": 50,
+        "action": "special"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "strike",
+        "frame": 132,
+        "hp": 50,
+        "action": "strike"
+      }
+    ],
+    [
+      {
+        "kind": "warrior",
+        "team": "red",
+        "state": "strike",
+        "frame": 1664,
+        "hp": 72,
+        "action": "strike"
+      },
+      {
+        "kind": "warrior",
+        "team": "blue",
+        "state": "special",
+        "frame": 664,
+        "hp": 90,
+        "action": "special"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "strike",
+        "frame": 132,
+        "hp": 50,
+        "action": "strike"
+      }
+    ],
+    [
+      {
+        "kind": "warrior",
+        "team": "red",
+        "state": "strike",
+        "frame": 1664,
+        "hp": 87,
+        "action": "strike"
+      },
+      {
+        "kind": "shaman",
+        "team": "blue",
+        "state": "special",
+        "frame": 1031,
+        "hp": 100,
+        "action": "special"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "strike",
+        "frame": 132,
+        "hp": 50,
+        "action": "strike"
+      }
+    ],
+    [
+      {
+        "kind": "warrior",
+        "team": "red",
+        "state": "strike",
+        "frame": 1664,
+        "hp": 87,
+        "action": "strike"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "strike",
+        "frame": 116,
+        "hp": 32,
+        "action": "strike"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "strike",
+        "frame": 132,
+        "hp": 50,
+        "action": "strike"
+      }
+    ],
+    [
+      {
+        "kind": "warrior",
+        "team": "red",
+        "state": "strike",
+        "frame": 1664,
+        "hp": 72,
+        "action": "strike"
+      },
+      {
+        "kind": "warrior",
+        "team": "blue",
+        "state": "strike",
+        "frame": 573,
+        "hp": 72,
+        "action": "strike"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "strike",
+        "frame": 132,
+        "hp": 50,
+        "action": "strike"
+      }
+    ],
+    [
+      {
+        "kind": "warrior",
+        "team": "red",
+        "state": "strike",
+        "frame": 1664,
+        "hp": 87,
+        "action": "strike"
+      },
+      {
+        "kind": "shaman",
+        "team": "blue",
+        "state": "strike",
+        "frame": 1006,
+        "hp": 82,
+        "action": "strike"
+      },
+      {
+        "kind": "brave",
+        "team": "blue",
+        "state": "strike",
+        "frame": 132,
+        "hp": 50,
+        "action": "strike"
+      }
+    ]
+  ],
+  "performance": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "frames": 1678,
+    "cpu": {
+      "p50": 1.5,
+      "p95": 2
+    },
+    "gaps": {
+      "p50": 3.600000000000364,
+      "p95": 3.7000000000007276,
+      "max": 7.100000000000364
+    },
+    "maxDrawCalls": 104
+  }
+}

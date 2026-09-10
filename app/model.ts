@@ -1,4 +1,5 @@
 import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
+import { chooseMeleeAttack, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
 import {
   assignBuilder,
@@ -513,18 +514,8 @@ function shotAngles(p: NativePoint, d: NativePoint) {
     dy = short(d.y - p.y)
   return [nativeAngle(dx, -dy), nativeAngle(Math.max(Math.abs(dx), Math.abs(dy)), -2 * (d.h - p.h))]
 }
-function meleeExchange(w: World, u: Unit, target: Unit, choice: number) {
+function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
-  const action =
-    u.kind === 'shaman'
-      ? choice <= 6
-        ? 'attack'
-        : 'special'
-      : choice <= 4
-        ? 'attack'
-        : choice < 14
-          ? 'special'
-          : 'strike'
   const damage = meleeDamage(u),
     counter = meleeDamage(target),
     turns = u.kind === 'shaman' ? (action === 'special' ? 5 : 4) : action === 'attack' ? 6 : 7
@@ -533,7 +524,6 @@ function meleeExchange(w: World, u: Unit, target: Unit, choice: number) {
     (nativeAngle(Math.round((target.x - u.x) * 256), Math.round((target.z - u.z) * 256)) *
       Math.PI) /
       1024
-  target.heading = u.heading + Math.PI
   u.fight = {
     group: u.fight!.group,
     opponent: target.id,
@@ -541,14 +531,18 @@ function meleeExchange(w: World, u: Unit, target: Unit, choice: number) {
     started: w.turn,
     until: w.turn + turns,
   }
-  const knockback = action === 'attack' && target.kind !== 'shaman'
-  target.fight = {
-    group: target.fight!.group,
-    opponent: u.id,
-    action: 'recoil',
-    started: w.turn,
-    until: w.turn + (knockback ? 4 : 7),
-    knockback,
+  // Busy opponents take damage without losing their current action or facing.
+  if (target.fight?.action === 'ready') {
+    const knockback = action === 'attack' && target.kind !== 'shaman'
+    target.heading = u.heading + Math.PI
+    target.fight = {
+      group: target.fight.group,
+      opponent: u.id,
+      action: 'recoil',
+      started: w.turn,
+      until: w.turn + (knockback ? 4 : 7),
+      knockback,
+    }
   }
   target.hp = Math.max(0, (Math.round(target.hp * 20) - Math.round(damage * 20)) / 20)
   if (action !== 'special')
@@ -718,9 +712,24 @@ function processBattles(w: World) {
       u.z = p.z
       f.action = 'ready'
       const choice = random(w) & 15,
-        target = i === 0 ? members[1 + (random(w) % (members.length - 1))] : members[0]
-      if (target.hp <= 0 || target.fight?.action !== 'ready') continue
-      meleeExchange(w, u, target, choice)
+        targetIndex = i === 0 ? 1 + (random(w) % (members.length - 1)) : 0,
+        target = members[targetIndex]
+      if (target.hp <= 0) continue
+      const ready = target.fight?.action === 'ready'
+      let slotDistanceSquared = 0
+      if (!ready && choice < 4) {
+        const slot = fightPosition(b, targetIndex),
+          slotDx = short(Math.round((slot.x - target.x) * 256)),
+          slotDz = short(Math.round((slot.z - target.z) * 256))
+        slotDistanceSquared = (slotDx * slotDx + slotDz * slotDz) | 0
+      }
+      const action = chooseMeleeAttack(
+        u.kind,
+        choice,
+        { ready, fighting: !!target.fight, slotDistanceSquared },
+        members.length
+      )
+      if (action) meleeExchange(w, u, target, action)
     }
   }
   w.fights = w.fights.filter(b => b.members.length > 1)

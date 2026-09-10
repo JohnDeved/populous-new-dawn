@@ -5330,3 +5330,55 @@ panels, specialist tower attacks/spells, territory/reveal, AI reassignment and
 complete command/state/allocator ownership. The linked building and held-person
 mechanics remain separately tracked; a working control panel does not certify
 full tower gameplay or the complete native renderer.
+
+### Ordinary melee decisions and busy opponents (2026-09-10)
+
+`00518fb0` permits a ready fighter to hit an opponent who is not ready. For choices
+0–3, the opponent must be within a squared native distance of 129600 from its own
+assigned fight slot (exclusive boundary, wrapped coordinates). In a fight with
+more than two participants, even choices use state 4 (special, no retaliation)
+and odd choices use state 3 (strike, simultaneous retaliation). A target which
+has left state 25 uses state 4. Two-person fights do not use the busy-fighter path.
+Ready opponents retain the existing class-specific choice thresholds. The later
+attack-entry branch only changes the defender's facing and recoil state when the
+defender is still ready; an ongoing action must survive an opportunistic hit.
+
+`app/melee.ts` names these choices without translating decompiler locals. The
+live battle adapter now computes the extra slot distance only for choices that
+can use it and keeps the existing simulation RNG draw order. Damage still uses
+both pre-hit HP values. No rendering cap, display-frame counter, new dependency,
+unit scan, or persistent object allocation was introduced for this decision.
+The helper's leaving-target branch is compared but ordinary browser battle
+cleanup still removes participants who have left; global exit/order handoff
+remains unverified. Original full fight timing, movement and effects are not
+claimed complete by this change.
+
+`check-native-melee-decisions.py` executes the original `005193d4..0051947e`
+decision block with supplied choice/opponent selection and real `0051e3d0` slot
+geometry and `00450450` squared-distance calls. It compares 30,240 cases across
+all three live classes, 2/3/4 participants, every slot, all 16 choices, ready,
+busy and leaving targets, reach boundaries and wrapped coordinates. It does not
+replace calls within the compared block. The block boundary is explicit: this
+is not a comparison of the whole fight controller or its subsequent damage.
+The executable identity is checked by the shared `native_cpu` loader.
+
+`tests/melee.test.mjs` covers live damage/retaliation and preservation of busy
+state/facing, the exclusive range boundary, movement-order interruption and equal
+outcomes at 5/30/60/144/240 Hz. Existing duel and four-person fight regressions
+also pass. The headed browser check renders special/strike attacks for braves,
+warriors and shamans while defenders retain their strike animation. The existing
+392-pose GPU oracle checks the unchanged original sprite frames/layers.
+
+Modern performance evidence: `performance/2026-09-10-melee-decisions.json`, Chrome
+153/ANGLE Metal/Apple M5, 1440×1000 DPR 1, six staged three-person fights on flat
+terrain. Across 1,678 active-fight frames, callback CPU p50/p95 is 1.5/2.0 ms,
+callback gaps 3.6/3.7 ms (maximum 7.1 ms), maximum 104 draw calls. Browser callback
+cadence is not physical display FPS. This is a feature acceptance measurement,
+not a paired speedup or a whole-game performance claim. Combat decisions remain
+on the simulation clock while presentation remains uncapped.
+
+Quality: all 196 tests, TypeScript, formatting and the production build pass.
+The new decision module passes ox-standard without findings. Fallow remains at
+85.7 maintainability, average cyclomatic complexity 2.7 (p90 5), 12 dependency
+cycles. Existing `model.ts` lint debt (type declarations and chained assignments)
+is still open; this check does not certify repository-wide lint cleanliness.

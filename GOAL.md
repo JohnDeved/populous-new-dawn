@@ -1239,3 +1239,18 @@ approximations. Preserve clean shared TypeScript, uncapped presentation, native
 mechanics and measured modern performance. Specialist tower combat, person panels,
 secondary voices, allocation/scheduler ownership, campaign, saves, multiplayer and
 full engine parity remain unfinished. Discovery stays open.
+
+### Latest combat integration: attacks against busy group opponents
+
+The ready-fighter decision now permits original opportunistic group attacks,
+including the native slot-distance boundary and special/strike choice. Busy
+opponents retain their ongoing action and facing. Verified against 30,240 native
+code-block cases, live damage/state tests, 5–240 Hz replay and original browser
+sprite rendering; the headed combat profile is recorded separately. This is a
+bounded decision requirement, not completion of melee combat.
+
+Next: complete ordinary melee action/recoil scheduling and motion, terrain-aware
+fight relocation and native command ownership, then campaign attack dispatch
+and visible spell effects. Keep modern performance and clean code as acceptance
+criteria. Preserve the remaining full-game scope, including all specialist
+classes, campaign content, saves and multiplayer. Discovery remains open.
