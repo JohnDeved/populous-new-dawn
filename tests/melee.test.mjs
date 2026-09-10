@@ -3,6 +3,49 @@ import test from 'node:test'
 import { createWorld, addUnit, tick, random, fightPosition, meleeDamage, command } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { automaticMeleeTarget } from '../app/live-combat.ts'
+import { pursuitDestinationChanged } from '../app/person-routes.ts'
+
+test('pursuit refresh uses the original inclusive axis threshold and signed coordinates', () => {
+  const goal = { goalX: 1000, goalY: 2000 }
+  for (const axis of ['x', 'y']) for (const sign of [-1, 1]) {
+    for (const delta of [167, 168, 169]) {
+      const target = { x: 1000, y: 2000 }; target[axis] += delta * sign
+      assert.equal(pursuitDestinationChanged(goal, target, 224), delta >= 168)
+    }
+  }
+  assert.equal(pursuitDestinationChanged({ goalX: 32767, goalY: 0 }, { x: 32768, y: 0 }, 224), true)
+  assert.equal(pursuitDestinationChanged({ goalX: 65535, goalY: 0 }, { x: 0, y: 0 }, 224), false)
+})
+
+test('live pursuit updates before reaching the old destination and reuses unchanged routes', () => {
+  const run = fps => {
+    const w = createWorld(); w.units = []; w.buildings = []; w.shrines = []; w.terrain.fill(3); w.terrainVersion++
+    const u = addUnit(w, 'blue', 'warrior', { x: 0, z: 0 })
+    const enemy = addUnit(w, 'red', 'shaman', { x: 12, z: 0 })
+    w.selected = [u.id]; command(w, enemy)
+    const initial = w.pathfinding.people.get(u.id)
+    assert.ok(initial)
+    enemy.z = 167 / 256
+    tick(w, 1 / 12)
+    assert.equal(w.pathfinding.people.get(u.id), initial, 'small movement must not replan')
+    enemy.z = 168 / 256
+    tick(w, 1 / 12)
+    assert.notEqual(w.pathfinding.people.get(u.id), initial, 'replan on the threshold, while still far away')
+    assert.ok(u.x < 2)
+    enemy.x = 8; enemy.z = 6
+    for (let i = 0; i < fps; i++) tick(w, 1 / fps)
+    assert.equal(u.target, enemy.id); assert.ok(u.z > 0)
+    assert.deepEqual(u.path.at(-1), { x: 8, z: 6 })
+    assert.equal(u.native, null, 'path refresh must not take over sprite ownership')
+    const result = { x: u.x, z: u.z, path: u.path, randomState: w.randomState, routes: w.motionRoutes }
+    w.selected = [u.id]; command(w, { x: -12, z: -6 }); tick(w, 1 / 12)
+    assert.equal(u.target, null)
+    assert.deepEqual(u.path.at(-1), { x: -12, z: -6 })
+    return result
+  }
+  const expected = run(60)
+  for (const fps of [5, 30, 120, 144, 240]) assert.deepEqual(run(fps), expected)
+})
 
 test('automatic engagement uses equal tribe ranges, whole cells and original scan cadence', () => {
   for (const team of ['blue', 'red']) {

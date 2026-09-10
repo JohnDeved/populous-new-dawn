@@ -5751,3 +5751,39 @@ legacy work state on fight entry. Native scan placement after state/health dispa
 per-object phases, specialist bodies and full prefight/group lifecycle are also
 open. The new initializer is primitive-level evidence; lifecycle stays partial
 and this work earns no additional verified requirement credit.
+
+
+## 2026-09-10 — moving-target pursuit destination refresh
+
+Reviewed `00439850`, called by command-19/21 person and fight pursuit in
+`0051a2a0`. The previous live adapter followed the old destination until its
+route emptied, then requested another route. It now updates during the chase.
+For radius 224, refresh occurs when either signed coordinate differs from the
+stored goal by **at least 168** (`trunc(radius/2)+56`). This is an axis test, not
+Euclidean distance; signed-short endpoints are compared without wrapping the
+difference. Small target movements preserve the existing route. The shared
+`pursuitDestinationChanged` helper lives with existing native route primitives;
+the ordinary adapter still uses `planLivePath` and preserves sprite ownership.
+
+`check-native-pursuit.py` executes 4,096 original already-entered, grounded,
+valid-target pursuit calls and observes the destination consumer. Cases cover
+four radii, both axes, threshold neighbors and signed-coordinate boundaries.
+Only `004e9d80` is intercepted to record and apply its requested destination:
+this verifies the refresh decision, not its route-planner consumer or the full
+controller. Existing native route ports remain the planner evidence.
+Portable/live tests cover unchanged-route identity, updates before reaching the
+old point, a second target relocation, ordinary command replacement, and identical
+5/30/60/120/144/240 Hz outcomes. Browser tests verify the refreshed goal and the
+actual original walking sprite, alongside squad priorities and coastal dispatch.
+
+**Open:** complete pursuit entry/RNG/speed, 64-visit timeout and failure handling,
+arrival/prefight consumers, housed/vehicle targets and normal command restoration.
+The surrounding legacy contact radius/movement adapter is not established as
+full command parity. These native exports also retain building/plan arrival and
+fight helper evidence for the next integration; export alone earns no credit.
+Lifecycle remains partial; no new verified requirement is claimed.
+
+The routing readability cleanup also passes 18,432 native release/attachment,
+reuse, point, vehicle and destination comparisons plus 8,192 failed-cache/build/
+composed-plan comparisons. These retain the documented supplied-consumer scope
+of `check-native-person-routes.py` and `check-native-route-build.py`.

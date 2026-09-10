@@ -1,0 +1,1008 @@
+{
+  "date": "2026-09-10",
+  "baseCommit": "d0711fa29e9ab4da352293c5d9dc3ec17fbe8870",
+  "nativeRefreshDecisions": 4096,
+  "pursuit": {
+    "headed": true,
+    "workload": "16 warriors pursuing 16 moving shamans for six seconds after terrain/sprite synchronization. Includes actual path updates, rendering and simulation. Unpaired workload, not a speedup, loading or whole-game result; callback cadence is not physical display FPS.",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "cpu": {
+      "count": 1678,
+      "p50": 1.8999998569488525,
+      "p95": 2.299999952316284,
+      "p99": 4.6000001430511475,
+      "max": 5.200000047683716
+    },
+    "scanFrameCpu": {
+      "count": 18,
+      "p50": 4.5,
+      "p95": 4.6000001430511475,
+      "p99": 4.6000001430511475,
+      "max": 4.6000001430511475
+    },
+    "gaps": {
+      "count": 1677,
+      "p50": 3.5999999999994543,
+      "p95": 4,
+      "p99": 4.100000000000364,
+      "max": 7.100000000000364
+    },
+    "maxDrawCalls": 119,
+    "people": 32,
+    "fights": 0,
+    "targets": 16
+  },
+  "melee": {
+    "headed": true,
+    "recoil": [
+      {
+        "action": "push",
+        "remaining": 1,
+        "x": 1.2578125,
+        "z": 32,
+        "h": 426,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 1.68359375,
+        "z": 32,
+        "h": 388,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 2.26171875,
+        "z": 32,
+        "h": 336,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 2.9921875,
+        "z": 32,
+        "h": 272,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 3.71484375,
+        "z": 32,
+        "h": 206,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 4.46484375,
+        "z": 32,
+        "h": 169,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 5.16796875,
+        "z": 32,
+        "h": 153,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 5.82421875,
+        "z": 32,
+        "h": 139,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 6.43359375,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 6.93359375,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.32421875,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.60546875,
+        "z": 32,
+        "h": 135,
+        "airborne": true,
+        "hp": 50
+      },
+      {
+        "action": "push",
+        "remaining": 0,
+        "x": 7.77734375,
+        "z": 32,
+        "h": 135,
+        "airborne": false,
+        "hp": 50
+      },
+      {
+        "action": "approach",
+        "remaining": 0,
+        "x": 7.77734375,
+        "z": 32,
+        "airborne": false,
+        "hp": 50
+      }
+    ],
+    "approach": {
+      "sprites": [
+        {
+          "kind": "brave",
+          "cargo": 0,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "warrior",
+          "cargo": 0,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "shaman",
+          "cargo": 0,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "brave",
+          "cargo": 1,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "warrior",
+          "cargo": 1,
+          "action": "ready",
+          "speed": 0
+        },
+        {
+          "kind": "shaman",
+          "cargo": 1,
+          "action": "ready",
+          "speed": 0
+        }
+      ],
+      "trace": [
+        [
+          {
+            "id": 142,
+            "action": "approach",
+            "x": -1.80078125,
+            "z": 30.8359375,
+            "speed": 82,
+            "object": 40
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 2.2421875,
+            "z": 30.859375,
+            "speed": 71,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 6.25390625,
+            "z": 30.8671875,
+            "speed": 67,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "approach",
+            "x": -1.796875,
+            "z": 34.83984375,
+            "speed": 81,
+            "object": 72
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 2.26171875,
+            "z": 34.87109375,
+            "speed": 65,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 6.24609375,
+            "z": 34.86328125,
+            "speed": 70,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "approach",
+            "x": -2.07421875,
+            "z": 30.68359375,
+            "speed": 76,
+            "object": 40
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 2.015625,
+            "z": 30.734375,
+            "speed": 63,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 6.01171875,
+            "z": 30.734375,
+            "speed": 67,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "approach",
+            "x": -2.09375,
+            "z": 34.67578125,
+            "speed": 82,
+            "object": 72
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 2.01171875,
+            "z": 34.734375,
+            "speed": 69,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 6.03515625,
+            "z": 34.75,
+            "speed": 58,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "approach",
+            "x": -2.34765625,
+            "z": 30.53125,
+            "speed": 76,
+            "object": 40
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 1.7890625,
+            "z": 30.609375,
+            "speed": 63,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 5.76171875,
+            "z": 30.59765625,
+            "speed": 69,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "approach",
+            "x": -2.359375,
+            "z": 34.53125,
+            "speed": 73,
+            "object": 72
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 1.76953125,
+            "z": 34.6015625,
+            "speed": 67,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 5.78125,
+            "z": 34.609375,
+            "speed": 70,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "approach",
+            "x": -2.60546875,
+            "z": 30.390625,
+            "speed": 71,
+            "object": 40
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 1.5546875,
+            "z": 30.48046875,
+            "speed": 64,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 5.515625,
+            "z": 30.4609375,
+            "speed": 68,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "approach",
+            "x": -2.6328125,
+            "z": 34.37890625,
+            "speed": 76,
+            "object": 72
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 1.546875,
+            "z": 34.48046875,
+            "speed": 62,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 5.52734375,
+            "z": 34.46875,
+            "speed": 70,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "approach",
+            "x": -2.87109375,
+            "z": 30.2421875,
+            "speed": 74,
+            "object": 40
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 1.33203125,
+            "z": 30.359375,
+            "speed": 62,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 5.26171875,
+            "z": 30.3203125,
+            "speed": 70,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "approach",
+            "x": -2.90234375,
+            "z": 34.23046875,
+            "speed": 75,
+            "object": 72
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 1.29296875,
+            "z": 34.33984375,
+            "speed": 70,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 5.2890625,
+            "z": 34.33984375,
+            "speed": 65,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "approach",
+            "x": -3.13671875,
+            "z": 30.09765625,
+            "speed": 73,
+            "object": 40
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 1.0703125,
+            "z": 30.21484375,
+            "speed": 72,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 5.0078125,
+            "z": 30.1796875,
+            "speed": 70,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "approach",
+            "x": -3.19921875,
+            "z": 34.0625,
+            "speed": 82,
+            "object": 72
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 1.078125,
+            "z": 34.21875,
+            "speed": 60,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 5.07421875,
+            "z": 34.21875,
+            "speed": 60,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "approach",
+            "x": -3.30859375,
+            "z": 29.99609375,
+            "speed": 81,
+            "object": 40
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 0.85546875,
+            "z": 30.09375,
+            "speed": 60,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 4.79296875,
+            "z": 30.05859375,
+            "speed": 60,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "approach",
+            "x": -3.30078125,
+            "z": 34,
+            "speed": 78,
+            "object": 72
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 0.8359375,
+            "z": 34.08203125,
+            "speed": 67,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 4.8515625,
+            "z": 34.09375,
+            "speed": 62,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 30,
+            "speed": 0,
+            "object": 48
+          },
+          {
+            "id": 145,
+            "action": "approach",
+            "x": 0.6953125,
+            "z": 30,
+            "speed": 67,
+            "object": 40
+          },
+          {
+            "id": 148,
+            "action": "approach",
+            "x": 4.69921875,
+            "z": 30,
+            "speed": 67,
+            "object": 616
+          },
+          {
+            "id": 151,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 34,
+            "speed": 0,
+            "object": 80
+          },
+          {
+            "id": 154,
+            "action": "approach",
+            "x": 0.69921875,
+            "z": 34,
+            "speed": 72,
+            "object": 72
+          },
+          {
+            "id": 157,
+            "action": "approach",
+            "x": 4.6953125,
+            "z": 34,
+            "speed": 71,
+            "object": 616
+          }
+        ],
+        [
+          {
+            "id": 142,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 30,
+            "speed": 0,
+            "object": 48
+          },
+          {
+            "id": 145,
+            "action": "ready",
+            "x": 0.703125,
+            "z": 30,
+            "speed": 0,
+            "object": 48
+          },
+          {
+            "id": 148,
+            "action": "ready",
+            "x": 4.703125,
+            "z": 30,
+            "speed": 0,
+            "object": 424
+          },
+          {
+            "id": 151,
+            "action": "ready",
+            "x": -3.296875,
+            "z": 34,
+            "speed": 0,
+            "object": 80
+          },
+          {
+            "id": 154,
+            "action": "ready",
+            "x": 0.703125,
+            "z": 34,
+            "speed": 0,
+            "object": 80
+          },
+          {
+            "id": 157,
+            "action": "ready",
+            "x": 4.703125,
+            "z": 34,
+            "speed": 0,
+            "object": 424
+          }
+        ]
+      ]
+    },
+    "approachSprites": [
+      {
+        "kind": "brave",
+        "cargo": 0,
+        "frame": 13,
+        "object": 40
+      },
+      {
+        "kind": "warrior",
+        "cargo": 0,
+        "frame": 472,
+        "object": 40
+      },
+      {
+        "kind": "shaman",
+        "cargo": 0,
+        "frame": 953,
+        "object": 616
+      },
+      {
+        "kind": "brave",
+        "cargo": 1,
+        "frame": 322,
+        "object": 72
+      },
+      {
+        "kind": "warrior",
+        "cargo": 1,
+        "frame": 781,
+        "object": 72
+      },
+      {
+        "kind": "shaman",
+        "cargo": 1,
+        "frame": 953,
+        "object": 616
+      }
+    ],
+    "placement": {
+      "before": {
+        "x": 0,
+        "z": 32
+      },
+      "between": {
+        "x": 0,
+        "z": 32
+      },
+      "after": {
+        "x": 3,
+        "z": 29
+      },
+      "retained": {
+        "x": 3,
+        "z": 29
+      },
+      "origin": 13828,
+      "destination": 13957,
+      "members": [
+        {
+          "group": 161,
+          "sprite": "strike"
+        },
+        {
+          "group": 161,
+          "sprite": "strike"
+        }
+      ],
+      "group": 161
+    },
+    "engagement": {
+      "moving": {
+        "x": 1.66796875,
+        "fight": null,
+        "path": 2,
+        "pose": "walk",
+        "frame": 467
+      },
+      "explicit": {
+        "group": 164,
+        "opponentGroup": 164,
+        "turn": 5
+      }
+    },
+    "workload": "Six staged three-person fights on flat terrain; only frames with active fights recorded. Browser callback cadence is not physical display FPS. No paired speedup or whole-game claim.",
+    "states": [
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "special",
+          "frame": 207,
+          "hp": 50,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "warrior",
+          "team": "blue",
+          "state": "special",
+          "frame": 664,
+          "hp": 90,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "shaman",
+          "team": "blue",
+          "state": "special",
+          "frame": 1031,
+          "hp": 100,
+          "action": "special"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 116,
+          "hp": 32,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "warrior",
+          "team": "blue",
+          "state": "strike",
+          "frame": 573,
+          "hp": 72,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ],
+      [
+        {
+          "kind": "warrior",
+          "team": "red",
+          "state": "strike",
+          "frame": 1664,
+          "hp": 87,
+          "action": "strike"
+        },
+        {
+          "kind": "shaman",
+          "team": "blue",
+          "state": "strike",
+          "frame": 1006,
+          "hp": 82,
+          "action": "strike"
+        },
+        {
+          "kind": "brave",
+          "team": "blue",
+          "state": "strike",
+          "frame": 132,
+          "hp": 50,
+          "action": "strike"
+        }
+      ]
+    ],
+    "performance": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "frames": 1679,
+      "cpu": {
+        "p50": 1.5,
+        "p95": 2.1000001430511475,
+        "p99": 4.400000095367432,
+        "max": 6.200000047683716
+      },
+      "gaps": {
+        "p50": 3.600000000000364,
+        "p95": 3.7999999999992724,
+        "max": 4.100000000000364
+      },
+      "maxDrawCalls": 104
+    }
+  },
+  "browser": {
+    "choices": {
+      "units": [
+        39,
+        40,
+        41,
+        42
+      ],
+      "targets": [
+        43,
+        43,
+        43,
+        44
+      ],
+      "expected": [
+        43,
+        43,
+        43,
+        44
+      ],
+      "reservation": {
+        "flags4": 1048576,
+        "reactionTimer": 2,
+        "reactionDuration": 47
+      },
+      "spriteOwned": false
+    },
+    "poses": [
+      {
+        "frame": 467,
+        "visible": true,
+        "state": "walk"
+      },
+      {
+        "frame": 467,
+        "visible": true,
+        "state": "walk"
+      },
+      {
+        "frame": 467,
+        "visible": true,
+        "state": "walk"
+      },
+      {
+        "frame": 467,
+        "visible": true,
+        "state": "walk"
+      }
+    ],
+    "coastal": {
+      "suppressed": null,
+      "target": 49,
+      "expected": 49,
+      "native": null
+    },
+    "pursuit": {
+      "id": 45,
+      "reused": true,
+      "refreshed": true,
+      "path": [
+        {
+          "x": 9,
+          "z": 37
+        },
+        {
+          "x": 8,
+          "z": 38
+        }
+      ],
+      "native": null,
+      "target": 46,
+      "expected": 46
+    },
+    "pursuitPose": {
+      "visible": true,
+      "state": "walk",
+      "frame": 463
+    }
+  },
+  "nativeRouteRegressions": 26624,
+  "tests": 224
+}

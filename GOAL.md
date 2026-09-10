@@ -1369,3 +1369,21 @@ This primitive recovery and the live gating/coast fixes do not complete automati
 orders or grant a new parity requirement. Continue campaign attacks and visible
 spell behavior once the command handoff is integrated. Keep all unfinished game
 scope, clean TS, uncapped timing, measured modern performance and open discovery.
+
+
+### Current visible integration: moving-target pursuit
+
+The terrain/performance work is complete; visible mechanics continue. Ordinary
+chasers now refresh their route while the target moves, using the original
+`00439850` inclusive per-axis destination threshold. Small movements retain the
+existing route. This shares the current native route planner and does not acquire
+sprite ownership or add a render clock. Native decision comparisons, live 5–240 Hz
+replays, original walking/combat sprites and a moving-target GPU workload are
+recorded in the reverse-engineering and modern-performance references.
+
+This is a bounded pursuit correction, not complete command-19/21 execution.
+Continue the real ordinary command handoff and prefight dispatch, then campaign
+attacks and visible spell behavior. Entry/speed, pursuit timeout/failure, housed
+and vehicle targets, group admission and normal queue restoration remain open.
+Preserve clean TS, modern hardware performance and the full unfinished game scope;
+the lifecycle requirement remains partial and discovery stays open.

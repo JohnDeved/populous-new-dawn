@@ -34,6 +34,33 @@ try {
   }
   await page.screenshot({path:'/private/tmp/populous-combat-targets.png'})
   assert.deepEqual(errors, [])
+  const pursuit = await page.evaluate(async () => {
+    const s=window.testScene, w=s.world, m=await import('/app/model.ts')
+    w.units=[];w.buildings=[];w.fights=[];w.shrines=[];w.pendingTime=0
+    w.terrain.fill(3);w.terrainVersion++
+    const u=m.addUnit(w,'blue','warrior',{x:0,z:32}), enemy=m.addUnit(w,'red','shaman',{x:12,z:32})
+    w.selected=[u.id];m.command(w,enemy)
+    const original=w.pathfinding.people.get(u.id)
+    enemy.z+=167/256;w.speed=1;m.tick(w,1/12);w.speed=0
+    const reused=w.pathfinding.people.get(u.id)===original
+    enemy.z+=1/256;w.speed=1;m.tick(w,1/12);w.speed=0
+    const refreshed=w.pathfinding.people.get(u.id)!==original
+    enemy.x=8;enemy.z=38;w.speed=1;m.tick(w,1/12);w.speed=0
+    s.focus({x:3,z:34});s.onChange()
+    return {id:u.id,reused,refreshed,path:u.path,native:u.native,target:u.target,expected:enemy.id}
+  })
+  assert.equal(pursuit.reused,true,JSON.stringify(pursuit));assert.equal(pursuit.refreshed,true,JSON.stringify(pursuit))
+  assert.equal(pursuit.target,pursuit.expected);assert.equal(pursuit.native,null)
+  assert.deepEqual(pursuit.path.at(-1),{x:8,z:38})
+  await page.waitForFunction(id=>window.testScene.unitMeshes.get(id)?.userData.state==='walk',pursuit.id)
+  const pursuitPose=await page.evaluate(id=>{
+    const g=window.testScene.unitMeshes.get(id)
+    return {visible:g.visible,state:g.userData.state,frame:g.userData.frame}
+  },pursuit.id)
+  assert.equal(pursuitPose.visible,true)
+  assert.ok(sprites.animations['blue-warrior'].walk.some(dir=>dir.frames.includes(pursuitPose.frame)))
+  await page.screenshot({path:'/private/tmp/populous-pursuit.png'})
+  assert.deepEqual(errors,[])
   const coastal = await page.evaluate(async () => {
     const w=window.testScene.world, m=await import('/app/model.ts'), combat=await import('/app/live-combat.ts')
     w.speed=0;w.units=[];w.buildings=[];w.fights=[];w.land.categories.fill(0);w.land.flags.fill(0);w.land.buildingIds.fill(0);w.land.owners.fill(0)
@@ -49,7 +76,7 @@ try {
     return {suppressed,target,expected:inland.id,native:u.native}
   })
   assert.equal(coastal.suppressed,null);assert.equal(coastal.target,coastal.expected);assert.equal(coastal.native,null)
-  const result = { choices, poses, coastal }
+  const result = { choices, poses, coastal, pursuit, pursuitPose }
   writeFileSync('/private/tmp/populous-combat-targets-browser.json', JSON.stringify(result,null,2)+'\n')
   console.log('PASS: live squad assigns three warriors to the nearer target and one to the next, retaining original walking sprites', result)
 } finally { await browser.close() }

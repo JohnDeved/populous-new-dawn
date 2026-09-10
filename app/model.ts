@@ -1,4 +1,5 @@
 import { automaticMeleeTarget } from './live-combat.ts'
+import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import { emptyPersonOrder, type OrderPool } from './person-orders.ts'
 import { relocateFight } from './melee-placement.ts'
@@ -4297,6 +4298,15 @@ function stepTurn(w: World) {
       if (u.target === null && u.work === null) {
         u.target = target.id
         if (targetDistance >= reach) route(w, u, target)
+      } else if (
+        !('progress' in target) &&
+        u.target === target.id &&
+        u.work === null &&
+        targetDistance >= reach
+      ) {
+        const planned = w.pathfinding.people.get(u.id)
+        if (planned && pursuitDestinationChanged(planned, nativePosition(w, target), 224))
+          route(w, u, target)
       }
     }
     if (target && targetDistance < reach) {

@@ -4474,3 +4474,14 @@ check supplies reveal/path-list consumers and group allocation/index inputs.
 flags before checking knockback. Full global scheduling, initializer cleanup,
 command interruption and prefight allocation remain unported. See
 [approach findings](../references/reverse-engineering.md#melee-approach-and-ready-slot-transitions-2026-09-10).
+
+
+## 2026-09-10 — pursuit destination refresh
+
+`00439850` now supplies the ordinary live chase destination threshold. Run
+`/private/tmp/populous-reference/tools/bin/python scripts/check-native-pursuit.py /private/tmp/populous-reference/native/d3dpoptb.exe`. Its 4,096
+comparisons execute the original entered/valid-target branch while observing the
+destination consumer; they do not establish full command lifecycle parity.
+See `references/reverse-engineering.md` for boundaries and the live checks.
+The manifest now hashes 1,025 exports, retaining associated arrival/fight helpers
+for continuing real command integration.

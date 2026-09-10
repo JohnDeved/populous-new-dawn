@@ -1583,3 +1583,37 @@ Build/typecheck/format and changed scanner/controller modules' oxlint pass.
 Fallow: maintainability 85.6, average cyclomatic 2.7/p90 5, twelve existing cycles.
 No additional verified requirement credit: ordinary live command ownership and
 completion/restoration still need their actual world consumers.
+
+
+## 2026-09-10 — moving-target pursuit
+
+A visible parity correction now refreshes a follower's route during pursuit,
+using the original per-axis target movement threshold. The existing route is
+retained below the threshold; the native route planner/reuse/release logic is
+shared. There is no per-frame path search, extra animation owner, package or
+render clock. Decisions remain on simulation turns and portable live outcomes
+agree at 5/30/60/120/144/240 Hz. This is a gameplay correction, not a claimed
+algorithmic speedup; no native implementation was deliberately replaced here.
+
+Headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, with no concurrent
+builds, heavy checks or app edits during measurement:
+
+- Six seconds of 16 warriors pursuing 16 moving shamans after terrain/sprite
+  synchronization: 1,678 callbacks, CPU p50/p95 **1.9/2.3 ms**, p99 **4.6 ms**,
+  max **5.2 ms**; scan-bearing frames p50/p95 **4.5/4.6 ms**; 119 draw calls.
+- Six staged active fights: 1,679 callbacks, CPU p50/p95 **1.5/2.1 ms**,
+  p99 **4.4 ms**, max **6.2 ms**; 104 draw calls.
+
+Raw evidence: `performance/2026-09-10-pursuit.json`. These unpaired, warmed,
+bounded samples do not establish physical display FPS, loading performance,
+whole-game smoothness or a speedup. Broader populations/hardware and full native
+command lifecycle remain unfinished. The browser pursuit check retains original
+walking sprites, and existing melee/approach/recoil regressions pass.
+
+Validation: 224 tests, typecheck/build/format, sprite/shadow/selection checks and
+26,624 native route regressions pass. Routing cleanup replaces nested limit
+selection, chained assignments and a shadowed cache offset with explicit names
+and branches. The touched route module has no ox-standard errors; its existing
+local-function-scoping warning remains. Fallow reports maintainability 85.5,
+average cyclomatic 2.7/p90 5 and twelve existing dependency cycles. This cleanup
+does not claim a measured speedup or complete the wider code-health audit.

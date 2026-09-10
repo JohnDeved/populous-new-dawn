@@ -10,7 +10,7 @@
 
 Newly verified: 0. Reopened: 0.
 
-Recovered and native-tested shared automatic response ownership; fixed live global scan suppression and coastal order preparation. Ordinary queue/fight integration remains partial; no new verified requirement credit.
+Native pursuit destination refresh integrated; 4096 original decisions, live cadence/sprite checks and moving-target GPU profile. Lifecycle remains partial; no new requirement credit.
 
 **Tracking blind spots: 43 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
@@ -151,6 +151,7 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-10T08:41:24.439Z | 18 | 23.47% | 17/96 | scope revision | Scope revision 18: separate ordinary area-command target selection and reservations before implementation. Baseline change only; no gameplay credit. |
 | 2026-09-10T09:07:12.048Z | 18 | 23.65% | 17/96 | 0.17 pp; 1 newly verified, 0 reopened | Verified original area target priorities and attacker reservations: complete native mixed-object comparisons, live squad/building/fight integration and FPS-independent replay; automatic order and group lifecycle remain partial. |
 | 2026-09-10T09:33:29.739Z | 18 | 23.65% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Recovered and native-tested shared automatic response ownership; fixed live global scan suppression and coastal order preparation. Ordinary queue/fight integration remains partial; no new verified requirement credit. |
+| 2026-09-10T09:53:44.416Z | 18 | 23.65% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Native pursuit destination refresh integrated; 4096 original decisions, live cadence/sprite checks and moving-target GPU profile. Lifecycle remains partial; no new requirement credit. |
 
 ## Update workflow
 

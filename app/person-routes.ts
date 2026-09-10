@@ -2,7 +2,10 @@ import rules from './original-rules.json' with { type: 'json' }
 import type { NativeTerrain } from './native-terrain.ts'
 import { cellDelta } from './native-math.ts'
 
-type Point = { x: number; y: number }
+interface Point {
+  x: number
+  y: number
+}
 export type RoutedPerson = Point & {
   id: number
   tribe: number
@@ -19,7 +22,7 @@ export type RoutedPerson = Point & {
   turnAngle: number
   turnY: number
 }
-export type MotionRoutes = {
+export interface MotionRoutes {
   records: Uint8Array
   active: number
   last: number
@@ -39,6 +42,20 @@ const short = (n: number) => (n << 16) >> 16
 const view = (w: MotionRoutes) =>
   new DataView(w.records.buffer, w.records.byteOffset, w.records.byteLength)
 const cell = (p: Point) => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+
+// 0x439850 refreshes pursuit when either target axis moves far enough from the
+// last destination. Signed coordinates are compared without wrapping the delta.
+export function pursuitDestinationChanged(
+  p: Pick<RoutedPerson, 'goalX' | 'goalY'>,
+  target: Point,
+  radius: number
+) {
+  const tolerance = Math.trunc(radius / 2) + 56
+  return (
+    Math.abs(short(p.goalX) - short(target.x)) >= tolerance ||
+    Math.abs(short(p.goalY) - short(target.y)) >= tolerance
+  )
+}
 
 // Complete 0x4ea460. A zero group leaves the index untouched. Reserved routes
 // (flag 4) survive their last user's departure; active counts are signed words.
@@ -84,8 +101,12 @@ export function attachPersonRoute(
 // Complete 0x4e9dd0; used by resting and celebration's direct movements.
 export function setDirectPersonDestination(w: MotionRoutes, p: RoutedPerson, to: Point) {
   releasePersonRoute(w, p)
-  p.goalX = p.destinationX = p.turnAngle = to.x & 65535
-  p.goalY = p.destinationY = p.turnY = to.y & 65535
+  p.goalX = to.x & 65535
+  p.destinationX = p.goalX
+  p.turnAngle = p.goalX
+  p.goalY = to.y & 65535
+  p.destinationY = p.goalY
+  p.turnY = p.goalY
   p.flags2 = ((p.flags2 & ~128) | 0x1000) >>> 0
 }
 
@@ -150,7 +171,7 @@ export function updatePersonRouteVehicle(
   p.flags2 = (waiting ? p.flags2 | 0x8000000 : p.flags2 & ~0x8000000) >>> 0
 }
 
-export type RouteWorld = {
+export interface RouteWorld {
   routes: MotionRoutes
   skip: number
   checkingPerson: number
@@ -161,7 +182,7 @@ export type RouteWorld = {
   land: Pick<NativeTerrain, 'flags' | 'categories' | 'buildingIds'>
   vehicles: ReadonlyMap<number, Point>
 }
-type RouteEffects = {
+interface RouteEffects {
   outside: (id: number) => Point
   buildingBlocks: (cell: number) => boolean
   coastDirection: (to: Point) => number
@@ -184,8 +205,10 @@ export function planPersonDestination(w: RouteWorld, p: RoutedPerson, to: Point,
       !(p.vehicle && p.flags4 & 0x2000000)
   p.flags4 = (p.flags4 & ~0x10000000) >>> 0
   if (enabled) {
-    const tribe = w.tribes[p.tribe],
-      limit = tribe.playerType === 1 ? w.computerLimit : tribe.playerType === 2 ? w.humanLimit : 0
+    const tribe = w.tribes[p.tribe]
+    let limit = 0
+    if (tribe.playerType === 1) limit = w.computerLimit
+    else if (tribe.playerType === 2) limit = w.humanLimit
     if (limit && tribe.requests > limit) enabled = false
   }
   if (enabled) {
@@ -267,7 +290,7 @@ export function setPlannedPersonDestination(
 }
 
 type RouteBuildPerson = RoutedPerson & { flags3: number }
-type RouteBuildEffects = {
+interface RouteBuildEffects {
   findVehicle: (
     p: RouteBuildPerson,
     center: Point,
@@ -307,8 +330,9 @@ export function clearFailedRoute(w: MotionRoutes, id: number) {
     to = { x: w.records[a + 8], y: w.records[a + 9] },
     c = w.failedSearches
   const v = new DataView(c.buffer, c.byteOffset, c.byteLength)
-  for (let a = 0; a < 80; a += 10)
-    if (v.getInt16(a, true) && failedRouteMatches(c, a, from, to)) v.setInt16(a, 0, true)
+  for (let offset = 0; offset < 80; offset += 10)
+    if (v.getInt16(offset, true) && failedRouteMatches(c, offset, from, to))
+      v.setInt16(offset, 0, true)
 }
 
 // Complete 0x4ea970, low-word result. Search writes the shared native result
@@ -404,14 +428,13 @@ export function routeVehicleAvailable(
     count = d[a + 108]
   let at = -1
   if (flags & 1) {
-    if (!count) {
-      if (d[a + 6]) at = a + 4
-    } else
+    if (count) {
       for (let i = (p.motionIndex << 24) >> 24; i < count; i++)
         if (d[a + 14 + i * 4]) {
           at = a + 12 + i * 4
           break
         }
+    } else if (d[a + 6]) at = a + 4
   } else if (flags & 2) at = a + (count ? 8 + count * 4 : 4)
   return at < 0 || !!boarding((d[at] & 254) | ((d[at + 1] & 254) << 8))
 }
