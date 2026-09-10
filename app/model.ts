@@ -7,6 +7,11 @@ import {
   type FightParticipant,
 } from './melee-groups.ts'
 import { EncounterPhase } from './melee-encounter.ts'
+import {
+  stepLiveBuildingAttack,
+  cancelLiveBuildingAttack,
+  liveBuildingAttackTarget,
+} from './live-building-combat.ts'
 import { automaticMeleeTarget, nativePersonTribe } from './live-combat.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
@@ -184,6 +189,7 @@ import { stepSinkingBuilding, type SinkingBuilding } from './building-sinking.ts
 import {
   defeatTribe,
   advanceCollapse,
+  stepBuildingShake,
   processBuildingDamage,
   igniteBuilding,
   stepBuildingBurn,
@@ -273,6 +279,7 @@ type Battle = Point & {
   members: number[]
   angle: number
   encounter?: [number, number]
+  encounterBuilding?: number
   slots?: number[]
   tribes?: number[]
   center?: number
@@ -333,7 +340,15 @@ export type Building = Point & {
   builders?: number[]
   birthPending?: boolean
   woodUnavailable?: boolean
-  damageState: (DamageBuilding & { plan: BuildingPlan }) | null
+  damageState:
+    | (DamageBuilding & {
+        plan: BuildingPlan
+        renderFlags: number
+        tilt: number
+        roll: number
+        remaining: number
+      })
+    | null
   burn?: BuildingBurn
   terrainState?: BuildingTerrain & { dirty: boolean }
 }
@@ -658,7 +673,7 @@ function relocateBattle(w: World, b: Battle, force = false) {
   )
   Object.assign(b, browserPosition(fight))
 }
-function joinBattle(w: World, u: Unit, target: Unit) {
+export function joinBattle(w: World, u: Unit, target: Unit, structure?: Building) {
   let b = w.fights.find(b => b.id === target.fight?.group)
   if (b) {
     if (b.encounter) return // A model-9 encounter already owns both participants.
@@ -669,6 +684,7 @@ function joinBattle(w: World, u: Unit, target: Unit) {
       id: w.nextId++,
       members: [u.id, target.id],
       encounter: [u.id, target.id],
+      encounterBuilding: structure?.id,
       x: target.x,
       z: target.z,
       angle: 0,
@@ -679,8 +695,9 @@ function joinBattle(w: World, u: Unit, target: Unit) {
       [target, u, EncounterPhase.Wait],
     ] as const) {
       const motion = enterLiveCombat(w, person, 29)
-      release(w, person)
-      motion.substate = phase
+      release(w, person, true)
+      if (person.native === motion) person.native = null
+      motion.substate = structure ? EncounterPhase.EjectDefender : phase
       motion.flags2 = (motion.flags2 | 0x40000000) >>> 0
       motion.workFlags = b.id
       person.fight = {
@@ -779,7 +796,7 @@ function reinforceBattle(w: World, b: Battle, recruit: Unit) {
 
 function processEncounter(w: World, b: Battle) {
   const [attacker, defender] = b.encounter!.map(id => w.units.find(u => u.id === id)!)
-  const outcome = stepLiveEncounter(w, attacker, defender)
+  const outcome = stepLiveEncounter(w, attacker, defender, b.encounterBuilding)
   if (outcome === 'waiting') return
   if (outcome === 'cancelled') {
     for (const u of [attacker, defender]) clearFightAssignment(u)
@@ -796,6 +813,7 @@ function processEncounter(w: World, b: Battle) {
   b.x = defender.x
   b.z = defender.z
   delete b.encounter
+  delete b.encounterBuilding
   for (const [u, target] of [
     [attacker, defender],
     [defender, attacker],
@@ -816,7 +834,11 @@ function processEncounter(w: World, b: Battle) {
 }
 function clearFightAssignment(u: Unit) {
   if (u.flight && u.flight.workFlags === u.fight?.group) u.flight.workFlags = 0
-  if (u.fight?.motion) u.fight.motion.workFlags = 0
+  if (u.fight?.motion) {
+    const p = u.fight.motion
+    p.workFlags = 0
+    if (p.immediateCommand || p.commands.some(Boolean)) u.native = p
+  }
   u.fight = null
 }
 function cleanBattles(w: World) {
@@ -1363,6 +1385,8 @@ export type World = {
   unlockedCamp: boolean
   time: number
   turn: number
+  attackAlert: number
+  attackCell: number
   musicActivity: number
   pendingTime: number
   randomState: number
@@ -1626,6 +1650,8 @@ export function createWorld(): World {
     unlockedCamp: false,
     time: 0,
     turn: 0,
+    attackAlert: 0,
+    attackCell: 0,
     musicActivity: 0,
     pendingTime: 0,
     randomState: 1,
@@ -2117,13 +2143,14 @@ export function select(w: World, kind: UnitKind | 'all') {
     .map(u => u.id)
   w.mode = null
 }
-function release(w: World, u: Unit) {
+function release(w: World, u: Unit, preserveOrders = false) {
   const occupant = u.inside !== null ? leaveLiveBuilding(w, u) : undefined
   u.inside = null
-  releaseTasks(w, u)
+  releaseTasks(w, u, preserveOrders)
   return occupant
 }
-export function releaseTasks(w: World, u: Unit) {
+export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
+  if (!preserveOrders) cancelLiveBuildingAttack(w, u)
   cancelBuildingEntry(w, u)
   clearLivePath(w, u)
   u.vault = null
@@ -3165,6 +3192,10 @@ export function ensureBuildingDamage(b: Building) {
     buildingFlags: 0,
     counter: b.counter,
     damage: 0,
+    renderFlags: 32,
+    tilt: 0,
+    roll: 0,
+    remaining: 0,
     stage: buildingWorkStage(remaining, rules.buildingLife[model]),
     attacker: 255,
     occupants: 0,
@@ -3874,7 +3905,8 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
   }
   for (const u of units.values()) {
     if (u.inside !== null) continue
-    const p = u.flight ?? u.native ?? createLivePerson(w, u)
+    const existing = u.flight ?? u.fight?.motion ?? u.native
+    const p = existing ?? createLivePerson(w, u)
     // Ordinary browser people have not yet run the native allocation flags.
     // Vehicles, invisibility and shield flags retain their values on native records.
     if (!u.native && !u.flight) p.flags4 |= 256
@@ -4364,6 +4396,7 @@ function stepTurn(w: World) {
     if (b.hp <= 0) continue
     b.counter = (b.counter + 1) & 255
     if (b.attackReservation) stepAttackReservation(b.attackReservation, b.counter)
+    if (b.damageState) stepBuildingShake(b.damageState, b.counter)
     if (b.admission) stepBuildingEntryClocks(b.admission, b.counter)
     stepBuildingGroundResponse(w, b)
     if (b.hp <= 0 || b.damageState?.state === 3) continue
@@ -4490,6 +4523,15 @@ function stepTurn(w: World) {
       if (u.fight.motion) stepLiveMeleeMotion(w, u)
       continue
     }
+    if (u.native?.commandStatus === 19) {
+      const building = liveBuildingAttackTarget(w, u.native)
+      if (building) {
+        stepLiveBuildingAttack(w, u, building)
+        continue
+      }
+      cancelLiveBuildingAttack(w, u)
+      u.target = null
+    }
     if (u.casting) {
       u.casting.remaining -= dt
       if (u.casting.remaining <= 1e-8) u.casting = null
@@ -4555,8 +4597,13 @@ function stepTurn(w: World) {
     if (target && !('progress' in target) && (target.lift > 0 || target.inside !== null))
       target = undefined
     if (!target) {
+      cancelLiveBuildingAttack(w, u)
       u.target = null
       target = automaticMeleeTarget(w, u)
+    }
+    if (target && 'progress' in target && target.progress === 1) {
+      stepLiveBuildingAttack(w, u, target)
+      continue
     }
     const targetDistance = target ? distance(u, target) : Infinity
     const reach = target && 'progress' in target ? 4.3 : 1.7
@@ -4722,6 +4769,8 @@ function stepTurn(w: World) {
     if (!b.terrainState?.reason && !b.dismantled) effect(w, 'death', b)
   }
   removeDeadLiveRoutes(w)
+  for (const u of w.units)
+    if (u.hp <= 0 && !u.flight && u.native?.state !== 44) cancelLiveBuildingAttack(w, u)
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   w.buildings = w.buildings.filter(b => b.hp > 0)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))

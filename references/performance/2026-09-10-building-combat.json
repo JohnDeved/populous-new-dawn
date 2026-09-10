@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-10",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "strike": {
+    "pixels": 242,
+    "shakePixels": 4901,
+    "phase": 46,
+    "object": 88,
+    "damage": 24,
+    "tilt": -2,
+    "roll": 2,
+    "drawCalls": 25
+  },
+  "ejected": true,
+  "fought": true,
+  "resumed": true,
+  "references": 1,
+  "paused": true,
+  "cancelled": true,
+  "peakEffects": 3,
+  "peakDraws": 29,
+  "frameMs": {
+    "median": 4.5,
+    "p95": 7.599999904632568
+  },
+  "registration": {
+    "units": 200,
+    "attackers": 40,
+    "fullSyncMsPerTurn": 0.4400000095367432,
+    "directMsPerTurn": 0,
+    "unchanged": true
+  },
+  "limits": "Headless Chromium, not hardware FPS. Full-frame samples include one fixed turn plus presentation. Registration comparison uses the same 200-person world and 40 attacks; repeated world synchronization is an implementation alternative, not the previous shipped combat behavior. Complete native command-19/21 selection and ordinary work restoration remain open."
+}

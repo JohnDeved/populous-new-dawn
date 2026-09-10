@@ -2526,6 +2526,8 @@ export class GameScene {
       }
       this.locate(g, b, b.foundation)
       this.orientModel(g, b.angle)
+      g.userData.nativeTilt = b.damageState?.tilt ?? 0
+      g.userData.nativeRoll = b.damageState?.roll ?? 0
       g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1
       g.userData.health.quaternion.copy(
         g.quaternion.clone().invert().multiply(this.camera.quaternion)

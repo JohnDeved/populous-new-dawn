@@ -1989,3 +1989,32 @@ pixels, smooth positions, pause and exact first-launch visits pass; portable tes
 retain identical simulation outcomes and display samples from 5 through 240 Hz and
 irregular cadences. Full native outer scheduling and other effect-motion classes
 remain unfinished.
+
+
+## 2026-09-10 — live building combat and retained orders
+
+Building combat reuses fixed-turn movement, the native route pool, object cells,
+shared sprite atlases, existing model tilt/roll and the same person/order records
+through defender combat. No render-driven damage/timer or new animation clock is
+introduced. Original poses and authored cadence remain unchanged; existing
+interpolation presents movement at uncapped refresh rates. Complete native timing
+and mixed-class ownership are still separate unfinished requirements.
+
+Use the existing `registerLivePerson` identity check for each attacker instead of
+rebuilding the whole person-cell index on every attacker visit. The paired browser
+microbenchmark holds one 200-person world, 40 attackers, 12 alternating batches,
+ten turns per batch and two warmups. Full-world synchronization per attacker costs
+0.44 ms/turn median; direct retained registration is below the timer's measurable
+resolution in this sample. Both leave identical cell heads and person records.
+This compares implementation alternatives, not shipped old/new gameplay or a
+hardware-FPS speedup; zero measured time does not mean zero cost.
+
+The 1440×1000 headless Chromium 153.0.8010.12 occupied-building sequence measured
+4.5 ms median / 7.6 ms p95 for a simulated turn plus presentation, with at most 29
+draw calls. It includes actual mouse input, original strike pixels and a 4,901-pixel
+shake difference, defender ejection, fight, resumed building order, pause and
+cancellation. Headless figures are not representative hardware performance claims.
+Conditions and the runnable check are retained in
+`performance/2026-09-10-building-combat.json`. Cross-cadence tests produce identical
+worlds at 5/30/60/120/144/240 Hz and irregular schedules. Broader hardware and dense
+whole-scene profiling remains part of the continuing modernization work.

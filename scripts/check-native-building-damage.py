@@ -106,11 +106,16 @@ print('PASS: 1,024 complete native building damage calls with real plan changes'
 
 mode='collapse-prefix';cases=[];expected=[]
 cpu.hook_add(UC_HOOK_CODE,lambda cpu,a,s,u:cpu.emu_stop(),begin=0x4092a0,end=0x4092a0)
-for i in range(512):
-    reset();seed=rng.getrandbits(32);damage=rng.choice([-32768,-1,0,1999,2000,32767]);flags=rng.choice([0,64,68]);counter=rng.randrange(256)
-    write(base+0x2a,'BBB',2,1,1);write(base+0x2e,'B',counter);write(base+0x9c,'Hh',flags,damage);write(0x89d178,'I',seed);write(0x89c669,'I',0)
+shake_fields={'buildingFlags':(0x9c,'H'),'renderFlags':(0x35,'H'),'tilt':(0x6c,'h'),'roll':(0x6e,'h'),'remaining':(0xa7,'b')}
+for i in range(1024):
+    reset();seed=rng.getrandbits(32);damage=rng.choice([-32768,-1,0,1999,2000,32767]);flags=rng.choice([0,1,2,3,64,66,68]);counter=i%256
+    shake=dict(buildingFlags=flags,renderFlags=rng.randrange(65536),tilt=rng.randrange(-10,11),roll=rng.randrange(-10,11),remaining=rng.choice([-128,-1,0,1,2,6,16,127]))
+    write(base+0x2a,'BBB',2,1,1);write(base+0x2e,'B',counter);write(base+0x9e,'h',damage);write(0x89d178,'I',seed);write(0x89c669,'I',0)
+    for k,(off,f) in shake_fields.items():write(base+off,f,shake[k])
     write(stack,'II',stop,base);cpu.reg_write(UC_X86_REG_ESP,stack)
     cpu.emu_start(0x403280,0x4092a0,timeout=1000000,count=1000000);assert cpu.reg_read(UC_X86_REG_EIP)==0x4092a0
-    expected.append(dict(randomState=read(0x89d178,'I'),damage=read(base+0x9e,'h')));cases.append(dict(seed=seed,damage=damage,flags=flags))
-compare(cases,expected,"const w={randomState:c.seed},b={damage:c.damage,buildingFlags:c.flags};d.advanceCollapse(w,b);return {randomState:w.randomState,damage:b.damage};")
-print('PASS: 512 original building-processor prefixes through collapse RNG/word accumulation')
+    expected.append(dict(randomState=read(0x89d178,'I'),damage=read(base+0x9e,'h'),shake={k:read(base+off,f) for k,(off,f) in shake_fields.items()}));cases.append(dict(seed=seed,damage=damage,counter=counter,shake=shake))
+compare(cases,expected,"const w={randomState:c.seed},b={damage:c.damage,...c.shake};d.stepBuildingShake(b,c.counter);d.advanceCollapse(w,b);const {damage,...shake}=b;return {randomState:w.randomState,damage,shake};")
+print('PASS: 1,024 original building-processor prefixes through defence gate, shake lifetime/angles and collapse RNG/word accumulation')
+if '--record' in sys.argv:
+    (root/'tests/fixtures/building-shake.json').write_text(json.dumps([dict(input=c,expected=e) for c,e in zip(cases,expected)],separators=(',',':'))+'\n')

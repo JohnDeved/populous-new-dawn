@@ -79,39 +79,39 @@ use Fallow, ox-standard and Ponytail in the regular development workflow.
 Reconstruct original behavior in idiomatic game code, keeping raw decompiler
 output and address-level bookkeeping in the decompilation evidence.
 
-## Current execution order: biggest noticeable improvements
+## Current execution order: groups and native selection next
 
-Latest user direction, 2026-09-10: finish the current tree-ambience correction,
-then prioritize changes with the largest noticeable impact on playing the game.
-Assess the current playable build and choose concrete gaps in core gameplay,
-spell effects, controls, HUD and world presentation. Prefer complete playable
-improvements over further isolated native helpers. Decompile and integrate deeper
-systems when they are needed for the selected visible result. Remaining audio
-edge cases and the staged attack-controller work are candidates, not prerequisites
-that delay higher-impact work. Preserve full-game scope, clean code, modern
-performance and original mechanics; record evidence without inflating parity.
+Latest user direction, 2026-09-10: finish the current building-combat integration,
+then prioritize how followers move as a group, unit footprints, how groups stand,
+selection and deselection, and native 3D drag selection. This order supersedes older
+"Next" paragraphs below; those retain unfinished scope, not an instruction to
+postpone this queue. Continue the biggest noticeable improvements while preserving
+full-game scope, clean code, original mechanics and measured modern performance.
 
-Tree ambience is delivered. The next visible slice replaces Land Bridge's
-approximate browser-grid strip with native terrain evolution and ground trails.
-96 complete original lifetimes and a real browser cast verify its height changes;
-the first-mission playthrough and low/high/irregular timing checks pass. Terrain
-buffers and scenery models are retained during deformation. Full spell/object
-allocation, alternate anchors, route invalidation and remaining terrain spells
-remain open. Continue choosing complete player-visible improvements; inspect
-combat orders, spell interactions and first-mission opponent behavior next.
+The building-combat slice now connects native approach/entry, strike positioning,
+original work poses/sound, accumulated damage, shaking and occupied-building
+challenge/ejection to live play. A shared native command-19 record survives the
+defender encounter and resumes the building attack afterward; cancellation/death
+release references. Native comparisons, all playable attackers destroying a hut,
+occupied-building recovery, 5–240 Hz/irregular replay and actual browser pixels,
+input and pause are checked. Full automatic command-21 selection/sharing, ordinary
+movement/work queue restoration, plans, specialized structures/classes, allocation
+limits and complete native scheduling remain unfinished. These do not delay the
+new groups/selection priority.
 
-Lightning strike eligibility, electrocution and the first-bolt shockwave are now
-integrated and checked against native execution and real browser pixels. Full
-allocation/scheduling, special remote-shaman handling and corpse ownership remain
-open. Blast's reported impact delay is now traced through the original active-list
-loop: the head survives arrival, the following visit creates the flash/wave, enemies
-launch on the first wave pass and allies on the last. Corrected the browser's early
-head disappearance and missing scatter flag. Attached projectile sprites now share
-followers' elapsed-time interpolation; fixed mechanics remain unchanged. Native
-execution, portable impact/5–240 Hz tests and browser pixels/pause/timing pass.
-Full mixed-class allocation/scheduling remains open. Continue selecting the largest
-visible gameplay gap; ordinary attack-command ownership/restoration and first-mission
-opponent behavior remain strong candidates.
+Next compare original formation/spacing, resting-slot and movement ownership,
+footprint artwork/placement/lifetime, selection state transitions and modifiers,
+and world-projected drag geometry and hit tests. Use executable evidence and
+original visuals to resolve the exact footprint and selection behavior. Integrate
+real desktop interaction regressions across camera rotation, slopes, occlusion
+and wide/high-DPI displays. Keep native mechanics, uncapped elapsed-time
+presentation, concise TypeScript and measured modern performance together.
+
+Previously delivered visible slices include music/ambience, native Land Bridge
+terrain evolution/trails, Lightning electrocution/shockwave and Blast's head-to-
+impact handoff. Their recorded boundaries remain open. General attack ownership,
+first-mission opponent behavior and further audio/graphics work remain candidates
+after the user-requested groups and selection work.
 
 Previous user direction, 2026-09-09: finish and validate the current terrain
 performance improvement, then resume important gameplay mechanics and visuals.

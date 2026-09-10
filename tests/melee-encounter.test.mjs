@@ -9,13 +9,14 @@ import { terrainPointHeight } from '../app/native-terrain.ts'
 import { createWorld, addUnit, command } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 
-test('outdoor encounter calls match captured original fields, timing, RNG and sound', () => {
+test('outdoor and building encounter calls match captured original fields, timing, RNG and sound', () => {
   const land={heights:fixtures.heights,flags:Uint32Array.from({length:16384},(_,i)=>i&1)}
   for(const {input,expected} of fixtures.cases){
     const c=structuredClone(input),w={...c,routes:createMotionRoutes()},sounds=[]
     const outcome=stepMeleeEncounter(w,...c.people,{
       animation:(p,object)=>setPersonAnimation(p,object,{playerTribe:0,gameFlags:c.gameFlags,sessionSubstate:null,tribes:Array.from({length:4},()=>({flags:0,playerType:0})),objects:new Map()},sprites),
       height:(x,y)=>terrainPointHeight(land,{x,y}),sound:(p,cue)=>sounds.push([p.id,cue]),
+      building:{destination:(p,to)=>{p.goalX=to.x;p.goalY=to.y},move:(p,to)=>Object.assign(p,to,{h:terrainPointHeight(land,to)}),occupied:p=>c.occupied.includes((p.y>>9)*128+(p.x>>9))},
     })
     if(outcome!=='waiting')for(const p of c.people)p.workFlags=0
     assert.deepEqual({people:c.people,randomState:w.randomState,musicActivity:w.musicActivity,sounds,outcome},expected)

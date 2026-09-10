@@ -87,5 +87,7 @@ test('nearby automatic building attacks keep their target between detection visi
   for (let i = 0; i < 6; i++) tick(w,1 / 12)
   assert.equal(u.target,b.id)
   assert.equal(b.attackReservation.reactionTimer,1,'the standing attack does not repeatedly reserve itself')
-  assert.equal(u.fighting,true,'damage visits are not tied to four-turn detection')
+  assert.equal(u.native.commandStatus,19,'the standing attack retains its native order between detection visits')
+  assert.equal(u.native.commands.filter(Boolean).length,1)
+  assert.equal(w.buildingOrders.active,1)
 })

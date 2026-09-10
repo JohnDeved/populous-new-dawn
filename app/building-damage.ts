@@ -93,6 +93,26 @@ export function shakeBuilding(
   b.remaining = duration > 0 ? byte(duration) : 16
 }
 
+// 0x403280's fixed-turn defence gate and shake, before damage processing.
+export function stepBuildingShake(
+  b: { buildingFlags: number; renderFlags: number; tilt: number; roll: number; remaining: number },
+  counter: number
+) {
+  if (!(counter & 31)) b.buildingFlags |= 4
+  b.buildingFlags &= ~1
+  if (!(b.buildingFlags & 2)) return
+  b.remaining = byte(b.remaining - 1)
+  if (b.remaining < 1) {
+    b.renderFlags |= 32
+    b.tilt = 0
+    b.roll = 0
+    b.buildingFlags &= ~2
+  } else {
+    b.roll = counter & 2 ? 2 : -2
+    b.tilt = (counter + 1) & 2 ? 2 : -2
+  }
+}
+
 // Complete 0x409140. Strikes accumulate damage; the building update applies it.
 export function damageBuildingByPerson(
   w: {

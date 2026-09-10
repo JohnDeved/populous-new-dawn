@@ -10,13 +10,23 @@ import {
   setPersonAnimationRow,
   stopPersonMovement,
   stepPersonIdleGesture,
+  stepPersonWait,
   type StatefulPerson,
 } from './person-state.ts'
+import { enterCombatBuilding } from './combat-pursuit.ts'
+import {
+  buildingInsidePoint,
+  buildingOutsidePoint,
+  type BuildingShapePose,
+} from './building-shapes.ts'
 import type { Animation } from './animation.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
 
 export const EncounterPhase = {
+  EnterBuilding: 1,
+  WaitInside: 2,
+  EjectDefender: 3,
   Wait: 4,
   Approach: 5,
   Strike: 6,
@@ -28,6 +38,8 @@ export type EncounterPerson = StatefulPerson &
   RoutedPerson &
   Animation & {
     heading: number
+    counter: number
+    commandPhase: number
     slowTurn: number
     velocity: { x: number; y: number; z: number }
   }
@@ -37,11 +49,17 @@ interface EncounterWorld {
   musicActivity: number
   gameFlags: number
   routes: MotionRoutes
+  building?: BuildingShapePose & { id: number; class: number; flags2: number }
 }
 interface EncounterEffects {
   animation: (p: StatefulPerson, object: number) => void
   height: (x: number, y: number) => number
   sound: (p: EncounterPerson, cue: number) => void
+  building?: {
+    destination: (p: EncounterPerson, point: { x: number; y: number }) => void
+    move: (p: EncounterPerson, point: { x: number; y: number }) => void
+    occupied: (p: EncounterPerson) => boolean
+  }
 }
 const short = (n: number) => (n << 16) >> 16
 const duration = (p: Animation) =>
@@ -64,9 +82,9 @@ function change(p: EncounterPerson, phase: number) {
   p.flags2 = (p.flags2 | 0x40000000) >>> 0
 }
 
-// Outdoor branch of 0x518630. The attacker is visited before the defender;
+// 0x518630. The attacker is visited before the defender;
 // transitions made by the attacker are visible to the defender on this visit.
-// Building encounters (phases 1–3) require their actual occupancy consumers.
+// Building phases share original geometry, entry motion and person physics.
 export function stepMeleeEncounter(
   w: EncounterWorld,
   attacker: EncounterPerson,
@@ -150,10 +168,105 @@ export function stepMeleeEncounter(
           if (!p.timer) stopPersonMovement(p, e.animation)
         }
         break
-      case 1:
-      case 2:
-      case 3:
-        throw new Error('Building encounters require occupancy and exit controllers')
+      case EncounterPhase.EnterBuilding:
+      case EncounterPhase.WaitInside:
+      case EncounterPhase.EjectDefender: {
+        const b = w.building
+        if (!b || b.class !== 2 || b.flags2 & 1) return fight ? 'fight' : 'cancelled'
+        const { building } = e
+        if (!building) throw new Error('Building encounter requires movement and occupancy')
+        p.workTarget = b.id
+        if (p.substate === EncounterPhase.EnterBuilding) {
+          if (entering) {
+            p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+            p.animationMode = 31
+            p.assignment |= 16
+            p.timer = 100
+          }
+          p.flags2 = (p.flags2 & ~0x2000000) >>> 0
+          p.timer = short(p.timer - 1)
+          if (p.timer < 0) return fight ? 'fight' : 'cancelled'
+          if (
+            enterCombatBuilding(w, p, {
+              animation: e.animation,
+              inside: () => buildingInsidePoint(b),
+              outside: () => buildingOutsidePoint(b),
+              destination: point => building.destination(p, point),
+              directDestination: point => setDirectPersonDestination(w.routes, p, point),
+            })
+          )
+            change(p, EncounterPhase.WaitInside)
+        } else if (p.substate === EncounterPhase.WaitInside) {
+          if (entering) {
+            p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+            p.animationMode = 4
+            p.assignment |= 16
+            p.timer = 100
+            building.move(p, buildingInsidePoint(b))
+          }
+          if (
+            stepPersonWait(
+              w,
+              p,
+              {
+                animation: e.animation,
+                releaseMotion: () => releasePersonRoute(w.routes, p),
+              },
+              true
+            )
+          )
+            return fight ? 'fight' : 'cancelled'
+          if (target.substate === EncounterPhase.WaitInside) {
+            change(attacker, EncounterPhase.EjectDefender)
+            change(defender, EncounterPhase.EjectDefender)
+          }
+        } else if (p === defender) {
+          if (entering) {
+            p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+            const outside = buildingOutsidePoint(b),
+              inside = buildingInsidePoint(b)
+            for (const person of [attacker, defender])
+              person.flags4 = ((person.flags4 & ~0x10007) | 4) >>> 0
+            setDirectPersonDestination(w.routes, attacker, outside)
+            stopPersonMovement(attacker, e.animation)
+            p.flags2 = (p.flags2 | 0x8000) >>> 0
+            const angle =
+              nativeAngle(short(outside.x - inside.x), -short(outside.y - inside.y)) & 2047
+            if (p.flags2 & 128) p.turnAngle = angle
+            p.heading = angle
+            p.angle = (angle + 1024) & 2047
+            p.timer = 6
+            p.commandPhase = 100
+            p.speed = 0
+          }
+          if (building.occupied(p)) {
+            p.flags2 = (p.flags2 | 0x80000) >>> 0
+            p.flags3 = (p.flags3 | 0x8000000) >>> 0
+            p.flags4 = (p.flags4 | 0x2000) >>> 0
+            e.animation(p, rules.personAnimationObjects[11 * 9 + p.model])
+            p.flags2 = (p.flags2 | 0x8000) >>> 0
+            const speed = (p.commandPhase << 24) >> 24
+            groundVelocity(p.velocity, p, speed, p.heading, e.height)
+            if (speed > 39) p.commandPhase = Math.max(30, Math.trunc((speed * 12) / 16)) & 255
+          }
+          const timerExpired = p.timer !== 0 && short(p.timer - 1) === 0
+          if (p.timer) p.timer = short(p.timer - 1)
+          if (timerExpired) {
+            attacker.flags4 = (attacker.flags4 & ~0x10007) >>> 0
+            change(attacker, EncounterPhase.Approach)
+          }
+          if (!(p.flags2 & 0x80000)) {
+            if (p.timer) {
+              attacker.flags4 = (attacker.flags4 & ~0x10007) >>> 0
+              change(attacker, EncounterPhase.Approach)
+            }
+            p.flags4 = (p.flags4 & ~0x10007) >>> 0
+            p.flags2 = (p.flags2 & ~0x8000) >>> 0
+            change(p, EncounterPhase.Wait)
+          }
+        }
+        break
+      }
     }
   }
   return fight ? 'fight' : 'waiting'

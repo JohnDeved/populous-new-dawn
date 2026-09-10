@@ -1,3 +1,5 @@
+import { startLiveBuildingOrders } from './live-building-combat.ts'
+import { currentPersonOrder } from './person-orders.ts'
 import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
 import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 import { stepMeleeEncounter } from './melee-encounter.ts'
@@ -44,6 +46,7 @@ import {
   recoverGroundObstacle,
   type RecoveryPerson,
 } from './person-motion.ts'
+import { clearLivePath, planLivePath, acceptLivePath } from './live-pathfinding.ts'
 import { buildingApproachPoint, buildingOutsidePoint } from './building-shapes.ts'
 import {
   buildingExitPoint,
@@ -94,6 +97,9 @@ export type LivePerson = StatefulPerson &
     reactionTimer: number
     reactionDuration: number
     anchorFlags: number
+    disguise: number
+    savedVehicle: number
+    orderDelay: number
     damageAttacker: number
     burnTrail: number
   }
@@ -179,6 +185,9 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     anchorFlags: 0,
     velocity: { x: 0, y: 0, z: 0 },
     life: short(Math.round(u.hp * 20)),
+    disguise: 0,
+    savedVehicle: 0,
+    orderDelay: 0,
     damageAttacker: 255,
     burnTrail: u.burnTrail ?? 0,
   }
@@ -347,7 +356,7 @@ function initializeLivePerson(
     tribes,
     instantFacing: false,
     levelFlags: w.manaWorld.gameFlags,
-    orders: { records: [], cursor: 0, active: 0 },
+    orders: w.buildingOrders,
   })
   const unexpected = () => {
     throw new Error('Legacy handoff contains an unowned native assignment')
@@ -362,7 +371,9 @@ function initializeLivePerson(
     rebuildTrainingQueue: unexpected,
     rebuildFormation: unexpected,
     startOrders: p => {
-      if (p.immediateCommand || p.commands[p.commandCursor]) unexpected()
+      if (currentPersonOrder(w.buildingOrders, p)?.model === 19)
+        startLiveBuildingOrders(w, p as LivePerson, state)
+      else if (p.immediateCommand || p.commands[p.commandCursor]) unexpected()
     },
   })
   tribes.forEach((t, i) => {
@@ -505,7 +516,7 @@ export function enterLiveCombat(
   w: World,
   u: Unit,
   state: 25 | 29,
-  p = u.fight?.motion ?? createLivePerson(w, u)
+  p = u.fight?.motion ?? u.native ?? createLivePerson(w, u)
 ) {
   const flags = p.flags4 & 0x10007
   if (!(p.flags2 & 0x100000)) {
@@ -519,18 +530,36 @@ export function enterLiveCombat(
   return p
 }
 
-export function stepLiveEncounter(w: World, attacker: Unit, defender: Unit) {
+export function stepLiveEncounter(w: World, attacker: Unit, defender: Unit, buildingId?: number) {
+  const building = w.buildings.find(b => b.id === buildingId && b.hp > 0)
   const state = {
     randomState: w.randomState,
     playerTribe: w.manaWorld.playerTribe,
     musicActivity: w.musicActivity,
     gameFlags: w.manaWorld.gameFlags,
     routes: w.motionRoutes,
+    building: building && { ...buildingPose(building), id: building.id, class: 2, flags2: 0 },
   }
   const outcome = stepMeleeEncounter(state, attacker.fight!.motion!, defender.fight!.motion!, {
     animation: (p, object) => setLivePersonAnimation(w, p as LivePerson, object),
     height: (x, y) => terrainPointHeight(w.land, { x, y }),
     sound: (p, cue) => sound(w, cue, browserPosition(p)),
+    building: {
+      occupied: p => !!(w.land.flags[(p.y >> 9) * 128 + (p.x >> 9)] & 512),
+      destination: (p, to) => {
+        const u = p.id === attacker.id ? attacker : defender
+        clearLivePath(w, u)
+        acceptLivePath(w, u, planLivePath(w, u, browserPosition(to), p as LivePerson))
+      },
+      move: (p, to) => {
+        registerLivePerson(w, p as LivePerson)
+        moveObjectInCells(w.objectCells, p as LivePerson, {
+          ...to,
+          h: terrainPointHeight(w.land, to),
+        })
+        Object.assign(p.id === attacker.id ? attacker : defender, browserPosition(to))
+      },
+    },
   })
   w.randomState = state.randomState
   w.musicActivity = state.musicActivity
@@ -602,7 +631,7 @@ export function stepLiveMeleeMotion(w: World, u: Unit) {
   if (p.state !== 25 && p.state !== 29) u.fight = null
 }
 
-function registerLivePerson(w: World, p: LivePerson) {
+export function registerLivePerson(w: World, p: LivePerson) {
   const previous = w.objectCells.objects.get(p.id)
   if (previous !== p) {
     if (previous && previous.flags2 & 0x20000) removeObjectFromCell(w.objectCells, previous)
@@ -685,6 +714,7 @@ function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       // Do not preserve a fabricated task snapshot in place of the native queue.
       releasePersonRoute(w.motionRoutes, p)
       u.fight = null
+      if (currentPersonOrder(w.buildingOrders, p)) u.native = p
     }
   }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
@@ -700,7 +730,12 @@ export function stepLiveImpulse(w: World, u: Unit) {
   stepLivePhysics(w, u, p)
   if (!(p.flags2 & 0x80000) && u.fight?.action !== 'push') {
     u.flight = undefined
-    if (u.native === p && ![26, 41, 44].includes(p.state)) u.native = null
+    if (
+      u.native === p &&
+      ![26, 41, 44].includes(p.state) &&
+      !currentPersonOrder(w.buildingOrders, p)
+    )
+      u.native = null
     u.lift = 0
     if (!supportsFollower(w, u)) u.hp = 0
   }
@@ -732,8 +767,8 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
     p.previousState = p.state
     p.state = next
     initializeLivePerson(w, u, ctx, p)
-    // Native panic ends here; ordinary live orders still use the existing controller.
-    u.native = null
+    // Keep an owned command through recovery; legacy tasks have no native queue.
+    if (!currentPersonOrder(w.buildingOrders, p)) u.native = null
     releasePersonRoute(w.motionRoutes, p)
   }
 }

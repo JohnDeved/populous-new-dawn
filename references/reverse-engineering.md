@@ -6740,3 +6740,58 @@ has occurred, not continued airborne duration. The browser check casts through
 real keyboard/mouse input, sees 114 arrival-head pixels, 21 distinct positions
 across 40 high-refresh frames, unchanged paused position and the same launch order.
 See `references/performance/2026-09-10-blast-impact.json` for bounded CPU cost.
+
+
+## Live building assault, defence and command recovery — 2026-09-10
+
+Connected the recovered building-target branch of `0051a2a0` to live targeting.
+Attackers now use original entrance/inside geometry and collision permissions,
+random strike positions, row-6 work poses, cue 1, per-visit damage accumulation and
+structure shaking. This replaces the 4.3-tile distance/direct-HP shortcut for
+completed buildings. The existing damage controller owns structural logs, stage
+loss, smoke and debris. Plans retain their older adapter pending full command
+composition; automatic detection still uses the existing live candidate adapter.
+
+`00518630` now includes building encounter phases 1–3: enter and wait inside,
+then the defender's backward ejection along the inside-to-outside vector. Its
+six-turn handoff, signed decaying impulse, building-cell test, facing and render
+flags lead into the existing outdoor encounter. Attacker processing precedes the
+defender; phase changes are visible within the same group visit. Native geometry,
+entry/wait, poses, slope impulses, RNG and phase logic execute in the expanded
+8,192-case comparison. Planned destinations, cell insertion, sound and terminal
+fight/deletion are supplied consumers; no complete allocator/physics claim is
+made by that oracle. Portable captures include all building phases. The independent
+building-attack comparison retains 16,305 calls including 64 sequences.
+
+Live occupied buildings use the six-slot admission order and existing occupant
+restoration/exit helpers. Mode-1 encounters preserve the building ID and eject the
+defender before the outdoor fight. Ordinary completed huts/camps/towers are the
+current live target set; damaged-plan defender scans, special buildings and other
+classes remain open. Building controller prefix `00403280` restores defence
+eligibility every 32 visits and advances signed shake lifetime with counter-based
+±2 tilt/roll. 1,024 native prefixes compare these fields together with collapse
+RNG/damage, before the native damage processor. The renderer reuses existing
+model tilt/roll projection, shading and painter geometry.
+
+The building attack allocates an actual command-19 area record in the existing
+800-slot pool. `startPersonOrders` configures it; fight entry preserves that same
+reference, and native fight recovery restarts it. A surviving attacker resumes the
+building assault instead of standing idle after defeating its resident. Player
+replacement, target loss and death release the reference, including interruption
+inside an encounter. This is bounded command ownership: complete command-19/21
+search/sharing, other queued movement/work, vehicles and normal advancement remain
+unfinished. It does not fabricate a saved browser task/path to replay.
+
+Combat entry now reuses its owned person record. The shared Blast adapter likewise
+reads that fight record, preserving native protection/status flags while retaining
+the existing legacy allocation-flag adapter. Lightning protection and survivor
+impulse checks remain green. Panic/flight recovery retains owned command records.
+
+Portable integration checks cover all three playable attacker types destroying a
+hut through native damage, original phases/poses, defended challenge/ejection,
+same-record resumption, cancellation/death/target deletion and 5–240 Hz plus irregular
+render schedules. Browser input reaches the same sequence; original strike and
+shake pixels, pause, defender ejection, fight, resumption and cancellation pass.
+Full allocation/list order, generalized selection/command dispatch, all original
+building classes and complete game parity remain open. Next visible work is the
+user-requested groups, footprints, selection/deselection and 3D drag selection.
