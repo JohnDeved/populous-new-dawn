@@ -134,7 +134,10 @@ Track the requested queue explicitly:
    stay excluded and native single/group mode bits reach the real builder record.
    Neutral right-click now opens the original person health/order panel; occupant
    right-click focus opens it directly. Native icon order/artwork/lifetime and live
-   desktop input are compared. Order-icon actions, bitmap transitions and full
+   desktop input are compared. Order icons now focus their displayed destination or
+   live target with original camera motion; right-click and keyboard actions preserve
+   queues/selection. Native physical-slot misnavigation is deliberately corrected.
+   Destination marker effects, complete target-panel ownership, bitmap transitions,
    HUD/vehicle ownership, buffering and alternate input modes remain open.
 5. **Native 3D drag selection — in progress.** Camera-oriented world geometry,
    toroidal clamping, packed release commands, native cell bounds, ordinary outdoor

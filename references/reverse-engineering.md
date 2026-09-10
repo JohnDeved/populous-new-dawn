@@ -7387,3 +7387,51 @@ shows the original static artwork during the lifetime stages; it does not claim
 the transition raster effect. Legacy work without native order records is still
 outside complete queue display parity. No new verified coverage is assigned to
 these partial contextual-panel and mixed-selection requirements.
+
+### 2026-09-10 — person-order destination controls
+
+`00438950` resolves live object payloads; `004389c0` supplies raw or packed-cell
+fallback points. `0047b460` maps person-panel right-click to camera focus, UI cue
+106 and target inspection or destination marking. Pointer-left does not issue a
+command or navigate. `check-native-order-focus.py` executes 175 target resolutions
+across all 35 descriptor types and 256 complete panel inputs, supplying only the
+terminal camera/audio/panel/marker consumers in the input comparison. The portable
+capture is bound to the original executable hash.
+
+**Deliberate UI correction:** native drawing traverses the immediate order and
+rotated queue, but native input indexes physical queue slots. With cursor 3, the
+first displayed icon belongs to order 4 while clicking it focuses order 1. Browser
+buttons bind the actual displayed record ID and revalidate ownership on activation.
+This changes navigation only; queues, simulation and selection remain untouched.
+Keyboard Enter/Space expose the same action through native HTML buttons. Removed
+browser targets are safely ignored for object-only orders, while cell fallbacks
+remain usable. This does not reproduce stale native pool reads or infer missing
+building/wood fallback geometry.
+
+`PersonPanels` reuses the native main-sprite submissions for button geometry and
+keeps its canvas plus eight reusable buttons in one proportionally scaled wrapper.
+Hover and keyboard focus retain the existing elapsed-time lifetime; camera focus
+uses the shared native camera-motion implementation. Existing canvas caching is
+retained: ten unchanged updates still cause zero drawImage calls, versus thirty
+with invalidation, at all three tested viewport/DPI combinations. This is the same
+software-renderer operation-count workload recorded in the person-panel performance
+artifact, not an FPS certification. World lookup happens only on activation.
+
+Browser checks cover the advanced queue cursor, immediate object orders, pointer
+left/right, keyboard focus, hover retention, modal/stale guards, unchanged queues
+and selection, and unlatched world pointer state. Desktop, ultrawide and 2x DPI
+remain covered alongside the source-HFX pixel comparison and paused expiry.
+
+Still open: `004afff0`'s model-61 interest marker and its second point-focus audio
+submission, linked worship/other-class target panels, full panel ownership,
+hover/pressed tint and bitmap transitions. Owned person targets open their existing
+panel; other supported live targets currently receive camera focus only. Vehicle
+world ownership and deleted-object fallback geometry are not claimed. These are
+bounded additions to partial HUD/selection requirements, so no whole-checkpoint
+credit or artificial percentage increase is assigned.
+
+Validation for this slice: 294 portable tests, TypeScript, formatting, focused
+oxlint, production build and 1,111 export hashes pass. The 64 panel canvases retain
+838,656 source-HFX/native RGBA pixel comparisons within one-byte alpha rounding.
+Existing ordinary click/modifier/voice and deselection/order-preservation browser
+regressions pass; the original first-level view was also visually inspected.

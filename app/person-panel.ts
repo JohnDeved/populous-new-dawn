@@ -1,6 +1,6 @@
 import rules from './original-rules.json' with { type: 'json' }
 import hud from './original-hud.json' with { type: 'json' }
-import type { OrderedPerson, OrderPool } from './person-orders.ts'
+import type { OrderedPerson, OrderPool, PersonOrder } from './person-orders.ts'
 import { panelFrame, type PanelDraw } from './training-panel.ts'
 
 // 0x4369f0: the immediate order consumes one of the eight visible slots.
@@ -81,4 +81,30 @@ export function stepPersonPanel(panel: PersonPanelTime, held: boolean) {
   }
   if (panel.remaining) panel.remaining--
   return true
+}
+
+export interface OrderFocusObject {
+  id: number
+  class: number
+  flags2: number
+  x: number
+  y: number
+}
+// 0x438950 / 0x4389c0, consumed by 0x47b460. A live object takes precedence
+// over a packed cell. The caller supplies existing world objects only.
+export function personOrderFocus(order: PersonOrder, object?: OrderFocusObject) {
+  const { flags } = rules.personCommands[order.model]
+  if (flags & 0x246 && order.a && object?.class && !(object.flags2 & 1))
+    return { x: object.x & 65535, y: object.y & 65535, target: object.id }
+  let { a: x, b: y } = order
+  if (flags & 0x804) {
+    const cell = flags & 4 ? order.b : order.a
+    x = ((cell & 254) + 1) * 256
+    y = (((cell >> 8) & 254) + 1) * 256
+  } else if (flags & 0x242) {
+    // A removed browser object has no readable native pool slot to fall back to.
+    if (!object) return null
+    ;({ x, y } = object)
+  }
+  return { x: x & 65535, y: y & 65535, target: 0 }
 }

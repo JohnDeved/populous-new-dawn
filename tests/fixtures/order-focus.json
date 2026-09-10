@@ -1,0 +1,1044 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "cases": [
+    {
+      "order": {
+        "model": 0,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 1,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 2,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 3,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 4,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 5,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 6,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 7,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 8,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 9,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 10,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 11,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 768,
+        "y": 256,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 12,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 13,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 14,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 15,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 16,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 17,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 18,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 19,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 768,
+        "y": 256,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 20,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 21,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 768,
+        "y": 256,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 22,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 23,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 24,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 25,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 26,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 27,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 28,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 29,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 31,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 32,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 33,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 34,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 3,
+        "y": 65279,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 6,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 1,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65280,
+        "y": 65280,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 6,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 0,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65280,
+        "y": 65280,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 6,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 0,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65280,
+        "y": 65280,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 6,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 65535,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    },
+    {
+      "order": {
+        "model": 11,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 1,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 768,
+        "y": 256,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 11,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 0,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 768,
+        "y": 256,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 11,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 0,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 256,
+        "y": 256,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 11,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 65535,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65280,
+        "y": 65280,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 14,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 1,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 14,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 3,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 0,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 14,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 0,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 0
+      }
+    },
+    {
+      "order": {
+        "model": 14,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 65535,
+        "b": 65279
+      },
+      "object": {
+        "id": 3,
+        "class": 1,
+        "flags2": 0,
+        "x": 65000,
+        "y": 511
+      },
+      "expected": {
+        "x": 65000,
+        "y": 511,
+        "target": 3
+      }
+    }
+  ],
+  "physicalSlotMismatch": {
+    "cursor": 3,
+    "displayedOrder": 4,
+    "nativeFocusedOrder": 1
+  }
+}

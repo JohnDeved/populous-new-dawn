@@ -1158,7 +1158,7 @@
               "id": "interface.hud.remaining-panels",
               "title": "Remaining HUD tabs, building panels and contextual controls",
               "status": "partial",
-              "note": "Opening controls are implemented. Inventory and compare the remaining native HUD tabs, building/vehicle panels and contextual states, including the full supported content roster. Tooltips/messages and front-end menus retain their separate broad checkpoints. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Command-icon actions, bitmap transition effects and full panel/vehicle/hit ownership remain open.",
+              "note": "Opening controls are implemented. Inventory and compare the remaining native HUD tabs, building/vehicle panels and contextual states, including the full supported content roster. Tooltips/messages and front-end menus retain their separate broad checkpoints. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Order-icon right-click and keyboard focus now follow the displayed record using native target rules and camera motion, with 175 native resolutions, 256 original input cases and browser queue-preservation/hover/keyboard checks. The original physical-slot misnavigation is deliberately corrected. Destination markers, complete target-panel ownership, bitmap transitions and full panel/vehicle/hit ownership remain open.",
               "evidence": [
                 "app/page.tsx",
                 "scripts/check-browser-hud.mjs",
@@ -1171,7 +1171,13 @@
                 "decomp/generated/004369f0.c",
                 "decomp/generated/00504590.c",
                 "decomp/generated/00504920.c",
-                "references/performance/2026-09-10-person-panels.json"
+                "references/performance/2026-09-10-person-panels.json",
+                "scripts/check-native-order-focus.py",
+                "tests/fixtures/order-focus.json",
+                "decomp/generated/00438950.c",
+                "decomp/generated/004389c0.c",
+                "decomp/generated/0047b460.c",
+                "decomp/generated/004afff0.c"
               ]
             },
             {
@@ -1336,9 +1342,15 @@
                 "decomp/generated/004369f0.c",
                 "decomp/generated/00504590.c",
                 "decomp/generated/00504920.c",
-                "references/performance/2026-09-10-person-panels.json"
+                "references/performance/2026-09-10-person-panels.json",
+                "scripts/check-native-order-focus.py",
+                "tests/fixtures/order-focus.json",
+                "decomp/generated/00438950.c",
+                "decomp/generated/004389c0.c",
+                "decomp/generated/0047b460.c",
+                "decomp/generated/004afff0.c"
               ],
-              "note": "Construction-panel selection now reuses the active person adapter, fixing temporary-copy eligibility and lost selection/mode writes for builders. Native panel commands, actual active-worker flags, external-group retention and unchanged simulation/orders/RNG are checked; real clicks and Shift selection pass at five desktop sizes. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Command-icon actions, bitmap transition effects and full panel/vehicle/hit ownership remain open."
+              "note": "Construction-panel selection now reuses the active person adapter, fixing temporary-copy eligibility and lost selection/mode writes for builders. Native panel commands, actual active-worker flags, external-group retention and unchanged simulation/orders/RNG are checked; real clicks and Shift selection pass at five desktop sizes. Full native painter/alpha/occlusion hit ownership, mixed cell allocation/ties, occupant entry gates, person panels, passenger expansion, selection restoration and last-hit focus/audio positioning remain unfinished. Owned person inspection now shows native health/order artwork through neutral right-click and occupant focus, with 512 native icon/draw comparisons, 32 lifetimes, source-HFX pixel checks and desktop/ultrawide/2x DPI input. Order-icon right-click and keyboard focus now follow the displayed record using native target rules and camera motion, with 175 native resolutions, 256 original input cases and browser queue-preservation/hover/keyboard checks. The original physical-slot misnavigation is deliberately corrected. Destination markers, complete target-panel ownership, bitmap transitions and full panel/vehicle/hit ownership remain open."
             }
           ]
         },

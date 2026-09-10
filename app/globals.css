@@ -7,11 +7,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .world-viewport{position:absolute;inset:0 0 0 var(--side);background:#82a4b4}.world-viewport>.battlefield{display:block;width:100%;height:100%;touch-action:none;outline:none}.world-vignette{display:none}
 .native-hud{position:absolute;left:0;top:0;width:100px;height:calc(100dvh / var(--hud-scale));transform:scale(var(--hud-scale));transform-origin:top left;background:url('/original/hud-panel.png');color:#634535;z-index:4;image-rendering:pixelated}
 .hud-sprite{display:inline-block;flex:none;background-image:url('/original/hud.png');background-repeat:no-repeat;image-rendering:pixelated;vertical-align:top;pointer-events:none}
-.training-panel canvas{display:block}
+.training-panel canvas,.person-panel canvas{display:block}
 .training-panel button{position:absolute;top:var(--occupant-top);width:17px;height:24px;padding:0;border:0;background:transparent;pointer-events:auto;cursor:pointer}
 .training-panel .dismantle-control{left:91px;top:calc(var(--occupant-top) - 1px);width:27px;height:28px}
-.training-panel button:focus-visible{outline:1px solid #fff0bd;outline-offset:-1px}
+.training-panel button:focus-visible,.person-panel button:focus-visible{outline:1px solid #fff0bd;outline-offset:-1px}
 .training-panel,.person-panel{position:absolute;z-index:3;pointer-events:none;image-rendering:pixelated;transform:translate(-50%,-100%) scale(var(--hud-scale));transform-origin:bottom center}
+.person-panel button{position:absolute;padding:0;border:0;background:transparent;pointer-events:auto}
 .spell-pointer{position:absolute;pointer-events:none;z-index:6}.spell-pointer .hud-sprite{position:absolute}.spell-pointer [hidden]{display:none}
 .minimap-wrap{position:absolute;left:0;top:0;width:100px;height:99px;overflow:hidden;background:#142d38}
 .minimap-wrap canvas{position:absolute;inset:0;width:100%;height:96px;cursor:crosshair;border-radius:50%}

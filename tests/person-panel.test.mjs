@@ -32,3 +32,22 @@ test('person-panel lifetime matches native refresh and remains independent of re
     assert.equal(death, 27)
   }
 })
+
+import focusFixture from './fixtures/order-focus.json' with { type: 'json' }
+import { personOrderFocus } from '../app/person-panel.ts'
+
+test('order focus matches native targets and follows the displayed queue record', () => {
+  assert.equal(focusFixture.executableSha256, exports.executableSha256)
+  for (const c of focusFixture.cases) assert.deepEqual(personOrderFocus(c.order, c.object), c.expected)
+  const records = Array.from({length: 9}, (_, id) => ({model:3,flags:0,references:1,object:0,a:id*1000,b:id*1000+300}))
+  const person = { immediateCommand: 0, commands: [1,2,3,4,5,6,7,8], commandCursor: focusFixture.physicalSlotMismatch.cursor }
+  const before = JSON.stringify({records,person})
+  const icons = personOrderIcons({records}, person, new Map())
+  assert.equal(icons[0].id, focusFixture.physicalSlotMismatch.displayedOrder)
+  assert.deepEqual(personOrderFocus(records[icons[0].id]), { x:4000, y:4300, target:0 })
+  assert.notEqual(icons[0].id, focusFixture.physicalSlotMismatch.nativeFocusedOrder)
+  assert.equal(JSON.stringify({records,person}), before)
+  // Object-only orders safely ignore removed browser objects; packed cells survive.
+  assert.equal(personOrderFocus({...records[1],model:14}), null)
+  assert.deepEqual(personOrderFocus({...records[1],model:11,a:65535}), {x:65280,y:65280,target:0})
+})
