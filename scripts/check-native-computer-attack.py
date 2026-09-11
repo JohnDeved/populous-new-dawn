@@ -21,8 +21,15 @@ source=Path(sys.argv[1]).parent/'levels/cpscr010.dat'
 assert hashlib.sha256(source.read_bytes()).hexdigest()==original['sha256']
 codes=[12,1003,*original['codes'][716:731],1004,1019]
 assert codes[2:]==[1006,1059,1118,20,1070,20,160,161,161,161,1078,1,49,49,1,1004,1019]
+tribe_codes=[12,1003,*original['codes'][900:915],1004,1019]
+assert tribe_codes[2:]==[1006,1059,1118,109,1071,164,160,161,161,161,1078,1,49,49,1,1004,1019]
 
 def write(p,fmt,*values):cpu.mem_write(p,struct.pack(fmt,*values))
+def return_from_leaf(value=0):
+    sp=cpu.reg_read(UC_X86_REG_ESP)
+    cpu.reg_write(UC_X86_REG_EAX,value&0xffffffff)
+    cpu.reg_write(UC_X86_REG_EIP,struct.unpack('<I',cpu.mem_read(sp,4))[0])
+    cpu.reg_write(UC_X86_REG_ESP,sp+4)
 def initialize(enabled=True,maximum=1,full=False):
     cpu.mem_write(tribes,bytes(4*0xc65))
     for tribe in range(4):write(tribes+tribe*0xc65+0xc22,'<B',tribe)
@@ -32,8 +39,8 @@ def initialize(enabled=True,maximum=1,full=False):
     write(0x960833,'<B',maximum)
     if full:
         for i in range(10):write(red+0x36+i*0x52+0x3e,'<I',1)
-def run():
-    blob=bytearray(12552);struct.pack_into('<'+'H'*len(codes),blob,0,*codes)
+def run(script_codes=codes):
+    blob=bytearray(12552);struct.pack_into('<'+'H'*len(script_codes),blob,0,*script_codes)
     for i,field in enumerate(original['fields']):struct.pack_into('<Ii',blob,8192+i*8,*field)
     struct.pack_into('<64i',blob,12288,*original['variables']);cpu.mem_write(program,bytes(blob))
     write(stack,'<III',stop,red,program);cpu.reg_write(UC_X86_REG_ESP,stack)
@@ -61,20 +68,38 @@ task=allocated[0]
 assert task['type']==20 and task['phase']==0 and task['requested']==3 and task['damage']==999,task
 assert task['route']==target_marker and task['original']==target_marker,task
 assert task['marker']==3 and task['entity']==0,task
+target_building=0x2007000;target_route=0xaa12;tribe_probe=False;target_trace=[]
+def target_leaf(cpu,address,size,user):
+    if not tribe_probe:return
+    sp=cpu.reg_read(UC_X86_REG_ESP)
+    if address==0x4f6100:
+        assert struct.unpack('<I',cpu.mem_read(sp+4,4))[0]==tribes
+        target_trace.append('primary');return_from_leaf(target_building)
+    if address==0x4f6180:
+        assert struct.unpack('<I',cpu.mem_read(sp+4,4))[0]==tribes
+        target_trace.append('fallback');return_from_leaf()
+    if address==0x404420:
+        building,out=struct.unpack('<II',cpu.mem_read(sp+4,8));assert building==target_building
+        write(out,'<HH',0x1234,0xabcd);return_from_leaf()
+for address in (0x4f6100,0x4f6180,0x404420):cpu.hook_add(UC_HOOK_CODE,target_leaf,begin=address,end=address)
+cpu.mem_write(target_building,bytes(256));write(target_building+0x24,'<H',77);write(target_building+0x2a,'<B',2)
+initialize();write(red+0x91d,'<I',3);tribe_probe=True;run(tribe_codes);tribe_probe=False
+tribe_attack=tasks();assert len(tribe_attack)==1,tribe_attack
+task=tribe_attack[0]
+assert task['type']==20 and task['phase']==0 and task['requested']==3 and task['damage']==999,task
+assert task['route']==target_route and task['original']==target_route,task
+assert task['marker']==0 and task['entity']==77,task
+assert target_trace==['primary'],target_trace
 for enabled,maximum,full in [(False,1,False),(True,0,False),(True,1,True)]:
     initialize(enabled,maximum,full);before=bytes(cpu.mem_read(red+0x36,10*0x52));run()
     assert bytes(cpu.mem_read(red+0x36,10*0x52))==before,(enabled,maximum,full,tasks())
 print('PASS: native mission-one ATTACK decoded and allocated type 20; disabled, capped and full queues refused')
+print('PASS: native later ATTACK dispatched Blue building selection and retained the controlled id and route')
 
 # Exercise the deterministic ordinary-person route through phase 14.
 people=0x2008000
 trace=[]
 routing=False
-def return_from_leaf(value=0):
-    sp=cpu.reg_read(UC_X86_REG_ESP)
-    cpu.reg_write(UC_X86_REG_EAX,value&0xffffffff)
-    cpu.reg_write(UC_X86_REG_EIP,struct.unpack('<I',cpu.mem_read(sp,4))[0])
-    cpu.reg_write(UC_X86_REG_ESP,sp+4)
 def leaf(cpu,address,size,user):
     sp=cpu.reg_read(UC_X86_REG_ESP)
     if address==0x4f6020:
