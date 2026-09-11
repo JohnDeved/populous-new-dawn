@@ -248,6 +248,105 @@ export function requestAttack(
   })
 }
 
+// 0x4e68e0 / 0x4d04c0: one periodic task selects the configured follower mix
+// and gives the selected group a persistent order targeting the current shaman.
+export function requestShamanGuard(
+  ai: ComputerQueue,
+  requested: number,
+  quotas: number[],
+  hasShaman: boolean
+) {
+  if (!hasShaman || ai.tasks.some(t => t.flags & 1 && t.type === 28)) return
+  const task = ai.tasks.find(t => !(t.flags & 1))
+  if (!task) return
+  Object.assign(task, {
+    flags: ((task.flags & ~2) | 1) >>> 0,
+    type: 28,
+    phase: 0,
+    requested: requested | 0,
+    selected: 0,
+    remaining: 0,
+    quotas: quotas.slice(0, 5).map(n => n & 255),
+    members: [],
+  })
+}
+
+export type ShamanGuardInput = {
+  existing: () => number
+  select: (model: number, count: number) => number[]
+}
+export type ShamanGuardAction =
+  | { kind: 'select'; id: number }
+  | { kind: 'order' | 'restore'; ids: number[] }
+
+export function stepShamanGuardTask(
+  ai: ComputerQueue,
+  index: number,
+  input: ShamanGuardInput
+): ShamanGuardAction[] {
+  const task = ai.tasks[index],
+    actions: ShamanGuardAction[] = [],
+    models = [2, 3, 6, 4, 5]
+  if (task.phase === 0) {
+    const existing = input.existing()
+    task.quotas = task.quotas.map(n => Math.trunc((n * task.requested) / 100))
+    task.requested = Math.max(0, task.requested - existing)
+    let remaining = existing
+    for (const quota of [0, 4, 3, 2, 1]) {
+      const used = Math.min(remaining, task.quotas[quota])
+      task.quotas[quota] -= used
+      remaining -= used
+    }
+    task.selected = 0
+    task.remaining = 0
+    task.members.length = 0
+    task.phase = task.requested ? 2 : 6
+  }
+  if (task.phase === 2) {
+    if (acquireSelection(ai, index)) task.phase = 3
+    return actions
+  }
+  if (task.phase === 3) {
+    while (task.remaining < models.length) {
+      const model = models[task.remaining],
+        count = task.quotas[task.remaining++] ?? 0
+      if (!count) continue
+      const ids = input.select(model, count)
+      task.members.push(...ids)
+      task.selected += ids.length
+      return ids.map(id => ({ kind: 'select' as const, id }))
+    }
+    const ids = input.select(-1, Math.max(0, task.requested - task.selected))
+    task.members.push(...ids)
+    task.selected += ids.length
+    if (!task.selected) task.phase = 6
+    else {
+      task.phase = 4
+      ai.commandDelay = 20
+    }
+    return ids.map(id => ({ kind: 'select' as const, id }))
+  }
+  if (task.phase === 4) {
+    task.phase = 5
+    return actions
+  }
+  if (task.phase === 5) {
+    const ids = [...task.members]
+    releaseSelection(ai, index)
+    task.phase = 6
+    return [
+      { kind: 'order', ids },
+      { kind: 'restore', ids },
+    ]
+  }
+  if (task.phase === 6) {
+    releaseSelection(ai, index)
+    task.flags &= ~3
+    task.members.length = 0
+  }
+  return actions
+}
+
 // 0x4f2290 / 0x4f5c80: selection is locked across task calls; type-20 tasks
 // can also block acquisition while the lock itself is free.
 function acquireSelection(ai: ComputerQueue, index: number) {

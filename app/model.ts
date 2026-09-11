@@ -286,10 +286,12 @@ import {
   dispatchComputerTask,
   requestAttack,
   requestMarkerTask,
+  requestShamanGuard,
   requestTraining,
   creditAttackTask,
   stepAttackTask,
   stepMarkerTask,
+  stepShamanGuardTask,
   stepTrainingTask,
   type ComputerQueue,
   type TrainingBuilding,
@@ -713,12 +715,15 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
     }
   }
   const targetHp = target.hp
+  if (target.fight?.motion) target.fight.motion.damageAttacker = nativePersonTribe(u)
   target.hp = Math.max(0, (Math.round(target.hp * 20) - Math.round(damage * 20)) / 20)
   if (targetHp > 0 && target.hp === 0)
     creditAttackTask(w.ai, u.id, rules.personModels[nativePersonModel(target)].fightRank)
   const unitHp = u.hp
-  if (action !== 'special')
+  if (action !== 'special') {
+    if (u.fight?.motion) u.fight.motion.damageAttacker = nativePersonTribe(target)
     u.hp = Math.max(0, (Math.round(u.hp * 20) - Math.round(counter * 20)) / 20)
+  }
   if (action !== 'special' && unitHp > 0 && u.hp === 0)
     creditAttackTask(w.ai, target.id, rules.personModels[nativePersonModel(u)].fightRank)
   effect(w, 'hit', target)
@@ -1172,7 +1177,7 @@ export function unitAnimationSource(u: Unit) {
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
   if (
     u.native &&
-    (u.native.state !== 10 || [3, 6, 17, 19, 21, 27, 31, 32].includes(u.native.commandStatus))
+    (u.native.state !== 10 || [3, 6, 17, 19, 21, 27, 30, 31, 32].includes(u.native.commandStatus))
   )
     return u.native
   if (u.entry) return u.entry.person
@@ -1489,6 +1494,7 @@ export type World = {
   inputMask: number
   lastMessage: number
   spellCasts: number[][]
+  killCredits: number[][]
   gifts: (Point & { kind: Shrine['kind']; remaining: number })[]
   giftCounts: Record<Spell, number>
   land: NativeTerrain & Territory
@@ -1714,6 +1720,7 @@ export function createWorld(): World {
     ai: missionAI(),
     messages: createMessages(),
     spellCasts: Array.from({ length: 4 }, () => Array(22).fill(0)),
+    killCredits: Array.from({ length: 4 }, () => Array(4).fill(0)),
     gifts: [],
     giftCounts: { blast: 0, bridge: 0, lightning: 0 },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
@@ -1787,6 +1794,8 @@ export function createWorld(): World {
       releaseDelay: 0,
       releaseRate: 0,
       spellProgress: Array(22).fill(0),
+      shamanGuards: 0,
+      shamanGuardChanged: 0,
     })),
     routeNotice: null,
     terrain: makeTerrain(),
@@ -1953,6 +1962,7 @@ export function campaignInternal(w: World, id: number) {
     const model = (id < 1152 ? id - 1146 : (id - 1152) % 6) + 2
     return short(campaignPersonCount(w, tribe, model))
   }
+  if (id === 1180) return w.killCredits[0][1] & 65535
   if (id === 1050) return constants.SPELL_BLAST // 0x48f350 reads the loaded spell-cost table.
   // 0x48f350: self then four explicit tribes, 16 building models each.
   if (id >= 1066 && id <= 1145) {
@@ -2300,6 +2310,70 @@ function stepComputerTasks(w: World, tribe: number) {
       }
       return
     }
+    if (task.type === 28) {
+      let selection: ReturnType<typeof computerSelectionWorld> | undefined
+      const shaman = w.units.find(
+          u => u.hp > 0 && u.kind === 'shaman' && u.team === (tribe === 0 ? 'blue' : 'red')
+        ),
+        point = shaman && nativePosition(w, shaman),
+        destination = point ? ((point.x >>> 8) & 254) | (point.y & 0xfe00) : 0,
+        actions = stepShamanGuardTask(w.ai, index, {
+          existing: () => {
+            let count = 0
+            for (const u of w.units) {
+              const p = unitAnimationSource(u) ?? u.native,
+                order = p && currentPersonOrder(w.buildingOrders, p),
+                model = nativePersonModel(u)
+              if (
+                u.hp > 0 &&
+                p &&
+                [10, 33].includes(p.state) &&
+                order?.model === 30 &&
+                model >= 2 &&
+                model <= 6
+              )
+                count++
+            }
+            return count
+          },
+          select: (model, count) => {
+            if (!shaman) return []
+            const current = (selection ??= computerSelectionWorld(w, tribe)),
+              ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 0, count)
+            for (const id of ids) {
+              const source = current.sources.get(id)
+              if (source) source.flags3 = current.world.units.get(id)!.flags3
+            }
+            return ids
+          },
+        })
+      for (const action of actions) {
+        if (action.kind === 'select') {
+          const u = w.units.find(u => u.id === action.id)
+          if (!u || u.inside !== null || u.entry || u.work !== null)
+            throw new Error('Unsupported shaman guard selection')
+          u.native ??= createLivePerson(w, u)
+          registerLivePerson(w, u.native)
+          changeLivePersonState(w, u, 14)
+        } else if (action.kind === 'order') {
+          const units = action.ids.flatMap(id => {
+              const u = w.units.find(u => u.id === id && u.hp > 0)
+              return u ? [u] : []
+            }),
+            order = emptyPersonOrder()
+          writePersonOrder(order, 30, shaman?.id ?? 0, 0, 0)
+          const issued = shaman && units.length ? appendLiveOrders(w, units, order, true) : null
+          if (!issued?.accepted || issued.count !== units.length)
+            for (const u of units) if (u.native?.state === 14) changeLivePersonState(w, u, 10)
+        } else {
+          for (const id of action.ids) {
+            const p = w.units.find(u => u.id === id)?.native
+            if (p) deselectPerson(p)
+          }
+        }
+      }
+      return
+    }
     if (task.type === 20) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined
       const shaman = w.units.find(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0),
@@ -2452,6 +2526,7 @@ export function campaignCommand(
       1091: 7,
       1092: 4,
       1095: 2,
+      1102: 1,
       1108: 6,
       1109: 0,
       1112: 0,
@@ -2604,6 +2679,17 @@ export function campaignCommand(
     return
   }
 
+  if (opcode === 1102) {
+    const shaman = w.units.some(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0)
+    requestShamanGuard(
+      w.ai,
+      read(args[0]),
+      [0, 29, 6, 2, 30].map(index => w.ai.attributes[index]),
+      shaman
+    )
+    return
+  }
+
   if (opcode === 1038) {
     // 0x492c30 reads both coordinates even for OFF; disabled orders retain the old target.
     const x = read(args[0]) & 255,
@@ -2723,7 +2809,7 @@ export function campaignCommand(
 
 const boundCampaignScript = {
   ...originalScript,
-  codes: [12, 1003, ...originalScript.codes.slice(382, 1505), 1004, 1019],
+  codes: [12, 1003, ...originalScript.codes.slice(382, 1524), 1004, 1019],
 }
 function campaignRules(w: World) {
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.
@@ -5840,7 +5926,7 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      [3, 6, 27].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+      [3, 6, 27, 30].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
       stepLiveMovement(w, u)
     } else if (
@@ -5958,6 +6044,13 @@ function stepTurn(w: World) {
     )
       joinBattle(w, u, target)
   const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44)
+  for (const u of dead) {
+    const victim = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1,
+      person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,
+      attacker = person?.damageAttacker ?? 255
+    if (victim >= 0 && attacker >= 0 && attacker < 4)
+      w.killCredits[attacker][victim] = (w.killCredits[attacker][victim] + 1) & 65535
+  }
   for (const u of dead.filter(u => u.kind === 'shaman'))
     if (w.units.some(a => a.team === u.team && a.hp > 0)) {
       const turns = reincarnationTurns(!supportsFollower(w, u))

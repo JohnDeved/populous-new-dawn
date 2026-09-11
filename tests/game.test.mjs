@@ -2027,3 +2027,28 @@ test('hut families are selected once, shared with shapes and retained through up
  assert.equal(b.level,2);assert.equal(b.object,id+1);assert.equal(b.progress,1/3);
  const legacy={...b};delete legacy.object;assert.equal(buildingObject(legacy),132);
 });
+
+test('mission-one low population response assigns and releases persistent shaman escorts',async()=>{
+ const {campaignInternal,joinBattle}=await import('../app/model.ts'),{currentPersonOrder}=await import('../app/person-orders.ts'),{cancelLiveOrder}=await import('../app/live-movement.ts');
+ const credited=createWorld(),victim=credited.units.find(u=>u.team==='red'&&u.kind==='brave'),attacker=addUnit(credited,'blue','warrior',victim);victim.hp=1;joinBattle(credited,attacker,victim);until(credited,()=>!credited.units.includes(victim),20);assert.equal(campaignInternal(credited,1180),1,'ordinary Blue melee credits the Red death');
+ const w=createWorld();w.ai.tasks.forEach(t=>t.flags=0);campaignCommand(w,1102,[0],{fields:[[2,1]],codes:[]});
+ until(w,()=>w.manaTribes[1].shamanGuards===4,10);
+ const shaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),guards=w.units.filter(u=>u.native&&currentPersonOrder(w.buildingOrders,u.native)?.model===30),order=currentPersonOrder(w.buildingOrders,guards[0].native);
+ assert.equal(guards.length,4);assert.equal(order.references,4);assert.ok(guards.every(u=>u.native.target===shaman.id));assert.equal(w.manaTribes[1].shamanGuardChanged,1);
+ guards.slice(0,-1).forEach(cancelLiveOrder.bind(null,w));assert.equal(w.manaTribes[1].shamanGuards,1);assert.equal(order.references,1);
+ shaman.native.speed=100;const seed=w.randomState;cancelLiveOrder(w,guards.at(-1));assert.equal(w.manaTribes[1].shamanGuards,0);assert.equal(order.references,0);assert.equal(w.buildingOrders.active,0);assert.notEqual(w.randomState,seed,'final release rerolls a moving current shaman');
+ const recurring=createWorld();recurring.killCredits[0][1]=6;until(recurring,()=>recurring.manaTribes[1].shamanGuards>0,12);assert.ok(recurring.manaTribes[1].shamanGuards>0,'the final recurring script block reaches command 30');
+});
+
+test('shaman escort uses native pursuit cadence and strict boundaries',async()=>{
+ const {stepShamanGuard}=await import('../app/live-movement.ts'),{createComputerQueue,requestShamanGuard,stepShamanGuardTask}=await import('../app/computer.ts');let recovered=0,destinations=[];
+ const p={substate:0,counter:0,x:1000,y:1000,goalX:0,goalY:0,flags2:0,assignment:8,speed:10},effects={recover:()=>recovered++,destination:point=>{destinations.push({...point});p.goalX=point.x;p.goalY=point.y;}};
+ assert.equal(stepShamanGuard(p,{x:2000,y:2000},effects),0);assert.deepEqual([p.substate,p.assignment&8,recovered,destinations.length],[1,0,1,1]);
+ p.counter=1;stepShamanGuard(p,{x:2440,y:2000},effects);assert.equal(destinations.length,1,'non-fourth turns do not reconsider');
+ p.counter=4;stepShamanGuard(p,{x:2439,y:2000},effects);assert.equal(destinations.length,1,'439 does not replan');
+ stepShamanGuard(p,{x:2440,y:2000},effects);assert.equal(destinations.length,2,'440 replans');assert.ok(p.assignment&8);
+ p.x=2000;p.y=2000;p.flags2|=0x2000000;stepShamanGuard(p,{x:2823,y:2823},effects);assert.equal(p.flags2&0x2000000,0,'823 pauses pursuit');assert.equal(p.assignment&8,0);
+ stepShamanGuard(p,{x:2824,y:2824},effects);assert.ok(p.flags2&0x2000000);assert.ok(p.assignment&8,'824 restarts pursuit');p.speed=0;stepShamanGuard(p,{x:4000,y:4000},effects);assert.equal(recovered,2);
+ assert.equal(stepShamanGuard(p,null,effects),1);
+ const ai=createComputerQueue();requestShamanGuard(ai,10,[50,50,50,50,50],true);stepShamanGuardTask(ai,0,{existing:()=>7,select:()=>[]});assert.deepEqual(ai.tasks[0].quotas,[0,5,5,5,3],'existing escorts deplete native model order 2,5,4,6,3');
+});

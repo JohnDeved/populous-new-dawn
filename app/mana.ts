@@ -24,6 +24,8 @@ export type ManaTribe = {
   releaseDelay: number
   releaseRate: number
   spellProgress: number[]
+  shamanGuards: number
+  shamanGuardChanged: number
 }
 export type SpellStock = { available: number; disabled: number; stocks: number[] }
 export type ManaWorld = {

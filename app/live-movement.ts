@@ -2,6 +2,7 @@ import {
   buildingPose,
   buildingModel,
   browserPosition,
+  nativePosition,
   addUnit,
   population,
   releaseTasks,
@@ -81,19 +82,37 @@ import {
 const unsupported = (): never => {
   throw new Error('Unported live movement order consumer')
 }
+const short = (n: number) => (n << 16) >> 16
 export type LiveFormation = MarchingFormation & { tribe: number }
 function outsideBuilding(w: World, point: { x: number; y: number }) {
   const cell = (point.y >> 9) * 128 + (point.x >> 9)
-  return w.land.flags[cell] & 512
-    ? buildingOutsidePoint(
-        buildingPose(w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))!)
-      )
-    : point
+  const building =
+    w.land.flags[cell] & 512
+      ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+      : undefined
+  return building ? buildingOutsidePoint(buildingPose(building)) : point
+}
+const personSource = (u: Unit) =>
+  u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
+
+function releaseShamanGuard(w: World, person: { tribe: number }) {
+  const tribe = w.manaTribes[person.tribe]
+  tribe.shamanGuardChanged = 1
+  tribe.shamanGuards = Math.max(0, short(tribe.shamanGuards - 1))
+  if (tribe.shamanGuards) return
+  const shaman = w.units.find(
+      u =>
+        u.hp > 0 &&
+        u.kind === 'shaman' &&
+        (u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1) === person.tribe
+    ),
+    source = shaman && personSource(shaman)
+  if (source?.speed) source.speed = randomPersonSpeed(w, source)
 }
 export const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
   stopWork: person => releaseLiveAttackReservation(w, person.workTarget),
-  releaseSpell: unsupported,
+  releaseSpell: person => releaseShamanGuard(w, person as LivePerson),
   deleteObject: unsupported,
   releaseFight: p =>
     recoverPersonMovement(w, p as LivePerson, (person, object) =>
@@ -103,7 +122,7 @@ export const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 6, 8, 10, 11, 17, 19, 21, 27, 31, 32].includes(order.model)) unsupported()
+  if (!order || ![3, 6, 8, 10, 11, 17, 19, 21, 27, 30, 31, 32].includes(order.model)) unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,
@@ -128,6 +147,12 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     allowVehicleOrder: unsupported,
     initializeCommand: () => {
       if (order!.model === 6) return
+      if (order!.model === 30) {
+        const tribe = w.manaTribes[p.tribe]
+        tribe.shamanGuards = short(tribe.shamanGuards + 1)
+        tribe.shamanGuardChanged = 1
+        return
+      }
       if (order!.model === 10) {
         const b = w.buildings.find(building => building.id === order!.a)
         if (b) {
@@ -226,7 +251,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
           )
           return
         }
-        if (model === 6 || model === 27) {
+        if (model === 6 || model === 27 || model === 30) {
           if (order.model !== model || order.a !== x || order.b !== y)
             Object.assign(order, { model, a: x, b: y, flags: order.flags | commandFlags })
           return
@@ -310,7 +335,7 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
   const model = p && currentPersonOrder(w.buildingOrders, p)?.model
-  if (!p || !model || ![3, 6, 17, 27, 31, 32].includes(model)) return
+  if (!p || !model || ![3, 6, 17, 27, 30, 31, 32].includes(model)) return
   if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
@@ -524,6 +549,46 @@ function join(w: World, p: LivePerson) {
   )
 }
 
+// 0x43daa0. Command 30 follows one saved shaman identity until that target is
+// gone or contained; proximity pauses pursuit but does not complete the order.
+export function stepShamanGuard(
+  p: Pick<
+    LivePerson,
+    'substate' | 'counter' | 'x' | 'y' | 'goalX' | 'goalY' | 'flags2' | 'assignment' | 'speed'
+  >,
+  target: { x: number; y: number } | null,
+  effects: { recover: () => void; destination: (point: { x: number; y: number }) => void }
+) {
+  if (!target) return 1
+  if (!p.substate) {
+    p.substate = 1
+    p.flags2 = (p.flags2 | 0x2000000) >>> 0
+    p.assignment &= ~8
+    effects.recover()
+    effects.destination(target)
+    return 0
+  }
+  if (p.counter & 3) return 0
+  p.flags2 = (p.flags2 | 0x2000000) >>> 0
+  p.assignment &= ~8
+  if (Math.abs(short(target.x - p.x)) < 824 && Math.abs(short(target.y - p.y)) < 824) {
+    p.flags2 = (p.flags2 & ~0x2000000) >>> 0
+    return 0
+  }
+  p.assignment |= 8
+  if (Math.abs(short(target.x - p.goalX)) > 439 || Math.abs(short(target.y - p.goalY)) > 439)
+    effects.destination(target)
+  if (!p.speed) effects.recover()
+  return 0
+}
+
+function shamanGuardTarget(w: World, order: PersonOrder) {
+  const unit = w.units.find(u => u.id === order.a && u.hp > 0 && u.inside === null),
+    person = unit && personSource(unit)
+  if (!unit || (person && (!person.class || person.flags2 & 1))) return null
+  return outsideBuilding(w, person ?? nativePosition(w, unit))
+}
+
 export function stepLiveMovement(w: World, u: Unit) {
   const p = u.native!
   stepLivePhysics(w, u, p)
@@ -587,6 +652,14 @@ export function stepLiveMovement(w: World, u: Unit) {
       )
     },
     27: () => Number(stepLiveWorship(w, u)),
+    30: order =>
+      stepShamanGuard(p, shamanGuardTarget(w, order), {
+        recover: () =>
+          recoverPersonMovement(w, p, (person, object) =>
+            setLivePersonAnimation(w, person as LivePerson, object)
+          ),
+        destination: point => replanLivePath(w, u, p, point),
+      }),
   })
   if (next) {
     if (p.commandStatus === 27) u.work = null
@@ -616,7 +689,10 @@ export function stepLiveOrderQueue(
     p,
     {
       commands,
-      commandPosition: order => ({ x: order.a, y: order.b }),
+      commandPosition: order =>
+        order.model === 30
+          ? (shamanGuardTarget(w, order) ?? { x: p.x, y: p.y })
+          : { x: order.a, y: order.b },
       vehicleDestination: unsupported,
       vehicleReady: unsupported,
       changeTribe: unsupported,
