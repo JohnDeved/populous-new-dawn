@@ -1705,6 +1705,30 @@ Full terrain-change route invalidation, mixed-class path ownership, vehicles,
 selected-person transitions, avoidance, work/attack queue restoration and global
 scheduling remain unfinished. Continue the visible group/selection queue.
 
+### Full-map ordinary movement and height queries, 2026-09-11
+
+Ordinary ground orders, recovery and resting no longer reject positions beyond the
+early 96-unit map crop. Both coordinate seams use existing native wrapped positions,
+routing, collision and slot geometry. The full 128×128 terrain was already rendered;
+live position heights, scene object placement and unit grounding now query that same
+native terrain instead of clamping to the compatibility grid's edge. Compatibility
+edits still synchronize by version; their small grid has not been enlarged.
+
+Eight six-person routes cover all four crop edges and both directions across both
+world seams. All followers remain alive, take short wrapped steps, settle in distinct
+native slots and release orders/routes at 5–240 Hz and irregular frame timing.
+Actual desktop/ultrawide input verifies the extended movement and visible grounded
+sprites. The executable agrees with 4,096 full-map live height/coordinate conversions;
+576 GPU sprite poses, selection and Blast shadow/landing regressions also pass.
+The steady 200-query measurement is 0.004 ms median; raw samples and limits are in
+`references/performance/2026-09-11-world-height.json`.
+
+Revision 27 separates this verified ordinary movement extent from the unfinished
+full-world simulation lifecycle. It does not certify every distance/interaction
+consumer: legacy compatibility-grid helpers, some placement/bridge/reincarnation
+queries, campaign marker updates, vehicles and other special classes still need
+native world ownership. Keep that remainder and all other gameplay work active.
+
 ### Audio work delivered; finish current tree ambience correction
 
 Latest user direction, 2026-09-10: finish the current building-attack work, then

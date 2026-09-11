@@ -31,6 +31,8 @@ for mode,address in [('height',0x44e940),('range',0x44f750),('slope',0x4ebd10),(
   value=call(address,q['x'],q['y']) if mode=='height' else call(address,to) if mode=='range' else call(address,to,out)
   expected.append(((value+32768)&65535)-32768 if mode=='height' else (value if value<0x80000000 else value-0x100000000) if mode=='range' else dict(zip(['x','y','z'],struct.unpack('<hhh',cpu.mem_read(out,6)))));cases.append(q)
  compare("import {terrainPointHeight,terrainSlopeRange,terrainSlopeVelocity,terrainDrift} from './app/native-terrain.ts';const f={height:terrainPointHeight,range:terrainSlopeRange,slope:terrainSlopeVelocity,drift:terrainDrift}[input.mode];console.log(JSON.stringify(input.cases.map(p=>f(input.land,p))));",dict(mode=mode,land=land,cases=cases),expected,mode)
+ if mode=='height':
+  compare("import {createWorld,nativePosition,browserPosition} from './app/model.ts';const w=createWorld();w.land=input.land;w.landVersion=w.terrainVersion;console.log(JSON.stringify(input.cases.map(p=>nativePosition(w,browserPosition(p)).h)));",dict(land=land,cases=cases),expected,'live full-map height and coordinate wrap')
 for mode,address in [('ordinary',0x4e78f0),('impulse',0x4e7980)]:
  cases=[];expected=[]
  for i in range(4096):

@@ -601,11 +601,14 @@ export function nativeStep3D(
     h: short(p.h + (Math.imul(rules.sine[(pitch + 512) & 2047], length >> 1) >> 16)),
   }
 }
-export const nativePosition = (w: World, p: Point): NativePoint => ({
-  x: short(Math.round((p.x + 8) * 256)),
-  y: short(Math.round((-p.z - 8) * 256)),
-  h: Math.round(height(w.terrain, p.x, p.z) * 45),
-})
+export function nativePosition(w: World, p: Point): NativePoint {
+  syncNativeTerrain(w)
+  const position = {
+    x: short(Math.round((p.x + 8) * 256)),
+    y: short(Math.round((-p.z - 8) * 256)),
+  }
+  return { ...position, h: terrainPointHeight(w.land, position) }
+}
 export const browserPosition = (p: Pick<NativePoint, 'x' | 'y'>): Point => ({
   x: short(p.x - 2048) / 256,
   z: -short(p.y + 2048) / 256,
@@ -1371,12 +1374,10 @@ export const buildingContainsPoint = (b: Building, p: Point) =>
 export const buildingBlocksStep = (b: Building, start: Point, next: Point) =>
   buildingContainsPoint(b, next) && !buildingContainsPoint(b, start)
 // Terrain support follows the original coastal mask, including low dry shore.
-// ponytail: the movement adapter still owns only the rendered map crop.
 export function supportsFollower(w: World, p: Point & { inside?: number | null }) {
   // Occupants remain with their building until its controller ejects them.
   // Terrain-only route points still use the ordinary coastal support predicate.
   if (p.inside != null && w.buildings.some(b => b.id === p.inside && b.hp > 0)) return true
-  if (Math.abs(p.x) >= 47 || Math.abs(p.z) >= 47) return false
   const n = nativePosition(w, p),
     cell = ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
   return !!terrainSupportsPerson(w.land.categories[cell], n)
@@ -2187,12 +2188,10 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
   return f
 }
 function lightPosition(w: World, f: Effect) {
-  return (
-    f.fire ?? {
-      ...nativePosition(w, f),
-      h: Math.round((f.height ?? height(w.terrain, f.x, f.z)) * 45),
-    }
-  )
+  if (f.fire) return f.fire
+  const position = nativePosition(w, f)
+  if (f.height !== undefined) position.h = Math.round(f.height * 45)
+  return position
 }
 function registerTerrainLight(w: World, f: Effect, strength: number) {
   if (
@@ -3314,10 +3313,9 @@ function syncNativeTerrain(w: World) {
   const changed: number[] = []
   for (let z = -48; z <= 48; z += 2)
     for (let x = -48; x <= 48; x += 2) {
-      const p = nativePosition(w, { x, z }),
-        cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00),
-        i = nativeCellIndex(cell)
-      const h = short(Math.max(0, p.h))
+      const cell = ((((x + 8) * 256) >>> 8) & 254) | (((-z - 8) * 256) & 0xfe00),
+        i = nativeCellIndex(cell),
+        h = short(Math.max(0, Math.round(height(w.terrain, x, z) * 45)))
       if (w.land.heights[i] !== h) {
         w.land.heights[i] = h
         changed.push(cell)
@@ -3325,11 +3323,12 @@ function syncNativeTerrain(w: World) {
     }
   for (const cell of changed) queueTerrain(w.land, cell, 1, 0, terrainTextures)
   processTerrain(w.land, terrainTextures)
+  // Height notifications may query positions; all native heights are current now.
+  w.landVersion = w.terrainVersion
   for (const cell of changed) {
     updateWalkMasks(w.land, cell, 1)
     notifyHeightChange(w, cell, 1)
   }
-  w.landVersion = w.terrainVersion
 }
 function refreshTribeTerritory(w: World, id: number) {
   const team = id === 0 ? 'blue' : id === 1 ? 'red' : null

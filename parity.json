@@ -1,8 +1,8 @@
 {
-  "revision": 26,
+  "revision": 27,
   "discovery": {
     "status": "open",
-    "note": "Revision 25 separates ordinary marching-controller integration from the remaining group lifecycle. The scope split is recorded separately from verification; allocation/class scheduling, avoidance, general work/attack queue restoration, selection and specialist/vehicle behavior remain open.",
+    "note": "Revision 27 separates ordinary full-map follower movement and resting from the remaining full-world simulation lifecycle. Record the scope split separately from verification; legacy terrain/command helpers, distance consumers, vehicles and other classes remain open.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -41,9 +41,11 @@
           "status": "verified",
           "evidence": [
             "scripts/check-native-terrain.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "scripts/check-native-person-physics.py",
+            "tests/world-movement.test.mjs"
           ],
-          "note": "Original splits and stored-height sampling integrated."
+          "note": "Original splits and stored-height sampling integrated. Live positions, ordinary sprite grounding and scene placement now read native full-map heights after versioned compatibility synchronization; 4,096 additional executable live coordinate/height comparisons cover the integration."
         },
         {
           "id": "world.water",
@@ -112,10 +114,47 @@
           "title": "Full-world simulation and wrapped coordinates",
           "status": "partial",
           "evidence": [
-            "scripts/check-native-path-solver.py",
-            "app/model.ts"
+            "app/model.ts",
+            "app/live-people.ts",
+            "app/unit-motion.ts",
+            "scripts/check-native-person-physics.py",
+            "tests/world-movement.test.mjs",
+            "scripts/check-browser-world-movement.mjs",
+            "scripts/bench-world-height.mjs",
+            "references/performance/2026-09-11-world-height.json",
+            "references/reverse-engineering.md"
           ],
-          "note": "Rendering spans 128x128; gameplay/routing still has a cropped boundary."
+          "note": "Rendering spans the native 128\u00d7128 world. Ordinary ground orders and resting now cross the former crop and coordinate seams; live placement/grounding shares native world heights. Full-world commands, all class/interaction distance consumers and compatibility-grid ownership remain open.",
+          "requirements": [
+            {
+              "id": "world.wrap.followers",
+              "title": "Ordinary ground orders and resting across the world without a cropped boundary",
+              "status": "verified",
+              "evidence": [
+                "app/model.ts",
+                "app/live-people.ts",
+                "app/unit-motion.ts",
+                "scripts/check-native-person-physics.py",
+                "tests/world-movement.test.mjs",
+                "scripts/check-browser-world-movement.mjs",
+                "scripts/bench-world-height.mjs",
+                "references/performance/2026-09-11-world-height.json",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Six-person routes cover every former crop edge and both directions across both seams, unique resting slots, wrapped step size and order/route cleanup at 5\u2013240 Hz and irregular timing. Native live height conversions and desktop/ultrawide input/grounded sprites are compared. This bounded ordinary movement extent does not cover other class/interaction/command lifecycles."
+            },
+            {
+              "id": "world.wrap.lifecycle",
+              "title": "Complete full-world commands, interactions, terrain ownership and special-class simulation",
+              "status": "partial",
+              "evidence": [
+                "app/model.ts",
+                "GOAL.md",
+                "references/reverse-engineering.md"
+              ],
+              "note": "Legacy compatibility-grid helpers, some placement/bridge/reincarnation queries, marker updates, planar distance/interaction consumers, vehicles and special classes still need full native-world ownership. The original full-world scope remains unfinished."
+            }
+          ]
         },
         {
           "id": "world.deform",

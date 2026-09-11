@@ -68,7 +68,6 @@ import {
   HOME,
   ENEMY,
   placementError,
-  height,
   walkable,
   distance,
   maxHp,
@@ -965,7 +964,7 @@ export class GameScene {
     this.updateView()
   }
   y(p: Point) {
-    return height(this.world.terrain, p.x, p.z)
+    return nativePosition(this.world, p).h / 45
   }
   locate(g: THREE.Object3D, p: Point, h = this.y(p)) {
     g.position.set(p.x, Math.round(h * 45) / 128, p.z)

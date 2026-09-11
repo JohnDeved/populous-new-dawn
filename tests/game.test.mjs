@@ -1160,10 +1160,10 @@ test('follower mana uses native preacher orders, registration and ghost flags be
 test('live spell reach follows terrain height and enemy casts require and spend native mana', async () => {
  const {spellRange}=await import('../app/model.ts');
  const w=createWorld(),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
- Object.assign(shaman,{x:0,z:0});w.inputMask=0;w.terrain.fill(1);
+ Object.assign(shaman,{x:0,z:0});w.inputMask=0;w.terrain.fill(1);w.terrainVersion++;
  assert.ok(spellRange(w,shaman,2)<11);
  assert.equal(cast(w,'blast',{x:11,z:0}),false,'low ground cannot reach the old fixed-radius edge');
- assert.equal(w.shots.blast,4);w.terrain.fill(8);
+ assert.equal(w.shots.blast,4);w.terrain.fill(8);w.terrainVersion++;
  assert.ok(spellRange(w,shaman,2)>11);assert.ok(cast(w,'blast',{x:11,z:0}));assert.equal(w.shots.blast,3);
  const enemy=createWorld(),red=enemy.units.find(u=>u.team==='red'&&u.kind==='shaman'),target=enemy.units.find(u=>u.team==='blue'&&u.kind==='brave');
  enemy.units=enemy.units.filter(u=>u===red||u===target||u.team==='blue'&&u.kind==='shaman');

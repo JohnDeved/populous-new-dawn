@@ -2321,3 +2321,22 @@ equivalent-work speedup. All queued commands and references stay unchanged.
 `performance/2026-09-11-route-recovery.json` retains raw samples. Other simulation
 phases, rendering, GPU throughput and cross-hardware FPS are outside this probe;
 separate 5–240 Hz live replay and browser input verify timing and visible behavior.
+
+
+### Full native terrain queries and movement extent, 2026-09-11
+
+Use the already-present 128×128 native terrain for movement support and height.
+The 97×97 compatibility grid stays the same size; dirty edits synchronize once by
+version. Position queries then read four native vertices with integer interpolation.
+Ground recovery removes an extra browser-coordinate conversion and artificial-bound
+branch. No renderer pass, draw call, timer, frame cap, cache copy or package is added.
+
+`bench-world-height.mjs` compares 200 live position/height queries per sample against
+the previous shipped helper, split between opening terrain and full-map coordinates.
+Twenty warmups and 80 alternating pairs, each averaging 100 batches, measured median
+**0.00218 → 0.00397 ms**, p95 **0.00537 → 0.00590 ms** on Apple M5 / Node v24.18.0.
+Raw samples are in `performance/2026-09-11-world-height.json`. This is the CPU cost of
+corrected full-world queries, not a speedup: the old helper clamps to the wrong edge
+height. Dirty-grid synchronization, whole-frame cost and GPU FPS are outside the
+steady-state probe. Native integer heights and separate browser/replay regressions
+establish correctness. Existing interpolation remains uncapped and seam-aware.

@@ -13,7 +13,6 @@ import {
   type Unit,
   nativePosition,
   browserPosition,
-  height,
   buildingPose,
   sound,
   unitAnimationSource,
@@ -837,13 +836,7 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
       collision.cell(p).flags & 0x200
         ? w.buildings.find(b => b.id === (collision.cell(p).building & 1023))
         : undefined
-    // The cropped browser world boundary remains until full-map rendering.
-    const blocked = (to: { x: number; y: number }) => {
-      const point = browserPosition(to)
-      return Math.abs(point.x) >= 47 || Math.abs(point.z) >= 47
-        ? 3
-        : personStepCollision(collision, p, to)
-    }
+    const blocked = (to: { x: number; y: number }) => personStepCollision(collision, p, to)
     if (speed)
       stepMotionRecovery(
         p,
@@ -945,8 +938,7 @@ export function stepLivePerson(w: World, u: Unit) {
   w.randomState = state.randomState
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.cargo = p.cargo / 100
-  // Presentation remains grounded on the same resampled surface as other units.
-  p.h = short(Math.round(height(w.terrain, u.x, u.z) * 45))
+  p.h = nativePosition(w, u).h
 }
 
 // Presentation adapter: called after drawing at the selected 24 Hz native rate.

@@ -7995,3 +7995,45 @@ after position updates and before each state controller. Building/resting caller
 no longer duplicate that work; panic/celebration receive the same path advancement
 when preparation replans. A coincident-waypoint regression requires exactly one
 advance per ground visit, and existing entry/resting/transition regressions remain.
+
+
+## 2026-09-11 — remove the early movement crop and share native world heights
+
+The native world is 128×128 coarse cells with 16-bit wrapped positions. Live ordinary
+orders were still rejected by `supportsFollower` outside ±47 browser units, and the
+shared ground-motion adapter injected collision 3 there. These were early browser
+crop guards, absent from native `004e6d00` physics and its existing compared collision
+consumers. They are removed; original terrain support, building access and recovery
+remain active. The full native renderer and existing route/slot coordinates already
+support the rest of the world.
+
+`nativePosition` now queries complete `0044e940` height sampling through the existing
+`terrainPointHeight`, after the compatibility grid's versioned synchronization.
+Scene placement, ordinary sprite grounding and live person height use this same
+source; effects' explicit supplied heights still take precedence. Synchronization
+reads compatibility grid vertices directly rather than recursively asking for a
+native position. Its version is marked current before height notifications, which
+may themselves query positions. The small compatibility grid remains an input
+adapter and is not expanded or copied for full-world queries. A pre-existing spell
+range test edited that grid twice without updating its version; it now announces
+both edits like runtime terrain writers do.
+
+`check-native-person-physics.py` additionally compares 4,096 complete executable
+height results with the live browser/native coordinate round trip across random
+full-map heights, stored diagonals, signed coordinates and seam edges. Existing
+raw height/slope/drift, velocity and landing comparisons also pass. The portable
+world movement test drives six people across each former crop boundary and both
+directions across X/Z seams, then checks unique resting slots, bounded wrapped
+steps, complete order/route cleanup and identical 5–240 Hz/irregular histories.
+It also verifies native out-of-crop height edits, periodic coordinate aliases,
+sprite grounding, preserved water rejection and compatibility-edit synchronization
+without overwriting the rest of the world. Actual desktop/ultrawide clicks cover
+crop/X-seam/Z-seam routes and original visible sprites. The existing 576-pose GPU,
+selection-arrow and real Blast shadow/landing regressions pass.
+
+Ordinary movement extent is now independently verifiable; full-world simulation is
+still partial. Legacy `height`, `walkable`, `surface`, `worldPoint` and marker-height
+compatibility consumers, some placement/bridge/reincarnation queries, other class
+controllers and planar interaction/distance adapters retain separate work. No
+claim to full-world commands, vehicles, all collision modes or complete scheduling
+follows from this bounded integration.
