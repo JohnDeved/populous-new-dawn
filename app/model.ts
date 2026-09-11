@@ -1884,7 +1884,7 @@ export function createWorld(): World {
     }
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
-    if (![1038, 1095, 1108, 1112, 1196].includes(c.opcode)) return true
+    if (![1038, 1095, 1108, 1109, 1112, 1196, 1204].includes(c.opcode)) return true
     campaignCommand(w, c.opcode, c.args)
     return false
   })
@@ -2332,8 +2332,10 @@ export function campaignCommand(
       1068: 4,
       1095: 2,
       1108: 6,
+      1109: 0,
       1112: 0,
       1196: 1,
+      1204: 1,
       1076: 3,
       1077: 3,
       1085: 2,
@@ -2456,6 +2458,17 @@ export function campaignCommand(
       people: people & 255,
       mode: mode & 255,
     }
+    return
+  }
+
+  // 0x4f2e30 and 0x48cc60 case 0xb0 preserve every unrelated mode bit.
+  if (opcode === 1109) {
+    w.ai.flags = (w.ai.flags | 0x400) >>> 0
+    return
+  }
+  if (opcode === 1204) {
+    if (args[0] === 1022) w.manaWorld.gameFlags = (w.manaWorld.gameFlags & ~0x40) >>> 0
+    else if (args[0] === 1023) w.manaWorld.gameFlags = (w.manaWorld.gameFlags | 0x40) >>> 0
     return
   }
 

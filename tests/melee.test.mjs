@@ -118,6 +118,7 @@ test('idle followers of either tribe pursue detected enemies at every render cad
 function group(kind = 'warrior', choice = 0, count = 3, offset = 0) {
   const w = createWorld()
   w.terrain.fill(3); w.terrainVersion++; w.units = []; w.buildings = []; w.shrines = []
+  w.manaWorld.gameFlags = 0
   const defender = addUnit(w, 'red', 'warrior', { x: offset / 256, z: 0 })
   const attacker = addUnit(w, 'blue', kind, { x: 180 / 256, z: 0 })
   const members = [defender, attacker]

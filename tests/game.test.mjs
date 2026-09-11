@@ -345,7 +345,7 @@ test('native integer movement and combat exchanges preserve timing, retaliation 
  const walker=addUnit(moving,'blue','brave',{x:0,z:0});addUnit(moving,'red','brave',{x:40,z:40});walker.path=[{x:10,z:0}];tick(moving,1/12);
  assert.equal(walker.x,70/256);assert.equal(walker.z,0);assert.equal(walker.heading,Math.PI/2);
  const rng={randomState:1};assert.deepEqual(Array.from({length:6},()=>random(rng)),[1275068418,1896767491,2517695575,2629181784,3921238491,2630906275]);
- const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.units=[];w.buildings=[];w.randomState=seed;const a=addUnit(w,'blue','warrior',{x:0,z:0}),b=addUnit(w,'red','brave',{x:180/256,z:0}),group={id:w.nextId++,x:0,z:0,angle:512,members:[a.id,b.id]};w.fights=[group];for(const [u,other] of [[a,b],[b,a]])u.fight={group:group.id,opponent:other.id,action:'ready',started:0,remaining:0};return w;};
+ const duel=(seed=1)=>{const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.units=[];w.buildings=[];w.manaWorld.gameFlags=0;w.randomState=seed;const a=addUnit(w,'blue','warrior',{x:0,z:0}),b=addUnit(w,'red','brave',{x:180/256,z:0}),group={id:w.nextId++,x:0,z:0,angle:512,members:[a.id,b.id]};w.fights=[group];for(const [u,other] of [[a,b],[b,a]])u.fight={group:group.id,opponent:other.id,action:'ready',started:0,remaining:0};return w;};
  const a=duel(),b=structuredClone(a);b.units.reverse();tick(a,1/12);tick(b,1/12);b.units.sort((a,b)=>a.id-b.id);assert.deepEqual(b,a,'one coordinated exchange is independent of unit array order');
  assert.equal(a.units[0].hp,87);assert.equal(a.units[1].hp,32,'the brave retaliates with its pre-hit health');
  assert.equal(a.units[0].fight.action,'attack');assert.equal(a.units[1].fight.action,'recoil');
@@ -472,8 +472,10 @@ test('original campaign setup disables only enemy reincarnation and retains defe
  assert.throws(()=>runScript({...originalScript,codes:[12,1003,1006,65535,1004,1019]},scriptState(originalScript),host),/Unknown game command/);
  const w=createWorld();assert.equal(w.ai.reincarnation,false);assert.equal(w.ai.attributes[32],128);assert.equal(w.ai.attributes[33],1);assert.equal(w.ai.attributes[18],45);
  assert.ok(w.ai.states&1,'native construction state enabled');assert.equal(w.ai.states&(1<<2),0,'native wild conversion state disabled');
+ assert.deepEqual(w.ai.pendingCommands.map(c=>c.opcode),[1081,1091,1091,1091,1117,1092]);assert.ok(w.ai.flags&0x400);assert.ok(w.manaWorld.gameFlags&0x40);
  assert.ok(!w.ai.pendingCommands.some(c=>c.opcode===1112));assert.equal(w.inputMask,128);assert.ok(w.manaWorld.levelFlags&0x20000000);
  const gated=createWorld();gated.inputMask=132;gated.manaWorld.levelFlags=0x21000000;campaignCommand(gated,1112,[]);campaignCommand(gated,1113,[]);assert.equal(gated.inputMask,132);assert.equal(gated.manaWorld.levelFlags,0x21000000);
+ const modes=createWorld();modes.ai.flags=0xa5;modes.manaWorld.gameFlags=0x1c1;campaignCommand(modes,1109,[]);campaignCommand(modes,1204,[1022]);assert.equal(modes.ai.flags,0x4a5);assert.equal(modes.manaWorld.gameFlags,0x181);campaignCommand(modes,1204,[1023]);assert.equal(modes.manaWorld.gameFlags,0x1c1);
  const shaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');shaman.hp=0;tick(w,1/12);advance(w,15);
  assert.ok(w.units.some(u=>u.team==='red'));assert.ok(!w.units.some(u=>u.team==='red'&&u.kind==='shaman'));assert.equal(w.redRespawn,0);
  const fresh=createWorld();fresh.ai.attributes[0]=99;assert.equal(createWorld().ai.attributes[0],12,'new games own independent script state');
