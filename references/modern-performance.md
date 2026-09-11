@@ -2230,3 +2230,14 @@ identical results asserted. These are local CPU samples, not a GPU/frame-rate
 certification; camera changes rebuild the cache. No extra rendering or draw calls
 are introduced. Native three-model candidate overflow is deliberately removed;
 ordinary ordering and first-face consumption remain native-compared.
+
+### Command target handoff, 2026-09-11
+
+Pointer release retains the existing picked object instead of resolving the world
+again and reducing a building/head to a position. The browser regression counts
+world-object lookups during the final real click: zero, versus the removed
+unconditional lookup in the prior handler. ID matching replaces proximity matching
+for picked targets; contextual scans remain input-only. No render loop, timer,
+frame-rate dependency, draw call or package was added. This is a redundant-work
+removal and correctness check, not a measured frame-rate improvement. Exact overlap
+orders pass at 1440×1000 and 3440×1440; existing selection checks also cover 2× DPI.

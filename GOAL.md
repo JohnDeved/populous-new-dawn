@@ -196,6 +196,15 @@ non-person native list order, all construction/model flags, alternate/locked inp
 vehicle/passenger selection and command buffering remain open. Continue visible
 selection/target feedback and the remaining mixed-object input ownership next.
 
+Clicked enemy people and friendly buildings now retain their exact identity through
+order dispatch, avoiding a second proximity search choosing an overlapping neighbour.
+Ownership follows the selected tribe; friendly-person orders use terrain context.
+144 original classifier/transport/encoder cases and live overlap regressions cover
+this bounded handoff. The browser still approximates unpicked terrain context;
+original enemy-building command 19 is an area order, whose complete ownership and
+lifecycle are still unfinished. Continue the requested group movement, footprints,
+standing formations, selection/deselection and native 3D drag queue.
+
 
 Ordinary marching is now live through the shared order pool, native physics,
 routing and sprite ownership. Native comparisons, 279 portable tests and actual

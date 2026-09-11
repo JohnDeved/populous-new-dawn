@@ -7819,3 +7819,33 @@ full model eligibility flags, all construction deformation/caps, vehicle/passeng
 input, locked-target/alternate modes and command-buffer ownership remain open.
 `004762b0` was exported while tracing this path; it is the building deformation
 producer, not a picking helper, and receives no new parity credit here.
+
+## 2026-09-11 — preserve clicked command targets
+
+`00437010` classifies hovered people and the pointed terrain cell; `00437750`
+chooses a contextual command and `004380f0` validates it. `004aa8b0` transports
+its payload, `00444f60` decodes it and `00435780` encodes the person order.
+Enemy-person command 28 and friendly-building command 8 retain the exact object
+ID. Ordinary friendly-person hits fall through to terrain-cell context. Enemy
+buildings choose command 19, an **area** order: its encoded position is the pointed
+cell and its range occupies the other word. It does not encode the building ID.
+
+`check-native-command-target.py EXE [--record]` executes 144 complete classifier,
+priority, eligibility, transport-producer and encoder sequences: two tribes,
+three selected classes, both building owners, two overlapping enemy types,
+friendly-person fallthrough and three order categories. Only UI/audio consumers
+and final transport are intercepted. Native building footprint checks execute with
+original shape data. The fixture records executable identity and complete packets.
+Portable live tests exercise category 0 target choice; they do not certify queue
+categories or the full native area-attack lifecycle.
+
+The shared browser command handler now accepts the picked ID; pointer release
+preserves building/head identity instead of converting it back to a coordinate.
+Exact hits cannot be stolen by nearby objects or array reordering. Removed IDs
+leave the existing order intact. Ownership is relative to the selected tribe;
+terrain building context no longer also assigns a nearby person as an enemy.
+Actual browser clicks cover overlapping enemies beside a hut at desktop/ultrawide
+sizes. Full terrain-cell classification, contextual wheel/forced modes, special
+classes, enemy-building area dispatch and queue ownership remain open.
+`00437750` and its footprint predicate `0043d7d0` are retained as evidence, not
+claimed as complete TypeScript ports.

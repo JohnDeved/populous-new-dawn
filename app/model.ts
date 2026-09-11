@@ -2954,15 +2954,39 @@ function atBuildingEntrance(w: World, p: Point, b: Building) {
   const door = entrance(w, b)
   return Math.abs(p.x - door.x) < 112 / 256 && Math.abs(p.z - door.z) < 112 / 256
 }
-export function command(w: World, p: Point) {
+export function command(w: World, p: Point & { id?: number }) {
   if (w.paused || w.status !== 'playing') return
-  const shrine = w.shrines.find(s => s.active && distance(s, p) < 3),
-    building = w.buildings.find(b => distance(b, p) < 3.1)
+  // Object orders carry identity through 0x4380f0 -> 0x4aa8b0 -> 0x435780.
+  // ponytail: unpicked points still use legacy proximity; replace that branch
+  // with the full native terrain-cell classifier and contextual command choices.
+  const team = w.units.find(u => w.selected.includes(u.id))?.team ?? 'blue'
+  const pointedPerson = p.id === undefined ? undefined : w.units.find(u => u.id === p.id)
+  // Ordering through a friendly person uses the terrain context (0x437010).
+  const targetId = pointedPerson?.team === team ? undefined : p.id
+  const matches = (object: Point & { id: number }, radius: number) =>
+    targetId === undefined ? distance(object, p) < radius : object.id === targetId
+  const shrine = w.shrines.find(s => s.active && matches(s, 3)),
+    building = w.buildings.find(b => b.hp > 0 && matches(b, 3.1)),
+    person = w.units.find(
+      u =>
+        u.hp > 0 &&
+        matches(u, 1.5) &&
+        (targetId !== undefined ||
+          (u.team !== team && u.team !== 'wild' && u.inside === null && u.lift === 0))
+    )
+  if (
+    targetId !== undefined &&
+    !shrine &&
+    !building &&
+    !person &&
+    !w.trees.some(t => t.id === p.id && t.logs > 0)
+  )
+    return
   const enemy =
-    w.units.find(
-      u => u.team === 'red' && u.hp > 0 && u.inside === null && u.lift === 0 && distance(u, p) < 1.5
-    ) ?? (building?.team === 'red' ? building : undefined)
-  const friendly = building?.team === 'blue' ? building : undefined,
+    (!shrine && !building && person && person.team !== team && person.team !== 'wild'
+      ? person
+      : undefined) ?? (building && building.team !== team ? building : undefined)
+  const friendly = building?.team === team ? building : undefined,
     dismantling = !!((friendly?.admission?.activity ?? 0) & 0x8000)
   syncNativeTerrain(w)
   const headOrder = shrine && shrine.kind !== 'vault' ? worshipOrder(w, shrine) : 0

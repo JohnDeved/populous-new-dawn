@@ -1465,12 +1465,8 @@ export class GameScene {
       this.world.buildings.find(b => b.id === pickedId) ??
       this.world.shrines.find(h => h.id === pickedId) ??
       this.world.trees.find(t => t.id === pickedId)
-    let p = picked ?? this.pick(event) ?? clickedUnit
+    const p = picked ?? this.pick(event) ?? clickedUnit
     if (!p) return
-    if (!this.world.mode) {
-      const object = this.pickWorldObject(event)
-      if (object) p = { x: object.x, z: object.z }
-    }
     if (this.world.mode) {
       const mode = this.world.mode
       const ok = SPELLS.some(s => s.id === mode)

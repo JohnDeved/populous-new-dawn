@@ -4602,3 +4602,12 @@ The existing live-model capture/comparison also checks invisible hit faces and
 bounds against full native model rendering. `004762b0` is retained as unported
 building-deformation evidence. See the reverse-engineering log for covered cases,
 modern overflow corrections and unfinished traversal/input ownership.
+
+## 2026-09-11 — command target handoff
+
+Run `python scripts/check-native-command-target.py EXE [--record]` for 144 native
+contextual classifications, command transports and order encodings. Direct enemy
+people and friendly buildings retain their IDs; friendly people use cell context,
+while enemy buildings create area orders. The live check covers target choice,
+not complete contextual/area/queue ownership. `00437750` contextual priority and
+`0043d7d0` building footprint eligibility are exported but remain unported.
