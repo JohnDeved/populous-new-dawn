@@ -21,6 +21,8 @@ import {
   type OrderStartEffects,
 } from './person-order-start.ts'
 import { stepPersonOrders, type OrderUpdateEffects } from './person-order-update.ts'
+import { stepConstructionOrder } from './construction-order.ts'
+import { assignBuilder, BuilderTask } from './building-workers.ts'
 import { recoverPersonMovement, defaultPersonState, resetPersonMotion } from './person-state.ts'
 import {
   currentPersonOrder,
@@ -42,6 +44,7 @@ import {
   stepMarchingFormation,
   type MarchingFormation,
 } from './marching-formations.ts'
+import rules from './original-rules.json' with { type: 'json' }
 
 const unsupported = (): never => {
   throw new Error('Unported live movement order consumer')
@@ -60,7 +63,7 @@ const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 8, 10, 19, 21, 27].includes(order.model)) unsupported()
+  if (!order || ![3, 6, 8, 10, 19, 21, 27].includes(order.model)) unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,
@@ -84,6 +87,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     commandPosition: unsupported,
     allowVehicleOrder: unsupported,
     initializeCommand: () => {
+      if (order!.model === 6) return
       if (order!.model === 10) {
         const b = w.buildings.find(building => building.id === order!.a)
         if (b) {
@@ -128,7 +132,11 @@ export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: num
 // Keep the person and shared queue intact when a different live controller takes over.
 export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (order && [8, 10].includes(order.model)) {
+  if (order?.model === 6 && u.builder) {
+    u.builder.person = p
+    u.native = null
+    u.work = order.a
+  } else if (order && [8, 10].includes(order.model)) {
     u.native = null
     u.entry ??= { person: p, orders: w.buildingOrders }
     u.work = order.a
@@ -147,7 +155,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     w.buildingOrders,
     command,
     units.map(u => {
-      const p = u.native ?? u.entry?.person ?? createLivePerson(w, u)
+      const p = u.native ?? u.entry?.person ?? u.builder?.person ?? createLivePerson(w, u)
       if (!u.entry) u.native = p
       p.selectionFlags |= 128
       if (replace) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
@@ -171,7 +179,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
           )
           return
         }
-        if (model === 27) {
+        if (model === 6 || model === 27) {
           if (order.model !== model || order.a !== x || order.b !== y)
             Object.assign(order, { model, a: x, b: y, flags: order.flags | commandFlags })
           return
@@ -188,7 +196,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     }
   )
   for (const u of units) {
-    const p = (u.native ?? u.entry?.person)!
+    const p = (u.native ?? u.entry?.person ?? u.builder?.person)!
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
@@ -219,8 +227,8 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 }
 
 export function cancelLiveOrder(w: World, u: Unit) {
-  const p = u.native ?? u.flight ?? u.fight?.motion
-  if (!p || ![3, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
+  const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
+  if (!p || ![3, 6, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
@@ -268,6 +276,61 @@ export function stepLiveMovement(w: World, u: Unit) {
   if (p.state !== 10) return
   const next = stepLiveOrderQueue(w, u, p, {
     3: order => Number(stepMovementOrder(p, order, w.land.categories, unsupported)),
+    6: order => {
+      const building = w.buildings.find(b => b.id === order.a && b.hp > 0 && b.progress < 1)
+      if (!building) return 1
+      const target = (id: number) => {
+        const b = w.buildings.find(building => building.id === id)
+        // ponytail: browser buildings combine native display/plan IDs; split with object allocation.
+        return (
+          b && {
+            id: b.id,
+            class: 2,
+            tribe: b.team === 'blue' ? 0 : 1,
+            flags2: b.hp > 0 ? 0 : 1,
+            plan: b.id,
+            signal: 0,
+          }
+        )
+      }
+      return Number(
+        stepConstructionOrder(w.buildingOrders, p, order, {
+          ...orderEffects(w),
+          target,
+          register: plan => {
+            const b = w.buildings.find(building => building.id === plan.id)!
+            const slots = (b.builders ??= Array(rules.buildingMaxWorkers[buildingModel(b)]).fill(0))
+            if (!assignBuilder(slots, u.id)) return false
+            u.work = b.id
+            u.builder ??= {
+              task: BuilderTask.Approach,
+              busy: 0,
+              phase: 0,
+              restart: true,
+            }
+            u.builder.person = p
+            return true
+          },
+          outside: target =>
+            buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === target.id)!)),
+          prepare: (next, model, x, y, flags) => {
+            if (model !== 3) unsupported()
+            prepareMovementOrder(next, { x, y }, flags ?? 0, w.land, id =>
+              buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+            )
+          },
+          task: task => {
+            if (task !== BuilderTask.Approach) unsupported()
+            const worker = u.builder!
+            worker.task = task
+            worker.busy = p.commandPhase
+            worker.phase = p.animationMode
+            worker.restart = !!(p.flags2 & 0x40000000)
+            return 0
+          },
+        })
+      )
+    },
     27: () => Number(stepLiveWorship(w, u)),
   })
   if (next) {

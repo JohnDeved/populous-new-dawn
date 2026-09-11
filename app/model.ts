@@ -1134,7 +1134,7 @@ export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (u.native && (u.native.state !== 10 || [3, 19, 21, 27].includes(u.native.commandStatus)))
+  if (u.native && (u.native.state !== 10 || [3, 6, 19, 21, 27].includes(u.native.commandStatus)))
     return u.native
   if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
@@ -1431,18 +1431,19 @@ export type World = {
   buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
-  ai: ScriptState & ComputerQueue & {
-    states: number
-    flags: number
-    enemyTribe: number
-    defencePosition: number
-    defenceRadius: number
-    spellEntries: { model: number; mana: number; range: number; people: number; mode: number }[]
-    reincarnation: boolean
-    includeIncompleteBuildings: boolean
-    pendingCommands: { opcode: number; args: number[] }[]
-    trainingSelections: number[][]
-  }
+  ai: ScriptState &
+    ComputerQueue & {
+      states: number
+      flags: number
+      enemyTribe: number
+      defencePosition: number
+      defenceRadius: number
+      spellEntries: { model: number; mana: number; range: number; people: number; mode: number }[]
+      reincarnation: boolean
+      includeIncompleteBuildings: boolean
+      pendingCommands: { opcode: number; args: number[] }[]
+      trainingSelections: number[][]
+    }
   messages: MessageState
   flyby: Flyby
   inputMask: number
@@ -1518,9 +1519,9 @@ function planRoute(w: World, u: Unit, end: Point) {
   syncLandscapeObjects(w)
   return planLivePath(w, u, end)
 }
-function route(w: World, u: Unit, end: Point) {
+function route(w: World, u: Unit, end: Point, preserveOrders = false) {
   cancelLiveResting(w, u)
-  cancelLiveOrder(w, u)
+  if (!preserveOrders) cancelLiveOrder(w, u)
   return acceptLivePath(w, u, planRoute(w, u, end))
 }
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
@@ -2023,8 +2024,7 @@ function computerSelectionWorld(w: World, tribe: number) {
       busy: 0,
       vehicle: 0,
       driver: 0,
-      inside:
-        b.admission?.inside ?? w.units.filter(u => u.hp > 0 && u.inside === b.id).length,
+      inside: b.admission?.inside ?? w.units.filter(u => u.hp > 0 && u.inside === b.id).length,
       immediateCommand: 0,
       commands: Array(8).fill(0),
       commandCursor: 0,
@@ -2060,11 +2060,7 @@ function computerSelectionWorld(w: World, tribe: number) {
 function trainingBuilding(w: World, id: number): TrainingBuilding | null {
   const b = w.buildings.find(
     b =>
-      b.id === id &&
-      b.team === 'red' &&
-      b.hp > 0 &&
-      b.progress === 1 &&
-      b.damageState?.state !== 3
+      b.id === id && b.team === 'red' && b.hp > 0 && b.progress === 1 && b.damageState?.state !== 3
   )
   if (!b) return null
   const admission = buildingAdmission(w, b),
@@ -2100,34 +2096,25 @@ function stepComputerTasks(w: World, tribe: number) {
     const target = trainingBuilding(w, task.target)
     let selection: ReturnType<typeof computerSelectionWorld> | undefined
     const actions = stepTrainingTask(w.ai, index, target, {
-        tribe,
-        preference: w.ai.attributes[7],
-        population: campaignPersonCount(w, tribe),
-        trained: campaignPersonCount(w, tribe, 3),
-        committed: 0,
-        maximum: w.ai.attributes[33],
-        select: (building, count) => {
-          const b = w.buildings.find(b => b.id === building.id)!,
-            p = buildingPosition(buildingPose(b)),
-            destination = ((p.x >>> 8) & 254) | (p.y & 0xfe00),
-            current = (selection ??= computerSelectionWorld(w, tribe)),
-            ids = selectComputerPeople(
-              current.world,
-              2,
-              2,
-              building.id,
-              1,
-              destination,
-              6,
-              count
-          )
-          for (const id of ids) {
-            const source = current.sources.get(id)
-            if (source) source.flags3 = current.world.units.get(id)!.flags3
-          }
-          return ids
-        },
-      })
+      tribe,
+      preference: w.ai.attributes[7],
+      population: campaignPersonCount(w, tribe),
+      trained: campaignPersonCount(w, tribe, 3),
+      committed: 0,
+      maximum: w.ai.attributes[33],
+      select: (building, count) => {
+        const b = w.buildings.find(b => b.id === building.id)!,
+          p = buildingPosition(buildingPose(b)),
+          destination = ((p.x >>> 8) & 254) | (p.y & 0xfe00),
+          current = (selection ??= computerSelectionWorld(w, tribe)),
+          ids = selectComputerPeople(current.world, 2, 2, building.id, 1, destination, 6, count)
+        for (const id of ids) {
+          const source = current.sources.get(id)
+          if (source) source.flags3 = current.world.units.get(id)!.flags3
+        }
+        return ids
+      },
+    })
     for (const action of actions) {
       if (action.kind === 'restore') {
         restoreComputerSelection(w, index)
@@ -2206,7 +2193,8 @@ export function campaignCommand(
 
   if (opcode === 1095) {
     const [count, model] = args.map(read)
-    if (count <= 0 || model !== 3) throw new Error(`Unsupported computer training ${count}:${model}`)
+    if (count <= 0 || model !== 3)
+      throw new Error(`Unsupported computer training ${count}:${model}`)
     const selection = computerSelectionWorld(w, 1)
     requestTraining(w.ai, count, model, availableTrainingPeople(selection.world), targetModel => {
       return (
@@ -2659,6 +2647,19 @@ function release(w: World, u: Unit, preserveOrders = false) {
   releaseTasks(w, u, preserveOrders)
   return occupant
 }
+
+function finishQueuedConstruction(w: World, u: Unit) {
+  const p = u.builder?.person ?? u.native,
+    order = p && currentPersonOrder(w.buildingOrders, p)
+  if (!p || order?.model !== 6) return false
+  order.flags |= 1
+  const building = w.buildings.find(b => b.id === u.work),
+    slot = building?.builders?.indexOf(u.id) ?? -1
+  if (building?.builders && slot >= 0) building.builders[slot] = 0
+  u.native = p
+  release(w, u, true)
+  return true
+}
 export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
   cancelLiveResting(w, u)
   if (preserveOrders) {
@@ -2913,7 +2914,9 @@ function dispatchConstructionCrew(w: World, b: Building, workers: Unit[]) {
   })
   if (state) state.repairDelay = plan.repairDelay
   if (finished) {
-    workers.forEach(u => release(w, u))
+    workers.forEach(u => {
+      if (!finishQueuedConstruction(w, u)) release(w, u)
+    })
     b.builders!.fill(0)
   }
   return workers.filter(u => u.builder?.task === BuilderTask.Fetch)
@@ -2956,7 +2959,9 @@ function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
     }
   )
   if (action === 'remove') {
-    workers.forEach(u => release(w, u))
+    workers.forEach(u => {
+      if (!finishQueuedConstruction(w, u)) release(w, u)
+    })
     w.buildings = w.buildings.filter(other => other !== b)
     return
   }
@@ -3017,7 +3022,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
     clearLivePath(w, u)
     setDirectPersonDestination(w.motionRoutes, p, to)
     if (direct) u.path = [browserPosition(to)]
-    else route(w, u, browserPosition(to))
+    else route(w, u, browserPosition(to), true)
   }
   const animation = (_: unknown, object: number) => {
     setLivePersonAnimation(w, p, object)
@@ -3234,7 +3239,7 @@ export function command(
   const { model } = context
   w.lastOrderTurn = w.turn
   const queuedBuilding =
-    [8, 10].includes(model) &&
+    [6, 8, 10].includes(model) &&
     context.building &&
     ['hut', 'camp', 'tower'].includes(context.building.kind)
   if (
@@ -3264,9 +3269,10 @@ export function command(
     for (const u of units)
       if (
         !slot ||
-        !(u.native ?? u.entry?.person) ||
-        ![3, 8, 10, 19, 27].includes(
-          currentPersonOrder(w.buildingOrders, (u.native ?? u.entry?.person)!)?.model ?? 0
+        !(u.native ?? u.entry?.person ?? u.builder?.person) ||
+        ![3, 6, 8, 10, 19, 27].includes(
+          currentPersonOrder(w.buildingOrders, (u.native ?? u.entry?.person ?? u.builder?.person)!)
+            ?.model ?? 0
         )
       )
         release(w, u)
@@ -4760,7 +4766,7 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[], constructing: 
       const tree = findBuildingWood(w, u, b)
       if (tree) {
         u.tree = tree.id
-        route(w, u, tree)
+        route(w, u, tree, constructing)
         u.timer = 0
       }
     }
@@ -4789,7 +4795,7 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[], constructing: 
           u.cargo += wood / 100
           if (!u.cargo) u.tree = null
           u.harvest = undefined
-          route(w, u, entrance(w, b))
+          route(w, u, entrance(w, b), constructing)
         } else if (tree.model === 11) sound(w, 10, u)
       }
     }
@@ -5156,7 +5162,12 @@ function stepTurn(w: World) {
       stepBuildingEntry(w, u)
       continue
     }
-    if (u.work !== null && !work) release(w, u)
+    if (
+      u.builder?.person &&
+      (currentPersonOrder(w.buildingOrders, u.builder.person)?.flags ?? 0) & 1
+    )
+      finishQueuedConstruction(w, u)
+    if (u.work !== null && !work && !finishQueuedConstruction(w, u)) release(w, u)
     if (isDismantling(w, u) && work && 'hp' in work) {
       if (startLiveCombatResponse(w, u)) {
         stepLiveBuildingAttack(w, u)
@@ -5265,7 +5276,10 @@ function stepTurn(w: World) {
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
-    if (u.native && [3, 27].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)) {
+    if (
+      u.native &&
+      [3, 6, 27].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+    ) {
       stepLiveMovement(w, u)
     } else if (
       u.team !== 'wild' &&

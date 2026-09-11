@@ -84,6 +84,77 @@ test('shared ground → training → destination queues retain identities until 
   }
 })
 
+test('shared ground → construction → destination queues retain identity and resume after the crew leaves', () => {
+  const w = createWorld()
+  w.manaWorld.gameFlags = 32
+  const b = addBuilding(w, 'blue', 'hut', { x: -2, z: 32 }, false)
+  b.progress = 0.5
+  const u = w.units.find(u => u.team === 'blue' && u.kind === 'brave'),
+    start = { x: u.x, z: u.z },
+    destination = { x: -5, z: 29 }
+  w.selected = [u.id]
+  command(w, { x: start.x + 2, z: start.z }, { ctrlKey: true })
+  command(w, b, { ctrlKey: true })
+  command(w, destination)
+  const p = person(u),
+    ids = p.commands.slice(),
+    tail = w.buildingOrders.records[ids[2]]
+  assert.deepEqual(
+    ids.filter(Boolean).map(id => w.buildingOrders.records[id].model),
+    [3, 6, 3]
+  )
+  assert.equal(u.work, null, 'the construction tail must not preempt the first waypoint')
+  until(w, () => u.builder?.person === p)
+  assert.equal(currentPersonOrder(w.buildingOrders, p).model, 6)
+  assert.equal(u.work, b.id)
+  assert.ok(b.builders.includes(u.id))
+  until(w, () => u.native === p && currentPersonOrder(w.buildingOrders, p) === tail, 2000)
+  assert.equal(b.progress, 1)
+  assert.equal(w.buildingOrders.records[ids[1]].references, 0)
+  assert.equal(tail.references, 1)
+  until(w, () => w.buildingOrders.active === 0)
+  assert.ok(u.x < destination.x + 2 && u.z < destination.z + 2)
+})
+
+test('cancelled, invalid, removed and dead queued builders release command-6 ownership exactly once', () => {
+  for (const mode of ['cancelled', 'invalid', 'removed', 'dead']) {
+    const w = createWorld()
+    w.manaWorld.gameFlags = 32
+    const b = addBuilding(w, 'blue', 'hut', { x: -2, z: 32 }, false, {
+      plan: mode === 'invalid',
+    })
+    b.progress = 0.5
+    const u = w.units.find(u => u.team === 'blue' && u.kind === 'brave'),
+      destination = { x: u.x + 4, z: u.z }
+    w.selected = [u.id]
+    command(w, b, { ctrlKey: true })
+    command(w, destination)
+    const p = person(u),
+      commandId = p.commands[0],
+      tailId = p.commands[1]
+    until(w, () => u.builder?.person === p)
+    if (mode === 'cancelled') currentPersonOrder(w.buildingOrders, p).flags |= 1
+    if (mode === 'invalid') {
+      b.preparation.revalidate = true
+      addBuilding(w, 'blue', 'hut', b)
+    }
+    if (mode === 'removed') b.hp = 0
+    if (mode === 'dead') u.hp = 0
+    turn(w)
+    assert.equal(w.buildingOrders.records[commandId].references, 0)
+    assert.equal(b.builders.filter(Boolean).length, 0)
+    if (mode === 'dead') {
+      assert.equal(w.buildingOrders.records[tailId].references, 0)
+      assert.equal(w.buildingOrders.active, 0)
+    } else {
+      assert.equal(u.native, p)
+      assert.equal(currentPersonOrder(w.buildingOrders, p), w.buildingOrders.records[tailId])
+      until(w, () => w.buildingOrders.active === 0)
+      assert.ok(u.x > destination.x - 1)
+    }
+  }
+})
+
 test('a waypoint added while trainees are inside preserves occupancy; ordinary hut admission consumes the complete queue', () => {
   const { w, b, people } = scenario()
   command(w, b, { ctrlKey: true })
