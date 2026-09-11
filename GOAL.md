@@ -205,7 +205,7 @@ original enemy-building command 19 is an area order, whose complete ownership an
 lifecycle are still unfinished. Continue the requested group movement, footprints,
 standing formations, selection/deselection and native 3D drag queue.
 
-Ordinary outdoor contextual order priority now uses original descriptor class masks.
+Ordinary non-ghost contextual order priority now uses original descriptor class masks.
 Ground/friendly-person clicks resolve registered building cells rather than a
 circular proximity search; head adapters use cells/rotated vault shapes. Direct
 picked targets retain their identity. 8,400 native priority choices and 3,888
@@ -213,8 +213,18 @@ composed native registration/context choices cover the bounded integration, with
 actual desktop/ultrawide clicks beside huts. Landscape synchronization runs once
 per group order; paired 200-person inputs preserve person records, orders and RNG
 with lower measured CPU time. Full mixed-class cell registration, contested/damaged
-building context, trees, forced/manual and all-inside choices, complete eligibility
+building context, trees, forced/manual and ghost-only choices, complete eligibility
 and original area-order execution still require their native owners.
+
+Ordinary move input now checks original coarse-cell terrain/walk eligibility
+before allocating or replacing any group order. Rejected clicks preserve the whole
+world's order/selection/marker state and do not acknowledge the command. Native
+validation plus input production agree across 5,120 cases; actual blocked/restored
+clicks pass on desktop and ultrawide displays. The eligibility query runs once per
+input and reuses the existing four-quarter-cell collision predicate. Longer paired
+200-person input measurements retain unchanged tail cost and equivalent accepted
+orders. A corrected research label: flags4 bit 0x800 denotes ghosts, not occupants;
+the unported alternate priority is ghost-only, not an inside-building branch.
 
 
 Ordinary marching is now live through the shared order pool, native physics,

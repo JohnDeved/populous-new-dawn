@@ -1478,8 +1478,7 @@ export class GameScene {
       if (clickedUnit) {
         selectUnit(this.world, clickedUnit.id, this.down.extend)
       } else if (this.world.selected.length) {
-        command(this.world, p)
-        this.orderSound()
+        if (command(this.world, p)) this.orderSound()
       }
     }
     this.onChange()

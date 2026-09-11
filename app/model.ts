@@ -2955,12 +2955,13 @@ function atBuildingEntrance(w: World, p: Point, b: Building) {
   const door = entrance(w, b)
   return Math.abs(p.x - door.x) < 112 / 256 && Math.abs(p.z - door.z) < 112 / 256
 }
+// Input acceptance is separate from later route/allocation success.
 export function command(w: World, p: Point & { id?: number }) {
-  if (w.paused || w.status !== 'playing') return
+  if (w.paused || w.status !== 'playing') return false
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
   const context = liveCommandContext(w, p)
-  if (!context) return
+  if (!context?.enabled) return false
   const { model } = context
   const shrine = model === 27 || model === 33 ? context.shrine : undefined
   const friendly = [6, 8, 10].includes(model) ? context.building : undefined
@@ -2976,7 +2977,7 @@ export function command(w: World, p: Point & { id?: number }) {
     (!shrine && !friendly && !enemy && !moveOrder)
   ) {
     tell(w, 'No command slots available.')
-    return
+    return true
   }
   let count = 0,
     constructionFull = false
@@ -3040,6 +3041,7 @@ export function command(w: World, p: Point & { id?: number }) {
   else if (shrine?.kind === 'vault')
     message = 'Select your shaman to worship the Vault of Knowledge.'
   tell(w, message)
+  return true
 }
 
 function processVaultTask(w: World, u: Unit) {

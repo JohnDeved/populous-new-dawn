@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
+import { restingCellCollision, type CollisionCell } from './person-collision.ts'
 
 export const CommandContext = {
   Ground: 1,
@@ -28,9 +29,9 @@ export const CommandContext = {
   ForcedEnemy: 16777216,
 } as const
 
-// 0x437750, automatic choice for a selection containing outdoor people.
+// 0x437750, automatic choice for a selection containing non-ghost people.
 // Descriptor masks let a mixed group choose an action that some members can do.
-// The retained manual wheel choice and all-inside branch have separate ownership.
+// The retained manual wheel choice and ghost-only branch have separate ownership.
 export function chooseContextCommand(flags: number, people: number) {
   const c = CommandContext
   const has = (mask: number) => !!(flags & mask)
@@ -63,4 +64,17 @@ export function chooseContextCommand(flags: number, people: number) {
     accept(people === 16 && !has(c.ForcedEnemy) ? 3 : 19, has(c.NearbyEnemy)) ||
     3
   )
+}
+
+// 0x4380f0 command 3. Coastal cells are allowed unless the tribe requests
+// strict land; only a selection with transport ownership may target open water.
+export function moveCommandAllowed(
+  cell: Pick<CollisionCell, 'flags' | 'category'>,
+  walkMask: ArrayLike<number>,
+  point: { x: number; y: number },
+  tribeFlags: number
+) {
+  const strict = !!(tribeFlags & 32)
+  const collision = restingCellCollision(cell, walkMask, point, !strict)
+  return collision === 0 || (!strict && collision === 4 && !!(tribeFlags & 64))
 }

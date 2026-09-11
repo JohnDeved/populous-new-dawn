@@ -2259,3 +2259,21 @@ measurement, not GPU FPS or a general pathfinding-speed claim. Raw results are i
 `performance/2026-09-11-command-context.json`. Terrain beside a hut is deliberately
 excluded from before/after equivalence because the old proximity behavior is wrong;
 its new action is checked separately against native cells and real browser input.
+
+### Move validity and acknowledgement, 2026-09-11
+
+Move eligibility reuses `restingCellCollision` once per click: one existing terrain
+cell plus at most four quarter-cell bits. It runs before group-order allocation,
+per-person path planning, markers or acknowledgement. There is no added per-frame
+or per-person scan, timer, draw call, dependency or simulation clock change.
+
+The paired group benchmark now accepts a baseline commit argument and retains raw
+samples. The first 80-pair sample against the previous published version measured
+2.695 → 2.705 ms median, but p95 rose from 3.24 to 5.13 ms. That uncertainty prompted
+a longer 400-pair run after 100 warmups: **2.585 → 2.603 ms median**, **4.724 → 4.713
+ms p95**. Both samples are preserved in `performance/2026-09-11-move-eligibility*.json`.
+The short-run tail increase did not repeat. These local CPU measurements include
+200 people and 12 huts; they do not establish GPU FPS or statistical equivalence.
+All people receive valid movement orders, with identical person records, shared
+orders, marching and RNG after every pair. Rejected input is tested separately
+because the old acknowledgement behavior is intentionally corrected.

@@ -1,7 +1,11 @@
 import { nativePosition, type World, type Point } from './model.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingFootprintCells } from './building-shapes.ts'
-import { chooseContextCommand, CommandContext as Context } from './command-context.ts'
+import {
+  chooseContextCommand,
+  moveCommandAllowed,
+  CommandContext as Context,
+} from './command-context.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
@@ -73,7 +77,18 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
   if (pointedPerson?.kind === 'shaman' && pointedPerson.team === team) flags |= Context.OwnShaman
   const people = selected.reduce((mask, u) => mask | (1 << nativePersonModel(u)), 0)
   const model = chooseContextCommand(flags, people)
-  // Tree/vehicle/forced/manual choices, all-inside selection and contested-building
+  // Tree/vehicle/forced/manual choices, ghost-only selection and contested-building
   // classification require their native lifecycle owners; no invented actions here.
-  return { model, building, shrine, person: enemy ?? nearby }
+  // Ordinary live people have no transport owner yet. Never infer it from being
+  // inside a building: native +0x9f and flags4 & 0x800 are transport and ghost data.
+  const tribeFlags = w.castingTribes[team === 'red' ? 1 : 0].flags & ~64
+  const enabled =
+    model !== 3 ||
+    moveCommandAllowed(
+      { flags: w.land.flags[index], category: w.land.categories[index] },
+      w.land.walkMasks[0],
+      nativePosition(w, point),
+      tribeFlags
+    )
+  return { model, enabled, building, shrine, person: enemy ?? nearby }
 }

@@ -7852,12 +7852,12 @@ claimed as complete TypeScript ports.
 
 ## 2026-09-11 — contextual group orders and occupied cells
 
-`command-context.ts` reconstructs the automatic outdoor branch of `00437750`.
+`command-context.ts` reconstructs the automatic non-ghost branch of `00437750`.
 Its repeated eligibility loops reduce to the original command descriptor's person
 mask intersecting the selected class mask. Guard/forced shaman/person/tree/vehicle/
 spy/plan/building/flatten/head/area priorities retain their original order, including
 firewarrior-only and spy-only choices. The retained manual wheel candidate and
-all-inside branch are separate, unfinished owners. Native unsupported-class choices
+ghost-only branch are separate, unfinished owners. Native unsupported-class choices
 are compared as primitives; this does not add those unit classes to live play.
 
 `check-native-command-context.py EXE [--record]` executes 8,400 complete original
@@ -7880,9 +7880,45 @@ The order adapter filters members with original descriptor masks. Its existing
 native marching/building/worship and partial attack controllers retain execution.
 
 The live adapter does not yet classify all tree/vehicle/forced/spy/guard objects,
-contested/damaged building states, or the all-inside/manual branch. Full mixed-class
+contested/damaged building states, or the ghost-only/manual branch. Full mixed-class
 cell-chain order and head eligibility are still incomplete. In particular, command
 19 uses the existing attack adapter; neither its complete area lifecycle nor full
 contextual command-buffer ownership is certified here. No complete checkpoint
 credit is claimed. Actual browser clicks beside a hut now move the follower group,
 while the hut face still orders entry; overlap, selection/HUD and drag checks remain.
+
+## 2026-09-11 — move validity before command acknowledgement
+
+Correction to the preceding contextual-priority notes: `00437010` computes tribe
+bit 4 by checking selected people for **flags4 bit 0x800**, the ghost bit. It is not
+an occupant/inside predicate (building occupancy is flags2 bit 0x800000). Existing
+native training conversion/ghost comparisons and person-order eligibility use
+this same bit. The alternate `00437750` branch therefore means ghost-only selection;
+it has not been integrated. Current notes/source labels are corrected; old ledger
+snapshots remain historical evidence rather than being silently rewritten.
+
+`004380f0` command 3 calls complete `00518200` at the coarse cell center. Building
+bit 512, restricted-cell bit 4 and missing quarter-cell walk bits reject the click.
+Coastal category bits are admitted unless tribe flag 32 requests strict land;
+unsupported water is admitted only without strict land and with tribe flag 64.
+The latter is assembled from selected transport ownership, not building occupancy.
+The current live world has no vehicle owner, so it cannot acquire that exception.
+
+`moveCommandAllowed` reuses the already reconstructed `restingCellCollision`.
+The live command context checks it once before order allocation, path queries or
+person changes. `command` reports input acceptance separately from later route or
+allocation success; accepted but unreachable inputs retain acknowledgement, while
+rejected inputs no longer reach `GameScene.orderSound`. This follows `004aa8b0`,
+which sends no tribe command, marker allocation or acknowledgement for a disabled
+context. Full command-buffer ownership and route-failure feedback remain separate.
+
+`check-native-move-eligibility.py EXE [--record]` executes 5,120 complete validator
+and input-producer sequences over all 16 terrain categories, both cell flags,
+partial/full quarter masks, strict-land/transport flags and wrapped coarse-cell
+boundaries. Native collision and decision code run; transport, marker allocation,
+UI refresh and audio are recorded consumers. All accepted cases attempt command,
+marker and cue; all rejected cases do none. The 1,024 portable captures check
+eligibility. A live eight-person regression compares the entire world after blocked
+cell and quarter-mask clicks, restoring only the injected obstruction for equality.
+Actual browser clicks at desktop/ultrawide sizes check preserved orders, marker/audio
+queues, silence on rejection and restored input after clearance.

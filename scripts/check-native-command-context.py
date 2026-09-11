@@ -1,6 +1,6 @@
-"""Compare the complete outdoor automatic command priority in 0x437750.
+"""Compare the complete non-ghost automatic command priority in 0x437750.
 Usage: python scripts/check-native-command-context.py EXE [--record]
-No native calls are intercepted. Manual-wheel retention and all-inside selection
+No native calls are intercepted. Manual-wheel retention and ghost-only selection
 are deliberately excluded; this checks choice, not eligibility or execution.
 """
 import json,random,struct,subprocess,sys
@@ -25,7 +25,7 @@ for flags in contexts:
 js="""import {chooseContextCommand} from './app/command-context.ts';let text='';for await(const chunk of process.stdin)text+=chunk;console.log(JSON.stringify(JSON.parse(text).map(c=>chooseContextCommand(c.flags,c.people))));"""
 actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(cases).encode(),cwd=ROOT))
 for c,a in zip(cases,actual):assert a==c['model'],(c,a)
-print(f'PASS: {len(cases)} complete native automatic outdoor contextual priorities, single/mixed classes and interacting flags')
+print(f'PASS: {len(cases)} complete native automatic non-ghost contextual priorities, single/mixed classes and interacting flags')
 if '--record' in sys.argv:
  # Keep all individual flag/class cases plus a reproducible mixed sample.
  fixture=cases[:216]+cases[216::32]
