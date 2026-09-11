@@ -1,0 +1,17 @@
+{
+  "date": "2026-09-11T06:04:49.811Z",
+  "node": "v24.18.0",
+  "cpu": "Apple M5",
+  "scope": "Timber cache only; route costs supplied, no path solver or renderer; 200 warmup and 1000 measured simulation turns.",
+  "workers": 200,
+  "entrances": 20,
+  "candidates": 1220,
+  "queries": 240000,
+  "found": 239100,
+  "routeChecks": 1220,
+  "millisecondsPerTurn": {
+    "median": 0.776834000000008,
+    "p95": 0.8778750000000173,
+    "max": 1.2968329999999924
+  }
+}

@@ -71,6 +71,17 @@ do not weaken correctness checks to make an optimization pass. If fidelity and
 performance conflict, find a better implementation or document a modern compatibility
 correction rather than accepting a slower native-style port solely for parity.
 
+**Keep the performance log current.** User reminder, 2026-09-11: each gameplay,
+rendering, audio or performance checkpoint must update
+`references/modern-performance.md` in the same commit, linking the actual
+measurement/regression artifact and recording workload, revision, hardware and
+limits. Research-only checkpoints should explicitly say when code is not live
+and no runtime measurement exists. Raw JSON or reverse-engineering notes alone
+do not substitute for this readable log. Include p95 and spikes when available;
+do not use low medians to imply smoothness. The backfilled blocked-route workload
+has persistent 28–31 ms full-turn spikes: profile that turn/real frame impact
+before treating populated route recovery as meeting modern performance goals.
+
 ## Revised working objective
 
 Treat clean, readable, maintainable, concise and simple TypeScript as a main
@@ -136,6 +147,18 @@ live hauling. Next compose the original shared resource-search cache (`004935c0`
 The existing nearest-tree sort is an approximation, not a substitute for that
 cache. Do not restart already recovered worker controllers or count these ports
 as a delivered construction queue.
+
+The shared timber cache is now reconstructed in `app/timber-search.ts`: native
+cell/fog/list-order lookup, neighboring stock protection, two-pass queries,
+120-entry sharing, five-stage indexed expansion, candidate ordering/reweighting,
+route budgets, keepalive/invalidation and 321-turn idle expiry. Comparisons cover
+5,376 query/leaf calls and 4,987 sequential lifecycle operations, including all
+120 caches and the 7,680-candidate limit. Candidate path-cost results are still
+supplied in these comparisons. Next compose `00494d10` with the existing original
+path solver, then connect cache scheduling and task 7 to stable plan/person/route
+ownership in command 6. Do not repeat the already recovered cache lifecycle or
+count this as a live construction improvement. Cache-only 200-worker cost and the
+safe indexed-pool exhaustion correction are documented in the performance log.
 
 Stone-head orders now append after ground/building sequences without replacing
 prior destinations. Descriptor flag 0x2000 ends staging even with Ctrl held;

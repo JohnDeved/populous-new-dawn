@@ -10,7 +10,7 @@
 
 Newly verified: 0. Reopened: 0.
 
-Recover original construction hauling against 9216 executable visits; shared resource cache and live ownership remain unfinished
+Recover shared timber queries and cache lifecycle against 10363 native operations; candidate path costs and live construction ownership remain unfinished
 
 **Tracking blind spots: 38 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
@@ -213,6 +213,7 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-11T05:01:18.202Z | 28 | 26.94% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Queue native dismantling between group movement orders; retain ineligible followers, timber and cleanup with executable, browser and 200-person evidence |
 | 2026-09-11T05:21:00.860Z | 28 | 26.94% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Recover construction command plan and queue ownership against 4096 executable visits; live hauling and plan integration remain open |
 | 2026-09-11T05:40:03.383Z | 28 | 26.94% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Recover original construction hauling against 9216 executable visits; shared resource cache and live ownership remain unfinished |
+| 2026-09-11T06:06:52.946Z | 28 | 26.94% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Recover shared timber queries and cache lifecycle against 10363 native operations; candidate path costs and live construction ownership remain unfinished |
 
 ## Update workflow
 

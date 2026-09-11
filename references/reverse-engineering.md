@@ -8703,3 +8703,86 @@ format checking. Fallow remains **85.4** with **20** existing import cycles;
 export verification checks **1,151** registered exports and original tables.
 The recovered code is exercised by native comparisons and portable captures;
 no live browser integration or new published gameplay is claimed by this commit.
+
+## 2026-09-11 — shared timber query and cache lifecycle
+
+`app/timber-search.ts` reconstructs the construction resource cache at `0093a7a0`
+(120 records) and its private candidate lists at `0093b2e0` (7,680 nodes).
+It reuses original indexed searches and toroidal coordinate differences. Native
+comparisons run the supplied executable, hash
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`:
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-timber-search.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/timber-search.test.mjs
+node scripts/check-timber-search-performance.mjs
+```
+
+**5,376 query/leaf calls** cover original cell ordering (`00494720`), first
+resource lookup (`00493f10`), block validity (`00493d50`), neighboring-building
+stock protection (`00494490`), candidate choice (`00494360`), availability
+(`00495390`) and complete query/pruning (`00493910`). Native scenery descriptors,
+fog, reservation flags and cell lists run. Building outside points and required
+work are supplied geometry/economy consumers. Cases include wrapped cells,
+negative wood, repeated adjacent building IDs, stale blocks and all four query
+statuses. The first pass protects neighbors' needed timber; the second can use it.
+The cell lookup itself does not add wood/deletion/reservation filters absent from
+the original. Four-cell distance ordering is stable on ties.
+
+**4,987 sequential lifecycle operations** compare initialization (`00493a40`),
+sharing/refresh (`004935c0`), invalidation (`00493770`), keepalive (`004935a0`),
+expansion (`00493fa0`), budgeted route checks (`00494a20`), scheduler (`00493af0`)
+and interleaved queries. Each operation compares all cache/global state, ordered
+candidate contents, requesting worker/tribe, owner indices, indexed-search bytes
+and ordered route-cost requests. The native checker also validates list links,
+unique node ownership and counts. Original `MWSEARCH.DAT` drives all five ring
+segments. Allocation exhaustion covers 120 caches and 7,680 candidates; boundary
+cases cover 299/300, 499/500 and 1,000 unchecked candidates. Captures preserve
+these capacity cases in addition to sampled sequences.
+
+Details relevant to live worker behavior:
+
+- Caches are shared by even entrance cell, including across requesting tribes.
+  Refresh changes the requesting worker/tribe but retains the original angle and
+  idle timer. A query or explicit keepalive resets idle; a query waiting for
+  expansion still changes the requesting person before returning status 1.
+- Candidate estimates use octagonal distance. Expansion inserts a newly found
+  block **before** existing equal-cost entries. Route checks may reorder a block
+  by its measured cost; foreign-tribe route results mark it unavailable. Neither
+  ordering is equivalent to a nearest-tree Euclidean sort.
+- Expansion and route work have separate simulation-turn budgets. Route work
+  increases from one to two or three checks as pending work grows. A cache with
+  no requesting person still consumes route budget. Preserve cursor return
+  behavior at wrapped record 119 and when the final pending node is checked.
+- Query pruning clears stale nodes and their pending counts. Invalidation and
+  expiry update work cadence **before** freeing an expanding cache's nodes;
+  recomputing afterwards changes native scheduling at threshold boundaries.
+- Person deletion clears the requester. Idle expires at 321 turns and both age
+  and idle retain signed-short wrapping. Refresh allocation failure leaves the
+  caller's previous index intact.
+
+Modern representation: arrays replace private pointer lists, and a Set replaces
+per-segment duplicate scans. Candidate IDs never leave this subsystem; observed
+order, flags, counts and capacity are retained. Freeing a cache traverses its
+candidates once and clears the array; route reordering moves the existing record
+without scanning the entire native 7,680-node allocator. Native comparisons prove
+state equivalence for tested cases. There is no claimed measured speedup against
+the original binary. The cache-only workload is recorded separately in
+[modern performance](modern-performance.md).
+
+Explicit correction: `00493fa0` leaves a stack count uninitialized when all 15
+usable indexed-search slots are occupied. The port postpones that segment,
+preserving progress, candidates and pool bytes. A separate regression covers
+this defined browser behavior; native memory garbage is not a parity target.
+
+Boundaries: candidate route costs (`00494d10`) are supplied in lifecycle tests;
+the original collision/path-search composition remains the next dependency.
+Final scenery/plan work mutations and persistent live command-6 plan/person/route
+ownership remain unfinished. This new module is not yet called by live builders.
+No renderer, sprite, frame clock or shipped gameplay changed, and no new Site
+version or parity points are claimed.
+
+Validation: **370** portable tests, TypeScript, production build, parity metadata,
+format and ox-standard checks pass. Fallow remains **85.4**, with **20** existing
+cycles. Executable verification passes for **1,166** registered exports and
+original tables. Native comparisons and the cache benchmark above pass.

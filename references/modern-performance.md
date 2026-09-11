@@ -2340,3 +2340,118 @@ corrected full-world queries, not a speedup: the old helper clamps to the wrong 
 height. Dirty-grid synchronization, whole-frame cost and GPU FPS are outside the
 steady-state probe. Native integer heights and separate browser/replay regressions
 establish correctness. Existing interpolation remains uncapped and seam-aware.
+
+## Backfilled checkpoint coverage — 2026-09-11
+
+Added after the user reported this log had fallen behind. The twelve commits
+from `a0e68c8` through `37ff170` had no new Markdown entry here. Measurements and
+limits were often saved under `performance/` or in the reverse-engineering log;
+that did not make this log current. The entries below summarize those existing
+artifacts. They are **not new benchmark runs**, and their old measurements must
+not be presented as measurements of the latest source.
+
+### Ground, building, worship and combat queues
+
+`a0e68c8`, `9097ac9`, `fd59fb9` and `e466afc` retain native command/person/route
+ownership through waypoint, training, worship and combat handoffs. They reuse
+the shared command pool and fixed-turn processors; there is no second browser
+waypoint queue or render-frame command clock.
+
+- [Ground queue workload](performance/2026-09-11-ground-waypoints.json):
+  `node scripts/bench-ground-waypoints.mjs`, Apple M5 / Node v24.18.0, 200 people,
+  20 warmups, 50 appends and 600 complete simulation turns. Appending another
+  waypoint: **1.454 ms median / 1.644 ms p95**. Complete turns:
+  **0.303 ms median / 4.894 ms p95 / 15.041 ms maximum**. Added functionality;
+  no equivalent old implementation or GPU speedup is claimed.
+- [Mixed-order ground regression](performance/2026-09-11-mixed-orders-ground-regression.json):
+  three alternating process pairs against `348322c`, same ground workload.
+  Before/after append medians ranged **1.454–1.459 / 1.459–1.483 ms**;
+  turn medians **0.313–0.314 / 0.306–0.321 ms**. No clear speedup is established.
+  This tests retained ground behavior, not the cost of all mixed work commands.
+- [Worship](performance/2026-09-11-worship-waypoints.json) and
+  [combat handoffs](performance/2026-09-11-combat-queues.json): real desktop/
+  ultrawide input and CPU visits in headless Chromium 153 with SwiftShader.
+  Worship p95 **0.1 ms**, combat **0.1–0.2 ms** in their small scenarios.
+  Zero medians reflect coarse timer resolution, not zero execution cost.
+  These checks establish neither populated-scene performance nor hardware FPS.
+
+### Destination markers, pointer brackets and selection audio
+
+`1b759f1`, `348322c` and `a2e1f0e` reuse the original marker sprite, a cached SVG
+bracket path and decoded Web Audio buffers respectively.
+
+- [Destination feedback](performance/2026-09-11-command-feedback.json):
+  showing one marker changes **22 → 23 draw calls**, adds **two triangles** and
+  retains **11 textures**. Desktop, ultrawide and 2× DPI checks cover expiry and
+  pause. This records the cost of an added visible effect, not an optimization.
+- [Pointer brackets](performance/2026-09-11-pointer-brackets.json): one SVG path;
+  average unchanged-state draw-call CPU over 1,000 calls was **0.5–0.6 μs**.
+  The check covers 5–240 Hz schedules, desktop/ultrawide/2× DPI and native bounds.
+  It excludes SVG raster/compositing cost and full-frame GPU performance.
+- [Selection audio](performance/2026-09-11-selection-audio.json):
+  **25 selection buffers / 1,822,948 PCM bytes** at 48 kHz, reused across actual
+  world/HUD input. Output and buffer reuse are checked; audio CPU cost and
+  end-to-end latency were not measured. There is no speedup or FPS claim.
+
+### Area attacks, blocked routes and dismantling
+
+`1970fbf`, `39095c9` and `035bb45` use the existing native queue/route ownership
+through attack, retry and work. Saved Apple M5 / Node v24.18.0 workloads each run
+five deterministic 600-turn replays with **200 followers**, including input and
+complete simulation turns but no renderer. The first replay includes JIT warmup.
+The figures below are ranges across replays, with the largest observed turn.
+
+| Workload | Median turn | p95 turn | Maximum turn | Existing evidence |
+| --- | ---: | ---: | ---: | --- |
+| Area attack → waypoint | 0.234–0.381 ms | 5.127–5.272 ms | 18.126 ms | [CPU samples](performance/2026-09-11-area-attack-cpu.json) |
+| Blocked route, islands joined at turn 120 | 0.187–0.275 ms | 5.184–5.538 ms | 30.699 ms | [CPU samples](performance/2026-09-11-route-recovery-cpu.json) |
+| Ground → dismantle → ground | 0.282–0.445 ms | 5.152–6.245 ms | 18.483 ms | [CPU samples](performance/2026-09-11-queued-dismantling-cpu.json) |
+
+Runnable workload: `node scripts/bench-area-attack.mjs` with its `--blocked` or
+`--dismantle` option. All recorded runs finish with zero remaining commands;
+separate desktop/ultrawide browser checks verify actual input, sprite poses,
+work/departure and pause. These added-function workloads have no paired equivalent
+old implementation, so their numbers do not prove speedups or regressions.
+
+**Unresolved:** blocked-route maximum turns remain **28.4–30.7 ms across all five
+runs**, including the later runs. Low median time does not make those spikes
+acceptable evidence of smooth high-refresh play. Profile their CPU ownership and
+real frame impact before declaring that scenario performant; do not excuse them
+as JIT warmup or alter native retry/gameplay timing to hide them. The 600-turn
+recordings are not hardware frame-time certifications.
+
+### Construction research checkpoints
+
+`9906992` and `37ff170` recover the command-6 wrapper and task-7 hauling controller.
+Those controllers are not called by live builders yet. The wrapper checkpoint
+also reuses shared order eligibility/slot helpers, with native and browser
+regressions; it has no dedicated before/after timing. The hauling checkpoint
+has native/portable checks but no live workload measurement. Neither checkpoint
+establishes a runtime performance improvement. Cache CPU work below is separately
+measured and still excludes live construction and actual route solving.
+
+## Shared timber cache — 2026-09-11
+
+The recovered cache shares candidates between workers at the same entrance and
+spreads expansion/route work across fixed simulation turns. Its new TypeScript
+representation uses ordered arrays and per-segment Sets: original choice/tie
+order and the 120-cache/7,680-candidate limits remain, while private pointer IDs,
+linear free-node allocation scans and remove/reallocate route reordering are
+unnecessary. Cache release clears its list in one traversal. Native comparisons
+cover 5,376 query calls and 4,987 lifecycle operations, including capacity and
+cadence thresholds. These establish tested behavior equivalence, not a binary
+speed comparison. Indexed-search exhaustion safely postpones a segment; the
+original uninitialized-stack behavior is documented in the reverse-engineering
+log and has a separate browser-code regression.
+
+`node scripts/check-timber-search-performance.mjs` measures **200 workers sharing
+20 entrances**, with 200 warmup and 1,000 measured simulation turns. On Apple M5 /
+Node v24.18.0, median cache cost was **0.777 ms**, p95 **0.878 ms**, maximum
+**1.297 ms** per measured turn. The run issued 240,000 queries and settled at
+1,220 candidates; no turn exceeded the native three-route-check budget. Raw
+measurement: [timber cache workload](performance/2026-09-11-timber-search.json).
+
+This is cache CPU cost with supplied route results. It excludes the real path
+solver, world construction integration, rendering and browser FPS. The module
+is not live yet; this checkpoint claims neither a shipped performance change
+nor an improvement over the previous game's nearest-tree approximation.

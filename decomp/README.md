@@ -4656,3 +4656,25 @@ are supplied leaves; see the reverse-engineering log for exact boundaries.
 Captures feed `tests/building-fetch.test.mjs`. The new source exports include
 `004394e0`, `00439740`, `00493910`, `00493f10` and `004a8e20`.
 Shared resource cache scheduling and live plan/person ownership remain open.
+
+## 2026-09-11 — shared construction resource searches
+
+`check-native-timber-search.py EXE [--record]` compares **5,376** original
+query/leaf calls and **4,987** sequential cache operations. The original indexed
+searches use the SHA-verified `MWSEARCH.DAT`. Allocation, linked lists, candidate
+ordering/reweighting, availability, turn budgets, invalidation and expiry execute
+natively. Building entrance/work values and candidate path-cost results are
+supplied consumers. Portable captures feed `tests/timber-search.test.mjs`.
+
+Fifteen newly registered exports span `00493540`, `00493560`, `004935a0`,
+`00493770`, `00493a40`, `00493af0`, `00493d50`, `00493fa0`, `00494360`,
+`00494490`, `00494720`, `00494a20`, `00494d10`, `00495390` and `004a8e10`.
+`00494d10` is exported but its path-search composition is not yet reconstructed;
+its supplied results in the lifecycle check do not certify the path consumer.
+
+The port uses ordered arrays for private candidates and a Set for segment
+uniqueness, preserving native visible ordering/counters without private pointer
+IDs. Exhausted indexed searches postpone expansion instead of consuming native
+uninitialized stack data. This explicit correction has a separate regression.
+Live task-7/cache integration and persistent construction plan/person ownership
+remain unfinished; no construction queue parity credit is awarded here.
