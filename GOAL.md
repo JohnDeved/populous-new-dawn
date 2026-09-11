@@ -126,6 +126,17 @@ adapter. Keep the same person, route and queued tail through work and departure;
 plan completion must advance commands instead of clearing them. Native tasks
 2-9 and full world allocation/scheduling are not proved by the wrapper comparison.
 
+Task-7 hauling is now reconstructed separately and compared against 9,216 native
+visits, including approach/retry, entrance clearance, harvest/delivery waits,
+reservation counters, transfer limits, original poses/audio and RNG. It reuses
+the existing movement, wait and animation code. Resource search results and final
+scenery/plan mutations are supplied consumers in that comparison; this is not yet
+live hauling. Next compose the original shared resource-search cache (`004935c0`,
+`00493910`) and cell lookup (`00493f10`) with persistent plan/person ownership.
+The existing nearest-tree sort is an approximation, not a substitute for that
+cache. Do not restart already recovered worker controllers or count these ports
+as a delivered construction queue.
+
 Stone-head orders now append after ground/building sequences without replacing
 prior destinations. Descriptor flag 0x2000 ends staging even with Ctrl held;
 trained warriors inherit worship targets and use the original prayer animation.

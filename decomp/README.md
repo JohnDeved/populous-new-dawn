@@ -4646,3 +4646,13 @@ reverse-engineering log for the exact boundary. Portable captures feed
 `tests/construction-order.test.mjs`. The newly registered `00436be0` export
 supports the shared slot-search reconstruction. Live plan identity/lifetime and
 hauling integration remain unfinished; this does not certify construction queues.
+
+## 2026-09-11 — construction timber hauling
+
+`check-native-building-fetch.py EXE [--record]` compares 9,216 task-7 visits and
+its actual movement/wait/geometry/RNG/reservation/transfer consumers. Resource
+cache results, route submission, final output and scenery/plan work mutations
+are supplied leaves; see the reverse-engineering log for exact boundaries.
+Captures feed `tests/building-fetch.test.mjs`. The new source exports include
+`004394e0`, `00439740`, `00493910`, `00493f10` and `004a8e20`.
+Shared resource cache scheduling and live plan/person ownership remain open.

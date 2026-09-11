@@ -8622,3 +8622,84 @@ identity, timber and cleanup. Its rerun is saved in
 `references/performance/2026-09-11-construction-order-queue-regression.json`;
 SwiftShader timing is not a hardware FPS claim or a construction integration
 check. No new playable construction behavior is published by this checkpoint.
+
+## 2026-09-11 — original construction hauling controller
+
+`app/building-fetch.ts` reconstructs task 7, `00496750`, with named phases and the
+existing entrance, facing, animation, wait and distance helpers. Its resource
+approach `004392a0`, timed recovery `004394e0` and occupied-entrance clearance
+`00439740` are composed with the task body. `reserveTimber` in `app/timber.ts`
+reconstructs `004a8e20`. The latter starts a reservation when the worker begins
+approaching the resource; it is not an arrival acknowledgement. Five new exports
+are identity-registered: `004394e0`, `00439740`, `00493910`, `00493f10`, `004a8e20`.
+
+Run:
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-building-fetch.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/building-fetch.test.mjs
+```
+
+**9,216** executable visits compare every defined phase plus default branches,
+six ordinary building descriptors/four orientations, class-9 plans and class-2
+sites, existing/absent constructed buildings, removed targets, failed routes,
+full/partial cargo, signed timer boundaries, reservation saturation/byte wrap,
+and different person models/physics/turn phases. The real native entrance geometry,
+approaches, waits, distance/angle/RNG, resource reservation and capacity-limited
+`004a7860` transfer run. The test observes ordered route/pose/cue/search/transfer
+calls and compares person fields, worker phase, site flags/search index/work,
+resource wood/reservations and final RNG.
+
+Boundaries: `004935c0` search refresh, `00493910` search results and `00493f10`
+cell lookup are supplied consumers. Route submission and final animation/audio
+are intercepted. Native transfer runs, but its scenery resize/depletion and plan
+work callbacks (`004a79f0`, `004ba2c0`) only apply the supplied amount in this
+comparison; their complete world effects are not certified here. Ordinary class-2
+sites in the captures have no vehicle-production capacity. Full dock/vehicle
+transfer and dynamic world allocation remain open. Portable capture selection
+retains uniform samples plus distinct phase/event outcomes, and the test asserts
+that search, retry, reservation, delivery and both facing draws remain covered.
+
+Details recovered through executable mismatches:
+
+- Hauling calls **`004391a0`**, the wait that also draws a new facing on the
+  32-turn boundary. It does not use non-turning `00439240`. An unavailable-resource
+  retry on that boundary can therefore perform two separate facing/RNG draws.
+- The return-to-entrance square test is **`00432da0`**, which compares signed
+  coordinates directly. It is distinct from the wrapped `004e7a10` overlap test.
+  Existing `nearBuildingPoint` is reused; the native difference across the signed
+  32768 boundary is included in comparisons.
+- Starting a failed resource route changes phase to retry, but the same visit
+  still decrements its timeout and calls approach again. That second result can
+  change the phase to harvest or lost-target return. An early-return shortcut
+  would diverge from the original.
+- Reservation resets the resource timer to 64, increments its byte count, and
+  marks it reserved at `max(1, trunc(signedWood / 100))` shares. Already-reserved
+  objects remain unchanged; the native byte wrap is retained. Timer expiry and
+  reservation-aware resource selection belong to scenery/search ownership.
+- Delivery initializes an eight-turn wait and returns task 2 on completion.
+  The outer command wrapper owns task-entry/dirty-plan signaling and eventual
+  order advancement; hauling does not discard the queued tail.
+
+The next integration dependency is the original **120-entry, 24-byte shared
+resource-search cache** at `0093a7a0`, not the unrelated sixteen-slot indexed-search
+pool already used for footprint traversal. `004935c0` reuses the same entrance
+cell's cache, updates the requesting person/tribe, and preserves its allocation
+and pending-work counters. `00493910` distinguishes pending, absent and exhausted
+searches and traverses cached candidates in native order. `00493f10` selects the
+first scenery entry with descriptor flag 4 in the entrance's native cell list,
+subject to the original player/fog gate; it does not sort by distance. The live
+nearest-tree sort remains approximate. Do not wire no-op cache consumers into
+the recovered task and call construction ownership complete.
+
+This checkpoint introduces no renderer/clock/dependency change and claims no
+performance gain. The fetch controller is not yet wired into live construction;
+separate plan identity/lifetime, resource cache scheduling and persistent native
+person/path ownership remain necessary before publishing that behavior.
+
+Validation: **367** portable tests, TypeScript, production build and parity report
+consistency pass. Both touched TS files have no ox-standard diagnostics and pass
+format checking. Fallow remains **85.4** with **20** existing import cycles;
+export verification checks **1,151** registered exports and original tables.
+The recovered code is exercised by native comparisons and portable captures;
+no live browser integration or new published gameplay is claimed by this commit.

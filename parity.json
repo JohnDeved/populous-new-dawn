@@ -1907,9 +1907,12 @@
             "tests/game.test.mjs",
             "app/construction-order.ts",
             "scripts/check-native-construction-order.py",
-            "tests/construction-order.test.mjs"
+            "tests/construction-order.test.mjs",
+            "app/building-fetch.ts",
+            "scripts/check-native-building-fetch.py",
+            "tests/building-fetch.test.mjs"
           ],
-          "note": "Ordinary resting and marching controllers are live with original slots, gestures, catch-up speed, shared move orders and arrival handoff. Full scheduling/allocation, avoidance, general work/attack queues, selection and specialist/vehicle ownership remain open. Construction command-6 wrapper now matches 4,096 executable visits for plan resolution, crew registration, fallback queue ownership, approach and task handoffs; native tasks 2-9 are supplied consumers. Shared order eligibility/slot helpers are reused. Live plan identity/lifetime, native hauling and construction queue integration remain unfinished; no additional verification credit.",
+          "note": "Ordinary resting and marching controllers are live with original slots, gestures, catch-up speed, shared move orders and arrival handoff. Full scheduling/allocation, avoidance, general work/attack queues, selection and specialist/vehicle ownership remain open. Construction command-6 wrapper now matches 4,096 executable visits for plan resolution, crew registration, fallback queue ownership, approach and task handoffs; native tasks 2-9 are supplied consumers. Shared order eligibility/slot helpers are reused. Live plan identity/lifetime, native hauling and construction queue integration remain unfinished; no additional verification credit. Task-7 hauling now separately matches 9,216 native visits with actual approaches, waits, geometry, reservation, transfer limits, poses and RNG. Resource search/cache results and final world submissions remain supplied; native cache scheduling and live plan/person/path ownership are still required before construction queue integration.",
           "requirements": [
             {
               "id": "movement.groups.resting",

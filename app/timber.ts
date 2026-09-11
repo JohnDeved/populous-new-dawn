@@ -1,5 +1,19 @@
 import rules from './original-rules.json' with { type: 'json' }
 
+// 0x4a8e20: starting an approach reserves a timber share and resets its 64-turn timer.
+export function reserveTimber(tree: {
+  flags4: number
+  wood: number
+  reservations: number
+  reservationTimer: number
+}) {
+  if (tree.flags4 & 0x100000) return
+  tree.reservationTimer = 64
+  tree.reservations = (tree.reservations + 1) & 255
+  if (tree.reservations >= Math.max(1, Math.trunc(((tree.wood << 16) >> 16) / 100)))
+    tree.flags4 = (tree.flags4 | 0x100000) >>> 0
+}
+
 // 0x4d58c0: one loose log per hundred carried units; failed allocation preserves
 // the remainder. World allocation/insertion and the cue belong to the caller.
 export function dropCarriedTimber(
