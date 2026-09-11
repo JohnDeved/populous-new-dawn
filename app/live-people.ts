@@ -1,9 +1,13 @@
 import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
 import { stampFootprints } from './footprints.ts'
-import { startLiveOrders } from './live-movement.ts'
+import { adoptLiveOrders, startLiveOrders } from './live-movement.ts'
 import { currentPersonOrder } from './person-orders.ts'
-import { cancelBuildingEntry, leaveBuildingEntry } from './live-building-entry.ts'
+import {
+  cancelBuildingEntry,
+  leaveBuildingEntry,
+  rebuildLiveTrainingQueue,
+} from './live-building-entry.ts'
 import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 import { stepMeleeEncounter } from './melee-encounter.ts'
 import { nativePersonModel } from './live-combat.ts'
@@ -388,7 +392,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
     setAnimation: (p, o) => effects.animation(p as LivePerson, o, true),
     releaseMotion: p => effects.releaseMotion(p as LivePerson),
     deselectPassengers: unexpected,
-    rebuildTrainingQueue: unexpected,
+    rebuildTrainingQueue: id => rebuildLiveTrainingQueue(w, id),
     rebuildFormation: cell => rebuildLiveRestingSlots(w, cell),
     idleApproach: () =>
       initializeLiveIdleApproach(w, u, p, () => initializeLivePerson(w, u, ctx, p)),
@@ -561,7 +565,7 @@ export function enterLiveCombat(
   w: World,
   u: Unit,
   state: 25 | 29,
-  p = u.fight?.motion ?? u.native ?? createLivePerson(w, u)
+  p = u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u)
 ) {
   const flags = p.flags4 & 0x10007
   if (!(p.flags2 & 0x100000)) {
@@ -687,6 +691,7 @@ export function registerLivePerson(w: World, p: LivePerson) {
 
 // Grounded combat and airborne impulses share the original person physics.
 export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
+  const fighting = p.state === 25 || p.state === 29
   registerLivePerson(w, p)
   // Ordinary combat still owns browser HP; don't restore an opportunistic hit
   // from the preceding physics snapshot when the defender is being pushed.
@@ -744,7 +749,7 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       readyToFight: () => false,
     }
   )
-  if (p.state === 25) {
+  if (p.state === 25 || p.state === 29) {
     const group = p.workFlags && w.fights.some(b => b.id === p.workFlags)
     const next = stateAfterFight(
       p,
@@ -755,14 +760,14 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       p.previousState = p.state
       p.state = next
       initialize()
-      // Ordinary live orders still use the browser adapter after native recovery.
-      // Do not preserve a fabricated task snapshot in place of the native queue.
+      // Resume the retained native queue; the owning work adapter is adopted below.
       u.fight = null
       if (currentPersonOrder(w.buildingOrders, p)) u.native = p
       else releasePersonRoute(w.motionRoutes, p)
     }
   }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
+  if (fighting && p.state === 10) adoptLiveOrders(w, u, p)
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024

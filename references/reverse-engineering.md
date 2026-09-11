@@ -8229,3 +8229,52 @@ new-behavior CPU timing, not a speedup or hardware FPS claim. No per-render queu
 processing is added. Fallow maintainability remains 85.5; touched live movement
 passes ox-standard. Complete work/combat/vehicle orders, settings, native global
 allocation/dispatch and untraced command-context behavior remain partial.
+
+## Combat interruption preserves shared orders (2026-09-11)
+
+The live reinforcement adapter created a fresh person and cleared the recruit's
+orders. That contradicted `0051ddc0`: native admission initializes the existing
+person in state 25, writes its fight ID and retains its order slots. `0051e150`
+does the same for both state-29 encounter participants. `004ed6f0`, the intervening
+empty-state hook, is a no-op. `004d32b0` dispatches both states 25 and 29 through
+`00518560`; recovery therefore also applies when an opening encounter is cancelled.
+The browser previously applied that recovery only to state 25.
+
+`scripts/check-native-combat-queues.py` executes 1,024 native admissions/encounter
+setups with real class, person and combat initializers. It checks eight slots,
+immediate orders, cursors and every byte of the shared order pool before/after.
+Sprite installation, encounter allocation/immediate visit and UI notification
+are supplied leaves, explicitly listed in the script. Three playable models,
+eight cursors, empty/populated slots and immediate orders are covered. This is
+not a complete native battle replay. Existing group, initializer and cleanup
+comparisons also pass: 4,096 admissions/splits, 8,192 state initializations,
+4,096 cleanups and 324 recovery decisions, plus their related checks.
+
+Live combat now transfers the existing person from movement/entry into the fight
+and restores the correct work adapter on return to state 10. The existing training
+queue rebuild is shared by both initializers. A waiting trainee leaves the physical
+line when combat starts, retains its command and rejoins the line afterward.
+No copied task snapshot, second queue, dependency or presentation clock was added.
+
+`tests/mixed-combat-orders.test.mjs` covers new/cancelled encounters, reinforcement,
+replacement, splitting, movement tails, hut entry, prayer poses, real overflow
+training lines, player cancellation and death/reference cleanup. Simulation,
+RNG and poses agree at 5/30/60/120/144/240 Hz and irregular schedules.
+`check-browser-combat-queues.mjs` issues actual Ctrl mouse waypoints, retains their
+identity through a fight, checks the resumed original brave walking frame and
+269 changed GPU pixels, pause and completion at 1440×1000 and 3440×1440.
+Raw Chromium/SwiftShader measurements are in
+`performance/2026-09-11-combat-queues.json`: 0.1–0.2 ms p95 simulation visits with
+coarse timers. Zero medians reflect timer resolution. No hardware FPS or speedup
+claim; this change reuses records and existing simulation ownership, with no new
+per-render work. All 348 portable tests and the production build pass. Fallow
+maintainability remains 85.5 with the existing 20 cycles. The three touched TS
+files have 182 ox-standard diagnostics versus 184 at the baseline, with no new
+diagnostic kinds/counts; existing lint debt is not claimed clean.
+
+Explicit command-19 area selection/queue completion, command-21 sharing, other
+work/transport and native mixed-class scheduling remain partial. In particular,
+the retained building adapter still derives its target from the original area
+cell. It must eventually use native search/restart/completion rather than clear
+all orders when the first building disappears. No whole-lifecycle parity credit
+is awarded for this interruption fix.

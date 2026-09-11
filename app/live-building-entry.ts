@@ -110,6 +110,11 @@ function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
   return { person: p, orders }
 }
 
+export function rebuildLiveTrainingQueue(w: World, id: number) {
+  const b = w.buildings.find(building => building.id === id)?.admission
+  if (b) rebuildTrainingQueue(context(w), b)
+}
+
 export function initializeBuildingPerson(w: World, p: EntryPerson) {
   const startup = {
     randomState: w.randomState,
@@ -135,10 +140,7 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
         const u = w.units.find(u => u.id === p.id)
         if (u) clearLivePath(w, u)
       },
-      rebuildTrainingQueue: id => {
-        const b = w.buildings.find(b => b.id === id)?.admission
-        if (b) rebuildTrainingQueue(context(w), b)
-      },
+      rebuildTrainingQueue: id => rebuildLiveTrainingQueue(w, id),
       idleApproach: () =>
         initializeIdleApproach(w.manaWorld.gameFlags, p, {
           setAnimation,
@@ -387,10 +389,7 @@ export function cancelBuildingEntry(w: World, u: Unit) {
   if (!u.entry) return
   const p = u.entry.person
   clearPersonOrders(w.buildingOrders, p, orderEffects)
-  if (p.flags3 & 32) {
-    const b = w.buildings.find(b => b.id === p.workTarget)?.admission
-    if (b) rebuildTrainingQueue(context(w), b)
-  }
+  if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
   releasePersonRoute(w.motionRoutes, p)
   u.supportHeight = p.supportHeight || undefined
   u.entry = undefined

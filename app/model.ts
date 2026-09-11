@@ -136,6 +136,7 @@ import {
 import {
   collisionWorld,
   enterLiveCombat,
+  stepLivePhysics,
   stepLiveEncounter,
   createLivePerson,
   createMeleePerson,
@@ -778,7 +779,9 @@ function reinforceBattle(w: World, b: Battle, recruit: Unit) {
   const people = new Map(
     [...units.values()].map(u => [
       u.id,
-      u.fight ? (u.fight.motion ??= createMeleePerson(w, u)) : createLivePerson(w, u),
+      u.fight
+        ? (u.fight.motion ??= createMeleePerson(w, u))
+        : (u.native ?? u.entry?.person ?? createLivePerson(w, u)),
     ])
   )
   b.tribes ??= [...new Set(b.members.map(id => people.get(id)!.tribe))]
@@ -796,7 +799,8 @@ function reinforceBattle(w: World, b: Battle, recruit: Unit) {
     enter: p => {
       enterLiveCombat(w, recruit, 25, people.get(p.id)!)
       state.randomState = w.randomState
-      release(w, recruit)
+      release(w, recruit, true)
+      recruit.native = null
     },
     // ponytail: browser group allocation is unbounded; replace with the native
     // mixed-class pool when its ownership/limits are integrated.
@@ -2407,11 +2411,14 @@ function release(w: World, u: Unit, preserveOrders = false) {
 }
 export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
   cancelLiveResting(w, u)
-  if (!preserveOrders) {
+  if (preserveOrders) {
+    // Combat takes the same person/queue; its state initializer releases training slots.
+    u.entry = undefined
+  } else {
     cancelLiveBuildingAttack(w, u)
     cancelLiveOrder(w, u)
+    cancelBuildingEntry(w, u)
   }
-  cancelBuildingEntry(w, u)
   clearLivePath(w, u)
   u.vault = null
   u.work = null
@@ -4861,6 +4868,10 @@ function stepTurn(w: World) {
     }
     if (u.fight) {
       if (u.fight.motion) stepLiveMeleeMotion(w, u)
+      continue
+    }
+    if (u.native && [25, 29].includes(u.native.state)) {
+      stepLivePhysics(w, u, u.native)
       continue
     }
     if (u.native?.commandStatus === 19) {

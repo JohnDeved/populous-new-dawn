@@ -110,6 +110,17 @@ trained warriors inherit worship targets and use the original prayer animation.
 Native packets, preparation and worship comparisons, actual desktop/ultrawide
 input and prayer pixels, and 5–240 Hz/irregular replay are checked.
 
+Combat interruption now retains the same person and shared queue through new
+encounters, reinforcement, replacement and splitting. Surviving followers resume
+waypoints, building admission and worship; cancelled encounters recover through
+the original state-29 dispatch. Waiting trainees leave their physical line during
+combat and rejoin afterward without losing their training order. Native executable
+queue preservation, portable identity/reference/recovery and render-rate checks,
+and desktop/ultrawide input with original walking pixels pass. Continue explicit
+area-attack queue ownership: command 19 must rescan its area after losing a target,
+not complete merely because its initially clicked building disappeared. Full
+automatic command-21 sharing, construction/transport and class scheduling remain open.
+
 **Evidence correction:** the supplied D3D executable's 00438ae0 preview hook and
 004199b0 camera-restore hook are literal RET stubs. The retained staging data is
 camera/context metadata, not proof of persistent waypoint artwork. This supersedes
