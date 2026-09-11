@@ -3,7 +3,7 @@ import test from 'node:test'
 import {createHash} from 'node:crypto'
 import orders from './fixtures/combat-orders.json' with {type:'json'}
 import preparation from './fixtures/combat-order-preparation.json' with {type:'json'}
-import {prepareCombatOrder} from '../app/person-orders.ts'
+import {prepareCellOrder} from '../app/person-orders.ts'
 import scanners from './fixtures/combat-scanners.json' with {type:'json'}
 import {startCombatResponse} from '../app/combat-orders.ts'
 import {automaticCombatScanner,canAutoEngage,engagementRange} from '../app/melee-engagement.ts'
@@ -67,11 +67,11 @@ test('coastal response targets come from the corrected native cell, including it
 })
 
 
-test('coastal combat order preparation matches full native calls and retains flags on identical commands', () => {
+test('coastal area/dismantling order preparation matches full native calls and retains flags on identical commands', () => {
   for (const c of preparation) {
-    const categories = new Uint8Array(16384), a=c.area.a, order={...c.before}
+    const categories = new Uint8Array(16384), a=c.model===10?c.area.b:c.area.a, order={...c.before}
     categories[((a>>>9)&127)*128+((a&254)>>1)]=c.category
-    prepareCombatOrder(order,c.area,c.flags,categories,c.model)
+    prepareCellOrder(order,c.area,c.flags,categories,c.model)
     assert.deepEqual(order,c.expected)
   }
 })

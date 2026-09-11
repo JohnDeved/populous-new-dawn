@@ -103,21 +103,22 @@ if '--write-fixtures' in sys.argv:
 
 # Direct command preparation also covers the unchanged-record early return.
 prepared=[]
-for n in range(1024):
+for n in range(1536):
  a=rng.randrange(65536);b=rng.randrange(65536);category=rng.randrange(16);flags=rng.choice([0,32,48,50,255])
- model=19 if n&1 else 21
+ model=10 if n>=1024 else (19 if n&1 else 21)
  before=order(rng.choice([0,3,19,21]),rng.randrange(65536));before['flags']=rng.randrange(256);before['object']=rng.randrange(65536)
  if n%3==0:before.update(model=model,a=a,b=b)
- cpu.mem_write(0x8a03e4,bytes(16384*16));write(0x8a03e4+(((a>>9)&127)*128+((a&254)>>1))*16+12,'B',category)
+ cell=b if model==10 else a
+ cpu.mem_write(0x8a03e4,bytes(16384*16));write(0x8a03e4+(((cell>>9)&127)*128+((cell&254)>>1))*16+12,'B',category)
  cpu.mem_write(0x938830+100,struct.pack('<BB4H',*before.values()));write(base+0x4000,'HH',a,b)
  call(0x438730,10,model,base+0x4000,flags)
  result=dict(zip(before.keys(),struct.unpack('<BB4H',cpu.mem_read(0x938830+100,10))))
  prepared.append(dict(model=model,before=before,area=dict(a=a,b=b),category=category,flags=flags,expected=result))
 js2="""
-import {prepareCombatOrder} from './app/person-orders.ts';let text='';for await(const c of process.stdin)text+=c;
-console.log(JSON.stringify(JSON.parse(text).map(c=>{const categories=new Uint8Array(16384),a=c.area.a;categories[((a>>>9)&127)*128+((a&254)>>1)]=c.category;prepareCombatOrder(c.before,c.area,c.flags,categories,c.model);return c.before})))
+import {prepareCellOrder} from './app/person-orders.ts';let text='';for await(const c of process.stdin)text+=c;
+console.log(JSON.stringify(JSON.parse(text).map(c=>{const categories=new Uint8Array(16384),a=c.model===10?c.area.b:c.area.a;categories[((a>>>9)&127)*128+((a&254)>>1)]=c.category;prepareCellOrder(c.before,c.area,c.flags,categories,c.model);return c.before})))
 """
 r=subprocess.run(['node','--input-type=module','-e',js2],input=json.dumps(prepared),capture_output=True,text=True,cwd=ROOT);assert r.returncode==0,r.stderr
 for i,(a,c) in enumerate(zip(json.loads(r.stdout),prepared)):assert a==c['expected'],(i,a,c)
-print('PASS: 1024 complete command-19/21 preparation calls, all coastal categories, wrapped centers and unchanged-record flag retention.')
+print('PASS: 1536 complete command-10/19/21 preparation calls, all coastal categories, wrapped centers and unchanged-record flag retention.')
 if '--write-fixtures' in sys.argv:(ROOT/'tests/fixtures/combat-order-preparation.json').write_text(json.dumps(prepared[::17],separators=(',',':'))+'\n')

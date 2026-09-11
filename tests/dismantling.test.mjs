@@ -75,3 +75,91 @@ test('dismantling outcomes and timber remain independent of render frequency',()
     if(baseline)assert.deepEqual(result,baseline,`${hz} Hz`);else baseline=result
   }
 })
+
+function queuedSite(direction = 0, count = 3, marked = true) {
+  const w = createWorld()
+  Object.assign(w, { units: [], buildings: [], trees: [], shrines: [], inputMask: 0 })
+  w.manaWorld.gameFlags = 32
+  w.terrain.fill(3); w.terrainVersion++
+  const b = addBuilding(w, 'blue', 'hut', { x: 0, z: 8 }, true, { angle: direction * Math.PI / 2 })
+  if (marked) dismantleBuilding(w, b)
+  const people = Array.from({ length: count }, (_, i) => addUnit(w, 'blue', 'brave', { x: -20 + i / 2, z: 8 }))
+  w.selected = people.map(u => u.id)
+  return { w, b, people }
+}
+const ownedPerson = u => u.native ?? u.entry?.person
+const orderModels = (w,u) => ownedPerson(u).commands.filter(Boolean).map(id=>w.buildingOrders.records[id].model)
+const issueWork = (w,b) => {
+  command(w, { x: -10, z: 8 }, { ctrlKey: true })
+  command(w, b, { ctrlKey: true })
+  command(w, { x: 20, z: 8 })
+}
+
+test('mixed groups queue movement, dismantling and movement without redirecting ineligible warriors', () => {
+  for(let direction=0;direction<4;direction++) {
+    const { w,b,people }=queuedSite(direction)
+    const warrior=addUnit(w,'blue','warrior',{x:-22,z:8})
+    w.selected.push(warrior.id)
+    issueWork(w,b)
+    const persons=people.map(ownedPerson), ids=persons[0].commands.filter(Boolean), logs=b.logs
+    assert.ok(people.every(u=>orderModels(w,u).join()==='3,10,3'))
+    assert.deepEqual(orderModels(w,warrior),[3,3])
+    assert.ok(people.every(u=>u.work===null),'future work does not preempt the first waypoint')
+    assert.equal(w.buildingOrders.records[ids[1]].references,3)
+    until(w,()=>people.every(u=>isDismantling(w,u)))
+    assert.ok(people.every((u,i)=>ownedPerson(u)===persons[i]))
+    until(w,()=>!w.buildingOrders.active,800)
+    assert.equal(b.hp,0);assert.equal(b.dismantled,true)
+    assert.ok([...people,warrior].every(u=>u.hp>0&&u.x>18&&u.inside===null))
+    assert.equal(people.reduce((sum,u)=>sum+u.cargo,0)+w.trees.filter(t=>t.model===11).reduce((sum,t)=>sum+t.logs,0),logs)
+    assert.ok(ids.every(id=>!w.buildingOrders.records[id].references))
+  }
+})
+
+test('queued building entry can become dismantling; cancellation skips work while retaining the destination', () => {
+  for(const mode of ['converted','cancelled','removed']) {
+    const { w,b,people:[u] }=queuedSite(0,1,mode!=='converted')
+    issueWork(w,b)
+    const p=ownedPerson(u),tail=p.commands[2]
+    if(mode==='converted') {
+      assert.deepEqual(orderModels(w,u),[3,8,3]);dismantleBuilding(w,b)
+      assert.deepEqual(orderModels(w,u),[3,10,3])
+    } else if(mode==='cancelled') dismantleBuilding(w,b)
+    else b.hp=0
+    assert.equal(w.buildingOrders.records[tail].references,1)
+    until(w,()=>!w.buildingOrders.active,800)
+    assert.ok(u.hp>0&&u.x>18)
+    if(mode==='cancelled') assert.equal(b.progress,1)
+    if(mode==='converted') assert.equal(b.dismantled,true)
+  }
+})
+
+test('dismantling queue replacement and death release references while non-braves keep their current orders', () => {
+  for(const mode of ['replace','death']) {
+    const { w,b,people:[u] }=queuedSite(0,1)
+    issueWork(w,b);until(w,()=>isDismantling(w,u))
+    const ids=ownedPerson(u).commands.filter(Boolean)
+    if(mode==='replace') { w.selected=[u.id];command(w,{x:-20,z:14}) }
+    else u.hp=0
+    tick(w,1/12)
+    assert.ok(ids.every(id=>!w.buildingOrders.records[id].references))
+  }
+  const {w,b}=queuedSite(0,0),u=addUnit(w,'blue','warrior',{x:-20,z:8})
+  w.selected=[u.id];command(w,{x:20,z:20})
+  const before=structuredClone(u),orders=structuredClone(w.buildingOrders)
+  command(w,b,{ctrlKey:true})
+  assert.deepEqual(u,before);assert.deepEqual(w.buildingOrders,orders)
+})
+
+test('queued dismantling, timber and following movement agree at 5–240 Hz and irregular frames', () => {
+  const run=schedule=>{
+    const {w,b}=queuedSite();issueWork(w,b)
+    const clock={animationTime:0,animationFrame:0}
+    let elapsed=0,frame=0
+    while(elapsed<40-1e-9){const dt=Math.min(40-elapsed,schedule[frame++%schedule.length]);advanceGame(w,clock,dt);elapsed+=dt}
+    assert.equal(w.buildingOrders.active,0);assert.equal(b.hp,0)
+    return {...w,pendingTime:0}
+  }
+  const baseline=run([1/60])
+  for(const schedule of [[1/5],[1/30],[1/120],[1/144],[1/240],[.003,.6,.016,.09]])assert.deepEqual(run(schedule),baseline)
+})

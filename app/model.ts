@@ -3000,7 +3000,9 @@ export function command(
   const { model } = context
   w.lastOrderTurn = w.turn
   const queuedBuilding =
-    model === 8 && context.building && ['hut', 'camp', 'tower'].includes(context.building.kind)
+    [8, 10].includes(model) &&
+    context.building &&
+    ['hut', 'camp', 'tower'].includes(context.building.kind)
   if (
     model === 19 ||
     ((model === 3 || model === 27 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor))
@@ -3013,9 +3015,14 @@ export function command(
       modifiers.shiftKey,
       modifiers.altKey
     )
-    const units = w.units.filter(u => canOrder(u) && w.selected.includes(u.id))
+    const units = w.units.filter(
+      u =>
+        canOrder(u) &&
+        w.selected.includes(u.id) &&
+        !!(rules.personCommands[model].people & (1 << nativePersonModel(u)))
+    )
     if (!units.length) {
-      tell(w, 'No followers can reach this order.')
+      tell(w, 'No selected followers can take this order.')
       return true
     }
     // Only release the old controller when beginning a new sequence or replacing

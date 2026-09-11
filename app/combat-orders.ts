@@ -4,7 +4,7 @@ import {
   allocatePersonOrder,
   attachPersonOrder,
   currentPersonOrder,
-  prepareCombatOrder,
+  prepareCellOrder,
   type OrderedPerson,
   type OrderEffects,
   type OrderPool,
@@ -58,7 +58,7 @@ export function startCombatResponse(
   if (!threat) return 0
   const id = allocatePersonOrder(orders)
   if (!id) return threat
-  prepareCombatOrder(
+  prepareCellOrder(
     orders.records[id],
     area,
     32 | (buildings ? 16 : 0) | (threat === 3 ? 2 : 0),

@@ -1,7 +1,7 @@
 import type { World, Unit, Building } from './model.ts'
 import { buildingModel } from './building-shapes.ts'
 import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
-import { currentPersonOrder, emptyPersonOrder, prepareCombatOrder } from './person-orders.ts'
+import { currentPersonOrder, emptyPersonOrder, prepareCellOrder } from './person-orders.ts'
 import {
   detectCombatThreat,
   selectCombatTarget,
@@ -191,7 +191,7 @@ export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undef
   const area = { a: ((source.x >>> 8) & 254) | (source.y & 0xfe00), b: radius | (radius << 8) }
   const buildings = !!(rules.personStateFlags[p.state] & 8) && !p.vehicle
   const response = emptyPersonOrder()
-  prepareCombatOrder(response, area, 32 | (buildings ? 16 : 0), w.land.categories)
+  prepareCellOrder(response, area, 32 | (buildings ? 16 : 0), w.land.categories)
   // Coastal preparation can move the order center by one cell. Include that
   // outer ring in the adapter; each native scan still traverses its exact area.
   const { world, owners } = combatWorld(w, source, range + (response.a === area.a ? 0 : 2))

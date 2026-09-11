@@ -222,7 +222,7 @@ def input_leaf(c,address,size,user):
     c.reg_write(UC_X86_REG_EIP,struct.unpack('<I',c.mem_read(sp,4))[0]);c.reg_write(UC_X86_REG_ESP,sp+4)
 hooks=[cpu.hook_add(UC_HOOK_CODE,input_leaf,begin=a,end=a) for a in [0x435780,0x435c40,0x435cb0,0x47a550]]
 inputs=[]
-for model in [3,8,27,33]:
+for model in [3,8,10,19,27,33]:
     for slot in range(8):
         for modifiers in range(8):
             ctrl,shift,alt=[bool(modifiers&bit) for bit in [1,2,4]]

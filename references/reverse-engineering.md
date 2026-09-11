@@ -8480,3 +8480,74 @@ output is nonzero and mute/re-enable reuses buffers. Evidence is
 Full specialist classes, native sound priorities/interruption, source arbitration,
 tribe-list speaker order and complete selection/command buffering remain open.
 No whole lifecycle is newly certified and no duplicate parity points are added.
+
+
+### Queued dismantling and mixed follower eligibility — 2026-09-11
+
+A marked friendly hut/camp/tower now accepts command **10** within the existing
+Ctrl sequence. Previously it entered the legacy work branch and reset the staged
+queue. The shared order/person owner now handles ground → dismantle → ground,
+including original timber recovery, removal and handoff into the retained tail.
+No browser task replay or duplicate dismantling state machine is added.
+
+The reconstructed `00438730` packed-cell preparation is shared as
+`prepareCellOrder` for commands 10/19/21. Command 10's object ID is retained in word
+`a` and coast correction updates packed location word `b`; area attacks retain
+radius word `b` and correct center word `a`. Unchanged records preserve flags.
+Existing combat callers are renamed without changing their model-19/21 behavior.
+
+Before changing live controllers, queued input now applies the native descriptor's
+person-model mask. Otherwise the new brave-only command could release a selected
+warrior's current orders before the original append routine rejected that warrior.
+Actual shared append still performs its native admission. This is the ordinary
+on-foot adapter; future transport/ghost consumers retain their separate scope.
+Existing `adoptLiveOrders`, entry dispatch, `stepDismantling`, native cancellation,
+queue advancement and timber ownership perform the work unchanged. The work frame
+is original sprite object **88** for a blue brave; animation-table row 6 is not the
+person's `animationMode` field or its imported source-object ID.
+
+Validation:
+
+- `check-native-combat-orders.py`: **1,024** complete automatic response initializers
+  still pass. Direct preparation expands to **1,536** full native calls, including
+  **512** command-10 calls, coastal categories, unchanged records, wrapped locations
+  and preserved object/radius payloads. Portable captures include the new cases.
+- `check-native-orders.py`: **4,000** native encoding/route/reference/group/append
+  comparisons, **384** player packet/cursor cases (now also models 10 and 19) and
+  **576** actual release-binding/context/modifier lookups pass.
+- `check-native-dismantling.py`: **2,048** native controller calls with real shapes,
+  work timing, movement/animation/RNG and timber/stage mutation; **128** activation/
+  cancellation calls include shared record rewrites and state-10 restart flags.
+  Route, world allocation and removal consumers remain supplied as documented.
+- Four added portable integration tests cover three braves plus an ineligible
+  warrior in all orientations, same person identity, exact timber recovery,
+  complete order cleanup, queued entry becoming dismantling, cancellation, removed
+  targets, replacement and death. Full world replay agrees at 5/30/60/120/144/240 Hz
+  and irregular intervals. **365** tests/typecheck, production build, **576** GPU
+  sprite poses, Blast shadow/landing and live selection regressions pass.
+- `check-browser-queued-dismantling.mjs`: real Ctrl ground/work/ground clicks at
+  **1440×1000** and **3440×1440**, retained identities, distinct warrior queue,
+  native work sprite pixels, pause, target removal, all followers arriving and
+  complete timber/order accounting. Four camera bearings retain normal building
+  occlusion: the first worker contributes **23** pixels at bearing 0 and **20** at
+  3π/2, and is occluded at the other two bearings. The check does not hide the hut.
+  Evidence: `performance/2026-09-11-queued-dismantling.json`.
+
+`node scripts/bench-area-attack.mjs --dismantle` reuses the existing CPU harness
+for five 200-brave, 600-turn ground/work/ground replays. All remove the hut, survive
+and release every command. Median turns are **0.28–0.45 ms**, p95 **5.15–6.25 ms**,
+maximum **8.66–18.48 ms**; the first pass includes JIT warmup. Issuing the three
+commands takes **6.99–12.42 ms**. Measurements are complete simulation turns with
+no rendered-frame/FPS or paired speedup claim. The final recorded replay ran after
+the browser check stopped. Raw timings/runtime/CPU are in
+`performance/2026-09-11-queued-dismantling-cpu.json`. Browser four-person turns have
+~0.2 ms p95 under a coarse timer and SwiftShader. Current touched-file ox-standard
+diagnostic counts equal the baseline; existing lint debt remains. Fallow is **85.4**
+(previous **85.5**) with **20** unchanged cycles.
+
+Still unfinished: construction command 6 and native class-9 plan/worker ownership,
+unbuilt/special structures, transport/ghost orders, all person/tribe scheduling,
+command turn buffering and complete mixed-class work queues. Legacy non-staged
+work admission is not newly certified. Existing whole dismantling evidence gains
+queue integration coverage, not duplicate parity points; full game parity remains
+active.

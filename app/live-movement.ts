@@ -33,7 +33,7 @@ import {
   stepMovementOrder,
   prepareMovementOrder,
   prepareBuildingEntryOrder,
-  prepareCombatOrder,
+  prepareCellOrder,
   type OrderEffects,
   type PersonOrder,
 } from './person-orders.ts'
@@ -157,8 +157,8 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     {
       ...orderEffects(w),
       prepare: (order, model, x, y, commandFlags = 0) => {
-        if (model === 19) {
-          prepareCombatOrder(order, { a: x, b: y }, commandFlags, w.land.categories, 19)
+        if (model === 10 || model === 19) {
+          prepareCellOrder(order, { a: x, b: y }, commandFlags, w.land.categories, model)
           return
         }
         if (model === 8) {

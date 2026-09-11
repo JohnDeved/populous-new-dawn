@@ -436,24 +436,26 @@ function coastalDestination(categories: Uint8Array, x: number, y: number) {
   return to
 }
 
-// 0x438730 for area commands 19/21. The radius word survives coastal
-// correction; only the packed center moves. An identical command keeps its flags.
-export function prepareCombatOrder(
+// 0x438730: a packed area center (19/21) or target location (10) moves
+// off coastal cells; the other payload word and unchanged-record flags survive.
+export function prepareCellOrder(
   order: PersonOrder,
-  area: { a: number; b: number },
+  payload: { a: number; b: number },
   flags: number,
   categories: Uint8Array,
-  model: 19 | 21 = 21
+  model: 10 | 19 | 21 = 21
 ) {
-  const a = area.a & 65535,
-    b = area.b & 65535
+  const a = payload.a & 65535,
+    b = payload.b & 65535
   if (order.model === model && order.a === a && order.b === b) return
   order.model = model
   order.flags |= flags & 255
   order.a = a
   order.b = b
-  const coastal = coastalDestination(categories, (a & 254) << 8, a & 0xfe00)
-  if (coastal) order.a = ((coastal.x >>> 8) & 254) | (coastal.y & 0xfe00)
+  const field = model === 10 ? 'b' : 'a',
+    cell = order[field]
+  const coastal = coastalDestination(categories, (cell & 254) << 8, cell & 0xfe00)
+  if (coastal) order[field] = ((coastal.x >>> 8) & 254) | (coastal.y & 0xfe00)
 }
 
 // 0x43bb60: command payloads use raw points or packed cell centers. The square

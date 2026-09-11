@@ -104,6 +104,17 @@ queues and native allocation/scheduling remain open. Continue these visible
 selection/group gaps before deeper systems. The preview assumption is corrected
 by the executable finding below.
 
+Dismantling now participates in ground → work → ground queues for ordinary huts,
+camps and towers. Braves retain the same person/command records through work,
+timber recovery and departure; ineligible warriors retain their movement orders.
+Native command-10 coastal payload preparation and player packet/cursor paths are
+compared. Four orientations, conversion of queued entry to dismantling,
+cancellation/removal/replacement/death, 5–240 Hz/irregular replay, real desktop/
+ultrawide clicks and original work pixels pass. A 200-person queued-work workload
+removes the building and releases every command. Continue construction command 6
+and its plan/worker ownership before treating mixed work queues as complete; do
+not add a separate browser waypoint replay around legacy construction tasks.
+
 Stone-head orders now append after ground/building sequences without replacing
 prior destinations. Descriptor flag 0x2000 ends staging even with Ctrl held;
 trained warriors inherit worship targets and use the original prayer animation.
