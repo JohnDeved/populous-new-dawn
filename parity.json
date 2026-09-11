@@ -1573,9 +1573,13 @@
             "scripts/check-browser-building-fire.mjs",
             "app/audio.ts",
             "scripts/check-browser-route-recovery.mjs",
-            "references/performance/2026-09-11-failed-route-recovery.json"
+            "references/performance/2026-09-11-failed-route-recovery.json",
+            "app/person-selection.ts",
+            "tests/person-selection.test.mjs",
+            "scripts/check-browser-selection-audio.mjs",
+            "references/performance/2026-09-11-selection-audio.json"
           ],
-          "note": "Owned fire sound cancellation integrated; native arbitration and removal semantics incomplete. Arrival/failure cues now preload all eleven original variants; isolated browser playback verifies nonzero signal and global failure notification dispatch. Full arbitration remains partial."
+          "note": "Owned fire sound cancellation integrated; native arbitration and removal semantics incomplete. Arrival/failure cues now preload all eleven original variants; isolated browser playback verifies nonzero signal and global failure notification dispatch. Full arbitration remains partial. Selection count/class rules now share their preload table. Missing three/four-plus ordinary group voices, specialist assets and pointer acknowledgement 106 are loaded. Real drag, held sprite press/release, Shift HUD group voice and silent Ctrl-five pass isolated audio-output checks; specialist playback is checked separately from unfinished live classes. Adds 13 unique WAVs (223256 stored bytes), decoded buffers reused on re-enable. Native priority/interruption and full speaker ownership remain open."
         },
         {
           "id": "audio.ambience",

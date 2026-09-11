@@ -8429,3 +8429,54 @@ admission/display is inspected, not ported; queued requests do not establish tha
 UI. Other non-staged legacy command admission still uses its prior adapter.
 These add evidence to existing partial lifecycle requirements without duplicate
 parity credit; the user's group/footprint/standing/selection priorities remain active.
+
+
+### Audible selection groups and pointer acknowledgement — 2026-09-11
+
+`00489c40` selects one voice per present specialist class, then shaman, then
+ordinary followers, using distinct rows for one/two/three/four-plus people. The
+browser selected those cue IDs already, but the manually maintained audio preload
+list omitted ordinary group cues **68/69**, specialist cues **70–75/86/87**, and
+pointer acknowledgement **106 (0x6a)**. `Soundscape.playSample` therefore returned
+without producing audio. This corrects earlier claims of audible pointer/order
+feedback based only on queued/callback events.
+
+`person-selection.ts` now has one native count/class voice table. Single/group
+selection and exported `SELECTION_CUES` use it; `audio.ts` includes those rows and
+0x6a before enabling sound. Existing sample-key deduplication prevents duplicate
+fetch/decode when cues share a recording. No lazy first-click fetch, gameplay
+clock change, new dependency or separate selection rule was introduced. The
+existing ordinary/shaman order acknowledgements retain their own cues.
+
+Compared with source `39095c999b5b8d0dab932922e76c46e7220406cc`, the eleven previously
+omitted cue IDs require **13** additional unique WAVs totaling **223,256 bytes** of
+stored assets. Total preloaded buffers rise from **195 to 208**. Browser selection
+and pointer cues together reference **25** decoded buffers, **1,822,948 PCM bytes**
+at the observed **48,000 Hz** AudioContext rate. These are asset/decoded-buffer
+measurements, not wire transfer, whole-process memory, frame time or a speedup claim.
+Mute/re-enable keeps the same AudioBuffer identities.
+
+Validation: **1,024** complete native person-click commands (4,096 records), **288**
+modifier bindings and **16** press/release dispatches pass. The HUD oracle passes
+**1,024** commands (12,288 people), **1,024** focus cycles, **144** left callbacks
+and **12** right callbacks, including original voice choices. The portable
+selection regression checks all single/group class rows and actual preload/assets.
+**361** tests/typecheck and the production build pass. Both touched TypeScript
+files have no ox-standard diagnostics; Fallow remains **85.5**, with **20** existing
+cycles. Browser person-selection tests cover desktop, ultrawide and 2× DPI without
+changing movement orders or selection ownership.
+
+`node scripts/check-browser-selection-audio.mjs` enables real browser audio and
+isolates it from background music/ambience **after audio activation has completed**.
+Real drags select one through four ordinary followers plus shaman and produce
+nonzero signal with the expected active voice. A held sprite press isolates audible
+0x6a, release plays the selection voice, Shift-HUD selects a five-person group with
+its capped voice, and Ctrl-five selects silently as in the original. Eight
+specialist count cues are checked through the real Soundscape and native selector;
+this does **not** create playable preachers/firewarriors. All variant buffers exist,
+output is nonzero and mute/re-enable reuses buffers. Evidence is
+`performance/2026-09-11-selection-audio.json`.
+
+Full specialist classes, native sound priorities/interruption, source arbitration,
+tribe-list speaker order and complete selection/command buffering remain open.
+No whole lifecycle is newly certified and no duplicate parity points are added.

@@ -250,6 +250,15 @@ context-menu event; Windows-style click delivery must not select twice. The
 separate portrait/H shortcut remains an existing convenience, not a newly verified
 native binding. Full category/vehicle/passenger ownership, priority-field writers,
 tribe-list allocation order, buffering and mixed-object picking remain open.
+Selection feedback now preloads voices from the same native count/class table used
+by world and HUD selection. Three/four-plus ordinary groups and pointer press/order
+acknowledgements are audible; specialist voice assets are verified separately from
+their still-unimplemented live classes. Real drag, sprite press/release and HUD
+input produce original clips; native Ctrl-five remains silent, and mute/re-enable
+reuses decoded buffers. Preserve these audio-output checks alongside selection
+identity, order retention and desktop geometry. Continue the remaining mixed-object,
+alternate-input and native command ownership gaps above.
+
 Ordinary world hits now share original painter order, header-based person bounds,
 model triangles (including invisible picking faces), first-face consumption and
 ground occlusion. Native queue/scaling/tower/bounds checks and full live-model

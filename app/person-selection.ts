@@ -56,26 +56,27 @@ export function clickPersonSelection(people: SelectablePerson[], id: number, ext
   return true
 }
 
-// 0x489c40's single-person voice, shared by all ordinary follower classes.
+// 0x489c40: the same native rows drive selection and audio preloading.
+const selectionVoices: Record<number, number[]> = {
+  2: [0x58, 0x43, 0x44, 0x45],
+  4: [0x57, 0x49, 0x4a, 0x4b],
+  5: [0x56, 0x46, 0x47, 0x48],
+  7: [0x18],
+}
+export const SELECTION_CUES = Object.values(selectionVoices).flat()
+const voiceClass = (model: number) => (model === 4 || model === 5 || model === 7 ? model : 2)
+
 export function selectedPersonVoice(model: number) {
-  if (model === 4) return 0x57
-  if (model === 5) return 0x56
-  if (model === 7) return 0x18
-  return 0x58
+  return selectionVoices[voiceClass(model)][0]
 }
 
-// 0x489c40: specialists speak first, followed by the ordinary follower group.
+// Specialists speak first, then the shaman and ordinary followers.
 export function selectedGroupVoices(models: number[]) {
   const voices: number[] = []
-  for (const [model, cues] of [
-    [5, [0x56, 0x46, 0x47, 0x48]],
-    [4, [0x57, 0x49, 0x4a, 0x4b]],
-  ] as const) {
-    const count = models.filter(value => value === model).length
-    if (count) voices.push(cues[Math.min(count - 1, 3)])
+  for (const model of [5, 4, 7, 2]) {
+    const count = models.filter(value => voiceClass(value) === model).length
+    const cues = selectionVoices[model]
+    if (count) voices.push(cues[Math.min(count - 1, cues.length - 1)])
   }
-  if (models.includes(7)) voices.push(0x18)
-  const ordinary = models.filter(model => model !== 4 && model !== 5 && model !== 7).length
-  if (ordinary) voices.push([0x58, 0x43, 0x44, 0x45][Math.min(ordinary - 1, 3)])
   return voices
 }

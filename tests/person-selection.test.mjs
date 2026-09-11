@@ -37,3 +37,24 @@ test('selection never creates a simulation owner or interrupts existing group or
  for(let i=0;i<340;i++)tick(w,1/12)
  assert.ok(w.units.every(u=>u.native.state===19&&u.x>25))
 })
+
+test('all native single/group selection voices and pointer acknowledgements are ready before audio activation', async () => {
+ const { selectedGroupVoices, SELECTION_CUES } = await import('../app/person-selection.ts')
+ const { AUDIO_CUES, cueVariant } = await import('../app/audio.ts')
+ const { default: sounds } = await import('../app/original-sound.json', { with: { type: 'json' } })
+ const { statSync } = await import('node:fs')
+ const emitted = new Set([0x6a])
+ for(const model of [2,3,4,5,6,7]) {
+  emitted.add(selectedPersonVoice(model))
+  for(const count of [1,2,3,4,5,200]) for(const cue of selectedGroupVoices(Array(count).fill(model))) emitted.add(cue)
+ }
+ assert.deepEqual(selectedGroupVoices([2,3,6,4,4,5,5,5,7]),[0x47,0x49,0x18,0x44])
+ assert.deepEqual(selectedGroupVoices([]),[])
+ assert.deepEqual(new Set(SELECTION_CUES),new Set([...emitted].filter(c=>c!==0x6a)))
+ for(const cue of emitted) {
+  assert.ok(AUDIO_CUES.includes(cue),`selection cue ${cue} is preloaded`)
+  assert.ok(cueVariant(cue,1))
+  for(const sample of sounds.cues[cue].samples)
+   assert.ok(statSync(new URL(`../public/original/audio/${sounds.cues[cue].bank}-${sample}.wav`,import.meta.url)).size>44)
+ }
+})

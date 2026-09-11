@@ -1,0 +1,213 @@
+{
+  "browser": "153.0.8010.12",
+  "headless": true,
+  "loading": {
+    "sampleRate": 48000,
+    "buffers": 208,
+    "selectionBuffers": 25,
+    "selectionPcmBytes": 1822948
+  },
+  "samples": [
+    {
+      "kind": "brave",
+      "count": 1,
+      "calls": [
+        {
+          "cue": 88,
+          "started": true
+        }
+      ],
+      "peak": 0.14286023378372192,
+      "selected": 1
+    },
+    {
+      "kind": "brave",
+      "count": 2,
+      "calls": [
+        {
+          "cue": 67,
+          "started": true
+        }
+      ],
+      "peak": 0.23103486001491547,
+      "selected": 2
+    },
+    {
+      "kind": "brave",
+      "count": 3,
+      "calls": [
+        {
+          "cue": 68,
+          "started": true
+        }
+      ],
+      "peak": 0.0932588055729866,
+      "selected": 3
+    },
+    {
+      "kind": "brave",
+      "count": 4,
+      "calls": [
+        {
+          "cue": 69,
+          "started": true
+        }
+      ],
+      "peak": 0.09247715771198273,
+      "selected": 4
+    },
+    {
+      "kind": "shaman",
+      "count": 1,
+      "calls": [
+        {
+          "cue": 24,
+          "started": true
+        }
+      ],
+      "peak": 0.19060850143432617,
+      "selected": 1
+    },
+    {
+      "model": 4,
+      "count": 1,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 87,
+          "started": true
+        }
+      ],
+      "peak": 0.24084705114364624,
+      "selected": 1
+    },
+    {
+      "model": 4,
+      "count": 2,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 73,
+          "started": true
+        }
+      ],
+      "peak": 0.242832213640213,
+      "selected": 1
+    },
+    {
+      "model": 4,
+      "count": 3,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 74,
+          "started": true
+        }
+      ],
+      "peak": 0.24357524514198303,
+      "selected": 1
+    },
+    {
+      "model": 4,
+      "count": 4,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 75,
+          "started": true
+        }
+      ],
+      "peak": 0.24357524514198303,
+      "selected": 1
+    },
+    {
+      "model": 5,
+      "count": 1,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 86,
+          "started": true
+        }
+      ],
+      "peak": 0.16968101263046265,
+      "selected": 1
+    },
+    {
+      "model": 5,
+      "count": 2,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 70,
+          "started": true
+        }
+      ],
+      "peak": 0.2281004637479782,
+      "selected": 1
+    },
+    {
+      "model": 5,
+      "count": 3,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 71,
+          "started": true
+        }
+      ],
+      "peak": 0.2246522307395935,
+      "selected": 1
+    },
+    {
+      "model": 5,
+      "count": 4,
+      "directPlayback": true,
+      "calls": [
+        {
+          "cue": 72,
+          "started": true
+        }
+      ],
+      "peak": 0.19108806550502777,
+      "selected": 1
+    }
+  ],
+  "press": {
+    "calls": [
+      {
+        "cue": 106,
+        "started": true
+      }
+    ],
+    "peak": 0.04065414518117905,
+    "selected": 0
+  },
+  "release": {
+    "calls": [
+      {
+        "cue": 88,
+        "started": true
+      }
+    ],
+    "peak": 0.23369112610816956,
+    "selected": 1
+  },
+  "hud": {
+    "calls": [
+      {
+        "cue": 69,
+        "started": true
+      }
+    ],
+    "peak": 0.13673672080039978,
+    "selected": 5
+  },
+  "five": {
+    "calls": [],
+    "peak": 0,
+    "selected": 5
+  },
+  "reuse": true,
+  "limitation": "Actual mouse/drag/HUD input, decoded original PCM and isolated Web Audio output. No human listening, native voice-priority arbitration or hardware FPS claim."
+}
