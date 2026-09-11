@@ -9,6 +9,7 @@ import {
 } from './person-panel.ts'
 import { liveWorshippers, selectWorshippers } from './live-worship.ts'
 import { worshipPanel } from './worship-panel.ts'
+import { nativeUnitModel } from './unit-kinds.ts'
 import models from './original-models.json' with { type: 'json' }
 import { paintPanel } from './training-panel.ts'
 import hud from './original-hud.json' with { type: 'json' }
@@ -32,7 +33,7 @@ export class ObjectPanels {
     const u = scene.world.units.find(
       person => person.id === id && person.hp > 0 && person.team === 'blue'
     )
-    const head = scene.world.shrines.find(s => s.id === id && s.kind !== 'vault')
+    const head = scene.world.shrines.find(s => s.id === id)
     if (!u && !head) return
     let panel = this.panels.get(id)
     if (!panel) {
@@ -102,7 +103,7 @@ export class ObjectPanels {
     if (!(scene.pointerButtons & 2) && hovered !== this.inspected) this.inspected = null
     for (const [id, panel] of panels) {
       const u = world.units.find(person => person.id === id && person.hp > 0)
-      const head = world.shrines.find(s => s.id === id && s.kind !== 'vault')
+      const head = world.shrines.find(s => s.id === id)
       if (!u && !head) {
         panel.element.remove()
         panels.delete(id)
@@ -129,7 +130,25 @@ export class ObjectPanels {
       const health = u ? Math.round(u.hp * 20) : 0,
         maximum = u ? Math.round(maxHp(u.kind) * 20) : 0
       const count = head ? Math.min(head.required, head.followers) : 0
-      const people = head ? liveWorshippers(world, head, count) : []
+      const vaultShaman =
+        head?.kind === 'vault'
+          ? world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
+          : undefined
+      const people = head
+        ? head.kind === 'vault'
+          ? count
+            ? [
+                vaultShaman?.vault?.head === head.id
+                  ? {
+                      id: vaultShaman.id,
+                      model: nativeUnitModel(vaultShaman.kind),
+                      selectionFlags: world.selected.includes(vaultShaman.id) ? 128 : 0,
+                    }
+                  : null,
+              ]
+            : []
+          : liveWorshippers(world, head, count)
+        : []
       const worship = head && {
         required: head.required,
         enabled: head.enabled,
@@ -137,20 +156,29 @@ export class ObjectPanels {
         target: head.target,
         growth: head.growth,
         cooldown: head.cooldown,
-        shamanOnly: false,
+        shamanOnly: head.kind === 'vault',
         people: Array.from({ length: count }, (_, i) =>
           people[i]
             ? { model: people[i].model, selected: !!(people[i].selectionFlags & 128) }
             : null
         ),
       }
+      const vaultStatus =
+        head?.kind === 'vault'
+          ? !people[0]
+            ? 'waiting for shaman'
+            : head.active
+              ? 'shaman learning'
+              : 'shaman leaving'
+          : null
       const key = JSON.stringify([
         health,
         maximum,
         icons,
         worship,
         head?.followers,
-        people.map(person => person.id),
+        people.map(person => person?.id),
+        vaultStatus,
       ])
       if (key !== panel.key) {
         const layout = worship
@@ -168,12 +196,14 @@ export class ObjectPanels {
         const buttons = element.querySelectorAll('button')
         for (let i = 0; i < buttons.length; i++) {
           const button = buttons[i],
-            icon = head
-              ? people[i] && { id: people[i].id, sprite: 73 + people[i].model }
-              : icons[i],
+            person = people[i],
+            icon = head ? person && { id: person.id, sprite: 73 + person.model } : icons[i],
             draw = draws[i]
-          button.hidden = !icon
-          if (!icon || draw?.[0] !== 'sprite') continue
+          if (!icon || head?.kind === 'vault' || draw?.[0] !== 'sprite') {
+            button.hidden = true
+            continue
+          }
+          button.hidden = false
           const rect = (hud.rects as Record<number, { w: number; h: number }>)[icon.sprite]
           button.dataset.order = String(icon.id)
           button.dataset.person = String(icon.id)
@@ -194,7 +224,9 @@ export class ObjectPanels {
         element.setAttribute(
           'aria-label',
           head
-            ? `${head.name}: ${head.followers} worshippers; ${Math.round(head.progress * 100)}% complete`
+            ? head.kind === 'vault'
+              ? `${head.name}: ${vaultStatus}; ${Math.round(head.progress * 100)}% complete`
+              : `${head.name}: ${head.followers} worshippers; ${Math.round(head.progress * 100)}% complete`
             : `${u!.kind}: ${Math.max(0, health)} of ${maximum} health; ${icons.length} orders`
         )
         panel.key = key

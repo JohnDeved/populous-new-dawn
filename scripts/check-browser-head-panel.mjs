@@ -153,9 +153,117 @@ try {
     { head: setup.head, next: replacement.next }
   )
   assert.equal(Number(await button.getAttribute('data-person')), replacement.next)
+  const vault = await page.evaluate(async () => {
+    const s = window.testScene,
+      w = s.world,
+      m = await import('/app/model.ts'),
+      { advanceGame } = await import('/app/game-clock.ts'),
+      head = w.shrines.find(h => h.kind === 'vault'),
+      shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    Object.assign(shaman, m.entrance(w, head, 2))
+    w.selected = [shaman.id]
+    m.command(w, head)
+    w.speed = 1
+    for (let i = 0; i < 900 && !(head.followers && head.work); i++)
+      advanceGame(w, s.gameClock, 1 / 12)
+    w.speed = 0
+    if (!(head.followers && head.work)) throw new Error('Shaman did not begin learning')
+    w.selected = []
+    s.focus(head)
+    s.onChange()
+    s.animate(s.previous)
+    return { head: head.id, shaman: shaman.id, progress: head.progress }
+  })
+  const vaultPoint = await page.evaluate(id => {
+    const s = window.testScene,
+      head = s.world.shrines.find(h => h.id === id),
+      r = s.container.getBoundingClientRect(),
+      p = s.screen(head),
+      x = r.left + ((p.x + 1) * r.width) / 2,
+      y = r.top + ((1 - p.y) * r.height) / 2
+    for (let dy = -75; dy <= 0; dy += 3)
+      for (let dx = -20; dx <= 20; dx += 3) {
+        const event = { clientX: x + dx, clientY: y + dy }
+        if (!s.pickUnit(event) && s.pickWorldObject(event)?.id === id)
+          return { x: event.clientX, y: event.clientY }
+      }
+    throw new Error('No exposed vault geometry for real input')
+  }, vault.head)
+  await page.mouse.click(vaultPoint.x, vaultPoint.y, { button: 'right' })
+  const vaultPanel = page.getByRole('group', { name: /Vault of Knowledge: shaman learning/ })
+  await vaultPanel.waitFor({ state: 'visible' })
+  const liveVault = await page.evaluate(id => {
+    const panel = window.testScene.objectPanels.panels.get(id),
+      key = JSON.parse(panel.key)
+    return {
+      width: panel.canvas.width,
+      height: panel.canvas.height,
+      state: key[3],
+      hiddenButton: panel.element.querySelector('button').hidden,
+    }
+  }, vault.head)
+  assert.equal(liveVault.width, 32)
+  assert.equal(liveVault.height, 62)
+  assert.equal(liveVault.state.shamanOnly, true)
+  assert.deepEqual(liveVault.state.people, [{ model: 7, selected: false }])
+  assert.equal(liveVault.hiddenButton, true, 'unproven vault-slot input stays informational')
+  const beforeLabel = await vaultPanel.getAttribute('aria-label')
+  const progressed = await page.evaluate(async id => {
+    const s = window.testScene,
+      w = s.world,
+      { advanceGame } = await import('/app/game-clock.ts'),
+      head = w.shrines.find(h => h.id === id),
+      before = head.progress
+    w.speed = 1
+    for (let i = 0; i < 24; i++) advanceGame(w, s.gameClock, 1 / 12)
+    w.speed = 0
+    s.onChange()
+    s.animate(s.previous)
+    return { before, after: head.progress }
+  }, vault.head)
+  assert.ok(progressed.after > progressed.before)
+  await page.waitForFunction(
+    ({ id, before, progress }) => {
+      const label = window.testScene.objectPanels.panels.get(id).element.ariaLabel
+      return label !== before && label.endsWith(`${Math.round(progress * 100)}% complete`)
+    },
+    { id: vault.head, before: beforeLabel, progress: progressed.after }
+  )
+  await page.evaluate(({ head }) => {
+    const s = window.testScene
+    s.world.shrines.find(h => h.id === head).followers = 0
+    s.animate(s.previous)
+  }, vault)
+  await page.waitForFunction(
+    id => window.testScene.objectPanels.panels.get(id).element.ariaLabel.includes('waiting for shaman'),
+    vault.head
+  )
+  await page.evaluate(({ head }) => {
+    const s = window.testScene,
+      vault = s.world.shrines.find(h => h.id === head)
+    vault.followers = 1
+    vault.active = false
+    s.animate(s.previous)
+  }, vault)
+  await page.waitForFunction(
+    id => window.testScene.objectPanels.panels.get(id).element.ariaLabel.includes('shaman leaving'),
+    vault.head
+  )
+  await page.evaluate(({ head, shaman }) => {
+    const s = window.testScene,
+      vault = s.world.shrines.find(h => h.id === head)
+    vault.active = true
+    vault.followers = 1
+    s.world.units.find(u => u.id === shaman).hp = 0
+    s.animate(s.previous)
+  }, vault)
+  await page.waitForFunction(
+    id => window.testScene.objectPanels.panels.get(id).element.ariaLabel.includes('waiting for shaman'),
+    vault.head
+  )
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: native head-model hit, original panel height/artwork, single/group toggle, preserved worship orders/RNG, right-click person focus, independent panel lifetime and ultrawide/2x-DPI hit geometry'
+    'PASS: native head/vault hits, original panel artwork, worship selection/focus, live shaman learning progress, independent lifetime and ultrawide/2x-DPI geometry'
   )
 } finally {
   await browser.close()
