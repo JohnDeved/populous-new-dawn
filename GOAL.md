@@ -2,6 +2,10 @@
 
 Status: unfinished. The first mission is playable; full game parity has not been achieved. Execution pause/resume is controlled by the thread goal service.
 
+User direction, 2026-09-11: finish and commit the terrain-notification performance
+fix, then stop work. Do not start the next task or publish this checkpoint after
+that commit; wait for the user to resume. Full parity remains unfinished.
+
 Recreate the user-supplied original for desktop browsers. Match its world and camera, original graphics and audio, controls, simulation, all gameplay classes, campaign, saves and multiplayer. Desktop keyboard/mouse and a monitor are the target; mobile support is not required. Continue publishing validated playable builds to the existing private Site.
 
 ## Main priority: modern desktop compatibility
@@ -79,8 +83,11 @@ limits. Research-only checkpoints should explicitly say when code is not live
 and no runtime measurement exists. Raw JSON or reverse-engineering notes alone
 do not substitute for this readable log. Include p95 and spikes when available;
 do not use low medians to imply smoothness. The backfilled blocked-route workload
-has persistent 28–31 ms full-turn spikes: profile that turn/real frame impact
-before treating populated route recovery as meeting modern performance goals.
+had persistent 28–31 ms full-turn spikes. Profiling identified repeated object
+indexing during terrain synchronization; batching now reduces the paired change
+turn from 32.48 to 4.79 ms median with identical full world state. Other populated
+combat/resting costs and hardware frame impact remain unverified; see the current
+performance entry before claiming smooth route recovery.
 
 ## Revised working objective
 

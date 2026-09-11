@@ -5,6 +5,9 @@ import manifest from '../decomp/exports.json' with { type: 'json' }
 import { notifyTerrainObjects } from '../app/terrain-notifications.ts'
 import {
   createWorld,
+  addUnit,
+  command,
+  nativePosition,
   placeBuilding,
   tick,
   buildingPose,
@@ -66,4 +69,32 @@ test('terrain edits notify nearby plans, revalidate original slope rules and rel
   assert.ok(!w.buildings.includes(b))
   assert.ok(w.units.every(u => u.work !== b.id && !u.builder))
   assert.ok(cells.every(i => !(w.land.flags[i] & 1024)))
+})
+
+
+test('a large terrain edit indexes live people once while retaining dirty notifications', () => {
+  const w = createWorld()
+  Object.assign(w, { units: [], buildings: [], trees: [], shrines: [] })
+  w.manaWorld.gameFlags = 96
+  w.terrain.fill(3); w.terrainVersion++
+  for (let i = 0; i < 200; i++) addUnit(w, 'blue', 'brave', { x: i % 20, z: Math.floor(i / 20) })
+  w.selected = w.units.map(u => u.id)
+  command(w, { x: 24, z: 24 })
+  let reads = 0
+  for (const u of w.units) {
+    assert.ok(u.native)
+    u.native.flags2 &= ~4
+    const x = u.x
+    Object.defineProperty(u, 'x', { get: () => { reads++; return x }, configurable: true })
+  }
+  w.units[0].inside = 999
+  w.units[1].hp = 0
+  w.terrain.fill(4); w.terrainVersion++
+  nativePosition(w, { x: 0, z: 0 })
+  assert.equal(reads, 198, 'one position read per eligible person, independent of changed vertex count')
+  assert.equal(w.units[0].native.flags2 & 4, 0)
+  assert.equal(w.units[1].native.flags2 & 4, 0)
+  assert.ok(w.units.slice(2).every(u => u.native.flags2 & 4))
+  nativePosition(w, { x: 0, z: 0 })
+  assert.equal(reads, 198, 'unchanged terrain creates no notification index')
 })

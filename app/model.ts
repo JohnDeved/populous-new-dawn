@@ -3369,7 +3369,9 @@ const terrainTextures = { surface: () => {}, globe: () => {} }
 // ponytail: construction/deformation still write the cropped browser grid.
 // Feed its native vertices through the recovered queue until those producers
 // write the full native map directly; interpolated browser vertices are ignored.
-function notifyHeightChange(w: World, cell: number, radius: number) {
+function notifyHeightChanges(w: World, cells: Iterable<number>, radius: number) {
+  // Notifications only mark dirty state; positions stay fixed throughout this batch.
+  // Index once per terrain edit, including edits that change thousands of cells.
   const objects = new Map<number, number[]>()
   const add = (o: Point & { id: number }) => {
     const p = nativePosition(w, o),
@@ -3381,29 +3383,30 @@ function notifyHeightChange(w: World, cell: number, radius: number) {
   w.units.filter(u => u.hp > 0 && u.inside === null).forEach(add)
   w.trees.filter(t => t.logs > 0).forEach(add)
   w.effects.forEach(add)
-  notifyTerrainObjects(
-    w.land,
-    cell,
-    radius,
-    i => objects.get(i) ?? [],
-    id => {
-      const b = w.buildings.find(b => (b.id & 1023) === id)
-      if (b?.preparation) b.preparation.revalidate = true
-      else if (b && b.hp > 0) {
-        b.terrainState ??= { flooded: 0, delay: 0, reason: 0, dirty: true }
-        b.terrainState.dirty = true
+  for (const cell of cells)
+    notifyTerrainObjects(
+      w.land,
+      cell,
+      radius,
+      i => objects.get(i) ?? [],
+      id => {
+        const b = w.buildings.find(b => (b.id & 1023) === id)
+        if (b?.preparation) b.preparation.revalidate = true
+        else if (b && b.hp > 0) {
+          b.terrainState ??= { flooded: 0, delay: 0, reason: 0, dirty: true }
+          b.terrainState.dirty = true
+        }
+        if (b?.damageState) b.damageState.flags2 |= 4
+        const u = w.units.find(u => u.id === id)
+        if (u?.native) u.native.flags2 |= 4
+        if (u?.builder?.person) u.builder.person.flags2 |= 4
+        const fx = w.effects.find(fx => fx.id === id)
+        if (fx?.fire) fx.fire.groundDirty = true
+        if (fx?.smoke) fx.smoke.flags2 |= 4
+        // Rendered tree heights already follow landVersion. Global route
+        // invalidation remains with the native command/movement integration.
       }
-      if (b?.damageState) b.damageState.flags2 |= 4
-      const u = w.units.find(u => u.id === id)
-      if (u?.native) u.native.flags2 |= 4
-      if (u?.builder?.person) u.builder.person.flags2 |= 4
-      const fx = w.effects.find(fx => fx.id === id)
-      if (fx?.fire) fx.fire.groundDirty = true
-      if (fx?.smoke) fx.smoke.flags2 |= 4
-      // Rendered tree heights already follow landVersion. Global route
-      // invalidation remains with the native command/movement integration.
-    }
-  )
+    )
 }
 function syncNativeTerrain(w: World) {
   if (w.landVersion === w.terrainVersion) return
@@ -3422,10 +3425,8 @@ function syncNativeTerrain(w: World) {
   processTerrain(w.land, terrainTextures)
   // Height notifications may query positions; all native heights are current now.
   w.landVersion = w.terrainVersion
-  for (const cell of changed) {
-    updateWalkMasks(w.land, cell, 1)
-    notifyHeightChange(w, cell, 1)
-  }
+  for (const cell of changed) updateWalkMasks(w.land, cell, 1)
+  if (changed.length) notifyHeightChanges(w, changed, 1)
 }
 function refreshTribeTerritory(w: World, id: number) {
   const team = id === 0 ? 'blue' : id === 1 ? 'red' : null
@@ -3581,7 +3582,7 @@ function changedBuildingGround(w: World, index: number) {
   queueTerrain(w.land, cell, 2, 1, terrainTextures)
   processTerrain(w.land, terrainTextures)
   updateWalkMasks(w.land, cell, 3)
-  notifyHeightChange(w, cell, 1)
+  notifyHeightChanges(w, [cell], 1)
   refreshTerrainSurface(w)
 }
 
@@ -4689,10 +4690,8 @@ function stepTurn(w: World) {
       )
       if (changed.size) {
         processTerrain(w.land, terrainTextures)
-        for (const cell of changed) {
-          updateWalkMasks(w.land, cell, 3)
-          notifyHeightChange(w, cell, 2)
-        }
+        for (const cell of changed) updateWalkMasks(w.land, cell, 3)
+        notifyHeightChanges(w, changed, 2)
         refreshTerrainSurface(w)
       }
       if (!alive) fx.duration = fx.age

@@ -44,5 +44,6 @@ for (let pass = 0; pass < 5; pass++) {
 }
 const report = { dismantling, runtime: process.version, cpu: cpus()[0].model, blocked, units: 200, samples,
   limits: 'Five deterministic 600-turn replays of 200 followers approaching one hut and continuing to a waypoint. Blocked mode connects two islands at turn 120. Dismantling mode queues ground/work/ground for 200 braves. Includes live simulation, command input and target scans; no rendering. First replay includes JIT warmup. Dense arrival crowd remains subject to native route/retry limits. No hardware FPS or before/after speedup claim.' }
-writeFileSync(`references/performance/2026-09-11-${blocked ? 'route-recovery' : dismantling ? 'queued-dismantling' : 'area-attack'}-cpu.json`, JSON.stringify(report, null, 2) + '\n')
+const output = process.argv.find(arg => arg.startsWith('--output='))?.slice(9)
+writeFileSync(output ?? `references/performance/2026-09-11-${blocked ? 'route-recovery' : dismantling ? 'queued-dismantling' : 'area-attack'}-cpu.json`, JSON.stringify(report, null, 2) + '\n')
 console.log(samples.map(({ turns, ...summary }) => summary))

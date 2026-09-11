@@ -2455,3 +2455,72 @@ This is cache CPU cost with supplied route results. It excludes the real path
 solver, world construction integration, rendering and browser FPS. The module
 is not live yet; this checkpoint claims neither a shipped performance change
 nor an improvement over the previous game's nearest-tree approximation.
+
+## Batch terrain notifications — 2026-09-11
+
+The persistent maximum in all five saved blocked-route replays occurs at **turn
+120**, when the islands are joined. A Node CPU profile traced repeated work to
+`syncNativeTerrain` / `notifyHeightChange`: every changed vertex rebuilt the same
+person/tree/effect cell index. The index depends on positions; these notifications
+only set dirty flags and do not change positions during the batch.
+
+`notifyHeightChanges` now builds that index once per edit and traverses changed
+cells in their existing order. It retains the original notification function,
+duplicate visits, dirty bits and object ordering. All callers were reviewed:
+compatibility-grid synchronization, building ground changes and Land Bridge now
+use the same batch helper. Walk masks are updated before notification dispatch;
+notification consumers do not inspect those masks. No state survives the batch,
+and no gameplay delay, route retry, simulation clock or renderer setting changes.
+
+The [paired benchmark](performance/2026-09-11-terrain-notifications.json) loads
+baseline `8cbe966` and current `model.ts` with unchanged dependencies. Both worlds
+run 120 blocked turns before the timed complete terrain-change turn. Apple M5 /
+Node v24.18.0, ten warmup pairs, twenty alternating measured pairs:
+
+| Complete terrain-change turn | Before | After |
+| --- | ---: | ---: |
+| Median | 32.480 ms | 4.787 ms |
+| p95 / observed maximum | 51.912 ms | 14.141 ms |
+
+`node scripts/bench-terrain-notifications.mjs` asserts **full world equality**
+after every pair. The final pair continues to turn 600, comparing all unit state
+each turn and the final full world, including terrain, queues, routes and RNG.
+The portable regression verifies one position read for each of 198 eligible
+people, despite thousands of changed vertices; inside/dead people stay excluded
+and every eligible native person receives its dirty flag.
+
+The [isolated five-replay run](performance/2026-09-11-terrain-notifications-full-replay.json)
+uses the original 200-person workload. Terrain-change turns now take **4.03–5.77
+ms**. Other turns still peak at **10.38–18.84 ms**, and p95 whole-turn CPU across
+replays is **5.87–6.81 ms**. This fix removes the identified repeated-indexing
+spike; it does not certify all populated gameplay as smooth at high refresh.
+The baseline profile also identifies automatic combat snapshot/cell-map creation
+and resting/collision queries as substantial remaining CPU/allocation work.
+
+Evidence and measurement limits:
+
+- [Baseline CPU profile](performance/2026-09-11-blocked-route-baseline.cpuprofile.gz),
+  collected with `node --cpu-prof --cpu-prof-interval=100` and the blocked replay.
+  Sampling adds overhead; its wall times are not the optimization comparison.
+- The exploratory [cold-clone pairs](performance/2026-09-11-terrain-notifications-cold-clone.json)
+  timed a cloned checkpoint without replaying its preceding turns. They exaggerate
+  cold object-shape/GC effects and are not used for the headline conclusion.
+- Exploratory [paired](performance/2026-09-11-terrain-notifications-contended.json)
+  and [full-replay](performance/2026-09-11-terrain-notifications-full-replay-contended.json)
+  runs overlapped another benchmark. They are retained and explicitly labeled;
+  the reported comparison above comes from subsequent isolated runs.
+- These are CPU measurements, excluding rendering and real display presentation.
+  CPU state equality does not establish hardware FPS. Existing 5–240 Hz and
+  irregular-frame gameplay/bridge regressions separately cover timing.
+
+`bench-area-attack.mjs` now accepts `--output=PATH`, so fresh runs preserve the
+historical artifacts. No extra dependency or long-lived cache is introduced.
+Per the user's pause request, this checkpoint is committed locally and not
+published before stopping.
+
+Validation: 371 portable tests, TypeScript/build, exact paired replay and real
+1440×1000 / 3440×1440 browser input pass. The first browser run sampled zero for an
+active audio cue; its complete rerun passed. The
+[browser record](performance/2026-09-11-terrain-notifications-browser.json) covers
+behavior and audio output, not hardware frame time. No additional ox-standard
+findings; Fallow remains 85.4 with 20 existing cycles.

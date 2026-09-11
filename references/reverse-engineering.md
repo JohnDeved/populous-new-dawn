@@ -8786,3 +8786,41 @@ Validation: **370** portable tests, TypeScript, production build, parity metadat
 format and ox-standard checks pass. Fallow remains **85.4**, with **20** existing
 cycles. Executable verification passes for **1,166** registered exports and
 original tables. Native comparisons and the cache benchmark above pass.
+
+## 2026-09-11 — terrain notification batching preserves native consumers
+
+The original `0044f2f0` notification reconstruction remains unchanged. Profiling
+the saved 200-person blocked-route workload showed that the browser adapter built
+a full person/tree/effect index for each changed vertex during the turn-120 terrain
+change. `notifyHeightChanges` now shares that index across one batch. The original
+per-cell notification order, repeated object visits, building dirty-land flags,
+plan revalidation, person flags and fire/smoke dirty state are preserved. Single
+building edits and Land Bridge use the same helper; all callers were reviewed.
+
+`bench-terrain-notifications.mjs` compares the full terrain-change turn against
+`8cbe966`, asserting complete world equality after all 30 warmup/measured pairs.
+The final pair continues to turn 600 with unit equality each turn and final full
+world equality. A portable regression observes exactly one position read per
+eligible unit in a large terrain edit, unchanged inside/dead exclusions and all
+expected dirty notifications. Original notification fixtures, foundation/plan
+revalidation, Land Bridge lifetimes and 5–240 Hz/irregular recovery tests remain
+part of validation. No new native export or revised gameplay rule is needed.
+
+Paired median full-turn CPU is **32.480 → 4.787 ms**; p95 **51.912 → 14.141 ms**.
+The independent replay's terrain-change turn is **4.03–5.77 ms**; other simulation
+spikes remain. See [the performance entry](modern-performance.md#batch-terrain-notifications--2026-09-11)
+for raw records, exploratory-run caveats and limits. This is a measured modern
+adapter optimization, not a changed native turn schedule or a hardware FPS claim.
+
+The user requested a stop after this commit. Full game parity remains unfinished,
+and the validated local change is not published as part of this paused checkpoint.
+
+Validation: **371** portable tests, TypeScript, production build, formatting and
+parity metadata pass. Ox-standard reports the same **138** existing diagnostics
+before/after, with none added. Fallow stays **85.4** with **20** existing cycles.
+The actual desktop/ultrawide blocked-group browser check passes, retaining shared
+queues, pause, notices, visible units, recovery, combat and arrival. Its first run
+failed the unrelated Web Audio peak probe (cue 45 was active but sampled zero);
+a clean rerun passed the complete check. The rerun is preserved as
+`performance/2026-09-11-terrain-notifications-browser.json`; that transient audio
+failure is not evidence of a terrain/gameplay mismatch or an audio fix.
