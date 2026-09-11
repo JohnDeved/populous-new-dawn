@@ -8551,3 +8551,74 @@ command turn buffering and complete mixed-class work queues. Legacy non-staged
 work admission is not newly certified. Existing whole dismantling evidence gains
 queue integration coverage, not duplicate parity points; full game parity remains
 active.
+
+## 2026-09-11 — construction command ownership before live queue migration
+
+`app/construction-order.ts` reconstructs the outer `00495520` command-6 controller.
+`00436be0` is newly exported and hash-registered. Its circular empty-slot search
+and `00436b90` eligibility are shared with existing group append/commit code in
+`person-orders.ts`; existing command encoders and reference ownership are reused.
+
+Executable findings that constrain the live migration:
+
+- A class-2 building resolves its signed plan ID at **+0x82**, rewriting the shared
+  order target. The worker registers against the distinct class-9 plan, not the
+  building. The plan's constructed-building link is **+0x92**. Ghidra's inferred
+  union field names do not establish either offset; both were checked in x86.
+- The initializer clears command phase and work target, registers same-tribe
+  workers using descriptor capacities, and sets the resting anchor from the plan.
+  Duplicate registration succeeds without adding a second worker slot.
+- A full crew or missing building plan attempts to allocate a movement command
+  to the *original* target's outside point. It uses the first empty circular
+  person slot. A full person queue does **not** use its immediate-command slot.
+  Allocation precedes the slot search, so a full person queue can still advance
+  the allocator and clear an unreferenced record. Pool exhaustion preserves the
+  existing queue. Neither path erases the follower's later orders.
+- Missing/deleted work targets finish this command; advancement/release belongs
+  to the common order dispatcher. Each task transition clears assignment bit 8,
+  marks the plan dirty, writes the new task, and sets the task-entry bit. Entry
+  clears the original structure collision bits. Tasks 5/6 return to task 2.
+- Unsupported task values reach indeterminate native stack data. The TS port
+  throws instead of imitating that undefined-memory path. Valid cursors are 0–7;
+  initial targets are allocated plans/buildings. Deleted work targets are tested
+  on subsequent visits, without claiming stale-object memory reuse parity.
+
+Run:
+
+```
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-construction-order.py /private/tmp/populous-reference/native/d3dpoptb.exe --record
+node --test tests/construction-order.test.mjs
+/private/tmp/populous-reference/tools/bin/python scripts/check-native-orders.py /private/tmp/populous-reference/native/d3dpoptb.exe
+```
+
+The first check compares **4,096** executable visits across eight ordinary
+building descriptors/four orientations, partial/full/existing crews, foreign
+ownership, eligible/ineligible/ghost-only followers, linked/missing plans,
+removed work targets, queued route normalization, full/wrapped pools and all
+valid task branches. Native eligibility, crew registration, allocation, slot
+search, attachment, reference counts, anchor geometry and task-1 approach,
+arrival, speed/RNG and failed timber allocation execute. Native tasks 2–9 are
+supplied return/state consumers; route submission, final animation/audio and log
+allocation are intercepted. Complete order-pool hashes, person fields, crew slots,
+plan signals, RNG and ordered callbacks match. Portable samples use stride 17,
+which preserves both successful allocation and exhaustion cases (stride 13 would
+accidentally select only the generator's exhausted pools). The test asserts its
+branch coverage as well as comparing captured values.
+
+The shared-helper refactor also retains **4,000** original order comparisons,
+**384** player packet/cursor cases and **576** native input bindings. Fallow stays
+at **85.4**, with **20** existing import cycles. This change introduces no new
+renderer, simulation clock, queue replay or dependency; no performance improvement
+or live construction parity is claimed. The reviewed wrapper is not yet installed
+in the live construction adapter. Separate plan allocation/lifetime, task-7
+hauling and persistent native person/path ownership must be composed first.
+
+Validation of this checkpoint: **366** portable tests, TypeScript and production
+build pass; export verification checks **1,146** identities. The new TS module
+has no ox-standard diagnostics; the shared file retains exactly its 12 existing
+diagnostics. The real browser's desktop/ultrawide queued-dismantling regression
+also passes after the shared-helper refactor, retaining work sprites, queue
+identity, timber and cleanup. Its rerun is saved in
+`references/performance/2026-09-11-construction-order-queue-regression.json`;
+SwiftShader timing is not a hardware FPS claim or a construction integration
+check. No new playable construction behavior is published by this checkpoint.

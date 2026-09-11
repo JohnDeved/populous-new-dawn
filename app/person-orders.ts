@@ -73,6 +73,21 @@ function descriptor(model: number) {
   return d
 }
 
+// 0x436b90: ghost-only people use the descriptor flag instead of its class mask.
+export function acceptsPersonOrder(person: { model: number; flags4: number }, model: number) {
+  const d = descriptor(model)
+  return !!(person.flags4 & 0x800 ? d.flags & 0x4000000 : d.people & (1 << (person.model & 31)))
+}
+
+// 0x436be0: inspect all eight slots, wrapping from the active cursor.
+export function freePersonOrderSlot(person: Pick<OrderedPerson, 'commands' | 'commandCursor'>) {
+  for (let offset = 0; offset < 8; offset++) {
+    const slot = (person.commandCursor + offset) % 8
+    if (!person.commands[slot]) return slot
+  }
+  return -1
+}
+
 // 0x435780. Payload bytes unused by a command retain their previous contents.
 export function writePersonOrder(
   order: PersonOrder,
@@ -317,10 +332,7 @@ export function commitPersonOrders(
       for (let slot = 0; slot < group.count; slot++, position = (position + 1) % 8) {
         const command = group.records[slot]
         if (command.flags & 1) continue
-        const d = descriptor(command.model)
-        const eligible =
-          person.flags4 & 0x800 ? d.flags & 0x4000000 : d.people & (1 << (person.model & 31))
-        if (!eligible) continue
+        if (!acceptsPersonOrder(person, command.model)) continue
         effects.prepare(pool.records[ids[slot]], command.model, command.a, command.b)
         attachPersonOrder(pool, person, ids[slot], position, effects)
       }
@@ -367,17 +379,8 @@ export function appendPersonOrders(
   let first = 0
   for (const person of people) {
     if (!(person.selectionFlags & 128)) continue
-    const eligible =
-      person.flags4 & 0x800 ? d.flags & 0x4000000 : d.people & (1 << (person.model & 31))
-    if (!eligible) continue
-    let slot = -1
-    for (let offset = 0; offset < 8; offset++) {
-      const index = (person.commandCursor + offset) % 8
-      if (!person.commands[index]) {
-        slot = index
-        break
-      }
-    }
+    if (!acceptsPersonOrder(person, command.model)) continue
+    const slot = freePersonOrderSlot(person)
     effects.prepare(pool.records[id], command.model, command.a, command.b, command.flags)
     attachPersonOrder(pool, person, id, slot, effects)
     if (!first) first = person.id

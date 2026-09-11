@@ -115,6 +115,17 @@ removes the building and releases every command. Continue construction command 6
 and its plan/worker ownership before treating mixed work queues as complete; do
 not add a separate browser waypoint replay around legacy construction tasks.
 
+Construction command 6 now has a reviewed command wrapper, compared against
+4,096 executable visits: separate plan lookup, worker registration, full-crew
+fallback movement, circular queue/pool exhaustion, approach and task handoffs.
+The shared order helpers now reuse native eligibility and empty-slot lookup.
+This is preparation for live integration, not a delivered construction queue.
+Next connect the plan's identity/lifetime and native worker record to this wrapper,
+including task-7 hauling (`00496750`), before replacing the legacy construction
+adapter. Keep the same person, route and queued tail through work and departure;
+plan completion must advance commands instead of clearing them. Native tasks
+2-9 and full world allocation/scheduling are not proved by the wrapper comparison.
+
 Stone-head orders now append after ground/building sequences without replacing
 prior destinations. Descriptor flag 0x2000 ends staging even with Ctrl held;
 trained warriors inherit worship targets and use the original prayer animation.

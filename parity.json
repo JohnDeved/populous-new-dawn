@@ -1904,9 +1904,12 @@
           "status": "partial",
           "evidence": [
             "scripts/check-native-orders.py",
-            "tests/game.test.mjs"
+            "tests/game.test.mjs",
+            "app/construction-order.ts",
+            "scripts/check-native-construction-order.py",
+            "tests/construction-order.test.mjs"
           ],
-          "note": "Ordinary resting and marching controllers are live with original slots, gestures, catch-up speed, shared move orders and arrival handoff. Full scheduling/allocation, avoidance, general work/attack queues, selection and specialist/vehicle ownership remain open.",
+          "note": "Ordinary resting and marching controllers are live with original slots, gestures, catch-up speed, shared move orders and arrival handoff. Full scheduling/allocation, avoidance, general work/attack queues, selection and specialist/vehicle ownership remain open. Construction command-6 wrapper now matches 4,096 executable visits for plan resolution, crew registration, fallback queue ownership, approach and task handoffs; native tasks 2-9 are supplied consumers. Shared order eligibility/slot helpers are reused. Live plan identity/lifetime, native hauling and construction queue integration remain unfinished; no additional verification credit.",
           "requirements": [
             {
               "id": "movement.groups.resting",

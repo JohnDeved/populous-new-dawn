@@ -4635,3 +4635,14 @@ all other command validators and full buffering/execution remain open.
 Research correction: the alternate `00437750` branch checks ghost-only selection
 (flags4 bit 0x800), not building occupants (flags2 bit 0x800000). No ghost integration
 is claimed by the existing ordinary-priority comparisons.
+
+## 2026-09-11 — construction command wrapper
+
+`check-native-construction-order.py EXE [--record]` compares 4,096 visits to
+`00495520`, including original worker registration, circular slot lookup,
+allocation/attachment/reference ownership and task-1 approach consumers.
+Tasks 2–9 and final world submissions remain supplied leaves; see the
+reverse-engineering log for the exact boundary. Portable captures feed
+`tests/construction-order.test.mjs`. The newly registered `00436be0` export
+supports the shared slot-search reconstruction. Live plan identity/lifetime and
+hauling integration remain unfinished; this does not certify construction queues.
