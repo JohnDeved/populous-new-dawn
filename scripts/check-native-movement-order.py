@@ -70,3 +70,21 @@ actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js]
 for case,result in zip(building_cases,actual):assert case['expected']==result,(case,result)
 (root/'tests/fixtures/building-entry-orders.json').write_text(json.dumps(dict(executableSha256=identity['sha256'],cases=building_cases),separators=(',',':'))+'\n')
 print('PASS: 256 complete native building-order preparations, unchanged payloads, flag merging and dismantling conversion')
+
+# Compare the production shared-append adapter's worship payload with actual
+# 0x438730, not a second TypeScript copy of its target-record preparation.
+worship_cases=[]
+for i in range(128):
+    target=100+i;flags=(i*2)&254
+    write(order,'BBHHHH',0,0,1,0,0,0);write(point,'HH',target,0)
+    cpu.mem_write(0x8a03e4,bytes(128*128*16));write(stack,'IIIII',stop,1,27,point,flags)
+    cpu.reg_write(UC_X86_REG_ESP,stack);cpu.emu_start(0x438730,stop,count=10000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop
+    worship_cases.append(dict(target=target,flags=flags,expected=dict(zip(['model','flags','references','object','a','b'],read(order,'BBHHHH')))))
+js="""import {createWorld,addUnit} from './app/model.ts';import {appendLiveOrders} from './app/live-movement.ts';
+import {emptyPersonOrder,currentPersonOrder} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{const w=createWorld();w.units=[];const u=addUnit(w,'blue','brave',{x:0,z:30});
+appendLiveOrders(w,[u],{...emptyPersonOrder(),model:27,a:c.target,flags:c.flags},true);return currentPersonOrder(w.buildingOrders,u.native)})));"""
+actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(worship_cases).encode(),cwd=root))
+for case,result in zip(worship_cases,actual):assert case['expected']==result,(case,result)
+print('PASS: 128 native worship preparations compared with actual live shared-append records')

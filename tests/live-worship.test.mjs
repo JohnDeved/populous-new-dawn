@@ -185,3 +185,127 @@ test('an unreachable head preserves the existing command without entering an unp
   tick(w, 1 / 12)
   assert.equal(p.commandStatus, 27)
 })
+
+test('Ctrl waypoints finish at a stone head without replacing the current route or person', () => {
+  const w = createWorld(),
+    clock = { animationTime: 0, animationFrame: 0 }
+  w.manaWorld.gameFlags = 32
+  w.units = w.units.filter(u => u.team === 'blue')
+  w.selected = w.units.map(u => u.id)
+  const head = w.shrines.find(s => s.kind === 'bridge')
+  command(w, { x: 4, z: 24 }, { ctrlKey: true })
+  const people = w.units.map(u => u.native),
+    first = people[0].commands[0]
+  advance(w, clock, 12)
+  command(w, head, { ctrlKey: true, shiftKey: true, altKey: true })
+  assert.equal(w.orderCursor, 0, 'native descriptor 0x2000 finishes even with Ctrl')
+  assert.deepEqual(w.selected, [])
+  const last = w.buildingOrders.records[people[0].commands[1]]
+  assert.equal(last.model, 27)
+  assert.equal(last.flags, 64)
+  assert.equal(last.references, 7)
+  assert.ok(
+    w.units.every(
+      (u, i) => u.native === people[i] && u.native.commands[0] === first && u.work === null
+    )
+  )
+  advance(w, clock, 420)
+  assert.equal(liveWorshippers(w, head).length, 7)
+  assert.ok(w.units.every((u, i) => u.native === people[i] && u.work === head.id))
+  assert.equal(w.buildingOrders.records[first].references, 0)
+  assert.equal(last.references, 7)
+  assert.equal(w.buildingOrders.active, 1)
+  assert.ok(head.uses >= 1 && w.shots.bridge >= 1)
+})
+
+test('training replacements inherit a queued stone-head order and perform the original prayer', async () => {
+  const { addBuilding, addUnit } = await import('../app/model.ts')
+  const { stepLiveTraining } = await import('../app/live-building-entry.ts')
+  const w = createWorld(),
+    clock = { animationTime: 0, animationFrame: 0 }
+  w.manaWorld.gameFlags = 32
+  w.units = []
+  const b = addBuilding(w, 'blue', 'camp', { x: -2, z: 32 }, true, { angle: Math.PI })
+  const people = Array.from({ length: 3 }, (_, i) =>
+    addUnit(w, 'blue', 'brave', { x: 7 + i * 0.4, z: 33 })
+  )
+  const head = w.shrines.find(s => s.kind === 'bridge')
+  w.selected = people.map(u => u.id)
+  command(w, b, { ctrlKey: true })
+  command(w, head, { ctrlKey: true })
+  assert.equal(w.orderCursor, 0)
+  for (let i = 0; i < 300 && !people.every(u => u.entry?.person.substate === 13); i++)
+    advance(w, clock, 1)
+  assert.ok(people.every(u => u.inside === b.id))
+  const tail = w.buildingOrders.records[people[0].entry.person.commands[1]]
+  w.manaWorld.gameFlags = 0
+  b.timer = 65535
+  stepLiveTraining(w, b)
+  w.manaWorld.gameFlags = 32
+  const warriors = w.units.filter(u => u.hp > 0)
+  assert.ok(
+    warriors.every(
+      u =>
+        u.kind === 'warrior' &&
+        u.work === head.id &&
+        currentPersonOrder(w.buildingOrders, u.native) === tail
+    )
+  )
+  advance(w, clock, 240)
+  assert.equal(liveWorshippers(w, head).length, 3)
+  assert.ok(warriors.every(u => u.native.object === 64 && [2, 3].includes(u.native.substate)))
+  assert.equal(tail.references, 3)
+})
+
+test('queued worship preserves turns, poses, RNG and rewards at 5–240 Hz and irregular frames', () => {
+  const run = schedule => {
+    const w = createWorld(),
+      history = [],
+      clock = { animationTime: 0, animationFrame: 0 }
+    w.manaWorld.gameFlags = 32
+    w.units = w.units.filter(u => u.team === 'blue')
+    w.selected = w.units.map(u => u.id)
+    const head = w.shrines.find(s => s.kind === 'bridge')
+    command(w, { x: 4, z: 24 }, { ctrlKey: true })
+    command(w, head, { ctrlKey: true })
+    clock.afterTurn = () =>
+      history.push(
+        w.units.map(u => [
+          u.x,
+          u.z,
+          u.work,
+          u.native.commandCursor,
+          u.native.object,
+          u.native.f1,
+          u.native.f2,
+        ])
+      )
+    let elapsed = 0,
+      i = 0
+    while (elapsed < 40 - 1e-9) {
+      const dt = Math.min(schedule[i++ % schedule.length], 40 - elapsed)
+      advanceGame(w, clock, dt)
+      elapsed += dt
+    }
+    assert.equal(liveWorshippers(w, head).length, 7)
+    assert.ok(head.uses)
+    return {
+      history,
+      random: w.randomState,
+      poseRandom: w.cosmeticRandom,
+      shots: w.shots,
+      orders: w.buildingOrders,
+      footprints: w.footprints.cursor,
+    }
+  }
+  const expected = run([1 / 60])
+  for (const schedule of [
+    [1 / 5],
+    [1 / 30],
+    [1 / 120],
+    [1 / 144],
+    [1 / 240],
+    [0.004, 0.13, 0.009, 0.034],
+  ])
+    assert.deepEqual(run(schedule), expected)
+})

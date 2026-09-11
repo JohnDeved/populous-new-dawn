@@ -331,10 +331,16 @@ export function commitPersonOrders(
   return success
 }
 
-// Ground-click branch of 0x4aa8b0 / 0x444f60, with default keep-selection setting.
+// Player-click branch of 0x4aa8b0 / 0x444f60, with default keep-selection setting.
 // The eighth order finishes and deselects even while Ctrl remains held.
-export function groundOrderInput(cursor: number, ctrl = false, shift = false, alt = false) {
-  const staged = ctrl && cursor < 7
+export function playerOrderInput(
+  model: number,
+  cursor: number,
+  ctrl = false,
+  shift = false,
+  alt = false
+) {
+  const staged = ctrl && cursor < 7 && !(descriptor(model).flags & 0x2000)
   return {
     flags: (staged ? 128 : 0) | (shift ? 64 : 0),
     nextCursor: staged ? cursor + 1 : 0,

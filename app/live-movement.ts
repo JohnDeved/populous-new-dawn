@@ -131,7 +131,8 @@ export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
     u.entry ??= { person: p, orders: w.buildingOrders }
     u.work = order.a
   } else {
-    if (u.entry) u.work = null
+    if (order?.model === 27) u.work = order.a
+    else if (u.entry) u.work = null
     u.entry = undefined
     u.native = p
   }
@@ -162,6 +163,11 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
             commandFlags,
             !!((w.buildings.find(b => b.id === x)?.admission?.activity ?? 0) & 0x8000)
           )
+          return
+        }
+        if (model === 27) {
+          if (order.model !== model || order.a !== x || order.b !== y)
+            Object.assign(order, { model, a: x, b: y, flags: order.flags | commandFlags })
           return
         }
         if (model !== 3) unsupported()

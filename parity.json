@@ -1789,9 +1789,17 @@
                 "scripts/check-native-movement-order.py",
                 "scripts/check-browser-mixed-building-orders.mjs",
                 "references/performance/2026-09-11-mixed-building-orders.json",
-                "references/performance/2026-09-11-mixed-orders-ground-regression.json"
+                "references/performance/2026-09-11-mixed-orders-ground-regression.json",
+                "tests/live-worship.test.mjs",
+                "tests/player-orders.test.mjs",
+                "scripts/check-browser-worship-waypoints.mjs",
+                "references/performance/2026-09-11-worship-waypoints.json",
+                "decomp/generated/00438ae0.c",
+                "decomp/generated/004199b0.c",
+                "decomp/generated/004199c0.c",
+                "decomp/generated/004ad9a0.c"
               ],
-              "note": "Mixed ground/building/head/attack/transport queues, specialized classes, full settings and selection transitions, frontend preview/focus/voice ownership and native command turn buffering remain open. Ordinary non-staged legacy commands retain prior preflight/allocation semantics. Ordinary Ctrl ground/building-8 sequences now preserve shared queue/person ownership into entry. Common state-10 completion/formation and native configure/recovery advance unavailable/cancelled targets. Hut/tower occupancy consumes the tail; training retains it. Replacement/death cleanup, four orientations, real desktop/ultrawide clicks and original warrior pixels, and 5\u2013240 Hz/irregular replay pass. Complete work/combat/transport queues, all classes/settings, persistent previews, native allocation and mixed-object scheduling remain open."
+              "note": "Mixed ground/building/head/attack/transport queues, specialized classes, full settings and selection transitions, frontend preview/focus/voice ownership and native command turn buffering remain open. Ordinary non-staged legacy commands retain prior preflight/allocation semantics. Ordinary Ctrl ground/building-8 sequences now preserve shared queue/person ownership into entry. Common state-10 completion/formation and native configure/recovery advance unavailable/cancelled targets. Hut/tower occupancy consumes the tail; training retains it. Replacement/death cleanup, four orientations, real desktop/ultrawide clicks and original warrior pixels, and 5\u2013240 Hz/irregular replay pass. Complete work/combat/transport queues, all classes/settings, persistent previews, native allocation and mixed-object scheduling remain open. Stone-head worship now appends after ground/building queues, preserves prior routes and shared person identity, and propagates through warrior conversion. Native descriptor 0x2000 forces sequence completion despite Ctrl. 256 complete player packet/cursor cases, 128 actual live worship payloads compared against original preparation, portable ground/training/worship and rate replay, and real desktop/ultrawide input with original prayer pixels pass. Evidence correction: 00438ae0 and 004199b0 are RET stubs in the supplied D3D executable; camera/context staging metadata alone does not establish missing persistent waypoint artwork. Earlier preview assumptions are superseded; untraced consumers, work/combat/vehicle queues and complete input ownership remain open."
             }
           ]
         },

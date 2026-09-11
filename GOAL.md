@@ -100,8 +100,22 @@ and replacement/death releases references. The shared state-10 dispatcher now ow
 entry completion and marching admission instead of a separate clear-all shortcut.
 Native comparisons, four orientations, desktop/ultrawide mouse input and warrior
 sprite pixels, and 5–240 Hz/irregular replay are checked. Full work/combat/transport
-queues, native allocation and scheduling, and persistent staged waypoint previews
-remain open. Continue these visible selection/group gaps before deeper systems.
+queues and native allocation/scheduling remain open. Continue these visible
+selection/group gaps before deeper systems. The preview assumption is corrected
+by the executable finding below.
+
+Stone-head orders now append after ground/building sequences without replacing
+prior destinations. Descriptor flag 0x2000 ends staging even with Ctrl held;
+trained warriors inherit worship targets and use the original prayer animation.
+Native packets, preparation and worship comparisons, actual desktop/ultrawide
+input and prayer pixels, and 5–240 Hz/irregular replay are checked.
+
+**Evidence correction:** the supplied D3D executable's 00438ae0 preview hook and
+004199b0 camera-restore hook are literal RET stubs. The retained staging data is
+camera/context metadata, not proof of persistent waypoint artwork. This supersedes
+older instructions below to implement previews on that assumption. Do not invent
+those visuals for parity; other untraced consumers remain unknown. Continue real
+mixed work/combat handoffs and selection/command-context gaps.
 
 The building-combat slice now connects native approach/entry, strike positioning,
 original work poses/sound, accumulated damage, shaking and occupied-building

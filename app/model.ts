@@ -31,7 +31,7 @@ import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import {
   currentPersonOrder,
-  groundOrderInput,
+  playerOrderInput,
   deselectPerson,
   emptyPersonOrder,
   writePersonOrder,
@@ -2977,9 +2977,15 @@ export function command(
   const { model } = context
   const queuedBuilding =
     model === 8 && context.building && ['hut', 'camp', 'tower'].includes(context.building.kind)
-  if ((model === 3 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor)) {
+  if ((model === 3 || model === 27 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor)) {
     const slot = w.orderCursor
-    const input = groundOrderInput(slot, modifiers.ctrlKey, modifiers.shiftKey, modifiers.altKey)
+    const input = playerOrderInput(
+      model,
+      slot,
+      modifiers.ctrlKey,
+      modifiers.shiftKey,
+      modifiers.altKey
+    )
     const units = w.units.filter(u => canOrder(u) && w.selected.includes(u.id))
     // Only release the old controller when beginning a new sequence or replacing
     // an order whose ownership has not yet migrated to the shared queue.
@@ -2997,7 +3003,7 @@ export function command(
     writePersonOrder(
       order,
       model,
-      context.building?.id ?? 0,
+      context.building?.id ?? context.shrine?.id ?? 0,
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )

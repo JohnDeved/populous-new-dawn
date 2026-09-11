@@ -11,6 +11,11 @@ from decomp import native_cpu
 
 root = Path(__file__).resolve().parents[1]
 cpu, _ = native_cpu(Path(sys.argv[1]))
+# The supplied D3D build retains staging camera metadata but these consumers
+# are RET stubs, not missing implementations of persistent waypoint markers.
+for address in [0x438ae0,0x4199b0]:
+    assert bytes(cpu.mem_read(address,1))==b'\xc3',hex(address)
+
 cpu.mem_map(0x2000000, 0x20000)
 units, stack, stop = 0x2000000, 0x201d000, 0x201e000
 tribe, pool = 0x89d1c8, 0x938830
@@ -208,6 +213,8 @@ root.joinpath('tests/fixtures/player-order-append.json').write_text(json.dumps(p
 
 # Complete player packet consumer with the queue/physics/voice leaves supplied.
 # Check the native input branch independently of append's ownership comparisons.
+# Frontend cursor advance precedes simulation packet application; descriptor
+# 0x2000 commands then clear staging even if the frontend emitted a Ctrl packet.
 input_actions=[]
 def input_leaf(c,address,size,user):
     sp=c.reg_read(UC_X86_REG_ESP)
@@ -215,25 +222,26 @@ def input_leaf(c,address,size,user):
     c.reg_write(UC_X86_REG_EIP,struct.unpack('<I',c.mem_read(sp,4))[0]);c.reg_write(UC_X86_REG_ESP,sp+4)
 hooks=[cpu.hook_add(UC_HOOK_CODE,input_leaf,begin=a,end=a) for a in [0x435780,0x435c40,0x435cb0,0x47a550]]
 inputs=[]
-for slot in range(8):
-    for modifiers in range(8):
-        ctrl,shift,alt=[bool(modifiers&bit) for bit in [1,2,4]]
-        u=person(1);u['state']=25
-        fixture(dict(kind='input',people=[u]))
-        write(0x89bc7e,'B',0);write(0x89c6f0,'B',0)
-        write(tribe+0x8bf,'BB',slot,slot)
-        cpu.mem_write(0x895e00,bytes(128))
-        packet=units+0x10000
-        staged=ctrl and slot<7
-        write(packet+4,'IIB',3,0x8080|(0 if alt else 0x20000)|(0x40000 if shift else 0),(0x37 if staged else 0x57)+slot)
-        input_actions.clear();call(0x444f60,tribe,packet)
-        assert len(input_actions)==1
-        if staged:call(0x4358f0)
-        inputs.append(dict(slot=slot,ctrl=ctrl,shift=shift,alt=alt,expected=dict(flags=input_actions[0],
-            nextCursor=cpu.mem_read(tribe+0x8c0,1)[0],deselect=not bool(cpu.mem_read(units+256+0x7a,1)[0]&128))))
+for model in [3,8,27,33]:
+    for slot in range(8):
+        for modifiers in range(8):
+            ctrl,shift,alt=[bool(modifiers&bit) for bit in [1,2,4]]
+            u=person(1);u['state']=25
+            fixture(dict(kind='input',people=[u]))
+            write(0x89bc7e,'B',0);write(0x89c6f0,'B',0)
+            write(tribe+0x8bf,'BB',slot,slot)
+            cpu.mem_write(0x895e00,bytes(128))
+            packet=units+0x10000
+            staged=ctrl and slot<7
+            write(packet+4,'IIB',model,0x8080|(0 if alt else 0x20000)|(0x40000 if shift else 0),(0x37 if staged else 0x57)+slot)
+            if staged:call(0x4358f0)
+            input_actions.clear();call(0x444f60,tribe,packet)
+            assert len(input_actions)==1
+            inputs.append(dict(model=model,slot=slot,ctrl=ctrl,shift=shift,alt=alt,expected=dict(flags=input_actions[0],
+                nextCursor=cpu.mem_read(tribe+0x8c0,1)[0],deselect=not bool(cpu.mem_read(units+256+0x7a,1)[0]&128))))
 for hook in hooks:cpu.hook_del(hook)
-js="""import {groundOrderInput} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
-console.log(JSON.stringify(JSON.parse(s).map(c=>groundOrderInput(c.slot,c.ctrl,c.shift,c.alt))));"""
+js="""import {playerOrderInput} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>playerOrderInput(c.model,c.slot,c.ctrl,c.shift,c.alt))));"""
 actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(inputs).encode(),cwd=root))
 for a,c in zip(actual,inputs):assert a==c['expected'],(a,c)
 root.joinpath('tests/fixtures/ground-order-input.json').write_text(json.dumps(inputs,indent=2)+'\n')

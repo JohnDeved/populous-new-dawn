@@ -1,5 +1,6 @@
 [
   {
+    "model": 3,
     "slot": 0,
     "ctrl": false,
     "shift": false,
@@ -11,6 +12,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 0,
     "ctrl": true,
     "shift": false,
@@ -22,6 +24,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 0,
     "ctrl": false,
     "shift": true,
@@ -33,6 +36,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 0,
     "ctrl": true,
     "shift": true,
@@ -44,6 +48,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 0,
     "ctrl": false,
     "shift": false,
@@ -55,6 +60,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 0,
     "ctrl": true,
     "shift": false,
@@ -66,6 +72,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 0,
     "ctrl": false,
     "shift": true,
@@ -77,6 +84,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 0,
     "ctrl": true,
     "shift": true,
@@ -88,6 +96,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": false,
     "shift": false,
@@ -99,6 +108,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": true,
     "shift": false,
@@ -110,6 +120,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": false,
     "shift": true,
@@ -121,6 +132,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": true,
     "shift": true,
@@ -132,6 +144,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": false,
     "shift": false,
@@ -143,6 +156,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": true,
     "shift": false,
@@ -154,6 +168,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": false,
     "shift": true,
@@ -165,6 +180,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 1,
     "ctrl": true,
     "shift": true,
@@ -176,6 +192,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": false,
     "shift": false,
@@ -187,6 +204,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": true,
     "shift": false,
@@ -198,6 +216,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": false,
     "shift": true,
@@ -209,6 +228,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": true,
     "shift": true,
@@ -220,6 +240,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": false,
     "shift": false,
@@ -231,6 +252,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": true,
     "shift": false,
@@ -242,6 +264,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": false,
     "shift": true,
@@ -253,6 +276,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 2,
     "ctrl": true,
     "shift": true,
@@ -264,6 +288,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": false,
     "shift": false,
@@ -275,6 +300,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": true,
     "shift": false,
@@ -286,6 +312,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": false,
     "shift": true,
@@ -297,6 +324,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": true,
     "shift": true,
@@ -308,6 +336,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": false,
     "shift": false,
@@ -319,6 +348,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": true,
     "shift": false,
@@ -330,6 +360,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": false,
     "shift": true,
@@ -341,6 +372,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 3,
     "ctrl": true,
     "shift": true,
@@ -352,6 +384,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": false,
     "shift": false,
@@ -363,6 +396,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": true,
     "shift": false,
@@ -374,6 +408,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": false,
     "shift": true,
@@ -385,6 +420,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": true,
     "shift": true,
@@ -396,6 +432,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": false,
     "shift": false,
@@ -407,6 +444,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": true,
     "shift": false,
@@ -418,6 +456,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": false,
     "shift": true,
@@ -429,6 +468,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 4,
     "ctrl": true,
     "shift": true,
@@ -440,6 +480,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": false,
     "shift": false,
@@ -451,6 +492,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": true,
     "shift": false,
@@ -462,6 +504,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": false,
     "shift": true,
@@ -473,6 +516,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": true,
     "shift": true,
@@ -484,6 +528,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": false,
     "shift": false,
@@ -495,6 +540,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": true,
     "shift": false,
@@ -506,6 +552,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": false,
     "shift": true,
@@ -517,6 +564,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 5,
     "ctrl": true,
     "shift": true,
@@ -528,6 +576,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": false,
     "shift": false,
@@ -539,6 +588,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": true,
     "shift": false,
@@ -550,6 +600,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": false,
     "shift": true,
@@ -561,6 +612,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": true,
     "shift": true,
@@ -572,6 +624,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": false,
     "shift": false,
@@ -583,6 +636,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": true,
     "shift": false,
@@ -594,6 +648,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": false,
     "shift": true,
@@ -605,6 +660,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 6,
     "ctrl": true,
     "shift": true,
@@ -616,6 +672,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 7,
     "ctrl": false,
     "shift": false,
@@ -627,6 +684,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 7,
     "ctrl": true,
     "shift": false,
@@ -638,6 +696,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 7,
     "ctrl": false,
     "shift": true,
@@ -649,6 +708,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 7,
     "ctrl": true,
     "shift": true,
@@ -660,6 +720,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 7,
     "ctrl": false,
     "shift": false,
@@ -671,6 +732,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 7,
     "ctrl": true,
     "shift": false,
@@ -682,6 +744,7 @@
     }
   },
   {
+    "model": 3,
     "slot": 7,
     "ctrl": false,
     "shift": true,
@@ -693,6 +756,2311 @@
     }
   },
   {
+    "model": 3,
+    "slot": 7,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 1,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 1,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 1,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 0,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 1,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 2,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 2,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 2,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 1,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 2,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 3,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 3,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 3,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 2,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 3,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 4,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 4,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 4,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 3,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 4,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 5,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 5,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 5,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 4,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 5,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 6,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 6,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 6,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 5,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 6,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 7,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 7,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 128,
+      "nextCursor": 7,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 6,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 192,
+      "nextCursor": 7,
+      "deselect": false
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 8,
+    "slot": 7,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 0,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 1,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 2,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 3,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 4,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 5,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 6,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 27,
+    "slot": 7,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 0,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 1,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 2,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 3,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 4,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 5,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": false
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 6,
+    "ctrl": true,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 7,
+    "ctrl": false,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 7,
+    "ctrl": true,
+    "shift": false,
+    "alt": false,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 7,
+    "ctrl": false,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 7,
+    "ctrl": true,
+    "shift": true,
+    "alt": false,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 7,
+    "ctrl": false,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 7,
+    "ctrl": true,
+    "shift": false,
+    "alt": true,
+    "expected": {
+      "flags": 0,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
+    "slot": 7,
+    "ctrl": false,
+    "shift": true,
+    "alt": true,
+    "expected": {
+      "flags": 64,
+      "nextCursor": 0,
+      "deselect": true
+    }
+  },
+  {
+    "model": 33,
     "slot": 7,
     "ctrl": true,
     "shift": true,

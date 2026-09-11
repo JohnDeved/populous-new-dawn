@@ -8185,3 +8185,47 @@ uses the existing animation clock. This delivery covers ordinary person hover
 and click/accepted-order feedback, not complete building/object highlight
 ownership, all input contexts, localized/system palette changes or persistent
 waypoint previews. Full controls parity stays partial.
+
+## Worship queue handoff and staging-preview correction (2026-09-11)
+
+`004ad9a0` captures camera/context metadata into sixteen-byte staging slots using
+`004199c0`. The record includes tribe camera coordinates, height, screen position,
+angle, view mode and flags. `004358f0` marks/advances slots and may call
+`004199b0` to restore one. However, **004199b0 and the 00438ae0 preview hook are
+literal RET instructions in the supplied D3D executable**. The CPU verifier now
+asserts those entry bytes. Four reviewed exports bring the manifest to 1,142.
+These routines do not justify the previous assumption that persistent waypoint
+artwork is missing. That assumption is withdrawn; other untraced rendering or
+input consumers are not declared complete by this finding.
+
+`00444f60` finishes a sequence when its command descriptor contains 0x2000,
+including worship model 27. This overrides the frontend Ctrl packet. The native
+oracle now advances the frontend cursor **before** applying the simulation
+packet, matching their actual causal order; those operations commute for ordinary
+ground commands but not forced-final commands. All 256 combinations of four
+command models, eight slots and Ctrl/Shift/Alt match native flags, final cursor
+and deselection. Vault model 33 is included in the pure packet comparison, not
+claimed as a migrated live vault lifecycle.
+
+The live shared append path now accepts ordinary stone-head worship, retains
+prior ground/building commands, and assigns the browser work marker only when
+worship becomes current. Warrior replacements inherit the same head order through
+the existing conversion path. No new queue, renderer, animation clock or library
+was introduced. Original model-27 payload preparation is compared against 128
+actual live append records by `check-native-movement-order.py`; the native routine
+executes completely. The common startup and person-worship controllers remain
+shared with the previously compared implementations.
+
+`tests/live-worship.test.mjs` adds retained-route/person identity, forced finish,
+Shift/Alt behavior, training-to-head inheritance, actual prayer/rewards and exact
+turn/pose/RNG/footprint replay at 5–240 Hz and irregular schedules. All 343 portable
+tests pass. `check-browser-worship-waypoints.mjs` checks real Ctrl ground/head
+clicks at 1440×1000 and 3440×1440, completion with selection retained, all seven
+original prayer sprites (1,394 changed GPU pixels) and rewards. The existing
+mixed-building browser regression also passes. Seven-person simulation visits
+have 0.1 ms p95 under coarse headless browser timers; raw samples and renderer
+identity are retained in `performance/2026-09-11-worship-waypoints.json`. This is
+new-behavior CPU timing, not a speedup or hardware FPS claim. No per-render queue
+processing is added. Fallow maintainability remains 85.5; touched live movement
+passes ox-standard. Complete work/combat/vehicle orders, settings, native global
+allocation/dispatch and untraced command-context behavior remain partial.
