@@ -192,7 +192,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
-    p.previousState = 0
+    p.previousState = p.state === 14 ? 14 : 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
     if (u.entry) initializeBuildingPerson(w, p)
     else changeLivePersonState(w, u)

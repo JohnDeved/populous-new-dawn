@@ -151,6 +151,8 @@ import {
   buildingFirePeople,
   stepLivePerson,
   stepLiveImpulse,
+  registerLivePerson,
+  changeLivePersonState,
   startMeleeKnockback,
   approachLiveMelee,
   stepLiveMeleeMotion,
@@ -263,6 +265,21 @@ import {
   type SpellTargetWorld,
   type SpellTargetUnit,
 } from './computer-spells.ts'
+import {
+  createComputerQueue,
+  computerPhase,
+  dispatchComputerTask,
+  requestTraining,
+  stepTrainingTask,
+  type ComputerQueue,
+  type TrainingBuilding,
+} from './computer.ts'
+import {
+  availableTrainingPeople,
+  selectComputerPeople,
+  type SelectionUnit,
+  type SelectionWorld,
+} from './computer-selection.ts'
 import { createFlyby, flybyCommand, type Flyby } from './flyby.ts'
 import level from './level-one.ts'
 import originalScript from './original-script.json' with { type: 'json' }
@@ -1414,7 +1431,7 @@ export type World = {
   buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
-  ai: ScriptState & {
+  ai: ScriptState & ComputerQueue & {
     states: number
     flags: number
     enemyTribe: number
@@ -1424,6 +1441,7 @@ export type World = {
     reincarnation: boolean
     includeIncompleteBuildings: boolean
     pendingCommands: { opcode: number; args: number[] }[]
+    trainingSelections: number[][]
   }
   messages: MessageState
   flyby: Flyby
@@ -1604,6 +1622,7 @@ export function addBuilding(
 function missionAI() {
   const ai = {
     ...scriptState(originalScript),
+    ...createComputerQueue(),
     states: 0,
     flags: 0,
     enemyTribe: 0,
@@ -1619,6 +1638,7 @@ function missionAI() {
     reincarnation: true,
     includeIncompleteBuildings: false,
     pendingCommands: [] as { opcode: number; args: number[] }[],
+    trainingSelections: Array.from({ length: 10 }, () => [] as number[]),
   }
   // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
   ai.attributes[43] = 12 // 0x461d70: attribute 43 before the turn-zero script.
@@ -1829,7 +1849,7 @@ export function createWorld(): World {
     }
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
-    if (![1038, 1108, 1196].includes(c.opcode)) return true
+    if (![1038, 1095, 1108, 1196].includes(c.opcode)) return true
     campaignCommand(w, c.opcode, c.args)
     return false
   })
@@ -1952,6 +1972,197 @@ export function forceHead(w: World, marker: number) {
   if (head) head.forced = true
 }
 
+function computerSelectionWorld(w: World, tribe: number) {
+  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null,
+    sources = new Map<number, LivePerson>(),
+    people: SelectionUnit[] = []
+  for (const u of w.units) {
+    if (u.team !== team || u.hp <= 0) continue
+    const source = unitAnimationSource(u),
+      position = source ?? nativePosition(w, u)
+    if (source) sources.set(u.id, source)
+    people.push({
+      id: u.id,
+      class: 1,
+      model: nativePersonModel(u),
+      state: source?.state ?? (u.path.length ? 10 : 17),
+      tribe,
+      x: position.x & 65535,
+      y: position.y & 65535,
+      flags2: source?.flags2 ?? (u.inside === null ? 0 : 0x800000),
+      flags3: source?.flags3 ?? 0,
+      flags4: source?.flags4 ?? 0,
+      assignment: source?.assignment ?? 0,
+      busy:
+        source?.workFlags ||
+        Number(!!u.fight || u.fighting || !!u.casting || u.work !== null || !!u.lift),
+      vehicle: source?.vehicle ?? 0,
+      driver: 0,
+      inside: source?.building ?? u.inside ?? 0,
+      immediateCommand: source?.immediateCommand ?? 0,
+      commands: source?.commands ?? Array(8).fill(0),
+      commandCursor: source?.commandCursor ?? 0,
+    })
+  }
+  const units = new Map<number, SelectionUnit>(people.map(p => [p.id, p]))
+  for (const b of w.buildings) {
+    if (b.hp <= 0) continue
+    const position = buildingPosition(buildingPose(b))
+    units.set(b.id, {
+      id: b.id,
+      class: 2,
+      model: buildingModel(b),
+      state: b.progress === 1 ? 2 : 1,
+      tribe: b.team === 'blue' ? 0 : 1,
+      x: position.x & 65535,
+      y: position.y & 65535,
+      flags2: 0,
+      flags3: 0,
+      flags4: 0,
+      assignment: 0,
+      busy: 0,
+      vehicle: 0,
+      driver: 0,
+      inside:
+        b.admission?.inside ?? w.units.filter(u => u.hp > 0 && u.inside === b.id).length,
+      immediateCommand: 0,
+      commands: Array(8).fill(0),
+      commandCursor: 0,
+    })
+  }
+  const orders = new Map<number, { model: number; flags: number }>()
+  w.buildingOrders.records.forEach((order, id) => orders.set(id, order))
+  const world: SelectionWorld = {
+    people,
+    units,
+    orders,
+    tribes: Array.from({ length: 4 }, (_, id) => {
+      const shaman = w.units.find(
+          u =>
+            u.hp > 0 &&
+            u.kind === 'shaman' &&
+            u.team === (id === 0 ? 'blue' : id === 1 ? 'red' : null)
+        ),
+        p = shaman && nativePosition(w, shaman)
+      return {
+        hasBase: id === 1 && !!(w.ai.flags & 0x100),
+        base: id === 1 ? w.ai.defencePosition : 0,
+        shaman: p ? ((p.x >>> 8) & 254) | (p.y & 0xfe00) : 0,
+        radius: id === 1 ? w.ai.defenceRadius : 0,
+      }
+    }),
+    buildingAt: cell =>
+      w.land.buildingIds[((cell & 0xfe00) >>> 9) * 128 + ((cell & 254) >>> 1)] & 1023,
+  }
+  return { world, sources }
+}
+
+function trainingBuilding(w: World, id: number): TrainingBuilding | null {
+  const b = w.buildings.find(
+    b =>
+      b.id === id &&
+      b.team === 'red' &&
+      b.hp > 0 &&
+      b.progress === 1 &&
+      b.damageState?.state !== 3
+  )
+  if (!b) return null
+  const admission = buildingAdmission(w, b),
+    model = buildingModel(b),
+    capacity = rules.buildingCapacity[model]
+  return {
+    id: b.id,
+    owner: 1,
+    state: 2,
+    model,
+    capacity,
+    inside: admission.inside,
+    occupants: admission.occupants.slice(0, capacity).map(id => {
+      const u = id && w.units.find(u => u.id === id && u.hp > 0)
+      return u ? { id: u.id, model: nativePersonModel(u) } : null
+    }),
+  }
+}
+
+function restoreComputerSelection(w: World, index: number) {
+  for (const id of w.ai.trainingSelections[index]) {
+    const u = w.units.find(u => u.id === id)
+    if (u?.native?.state === 14) changeLivePersonState(w, u, 10)
+  }
+  w.ai.trainingSelections[index].length = 0
+}
+
+function stepComputerTasks(w: World, tribe: number) {
+  if (computerPhase(w.turn, tribe) !== 'dispatch') return
+  dispatchComputerTask(w.ai, index => {
+    const task = w.ai.tasks[index]
+    if (task.type !== 6) throw new Error(`Unbound computer task ${task.type}`)
+    const target = trainingBuilding(w, task.target)
+    let selection: ReturnType<typeof computerSelectionWorld> | undefined
+    const actions = stepTrainingTask(w.ai, index, target, {
+        tribe,
+        preference: w.ai.attributes[7],
+        population: campaignPersonCount(w, tribe),
+        trained: campaignPersonCount(w, tribe, 3),
+        committed: 0,
+        maximum: w.ai.attributes[33],
+        select: (building, count) => {
+          const b = w.buildings.find(b => b.id === building.id)!,
+            p = buildingPosition(buildingPose(b)),
+            destination = ((p.x >>> 8) & 254) | (p.y & 0xfe00),
+            current = (selection ??= computerSelectionWorld(w, tribe)),
+            ids = selectComputerPeople(
+              current.world,
+              2,
+              2,
+              building.id,
+              1,
+              destination,
+              6,
+              count
+          )
+          for (const id of ids) {
+            const source = current.sources.get(id)
+            if (source) source.flags3 = current.world.units.get(id)!.flags3
+          }
+          return ids
+        },
+      })
+    for (const action of actions) {
+      if (action.kind === 'restore') {
+        restoreComputerSelection(w, index)
+      } else if (action.kind === 'select') {
+        const u = w.units.find(u => u.id === action.id)
+        if (!u || u.inside !== null || u.entry || u.work !== null)
+          throw new Error('Unsupported computer training selection')
+        u.native ??= createLivePerson(w, u)
+        registerLivePerson(w, u.native)
+        changeLivePersonState(w, u, 14)
+        w.ai.trainingSelections[index].push(u.id)
+      } else if (action.kind === 'train') {
+        const units = w.ai.trainingSelections[index].flatMap(id => {
+          const u = w.units.find(u => u.id === id && u.hp > 0)
+          return u ? [u] : []
+        })
+        const order = emptyPersonOrder()
+        writePersonOrder(order, 8, action.id, 0, 0)
+        const issued = units.length ? appendLiveOrders(w, units, order, true) : null
+        if (!issued?.accepted || issued.count !== units.length) task.flags &= ~3
+        w.ai.trainingSelections[index].length = 0
+      } else {
+        const u = w.units.find(u => u.id === action.id),
+          p = u && leaveLiveBuilding(w, u)
+        if (u && p) {
+          u.entry = undefined
+          u.native = p
+          u.work = null
+          changeLivePersonState(w, u, 10)
+        }
+      }
+    }
+  })
+}
+
 // Reviewed DO query handlers. Unknown commands/unsupported world state fail explicitly.
 export function campaignCommand(
   w: World,
@@ -1962,6 +2173,7 @@ export function campaignCommand(
   const arity = (
     {
       1038: 3,
+      1095: 2,
       1108: 6,
       1196: 1,
       1076: 3,
@@ -1991,6 +2203,25 @@ export function campaignCommand(
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`)
   if (args.length !== arity) throw new Error(`Invalid campaign command arguments ${opcode}`)
   const read = (index: number) => scriptValue(script, w.ai, index, id => campaignInternal(w, id))
+
+  if (opcode === 1095) {
+    const [count, model] = args.map(read)
+    if (count <= 0 || model !== 3) throw new Error(`Unsupported computer training ${count}:${model}`)
+    const selection = computerSelectionWorld(w, 1)
+    requestTraining(w.ai, count, model, availableTrainingPeople(selection.world), targetModel => {
+      return (
+        w.buildings.find(
+          b =>
+            b.team === 'red' &&
+            b.hp > 0 &&
+            b.progress === 1 &&
+            b.damageState?.state !== 3 &&
+            buildingModel(b) === targetModel
+        )?.id ?? 0
+      )
+    })
+    return
+  }
 
   if (opcode === 1038) {
     // 0x492c30 reads both coordinates even for OFF; disabled orders retain the old target.
@@ -2097,8 +2328,7 @@ const boundCampaignScript = {
   codes: [
     12,
     1003,
-    ...originalScript.codes.slice(564, 601),
-    ...originalScript.codes.slice(625, 681),
+    ...originalScript.codes.slice(564, 681),
     ...originalScript.codes.slice(936, 1505),
     1004,
     1019,
@@ -4587,6 +4817,7 @@ function stepTurn(w: World) {
           if (id !== 1) throw new Error(`Unimplemented campaign tribe ${id}`)
           stepComputerCastCooldown(w.castingTribes[id], w.ai.flags)
           campaignRules(w)
+          stepComputerTasks(w, id)
           stepComputerSpells(w)
         },
       }
@@ -4885,6 +5116,7 @@ function stepTurn(w: World) {
       continue
     }
     if (u.hp <= 0) continue
+    if (u.native?.state === 14) continue
     const recovering = u.native ?? u.entry?.person
     if (recovering?.state === 33) {
       stepLivePhysics(w, u, recovering)

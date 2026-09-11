@@ -814,6 +814,47 @@ test('queued training keeps its selection lock until issuing the order and frees
  assert.equal(ai.tasks[0].phase,0);assert.equal(ai.tasks[0].requested,1,'released slot can be reused');
 });
 
+test('mission-one red AI queues exact task 6 below one warrior and executes live training', () => {
+ const w=createWorld(),selected=[...w.selected];
+ const camp=w.buildings.find(b=>b.team==='red'&&b.kind==='camp'&&b.progress===1);
+ const warriors=w.units.filter(u=>u.team==='red'&&u.kind==='warrior'&&u.hp>0);
+ assert.ok(camp);assert.equal(warriors.length,2);
+ warriors[0].hp=0;w.turn=127;tick(w,1/12);
+ assert.equal(w.ai.tasks.some(t=>t.flags&1&&t.type===6),false,'one warrior satisfies the original threshold');
+ warriors[1].hp=0;w.turn=255;tick(w,1/12);
+ const task=w.ai.tasks.find(t=>t.flags&1&&t.type===6);
+ assert.deepEqual(task&&{flags:task.flags,type:task.type,phase:task.phase,target:task.target,requested:task.requested,
+  extra:task.extra,selected:task.selected,remaining:task.remaining},
+ {flags:1,type:6,phase:3,target:camp.id,requested:1,extra:0,selected:0,remaining:1});
+ assert.deepEqual(w.selected,selected);
+ const taskIndex=w.ai.tasks.indexOf(task);tick(w,1/12);tick(w,1/12);
+ const brave=w.units.find(u=>u.id===w.ai.trainingSelections[taskIndex][0]);
+ assert.equal(task.phase,5);assert.equal(w.ai.selectionOwner,taskIndex);assert.equal(brave.native.state,14);
+ assert.equal(brave.native.selectionFlags&128,128);tick(w,1/12);
+ assert.equal(task.phase,6);assert.equal(brave.native.state,14,'generic resting cannot consume an AI reservation');
+ tick(w,1/12);
+ const p=unitAnimationSource(brave),id=p&&(p.immediateCommand||p.commands[p.commandCursor]);
+ const order=id?w.buildingOrders.records[id]:undefined;
+ assert.equal(order?.model,8);assert.equal(brave.native,null);assert.equal(p.selectionFlags&128,0);
+ assert.equal(order.a,camp.id);assert.equal(order.references,1);assert.deepEqual(w.selected,selected);
+ until(w,()=>brave.inside===camp.id,60);
+ const trained=w.stats.trained;camp.timer=65535;
+ until(w,()=>w.units.filter(u=>u.team==='red'&&u.kind==='warrior'&&u.hp>0).length===1,10);
+ const warrior=w.units.find(u=>u.team==='red'&&u.kind==='warrior'&&u.hp>0);
+ assert.notEqual(warrior.id,brave.id);assert.equal(w.units.some(u=>u.id===brave.id),false);
+ assert.equal(w.stats.trained,trained,'enemy training does not change player stats');assert.deepEqual(w.selected,selected);
+
+ const blocked=createWorld(),blockedCamp=blocked.buildings.find(b=>b.team==='red'&&b.kind==='camp');
+ blocked.units.filter(u=>u.team==='red'&&u.kind==='warrior').forEach(u=>{u.hp=0;});
+ blocked.buildingOrders.records.forEach(order=>{order.references=1;});blocked.turn=255;tick(blocked,1/12);
+ const blockedTask=blocked.ai.tasks.find(t=>t.flags&1&&t.type===6),blockedIndex=blocked.ai.tasks.indexOf(blockedTask);
+ tick(blocked,1/12);tick(blocked,1/12);const blockedBrave=blocked.units.find(u=>u.id===blocked.ai.trainingSelections[blockedIndex][0]);
+ tick(blocked,1/12);tick(blocked,1/12);
+ assert.equal(blockedTask.flags&1,0);assert.notEqual(blockedBrave.native.state,14);
+ assert.equal(blockedBrave.native.selectionFlags&128,0);assert.equal(blockedBrave.work,null);
+ assert.equal(blocked.units.some(u=>u.work===blockedCamp.id),false,'pool exhaustion cannot pretend training was issued');
+});
+
 test('external game store publishes edits and restarts without sharing worlds between sessions', async () => {
  const {createGameStore}=await import('../app/game-store.ts');
  const store=createGameStore(),other=createGameStore(),old=store.getWorld(),events=[];
