@@ -73,6 +73,8 @@ import { setPersonAnchor, personStateAfterOrders } from './person-order-update.t
 import { startBuildingOccupantAnimation } from './animation.ts'
 import sprites from './original-units.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
+import { nativePersonModel } from './live-combat.ts'
+import { unitKindFromModel } from './unit-kinds.ts'
 
 type EntryPerson = LivePerson & { savedVehicle: number; orderDelay: number }
 export interface BuildingEntry {
@@ -236,7 +238,10 @@ export function buildingAdmission(w: World, b: Building): BuildingAdmission {
     if (slot >= 0) state.occupants[slot] = id
   }
   state.inside = state.occupants.filter(Boolean).length
-  if (b.kind === 'camp' && state.occupants.some((id, i) => id !== previous[i])) {
+  if (
+    (b.kind === 'camp' || b.kind === 'temple') &&
+    state.occupants.some((id, i) => id !== previous[i])
+  ) {
     const ctx = context(w),
       weight = trainingOccupantWeight(ctx, state)
     state.activity = weight ? state.activity | 128 : state.activity & ~128
@@ -255,8 +260,7 @@ function context(w: World) {
   for (const u of w.units) {
     if (u.hp <= 0) continue
     const tribe = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1
-    if (tribe >= 0)
-      tribes[tribe].personCounts[u.kind === 'brave' ? 2 : u.kind === 'warrior' ? 3 : 7]++
+    if (tribe >= 0) tribes[tribe].personCounts[nativePersonModel(u)]++
     if (u.entry || u.inside !== null) people.set(u.id, u.entry?.person ?? person(w, u))
   }
   const buildings = new Map<number, BuildingAdmission>()
@@ -592,11 +596,11 @@ export function stepLiveTraining(w: World, b: Building) {
       w.manaTribes[tribe].available = (w.manaTribes[tribe].available + amount) | 0
     },
     allocateTrainee: (model, tribe, x, y, angle) => {
-      if (![2, 3].includes(model)) unsupported()
+      if (![2, 3, 4].includes(model)) unsupported()
       const u = addUnit(
         w,
         tribe === 0 ? 'blue' : 'red',
-        model === 3 ? 'warrior' : 'brave',
+        unitKindFromModel(model),
         browserPosition({ x, y })
       )
       u.heading = Math.PI - (angle * Math.PI) / 1024
@@ -617,6 +621,7 @@ export function stepLiveTraining(w: World, b: Building) {
     registerLivePerson(w, p)
     // Conversion sets flag 16: the first person visit initializes the inherited
     // command, preserving native object-visit RNG order and motion ownership.
-    if (u.team === 'blue' && u.kind === 'warrior') w.stats.trained++
+    if (u.team === 'blue' && nativePersonModel(u) === rules.buildingTrainedModel[state.model])
+      w.stats.trained++
   }
 }

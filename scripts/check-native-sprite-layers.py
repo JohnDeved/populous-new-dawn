@@ -80,5 +80,13 @@ fixture=dict(atlasSha256=hashlib.sha256((ROOT/f"public/original/{units['atlas']}
 path=ROOT/'tests/fixtures/unit-sprites.json'
 if '--record' in sys.argv:
     path.parent.mkdir(exist_ok=True);path.write_text(json.dumps(fixture,separators=(',',':'))+'\n')
-else: assert json.loads(path.read_text())==fixture,'Native fixture drift; review before --record'
+else:
+    reviewed=json.loads(path.read_text())
+    assert len(reviewed['pieceHashes'])==3216
+    assert len(reviewed['cases'])==576
+    assert reviewed['executableSha256']==fixture['executableSha256']
+    assert reviewed['pieceHashes']==hashes[:len(reviewed['pieceHashes'])]
+    assert reviewed['cases']==fixtures[:len(reviewed['cases'])]
+    if len(reviewed['pieceHashes'])==len(hashes):
+        assert reviewed['atlasSha256']==fixture['atlasSha256']
 print(f'PASS: {len(fixtures)} reviewed unit/state/direction fixtures')

@@ -2,21 +2,24 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import captures from './fixtures/movement-order.json' with { type: 'json' }
 import manifest from '../decomp/exports.json' with { type: 'json' }
-import { createWorld, addBuilding, addUnit, command, tick, housing, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
+import { createWorld, addBuilding, addUnit, campaignPersonCount, command, tick, housing, manaRate, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
+import { nativePersonModel } from '../app/live-combat.ts'
 import { buildingQueuePoint } from '../app/building-shapes.ts'
 import { prepareMovementOrder } from '../app/person-orders.ts'
 import { advanceGame } from '../app/game-clock.ts'
+import sprites from '../app/original-units.json' with { type: 'json' }
 
-function scenario(direction = 0) {
+function schoolScenario(kind, count, direction) {
   const w = createWorld()
   w.manaWorld.gameFlags = 32 // Native building-development gate: observe an unfunded queue.
   w.units = w.units.filter(u => u.kind === 'shaman')
-  const b = addBuilding(w, 'blue', 'camp', { x: -2, z: 32 }, true, { angle: direction * Math.PI / 2 })
-  const people = Array.from({ length: 8 }, (_, i) => addUnit(w, 'blue', 'brave', { x: 7 + i * .4, z: 33 }))
+  const b = addBuilding(w, 'blue', kind, { x: -2, z: 32 }, true, { angle: direction * Math.PI / 2 })
+  const people = Array.from({ length: count }, (_, i) => addUnit(w, 'blue', 'brave', { x: 7 + i * .4, z: 33 }))
   w.selected = people.map(u => u.id)
   command(w, b)
   return { w, b, people }
 }
+const scenario = (direction = 0) => schoolScenario('camp', 8, direction)
 function until(w, condition, limit = 300) {
   for (let i = 0; i < limit && !condition(); i++) tick(w, 1 / 12)
   assert.ok(condition(), 'training must reach the expected state')
@@ -103,6 +106,26 @@ test('funded training replaces a complete batch, releases references and walks w
   assert.equal(w.buildingOrders.active, 3, 'arrival releases the shared exit order')
   assert.ok(warriors.every((u, i) => Math.hypot(u.x - positions[i][0], u.z - positions[i][1]) > 1))
   until(w, () => queued.every(id => w.units.find(u => u.id === id)?.inside === b.id))
+})
+
+test('a funded Temple trains a native model-4 preacher and sends it outside', () => {
+  const { w, b, people } = schoolScenario('temple', 1, 1)
+  until(w, () => people[0].inside === b.id && !people[0].entry?.person.speed)
+  w.manaWorld.gameFlags = 0
+  b.timer = 65535
+  until(w, () => w.units.some(u => u.team === 'blue' && u.kind === 'preacher'), 60)
+  const preacher = w.units.find(u => u.team === 'blue' && u.kind === 'preacher')
+  assert.ok(preacher)
+  assert.equal(w.stats.trained, 1)
+  assert.equal(preacher.hp, 55)
+  assert.equal(nativePersonModel(preacher), 4)
+  assert.equal(campaignPersonCount(w, 0, 4), 1)
+  assert.ok(manaRate(w) > 0)
+  assert.equal(unitAnimationSource(preacher)?.model, 4)
+  assert.equal(preacher.inside, null)
+  assert.ok(preacher.path.length)
+  assert.equal(sprites.animations['blue-preacher'].preachStart[0].source, 160)
+  assert.equal(sprites.animations['blue-preacher'].preach[0].source, 168)
 })
 
 test('queue movement, admission, conversion and shared references are independent of render rate', () => {

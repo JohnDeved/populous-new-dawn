@@ -346,7 +346,7 @@ export function parseMarkdown(raw, path = '<memory>') {
 }
 
 function git(repo, args, options = {}) {
-  return execFileSync('git', args, { cwd: repo, encoding: 'utf8', ...options })
+  return execFileSync('git', args, { cwd: repo, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, ...options })
 }
 
 function nulList(value) {

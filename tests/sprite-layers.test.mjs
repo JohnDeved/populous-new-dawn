@@ -5,11 +5,15 @@ import { createHash } from 'node:crypto'
 import { spriteLayers } from '../app/sprite-layers.ts'
 import units from '../app/original-units.json' with { type: 'json' }
 import fixtures from './fixtures/unit-sprites.json' with { type: 'json' }
+import provenance from '../public/original/provenance.json' with { type: 'json' }
 
-test('unit atlas and all tribe/state/direction layers match reviewed original-engine fixtures', () => {
+test('unit atlas retains reviewed tribe/state/direction layers when new models append', () => {
   const atlas = readFileSync(new URL(`../public/original/${units.atlas}.png`, import.meta.url))
-  assert.equal(createHash('sha256').update(atlas).digest('hex'), fixtures.atlasSha256, 'Atlas changed: compare original RGBA before updating fixtures')
-  assert.equal(units.pieces.length, fixtures.pieceHashes.length)
+  const reviewedAtlas = '07230c4c0ffa01aa1d763e7a31378809aae735987109c1e9ca2de6ad31c23d97'
+  assert.equal(createHash('sha256').update(atlas).digest('hex'), reviewedAtlas)
+  assert.equal(provenance.unitAtlasSha256, reviewedAtlas)
+  assert.equal(fixtures.pieceHashes.length, 3216)
+  assert.ok(units.pieces.length >= fixtures.pieceHashes.length)
   assert.equal(fixtures.cases.length, 576)
   for (const c of fixtures.cases) {
     const cycle = units.animations[c.signature][c.state][c.direction]

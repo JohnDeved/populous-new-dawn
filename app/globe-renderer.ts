@@ -310,7 +310,7 @@ export class GlobeRenderer extends THREE.Group {
             buildingModel(b),
             occupants.length,
             b.team === 'blue',
-            occupants.map(u => ({ brave: 2, warrior: 3, shaman: 5 })[u.kind])
+            occupants.map(u => ({ brave: 2, warrior: 3, preacher: 4, shaman: 5 })[u.kind])
           )
         icon(globePoint(view, position.x, position.y), id)
       }

@@ -198,16 +198,19 @@ def main():
             piece=pos//6-1
             layers.append({'piece':piece,'x':x,'y':y,'flags':flags})
         return layers
-    metadata = {}; rendered = []; source_frames = []; cache = {}
-    def animation(team,kind,start):
+    metadata = {}; rendered = []; source_frames = []; cache = {}; source_cache = {}
+    def animation(team,kind,start,reuse=False):
         directions=[]
         for direction in range(8):
             frame,mirror=starts[start+direction]; cycle=[]; seen=set()
             while frame not in seen:
                 assert 0<frame<len(frames);seen.add(frame)
                 key=(frame,team,kind)
-                if key not in cache:cache[key]=len(rendered);rendered.append(frame_layers(frame));source_frames.append(frame)
-                cycle.append(cache[key]);frame=frames[frame][-1]
+                if reuse and frame in source_cache:index=source_cache[frame]
+                else:
+                    if key not in cache:cache[key]=len(rendered);rendered.append(frame_layers(frame));source_frames.append(frame)
+                    index=cache[key];source_cache.setdefault(frame,index)
+                cycle.append(index);frame=frames[frame][-1]
             directions.append({'frames':cycle,'flip':bool(mirror),'source':start+direction})
         return directions
     for team in ['blue','red','wild']:
@@ -246,6 +249,18 @@ def main():
         obj=rules['personAnimationObjects'][27*9+model]
         start=rules['animationObjects'][obj][0]+(8 if kind=='shaman' and team=='red' else 0)
         states['electrocution']=animation(team,kind,start)
+    used+=sorted({layer['piece'] for layers in rendered for layer in layers}-set(used))
+    # Preserve every established frame and piece index, then append model 4.
+    for team in ['blue','red']:
+        kind='preacher';signature=f'{team}-{kind}'
+        states={'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'strike':104,'special':200,'recoil':112,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416,'dance':96,'preachStart':160,'preach':168}
+        metadata[signature]={state:animation(team,kind,start,True) for state,start in states.items()}
+        obj=rules['personAnimationObjects'][2*9+4]
+        metadata[signature]['launch']=animation(team,kind,rules['animationObjects'][obj][0],True)
+        for state,start in [('stagger',128),('idleShift',384),('idleLook',392),('idleScratch',400)]:
+            metadata[signature][state]=animation(team,kind,start,True)
+        obj=rules['personAnimationObjects'][27*9+4]
+        metadata[signature]['electrocution']=animation(team,kind,rules['animationObjects'][obj][0],True)
     # Keep raw pieces: the original scales offsets and rectangles separately,
     # and enables/disables layers at draw time (including standing shadows).
     used+=sorted({layer['piece'] for layers in rendered for layer in layers}-set(used))
@@ -306,7 +321,8 @@ def main():
     (output/'landscape.bin').write_bytes(b''.join(terrain))
     waves=read('data/watdisp.dat');assert len(waves)==65536
     (output/'waves.bin').write_bytes(waves)
-    (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'animationFrames':len(rendered),'spritePieces':len(pieces),'sha256':hashes},indent=2)+'\n')
+    unit_atlas_hash=hashlib.sha256((output/'unit-layers.png').read_bytes()).hexdigest()
+    (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'animationFrames':len(rendered),'spritePieces':len(pieces),'unitAtlasSha256':unit_atlas_hash,'sha256':hashes},indent=2)+'\n')
     print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} layered animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 
 if __name__=='__main__':main()

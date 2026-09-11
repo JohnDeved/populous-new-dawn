@@ -319,10 +319,11 @@ import { createMessages, addMessage, messageStringId, type MessageState } from '
 import { stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
+import { unitKindFromModel, type UnitKind } from './unit-kinds.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 export type Team = 'blue' | 'red' | 'wild'
-export type UnitKind = 'shaman' | 'brave' | 'warrior'
+export type { UnitKind } from './unit-kinds.ts'
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
 export type Spell = 'blast' | 'lightning' | 'bridge'
 export type Point = { x: number; z: number }
@@ -578,7 +579,9 @@ export const maxHp = (kind: UnitKind) =>
     ? constants.LIFE_SHAMEN
     : kind === 'warrior'
       ? constants.LIFE_WARR
-      : constants.LIFE_BRAVE) / 20
+      : kind === 'preacher'
+        ? constants.LIFE_PREACH
+        : constants.LIFE_BRAVE) / 20
 export const buildingHp = (kind: BuildingKind) => (kind === 'hut' ? 170 : 260)
 export const housing = (b: Building) => rules.buildingCapacity[buildingModel(b)]
 export function population(w: World, team: Team) {
@@ -622,7 +625,9 @@ export function meleeDamage(u: Unit) {
       ? constants.FIGHT_DAMAGE_WARR
       : u.kind === 'shaman'
         ? constants.FIGHT_DAMAGE_SHAMAN
-        : constants.FIGHT_DAMAGE_BRAVE
+        : u.kind === 'preacher'
+          ? constants.FIGHT_DAMAGE_PREACH
+          : constants.FIGHT_DAMAGE_BRAVE
   return Math.max(32, Math.floor((base * u.hp) / maxHp(u.kind))) / 20
 }
 const short = (v: number) => (v << 16) >> 16
@@ -719,7 +724,9 @@ const unitSpeed = (u: Unit) =>
     ? constants.MEDICINE_MAN_SPEED
     : u.kind === 'warrior'
       ? constants.WARRIOR_SPEED
-      : constants.BRAVE_SPEED
+      : u.kind === 'preacher'
+        ? constants.RELIGIOUS_SPEED
+        : constants.BRAVE_SPEED
 export function fightPosition(b: Battle, index: number) {
   return index === 0
     ? { x: b.x, z: b.z }
@@ -1821,13 +1828,7 @@ export function createWorld(): World {
         angle: (o.angle / 2048) * Math.PI * 2,
       })
     }
-    if (o.type === 1)
-      addUnit(
-        w,
-        o.owner === 0 ? 'blue' : 'red',
-        o.model === 7 ? 'shaman' : o.model === 3 ? 'warrior' : 'brave',
-        o
-      )
+    if (o.type === 1) addUnit(w, o.owner === 0 ? 'blue' : 'red', unitKindFromModel(o.model), o)
     if (o.type === 5 && o.model <= 6)
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
@@ -1963,10 +1964,7 @@ export function campaignPersonCount(w: World, tribe: number, model?: number) {
   const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null
   return (
     w.units.filter(
-      u =>
-        u.team === team &&
-        u.hp > 0 &&
-        (model === undefined || (u.kind === 'brave' ? 2 : u.kind === 'warrior' ? 3 : 7) === model)
+      u => u.team === team && u.hp > 0 && (model === undefined || nativePersonModel(u) === model)
     ).length | 0
   )
 }
@@ -3410,7 +3408,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
         ...nativePosition(w, u),
         id: u.id,
         class: 1,
-        model: u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2,
+        model: nativePersonModel(u),
         tribe: u.team === 'blue' ? 0 : 1,
         state: u.native?.state ?? (u.work === null ? 1 : 10),
         speed: u.native?.speed ?? (u.path.length ? unitSpeed(u) : 0),
@@ -3552,7 +3550,7 @@ export function command(
   const queuedBuilding =
     [6, 8, 10].includes(model) &&
     context.building &&
-    ['hut', 'camp', 'tower'].includes(context.building.kind)
+    ['hut', 'camp', 'tower', 'temple'].includes(context.building.kind)
   if (
     model === 19 ||
     ((model === 3 || model === 27 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor))
@@ -3633,7 +3631,7 @@ export function command(
     if (!(rules.personCommands[model].people & (1 << nativePersonModel(u)))) continue
     if (
       friendly &&
-      (friendly.progress < 1 || !['hut', 'camp', 'tower'].includes(friendly.kind)) &&
+      (friendly.progress < 1 || !['hut', 'camp', 'tower', 'temple'].includes(friendly.kind)) &&
       u.kind !== 'brave'
     )
       continue
@@ -3681,6 +3679,7 @@ export function command(
     else if (friendly) {
       if (friendly.progress < 1) message = 'Braves assigned to construction.'
       else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
+      else if (friendly.kind === 'temple') message = 'Braves sent to train as preachers.'
       else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
       else message = 'Braves sent to live in the hut.'
     } else if (enemy) message = 'Your followers march to battle.'
@@ -3885,7 +3884,7 @@ function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
   const p = nativePosition(w, u)
   return {
     class: 1,
-    model: u.team === 'wild' ? 1 : u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2,
+    model: nativePersonModel(u),
     state: 0,
     tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
     x: p.x,
@@ -4358,7 +4357,7 @@ function stepOutcome(w: World) {
       .filter(u => u.team === team && u.hp > 0)
       .map(unit => ({
         unit,
-        model: unit.kind === 'shaman' ? 7 : unit.kind === 'warrior' ? 3 : 2,
+        model: nativePersonModel(unit),
         state: unit.native?.state ?? 0,
         previousState: unit.native?.previousState ?? 0,
         flags2: unit.native?.flags2 ?? (unit.inside === null ? 0 : 0x800000),
@@ -4963,7 +4962,7 @@ function manaPeople(w: World) {
     u =>
       u.native ?? {
         class: 1,
-        model: u.team === 'wild' ? 1 : u.kind === 'shaman' ? 7 : u.kind === 'warrior' ? 3 : 2,
+        model: nativePersonModel(u),
         tribe: u.team === 'red' ? 1 : 0,
         state: 10,
         flags2: u.inside !== null ? 0x800000 : 0,
@@ -5332,17 +5331,21 @@ function stepTurn(w: World) {
   generateFollowerMana(w.manaWorld, w.manaTribes, manaPeople(w), liveManaOrders)
   for (const team of ['blue', 'red'] as const) {
     const tribe = w.manaTribes[team === 'blue' ? 0 : 1]
-    const camps = w.buildings.filter(
-      b => b.team === team && b.kind === 'camp' && b.progress === 1 && b.hp > 0
+    const schools = w.buildings.filter(
+      b =>
+        b.team === team &&
+        (b.kind === 'camp' || b.kind === 'temple') &&
+        b.progress === 1 &&
+        b.hp > 0
     )
-    const buildings = camps.map(b => buildingAdmission(w, b))
+    const buildings = schools.map(b => buildingAdmission(w, b))
     distributeMana(w.manaWorld, tribe, buildings, {
       // 0x499970 only permits its tutorial reminder on original levels 6–10.
       shouldNotifyFull: () => false,
       notify: (flags, message) => requestTutorial(w, flags, message),
     })
     buildings.forEach((b, i) => {
-      camps[i].timer = b.storedMana
+      schools[i].timer = b.storedMana
     })
   }
   w.shots.blast = w.manaWorld.spells[0].stocks[2] & 15
@@ -5376,7 +5379,7 @@ function stepTurn(w: World) {
       }
       if (wasIncomplete) continue
     }
-    if (b.kind === 'camp') {
+    if (b.kind === 'camp' || b.kind === 'temple') {
       stepLiveTraining(w, b)
     } else if (b.kind === 'hut') {
       if (
@@ -5519,7 +5522,8 @@ function stepTurn(w: World) {
     if (u.inside !== null) {
       const b = w.buildings.find(b => b.id === u.inside && b.hp > 0)
       if (b) {
-        if ((b.kind === 'camp' || b.kind === 'tower') && u.entry) stepBuildingEntry(w, u, b)
+        if ((b.kind === 'camp' || b.kind === 'tower' || b.kind === 'temple') && u.entry)
+          stepBuildingEntry(w, u, b)
         continue
       }
       release(w, u)
@@ -5531,6 +5535,7 @@ function stepTurn(w: World) {
       (work.kind === 'hut' ||
         work.kind === 'camp' ||
         work.kind === 'tower' ||
+        work.kind === 'temple' ||
         !!((work.admission?.activity ?? 0) & 0x8000)) &&
       (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
       !work.burn &&

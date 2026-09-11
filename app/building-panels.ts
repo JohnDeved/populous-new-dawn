@@ -4,6 +4,7 @@ import rules from './original-rules.json' with { type: 'json' }
 import { drawOccupantPanel, paintPanel } from './training-panel.ts'
 import { constructionPanel } from './construction-panel.ts'
 import { selectBuildingOccupants, dismantleBuilding } from './live-building-entry.ts'
+import { nativeUnitModel } from './unit-kinds.ts'
 
 function createPanel(scene: GameScene, b: Building) {
   const panel = document.createElement('div')
@@ -70,15 +71,11 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement) 
   if (scene.overviewActive || world.inputMask || !atlas.complete || !atlas.naturalWidth) return
   for (const b of world.buildings) {
     const plan = b.progress < 1,
+      school = !plan && (b.kind === 'camp' || b.kind === 'temple'),
       tower = !plan && b.kind === 'tower',
       admission = b.admission,
       activity = admission?.activity ?? 0
-    if (
-      (!plan && b.kind !== 'camp' && !tower) ||
-      b.team !== 'blue' ||
-      b.hp <= 0 ||
-      !scene.visible(b)
-    )
+    if ((!plan && !school && !tower) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b))
       continue
     // ponytail: activity/hover owns visibility until native panel allocation/lifetime is ported.
     if (
@@ -101,7 +98,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement) 
         ? [
             {
               id: u.id,
-              model: { brave: 2, warrior: 3, shaman: 7 }[u.kind],
+              model: nativeUnitModel(u.kind),
               kind: u.kind,
               selected: world.selected.includes(u.id),
             },
@@ -186,7 +183,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement) 
         'aria-label',
         tower
           ? `Guard tower: ${occupants.length} of 1 occupants`
-          : `Warrior training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
+          : `${b.kind === 'temple' ? 'Preacher' : 'Warrior'} training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
       )
     }
     const p = scene.screen(b)

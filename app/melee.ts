@@ -7,16 +7,16 @@ import {
 } from './person-routes.ts'
 import { nativeAngle } from './native-math.ts'
 import type { UnitKind } from './model.ts'
+import { nativeUnitModel } from './unit-kinds.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
 
 export type MeleeAttack = 'attack' | 'strike' | 'special'
 const short = (n: number) => (n << 16) >> 16
-const models = { brave: 2, warrior: 3, shaman: 7 }
 const animationRows = { attack: 10, strike: 8, special: 16, recoil: 9 }
 
 export function meleeAnimationObject(kind: UnitKind, action: MeleeAttack | 'recoil') {
-  return rules.personAnimationObjects[animationRows[action] * 9 + models[kind]]
+  return rules.personAnimationObjects[animationRows[action] * 9 + nativeUnitModel(kind)]
 }
 
 // Timers in 0x518fb0 use the authored object duration. Recoil substates 5/6

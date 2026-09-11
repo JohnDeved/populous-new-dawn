@@ -29,6 +29,7 @@ import {
   ManaMeter,
 } from './hud'
 import { spellButton, spellOrder } from './spell-button'
+import { nativeUnitModel } from './unit-kinds'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -217,11 +218,7 @@ export default function Home() {
   }
   function followerControl(kind: UnitKind | 'all') {
     const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) =>
-      engine.current?.chooseFollowers(
-        { all: 0, brave: 2, warrior: 3, shaman: 7 }[kind],
-        event,
-        focus
-      )
+      engine.current?.chooseFollowers(kind === 'all' ? 0 : nativeUnitModel(kind), event, focus)
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
         followerPress.current = event.button === 0 ? event.currentTarget : null
@@ -483,6 +480,7 @@ export default function Home() {
             [
               { kind: 'brave', label: 'Braves', sprite: 666 },
               { kind: 'warrior', label: 'Warriors', sprite: 668 },
+              { kind: 'preacher', label: 'Preachers', sprite: 670 },
             ] as const
           ).map(u => (
             <button
@@ -496,7 +494,7 @@ export default function Home() {
               <FollowerNumber count={blue.filter(b => b.hp > 0 && b.kind === u.kind).length} />
             </button>
           ))}
-          {['Firewarriors', 'Preachers', 'Spies'].map(name => (
+          {['Firewarriors', 'Spies'].map(name => (
             <button key={name} disabled aria-label={name} title={name}>
               <FollowerNumber count={0} />
             </button>

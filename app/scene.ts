@@ -2134,7 +2134,7 @@ export class GameScene {
     if (f.unit) {
       g.userData.layers = []
       g.userData.owner = f.unit.team === 'blue' ? 0 : f.unit.team === 'red' ? 1 : -1
-      g.userData.draw = f.unit.kind === 'warrior' ? 15 : 14
+      g.userData.draw = f.unit.kind === 'preacher' ? 16 : f.unit.kind === 'warrior' ? 15 : 14
       g.userData.drawFlags = 2
       g.userData.shaman = f.unit.kind === 'shaman'
       return g
@@ -2583,7 +2583,8 @@ export class GameScene {
           shadow.center.set(-r.x / r.width, 1 + r.y / r.height)
         }
       }
-      g.userData.draw = animationSource?.draw ?? (u.kind === 'warrior' ? 15 : 14)
+      g.userData.draw =
+        animationSource?.draw ?? (u.kind === 'preacher' ? 16 : u.kind === 'warrior' ? 15 : 14)
       const renderFlags = animationSource?.renderFlags ?? 0
       g.userData.pickable = canPickUnit(this.world, u)
       g.userData.drawFlags =

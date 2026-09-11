@@ -19,10 +19,10 @@ import {
   type CombatTargetWorld,
 } from './combat-targets.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import { nativeUnitModel } from './unit-kinds.ts'
 
-const models = { brave: 2, warrior: 3, shaman: 7 }
 export const nativePersonModel = (u: Pick<Unit, 'team' | 'kind'>) =>
-  u.team === 'wild' ? 1 : models[u.kind]
+  u.team === 'wild' ? 1 : nativeUnitModel(u.kind)
 const tribes = { wild: -1, blue: 0, red: 1 }
 export const nativePersonTribe = (u: Pick<Unit, 'team'>) => tribes[u.team]
 const position = (u: { x: number; z: number }) => ({
