@@ -67,7 +67,7 @@ cleanup. Use Fallow, ox-standard, and Ponytail in the regular workflow. Keep raw
 decompiler output and address bookkeeping in decompilation evidence, not live game
 code.
 
-## Choose the work that matters most
+## Current execution order: highest-impact playable parity
 
 Explicit user direction wins. Otherwise, compare at most five bounded candidates
 and choose from the top three. Rank them by:
