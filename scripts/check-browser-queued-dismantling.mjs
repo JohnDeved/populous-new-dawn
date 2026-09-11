@@ -34,9 +34,10 @@ try {
     const result=await page.evaluate(async()=>{
       const s=window.testScene,w=s.world,{b,people,warrior}=window.queuedWork
       const {advanceGame}=await import('/app/game-clock.ts')
+      const {addUnit}=await import('/app/model.ts')
       const {default:sprites}=await import('/app/original-units.json')
       const workObject=sprites.animations['blue-brave'].work[0].source
-      const person=u=>u.native??u.entry?.person
+      const person=u=>u.native??u.fight?.motion??u.entry?.person
       const states=people.map(person),timings=[]
       const models=people.map(u=>person(u).commands.filter(Boolean).map(id=>w.buildingOrders.records[id].model))
       const warriorOrders=person(warrior).commands.filter(Boolean).map(id=>w.buildingOrders.records[id].model)
@@ -63,22 +64,34 @@ try {
         bearings.push({bearing,pixels})
       }
       const pixels=Math.max(...bearings.map(b=>b.pixels))
+      const source=people.find(u=>person(u)?.commandStatus===10),p=person(source),dismantle=p.commands[p.commandCursor],progress=b.progress
+      const enemy=addUnit(w,'red','shaman',{x:source.x+.25,z:source.z});p.flags3|=0x800;advance()
+      const immediate=p.immediateCommand,response={model:w.buildingOrders.records[immediate]?.model,references:w.buildingOrders.records[immediate]?.references,
+        retained:p.commands.includes(dismantle)&&w.buildingOrders.records[dismantle].references>0,paused:b.progress===progress}
+      const responders=people.filter(u=>person(u)?.immediateCommand===immediate)
+      enemy.hp=0
+      for(let i=0;i<400&&!(p.commandStatus===3&&p.commandCursor===2);i++)advance()
+      const tail=p.commandStatus===3&&p.commandCursor===2&&p.commands.includes(dismantle)
+      for(let i=0;i<400&&!responders.every(u=>u.x>18);i++)advance()
+      response.tail=tail&&responders.every(u=>u.x>18)
       const frozen=JSON.stringify({turn:w.turn,people,b})
       w.paused=true;w.speed=1;advanceGame(w,s.gameClock,10);w.paused=false;w.speed=0
       const paused=frozen===JSON.stringify({turn:w.turn,people,b})
       for(let i=0;i<800&&w.buildingOrders.active;i++)advance()
       const sorted=timings.toSorted((a,b)=>a-b),info=gl.getExtension('WEBGL_debug_renderer_info')
-      return {viewport:[innerWidth,innerHeight],models,warriorOrders,beforeWork,identity,working,pixels,bearings,poses,paused,
-        removed:!w.buildings.includes(b)&&b.dismantled,arrived:[...people,warrior].every(u=>u.hp>0&&u.x>18),orders:w.buildingOrders.active,
+      return {viewport:[innerWidth,innerHeight],models,warriorOrders,beforeWork,identity,working,pixels,bearings,poses,response,paused,
+        removed:!w.buildings.includes(b)&&b.dismantled,arrived:warrior.x>18&&people.filter(u=>!responders.includes(u)).every(u=>u.x>18),
+        survived:[...people,warrior].every(u=>u.hp>0&&u.inside===null),orders:w.buildingOrders.active,
         initialTimber,timber:people.reduce((n,u)=>n+u.cargo,0)+w.trees.filter(t=>t.model===11).reduce((n,t)=>n+t.logs,0),
         performance:{renderer:info&&gl.getParameter(info.UNMASKED_RENDERER_WEBGL),samples:sorted.length,medianMs:sorted[Math.floor(sorted.length/2)],p95Ms:sorted[Math.floor(sorted.length*.95)],maxMs:sorted.at(-1)}}
     })
     assert.ok(result.models.every(m=>m.join()==='3,10,3'));assert.deepEqual(result.warriorOrders,[3,3])
-    for(const k of ['beforeWork','identity','working','paused','removed','arrived'])assert.equal(result[k],true,`${k}: ${JSON.stringify(result)}`)
+    for(const k of ['beforeWork','identity','working','paused','removed','arrived','survived'])assert.equal(result[k],true,`${k}: ${JSON.stringify(result)}`)
+    assert.equal(result.response.model,21);assert.ok(result.response.references>0);assert.equal(result.response.retained,true);assert.equal(result.response.paused,true);assert.equal(result.response.tail,true)
     assert.ok(result.pixels>5,JSON.stringify(result));assert.equal(result.orders,0);assert.equal(result.timber,result.initialTimber)
     assert.deepEqual(errors,[]);reports.push(result);await page.close()
   }
-  writeFileSync('references/performance/2026-09-11-queued-dismantling.json',JSON.stringify({browser:await browser.version(),reports,
+  if(process.argv.includes('--record'))writeFileSync('references/performance/2026-09-11-queued-dismantling.json',JSON.stringify({browser:await browser.version(),reports,
     limitation:'Real Ctrl movement/work/movement clicks, four followers, original work sprite pixels and complete simulation-turn CPU samples. Headless software rendering/coarse browser timer; no hardware FPS or before/after speedup claim.'},null,2)+'\n')
   console.log(JSON.stringify(reports,null,2))
 }finally{await browser.close()}

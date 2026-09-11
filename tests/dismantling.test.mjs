@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {createWorld,addBuilding,addUnit,command,tick,buildingStage} from '../app/model.ts'
 import {dismantleBuilding,selectBuildingOccupants,isDismantling} from '../app/live-building-entry.ts'
+import {startLiveCombatResponse} from '../app/live-building-combat.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
 import {advanceGame} from '../app/game-clock.ts'
 
@@ -87,7 +88,7 @@ function queuedSite(direction = 0, count = 3, marked = true) {
   w.selected = people.map(u => u.id)
   return { w, b, people }
 }
-const ownedPerson = u => u.native ?? u.entry?.person
+const ownedPerson = u => u.native ?? u.fight?.motion ?? u.entry?.person
 const orderModels = (w,u) => ownedPerson(u).commands.filter(Boolean).map(id=>w.buildingOrders.records[id].model)
 const issueWork = (w,b) => {
   command(w, { x: -10, z: 8 }, { ctrlKey: true })
@@ -149,6 +150,47 @@ test('dismantling queue replacement and death release references while non-brave
   const before=structuredClone(u),orders=structuredClone(w.buildingOrders)
   command(w,b,{ctrlKey:true})
   assert.deepEqual(u,before);assert.deepEqual(w.buildingOrders,orders)
+})
+
+test('automatic combat pauses shared dismantling and resumes its retained order', () => {
+  const {w,b,people}=scenario(2,2);dismantleBuilding(w,b)
+  const persons=people.map(ownedPerson),order=persons[0].commands[persons[0].commandCursor],progress=b.progress
+  people[0].cargo=1;persons[0].cargo=100
+  const enemy=addUnit(w,'red','shaman',{x:people[0].x+.25,z:people[0].z})
+  persons[0].flags3|=0x800;tick(w,1/12)
+  const immediate=persons[0].immediateCommand
+  assert.ok(immediate&&people.every(u=>ownedPerson(u).immediateCommand===immediate))
+  assert.equal(w.buildingOrders.records[immediate].model,21);assert.equal(w.buildingOrders.records[immediate].references,2)
+  assert.equal(w.buildingOrders.records[order].references,2);assert.equal(b.progress,progress)
+  assert.ok(people.every((u,i)=>ownedPerson(u)===persons[i]&&ownedPerson(u).commandStatus===21))
+  assert.equal(w.buildingOrders.records[order].a,b.id)
+  assert.equal(people[0].cargo,1);assert.equal(persons[0].cargo,100)
+  enemy.hp=0
+  until(w,()=>people.every(u=>isDismantling(w,u)))
+  assert.ok(people.every((u,i)=>ownedPerson(u)===persons[i]&&ownedPerson(u).commandStatus===10&&ownedPerson(u).immediateCommand===0&&u.work===b.id))
+  assert.equal(w.buildingOrders.records[order].references,2);assert.equal(people[0].cargo,1);assert.equal(persons[0].cargo,100)
+})
+
+test('automatic combat completion follows the native circular dismantling queue', () => {
+  const {w,b,people:[u]}=queuedSite(0,1);issueWork(w,b);until(w,()=>isDismantling(w,u))
+  const p=ownedPerson(u),dismantle=p.commands[1],tail=p.commands[2]
+  const enemy=addUnit(w,'red','shaman',{x:u.x+.25,z:u.z});p.flags3|=0x800;tick(w,1/12)
+  assert.ok(p.immediateCommand);enemy.hp=0
+  until(w,()=>p.commandStatus===3&&p.commandCursor===2)
+  assert.equal(p.commands[1],dismantle);assert.equal(w.buildingOrders.records[dismantle].references,1);assert.equal(p.commands[2],tail)
+  until(w,()=>isDismantling(w,u),800)
+  assert.equal(ownedPerson(u),p);assert.equal(p.commandCursor,1);assert.equal(p.commands[1],dismantle)
+})
+
+test('automatic combat allocation failure keeps dismantling state intact', () => {
+  const {w,b,people:[u]}=scenario(2,1);dismantleBuilding(w,b)
+  const p=ownedPerson(u),order=p.commands[p.commandCursor],before={status:p.commandStatus,immediate:p.immediateCommand,cargo:u.cargo,personCargo:p.cargo,work:u.work,progress:b.progress}
+  addUnit(w,'red','shaman',{x:u.x+.25,z:u.z});p.flags3|=0x800
+  for(const record of w.buildingOrders.records.slice(1))record.references ||= 1
+  w.buildingOrders.active=799
+  assert.equal(startLiveCombatResponse(w,u),false)
+  assert.deepEqual({status:p.commandStatus,immediate:p.immediateCommand,cargo:u.cargo,personCargo:p.cargo,work:u.work,progress:b.progress},before)
+  assert.equal(p.commands[p.commandCursor],order);assert.equal(ownedPerson(u),p)
 })
 
 test('queued dismantling, timber and following movement agree at 5–240 Hz and irregular frames', () => {

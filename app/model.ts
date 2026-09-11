@@ -4926,6 +4926,10 @@ function stepTurn(w: World) {
     }
     if (u.work !== null && !work) release(w, u)
     if (isDismantling(w, u) && work && 'hp' in work) {
+      if (startLiveCombatResponse(w, u)) {
+        stepLiveBuildingAttack(w, u)
+        continue
+      }
       stepBuildingEntry(w, u, work)
       continue
     }
