@@ -1,0 +1,670 @@
+{
+  "version": 1,
+  "checks": [
+    {
+      "id": "orchestration-tests",
+      "kind": "metadata",
+      "purpose": "Exercise the workflow parser, validation, indexing, planning, and audit logic.",
+      "coveredBehavior": [
+        "Manifest rejection",
+        "Markdown provenance",
+        "Git change routing",
+        "Contract audit"
+      ],
+      "knownLimits": [
+        "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
+      ],
+      "executable": "node",
+      "args": ["--test", "tests/orchestration.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        ".agents/skills/populous-engineering/SKILL.md",
+        "AGENTS.md",
+        "GOAL.md",
+        "PARITY.md",
+        "app",
+        "build",
+        "decomp",
+        "engineering",
+        "package.json",
+        "parity-history.json",
+        "parity.json",
+        "public",
+        "references",
+        "scripts",
+        "tests"
+      ],
+      "prerequisites": ["Node.js >=22.13.0"],
+      "sideEffects": [
+        "May refresh ignored work/orchestration/index.json",
+        "Temporary directories only"
+      ],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "orchestration-structural",
+      "kind": "metadata",
+      "purpose": "Validate current workflow manifests and canonical references without requiring or writing a cache.",
+      "coveredBehavior": [
+        "Shapes",
+        "IDs",
+        "paths",
+        "check references",
+        "generated ownership",
+        "exact parity IDs"
+      ],
+      "knownLimits": [
+        "Structural validation does not certify evidence semantics or enforce an OS sandbox."
+      ],
+      "executable": "node",
+      "args": ["scripts/orchestration/cli.mjs", "check"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "engineering/project-map.json",
+        "engineering/checks.json",
+        "engineering/generated-files.json",
+        "parity.json"
+      ],
+      "prerequisites": ["Node.js >=22.13.0", "Git"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "purpose": "Run the repository typecheck, portable tests, parity metadata validation, and workflow validation.",
+      "coveredBehavior": [
+        "TypeScript",
+        "portable regressions",
+        "parity metadata",
+        "workflow metadata"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "executable": "npm",
+      "args": ["run", "check"],
+      "cwd": ".",
+      "env": [],
+      "inputs": ["package.json", "app", "tests", "parity.json", "parity-history.json", "PARITY.md"],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": ["May update ignored tool caches"],
+      "resources": ["Serialize with other full test runs"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "purpose": "Build the production browser application.",
+      "coveredBehavior": ["Bundling", "server/client module boundaries", "production transforms"],
+      "knownLimits": ["A successful build does not establish browser behavior or native parity."],
+      "executable": "npm",
+      "args": ["run", "build"],
+      "cwd": ".",
+      "env": [],
+      "inputs": ["package.json", "app", "build"],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": ["Writes ignored .vinext/, dist/, and Wrangler logs"],
+      "resources": ["Shared build directories; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [".vinext"] }
+    },
+    {
+      "id": "selection-portable",
+      "kind": "portable",
+      "purpose": "Check pure and live-model selection, drag geometry, occupant rules, and painter hit ownership.",
+      "coveredBehavior": [
+        "Drag geometry",
+        "ordinary selection flags",
+        "building occupants",
+        "mixed-object hit order",
+        "selection raster"
+      ],
+      "knownLimits": [
+        "Portable tests do not prove the live ScenePicking traversal or native executable equivalence."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/drag-selection.test.mjs",
+        "tests/drag-occupants.test.mjs",
+        "tests/person-selection.test.mjs",
+        "tests/world-picking.test.mjs",
+        "tests/selection-raster.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/drag-selection.ts",
+        "app/person-selection.ts",
+        "app/world-picking.ts",
+        "tests/fixtures/drag-selection.json",
+        "tests/fixtures/drag-occupants.json",
+        "tests/fixtures/selection-raster.json"
+      ],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "selection-native-drag",
+      "kind": "native",
+      "purpose": "Compare complete native drag transactions and ordinary-person admission for bounded cases.",
+      "coveredBehavior": [
+        "Clamp and wrap",
+        "packed command",
+        "corners",
+        "point tests",
+        "ordinary-person flags and voices"
+      ],
+      "knownLimits": [
+        "Downstream UI refresh and command buffer are intercepted; it is not a complete original-game replay."
+      ],
+      "executable": "python3",
+      "args": ["scripts/check-native-drag-selection.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-drag-selection.py",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied D3D executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "selection-browser-drag",
+      "kind": "browser",
+      "purpose": "Exercise real desktop/ultrawide drag input, selection voices, terrain pixels, and GPU batch equivalence.",
+      "coveredBehavior": [
+        "Live pointer flow",
+        "Ctrl addition",
+        "map seam",
+        "selection pixels",
+        "GPU batching"
+      ],
+      "knownLimits": [
+        "Software-renderer pixel consistency is not native full-frame parity or hardware FPS evidence."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-drag-selection.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-drag-selection.mjs",
+        "scripts/browser-game.mjs",
+        "app/scene.ts",
+        "app/scene-picking.ts"
+      ],
+      "prerequisites": [
+        "Running game server at POPULOUS_URL or http://localhost:3000",
+        "Playwright Chromium"
+      ],
+      "sideEffects": ["Writes a tracked performance JSON and /private/tmp screenshots"],
+      "resources": ["Fixed server port/capture paths; run serially"],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": ["references/performance/2026-09-10-selection-raster.json"]
+      }
+    },
+    {
+      "id": "orders-portable",
+      "kind": "portable",
+      "purpose": "Check shared order records, live ground queues, routing, and render-cadence invariance.",
+      "coveredBehavior": [
+        "Player append",
+        "shared references",
+        "ground waypoints",
+        "live movement",
+        "world seams"
+      ],
+      "knownLimits": ["Does not cover every command class, vehicle, allocator, or scheduler path."],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/player-orders.test.mjs",
+        "tests/ground-waypoints.test.mjs",
+        "tests/live-movement.test.mjs",
+        "tests/world-movement.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/live-movement.ts",
+        "app/person-orders.ts",
+        "tests/fixtures/player-order-append.json",
+        "tests/fixtures/movement-order.json"
+      ],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "orders-native",
+      "kind": "native",
+      "purpose": "Compare bounded native shared-order preparation and updates.",
+      "coveredBehavior": ["Order pool fields", "reference handling", "state update branches"],
+      "knownLimits": ["World consumers and full scheduling are supplied or separately checked."],
+      "executable": "python3",
+      "args": ["scripts/check-native-orders.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-orders.py",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [
+        "Writes tracked player-order and ground-input fixtures even without --record"
+      ],
+      "resources": ["External executable is read-only"],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": [
+          "tests/fixtures/player-order-append.json",
+          "tests/fixtures/ground-order-input.json"
+        ]
+      }
+    },
+    {
+      "id": "orders-browser",
+      "kind": "browser",
+      "purpose": "Exercise real ground waypoint input and visible full-world movement.",
+      "coveredBehavior": [
+        "Desktop pointer input",
+        "queued waypoints",
+        "pause",
+        "render rates",
+        "world seams"
+      ],
+      "knownLimits": ["Does not prove all mixed work/combat/transport queues."],
+      "executable": "node",
+      "args": ["scripts/check-browser-ground-waypoints.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-ground-waypoints.mjs",
+        "scripts/browser-game.mjs",
+        "app/live-movement.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["May write /private/tmp captures"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "construction-live-portable",
+      "kind": "portable",
+      "purpose": "Check the currently integrated plan, crew, work, preparation, and timber behavior.",
+      "coveredBehavior": [
+        "Live plan decisions",
+        "workers",
+        "approach/work/departure",
+        "terrain preparation",
+        "timber transfer"
+      ],
+      "knownLimits": [
+        "Does not make the separate command-6, task-7, or timber-cache research modules live."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/building-workers.test.mjs",
+        "tests/building-work.test.mjs",
+        "tests/building-preparation.test.mjs",
+        "tests/timber.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/building-workers.ts",
+        "app/building-work.ts",
+        "app/building-preparation.ts",
+        "app/timber.ts"
+      ],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "construction-research-portable",
+      "kind": "portable",
+      "purpose": "Check the isolated construction-order, hauling, and resource-cache research implementations.",
+      "coveredBehavior": ["Command-6 wrapper", "task-7 phases", "timber cache lifecycle"],
+      "knownLimits": [
+        "These modules have no live app callers; supplied consumers and path costs do not prove construction integration."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/construction-order.test.mjs",
+        "tests/building-fetch.test.mjs",
+        "tests/timber-search.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/construction-order.ts",
+        "app/building-fetch.ts",
+        "app/timber-search.ts",
+        "tests/fixtures/construction-order.json",
+        "tests/fixtures/building-fetch.json",
+        "tests/fixtures/timber-search.json"
+      ],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "construction-native-order",
+      "kind": "native",
+      "purpose": "Compare the isolated native command-6 wrapper.",
+      "coveredBehavior": [
+        "Plan lookup",
+        "crew registration",
+        "fallback order",
+        "approach/task handoff"
+      ],
+      "knownLimits": [
+        "Native tasks 2-9 are supplied consumers; live plan identity and scheduling remain open."
+      ],
+      "executable": "python3",
+      "args": ["scripts/check-native-construction-order.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": ["scripts/check-native-construction-order.py", "decomp/requirements.txt"],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "construction-native-fetch",
+      "kind": "native",
+      "purpose": "Compare the isolated native task-7 hauling controller.",
+      "coveredBehavior": [
+        "Approach/retry",
+        "harvest/delivery waits",
+        "reservations",
+        "transfers",
+        "poses and RNG"
+      ],
+      "knownLimits": [
+        "Resource search and final world mutations are supplied consumers; it is not live hauling."
+      ],
+      "executable": "python3",
+      "args": ["scripts/check-native-building-fetch.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": ["scripts/check-native-building-fetch.py", "decomp/requirements.txt"],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "construction-native-timber-search",
+      "kind": "native",
+      "purpose": "Compare the isolated native timber search/cache lifecycle.",
+      "coveredBehavior": [
+        "Cell order",
+        "fog",
+        "protection",
+        "cache expansion",
+        "ownership and expiry"
+      ],
+      "knownLimits": [
+        "Candidate path costs are supplied and live scheduling/integration is absent."
+      ],
+      "executable": "python3",
+      "args": ["scripts/check-native-timber-search.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": ["scripts/check-native-timber-search.py", "decomp/requirements.txt"],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "construction-browser",
+      "kind": "browser",
+      "purpose": "Exercise live building placement, workers, timber, construction stages, and visible completion.",
+      "coveredBehavior": ["Real placement", "live worker flow", "visible stages", "pause/cancel"],
+      "knownLimits": [
+        "Does not route through the isolated command-6, task-7, or timber-cache research modules."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-construction.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-construction.mjs",
+        "scripts/browser-game.mjs",
+        "app/model.ts",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["May write fixed /private/tmp captures"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "clock-portable",
+      "kind": "portable",
+      "purpose": "Check chronological simulation, animation, pause, stalls, and render-cadence independence.",
+      "coveredBehavior": [
+        "24 Hz animation",
+        "12 Hz simulation",
+        "pause",
+        "long frames",
+        "5-240 Hz schedules"
+      ],
+      "knownLimits": [
+        "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
+      ],
+      "executable": "node",
+      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": ["app/game-clock.ts", "app/unit-motion.ts", "tests/game-clock.test.mjs"],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "camera-native",
+      "kind": "native",
+      "purpose": "Compare bounded native camera input, motion, and view-preset behavior.",
+      "coveredBehavior": ["Input masks", "motion clamps", "view presets"],
+      "knownLimits": [
+        "Outer frame scheduling, browser cancellation, and transitions remain separate adapters."
+      ],
+      "executable": "python3",
+      "args": ["scripts/check-native-camera-motion.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": ["scripts/check-native-camera-motion.py", "decomp/requirements.txt"],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "camera-browser",
+      "kind": "browser",
+      "purpose": "Exercise actual browser camera input, fractional presentation, resize, and view changes.",
+      "coveredBehavior": [
+        "Keyboard/edge input",
+        "high-refresh smoothing",
+        "desktop resize",
+        "view presets"
+      ],
+      "knownLimits": [
+        "Browser consistency is not native outer-loop equivalence or hardware performance proof."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-camera-smoothing.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-camera-smoothing.mjs",
+        "scripts/browser-game.mjs",
+        "app/scene.ts",
+        "app/camera-motion.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["May write fixed /private/tmp captures"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "terrain-portable",
+      "kind": "portable",
+      "purpose": "Check terrain visibility, UVs, notification order, and painter ordering.",
+      "coveredBehavior": [
+        "Visible cells",
+        "texel centers",
+        "height notifications",
+        "painter order",
+        "viewport bounds"
+      ],
+      "knownLimits": [
+        "CPU/fixture checks do not establish full native raster parity or hardware frame time."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/terrain-visibility.test.mjs",
+        "tests/terrain-uv.test.mjs",
+        "tests/terrain-notifications.test.mjs",
+        "tests/painter-order.test.mjs",
+        "tests/viewport-bounds.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/native-terrain.ts",
+        "app/terrain-notifications.ts",
+        "app/terrain-texture.ts",
+        "app/terrain-visibility.ts",
+        "app/painter-order.ts"
+      ],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "terrain-native",
+      "kind": "native",
+      "purpose": "Compare bounded native terrain diagonals and height sampling.",
+      "coveredBehavior": ["Stored splits", "height interpolation", "wrapped cases"],
+      "knownLimits": [
+        "Does not execute the complete scheduler, renderer, or every terrain mutation consumer."
+      ],
+      "executable": "python3",
+      "args": ["scripts/check-native-terrain.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-terrain.py",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "terrain-browser",
+      "kind": "browser",
+      "purpose": "Exercise live terrain copy selection, submission, and GPU-visible output.",
+      "coveredBehavior": ["Wrapped copies", "cell submission", "wide viewport", "GPU pixels"],
+      "knownLimits": [
+        "Browser-path equivalence is not complete native renderer parity; headless mode does not identify hardware by itself."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-terrain-copies.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-terrain-copies.mjs",
+        "scripts/browser-game.mjs",
+        "app/render-view.ts",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["May write tracked performance artifacts and fixed /private/tmp captures"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "performance-profile",
+      "kind": "performance",
+      "purpose": "Collect a repeatable browser render-loop profile with explicit environment and frame samples.",
+      "coveredBehavior": [
+        "Frame CPU distribution",
+        "draw calls",
+        "triangles",
+        "renderer identity",
+        "selected paired presentation comparisons"
+      ],
+      "knownLimits": [
+        "Default headless results are diagnostic, not hardware FPS certification; workload flags and acceptance criteria must be chosen before running."
+      ],
+      "executable": "node",
+      "args": ["scripts/profile-game.mjs", "--headed"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/profile-game.mjs",
+        "scripts/browser-game.mjs",
+        "references/modern-performance.md"
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium",
+        "Exclusive measurement window",
+        "Predeclared workload and acceptance criteria"
+      ],
+      "sideEffects": ["Writes a profile JSON to an argument-selected path or /private/tmp"],
+      "resources": ["Serialize performance runs, fixed server, browser, GPU, and capture path"],
+      "expected": { "exitCode": 0, "artifacts": [] },
+      "advisory": true
+    }
+  ]
+}

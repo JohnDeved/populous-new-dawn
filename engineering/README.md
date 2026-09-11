@@ -1,0 +1,183 @@
+# Evidence-driven engineering workflow
+
+This directory routes a bounded task to current policy, implementation, evidence,
+and checks. It is not a second parity ledger or a workflow engine. `parity.json`
+remains the only completion accounting source; context resolves its current status
+at run time.
+
+## Supported integration
+
+Codex 0.153.4 supports root `AGENTS.md`, repository skills under `.agents/skills/`,
+standalone project agents in `.codex/agents/*.toml`, and
+`agents.max_concurrent_threads_per_session`. This repository caps child agents at
+three and omits model/reasoning fields so children inherit the user's choices.
+
+Project `.codex/config.toml` is loaded only for a trusted project. Skills are
+auto-detected; start a new Codex task if new root instructions, config, or agent
+definitions are not visible. Permission mode is still supplied by the active
+session. Agent instructions and path contracts are workflow agreements, not
+filesystem isolation.
+
+Use `$populous-engineering` explicitly, or inspect available skills with `/skills`.
+
+## Commands
+
+```sh
+npm run orchestration:check
+npm run orchestration:index
+npm run orchestration:context -- --subsystem selection --query "native drag selection"
+npm run orchestration:plan -- --base "$(git rev-parse HEAD)"
+npm run orchestration:audit -- --contract work/orchestration/task-contract.json
+```
+
+- `check` validates manifest shapes, duplicate/cross references, safe canonical
+  repository paths, check commands, generated ownership, and exact current parity
+  IDs. It neither requires a cache nor writes tracked files. Structural success is
+  not evidence certification or sandbox enforcement.
+- `index` creates ignored `work/orchestration/index.json`. It discovers candidates
+  from Git plus relevant untracked workflow files, stores source hashes and full
+  Markdown heading ancestry, and adds no timestamps.
+- `context` validates the cached source fingerprints and rebuilds a missing/stale
+  cache. It emits reviewed mappings, live parity scope/limitations, source excerpts,
+  selected checks, unresolved questions, provenance, and an omission list.
+- `plan` reads branch, staged, unstaged, deleted, renamed, and relevant untracked
+  paths. It explains check selection and reports unknown paths explicitly. It never
+  runs the checks.
+- `audit` validates a compact task contract, compares current changes with the
+  recorded baseline, reports both rename endpoints, detects prohibited/generated
+  writes, verifies relevant input hashes, and invalidates stale verification
+  fingerprints. It reports violations; it never reverts files.
+
+The default context budget is 24,000 UTF-8 bytes. Override it with `--budget N`.
+Whole evidence sections are admitted only when they fit; omitted sections appear in
+`omissions`. A limitation is kept with its mapped claim. Native addresses are query
+hints, never confidence labels.
+
+## Architecture and sources of truth
+
+The browser composition root remains `app/scene.ts`; simulation state and its fixed
+turn loop remain centered in `app/model.ts`. The reviewed map deliberately marks
+both as cross-cutting. It also reviews five useful slices: selection/picking,
+movement/orders, construction/resources, camera/clocks, and terrain/presentation
+performance. Other areas are mechanically inventoried as inferred or unmapped.
+Unknown files are not treated as having no checks.
+
+Construction has a material boundary: `app/building-workers.ts`,
+`app/building-work.ts`, `app/building-preparation.ts`, and `app/timber.ts` participate
+in live flows through `app/model.ts`. `app/construction-order.ts`,
+`app/building-fetch.ts`, and `app/timber-search.ts` are reviewed research modules
+with portable/native harnesses but no live app caller. Their supplied consumers,
+path costs, scheduling, and persistent plan/person/route ownership remain open.
+
+Direction comes from `GOAL.md`. Modern timing/display/performance rules come from
+both `GOAL.md` and `references/modern-performance.md`. Native claims require the
+limitations recorded in `decomp/README.md`, `decomp/exports.json`, and
+`references/reverse-engineering.md`. A heading, address, community name, generated
+index, or old assessment is never sufficient on its own.
+
+## Priority triage
+
+Use this only when the user has not already fixed the objective. The parent or a
+read-only `pnd-scout` compares at most five candidates drawn from the exact current
+`GOAL.md` execution order, reviewed mappings, current parity scope, live callers,
+and available checks. Return the top three and recommend one.
+
+Rank player-visible/playability impact and work that unblocks other important
+behavior first. Then weigh the live integration gap, evidence and regression-check
+confidence, implementation effort, risk, and prerequisites. Each candidate reports
+the intended player-visible outcome, live entry point, exact parity IDs, evidence,
+required proof, blockers, and uncertainty. Unmapped work stays explicit. A parity
+percentage, recent heading, address match, filename, or easy test count is not a
+priority signal by itself. The parent owns the final choice.
+
+## Task flow
+
+1. Record HEAD and every existing working-tree path. Establish relevant baseline
+   results before editing.
+2. If no objective is fixed, complete the bounded priority triage and choose one
+   candidate; otherwise preserve the user's stated priority.
+3. Retrieve a focused context packet. Read cited source sections when the packet
+   exposes ambiguity or truncation.
+4. Write one compact contract for substantial work. The parent owns objective,
+   non-goals, acceptance, risk, allowed/prohibited/generated paths, integration,
+   and any later authorized ledger update.
+5. Keep one source writer. Use focused agents only for independent evidence gathering
+   or fresh review. Each assignment states a bounded question/deliverable, allowed
+   writes, evidence, and stop condition. Workers request scope expansion.
+6. Re-run `plan` on the actual base. Inspect implementations before executing any
+   selected command; do not add `--record` as a generic option.
+7. Run the smallest sufficient checks and record the tested fingerprint. Any later
+   relevant source/fixture/input change invalidates the receipt.
+8. Have a fresh reviewer challenge the diff when available. If unavailable, do a
+   separate review pass and state that it was not independent.
+9. Audit the contract, report every check status honestly, and stop at the contract's
+   stopping condition.
+
+## Evidence and verification
+
+Every check definition records an executable and argument array, working directory,
+required environment/input files, prerequisites, side effects, resource conflicts,
+expected exit code/artifacts, behavior, and limits. `$POPULOUS_EXE` is a placeholder
+for an external read-only user input, not a credential or tracked artifact.
+
+Native CPU checks use the documented Python environment and hash-verified PE/data.
+They execute isolated original instructions while often intercepting system calls or
+supplying world consumers. Read each script before running it: a few historical
+native checks write tracked fixtures even without `--record`.
+
+Browser checks do not start the server. Most use Playwright Chromium and
+`POPULOUS_URL` or `http://localhost:3000`; QA scripts may instead require installed
+Chrome. They use internal React fibers and are integration-coupled. Some write fixed
+temporary paths or tracked performance files unconditionally, so inspect and
+serialize them.
+
+Report each required or attempted check as one of:
+
+```text
+passed | failed | blocked | not-run | not-applicable
+```
+
+Include command, actual exit code when run, artifacts, tested-code fingerprint, and
+reason for every non-passing result. Required blocked/not-run evidence prevents the
+corresponding acceptance claim, but need not block an unrelated metadata delivery.
+An advisory command's nonzero findings are distinct from an execution error.
+
+Evidence records describe method, provenance, scope/cases, live entry points,
+limitations/intercepts/approximations, artifacts, reviewer assessment, and remaining
+gaps. They do not collapse these dimensions into a single strength rank.
+
+## Performance
+
+Start with `orchestration:context` for the relevant subsystem and bounded question.
+Read the cited current policy, measurement rules, workload, corrections, and
+limitations from `references/modern-performance.md`; expand to adjacent sections
+only when needed, and read the whole historical log only for an explicitly broad
+audit. Predeclare a comparable workload and acceptance criteria. Preserve simulation
+clock, RNG, and state ownership separately from presentation. Prefer paired runs and
+alternate order where useful.
+
+Record measurement scope (microbenchmark, simulation visit, browser frame, or play
+session), browser mode (headed/headless/not applicable), and renderer
+(hardware/software/unknown plus actual identity) independently. Include fingerprints,
+seed/workload, hardware, OS, Node/browser versions, viewport/DPR, warmup, sample
+count, repetitions/order, timer resolution/noise, raw artifacts, p95, spikes, draw
+calls, allocations, and memory when relevant. Zero measured milliseconds is not zero
+work; a local microbenchmark is not a whole-game speedup.
+
+## Generated outputs and scarce resources
+
+`engineering/generated-files.json` records parity output, reviewed Ghidra exports,
+native-derived fixtures, imported runtime assets, performance artifacts, and the
+ignored orchestration cache. It is intentionally explicit about cooperative or
+unresolved ownership rather than inferring producers from names.
+
+Serialize operations against one Ghidra project, fixture or parity recording,
+shared build directories, fixed-port servers, fixed screenshot/report paths, and
+performance resources. Browser/native checks can mutate tracked artifacts; source
+read-only analysis and artifact-producing verification are separate assignments.
+
+Never hand-edit `PARITY.md`, mass-regenerate evidence, shrink parity scope, or run
+`parity:record` to hide an unrelated failure. `.openai/hosting.json` remains outside
+this workflow. Runtime module extraction/refactoring is deferred until a bounded task
+demonstrates a maintainability benefit and protects TypeScript, embedded/browser
+imports, assets, benchmark source extraction, evidence paths, and ordering/rounding.

@@ -1,0 +1,349 @@
+{
+  "version": 1,
+  "subsystems": [
+    {
+      "id": "selection",
+      "title": "Selection and picking",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/drag-selection.ts",
+        "app/person-selection.ts",
+        "app/scene-picking.ts",
+        "app/selection-mesh.ts",
+        "app/world-picking.ts"
+      ],
+      "sharedPaths": ["app/model.ts", "app/scene.ts", "app/render-view.ts"],
+      "entrySymbols": [
+        { "path": "app/scene.ts", "symbol": "pointerUp" },
+        { "path": "app/model.ts", "symbol": "selectArea" },
+        { "path": "app/scene-picking.ts", "symbol": "ScenePicking.pick" }
+      ],
+      "parityIds": [
+        "interface.selection",
+        "interface.commands",
+        "interface.commands.follower-flags",
+        "interface.commands.world-drag",
+        "interface.commands.drag-feedback",
+        "interface.commands.input-ownership",
+        "interface.commands.mixed-selection",
+        "world.projection",
+        "graphics.raster.primitive-order",
+        "graphics.raster.queue"
+      ],
+      "evidence": [
+        { "path": "decomp/README.md", "heading": "Native follower selection" },
+        {
+          "path": "references/reverse-engineering.md",
+          "heading": "Camera-oriented world drag selection"
+        },
+        { "path": "references/modern-performance.md", "heading": "Building-aware drag release" },
+        { "path": "references/modern-performance.md", "heading": "Mixed-object picking" }
+      ],
+      "nativeAddresses": ["0x443d30", "0x4440a0", "0x444270", "0x444430", "0x4445d0", "0x4449d0"],
+      "checkIds": ["selection-portable", "selection-native-drag", "selection-browser-drag"],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
+      "risks": [
+        "Painter-order hits and selection state cross rendering, input, audio, and shared command ownership."
+      ],
+      "unresolved": [
+        "ScenePicking has no direct portable integration test; pure world-picking tests do not prove live traversal.",
+        "Specialist, vehicle, passenger, settings, and complete input-buffer ownership remain incomplete."
+      ]
+    },
+    {
+      "id": "movement-orders",
+      "title": "Movement and shared orders",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/live-movement.ts",
+        "app/marching-formations.ts",
+        "app/person-order-start.ts",
+        "app/person-order-update.ts",
+        "app/person-orders.ts",
+        "app/person-routes.ts",
+        "app/route-advance.ts"
+      ],
+      "sharedPaths": ["app/model.ts", "app/scene.ts", "app/native-terrain.ts"],
+      "entrySymbols": [
+        { "path": "app/model.ts", "symbol": "command" },
+        { "path": "app/live-movement.ts", "symbol": "appendLiveOrders" },
+        { "path": "app/model.ts", "symbol": "stepTurn" }
+      ],
+      "parityIds": [
+        "simulation.orders",
+        "simulation.orders.ground-waypoints",
+        "simulation.orders.lifecycle",
+        "movement.routes",
+        "movement.ground",
+        "movement.groups",
+        "movement.groups.marching",
+        "movement.groups.lifecycle",
+        "world.wrap",
+        "world.wrap.followers",
+        "world.wrap.lifecycle"
+      ],
+      "evidence": [
+        { "path": "decomp/README.md", "heading": "Shared person commands" },
+        { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
+        {
+          "path": "references/reverse-engineering.md",
+          "heading": "Live ordinary marching orders and formation handoff"
+        },
+        {
+          "path": "references/modern-performance.md",
+          "heading": "Native marching integration and collision snapshots"
+        }
+      ],
+      "nativeAddresses": ["0x4ee470", "0x4ec810", "0x4ef510"],
+      "checkIds": ["orders-portable", "orders-native", "orders-browser"],
+      "generatedInputIds": ["native-fixtures"],
+      "risks": [
+        "Shared command/person identity, RNG order, route ownership, and render-rate independence span sibling controllers."
+      ],
+      "unresolved": [
+        "The live movement adapter handles only a bounded command subset.",
+        "Avoidance, general work/attack restoration, vehicles, specialist classes, and complete scheduler ownership remain open."
+      ]
+    },
+    {
+      "id": "construction-resources",
+      "title": "Construction and resources",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/building-preparation.ts",
+        "app/building-work.ts",
+        "app/building-workers.ts",
+        "app/timber.ts"
+      ],
+      "researchPaths": [
+        "app/building-fetch.ts",
+        "app/construction-order.ts",
+        "app/timber-search.ts"
+      ],
+      "sharedPaths": ["app/model.ts", "app/native-terrain.ts", "app/scene.ts"],
+      "entrySymbols": [
+        { "path": "app/scene.ts", "symbol": "placeBuilding" },
+        { "path": "app/model.ts", "symbol": "placeBuilding" },
+        { "path": "app/model.ts", "symbol": "processBuilderWork" }
+      ],
+      "parityIds": [
+        "economy.plans",
+        "economy.wood",
+        "interface.plans",
+        "interface.hud.construction-panel",
+        "graphics.orientation",
+        "graphics.variants.stages",
+        "world.deform",
+        "simulation.orders.lifecycle"
+      ],
+      "evidence": [
+        { "path": "decomp/README.md", "heading": "Construction command wrapper" },
+        { "path": "decomp/README.md", "heading": "Construction timber hauling" },
+        { "path": "decomp/README.md", "heading": "Shared construction resource searches" },
+        {
+          "path": "references/modern-performance.md",
+          "heading": "Construction research checkpoints"
+        },
+        { "path": "references/modern-performance.md", "heading": "Shared timber cache" }
+      ],
+      "nativeAddresses": ["0x496750", "0x4935c0", "0x493910", "0x493f10", "0x494d10"],
+      "checkIds": [
+        "construction-live-portable",
+        "construction-research-portable",
+        "construction-native-order",
+        "construction-native-fetch",
+        "construction-native-timber-search",
+        "construction-browser"
+      ],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
+      "risks": [
+        "Plan/person identity, resource reservations, path ownership, generated fixtures, and terrain changes are cross-cutting."
+      ],
+      "unresolved": [
+        "construction-order.ts, building-fetch.ts, and timber-search.ts are reviewed research implementations with no live app caller.",
+        "Native task-7 consumers, resource path costs, scheduling, and stable live plan/person/route ownership remain supplied or unintegrated."
+      ]
+    },
+    {
+      "id": "camera-clocks",
+      "title": "Camera and game clocks",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/camera-input.ts",
+        "app/camera-motion.ts",
+        "app/camera-view.ts",
+        "app/game-clock.ts",
+        "app/unit-motion.ts"
+      ],
+      "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
+      "entrySymbols": [
+        { "path": "app/scene.ts", "symbol": "animate" },
+        { "path": "app/game-clock.ts", "symbol": "GameClock" },
+        { "path": "app/model.ts", "symbol": "tick" }
+      ],
+      "parityIds": [
+        "world.camera",
+        "world.flyby",
+        "simulation.turns",
+        "simulation.modes",
+        "graphics.animation.clock",
+        "graphics.sprites.interpolation",
+        "interface.hud.minimap-input"
+      ],
+      "evidence": [
+        { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
+        {
+          "path": "references/modern-performance.md",
+          "heading": "Ground camera presentation between native steps"
+        },
+        { "path": "decomp/README.md", "heading": "Native desktop camera input" }
+      ],
+      "nativeAddresses": ["0x439950", "0x438ae0", "0x4199b0"],
+      "checkIds": ["clock-portable", "camera-native", "camera-browser"],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
+      "risks": [
+        "Simulation, input, animation, effects, audio, and high-refresh preview clocks must remain independent."
+      ],
+      "unresolved": [
+        "The browser outer presentation and flyby retain documented 24 Hz adapters.",
+        "Complete native frame scheduling, settings/modifier ownership, and all transition consumers remain open."
+      ]
+    },
+    {
+      "id": "terrain-performance",
+      "title": "Terrain and presentation performance",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/native-terrain.ts",
+        "app/painter-order.ts",
+        "app/terrain-notifications.ts",
+        "app/terrain-texture.ts",
+        "app/terrain-visibility.ts",
+        "app/viewport-bounds.ts"
+      ],
+      "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
+      "entrySymbols": [
+        { "path": "app/model.ts", "symbol": "syncNativeTerrain" },
+        { "path": "app/render-view.ts", "symbol": "RenderView" },
+        { "path": "app/scene.ts", "symbol": "updateTerrainTexture" }
+      ],
+      "parityIds": [
+        "world.terrain",
+        "world.projection",
+        "world.deform",
+        "graphics.raster",
+        "graphics.raster.cell-bounds",
+        "graphics.raster.terrain-uv",
+        "graphics.raster.queue",
+        "graphics.raster.clipping",
+        "graphics.raster.texture-cache",
+        "graphics.raster.frames"
+      ],
+      "evidence": [
+        { "path": "references/modern-performance.md", "heading": "Measurement rules" },
+        {
+          "path": "references/modern-performance.md",
+          "heading": "Indexed terrain submission and picking"
+        },
+        {
+          "path": "references/modern-performance.md",
+          "heading": "Painter geometry work on the Mac GPU"
+        },
+        { "path": "references/modern-performance.md", "heading": "Batch terrain notifications" },
+        { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" }
+      ],
+      "nativeAddresses": ["0x44df40", "0x44e940", "0x4f9380"],
+      "checkIds": ["terrain-portable", "terrain-native", "terrain-browser", "performance-profile"],
+      "generatedInputIds": ["native-fixtures", "performance-records"],
+      "risks": [
+        "Renderer batching, terrain mutation, picking, GPU identity, shared capture paths, and performance noise require separate evidence."
+      ],
+      "unresolved": [
+        "Browser-path equivalence does not establish complete native renderer parity.",
+        "Current source lacks fresh representative hardware frame evidence for every populated combat and terrain workload."
+      ]
+    }
+  ],
+  "crossCutting": [
+    {
+      "path": "app/model.ts",
+      "subsystemIds": [
+        "selection",
+        "movement-orders",
+        "construction-resources",
+        "camera-clocks",
+        "terrain-performance"
+      ],
+      "checkIds": ["repository-check"]
+    },
+    {
+      "path": "app/scene.ts",
+      "subsystemIds": [
+        "selection",
+        "movement-orders",
+        "construction-resources",
+        "camera-clocks",
+        "terrain-performance"
+      ],
+      "checkIds": ["repository-check", "production-build"]
+    },
+    {
+      "path": "app/native-terrain.ts",
+      "subsystemIds": ["movement-orders", "construction-resources", "terrain-performance"],
+      "checkIds": ["repository-check"]
+    },
+    {
+      "path": "app/person-orders.ts",
+      "subsystemIds": ["movement-orders", "construction-resources"],
+      "checkIds": ["repository-check"]
+    },
+    {
+      "path": "app/game-clock.ts",
+      "subsystemIds": ["camera-clocks", "terrain-performance"],
+      "checkIds": ["repository-check"]
+    },
+    {
+      "path": "app/render-view.ts",
+      "subsystemIds": ["selection", "camera-clocks", "terrain-performance"],
+      "checkIds": ["production-build"]
+    }
+  ],
+  "unmappedAreas": [
+    {
+      "id": "audio",
+      "mappingStatus": "unmapped",
+      "paths": ["app/audio.ts", "app/music.ts"],
+      "note": "Mechanically inventoried; no reviewed workflow mapping in this initial slice."
+    },
+    {
+      "id": "campaign",
+      "mappingStatus": "unmapped",
+      "paths": ["app/popscript.ts", "app/vault.ts"],
+      "note": "Mechanically inventoried; current campaign evidence is not semantically mapped here."
+    },
+    {
+      "id": "combat",
+      "mappingStatus": "inferred",
+      "paths": ["app/combat-orders.ts", "app/melee.ts"],
+      "note": "Known shared-order consumers, but full combat evidence/check routing was not reviewed for this infrastructure delivery."
+    },
+    {
+      "id": "effects-spells",
+      "mappingStatus": "unmapped",
+      "paths": ["app/blast-wave.ts", "app/lightning.ts", "app/land-bridge.ts"],
+      "note": "Mechanically inventoried only."
+    },
+    {
+      "id": "persistence-network",
+      "mappingStatus": "unmapped",
+      "paths": ["app/game-store.ts"],
+      "note": "No reviewed persistence or multiplayer mapping in this initial slice."
+    },
+    {
+      "id": "vehicles",
+      "mappingStatus": "unmapped",
+      "paths": ["app/vehicle-routing.ts"],
+      "note": "Vehicle construction, ownership, and integration remain outside the reviewed slice."
+    }
+  ]
+}

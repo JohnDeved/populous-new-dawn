@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "owners": [
+    {
+      "id": "parity-report",
+      "kind": "bookkeeping",
+      "generator": {
+        "executable": "npm",
+        "args": ["run", "parity:record", "--", "<authorized-note>"]
+      },
+      "callers": ["scripts/parity.mjs", "package.json"],
+      "inputs": ["parity.json", "parity-history.json"],
+      "outputs": [
+        { "path": "PARITY.md", "type": "file", "tracked": true, "protected": true },
+        { "path": "parity-history.json", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Only after authorized ledger changes, appropriate evidence, and independent review; commit ledger, history, and report together."
+    },
+    {
+      "id": "ghidra-exports",
+      "kind": "native-evidence",
+      "generator": {
+        "executable": "python3",
+        "args": ["scripts/decomp.py", "export", "<reviewed-addresses>"]
+      },
+      "callers": ["scripts/decomp.py", "decomp/README.md"],
+      "inputs": ["decomp/sections.tsv", "decomp/tools.json"],
+      "outputs": [
+        { "path": "decomp/generated", "type": "directory", "tracked": true, "protected": true },
+        { "path": "decomp/exports.json", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Serialize access to one Ghidra project. Export to a scratch directory for comparison before replacing reviewed evidence."
+    },
+    {
+      "id": "native-fixtures",
+      "kind": "native-evidence",
+      "generator": {
+        "executable": "python3",
+        "args": ["scripts/check-native-<scope>.py", "$POPULOUS_EXE", "--record"]
+      },
+      "callers": [
+        "scripts/check-native-drag-selection.py",
+        "scripts/check-native-construction-order.py",
+        "scripts/check-native-terrain.py"
+      ],
+      "inputs": ["decomp/requirements.txt", "decomp/sections.tsv"],
+      "outputs": [
+        { "path": "tests/fixtures", "type": "directory", "tracked": true, "protected": true }
+      ],
+      "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally."
+    },
+    {
+      "id": "imported-runtime-data",
+      "kind": "imported-assets",
+      "generator": {
+        "executable": "python3",
+        "args": ["scripts/import-<scope>.py", "<user-supplied-game-path>"]
+      },
+      "callers": [
+        "scripts/import-original.py",
+        "scripts/import-level.py",
+        "scripts/import-hud.py",
+        "scripts/import-sound.py",
+        "scripts/import-music.py"
+      ],
+      "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
+      "outputs": [
+        {
+          "path": "app/level-one.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
+          "path": "app/original-camera.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-camera.py"
+        },
+        {
+          "path": "app/original-constants.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-original.py"
+        },
+        {
+          "path": "app/original-effects.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-original.py"
+        },
+        {
+          "path": "app/original-fire.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-original.py"
+        },
+        {
+          "path": "app/original-hud.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-hud.py"
+        },
+        {
+          "path": "app/original-messages.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-messages.py"
+        },
+        {
+          "path": "app/original-models.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-original.py"
+        },
+        {
+          "path": "app/original-music.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-music.py"
+        },
+        {
+          "path": "app/original-pointer.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/check-native-pointer-brackets.py --record"
+        },
+        {
+          "path": "app/original-rules.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/inspect-executable.py"
+        },
+        {
+          "path": "app/original-script.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-search.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-search.py"
+        },
+        {
+          "path": "app/original-shapes.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-original.py"
+        },
+        {
+          "path": "app/original-sky.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-messages.py"
+        },
+        {
+          "path": "app/original-skylens.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-original.py"
+        },
+        {
+          "path": "app/original-sound.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-sound.py"
+        },
+        {
+          "path": "app/original-tooltips.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-messages.py"
+        },
+        {
+          "path": "app/original-units.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-original.py"
+        },
+        { "path": "public/original", "type": "directory", "tracked": true, "protected": true }
+      ],
+      "recording": "Only the documented importer owns each app/original-*.json or public/original asset; do not infer one producer from an original-* name."
+    },
+    {
+      "id": "performance-records",
+      "kind": "measurement",
+      "generator": {
+        "executable": "node",
+        "args": ["scripts/profile-game.mjs", "<declared-workload-options>"]
+      },
+      "callers": [
+        "scripts/profile-game.mjs",
+        "scripts/bench-terrain-notifications.mjs",
+        "scripts/check-browser-drag-selection.mjs"
+      ],
+      "inputs": ["references/modern-performance.md"],
+      "outputs": [
+        {
+          "path": "references/performance",
+          "type": "directory",
+          "tracked": true,
+          "protected": true
+        }
+      ],
+      "recording": "Record baseline/candidate fingerprints, workload, renderer identity, hardware, runtime, resolution, warmup, samples, order, raw data, and limitations."
+    },
+    {
+      "id": "orchestration-cache",
+      "kind": "disposable",
+      "generator": { "executable": "npm", "args": ["run", "orchestration:index"] },
+      "callers": ["scripts/orchestration/cli.mjs"],
+      "inputs": ["engineering/project-map.json", "engineering/checks.json", "parity.json"],
+      "outputs": [
+        { "path": "work/orchestration", "type": "directory", "tracked": false, "protected": false }
+      ],
+      "recording": "Ignored and regenerable. Never use a stale fingerprint or commit the cache/receipts."
+    }
+  ]
+}

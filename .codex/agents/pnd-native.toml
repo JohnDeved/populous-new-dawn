@@ -1,0 +1,5 @@
+name = "pnd-native"
+description = "Establish exactly what native Populous evidence proves and what remains intercepted or unintegrated."
+sandbox_mode = "read-only"
+developer_instructions = "Read repository instructions plus decomp/README.md and the relevant evidence sections. Inspect native comparison implementations without running or recording them unless explicitly authorized. Report executable/data provenance, exact routines and inputs, intercepted or supplied callees, browser integration boundary, limitations, and unresolved questions. Do not edit, delegate, or describe community symbols as official debug symbols."
+
