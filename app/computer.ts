@@ -96,14 +96,16 @@ export type MarkerInput = {
 export type MarkerAction =
   | { kind: 'select'; id: number }
   | { kind: 'order'; ids: number[]; marker: number }
+  | { kind: 'guard'; ids: number[]; marker: number }
   | { kind: 'restore'; ids: number[] }
 
-// 0x4cedd0 special route. The non-special route emits different command chains.
+// 0x4cedd0 special and ordinary no-secondary routes.
 export function stepMarkerTask(ai: ComputerQueue, index: number, input: MarkerInput) {
   const task = ai.tasks[index],
     actions: MarkerAction[] = []
-  if (!task.extra) throw new Error('Unbound non-special computer marker task')
   const route = task.route[task.mode]
+  if (!task.extra && route.secondary !== -1)
+    throw new Error('Unbound secondary computer marker route')
   if (task.phase === 0) {
     task.selected = 0
     task.remaining = 0
@@ -147,7 +149,10 @@ export function stepMarkerTask(ai: ComputerQueue, index: number, input: MarkerIn
   }
   if (task.phase === 5) {
     const ids = [...task.members]
-    actions.push({ kind: 'order', ids, marker: route.marker }, { kind: 'restore', ids })
+    actions.push(
+      { kind: task.extra ? 'order' : 'guard', ids, marker: route.marker },
+      { kind: 'restore', ids }
+    )
     task.members.length = 0
     releaseSelection(ai, index)
     task.phase = 6

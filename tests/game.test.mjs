@@ -521,6 +521,32 @@ test('mission marker task sends one reserved brave to marker one',async()=>{
  until(w,()=>!(task.flags&1),1);assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
 });
 
+test('mission-one ordinary marker guard patrols and answers nearby enemies',async()=>{
+ const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
+ for(const u of w.units)if(u.kind!=='shaman')u.hp=0;
+ tick(w,1/12);const chosen=addUnit(w,'red','warrior',{x:10,z:-37});
+ w.turn=39;tick(w,1/12);
+ const task=w.ai.tasks.find(t=>t.flags&1&&t.type===24);
+ assert.deepEqual(task&&{extra:task.extra,route:task.route[0]},{extra:0,route:{marker:0,secondary:-1,quotas:[0,1,0,0]}});
+ until(w,()=>task.phase===6,1);
+ const p=chosen.native,orders=()=>p.commands.filter(Boolean).map(id=>w.buildingOrders.records[id]);
+ assert.deepEqual(orders().map(o=>[o.model,o.a,o.b]),[[3,2176,4736],[11,level.markers[0],0x606]]);
+ until(w,()=>currentPersonOrder(w.buildingOrders,p)?.model===11&&p.commandAux===1,10);
+ const marker=nativeCellPoint(level.markers[0]),building=addBuilding(w,'blue','hut',{x:marker.x+4,z:marker.z+4},true);
+ const outside=addUnit(w,'blue','warrior',{x:marker.x+8,z:marker.z});p.counter=1;tick(w,1/12);
+ assert.deepEqual([p.commandAux,p.substate,p.workTarget],[1,0,0],'buildings and the outer cell do not wake the guard');
+ const target=addUnit(w,'blue','warrior',{x:marker.x+6,z:marker.z});
+ p.counter=0;tick(w,1/12);assert.equal(p.commandAux,1,'the sensor skips its alternate visit');
+ p.counter=1;tick(w,1/12);
+ assert.deepEqual([p.commandAux,p.workTarget],[0,target.id]);
+ building.hp=outside.hp=target.hp=0;const victim=addUnit(w,'blue','warrior',{x:marker.x+2,z:marker.z});
+ until(w,()=>p.state===25,10);assert.equal(currentPersonOrder(w.buildingOrders,p)?.model,11,'combat retains the persistent guard order');
+ victim.hp=0;until(w,()=>chosen.native===p&&p.commandAux===1,10);
+ const guardId=p.commands.find(id=>id&&w.buildingOrders.records[id].model===11);chosen.hp=0;tick(w,1/12);
+ assert.equal(w.buildingOrders.records[guardId].references,0,'death releases the guard command');
+});
+
 
 test('campaign markers remove the bridge head on the native phase, independently of routing',()=>{
  const w=createWorld(),head=w.shrines.find(s=>s.kind==='bridge');

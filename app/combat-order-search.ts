@@ -111,7 +111,7 @@ export function prepareCombatOrderVisit(
   order: PersonOrder,
   e: CombatSearchEffects
 ) {
-  if (order.model !== 19 && order.model !== 21)
+  if (order.model !== 11 && order.model !== 19 && order.model !== 21)
     throw new RangeError(`Unsupported attack command ${order.model}`)
   if (p.tribe === w.playerTribe && !w.alert) w.alert = 1
   const automatic = order.model === 21

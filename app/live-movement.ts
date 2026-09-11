@@ -46,12 +46,15 @@ import {
 } from './person-state.ts'
 import {
   currentPersonOrder,
+  emptyPersonOrder,
   allocatePersonOrder,
   attachPersonOrder,
   appendPersonOrders,
   clearPersonOrders,
+  commitPersonOrders,
   removePersonOrder,
   advancePersonOrder,
+  queuePersonOrder,
   stepMovementOrder,
   prepareMovementOrder,
   prepareBuildingEntryOrder,
@@ -100,7 +103,7 @@ export const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 6, 8, 10, 17, 19, 21, 27, 31, 32].includes(order.model)) unsupported()
+  if (!order || ![3, 6, 8, 10, 11, 17, 19, 21, 27, 31, 32].includes(order.model)) unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,
@@ -209,7 +212,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     {
       ...orderEffects(w),
       prepare: (order, model, x, y, commandFlags = 0) => {
-        if (model === 10 || model === 19) {
+        if (model === 10 || model === 11 || model === 19) {
           prepareCellOrder(order, { a: x, b: y }, commandFlags, w.land.categories, model)
           return
         }
@@ -256,6 +259,35 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     adoptLiveOrders(w, u, p)
   }
   return { accepted, count }
+}
+
+// 0x4cedd0 commits movement and persistent guard as one native command group.
+export function appendLiveGuardOrders(w: World, units: Unit[], marker: number) {
+  const group = {
+    records: Array.from({ length: 8 }, emptyPersonOrder),
+    count: 0,
+    cursor: 0,
+  }
+  queuePersonOrder(group, 3, 0, marker)
+  queuePersonOrder(group, 11, 0x606, marker)
+  const people = units.map(u => {
+    const p = u.native ?? createLivePerson(w, u)
+    u.native = p
+    p.selectionFlags |= 128
+    registerLivePerson(w, p)
+    return p
+  })
+  return commitPersonOrders(w.buildingOrders, group, people, [-1, -1, -1], {
+    ...orderEffects(w),
+    prepare: (order, model, a, b, flags = 0) => {
+      if (model === 3)
+        prepareMovementOrder(order, { x: a, y: b }, flags, w.land, id =>
+          buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!))
+        )
+      else if (model === 11) prepareCellOrder(order, { a, b }, flags, w.land.categories, model)
+      else unsupported()
+    },
+  })
 }
 
 export function movementOrder(w: World, to: { x: number; y: number }) {

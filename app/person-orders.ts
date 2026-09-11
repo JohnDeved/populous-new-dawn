@@ -448,7 +448,7 @@ export function prepareCellOrder(
   payload: { a: number; b: number },
   flags: number,
   categories: Uint8Array,
-  model: 10 | 19 | 21 = 21
+  model: 10 | 11 | 19 | 21 = 21
 ) {
   const a = payload.a & 65535,
     b = payload.b & 65535

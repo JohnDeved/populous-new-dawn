@@ -3,6 +3,7 @@ import { worshipOrder, worshipHeadPose } from './live-worship.ts'
 import {
   movementOrder,
   appendLiveOrders,
+  appendLiveGuardOrders,
   startLiveOrder,
   cancelLiveOrder,
   stepLiveConversionVictim,
@@ -2275,7 +2276,7 @@ function stepComputerTasks(w: World, tribe: number) {
           u.native.computerAssignment = 99
           registerLivePerson(w, u.native)
           changeLivePersonState(w, u, 14)
-        } else if (action.kind === 'order') {
+        } else if (action.kind === 'order' || action.kind === 'guard') {
           const marker = level.markers[action.marker],
             cell = ((marker & 0xfe00) >>> 9) * 128 + ((marker & 254) >>> 1),
             target = w.land.buildingIds[cell] & 1023,
@@ -2284,8 +2285,12 @@ function stepComputerTasks(w: World, tribe: number) {
               const u = w.units.find(u => u.id === id && u.hp > 0)
               return u ? [u] : []
             })
-          writePersonOrder(order, target ? 8 : 3, target, marker, 0)
-          if (units.length) appendLiveOrders(w, units, order, true)
+          if (action.kind === 'guard') {
+            if (units.length) appendLiveGuardOrders(w, units, marker)
+          } else {
+            writePersonOrder(order, target ? 8 : 3, target, marker, 0)
+            if (units.length) appendLiveOrders(w, units, order, true)
+          }
         } else {
           for (const id of action.ids) {
             const u = w.units.find(u => u.id === id)
@@ -2718,7 +2723,7 @@ const boundCampaignScript = {
     ...originalScript.codes.slice(382, 531),
     ...originalScript.codes.slice(564, 681),
     ...originalScript.codes.slice(681, 855),
-    ...originalScript.codes.slice(855, 925),
+    ...originalScript.codes.slice(855, 936),
     ...originalScript.codes.slice(936, 1505),
     1004,
     1019,
@@ -5701,7 +5706,10 @@ function stepTurn(w: World) {
       stepLivePhysics(w, u, u.native)
       continue
     }
-    if (u.native && [19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)) {
+    if (
+      u.native &&
+      [11, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+    ) {
       stepLiveBuildingAttack(w, u)
       continue
     }

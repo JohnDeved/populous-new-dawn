@@ -101,7 +101,7 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
 
 export function cancelLiveBuildingAttack(w: World, u: Unit) {
   const p = u.native ?? u.fight?.motion ?? u.flight
-  if (!p || ![19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
+  if (!p || ![11, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
@@ -157,7 +157,10 @@ export function startLiveCombatResponse(w: World, u: Unit) {
 
 // Manual command 19 and automatic command 21 share the native area controller.
 export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
-  if (!u.native || ![19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)) {
+  if (
+    !u.native ||
+    ![11, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+  ) {
     if (!b) return
     cancelLiveResting(w, u)
     cancelLiveBuildingAttack(w, u)
@@ -201,14 +204,17 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
   stepPersonReaction(p)
   moveLivePerson(w, u, p)
   if (p.state !== 10) return
-  const next = stepLiveOrderQueue(w, u, p, { 19: order => Number(stepAreaAttack(w, u, p, order)) })
+  const next = stepLiveOrderQueue(w, u, p, {
+    11: order => Number(stepGuardOrder(w, u, p, order)),
+    19: order => Number(stepAreaAttack(w, u, p, order)),
+  })
   if (next) {
     u.target = null
     clearLivePath(w, u)
     changeLivePersonState(w, u, next)
   }
   if (!u.fight) adoptLiveOrders(w, u, p)
-  if (![19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) u.target = null
+  if (![11, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) u.target = null
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
 
@@ -229,7 +235,31 @@ function combatMotion(w: World, u: Unit, p: LivePerson) {
   }
 }
 
-function stepAreaAttack(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
+function stepGuardOrder(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
+  if (p.substate) {
+    stepAreaAttack(w, u, p, order)
+    return false
+  }
+  if (!p.commandAux) {
+    if (stepAreaAttack(w, u, p, order)) p.commandAux = 1
+    return false
+  }
+  if (p.counter & 1) return false
+  const selected = selectLiveCombatTarget(w, u, order)
+  if (!selected) return false
+  p.commandAux = 0
+  p.flags2 = (p.flags2 | 0x40000000) >>> 0
+  stepAreaAttack(w, u, p, order, selected)
+  return false
+}
+
+function stepAreaAttack(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  order: PersonOrder,
+  initial?: NonNullable<ReturnType<typeof selectLiveCombatTarget>>
+) {
   const motion = combatMotion(w, u, p)
   const range = () => engagementRange(p, order, false)
   const buildingAt = (point: { x: number; y: number }) => {
@@ -244,7 +274,7 @@ function stepAreaAttack(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
     alert: w.musicActivity,
     marches: w.combatMarches,
   }
-  let selected: ReturnType<typeof selectLiveCombatTarget>
+  let selected = initial
   const effects = {
     ...motion,
     range,
@@ -260,7 +290,7 @@ function stepAreaAttack(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
       withinCombatArea(p, command, undefined, { range, vehicleReady: unsupported }),
     select: (command: PersonOrder, vehicleOnly: boolean) => {
       if (vehicleOnly || p.vehicle) unsupported()
-      selected = selectLiveCombatTarget(w, u, command)
+      selected ??= selectLiveCombatTarget(w, u, command)
       return selected && { id: selected.target.id, type: selected.type }
     },
     prepareTarget: (command: PersonOrder) =>
