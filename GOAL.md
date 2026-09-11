@@ -117,9 +117,21 @@ the original state-29 dispatch. Waiting trainees leave their physical line durin
 combat and rejoin afterward without losing their training order. Native executable
 queue preservation, portable identity/reference/recovery and render-rate checks,
 and desktop/ultrawide input with original walking pixels pass. Continue explicit
-area-attack queue ownership: command 19 must rescan its area after losing a target,
-not complete merely because its initially clicked building disappeared. Full
-automatic command-21 sharing, construction/transport and class scheduling remain open.
+area-attack integration through the remaining failed-route and specialized-class
+boundaries; full automatic command-21 sharing, construction/transport and class
+scheduling remain open.
+
+Ordinary reachable area attacks now append to the same ground/building/head queue.
+The native command-19 search chooses people, fights, buildings and ordinary plans,
+restarts after target loss, and completes only after the area scan allows it.
+Six-person ground → attack → ground sequences share command references, destroy
+the hut and regroup; a replacement enemy in the area is fought before the tail
+resumes. Original arrival voices count approaching attackers on the fixed simulation
+clock. Native helper comparisons, 5–240 Hz/irregular replay, desktop/ultrawide real
+mouse input and visible attack pixels pass. Keep full area drawing, native state-33
+failed-route recovery, specialist/vehicle targeting and complete mixed-class ordering
+open. Existing input reachability admission is deliberately retained until state 33
+is integrated; it must never erase a valid queue for an unreachable replacement.
 
 **Evidence correction:** the supplied D3D executable's 00438ae0 preview hook and
 004199b0 camera-restore hook are literal RET stubs. The retained staging data is

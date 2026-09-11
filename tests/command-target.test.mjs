@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createWorld,addUnit,addBuilding,command} from '../app/model.ts'
+import {createWorld,addUnit,addBuilding,command,nativePosition} from '../app/model.ts'
 
 function scenario(){
  const w=createWorld();w.units=[];w.buildings=[];w.shrines=[];w.trees=[]
@@ -42,9 +42,12 @@ test('live target choice follows captured native ownership for both tribes',asyn
    20:addBuilding(w,c.buildingOwner?'red':'blue','hut',{x:0,z:8},true),
   }
   w.selected=[follower.id];command(w,objects[c.clicked])
-  // The enemy-building lifecycle still uses the existing attack adapter; native
-  // command 19's complete area dispatch is not certified by this target check.
-  assert.equal(c.model===8?follower.work:follower.target,objects[c.resolved].id)
+  if(c.model===19){
+   const order=w.buildingOrders.records[follower.native.commands[0]],point=nativePosition(w,objects[c.resolved])
+   assert.equal(order.model,19)
+   assert.equal(order.a,((point.x>>>8)&254)|(point.y&0xfe00),'building commands encode their native area center')
+   assert.equal(order.b,0,'a clicked building ID must not become the area radius')
+  }else assert.equal(c.model===8?follower.work:follower.target,objects[c.resolved].id)
   if(c.model!==19)assert.equal(c.packet[2]>>>16,c.target,'direct object identity is encoded intact')
  }
 })

@@ -10,7 +10,7 @@ import {
 } from './live-people.ts'
 import { initializeBuildingPerson } from './live-building-entry.ts'
 import { stepLiveWorship } from './live-worship.ts'
-import { liveBuildingAttackTarget } from './live-building-combat.ts'
+import { liveBuildingAttackTarget, releaseLiveAttackReservation } from './live-building-combat.ts'
 import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
@@ -33,6 +33,7 @@ import {
   stepMovementOrder,
   prepareMovementOrder,
   prepareBuildingEntryOrder,
+  prepareCombatOrder,
   type OrderEffects,
   type PersonOrder,
 } from './person-orders.ts'
@@ -48,7 +49,7 @@ const unsupported = (): never => {
 export type LiveFormation = MarchingFormation & { tribe: number }
 const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
-  stopWork: unsupported,
+  stopWork: person => releaseLiveAttackReservation(w, person.workTarget),
   releaseSpell: unsupported,
   deleteObject: unsupported,
   releaseFight: p =>
@@ -155,6 +156,10 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     {
       ...orderEffects(w),
       prepare: (order, model, x, y, commandFlags = 0) => {
+        if (model === 19) {
+          prepareCombatOrder(order, { a: x, b: y }, commandFlags, w.land.categories, 19)
+          return
+        }
         if (model === 8) {
           prepareBuildingEntryOrder(
             order,

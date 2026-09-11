@@ -17,13 +17,14 @@ try{
   })
   const point=await page.evaluate(()=>{const s=window.testScene,p=s.screen(window.targetHut),r=s.container.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}})
   await page.mouse.click(point.x,point.y)
-  assert.equal(await page.evaluate(()=>window.attacker.target),await page.evaluate(()=>window.targetHut.id))
+  assert.equal(await page.evaluate(()=>window.attacker.native.commandStatus),19)
   await page.evaluate(()=>{
     const s=window.testScene,w=s.world
     cancelAnimationFrame(s.frame);w.paused=true;w.speed=1;w.pendingTime=0;s.gameClock.animationTime=0
     window.stepCombat=()=>{w.paused=false;window.combatClock.advanceGame(w,s.gameClock,1/12);w.paused=true;s.animate(s.previous);cancelAnimationFrame(s.frame)}
     for(let i=0;i<150&&window.attacker.native?.animationMode!==46;i++)window.stepCombat()
     window.stepCombat();window.stepCombat()
+    s.cameraBearing=Math.PI;s.focus({x:0,z:1});s.animate(s.previous);cancelAnimationFrame(s.frame)
   })
   const strike=await page.evaluate(()=>{
     const s=window.testScene,u=window.attacker,b=window.targetHut,g=s.unitMeshes.get(u.id),gl=s.renderer.getContext()

@@ -8278,3 +8278,79 @@ the retained building adapter still derives its target from the original area
 cell. It must eventually use native search/restart/completion rather than clear
 all orders when the first building disappears. No whole-lifecycle parity credit
 is awarded for this interruption fix.
+
+### Reachable manual area attacks and group arrival voices — 2026-09-11
+
+The live shared queue now accepts ordinary command 19. A building click writes
+its packed cell center and a zero extent, not the clicked object's ID in the
+radius word. `004380f0` reads the staging extent bytes; `004380f0`/`004aa8b0`
+packet layout and `00438730` preparation retain the area semantics. Both 19 and
+21 use the same coastal correction, including unchanged-record flag retention.
+The updated native preparation oracle compares both models in 1,024 full calls;
+its existing 1,024 complete automatic response allocation comparisons still pass.
+
+The live controller composes the recovered `0051a2a0` search, pursuit, fight/person,
+building and plan branches. Invalid targets restart the manual area scan; they do
+not consume the order. Native completion advances the same shared tail. Target
+snapshots are built during scans, not rendering or each active strike. Building
+classification now uses actual plan ownership: an unbuilt preparation is class 9,
+whereas partial construction is class 2. `0051ff40` reservation release is shared
+by fight restart and command cancellation. Existing automatic building admission
+starts with its already selected/reserved target, preventing double reservation;
+full command-21 allocation/sharing still needs live integration.
+
+Validation includes six followers sharing ground → area attack → ground, natural
+hut destruction, distinct destination positions, target replacement with a person,
+retained encounter ownership and tail recovery, cancellation/reference release,
+and ordinary plans/partial structures. Existing occupied-building ejection/resume
+and all playable attacker cases pass. Original `0051e150` mode 2 selects the housed
+encounter entry phase for both participants; complete housed-target lifecycle and
+special classes remain unverified beyond the recovered helper boundaries.
+
+`00520250` consumes up to eight march summaries after `main_loop_outer` in
+`004a4960`. Distance below 1,536 selects cues 45/46/47 for counts 1/2/3, otherwise
+48. Removal shifts the following rows but the original loop still advances its
+index. `004d32b0` decrements person byte +0x1e after its state body; this is separate
+from sprite animation state. The new oracle executes 1,024 three-visit lists and
+1,024 reservation releases, hooking only audio output. Portable captures retain
+thresholds, count edges, list compaction and reservation duration.
+
+**Modern timing choice:** arrival audio admission runs once after each fixed
+simulation turn. The native consumer sits in the old frontend loop; running it on
+uncapped browser renders would change the number/order of compacted-list visits.
+5–240 Hz and irregular replays verify identical simulation, queues and voices.
+No render-frame counter, new texture, audio resource or per-frame target scan was
+added. Existing motion/routes, animation assets and sound playback are reused.
+The shared combat motion adapter also removes duplicated path setup.
+
+Native comparisons rerun: search 8,192; pursuit begin/step/area 4,096 each;
+fight/person/retry visits 12,288; approach queries 1,024; building attack/helper
+calls 16,305 plus 64 sequences. These validate their documented helper boundaries,
+not a complete original executable game-loop replay. `npm run check` passes 355
+tests. Real browser Ctrl/mouse input at 1440×1000 and 3440×1440 preserves all three
+shared commands, visibly attacks (139 changed sprite pixels from an unobstructed
+camera bearing), pauses, destroys the hut and regroups. The prior building-combat
+check retains shake/ejection/recovery checks, viewing the attackers from the other
+side of the hut after the new native path/RNG puts the initial pose behind it.
+576 GPU sprite poses, Blast shadows/landing and selection also pass.
+
+Performance evidence is in `2026-09-11-area-attack.json` and
+`2026-09-11-area-attack-cpu.json` under `references/performance`. Browser six-person
+turns have ~0.2 ms p95 with a coarse timer/SwiftShader. Five 200-person, 600-turn
+Node replays all destroy the hut and release every order, with 0.23–0.38 ms median
+and 5.13–5.27 ms p95 complete turns. The first pass includes JIT warmup. These are
+CPU measurements, not hardware FPS or a before/after improvement claim. Fallow
+maintainability remains 85.5 with 20 existing dependency cycles; the changed area
+adapter has no ox-standard diagnostics and the touched-file diagnostic counts do
+not increase over the baseline. Existing repository lint debt remains.
+
+**Open boundary:** `004d9650` (state 33) is exported but not reimplemented. It owns
+failed-route staged searches and later retry/health behavior. Existing player
+attack reachability admission is retained before changing orders, so unreachable
+replacement clicks preserve valid queues. This is an existing adapter limitation,
+not verified original admission. Full failed-route recovery, area-drawing extents,
+automatic command 21, special plans/structures, ranged/vehicle classes, native
+mixed-class cell ordering and all work/transport handoffs remain open. Ordinary
+plan deletion still uses the live building-removal owner; native class-9 allocation
+and destruction effects are not certified. These bounded deliveries add evidence
+to partial lifecycle requirements without adding duplicate parity points.

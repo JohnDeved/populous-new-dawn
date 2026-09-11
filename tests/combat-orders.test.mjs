@@ -71,7 +71,7 @@ test('coastal combat order preparation matches full native calls and retains fla
   for (const c of preparation) {
     const categories = new Uint8Array(16384), a=c.area.a, order={...c.before}
     categories[((a>>>9)&127)*128+((a&254)>>1)]=c.category
-    prepareCombatOrder(order,c.area,c.flags,categories)
+    prepareCombatOrder(order,c.area,c.flags,categories,c.model)
     assert.deepEqual(order,c.expected)
   }
 })

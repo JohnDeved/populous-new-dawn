@@ -1,6 +1,7 @@
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, random } from './native-math.ts'
 import { stepCombatPursuit, PursuitResult, type PursuingPerson } from './combat-pursuit.ts'
+import { releaseAttackReservation } from './combat-targets.ts'
 import {
   stopPersonMovement,
   stepPersonIdleGesture,
@@ -130,8 +131,7 @@ export function approachFight(
   }
   if (!approaching && fight.count !== p.commandPhase) phase(Phase.Approach)
   if (result === 'restart') {
-    fight.flags4 = (fight.flags4 & ~0x100000) >>> 0
-    if (fight.reactionTimer) fight.reactionTimer = (fight.reactionTimer - 1) & 255
+    releaseAttackReservation(fight)
   }
   return result
 }

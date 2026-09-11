@@ -20,11 +20,8 @@ import {
   type FightParticipant,
 } from './melee-groups.ts'
 import { EncounterPhase } from './melee-encounter.ts'
-import {
-  stepLiveBuildingAttack,
-  cancelLiveBuildingAttack,
-  liveBuildingAttackTarget,
-} from './live-building-combat.ts'
+import { announceCombatMarches, type CombatMarch } from './combat-order-search.ts'
+import { stepLiveBuildingAttack, cancelLiveBuildingAttack } from './live-building-combat.ts'
 import { automaticMeleeTarget, nativePersonModel, nativePersonTribe } from './live-combat.ts'
 import { liveCommandContext } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
@@ -726,7 +723,13 @@ function relocateBattle(w: World, b: Battle, force = false) {
   )
   Object.assign(b, browserPosition(fight))
 }
-export function joinBattle(w: World, u: Unit, target: Unit, structure?: Building) {
+export function joinBattle(
+  w: World,
+  u: Unit,
+  target: Unit,
+  structure?: Building,
+  mode = structure ? 1 : 0
+) {
   let b = w.fights.find(b => b.id === target.fight?.group)
   if (b) {
     if (b.encounter) return // A model-9 encounter already owns both participants.
@@ -750,7 +753,12 @@ export function joinBattle(w: World, u: Unit, target: Unit, structure?: Building
       const motion = enterLiveCombat(w, person, 29)
       release(w, person, true)
       if (person.native === motion) person.native = null
-      motion.substate = structure ? EncounterPhase.EjectDefender : phase
+      motion.substate =
+        mode === 1
+          ? EncounterPhase.EjectDefender
+          : mode === 2
+            ? EncounterPhase.EnterBuilding
+            : phase
       motion.flags2 = (motion.flags2 | 0x40000000) >>> 0
       motion.workFlags = b.id
       person.fight = {
@@ -1397,6 +1405,7 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
 export type World = {
   objectCells: ObjectCells
   marching: LiveFormation[]
+  combatMarches: CombatMarch[]
   buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
@@ -1641,6 +1650,7 @@ export function createWorld(): World {
     giftCounts: { blast: 0, bridge: 0, lightning: 0 },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
+    combatMarches: [],
     buildingOrders: {
       records: Array.from({ length: 800 }, emptyPersonOrder),
       cursor: 1,
@@ -2984,7 +2994,10 @@ export function command(
   const { model } = context
   const queuedBuilding =
     model === 8 && context.building && ['hut', 'camp', 'tower'].includes(context.building.kind)
-  if ((model === 3 || model === 27 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor)) {
+  if (
+    model === 19 ||
+    ((model === 3 || model === 27 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor))
+  ) {
     const slot = w.orderCursor
     const input = playerOrderInput(
       model,
@@ -2993,14 +3006,26 @@ export function command(
       modifiers.shiftKey,
       modifiers.altKey
     )
-    const units = w.units.filter(u => canOrder(u) && w.selected.includes(u.id))
+    // Preserve existing attack input admission until native state-33 failed-route
+    // recovery is integrated. A rejected route must not discard a live queue.
+    const goal = context.building ? entrance(w, context.building) : p
+    const units = w.units.filter(
+      u =>
+        canOrder(u) &&
+        w.selected.includes(u.id) &&
+        (model !== 19 || findLivePath(w, u, goal).length)
+    )
+    if (!units.length) {
+      tell(w, 'No followers can reach this order.')
+      return true
+    }
     // Only release the old controller when beginning a new sequence or replacing
     // an order whose ownership has not yet migrated to the shared queue.
     for (const u of units)
       if (
         !slot ||
         !(u.native ?? u.entry?.person) ||
-        ![3, 8, 10, 27].includes(
+        ![3, 8, 10, 19, 27].includes(
           currentPersonOrder(w.buildingOrders, (u.native ?? u.entry?.person)!)?.model ?? 0
         )
       )
@@ -3010,7 +3035,7 @@ export function command(
     writePersonOrder(
       order,
       model,
-      context.building?.id ?? context.shrine?.id ?? 0,
+      model === 19 ? 0 : (context.building?.id ?? context.shrine?.id ?? 0),
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )
@@ -3033,10 +3058,7 @@ export function command(
   w.orderCursor = 0
   const shrine = model === 27 || model === 33 ? context.shrine : undefined
   const friendly = [6, 8, 10].includes(model) ? context.building : undefined
-  // ponytail: command 19 still enters the existing attack adapter; complete native
-  // area allocation/search/queue ownership must replace that lifecycle together.
-  const enemy =
-    model === 28 ? context.person : model === 19 ? (context.building ?? context.person) : undefined
+  const enemy = model === 28 ? context.person : undefined
   const dismantling = model === 10
   const headOrder = shrine && shrine.kind !== 'vault' ? worshipOrder(w, shrine) : 0
   const moveOrder = !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, p)) : 0
@@ -4874,14 +4896,9 @@ function stepTurn(w: World) {
       stepLivePhysics(w, u, u.native)
       continue
     }
-    if (u.native?.commandStatus === 19) {
-      const building = liveBuildingAttackTarget(w, u.native)
-      if (building) {
-        stepLiveBuildingAttack(w, u, building)
-        continue
-      }
-      cancelLiveBuildingAttack(w, u)
-      u.target = null
+    if (u.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 19) {
+      stepLiveBuildingAttack(w, u)
+      continue
     }
     if (u.casting) {
       u.casting.remaining -= dt
@@ -5136,6 +5153,16 @@ function stepTurn(w: World) {
     )
     if (!b.terrainState?.reason && !b.dismantled) effect(w, 'death', b)
   }
+  // Native person epilogue decrements the arrival-voice cooldown after its state body.
+  for (const u of w.units) {
+    const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
+    if (p?.marchCooldown) p.marchCooldown--
+  }
+  // Audio admission follows simulation time, independent of display refresh.
+  announceCombatMarches(w.combatMarches, (id, cue) => {
+    const unit = w.units.find(u => u.id === id)
+    if (unit) sound(w, cue, unit, id)
+  })
   removeDeadLiveRoutes(w)
   for (const u of w.units)
     if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {

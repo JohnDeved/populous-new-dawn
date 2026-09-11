@@ -25,8 +25,8 @@ const position = (u: { x: number; z: number }) => ({
 const reservation = (owner: { attackReservation?: AttackReservation }) =>
   owner.attackReservation ?? { flags4: 0, reactionTimer: 0, reactionDuration: 0 }
 
-function person(u: Unit): CombatPerson {
-  const p = u.builder?.person ?? u.flight ?? u.fight?.motion ?? u.native
+export function combatPerson(u: Unit): CombatPerson {
+  const p = u.builder?.person ?? u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
   const held = reservation(u)
   let state = u.path.length || u.work !== null ? 10 : 17
   if (u.fight) state = 25
@@ -64,12 +64,12 @@ function combatWorld(w: World, source: CombatPerson, range: number) {
     cells.set(cell, row)
   }
   for (const u of w.units)
-    if (u.hp > 0 && inEngagementArea(source, position(u), range)) add(person(u), u, true)
+    if (u.hp > 0 && inEngagementArea(source, position(u), range)) add(combatPerson(u), u, true)
   for (const fight of w.fights) {
     const point = position(fight)
     if (!inEngagementArea(source, point, range)) continue
     const members = fight.members.map(id => w.units.find(u => u.id === id)).filter(u => !!u)
-    for (const u of members) if (!objects.has(u.id)) add(person(u), u, false)
+    for (const u of members) if (!objects.has(u.id)) add(combatPerson(u), u, false)
     add(
       {
         ...point,
@@ -118,7 +118,7 @@ function combatWorld(w: World, source: CombatPerson, range: number) {
         ...position(b),
         ...reservation(b),
         id: b.id,
-        class: b.progress === 1 ? 2 : 9,
+        class: b.preparation ? 9 : 2,
         model: buildingModel(b),
         tribe: nativePersonTribe(b),
         flags2: 0,
@@ -133,13 +133,32 @@ function combatWorld(w: World, source: CombatPerson, range: number) {
   return { world, owners }
 }
 
+export function selectLiveCombatTarget(
+  w: World,
+  u: Unit,
+  order: { model: number; flags: number; a: number; b: number }
+) {
+  const source = combatPerson(u)
+  const center = { ...source, x: (order.a & 254) * 256, y: order.a & 0xfe00 }
+  const { world, owners } = combatWorld(w, center, Math.max(order.b & 255, order.b >>> 8) + 2)
+  const result = selectCombatTarget(world, source, order)
+  if (!result) return
+  const owner = owners.get(result.target.id)!
+  owner.attackReservation = {
+    flags4: result.target.flags4 & 0x300000,
+    reactionTimer: result.target.reactionTimer,
+    reactionDuration: result.target.reactionDuration,
+  }
+  return { ...result, owner }
+}
+
 export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undefined {
   if (u.team === 'wild') return
   const native = u.builder?.person ?? u.native
   const model = nativePersonModel(u)
   // Ordinary counters retain the world phase until native allocation owns them.
   if (w.turn & rules.personModels[model].scanMask && !((native?.flags3 ?? 0) & 0x800)) return
-  const source = person(u)
+  const source = combatPerson(u)
   const p = native ?? {
     ...source,
     substate: 0,

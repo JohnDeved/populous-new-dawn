@@ -96,12 +96,16 @@ test('building attack mechanics and poses are independent of rendering cadence',
   for(const schedule of [[1/5],[1/30],[1/120],[1/144],[1/240],[.003,.7,.02,.16]])assert.deepEqual(run(schedule),baseline)
 })
 
-test('death and target removal release building-attack pool references',()=>{
+test('attacker death releases immediately; target loss rescans the area before completing',()=>{
   for(const remove of ['attacker','building']){
     const {w,u,b}=battlefield()
     tick(w,1/12);assert.equal(w.buildingOrders.active,1)
     if(remove==='attacker')u.hp=0;else b.hp=0
     tick(w,2/12)
+    if(remove==='building'){
+      assert.equal(w.buildingOrders.active,1,'target loss retains the area order until arrival and rescan')
+      for(let i=0;i<120&&w.buildingOrders.active;i++)tick(w,1/12)
+    }
     assert.equal(w.buildingOrders.active,0)
   }
 })

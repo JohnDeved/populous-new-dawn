@@ -102,6 +102,14 @@ export function stepAttackReservation(reservation: AttackReservation, counter: n
   reservation.reactionDuration = p.reactionDuration
 }
 
+// 0x51ff40 releases one ordinary attacker reservation without resetting its lifetime.
+export function releaseAttackReservation(
+  target: Pick<AttackReservation, 'flags4' | 'reactionTimer'>
+) {
+  target.flags4 = (target.flags4 & ~0x100000) >>> 0
+  if (target.reactionTimer) target.reactionTimer = (target.reactionTimer - 1) & 255
+}
+
 // Shared person eligibility in 0x51eab0 and 0x51c4c0; the latter additionally
 // excludes airborne people. Fight members are considered through their group.
 export function eligibleCombatPerson(w: CombatTargetWorld, p: CombatPerson, target: CombatPerson) {

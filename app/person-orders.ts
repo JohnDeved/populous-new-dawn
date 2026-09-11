@@ -436,18 +436,19 @@ function coastalDestination(categories: Uint8Array, x: number, y: number) {
   return to
 }
 
-// 0x438730 for automatic area command 21. The radius word survives coastal
+// 0x438730 for area commands 19/21. The radius word survives coastal
 // correction; only the packed center moves. An identical command keeps its flags.
 export function prepareCombatOrder(
   order: PersonOrder,
   area: { a: number; b: number },
   flags: number,
-  categories: Uint8Array
+  categories: Uint8Array,
+  model: 19 | 21 = 21
 ) {
   const a = area.a & 65535,
     b = area.b & 65535
-  if (order.model === 21 && order.a === a && order.b === b) return
-  order.model = 21
+  if (order.model === model && order.a === a && order.b === b) return
+  order.model = model
   order.flags |= flags & 255
   order.a = a
   order.b = b

@@ -6,6 +6,7 @@ import {
   ensureBuildingDamage,
   joinBattle,
   sound,
+  syncLandscapeObjects,
   type World,
   type Unit,
   type Building,
@@ -16,29 +17,63 @@ import {
   setLivePersonAnimation,
   registerLivePerson,
   leaveLiveBuilding,
+  collisionWorld,
+  changeLivePersonState,
   type LivePerson,
 } from './live-people.ts'
-import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
+import { clearLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { personAnimationObject } from './person-state.ts'
-import { finishPersonPreparation, stepPersonReaction } from './person-update.ts'
+import { preparePersonTurn, stepPersonReaction } from './person-update.ts'
 import { attackCombatBuilding } from './combat-building.ts'
-import { startLiveOrders, cancelLiveOrder } from './live-movement.ts'
+import {
+  startLiveOrders,
+  cancelLiveOrder,
+  stepLiveOrderQueue,
+  adoptLiveOrders,
+} from './live-movement.ts'
+import {
+  findCombatApproachPoint,
+  prepareCombatOrderVisit,
+  retargetCombatOrder,
+} from './combat-order-search.ts'
+import {
+  beginCombatPursuit,
+  withinCombatArea,
+  approachCombatBuilding,
+  approachCombatPlan,
+} from './combat-pursuit.ts'
+import { approachCombatPerson, approachFight, attackCombatPlan } from './combat-approach.ts'
+import {
+  combatPerson,
+  nativePersonModel,
+  nativePersonTribe,
+  selectLiveCombatTarget,
+} from './live-combat.ts'
+import { availableFightSlot, releaseAttackReservation } from './combat-targets.ts'
+import { fightWaitingPosition } from './melee-placement.ts'
+import { engagementRange } from './melee-engagement.ts'
+import { buildingInsidePoint, buildingOutsidePoint } from './building-shapes.ts'
+import { terrainCellHeightRange, terrainPointHeight } from './native-terrain.ts'
+import { moveObjectInCells } from './object-cells.ts'
+import rules from './original-rules.json' with { type: 'json' }
+import sprites from './original-units.json' with { type: 'json' }
 import {
   allocatePersonOrder,
   attachPersonOrder,
   clearPersonOrders,
   currentPersonOrder,
   type OrderEffects,
+  type PersonOrder,
 } from './person-orders.ts'
 import { buildingAdmission } from './live-building-entry.ts'
 
 const unsupported = (): never => {
   throw new Error('Unported building attack order consumer')
 }
-const orderEffects = (u: Unit): OrderEffects => ({
+const orderEffects = (w: World, u: Unit): OrderEffects => ({
   prepare: unsupported,
-  stopWork: unsupported,
+  stopWork: person => releaseLiveAttackReservation(w, person.workTarget),
   releaseSpell: unsupported,
   deleteObject: unsupported,
   releaseFight: p => {
@@ -46,6 +81,11 @@ const orderEffects = (u: Unit): OrderEffects => ({
     u.fight = null
   },
 })
+
+export function releaseLiveAttackReservation(w: World, id: number) {
+  const target = w.fights.find(fight => fight.id === id)?.attackReservation
+  if (target) releaseAttackReservation(target)
+}
 
 export function liveBuildingAttackTarget(w: World, p: LivePerson) {
   const order = currentPersonOrder(w.buildingOrders, p)
@@ -60,17 +100,18 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
 export function cancelLiveBuildingAttack(w: World, u: Unit) {
   const p = u.native ?? u.fight?.motion ?? u.flight
   if (!p || currentPersonOrder(w.buildingOrders, p)?.model !== 19) return
-  clearPersonOrders(w.buildingOrders, p, orderEffects(u))
+  clearPersonOrders(w.buildingOrders, p, orderEffects(w, u))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
   if (u.native === p) u.native = null
   u.fighting = false
 }
 
-// The shared native command record survives a defender encounter. General area
-// target selection and non-building command-19/21 consumers remain unfinished.
-export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
+// Legacy automatic building targeting enters the shared manual-area controller.
+// Automatic command-21 allocation/sharing remains a separate migration.
+export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
   if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 19) {
+    if (!b) return
     cancelLiveResting(w, u)
     cancelLiveBuildingAttack(w, u)
     cancelLiveOrder(w, u)
@@ -84,9 +125,12 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
       a: ((point.x >>> 8) & 254) | (point.y & 0xfe00),
       b: 0,
     })
-    attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(u))
+    attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w, u))
     p.state = 10
     startLiveOrders(w, p, w)
+    // The legacy automatic scanner has already selected and reserved this target.
+    p.substate = 3
+    p.workTarget = b.id
     u.native = p
     u.target = b.id
   }
@@ -95,31 +139,11 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
     u.native.state = 10
     startLiveOrders(w, u.native, w)
   }
-  if (u.native.substate === 0) {
-    u.native.substate = 3
-    u.native.workTarget = b.id
-    u.native.flags2 = (u.native.flags2 | 0x40000000) >>> 0
-  }
-  const p = u.native!,
-    state = ensureBuildingDamage(b)
-  const target = {
-    ...state,
-    ...buildingPose(b),
-    ...nativePosition(w, b),
-    class: 2,
-    tribe: b.team === 'blue' ? 0 : 1,
-  }
-  const stop = () => {
-    releasePersonRoute(w.motionRoutes, p)
-    clearLivePath(w, u)
-  }
-  const destination = (to: { x: number; y: number }) => {
-    stop()
-    acceptLivePath(w, u, planLivePath(w, u, browserPosition(to), p))
-  }
+  const p = u.native!
   registerLivePerson(w, p)
   p.counter = (p.counter + 1) & 255
-  finishPersonPreparation(p, {
+  preparePersonTurn(p, w.manaWorld.gameFlags, {
+    initialize: () => changeLivePersonState(w, u),
     animation: () => {
       const object = personAnimationObject(p)
       if (object !== -1) setLivePersonAnimation(w, p, object)
@@ -128,6 +152,234 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
   })
   stepPersonReaction(p)
   moveLivePerson(w, u, p)
+  if (p.state !== 10) return
+  const next = stepLiveOrderQueue(w, u, p, { 19: order => Number(stepAreaAttack(w, u, p, order)) })
+  if (next) {
+    u.target = null
+    clearLivePath(w, u)
+    changeLivePersonState(w, u, next)
+  }
+  if (!u.fight) adoptLiveOrders(w, u, p)
+  if (currentPersonOrder(w.buildingOrders, p)?.model !== 19) u.target = null
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
+}
+
+function combatMotion(w: World, u: Unit, p: LivePerson) {
+  const releaseMotion = () => {
+    releasePersonRoute(w.motionRoutes, p)
+    clearLivePath(w, u)
+  }
+  return {
+    animation: (person: Parameters<typeof personAnimationObject>[0], object: number) =>
+      setLivePersonAnimation(w, person as LivePerson, object),
+    releaseMotion,
+    destination: (to: { x: number; y: number }) => replanLivePath(w, u, p, to),
+    directDestination: (to: { x: number; y: number }) => {
+      releaseMotion()
+      setDirectPersonDestination(w.motionRoutes, p, to)
+    },
+  }
+}
+
+function stepAreaAttack(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
+  const motion = combatMotion(w, u, p)
+  const range = () => engagementRange(p, order, false)
+  const buildingAt = (point: { x: number; y: number }) => {
+    const cell = (point.y >> 9) * 128 + (point.x >> 9)
+    return { flags: w.land.flags[cell], id: w.land.buildingIds[cell] & 1023 }
+  }
+  const outside = (id: number) =>
+    buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+  const search = {
+    randomState: w.randomState,
+    playerTribe: w.manaWorld.playerTribe,
+    alert: w.musicActivity,
+    marches: w.combatMarches,
+  }
+  let selected: ReturnType<typeof selectLiveCombatTarget>
+  const effects = {
+    ...motion,
+    range,
+    approachPoint: (command: PersonOrder) =>
+      findCombatApproachPoint(p, command, {
+        collision: collisionWorld(w),
+        search: w.indexedSearch,
+        landLimit: rules.pathLandLimit,
+        heightRange: (cell: number) => terrainCellHeightRange(w.land, cell),
+        outside,
+      }),
+    withinArea: (command: PersonOrder) =>
+      withinCombatArea(p, command, undefined, { range, vehicleReady: unsupported }),
+    select: (command: PersonOrder, vehicleOnly: boolean) => {
+      if (vehicleOnly || p.vehicle) unsupported()
+      selected = selectLiveCombatTarget(w, u, command)
+      return selected && { id: selected.target.id, type: selected.type }
+    },
+    prepareTarget: (command: PersonOrder) =>
+      beginCombatPursuit(
+        search,
+        p,
+        command,
+        { ...selected!.target, vehicle: 0 },
+        {
+          ...motion,
+          canFire: unsupported,
+          commandPosition: area => ({
+            x: ((area.a & 254) + 1) * 256,
+            y: (((area.a >>> 8) & 254) + 1) * 256,
+          }),
+          vehicleDestination: () => {
+            if (p.vehicle) unsupported()
+          },
+        }
+      ),
+  }
+  const visit = prepareCombatOrderVisit(search, p, order, effects)
+  w.randomState = search.randomState
+  w.musicActivity = search.alert
+  if (p.substate === 0 || p.substate === 7) return visit.complete
+  let { restart } = visit
+  const building = w.buildings.find(b => b.id === p.workTarget && b.hp > 0)
+  const target = w.units.find(unit => unit.id === p.workTarget && unit.hp > 0)
+  const fight = w.fights.find(b => b.id === p.workTarget)
+  if (!building && !target && !fight) restart = true
+  else if (p.substate === 3 && building)
+    restart = attackBuilding(w, u, p, building) === 'restart' || restart
+  else if ([2, 6, 8].includes(p.substate) && target) {
+    const result = approachCombatPerson(
+      w,
+      p,
+      {
+        ...combatPerson(target),
+        workFlags: target.fight?.group ?? 0,
+      },
+      {
+        ...motion,
+        plannedDestination: motion.destination,
+        frameCount: object => sprites.frameCounts[object],
+        buildingAt,
+        approachBuilding: radius =>
+          approachCombatBuilding(w, p, radius, {
+            ...motion,
+            outside: () => outside(p.target & 65535),
+          }),
+        fightModel: id => (w.fights.find(f => f.id === id)?.encounter ? 9 : 8),
+      }
+    )
+    if (result === 'encounter') joinBattle(w, u, target)
+    else if (result === 'inside') {
+      const inside = w.buildings.find(b => b.id === (p.target & 65535))
+      if (inside) joinBattle(w, u, target, inside, 2)
+      else restart = true
+    } else if (result === 'retarget') {
+      search.randomState = w.randomState
+      restart = retargetCombatOrder(p, range(), effects) ?? true
+      w.randomState = search.randomState
+    } else restart ||= result === 'restart'
+  } else if (p.substate === 1 && fight) {
+    const members = fight.slots ?? [
+      ...fight.members,
+      ...Array(Math.max(0, 6 - fight.members.length)).fill(0),
+    ]
+    const people = new Map(
+      w.units
+        .filter(unit => members.includes(unit.id))
+        .map(unit => [unit.id, { model: nativePersonModel(unit), tribe: nativePersonTribe(unit) }])
+    )
+    const tribes = fight.tribes ?? [...new Set([...people.values()].map(person => person.tribe))]
+    fight.attackReservation ??= { flags4: 0, reactionTimer: 0, reactionDuration: 0 }
+    const reservation = fight.attackReservation
+    const record = {
+      ...nativePosition(w, fight),
+      ...reservation,
+      id: fight.id,
+      class: 10,
+      flags2: 0,
+      vehicle: 0,
+      count: fight.members.length,
+    }
+    const result = approachFight(w, p, record, {
+      ...motion,
+      plannedDestination: motion.destination,
+      frameCount: object => sprites.frameCounts[object],
+      available: () => !!availableFightSlot({ objects: people }, { members, tribes }, p),
+      waitingPosition: () => {
+        const state = {
+          randomState: w.randomState,
+          collision: collisionWorld(w),
+          occupied: (point: { x: number; y: number }, except: number) =>
+            [w.units, w.buildings, w.trees, w.fights].some(objects =>
+              objects.some(object => {
+                const pos = nativePosition(w, object)
+                return (
+                  object.id !== except && (pos.x & 65535) === point.x && (pos.y & 65535) === point.y
+                )
+              })
+            ),
+        }
+        const point = fightWaitingPosition(state, p, record)
+        w.randomState = state.randomState
+        return point
+      },
+      move: point => {
+        moveObjectInCells(w.objectCells, p, { ...point, h: terrainPointHeight(w.land, point) })
+        Object.assign(u, browserPosition(p))
+      },
+    })
+    Object.assign(reservation, { flags4: record.flags4, reactionTimer: record.reactionTimer })
+    if (result === 'join') {
+      const opponent = w.units.find(
+        unit => members.includes(unit.id) && unit.team !== u.team && unit.hp > 0
+      )
+      if (opponent) joinBattle(w, u, opponent)
+      if (!u.fight) {
+        p.substate = 7
+        p.flags2 = (p.flags2 | 0x40000000) >>> 0
+      }
+    } else restart ||= result === 'restart'
+  } else if ([4, 5].includes(p.substate) && building) {
+    const pose = buildingPose(building)
+    restart =
+      attackCombatPlan(
+        p,
+        {
+          id: building.id,
+          class: building.preparation ? 9 : 2,
+          tribe: nativePersonTribe(building),
+          related: 0,
+        },
+        {
+          animation: motion.animation,
+          approach: () =>
+            approachCombatPlan(w, p, {
+              ...motion,
+              inside: () => buildingInsidePoint(pose),
+              outside: () => buildingOutsidePoint(pose),
+            }),
+          buildingAt: point => buildingAt(point).id,
+          destroy: () => {
+            building.hp = 0
+            syncLandscapeObjects(w)
+          },
+        }
+      ) === 'restart' || restart
+  } else restart = true
+  if (restart) {
+    p.substate = 0
+    p.flags2 = (p.flags2 | 0x40000000) >>> 0
+  }
+  return visit.complete
+}
+
+function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
+  const state = ensureBuildingDamage(b)
+  const target = {
+    ...state,
+    ...buildingPose(b),
+    ...nativePosition(w, b),
+    class: 2,
+    tribe: b.team === 'blue' ? 0 : 1,
+  }
   const context = {
     randomState: w.randomState,
     levelFlags2: w.levelFlags2,
@@ -136,19 +388,8 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
     attackCell: w.attackCell,
     tribes: w.manaTribes.map(t => ({ flags: t.flags2 })),
   }
-  if (!w.musicActivity && p.tribe === context.playerTribe) w.musicActivity = 1
-  p.flags2 = (p.flags2 | 0x2000000) >>> 0
-  if (p.flags2 & 0x40000000) {
-    p.flags4 = (p.flags4 & ~0x10007) >>> 0
-    p.assignment &= ~512
-  }
   const result = attackCombatBuilding(context, p, target, {
-    animation: (person, object) => setLivePersonAnimation(w, person as typeof p, object),
-    destination,
-    directDestination: to => {
-      stop()
-      setDirectPersonDestination(w.motionRoutes, p, to)
-    },
+    ...combatMotion(w, u, p),
     buildingAt: to => w.land.buildingIds[(to.y >> 9) * 128 + (to.x >> 9)],
     hasDefenders: () => buildingAdmission(w, b).inside > 0,
     removeDefender: () => {
@@ -169,7 +410,6 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
       joinBattle(w, u, unit, b)
       context.randomState = w.randomState
     },
-    releaseMotion: stop,
     sound: cue => sound(w, cue, u, u.id),
   })
   Object.assign(state, {
@@ -187,8 +427,5 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
   context.tribes.forEach((t, i) => (w.manaTribes[i].flags2 = t.flags))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.fighting = p.animationMode === 46 || p.animationMode === 53
-  if (result === 'restart') {
-    p.substate = 0
-    p.flags2 = (p.flags2 | 0x40000000) >>> 0
-  }
+  return result
 }

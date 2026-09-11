@@ -26,6 +26,20 @@ export interface CombatMarch {
   b: number
   distance: number
 }
+
+// 0x520250. Removal advances to the next physical slot, so the shifted row waits
+// for the next visit. Keep that ordering without the original byte-copy loop.
+export function announceCombatMarches(
+  marches: CombatMarch[],
+  sound: (person: number, cue: number) => void
+) {
+  for (let i = 0; i < marches.length; i++) {
+    const march = marches[i]
+    if (march.distance >= 1536) continue
+    sound(march.person, march.count >= 1 && march.count <= 3 ? 44 + march.count : 48)
+    marches.splice(i, 1)
+  }
+}
 interface CombatSearchWorld {
   randomState: number
   playerTribe: number

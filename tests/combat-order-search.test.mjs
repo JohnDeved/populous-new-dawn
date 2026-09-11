@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { prepareCombatOrderVisit } from '../app/combat-order-search.ts'
+import { prepareCombatOrderVisit, announceCombatMarches } from '../app/combat-order-search.ts'
 import { setPersonAnimation } from '../app/animation.ts'
 import sprites from '../app/original-units.json' with { type: 'json' }
 import fixture from './fixtures/combat-search.json' with { type: 'json' }
@@ -68,5 +68,21 @@ test('attack search, march records and automatic retargeting match native dispat
       { p, randomState: w.randomState, events, alert: w.alert, marches: w.marches, result },
       expected
     )
+  }
+})
+
+import marches from './fixtures/combat-marches.json' with { type: 'json' }
+import { releaseAttackReservation } from '../app/combat-targets.ts'
+test('arrival voices and reservation release replay native thresholds and compacted-list visits', () => {
+  for (const { input, expected } of marches) {
+    const c = structuredClone(input),
+      visits = []
+    for (let i = 0; i < 3; i++) {
+      const events = []
+      announceCombatMarches(c.marches, (id, cue) => events.push([id, cue, 0]))
+      visits.push({ events, marches: structuredClone(c.marches) })
+    }
+    releaseAttackReservation(c.reservation)
+    assert.deepEqual({ visits, released: c.reservation }, expected)
   }
 })
