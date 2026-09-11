@@ -27,6 +27,7 @@ npm run orchestration:check
 npm run orchestration:index
 npm run orchestration:context -- --subsystem selection --query "native drag selection"
 npm run orchestration:plan -- --base "$(git rev-parse HEAD)"
+npm run orchestration:verify -- --contract work/orchestration/task-contract.json
 npm run orchestration:audit -- --contract work/orchestration/task-contract.json
 ```
 
@@ -43,6 +44,10 @@ npm run orchestration:audit -- --contract work/orchestration/task-contract.json
 - `plan` reads branch, staged, unstaged, deleted, renamed, and relevant untracked
   paths. It explains check selection and reports unknown paths explicitly. It never
   runs the checks.
+- `verify` executes exactly the contract's required checks when their manifest entry
+  explicitly permits automation. It verifies the external executable once, rejects
+  recording commands, owns one browser server when needed, detects checkout/input
+  mutation, writes ignored logs, and updates contract result fingerprints.
 - `audit` validates a compact task contract, compares current changes with the
   recorded baseline, reports both rename endpoints, detects prohibited/generated
   writes, verifies relevant input hashes, and invalidates stale verification
@@ -106,8 +111,9 @@ priority signal by itself. The parent owns the final choice.
    writes, evidence, and stop condition. Workers request scope expansion.
 6. Re-run `plan` on the actual base. Inspect implementations before executing any
    selected command; do not add `--record` as a generic option.
-7. Run the smallest sufficient checks and record the tested fingerprint. Any later
-   relevant source/fixture/input change invalidates the receipt.
+7. Run the smallest sufficient allowlisted checks with `orchestration:verify`; run
+   manual checks only after inspecting them. Any later relevant source/fixture/input
+   change invalidates the receipt.
 8. Have a fresh reviewer challenge the diff when available. If unavailable, do a
    separate review pass and state that it was not independent.
 9. Audit the contract, report every check status honestly, and stop at the contract's

@@ -27,6 +27,7 @@
     "orchestration:index": "node scripts/orchestration/cli.mjs index",
     "orchestration:context": "node scripts/orchestration/cli.mjs context",
     "orchestration:plan": "node scripts/orchestration/cli.mjs plan",
+    "orchestration:verify": "node scripts/orchestration/verify.mjs",
     "orchestration:audit": "node scripts/orchestration/cli.mjs audit"
   },
   "dependencies": {

@@ -14,8 +14,10 @@ parity, regenerate evidence, or change credentials unless the user explicitly as
 4. Run `npm run orchestration:context -- --subsystem <id> --query "<question>"`.
 5. Run `npm run orchestration:plan -- --base <actual-base-ref>` before claiming a
    check set. The plan selects checks; it does not execute them.
-6. For substantial work, use the compact contract in `engineering/contracts.md`
-   and audit it with `npm run orchestration:audit -- --contract <path>`.
+6. For substantial work, use the compact contract in `engineering/contracts.md`,
+   run its allowlisted checks with
+   `npm run orchestration:verify -- --contract <path>`, then audit it with
+   `npm run orchestration:audit -- --contract <path>`.
 
 Invoke the repository workflow explicitly with `$populous-engineering`. Detailed
 architecture, task flow, resource serialization, and evidence rules live in
@@ -84,6 +86,10 @@ browser, or performance evidence. Native checks may require the documented Pytho
 environment, a hash-verified user-supplied executable, and adjacent game data.
 Browser checks require their actual server/channel setup. Do not weaken expected
 pixels or invent performance results.
+
+`orchestration:verify` executes only contract-required checks explicitly marked
+safe in `engineering/checks.json`. Unclassified, recording, or tracked-output
+checks remain manual; the verifier never grants recording authority.
 
 Performance work starts with a bounded context packet and reads its applicable
 sections from `references/modern-performance.md`; expand only for relevant

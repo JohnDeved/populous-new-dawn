@@ -107,6 +107,12 @@ export function validateChecks(repo, manifest) {
   const ids = uniqueIds(checks, 'check')
   for (const check of checks) {
     string(check.kind, `${check.id} kind`)
+    if (check.automation !== undefined) {
+      assert(
+        ['safe', 'manual'].includes(check.automation),
+        `${check.id} automation mode is invalid`
+      )
+    }
     string(check.purpose, `${check.id} purpose`)
     array(check.coveredBehavior, `${check.id} coveredBehavior`, { nonempty: true }).forEach(
       (x, i) => string(x, `${check.id} coveredBehavior[${i}]`)
@@ -960,7 +966,7 @@ function validatePathRules(repo, values, label) {
 export function validateContract(repo, contract, manifests = validateRepository(repo)) {
   assert(contract.version === 1, 'Unsupported contract version')
   const identity = object(contract.identity, 'identity')
-  string(identity.taskId, 'identity.taskId')
+  assert(ID.test(string(identity.taskId, 'identity.taskId')), `Invalid task id: ${identity.taskId}`)
   validateBase(repo, identity.baseCommit)
   for (const entry of array(identity.baseline, 'identity.baseline')) {
     safeRepoPath(repo, entry.path, { mustExist: false })
@@ -1170,7 +1176,7 @@ export function auditContract(repo = ROOT, contract) {
   }
 }
 
-function parseOptions(args) {
+export function parseOptions(args) {
   const options = {}
   for (let index = 0; index < args.length; index++) {
     const flag = args[index]

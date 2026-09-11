@@ -39,8 +39,15 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    ```
 
 7. Inspect selected commands, prerequisites, side effects, and resource conflicts.
-   Execute only applicable checks. Never append `--record` unless recording is the
-   explicitly authorized task.
+   For a task contract, execute its allowlisted requirements and record their
+   fingerprints with:
+
+   ```sh
+   npm run orchestration:verify -- --contract <task-contract.json>
+   ```
+
+   Unclassified or recording checks remain manual. Never append `--record` unless
+   recording is the explicitly authorized task.
 8. Audit scope and generated ownership:
 
    ```sh

@@ -4,6 +4,7 @@
     {
       "id": "orchestration-tests",
       "kind": "metadata",
+      "automation": "safe",
       "purpose": "Exercise the workflow parser, validation, indexing, planning, and audit logic.",
       "coveredBehavior": [
         "Manifest rejection",
@@ -46,6 +47,7 @@
     {
       "id": "orchestration-structural",
       "kind": "metadata",
+      "automation": "safe",
       "purpose": "Validate current workflow manifests and canonical references without requiring or writing a cache.",
       "coveredBehavior": [
         "Shapes",
@@ -76,6 +78,7 @@
     {
       "id": "repository-check",
       "kind": "portable",
+      "automation": "safe",
       "purpose": "Run the repository typecheck, portable tests, parity metadata validation, and workflow validation.",
       "coveredBehavior": [
         "TypeScript",
@@ -99,6 +102,7 @@
     {
       "id": "production-build",
       "kind": "build",
+      "automation": "safe",
       "purpose": "Build the production browser application.",
       "coveredBehavior": ["Bundling", "server/client module boundaries", "production transforms"],
       "knownLimits": ["A successful build does not establish browser behavior or native parity."],
@@ -115,6 +119,7 @@
     {
       "id": "selection-portable",
       "kind": "portable",
+      "automation": "safe",
       "purpose": "Check pure and live-model selection, drag geometry, occupant rules, and painter hit ownership.",
       "coveredBehavior": [
         "Drag geometry",
@@ -153,6 +158,7 @@
     {
       "id": "selection-native-drag",
       "kind": "native",
+      "automation": "safe",
       "purpose": "Compare complete native drag transactions and ordinary-person admission for bounded cases.",
       "coveredBehavior": [
         "Clamp and wrap",
@@ -184,6 +190,7 @@
     {
       "id": "selection-browser-drag",
       "kind": "browser",
+      "automation": "manual",
       "purpose": "Exercise real desktop/ultrawide drag input, selection voices, terrain pixels, and GPU batch equivalence.",
       "coveredBehavior": [
         "Live pointer flow",
@@ -219,6 +226,7 @@
     {
       "id": "orders-portable",
       "kind": "portable",
+      "automation": "safe",
       "purpose": "Check shared order records, live ground queues, routing, and render-cadence invariance.",
       "coveredBehavior": [
         "Player append",
@@ -252,6 +260,7 @@
     {
       "id": "orders-native",
       "kind": "native",
+      "automation": "manual",
       "purpose": "Compare bounded native shared-order preparation and updates.",
       "coveredBehavior": ["Order pool fields", "reference handling", "state update branches"],
       "knownLimits": ["World consumers and full scheduling are supplied or separately checked."],
@@ -283,6 +292,7 @@
     {
       "id": "computer-attack-native",
       "kind": "native",
+      "automation": "safe",
       "purpose": "Execute mission one's native ATTACK decoder, allocator and ordinary type-20 route through hostile dispatch and retirement.",
       "coveredBehavior": [
         "Exact mission-one ATTACK arguments",
@@ -321,6 +331,7 @@
     {
       "id": "orders-browser",
       "kind": "browser",
+      "automation": "safe",
       "purpose": "Exercise real ground waypoint input and visible full-world movement.",
       "coveredBehavior": [
         "Desktop pointer input",
@@ -347,6 +358,7 @@
     {
       "id": "construction-live-portable",
       "kind": "portable",
+      "automation": "safe",
       "purpose": "Check the currently integrated plan, crew, work, preparation, and timber behavior.",
       "coveredBehavior": [
         "Live plan decisions",
@@ -382,6 +394,7 @@
     {
       "id": "construction-research-portable",
       "kind": "portable",
+      "automation": "safe",
       "purpose": "Check the isolated construction-order, hauling, and resource-cache research implementations.",
       "coveredBehavior": ["Command-6 wrapper", "task-7 phases", "timber cache lifecycle"],
       "knownLimits": [
@@ -412,6 +425,7 @@
     {
       "id": "construction-native-order",
       "kind": "native",
+      "automation": "safe",
       "purpose": "Compare the isolated native command-6 wrapper.",
       "coveredBehavior": [
         "Plan lookup",
@@ -438,6 +452,7 @@
     {
       "id": "construction-native-fetch",
       "kind": "native",
+      "automation": "safe",
       "purpose": "Compare the isolated native task-7 hauling controller.",
       "coveredBehavior": [
         "Approach/retry",
@@ -465,6 +480,7 @@
     {
       "id": "construction-native-timber-search",
       "kind": "native",
+      "automation": "safe",
       "purpose": "Compare the isolated native timber search/cache lifecycle.",
       "coveredBehavior": [
         "Cell order",
@@ -492,6 +508,7 @@
     {
       "id": "construction-browser",
       "kind": "browser",
+      "automation": "safe",
       "purpose": "Exercise live building placement, workers, timber, construction stages, and visible completion.",
       "coveredBehavior": ["Real placement", "live worker flow", "visible stages", "pause/cancel"],
       "knownLimits": [
@@ -515,6 +532,7 @@
     {
       "id": "clock-portable",
       "kind": "portable",
+      "automation": "safe",
       "purpose": "Check chronological simulation, animation, pause, stalls, and render-cadence independence.",
       "coveredBehavior": [
         "24 Hz animation",
@@ -539,6 +557,7 @@
     {
       "id": "camera-native",
       "kind": "native",
+      "automation": "safe",
       "purpose": "Compare bounded native camera input, motion, and view-preset behavior.",
       "coveredBehavior": ["Input masks", "motion clamps", "view presets"],
       "knownLimits": [
@@ -560,6 +579,7 @@
     {
       "id": "camera-browser",
       "kind": "browser",
+      "automation": "safe",
       "purpose": "Exercise actual browser camera input, fractional presentation, resize, and view changes.",
       "coveredBehavior": [
         "Keyboard/edge input",
@@ -588,6 +608,7 @@
     {
       "id": "terrain-portable",
       "kind": "portable",
+      "automation": "safe",
       "purpose": "Check terrain visibility, UVs, notification order, and painter ordering.",
       "coveredBehavior": [
         "Visible cells",
@@ -625,6 +646,7 @@
     {
       "id": "terrain-native",
       "kind": "native",
+      "automation": "safe",
       "purpose": "Compare bounded native terrain diagonals and height sampling.",
       "coveredBehavior": ["Stored splits", "height interpolation", "wrapped cases"],
       "knownLimits": [
@@ -650,6 +672,7 @@
     {
       "id": "terrain-browser",
       "kind": "browser",
+      "automation": "manual",
       "purpose": "Exercise live terrain copy selection, submission, and GPU-visible output.",
       "coveredBehavior": ["Wrapped copies", "cell submission", "wide viewport", "GPU pixels"],
       "knownLimits": [
@@ -673,6 +696,7 @@
     {
       "id": "performance-profile",
       "kind": "performance",
+      "automation": "manual",
       "purpose": "Collect a repeatable browser render-loop profile with explicit environment and frame samples.",
       "coveredBehavior": [
         "Frame CPU distribution",

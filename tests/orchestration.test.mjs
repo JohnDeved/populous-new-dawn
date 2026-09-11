@@ -28,6 +28,7 @@ import {
   validateContract,
   validateRepository,
 } from '../scripts/orchestration/cli.mjs'
+import { checkAutomation, verifyContract } from '../scripts/orchestration/verify.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
 const put = (repo, path, value) => {
@@ -248,6 +249,15 @@ function withRepo(fn) {
   const repo = fixtureRepo()
   try {
     return fn(repo)
+  } finally {
+    rmSync(repo, { recursive: true, force: true })
+  }
+}
+
+async function withAsyncRepo(fn) {
+  const repo = fixtureRepo()
+  try {
+    return await fn(repo)
   } finally {
     rmSync(repo, { recursive: true, force: true })
   }
@@ -687,3 +697,74 @@ test('blocked verification cannot masquerade as passing and passed results requi
       /Passed result omits artifact/
     )
   }))
+
+test('verification runs only safe contract checks, records blocking, and detects mutations', async () => {
+  await withAsyncRepo(async repo => {
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim(),
+      checksPath = join(repo, 'engineering/checks.json'),
+      checks = JSON.parse(readFileSync(checksPath))
+    checks.checks.find(check => check.id === 'portable').automation = 'safe'
+    put(repo, 'engineering/checks.json', checks)
+    const task = contract(repo, base)
+    task.verification.results = []
+    put(repo, 'work/orchestration/task.json', task)
+    const result = await verifyContract(repo, 'work/orchestration/task.json', {
+      env: {},
+      execute: async command => {
+        assert.deepEqual(command, ['node', '--test', 'tests/a.test.mjs'])
+        return { exitCode: 0, stdout: 'pass\n', stderr: '', timedOut: false }
+      },
+    })
+    assert.equal(result.status, 'passed')
+    const saved = JSON.parse(readFileSync(join(repo, 'work/orchestration/task.json')))
+    assert.equal(saved.verification.results[0].status, 'passed')
+    assert.equal(saved.verification.results[0].testedFingerprint, fingerprintPaths(repo, ['app/a.ts']))
+  })
+  await withAsyncRepo(async repo => {
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim(),
+      checksPath = join(repo, 'engineering/checks.json'),
+      checks = JSON.parse(readFileSync(checksPath))
+    checks.checks.find(check => check.id === 'native').automation = 'safe'
+    put(repo, 'engineering/checks.json', checks)
+    const task = contract(repo, base)
+    task.verification.requiredCheckIds = ['native']
+    task.verification.results = []
+    put(repo, 'work/orchestration/task.json', task)
+    const result = await verifyContract(repo, 'work/orchestration/task.json', { env: {} })
+    assert.equal(result.status, 'blocked')
+    assert.match(result.results[0].reason, /NEED_EXE/)
+  })
+  await withAsyncRepo(async repo => {
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim(),
+      checksPath = join(repo, 'engineering/checks.json'),
+      checks = JSON.parse(readFileSync(checksPath))
+    checks.checks.find(check => check.id === 'portable').automation = 'safe'
+    put(repo, 'engineering/checks.json', checks)
+    const task = contract(repo, base)
+    task.verification.results = []
+    put(repo, 'work/orchestration/task.json', task)
+    const result = await verifyContract(repo, 'work/orchestration/task.json', {
+      env: {},
+      execute: async () => {
+        appendFileSync(join(repo, 'app/a.ts'), '// bad check write\n')
+        return { exitCode: 0, stdout: '', stderr: '', timedOut: false }
+      },
+    })
+    assert.equal(result.status, 'failed')
+    assert.match(result.results[0].reason, /changed the tracked/)
+  })
+  assert.match(checkAutomation({ automation: 'manual', executable: 'node', args: [] }), /allowlisted/)
+  assert.match(
+    checkAutomation({
+      automation: 'safe',
+      executable: 'python3',
+      args: ['native.py', '--record'],
+    }),
+    /recording/
+  )
+  withRepo(repo => {
+    const invalid = contract(repo, run(repo, 'git', 'rev-parse', 'HEAD').trim())
+    invalid.identity.taskId = '../escape'
+    assert.throws(() => validateContract(repo, invalid), /Invalid task id/)
+  })
+})
