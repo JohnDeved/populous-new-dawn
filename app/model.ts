@@ -114,7 +114,7 @@ import {
   stepTimberSearches,
   type TimberSearchWorld,
 } from './timber-search.ts'
-import { reincarnationStones } from './reincarnation.ts'
+import { reincarnationStones, reincarnationTurns, stepReincarnation } from './reincarnation.ts'
 import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
 import { personStepCollision, terrainSupportsPerson } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
@@ -1549,6 +1549,8 @@ export type World = {
   status: 'playing' | 'won' | 'lost'
   respawn: number
   redRespawn: number
+  respawnPoint?: Point
+  redRespawnPoint?: Point
   stats: { built: number; cast: number; bridges: number; trained: number; battlesWon: number[] }
 }
 function planRoute(w: World, u: Unit, end: Point) {
@@ -5758,10 +5760,15 @@ function stepTurn(w: World) {
   const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44)
   for (const u of dead.filter(u => u.kind === 'shaman'))
     if (w.units.some(a => a.team === u.team && a.hp > 0)) {
+      const turns = reincarnationTurns(!supportsFollower(w, u))
       if (u.team === 'blue') {
-        w.respawn = 12
-        tell(w, 'Your shaman will reincarnate in 12 seconds.')
-      } else if (w.ai.reincarnation) w.redRespawn = 12
+        w.respawn = turns / TURNS_PER_SECOND
+        w.respawnPoint = { x: u.x, z: u.z }
+        tell(w, 'Your shaman will reincarnate.')
+      } else if (w.ai.reincarnation) {
+        w.redRespawn = turns / TURNS_PER_SECOND
+        w.redRespawnPoint = { x: u.x, z: u.z }
+      }
     }
   for (const u of dead) {
     cancelLiveResting(w, u)
@@ -5802,14 +5809,26 @@ function stepTurn(w: World) {
   syncLandscapeObjects(w)
   cleanBattles(w)
   for (const team of ['blue', 'red'] as const) {
-    const key = team === 'blue' ? 'respawn' : 'redRespawn'
+    const key = team === 'blue' ? 'respawn' : 'redRespawn',
+      pointKey = team === 'blue' ? 'respawnPoint' : 'redRespawnPoint'
     if (w[key] > 0) {
-      w[key] = Math.max(0, w[key] - dt)
-      if (w[key] === 0 && w.units.some(u => u.team === team)) {
+      const site = team === 'blue' ? HOME : ENEMY,
+        canSpawn =
+          w.units.some(u => u.team === team) &&
+          !w.units.some(u => u.team === team && u.kind === 'shaman'),
+        step = stepReincarnation(
+          Math.round(w[key] * TURNS_PER_SECOND),
+          canSpawn,
+          !supportsFollower(w, w[pointKey] ?? site)
+        )
+      w[key] = step.remaining / TURNS_PER_SECOND
+      if (step.event === 'splash') effect(w, 'splash', w[pointKey] ?? site)
+      else if (step.event === 'rise') effect(w, 'birth', site)
+      else if (step.event === 'spawn') {
         const u = addUnit(w, team, 'shaman', team === 'blue' ? HOME : ENEMY)
         if (team === 'blue' && !w.selected.length) w.selected = [u.id]
-        effect(w, 'birth', u)
       }
+      if (!w[key]) delete w[pointKey]
     }
   }
   refreshTerrainLights(w) // 0x4ec6f0: lighting follows the completed object turn.

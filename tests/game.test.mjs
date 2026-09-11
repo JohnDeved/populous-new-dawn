@@ -6,6 +6,7 @@ import test from 'node:test';
 import {createHash} from 'node:crypto';
 import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
+import {reincarnationTurns,stepReincarnation} from '../app/reincarnation.ts';
 import {buildingGradeVertices,buildingPosition} from '../app/building-shapes.ts';
 import {browserPosition} from '../app/model.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
@@ -245,9 +246,22 @@ test('original level layout, native foundations, and the complete mission',()=>{
  assert.equal(w.status,'won','the first mission can be won through the full discovery/build/train/combat loop');
 });
 test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
+ let remaining=reincarnationTurns(false),events=[],boundaries=[];
+ for(let call=1;call<=468;call++){
+  const step=stepReincarnation(remaining,true,true);
+  if([1,4,5,132,133,135,136,147,148,167,168,467,468].includes(call))boundaries.push([call,step.phase,step.height]);
+  if(step.event)events.push([call,step.event]);
+  remaining=step.remaining;
+ }
+ assert.deepEqual(boundaries,[[1,0,0],[4,0,0],[5,1,0],[132,1,0],[133,2,0],[135,2,0],[136,3,40],[147,3,480],[148,3,520],[167,3,1280],[168,4,1280],[467,4,1280],[468,5,1280]]);
+ assert.deepEqual(events,[[133,'splash'],[134,'splash'],[135,'splash'],[463,'rise'],[468,'spawn']]);assert.equal(remaining,0);
+ assert.deepEqual(stepReincarnation(336,true,false),{remaining:335,phase:2,height:0,event:null},'effect 65 requires unsupported terrain');
+ assert.deepEqual(stepReincarnation(reincarnationTurns(true),true,false),{remaining:332,phase:3,height:40,event:null});
+ assert.deepEqual(stepReincarnation(6,false,false),{remaining:5,phase:4,height:1280,event:null},'an existing shaman suppresses the site effect');
+ assert.deepEqual(stepReincarnation(1,false,false),{remaining:1,phase:5,height:1280,event:null},'an existing shaman leaves the replacement request retryable');
  const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');const idle=manaRate(w);w.selected=[brave.id];command(w,w.buildings.find(b=>b.team==='blue'));advance(w,8);assert.ok(brave.inside);assert.ok(manaRate(w)>idle);
  w.shots.blast=0;w.charging=false;advance(w,3);assert.equal(w.shots.blast,0);w.charging=true;advance(w,60);assert.ok(w.shots.blast>0);const time=w.time;w.paused=true;tick(w,2);assert.equal(w.time,time);w.paused=false;
- const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/12);assert.ok(w.respawn>0);advance(w,13);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
+ const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/12);assert.ok(w.respawn>0);advance(w,27);assert.ok(!w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));advance(w,1);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
  w.units=w.units.filter(u=>u.team!=='blue');until(w,()=>w.status==='lost',2);
 });
 

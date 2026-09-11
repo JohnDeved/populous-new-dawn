@@ -14,6 +14,41 @@ const STONE_OFFSETS = [
   [-4, 4],
 ]
 
+// 0x5029d0: model-12 uses 4/128/3/32/300-turn phases before its spawn request.
+// Drowning enters at the 32-turn rise; ordinary deaths begin at phase zero.
+export const reincarnationTurns = (drowning: boolean) => (drowning ? 333 : 468)
+
+export function stepReincarnation(remaining: number, canSpawn: boolean, effect65: boolean) {
+  if (remaining <= 0) return { remaining: 0, phase: 6, height: 0, event: null }
+  const phase =
+      remaining > 464
+        ? 0
+        : remaining > 336
+          ? 1
+          : remaining > 333
+            ? 2
+            : remaining > 301
+              ? 3
+              : remaining > 1
+                ? 4
+                : 5,
+    height = remaining <= 333 ? Math.min(1280, (334 - remaining) * 40) : 0,
+    event: 'splash' | 'rise' | 'spawn' | null =
+      effect65 && remaining >= 334 && remaining <= 336
+        ? 'splash'
+        : remaining === 6 && canSpawn
+          ? 'rise'
+          : remaining === 1 && canSpawn
+            ? 'spawn'
+            : null
+  return {
+    remaining: remaining === 1 ? (canSpawn ? 0 : 1) : remaining - 1,
+    phase,
+    height,
+    event,
+  }
+}
+
 export function reincarnationStones(
   land: Pick<NativeTerrain, 'heights' | 'flags'>,
   center: { x: number; y: number }
