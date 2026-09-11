@@ -2,7 +2,16 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { initializeRouteRecovery, stepRouteRecovery } from '../app/person-route-recovery.ts'
 import captures from './fixtures/route-recovery.json' with { type: 'json' }
-import { createWorld, addUnit, addBuilding, command, tick, GRID } from '../app/model.ts'
+import {
+  createWorld,
+  addUnit,
+  addBuilding,
+  command,
+  tick,
+  requestTutorial,
+  ROUTE_FAILURE_TEXT,
+  GRID,
+} from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { AUDIO_CUES } from '../app/audio.ts'
@@ -50,7 +59,7 @@ test('disconnected groups stop, retain shared attack/waypoint orders, retry and 
   assert.ok(people.every(p => !p.speed && !p.motionGroup))
   assert.ok(ids.every(id => w.buildingOrders.records[id].references === 6))
   assert.ok(w.sounds.some(s => s.cue === 225))
-  assert.deepEqual(w.tutorialNotices, [{ flags: 0x200000, message: 603 }])
+  assert.deepEqual(w.routeNotice, { flags: 0x200000, message: 603, serial: 6 })
   const points = units.map(u => [u.x, u.z])
   until(w, () => people.every(p => p.substate === 3), 100)
   assert.deepEqual(units.map(u => [u.x, u.z]), points)
@@ -62,6 +71,19 @@ test('disconnected groups stop, retain shared attack/waypoint orders, retry and 
   assert.equal(b.hp, 0)
   assert.ok(units.every(u => u.hp > 0 && u.x > 18 && u.z > 3))
   assert.ok(ids.every(id => !w.buildingOrders.records[id].references))
+})
+
+test('route-failure notice keeps the original text and retriggers without tutorial history', () => {
+  const w = createWorld()
+  assert.equal(ROUTE_FAILURE_TEXT, "One or more of your people can't get to this point.")
+  assert.equal(w.routeNotice, null)
+  requestTutorial(w, 0x200000, 603)
+  assert.deepEqual(w.routeNotice, { flags: 0x200000, message: 603, serial: 1 })
+  requestTutorial(w, 0x200000, 603)
+  assert.deepEqual(w.routeNotice, { flags: 0x200000, message: 603, serial: 2 })
+  requestTutorial(w, 0x100000, 603)
+  assert.equal(w.routeNotice.serial, 2)
+  assert.equal(createWorld().routeNotice, null)
 })
 
 test('new orders and death release blocked commands; shaman failures use their own original voice', () => {

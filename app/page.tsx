@@ -12,6 +12,7 @@ import {
   maxHp,
   population,
   populationLimit,
+  ROUTE_FAILURE_TEXT,
   type UnitKind,
 } from './model'
 import { createGameStore } from './game-store'
@@ -40,6 +41,7 @@ export default function Home() {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const world = store.getWorld(),
     update = store.update
+  const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [volume, setVolume] = useState(0.35)
@@ -306,7 +308,22 @@ export default function Home() {
           </button>
         </aside>
       )}
-      {ready && world.messageUntil > world.time && (
+      {ready && routeNotice && (
+        <div
+          key={routeNotice.serial}
+          className="world-message route-notice"
+          role="status"
+          onAnimationEnd={() =>
+            store.change(w => {
+              if (w.routeNotice?.serial === routeNotice.serial) w.routeNotice = null
+            })
+          }
+        >
+          <span>✧</span>
+          {ROUTE_FAILURE_TEXT}
+        </div>
+      )}
+      {ready && !routeNotice && world.messageUntil > world.time && (
         <div className="world-message" role="status">
           <span>✧</span>
           {world.message}

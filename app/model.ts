@@ -1487,7 +1487,7 @@ export type World = {
   castingTribes: TribeCasting[]
   manaWorld: ManaWorld
   manaTribes: (ManaTribe & TribeTurnState)[]
-  tutorialNotices: { flags: number; message: number }[]
+  routeNotice: { flags: 0x200000; message: 603; serial: number } | null
   tribeCount: number
   levelFlags2: number
   outcome: Omit<OutcomeWorld, 'turn' | 'landFlags' | 'playerTribe'> & {
@@ -1771,7 +1771,7 @@ export function createWorld(): World {
       releaseRate: 0,
       spellProgress: Array(22).fill(0),
     })),
-    tutorialNotices: [],
+    routeNotice: null,
     terrain: makeTerrain(),
     terrainVersion: 0,
     units: [],
@@ -2540,9 +2540,11 @@ function campaignRules(w: World) {
   })
 }
 export function requestTutorial(w: World, flags: number, message: number) {
-  // ponytail: retain native requests until tutorial gating/presentation is ported.
-  if (!w.tutorialNotices.some(n => n.flags === flags)) w.tutorialNotices.push({ flags, message })
+  // 0x499f40 mode 9: a single transient tooltip, not tutorial history.
+  if (flags === 0x200000 && message === 603)
+    w.routeNotice = { flags, message, serial: (w.routeNotice?.serial ?? 0) + 1 }
 }
+export const ROUTE_FAILURE_TEXT = "One or more of your people can't get to this point."
 export function tell(w: World, message: string) {
   w.message = message
   w.messageUntil = w.time + 9
