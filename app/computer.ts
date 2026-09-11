@@ -14,6 +14,7 @@ export type ComputerTask = {
   fallback: number
   regroup: number
   origin: number
+  entity: number
   damage: number
   retries: number
   quotas: number[]
@@ -47,6 +48,7 @@ export function createComputerQueue(): ComputerQueue {
       fallback: 0,
       regroup: 0,
       origin: 0,
+      entity: 0,
       damage: 0,
       retries: 0,
       quotas: [],
@@ -222,7 +224,8 @@ export function requestAttack(
   damage: number,
   quotas: number[],
   enabled: boolean,
-  maximum: number
+  maximum: number,
+  entity = 0
 ) {
   if (!enabled || ai.tasks.filter(t => t.flags & 1 && t.type === 20).length >= maximum) return
   const task = ai.tasks.find(t => !(t.flags & 1))
@@ -241,6 +244,7 @@ export function requestAttack(
     fallback: 0,
     regroup: 0,
     origin: target & 65535,
+    entity: entity | 0,
     damage: 0,
     retries: 0,
     quotas: quotas.slice(0, 6).map(n => n & 255),
@@ -383,7 +387,9 @@ export type AttackInput = {
   activeMembers: () => number
   targetsRemain: (target: number) => boolean
   random: () => number
+  entity?: (id: number) => AttackTarget | null
 }
+export type AttackTarget = { id: number; target: number }
 export type AttackAction =
   | { kind: 'select'; id: number }
   | { kind: 'move' | 'attack'; target: number; replace: boolean }
@@ -518,6 +524,14 @@ export function stepAttackTask(
   if (task.phase === 16) {
     if (!input.activeMembers()) {
       task.phase = 23
+      return actions
+    }
+    const target = task.entity ? input.entity?.(task.entity) : null
+    if (task.damage < task.extra && target) {
+      const moved = task.target !== target.target
+      task.target = target.target
+      if (moved || !input.targetsRemain(task.target))
+        return [{ kind: 'attack', target: task.target, replace: true }]
       return actions
     }
     if (task.damage < task.extra && input.targetsRemain(task.target)) return actions

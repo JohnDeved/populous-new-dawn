@@ -293,6 +293,7 @@ import {
   stepMarkerTask,
   stepShamanGuardTask,
   stepTrainingTask,
+  type AttackTarget,
   type ComputerQueue,
   type TrainingBuilding,
 } from './computer.ts'
@@ -2034,8 +2035,24 @@ export function campaignBuildingCount(
   return short(count)
 }
 
+function campaignAttackEntity(w: World, id: number): AttackTarget | null {
+  const building = w.buildings.find(b => b.id === id && b.hp > 0)
+  if (building) {
+    const p = buildingPosition(buildingPose(building))
+    return { id, target: ((p.x >>> 8) & 254) | (p.y & 0xfe00) }
+  }
+  const person = w.units.find(u => u.id === id && u.hp > 0)
+  if (!person) return null
+  const p = nativePosition(w, person)
+  return {
+    // ponytail: native shaman targeting needs command 28/phase 17; retain the existing area route until that owner exists.
+    id: person.kind === 'shaman' ? 0 : id,
+    target: ((p.x >>> 8) & 254) | (p.y & 0xfe00),
+  }
+}
+
 // 0x4f6100 / 0x4f6180: sample native allocation order, buildings first.
-function campaignAttackTarget(w: World, tribe: number) {
+function campaignAttackTarget(w: World, tribe: number): AttackTarget | null {
   const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null
   if (!team) return null
   const buildings = w.buildings.filter(b => b.team === team && b.hp > 0)
@@ -2043,14 +2060,12 @@ function campaignAttackTarget(w: World, tribe: number) {
     for (let i = random(w) % buildings.length; i >= 0; i--) {
       const building = buildings[i]
       if (buildingModel(building) === 10) continue
-      const p = buildingPosition(buildingPose(building))
-      return ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+      return campaignAttackEntity(w, building.id)
     }
   }
   const people = w.units.filter(u => u.team === team && u.hp > 0)
   if (!people.length) return null
-  const p = nativePosition(w, people[random(w) % people.length])
-  return ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+  return campaignAttackEntity(w, people[random(w) % people.length].id)
 }
 
 // 0x48cc60 / 0x4fbf40: marker coordinates select a coarse cell, not a radius.
@@ -2187,11 +2202,16 @@ function computerAttackUnits(w: World, index: number) {
 const computerAttackReady = (u: Unit) =>
   !u.flight && !u.fight && !u.fighting && !u.casting && !u.lift
 
-function computerAttackHasOrder(w: World, index: number, model: number) {
-  return computerAttackUnits(w, index).some(u => {
-    const p = u.native ?? u.fight?.motion
-    return p && currentPersonOrder(w.buildingOrders, p)?.model === model
-  })
+function computerAttackHasOrder(w: World, index: number, model: number, target: number) {
+  const units = computerAttackUnits(w, index)
+  return (
+    units.length > 0 &&
+    units.every(u => {
+      const p = u.native ?? u.fight?.motion
+      const order = p && currentPersonOrder(w.buildingOrders, p)
+      return order?.model === model && order.a === target
+    })
+  )
 }
 
 function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
@@ -2389,8 +2409,10 @@ function stepComputerTasks(w: World, tribe: number) {
           ready: () => computerAttackUnits(w, index).every(computerAttackReady),
           activeMembers: () => computerAttackUnits(w, index).length,
           targetsRemain: target =>
-            computerAttackHasOrder(w, index, 19) && computerAttackTargetsRemain(w, tribe, target),
+            computerAttackHasOrder(w, index, 19, target) &&
+            computerAttackTargetsRemain(w, tribe, target),
           random: () => random(w),
+          entity: id => campaignAttackEntity(w, id),
           select: (model, count, destination) => {
             const current = (selection ??= computerSelectionWorld(w, tribe)),
               ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
@@ -2636,18 +2658,19 @@ export function campaignCommand(
       options.some((value, index) => value !== [0, -1, -1, 0][index])
     )
       throw new Error('Unsupported computer attack')
-    const target = targetMode === 1070 ? level.markers[marker] : campaignAttackTarget(w, 0)
+    const target =
+      targetMode === 1070 ? { id: 0, target: level.markers[marker] } : campaignAttackTarget(w, 0)
     if (target === null) return
-    // ponytail: the live controller attacks this snapshot; add native entity reacquisition with phases 16/17.
     requestAttack(
       w.ai,
-      target,
+      target.target,
       marker,
       requested,
       damage,
       w.ai.attributes.slice(11, 17),
       !!(w.ai.states & (1 << 20)),
-      1
+      1,
+      target.id
     )
     return
   }
