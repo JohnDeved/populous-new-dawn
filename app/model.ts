@@ -1406,6 +1406,7 @@ export type World = {
   objectCells: ObjectCells
   marching: LiveFormation[]
   combatMarches: CombatMarch[]
+  lastOrderTurn: number
   buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
@@ -1438,7 +1439,7 @@ export type World = {
   castingTribes: TribeCasting[]
   manaWorld: ManaWorld
   manaTribes: (ManaTribe & TribeTurnState)[]
-  manaNotices: { flags: number; message: number }[]
+  tutorialNotices: { flags: number; message: number }[]
   tribeCount: number
   levelFlags2: number
   outcome: Omit<OutcomeWorld, 'turn' | 'landFlags' | 'playerTribe'> & {
@@ -1651,6 +1652,7 @@ export function createWorld(): World {
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
     combatMarches: [],
+    lastOrderTurn: 0,
     buildingOrders: {
       records: Array.from({ length: 800 }, emptyPersonOrder),
       cursor: 1,
@@ -1718,7 +1720,7 @@ export function createWorld(): World {
       releaseRate: 0,
       spellProgress: Array(22).fill(0),
     })),
-    manaNotices: [],
+    tutorialNotices: [],
     terrain: makeTerrain(),
     terrainVersion: 0,
     units: [],
@@ -2106,6 +2108,10 @@ function campaignRules(w: World) {
     readInternal: id => campaignInternal(w, id),
     command: (opcode, args) => campaignCommand(w, opcode, args),
   })
+}
+export function requestTutorial(w: World, flags: number, message: number) {
+  // ponytail: retain native requests until tutorial gating/presentation is ported.
+  if (!w.tutorialNotices.some(n => n.flags === flags)) w.tutorialNotices.push({ flags, message })
 }
 export function tell(w: World, message: string) {
   w.message = message
@@ -2992,6 +2998,7 @@ export function command(
   const context = liveCommandContext(w, p)
   if (!context?.enabled) return false
   const { model } = context
+  w.lastOrderTurn = w.turn
   const queuedBuilding =
     model === 8 && context.building && ['hut', 'camp', 'tower'].includes(context.building.kind)
   if (
@@ -3006,15 +3013,7 @@ export function command(
       modifiers.shiftKey,
       modifiers.altKey
     )
-    // Preserve existing attack input admission until native state-33 failed-route
-    // recovery is integrated. A rejected route must not discard a live queue.
-    const goal = context.building ? entrance(w, context.building) : p
-    const units = w.units.filter(
-      u =>
-        canOrder(u) &&
-        w.selected.includes(u.id) &&
-        (model !== 19 || findLivePath(w, u, goal).length)
-    )
+    const units = w.units.filter(u => canOrder(u) && w.selected.includes(u.id))
     if (!units.length) {
       tell(w, 'No followers can reach this order.')
       return true
@@ -4750,10 +4749,7 @@ function stepTurn(w: World) {
     distributeMana(w.manaWorld, tribe, buildings, {
       // 0x499970 only permits its tutorial reminder on original levels 6–10.
       shouldNotifyFull: () => false,
-      notify: (flags, message) => {
-        // ponytail: retain native requests until tutorial gating/presentation is ported.
-        if (!w.manaNotices.some(n => n.flags === flags)) w.manaNotices.push({ flags, message })
-      },
+      notify: (flags, message) => requestTutorial(w, flags, message),
     })
     buildings.forEach((b, i) => {
       camps[i].timer = b.storedMana
@@ -4879,6 +4875,11 @@ function stepTurn(w: World) {
       continue
     }
     if (u.hp <= 0) continue
+    const recovering = u.native ?? u.entry?.person
+    if (recovering?.state === 33) {
+      stepLivePhysics(w, u, recovering)
+      continue
+    }
     u.cooldown = Math.max(0, u.cooldown - dt)
     if (u.native?.state === 41 || u.native?.state === 26) {
       stepLivePerson(w, u)

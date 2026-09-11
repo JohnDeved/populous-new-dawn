@@ -1,3 +1,4 @@
+import { initializeRouteRecovery, stepRouteRecovery } from './person-route-recovery.ts'
 import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
 import { stampFootprints } from './footprints.ts'
@@ -25,6 +26,7 @@ import {
   supportsFollower,
   emitGroundSpark,
   releaseTasks,
+  requestTutorial,
 } from './model.ts'
 import {
   initializePersonState,
@@ -37,7 +39,12 @@ import { damagePerson, preparePersonTurn, stepPersonReaction } from './person-up
 import { stepPersonPanic, ignitePeopleInFireCell } from './person-panic.ts'
 import { strikeLightning } from './lightning.ts'
 import { stepPersonOrders } from './person-order-update.ts'
-import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
+import {
+  releasePersonRoute,
+  setDirectPersonDestination,
+  clearFailedRoute,
+  attachPersonRoute,
+} from './person-routes.ts'
 import { stepCelebration, type Celebrant, type CelebrationEffects } from './celebration.ts'
 import {
   setAnimationObject,
@@ -58,6 +65,7 @@ import {
   planLivePath,
   acceptLivePath,
   replanLivePath,
+  buildLiveRecoveryRoute,
   stepLiveRoute,
 } from './live-pathfinding.ts'
 import { buildingApproachPoint, buildingOutsidePoint } from './building-shapes.ts'
@@ -76,6 +84,7 @@ import {
   limitPersonVelocity,
   personSupportHeight,
   markPersonAirborne,
+  unsupportedGround,
   stepPersonPhysics,
   type PhysicsPerson,
 } from './person-physics.ts'
@@ -388,6 +397,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
     throw new Error('Legacy handoff contains an unowned native assignment')
   }
   initializePersonState(initWorld, p, {
+    routeRecovery: () => initializeLiveRouteRecovery(w, p),
     encounter: () => initializeGroundCombat(w, p),
     fight: () => initializeGroundCombat(w, p),
     celebrate: () => stepCelebration(state, p, effects),
@@ -416,6 +426,28 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
     w.manaTribes[i].flags2 = t.flags
   })
   u.cargo = p.cargo / 100
+}
+
+export function initializeLiveRouteRecovery(w: World, p: LivePerson) {
+  initializeRouteRecovery(
+    {
+      gameFlags: w.manaWorld.gameFlags,
+      playerTribe: w.manaWorld.playerTribe,
+      turn: w.turn,
+      lastOrderTurn: w.lastOrderTurn,
+    },
+    p,
+    {
+      animation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
+      release: () => {
+        releasePersonRoute(w.motionRoutes, p)
+        const unit = w.units.find(u => u.id === p.id)
+        if (unit) clearLivePath(w, unit)
+      },
+      sound: cue => sound(w, cue, browserPosition(p)),
+      notify: (flags, message) => requestTutorial(w, flags, message),
+    }
+  )
 }
 
 export function changeLivePersonState(w: World, u: Unit, next?: number) {
@@ -693,7 +725,8 @@ export function registerLivePerson(w: World, p: LivePerson) {
 
 // Grounded combat and airborne impulses share the original person physics.
 export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
-  const fighting = p.state === 25 || p.state === 29
+  const fighting = p.state === 25 || p.state === 29,
+    recovering = p.state === 33
   registerLivePerson(w, p)
   // Ordinary combat still owns browser HP; don't restore an opportunistic hit
   // from the preceding physics snapshot when the defender is being pushed.
@@ -768,8 +801,35 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       else releasePersonRoute(w.motionRoutes, p)
     }
   }
+  if (p.state === 33) {
+    const tribe = w.manaTribes[p.tribe]
+    stepRouteRecovery(
+      {
+        gameFlags: w.manaWorld.gameFlags,
+        loadFlags: w.manaWorld.loadFlags,
+        tribe: {
+          flags: w.castingTribes[p.tribe].flags,
+          flags2: tribe.flags2,
+          playerType: tribe.playerType,
+        },
+      },
+      p,
+      {
+        unsupportedGround: () => unsupportedGround(w.land, p, p.physics),
+        adjacentBuilding: () => {
+          const cell = (p.y >>> 9) * 128 + (p.x >>> 9)
+          return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
+        },
+        build: option => buildLiveRecoveryRoute(w, u, p, option),
+        release: () => releasePersonRoute(w.motionRoutes, p),
+        clearFailure: id => clearFailedRoute(w.motionRoutes, id),
+        attach: id => attachPersonRoute(w.motionRoutes, p, id, true),
+        initialize,
+      }
+    )
+  }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
-  if (fighting && p.state === 10) adoptLiveOrders(w, u, p)
+  if ((fighting || recovering) && p.state === 10) adoptLiveOrders(w, u, p)
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024

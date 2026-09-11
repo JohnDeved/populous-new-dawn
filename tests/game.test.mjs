@@ -1740,7 +1740,7 @@ test('live followers share routes, advance before exact arrival and release ever
  const pa=w.pathfinding.people.get(a.id),pb=w.pathfinding.people.get(b.id),group=pa.motionGroup;
  const refs=()=>new DataView(w.motionRoutes.records.buffer).getInt16(group*109,true);
  assert.ok(group);assert.equal(pb.motionGroup,group);assert.equal(refs(),2);
- command(w,ENEMY);assert.equal(w.pathfinding.people.get(a.id),pa);assert.equal(w.pathfinding.people.get(b.id),pb);assert.equal(refs(),2,'an unreachable replacement preserves existing orders');
+ assert.deepEqual(findPath(w,a,ENEMY),[]);assert.equal(w.pathfinding.people.get(a.id),pa);assert.equal(w.pathfinding.people.get(b.id),pb);assert.equal(refs(),2,'an unreachable preview preserves existing orders');
  const searches=w.pathfinding.state.searches;assert.ok(findPath(w,a,goal).length);
  assert.equal(refs(),2,'a preview borrows and releases the shared route');assert.equal(w.pathfinding.state.searches,searches,'preview reuses the live route');
  w.selected=[a.id];guardShaman(w);assert.equal(refs(),1);assert.equal(w.pathfinding.people.has(a.id),false);

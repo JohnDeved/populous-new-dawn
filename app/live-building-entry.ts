@@ -13,6 +13,7 @@ import {
 } from './model.ts'
 import {
   createLivePerson,
+  initializeLiveRouteRecovery,
   moveLivePerson,
   setLivePersonAnimation,
   registerLivePerson,
@@ -134,6 +135,7 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
   const initialize = () =>
     initializePersonState(startup, p, {
       setAnimation,
+      routeRecovery: () => initializeLiveRouteRecovery(w, p),
       startOrders: () => startLiveOrders(w, p, startup),
       releaseMotion: () => {
         releasePersonRoute(w.motionRoutes, p)

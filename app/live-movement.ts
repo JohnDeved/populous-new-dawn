@@ -1,4 +1,4 @@
-import { buildingPose, buildingModel, browserPosition, type World, type Unit } from './model.ts'
+import { buildingPose, buildingModel, type World, type Unit } from './model.ts'
 import {
   createLivePerson,
   leaveLiveBuilding,
@@ -11,7 +11,7 @@ import {
 import { initializeBuildingPerson } from './live-building-entry.ts'
 import { stepLiveWorship } from './live-worship.ts'
 import { liveBuildingAttackTarget, releaseLiveAttackReservation } from './live-building-combat.ts'
-import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
+import { clearLivePath, stepLiveRoute, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { objectsInCell } from './object-cells.ts'
@@ -79,12 +79,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     setAnimation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
     setDestination: (person, x, y) => {
       const unit = w.units.find(u => u.id === person.id)!
-      clearLivePath(w, unit)
-      acceptLivePath(
-        w,
-        unit,
-        planLivePath(w, unit, browserPosition({ x, y }), person as LivePerson)
-      )
+      replanLivePath(w, unit, person as LivePerson, { x, y })
     },
     commandPosition: unsupported,
     allowVehicleOrder: unsupported,
@@ -113,7 +108,13 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     },
     resetVehicleMovement: unsupported,
     leaveSelectedVehicle: unsupported,
-    initializeState: unsupported,
+    initializeState: person => {
+      w.randomState = state.randomState
+      const unit = w.units.find(u => u.id === person.id)!
+      if (unit.entry?.person === person) initializeBuildingPerson(w, person as LivePerson)
+      else changeLivePersonState(w, unit)
+      state.randomState = w.randomState
+    },
   }
   return { state, effects }
 }

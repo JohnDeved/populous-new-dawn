@@ -8354,3 +8354,78 @@ mixed-class cell ordering and all work/transport handoffs remain open. Ordinary
 plan deletion still uses the live building-removal owner; native class-9 allocation
 and destruction effects are not certified. These bounded deliveries add evidence
 to partial lifecycle requirements without adding duplicate parity points.
+
+
+### Failed-route group recovery and audible responses — 2026-09-11
+
+This supersedes the previous state-33 open boundary and command-19 preflight
+workaround. `person-route-recovery.ts` reconstructs complete `004d9580` and
+`004d9650`: stop/idle row and route release, recent local-command voices, tutorial
+request, initial ground/building checks, staged search modes, byte counters,
+128-counter retry cadence, tribe-dependent timeout and signed life decrement.
+The life protection bit belongs to **load flags at 0089c665**, not the separate
+level-flags-2 global. The command-age counter is **0089d184** and last issued turn
+is **0089bc22**. Common state initialization now dispatches state 33 for both live
+ordinary followers and building-entry owners.
+
+The existing planner context is shared by ordinary destination setup and retry
+wrapper `004ea920`; retries correct copied quarter-cell endpoints and pass the
+native search option. Successful recovery releases the old route, clears failed
+search cache, uses **reserved attachment 004ea400**, then initializes the default
+state. This preserves the same person, current command and shared tail. Manual
+command-19 admission now allows failed routes to reach this controller. Read-only
+path previews still borrow/release routes without changing current orders.
+No new timer, dependency or per-render retry loop was added.
+
+`004d9580` requests global cue 225 (ordinary followers) or 226 (shaman) for a local
+command less than three unsigned turns old. Scene playback bypasses positional
+attenuation for these notifications. Previous arrival cues 45–48 were emitted but
+**not preloaded**, so the earlier voice delivery did not produce audible playback.
+The six cues now preload eleven distinct original PCM clips. An isolated real
+Web Audio check verifies decoded assets, active sources, nonzero output and global
+225/226 dispatch with gain 1/pan 0 even far from the camera. Native voice arbitration
+and tutorial UI are not claimed; requests reuse the existing deduplicated notice
+queue, renamed `tutorialNotices` to describe both mana and route requests.
+
+Validation:
+
+- `check-native-route-recovery.py`: **8,192** complete native initializer/body calls,
+  including ordered consumer calls, every owned field, byte/short boundaries and
+  the unsupported-ground/default-state branches. Route construction, class
+  initialization, slope/building lookup, audio and tutorial consumers are supplied;
+  this is not an original full-game-loop execution.
+- Expanded `check-native-person-state.py`: **8,704** common initializers, **6,624**
+  animation choices, **1,280** order startup/reconciliation calls, **640** speed
+  recoveries and **128** composed training handoffs pass. Path-search comparison
+  covers another **8,192** endpoint/boat, collection, search and composed calls.
+- Five portable recovery tests replay native captures and check six blocked
+  followers retaining attack/ground references, land reconnection, resumed attack,
+  destruction and arrival; replacing/deleting a blocked person releases orders;
+  building-entry ownership resumes the same person and completes admission.
+  Full replay/RNG agrees at 5/30/60/120/144/240 Hz and irregular intervals.
+- `check-browser-route-recovery.mjs`: real Ctrl attack/ground input at 1440×1000 and
+  3440×1440, stopped and visible group, pause, land reconnection, resumed destruction
+  and complete tail arrival. Audio validation uses actual loaded clips. Evidence:
+  `performance/2026-09-11-failed-route-recovery.json`.
+- **360** tests/typecheck pass, production build succeeds; **576** GPU sprite poses,
+  Blast shadows/landing and live selection regressions pass. Touched-file
+  ox-standard diagnostic counts match the prior baseline; the new recovery helper
+  has none. Fallow maintainability remains **85.5**, with **20** existing cycles.
+
+`node scripts/bench-area-attack.mjs --blocked` records five deterministic 200-person,
+600-turn CPU replays, disconnected until turn 120. Every pass destroys the target
+and releases all command references. Median turns are **0.19–0.28 ms**, p95
+**5.18–5.54 ms**, maximum **28.42–30.70 ms** including retries/combat; input takes
+**4.46–7.54 ms**. The first pass includes JIT warmup. This is simulation acceptance,
+not rendered-frame cost, hardware FPS or a paired speedup claim. The full timings
+and CPU/runtime are in `performance/2026-09-11-route-recovery-cpu.json`; peak turn
+cost remains relevant to later frame-time profiling.
+
+Remaining: full native command buffering/last-input ownership, all automatic-21
+and specialist/vehicle consumers, area drawing, full health/death lifecycle and
+terrain-change behavior across every state. State-33 life changes are reconstructed,
+but complete person health/corpse scheduling is not certified. `00499d90` tutorial
+admission/display is inspected, not ported; queued requests do not establish that
+UI. Other non-staged legacy command admission still uses its prior adapter.
+These add evidence to existing partial lifecycle requirements without duplicate
+parity credit; the user's group/footprint/standing/selection priorities remain active.

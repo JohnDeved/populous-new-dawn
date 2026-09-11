@@ -121,17 +121,28 @@ area-attack integration through the remaining failed-route and specialized-class
 boundaries; full automatic command-21 sharing, construction/transport and class
 scheduling remain open.
 
-Ordinary reachable area attacks now append to the same ground/building/head queue.
+Ordinary area attacks now append to the same ground/building/head queue.
 The native command-19 search chooses people, fights, buildings and ordinary plans,
 restarts after target loss, and completes only after the area scan allows it.
 Six-person ground → attack → ground sequences share command references, destroy
 the hut and regroup; a replacement enemy in the area is fought before the tail
 resumes. Original arrival voices count approaching attackers on the fixed simulation
 clock. Native helper comparisons, 5–240 Hz/irregular replay, desktop/ultrawide real
-mouse input and visible attack pixels pass. Keep full area drawing, native state-33
-failed-route recovery, specialist/vehicle targeting and complete mixed-class ordering
-open. Existing input reachability admission is deliberately retained until state 33
-is integrated; it must never erase a valid queue for an unreachable replacement.
+mouse input and visible attack pixels pass. State-33 failed-route recovery now stops
+ordinary followers, retains their shared orders, uses native search phases/counter
+cadence and resumes them when land reconnects. Building-entry owners share the same
+recovery. Native initialization/body comparisons, desktop/ultrawide Ctrl input,
+blocked/resumed attack tails, pause, 5–240 Hz/irregular replay and 200-person CPU
+acceptance pass. Manual command-19 input no longer pre-rejects unreachable orders;
+read-only previews still preserve current routes. Arrival voices 45–48 were queued
+but missing from the preload list in the prior delivery; they and failure voices
+225/226 now have decoded-asset and isolated browser audio-output checks.
+
+Continue the visible group/selection queue, including full area drawing,
+specialist/vehicle targeting, remaining selection/settings and mixed-class ordering.
+Native tutorial requests are retained, but complete tutorial gating/presentation,
+command turn buffering and full person health/death ownership remain unfinished.
+Do not treat this bounded state-33 integration as complete engine parity.
 
 **Evidence correction:** the supplied D3D executable's 00438ae0 preview hook and
 004199b0 camera-restore hook are literal RET stubs. The retained staging data is

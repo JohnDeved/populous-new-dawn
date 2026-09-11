@@ -44,6 +44,7 @@ export interface PersonStateEffects {
   occupying?: () => void
   fight?: () => void
   encounter?: () => void
+  routeRecovery?: () => void
 }
 const short = (n: number) => (n << 16) >> 16
 
@@ -216,7 +217,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 21, 25, 26, 29, 36, 39, 41, 44].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 25, 26, 29, 33, 36, 39, 41, 44].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -313,6 +314,9 @@ export function initializePersonState(
     effects.releaseMotion(p)
     p.flags2 = (p.flags2 | 0x1080) >>> 0
     p.turnAngle = angle
+  } else if (p.state === 33) {
+    if (!effects.routeRecovery) throw new Error('State 33 requires route recovery')
+    effects.routeRecovery()
   } else if (p.state === 44) {
     p.speed = 0
     p.flags2 = (p.flags2 | 0x40100000) >>> 0

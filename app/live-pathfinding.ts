@@ -98,13 +98,7 @@ export function replanLivePath(w: World, u: Unit, p: LivePerson, goal: { x: numb
   u.path = liveRoutePoints(w, p)
 }
 
-function planDestination(
-  w: World,
-  u: Unit,
-  p: LivePerson,
-  goal: { x: number; y: number },
-  probeOnly = false
-) {
+function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
   const r = w.pathfinding,
     { state, path, geometry: g, solver } = r,
     collision = collisionWorld(w)
@@ -183,7 +177,7 @@ function planDestination(
     vehicleReady: unsupported,
     advance: () => advanceLiveRoute(w, p),
     build: (_, from, to) =>
-      buildPersonRoute(w.motionRoutes, p, from, to, 0, tribes[p.tribe], {
+      buildPersonRoute(w.motionRoutes, p, from, to, searchOption, tribes[p.tribe], {
         findVehicle: () => null,
         search: (_, person, a, b, option, vehicles) =>
           searchPersonPath(
@@ -209,6 +203,27 @@ function planDestination(
           ),
       }),
   }
+  return { planner, routeEffects }
+}
+
+// 0x4ea920: recovery corrects copied endpoints, then builds with its current
+// search option. The caller owns release/cache clearing/reserved attachment.
+export function buildLiveRecoveryRoute(w: World, u: Unit, p: LivePerson, option: number) {
+  const { planner, routeEffects } = routeContext(w, u, p, option)
+  const from = { x: p.x >>> 8, y: p.y >>> 8 },
+    to = { x: p.goalX >>> 8, y: p.goalY >>> 8 }
+  correctRouteEndpoints(planner, p, from, to, routeEffects)
+  return routeEffects.build(p, from, to)
+}
+
+function planDestination(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  goal: { x: number; y: number },
+  probeOnly = false
+) {
+  const { planner, routeEffects } = routeContext(w, u, p)
   if (probeOnly) {
     const from = { x: p.x >> 8, y: p.y >> 8 },
       to = { x: (goal.x >> 8) & 255, y: (goal.y >> 8) & 255 }
@@ -216,7 +231,7 @@ function planDestination(
     return !!routeEffects.build(p, from, to)
   }
   setPlannedPersonDestination(planner, p, goal, routeEffects, () => {})
-  r.skip = planner.skip
+  w.pathfinding.skip = planner.skip
   return true
 }
 
