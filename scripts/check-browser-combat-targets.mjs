@@ -12,17 +12,26 @@ try {
     w.speed = 0; w.units = []; w.buildings = []; w.fights = []; w.pendingTime = 0
     w.terrain.fill(3); w.terrainVersion++
     w.speed = 1; m.tick(w, 1 / 6); w.speed = 0
-    const units = Array.from({length:4}, (_,i) => m.addUnit(w, 'blue', 'warrior', {x: 0, z: 32 + i / 20}))
-    const near = m.addUnit(w, 'red', 'shaman', {x: 3, z: 32}), far = m.addUnit(w, 'red', 'shaman', {x: 5, z: 32})
-    const visits = 4 - (w.turn & 3)
-    w.speed = 1; m.tick(w, visits / 12); w.speed = 0
+    const units = Array.from({length:4}, (_,i) => m.addUnit(w, 'blue', 'warrior', {x: 0, z: 32.5 + i / 20}))
+    const near = m.addUnit(w, 'red', 'shaman', {x: 3, z: 32.5}), far = m.addUnit(w, 'red', 'shaman', {x: 5, z: 32.5})
+    const visits = 4 - (w.turn & 3),timeline=[];let allocated
+    w.speed = 1
+    for(let i=0;i<visits;i++){
+      m.tick(w,1/12)
+      const commands=units.map(u=>(u.native??u.fight?.motion)?.immediateCommand??0)
+      timeline.push(commands)
+      if(!allocated&&commands.every(Boolean)&&new Set(commands).size===1){const command=commands[0];allocated={commands,model:w.buildingOrders.records[command].model,references:w.buildingOrders.records[command].references}}
+    }
+    w.speed = 0
     s.focus({x: 2, z: 32}); s.startGroundView(3)
     for (let i=0;i<18;i++) s.updateCameraMotion(1 / 24)
     s.onChange()
-    return { units: units.map(u=>u.id), targets: units.map(u=>u.target), expected: [near.id,near.id,near.id,far.id], reservation: near.attackReservation, spriteOwned: units.some(u=>u.native !== null) }
+    const people=units.map(u=>u.native??u.fight?.motion)
+    return { units: units.map(u=>u.id), targets: units.map((u,i)=>people[i]?.workTarget??u.fight?.opponent), expected: [near.id,near.id,near.id,far.id], reservation: near.attackReservation, timeline, allocated, spriteOwned: people.every(Boolean) }
   })
   assert.deepEqual(choices.targets, choices.expected)
-  assert.equal(choices.reservation.flags4, 0x100000); assert.equal(choices.spriteOwned, false)
+  assert.ok(choices.allocated,JSON.stringify(choices));assert.equal(choices.allocated.model,21);assert.equal(choices.allocated.references,4)
+  assert.equal(choices.reservation.flags4, 0x100000); assert.equal(choices.spriteOwned, true)
   await page.waitForFunction(ids => ids.every(id => window.testScene.unitMeshes.get(id)?.userData.state === 'walk'), choices.units)
   const poses = await page.evaluate(ids => ids.map(id => {
     const g = window.testScene.unitMeshes.get(id)

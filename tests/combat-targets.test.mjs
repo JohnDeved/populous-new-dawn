@@ -52,13 +52,19 @@ test('live mixed scans detect enemy footprints and prefer an eligible person in 
   assert.equal(automaticMeleeTarget(w, u), b, 'housed people are detected through their building')
 })
 
-test('automatic squads share target capacity independently of render frequency', () => {
+test('automatic squads share native area orders and target capacity independently of render frequency', () => {
   const run = frames => {
     const w = field()
-    const units = Array.from({length: 4}, (_,i) => addUnit(w, 'blue', 'warrior', {x: 0, z: i / 20}))
-    const near = addUnit(w, 'red', 'shaman', {x: 3, z: 0}), far = addUnit(w, 'red', 'shaman', {x: 5, z: 0})
-    for (const dt of frames) tick(w, dt)
-    assert.deepEqual(units.map(u => u.target ?? u.fight?.opponent), [near.id, near.id, near.id, far.id])
+    const units = Array.from({length: 4}, (_,i) => addUnit(w, 'blue', 'warrior', {x: 0, z: .5 + i / 20}))
+    const near = addUnit(w, 'red', 'shaman', {x: 3, z: .5}), far = addUnit(w, 'red', 'shaman', {x: 5, z: .5})
+    let assigned
+    for (const dt of frames) {
+      tick(w, dt)
+      if (!assigned && units.every(u => u.native?.workTarget)) assigned=units.map(u => u.native.workTarget)
+    }
+    assert.deepEqual(assigned, [near.id, near.id, near.id, far.id])
+    assert.ok(units.every(u => u.fight || u.native?.commandStatus === 21))
+    assert.ok(near.attackReservation && far.attackReservation)
     return {...w, pendingTime: 0}
   }
   const baseline = run(Array(60).fill(1 / 60))
@@ -78,16 +84,17 @@ test('live target priority joins a fight ahead of a solitary enemy in its distan
   assert.equal(enemy.attackReservation,undefined,'reserve the group, not an individual member')
 })
 
-test('nearby automatic building attacks keep their target between detection visits', () => {
+test('nearby automatic building attacks keep their command-21 target between detection visits', () => {
   const w = field(), u = addUnit(w, 'blue', 'warrior', {x:0,z:0})
   const b = addBuilding(w, 'red', 'hut', {x:3,z:0})
   tick(w, 4 / 12)
-  assert.equal(u.target,b.id)
+  assert.equal(u.native.workTarget,b.id)
   assert.equal(b.attackReservation.reactionTimer,1)
   for (let i = 0; i < 6; i++) tick(w,1 / 12)
-  assert.equal(u.target,b.id)
+  assert.equal(u.native.workTarget,b.id)
   assert.equal(b.attackReservation.reactionTimer,1,'the standing attack does not repeatedly reserve itself')
-  assert.equal(u.native.commandStatus,19,'the standing attack retains its native order between detection visits')
-  assert.equal(u.native.commands.filter(Boolean).length,1)
+  assert.equal(u.native.commandStatus,21,'the standing attack retains its native order between detection visits')
+  assert.ok(u.native.immediateCommand)
+  assert.equal(u.native.commands.filter(Boolean).length,0)
   assert.equal(w.buildingOrders.active,1)
 })

@@ -1,7 +1,14 @@
 import type { World, Unit, Building } from './model.ts'
 import { buildingModel } from './building-shapes.ts'
 import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
-import { currentPersonOrder, emptyPersonOrder, prepareCellOrder } from './person-orders.ts'
+import {
+  currentPersonOrder,
+  emptyPersonOrder,
+  prepareCellOrder,
+  type OrderedPerson,
+  type OrderEffects,
+} from './person-orders.ts'
+import { startCombatResponse } from './combat-orders.ts'
 import {
   detectCombatThreat,
   selectCombatTarget,
@@ -152,6 +159,42 @@ export function selectLiveCombatTarget(
   return { ...result, owner }
 }
 
+function ordinaryCombatScan(
+  w: World,
+  p: Omit<Parameters<typeof automaticCombatScanner>[0], 'counter'>,
+  order: Parameters<typeof automaticCombatScanner>[1]
+) {
+  const scan = { ...p, counter: w.turn & 255 },
+    scanner = automaticCombatScanner(
+      scan,
+      order,
+      w.levelFlags2,
+      () => false,
+      false,
+      () => false
+    )
+  p.flags3 = scan.flags3
+  return scanner === 'melee'
+}
+
+// Live adapter for the already recovered 0x51e5e0/0x520480 allocator. The
+// caller owns actual person creation/adoption; this function only owns the scan.
+export function allocateLiveCombatResponse(
+  w: World,
+  p: CombatPerson & OrderedPerson & { h: number; commandPhase: number },
+  peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
+  effects: OrderEffects
+) {
+  const order = currentPersonOrder(w.buildingOrders, p)
+  if (!ordinaryCombatScan(w, p, order)) return 0
+  if (order?.model === 27) return 0
+  const range = engagementRange(p, order, false),
+    { world } = combatWorld(w, p, range)
+  startCombatResponse(world, w.buildingOrders, p, peers, effects)
+  const id = p.immediateCommand
+  return id && w.buildingOrders.records[id].model === 21 ? id : 0
+}
+
 export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undefined {
   if (u.team === 'wild') return
   const native = u.builder?.person ?? u.native
@@ -174,17 +217,7 @@ export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undef
   // remain in the command migration; do not invent the ritual eligibility result.
   // The ordinary live roster uses the melee scanner. Specialist response
   // controllers must own their distinct searches rather than fall through here.
-  const scan = { ...p, counter: w.turn & 255 }
-  const scanner = automaticCombatScanner(
-    scan,
-    current,
-    w.levelFlags2,
-    () => false,
-    false,
-    () => false
-  )
-  p.flags3 = scan.flags3
-  if (scanner !== 'melee' || current?.model === 27) return
+  if (!ordinaryCombatScan(w, p, current) || current?.model === 27) return
   const range = engagementRange(p, current, false)
   if (!range) return
   const radius = Math.trunc(range / 2) * 2

@@ -124,13 +124,17 @@ test('native defence gate and shaking retain counter cadence, signed lifetime an
 
 test('cancelling or killing an attacker during its defender encounter releases the retained order',()=>{
   for(const cancel of [true,false]){
-    const {w,u,clock}=battlefield(true)
+    const {w,u,defender,clock}=battlefield(true)
     for(let i=0;i<150&&!u.fight;i++)advanceGame(w,clock,1/12)
     assert.ok(u.fight)
     const record=currentPersonOrder(w.buildingOrders,u.fight.motion)
     assert.equal(record.references,1)
     if(cancel){w.selected=[u.id];command(w,{x:10,z:8})}else u.hp=0
     advanceGame(w,clock,2/12)
-    assert.equal(record.references,0);assert.equal(w.buildingOrders.active,cancel?1:0)
+    assert.equal(record.references,0)
+    if(cancel){
+      assert.equal(currentPersonOrder(w.buildingOrders,u.native).model,3)
+      assert.equal(currentPersonOrder(w.buildingOrders,defender.native).model,21)
+    }else assert.equal(w.buildingOrders.active,0)
   }
 })

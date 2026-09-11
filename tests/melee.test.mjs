@@ -105,7 +105,7 @@ test('idle followers of either tribe pursue detected enemies at every render cad
     const u = addUnit(w, team, 'warrior', { x: 1, z: -1 })
     const enemy = addUnit(w, team === 'blue' ? 'red' : 'blue', 'shaman', { x: 5, z: -1 })
     for (const dt of frames) tick(w, dt)
-    assert.equal(u.target ?? u.fight?.opponent, enemy.id); assert.ok(u.x > 1); assert.ok(u.path.length || u.fight, 'pursuit advances into contact after the native idle transition requests a scan')
+    assert.equal(u.fight?.opponent ?? u.native?.workTarget, enemy.id); assert.ok(u.x > 1); assert.ok(u.path.length || u.fight, 'pursuit advances into contact after the native idle transition requests a scan')
     return { ...w, pendingTime: 0 }
   }
   for (const team of ['blue', 'red']) {

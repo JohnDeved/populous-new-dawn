@@ -45,6 +45,7 @@ import {
 } from './combat-pursuit.ts'
 import { approachCombatPerson, approachFight, attackCombatPlan } from './combat-approach.ts'
 import {
+  allocateLiveCombatResponse,
   combatPerson,
   nativePersonModel,
   nativePersonTribe,
@@ -71,14 +72,15 @@ import { buildingAdmission } from './live-building-entry.ts'
 const unsupported = (): never => {
   throw new Error('Unported building attack order consumer')
 }
-const orderEffects = (w: World, u: Unit): OrderEffects => ({
+const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
   stopWork: person => releaseLiveAttackReservation(w, person.workTarget),
   releaseSpell: unsupported,
   deleteObject: unsupported,
   releaseFight: p => {
     Object.assign(p, { workFlags: 0 })
-    u.fight = null
+    const unit = w.units.find(u => u.id === p.id)
+    if (unit) unit.fight = null
   },
 })
 
@@ -99,18 +101,63 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
 
 export function cancelLiveBuildingAttack(w: World, u: Unit) {
   const p = u.native ?? u.fight?.motion ?? u.flight
-  if (!p || currentPersonOrder(w.buildingOrders, p)?.model !== 19) return
-  clearPersonOrders(w.buildingOrders, p, orderEffects(w, u))
+  if (!p || ![19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
+  clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
   if (u.native === p) u.native = null
   u.fighting = false
 }
 
-// Legacy automatic building targeting enters the shared manual-area controller.
-// Automatic command-21 allocation/sharing remains a separate migration.
+export function startLiveCombatResponse(w: World, u: Unit) {
+  if (u.team === 'wild' || u.builder) return false
+  const retained = u.native ?? u.entry?.person
+  if (
+    w.turn & rules.personModels[nativePersonModel(u)].scanMask &&
+    !((retained?.flags3 ?? 0) & 0x800)
+  )
+    return false
+  const source = (retained ?? createLivePerson(w, u)) as LivePerson & { class: 1; group: number }
+  if (!retained) source.state = combatPerson(u).state
+  const cell = (source.y >> 9) * 128 + (source.x >> 9)
+  let people: { unit: Unit; person: LivePerson & { class: 1; group: number } }[] = []
+  const peers = () => {
+    people = w.units
+      .filter(unit => {
+        const point = nativePosition(w, unit)
+        return (
+          unit.hp > 0 &&
+          !unit.builder &&
+          ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9) === cell
+        )
+      })
+      .map(unit => {
+        const existing = unit === u ? source : (unit.native ?? unit.entry?.person),
+          person = (existing ?? createLivePerson(w, unit)) as LivePerson & {
+            class: 1
+            group: number
+          }
+        if (!existing) person.state = combatPerson(unit).state
+        return { unit, person }
+      })
+    return people.map(({ person }) => person)
+  }
+  const id = allocateLiveCombatResponse(w, source, peers, orderEffects(w))
+  if (!id) return false
+  for (const { unit, person } of people) {
+    if (person.immediateCommand !== id) continue
+    cancelLiveResting(w, unit)
+    clearLivePath(w, unit)
+    unit.native = person
+    unit.target = null
+    registerLivePerson(w, person)
+  }
+  return true
+}
+
+// Manual command 19 and automatic command 21 share the native area controller.
 export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
-  if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 19) {
+  if (!u.native || ![19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)) {
     if (!b) return
     cancelLiveResting(w, u)
     cancelLiveBuildingAttack(w, u)
@@ -125,7 +172,7 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
       a: ((point.x >>> 8) & 254) | (point.y & 0xfe00),
       b: 0,
     })
-    attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w, u))
+    attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w))
     p.state = 10
     startLiveOrders(w, p, w)
     // The legacy automatic scanner has already selected and reserved this target.
@@ -134,7 +181,8 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
     u.native = p
     u.target = b.id
   }
-  if (u.native.state !== 10) {
+  const current = currentPersonOrder(w.buildingOrders, u.native)
+  if (u.native.state !== 10 || u.native.commandStatus !== current?.model) {
     u.native.previousState = u.native.state
     u.native.state = 10
     startLiveOrders(w, u.native, w)
@@ -160,7 +208,7 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
     changeLivePersonState(w, u, next)
   }
   if (!u.fight) adoptLiveOrders(w, u, p)
-  if (currentPersonOrder(w.buildingOrders, p)?.model !== 19) u.target = null
+  if (![19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) u.target = null
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
 

@@ -8,8 +8,9 @@ import scanners from './fixtures/combat-scanners.json' with {type:'json'}
 import {startCombatResponse} from '../app/combat-orders.ts'
 import {automaticCombatScanner,canAutoEngage,engagementRange} from '../app/melee-engagement.ts'
 import {automaticMeleeTarget} from '../app/live-combat.ts'
+import {startLiveCombatResponse} from '../app/live-building-combat.ts'
 import {createLivePerson} from '../app/live-people.ts'
-import {createWorld,addUnit,tick} from '../app/model.ts'
+import {createWorld,addUnit,command,tick,unitAnimationSource} from '../app/model.ts'
 
 const unsupported = () => {throw Error('Unexpected world consumer')}
 test('original automatic commands preserve normal queues, share one reference-counted record and handle allocation exhaustion', () => {
@@ -74,4 +75,66 @@ test('coastal area/dismantling order preparation matches full native calls and r
     prepareCellOrder(order,c.area,c.flags,categories,c.model)
     assert.deepEqual(order,c.expected)
   }
+})
+
+test('live same-cell followers share one automatic command 21 and resume their queued destination', () => {
+  const w=field(), units=[addUnit(w,'blue','warrior',{x:0,z:0}),addUnit(w,'blue','warrior',{x:.25,z:0})]
+  w.selected=units.map(u=>u.id)
+  command(w,{x:8,z:0})
+  const people=units.map(u=>u.native), queued=people.map(p=>p.commands[p.commandCursor])
+  const enemy=addUnit(w,'red','shaman',{x:1.75,z:0})
+  assert.equal(startLiveCombatResponse(w,units[0]),true)
+  const automatic=people[0].immediateCommand
+  assert.ok(automatic)
+  assert.equal(people[1].immediateCommand,automatic)
+  assert.equal(w.buildingOrders.records[automatic].model,21)
+  assert.equal(w.buildingOrders.records[automatic].references,2)
+  assert.deepEqual(people.map(p=>p.commands[p.commandCursor]),queued)
+  tick(w,1/12)
+  assert.ok(people.every(p=>p.commandStatus===21))
+  assert.ok(units.every(u=>unitAnimationSource(u)===u.native))
+  enemy.hp=0
+  for(let i=0;i<600&&w.buildingOrders.active;i++)tick(w,1/12)
+  assert.equal(w.buildingOrders.active,0)
+  assert.ok(units.every((u,i)=>u.native===people[i]&&u.x>6))
+  assert.ok(units.every(u=>unitAnimationSource(u)===u.native))
+})
+
+test('live automatic combat consumes a pending worship scan without replacing command 27', () => {
+  const w=field(), u=addUnit(w,'blue','warrior',{x:0,z:0})
+  addUnit(w,'red','shaman',{x:1.5,z:0})
+  const p=createLivePerson(w,u), order=w.buildingOrders.records[1]
+  u.native=p
+  Object.assign(order,{model:27,flags:0,references:1,object:0,a:0,b:0})
+  w.buildingOrders.active=1
+  p.commands[0]=1;p.commandStatus=27;p.state=10;p.substate=0;p.flags3|=0x800
+  assert.equal(startLiveCombatResponse(w,u),false)
+  assert.equal(p.flags3&0x800,0)
+  assert.equal(p.commandStatus,27)
+  assert.equal(p.commands[0],1)
+  assert.equal(p.immediateCommand,0)
+  assert.equal(order.references,1)
+})
+
+test('live automatic allocation failure preserves its source and queued order', () => {
+  const w=field(), u=addUnit(w,'blue','warrior',{x:0,z:0})
+  w.selected=[u.id];command(w,{x:8,z:0})
+  const p=u.native, queued=p.commands[p.commandCursor]
+  p.group=77
+  addUnit(w,'red','shaman',{x:1.5,z:0})
+  for(const order of w.buildingOrders.records.slice(1))order.references ||= 1
+  w.buildingOrders.active=799
+  assert.equal(startLiveCombatResponse(w,u),false)
+  assert.equal(p.group,77)
+  assert.equal(p.immediateCommand,0)
+  assert.equal(p.commands[p.commandCursor],queued)
+})
+
+test('live automatic sharing leaves a nonmatching same-cell peer untouched', () => {
+  const w=field(), u=addUnit(w,'blue','warrior',{x:0,z:0}), peer=addUnit(w,'blue','brave',{x:.5,z:0})
+  u.native=createLivePerson(w,u);peer.native=createLivePerson(w,peer);peer.native.group=77
+  addUnit(w,'red','shaman',{x:1.5,z:0})
+  assert.equal(startLiveCombatResponse(w,u),true)
+  assert.equal(peer.native.group,77)
+  assert.equal(peer.native.immediateCommand,0)
 })

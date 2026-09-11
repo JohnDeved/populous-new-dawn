@@ -60,7 +60,7 @@ const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 8, 10, 19, 27].includes(order.model)) unsupported()
+  if (!order || ![3, 8, 10, 19, 21, 27].includes(order.model)) unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,

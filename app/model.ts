@@ -21,8 +21,12 @@ import {
 } from './melee-groups.ts'
 import { EncounterPhase } from './melee-encounter.ts'
 import { announceCombatMarches, type CombatMarch } from './combat-order-search.ts'
-import { stepLiveBuildingAttack, cancelLiveBuildingAttack } from './live-building-combat.ts'
-import { automaticMeleeTarget, nativePersonModel, nativePersonTribe } from './live-combat.ts'
+import {
+  stepLiveBuildingAttack,
+  cancelLiveBuildingAttack,
+  startLiveCombatResponse,
+} from './live-building-combat.ts'
+import { nativePersonModel, nativePersonTribe } from './live-combat.ts'
 import { liveCommandContext } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
@@ -1113,7 +1117,7 @@ export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (u.native && (u.native.state !== 10 || [3, 19, 27].includes(u.native.commandStatus)))
+  if (u.native && (u.native.state !== 10 || [3, 19, 21, 27].includes(u.native.commandStatus)))
     return u.native
   if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
@@ -4903,7 +4907,7 @@ function stepTurn(w: World) {
       stepLivePhysics(w, u, u.native)
       continue
     }
-    if (u.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 19) {
+    if (u.native && [19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)) {
       stepLiveBuildingAttack(w, u)
       continue
     }
@@ -4978,7 +4982,10 @@ function stepTurn(w: World) {
     if (!target) {
       cancelLiveBuildingAttack(w, u)
       u.target = null
-      target = automaticMeleeTarget(w, u)
+      if (startLiveCombatResponse(w, u)) {
+        stepLiveBuildingAttack(w, u)
+        continue
+      }
     }
     if (target && 'progress' in target && target.progress === 1) {
       stepLiveBuildingAttack(w, u, target)
