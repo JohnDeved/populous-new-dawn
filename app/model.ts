@@ -1706,7 +1706,7 @@ function missionAI() {
 export function createWorld(): World {
   const w: World = {
     flyby: createFlyby(),
-    inputMask: 128,
+    inputMask: 0,
     lastMessage: -1,
     ai: missionAI(),
     messages: createMessages(),
@@ -1884,7 +1884,7 @@ export function createWorld(): World {
     }
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
-    if (![1038, 1095, 1108, 1196].includes(c.opcode)) return true
+    if (![1038, 1095, 1108, 1112, 1196].includes(c.opcode)) return true
     campaignCommand(w, c.opcode, c.args)
     return false
   })
@@ -2332,6 +2332,7 @@ export function campaignCommand(
       1068: 4,
       1095: 2,
       1108: 6,
+      1112: 0,
       1196: 1,
       1076: 3,
       1077: 3,
@@ -2458,8 +2459,18 @@ export function campaignCommand(
     return
   }
 
+  if (opcode === 1112) {
+    if (!(w.manaWorld.levelFlags & 0x1000000)) {
+      w.manaWorld.levelFlags = (w.manaWorld.levelFlags | 0x20000000) >>> 0
+      w.inputMask |= 128
+    }
+    return
+  }
   if (opcode === 1113) {
-    w.inputMask &= ~128
+    if (!(w.manaWorld.levelFlags & 0x1000000)) {
+      w.manaWorld.levelFlags = (w.manaWorld.levelFlags & ~0x20000000) >>> 0
+      w.inputMask &= ~128
+    }
     return
   }
   if (opcode === 1180 || opcode === 1187) {

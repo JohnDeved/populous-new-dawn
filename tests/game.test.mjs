@@ -472,7 +472,8 @@ test('original campaign setup disables only enemy reincarnation and retains defe
  assert.throws(()=>runScript({...originalScript,codes:[12,1003,1006,65535,1004,1019]},scriptState(originalScript),host),/Unknown game command/);
  const w=createWorld();assert.equal(w.ai.reincarnation,false);assert.equal(w.ai.attributes[32],128);assert.equal(w.ai.attributes[33],1);assert.equal(w.ai.attributes[18],45);
  assert.ok(w.ai.states&1,'native construction state enabled');assert.equal(w.ai.states&(1<<2),0,'native wild conversion state disabled');
- assert.ok(w.ai.pendingCommands.some(c=>c.opcode===1112),'unimplemented game commands remain explicit');
+ assert.ok(!w.ai.pendingCommands.some(c=>c.opcode===1112));assert.equal(w.inputMask,128);assert.ok(w.manaWorld.levelFlags&0x20000000);
+ const gated=createWorld();gated.inputMask=132;gated.manaWorld.levelFlags=0x21000000;campaignCommand(gated,1112,[]);campaignCommand(gated,1113,[]);assert.equal(gated.inputMask,132);assert.equal(gated.manaWorld.levelFlags,0x21000000);
  const shaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');shaman.hp=0;tick(w,1/12);advance(w,15);
  assert.ok(w.units.some(u=>u.team==='red'));assert.ok(!w.units.some(u=>u.team==='red'&&u.kind==='shaman'));assert.equal(w.redRespawn,0);
  const fresh=createWorld();fresh.ai.attributes[0]=99;assert.equal(createWorld().ai.attributes[0],12,'new games own independent script state');
@@ -642,6 +643,7 @@ test('original opening runs before object turn 72 and its independent flyby cloc
  tick(w,1/12);
  assert.equal(w.flyby.events.length,18);assert.equal(w.flyby.warmup,6);
  assert.equal(w.flyby.flags&1,1);assert.equal(w.inputMask,64);
+ assert.equal(w.manaWorld.levelFlags&0x20000000,0);
  assert.equal(w.messages.slots[w.lastMessage].stringId,611);
  assert.equal(w.messages.slots[w.lastMessage].flags&0x20200,0x20200);
  const camera={x:17*256,y:-41*256,angle:0,zoom:0};

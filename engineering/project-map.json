@@ -181,7 +181,7 @@
         "app/game-clock.ts",
         "app/unit-motion.ts"
       ],
-      "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
+      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "animate" },
         { "path": "app/game-clock.ts", "symbol": "GameClock" },
@@ -268,6 +268,55 @@
         "Browser-path equivalence does not establish complete native renderer parity.",
         "Current source lacks fresh representative hardware frame evidence for every populated combat and terrain workload."
       ]
+    },
+    {
+      "id": "campaign",
+      "title": "Campaign VM and first-mission integration",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/computer.ts",
+        "app/live-worship.ts",
+        "app/messages.ts",
+        "app/object-panels.ts",
+        "app/person-worship.ts",
+        "app/popscript.ts",
+        "app/vault.ts",
+        "app/worship.ts"
+      ],
+      "sharedPaths": ["app/flyby.ts", "app/model.ts"],
+      "entrySymbols": [
+        { "path": "app/model.ts", "symbol": "missionAI" },
+        { "path": "app/model.ts", "symbol": "campaignCommand" },
+        { "path": "app/model.ts", "symbol": "campaignRules" }
+      ],
+      "parityIds": [
+        "campaign.mission-one",
+        "campaign.vm",
+        "campaign.ai",
+        "campaign.objectives",
+        "campaign.worship"
+      ],
+      "evidence": [
+        { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        {
+          "path": "references/reverse-engineering.md",
+          "heading": "PopScript control flow and first-mission initialization"
+        },
+        {
+          "path": "references/reverse-engineering.md",
+          "heading": "First-mission opening flyby (2026-09-07)"
+        }
+      ],
+      "nativeAddresses": ["0x48c6b0", "0x48cc60", "0x48f350", "0x4615f0"],
+      "checkIds": ["repository-check", "production-build"],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
+      "risks": [
+        "A bound command must preserve script evaluation order, native field widths, and its real world or presentation owner."
+      ],
+      "unresolved": [
+        "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
+        "Portable and build checks do not replace an opcode-specific native comparison or live browser assertion."
+      ]
     }
   ],
   "crossCutting": [
@@ -278,7 +327,8 @@
         "movement-orders",
         "construction-resources",
         "camera-clocks",
-        "terrain-performance"
+        "terrain-performance",
+        "campaign"
       ],
       "checkIds": ["repository-check"]
     },
@@ -309,6 +359,11 @@
       "checkIds": ["repository-check"]
     },
     {
+      "path": "app/flyby.ts",
+      "subsystemIds": ["camera-clocks", "campaign"],
+      "checkIds": ["repository-check", "production-build", "camera-browser"]
+    },
+    {
       "path": "app/render-view.ts",
       "subsystemIds": ["selection", "camera-clocks", "terrain-performance"],
       "checkIds": ["production-build"]
@@ -320,12 +375,6 @@
       "mappingStatus": "unmapped",
       "paths": ["app/audio.ts", "app/music.ts"],
       "note": "Mechanically inventoried; no reviewed workflow mapping in this initial slice."
-    },
-    {
-      "id": "campaign",
-      "mappingStatus": "unmapped",
-      "paths": ["app/popscript.ts", "app/vault.ts"],
-      "note": "Mechanically inventoried; current campaign evidence is not semantically mapped here."
     },
     {
       "id": "combat",
