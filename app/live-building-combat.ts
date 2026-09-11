@@ -18,7 +18,7 @@ import {
   leaveLiveBuilding,
   type LivePerson,
 } from './live-people.ts'
-import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
+import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { personAnimationObject } from './person-state.ts'
 import { finishPersonPreparation, stepPersonReaction } from './person-update.ts'
@@ -124,11 +124,10 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b: Building) {
       const object = personAnimationObject(p)
       if (object !== -1) setLivePersonAnimation(w, p, object)
     },
-    destination,
+    destination: to => replanLivePath(w, u, p, to),
   })
   stepPersonReaction(p)
   moveLivePerson(w, u, p)
-  stepLiveRoute(w, u)
   const context = {
     randomState: w.randomState,
     levelFlags2: w.levelFlags2,

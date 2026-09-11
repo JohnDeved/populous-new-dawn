@@ -1846,9 +1846,15 @@
                 "scripts/check-native-formation-phase.py",
                 "tests/formation-phase.test.mjs",
                 "scripts/bench-formation-phase.mjs",
-                "references/performance/2026-09-11-formation-phase.json"
+                "references/performance/2026-09-11-formation-phase.json",
+                "app/live-pathfinding.ts",
+                "scripts/check-native-person-routes.py",
+                "tests/live-movement.test.mjs",
+                "scripts/check-browser-marching.mjs",
+                "scripts/bench-route-recovery.mjs",
+                "references/performance/2026-09-11-route-recovery.json"
               ],
-              "note": "Ordinary free ground orders now use native marching and arrival with shared command references. Full movement/avoidance and rerouting, native selected-person transitions, general work/attack queue restoration, specialist/vehicle behavior, allocator limits and complete class/counter scheduling remain unfinished. Native tribe/list ordering and formations-before-physics are now integrated, including next-turn recruitment and inactive skipping. 256 two-turn native traces, live phase/recruitment regressions and browser marching/resting cover this correction; complete mixed-class scheduling remains open."
+              "note": "Ordinary free ground orders now use native marching and arrival with shared command references. Full movement/avoidance and rerouting, native selected-person transitions, general work/attack queue restoration, specialist/vehicle behavior, allocator limits and complete class/counter scheduling remain unfinished. Native tribe/list ordering and formations-before-physics are now integrated, including next-turn recruitment and inactive skipping. 256 two-turn native traces, live phase/recruitment regressions and browser marching/resting cover this correction; complete mixed-class scheduling remains open. Native preparation retry now reaches planned routing rather than direct steering, retaining person/order/route ownership. Composed native preparation/planner calls, real 24-person obstacle recovery at 5\u2013240 Hz and desktop/ultrawide browser input are checked; full terrain invalidation, avoidance and mixed-class ownership remain open."
             }
           ]
         },

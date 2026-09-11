@@ -7954,3 +7954,44 @@ on their creation turn, and subsequent steering before member-counter increments
 Actual browser orders, original walking poses, pause, retargeting and resting
 handoff pass. The broader mixed-class allocated order, list rebuilding, deferred
 freeing, object limits and complete world scheduling remain unfinished.
+
+
+## 2026-09-11 — native obstacle retry reaches the live path planner
+
+`004e9720` obstacle recovery and `004e9950` timed recovery raise flags2 bit
+0x80000000. Complete preparation `004d42a0` clears it and, unless flag 128 suppresses
+target steering, calls **planned** destination wrapper `004e9d80` with the retained
+goal at person+0x4f. It does not call direct wrapper `004e9dd0`. Three live preparation
+consumers had supplied the direct wrapper; building entry/attack preparation instead prematurely
+released the route and reused input validation. Both alter native reuse/fallback.
+
+`planDestination` now contains the existing native planner composition, shared by
+input/query `planLivePath` and preparation `replanLivePath`. Preparation preserves
+flags and route ownership through the native planner, then refreshes the existing
+live person/path display records. It does not create a command, re-acknowledge the
+order, force planning eligibility, reject a failed search like new input, or clear
+a route just attached by the planner. All five preparation sites now use this owner;
+explicit direct destinations used by resting/celebration state logic remain direct.
+
+`check-native-person-routes.py` adds 2,048 complete preparation→planned-wrapper→planner
+comparisons to the existing 20,480 route cases. Native release/attach/reuse, request
+gates and pool mutations execute; path construction/advance, building/coastal/vehicle
+consumers remain supplied as in the existing oracle. Retry presence, suppression,
+path-disabled flags, reuse, reserved records, limits and failed construction are
+covered. This establishes the call composition, not complete physics/world parity.
+
+The live regression adds a hut after a 24-person group has accepted its order. Real
+collision raises retry flags; the next physics turn must retain a planned route,
+which the old direct-steering adapter fails. All 24 people get around the hut,
+settle and release their original shared order and routes. Complete histories,
+people, RNGs and footprint cursor agree at 5–240 Hz and irregular frames. Browser
+checks use real desktop/ultrawide clicks and verify visible original sprites after
+arrival. A paused fixture must render its reset world before clicking so its painter
+and camera matrices match the new scene; this was corrected in the browser harness.
+Full terrain invalidation, vehicles and complete mixed-class movement remain open.
+
+The shared `moveLivePerson` ground adapter now advances retained route waypoints
+after position updates and before each state controller. Building/resting callers
+no longer duplicate that work; panic/celebration receive the same path advancement
+when preparation replans. A coincident-waypoint regression requires exactly one
+advance per ground visit, and existing entry/resting/transition regressions remain.

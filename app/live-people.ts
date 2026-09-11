@@ -50,7 +50,13 @@ import {
   recoverGroundObstacle,
   type RecoveryPerson,
 } from './person-motion.ts'
-import { clearLivePath, planLivePath, acceptLivePath } from './live-pathfinding.ts'
+import {
+  clearLivePath,
+  planLivePath,
+  acceptLivePath,
+  replanLivePath,
+  stepLiveRoute,
+} from './live-pathfinding.ts'
 import { buildingApproachPoint, buildingOutsidePoint } from './building-shapes.ts'
 import {
   buildingExitPoint,
@@ -698,7 +704,7 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize,
     animation: animate,
-    destination: to => setDirectPersonDestination(w.motionRoutes, p, to),
+    destination: to => replanLivePath(w, u, p, to),
   })
   stepPersonReaction(p)
   markPersonAirborne(w.land, p)
@@ -862,6 +868,7 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
     moveObjectInCells(w.objectCells, p, next)
     Object.assign(u, browserPosition(next))
   }
+  stepLiveRoute(w, u) // Native routes advance after position, before the state controller.
 }
 
 export function stepLivePerson(w: World, u: Unit) {
@@ -877,7 +884,7 @@ export function stepLivePerson(w: World, u: Unit) {
       const object = personAnimationObject(p)
       if (object !== -1) effects.animation(p, object, true)
     },
-    destination: point => effects.destination(p, point),
+    destination: point => replanLivePath(w, u, p, point),
   })
   stepPersonReaction(p)
   moveLivePerson(w, u, p)

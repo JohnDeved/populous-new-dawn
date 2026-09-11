@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createWorld,addUnit,command,tick,unitAnimationSource} from '../app/model.ts'
+import {createWorld,addUnit,addBuilding,command,tick,unitAnimationSource} from '../app/model.ts'
 import {advanceGame} from '../app/game-clock.ts'
-import {initializeLivePanic} from '../app/live-people.ts'
+import {initializeLivePanic,moveLivePerson} from '../app/live-people.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
 
 function scenario(count=24) {
@@ -74,4 +74,46 @@ test('panic retains the real movement command and resumes its route after recove
  assert.equal(w.pathfinding.people.get(u.id),p);assert.ok(p.motionGroup)
  turns(w,250)
  assert.equal(w.buildingOrders.active,0);assert.equal(p.state,19);assert.ok(u.x>25)
+})
+
+
+test('obstacle recovery replans the owned group order and settles identically at 5–240 Hz',()=>{
+ const run=schedule=>{
+  const w=scenario(24),order=currentPersonOrder(w.buildingOrders,w.units[0].native)
+  // Change the route after acceptance. Real collision must request recovery.
+  addBuilding(w,'blue','hut',{x:0,z:8},true)
+  let retries=0,retrying=new Set()
+  const history=[],clock={animationTime:0,animationFrame:0,afterTurn:()=>{
+   for(const u of w.units) {
+    const p=u.native
+    if(retrying.has(u.id))assert.ok(p.motionGroup,'a retry around this hut must retain a planned route, not reset direct steering')
+    if(p.flags2&0x80000000){retries++;assert.equal(currentPersonOrder(w.buildingOrders,p),order)}
+    if(p.motionGroup)assert.equal(w.pathfinding.people.get(u.id),p,'the replanned route retains the live person owner')
+   }
+   retrying=new Set(w.units.filter(u=>u.native.flags2&0x80000000).map(u=>u.id))
+   history.push(w.units.map(u=>[u.x,u.z,u.native.state,u.native.motionGroup,u.native.motionIndex]))
+  }}
+  let time=0,i=0
+  while(time<42-1e-9){const dt=Math.min(schedule[i++%schedule.length],42-time);advanceGame(w,clock,dt);time+=dt}
+  assert.ok(retries>0,'collision must actually request a new route')
+  assert.ok(w.units.every(u=>u.x>25&&u.native.state===19),'the entire group must get around the new hut and settle')
+  assert.equal(w.buildingOrders.active,0);assert.equal(order.references,0)
+  assert.equal(w.motionRoutes.active,0);assert.equal(w.pathfinding.people.size,0)
+  return {history,retries,people:w.units,random:w.randomState,pose:w.cosmeticRandom,footprints:w.footprints.cursor}
+ }
+ const expected=run([1/60])
+ for(const schedule of [[1/5],[1/30],[1/120],[1/144],[1/240],[.004,.13,.009,.034]])assert.deepEqual(run(schedule),expected)
+})
+
+
+test('shared ground motion advances a retained route once before any state controller',()=>{
+ const w=scenario(1),u=w.units[0],p=u.native,id=p.motionGroup,data=w.motionRoutes.records
+ assert.ok(id)
+ p.speed=0;p.motionIndex=0;p.x=(p.x&0xfe00)+256;p.y=(p.y&0xfe00)+256
+ data[id*109+108]=3
+ // Coincident waypoints expose accidental double advancement in the same visit.
+ for(let i=0;i<3;i++)data.set([p.x>>8,p.y>>8,0,0],id*109+12+i*4)
+ moveLivePerson(w,u,p)
+ assert.equal(p.motionGroup,id);assert.equal(p.motionIndex,1)
+ assert.equal(p.turnAngle,p.destinationX);assert.equal(p.turnY,p.destinationY)
 })

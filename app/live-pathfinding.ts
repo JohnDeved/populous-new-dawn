@@ -63,8 +63,8 @@ export function createLivePathfinding() {
   }
 }
 
-// Ordinary routing owns its person fields here until the native state/animation
-// dispatcher owns ordinary followers. Query records are released by the caller.
+// Input/query wrapper retains the existing destination and terrain validation.
+// Query records are released by the caller; native retries bypass these gates.
 export function planLivePath(
   w: World,
   u: Unit,
@@ -73,10 +73,41 @@ export function planLivePath(
   probeOnly = false
 ): LivePerson | null {
   if (!probeOnly && !supportsFollower(w, end)) return null
+  if (!probeOnly) p.flags2 = (p.flags2 | 0x2000000) >>> 0
+  try {
+    const planned = planDestination(w, u, p, nativePosition(w, end), probeOnly)
+    if (probeOnly) return planned ? p : null
+    if (
+      !(p.flags4 & 0x10000000) &&
+      liveRoutePoints(w, p).every(point => supportsFollower(w, point))
+    )
+      return p
+  } catch (error) {
+    releasePersonRoute(w.motionRoutes, p)
+    throw error
+  }
+  releasePersonRoute(w.motionRoutes, p)
+  return null
+}
+
+// 0x4d42a0 retries the original goal through 0x4e9d80, retaining route reuse,
+// person flags and failed-search fallback. This is not a new player command.
+export function replanLivePath(w: World, u: Unit, p: LivePerson, goal: { x: number; y: number }) {
+  planDestination(w, u, p, goal)
+  w.pathfinding.people.set(u.id, p)
+  u.path = liveRoutePoints(w, p)
+}
+
+function planDestination(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  goal: { x: number; y: number },
+  probeOnly = false
+) {
   const r = w.pathfinding,
     { state, path, geometry: g, solver } = r,
     collision = collisionWorld(w)
-  if (!probeOnly) p.flags2 = (p.flags2 | 0x2000000) >>> 0
   const tribes = w.manaTribes.map((t, i) => ({
     playerType: t.playerType,
     requests: (solver.tribeRequests[i] << 16) >> 16,
@@ -178,27 +209,15 @@ export function planLivePath(
           ),
       }),
   }
-  const goal = nativePosition(w, end)
   if (probeOnly) {
     const from = { x: p.x >> 8, y: p.y >> 8 },
       to = { x: (goal.x >> 8) & 255, y: (goal.y >> 8) & 255 }
     correctRouteEndpoints(planner, p, from, to, routeEffects)
-    return routeEffects.build(p, from, to) ? p : null
+    return !!routeEffects.build(p, from, to)
   }
-  try {
-    setPlannedPersonDestination(planner, p, goal, routeEffects, () => {})
-    r.skip = planner.skip
-    if (
-      !(p.flags4 & 0x10000000) &&
-      liveRoutePoints(w, p).every(point => supportsFollower(w, point))
-    )
-      return p
-  } catch (error) {
-    releasePersonRoute(w.motionRoutes, p)
-    throw error
-  }
-  releasePersonRoute(w.motionRoutes, p)
-  return null
+  setPlannedPersonDestination(planner, p, goal, routeEffects, () => {})
+  r.skip = planner.skip
+  return true
 }
 
 function liveRoutePoints(w: World, p: LivePerson) {

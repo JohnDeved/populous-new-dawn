@@ -2,6 +2,7 @@
 Usage: python scripts/check-native-person-routes.py /path/to/d3dpoptb.exe
 Only path construction/advancement, outside points, coastal directions and
 vehicle/building consumers are supplied. Entire route records are hashed.
+Preparation mode composes original 0x4d42a0 with 0x4e9d80 and 0x4e9e80.
 """
 import copy,hashlib,json,random,struct,subprocess,sys
 from pathlib import Path
@@ -11,6 +12,7 @@ from decomp import native_cpu,configure_native_constants
 root=Path(__file__).resolve().parents[1];exe=Path(sys.argv[1]);cpu,_=native_cpu(exe);configure_native_constants(cpu,exe);rng=random.Random(0x4e9e80)
 cpu.mem_map(0x2000000,0x20000);p,out,stack,stop=0x2000000,0x2001000,0x201e000,0x201f000
 fields={'id':(0x24,'H'),'tribe':(0x2f,'b'),'vehicle':(0x9f,'H'),'flags2':(0xc,'I'),'flags4':(0x10,'I'),'motionGroup':(0x63,'h'),'motionIndex':(0x67,'B'),'recoveryCounter':(0x65,'B'),'x':(0x3d,'H'),'y':(0x3f,'H'),'goalX':(0x4f,'H'),'goalY':(0x51,'H'),'destinationX':(0x53,'H'),'destinationY':(0x55,'H'),'turnAngle':(0x57,'H'),'turnY':(0x59,'H')}
+baseFields=fields.copy()
 def write(a,f,*v):cpu.mem_write(a,struct.pack('<'+f,*v))
 def read(a,f):return struct.unpack('<'+f,cpu.mem_read(a,struct.calcsize('<'+f)))[0]
 def point(a):return dict(x=read(a,'H'),y=read(a+2,'H'))
@@ -32,7 +34,7 @@ def leaf(cpu,a,size,u):
   events.append(['adjust',point(arg(1))]);write(arg(1),'HH',(read(arg(1),'H')+c['adjust'])&65535,read(arg(1)+2,'H'))
  cpu.reg_write(UC_X86_REG_EAX,value&0xffffffff);cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
 for a in [0x4044b0,0x518070,0x4655f0,0x4ea970,0x465650,0x4eadc0,0x4ec3f0]:cpu.hook_add(UC_HOOK_CODE,leaf,begin=a,end=a)
-js="""import {createHash} from 'node:crypto';import {createMotionRoutes,attachPersonRoute,releasePersonRoute,setDirectPersonDestination,personRoutePosition,reusablePersonRoute,updatePersonRouteVehicle,planPersonDestination,setPlannedPersonDestination,correctRouteEndpoints} from './app/person-routes.ts';
+js="""import {preparePersonTurn} from './app/person-update.ts';import {createHash} from 'node:crypto';import {createMotionRoutes,attachPersonRoute,releasePersonRoute,setDirectPersonDestination,personRoutePosition,reusablePersonRoute,updatePersonRouteVehicle,planPersonDestination,setPlannedPersonDestination,correctRouteEndpoints} from './app/person-routes.ts';
 let s='';for await(const c of process.stdin)s+=c;const input=JSON.parse(s),land={flags:new Uint32Array(16384),categories:new Uint8Array(16384),buildingIds:new Uint16Array(16384)};
 console.log(JSON.stringify(input.cases.map(c=>{const routes=createMotionRoutes(),events=[],p=c.p;for(const [id,bytes] of c.records)routes.records.set(bytes,id*109);routes.active=c.active;routes.last=c.last;
 for(const t of c.tiles){land.flags[t.i]=t.flags;land.categories[t.i]=t.category;land.buildingIds[t.i]=t.building;}
@@ -42,18 +44,21 @@ build:(p,a,b)=>{events.push(['build',a,b]);return c.build;},vehicleReady:id=>{ev
 let result=null;if(input.mode==='attach'||input.mode==='reserve')attachPersonRoute(routes,p,c.id,input.mode==='reserve');else if(input.mode==='release')releasePersonRoute(routes,p);else if(input.mode==='direct')setDirectPersonDestination(routes,p,c.to);else if(input.mode==='position')result=personRoutePosition(routes,c.id,c.index);
 else if(input.mode==='reuse')result=reusablePersonRoute(routes,p,c.from,c.to);else if(input.mode==='vehicle')updatePersonRouteVehicle(routes,p,e.vehicleReady);else if(input.mode==='plan')result=planPersonDestination(w,p,c.to,e);
 else if(input.mode==='correct'){correctRouteEndpoints(w,p,c.from,c.to,e);result={from:c.from,to:c.to};}
-else setPlannedPersonDestination(w,p,c.to,e,to=>{events.push(['adjust',{...to}]);to.x=(to.x+c.adjust)&65535;});
+else {const destination=to=>setPlannedPersonDestination(w,p,to,e,to=>{events.push(['adjust',{...to}]);to.x=(to.x+c.adjust)&65535;});if(input.mode==='prepare')preparePersonTurn(p,0,{initialize:()=>{throw Error('Unexpected initialization')},animation:()=>{throw Error('Unexpected animation')},destination});else destination(c.to);}
 for(const t of c.tiles){land.flags[t.i]=land.categories[t.i]=land.buildingIds[t.i]=0;}
 return {p,active:routes.active,last:routes.last,skip:w.skip,checkingPerson:w.checkingPerson,records:createHash('sha256').update(routes.records).digest('hex'),events,result};})));"""
-for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea460),('direct',0x4e9dd0),('position',0x4ea4c0),('reuse',0x4ea550),('vehicle',0x4ea300),('plan',0x4e9e80),('wrapper',0x4e9d80),('correct',0x4ea6b0)]:
+for mode,address in [('attach',0x4ea3b0),('reserve',0x4ea400),('release',0x4ea460),('direct',0x4e9dd0),('position',0x4ea4c0),('reuse',0x4ea550),('vehicle',0x4ea300),('plan',0x4e9e80),('wrapper',0x4e9d80),('correct',0x4ea6b0),('prepare',0x4d42a0)]:
+ fields=baseFields|({'model':(0x2b,'B'),'flags3':(0x14,'I'),'statusFlags':(0xb2,'B'),'slowTurn':(0x7e,'B'),'motionTimer':(0x61,'h'),'motionMode':(0x66,'B')} if mode=='prepare' else {})
  cases=[];expected=[]
  for n in range(2048):
   ps={k:rng.randrange(65536) if f=='H' else rng.randrange(256) if f=='B' else rng.getrandbits(32) if f=='I' else 0 for k,(o,f) in fields.items()}
   ps.update(id=1,tribe=n%4,vehicle=rng.choice([0,0,2]),motionGroup=rng.randrange(9),flags2=rng.choice([0,0x2000000,0x82000080,0x2080000]),flags4=rng.choice([0,512,0x2000200,0x18000200]))
+  if mode=='prepare':ps.update(model=2,flags3=0,statusFlags=0,slowTurn=0,motionTimer=0,motionMode=0,flags2=[0,128,0x2000000,0x2000080][n%4]|(0x80000000 if n%3 else 0))
   records=[]
   for ident in [*range(9),398,399,400]:
    raw=bytearray(rng.randbytes(109));struct.pack_into('<h',raw,0,rng.choice([-32768,-1,0,1,2,32767]));raw[2]=rng.randrange(8);raw[108]=rng.randrange(25);records.append([ident,list(raw)])
   to=dict(x=rng.randrange(65536),y=rng.randrange(65536));frm=dict(x=rng.randrange(256),y=rng.randrange(256))
+  if mode=='prepare':to=dict(x=ps['goalX'],y=ps['goalY'])
   if mode=='reuse':
    to={k:v&255 for k,v in to.items()}
    # Exact, nearby and seam-adjacent reuse are exercised, not only misses.

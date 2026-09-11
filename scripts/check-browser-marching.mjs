@@ -42,9 +42,40 @@ try {
   return {orders,remaining:w.buildingOrders.active,groups:w.marching.length,x:w.units[0].x,states:w.units.map(u=>u.native.state)}
  })
  assert.equal(final.orders,2);assert.equal(final.remaining,0);assert.equal(final.groups,0);assert.ok(final.x<-14);assert.ok(final.states.every(s=>s===19))
+ for(const viewport of [{width:1440,height:1000},{width:3440,height:1440}]) {
+  await page.setViewportSize(viewport)
+  await page.evaluate(async()=>{
+   const s=window.testScene,m=await import('/app/model.ts'),w=s.world
+   Object.assign(w,m.createWorld())
+   w.units=[];w.buildings=[];w.shrines=[];w.trees=[];w.manaWorld.gameFlags=32;w.flyby.flags=0;w.inputMask=0
+   w.terrain.fill(3);w.terrainVersion++;w.speed=0
+   for(let i=0;i<24;i++)m.addUnit(w,'blue','brave',{x:-25+(i%3)*.5,z:8+Math.floor(i/3)*.5})
+   w.selected=w.units.map(u=>u.id);s.focus({x:18,z:8});s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+  })
+  await click({x:30,z:8})
+  const recovery=await page.evaluate(async()=>{
+   const s=window.testScene,w=s.world,m=await import('/app/model.ts'),{advanceGame}=await import('/app/game-clock.ts')
+   const accepted=w.buildingOrders.active
+   if(accepted!==1||w.units.some(u=>!u.native))throw Error(JSON.stringify({accepted,people:w.units.map(u=>({native:!!u.native,target:u.target})),selected:w.selected,input:w.inputMask,status:w.status}))
+   m.addBuilding(w,'blue','hut',{x:0,z:8},true)
+   w.speed=1;let requests=0,planned=0
+   for(let turn=0;turn<504;turn++) {
+    const retrying=w.units.filter(u=>u.native.flags2&0x80000000);requests+=retrying.length
+    advanceGame(w,s.gameClock,1/12)
+    planned+=retrying.filter(u=>u.native.motionGroup).length
+   }
+   w.paused=true;s.focus({x:30,z:8});s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+   return {accepted,requests,planned,orders:w.buildingOrders.active,routes:w.motionRoutes.active,
+    people:w.units.map(u=>({x:u.x,state:u.native.state,visible:s.unitMeshes.get(u.id)?.visible,frame:s.unitMeshes.get(u.id)?.userData.frame}))}
+  })
+  assert.equal(recovery.accepted,1);assert.ok(recovery.requests>0);assert.equal(recovery.planned,recovery.requests)
+  assert.equal(recovery.people.length,24);assert.equal(recovery.orders,0);assert.equal(recovery.routes,0)
+  assert.ok(recovery.people.every(u=>u.x>25&&u.state===19&&u.visible&&Number.isInteger(u.frame)))
+ }
  if(process.argv.includes('--profile')) {
   await page.evaluate(async()=>{
-   const s=window.testScene,m=await import('/app/model.ts'),w=s.world=m.createWorld()
+   const s=window.testScene,m=await import('/app/model.ts'),w=s.world
+   Object.assign(w,m.createWorld())
    w.units=[];w.buildings=[];w.shrines=[];w.trees=[];w.manaWorld.gameFlags=32;w.flyby.flags=0;w.inputMask=0
    w.terrain.fill(3);w.terrainVersion++
    for(let i=0;i<200;i++)m.addUnit(w,'blue','brave',{x:-30+(i%20)*.25,z:8+Math.floor(i/20)*.25})
@@ -69,5 +100,5 @@ try {
   console.log('PROFILE:',JSON.stringify(report))
  }
  assert.deepEqual(errors,[])
- console.log('PASS: real left-click shared movement, marching groups, visible original walking/gesture poses, pause, interruption and resting handoff')
+ console.log('PASS: real left-click shared movement, marching groups, visible original walking/gesture poses, pause, interruption, obstacle replanning on desktop/ultrawide and resting handoff')
 } finally {await browser.close()}

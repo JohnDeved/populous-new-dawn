@@ -1681,6 +1681,30 @@ all mixed-class phases, avoidance and general work/attack queues remain unfinish
 This corrects a bounded integration; it does not certify the full group lifecycle.
 Continue the requested group/footprint/standing/selection/3D-drag queue.
 
+### Obstacle route recovery connected, 2026-09-11
+
+Follower preparation now sends original retry requests through the existing native
+route planner instead of replacing the route with direct steering. The same shared
+adapter serves ordinary physics, resting, celebration/panic and building preparation.
+It preserves the person, queued order, native route reuse/capacity gates and failed
+search fallback. Shared ground movement advances waypoints before each state
+controller, including panic/celebration, without duplicate building/resting calls.
+Player input validation stays in the input/query wrapper.
+
+The native route oracle now composes `004d42a0` preparation with `004e9d80` and
+`004e9e80` in 2,048 additional comparisons, including route ownership/pool bytes and
+ordered consumers. A 24-person live scenario adds a hut after accepting the order:
+real collisions request routes, every follower gets around it and settles, and all
+order/route references release. Outcomes agree at 5–240 Hz and irregular timing;
+actual desktop/ultrawide clicks and original visible poses pass. The 200-person
+simultaneous-retry workload uses five native searches through route reuse, with
+0.352 ms median for physics plus replanning on the measured machine. Raw evidence
+and limits are in `references/performance/2026-09-11-route-recovery.json`.
+
+Full terrain-change route invalidation, mixed-class path ownership, vehicles,
+selected-person transitions, avoidance, work/attack queue restoration and global
+scheduling remain unfinished. Continue the visible group/selection queue.
+
 ### Audio work delivered; finish current tree ambience correction
 
 Latest user direction, 2026-09-10: finish the current building-attack work, then

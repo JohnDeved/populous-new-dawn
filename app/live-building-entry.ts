@@ -43,7 +43,7 @@ import {
   type OrderPool,
   type OrderEffects,
 } from './person-orders.ts'
-import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
+import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import {
   insertObjectIntoCell,
@@ -450,7 +450,7 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
         const object = personAnimationObject(p)
         if (object !== -1) setLivePersonAnimation(w, p, object)
       },
-      destination: (point: { x: number; y: number }) => destination(p, point.x, point.y),
+      destination: (point: { x: number; y: number }) => replanLivePath(w, u, p, point),
     }
     if (order.model === 10)
       preparePersonTurn(p, w.manaWorld.gameFlags, {
@@ -460,7 +460,6 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
     else finishPersonPreparation(p, preparation)
     ctx.randomState = w.randomState
     moveLivePerson(w, u, p)
-    stepLiveRoute(w, u)
   }
   const dropCargo = () =>
     dropCarriedTimber(

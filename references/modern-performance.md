@@ -2302,3 +2302,22 @@ Its rerun (`performance/2026-09-11-marching.json`) preserves exact movement,
 orders, formations, cell chains, routes and both RNGs across eager/lazy modes:
 2.912 → 0.140 ms median per movement-only turn. This excludes the other world
 processors and must not be confused with the complete-turn comparison above.
+
+
+### Obstacle route recovery, 2026-09-11
+
+Preparation reuses the existing native planner, route cache and ownership pool.
+Only original retry requests invoke it, on fixed simulation turns. No renderer,
+frame-rate cap, timer or package is added. The refactor shares planner setup rather
+than duplicating the solver or rebuilding group commands.
+
+`bench-route-recovery.mjs` compares the previous physics adapter with the current
+one using 200 simultaneous retry requests after adding a hut. Twenty warmups and
+60 alternating pairs on Apple M5 / Node v24.18.0 measured **0.098 → 0.352 ms median**,
+**0.243 → 1.176 ms p95** for the entire group physics visit. Native route reuse
+required **five searches** for 200 people in every measured run. The old adapter
+incorrectly discarded paths; this is the measured cost of real recovery, not an
+equivalent-work speedup. All queued commands and references stay unchanged.
+`performance/2026-09-11-route-recovery.json` retains raw samples. Other simulation
+phases, rendering, GPU throughput and cross-hardware FPS are outside this probe;
+separate 5–240 Hz live replay and browser input verify timing and visible behavior.

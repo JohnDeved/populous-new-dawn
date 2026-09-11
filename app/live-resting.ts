@@ -31,7 +31,7 @@ import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './index
 import { terrainPointHeight } from './native-terrain.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
-import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
+import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
 import sprites from './original-units.json' with { type: 'json' }
 
 const slots = createRestingSlots()
@@ -130,13 +130,12 @@ export function stepLiveResting(w: World, u: Unit) {
       const object = personAnimationObject(p)
       if (object !== -1) setLivePersonAnimation(w, p, object)
     },
-    destination: to => setDirectPersonDestination(w.motionRoutes, p, to),
+    destination: to => replanLivePath(w, u, p, to),
   })
   stepPersonReaction(p)
   moveLivePerson(w, u, p)
   if (p.state === 10) changeLivePersonState(w, u, 17) // Empty ordinary order queue.
   if (p.state === 17) {
-    stepLiveRoute(w, u)
     if (stepIdleApproach(p, to => collision(w, to))) changeLivePersonState(w, u, 19)
   } else if (p.state === 19) {
     const rest = restingWorld(w)
