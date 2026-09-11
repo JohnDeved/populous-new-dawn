@@ -1,0 +1,142 @@
+"""Inspect mission one's native ATTACK decode/allocation and staging boundary.
+
+Usage: python scripts/check-native-computer-attack.py /path/to/d3dpoptb.exe
+The original interpreter, task allocator, selector, group builder and commit execute.
+Person-state, staging-position, payload-preparation and acknowledgement leaves are
+supplied; phase 6 and later world-dependent attack routing are intentionally excluded.
+"""
+import hashlib,json,struct,sys
+from pathlib import Path
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
+from decomp import native_cpu
+
+root=Path(__file__).resolve().parents[1]
+cpu,_=native_cpu(Path(sys.argv[1]));cpu.mem_map(0x2000000,0x20000)
+program,stack,stop=0x2000000,0x201d000,0x201e000
+tribes=0x89d1c8;red=tribes+0xc65
+original=json.loads((root/'app/original-script.json').read_text())
+source=Path(sys.argv[1]).parent/'levels/cpscr010.dat'
+assert hashlib.sha256(source.read_bytes()).hexdigest()==original['sha256']
+codes=[12,1003,*original['codes'][716:731],1004,1019]
+assert codes[2:]==[1006,1059,1118,20,1070,20,160,161,161,161,1078,1,49,49,1,1004,1019]
+
+def write(p,fmt,*values):cpu.mem_write(p,struct.pack(fmt,*values))
+def initialize(enabled=True,maximum=1,full=False):
+    cpu.mem_write(tribes,bytes(4*0xc65))
+    for tribe in range(4):write(tribes+tribe*0xc65+0xc22,'<B',tribe)
+    write(red+0x59a,'<I',(1<<20) if enabled else 0)
+    write(0x960833,'<B',maximum)
+    if full:
+        for i in range(10):write(red+0x36+i*0x52+0x3e,'<I',1)
+def run():
+    blob=bytearray(12552);struct.pack_into('<'+'H'*len(codes),blob,0,*codes)
+    for i,field in enumerate(original['fields']):struct.pack_into('<Ii',blob,8192+i*8,*field)
+    struct.pack_into('<64i',blob,12288,*original['variables']);cpu.mem_write(program,bytes(blob))
+    write(stack,'<III',stop,red,program);cpu.reg_write(UC_X86_REG_ESP,stack)
+    cpu.emu_start(0x48c6b0,stop,timeout=100000,count=200000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop
+def tasks():
+    result=[]
+    for i in range(10):
+        p=red+0x36+i*0x52
+        flags=struct.unpack('<I',cpu.mem_read(p+0x3e,4))[0]
+        if flags&1:
+            result.append(dict(index=i,flags=flags,type=cpu.mem_read(p+0x4f,1)[0],
+                phase=struct.unpack('<H',cpu.mem_read(p+0x42,2))[0],
+                target=struct.unpack('<I',cpu.mem_read(p+0x32,4))[0],
+                requested=struct.unpack('<i',cpu.mem_read(p+0x36,4))[0],
+                damage=struct.unpack('<i',cpu.mem_read(p+0x3a,4))[0]))
+    return result
+
+initialize();run();allocated=tasks()
+assert len(allocated)==1,allocated
+task=allocated[0]
+assert task['type']==20 and task['phase']==0 and task['requested']==3 and task['damage']==999,task
+assert task['target']==struct.unpack('<H',cpu.mem_read(0x89b7a5+3*2,2))[0],task
+for enabled,maximum,full in [(False,1,False),(True,0,False),(True,1,True)]:
+    initialize(enabled,maximum,full);before=bytes(cpu.mem_read(red+0x36,10*0x52));run()
+    assert bytes(cpu.mem_read(red+0x36,10*0x52))==before,(enabled,maximum,full,tasks())
+print('PASS: native mission-one ATTACK decoded and allocated type 20; disabled, capped and full queues refused')
+
+# Exercise the deterministic prefix of the native type-20 controller. The first
+# world-dependent consumer starts at phase 6, so the oracle stops there.
+people=0x2008000
+trace=[]
+def return_from_leaf(value=0):
+    sp=cpu.reg_read(UC_X86_REG_ESP)
+    cpu.reg_write(UC_X86_REG_EAX,value&0xffffffff)
+    cpu.reg_write(UC_X86_REG_EIP,struct.unpack('<I',cpu.mem_read(sp,4))[0])
+    cpu.reg_write(UC_X86_REG_ESP,sp+4)
+def leaf(cpu,address,size,user):
+    sp=cpu.reg_read(UC_X86_REG_ESP)
+    if address==0x4f6020:
+        trace.append(('staging',0xfa06));return_from_leaf(0xfa06);return
+    if address in (0x4ed6f0,0x4ed640):
+        p=struct.unpack('<I',cpu.mem_read(sp+4,4))[0]
+        id_=struct.unpack('<H',cpu.mem_read(p+0x24,2))[0]
+        kind={0x4ed6f0:'prepare-person',0x4ed640:'select-person'}[address]
+        trace.append((kind,id_))
+        if address==0x4ed640:
+            write(p+0x2c,'<B',14);write(p+0x7a,'<B',cpu.mem_read(p+0x7a,1)[0]|128)
+        return_from_leaf();return
+    if address==0x418ce0:
+        ai=struct.unpack('<I',cpu.mem_read(sp+4,4))[0]
+        p=struct.unpack('<I',cpu.mem_read(ai+0x881,4))[0]
+        while p:
+            if cpu.mem_read(p+0x2c,1)[0]==14:
+                trace.append(('release-person',struct.unpack('<H',cpu.mem_read(p+0x24,2))[0]))
+                write(p+0x2c,'<B',17);write(p+0x7a,'<B',cpu.mem_read(p+0x7a,1)[0]&127)
+            p=struct.unpack('<I',cpu.mem_read(p+8,4))[0]
+        return_from_leaf();return
+    if address==0x438730:
+        id_,model,data,flags=struct.unpack('<4I',cpu.mem_read(sp+4,16))
+        a,b=struct.unpack('<HH',cpu.mem_read(data,4));id_&=0xffff;model&=255
+        trace.append(('prepare-order',id_,model,a,b,flags&255))
+        write(0x938830+id_*10,'<BB',model,flags&255)
+        write(0x938830+id_*10+6,'<HH',a,b)
+        return_from_leaf();return
+    if address==0x436330:
+        trace.append(('acknowledge',));return_from_leaf();return
+for address in (0x4f6020,0x4ed6f0,0x4ed640,0x418ce0,0x438730,0x436330):
+    cpu.hook_add(UC_HOOK_CODE,leaf,begin=address,end=address)
+
+def native_call(address,*args):
+    write(stack,'<'+'I'*(len(args)+1),stop,*[arg&0xffffffff for arg in args])
+    cpu.reg_write(UC_X86_REG_ESP,stack);cpu.emu_start(address,stop,timeout=1000000,count=2000000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
+def add_person(id_,model,next_id):
+    p=people+id_*256;cpu.mem_write(p,bytes(256))
+    write(p+8,'<I',people+next_id*256 if next_id else 0)
+    write(p+0x24,'<H',id_);write(p+0x2a,'<BBBB',1,model,17,1)
+    write(p+0x3d,'<HH',0xf000+id_*0x100,0x0800+id_*0x100)
+    write(0x890390+id_*4,'<I',p)
+
+initialize();run();taskp=red+0x36+allocated[0]['index']*0x52
+cpu.mem_write(0x890390,bytes(4096));cpu.mem_write(0x8a03e4,bytes(0x40000))
+cpu.mem_write(0xa0d108,bytes(4096));cpu.mem_write(0x938830,bytes(8000))
+write(0x96aa78,'<HH',1,0)
+# AWAY_BRAVE and AWAY_WARRIOR are mission-one's first two away attributes.
+cpu.mem_write(0x96081a,bytes([34,34,0,0,0,0]))
+for id_,model,next_id in [(1,2,2),(2,3,3),(3,2,4),(4,3,0)]:add_person(id_,model,next_id)
+write(red+0x881,'<I',people+256)
+phases=[]
+for _ in range(12):
+    native_call(0x4cb400,red,allocated[0]['index'])
+    phase=struct.unpack('<H',cpu.mem_read(taskp+0x42,2))[0];phases.append(phase)
+    if phase==6:break
+assert phases[-1]==6,phases
+assert 3 in phases and 4 in phases and 5 in phases,phases
+queued=[]
+for id_ in range(1,5):
+    p=people+id_*256
+    ids=[v for v in [struct.unpack('<H',cpu.mem_read(p+0x9b,2))[0],*struct.unpack('<8H',cpu.mem_read(p+0x8b,16))] if v]
+    if ids:queued.append((id_,ids,[cpu.mem_read(0x938830+v*10,1)[0] for v in ids]))
+assert len(queued)==3 and all(models==[3] for _,_,models in queued),(phases,queued,trace)
+assert {cpu.mem_read(people+id_*256+0x2b,1)[0] for id_,_,_ in queued}=={2,3},queued
+shared={id_ for _,ids,_ in queued for id_ in ids}
+assert len(shared)==1 and struct.unpack('<H',cpu.mem_read(0x938830+shared.pop()*10+2,2))[0]==3,queued
+assert struct.unpack('<I',cpu.mem_read(red+0x596,4))[0]&2==0
+assert cpu.mem_read(red+0x5b3,1)[0]==10
+assert any(event[0]=='staging' for event in trace) and any(event[0]=='release-person' for event in trace),trace
+print(f'PASS: native type-20 phases {phases} selected mixed people and committed command 3; phase 6 remains the explicit world-routing boundary')

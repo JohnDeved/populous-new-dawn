@@ -63,6 +63,7 @@
         "app/person-routes.ts",
         "app/route-advance.ts"
       ],
+      "researchPaths": ["scripts/check-native-computer-attack.py"],
       "sharedPaths": ["app/model.ts", "app/scene.ts", "app/native-terrain.ts"],
       "entrySymbols": [
         { "path": "app/model.ts", "symbol": "command" },
@@ -95,7 +96,12 @@
         }
       ],
       "nativeAddresses": ["0x4ee470", "0x4ec810", "0x4ef510"],
-      "checkIds": ["orders-portable", "orders-native", "orders-browser"],
+      "checkIds": [
+        "orders-portable",
+        "orders-native",
+        "computer-attack-native",
+        "orders-browser"
+      ],
       "generatedInputIds": ["native-fixtures"],
       "risks": [
         "Shared command/person identity, RNG order, route ownership, and render-rate independence span sibling controllers."
