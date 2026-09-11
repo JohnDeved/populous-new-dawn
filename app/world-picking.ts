@@ -109,3 +109,29 @@ export function pickQueuedObjects(commands: PickCommand[], point: ScreenPoint) {
   }
   return result
 }
+
+// 0x475860: eight six-pixel corner strokes, expanding outwards each layer.
+// Sprite animation owns the pulse; click feedback only selects the thick phase.
+export function pointerBrackets(bounds: HitBounds, frame: number, acknowledged: boolean) {
+  frame >>>= 0
+  const thick = acknowledged && !(frame & 1)
+  const opacity = ((thick ? 15 : 15 - Math.abs((frame % 12) - 2 * (frame % 6))) * 16) / 255
+  const lines: number[][] = []
+  for (let layer = 0; layer < (thick ? 4 : 2); layer++) {
+    const x = bounds.x - layer,
+      y = bounds.y - layer
+    const right = bounds.x + bounds.width + layer,
+      bottom = bounds.y + bounds.height + layer
+    lines.push(
+      [x, y, x + 6, y],
+      [x, y, x, y + 6],
+      [right - 6, y, right, y],
+      [right, y, right, y + 6],
+      [x, bottom, x + 6, bottom],
+      [x, bottom - 6, x, bottom],
+      [right - 6, bottom, right, bottom],
+      [right, bottom - 6, right, bottom]
+    )
+  }
+  return { opacity, lines }
+}

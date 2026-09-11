@@ -119,6 +119,27 @@ export class ScenePicking {
     return commands
   }
 
+  personBounds(id: number, rect = this.scene.renderer.domElement.getBoundingClientRect()) {
+    const s = this.scene,
+      g = s.unitMeshes.get(id),
+      anchor = s.unitScreen(id)
+    if (!g?.visible || g.userData.pickable === false || !anchor) return null
+    const frame = frames.frames[g.userData.frame]
+    if (!frame) return null
+    const flags = s.view.config.scaledSprites ? 256 : 0
+    return personHitBounds(
+      {
+        x: Math.trunc(((anchor.x + 1) * rect.width) / 2),
+        y: Math.trunc(((1 - anchor.y) * rect.height) / 2),
+      },
+      frame,
+      g.userData.spriteBucket,
+      flags,
+      s.view.config,
+      !!(g.userData.signature?.endsWith('shaman') || flags)
+    )
+  }
+
   pick(event: { clientX: number; clientY: number }) {
     const s = this.scene,
       { view } = s,
@@ -139,22 +160,8 @@ export class ScenePicking {
     const hits: QueuedHit[] = []
     for (const [id, g] of s.unitMeshes) {
       if (!g.visible || g.userData.pickable === false) continue
-      const anchor = s.unitScreen(id),
-        frame = frames.frames[g.userData.frame]
-      if (!anchor || !frame) continue
-      const shaman = g.userData.signature?.endsWith('shaman'),
-        flags = view.config.scaledSprites ? 256 : 0
-      const bounds = personHitBounds(
-        {
-          x: Math.trunc(((anchor.x + 1) * rect.width) / 2),
-          y: Math.trunc(((1 - anchor.y) * rect.height) / 2),
-        },
-        frame,
-        g.userData.spriteBucket,
-        flags,
-        view.config,
-        !!(shaman || flags)
-      )
+      const bounds = this.personBounds(id, rect)
+      if (!bounds) continue
       if (!inHitBounds(point, bounds)) continue
       const layers = g.userData.layers as THREE.Sprite[]
       const layer = layers.findLast(piece => piece.visible)

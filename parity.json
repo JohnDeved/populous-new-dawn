@@ -1296,9 +1296,14 @@
             "tests/drag-selection.test.mjs",
             "tests/fixtures/drag-selection.json",
             "app/drag-overlay.ts",
-            "references/performance/2026-09-10-drag-selection.json"
+            "references/performance/2026-09-10-drag-selection.json",
+            "app/world-picking.ts",
+            "scripts/check-native-pointer-brackets.py",
+            "scripts/check-browser-pointer-brackets.mjs",
+            "tests/pointer-brackets.test.mjs",
+            "references/performance/2026-09-11-pointer-brackets.json"
           ],
-          "note": "Default ordinary follower selection and camera-oriented drag mechanics are now separately verified. Full input buffering/settings, mixed-class/HUD/passenger ownership and exact drag/picking feedback remain partial. This checkpoint is not complete. Revision 26 splits the former single broad requirement into five explicit requirements without removing unknown or unfinished scope.",
+          "note": "Default ordinary follower selection and camera-oriented drag mechanics are now separately verified. Full input buffering/settings, mixed-class/HUD/passenger ownership and exact drag/picking feedback remain partial. This checkpoint is not complete. Revision 26 splits the former single broad requirement into five explicit requirements without removing unknown or unfinished scope. Ordinary pointed-person brackets now use native two/four-layer corner geometry and the AL tint/opacity pulse. 1024 complete native draw/color conversions, frontend expiry and actual hover/click/leave pixels at desktop/ultrawide/2x DPI pass. Elapsed acknowledgement avoids refresh-dependent duration; exact original outer-loop pacing, full object/context eligibility, palettes, D3D raster/compositing and remaining feedback remain open.",
           "requirements": [
             {
               "id": "interface.commands.follower-flags",

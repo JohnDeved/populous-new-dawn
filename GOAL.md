@@ -1792,3 +1792,13 @@ silent. Native input/target comparisons and actual desktop/ultrawide pixels,
 rejection and exhaustion checks pass; the existing four-turn effect adds one quad
 and no texture allocation. Continue pointed-object feedback, staged waypoint
 previews and complete mixed command handoffs; full parity remains unfinished.
+
+### Pointed-person brackets — 2026-09-11
+
+Ordinary follower hover/click now displays the original layered corner brackets,
+including pale AL tint, opacity pulse and brief thicker acknowledgement. Native
+geometry/color/expiry comparisons and actual desktop/ultrawide/2x DPI input/pixels
+pass. Shared hit bounds and a cached SVG path avoid duplicate picking work and
+per-frame-count timing. Full feedback/context/palette ownership, original outer
+pacing and exact raster compositing remain open. Continue persistent waypoint
+feedback and mixed order handoffs within the existing full parity goal.

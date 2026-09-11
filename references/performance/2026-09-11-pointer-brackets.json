@@ -1,0 +1,57 @@
+{
+  "browser": "153.0.8010.12",
+  "views": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "dpr": 1,
+      "pixels": 188,
+      "schedules": [
+        5,
+        30,
+        60,
+        120,
+        144,
+        240
+      ],
+      "cachedDrawMicroseconds": 0.5,
+      "webglCalls": 23,
+      "paths": 1
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "dpr": 1,
+      "pixels": 188,
+      "schedules": [
+        5,
+        30,
+        60,
+        120,
+        144,
+        240
+      ],
+      "cachedDrawMicroseconds": 0.5999999046325684,
+      "webglCalls": 23,
+      "paths": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "dpr": 2,
+      "pixels": 188,
+      "schedules": [
+        5,
+        30,
+        60,
+        120,
+        144,
+        240
+      ],
+      "cachedDrawMicroseconds": 0.5999999046325684,
+      "webglCalls": 23,
+      "paths": 1
+    }
+  ],
+  "scope": "Headless Chromium. One cached SVG path reuses native sprite hit bounds; native controller submits 16 normal or 32 acknowledgement line primitives. Cached draw cost is average microseconds per call over 1000 same-state calls, not full game frame time. SVG raster pixels and unchanged existing WebGL draw ownership do not establish hardware FPS or exact D3D overlap/compositing equivalence."
+}

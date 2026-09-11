@@ -8140,3 +8140,48 @@ pixels. `references/performance/2026-09-11-command-feedback.json` records all th
 views. These headless GPU counters demonstrate the actual bounded rendering cost;
 they are not hardware FPS or equivalent before/after speedup claims. The touched
 command-context helper passes ox-standard.
+
+## Pointed-person corner brackets (2026-09-11)
+
+New export `00475860` emits eight six-pixel corner segments per layer around
+`unit_index_1`'s retained sprite bounds. Ordinary hover has two layers. A matching
+acknowledgement target uses four layers on even sprite-animation phases. The
+ordinary phase is `15 - abs(frame % 12 - 2 * (frame % 6))`; division is unsigned,
+including animation-counter wrap. `004b0080` clears the acknowledgement target
+after five frontend visits, from `draw_main` before the input/renderer pipeline.
+
+Crucially, the phase is not a directly displayed palette index. The controller
+sets tint-table pointer `al0_mem + 0x2000`. Complete `00516270`, `00415f70` and
+`005166c0` conversion reads AL offset `0x2f00`, resolves initial palette index
+129 to RGB (229, 220, 214), and uses `phase * 16` as the alpha byte. Stopping at
+the index produced incorrect dark brackets; full native terminal-color traces
+caught and corrected that before publication. Asset hashes for the palette and
+AL table are retained in `app/original-pointer.json`.
+
+`check-native-pointer-brackets.py` executes 1,024 complete bracket/controller/color
+paths with only final `00516500` line submission supplied. It compares every line,
+RGB and alpha, signed bounds, no-pointer gating, normal/click phases and unsigned
+counter wrap. The real five-visit expiry executes independently. Portable captures
+retain 56 draw cases. Live hover/click/leave tests cover native hit-bound alignment,
+pale SVG pixels, pulse/acknowledgement geometry and 5–240 Hz elapsed expiry at
+desktop, ultrawide and 2x DPI. All 335 portable tests and the mixed-object picking
+and real ground-waypoint regressions pass. Export identity now covers 1,138 files.
+
+The scene shares `ScenePicking.personBounds` with hit testing. Picking passes its
+existing viewport rectangle, avoiding a new layout query for every follower. The
+native 16/32 individual line submissions become one cached SVG path; unchanged
+geometry/phase does not rewrite path attributes. The headless Chromium 153
+comparison records 188 nontransparent SVG pixels and one path, with approximately
+0.5–0.7 microseconds per cached update in the recorded 1,000-call checks. See
+`references/performance/2026-09-11-pointer-brackets.json` for raw views and limits.
+This is a bounded implementation cost, not a hardware FPS or native raster-speed
+claim. Exact D3D endpoint/overlap compositing remains unverified.
+
+Modern timing uses 5/24 seconds from the actual input timestamp, reusing the
+project's 24 Hz reference presentation cadence rather than counting rendered
+frames. Higher display refresh cannot shorten the feedback. Exact original
+outer-loop pacing, pause dispatch and all settings remain open; sprite pulse
+uses the existing animation clock. This delivery covers ordinary person hover
+and click/accepted-order feedback, not complete building/object highlight
+ownership, all input contexts, localized/system palette changes or persistent
+waypoint previews. Full controls parity stays partial.

@@ -1,3 +1,5 @@
+import { pointerBrackets } from './world-picking.ts'
+import pointerPalette from './original-pointer.json' with { type: 'json' }
 import { commandMarkerPoint } from './command-context.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -505,6 +507,10 @@ export class GameScene {
   unitMeshes = new Map<number, THREE.Group>()
   buildingMeshes = new Map<number, THREE.Group>()
   hoveredObject: number | null = null
+  pointerAck = { target: 0, until: 0 }
+  pointerSignature = ''
+  pointerOutline = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  pointerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path')
   fxMeshes = new Map<number, THREE.Group>()
   objects = new THREE.Group()
   decorations = new THREE.Group()
@@ -639,6 +645,22 @@ export class GameScene {
     this.renderer.domElement.tabIndex = 0
     this.renderer.domElement.className = 'battlefield'
     container.appendChild(this.renderer.domElement)
+    Object.assign(this.pointerOutline.style, {
+      position: 'absolute',
+      inset: '0',
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none',
+      display: 'none',
+    })
+    this.pointerOutline.setAttribute('aria-hidden', 'true')
+    this.pointerOutline.classList.add('native-pointer-brackets')
+    this.pointerPath.setAttribute('fill', 'none')
+    this.pointerPath.setAttribute('stroke-width', '1')
+    this.pointerPath.setAttribute('stroke', `rgb(${pointerPalette.color.join(',')})`)
+    this.pointerPath.setAttribute('shape-rendering', 'crispEdges')
+    this.pointerOutline.appendChild(this.pointerPath)
+    container.appendChild(this.pointerOutline)
     this.tooltipElement.className = 'native-tooltip'
     this.tooltipElement.setAttribute('role', 'tooltip')
     this.tooltipElement.style.backgroundColor = `rgb(${tooltipPalette.background.join(',')})`
@@ -1359,7 +1381,10 @@ export class GameScene {
         this.drag = { start, end: start, active: unit === undefined && !this.world.selected.length }
       }
     }
-    if (unit !== undefined) this.onSound(0x6a)
+    if (unit !== undefined) {
+      this.acknowledgePointer(unit)
+      this.onSound(0x6a)
+    }
     this.dragLast = { x: event.clientX, y: event.clientY }
     if (
       this.overviewActive &&
@@ -1483,6 +1508,7 @@ export class GameScene {
         if (command(this.world, p, event)) {
           const marker = commandMarkerPoint(nativePosition(this.world, p), picked?.id ?? 0)
           if (marker) effect(this.world, 'orderMarker', browserPosition(marker))
+          this.acknowledgePointer(picked?.id ?? 0)
           this.onSound(0x6a)
           this.orderSound(selected)
         }
@@ -2393,6 +2419,40 @@ export class GameScene {
     painter.pendingSoundEnvironment = result
     return result
   }
+  acknowledgePointer(target: number) {
+    // 0x4b0080 expires after five frontend visits. Use elapsed presentation
+    // time at the existing 24 Hz reference cadence, never rendered-frame count.
+    this.pointerAck = { target, until: performance.now() + 5000 / 24 }
+  }
+  drawPointer(now: number) {
+    const bounds =
+      !this.overviewActive &&
+      !this.world.inputMask &&
+      !this.world.mode &&
+      this.hoveredObject !== null
+        ? this.picking.personBounds(this.hoveredObject)
+        : null
+    this.pointerOutline.style.display = bounds ? '' : 'none'
+    if (!bounds) return
+    const acknowledged =
+      now < this.pointerAck.until && this.pointerAck.target === this.hoveredObject
+    const signature = [
+      bounds.x,
+      bounds.y,
+      bounds.width,
+      bounds.height,
+      this.gameClock.animationFrame % 12,
+      acknowledged,
+    ].join(',')
+    if (signature === this.pointerSignature) return
+    this.pointerSignature = signature
+    const { opacity, lines } = pointerBrackets(bounds, this.gameClock.animationFrame, acknowledged)
+    this.pointerPath.setAttribute('stroke-opacity', String(opacity))
+    this.pointerPath.setAttribute(
+      'd',
+      lines.map(([x, y, u, v]) => `M${x + 0.5},${y + 0.5}L${u + 0.5},${v + 0.5}`).join('')
+    )
+  }
   orderSound(selected = this.world.selected) {
     const units = this.world.units.filter(u => selected.includes(u.id))
     if (units.length) this.onSound(units.some(u => u.kind === 'shaman') ? 0x19 : 0x37)
@@ -2724,7 +2784,9 @@ export class GameScene {
       this.pointer = this.pointerScreen && this.world.mode ? this.pick(this.pointerScreen) : null
       this.hoveredObject =
         this.pointerScreen && !this.pointerButtons && !this.world.mode && !this.world.inputMask
-          ? (this.pickWorldObject(this.pointerScreen)?.id ?? null)
+          ? this.overviewActive
+            ? (this.pickWorldObject(this.pointerScreen)?.id ?? null)
+            : this.picking.pick(this.pointerScreen)
           : null
       this.pointerState = pointerState
     }
@@ -2823,6 +2885,7 @@ export class GameScene {
     this.view.painter.cells = this.world.objectCells
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
+    this.drawPointer(now)
     this.renderBuildingPanels()
     this.objectPanels.update(texture('hud').image as HTMLImageElement)
     this.container.parentElement!.style.setProperty(
@@ -2889,6 +2952,7 @@ export class GameScene {
     this.renderer.dispose()
     this.renderer.domElement.remove()
     this.tooltipElement.remove()
+    this.pointerOutline.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()
     this.buildingPanels.clear()
     this.objectPanels.dispose()
