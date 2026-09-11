@@ -1,4 +1,13 @@
-import { buildingPose, buildingModel, type World, type Unit } from './model.ts'
+import {
+  buildingPose,
+  buildingModel,
+  browserPosition,
+  addUnit,
+  population,
+  releaseTasks,
+  type World,
+  type Unit,
+} from './model.ts'
 import {
   createLivePerson,
   leaveLiveBuilding,
@@ -14,7 +23,8 @@ import { liveBuildingAttackTarget, releaseLiveAttackReservation } from './live-b
 import { clearLivePath, stepLiveRoute, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
-import { objectsInCell } from './object-cells.ts'
+import { objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import { nativeAngle, random } from './native-math.ts'
 import {
   startPersonOrders,
   configurePersonOrder,
@@ -23,7 +33,13 @@ import {
 import { stepPersonOrders, type OrderUpdateEffects } from './person-order-update.ts'
 import { stepConstructionOrder } from './construction-order.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
-import { recoverPersonMovement, defaultPersonState, resetPersonMotion } from './person-state.ts'
+import {
+  recoverPersonMovement,
+  defaultPersonState,
+  randomPersonSpeed,
+  resetPersonMotion,
+  stopPersonMovement,
+} from './person-state.ts'
 import {
   currentPersonOrder,
   allocatePersonOrder,
@@ -45,12 +61,29 @@ import {
   type MarchingFormation,
 } from './marching-formations.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import sprites from './original-units.json' with { type: 'json' }
+import { spyDisguisedFrom } from './computer-spells.ts'
+import {
+  cancelConversionVictim,
+  inPreachingRange,
+  initializeConversionVictim,
+  stepConversionVictim,
+  stepPreachingOrder,
+} from './preacher-conversion.ts'
 
 const unsupported = (): never => {
   throw new Error('Unported live movement order consumer')
 }
 export type LiveFormation = MarchingFormation & { tribe: number }
-const orderEffects = (w: World): OrderEffects => ({
+function outsideBuilding(w: World, point: { x: number; y: number }) {
+  const cell = (point.y >> 9) * 128 + (point.x >> 9)
+  return w.land.flags[cell] & 512
+    ? buildingOutsidePoint(
+        buildingPose(w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))!)
+      )
+    : point
+}
+export const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
   stopWork: person => releaseLiveAttackReservation(w, person.workTarget),
   releaseSpell: unsupported,
@@ -63,7 +96,7 @@ const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 6, 8, 10, 19, 21, 27].includes(order.model)) unsupported()
+  if (!order || ![3, 6, 8, 10, 17, 19, 21, 27, 31, 32].includes(order.model)) unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,
@@ -151,6 +184,14 @@ export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
 // Player clicks append to the same eight-slot queues used by simulation.
 export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, replace: boolean) {
   let count = 0
+  const preachers = replace
+    ? units.flatMap(u => {
+        const p = u.native ?? u.entry?.person ?? u.builder?.person
+        return p && [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)
+          ? [p]
+          : []
+      })
+    : []
   const accepted = appendPersonOrders(
     w.buildingOrders,
     command,
@@ -195,8 +236,12 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     },
     replace
   )
+  for (const p of accepted ? preachers : [])
+    if (![17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
+      releasePreacherVictims(w, p, p.commandAux || 3)
   for (const u of units) {
     const p = (u.native ?? u.entry?.person ?? u.builder?.person)!
+    if (!accepted && preachers.includes(p)) continue
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
@@ -228,10 +273,183 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
-  if (!p || ![3, 6, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
+  const model = p && currentPersonOrder(w.buildingOrders, p)?.model
+  if (!p || !model || ![3, 6, 17, 27, 31, 32].includes(model)) return
+  if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
+}
+
+const allied = (w: World, tribe: number, other: number) =>
+  tribe === -1 || other === -1 || tribe === other || !!(w.outcome.alliances[tribe] & (1 << other))
+
+function eligiblePreacherVictim(w: World, preacher: LivePerson, victim: LivePerson) {
+  return (
+    victim.id !== preacher.id &&
+    victim.life > 0 &&
+    !allied(w, preacher.tribe, victim.tribe) &&
+    !!(rules.personModels[victim.model].flags & 32) &&
+    !(rules.personStateFlags[victim.state] & 32) &&
+    !(victim.flags2 & 0x100000) &&
+    !(victim.flags4 & 8) &&
+    !victim.vehicle &&
+    !spyDisguisedFrom(victim, preacher.tribe)
+  )
+}
+
+function acquirePreacherVictims(w: World, preacher: LivePerson, radius: number) {
+  let count = 0,
+    first: LivePerson | undefined
+  // ponytail: the game caps tribes at 200 people; a direct scan avoids a second index.
+  for (const u of w.units) {
+    if (u.hp <= 0 || u.inside !== null || u.flight) continue
+    const victim = u.native ?? u.entry?.person ?? u.fight?.motion ?? createLivePerson(w, u)
+    if (!inPreachingRange(preacher, victim, radius)) continue
+    if (victim.state !== 23) {
+      if (!eligiblePreacherVictim(w, preacher, victim)) continue
+      releaseTasks(w, u)
+      u.native = victim
+      const state = { randomState: w.randomState, loadFlags: w.manaWorld.loadFlags }
+      initializeConversionVictim(state, victim, preacher, () =>
+        stopPersonMovement(victim, (person, object) =>
+          setLivePersonAnimation(w, person as LivePerson, object)
+        )
+      )
+      w.randomState = state.randomState
+      registerLivePerson(w, victim)
+      w.selected = w.selected.filter(id => id !== u.id)
+    }
+    if (victim.workTarget !== preacher.id) continue
+    first ??= victim
+    count++
+  }
+  preacher.statusFlags = count <= 4 ? preacher.statusFlags | 2 : preacher.statusFlags & ~2
+  if (first && preacher.statusFlags & 2) {
+    preacher.turnAngle = nativeAngle(
+      ((first.x - preacher.x) << 16) >> 16,
+      -(((first.y - preacher.y) << 16) >> 16)
+    )
+    preacher.flags2 = (preacher.flags2 | 0x1080) >>> 0
+  }
+  return count
+}
+
+function releasePreacherVictims(w: World, preacher: LivePerson, radius: number) {
+  for (const u of w.units) {
+    const victim = u.native
+    if (
+      !victim ||
+      victim.state !== 23 ||
+      victim.workTarget !== preacher.id ||
+      allied(w, preacher.tribe, victim.tribe) ||
+      [4, 7].includes(victim.model) ||
+      !inPreachingRange(preacher, victim, radius)
+    )
+      continue
+    changeLivePersonState(w, u, cancelConversionVictim(victim, w.manaWorld.gameFlags))
+  }
+}
+
+function replaceConvertedVictim(w: World, u: Unit, preacher: LivePerson) {
+  const victim = u.native!,
+    oldId = u.id,
+    team = preacher.tribe === 0 ? 'blue' : 'red',
+    slot = w.units.indexOf(u)
+  if (slot < 0) throw new Error('Missing converted victim')
+  // alloc_unit initializes a person speed before conversion replaces it.
+  random(w)
+  const angle = (random(w) & 63) << 5
+  let point = {
+    x: (preacher.x + (Math.imul(rules.sine[(angle + 512) & 2047], 0x500) >> 16)) & 0xffff,
+    y: (preacher.y + (Math.imul(rules.sine[angle], 0x500) >> 16)) & 0xffff,
+  }
+  point = outsideBuilding(w, point)
+  point.x = (point.x & 0xfe00) + 0x100
+  point.y = (point.y & 0xfe00) + 0x100
+  releaseTasks(w, u)
+  if (victim.flags2 & 0x20000) removeObjectFromCell(w.objectCells, victim)
+  w.objectCells.objects.delete(oldId)
+  w.selected = w.selected.filter(id => id !== oldId)
+  victim.class = 0
+  u.hp = 0
+  const replacement = addUnit(w, team, u.kind, browserPosition(point))
+  w.units[slot] = replacement
+  w.units.pop()
+  replacement.heading = Math.PI - (preacher.angle * Math.PI) / 1024
+  replacement.native = createLivePerson(w, replacement)
+  replacement.native.speed = randomPersonSpeed(w, replacement.native)
+  replacement.native.flags4 = (replacement.native.flags4 | 0x40000) >>> 0
+  replacement.native.flags3 = (replacement.native.flags3 | 0x1000000) >>> 0
+  registerLivePerson(w, replacement.native)
+}
+
+export function stepLiveConversionVictim(w: World, u: Unit) {
+  const victim = u.native!
+  victim.counter = (victim.counter + 1) & 255
+  const preacher =
+      w.units.find(candidate => candidate.id === victim.workTarget && candidate.hp > 0)?.native ??
+      undefined,
+    state = {
+      randomState: w.randomState,
+      loadFlags: w.manaWorld.loadFlags,
+      orders: w.buildingOrders,
+      tribeFlags: w.manaTribes.map(t => t.flags2),
+    },
+    result = stepConversionVictim(state, victim, preacher)
+  w.randomState = state.randomState
+  if (result === 'cancel')
+    changeLivePersonState(w, u, cancelConversionVictim(victim, w.manaWorld.gameFlags))
+  else if (result === 'convert') {
+    const team = preacher!.tribe === 0 ? 'blue' : 'red'
+    if (population(w, team) <= 199 || w.manaTribes[victim.tribe].flags2 & 64)
+      replaceConvertedVictim(w, u, preacher!)
+  } else u.heading = Math.PI - (victim.turnAngle * Math.PI) / 1024
+}
+
+export function stepLivePreaching(w: World, u: Unit) {
+  const p = u.native!
+  stepLivePhysics(w, u, p)
+  stepLiveRoute(w, u)
+  if (p.state !== 10) return
+  const order = currentPersonOrder(w.buildingOrders, p)
+  if ((order?.flags ?? 0) & 1) releasePreacherVictims(w, p, p.commandAux || 3)
+  const state = {
+    randomState: w.randomState,
+    loadFlags: w.manaWorld.loadFlags,
+    orders: w.buildingOrders,
+    tribeFlags: w.manaTribes.map(t => t.flags2),
+  }
+  const next = stepLiveOrderQueue(w, u, p, {
+    17: command => {
+      const result = stepPreachingOrder(state, p, command, {
+        animate: object => setLivePersonAnimation(w, p, object),
+        animationDuration: () =>
+          (rules.animationDescriptors[p.draw].step + 1) * sprites.frameCounts[p.object],
+        stop: () => {
+          releasePersonRoute(w.motionRoutes, p)
+          clearLivePath(w, u)
+          stopPersonMovement(p, (person, object) =>
+            setLivePersonAnimation(w, person as LivePerson, object)
+          )
+        },
+        acquire: radius => {
+          w.randomState = state.randomState
+          const count = acquirePreacherVictims(w, p, radius)
+          state.randomState = w.randomState
+          return count
+        },
+        release: radius => releasePreacherVictims(w, p, radius),
+      })
+      w.randomState = state.randomState
+      return result
+    },
+  })
+  if (next) {
+    clearLivePath(w, u)
+    changeLivePersonState(w, u, next)
+  }
+  adoptLiveOrders(w, u, p)
 }
 
 function join(w: World, p: LivePerson) {
@@ -372,14 +590,7 @@ export function stepLiveOrderQueue(
         if (p.vehicle) unsupported()
         return false
       },
-      outside: to => {
-        const cell = (to.y >> 9) * 128 + (to.x >> 9)
-        return w.land.flags[cell] & 512
-          ? buildingOutsidePoint(
-              buildingPose(w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))!)
-            )
-          : to
-      },
+      outside: to => outsideBuilding(w, to),
       destination: unsupported,
       stop: unsupported,
       formation: () => join(w, p),

@@ -32,12 +32,11 @@ import { terrainPointHeight } from './native-terrain.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
+import { allocatePersonOrder, attachPersonOrder, clearPersonOrders } from './person-orders.ts'
+import { orderEffects } from './live-movement.ts'
 import sprites from './original-units.json' with { type: 'json' }
 
 const slots = createRestingSlots()
-const unsupported = (): never => {
-  throw new Error('Unported live resting class/vehicle consumer')
-}
 const cellIndex = (p: { x: number; y: number }) => (p.y >> 9) * 128 + (p.x >> 9)
 function restingWorld(w: World): RestingWorld {
   return {
@@ -81,13 +80,22 @@ export function initializeLiveIdleApproach(
       clearLivePath(w, u)
       acceptLivePath(w, u, planLivePath(w, u, browserPosition(to), p))
     },
-    allocateOrder: unsupported,
-    adjacentBuilding: unsupported,
-    buildingPoint: unsupported,
-    prepareOrder: unsupported,
+    allocateOrder: () => allocatePersonOrder(w.buildingOrders),
+    adjacentBuilding: () => {
+      const cell = (p.y >> 9) * 128 + (p.x >> 9)
+      return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
+    },
+    buildingPoint: id =>
+      buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!)),
+    prepareOrder: (id, model, to) =>
+      Object.assign(w.buildingOrders.records[id], {
+        model,
+        a: to.x & 65535,
+        b: to.y & 65535,
+      }),
     occupied: () => false,
-    clearOrders: unsupported,
-    attachOrder: unsupported,
+    clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects(w)),
+    attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w)),
     initialize,
   })
 }

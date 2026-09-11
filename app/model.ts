@@ -5,7 +5,9 @@ import {
   appendLiveOrders,
   startLiveOrder,
   cancelLiveOrder,
+  stepLiveConversionVictim,
   stepLiveMovement,
+  stepLivePreaching,
   stepLiveMarchingFormations,
   type LiveFormation,
 } from './live-movement.ts'
@@ -1165,7 +1167,10 @@ export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (u.native && (u.native.state !== 10 || [3, 6, 19, 21, 27].includes(u.native.commandStatus)))
+  if (
+    u.native &&
+    (u.native.state !== 10 || [3, 6, 17, 19, 21, 27, 31, 32].includes(u.native.commandStatus))
+  )
     return u.native
   if (u.entry) return u.entry.person
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
@@ -3575,16 +3580,15 @@ export function command(
     }
     // Only release the old controller when beginning a new sequence or replacing
     // an order whose ownership has not yet migrated to the shared queue.
-    for (const u of units)
+    for (const u of units) {
+      const person = u.native ?? u.entry?.person ?? u.builder?.person,
+        active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
       if (
-        !slot ||
-        !(u.native ?? u.entry?.person ?? u.builder?.person) ||
-        ![3, 6, 8, 10, 19, 27].includes(
-          currentPersonOrder(w.buildingOrders, (u.native ?? u.entry?.person ?? u.builder?.person)!)
-            ?.model ?? 0
-        )
+        ![17, 31, 32].includes(active) &&
+        (!slot || !person || ![3, 6, 8, 10, 19, 27].includes(active))
       )
         release(w, u)
+    }
     const order = emptyPersonOrder(),
       to = nativePosition(w, p)
     writePersonOrder(
@@ -5478,6 +5482,17 @@ function stepTurn(w: World) {
     }
     if (!supportsFollower(w, u)) {
       u.hp = 0
+      continue
+    }
+    if (u.native?.state === 23) {
+      stepLiveConversionVictim(w, u)
+      continue
+    }
+    if (
+      u.native &&
+      [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+    ) {
+      stepLivePreaching(w, u)
       continue
     }
     if (u.fight) {
