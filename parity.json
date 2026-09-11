@@ -1782,9 +1782,16 @@
               "status": "partial",
               "evidence": [
                 "scripts/check-native-orders.py",
-                "scripts/check-native-order-update.py"
+                "scripts/check-native-order-update.py",
+                "references/mixed-building-orders.md",
+                "tests/mixed-building-orders.test.mjs",
+                "tests/fixtures/building-entry-orders.json",
+                "scripts/check-native-movement-order.py",
+                "scripts/check-browser-mixed-building-orders.mjs",
+                "references/performance/2026-09-11-mixed-building-orders.json",
+                "references/performance/2026-09-11-mixed-orders-ground-regression.json"
               ],
-              "note": "Mixed ground/building/head/attack/transport queues, specialized classes, full settings and selection transitions, frontend preview/focus/voice ownership and native command turn buffering remain open. Ordinary non-staged legacy commands retain prior preflight/allocation semantics."
+              "note": "Mixed ground/building/head/attack/transport queues, specialized classes, full settings and selection transitions, frontend preview/focus/voice ownership and native command turn buffering remain open. Ordinary non-staged legacy commands retain prior preflight/allocation semantics. Ordinary Ctrl ground/building-8 sequences now preserve shared queue/person ownership into entry. Common state-10 completion/formation and native configure/recovery advance unavailable/cancelled targets. Hut/tower occupancy consumes the tail; training retains it. Replacement/death cleanup, four orientations, real desktop/ultrawide clicks and original warrior pixels, and 5\u2013240 Hz/irregular replay pass. Complete work/combat/transport queues, all classes/settings, persistent previews, native allocation and mixed-object scheduling remain open."
             }
           ]
         },
@@ -2460,9 +2467,16 @@
               "status": "partial",
               "evidence": [
                 "app/person-orders.ts",
-                "app/training-conversion.ts"
+                "app/training-conversion.ts",
+                "references/mixed-building-orders.md",
+                "tests/mixed-building-orders.test.mjs",
+                "tests/fixtures/building-entry-orders.json",
+                "scripts/check-native-movement-order.py",
+                "scripts/check-browser-mixed-building-orders.mjs",
+                "references/performance/2026-09-11-mixed-building-orders.json",
+                "references/performance/2026-09-11-mixed-orders-ground-regression.json"
               ],
-              "note": "Reviewed primitives exist; full allocation/rollback, ordinary command dispatch, all indicators and panel ownership remain open."
+              "note": "Reviewed primitives exist; full allocation/rollback, ordinary command dispatch, all indicators and panel ownership remain open. Live warrior conversion now retains the native inherited first-occupant tail or shared default exit record, and defers startup to the next person visit. Actual movement owns those references through arrival. Ground/training/ground integration and ordinary fallback exits are checked; complete other-command tails, original allocator/registration scheduling and all UI ownership remain partial."
             }
           ]
         },

@@ -15,6 +15,7 @@ import {
   createLivePerson,
   moveLivePerson,
   setLivePersonAnimation,
+  registerLivePerson,
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
@@ -33,7 +34,7 @@ import {
   type TrainingBuilding,
 } from './training.ts'
 import { stepTrainingConversion, type ConvertingBuilding } from './training-conversion.ts'
-import { startPersonOrders } from './person-order-start.ts'
+import { adoptLiveOrders, startLiveOrders, stepLiveOrderQueue } from './live-movement.ts'
 import {
   allocatePersonOrder,
   attachPersonOrder,
@@ -51,7 +52,7 @@ import {
   moveObjectInCells,
   objectsInCell,
 } from './object-cells.ts'
-import { finishPersonPreparation, preparePersonTurn } from './person-update.ts'
+import { preparePersonTurn } from './person-update.ts'
 import {
   personAnimationObject,
   initializePersonState,
@@ -109,7 +110,7 @@ function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
   return { person: p, orders }
 }
 
-function initializeBuildingPerson(w: World, p: EntryPerson) {
+export function initializeBuildingPerson(w: World, p: EntryPerson) {
   const startup = {
     randomState: w.randomState,
     instantFacing: false,
@@ -124,28 +125,11 @@ function initializeBuildingPerson(w: World, p: EntryPerson) {
       vehicleMode: 0,
     })),
   }
-  const effects: Parameters<typeof startPersonOrders>[2] = {
-    setAnimation: (_, object) => setLivePersonAnimation(w, p, object),
-    setDestination: unsupported,
-    commandPosition: unsupported,
-    allowVehicleOrder: unsupported,
-    initializeCommand: (_, order) => {
-      const b = w.buildings.find(b => b.id === order.a)
-      if (order.model !== 10 || !b) unsupported()
-      const point = buildingOutsidePoint(buildingPose(b))
-      order.b = ((point.x >>> 8) & 254) | (point.y & 0xfe00)
-    },
-    adjacentBuilding: unsupported,
-    canStayForTarget: unsupported,
-    leaveBuilding: unsupported,
-    resetVehicleMovement: unsupported,
-    leaveSelectedVehicle: unsupported,
-    initializeState: unsupported,
-  }
+  const setAnimation = (_: unknown, object: number) => setLivePersonAnimation(w, p, object)
   const initialize = () =>
     initializePersonState(startup, p, {
-      setAnimation: effects.setAnimation,
-      startOrders: () => startPersonOrders(startup, p, effects),
+      setAnimation,
+      startOrders: () => startLiveOrders(w, p, startup),
       releaseMotion: () => {
         releasePersonRoute(w.motionRoutes, p)
         const u = w.units.find(u => u.id === p.id)
@@ -157,7 +141,7 @@ function initializeBuildingPerson(w: World, p: EntryPerson) {
       },
       idleApproach: () =>
         initializeIdleApproach(w.manaWorld.gameFlags, p, {
-          setAnimation: effects.setAnimation,
+          setAnimation,
           collision: point => {
             const cell = (point.y >> 9) * 128 + (point.x >> 9)
             return restingCellCollision(
@@ -274,7 +258,7 @@ function context(w: World) {
   const buildings = new Map<number, BuildingAdmission>()
   for (const b of w.buildings) {
     tribes[b.team === 'blue' ? 0 : 1].buildingIds.push(b.id)
-    if (b.admission) buildings.set(b.id, b.admission)
+    if (b.hp > 0 && b.admission) buildings.set(b.id, b.admission)
   }
   return {
     randomState: w.randomState,
@@ -413,9 +397,9 @@ export function cancelBuildingEntry(w: World, u: Unit) {
   clearLivePath(w, u)
 }
 
-export function stepBuildingEntry(w: World, u: Unit, b: Building) {
+export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
   const fresh = !u.entry
-  u.entry ??= begin(w, u, b)
+  if (!u.entry && b) u.entry = begin(w, u, b)
   if (!u.entry) return
   const p = u.entry.person
   if (p.state === 21) {
@@ -428,7 +412,7 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
     }
     return
   }
-  const state = buildingAdmission(w, b),
+  const state = b && buildingAdmission(w, b),
     ctx = context(w),
     order = currentPersonOrder(w.buildingOrders, p)!
   syncLivePersonCells(w)
@@ -452,12 +436,10 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
       },
       destination: (point: { x: number; y: number }) => replanLivePath(w, u, p, point),
     }
-    if (order.model === 10)
-      preparePersonTurn(p, w.manaWorld.gameFlags, {
-        ...preparation,
-        initialize: () => initializeBuildingPerson(w, p),
-      })
-    else finishPersonPreparation(p, preparation)
+    preparePersonTurn(p, w.manaWorld.gameFlags, {
+      ...preparation,
+      initialize: () => initializeBuildingPerson(w, p),
+    })
     ctx.randomState = w.randomState
     moveLivePerson(w, u, p)
   }
@@ -470,86 +452,96 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
       },
       () => sound(w, 10, u)
     )
-  let done = 1
-  if (!(order.flags & 1)) {
-    if (order.model === 10)
-      done = stepDismantling(ctx, p, order, {
-        building: id => {
-          const target = w.buildings.find(b => b.id === id && b.hp > 0)
-          return target && buildingAdmission(w, target)
-        },
-        plan: () => b.damageState?.plan,
-        adjacentBuilding: () => {
-          const cell = (p.y >> 9) * 128 + (p.x >> 9)
-          return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
-        },
-        animation: (_, object) => {
-          setLivePersonAnimation(w, p, object)
-          if (!p.speed) stop(p)
-        },
-        destination: (point, direct) => {
-          if (direct) {
-            stop(p)
-            setDirectPersonDestination(w.motionRoutes, p, point)
-          } else destination(p, point.x, point.y)
-        },
-        dropCargo,
-        removeOccupant: () => {
-          const resident = w.units.find(u => u.inside === b.id && u.hp > 0)
-          if (resident) leaveBuildingEntry(w, resident)
-        },
-        ensurePlan: () => {
-          const state = ensureBuildingDamage(b)
-          if (state.state === 2 && !(state.flags2 & 0x100000)) state.state = 1
-        },
-        takeTimber: (plan, requested) => {
-          const state = b.damageState!,
-            amount = timberTransfer(plan.remaining, p.cargo, rules.personWood[p.model], requested)
-          changeBuildingWork(plan, -amount, state, null, {
-            move: () => {},
-            release: unsupported,
-            init: unsupported,
+  const next = stepLiveOrderQueue(w, u, p, {
+    [order.model]: () => {
+      let done = 1
+      if (b && state) {
+        if (order.model === 10)
+          done = stepDismantling(ctx, p, order, {
+            building: id => {
+              const target = w.buildings.find(b => b.id === id && b.hp > 0)
+              return target && buildingAdmission(w, target)
+            },
+            plan: () => b.damageState?.plan,
+            adjacentBuilding: () => {
+              const cell = (p.y >> 9) * 128 + (p.x >> 9)
+              return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
+            },
+            animation: (_, object) => {
+              setLivePersonAnimation(w, p, object)
+              if (!p.speed) stop(p)
+            },
+            destination: (point, direct) => {
+              if (direct) {
+                stop(p)
+                setDirectPersonDestination(w.motionRoutes, p, point)
+              } else destination(p, point.x, point.y)
+            },
+            dropCargo,
+            removeOccupant: () => {
+              const resident = w.units.find(u => u.inside === b.id && u.hp > 0)
+              if (resident) leaveBuildingEntry(w, resident)
+            },
+            ensurePlan: () => {
+              const state = ensureBuildingDamage(b)
+              if (state.state === 2 && !(state.flags2 & 0x100000)) state.state = 1
+            },
+            takeTimber: (plan, requested) => {
+              const state = b.damageState!,
+                amount = timberTransfer(
+                  plan.remaining,
+                  p.cargo,
+                  rules.personWood[p.model],
+                  requested
+                )
+              changeBuildingWork(plan, -amount, state, null, {
+                move: () => {},
+                release: unsupported,
+                init: unsupported,
+              })
+              p.cargo += amount
+              b.progress = Math.max(0, plan.remaining) / rules.buildingLife[state.model]
+              b.logs = Math.max(0, plan.remaining / 100)
+            },
+            removePlan: () => {}, // The live damage plan is owned by the building object.
+            removeBuilding: () => {
+              b.hp = 0
+              b.dismantled = true
+            },
           })
-          p.cargo += amount
-          b.progress = Math.max(0, plan.remaining) / rules.buildingLife[state.model]
-          b.logs = Math.max(0, plan.remaining / 100)
-        },
-        removePlan: () => {}, // The live damage plan is owned by the building object.
-        removeBuilding: () => {
-          b.hp = 0
-          b.dismantled = true
-        },
-      })
-    else
-      done = stepTrainingPerson(ctx, p, {
-        setAnimation: (person, object) => {
-          const p = person as EntryPerson
-          setLivePersonAnimation(w, p, object)
-          if (!p.speed) stop(p)
-        },
-        releaseMotion: person => stop(person as EntryPerson),
-        adjacentBuilding: person => {
-          const cell = (person.y >> 9) * 128 + (person.x >> 9)
-          return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
-        },
-        setDestination: (p, x, y) => destination(p as EntryPerson, x, y),
-        directDestination: (person, x, y) => {
-          const p = person as EntryPerson
-          stop(p)
-          setDirectPersonDestination(w.motionRoutes, p, { x, y })
-        },
-        dropCargo,
-        enterBuilding: () => {
-          enterBuilding(ctx, p, state, occupancyEffects(w))
-        },
-        workInside: unsupported,
-      })
-  }
-  w.randomState = ctx.randomState
+        else
+          done = stepTrainingPerson(ctx, p, {
+            setAnimation: (person, object) => {
+              const p = person as EntryPerson
+              setLivePersonAnimation(w, p, object)
+              if (!p.speed) stop(p)
+            },
+            releaseMotion: person => stop(person as EntryPerson),
+            adjacentBuilding: person => {
+              const cell = (person.y >> 9) * 128 + (person.x >> 9)
+              return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
+            },
+            setDestination: (p, x, y) => destination(p as EntryPerson, x, y),
+            directDestination: (person, x, y) => {
+              const p = person as EntryPerson
+              stop(p)
+              setDirectPersonDestination(w.motionRoutes, p, { x, y })
+            },
+            dropCargo,
+            enterBuilding: () => {
+              enterBuilding(ctx, p, state, occupancyEffects(w))
+            },
+            workInside: unsupported,
+          })
+      }
+      w.randomState = ctx.randomState
+      return done
+    },
+  })
   u.cargo = p.cargo / 100
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
-  if (done) {
-    if (u.inside !== null && state.model === 4) {
+  if (next) {
+    if (u.inside !== null && state?.model === 4) {
       setPersonAnchor(p, buildingOutsidePoint(state))
       p.previousState = p.state
       p.state = personStateAfterOrders(
@@ -563,7 +555,7 @@ export function stepBuildingEntry(w: World, u: Unit, b: Building) {
       initializeBuildingPerson(w, p)
     } else cancelBuildingEntry(w, u)
     if (u.inside === null) u.work = null
-  }
+  } else adoptLiveOrders(w, u, p)
 }
 
 export function stepLiveTraining(w: World, b: Building) {
@@ -619,14 +611,11 @@ export function stepLiveTraining(w: World, b: Building) {
   b.timer = state.storedMana
   for (const u of created) {
     if (u.hp <= 0) continue
-    const p = u.entry!.person,
-      order = w.buildingOrders.records[p.commands[0]]
-    if (order?.model === 3)
-      acceptLivePath(w, u, planLivePath(w, u, browserPosition({ x: order.a, y: order.b })))
-    // ponytail: conversion preserves native shared commands; ordinary movement
-    // still uses the browser adapter until the complete order dispatcher owns it.
-    clearPersonOrders(w.buildingOrders, p, orderEffects)
-    u.entry = undefined
+    const p = u.entry!.person
+    adoptLiveOrders(w, u, p)
+    registerLivePerson(w, p)
+    // Conversion sets flag 16: the first person visit initializes the inherited
+    // command, preserving native object-visit RNG order and motion ownership.
     if (u.team === 'blue' && u.kind === 'warrior') w.stats.trained++
   }
 }

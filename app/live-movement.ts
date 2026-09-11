@@ -1,12 +1,14 @@
 import { buildingPose, buildingModel, browserPosition, type World, type Unit } from './model.ts'
 import {
   createLivePerson,
+  leaveLiveBuilding,
   changeLivePersonState,
   registerLivePerson,
   setLivePersonAnimation,
   stepLivePhysics,
   type LivePerson,
 } from './live-people.ts'
+import { initializeBuildingPerson } from './live-building-entry.ts'
 import { stepLiveWorship } from './live-worship.ts'
 import { liveBuildingAttackTarget } from './live-building-combat.ts'
 import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './live-pathfinding.ts'
@@ -18,21 +20,21 @@ import {
   configurePersonOrder,
   type OrderStartEffects,
 } from './person-order-start.ts'
-import { stepPersonOrders } from './person-order-update.ts'
+import { stepPersonOrders, type OrderUpdateEffects } from './person-order-update.ts'
 import { recoverPersonMovement, defaultPersonState, resetPersonMotion } from './person-state.ts'
 import {
   currentPersonOrder,
   allocatePersonOrder,
   attachPersonOrder,
   appendPersonOrders,
-  emptyPersonOrder,
-  writePersonOrder,
   clearPersonOrders,
   removePersonOrder,
   advancePersonOrder,
   stepMovementOrder,
   prepareMovementOrder,
+  prepareBuildingEntryOrder,
   type OrderEffects,
+  type PersonOrder,
 } from './person-orders.ts'
 import {
   joinMarchingFormation,
@@ -57,7 +59,7 @@ const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 19, 27].includes(order.model)) unsupported()
+  if (!order || ![3, 8, 10, 19, 27].includes(order.model)) unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,
@@ -86,13 +88,28 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     commandPosition: unsupported,
     allowVehicleOrder: unsupported,
     initializeCommand: () => {
+      if (order!.model === 10) {
+        const b = w.buildings.find(building => building.id === order!.a)
+        if (b) {
+          const point = buildingOutsidePoint(buildingPose(b))
+          order!.b = ((point.x >>> 8) & 254) | (point.y & 0xfe00)
+        }
+        return
+      }
       // Command 19's specialized initialization only changes the radius for model 19.
       const b = liveBuildingAttackTarget(w, p)
       if (b && buildingModel(b) === 19) order!.flags |= 4
     },
-    adjacentBuilding: unsupported,
+    adjacentBuilding: (person, model) => {
+      const cell = (person.y >> 9) * 128 + (person.x >> 9)
+      if (!(w.land.flags[cell] & 512)) return 0
+      const id = w.land.buildingIds[cell] & 1023
+      return w.buildings.some(b => b.id === id && (!model || buildingModel(b) === model)) ? id : 0
+    },
     canStayForTarget: unsupported,
-    leaveBuilding: unsupported,
+    leaveBuilding: person => {
+      leaveLiveBuilding(w, w.units.find(u => u.id === person.id)!)
+    },
     resetVehicleMovement: unsupported,
     leaveSelectedVehicle: unsupported,
     initializeState: unsupported,
@@ -106,23 +123,29 @@ export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: num
   rng.randomState = state.randomState
 }
 
-// Player ground clicks append to the same eight-slot queues used by simulation.
-export function appendLiveMovement(
-  w: World,
-  units: Unit[],
-  to: { x: number; y: number },
-  flags: number,
-  replace: boolean
-) {
-  const command = emptyPersonOrder()
-  writePersonOrder(command, 3, 0, ((to.x >>> 8) & 255) | (to.y & 0xff00), flags)
+// Keep the person and shared queue intact when a different live controller takes over.
+export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
+  const order = currentPersonOrder(w.buildingOrders, p)
+  if (order && [8, 10].includes(order.model)) {
+    u.native = null
+    u.entry ??= { person: p, orders: w.buildingOrders }
+    u.work = order.a
+  } else {
+    if (u.entry) u.work = null
+    u.entry = undefined
+    u.native = p
+  }
+}
+
+// Player clicks append to the same eight-slot queues used by simulation.
+export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, replace: boolean) {
   let count = 0
   const accepted = appendPersonOrders(
     w.buildingOrders,
     command,
     units.map(u => {
-      const p = u.native ?? createLivePerson(w, u)
-      u.native = p
+      const p = u.native ?? u.entry?.person ?? createLivePerson(w, u)
+      if (!u.entry) u.native = p
       p.selectionFlags |= 128
       if (replace) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
       registerLivePerson(w, p)
@@ -131,6 +154,16 @@ export function appendLiveMovement(
     {
       ...orderEffects(w),
       prepare: (order, model, x, y, commandFlags = 0) => {
+        if (model === 8) {
+          prepareBuildingEntryOrder(
+            order,
+            x,
+            y,
+            commandFlags,
+            !!((w.buildings.find(b => b.id === x)?.admission?.activity ?? 0) & 0x8000)
+          )
+          return
+        }
         if (model !== 3) unsupported()
         prepareMovementOrder(order, { x, y }, commandFlags, w.land, id =>
           buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
@@ -143,13 +176,15 @@ export function appendLiveMovement(
     }
   )
   for (const u of units) {
-    const p = u.native!
+    const p = (u.native ?? u.entry?.person)!
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
     p.previousState = 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
-    changeLivePersonState(w, u)
+    if (u.entry) initializeBuildingPerson(w, p)
+    else changeLivePersonState(w, u)
+    adoptLiveOrders(w, u, p)
   }
   return { accepted, count }
 }
@@ -219,8 +254,27 @@ export function stepLiveMovement(w: World, u: Unit) {
   stepLivePhysics(w, u, p)
   stepLiveRoute(w, u)
   if (p.state !== 10) return
+  const next = stepLiveOrderQueue(w, u, p, {
+    3: order => Number(stepMovementOrder(p, order, w.land.categories, unsupported)),
+    27: () => Number(stepLiveWorship(w, u)),
+  })
+  if (next) {
+    if (p.commandStatus === 27) u.work = null
+    clearLivePath(w, u)
+    changeLivePersonState(w, u, next)
+  }
+  adoptLiveOrders(w, u, p)
+}
+
+// Shared native state-10 completion: entry and movement advance the same queue.
+export function stepLiveOrderQueue(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  commands: OrderUpdateEffects['commands']
+) {
   const remove = (slot: number) => removePersonOrder(w.buildingOrders, p, slot, orderEffects(w))
-  const next = stepPersonOrders(
+  return stepPersonOrders(
     {
       orders: w.buildingOrders,
       landFlags: w.land.landFlags,
@@ -231,10 +285,7 @@ export function stepLiveMovement(w: World, u: Unit) {
     },
     p,
     {
-      commands: {
-        3: order => Number(stepMovementOrder(p, order, w.land.categories, unsupported)),
-        27: () => Number(stepLiveWorship(w, u)),
-      },
+      commands,
       commandPosition: order => ({ x: order.a, y: order.b }),
       vehicleDestination: unsupported,
       vehicleReady: unsupported,
@@ -277,14 +328,12 @@ export function stepLiveMovement(w: World, u: Unit) {
               setLivePersonAnimation(w, person as LivePerson, object)
             ),
         }),
-      initialize: () => changeLivePersonState(w, u),
+      initialize: () => {
+        if (u.entry) initializeBuildingPerson(w, p)
+        else changeLivePersonState(w, u)
+      },
     }
   )
-  if (next) {
-    if (p.commandStatus === 27) u.work = null
-    clearLivePath(w, u)
-    changeLivePersonState(w, u, next)
-  }
 }
 
 // 0x4ec6f0 visits tribe formations before encounters and ordinary objects.

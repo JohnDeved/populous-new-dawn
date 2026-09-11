@@ -401,7 +401,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
         },
       }),
     startOrders: p => {
-      if ([3, 19, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
+      if ([3, 8, 10, 19, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
         startLiveOrders(w, p as LivePerson, state)
       else if (p.immediateCommand || p.commands[p.commandCursor]) unexpected()
     },

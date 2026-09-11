@@ -92,6 +92,17 @@ them or treat these scheduled areas as complete. This order supersedes older
 postpone this queue. Continue the biggest noticeable improvements while preserving
 full-game scope, clean code, original mechanics and measured modern performance.
 
+Ground → building → ground sequences now retain the same shared queue and person
+through native entry. Warrior conversion inherits the first occupant's native
+order tail; default exits remain shared orders until arrival. Hut/tower admission
+clears queued tails as in the original. Removed/cancelled approach targets advance,
+and replacement/death releases references. The shared state-10 dispatcher now owns
+entry completion and marching admission instead of a separate clear-all shortcut.
+Native comparisons, four orientations, desktop/ultrawide mouse input and warrior
+sprite pixels, and 5–240 Hz/irregular replay are checked. Full work/combat/transport
+queues, native allocation and scheduling, and persistent staged waypoint previews
+remain open. Continue these visible selection/group gaps before deeper systems.
+
 The building-combat slice now connects native approach/entry, strike positioning,
 original work poses/sound, accumulated damage, shaking and occupied-building
 challenge/ejection to live play. A shared native command-19 record survives the

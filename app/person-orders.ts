@@ -381,6 +381,18 @@ export function appendPersonOrders(
   return true
 }
 
+// 0x438730, command 8: retain unchanged records and resolve dismantling on issue.
+export function prepareBuildingEntryOrder(
+  order: PersonOrder,
+  a: number,
+  b: number,
+  flags: number,
+  dismantling: boolean
+) {
+  if (order.model === 8 && order.a === a && order.b === b) return
+  Object.assign(order, { model: dismantling ? 10 : 8, a, b, flags: order.flags | flags })
+}
+
 // 0x438730 for movement command 3, including unchanged-record short circuit.
 // Coast correction happens first; building lookup still uses the original cell.
 export function prepareMovementOrder(

@@ -2,7 +2,7 @@ import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipOrder, worshipHeadPose } from './live-worship.ts'
 import {
   movementOrder,
-  appendLiveMovement,
+  appendLiveOrders,
   startLiveOrder,
   cancelLiveOrder,
   stepLiveMovement,
@@ -34,6 +34,7 @@ import {
   groundOrderInput,
   deselectPerson,
   emptyPersonOrder,
+  writePersonOrder,
   type OrderPool,
 } from './person-orders.ts'
 import {
@@ -2974,20 +2975,33 @@ export function command(
   const context = liveCommandContext(w, p)
   if (!context?.enabled) return false
   const { model } = context
-  if (model === 3 && (modifiers.ctrlKey || w.orderCursor)) {
+  const queuedBuilding =
+    model === 8 && context.building && ['hut', 'camp', 'tower'].includes(context.building.kind)
+  if ((model === 3 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor)) {
     const slot = w.orderCursor
     const input = groundOrderInput(slot, modifiers.ctrlKey, modifiers.shiftKey, modifiers.altKey)
     const units = w.units.filter(u => canOrder(u) && w.selected.includes(u.id))
-    // Existing work controllers still own their own queues. Ground sequences
-    // retain live ground orders; mixed work/attack waypoint ownership is pending.
+    // Only release the old controller when beginning a new sequence or replacing
+    // an order whose ownership has not yet migrated to the shared queue.
     for (const u of units)
       if (
         !slot ||
-        !u.native ||
-        ![3, 27].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+        !(u.native ?? u.entry?.person) ||
+        ![3, 8, 10, 27].includes(
+          currentPersonOrder(w.buildingOrders, (u.native ?? u.entry?.person)!)?.model ?? 0
+        )
       )
         release(w, u)
-    const result = appendLiveMovement(w, units, nativePosition(w, p), input.flags, slot === 0)
+    const order = emptyPersonOrder(),
+      to = nativePosition(w, p)
+    writePersonOrder(
+      order,
+      model,
+      context.building?.id ?? 0,
+      ((to.x >>> 8) & 255) | (to.y & 0xff00),
+      input.flags
+    )
+    const result = appendLiveOrders(w, units, order, slot === 0)
     for (const p of selectionPeople(w))
       p.selectionFlags = (p.selectionFlags & ~1) | (p.selectionFlags >>> 7)
     w.orderCursor = input.nextCursor
@@ -4861,6 +4875,10 @@ function stepTurn(w: World) {
     const work =
       w.buildings.find(b => b.id === u.work && b.hp > 0) ??
       w.shrines.find(s => s.id === u.work && (s.active || u.vault?.head === s.id))
+    if (u.entry && u.inside === null && !work) {
+      stepBuildingEntry(w, u)
+      continue
+    }
     if (u.work !== null && !work) release(w, u)
     if (isDismantling(w, u) && work && 'hp' in work) {
       stepBuildingEntry(w, u, work)
@@ -4963,7 +4981,7 @@ function stepTurn(w: World) {
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
-    if (u.native && [3, 27].includes(u.native.commandStatus)) {
+    if (u.native && [3, 27].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)) {
       stepLiveMovement(w, u)
     } else if (
       u.team !== 'wild' &&
@@ -5106,6 +5124,7 @@ function stepTurn(w: World) {
     if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {
       cancelLiveBuildingAttack(w, u)
       cancelLiveOrder(w, u)
+      cancelBuildingEntry(w, u)
     }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   w.buildings = w.buildings.filter(b => b.hp > 0)

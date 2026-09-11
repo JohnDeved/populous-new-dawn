@@ -46,3 +46,27 @@ actual = json.loads(subprocess.check_output(['node','--input-type=module','-e',j
 for i, (case, result) in enumerate(zip(cases, actual)): assert case['expected'] == result, (i, case, result)
 (root/'tests/fixtures/movement-order.json').write_text(json.dumps(dict(executableSha256=identity['sha256'],cases=cases),separators=(',',':'))+'\n')
 print('PASS: 1024 native movement-order preparation cases, all coast categories, original-cell building precedence and unchanged records')
+
+# Command 8 retains a building ID; the native final branch rewrites it to 10
+# when that building is already being dismantled. Execute the complete routine.
+building_cases=[]
+for i in range(256):
+    a,b=100,rng.randrange(65536)
+    before=dict(model=8 if i%3==0 else 0,flags=rng.randrange(256),references=3,object=0,a=a,b=b)
+    case=dict(before=before,a=a,b=b,flags=rng.randrange(256),dismantling=bool(i&1))
+    write(order,'BBHHHH',*[before[k] for k in ['model','flags','references','object','a','b']])
+    write(point,'HH',a,b);write(0x2001000+0x9c,'H',0x8000 if case['dismantling'] else 0)
+    # Model 8 has no terrain payload. Avoid borrowing the preceding case's
+    # categories through the original routine's irrelevant local coordinate.
+    cpu.mem_write(0x8a03e4,bytes(128*128*16))
+    write(stack,'IIIII',stop,1,8,point,case['flags'])
+    cpu.reg_write(UC_X86_REG_ESP,stack);cpu.emu_start(0x438730,stop,count=10000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop
+    case['expected']=dict(zip(['model','flags','references','object','a','b'],read(order,'BBHHHH')))
+    building_cases.append(case)
+js="""import {prepareBuildingEntryOrder} from './app/person-orders.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{prepareBuildingEntryOrder(c.before,c.a,c.b,c.flags,c.dismantling);return c.before})));"""
+actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(building_cases).encode(),cwd=root))
+for case,result in zip(building_cases,actual):assert case['expected']==result,(case,result)
+(root/'tests/fixtures/building-entry-orders.json').write_text(json.dumps(dict(executableSha256=identity['sha256'],cases=building_cases),separators=(',',':'))+'\n')
+print('PASS: 256 complete native building-order preparations, unchanged payloads, flag merging and dismantling conversion')
