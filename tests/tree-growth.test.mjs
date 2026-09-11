@@ -6,6 +6,8 @@ import rules from '../app/original-rules.json' with {type:'json'}
 import { stepTreeGrowth, replantDelay, stepReplant, findReplantSite } from '../app/tree-growth.ts'
 import { createWorld, tick, distance, nativePosition } from '../app/model.ts'
 import { clearLivePath } from '../app/live-pathfinding.ts'
+import { createLivePerson } from '../app/live-people.ts'
+import { BuilderTask } from '../app/building-workers.ts'
 
 test('tree growth and complete replant searches match native captures',()=>{
   assert.equal(fixture.executableSha256,manifest.executableSha256)
@@ -27,11 +29,13 @@ test('tree growth and complete replant searches match native captures',()=>{
 test('depleted timber replants after its full delay and grows on its own phase',()=>{
   const w=createWorld(),b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut'),u=w.units.find(u=>u.team==='blue'&&u.kind==='brave')
   const tree=w.trees.filter(t=>t.model===1).sort((a,c)=>distance(a,b)-distance(c,b))[0],ids=new Set(w.trees.map(t=>t.id))
-  tree.logs=1;clearLivePath(w,u);Object.assign(u,{x:tree.x,z:tree.z,work:b.id,inside:null,tree:tree.id,cargo:0,harvest:{remaining:1}})
+  tree.logs=1;clearLivePath(w,u);Object.assign(u,{x:tree.x,z:tree.z,work:b.id,inside:null,tree:tree.id,cargo:0,harvest:undefined})
+  const person=createLivePerson(w,u);person.target=tree.id;person.timer=1
+  u.builder={task:BuilderTask.Fetch,busy:0,phase:4,restart:false,person}
   b.progress=0;b.logs=0;tick(w,1/12)
   assert.equal(tree.logs,0);assert.equal(w.replants.length,1);assert.equal(w.replants[0].remaining,4000)
   // Keep this test's sapling available for observing its growth.
-  for(const p of w.units){clearLivePath(w,p);p.work=null;p.tree=null;p.harvest=undefined;p.guard=true}
+  for(const p of w.units){clearLivePath(w,p);p.work=null;p.tree=null;p.harvest=undefined;p.builder=undefined;p.guard=true}
   const saplings=()=>w.trees.filter(t=>!ids.has(t.id)&&t.model===tree.model)
   for(let i=0;i<3999;i++)tick(w,1/12)
   assert.equal(saplings().length,0);assert.equal(w.replants[0].remaining,1)

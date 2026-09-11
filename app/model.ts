@@ -66,6 +66,7 @@ import {
   type Builder,
 } from './building-workers.ts'
 import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from './building-work.ts'
+import { stepBuildingFetch } from './building-fetch.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
 import {
   faceTribe,
@@ -90,7 +91,6 @@ import { stepHutUpgrade, looseWoodInCell } from './hut-upgrade.ts'
 import {
   startTimberHarvest,
   stepTimberHarvest,
-  stepTimberDelivery,
   timberTransfer,
   dropCarriedTimber,
 } from './timber.ts'
@@ -1124,6 +1124,7 @@ function builderActivity(u: Unit) {
   return (
     task === BuilderTask.Approach ||
     task === BuilderTask.Work ||
+    task === BuilderTask.Fetch ||
     task === BuilderTask.Level ||
     task === BuilderTask.ClearScenery ||
     task === BuilderTask.ClearPeople ||
@@ -2919,7 +2920,13 @@ function dispatchConstructionCrew(w: World, b: Building, workers: Unit[]) {
     })
     b.builders!.fill(0)
   }
-  return workers.filter(u => u.builder?.task === BuilderTask.Fetch)
+}
+
+function completeBuildingConstruction(w: World, b: Building) {
+  if (!b.upgrading && !b.damageState) w.stats.built++
+  b.upgrading = false
+  if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
+  tell(w, `${BUILDINGS.find(s => s.id === b.kind)!.name} completed.`)
 }
 
 // Native plan decisions run before their registered workers. Resource/object
@@ -2976,12 +2983,6 @@ function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
     for (const u of workers) if (u.builder?.person) u.builder.person.assignment |= 16
     return
   }
-  haulBuildingWood(
-    w,
-    b,
-    workers.filter(u => u.builder?.task === BuilderTask.Fetch),
-    true
-  )
   for (const u of workers) {
     const task = u.builder!
     if (task.task === 5 || task.task === 6) {
@@ -3037,7 +3038,105 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
     return true // ponytail: unbounded scenery until native object-pool allocation is connected.
   }
   let finished = 0
-  if (task.task === BuilderTask.ClearScenery) {
+  if (task.task === BuilderTask.Fetch) {
+    const site = {
+      id: b.id,
+      class: 9,
+      model: buildingModel(b),
+      building: b.preparation ? 0 : b.id,
+      flags3: b.woodUnavailable ? 0x1000 : 0,
+      searchIndex: -1,
+      angle: pose.angle,
+      inside: buildingInsidePoint(pose),
+      outside: buildingOutsidePoint(pose),
+      occupied: w.land.buildingIds[cell],
+    }
+    const timber = (id: number) => {
+      const tree = w.trees.find(tree => tree.id === id)
+      return tree
+        ? {
+            ...nativePosition(w, tree),
+            id: tree.id,
+            class: tree.logs > 0 ? 5 : 0,
+            model: tree.model,
+            flags2: 0,
+          }
+        : { x: p.goalX, y: p.goalY, id, class: 0, model: 0, flags2: 1 }
+    }
+    finished = stepBuildingFetch(w, p, task, site, {
+      animation,
+      destination,
+      directDestination: to => destination(to, true),
+      releaseMotion,
+      sound: cue => sound(w, cue, u),
+      target: timber,
+      // ponytail: keep the existing nearest-reachable-tree adapter until the
+      // shared cache has its still-unproved live route-cost consumer.
+      refreshSearch: () => {},
+      findWood: () => findBuildingWood(w, u, b)?.id ?? 0,
+      looseWood: to => {
+        const targetCell = ((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)
+        return (
+          w.trees.find(tree => {
+            const point = nativePosition(w, tree)
+            return (
+              tree.logs > 0 &&
+              ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9) === targetCell
+            )
+          })?.id ?? 0
+        )
+      },
+      reserve: id => {
+        u.tree = id
+      },
+      transfer: (from, _to, requested) => {
+        if (from !== p.id) {
+          const tree = w.trees.find(tree => tree.id === from)
+          if (!tree) return
+          const amount = timberTransfer(
+            Math.round(tree.logs * 100),
+            short(p.cargo),
+            short(rules.personWood[p.model]),
+            requested
+          )
+          tree.logs -= amount / 100
+          p.cargo = (p.cargo + amount) & 65535
+          if (amount && tree.logs < 1) depleteTree(w, tree, w.manaTribes[p.tribe].playerType === 1)
+          return
+        }
+        const capacity = b.preparation
+            ? rules.buildingPreparationWork[site.model]
+            : rules.buildingLife[site.model],
+          work =
+            b.preparation?.work ??
+            b.damageState?.plan.remaining ??
+            Math.round(b.progress * capacity),
+          amount = timberTransfer(short(p.cargo), work, capacity, requested),
+          wasIncomplete = b.progress < 1
+        p.cargo = (p.cargo - amount) & 65535
+        if (b.preparation) {
+          b.preparation.work = work + amount
+          b.logs = (work + amount) / 100
+        } else if (b.damageState) {
+          const state = b.damageState
+          changeBuildingWork(state.plan, amount, state, null, {
+            move: () => {},
+            release: () => {},
+            init: () => {},
+          })
+          b.progress = Math.max(0, state.plan.remaining) / capacity
+          b.logs = Math.max(0, state.plan.remaining) / 100
+          b.hp = buildingHp(b.kind) * b.progress
+        } else {
+          b.progress = (work + amount) / capacity
+          b.logs = (work + amount) / 100
+        }
+        if (wasIncomplete && b.progress === 1) completeBuildingConstruction(w, b)
+      },
+    })
+    b.woodUnavailable = !!(site.flags3 & 0x1000)
+    if (finished === 2) u.tree = null
+  } else if (task.task === BuilderTask.ClearScenery) {
     const scenery = w.trees.map(tree => ({
       ...nativePosition(w, tree),
       id: tree.id,
@@ -4714,61 +4813,15 @@ function findBuildingWood(w: World, u: Unit, b: Building) {
     .find(t => findPath(w, u, t).length)
 }
 
-// Shared hauling adapter; automatic resource search and full person-command ownership remain open.
-function haulBuildingWood(w: World, b: Building, workers: Unit[], constructing: boolean) {
+// Hut upgrades retain the existing loose-log delivery adapter.
+function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
   for (const u of workers) {
-    if (constructing && b.progress === 1) break
     if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
-      if (b.progress === 1) {
-        const point = buildingDoor(b)
-        w.trees.push({ ...point, id: w.nextId++, model: 11, logs: u.cargo })
-        sound(w, 0xb, u)
-        u.cargo = 0
-      } else {
-        u.delivery ??= { remaining: 8 }
-        if (!stepTimberDelivery(u.delivery)) continue
-        const capacity = b.preparation
-            ? rules.buildingPreparationWork[buildingModel(b)]
-            : rules.buildingLife[buildingModel(b)],
-          work =
-            b.preparation?.work ??
-            b.damageState?.plan.remaining ??
-            Math.round(b.progress * capacity),
-          amount = timberTransfer(
-            Math.round(u.cargo * 100),
-            work,
-            capacity,
-            Math.round(u.cargo * 100)
-          )
-        if (b.preparation) b.preparation.work = work + amount
-        else b.progress = (work + amount) / capacity
-        b.logs = (work + amount) / 100
-        u.cargo -= amount / 100
-        if (b.damageState) {
-          const state = b.damageState
-          changeBuildingWork(state.plan, amount, state, null, {
-            move: () => {},
-            release: () => {},
-            init: () => {},
-          })
-          b.hp = buildingHp(b.kind) * b.progress
-        }
-      }
-      u.delivery = undefined
+      const point = buildingDoor(b)
+      w.trees.push({ ...point, id: w.nextId++, model: 11, logs: u.cargo })
+      sound(w, 0xb, u)
+      u.cargo = 0
       u.tree = null
-      if (constructing && u.builder) {
-        u.builder.task = BuilderTask.Work
-        u.builder.restart = true
-        continue
-      }
-    }
-    if (b.progress < 1 && !u.cargo && u.tree === null) {
-      const tree = findBuildingWood(w, u, b)
-      if (tree) {
-        u.tree = tree.id
-        route(w, u, tree, constructing)
-        u.timer = 0
-      }
     }
     if (u.tree !== null && !u.cargo) {
       const tree = w.trees.find(t => t.id === u.tree)
@@ -4795,7 +4848,7 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[], constructing: 
           u.cargo += wood / 100
           if (!u.cargo) u.tree = null
           u.harvest = undefined
-          route(w, u, entrance(w, b), constructing)
+          route(w, u, entrance(w, b))
         } else if (tree.model === 11) sound(w, 10, u)
       }
     }
@@ -5027,12 +5080,9 @@ function stepTurn(w: World) {
     if (b.progress < 1 || b.builders?.some(Boolean)) {
       const wasIncomplete = b.progress < 1
       const workers = constructionWorkers(w, b)
-      haulBuildingWood(w, b, dispatchConstructionCrew(w, b, workers), true)
+      dispatchConstructionCrew(w, b, workers)
       if (wasIncomplete && b.progress === 1) {
-        if (!b.upgrading && !b.damageState) w.stats.built++
-        b.upgrading = false
-        if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
-        tell(w, `${BUILDINGS.find(s => s.id === b.kind)!.name} completed.`)
+        completeBuildingConstruction(w, b)
       }
       if (wasIncomplete) continue
     }
@@ -5064,7 +5114,7 @@ function stepTurn(w: World) {
       const haulers = w.units.filter(
         u => u.work === b.id && u.inside === null && u.hp > 0 && u.kind === 'brave' && !u.builder
       )
-      haulBuildingWood(w, b, haulers, false)
+      haulBuildingWood(w, b, haulers)
       const upgrade =
         !(w.manaWorld.gameFlags & 32) &&
         stepHutUpgrade(b, inhabitants.length, () =>

@@ -52,7 +52,6 @@ test('two live builders dispatch one hauler on the original sixteen-turn phase',
   }
   tick(w,1/12)
   assert.equal(workers.filter(u=>u.builder.task===BuilderTask.Fetch).length,1)
-  assert.equal(workers.filter(u=>u.tree!==null).length,1)
   for(let turn=0;turn<1200&&b.progress<1;turn++){
     tick(w,1/12)
     assert.ok(workers.filter(u=>u.builder?.task===BuilderTask.Fetch).length<=1)

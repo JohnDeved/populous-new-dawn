@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import level from './fixtures/building-level.json' with {type:'json'}
 import plans from './fixtures/unbuilt-plan.json' with {type:'json'}
 import manifest from '../decomp/exports.json' with {type:'json'}
-import {stepUnbuiltPlan} from '../app/building-workers.ts'
+import {stepUnbuiltPlan,BuilderTask} from '../app/building-workers.ts'
 import {stepBuildingLevel} from '../app/building-preparation.ts'
 import {setPersonAnimation} from '../app/animation.ts'
 import sprites from '../app/original-units.json' with {type:'json'}
@@ -12,6 +12,7 @@ import {createMotionRoutes,setDirectPersonDestination} from '../app/person-route
 import {createWorld,placeBuilding,tick,buildingPose,command,browserPosition,nativePosition} from '../app/model.ts'
 import {buildingGradeVertices,buildingFootprintCells} from '../app/building-shapes.ts'
 import {AUDIO_CUES} from '../app/audio.ts'
+import {createLivePerson} from '../app/live-people.ts'
 
 test('unbuilt plan priorities, validation, allocation and abandonment match native decisions',()=>{
  assert.equal(plans.executableSha256,manifest.executableSha256)
@@ -73,6 +74,22 @@ test('live plans retain uneven ground, level visibly and wait for timber and cre
   for(let n=0;n<4000&&(b.progress<1||b.builders.some(Boolean));n++)tick(w,1/12)
   assert.equal(b.progress,1);assert.ok(b.builders.every(id=>!id))
  }
+})
+
+test('simultaneous fetch deposits cap preparation work and preserve surplus timber',()=>{
+ const w=createWorld();w.manaWorld.gameFlags=32
+ const workers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2)
+ w.selected=workers.map(u=>u.id);assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
+ const b=w.buildings.at(-1);assert.ok(b.preparation);b.preparation.work=0;b.logs=0
+ for(const u of workers){
+  u.cargo=1;u.path=[]
+  const person=createLivePerson(w,u);person.timer=1
+  u.builder={task:BuilderTask.Fetch,busy:0,phase:5,restart:false,person}
+ }
+ tick(w,1/12)
+ assert.equal(b.preparation.work,rules.buildingPreparationWork[b.preparation.model])
+ assert.equal(b.logs,1);assert.equal(b.progress,0)
+ assert.deepEqual(workers.map(u=>u.cargo).sort(),[0,1])
 })
 
 test('unattended plans expire and redirected leveling workers release their sprite and route',()=>{

@@ -23,7 +23,10 @@ try{
   await page.evaluate(()=>{
     const s=window.testScene,w=s.world
     w.speed=0;window.builder=w.units.find(u=>u.team==='blue'&&u.kind==='brave')
-    window.builder.cargo=1;window.existingTrees=w.trees.map(t=>t.id)
+    window.builder.cargo=1
+    const person=window.builder.native??window.builder.entry?.person??window.builder.builder?.person
+    if(person)person.cargo=100
+    window.existingTrees=w.trees.map(t=>t.id)
     w.selected=[window.builder.id];s.focus({x:-2,z:32});s.onChange()
   })
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
@@ -46,7 +49,8 @@ try{
     if(u.builder?.task!==1||!u.builder.person?.speed)return false
     w.speed=0;w.paused=true;return true
   })
-  assert.equal(await page.evaluate(()=>window.builder.cargo),1)
+  const approach=await page.evaluate(()=>({cargo:window.builder.cargo,task:window.builder.builder?.task,phase:window.builder.builder?.phase,work:window.builder.work,building:window.building.id,selected:window.testScene.world.selected}))
+  assert.equal(approach.cargo,1,JSON.stringify(approach))
   await checkBuilderPose(page,'carry','/private/tmp/populous-approach-carry.png')
   await page.evaluate(()=>{window.testScene.world.paused=false;window.testScene.world.speed=0.25})
   await page.waitForFunction(()=>{
@@ -73,11 +77,11 @@ try{
   for(let log=1;log<=3;log++){
     await page.waitForFunction(log=>{
       const s=window.testScene,u=window.builder
-      if(window.building.logs!==log-1||!u.delivery||u.delivery.remaining<2)return false
+      if(window.building.logs!==log-1||u.builder?.task!==7||u.builder.phase!==5||u.builder.person.timer<2)return false
       s.world.speed=0;return true
     },log)
     await page.waitForFunction(()=>window.testScene.unitMeshes.get(window.builder.id)?.userData.state==='carryIdle')
-    const waiting=await page.evaluate(()=>({cargo:window.builder.cargo,remaining:window.builder.delivery.remaining,progress:window.building.progress,frame:window.testScene.unitMeshes.get(window.builder.id).userData.frame}))
+    const waiting=await page.evaluate(()=>({cargo:window.builder.cargo,remaining:window.builder.builder.person.timer,progress:window.building.progress,frame:window.testScene.unitMeshes.get(window.builder.id).userData.frame}))
     assert.equal(waiting.cargo,1);assert.equal(waiting.progress,(log-1)/3)
     assert.ok(sprites.animations['blue-brave'].carryIdle.some(d=>d.frames.includes(waiting.frame)))
     await page.evaluate(()=>{window.testScene.world.speed=4})
@@ -140,24 +144,25 @@ try{
   const initial=await crewPage.evaluate(()=>{
     const s=window.testScene,w=s.world,b=w.buildings.find(b=>b.progress===0)
     window.building=b
-    window.spare={...w.units.find(u=>u.id===b.builders[0]),id:w.nextId++,work:null,path:[],builder:undefined}
-    w.units.push(window.spare);w.selected=[b.builders[0],window.spare.id];s.onChange()
+    window.spare={...w.units.find(u=>u.id===b.builders[0]),id:w.nextId++,work:null,path:[],builder:undefined,native:null,entry:undefined,fight:null,flight:null,target:null,tree:null,harvest:undefined,delivery:undefined}
+    w.units.push(window.spare);w.selected=[b.builders[0],window.spare.id]
     return b.builders
   })
   assert.equal(initial.filter(Boolean).length,6,'the first mission assigns all six braves')
-  await crewPage.mouse.click(site.x,site.y,{button:'right'})
+  await crewPage.mouse.click(site.x,site.y)
   assert.deepEqual(await crewPage.evaluate(()=>window.building.builders),initial)
   assert.equal(await crewPage.evaluate(()=>window.spare.work),null,'full crew rejects a seventh worker')
   await crewPage.evaluate(()=>{
     const s=window.testScene,w=s.world
     w.units.find(u=>u.id===window.building.builders[1]).hp=0
-    w.selected=[window.spare.id];s.onChange()
+    w.selected=[window.spare.id]
   })
-  await crewPage.mouse.click(site.x,site.y,{button:'right'})
-  assert.equal(await crewPage.evaluate(()=>window.building.builders[1]===window.spare.id&&window.spare.work===window.building.id),true)
+  await crewPage.mouse.click(site.x,site.y)
+  const replacement=await crewPage.evaluate(()=>({building:window.building.id,builders:window.building.builders,spare:{id:window.spare.id,work:window.spare.work},selected:window.testScene.world.selected}))
+  assert.equal(replacement.builders[1]===replacement.spare.id&&replacement.spare.work===replacement.building,true,JSON.stringify(replacement))
   await crewPage.evaluate(()=>{window.testScene.world.speed=4})
-  await crewPage.waitForFunction(()=>window.building.progress===1&&window.building.builders.every(id=>id===0))
+  await crewPage.waitForFunction(()=>window.building.progress===1&&window.building.builders.every(id=>id===0),null,{timeout:120000})
   assert.equal(await crewPage.evaluate(()=>window.testScene.world.stats.built),1)
   assert.deepEqual(crewErrors,[])
-  console.log('PASS: six-brave browser placement, duplicate/full-crew right-click orders, replacement in the first vacant slot and completed construction')
+  console.log('PASS: six-brave browser placement, duplicate/full-crew building orders, replacement in the first vacant slot and completed construction')
 }finally{await browser.close()}

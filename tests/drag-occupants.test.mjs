@@ -105,13 +105,13 @@ test('a real trainee remains drag-selectable on entry and becomes excluded only 
   assert.deepEqual(w.buildingOrders, orders)
 })
 
-test('fetching builders are selected at their live position rather than an inactive construction pose', () => {
+test('fetching builders are selected at their active task-7 position', () => {
   const w = createWorld()
   w.units = []
   w.selected = []
-  const u = addUnit(w, 'blue', 'brave', { x: 0, z: 8 })
+  const u = addUnit(w, 'blue', 'brave', { x: 30, z: 8 })
   const p = createLivePerson(w, u)
-  Object.assign(p, nativePosition(w, { x: 30, z: 8 }))
+  Object.assign(p, nativePosition(w, { x: 0, z: 8 }))
   u.builder = { task: 7, busy: 0, phase: 0, restart: false, person: p }
   const start = nativePosition(w, { x: -2, z: 10 }),
     end = nativePosition(w, { x: 2, z: 6 })

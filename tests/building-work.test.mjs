@@ -5,7 +5,6 @@ import departureFixture from './fixtures/building-departure.json' with {type:'js
 import fixtureWork from './fixtures/building-work.json' with {type:'json'}
 import manifest from '../decomp/exports.json' with {type:'json'}
 import rules from '../app/original-rules.json' with {type:'json'}
-import constants from '../app/original-constants.json' with {type:'json'}
 import {stepBuildingWork,stepBuildingDeparture,stepBuildingApproach} from '../app/building-work.ts'
 import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
 import {createWorld,placeBuilding,tick,command,unitAnimation,unitAnimationSource} from '../app/model.ts'
@@ -85,8 +84,7 @@ test('crews leave finished huts in all four orientations before the plan release
       for(const u of crew)if(u.builder.task===9)seen.add(u.builder.phase)
       tick(w,1/12)
       crew.forEach((u,i)=>{
-        // A fetcher can finish its current route before the next plan decision.
-        assert.ok(Math.hypot(u.x-before[i].x,u.z-before[i].z)<=(u.builder?.task===7?constants.BRAVE_SPEED:u.builder?.person?.speed??0)/256+2/256,'departure must move continuously, including release')
+        assert.ok(Math.hypot(u.x-before[i].x,u.z-before[i].z)<=(u.builder?.person?.speed??0)/256+2/256,'departure must move continuously, including release')
         assert.equal(u.inside,null,'construction ownership prevents automatic housing')
       })
       if(crew.every(u=>!u.builder)){
@@ -106,6 +104,7 @@ test('crews leave finished huts in all four orientations before the plan release
 })
 
 test('player construction orders approach natively and deposit carried logs before fetching',()=>{
+  const fetchPhases=new Set(),fetchTimers=new Set()
   for(const cargo of [0,1])for(let direction=0;direction<4;direction++){
     const w=createWorld();w.manaWorld.gameFlags=32;w.buildingDirections.hut=direction
     const u=w.units.find(u=>u.kind==='brave'&&u.team==='blue');u.cargo=cargo;w.selected=[u.id]
@@ -132,7 +131,13 @@ test('player construction orders approach natively and deposit carried logs befo
     const dropped=w.trees.filter(t=>!oldTrees.has(t.id)&&t.model===11)
     assert.equal(dropped.length,cargo)
     if(cargo){assert.equal(dropped[0].logs,1);assert.equal(dropped[0].x,arrival.x);assert.equal(dropped[0].z,arrival.z);assert.ok(w.sounds.some(s=>s.cue===11))}
-    for(let n=0;n<2000&&(b.progress<1||u.builder);n++)tick(w,1/12)
+    for(let n=0;n<2000&&(b.progress<1||u.builder);n++){
+      if(u.builder?.task===7){fetchPhases.add(u.builder.phase);fetchTimers.add(u.builder.person?.timer)}
+      tick(w,1/12)
+    }
     assert.equal(b.progress,1);assert.equal(u.builder,undefined)
   }
+  for(const phase of [2,3,4,5,17,22,24])assert.ok(fetchPhases.has(phase),'live fetch phase '+phase)
+  assert.ok(fetchTimers.has(19),'live harvest enters the native twenty-turn clock')
+  assert.ok(fetchTimers.has(7),'live deposit enters the native eight-turn clock')
 })
