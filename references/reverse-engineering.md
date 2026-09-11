@@ -7776,3 +7776,46 @@ not credited as a recovered native binding. Runtime selection uses elapsed-free
 input operations; no render-frame work, FPS cap or replacement simulation owner
 was added. Modern Ctrl-click compatibility and CPU measurements are documented
 in `modern-performance.md`.
+
+### Mixed world picking (2026-09-11)
+
+`004673b0` resolves person, model and ground hits in native painter order, rather
+than nearest ray distance or the browser unit-array order. Ordinary person hits
+use the current VFRA header rectangle (inclusive edges, independent of sprite
+alpha), original shaman/view scaling, render flag 128 and `004de610`'s completed
+cell-tower exclusion. The broader drag-only training predicate is not a pointer
+predicate. Model triangles truncate screen coordinates; ground triangles and
+model bounds round to nearest, ties to even. Ground hits clear object ownership.
+
+`00475550` submits type 21 after a model's faces: rounded whole-model bounds,
+with the maximum depth plus 0x7000 determining its bucket. A matching type-6 face
+consumes its candidate; later faces of that same model cannot reclaim ownership
+after an intervening person/ground hit. Mode-zero faces still participate even
+though they never draw. Both `004718c0` and tribal-texture `00471a80` produce type
+6; tribal artwork does **not** exempt a face from picking. The native construction
+renderer `00471c40` also submits type 6 and reverses rear-facing triangles.
+
+`check-native-world-picking.py EXE [--record]` executes 1,024 complete mixed queues,
+256 complete person rectangle/scaling cases, 24 tower/cell gates and 256 complete
+bounds-producer calls. Only raster consumers/cache maintenance are intercepted;
+the actual ownership, rectangle, scaling and predicate branches execute. Portable
+captures retain 64 mixed queues, 32 rectangles, 32 bounds and all 24 occupant cases.
+`capture-browser-models.mjs` now includes CPU picking geometry from real meshes;
+`check-native-live-models.py` compares it with full original model rendering,
+including invisible faces and type-21 bounds. The final capture covers 12 views,
+368 model instances and 7,430 rasterized triangles; this is individual completed
+model submission evidence, not complete mixed-world traversal proof.
+
+`ScenePicking` reuses the painter's source identity/order, applies these hit rules,
+and feeds unit selection, world hover/inspection and object orders. Model geometry
+is cached until camera, geometry, pose or stage changes. Terrain projection is
+cached separately, but hit depth is always resolved from the current painter so
+paused building occupancy changes cannot retain stale ground ordering.
+
+Modern differences are deliberate: remove the native three-candidate ring overflow
+and use safe JS-number edge products at modern viewport sizes. No invisible picking
+faces enter a GPU draw. Native object allocation/list order for non-person classes,
+full model eligibility flags, all construction deformation/caps, vehicle/passenger
+input, locked-target/alternate modes and command-buffer ownership remain open.
+`004762b0` was exported while tracing this path; it is the building deformation
+producer, not a picking helper, and receives no new parity credit here.

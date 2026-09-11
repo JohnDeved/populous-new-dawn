@@ -81,9 +81,12 @@ output and address-level bookkeeping in the decompilation evidence.
 
 ## Current execution order: group movement and native selection
 
-Latest user direction, 2026-09-10: finish the current contextual-inspection slice,
-then continue prioritizing how followers move as a group, unit footprints, how groups stand,
-selection and deselection, and native 3D drag selection. This order supersedes older
+Latest user direction, reaffirmed 2026-09-11: continue the requested queue of
+group movement, unit footprints, standing formations, selection/deselection and
+native 3D drag selection. Finish the current mixed-object picking slice, then
+address the most noticeable remaining gaps in these areas. Lightning and Blast's
+impact handoff already have bounded deliveries recorded below; do not restart
+them or treat these scheduled areas as complete. This order supersedes older
 "Next" paragraphs below; those retain unfinished scope, not an instruction to
 postpone this queue. Continue the biggest noticeable improvements while preserving
 full-game scope, clean code, original mechanics and measured modern performance.
@@ -185,7 +188,13 @@ context-menu event; Windows-style click delivery must not select twice. The
 separate portrait/H shortcut remains an existing convenience, not a newly verified
 native binding. Full category/vehicle/passenger ownership, priority-field writers,
 tribe-list allocation order, buffering and mixed-object picking remain open.
-Continue mixed-object hit resolution and visible selection feedback next.
+Ordinary world hits now share original painter order, header-based person bounds,
+model triangles (including invisible picking faces), first-face consumption and
+ground occlusion. Native queue/scaling/tower/bounds checks and full live-model
+comparisons cover this integration. CPU-only projection caching is measured;
+non-person native list order, all construction/model flags, alternate/locked input,
+vehicle/passenger selection and command buffering remain open. Continue visible
+selection/target feedback and the remaining mixed-object input ownership next.
 
 
 Ordinary marching is now live through the shared order pool, native physics,

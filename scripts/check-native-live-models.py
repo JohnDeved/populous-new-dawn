@@ -68,7 +68,7 @@ for frame in frames:
         cpu.mem_write(unit, bytes(256))
         write(unit + 0x24, 'HH', 1, model['heading'])
         write(unit + 0x2a, 'B', 2)
-        write(unit + 0x33, 'HH', model['id'], 0x200)
+        write(unit + 0x33, 'HH', model['id'], 0x280 if 'picking' in model else 0x200)
         write(unit + 0x3d, 'HHh', *model['position'])
         write(unit + 0x68, 'ihh', model['size'], model['tilt'], model['roll'])
         write(0x75d508, 'I', pool)
@@ -80,13 +80,24 @@ for frame in frames:
             while p:
                 buckets[p] = bucket
                 p = read(p + 2, 'I')
-        actual = []
-        for p in range(pool, read(0x75d508, 'I'), 70):
-            if not read(p + 0x45, 'B'):  # Texture mode zero is not rasterized.
+        actual, picking = [], []
+        p = pool
+        while p < read(0x75d508, 'I'):
+            kind = read(p, 'B')
+            if kind == 21:
+                x,y,right,bottom = struct.unpack('<hhhh',cpu.mem_read(p+10,8))
+                picking.append(dict(kind='bounds',bounds=dict(x=x,y=y,width=right-x,height=bottom-y),bucket=buckets[p]))
+                p += 18
                 continue
             screen = [n for offset in [6, 26, 46] for n in struct.unpack('<ff', cpu.mem_read(p + offset, 8))]
-            assert read(p + 22, 'I') == read(p + 42, 'I') == read(p + 62, 'I')
-            actual.append(dict(screen=screen, shade=read(p + 22, 'I'), bucket=buckets[p]))
+            if kind == 6:
+                picking.append(dict(kind='model',points=[dict(x=screen[i],y=screen[i+1]) for i in (0,2,4)],bucket=buckets[p]))
+            if read(p + 0x45, 'B'):  # Mode zero is picked but never rasterized.
+                assert read(p + 22, 'I') == read(p + 42, 'I') == read(p + 62, 'I')
+                actual.append(dict(screen=screen, shade=read(p + 22, 'I'), bucket=buckets[p]))
+            p += 70
+        if 'picking' in model:
+            assert picking == model['picking'], ('picking',frame['preset'],frame['bearing'],model['id'],picking[:2],model['picking'][:2],picking[-1],model['picking'][-1],len(picking),len(model['picking']))
         assert actual == model['triangles'], (frame['preset'], frame['bearing'], model['id'], actual[:2], model['triangles'][:2], len(actual), len(model['triangles']))
         count += len(actual)
-print(f'PASS: {len(frames)} live views, {sum(len(f["models"]) for f in frames)} complete native model calls, {count} triangles: screen positions, sunlight/depth shades, culling and buckets; EXE {identity["sha256"]}')
+print(f'PASS: {len(frames)} live views, {sum(len(f["models"]) for f in frames)} complete native model calls, {count} triangles: screen positions, sunlight/depth shades, culling, buckets and available picking-only triangles/bounds; EXE {identity["sha256"]}')

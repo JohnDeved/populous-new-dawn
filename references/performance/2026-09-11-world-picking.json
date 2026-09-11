@@ -1,0 +1,42 @@
+{
+  "baseline": "ebd9180f34bd7b80734b9619201f8b3232ff263e",
+  "painter": [
+    {
+      "people": 12,
+      "before": {
+        "median": 1.2999999523162842,
+        "p95": 1.4000000953674316
+      },
+      "after": {
+        "median": 1.2999999523162842,
+        "p95": 1.5
+      }
+    },
+    {
+      "people": 200,
+      "before": {
+        "median": 1.5999999046325684,
+        "p95": 4.199999809265137
+      },
+      "after": {
+        "median": 1.6000001430511475,
+        "p95": 1.8000001907348633
+      }
+    }
+  ],
+  "picking": {
+    "fresh": {
+      "median": 2.1999998092651367,
+      "p95": 2.700000047683716
+    },
+    "cached": {
+      "median": 0.3000001907348633,
+      "p95": 1.6999998092651367
+    }
+  },
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "date": "2026-09-11",
+  "scope": "CPU painter bookkeeping and input projection cache; no GPU/FPS certification",
+  "method": "Headless Chromium, Apple M5. Painter: 12 warmup pairs and 24 measured alternating pairs. Picking: 10 warmup pairs and 40 measured alternating pairs at distinct pixels, 200 people. Same painter-depth texture and cached/fresh hit results asserted. Other browser checks stopped.",
+  "limits": "Input samples cover a frozen camera and standard desktop viewport. Camera changes rebuild projection caches. Rendering continues at uncapped requestAnimationFrame; no extra GPU geometry or draw calls. Native three-model candidate overflow deliberately removed. Higher precision triangle arithmetic avoids signed 32-bit screen-size overflow. Full object list ownership remains partial."
+}

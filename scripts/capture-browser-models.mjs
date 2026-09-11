@@ -32,6 +32,9 @@ try {
             const attribute = name => Array.from(mesh.geometry.getAttribute(name).array)
             models.push({
               id: d.nativeModel,
+              picking: s.picking.model(mesh, `${preset},${bearing}`).map(c => c.kind === 'bounds'
+                ? {kind:c.kind,bounds:c.bounds,bucket:c.bucket}
+                : {kind:c.kind,points:c.points,bucket:c.bucket}),
               scale: d.nativeScale,
               size: d.nativeSize ?? d.nativeScale,
               heading: mesh.parent.userData.nativeHeading ?? 0,

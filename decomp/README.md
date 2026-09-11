@@ -4592,3 +4592,13 @@ result does not justify a separate TS classifier. Run
 `python scripts/check-native-hud-selection.py EXE [--record]` for complete native
 selection/focus and actual callback comparisons. Vehicles, category ownership and
 priority-field lifecycle writers remain open.
+
+## 2026-09-11 — mixed painter hit ownership
+
+`check-native-world-picking.py EXE [--record]` executes the original mixed painter,
+person scaling/tower gates and `00475550` model-bounds producer. Raster consumers
+are intercepted, hit ownership is not. Captures feed `tests/world-picking.test.mjs`.
+The existing live-model capture/comparison also checks invisible hit faces and
+bounds against full native model rendering. `004762b0` is retained as unported
+building-deformation evidence. See the reverse-engineering log for covered cases,
+modern overflow corrections and unfinished traversal/input ownership.

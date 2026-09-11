@@ -13,7 +13,7 @@ import { TerrainAmbience } from './terrain-ambience.ts'
 import type { NativeTerrain } from './native-terrain.ts'
 import { soundListener, treeAmbienceAudible, type SoundEnvironment } from './ambient-sound.ts'
 
-interface Command {
+export interface Command {
   slot: number
   alpha: boolean
   bucket: number
@@ -39,6 +39,7 @@ export class Painter {
     { version: number; positions: THREE.BufferAttribute }
   >()
   ranges = new WeakMap<THREE.Object3D, [number, number]>()
+  commandsBySlot: (Command | undefined)[] = []
   transparentMeshes: {
     mesh: THREE.Mesh
     material: THREE.Material | THREE.Material[]
@@ -103,6 +104,8 @@ export class Painter {
     }
     const pixels = this.texture.image.data as Float32Array
     pixels.fill(2)
+    this.commandsBySlot.length = length
+    this.commandsBySlot.fill(undefined)
     const commands: Command[] = [],
       view = this.view,
       basis = view.uniforms.nativeBasis.value
@@ -313,6 +316,7 @@ export class Painter {
     const stretch = Math.max(1, commands.length / 16000)
     commands.forEach((command, i) => {
       pixels[command.slot] = painterDepth(i / stretch)
+      this.commandsBySlot[command.slot] = command
     })
     // 0x47c7e0 retains command order in its deferred alpha list. A transparent
     // mesh may straddle a sprite, so expose each triangle to Three's draw sorter.
@@ -393,6 +397,18 @@ export class Painter {
     }
   }
 
+  command(object: THREE.Object3D, triangle: number, instance = 0) {
+    const range = this.ranges.get(object)
+    return range && this.commandsBySlot[range[0] + range[1] * instance + triangle]
+  }
+  source(object: THREE.Object3D) {
+    const range = this.ranges.get(object)
+    if (range)
+      for (let i = 0; i < range[1]; i++) {
+        const command = this.commandsBySlot[range[0] + i]
+        if (command) return command
+      }
+  }
   depth(object: THREE.Object3D, triangle: number, instance: number) {
     const range = this.ranges.get(object)
     if (object instanceof THREE.Mesh && object.userData.selectionCommands && object.geometry.index)

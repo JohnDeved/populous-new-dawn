@@ -39,6 +39,7 @@ import {
   selectedPersonVoice,
   selectedGroupVoices,
   canDragPerson,
+  personInCompletedTower,
 } from './person-selection.ts'
 import {
   dragCommandCorners,
@@ -1099,6 +1100,24 @@ export function unitAnimationSource(u: Unit) {
   return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
     ? (u.builder?.person ?? null)
     : null
+}
+
+function selectionBuilding(w: World, point: { x: number; y: number }) {
+  const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+  const b =
+    w.land.flags[cell] & 512
+      ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+      : undefined
+  return b && { model: buildingModel(b), state: b.damageState?.state ?? (b.progress === 1 ? 2 : 1) }
+}
+
+export function canPickUnit(w: World, u: Unit) {
+  const p = unitAnimationSource(u)
+  if (!p) return u.inside === null
+  return (
+    !!(p.renderFlags & 128) &&
+    (!(p.flags2 & 0x800000) || !personInCompletedTower(p, selectionBuilding(w, p)))
+  )
 }
 
 export function unitAnimation(w: World, u: Unit) {
@@ -2324,18 +2343,10 @@ export function selectArea(
         const point = active ?? nativePosition(w, u)
         if (!inDragCells(point, bounds) || !inDragSelection(point, corners)) return false
         if (!p) return true
-        const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
-        const b =
-          w.land.flags[cell] & 512
-            ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-            : undefined
         return canDragPerson(
           p,
           currentPersonOrder(w.buildingOrders, p),
-          b && {
-            model: buildingModel(b),
-            state: b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
-          }
+          selectionBuilding(w, point)
         )
       })
       .map(u => u.id)

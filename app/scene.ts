@@ -1,3 +1,4 @@
+import { ScenePicking } from './scene-picking.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { ObjectPanels } from './object-panels.ts'
 import { unitHealthGauge } from './unit-health.ts'
@@ -93,6 +94,7 @@ import {
   unitAnimation,
   unitAnimationSource,
   canOrder,
+  canPickUnit,
 } from './model'
 
 import nativeModelData from './original-models.json'
@@ -549,6 +551,7 @@ export class GameScene {
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
   objectPanels = new ObjectPanels(this)
+  picking = new ScenePicking(this)
   hudFocus = Array<number>(8).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
@@ -1007,23 +1010,9 @@ export class GameScene {
     return p.z < -1 || p.z > 1 ? null : p
   }
   pickUnit(event: { clientX: number; clientY: number }) {
-    const rect = this.renderer.domElement.getBoundingClientRect(),
-      x = event.clientX - rect.left,
-      y = event.clientY - rect.top
-    return this.world.units.find(u => {
-      if (u.team !== 'blue' || !canOrder(u) || u.inside !== null) return false
-      const bounds = this.unitMeshes.get(u.id)?.userData.bounds,
-        p = this.unitScreen(u.id)
-      if (!bounds || !p) return false
-      const px = ((p.x + 1) * rect.width) / 2,
-        py = ((1 - p.y) * rect.height) / 2
-      return (
-        x >= px + bounds.left &&
-        x <= px + bounds.right &&
-        y >= py + bounds.top &&
-        y <= py + bounds.bottom
-      )
-    })
+    if (this.overviewActive) return
+    const id = this.picking.pick(event)
+    return this.world.units.find(u => u.id === id && u.team === 'blue' && canOrder(u))
   }
   visible(p: Point, h = this.y(p)) {
     const q = this.screen(p, h)
@@ -1325,23 +1314,7 @@ export class GameScene {
         }) ?? null
       )
     }
-    this.mouse.set(
-      ((event.clientX - rect.left) / rect.width) * 2 - 1,
-      1 - ((event.clientY - rect.top) / rect.height) * 2
-    )
-    const hit = this.view.pick(
-      this.mouse,
-      [...this.buildingMeshes.values(), ...[...this.shrineMeshes.values()].map(s => s.g)],
-      this.camera
-    )
-    let object = hit?.object
-    while (
-      object?.parent &&
-      object.userData.building === undefined &&
-      object.userData.shrine === undefined
-    )
-      object = object.parent
-    const id = object?.userData.building ?? object?.userData.shrine
+    const id = this.picking.pick(event)
     return (
       this.world.buildings.find(b => b.id === id) ??
       this.world.shrines.find(s => s.id === id) ??
@@ -1486,7 +1459,13 @@ export class GameScene {
     const clickedUnit = !this.world.mode
       ? this.world.units.find(u => u.id === this.down.unit)
       : undefined
-    let p = this.pick(event) ?? clickedUnit
+    const pickedId = !this.world.mode && this.picking.pick(event)
+    const picked =
+      this.world.units.find(u => u.id === pickedId) ??
+      this.world.buildings.find(b => b.id === pickedId) ??
+      this.world.shrines.find(h => h.id === pickedId) ??
+      this.world.trees.find(t => t.id === pickedId)
+    let p = picked ?? this.pick(event) ?? clickedUnit
     if (!p) return
     if (!this.world.mode) {
       const object = this.pickWorldObject(event)
@@ -2544,6 +2523,7 @@ export class GameScene {
       }
       g.userData.draw = animationSource?.draw ?? (u.kind === 'warrior' ? 15 : 14)
       const renderFlags = animationSource?.renderFlags ?? 0
+      g.userData.pickable = canPickUnit(this.world, u)
       g.userData.drawFlags =
         (renderFlags & 0xa000 || u.lift > 0 ? 2 : 0) | (renderFlags & 0x4000 ? 4 : 0)
       const animations = (

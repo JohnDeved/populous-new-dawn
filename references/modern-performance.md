@@ -2213,3 +2213,20 @@ owner or package dependency was introduced. Existing original HUD raster and
 selection/drag checks pass. Headless Chromium results establish input/pixel
 correctness, not hardware GPU frame rate. Raw measurements and scope are retained
 in `references/performance/2026-09-11-hud-selection.json`.
+
+### Mixed-object picking, 2026-09-11
+
+Picking uses original painter order and CPU-only invisible model faces. Existing
+command objects supply ordering instead of building a second render schedule.
+Projected terrain vertices are reused across pointer moves; geometry replacement,
+height changes, camera movement and display changes invalidate their cache. The
+current depth stream is queried each time, preserving paused occupancy updates.
+
+The paired [measurement](performance/2026-09-11-world-picking.json) compares the
+last shipped painter with the added command references: unchanged medians of
+1.3 ms for the opening and 1.6 ms for 200 people. Cached versus freshly projected
+terrain reduced median picking CPU from 2.2 to 0.3 ms (p95 2.7 to 1.7 ms), with
+identical results asserted. These are local CPU samples, not a GPU/frame-rate
+certification; camera changes rebuild the cache. No extra rendering or draw calls
+are introduced. Native three-model candidate overflow is deliberately removed;
+ordinary ordering and first-face consumption remain native-compared.

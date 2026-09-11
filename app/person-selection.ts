@@ -3,6 +3,14 @@ import rules from './original-rules.json' with { type: 'json' }
 
 type SelectablePerson = Pick<OrderedPerson, 'id' | 'flags3' | 'flags4' | 'selectionFlags'>
 
+// 0x4de610 is shared by pointer picking and area selection.
+export function personInCompletedTower(
+  person: Pick<OrderedPerson, 'flags2'>,
+  building: { model: number; state: number } | undefined
+) {
+  return !!(person.flags2 & 0x800000 && building?.model === 4 && building.state === 2)
+}
+
 // 0x4449d0 calls 0x4e3430, 0x4de610 and 0x4de680 before its polygon test.
 // The caller supplies the building recorded in this person's terrain cell.
 export function canDragPerson(
@@ -11,7 +19,7 @@ export function canDragPerson(
   building: { model: number; state: number } | undefined
 ) {
   if (person.flags4 & 128) return false
-  if (person.flags2 & 0x800000 && building?.model === 4 && building.state === 2) return false
+  if (personInCompletedTower(person, building)) return false
   return !(
     person.state === 10 &&
     person.substate === 13 &&
