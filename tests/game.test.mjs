@@ -481,6 +481,21 @@ test('original campaign setup disables only enemy reincarnation and retains defe
  const fresh=createWorld();fresh.ai.attributes[0]=99;assert.equal(createWorld().ai.attributes[0],12,'new games own independent script state');
 });
 
+test('mission-one AI applies its native population difficulty table on the original phase',async()=>{
+ const {campaignInternal}=await import('../app/model.ts'),direct=createWorld(),raw={...originalScript,fields:[[0,47],[0,511],[0,48]]};
+ direct.ai.flags=0xa5;campaignCommand(direct,1172,[1022]);assert.equal(direct.ai.flags,0x400a5);
+ campaignCommand(direct,1172,[0]);assert.equal(direct.ai.flags,0x400a5,'other raw modes are native no-ops');
+ campaignCommand(direct,1172,[1023]);assert.equal(direct.ai.flags,0xa5);
+ campaignCommand(direct,1173,[0,1],raw);assert.equal(direct.ai.attributes[47],255);
+ assert.throws(()=>campaignCommand(direct,1173,[2,1],raw),/Invalid computer attribute/);
+ assert.deepEqual([campaignInternal(direct,1243),campaignInternal(direct,1244)],[19,17]);
+ const run=count=>{const w=createWorld();w.units=[];addUnit(w,'blue','shaman',HOME);for(let i=0;i<count;i++)addUnit(w,'red','brave',ENEMY);w.ai.attributes.fill(0);w.ai.flags=0;w.turn=122;tick(w,1/12);assert.equal(w.ai.flags&0x40000,0);tick(w,1/12);return w;};
+ const low=run(79),high=run(80),pick=w=>[7,11,12,13,14,15,16,17,19].map(i=>w.ai.attributes[i]);
+ assert.deepEqual(pick(low),[70,80,66,152,140,100,128,8,48]);
+ assert.deepEqual(pick(high),[35,40,33,204,70,50,64,4,24]);
+ assert.equal(low.ai.flags&0x40000,0x40000);assert.equal(high.ai.flags&0x40000,0x40000);
+});
+
 test('campaign marker setup snapshots native entry state before live execution',()=>{
  const w=createWorld();
  assert.equal(w.ai.markerValue,0);assert.deepEqual(w.ai.markerEntries.slice(0,3),[

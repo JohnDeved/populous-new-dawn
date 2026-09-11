@@ -1963,6 +1963,8 @@ export function campaignInternal(w: World, id: number) {
   }
   // Native spell constants, including Blast, Lightning and Land Bridge.
   if (id >= 1184 && id <= 1199) return id - 1183
+  if (id === 1243) return 19
+  if (id === 1244) return 17
   if (id === 1200) return 18 // INT_M_KNOWLEDGE, preceding the person constants.
   if (id >= 1201 && id <= 1206) return id - 1199
   throw new Error(`Unbound campaign internal ${id}`)
@@ -2437,6 +2439,8 @@ export function campaignCommand(
       1136: 0,
       1151: 1,
       1171: 2,
+      1172: 1,
+      1173: 2,
       1176: 1,
       1113: 0,
       1180: 0,
@@ -2462,6 +2466,20 @@ export function campaignCommand(
     if (!Number.isInteger(index) || index < 0 || index >= 64)
       throw new RangeError('Invalid campaign query destination')
     w.ai.variables[index] = value | 0
+  }
+
+  if (opcode === 1172) {
+    const mode = (args[0] << 16) >> 16
+    if (mode === 1022) w.ai.flags = (w.ai.flags | 0x40000) >>> 0
+    else if (mode === 1023) w.ai.flags = (w.ai.flags & ~0x40000) >>> 0
+    return
+  }
+  if (opcode === 1173) {
+    const index = read(args[0])
+    if (!Number.isInteger(index) || index < 0 || index >= w.ai.attributes.length)
+      throw new RangeError('Invalid computer attribute')
+    w.ai.attributes[index] = read(args[1]) & 255
+    return
   }
 
   if (opcode === 1081) {
@@ -2671,6 +2689,7 @@ const boundCampaignScript = {
   codes: [
     12,
     1003,
+    ...originalScript.codes.slice(382, 531),
     ...originalScript.codes.slice(564, 681),
     ...originalScript.codes.slice(681, 855),
     ...originalScript.codes.slice(936, 1505),
