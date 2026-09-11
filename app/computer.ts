@@ -18,13 +18,17 @@ export type ComputerTask = {
   retries: number
   quotas: number[]
   members: number[]
+  route: MarkerEntry[]
 }
+export type MarkerEntry = { marker: number; secondary: number; quotas: number[] }
 export type ComputerQueue = {
   tasks: ComputerTask[]
   cursor: number
   flags: number
   selectionOwner: number
   commandDelay: number
+  markerValue: number
+  markerEntries: MarkerEntry[]
 }
 
 export function createComputerQueue(): ComputerQueue {
@@ -47,12 +51,42 @@ export function createComputerQueue(): ComputerQueue {
       retries: 0,
       quotas: [],
       members: [],
+      route: Array.from({ length: 4 }, () => ({ marker: 0, secondary: 0, quotas: [0, 0, 0, 0] })),
     })),
     cursor: 0,
     flags: 0,
     selectionOwner: 10,
     commandDelay: 0,
+    markerValue: 0,
+    markerEntries: Array.from({ length: 36 }, () => ({
+      marker: 0,
+      secondary: 0,
+      quotas: [0, 0, 0, 0],
+    })),
   }
+}
+
+// 0x4e6550: type 24 snapshots up to four marker-entry records into the first free task.
+export function requestMarkerTask(ai: ComputerQueue, entries: number[], special: boolean) {
+  const task = ai.tasks.find(t => !(t.flags & 1))
+  if (!task) return
+  for (let i = 0; i < 4; i++) {
+    const index = entries[i] ?? -1
+    if (index === -1) task.route[i].marker = -1
+    else {
+      const entry = ai.markerEntries[index]
+      if (!entry) throw new RangeError('Invalid computer marker entry')
+      task.route[i] = { ...entry, quotas: [...entry.quotas] }
+    }
+  }
+  Object.assign(task, {
+    flags: ((task.flags & ~2) | 1) >>> 0,
+    type: 24,
+    phase: 0,
+    target: -1,
+    mode: 0,
+    extra: special ? 1 : 0,
+  })
 }
 
 // 0x4615f0: script execution precedes this choice. These two maintenance turns

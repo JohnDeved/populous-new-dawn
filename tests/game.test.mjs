@@ -472,13 +472,28 @@ test('original campaign setup disables only enemy reincarnation and retains defe
  assert.throws(()=>runScript({...originalScript,codes:[12,1003,1006,65535,1004,1019]},scriptState(originalScript),host),/Unknown game command/);
  const w=createWorld();assert.equal(w.ai.reincarnation,false);assert.equal(w.ai.attributes[32],128);assert.equal(w.ai.attributes[33],1);assert.equal(w.ai.attributes[18],45);
  assert.ok(w.ai.states&1,'native construction state enabled');assert.equal(w.ai.states&(1<<2),0,'native wild conversion state disabled');
- assert.deepEqual(w.ai.pendingCommands.map(c=>c.opcode),[1081,1091,1091,1091,1117,1092]);assert.ok(w.ai.flags&0x400);assert.ok(w.manaWorld.gameFlags&0x40);
+ assert.deepEqual(w.ai.pendingCommands.map(c=>c.opcode),[1117,1092]);assert.ok(w.ai.flags&0x400);assert.ok(w.manaWorld.gameFlags&0x40);
  assert.ok(!w.ai.pendingCommands.some(c=>c.opcode===1112));assert.equal(w.inputMask,128);assert.ok(w.manaWorld.levelFlags&0x20000000);
  const gated=createWorld();gated.inputMask=132;gated.manaWorld.levelFlags=0x21000000;campaignCommand(gated,1112,[]);campaignCommand(gated,1113,[]);assert.equal(gated.inputMask,132);assert.equal(gated.manaWorld.levelFlags,0x21000000);
  const modes=createWorld();modes.ai.flags=0xa5;modes.manaWorld.gameFlags=0x1c1;campaignCommand(modes,1109,[]);campaignCommand(modes,1204,[1022]);assert.equal(modes.ai.flags,0x4a5);assert.equal(modes.manaWorld.gameFlags,0x181);campaignCommand(modes,1204,[1023]);assert.equal(modes.manaWorld.gameFlags,0x1c1);
  const shaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');shaman.hp=0;tick(w,1/12);advance(w,15);
  assert.ok(w.units.some(u=>u.team==='red'));assert.ok(!w.units.some(u=>u.team==='red'&&u.kind==='shaman'));assert.equal(w.redRespawn,0);
  const fresh=createWorld();fresh.ai.attributes[0]=99;assert.equal(createWorld().ai.attributes[0],12,'new games own independent script state');
+});
+
+test('campaign marker setup snapshots native entry state before live execution',()=>{
+ const w=createWorld();
+ assert.equal(w.ai.markerValue,0);assert.deepEqual(w.ai.markerEntries.slice(0,3),[
+  {marker:0,secondary:-1,quotas:[0,1,0,0]},
+  {marker:7,secondary:-1,quotas:[0,1,0,0]},
+  {marker:1,secondary:-1,quotas:[1,0,0,0]},
+ ]);assert.deepEqual(w.ai.pendingCommands.map(c=>c.opcode),[1117,1092]);
+ const raw={...originalScript,fields:[[1,3],[0,0],[0,257],[0,511],[0,-3],[0,101],[0,44],[0,100]]};w.ai.variables[3]=77;
+ campaignCommand(w,1081,[0],raw);campaignCommand(w,1091,[1,2,3,4,5,6,7],raw);
+ assert.equal(w.ai.markerValue,3,'1081 stores the raw field payload');assert.deepEqual(w.ai.markerEntries[0],{marker:1,secondary:-1,quotas:[0,100,44,100]});
+ campaignCommand(w,1117,[]);campaignCommand(w,1092,w.ai.pendingCommands[1].args);
+ const task=w.ai.tasks[0];assert.equal(w.ai.flags&0x800,0);assert.deepEqual({flags:task.flags,type:task.type,phase:task.phase,target:task.target,mode:task.mode,extra:task.extra,route:task.route},{flags:1,type:24,phase:0,target:-1,mode:0,extra:1,route:[{marker:1,secondary:-1,quotas:[1,0,0,0]},{marker:-1,secondary:0,quotas:[0,0,0,0]},{marker:-1,secondary:0,quotas:[0,0,0,0]},{marker:-1,secondary:0,quotas:[0,0,0,0]}]});
+ const full=createWorld();full.ai.tasks.forEach(t=>t.flags=1);campaignCommand(full,1117,[]);campaignCommand(full,1092,full.ai.pendingCommands[1].args);assert.equal(full.ai.flags&0x800,0,'1092 consumes the one-shot flag when allocation fails');
 });
 
 

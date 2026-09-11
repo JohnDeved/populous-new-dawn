@@ -284,6 +284,7 @@ import {
   computerPhase,
   dispatchComputerTask,
   requestAttack,
+  requestMarkerTask,
   requestTraining,
   creditAttackTask,
   stepAttackTask,
@@ -1884,7 +1885,7 @@ export function createWorld(): World {
     }
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
-    if (![1038, 1095, 1108, 1109, 1112, 1196, 1204].includes(c.opcode)) return true
+    if (![1038, 1081, 1091, 1095, 1108, 1109, 1112, 1196, 1204].includes(c.opcode)) return true
     campaignCommand(w, c.opcode, c.args)
     return false
   })
@@ -2330,10 +2331,14 @@ export function campaignCommand(
       1038: 3,
       1059: 13,
       1068: 4,
+      1081: 1,
+      1091: 7,
+      1092: 4,
       1095: 2,
       1108: 6,
       1109: 0,
       1112: 0,
+      1117: 0,
       1196: 1,
       1204: 1,
       1076: 3,
@@ -2368,6 +2373,31 @@ export function campaignCommand(
     if (!Number.isInteger(index) || index < 0 || index >= 64)
       throw new RangeError('Invalid campaign query destination')
     w.ai.variables[index] = value | 0
+  }
+
+  if (opcode === 1081) {
+    const field = script.fields[args[0]]
+    if (!field) throw new RangeError('Invalid script field')
+    w.ai.markerValue = (field[1] << 16) >> 16
+    return
+  }
+  if (opcode === 1091) {
+    const [index, marker, secondary, ...quotas] = args.map(read),
+      entry = w.ai.markerEntries[index]
+    if (!entry) throw new RangeError('Invalid computer marker entry')
+    entry.marker = (marker << 24) >> 24
+    entry.secondary = (secondary << 24) >> 24
+    entry.quotas = quotas.map(n => Math.max(0, Math.min(100, n)))
+    return
+  }
+  if (opcode === 1117) {
+    w.ai.flags = (w.ai.flags | 0x800) >>> 0
+    return
+  }
+  if (opcode === 1092) {
+    requestMarkerTask(w.ai, args.map(read), !!(w.ai.flags & 0x800))
+    w.ai.flags = (w.ai.flags & ~0x800) >>> 0
+    return
   }
 
   if (opcode === 1059) {
