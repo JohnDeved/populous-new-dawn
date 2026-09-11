@@ -4611,3 +4611,14 @@ people and friendly buildings retain their IDs; friendly people use cell context
 while enemy buildings create area orders. The live check covers target choice,
 not complete contextual/area/queue ownership. `00437750` contextual priority and
 `0043d7d0` building footprint eligibility are exported but remain unported.
+
+## 2026-09-11 — automatic contextual priority and building cells
+
+`app/command-context.ts` reconstructs the outdoor automatic priority branch of
+`00437750` with shared original descriptor masks. Run
+`python scripts/check-native-command-context.py EXE [--record]` for 8,400 complete
+native choices, then `python scripts/check-native-command-cells.py EXE [--record]`
+for 3,888 composed footprint-registration/context cases and live cell comparisons.
+Only registration texture refresh is intercepted in the latter. Manual/all-inside
+choice, complete classification/eligibility and area/queue execution remain open;
+see the reverse-engineering log for the exact boundary. No new export was needed.

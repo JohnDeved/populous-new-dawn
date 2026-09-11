@@ -2241,3 +2241,21 @@ for picked targets; contextual scans remain input-only. No render loop, timer,
 frame-rate dependency, draw call or package was added. This is a redundant-work
 removal and correctness check, not a measured frame-rate improvement. Exact overlap
 orders pass at 1440×1000 and 3440×1440; existing selection checks also cover 2× DPI.
+
+### Contextual group dispatch, 2026-09-11
+
+The command handler synchronizes terrain and registered landscape objects once
+before dispatching to the selected group, then calls the existing route planner
+directly for each member. Other route callers retain their synchronization. Context
+classification is input-only and reads the existing occupancy arrays; no render
+work, frame-rate cap, timer, draw call or dependency is added.
+
+`bench-command-context.mjs` compares complete group orders against the prior shipped
+handler, alternating order between implementations. All 200 people must receive
+movement commands; complete person records, orders, marching and RNG are equal
+after every pair. On Apple M5 / Node v24.18.0, 20 warmups and 80 pairs with 12 huts
+measured median **3.04 → 2.69 ms**, p95 **5.08 → 4.69 ms**. This is a local CPU input
+measurement, not GPU FPS or a general pathfinding-speed claim. Raw results are in
+`performance/2026-09-11-command-context.json`. Terrain beside a hut is deliberately
+excluded from before/after equivalence because the old proximity behavior is wrong;
+its new action is checked separately against native cells and real browser input.

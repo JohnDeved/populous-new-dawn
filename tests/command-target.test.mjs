@@ -23,7 +23,7 @@ test('object commands retain the chosen identity through overlaps and array reor
  w.units.reverse();w.buildings.reverse();command(w,hut);assert.equal(follower.work,hut.id)
  w.buildings.reverse()
  const ally=addUnit(w,'blue','warrior',{x:hut.x,z:hut.z})
- command(w,ally);assert.equal(follower.work,hut.id,'ordering through an ally uses building context')
+ command(w,ally);assert.equal(follower.work,secondHut.id,'ordering through an ally uses the registered cell owner')
  assert.equal(follower.target,null,'building context cannot also assign a nearby enemy')
  const before=structuredClone(follower)
  command(w,{id:65535,x:hut.x,z:hut.z});assert.deepEqual(follower,before,'removed targets do not select a nearby replacement')

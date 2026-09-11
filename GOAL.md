@@ -205,6 +205,17 @@ original enemy-building command 19 is an area order, whose complete ownership an
 lifecycle are still unfinished. Continue the requested group movement, footprints,
 standing formations, selection/deselection and native 3D drag queue.
 
+Ordinary outdoor contextual order priority now uses original descriptor class masks.
+Ground/friendly-person clicks resolve registered building cells rather than a
+circular proximity search; head adapters use cells/rotated vault shapes. Direct
+picked targets retain their identity. 8,400 native priority choices and 3,888
+composed native registration/context choices cover the bounded integration, with
+actual desktop/ultrawide clicks beside huts. Landscape synchronization runs once
+per group order; paired 200-person inputs preserve person records, orders and RNG
+with lower measured CPU time. Full mixed-class cell registration, contested/damaged
+building context, trees, forced/manual and all-inside choices, complete eligibility
+and original area-order execution still require their native owners.
+
 
 Ordinary marching is now live through the shared order pool, native physics,
 routing and sprite ownership. Native comparisons, 279 portable tests and actual

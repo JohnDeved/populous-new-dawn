@@ -54,7 +54,27 @@ try {
   await page.mouse.click(fixture.person.x,fixture.person.y)
   assert.deepEqual(await order(),{target:fixture.enemy,work:null},'reordering arrays does not change the clicked target')
   assert.equal(await page.evaluate(()=>window.extraWorldLookups),0,'pointer release must reuse the chosen hit instead of running another world lookup')
+  const ground=await page.evaluate(async id=>{
+   const s=window.testScene,w=s.world,b=w.buildings.find(b=>b.id===id)
+   const {liveCommandContext}=await import('/app/live-command.ts')
+   const r=s.renderer.domElement.getBoundingClientRect(),p=s.screen(b)
+   const cx=r.left+(p.x+1)*r.width/2,cy=r.top+(1-p.y)*r.height/2
+   let closest=Infinity,detail
+   for(let dy=-120;dy<=120;dy+=3)for(let dx=-120;dx<=120;dx+=3){
+    const event={clientX:cx+dx,clientY:cy+dy}
+    if(s.picking.pick(event))continue
+    const point=s.pick(event)
+    if(point&&Math.hypot(point.x-b.x,point.z-b.z)<closest){closest=Math.hypot(point.x-b.x,point.z-b.z);detail={point,model:liveCommandContext(w,point)?.model,b:{x:b.x,z:b.z},cx,cy}}
+    if(point&&Math.hypot(point.x-b.x,point.z-b.z)<3.1&&liveCommandContext(w,point)?.model===3)
+     return {x:event.clientX,y:event.clientY}
+   }
+   throw Error('No visible ground beside the hut exercises the old proximity radius '+JSON.stringify({closest,detail}))
+  },fixture.hut)
+  await page.mouse.click(ground.x,ground.y)
+  assert.deepEqual(await order(),{target:null,work:null},'ground beside the hut must move rather than enter it')
+  assert.equal(await page.evaluate(id=>window.testScene.world.units.find(u=>u.id===id).native?.commandStatus,fixture.follower),3)
+
  }
  assert.deepEqual(errors,[])
- console.log('PASS: actual overlapping person/building commands and reordered objects at desktop and ultrawide sizes')
+ console.log('PASS: actual overlapping person/building commands, reordered objects and ground beside a hut at desktop and ultrawide sizes')
 } finally {await browser.close()}

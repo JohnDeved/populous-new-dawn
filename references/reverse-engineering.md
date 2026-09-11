@@ -7849,3 +7849,40 @@ sizes. Full terrain-cell classification, contextual wheel/forced modes, special
 classes, enemy-building area dispatch and queue ownership remain open.
 `00437750` and its footprint predicate `0043d7d0` are retained as evidence, not
 claimed as complete TypeScript ports.
+
+## 2026-09-11 — contextual group orders and occupied cells
+
+`command-context.ts` reconstructs the automatic outdoor branch of `00437750`.
+Its repeated eligibility loops reduce to the original command descriptor's person
+mask intersecting the selected class mask. Guard/forced shaman/person/tree/vehicle/
+spy/plan/building/flatten/head/area priorities retain their original order, including
+firewarrior-only and spy-only choices. The retained manual wheel candidate and
+all-inside branch are separate, unfinished owners. Native unsupported-class choices
+are compared as primitives; this does not add those unit classes to live play.
+
+`check-native-command-context.py EXE [--record]` executes 8,400 complete original
+priority calls without hooks, with isolated bits, interacting flags and single/mixed
+classes. `check-native-command-cells.py EXE [--record]` composes native `00403a00`
+footprint registration with complete `00437010` hover classification/priority in
+3,888 cases: four rotations, both owners, wrapped/unwrapped anchors and all three
+opening classes. Only texture refresh is intercepted. Native shape traversal,
+shade, footprint challenge queries, context and priority execute. The bridge then
+compares live registered cells and chosen commands; move eligibility/execution is
+outside that comparison. Portable fixtures retain 472 priority and 648 cell cases.
+
+`live-command.ts` integrates ordinary person/building/head decisions. Ground uses
+the registered cell's building ID; nearby enemies require the same coarse cell.
+Ordinary head cells and vault shapes replace the old three-unit circle. Picked
+objects retain explicit identity, including friendly-person terrain fallthrough.
+The registered cell owner decides invalid synthetic overlapping buildings, not
+array proximity; the previous overlap test now asserts that owner explicitly.
+The order adapter filters members with original descriptor masks. Its existing
+native marching/building/worship and partial attack controllers retain execution.
+
+The live adapter does not yet classify all tree/vehicle/forced/spy/guard objects,
+contested/damaged building states, or the all-inside/manual branch. Full mixed-class
+cell-chain order and head eligibility are still incomplete. In particular, command
+19 uses the existing attack adapter; neither its complete area lifecycle nor full
+contextual command-buffer ownership is certified here. No complete checkpoint
+credit is claimed. Actual browser clicks beside a hut now move the follower group,
+while the hut face still orders entry; overlap, selection/HUD and drag checks remain.

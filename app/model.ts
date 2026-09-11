@@ -25,6 +25,7 @@ import {
   liveBuildingAttackTarget,
 } from './live-building-combat.ts'
 import { automaticMeleeTarget, nativePersonModel, nativePersonTribe } from './live-combat.ts'
+import { liveCommandContext } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import {
@@ -2956,39 +2957,18 @@ function atBuildingEntrance(w: World, p: Point, b: Building) {
 }
 export function command(w: World, p: Point & { id?: number }) {
   if (w.paused || w.status !== 'playing') return
-  // Object orders carry identity through 0x4380f0 -> 0x4aa8b0 -> 0x435780.
-  // ponytail: unpicked points still use legacy proximity; replace that branch
-  // with the full native terrain-cell classifier and contextual command choices.
-  const team = w.units.find(u => w.selected.includes(u.id))?.team ?? 'blue'
-  const pointedPerson = p.id === undefined ? undefined : w.units.find(u => u.id === p.id)
-  // Ordering through a friendly person uses the terrain context (0x437010).
-  const targetId = pointedPerson?.team === team ? undefined : p.id
-  const matches = (object: Point & { id: number }, radius: number) =>
-    targetId === undefined ? distance(object, p) < radius : object.id === targetId
-  const shrine = w.shrines.find(s => s.active && matches(s, 3)),
-    building = w.buildings.find(b => b.hp > 0 && matches(b, 3.1)),
-    person = w.units.find(
-      u =>
-        u.hp > 0 &&
-        matches(u, 1.5) &&
-        (targetId !== undefined ||
-          (u.team !== team && u.team !== 'wild' && u.inside === null && u.lift === 0))
-    )
-  if (
-    targetId !== undefined &&
-    !shrine &&
-    !building &&
-    !person &&
-    !w.trees.some(t => t.id === p.id && t.logs > 0)
-  )
-    return
-  const enemy =
-    (!shrine && !building && person && person.team !== team && person.team !== 'wild'
-      ? person
-      : undefined) ?? (building && building.team !== team ? building : undefined)
-  const friendly = building?.team === team ? building : undefined,
-    dismantling = !!((friendly?.admission?.activity ?? 0) & 0x8000)
   syncNativeTerrain(w)
+  syncLandscapeObjects(w)
+  const context = liveCommandContext(w, p)
+  if (!context) return
+  const { model } = context
+  const shrine = model === 27 || model === 33 ? context.shrine : undefined
+  const friendly = [6, 8, 10].includes(model) ? context.building : undefined
+  // ponytail: command 19 still enters the existing attack adapter; complete native
+  // area allocation/search/queue ownership must replace that lifecycle together.
+  const enemy =
+    model === 28 ? context.person : model === 19 ? (context.building ?? context.person) : undefined
+  const dismantling = model === 10
   const headOrder = shrine && shrine.kind !== 'vault' ? worshipOrder(w, shrine) : 0
   const moveOrder = !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, p)) : 0
   if (
@@ -3002,7 +2982,7 @@ export function command(w: World, p: Point & { id?: number }) {
     constructionFull = false
   if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
   for (const u of w.units.filter(u => canOrder(u) && w.selected.includes(u.id))) {
-    if (shrine && shrine.kind === 'vault' && u.kind !== 'shaman') continue
+    if (!(rules.personCommands[model].people & (1 << nativePersonModel(u)))) continue
     if (
       friendly &&
       (friendly.progress < 1 || !['hut', 'camp', 'tower'].includes(friendly.kind)) &&
@@ -3028,7 +3008,7 @@ export function command(w: World, p: Point & { id?: number }) {
         : enemy && 'progress' in enemy
           ? entrance(w, enemy)
           : (enemy ?? p)
-    const path = planRoute(w, u, goal)
+    const path = planLivePath(w, u, goal)
     if (!path) continue
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
     release(w, u)
