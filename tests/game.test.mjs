@@ -472,7 +472,7 @@ test('original campaign setup disables only enemy reincarnation and retains defe
  assert.throws(()=>runScript({...originalScript,codes:[12,1003,1006,65535,1004,1019]},scriptState(originalScript),host),/Unknown game command/);
  const w=createWorld();assert.equal(w.ai.reincarnation,false);assert.equal(w.ai.attributes[32],128);assert.equal(w.ai.attributes[33],1);assert.equal(w.ai.attributes[18],45);
  assert.ok(w.ai.states&1,'native construction state enabled');assert.equal(w.ai.states&(1<<2),0,'native wild conversion state disabled');
- assert.deepEqual(w.ai.pendingCommands.map(c=>c.opcode),[1117,1092]);assert.ok(w.ai.flags&0x400);assert.ok(w.manaWorld.gameFlags&0x40);
+ assert.deepEqual(w.ai.pendingCommands,[]);assert.ok(w.ai.flags&0x400);assert.ok(w.manaWorld.gameFlags&0x40);
  assert.ok(!w.ai.pendingCommands.some(c=>c.opcode===1112));assert.equal(w.inputMask,128);assert.ok(w.manaWorld.levelFlags&0x20000000);
  const gated=createWorld();gated.inputMask=132;gated.manaWorld.levelFlags=0x21000000;campaignCommand(gated,1112,[]);campaignCommand(gated,1113,[]);assert.equal(gated.inputMask,132);assert.equal(gated.manaWorld.levelFlags,0x21000000);
  const modes=createWorld();modes.ai.flags=0xa5;modes.manaWorld.gameFlags=0x1c1;campaignCommand(modes,1109,[]);campaignCommand(modes,1204,[1022]);assert.equal(modes.ai.flags,0x4a5);assert.equal(modes.manaWorld.gameFlags,0x181);campaignCommand(modes,1204,[1023]);assert.equal(modes.manaWorld.gameFlags,0x1c1);
@@ -487,13 +487,23 @@ test('campaign marker setup snapshots native entry state before live execution',
   {marker:0,secondary:-1,quotas:[0,1,0,0]},
   {marker:7,secondary:-1,quotas:[0,1,0,0]},
   {marker:1,secondary:-1,quotas:[1,0,0,0]},
- ]);assert.deepEqual(w.ai.pendingCommands.map(c=>c.opcode),[1117,1092]);
+ ]);assert.deepEqual(w.ai.pendingCommands,[]);
  const raw={...originalScript,fields:[[1,3],[0,0],[0,257],[0,511],[0,-3],[0,101],[0,44],[0,100]]};w.ai.variables[3]=77;
  campaignCommand(w,1081,[0],raw);campaignCommand(w,1091,[1,2,3,4,5,6,7],raw);
  assert.equal(w.ai.markerValue,3,'1081 stores the raw field payload');assert.deepEqual(w.ai.markerEntries[0],{marker:1,secondary:-1,quotas:[0,100,44,100]});
- campaignCommand(w,1117,[]);campaignCommand(w,1092,w.ai.pendingCommands[1].args);
  const task=w.ai.tasks[0];assert.equal(w.ai.flags&0x800,0);assert.deepEqual({flags:task.flags,type:task.type,phase:task.phase,target:task.target,mode:task.mode,extra:task.extra,route:task.route},{flags:1,type:24,phase:0,target:-1,mode:0,extra:1,route:[{marker:1,secondary:-1,quotas:[1,0,0,0]},{marker:-1,secondary:0,quotas:[0,0,0,0]},{marker:-1,secondary:0,quotas:[0,0,0,0]},{marker:-1,secondary:0,quotas:[0,0,0,0]}]});
- const full=createWorld();full.ai.tasks.forEach(t=>t.flags=1);campaignCommand(full,1117,[]);campaignCommand(full,1092,full.ai.pendingCommands[1].args);assert.equal(full.ai.flags&0x800,0,'1092 consumes the one-shot flag when allocation fails');
+ const full=createWorld();full.ai.tasks.forEach(t=>t.flags=1);campaignCommand(full,1117,[]);campaignCommand(full,1092,[24,49,49,49]);assert.equal(full.ai.flags&0x800,0,'1092 consumes the one-shot flag when allocation fails');
+});
+
+test('mission marker task sends one reserved brave to marker one',async()=>{
+ const {currentPersonOrder,writePersonOrder}=await import('../app/person-orders.ts'),{createLivePerson}=await import('../app/live-people.ts'),{computerMarkerOrderCount}=await import('../app/model.ts');
+ const counted=createWorld(),routeUnit=counted.units.find(u=>u.team==='red'&&u.kind==='warrior'),route=createLivePerson(counted,routeUnit),routeOrder=counted.buildingOrders.records[799];
+ routeUnit.native=route;route.commands[0]=799;route.commandStatus=11;routeOrder.references=1;writePersonOrder(routeOrder,11,0,level.markers[1],0);assert.equal(computerMarkerOrderCount(counted,1,1,-1),1);
+ const w=createWorld(),task=w.ai.tasks[0];
+ until(w,()=>w.units.some(u=>u.team==='red'&&u.native?.computerAssignment===99&&currentPersonOrder(w.buildingOrders,u.native)?.model===3),2);
+ const assigned=w.units.filter(u=>u.team==='red'&&u.native?.computerAssignment===99),order=currentPersonOrder(w.buildingOrders,assigned[0].native);
+ assert.equal(assigned.length,1);assert.equal(assigned[0].kind,'brave');assert.deepEqual({model:order.model,a:order.a,b:order.b},{model:3,a:0xfe80,b:0xfa80});assert.equal(w.ai.commandDelay,20);
+ until(w,()=>!(task.flags&1),1);assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
 });
 
 
@@ -834,7 +844,8 @@ test('mission-one Dakini launches its native mixed attack route when Blue enters
  const {joinBattle}=await import('../app/model.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
  const {requestAttack}=await import('../app/computer.ts');
- const w=createWorld(),marker=nativeCellPoint(level.markers[3]),staging=(level.markers[3]&0xff00)|((level.markers[3]+12)&255);
+ const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
+ const marker=nativeCellPoint(level.markers[3]),staging=(level.markers[3]&0xff00)|((level.markers[3]+12)&255);
  addUnit(w,'blue','warrior',{x:marker.x,z:marker.z+12});
  const redStart=nativeCellPoint(staging);addUnit(w,'red','warrior',redStart);
  for(const unit of w.units.filter(u=>u.team==='red'&&u.kind!=='shaman'))Object.assign(unit,redStart);
@@ -843,7 +854,7 @@ test('mission-one Dakini launches its native mixed attack route when Blue enters
  assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,quotas:w.ai.attributes.slice(11,17)});
  assert.equal(w.ai.variables[8],1);assert.equal(w.ai.variables[2],1);
  until(w,()=>task.members.length===3,2);
- assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind).sort(),['brave','brave','warrior']);
+ assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind).sort(),['brave','warrior','warrior']);
  const phases=[];let radiusDistance=0;until(w,()=>{if(phases.at(-1)!==task.phase)phases.push(task.phase);if(task.phase!==11)return false;radiusDistance=Math.min(...task.members.map(id=>{const u=w.units.find(unit=>unit.id===id);return Math.hypot(u.x-marker.x,u.z-marker.z);}));return true;},20);
  const attacker=w.units.find(u=>u.id===task.members[0]),owner=attacker.native,target=addUnit(w,'blue','warrior',attacker);target.hp=10;joinBattle(w,attacker,target);
  assert.equal(attacker.native,null);assert.equal(attacker.fight.motion,owner);
@@ -886,13 +897,13 @@ test('computer attack pool exhaustion skips hostile dispatch and retires through
  const {currentPersonOrder}=await import('../app/person-orders.ts');
  const w=createWorld(),members=w.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
  requestAttack(w.ai,level.markers[3],3,3,999,[100,0,0,0,0,0],true,1);
- const task=w.ai.tasks[0];task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=0;
+ const task=w.ai.tasks.find(t=>t.type===20);task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=w.ai.tasks.indexOf(task);
  for(let id=1;id<w.buildingOrders.records.length;id++)w.buildingOrders.records[id].references=1;
  w.buildingOrders.active=799;tick(w,1/12);
  assert.equal(task.phase,16);assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model!==19));
  until(w,()=>!(task.flags&1),10);assert.equal(task.retries,33);
  requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),true,1);
- assert.equal(task.flags&1,1,'the exhausted command pool does not leak the task slot');
+ assert.ok(w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the exhausted command pool does not leak a task slot');
 });
 
 test('queued training keeps its selection lock until issuing the order and frees its slot after arrival', async () => {
@@ -913,7 +924,8 @@ test('queued training keeps its selection lock until issuing the order and frees
 });
 
 test('mission-one red AI queues exact task 6 below one warrior and executes live training', () => {
- const w=createWorld(),selected=[...w.selected];
+ const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
+ const selected=[...w.selected];
  const camp=w.buildings.find(b=>b.team==='red'&&b.kind==='camp'&&b.progress===1);
  const warriors=w.units.filter(u=>u.team==='red'&&u.kind==='warrior'&&u.hp>0);
  assert.ok(camp);assert.equal(warriors.length,2);
@@ -942,12 +954,14 @@ test('mission-one red AI queues exact task 6 below one warrior and executes live
  assert.notEqual(warrior.id,brave.id);assert.equal(w.units.some(u=>u.id===brave.id),false);
  assert.equal(w.stats.trained,trained,'enemy training does not change player stats');assert.deepEqual(w.selected,selected);
 
- const blocked=createWorld(),blockedCamp=blocked.buildings.find(b=>b.team==='red'&&b.kind==='camp');
+ const blocked=createWorld();until(blocked,()=>!blocked.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
+ const blockedCamp=blocked.buildings.find(b=>b.team==='red'&&b.kind==='camp');
+ const guard=blocked.units.find(u=>u.native?.computerAssignment===99);guard.hp=0;tick(blocked,1/12);
  blocked.units.filter(u=>u.team==='red'&&u.kind==='warrior').forEach(u=>{u.hp=0;});
  blocked.buildingOrders.records.forEach(order=>{order.references=1;});blocked.turn=255;tick(blocked,1/12);
  const blockedTask=blocked.ai.tasks.find(t=>t.flags&1&&t.type===6),blockedIndex=blocked.ai.tasks.indexOf(blockedTask);
- tick(blocked,1/12);tick(blocked,1/12);const blockedBrave=blocked.units.find(u=>u.id===blocked.ai.trainingSelections[blockedIndex][0]);
- tick(blocked,1/12);tick(blocked,1/12);
+ until(blocked,()=>blocked.ai.trainingSelections[blockedIndex].length>0,1);const blockedBrave=blocked.units.find(u=>u.id===blocked.ai.trainingSelections[blockedIndex][0]);
+ until(blocked,()=>!(blockedTask.flags&1),1);
  assert.equal(blockedTask.flags&1,0);assert.notEqual(blockedBrave.native.state,14);
  assert.equal(blockedBrave.native.selectionFlags&128,0);assert.equal(blockedBrave.work,null);
  assert.equal(blocked.units.some(u=>u.work===blockedCamp.id),false,'pool exhaustion cannot pretend training was issued');

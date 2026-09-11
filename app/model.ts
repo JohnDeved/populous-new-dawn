@@ -288,6 +288,7 @@ import {
   requestTraining,
   creditAttackTask,
   stepAttackTask,
+  stepMarkerTask,
   stepTrainingTask,
   type ComputerQueue,
   type TrainingBuilding,
@@ -1885,7 +1886,8 @@ export function createWorld(): World {
     }
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
-    if (![1038, 1081, 1091, 1095, 1108, 1109, 1112, 1196, 1204].includes(c.opcode)) return true
+    if (![1038, 1081, 1091, 1092, 1095, 1108, 1109, 1112, 1117, 1196, 1204].includes(c.opcode))
+      return true
     campaignCommand(w, c.opcode, c.args)
     return false
   })
@@ -2049,6 +2051,7 @@ function computerSelectionWorld(w: World, tribe: number) {
       flags4: source?.flags4 ?? 0,
       assignment: source?.assignment ?? 0,
       busy:
+        source?.computerAssignment ||
         source?.workFlags ||
         Number(!!u.fight || u.fighting || !!u.casting || u.work !== null || !!u.lift),
       vehicle: source?.vehicle ?? 0,
@@ -2180,10 +2183,96 @@ function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
   )
 }
 
+export function computerMarkerOrderCount(
+  w: World,
+  tribe: number,
+  marker: number,
+  secondary: number
+) {
+  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null,
+    primary = level.markers[marker],
+    alternate = secondary === -1 ? -1 : level.markers[secondary],
+    matches = (a: number, b: number) => b !== -1 && (a & 0xfefe) === (b & 0xfefe)
+  if (primary === undefined || (secondary !== -1 && alternate === undefined))
+    throw new RangeError('Invalid computer marker route')
+  let count = 0
+  for (const u of w.units) {
+    if (u.team !== team || u.hp <= 0) continue
+    const p = unitAnimationSource(u) ?? u.native
+    if (!p || ![10, 33].includes(p.state)) continue
+    const active = currentPersonOrder(w.buildingOrders, p)
+    if (!active || active.flags & 1 || ![11, 25].includes(active.model)) continue
+    const id = p.commands[p.commandCursor],
+      queued = id ? w.buildingOrders.records[id] : undefined,
+      flags = queued ? (rules.personCommands[queued.model]?.flags ?? 0) : 0
+    if (!queued) continue
+    const position = flags & 0x800 ? queued.a : ((queued.a >>> 8) & 254) | (queued.b & 0xfe00)
+    if (
+      flags & 0x800
+        ? matches(position, primary)
+        : flags & 1 && (matches(position, primary) || matches(position, alternate))
+    )
+      count++
+  }
+  return count
+}
+
 function stepComputerTasks(w: World, tribe: number) {
   if (computerPhase(w.turn, tribe) !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
     const task = w.ai.tasks[index]
+    if (task.type === 24) {
+      let selection: ReturnType<typeof computerSelectionWorld> | undefined
+      const actions = stepMarkerTask(w.ai, index, {
+        existing: (marker, secondary) => computerMarkerOrderCount(w, tribe, marker, secondary),
+        select: (model, count, marker) => {
+          const current = (selection ??= computerSelectionWorld(w, tribe)),
+            ids = selectComputerPeople(
+              current.world,
+              model,
+              model,
+              -1,
+              1,
+              level.markers[marker],
+              64,
+              count
+            )
+          for (const id of ids) {
+            const source = current.sources.get(id)
+            if (source) source.flags3 = current.world.units.get(id)!.flags3
+          }
+          return ids
+        },
+      })
+      for (const action of actions) {
+        if (action.kind === 'select') {
+          const u = w.units.find(u => u.id === action.id)
+          if (!u || u.inside !== null || u.entry || u.work !== null)
+            throw new Error('Unsupported computer marker selection')
+          u.native ??= createLivePerson(w, u)
+          u.native.computerAssignment = 99
+          registerLivePerson(w, u.native)
+          changeLivePersonState(w, u, 14)
+        } else if (action.kind === 'order') {
+          const marker = level.markers[action.marker],
+            cell = ((marker & 0xfe00) >>> 9) * 128 + ((marker & 254) >>> 1),
+            target = w.land.buildingIds[cell] & 1023,
+            order = emptyPersonOrder(),
+            units = action.ids.flatMap(id => {
+              const u = w.units.find(u => u.id === id && u.hp > 0)
+              return u ? [u] : []
+            })
+          writePersonOrder(order, target ? 8 : 3, target, marker, 0)
+          if (units.length) appendLiveOrders(w, units, order, true)
+        } else {
+          for (const id of action.ids) {
+            const u = w.units.find(u => u.id === id)
+            if (u?.native?.state === 14) changeLivePersonState(w, u, 10)
+          }
+        }
+      }
+      return
+    }
     if (task.type === 20) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined
       const shaman = w.units.find(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0),

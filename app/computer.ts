@@ -89,6 +89,79 @@ export function requestMarkerTask(ai: ComputerQueue, entries: number[], special:
   })
 }
 
+export type MarkerInput = {
+  existing: (marker: number, secondary: number) => number
+  select: (model: number, count: number, marker: number) => number[]
+}
+export type MarkerAction =
+  | { kind: 'select'; id: number }
+  | { kind: 'order'; ids: number[]; marker: number }
+  | { kind: 'restore'; ids: number[] }
+
+// 0x4cedd0 special route. The non-special route emits different command chains.
+export function stepMarkerTask(ai: ComputerQueue, index: number, input: MarkerInput) {
+  const task = ai.tasks[index],
+    actions: MarkerAction[] = []
+  if (!task.extra) throw new Error('Unbound non-special computer marker task')
+  const route = task.route[task.mode]
+  if (task.phase === 0) {
+    task.selected = 0
+    task.remaining = 0
+    task.members.length = 0
+    task.phase = 2
+    let existing = input.existing(route.marker, route.secondary)
+    if (existing >= route.quotas.reduce((sum, n) => sum + n, 0)) {
+      task.phase = 6
+      return actions
+    }
+    for (let i = 0; i < 4 && existing; i++) {
+      const used = Math.min(existing, route.quotas[i])
+      route.quotas[i] -= used
+      existing -= used
+    }
+  }
+  if (task.phase === 2) {
+    if (acquireSelection(ai, index)) task.phase = 3
+    return actions
+  }
+  if (task.phase === 3) {
+    while (task.remaining < 4) {
+      const model = [2, 3, 6, 4][task.remaining],
+        count = route.quotas[task.remaining++]
+      if (!count) continue
+      const ids = input.select(model, count, route.marker)
+      task.members.push(...ids)
+      task.selected += ids.length
+      return ids.map(id => ({ kind: 'select' as const, id }))
+    }
+    if (!task.selected) task.phase = 6
+    else {
+      task.phase = 4
+      ai.commandDelay = 20
+    }
+    return actions
+  }
+  if (task.phase === 4) {
+    task.phase = 5
+    return actions
+  }
+  if (task.phase === 5) {
+    const ids = [...task.members]
+    actions.push({ kind: 'order', ids, marker: route.marker }, { kind: 'restore', ids })
+    task.members.length = 0
+    releaseSelection(ai, index)
+    task.phase = 6
+    return actions
+  }
+  if (task.phase === 6) {
+    releaseSelection(ai, index)
+    task.mode++
+    if (task.mode >= 4 || task.route[task.mode].marker === -1) task.flags &= ~3
+    else task.phase = 0
+  }
+  return actions
+}
+
 // 0x4615f0: script execution precedes this choice. These two maintenance turns
 // do not advance the task cursor, even when maintenance has nothing to do.
 export function computerPhase(turn: number, tribe: number) {

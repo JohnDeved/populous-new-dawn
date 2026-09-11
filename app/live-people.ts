@@ -126,6 +126,7 @@ export type LivePerson = StatefulPerson &
     damageAttacker: number
     burnTrail: number
     marchCooldown: number
+    computerAssignment: number
   }
 const short = (n: number) => (n << 16) >> 16
 // Bootstrap the existing browser follower at the handoff to native controllers.
@@ -218,6 +219,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     damageAttacker: 255,
     burnTrail: u.burnTrail ?? 0,
     marchCooldown: 0,
+    computerAssignment: 0,
   }
 }
 
