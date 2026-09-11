@@ -892,6 +892,36 @@ test('mission-one Dakini launches its native mixed attack route when Blue enters
  assert.equal(task.flags&1,1,'phase 23 releases the same queue slot for the next wave');
 });
 
+test('mission-one Dakini launches its later building attack when Blue overwhelms it',async()=>{
+ const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const script={fields:[[2,1],[2,1223],[0,999],[2,1224],[0,0],[0,-1]]},args=[1118,0,1071,1,2,3,3,3,1078,4,5,5,4];
+ const packed=p=>((p.x>>>8)&254)|(p.y&0xfe00);
+ const direct=createWorld(),blueBuildings=direct.buildings.filter(b=>b.team==='blue');direct.randomState=2;
+ campaignCommand(direct,1059,args,script);
+ let task=direct.ai.tasks.find(t=>t.flags&1&&t.type===20);
+ assert.equal(task.target,packed(buildingPosition(buildingPose(blueBuildings[1]))));
+ assert.equal(direct.randomState,1896349699,'building selection consumes one native draw');
+ const fallback=createWorld();fallback.buildings=[];fallback.randomState=2;
+ const bluePeople=fallback.units.filter(u=>u.team==='blue'&&u.hp>0),person=bluePeople[1896349699%bluePeople.length];
+ campaignCommand(fallback,1059,args,script);task=fallback.ai.tasks.find(t=>t.flags&1&&t.type===20);
+ assert.equal(task.target,packed(nativePosition(fallback,person)),'an empty building list falls back to allocation-ordered people');
+ assert.equal(fallback.randomState,1896349699,'person-only fallback consumes one native draw');
+
+ const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);w.units=[];
+ const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+4,z:target.z};
+ addUnit(w,'red','shaman',near);for(let i=0;i<3;i++)addUnit(w,'red','brave',near);
+ addUnit(w,'blue','shaman',ENEMY);for(let i=0;i<8;i++)addUnit(w,'blue','brave',ENEMY);
+ w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);
+ task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
+ assert.deepEqual([11,12,13,16,17,19].map(i=>w.ai.attributes[i]),[100,100,0,0,0,1]);
+ assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,marker:task.mode,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),requested:4,marker:0,quotas:w.ai.attributes.slice(11,17)});
+ assert.equal(w.ai.variables[3],1,'the original one-shot attack latch closes');
+ until(w,()=>task.members.length===3,2);
+ until(w,()=>task.members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),30);
+ task.flags=0;task.members=[];w.turn=337;tick(w,1/12);
+ assert.ok(!w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the latched script does not launch another attack');
+});
+
 test('computer attack exhausts 33 empty native scans before regrouping and retiring',async()=>{
  const {createComputerQueue,requestAttack,stepAttackTask}=await import('../app/computer.ts');
  const ai=createComputerQueue();requestAttack(ai,0xfa06,3,1,999,[100,0,0,0,0,0],true,1);

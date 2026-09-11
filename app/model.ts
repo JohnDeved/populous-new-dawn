@@ -1965,6 +1965,7 @@ export function campaignInternal(w: World, id: number) {
   if (id >= 1184 && id <= 1199) return id - 1183
   if (id === 1243) return 19
   if (id === 1244) return 17
+  if (id === 1223) return 0 // 0x48f350: no-specific-building selector.
   if (id === 1200) return 18 // INT_M_KNOWLEDGE, preceding the person constants.
   if (id >= 1201 && id <= 1206) return id - 1199
   throw new Error(`Unbound campaign internal ${id}`)
@@ -2020,6 +2021,25 @@ export function campaignBuildingCount(
       buildingModel(b) === model
   ).length
   return short(count)
+}
+
+// 0x4f6100 / 0x4f6180: sample native allocation order, buildings first.
+function campaignAttackTarget(w: World, tribe: number) {
+  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null
+  if (!team) return null
+  const buildings = w.buildings.filter(b => b.team === team && b.hp > 0)
+  if (buildings.length) {
+    for (let i = random(w) % buildings.length; i >= 0; i--) {
+      const building = buildings[i]
+      if (buildingModel(building) === 10) continue
+      const p = buildingPosition(buildingPose(building))
+      return ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+    }
+  }
+  const people = w.units.filter(u => u.team === team && u.hp > 0)
+  if (!people.length) return null
+  const p = nativePosition(w, people[random(w) % people.length])
+  return ((p.x >>> 8) & 254) | (p.y & 0xfe00)
 }
 
 // 0x48cc60 / 0x4fbf40: marker coordinates select a coarse cell, not a radius.
@@ -2508,28 +2528,34 @@ export function campaignCommand(
   }
 
   if (opcode === 1059) {
-    const none = (index: number) => {
+    const field = (index: number, type: number, value: number) => {
         const field = script.fields[args[index]]
-        return field?.[0] === 2 && field[1] === 1224
+        return field?.[0] === type && field[1] === value
       },
+      none = (index: number) => field(index, 2, 1224),
       requested = read(args[1]),
       marker = read(args[3]),
       damage = read(args[4]),
-      options = [9, 10, 11, 12].map(index => read(args[index]))
+      options = [9, 10, 11, 12].map(index => read(args[index])),
+      targetMode = args[2],
+      validTarget =
+        (targetMode === 1070 && requested === 3 && marker === 3) ||
+        (targetMode === 1071 && field(1, 2, 1) && field(3, 2, 1223) && marker === 0)
     if (
       args[0] !== 1118 ||
-      args[2] !== 1070 ||
       args[8] !== 1078 ||
       ![5, 6, 7].every(none) ||
-      requested !== 3 ||
-      marker !== 3 ||
+      !validTarget ||
       damage !== 999 ||
       options.some((value, index) => value !== [0, -1, -1, 0][index])
     )
       throw new Error('Unsupported computer attack')
+    const target = targetMode === 1070 ? level.markers[marker] : campaignAttackTarget(w, 0)
+    if (target === null) return
+    // ponytail: the live controller attacks this snapshot; add native entity reacquisition with phases 16/17.
     requestAttack(
       w.ai,
-      level.markers[marker],
+      target,
       marker,
       requested,
       damage,
@@ -2692,6 +2718,7 @@ const boundCampaignScript = {
     ...originalScript.codes.slice(382, 531),
     ...originalScript.codes.slice(564, 681),
     ...originalScript.codes.slice(681, 855),
+    ...originalScript.codes.slice(855, 925),
     ...originalScript.codes.slice(936, 1505),
     1004,
     1019,
