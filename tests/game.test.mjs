@@ -935,7 +935,8 @@ test('external game store publishes edits and restarts without sharing worlds be
 test('game store checkpoints restore an isolated exact world snapshot', async () => {
  const {createGameStore}=await import('../app/game-store.ts');
  const store=createGameStore(),saved=store.getWorld(),turn=saved.turn,height=saved.land.heights[0],hp=saved.units[0].hp;
- assert.equal(store.hasCheckpoint(),false);store.saveCheckpoint();assert.equal(store.hasCheckpoint(),true);
+ assert.equal(store.hasCheckpoint(),false);assert.equal(await store.restoreCheckpoint(),false);
+ assert.equal(await store.saveCheckpoint(),false);assert.equal(store.hasCheckpoint(),true);
  store.change(w=>{w.turn=99;w.land.heights[0]=height+1;w.units[0].hp=1;});
  assert.equal(store.loadCheckpoint(),true);const restored=store.getWorld();
  assert.notEqual(restored,saved);assert.equal(restored.turn,turn);assert.equal(restored.land.heights[0],height);

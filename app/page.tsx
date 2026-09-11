@@ -49,6 +49,10 @@ export default function Home() {
   const [musicVolume, setMusicVolume] = useState(0.65)
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
+  const [checkpointNotice, setCheckpointNotice] = useState('')
+  useEffect(() => {
+    void store.restoreCheckpoint()
+  }, [store])
   useEffect(() => {
     try {
       const saved = localStorage.getItem('hud-size')
@@ -259,6 +263,13 @@ export default function Home() {
     setError('')
     store.loadCheckpoint()
     setTab('spells')
+  }
+  async function saveCheckpoint() {
+    setCheckpointNotice(
+      (await store.saveCheckpoint())
+        ? ''
+        : 'Checkpoint saved for this session only; browser storage is unavailable.'
+    )
   }
   const blue = world.units.filter(u => u.team === 'blue'),
     red = world.units.filter(u => u.team === 'red')
@@ -711,7 +722,7 @@ export default function Home() {
           <button className="primary-button" onClick={() => setMenu(false)}>
             Return to the world <span>↗</span>
           </button>
-          <button className="secondary-button" onClick={store.saveCheckpoint}>
+          <button className="secondary-button" onClick={() => void saveCheckpoint()}>
             Save checkpoint
           </button>
           <button
@@ -725,6 +736,7 @@ export default function Home() {
             Restart world
           </button>
         </div>
+        {checkpointNotice && <p role="status">{checkpointNotice}</p>}
         <details className="menu-objectives">
           <summary>Objectives · {objectives.filter(o => o.done).length} / 3</summary>
           <ul>
