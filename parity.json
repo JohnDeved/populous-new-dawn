@@ -1763,9 +1763,13 @@
                 "scripts/check-native-order-update.py",
                 "scripts/check-native-person-state.py",
                 "scripts/bench-ground-waypoints.mjs",
-                "references/performance/2026-09-11-ground-waypoints.json"
+                "references/performance/2026-09-11-ground-waypoints.json",
+                "scripts/check-native-move-eligibility.py",
+                "tests/fixtures/command-feedback.json",
+                "scripts/check-browser-order-marker.mjs",
+                "references/performance/2026-09-11-command-feedback.json"
               ],
-              "note": "Bounded Ctrl-started ground sequences for ordinary on-foot braves, warriors and shamans: shared append, immediate motion, original flags/slot limit/deselection and configure/recovery at arrival. Compared 2048 native append calls, 64 packet/cursor cases, actual desktop/ultrawide mouse input and 5\u2013240 Hz/irregular live turns. Full mixed commands, all settings/selection changes, frontend preview/focus/voice and dispatcher timing remain lifecycle scope."
+              "note": "Bounded Ctrl-started ground sequences for ordinary on-foot braves, warriors and shamans: shared append, immediate motion, original flags/slot limit/deselection and configure/recovery at arrival. Compared 2048 native append calls, 64 packet/cursor cases, actual desktop/ultrawide mouse input and 5\u2013240 Hz/irregular live turns. Full mixed commands, all settings/selection changes, frontend preview/focus/voice and dispatcher timing remain lifecycle scope. Accepted ground clicks now emit original model-61 feedback at coarse terrain-cell centers and UI cue 106, including allocation failure. Native gating/target branches and live desktop/ultrawide pixels, rejection and pool exhaustion are checked. Pointed-object highlights and staged waypoint preview metadata remain open."
             },
             {
               "id": "simulation.orders.lifecycle",

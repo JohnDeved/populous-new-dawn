@@ -78,3 +78,9 @@ export function moveCommandAllowed(
   const collision = restingCellCollision(cell, walkMask, point, !strict)
   return collision === 0 || (!strict && collision === 4 && !!(tribeFlags & 64))
 }
+
+// 0x4aa8b0: ground feedback uses the coarse terrain-cell center. Pointed
+// objects use their own highlight; they must not also emit a ground flash.
+export function commandMarkerPoint(point: { x: number; y: number }, target = 0) {
+  return target ? null : { x: (point.x & 0xfe00) + 256, y: (point.y & 0xfe00) + 256 }
+}

@@ -1,0 +1,282 @@
+[
+  {
+    "point": {
+      "x": 128,
+      "y": 128
+    },
+    "target": 0,
+    "expected": {
+      "x": 256,
+      "y": 256
+    }
+  },
+  {
+    "point": {
+      "x": 128,
+      "y": 128
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 128,
+      "y": 128
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 128,
+      "y": 128
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 128
+    },
+    "target": 0,
+    "expected": {
+      "x": 256,
+      "y": 256
+    }
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 128
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 128
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 128
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 384
+    },
+    "target": 0,
+    "expected": {
+      "x": 256,
+      "y": 256
+    }
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 384
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 384
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 384,
+      "y": 384
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 43904,
+      "y": 8320
+    },
+    "target": 0,
+    "expected": {
+      "x": 43776,
+      "y": 8448
+    }
+  },
+  {
+    "point": {
+      "x": 43904,
+      "y": 8320
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 43904,
+      "y": 8320
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 43904,
+      "y": 8320
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 8320,
+      "y": 43904
+    },
+    "target": 0,
+    "expected": {
+      "x": 8448,
+      "y": 43776
+    }
+  },
+  {
+    "point": {
+      "x": 8320,
+      "y": 43904
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 8320,
+      "y": 43904
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 8320,
+      "y": 43904
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 32896,
+      "y": 32640
+    },
+    "target": 0,
+    "expected": {
+      "x": 33024,
+      "y": 32512
+    }
+  },
+  {
+    "point": {
+      "x": 32896,
+      "y": 32640
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 32896,
+      "y": 32640
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 32896,
+      "y": 32640
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65152
+    },
+    "target": 0,
+    "expected": {
+      "x": 65280,
+      "y": 65280
+    }
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65152
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65152
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65152
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65408
+    },
+    "target": 0,
+    "expected": {
+      "x": 65280,
+      "y": 65280
+    }
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65408
+    },
+    "target": 42,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65408
+    },
+    "target": 99,
+    "expected": null
+  },
+  {
+    "point": {
+      "x": 65408,
+      "y": 65408
+    },
+    "target": 42,
+    "expected": null
+  }
+]

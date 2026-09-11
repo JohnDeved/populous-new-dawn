@@ -8104,3 +8104,39 @@ new behavior, not equivalent before/after speedups or hardware browser FPS claim
 Fallow reports maintainability 85.5; the touched live movement adapter passes
 ox-standard. Preexisting person-order type-style diagnostics remain outside this
 bounded change.
+
+## Ground command feedback wiring (2026-09-11)
+
+`004aa8b0` emits the model-61 flash for accepted input when neither pointed-object
+slot is populated. It centers the packed click on a 512-unit terrain cell, uses
+secondary class-7 allocation, lowers the effect by 160 native height units and
+sets four processor visits. UI cue 106 is emitted even if marker allocation fails;
+rejected input skips the packet, marker and cue. Object slot 1 takes precedence
+over slot 2 and suppresses the ground flash. Pointed-object highlighting and its
+five-visit frontend target expiry remain separate, unfinished rendering work.
+
+The scene's accepted-order branch now calls the already implemented original
+marker effect and UI cue. It does so for ordinary and Ctrl ground clicks, including
+accepted input whose later order allocation fails. No effect is created for
+pointed objects, selection clicks or rejected movement. `commandMarkerPoint` keeps
+native coarse-cell rounding in one readable helper; order-icon focus retains its
+original unrounded point behavior. Existing voice acknowledgement follows the UI
+cue. This does not claim complete native voice arbitration or command buffering.
+
+`check-native-move-eligibility.py` executes 5,120 full eligibility/input calls and
+32 additional complete input-controller marker/target cases. Allocation is a
+supplied failing leaf, so the latter also proves unconditional accepted-input cue
+behavior. Native frames, attachment and four-turn lifecycle retain their earlier
+marker fixture coverage. Actual desktop/ultrawide input checks verify visible
+original GPU pixels, rejected-water silence, and a flash/cue while the order pool
+is exhausted. All 334 portable tests pass. Existing marker rendering checks cover
+ordinary/ultrawide/2x DPI, pause and four-turn disposal.
+
+Modern implementation reuses the existing HFX atlas, effect clock, geometry and
+renderer: no new textures, passes, animation timers or dependency. Paired
+marker-hidden/visible rendering adds one draw call and two triangles while
+retaining 11 resident textures; the ordinary desktop check measures 119 changed
+pixels. `references/performance/2026-09-11-command-feedback.json` records all three
+views. These headless GPU counters demonstrate the actual bounded rendering cost;
+they are not hardware FPS or equivalent before/after speedup claims. The touched
+command-context helper passes ox-standard.

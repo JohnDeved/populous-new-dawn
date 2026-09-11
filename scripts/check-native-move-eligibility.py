@@ -12,11 +12,12 @@ cpu,identity=native_cpu(Path(sys.argv[1]));cpu.mem_map(0x2000000,0x10000)
 write=lambda a,f,*v:cpu.mem_write(a,struct.pack('<'+f,*v))
 read=lambda a,f:struct.unpack('<'+f,cpu.mem_read(a,struct.calcsize('<'+f)))[0]
 stack,stop,walk=0x200d000,0x200e000,0x2000000
-write(0x96aa74,'I',walk);events=[]
+write(0x96aa74,'I',walk);events=[];markers=[]
 def consumer(c,a,size,user):
  sp=c.reg_read(UC_X86_REG_ESP)
  if a==0x479cf0:events.append('command')
- elif a==0x4edbd0:events.append('marker')
+ elif a==0x4edbd0:
+  events.append('marker');markers.append(dict(zip(['x','y'],struct.unpack('<HH',c.mem_read(read(sp+16,'I'),4)))))
  elif a==0x48a050:events.append('cue')
  c.reg_write(UC_X86_REG_EAX,0);c.reg_write(UC_X86_REG_EIP,read(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+4)
 for a in [0x479cf0,0x4edbd0,0x48a050,0x47a550]:cpu.hook_add(UC_HOOK_CODE,consumer,begin=a,end=a)
@@ -49,3 +50,23 @@ for c,a in zip(cases,json.loads(r.stdout)):assert a==c['enabled'],(c,a)
 print(f'PASS: {len(cases)} full native move eligibility/input calls, categories, quarter masks, coarse-cell boundaries and transport/strict-land flags; rejected inputs have no command, marker or cue')
 if '--record' in sys.argv:
  (ROOT/'tests/fixtures/move-eligibility.json').write_text(json.dumps(dict(executableSha256=identity['sha256'],cases=cases[::5]),separators=(',',':'))+'\n')
+
+# Original accepted-input target priority and coarse-cell marker positions.
+feedback=[]
+for point in [0,1,0x101,0x20ab,0xab20,0x7f80,0xfeff,0xffff]:
+ for primary,secondary in [(0,0),(42,0),(0,99),(42,99)]:
+  write(0x895e9b,'B',1);write(0x895ea0,'B',3);write(0x895e9d,'B',0)
+  write(0x89d1c8+0x8c0,'B',0);write(0x87caba,'I',point)
+  write(0x87cac2,'H',primary);write(0x87cace,'H',secondary)
+  markers.clear();events.clear();call(0x4aa8b0,0,1,0)
+  assert read(0x89bc20,'H')==(primary or secondary)
+  assert read(0x89bc1e,'h')==5
+  assert events==(['command','cue'] if primary or secondary else ['command','marker','cue'])
+  feedback.append(dict(point=dict(x=(point&255)*256+128,y=(point>>8)*256+128),target=primary or secondary,expected=markers[0] if markers else None))
+js="""import {commandMarkerPoint} from './app/command-context.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>commandMarkerPoint(c.point,c.target))));"""
+actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps(feedback).encode(),cwd=ROOT))
+assert actual==[c['expected'] for c in feedback]
+if '--record' in sys.argv:
+ (ROOT/'tests/fixtures/command-feedback.json').write_text(json.dumps(feedback,indent=2)+'\n')
+print('PASS: 32 complete native accepted-input marker/target branches, coarse-cell centers, wrapped coordinates and cue despite failed marker allocation')

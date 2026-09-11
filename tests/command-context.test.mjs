@@ -2,7 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import priorities from './fixtures/command-context.json' with {type:'json'}
 import cells from './fixtures/command-cells.json' with {type:'json'}
-import {chooseContextCommand} from '../app/command-context.ts'
+import feedback from './fixtures/command-feedback.json' with {type:'json'}
+import {chooseContextCommand,commandMarkerPoint} from '../app/command-context.ts'
 import {liveCommandContext} from '../app/live-command.ts'
 import {createWorld,addBuilding,addUnit,browserPosition,syncLandscapeObjects,command,distance} from '../app/model.ts'
 import {buildingFootprintCells} from '../app/building-shapes.ts'
@@ -40,4 +41,8 @@ test('ground beside a hut moves the group, while its occupied cell enters it',()
  const cell=buildingFootprintCells(buildingPose(b))[0]
  const inside=browserPosition({x:(cell%128)*512+256,y:Math.floor(cell/128)*512+256})
  command(w,inside);assert.equal(u.work,b.id)
+})
+
+test('input feedback matches native ground-cell centers and suppresses flashes over pointed objects',()=>{
+ for(const c of feedback)assert.deepEqual(commandMarkerPoint(c.point,c.target),c.expected)
 })

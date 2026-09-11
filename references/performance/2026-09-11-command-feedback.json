@@ -1,0 +1,86 @@
+{
+  "views": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "deviceScaleFactor": 1,
+      "pixels": 119,
+      "rendering": {
+        "without": {
+          "calls": 22,
+          "triangles": 8042,
+          "textures": 11
+        },
+        "withMarker": {
+          "calls": 23,
+          "triangles": 8044,
+          "textures": 11
+        },
+        "sprites": 1
+      },
+      "paused": true,
+      "alive": [
+        true,
+        true,
+        true,
+        false
+      ],
+      "removed": true
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "deviceScaleFactor": 1,
+      "pixels": 119,
+      "rendering": {
+        "without": {
+          "calls": 22,
+          "triangles": 16142,
+          "textures": 11
+        },
+        "withMarker": {
+          "calls": 23,
+          "triangles": 16144,
+          "textures": 11
+        },
+        "sprites": 1
+      },
+      "paused": true,
+      "alive": [
+        true,
+        true,
+        true,
+        false
+      ],
+      "removed": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 2,
+      "pixels": 398,
+      "rendering": {
+        "without": {
+          "calls": 22,
+          "triangles": 10142,
+          "textures": 11
+        },
+        "withMarker": {
+          "calls": 23,
+          "triangles": 10144,
+          "textures": 11
+        },
+        "sprites": 1
+      },
+      "paused": true,
+      "alive": [
+        true,
+        true,
+        true,
+        false
+      ],
+      "removed": true
+    }
+  ],
+  "scope": "Existing original order-marker renderer reused by accepted ground input. Headless Chromium desktop/ultrawide/2x DPI; paired marker-hidden/visible draw counts, triangles and resident textures. No hardware FPS claim. Ground-input pixels, rejection and order-pool exhaustion are separately checked by check-browser-ground-waypoints.mjs."
+}

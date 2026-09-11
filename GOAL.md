@@ -1783,3 +1783,12 @@ attack command ownership and original waypoint feedback, including selection
 changes, specialized classes, settings and turn buffering. Non-ground commands
 still use their previous adapters; this bounded ground delivery does not complete
 player commands or global engine parity. Keep the existing full-game goal active.
+
+### Accepted ground-click feedback — 2026-09-11
+
+Ground commands now emit the original cell-centered destination flash and UI cue,
+including accepted input whose order allocation later fails. Rejected clicks stay
+silent. Native input/target comparisons and actual desktop/ultrawide pixels,
+rejection and exhaustion checks pass; the existing four-turn effect adds one quad
+and no texture allocation. Continue pointed-object feedback, staged waypoint
+previews and complete mixed command handoffs; full parity remains unfinished.

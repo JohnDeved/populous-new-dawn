@@ -1,3 +1,4 @@
+import { commandMarkerPoint } from './command-context.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { ObjectPanels } from './object-panels.ts'
@@ -74,6 +75,7 @@ import {
   buildingHp,
   cast,
   command,
+  effect,
   cancelInteraction,
   selectUnit,
   selectArea,
@@ -1478,7 +1480,12 @@ export class GameScene {
         selectUnit(this.world, clickedUnit.id, this.down.extend)
       } else if (this.world.selected.length) {
         const selected = this.world.selected.slice()
-        if (command(this.world, p, event)) this.orderSound(selected)
+        if (command(this.world, p, event)) {
+          const marker = commandMarkerPoint(nativePosition(this.world, p), picked?.id ?? 0)
+          if (marker) effect(this.world, 'orderMarker', browserPosition(marker))
+          this.onSound(0x6a)
+          this.orderSound(selected)
+        }
       }
     }
     this.onChange()
