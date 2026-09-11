@@ -158,7 +158,6 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
       const p = u.native ?? u.entry?.person ?? u.builder?.person ?? createLivePerson(w, u)
       if (!u.entry) u.native = p
       p.selectionFlags |= 128
-      if (replace) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
       registerLivePerson(w, p)
       return p
     }),
@@ -193,7 +192,8 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
         count = counts.reduce((a, b) => a + b, 0)
       },
       special: unsupported,
-    }
+    },
+    replace
   )
   for (const u of units) {
     const p = (u.native ?? u.entry?.person ?? u.builder?.person)!

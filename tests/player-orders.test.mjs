@@ -77,3 +77,35 @@ test('ground, building and forced-final worship modifiers and eighth-order desel
   for (const c of inputs)
     assert.deepEqual(playerOrderInput(c.model, c.slot, c.ctrl, c.shift, c.alt), c.expected)
 })
+
+test('replacement preserves prior orders when the shared pool is full', () => {
+  const c = structuredClone(captures[15].case),
+    before = structuredClone(c.people),
+    pool = {
+      records: Array.from({ length: 800 }, (_, i) => ({
+        ...emptyPersonOrder(),
+        references: i ? 1 : 0,
+      })),
+      cursor: 1,
+      active: 799,
+    }
+  assert.equal(
+    appendPersonOrders(
+      pool,
+      c.group[0],
+      c.people,
+      {
+        prepare() {},
+        stopWork() {},
+        releaseSpell() {},
+        deleteObject() {},
+        releaseFight() {},
+        acknowledge() {},
+        special: () => false,
+      },
+      true
+    ),
+    false
+  )
+  assert.deepEqual(c.people, before)
+})

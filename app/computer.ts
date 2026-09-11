@@ -13,6 +13,9 @@ export type ComputerTask = {
   mode: number
   fallback: number
   regroup: number
+  origin: number
+  damage: number
+  retries: number
   quotas: number[]
   members: number[]
 }
@@ -39,6 +42,9 @@ export function createComputerQueue(): ComputerQueue {
       mode: 0,
       fallback: 0,
       regroup: 0,
+      origin: 0,
+      damage: 0,
+      retries: 0,
       quotas: [],
       members: [],
     })),
@@ -122,6 +128,9 @@ export function requestAttack(
     mode: marker & 255,
     fallback: 0,
     regroup: 0,
+    origin: target & 65535,
+    damage: 0,
+    retries: 0,
     quotas: quotas.slice(0, 6).map(n => n & 255),
     members: [],
   })
@@ -160,13 +169,23 @@ export type AttackInput = {
   settled: () => boolean | null
   memberWithin: (target: number, radius: number) => number | null
   ready: () => boolean
+  activeMembers: () => number
+  targetsRemain: (target: number) => boolean
+  random: () => number
 }
 export type AttackAction =
   | { kind: 'select'; id: number }
-  | { kind: 'move'; target: number; replace: boolean }
+  | { kind: 'move' | 'attack'; target: number; replace: boolean }
 
-// Bounded ordinary type-20 route: 0x4cb400 phases 0-12 and 18. Automatic
-// hostile command 21 remains person-owned while phase-15 targeting is unported.
+export function creditAttackTask(ai: ComputerQueue, person: number, damage: number) {
+  const task = ai.tasks.find(
+    task => task.flags & 1 && task.type === 20 && task.phase === 16 && task.members.includes(person)
+  )
+  if (task) task.damage = (task.damage + damage) | 0
+}
+
+// Ordinary type-20 route in 0x4cb400. Person command 19 owns the actual fight;
+// this task only dispatches it, observes its native stop conditions and regroups.
 export function stepAttackTask(
   ai: ComputerQueue,
   index: number,
@@ -275,7 +294,38 @@ export function stepAttackTask(
     task.elapsed = 0
     return [{ kind: 'move', target: task.regroup, replace: false }]
   }
-  // ponytail: stop at phase 14; add phase 15 only with its target-controller evidence.
+  if (task.phase === 14) {
+    if (acquireSelection(ai, index)) task.phase = 15
+    return actions
+  }
+  if (task.phase === 15) {
+    releaseSelection(ai, index)
+    task.phase = 16
+    task.retries = 0
+    return [{ kind: 'attack', target: task.target, replace: true }]
+  }
+  if (task.phase === 16) {
+    if (!input.activeMembers()) {
+      task.phase = 23
+      return actions
+    }
+    if (task.damage < task.extra && input.targetsRemain(task.target)) return actions
+    if (task.damage < task.extra) {
+      const x = ((task.origin & 255) + (input.random() & 63) - 32) & 255,
+        y = ((task.origin >>> 8) + (input.random() & 63) - 32) & 255
+      task.target = x | (y << 8)
+      if (++task.retries <= 32) return actions
+    }
+    task.phase = 6
+    task.fallback = 23
+    task.elapsed = 0
+    return [{ kind: 'move', target: input.staging, replace: true }]
+  }
+  if (task.phase === 23) {
+    releaseSelection(ai, index)
+    task.flags &= ~3
+    task.members.length = 0
+  }
   return actions
 }
 

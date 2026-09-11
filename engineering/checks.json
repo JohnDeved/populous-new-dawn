@@ -283,17 +283,19 @@
     {
       "id": "computer-attack-native",
       "kind": "native",
-      "purpose": "Execute mission one's native ATTACK decoder, allocator and deterministic type-20 route through phase 14.",
+      "purpose": "Execute mission one's native ATTACK decoder, allocator and ordinary type-20 route through hostile dispatch and retirement.",
       "coveredBehavior": [
         "Exact mission-one ATTACK arguments",
         "type-20 allocation gates and task fields",
         "mixed-class selection",
         "selection lock ownership",
         "shared staging command commit",
-        "ordinary target radius and regroup routing"
+        "ordinary target radius and regroup routing",
+        "shared hostile-area dispatch",
+        "all-members-gone retirement and slot reuse"
       ],
       "knownLimits": [
-        "Stops at phase 14 before hostile target dispatch, cancellation and final cleanup."
+        "Phase-16 target collection remains a controlled world input; damage success and empty-target retry branches are not executed end-to-end."
       ],
       "executable": "python3",
       "args": ["scripts/check-native-computer-attack.py", "$POPULOUS_EXE"],

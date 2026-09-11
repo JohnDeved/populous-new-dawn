@@ -799,6 +799,8 @@ test('campaign attack commitment follows living warrior counts on its original t
 
 test('mission-one Dakini launches its native mixed attack route when Blue enters marker three',async()=>{
  const {joinBattle}=await import('../app/model.ts');
+ const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const {requestAttack}=await import('../app/computer.ts');
  const w=createWorld(),marker=nativeCellPoint(level.markers[3]),staging=(level.markers[3]&0xff00)|((level.markers[3]+12)&255);
  addUnit(w,'blue','warrior',{x:marker.x,z:marker.z+12});
  const redStart=nativeCellPoint(staging);addUnit(w,'red','warrior',redStart);
@@ -817,6 +819,47 @@ test('mission-one Dakini launches its native mixed attack route when Blue enters
  until(w,()=>{if(phases.at(-1)!==task.phase)phases.push(task.phase);return task.phase===14;},20);
  assert.ok(radiusDistance>1.5,'native radius advances before exact marker arrival');assert.deepEqual(phases.slice(-5),[10,11,12,6,14]);
  assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
+ const members=[...task.members],victim=addUnit(w,'blue','warrior',marker),hp=victim.hp;
+ until(w,()=>members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),20);
+ const attackIds=members.map(id=>w.units.find(u=>u.id===id).native.commands.find(Boolean));
+ assert.equal(new Set(attackIds).size,1,'the attack area order is shared by the whole group');
+ assert.equal(w.buildingOrders.records[attackIds[0]].references,3);
+ until(w,()=>victim.hp<hp,30);assert.equal(task.damage,0,'ordinary wounds do not credit the native task threshold');
+ until(w,()=>victim.hp===0,30);assert.equal(task.damage,2,'a warrior death credits its native model score once');
+ task.damage=task.extra;
+ until(w,()=>!(task.flags&1),60);
+ assert.ok(members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model!==19));
+ requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),true,1);
+ assert.equal(task.flags&1,1,'phase 23 releases the same queue slot for the next wave');
+});
+
+test('computer attack exhausts 33 empty native scans before regrouping and retiring',async()=>{
+ const {createComputerQueue,requestAttack,stepAttackTask}=await import('../app/computer.ts');
+ const ai=createComputerQueue();requestAttack(ai,0xfa06,3,1,999,[100,0,0,0,0,0],true,1);
+ const task=ai.tasks[0];task.phase=16;task.members=[7];let draws=0,alive=1;
+ const input={staging:0xf204,select:()=>[],settled:()=>true,memberWithin:()=>null,ready:()=>true,
+  activeMembers:()=>alive,targetsRemain:()=>false,random:()=>++draws};
+ for(let retry=1;retry<=32;retry++){
+  assert.deepEqual(stepAttackTask(ai,0,input),[]);assert.equal(task.phase,16);assert.equal(task.retries,retry);
+ }
+ assert.deepEqual(stepAttackTask(ai,0,input),[{kind:'move',target:0xf204,replace:true}]);
+ assert.equal(task.phase,6);assert.equal(task.fallback,23);assert.equal(draws,66);
+ task.phase=16;alive=0;stepAttackTask(ai,0,input);assert.equal(task.phase,23);
+ stepAttackTask(ai,0,input);assert.equal(task.flags&1,0);
+});
+
+test('computer attack pool exhaustion skips hostile dispatch and retires through native empty scans',async()=>{
+ const {requestAttack}=await import('../app/computer.ts');
+ const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const w=createWorld(),members=w.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
+ requestAttack(w.ai,level.markers[3],3,3,999,[100,0,0,0,0,0],true,1);
+ const task=w.ai.tasks[0];task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=0;
+ for(let id=1;id<w.buildingOrders.records.length;id++)w.buildingOrders.records[id].references=1;
+ w.buildingOrders.active=799;tick(w,1/12);
+ assert.equal(task.phase,16);assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model!==19));
+ until(w,()=>!(task.flags&1),10);assert.equal(task.retries,33);
+ requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),true,1);
+ assert.equal(task.flags&1,1,'the exhausted command pool does not leak the task slot');
 });
 
 test('queued training keeps its selection lock until issuing the order and frees its slot after arrival', async () => {

@@ -436,6 +436,7 @@ function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
     attackCell: w.attackCell,
     tribes: w.manaTribes.map(t => ({ flags: t.flags2 })),
   }
+  const damage = target.damage
   const result = attackCombatBuilding(context, p, target, {
     ...combatMotion(w, u, p),
     buildingAt: to => w.land.buildingIds[(to.y >> 9) * 128 + (to.x >> 9)],
@@ -460,6 +461,7 @@ function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
     },
     sound: cue => sound(w, cue, u, u.id),
   })
+  if (target.damage !== damage) b.attackTaskMember = u.id
   Object.assign(state, {
     damage: target.damage,
     attacker: target.attacker,

@@ -369,7 +369,8 @@ export function appendPersonOrders(
   effects: OrderEffects & {
     acknowledge: (first: number, counts: number[]) => void
     special: (parameter: number) => boolean
-  }
+  },
+  replace = false
 ) {
   const d = descriptor(command.model)
   if (d.flags & 0x2000000) return command.model === 34 ? effects.special(command.a & 255) : true
@@ -380,6 +381,7 @@ export function appendPersonOrders(
   for (const person of people) {
     if (!(person.selectionFlags & 128)) continue
     if (!acceptsPersonOrder(person, command.model)) continue
+    if (replace) clearPersonOrders(pool, person, effects)
     const slot = freePersonOrderSlot(person)
     effects.prepare(pool.records[id], command.model, command.a, command.b, command.flags)
     attachPersonOrder(pool, person, id, slot, effects)

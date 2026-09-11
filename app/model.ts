@@ -283,6 +283,7 @@ import {
   dispatchComputerTask,
   requestAttack,
   requestTraining,
+  creditAttackTask,
   stepAttackTask,
   stepTrainingTask,
   type ComputerQueue,
@@ -428,6 +429,7 @@ export type Building = Point & {
       })
     | null
   burn?: BuildingBurn
+  attackTaskMember?: number
   terrainState?: BuildingTerrain & { dirty: boolean }
 }
 export type Shrine = Point &
@@ -700,9 +702,15 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
       p.flags2 = (p.flags2 | 0x1080) >>> 0
     }
   }
+  const targetHp = target.hp
   target.hp = Math.max(0, (Math.round(target.hp * 20) - Math.round(damage * 20)) / 20)
+  if (targetHp > 0 && target.hp === 0)
+    creditAttackTask(w.ai, u.id, rules.personModels[nativePersonModel(target)].fightRank)
+  const unitHp = u.hp
   if (action !== 'special')
     u.hp = Math.max(0, (Math.round(u.hp * 20) - Math.round(counter * 20)) / 20)
+  if (action !== 'special' && unitHp > 0 && u.hp === 0)
+    creditAttackTask(w.ai, target.id, rules.personModels[nativePersonModel(u)].fightRank)
   effect(w, 'hit', target)
   if (action !== 'special') effect(w, 'hit', u)
 }
@@ -2137,6 +2145,35 @@ function computerAttackUnits(w: World, index: number) {
 const computerAttackReady = (u: Unit) =>
   !u.flight && !u.fight && !u.fighting && !u.casting && !u.lift
 
+function computerAttackHasOrder(w: World, index: number, model: number) {
+  return computerAttackUnits(w, index).some(u => {
+    const p = u.native ?? u.fight?.motion
+    return p && currentPersonOrder(w.buildingOrders, p)?.model === model
+  })
+}
+
+function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
+  const team = tribe === 1 ? 'blue' : tribe === 0 ? 'red' : null
+  if (!team) return false
+  const within = (object: Point) => {
+    const p = nativePosition(w, object),
+      cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+    return cellDistanceSquared(cell, target) <= 100
+  }
+  return (
+    w.units.some(
+      u =>
+        u.team === team &&
+        u.hp > 0 &&
+        u.inside === null &&
+        u.native?.state !== 23 &&
+        !u.flight &&
+        within(u)
+    ) ||
+    w.buildings.some(b => b.team === team && b.hp > 0 && b.damageState?.state !== 3 && within(b))
+  )
+}
+
 function stepComputerTasks(w: World, tribe: number) {
   if (computerPhase(w.turn, tribe) !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
@@ -2154,6 +2191,10 @@ function stepComputerTasks(w: World, tribe: number) {
         actions = stepAttackTask(w.ai, index, {
           staging,
           ready: () => computerAttackUnits(w, index).every(computerAttackReady),
+          activeMembers: () => computerAttackUnits(w, index).length,
+          targetsRemain: target =>
+            computerAttackHasOrder(w, index, 19) && computerAttackTargetsRemain(w, tribe, target),
+          random: () => random(w),
           select: (model, count, destination) => {
             const current = (selection ??= computerSelectionWorld(w, tribe)),
               ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
@@ -2194,12 +2235,18 @@ function stepComputerTasks(w: World, tribe: number) {
           u.native ??= createLivePerson(w, u)
           registerLivePerson(w, u.native)
           changeLivePersonState(w, u, 14)
-        } else if (action.kind === 'move') {
+        } else {
           const units = computerAttackUnits(w, index),
             order = emptyPersonOrder()
-          writePersonOrder(order, 3, 0, action.target, 0)
+          if (action.kind === 'attack')
+            Object.assign(order, { model: 19, a: action.target, b: 0x0808 })
+          else writePersonOrder(order, 3, 0, action.target, 0)
           const issued = units.length ? appendLiveOrders(w, units, order, action.replace) : null
-          if (!issued?.accepted || issued.count !== units.length) {
+          if (
+            action.kind === 'move' &&
+            task.fallback !== 23 &&
+            (!issued?.accepted || issued.count !== units.length)
+          ) {
             for (const u of units) if (u.native?.state === 14) changeLivePersonState(w, u, 10)
             task.flags &= ~3
             task.members.length = 0
@@ -4285,6 +4332,7 @@ function stepDamagedBuilding(w: World, b: Building) {
     removePlan: () => {},
     notify: () => {},
     removeBuilding: () => {
+      if (b.attackTaskMember !== undefined) creditAttackTask(w.ai, b.attackTaskMember, 1)
       b.hp = 0
     },
     sound: () => sound(w, 0x34, b),

@@ -1,9 +1,9 @@
-"""Inspect mission one's native ATTACK decode and ordinary routing boundary.
+"""Inspect mission one's native ATTACK decode and ordinary attack route.
 
 Usage: python scripts/check-native-computer-attack.py /path/to/d3dpoptb.exe
 The original interpreter, task allocator, selector, group builder and commit execute.
 Person-state, staging-position, payload-preparation and acknowledgement leaves are
-supplied; terrain-dependent targeting after phase 14 is intentionally excluded.
+supplied; phase-16 target collection remains a controlled world input.
 """
 import hashlib,json,struct,sys
 from pathlib import Path
@@ -109,7 +109,9 @@ def leaf(cpu,address,size,user):
         trace.append(('acknowledge',));return_from_leaf();return
     if address in (0x43b540,0x4f5950,0x4f2e40):
         trace.append(('bounded-world-leaf',address));return_from_leaf();return
-    if address in (0x4044b0,0x48c650,0x4e9b40,0x4f2440):
+    if address==0x4e9b40:
+        return_from_leaf(1);return
+    if address in (0x4044b0,0x48c650,0x4f2440):
         if routing:raise AssertionError(f'unexpected native branch {address:#x}')
         return
 for address in (0x4f6020,0x4ed6f0,0x4ed640,0x418ce0,0x438730,0x436330,
@@ -191,4 +193,31 @@ assert struct.unpack('<I',cpu.mem_read(taskp+4,4))[0]==1
 assert struct.unpack('<I',cpu.mem_read(taskp+0x3e,4))[0]&1
 assert all(cpu.mem_read(people+id_*256+0xaf,1)[0]==allocated[0]['index']+1 for id_ in members)
 assert struct.unpack('<I',cpu.mem_read(0x89d178,4))[0]==rng
-print(f'PASS: native type-20 phases {phases+route} selected, staged and routed mixed people through the phase-14 boundary')
+native_call(0x4cb400,red,allocated[0]['index'])
+assert struct.unpack('<H',cpu.mem_read(taskp+0x42,2))[0]==15
+native_call(0x4cb400,red,allocated[0]['index'])
+assert struct.unpack('<H',cpu.mem_read(taskp+0x42,2))[0]==16
+attack=[]
+for id_ in members:
+    p=people+id_*256
+    ids=[v for v in [struct.unpack('<H',cpu.mem_read(p+0x9b,2))[0],*struct.unpack('<8H',cpu.mem_read(p+0x8b,16))] if v]
+    attack.append((id_,ids,[cpu.mem_read(0x938830+v*10,1)[0] for v in ids]))
+assert len(attack)==3 and all(models==[19] for _,_,models in attack),attack
+shared={id_ for _,ids,_ in attack for id_ in ids}
+assert len(shared)==1,attack
+attack_id=shared.pop();record=0x938830+attack_id*10
+assert struct.unpack('<H',cpu.mem_read(record+2,2))[0]==3
+payload=struct.unpack('<HH',cpu.mem_read(record+6,4))
+assert payload==(target_marker,0x0808),payload
+assert struct.unpack('<I',cpu.mem_read(red+0x596,4))[0]&2==0
+assert cpu.mem_read(red+0x5b3,1)[0]==10
+for id_ in members:write(people+id_*256+0xaf,'<B',0)
+native_call(0x4cb400,red,allocated[0]['index'])
+assert struct.unpack('<H',cpu.mem_read(taskp+0x42,2))[0]==23
+native_call(0x4cb400,red,allocated[0]['index'])
+assert struct.unpack('<I',cpu.mem_read(taskp+0x3e,4))[0]&1==0
+assert struct.unpack('<I',cpu.mem_read(red+0x596,4))[0]&2==0
+assert cpu.mem_read(red+0x5b3,1)[0]==10
+run();reallocated=tasks()
+assert len(reallocated)==1 and reallocated[0]['index']==allocated[0]['index'],reallocated
+print(f'PASS: native type-20 phases {phases+route+[15,16,23]} dispatched one shared attack, retired and reused its slot')
