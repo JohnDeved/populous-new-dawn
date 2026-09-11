@@ -1766,3 +1766,20 @@ landscape mixing and native voice arbitration remain unfinished.
 Do not block audible gameplay on unrelated decompilation. The
 next task is selected for the biggest noticeable improvement under the execution
 order above; the full-game scope remains active.
+
+### Ground waypoint delivery — 2026-09-11
+
+Ctrl ground clicks now append shared native orders while followers immediately
+start moving; an ordinary click ends staging. Original eighth-slot and Alt-final
+deselection preserve issued movement. Destination handoff uses native configure
+and recovery through the existing marching/routes/standing controllers, with a
+shared readable startup context and no rendering-clock work. Native append and
+packet/cursor comparisons, desktop/ultrawide mouse input, 5–240 Hz/irregular replay,
+allocation/interruption/arrival checks, original sprite regressions and the
+200-person CPU workload are recorded in reverse-engineering/performance evidence.
+
+Continue the visible group/selection queue: complete mixed ground/building/head/
+attack command ownership and original waypoint feedback, including selection
+changes, specialized classes, settings and turn buffering. Non-ground commands
+still use their previous adapters; this bounded ground delivery does not complete
+player commands or global engine parity. Keep the existing full-game goal active.

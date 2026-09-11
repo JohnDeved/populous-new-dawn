@@ -8037,3 +8037,70 @@ compatibility consumers, some placement/bridge/reincarnation queries, other clas
 controllers and planar interaction/distance adapters retain separate work. No
 claim to full-world commands, vehicles, all collision modes or complete scheduling
 follows from this bounded integration.
+
+## Player ground waypoint sequences (2026-09-11)
+
+The original left-release bindings distinguish ordinary action 126 and Ctrl
+127. `004aab80` forwards the staged flag to `004aa8b0`; Alt inverts the
+`004999d0` keep-selection setting and Shift sets packet bit `0x40000`.
+The native initializer's default keeps selection. The input packet is
+`0x37 + cursor` while staging or `0x57 + cursor` when finishing. Slot seven
+forces completion. The deeper `00444f60` trace corrects an initially plausible
+but wrong interpretation: Ctrl does **not** hold an unexecuted plan. Every click
+immediately appends a shared order and restarts selected people's current order.
+An ordinary click ends staging; the eighth click also deselects, even with Ctrl.
+
+`00435780` encodes the point at native 256-unit subcell centers. At cursor zero,
+`00435c40` clears selected people's circular queues and immediate orders.
+`00435cb0` allocates one shared record, scans from each selected person's cursor
+for its first empty slot, applies model/ghost eligibility, prepares and attaches
+that record, and accumulates voice counts. A full person queue uses the immediate
+slot; exhaustion does not overwrite retained orders on a continued sequence.
+`00435c10` snapshots selection into bit zero; `00436ff0` clears staging metadata
+on completion. `004358f0` advances frontend count/cursor and `004386d0` resets
+the manual context choice. Inline focus writes, actual voice arbitration and
+preview-marker ownership are not covered by the new append helper.
+
+`appendPersonOrders` matches 2,048 complete native append calls, including shared
+references, circular slots, immediate replacement, class/ghost eligibility and
+exhaustion. The existing encoding/ownership comparisons still pass: 4,000 total.
+Preparation and work/spell/fight/object/voice leaves are supplied, not claimed as
+complete native world execution. Forty portable captures retain native pool SHA-256,
+person writes and ordered consumer calls. Another 64 complete `00444f60` packet
+and `004358f0` cursor cases verify ground flags, Shift, Alt and the eighth-slot
+limit. Another 576 lookups execute the shipped release bindings and their native
+context predicates. The supplied leaves isolate packet control from already
+compared append ownership. Four fresh Ghidra exports bring the manifest to 1,137.
+
+Live ground sequences use the existing eight-slot order pool, route planner and
+marching controller. At arrival, native `004366b0` now reaches
+`configurePersonOrder` (`00432df0`) and `recoverPersonMovement` (`004d4f40`);
+it does not incorrectly rerun startup's extra speed draw. `00436870` rewrites
+only command 31, which remains unsupported in this live adapter. Shared startup
+context avoids duplicating its world consumers. Real desktop/ultrawide Ctrl
+mouse clicks, release-time modifier changes, Alt deselection, arrival order and
+original standing sprites are checked. Portable sequences cover immediate motion,
+shared ownership, final deselection, interruption, pool exhaustion and identical
+turns/RNG/poses/footprints at 5–240 Hz and irregular frames. Existing 576 GPU sprite
+poses and selection/Blast shadow regressions pass.
+
+This is ordinary ground-waypoint scope. Non-ground commands retain their previous
+controllers and finish/reset the browser staging cursor; mixed building, worship,
+attack and transport queues still need native ownership and handoffs. Whole
+player dispatcher timing, all settings, special classes, full selection changes
+and frontend waypoint previews remain open. Ordinary non-staged legacy commands
+also retain their prior preflight/allocation semantics. Do not call the full
+order checkpoint complete.
+
+Modern implementation: no second waypoint array, per-render work, extra renderer
+pass or new dependency. Order changes run on input and existing simulation turns;
+presentation remains uncapped/interpolated. `scripts/bench-ground-waypoints.mjs`
+records the added work on Apple M5 / Node 24.18.0: appending to 200 moving people
+has 1.454 ms median / 1.644 ms p95 across 50 samples after 20 warmups. A separate
+600-turn complete scenario has 0.303 ms median / 4.894 ms p95 / 15.041 ms maximum,
+and releases all orders/routes after arrival. Raw samples are in
+`references/performance/2026-09-11-ground-waypoints.json`. These are CPU costs of
+new behavior, not equivalent before/after speedups or hardware browser FPS claims.
+Fallow reports maintainability 85.5; the touched live movement adapter passes
+ox-standard. Preexisting person-order type-style diagnostics remain outside this
+bounded change.

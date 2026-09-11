@@ -331,6 +331,56 @@ export function commitPersonOrders(
   return success
 }
 
+// Ground-click branch of 0x4aa8b0 / 0x444f60, with default keep-selection setting.
+// The eighth order finishes and deselects even while Ctrl remains held.
+export function groundOrderInput(cursor: number, ctrl = false, shift = false, alt = false) {
+  const staged = ctrl && cursor < 7
+  return {
+    flags: (staged ? 128 : 0) | (shift ? 64 : 0),
+    nextCursor: staged ? cursor + 1 : 0,
+    deselect: cursor === 7 || (!staged && alt),
+  }
+}
+
+// 0x435cb0: one shared record per click, appended at each selected person's
+// first empty circular slot. A full queue uses the native immediate-order slot.
+export function appendPersonOrders(
+  pool: OrderPool,
+  command: PersonOrder,
+  people: OrderedPerson[],
+  effects: OrderEffects & {
+    acknowledge: (first: number, counts: number[]) => void
+    special: (parameter: number) => boolean
+  }
+) {
+  const d = descriptor(command.model)
+  if (d.flags & 0x2000000) return command.model === 34 ? effects.special(command.a & 255) : true
+  const id = allocatePersonOrder(pool)
+  if (!id) return false
+  const counts = Array<number>(9).fill(0)
+  let first = 0
+  for (const person of people) {
+    if (!(person.selectionFlags & 128)) continue
+    const eligible =
+      person.flags4 & 0x800 ? d.flags & 0x4000000 : d.people & (1 << (person.model & 31))
+    if (!eligible) continue
+    let slot = -1
+    for (let offset = 0; offset < 8; offset++) {
+      const index = (person.commandCursor + offset) % 8
+      if (!person.commands[index]) {
+        slot = index
+        break
+      }
+    }
+    effects.prepare(pool.records[id], command.model, command.a, command.b, command.flags)
+    attachPersonOrder(pool, person, id, slot, effects)
+    if (!first) first = person.id
+    counts[person.model]++
+  }
+  effects.acknowledge(first, counts)
+  return true
+}
+
 // 0x438730 for movement command 3, including unchanged-record short circuit.
 // Coast correction happens first; building lookup still uses the original cell.
 export function prepareMovementOrder(

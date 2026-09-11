@@ -1,22 +1,22 @@
 # Game parity progress
 
-**26.42% evidence-backed progress across known scope.**
+**26.94% evidence-backed progress across known scope.**
 
-**Graphics: 59.71%.** Overall: 68/180 individual requirements verified; 17/96 broad checkpoints complete.
+**Graphics: 59.71%.** Overall: 69/181 individual requirements verified; 17/96 broad checkpoints complete.
 
-57 partial; 22 missing; 0 unassessed. Checklist revision 27.
+57 partial; 22 missing; 0 unassessed. Checklist revision 28.
 
 **Latest assessment**
 
 Newly verified: 1. Reopened: 0.
 
-- Verified: `world.wrap.followers`.
+- Verified: `simulation.orders.ground-waypoints`.
 
-Verified ordinary full-map movement extent: crop guards removed, native full-world height queries, eight wrapped group routes at 5–240 Hz, desktop/ultrawide controls, sprite/selection/shadow regressions and CPU measurement. +0.5208 points from the separately recorded revision-27 baseline; full-world lifecycle stays partial.
+Verified ordinary ground waypoint sequences: native shared append and packet/cursor checks, desktop/ultrawide Ctrl input, rate-independent destination handoffs; full command lifecycle remains open.
 
-**Tracking blind spots: 39 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
+**Tracking blind spots: 38 broad partial checkpoints still have no individual requirements.** Completed work inside them cannot advance the score yet. Decompose the active checkpoint before implementation, preserving its unfinished scope. Two decimal places expose small verified gains; they are accounting precision, not certainty about the full game.
 
-**Discovery: open.** Revision 27 separates ordinary full-map follower movement and resting from the remaining full-world simulation lifecycle. Record the scope split separately from verification; legacy terrain/command helpers, distance consumers, vehicles and other classes remain open.
+**Discovery: open.** Revision 28 separates ordinary on-foot ground waypoint sequences from complete player command ownership. Record this scope split separately from verification. Mixed commands, frontend feedback, selection/settings and specialized lifecycles remain open; unknown scope is not assumed complete.
 
 Unknown scope is not assigned an invented size or percentage. This checklist is expandable: add checkpoints or entire subsystems as research reveals them. Use `unassessed` for newly identified behavior whose implementation/parity has not been investigated; it enters the denominator immediately and receives no verified credit. Split overly broad checkpoints when discoveries justify it, with a recorded revision.
 
@@ -35,7 +35,7 @@ Verified means the named scope has original-engine evidence and browser/game int
 | Effects and object lifecycles | 55.00% | 6/12 | 4/8 |
 | Interface and desktop controls | 50.59% | 16/28 | 3/8 |
 | Audio and music | 4.17% | 1/10 | 0/8 |
-| Simulation scheduling and randomness | 0.00% | 0/8 | 0/8 |
+| Simulation scheduling and randomness | 6.25% | 1/9 | 0/8 |
 | Movement, collision and vehicles | 20.83% | 3/10 | 1/8 |
 | Unit classes and combat | 10.71% | 6/14 | 0/8 |
 | Buildings, resources and population | 26.04% | 5/17 | 1/8 |
@@ -202,6 +202,8 @@ Scope changes require a new checklist revision. Scores across different revision
 | 2026-09-11T01:33:59.427Z | 26 | 25.90% | 17/96 | 0.00 pp; 0 newly verified, 0 reopened | Connected obstacle retry to native planned routing across person preparation consumers. Composed native comparisons, 24-person obstacle recovery, 5–240 Hz replay, desktop/ultrawide input and simultaneous-retry CPU evidence. Full movement lifecycle remains partial. |
 | 2026-09-11T01:50:57.215Z | 27 | 25.90% | 17/96 | scope revision | Revision 27 scope split: ordinary full-map ground orders/resting separated from complete world simulation. Both remain partial in this baseline; no verification credit from the split. |
 | 2026-09-11T01:51:15.419Z | 27 | 26.42% | 17/96 | 0.52 pp; 1 newly verified, 0 reopened | Verified ordinary full-map movement extent: crop guards removed, native full-world height queries, eight wrapped group routes at 5–240 Hz, desktop/ultrawide controls, sprite/selection/shadow regressions and CPU measurement. +0.5208 points from the separately recorded revision-27 baseline; full-world lifecycle stays partial. |
+| 2026-09-11T02:16:28.602Z | 28 | 26.42% | 17/96 | scope revision | Scope revision 28: separate ordinary ground waypoint sequences from full player command ownership; no new verification credit. |
+| 2026-09-11T02:18:17.493Z | 28 | 26.94% | 17/96 | 0.52 pp; 1 newly verified, 0 reopened | Verified ordinary ground waypoint sequences: native shared append and packet/cursor checks, desktop/ultrawide Ctrl input, rate-independent destination handoffs; full command lifecycle remains open. |
 
 ## Update workflow
 
@@ -345,7 +347,9 @@ Scope changes require a new checklist revision. Scores across different revision
 - **partial** — Mixed-class object update order and lifetime ownership (`simulation.objects`). Selected person paths reconstructed; all-class dispatch incomplete. Evidence: [scripts/check-native-person-update.py](scripts/check-native-person-update.py), [app/model.ts](app/model.ts).
 - **partial** — Seed initialization and complete RNG draw order (`simulation.rng`). Native generator formula known; full consumption and seed behavior not matched. Evidence: [scripts/check-native-math.py](scripts/check-native-math.py), [app/model.ts](app/model.ts).
 - **partial** — Original allocation limits, reuse and failure behavior (`simulation.allocation`). Cell list operations reconstructed; global allocator and exhaustion behavior incomplete. Evidence: [scripts/check-native-object-cells.py](scripts/check-native-object-cells.py), [references/reverse-engineering.md](references/reverse-engineering.md).
-- **partial** — Complete order ownership, cancellation and handoffs (`simulation.orders`). Selected live routes/training handoffs verified; complete dispatcher remains open. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [scripts/check-native-order-update.py](scripts/check-native-order-update.py).
+- **partial** — Complete order ownership, cancellation and handoffs (`simulation.orders`). **1/2 requirements verified; each earns 0.52 percentage points overall.** Ordinary on-foot ground waypoint sequences now append shared orders immediately and preserve native destination handoff, modifier flags and final deselection. Complete mixed-command/player dispatcher ownership remains open. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [scripts/check-native-order-update.py](scripts/check-native-order-update.py).
+  - **verified** — Ordinary on-foot player ground waypoint sequences and destination handoff (`simulation.orders.ground-waypoints`). Bounded Ctrl-started ground sequences for ordinary on-foot braves, warriors and shamans: shared append, immediate motion, original flags/slot limit/deselection and configure/recovery at arrival. Compared 2048 native append calls, 64 packet/cursor cases, actual desktop/ultrawide mouse input and 5–240 Hz/irregular live turns. Full mixed commands, all settings/selection changes, frontend preview/focus/voice and dispatcher timing remain lifecycle scope. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [tests/player-orders.test.mjs](tests/player-orders.test.mjs), [tests/ground-waypoints.test.mjs](tests/ground-waypoints.test.mjs), [scripts/check-browser-ground-waypoints.mjs](scripts/check-browser-ground-waypoints.mjs), [scripts/check-native-order-update.py](scripts/check-native-order-update.py), [scripts/check-native-person-state.py](scripts/check-native-person-state.py), [scripts/bench-ground-waypoints.mjs](scripts/bench-ground-waypoints.mjs), [references/performance/2026-09-11-ground-waypoints.json](references/performance/2026-09-11-ground-waypoints.json).
+  - **partial** — Complete mixed-command, class, settings and dispatcher lifecycle (`simulation.orders.lifecycle`). Mixed ground/building/head/attack/transport queues, specialized classes, full settings and selection transitions, frontend preview/focus/voice ownership and native command turn buffering remain open. Ordinary non-staged legacy commands retain prior preflight/allocation semantics. Evidence: [scripts/check-native-orders.py](scripts/check-native-orders.py), [scripts/check-native-order-update.py](scripts/check-native-order-update.py).
 - **missing** — Cross-engine deterministic scenario replays (`simulation.replay`). Whole-engine native/browser trace agreement not established.
 - **partial** — All pause, speed, result and mode transitions (`simulation.modes`). Result checks and ongoing collapse integrated; full mode timing remains open. Evidence: [scripts/check-native-outcomes.py](scripts/check-native-outcomes.py), [tests/game.test.mjs](tests/game.test.mjs).
 

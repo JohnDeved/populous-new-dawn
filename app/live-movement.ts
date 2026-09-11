@@ -13,13 +13,20 @@ import { clearLivePath, planLivePath, acceptLivePath, stepLiveRoute } from './li
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { objectsInCell } from './object-cells.ts'
-import { startPersonOrders } from './person-order-start.ts'
+import {
+  startPersonOrders,
+  configurePersonOrder,
+  type OrderStartEffects,
+} from './person-order-start.ts'
 import { stepPersonOrders } from './person-order-update.ts'
-import { recoverPersonMovement } from './person-state.ts'
+import { recoverPersonMovement, defaultPersonState, resetPersonMotion } from './person-state.ts'
 import {
   currentPersonOrder,
   allocatePersonOrder,
   attachPersonOrder,
+  appendPersonOrders,
+  emptyPersonOrder,
+  writePersonOrder,
   clearPersonOrders,
   removePersonOrder,
   advancePersonOrder,
@@ -37,7 +44,7 @@ const unsupported = (): never => {
   throw new Error('Unported live movement order consumer')
 }
 export type LiveFormation = MarchingFormation & { tribe: number }
-const effects = (w: World): OrderEffects => ({
+const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
   stopWork: unsupported,
   releaseSpell: unsupported,
@@ -48,7 +55,7 @@ const effects = (w: World): OrderEffects => ({
     ),
 })
 
-export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: number }) {
+function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
   if (!order || ![3, 19, 27].includes(order.model)) unsupported()
   const state = {
@@ -65,7 +72,7 @@ export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: num
       vehicleMode: 0,
     })),
   }
-  startPersonOrders(state, p, {
+  const effects: OrderStartEffects = {
     setAnimation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
     setDestination: (person, x, y) => {
       const unit = w.units.find(u => u.id === person.id)!
@@ -89,15 +96,69 @@ export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: num
     resetVehicleMovement: unsupported,
     leaveSelectedVehicle: unsupported,
     initializeState: unsupported,
-  })
+  }
+  return { state, effects }
+}
+
+export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: number }) {
+  const { state, effects } = orderContext(w, p, rng)
+  startPersonOrders(state, p, effects)
   rng.randomState = state.randomState
+}
+
+// Player ground clicks append to the same eight-slot queues used by simulation.
+export function appendLiveMovement(
+  w: World,
+  units: Unit[],
+  to: { x: number; y: number },
+  flags: number,
+  replace: boolean
+) {
+  const command = emptyPersonOrder()
+  writePersonOrder(command, 3, 0, ((to.x >>> 8) & 255) | (to.y & 0xff00), flags)
+  let count = 0
+  const accepted = appendPersonOrders(
+    w.buildingOrders,
+    command,
+    units.map(u => {
+      const p = u.native ?? createLivePerson(w, u)
+      u.native = p
+      p.selectionFlags |= 128
+      if (replace) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+      registerLivePerson(w, p)
+      return p
+    }),
+    {
+      ...orderEffects(w),
+      prepare: (order, model, x, y, commandFlags = 0) => {
+        if (model !== 3) unsupported()
+        prepareMovementOrder(order, { x, y }, commandFlags, w.land, id =>
+          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+        )
+      },
+      acknowledge: (_, counts) => {
+        count = counts.reduce((a, b) => a + b, 0)
+      },
+      special: unsupported,
+    }
+  )
+  for (const u of units) {
+    const p = u.native!
+    if (p.state === 25 || p.state === 29) continue
+    // Native player input restarts the active order even when appending a later one.
+    resetPersonMotion(p)
+    p.previousState = 0
+    p.state = defaultPersonState(p, w.manaWorld.gameFlags)
+    changeLivePersonState(w, u)
+  }
+  return { accepted, count }
 }
 
 export function movementOrder(w: World, to: { x: number; y: number }) {
   const id = allocatePersonOrder(w.buildingOrders)
   if (id)
-    prepareMovementOrder(w.buildingOrders.records[id], to, 0, w.land, id =>
-      buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+    prepareMovementOrder(w.buildingOrders.records[id], to, 0, w.land, buildingId =>
+      buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
     )
   return id
 }
@@ -105,7 +166,7 @@ export function movementOrder(w: World, to: { x: number; y: number }) {
 export function startLiveOrder(w: World, u: Unit, id: number) {
   const p = u.native ?? createLivePerson(w, u)
   u.native = p
-  attachPersonOrder(w.buildingOrders, p, id, 0, effects(w))
+  attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w))
   registerLivePerson(w, p)
   changeLivePersonState(w, u, 10)
 }
@@ -113,7 +174,7 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion
   if (!p || ![3, 27].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
-  clearPersonOrders(w.buildingOrders, p, effects(w))
+  clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
 }
@@ -158,7 +219,7 @@ export function stepLiveMovement(w: World, u: Unit) {
   stepLivePhysics(w, u, p)
   stepLiveRoute(w, u)
   if (p.state !== 10) return
-  const remove = (slot: number) => removePersonOrder(w.buildingOrders, p, slot, effects(w))
+  const remove = (slot: number) => removePersonOrder(w.buildingOrders, p, slot, orderEffects(w))
   const next = stepPersonOrders(
     {
       orders: w.buildingOrders,
@@ -202,9 +263,19 @@ export function stepLiveMovement(w: World, u: Unit) {
           remove,
           resumeVehicle: () => false,
           resumeBuilding: () => false,
-          prepareNext: unsupported,
-          configure: unsupported,
-          recover: unsupported,
+          // 0x436870 only rewrites command 31; ground/head queues do not use it.
+          prepareNext: () => {
+            if (w.buildingOrders.records[p.commands[p.commandCursor]].model === 31) unsupported()
+          },
+          configure: () => {
+            const { state, effects } = orderContext(w, p, w)
+            configurePersonOrder(state, p, effects)
+            w.randomState = state.randomState
+          },
+          recover: () =>
+            recoverPersonMovement(w, p, (person, object) =>
+              setLivePersonAnimation(w, person as LivePerson, object)
+            ),
         }),
       initialize: () => changeLivePersonState(w, u),
     }

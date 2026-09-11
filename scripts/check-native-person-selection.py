@@ -89,6 +89,7 @@ hooks = [cpu.hook_add(UC_HOOK_CODE, consumer, begin=a, end=a)
 write(0x895da8, 'I', 0)
 call(0x42bfa0)
 assert read(0x895da8, 'I') & 0x10040 == 0x10040
+assert call(0x4999d0) == 1, 'Native default ground orders keep selection'
 for hook in hooks:
     cpu.hook_del(hook)
 

@@ -1,8 +1,8 @@
 {
-  "revision": 27,
+  "revision": 28,
   "discovery": {
     "status": "open",
-    "note": "Revision 27 separates ordinary full-map follower movement and resting from the remaining full-world simulation lifecycle. Record the scope split separately from verification; legacy terrain/command helpers, distance consumers, vehicles and other classes remain open.",
+    "note": "Revision 28 separates ordinary on-foot ground waypoint sequences from complete player command ownership. Record this scope split separately from verification. Mixed commands, frontend feedback, selection/settings and specialized lifecycles remain open; unknown scope is not assumed complete.",
     "evidence": [
       "GOAL.md",
       "references/reverse-engineering.md"
@@ -1749,7 +1749,35 @@
             "scripts/check-native-orders.py",
             "scripts/check-native-order-update.py"
           ],
-          "note": "Selected live routes/training handoffs verified; complete dispatcher remains open."
+          "note": "Ordinary on-foot ground waypoint sequences now append shared orders immediately and preserve native destination handoff, modifier flags and final deselection. Complete mixed-command/player dispatcher ownership remains open.",
+          "requirements": [
+            {
+              "id": "simulation.orders.ground-waypoints",
+              "title": "Ordinary on-foot player ground waypoint sequences and destination handoff",
+              "status": "verified",
+              "evidence": [
+                "scripts/check-native-orders.py",
+                "tests/player-orders.test.mjs",
+                "tests/ground-waypoints.test.mjs",
+                "scripts/check-browser-ground-waypoints.mjs",
+                "scripts/check-native-order-update.py",
+                "scripts/check-native-person-state.py",
+                "scripts/bench-ground-waypoints.mjs",
+                "references/performance/2026-09-11-ground-waypoints.json"
+              ],
+              "note": "Bounded Ctrl-started ground sequences for ordinary on-foot braves, warriors and shamans: shared append, immediate motion, original flags/slot limit/deselection and configure/recovery at arrival. Compared 2048 native append calls, 64 packet/cursor cases, actual desktop/ultrawide mouse input and 5\u2013240 Hz/irregular live turns. Full mixed commands, all settings/selection changes, frontend preview/focus/voice and dispatcher timing remain lifecycle scope."
+            },
+            {
+              "id": "simulation.orders.lifecycle",
+              "title": "Complete mixed-command, class, settings and dispatcher lifecycle",
+              "status": "partial",
+              "evidence": [
+                "scripts/check-native-orders.py",
+                "scripts/check-native-order-update.py"
+              ],
+              "note": "Mixed ground/building/head/attack/transport queues, specialized classes, full settings and selection transitions, frontend preview/focus/voice ownership and native command turn buffering remain open. Ordinary non-staged legacy commands retain prior preflight/allocation semantics."
+            }
+          ]
         },
         {
           "id": "simulation.replay",

@@ -1477,7 +1477,8 @@ export class GameScene {
       if (clickedUnit) {
         selectUnit(this.world, clickedUnit.id, this.down.extend)
       } else if (this.world.selected.length) {
-        if (command(this.world, p)) this.orderSound()
+        const selected = this.world.selected.slice()
+        if (command(this.world, p, event)) this.orderSound(selected)
       }
     }
     this.onChange()
@@ -2385,8 +2386,8 @@ export class GameScene {
     painter.pendingSoundEnvironment = result
     return result
   }
-  orderSound() {
-    const units = this.world.units.filter(u => this.world.selected.includes(u.id))
+  orderSound(selected = this.world.selected) {
+    const units = this.world.units.filter(u => selected.includes(u.id))
     if (units.length) this.onSound(units.some(u => u.kind === 'shaman') ? 0x19 : 0x37)
   }
   playWorldSounds() {

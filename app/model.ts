@@ -2,6 +2,7 @@ import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipOrder, worshipHeadPose } from './live-worship.ts'
 import {
   movementOrder,
+  appendLiveMovement,
   startLiveOrder,
   cancelLiveOrder,
   stepLiveMovement,
@@ -30,6 +31,7 @@ import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import {
   currentPersonOrder,
+  groundOrderInput,
   deselectPerson,
   emptyPersonOrder,
   type OrderPool,
@@ -1462,6 +1464,7 @@ export type World = {
   nextId: number
   footprints: Footprints
   selected: number[]
+  orderCursor: number
   mode: Spell | BuildingKind | null
   buildingDirections: Record<BuildingKind, number>
   paused: boolean
@@ -1731,6 +1734,7 @@ export function createWorld(): World {
     nextId: 1,
     footprints: createFootprints(),
     selected: [],
+    orderCursor: 0,
     mode: null,
     buildingDirections: { hut: 0, tower: 0, temple: 0, camp: 0 },
     paused: false,
@@ -2354,7 +2358,10 @@ export function selectArea(
   const eligible = new Set(people.filter(p => ids.has(p.id) && !(p.flags4 & 128)).map(p => p.id))
   // The original clears the previous group only after finding an eligible member.
   if (!eligible.size) return
-  if (!extend) for (const p of people) markPersonSelected(p, false)
+  if (!extend) {
+    w.orderCursor = 0
+    for (const p of people) markPersonSelected(p, false)
+  }
   for (const p of people) if (eligible.has(p.id)) markPersonSelected(p, true)
   w.selected = people.filter(p => p.selectionFlags & 128).map(p => p.id)
   const selected = new Set(w.selected),
@@ -2369,6 +2376,7 @@ export function cancelInteraction(w: World) {
     w.mode = null
     return
   }
+  w.orderCursor = 0
   if (!w.selected.length) return
   const selected = new Set(w.selected)
   for (const u of w.units) {
@@ -2955,13 +2963,47 @@ function atBuildingEntrance(w: World, p: Point, b: Building) {
   return Math.abs(p.x - door.x) < 112 / 256 && Math.abs(p.z - door.z) < 112 / 256
 }
 // Input acceptance is separate from later route/allocation success.
-export function command(w: World, p: Point & { id?: number }) {
+export function command(
+  w: World,
+  p: Point & { id?: number },
+  modifiers: { ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean } = {}
+) {
   if (w.paused || w.status !== 'playing') return false
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
   const context = liveCommandContext(w, p)
   if (!context?.enabled) return false
   const { model } = context
+  if (model === 3 && (modifiers.ctrlKey || w.orderCursor)) {
+    const slot = w.orderCursor
+    const input = groundOrderInput(slot, modifiers.ctrlKey, modifiers.shiftKey, modifiers.altKey)
+    const units = w.units.filter(u => canOrder(u) && w.selected.includes(u.id))
+    // Existing work controllers still own their own queues. Ground sequences
+    // retain live ground orders; mixed work/attack waypoint ownership is pending.
+    for (const u of units)
+      if (
+        !slot ||
+        !u.native ||
+        ![3, 27].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+      )
+        release(w, u)
+    const result = appendLiveMovement(w, units, nativePosition(w, p), input.flags, slot === 0)
+    for (const p of selectionPeople(w))
+      p.selectionFlags = (p.selectionFlags & ~1) | (p.selectionFlags >>> 7)
+    w.orderCursor = input.nextCursor
+    if (input.deselect) cancelInteraction(w)
+    tell(
+      w,
+      result.accepted
+        ? result.count
+          ? 'Your followers are on the move.'
+          : 'No followers can take this order.'
+        : 'No command slots available.'
+    )
+    return true
+  }
+  // Non-ground commands retain their existing controller until mixed queues are live.
+  w.orderCursor = 0
   const shrine = model === 27 || model === 33 ? context.shrine : undefined
   const friendly = [6, 8, 10].includes(model) ? context.building : undefined
   // ponytail: command 19 still enters the existing attack adapter; complete native
