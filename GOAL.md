@@ -83,8 +83,9 @@ output and address-level bookkeeping in the decompilation evidence.
 
 Latest user direction, reaffirmed 2026-09-11: continue the requested queue of
 group movement, unit footprints, standing formations, selection/deselection and
-native 3D drag selection. Finish the current mixed-object picking slice, then
-address the most noticeable remaining gaps in these areas. Lightning and Blast's
+native 3D drag selection. Mixed-object picking and ordinary ground-command
+admission now have bounded deliveries; continue the most noticeable remaining
+gaps in group behavior and selection. Lightning and Blast's
 impact handoff already have bounded deliveries recorded below; do not restart
 them or treat these scheduled areas as complete. This order supersedes older
 "Next" paragraphs below; those retain unfinished scope, not an instruction to
@@ -123,8 +124,10 @@ differences in actual play and preserving the existing regression checks.
 
 1. **Group movement — bounded implementation delivered.** Ordinary ground orders
    share native commands and use original marching recruitment, slot geometry,
-   catch-up speed and arrival. Cancellation/death and rest/panic handoffs are checked;
-   full avoidance, scheduling and general work/attack queue restoration remain open.
+   catch-up speed and arrival. Formations now steer before person physics, in native
+   tribe/list order; newly recruited groups wait until the next turn. Cancellation/death
+   and rest/panic handoffs are checked; full avoidance, mixed-object scheduling and
+   general work/attack queue restoration remain open.
 2. **Unit footprints — bounded implementation delivered.** Keep its emission,
    terrain-pixel and frame-rate regressions passing during the movement migration;
    the ownership/visibility boundaries above remain open.
@@ -1654,6 +1657,29 @@ then return to first-mission campaign attacks and visible spells.
 The broad performance pass is complete. New mechanics stay fixed-turn, rendering
 uncapped, and TS clean and readable. Profile the composed controller when live.
 The entire game scope and all unfinished lifecycle requirements remain active.
+
+### Group steering phase corrected, 2026-09-11
+
+The original `004ec6f0` inner loop visits the four tribe formation lists before
+encounters, fights and allocated objects. Live groups now follow that phase and
+tribe order. Newly recruited groups wait a turn; existing groups steer using the
+preceding person counters, before this turn's physics. Inactive groups are skipped.
+This removes the extra movement turn before steering and prevents early updates
+on recruitment. Formation geometry, speed, poses and the fixed simulation clock
+retain their existing native controllers.
+
+`check-native-formation-phase.py` records 256 two-turn native traversal cases,
+including pause, inactive records, recruitment and byte-counter wrapping. Portable
+traces check live ordering; a real 24-person replay observes actual recruitment and
+steering. Existing native controller comparisons, browser marching/resting and
+5–240 Hz/irregular replay remain required. The paired 200-person CPU measurement
+is recorded in `references/performance/2026-09-11-formation-phase.json`: median 0.545 → 0.548
+ms per complete turn. Rendering is unchanged; this is not a GPU FPS claim.
+
+The entire allocated-object list order, deferred deletion/rebuild, allocation caps,
+all mixed-class phases, avoidance and general work/attack queues remain unfinished.
+This corrects a bounded integration; it does not certify the full group lifecycle.
+Continue the requested group/footprint/standing/selection/3D-drag queue.
 
 ### Audio work delivered; finish current tree ambience correction
 

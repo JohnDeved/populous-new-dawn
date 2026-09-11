@@ -216,8 +216,8 @@ export function stepLiveMovement(w: World, u: Unit) {
   }
 }
 
-// The browser currently visits formations after followers. Full mixed-class
-// allocation/scheduling parity is separate; rendering remains interpolated.
+// 0x4ec6f0 visits tribe formations before encounters and ordinary objects.
+// New groups recruited by people therefore begin on the next simulation turn.
 export function stepLiveMarchingFormations(w: World) {
   if (!w.marching.length) return
   const people = new Map<number, LivePerson>()
@@ -228,29 +228,32 @@ export function stepLiveMarchingFormations(w: World) {
       people.set(p.id, p)
     }
   }
-  for (const g of w.marching) {
-    // Retain removed records until this visit, as the native object pool does.
-    for (const id of g.members)
-      if (id && !people.has(id)) {
-        const p = w.objectCells.objects.get(id) as LivePerson | undefined
-        if (p) {
-          p.class = 0
-          people.set(id, p)
+  for (let tribe = 0; tribe < 4; tribe++) {
+    for (const g of w.marching) {
+      if (!g.class || g.tribe !== tribe) continue
+      // Retain removed records until this visit, as the native object pool does.
+      for (const id of g.members)
+        if (id && !people.has(id)) {
+          const p = w.objectCells.objects.get(id) as LivePerson | undefined
+          if (p) {
+            p.class = 0
+            people.set(id, p)
+          }
         }
-      }
-    const state = { randomState: w.randomState, poseRandom: w.cosmeticRandom, people }
-    stepMarchingFormation(state, g, {
-      remove: () => {
-        g.class = 0
-      },
-      destination: (p, to) => {
-        p.turnAngle = to.x
-        p.turnY = to.y
-        p.flags2 = ((p.flags2 & ~128) | 4096) >>> 0
-      },
-      setAnimation: (p, object) => setLivePersonAnimation(w, p as LivePerson, object),
-    })
-    w.randomState = state.randomState
+      const state = { randomState: w.randomState, poseRandom: w.cosmeticRandom, people }
+      stepMarchingFormation(state, g, {
+        remove: () => {
+          g.class = 0
+        },
+        destination: (p, to) => {
+          p.turnAngle = to.x
+          p.turnY = to.y
+          p.flags2 = ((p.flags2 & ~128) | 4096) >>> 0
+        },
+        setAnimation: (p, object) => setLivePersonAnimation(w, p as LivePerson, object),
+      })
+      w.randomState = state.randomState
+    }
   }
   w.marching = w.marching.filter(g => g.class)
 }

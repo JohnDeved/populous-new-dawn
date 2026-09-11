@@ -4499,6 +4499,7 @@ function stepTurn(w: World) {
   w.pathfinding.state.searches = 0
   Object.assign(w.pathfinding.solver, { attempts: 0, detours: 0, steps: 0, limited: 0 })
   stepOutcome(w) // 0x4ec6f0: after increment, before this turn's object work.
+  stepLiveMarchingFormations(w) // Native formations steer this turn's person physics.
   // 0x4facf0: auto-collected reward objects grant knowledge/stock after 82 object turns.
   for (const gift of w.gifts) {
     if (--gift.remaining !== 0) continue
@@ -4993,7 +4994,6 @@ function stepTurn(w: World) {
       }
     } else u.idleTurns = 0
   }
-  stepLiveMarchingFormations(w)
   for (const { unit: u, previous } of burningPeople) {
     if (u.hp <= 0 && !u.flight) continue
     const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }

@@ -1820,9 +1820,13 @@
                 "references/reverse-engineering.md",
                 "scripts/check-marching-performance.mjs",
                 "references/performance/2026-09-10-marching.json",
-                "references/performance/2026-09-10-marching-browser.json"
+                "references/performance/2026-09-10-marching-browser.json",
+                "scripts/check-native-formation-phase.py",
+                "tests/formation-phase.test.mjs",
+                "scripts/bench-formation-phase.mjs",
+                "references/performance/2026-09-11-formation-phase.json"
               ],
-              "note": "Native comparisons plus shared command references, live recruitment/slots/speed, cancellation/death, rest/panic handoffs, original GPU poses and 5\u2013240 Hz/irregular replay verify this bounded ordinary movement integration. Actual browser right-click and pause checks pass. Full global scheduling/allocation, rerouting/avoidance, general automatic work/attack restoration, selected-person states and vehicles remain lifecycle scope."
+              "note": "Native comparisons plus shared command references, live recruitment/slots/speed, cancellation/death, rest/panic handoffs, original GPU poses and 5\u2013240 Hz/irregular replay verify this bounded ordinary movement integration. Actual browser left-click and pause checks pass. Full global scheduling/allocation, rerouting/avoidance, general automatic work/attack restoration, selected-person states and vehicles remain lifecycle scope. Native tribe/list ordering and formations-before-physics are now integrated, including next-turn recruitment and inactive skipping. 256 two-turn native traces, live phase/recruitment regressions and browser marching/resting cover this correction; complete mixed-class scheduling remains open."
             },
             {
               "id": "movement.groups.lifecycle",
@@ -1838,9 +1842,13 @@
                 "tests/marching-formations.test.mjs",
                 "references/reverse-engineering.md",
                 "tests/game.test.mjs",
-                "GOAL.md"
+                "GOAL.md",
+                "scripts/check-native-formation-phase.py",
+                "tests/formation-phase.test.mjs",
+                "scripts/bench-formation-phase.mjs",
+                "references/performance/2026-09-11-formation-phase.json"
               ],
-              "note": "Ordinary free ground orders now use native marching and arrival with shared command references. Full movement/avoidance and rerouting, native selected-person transitions, general work/attack queue restoration, specialist/vehicle behavior, allocator limits and complete class/counter scheduling remain unfinished. The browser still preflights unreachable commands and visits marching groups after followers."
+              "note": "Ordinary free ground orders now use native marching and arrival with shared command references. Full movement/avoidance and rerouting, native selected-person transitions, general work/attack queue restoration, specialist/vehicle behavior, allocator limits and complete class/counter scheduling remain unfinished. Native tribe/list ordering and formations-before-physics are now integrated, including next-turn recruitment and inactive skipping. 256 two-turn native traces, live phase/recruitment regressions and browser marching/resting cover this correction; complete mixed-class scheduling remains open."
             }
           ]
         },

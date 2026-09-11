@@ -7922,3 +7922,35 @@ eligibility. A live eight-person regression compares the entire world after bloc
 cell and quarter-mask clicks, restoring only the injected obstruction for equality.
 Actual browser clicks at desktop/ultrawide sizes check preserved orders, marker/audio
 queues, silence on rejection and restored input after clearance.
+
+
+## 2026-09-11 — marching formations steer before person physics
+
+Existing export `004ec6f0` proves the phase: four tribes in numeric order, each
+formation list at tribe+0x88d using object+8 next links, skipping class zero, call
+`00501000`; then encounter/fight lists; then primary allocated objects using +4
+next links, nonzero-state admission and incremented byte counters before `004ed700`.
+Guard/world work follows, then the secondary allocated list and tribe-list rebuild.
+The pause branch bypasses these processors. Both list traversals cache next before
+calling their processor. Groups recruited during a person's visit therefore first
+run in the following turn.
+
+`check-native-formation-phase.py EXE [--record]` executes the complete native inner
+loop in 256 two-turn scenarios. Leaf processors are supplied and recorded; original
+pause/phase/list traversal and counters execute. The first person visit prepends a
+new formation, proving its next-turn admission. Randomized tribe lists, inactive
+classes and counter wrapping are covered; 32 traces are retained for portable tests.
+This probe does not execute world processors, allocation or the list rebuild; the
+existing marching comparison separately executes the complete original formation
+controller (2,048 geometry, 2,048 controller, 128 sequence and 4,096 recruitment cases).
+
+`model.ts` now calls the live formation adapter after outcome work and before object
+work, instead of after followers. The adapter visits tribes 0–3, preserving each
+tribe's retained order, and skips inactive groups. Its shared person map is still
+built once per turn. No native linked-list emulation, sorting or new allocations
+per group are introduced. `formation-phase.test.mjs` compares the native phase
+traces against live ticks and observes genuine 24-person formations: no steering
+on their creation turn, and subsequent steering before member-counter increments.
+Actual browser orders, original walking poses, pause, retargeting and resting
+handoff pass. The broader mixed-class allocated order, list rebuilding, deferred
+freeing, object limits and complete world scheduling remain unfinished.

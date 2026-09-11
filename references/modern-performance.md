@@ -2277,3 +2277,28 @@ The short-run tail increase did not repeat. These local CPU measurements include
 All people receive valid movement orders, with identical person records, shared
 orders, marching and RNG after every pair. Rejected input is tested separately
 because the old acknowledgement behavior is intentionally corrected.
+
+
+### Formation steering phase, 2026-09-11
+
+Steering remains on the fixed simulation turn, before person physics. Rendering
+and interpolation remain uncapped and unchanged. A four-tribe pass over the existing
+formation array preserves original ordering without copying or sorting it; the
+existing person lookup map is built only once. No render work, timer, package or
+per-frame formation traversal is added.
+
+`bench-formation-phase.mjs` loads the previous shipped model and movement adapter
+beside the current implementation, sharing unchanged modules. Eight warmups and
+20 alternating paired samples each simulate 120 complete turns with 200 followers;
+every run must retain all people and contain at least ten marching groups. On Apple
+M5 / Node v24.18.0, median turn CPU was **0.545 → 0.548 ms**, p95 **0.593 → 0.608 ms**.
+Raw samples are in `performance/2026-09-11-formation-phase.json`. This is a local CPU
+cost measurement, not a speedup, GPU FPS claim or cross-hardware guarantee. Corrected
+scheduling intentionally changes trajectories; native traversal comparisons and
+separate fixed-turn replay tests establish correctness. The older lazy-collision
+benchmark now uses the corrected phase and dates new reports instead of overwriting
+its historical measurement.
+Its rerun (`performance/2026-09-11-marching.json`) preserves exact movement,
+orders, formations, cell chains, routes and both RNGs across eager/lazy modes:
+2.912 → 0.140 ms median per movement-only turn. This excludes the other world
+processors and must not be confused with the complete-turn comparison above.
