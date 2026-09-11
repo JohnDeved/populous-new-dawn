@@ -283,16 +283,17 @@
     {
       "id": "computer-attack-native",
       "kind": "native",
-      "purpose": "Execute mission one's native ATTACK decoder, allocator and deterministic type-20 staging prefix.",
+      "purpose": "Execute mission one's native ATTACK decoder, allocator and deterministic type-20 route through phase 14.",
       "coveredBehavior": [
         "Exact mission-one ATTACK arguments",
         "type-20 allocation gates and task fields",
         "mixed-class selection",
         "selection lock ownership",
-        "shared staging command commit"
+        "shared staging command commit",
+        "ordinary target radius and regroup routing"
       ],
       "knownLimits": [
-        "Stops at phase 6 before world-dependent routing, hostile target dispatch, cancellation and final cleanup."
+        "Stops at phase 14 before hostile target dispatch, cancellation and final cleanup."
       ],
       "executable": "python3",
       "args": ["scripts/check-native-computer-attack.py", "$POPULOUS_EXE"],

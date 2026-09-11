@@ -191,6 +191,7 @@ import {
   nativeAngle,
   nativeStep,
   random,
+  cellDistanceSquared,
   positionDistance,
   nativeTerrainCross,
 } from './native-math.ts'
@@ -280,7 +281,9 @@ import {
   createComputerQueue,
   computerPhase,
   dispatchComputerTask,
+  requestAttack,
   requestTraining,
+  stepAttackTask,
   stepTrainingTask,
   type ComputerQueue,
   type TrainingBuilding,
@@ -1960,6 +1963,28 @@ export function campaignPersonCount(w: World, tribe: number, model?: number) {
   )
 }
 
+// 0x492680 / 0x4f54f0: inclusive wrapped square around a script marker.
+function campaignPeopleInMarker(w: World, tribe: number, marker: number, radius: number) {
+  if (!Number.isInteger(tribe) || tribe < -1 || tribe > 3)
+    throw new RangeError('Invalid campaign marker tribe')
+  if (!Number.isInteger(marker) || marker < 0 || marker >= level.markers.length)
+    throw new RangeError('Invalid campaign marker')
+  if (!Number.isInteger(radius) || radius < 0 || radius > 127)
+    throw new RangeError('Invalid campaign marker radius')
+  const target = level.markers[marker],
+    tx = target & 255,
+    ty = target >>> 8,
+    team = tribe === -1 ? 'wild' : tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null,
+    wrapped = (a: number, b: number) => Math.min(Math.abs(a - b), 256 - Math.abs(a - b)) >> 1
+  return (
+    w.units.filter(u => {
+      if (u.team !== team || u.hp <= 0 || u.inside !== null) return false
+      const p = nativePosition(w, u)
+      return wrapped((p.x >>> 8) & 254, tx) <= radius && wrapped((p.y >>> 8) & 254, ty) <= radius
+    }).length | 0
+  )
+}
+
 // 0x4ecac0 counts completed buildings (state 2) separately from all live buildings.
 // Browser progress is the current approximation of native building state.
 export function campaignBuildingCount(
@@ -2103,10 +2128,86 @@ function restoreComputerSelection(w: World, index: number) {
   w.ai.trainingSelections[index].length = 0
 }
 
+function computerAttackUnits(w: World, index: number) {
+  return w.ai.tasks[index].members.flatMap(id => {
+    const unit = w.units.find(u => u.id === id && u.hp > 0)
+    return unit ? [unit] : []
+  })
+}
+const computerAttackReady = (u: Unit) =>
+  !u.flight && !u.fight && !u.fighting && !u.casting && !u.lift
+
 function stepComputerTasks(w: World, tribe: number) {
   if (computerPhase(w.turn, tribe) !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
     const task = w.ai.tasks[index]
+    if (task.type === 20) {
+      let selection: ReturnType<typeof computerSelectionWorld> | undefined
+      const shaman = w.units.find(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0),
+        shamanPosition = shaman && nativePosition(w, shaman),
+        staging =
+          w.ai.flags & 0x100
+            ? w.ai.defencePosition
+            : shamanPosition
+              ? ((shamanPosition.x >>> 8) & 254) | (shamanPosition.y & 0xfe00)
+              : 0,
+        actions = stepAttackTask(w.ai, index, {
+          staging,
+          ready: () => computerAttackUnits(w, index).every(computerAttackReady),
+          select: (model, count, destination) => {
+            const current = (selection ??= computerSelectionWorld(w, tribe)),
+              ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
+            for (const id of ids) {
+              const source = current.sources.get(id)
+              if (source) source.flags3 = current.world.units.get(id)!.flags3
+            }
+            return ids
+          },
+          settled: () => {
+            const units = computerAttackUnits(w, index)
+            return units.length === 0
+              ? null
+              : units.every(
+                  u =>
+                    computerAttackReady(u) &&
+                    (u.native?.state !== 10 ||
+                      currentPersonOrder(w.buildingOrders, u.native)?.model !== 3)
+                )
+          },
+          memberWithin: (target, radius) => {
+            const unit = computerAttackUnits(w, index).find(u => {
+              if (!computerAttackReady(u)) return false
+              const p = nativePosition(w, u),
+                cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+              return cellDistanceSquared(cell, target) <= radius * radius
+            })
+            if (!unit) return null
+            const p = nativePosition(w, unit)
+            return ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+          },
+        })
+      for (const action of actions) {
+        if (action.kind === 'select') {
+          const u = w.units.find(u => u.id === action.id)
+          if (!u || u.inside !== null || u.entry || u.work !== null)
+            throw new Error('Unsupported computer attack selection')
+          u.native ??= createLivePerson(w, u)
+          registerLivePerson(w, u.native)
+          changeLivePersonState(w, u, 14)
+        } else if (action.kind === 'move') {
+          const units = computerAttackUnits(w, index),
+            order = emptyPersonOrder()
+          writePersonOrder(order, 3, 0, action.target, 0)
+          const issued = units.length ? appendLiveOrders(w, units, order, action.replace) : null
+          if (!issued?.accepted || issued.count !== units.length) {
+            for (const u of units) if (u.native?.state === 14) changeLivePersonState(w, u, 10)
+            task.flags &= ~3
+            task.members.length = 0
+          }
+        }
+      }
+      return
+    }
     if (task.type !== 6) throw new Error(`Unbound computer task ${task.type}`)
     const target = trainingBuilding(w, task.target)
     let selection: ReturnType<typeof computerSelectionWorld> | undefined
@@ -2175,6 +2276,8 @@ export function campaignCommand(
   const arity = (
     {
       1038: 3,
+      1059: 13,
+      1068: 4,
       1095: 2,
       1108: 6,
       1196: 1,
@@ -2205,6 +2308,52 @@ export function campaignCommand(
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`)
   if (args.length !== arity) throw new Error(`Invalid campaign command arguments ${opcode}`)
   const read = (index: number) => scriptValue(script, w.ai, index, id => campaignInternal(w, id))
+  const writeVariable = (token: number, value: number) => {
+    const index = script.fields[token]?.[1]
+    if (!Number.isInteger(index) || index < 0 || index >= 64)
+      throw new RangeError('Invalid campaign query destination')
+    w.ai.variables[index] = value | 0
+  }
+
+  if (opcode === 1059) {
+    const none = (index: number) => {
+        const field = script.fields[args[index]]
+        return field?.[0] === 2 && field[1] === 1224
+      },
+      requested = read(args[1]),
+      marker = read(args[3]),
+      damage = read(args[4]),
+      options = [9, 10, 11, 12].map(index => read(args[index]))
+    if (
+      args[0] !== 1118 ||
+      args[2] !== 1070 ||
+      args[8] !== 1078 ||
+      ![5, 6, 7].every(none) ||
+      requested !== 3 ||
+      marker !== 3 ||
+      damage !== 999 ||
+      options.some((value, index) => value !== [0, -1, -1, 0][index])
+    )
+      throw new Error('Unsupported computer attack')
+    requestAttack(
+      w.ai,
+      level.markers[marker],
+      marker,
+      requested,
+      damage,
+      w.ai.attributes.slice(11, 17),
+      !!(w.ai.states & (1 << 20)),
+      1
+    )
+    return
+  }
+
+  if (opcode === 1068) {
+    const tribe =
+      args[0] === 1058 ? -1 : args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0])
+    writeVariable(args[3], campaignPeopleInMarker(w, tribe, read(args[1]), read(args[2])))
+    return
+  }
 
   if (opcode === 1095) {
     const [count, model] = args.map(read)
@@ -2319,11 +2468,7 @@ export function campaignCommand(
     }
   }
   // Native destinations use the field's value as a user-variable index, regardless of type.
-  const index = script.fields[args.at(-1)!]?.[1]
-  if (!Number.isInteger(index) || index < 0 || index >= 64) {
-    throw new RangeError('Invalid campaign query destination')
-  }
-  w.ai.variables[index] = value | 0
+  writeVariable(args.at(-1)!, value)
 }
 
 const boundCampaignScript = {
@@ -2332,6 +2477,7 @@ const boundCampaignScript = {
     12,
     1003,
     ...originalScript.codes.slice(564, 681),
+    ...originalScript.codes.slice(681, 855),
     ...originalScript.codes.slice(936, 1505),
     1004,
     1019,

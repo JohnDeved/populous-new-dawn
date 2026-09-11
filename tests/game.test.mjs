@@ -504,7 +504,7 @@ test('campaign counters track allocation and remaining head gifts through gamepl
  bridge.remaining=-1;finish(bridge);assert.equal(bridge.remaining,-1);assert.equal(bridge.active,false,'negative trigger counts fire once and retain their value');
  assert.throws(()=>campaignCommand(fresh,1077,[1119,1,2],program),/Unbound one-off spell stock/,'unported AI stock is not silently reported as zero');
  assert.throws(()=>campaignCommand(fresh,1076,[1118,1,2],{fields:[[0,0],[0,2],[1,64]]}),/Invalid campaign query destination/);
- assert.throws(()=>campaignCommand(fresh,1059,[]),/Unbound campaign command/);
+ assert.throws(()=>campaignCommand(fresh,1059,[]),/Invalid campaign command arguments 1059/);
 });
 
 test('worship decays without followers and continues at full spell stock', () => {
@@ -795,6 +795,28 @@ test('campaign attack commitment follows living warrior counts on its original t
   tick(w,1/12);
   assert.equal(w.ai.attributes[11],expected);
  }
+});
+
+test('mission-one Dakini launches its native mixed attack route when Blue enters marker three',async()=>{
+ const {joinBattle}=await import('../app/model.ts');
+ const w=createWorld(),marker=nativeCellPoint(level.markers[3]),staging=(level.markers[3]&0xff00)|((level.markers[3]+12)&255);
+ addUnit(w,'blue','warrior',{x:marker.x,z:marker.z+12});
+ const redStart=nativeCellPoint(staging);addUnit(w,'red','warrior',redStart);
+ for(const unit of w.units.filter(u=>u.team==='red'&&u.kind!=='shaman'))Object.assign(unit,redStart);
+ w.ai.defencePosition=staging;w.ai.variables[50]=1;w.ai.variables[2]=0;w.turn=201;tick(w,1/12);
+ const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
+ assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,quotas:w.ai.attributes.slice(11,17)});
+ assert.equal(w.ai.variables[8],1);assert.equal(w.ai.variables[2],1);
+ until(w,()=>task.members.length===3,2);
+ assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind).sort(),['brave','brave','warrior']);
+ const phases=[];let radiusDistance=0;until(w,()=>{if(phases.at(-1)!==task.phase)phases.push(task.phase);if(task.phase!==11)return false;radiusDistance=Math.min(...task.members.map(id=>{const u=w.units.find(unit=>unit.id===id);return Math.hypot(u.x-marker.x,u.z-marker.z);}));return true;},20);
+ const attacker=w.units.find(u=>u.id===task.members[0]),owner=attacker.native,target=addUnit(w,'blue','warrior',attacker);target.hp=10;joinBattle(w,attacker,target);
+ assert.equal(attacker.native,null);assert.equal(attacker.fight.motion,owner);
+ until(w,()=>{if(attacker.fight){assert.equal(task.phase,11);assert.equal(attacker.fight.motion,owner);return false;}return target.hp===0;},20);
+ assert.equal(attacker.native,owner,'combat restores the one retained person/order owner');
+ until(w,()=>{if(phases.at(-1)!==task.phase)phases.push(task.phase);return task.phase===14;},20);
+ assert.ok(radiusDistance>1.5,'native radius advances before exact marker arrival');assert.deepEqual(phases.slice(-5),[10,11,12,6,14]);
+ assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
 });
 
 test('queued training keeps its selection lock until issuing the order and frees its slot after arrival', async () => {

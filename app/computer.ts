@@ -11,6 +11,10 @@ export type ComputerTask = {
   remaining: number
   elapsed: number
   mode: number
+  fallback: number
+  regroup: number
+  quotas: number[]
+  members: number[]
 }
 export type ComputerQueue = {
   tasks: ComputerTask[]
@@ -33,6 +37,10 @@ export function createComputerQueue(): ComputerQueue {
       remaining: 0,
       elapsed: 0,
       mode: 0,
+      fallback: 0,
+      regroup: 0,
+      quotas: [],
+      members: [],
     })),
     cursor: 0,
     flags: 0,
@@ -86,6 +94,39 @@ export function requestTraining(
   // Type 6 has no reset case in 0x462ca0: scratch fields retain their old values.
 }
 
+// 0x4e6640 / 0x4c14c0: mission ATTACK allocation is capped separately from
+// the ten-slot task queue and snapshots the six away-class percentages.
+export function requestAttack(
+  ai: ComputerQueue,
+  target: number,
+  marker: number,
+  requested: number,
+  damage: number,
+  quotas: number[],
+  enabled: boolean,
+  maximum: number
+) {
+  if (!enabled || ai.tasks.filter(t => t.flags & 1 && t.type === 20).length >= maximum) return
+  const task = ai.tasks.find(t => !(t.flags & 1))
+  if (!task) return
+  Object.assign(task, {
+    flags: ((task.flags & ~2) | 1) >>> 0,
+    type: 20,
+    phase: 0,
+    target: target & 65535,
+    requested: requested | 0,
+    extra: damage | 0,
+    selected: 0,
+    remaining: 0,
+    elapsed: 0,
+    mode: marker & 255,
+    fallback: 0,
+    regroup: 0,
+    quotas: quotas.slice(0, 6).map(n => n & 255),
+    members: [],
+  })
+}
+
 // 0x4f2290 / 0x4f5c80: selection is locked across task calls; type-20 tasks
 // can also block acquisition while the lock itself is free.
 function acquireSelection(ai: ComputerQueue, index: number) {
@@ -111,6 +152,131 @@ function releaseSelection(ai: ComputerQueue, index: number) {
   if (ai.selectionOwner !== index) return
   ai.flags = (ai.flags & ~2) >>> 0
   ai.selectionOwner = 10
+}
+
+export type AttackInput = {
+  staging: number
+  select: (model: number, count: number, destination: number) => number[]
+  settled: () => boolean | null
+  memberWithin: (target: number, radius: number) => number | null
+  ready: () => boolean
+}
+export type AttackAction =
+  | { kind: 'select'; id: number }
+  | { kind: 'move'; target: number; replace: boolean }
+
+// Bounded ordinary type-20 route: 0x4cb400 phases 0-12 and 18. Automatic
+// hostile command 21 remains person-owned while phase-15 targeting is unported.
+export function stepAttackTask(
+  ai: ComputerQueue,
+  index: number,
+  input: AttackInput
+): AttackAction[] {
+  const task = ai.tasks[index],
+    actions: AttackAction[] = []
+  if (task.phase === 0) {
+    task.selected = 0
+    task.remaining = 0
+    task.elapsed = 0
+    task.members.length = 0
+    task.phase = 2
+  }
+  if (task.phase === 2) {
+    if (acquireSelection(ai, index)) task.phase = 3
+    return actions
+  }
+  if (task.phase === 3) {
+    while (task.remaining < 6) {
+      const model = task.remaining + 2,
+        count = Math.min(
+          100,
+          Math.trunc(((task.quotas[task.remaining++] ?? 0) * task.requested) / 100)
+        )
+      if (!count) continue
+      const ids = input.select(model, count, input.staging)
+      task.members.push(...ids)
+      task.selected += ids.length
+      return ids.map(id => ({ kind: 'select' as const, id }))
+    }
+    const ids = input.select(-1, Math.max(0, task.requested - task.selected), input.staging)
+    task.members.push(...ids)
+    task.selected += ids.length
+    if (!task.selected) {
+      releaseSelection(ai, index)
+      task.flags &= ~3
+    } else task.phase = 4
+    return [...actions, ...ids.map(id => ({ kind: 'select' as const, id }))]
+  }
+  if (task.phase === 4) {
+    task.phase = 5
+    return actions
+  }
+  if (task.phase === 5) {
+    releaseSelection(ai, index)
+    task.phase = 6
+    task.fallback = 18
+    task.elapsed = 0
+    return [{ kind: 'move', target: input.staging, replace: true }]
+  }
+  if (task.phase === 6) {
+    task.elapsed += ai.tasks.filter(t => t.flags & 1).length
+    const settled = input.settled()
+    if (settled === null) {
+      releaseSelection(ai, index)
+      task.flags &= ~3
+      task.members.length = 0
+      return actions
+    }
+    if (settled || task.elapsed > 1800) task.phase = task.fallback
+    return actions
+  }
+  if (task.phase === 18) {
+    task.phase = 7
+    return actions
+  }
+  if (task.phase === 7) {
+    if (!input.ready()) return actions
+    if (acquireSelection(ai, index)) task.phase = 9
+    return actions
+  }
+  if (task.phase === 9) {
+    if (!input.ready()) {
+      releaseSelection(ai, index)
+      task.phase = 7
+      return actions
+    }
+    releaseSelection(ai, index)
+    task.phase = 10
+    task.elapsed = 0
+    return [{ kind: 'move', target: task.target, replace: true }]
+  }
+  if (task.phase === 10) {
+    const regroup = input.memberWithin(task.target, 20)
+    if (regroup !== null) {
+      task.regroup = regroup
+      task.phase = 11
+    }
+    return actions
+  }
+  if (task.phase === 11) {
+    if (!input.ready()) return actions
+    if (acquireSelection(ai, index)) task.phase = 12
+    return actions
+  }
+  if (task.phase === 12) {
+    if (!input.ready()) {
+      releaseSelection(ai, index)
+      task.phase = 11
+      return actions
+    }
+    releaseSelection(ai, index)
+    task.phase = 6
+    task.fallback = 14
+    task.elapsed = 0
+    return [{ kind: 'move', target: task.regroup, replace: false }]
+  }
+  // ponytail: stop at phase 14; add phase 15 only with its target-controller evidence.
+  return actions
 }
 
 export type TrainingBuilding = {
