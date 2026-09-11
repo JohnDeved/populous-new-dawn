@@ -98,3 +98,34 @@ test('a large terrain edit indexes live people once while retaining dirty notifi
   nativePosition(w, { x: 0, z: 0 })
   assert.equal(reads, 198, 'unchanged terrain creates no notification index')
 })
+
+test('terrain dirtiness resets live steering without replacing its route', () => {
+  const w = createWorld()
+  Object.assign(w, { units: [], buildings: [], trees: [], shrines: [] })
+  w.manaWorld.gameFlags = 96
+  w.terrain.fill(3)
+  w.terrainVersion++
+  const u = addUnit(w, 'blue', 'brave', { x: 0, z: 0 })
+  w.selected = [u.id]
+  command(w, { x: 24, z: 24 })
+  const p = u.native,
+    owner = w.pathfinding.people.get(u.id),
+    route = p.motionGroup,
+    index = p.motionIndex,
+    start = { x: u.x, z: u.z }
+  assert.equal(owner, p)
+  assert.ok(route)
+  Object.assign(p, { motionTimer: 9, motionMode: 7, flags2: p.flags2 | 0x20000800 })
+  w.terrain.fill(4)
+  w.terrainVersion++
+  nativePosition(w, u)
+  assert.ok(p.flags2 & 4)
+  tick(w, 1 / 12)
+  assert.equal(w.pathfinding.people.get(u.id), owner)
+  assert.equal(p.motionGroup, route)
+  assert.equal(p.motionIndex, index)
+  assert.equal(p.motionTimer, 0)
+  assert.equal(p.motionMode, 0)
+  assert.equal(p.flags2 & 0x20000804, 0)
+  assert.notDeepEqual({ x: u.x, z: u.z }, start)
+})
