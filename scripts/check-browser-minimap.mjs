@@ -135,6 +135,19 @@ try {
     assert.equal(target.y, expected.y)
     assert.equal(target.angle, heading)
   }
+  // Browser-only secondary buttons must not move the camera or open a context menu.
+  const target = await page.evaluate(() => ({ ...window.testScene.cameraMotion.target }))
+  const rect = await mini.boundingBox()
+  for (const button of ['middle', 'right']) {
+    await page.mouse.click(rect.x + rect.width * 0.2, rect.y + rect.height * 0.8, { button })
+    assert.deepEqual(await page.evaluate(() => window.testScene.cameraMotion.target), target)
+  }
+  assert.equal(
+    await mini.evaluate(element =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }))
+    ),
+    false
+  )
   // A terrain edit invalidates the cached map through the same live land version.
   const changed = await page.evaluate(async () => {
     const s = window.testScene,

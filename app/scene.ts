@@ -856,7 +856,7 @@ export class GameScene {
       if (document.hidden) pause()
     })
     this.listen(minimap, 'pointerdown', e => {
-      if (this.world.inputMask) return
+      if ((e as PointerEvent).button !== 0 || this.world.inputMask) return
       const p = e as PointerEvent,
         rect = minimap.getBoundingClientRect()
       this.focus(
@@ -875,6 +875,7 @@ export class GameScene {
         { animate: true }
       )
     })
+    this.listen(minimap, 'contextmenu', e => e.preventDefault())
     this.frame = requestAnimationFrame(this.animate)
   }
   makeSky() {
