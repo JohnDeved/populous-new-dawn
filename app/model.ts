@@ -2444,6 +2444,7 @@ export function campaignCommand(
 ) {
   const arity = (
     {
+      1028: 1,
       1038: 3,
       1059: 13,
       1068: 4,
@@ -2493,6 +2494,11 @@ export function campaignCommand(
     w.ai.variables[index] = value | 0
   }
 
+  if (opcode === 1028) {
+    if (args[0] === 1022) w.ai.states = (w.ai.states | 1) >>> 0
+    else if (args[0] === 1023) w.ai.states = (w.ai.states & ~1) >>> 0
+    return
+  }
   if (opcode === 1172) {
     const mode = (args[0] << 16) >> 16
     if (mode === 1022) w.ai.flags = (w.ai.flags | 0x40000) >>> 0
@@ -2717,17 +2723,7 @@ export function campaignCommand(
 
 const boundCampaignScript = {
   ...originalScript,
-  codes: [
-    12,
-    1003,
-    ...originalScript.codes.slice(382, 531),
-    ...originalScript.codes.slice(564, 681),
-    ...originalScript.codes.slice(681, 855),
-    ...originalScript.codes.slice(855, 936),
-    ...originalScript.codes.slice(936, 1505),
-    1004,
-    1019,
-  ],
+  codes: [12, 1003, ...originalScript.codes.slice(382, 1505), 1004, 1019],
 }
 function campaignRules(w: World) {
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.

@@ -496,6 +496,17 @@ test('mission-one AI applies its native population difficulty table on the origi
  assert.equal(low.ai.flags&0x40000,0x40000);assert.equal(high.ai.flags&0x40000,0x40000);
 });
 
+test('mission-one closes its construction latch after the first Red hut',()=>{
+ const w=createWorld();w.turn=51;tick(w,1/12);
+ assert.deepEqual([w.ai.variables[4],w.ai.states&1,w.ai.attributes[9],w.ai.attributes[10]],[0,1,1,3]);
+ const plan=addBuilding(w,'red','hut',ENEMY,false,{plan:true});w.turn=114;tick(w,1/12);
+ assert.deepEqual([w.ai.variables[4],w.ai.states&1,w.ai.attributes[9],w.ai.attributes[10]],[0,1,1,3]);
+ w.turn=115;tick(w,1/12);
+ assert.deepEqual([w.ai.variables[4],w.ai.states&1,w.ai.attributes[9],w.ai.attributes[10]],[1,0,0,0]);
+ Object.assign(w.ai.attributes,{9:7,10:8});w.ai.states|=1;plan.hp=0;w.turn=179;tick(w,1/12);
+ assert.deepEqual([w.ai.variables[4],w.ai.states&1,w.ai.attributes[9],w.ai.attributes[10]],[1,1,7,8]);
+});
+
 test('campaign marker setup snapshots native entry state before live execution',()=>{
  const w=createWorld();
  assert.equal(w.ai.markerValue,0);assert.deepEqual(w.ai.markerEntries.slice(0,3),[
