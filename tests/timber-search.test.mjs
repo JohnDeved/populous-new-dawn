@@ -40,3 +40,15 @@ test('an exhausted indexed-search pool postpones expansion without corrupting th
   assert.deepEqual(pool, before)
   assert.deepEqual(indexed, bytes)
 })
+
+test('live timber cost probes report routes and foreign territory without taking route ownership',async()=>{
+ const {createWorld,nativePosition}=await import('../app/model.ts'),{createLivePerson}=await import('../app/live-people.ts'),{acceptLivePath,planLivePath,probeLivePathCost}=await import('../app/live-pathfinding.ts')
+ const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),source=createLivePerson(w,u),cell=p=>((p.x>>>8)&254)|(p.y&0xfe00),from=cell(nativePosition(w,u))
+ assert.deepEqual(probeLivePathCost(w,u,source,from,from),{result:0,cost:0})
+ const target=w.trees.find(tree=>{const route=probeLivePathCost(w,u,source,from,cell(nativePosition(w,tree)));return route.result===0&&route.cost>0});assert.ok(target)
+ acceptLivePath(w,u,planLivePath(w,u,target));const person=w.pathfinding.people.get(u.id),to=cell(nativePosition(w,target))
+ const ownership=()=>({cursor:w.motionRoutes.cursor,active:w.motionRoutes.active,records:w.motionRoutes.records.slice(),failed:w.motionRoutes.failedSearches.slice(),group:person.motionGroup,index:person.motionIndex,goal:[person.goalX,person.goalY]})
+ const before=ownership(),route=probeLivePathCost(w,u,person,from,to);assert.equal(route.result,0);assert.ok(route.cost>0);assert.deepEqual(ownership(),before)
+ w.land.regions.fill(0x20);assert.deepEqual(probeLivePathCost(w,u,person,from,to),{result:2,cost:route.cost});assert.deepEqual(ownership(),before)
+ for(const mask of w.land.walkMasks)mask.fill(0);assert.deepEqual(probeLivePathCost(w,u,person,from,to),{result:1,cost:0});assert.deepEqual(ownership(),before)
+})

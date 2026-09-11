@@ -102,9 +102,19 @@ import {
   type Replant,
 } from './tree-growth.ts'
 import { createIndexedSearch } from './indexed-search.ts'
+import {
+  createTimberSearches,
+  findTimber,
+  invalidateTimberSearch,
+  looseTimberInCell,
+  orderedTimberCells,
+  refreshTimberSearch,
+  stepTimberSearches,
+  type TimberSearchWorld,
+} from './timber-search.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
-import { terrainSupportsPerson } from './person-collision.ts'
+import { personStepCollision, terrainSupportsPerson } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
 import { createBuildingSmoke, stepBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
@@ -129,6 +139,7 @@ import {
   createLivePathfinding,
   findLivePath,
   planLivePath,
+  probeLivePathCost,
   acceptLivePath,
   clearLivePath,
   stepLiveRoute,
@@ -403,6 +414,7 @@ export type Building = Point & {
   builders?: number[]
   birthPending?: boolean
   woodUnavailable?: boolean
+  timberSearch?: number
   damageState:
     | (DamageBuilding & {
         plan: BuildingPlan
@@ -1432,6 +1444,7 @@ export type World = {
   buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
+  timberSearches: ReturnType<typeof createTimberSearches>
   ai: ScriptState &
     ComputerQueue & {
       states: number
@@ -1686,6 +1699,7 @@ export function createWorld(): World {
     },
     motionRoutes: createMotionRoutes(),
     pathfinding: createLivePathfinding(),
+    timberSearches: createTimberSearches(),
     land: {
       ...structuredClone(originalLand),
       regions: new Uint8Array(16384),
@@ -2969,6 +2983,7 @@ function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
     workers.forEach(u => {
       if (!finishQueuedConstruction(w, u)) release(w, u)
     })
+    invalidateBuildingTimberSearch(w, b)
     w.buildings = w.buildings.filter(other => other !== b)
     return
   }
@@ -3039,18 +3054,19 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
   }
   let finished = 0
   if (task.task === BuilderTask.Fetch) {
-    const site = {
-      id: b.id,
-      class: 9,
-      model: buildingModel(b),
-      building: b.preparation ? 0 : b.id,
-      flags3: b.woodUnavailable ? 0x1000 : 0,
-      searchIndex: -1,
-      angle: pose.angle,
-      inside: buildingInsidePoint(pose),
-      outside: buildingOutsidePoint(pose),
-      occupied: w.land.buildingIds[cell],
-    }
+    const searchWorld = liveTimberWorld(w),
+      site = {
+        id: b.id,
+        class: 9,
+        model: buildingModel(b),
+        building: b.preparation ? 0 : b.id,
+        flags3: b.woodUnavailable ? 0x1000 : 0,
+        searchIndex: b.timberSearch ?? -1,
+        angle: pose.angle,
+        inside: buildingInsidePoint(pose),
+        outside: buildingOutsidePoint(pose),
+        occupied: w.land.buildingIds[cell],
+      }
     const timber = (id: number) => {
       const tree = w.trees.find(tree => tree.id === id)
       return tree
@@ -3070,10 +3086,11 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
       releaseMotion,
       sound: cue => sound(w, cue, u),
       target: timber,
-      // ponytail: keep the existing nearest-reachable-tree adapter until the
-      // shared cache has its still-unproved live route-cost consumer.
-      refreshSearch: () => {},
-      findWood: () => findBuildingWood(w, u, b)?.id ?? 0,
+      refreshSearch: (point, angle) => {
+        refreshTimberSearch(w.timberSearches, site, timberCell(point), angle, p)
+        b.timberSearch = site.searchIndex
+      },
+      findWood: index => findTimber(w.timberSearches, searchWorld, index, p.id, true, false).target,
       looseWood: to => {
         const targetCell = ((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)
         return (
@@ -4800,6 +4817,82 @@ function entranceWood(w: World, b: Building) {
   )
 }
 
+const timberCell = (p: { x: number; y: number }) => ((p.x >>> 8) & 255) | (p.y & 0xff00)
+
+function* liveTimberObjects(w: World, cell: number) {
+  // ponytail: scan the live tree array; index it by native cell if scenery scale makes this hot.
+  for (let i = w.trees.length - 1; i >= 0; i--) {
+    const tree = w.trees[i],
+      point = nativePosition(w, tree),
+      index = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+    if (index === cell)
+      yield {
+        id: tree.id,
+        class: tree.logs > 0 ? 5 : 0,
+        model: tree.model,
+        flags4: 0,
+        wood: Math.round(tree.logs * 100),
+      }
+  }
+}
+
+function liveTimberWorld(w: World): TimberSearchWorld {
+  return {
+    landFlags: w.land.landFlags,
+    levelFlags: w.manaWorld.levelFlags,
+    playerTribe: w.manaWorld.playerTribe,
+    land: w.land,
+    objects: cell => liveTimberObjects(w, cell),
+    building: id => {
+      const b = w.buildings.find(b => b.id === id)
+      if (!b) return
+      const model = buildingModel(b),
+        life = rules.buildingLife[model],
+        work = b.damageState?.plan.remaining ?? Math.round(b.progress * life)
+      return {
+        class: b.preparation ? 9 : 2,
+        flags2: b.hp > 0 ? 0 : 1,
+        outside: timberCell(buildingOutsidePoint(buildingPose(b))) & 0xfefe,
+        needed: Math.max(0, life - work),
+      }
+    },
+  }
+}
+
+function stepLiveTimberSearches(w: World) {
+  const world = liveTimberWorld(w),
+    collision = collisionWorld(w)
+  stepTimberSearches(
+    w.timberSearches,
+    world,
+    w.indexedSearch,
+    (search, candidate) => {
+      const u = w.units.find(u => u.id === search.person && u.hp > 0),
+        p = u?.builder?.person
+      if (!u || !p) return { result: 1, cost: candidate.cost }
+      for (const { cell } of orderedTimberCells(search.center, candidate.cell)) {
+        if (!looseTimberInCell(world, cell, search.tribe)) continue
+        const center = {
+          x: (((cell & 0xfe) + 1) << 8) & 65535,
+          y: ((((cell >>> 8) & 0xfe) + 1) << 8) & 65535,
+        }
+        if (personStepCollision(collision, p, center)) continue
+        const route = probeLivePathCost(w, u, p, search.center, cell)
+        if (route.result !== 1) return route
+      }
+      return { result: 1, cost: candidate.cost }
+    },
+    id => w.units.some(u => u.id === id && u.hp > 0)
+  )
+}
+
+function invalidateBuildingTimberSearch(w: World, b: Building) {
+  if (b.timberSearch == null || b.timberSearch < 0) return
+  const owner = { searchIndex: b.timberSearch }
+  invalidateTimberSearch(w.timberSearches, owner, timberCell(buildingOutsidePoint(buildingPose(b))))
+  b.timberSearch = owner.searchIndex
+}
+
 function findBuildingWood(w: World, u: Unit, b: Building) {
   const door = buildingOutsidePoint(buildingPose(b))
   return w.trees
@@ -4889,6 +4982,7 @@ function stepTurn(w: World) {
   w.pathfinding.solver.tribeRequests.fill(0)
   w.pathfinding.state.searches = 0
   Object.assign(w.pathfinding.solver, { attempts: 0, detours: 0, steps: 0, limited: 0 })
+  stepLiveTimberSearches(w)
   stepOutcome(w) // 0x4ec6f0: after increment, before this turn's object work.
   stepLiveMarchingFormations(w) // Native formations steer this turn's person physics.
   // 0x4facf0: auto-collected reward objects grant knowledge/stock after 82 object turns.
@@ -5459,6 +5553,7 @@ function stepTurn(w: World) {
     if (f.kind === 'death') f.unit = { team: u.team, kind: u.kind, heading: u.heading }
   }
   for (const b of w.buildings.filter(b => b.hp <= 0)) {
+    invalidateBuildingTimberSearch(w, b)
     markBuildingTerritory(
       w.land,
       { ...nativePosition(w, b), tribe: b.team === 'blue' ? 0 : 1 },

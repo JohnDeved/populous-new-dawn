@@ -155,6 +155,34 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     land: w.land,
     vehicles: new Map(),
   }
+  const search = (
+    person: LivePerson,
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    option: number,
+    vehicles: boolean
+  ) =>
+    searchPersonPath(
+      searchWorld,
+      person,
+      Uint8Array.of(a.x, a.y, 0, 0),
+      Uint8Array.of(b.x, b.y, 0, 0),
+      option,
+      vehicles,
+      {
+        prepare: () => preparePathCandidates(searchWorld, g),
+        choose: i => choosePathCandidate(searchWorld, g, i),
+        solve: () => solvePersonPath(searchWorld, g, solver, p, probe),
+        smooth: () =>
+          smoothSearchPath(path, 0, (a, b, k) =>
+            clearPathSegment(searchWorld, g, p, a, b, k, probe)
+          ),
+        measure: () => measureSearchPath(path, g.line, r.measure, w.land.regions, tribes),
+        collect: () => {
+          state.truncated = Number(collectSearchPath(path, w.motionRoutes.pathResult, 0))
+        },
+      }
+    )
   const routeEffects: RouteEffects = {
     outside: id => {
       const b = w.buildings.find(b => b.id === id)
@@ -179,31 +207,25 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     build: (_, from, to) =>
       buildPersonRoute(w.motionRoutes, p, from, to, searchOption, tribes[p.tribe], {
         findVehicle: () => null,
-        search: (_, person, a, b, option, vehicles) =>
-          searchPersonPath(
-            searchWorld,
-            person,
-            Uint8Array.of(a.x, a.y, 0, 0),
-            Uint8Array.of(b.x, b.y, 0, 0),
-            option,
-            vehicles,
-            {
-              prepare: () => preparePathCandidates(searchWorld, g),
-              choose: i => choosePathCandidate(searchWorld, g, i),
-              solve: () => solvePersonPath(searchWorld, g, solver, p, probe),
-              smooth: () =>
-                smoothSearchPath(path, 0, (a, b, k) =>
-                  clearPathSegment(searchWorld, g, p, a, b, k, probe)
-                ),
-              measure: () => measureSearchPath(path, g.line, r.measure, w.land.regions, tribes),
-              collect: () => {
-                state.truncated = Number(collectSearchPath(path, w.motionRoutes.pathResult, 0))
-              },
-            }
-          ),
+        search: (_, _person, a, b, option, vehicles) => search(p, a, b, option, vehicles),
       }),
   }
-  return { planner, routeEffects }
+  return { planner, routeEffects, search }
+}
+
+// 0x494d10 consumes path cost synchronously without allocating or attaching a
+// motion route. The search scratch buffers are shared, as in the native game.
+export function probeLivePathCost(w: World, u: Unit, source: LivePerson, from: number, to: number) {
+  const p = { ...source },
+    { search } = routeContext(w, u, p),
+    measure = w.pathfinding.measure
+  Object.assign(measure, { dirty: 1, distance: 0, tribes: 0 })
+  const failed = search(p, { x: from & 255, y: from >>> 8 }, { x: to & 255, y: to >>> 8 }, 0, false)
+  measure.dirty = 0
+  return {
+    result: failed ? 1 : measure.tribes & ~(1 << (p.tribe & 31)) ? 2 : 0,
+    cost: measure.distance,
+  }
 }
 
 // 0x4ea920: recovery corrects copied endpoints, then builds with its current

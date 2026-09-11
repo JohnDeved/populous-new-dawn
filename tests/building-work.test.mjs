@@ -35,15 +35,19 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
   const w=createWorld();w.manaWorld.gameFlags=32
   w.selected=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
   assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
-  const b=w.buildings.at(-1),phases=new Set();let worker
+  const b=w.buildings.at(-1),phases=new Set(),fetchers=new Set();let worker
   for(let turn=0;turn<1000&&!worker;turn++){
     tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w)
-    for(const u of w.units.filter(u=>u.work===b.id&&u.builder?.task===2)){
+    for(const u of w.units.filter(u=>u.work===b.id)){
+      if(u.builder?.task===7&&b.timberSearch!=null)fetchers.add(u.id)
+      if(u.builder?.task!==2)continue
       phases.add(u.builder.phase)
       if(!b.preparation&&u.builder.phase===4&&u.builder.person?.speed===0&&u.builder.person.timer>2)worker=u
     }
   }
   assert.ok(worker,'an assigned non-hauler must reach the original work loop')
+  assert.ok(fetchers.size>1,'construction workers share the building-owned timber cache')
+  assert.equal(w.timberSearches.active,1)
   assert.ok(phases.has(23)&&phases.has(4),'workers wander before each work pause')
   const p=worker.builder.person
   assert.equal(unitAnimationSource(worker),p);assert.equal(unitAnimation(w,worker),'work')
