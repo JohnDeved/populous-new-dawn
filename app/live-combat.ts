@@ -2,13 +2,15 @@ import type { World, Unit, Building } from './model.ts'
 import { buildingModel } from './building-shapes.ts'
 import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
 import {
+  allocatePersonOrder,
+  attachPersonOrder,
   currentPersonOrder,
   emptyPersonOrder,
   prepareCellOrder,
   type OrderedPerson,
   type OrderEffects,
 } from './person-orders.ts'
-import { startCombatResponse } from './combat-orders.ts'
+import { shareCombatOrder, startCombatResponse } from './combat-orders.ts'
 import {
   detectCombatThreat,
   selectCombatTarget,
@@ -159,7 +161,7 @@ export function selectLiveCombatTarget(
   return { ...result, owner }
 }
 
-function ordinaryCombatScan(
+function combatScan(
   w: World,
   p: Omit<Parameters<typeof automaticCombatScanner>[0], 'counter'>,
   order: Parameters<typeof automaticCombatScanner>[1]
@@ -174,7 +176,28 @@ function ordinaryCombatScan(
       () => false
     )
   p.flags3 = scan.flags3
-  return scanner === 'melee'
+  return scanner
+}
+
+function startPreacherResponse(
+  w: World,
+  p: CombatPerson & OrderedPerson & { h: number },
+  peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
+  effects: OrderEffects
+) {
+  const range = engagementRange(p, currentPersonOrder(w.buildingOrders, p), false)
+  if (!range) return 0
+  const radius = Math.trunc(range / 2) * 2,
+    area = { a: ((p.x >>> 8) & 254) | (p.y & 0xfe00), b: radius | (radius << 8) },
+    { world } = combatWorld(w, p, range)
+  if (!detectCombatThreat(world, p, area, false, false)) return 0
+  const id = allocatePersonOrder(w.buildingOrders)
+  if (!id) return 0
+  prepareCellOrder(w.buildingOrders.records[id], area, 32, w.land.categories)
+  p.flags2 = (p.flags2 | 16) >>> 0
+  attachPersonOrder(w.buildingOrders, p, id, -1, effects)
+  shareCombatOrder(w.buildingOrders, p, id, peers(), effects)
+  return id
 }
 
 // Live adapter for the already recovered 0x51e5e0/0x520480 allocator. The
@@ -186,8 +209,10 @@ export function allocateLiveCombatResponse(
   effects: OrderEffects
 ) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!ordinaryCombatScan(w, p, order)) return 0
+  const scanner = combatScan(w, p, order)
+  if (scanner !== 'melee' && scanner !== 'preacher') return 0
   if (order?.model === 27) return 0
+  if (scanner === 'preacher') return startPreacherResponse(w, p, peers, effects)
   const range = engagementRange(p, order, false),
     { world } = combatWorld(w, p, range)
   startCombatResponse(world, w.buildingOrders, p, peers, effects)
@@ -217,7 +242,7 @@ export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undef
   // remain in the command migration; do not invent the ritual eligibility result.
   // The ordinary live roster uses the melee scanner. Specialist response
   // controllers must own their distinct searches rather than fall through here.
-  if (!ordinaryCombatScan(w, p, current) || current?.model === 27) return
+  if (combatScan(w, p, current) !== 'melee' || current?.model === 27) return
   const range = engagementRange(p, current, false)
   if (!range) return
   const radius = Math.trunc(range / 2) * 2

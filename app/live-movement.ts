@@ -19,7 +19,11 @@ import {
 } from './live-people.ts'
 import { initializeBuildingPerson } from './live-building-entry.ts'
 import { stepLiveWorship } from './live-worship.ts'
-import { liveBuildingAttackTarget, releaseLiveAttackReservation } from './live-building-combat.ts'
+import {
+  liveBuildingAttackTarget,
+  releaseLiveAttackReservation,
+  startLiveCombatResponse,
+} from './live-building-combat.ts'
 import { clearLivePath, stepLiveRoute, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
@@ -450,6 +454,7 @@ export function stepLivePreaching(w: World, u: Unit) {
     changeLivePersonState(w, u, next)
   }
   adoptLiveOrders(w, u, p)
+  if (u.native === p) startLiveCombatResponse(w, u)
 }
 
 function join(w: World, p: LivePerson) {
@@ -602,7 +607,28 @@ export function stepLiveOrderQueue(
           resumeBuilding: () => false,
           // 0x436870 only rewrites command 31; ground/head queues do not use it.
           prepareNext: () => {
-            if (w.buildingOrders.records[p.commands[p.commandCursor]].model === 31) unsupported()
+            const slot = p.commandCursor,
+              order = w.buildingOrders.records[p.commands[slot]]
+            if (order.model !== 31) return
+            const point = { x: order.a, y: order.b },
+              cell = (point.y >> 9) * 128 + (point.x >> 9),
+              id = w.land.buildingIds[cell] & 1023,
+              building =
+                w.land.flags[cell] & 512
+                  ? w.buildings.find(
+                      b => (b.id & 1023) === id && b.team === (p.tribe === 0 ? 'blue' : 'red')
+                    )
+                  : undefined
+            remove(slot)
+            const nextId = allocatePersonOrder(w.buildingOrders)
+            if (!nextId) return
+            const next = w.buildingOrders.records[nextId]
+            if (building) prepareBuildingEntryOrder(next, building.id, 0, 0, false)
+            else
+              prepareMovementOrder(next, point, 0, w.land, buildingId =>
+                buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+              )
+            attachPersonOrder(w.buildingOrders, p, nextId, slot, orderEffects(w))
           },
           configure: () => {
             const { state, effects } = orderContext(w, p, w)

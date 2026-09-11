@@ -3,7 +3,7 @@ import test from 'node:test'
 import {createHash} from 'node:crypto'
 import orders from './fixtures/combat-orders.json' with {type:'json'}
 import preparation from './fixtures/combat-order-preparation.json' with {type:'json'}
-import {prepareCellOrder} from '../app/person-orders.ts'
+import {currentPersonOrder,prepareCellOrder} from '../app/person-orders.ts'
 import scanners from './fixtures/combat-scanners.json' with {type:'json'}
 import {startCombatResponse} from '../app/combat-orders.ts'
 import {automaticCombatScanner,canAutoEngage,engagementRange} from '../app/melee-engagement.ts'
@@ -137,4 +137,41 @@ test('live automatic sharing leaves a nonmatching same-cell peer untouched', () 
   assert.equal(startLiveCombatResponse(w,u),true)
   assert.equal(peer.native.group,77)
   assert.equal(peer.native.immediateCommand,0)
+})
+
+test('live preacher response retains its sermon queue and resumes conversion', () => {
+  const w=createWorld();w.units=[];w.selected=[]
+  const preacher=addUnit(w,'blue','preacher',{x:2,z:0})
+  for(let i=0;i<200&&!preacher.native;i++)tick(w,1/12)
+  assert.equal(currentPersonOrder(w.buildingOrders,preacher.native)?.model,17)
+  const p=preacher.native, queued=p.commands[p.commandCursor]
+  const enemy=addUnit(w,'red','preacher',{x:3,z:0})
+  p.flags3|=0x800
+  tick(w,1/12)
+  assert.equal(currentPersonOrder(w.buildingOrders,p)?.model,21)
+  assert.equal(p.commands[p.commandCursor],queued)
+  enemy.hp=0
+  for(let i=0;i<300&&p.immediateCommand;i++)tick(w,1/12)
+  assert.equal(p.immediateCommand,0)
+  assert.equal(currentPersonOrder(w.buildingOrders,p)?.model,17)
+  w.levelFlags2|=0x2000000
+  const victim=addUnit(w,'red','brave',{x:3,z:0})
+  for(let i=0;i<700&&victim.native?.state!==23;i++)tick(w,1/12)
+  assert.equal(victim.native?.state,23)
+})
+
+test('preacher response allocation failure consumes the scan without changing its queue', () => {
+  const w=field(), u=addUnit(w,'blue','preacher',{x:0,z:0}), p=createLivePerson(w,u)
+  u.native=p
+  const queued=w.buildingOrders.records[1]
+  Object.assign(queued,{model:17,references:1,a:p.x,b:p.y})
+  p.commands[0]=1;p.commandStatus=17;p.state=10;p.flags3|=0x800
+  w.buildingOrders.active=799
+  for(const order of w.buildingOrders.records.slice(2))order.references=1
+  addUnit(w,'red','preacher',{x:1,z:0})
+  assert.equal(startLiveCombatResponse(w,u),false)
+  assert.equal(p.flags3&0x800,0)
+  assert.equal(p.commands[0],1)
+  assert.equal(p.immediateCommand,0)
+  assert.equal(queued.references,1)
 })

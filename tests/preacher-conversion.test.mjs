@@ -14,7 +14,8 @@ import {
   tick,
   unitAnimationSource,
 } from '../app/model.ts'
-import { stepLiveConversionVictim } from '../app/live-movement.ts'
+import { createLivePerson } from '../app/live-people.ts'
+import { stepLiveConversionVictim, stepLivePreaching } from '../app/live-movement.ts'
 import {
   conversionDelay,
   stepConversionVictim,
@@ -362,4 +363,58 @@ test('preacher conversion is independent of display refresh rate', () => {
   }
   const expected = run(144)
   for (const hz of [5, 30, 60, 120, 240]) assert.deepEqual(run(hz), expected)
+})
+
+function queuedPreacher(w, preacher, next) {
+  const p = createLivePerson(w, preacher)
+  preacher.native = p
+  Object.assign(w.buildingOrders.records[1], {
+    model: 17,
+    references: 1,
+    a: p.x,
+    b: p.y,
+  })
+  Object.assign(w.buildingOrders.records[2], { model: 31, references: 1, ...next })
+  w.buildingOrders.active = 2
+  p.commands[0] = 1
+  p.commands[1] = 2
+  p.commandStatus = 17
+  p.state = 10
+  p.substate = 4
+  return p
+}
+
+test('queued command 31 rewrites to friendly building entry or ground movement', () => {
+  const friendly = createWorld()
+  friendly.units = []
+  const
+    temple = addBuilding(friendly, 'blue', 'temple', { x: HOME.x + 8, z: HOME.z })
+  syncLandscapeObjects(friendly)
+  const cell = friendly.land.buildingIds.findIndex(id => id === temple.id),
+    point = { x: ((cell & 127) << 9) + 256, y: ((cell >> 7) << 9) + 256 },
+    preacher = addUnit(friendly, 'blue', 'preacher', { x: HOME.x + 2, z: HOME.z }),
+    p = queuedPreacher(friendly, preacher, { a: point.x, b: point.y })
+  stepLivePreaching(friendly, preacher)
+  assert.equal(currentPersonOrder(friendly.buildingOrders, p)?.model, 8)
+  assert.equal(currentPersonOrder(friendly.buildingOrders, p)?.a, temple.id)
+
+  const ground = createWorld()
+  ground.units = []
+  ground.buildings = []
+  ground.land.categories.fill(0)
+  ground.land.flags.fill(0)
+  ground.land.buildingIds.fill(0)
+  const
+    walker = addUnit(ground, 'blue', 'preacher', { x: HOME.x + 2, z: HOME.z }),
+    destination = { x: 12 << 9, y: 12 << 9 },
+    moving = queuedPreacher(ground, walker, { a: destination.x, b: destination.y })
+  stepLivePreaching(ground, walker)
+  assert.equal(currentPersonOrder(ground.buildingOrders, moving)?.model, 3)
+  assert.deepEqual(
+    {
+      x: currentPersonOrder(ground.buildingOrders, moving)?.a,
+      y: currentPersonOrder(ground.buildingOrders, moving)?.b,
+    },
+    destination
+  )
 })
