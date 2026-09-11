@@ -252,6 +252,14 @@ export default function Home() {
     store.restart()
     setTab('spells')
   }
+  function loadCheckpoint() {
+    audio.current?.reset()
+    setMenu(false)
+    setReady(false)
+    setError('')
+    store.loadCheckpoint()
+    setTab('spells')
+  }
   const blue = world.units.filter(u => u.team === 'blue'),
     red = world.units.filter(u => u.team === 'red')
   const shaman = blue.find(u => u.kind === 'shaman'),
@@ -702,6 +710,16 @@ export default function Home() {
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
             Return to the world <span>↗</span>
+          </button>
+          <button className="secondary-button" onClick={store.saveCheckpoint}>
+            Save checkpoint
+          </button>
+          <button
+            className="secondary-button"
+            disabled={!store.hasCheckpoint()}
+            onClick={loadCheckpoint}
+          >
+            Load checkpoint
           </button>
           <button className="secondary-button" onClick={restart}>
             Restart world

@@ -4,6 +4,7 @@ import { createWorld, type World } from './model.ts'
 // instead of treating that world as immutable component state.
 export function createGameStore() {
   let world = createWorld(),
+    checkpoint: World | null = null,
     revision = 0
   const listeners = new Set<() => void>()
   const update = () => {
@@ -23,6 +24,17 @@ export function createGameStore() {
     change: (action: (world: World) => void) => {
       action(world)
       update()
+    },
+    hasCheckpoint: () => !!checkpoint,
+    saveCheckpoint: () => {
+      checkpoint = structuredClone(world)
+      update()
+    },
+    loadCheckpoint: () => {
+      if (!checkpoint) return false
+      world = structuredClone(checkpoint)
+      update()
+      return true
     },
     restart: () => {
       world = createWorld()

@@ -619,6 +619,13 @@ export class GameScene {
     this.mini = minimap
     this.portrait = portrait
     this.world = world
+    this.soundSerial = world.soundSerial
+    for (const effect of world.effects) if (effect.fire) effect.fire.soundPlaying = false
+    for (const building of world.buildings) if (building.burn) building.burn.soundPlaying = false
+    for (const unit of world.units) {
+      if (unit.native) unit.native.flags4 &= ~16
+      if (unit.flight) unit.flight.flags4 &= ~16
+    }
     this.onChange = onChange
     this.onSound = onSound
     this.renderer = new THREE.WebGLRenderer({
