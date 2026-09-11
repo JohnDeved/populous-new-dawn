@@ -5491,6 +5491,13 @@ function stepTurn(w: World) {
       continue
     }
     if (
+      u.inside !== null &&
+      !w.buildings.some(building => building.id === u.inside && building.hp > 0)
+    ) {
+      release(w, u)
+      u.hp -= 10
+    }
+    if (
       u.native &&
       [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
@@ -5798,6 +5805,7 @@ function stepTurn(w: World) {
   removeDeadLiveRoutes(w)
   for (const u of w.units)
     if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {
+      if (u.inside !== null) leaveLiveBuilding(w, u)
       cancelLiveBuildingAttack(w, u)
       cancelLiveOrder(w, u)
       cancelBuildingEntry(w, u)

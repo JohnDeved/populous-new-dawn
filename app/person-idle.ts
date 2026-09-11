@@ -75,6 +75,17 @@ type ApproachEffects = {
   attachOrder: (id: number) => void
   initialize: () => void
 }
+type PreacherOrderEffects = Pick<
+  ApproachEffects,
+  | 'allocateOrder'
+  | 'adjacentBuilding'
+  | 'buildingPoint'
+  | 'prepareOrder'
+  | 'occupied'
+  | 'clearOrders'
+  | 'attachOrder'
+  | 'initialize'
+>
 
 // Complete 0x4d3dd0 and the state-17 controller embedded in 0x4d32b0.
 export function samePersonCell(a: Point, b: Point) {
@@ -86,6 +97,35 @@ export function stepIdleApproach(p: ApproachingPerson, collision: ApproachEffect
     if (collision({ x: p.anchorX, y: p.anchorY })) p.flags2 = (p.flags2 | 16) >>> 0
   }
   return next
+}
+
+// Complete 0x4deff0, shared by ordinary idle and occupied-tower preachers.
+export function initializePreacherOrder(
+  gameFlags: number,
+  p: ApproachingPerson,
+  e: PreacherOrderEffects
+) {
+  const id = e.allocateOrder()
+  if (!id) return
+  let model = 17,
+    to = { x: p.anchorX, y: p.anchorY }
+  if (p.flags2 & 0x800000) {
+    const building = e.adjacentBuilding()
+    if (building) {
+      model = 31
+      to = e.buildingPoint(building)
+    }
+  }
+  e.prepareOrder(id, model, to)
+  if (!e.occupied()) p.flags3 = (p.flags3 | 1) >>> 0
+  e.clearOrders()
+  e.attachOrder(id)
+  resetPersonMotion(p)
+  if (!(p.flags2 & 0x100000)) {
+    p.previousState = p.state
+    p.state = defaultPersonState(p, gameFlags)
+    e.initialize()
+  }
 }
 
 // Complete 0x4d6f90, including search failure, inside/vehicle transitions and
@@ -147,25 +187,8 @@ export function initializeIdleApproach(
     transition(21)
     return
   }
-  if (p.model === 4) {
-    const id = e.allocateOrder()
-    if (!id) return
-    let model = 17,
-      to = { x: p.anchorX, y: p.anchorY }
-    if (p.flags2 & 0x800000) {
-      const building = e.adjacentBuilding()
-      if (building) {
-        model = 31
-        to = e.buildingPoint(building)
-      }
-    }
-    e.prepareOrder(id, model, to)
-    if (!e.occupied()) p.flags3 = (p.flags3 | 1) >>> 0
-    e.clearOrders()
-    e.attachOrder(id)
-    resetPersonMotion(p)
-    transition(defaultPersonState(p, gameFlags))
-  } else {
+  if (p.model === 4) initializePreacherOrder(gameFlags, p, e)
+  else {
     const next = stepIdleApproach(p, e.collision)
     if (next) transition(next)
   }

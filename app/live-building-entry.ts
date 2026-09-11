@@ -61,12 +61,12 @@ import {
   resetPersonMotion,
 } from './person-state.ts'
 import { terrainPointHeight } from './native-terrain.ts'
-import { buildingOutsidePoint, buildingSocketPoint } from './building-shapes.ts'
+import { buildingInsidePoint, buildingOutsidePoint, buildingSocketPoint } from './building-shapes.ts'
 import { dropCarriedTimber, timberTransfer } from './timber.ts'
 import { stepDismantling, toggleDismantling } from './building-dismantle.ts'
 import { changeBuildingWork } from './building-damage.ts'
 import { rebuildRestingSlots } from './resting-slots.ts'
-import { initializeIdleApproach } from './person-idle.ts'
+import { initializeIdleApproach, initializePreacherOrder } from './person-idle.ts'
 import { restingCellCollision } from './person-collision.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 import { setPersonAnchor, personStateAfterOrders } from './person-order-update.ts'
@@ -180,7 +180,28 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
         releasePersonRoute(w.motionRoutes, p)
         const u = w.units.find(unit => unit.id === p.id)
         if (u) clearLivePath(w, u)
-        if (p.model === 4) unsupported() // Preacher tower behavior is a separate unported class.
+        const tower =
+          p.model === 4 && p.building !== null
+            ? w.buildings.find(b => b.id === p.building && buildingModel(b) === 4)
+            : undefined
+        if (tower) {
+          initializePreacherOrder(w.manaWorld.gameFlags, p, {
+            allocateOrder: () => allocatePersonOrder(w.buildingOrders),
+            adjacentBuilding: () => tower.id,
+            buildingPoint: () => buildingInsidePoint(buildingPose(tower)),
+            prepareOrder: (id, model, point) =>
+              Object.assign(w.buildingOrders.records[id], {
+                model,
+                a: point.x & 65535,
+                b: point.y & 65535,
+              }),
+            occupied: () => false,
+            clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects),
+            attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects),
+            initialize,
+          })
+          if (u && currentPersonOrder(w.buildingOrders, p)?.model === 31) adoptLiveOrders(w, u, p)
+        }
       },
       deselectPassengers: unsupported,
       rebuildFormation: cell =>
@@ -258,10 +279,10 @@ function context(w: World) {
     buildingIds: [] as number[],
   }))
   for (const u of w.units) {
-    if (u.hp <= 0) continue
     const tribe = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1
-    if (tribe >= 0) tribes[tribe].personCounts[nativePersonModel(u)]++
-    if (u.entry || u.inside !== null) people.set(u.id, u.entry?.person ?? person(w, u))
+    if (u.hp > 0 && tribe >= 0) tribes[tribe].personCounts[nativePersonModel(u)]++
+    if (u.entry || u.inside !== null)
+      people.set(u.id, u.entry?.person ?? u.native ?? person(w, u))
   }
   const buildings = new Map<number, BuildingAdmission>()
   for (const b of w.buildings) {
@@ -314,8 +335,14 @@ function occupancyEffects(w: World): OccupancyEffects {
     planExitPoint: unsupported,
     updateIndicator: b => {
       for (const u of w.units) {
-        if (b.occupants.includes(u.id)) u.inside = b.id
-        else if (u.inside === b.id) u.inside = null
+        const p = u.entry?.person ?? u.native
+        if (b.occupants.includes(u.id)) {
+          u.inside = b.id
+          if (p) p.building = b.id
+        } else if (u.inside === b.id) {
+          u.inside = null
+          if (p) p.building = null
+        }
       }
     },
   }
@@ -323,8 +350,8 @@ function occupancyEffects(w: World): OccupancyEffects {
 
 export function leaveBuildingEntry(w: World, u: Unit) {
   const b = w.buildings.find(b => b.id === u.inside)
-  if (!u.entry || !b?.admission) return
-  const p = u.entry.person
+  const p = u.entry?.person ?? u.native
+  if (!p || !b?.admission) return
   removeBuildingOccupant(context(w), b.admission, p, occupancyEffects(w))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   return p
