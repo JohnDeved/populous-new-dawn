@@ -13,6 +13,7 @@ try {
     Object.assign(shaman, { x: 0, z: 20, path: [], casting: null })
     w.units = [shaman, victim]
     w.buildings = []
+    w.trees = []
     w.selected = [shaman.id]
     w.shots.tornado = 1
     w.castingTribes[0].cooldown = 0
@@ -58,12 +59,22 @@ try {
     const captured = victim.native?.state === 24 && victim.native.stateObject === fx.id
     victim.native.substate = 18
     step()
+    const thrown = victim.flight === victim.native && victim.flight?.velocity.y === 230
+    const tree = { ...browserPosition(fx.tornado), id: w.nextId++, model: 1, logs: 2 }
+    w.trees.push(tree)
+    s.animate(s.previous)
+    cancelAnimationFrame(s.frame)
+    const mesh = s.decorations.children.find(group => group.userData.point?.id === tree.id)?.children[0],
+      before = mesh?.userData.nativeSize
+    for (let i = 0; tree.logs === 2 && i < 32; i++) step()
     return {
       id: fx.id,
       shots: w.shots.tornado,
       cast: w.stats.cast,
       captured,
-      thrown: victim.flight === victim.native && victim.flight?.velocity.y === 230,
+      thrown,
+      treeLogs: tree.logs,
+      treeShrank: mesh?.userData.nativeSize < before,
       sounds: w.sounds.map(sound => sound.cue),
     }
   })
@@ -72,10 +83,12 @@ try {
   assert.equal(result.cast, 1)
   assert.ok(result.captured)
   assert.ok(result.thrown)
+  assert.equal(result.treeLogs, 1)
+  assert.ok(result.treeShrank)
   assert.ok(result.sounds.includes(0x78) && result.sounds.includes(163))
   assert.ok(pixels > 20, `Tornado smoke must reach GPU pixels (${pixels})`)
   assert.deepEqual(errors, [])
-  console.log(`PASS: UI Tornado cast, capture, throw and smoke rendering (${pixels} pixels)`)
+  console.log(`PASS: UI Tornado cast, capture, throw, tree damage and smoke (${pixels} pixels)`)
 } finally {
   await browser.close()
 }

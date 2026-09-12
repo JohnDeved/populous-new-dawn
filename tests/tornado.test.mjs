@@ -54,8 +54,10 @@ test('Tornado replays native initialization, lifetime, carry and throw', () => {
     stepTornado(w, tornado, {
       people: () => [],
       buildings: () => [],
+      scenery: () => [],
       capture: () => {},
       damage: () => {},
+      damageScenery: () => {},
       sound: () => {},
     })
   ) {}
@@ -83,37 +85,62 @@ test('Tornado uses the native building protection and one-draw damage gate', () 
       y: 0,
       h: 512,
     },
-    run = (seed, building) => {
+    run = (seed, building, scenery) => {
       const w = { land, randomState: seed },
-        damaged = []
+        damaged = [],
+        damagedScenery = []
       stepTornado(w, structuredClone(tornado), {
         people: () => [],
-        buildings: () => [building],
+        buildings: () => (building ? [building] : []),
+        scenery: () => (scenery ? [scenery] : []),
         capture: () => {},
         damage: candidate => damaged.push(candidate.id),
+        damageScenery: candidate => damagedScenery.push(candidate.id),
         sound: () => {},
       })
-      return { randomState: w.randomState, damaged }
+      return { randomState: w.randomState, damaged, damagedScenery }
     }
 
   assert.deepEqual(run(0, { id: 7, model: 1 }), {
     randomState: 0x26f80001,
     damaged: [7],
+    damagedScenery: [],
   })
   assert.deepEqual(run(3, { id: 7, model: 1 }), {
     randomState: 0x96100004,
     damaged: [],
+    damagedScenery: [],
   })
-  assert.deepEqual(run(3, { id: 18, model: 18 }), { randomState: 3, damaged: [] })
+  assert.deepEqual(run(3, { id: 18, model: 18 }), {
+    randomState: 3,
+    damaged: [],
+    damagedScenery: [],
+  })
+  assert.deepEqual(run(0, undefined, { id: 9, model: 1 }), {
+    randomState: 0x26f80001,
+    damaged: [],
+    damagedScenery: [9],
+  })
+  assert.deepEqual(run(3, undefined, { id: 9, model: 6 }), {
+    randomState: 0x96100004,
+    damaged: [],
+    damagedScenery: [],
+  })
+  assert.deepEqual(run(3, undefined, { id: 9, model: 0 }), {
+    randomState: 3,
+    damaged: [],
+    damagedScenery: [],
+  })
 })
 
 test('live Tornado casts, captures and throws independently of refresh rate', () => {
-  const run = (schedule, kind = 'hut') => {
+  const run = (schedule, kind = 'hut', treeLogs = 2) => {
     const w = createWorld(),
       shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       victim = w.units.find(u => u.team === 'red' && u.kind === 'brave')
     w.units = [shaman, victim]
     w.buildings = []
+    w.trees = []
     Object.assign(shaman, { x: 0, z: 20, path: [], casting: null })
     w.selected = [shaman.id]
     w.shots.tornado = 1
@@ -130,7 +157,6 @@ test('live Tornado casts, captures and throws independently of refresh rate', ()
     const fx = w.effects.find(f => f.tornado)
     assert.ok(fx)
     fx.tornado.step = 0
-    const building = addBuilding(w, 'red', kind, browserPosition(fx.tornado))
     Object.assign(victim, { ...browserPosition(fx.tornado), native: null, flight: undefined, path: [] })
     turn()
     assert.equal(victim.native.state, 24)
@@ -139,20 +165,41 @@ test('live Tornado casts, captures and throws independently of refresh rate', ()
     turn()
     assert.equal(victim.flight, victim.native)
     assert.equal(victim.flight.velocity.y, 230)
-    for (let i = 0; building.progress === 1 && i < 32; i++) turn()
+    const thrownState = victim.native.state,
+      thrownVelocity = { ...victim.flight.velocity }
+    const point = browserPosition(fx.tornado),
+      building = addBuilding(w, 'red', kind, point),
+      tree = { ...point, id: w.nextId++, model: 1, logs: treeLogs }
+    let buildingResult, treeResult
+    w.trees.push(tree)
+    for (let i = 0; (!buildingResult || !treeResult) && i < 32; i++) {
+      turn()
+      if (!buildingResult && building.progress < 1) {
+        buildingResult = {
+          remaining: building.damageState?.plan.remaining,
+          stage: building.damageState?.stage,
+          attacker: building.damageState?.attacker,
+          planAttacker: building.damageState?.plan.attacker,
+          repairDelay: building.damageState?.plan.repairDelay,
+        }
+        w.buildings = []
+      }
+      if (!treeResult && tree.logs < treeLogs) {
+        treeResult = {
+          logs: tree.logs,
+          replant: w.replants.find(request => request.model === tree.model)?.remaining ?? null,
+        }
+        w.trees = []
+      }
+    }
     return {
       turn: w.turn,
       shots: w.shots.tornado,
       cast: w.stats.cast,
-      state: victim.native.state,
-      velocity: victim.flight.velocity,
-      building: {
-        remaining: building.damageState?.plan.remaining,
-        stage: building.damageState?.stage,
-        attacker: building.damageState?.attacker,
-        planAttacker: building.damageState?.plan.attacker,
-        repairDelay: building.damageState?.plan.repairDelay,
-      },
+      state: thrownState,
+      velocity: thrownVelocity,
+      building: buildingResult,
+      tree: treeResult,
       sounds: w.sounds.map(sound => [sound.cue, !!sound.stop]),
     }
   }
@@ -168,6 +215,7 @@ test('live Tornado casts, captures and throws independently of refresh rate', ()
     planAttacker: 0,
     repairDelay: 1199,
   })
+  assert.deepEqual(expected.tree, { logs: 1, replant: null })
   assert.deepEqual(run([1 / 60], 'tower').building, {
     remaining: 400,
     stage: 3,
@@ -175,6 +223,7 @@ test('live Tornado casts, captures and throws independently of refresh rate', ()
     planAttacker: 0,
     repairDelay: 1199,
   })
+  assert.deepEqual(run([1 / 60], 'hut', 1).tree, { logs: 0, replant: 4000 })
   assert.ok(expected.sounds.some(([cue]) => cue === 18))
   assert.ok(expected.sounds.some(([cue]) => cue === 0x78))
   assert.ok(expected.sounds.some(([cue]) => cue === 163))

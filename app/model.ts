@@ -151,6 +151,7 @@ import {
   type Tornado,
   type TornadoBuilding,
   type TornadoPerson,
+  type TornadoScenery,
 } from './tornado.ts'
 import {
   createLivePathfinding,
@@ -4809,6 +4810,15 @@ function damageDisasterBuilding(
   b.hp = Math.min(b.hp, buildingHp(b.kind) * b.progress)
 }
 
+function damageTornadoTree(w: World, tree: Tree) {
+  const wood = Math.max(
+    0,
+    Math.min(rules.sceneryWood[tree.model], Math.round(tree.logs * 100) - 100)
+  )
+  if (wood < 100) depleteTree(w, tree)
+  else tree.logs = wood / 100
+}
+
 function emitBuildingSmoke(w: World, b: Building, rng: { randomState: number }) {
   const point = buildingSmokePoint(buildingPose(b), rng)
   if (!point) return null
@@ -5632,7 +5642,9 @@ function stepLiveTornado(w: World, fx: Effect) {
     people = new Map<number, LivePerson>(),
     cells = new Map<number, TornadoPerson[]>(),
     buildings = new Map<number, Building>(),
-    buildingCells = new Map<number, TornadoBuilding[]>()
+    buildingCells = new Map<number, TornadoBuilding[]>(),
+    trees = new Map<number, Tree>(),
+    sceneryCells = new Map<number, TornadoScenery[]>()
   for (const u of w.units) {
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u),
@@ -5653,9 +5665,20 @@ function stepLiveTornado(w: World, fx: Effect) {
     row.unshift(candidate)
     buildingCells.set(cell, row)
   }
+  for (const tree of w.trees) {
+    if (tree.logs <= 0 || tree.model < 1 || tree.model > 6) continue
+    const p = nativePosition(w, tree),
+      cell = ((p.y & 0xfe00) | ((p.x >>> 8) & 254)) >>> 0,
+      row = sceneryCells.get(cell) ?? [],
+      candidate = { id: tree.id, model: tree.model }
+    trees.set(tree.id, tree)
+    row.unshift(candidate)
+    sceneryCells.set(cell, row)
+  }
   const alive = stepTornado(w, tornado, {
     people: cell => cells.get(cell) ?? [],
     buildings: cell => buildingCells.get(cell) ?? [],
+    scenery: cell => sceneryCells.get(cell) ?? [],
     capture: candidate => {
       const u = units.get(candidate.id)!
       let p = people.get(candidate.id)!
@@ -5677,6 +5700,7 @@ function stepLiveTornado(w: World, fx: Effect) {
       )
     },
     damage: candidate => damageDisasterBuilding(w, buildings.get(candidate.id)!, w, tornado.tribe),
+    damageScenery: candidate => damageTornadoTree(w, trees.get(candidate.id)!),
     sound: stop => {
       const event = sound(w, 163, fx, fx.id)
       if (stop) event.stop = true

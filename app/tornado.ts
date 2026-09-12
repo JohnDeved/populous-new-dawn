@@ -35,6 +35,7 @@ export type TornadoPerson = Point & {
   damageAttacker: number
 }
 export type TornadoBuilding = { id: number; model: number }
+export type TornadoScenery = { id: number; model: number }
 type TornadoWorld = { randomState: number; land: NativeTerrain }
 const short = (n: number) => (n << 16) >> 16
 
@@ -87,8 +88,10 @@ export function stepTornado(
   effects: {
     people: (cell: number) => TornadoPerson[]
     buildings: (cell: number) => TornadoBuilding[]
+    scenery: (cell: number) => TornadoScenery[]
     capture: (person: TornadoPerson) => void
     damage: (building: TornadoBuilding) => void
+    damageScenery: (scenery: TornadoScenery) => void
     sound: (stop: boolean) => void
   }
 ) {
@@ -121,6 +124,9 @@ export function stepTornado(
     for (const building of effects.buildings(cell))
       if (!(rules.buildingFlags[building.model] & 0x8000) && (random(w) & 7) < 2)
         effects.damage(building)
+    for (const scenery of effects.scenery(cell))
+      if (scenery.model >= 1 && scenery.model <= 6 && (random(w) & 7) < 4)
+        effects.damageScenery(scenery)
   }
   if (--tornado.headingTimer <= 0) {
     if (tornado.steering) {
