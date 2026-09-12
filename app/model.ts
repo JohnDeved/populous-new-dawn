@@ -149,6 +149,7 @@ import {
   stepTornado,
   stepTornadoPerson,
   type Tornado,
+  type TornadoBuilding,
   type TornadoPerson,
 } from './tornado.ts'
 import {
@@ -4782,9 +4783,15 @@ function evacuateBuilding(w: World, b: Building, burning = false) {
   }
 }
 
-function damageEarthquakeBuilding(w: World, b: Building) {
+function damageDisasterBuilding(
+  w: World,
+  b: Building,
+  rng: { randomState: number },
+  attacker?: number
+) {
   const state = ensureBuildingDamage(b),
     oldStage = state.stage
+  if (attacker !== undefined && attacker !== -1) state.attacker = attacker
   if (
     changeBuildingWork(state.plan, -100, state, null, {
       move: () => {},
@@ -4792,9 +4799,11 @@ function damageEarthquakeBuilding(w: World, b: Building) {
       init: () => {},
     })
   ) {
-    emitBuildingDebris(w, b, oldStage, w.cosmeticRandom)
+    emitBuildingDebris(w, b, oldStage, rng)
     sound(w, 0x12, b)
   }
+  if (attacker !== undefined) state.plan.repairDelay = rules.buildingRepairDelay
+  if (attacker !== undefined && attacker !== -1) state.plan.attacker = attacker
   b.progress = Math.max(0, state.plan.remaining) / rules.buildingLife[state.model]
   b.logs = Math.max(0, Math.floor(state.plan.remaining / 100))
   b.hp = Math.min(b.hp, buildingHp(b.kind) * b.progress)
@@ -5621,7 +5630,9 @@ function stepLiveTornado(w: World, fx: Effect) {
   const tornado = fx.tornado!,
     units = new Map<number, Unit>(),
     people = new Map<number, LivePerson>(),
-    cells = new Map<number, TornadoPerson[]>()
+    cells = new Map<number, TornadoPerson[]>(),
+    buildings = new Map<number, Building>(),
+    buildingCells = new Map<number, TornadoBuilding[]>()
   for (const u of w.units) {
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u),
@@ -5632,8 +5643,19 @@ function stepLiveTornado(w: World, fx: Effect) {
     row.unshift(p)
     cells.set(cell, row)
   }
+  for (const b of w.buildings) {
+    if (b.hp <= 0 || b.preparation) continue
+    const p = nativePosition(w, b),
+      cell = ((p.y & 0xfe00) | ((p.x >>> 8) & 254)) >>> 0,
+      row = buildingCells.get(cell) ?? [],
+      candidate = { id: b.id, model: buildingModel(b) }
+    buildings.set(b.id, b)
+    row.unshift(candidate)
+    buildingCells.set(cell, row)
+  }
   const alive = stepTornado(w, tornado, {
     people: cell => cells.get(cell) ?? [],
+    buildings: cell => buildingCells.get(cell) ?? [],
     capture: candidate => {
       const u = units.get(candidate.id)!
       let p = people.get(candidate.id)!
@@ -5654,6 +5676,7 @@ function stepLiveTornado(w: World, fx: Effect) {
         browserPosition(p)
       )
     },
+    damage: candidate => damageDisasterBuilding(w, buildings.get(candidate.id)!, w, tornado.tribe),
     sound: stop => {
       const event = sound(w, 163, fx, fx.id)
       if (stop) event.stop = true
@@ -6053,7 +6076,7 @@ function stepTurn(w: World) {
           }),
         model: buildingModel,
         evacuate: b => evacuateBuilding(w, b),
-        damage: b => damageEarthquakeBuilding(w, b),
+        damage: b => damageDisasterBuilding(w, b, w.cosmeticRandom),
         spark: position => {
           emitGroundSpark(w, position).remaining = 4
         },

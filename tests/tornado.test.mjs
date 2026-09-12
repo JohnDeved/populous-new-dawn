@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createNativeTerrain } from '../app/native-terrain.ts'
 import { createTornado, stepTornado, stepTornadoPerson } from '../app/tornado.ts'
-import { browserPosition, cast, createWorld, tick } from '../app/model.ts'
+import { addBuilding, browserPosition, cast, createWorld, tick } from '../app/model.ts'
 
 test('Tornado replays native initialization, lifetime, carry and throw', () => {
   const land = createNativeTerrain(new Int16Array(16384).fill(512)),
@@ -49,13 +49,66 @@ test('Tornado replays native initialization, lifetime, carry and throw', () => {
   )
 
   let visits = 0
-  while (++visits && stepTornado(w, tornado, { people: () => [], capture: () => {}, sound: () => {} })) {}
+  while (
+    ++visits &&
+    stepTornado(w, tornado, {
+      people: () => [],
+      buildings: () => [],
+      capture: () => {},
+      damage: () => {},
+      sound: () => {},
+    })
+  ) {}
   assert.equal(visits, 224)
   assert.equal(tornado.phase, 2)
 })
 
+test('Tornado uses the native building protection and one-draw damage gate', () => {
+  const land = createNativeTerrain(new Int16Array(16384).fill(512)),
+    tornado = {
+      tribe: 2,
+      destinationX: 0,
+      destinationY: 0,
+      spawnX: 0,
+      spawnY: 0,
+      remaining: 200,
+      phase: 0,
+      heading: 0,
+      headingTimer: 2,
+      step: 0,
+      steering: 100,
+      particles: [],
+      soundPlaying: true,
+      x: 0,
+      y: 0,
+      h: 512,
+    },
+    run = (seed, building) => {
+      const w = { land, randomState: seed },
+        damaged = []
+      stepTornado(w, structuredClone(tornado), {
+        people: () => [],
+        buildings: () => [building],
+        capture: () => {},
+        damage: candidate => damaged.push(candidate.id),
+        sound: () => {},
+      })
+      return { randomState: w.randomState, damaged }
+    }
+
+  assert.deepEqual(run(0, { id: 7, model: 1 }), {
+    randomState: 0x26f80001,
+    damaged: [7],
+  })
+  assert.deepEqual(run(3, { id: 7, model: 1 }), {
+    randomState: 0x96100004,
+    damaged: [],
+  })
+  assert.deepEqual(run(3, { id: 18, model: 18 }), { randomState: 3, damaged: [] })
+})
+
 test('live Tornado casts, captures and throws independently of refresh rate', () => {
-  const run = schedule => {
+  const run = (schedule, kind = 'hut') => {
     const w = createWorld(),
       shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       victim = w.units.find(u => u.team === 'red' && u.kind === 'brave')
@@ -76,6 +129,8 @@ test('live Tornado casts, captures and throws independently of refresh rate', ()
     for (let i = 0; !w.effects.some(f => f.tornado) && i < 64; i++) turn()
     const fx = w.effects.find(f => f.tornado)
     assert.ok(fx)
+    fx.tornado.step = 0
+    const building = addBuilding(w, 'red', kind, browserPosition(fx.tornado))
     Object.assign(victim, { ...browserPosition(fx.tornado), native: null, flight: undefined, path: [] })
     turn()
     assert.equal(victim.native.state, 24)
@@ -84,12 +139,20 @@ test('live Tornado casts, captures and throws independently of refresh rate', ()
     turn()
     assert.equal(victim.flight, victim.native)
     assert.equal(victim.flight.velocity.y, 230)
+    for (let i = 0; building.progress === 1 && i < 32; i++) turn()
     return {
       turn: w.turn,
       shots: w.shots.tornado,
       cast: w.stats.cast,
       state: victim.native.state,
       velocity: victim.flight.velocity,
+      building: {
+        remaining: building.damageState?.plan.remaining,
+        stage: building.damageState?.stage,
+        attacker: building.damageState?.attacker,
+        planAttacker: building.damageState?.plan.attacker,
+        repairDelay: building.damageState?.plan.repairDelay,
+      },
       sounds: w.sounds.map(sound => [sound.cue, !!sound.stop]),
     }
   }
@@ -98,6 +161,21 @@ test('live Tornado casts, captures and throws independently of refresh rate', ()
     assert.deepEqual(run(schedule), expected)
   assert.equal(expected.shots, 0)
   assert.equal(expected.cast, 1)
+  assert.deepEqual(expected.building, {
+    remaining: 200,
+    stage: 2,
+    attacker: 0,
+    planAttacker: 0,
+    repairDelay: 1199,
+  })
+  assert.deepEqual(run([1 / 60], 'tower').building, {
+    remaining: 400,
+    stage: 3,
+    attacker: 0,
+    planAttacker: 0,
+    repairDelay: 1199,
+  })
+  assert.ok(expected.sounds.some(([cue]) => cue === 18))
   assert.ok(expected.sounds.some(([cue]) => cue === 0x78))
   assert.ok(expected.sounds.some(([cue]) => cue === 163))
 })
