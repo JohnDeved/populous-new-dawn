@@ -121,9 +121,9 @@
       "env": [],
       "inputs": ["package.json", "app", "build"],
       "prerequisites": ["Installed npm dependencies"],
-      "sideEffects": ["Writes ignored .vinext/, dist/, and Wrangler logs"],
+      "sideEffects": ["Writes ignored dist/ and Wrangler logs"],
       "resources": ["Shared build directories; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [".vinext"] }
+      "expected": { "exitCode": 0, "artifacts": ["dist/server/index.js", "dist/client/.vite/manifest.json"] }
     },
     {
       "id": "selection-portable",

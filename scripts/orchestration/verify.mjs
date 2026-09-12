@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { once } from 'node:events'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
@@ -150,18 +150,59 @@ export async function verifyContract(
   const manifests = validateRepository(repo),
     absoluteContract = safeRepoPath(repo, contractPath),
     contract = JSON.parse(readFileSync(absoluteContract, 'utf8'))
+  assert(
+    Array.isArray(contract.verification?.requiredCheckIds),
+    'verification.requiredCheckIds must be an array'
+  )
+  const requiredIds = new Set(contract.verification.requiredCheckIds)
+  if (Array.isArray(contract.verification.results))
+    contract.verification.results = contract.verification.results.filter(
+      result => !requiredIds.has(result.checkId)
+    )
   validateContract(repo, contract, manifests)
   const checks = new Map(manifests.checks.checks.map(check => [check.id, check])),
-    required = contract.verification.requiredCheckIds.map(id => checks.get(id)),
+    coverage = contract.verification.coverage ?? [],
+    required = contract.verification.requiredCheckIds.map(id => ({
+      ...checks.get(id),
+      inputs: [...new Set([
+        ...checks.get(id).inputs,
+        ...coverage.filter(item => item.coveredBy === id)
+          .flatMap(item => checks.get(item.checkId).inputs),
+        ...(coverage.some(item => item.coveredBy === id) ? ['package.json', 'engineering/checks.json'] : []),
+      ])],
+    })),
     logDirectory = safeRepoPath(
       repo,
       `work/orchestration/${contract.identity.taskId}/checks`,
       { mustExist: false }
     )
   mkdirSync(logDirectory, { recursive: true })
-  const results = [],
+  const results = required.map(check => ({
+      ...blocked(check, fingerprintPaths(repo, check.inputs), commandFor(check, env),
+        'No completed result in this run; check is pending'),
+      status: 'not-run',
+      coveredCheckIds: [],
+    })),
     runEnv = { ...env },
     initialState = checkoutState(repo, contract.identity.baseCommit)
+  contract.verification.results = [
+    ...contract.verification.results.filter(result => !requiredIds.has(result.checkId)),
+    ...results,
+  ]
+  const persist = () => {
+    const temporary = `${absoluteContract}.${randomUUID()}.tmp`
+    writeFileSync(temporary, `${JSON.stringify(contract, null, 2)}\n`, { flag: 'wx' })
+    renameSync(temporary, absoluteContract)
+  }
+  const record = result => {
+    result.coveredCheckIds ??= []
+    results[results.findIndex(item => item.checkId === result.checkId)] = result
+    contract.verification.results = contract.verification.results.map(item =>
+      item.checkId === result.checkId ? result : item)
+    persist()
+  }
+  // Clear old passes before executing; interrupted runs retain only completed receipts.
+  persist()
   let gameServer = null,
     nativeError,
     stopReason = null
@@ -176,22 +217,22 @@ export async function verifyContract(
         command = commandFor(check, runEnv),
         automationError = checkAutomation(check)
       if (stopReason) {
-        results.push(blocked(check, fingerprint, command, stopReason))
+        record(blocked(check, fingerprint, command, stopReason))
         continue
       }
       if (automationError) {
-        results.push(blocked(check, fingerprint, command, automationError))
+        record(blocked(check, fingerprint, command, automationError))
         continue
       }
       const missing = check.env.filter(name => !runEnv[name])
       if (missing.length) {
-        results.push(blocked(check, fingerprint, command, `missing environment: ${missing.join(', ')}`))
+        record(blocked(check, fingerprint, command, `missing environment: ${missing.join(', ')}`))
         continue
       }
       if (check.kind === 'native') {
         nativeError ??= nativePreflight(repo, runEnv) ?? false
         if (nativeError) {
-          results.push(blocked(check, fingerprint, command, nativeError))
+          record(blocked(check, fingerprint, command, nativeError))
           continue
         }
       }
@@ -201,12 +242,14 @@ export async function verifyContract(
           gameServer = await startServer(repo, runEnv, serverLog)
           runEnv.POPULOUS_URL = gameServer.url
         } catch (error) {
-          results.push(blocked(check, fingerprint, command, error.message))
+          record(blocked(check, fingerprint, command, error.message))
           continue
         }
       }
-      const concreteCommand = commandFor(check, runEnv),
-        started = performance.now(),
+      const concreteCommand = commandFor(check, runEnv)
+      record(blocked(check, fingerprint, concreteCommand,
+        'Execution started; no completed result is available if this run is interrupted'))
+      const started = performance.now(),
         outcome = await execute(concreteCommand, {
           cwd: safeRepoPath(repo, check.cwd),
           env: runEnv,
@@ -234,7 +277,7 @@ export async function verifyContract(
         const missingArtifacts = check.expected.artifacts.filter(path => !artifacts.includes(path))
         if (missingArtifacts.length) reason = `missing artifacts: ${missingArtifacts.join(', ')}`
       }
-      results.push({
+      record({
         checkId: check.id,
         status: reason ? 'failed' : 'passed',
         command: concreteCommand,
@@ -245,17 +288,13 @@ export async function verifyContract(
         reason,
         durationMs,
         log: relative(repo, log),
+        coveredCheckIds: reason ? [] : coverage.filter(item => item.coveredBy === check.id)
+          .map(item => item.checkId),
       })
     }
   } finally {
     await gameServer?.stop()
   }
-  const requiredIds = new Set(required.map(check => check.id))
-  contract.verification.results = [
-    ...contract.verification.results.filter(result => !requiredIds.has(result.checkId)),
-    ...results,
-  ]
-  writeFileSync(absoluteContract, `${JSON.stringify(contract, null, 2)}\n`)
   const status = results.some(result => result.status === 'failed')
     ? 'failed'
     : results.some(result => result.status !== 'passed')

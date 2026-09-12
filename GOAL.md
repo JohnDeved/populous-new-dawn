@@ -3,15 +3,23 @@
 Status: unfinished.
 
 Recreate the user-supplied Populous: The Beginning for modern desktop browsers.
-Move quickly toward a complete, enjoyable game while preserving observable gameplay,
+Make steady, fast progress toward a complete, enjoyable game while preserving observable gameplay,
 campaign, controls, simulation, graphics, audio, saves, and multiplayer behavior.
 Match original outcomes and timing, not obsolete implementation details or hardware
 limitations.
 
-The workflow is not fixed. Simplify, reorder, or replace its agents, contracts,
-manifests, retrieval, and checks whenever evidence shows that doing so improves
-delivery speed or reliability without weakening parity evidence, safety, or the
-canonical sources of truth.
+Measure progress by working gameplay reached through real player and system paths,
+supported by appropriate evidence. Isolated helpers, passing checks, and ledger
+percentages alone do not establish a playable remake.
+
+Game parity, modern desktop performance, and clean, readable, maintainable code
+are permanent acceptance constraints. Workflow efficiency must serve all three;
+never trade them away for fewer tokens, fewer checks, less code, or faster delivery.
+
+The workflow is adjustable. Simplify or replace agents, contracts, retrieval, and
+checks when observed results justify it. Prefer the smallest improvement that
+helps deliver the next gameplay change while preserving these acceptance constraints,
+safety, and the canonical sources of truth.
 
 ## Main priority: modern desktop compatibility
 
@@ -69,66 +77,52 @@ code.
 
 ## Current execution order: highest-impact playable parity
 
-Explicit user direction wins. Otherwise, compare at most five bounded candidates
-and choose from the top three. Rank them by:
+Explicit user direction wins. Otherwise, compare at most five candidates using
+current implementation and evidence, identify the top three, and select one by:
 
 1. player-visible playability impact;
 2. ability to unblock other important gameplay;
 3. size of the live integration gap;
 4. confidence from native evidence and runnable checks;
-5. effort, risk, and external prerequisites.
+5. expected benefit relative to effort, risk, and external prerequisites.
 
-Do not prioritize by parity percentage, document order, filename, native address,
-or ease of testing alone. Deliver one player-visible slice at a time with a clear
-stopping condition.
+Do not prioritize by parity percentage, document order, native address, or ease of
+testing alone. Investigate consequential evidence gaps before implementation.
 
-## Use subagents for real leverage
+Define one player-visible outcome or concrete unblocker and its acceptance evidence.
+Reassess after delivery or new findings; reuse current triage while it remains valid.
 
-The parent is the only source writer and owns priority, integration, and acceptance.
-For each non-trivial gameplay/parity checkpoint:
+## Use subagents where they improve delivery
 
-- Use `pnd-scout` when priority, live ownership, callers, parity IDs, or the smallest
-  patch/check surface is uncertain.
-- Use `pnd-native` when acceptance depends on original-executable behavior or an
-  unresolved native/browser boundary.
-- Use `pnd-performance` only for timing, rendering, hot-path, allocation/resource,
-  or measured performance questions.
-- Require a fresh `pnd-reviewer` after the final source diff and before commit or
-  parity/evidence claims.
+The parent owns priority, source edits, integration, and acceptance. Use a specialist
+for a concrete question that reduces uncertainty or allows useful independent work:
 
-Use at most one pre-edit specialist unless questions are genuinely independent and
-parallel. Every assignment must be bounded and return exact paths/symbols or native
-routines, provenance, limitations, unresolved questions, applicable check results
-with the tested fingerprint, and a stop decision. Skip a role only when its trigger
-is absent, current cited evidence already answers it, or the role is unavailable;
-record the reason in one sentence. Never spawn agents to fill a quota, delegate
-source implementation, or allow recursive delegation.
+- `pnd-scout`: uncertain priorities, live ownership, integration gaps, or check scope.
+- `pnd-native`: original behavior and unresolved native/browser boundaries.
+- `pnd-performance`: timing, rendering, hot paths, resources, or measurements.
+- Fresh `pnd-reviewer`: finished non-trivial changes and acceptance evidence,
+  before commit or parity/evidence claims.
 
-Subagents receive a compact task contract and a targeted context packet, not project
-history. For performance work, begin with the packet's cited sections of
-`references/modern-performance.md`; expand only to resolve a relevant correction or
-for an explicitly requested historical audit. Do not read that entire log for a
-feature-scoped task.
+Give specialists compact assignments, relevant sources, response budgets, and
+completion conditions. Require actionable findings with provenance and limitations.
+Parallelize independent questions; keep small tasks with the parent.
 
-## Execution loop
+Follow `AGENTS.md` and the engineering skill for workflow mechanics. Supply applicable
+constraints and cited sections instead of whole goals, histories, or the performance
+log; expand only when the evidence requires it.
 
-1. Preserve the current checkout and capture HEAD plus all working-tree changes.
-2. Choose the highest-impact bounded slice unless the user already chose it.
-3. Retrieve targeted context with `npm run orchestration:context` and write the
-   compact contract for substantial work.
-4. Run the applicable read-only specialist work and integrate its evidence.
-5. Implement the smallest live change that reaches the real player/system path.
-6. Select and inspect checks with `npm run orchestration:plan`, then run the smallest
-   sufficient portable, native, browser, and performance evidence.
-7. Run a fresh final review and audit the contract. Report evidence gaps honestly.
-8. Stop at the slice boundary; choose the next highest-impact slice on continuation.
+## Continue through verified progress
 
-Keep tests and implementation simple and reuse existing ownership and helpers.
+Choose the next useful change, trace its live path, implement it, verify it, and
+review the result. Keep checks proportional to the change while preserving required
+native, browser, and performance proof. Distinguish demonstrated behavior from
+assumptions and incomplete integration. Commit completed work when authorized.
 
-`parity.json` is the completion ledger. Detailed architecture, native evidence,
-performance history, and current implementation state remain in their existing
-canonical files and bounded context packets; do not duplicate them here.
+A completed change is a checkpoint. When continued work is authorized, proceed to
+the next highest-impact change within that scope. If one candidate is blocked,
+consider another useful authorized candidate; report blockers that require user
+direction. A checkpoint does not complete the overall remake goal.
 
-There is no standing stop, commit, publish, deploy, parity-recording, or evidence-
-regeneration instruction in this file. The latest explicit user direction and the
-current task contract control those actions.
+Keep this file focused on outcomes and priorities. `parity.json` remains the completion
+ledger; procedures, evidence, history, and receipts stay in their canonical locations.
+Preserve existing work and the user's authority over publishing, deployment, and recording.

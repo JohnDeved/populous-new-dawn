@@ -6,7 +6,8 @@ parity, regenerate evidence, or change credentials unless the user explicitly as
 
 ## Start here
 
-1. Read `GOAL.md` for current direction and execution order.
+1. The parent reads `GOAL.md` for current direction and execution order. Delegated
+   specialists start from their supplied role packet and expand relevant sources.
 2. Record `git rev-parse HEAD` and `git status --short`; never reset, clean, or
    overwrite pre-existing staged, unstaged, or untracked work.
 3. If the objective is not fixed, have the parent or `pnd-scout` rank a bounded
@@ -14,7 +15,8 @@ parity, regenerate evidence, or change credentials unless the user explicitly as
 4. Run `npm run orchestration:context -- --subsystem <id> --query "<question>"`.
 5. Run `npm run orchestration:plan -- --base <actual-base-ref>` before claiming a
    check set. The plan selects checks; it does not execute them.
-6. For substantial work, use the compact contract in `engineering/contracts.md`,
+6. For substantial work, use `orchestration:prepare` to capture mechanical fields
+   from the compact task spec in `engineering/contracts.md`,
    run its allowlisted checks with
    `npm run orchestration:verify -- --contract <path>`, then audit it with
    `npm run orchestration:audit -- --contract <path>`.
@@ -60,6 +62,12 @@ a fresh review:
 - `pnd-reviewer`: final diff and acceptance challenge; no source repair.
 - `pnd-performance`: paired workload and measurement review; no source repair.
 
+Trial a read-only workflow-efficiency assignment through `pnd-scout` after three
+completed gameplay slices or repeated delivery friction, at a safe boundary. Follow
+`engineering/efficiency-review.md` for its compact receipt brief, advisory limits,
+and benefit check. This assignment uses that brief instead of a gameplay role packet
+and remains separate from final code review.
+
 When no task is fixed, compare no more than five candidates and return the top three
 plus one recommendation. Prioritize player-visible/playability impact and unblock
 value, then live integration gap, evidence/check confidence, effort, risk, and
@@ -69,6 +77,19 @@ The parent owns final priority, scope, integration, acceptance, and any authoriz
 Use one source writer. Subagents share the checkout unless separate worktrees are
 demonstrated; recursive delegation is out of scope. Artifact-producing review must
 write only to an agreed ignored path and is not a read-only security boundary.
+
+Start each new specialist with `fork_turns: "none"`, one bounded assignment, and a
+role packet generated with `orchestration:context -- --subsystem <id> --query
+"<question>" --role <scout|native|performance|reviewer> --contract <path>`. Supply
+the packet once; begin with its exact omitted paths/headings and follow relevant
+callers, dependencies, or contradictory evidence as needed. Do not send
+whole task history, `GOAL.md`, `decomp/README.md`, or the performance log. A reviewer
+must inspect the packet's actual change manifest and full-diff command. Dispatch
+the fresh final reviewer with the final diff, acceptance criteria, and completed
+receipts together. Repeat review for substantive repairs or unresolved findings,
+not unchanged results or receipt formatting alone.
+If optional context is needed, refine the packet query for a disclosed candidate
+path instead of loading a whole source.
 
 Serialize Ghidra access to one project, fixture recording, parity recording, shared
 build directories, fixed-port browser servers, fixed capture paths, and performance
@@ -89,7 +110,15 @@ pixels or invent performance results.
 
 `orchestration:verify` executes only contract-required checks explicitly marked
 safe in `engineering/checks.json`. Unclassified, recording, or tracked-output
-checks remain manual; the verifier never grants recording authority.
+checks remain manual; the verifier never grants recording authority. Each result
+is saved as it completes. Preparation can replace the two reviewed orchestration
+checks with their coverage inside `repository-check`; the actual aggregate command
+and all covered inputs remain in the receipt. Browser/native/performance checks
+remain separate. Use focused tests during editing and one sufficient final check set.
+
+After the packet/receipt improvements, exercise them on the next gameplay slice.
+Use supplied bytes, preparation calls, actual check durations, and repeated runs
+to decide further workflow work; do not infer token or speed savings.
 
 Performance work starts with a bounded context packet and reads its applicable
 sections from `references/modern-performance.md`; expand only for relevant

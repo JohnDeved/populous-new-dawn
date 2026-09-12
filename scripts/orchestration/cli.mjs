@@ -15,14 +15,24 @@ import { fileURLToPath } from 'node:url'
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 export const INDEX_VERSION = 1
 export const DEFAULT_CONTEXT_BUDGET = 24_000
+export const DEFAULT_ROLE_CONTEXT_BUDGET = 12_000
 const RESULT_STATES = new Set(['passed', 'failed', 'blocked', 'not-run', 'not-applicable'])
+const CONTEXT_ROLES = new Set(['scout', 'native', 'performance', 'reviewer'])
+const PERFORMANCE_WORKLOAD_HEADING = /\b(workload|benchmark|measured?|measurement|cost|frame|timing|performance|cpu|gpu|render(?:er|ing)?|allocation|memory)\b/i
 const ID = /^[a-z][a-z0-9.-]*$/
 const INDEX_EXTENSIONS = new Set(['.md', '.ts', '.tsx', '.mjs', '.py', '.json', '.toml'])
 const LIMITATION =
   /remain(?:s|ed)? (?:open|unfinished|incomplete)|still requires?|unfinished|incomplete|unverified|unknown|partial|missing|bounded|cannot|exclud\w*|does not|do not|not (?:a|an|the|completed|live|hardware|rendered|native)/i
 
 const hash = value => createHash('sha256').update(value).digest('hex')
-const jsonBytes = value => Buffer.byteLength(JSON.stringify(value))
+const jsonBytes = value => Buffer.byteLength(`${JSON.stringify(value, null, 2)}\n`)
+
+function finishContextPacket(packet) {
+  packet.contextBytes ??= 0
+  while (packet.contextBytes !== jsonBytes(packet)) packet.contextBytes = jsonBytes(packet)
+  assert(packet.contextBytes <= packet.budgetBytes, 'Context exceeds emitted byte budget; choose a larger --budget')
+  return packet
+}
 const readJson = (repo, path) => JSON.parse(readFileSync(safeRepoPath(repo, path), 'utf8'))
 const array = (value, label, { nonempty = false } = {}) => {
   assert(Array.isArray(value), `${label} must be an array`)
@@ -176,17 +186,25 @@ export function validateGenerated(repo, manifest) {
   return ids
 }
 
+const headingAnchor = value => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
 function headingMatches(actual, wanted) {
   const heading = actual.toLowerCase()
   const expected = wanted.toLowerCase()
-  return heading.includes(expected) || expected.includes(heading)
+  return (
+    heading.includes(expected) ||
+    expected.includes(heading) ||
+    headingAnchor(heading) === headingAnchor(expected)
+  )
 }
 
-function headingExists(repo, reference) {
+function headingExists(repo, reference, { exact = false } = {}) {
   const content = readFileSync(safeRepoPath(repo, reference.path), 'utf8')
   return parseMarkdown(content, reference.path).some(section => {
     const heading = section.headingTrail.at(-1) ?? ''
-    return headingMatches(heading, reference.heading)
+    return exact
+      ? headingAnchor(heading) === headingAnchor(reference.heading)
+      : headingMatches(heading, reference.heading)
   })
 }
 
@@ -587,16 +605,64 @@ function ledgerScope(repo, entries, ids) {
 
 export function contextPacket(
   repo = ROOT,
-  { subsystem: subsystemId, query = '', budget = DEFAULT_CONTEXT_BUDGET } = {}
+  {
+    subsystem: subsystemId,
+    query = '',
+    role = null,
+    budget = role ? DEFAULT_ROLE_CONTEXT_BUDGET : DEFAULT_CONTEXT_BUDGET,
+    contract: contractPath = null,
+  } = {}
 ) {
   assert(Number.isInteger(budget) && budget >= 4_000, 'Context budget must be an integer >= 4000')
-  const { checks, project, ledger, currentGoal } = validateRepository(repo)
+  assert(!role || CONTEXT_ROLES.has(role), `Unknown context role: ${role}`)
+  assert(Boolean(role) === Boolean(contractPath), '--role and --contract must be used together')
+  if (role && Buffer.byteLength(query) > 1_000)
+    return finishContextPacket({
+      version: 1,
+      status: 'incomplete',
+      role,
+      subsystem: { id: subsystemId },
+      queryHash: hash(query),
+      queryBytes: Buffer.byteLength(query),
+      budgetBytes: budget,
+      omissions: [{ reason: 'mandatory question exceeds the 1000-byte role-packet limit' }],
+      executesChecks: false,
+    })
+  const manifests = validateRepository(repo)
+  const { checks, project, ledger, currentGoal } = manifests
   const subsystem = project.subsystems.find(item => item.id === subsystemId)
   assert(subsystem, `Unknown subsystem: ${subsystemId ?? '<missing>'}`)
+  const contract = contractPath ? readJson(repo, contractPath) : null
+  if (contract) {
+    validateContract(repo, contract, manifests)
+    assert(
+      contract.scope.subsystemIds.includes(subsystem.id),
+      `Contract does not include subsystem: ${subsystem.id}`
+    )
+  }
   const { index, cache } = loadOrBuildIndex(repo)
   const queryTerms = terms(`${subsystem.id} ${subsystem.title} ${query}`)
   const checkById = new Map(checks.checks.map(check => [check.id, check]))
   const entries = parityEntries(ledger)
+  const parityIds = contract ? contract.scope.parityIds : subsystem.parityIds
+  const checkIds = contract ? contract.verification.requiredCheckIds : subsystem.checkIds
+  const evidenceReferences = contract
+    ? contract.research.evidence.map(reference => {
+        const [path, ...heading] = reference.split('#')
+        return { path, heading: heading.join('#') }
+      })
+    : subsystem.evidence
+  if (role === 'performance')
+    assert(
+      contract.modernization.measurementNeeds.some(
+        need => typeof need === 'string' && need.trim()
+      ) && contract.modernization.workloadEvidence,
+      'Performance role requires a nonblank measurement need and explicit workload evidence'
+    )
+  const requiredPolicyReferences =
+    role === 'performance'
+      ? [{ path: 'references/modern-performance.md', heading: 'Measurement rules' }]
+      : []
   const packet = {
     version: 1,
     subsystem: {
@@ -613,8 +679,8 @@ export function contextPacket(
     query,
     cache,
     ledgerRevision: ledger.revision,
-    parityScope: ledgerScope(repo, entries, subsystem.parityIds),
-    checks: subsystem.checkIds.map(id => {
+    parityScope: ledgerScope(repo, entries, parityIds),
+    checks: checkIds.map(id => {
       const check = checkById.get(id)
       return {
         id,
@@ -632,21 +698,158 @@ export function contextPacket(
     unresolved: subsystem.unresolved,
     sourceExcerpts: [],
     omissions: [],
-    contextBytes: 0,
+    contextBytes: budget,
     budgetBytes: budget,
     executesChecks: false,
   }
+  if (role) {
+    packet.subsystem =
+      role === 'reviewer'
+        ? { id: subsystem.id, title: subsystem.title, mappingStatus: subsystem.mappingStatus }
+        : {
+            id: subsystem.id,
+            title: subsystem.title,
+            mappingStatus: subsystem.mappingStatus,
+            implementationPaths: subsystem.implementationPaths,
+            sharedPaths: subsystem.sharedPaths,
+            entrySymbols: subsystem.entrySymbols,
+            risks: subsystem.risks,
+            ...(role === 'native'
+              ? {
+                  researchPaths: subsystem.researchPaths ?? [],
+                  nativeAddresses: subsystem.nativeAddresses,
+                }
+              : {}),
+          }
+    if (role === 'reviewer') packet.unresolved = []
+    packet.parityScope = packet.parityScope.map(({ evidence: _evidence, ...entry }) => entry)
+    packet.checks = packet.checks.map(
+      ({ id, kind, knownLimits, command, resources, status, reason }) => ({
+        id,
+        kind,
+        knownLimits,
+        command,
+        resources,
+        status,
+        reason,
+      })
+    )
+    const goalPath = 'GOAL.md'
+    const goalSource = index.sources.find(source => source.path === goalPath)
+    const goalText = sectionText(repo, goalPath, currentGoal)
+    const policyPaths = [
+      'AGENTS.md',
+      ...(role === 'performance' ? ['references/modern-performance.md'] : []),
+    ]
+    packet.role = role
+    packet.status = 'complete'
+    packet.assignment = {
+      identity: {
+        taskId: contract.identity.taskId,
+        parent: contract.ownership.implementationOwner,
+        baseCommit: contract.identity.baseCommit,
+        inputFingerprints: contract.identity.inputFingerprints,
+        contract: {
+          path: contractPath,
+          sourceHash: hash(readFileSync(safeRepoPath(repo, contractPath))),
+        },
+      },
+      question: query,
+      objective: contract.intent.objective,
+      nonGoals: contract.intent.nonGoals,
+      assumptions: contract.research.assumptions,
+      deliverable: {
+        scout: 'Answer the bounded question; for open priority triage compare at most five live candidates, return the top three, and recommend one.',
+        native: 'State exactly what native evidence proves, supplied/intercepted leaves, and the live integration boundary.',
+        performance: 'Define a comparable workload and report measurement evidence, corrections, noise, and limitations.',
+        reviewer: 'Review the actual final changes and receipts, seek counterexamples, and return findings plus a stop decision.',
+      }[role],
+      responseBudgetWords: role === 'reviewer' ? 800 : 600,
+      allowedWrites: [],
+      forbiddenActions: [
+        'edit source or ledgers',
+        'delegate again',
+        'publish, deploy, record, or regenerate evidence',
+      ],
+      prohibitedPaths: contract.ownership.prohibitedPaths,
+      acceptance: contract.intent.acceptance,
+      boundaries: contract.scope.boundaries,
+      stoppingConditions: contract.completion.stoppingConditions,
+      evidence: contract.research.evidence,
+      nativeQuestions: contract.research.nativeQuestions,
+      measurementNeeds: contract.modernization.measurementNeeds,
+      ...(role === 'performance'
+        ? { workloadEvidence: contract.modernization.workloadEvidence }
+        : {}),
+      corrections: contract.modernization.corrections,
+      policySources: policyPaths.map(path => ({
+        path,
+        sourceHash: index.sources.find(source => source.path === path).hash,
+      })),
+      currentDirection: {
+        headingTrail: currentGoal.headingTrail,
+        excerpt: goalText.slice(0, 400),
+        truncated: Buffer.byteLength(goalText) > 400,
+        provenance: {
+          path: goalPath,
+          lineStart: currentGoal.lineStart,
+          lineEnd: currentGoal.lineEnd,
+          sourceHash: goalSource.hash,
+          sectionHash: currentGoal.contentHash,
+        },
+      },
+    }
+    if (role === 'reviewer') {
+      const plan = planChanges(repo, { base: contract.identity.baseCommit })
+      const untrackedPaths = plan.changes
+        .filter(change => change.source === 'untracked')
+        .map(change => change.path)
+      packet.assignment.review = {
+        changes: plan.changes.map(({ hash: _hash, changeHash: _changeHash, endpoint, ...change }) => ({
+          ...change,
+          ...(endpoint === 'path' ? {} : { endpoint }),
+        })),
+        changedFingerprint: hash(JSON.stringify(plan.changes)),
+        receipts: contract.verification.results,
+        trackedDiffCommand: [
+          'git',
+          'diff',
+          '--no-ext-diff',
+          contract.identity.baseCommit,
+          '--',
+        ],
+        untrackedPaths,
+      }
+    }
+    const requiredBytes = jsonBytes(packet)
+    if (requiredBytes > budget)
+      return finishContextPacket({
+        version: 1,
+        status: 'incomplete',
+        role,
+        subsystem: { id: subsystem.id, title: subsystem.title },
+        query,
+        budgetBytes: budget,
+        requiredBytes,
+        omissions: [{ reason: 'mandatory assignment context exceeds budget', path: contractPath }],
+        executesChecks: false,
+      })
+  }
   const relevant = new Set([
-    'AGENTS.md',
-    'GOAL.md',
-    'engineering/README.md',
+    ...(role ? [] : ['AGENTS.md', 'GOAL.md', 'engineering/README.md']),
     ...subsystem.implementationPaths,
-    ...(subsystem.researchPaths ?? []),
+    ...(!role || role === 'native' ? (subsystem.researchPaths ?? []) : []),
+    ...(role === 'performance' ? ['references/modern-performance.md'] : []),
     ...subsystem.sharedPaths,
-    ...subsystem.evidence.map(entry => entry.path),
-    ...subsystem.checkIds.flatMap(id => checkById.get(id).inputs),
+    ...evidenceReferences.map(entry => entry.path),
+    ...checkIds.flatMap(id => checkById.get(id).inputs),
+    ...(role === 'reviewer'
+      ? packet.assignment.review.changes
+          .filter(change => change.endpoint !== 'from')
+          .map(change => change.path)
+      : []),
   ])
-  const declaredCheckInputs = subsystem.checkIds.flatMap(id => checkById.get(id).inputs)
+  const declaredCheckInputs = checkIds.flatMap(id => checkById.get(id).inputs)
   const checkInputs = new Set(declaredCheckInputs)
   const implementationAnchor = subsystem.entrySymbols[0]?.path ?? subsystem.implementationPaths[0]
   const checkAnchor =
@@ -660,29 +863,53 @@ export function contextPacket(
     symbolByPath.set(entry.path, list)
   }
   const candidates = []
-  for (const source of index.sources.filter(item => relevant.has(item.path))) {
+  const sources = index.sources.slice()
+  for (const { path } of evidenceReferences) {
+    if (sources.some(source => source.path === path)) continue
+    const text = readFileSync(safeRepoPath(repo, path), 'utf8')
+    sources.push({ path, hash: hash(text), sections: extname(path) === '.md' ? parseMarkdown(text, path) : [] })
+  }
+  for (const source of sources.filter(item => relevant.has(item.path))) {
     if (extname(source.path) !== '.md') {
       const item = sourceExcerpt(repo, source.path, queryTerms, symbolByPath.get(source.path) ?? [])
-      const reserved = source.path === implementationAnchor || source.path === checkAnchor
+      const evidenceIndex = evidenceReferences.findIndex(reference => reference.path === source.path)
+      const reserved = role
+        ? ['scout', 'native'].includes(role) && source.path === implementationAnchor
+        : source.path === implementationAnchor || source.path === checkAnchor
       const score =
         queryTerms.filter(term => item.excerpt.toLowerCase().includes(term)).length +
+        (evidenceIndex >= 0 ? 10_000 - evidenceIndex : 0) +
         (symbolByPath.has(source.path) ? 80 : 0) +
         (checkInputs.has(source.path) ? 40 : 0) +
         (source.path === implementationAnchor ? 8_000 : source.path === checkAnchor ? 7_900 : 0)
-      candidates.push({ score, item, required: reserved })
+      candidates.push({
+        score,
+        item,
+        required: reserved || (evidenceIndex >= 0 && role !== 'reviewer'),
+      })
       continue
     }
     for (const section of source.sections) {
       const content = sectionText(repo, source.path, section)
       const heading = section.headingTrail.join(' ').toLowerCase()
       const lower = content.toLowerCase()
-      const evidenceIndex = subsystem.evidence.findIndex(
+      const evidenceIndex = evidenceReferences.findIndex(
         reference =>
           reference.path === source.path &&
-          headingMatches(section.headingTrail.at(-1) ?? '', reference.heading)
+          (role
+            ? !reference.heading || headingAnchor(section.headingTrail.at(-1) ?? '') === headingAnchor(reference.heading)
+            : headingMatches(section.headingTrail.at(-1) ?? '', reference.heading))
       )
-      const currentPolicy = source.path === 'GOAL.md' && section.id === currentGoal.id
-      const reserved = source.path === implementationAnchor || source.path === checkAnchor
+      const policyIndex = requiredPolicyReferences.findIndex(
+        reference =>
+          reference.path === source.path &&
+          headingAnchor(section.headingTrail.at(-1) ?? '') === headingAnchor(reference.heading)
+      )
+      const requiredEvidence = evidenceIndex >= 0 && role !== 'reviewer'
+      const currentPolicy = !role && source.path === 'GOAL.md' && section.id === currentGoal.id
+      const reserved = role
+        ? ['scout', 'native'].includes(role) && source.path === implementationAnchor
+        : source.path === implementationAnchor || source.path === checkAnchor
       const relevance = queryTerms.reduce(
         (sum, term) => sum + (heading.includes(term) ? 5 : lower.includes(term) ? 1 : 0),
         0
@@ -690,14 +917,21 @@ export function contextPacket(
       const score =
         relevance +
         (evidenceIndex >= 0 ? 10_000 - evidenceIndex : 0) +
+        (policyIndex >= 0 ? 9_500 - policyIndex : 0) +
         (currentPolicy ? 9_000 : 0) +
         (checkInputs.has(source.path) ? 40 : 0) +
         (source.path === implementationAnchor ? 8_000 : source.path === checkAnchor ? 7_900 : 0)
       if (!score) continue
       candidates.push({
         score,
-        required: evidenceIndex >= 0 || currentPolicy || reserved,
-        item: sectionExcerpt(repo, source, section, queryTerms, evidenceIndex >= 0),
+        required: requiredEvidence || policyIndex >= 0 || currentPolicy || reserved,
+        item: sectionExcerpt(
+          repo,
+          source,
+          section,
+          queryTerms,
+          evidenceIndex >= 0 || policyIndex >= 0
+        ),
       })
     }
   }
@@ -707,44 +941,123 @@ export function contextPacket(
       a.item.path.localeCompare(b.item.path) ||
       a.item.lineStart - b.item.lineStart
   )
+  const selectedCandidates = role
+    ? candidates.filter(candidate => candidate.required).concat(
+        candidates.filter(candidate => !candidate.required).slice(0, 1)
+      )
+    : candidates
+  if (role)
+    packet.retrievalBoundary = {
+      strategy: 'all mandatory plus the highest-ranked optional section',
+      candidatePaths: [...new Set(candidates.map(candidate => candidate.item.path))],
+      headingIndex: {
+        path: 'work/orchestration/index.json',
+        contentHash: hash(JSON.stringify(index)),
+      },
+      refineQueryForAnotherProjection: true,
+    }
+  const candidateKey = item =>
+    `${item.path}\0${item.headingTrail.join(' > ')}\0${item.lineStart}\0${item.contentHash}`
+  const requiredKeys = new Set(
+    selectedCandidates
+      .filter(candidate => candidate.required)
+      .map(candidate => candidateKey(candidate.item))
+  )
   const perPath = new Map()
   let budgetOmissions = 0
-  for (const { item, required } of candidates.slice(0, 40)) {
+  const optionalOmissions = []
+  const requiredOmissions = selectedCandidates
+    .slice(40)
+    .filter(candidate => candidate.required)
+    .map(({ item }) => ({ path: item.path, headingTrail: item.headingTrail }))
+  for (const reference of [...evidenceReferences, ...requiredPolicyReferences]) {
+    if (!candidates.some(({ item }) => item.path === reference.path &&
+        (!reference.heading || (role
+          ? headingAnchor(item.headingTrail.at(-1) ?? '') === headingAnchor(reference.heading)
+          : headingMatches(item.headingTrail.at(-1) ?? '', reference.heading)))))
+      requiredOmissions.push({ path: reference.path, headingTrail: [reference.heading].filter(Boolean) })
+  }
+  for (const { item, required } of selectedCandidates.slice(0, 40)) {
     if (!required && (perPath.get(item.path) ?? 0) >= 2) continue
     packet.sourceExcerpts.push(item)
     packet.contextBytes = jsonBytes(packet)
     if (packet.contextBytes > budget) {
       packet.sourceExcerpts.pop()
       budgetOmissions++
+      if (required)
+        requiredOmissions.push({ path: item.path, headingTrail: item.headingTrail })
+      else optionalOmissions.push({ path: item.path, headingTrail: item.headingTrail })
     } else {
       perPath.set(item.path, (perPath.get(item.path) ?? 0) + 1)
       if (item.truncated)
         packet.omissions.push({
           path: item.path,
+          headingTrail: item.headingTrail,
           reason: 'source section returned as a bounded window',
           retainedLines: [item.lineStart, item.lineEnd],
         })
     }
   }
-  if (candidates.length > 40)
+  if (!role && candidates.length > 40)
     packet.omissions.push({ reason: 'lower-ranked source sections', count: candidates.length - 40 })
-  if (budgetOmissions) packet.omissions.push({ reason: 'context budget', count: budgetOmissions })
+  if (!role && budgetOmissions)
+    packet.omissions.push({ reason: 'context budget', count: budgetOmissions })
   while (jsonBytes(packet) > budget && packet.sourceExcerpts.length) {
     const removed = packet.sourceExcerpts.pop()
+    if (requiredKeys.has(candidateKey(removed)))
+      requiredOmissions.push({ path: removed.path, headingTrail: removed.headingTrail })
+    else optionalOmissions.push({ path: removed.path, headingTrail: removed.headingTrail })
     packet.omissions = packet.omissions.filter(
       omission =>
         !(omission.path === removed.path && omission.retainedLines?.[0] === removed.lineStart)
     )
-    const summary = packet.omissions.find(omission => omission.reason === 'context budget')
-    if (summary) summary.count++
-    else packet.omissions.push({ reason: 'context budget', count: 1 })
+    if (!role) {
+      const summary = packet.omissions.find(omission => omission.reason === 'context budget')
+      if (summary) summary.count++
+      else packet.omissions.push({ reason: 'context budget', count: 1 })
+    }
+  }
+  if (role)
+    packet.omissions.push(
+      ...optionalOmissions.map(source => ({
+        ...source,
+        reason: 'optional source section excluded by context budget',
+      }))
+    )
+  if (role && requiredOmissions.length) {
+    packet.status = 'incomplete'
+    packet.omissions.push({
+      reason: 'mandatory source context exceeds budget',
+      sources: requiredOmissions,
+    })
+  }
+  if (role && jsonBytes(packet) > budget) {
+    const requiredBytes = jsonBytes(packet)
+    const sources = requiredOmissions.slice()
+    const overflow = {
+      version: 1,
+      status: 'incomplete',
+      role,
+      subsystem: { id: subsystem.id, title: subsystem.title },
+      query,
+      budgetBytes: budget,
+      contextBytes: budget,
+      requiredBytes,
+      omissions: [{ reason: 'mandatory source context exceeds budget', path: contractPath, sources, omittedSourceCount: 0 }],
+      executesChecks: false,
+    }
+    while (jsonBytes(overflow) > budget && sources.length) {
+      sources.pop()
+      overflow.omissions[0].omittedSourceCount++
+    }
+    return finishContextPacket(overflow)
   }
   packet.contextBytes = jsonBytes(packet)
   assert(
     packet.contextBytes <= budget,
     `Core context exceeds budget (${packet.contextBytes} > ${budget}); choose a larger --budget`
   )
-  return packet
+  return finishContextPacket(packet)
 }
 
 function parseNameStatus(raw, source) {
@@ -963,6 +1276,28 @@ function validatePathRules(repo, values, label) {
   })
 }
 
+// ponytail: only these two reviewed npm inclusions; extend after measured overlap.
+export function repositoryCheckCoverage(repo, manifests = validateRepository(repo)) {
+  const checks = new Map(manifests.checks.checks.map(check => [check.id, check]))
+  const matches = (id, command) => {
+    const check = checks.get(id)
+    return check?.automation === 'safe' && check.cwd === '.' && !check.env.length &&
+      check.expected.exitCode === 0 && !check.expected.artifacts.length &&
+      JSON.stringify([check.executable, ...check.args]) === JSON.stringify(command)
+  }
+  const { scripts = {} } = readJson(repo, 'package.json')
+  if (!matches('repository-check', ['npm', 'run', 'check']) ||
+      scripts.check !== 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check') return []
+  return [
+    ...(scripts.test === 'node --test tests/*.test.mjs' &&
+      matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs'])
+      ? ['orchestration-tests'] : []),
+    ...(scripts['orchestration:check'] === 'node scripts/orchestration/cli.mjs check' &&
+      matches('orchestration-structural', ['node', 'scripts/orchestration/cli.mjs', 'check'])
+      ? ['orchestration-structural'] : []),
+  ]
+}
+
 export function validateContract(repo, contract, manifests = validateRepository(repo)) {
   assert(contract.version === 1, 'Unsupported contract version')
   const identity = object(contract.identity, 'identity')
@@ -1016,12 +1351,40 @@ export function validateContract(repo, contract, manifests = validateRepository(
   validatePathRules(repo, ownership.generatedPaths, 'ownership.generatedPaths')
   const research = object(contract.research, 'research')
   array(research.nativeQuestions, 'research.nativeQuestions')
-  array(research.evidence, 'research.evidence')
+  for (const reference of array(research.evidence, 'research.evidence')) {
+    string(reference, 'research evidence reference')
+    const [path, ...headingParts] = reference.split('#')
+    const heading = headingParts.join('#')
+    safeRepoPath(repo, path)
+    if (heading) {
+      assert(extname(path) === '.md', `Evidence heading requires Markdown: ${reference}`)
+      assert(
+        headingExists(repo, { path, heading }, { exact: true }),
+        `Unknown evidence heading: ${reference}`
+      )
+    }
+  }
   array(research.assumptions, 'research.assumptions')
   const modernization = object(contract.modernization, 'modernization')
   array(modernization.risks, 'modernization.risks')
   array(modernization.measurementNeeds, 'modernization.measurementNeeds')
   array(modernization.corrections, 'modernization.corrections')
+  if (modernization.workloadEvidence !== undefined) {
+    const reference = string(modernization.workloadEvidence, 'modernization.workloadEvidence')
+    const [path, ...headingParts] = reference.split('#')
+    const heading = headingParts.join('#')
+    assert(
+      path === 'references/modern-performance.md' &&
+        heading &&
+        PERFORMANCE_WORKLOAD_HEADING.test(heading.replaceAll('-', ' ')) &&
+        headingAnchor(heading) !== headingAnchor('Measurement rules'),
+      'modernization.workloadEvidence must cite a distinct workload or measurement heading'
+    )
+    assert(
+      research.evidence.includes(reference),
+      'Workload evidence must also appear in research.evidence'
+    )
+  }
   const verification = object(contract.verification, 'verification')
   for (const id of array(verification.requiredCheckIds, 'verification.requiredCheckIds', {
     nonempty: true,
@@ -1029,6 +1392,15 @@ export function validateContract(repo, contract, manifests = validateRepository(
     assert(manifests.checkIds.has(id), `Unknown contract check: ${id}`)
   array(verification.rationale, 'verification.rationale', { nonempty: true })
   validatePathRules(repo, verification.artifacts, 'verification.artifacts')
+  const coverage = array(verification.coverage ?? [], 'verification.coverage')
+  const coveredIds = new Set()
+  const supported = coverage.length ? repositoryCheckCoverage(repo, manifests) : []
+  for (const { checkId, coveredBy } of coverage) {
+    assert(coveredBy === 'repository-check' && supported.includes(checkId), `Unsupported check coverage: ${checkId}`)
+    assert(verification.requiredCheckIds.includes(coveredBy), `Missing aggregate check: ${coveredBy}`)
+    assert(!verification.requiredCheckIds.includes(checkId) && !coveredIds.has(checkId), `Duplicate covered check: ${checkId}`)
+    coveredIds.add(checkId)
+  }
   for (const result of array(verification.results, 'verification.results')) {
     assert(
       manifests.checkIds.has(result.checkId),
@@ -1044,7 +1416,14 @@ export function validateContract(repo, contract, manifests = validateRepository(
       nonempty: true,
     })
     inputPaths.forEach(path => safeRepoPath(repo, path))
-    for (const input of check.inputs)
+    const resultCoverage = coverage.filter(item => item.coveredBy === result.checkId)
+    const coveredInputs = resultCoverage
+      .flatMap(item => manifests.checks.checks.find(entry => entry.id === item.checkId).inputs)
+    if (resultCoverage.length) coveredInputs.push('package.json', 'engineering/checks.json')
+    if (resultCoverage.length || result.coveredCheckIds !== undefined)
+      assert.deepEqual(result.coveredCheckIds, result.status === 'passed'
+        ? resultCoverage.map(item => item.checkId) : [], `Invalid covered check receipt: ${result.checkId}`)
+    for (const input of [...check.inputs, ...coveredInputs])
       assert(
         inputPaths.some(path => pathMatches(input, path)),
         `Fingerprint inputs omit declared check input: ${result.checkId}#${input}`
@@ -1228,8 +1607,14 @@ export function main(argv = process.argv.slice(2), repo = ROOT) {
   }
   if (command === 'context') {
     assert(options.subsystem, 'context requires --subsystem')
-    const budget = options.budget === undefined ? DEFAULT_CONTEXT_BUDGET : Number(options.budget)
-    return contextPacket(repo, { subsystem: options.subsystem, query: options.query ?? '', budget })
+    const budget = options.budget === undefined ? undefined : Number(options.budget)
+    return contextPacket(repo, {
+      subsystem: options.subsystem,
+      query: options.query ?? '',
+      budget,
+      role: options.role ?? null,
+      contract: options.contract ?? null,
+    })
   }
   if (command === 'plan') {
     assert(options.base, 'plan requires --base')

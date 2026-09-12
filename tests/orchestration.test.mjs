@@ -29,6 +29,7 @@ import {
   validateRepository,
 } from '../scripts/orchestration/cli.mjs'
 import { checkAutomation, startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
+import { main as prepareMain, prepareContract } from '../scripts/orchestration/prepare.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
 const put = (repo, path, value) => {
@@ -52,6 +53,7 @@ function fixtureRepo() {
   )
   put(repo, 'engineering/README.md', '# Workflow\n')
   put(repo, 'engineering/contracts.md', '# Contract\n')
+  put(repo, 'references/modern-performance.md', '# Measurement rules\nKeep renderer identity.\n\n# Representative workload\nCompare the same populated view.\n\n# Limitations\nSoftware rendering is not hardware proof.\n')
   put(
     repo,
     '.agents/skills/populous-engineering/SKILL.md',
@@ -406,6 +408,7 @@ test('context returns bounded provenance, limitations, checks, and visible sourc
     })
     assert.equal(packet.subsystem.mappingStatus, 'reviewed')
     assert.ok(packet.contextBytes <= packet.budgetBytes)
+    assert.equal(packet.contextBytes, Buffer.byteLength(`${JSON.stringify(packet, null, 2)}\n`))
     assert.ok(packet.parityScope[0].scope.some(line => /incomplete|open/i.test(line)))
     assert.ok(
       packet.sourceExcerpts.every(
@@ -444,6 +447,267 @@ test('context returns bounded provenance, limitations, checks, and visible sourc
     )
     assert.equal(packet.sourceExcerpts.find(item => item.path === 'app/shared.ts').truncated, true)
     assert.ok(packet.omissions.some(item => /bounded window/.test(item.reason)))
+  }))
+
+test('role context carries a validated bounded assignment and explicit overflow', () =>
+  withRepo(repo => {
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    const task = contract(repo, base)
+    task.modernization.corrections.push('Keep the corrected renderer classification.')
+    const contractPath = 'work/orchestration/task-contract.json'
+    put(repo, contractPath, task)
+    const native = contextPacket(repo, {
+      subsystem: 'selection',
+      query: 'what native selection evidence proves',
+      budget: 12_000,
+      role: 'native',
+      contract: contractPath,
+    })
+    assert.equal(native.status, 'complete')
+    assert.equal(native.role, 'native')
+    assert.equal(native.assignment.allowedWrites.length, 0)
+    assert.equal(native.assignment.identity.baseCommit, base)
+    assert.deepEqual(native.parityScope.map(entry => entry.id), ['group.item.part'])
+    assert.match(native.sourceExcerpts.find(item => item.path === 'docs.md').excerpt, /bounded|open/i)
+    assert.ok(
+      native.omissions
+        .filter(item => item.path)
+        .every(item => Array.isArray(item.headingTrail))
+    )
+
+    task.research.evidence.push('references/modern-performance.md#measurement-rules')
+    task.modernization.measurementNeeds.push('Compare one corrected renderer workload.')
+    put(repo, contractPath, task)
+    assert.throws(
+      () =>
+        contextPacket(repo, {
+          subsystem: 'selection',
+          query: 'uncited renderer workload',
+          role: 'performance',
+          contract: contractPath,
+        }),
+      /explicit workload evidence/
+    )
+    task.research.evidence.push('references/modern-performance.md#limitations')
+    task.modernization.workloadEvidence = 'references/modern-performance.md#limitations'
+    put(repo, contractPath, task)
+    assert.throws(
+      () =>
+        contextPacket(repo, {
+          subsystem: 'selection',
+          query: 'limitations are not a workload',
+          role: 'performance',
+          contract: contractPath,
+        }),
+      /distinct workload or measurement heading/
+    )
+    task.research.evidence.push('references/modern-performance.md#representative-workload')
+    task.modernization.workloadEvidence =
+      'references/modern-performance.md#representative-workload'
+    put(repo, contractPath, task)
+    const performance = contextPacket(repo, {
+      subsystem: 'selection',
+      query: 'corrected renderer workload',
+      budget: 12_000,
+      role: 'performance',
+      contract: contractPath,
+    })
+    assert.deepEqual(performance.assignment.corrections, task.modernization.corrections)
+    assert.ok(
+      performance.sourceExcerpts.some(
+        item =>
+          item.path === 'references/modern-performance.md' &&
+          item.headingTrail.at(-1) === 'Measurement rules'
+      )
+    )
+    assert.ok(performance.omissions.every(item => item.path && item.headingTrail))
+    assert.equal(performance.retrievalBoundary.headingIndex.path, 'work/orchestration/index.json')
+    assert.match(performance.retrievalBoundary.headingIndex.contentHash, /^[0-9a-f]{64}$/)
+
+    const performancePath = join(repo, 'references/modern-performance.md')
+    const performanceSource = readFileSync(performancePath, 'utf8')
+    writeFileSync(
+      performancePath,
+      performanceSource.replace('# Measurement rules', '# Old measurement rules appendix')
+    )
+    task.research.evidence = task.research.evidence.filter(
+      reference => !reference.endsWith('#measurement-rules')
+    )
+    put(repo, contractPath, task)
+    const nearMissPolicy = contextPacket(repo, {
+      subsystem: 'selection',
+      query: 'exact measurement policy',
+      role: 'performance',
+      contract: contractPath,
+    })
+    assert.equal(nearMissPolicy.status, 'incomplete')
+    assert.ok(nearMissPolicy.omissions.some(item => item.reason.includes('mandatory source')))
+    writeFileSync(performancePath, performanceSource)
+    task.research.evidence.push('references/modern-performance.md#measurement-rules')
+
+    task.modernization.measurementNeeds = ['']
+    put(repo, contractPath, task)
+    assert.throws(
+      () =>
+        contextPacket(repo, {
+          subsystem: 'selection',
+          query: 'missing workload',
+          role: 'performance',
+          contract: contractPath,
+        }),
+      /nonblank measurement need/
+    )
+    task.modernization.measurementNeeds = ['Compare one corrected renderer workload.']
+    delete task.modernization.workloadEvidence
+
+    put(repo, 'work/orchestration/native-notes.md', '# Supplied consumer\nNative leaf matches. World integration remains open.\n')
+    task.research.evidence = ['work/orchestration/native-notes.md#Supplied consumer']
+    put(repo, contractPath, task)
+    const explicitSource = contextPacket(repo, { subsystem: 'selection', query: 'consumer',
+      role: 'native', contract: contractPath })
+    assert.equal(explicitSource.budgetBytes, 12_000)
+    assert.ok(explicitSource.sourceExcerpts.some(item => item.path === 'work/orchestration/native-notes.md' &&
+      /integration remains open/.test(item.excerpt)))
+    assert.ok(Object.hasOwn(explicitSource.parityScope[0], 'omittedScopeSentences'))
+
+    put(repo, 'work/orchestration/native-data.json', '{"boundary":"integration remains open"}\n')
+    task.research.evidence = ['work/orchestration/native-data.json']
+    put(repo, contractPath, task)
+    const explicitData = contextPacket(repo, {
+      subsystem: 'selection',
+      query: 'native data boundary',
+      role: 'native',
+      contract: contractPath,
+    })
+    assert.equal(explicitData.status, 'complete')
+    assert.ok(
+      explicitData.sourceExcerpts.some(item => item.path === 'work/orchestration/native-data.json')
+    )
+
+    task.research.evidence = ['docs.md#missing-heading']
+    put(repo, contractPath, task)
+    assert.throws(
+      () =>
+        contextPacket(repo, {
+          subsystem: 'selection',
+          query: 'invalid evidence',
+          role: 'native',
+          contract: contractPath,
+        }),
+      /Unknown evidence heading/
+    )
+    task.research.evidence = ['missing.md#Evidence']
+    put(repo, contractPath, task)
+    assert.throws(
+      () =>
+        contextPacket(repo, {
+          subsystem: 'selection',
+          query: 'missing evidence',
+          role: 'native',
+          contract: contractPath,
+        }),
+      /Missing repository path/
+    )
+    task.research.evidence = ['docs.md#Evid']
+    put(repo, contractPath, task)
+    assert.throws(
+      () =>
+        contextPacket(repo, {
+          subsystem: 'selection',
+          query: 'partial evidence heading',
+          role: 'native',
+          contract: contractPath,
+        }),
+      /Unknown evidence heading/
+    )
+    task.research.evidence = ['../docs.md#Evidence']
+    put(repo, contractPath, task)
+    assert.throws(
+      () =>
+        contextPacket(repo, {
+          subsystem: 'selection',
+          query: 'unsafe evidence path',
+          role: 'native',
+          contract: contractPath,
+        }),
+      /Non-canonical|escapes/
+    )
+
+    task.research.evidence = ['docs.md#Evidence']
+    task.intent.acceptance.push('x'.repeat(8_000))
+    put(repo, contractPath, task)
+    const overflow = contextPacket(repo, {
+      subsystem: 'selection',
+      query: 'too much mandatory context',
+      budget: 4_000,
+      role: 'scout',
+      contract: contractPath,
+    })
+    assert.equal(overflow.status, 'incomplete')
+    assert.equal(overflow.contextBytes, Buffer.byteLength(`${JSON.stringify(overflow, null, 2)}\n`))
+    assert.match(overflow.omissions[0].reason, /mandatory assignment context/)
+    assert.ok(JSON.stringify(overflow).length < overflow.budgetBytes)
+    const oversizedQuery = contextPacket(repo, {
+      subsystem: 'selection',
+      query: 'q'.repeat(5_000),
+      budget: 4_000,
+      role: 'scout',
+      contract: contractPath,
+    })
+    assert.equal(oversizedQuery.status, 'incomplete')
+    assert.match(oversizedQuery.omissions[0].reason, /question exceeds/)
+    assert.ok(oversizedQuery.contextBytes <= oversizedQuery.budgetBytes)
+    assert.throws(
+      () => contextPacket(repo, { subsystem: 'selection', role: 'scout' }),
+      /--role and --contract/
+    )
+  }))
+
+test('reviewer context fingerprints the actual dirty, renamed, deleted, and untracked inputs', () =>
+  withRepo(repo => {
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    const task = contract(repo, base)
+    const contractPath = 'work/orchestration/review-contract.json'
+    put(repo, contractPath, task)
+    appendFileSync(join(repo, 'app/a.ts'), '// dirty\n')
+    renameSync(join(repo, 'misc/old name.txt'), join(repo, 'misc/new name.txt'))
+    rmSync(join(repo, 'misc/delete.txt'))
+    run(repo, 'git', 'add', '-A')
+    put(repo, 'untracked.txt', 'new\n')
+    const review = contextPacket(repo, {
+      subsystem: 'selection',
+      query: 'review final changes',
+      budget: 12_000,
+      role: 'reviewer',
+      contract: contractPath,
+    })
+    assert.equal(review.status, 'complete')
+    assert.deepEqual(review.assignment.review.trackedDiffCommand, [
+      'git',
+      'diff',
+      '--no-ext-diff',
+      base,
+      '--',
+    ])
+    assert.ok(review.assignment.review.untrackedPaths.includes('untracked.txt'))
+    assert.ok(
+      review.assignment.review.changes.some(
+        change => change.endpoint === 'from' && change.path === 'misc/old name.txt'
+      )
+    )
+    assert.ok(
+      review.assignment.review.changes.some(
+        change => change.endpoint === 'to' && change.path === 'misc/new name.txt'
+      )
+    )
+    assert.ok(
+      review.assignment.review.changes.some(
+        change => change.status === 'D' && change.path === 'misc/delete.txt'
+      )
+    )
+    assert.ok(review.assignment.review.changes.every(change => !Object.hasOwn(change, 'hash')))
+    assert.ok(review.assignment.review.receipts.every(result => result.command && result.inputPaths))
+    assert.match(review.assignment.review.changedFingerprint, /^[0-9a-f]{64}$/)
   }))
 
 test('real mapped evidence excerpts retain their material performance boundaries', () => {
@@ -704,6 +968,128 @@ test('game server rejects an invalid isolated port', async () => {
     /POPULOUS_PORT must be a valid port/
   )
 })
+
+function taskSpec(repo) {
+  const { identity: _identity, version: _version, ...spec } = contract(repo, 'HEAD')
+  spec.verification.results = []
+  return spec
+}
+
+function configureAggregate(repo) {
+  const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+  const configure = (id, executable, args) => Object.assign(checks.checks.find(check => check.id === id),
+    { automation: 'safe', executable, args })
+  configure('repository-check', 'npm', ['run', 'check'])
+  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs'])
+  configure('orchestration-structural', 'node', ['scripts/orchestration/cli.mjs', 'check'])
+  checks.checks.find(check => check.id === 'orchestration-tests').inputs = ['docs.md']
+  put(repo, 'engineering/checks.json', checks)
+  put(repo, 'package.json', { type: 'module', scripts: {
+    check: 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check',
+    test: 'node --test tests/*.test.mjs',
+    'orchestration:check': 'node scripts/orchestration/cli.mjs check',
+  } })
+}
+
+test('preparation captures real baseline and hashes, validates intent, and refuses overwrite', () =>
+  withRepo(repo => {
+    appendFileSync(join(repo, 'app/a.ts'), '// existing user work\n')
+    renameSync(join(repo, 'misc/old name.txt'), join(repo, 'misc/renamed.txt'))
+    rmSync(join(repo, 'misc/delete.txt'))
+    run(repo, 'git', 'add', '-A')
+    put(repo, 'untracked.txt', 'preserve me\n')
+    const spec = taskSpec(repo)
+    spec.inputPaths = ['docs.md']
+    put(repo, 'work/orchestration/spec.json', spec)
+    const args = ['--spec', 'work/orchestration/spec.json', '--contract',
+      'work/orchestration/prepared.json', '--task-id', 'prepared']
+    const before = run(repo, 'git', 'status', '--porcelain')
+    const summary = prepareMain(args, repo)
+    const saved = JSON.parse(readFileSync(join(repo, summary.contract)))
+    assert.deepEqual(saved.identity.baseline, changedPaths(repo, 'HEAD').records)
+    assert.equal(saved.identity.baseCommit, run(repo, 'git', 'rev-parse', 'HEAD').trim())
+    assert.equal(saved.identity.inputFingerprints['docs.md'], sha(readFileSync(join(repo, 'docs.md'))))
+    assert.deepEqual(saved.intent, spec.intent)
+    assert.equal(summary.executesChecks, false)
+    assert.equal(run(repo, 'git', 'status', '--porcelain'), before)
+    assert.throws(() => prepareMain(args, repo), /EEXIST/)
+    assert.throws(() => prepareContract(repo, { ...spec, intent: { ...spec.intent, acceptance: [] } },
+      { taskId: 'invalid' }), /must not be empty/)
+  }))
+
+test('verification persists completed checks across interruption and replaces old passes at startup', async () =>
+  withAsyncRepo(async repo => {
+    const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    for (const check of checks.checks) check.automation = 'safe'
+    put(repo, 'engineering/checks.json', checks)
+    const task = contract(repo, 'HEAD')
+    task.verification.requiredCheckIds = ['portable', 'production-build', 'native']
+    const path = 'work/orchestration/interrupted.json'
+    put(repo, path, task)
+    let calls = 0
+    await assert.rejects(verifyContract(repo, path, { env: {}, execute: async () => {
+      calls++
+      const saved = JSON.parse(readFileSync(join(repo, path))).verification.results
+      assert.equal(saved.find(item => item.checkId === 'native').status, 'not-run')
+      if (calls === 1) {
+        assert.equal(saved.find(item => item.checkId === 'portable').status, 'blocked')
+        return { exitCode: 0, stdout: 'pass\n', stderr: '', timedOut: false }
+      }
+      assert.equal(saved.find(item => item.checkId === 'portable').status, 'passed')
+      throw new Error('simulated interruption')
+    } }), /simulated interruption/)
+    const saved = JSON.parse(readFileSync(join(repo, path)))
+    assert.deepEqual(saved.verification.results.map(result => result.status), ['passed', 'blocked', 'not-run'])
+    assert.equal(readFileSync(join(repo, saved.verification.results[0].log), 'utf8'), 'pass\n')
+    validateContract(repo, saved)
+  }))
+
+test('verification replaces a required receipt invalidated by a changed check definition', async () =>
+  withAsyncRepo(async repo => {
+    const task = contract(repo, 'HEAD')
+    const path = 'work/orchestration/reverify.json'
+    put(repo, path, task)
+    const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    checks.checks.find(check => check.id === 'portable').automation = 'safe'
+    checks.checks.find(check => check.id === 'portable').expected.artifacts = ['app/a.ts']
+    put(repo, 'engineering/checks.json', checks)
+    const outcome = await verifyContract(repo, path, {
+      execute: async () => ({ exitCode: 0, stdout: '', stderr: '', timedOut: false }),
+    })
+    assert.equal(outcome.status, 'passed')
+    assert.deepEqual(outcome.results[0].artifacts, ['app/a.ts'])
+  }))
+
+test('reviewed aggregate coverage executes once, fingerprints covered inputs, and fails closed on script drift', async () =>
+  withAsyncRepo(async repo => {
+    configureAggregate(repo)
+    const spec = taskSpec(repo)
+    spec.verification.requiredCheckIds = ['orchestration-tests', 'repository-check', 'orchestration-structural']
+    const task = prepareContract(repo, spec, { taskId: 'aggregate' })
+    assert.deepEqual(task.verification.requiredCheckIds, ['repository-check'])
+    assert.equal(task.verification.coverage.length, 2)
+    const path = 'work/orchestration/aggregate.json'
+    put(repo, path, task)
+    const calls = []
+    const outcome = await verifyContract(repo, path, { env: {}, execute: async command => {
+      calls.push(command)
+      return { exitCode: 0, stdout: 'aggregate passed\n', stderr: '', timedOut: false }
+    } })
+    assert.deepEqual(calls, [['npm', 'run', 'check']])
+    assert.deepEqual(outcome.results[0].coveredCheckIds, ['orchestration-tests', 'orchestration-structural'])
+    assert.ok(outcome.results[0].inputPaths.includes('docs.md'))
+    const saved = JSON.parse(readFileSync(join(repo, path)))
+    validateContract(repo, saved)
+    appendFileSync(join(repo, 'docs.md'), '\nchanged covered input\n')
+    assert.ok(auditContract(repo, saved).invalidatedResults.some(result => result.checkId === 'repository-check'))
+    const pkg = JSON.parse(readFileSync(join(repo, 'package.json')))
+    pkg.scripts.test = 'node --test tests/a.test.mjs'
+    put(repo, 'package.json', pkg)
+    assert.throws(() => validateContract(repo, saved), /Unsupported check coverage/)
+    const fallback = prepareContract(repo, spec, { taskId: 'fallback' })
+    assert.ok(fallback.verification.requiredCheckIds.includes('orchestration-tests'))
+    assert.equal(fallback.verification.coverage.length, 1)
+  }))
 
 test('verification runs only safe contract checks, records blocking, and detects mutations', async () => {
   await withAsyncRepo(async repo => {

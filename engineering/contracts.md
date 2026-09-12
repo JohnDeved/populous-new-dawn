@@ -3,6 +3,21 @@
 Use one JSON file for a substantial task. Store per-run contracts and receipts under
 ignored `work/orchestration/`; do not create a database for trivial edits.
 
+Before editing, write a task spec containing the `intent`, `scope`, `ownership`,
+`verification`, and `completion` sections below. Add `research` and `modernization`
+when relevant; their arrays otherwise default to empty. Omit `version`, `identity`,
+and old results. An optional top-level `inputPaths` array names additional policy
+or evidence files to hash alongside GOAL, parity, and the reviewed check/map files.
+
+```sh
+npm run orchestration:prepare -- --spec work/orchestration/task-spec.json --task-id task --contract work/orchestration/task-contract.json
+```
+
+The helper captures the actual HEAD and all current changes as the baseline. Use
+`--base <actual-ref>` when a different base is intended. It validates the result,
+refuses to overwrite a contract, and never executes checks. The example below is
+the resulting full format; handwritten contracts remain supported.
+
 ```json
 {
   "version": 1,
@@ -62,6 +77,12 @@ they share a final file hash. Audit separates an unchanged baseline entry from t
 changes and fails if a baseline entry disappears. `inputFingerprints` protects
 relevant policy, fixtures, and evidence from unnoticed drift.
 
+For a `pnd-performance` assignment, add a nonblank `measurementNeeds` item and a
+`modernization.workloadEvidence` reference that also appears in `research.evidence`.
+It must cite an exact, distinct `references/modern-performance.md` workload or
+measurement heading; `Measurement rules` is supplied separately and cannot stand in
+for the workload.
+
 Optional verification results use:
 
 ```json
@@ -101,8 +122,30 @@ every required check. Every status carries a fingerprint; failed executions carr
 their exit code. Passed results must match the registered exit code and artifacts.
 Audit recomputes each fingerprint, so later source or fixture changes invalidate it.
 
-Delegated assignments are smaller than the parent contract but must name the
-bounded question/deliverable, allowed write paths (often none), required evidence,
-and stop condition. Handoffs contain conclusions, exact source/symbol evidence,
-unresolved questions, changed files, actual check results, and stop status—not
-chain-of-thought or copied terminal logs.
+Optional `verification.coverage` entries such as
+`{"checkId":"orchestration-tests","coveredBy":"repository-check"}` describe
+the two reviewed checks included in the repository aggregate. Preparation removes
+those duplicate required IDs only while npm scripts and registered commands match.
+Verification validates the coverage again and includes covered inputs in the
+aggregate fingerprint. A successful result lists `coveredCheckIds`; it records the
+actual aggregate command and never invents separate executions. Script drift rejects
+an old coverage agreement; prepare a new contract or explicitly restore separate
+required checks and remove their coverage. A failed aggregate gives no constituent
+pass claim. Native, browser, build, and performance evidence is never subsumed.
+
+Results are atomically saved before execution and after each completion, including
+blocked checks. An interrupted run preserves completed results, marks the active
+check blocked, and leaves later checks not-run. Restarting does not reuse old passes.
+
+Generate delegated assignments from the parent contract with `context --role`; do
+not maintain a second contract. The emitted envelope contains task/base/input
+identity, one question and role deliverable, a 500–800 word response budget, no
+write authority, forbidden actions/paths, acceptance and stop conditions, current
+direction with source hashes, exact parity/check scope, evidence, corrections,
+unknowns, and expandable omissions. Reviewer envelopes additionally contain the
+actual final change records and fingerprint, a tracked full-diff command, and every
+untracked path. An overflow is explicitly `incomplete`.
+
+Handoffs contain conclusions, exact source/symbol evidence, unresolved questions,
+changed files observed, actual check results, and stop status—not chain-of-thought
+or copied terminal logs.

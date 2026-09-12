@@ -26,7 +26,9 @@ Use `$populous-engineering` explicitly, or inspect available skills with `/skill
 npm run orchestration:check
 npm run orchestration:index
 npm run orchestration:context -- --subsystem selection --query "native drag selection"
+npm run orchestration:context -- --subsystem selection --query "native drag selection" --role native --contract work/orchestration/task-contract.json
 npm run orchestration:plan -- --base "$(git rev-parse HEAD)"
+npm run orchestration:prepare -- --spec work/orchestration/task-spec.json --task-id task --contract work/orchestration/task-contract.json
 npm run orchestration:verify -- --contract work/orchestration/task-contract.json
 npm run orchestration:audit -- --contract work/orchestration/task-contract.json
 ```
@@ -40,23 +42,42 @@ npm run orchestration:audit -- --contract work/orchestration/task-contract.json
   Markdown heading ancestry, and adds no timestamps.
 - `context` validates the cached source fingerprints and rebuilds a missing/stale
   cache. It emits reviewed mappings, live parity scope/limitations, source excerpts,
-  selected checks, unresolved questions, provenance, and an omission list.
+  selected checks, unresolved questions, provenance, and an omission list. With
+  `--role` and `--contract`, it projects the validated task into one read-only
+  specialist assignment; reviewer packets include the actual change manifest and
+  tracked full-diff command plus every untracked path.
 - `plan` reads branch, staged, unstaged, deleted, renamed, and relevant untracked
   paths. It explains check selection and reports unknown paths explicitly. It never
   runs the checks.
 - `verify` executes exactly the contract's required checks when their manifest entry
   explicitly permits automation. It verifies the external executable once, rejects
   recording commands, owns one browser server when needed, detects checkout/input
-  mutation, writes ignored logs, and updates contract result fingerprints.
+  mutation, writes ignored logs, and atomically saves each result as it completes.
+  New runs clear old passes first; an interrupted check stays blocked and pending
+  checks stay not-run. It does not reuse results automatically.
+- `prepare` validates a human-written task spec, captures actual base/baseline and
+  policy/evidence hashes, and writes a new ignored contract without overwriting one.
+  It recognizes only the two reviewed orchestration checks included in `npm run check`
+  when both the registered commands and npm scripts match. Coverage remains explicit;
+  the receipt records the aggregate command and fingerprints all covered inputs.
 - `audit` validates a compact task contract, compares current changes with the
   recorded baseline, reports both rename endpoints, detects prohibited/generated
   writes, verifies relevant input hashes, and invalidates stale verification
   fingerprints. It reports violations; it never reverts files.
 
-The default context budget is 24,000 UTF-8 bytes. Override it with `--budget N`.
+The default context budget is 24,000 UTF-8 bytes, or 12,000 for a role packet.
+Override either with `--budget N`.
+`contextBytes` counts the emitted formatted JSON and trailing newline, excluding
+npm's banner. Use `npm run --silent orchestration:context -- ...` when saving a
+packet. These are UTF-8 bytes, not model tokens.
 Whole evidence sections are admitted only when they fit; omitted sections appear in
-`omissions`. A limitation is kept with its mapped claim. Native addresses are query
-hints, never confidence labels.
+`omissions` with exact source headings. Mandatory assignment or evidence overflow
+marks a role packet `incomplete`; it is never silently treated as sufficient. A
+limitation is kept with its mapped claim. Native addresses are query hints, never
+confidence labels. Role packets also disclose their candidate paths and bounded
+optional-section selection plus a fingerprinted heading index. A specialist can
+identify the exact heading before refining the query without loading an entire log
+or assuming the packet is an exhaustive source inventory.
 
 ## Architecture and sources of truth
 
@@ -108,16 +129,25 @@ priority signal by itself. The parent owns the final choice.
    and any later authorized ledger update.
 5. Keep one source writer. Use focused agents only for independent evidence gathering
    or fresh review. Each assignment states a bounded question/deliverable, allowed
-   writes, evidence, and stop condition. Workers request scope expansion.
+   writes, evidence, and stop condition. Start new specialists without inherited
+   thread history and supply one role packet; workers start with cited omissions
+   and follow relevant callers, dependencies, or contradictions as needed.
 6. Re-run `plan` on the actual base. Inspect implementations before executing any
    selected command; do not add `--record` as a generic option.
 7. Run the smallest sufficient allowlisted checks with `orchestration:verify`; run
    manual checks only after inspecting them. Any later relevant source/fixture/input
    change invalidates the receipt.
-8. Have a fresh reviewer challenge the diff when available. If unavailable, do a
+8. Give a fresh reviewer the final diff, acceptance criteria, and receipts together.
+   Re-review substantive repairs and unresolved findings; receipt formatting alone
+   does not justify another review. If independent review is unavailable, do a
    separate review pass and state that it was not independent.
 9. Audit the contract, report every check status honestly, and stop at the contract's
    stopping condition.
+
+Pilot these packet/receipt changes on the next gameplay slice before extending the
+workflow. Record supplied packet bytes, preparation calls, repeated executions,
+and existing receipt durations. Add caching or scheduling only after measured cost
+justifies it; no inferred token savings or separate metrics ledger is needed.
 
 ## Evidence and verification
 
