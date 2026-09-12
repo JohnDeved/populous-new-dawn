@@ -325,6 +325,7 @@
         "0x48cc60",
         "0x48f350",
         "0x4615f0",
+        "0x4d5cf0",
         "0x502910",
         "0x5029d0",
         "0x4fb270",
@@ -345,7 +346,7 @@
       ],
       "unresolved": [
         "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
-        "General class-10 allocation/scheduling, reincarnation relocation, and non-shaman model-12 lifecycles remain unported.",
+        "General class-10 allocation/scheduling, reincarnation relocation, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]
     }

@@ -4683,16 +4683,17 @@ remain unfinished; no construction queue parity credit is awarded here.
 
 ## 2026-09-12 — shaman reincarnation lifecycle
 
-`check-native-reincarnation.py EXE` now executes both land and drowning
-`00502910` initializations, then `005029d0` for all 468 live timer values plus
-two failed-allocation/retry visits. It checks the linked shaman fields and matches
-the browser's 4/128/3/32/300-turn phases, 40-unit rise, effect-65 window, birth
-request, spawn retry/deletion and original composite frames 680/352/360.
+`check-native-reincarnation.py EXE` now executes two shaman and three ordinary
+`00502910` initializations, then `005029d0` for both complete 468-visit lifecycles
+plus two failed-allocation/retry visits. It checks linked fields and matches the
+browser's 4/128/3/32/300-turn phases, 40-unit rise, shaman events/retry and
+ordinary deletion. Original frames are 680/352/360 for shamans and 304/312/320
+with draw classes 14/15/16 for braves, warriors and preachers.
 Allocation, audio, registration and deletion remain supplied leaves. The same
 checker keeps the earlier 2,048 static-stone position/height/heading comparisons.
 
-The live world creates the central model-12 presentation at the shaman's death
-position and reuses the imported layered unit atlas. The browser check observes
-all three frames, rising height and removal after a real death and respawn.
-Static-site timing, relocation, particles/audio, general class-10 scheduling and
-non-shaman model-12 lifecycles remain open.
+The live world creates model-12 presentations at the death position and reuses
+the imported layered unit atlas. The browser check observes shaman respawn plus
+ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timing,
+relocation, particles/audio, general class-10 scheduling and unplayable follower
+models remain open.

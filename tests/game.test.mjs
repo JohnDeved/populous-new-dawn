@@ -267,6 +267,14 @@ test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  w.units=w.units.filter(u=>u.team!=='blue');until(w,()=>w.status==='lost',2);
 });
 
+test('ordinary land deaths keep the native corpse lifecycle',()=>{
+ const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),ground=nativePosition(w,brave).h;
+ brave.hp=0;tick(w,1/12);const corpse=w.effects.find(f=>f.corpse);assert.ok(corpse);assert.ok(!w.units.includes(brave));assert.deepEqual(corpse.unit,{team:'blue',kind:'brave',heading:brave.heading});assert.deepEqual(corpse.corpse,{remaining:468,phase:0,ground});
+ const expected=new Map([[1,[0,467,0]],[4,[0,464,0]],[5,[1,463,0]],[132,[1,336,0]],[133,[2,335,0]],[135,[2,333,0]],[136,[3,332,40]],[167,[3,301,1280]],[168,[4,300,1280]],[467,[4,1,1280]]]);
+ for(let visit=1;visit<=467;visit++){tick(w,1/12);if(expected.has(visit)){const [phase,remaining,height]=expected.get(visit);assert.deepEqual([corpse.corpse.phase,corpse.corpse.remaining,Math.round(corpse.height*45-ground)||0],[phase,remaining,height]);}}
+ assert.ok(w.effects.includes(corpse));tick(w,1/12);assert.ok(!w.effects.includes(corpse));
+});
+
 test('native transformed compound bases stay on their ground pads',()=>{
  const w=createWorld();
  for(const b of w.buildings){

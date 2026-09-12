@@ -3872,33 +3872,34 @@ recreates the geometry placement after terrain updates.
 
 `0x502910` initializes the separate class-10/model-12 death effect from its linked
 person. A shaman copies model 7, source type 7 and tribe ownership; unsupported
-terrain starts directly in phase 3. `0x5029d0` then owns the complete visible
-lifecycle: 4 turns on frame 680, 128 on frame 352, 3 on frame 360, a 32-turn
-40-units-per-turn rise on frame 360, and a 300-turn wait. With five turns left it
-requests class-7/model-8 at the tribe site. Phase 5 retries while a shaman exists
-or allocation fails; a successful `0x4da0f0` model-7 spawn deletes the effect.
+terrain starts directly in phase 3. Ordinary models 2/3/4 copy their model and
+heading, start in phase 0, and use draw classes 14/15/16. `0x5029d0` owns the
+shared 4/128/3/32/300-turn lifecycle and 40-units-per-turn rise. Shaman frames are
+680/352/360; ordinary frames are 304/312/320. With five turns left a shaman
+requests class-7/model-8 at the tribe site, while an ordinary corpse continues to
+phase 5 and deletes on its 468th visit.
 
 `stepReincarnation` now drives that same lifecycle in the live world. Death creates
 one transient effect at the death position, the shared layered unit atlas renders
 the original 680/352/360 frames, and height follows the native rise. The existing
 birth effect and shaman allocation remain the bounded adapters at the tribe site;
 successful spawn removes the central effect, while an unavailable spawn stays
-retryable.
+retryable. Ordinary land deaths reuse the same timer and layered atlas at their
+death point, hide after the rise, and delete after the native 300-turn hidden wait.
 
-`scripts/check-native-reincarnation.py EXE` runs 2,048 stone cases, both land and
-drowning `0x502910` initializations, and 470 direct `0x5029d0` visits. It checks
-the linked shaman fields and every timer value, both spawn outcomes, the effect-65
-window, rise height, birth/spawn/delete events and all three frames. Allocation,
-audio, registration and deletion consumers are supplied; native state and event
-dispatch execute unmodified. `scripts/check-browser-reincarnation.mjs` checks the
-16 static stones, camera rotation, terrain re-grounding, live frames, rise and
-cleanup after a real shaman death.
+`scripts/check-native-reincarnation.py EXE` runs 2,048 stone cases, five
+`0x502910` initializations, and 938 direct `0x5029d0` visits. It checks shaman and
+ordinary linked fields, every timer value, both spawn outcomes, ordinary deletion,
+rise height and both frame families. Allocation, audio, registration and deletion
+consumers are supplied; native state and event dispatch execute unmodified.
+`scripts/check-browser-reincarnation.mjs` checks the 16 static stones, shaman
+reincarnation, and live ordinary corpse pixels, frames, rise, hide and cleanup.
 
 The additional exports `0x4a6480`, `0x4a7eb0` and `0x514240` are investigation
 evidence, not new ports. `0x4a7eb0` contains static-stone rise/sink behavior;
 `0x514240` is a separate shaman-placement path. Static-site creation timing,
-particles/sounds, relocation, general class-10 scheduling and non-shaman model-12
-lifecycles remain unported.
+particles/sounds, relocation, general class-10 scheduling and models outside the
+currently playable follower set remain unported.
 
 
 ## Original building-collapse smoke — 2026-09-08
@@ -6687,14 +6688,15 @@ building/scenery ignition. It writes remaining 3, radius 2, maximum 5, range 128
 horizontal 140, vertical 98, spread 2, friendly fire and scatter enabled, even in
 the special load mode. This reuses `createBlastWave`/`stepBlastWave`, including
 original allied final-pass rules, impulse physics and damage. Newly allocated
-waves begin on the following browser simulation turn. Native corpse/status and
-full mixed-class list scheduling remain unverified adapters. In particular the
-remote/player state-42 shaman branch is not implemented by this slice.
+waves begin on the following browser simulation turn. The subsequent ordinary
+state-3 handoff now creates the verified class-10/model-12 corpse lifecycle; full
+mixed-class list scheduling remains an adapter. In particular the remote/player
+state-42 shaman branch is not implemented by this slice.
 
 Live people remain rendered through state 44, including while airborne; landing
 must not discard their state. Input/order gates exclude zero-life or locked
 people across click/box/HUD selection, movement, guarding, construction and casting.
-Death at state-3 handoff still uses existing browser corpse/reincarnation handling.
+Death at state-3 handoff uses the shared verified corpse/reincarnation timer.
 Ordinary person cell order and allocation limits remain explicit unfinished work.
 
 Validation:

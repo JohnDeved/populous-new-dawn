@@ -171,8 +171,33 @@ for unsupported in (False, True):
 print('PASS: 2 native reincarnation initializations; linked shaman model/tribe/heading, '
       'position, particle count, entry flag and land/drowning phase')
 
+for model in (2, 3, 4):
+    lifecycle = dict(canSpawn=True, effect65=False, unsupported=False, ground=240)
+    events = []
+    cpu.mem_write(person, bytes(256))
+    cpu.mem_write(source, bytes(256))
+    cpu.mem_write(link, bytes(20))
+    write(person + 0xc, 'I', 0x400)
+    write(person + 0x2f, 'B', 1)
+    write(person + 0x3d, 'HHh', 4352, 55040, 240)
+    write(source + 0x26, 'H', 731)
+    write(source + 0x2b, 'B', model)
+    write(source + 0x2f, 'B', 1)
+    write(source + 0x78, 'B', 3)
+    write(link, 'I', source)
+    write(0x892443, 'I', link + 20)
+    call(0x502910, person)
+    assert read(person + 0x2c, 'BBBB') == (12, 0, 0, 1), (model, read(person + 0x2c, 'BBBB'))
+    assert read(person + 0x26, 'H')[0] == 731
+    assert read(person + 0x68, 'I')[0] == 0
+    assert read(person + 0x74, 'BBBB') == (model, 1, 0, 3)
+    assert read(person + 0xc, 'I')[0] == 0x40000000
+    assert read(person + 0x3d, 'HHh') == (4352, 55040, 240)
+print('PASS: 3 native ordinary-corpse initializations; brave/warrior/preacher identity, '
+      'heading, position, entry flag and land phase')
 
-def prepare_lifecycle(remaining, can_spawn=True, effect65=True):
+
+def prepare_lifecycle(remaining, can_spawn=True, effect65=True, model=7):
     global lifecycle, events
     lifecycle = dict(canSpawn=can_spawn, effect65=effect65, unsupported=False, ground=240)
     events = []
@@ -189,7 +214,7 @@ def prepare_lifecycle(remaining, can_spawn=True, effect65=True):
     write(person + 0x3d, 'HHh', 4352, 55040, lifecycle['ground'] + risen)
     write(person + 0x68, 'I', 0)
     write(person + 0x6e, 'h', timer)
-    write(person + 0x74, 'BB', 7, 7)
+    write(person + 0x74, 'BB', model, 7 if model == 7 else 1)
     write(person + 0xc, 'I', 0x40000000 if entry else 0)
     tribe = 0x89d1c8
     cpu.mem_write(tribe, bytes(0xc65))
@@ -233,12 +258,22 @@ for remaining in (6, 1):
     cases.append(dict(remaining=remaining, canSpawn=False, effect65=False))
     expected.append(dict(remaining=remaining_after_call(), phase=phase,
                          height=read(person + 0x41, 'h')[0] - lifecycle['ground'], event=None))
+for remaining in range(468, 0, -1):
+    phase = prepare_lifecycle(remaining, True, False, 2)
+    call(0x5029d0, person)
+    cases.append(dict(remaining=remaining, canSpawn=True, effect65=False, ordinary=True))
+    expected.append(dict(remaining=remaining_after_call(), phase=phase,
+                         height=read(person + 0x41, 'h')[0] - lifecycle['ground']))
 
 script = """
 import { stepReincarnation } from './app/reincarnation.ts';
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
-console.log(JSON.stringify(JSON.parse(input).map(c => stepReincarnation(c.remaining, c.canSpawn, c.effect65))));
+console.log(JSON.stringify(JSON.parse(input).map(c => {
+  const result = stepReincarnation(c.remaining, c.canSpawn, c.effect65);
+  if (c.ordinary) delete result.event;
+  return result;
+})));
 """
 actual = json.loads(subprocess.check_output(
     ['node', '--input-type=module', '-e', script], input=json.dumps(cases).encode(), cwd=ROOT
@@ -249,5 +284,10 @@ for remaining, frame in ((468, 680), (464, 352), (336, 360), (333, 360)):
     prepare_lifecycle(remaining)
     call(0x5029d0, person)
     assert ('frame', 14, frame) in events, (remaining, events)
-print(f'PASS: {len(cases)} native reincarnation lifecycle visits; exact phase timers, '
-      'height rise, effect-65 window, birth request, spawn retry/deletion and frames 680/352/360')
+for model in (2, 3, 4):
+    for remaining, frame in ((468, 304), (464, 312), (336, 320), (333, 320)):
+        prepare_lifecycle(remaining, True, False, model)
+        call(0x5029d0, person)
+        assert ('frame', model + 12, frame) in events, (model, remaining, events)
+print(f'PASS: {len(cases)} native model-12 lifecycle visits; exact phase timers, rise, '
+      'shaman events/retry, ordinary deletion, and original shaman/follower frames')

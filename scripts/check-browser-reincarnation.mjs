@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { reincarnationStones } from '../app/reincarnation.ts'
 import { browserPosition } from '../app/model.ts'
+import { effectPixels } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: true })
 try {
@@ -138,8 +139,59 @@ try {
     scene.world.speed = 0
     return true
   })
+
+  const corpse = await page.evaluate(async () => {
+    const scene = window.testScene, world = scene.world, { tick } = await import('/app/model.ts')
+    cancelAnimationFrame(scene.frame)
+    world.speed = 0
+    world.paused = false
+    const brave = world.units.find(unit => unit.team === 'blue' && unit.kind === 'brave')
+    scene.focus(brave)
+    brave.hp = 0
+    tick(world, 1 / 12)
+    world.paused = true
+    scene.onChange()
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    const effect = world.effects.find(f => f.corpse), mesh = scene.fxMeshes.get(effect.id)
+    window.corpseEffect = effect
+    return {
+      id: effect.id, frame: mesh.userData.frame, draw: mesh.userData.draw,
+      flags: mesh.userData.drawFlags, layers: mesh.userData.layers.length,
+      visible: mesh.visible, remaining: effect.corpse.remaining, phase: effect.corpse.phase,
+      height: Math.round(effect.height * 45 - effect.corpse.ground) || 0,
+    }
+  })
+  assert.deepEqual(corpse, {
+    id: corpse.id, frame: 304, draw: 14, flags: 0, layers: 2,
+    visible: true, remaining: 468, phase: 0, height: 0,
+  })
+  assert.ok(await effectPixels(page, [corpse.id]) > 10, 'ordinary corpse must contribute live GPU pixels')
+  await page.screenshot({ path: '/private/tmp/populous-corpse.png' })
+  const corpseTimeline = await page.evaluate(async () => {
+    const scene = window.testScene, world = scene.world, { tick } = await import('/app/model.ts'), rows = []
+    let visits = 0
+    for (const target of [4, 5, 133, 136, 167, 168, 467, 468]) {
+      world.paused = false
+      while (visits < target) { tick(world, 1 / 12); visits++ }
+      world.paused = true
+      scene.animate(scene.previous)
+      cancelAnimationFrame(scene.frame)
+      const effect = world.effects.find(f => f.id === window.corpseEffect.id), mesh = scene.fxMeshes.get(window.corpseEffect.id)
+      rows.push(effect ? [target, effect.corpse.phase, effect.corpse.remaining,
+        Math.round(effect.height * 45 - effect.corpse.ground) || 0, mesh.userData.frame,
+        mesh.userData.drawFlags, mesh.visible] : [target, null])
+    }
+    return rows
+  })
+  assert.deepEqual(corpseTimeline, [
+    [4, 0, 464, 0, 304, 0, true], [5, 1, 463, 0, 312, 0, true],
+    [133, 2, 335, 0, 320, 0, true], [136, 3, 332, 40, 320, 6, true],
+    [167, 3, 301, 1280, 320, 6, true], [168, 4, 300, 1280, 320, 6, false],
+    [467, 4, 1, 1280, 320, 6, false], [468, null],
+  ])
   assert.deepEqual(errors, [])
-  console.log('PASS: 16 original stone meshes plus live frames 680/352/360, rise and cleanup; no browser errors')
+  console.log('PASS: 16 stones, shaman reincarnation and ordinary corpse frames/rise/hide/cleanup; no browser errors')
 } finally {
   await browser.close()
 }

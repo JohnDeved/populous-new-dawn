@@ -400,12 +400,12 @@
       "id": "reincarnation-native",
       "kind": "native",
       "automation": "safe",
-      "purpose": "Compare native reincarnation-site placement and the shaman reincarnation lifecycle.",
+      "purpose": "Compare native reincarnation-site placement and shaman/ordinary model-12 lifecycles.",
       "coveredBehavior": [
         "Stone positions, headings, and terrain heights",
         "Phase timers and rise height",
         "Effect-65, birth, spawn retry, and deletion events",
-        "Original frames 680, 352, and 360"
+        "Shaman frames 680/352/360 and ordinary frames 304/312/320 with draw classes 14/15/16"
       ],
       "knownLimits": [
         "Allocation, sound, registration, and deletion consumers are supplied; the live browser integration is checked separately."
@@ -433,11 +433,12 @@
       "id": "reincarnation-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise static reincarnation stones and the live shaman death-to-respawn presentation.",
+      "purpose": "Exercise static stones plus live shaman reincarnation and ordinary corpse presentation.",
       "coveredBehavior": [
         "Stone transforms and terrain grounding",
         "Original frames 680, 352, and 360",
-        "Death-point rise and spawn cleanup"
+        "Death-point rise and spawn cleanup",
+        "Ordinary corpse pixels, frames, rise, hidden wait, and deletion"
       ],
       "knownLimits": [
         "Headless browser rendering does not establish original full-frame raster parity."
@@ -448,6 +449,7 @@
       "env": [],
       "inputs": [
         "scripts/check-browser-reincarnation.mjs",
+        "scripts/browser-game.mjs",
         "app/model.ts",
         "app/reincarnation.ts",
         "app/scene.ts",

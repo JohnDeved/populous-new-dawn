@@ -2173,8 +2173,10 @@ export class GameScene {
       g.userData.layers = []
       g.userData.owner = f.unit.team === 'blue' ? 0 : f.unit.team === 'red' ? 1 : -1
       g.userData.draw = f.unit.kind === 'preacher' ? 16 : f.unit.kind === 'warrior' ? 15 : 14
-      g.userData.drawFlags = 2
+      g.userData.drawFlags = f.corpse ? 0 : 2
       g.userData.shaman = f.unit.kind === 'shaman'
+      if (f.corpse)
+        g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [304], flip: false }))
       return g
     }
     const sequence =
@@ -2292,6 +2294,17 @@ export class GameScene {
       return
     }
     if (f.unit) {
+      if (f.corpse) {
+        const frame = f.corpse.phase === 0 ? 304 : f.corpse.phase === 1 ? 312 : 320,
+          directions = g.userData.directions as { frames: number[]; flip: boolean }[]
+        g.visible = f.corpse.phase < 4
+        if (!g.visible) return
+        if (g.userData.frame !== frame)
+          for (const direction of directions) direction.frames[0] = frame
+        g.userData.drawFlags = f.corpse.phase >= 3 ? 6 : 0
+        this.animatePerson(g, f.unit.heading, directions, 0)
+        return
+      }
       const animations = (
         nativeUnits.animations as Record<
           string,

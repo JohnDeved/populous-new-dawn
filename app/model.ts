@@ -507,6 +507,7 @@ export type Effect = Point & {
   age: number
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
+  corpse?: { remaining: number; phase: number; ground: number }
   bridge?: LandBridge
   reincarnation?: { team: Team; phase: number; ground: number }
 }
@@ -5591,6 +5592,13 @@ function stepTurn(w: World) {
   for (let index = 0; index < effectCount; index++) {
     const fx = w.effects[index]
     fx.age += dt
+    if (fx.corpse) {
+      const step = stepReincarnation(fx.corpse.remaining, true, false)
+      fx.corpse.remaining = step.remaining
+      fx.corpse.phase = step.phase
+      fx.height = (fx.corpse.ground + step.height) / 45
+      if (!step.remaining) fx.duration = fx.age
+    }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
     if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
@@ -6175,7 +6183,15 @@ function stepTurn(w: World) {
   for (const u of dead) {
     cancelLiveResting(w, u)
     const f = effect(w, supportsFollower(w, u) ? 'death' : 'splash', u)
-    if (f.kind === 'death') f.unit = { team: u.team, kind: u.kind, heading: u.heading }
+    if (f.kind === 'death') {
+      f.unit = { team: u.team, kind: u.kind, heading: u.heading }
+      if (u.kind !== 'shaman') {
+        const position = nativePosition(w, u)
+        f.duration = Infinity
+        f.height = position.h / 45
+        f.corpse = { remaining: reincarnationTurns(false), phase: 0, ground: position.h }
+      }
+    }
   }
   for (const b of w.buildings.filter(b => b.hp <= 0)) {
     invalidateBuildingTimberSearch(w, b)
