@@ -222,6 +222,7 @@ import {
   cellDistanceSquared,
   positionDistance,
   nativeTerrainCross,
+  spiralCell,
 } from './native-math.ts'
 import {
   createNativeTerrain,
@@ -369,6 +370,7 @@ export type Spell =
   | 'earthquake'
   | 'tornado'
   | 'shield'
+  | 'swarm'
 export type Point = { x: number; z: number }
 type Fight = {
   group: number
@@ -554,6 +556,7 @@ export type Effect = Point & {
   firestorm?: Firestorm
   earthquake?: Earthquake
   tornado?: Tornado
+  swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
 }
 export type Gift = Effect & {
@@ -673,6 +676,16 @@ export const SPELLS: {
     symbol: '◌',
     color: '#8fd7ff',
     description: 'Protects up to six nearby followers for two minutes.',
+  },
+  {
+    id: 'swarm',
+    model: 5,
+    name: 'Swarm',
+    cost: 40,
+    key: '',
+    symbol: '※',
+    color: '#d8c56e',
+    description: 'Sends enemy followers fleeing in panic.',
   },
 ]
 export const BUILDINGS: {
@@ -1878,6 +1891,7 @@ export function createWorld(): World {
       earthquake: 0,
       tornado: 0,
       shield: 0,
+      swarm: 0,
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
@@ -1980,6 +1994,7 @@ export function createWorld(): World {
       earthquake: 0,
       tornado: 0,
       shield: 0,
+      swarm: 0,
     },
     charging: true,
     unlockedCamp: false,
@@ -3114,6 +3129,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           earthquake: 0x82,
           tornado: 0x78,
           shield: 0x87,
+          swarm: 0x79,
         }
       : {
           blast: 0x8c,
@@ -3126,6 +3142,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           earthquake: 0x98,
           tornado: 0x8e,
           shield: 0x9d,
+          swarm: 0x8f,
         })[spell],
     u
   )
@@ -4461,7 +4478,8 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'firestorm' ||
             spell === 'earthquake' ||
             spell === 'tornado' ||
-            spell === 'shield'
+            spell === 'shield' ||
+            spell === 'swarm'
           ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
           : 'Worship the stone head to receive this spell.'
     )
@@ -5683,6 +5701,50 @@ export function shieldFollowers(w: World, point: Point, team: Team) {
   return targets
 }
 
+function stepSwarm(w: World, fx: Effect) {
+  const swarm = fx.swarm!
+  if (!swarm.applied) {
+    const center = nativePosition(w, fx),
+      centerCell = ((center.y & 0xfe00) | ((center.x >>> 8) & 254)) >>> 0,
+      cells = new Set([
+        centerCell,
+        ...Array.from({ length: 7 }, (_, i) => spiralCell(centerCell, i, 0)),
+      ])
+    for (const u of w.units) {
+      if (u.hp <= 0 || u.inside !== null) continue
+      const p =
+          u.builder?.person ??
+          u.flight ??
+          u.fight?.motion ??
+          u.native ??
+          u.entry?.person ??
+          createLivePerson(w, u),
+        cell = ((p.y & 0xfe00) | ((p.x >>> 8) & 254)) >>> 0
+      p.life = Math.round(u.hp * 20)
+      if (
+        !cells.has(cell) ||
+        p.tribe === swarm.tribe ||
+        p.state === 23 ||
+        p.flags2 & 0x800000 ||
+        rules.personModels[p.model].flags & 0x100
+      )
+        continue
+      if (p.flags4 & 0x800) {
+        p.life = 0
+        u.hp = 0
+        continue
+      }
+      if (!(p.flags2 & 0x100000)) initializeLivePanic(w, u, p)
+      damagePerson(p, w.levelFlags2, swarm.tribe, constants.SWARM_PERSON_DAMAGE)
+      u.hp = p.life / 20
+    }
+    swarm.applied = true
+  }
+  // ponytail: one proven native victim pass plus a 65-turn visible lifetime;
+  // add native building pursuit when its controller duration and state 2 are recovered.
+  return --swarm.remaining > 0
+}
+
 function finishCast(
   w: World,
   shaman: Pick<Unit, 'id' | 'team' | 'x' | 'z'>,
@@ -5769,6 +5831,11 @@ function finishCast(
     } else if (spell === 'shield') {
       fx.sprite = { sequence: 'sparkle', frame: 0 }
       shieldFollowers(w, p, shaman.team)
+    } else if (spell === 'swarm') {
+      fx.swarm = { tribe: shaman.team === 'blue' ? 0 : 1, remaining: 65, applied: false }
+      fx.sprite = { sequence: 'smoke', frame: 0 }
+      fx.duration = Infinity
+      sound(w, 0xa4, p)
     }
     if (shaman.team === 'blue')
       tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
@@ -6295,6 +6362,7 @@ function stepTurn(w: World) {
       if (!alive) fx.duration = fx.age
     }
     if (fx.tornado && !stepLiveTornado(w, fx)) fx.duration = fx.age
+    if (fx.swarm && !stepSwarm(w, fx)) fx.duration = fx.age
     if (fx.firestorm) {
       const alive = stepFirestorm(w.land, fx.firestorm, w, shot => {
         const team = fx.firestorm!.tribe === 0 ? 'blue' : 'red'

@@ -10,6 +10,8 @@ type LegacyGift = { x: number; z: number; kind: 'vault' | 'lightning' | 'bridge'
 export function migrateCheckpoint(world: World) {
   world.shots.shield ??= 0
   world.giftCounts.shield ??= 0
+  world.shots.swarm ??= 0
+  world.giftCounts.swarm ??= 0
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
   if (!gifts.some(gift => gift.kind !== 'gift')) return world
   world.gifts = []
