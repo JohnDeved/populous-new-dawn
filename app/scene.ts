@@ -2159,6 +2159,17 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
+    if (f.swamp) {
+      const pool = new THREE.Mesh(
+        new THREE.CircleGeometry(2.8, 32),
+        new THREE.MeshBasicMaterial({ color: 0x26351f, transparent: true, opacity: 0.78 })
+      )
+      pool.name = 'swamp-trap'
+      pool.rotation.x = -Math.PI / 2
+      pool.position.y = 0.02
+      g.add(pool)
+      return g
+    }
     if (f.wave || f.bridge || f.flatten || f.erosion) return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
@@ -2298,7 +2309,7 @@ export class GameScene {
       )
       g.userData.cellPosition = f
     }
-    if (f.wave || f.bridge || f.flatten || f.erosion) return
+    if (f.wave || f.bridge || f.flatten || f.erosion || f.swamp) return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle
       g.userData.nativeTilt = f.sinking.tilt

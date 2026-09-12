@@ -141,6 +141,7 @@ import { stepLightning, type Lightning } from './lightning.ts'
 import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
 import { createFlatten, stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
+import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import {
   createLivePathfinding,
   findLivePath,
@@ -337,7 +338,7 @@ const debrisModels: Record<number, NativeModel> = modelAssets
 export type Team = 'blue' | 'red' | 'wild'
 export type { UnitKind } from './unit-kinds.ts'
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
-export type Spell = 'blast' | 'lightning' | 'bridge' | 'flatten' | 'erosion'
+export type Spell = 'blast' | 'lightning' | 'bridge' | 'flatten' | 'erosion' | 'swamp'
 export type Point = { x: number; z: number }
 type Fight = {
   group: number
@@ -517,6 +518,7 @@ export type Effect = Point & {
   bridge?: LandBridge
   flatten?: Flatten
   erosion?: Erosion
+  swamp?: Swamp
   reincarnation?: { team: Team; phase: number; ground: number }
 }
 export type Gift = Effect & {
@@ -586,6 +588,16 @@ export const SPELLS: {
     symbol: '▽',
     color: '#98b9a5',
     description: 'Cuts branching channels through nearby high ground.',
+  },
+  {
+    id: 'swamp',
+    model: 11,
+    name: 'Swamp',
+    cost: 100,
+    key: '6',
+    symbol: '◉',
+    color: '#718763',
+    description: 'Creates a persistent trap that swallows up to ten people.',
   },
 ]
 export const BUILDINGS: {
@@ -1767,7 +1779,7 @@ export function createWorld(): World {
     spellCasts: Array.from({ length: 4 }, () => Array(22).fill(0)),
     killCredits: Array.from({ length: 4 }, () => Array(4).fill(0)),
     gifts: [],
-    giftCounts: { blast: 0, bridge: 0, lightning: 0, flatten: 0, erosion: 0 },
+    giftCounts: { blast: 0, bridge: 0, lightning: 0, flatten: 0, erosion: 0, swamp: 0 },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
     combatMarches: [],
@@ -1858,7 +1870,7 @@ export function createWorld(): World {
     soundSerial: 0,
     mana: 0,
     wood: 0,
-    shots: { blast: 4, bridge: 0, lightning: 0, flatten: 0, erosion: 0 },
+    shots: { blast: 4, bridge: 0, lightning: 0, flatten: 0, erosion: 0, swamp: 0 },
     charging: true,
     unlockedCamp: false,
     time: 0,
@@ -2926,8 +2938,8 @@ function castVoice(w: World, u: Unit, spell: Spell) {
   sound(
     w,
     (u.team === 'blue'
-      ? { blast: 0x76, lightning: 0x77, bridge: 0x80, flatten: 0x83, erosion: 0x7e }
-      : { blast: 0x8c, lightning: 0x8d, bridge: 0x96, flatten: 0x99, erosion: 0x94 })[spell],
+      ? { blast: 0x76, lightning: 0x77, bridge: 0x80, flatten: 0x83, erosion: 0x7e, swamp: 0x7f }
+      : { blast: 0x8c, lightning: 0x8d, bridge: 0x96, flatten: 0x99, erosion: 0x94, swamp: 0x95 })[spell],
     u
   )
 }
@@ -4248,7 +4260,7 @@ export function cast(w: World, spell: Spell, p: Point) {
       w,
       spell === 'blast'
         ? 'Blast is charging. Braves working or inside huts generate more mana.'
-        : spell === 'flatten' || spell === 'erosion'
+        : spell === 'flatten' || spell === 'erosion' || spell === 'swamp'
           ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
           : 'Worship the stone head to receive this spell.'
     )
@@ -5403,10 +5415,66 @@ function finishCast(
       fx.erosion = createErosion(nativePosition(w, p))
       fx.team = shaman.team
       fx.duration = Infinity
+    } else if (spell === 'swamp') {
+      fx.swamp = createSwamp(
+        nativePosition(w, p),
+        shaman.team === 'blue' ? 0 : 1,
+        (w.effectCounter - 1) & 255,
+        w
+      )
+      fx.team = shaman.team
+      fx.height = fx.swamp.center.h / 45
+      fx.duration = Infinity
+      const owned = w.effects.filter(candidate => candidate.swamp?.tribe === fx.swamp!.tribe),
+        excess = excessSwamp(owned.map(candidate => candidate.swamp!))
+      if (excess) {
+        const oldest = owned.find(candidate => candidate.swamp === excess)!
+        oldest.duration = oldest.age
+      }
     }
     if (shaman.team === 'blue')
       tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
   }
+}
+
+function stepLiveSwamp(w: World, swamp: Swamp) {
+  const units = new Map<number, Unit>(),
+    people = new Map<number, LivePerson>(),
+    cells = new Map<number, SwampTarget[]>()
+  for (const u of w.units) {
+    if (u.inside !== null || (u.hp <= 0 && !u.flight)) continue
+    const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u),
+      cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9),
+      row = cells.get(cell) ?? []
+    units.set(p.id, u)
+    people.set(p.id, p)
+    row.unshift({ ...p, attached: p.vehicle, immune: false })
+    cells.set(cell, row)
+  }
+  swamp.counter = (swamp.counter + 1) & 255
+  return stepSwamp(w.land, swamp, !!(w.manaWorld.gameFlags & 2), {
+    cell: packed => cells.get(((packed >>> 9) & 127) * 128 + ((packed & 254) >>> 1)) ?? [],
+    kill: target => {
+      const p = people.get(target.id)!,
+        u = units.get(p.id)!
+      releaseTasks(w, u)
+      u.native = p
+      p.previousState = p.state
+      p.state = 27
+      p.flags2 = (p.flags2 | 0x100000) >>> 0
+      p.damageAttacker = swamp.tribe
+      u.hp = 0
+    },
+    remove: target => {
+      const p = people.get(target.id)!,
+        u = units.get(p.id)!
+      releaseTasks(w, u)
+      const index = w.units.indexOf(u)
+      if (index !== -1) w.units.splice(index, 1)
+      w.selected = w.selected.filter(id => id !== u.id)
+    },
+    sound: () => sound(w, 0xaa, browserPosition(swamp.center)),
+  })
 }
 // ponytail: current braves/warriors/shaman use the live order adapter. Replace it
 // with native person records/order ownership when that lifecycle is integrated.
@@ -5731,6 +5799,7 @@ function stepTurn(w: World) {
       })
       if (!alive) fx.duration = fx.age
     }
+    if (fx.swamp && !stepLiveSwamp(w, fx.swamp)) fx.duration = fx.age
     if (fx.lightning) {
       if (fx.lightning.turn < 0) {
         fx.lightning.turn = 0
