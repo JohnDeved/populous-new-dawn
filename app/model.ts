@@ -5500,8 +5500,10 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
       building: id => records.get(id),
     },
     {
-      panic: () => {
-        throw new Error('Live panic waves require the state-26 controller')
+      panic: p => {
+        w.randomState = state.randomState
+        initializeLivePanic(w, units.get(p.id)!, people.get(p.id)!, true)
+        state.randomState = w.randomState
       },
       animation: p => {
         const u = units.get(p.id)

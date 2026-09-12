@@ -65,6 +65,10 @@ try {
       victim = addUnit(w, 'red', 'brave', impact)
     victim.native = createLivePerson(w, victim)
     changeLivePersonState(w, victim, 14)
+    const panicVictim = addUnit(w, 'red', 'brave', { x: impact.x + 2, z: impact.z })
+    panicVictim.native = createLivePerson(w, panicVictim)
+    changeLivePersonState(w, panicVictim, 14)
+    w.selected.push(panicVictim.id)
     const building = addBuilding(w, 'red', 'hut', impact),
       index = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
     w.land.buildingIds[index] = building.id
@@ -73,7 +77,7 @@ try {
     s.onChange()
     s.animate(s.previous)
     cancelAnimationFrame(s.frame)
-    window.firestorm = { controller, shot, victim, building, step }
+    window.firestorm = { controller, shot, victim, panicVictim, building, step }
     return {
       controller: controller.id,
       visuals: shot.visuals.map(f => f.id),
@@ -103,6 +107,9 @@ try {
       wave: w.effects.some(f => f.wave),
       victimFlight: !!state.victim.flight,
       victimBurn: state.victim.burnTrail,
+      panicState: state.panicVictim.native.state,
+      panicPreviousState: state.panicVictim.native.previousState,
+      panicSelected: w.selected.includes(state.panicVictim.id),
       buildingBurn: !!state.building.burn,
       attacker: state.building.damageState?.attacker,
       controllerRemoved: !w.effects.includes(state.controller),
@@ -111,6 +118,9 @@ try {
   })
   assert.ok(impact.fire && impact.wave)
   assert.ok(impact.victimFlight && impact.victimBurn > 0)
+  assert.equal(impact.panicState, 26)
+  assert.equal(impact.panicPreviousState, 14)
+  assert.equal(impact.panicSelected, false)
   assert.ok(impact.buildingBurn)
   assert.equal(impact.attacker, 0)
   assert.ok(impact.controllerRemoved)

@@ -59,6 +59,10 @@ test('live Firestorm composes fire, panic Blast and building ignition independen
     const victim = addUnit(w, 'red', 'brave', point)
     victim.native = createLivePerson(w, victim)
     victim.native.state = 14
+    const panicVictim = addUnit(w, 'red', 'brave', { x: point.x + 2, z: point.z })
+    panicVictim.native = createLivePerson(w, panicVictim)
+    panicVictim.native.state = 14
+    w.selected.push(panicVictim.id)
     const building = addBuilding(w, 'red', 'hut', point),
       targetIndex = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
     w.land.buildingIds[targetIndex] = building.id
@@ -77,6 +81,8 @@ test('live Firestorm composes fire, panic Blast and building ignition independen
     assert.ok(victim.flight)
     assert.ok(victim.burnTrail > 0)
     assert.ok(victim.hp < 100)
+    assert.equal(panicVictim.native.state, 26)
+    assert.ok(!w.selected.includes(panicVictim.id))
     for (const cue of [0x7c, 0xb3, 0xb6, 0xa1]) assert.ok(w.sounds.some(sound => sound.cue === cue))
     return {
       turn: w.turn,
@@ -85,9 +91,13 @@ test('live Firestorm composes fire, panic Blast and building ignition independen
       buildingState: building.damageState.state,
       victimHp: victim.hp,
       burnTrail: victim.burnTrail,
+      panicState: panicVictim.native.state,
+      panicPreviousState: panicVictim.native.previousState,
     }
   }
   const expected = run([1 / 60])
+  assert.equal(expected.randomState, 0x58bd8f7d)
   for (const schedule of [[1 / 5], [1 / 144], [0.002, 0.04, 0.17, 0.3]])
     assert.deepEqual(run(schedule), expected)
+  assert.equal(expected.panicPreviousState, 14)
 })

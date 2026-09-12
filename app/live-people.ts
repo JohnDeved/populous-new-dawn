@@ -468,13 +468,19 @@ export function changeLivePersonState(w: World, u: Unit, next?: number) {
   w.randomState = ctx.state.randomState
 }
 
-export function initializeLivePanic(w: World, u: Unit) {
-  const p = u.flight ?? u.native ?? createLivePerson(w, u)
+export function initializeLivePanic(
+  w: World,
+  u: Unit,
+  p = u.flight ?? u.native ?? createLivePerson(w, u),
+  transitioned = false
+) {
   if (p.flags2 & 0x100000) return
   cancelBuildingEntry(w, u)
   u.native = p
-  p.previousState = p.state
-  p.state = 26
+  if (!transitioned) {
+    p.previousState = p.state
+    p.state = 26
+  }
   const ctx = context(w)
   initializeLivePerson(w, u, ctx)
   w.selected = w.selected.filter(id => id !== u.id)
