@@ -12,6 +12,7 @@ import {
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
   0x6a,
+  0x6b,
   0x26,
   0x53,
   0x6,

@@ -8,6 +8,7 @@ import {createHash} from 'node:crypto';
 import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
 import {reincarnationTurns,stepReincarnation} from '../app/reincarnation.ts';
+import {AUDIO_CUES} from '../app/audio.ts';
 import {buildingGradeVertices,buildingPosition} from '../app/building-shapes.ts';
 import {browserPosition} from '../app/model.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
@@ -263,7 +264,7 @@ test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');const idle=manaRate(w);w.selected=[brave.id];command(w,w.buildings.find(b=>b.team==='blue'));advance(w,8);assert.ok(brave.inside);assert.ok(manaRate(w)>idle);
  w.shots.blast=0;w.charging=false;advance(w,3);assert.equal(w.shots.blast,0);w.charging=true;advance(w,60);assert.ok(w.shots.blast>0);const time=w.time;w.paused=true;tick(w,2);assert.equal(w.time,time);w.paused=false;
  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/12);assert.ok(w.respawn>0);advance(w,27);assert.ok(!w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
- const rebirth=w.effects.find(f=>f.reincarnation?.team==='blue');assert.ok(rebirth);assert.deepEqual({x:rebirth.x,z:rebirth.z},{x:35,z:0});assert.equal(rebirth.reincarnation.phase,4);assert.equal(Math.round(rebirth.height*45-rebirth.reincarnation.ground),1280);advance(w,1);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));assert.ok(!w.effects.some(f=>f.reincarnation));
+ const rebirth=w.effects.find(f=>f.reincarnation?.team==='blue');assert.ok(rebirth);assert.deepEqual({x:rebirth.x,z:rebirth.z},{x:35,z:0});assert.equal(rebirth.reincarnation.phase,4);assert.equal(Math.round(rebirth.height*45-rebirth.reincarnation.ground),1280);advance(w,1);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));assert.ok(!w.effects.some(f=>f.reincarnation));assert.equal(w.sounds.filter(s=>s.cue===0x6b).length,1);assert.ok(AUDIO_CUES.includes(0x6b));
  w.units=w.units.filter(u=>u.team!=='blue');until(w,()=>w.status==='lost',2);
 });
 

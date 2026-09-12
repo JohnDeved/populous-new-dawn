@@ -6837,6 +6837,7 @@ function stepTurn(w: World) {
       else if (step.event === 'rise') effect(w, 'birth', site)
       else if (step.event === 'spawn') {
         const u = addUnit(w, team, 'shaman', team === 'blue' ? HOME : ENEMY)
+        if ((team === 'blue' ? 0 : 1) === w.manaWorld.playerTribe) sound(w, 0x6b, site)
         if (team === 'blue' && !w.selected.length) w.selected = [u.id]
         if (visual) visual.duration = visual.age
       }

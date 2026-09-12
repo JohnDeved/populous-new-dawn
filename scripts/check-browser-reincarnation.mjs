@@ -29,6 +29,12 @@ try {
     const scene = window.testScene
     scene.world.speed = 0
     scene.focus({ x: 9, z: 33 })
+    window.reincarnationSounds = []
+    const play = scene.onSound
+    scene.onSound = (...args) => {
+      window.reincarnationSounds.push(args.slice(0, 3))
+      return play(...args)
+    }
   })
 
   async function checkStones() {
@@ -139,6 +145,16 @@ try {
     scene.world.speed = 0
     return true
   })
+  const reincarnationSound = await page.evaluate(async () => {
+    const { AUDIO_CUES } = await import('/app/audio.ts')
+    return {
+      preloaded: AUDIO_CUES.includes(0x6b),
+      played: window.reincarnationSounds.some(
+        ([cue, attenuation, pan]) => cue === 0x6b && attenuation === 1 && pan === 0
+      ),
+    }
+  })
+  assert.deepEqual(reincarnationSound, { preloaded: true, played: true })
 
   const corpse = await page.evaluate(async () => {
     const scene = window.testScene, world = scene.world, { tick } = await import('/app/model.ts')
@@ -146,6 +162,7 @@ try {
     world.speed = 0
     world.paused = false
     const brave = world.units.find(unit => unit.team === 'blue' && unit.kind === 'brave')
+    const previous = new Set(world.effects.map(effect => effect.id))
     scene.focus(brave)
     brave.hp = 0
     tick(world, 1 / 12)
@@ -153,7 +170,7 @@ try {
     scene.onChange()
     scene.animate(scene.previous)
     cancelAnimationFrame(scene.frame)
-    const effect = world.effects.find(f => f.corpse), mesh = scene.fxMeshes.get(effect.id)
+    const effect = world.effects.find(f => f.corpse && !previous.has(f.id)), mesh = scene.fxMeshes.get(effect.id)
     window.corpseEffect = effect
     return {
       id: effect.id, frame: mesh.userData.frame, draw: mesh.userData.draw,

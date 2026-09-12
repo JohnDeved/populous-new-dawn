@@ -2639,6 +2639,7 @@ export class GameScene {
           continue
         }
         if (
+          event.cue === 0x6b ||
           event.cue === 0xe3 ||
           event.cue === 0xe4 ||
           event.cue === 0xa2 ||

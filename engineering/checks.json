@@ -504,6 +504,7 @@
         "Stone transforms and terrain grounding",
         "Original frames 680, 352, and 360",
         "Death-point rise and spawn cleanup",
+        "Successful player spawn preloads and plays native cue 0x6b non-positionally",
         "Ordinary corpse pixels, frames, rise, hidden wait, and deletion"
       ],
       "knownLimits": [
@@ -516,6 +517,7 @@
       "inputs": [
         "scripts/check-browser-reincarnation.mjs",
         "scripts/browser-game.mjs",
+        "app/audio.ts",
         "app/model.ts",
         "app/reincarnation.ts",
         "app/scene.ts",
