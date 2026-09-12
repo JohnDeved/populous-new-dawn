@@ -604,6 +604,70 @@ function shamanGuardTarget(w: World, order: PersonOrder) {
   return outsideBuilding(w, person ?? nativePosition(w, unit))
 }
 
+function stepLiveConstructionOrder(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
+  const building = w.buildings.find(b => b.id === order.a && b.hp > 0 && b.progress < 1)
+  if (!building) return 1
+  const target = (id: number) => {
+    const b = w.buildings.find(building => building.id === id)
+    // ponytail: browser buildings combine native display/plan IDs; split with object allocation.
+    return (
+      b && {
+        id: b.id,
+        class: 2,
+        tribe: b.team === 'blue' ? 0 : 1,
+        flags2: b.hp > 0 ? 0 : 1,
+        plan: b.id,
+        signal: 0,
+      }
+    )
+  }
+  return Number(
+    stepConstructionOrder(w.buildingOrders, p, order, {
+      ...orderEffects(w),
+      target,
+      register: plan => {
+        const b = w.buildings.find(building => building.id === plan.id)!
+        const slots = (b.builders ??= Array(rules.buildingMaxWorkers[buildingModel(b)]).fill(0))
+        if (!assignBuilder(slots, u.id)) return false
+        u.work = b.id
+        u.builder ??= {
+          task: BuilderTask.Approach,
+          busy: 0,
+          phase: 0,
+          restart: true,
+        }
+        u.builder.person = p
+        return true
+      },
+      outside: target =>
+        buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === target.id)!)),
+      prepare: (next, model, x, y, flags) => {
+        if (model !== 3) unsupported()
+        prepareMovementOrder(next, { x, y }, flags ?? 0, w.land, id =>
+          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+        )
+      },
+      task: task => {
+        if (task !== BuilderTask.Approach) unsupported()
+        const worker = u.builder!
+        worker.task = task
+        worker.busy = p.commandPhase
+        worker.phase = p.animationMode
+        worker.restart = !!(p.flags2 & 0x40000000)
+        return 0
+      },
+    })
+  )
+}
+
+export function startLiveConstructionOrder(w: World, u: Unit) {
+  const p = u.native,
+    order = p && currentPersonOrder(w.buildingOrders, p)
+  if (!p || order?.model !== 6 || stepLiveConstructionOrder(w, u, p, order)) return false
+  adoptLiveOrders(w, u, p)
+  return true
+}
+
 export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects['commands'] = {}) {
   const p = u.native!
   stepLivePhysics(w, u, p)
@@ -611,61 +675,7 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
   if (p.state !== 10) return
   const next = stepLiveOrderQueue(w, u, p, {
     3: order => Number(stepMovementOrder(p, order, w.land.categories, unsupported)),
-    6: order => {
-      const building = w.buildings.find(b => b.id === order.a && b.hp > 0 && b.progress < 1)
-      if (!building) return 1
-      const target = (id: number) => {
-        const b = w.buildings.find(building => building.id === id)
-        // ponytail: browser buildings combine native display/plan IDs; split with object allocation.
-        return (
-          b && {
-            id: b.id,
-            class: 2,
-            tribe: b.team === 'blue' ? 0 : 1,
-            flags2: b.hp > 0 ? 0 : 1,
-            plan: b.id,
-            signal: 0,
-          }
-        )
-      }
-      return Number(
-        stepConstructionOrder(w.buildingOrders, p, order, {
-          ...orderEffects(w),
-          target,
-          register: plan => {
-            const b = w.buildings.find(building => building.id === plan.id)!
-            const slots = (b.builders ??= Array(rules.buildingMaxWorkers[buildingModel(b)]).fill(0))
-            if (!assignBuilder(slots, u.id)) return false
-            u.work = b.id
-            u.builder ??= {
-              task: BuilderTask.Approach,
-              busy: 0,
-              phase: 0,
-              restart: true,
-            }
-            u.builder.person = p
-            return true
-          },
-          outside: target =>
-            buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === target.id)!)),
-          prepare: (next, model, x, y, flags) => {
-            if (model !== 3) unsupported()
-            prepareMovementOrder(next, { x, y }, flags ?? 0, w.land, id =>
-              buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
-            )
-          },
-          task: task => {
-            if (task !== BuilderTask.Approach) unsupported()
-            const worker = u.builder!
-            worker.task = task
-            worker.busy = p.commandPhase
-            worker.phase = p.animationMode
-            worker.restart = !!(p.flags2 & 0x40000000)
-            return 0
-          },
-        })
-      )
-    },
+    6: order => stepLiveConstructionOrder(w, u, p, order),
     27: () => Number(stepLiveWorship(w, u)),
     30: order =>
       stepShamanGuard(p, shamanGuardTarget(w, order), {

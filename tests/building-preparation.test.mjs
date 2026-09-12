@@ -12,7 +12,7 @@ import {createMotionRoutes,setDirectPersonDestination} from '../app/person-route
 import {createWorld,placeBuilding,tick,buildingPose,command,browserPosition,nativePosition} from '../app/model.ts'
 import {buildingGradeVertices,buildingFootprintCells} from '../app/building-shapes.ts'
 import {AUDIO_CUES} from '../app/audio.ts'
-import {createLivePerson} from '../app/live-people.ts'
+import {currentPersonOrder} from '../app/person-orders.ts'
 
 test('unbuilt plan priorities, validation, allocation and abandonment match native decisions',()=>{
  assert.equal(plans.executableSha256,manifest.executableSha256)
@@ -47,6 +47,10 @@ test('live plans retain uneven ground, level visibly and wait for timber and cre
   assert.ok(placeBuilding(w,kind,{x:-2,z:32}))
   const b=w.buildings.at(-1),plan=b.preparation,vertices=buildingGradeVertices(buildingPose(b)),mask=new Set(vertices.map(v=>v.index))
   assert.ok(plan);assert.deepEqual(w.land.heights,before,'placement must not terraform')
+  const queued=w.units.filter(u=>{const p=u.native??u.builder?.person;return p&&currentPersonOrder(w.buildingOrders,p)?.model===6})
+  assert.ok(queued.length>0&&queued.length<=b.builders.length);assert.ok(queued.every(u=>u.builder?.task===BuilderTask.Approach&&u.work===b.id))
+  const shared=currentPersonOrder(w.buildingOrders,queued[0].builder.person)
+  assert.ok(queued.every(u=>currentPersonOrder(w.buildingOrders,u.builder.person)===shared));assert.equal(shared.references,queued.length)
   // Route creation may draw speed/RNG; the hut family is selected only at allocation.
   assert.equal(b.object,rules.buildingObjects[plan.model]);assert.equal(b.progress,0)
   let changed=false,stamped=false,cleared=false,last=w.land.heights.slice()
@@ -76,6 +80,19 @@ test('live plans retain uneven ground, level visibly and wait for timber and cre
  }
 })
 
+test('a full shared order pool leaves a new plan unstaffed without leaking ownership',()=>{
+ const w=createWorld();w.manaWorld.gameFlags=32
+ const worker=w.units.find(u=>u.team==='blue'&&u.kind==='brave');w.selected=[worker.id]
+ assert.ok(command(w,{x:worker.x+2,z:worker.z}));const previous=currentPersonOrder(w.buildingOrders,worker.native)
+ for(const order of w.buildingOrders.records.slice(1))if(!order.references)order.references=1
+ w.buildingOrders.active=799
+ w.selected=[worker.id]
+ assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
+ const b=w.buildings.at(-1)
+ assert.ok(b.builders.every(id=>!id));assert.equal(w.buildingOrders.active,799)
+ assert.equal(currentPersonOrder(w.buildingOrders,worker.native),previous);assert.ok(!worker.builder&&worker.work===null)
+})
+
 test('simultaneous fetch deposits cap preparation work and preserve surplus timber',()=>{
  const w=createWorld();w.manaWorld.gameFlags=32
  const workers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2)
@@ -83,10 +100,10 @@ test('simultaneous fetch deposits cap preparation work and preserve surplus timb
  const b=w.buildings.at(-1);assert.ok(b.preparation);b.preparation.work=0;b.logs=0
  for(const u of workers){
   u.cargo=1;u.path=[]
-  const person=createLivePerson(w,u);person.timer=1
-  u.builder={task:BuilderTask.Fetch,busy:0,phase:5,restart:false,person}
+  u.builder.person.timer=1
+  Object.assign(u.builder,{task:BuilderTask.Fetch,busy:0,phase:5,restart:false})
  }
- tick(w,1/12)
+ for(let n=0;n<16&&!b.preparation.work;n++)tick(w,1/12)
  assert.equal(b.preparation.work,rules.buildingPreparationWork[b.preparation.model])
  assert.equal(b.logs,1);assert.equal(b.progress,0)
  assert.deepEqual(workers.map(u=>u.cargo).sort(),[0,1])

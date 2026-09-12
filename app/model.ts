@@ -5,6 +5,7 @@ import {
   appendLiveOrders,
   appendLiveGuardOrders,
   startLiveOrder,
+  startLiveConstructionOrder,
   cancelLiveOrder,
   stepLiveConversionVictim,
   stepLiveMovement,
@@ -38,6 +39,7 @@ import {
   playerOrderInput,
   deselectPerson,
   emptyPersonOrder,
+  allocatePersonOrder,
   writePersonOrder,
   type OrderPool,
 } from './person-orders.ts'
@@ -4310,12 +4312,16 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     plan: true,
   })
   b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0)
-  for (const { u } of workers) {
-    assignBuilder(b.builders, u.id)
-    release(w, u)
-    u.work = b.id
-    u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
-    route(w, u, entrance(w, b))
+  if (workers.length) {
+    const order = allocatePersonOrder(w.buildingOrders)
+    if (order) {
+      writePersonOrder(w.buildingOrders.records[order], 6, b.id, 0, 0)
+      for (const { u } of workers) {
+        release(w, u)
+        startLiveOrder(w, u, order)
+        if (startLiveConstructionOrder(w, u)) route(w, u, entrance(w, b), true)
+      }
+    }
   }
   w.mode = null
   tell(w, `${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`)
