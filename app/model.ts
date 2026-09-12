@@ -1161,6 +1161,13 @@ function processBattles(w: World) {
       processEncounter(w, b)
       continue
     }
+    if (!w.attackAlert && b.tribes!.includes(w.manaWorld.playerTribe)) {
+      const p = nativePosition(w, b)
+      w.attackAlert = 1
+      w.attackCell = ((p.x >>> 8) | (p.y & 0xff00)) & 0xfefe
+      w.manaTribes[w.manaWorld.playerTribe].flags2 =
+        (w.manaTribes[w.manaWorld.playerTribe].flags2 | 0x8000) >>> 0
+    }
     const ids = rosters.get(b.id)!,
       members = ids.map(id => w.units.find(u => u.id === id)!)
     const center = fightCenter(
@@ -6026,6 +6033,7 @@ function stepTurn(w: World) {
     )
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
+  w.attackAlert = 0 // 0x4ec6f0: current object turn owns the first player fight alert.
   w.musicActivity = 0 // 0x4ec6f0: current object turn owns the music activity.
   w.time = w.turn / TURNS_PER_SECOND
   // 0x4ec6f0 resets per-turn route requests and search counters before objects.

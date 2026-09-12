@@ -6,7 +6,7 @@ import { stepMeleeEncounter } from '../app/melee-encounter.ts'
 import { createMotionRoutes } from '../app/person-routes.ts'
 import { setPersonAnimation } from '../app/animation.ts'
 import { terrainPointHeight } from '../app/native-terrain.ts'
-import { createWorld, addUnit, command } from '../app/model.ts'
+import { createWorld, addUnit, command, nativePosition } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 
 test('outdoor and building encounter calls match captured original fields, timing, RNG and sound', () => {
@@ -79,6 +79,48 @@ test('the native skip-intro flag and player cancellation do not leave stuck enco
   assert.equal(w.fights.length,0);assert.equal(a.fight,null);assert.equal(b.fight,null)
   assert.deepEqual(motions.map(p=>p.workFlags),[0,0])
   assert.ok(a.path.length)
+})
+
+test('live fights refresh the first native player alert each object turn',()=>{
+  const quiet=createWorld();quiet.units=[];quiet.buildings=[];quiet.fights=[]
+  quiet.attackAlert=1;quiet.attackCell=0x1235
+  advanceGame(quiet,{animationTime:0,animationFrame:0},1/12)
+  assert.equal(quiet.attackAlert,0,'a quiet object turn clears the stale alert')
+  assert.equal(quiet.attackCell,0x1235,'native leaves the packed cell stale while the alert is clear')
+
+  const natural=encounter();natural.w.manaWorld.gameFlags|=64
+  natural.w.attackAlert=1;natural.w.attackCell=0x1235
+  advanceGame(natural.w,{animationTime:0,animationFrame:0},1/12)
+  assert.equal(natural.w.fights[0].encounter,undefined)
+  assert.equal(natural.w.attackAlert,0,'a newly admitted fight is not revisited in the same turn')
+  const naturalPoint=nativePosition(natural.w,natural.w.fights[0])
+  advanceGame(natural.w,{animationTime:0,animationFrame:0},1/12)
+  assert.equal(natural.w.attackAlert,1)
+  assert.equal(natural.w.attackCell,((naturalPoint.x>>>8)|(naturalPoint.y&0xff00))&0xfefe)
+  assert.ok(natural.w.manaTribes[0].flags2&0x8000)
+
+  const ordered=createWorld();ordered.units=[];ordered.buildings=[];ordered.fights=[]
+  ordered.terrain.fill(3);ordered.terrainVersion++
+  const addFight=(x,z)=>{
+    const a=addUnit(ordered,'blue','warrior',{x,z})
+    const b=addUnit(ordered,'red','brave',{x:x+180/256,z})
+    const fight={id:ordered.nextId++,x,z,angle:0,members:[a.id,b.id]}
+    ordered.fights.push(fight)
+    a.fight={group:fight.id,opponent:b.id,action:'ready',started:0,remaining:0}
+    b.fight={group:fight.id,opponent:a.id,action:'ready',started:0,remaining:0}
+  }
+  addFight(2,4);addFight(20,22)
+  const firstPoint=nativePosition(ordered,ordered.fights[0])
+  advanceGame(ordered,{animationTime:0,animationFrame:0},1/12)
+  assert.equal(
+    ordered.attackCell,
+    ((firstPoint.x>>>8)|(firstPoint.y&0xff00))&0xfefe,
+    'later player fights do not overwrite the first'
+  )
+  ordered.manaWorld.playerTribe=2;ordered.attackCell=0x4321
+  advanceGame(ordered,{animationTime:0,animationFrame:0},1/12)
+  assert.equal(ordered.attackAlert,0,'fights between other tribes do not alert the player')
+  assert.equal(ordered.attackCell,0x4321)
 })
 
 
