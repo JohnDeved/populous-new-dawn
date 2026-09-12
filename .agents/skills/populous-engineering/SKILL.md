@@ -15,8 +15,8 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    return the top three plus one evidence-backed recommendation. Rank
    player-visible/playability impact and unblock value first; then live integration
    gap, evidence/check confidence, effort, risk, and prerequisites. The parent makes
-   the final choice. Do not derive priority from parity percentage or document
-   position alone.
+   the final choice. Use the parity percentage to measure delivered progress; do not
+   derive priority from checkpoint weight or document position alone.
 3. Retrieve bounded current context:
 
    ```sh
@@ -79,4 +79,5 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
 
 `engineering/README.md` governs architecture, evidence boundaries, resource
 serialization, performance records, and parity bookkeeping. The manifests there
-are reviewed routing aids; `parity.json` remains the only completion ledger.
+are reviewed routing aids; `parity.json` remains the only gameplay and game-mechanics
+parity percentage and project-progress ledger.

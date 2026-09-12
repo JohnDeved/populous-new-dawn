@@ -29,7 +29,8 @@ architecture, task flow, resource serialization, and evidence rules live in
 
 - Direction and modern compatibility: `GOAL.md` and
   `references/modern-performance.md`.
-- Parity ledger: `parity.json`; assessments: `parity-history.json`.
+- Gameplay and game-mechanics parity percentage/progress ledger: `parity.json`;
+  assessments: `parity-history.json`.
 - `PARITY.md` is generated only by `scripts/parity.mjs`; never hand-edit it.
 - Native evidence: `references/reverse-engineering.md`, `decomp/README.md`,
   `decomp/exports.json`, reviewed exports, and native comparison scripts.
@@ -44,8 +45,9 @@ browser consistency check does not prove native equivalence.
 ## Scope and ownership
 
 Trace the player/system entry point, changed code, and relevant integration check.
-Resolve current parity status from `parity.json`; do not duplicate it in another
-ledger. Keep shared files such as `app/model.ts` and `app/scene.ts` cross-cutting.
+Resolve current parity percentage and status from `parity.json`; do not duplicate
+that progress measure in another ledger. Keep shared files such as `app/model.ts`
+and `app/scene.ts` cross-cutting.
 An unknown changed path requires an explicit unmapped result, never an empty plan.
 
 Source files are human-owned. Generated outputs and recording procedures are listed
@@ -71,7 +73,8 @@ and remains separate from final code review.
 When no task is fixed, compare no more than five candidates and return the top three
 plus one recommendation. Prioritize player-visible/playability impact and unblock
 value, then live integration gap, evidence/check confidence, effort, risk, and
-prerequisites. Do not rank from parity percentage or document position alone.
+prerequisites. Use the parity percentage to measure delivered progress, but do not
+rank candidates from checkpoint weight or document position alone.
 
 The parent owns final priority, scope, integration, acceptance, and any authorized ledger update.
 Use one source writer. Subagents share the checkout unless separate worktrees are

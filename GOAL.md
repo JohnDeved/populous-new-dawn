@@ -8,9 +8,10 @@ campaign, controls, simulation, graphics, audio, saves, and multiplayer behavior
 Match original outcomes and timing, not obsolete implementation details or hardware
 limitations.
 
-Measure progress by working gameplay reached through real player and system paths,
-supported by appropriate evidence. Isolated helpers, passing checks, and ledger
-percentages alone do not establish a playable remake.
+Measure project progress by the verified percentage of gameplay and game-mechanics
+parity with the original game recorded in `parity.json`. Credit only behavior that
+is integrated into the game and supported by appropriate evidence; isolated helpers
+and passing checks do not earn parity credit by themselves.
 
 Game parity, modern desktop performance, and clean, readable, maintainable code
 are permanent acceptance constraints. Workflow efficiency must serve all three;
@@ -86,8 +87,9 @@ current implementation and evidence, identify the top three, and select one by:
 4. confidence from native evidence and runnable checks;
 5. expected benefit relative to effort, risk, and external prerequisites.
 
-Do not prioritize by parity percentage, document order, native address, or ease of
-testing alone. Investigate consequential evidence gaps before implementation.
+Use the parity percentage to measure delivered progress, not as the sole priority
+signal. Do not select work by checkpoint weight, document order, native address, or
+ease of testing alone. Investigate consequential evidence gaps before implementation.
 
 Define one player-visible outcome or concrete unblocker and its acceptance evidence.
 Reassess after delivery or new findings; reuse current triage while it remains valid.
@@ -123,6 +125,7 @@ the next highest-impact change within that scope. If one candidate is blocked,
 consider another useful authorized candidate; report blockers that require user
 direction. A checkpoint does not complete the overall remake goal.
 
-Keep this file focused on outcomes and priorities. `parity.json` remains the completion
-ledger; procedures, evidence, history, and receipts stay in their canonical locations.
+Keep this file focused on outcomes and priorities. `parity.json` remains the gameplay
+and game-mechanics parity percentage and progress ledger; procedures, evidence,
+history, and receipts stay in their canonical locations.
 Preserve existing work and the user's authority over publishing, deployment, and recording.

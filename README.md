@@ -59,9 +59,10 @@ Full parity remains an [active goal](GOAL.md). The project includes a [reproduci
 ## Parity progress
 
 [PARITY.md](PARITY.md) tracks global verified-checkpoint coverage, each subsystem,
-remaining gaps, evidence and assessment history. Partial work receives no completion
-credit. The percentage measures a versioned checklist, not estimated effort or an
-objective fraction of the original engine.
+remaining gaps, evidence and assessment history. Its verified gameplay and
+game-mechanics parity percentage is the project's progress measure against the
+original game. Partial work receives no percentage credit. The denominator is the
+versioned known-scope inventory, not estimated effort, and expands with discoveries.
 
 ```sh
 npm run parity                 # Compact global/subsystem report

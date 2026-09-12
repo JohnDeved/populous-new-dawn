@@ -2,8 +2,8 @@
 
 This directory routes a bounded task to current policy, implementation, evidence,
 and checks. It is not a second parity ledger or a workflow engine. `parity.json`
-remains the only completion accounting source; context resolves its current status
-at run time.
+remains the only gameplay and game-mechanics parity percentage and project-progress
+source; context resolves its current status at run time.
 
 ## Supported integration
 
@@ -112,9 +112,10 @@ Rank player-visible/playability impact and work that unblocks other important
 behavior first. Then weigh the live integration gap, evidence and regression-check
 confidence, implementation effort, risk, and prerequisites. Each candidate reports
 the intended player-visible outcome, live entry point, exact parity IDs, evidence,
-required proof, blockers, and uncertainty. Unmapped work stays explicit. A parity
-percentage, recent heading, address match, filename, or easy test count is not a
-priority signal by itself. The parent owns the final choice.
+required proof, blockers, and uncertainty. Unmapped work stays explicit. Use the
+parity percentage to measure delivered progress; do not choose work from checkpoint
+weight, a recent heading, address match, filename, or easy test count alone. The
+parent owns the final choice.
 
 ## Task flow
 
