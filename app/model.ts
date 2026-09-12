@@ -145,6 +145,13 @@ import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } fro
 import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
 import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
 import {
+  createTornado,
+  stepTornado,
+  stepTornadoPerson,
+  type Tornado,
+  type TornadoPerson,
+} from './tornado.ts'
+import {
   createLivePathfinding,
   findLivePath,
   planLivePath,
@@ -180,7 +187,12 @@ import {
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
-import { removeObjectFromCell, objectsInCell, type ObjectCells } from './object-cells.ts'
+import {
+  removeObjectFromCell,
+  moveObjectInCells,
+  objectsInCell,
+  type ObjectCells,
+} from './object-cells.ts'
 import {
   stepBuildingEntry,
   isDismantling,
@@ -349,6 +361,7 @@ export type Spell =
   | 'swamp'
   | 'firestorm'
   | 'earthquake'
+  | 'tornado'
 export type Point = { x: number; z: number }
 type Fight = {
   group: number
@@ -532,6 +545,7 @@ export type Effect = Point & {
   swamp?: Swamp
   firestorm?: Firestorm
   earthquake?: Earthquake
+  tornado?: Tornado
   reincarnation?: { team: Team; phase: number; ground: number }
 }
 export type Gift = Effect & {
@@ -631,6 +645,16 @@ export const SPELLS: {
     symbol: '≋',
     color: '#9b755c',
     description: 'Tears open the ground and damages buildings across the fault.',
+  },
+  {
+    id: 'tornado',
+    model: 4,
+    name: 'Tornado',
+    cost: 90,
+    key: '9',
+    symbol: '↻',
+    color: '#aeb5b8',
+    description: 'A roaming whirlwind that carries followers away and throws them clear.',
   },
 ]
 export const BUILDINGS: {
@@ -1821,6 +1845,7 @@ export function createWorld(): World {
       swamp: 0,
       firestorm: 0,
       earthquake: 0,
+      tornado: 0,
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
@@ -1921,6 +1946,7 @@ export function createWorld(): World {
       swamp: 0,
       firestorm: 0,
       earthquake: 0,
+      tornado: 0,
     },
     charging: true,
     unlockedCamp: false,
@@ -2998,6 +3024,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           swamp: 0x7f,
           firestorm: 0x7c,
           earthquake: 0x82,
+          tornado: 0x78,
         }
       : {
           blast: 0x8c,
@@ -3008,6 +3035,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           swamp: 0x95,
           firestorm: 0x92,
           earthquake: 0x98,
+          tornado: 0x8e,
         })[spell],
     u
   )
@@ -4333,7 +4361,8 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'erosion' ||
             spell === 'swamp' ||
             spell === 'firestorm' ||
-            spell === 'earthquake'
+            spell === 'earthquake' ||
+            spell === 'tornado'
           ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
           : 'Worship the stone head to receive this spell.'
     )
@@ -5342,7 +5371,7 @@ function processProjectiles(w: World) {
               { id: shot.caster, team: shot.team, ...shot.source },
               shot.spell,
               shot.target,
-              shot.destination
+              shot.position
             )
           remove()
           break
@@ -5508,7 +5537,8 @@ function finishCast(
 ) {
   // Effect 78 uses the default wave initializer, then enables scatter.
   if (spell === 'blast') emitBlastWave(w, p, shaman.team).scatter = true
-  const upper = spell === 'lightning' && endpoint ? browserPosition(endpoint) : p,
+  const upper =
+      (spell === 'lightning' || spell === 'tornado') && endpoint ? browserPosition(endpoint) : p,
     fx = effect(w, spell, upper)
   if (spell === 'lightning') {
     // 0x511ef0 raises the displaced projectile endpoint above its local ground.
@@ -5554,6 +5584,17 @@ function finishCast(
       fx.earthquake = createEarthquake(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1, w)
       fx.team = shaman.team
       fx.duration = Infinity
+    } else if (spell === 'tornado') {
+      fx.tornado = createTornado(
+        w.land,
+        endpoint ?? nativePosition(w, p),
+        nativePosition(w, shaman),
+        shaman.team === 'blue' ? 0 : 1,
+        w
+      )
+      fx.team = shaman.team
+      fx.duration = Infinity
+      moveVisual(fx, fx.tornado)
     } else if (spell === 'swamp') {
       fx.swamp = createSwamp(
         nativePosition(w, p),
@@ -5573,6 +5614,68 @@ function finishCast(
     }
     if (shaman.team === 'blue')
       tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
+  }
+}
+
+function stepLiveTornado(w: World, fx: Effect) {
+  const tornado = fx.tornado!,
+    units = new Map<number, Unit>(),
+    people = new Map<number, LivePerson>(),
+    cells = new Map<number, TornadoPerson[]>()
+  for (const u of w.units) {
+    if (u.hp <= 0) continue
+    const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u),
+      cell = ((p.y & 0xfe00) | ((p.x >>> 8) & 254)) >>> 0,
+      row = cells.get(cell) ?? []
+    units.set(p.id, u)
+    people.set(p.id, p)
+    row.unshift(p)
+    cells.set(cell, row)
+  }
+  const alive = stepTornado(w, tornado, {
+    people: cell => cells.get(cell) ?? [],
+    capture: candidate => {
+      const u = units.get(candidate.id)!
+      let p = people.get(candidate.id)!
+      if (candidate.flags2 & 0x800000) p = release(w, u) ?? p
+      else releaseTasks(w, u)
+      u.native = p
+      u.flight = undefined
+      p.previousState = p.state
+      p.state = 24
+      p.substate = 0
+      p.stateObject = fx.id
+      setLivePersonAnimation(w, p, personAnimationObject(p))
+      w.selected = w.selected.filter(id => id !== u.id)
+      registerLivePerson(w, p)
+      sound(
+        w,
+        p.model === 7 ? (p.tribe === w.manaWorld.playerTribe ? 26 : 137) : 210,
+        browserPosition(p)
+      )
+    },
+    sound: stop => {
+      const event = sound(w, 163, fx, fx.id)
+      if (stop) event.stop = true
+    },
+  })
+  moveVisual(fx, tornado)
+  return alive
+}
+
+function stepLiveTornadoPerson(w: World, u: Unit) {
+  const p = u.native!,
+    fx = w.effects.find(effect => effect.id === p.stateObject),
+    before = { x: p.x, y: p.y, h: p.h },
+    carried = stepTornadoPerson(w, p, fx?.tornado, w.manaWorld.gameFlags),
+    after = { x: p.x, y: p.y, h: p.h }
+  Object.assign(p, before)
+  moveObjectInCells(w.objectCells, p, after)
+  Object.assign(u, browserPosition(p))
+  u.heading = Math.PI - (p.heading * Math.PI) / 1024
+  if (!carried) {
+    u.flight = p
+    u.lift = 1
   }
 }
 
@@ -5966,6 +6069,7 @@ function stepTurn(w: World) {
       })
       if (!alive) fx.duration = fx.age
     }
+    if (fx.tornado && !stepLiveTornado(w, fx)) fx.duration = fx.age
     if (fx.firestorm) {
       const alive = stepFirestorm(w.land, fx.firestorm, w, shot => {
         const team = fx.firestorm!.tribe === 0 ? 'blue' : 'red'
@@ -6231,6 +6335,10 @@ function stepTurn(w: World) {
     u.fighting = false
     if (u.native?.state === 44) {
       stepLiveElectrocution(w, u)
+      continue
+    }
+    if (u.native?.state === 24) {
+      stepLiveTornadoPerson(w, u)
       continue
     }
     if (u.flight) {

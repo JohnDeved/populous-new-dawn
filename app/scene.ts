@@ -2170,6 +2170,23 @@ export class GameScene {
       g.add(pool)
       return g
     }
+    if (f.tornado) {
+      g.name = 'tornado'
+      for (const _ of f.tornado.particles) {
+        const sprite = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: texture('effects'),
+            transparent: true,
+            depthWrite: false,
+            toneMapped: false,
+          })
+        )
+        sprite.userData.atlasTransform = new THREE.Vector4(1, 1, 0, 0)
+        sprite.center.set(0.5, 0)
+        g.add(sprite)
+      }
+      return g
+    }
     if (f.wave || f.bridge || f.flatten || f.erosion || f.firestorm || f.earthquake) return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
@@ -2308,6 +2325,24 @@ export class GameScene {
         interpolateUnitPosition(from, to, Math.min(1, this.world.pendingTime * TURNS_PER_SECOND))
       )
       g.userData.cellPosition = f
+    }
+    if (f.tornado) {
+      const frames = nativeEffects.animations.smoke,
+        short = (n: number) => (n << 16) >> 16
+      for (let i = 0; i < g.children.length; i++) {
+        const sprite = g.children[i] as THREE.Sprite,
+          particle = f.tornado.particles[i]
+        sprite.visible = !!particle
+        if (!particle) continue
+        sprite.position.set(
+          short(particle.x - f.tornado.x) / 256,
+          (particle.h - f.tornado.h) / 128,
+          -short(particle.y - f.tornado.y) / 256
+        )
+        effectFrame(sprite, frames[(this.world.turn + i) % frames.length])
+        sprite.material.opacity = f.tornado.phase ? Math.min(1, f.tornado.remaining / 12) : 0.9
+      }
+      return
     }
     if (f.wave || f.bridge || f.flatten || f.erosion || f.swamp || f.firestorm || f.earthquake)
       return
