@@ -100,6 +100,8 @@ import {
   unitAnimationSource,
   canOrder,
   canPickUnit,
+  unitInvisibleToPlayer,
+  unitInvisibilityRenderFlag,
 } from './model'
 
 import nativeModelData from './original-models.json'
@@ -2126,6 +2128,12 @@ export class GameScene {
         layers.push(layer)
         g.add(layer)
       }
+      const material = layer.material as THREE.SpriteMaterial,
+        blended = !!(g.userData.drawFlags & 4)
+      material.opacity = blended ? 0.45 : 1
+      material.transparent = blended
+      material.depthWrite = !blended
+      material.alphaTest = blended ? 0.01 : 0.5
       layer.visible = draw.w > 0 && draw.h > 0
       layer.userData.piece = draw.piece
       if (!layer.visible) continue
@@ -2760,7 +2768,9 @@ export class GameScene {
       g.quaternion.identity()
       g.userData.nativeHeading = 0
       g.userData.cellPosition = u
-      g.visible = u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))
+      g.visible =
+        (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
+        !unitInvisibleToPlayer(this.world, u)
       const shield = g.userData.shield as THREE.Mesh
       shield.visible = !!u.shield
       if (shield.visible) {
@@ -2794,7 +2804,12 @@ export class GameScene {
       }
       g.userData.draw =
         animationSource?.draw ?? (u.kind === 'preacher' ? 16 : u.kind === 'warrior' ? 15 : 14)
-      const renderFlags = animationSource?.renderFlags ?? 0
+      const nativeRenderFlags = animationSource?.renderFlags ?? 0,
+        invisibilityRenderFlag = unitInvisibilityRenderFlag(this.world, u),
+        renderFlags =
+          u.invisibility && !invisibilityRenderFlag
+            ? nativeRenderFlags & ~0x4000
+            : nativeRenderFlags | invisibilityRenderFlag
       g.userData.pickable = canPickUnit(this.world, u)
       g.userData.drawFlags =
         (renderFlags & 0xa000 || u.lift > 0 ? 2 : 0) | (renderFlags & 0x4000 ? 4 : 0)

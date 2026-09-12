@@ -370,6 +370,7 @@ export type Spell =
   | 'earthquake'
   | 'tornado'
   | 'shield'
+  | 'invisibility'
   | 'swarm'
 export type Point = { x: number; z: number }
 type Fight = {
@@ -442,6 +443,7 @@ export type Unit = Point & {
   fight: Fight | null
   casting: { spell: Spell; point: Point; remaining: number } | null
   shield?: number
+  invisibility?: number
 }
 export type Building = Point & {
   attackReservation?: AttackReservation
@@ -676,6 +678,16 @@ export const SPELLS: {
     symbol: '◌',
     color: '#8fd7ff',
     description: 'Protects up to six nearby followers for two minutes.',
+  },
+  {
+    id: 'invisibility',
+    model: 6,
+    name: 'Invisibility',
+    cost: 50,
+    key: '',
+    symbol: '◐',
+    color: '#a9b7c6',
+    description: 'Conceals up to six nearby followers until they fight or the spell expires.',
   },
   {
     id: 'swarm',
@@ -1351,6 +1363,7 @@ function selectionBuilding(w: World, point: { x: number; y: number }) {
 }
 
 export function canPickUnit(w: World, u: Unit) {
+  if (unitInvisibleToPlayer(w, u)) return false
   const p = unitAnimationSource(u)
   if (!p) return u.inside === null
   return (
@@ -1891,6 +1904,7 @@ export function createWorld(): World {
       earthquake: 0,
       tornado: 0,
       shield: 0,
+      invisibility: 0,
       swarm: 0,
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
@@ -1994,6 +2008,7 @@ export function createWorld(): World {
       earthquake: 0,
       tornado: 0,
       shield: 0,
+      invisibility: 0,
       swarm: 0,
     },
     charging: true,
@@ -3129,6 +3144,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           earthquake: 0x82,
           tornado: 0x78,
           shield: 0x87,
+          invisibility: 0x7a,
           swarm: 0x79,
         }
       : {
@@ -3142,6 +3158,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           earthquake: 0x98,
           tornado: 0x8e,
           shield: 0x9d,
+          invisibility: 0x90,
           swarm: 0x8f,
         })[spell],
     u
@@ -4479,6 +4496,7 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'earthquake' ||
             spell === 'tornado' ||
             spell === 'shield' ||
+            spell === 'invisibility' ||
             spell === 'swarm'
           ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
           : 'Worship the stone head to receive this spell.'
@@ -4526,16 +4544,17 @@ export function spellInRange(w: World, u: Unit, model: number, target: Point) {
 // ponytail: browser unit arrays supply cell order until native terrain lists and
 // person records are live. Blast scoring does not consume terrain flags.
 function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
-  const p = nativePosition(w, u)
+  const p = nativePosition(w, u),
+    live = unitAnimationSource(u)
   return {
     class: 1,
     model: nativePersonModel(u),
-    state: 0,
+    state: live?.state ?? 0,
     tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
     x: p.x,
     y: p.y,
     flags2: u.inside === null ? 0 : 0x800000,
-    flags4: 0,
+    flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
     assignment: 0,
     disguise: 0,
   }
@@ -5667,6 +5686,7 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
 }
 
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
+const INVISIBILITY_TURNS = constants.INVISIBLE_COUNT_X8 * 8
 
 function setUnitShield(u: Unit, turns: number) {
   u.shield = turns
@@ -5698,6 +5718,99 @@ export function shieldFollowers(w: World, point: Point, team: Team) {
     )
     .slice(0, constants.SHIELD_NUM_PEOPLE)
   for (const u of targets) setUnitShield(u, SHIELD_TURNS)
+  return targets
+}
+
+export function setUnitInvisibility(w: World, u: Unit, turns: number) {
+  const wasInvisible = !!u.invisibility,
+    renderFlag = unitInvisibilityRenderBit(w, u)
+  u.invisibility = turns
+  for (const p of new Set([
+    u.native,
+    u.flight,
+    u.fight?.motion,
+    u.entry?.person,
+    u.builder?.person,
+  ])) {
+    if (!p) continue
+    if (turns) {
+      if (!wasInvisible) p.invisibilityRender = p.renderFlags & renderFlag ? 0 : renderFlag
+      p.flags4 = (p.flags4 | 0x1000) >>> 0
+      p.renderFlags |= renderFlag
+    } else {
+      if (p.invisibilityRender) p.renderFlags &= ~p.invisibilityRender
+      delete p.invisibilityRender
+      p.flags4 = (p.flags4 & ~0x1000) >>> 0
+    }
+  }
+}
+
+export function unitInvisibleToPlayer(w: World, u: Unit) {
+  return !!(
+    u.invisibility &&
+    u.team !== (w.manaWorld.playerTribe === 0 ? 'blue' : 'red') &&
+    !(w.manaTribes[w.manaWorld.playerTribe]?.flags2 & 8)
+  )
+}
+
+export function unitInvisibilityRenderBit(w: World, u: Unit) {
+  return u.team !== (w.manaWorld.playerTribe === 0 ? 'blue' : 'red') &&
+    !(w.manaTribes[w.manaWorld.playerTribe]?.flags2 & 8)
+    ? 16
+    : 0x4000
+}
+
+export function unitInvisibilityRenderFlag(w: World, u: Unit) {
+  if (!u.invisibility) return 0
+  const flag = unitInvisibilityRenderBit(w, u)
+  if (flag !== 0x4000 || u.team !== (w.manaWorld.playerTribe === 0 ? 'blue' : 'red')) return flag
+  const timer = Math.ceil(u.invisibility! / 8),
+    mask = timer < 6 ? 1 : timer < 14 ? 2 : timer < 24 ? 4 : 0
+  return mask && !(w.turn & mask) ? 0 : flag
+}
+
+export function revealUnitInvisibility(w: World, u: Unit, audible = true) {
+  if (!u.invisibility) return false
+  if (audible) sound(w, 0x35, u, u.id)
+  setUnitInvisibility(w, u, 0)
+  return true
+}
+
+export function stepUnitInvisibility(w: World) {
+  for (const u of w.units)
+    if (u.invisibility && u.invisibility <= 1) revealUnitInvisibility(w, u)
+    else if (u.invisibility) u.invisibility--
+}
+
+export function invisibilityFollowers(w: World, point: Point, team: Team) {
+  const center = nativePosition(w, point),
+    x = (center.x >>> 8) & 254,
+    y = (center.y >>> 8) & 254,
+    order = new Map<string, number>()
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2]) order.set(`${(x + dx) & 254}:${(y + dy) & 254}`, order.size)
+  const targets = w.units
+    .map((u, index) => {
+      const p = nativePosition(w, u),
+        scan = order.get(`${(p.x >>> 8) & 254}:${(p.y >>> 8) & 254}`)
+      return { u, p, scan: scan === undefined ? -1 : scan * w.units.length + index }
+    })
+    .filter(
+      ({ u, scan }) =>
+        scan >= 0 &&
+        u.team === team &&
+        u.kind !== 'shaman' &&
+        u.hp > 0 &&
+        u.inside === null &&
+        !u.invisibility &&
+        !((unitAnimationSource(u)?.flags4 ?? 0) & 0x1000)
+    )
+    .toSorted(
+      (a, b) => positionDistance(a.p, center) - positionDistance(b.p, center) || b.scan - a.scan
+    )
+    .slice(0, constants.INVIS_NUM_PEOPLE)
+    .map(({ u }) => u)
+  for (const u of targets) setUnitInvisibility(w, u, INVISIBILITY_TURNS)
   return targets
 }
 
@@ -5831,6 +5944,9 @@ function finishCast(
     } else if (spell === 'shield') {
       fx.sprite = { sequence: 'sparkle', frame: 0 }
       shieldFollowers(w, p, shaman.team)
+    } else if (spell === 'invisibility') {
+      fx.sprite = { sequence: 'sparkle', frame: 0 }
+      if (invisibilityFollowers(w, p, shaman.team).length) sound(w, 0x31, p)
     } else if (spell === 'swarm') {
       fx.swarm = { tribe: shaman.team === 'blue' ? 0 : 1, remaining: 65, applied: false }
       fx.sprite = { sequence: 'smoke', frame: 0 }
@@ -6226,6 +6342,7 @@ function stepTurn(w: World) {
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
   stepUnitShields(w)
+  stepUnitInvisibility(w)
   w.attackAlert = 0 // 0x4ec6f0: current object turn owns the first player fight alert.
   w.musicActivity = 0 // 0x4ec6f0: current object turn owns the music activity.
   w.time = w.turn / TURNS_PER_SECOND

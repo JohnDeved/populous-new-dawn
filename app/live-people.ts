@@ -27,6 +27,9 @@ import {
   emitGroundSpark,
   releaseTasks,
   requestTutorial,
+  revealUnitInvisibility,
+  unitInvisibilityRenderBit,
+  unitInvisibilityRenderFlag,
 } from './model.ts'
 import {
   initializePersonState,
@@ -127,6 +130,7 @@ export type LivePerson = StatefulPerson &
     burnTrail: number
     marchCooldown: number
     computerAssignment: number
+    invisibilityRender?: number
   }
 const short = (n: number) => (n << 16) >> 16
 // Bootstrap the existing browser follower at the handoff to native controllers.
@@ -154,7 +158,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     flags2: u.inside === null ? 0 : 0x800000,
     flags3: u.shield ? 0x80000 : 0,
     // Preserve the outdoor target eligibility previously supplied by each spell adapter.
-    flags4: 0x20000000 | (u.inside === null ? 256 : 0),
+    flags4: 0x20000000 | (u.inside === null ? 256 : 0) | (u.invisibility ? 0x1000 : 0),
     physics: rules.personModels[model].physics,
     speed: 0,
     angle,
@@ -181,7 +185,8 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     draw: 0,
     morph: 0,
     palette: 0,
-    renderFlags: 0,
+    renderFlags: unitInvisibilityRenderFlag(w, u),
+    invisibilityRender: u.invisibility ? unitInvisibilityRenderBit(w, u) : undefined,
     f1: 0,
     f2: 0,
     stamp: 0,
@@ -590,6 +595,7 @@ export function collisionWorld(w: World): CollisionWorld {
 }
 
 export function createMeleePerson(w: World, u: Unit) {
+  revealUnitInvisibility(w, u)
   const p = createLivePerson(w, u)
   p.state = 25
   p.workFlags = u.fight?.group ?? 0
@@ -607,12 +613,9 @@ function initializeGroundCombat(w: World, p: LivePerson) {
   p.substate = 0
 }
 
-export function enterLiveCombat(
-  w: World,
-  u: Unit,
-  state: 25 | 29,
-  p = u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u)
-) {
+export function enterLiveCombat(w: World, u: Unit, state: 25 | 29, p?: LivePerson) {
+  revealUnitInvisibility(w, u)
+  p ??= u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u)
   const flags = p.flags4 & 0x10007
   if (!(p.flags2 & 0x100000)) {
     p.previousState = p.state

@@ -7,6 +7,7 @@ import {
   joinBattle,
   sound,
   syncLandscapeObjects,
+  setUnitInvisibility,
   type World,
   type Unit,
   type Building,
@@ -467,7 +468,8 @@ function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
     attackCell: w.attackCell,
     tribes: w.manaTribes.map(t => ({ flags: t.flags2 })),
   }
-  const damage = target.damage
+  const damage = target.damage,
+    invisible = !!u.invisibility
   const result = attackCombatBuilding(context, p, target, {
     ...combatMotion(w, u, p),
     buildingAt: to => w.land.buildingIds[(to.y >> 9) * 128 + (to.x >> 9)],
@@ -506,6 +508,7 @@ function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
   w.attackAlert = context.attackAlert
   w.attackCell = context.attackCell
   context.tribes.forEach((t, i) => (w.manaTribes[i].flags2 = t.flags))
+  if (invisible && !(p.flags4 & 0x1000)) setUnitInvisibility(w, u, 0)
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.fighting = p.animationMode === 46 || p.animationMode === 53
   return result

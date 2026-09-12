@@ -5,13 +5,20 @@ const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
 
-type LegacyGift = { x: number; z: number; kind: 'vault' | 'lightning' | 'bridge'; remaining: number }
+type LegacyGift = {
+  x: number
+  z: number
+  kind: 'vault' | 'lightning' | 'bridge'
+  remaining: number
+}
 
 export function migrateCheckpoint(world: World) {
   world.shots.shield ??= 0
   world.giftCounts.shield ??= 0
   world.shots.swarm ??= 0
   world.giftCounts.swarm ??= 0
+  world.shots.invisibility ??= 0
+  world.giftCounts.invisibility ??= 0
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
   if (!gifts.some(gift => gift.kind !== 'gift')) return world
   world.gifts = []

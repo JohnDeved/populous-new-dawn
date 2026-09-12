@@ -1,4 +1,4 @@
-import { nativePosition, type World } from './model.ts'
+import { nativePosition, unitInvisibleToPlayer, type World } from './model.ts'
 import {
   minimapTerrain,
   minimapRGBA,
@@ -68,7 +68,10 @@ export class MinimapRenderer {
         category: 1,
         model: u.team === 'wild' ? 1 : nativeUnitModel(u.kind),
         tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
-        hidden: !!u.inside || !!(((u.flight ?? u.native)?.flags4 ?? 0) & 0x40000000),
+        hidden:
+          !!u.inside ||
+          !!(((u.flight ?? u.native)?.flags4 ?? 0) & 0x40000000) ||
+          unitInvisibleToPlayer(world, u),
         visible: true,
       })),
       ...world.buildings.map(b => ({

@@ -15,7 +15,7 @@ import {
   type GlobeView,
 } from './globe.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
-import { buildingModel, nativePosition, type World } from './model.ts'
+import { buildingModel, nativePosition, unitInvisibleToPlayer, type World } from './model.ts'
 import hud from './original-hud.json'
 import effects from './original-effects.json'
 import { lineQuad } from './lightning.ts'
@@ -272,7 +272,7 @@ export class GlobeRenderer extends THREE.Group {
       }
     }
     for (const u of world.units) {
-      if (u.inside !== null || u.hp <= 0) continue
+      if (u.inside !== null || u.hp <= 0 || unitInvisibleToPlayer(world, u)) continue
       const p = locate(u)
       if (!p) continue
       const fill = color(
