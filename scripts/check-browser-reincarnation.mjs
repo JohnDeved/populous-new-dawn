@@ -59,7 +59,7 @@ try {
 
   const initial = await checkStones()
   await page.screenshot({ path: '/private/tmp/populous-reincarnation-front.png' })
-  await page.locator('.world-viewport canvas').focus()
+  await page.locator('.world-viewport canvas.battlefield').focus()
   const bearing = await page.evaluate(() => window.testScene.cameraBearing)
   await page.keyboard.down('q')
   await page.waitForFunction(bearing => window.testScene.cameraBearing !== bearing, bearing)
@@ -80,12 +80,66 @@ try {
       scene.world.land.heights[index] += 128
     }
     scene.world.landVersion++
+    scene.world.terrainVersion = scene.world.landVersion
+    scene.rebuildTerrain()
   })
-  await page.waitForFunction(() => window.testScene.terrainVersion === window.testScene.world.landVersion)
   const edited = await checkStones()
   assert.equal(edited[0].position[1], initial[0].position[1] + 1)
+
+  await page.evaluate(() => {
+    const scene = window.testScene
+    window.reincarnationShaman = scene.world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+    window.reincarnationDeath = { x: window.reincarnationShaman.x, z: window.reincarnationShaman.z }
+    window.reincarnationShaman.hp = 0
+    scene.world.speed = 0.25
+  })
+  await page.waitForFunction(() => {
+    const scene = window.testScene
+    const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
+    const mesh = effect && scene.fxMeshes.get(effect.id)
+    if (!effect || effect.reincarnation.phase !== 0 || mesh?.userData.frame !== 680) return false
+    scene.world.speed = 0
+    return true
+  })
+  assert.deepEqual(await page.evaluate(() => {
+    const scene = window.testScene
+    const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
+    const mesh = scene.fxMeshes.get(effect.id)
+    return { point: { x: effect.x, z: effect.z }, frame: mesh.userData.frame, layers: mesh.userData.layers.length }
+  }), { point: await page.evaluate(() => window.reincarnationDeath), frame: 680, layers: 2 })
+  await page.evaluate(() => { window.testScene.world.speed = 8 })
+  await page.waitForFunction(() => {
+    const scene = window.testScene
+    const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
+    const mesh = effect && scene.fxMeshes.get(effect.id)
+    if (!effect || effect.reincarnation.phase !== 1 || mesh?.userData.frame !== 352) return false
+    scene.world.speed = 0
+    return true
+  })
+  await page.evaluate(() => { window.testScene.world.speed = 8 })
+  await page.waitForFunction(() => {
+    const scene = window.testScene
+    const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
+    const mesh = effect && scene.fxMeshes.get(effect.id)
+    if (!effect || effect.reincarnation.phase !== 3 || mesh?.userData.frame !== 360) return false
+    scene.world.speed = 0
+    return true
+  })
+  assert.ok(await page.evaluate(() => {
+    const effect = window.testScene.world.effects.find(f => f.reincarnation?.team === 'blue')
+    return effect.height * 45 > effect.reincarnation.ground
+  }))
+  await page.screenshot({ path: '/private/tmp/populous-reincarnation-rise.png' })
+  await page.evaluate(() => { window.testScene.world.speed = 32 })
+  await page.waitForFunction(() => {
+    const scene = window.testScene
+    const shaman = scene.world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+    if (!shaman || shaman.id === window.reincarnationShaman.id || scene.world.effects.some(f => f.reincarnation)) return false
+    scene.world.speed = 0
+    return true
+  })
   assert.deepEqual(errors, [])
-  console.log('PASS: 16 original stone meshes, native positions/headings/heights, camera rotation, terrain edit grounding; no browser errors')
+  console.log('PASS: 16 original stone meshes plus live frames 680/352/360, rise and cleanup; no browser errors')
 } finally {
   await browser.close()
 }

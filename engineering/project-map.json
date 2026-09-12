@@ -282,10 +282,11 @@
         "app/object-panels.ts",
         "app/person-worship.ts",
         "app/popscript.ts",
+        "app/reincarnation.ts",
         "app/vault.ts",
         "app/worship.ts"
       ],
-      "sharedPaths": ["app/flyby.ts", "app/model.ts"],
+      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/scene.ts"],
       "entrySymbols": [
         { "path": "app/model.ts", "symbol": "missionAI" },
         { "path": "app/model.ts", "symbol": "campaignCommand" },
@@ -296,7 +297,9 @@
         "campaign.vm",
         "campaign.ai",
         "campaign.objectives",
-        "campaign.worship"
+        "campaign.worship",
+        "combat.shamans",
+        "effects.reincarnation"
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
@@ -307,17 +310,34 @@
         {
           "path": "references/reverse-engineering.md",
           "heading": "First-mission opening flyby (2026-09-07)"
+        },
+        {
+          "path": "references/reverse-engineering.md",
+          "heading": "Reincarnation stone layout — 2026-09-08"
         }
       ],
-      "nativeAddresses": ["0x48c6b0", "0x48cc60", "0x48f350", "0x4615f0"],
-      "checkIds": ["vault-native", "repository-check", "production-build"],
+      "nativeAddresses": [
+        "0x48c6b0",
+        "0x48cc60",
+        "0x48f350",
+        "0x4615f0",
+        "0x502910",
+        "0x5029d0"
+      ],
+      "checkIds": [
+        "reincarnation-native",
+        "reincarnation-browser",
+        "vault-native",
+        "repository-check",
+        "production-build"
+      ],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "A bound command must preserve script evaluation order, native field widths, and its real world or presentation owner."
       ],
       "unresolved": [
         "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
-        "Portable and build checks do not replace an opcode-specific native comparison or live browser assertion."
+        "General class-10 allocation/scheduling, reincarnation relocation, and non-shaman model-12 lifecycles remain unported."
       ]
     }
   ],
@@ -341,7 +361,8 @@
         "movement-orders",
         "construction-resources",
         "camera-clocks",
-        "terrain-performance"
+        "terrain-performance",
+        "campaign"
       ],
       "checkIds": ["repository-check", "production-build"]
     },

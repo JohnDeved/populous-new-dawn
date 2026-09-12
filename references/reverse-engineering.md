@@ -3868,20 +3868,35 @@ relative to tribe offsets `0x911/0x913`; terrain height comes from `0x44e940`.
 The browser renderer now uses those exact positions, heights and headings and
 recreates the geometry placement after terrain updates.
 
-`scripts/check-native-reincarnation.py EXE` runs the actual normal creation state
-and stone initializer for 256 centers × eight stones, covering all four tribes,
-cell boundaries, wrap seams and both stored terrain diagonals. It intercepts
-allocation, registration, object-setting, shadow submission and the separate rise
-update; it does not claim to verify those subsystems. Native coordinate, height
-and angle code executes unmodified. `scripts/check-browser-reincarnation.mjs`
-checks all 16 rendered stone transforms, keyboard camera rotation and grounding
-after terrain deformation.
+`0x502910` initializes the separate class-10/model-12 death effect from its linked
+person. A shaman copies model 7, source type 7 and tribe ownership; unsupported
+terrain starts directly in phase 3. `0x5029d0` then owns the complete visible
+lifecycle: 4 turns on frame 680, 128 on frame 352, 3 on frame 360, a 32-turn
+40-units-per-turn rise on frame 360, and a 300-turn wait. With five turns left it
+requests class-7/model-8 at the tribe site. Phase 5 retries while a shaman exists
+or allocation fails; a successful `0x4da0f0` model-7 spawn deletes the effect.
+
+`stepReincarnation` now drives that same lifecycle in the live world. Death creates
+one transient effect at the death position, the shared layered unit atlas renders
+the original 680/352/360 frames, and height follows the native rise. The existing
+birth effect and shaman allocation remain the bounded adapters at the tribe site;
+successful spawn removes the central effect, while an unavailable spawn stays
+retryable.
+
+`scripts/check-native-reincarnation.py EXE` runs 2,048 stone cases, both land and
+drowning `0x502910` initializations, and 470 direct `0x5029d0` visits. It checks
+the linked shaman fields and every timer value, both spawn outcomes, the effect-65
+window, rise height, birth/spawn/delete events and all three frames. Allocation,
+audio, registration and deletion consumers are supplied; native state and event
+dispatch execute unmodified. `scripts/check-browser-reincarnation.mjs` checks the
+16 static stones, camera rotation, terrain re-grounding, live frames, rise and
+cleanup after a real shaman death.
 
 The additional exports `0x4a6480`, `0x4a7eb0` and `0x514240` are investigation
-evidence, not new ports. `0x4a7eb0` contains stone rise/sink behavior; `0x514240`
-is a separate shaman-placement path. The browser still initializes two static
-first-mission sites; creation order/timing, particles/sounds, rise/sink, relocation,
-removal and complete tribe lifecycle remain unported here.
+evidence, not new ports. `0x4a7eb0` contains static-stone rise/sink behavior;
+`0x514240` is a separate shaman-placement path. Static-site creation timing,
+particles/sounds, relocation, general class-10 scheduling and non-shaman model-12
+lifecycles remain unported.
 
 
 ## Original building-collapse smoke — 2026-09-08

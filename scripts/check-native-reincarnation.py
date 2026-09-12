@@ -3,7 +3,8 @@
 Usage: python scripts/check-native-reincarnation.py /path/to/d3dpoptb.exe
 Runs native 0x433a10 state 3 and 0x4a7d80. Allocation, object registration,
 shadow submission and the separate rise effect are intercepted; coordinate,
-ground-height and angle code execute unmodified.
+ground-height and angle code execute unmodified. The model-12 lifecycle executes
+at 0x5029d0 with allocation, sound and deletion consumers supplied.
 """
 import json
 import random
@@ -20,6 +21,9 @@ cpu, _ = native_cpu(Path(sys.argv[1]))
 cpu.mem_map(0x2000000, 0x10000)
 stack, stop, person, order, stone = 0x200d000, 0x200e000, 0x2001000, 0x2002000, 0x2003000
 allocations = []
+lifecycle = None
+events = []
+fake = 0x2005000
 
 
 def write(address, fmt, *values):
@@ -31,17 +35,45 @@ def read(address, fmt):
 
 
 def intercept(cpu, address, size, user):
+    global events
     sp = cpu.reg_read(UC_X86_REG_ESP)
+    result = 0
     if address == 0x4ed8a0:
         unit_class, model, owner, position = read(sp + 4, '4I')
-        assert (unit_class, model) == (8, 1)
-        allocations.append(read(position, 'HHh'))
-    cpu.reg_write(UC_X86_REG_EAX, 0)
+        if lifecycle is None:
+            assert (unit_class, model) == (8, 1)
+            allocations.append(read(position, 'HHh'))
+        elif model == 65:
+            events.append('splash')
+        elif model == 8 and lifecycle['canSpawn']:
+            cpu.mem_write(fake, bytes(256))
+            result = fake
+    elif address == 0x4ee700:
+        draw, object_ = read(sp + 8, '2I')
+        events.append(('frame', draw & 0xffff, object_ & 0xffff))
+    elif address == 0x44e940:
+        result = lifecycle['ground'] & 0xffff
+    elif address == 0x44f980:
+        result = 0 if lifecycle['effect65'] else 1
+    elif address == 0x4eeff0:
+        result = 1 if lifecycle['unsupported'] else 0
+    elif address == 0x50c830:
+        events.append('rise')
+    elif address == 0x4da0f0:
+        if lifecycle['canSpawn']:
+            cpu.mem_write(fake, bytes(256))
+            write(fake + 0x2b, 'BB', 7, 0)
+            events.append('spawn')
+            result = fake
+    elif address == 0x4edcf0:
+        events.append('delete')
+    cpu.reg_write(UC_X86_REG_EAX, result)
     cpu.reg_write(UC_X86_REG_EIP, read(sp, 'I')[0])
     cpu.reg_write(UC_X86_REG_ESP, sp + 4)
 
 
-for address in (0x4ed8a0, 0x4ed6f0, 0x4ed640, 0x4ee470, 0x4a66c0, 0x403c10, 0x4a7eb0):
+for address in (0x4ed8a0, 0x4ed6f0, 0x4ed640, 0x4ee470, 0x4a66c0, 0x403c10,
+                0x4a7eb0):
     cpu.hook_add(UC_HOOK_CODE, intercept, begin=address, end=address)
 
 
@@ -105,3 +137,117 @@ assert len(actual) == len(expected)
 print(f'PASS: {len(centers) * 8} stones from native site creation and initialization; '
       'all eight positions, four tribes, wrapped coordinates, cell snapping, '
       'both terrain diagonals, exact heights and headings')
+for address in (0x4ee700, 0x44e940, 0x44f980, 0x4eeff0, 0x50c830, 0x4da0f0,
+                0x4edcf0, 0x48a050):
+    cpu.hook_add(UC_HOOK_CODE, intercept, begin=address, end=address)
+
+
+source, link = 0x2006000, 0x2007000
+for unsupported in (False, True):
+    lifecycle = dict(canSpawn=True, effect65=unsupported, unsupported=unsupported, ground=240)
+    events = []
+    cpu.mem_write(person, bytes(256))
+    cpu.mem_write(source, bytes(256))
+    cpu.mem_write(link, bytes(20))
+    write(person + 0xc, 'I', 0x400)
+    write(person + 0x2f, 'B', 1)
+    write(person + 0x3d, 'HHh', 4352, 55040, 240)
+    write(source + 0x26, 'H', 731)
+    write(source + 0x2b, 'B', 7)
+    write(source + 0x2f, 'B', 1)
+    write(source + 0x78, 'B', 3)
+    write(link, 'I', source)
+    write(0x892443, 'I', link + 20)
+    call(0x502910, person)
+    assert read(0x892443, 'I')[0] == link
+    assert read(person + 0x2c, 'BBBB') == (12, 3 if unsupported else 0, 0, 1), (
+        unsupported, read(person + 0x2c, 'BBBB'))
+    assert read(person + 0x26, 'H')[0] == 731
+    assert read(person + 0x68, 'I')[0] == 1
+    assert read(person + 0x74, 'BBBB') == (7, 7, 0, 3)
+    assert read(person + 0xc, 'I')[0] == 0x40000000
+    assert read(person + 0x3d, 'HHh') == (4352, 55040, 240)
+    assert 'delete' not in events
+print('PASS: 2 native reincarnation initializations; linked shaman model/tribe/heading, '
+      'position, particle count, entry flag and land/drowning phase')
+
+
+def prepare_lifecycle(remaining, can_spawn=True, effect65=True):
+    global lifecycle, events
+    lifecycle = dict(canSpawn=can_spawn, effect65=effect65, unsupported=False, ground=240)
+    events = []
+    cpu.mem_write(person, bytes(256))
+    phase = (0 if remaining > 464 else 1 if remaining > 336 else 2 if remaining > 333
+             else 3 if remaining > 301 else 4 if remaining > 1 else 5 if remaining else 6)
+    entry = remaining in (468, 464, 336, 333, 301, 1)
+    timer = (remaining - 464 if phase == 0 else remaining - 336 if phase == 1
+             else remaining - 333 if phase == 2 else remaining - 301 if phase == 3
+             else remaining - 1 if phase == 4 else 0)
+    risen = min(1280, (333 - remaining) * 40) if remaining <= 333 else 0
+    write(person + 0x2d, 'B', phase)
+    write(person + 0x2f, 'B', 0)
+    write(person + 0x3d, 'HHh', 4352, 55040, lifecycle['ground'] + risen)
+    write(person + 0x68, 'I', 0)
+    write(person + 0x6e, 'h', timer)
+    write(person + 0x74, 'BB', 7, 7)
+    write(person + 0xc, 'I', 0x40000000 if entry else 0)
+    tribe = 0x89d1c8
+    cpu.mem_write(tribe, bytes(0xc65))
+    write(tribe + 0x89d, 'I', 0)
+    write(tribe + 0x91d, 'I', 1)
+    write(tribe + 0x911, 'HHh', 4352, 55040, 240)
+    return phase
+
+
+def remaining_after_call():
+    if 'delete' in events:
+        return 0
+    phase = read(person + 0x2d, 'B')[0]
+    timer = read(person + 0x6e, 'h')[0]
+    entry = bool(read(person + 0xc, 'I')[0] & 0x40000000)
+    if phase == 1 and entry:
+        return 464
+    if phase == 2 and entry:
+        return 336
+    if phase == 3 and entry:
+        return 333
+    if phase == 4 and entry:
+        return 301
+    return {0: timer + 464, 1: timer + 336, 2: timer + 333,
+            3: timer + 301, 4: timer + 1, 5: 1}.get(phase, 0)
+
+
+write(0x59df44, 'I', 0x2008000)
+cpu.mem_write(0x2008000, bytes(0x4000))
+cases, expected = [], []
+for remaining in range(468, 0, -1):
+    phase = prepare_lifecycle(remaining)
+    call(0x5029d0, person)
+    event = next((name for name in ('splash', 'rise', 'spawn') if name in events), None)
+    cases.append(dict(remaining=remaining, canSpawn=True, effect65=True))
+    expected.append(dict(remaining=remaining_after_call(), phase=phase,
+                         height=read(person + 0x41, 'h')[0] - lifecycle['ground'], event=event))
+for remaining in (6, 1):
+    phase = prepare_lifecycle(remaining, False, False)
+    call(0x5029d0, person)
+    cases.append(dict(remaining=remaining, canSpawn=False, effect65=False))
+    expected.append(dict(remaining=remaining_after_call(), phase=phase,
+                         height=read(person + 0x41, 'h')[0] - lifecycle['ground'], event=None))
+
+script = """
+import { stepReincarnation } from './app/reincarnation.ts';
+let input = '';
+for await (const chunk of process.stdin) input += chunk;
+console.log(JSON.stringify(JSON.parse(input).map(c => stepReincarnation(c.remaining, c.canSpawn, c.effect65))));
+"""
+actual = json.loads(subprocess.check_output(
+    ['node', '--input-type=module', '-e', script], input=json.dumps(cases).encode(), cwd=ROOT
+))
+for i, (result, native) in enumerate(zip(actual, expected)):
+    assert result == native, (cases[i], result, native)
+for remaining, frame in ((468, 680), (464, 352), (336, 360), (333, 360)):
+    prepare_lifecycle(remaining)
+    call(0x5029d0, person)
+    assert ('frame', 14, frame) in events, (remaining, events)
+print(f'PASS: {len(cases)} native reincarnation lifecycle visits; exact phase timers, '
+      'height rise, effect-65 window, birth request, spawn retry/deletion and frames 680/352/360')

@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { once } from 'node:events'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   ROOT,
@@ -143,7 +143,7 @@ function nativePreflight(repo, env) {
 export async function verifyContract(
   repo,
   contractPath,
-  { env = process.env, execute = runCommand } = {}
+  { env = process.env, execute = runCommand, startServer = startGameServer } = {}
 ) {
   const manifests = validateRepository(repo),
     absoluteContract = safeRepoPath(repo, contractPath),
@@ -165,6 +165,11 @@ export async function verifyContract(
     stopReason = null
   try {
     for (const check of required) {
+      if (check.kind !== 'browser' && gameServer) {
+        await gameServer.stop()
+        gameServer = null
+        if (!env.POPULOUS_URL) delete runEnv.POPULOUS_URL
+      }
       const fingerprint = fingerprintPaths(repo, check.inputs),
         command = commandFor(check, runEnv),
         automationError = checkAutomation(check)
@@ -191,7 +196,7 @@ export async function verifyContract(
       if (check.kind === 'browser' && !gameServer) {
         const serverLog = join(dirname(logDirectory), 'game-server.log')
         try {
-          gameServer = await startGameServer(repo, runEnv, serverLog)
+          gameServer = await startServer(repo, runEnv, serverLog)
           runEnv.POPULOUS_URL = gameServer.url
         } catch (error) {
           results.push(blocked(check, fingerprint, command, error.message))
@@ -237,7 +242,7 @@ export async function verifyContract(
         artifacts,
         reason,
         durationMs,
-        log: log.slice(repo.length + 1),
+        log: relative(repo, log),
       })
     }
   } finally {

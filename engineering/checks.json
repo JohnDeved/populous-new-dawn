@@ -93,7 +93,16 @@
       "args": ["run", "check"],
       "cwd": ".",
       "env": [],
-      "inputs": ["package.json", "app", "tests", "parity.json", "parity-history.json", "PARITY.md"],
+      "inputs": [
+        "package.json",
+        "app",
+        "engineering",
+        "scripts",
+        "tests",
+        "parity.json",
+        "parity-history.json",
+        "PARITY.md"
+      ],
       "prerequisites": ["Installed npm dependencies"],
       "sideEffects": ["May update ignored tool caches"],
       "resources": ["Serialize with other full test runs"],
@@ -384,6 +393,68 @@
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["May write /private/tmp captures"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare native reincarnation-site placement and the shaman reincarnation lifecycle.",
+      "coveredBehavior": [
+        "Stone positions, headings, and terrain heights",
+        "Phase timers and rise height",
+        "Effect-65, birth, spawn retry, and deletion events",
+        "Original frames 680, 352, and 360"
+      ],
+      "knownLimits": [
+        "Allocation, sound, registration, and deletion consumers are supplied; the live browser integration is checked separately."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-reincarnation.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-reincarnation.py",
+        "app/reincarnation.ts",
+        "scripts/decomp.py",
+        "decomp/requirements.txt",
+        "decomp/tools.json"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise static reincarnation stones and the live shaman death-to-respawn presentation.",
+      "coveredBehavior": [
+        "Stone transforms and terrain grounding",
+        "Original frames 680, 352, and 360",
+        "Death-point rise and spawn cleanup"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish original full-frame raster parity."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-reincarnation.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-reincarnation.mjs",
+        "app/model.ts",
+        "app/reincarnation.ts",
+        "app/scene.ts",
+        "app/original-units.json"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes /private/tmp screenshots"],
       "resources": ["Fixed server/capture resources; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },

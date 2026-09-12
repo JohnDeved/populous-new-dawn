@@ -719,6 +719,7 @@ test('verification runs only safe contract checks, records blocking, and detects
     const saved = JSON.parse(readFileSync(join(repo, 'work/orchestration/task.json')))
     assert.equal(saved.verification.results[0].status, 'passed')
     assert.equal(saved.verification.results[0].testedFingerprint, fingerprintPaths(repo, ['app/a.ts']))
+    assert.equal(saved.verification.results[0].log, 'work/orchestration/task/checks/portable.log')
   })
   await withAsyncRepo(async repo => {
     const base = run(repo, 'git', 'rev-parse', 'HEAD').trim(),
@@ -752,6 +753,48 @@ test('verification runs only safe contract checks, records blocking, and detects
     })
     assert.equal(result.status, 'failed')
     assert.match(result.results[0].reason, /changed the tracked/)
+  })
+  await withAsyncRepo(async repo => {
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim(),
+      checksPath = join(repo, 'engineering/checks.json'),
+      checks = JSON.parse(readFileSync(checksPath)),
+      events = []
+    checks.checks.push({
+      id: 'browser',
+      kind: 'browser',
+      purpose: 'Browser check',
+      coveredBehavior: ['Browser'],
+      knownLimits: ['Synthetic'],
+      executable: 'node',
+      args: ['--test', 'tests/a.test.mjs'],
+      cwd: '.',
+      env: [],
+      inputs: ['app/a.ts'],
+      prerequisites: ['Browser'],
+      sideEffects: [],
+      resources: [],
+      expected: { exitCode: 0, artifacts: [] },
+      automation: 'safe',
+    })
+    checks.checks.find(check => check.id === 'production-build').automation = 'safe'
+    put(repo, 'engineering/checks.json', checks)
+    const task = contract(repo, base)
+    task.verification.requiredCheckIds = ['browser', 'production-build']
+    task.verification.results = []
+    put(repo, 'work/orchestration/task.json', task)
+    const result = await verifyContract(repo, 'work/orchestration/task.json', {
+      env: {},
+      startServer: async () => {
+        events.push('start')
+        return { url: 'http://127.0.0.1:3000', stop: async () => events.push('stop') }
+      },
+      execute: async command => {
+        events.push(command.includes('--check') ? 'check' : 'browser')
+        return { exitCode: 0, stdout: '', stderr: '', timedOut: false }
+      },
+    })
+    assert.equal(result.status, 'passed')
+    assert.deepEqual(events, ['start', 'browser', 'stop', 'check'])
   })
   assert.match(checkAutomation({ automation: 'manual', executable: 'node', args: [] }), /allowlisted/)
   assert.match(

@@ -491,6 +491,7 @@ export type Effect = Point & {
     | 'sinking'
     | 'blastWave'
     | 'orderMarker'
+    | 'reincarnation'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
@@ -506,6 +507,7 @@ export type Effect = Point & {
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
   bridge?: LandBridge
+  reincarnation?: { team: Team; phase: number; ground: number }
 }
 export const TURNS_PER_SECOND = 12
 export const SPELLS: {
@@ -2895,7 +2897,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
 export function effect(w: World, kind: Effect['kind'], p: Point) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.
   // Debris (class 10) and fire (class 5) have separate native counters.
-  if (kind !== 'debris' && kind !== 'fire' && kind !== 'orderMarker')
+  if (kind !== 'debris' && kind !== 'fire' && kind !== 'orderMarker' && kind !== 'reincarnation')
     w.effectCounter = (w.effectCounter + 1) & 255
   const f: Effect = {
     x: p.x,
@@ -6125,16 +6127,21 @@ function stepTurn(w: World) {
       w.killCredits[attacker][victim] = (w.killCredits[attacker][victim] + 1) & 65535
   }
   for (const u of dead.filter(u => u.kind === 'shaman'))
-    if (w.units.some(a => a.team === u.team && a.hp > 0)) {
-      const turns = reincarnationTurns(!supportsFollower(w, u))
-      if (u.team === 'blue') {
-        w.respawn = turns / TURNS_PER_SECOND
-        w.respawnPoint = { x: u.x, z: u.z }
-        tell(w, 'Your shaman will reincarnate.')
-      } else if (w.ai.reincarnation) {
-        w.redRespawn = turns / TURNS_PER_SECOND
-        w.redRespawnPoint = { x: u.x, z: u.z }
-      }
+    if (
+      w.units.some(a => a.team === u.team && a.hp > 0) &&
+      (u.team === 'blue' || (u.team === 'red' && w.ai.reincarnation))
+    ) {
+      const turns = reincarnationTurns(!supportsFollower(w, u)),
+        key = u.team === 'blue' ? 'respawn' : 'redRespawn',
+        pointKey = u.team === 'blue' ? 'respawnPoint' : 'redRespawnPoint',
+        position = nativePosition(w, u),
+        visual = effect(w, 'reincarnation', u)
+      w[key] = turns / TURNS_PER_SECOND
+      w[pointKey] = { x: u.x, z: u.z }
+      visual.duration = Infinity
+      visual.height = position.h / 45
+      visual.reincarnation = { team: u.team, phase: turns === 333 ? 3 : 0, ground: position.h }
+      if (u.team === 'blue') tell(w, 'Your shaman will reincarnate.')
     }
   for (const u of dead) {
     cancelLiveResting(w, u)
@@ -6180,6 +6187,7 @@ function stepTurn(w: World) {
       pointKey = team === 'blue' ? 'respawnPoint' : 'redRespawnPoint'
     if (w[key] > 0) {
       const site = team === 'blue' ? HOME : ENEMY,
+        visual = w.effects.find(f => f.reincarnation?.team === team),
         canSpawn =
           w.units.some(u => u.team === team) &&
           !w.units.some(u => u.team === team && u.kind === 'shaman'),
@@ -6189,11 +6197,16 @@ function stepTurn(w: World) {
           !supportsFollower(w, w[pointKey] ?? site)
         )
       w[key] = step.remaining / TURNS_PER_SECOND
+      if (visual?.reincarnation) {
+        visual.reincarnation.phase = step.phase
+        visual.height = (visual.reincarnation.ground + step.height) / 45
+      }
       if (step.event === 'splash') effect(w, 'splash', w[pointKey] ?? site)
       else if (step.event === 'rise') effect(w, 'birth', site)
       else if (step.event === 'spawn') {
         const u = addUnit(w, team, 'shaman', team === 'blue' ? HOME : ENEMY)
         if (team === 'blue' && !w.selected.length) w.selected = [u.id]
+        if (visual) visual.duration = visual.age
       }
       if (!w[key]) delete w[pointKey]
     }
@@ -6204,10 +6217,17 @@ function stepTurn(w: World) {
   // Full progression presentation is still being reconstructed.
   if (w.land.landFlags & 0x2000000) {
     w.redRespawn = 0
+    delete w.redRespawnPoint
+    const visual = w.effects.find(f => f.reincarnation?.team === 'red')
+    if (visual) visual.duration = visual.age
     w.status = 'won'
   }
   if (w.land.landFlags & 0x4000000) {
     w.respawn = 0
+    delete w.respawnPoint
+    const visual = w.effects.find(f => f.reincarnation?.team === 'blue')
+    if (visual) visual.duration = visual.age
     w.status = 'lost'
   }
+  w.effects = w.effects.filter(f => f.age < f.duration)
 }

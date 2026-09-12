@@ -2139,6 +2139,14 @@ export class GameScene {
       return g
     }
     this.locate(g, f, f.height)
+    if (f.reincarnation) {
+      g.name = 'reincarnation-effect'
+      g.userData.layers = []
+      g.userData.owner = f.reincarnation.team === 'blue' ? 0 : 1
+      g.userData.draw = 14
+      g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [680], flip: false }))
+      return g
+    }
     if (f.unit) {
       g.userData.layers = []
       g.userData.owner = f.unit.team === 'blue' ? 0 : f.unit.team === 'red' ? 1 : -1
@@ -2241,6 +2249,15 @@ export class GameScene {
       const positions = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
       positions.array.set(debrisVertices(f.debris))
       positions.needsUpdate = true
+      return
+    }
+    if (f.reincarnation) {
+      const frame = f.reincarnation.phase === 0 ? 680 : f.reincarnation.phase === 1 ? 352 : 360,
+        directions = g.userData.directions as { frames: number[]; flip: boolean }[]
+      if (g.userData.frame !== frame)
+        for (const direction of directions) direction.frames[0] = frame
+      g.userData.drawFlags = f.reincarnation.phase >= 3 ? 6 : 0
+      this.animatePerson(g, 0, directions, 0)
       return
     }
     if (f.unit) {

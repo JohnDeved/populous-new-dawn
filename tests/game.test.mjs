@@ -262,7 +262,8 @@ test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
  assert.deepEqual(stepReincarnation(1,false,false),{remaining:1,phase:5,height:1280,event:null},'an existing shaman leaves the replacement request retryable');
  const w=createWorld(),brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave');const idle=manaRate(w);w.selected=[brave.id];command(w,w.buildings.find(b=>b.team==='blue'));advance(w,8);assert.ok(brave.inside);assert.ok(manaRate(w)>idle);
  w.shots.blast=0;w.charging=false;advance(w,3);assert.equal(w.shots.blast,0);w.charging=true;advance(w,60);assert.ok(w.shots.blast>0);const time=w.time;w.paused=true;tick(w,2);assert.equal(w.time,time);w.paused=false;
- const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/12);assert.ok(w.respawn>0);advance(w,27);assert.ok(!w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));advance(w,1);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
+ const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');shaman.x=35;shaman.z=0;tick(w,1/12);assert.ok(w.respawn>0);advance(w,27);assert.ok(!w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));
+ const rebirth=w.effects.find(f=>f.reincarnation?.team==='blue');assert.ok(rebirth);assert.deepEqual({x:rebirth.x,z:rebirth.z},{x:35,z:0});assert.equal(rebirth.reincarnation.phase,4);assert.equal(Math.round(rebirth.height*45-rebirth.reincarnation.ground),1280);advance(w,1);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='shaman'));assert.ok(!w.effects.some(f=>f.reincarnation));
  w.units=w.units.filter(u=>u.team!=='blue');until(w,()=>w.status==='lost',2);
 });
 
