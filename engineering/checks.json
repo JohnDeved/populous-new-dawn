@@ -493,6 +493,73 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "worship-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare native worship work and automatic reward initialization, presentation lifetime, and delivery.",
+      "coveredBehavior": [
+        "Worship decay, refill, depletion, and growth",
+        "Vault, Lightning, and Land Bridge reward frames and terrain height",
+        "Linked glow creation and six-visit hide lifecycle",
+        "82-turn delivery, spell cap, and independent gift counter"
+      ],
+      "knownLimits": [
+        "Reward allocation, sunlight, deletion, and Windows UI consumers are supplied; generic command-29 pickup and competitive ownership are not covered."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-worship.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-worship.py",
+        "app/model.ts",
+        "app/worship.ts",
+        "scripts/decomp.py",
+        "decomp/requirements.txt",
+        "decomp/tools.json"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise live worship and automatic reward presentation through the real scene and game clock.",
+      "coveredBehavior": [
+        "Worship assignment, prayer animation, and original audio",
+        "Vault, Lightning, and Land Bridge reward sprites and linked glow",
+        "Six-visit hide and 82-turn delivery",
+        "Paused simulation and scene cleanup"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish original full-frame raster parity or generic pickup behavior."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-worship.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-worship.mjs",
+        "scripts/browser-game.mjs",
+        "app/audio.ts",
+        "app/game-clock.ts",
+        "app/live-worship.ts",
+        "app/model.ts",
+        "app/scene.ts",
+        "app/original-units.json"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes /private/tmp screenshots"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

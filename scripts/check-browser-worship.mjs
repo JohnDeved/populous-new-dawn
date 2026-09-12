@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { effectPixels, openGame } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: true })
 try {
@@ -75,8 +75,128 @@ try {
     return { enabled: AUDIO_CUES.includes(82), buffers, played, released: s.active.size === 0 }
   })
   assert.ok(audio.enabled && audio.played && audio.released && audio.buffers.every(d => d > 0))
+  const rewards = await page.evaluate(async () => {
+    const s = window.testScene,
+      w = s.world,
+      { createGift } = await import('/app/model.ts')
+    cancelAnimationFrame(s.frame)
+    Object.assign(w, {
+      speed: 0,
+      paused: true,
+      units: [],
+      buildings: [],
+      shrines: [],
+      trees: [],
+      effects: [],
+      gifts: [],
+      pendingTime: 0,
+    })
+    w.manaWorld.gameFlags = 32
+    w.land.heights.fill(384)
+    w.land.flags.fill(0)
+    w.terrain.fill(384 / 45)
+    w.landVersion++
+    w.terrainVersion = w.landVersion
+    const gifts = [
+      createGift(w, 'vault', { x: -4, z: 0 }),
+      createGift(w, 'lightning', { x: 0, z: 0 }),
+      createGift(w, 'bridge', { x: 4, z: 0 }),
+    ]
+    s.focus({ x: 0, z: 0 })
+    s.onChange()
+    s.animate(s.previous)
+    cancelAnimationFrame(s.frame)
+    return gifts.map(gift => {
+      const group = s.fxMeshes.get(gift.id),
+        glow = group.userData.glow
+      return {
+        id: gift.id,
+        reward: gift.reward,
+        phase: gift.phase,
+        remaining: gift.remaining,
+        frame: group.userData.frame,
+        glowFrame: glow.userData.frame,
+        layers: group.userData.layers.length,
+        glowLayers: glow.userData.layers.length,
+        height: Math.round(group.position.y * 128),
+        glowOffset: Math.round(glow.position.y * 128),
+        visible: group.visible,
+      }
+    })
+  })
+  assert.deepEqual(
+    rewards.map(({ reward, phase, remaining, frame, glowFrame, height, glowOffset, visible }) => ({
+      reward,
+      phase,
+      remaining,
+      frame,
+      glowFrame,
+      height,
+      glowOffset,
+      visible,
+    })),
+    [
+      { reward: 'vault', phase: 6, remaining: 82, frame: 1077, glowFrame: 1417, height: 1184, glowOffset: -80, visible: true },
+      { reward: 'lightning', phase: 6, remaining: 82, frame: 1059, glowFrame: 1417, height: 1184, glowOffset: -80, visible: true },
+      { reward: 'bridge', phase: 6, remaining: 82, frame: 1068, glowFrame: 1417, height: 1184, glowOffset: -80, visible: true },
+    ]
+  )
+  assert.ok(rewards.every(reward => reward.layers > 0 && reward.glowLayers > 0))
+  const rewardPixels = await effectPixels(page, rewards.map(reward => reward.id))
+  assert.ok(rewardPixels > 20, `native reward sprites must reach GPU pixels (${rewardPixels})`)
+  await page.screenshot({ path: '/private/tmp/populous-worship-rewards.png' })
+  const lifecycle = await page.evaluate(async ids => {
+    const s = window.testScene,
+      w = s.world,
+      { advanceGame } = await import('/app/game-clock.ts'),
+      phases = []
+    advanceGame(w, s.gameClock, 10)
+    const paused = w.gifts.every(gift => gift.phase === 6 && gift.remaining === 82)
+    w.paused = false
+    w.speed = 1
+    for (let visit = 0; visit < 6; visit++) {
+      advanceGame(w, s.gameClock, 1 / 12)
+      w.paused = true
+      s.animate(s.previous)
+      cancelAnimationFrame(s.frame)
+      phases.push(ids.map(id => {
+        const gift = w.gifts.find(gift => gift.id === id)
+        return [gift.phase, gift.remaining, s.fxMeshes.get(id).visible]
+      }))
+      w.paused = false
+    }
+    advanceGame(w, s.gameClock, 76 / 12)
+    w.paused = true
+    s.animate(s.previous)
+    cancelAnimationFrame(s.frame)
+    return {
+      paused,
+      phases,
+      gifts: w.gifts.length,
+      rewards: ids.filter(id => s.fxMeshes.has(id)).length,
+      shots: { bridge: w.shots.bridge, lightning: w.shots.lightning },
+      unlockedCamp: w.unlockedCamp,
+    }
+  }, rewards.map(reward => reward.id))
+  assert.equal(lifecycle.paused, true)
+  assert.deepEqual(lifecycle.phases.map(phase => phase[0]), [
+    [5, 81, true],
+    [4, 80, true],
+    [3, 79, true],
+    [2, 78, true],
+    [1, 77, true],
+    [0, 76, false],
+  ])
+  assert.deepEqual(
+    lifecycle.phases.map(phase => new Set(phase.map(item => JSON.stringify(item))).size),
+    [1, 1, 1, 1, 1, 1]
+  )
+  assert.deepEqual(
+    { gifts: lifecycle.gifts, rewards: lifecycle.rewards, shots: lifecycle.shots, unlockedCamp: lifecycle.unlockedCamp },
+    { gifts: 0, rewards: 0, shots: { bridge: 1, lightning: 1 }, unlockedCamp: true }
+  )
   assert.deepEqual(errors, [])
-  console.log('PASS: real stone-head click, seven distinct native standing slots, rendered original prayer frames, pause and four decoded/playable original worship sounds', audio)
+  console.log(`PASS: live worship plus three native reward sprites (${rewardPixels} GPU pixels), six-visit hide, 82-turn delivery, pause and original audio`)
 } finally {
   await browser.close()
 }

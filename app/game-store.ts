@@ -1,9 +1,27 @@
-import { createWorld, type World } from './model.ts'
+import { createGift, createWorld, type Gift, type World } from './model.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
   CHECKPOINT_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
+
+type LegacyGift = { x: number; z: number; kind: 'vault' | 'lightning' | 'bridge'; remaining: number }
+
+export function migrateCheckpoint(world: World) {
+  const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
+  if (!gifts.some(gift => gift.kind !== 'gift')) return world
+  world.gifts = []
+  for (const saved of gifts) {
+    if (saved.kind === 'gift') {
+      world.gifts.push(saved)
+      continue
+    }
+    const gift = createGift(world, saved.kind, saved)
+    gift.remaining = saved.remaining
+    gift.phase = Math.max(0, Math.min(6, saved.remaining - 76))
+  }
+  return world
+}
 
 function openCheckpointDatabase() {
   if (typeof indexedDB === 'undefined') return Promise.resolve(null)
@@ -76,7 +94,7 @@ export function createGameStore() {
       try {
         const saved = await readStoredCheckpoint()
         if (!checkpoint && saved) {
-          checkpoint = structuredClone(saved)
+          checkpoint = migrateCheckpoint(structuredClone(saved))
           update()
         }
       } catch {
@@ -96,7 +114,7 @@ export function createGameStore() {
     },
     loadCheckpoint: () => {
       if (!checkpoint) return false
-      world = structuredClone(checkpoint)
+      world = migrateCheckpoint(structuredClone(checkpoint))
       update()
       return true
     },

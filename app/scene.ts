@@ -94,6 +94,7 @@ import {
   type Unit,
   type Building,
   type Effect,
+  type Gift,
   unitAnimation,
   unitAnimationSource,
   canOrder,
@@ -2139,6 +2140,27 @@ export class GameScene {
       return g
     }
     this.locate(g, f, f.height)
+    if (f.kind === 'gift') {
+      const gift = f as Gift,
+        directions = Array.from({ length: 8 }, () => ({ frames: [gift.frame], flip: false })),
+        glow = new THREE.Group()
+      g.name = 'worship-reward'
+      g.userData.layers = []
+      g.userData.owner = 0
+      g.userData.draw = 0
+      g.userData.drawFlags = 6
+      g.userData.directions = directions
+      glow.name = 'worship-reward-glow'
+      glow.position.y = -80 / 128
+      glow.userData.layers = []
+      glow.userData.owner = -1
+      glow.userData.draw = 43
+      glow.userData.drawFlags = 4
+      glow.userData.directions = Array.from({ length: 8 }, () => ({ frames: [1417], flip: false }))
+      g.userData.glow = glow
+      g.add(glow)
+      return g
+    }
     if (f.reincarnation) {
       g.name = 'reincarnation-effect'
       g.userData.layers = []
@@ -2249,6 +2271,15 @@ export class GameScene {
       const positions = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
       positions.array.set(debrisVertices(f.debris))
       positions.needsUpdate = true
+      return
+    }
+    if (f.kind === 'gift') {
+      g.visible = (f as Gift).phase > 0
+      if (g.visible) {
+        this.animatePerson(g, 0, g.userData.directions, 0)
+        const glow = g.userData.glow as THREE.Group
+        this.animatePerson(glow, 0, glow.userData.directions, 0)
+      }
       return
     }
     if (f.reincarnation) {

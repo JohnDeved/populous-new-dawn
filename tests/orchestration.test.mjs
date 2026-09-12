@@ -28,7 +28,7 @@ import {
   validateContract,
   validateRepository,
 } from '../scripts/orchestration/cli.mjs'
-import { checkAutomation, verifyContract } from '../scripts/orchestration/verify.mjs'
+import { checkAutomation, startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
 const put = (repo, path, value) => {
@@ -697,6 +697,13 @@ test('blocked verification cannot masquerade as passing and passed results requi
       /Passed result omits artifact/
     )
   }))
+
+test('game server rejects an invalid isolated port', async () => {
+  await assert.rejects(
+    startGameServer('.', { POPULOUS_PORT: '0' }, '/private/tmp/unused-game-server.log'),
+    /POPULOUS_PORT must be a valid port/
+  )
+})
 
 test('verification runs only safe contract checks, records blocking, and detects mutations', async () => {
   await withAsyncRepo(async repo => {

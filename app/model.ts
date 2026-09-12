@@ -492,6 +492,7 @@ export type Effect = Point & {
     | 'blastWave'
     | 'orderMarker'
     | 'reincarnation'
+    | 'gift'
   height?: number
   sprite?: { sequence: string; frame: number }
   animation?: AnimatedUnit | SpellTrail
@@ -508,6 +509,13 @@ export type Effect = Point & {
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
   bridge?: LandBridge
   reincarnation?: { team: Team; phase: number; ground: number }
+}
+export type Gift = Effect & {
+  kind: 'gift'
+  reward: Shrine['kind']
+  remaining: number
+  phase: number
+  frame: number
 }
 export const TURNS_PER_SECOND = 12
 export const SPELLS: {
@@ -1501,7 +1509,7 @@ export type World = {
   lastMessage: number
   spellCasts: number[][]
   killCredits: number[][]
-  gifts: (Point & { kind: Shrine['kind']; remaining: number })[]
+  gifts: Gift[]
   giftCounts: Record<Spell, number>
   land: NativeTerrain & Territory
   landVersion: number
@@ -2897,7 +2905,13 @@ function castVoice(w: World, u: Unit, spell: Spell) {
 export function effect(w: World, kind: Effect['kind'], p: Point) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.
   // Debris (class 10) and fire (class 5) have separate native counters.
-  if (kind !== 'debris' && kind !== 'fire' && kind !== 'orderMarker' && kind !== 'reincarnation')
+  if (
+    kind !== 'debris' &&
+    kind !== 'fire' &&
+    kind !== 'orderMarker' &&
+    kind !== 'reincarnation' &&
+    kind !== 'gift'
+  )
     w.effectCounter = (w.effectCounter + 1) & 255
   const f: Effect = {
     x: p.x,
@@ -2964,6 +2978,19 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
   w.effects.push(f)
   if (kind === 'blast') registerTerrainLight(w, f, 4)
   return f
+}
+export function createGift(w: World, reward: Shrine['kind'], p: Point) {
+  const gift = effect(w, 'gift', p) as Gift
+  Object.assign(gift, {
+    reward,
+    remaining: 82,
+    phase: 6,
+    frame: { vault: 1077, lightning: 1059, bridge: 1068 }[reward],
+    height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
+    duration: Infinity,
+  })
+  w.gifts.push(gift)
+  return gift
 }
 function lightPosition(w: World, f: Effect) {
   if (f.fire) return f.fire
@@ -5538,19 +5565,21 @@ function stepTurn(w: World) {
   stepLiveMarchingFormations(w) // Native formations steer this turn's person physics.
   // 0x4facf0: auto-collected reward objects grant knowledge/stock after 82 object turns.
   for (const gift of w.gifts) {
+    if (gift.phase) gift.phase--
     if (--gift.remaining !== 0) continue
+    gift.duration = gift.age
     effect(w, 'birth', gift)
-    if (gift.kind === 'vault') {
+    if (gift.reward === 'vault') {
       w.unlockedCamp = true
       tell(w, 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.')
     } else {
       // 0x4c2cd0: stocks already at/above the cap are unchanged.
-      if (w.shots[gift.kind] < 4) w.shots[gift.kind]++
+      if (w.shots[gift.reward] < 4) w.shots[gift.reward]++
       // 0x4c2aa0: the separate gift counter increases even at full stock.
-      w.giftCounts[gift.kind] = Math.min(15, w.giftCounts[gift.kind] + 1)
+      w.giftCounts[gift.reward] = Math.min(15, w.giftCounts[gift.reward] + 1)
       tell(
         w,
-        `${gift.kind === 'bridge' ? 'Land Bridge' : 'Lightning'} received. ${w.shots[gift.kind]} shots ready.`
+        `${gift.reward === 'bridge' ? 'Land Bridge' : 'Lightning'} received. ${w.shots[gift.reward]} shots ready.`
       )
     }
   }
@@ -5675,7 +5704,7 @@ function stepTurn(w: World) {
     if (fired) {
       shrine.progress = 0
       shrine.uses++
-      w.gifts.push({ kind: shrine.kind, x: shrine.x, z: shrine.z, remaining: 82 })
+      createGift(w, shrine.kind, shrine)
       sound(w, 0x70, shrine)
     }
   }

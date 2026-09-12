@@ -15,7 +15,7 @@ import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '.
 import {modelMatrix,modelPoint} from '../app/projection.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast,rotateBuildingPlan,addBuilding,buildingObject,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
-import { createWorld, tick, cast, command, select, placeBuilding, findPath, walkable, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, unitAnimationSource, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
+import { createWorld, createGift, tick, cast, command, select, placeBuilding, findPath, walkable, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, unitAnimationSource, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 test('scenery shade follows cell occupants through overlap, depletion and regrowth', async () => {
   const {syncLandscapeObjects}=await import('../app/model.ts');
@@ -616,12 +616,20 @@ test('worship decays without followers and continues at full spell stock', () =>
  command(w,head);
  until(w, () => head.uses === 1, 15);
  assert.equal(w.gifts.length, 1);
+ const gift=w.gifts[0];
+ assert.deepEqual({reward:gift.reward,frame:gift.frame,phase:gift.phase},{reward:'bridge',frame:1068,phase:6});
+ assert.equal(Math.round(gift.height*45),nativePosition(w,gift).h+800);
+ assert.ok(w.effects.includes(gift),'the live gift shares existing effect ownership');
  assert.equal(w.giftCounts.bridge, 0);
  removeHead(w, 2, 222);
- for (let i = 0; i < 81; i++) tick(w, 1 / 12);
+ for (let i = 0; i < 5; i++) tick(w, 1 / 12);
+ assert.equal(gift.phase,1);
+ tick(w,1/12);assert.equal(gift.phase,0,'the original reward hides after six object visits');
+ for (let i = 0; i < 75; i++) tick(w, 1 / 12);
  assert.equal(w.giftCounts.bridge, 0, 'the reward waits 82 turns after firing');
  tick(w, 1 / 12);
  assert.equal(w.gifts.length, 0, 'a spawned gift survives removal of its head');
+ assert.ok(!w.effects.includes(gift),'delivery removes the linked visual owner');
  assert.equal(w.shots.bridge, 4, 'an award at the cap does not create a fifth shot');
  assert.equal(w.giftCounts.bridge, 1, 'the separate gift counter still advances');
  const shaman = w.units.find(u => u.kind === 'shaman' && u.team === 'blue');
@@ -736,7 +744,7 @@ test('partial building queries consume their mode once and marker triggers bypas
   level.markers[255]=0xf713;head.reset=false;head.enabled=true;w.turn=1;
   forceHead(w,255);assert.equal(head.forced,true);tick(w,1/12);
   assert.equal(head.uses,1,'force works outside the fourth-turn worship sample');
-  assert.equal(w.gifts.filter(g=>g.kind==='lightning').length,1);
+  assert.equal(w.gifts.filter(g=>g.reward==='lightning').length,1);
   tick(w,2/12);assert.equal(head.forced,false,'reset clears the retained force bit');assert.equal(head.uses,1);
  }finally{level.markers[255]=old;}
  assert.throws(()=>forceHead(w,256),RangeError);
@@ -813,7 +821,7 @@ test('tribe gates suppress scripts and AI while object turns and eligible cooldo
   assert.equal(w.castingTribes[1].aiCooldown,gate==='none'?4:5,gate);
  }
  const w=createWorld();w.turn=15;
- w.gifts.push({kind:'bridge',x:0,z:0,remaining:1});
+ const gift=createGift(w,'bridge',{x:0,z:0});gift.remaining=1;
  tick(w,1/12);assert.equal(w.shots.bridge,1);
  assert.equal(w.messages.slots.filter(Boolean).length,0,'AI runs before this object turn delivers the gift');
  w.turn=31;tick(w,1/12);
@@ -1126,7 +1134,11 @@ test('external game store publishes edits and restarts without sharing worlds be
 });
 
 test('game store checkpoints restore an isolated exact world snapshot', async () => {
- const {createGameStore}=await import('../app/game-store.ts');
+ const {createGameStore,migrateCheckpoint}=await import('../app/game-store.ts');
+ const legacy=createWorld(),nextId=legacy.nextId;legacy.effects=[];legacy.gifts=[{kind:'bridge',x:1,z:2,remaining:79}];
+ migrateCheckpoint(legacy);const gift=legacy.gifts[0];
+ assert.deepEqual({kind:gift.kind,reward:gift.reward,remaining:gift.remaining,phase:gift.phase,id:gift.id},{kind:'gift',reward:'bridge',remaining:79,phase:3,id:nextId});
+ assert.equal(legacy.effects[0],gift,'legacy gifts regain shared visual ownership');
  const store=createGameStore(),saved=store.getWorld(),turn=saved.turn,height=saved.land.heights[0],hp=saved.units[0].hp;
  assert.equal(store.hasCheckpoint(),false);assert.equal(await store.restoreCheckpoint(),false);
  assert.equal(await store.saveCheckpoint(),false);assert.equal(store.hasCheckpoint(),true);

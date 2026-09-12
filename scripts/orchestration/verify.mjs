@@ -103,14 +103,16 @@ export async function startGameServer(repo, env, logPath) {
     await waitForServer(supplied, 10_000)
     return { url: supplied, stop: async () => {} }
   }
-  const url = 'http://127.0.0.1:3000'
+  const port = Number(env.POPULOUS_PORT ?? 3000)
+  assert(Number.isInteger(port) && port > 0 && port < 65536, 'POPULOUS_PORT must be a valid port')
+  const url = `http://localhost:${port}`
   let occupied = false
   try {
     await fetch(url)
     occupied = true
   } catch {}
   if (occupied) throw new Error(`refusing to reuse an unidentified server at ${url}`)
-  const child = spawn('npm', ['run', 'dev'], { cwd: repo, env, shell: false }),
+  const child = spawn('npm', ['run', 'dev', '--', '--port', String(port)], { cwd: repo, env, shell: false }),
     output = []
   child.stdout.on('data', chunk => output.push(chunk))
   child.stderr.on('data', chunk => output.push(chunk))
