@@ -30,7 +30,7 @@ import {
   cancelLiveBuildingAttack,
   startLiveCombatResponse,
 } from './live-building-combat.ts'
-import { nativePersonModel, nativePersonTribe } from './live-combat.ts'
+import { combatPerson, nativePersonModel, nativePersonTribe } from './live-combat.ts'
 import { liveCommandContext } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
@@ -4597,17 +4597,17 @@ function refreshTribeTerritory(w: World, id: number) {
 }
 function stepComputerSpells(w: World) {
   const u = w.units.find(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0)
-  const caster = u
-    ? {
-        ...spellCaster(w, u),
-        ...nativePosition(w, u),
-        state: 0,
-        flags4: 0,
-        landIndex: 0,
-        casting: w.castingTribes[1],
-        playerType: w.manaTribes[1].playerType,
-      }
-    : null
+  const person = u ? combatPerson(u) : null
+  const caster =
+    u && person
+      ? {
+          ...spellCaster(w, u),
+          ...person,
+          landIndex: person.vehicle,
+          casting: w.castingTribes[1],
+          playerType: w.manaTribes[1].playerType,
+        }
+      : null
   const world = computerSpellWorld(w),
     categoryFlags = (cell: number) =>
       rules.terrainCategoryFlags[w.land.categories[nativeCellIndex(cell)] & 15]
@@ -4616,30 +4616,27 @@ function stepComputerSpells(w: World) {
     if (!spell) throw new Error(`Unimplemented computer spell effect ${model}`)
     clearLivePath(w, u!)
     beginCast(w, u!, spell.id, nativeCellPoint(cell))
+    // ponytail: omit this timer until the native 25/29 -> 22 fight handoff is integrated;
+    // the browser fight branch cannot advance it.
+    if (person && (person.state === 25 || person.state === 29)) u!.casting = null
   }
-  // ponytail: native person action states and attack-group reserves remain
-  // adapters; the first mission supplies the opening three person classes.
-  const able = !!u && !u.lift && !u.fight && !u.casting
-  const shore =
-    able &&
-    castShoreBlast(
-      world,
-      caster,
-      {
-        turn: w.turn,
-        population: w.units.filter(p => p.team === 'red' && p.hp > 0).length,
-        mana: w.manaTribes[1].mana,
-        reserve: 0,
-        gameFlags: w.manaWorld.gameFlags,
-        aiFlags: w.ai.flags,
-      },
-      { categoryFlags, cast: allocate }
-    )
+  // The live person owns native action flags; browser casting has no native record yet.
+  if (caster && u?.casting) caster.flags4 |= 0x400
+  const shore = castShoreBlast(
+    world,
+    caster,
+    {
+      turn: w.turn,
+      population: w.units.filter(p => p.team === 'red' && p.hp > 0).length,
+      mana: w.manaTribes[1].mana,
+      reserve: 0,
+      gameFlags: w.manaWorld.gameFlags,
+      aiFlags: w.ai.flags,
+    },
+    { categoryFlags, cast: allocate }
+  )
   refreshTribeTerritory(w, 1)
   if (shore) return
-  // Transport existing action guards through the native cast-block bit until
-  // the person-state adapter supplies original states and flags directly.
-  if (caster && !able) caster.flags4 |= 0x400
   const enemyTeam = w.ai.enemyTribe === 0 ? 'blue' : w.ai.enemyTribe === 1 ? 'red' : null
   const enemy = w.units.find(p => p.team === enemyTeam && p.kind === 'shaman' && p.hp > 0)
   const context = {

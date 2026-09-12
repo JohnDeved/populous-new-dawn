@@ -1,4 +1,4 @@
-import {syncLivePersonCells} from '../app/live-people.ts';
+import {createLivePerson,syncLivePersonCells} from '../app/live-people.ts';
 import {currentPersonOrder} from '../app/person-orders.ts';
 import {worshipPositions} from '../app/worship.ts';
 import {nativePosition} from '../app/model.ts';
@@ -16,7 +16,7 @@ import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '.
 import {modelMatrix,modelPoint} from '../app/projection.ts';
 import {runScript,scriptState} from '../app/popscript.ts';
 import {campaignCommand,recordSpellCast,rotateBuildingPlan,addBuilding,buildingObject,buildingPose,buildingPlanPose,placementError} from '../app/model.ts';
-import { createWorld, createGift, tick, cast, command, select, placeBuilding, findPath, walkable, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, unitAnimationSource, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition } from '../app/model.ts';
+import { createWorld, createGift, tick, cast, command, select, placeBuilding, findPath, walkable, worldPoint, HOME, ENEMY, manaRate, housing, populationLimit, breedingWork, trainingCost, meleeDamage, addUnit, unitAnimation, unitAnimationSource, maxHp, entrance, nativeAngle, nativeStep, nativeStep3D, nativeTerrainCross, nativeTerrainHeight, terrainCross, makeTerrain, height, markerHeight, nativeCellPoint, removeHead, GRID, random, fightPosition, joinBattle } from '../app/model.ts';
 const advance=(w,seconds)=>{for(let i=0;i<seconds*30;i++)tick(w,1/30);};
 test('scenery shade follows cell occupants through overlap, depletion and regrowth', async () => {
   const {syncLandscapeObjects}=await import('../app/model.ts');
@@ -874,6 +874,28 @@ test('emergency casting preserves queued work and preacher responses keep their 
  assert.equal(w.turn,4);assert.equal(w.projectiles.find(p=>p.team==='red').remaining,5,'the new spell receives its first object tick in the same outer pass');
  assert.deepEqual(w.spellScan,before,'an early emergency cast preserves pending scan work');
  assert.deepEqual(w.projectiles.find(p=>p.team==='red').target,{x:7,z:-1});
+});
+
+test('mission-one AI casting uses the live shaman state and cast-block flags', () => {
+ const scenario=(state,flags2=0,flags4=0,casting=null,fight=false)=>{
+  const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),blue=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+  w.units=[red,blue];w.terrain.fill(3);w.terrainVersion++;w.inputMask=0;w.ai.variables[57]=1;w.ai.attributes[32]=1;w.turn=4;
+  Object.assign(red,{x:0,z:0,path:[],target:null,work:null,inside:null,fight:null,lift:0,casting});
+  Object.assign(blue,{x:30,z:30,path:[],target:null,work:null,inside:null,fight:null,lift:0});
+  const person=createLivePerson(w,red);Object.assign(person,{state,flags2:person.flags2|flags2,flags4:person.flags4|flags4});red.native=person;
+  if(fight){blue.native=createLivePerson(w,blue);joinBattle(w,red,blue);Object.assign(red.fight.motion,{state,flags2:red.fight.motion.flags2|flags2,flags4:red.fight.motion.flags4|flags4});}
+  w.manaTribes[1].mana=60001;w.manaTribes[1].available=0;
+  tick(w,1/12);return w;
+ };
+ for(const blocked of [[22,0,0],[3,0,0],[25,1,0],[25,0,0x400]])assert.equal(scenario(...blocked).spellCasts[1][2],0);
+ const casting={spell:'blast',point:{x:0,z:0},remaining:1};
+ assert.equal(scenario(25,0,0,casting).spellCasts[1][2],0,'browser casting ownership remains a native cast-block flag');
+ const fighting=scenario(25,0,0,null,true),fighter=fighting.units.find(u=>u.team==='red');
+ assert.equal(fighting.spellCasts[1][2],1,'native melee state enables the original self-Blast branch');
+  assert.equal(fighting.projectiles.find(p=>p.team==='red').caster,fighter.id);
+ assert.equal(fighter.casting,null,'melee does not retain a browser cast timer its fight loop cannot advance');
+ assert.ok(fighting.sounds.some(s=>s.cue===0x8c),'the native enemy casting voice remains');
+ assert.equal(scenario(29,0,0,null,true).spellCasts[1][2],1,'both native melee states share the self-Blast branch');
 });
 
 test('live spell scans use population thresholds and building territory with delayed overlap recovery', async () => {
