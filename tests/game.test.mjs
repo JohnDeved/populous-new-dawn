@@ -236,7 +236,7 @@ test('original level layout, native foundations, and the complete mission',()=>{
  const brave=w.units.find(u=>u.team==='blue'&&u.kind==='brave'),bridge=w.shrines.find(s=>s.kind==='bridge');w.selected=[brave.id];command(w,bridge);until(w,()=>w.shots.bridge>=3,60);assert.equal(bridge.duration,28/3);
  select(w,'shaman');command(w,{x:0,z:20});advance(w,10);const charges=w.shots.bridge;assert.equal(cast(w,'bridge',{x:25,z:20}),false);assert.equal(w.shots.bridge,charges);assert.equal(cast(w,'bridge',{x:0,z:4}),true);advance(w,6);foundations(w);assert.ok(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='brave'),...HOME},w.shrines[0]).length);
  command(w,{x:0,z:0});advance(w,9);const guard=w.units.find(u=>u.team==='red'&&u.z>-10);assert.ok(cast(w,'blast',{x:guard.x+1,z:guard.z}));advance(w,2);assert.ok(!w.units.includes(guard),'Blast knocks the guard off the western coast');command(w,w.shrines.find(s=>s.kind==='vault'));until(w,()=>w.unlockedCamp,45);
- assert.ok(placeBuilding(w,'camp',{x:-2,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);advance(w,70);assert.equal(camp.progress,1);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
+ assert.ok(placeBuilding(w,'camp',{x:-2,z:32}));const camp=w.buildings.find(b=>b.team==='blue'&&b.kind==='camp');foundations(w);until(w,()=>camp.progress===1,90);assert.equal(camp.logs,8,'workers fetch exactly the needed logs');assert.equal(w.stats.trained,0,'training requires an explicit order');
  select(w,'brave');command(w,camp);advance(w,60);assert.ok(w.stats.trained>=3);assert.ok(w.units.some(u=>u.team==='blue'&&u.kind==='warrior'));
  select(w,'shaman');command(w,w.shrines.find(s=>s.kind==='lightning'));until(w,()=>w.shots.lightning===4,75);assert.equal(w.shots.lightning,4);assert.equal(w.shrines.find(s=>s.kind==='lightning').active,false);command(w,{x:0,z:-6});advance(w,10);assert.ok(cast(w,'bridge',{x:0,z:-22}));impact(w,'bridge');advance(w,6);assert.ok(findPath(w,{...w.units.find(u=>u.team==='blue'&&u.kind==='warrior'),...HOME},ENEMY).length);assert.equal(bridge.active,false);foundations(w);
  command(w,{x:0,z:-22});advance(w,6);const enemyShaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman');assert.ok(cast(w,'lightning',enemyShaman));impact(w,'lightning');tick(w,1/12);assert.equal(enemyShaman.hp,0);assert.equal(enemyShaman.native.state,44);until(w,()=>!w.units.includes(enemyShaman),8);assert.equal(w.redRespawn,0,'the native first-mission script disables Dakini reincarnation');
@@ -937,21 +937,23 @@ test('campaign attack commitment follows living warrior counts on its original t
  }
 });
 
-test('mission-one Dakini launches its native mixed attack route when Blue enters marker three',async()=>{
+test('mission-one Dakini trains and launches its native attack route when Blue enters marker three',async()=>{
  const {joinBattle}=await import('../app/model.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
  const {requestAttack}=await import('../app/computer.ts');
  const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
+ until(w,()=>w.units.filter(u=>u.team==='red'&&u.kind==='warrior'&&u.hp>0).length===3,40);
+ until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===6),10);
  const marker=nativeCellPoint(level.markers[3]),staging=(level.markers[3]&0xff00)|((level.markers[3]+12)&255);
  addUnit(w,'blue','warrior',{x:marker.x,z:marker.z+12});
- const redStart=nativeCellPoint(staging);addUnit(w,'red','warrior',redStart);
+ const redStart=nativeCellPoint(staging);
  for(const unit of w.units.filter(u=>u.team==='red'&&u.kind!=='shaman'))Object.assign(unit,redStart);
  w.ai.defencePosition=staging;w.ai.variables[50]=1;w.ai.variables[2]=0;w.turn=201;tick(w,1/12);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,quotas:w.ai.attributes.slice(11,17)});
  assert.equal(w.ai.variables[8],1);assert.equal(w.ai.variables[2],1);
  until(w,()=>task.members.length===3,2);
- assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind).sort(),['brave','warrior','warrior']);
+ assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind),['warrior','warrior','warrior']);
  const phases=[];let radiusDistance=0;until(w,()=>{if(phases.at(-1)!==task.phase)phases.push(task.phase);if(task.phase!==11)return false;radiusDistance=Math.min(...task.members.map(id=>{const u=w.units.find(unit=>unit.id===id);return Math.hypot(u.x-marker.x,u.z-marker.z);}));return true;},20);
  const attacker=w.units.find(u=>u.id===task.members[0]),owner=attacker.native,target=addUnit(w,'blue','warrior',attacker);target.hp=10;joinBattle(w,attacker,target);
  assert.equal(attacker.native,null);assert.equal(attacker.fight.motion,owner);
@@ -1127,6 +1129,10 @@ test('mission-one red AI queues exact task 6 below one warrior and executes live
  assert.equal(blockedTask.flags&1,0);assert.notEqual(blockedBrave.native.state,14);
  assert.equal(blockedBrave.native.selectionFlags&128,0);assert.equal(blockedBrave.work,null);
  assert.equal(blocked.units.some(u=>u.work===blockedCamp.id),false,'pool exhaustion cannot pretend training was issued');
+
+ const full=createWorld(),disabled=structuredClone(full);for(const world of [full,disabled]){world.ai.tasks.forEach(t=>{t.flags=1;});world.ai.attributes[7]=100;world.turn=126;}
+ disabled.ai.states&=~(1<<6);tick(full,1/12);tick(disabled,1/12);
+ assert.equal(full.randomState,disabled.randomState,'a full native task queue skips production before its RNG draw');
 });
 
 test('external game store publishes edits and restarts without sharing worlds between sessions', async () => {

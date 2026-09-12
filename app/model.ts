@@ -2302,6 +2302,19 @@ function computerSelectionWorld(w: World, tribe: number) {
   return { world, sources }
 }
 
+function computerTrainingBuilding(w: World, model: number) {
+  return (
+    w.buildings.find(
+      b =>
+        b.team === 'red' &&
+        b.hp > 0 &&
+        b.progress === 1 &&
+        b.damageState?.state !== 3 &&
+        buildingModel(b) === model
+    )?.id ?? 0
+  )
+}
+
 function trainingBuilding(w: World, id: number): TrainingBuilding | null {
   const b = w.buildings.find(
     b =>
@@ -2376,6 +2389,25 @@ function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
   )
 }
 
+function produceMissionWarriorTraining(w: World) {
+  if (w.ai.tasks.every(task => task.flags & 1)) return
+  const model = 3,
+    trainingModel = 7,
+    trained = campaignPersonCount(w, 1, model),
+    target = computerTrainingBuilding(w, trainingModel)
+  if (
+    !(w.ai.states & (1 << 6)) ||
+    !target ||
+    Math.trunc((w.ai.attributes[7] * campaignPersonCount(w, 1)) / 100) <= trained
+  )
+    return
+  random(w) // Native producer chooses among eligible classes; mission one has only warrior training.
+  const selection = computerSelectionWorld(w, 1),
+    available = availableTrainingPeople(selection.world)
+  if (available >= rules.buildingCapacity[trainingModel]) return
+  requestTraining(w.ai, 0, model, available, candidate => (candidate === trainingModel ? target : 0))
+}
+
 export function computerMarkerOrderCount(
   w: World,
   tribe: number,
@@ -2411,7 +2443,12 @@ export function computerMarkerOrderCount(
 }
 
 function stepComputerTasks(w: World, tribe: number) {
-  if (computerPhase(w.turn, tribe) !== 'dispatch') return
+  const phase = computerPhase(w.turn, tribe)
+  if (phase === 'produce') {
+    produceMissionWarriorTraining(w)
+    return
+  }
+  if (phase !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
     const task = w.ai.tasks[index]
     if (task.type === 24) {
@@ -2836,18 +2873,13 @@ export function campaignCommand(
     if (count <= 0 || model !== 3)
       throw new Error(`Unsupported computer training ${count}:${model}`)
     const selection = computerSelectionWorld(w, 1)
-    requestTraining(w.ai, count, model, availableTrainingPeople(selection.world), targetModel => {
-      return (
-        w.buildings.find(
-          b =>
-            b.team === 'red' &&
-            b.hp > 0 &&
-            b.progress === 1 &&
-            b.damageState?.state !== 3 &&
-            buildingModel(b) === targetModel
-        )?.id ?? 0
-      )
-    })
+    requestTraining(
+      w.ai,
+      count,
+      model,
+      availableTrainingPeople(selection.world),
+      targetModel => computerTrainingBuilding(w, targetModel)
+    )
     return
   }
 
