@@ -26,6 +26,9 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    For performance work, read the packet's cited sections of
    `references/modern-performance.md`; expand only for relevant corrections or an
    explicitly broad historical audit.
+   Cite exact headings for long evidence logs and keep whole files out of task-spec
+   `inputPaths` unless every section is genuinely required. If mandatory context
+   overflows, narrow the contract/query before increasing the packet budget.
 
 4. For non-trivial work, write the judgment fields of a task spec as described in
    `engineering/contracts.md`, then run `orchestration:prepare` before editing to
@@ -54,6 +57,8 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    ```
 
 7. Inspect selected commands, prerequisites, side effects, and resource conflicts.
+   Probe external native/browser prerequisites before starting the aggregate run;
+   do not rerun unchanged portable/build checks merely to discover a missing asset.
    For a task contract, execute its allowlisted requirements and record their
    fingerprints with:
 

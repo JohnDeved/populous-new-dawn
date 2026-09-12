@@ -124,7 +124,9 @@ parent owns the final choice.
 2. If no objective is fixed, complete the bounded priority triage and choose one
    candidate; otherwise preserve the user's stated priority.
 3. Retrieve a focused context packet. Read cited source sections when the packet
-   exposes ambiguity or truncation.
+   exposes ambiguity or truncation. For long logs, cite exact headings and omit the
+   whole file from `inputPaths` unless every section is required. Narrow mandatory
+   context before raising a packet budget.
 4. Write one compact contract for substantial work. The parent owns objective,
    non-goals, acceptance, risk, allowed/prohibited/generated paths, integration,
    and any later authorized ledger update.
@@ -135,9 +137,11 @@ parent owns the final choice.
    and follow relevant callers, dependencies, or contradictions as needed.
 6. Re-run `plan` on the actual base. Inspect implementations before executing any
    selected command; do not add `--record` as a generic option.
-7. Run the smallest sufficient allowlisted checks with `orchestration:verify`; run
-   manual checks only after inspecting them. Any later relevant source/fixture/input
-   change invalidates the receipt.
+7. Probe declared external prerequisites, then run the smallest sufficient
+   allowlisted checks with `orchestration:verify`; run manual checks only after
+   inspecting them. Do not rerun unchanged portable/build checks merely to discover
+   a missing native/browser asset. Any later relevant source/fixture/input change
+   invalidates the receipt.
 8. Give a fresh reviewer the final diff, acceptance criteria, and receipts together.
    Re-review substantive repairs and unresolved findings; receipt formatting alone
    does not justify another review. If independent review is unavailable, do a
