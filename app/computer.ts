@@ -17,6 +17,7 @@ export type ComputerTask = {
   entity: number
   damage: number
   retries: number
+  retreatPercent: number
   quotas: number[]
   members: number[]
   route: MarkerEntry[]
@@ -51,6 +52,7 @@ export function createComputerQueue(): ComputerQueue {
       entity: 0,
       damage: 0,
       retries: 0,
+      retreatPercent: 0,
       quotas: [],
       members: [],
       route: Array.from({ length: 4 }, () => ({ marker: 0, secondary: 0, quotas: [0, 0, 0, 0] })),
@@ -215,7 +217,8 @@ export function requestTraining(
 }
 
 // 0x4e6640 / 0x4c14c0: mission ATTACK allocation is capped separately from
-// the ten-slot task queue and snapshots the six away-class percentages.
+// the ten-slot task queue and snapshots the six away-class percentages and
+// attribute-28 retreat percentage.
 export function requestAttack(
   ai: ComputerQueue,
   target: number,
@@ -223,6 +226,7 @@ export function requestAttack(
   requested: number,
   damage: number,
   quotas: number[],
+  retreatPercent: number,
   enabled: boolean,
   maximum: number,
   entity = 0
@@ -247,6 +251,7 @@ export function requestAttack(
     entity: entity | 0,
     damage: 0,
     retries: 0,
+    retreatPercent: retreatPercent & 255,
     quotas: quotas.slice(0, 6).map(n => n & 255),
     members: [],
   })
@@ -530,9 +535,16 @@ export function stepAttackTask(
     return [{ kind: 'attack', target: task.target, replace: true }]
   }
   if (task.phase === 16) {
-    if (!input.activeMembers()) {
+    const active = input.activeMembers()
+    if (!active) {
       task.phase = 23
       return actions
+    }
+    if (Math.trunc(((task.retreatPercent & 255) * task.requested) / 100) > active) {
+      task.phase = 6
+      task.fallback = 23
+      task.elapsed = 0
+      return [{ kind: 'move', target: input.staging, replace: true }]
     }
     const target = task.entity ? input.entity?.(task.entity) : null
     if (task.damage < task.extra && target) {

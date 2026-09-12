@@ -957,7 +957,7 @@ test('mission-one Dakini trains and launches its native attack route when Blue e
  for(const unit of w.units.filter(u=>u.team==='red'&&u.kind!=='shaman'))Object.assign(unit,redStart);
  w.ai.defencePosition=staging;w.ai.variables[50]=1;w.ai.variables[2]=0;w.turn=201;tick(w,1/12);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
- assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,quotas:w.ai.attributes.slice(11,17)});
+ assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,retreatPercent:50,quotas:w.ai.attributes.slice(11,17)});
  assert.equal(w.ai.variables[8],1);assert.equal(w.ai.variables[2],1);
  until(w,()=>task.members.length===3,2);
  assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind),['warrior','warrior','warrior']);
@@ -979,7 +979,7 @@ test('mission-one Dakini trains and launches its native attack route when Blue e
  task.damage=task.extra;
  until(w,()=>!(task.flags&1),60);
  assert.ok(members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model!==19));
- requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),true,1);
+ requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),0,true,1);
  assert.equal(task.flags&1,1,'phase 23 releases the same queue slot for the next wave');
 });
 
@@ -1006,7 +1006,7 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);
  task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual([11,12,13,16,17,19].map(i=>w.ai.attributes[i]),[100,100,0,0,0,1]);
- assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,quotas:w.ai.attributes.slice(11,17)});
+ assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,retreatPercent:50,quotas:w.ai.attributes.slice(11,17)});
  assert.equal(w.ai.variables[3],1,'the original one-shot attack latch closes');
  until(w,()=>task.members.length===3,2);
  until(w,()=>task.members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),30);
@@ -1015,7 +1015,7 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
 
  const moving=createWorld();until(moving,()=>!moving.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
  const blue=moving.units.find(u=>u.team==='blue'&&u.kind==='brave'),members=moving.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
- requestAttack(moving.ai,packed(nativePosition(moving,blue)),0,3,999,[100,0,0,0,0,0],true,1,blue.id);
+ requestAttack(moving.ai,packed(nativePosition(moving,blue)),0,3,999,[100,0,0,0,0,0],0,true,1,blue.id);
  const pursuit=moving.ai.tasks.find(t=>t.flags&1&&t.type===20);pursuit.phase=15;pursuit.members=members.map(u=>u.id);moving.ai.cursor=moving.ai.tasks.indexOf(pursuit);
  until(moving,()=>pursuit.phase===16,10);
  blue.x+=24;const destination=packed(nativePosition(moving,blue));
@@ -1029,7 +1029,7 @@ test('mission-one Dakini pursues a fallback shaman by exact command target',asyn
  const target=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),members=w.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
  const packed=p=>((p.x>>>8)&254)|(p.y&0xfe00),point=nativePosition(w,target);
  for(const u of members)Object.assign(u,{x:target.x+6,z:target.z,path:[],target:null});
- requestAttack(w.ai,packed(point),0,3,999,[100,0,0,0,0,0],true,1,target.id);
+ requestAttack(w.ai,packed(point),0,3,999,[100,0,0,0,0,0],0,true,1,target.id);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);task.phase=9;task.members=members.map(u=>u.id);w.ai.cursor=w.ai.tasks.indexOf(task);
  until(w,()=>task.phase===17&&members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model===28),10);
  const orders=members.map(u=>u.native.commands.find(Boolean));
@@ -1042,16 +1042,16 @@ test('mission-one Dakini pursues a fallback shaman by exact command target',asyn
  target.inside=w.buildings.find(b=>b.team==='blue').id;
  until(w,()=>task.phase===16&&w.buildings.some(b=>b.id===task.entity),10);
  assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model===3));
- const stranded=createComputerQueue();requestAttack(stranded,0,0,1,999,[100,0,0,0,0,0],true,1,target.id);
+ const stranded=createComputerQueue();requestAttack(stranded,0,0,1,999,[100,0,0,0,0,0],0,true,1,target.id);
  const direct=stranded.tasks[0];direct.phase=17;direct.members=[1];
  const input={staging:123,select:()=>[],settled:()=>true,memberWithin:()=>null,ready:()=>true,activeMembers:()=>1,targetsRemain:()=>false,random:()=>0,entity:()=>({id:target.id,target:0,direct:true,contained:true}),reacquire:()=>null};
  assert.deepEqual(stepAttackTask(stranded,0,input),[],'contained target without replacement retires without a move');assert.equal(direct.phase,23);
 });
 
-test('computer attack exhausts 33 empty native scans before regrouping and retiring',async()=>{
+test('computer attack exhausts native scans and retreats below its surviving-member threshold',async()=>{
  const {createComputerQueue,requestAttack,stepAttackTask}=await import('../app/computer.ts');
- const ai=createComputerQueue();requestAttack(ai,0xfa06,3,1,999,[100,0,0,0,0,0],true,1);
- const task=ai.tasks[0];task.phase=16;task.members=[7];let draws=0,alive=1;
+ const ai=createComputerQueue();requestAttack(ai,0xfa06,3,6,999,[100,0,0,0,0,0],50,true,1);
+ const task=ai.tasks[0];task.phase=16;task.members=[7];let draws=0,alive=3;
  const input={staging:0xf204,select:()=>[],settled:()=>true,memberWithin:()=>null,ready:()=>true,
   activeMembers:()=>alive,targetsRemain:()=>false,random:()=>++draws};
  for(let retry=1;retry<=32;retry++){
@@ -1059,6 +1059,9 @@ test('computer attack exhausts 33 empty native scans before regrouping and retir
  }
  assert.deepEqual(stepAttackTask(ai,0,input),[{kind:'move',target:0xf204,replace:true}]);
  assert.equal(task.phase,6);assert.equal(task.fallback,23);assert.equal(draws,66);
+ task.phase=16;task.retries=0;alive=2;
+ assert.deepEqual(stepAttackTask(ai,0,input),[{kind:'move',target:0xf204,replace:true}]);
+ assert.equal(task.phase,6);assert.equal(task.fallback,23);assert.equal(draws,66,'retreat happens before another target scan');
  task.phase=16;alive=0;stepAttackTask(ai,0,input);assert.equal(task.phase,23);
  stepAttackTask(ai,0,input);assert.equal(task.flags&1,0);
 });
@@ -1067,13 +1070,13 @@ test('computer attack pool exhaustion skips hostile dispatch and retires through
  const {requestAttack}=await import('../app/computer.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
  const w=createWorld(),members=w.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
- requestAttack(w.ai,level.markers[3],3,3,999,[100,0,0,0,0,0],true,1);
+ requestAttack(w.ai,level.markers[3],3,3,999,[100,0,0,0,0,0],0,true,1);
  const task=w.ai.tasks.find(t=>t.type===20);task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=w.ai.tasks.indexOf(task);
  for(let id=1;id<w.buildingOrders.records.length;id++)w.buildingOrders.records[id].references=1;
  w.buildingOrders.active=799;tick(w,1/12);
  assert.equal(task.phase,16);assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model!==19));
  until(w,()=>!(task.flags&1),10);assert.equal(task.retries,33);
- requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),true,1);
+ requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),0,true,1);
  assert.ok(w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the exhausted command pool does not leak a task slot');
 });
 

@@ -2861,6 +2861,7 @@ export function campaignCommand(
       requested,
       damage,
       w.ai.attributes.slice(11, 17),
+      w.ai.attributes[28],
       !!(w.ai.states & (1 << 20)),
       1,
       target.id
