@@ -3,7 +3,12 @@ import assert from 'node:assert/strict'
 import fixture from './fixtures/timber-search.json' with { type: 'json' }
 import manifest from '../decomp/exports.json' with { type: 'json' }
 import { timberSearchCase, timberPoolCase } from '../scripts/compare-timber-search.mjs'
-import { createTimberSearches, expandTimberSearch, refreshTimberSearch } from '../app/timber-search.ts'
+import {
+  createTimberSearches,
+  expandTimberSearch,
+  invalidateTimberRoutes,
+  refreshTimberSearch,
+} from '../app/timber-search.ts'
 import { createIndexedSearch, startIndexedSearch } from '../app/indexed-search.ts'
 
 test('timber search matches native cell order, fog, protected stock and two-pass queries', () => {
@@ -39,6 +44,75 @@ test('an exhausted indexed-search pool postpones expansion without corrupting th
   expandTimberSearch(pool, {}, indexed, pool.records[0])
   assert.deepEqual(pool, before)
   assert.deepEqual(indexed, bytes)
+})
+
+test('terrain changes recheck nearby timber routes and live Land Bridge reaches the cache', async () => {
+  const pool = createTimberSearches()
+  Object.assign(pool, { active: 3, unchecked: 1, candidates: 4 })
+  Object.assign(pool.records[0], {
+    flags: 1,
+    stages: 5,
+    center: 0x8080,
+    unchecked: 1,
+    candidates: [
+      { cell: 0, cost: 1, flags: 7 },
+      { cell: 2, cost: 2, flags: 5 },
+    ],
+  })
+  Object.assign(pool.records[1], {
+    flags: 1,
+    stages: 5,
+    center: 0x2020,
+    candidates: [{ cell: 4, cost: 3, flags: 7 }],
+  })
+  Object.assign(pool.records[2], {
+    flags: 1,
+    stages: 5,
+    center: 0xf0f0,
+    candidates: [{ cell: 6, cost: 4, flags: 7 }],
+  })
+  const unchanged = structuredClone(pool)
+  invalidateTimberRoutes(pool, 0x8080, 1)
+  assert.deepEqual(pool, unchanged)
+  invalidateTimberRoutes(pool, 0x8080, 2)
+  assert.deepEqual(
+    pool.records.slice(0, 2).map(search => search.candidates.map(candidate => candidate.flags)),
+    [[1, 1], [7]]
+  )
+  assert.deepEqual([pool.records[0].unchecked, pool.unchecked], [2, 2])
+  invalidateTimberRoutes(pool, 0x0404, 7)
+  assert.deepEqual(pool.records[2].candidates.map(candidate => candidate.flags), [1])
+
+  const { createWorld, addBuilding, cast, tick, nativePosition } = await import('../app/model.ts')
+  const w = createWorld(),
+    shaman = w.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+    owner = { searchIndex: -1 }
+  Object.assign(shaman, { x: 0, z: 20, path: [], casting: null })
+  const p = nativePosition(w, shaman)
+  refreshTimberSearch(
+    w.timberSearches,
+    owner,
+    ((p.x >>> 8) & 0xfe) | (p.y & 0xfe00),
+    0
+  )
+  const search = w.timberSearches.records[owner.searchIndex]
+  Object.assign(search, {
+    flags: 1,
+    unchecked: 0,
+    candidates: [{ cell: search.center, cost: 0, flags: 7 }],
+  })
+  Object.assign(w.timberSearches, { expanding: 0, unchecked: 0, candidates: 1 })
+  w.shots.bridge = 1
+  assert.ok(cast(w, 'bridge', { x: 0, z: 4 }))
+  for (let i = 0; i < 200 && search.candidates[0].flags !== 1; i++) tick(w, 1 / 12)
+  assert.deepEqual(
+    [owner.searchIndex, search.candidates[0].flags, search.unchecked, w.timberSearches.unchecked],
+    [0, 1, 1, 1]
+  )
+  Object.assign(search, { unchecked: 0, candidates: [{ cell: search.center, cost: 0, flags: 7 }] })
+  Object.assign(w.timberSearches, { unchecked: 0, candidates: 1 })
+  addBuilding(w, 'blue', 'hut', { x: shaman.x, z: shaman.z })
+  assert.deepEqual([search.candidates[0].flags, search.unchecked, w.timberSearches.unchecked], [1, 1, 1])
 })
 
 test('live timber cost probes report routes and foreign territory without taking route ownership',async()=>{

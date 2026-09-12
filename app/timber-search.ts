@@ -1,5 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
-import { cellDelta } from './native-math.ts'
+import { cellDelta, positionDistance } from './native-math.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 
 export interface TimberSearchObject {
@@ -41,6 +41,7 @@ const short = (n: number) => (n << 16) >> 16
 const cellIndex = (cell: number) => ((cell >>> 9) & 127) * 128 + ((cell >>> 1) & 127)
 const offset = (cell: number, x: number, y: number) =>
   (((cell & 255) + x) & 255) | ((((cell >>> 8) + y) & 255) << 8)
+const searchRadii = [0, 6, 7, 10, 11, 13, 14, 15, 16, 16, 16]
 const blockCells = (cell: number) => [
   cell,
   offset(cell, 0, 2),
@@ -305,6 +306,44 @@ export function invalidateTimberSearch(
   releaseSearch(pool, search)
 }
 
+// Complete 0x4951b0: changed walkability makes nearby cached route results stale.
+export function invalidateTimberRoutes(pool: TimberSearchPool, center: number, radius: number) {
+  if (pool.active <= 0 || radius <= 1) return
+  center &= 0xfefe
+  const points =
+    radius < 7
+      ? [center]
+      : [
+          offset(center, -radius * 2, radius * 2),
+          offset(center, radius * 2, radius * 2),
+          center,
+          offset(center, -radius * 4, 0),
+        ]
+  for (const search of pool.records) {
+    if (!(search.flags & 1)) continue
+    const position = {
+      x: ((search.center & 0xfe) + 1) << 8,
+      y: (((search.center >>> 8) & 0xfe) + 1) << 8,
+    }
+    if (
+      points.every(
+        point =>
+          positionDistance(position, { x: (point & 0xfe) << 8, y: point & 0xfe00 }) >=
+          searchRadii[search.stages * 2] * 0x200
+      )
+    )
+      continue
+    for (const candidate of search.candidates) {
+      if (candidate.flags & 2) {
+        candidate.flags &= ~2
+        search.unchecked = short(search.unchecked + 1)
+        pool.unchecked++
+      }
+      candidate.flags &= ~4
+    }
+  }
+}
+
 // 0x493fa0: expand one original ring segment. A Set preserves discovery order;
 // the ordered candidate list preserves native insertion-before-equal-cost ties.
 export function expandTimberSearch(
@@ -313,13 +352,12 @@ export function expandTimberSearch(
   indexed: Uint8Array,
   search: TimberSearch
 ) {
-  const ranges = [0, 6, 7, 10, 11, 13, 14, 15, 16, 16]
   const id = startIndexedSearch(
     indexed,
     2,
     search.angle,
-    ranges[search.stage * 2],
-    ranges[search.stage * 2 + 1]
+    searchRadii[search.stage * 2],
+    searchRadii[search.stage * 2 + 1]
   )
   // Native code reads uninitialized stack data when all indexed slots are busy.
   // Postpone this segment instead; retain its candidates and progress.

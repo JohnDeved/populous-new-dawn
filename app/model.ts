@@ -110,6 +110,7 @@ import {
   createTimberSearches,
   findTimber,
   invalidateTimberSearch,
+  invalidateTimberRoutes,
   looseTimberInCell,
   orderedTimberCells,
   refreshTimberSearch,
@@ -1544,6 +1545,7 @@ export function groundBuilding(w: World, b: Building, prepare = b.progress < 1) 
     queueTerrain(w.land, cell, radius, 1, terrainTextures)
     processTerrain(w.land, terrainTextures)
     updateWalkMasks(w.land, cell, radius + 1)
+    invalidateTimberRoutes(w.timberSearches, cell, radius)
   })
   b.foundation = terrainPointHeight(w.land, buildingPosition(pose)) / 45
   refreshTerrainSurface(w)
@@ -4463,7 +4465,7 @@ function notifyHeightChanges(w: World, cells: Iterable<number>, radius: number) 
   w.units.filter(u => u.hp > 0 && u.inside === null).forEach(add)
   w.trees.filter(t => t.logs > 0).forEach(add)
   w.effects.forEach(add)
-  for (const cell of cells)
+  for (const cell of cells) {
     notifyTerrainObjects(
       w.land,
       cell,
@@ -4483,10 +4485,12 @@ function notifyHeightChanges(w: World, cells: Iterable<number>, radius: number) 
         const fx = w.effects.find(fx => fx.id === id)
         if (fx?.fire) fx.fire.groundDirty = true
         if (fx?.smoke) fx.smoke.flags2 |= 4
-        // Rendered tree heights already follow landVersion. Global route
+        // Rendered tree heights already follow landVersion. Active person-route
         // invalidation remains with the native command/movement integration.
       }
     )
+    invalidateTimberRoutes(w.timberSearches, cell, radius)
+  }
 }
 function syncNativeTerrain(w: World) {
   if (w.landVersion === w.terrainVersion) return
