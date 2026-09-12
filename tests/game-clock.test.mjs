@@ -3,6 +3,7 @@ import test from 'node:test'
 import { createWorld, command, tick, cast, placeBuilding, addUnit } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { UnitMotion } from '../app/unit-motion.ts'
+import { addMessage, messageTop } from '../app/messages.ts'
 
 const schedules = [
   ...[5, 30, 60, 120, 144, 240].map(hz => [1 / hz]),
@@ -101,4 +102,34 @@ test('paused time stays paused; long active frames retain elapsed time', () => {
   assert.equal(JSON.stringify(w), snapshot)
   assert.equal(clock.animationFrame, 48)
   for (const dt of [-1, NaN, Infinity]) assert.throws(() => advanceGame(w, clock, dt), RangeError)
+})
+
+test('campaign messages use the presentation clock and freeze while paused', () => {
+  const results = schedules.map(schedule => {
+    const w = createWorld(), clock = { animationTime: 0, animationFrame: 0 }
+    w.speed = 0
+    for (const [age, stringId] of [[3, 615], [2, 616], [1, 611]]) {
+      const slot = addMessage(w.messages, stringId, () => 0)
+      w.messages.slots[slot].age = age
+    }
+    advance(w, clock, 5, schedule)
+    return w.messages.slots.filter(Boolean).map(message => ({
+      top: messageTop(message), speed: message.speed, flags: message.flags,
+    }))
+  })
+  results.forEach(result => assert.deepEqual(result, results[0]))
+  assert.deepEqual(results[0].map(message => message.top), [455, 430, 405])
+
+  const sounded = createWorld(), soundedClock = { animationTime: 0, animationFrame: 0 }
+  sounded.speed = 0
+  addMessage(sounded.messages, 615, () => 0)
+  advanceGame(sounded, soundedClock, 5)
+  assert.ok(sounded.sounds.some(event => event.cue === 0xe4))
+
+  const w = createWorld(), clock = { animationTime: 0, animationFrame: 0 }
+  addMessage(w.messages, 615, () => 0)
+  w.paused = true
+  const before = structuredClone(w.messages)
+  advanceGame(w, clock, 5)
+  assert.deepEqual(w.messages, before)
 })

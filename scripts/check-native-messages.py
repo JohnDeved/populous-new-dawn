@@ -1,5 +1,5 @@
 """Compare native type-3 message allocation and first-mission discovery branches.
-Usage: python scripts/check-native-messages.py /path/to/d3dpoptb.exe /path/to/cpscr010.dat
+Usage: python scripts/check-native-messages.py /path/to/d3dpoptb.exe [/path/to/cpscr010.dat]
 Sound playback is intercepted; original allocation, list ordering and RNG execute.
 """
 import json, random, struct, subprocess, sys
@@ -37,7 +37,7 @@ def snapshot():
     result=[]
     for i in range(32):
         p=base+i*45
-        result.append(None if read(p+32,'<B')==0 else dict(age=read(p,'<i'),serial=read(p+28,'<H'),stringId=read(p+18,'<H'),flags=read(p+33,'<I'),height=read(p+8,'<i'),speed=read(p+12,'<i'),lifetime=read(p+16,'<h')))
+        result.append(None if read(p+32,'<B')==0 else dict(age=read(p,'<i'),position=read(p+4,'<i'),serial=read(p+28,'<H'),stringId=read(p+18,'<H'),flags=read(p+33,'<I'),height=read(p+8,'<i'),speed=read(p+12,'<i'),lifetime=read(p+16,'<h')))
     return dict(slots=result,nextSerial=read(0x6841e8,'<H'))
 
 rng=random.Random(1176);cases=[];expected=[]
@@ -50,7 +50,7 @@ for filled in [0,1,15,31,32]:
         for i in range(filled):
             age=rng.randrange(1,1000);p=base+i*45
             write(p,'<i',age);write(p+32,'<B',3);write(p+33,'<I',0xd1)
-            slots[i]=dict(age=age,serial=0,stringId=0,flags=0xd1,height=0,speed=0,lifetime=0)
+            slots[i]=dict(age=age,position=0,serial=0,stringId=0,flags=0xd1,height=0,speed=0,lifetime=0)
         write(0x683b8b,'<B',filled);write(0x6841e3,'<B',filled)
         string_id=rng.choice([615,616,619,1220]);sounds.clear();call(0x48eae0,string_id)
         expected.append(dict(state=snapshot(),randomState=read(0x89bc72,'<I'),slot=read(0x6841e7,'<b'),sounds=list(sounds)))
@@ -62,6 +62,27 @@ let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON
 actual=browser(js,cases);assert len(actual)==len(expected)
 for c,want,got in zip(cases,expected,actual):assert want==got,(c,want,got)
 print(f'PASS: {len(cases)} native message allocations, slot eviction, text binding and RNG')
+
+# Original oldest-first list rebuild and presentation motion. The browser retains
+# only type-3 slots, so pointer links are reconstructed from age and slot order.
+cases=[];expected=[]
+profiles=[(1,1,False),(1,8,False),(3,1,False),(3,12,False),(3,40,False),(3,120,False),(3,12,True),(6,40,False),(6,120,True)]
+for count,visits,equal_age in profiles:
+    reset(100+count+visits+equal_age);write(0x89c6d1,'<I',480);write(0x683b80,'<I',0x10000)
+    for i in range(count):
+        call(0x48eae0,[615,616,619,1220][i%4]);write(base+i*45,'<i',7 if equal_age else (count-i)*7)
+    before=snapshot();sounds.clear()
+    for _ in range(visits):call(0x431a80);call(0x431c40)
+    expected.append(dict(state=snapshot(),sounds=list(sounds)))
+    cases.append(dict(state=before,visits=visits))
+actual=browser("""import {stepMessages} from './app/messages.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{const sounds=[];for(let i=0;i<c.visits;i++)stepMessages(c.state,()=>sounds.push(0xe4));return {state:c.state,sounds};})));""",cases)
+for c,want,got in zip(cases,expected,actual):assert want==got,(c,want,got)
+print(f'PASS: {len(cases)} native message ordering, transient motion, collision and rebound sequences')
+
+if len(sys.argv)<3:
+    print('SKIP: campaign bytecode checks require cpscr010.dat')
+    raise SystemExit
 
 # The real original bytecode, head query, spell-stock query and message command.
 # Only audio dispatch remains intercepted; no script command is intercepted.

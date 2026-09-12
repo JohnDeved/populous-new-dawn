@@ -47,6 +47,7 @@ export const AUDIO_CUES = [
   0xab,
   0x29,
   0xe3,
+  0xe4,
   0x28,
   1,
   2,

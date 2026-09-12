@@ -1,5 +1,12 @@
 'use client'
-import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type MouseEvent,
+} from 'react'
 import {
   BUILDINGS,
   SPELLS,
@@ -18,7 +25,7 @@ import {
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
-import { messageText, removeMessage } from './messages'
+import { messageHeight, messageText, messageTop, removeMessage } from './messages'
 import {
   HudSprite,
   FollowerNumber,
@@ -351,7 +358,17 @@ export default function Home() {
           .filter(entry => entry.message)
           .sort((a, b) => b.message!.age - a.message!.age)
           .map(({ message, slot }) => (
-            <details key={message!.serial} open={message!.flags & 0x20000 ? true : undefined}>
+            <details
+              key={message!.serial}
+              open={message!.flags & 0x20000 ? true : undefined}
+              data-lower={messageTop(message!) > 240 || undefined}
+              style={
+                {
+                  '--message-height': `${messageHeight(message!)}px`,
+                  top: `calc(${messageTop(message!)}px * var(--hud-scale))`,
+                } as CSSProperties
+              }
+            >
               <summary aria-label="Read campaign message">
                 <img src="/original/message.png" alt="" />
               </summary>

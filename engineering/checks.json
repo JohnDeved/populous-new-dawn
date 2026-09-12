@@ -397,6 +397,72 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "messages-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare native type-3 campaign message allocation, ordering, motion, collisions, and rebound state.",
+      "coveredBehavior": [
+        "Slot allocation and eviction",
+        "Age and slot ordering",
+        "Normalized height, velocity, gravity, collisions, and rebound"
+      ],
+      "knownLimits": [
+        "Campaign bytecode branches require a separately supplied cpscr010.dat; other notification classes and the original popup renderer remain outside this check."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-messages.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-messages.py",
+        "app/messages.ts",
+        "app/original-messages.json",
+        "scripts/decomp.py",
+        "decomp/requirements.txt",
+        "decomp/tools.json"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise live campaign-message presentation through the real browser UI and presentation clock.",
+      "coveredBehavior": [
+        "24 Hz message motion and pause ownership",
+        "Native 32x25 logical icon geometry at the uniformly scaled HUD edge",
+        "Accessible popup and dismissal"
+      ],
+      "knownLimits": [
+        "The accessible browser text popup is a modern adapter, not original font/raster parity."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-messages.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-messages.mjs",
+        "scripts/browser-game.mjs",
+        "app/audio.ts",
+        "app/messages.ts",
+        "app/original-messages.json",
+        "app/game-clock.ts",
+        "app/page.tsx",
+        "app/globals.css",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes /private/tmp/populous-messages.png"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "reincarnation-native",
       "kind": "native",
       "automation": "safe",

@@ -1,5 +1,6 @@
-import { tick, type World, type TurnObserver } from './model.ts'
+import { HOME, sound, tick, type World, type TurnObserver } from './model.ts'
 import { animateLiveObjects } from './live-people.ts'
+import { stepMessages } from './messages.ts'
 
 export interface GameClock extends TurnObserver {
   animationTime: number
@@ -21,6 +22,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
     if (clock.animationTime + 1e-9 >= interval) {
       clock.animationTime = 0
       animateLiveObjects(w)
+      stepMessages(w.messages, () => sound(w, 0xe4, HOME))
       clock.animationFrame++
     }
   }

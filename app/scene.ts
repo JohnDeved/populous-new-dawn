@@ -2535,7 +2535,13 @@ export class GameScene {
           this.ownedSounds.delete(event.owner)
           continue
         }
-        if (event.cue === 0xe3 || event.cue === 0xa2 || event.cue === 225 || event.cue === 226) {
+        if (
+          event.cue === 0xe3 ||
+          event.cue === 0xe4 ||
+          event.cue === 0xa2 ||
+          event.cue === 225 ||
+          event.cue === 226
+        ) {
           this.onSound(event.cue, 1, 0)
           continue
         } // Native notification and defeat-sky cues are not positional.

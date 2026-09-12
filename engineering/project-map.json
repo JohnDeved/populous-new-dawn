@@ -324,6 +324,8 @@
         "0x48c6b0",
         "0x48cc60",
         "0x48f350",
+        "0x431a80",
+        "0x431c40",
         "0x4615f0",
         "0x4d5cf0",
         "0x502910",
@@ -332,6 +334,8 @@
         "0x4facf0"
       ],
       "checkIds": [
+        "messages-native",
+        "messages-browser",
         "reincarnation-native",
         "reincarnation-browser",
         "vault-native",
