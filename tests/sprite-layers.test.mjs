@@ -23,3 +23,26 @@ test('unit atlas retains reviewed tribe/state/direction layers when new models a
     assert.deepEqual(spriteLayers(units.frames[c.frame].layers, units.pieces, {...c.options,scale:c.signature.endsWith('shaman'),levelFlags:0}, {...c.view,shamanScale:256}), c.pixels)
   }
 })
+
+test('brave carry animations retain the baked timber body layer', () => {
+  const sources = state =>
+    units.animations['blue-brave'][state].map(direction =>
+      direction.frames.map(frame => {
+        const body = units.frames[frame].layers[1]
+        assert.equal(body.flags, 0)
+        return units.pieces[body.piece].source
+      })
+    )
+
+  assert.deepEqual(sources('carry'), [
+    [330, 331, 332, 333],
+    [334, 335, 336, 337],
+    [338, 339, 340, 341],
+    [342, 343, 344, 345],
+    [346, 347, 348, 349],
+    [342, 343, 344, 345],
+    [338, 339, 340, 341],
+    [334, 335, 336, 337],
+  ])
+  assert.deepEqual(sources('carryIdle'), [[350], [351], [352], [353], [354], [353], [352], [351]])
+})
