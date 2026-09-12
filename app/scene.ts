@@ -2159,7 +2159,7 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
-    if (f.wave || f.bridge || f.flatten) return g
+    if (f.wave || f.bridge || f.flatten || f.erosion) return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
       mesh.name = 'sinking-building'
@@ -2298,7 +2298,7 @@ export class GameScene {
       )
       g.userData.cellPosition = f
     }
-    if (f.wave || f.bridge || f.flatten) return
+    if (f.wave || f.bridge || f.flatten || f.erosion) return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle
       g.userData.nativeTilt = f.sinking.tilt
