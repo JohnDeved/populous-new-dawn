@@ -3425,6 +3425,7 @@ function finishQueuedConstruction(w: World, u: Unit) {
   return true
 }
 export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
+  const directTree = preserveOrders && u.work === null ? u.tree : null
   cancelLiveResting(w, u)
   if (preserveOrders) {
     // Combat takes the same person/queue; its state initializer releases training slots.
@@ -3437,7 +3438,7 @@ export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
   clearLivePath(w, u)
   u.vault = null
   u.work = null
-  u.tree = null
+  u.tree = directTree
   u.harvest = undefined
   u.delivery = undefined
   u.builder = undefined
@@ -5991,7 +5992,7 @@ function findBuildingWood(w: World, u: Unit, b: Building) {
 
 // Hut upgrades retain the existing loose-log delivery adapter.
 function harvestAssignedTree(w: World, u: Unit, destination?: Point) {
-  if (u.tree === null || u.cargo) return
+  if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return
   const tree = w.trees.find(t => t.id === u.tree)
   if (!tree) {
     u.tree = null

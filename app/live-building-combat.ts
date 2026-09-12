@@ -148,6 +148,7 @@ export function startLiveCombatResponse(w: World, u: Unit) {
     if (person.immediateCommand !== id) continue
     cancelLiveResting(w, unit)
     clearLivePath(w, unit)
+    unit.harvest = undefined
     unit.native = person
     unit.target = null
     registerLivePerson(w, person)

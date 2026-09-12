@@ -16,7 +16,7 @@ try {
    cancelAnimationFrame(s.frame)
    const m=await import('/app/model.ts')
    w.units=[];w.buildings=[];w.trees=[];w.shrines=[];w.selected=[];s.treeSignature=''
-   w.terrain.fill(3);w.terrainVersion++;w.manaWorld.gameFlags=32;w.speed=0
+   w.terrain.fill(3);w.terrainVersion++;w.manaWorld.gameFlags=32;w.levelFlags2=0;w.speed=0
    const follower=m.addUnit(w,'blue','brave',{x:-12,z:8})
    m.addUnit(w,'red','brave',{x:0,z:10.8})
    const enemy=m.addUnit(w,'red','brave',{x:0,z:10.8})
@@ -91,10 +91,40 @@ try {
    window.commandTargetAfterTurn??=s.gameClock.afterTurn
    s.gameClock.afterTurn=()=>{
     window.commandTargetAfterTurn()
-    if(s.world.units.find(u=>u.id===window.commandTreeFollower)?.harvest)window.treeOrderSawHarvest=true
+    if(!window.treeOrderSawHarvest&&s.world.units.find(u=>u.id===window.commandTreeFollower)?.harvest){window.treeOrderSawHarvest=true;s.world.speed=0}
    }
    s.world.speed=2;s.animate(performance.now())
   },fixture.follower)
+  await page.waitForFunction(()=>window.treeOrderSawHarvest)
+  const combat=await page.evaluate(async({follower,tree})=>{
+   const s=window.testScene,w=s.world,u=w.units.find(u=>u.id===follower),m=await import('/app/model.ts')
+   w.speed=0
+   const enemy=m.addUnit(w,'red','shaman',{x:u.x+2.5,z:u.z})
+   m.addUnit(w,'red','brave',{x:20,z:20})
+   w.turn=((w.turn+4)&~3)-1
+   w.speed=2
+   return {enemy:enemy.id,tree,before:u.harvest.remaining}
+  },fixture)
+  await page.waitForFunction(id=>window.testScene.world.units.find(u=>u.id===id).native?.immediateCommand,fixture.follower)
+  const interrupted=await page.evaluate(({follower,tree})=>{
+   const w=window.testScene.world,u=w.units.find(u=>u.id===follower),t=w.trees.find(t=>t.id===tree)
+   w.speed=0
+   return {turn:w.turn,target:u.tree,harvest:u.harvest,cargo:u.cargo,logs:t.logs}
+  },fixture)
+  assert.equal(interrupted.target,fixture.tree);assert.equal(interrupted.harvest,undefined)
+  assert.equal(interrupted.cargo,0);assert.equal(interrupted.logs,4)
+  await page.evaluate(()=>{window.testScene.world.speed=2})
+  await page.waitForFunction(turn=>window.testScene.world.turn>=turn+4,interrupted.turn)
+  const held=await page.evaluate(({follower,tree})=>{
+   const w=window.testScene.world,u=w.units.find(u=>u.id===follower),t=w.trees.find(t=>t.id===tree)
+   w.speed=0
+   return {target:u.tree,harvest:u.harvest,cargo:u.cargo,logs:t.logs}
+  },fixture)
+  assert.deepEqual(held,{target:fixture.tree,harvest:undefined,cargo:0,logs:4})
+  await page.evaluate(id=>{
+   const w=window.testScene.world
+   w.units.find(u=>u.id===id).hp=0;w.speed=2
+  },combat.enemy)
   await page.waitForFunction(id=>{
    const s=window.testScene,u=s.world.units.find(u=>u.id===id)
    return u.cargo>0

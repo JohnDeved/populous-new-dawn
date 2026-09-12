@@ -100,6 +100,26 @@ test('live same-cell followers share one automatic command 21 and resume their q
   assert.ok(units.every(u=>unitAnimationSource(u)===u.native))
 })
 
+test('automatic combat restarts a retained direct tree harvest instead of harvesting during battle', () => {
+  const w=field(),u=addUnit(w,'blue','brave',{x:0,z:0}),tree={id:w.nextId++,x:1,z:0,model:1,logs:4}
+  w.trees.push(tree);w.selected=[u.id];command(w,tree)
+  for(let i=0;i<200&&!u.harvest;i++)tick(w,1/12)
+  assert.equal(u.harvest?.remaining,19)
+  const enemy=addUnit(w,'red','shaman',{x:u.x+2.5,z:u.z})
+  addUnit(w,'red','brave',{x:20,z:20})
+  w.turn=(w.turn+3)&~3
+  assert.equal(startLiveCombatResponse(w,u),true)
+  const p=u.native,automatic=p.immediateCommand
+  assert.ok(automatic);assert.equal(u.tree,tree.id);assert.equal(u.harvest,undefined)
+  for(let i=0;i<4;i++)tick(w,1/12)
+  assert.equal(u.harvest,undefined);assert.equal(u.cargo,0);assert.equal(tree.logs,4)
+  enemy.hp=0
+  for(let i=0;i<600&&(!u.harvest||p.immediateCommand);i++)tick(w,1/12)
+  assert.equal(p.immediateCommand,0);assert.equal(u.tree,tree.id);assert.equal(u.harvest?.remaining,19)
+  for(let i=0;i<40&&!u.cargo;i++)tick(w,1/12)
+  assert.equal(u.cargo,1);assert.equal(tree.logs,3)
+})
+
 test('live automatic combat consumes a pending worship scan without replacing command 27', () => {
   const w=field(), u=addUnit(w,'blue','warrior',{x:0,z:0})
   addUnit(w,'red','shaman',{x:1.5,z:0})
