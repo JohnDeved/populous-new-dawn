@@ -2159,7 +2159,7 @@ export class GameScene {
   }
   makeFx(f: Effect) {
     const g = new THREE.Group()
-    if (f.wave || f.bridge) return g
+    if (f.wave || f.bridge || f.flatten) return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
       mesh.name = 'sinking-building'
@@ -2298,7 +2298,7 @@ export class GameScene {
       )
       g.userData.cellPosition = f
     }
-    if (f.wave || f.bridge) return
+    if (f.wave || f.bridge || f.flatten) return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle
       g.userData.nativeTilt = f.sinking.tilt
@@ -2384,9 +2384,9 @@ export class GameScene {
     )[g.userData.sequence]
     const index = f.animation
       ? f.animation.object - sequence[0].source + ((f.animation.f1 & 65535) >>> 2)
-      : f.sprite?.sequence === 'blastShot'
+      : f.sprite?.fixed || f.sprite?.sequence === 'blastShot'
         ? f.sprite.frame
-        : Math.floor(f.age * 12)
+        : (f.sprite?.frame ?? 0) + Math.floor(f.age * 12)
     const frame = sequence[Math.min(sequence.length - 1, index)]
     effectFrame(sprite, frame)
     if (f.smoke) {

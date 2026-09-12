@@ -139,6 +139,7 @@ import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
 import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
+import { createFlatten, stepFlatten, type Flatten } from './flatten.ts'
 import {
   createLivePathfinding,
   findLivePath,
@@ -335,7 +336,7 @@ const debrisModels: Record<number, NativeModel> = modelAssets
 export type Team = 'blue' | 'red' | 'wild'
 export type { UnitKind } from './unit-kinds.ts'
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
-export type Spell = 'blast' | 'lightning' | 'bridge'
+export type Spell = 'blast' | 'lightning' | 'bridge' | 'flatten'
 export type Point = { x: number; z: number }
 type Fight = {
   group: number
@@ -498,7 +499,7 @@ export type Effect = Point & {
     | 'reincarnation'
     | 'gift'
   height?: number
-  sprite?: { sequence: string; frame: number }
+  sprite?: { sequence: string; frame: number; fixed?: boolean }
   animation?: AnimatedUnit | SpellTrail
   lightning?: Lightning
   smoke?: BuildingSmoke
@@ -513,6 +514,7 @@ export type Effect = Point & {
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
   corpse?: { remaining: number; phase: number; ground: number }
   bridge?: LandBridge
+  flatten?: Flatten
   reincarnation?: { team: Team; phase: number; ground: number }
 }
 export type Gift = Effect & {
@@ -562,6 +564,16 @@ export const SPELLS: {
     symbol: 'ϟ',
     color: '#c6b8f2',
     description: 'Four gifts from the central stone head. A direct hit kills a follower.',
+  },
+  {
+    id: 'flatten',
+    model: 15,
+    name: 'Flatten',
+    cost: 125,
+    key: '4',
+    symbol: '▰',
+    color: '#c7a77b',
+    description: 'Levels nearby terrain to the height beneath the target.',
   },
 ]
 export const BUILDINGS: {
@@ -1743,7 +1755,7 @@ export function createWorld(): World {
     spellCasts: Array.from({ length: 4 }, () => Array(22).fill(0)),
     killCredits: Array.from({ length: 4 }, () => Array(4).fill(0)),
     gifts: [],
-    giftCounts: { blast: 0, bridge: 0, lightning: 0 },
+    giftCounts: { blast: 0, bridge: 0, lightning: 0, flatten: 0 },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
     combatMarches: [],
@@ -1834,7 +1846,7 @@ export function createWorld(): World {
     soundSerial: 0,
     mana: 0,
     wood: 0,
-    shots: { blast: 4, bridge: 0, lightning: 0 },
+    shots: { blast: 4, bridge: 0, lightning: 0, flatten: 0 },
     charging: true,
     unlockedCamp: false,
     time: 0,
@@ -2902,8 +2914,8 @@ function castVoice(w: World, u: Unit, spell: Spell) {
   sound(
     w,
     (u.team === 'blue'
-      ? { blast: 0x76, lightning: 0x77, bridge: 0x80 }
-      : { blast: 0x8c, lightning: 0x8d, bridge: 0x96 })[spell],
+      ? { blast: 0x76, lightning: 0x77, bridge: 0x80, flatten: 0x83 }
+      : { blast: 0x8c, lightning: 0x8d, bridge: 0x96, flatten: 0x99 })[spell],
     u
   )
 }
@@ -4224,7 +4236,9 @@ export function cast(w: World, spell: Spell, p: Point) {
       w,
       spell === 'blast'
         ? 'Blast is charging. Braves working or inside huts generate more mana.'
-        : 'Worship the stone head to receive this spell.'
+        : spell === 'flatten'
+          ? 'Flatten is not available in this mission.'
+          : 'Worship the stone head to receive this spell.'
     )
     return false
   }
@@ -5359,6 +5373,8 @@ function finishCast(
   } else if (spell === 'bridge') {
     sound(w, 0xab, p)
     sound(w, 0x29, p)
+  } else if (spell === 'flatten') {
+    sound(w, 0xae, p)
   }
   if (spell === 'bridge') {
     fx.bridge = createLandBridge(nativePosition(w, shaman), nativePosition(w, p))
@@ -5367,6 +5383,11 @@ function finishCast(
     w.stats.bridges++
     tell(w, 'The earth rises. Lead your followers across the new Land Bridge.')
   } else {
+    if (spell === 'flatten') {
+      fx.flatten = createFlatten(w.land, nativePosition(w, p))
+      fx.team = shaman.team
+      fx.duration = Infinity
+    }
     if (shaman.team === 'blue')
       tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
   }
@@ -5621,7 +5642,48 @@ function stepTurn(w: World) {
   stepScenery(w)
   // New class-7 effects are inserted before the current native list cursor;
   // their first processor visit belongs to the following simulation turn.
-  const effectCount = w.effects.length
+  const effectCount = w.effects.length,
+    flattenCenters: number[] = []
+  // Native allocated-object order is newest first; overlapping interpolation is noncommutative.
+  for (let index = effectCount - 1; index >= 0; index--) {
+    const fx = w.effects[index]
+    if (!fx.flatten) continue
+    const alive = stepFlatten(w.land, fx.flatten, {
+      orbit: (position, sunlight) => {
+        const orbit = effect(w, 'trail', browserPosition(position))
+        orbit.sprite = { sequence: 'sparkle', frame: 0, fixed: true }
+        orbit.height = position.h / 45
+        orbit.duration = Infinity
+        if (sunlight) registerTerrainLight(w, orbit, 1)
+        return orbit.id
+      },
+      sparkle: position => {
+        const sparkle = effect(w, 'trail', browserPosition(position))
+        sparkle.sprite = { sequence: 'sparkle', frame: 6 }
+        sparkle.height = position.h / 45
+        sparkle.duration = 6 / TURNS_PER_SECOND
+      },
+      move: (id, position) => {
+        const orbit = w.effects.find(f => f.id === id)!
+        moveVisual(orbit, position)
+      },
+      remove: id => {
+        const orbit = w.effects.find(f => f.id === id)
+        if (orbit) orbit.duration = orbit.age
+      },
+      terrain: cell => {
+        queueTerrain(w.land, cell, 6, 1, terrainTextures)
+        flattenCenters.push(cell)
+      },
+    })
+    if (!alive) fx.duration = fx.age
+  }
+  if (flattenCenters.length) {
+    processTerrain(w.land, terrainTextures)
+    for (const cell of flattenCenters) updateWalkMasks(w.land, cell, 6)
+    notifyHeightChanges(w, flattenCenters, 6)
+    refreshTerrainSurface(w)
+  }
   for (let index = 0; index < effectCount; index++) {
     const fx = w.effects[index]
     fx.age += dt
