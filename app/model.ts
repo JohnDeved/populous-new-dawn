@@ -4174,9 +4174,11 @@ export function command(
   const shrine = model === 27 || model === 33 ? context.shrine : undefined
   const friendly = [6, 8, 10].includes(model) ? context.building : undefined
   const enemy = model === 28 ? context.person : undefined
+  const tree = model === 7 ? context.tree : undefined
   const dismantling = model === 10
   const headOrder = shrine && shrine.kind !== 'vault' ? worshipOrder(w, shrine) : 0
-  const moveOrder = !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, p)) : 0
+  const moveOrder =
+    !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, tree ?? p)) : 0
   if (
     (shrine && shrine.kind !== 'vault' && !headOrder) ||
     (!shrine && !friendly && !enemy && !moveOrder)
@@ -4213,7 +4215,7 @@ export function command(
         ? entrance(w, friendly)
         : enemy && 'progress' in enemy
           ? entrance(w, enemy)
-          : (enemy ?? p)
+          : (enemy ?? tree ?? p)
     const path = planLivePath(w, u, goal)
     if (!path) continue
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
@@ -4226,6 +4228,7 @@ export function command(
     if (friendly && friendly.progress < 1 && !dismantling)
       u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
     u.target = enemy?.id ?? null
+    u.tree = tree?.id ?? null
     if (shrine?.kind === 'vault')
       u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 }
     count++
@@ -5989,6 +5992,42 @@ function findBuildingWood(w: World, u: Unit, b: Building) {
 }
 
 // Hut upgrades retain the existing loose-log delivery adapter.
+function harvestAssignedTree(w: World, u: Unit, destination?: Point) {
+  if (u.tree === null || u.cargo) return
+  const tree = w.trees.find(t => t.id === u.tree)
+  if (!tree) {
+    u.tree = null
+    u.harvest = undefined
+    return
+  }
+  if (u.path.length) return
+  if (distance(u, tree) >= 1) {
+    route(w, u, tree)
+    return
+  }
+  if (!u.harvest) {
+    u.harvest = startTimberHarvest(2, tree.model)
+    sound(w, 1, u)
+  }
+  if (!stepTimberHarvest(u.harvest)) {
+    if (tree.model === 11) sound(w, 10, u)
+    return
+  }
+  const wood = timberTransfer(
+    Math.round(tree.logs * 100),
+    Math.round(u.cargo * 100),
+    rules.personWood[2],
+    rules.personWood[2]
+  )
+  tree.logs -= wood / 100
+  if (wood && tree.logs < 1)
+    depleteTree(w, tree, w.manaTribes[u.team === 'blue' ? 0 : 1].playerType === 1)
+  u.cargo += wood / 100
+  if (!destination && u.native) u.native.cargo = Math.round(u.cargo * 100)
+  u.harvest = undefined
+  if (destination) route(w, u, destination)
+}
+
 function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
   for (const u of workers) {
     if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
@@ -5998,35 +6037,7 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
       u.cargo = 0
       u.tree = null
     }
-    if (u.tree !== null && !u.cargo) {
-      const tree = w.trees.find(t => t.id === u.tree)
-      if (!tree) {
-        u.tree = null
-        u.harvest = undefined
-        continue
-      }
-      if (distance(u, tree) < 1 && !u.path.length) {
-        if (!u.harvest) {
-          u.harvest = startTimberHarvest(2, tree.model)
-          sound(w, 1, u)
-        }
-        if (stepTimberHarvest(u.harvest)) {
-          const wood = timberTransfer(
-            Math.round(tree.logs * 100),
-            Math.round(u.cargo * 100),
-            rules.personWood[2],
-            rules.personWood[2]
-          )
-          tree.logs -= wood / 100
-          if (wood && tree.logs < 1)
-            depleteTree(w, tree, w.manaTribes[u.team === 'blue' ? 0 : 1].playerType === 1)
-          u.cargo += wood / 100
-          if (!u.cargo) u.tree = null
-          u.harvest = undefined
-          route(w, u, entrance(w, b))
-        } else if (tree.model === 11) sound(w, 10, u)
-      }
-    }
+    harvestAssignedTree(w, u, entrance(w, b))
   }
 }
 
@@ -6351,6 +6362,9 @@ function stepTurn(w: World) {
   }
   w.shots.blast = w.manaWorld.spells[0].stocks[2] & 15
   w.mana = w.manaTribes[0].spellProgress[2] / 1000
+  for (const u of w.units)
+    if (u.work === null && u.inside === null && u.hp > 0 && u.kind === 'brave')
+      harvestAssignedTree(w, u)
   for (const b of w.buildings) {
     if (b.hp <= 0) continue
     b.counter = (b.counter + 1) & 255
@@ -6658,6 +6672,8 @@ function stepTurn(w: World) {
       !work &&
       !target &&
       !u.guard &&
+      // ponytail: hold direct gatherers at their source until the native no-following tail is evidenced.
+      u.tree === null &&
       !u.harvest &&
       !u.delivery &&
       (!u.path.length || (u.native && [1, 17, 19].includes(u.native.state)))
@@ -6701,7 +6717,14 @@ function stepTurn(w: World) {
       route(w, u, 'progress' in target ? entrance(w, target) : target)
     else if (work && u.tree === null && !builderActivity(u))
       u.heading = Math.atan2(work.x - u.x, work.z - u.z)
-    if (u.kind === 'brave' && !u.path.length && u.work === null && u.target === null && !u.guard) {
+    if (
+      u.kind === 'brave' &&
+      !u.path.length &&
+      u.work === null &&
+      u.target === null &&
+      u.tree === null &&
+      !u.guard
+    ) {
       u.idleTurns++
       if (u.idleTurns > 16 && (w.turn & 15) === 0) {
         const hut = w.buildings

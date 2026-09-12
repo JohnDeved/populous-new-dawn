@@ -72,6 +72,7 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
     if ((building.admission?.activity ?? 0) & 0x8000) flags |= Context.Dismantling
   }
   if (shrine) flags |= shrine.kind === 'vault' ? Context.Building | Context.Vault : Context.Head
+  if (pointedTree) flags |= Context.Tree
   if (enemy) flags |= Context.Enemy
   if (nearby) flags |= Context.NearbyEnemy
   if (pointedPerson?.kind === 'shaman' && pointedPerson.team === team) flags |= Context.OwnShaman
@@ -90,5 +91,5 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
       nativePosition(w, point),
       tribeFlags
     )
-  return { model, enabled, building, shrine, person: enemy ?? nearby }
+  return { model, enabled, building, shrine, tree: pointedTree, person: enemy ?? nearby }
 }

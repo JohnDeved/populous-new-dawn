@@ -5,7 +5,7 @@ import cells from './fixtures/command-cells.json' with {type:'json'}
 import feedback from './fixtures/command-feedback.json' with {type:'json'}
 import {chooseContextCommand,commandMarkerPoint} from '../app/command-context.ts'
 import {liveCommandContext} from '../app/live-command.ts'
-import {createWorld,addBuilding,addUnit,browserPosition,syncLandscapeObjects,command,distance} from '../app/model.ts'
+import {createWorld,addBuilding,addUnit,browserPosition,syncLandscapeObjects,command,distance,tick} from '../app/model.ts'
 import {buildingFootprintCells} from '../app/building-shapes.ts'
 import {buildingPose} from '../app/model.ts'
 
@@ -41,6 +41,26 @@ test('ground beside a hut moves the group, while its occupied cell enters it',()
  const cell=buildingFootprintCells(buildingPose(b))[0]
  const inside=browserPosition({x:(cell%128)*512+256,y:Math.floor(cell/128)*512+256})
  command(w,inside);assert.equal(u.work,b.id)
+})
+
+test('an exact tree click walks a brave through native-timed harvest and transfer',()=>{
+ const w=createWorld();w.units=[];w.buildings=[];w.trees=[];w.shrines=[]
+ w.terrain.fill(3);w.terrainVersion++;w.manaWorld.gameFlags=32
+ const u=addUnit(w,'blue','brave',{x:-12,z:8}),tree={id:w.nextId++,x:-8,z:8,model:1,logs:4}
+ w.trees.push(tree);w.selected=[u.id]
+ assert.equal(liveCommandContext(w,tree).model,7)
+ assert.equal(command(w,tree),true);assert.equal(u.tree,tree.id)
+ let started=0,completed=0
+ for(let turns=1;turns<=240&&!u.cargo;turns++){
+  tick(w,1/12)
+  if(!started&&u.harvest)started=turns
+  if(u.cargo)completed=turns
+ }
+ assert.equal(completed-started+1,20)
+ assert.equal(u.cargo,1);assert.equal(tree.logs,3);assert.equal(u.tree,tree.id)
+ addBuilding(w,'blue','hut',{x:-2,z:8},true)
+ for(let turns=0;turns<64;turns++)tick(w,1/12)
+ assert.equal(u.work,null,'the unevidenced tail must not auto-route carried timber to a nearby hut')
 })
 
 test('input feedback matches native ground-cell centers and suppresses flashes over pointed objects',()=>{
