@@ -22,6 +22,18 @@ try{
  await page.waitForFunction(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker),p=window.walkGoal;return u?.native?.state===19&&Math.hypot(u.x-p.x,u.z-p.z)<2;},{},{timeout:15000});
  assert.ok(await page.evaluate(()=>{const w=window.testStore.getWorld(),u=w.units.find(u=>u.id===window.walker);return u.hp>0&&u.native.state===19&&!u.native.commands.some(Boolean)&&!w.pathfinding.people.has(u.id);}),'left-clicked follower reaches the shore and releases its movement order before native resting');
  await page.evaluate(()=>window.testStore.restart());await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld());await page.evaluate(()=>window.testScene=window.testSceneRef.current);
+ const delayedVictory=await page.evaluate(async()=>{
+  const m=await import('/app/model.ts'),w=window.testStore.getWorld();w.flyby.flags=0;w.inputMask=0;w.paused=false;w.speed=1;w.terrain.fill(3);w.units=w.units.filter(u=>u.kind==='shaman');
+  Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:9,z:-1});w.turn=15;w.time=15/12;w.pendingTime=0;w.shots.lightning=1;
+  if(!m.cast(w,'lightning',w.units[1]))throw new Error('Lightning setup failed');
+  const shot=w.projectiles[0];for(let i=0;i<120&&w.projectiles.includes(shot);i++)m.tick(w,1/12);
+  const impact={turn:w.turn,alive:w.units[1].hp>0};m.tick(w,1/12);
+  const lethal={turn:w.turn,hp:w.units[1].hp,state:w.units[1].native?.state};m.tick(w,8/12);
+  const pending={turn:w.turn,status:w.status,state:w.units.find(u=>u.team==='red')?.native?.state,timer:w.manaTribes[1].defeatTimer};m.tick(w,16/12);
+  const result={turn:w.turn,status:w.status,present:w.units.some(u=>u.team==='red')};w.paused=true;return {impact,lethal,pending,result};
+ });
+ assert.deepEqual(delayedVictory,{impact:{turn:23,alive:true},lethal:{turn:24,hp:0,state:44},pending:{turn:32,status:'playing',state:44,timer:0},result:{turn:48,status:'won',present:false}});
+ await page.evaluate(()=>window.testStore.restart());await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld());await page.evaluate(()=>window.testScene=window.testSceneRef.current);
  await page.evaluate(()=>{
   const w=window.testStore.getWorld();w.units=w.units.filter(u=>u.team==='blue');w.units.find(u=>u.kind==='brave').kind='warrior';w.turn=31;w.pendingTime=0;w.paused=false;w.speed=1;w.ai.variables[57]=1;w.flyby.flags=0;w.inputMask=0;
   window.initialPeople=w.units.map(u=>({id:u.id,x:u.x,z:u.z}));window.testScene.focus({x:9,z:33});
@@ -106,5 +118,5 @@ try{
  await page.waitForFunction(()=>window.testStore.getWorld().status==='playing');
  assert.equal(await page.evaluate(()=>window.restartClean),true);
  assert.deepEqual(errors,[]);
- console.log('PASS: left-click native route and shore arrival, live victory handoff, original atlas frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
+ console.log('PASS: delayed Lightning victory, live celebration, native routes and frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
 }finally{await browser.close();}

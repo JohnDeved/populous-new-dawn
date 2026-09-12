@@ -4964,11 +4964,11 @@ function stepDamagedBuilding(w: World, b: Building) {
 function stepOutcome(w: World) {
   if (w.manaWorld.loadFlags & 0x200 || w.manaWorld.gameFlags & 32) return
   // ponytail: registered native person lists/counts await the shared object
-  // rebuild. The opening classes currently use living browser followers.
+  // rebuild. Opening classes retain browser followers through live death states.
   const tribes = w.manaTribes.map((t, id) => {
     const team = id === 0 ? 'blue' : id === 1 ? 'red' : null
     const people = w.units
-      .filter(u => u.team === team && u.hp > 0)
+      .filter(u => u.team === team)
       .map(unit => ({
         unit,
         model: nativePersonModel(unit),

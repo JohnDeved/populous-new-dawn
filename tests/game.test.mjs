@@ -793,6 +793,12 @@ test('native outcome phases honor campaign opponents, forced results and defeat 
  assert.deepEqual(won.selected,[]);assert.ok(won.buildings.some(b=>b.team==='red'),'empty buildings do not postpone campaign victory');
  const lost=createWorld();lost.units=[];lost.turn=31;tick(lost,1/12);
  assert.equal(lost.status,'lost','simultaneous campaign extinction is a player loss');assert.equal(lost.manaTribes[1].defeatTimer,0);
+ const dying=createWorld();dying.terrain.fill(3);dying.units=dying.units.filter(u=>u.kind==='shaman');
+ Object.assign(dying.units[0],{x:0,z:0});Object.assign(dying.units[1],{x:9,z:-1});dying.turn=15;dying.time=15/12;dying.shots.lightning=1;
+ assert.ok(cast(dying,'lightning',dying.units[1]));impact(dying,'lightning');assert.equal(dying.turn,23);assert.ok(dying.units[1].hp>0);
+ tick(dying,1/12);assert.equal(dying.turn,24);assert.equal(dying.units[1].hp,0);assert.equal(dying.units[1].native.state,44);tick(dying,8/12);
+ assert.equal(dying.turn,32);assert.equal(dying.status,'playing','registered electrocution still counts at the next outcome phase');assert.equal(dying.units.find(u=>u.team==='red').native.state,44);
+ tick(dying,16/12);assert.equal(dying.status,'won');assert.equal(dying.turn,48,'extinction is observed after native death-state removal');
  for(const flags of [0x40000,0x20000,0x60000]) {
   const w=createWorld();w.turn=31;w.castingTribes[0].flags|=flags;tick(w,1/12);
   assert.equal(w.status,flags===0x40000?'won':'lost');
