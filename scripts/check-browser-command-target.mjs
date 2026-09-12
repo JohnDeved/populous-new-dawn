@@ -87,11 +87,13 @@ try {
   assert.equal(await page.evaluate(id=>window.testScene.world.units.find(u=>u.id===id).tree,fixture.follower),fixture.tree)
   await page.evaluate(id=>{
    const s=window.testScene
-   window.commandTreeFollower=id;window.treeOrderSawHarvest=false
+   window.commandTreeFollower=id;window.treeOrderSawHarvest=false;window.directDeliverySaw=null
    window.commandTargetAfterTurn??=s.gameClock.afterTurn
    s.gameClock.afterTurn=()=>{
     window.commandTargetAfterTurn()
-    if(!window.treeOrderSawHarvest&&s.world.units.find(u=>u.id===window.commandTreeFollower)?.harvest){window.treeOrderSawHarvest=true;s.world.speed=0}
+    const u=s.world.units.find(u=>u.id===window.commandTreeFollower)
+    if(u?.delivery)window.directDeliverySaw={target:u.delivery.target,cargo:u.cargo}
+    if(!window.treeOrderSawHarvest&&u?.harvest){window.treeOrderSawHarvest=true;s.world.speed=0}
    }
    s.world.speed=2;s.animate(performance.now())
   },fixture.follower)
@@ -121,29 +123,35 @@ try {
    return {target:u.tree,harvest:u.harvest,cargo:u.cargo,logs:t.logs}
   },fixture)
   assert.deepEqual(held,{target:fixture.tree,harvest:undefined,cargo:0,logs:4})
-  await page.evaluate(id=>{
-   const w=window.testScene.world
-   w.units.find(u=>u.id===id).hp=0;w.speed=2
+  const plan=await page.evaluate(async id=>{
+   const w=window.testScene.world,m=await import('/app/model.ts')
+   w.units.find(u=>u.id===id).hp=0
+   const plan=m.addBuilding(w,'blue','hut',{x:-14,z:20},false,{plan:true})
+   w.speed=2
+   return plan.id
   },combat.enemy)
-  await page.waitForFunction(id=>{
-   const s=window.testScene,u=s.world.units.find(u=>u.id===id)
-   return u.cargo>0
-  },fixture.follower).catch(async error=>{
+  await page.waitForFunction(()=>window.directDeliverySaw).catch(async error=>{
    console.error(await page.evaluate(id=>{
     const s=window.testScene,u=s.world.units.find(u=>u.id===id)
     return {unit:u,speed:s.world.speed,status:s.world.status}
    },fixture.follower))
    throw error
   })
-  const timber=await page.evaluate(({follower,tree})=>{
+  const timber=await page.evaluate(({follower,tree,plan})=>{
    const s=window.testScene,u=s.world.units.find(u=>u.id===follower),t=s.world.trees.find(t=>t.id===tree)
    s.world.speed=0
    const mesh=s.decorations.children.find(g=>g.userData.point===t)?.children[0]
-   return {cargo:u.cargo,logs:t.logs,size:mesh?.userData.nativeSize,harvested:!!window.treeOrderSawHarvest}
-  },fixture)
-  assert.ok(timber.cargo>0);assert.ok(timber.logs<4);assert.ok(timber.size<fixture.treeSize);assert.ok(timber.harvested)
+   return {cargo:u.cargo,logs:t.logs,size:mesh?.userData.nativeSize,harvested:!!window.treeOrderSawHarvest,delivery:window.directDeliverySaw,plan}
+  },{...fixture,plan})
+  assert.ok(timber.logs<4);assert.ok(timber.size<fixture.treeSize);assert.ok(timber.harvested)
+  assert.deepEqual(timber.delivery,{target:timber.plan,cargo:1})
+  await page.evaluate(()=>{window.testScene.world.speed=2})
+  await page.waitForFunction(({follower,plan})=>{
+   const w=window.testScene.world,u=w.units.find(u=>u.id===follower),b=w.buildings.find(b=>b.id===plan)
+   return !u.delivery&&!u.cargo&&w.trees.some(t=>t.model===11&&Math.hypot(t.x-b.x,t.z-b.z)<6)
+  },{follower:fixture.follower,plan})
 
  }
  assert.deepEqual(errors,[])
- console.log('PASS: actual overlapping person/building/tree commands, native-timed visible tree harvesting, reordered objects and ground beside a hut at desktop and ultrawide sizes')
+ console.log('PASS: actual overlapping person/building/tree commands, combat-interrupted native-timed tree harvesting and plan delivery at desktop and ultrawide sizes')
 } finally {await browser.close()}

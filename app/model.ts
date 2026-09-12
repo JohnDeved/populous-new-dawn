@@ -427,7 +427,7 @@ export type Unit = Point & {
   cargo: number
   tree: number | null
   harvest?: { remaining: number }
-  delivery?: { remaining: number }
+  delivery?: { target: number }
   builder?: Builder & { person?: LivePerson }
   timer: number
   guard: boolean
@@ -5990,6 +5990,28 @@ function findBuildingWood(w: World, u: Unit, b: Building) {
     .find(t => findPath(w, u, t).length)
 }
 
+function needsDirectTimber(w: World, u: Unit, b: Building) {
+  if (b.team !== u.team || b.hp <= 0 || b.progress >= 1) return false
+  const model = buildingModel(b),
+    life = rules.buildingLife[model],
+    work = b.damageState?.plan.remaining ?? b.preparation?.work ?? Math.round(b.progress * life)
+  return life - work - entranceWood(w, b) > 0
+}
+
+function directTimberDestination(w: World, u: Unit) {
+  const origin = nativePosition(w, u)
+  return w.buildings
+    .filter(
+      b => needsDirectTimber(w, u, b) && positionDistance(origin, nativePosition(w, b)) < 0x2800
+    )
+    .sort(
+      (a, b) =>
+        positionDistance(origin, nativePosition(w, a)) -
+        positionDistance(origin, nativePosition(w, b))
+    )
+    .find(b => findPath(w, u, entrance(w, b)).length)
+}
+
 // Hut upgrades retain the existing loose-log delivery adapter.
 function harvestAssignedTree(w: World, u: Unit, destination?: Point) {
   if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return
@@ -6025,6 +6047,13 @@ function harvestAssignedTree(w: World, u: Unit, destination?: Point) {
   if (!destination && u.native) u.native.cargo = Math.round(u.cargo * 100)
   u.harvest = undefined
   if (destination) route(w, u, destination)
+  else {
+    u.tree = null
+    const building = directTimberDestination(w, u)
+    if (building && route(w, u, entrance(w, building)).length) {
+      u.delivery = { target: building.id }
+    }
+  }
 }
 
 function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
@@ -6540,6 +6569,17 @@ function stepTurn(w: World) {
     const work =
       w.buildings.find(b => b.id === u.work && b.hp > 0) ??
       w.shrines.find(s => s.id === u.work && (s.active || u.vault?.head === s.id))
+    let delivery = u.delivery
+      ? w.buildings.find(b => b.id === u.delivery!.target && needsDirectTimber(w, u, b))
+      : undefined
+    if (u.delivery && !delivery) {
+      u.delivery = undefined
+      u.path = []
+      delivery = directTimberDestination(w, u)
+      if (delivery && route(w, u, entrance(w, delivery)).length) {
+        u.delivery = { target: delivery.id }
+      }
+    }
     if (u.entry && u.inside === null && !work) {
       stepBuildingEntry(w, u)
       continue
@@ -6588,6 +6628,26 @@ function stepTurn(w: World) {
     }
     // An unavailable hut hands control back to the existing work controller.
     cancelBuildingEntry(w, u)
+    if (u.delivery && delivery && !u.path.length) {
+      if (!atBuildingEntrance(w, u, delivery)) route(w, u, entrance(w, delivery))
+      else {
+        const p = u.native ?? createLivePerson(w, u)
+        Object.assign(p, nativePosition(w, u))
+        p.cargo = Math.round(u.cargo * 100)
+        u.native = p
+        registerLivePerson(w, p)
+        dropCarriedTimber(
+          p,
+          () => {
+            w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+            return true
+          },
+          () => sound(w, 11, u)
+        )
+        u.cargo = p.cargo / 100
+        u.delivery = undefined
+      }
+    }
     let target: Unit | Building | undefined =
       u.target === null
         ? undefined

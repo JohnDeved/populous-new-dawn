@@ -43,10 +43,12 @@ test('ground beside a hut moves the group, while its occupied cell enters it',()
  command(w,inside);assert.equal(u.work,b.id)
 })
 
-test('an exact tree click walks a brave through native-timed harvest and transfer',()=>{
+test('an exact tree click harvests, seeks a timber plan and otherwise returns to rest',()=>{
  const w=createWorld();w.units=[];w.buildings=[];w.trees=[];w.shrines=[]
  w.terrain.fill(3);w.terrainVersion++;w.manaWorld.gameFlags=32
  const u=addUnit(w,'blue','brave',{x:-12,z:8}),tree={id:w.nextId++,x:-8,z:8,model:1,logs:4}
+ const plan=addBuilding(w,'blue','hut',{x:4,z:8},false,{plan:true})
+ const fallback=addBuilding(w,'blue','hut',{x:12,z:8},false,{plan:true})
  w.trees.push(tree);w.selected=[u.id]
  assert.equal(liveCommandContext(w,tree).model,7)
  assert.equal(command(w,tree),true);assert.equal(u.tree,tree.id)
@@ -57,10 +59,23 @@ test('an exact tree click walks a brave through native-timed harvest and transfe
   if(u.cargo)completed=turns
  }
  assert.equal(completed-started+1,20)
- assert.equal(u.cargo,1);assert.equal(tree.logs,3);assert.equal(u.tree,tree.id)
- addBuilding(w,'blue','hut',{x:-2,z:8},true)
- for(let turns=0;turns<64;turns++)tick(w,1/12)
- assert.equal(u.work,null,'the unevidenced tail must not auto-route carried timber to a nearby hut')
+ assert.equal(u.cargo,1);assert.equal(tree.logs,3);assert.equal(u.tree,null)
+ assert.equal(u.work,null);assert.equal(u.delivery?.target,plan.id)
+ plan.hp=0;tick(w,1/12)
+ assert.equal(u.delivery?.target,fallback.id);assert.ok(u.path.length)
+ for(let turns=0;turns<240&&u.cargo;turns++)tick(w,1/12)
+ assert.equal(u.cargo,0);assert.equal(u.work,null);assert.equal(u.delivery,undefined)
+ assert.ok(w.trees.some(t=>t.model===11&&distance(t,fallback)<6))
+
+ const idle=createWorld();idle.units=[];idle.buildings=[];idle.trees=[];idle.shrines=[]
+ idle.terrain.fill(3);idle.terrainVersion++;idle.manaWorld.gameFlags=32
+ const resting=addUnit(idle,'blue','brave',{x:-12,z:8}),source={id:idle.nextId++,x:-8,z:8,model:1,logs:4}
+ idle.trees.push(source)
+ idle.selected=[resting.id];command(idle,source)
+ for(let turns=0;turns<480&&!idle.trees.some(t=>t.model===11);turns++)tick(idle,1/12)
+ assert.ok(source.logs<4);assert.equal(resting.tree,null)
+ assert.equal(resting.cargo,0);assert.equal(resting.work,null)
+ assert.ok(idle.trees.some(t=>t.model===11))
 })
 
 test('input feedback matches native ground-cell centers and suppresses flashes over pointed objects',()=>{
