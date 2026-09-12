@@ -388,11 +388,13 @@ export type AttackInput = {
   targetsRemain: (target: number) => boolean
   random: () => number
   entity?: (id: number) => AttackTarget | null
+  tracking?: (id: number) => boolean
+  reacquire?: () => AttackTarget | null
 }
-export type AttackTarget = { id: number; target: number }
+export type AttackTarget = { id: number; target: number; direct?: boolean; contained?: boolean }
 export type AttackAction =
   | { kind: 'select'; id: number }
-  | { kind: 'move' | 'attack'; target: number; replace: boolean }
+  | { kind: 'move' | 'attack' | 'attackPerson'; target: number; replace: boolean }
 
 export function creditAttackTask(ai: ComputerQueue, person: number, damage: number) {
   const task = ai.tasks.find(
@@ -482,6 +484,12 @@ export function stepAttackTask(
       return actions
     }
     releaseSelection(ai, index)
+    const target = task.entity ? input.entity?.(task.entity) : null
+    if (target?.direct) {
+      task.target = target.target
+      task.phase = 17
+      return [{ kind: 'attackPerson', target: target.id, replace: true }]
+    }
     task.phase = 10
     task.elapsed = 0
     return [{ kind: 'move', target: task.target, replace: true }]
@@ -544,6 +552,31 @@ export function stepAttackTask(
     task.phase = 6
     task.fallback = 23
     task.elapsed = 0
+    return [{ kind: 'move', target: input.staging, replace: true }]
+  }
+  if (task.phase === 17) {
+    if (!input.activeMembers()) {
+      task.phase = 23
+      return actions
+    }
+    const target = input.entity?.(task.entity)
+    if (target?.contained) {
+      const replacement = input.reacquire?.()
+      if (replacement) {
+        task.entity = replacement.id
+        task.target = replacement.target
+        task.phase = 16
+        return [{ kind: 'move', target: task.target, replace: true }]
+      }
+      task.phase = 23
+      return actions
+    } else if (target) {
+      task.target = target.target
+      if (input.ready() && !input.tracking?.(task.entity))
+        return [{ kind: 'attackPerson', target: task.entity, replace: true }]
+      return actions
+    }
+    task.phase = 23
     return [{ kind: 'move', target: input.staging, replace: true }]
   }
   if (task.phase === 23) {

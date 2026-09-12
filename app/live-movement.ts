@@ -122,7 +122,8 @@ export const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 6, 8, 10, 11, 17, 19, 21, 27, 30, 31, 32].includes(order.model)) unsupported()
+  if (!order || ![3, 6, 8, 10, 11, 17, 19, 21, 27, 28, 30, 31, 32].includes(order.model))
+    unsupported()
   const state = {
     randomState: rng.randomState,
     instantFacing: false,
@@ -251,7 +252,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
           )
           return
         }
-        if (model === 6 || model === 27 || model === 30) {
+        if (model === 6 || model === 27 || model === 28 || model === 30) {
           if (order.model !== model || order.a !== x || order.b !== y)
             Object.assign(order, { model, a: x, b: y, flags: order.flags | commandFlags })
           return
@@ -274,6 +275,11 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
   for (const u of units) {
     const p = (u.native ?? u.entry?.person ?? u.builder?.person)!
     if (!accepted && preachers.includes(p)) continue
+    // 0x43b670 only replaces and attaches command 28; keep direct-target motion intact.
+    if (command.model === 28) {
+      adoptLiveOrders(w, u, p)
+      continue
+    }
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
@@ -335,7 +341,7 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
   const model = p && currentPersonOrder(w.buildingOrders, p)?.model
-  if (!p || !model || ![3, 6, 17, 27, 30, 31, 32].includes(model)) return
+  if (!p || !model || ![3, 6, 17, 27, 28, 30, 31, 32].includes(model)) return
   if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)

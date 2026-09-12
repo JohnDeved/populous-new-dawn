@@ -1570,7 +1570,9 @@ function planRoute(w: World, u: Unit, end: Point) {
 }
 function route(w: World, u: Unit, end: Point, preserveOrders = false) {
   cancelLiveResting(w, u)
-  if (!preserveOrders) cancelLiveOrder(w, u)
+  const person = u.native ?? u.fight?.motion
+  if (!preserveOrders && (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28))
+    cancelLiveOrder(w, u)
   return acceptLivePath(w, u, planRoute(w, u, end))
 }
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
@@ -2045,9 +2047,10 @@ function campaignAttackEntity(w: World, id: number): AttackTarget | null {
   if (!person) return null
   const p = nativePosition(w, person)
   return {
-    // ponytail: native shaman targeting needs command 28/phase 17; retain the existing area route until that owner exists.
-    id: person.kind === 'shaman' ? 0 : id,
+    id,
     target: ((p.x >>> 8) & 254) | (p.y & 0xfe00),
+    direct: person.kind === 'shaman',
+    contained: person.inside !== null,
   }
 }
 
@@ -2413,6 +2416,8 @@ function stepComputerTasks(w: World, tribe: number) {
             computerAttackTargetsRemain(w, tribe, target),
           random: () => random(w),
           entity: id => campaignAttackEntity(w, id),
+          tracking: id => computerAttackHasOrder(w, index, 28, id),
+          reacquire: () => campaignAttackTarget(w, tribe === 1 ? 0 : 1),
           select: (model, count, destination) => {
             const current = (selection ??= computerSelectionWorld(w, tribe)),
               ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
@@ -2456,10 +2461,17 @@ function stepComputerTasks(w: World, tribe: number) {
         } else {
           const units = computerAttackUnits(w, index),
             order = emptyPersonOrder()
+          if (action.kind === 'attackPerson') {
+            writePersonOrder(order, 28, action.target, 0, 0)
+            for (const u of units)
+              if (appendLiveOrders(w, [u], order, true).count === 1) u.target = action.target
+            continue
+          }
           if (action.kind === 'attack')
             Object.assign(order, { model: 19, a: action.target, b: 0x0808 })
           else writePersonOrder(order, 3, 0, action.target, 0)
           const issued = units.length ? appendLiveOrders(w, units, order, action.replace) : null
+          if (action.kind === 'move') for (const u of units) u.target = null
           if (
             action.kind === 'move' &&
             task.fallback !== 23 &&
@@ -5899,6 +5911,8 @@ function stepTurn(w: World) {
       target = undefined
     if (!target) {
       cancelLiveBuildingAttack(w, u)
+      if (u.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 28)
+        cancelLiveOrder(w, u)
       u.target = null
       if (startLiveCombatResponse(w, u)) {
         stepLiveBuildingAttack(w, u)

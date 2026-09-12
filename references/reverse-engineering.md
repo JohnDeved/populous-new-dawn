@@ -8824,3 +8824,30 @@ failed the unrelated Web Audio peak probe (cue 45 was active but sampled zero);
 a clean rerun passed the complete check. The rerun is preserved as
 `performance/2026-09-11-terrain-notifications-browser.json`; that transient audio
 failure is not evidence of a terrain/gameplay mismatch or an audio fix.
+
+## 2026-09-11 — mission-one direct shaman attack ownership
+
+Mission-one type-20 phase 9 retains a valid Blue shaman ID and enters phase 17.
+`check-native-command-28.py` executes `0043b670` with its real order preparation,
+old-order release and queue attachment callees. A successful call allocates a
+private command-28 record for one person, stores the exact target ID in `a`, stores
+zero in `b`, attaches it at queue slot zero and sets its reference count to one.
+A second call releases that record and installs a new private record. With all 799
+usable records occupied, the helper returns failure without changing the person or
+allocator cursor. The verified executable is read-only; no command or cleanup leaf
+is intercepted.
+
+The live type-20 controller now follows that direct branch for ordinary on-foot
+members. Each member receives its own command-28 record, while the existing direct
+target adapter follows the moving shaman and enters normal melee on contact. If the
+target enters a building, the task uses the already recovered building-first target
+reacquisition and returns to phase 16 with a movement order. A focused game
+regression checks private record identity, exact target retention, movement after a
+target relocation and contained-target reacquisition.
+
+This is not a complete port of command body `0043a4d0`. Its native subphases,
+attacking-shaman spell branch, ranged/vehicle people, special target flags and
+general player command-28 queue migration remain open. The browser deliberately
+reuses its established direct-target movement/contact adapter for this bounded
+mission path; the native check proves allocation and ownership, not the whole fight
+controller.

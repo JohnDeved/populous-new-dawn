@@ -968,6 +968,32 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  until(moving,()=>pursuit.target===destination&&pursuit.members.every(id=>{const unit=moving.units.find(u=>u.id===id),order=unit&&currentPersonOrder(moving.buildingOrders,unit.native);return order?.model===19&&order.a===destination;}),20);
 });
 
+test('mission-one Dakini pursues a fallback shaman by exact command target',async()=>{
+ const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const {createComputerQueue,requestAttack,stepAttackTask}=await import('../app/computer.ts');
+ const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
+ const target=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),members=w.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
+ const packed=p=>((p.x>>>8)&254)|(p.y&0xfe00),point=nativePosition(w,target);
+ for(const u of members)Object.assign(u,{x:target.x+6,z:target.z,path:[],target:null});
+ requestAttack(w.ai,packed(point),0,3,999,[100,0,0,0,0,0],true,1,target.id);
+ const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);task.phase=9;task.members=members.map(u=>u.id);w.ai.cursor=w.ai.tasks.indexOf(task);
+ until(w,()=>task.phase===17&&members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model===28),10);
+ const orders=members.map(u=>u.native.commands.find(Boolean));
+ assert.equal(new Set(orders).size,3,'native phase 17 allocates one private command per attacker');
+ assert.ok(members.every((u,i)=>w.buildingOrders.records[orders[i]].a===target.id&&w.buildingOrders.records[orders[i]].references===1));
+ assert.ok(members.every(u=>u.target===target.id));
+ const starts=members.map(u=>u.x);target.x+=8;
+ until(w,()=>members.some((u,i)=>u.x!==starts[i]),10);
+ assert.ok(members.every((u,i)=>{const order=currentPersonOrder(w.buildingOrders,u.native);return order?.model===28&&order.a===target.id&&u.native.commands.includes(orders[i]);}),'pursuit keeps exact command ownership');
+ target.inside=w.buildings.find(b=>b.team==='blue').id;
+ until(w,()=>task.phase===16&&w.buildings.some(b=>b.id===task.entity),10);
+ assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model===3));
+ const stranded=createComputerQueue();requestAttack(stranded,0,0,1,999,[100,0,0,0,0,0],true,1,target.id);
+ const direct=stranded.tasks[0];direct.phase=17;direct.members=[1];
+ const input={staging:123,select:()=>[],settled:()=>true,memberWithin:()=>null,ready:()=>true,activeMembers:()=>1,targetsRemain:()=>false,random:()=>0,entity:()=>({id:target.id,target:0,direct:true,contained:true}),reacquire:()=>null};
+ assert.deepEqual(stepAttackTask(stranded,0,input),[],'contained target without replacement retires without a move');assert.equal(direct.phase,23);
+});
+
 test('computer attack exhausts 33 empty native scans before regrouping and retiring',async()=>{
  const {createComputerQueue,requestAttack,stepAttackTask}=await import('../app/computer.ts');
  const ai=createComputerQueue();requestAttack(ai,0xfa06,3,1,999,[100,0,0,0,0,0],true,1);

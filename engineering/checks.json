@@ -329,6 +329,38 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "computer-direct-attack-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute mission one's native phase-17 command-28 allocator and person attachment helper.",
+      "coveredBehavior": [
+        "Private queued order allocation",
+        "Exact person target identity",
+        "Prior-order replacement",
+        "Allocation exhaustion"
+      ],
+      "knownLimits": [
+        "Does not execute the command-28 combat body, target lifecycle, attacking-shaman branch, vehicles, or ranged members."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-command-28.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-command-28.py",
+        "scripts/decomp.py",
+        "decomp/requirements.txt",
+        "decomp/tools.json"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "orders-browser",
       "kind": "browser",
       "automation": "safe",

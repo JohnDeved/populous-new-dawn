@@ -420,7 +420,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
       }),
     startOrders: p => {
       if (
-        [3, 6, 8, 10, 11, 17, 19, 21, 27, 30, 31, 32].includes(
+        [3, 6, 8, 10, 11, 17, 19, 21, 27, 28, 30, 31, 32].includes(
           currentPersonOrder(w.buildingOrders, p)?.model ?? 0
         )
       )
