@@ -34,6 +34,7 @@ export function spellButton(s: SpellButtonState) {
   const [readyIcon, inactiveIcon, hoverIcon] = rule.icons
   let icon = s.charging || s.stock ? readyIcon : inactiveIcon
   if (s.hovered) icon = hoverIcon
+  const iconRect = rects[icon] ?? { w: 28, h: 25 }
   const emptyMarkers = s.permanent ? [55, 68] : [66, 67]
   const sprites = shotPositions[rule.normalLimit].map((x, i) => {
     let id = emptyMarkers[Number(s.hovered)]
@@ -42,8 +43,8 @@ export function spellButton(s: SpellButtonState) {
   })
   sprites.push({
     id: icon,
-    x: 15 - Math.trunc(rects[icon].w / 2),
-    y: 21 - Math.trunc(rects[icon].h / 2),
+    x: 15 - Math.trunc(iconRect.w / 2),
+    y: 21 - Math.trunc(iconRect.h / 2),
   })
   const fills =
     s.permanent && s.charging && !s.hovered && rule.mode !== 2

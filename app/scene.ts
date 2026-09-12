@@ -397,6 +397,20 @@ function part(
 }
 function makeUnit(u: Unit) {
   const g = new THREE.Group()
+  const shield = new THREE.Mesh(
+    geometry('magic-shield', () => new THREE.SphereGeometry(1, 12, 8)),
+    new THREE.MeshBasicMaterial({
+      color: 0x8fd7ff,
+      transparent: true,
+      opacity: 0.22,
+      depthWrite: false,
+      wireframe: true,
+    })
+  )
+  shield.name = 'magic-shield'
+  shield.position.y = 0.9
+  shield.visible = false
+  g.add(shield)
   const shadow = new THREE.Sprite(
     new THREE.SpriteMaterial({
       map: texture('effects'),
@@ -434,6 +448,7 @@ function makeUnit(u: Unit) {
     shadow,
     selection,
     health,
+    shield,
     heading: 0,
     frame: -1,
   }
@@ -2746,6 +2761,13 @@ export class GameScene {
       g.userData.nativeHeading = 0
       g.userData.cellPosition = u
       g.visible = u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))
+      const shield = g.userData.shield as THREE.Mesh
+      shield.visible = !!u.shield
+      if (shield.visible) {
+        shield.rotation.y = this.world.time * 2
+        ;(shield.material as THREE.MeshBasicMaterial).opacity =
+          0.18 + Math.sin(this.world.time * 6) * 0.04
+      }
       const animationSource = unitAnimationSource(u)
       g.userData.depthBias =
         animationSource && animationSource.flags3 & 0x400

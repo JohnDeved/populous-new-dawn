@@ -368,6 +368,7 @@ export type Spell =
   | 'firestorm'
   | 'earthquake'
   | 'tornado'
+  | 'shield'
 export type Point = { x: number; z: number }
 type Fight = {
   group: number
@@ -438,6 +439,7 @@ export type Unit = Point & {
   fighting: boolean
   fight: Fight | null
   casting: { spell: Spell; point: Point; remaining: number } | null
+  shield?: number
 }
 export type Building = Point & {
   attackReservation?: AttackReservation
@@ -662,6 +664,16 @@ export const SPELLS: {
     color: '#aeb5b8',
     description: 'A roaming whirlwind that carries followers away and throws them clear.',
   },
+  {
+    id: 'shield',
+    model: 19,
+    name: 'Magical Shield',
+    cost: 60,
+    key: '0',
+    symbol: '◌',
+    color: '#8fd7ff',
+    description: 'Protects up to six nearby followers for two minutes.',
+  },
 ]
 export const BUILDINGS: {
   id: BuildingKind
@@ -788,6 +800,11 @@ function shotAngles(p: NativePoint, d: NativePoint) {
     dy = short(d.y - p.y)
   return [nativeAngle(dx, -dy), nativeAngle(Math.max(Math.abs(dx), Math.abs(dy)), -2 * (d.h - p.h))]
 }
+function applyUnitDamage(u: Unit, damage: number) {
+  let amount = Math.round(damage * 20)
+  if (u.shield) amount >>= rules.shieldDamageShift & 31
+  u.hp = Math.max(0, (Math.round(u.hp * 20) - amount) / 20)
+}
 function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
   const damage = meleeDamage(u),
@@ -833,13 +850,13 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   }
   const targetHp = target.hp
   if (target.fight?.motion) target.fight.motion.damageAttacker = nativePersonTribe(u)
-  target.hp = Math.max(0, (Math.round(target.hp * 20) - Math.round(damage * 20)) / 20)
+  applyUnitDamage(target, damage)
   if (targetHp > 0 && target.hp === 0)
     creditAttackTask(w.ai, u.id, rules.personModels[nativePersonModel(target)].fightRank)
   const unitHp = u.hp
   if (action !== 'special') {
     if (u.fight?.motion) u.fight.motion.damageAttacker = nativePersonTribe(target)
-    u.hp = Math.max(0, (Math.round(u.hp * 20) - Math.round(counter * 20)) / 20)
+    applyUnitDamage(u, counter)
   }
   if (action !== 'special' && unitHp > 0 && u.hp === 0)
     creditAttackTask(w.ai, target.id, rules.personModels[nativePersonModel(u)].fightRank)
@@ -1860,6 +1877,7 @@ export function createWorld(): World {
       firestorm: 0,
       earthquake: 0,
       tornado: 0,
+      shield: 0,
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
@@ -1961,6 +1979,7 @@ export function createWorld(): World {
       firestorm: 0,
       earthquake: 0,
       tornado: 0,
+      shield: 0,
     },
     charging: true,
     unlockedCamp: false,
@@ -3094,6 +3113,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           firestorm: 0x7c,
           earthquake: 0x82,
           tornado: 0x78,
+          shield: 0x87,
         }
       : {
           blast: 0x8c,
@@ -3105,6 +3125,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           firestorm: 0x92,
           earthquake: 0x98,
           tornado: 0x8e,
+          shield: 0x9d,
         })[spell],
     u
   )
@@ -4439,7 +4460,8 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'swamp' ||
             spell === 'firestorm' ||
             spell === 'earthquake' ||
-            spell === 'tornado'
+            spell === 'tornado' ||
+            spell === 'shield'
           ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
           : 'Worship the stone head to receive this spell.'
     )
@@ -5626,6 +5648,41 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
   return alive
 }
 
+const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
+
+function setUnitShield(u: Unit, turns: number) {
+  u.shield = turns
+  for (const p of [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person])
+    if (p) p.flags3 = turns ? (p.flags3 | 0x80000) >>> 0 : (p.flags3 & ~0x80000) >>> 0
+}
+
+export function stepUnitShields(w: World) {
+  for (const u of w.units) if (u.shield) setUnitShield(u, u.shield - 1)
+}
+
+export function shieldFollowers(w: World, point: Point, team: Team) {
+  const center = nativePosition(w, point)
+  // ponytail: nearest candidates approximate the unavailable native radius-3
+  // land-list callbacks; replace this ordering when 00515e30 is exportable.
+  const targets = w.units
+    .filter(
+      u =>
+        u.team === team &&
+        u.kind !== 'shaman' &&
+        u.hp > 0 &&
+        u.inside === null &&
+        positionDistance(nativePosition(w, u), center) <= 3 * 512
+    )
+    .toSorted(
+      (a, b) =>
+        positionDistance(nativePosition(w, a), center) -
+        positionDistance(nativePosition(w, b), center)
+    )
+    .slice(0, constants.SHIELD_NUM_PEOPLE)
+  for (const u of targets) setUnitShield(u, SHIELD_TURNS)
+  return targets
+}
+
 function finishCast(
   w: World,
   shaman: Pick<Unit, 'id' | 'team' | 'x' | 'z'>,
@@ -5709,6 +5766,9 @@ function finishCast(
         const oldest = owned.find(candidate => candidate.swamp === excess)!
         oldest.duration = oldest.age
       }
+    } else if (spell === 'shield') {
+      fx.sprite = { sequence: 'sparkle', frame: 0 }
+      shieldFollowers(w, p, shaman.team)
     }
     if (shaman.team === 'blue')
       tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
@@ -6098,6 +6158,7 @@ function stepTurn(w: World) {
     )
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
+  stepUnitShields(w)
   w.attackAlert = 0 // 0x4ec6f0: current object turn owns the first player fight alert.
   w.musicActivity = 0 // 0x4ec6f0: current object turn owns the music activity.
   w.time = w.turn / TURNS_PER_SECOND
