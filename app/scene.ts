@@ -13,6 +13,7 @@ import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { advanceGame } from './game-clock.ts'
+import { FpsGraph } from './fps-graph.ts'
 import { UnitMotion, interpolateUnitPosition } from './unit-motion.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
 import { reincarnationStones } from './reincarnation.ts'
@@ -570,6 +571,7 @@ export class GameScene {
   keys = new Set<string>()
   resize: ResizeObserver
   frame = 0
+  fpsGraph = new URLSearchParams(location.search).has('fps') ? new FpsGraph() : null
   previous: number | null = null
   uiTimer = 0
   unitMotion = new UnitMotion()
@@ -653,6 +655,7 @@ export class GameScene {
     this.renderer.domElement.tabIndex = 0
     this.renderer.domElement.className = 'battlefield'
     container.appendChild(this.renderer.domElement)
+    if (this.fpsGraph) container.appendChild(this.fpsGraph.element)
     Object.assign(this.pointerOutline.style, {
       position: 'absolute',
       inset: '0',
@@ -2574,6 +2577,7 @@ export class GameScene {
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
       dt = Math.max(0, now - previous) / 1000
+    if (this.fpsGraph) this.fpsGraph.update(document.hidden ? 0 : dt * 1000)
     this.previous = now
     advanceGame(this.world, this.gameClock, dt)
     this.playWorldSounds()
@@ -3027,6 +3031,7 @@ export class GameScene {
     this.view.dispose()
     this.renderer.dispose()
     this.renderer.domElement.remove()
+    this.fpsGraph?.element.remove()
     this.tooltipElement.remove()
     this.pointerOutline.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()
