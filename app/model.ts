@@ -143,6 +143,7 @@ import { createFlatten, stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
 import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
+import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
 import {
   createLivePathfinding,
   findLivePath,
@@ -339,7 +340,15 @@ const debrisModels: Record<number, NativeModel> = modelAssets
 export type Team = 'blue' | 'red' | 'wild'
 export type { UnitKind } from './unit-kinds.ts'
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
-export type Spell = 'blast' | 'lightning' | 'bridge' | 'flatten' | 'erosion' | 'swamp' | 'firestorm'
+export type Spell =
+  | 'blast'
+  | 'lightning'
+  | 'bridge'
+  | 'flatten'
+  | 'erosion'
+  | 'swamp'
+  | 'firestorm'
+  | 'earthquake'
 export type Point = { x: number; z: number }
 type Fight = {
   group: number
@@ -522,6 +531,7 @@ export type Effect = Point & {
   erosion?: Erosion
   swamp?: Swamp
   firestorm?: Firestorm
+  earthquake?: Earthquake
   reincarnation?: { team: Team; phase: number; ground: number }
 }
 export type Gift = Effect & {
@@ -611,6 +621,16 @@ export const SPELLS: {
     symbol: '☄',
     color: '#d6653d',
     description: 'Rains fire that burns buildings and blasts nearby followers.',
+  },
+  {
+    id: 'earthquake',
+    model: 14,
+    name: 'Earthquake',
+    cost: 175,
+    key: '8',
+    symbol: '≋',
+    color: '#9b755c',
+    description: 'Tears open the ground and damages buildings across the fault.',
   },
 ]
 export const BUILDINGS: {
@@ -1800,6 +1820,7 @@ export function createWorld(): World {
       erosion: 0,
       swamp: 0,
       firestorm: 0,
+      earthquake: 0,
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
@@ -1891,7 +1912,16 @@ export function createWorld(): World {
     soundSerial: 0,
     mana: 0,
     wood: 0,
-    shots: { blast: 4, bridge: 0, lightning: 0, flatten: 0, erosion: 0, swamp: 0, firestorm: 0 },
+    shots: {
+      blast: 4,
+      bridge: 0,
+      lightning: 0,
+      flatten: 0,
+      erosion: 0,
+      swamp: 0,
+      firestorm: 0,
+      earthquake: 0,
+    },
     charging: true,
     unlockedCamp: false,
     time: 0,
@@ -2967,6 +2997,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           erosion: 0x7e,
           swamp: 0x7f,
           firestorm: 0x7c,
+          earthquake: 0x82,
         }
       : {
           blast: 0x8c,
@@ -2976,6 +3007,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           erosion: 0x94,
           swamp: 0x95,
           firestorm: 0x92,
+          earthquake: 0x98,
         })[spell],
     u
   )
@@ -4297,7 +4329,11 @@ export function cast(w: World, spell: Spell, p: Point) {
       w,
       spell === 'blast'
         ? 'Blast is charging. Braves working or inside huts generate more mana.'
-        : spell === 'flatten' || spell === 'erosion' || spell === 'swamp' || spell === 'firestorm'
+        : spell === 'flatten' ||
+            spell === 'erosion' ||
+            spell === 'swamp' ||
+            spell === 'firestorm' ||
+            spell === 'earthquake'
           ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
           : 'Worship the stone head to receive this spell.'
     )
@@ -4715,6 +4751,24 @@ function evacuateBuilding(w: World, b: Building, burning = false) {
       initializeLivePanic(w, u)
     }
   }
+}
+
+function damageEarthquakeBuilding(w: World, b: Building) {
+  const state = ensureBuildingDamage(b),
+    oldStage = state.stage
+  if (
+    changeBuildingWork(state.plan, -100, state, null, {
+      move: () => {},
+      release: () => {},
+      init: () => {},
+    })
+  ) {
+    emitBuildingDebris(w, b, oldStage, w.cosmeticRandom)
+    sound(w, 0x12, b)
+  }
+  b.progress = Math.max(0, state.plan.remaining) / rules.buildingLife[state.model]
+  b.logs = Math.max(0, Math.floor(state.plan.remaining / 100))
+  b.hp = Math.min(b.hp, buildingHp(b.kind) * b.progress)
 }
 
 function emitBuildingSmoke(w: World, b: Building, rng: { randomState: number }) {
@@ -5496,6 +5550,10 @@ function finishCast(
       fx.firestorm = createFirestorm(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
       fx.team = shaman.team
       fx.duration = Infinity
+    } else if (spell === 'earthquake') {
+      fx.earthquake = createEarthquake(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1, w)
+      fx.team = shaman.team
+      fx.duration = Infinity
     } else if (spell === 'swamp') {
       fx.swamp = createSwamp(
         nativePosition(w, p),
@@ -5876,6 +5934,34 @@ function stepTurn(w: World) {
         terrain: cell => {
           queueTerrain(w.land, cell, 6, 1, terrainTextures)
           terrainCenters.push(cell)
+        },
+      })
+      if (!alive) fx.duration = fx.age
+    }
+    if (fx.earthquake) {
+      const alive = stepEarthquake(w.land, fx.earthquake, w, {
+        sound: cue => sound(w, cue, fx),
+        shake: () => {},
+        buildings: cell =>
+          w.buildings.filter(b => {
+            if (b.hp <= 0) return false
+            const p = nativePosition(w, b)
+            return (((p.x >>> 8) & 254) | (p.y & 0xfe00)) === cell
+          }),
+        model: buildingModel,
+        evacuate: b => evacuateBuilding(w, b),
+        damage: b => damageEarthquakeBuilding(w, b),
+        spark: position => {
+          emitGroundSpark(w, position).remaining = 4
+        },
+        // Effect models 34/40 are visual-only boundaries until their HFX is imported.
+        fissure: () => {},
+        terrain: (anchor, radius) => {
+          queueTerrain(w.land, anchor, radius, 1, terrainTextures)
+          processTerrain(w.land, terrainTextures)
+          updateWalkMasks(w.land, anchor, radius)
+          notifyHeightChanges(w, [anchor], radius)
+          refreshTerrainSurface(w)
         },
       })
       if (!alive) fx.duration = fx.age
