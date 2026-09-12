@@ -1,6 +1,6 @@
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle } from './native-math.ts'
-import { modelMatrix, modelPoint, multiplyShift16 } from './projection.ts'
+import { modelMatrix, modelPoint, multiplyShift16, relativeCoordinate } from './projection.ts'
 import { modelFaceVisible, type NativeModel } from './model-faces.ts'
 
 // 0x401790, with the default sunlight parameters from 0x401040.
@@ -102,4 +102,61 @@ export function modelLighting(
     vertex += count
   }
   return { shades, anchors }
+}
+
+// 0x4762b0: a blast-wave hit bends model vertices away from its first strike
+// cell for three presentation phases. Normals remain those of the base model.
+export function waveDeformationOffset(
+  point: { x: number; y: number; z: number },
+  objectHeight: number,
+  origin: { x: number; z: number },
+  phase: number
+) {
+  const height = Math.min(256, point.y - objectHeight)
+  if (height <= 0 || phase < 1 || phase > 3) return [0, 0]
+  const dx = point.x - origin.x,
+    dz = point.z - origin.z,
+    radius = Math.min(dx * dx + dz * dz, 0x100000),
+    strength =
+      Math.trunc((Math.trunc((height * 20) / 256) * (0x100000 - radius)) / 0x100000) >> phase
+  if (strength <= 0) return [0, 0]
+  const angle = nativeAngle(dx, -dz)
+  return [
+    Math.imul(rules.sine[angle], strength) >> 16,
+    Math.imul(rules.sine[(angle + 512) & 2047], strength) >> 16,
+  ]
+}
+
+export function modelWaveOffsets(
+  data: NativeModel,
+  positions: ArrayLike<number>,
+  size: number,
+  heading: number,
+  object: { x: number; y: number },
+  strikeCell: number,
+  phase: number,
+  tilt = 0,
+  roll = 0
+) {
+  const center = {
+      x: (((strikeCell & 0xfe) + 1) * 256) & 65535,
+      y: (((strikeCell >> 8) & 0xfe) + 1) * 256,
+    },
+    origin = {
+      x: relativeCoordinate(object.x, center.x),
+      y: 0,
+      z: relativeCoordinate(object.y, center.y),
+    },
+    basis = modelMatrix(heading, tilt, roll),
+    offsets: number[] = []
+  for (let i = 0; i < positions.length; i += 3) {
+    const raw = [
+        Math.round(positions[i] * data.scale * 3),
+        Math.round(positions[i + 1] * data.scale * 3),
+        Math.round(positions[i + 2] * data.scale * -3),
+      ],
+      point = modelPoint(raw, size, basis, origin)
+    offsets.push(...waveDeformationOffset(point, 0, { x: 0, z: 0 }, phase))
+  }
+  return offsets
 }

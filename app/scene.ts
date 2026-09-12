@@ -50,7 +50,7 @@ import {
 } from './terrain-texture.ts'
 import { waterTexture, waterPoint, waterCell } from './water.ts'
 import { terrainPointHeight } from './native-terrain.ts'
-import { modelLighting, modelHighlight } from './model-lighting.ts'
+import { modelLighting, modelHighlight, modelWaveOffsets } from './model-lighting.ts'
 import skyPalette from './original-sky.json'
 import {
   createTooltip,
@@ -253,6 +253,10 @@ function nativeModel(id: number, scale = 2, stage = 4) {
       'textureMode',
       new THREE.Float32BufferAttribute(modelTextureModes(data, stage), 1)
     )
+    g.setAttribute(
+      'nativeWaveOffset',
+      new THREE.Float32BufferAttribute(new Float32Array((p.length / 3) * 2), 2)
+    )
     g.computeVertexNormals()
     return g
   })
@@ -267,6 +271,7 @@ function nativeModel(id: number, scale = 2, stage = 4) {
     })
   )
   mesh.scale.setScalar(scale)
+  mesh.material.defines = { USE_MODEL_WAVE: '' }
   mesh.userData.nativeModel = id
   mesh.userData.stage = stage
   mesh.userData.nativeScale = data.scale
@@ -320,6 +325,32 @@ function updateModelLighting(object: THREE.Object3D) {
     roll = object.parent?.userData.nativeRoll ?? 0,
     position = object.geometry.getAttribute('position') as THREE.BufferAttribute,
     key = `${heading}-${tilt}-${roll}-${nativeSize}-${position.version}`
+  const wave = object.parent?.userData.nativeWave as
+      | { phase: number; origin: number; x: number; y: number }
+      | undefined,
+    waveKey = wave
+      ? `${wave.phase}-${wave.origin}-${wave.x}-${wave.y}-${heading}-${tilt}-${roll}-${nativeSize}-${position.version}`
+      : '0'
+  if (object.userData.waveKey !== waveKey) {
+    const attribute = object.geometry.getAttribute('nativeWaveOffset') as THREE.BufferAttribute
+    attribute.array.fill(0)
+    if (wave)
+      attribute.array.set(
+        modelWaveOffsets(
+          nativeModels[id],
+          position.array,
+          nativeSize ?? nativeModels[id].scale,
+          heading,
+          wave,
+          wave.origin,
+          wave.phase,
+          tilt,
+          roll
+        )
+      )
+    attribute.needsUpdate = true
+    object.userData.waveKey = waveKey
+  }
   if (object.userData.lightKey === key) return
   const { shades, anchors } = modelLighting(
     nativeModels[id],
@@ -422,8 +453,30 @@ function makeBuilding(b: Building, stage: number) {
   return g
 }
 
+function updateWaveShake(
+  group: THREE.Group,
+  source: { shake?: number; shakeOrigin?: number },
+  point: { x: number; y: number },
+  frame: number,
+  started: WeakMap<object, number>
+) {
+  if (!source.shake || source.shakeOrigin === undefined) {
+    delete group.userData.nativeWave
+    started.delete(source)
+    return
+  }
+  if (!started.has(source)) started.set(source, frame)
+  const phase = frame - started.get(source)! + 1
+  if (phase > 3) {
+    source.shake = 0
+    started.delete(source)
+    delete group.userData.nativeWave
+  } else group.userData.nativeWave = { phase, origin: source.shakeOrigin, ...point }
+}
+
 export class GameScene {
   world: World
+  waveFrames = new WeakMap<object, number>()
   view = new RenderView()
   skyBackdrop = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2),
@@ -2595,6 +2648,13 @@ export class GameScene {
     for (const group of this.decorations.children) {
       const tree = group.userData.point as Tree | undefined
       if (tree && tree.model !== 11) {
+        updateWaveShake(
+          group as THREE.Group,
+          tree,
+          nativePosition(this.world, tree),
+          this.gameClock.animationFrame,
+          this.waveFrames
+        )
         const mesh = group.children[0] as THREE.Mesh
         mesh.userData.nativeSize =
           tree.burn?.scale ??
@@ -2766,6 +2826,13 @@ export class GameScene {
       }
       this.locate(g, b, b.foundation)
       this.orientModel(g, b.angle)
+      updateWaveShake(
+        g,
+        b,
+        nativePosition(this.world, b),
+        this.gameClock.animationFrame,
+        this.waveFrames
+      )
       g.userData.nativeTilt = b.damageState?.tilt ?? 0
       g.userData.nativeRoll = b.damageState?.roll ?? 0
       g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1

@@ -442,6 +442,8 @@ export type Building = Point & {
   burn?: BuildingBurn
   attackTaskMember?: number
   terrainState?: BuildingTerrain & { dirty: boolean }
+  shake?: number
+  shakeOrigin?: number
 }
 export type Shrine = Point &
   WorshipState & {
@@ -467,6 +469,8 @@ export type Tree = Point & {
   burn?: BurningTree
   counter?: number
   growth?: number
+  shake?: number
+  shakeOrigin?: number
 }
 export type SoundEvent = Point & {
   serial: number
@@ -5196,7 +5200,7 @@ function emitBlastWave(w: World, point: Point, team: Team, standardForce = false
 }
 
 // Native force/damage dispatch with live object adapters. Ordinary allocation
-// still supplies cell order; complete mixed-class lists and shake rendering remain open.
+// still supplies cell order; complete mixed-class lists remain open.
 function stepLiveBlastWave(w: World, wave: BlastWave) {
   syncLandscapeObjects(w)
   const units = new Map(
@@ -5206,9 +5210,10 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
   const cells = new Map<number, BlastTarget[]>()
   const records = new Map<number, BlastTarget>()
   const people = new Map<number, LivePerson>()
+  const shaken = new Map<number, Building | Tree>()
   const add = (p: BlastTarget) => {
     records.set(p.id, p)
-    const index = (p.y >> 9) * 128 + (p.x >> 9)
+    const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
     const cell = cells.get(index) ?? []
     cell.unshift(p)
     cells.set(index, cell)
@@ -5221,27 +5226,48 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
     people.set(p.id, p)
     add(Object.assign(p, { shake: 0, shakeOrigin: 0 }))
   }
-  for (const b of buildings.values()) {
-    const position = nativePosition(w, b)
+  const addShaken = (
+    source: Building | Tree,
+    objectClass: 2 | 5,
+    model: number,
+    tribe: number,
+    state: number,
+    flags2 = 0,
+    flags3 = 0
+  ) => {
+    shaken.set(source.id, source)
     add({
-      ...position,
-      id: b.id,
-      class: 2,
-      model: buildingModel(b),
-      tribe: b.team === 'blue' ? 0 : 1,
-      state: b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
+      ...nativePosition(w, source),
+      id: source.id,
+      class: objectClass,
+      model,
+      tribe,
+      state,
       previousState: 0,
-      flags2: b.damageState?.flags2 ?? 0,
-      flags3: b.damageState?.flags3 ?? 0,
+      flags2,
+      flags3,
       flags4: 0,
       velocity: { x: 0, y: 0, z: 0 },
       vehicle: 0,
       burnTrail: 0,
       life: 0,
-      shake: 0,
-      shakeOrigin: 0,
+      shake: source.shake ?? 0,
+      shakeOrigin: source.shakeOrigin ?? 0,
     })
   }
+  for (const b of buildings.values())
+    addShaken(
+      b,
+      2,
+      buildingModel(b),
+      b.team === 'blue' ? 0 : 1,
+      b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
+      b.damageState?.flags2,
+      b.damageState?.flags3
+    )
+  for (const tree of w.trees)
+    if (tree.logs > 0 && rules.sceneryResourceFlags[tree.model] & 0x40000)
+      addShaken(tree, 5, tree.model, -1, 0)
   const state = {
     randomState: w.randomState,
     search: w.indexedSearch,
@@ -5291,6 +5317,13 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
       if (!u.flight) release(w, u)
       u.flight = p
       u.lift = 1
+    }
+  }
+  for (const [id, source] of shaken) {
+    const p = records.get(id)!
+    if (p.shake && !source.shake) {
+      source.shake = 1
+      source.shakeOrigin = p.shakeOrigin
     }
   }
   w.randomState = state.randomState

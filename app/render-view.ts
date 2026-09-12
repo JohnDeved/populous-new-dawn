@@ -37,6 +37,9 @@ uniform float nativeRelative;
 uniform vec4 nativeCellAnchor;
 uniform float nativeMode;
 varying vec2 nativeCell;
+#ifdef USE_MODEL_WAVE
+attribute vec2 nativeWaveOffset;
+#endif
 int nativeMul(int a,int b){return int(uint(a)*uint(b));}
 int nativeDot(ivec3 a,ivec3 b){return int(uint(nativeMul(a.x,b.x))+uint(nativeMul(a.y,b.y))+uint(nativeMul(a.z,b.z)));}
 int nativeShift16(int a,int b){
@@ -97,6 +100,9 @@ vec4 nativePosition(vec3 position){
   ivec3 origin=nativeOrigin(modelMatrix[3].xyz);
   p=ivec3(nativeDot(scaled,nativeObjectBasis[0]),nativeDot(scaled,nativeObjectBasis[1]),nativeDot(scaled,nativeObjectBasis[2]))>>14;
   p+=origin;
+  #ifdef USE_MODEL_WAVE
+  p.xz+=ivec2(nativeWaveOffset);
+  #endif
   nativeCell=nativeCellPoint(modelMatrix[3].xyz);
  }else nativeCell=nativeCellPoint(world);
  if(nativeCellAnchor.w>0.)nativeCell=nativeCellPoint(nativeCellAnchor.xyz);
