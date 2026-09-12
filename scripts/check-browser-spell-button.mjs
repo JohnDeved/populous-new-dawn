@@ -11,6 +11,12 @@ try {
   const {page,errors}=await openGame(browser)
   await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;cancelAnimationFrame(s.frame)})
   assert.deepEqual(await page.locator('.spell-card').evaluateAll(bs=>bs.map(b=>b.title)),['Blast','Land Bridge','Lightning'])
+  await page.keyboard.press('4')
+  assert.equal(await page.evaluate(()=>window.testScene.world.mode),null,'an absent mission spell has no shortcut')
+  await page.evaluate(()=>{const s=window.testScene;s.world.shots.flatten=1;s.onChange()})
+  await page.keyboard.press('4')
+  assert.equal(await page.evaluate(()=>window.testScene.world.mode),'flatten','stocked spell remains reachable for integration')
+  await page.evaluate(()=>{const s=window.testScene;s.world.mode=null;s.world.shots.flatten=0;s.onChange()})
   let checked=0
   for(let i=0;i<fixture.cases.length;i++) {
     const c=fixture.cases[i]

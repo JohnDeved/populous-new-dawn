@@ -37,6 +37,7 @@ import {
 } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 import { nativeUnitModel } from './unit-kinds'
+const missionSpellModels = new Set([2, 3, 12])
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -49,6 +50,7 @@ export default function Home() {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const world = store.getWorld(),
     update = store.update
+  const spellRoster = SPELLS.filter(s => missionSpellModels.has(s.model) || world.shots[s.id] > 0)
   const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
@@ -147,7 +149,12 @@ export default function Home() {
         }
         return
       }
-      const s = !e.code.startsWith('Numpad') && SPELLS.find(s => s.key === e.key)
+      const s =
+        !e.code.startsWith('Numpad') &&
+        SPELLS.find(
+          s =>
+            s.key === e.key && (missionSpellModels.has(s.model) || world.shots[s.id] > 0)
+        )
       if (s) {
         store.change(w => {
           w.mode = w.mode === s.id ? null : s.id
@@ -540,7 +547,7 @@ export default function Home() {
         <section className="command-dock" aria-label="Command panel">
           {tab === 'spells' && (
             <div className="spell-list">
-              {SPELLS.toSorted(
+              {spellRoster.toSorted(
                 (a, b) => spellOrder.indexOf(a.model) - spellOrder.indexOf(b.model)
               ).map(s => {
                 const view = spellButton({
