@@ -2170,7 +2170,7 @@ export class GameScene {
       g.add(pool)
       return g
     }
-    if (f.wave || f.bridge || f.flatten || f.erosion) return g
+    if (f.wave || f.bridge || f.flatten || f.erosion || f.firestorm) return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
       mesh.name = 'sinking-building'
@@ -2309,7 +2309,7 @@ export class GameScene {
       )
       g.userData.cellPosition = f
     }
-    if (f.wave || f.bridge || f.flatten || f.erosion || f.swamp) return
+    if (f.wave || f.bridge || f.flatten || f.erosion || f.swamp || f.firestorm) return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle
       g.userData.nativeTilt = f.sinking.tilt

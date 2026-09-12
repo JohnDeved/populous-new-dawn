@@ -142,6 +142,7 @@ import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge
 import { createFlatten, stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
 import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
+import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
 import {
   createLivePathfinding,
   findLivePath,
@@ -338,7 +339,7 @@ const debrisModels: Record<number, NativeModel> = modelAssets
 export type Team = 'blue' | 'red' | 'wild'
 export type { UnitKind } from './unit-kinds.ts'
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
-export type Spell = 'blast' | 'lightning' | 'bridge' | 'flatten' | 'erosion' | 'swamp'
+export type Spell = 'blast' | 'lightning' | 'bridge' | 'flatten' | 'erosion' | 'swamp' | 'firestorm'
 export type Point = { x: number; z: number }
 type Fight = {
   group: number
@@ -365,6 +366,7 @@ export type Projectile = {
   remaining: number
   turns: number
   visuals: Effect[]
+  fireball?: boolean
 }
 type Battle = Point & {
   id: number
@@ -519,6 +521,7 @@ export type Effect = Point & {
   flatten?: Flatten
   erosion?: Erosion
   swamp?: Swamp
+  firestorm?: Firestorm
   reincarnation?: { team: Team; phase: number; ground: number }
 }
 export type Gift = Effect & {
@@ -598,6 +601,16 @@ export const SPELLS: {
     symbol: '◉',
     color: '#718763',
     description: 'Creates a persistent trap that swallows up to ten people.',
+  },
+  {
+    id: 'firestorm',
+    model: 8,
+    name: 'Firestorm',
+    cost: 400,
+    key: '7',
+    symbol: '☄',
+    color: '#d6653d',
+    description: 'Rains fire that burns buildings and blasts nearby followers.',
   },
 ]
 export const BUILDINGS: {
@@ -1779,7 +1792,15 @@ export function createWorld(): World {
     spellCasts: Array.from({ length: 4 }, () => Array(22).fill(0)),
     killCredits: Array.from({ length: 4 }, () => Array(4).fill(0)),
     gifts: [],
-    giftCounts: { blast: 0, bridge: 0, lightning: 0, flatten: 0, erosion: 0, swamp: 0 },
+    giftCounts: {
+      blast: 0,
+      bridge: 0,
+      lightning: 0,
+      flatten: 0,
+      erosion: 0,
+      swamp: 0,
+      firestorm: 0,
+    },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
     combatMarches: [],
@@ -1870,7 +1891,7 @@ export function createWorld(): World {
     soundSerial: 0,
     mana: 0,
     wood: 0,
-    shots: { blast: 4, bridge: 0, lightning: 0, flatten: 0, erosion: 0, swamp: 0 },
+    shots: { blast: 4, bridge: 0, lightning: 0, flatten: 0, erosion: 0, swamp: 0, firestorm: 0 },
     charging: true,
     unlockedCamp: false,
     time: 0,
@@ -2938,12 +2959,28 @@ function castVoice(w: World, u: Unit, spell: Spell) {
   sound(
     w,
     (u.team === 'blue'
-      ? { blast: 0x76, lightning: 0x77, bridge: 0x80, flatten: 0x83, erosion: 0x7e, swamp: 0x7f }
-      : { blast: 0x8c, lightning: 0x8d, bridge: 0x96, flatten: 0x99, erosion: 0x94, swamp: 0x95 })[spell],
+      ? {
+          blast: 0x76,
+          lightning: 0x77,
+          bridge: 0x80,
+          flatten: 0x83,
+          erosion: 0x7e,
+          swamp: 0x7f,
+          firestorm: 0x7c,
+        }
+      : {
+          blast: 0x8c,
+          lightning: 0x8d,
+          bridge: 0x96,
+          flatten: 0x99,
+          erosion: 0x94,
+          swamp: 0x95,
+          firestorm: 0x92,
+        })[spell],
     u
   )
 }
-export function effect(w: World, kind: Effect['kind'], p: Point) {
+export function effect(w: World, kind: Effect['kind'], p: Point, silent = false) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.
   // Debris (class 10) and fire (class 5) have separate native counters.
   if (
@@ -3011,7 +3048,7 @@ export function effect(w: World, kind: Effect['kind'], p: Point) {
       setAnimationObject(f.animation, 44, 1304)
       f.animation.morph = 0xd3
       f.animation.flags3 |= 0x40400
-      sound(w, 0x2c, p)
+      if (!silent) sound(w, 0x2c, p)
     } else {
       setAnimationObject(f.animation, kind === 'blast' ? 30 : 41, kind === 'blast' ? 1099 : 0x650)
     }
@@ -4260,7 +4297,7 @@ export function cast(w: World, spell: Spell, p: Point) {
       w,
       spell === 'blast'
         ? 'Blast is charging. Braves working or inside huts generate more mana.'
-        : spell === 'flatten' || spell === 'erosion' || spell === 'swamp'
+        : spell === 'flatten' || spell === 'erosion' || spell === 'swamp' || spell === 'firestorm'
           ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
           : 'Worship the stone head to receive this spell.'
     )
@@ -4955,9 +4992,7 @@ function createFire(
   if (options.light !== false) registerTerrainLight(w, fx, 3)
 }
 
-// 0x511ae0's first bolt turn: ignite burnable scenery in the target cell;
-// without scenery, create the short-lived, cell-centered fire instead.
-function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
+function igniteBuildingAt(w: World, target: NativePoint, tribe: number) {
   const index = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
   const id = w.land.buildingIds[index] & 1023
   const building = w.buildings.find(b => b.id === id && b.hp > 0)
@@ -4980,6 +5015,12 @@ function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
       }
     })
   }
+}
+
+// 0x511ae0's first bolt turn: ignite burnable scenery in the target cell;
+// without scenery, create the short-lived, cell-centered fire instead.
+function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
+  igniteBuildingAt(w, target, tribe)
   const trees = w.trees.filter(tree => {
     const p = nativePosition(w, tree)
     return (
@@ -5010,6 +5051,29 @@ function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
   }
   if (!trees.length && !fires.length)
     createFire(w, browserPosition(target), { size: 16, snap: true, smoke: false, turns: 24 })
+}
+
+// 0x511800: effect model 28, emitted by a Firestorm projectile at impact.
+function impactFirestorm(w: World, target: NativePoint, tribe: number) {
+  const index = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9),
+    point = browserPosition(target)
+  if (rules.terrainCategoryFlags[w.land.categories[index] & 15] & 2) {
+    effect(w, 'splash', point, true)
+    sound(w, 0x55, point)
+  } else {
+    createFire(w, point, {
+      size: 32,
+      snap: false,
+      smoke: false,
+      turns: 22,
+      suppressEmbers: true,
+    })
+    sound(w, 0xb6, point)
+  }
+  const wave = emitBlastWave(w, point, tribe === 0 ? 'blue' : 'red')
+  wave.panic = true
+  wave.scatter = true
+  igniteBuildingAt(w, target, tribe)
 }
 
 function depleteTree(w: World, tree: Tree, computer = false) {
@@ -5119,6 +5183,10 @@ function processProjectiles(w: World) {
       w.projectiles.splice(w.projectiles.indexOf(shot), 1)
       for (const f of shot.visuals) f.duration = f.age
     }
+    if (shot.fireball && shot.remaining > 0) {
+      shot.remaining--
+      continue
+    }
     if (shot.phase === 'windup') {
       if (!caster) {
         remove()
@@ -5145,31 +5213,36 @@ function processProjectiles(w: World) {
       continue
     }
     if (shot.phase === 'arrived') {
-      if (caster)
+      if (!shot.fireball && caster)
         finishCast(w, { id: shot.caster, team: shot.team, ...shot.source }, shot.spell, shot.target)
       remove()
       continue
     }
     const p = shot.position,
       d = shot.destination
-    if (shot.spell === 'blast') {
-      // 0x4bb440: move 1000 units/turn, snap inside the arrival sphere, delete next turn.
+    if (shot.spell === 'blast' || shot.fireball) {
+      // 0x4bb440: model-4 projectiles snap inside the arrival sphere and delete next turn.
+      const speed = shot.fireball ? 250 : 1000
       if (
-        Math.abs(d.x - p.x) < 0x408 &&
-        Math.abs(d.y - p.y) < 0x408 &&
+        Math.abs(short(d.x - p.x)) < 0x408 &&
+        Math.abs(short(d.y - p.y)) < 0x408 &&
         Math.abs(d.h - p.h) < 0x408 &&
-        nativeDistance(p, d) < 1000
+        nativeDistance(p, d) < speed
       ) {
-        shot.position = { ...d }
+        shot.position = {
+          ...d,
+          h: Math.max(d.h, nativePosition(w, browserPosition(d)).h),
+        }
         shot.phase = 'arrived'
         // 0x4bb440 removes the four attached tails, but the shot's own head
         // reaches the target and remains visible until deletion on its next visit.
-        moveVisual(shot.visuals[0], d)
+        moveVisual(shot.visuals[0], shot.position)
         for (const f of shot.visuals.slice(1)) f.duration = f.age
+        if (shot.fireball) impactFirestorm(w, d, shot.team === 'blue' ? 0 : 1)
         continue
       }
       const [yaw, pitch] = shotAngles(p, d)
-      shot.position = nativeStep3D(p, yaw, pitch, 1000)
+      shot.position = nativeStep3D(p, yaw, pitch, speed)
       shot.position.h = Math.max(
         shot.position.h,
         nativePosition(w, browserPosition(shot.position)).h
@@ -5180,7 +5253,7 @@ function processProjectiles(w: World) {
         if (i * 80 < travelled)
           moveVisual(shot.visuals[i], nativeStep3D(shot.position, yaw, pitch, -i * 80))
       // Four jitter trails; jitter uses game RNG, effect initialization uses cosmetic RNG.
-      if (shot.turns > 0)
+      if (!shot.fireball && shot.turns > 0)
         for (let i = 1; i <= 4; i++)
           if (320 + i * 160 < travelled) {
             const tail = nativeStep3D(
@@ -5204,7 +5277,11 @@ function processProjectiles(w: World) {
           }
         tail.h = Math.max(tail.h, nativePosition(w, browserPosition(tail)).h)
         shotVisual(w, tail, shot.team, 'spellTrail')
-        if (Math.abs(d.x - p.x) < 108 && Math.abs(d.y - p.y) < 108 && Math.abs(d.h - p.h) < 108) {
+        if (
+          Math.abs(short(d.x - p.x)) < 108 &&
+          Math.abs(short(d.y - p.y)) < 108 &&
+          Math.abs(d.h - p.h) < 108
+        ) {
           if (caster)
             finishCast(
               w,
@@ -5413,6 +5490,10 @@ function finishCast(
       fx.duration = Infinity
     } else if (spell === 'erosion') {
       fx.erosion = createErosion(nativePosition(w, p))
+      fx.team = shaman.team
+      fx.duration = Infinity
+    } else if (spell === 'firestorm') {
+      fx.firestorm = createFirestorm(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
       fx.team = shaman.team
       fx.duration = Infinity
     } else if (spell === 'swamp') {
@@ -5796,6 +5877,31 @@ function stepTurn(w: World) {
           queueTerrain(w.land, cell, 6, 1, terrainTextures)
           terrainCenters.push(cell)
         },
+      })
+      if (!alive) fx.duration = fx.age
+    }
+    if (fx.firestorm) {
+      const alive = stepFirestorm(w.land, fx.firestorm, w, shot => {
+        const team = fx.firestorm!.tribe === 0 ? 'blue' : 'red'
+        w.projectiles.push({
+          id: w.nextId++,
+          spell: 'firestorm',
+          team,
+          caster: 0,
+          target: browserPosition(shot.target),
+          source: browserPosition(shot.origin),
+          position: { ...shot.origin },
+          destination: { ...shot.target },
+          origin: { ...shot.origin },
+          phase: 'flying',
+          remaining: 1,
+          turns: 0,
+          visuals: Array.from({ length: 5 }, (_, i) =>
+            shotVisual(w, shot.origin, team, 'blastShot', i + 3)
+          ),
+          fireball: true,
+        })
+        sound(w, 0xb3, browserPosition(shot.origin))
       })
       if (!alive) fx.duration = fx.age
     }
