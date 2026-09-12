@@ -101,6 +101,7 @@
         "orders-native",
         "computer-attack-native",
         "computer-direct-attack-native",
+        "vault-native",
         "orders-browser"
       ],
       "generatedInputIds": ["native-fixtures"],
@@ -309,7 +310,7 @@
         }
       ],
       "nativeAddresses": ["0x48c6b0", "0x48cc60", "0x48f350", "0x4615f0"],
-      "checkIds": ["repository-check", "production-build"],
+      "checkIds": ["vault-native", "repository-check", "production-build"],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "A bound command must preserve script evaluation order, native field widths, and its real world or presentation owner."

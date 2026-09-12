@@ -122,7 +122,7 @@ export const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 6, 8, 10, 11, 17, 19, 21, 27, 28, 30, 31, 32].includes(order.model))
+  if (!order || ![3, 6, 8, 10, 11, 17, 19, 21, 27, 28, 30, 31, 32, 33].includes(order.model))
     unsupported()
   const state = {
     randomState: rng.randomState,
@@ -208,7 +208,16 @@ export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
     u.work = order.a
   } else {
     if (order?.model === 27) u.work = order.a
-    else if (u.entry) u.work = null
+    else if (order?.model === 33) {
+      u.work = order.a
+      u.vault = {
+        head: p.workTarget || order.a,
+        phase: p.commandPhase,
+        entering: !!(p.flags2 & 0x40000000),
+        remaining: p.timer,
+      }
+    } else if (u.entry) u.work = null
+    if (order?.model !== 33) u.vault = null
     u.entry = undefined
     u.native = p
   }
@@ -252,7 +261,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
           )
           return
         }
-        if (model === 6 || model === 27 || model === 28 || model === 30) {
+        if (model === 6 || model === 27 || model === 28 || model === 30 || model === 33) {
           if (order.model !== model || order.a !== x || order.b !== y)
             Object.assign(order, { model, a: x, b: y, flags: order.flags | commandFlags })
           return
@@ -341,7 +350,7 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
   const model = p && currentPersonOrder(w.buildingOrders, p)?.model
-  if (!p || !model || ![3, 6, 17, 27, 28, 30, 31, 32].includes(model)) return
+  if (!p || !model || ![3, 6, 17, 27, 28, 30, 31, 32, 33].includes(model)) return
   if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
@@ -595,7 +604,7 @@ function shamanGuardTarget(w: World, order: PersonOrder) {
   return outsideBuilding(w, person ?? nativePosition(w, unit))
 }
 
-export function stepLiveMovement(w: World, u: Unit) {
+export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects['commands'] = {}) {
   const p = u.native!
   stepLivePhysics(w, u, p)
   stepLiveRoute(w, u)
@@ -666,6 +675,7 @@ export function stepLiveMovement(w: World, u: Unit) {
           ),
         destination: point => replanLivePath(w, u, p, point),
       }),
+    ...commands,
   })
   if (next) {
     if (p.commandStatus === 27) u.work = null

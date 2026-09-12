@@ -20,6 +20,7 @@ export type VaultTask = {
   remaining: number
 }
 export type VaultAction =
+  | 'approach'
   | 'face'
   | 'pray'
   | 'open'
@@ -29,29 +30,53 @@ export type VaultAction =
   | 'close'
   | 'leave'
 
-// Reviewed post-approach states 2–9 of 0x43c7a0. World movement and object animation
-// consume these actions; arrival and trigger existence come from the engine.
-export function stepVaultTask(
-  task: VaultTask,
-  arrived: boolean,
-  ready: boolean,
+export type VaultInput = {
+  target: number
+  targetValid: boolean
+  arrived: boolean
+  ready: boolean
   triggerExists: boolean
-) {
+  adjacent: boolean
+  open: boolean
+}
+
+// Complete 0x43c7a0 task phases; world movement and object animation consume actions.
+export function stepVaultTask(task: VaultTask, input: VaultInput) {
   const actions: VaultAction[] = []
   const next = (phase: number) => {
     task.phase = phase
     task.entering = true
   }
+  if (!task.phase) {
+    task.phase = 1
+    task.head = input.target
+  }
+  if (!input.targetValid) return { done: true, actions }
+  if (task.phase === 1) {
+    let done = false
+    const first = task.entering
+    task.entering = false
+    if (first) {
+      actions.push('approach')
+      if (!input.triggerExists) {
+        if (!input.adjacent) done = true
+        else next(7)
+      } else if (input.adjacent && input.ready) next(4)
+    }
+    if (task.phase === 1 && input.arrived) next(input.open ? 4 : 2)
+    if (done) return { done: true, actions: [] }
+    if (task.phase === 1) return { done: false, actions }
+  }
   const first = task.entering
-  if (task.phase >= 2 && task.phase <= 5 && !triggerExists) return { done: true, actions }
+  if (task.phase >= 2 && task.phase <= 5 && !input.triggerExists) return { done: true, actions }
   task.entering = false
   switch (task.phase) {
     case 2:
       if (first) actions.push('face')
       actions.push('pray')
-      if (!arrived)
+      if (!input.arrived)
         next(1) // Native task returns to its approach state.
-      else if (ready) next(3)
+      else if (input.ready) next(3)
       break
     case 3:
       if (first) {
@@ -62,7 +87,7 @@ export function stepVaultTask(
       break
     case 4:
       if (first) actions.push('enter')
-      if (arrived) next(5)
+      if (input.arrived) next(5)
       break
     case 5:
       if (first) task.remaining = 24
@@ -77,7 +102,7 @@ export function stepVaultTask(
       break
     case 7:
       if (first) actions.push('exit')
-      if (arrived) next(8)
+      if (input.arrived) next(8)
       break
     case 8:
       if (first) {
@@ -88,10 +113,10 @@ export function stepVaultTask(
       break
     case 9:
       if (first) actions.push('leave')
-      if (arrived) return { done: true, actions }
+      if (input.arrived) return { done: true, actions }
       break
     default:
-      throw new Error(`Vault approach state ${task.phase} must be supplied by the world`)
+      throw new Error(`Unsupported Vault task phase ${task.phase}`)
   }
   return { done: false, actions }
 }

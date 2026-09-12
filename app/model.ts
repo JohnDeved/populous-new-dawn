@@ -74,6 +74,7 @@ import { stepBuildingLevel } from './building-preparation.ts'
 import {
   faceTribe,
   personAnimationObject,
+  recoverPersonMovement,
   setPersonAnimationRow,
   stopPersonMovement,
 } from './person-state.ts'
@@ -145,6 +146,7 @@ import {
   probeLivePathCost,
   acceptLivePath,
   clearLivePath,
+  replanLivePath,
   stepLiveRoute,
   removeDeadLiveRoutes,
 } from './live-pathfinding.ts'
@@ -1178,7 +1180,8 @@ export function unitAnimationSource(u: Unit) {
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
   if (
     u.native &&
-    (u.native.state !== 10 || [3, 6, 17, 19, 21, 27, 30, 31, 32].includes(u.native.commandStatus))
+    (u.native.state !== 10 ||
+      [3, 6, 17, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
   )
     return u.native
   if (u.entry) return u.entry.person
@@ -3871,6 +3874,7 @@ export function command(
     ['hut', 'camp', 'tower', 'temple'].includes(context.building.kind)
   if (
     model === 19 ||
+    model === 33 ||
     ((model === 3 || model === 27 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor))
   ) {
     const slot = w.orderCursor
@@ -3899,8 +3903,10 @@ export function command(
       if (
         ![17, 31, 32].includes(active) &&
         (!slot || !person || ![3, 6, 8, 10, 19, 27].includes(active))
-      )
-        release(w, u)
+      ) {
+        release(w, u, model === 33)
+        if (model === 33 && person) u.native = person
+      }
     }
     const order = emptyPersonOrder(),
       to = nativePosition(w, p)
@@ -4008,31 +4014,56 @@ export function command(
 }
 
 function processVaultTask(w: World, u: Unit) {
-  const task = u.vault!
-  const head = w.shrines.find(s => s.id === task.head)
-  if (!head) {
-    release(w, u)
-    return
-  }
-  // ponytail: native approach/pathfinding and shape entry coordinates still use browser routes.
-  const door = entrance(w, head, 2)
-  if (task.phase === 1) {
-    if (u.path.length) return
-    if (distance(u, door) > 0.1) {
-      route(w, u, door)
-      return
-    }
-    task.phase = 2
-    task.entering = true
-  }
-  const goal = task.phase === 4 ? head : task.phase === 9 ? entrance(w, head, 6) : door
-  const arrived =
-    Math.abs(Math.round(goal.x * 256) - Math.round(u.x * 256)) <= 11 &&
-    Math.abs(Math.round(goal.z * 256) - Math.round(u.z * 256)) <= 11
+  const p = u.native!,
+    task: VaultTask = {
+      head: p.workTarget,
+      phase: p.commandPhase,
+      entering: !!(p.flags2 & 0x40000000),
+      remaining: p.timer,
+    },
+    target = task.phase ? task.head : p.target,
+    head = w.shrines.find(s => s.id === target && s.kind === 'vault'),
+    door = head && entrance(w, head, 2),
+    goal = head && (task.phase === 4 ? head : task.phase === 9 ? entrance(w, head, 6) : door),
+    point = goal && nativePosition(w, goal),
+    doorPoint = door && nativePosition(w, door),
+    arrived = !!(
+      point &&
+      Math.abs(short(p.x) - short(point.x)) <= 11 &&
+      Math.abs(short(p.y) - short(point.y)) <= 11
+    ),
+    adjacent = !!(
+      doorPoint &&
+      Math.abs(short(p.x - doorPoint.x)) < 512 &&
+      Math.abs(short(p.y - doorPoint.y)) < 512
+    )
   const previous = task.phase
-  const { done, actions } = stepVaultTask(task, arrived, head.work >= head.target, head.active)
+  const { done, actions } = stepVaultTask(task, {
+    target,
+    targetValid: !!head,
+    arrived,
+    ready: !!head && head.work >= head.target,
+    triggerExists: !!head?.active,
+    adjacent,
+    open: head?.model === 153,
+  })
+  p.workTarget = task.head
+  p.commandPhase = task.phase
+  p.timer = task.remaining
+  p.flags2 = (task.entering ? p.flags2 | 0x40000000 : p.flags2 & ~0x40000000) >>> 0
+  u.vault = done ? null : { ...task }
+  u.work = done ? null : task.head
+  if (!head || !door) return Number(done)
+  const destination = (goal: Point) => {
+    replanLivePath(w, u, p, nativePosition(w, goal))
+    recoverPersonMovement(w, p, (person, object) =>
+      setLivePersonAnimation(w, person as LivePerson, object)
+    )
+  }
   for (const action of actions) {
-    if (action === 'enter' || action === 'exit' || action === 'leave') route(w, u, goal)
+    if (action === 'approach' || action === 'exit') destination(door)
+    if (action === 'enter') destination(head)
+    if (action === 'leave') destination(entrance(w, head, 6))
     if (action === 'open' || action === 'close') {
       sound(w, 0x9f, head)
       head.model = 152
@@ -4045,12 +4076,18 @@ function processVaultTask(w: World, u: Unit) {
     }
     if (action === 'trigger') head.forced = true
     if (action === 'face') u.heading = Math.atan2(head.x - u.x, head.z - u.z)
+    if (action === 'pray') {
+      stopPersonMovement(p, (person, object) =>
+        setLivePersonAnimation(w, person as LivePerson, object)
+      )
+      clearLivePath(w, u)
+    }
   }
   if (previous === 3 && task.phase === 4) {
     head.model = 153
     head.morph = null
   }
-  if (done) release(w, u)
+  return Number(done)
 }
 
 export function guardShaman(w: World) {
@@ -5835,7 +5872,6 @@ function stepTurn(w: World) {
       if (u.casting.remaining <= 1e-8) u.casting = null
       continue
     }
-    if (u.vault) processVaultTask(w, u)
     const work =
       w.buildings.find(b => b.id === u.work && b.hp > 0) ??
       w.shrines.find(s => s.id === u.work && (s.active || u.vault?.head === s.id))
@@ -5963,9 +5999,9 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      [3, 6, 27, 30].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+      [3, 6, 27, 30, 33].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
-      stepLiveMovement(w, u)
+      stepLiveMovement(w, u, { 33: () => processVaultTask(w, u) })
     } else if (
       u.team !== 'wild' &&
       !work &&

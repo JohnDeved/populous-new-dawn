@@ -388,6 +388,40 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "vault-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare the native Vault command-33 task and trigger-work transitions.",
+      "coveredBehavior": [
+        "Exact target capture and validation",
+        "Approach branch and native arrival test",
+        "Ready and depleted branches",
+        "Door, entry, reward, exit, and completion phases",
+        "Trigger work and forcing"
+      ],
+      "knownLimits": [
+        "Movement, adjacency, trigger association, animation, audio, and decorative consumers are supplied; browser pathfinding adapts those leaves."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-vault.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-vault.py",
+        "app/vault.ts",
+        "scripts/decomp.py",
+        "decomp/requirements.txt",
+        "decomp/tools.json"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

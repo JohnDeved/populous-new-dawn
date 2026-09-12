@@ -52,7 +52,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 | `0048a050`, `0048b500`, `0048b950` | `scripts/import-sound.py`, `app/audio.ts`, `app/model.ts` | Native PCM/cues and partial event dispatch; adaptive music and complete scheduler pending |
 | `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
 | `0048cc60`, `0048f350` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization applied; full game-command host remains open |
-| `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | Post-approach vault tasks and type-4 work CPU-compared; navigation and full object scheduling unfinished |
+| `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts` | Integer worship/refill and delayed spell gifts CPU-compared; eligibility, phase and reward visuals incomplete |
 | `00492790`, `00492860`, `00491c30`, `004f2900`, `004c2b40`, `004c14c0` | `app/model.ts`, `scripts/check-native-campaign.py` | Cast/stock/head queries and allocation counters CPU-compared; unsupported AI stock still explicit |
 
@@ -165,13 +165,14 @@ integration, including rewards surviving head removal and worship at full stock.
 .tools/decomp/oracle/bin/python scripts/check-native-vault.py /path/to/d3dpoptb.exe
 ```
 
-Runs 640 native post-approach task transitions and 320 type-4 work/force/reset
-cases. Task movement, animation, facing and sound leaves are intercepted; trigger
-fixtures omit decorative/UI effects and final deletion. Real task branches,
-timers, force-bit lookup and trigger work execute. The rendered stone pyramid is
+Runs 512 native target/approach transitions, 640 later task transitions and 320
+type-4 work/force/reset cases. Task movement, adjacency, trigger association,
+animation, facing and sound leaves are intercepted; trigger fixtures omit
+decorative/UI effects and final deletion. Real target resolution, task branches, timers, force-bit lookup
+and trigger work execute. The rendered stone pyramid is
 verified separately against the editor's named geometry. Task model IDs address
-native bank 2 (see below). Approach routing, occupancy, cleanup and full scheduler
-behavior remain open.
+native bank 2 (see below). Browser pathfinding supplies movement; exact occupancy,
+vehicle ownership and full scheduler behavior remain open.
 
 
 ## Object bank and morph comparison

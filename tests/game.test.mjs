@@ -1,4 +1,5 @@
 import {syncLivePersonCells} from '../app/live-people.ts';
+import {currentPersonOrder} from '../app/person-orders.ts';
 import {worshipPositions} from '../app/worship.ts';
 import {nativePosition} from '../app/model.ts';
 import assert from 'node:assert/strict';
@@ -647,13 +648,20 @@ test('vault discovery follows worship, door, entry and exit tasks', () => {
  Object.assign(shaman, door);
  w.selected = [shaman.id];
  command(w, vault);
+ const firstOrder=shaman.native.commands[shaman.native.commandCursor];
+ assert.deepEqual(currentPersonOrder(w.buildingOrders,shaman.native),w.buildingOrders.records[firstOrder]);
+ assert.equal(w.buildingOrders.records[firstOrder].model,33);assert.equal(w.buildingOrders.records[firstOrder].a,vault.id);
  until(w, () => vault.work >= 10, 5);
  command(w, {x: -3, z: 1});
  assert.equal(shaman.vault, null, 'a new order cancels the task');
+ assert.equal(w.buildingOrders.records[firstOrder].references,0,'interruption releases command 33');
  const work = vault.work;
  advance(w, 1);
  assert.ok(vault.work < work, 'vault work decays after interruption');
  command(w, vault);
+ const vaultOrder=shaman.native.commands[shaman.native.commandCursor];
+ assert.equal(currentPersonOrder(w.buildingOrders,shaman.native).model,33);
+ assert.equal(currentPersonOrder(w.buildingOrders,shaman.native).a,vault.id);
  until(w, () => shaman.vault?.phase === 3, 20);
  const opening = w.turn;
  assert.equal(w.unlockedCamp, false, 'full worship alone does not grant knowledge');
@@ -671,11 +679,31 @@ test('vault discovery follows worship, door, entry and exit tasks', () => {
  assert.equal(vault.active, false);
  assert.ok(shaman.vault, 'trigger deletion does not cancel the exit task');
  until(w, () => shaman.vault === null, 20);
+ assert.equal(w.buildingOrders.records[vaultOrder].references,0,'completion releases command 33');
  until(w, () => w.unlockedCamp, 8);
  assert.equal(vault.model, 152);
  assert.equal(vault.morph.to, 155, 'closing uses the native base mesh with final target points');
  assert.equal(w.sounds.filter(s => s.cue === 0x9f).length, 2);
  assert.equal(vault.uses, 1);
+});
+
+test('vault allocation preserves the current order when the shared pool is full',()=>{
+ const w=createWorld(),vault=w.shrines.find(s=>s.kind==='vault');
+ const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ w.selected=[shaman.id];command(w,{x:shaman.x+1,z:shaman.z});
+ const prior=currentPersonOrder(w.buildingOrders,shaman.native);assert.ok(prior);
+ for(const order of w.buildingOrders.records.slice(1))order.references ||= 1;
+ command(w,vault);
+ assert.equal(currentPersonOrder(w.buildingOrders,shaman.native),prior);
+ assert.equal(prior.references,1);
+ const entering=createWorld(),head=entering.shrines.find(s=>s.kind==='vault');
+ const walker=entering.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ entering.selected=[walker.id];command(entering,entering.buildings.find(b=>b.team==='blue'));tick(entering,1/12);
+ const person=walker.entry.person,entry=currentPersonOrder(entering.buildingOrders,person);
+ for(const order of entering.buildingOrders.records.slice(1))order.references ||= 1;
+ command(entering,head);
+ assert.equal(walker.entry.person,person);assert.equal(currentPersonOrder(entering.buildingOrders,person),entry);
+ assert.equal(entry.references,1);
 });
 
 test('original discovery messages follow script phases, persist and reset',async()=>{

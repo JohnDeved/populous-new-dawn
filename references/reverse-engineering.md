@@ -260,13 +260,17 @@ The packed spell byte has two counters, not stock plus flags as previously descr
 
 `scripts/check-native-worship.py` compares 4,344 actual native worship turns across follower interruptions, varying required counts, growth, refill, exhaustion and negative/unlimited counts. Another 1,660 actual reward-processor turns compare the browser's delivery delay and both packed stock counters, including full/over-cap stocks and saturation. Only the final object-deletion leaf is intercepted. Worship fixtures provide real command records and cell lists; the native eligibility routine executes. Reward fixtures start after visual initialization and use a non-player recipient identity to avoid the Windows UI hide callback. The executable identity is verified before execution; no executable bytes are embedded in the check.
 
-Limits: the browser still supplies approximate order/radius eligibility and a shared world phase instead of native per-object phases. Native worship chooses the largest eligible tribe group; current first-mission worship orders and rewards are player-only, without competitive tribe ownership. The vault's shaman task still uses an approximate duration. Native floating reward icons, glows, hide timing, pickups and the complete linked-object deletion lifecycle are not ported. These comparisons establish isolated work/refill and automatic spell-delivery behavior under the stated fixtures, not full trigger, reward or campaign parity.
+Limits: the browser still supplies approximate order/radius eligibility and a shared world phase instead of native per-object phases. Native worship chooses the largest eligible tribe group; current first-mission worship orders and rewards are player-only, without competitive tribe ownership. Vault movement/adjacency leaves remain browser adapters. Native floating reward icons, glows, hide timing, pickups and the complete linked-object deletion lifecycle are not ported. These comparisons establish isolated work/refill and automatic spell-delivery behavior under the stated fixtures, not full trigger, reward or campaign parity.
 
 
-## Vault task states and corrected stone pyramid (2026-09-07)
+## Vault command 33, task states and corrected stone pyramid (2026-09-07, updated 2026-09-11)
 
-The approximate eight-second vault timer is replaced by reviewed post-approach
-states 2–9 from `0043c7a0`, in `app/vault.ts`. Type-4 trigger processing in
+The approximate eight-second vault timer is replaced by all command-33 phases 0–9
+from `0043c7a0`, in `app/vault.ts`. Phase 0 copies the exact order target, and each
+visit rejects a zero, deleted or classless Vault object. On first entry phase 1
+initializes the approach, resolves the trigger and adjacent Vault, can hand a ready
+adjacent shaman directly to entry, and otherwise advances only inside the native
+12-unit-per-axis arrival square. Type-4 trigger processing in
 `004fb270` samples every fourth object turn: eligible shaman work increments by
 one to the target, and otherwise decrements by one. Reaching the target does not
 fire the trigger. The shaman task observes readiness, opens for 40 turns, walks
@@ -276,10 +280,12 @@ waits another 24 turns, walks outside, closes for 40 turns and leaves. The exist
 terminates states 2–5; states 6–9 can finish after its deletion. New orders cancel
 the browser task; remaining work decays while no shaman is eligible.
 
-`scripts/check-native-vault.py` executes 640 original post-approach task cases,
-covering every state 2–9, entry flags, timer boundaries, arrival, readiness and
-missing triggers. Movement, animation, facing and audio leaves are intercepted;
-branching, timers and the actual force-bit lookup execute natively. Another 320
+`scripts/check-native-vault.py` executes 512 original target/approach cases and 640
+post-approach cases, covering every state 0–9, target validity, adjacency, open
+state, entry flags, timer boundaries, arrival, readiness and missing triggers.
+Movement, adjacency, trigger association, animation, facing and audio leaves are
+intercepted; task branching, target resolution, timers and the actual force-bit lookup execute
+natively. Another 320
 actual type-4 trigger calls check work, saturation, decay, force signals and reset.
 Its decorative/UI callbacks and final deletion are intercepted. These tests do
 not establish the omitted leaf behavior or world scheduling. The existing 6,004
@@ -295,13 +301,16 @@ that runtime asset/morph mapping was unresolved in this pass (resolved below).
 Browser door cues use native `0x9f`. The level's vault orientation is
 now imported from its decorative building object.
 
-Sixteen engine regressions pass, including interruption/decay, exact 40/24-turn
-stages, delayed knowledge and exit after trigger exhaustion. Chrome visual QA
+The live player path now allocates the shared command-33 record, retains the exact
+Vault ID through approach, and releases it on interruption or completion. Its game
+regression covers interruption/decay, exact 40/24-turn stages, delayed knowledge
+and exit after trigger exhaustion. Existing Chrome visual QA
 checks the pyramid during the task; the real UI mission still reaches discoveries,
-construction and training. Browser approach routing, shape entry/interior points,
-coarse-cell eligibility, collision/visibility flags, interruption cleanup and
-per-object scheduling remain incomplete. Full vault and campaign parity remain
-open; the recovered task timing does not establish those missing behaviors.
+construction and training. Browser pathfinding supplies the intercepted movement
+leaves, shrine identity combines the native Vault and trigger objects, and the
+adjacency bridge remains approximate. Shape occupancy, collision/visibility flags,
+vehicles and per-object scheduling remain incomplete. Full vault and campaign
+parity remain open; the command lifecycle does not establish those missing behaviors.
 
 
 ## Native object bank redirect and vault door morphs (2026-09-07)

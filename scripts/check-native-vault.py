@@ -1,6 +1,6 @@
-"""Compare post-approach vault task states with verified original x86.
+"""Compare vault task states with verified original x86.
 Usage: python scripts/check-native-vault.py /path/to/d3dpoptb.exe
-Movement, animation and sound leaves are stubbed; task branches run natively.
+Movement, adjacency, trigger association, animation and sound leaves are stubbed.
 """
 import itertools, json, struct, subprocess, sys
 from pathlib import Path
@@ -16,21 +16,24 @@ person, building, trigger, stack, stop = 0x2000000, 0x2001000, 0x2002000, 0x201d
 def read(p, fmt): return struct.unpack(fmt, cpu.mem_read(p, struct.calcsize(fmt)))[0]
 def write(p, fmt, v): cpu.mem_write(p, struct.pack(fmt, v))
 # Leaves only: no interception inside 0x43c7a0 or the real 0x4fbf40 trigger lookup.
-leaves = [0x4458d0, 0x40a980, 0x4d4040, 0x48a050, 0x4f14b0, 0x4ee700,
-          0x404420, 0x4044b0, 0x4e9dd0, 0x4d4f40, 0x4d4ee0, 0x4ed6f0,
+leaves = [0x4458d0, 0x40a3f0, 0x40a980, 0x4d4040, 0x48a050, 0x4f14b0, 0x4ee700,
+          0x404420, 0x4044b0, 0x4e9d80, 0x4e9dd0, 0x4d4f40, 0x4d4ee0, 0x4ed6f0,
           0x4ed580, 0x4ed640, 0x4e6a70, 0x508f70]
-actions, phase = [], 0
+actions, phase, adjacent = [], 0, False
 
 def leaf(cpu, address, size, user):
     sp = cpu.reg_read(UC_X86_REG_ESP)
     result = 0
+    if address == 0x40a3f0: result = building if adjacent else 0
     if address == 0x40a980: actions.append('face')
     if address == 0x4d4040: actions.append('pray')
-    if address == 0x48a050: actions.append('open' if phase == 3 else 'close')
-    if address in (0x404420, 0x4044b0):
+    current = read(person+0x2d, '<B')
+    if address == 0x4e9d80 and current == 1: actions.append('approach')
+    if address == 0x48a050: actions.append('open' if current == 3 else 'close')
+    if address == 0x4044b0:
         cpu.mem_write(read(sp+8, '<I'), bytes(4))
     if address == 0x4e9dd0:
-        actions.append({4:'enter',7:'exit',9:'leave'}[phase])
+        actions.append({4:'enter',7:'exit',9:'leave'}[current])
     if address == 0x508f70: result = trigger if exists else 0
     cpu.reg_write(UC_X86_REG_EAX, result)
     cpu.reg_write(UC_X86_REG_EIP, read(sp,'<I'))
@@ -38,6 +41,41 @@ def leaf(cpu, address, size, user):
 for a in leaves: cpu.hook_add(UC_HOOK_CODE, leaf, begin=a, end=a)
 write(0x890394, '<I', building); write(0x890398, '<I', trigger)
 write(0x8a03ea, '<H', 2)
+cases, expected = [], []
+for phase, target, first, arrived, ready, exists, adjacent, opened in itertools.product((0,1), range(4), (False,True), (False,True), (False,True), (False,True), (False,True), (False,True)):
+    cpu.mem_write(person, bytes(256)); cpu.mem_write(building, bytes(256)); cpu.mem_write(trigger, bytes(256))
+    cpu.mem_write(building+0x2a,bytes((0 if target == 3 else 2,0x12))); cpu.mem_write(trigger+0x2a,b'\6\6')
+    write(building+0xc,'<I',1 if target == 2 else 0)
+    write(trigger+0x24,'<H',2); write(building+0xa4,'<H',2 if exists else 0)
+    write(building+0x76,'<H',0x99 if opened else 0)
+    write(person+0x72,'<H',1 if target else 0); write(person+0x89,'<H',1 if target else 0)
+    write(person+0x2d,'<B',phase); write(person+0xc,'<I',0x40000000 if first else 0)
+    write(person+0x4f,'<h',0 if arrived else 12)
+    write(trigger+0x96,'<i',32 if ready else 31); write(trigger+0x9a,'<i',32)
+    actions=[]
+    cpu.mem_write(stack,struct.pack('<II',stop,person));cpu.reg_write(UC_X86_REG_ESP,stack)
+    cpu.emu_start(0x43c7a0,stop,timeout=100000,count=100000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop
+    done=bool(cpu.reg_read(UC_X86_REG_EAX)&255)
+    if done: actions=[]
+    task=dict(head=1 if phase and target else 0,phase=phase,entering=first,remaining=0)
+    cases.append(dict(task=task,target=1 if target else 0,targetValid=target == 1,arrived=arrived,ready=ready,
+                      exists=exists,adjacent=adjacent,open=opened))
+    expected.append(dict(head=read(person+0x89,'<H'),phase=read(person+0x2d,'<B'),
+                         remaining=read(person+0x70,'<h'),
+                         entering=bool(read(person+0xc,'<I')&0x40000000),done=done,actions=actions))
+js="""import {stepVaultTask} from './app/vault.ts';
+let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{
+ const {done,actions}=stepVaultTask(c.task,{target:c.target,targetValid:c.targetValid,arrived:c.arrived,ready:c.ready,triggerExists:c.exists,adjacent:c.adjacent,open:c.open});
+ return {head:c.task.head,phase:c.task.phase,remaining:c.task.remaining,entering:c.task.entering,done,actions:done?[]:actions};
+})));"""
+r=subprocess.run(['node','--input-type=module','-e',js],cwd=root,input=json.dumps(cases),text=True,capture_output=True)
+assert r.returncode==0,r.stderr
+for case,want,got in zip(cases,expected,json.loads(r.stdout)):
+    assert want==got,(case,want,got)
+print(f'PASS: {len(cases)} native vault target/approach transitions')
+
 cases, expected = [], []
 for phase, first, timer, arrived, ready, exists in itertools.product(range(2,10), (False,True), (0,1,2,24,40), (False,True), (False,True), (False,True)):
     cpu.mem_write(person, bytes(256)); cpu.mem_write(building, bytes(256)); cpu.mem_write(trigger, bytes(256))
@@ -61,7 +99,7 @@ for phase, first, timer, arrived, ready, exists in itertools.product(range(2,10)
 js="""import {stepVaultTask} from './app/vault.ts';
 let s='';for await(const c of process.stdin)s+=c;
 console.log(JSON.stringify(JSON.parse(s).map(c=>{
- const {done,actions}=stepVaultTask(c.task,c.arrived,c.ready,c.exists);
+ const {done,actions}=stepVaultTask(c.task,{target:1,targetValid:true,arrived:c.arrived,ready:c.ready,triggerExists:c.exists,adjacent:false,open:false});
  return {phase:c.task.phase,remaining:c.task.remaining,entering:c.task.entering,done,actions:done?[]:actions};
 })));"""
 r=subprocess.run(['node','--input-type=module','-e',js],cwd=root,input=json.dumps(cases),text=True,capture_output=True)
