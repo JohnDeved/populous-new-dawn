@@ -2436,7 +2436,9 @@ function produceMissionWarriorTraining(w: World) {
   const selection = computerSelectionWorld(w, 1),
     available = availableTrainingPeople(selection.world)
   if (available >= rules.buildingCapacity[trainingModel]) return
-  requestTraining(w.ai, 0, model, available, candidate => (candidate === trainingModel ? target : 0))
+  requestTraining(w.ai, 0, model, available, candidate =>
+    candidate === trainingModel ? target : 0
+  )
 }
 
 export function computerMarkerOrderCount(
@@ -2905,12 +2907,8 @@ export function campaignCommand(
     if (count <= 0 || model !== 3)
       throw new Error(`Unsupported computer training ${count}:${model}`)
     const selection = computerSelectionWorld(w, 1)
-    requestTraining(
-      w.ai,
-      count,
-      model,
-      availableTrainingPeople(selection.world),
-      targetModel => computerTrainingBuilding(w, targetModel)
+    requestTraining(w.ai, count, model, availableTrainingPeople(selection.world), targetModel =>
+      computerTrainingBuilding(w, targetModel)
     )
     return
   }
@@ -6397,11 +6395,12 @@ function stepTurn(w: World) {
     if (b.kind === 'camp' || b.kind === 'temple') {
       stepLiveTraining(w, b)
     } else if (b.kind === 'hut') {
+      const admission = buildingAdmission(w, b)
       if (
         !(w.manaWorld.gameFlags & 32) &&
         stepHutBirth(
           b,
-          inhabitants.length,
+          admission.inside,
           population(w, b.team) < populationLimit(w, b.team),
           breedingWork(w, b)
         )
@@ -6588,22 +6587,6 @@ function stepTurn(w: World) {
     }
     // An unavailable hut hands control back to the existing work controller.
     cancelBuildingEntry(w, u)
-    if (
-      work &&
-      'kind' in work &&
-      'hp' in work &&
-      work.progress === 1 &&
-      !work.burn &&
-      !u.builder &&
-      !u.path.length &&
-      atBuildingEntrance(w, u, work)
-    ) {
-      const capacity = housing(work)
-      if (w.units.filter(a => a.inside === work.id).length < capacity) {
-        u.inside = work.id
-        continue
-      }
-    }
     let target: Unit | Building | undefined =
       u.target === null
         ? undefined

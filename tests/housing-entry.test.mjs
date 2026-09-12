@@ -8,6 +8,7 @@ import { buildingInsidePoint } from '../app/building-shapes.ts'
 import { createWorld, addBuilding, addUnit, command, tick, buildingPose, nativePosition, unitAnimationSource } from '../app/model.ts'
 import { initializeLivePanic } from '../app/live-people.ts'
 import { advanceGame } from '../app/game-clock.ts'
+import { buildingAdmission } from '../app/live-building-entry.ts'
 
 function scenario(direction = 0, count = 1, level = 1) {
   const w = createWorld()
@@ -78,6 +79,34 @@ test('simultaneous arrivals respect hut capacity and cancellation releases the s
   assert.ok(u.path.length)
   until(other.w, () => u.path.length === 0)
   assert.equal(u.inside, null)
+})
+
+test('hut slots remain authoritative through a departure, replacement and birth turn', () => {
+  const { w, b, people } = scenario(0, 3)
+  until(w, () => people.every(u => u.inside === b.id))
+  const admission = buildingAdmission(w, b),
+    slots = admission.occupants.slice(0, 3),
+    departing = people.find(u => u.id === slots[1])
+  assert.ok(departing)
+
+  w.selected = [departing.id]
+  command(w, { x: 9, z: 30 })
+  assert.equal(departing.inside, null)
+  assert.deepEqual(admission.occupants.slice(0, 3), [slots[0], 0, slots[2]])
+
+  const replacement = addUnit(w, 'blue', 'brave', { x: 7, z: 33 })
+  w.selected = [replacement.id]
+  command(w, b)
+  until(w, () => replacement.inside === b.id)
+  assert.deepEqual(admission.occupants.slice(0, 3), [slots[0], replacement.id, slots[2]])
+
+  departing.inside = b.id // Stale legacy mirror must not change native slot-owned birth work.
+  w.manaWorld.gameFlags &= ~32
+  b.counter = 3
+  b.timer = 0
+  tick(w, 1 / 12)
+  assert.equal(admission.inside, 3)
+  assert.equal(b.timer, 8)
 })
 
 test('fire interrupts entry without retaining its walking sprites or command record', () => {

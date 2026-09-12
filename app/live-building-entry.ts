@@ -61,7 +61,11 @@ import {
   resetPersonMotion,
 } from './person-state.ts'
 import { terrainPointHeight } from './native-terrain.ts'
-import { buildingInsidePoint, buildingOutsidePoint, buildingSocketPoint } from './building-shapes.ts'
+import {
+  buildingInsidePoint,
+  buildingOutsidePoint,
+  buildingSocketPoint,
+} from './building-shapes.ts'
 import { dropCarriedTimber, timberTransfer } from './timber.ts'
 import { stepDismantling, toggleDismantling } from './building-dismantle.ts'
 import { changeBuildingWork } from './building-damage.ts'
@@ -216,9 +220,11 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
   w.randomState = startup.randomState
 }
 
-// Keep physical slot order across departures. Legacy/load adapters can still
-// supply residents through u.inside; ordinary object registration remains open.
+// Keep physical slot order across departures. Legacy/load adapters seed slots once;
+// native admission/removal owns them afterwards.
 export function buildingAdmission(w: World, b: Building): BuildingAdmission {
+  const bootstrap = !b.admission,
+    residents = bootstrap ? w.units.filter(u => u.inside === b.id && u.hp > 0).slice(0, 6) : []
   b.admission ??= {
     ...buildingPose(b),
     id: b.id,
@@ -228,8 +234,8 @@ export function buildingAdmission(w: World, b: Building): BuildingAdmission {
     flags2: 0,
     flags3: 0,
     activity: 8,
-    inside: 0,
-    occupants: Array(6).fill(0),
+    inside: residents.length,
+    occupants: [...residents.map(u => u.id), ...Array(6 - residents.length).fill(0)],
     trainingTimer: 0,
     trainingCost: 0,
     entryDelay: 0,
@@ -248,21 +254,7 @@ export function buildingAdmission(w: World, b: Building): BuildingAdmission {
     counter: b.counter,
     storedMana: b.timer,
   })
-  const previous = [...state.occupants]
-  const residents = new Set(w.units.filter(u => u.inside === b.id && u.hp > 0).map(u => u.id))
-  for (let i = 0; i < state.occupants.length; i++) {
-    const id = state.occupants[i]
-    if (!residents.delete(id)) state.occupants[i] = 0
-  }
-  for (const id of residents) {
-    const slot = state.occupants.indexOf(0)
-    if (slot >= 0) state.occupants[slot] = id
-  }
-  state.inside = state.occupants.filter(Boolean).length
-  if (
-    (b.kind === 'camp' || b.kind === 'temple') &&
-    state.occupants.some((id, i) => id !== previous[i])
-  ) {
+  if (bootstrap && (b.kind === 'camp' || b.kind === 'temple') && state.inside) {
     const ctx = context(w),
       weight = trainingOccupantWeight(ctx, state)
     state.activity = weight ? state.activity | 128 : state.activity & ~128
@@ -281,8 +273,7 @@ function context(w: World) {
   for (const u of w.units) {
     const tribe = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1
     if (u.hp > 0 && tribe >= 0) tribes[tribe].personCounts[nativePersonModel(u)]++
-    if (u.entry || u.inside !== null)
-      people.set(u.id, u.entry?.person ?? u.native ?? person(w, u))
+    if (u.entry || u.inside !== null) people.set(u.id, u.entry?.person ?? u.native ?? person(w, u))
   }
   const buildings = new Map<number, BuildingAdmission>()
   for (const b of w.buildings) {
@@ -349,12 +340,16 @@ function occupancyEffects(w: World): OccupancyEffects {
 }
 
 export function leaveBuildingEntry(w: World, u: Unit) {
-  const b = w.buildings.find(b => b.id === u.inside)
-  const p = u.entry?.person ?? u.native
+  const b = w.buildings.find(b => b.id === u.inside),
+    ctx = context(w),
+    p = u.entry?.person ?? u.native ?? ctx.people.get(u.id)
   if (!p || !b?.admission) return
-  removeBuildingOccupant(context(w), b.admission, p, occupancyEffects(w))
-  u.heading = Math.PI - (p.angle * Math.PI) / 1024
-  return p
+  const removed = removeBuildingOccupant(ctx, b.admission, p, occupancyEffects(w)) as
+    | EntryPerson
+    | undefined
+  if (!removed) return
+  u.heading = Math.PI - (removed.angle * Math.PI) / 1024
+  return removed
 }
 
 export function selectBuildingOccupants(w: World, b: Building, clicked: number, group: boolean) {
