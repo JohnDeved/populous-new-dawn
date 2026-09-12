@@ -74,6 +74,7 @@ import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from '.
 import { stepBuildingFetch } from './building-fetch.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
 import {
+  defaultPersonState,
   faceTribe,
   personAnimationObject,
   recoverPersonMovement,
@@ -4616,9 +4617,12 @@ function stepComputerSpells(w: World) {
     if (!spell) throw new Error(`Unimplemented computer spell effect ${model}`)
     clearLivePath(w, u!)
     beginCast(w, u!, spell.id, nativeCellPoint(cell))
-    // ponytail: omit this timer until the native 25/29 -> 22 fight handoff is integrated;
-    // the browser fight branch cannot advance it.
-    if (person && (person.state === 25 || person.state === 29)) u!.casting = null
+    const fightingPerson = u!.fight?.motion
+    if (fightingPerson && (fightingPerson.state === 25 || fightingPerson.state === 29)) {
+      u!.native = fightingPerson
+      changeLivePersonState(w, u!, 22)
+      u!.fight = null
+    }
   }
   // The live person owns native action flags; browser casting has no native record yet.
   if (caster && u?.casting) caster.flags4 |= 0x400
@@ -6558,11 +6562,18 @@ function stepTurn(w: World) {
       stepLiveBuildingAttack(w, u)
       continue
     }
+    const castingState = u.native?.state === 22
+    if (castingState) {
+      u.native!.timer = short(u.native!.timer - 1)
+      if (u.native!.timer < 1)
+        changeLivePersonState(w, u, defaultPersonState(u.native!, w.manaWorld.gameFlags))
+    }
     if (u.casting) {
       u.casting.remaining -= dt
       if (u.casting.remaining <= 1e-8) u.casting = null
       continue
     }
+    if (castingState) continue
     const work =
       w.buildings.find(b => b.id === u.work && b.hp > 0) ??
       w.shrines.find(s => s.id === u.work && (s.active || u.vault?.head === s.id))

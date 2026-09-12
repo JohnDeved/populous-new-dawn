@@ -892,10 +892,19 @@ test('mission-one AI casting uses the live shaman state and cast-block flags', (
  assert.equal(scenario(25,0,0,casting).spellCasts[1][2],0,'browser casting ownership remains a native cast-block flag');
  const fighting=scenario(25,0,0,null,true),fighter=fighting.units.find(u=>u.team==='red');
  assert.equal(fighting.spellCasts[1][2],1,'native melee state enables the original self-Blast branch');
-  assert.equal(fighting.projectiles.find(p=>p.team==='red').caster,fighter.id);
- assert.equal(fighter.casting,null,'melee does not retain a browser cast timer its fight loop cannot advance');
+ assert.equal(fighting.projectiles.find(p=>p.team==='red').caster,fighter.id);
+ assert.equal(fighter.fight,null,'casting state releases native fight-roster ownership');
+ assert.equal(fighter.native.state,22);assert.equal(fighter.native.previousState,25);assert.equal(fighter.native.timer,9);
+ assert.equal(fighter.casting.remaining,5/12,'the independent six-turn spell windup advances');
  assert.ok(fighting.sounds.some(s=>s.cue===0x8c),'the native enemy casting voice remains');
- assert.equal(scenario(29,0,0,null,true).spellCasts[1][2],1,'both native melee states share the self-Blast branch');
+ const encounter=scenario(29,0,0,null,true),encounterShaman=encounter.units.find(u=>u.team==='red');
+ assert.equal(encounter.spellCasts[1][2],1,'both native melee states share the self-Blast branch');
+ assert.equal(encounterShaman.native.previousState,29);assert.equal(encounterShaman.native.state,22);
+ for(let i=0;i<5;i++)tick(fighting,1/12);
+ assert.equal(fighter.casting,null,'the spell launches after six visits');assert.equal(fighter.native.state,22);assert.equal(fighter.native.timer,4);
+ for(let i=0;i<4;i++)tick(fighting,1/12);
+ assert.equal(fighter.native.state,10,'the ten-visit casting state returns to ordinary orders');
+ assert.equal(fighter.native.previousState,22);assert.equal(fighter.fight,null);
 });
 
 test('live spell scans use population thresholds and building territory with delayed overlap recovery', async () => {

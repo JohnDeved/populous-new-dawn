@@ -217,7 +217,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 21, 25, 26, 29, 33, 36, 39, 41, 44].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 22, 25, 26, 29, 33, 36, 39, 41, 44].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -300,6 +300,11 @@ export function initializePersonState(
     p.assignment |= 1
     p.speed = 0
     effects.occupying()
+  } else if (p.state === 22) {
+    // 0x4d2740: the browser has no adjacent vehicle, so use the ground-cast pose.
+    effects.releaseMotion(p)
+    effects.setAnimation(p, 0x6d)
+    p.timer = 10
   } else if (p.state === 25 || p.state === 29) {
     const enter = p.state === 25 ? effects.fight : effects.encounter
     if (!enter) throw new Error(`State ${p.state} requires its combat initializer`)

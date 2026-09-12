@@ -158,6 +158,14 @@ Launch and impact cues now occur on distinct turns. The casting voice index is
 spell model + `0x74` (player) or + `0x8a` (enemy); Blast's previous cue indexes
 were one low, although both aliases selected the same PCM samples.
 
+A 2026-09-12 follow-up closes the live melee-cast handoff. `004c1b80` saves
+person state 25/29, enters state 22, and initializes its ten-visit timer.
+State 22 lacks the fight flag, so `004a3940` clears fight ownership and
+`00519a70` removes the shaman from the roster while leaving its command queue
+intact. On timer expiry `004d3e30` returns an ordinary shaman to state 10 (or
+state 39 under the special level flag). The browser now applies that transition
+to enemy self-Blast while retaining the independent six-visit shot pipeline.
+
 Visual inspection caught a bank error in the new small particles. The
 `draw_polygons` type-1 branch at `004673b0` always selects HFX, including draw
 type 1's `0x13a` and `0x142` trail frames. They use the ordinary palette;
