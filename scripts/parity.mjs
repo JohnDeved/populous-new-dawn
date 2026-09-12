@@ -233,7 +233,7 @@ export function render(ledger, history) {
     '',
     `Ready for final parity review: **${summary.completionReady ? 'yes' : 'no'}**. Even 100% of known checkpoints is not a full-game claim while discovery is open. An audited scope requires recorded evidence of a full content/system inventory review; new discoveries reopen it. This tool never automatically completes the project goal.`,
     '',
-    'This is a planning metric against a versioned capability checklist, not an objective percentage of the original engine or an estimate of effort remaining. Each broad checkpoint retains one equal share of the total. Within a decomposed checkpoint, only verified requirements earn their fraction of that share. Splitting a checkpoint cannot increase its maximum contribution. Unverified partial work receives no credit. Tests, exported functions and developer tooling do not earn extra points.',
+    'This verified gameplay and game-mechanics parity percentage is the project progress measure against the original game. It covers the versioned known-scope inventory, not estimated effort or undiscovered behavior. Each broad checkpoint retains one equal share of the total. Within a decomposed checkpoint, only verified requirements earn their fraction of that share. Splitting a checkpoint cannot increase its maximum contribution. Unverified partial work receives no credit. Tests, exported functions and developer tooling do not earn extra points.',
     '',
     'Verified means the named scope has original-engine evidence and browser/game integration evidence reviewed for that scope. A verified rendering primitive does not certify its entire subsystem. Evidence links record the assessment; `parity:check` validates metadata and report freshness, not the execution or success of native/browser checks. Re-run relevant checks before crediting or retaining a changed behavior.',
     '',
@@ -268,7 +268,7 @@ export function render(ledger, history) {
 
 function main() {
   const [command = 'report', ...args] = process.argv.slice(2)
-  assert(['report', '--json', 'check', 'record'].includes(command), `Unknown command: ${command}`)
+  assert(['report', '--json', 'check', 'render', 'record'].includes(command), `Unknown command: ${command}`)
   const ledger = read('parity.json')
   const historyPath = resolve(root, 'parity-history.json')
   const history = existsSync(historyPath) ? read('parity-history.json') : []
@@ -297,6 +297,15 @@ function main() {
     writeFileSync(historyPath, `${JSON.stringify(history, null, 2)}\n`)
     writeFileSync(resolve(root, 'PARITY.md'), render(ledger, history))
   }
+  if (command === 'render') {
+    assert(
+      history.at(-1)?.ledgerHash === hash(ledger),
+      'Unrecorded ledger change: run parity:record with a note'
+    )
+    writeFileSync(resolve(root, 'PARITY.md'), render(ledger, history))
+    console.log('Regenerated PARITY.md without recording a parity assessment.')
+    return
+  }
   if (command === 'check') {
     assert(
       history.at(-1)?.ledgerHash === hash(ledger),
@@ -305,7 +314,7 @@ function main() {
     assert.equal(
       readFileSync(resolve(root, 'PARITY.md'), 'utf8'),
       render(ledger, history),
-      'Stale PARITY.md: run parity:record'
+      'Stale PARITY.md: run parity:render'
     )
     console.log('Parity ledger, evidence paths, revision and generated report are consistent.')
     return

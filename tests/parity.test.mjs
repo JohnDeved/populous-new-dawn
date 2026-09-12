@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { test } from 'node:test'
-import { readFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import { dirname, join } from 'node:path'
+import { tmpdir } from 'node:os'
 import {
   assessmentChanges,
   render,
@@ -99,10 +110,47 @@ test('parity credits verified scope only and rejects misleading or untraceable a
   expanded.discovery.evidence = ['tests/parity.test.mjs']
   assert.equal(summarize(expanded).completionReady, true)
   assert.throws(() => validateRevision(expanded, previous), /reopen discovery/)
-  assert.equal(
-    render(currentLedger, history),
-    readFileSync(new URL('../PARITY.md', import.meta.url), 'utf8')
-  )
+  const report = render(currentLedger, history)
+  assert.match(report, /gameplay and game-mechanics parity percentage is the project progress measure/)
+  assert.doesNotMatch(report, /planning metric|not an objective percentage/)
+  assert.equal(report, readFileSync(new URL('../PARITY.md', import.meta.url), 'utf8'))
+})
+
+test('report-only rendering refuses unrecorded parity progress', () => {
+  const repo = mkdtempSync(join(tmpdir(), 'pnd-parity-render-'))
+  try {
+    mkdirSync(join(repo, 'scripts'))
+    for (const path of ['parity.json', 'parity-history.json', 'PARITY.md'])
+      copyFileSync(new URL(`../${path}`, import.meta.url), join(repo, path))
+    copyFileSync(new URL('../scripts/parity.mjs', import.meta.url), join(repo, 'scripts/parity.mjs'))
+    const beforeHistory = readFileSync(join(repo, 'parity-history.json'), 'utf8')
+    const beforeReport = readFileSync(join(repo, 'PARITY.md'), 'utf8')
+    const ledger = JSON.parse(readFileSync(join(repo, 'parity.json'), 'utf8'))
+    const evidence = [
+      ...ledger.discovery.evidence,
+      ...ledger.groups.flatMap(group =>
+        group.items.flatMap(item => [
+          ...item.evidence,
+          ...(item.requirements ?? []).flatMap(requirement => requirement.evidence),
+        ])
+      ),
+    ]
+    for (const path of evidence) {
+      const target = join(repo, path)
+      mkdirSync(dirname(target), { recursive: true })
+      if (!existsSync(target)) writeFileSync(target, '')
+    }
+    ledger.discovery.note += ' Unrecorded test change.'
+    writeFileSync(join(repo, 'parity.json'), `${JSON.stringify(ledger, null, 2)}\n`)
+    assert.throws(
+      () => execFileSync(process.execPath, ['scripts/parity.mjs', 'render'], { cwd: repo }),
+      /Unrecorded ledger change/
+    )
+    assert.equal(readFileSync(join(repo, 'parity-history.json'), 'utf8'), beforeHistory)
+    assert.equal(readFileSync(join(repo, 'PARITY.md'), 'utf8'), beforeReport)
+  } finally {
+    rmSync(repo, { recursive: true, force: true })
+  }
 })
 
 test('verified requirements advance a fixed checkpoint share without hiding unknown scope', () => {

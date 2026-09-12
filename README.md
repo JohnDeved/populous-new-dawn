@@ -68,6 +68,7 @@ versioned known-scope inventory, not estimated effort, and expands with discover
 npm run parity                 # Compact global/subsystem report
 npm run --silent parity -- --json # Machine-readable counts and percentage
 npm run parity:check           # Evidence paths, revision and report freshness
+npm run parity:render          # Refresh report wording without recording progress
 npm run parity:record -- "Describe the change and checks run"
 ```
 

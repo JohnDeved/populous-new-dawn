@@ -14,6 +14,7 @@
     "check": "npm run typecheck && npm test && npm run parity:check && npm run orchestration:check",
     "parity": "node scripts/parity.mjs",
     "parity:check": "node scripts/parity.mjs check",
+    "parity:render": "node scripts/parity.mjs render",
     "parity:record": "node scripts/parity.mjs record",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "format": "oxfmt \"app/**/*.{ts,tsx}\"",
