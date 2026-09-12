@@ -1,6 +1,6 @@
 # Game parity progress
 
-**26.94% evidence-backed progress across known scope.**
+**26.94% verified gameplay and game-mechanics parity across known scope.**
 
 **Graphics: 59.71%.** Overall: 69/181 individual requirements verified; 17/96 broad checkpoints complete.
 

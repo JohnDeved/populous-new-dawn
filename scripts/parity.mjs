@@ -213,7 +213,7 @@ export function render(ledger, history) {
   return [
     '# Game parity progress',
     '',
-    `**${percent(summary)} evidence-backed progress across known scope.**`,
+    `**${percent(summary)} verified gameplay and game-mechanics parity across known scope.**`,
     '',
     `**Graphics: ${percent(summary.groups.find(g => g.id === 'graphics') ?? summary)}.** Overall: ${summary.verifiedRequirements}/${summary.requirements} individual requirements verified; ${summary.verified}/${summary.total} broad checkpoints complete.`,
     '',
@@ -330,7 +330,7 @@ function main() {
     return
   }
   console.log(
-    `Game parity: ${percent(summary)} verified coverage of known scope (${summary.verifiedRequirements}/${summary.requirements} requirements; ${summary.verified}/${summary.total} whole checkpoints); ${summary.partial} partial, ${summary.missing} missing, ${summary.unassessed} unassessed. Revision ${ledger.revision}.`
+    `Game parity: ${percent(summary)} verified gameplay and game-mechanics parity across known scope (${summary.verifiedRequirements}/${summary.requirements} requirements; ${summary.verified}/${summary.total} whole checkpoints); ${summary.partial} partial, ${summary.missing} missing, ${summary.unassessed} unassessed. Revision ${ledger.revision}.`
   )
   console.log(
     `Discovery: ${summary.discovery.status}. Ready for final parity review: ${summary.completionReady ? 'yes' : 'no'}. Unknown scope is not yet quantifiable.`

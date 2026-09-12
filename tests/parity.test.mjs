@@ -111,6 +111,7 @@ test('parity credits verified scope only and rejects misleading or untraceable a
   assert.equal(summarize(expanded).completionReady, true)
   assert.throws(() => validateRevision(expanded, previous), /reopen discovery/)
   const report = render(currentLedger, history)
+  assert.match(report, /verified gameplay and game-mechanics parity across known scope/)
   assert.match(report, /gameplay and game-mechanics parity percentage is the project progress measure/)
   assert.doesNotMatch(report, /planning metric|not an objective percentage/)
   assert.equal(report, readFileSync(new URL('../PARITY.md', import.meta.url), 'utf8'))
