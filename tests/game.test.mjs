@@ -1145,6 +1145,20 @@ test('mission-one red AI queues exact task 6 below one warrior and executes live
  assert.equal(full.randomState,disabled.randomState,'a full native task queue skips production before its RNG draw');
 });
 
+test('mission-one red AI does not reserve a second brave already committed to warrior training',()=>{
+ const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
+ for(const u of w.units.filter(u=>u.team==='red'&&u.kind==='warrior'))u.hp=0;
+ w.turn=255;tick(w,1/12);until(w,()=>w.ai.tasks.some(t=>t.flags&1&&t.type===6&&t.phase===7),2);
+ const assigned=w.units.find(u=>{const p=unitAnimationSource(u)??u.native,order=p&&currentPersonOrder(w.buildingOrders,p);return u.team==='red'&&order?.model===8;});
+ const idle=w.units.find(u=>u.team==='red'&&u.kind==='brave'&&u.id!==assigned.id);
+ Object.assign(assigned,{x:idle.x,z:idle.z,path:[]});w.units=w.units.filter(u=>u.hp>0);syncLivePersonCells(w);
+ addUnit(w,'red','brave',idle);tick(w,1/12);w.ai.attributes[7]=25;w.turn=318;w.pendingTime=0;tick(w,1/12);
+ const next=w.ai.tasks.find((t,i)=>i!==0&&(t.flags&1)&&t.type===6);assert.equal(next.phase,0);
+ w.ai.attributes[7]=25;tick(w,1/12);
+ assert.equal(next.phase,8);assert.equal(next.remaining,0);
+ assert.equal(currentPersonOrder(w.buildingOrders,unitAnimationSource(assigned)??assigned.native)?.model,8);
+});
+
 test('external game store publishes edits and restarts without sharing worlds between sessions', async () => {
  const {createGameStore}=await import('../app/game-store.ts');
  const store=createGameStore(),other=createGameStore(),old=store.getWorld(),events=[];

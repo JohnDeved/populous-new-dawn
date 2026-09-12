@@ -2345,6 +2345,30 @@ function trainingBuilding(w: World, id: number): TrainingBuilding | null {
   }
 }
 
+// 0x4f2ac0: reservations in sibling tasks and live command-8 people prevent
+// zero-count training requests from committing the same capacity again.
+function committedTraining(w: World, current: number, model: number) {
+  const matches = (id: number) => {
+    const b = w.buildings.find(b => b.id === id && b.hp > 0)
+    return !!b && buildingModel(b) === model
+  }
+  let count = 0
+  for (let index = 0; index < w.ai.tasks.length; index++) {
+    const task = w.ai.tasks[index]
+    if (index === current || !(task.flags & 1) || task.type !== 6 || !matches(task.target)) continue
+    if (task.phase === 0 || task.phase === 2) count += 5
+    else if (task.phase === 3 || task.phase === 4) count += task.remaining
+    else if (task.phase === 5 || task.phase === 6) count += task.selected
+  }
+  for (const u of w.units) {
+    if (u.team !== 'red' || u.hp <= 0) continue
+    const p = unitAnimationSource(u) ?? u.native,
+      order = p && (p.state === 10 || p.state === 33) && currentPersonOrder(w.buildingOrders, p)
+    if (order && !(order.flags & 1) && order.model === 8 && matches(p.target)) count++
+  }
+  return count | 0
+}
+
 function restoreComputerSelection(w: World, index: number) {
   for (const id of w.ai.trainingSelections[index]) {
     const u = w.units.find(u => u.id === id)
@@ -2674,7 +2698,7 @@ function stepComputerTasks(w: World, tribe: number) {
       preference: w.ai.attributes[7],
       population: campaignPersonCount(w, tribe),
       trained: campaignPersonCount(w, tribe, 3),
-      committed: 0,
+      committed: target ? committedTraining(w, index, target.model) : 0,
       maximum: w.ai.attributes[33],
       select: (building, count) => {
         const b = w.buildings.find(b => b.id === building.id)!,
