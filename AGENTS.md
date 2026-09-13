@@ -73,10 +73,11 @@ a fresh review:
 - `pnd-reviewer`: final diff and acceptance challenge; no source repair.
 - `pnd-performance`: paired workload and measurement review; no source repair.
 
-Trial a read-only workflow-efficiency assignment through `pnd-scout` only after
-repeated delivery friction, at a safe boundary. Follow
-`engineering/efficiency-review.md` for its compact receipt brief and keep it separate
-from final code review.
+Apply `engineering/efficiency-review.md` automatically at resumption and progress
+boundaries, including during unfinished slices. Detect stalled gameplay delivery,
+diagnose it directly or with read-only `pnd-scout`, apply the smallest supported local
+correction, and resume gameplay without waiting for user prompting. Keep required
+verification and final code review.
 
 When no task is fixed, compare no more than five candidates and return the top three
 plus one recommendation. Prioritize player-visible/playability impact and unblock

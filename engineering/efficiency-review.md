@@ -1,7 +1,8 @@
-# Workflow efficiency adviser trial
+# Automatic delivery recovery
 
-Use an existing read-only `pnd-scout` for this explicitly assigned responsibility.
-This reviews delivery friction; it does not replace the fresh final code reviewer.
+The parent detects delivery stalls and applies corrections during active work without
+waiting for user prompting. Use a read-only `pnd-scout` when diagnosis needs an
+independent view; the parent remains the source writer and final decision maker.
 
 Game parity, modern desktop performance, and clean, readable, maintainable code
 are non-negotiable. Every recommendation must preserve all three and the evidence
@@ -10,15 +11,25 @@ cannot justify weaker gameplay, slower performance, or harder-to-read code.
 
 ## When to run
 
-Run one review at a safe slice boundary only after repeated setup, duplicate checks,
-excessive context loading, or coordination failures are observed. Coalesce related
-incidents into one assignment. Do not interrupt active implementation or add a review
-to every turn. This is not a scheduled checkpoint.
+At task resumption, before selecting another task, and after each commit or completed
+research/check cycle, briefly compare the locked feature's remaining acceptance gaps
+with the last handoff. Trigger recovery when two consecutive cycles close no gameplay
+gap, resolve no necessary uncertainty, and remove no concrete blocker; also trigger
+when work exceeds its stated effort estimate without explained progress. Trigger
+immediately for a second prerequisite refactor, repeated unchanged triage/checks, or
+helper-only work being presented as a completed feature. These are investigation
+signals, not proof that difficult research is wasteful.
+
+Coalesce related signals into one diagnosis at the next safe boundary, including
+inside an unfinished slice. Do not wait for slice completion or a user complaint.
+Use existing commits, diffs, handoffs, and receipts; a flat parity percentage alone is
+insufficient, especially when recording is not authorized. This procedure runs while
+the task is active; it does not wake an idle task.
 
 Use existing handoffs and receipts to identify the sample; do not add a counter,
 metrics ledger, or daemon. Missing measurements stay unknown.
 
-## Compact assignment
+## Optional scout assignment
 
 Start a fresh `pnd-scout` with `fork_turns: "none"` and no model/reasoning override.
 Explicitly label the assignment "workflow-efficiency review" and supply this guide
@@ -38,7 +49,7 @@ evidence only as needed. Do not load whole task history, GOAL, native notes, or 
 performance log. If the running task lacks the updated scout instructions, put the
 assignment and this guide's path directly in its prompt.
 
-## Authority and output
+## Scout authority and output
 
 Read and recommend only. Do not edit files or policy, run checks or benchmarks,
 produce artifacts, delegate, message other tasks, interrupt work, or implement a
@@ -61,11 +72,21 @@ when the sample cannot support a conclusion. Stop after this bounded report.
 
 ## Orchestrator follow-through
 
-Record acceptance or rejection in the existing task handoff. Normally try the
-highest-value small recommendation first, preserving the single source writer.
-Compare actual avoided work with the adviser, implementation, and maintenance
-effort; do not run extra benchmarks merely to populate a scorecard.
+Apply the smallest supported local correction without requesting routine approval:
+remove redundant process, reuse valid evidence, narrow an investigation, change the
+implementation approach, or retire stale cleanup instructions. Preserve feature
+acceptance, parity scope, required proof, modern compatibility, and existing work.
+If diagnosis finds a concrete blocker, choose another feature only within the user's
+authorized priorities. Publishing, recording, credentials, and external actions retain
+their existing authorization requirements.
 
-Retire the review when it does not produce an observed delivery benefit. Code changes
-still receive their own fresh final review; the efficiency report is not acceptance
-evidence.
+Record the cause, correction, and expected next gameplay advance in the existing
+handoff, then resume implementation in the same work session. At the next meaningful
+cycle, check whether the correction removed the delay. If it did not, revise the
+diagnosis or approach; do not repeat an unchanged remedy or enter recursive workflow
+reviews. Escalate only a specific unresolved blocker that actually needs user input.
+Evidence of necessary ongoing work justifies continuing with a named next result.
+
+Retire ineffective remedies, retaining the lightweight stall check. Code changes
+still receive their required verification and review; efficiency findings are not
+gameplay acceptance evidence.

@@ -50,10 +50,10 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    candidate path when needed. Do not send whole project history,
    `GOAL.md`, native notes, or the performance log. Do not recursively delegate.
 
-   At a safe boundary after observed repeated delivery friction, trial the read-only
-   scout assignment in
-   `engineering/efficiency-review.md`. Its compact receipt brief replaces the
-   gameplay packet for this advisory review; it never replaces final code review.
+   Apply the automatic stall triggers and recovery in `engineering/efficiency-review.md`
+   at resumption and progress boundaries, even before a slice finishes. The parent
+   applies supported local corrections and resumes gameplay without user prompting;
+   an optional scout uses the compact brief. Keep required proof and final review.
 6. Before verification, select checks without executing them:
 
    ```sh

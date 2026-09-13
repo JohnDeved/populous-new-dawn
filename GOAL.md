@@ -21,6 +21,9 @@ The workflow is adjustable. Simplify or replace agents, contracts, retrieval, an
 checks when observed results justify it. Prefer the smallest improvement that
 helps deliver the next gameplay change while preserving these acceptance constraints,
 safety, and the canonical sources of truth.
+Detect stalled delivery during active work and correct its workflow or implementation
+approach autonomously under `engineering/efficiency-review.md`; do not wait for the
+user to notice or for an unfinished slice to complete.
 
 ## Main priority: modern desktop compatibility
 

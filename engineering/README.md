@@ -121,6 +121,9 @@ parent owns the final choice.
 
 ## Task flow
 
+Apply the progress-boundary stall checks and automatic local recovery in
+`efficiency-review.md` throughout active work, including unfinished slices.
+
 1. Record HEAD and every existing working-tree path. Establish relevant baseline
    results before editing.
 2. Continue a valid feature lock. If no objective is fixed, complete the bounded
