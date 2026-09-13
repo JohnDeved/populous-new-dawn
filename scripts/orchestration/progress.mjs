@@ -46,6 +46,14 @@ export function progressStatus(repo = ROOT, now = Date.now()) {
   return report(existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : null, parity(repo), now)
 }
 
+export function observeProgress(repo = ROOT, now = Date.now()) {
+  try { return progressStatus(repo, now) }
+  catch (error) {
+    return { status: 'unavailable', reason: error.message,
+      action: 'Inspect and repair the delivery clock without discarding its history. Verification results remain authoritative.' }
+  }
+}
+
 export function main(argv = process.argv.slice(2), repo = ROOT, now = Date.now()) {
   const [command = 'status', ...rest] = argv
   const options = parseOptions(rest)

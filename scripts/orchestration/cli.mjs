@@ -7,6 +7,7 @@ import {
   mkdirSync,
   readFileSync,
   realpathSync,
+  renameSync,
   writeFileSync,
 } from 'node:fs'
 import { dirname, extname, isAbsolute, normalize, relative, resolve, sep } from 'node:path'
@@ -1599,6 +1600,13 @@ export function parseOptions(args) {
 export function main(argv = process.argv.slice(2), repo = ROOT) {
   const [command = 'check', ...rest] = argv
   const options = parseOptions(rest)
+  const accepted = {
+    check: [], index: [], plan: ['base'], audit: ['contract'],
+    context: ['subsystem', 'query', 'budget', 'role', 'contract', 'research-output', 'output'],
+  }[command]
+  assert(accepted, `Unknown orchestration command: ${command}`)
+  for (const key of Object.keys(options))
+    assert(accepted.includes(key), `Unknown ${command} option: --${key}`)
   if (command === 'check') {
     assert(!Object.keys(options).length, 'check accepts no options')
     const result = validateRepository(repo)
@@ -1635,7 +1643,20 @@ export function main(argv = process.argv.slice(2), repo = ROOT) {
   if (command === 'context') {
     assert(options.subsystem, 'context requires --subsystem')
     const budget = options.budget === undefined ? undefined : Number(options.budget)
-    return contextPacket(repo, {
+    let output
+    if (options.output) {
+      assert(options.output.startsWith('work/orchestration/') && options.output.endsWith('.json'),
+        'Context output must be an ignored JSON file under work/orchestration/')
+      output = safeRepoPath(repo, options.output, { mustExist: false })
+      git(repo, ['check-ignore', '-q', '--', options.output])
+      assert(!git(repo, ['ls-files', '--', options.output]).trim(), 'Context output must not be tracked')
+      if (existsSync(output)) {
+        const previous = JSON.parse(readFileSync(output, 'utf8'))
+        assert(previous.version === 1 && Number.isInteger(previous.contextBytes) &&
+          Number.isInteger(previous.budgetBytes), 'Context output would overwrite a non-packet file')
+      }
+    }
+    const packet = contextPacket(repo, {
       subsystem: options.subsystem,
       query: options.query ?? '',
       budget,
@@ -1643,6 +1664,14 @@ export function main(argv = process.argv.slice(2), repo = ROOT) {
       contract: options.contract ?? null,
       researchOutput: options['research-output'] ?? null,
     })
+    if (output) {
+      mkdirSync(dirname(output), { recursive: true })
+      const temporary = safeRepoPath(repo, `${options.output}.tmp`, { mustExist: false })
+      // A unique create refuses stale/symlink temporaries instead of overwriting them.
+      writeFileSync(temporary, `${JSON.stringify(packet, null, 2)}\n`, { flag: 'wx' })
+      renameSync(temporary, output)
+    }
+    return packet
   }
   if (command === 'plan') {
     assert(options.base, 'plan requires --base')

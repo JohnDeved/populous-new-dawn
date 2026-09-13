@@ -36,6 +36,9 @@ Use `npm run orchestration:progress -- status` at resumption, progress boundarie
 and at least every 10 minutes during active work; check after a long tool returns.
 Preparation and verification also include the clock report automatically. Only the
 parent writes the shared ignored `work/orchestration/delivery-clock.json`.
+A clock read failure appears as `unavailable` with a repair action; it cannot replace
+completed verification results or turn successful contract preparation into failure.
+Repair the monitoring fault while preserving recorded history.
 
 Before implementing a selected feature, start its clock with an honest estimate:
 `npm run orchestration:progress -- start --task "feature outcome" --minutes 90`.

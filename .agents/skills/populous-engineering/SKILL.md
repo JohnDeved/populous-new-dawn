@@ -8,7 +8,7 @@ description: Evidence-driven engineering workflow for Populous New Dawn parity, 
 Invoke explicitly as `$populous-engineering` before a substantial repository task.
 
 1. The parent reads root `AGENTS.md`, `GOAL.md`, and the applicable sections linked
-   from `engineering/README.md`. Delegated specialists start with their role packet
+   from `engineering/README.md`. Delegated specialists start with their brief or role packet
    and relevant source expansion. Record HEAD and working-tree changes before editing.
 2. Continue a valid feature lock. Only when no objective is fixed, perform one bounded
    triage before choosing a subsystem. The parent may ask `pnd-scout` directly, without

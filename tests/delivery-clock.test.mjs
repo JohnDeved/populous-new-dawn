@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
-import { main, report } from '../scripts/orchestration/progress.mjs'
+import { main, report, observeProgress } from '../scripts/orchestration/progress.mjs'
 
 test('delivery clock persists real time, rejects resets, and rewards only evidenced gameplay delivery', () => {
   const repo = mkdtempSync(join(tmpdir(), 'pnd-delivery-'))
@@ -39,6 +39,8 @@ test('delivery clock persists real time, rejects resets, and rewards only eviden
     assert.equal(report(state, { ...state.parity, percent: 2 }, start + 120 * minute).parityPercentagePointsPerHour, 1)
     assert.equal(report(state, { scope: 'different', percent: 2 }, start + 120 * minute).parityPercentagePointsPerHour, null)
     assert.throws(() => main(['status'], repo, start), /backwards/)
+    assert.equal(observeProgress(repo, start).status, 'unavailable')
+    assert.equal(observeProgress(repo, start + 82 * minute).status, 'review-approach')
     assert.equal(main(['status'], repo, start + 130 * minute).status, 'recover-now')
     const ended = main(['abandon', '--note', 'external dependency', '--evidence', 'proof.md'], repo, start + 131 * minute)
     assert.equal(ended.status, 'recover-now', 'Abandonment cannot reset gameplay clock')

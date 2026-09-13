@@ -43,8 +43,8 @@ npm run orchestration:audit -- --contract work/orchestration/task-contract.json
 - `context` validates the cached source fingerprints and rebuilds a missing/stale
   cache. It emits reviewed mappings, live parity scope/limitations, source excerpts,
   selected checks, unresolved questions, provenance, and an omission list. With
-  `--role` and `--contract`, it projects the validated task into one read-only
-  specialist assignment; reviewer packets include the actual change manifest and
+  `--role` and `--contract`, it projects the validated task into one specialist
+  assignment (native scratch writes require `--research-output`); reviewer packets include the actual change manifest and
   tracked full-diff command plus every untracked path.
 - `plan` reads branch, staged, unstaged, deleted, renamed, and relevant untracked
   paths. It explains check selection and reports unknown paths explicitly. It never
@@ -68,8 +68,10 @@ npm run orchestration:audit -- --contract work/orchestration/task-contract.json
 The default context budget is 24,000 UTF-8 bytes, or 12,000 for a role packet.
 Override either with `--budget N`.
 `contextBytes` counts the emitted formatted JSON and trailing newline, excluding
-npm's banner. Use `npm run --silent orchestration:context -- ...` when saving a
-packet. These are UTF-8 bytes, not model tokens.
+npm's banner. Add `--output work/orchestration/<task>/reviewer-packet.json` to save
+the exact JSON atomically, including an explicit `incomplete` result when context
+overflows. Unknown command options fail instead of silently leaving an old packet.
+These are UTF-8 bytes, not model tokens.
 Whole evidence sections are admitted only when they fit; omitted sections appear in
 `omissions` with exact source headings. Mandatory assignment or evidence overflow
 marks a role packet `incomplete`; it is never silently treated as sufficient. A

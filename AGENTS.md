@@ -9,7 +9,7 @@ Scoped native exports, probes, and durable research handoffs follow
 ## Start here
 
 1. The parent reads `GOAL.md` for current direction and execution order. Delegated
-   specialists start from their supplied role packet and expand relevant sources.
+   specialists start from their supplied brief or role packet and expand relevant sources.
 2. Record `git rev-parse HEAD` and `git status --short`; never reset, clean, or
    overwrite pre-existing staged, unstaged, or untracked work.
 3. Continue a valid feature lock from `GOAL.md`. If no objective is fixed, have the

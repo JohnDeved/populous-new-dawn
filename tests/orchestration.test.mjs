@@ -22,6 +22,7 @@ import {
   contextPacket,
   fingerprintPaths,
   loadOrBuildIndex,
+  main as orchestrationMain,
   parseMarkdown,
   planChanges,
   safeRepoPath,
@@ -447,6 +448,42 @@ test('context returns bounded provenance, limitations, checks, and visible sourc
     )
     assert.equal(packet.sourceExcerpts.find(item => item.path === 'app/shared.ts').truncated, true)
     assert.ok(packet.omissions.some(item => /bounded window/.test(item.reason)))
+  }))
+
+test('context output saves current JSON and rejects silent option mistakes', () =>
+  withRepo(repo => {
+    const output = 'work/orchestration/task/packet.json'
+    const args = ['context', '--subsystem', 'selection', '--query', 'native evidence', '--output', output]
+    const packet = orchestrationMain(args, repo)
+    assert.deepEqual(JSON.parse(readFileSync(join(repo, output))), packet)
+    assert.equal(readFileSync(join(repo, output), 'utf8'), `${JSON.stringify(packet, null, 2)}\n`)
+    const replacement = orchestrationMain([...args.slice(0, 4), 'different question', '--output', output], repo)
+    assert.equal(JSON.parse(readFileSync(join(repo, output))).query, replacement.query)
+    const saved = readFileSync(join(repo, output), 'utf8')
+    assert.throws(() => orchestrationMain([...args, '--outpt', 'typo.json'], repo), /Unknown context option/)
+    assert.equal(readFileSync(join(repo, output), 'utf8'), saved)
+    assert.throws(() => orchestrationMain(['plan', '--base', 'HEAD', '--bogus', 'yes'], repo), /Unknown plan option/)
+    assert.throws(() => orchestrationMain([...args.slice(0, -1), 'app/packet.json'], repo), /ignored JSON/)
+    const task = contract(repo, run(repo, 'git', 'rev-parse', 'HEAD').trim())
+    put(repo, 'work/orchestration/task.json', task)
+    assert.throws(() => orchestrationMain([...args.slice(0, -1), 'work/orchestration/task.json'], repo), /non-packet file/)
+    assert.deepEqual(JSON.parse(readFileSync(join(repo, 'work/orchestration/task.json'))), task)
+    const incomplete = orchestrationMain(['context', '--subsystem', 'selection', '--query', 'x'.repeat(1001),
+      '--role', 'native', '--contract', 'work/orchestration/task.json', '--output', output], repo)
+    assert.equal(incomplete.status, 'incomplete')
+    assert.equal(JSON.parse(readFileSync(join(repo, output))).status, 'incomplete', 'Overflow cannot leave a stale complete packet')
+  }))
+
+test('clock corruption cannot turn successful preparation into a failed partial operation', () =>
+  withRepo(repo => {
+    put(repo, 'work/orchestration/delivery-clock.json', '{broken')
+    put(repo, 'work/orchestration/spec.json', taskSpec(repo))
+    const result = prepareMain(['--spec', 'work/orchestration/spec.json', '--task-id', 'clock-fault',
+      '--contract', 'work/orchestration/clock-fault.json'], repo)
+    assert.equal(result.deliveryClock.status, 'unavailable')
+    assert(result.deliveryClock.reason)
+    assert.equal(JSON.parse(readFileSync(join(repo, result.contract))).identity.taskId, 'clock-fault')
+    assert.equal(readFileSync(join(repo, 'work/orchestration/delivery-clock.json'), 'utf8'), '{broken')
   }))
 
 test('native research packets grant only a contract-allowed ignored scratch directory', () =>
