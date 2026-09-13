@@ -7,8 +7,10 @@ import {
   campaignAttackTarget,
   forceHead,
   missionAI,
+  HOME,
+  ENEMY,
 } from './campaign-runtime.ts'
-export { campaignInternal, campaignPersonCount, campaignBuildingCount, forceHead } from './campaign-runtime.ts'
+export { campaignInternal, campaignPersonCount, campaignBuildingCount, forceHead, HOME, ENEMY } from './campaign-runtime.ts'
 import {
   computerSelectionWorld,
   computerTrainingBuilding,
@@ -467,12 +469,6 @@ import { unitKindFromModel, type UnitKind } from './unit-kinds.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 export type { UnitKind } from './unit-kinds.ts'
-const position = (owner: number) => {
-  const o = level.objects.find(o => o.type === 1 && o.model === 7 && o.owner === owner)!
-  return { x: o.x, z: o.z }
-}
-export const HOME = position(0),
-  ENEMY = position(1)
 const unitSpeed = (u: Unit) =>
   u.kind === 'shaman'
     ? constants.MEDICINE_MAN_SPEED

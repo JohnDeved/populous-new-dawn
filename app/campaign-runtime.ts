@@ -10,6 +10,13 @@ import level from './level-one.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import originalScript from './original-script.json' with { type: 'json' }
 
+const missionPosition = (owner: number) => {
+  const o = level.objects.find(o => o.type === 1 && o.model === 7 && o.owner === owner)!
+  return { x: o.x, z: o.z }
+}
+export const HOME = missionPosition(0),
+  ENEMY = missionPosition(1)
+
 export function missionAI() {
   const ai = {
     ...scriptState(originalScript),
