@@ -308,6 +308,7 @@ export class GameScene {
   cameraMotion = createCameraMotion()
   cameraVelocity = { turn: 0, forward: 0, side: 0 }
   cameraPosition = { x: 0, y: 0, angle: 0 }
+  cameraBookmarks: ({ x: number; y: number; angle: number } | null)[] = Array(4).fill(null)
   resultRequest = 0
   cameraTime = 0
   cameraPreviewButtons: number | null = null

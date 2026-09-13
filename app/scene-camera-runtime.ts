@@ -419,6 +419,27 @@ export function focus(scene: GameScene, p: Point = HOME, { animate = false } = {
   }
 }
 
+export function cameraBookmark(scene: GameScene, slot: number, set: boolean) {
+  if (set) {
+    scene.captureCamera()
+    scene.cameraBookmarks[slot] = { ...scene.cameraPosition }
+    scene.onSound(221)
+    return
+  }
+  const target = scene.cameraBookmarks[slot]
+  if (!target) return
+  scene.cancelOverview()
+  scene.captureCamera()
+  scene.onSound(222)
+  requestCameraFocus(scene.cameraMotion, scene.cameraPosition, {
+    x: (target.x & 0xfe00) | 0x100,
+    y: (target.y & 0xfe00) | 0x100,
+    angle: target.angle,
+  })
+  scene.world.mode = null
+  scene.tooltip.draw = 0
+}
+
 export function stepViewChange(scene: GameScene) {
   if (scene.world.inputMask) return
   if (scene.viewTransition && !scene.overviewActive) {

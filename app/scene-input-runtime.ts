@@ -26,6 +26,7 @@ import { pointerBrackets } from './world-picking.ts'
 import { commandMarkerPoint } from './command-context.ts'
 import { dragCamera, cameraCommand, cameraEdgeButtons, mergeCameraInput } from './camera-input.ts'
 import { beginGlobeDrag } from './globe.ts'
+import { cameraBookmark } from './scene-camera-runtime.ts'
 import {
   dragEndpoint,
   dragCommand,
@@ -351,10 +352,11 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
   ).toLowerCase()
   const zoomIn = key === '=' || key === '+',
     zoomOut = key === '-',
-    modifier = key === 'control' || key === 'shift'
+    modifier = key === 'control' || key === 'shift',
+    bookmark = ['z', 'x', 'c', 'v'].indexOf(key)
   if (
     scene.world.inputMask ||
-    (!cameraKeys[key] && !zoomIn && !zoomOut && !modifier && key !== 'quote') ||
+    (!cameraKeys[key] && !zoomIn && !zoomOut && !modifier && key !== 'quote' && bookmark < 0) ||
     (event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]') ||
     (event.ctrlKey && key.length === 1) ||
     event.metaKey ||
@@ -364,6 +366,11 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
     return
   if (event.ctrlKey) scene.keys.add('control')
   if (event.shiftKey) scene.keys.add('shift')
+  if (bookmark >= 0) {
+    cameraBookmark(scene, bookmark, event.shiftKey)
+    event.preventDefault()
+    return
+  }
   if (zoomIn || zoomOut) {
     if (!event.shiftKey) {
       scene.zoom(zoomIn)

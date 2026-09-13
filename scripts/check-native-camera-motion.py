@@ -7,11 +7,11 @@ supplies input, interaction-cleanup and sound consumers at call boundaries.
 import json,random,struct,subprocess,sys
 from pathlib import Path
 from unicorn import UC_HOOK_CODE
-from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP
+from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_EAX
 from decomp import native_cpu
 root=Path(__file__).resolve().parents[1];cpu,_=native_cpu(Path(sys.argv[1]));cpu.mem_map(0x2000000,0x20000)
 point,stack,stop=0x2000000,0x201d000,0x201e000
-rng=random.Random(0x417d80);events=[]
+rng=random.Random(0x417d80);events=[];sounds=[];allowed_sounds={(0,0xa2,1)}
 def write(a,f,*v):cpu.mem_write(a,struct.pack('<'+f,*v))
 def read(a,f):return struct.unpack('<'+f,cpu.mem_read(a,struct.calcsize('<'+f)))[0]
 def call(a,*args):
@@ -73,7 +73,9 @@ def result_state():
 def result_leaf(cpu,a,s,u):
     sp=cpu.reg_read(UC_X86_REG_ESP)
     if a in [0x4af0a0,0x4af1c0]:assert read(sp+4,'I')==4
-    if a==0x48a050:assert [read(sp+i,'I') for i in [4,8,12]]==[0,0xa2,1]
+    if a==0x48a050:
+        sound=tuple(read(sp+i,'I') for i in [4,8,12]);assert sound in allowed_sounds
+        sounds.append(sound);cpu.reg_write(UC_X86_REG_EAX,0)
     events.append({0x4af0a0:'lock',0x4af1c0:'unlock',0x448fa0:'clear',0x48a050:'sound'}[a])
     cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
 for a in [0x4af0a0,0x4af1c0,0x448fa0,0x48a050]:cpu.hook_add(UC_HOOK_CODE,result_leaf,begin=a,end=a)
@@ -156,3 +158,41 @@ actual=json.loads(r.stdout)
 for i,(a,b) in enumerate(zip(expected,actual)):
     for frame,(x,y) in enumerate(zip(a,b)):assert x==y,('focus',i,frame,x,y)
 print('PASS: 1,024 complete native focus requests and 5,120 subsequent movement steps (immediate, duplicate, retargeted and wrapped)')
+
+# 0x4aab80 actions 0x1e..0x25: four runtime camera bookmarks. Recall queues
+# the same smooth 0x16 focus command whose planner/movement are compared above.
+# Built-in records loaded by 0x4891d0 bind physical Z/X/C/V with and without Shift.
+bindings=[
+ (0x5d63d0,'5a1e00000011010100000000'),(0x5d63dc,'581f00000011010100000000'),
+ (0x5d63e8,'432000000011010100000000'),(0x5d63f4,'562100000011010100000000'),
+ (0x5d6400,'5a2200000011000100000000'),(0x5d640c,'582300000011000100000000'),
+ (0x5d6418,'432400000011000100000000'),(0x5d6424,'562500000011000100000000')]
+for address,expected_bytes in bindings:assert bytes(cpu.mem_read(address,12))==bytes.fromhex(expected_bytes)
+allowed_sounds={(0,221,1),(0,222,0)}
+def bookmark_focus(cpu,a,s,u):
+    sp=cpu.reg_read(UC_X86_REG_ESP)
+    events.append(dict(command=read(sp+4,'I'),point=read(sp+8,'I'),angle=read(sp+12,'I')))
+    cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
+cpu.hook_add(UC_HOOK_CODE,bookmark_focus,begin=0x479dd0,end=0x479dd0)
+for slot in range(4):
+    write(0x89c6f0,'b',0);write(0x89db09,'B',0);events=[];sounds=[]
+    call(0x4aab80,0x22+slot,0,0)
+    assert events==[],('invalid bookmark recall',slot,events)
+    saved=dict(x=(65530+slot*7)&65535,y=(3+slot*16381)&65535,angle=[0,1,1024,2047][slot])
+    write(0x89d1ec,'HH',saved['x'],saved['y']);write(0x89d1fa,'h',saved['angle'])
+    call(0x4aab80,0x1e+slot,0,0)
+    assert read(0x9606e6+slot*4,'H')==saved['x']
+    assert read(0x9606e8+slot*4,'H')==saved['y']
+    assert read(0x96a868+slot*2,'h')==saved['angle']
+    assert read(0x89db09,'B')==1<<(slot+2)
+    assert events==['sound'] and sounds==[(0,221,1)],('bookmark set',slot,events,sounds)
+    events=[];write(0x89d1ec,'HH',12345,54321);write(0x89d1fa,'h',321)
+    call(0x4aab80,0x22+slot,0,0)
+    packed=((saved['x']>>8)&0xfe)|((saved['y']>>8)&0xfe)<<8
+    assert events==[dict(command=0x16,point=packed,angle=saved['angle'])],('bookmark recall',slot,events)
+    cpu.mem_write(point,bytes(10));write(point,'B',0x16);write(point+2,'I',packed);write(point+6,'I',saved['angle'])
+    cpu.mem_write(0x89bbff,bytes(31));events=[];sounds=[];call(0x43de90,point)
+    assert sounds==[(0,222,0)],('bookmark recall sound',slot,sounds)
+    target=snapshot()['state']['target'];expected_target=dict(x=saved['x']&0xfe00|0x100,y=saved['y']&0xfe00|0x100,angle=saved['angle'])
+    assert target==expected_target,('bookmark recall focus',slot,target,expected_target)
+print('PASS: physical Z/X/C/V camera bookmarks, native set/recall actions, invalid gates, wrapped positions, angles and exact cues')

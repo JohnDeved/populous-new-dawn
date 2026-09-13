@@ -23,7 +23,103 @@ try {
       s.cameraBearing = (333 * Math.PI) / 1024
       s.focus({ x: -10.09375, z: -8.78125 })
     }
+    window.bookmarkSounds = []
+    s.onSound = cue => window.bookmarkSounds.push(cue)
   })
+  await page.keyboard.press('z')
+  assert.deepEqual(await page.evaluate(() => window.bookmarkSounds), [], 'unset recall is silent')
+  const bookmarkKeys = ['z', 'x', 'c', 'v'], bookmarks = []
+  for (let i = 0; i < bookmarkKeys.length; i++) {
+    const bookmark = { x: (65500 + i * 4096) & 65535, y: (40 + i * 6144) & 65535, angle: i ? i * 511 : 2047 }
+    bookmarks.push(bookmark)
+    await page.evaluate(bookmark => {
+      const s = window.testScene
+      s.cameraMotion.active = 0
+      Object.assign(s.cameraPosition, bookmark)
+      s.viewPoint = { x: bookmark.x / 256 - 8, z: -(bookmark.y / 256 + 8) }
+      s.cameraBearing = bookmark.angle * Math.PI / 1024
+      s.updateView()
+    }, bookmark)
+    await page.keyboard.press(`Shift+${bookmarkKeys[i]}`)
+  }
+  await page.evaluate(() => {
+    const s = window.testScene
+    Object.assign(s.cameraPosition, { x: 12000, y: 28000, angle: 123 })
+    s.viewPoint = { x: 12000 / 256 - 8, z: -(28000 / 256 + 8) }
+    s.cameraBearing = 123 * Math.PI / 1024
+    s.updateView()
+  })
+  for (let i = 0; i < bookmarkKeys.length; i++) {
+    await page.keyboard.press(bookmarkKeys[i])
+    assert.deepEqual(await page.evaluate(() => window.testScene.cameraMotion.target), {
+      x: (bookmarks[i].x & 0xfe00) | 0x100,
+      y: (bookmarks[i].y & 0xfe00) | 0x100,
+      angle: bookmarks[i].angle,
+    })
+  }
+  assert.deepEqual(await page.evaluate(() => window.bookmarkSounds), [221, 221, 221, 221, 222, 222, 222, 222])
+  await page.evaluate(() => {
+    const s = window.testScene
+    s.cameraMotion.active = 0
+    s.world.inputMask = 64
+  })
+  await page.keyboard.press('z')
+  assert.equal(await page.evaluate(() => window.testScene.cameraMotion.active), 0, 'flyby/input locks block recall')
+  await page.evaluate(() => {
+    const s = window.testScene
+    s.world.inputMask = 0
+    s.world.paused = true
+    s.overview()
+    for (let i = 0; i < 100 && s.overviewStage; i++) s.stepViewChange()
+  })
+  assert.deepEqual(
+    await page.evaluate(() => ({
+      active: window.testScene.overviewActive,
+      stage: window.testScene.overviewStage,
+    })),
+    { active: true, stage: null },
+    'enter overview through the shipped transition path'
+  )
+  const overviewReturn = await page.evaluate(() => ({ ...window.testScene.overviewReturn }))
+  await page.keyboard.press('z')
+  assert.deepEqual(
+    await page.evaluate(() => {
+      const s = window.testScene
+      return {
+        paused: s.world.paused,
+        overview: s.overviewActive,
+        stage: s.overviewStage,
+        preset: s.viewPreset,
+        bearing: s.cameraBearing,
+        active: s.cameraMotion.active,
+        target: s.cameraMotion.target,
+      }
+    }),
+    {
+      paused: true,
+      overview: false,
+      stage: null,
+      preset: overviewReturn.preset,
+      bearing: overviewReturn.bearing,
+      active: 1,
+      target: {
+        x: (bookmarks[0].x & 0xfe00) | 0x100,
+        y: (bookmarks[0].y & 0xfe00) | 0x100,
+        angle: bookmarks[0].angle,
+      },
+    },
+    'pause keeps camera controls available and recall leaves a real overview'
+  )
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  const beforeModal = await page.evaluate(() => window.bookmarkSounds.length)
+  await page.keyboard.press('x')
+  assert.equal(await page.evaluate(() => window.bookmarkSounds.length), beforeModal, 'modal blocks recall')
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  assert.equal(await page.evaluate(async () => {
+    const { AUDIO_CUES } = await import('/app/audio.ts')
+    return AUDIO_CUES.includes(221) && AUDIO_CUES.includes(222)
+  }), true)
+  await page.evaluate(() => window.resetNavigation())
   const runs = await page.evaluate(async () => {
     const { stepCameraInput } = await import('/app/camera-input.ts'),
       s = window.testScene,
@@ -196,7 +292,7 @@ try {
   await page.screenshot({ path: '/private/tmp/populous-camera-smoothing.png' })
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: native endpoints and a new projected view on every frame at 5–240 Hz, seam crossing, diagonal turning, actual key response/release',
+    'PASS: four original camera bookmarks plus native endpoints and a new projected view on every frame at 5–240 Hz, seam crossing, diagonal turning, actual key response/release',
     JSON.stringify({ runs, focus, pixels })
   )
 } finally {

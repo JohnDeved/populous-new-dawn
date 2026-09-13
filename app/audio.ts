@@ -67,6 +67,8 @@ export const AUDIO_CUES = [
   80,
   82,
   84,
+  221,
+  222,
   225,
   226,
 ]

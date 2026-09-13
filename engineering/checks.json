@@ -889,9 +889,10 @@
       "id": "camera-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise actual browser camera input, fractional presentation, resize, and view changes.",
+      "purpose": "Exercise actual browser camera input, bookmarks, fractional presentation, resize, and view changes.",
       "coveredBehavior": [
         "Keyboard/edge input",
+        "camera bookmark set/recall",
         "high-refresh smoothing",
         "desktop resize",
         "view presets"
@@ -907,6 +908,9 @@
         "scripts/check-browser-camera-smoothing.mjs",
         "scripts/browser-game.mjs",
         "app/scene.ts",
+        "app/scene-input-runtime.ts",
+        "app/scene-camera-runtime.ts",
+        "app/audio.ts",
         "app/camera-motion.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],

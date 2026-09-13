@@ -823,6 +823,8 @@ export default function Home() {
           <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
           <span>Drag on land</span>
           <strong>Select a group · Ctrl adds to selection</strong>
+          <span>Shift Z / X / C / V · Z / X / C / V</span>
+          <strong>Set camera bookmarks · Recall them</strong>
           <span>Ctrl-click / Shift-click</span>
           <strong>Toggle a follower / Give an order through friendly followers</strong>
           <span>HUD follower buttons</span>
