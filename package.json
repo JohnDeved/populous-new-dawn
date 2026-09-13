@@ -29,6 +29,7 @@
     "orchestration:context": "node scripts/orchestration/cli.mjs context",
     "orchestration:plan": "node scripts/orchestration/cli.mjs plan",
     "orchestration:prepare": "node scripts/orchestration/prepare.mjs",
+    "orchestration:progress": "node scripts/orchestration/progress.mjs",
     "orchestration:verify": "node scripts/orchestration/verify.mjs",
     "orchestration:audit": "node scripts/orchestration/cli.mjs audit"
   },

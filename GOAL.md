@@ -29,6 +29,9 @@ and its acceptance constraints. Judge workflow changes by subsequent gameplay de
 Detect stalled delivery during active work and correct its workflow or implementation
 approach autonomously under `engineering/efficiency-review.md`; do not wait for the
 user to notice or for an unfinished slice to complete.
+Measure delivery speed using real elapsed time and comparable verified parity gain
+per hour. Use the workflow delivery clock to detect stalls and retain approaches that
+produce more accepted gameplay in less time without weakening acceptance.
 
 ## Main priority: modern desktop compatibility
 

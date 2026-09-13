@@ -54,6 +54,8 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    at resumption and progress boundaries, even before a slice finishes. The parent
    applies supported local corrections and resumes gameplay without user prompting;
    an optional scout uses the compact brief. Keep required proof and final review.
+   Use its persistent `orchestration:progress` clock before implementation and at
+   least every 10 active minutes; act on stall warnings and delivery-time feedback.
 6. Before verification, select checks without executing them:
 
    ```sh

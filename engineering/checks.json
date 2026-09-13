@@ -16,7 +16,7 @@
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/delivery-clock.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [

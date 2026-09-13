@@ -980,7 +980,7 @@ function configureAggregate(repo) {
   const configure = (id, executable, args) => Object.assign(checks.checks.find(check => check.id === id),
     { automation: 'safe', executable, args })
   configure('repository-check', 'npm', ['run', 'check'])
-  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs'])
+  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/delivery-clock.test.mjs'])
   configure('orchestration-structural', 'node', ['scripts/orchestration/cli.mjs', 'check'])
   checks.checks.find(check => check.id === 'orchestration-tests').inputs = ['docs.md']
   put(repo, 'engineering/checks.json', checks)

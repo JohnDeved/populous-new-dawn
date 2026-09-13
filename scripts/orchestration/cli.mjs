@@ -1175,6 +1175,7 @@ function workflowPath(path) {
     'engineering',
     'scripts/orchestration',
     'tests/orchestration.test.mjs',
+    'tests/delivery-clock.test.mjs',
   ].some(rule => pathMatches(path, rule))
 }
 
@@ -1290,7 +1291,7 @@ export function repositoryCheckCoverage(repo, manifests = validateRepository(rep
       scripts.check !== 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check') return []
   return [
     ...(scripts.test === 'node --test tests/*.test.mjs' &&
-      matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs'])
+      matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/delivery-clock.test.mjs'])
       ? ['orchestration-tests'] : []),
     ...(scripts['orchestration:check'] === 'node scripts/orchestration/cli.mjs check' &&
       matches('orchestration-structural', ['node', 'scripts/orchestration/cli.mjs', 'check'])

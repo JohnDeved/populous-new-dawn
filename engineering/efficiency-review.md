@@ -26,8 +26,51 @@ Use existing commits, diffs, handoffs, and receipts; a flat parity percentage al
 insufficient, especially when recording is not authorized. This procedure runs while
 the task is active; it does not wake an idle task.
 
-Use existing handoffs and receipts to identify the sample; do not add a counter,
-metrics ledger, or daemon. Missing measurements stay unknown.
+Use existing handoffs and receipts to identify the sample. The delivery clock below
+stores timing and evidence references, not a second parity ledger. Missing historical
+measurements stay unknown.
+
+## Wall-clock feedback
+
+Use `npm run orchestration:progress -- status` at resumption, progress boundaries,
+and at least every 10 minutes during active work; check after a long tool returns.
+Preparation and verification also include the clock report automatically. Only the
+parent writes the shared ignored `work/orchestration/delivery-clock.json`.
+
+Before implementing a selected feature, start its clock with an honest estimate:
+`npm run orchestration:progress -- start --task "feature outcome" --minutes 90`.
+Choose a budget from scope and comparable work, not the desired score. Original
+budgets and timestamps persist; starting another task cannot erase elapsed time.
+Do not retroactively invent a start time for existing work.
+
+Record an advance with `npm run orchestration:progress -- note --kind gameplay
+--note "behavior now reached" --evidence work/orchestration/acceptance.md` (one line).
+Use `research`, `refactor`, or `workflow` for supporting work. A `gameplay` event must
+cite a distinct accepted behavior through a normal game path, with appropriate proof;
+repeated assertions, checks, and helper work cannot refresh the gameplay clock.
+Use `finish` with the same arguments only when the feature acceptance is met, or
+`abandon --note "concrete blocker" --evidence <handoff>` before choosing another task.
+
+At 30 minutes without gameplay advancement, or when a task exceeds its budget, the
+clock returns `review-approach`. At 60 minutes it returns `recover-now`: explain the
+delay and apply a supported correction at the next safe boundary. Necessary research
+may justify continuing, but requires a concrete next result and a timed reassessment.
+These initial thresholds can be adjusted in the helper when measured work supports it.
+Clock warnings do not terminate checks or weaken feature acceptance.
+
+The primary rate is canonical parity percentage-point gain per elapsed hour; changed
+scope makes that rate unavailable. Supporting work receives no feature reward. A
+feature delivered within its original budget receives positive feedback: keep the
+effective approach in the existing handoff and reuse it on comparable work. Overruns
+prompt a diagnosis. Compare feature scope and regressions as well as time; inflated
+budgets, tiny checkpoint counts, commits, and test counts are not speed measures.
+This is operational feedback for AI decisions, not model-weight training.
+
+Wall time includes idle time, external waits, review, and verification. Report known
+interruptions separately without deleting them or claiming wall time is active effort.
+If parity recording is unavailable, report the observed accepted gameplay outcomes
+and elapsed time while leaving the canonical rate unchanged. Timing alone cannot
+certify gameplay, and an idle task still needs a running executor to take action.
 
 ## Optional scout assignment
 

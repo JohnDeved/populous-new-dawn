@@ -81,6 +81,9 @@ verification and final code review.
 The parent also owns autonomous priority and workflow decisions under `GOAL.md`;
 revise ineffective procedural defaults and work around blocked paths without making
 routine human steering a dependency.
+Use `npm run orchestration:progress -- status` at those boundaries and every 10 minutes
+of active work. Start, annotate, and finish feature timers as described in the guide;
+act on elapsed-time warnings and retain approaches that deliver verified progress faster.
 
 When no task is fixed, compare no more than five candidates and return the top three
 plus one recommendation. Prioritize player-visible/playability impact and unblock
