@@ -370,6 +370,7 @@ export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
 export type Spell =
   | 'blast'
   | 'convertWild'
+  | 'hypnotise'
   | 'lightning'
   | 'bridge'
   | 'flatten'
@@ -454,6 +455,7 @@ export type Unit = Point & {
   casting: { spell: Spell; point: Point; remaining: number } | null
   shield?: number
   invisibility?: number
+  hypnotise?: { originalTeam: Team; remaining: number; counter: number }
 }
 export type Building = Point & {
   attackReservation?: AttackReservation
@@ -610,6 +612,16 @@ export const SPELLS: {
     symbol: '✦',
     color: '#f1e1a2',
     description: 'Recruits nearby wild people to your tribe.',
+  },
+  {
+    id: 'hypnotise',
+    model: 7,
+    name: 'Hypnotise',
+    cost: 85,
+    key: '',
+    symbol: '◈',
+    color: '#d5a6e6',
+    description: 'Temporarily turns up to six nearby enemy followers to your tribe.',
   },
   {
     id: 'bridge',
@@ -1928,6 +1940,7 @@ export function createWorld(): World {
     giftCounts: {
       blast: 0,
       convertWild: 0,
+      hypnotise: 0,
       bridge: 0,
       lightning: 0,
       flatten: 0,
@@ -2034,6 +2047,7 @@ export function createWorld(): World {
     shots: {
       blast: 4,
       convertWild: 0,
+      hypnotise: 0,
       bridge: 0,
       lightning: 0,
       flatten: 0,
@@ -3178,6 +3192,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
       ? {
           blast: 0x76,
           convertWild: 0x85,
+          hypnotise: 0x7b,
           lightning: 0x77,
           bridge: 0x80,
           flatten: 0x83,
@@ -3194,6 +3209,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
       : {
           blast: 0x8c,
           convertWild: 0x9b,
+          hypnotise: 0x91,
           lightning: 0x8d,
           bridge: 0x96,
           flatten: 0x99,
@@ -4542,6 +4558,7 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'earthquake' ||
             spell === 'volcano' ||
             spell === 'convertWild' ||
+            spell === 'hypnotise' ||
             spell === 'tornado' ||
             spell === 'shield' ||
             spell === 'invisibility' ||
@@ -5162,7 +5179,7 @@ function stepOutcome(w: World) {
     w.manaTribes[id].flags2 = t.flags2
   })
 }
-function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
+export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
   const target = { x: Math.floor(p.x / 2) * 2 + 1, z: -Math.floor(-p.z / 2) * 2 - 1 },
     position = nativePosition(w, u)
@@ -5739,6 +5756,107 @@ function stepLiveBlastWave(w: World, wave: BlastWave) {
 
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
 const INVISIBILITY_TURNS = constants.INVISIBLE_COUNT_X8 * 8
+const HYPNOTISE_COUNT = constants.HYPNO_COUNT_X8
+
+function retainedPeople(u: Unit) {
+  return [
+    ...new Set([u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person]),
+  ].filter(Boolean) as LivePerson[]
+}
+
+function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?: Team) {
+  const slot = w.units.indexOf(source)
+  if (slot < 0) return
+  const position = { x: source.x, z: source.z },
+    { hp, cargo, heading, kind } = source,
+    people = retainedPeople(source)
+  releaseTasks(w, source)
+  for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
+  w.objectCells.objects.delete(source.id)
+  w.selected = w.selected.filter(id => id !== source.id)
+  const replacement = addUnit(w, team, kind, position)
+  Object.assign(replacement, { hp, cargo, heading })
+  replacement.native = createLivePerson(w, replacement)
+  if (originalTeam) {
+    replacement.hypnotise = {
+      originalTeam,
+      remaining: HYPNOTISE_COUNT,
+      counter: replacement.native.counter,
+    }
+    replacement.native.flags4 = (replacement.native.flags4 | 0x4000) >>> 0
+  }
+  registerLivePerson(w, replacement.native)
+  w.units[slot] = replacement
+  w.units.pop()
+  return replacement
+}
+
+export function applyHypnotise(w: World, point: Point, team: Team) {
+  const center = nativePosition(w, point),
+    x = (center.x >>> 8) & 254,
+    y = (center.y >>> 8) & 254,
+    order = new Map<string, number>()
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2]) order.set(`${(x + dx) & 254}:${(y + dy) & 254}`, order.size)
+  const targets = w.units
+    .map((u, index) => {
+      const p = nativePosition(w, u),
+        scan = order.get(`${(p.x >>> 8) & 254}:${(p.y >>> 8) & 254}`)
+      return { u, p, scan: scan === undefined ? -1 : scan * w.units.length + index }
+    })
+    .filter(({ u, scan }) => {
+      const p = unitAnimationSource(u)
+      return (
+        scan >= 0 &&
+        u.inside === null &&
+        ![1, 7, 8].includes(nativePersonModel(u)) &&
+        u.team !== team &&
+        !((p?.flags4 ?? 0) & 0x1000) &&
+        !u.invisibility
+      )
+    })
+    .toSorted(
+      (a, b) => positionDistance(a.p, center) - positionDistance(b.p, center) || b.scan - a.scan
+    )
+    .slice(0, constants.HYPNO_NUM_PEOPLE)
+  for (const { u } of targets) {
+    const p = unitAnimationSource(u)
+    if ((p?.flags4 ?? 0) & 0x800) {
+      releaseTasks(w, u)
+      if ((p?.flags2 ?? 0) & 0x20000) removeObjectFromCell(w.objectCells, p as LivePerson)
+      w.objectCells.objects.delete(u.id)
+      w.selected = w.selected.filter(id => id !== u.id)
+      w.units.splice(w.units.indexOf(u), 1)
+      continue
+    }
+    replaceHypnotisedUnit(w, u, team, u.hypnotise?.originalTeam ?? u.team)
+  }
+  return targets
+}
+
+export function stepUnitHypnotise(w: World) {
+  for (const u of [...w.units]) {
+    const status = u.hypnotise
+    if (!status || u.hp <= 0) continue
+    status.counter = (status.counter + 1) & 255
+    if (status.counter & 7 || --status.remaining > 0) continue
+    const tribe = status.originalTeam === 'blue' ? 0 : status.originalTeam === 'red' ? 1 : -1
+    if (tribe >= 0 && w.manaTribes[tribe].defeatTimer) {
+      delete u.hypnotise
+      for (const p of retainedPeople(u)) p.flags4 = (p.flags4 & ~0x4000) >>> 0
+    } else replaceHypnotisedUnit(w, u, status.originalTeam)
+  }
+}
+
+function restoreDeadHypnotisedUnit(u: Unit) {
+  if (!u.hypnotise) return
+  u.team = u.hypnotise.originalTeam
+  delete u.hypnotise
+  for (const p of retainedPeople(u)) {
+    p.tribe = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1
+    p.flags4 = (p.flags4 & ~0x4000) >>> 0
+  }
+}
 
 function setUnitShield(u: Unit, turns: number) {
   u.shield = turns
@@ -5980,6 +6098,12 @@ function finishCast(
       fx.team = shaman.team
       fx.duration = Infinity
       sound(w, 0xb4, p)
+    } else if (spell === 'hypnotise') {
+      fx.team = shaman.team
+      fx.turnsRemaining = 16
+      fx.duration = Infinity
+      // ponytail: reuse the packed sparkle until the native effect-17 initializer is recovered.
+      fx.sprite = { sequence: 'sparkle', frame: 0 }
     } else if (spell === 'tornado') {
       fx.tornado = createTornado(
         w.land,
@@ -6477,6 +6601,7 @@ function stepTurn(w: World) {
   w.turn = (w.turn + 1) >>> 0
   stepUnitShields(w)
   stepUnitInvisibility(w)
+  stepUnitHypnotise(w)
   w.attackAlert = 0 // 0x4ec6f0: current object turn owns the first player fight alert.
   w.musicActivity = 0 // 0x4ec6f0: current object turn owns the music activity.
   w.time = w.turn / TURNS_PER_SECOND
@@ -6525,6 +6650,7 @@ function stepTurn(w: World) {
       if (!step.remaining) fx.duration = fx.age
     }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
+    if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
     if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
     if (fx.sinking) {
@@ -7283,6 +7409,7 @@ function stepTurn(w: World) {
     )
       joinBattle(w, u, target)
   const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44)
+  for (const u of dead) restoreDeadHypnotisedUnit(u)
   for (const u of dead) {
     const victim = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1,
       person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,
