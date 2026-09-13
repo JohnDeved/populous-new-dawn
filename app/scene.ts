@@ -22,7 +22,6 @@ import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
 import { renderBuildingPanels } from './building-panels.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
-import { minimapPick } from './minimap.ts'
 import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { advanceGame } from './game-clock.ts'
@@ -174,7 +173,7 @@ import {
 } from './scene-entities.ts'
 import { rebuildTerrain, updateTerrainTexture, landIndex, updateWater, makeDecorations, updateTerrainFrame, updateDecorationsFrame } from './scene-terrain-runtime.ts'
 import { makeSky, commitSky, updateSky, updateView, currentPreset, captureCamera, skipIntroduction, updateCameraMotion, previewCamera, updateFlyby, cancelOverview, focus, stepViewChange, startGroundView, overview, leaveOverview, zoom } from './scene-camera-runtime.ts'
-import { pickUnit, updatePlacement, planGeometry, pick, pickWorldObject, pointerDown, pointerMove, updateDrag, pointerUp, keyDown, navigationButtons, chooseFollowers, acknowledgePointer, drawPointer, updatePointerFrame, updateSpellPointerFrame } from './scene-input-runtime.ts'
+import { pickUnit, updatePlacement, planGeometry, pick, pickWorldObject, pointerDown, pointerMove, updateDrag, pointerUp, keyDown, installInputListeners, navigationButtons, chooseFollowers, acknowledgePointer, drawPointer, updatePointerFrame, updateSpellPointerFrame } from './scene-input-runtime.ts'
 
 
 export class GameScene {
@@ -556,87 +555,7 @@ export class GameScene {
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
-    this.listen(this.renderer.domElement, 'pointerdown', this.pointerDown)
-    this.listen(this.renderer.domElement, 'pointermove', this.pointerMove)
-    this.listen(this.renderer.domElement, 'pointerleave', () => {
-      this.hoveredObject = null
-      this.pointerScreen = null
-      this.pointer = null
-      this.pointerState = ''
-    })
-    this.listen(this.renderer.domElement, 'pointerup', this.pointerUp)
-    this.listen(this.renderer.domElement, 'pointercancel', () => {
-      this.pointerButtons = 0
-      this.drag = null
-      this.dragActive.value = false
-      this.globeMotion.dragging = false
-      this.globeMotion.velocity = { x: 0, y: 0 }
-    })
-    this.listen(this.renderer.domElement, 'contextmenu', e => e.preventDefault())
-    this.listen(this.renderer.domElement, 'wheel', e => {
-      if (!this.world.inputMask) {
-        e.preventDefault()
-        if ((e as WheelEvent).deltaY) this.zoom((e as WheelEvent).deltaY < 0)
-      }
-    })
-    this.listen(window, 'keydown', this.keyDown)
-    this.listen(window, 'keyup', e => {
-      const event = e as KeyboardEvent
-      this.keys.delete(event.key.toLowerCase())
-      this.keys.delete(event.code.toLowerCase())
-      if (event.ctrlKey) this.keys.add('control')
-      else this.keys.delete('control')
-      if (event.shiftKey) this.keys.add('shift')
-      else this.keys.delete('shift')
-    })
-    const trackNavigation = (event: Event) => {
-      const p = event as PointerEvent
-      this.navigationPointer =
-        p.pointerType === 'mouse' ? { x: p.clientX, y: p.clientY, buttons: p.buttons } : null
-    }
-    for (const event of ['pointermove', 'pointerdown', 'pointerup'])
-      this.listen(window, event, trackNavigation)
-    this.listen(window, 'pointerout', e => {
-      if (!(e as PointerEvent).relatedTarget) this.navigationPointer = null
-    })
-    this.listen(window, 'pointercancel', () => {
-      this.navigationPointer = null
-    })
-    const pause = () => {
-      this.previous = null
-      this.globeMotion.dragging = false
-      this.globeMotion.velocity = { x: 0, y: 0 }
-      this.keys.clear()
-      this.navigationPointer = null
-      this.world.paused = true
-      this.onChange()
-    }
-    this.listen(window, 'blur', pause)
-    this.listen(document, 'visibilitychange', () => {
-      this.previous = null
-      if (document.hidden) pause()
-    })
-    this.listen(minimap, 'pointerdown', e => {
-      if ((e as PointerEvent).button !== 0 || this.world.inputMask) return
-      const p = e as PointerEvent,
-        rect = minimap.getBoundingClientRect()
-      this.focus(
-        browserPosition(
-          minimapPick(
-            this.mini.width,
-            this.mini.height,
-            nativePosition(this.world, this.viewPoint),
-            Math.round((this.cameraBearing * 1024) / Math.PI),
-            {
-              x: ((p.clientX - rect.left) / rect.width) * this.mini.width,
-              y: ((p.clientY - rect.top) / rect.height) * this.mini.height,
-            }
-          )
-        ),
-        { animate: true }
-      )
-    })
-    this.listen(minimap, 'contextmenu', e => e.preventDefault())
+    installInputListeners(this, minimap)
     this.frame = requestAnimationFrame(this.animate)
   }
   makeSky() {

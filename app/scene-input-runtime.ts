@@ -22,6 +22,7 @@ import {
 } from './model'
 import { command } from './live-command.ts'
 import { focusHudPerson } from './hud-selection.ts'
+import { minimapPick } from './minimap.ts'
 import { pointerBrackets } from './world-picking.ts'
 import { commandMarkerPoint } from './command-context.ts'
 import { dragCamera, cameraCommand, cameraEdgeButtons, mergeCameraInput } from './camera-input.ts'
@@ -380,6 +381,90 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
   }
   scene.keys.add(key)
   if (!modifier) event.preventDefault()
+}
+
+export function installInputListeners(scene: GameScene, minimap: HTMLCanvasElement) {
+  scene.listen(scene.renderer.domElement, 'pointerdown', scene.pointerDown)
+  scene.listen(scene.renderer.domElement, 'pointermove', scene.pointerMove)
+  scene.listen(scene.renderer.domElement, 'pointerleave', () => {
+    scene.hoveredObject = null
+    scene.pointerScreen = null
+    scene.pointer = null
+    scene.pointerState = ''
+  })
+  scene.listen(scene.renderer.domElement, 'pointerup', scene.pointerUp)
+  scene.listen(scene.renderer.domElement, 'pointercancel', () => {
+    scene.pointerButtons = 0
+    scene.drag = null
+    scene.dragActive.value = false
+    scene.globeMotion.dragging = false
+    scene.globeMotion.velocity = { x: 0, y: 0 }
+  })
+  scene.listen(scene.renderer.domElement, 'contextmenu', e => e.preventDefault())
+  scene.listen(scene.renderer.domElement, 'wheel', e => {
+    if (!scene.world.inputMask) {
+      e.preventDefault()
+      if ((e as WheelEvent).deltaY) scene.zoom((e as WheelEvent).deltaY < 0)
+    }
+  })
+  scene.listen(window, 'keydown', scene.keyDown)
+  scene.listen(window, 'keyup', e => {
+    const event = e as KeyboardEvent
+    scene.keys.delete(event.key.toLowerCase())
+    scene.keys.delete(event.code.toLowerCase())
+    if (event.ctrlKey) scene.keys.add('control')
+    else scene.keys.delete('control')
+    if (event.shiftKey) scene.keys.add('shift')
+    else scene.keys.delete('shift')
+  })
+  const trackNavigation = (event: Event) => {
+    const p = event as PointerEvent
+    scene.navigationPointer =
+      p.pointerType === 'mouse' ? { x: p.clientX, y: p.clientY, buttons: p.buttons } : null
+  }
+  for (const event of ['pointermove', 'pointerdown', 'pointerup'])
+    scene.listen(window, event, trackNavigation)
+  scene.listen(window, 'pointerout', e => {
+    if (!(e as PointerEvent).relatedTarget) scene.navigationPointer = null
+  })
+  scene.listen(window, 'pointercancel', () => {
+    scene.navigationPointer = null
+  })
+  const pause = () => {
+    scene.previous = null
+    scene.globeMotion.dragging = false
+    scene.globeMotion.velocity = { x: 0, y: 0 }
+    scene.keys.clear()
+    scene.navigationPointer = null
+    scene.world.paused = true
+    scene.onChange()
+  }
+  scene.listen(window, 'blur', pause)
+  scene.listen(document, 'visibilitychange', () => {
+    scene.previous = null
+    if (document.hidden) pause()
+  })
+  scene.listen(minimap, 'pointerdown', e => {
+    if ((e as PointerEvent).button !== 0 || scene.world.inputMask) return
+    const p = e as PointerEvent,
+      rect = minimap.getBoundingClientRect()
+    scene.focus(
+      browserPosition(
+        minimapPick(
+          scene.mini.width,
+          scene.mini.height,
+          nativePosition(scene.world, scene.viewPoint),
+          Math.round((scene.cameraBearing * 1024) / Math.PI),
+          {
+            x: ((p.clientX - rect.left) / rect.width) * scene.mini.width,
+            y: ((p.clientY - rect.top) / rect.height) * scene.mini.height,
+          }
+        )
+      ),
+      { animate: true }
+    )
+  })
+  scene.listen(minimap, 'contextmenu', e => e.preventDefault())
 }
 
 export function navigationButtons(scene: GameScene) {
