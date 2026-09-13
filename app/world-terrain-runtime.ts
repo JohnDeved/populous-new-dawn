@@ -1,10 +1,27 @@
-import type { World, Point, NativePoint } from './world-types.ts'
+import type { World, Point, NativePoint, Building } from './world-types.ts'
 import { GRID } from './world-rules.ts'
 import { height } from './world-coordinates.ts'
 import { short } from './native-math.ts'
-import { terrainPointHeight, queueTerrain, processTerrain, updateWalkMasks } from './native-terrain.ts'
+import {
+  terrainPointHeight,
+  queueTerrain,
+  processTerrain,
+  updateWalkMasks,
+} from './native-terrain.ts'
 import { notifyTerrainObjects } from './terrain-notifications.ts'
 import { invalidateTimberRoutes } from './timber-search.ts'
+import { buildingWorkStage } from './building-damage.ts'
+import {
+  buildingModel,
+  buildingPose,
+  buildingFootprintCells,
+  registerBuildingFootprint,
+  refreshSceneryShadow,
+  nativeCellShade,
+  type RegisteredBuilding,
+  type SceneryShapePose,
+} from './building-shapes.ts'
+import rules from './original-rules.json' with { type: 'json' }
 
 export function nativePosition(w: World, p: Point): NativePoint {
   syncNativeTerrain(w)
@@ -28,6 +45,114 @@ export function refreshTerrainSurface(w: World) {
 }
 export const nativeCellIndex = (cell: number) => (cell >>> 9) * 128 + ((cell & 254) >>> 1)
 export const terrainTextures = { surface: () => {}, globe: () => {} }
+
+export function buildingStage(b: Building) {
+  // The browser stores native plan work as a fraction of the model
+  // capacity; complete plan allocation and order dispatch remain separate.
+  const life = rules.buildingLife[buildingModel(b)]
+  return b.damageState?.stage ?? buildingWorkStage(Math.trunc(b.progress * life), life)
+}
+
+function cellShade(w: World, i: number) {
+  const b = w.buildings.find(b => b.id === (w.land.buildingIds[i] & 1023))
+  const scenery = w.trees
+    .filter(
+      t =>
+        t.logs > 0 &&
+        nativeCellIndex(
+          ((nativePosition(w, t).x >>> 8) & 254) | (nativePosition(w, t).y & 0xfe00)
+        ) === i
+    )
+    .map(t => ({ class: 5, model: t.model }))
+  return nativeCellShade(
+    w.land.flags[i],
+    b
+      ? {
+          class: 2,
+          model: buildingModel(b),
+          state: b.progress === 1 ? 2 : 1,
+          flags2: b.hp > 0 ? 0 : 1,
+          stage: buildingStage(b),
+        }
+      : undefined,
+    scenery
+  )
+}
+
+// Live object adapter: native masks/shade, browser-owned building and tree lifetimes.
+// Full plan/scenery class registration and native texture scheduling remain open.
+export function syncLandscapeObjects(w: World) {
+  const current = new Map(
+    w.buildings
+      .filter(b => b.hp > 0)
+      .map(b => [
+        b.id,
+        { ...buildingPose(b), id: b.id, tribe: b.team === 'blue' ? 0 : 1, plan: !!b.preparation },
+      ])
+  )
+  const shade = (i: number) => cellShade(w, i)
+  const update = (b: RegisteredBuilding & { plan: boolean }, mode: number) => {
+    if (!b.plan) return registerBuildingFootprint(w.land, b, mode, shade, () => {})
+    // 0x4b9190 modes 2/3/4: reserve cells without marking an actual building.
+    for (const i of buildingFootprintCells(b)) {
+      if (mode === 1) {
+        w.land.flags[i] |= 0x410
+        w.land.buildingIds[i] = (w.land.buildingIds[i] & 0xfc00) | (b.id & 1023)
+        w.land.owners[i] = (w.land.owners[i] & 0xf0) | (b.tribe + 1)
+      } else {
+        w.land.flags[i] = (w.land.flags[i] & ~0x4400) | 16
+        w.land.buildingIds[i] &= 0xfc00
+        w.land.owners[i] &= 0xf0
+      }
+    }
+  }
+  for (const [id, old] of w.buildingFootprints) {
+    const next = current.get(id)
+    if (
+      !next ||
+      Object.keys(old).some(
+        k => old[k as keyof RegisteredBuilding] !== next[k as keyof RegisteredBuilding]
+      )
+    ) {
+      update(old, 0)
+      update(old, 4)
+      w.buildingFootprints.delete(id)
+    }
+  }
+  for (const [id, b] of current)
+    if (!w.buildingFootprints.has(id)) {
+      update(b, 1)
+      w.buildingFootprints.set(id, b)
+    }
+  const scenery = new Map<number, SceneryShapePose>()
+  for (const tree of w.trees) {
+    if (tree.logs <= 0 || !(rules.sceneryFlags[tree.model] & 1)) continue
+    const p = nativePosition(w, tree)
+    scenery.set(tree.id, {
+      object: rules.sceneryObjects[tree.model],
+      anchorX: p.x & 0xfe00,
+      anchorY: p.y & 0xfe00,
+    })
+  }
+  const refresh = (p: SceneryShapePose) => refreshSceneryShadow(w.land, p, shade, () => {})
+  for (const [id, old] of w.sceneryShadows) {
+    const next = scenery.get(id)
+    if (
+      !next ||
+      old.object !== next.object ||
+      old.anchorX !== next.anchorX ||
+      old.anchorY !== next.anchorY
+    ) {
+      refresh(old)
+      w.sceneryShadows.delete(id)
+    }
+  }
+  for (const [id, p] of scenery)
+    if (!w.sceneryShadows.has(id)) {
+      refresh(p)
+      w.sceneryShadows.set(id, p)
+    }
+}
 // ponytail: construction/deformation still write the cropped browser grid.
 // Feed its native vertices through the recovered queue until those producers
 // write the full native map directly; interpolated browser vertices are ignored.

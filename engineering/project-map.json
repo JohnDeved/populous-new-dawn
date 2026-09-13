@@ -225,6 +225,7 @@
       "mappingStatus": "reviewed",
       "implementationPaths": [
         "app/native-terrain.ts",
+        "app/world-terrain-runtime.ts",
         "app/painter-order.ts",
         "app/terrain-notifications.ts",
         "app/terrain-texture.ts",
@@ -233,7 +234,8 @@
       ],
       "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
-        { "path": "app/model.ts", "symbol": "syncNativeTerrain" },
+        { "path": "app/world-terrain-runtime.ts", "symbol": "syncNativeTerrain" },
+        { "path": "app/world-terrain-runtime.ts", "symbol": "syncLandscapeObjects" },
         { "path": "app/render-view.ts", "symbol": "RenderView" },
         { "path": "app/scene.ts", "symbol": "updateTerrainTexture" }
       ],
