@@ -49,8 +49,20 @@ import { meleeDamage, joinBattle, cleanBattles, processBattles } from './combat-
 export { meleeDamage, fightPosition, joinBattle } from './combat-runtime.ts'
 import { release, releaseTasks } from './world-tasks.ts'
 export { releaseTasks } from './world-tasks.ts'
-import { sound, effect, registerTerrainLight, refreshTerrainLights } from './world-effects.ts'
-export { sound, effect } from './world-effects.ts'
+import {
+  sound,
+  effect,
+  shotVisual,
+  moveVisual,
+  emitGroundSpark,
+  stepDebrisEffect,
+  createFire,
+  depleteTree,
+  stepScenery,
+  registerTerrainLight,
+  refreshTerrainLights,
+} from './world-effects.ts'
+export { sound, effect, emitGroundSpark } from './world-effects.ts'
 import { buildingObject, buildingPose } from './building-shapes.ts'
 export { buildingObject, buildingPose } from './building-shapes.ts'
 import {
@@ -231,13 +243,6 @@ import {
   timberTransfer,
   dropCarriedTimber,
 } from './timber.ts'
-import {
-  stepTreeGrowth,
-  replantDelay,
-  findReplantSite,
-  stepReplant,
-  type Replant,
-} from './tree-growth.ts'
 import { createIndexedSearch } from './indexed-search.ts'
 import {
   createTimberSearches,
@@ -260,19 +265,7 @@ import {
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
 import { createBuildingSmoke, stepBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
-import {
-  createSceneryFire,
-  setFireLifetime,
-  stepSceneryFire,
-  stepBurningTree,
-  type SceneryFire,
-  type BurningTree,
-} from './scenery-fire.ts'
-import {
-  collapseBuildingFaces,
-  stepBuildingDebris,
-  type BuildingDebris,
-} from './building-debris.ts'
+import { collapseBuildingFaces } from './building-debris.ts'
 import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
@@ -2325,83 +2318,6 @@ function stepOutcome(w: World) {
     w.manaTribes[id].flags2 = t.flags2
   })
 }
-function shotVisual(w: World, p: NativePoint, team: Team, sequence: string, frame = 0) {
-  const fx = effect(w, 'trail', browserPosition(p))
-  fx.height = p.h / 45
-  fx.sprite = { sequence, frame }
-  fx.team = team
-  fx.duration = Infinity
-  if (sequence === 'blastTrail' || sequence === 'spellTrail') {
-    const trail = createSpellTrail(
-      w.land,
-      p,
-      sequence === 'blastTrail' ? 3 : 4,
-      (w.effectCounter - 1) & 255,
-      w.cosmeticRandom
-    )
-    // 0x4bb440 overrides Blast jitter trails to expire their first phase next turn.
-    if (sequence === 'blastTrail') {
-      trail.remaining = 0
-      trail.flags3 |= 0x100
-    }
-    fx.animation = trail
-    fx.height = trail.h / 45
-  }
-  return fx
-}
-function moveVisual(f: Effect, p: NativePoint) {
-  Object.assign(f, browserPosition(p))
-  f.height = p.h / 45
-}
-// Class-7/model-3 sparks are shared by landings, debris and fire embers.
-export function emitGroundSpark(w: World, position: NativePoint) {
-  const fx = effect(w, 'trail', browserPosition(position))
-  const trail = createSpellTrail(w.land, position, 3, (w.effectCounter - 1) & 255, w.cosmeticRandom)
-  fx.animation = trail
-  fx.sprite = { sequence: 'blastTrail', frame: 0 }
-  fx.duration = Infinity
-  moveVisual(fx, trail)
-  return trail
-}
-
-function stepDebrisEffect(w: World, fx: Effect, rng: { randomState: number }) {
-  const fragment = fx.debris!
-  const alive = stepBuildingDebris(w.land, fragment, rng, water => {
-    const position = browserPosition(fragment)
-    if (water) {
-      effect(w, 'splash', position)
-    } else {
-      emitGroundSpark(w, fragment)
-      sound(w, 0x13, position)
-    }
-  })
-  moveVisual(fx, fragment)
-  return alive
-}
-
-function createFire(
-  w: World,
-  p: Point,
-  options: {
-    size: number
-    snap: boolean
-    smoke: boolean
-    turns: number
-    suppressEmbers?: boolean
-    light?: boolean
-  }
-) {
-  const fx = effect(w, 'fire', p)
-  fx.fire = createSceneryFire(w.land, nativePosition(w, p), options, w.cosmeticRandom)
-  setFireLifetime(fx.fire, options.turns)
-  fx.fire.suppressEmbers = options.suppressEmbers ?? false
-  fx.fire.expiring = fx.fire.suppressEmbers
-  fx.duration = Infinity
-  fx.groundVersion = w.landVersion
-  moveVisual(fx, fx.fire)
-  if (options.light !== false) registerTerrainLight(w, fx, 3)
-}
-
 function igniteBuildingAt(w: World, target: NativePoint, tribe: number) {
   const index = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
   const id = w.land.buildingIds[index] & 1023
@@ -2486,105 +2402,6 @@ function impactFirestorm(w: World, target: NativePoint, tribe: number) {
   igniteBuildingAt(w, target, tribe)
 }
 
-function depleteTree(w: World, tree: Tree, computer = false) {
-  tree.logs = 0
-  const remaining = replantDelay(tree.model, computer)
-  if (remaining) w.replants.push({ ...nativePosition(w, tree), model: tree.model, remaining })
-}
-
-function stepScenery(w: World) {
-  // Snapshot requests before this turn's fire/harvesting can create new ones.
-  w.replants = w.replants.filter(
-    request =>
-      !stepReplant(request, () => {
-        const occupied = new Map<number, { class: number; model: number }[]>()
-        const add = (p: NativePoint, model: number) => {
-          const cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
-          const row = occupied.get(cell) ?? []
-          row.push({ class: 5, model })
-          occupied.set(cell, row)
-        }
-        for (const tree of w.trees) if (tree.logs > 0) add(nativePosition(w, tree), tree.model)
-        for (const shrine of w.shrines) add(nativePosition(w, shrine), 9)
-        for (const center of [HOME, ENEMY])
-          for (const stone of reincarnationStones(w.land, nativePosition(w, center))) add(stone, 12)
-        for (const fx of w.effects) if (fx.fire) add(fx.fire, 10)
-        const point = findReplantSite(
-          w.land,
-          w.indexedSearch,
-          request,
-          cell => occupied.get(cell) ?? []
-        )
-        if (!point) return false
-        // Native scenery initialization snaps the allocated corner to its cell center.
-        w.trees.push({
-          ...browserPosition({ x: point.x + 256, y: point.y + 256 }),
-          id: w.nextId++,
-          model: request.model,
-          logs: 1,
-          counter: 0,
-          growth: rules.sceneryGrowth[request.model],
-        })
-        return true
-      })
-  )
-  // Snapshot before tree/fire callbacks allocate this turn's new scenery.
-  const fires = w.effects.filter(fx => fx.fire)
-  for (const tree of w.trees) {
-    tree.counter = ((tree.counter ?? 0) + 1) & 255
-    if (tree.logs <= 0) continue
-    if (!tree.burn) {
-      const state = {
-        model: tree.model,
-        counter: tree.counter,
-        wood: Math.round(tree.logs * 100),
-        growth: tree.growth ?? rules.sceneryGrowth[tree.model],
-      }
-      stepTreeGrowth(state)
-      tree.logs = state.wood / 100
-      tree.growth = state.growth
-      continue
-    }
-    tree.burn.wood = Math.round(tree.logs * 100)
-    const alive = stepBurningTree(
-      tree.burn,
-      rules.sceneryWood[tree.model],
-      debrisModels[tree.model + 12]?.scale ?? 0,
-      () => createFire(w, tree, { size: 32, snap: false, smoke: true, turns: 76 })
-    )
-    if (alive) tree.logs = tree.burn.wood / 100
-    else if (tree.burn.remaining >= 0 && tree.burn.wood < 100) depleteTree(w, tree)
-    else tree.logs = 0 // 0x4a7bd0's expiry removal does not allocate a replant request.
-  }
-  for (const fx of fires) {
-    const fire = fx.fire!
-    if (fx.groundVersion !== w.landVersion) fire.groundDirty = true
-    fx.groundVersion = w.landVersion
-    const alive = stepSceneryFire(w.land, fire, w, {
-      isLand: () =>
-        !!terrainSupportsPerson(w.land.categories[(fire.y >> 9) * 128 + (fire.x >> 9)], fire),
-      sound: () => {
-        sound(w, 6, fx, fx.id)
-        fire.soundPlaying = true // Cleared when its audio voice ends.
-      },
-      ember: (position, speed, flags) => {
-        const trail = emitGroundSpark(w, position)
-        trail.speed = speed
-        trail.flags4 |= flags
-      },
-      smoke: () => {
-        const cloud = createBuildingSmoke(w.land, fire, w)
-        const smoke = effect(w, 'buildingSmoke', browserPosition(fire))
-        smoke.animation = smoke.smoke = cloud
-        smoke.groundVersion = w.landVersion
-        smoke.duration = Infinity
-        moveVisual(smoke, cloud)
-      },
-    })
-    moveVisual(fx, fire)
-    if (!alive) fx.duration = fx.age
-  }
-}
 function processProjectiles(w: World) {
   // Newest native allocations precede older objects. Full mixed-class scheduling remains to be ported.
   for (const shot of [...w.projectiles].reverse()) {
