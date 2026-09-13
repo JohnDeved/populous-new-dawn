@@ -281,6 +281,7 @@
       "mappingStatus": "reviewed",
       "implementationPaths": [
         "app/computer.ts",
+        "app/computer-runtime.ts",
         "app/live-worship.ts",
         "app/messages.ts",
         "app/object-panels.ts",
@@ -294,7 +295,8 @@
       "entrySymbols": [
         { "path": "app/model.ts", "symbol": "missionAI" },
         { "path": "app/model.ts", "symbol": "campaignCommand" },
-        { "path": "app/model.ts", "symbol": "campaignRules" }
+        { "path": "app/model.ts", "symbol": "campaignRules" },
+        { "path": "app/computer-runtime.ts", "symbol": "stepComputerTasks" }
       ],
       "parityIds": [
         "campaign.mission-one",
