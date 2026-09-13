@@ -4,9 +4,56 @@ import { nativePosition } from './world-terrain-runtime.ts'
 import { short, random } from './native-math.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingModel, buildingPose, buildingPosition } from './building-shapes.ts'
-import type { AttackTarget } from './computer.ts'
+import { createComputerQueue, type AttackTarget } from './computer.ts'
+import { runScript, scriptState } from './popscript.ts'
 import level from './level-one.ts'
 import constants from './original-constants.json' with { type: 'json' }
+import originalScript from './original-script.json' with { type: 'json' }
+
+export function missionAI() {
+  const ai = {
+    ...scriptState(originalScript),
+    ...createComputerQueue(),
+    states: 0,
+    flags: 0,
+    enemyTribe: 0,
+    defencePosition: 0,
+    defenceRadius: 11,
+    spellEntries: Array.from({ length: 8 }, () => ({
+      model: 0,
+      mana: 0,
+      range: 0,
+      people: 0,
+      mode: 0,
+    })),
+    reincarnation: true,
+    includeIncompleteBuildings: false,
+    pendingCommands: [] as { opcode: number; args: number[] }[],
+    trainingSelections: Array.from({ length: 10 }, () => [] as number[]),
+  }
+  // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
+  ai.attributes[43] = 12 // 0x461d70: attribute 43 before the turn-zero script.
+  runScript(originalScript, ai, {
+    turn: 0,
+    tribe: 1,
+    readInternal: id => {
+      if (id === 0) return 0
+      throw new Error(`Unbound initial script read ${id}`)
+    },
+    command: (opcode, args) => {
+      // 0x48cc60: native state bits, and SET_REINCARNATION's disable flag at tribe+0x93d.
+      if (opcode >= 1028 && opcode <= 1051 && opcode !== 1038 && opcode !== 1049) {
+        const bit = 1 << (opcode - 1028)
+        if (args[0] === 1022) ai.states |= bit
+        else if (args[0] === 1023) ai.states &= ~bit
+      } else if (opcode === 1164) {
+        if (args[0] === 1022) ai.reincarnation = true
+        else if (args[0] === 1023) ai.reincarnation = false
+      } else ai.pendingCommands.push({ opcode, args })
+    },
+  })
+  return ai
+}
 
 // 0x4f2160 / 0x4f2900 share the same coarse cell lookup.
 export function headAt(w: World, x: number, y: number) {

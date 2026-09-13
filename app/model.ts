@@ -7,6 +7,7 @@ import {
   campaignAttackEntity,
   campaignAttackTarget,
   forceHead,
+  missionAI,
 } from './campaign-runtime.ts'
 export { campaignInternal, campaignPersonCount, campaignBuildingCount, forceHead } from './campaign-runtime.ts'
 import { builderActivity, unitAnimationSource, selectionBuilding, canOrder, selectionPeople, cancelInteraction } from './selection-runtime.ts'
@@ -400,7 +401,6 @@ import {
   type SpellTargetUnit,
 } from './computer-spells.ts'
 import {
-  createComputerQueue,
   computerPhase,
   dispatchComputerTask,
   requestAttack,
@@ -426,7 +426,6 @@ import level from './level-one.ts'
 import originalScript from './original-script.json' with { type: 'json' }
 import {
   runScript,
-  scriptState,
   scriptValue,
   type ScriptState,
   type PopScript,
@@ -753,50 +752,6 @@ export function addBuilding(
   w.buildings.push(b)
   if (complete && kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   return b
-}
-function missionAI() {
-  const ai = {
-    ...scriptState(originalScript),
-    ...createComputerQueue(),
-    states: 0,
-    flags: 0,
-    enemyTribe: 0,
-    defencePosition: 0,
-    defenceRadius: 11,
-    spellEntries: Array.from({ length: 8 }, () => ({
-      model: 0,
-      mana: 0,
-      range: 0,
-      people: 0,
-      mode: 0,
-    })),
-    reincarnation: true,
-    includeIncompleteBuildings: false,
-    pendingCommands: [] as { opcode: number; args: number[] }[],
-    trainingSelections: Array.from({ length: 10 }, () => [] as number[]),
-  }
-  // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
-  ai.attributes[43] = 12 // 0x461d70: attribute 43 before the turn-zero script.
-  runScript(originalScript, ai, {
-    turn: 0,
-    tribe: 1,
-    readInternal: id => {
-      if (id === 0) return 0
-      throw new Error(`Unbound initial script read ${id}`)
-    },
-    command: (opcode, args) => {
-      // 0x48cc60: native state bits, and SET_REINCARNATION's disable flag at tribe+0x93d.
-      if (opcode >= 1028 && opcode <= 1051 && opcode !== 1038 && opcode !== 1049) {
-        const bit = 1 << (opcode - 1028)
-        if (args[0] === 1022) ai.states |= bit
-        else if (args[0] === 1023) ai.states &= ~bit
-      } else if (opcode === 1164) {
-        if (args[0] === 1022) ai.reincarnation = true
-        else if (args[0] === 1023) ai.reincarnation = false
-      } else ai.pendingCommands.push({ opcode, args })
-    },
-  })
-  return ai
 }
 export function createWorld(): World {
   const w: World = {
