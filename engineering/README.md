@@ -156,7 +156,8 @@ Apply the progress-boundary stall checks and automatic local recovery in
    does not justify another review. If independent review is unavailable, do a
    separate review pass and state that it was not independent.
 9. Audit the contract, report every check status honestly, and stop at the contract's
-   stopping condition.
+   stopping condition for this slice. During authorized continued work, proceed to
+   the next useful task; contract completion does not require human steering.
 
 Do not use cleanup as fallback work. A locked feature may cross files or subsystems.
 Permit at most one independently revertible behavior-neutral prerequisite refactor

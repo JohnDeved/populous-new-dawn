@@ -21,6 +21,11 @@ The workflow is adjustable. Simplify or replace agents, contracts, retrieval, an
 checks when observed results justify it. Prefer the smallest improvement that
 helps deliver the next gameplay change while preserving these acceptance constraints,
 safety, and the canonical sources of truth.
+The AI owns routine prioritization, implementation, verification, commits, recovery,
+and workflow improvement within the authorized remake scope. Choose and execute these
+decisions without requiring human guidance. Procedural limits are revisable defaults:
+change them when observed delivery results justify it, retaining the game objective
+and its acceptance constraints. Judge workflow changes by subsequent gameplay delivery.
 Detect stalled delivery during active work and correct its workflow or implementation
 approach autonomously under `engineering/efficiency-review.md`; do not wait for the
 user to notice or for an unfinished slice to complete.
@@ -132,8 +137,10 @@ assumptions and incomplete integration. Commit completed work when authorized.
 
 A completed change is a checkpoint. When continued work is authorized, proceed to
 the next highest-impact change within that scope. If one candidate is blocked,
-consider another useful authorized candidate; report blockers that require user
-direction. A checkpoint does not complete the overall remake goal.
+resolve it, choose an alternative approach, or proceed to another useful authorized
+candidate. Record unresolved external dependencies in the existing handoff and keep
+working elsewhere. Do not end useful work waiting for routine steering or approval
+of an internal engineering decision. A checkpoint does not complete the remake goal.
 
 Keep this file focused on outcomes and priorities. `parity.json` remains the gameplay
 and game-mechanics parity percentage and progress ledger; procedures, evidence,

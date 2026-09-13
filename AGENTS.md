@@ -78,6 +78,9 @@ boundaries, including during unfinished slices. Detect stalled gameplay delivery
 diagnose it directly or with read-only `pnd-scout`, apply the smallest supported local
 correction, and resume gameplay without waiting for user prompting. Keep required
 verification and final code review.
+The parent also owns autonomous priority and workflow decisions under `GOAL.md`;
+revise ineffective procedural defaults and work around blocked paths without making
+routine human steering a dependency.
 
 When no task is fixed, compare no more than five candidates and return the top three
 plus one recommendation. Prioritize player-visible/playability impact and unblock

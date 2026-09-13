@@ -84,7 +84,8 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
 
 9. Report conclusions, exact sources/symbols, remaining limits, changed files, and
    every required check as passed/failed/blocked/not-run/not-applicable with the
-   tested fingerprint. Stop at the contract's stopping condition.
+   tested fingerprint. The stopping condition closes this contract; during authorized
+   continued work, choose and start the next useful task without requesting steering.
 
 `engineering/README.md` governs architecture, evidence boundaries, resource
 serialization, performance records, and parity bookkeeping. The manifests there

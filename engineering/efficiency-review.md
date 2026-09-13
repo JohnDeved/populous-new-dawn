@@ -80,11 +80,21 @@ If diagnosis finds a concrete blocker, choose another feature only within the us
 authorized priorities. Publishing, recording, credentials, and external actions retain
 their existing authorization requirements.
 
+The parent may revise local workflow policy, agent assignments, procedural limits,
+and task decomposition autonomously when evidence supports the change. Commit a
+concise reason with the correction and assess its effect on the next gameplay cycle.
+Preserve the original game objective and acceptance constraints; do not weaken proof
+or relabel unfinished work to improve reported progress. Adopt changes that improve
+delivery and revise or revert ineffective ones without waiting for human direction.
+
 Record the cause, correction, and expected next gameplay advance in the existing
 handoff, then resume implementation in the same work session. At the next meaningful
 cycle, check whether the correction removed the delay. If it did not, revise the
 diagnosis or approach; do not repeat an unchanged remedy or enter recursive workflow
-reviews. Escalate only a specific unresolved blocker that actually needs user input.
+reviews. Resolve internal engineering decisions autonomously. If an external dependency
+cannot be obtained within existing authority, record it and continue useful work on
+another path. Only when all useful authorized paths are exhausted, report the exact
+blocking dependency truthfully; never invent missing evidence or claim completion.
 Evidence of necessary ongoing work justifies continuing with a named next result.
 
 Retire ineffective remedies, retaining the lightweight stall check. Code changes
