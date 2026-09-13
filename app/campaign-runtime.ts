@@ -1,6 +1,6 @@
 import type { World } from './world-types.ts'
-import { nativeCellPoint } from './world-coordinates.ts'
-import { nativePosition } from './world-terrain-runtime.ts'
+import { height, nativeCellPoint } from './world-coordinates.ts'
+import { nativePosition, originalTerrain } from './world-terrain-runtime.ts'
 import { short, random } from './native-math.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingModel, buildingPose, buildingPosition } from './building-shapes.ts'
@@ -16,6 +16,17 @@ const missionPosition = (owner: number) => {
 }
 export const HOME = missionPosition(0),
   ENEMY = missionPosition(1)
+
+export function markerHeight(terrain: number[], index: number) {
+  if (!Number.isInteger(index) || index < 0 || index >= level.markers.length)
+    throw new RangeError('Invalid campaign marker')
+  const packed = level.markers[index],
+    p = nativeCellPoint(packed)
+  if (Math.abs(p.x) > 48 || Math.abs(p.z) > 48)
+    return originalTerrain[((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1)]
+  const h = height(terrain, p.x, p.z)
+  return h === -0.35 ? 0 : short(Math.round(h * 45)) // Convert the browser's artificial seabed back to native zero.
+}
 
 export function missionAI() {
   const ai = {

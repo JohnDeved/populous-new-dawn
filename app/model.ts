@@ -9,8 +9,9 @@ import {
   missionAI,
   HOME,
   ENEMY,
+  markerHeight,
 } from './campaign-runtime.ts'
-export { campaignInternal, campaignPersonCount, campaignBuildingCount, forceHead, HOME, ENEMY } from './campaign-runtime.ts'
+export { campaignInternal, campaignPersonCount, campaignBuildingCount, forceHead, HOME, ENEMY, markerHeight } from './campaign-runtime.ts'
 import {
   computerSelectionWorld,
   computerTrainingBuilding,
@@ -60,7 +61,6 @@ import {
   buildingStage,
   syncLandscapeObjects,
   originalLand,
-  originalTerrain,
   makeTerrain,
 } from './world-terrain-runtime.ts'
 export { nativePosition, buildingStage, syncLandscapeObjects, makeTerrain } from './world-terrain-runtime.ts'
@@ -988,16 +988,6 @@ export function createWorld(): World {
   syncLandscapeObjects(w)
   w.lightView = nativePosition(w, HOME)
   return w
-}
-export function markerHeight(terrain: number[], index: number) {
-  if (!Number.isInteger(index) || index < 0 || index >= level.markers.length)
-    throw new RangeError('Invalid campaign marker')
-  const packed = level.markers[index],
-    p = nativeCellPoint(packed)
-  if (Math.abs(p.x) > 48 || Math.abs(p.z) > 48)
-    return originalTerrain[((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1)]
-  const h = height(terrain, p.x, p.z)
-  return h === -0.35 ? 0 : short(Math.round(h * 45)) // Convert the browser's artificial seabed back to native zero.
 }
 export function removeHead(w: World, x: number, y: number) {
   const head = headAt(w, x, y)
