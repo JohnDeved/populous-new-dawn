@@ -7,8 +7,8 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
-import { nativePosition } from './world-terrain-runtime.ts'
-import { nativePersonModel } from './live-combat.ts'
+import { nativePosition, nativeCellIndex } from './world-terrain-runtime.ts'
+import { combatPerson, nativePersonModel } from './live-combat.ts'
 import { buildingModel, buildingPose, buildingPosition } from './building-shapes.ts'
 import { buildingAdmission } from './live-building-entry.ts'
 import {
@@ -19,7 +19,7 @@ import {
 } from './person-orders.ts'
 import { appendLiveOrders, appendLiveGuardOrders } from './live-movement.ts'
 import { cellDistanceSquared, random } from './native-math.ts'
-import { isShaman } from './world-rules.ts'
+import { isShaman, SPELLS } from './world-rules.ts'
 import {
   campaignPersonCount,
   campaignAttackEntity,
@@ -43,6 +43,16 @@ import {
 } from './computer.ts'
 import level from './level-one.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import { spellCaster, beginCast } from './spell-casting.ts'
+import { clearLivePath } from './live-pathfinding.ts'
+import { nativeCellPoint } from './world-coordinates.ts'
+import {
+  castShoreBlast,
+  processComputerSpells,
+  type SpellTargetUnit,
+  type SpellTargetWorld,
+} from './computer-spells.ts'
+import { refreshBuildingTerritory } from './territory.ts'
 
 export function computerSelectionWorld(w: World, tribe: number) {
   const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null,
@@ -565,4 +575,127 @@ export function stepComputerTasks(w: World, tribe: number) {
       }
     }
   })
+}
+
+// ponytail: browser unit arrays supply cell order until native terrain lists and
+// person records are live. Blast scoring does not consume terrain flags.
+function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
+  const p = nativePosition(w, u),
+    live = unitAnimationSource(u)
+  return {
+    class: 1,
+    model: nativePersonModel(u),
+    state: live?.state ?? 0,
+    tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
+    x: p.x,
+    y: p.y,
+    flags2: u.inside === null ? 0 : 0x800000,
+    flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
+    assignment: 0,
+    disguise: 0,
+  }
+}
+function computerSpellWorld(w: World): SpellTargetWorld {
+  const cells = new Map<number, SpellTargetUnit[]>()
+  for (const u of w.units)
+    if (u.hp > 0 && u.inside === null) {
+      const p = computerSpellPerson(w, u),
+        cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+      const objects = cells.get(cell) ?? []
+      objects.push(p)
+      cells.set(cell, objects)
+    }
+  return {
+    tribe: 1,
+    alliances: 0,
+    cells,
+    terrainFlags: cell => w.land.flags[nativeCellIndex(cell)],
+  }
+}
+export function refreshTribeTerritory(w: World, id: number) {
+  const team = id === 0 ? 'blue' : id === 1 ? 'red' : null
+  refreshBuildingTerritory(w.land, w.turn, {
+    id,
+    playerType: w.manaTribes[id].playerType,
+    defenceRadius: id === 1 ? w.ai.defenceRadius : 11,
+    buildings: w.buildings
+      .filter(b => b.hp > 0 && b.team === team)
+      .map(b => ({ ...nativePosition(w, b), tribe: id })),
+  })
+}
+export function stepComputerSpells(w: World) {
+  const u = w.units.find(u => u.team === 'red' && isShaman(u) && u.hp > 0)
+  const person = u ? combatPerson(u) : null
+  const caster =
+    u && person
+      ? {
+          ...spellCaster(w, u),
+          ...person,
+          landIndex: person.vehicle,
+          casting: w.castingTribes[1],
+          playerType: w.manaTribes[1].playerType,
+        }
+      : null
+  const world = computerSpellWorld(w),
+    categoryFlags = (cell: number) =>
+      rules.terrainCategoryFlags[w.land.categories[nativeCellIndex(cell)] & 15]
+  const allocate = (model: number, cell: number) => {
+    const spell = SPELLS.find(s => s.model === model)
+    if (!spell) throw new Error(`Unimplemented computer spell effect ${model}`)
+    clearLivePath(w, u!)
+    beginCast(w, u!, spell.id, nativeCellPoint(cell))
+    const fightingPerson = u!.fight?.motion
+    if (fightingPerson && (fightingPerson.state === 25 || fightingPerson.state === 29)) {
+      u!.native = fightingPerson
+      changeLivePersonState(w, u!, 22)
+      u!.fight = null
+    }
+  }
+  // The live person owns native action flags; browser casting has no native record yet.
+  if (caster && u?.casting) caster.flags4 |= 0x400
+  const shore = castShoreBlast(
+    world,
+    caster,
+    {
+      turn: w.turn,
+      population: w.units.filter(p => p.team === 'red' && !p.ghost && p.hp > 0).length,
+      mana: w.manaTribes[1].mana,
+      reserve: 0,
+      gameFlags: w.manaWorld.gameFlags,
+      aiFlags: w.ai.flags,
+    },
+    { categoryFlags, cast: allocate }
+  )
+  refreshTribeTerritory(w, 1)
+  if (shore) return
+  const enemyTeam = w.ai.enemyTribe === 0 ? 'blue' : w.ai.enemyTribe === 1 ? 'red' : null
+  const enemy = w.units.find(p => p.team === enemyTeam && isShaman(p) && p.hp > 0)
+  const context = {
+    turn: w.turn,
+    mana: w.manaTribes[1].mana,
+    reserve: 0,
+    gameFlags: w.manaWorld.gameFlags,
+    aiFlags: w.ai.flags,
+    blastFrequency: w.ai.attributes[32],
+    stock: w.manaWorld.spells[1],
+  }
+  processComputerSpells(world, w.spellScan, caster, context, w.ai.spellEntries, {
+    categoryFlags,
+    regionFlags: cell => w.land.regions[nativeCellIndex(cell)],
+    cast: allocate,
+    enemyShaman: enemy ? computerSpellPerson(w, enemy) : null,
+    enemyBuildings: w.buildings
+      .filter(b => b.team === enemyTeam && b.hp > 0 && b.kind === 'tower')
+      .map(b => {
+        const people = w.units.filter(p => p.inside === b.id && p.hp > 0)
+        return {
+          ...buildingPose(b),
+          model: 4,
+          state: b.progress === 1 ? 2 : 1,
+          occupants: people.length,
+          firstOccupant: people[0] ? computerSpellPerson(w, people[0]) : null,
+        }
+      }),
+  })
+  w.ai.flags = context.aiFlags
 }
