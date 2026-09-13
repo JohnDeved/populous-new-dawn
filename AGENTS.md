@@ -2,7 +2,9 @@
 
 This repository recreates Populous: The Beginning for modern desktop browsers.
 Preserve playable behavior and existing user work. Do not publish, deploy, record
-parity, regenerate evidence, or change credentials unless the user explicitly asks.
+parity, mass-regenerate evidence, or change credentials unless the user explicitly asks.
+Scoped native exports, probes, and durable research handoffs follow
+`engineering/native-research.md` as part of authorized engineering work.
 
 ## Start here
 
@@ -69,7 +71,7 @@ Small tasks stay with the parent. Delegate only a bounded, independent question 
 a fresh review:
 
 - `pnd-scout`: read-only entry points and bounded next-work triage when needed.
-- `pnd-native`: read-only native proof, intercepted leaves, and open boundaries.
+- `pnd-native`: native proof and reusable findings; scratch artifacts only when assigned.
 - `pnd-reviewer`: final diff and acceptance challenge; no source repair.
 - `pnd-performance`: paired workload and measurement review; no source repair.
 
@@ -109,6 +111,10 @@ the packet's actual change manifest and full-diff command. Dispatch a fresh fina
 reviewer once for substantive gameplay, parity, performance, or high-risk architecture
 changes, with the final diff, acceptance criteria, and completed receipts together.
 Repeat review only for substantive repairs or unresolved findings.
+Before native research, verify live prerequisites and reuse existing topic notes.
+For artifact-producing native assignments, use `--research-output` with a contract-
+allowed ignored task directory. The parent reviews and commits useful exports, probes,
+and indexed findings before closing or deferring the work; follow `engineering/native-research.md`.
 If optional context is needed, refine the packet query for a disclosed candidate
 path instead of loading a whole source.
 

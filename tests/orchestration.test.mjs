@@ -449,6 +449,31 @@ test('context returns bounded provenance, limitations, checks, and visible sourc
     assert.ok(packet.omissions.some(item => /bounded window/.test(item.reason)))
   }))
 
+test('native research packets grant only a contract-allowed ignored scratch directory', () =>
+  withRepo(repo => {
+    const task = contract(repo, run(repo, 'git', 'rev-parse', 'HEAD').trim())
+    const contractPath = 'work/orchestration/research-contract.json'
+    const options = { subsystem: 'selection', role: 'native', contract: contractPath,
+      query: 'Resolve one native boundary', researchOutput: 'work/orchestration/task/native' }
+    put(repo, contractPath, task)
+    assert.throws(() => contextPacket(repo, options), /allowed by the contract/)
+    task.ownership.allowedPaths.push('work/orchestration/task')
+    put(repo, contractPath, task)
+    const packet = contextPacket(repo, options)
+    assert.equal(packet.status, 'complete')
+    assert.deepEqual(packet.assignment.allowedWrites, [options.researchOutput])
+    assert.match(packet.assignment.researchHandoff.deliverable, /findings.md/)
+    assert.throws(() => contextPacket(repo, { ...options, role: 'reviewer' }), /native role/)
+    assert.throws(() => contextPacket(repo, { ...options, researchOutput: 'app' }), /task directory/)
+    assert.throws(() => contextPacket(repo, { ...options, researchOutput: 'work/orchestration/task/../other' }), /traversal/)
+    mkdirSync(join(repo, 'work/orchestration/task'), { recursive: true })
+    symlinkSync(join(repo, 'app'), join(repo, 'work/orchestration/task/alias'))
+    assert.throws(() => contextPacket(repo, { ...options, researchOutput: 'work/orchestration/task/alias' }), /symlinks/)
+    task.ownership.prohibitedPaths.push(options.researchOutput)
+    put(repo, contractPath, task)
+    assert.throws(() => contextPacket(repo, options), /prohibited path/)
+  }))
+
 test('role context carries a validated bounded assignment and explicit overflow', () =>
   withRepo(repo => {
     const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()

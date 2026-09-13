@@ -611,11 +611,13 @@ export function contextPacket(
     role = null,
     budget = role ? DEFAULT_ROLE_CONTEXT_BUDGET : DEFAULT_CONTEXT_BUDGET,
     contract: contractPath = null,
+    researchOutput = null,
   } = {}
 ) {
   assert(Number.isInteger(budget) && budget >= 4_000, 'Context budget must be an integer >= 4000')
   assert(!role || CONTEXT_ROLES.has(role), `Unknown context role: ${role}`)
   assert(Boolean(role) === Boolean(contractPath), '--role and --contract must be used together')
+  assert(!researchOutput || role === 'native', '--research-output requires the native role')
   if (role && Buffer.byteLength(query) > 1_000)
     return finishContextPacket({
       version: 1,
@@ -639,6 +641,24 @@ export function contextPacket(
       contract.scope.subsystemIds.includes(subsystem.id),
       `Contract does not include subsystem: ${subsystem.id}`
     )
+  }
+  if (researchOutput) {
+    assert(/^work\/orchestration\/[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(researchOutput),
+      'Research output must be a task directory under work/orchestration/')
+    assert(researchOutput.split('/').every(part => part && part !== '.' && part !== '..'),
+      'Research output must not contain traversal or empty segments')
+    safeRepoPath(repo, researchOutput, { mustExist: false })
+    let prefix = repo
+    for (const part of researchOutput.split('/')) {
+      prefix = resolve(prefix, part)
+      assert(!pathEntryExists(prefix) || !lstatSync(prefix).isSymbolicLink(), 'Research output cannot use symlinks')
+    }
+    git(repo, ['check-ignore', '-q', '--', researchOutput])
+    assert(contract.ownership.allowedPaths.some(path => pathMatches(researchOutput, path)),
+      'Research output must be allowed by the contract')
+    assert(!contract.ownership.prohibitedPaths.some(path =>
+      pathMatches(researchOutput, path) || pathMatches(path, researchOutput)),
+    'Research output overlaps a prohibited path')
   }
   const { index, cache } = loadOrBuildIndex(repo)
   const queryTerms = terms(`${subsystem.id} ${subsystem.title} ${query}`)
@@ -765,11 +785,17 @@ export function contextPacket(
         reviewer: 'Review the actual final changes and receipts, seek counterexamples, and return findings plus a stop decision.',
       }[role],
       responseBudgetWords: role === 'reviewer' ? 800 : 600,
-      allowedWrites: [],
+      allowedWrites: researchOutput ? [researchOutput] : [],
+      ...(researchOutput ? { researchHandoff: {
+        guide: 'engineering/native-research.md',
+        output: researchOutput,
+        deliverable: 'Save findings.md with provenance, existing/new exports, probe commands/results, intercepted leaves, unresolved questions, and proposed durable destinations. Parent reviews and commits useful findings before deferral.',
+      } } : {}),
       forbiddenActions: [
-        'edit source or ledgers',
+        researchOutput ? 'edit runtime source or ledgers' : 'edit source or ledgers',
         'delegate again',
-        'publish, deploy, record, or regenerate evidence',
+        researchOutput ? 'publish, deploy, record fixtures/parity, or modify tracked evidence; scoped scratch exports and probes are allowed'
+          : 'publish, deploy, record, or regenerate evidence',
       ],
       prohibitedPaths: contract.ownership.prohibitedPaths,
       acceptance: contract.intent.acceptance,
@@ -1615,6 +1641,7 @@ export function main(argv = process.argv.slice(2), repo = ROOT) {
       budget,
       role: options.role ?? null,
       contract: options.contract ?? null,
+      researchOutput: options['research-output'] ?? null,
     })
   }
   if (command === 'plan') {

@@ -49,6 +49,9 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    Start with packet-cited paths/headings; refine the packet query for a disclosed
    candidate path when needed. Do not send whole project history,
    `GOAL.md`, native notes, or the performance log. Do not recursively delegate.
+   For native work, follow `engineering/native-research.md`: verify live prerequisites,
+   reuse indexed findings, give new research a contract-allowed `--research-output`
+   directory, and integrate useful artifacts into durable evidence before deferral.
 
    Apply the automatic stall triggers and recovery in `engineering/efficiency-review.md`
    at resumption and progress boundaries, even before a slice finishes. The parent

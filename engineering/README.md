@@ -109,6 +109,8 @@ read-only `pnd-scout` compares at most five candidates drawn from the exact curr
 and available checks. Return the top three and recommend one. This advisory triage
 needs no task contract, receipt, or generated role packet. Reuse it while its gameplay
 and evidence assumptions remain valid.
+Verify a candidate's actual object class, mission availability, acquisition path,
+and missing implementation before commissioning detailed native research.
 
 Rank player-visible/playability impact and work that unblocks other important
 behavior first. Then weigh the live integration gap, evidence and regression-check
@@ -165,6 +167,9 @@ commit for a named blocker, then return immediately to the feature. Old extracti
 plans are not a standing backlog.
 
 ## Evidence and verification
+
+Native research reuse, scoped scratch exports/probes, and durable parent handoff are
+defined in `native-research.md`. Preserve useful findings even when gameplay is deferred.
 
 Every check definition records an executable and argument array, working directory,
 required environment/input files, prerequisites, side effects, resource conflicts,

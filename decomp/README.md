@@ -35,6 +35,10 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
+Recent reusable topic notes: [Firewarrior launch and open boundaries](research/firewarrior.md)
+and [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
+research; publication and scratch handoff follow [native research](../engineering/native-research.md).
+
 | Original entries | Browser implementation | Evidence and limit |
 | --- | --- | --- |
 | `0044d7f0`, `004f0f90`, `0044db60`, `0044b100` | `app/tooltips.ts`, `app/scene.ts` | Forced object tooltip names and lifetime CPU-compared; first-mission cell adapter is approximate; hover and modes 3–10 unported |

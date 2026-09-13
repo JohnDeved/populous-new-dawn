@@ -63,7 +63,7 @@
         "app/person-routes.ts",
         "app/route-advance.ts"
       ],
-      "researchPaths": ["scripts/check-native-computer-attack.py"],
+      "researchPaths": ["scripts/check-native-computer-attack.py", "scripts/probe-native-firewarrior.py"],
       "sharedPaths": ["app/model.ts", "app/scene.ts", "app/native-terrain.ts"],
       "entrySymbols": [
         { "path": "app/model.ts", "symbol": "command" },
@@ -85,6 +85,7 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
+        { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
           "path": "references/reverse-engineering.md",
@@ -202,6 +203,7 @@
       ],
       "evidence": [
         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
+        { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
         {
           "path": "references/modern-performance.md",
           "heading": "Ground camera presentation between native steps"
