@@ -10,9 +10,11 @@ parity, regenerate evidence, or change credentials unless the user explicitly as
    specialists start from their supplied role packet and expand relevant sources.
 2. Record `git rev-parse HEAD` and `git status --short`; never reset, clean, or
    overwrite pre-existing staged, unstaged, or untracked work.
-3. If the objective is not fixed, have the parent or `pnd-scout` rank a bounded
-   candidate set and recommend one before choosing a subsystem.
-4. Run `npm run orchestration:context -- --subsystem <id> --query "<question>"`.
+3. Continue a valid feature lock from `GOAL.md`. If no objective is fixed, have the
+   parent or `pnd-scout` rank a bounded candidate set once and recommend one before
+   choosing a subsystem. Behavior-neutral changes do not reopen selection.
+4. After choosing the feature, run
+   `npm run orchestration:context -- --subsystem <id> --query "<question>"`.
 5. Run `npm run orchestration:plan -- --base <actual-base-ref>` before claiming a
    check set. The plan selects checks; it does not execute them.
 6. For substantial work, use `orchestration:prepare` to capture mechanical fields
@@ -50,6 +52,13 @@ that progress measure in another ledger. Keep shared files such as `app/model.ts
 and `app/scene.ts` cross-cutting.
 An unknown changed path requires an explicit unmapped result, never an empty plan.
 
+A new feature is complete only when absent behavior is reachable through the shipped
+UI, campaign, or normal system path; test-created entities and isolated helpers are
+supporting evidence, not delivery. Do not substitute cleanup for a selected feature.
+Permit at most one behavior-neutral prerequisite refactor commit for a named blocker,
+then return immediately to the feature. Old model/scene extraction plans are not a
+standing backlog.
+
 Source files are human-owned. Generated outputs and recording procedures are listed
 in `engineering/generated-files.json`. Keep disposable indexes and receipts under
 ignored `work/orchestration/`. Leave `.openai/hosting.json` untouched.
@@ -64,33 +73,35 @@ a fresh review:
 - `pnd-reviewer`: final diff and acceptance challenge; no source repair.
 - `pnd-performance`: paired workload and measurement review; no source repair.
 
-Trial a read-only workflow-efficiency assignment through `pnd-scout` after three
-completed gameplay slices or repeated delivery friction, at a safe boundary. Follow
-`engineering/efficiency-review.md` for its compact receipt brief, advisory limits,
-and benefit check. This assignment uses that brief instead of a gameplay role packet
-and remains separate from final code review.
+Trial a read-only workflow-efficiency assignment through `pnd-scout` only after
+repeated delivery friction, at a safe boundary. Follow
+`engineering/efficiency-review.md` for its compact receipt brief and keep it separate
+from final code review.
 
 When no task is fixed, compare no more than five candidates and return the top three
 plus one recommendation. Prioritize player-visible/playability impact and unblock
 value, then live integration gap, evidence/check confidence, effort, risk, and
 prerequisites. Use the parity percentage to measure delivered progress, but do not
-rank candidates from checkpoint weight or document position alone.
+rank candidates from checkpoint weight or document position alone. When the user
+prefers new features, exclude candidates that only refine already-live behavior.
+Priority triage is advisory and needs no task contract, receipt, or generated role
+packet; assign a compact question directly and reuse the result until gameplay or
+evidence changes a candidate.
 
 The parent owns final priority, scope, integration, acceptance, and any authorized ledger update.
 Use one source writer. Subagents share the checkout unless separate worktrees are
 demonstrated; recursive delegation is out of scope. Artifact-producing review must
 write only to an agreed ignored path and is not a read-only security boundary.
 
-Start each new specialist with `fork_turns: "none"`, one bounded assignment, and a
-role packet generated with `orchestration:context -- --subsystem <id> --query
-"<question>" --role <scout|native|performance|reviewer> --contract <path>`. Supply
-the packet once; begin with its exact omitted paths/headings and follow relevant
-callers, dependencies, or contradictory evidence as needed. Do not send
-whole task history, `GOAL.md`, `decomp/README.md`, or the performance log. A reviewer
-must inspect the packet's actual change manifest and full-diff command. Dispatch
-the fresh final reviewer with the final diff, acceptance criteria, and completed
-receipts together. Repeat review for substantive repairs or unresolved findings,
-not unchanged results or receipt formatting alone.
+Start native, performance, and reviewer specialists with `fork_turns: "none"`, one
+bounded assignment, and a role packet generated from the implementation contract.
+Supply the packet once; begin with its exact omitted paths/headings and follow relevant
+callers, dependencies, or contradictory evidence as needed. Do not send whole task
+history, `GOAL.md`, `decomp/README.md`, or the performance log. A reviewer must inspect
+the packet's actual change manifest and full-diff command. Dispatch a fresh final
+reviewer once for substantive gameplay, parity, performance, or high-risk architecture
+changes, with the final diff, acceptance criteria, and completed receipts together.
+Repeat review only for substantive repairs or unresolved findings.
 If optional context is needed, refine the packet query for a disclosed candidate
 path instead of loading a whole source.
 
@@ -118,10 +129,6 @@ is saved as it completes. Preparation can replace the two reviewed orchestration
 checks with their coverage inside `repository-check`; the actual aggregate command
 and all covered inputs remain in the receipt. Browser/native/performance checks
 remain separate. Use focused tests during editing and one sufficient final check set.
-
-After the packet/receipt improvements, exercise them on the next gameplay slice.
-Use supplied bytes, preparation calls, actual check durations, and repeated runs
-to decide further workflow work; do not infer token or speed savings.
 
 Performance work starts with a bounded context packet and reads its applicable
 sections from `references/modern-performance.md`; expand only for relevant

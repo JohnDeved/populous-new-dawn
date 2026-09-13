@@ -104,7 +104,10 @@ Maintainability is a standing [main priority](GOAL.md#main-priority-clean-readab
 
 Run `npm run dev` to edit and play, then `npm run check` for types and gameplay regressions. [Vite supports fast module updates but does not type-check TypeScript](https://vite.dev/guide/features#typescript), so checking stays explicit. The tests run the same engine modules directly using [Node's TypeScript support](https://nodejs.org/api/typescript.html). Use `npm run build` before publishing and the browser checks above for interaction/rendering changes.
 
-The growing simulation and scene files need further separation as their subsystems are ported. Prefer readable functions, shared data and direct module imports; keep each refactor tied to the behavior being worked on and its existing comparisons. Generated data may stay compact; hand-written code should stay easy to inspect.
+Separate growing simulation and scene files only when the locked gameplay feature
+requires it. Prefer readable functions, shared data and direct module imports; do not
+treat extraction as a standalone backlog. Generated data may stay compact;
+hand-written code should stay easy to inspect.
 
 ### TypeScript quality workflow
 

@@ -106,7 +106,9 @@ index, or old assessment is never sufficient on its own.
 Use this only when the user has not already fixed the objective. The parent or a
 read-only `pnd-scout` compares at most five candidates drawn from the exact current
 `GOAL.md` execution order, reviewed mappings, current parity scope, live callers,
-and available checks. Return the top three and recommend one.
+and available checks. Return the top three and recommend one. This advisory triage
+needs no task contract, receipt, or generated role packet. Reuse it while its gameplay
+and evidence assumptions remain valid.
 
 Rank player-visible/playability impact and work that unblocks other important
 behavior first. Then weigh the live integration gap, evidence and regression-check
@@ -121,20 +123,24 @@ parent owns the final choice.
 
 1. Record HEAD and every existing working-tree path. Establish relevant baseline
    results before editing.
-2. If no objective is fixed, complete the bounded priority triage and choose one
-   candidate; otherwise preserve the user's stated priority.
+2. Continue a valid feature lock. If no objective is fixed, complete the bounded
+   priority triage once and choose one candidate; otherwise preserve the user's stated
+   priority. Behavior-neutral changes do not reopen selection.
 3. Retrieve a focused context packet. Read cited source sections when the packet
    exposes ambiguity or truncation. For long logs, cite exact headings and omit the
    whole file from `inputPaths` unless every section is required. Narrow mandatory
    context before raising a packet budget.
-4. Write one compact contract for substantial work. The parent owns objective,
-   non-goals, acceptance, risk, allowed/prohibited/generated paths, integration,
-   and any later authorized ledger update.
+4. After selection, write one compact implementation contract for substantial work.
+   Its acceptance reaches absent behavior through the shipped UI, campaign, or normal
+   system path; injection and isolated helpers are not stopping conditions. The parent
+   owns objective, non-goals, acceptance, risk, allowed/prohibited/generated paths,
+   integration, and any later authorized ledger update.
 5. Keep one source writer. Use focused agents only for independent evidence gathering
    or fresh review. Each assignment states a bounded question/deliverable, allowed
    writes, evidence, and stop condition. Start new specialists without inherited
-   thread history and supply one role packet; workers start with cited omissions
-   and follow relevant callers, dependencies, or contradictions as needed.
+   thread history. Supply native, performance, and reviewer specialists one role
+   packet from the implementation contract; they start with cited omissions and
+   follow relevant callers, dependencies, or contradictions as needed.
 6. Re-run `plan` on the actual base. Inspect implementations before executing any
    selected command; do not add `--record` as a generic option.
 7. Probe declared external prerequisites, then run the smallest sufficient
@@ -149,10 +155,10 @@ parent owns the final choice.
 9. Audit the contract, report every check status honestly, and stop at the contract's
    stopping condition.
 
-Pilot these packet/receipt changes on the next gameplay slice before extending the
-workflow. Record supplied packet bytes, preparation calls, repeated executions,
-and existing receipt durations. Add caching or scheduling only after measured cost
-justifies it; no inferred token savings or separate metrics ledger is needed.
+Do not use cleanup as fallback work. A locked feature may cross files or subsystems.
+Permit at most one independently revertible behavior-neutral prerequisite refactor
+commit for a named blocker, then return immediately to the feature. Old extraction
+plans are not a standing backlog.
 
 ## Evidence and verification
 
@@ -219,6 +225,7 @@ read-only analysis and artifact-producing verification are separate assignments.
 
 Never hand-edit `PARITY.md`, mass-regenerate evidence, shrink parity scope, or run
 `parity:record` to hide an unrelated failure. `.openai/hosting.json` remains outside
-this workflow. Runtime module extraction/refactoring is deferred until a bounded task
-demonstrates a maintainability benefit and protects TypeScript, embedded/browser
-imports, assets, benchmark source extraction, evidence paths, and ordering/rounding.
+this workflow. Runtime module extraction/refactoring is allowed only as the single
+prerequisite commit for a named blocker in the locked feature and must protect
+TypeScript, embedded/browser imports, assets, benchmark source extraction, evidence
+paths, and ordering/rounding.

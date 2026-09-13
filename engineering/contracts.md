@@ -3,6 +3,11 @@
 Use one JSON file for a substantial task. Store per-run contracts and receipts under
 ignored `work/orchestration/`; do not create a database for trivial edits.
 
+Create the contract only after selecting the implementation milestone. Read-only
+priority triage needs no task spec, contract, or receipt. A gameplay contract covers
+the vertical outcome through the shipped UI, campaign, or normal system path; a
+test-injected entity or isolated helper is not a stopping condition.
+
 Before editing, write a task spec containing the `intent`, `scope`, `ownership`,
 `verification`, and `completion` sections below. Add `research` and `modernization`
 when relevant; their arrays otherwise default to empty. Omit `version`, `identity`,

@@ -10,13 +10,15 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
 1. The parent reads root `AGENTS.md`, `GOAL.md`, and the applicable sections linked
    from `engineering/README.md`. Delegated specialists start with their role packet
    and relevant source expansion. Record HEAD and working-tree changes before editing.
-2. If the user has not fixed the objective, perform a bounded triage before choosing
-   a subsystem. The parent may use `pnd-scout` to compare at most five candidates and
-   return the top three plus one evidence-backed recommendation. Rank
+2. Continue a valid feature lock. Only when no objective is fixed, perform one bounded
+   triage before choosing a subsystem. The parent may ask `pnd-scout` directly, without
+   a contract or role packet, to compare at most five candidates and return the top
+   three plus one evidence-backed recommendation. Rank
    player-visible/playability impact and unblock value first; then live integration
    gap, evidence/check confidence, effort, risk, and prerequisites. The parent makes
-   the final choice. Use the parity percentage to measure delivered progress; do not
-   derive priority from checkpoint weight or document position alone.
+   the final choice. Reuse that choice across behavior-neutral work. Use the parity
+   percentage to measure delivered progress; do not derive priority from checkpoint
+   weight or document position alone.
 3. Retrieve bounded current context:
 
    ```sh
@@ -30,13 +32,15 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    `inputPaths` unless every section is genuinely required. If mandatory context
    overflows, narrow the contract/query before increasing the packet budget.
 
-4. For non-trivial work, write the judgment fields of a task spec as described in
-   `engineering/contracts.md`, then run `orchestration:prepare` before editing to
-   capture baseline/input fingerprints and reviewed aggregate check coverage.
-5. Keep one implementation owner. Delegate only independent source/native research
-   or a fresh final review using the focused project agents in `.codex/agents/`.
-   Start new specialists with no inherited thread history and supply one validated
-   role packet:
+4. After selecting a non-trivial milestone, write one implementation task spec as
+   described in `engineering/contracts.md`, then run `orchestration:prepare` before
+   editing. Acceptance must reach the absent behavior through the shipped UI,
+   campaign, or normal system path; injection and isolated helpers are not stopping
+   conditions.
+5. Keep one implementation owner. Delegate only independent native/performance
+   research or a fresh final review using the focused project agents in
+   `.codex/agents/`. Start those specialists with no inherited thread history and
+   supply one validated role packet:
 
    ```sh
    npm run orchestration:context -- --subsystem <id> --query "<question>" --role <role> --contract <task-contract.json>
@@ -46,8 +50,8 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    candidate path when needed. Do not send whole project history,
    `GOAL.md`, native notes, or the performance log. Do not recursively delegate.
 
-   At safe boundaries after three gameplay slices or observed repeated delivery
-   friction, trial the read-only scout assignment in
+   At a safe boundary after observed repeated delivery friction, trial the read-only
+   scout assignment in
    `engineering/efficiency-review.md`. Its compact receipt brief replaces the
    gameplay packet for this advisory review; it never replaces final code review.
 6. Before verification, select checks without executing them:
@@ -85,4 +89,7 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
 `engineering/README.md` governs architecture, evidence boundaries, resource
 serialization, performance records, and parity bookkeeping. The manifests there
 are reviewed routing aids; `parity.json` remains the only gameplay and game-mechanics
-parity percentage and project-progress ledger.
+parity percentage and project-progress ledger. Do not use refactoring as fallback
+work: permit at most one independently revertible prerequisite refactor commit for a
+named blocker, then return to the locked feature. Old extraction plans are not a
+standing backlog, and a bounded feature may cross files or subsystems.

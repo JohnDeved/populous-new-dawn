@@ -78,8 +78,9 @@ code.
 
 ## Current execution order: highest-impact playable parity
 
-Explicit user direction wins. Otherwise, compare at most five candidates using
-current implementation and evidence, identify the top three, and select one by:
+Explicit user direction wins. Continue a valid feature lock. Only when none exists,
+compare at most five candidates using current implementation and evidence, identify
+the top three, and select one by:
 
 1. player-visible playability impact;
 2. ability to unblock other important gameplay;
@@ -89,10 +90,16 @@ current implementation and evidence, identify the top three, and select one by:
 
 Use the parity percentage to measure delivered progress, not as the sole priority
 signal. Do not select work by checkpoint weight, document order, native address, or
-ease of testing alone. Investigate consequential evidence gaps before implementation.
+ease of testing alone. When new features are preferred, exclude candidates that only
+refine already-live behavior. Investigate consequential evidence gaps before
+implementation.
 
-Define one player-visible outcome or concrete unblocker and its acceptance evidence.
-Reassess after delivery or new findings; reuse current triage while it remains valid.
+Lock one absent player-visible behavior through the shipped UI, campaign, or normal
+system path; tests, isolated helpers, and staged plumbing do not complete it. Keep the
+lock until delivery or a concrete blocker. Bounded means a clear outcome, not an
+artificially tiny change. Allow at most one prerequisite refactor commit for a named
+blocker, then return to the feature; old extraction plans are not a backlog or fallback.
+Reuse current triage while its gameplay and evidence assumptions remain valid.
 
 ## Use subagents where they improve delivery
 

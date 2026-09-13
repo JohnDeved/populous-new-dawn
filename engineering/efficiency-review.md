@@ -10,11 +10,10 @@ cannot justify weaker gameplay, slower performance, or harder-to-read code.
 
 ## When to run
 
-At a safe slice boundary, run one review after three completed gameplay slices
-since the last review, or sooner when repeated setup, duplicate checks, excessive
-context loading, or coordination failures are observed. Coalesce related incidents
-into one assignment. Do not interrupt active implementation or add a review to
-every turn. This is a workflow checkpoint, not a scheduled background task.
+Run one review at a safe slice boundary only after repeated setup, duplicate checks,
+excessive context loading, or coordination failures are observed. Coalesce related
+incidents into one assignment. Do not interrupt active implementation or add a review
+to every turn. This is not a scheduled checkpoint.
 
 Use existing handoffs and receipts to identify the sample; do not add a counter,
 metrics ledger, or daemon. Missing measurements stay unknown.
@@ -67,7 +66,6 @@ highest-value small recommendation first, preserving the single source writer.
 Compare actual avoided work with the adviser, implementation, and maintenance
 effort; do not run extra benchmarks merely to populate a scorecard.
 
-After the first three reviews, keep, adjust, or retire the responsibility based on
-observed benefit. Introduce a permanent `pnd-efficiency` role only if several reviews
-produce useful, distinct findings that justify it. Code changes still receive their
-own fresh final review; the efficiency report is not acceptance evidence.
+Retire the review when it does not produce an observed delivery benefit. Code changes
+still receive their own fresh final review; the efficiency report is not acceptance
+evidence.
