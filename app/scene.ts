@@ -2516,10 +2516,37 @@ export class GameScene {
     this.previous = now
     advanceGame(this.world, this.gameClock, dt)
     this.playWorldSounds()
+    this.updateTerrainFrame()
+    this.updateDecorationsFrame()
+    if (!this.updateCameraMotion(dt) && !this.updateFlyby(dt)) {
+      this.updateView()
+    }
+    this.updateUnitsFrame()
+    this.renderTooltip()
+    this.updateBuildingsFrame()
+    this.updateEffectsFrame()
+    this.updateShrinesFrame()
+    const spec = SPELLS.find(s => s.id === this.world.mode)
+    this.updatePointerFrame(now)
+    const hovered =
+      this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
+    const hoveredBuilding = this.world.buildings.find(b => b.id === this.hoveredObject)
+
+    this.updatePlacement()
+    this.updateSpellPointerFrame(spec)
+    this.updateEnvironmentFrame(skyTicks)
+    this.renderSceneFrame(hovered, hoveredBuilding)
+    this.updateHudFrame(now, dt)
+    this.frame = requestAnimationFrame(this.animate)
+  }
+  private updateTerrainFrame() {
     if (this.terrainVersion !== this.world.landVersion) {
       this.rebuildTerrain()
     }
     this.updateTerrainTexture()
+  }
+
+  private updateDecorationsFrame() {
     const trees = this.world.trees.map(t => (t.logs >= 1 ? '1' : '0')).join('')
     if (trees !== this.treeSignature) {
       this.treeSignature = trees
@@ -2548,9 +2575,9 @@ export class GameScene {
         group.visible = tree.logs > 0
       }
     }
-    if (!this.updateCameraMotion(dt) && !this.updateFlyby(dt)) {
-      this.updateView()
-    }
+  }
+
+  private updateUnitsFrame() {
     for (const [id, g] of this.unitMeshes)
       if (!this.world.units.some(u => u.id === id)) {
         this.objects.remove(g)
@@ -2670,7 +2697,9 @@ export class GameScene {
         health.userData.atlasTransform.set(1 / 25, 1, Math.max(0, Math.min(24, gauge.fill)) / 25, 0)
       }
     }
-    this.renderTooltip()
+  }
+
+  private updateBuildingsFrame() {
     for (const [id, mesh] of this.plans)
       if (!this.world.buildings.some(b => b.id === id && b.preparation)) {
         mesh.removeFromParent()
@@ -2738,6 +2767,9 @@ export class GameScene {
       g.userData.healthFill.scale.x =
         b.progress < 1 ? Math.max(0.01, b.progress) : Math.max(0.001, b.hp / buildingHp(b.kind))
     }
+  }
+
+  private updateEffectsFrame() {
     for (const [id, g] of this.fxMeshes)
       if (!this.world.effects.some(f => f.id === id)) {
         g.removeFromParent()
@@ -2755,6 +2787,9 @@ export class GameScene {
       this.projectileMotion.position(this.world, f, g.position)
       this.animateFx(g, f)
     }
+  }
+
+  private updateShrinesFrame() {
     for (const [id, entry] of this.shrineMeshes)
       if (!this.world.shrines.some(s => s.id === id)) {
         this.objects.remove(entry.g)
@@ -2798,7 +2833,9 @@ export class GameScene {
       }
       entry.g.visible = shrine.active || shrine.kind === 'vault'
     }
-    const spec = SPELLS.find(s => s.id === this.world.mode)
+  }
+
+  private updatePointerFrame(now: number) {
     // Original geometry advances per draw; its animation clock is still a
     // browser 12 Hz presentation clock until native timer ownership is ported.
     this.updateSpellHalo(Math.floor((now * 12) / 1000))
@@ -2834,11 +2871,9 @@ export class GameScene {
       this.pointerState = pointerState
     }
     this.selectionOverlay.visible = this.dragActive.value
-    const hovered =
-      this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
-    const hoveredBuilding = this.world.buildings.find(b => b.id === this.hoveredObject)
+  }
 
-    this.updatePlacement()
+  private updateSpellPointerFrame(spec: (typeof SPELLS)[number] | undefined) {
     this.spellPointer.hidden =
       !spec || !this.pointerScreen || !!this.world.inputMask || this.world.status !== 'playing'
     if (spec && this.pointerScreen && !this.spellPointer.hidden) {
@@ -2873,6 +2908,9 @@ export class GameScene {
         }
       })
     }
+  }
+
+  private updateEnvironmentFrame(skyTicks: number) {
     this.updateWater()
     this.ground.visible = !this.overviewActive
     this.globe.visible = this.overviewActive
@@ -2910,6 +2948,9 @@ export class GameScene {
         (sky.color >>> 24) / 255
       )
     }
+  }
+
+  private renderSceneFrame(hovered: ReturnType<typeof worldTooltipObject>, hoveredBuilding: Building | undefined) {
     this.scene.traverse(object => {
       updateModelLighting(object)
       if (!object.userData.highlight) return
@@ -2928,6 +2969,9 @@ export class GameScene {
     this.view.painter.cells = this.world.objectCells
     this.view.prepare(this.scene)
     this.renderer.render(this.scene, this.camera)
+  }
+
+  private updateHudFrame(now: number, dt: number) {
     this.drawPointer(now)
     this.renderBuildingPanels()
     this.objectPanels.update(texture('hud').image as HTMLImageElement)
@@ -2961,7 +3005,6 @@ export class GameScene {
       this.uiTimer = 0
     }
     this.drawMinimap()
-    this.frame = requestAnimationFrame(this.animate)
   }
   releaseGroup(g: THREE.Object3D) {
     releaseGroup(g)
