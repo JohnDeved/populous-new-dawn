@@ -87,6 +87,7 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
+        { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
           "path": "references/reverse-engineering.md",
@@ -151,6 +152,8 @@
         { "path": "decomp/README.md", "heading": "Construction command wrapper" },
         { "path": "decomp/README.md", "heading": "Construction timber hauling" },
         { "path": "decomp/README.md", "heading": "Shared construction resource searches" },
+        { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
+        { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Building damage does not dispatch repairers" },
         {
           "path": "references/modern-performance.md",
           "heading": "Construction research checkpoints"

@@ -52,7 +52,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `004e93f0`, `004e6d00`, `004ebc20`, `004e9be0` | `app/person-motion.ts`, `app/person-physics.ts`, `app/native-terrain.ts` | Complete physics driver CPU-compared with explicit world consumers; grounded celebrant adapter live, full airborne/state integration unfinished |
 | `0050b740`, `00511f70`, `0050ee00` | `app/model.ts`, `app/scene.ts` | Partial Blast/Lightning/Land Bridge ports |
 | `004c1d10`, `004c21e0`, `004bae30`, `004bbf30` | Existing approximate casting in `app/model.ts` | Shot pipeline traced, not yet ported |
-| `00409200`, `004092a0` | Existing building HP in `app/model.ts` | Native structural damage traced, not yet ported |
+| `00409200`, `004092a0` | Existing building HP in `app/model.ts` | Native structural damage traced; the intercepted person scan records activity and does not dispatch repair |
 | `0048a050`, `0048b500`, `0048b950` | `scripts/import-sound.py`, `app/audio.ts`, `app/model.ts` | Native PCM/cues and partial event dispatch; adaptive music and complete scheduler pending |
 | `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
 | `0048cc60`, `0048f350` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization applied; full game-command host remains open |
@@ -61,6 +61,9 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `00492790`, `00492860`, `00491c30`, `004f2900`, `004c2b40`, `004c14c0` | `app/model.ts`, `scripts/check-native-campaign.py` | Cast/stock/head queries and allocation counters CPU-compared; unsupported AI stock still explicit |
 
 For each subsequent port, preserve the original branch ordering, integer widths/rounding, state transitions and scheduling when established. Record uncertainty rather than silently replacing it with a guessed rule. Add a runnable behavioral check and update the [detailed evidence log](../references/reverse-engineering.md) and [goal checklist](../GOAL.md). Existing browser tests establish internal consistency; they are not yet cross-engine replay evidence.
+
+Reusable negative findings for terrain-route invalidation and damage-triggered repair
+are retained in [rejected adapter candidates](research/rejected-adapter-candidates.md).
 
 ## Forced tooltip comparison
 
@@ -737,9 +740,9 @@ cleanups, 1,024 plan work changes, 1,024 damage calls using the real plan-change
 and repair-delay/attacker routines, and 512 building-processor prefixes through
 collapse accumulation. It checks signed storage, RNG, stages, missing plans,
 overlays, ghost/internal removal, occupant ejection, allocation failures,
-computer responder selection and ordered world-consumer requests. The prefix
+computer activity-accounting traversal and ordered world-consumer requests. The prefix
 check stops explicitly at the damage controller; it does not claim the rest of
-the building processor. Geometry, allocation, graphics and AI response consumers
+the building processor. Geometry, allocation, graphics and AI activity consumers
 are supplied, and their bodies/RNG consumption remain outside these comparisons.
 
 Live defeat now seeds each surviving building's collapse flag and damage from
