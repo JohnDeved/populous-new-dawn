@@ -12,7 +12,6 @@ import {
   cancelInteraction,
   selectArea,
   selectUnit,
-  command,
   effect,
   hudPeople,
   isShaman,
@@ -21,6 +20,7 @@ import {
   type Building,
   type Point,
 } from './model'
+import { command } from './live-command.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { pointerBrackets } from './world-picking.ts'
 import { commandMarkerPoint } from './command-context.ts'

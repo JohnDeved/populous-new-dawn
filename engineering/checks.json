@@ -257,6 +257,7 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "app/live-command.ts",
         "app/live-movement.ts",
         "app/live-people.ts",
         "app/model.ts",
@@ -392,7 +393,11 @@
       "inputs": [
         "scripts/check-browser-ground-waypoints.mjs",
         "scripts/browser-game.mjs",
-        "app/live-movement.ts"
+        "app/live-command.ts",
+        "app/live-movement.ts",
+        "app/model.ts",
+        "app/scene.ts",
+        "app/scene-input-runtime.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["May write /private/tmp captures"],
@@ -424,6 +429,7 @@
         "app/live-people.ts",
         "app/model.ts",
         "app/scene.ts",
+        "app/scene-input-runtime.ts",
         "app/scene-picking.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],

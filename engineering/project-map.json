@@ -55,6 +55,7 @@
       "title": "Movement and shared orders",
       "mappingStatus": "reviewed",
       "implementationPaths": [
+        "app/live-command.ts",
         "app/live-movement.ts",
         "app/marching-formations.ts",
         "app/person-order-start.ts",
@@ -66,7 +67,7 @@
       "researchPaths": ["scripts/check-native-computer-attack.py", "scripts/probe-native-firewarrior.py"],
       "sharedPaths": ["app/model.ts", "app/scene.ts", "app/native-terrain.ts"],
       "entrySymbols": [
-        { "path": "app/model.ts", "symbol": "command" },
+        { "path": "app/live-command.ts", "symbol": "command" },
         { "path": "app/live-movement.ts", "symbol": "appendLiveOrders" },
         { "path": "app/model.ts", "symbol": "stepTurn" }
       ],
@@ -409,6 +410,16 @@
         "camera-clocks",
         "terrain-performance",
         "campaign"
+      ],
+      "checkIds": ["repository-check", "production-build"]
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "subsystemIds": [
+        "selection",
+        "movement-orders",
+        "construction-resources",
+        "camera-clocks"
       ],
       "checkIds": ["repository-check", "production-build"]
     },

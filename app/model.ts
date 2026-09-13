@@ -20,7 +20,7 @@ import {
   stepComputerTasks,
 } from './computer-runtime.ts'
 export { computerMarkerOrderCount } from './computer-runtime.ts'
-import { builderActivity, unitAnimationSource, selectionBuilding, canOrder, selectionPeople, cancelInteraction } from './selection-runtime.ts'
+import { builderActivity, unitAnimationSource, selectionBuilding, canOrder } from './selection-runtime.ts'
 export { unitAnimationSource, canOrder, select, selectionPeople, hudPeople, selectFollowers, setSelection, selectUnit, selectArea, cancelInteraction } from './selection-runtime.ts'
 import {
   applyHypnotise,
@@ -141,10 +141,8 @@ export type {
   World,
 } from './world-types.ts'
 import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
-import { worshipOrder, worshipHeadPose } from './live-worship.ts'
+import { worshipHeadPose } from './live-worship.ts'
 import {
-  movementOrder,
-  appendLiveOrders,
   startLiveOrder,
   startLiveConstructionOrder,
   cancelLiveOrder,
@@ -172,15 +170,14 @@ import {
   startLiveCombatResponse,
 } from './live-building-combat.ts'
 import { combatPerson, nativePersonModel, nativePersonTribe } from './live-combat.ts'
-import { liveCommandContext } from './live-command.ts'
+import { buildingDoor, entrance, route, tell, walkable } from './live-command.ts'
+export { command, entrance, tell, walkable } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import {
   currentPersonOrder,
-  playerOrderInput,
   emptyPersonOrder,
   allocatePersonOrder,
-  acceptsPersonOrder,
   writePersonOrder,
   type OrderPool,
 } from './person-orders.ts'
@@ -203,7 +200,6 @@ import { relocateFight } from './melee-placement.ts'
 import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
 import {
-  assignBuilder,
   pruneBuilders,
   stepConstructionCrew,
   stepUnbuiltPlan,
@@ -289,9 +285,7 @@ import {
 import {
   createLivePathfinding,
   findLivePath,
-  planLivePath,
   probeLivePathCost,
-  acceptLivePath,
   clearLivePath,
   replanLivePath,
   stepLiveRoute,
@@ -452,7 +446,6 @@ import {
   createWorship,
   stepWorship,
   stepWorshipHead,
-  worshipApproach,
   countWorshippers,
   worshipProgress,
   type WorshipState,
@@ -648,9 +641,6 @@ export function groundBuilding(w: World, b: Building, prepare = b.progress < 1) 
   b.foundation = terrainPointHeight(w.land, buildingPosition(pose)) / 45
   refreshTerrainSurface(w)
 }
-export function walkable(terrain: number[], p: Point) {
-  return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > 0.45
-}
 export const buildingContainsPoint = (b: Building, p: Point) =>
   b.progress === 1 && distance(b, p) < 2.35
 export const buildingBlocksStep = (b: Building, start: Point, next: Point) =>
@@ -668,18 +658,6 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
   return findLivePath(w, start, end)
-}
-function planRoute(w: World, u: Unit, end: Point) {
-  syncNativeTerrain(w)
-  syncLandscapeObjects(w)
-  return planLivePath(w, u, end)
-}
-function route(w: World, u: Unit, end: Point, preserveOrders = false) {
-  cancelLiveResting(w, u)
-  const person = u.native ?? u.fight?.motion
-  if (!preserveOrders && (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28))
-    cancelLiveOrder(w, u)
-  return acceptLivePath(w, u, planRoute(w, u, end))
 }
 function buildingId(w: World) {
   if (w.nextId < 1024) return w.nextId++
@@ -989,10 +967,6 @@ export function requestTutorial(w: World, flags: number, message: number) {
   if (flags === 0x200000 && message === 603)
     w.routeNotice = { flags, message, serial: (w.routeNotice?.serial ?? 0) + 1 }
 }
-export function tell(w: World, message: string) {
-  w.message = message
-  w.messageUntil = w.time + 9
-}
 export function createGift(w: World, reward: Shrine['kind'], p: Point) {
   const gift = effect(w, 'gift', p) as Gift
   Object.assign(gift, {
@@ -1029,24 +1003,6 @@ export function rotateBuildingPlan(w: World) {
   const kind = w.mode as BuildingKind
   w.buildingDirections[kind] = (w.buildingDirections[kind] + 1) & 3
   return true
-}
-function buildingDoor(b: Building) {
-  const point = buildingOutsidePoint(buildingPose(b))
-  return browserPosition(point)
-}
-export function entrance(w: World, b: Point, radius = 4) {
-  if ('level' in b && 'team' in b && 'kind' in b && 'angle' in b) {
-    return buildingDoor(b as Building)
-  }
-  const angle = 'angle' in b ? Number(b.angle) : 0
-  // Native model doors face -Z. Reflect both the model and the native map coordinates.
-  if ('angle' in b) return { x: b.x - Math.sin(angle) * radius, z: b.z + Math.cos(angle) * radius }
-  return (
-    Array.from({ length: 16 }, (_, i) => ({
-      x: b.x + Math.sin((i * Math.PI) / 8) * radius,
-      z: b.z + Math.cos((i * Math.PI) / 8) * radius,
-    })).find(p => walkable(w.terrain, p)) ?? b
-  )
 }
 // Native slots retain registration order. Browser work orders supply eligibility
 // until the complete native person/plan command ownership is connected.
@@ -1457,181 +1413,6 @@ function atBuildingEntrance(w: World, p: Point, b: Building) {
   const door = entrance(w, b)
   return Math.abs(p.x - door.x) < 112 / 256 && Math.abs(p.z - door.z) < 112 / 256
 }
-// Input acceptance is separate from later route/allocation success.
-export function command(
-  w: World,
-  p: Point & { id?: number },
-  modifiers: { ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean } = {}
-) {
-  if (w.paused || w.status !== 'playing') return false
-  syncNativeTerrain(w)
-  syncLandscapeObjects(w)
-  const context = liveCommandContext(w, p)
-  if (!context?.enabled) return false
-  const { model } = context
-  w.lastOrderTurn = w.turn
-  const queuedBuilding =
-    [6, 8, 10].includes(model) &&
-    context.building &&
-    ['hut', 'camp', 'tower', 'temple'].includes(context.building.kind)
-  const queuedTree =
-    model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
-  if (
-    model === 19 ||
-    model === 33 ||
-    ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
-      (modifiers.ctrlKey || w.orderCursor))
-  ) {
-    const slot = w.orderCursor
-    const input = playerOrderInput(
-      model,
-      slot,
-      modifiers.ctrlKey,
-      modifiers.shiftKey,
-      modifiers.altKey
-    )
-    const units = w.units.filter(
-      u =>
-        canOrder(u) &&
-        w.selected.includes(u.id) &&
-        acceptsPersonOrder(combatPerson(u), model)
-    )
-    if (!units.length) {
-      tell(w, 'No selected followers can take this order.')
-      return true
-    }
-    // Only release the old controller when beginning a new sequence or replacing
-    // an order whose ownership has not yet migrated to the shared queue.
-    for (const u of units) {
-      const person = u.native ?? u.entry?.person ?? u.builder?.person,
-        active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
-      if (
-        ![17, 31, 32].includes(active) &&
-        (!slot || !person || ![3, 6, 7, 8, 10, 19, 27, 28].includes(active))
-      ) {
-        release(w, u, model === 33)
-        if (model === 33 && person) u.native = person
-      }
-    }
-    const order = emptyPersonOrder(),
-      to = nativePosition(w, p)
-    writePersonOrder(
-      order,
-      model,
-      model === 19
-        ? 0
-        : model === 7
-          ? 1
-          : (context.person?.id ?? context.building?.id ?? context.shrine?.id ?? 0),
-      ((to.x >>> 8) & 255) | (to.y & 0xff00),
-      input.flags
-    )
-    const result = appendLiveOrders(w, units, order, slot === 0)
-    if (model === 28 && result.accepted)
-      for (const u of units) {
-        const person = u.native ?? u.entry?.person ?? u.builder?.person
-        if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28) continue
-        u.target = context.person!.id
-        route(w, u, context.person!, true)
-      }
-    for (const p of selectionPeople(w))
-      p.selectionFlags = (p.selectionFlags & ~1) | (p.selectionFlags >>> 7)
-    w.orderCursor = input.nextCursor
-    if (input.deselect) cancelInteraction(w)
-    tell(
-      w,
-      result.accepted
-        ? result.count
-          ? 'Your followers are on the move.'
-          : 'No followers can take this order.'
-        : 'No command slots available.'
-    )
-    return true
-  }
-  // Non-ground commands retain their existing controller until mixed queues are live.
-  w.orderCursor = 0
-  const shrine = model === 27 || model === 33 ? context.shrine : undefined
-  const friendly = [6, 8, 10].includes(model) ? context.building : undefined
-  const enemy = model === 28 ? context.person : undefined
-  const tree = model === 7 ? context.tree : undefined
-  const dismantling = model === 10
-  const headOrder = shrine && shrine.kind !== 'vault' ? worshipOrder(w, shrine) : 0
-  const moveOrder =
-    !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, tree ?? p)) : 0
-  if (
-    (shrine && shrine.kind !== 'vault' && !headOrder) ||
-    (!shrine && !friendly && !enemy && !moveOrder)
-  ) {
-    tell(w, 'No command slots available.')
-    return true
-  }
-  let count = 0,
-    constructionFull = false
-  if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
-  for (const u of w.units.filter(u => canOrder(u) && w.selected.includes(u.id))) {
-    if (!acceptsPersonOrder(combatPerson(u), model)) continue
-    if (
-      friendly &&
-      (friendly.progress < 1 || !['hut', 'camp', 'tower', 'temple'].includes(friendly.kind)) &&
-      u.kind !== 'brave'
-    )
-      continue
-    if (
-      friendly &&
-      friendly.progress < 1 &&
-      !dismantling &&
-      !friendly.builders!.includes(u.id) &&
-      !friendly.builders!.includes(0)
-    ) {
-      constructionFull = true
-      continue
-    }
-    const goal = shrine
-      ? headOrder
-        ? browserPosition(worshipApproach(worshipHeadPose(w, shrine)))
-        : entrance(w, shrine, 2)
-      : friendly
-        ? entrance(w, friendly)
-        : enemy && 'progress' in enemy
-          ? entrance(w, enemy)
-          : (enemy ?? tree ?? p)
-    const path = planLivePath(w, u, goal)
-    if (!path) continue
-    if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
-    release(w, u)
-    if (moveOrder || headOrder) {
-      releasePersonRoute(w.motionRoutes, path)
-      startLiveOrder(w, u, moveOrder || headOrder)
-    } else acceptLivePath(w, u, path)
-    u.work = shrine?.id ?? friendly?.id ?? null
-    if (friendly && friendly.progress < 1 && !dismantling)
-      u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
-    u.target = enemy?.id ?? null
-    u.tree = tree?.id ?? null
-    if (shrine?.kind === 'vault')
-      u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 }
-    count++
-  }
-  let message = 'No land route. Bring your shaman to the shore and make a Land Bridge.'
-  if (count) {
-    message = 'Your followers are on the move.'
-    if (dismantling) message = 'Braves assigned to dismantle the building and recover timber.'
-    else if (shrine)
-      message = `Worshipping ${shrine.name}. ${shrine.kind === 'vault' ? 'Only your shaman can learn its secrets.' : 'One follower is enough.'}`
-    else if (friendly) {
-      if (friendly.progress < 1) message = 'Braves assigned to construction.'
-      else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
-      else if (friendly.kind === 'temple') message = 'Braves sent to train as preachers.'
-      else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
-      else message = 'Braves sent to live in the hut.'
-    } else if (enemy) message = 'Your followers march to battle.'
-  } else if (constructionFull) message = 'This building already has its full construction crew.'
-  else if (shrine?.kind === 'vault')
-    message = 'Select your shaman to worship the Vault of Knowledge.'
-  tell(w, message)
-  return true
-}
-
 function processVaultTask(w: World, u: Unit) {
   const p = u.native!,
     task: VaultTask = {
