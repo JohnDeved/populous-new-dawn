@@ -173,6 +173,7 @@ import {
   updateWaveShake,
 } from './scene-entities.ts'
 import { rebuildTerrain, updateTerrainTexture, landIndex, updateWater, makeDecorations, updateTerrainFrame, updateDecorationsFrame } from './scene-terrain-runtime.ts'
+import { makeSky, commitSky, updateSky, updateView, currentPreset, captureCamera, skipIntroduction, updateCameraMotion, previewCamera, updateFlyby, cancelOverview, focus, stepViewChange, startGroundView, overview, leaveOverview, zoom } from './scene-camera-runtime.ts'
 
 const cameraKeys: Record<string, number> = {
   w: 1,
@@ -657,108 +658,14 @@ export class GameScene {
     this.frame = requestAnimationFrame(this.animate)
   }
   makeSky() {
-    // Native sky commands precede land and receive a farther depth (0x47c7e0).
-    // Draw before other transparent objects, with opaque land still occluding it.
-    this.skyFlash.renderOrder = -10000
-    this.skyFlash.frustumCulled = false
-    this.skyFlash.userData.nativeIgnore = true
-    this.skyFlash.visible = false
-    this.scene.add(this.skyFlash)
-    this.skyBackdrop.renderOrder = -10003
-    this.skyBackdrop.frustumCulled = false
-    this.skyBackdrop.userData.nativeIgnore = true
-    this.scene.add(this.skyBackdrop)
-    for (const [i, name] of ['clouds', 'clouds-high'].entries()) {
-      const geo = new THREE.BufferGeometry()
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(31 * 3), 3))
-      geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(31 * 2), 2))
-      geo.setAttribute('fade', new THREE.Float32BufferAttribute(new Float32Array(31), 1))
-      const mesh = new THREE.Mesh(
-        geo,
-        new THREE.ShaderMaterial({
-          uniforms: { map: { value: texture(name) } },
-          vertexShader:
-            'attribute float fade; varying vec2 cloudUV; varying float cloudAlpha; void main(){cloudUV=vec2(uv.x,1.-uv.y);cloudAlpha=fade;gl_Position=vec4(position.xy,1.,1.);}',
-          fragmentShader: `uniform sampler2D map; varying vec2 cloudUV; varying float cloudAlpha;
-          void main(){gl_FragColor=texture2D(map,cloudUV);gl_FragColor.a*=cloudAlpha;
-          }`,
-          transparent: true,
-          depthWrite: false,
-          depthTest: true,
-          toneMapped: false,
-          side: THREE.DoubleSide,
-        })
-      )
-      mesh.renderOrder = -10002 + i
-      mesh.frustumCulled = false
-      mesh.userData.nativeIgnore = true
-      this.skyClouds.push(mesh)
-      this.scene.add(mesh)
-    }
+    makeSky(this)
   }
 
   commitSky(camera: { x: number; y: number; angle: number }, remainder: number) {
-    if (!this.skyLoaded) {
-      updateSkyArray(this.skyOwned, camera, 0, this.skyGrid)
-      this.skyLoaded = true
-    }
-    remainder = Math.max(0, remainder)
-    advanceSkyMotion(this.skyOwned, camera, Math.max(0, this.skyRemainder - remainder))
-    this.skyRemainder = remainder
+    commitSky(this, camera, remainder)
   }
   updateSky() {
-    const camera = {
-      x: (this.viewPoint.x + 8) * 256,
-      y: (-this.viewPoint.z - 8) * 256,
-      angle: (this.cameraBearing * 1024) / Math.PI,
-    }
-    if (!this.skyLoaded || (this.world.paused && (this.wasFlying || this.resultCamera.active)))
-      this.commitSky(camera, 0)
-    Object.assign(this.skyMotion, this.skyOwned)
-    advanceSkyMotion(this.skyMotion, camera, this.skyRemainder)
-    fillSkyArray(
-      this.skyGrid,
-      Math.round(this.skyMotion.angle) & 2047,
-      Math.trunc(this.skyMotion.x * 512),
-      Math.trunc(this.skyMotion.y * 512)
-    )
-    const width = this.container.clientWidth,
-      height = this.container.clientHeight
-    if (!width || !height) return
-    // Keep the native horizon/UV scale. Wide views can expose space below it;
-    // extend the backdrop edge color there without stretching clouds or terrain.
-    const horizon = this.view.config.horizon
-    this.skyBackdrop.visible = !this.overviewActive
-    this.skyBackdrop.material.uniforms.height.value = horizon / height
-    for (const [i, mesh] of this.skyClouds.entries()) {
-      mesh.visible = this.skyBackdrop.visible && horizon > 0
-      if (!mesh.visible) continue
-      // ponytail: the browser battlefield is the render surface. Its HUD is
-      // outside that surface, so include the original optional left strip.
-      // Restore native offsets when the original UI layout is integrated.
-      const layer = skyCloudLayer(
-        this.skyGrid,
-        width,
-        height,
-        horizon,
-        i ? 192 : 256,
-        true,
-        true,
-        true,
-        true
-      )
-      const { position, uv, fade } = mesh.geometry.attributes
-      layer.vertices.forEach((v, j) => {
-        position.setXYZ(j, (v.x * 2) / width - 1, 1 - (v.y * 2) / height, 1)
-        uv.setXY(j, v.u, v.v)
-        fade.setX(j, (v.color >>> 24) / 255)
-      })
-      fade.needsUpdate = true
-      uv.needsUpdate = true
-      position.needsUpdate = true
-      const count = layer.triangles.length * 3
-      if (mesh.geometry.index?.count !== count) mesh.geometry.setIndex(layer.triangles.flat())
-    }
+    updateSky(this)
   }
   listen(target: EventTarget, name: string, handler: EventListener) {
     target.addEventListener(name, handler)
@@ -786,25 +693,10 @@ export class GameScene {
     g.userData.nativeHeading = Math.round((angle * 1024) / Math.PI) & 2047
   }
   updateView() {
-    this.world.lightView = nativePosition(this.world, this.viewPoint)
-    this.view.globeBlend = this.overviewActive ? this.globeMorph.value : 0
-    this.view.globeFlatScale = this.overviewStage === 'exit' ? 18 : 21
-    this.view.update(
-      this.container.clientWidth,
-      this.container.clientHeight,
-      this.viewPoint,
-      this.cameraBearing,
-      this.viewZoom,
-      this.overviewActive,
-      document.documentElement.clientWidth,
-      this.viewTransition?.config ?? (this.viewPreset ? this.currentPreset() : undefined)
-    )
+    updateView(this)
   }
   currentPreset() {
-    return cameraPreset(
-      cameraConfigIndex(document.documentElement.clientWidth, this.container.clientHeight),
-      this.viewPreset
-    )
+    return currentPreset(this)
   }
   screen(p: Point, h = this.y(p)) {
     return this.view.screen(new THREE.Vector3(p.x, (h * 45) / 128, p.z), this.camera)
@@ -1145,23 +1037,10 @@ export class GameScene {
     if (!modifier) event.preventDefault()
   }) as EventListener
   captureCamera() {
-    // A changed input, mouse drag or focus request starts at the displayed view.
-    if (this.cameraPreviewButtons !== null) {
-      this.cameraTime = 0
-      Object.assign(this.skyOwned, this.skyMotion)
-      this.skyRemainder = 0
-    }
-    this.cameraPreviewButtons = null
-    this.cameraPosition = {
-      x: Math.round((this.viewPoint.x + 8) * 256) & 65535,
-      y: Math.round((-this.viewPoint.z - 8) * 256) & 65535,
-      angle: Math.round((this.cameraBearing * 1024) / Math.PI) & 2047,
-    }
+    captureCamera(this)
   }
   skipIntroduction() {
-    interruptFlyby(this.world.flyby, this.flybyCamera)
-    if (!(this.world.flyby.flags & 1)) this.world.inputMask &= ~64
-    this.onChange()
+    skipIntroduction(this)
   }
   navigationButtons() {
     if (this.world.inputMask || this.overviewStage || document.querySelector('dialog[open]'))
@@ -1190,206 +1069,13 @@ export class GameScene {
     return buttons
   }
   updateCameraMotion(dt: number) {
-    const w = this.world,
-      s = this.resultCamera,
-      motion = this.cameraMotion
-    let buttons = this.navigationButtons()
-    if (this.cameraPreviewButtons !== null) {
-      if (buttons !== this.cameraPreviewButtons || this.resultRequest !== w.outcome.cameraRequest)
-        this.captureCamera()
-      else {
-        // Do not feed a rendered fraction back into the next native step.
-        this.viewPoint = browserPosition(this.cameraPosition)
-        this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
-        this.cameraPreviewButtons = null
-      }
-    }
-    if (this.resultRequest !== w.outcome.cameraRequest) {
-      this.resultRequest = w.outcome.cameraRequest
-      if (!s.active) {
-        this.cancelOverview()
-        this.captureCamera()
-      }
-      // ponytail: first-mission tribe origins and no replay file mode; the
-      // shared native tribe/camera store replaces this presentation adapter.
-      beginResultCamera(
-        s,
-        w.manaWorld.gameFlags,
-        0,
-        this.cameraPosition,
-        nativePosition(w, w.outcome.cameraTribe === 0 ? HOME : ENEMY)
-      )
-    }
-    let active = !!(s.active || motion.active)
-    if (!active) this.captureCamera()
-    if (buttons & 15) {
-      motion.active = 0
-      w.mode = null
-      this.tooltip.draw = 0
-    }
-    this.skyRemainder += dt
-    // Use the existing 24 Hz presentation convention until draw_main's frame
-    // throttling and its shared camera/flyby ordering are fully integrated.
-    if (!w.paused || !s.active) {
-      this.cameraTime += dt
-      while (this.cameraTime + 1e-9 >= 1 / 24) {
-        this.stepViewChange()
-        buttons = this.navigationButtons()
-        if (!w.inputMask && !this.overviewStage && !document.querySelector('dialog[open]')) {
-          if (buttons || Object.values(this.cameraVelocity).some(Boolean)) {
-            if (buttons & 15) {
-              motion.active = 0
-              w.mode = null
-              this.tooltip.draw = 0
-            }
-            // Native momentum-off mode. The original settings menu and
-            // frame-rate/input scaling lifecycle are still presentation adapters.
-            const angle = this.cameraPosition.angle
-            if (this.overviewActive) this.cameraPosition.angle = 0
-            stepCameraInput(this.cameraPosition, this.cameraVelocity, buttons, 24)
-            if (this.overviewActive) {
-              this.cameraPosition.angle = angle
-              if (buttons & 15) {
-                const drag = this.globeMotion
-                drag.position.x += ((this.cameraPosition.x - drag.position.x) << 16) >> 16
-                drag.position.y += ((this.cameraPosition.y - drag.position.y) << 16) >> 16
-                drag.velocity = { x: 0, y: 0 }
-                this.globe.moveStars(this.cameraPosition)
-              }
-            }
-            active = true
-          }
-          if (this.overviewActive && !s.active) {
-            const drag = this.globeMotion
-            if (drag.dragging || drag.velocity.x || drag.velocity.y) {
-              const delta = stepGlobeMotion(drag, this.globePointer, this.container.clientHeight)
-              this.cameraPosition.x = drag.position.x & 65535
-              this.cameraPosition.y = drag.position.y & 65535
-              this.globe.moveStars(this.cameraPosition, delta)
-              active = true
-            }
-          }
-        }
-        const context = { skyCounter: w.outcome.skyCounter, newTurn: this.resultTurn !== w.turn }
-        this.resultTurn = w.turn
-        stepResultCamera(s, motion, this.cameraPosition, context, {
-          lock: () => {
-            w.inputMask |= 4
-            this.keys.clear()
-          },
-          unlock: () => {
-            w.inputMask &= ~4
-          },
-          clearInteraction: () => {
-            if (w.flyby.flags & 1) {
-              w.flyby.flags &= ~1
-              this.flybyCamera.zoom = 0
-              this.viewZoom = 0
-              w.inputMask &= ~64
-              this.wasFlying = false
-            }
-            w.mode = null
-            this.tooltip.draw = 0
-          },
-          sound: () => sound(w, 0xa2, browserPosition(this.cameraPosition)),
-        })
-        w.outcome.skyCounter = context.skyCounter
-        stepCameraMotion(motion, this.cameraPosition, this.overviewActive ? 2 : 0, {
-          rotate: () => {},
-          globe: () => {},
-        })
-        this.cameraTime = Math.max(0, this.cameraTime - 1 / 24)
-        if (!(w.flyby.flags & 1)) this.commitSky(this.cameraPosition, this.cameraTime)
-      }
-    }
-    w.outcome.cameraPlaying = !!s.active
-    if (active) {
-      if (s.active) {
-        this.overviewActive = false
-      }
-      this.viewPoint = browserPosition(this.cameraPosition)
-      this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
-    }
-    if (this.previewCamera(buttons)) active = true
-    if (active) this.updateView()
-    return active
+    return updateCameraMotion(this, dt)
   }
   previewCamera(buttons: number) {
-    if (
-      (!buttons && !this.cameraMotion.active) ||
-      buttons !== this.navigationButtons() ||
-      this.cameraTime <= 1e-9 ||
-      this.resultCamera.active ||
-      this.overviewActive ||
-      this.overviewStage ||
-      this.viewTransition ||
-      this.world.flyby.flags & 1
-    )
-      return false
-    // Preview one native step without advancing its state or side effects.
-    // The focus controller replaces schedules but does not mutate their rows,
-    // so a shallow copy is sufficient; no per-frame deep clone is needed.
-    const next = { ...this.cameraPosition }
-    stepCameraInput(next, { ...this.cameraVelocity }, buttons, 24)
-    stepCameraMotion({ ...this.cameraMotion }, next, 0, { rotate: () => {}, globe: () => {} })
-    const preview = interpolateCamera(this.cameraPosition, next, this.cameraTime * 24)
-    // Keep browserPosition's canonical map copy without truncating the fraction.
-    const wrap = (n: number) => THREE.MathUtils.euclideanModulo(n + 128, 256) - 128
-    this.viewPoint = { x: wrap(preview.x / 256 - 8), z: -wrap(preview.y / 256 + 8) }
-    this.cameraBearing = (preview.angle * Math.PI) / 1024
-    this.cameraPreviewButtons = buttons
-    return true
+    return previewCamera(this, buttons)
   }
   updateFlyby(dt: number) {
-    const state = this.world.flyby,
-      active = !!(state.flags & 1)
-    if (active && !this.wasFlying) {
-      this.cancelOverview()
-      this.viewPreset = 0
-      this.viewTransition = null
-      this.flybyCamera = {
-        x: Math.round((this.viewPoint.x + 8) * 256),
-        y: Math.round((-this.viewPoint.z - 8) * 256),
-        angle: 0,
-        zoom: 0,
-      }
-      this.flybyTime = 0
-      this.keys.clear()
-    }
-    // ponytail: a 24 Hz presentation clock drives the recovered native timeline;
-    // original frame throttling remains unported.
-    if (!this.world.paused) {
-      this.flybyTime += dt
-      while (this.flybyTime + 1e-9 >= 1 / 24) {
-        for (const event of stepFlyby(state, this.flybyCamera, 24)) {
-          if (event.kind === 5)
-            showObjectTooltip(
-              this.tooltip,
-              forcedTooltipObject(this.world, event.flags, event.value),
-              event.duration
-            )
-        }
-        // Native render_land_ui consumes the request before the next frame.
-        this.tooltip.draw = 0
-        stepTooltip(this.tooltip, !!worldTooltipObject(this.world, this.tooltip.target), 24)
-        this.flybyTime = Math.max(0, this.flybyTime - 1 / 24)
-        if (active) this.commitSky(this.flybyCamera, this.flybyTime)
-      }
-    }
-    if (!active && !this.wasFlying) return false
-    const c = this.flybyCamera
-    const p = { x: c.x / 256 - 8, z: -c.y / 256 - 8 }
-    this.overviewActive = false
-    this.cameraBearing = (c.angle * Math.PI) / 1024
-    this.viewZoom = c.zoom
-    this.viewPoint = p
-    this.updateView()
-    this.wasFlying = !!(state.flags & 1)
-    if (!this.wasFlying) {
-      this.world.inputMask &= ~64
-      this.camera.up.set(0, 0, -1)
-    }
-    return true
+    return updateFlyby(this, dt)
   }
   renderTooltip() {
     let state = this.tooltip
@@ -1431,13 +1117,7 @@ export class GameScene {
     renderBuildingPanels(this, texture('hud').image as HTMLImageElement)
   }
   cancelOverview() {
-    if (!this.overviewActive && !this.overviewStage) return
-    this.cameraBearing = this.overviewReturn.bearing
-    this.viewPreset = this.overviewReturn.preset
-    this.viewTransition = null
-    this.overviewStage = null
-    this.overviewActive = false
-    this.globeMorph.active = false
+    cancelOverview(this)
   }
   chooseFollowers(
     model: number,
@@ -1474,114 +1154,22 @@ export class GameScene {
     this.onChange()
   }
   focus(p: Point = HOME, { animate = false } = {}) {
-    if (animate && this.world.inputMask) return
-    this.cancelOverview()
-    this.captureCamera()
-    requestCameraFocus(
-      this.cameraMotion,
-      this.cameraPosition,
-      {
-        ...nativePosition(this.world, p),
-        angle: -1,
-      },
-      !animate
-    )
-    this.world.mode = null
-    this.tooltip.draw = 0
-    if (!animate) {
-      this.viewPoint = browserPosition(this.cameraPosition)
-      this.updateView()
-    }
+    focus(this, p, { animate })
   }
   stepViewChange() {
-    if (this.world.inputMask) return
-    if (this.viewTransition && !this.overviewActive) {
-      this.viewTransition.remaining = stepViewTransition(
-        this.viewTransition.config,
-        this.currentPreset(),
-        this.viewTransition.remaining,
-        viewTransitionFrames(24)
-      )
-      const angle = this.viewTransition.angle
-      if (angle) {
-        this.cameraPosition.angle = this.viewTransition.remaining
-          ? (this.cameraPosition.angle + angle.increment) & 2047
-          : angle.target
-        this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
-      }
-      if (!this.viewTransition.remaining) {
-        this.viewTransition = null
-        if (this.overviewStage === 'enter') {
-          this.overviewActive = true
-          beginGlobeMorph(this.globeMorph, true)
-        } else this.overviewStage = null
-      }
-      this.updateView()
-    }
-    if (this.overviewActive && this.globeMorph.active) {
-      stepGlobeMorph(this.globeMorph)
-      if (!this.globeMorph.active) {
-        if (this.overviewStage === 'exit') {
-          this.overviewActive = false
-          this.startGroundView(this.overviewReturn.preset, this.overviewReturn.bearing)
-        } else this.overviewStage = null
-      }
-      this.updateView()
-    }
+    stepViewChange(this)
   }
   startGroundView(preset: number, bearing?: number) {
-    if (this.cameraPreviewButtons !== null) this.captureCamera()
-    const frames = viewTransitionFrames(24)
-    this.viewPreset = preset
-    this.viewZoom = 0
-    this.viewTransition = {
-      config: { ...this.view.config, bounds: [...this.view.config.bounds] },
-      remaining: frames,
-    }
-    if (bearing !== undefined) {
-      const target = Math.round((bearing * 1024) / Math.PI) & 2047
-      let distance = target - this.cameraPosition.angle
-      if (Math.abs(distance) > 1024) distance += distance < 0 ? 2048 : -2048
-      this.viewTransition.angle = { target, increment: Math.trunc(distance / frames) }
-    }
-    this.updateView()
+    startGroundView(this, preset, bearing)
   }
   overview() {
-    if (this.world.inputMask || this.overviewStage) return
-    if (this.overviewActive) {
-      this.leaveOverview(this.overviewReturn.preset)
-      return
-    }
-    this.captureCamera()
-    this.overviewReturn = { preset: this.viewPreset, bearing: this.cameraBearing }
-    this.overviewStage = 'enter'
-    this.globeMotion.dragging = false
-    this.globeMotion.velocity = { x: 0, y: 0 }
-    this.globeMotion.position = { ...this.view.center }
-    this.world.mode = null
-    this.cameraMotion.active = 0
-    this.startGroundView(4, 0)
+    overview(this)
   }
   leaveOverview(preset: number) {
-    this.overviewReturn.preset = preset
-    this.overviewStage = 'exit'
-    this.globeMotion.dragging = false
-    this.globeMotion.velocity = { x: 0, y: 0 }
-    beginGlobeMorph(this.globeMorph, false)
-    this.world.mode = null
+    leaveOverview(this, preset)
   }
   zoom(inward: boolean) {
-    if (this.world.inputMask || this.overviewStage) return
-    const preset = zoomPreset(this.overviewActive ? 4 : this.viewPreset, inward)
-    if (preset === 4) {
-      if (!this.overviewActive) this.overview()
-      return
-    }
-    if (this.overviewActive) {
-      this.leaveOverview(preset)
-      return
-    }
-    if (preset !== this.viewPreset) this.startGroundView(preset)
+    zoom(this, inward)
   }
   animatePerson(
     g: THREE.Group,
