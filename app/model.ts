@@ -59,8 +59,11 @@ import {
   syncNativeTerrain,
   buildingStage,
   syncLandscapeObjects,
+  originalLand,
+  originalTerrain,
+  makeTerrain,
 } from './world-terrain-runtime.ts'
-export { nativePosition, buildingStage, syncLandscapeObjects } from './world-terrain-runtime.ts'
+export { nativePosition, buildingStage, syncLandscapeObjects, makeTerrain } from './world-terrain-runtime.ts'
 import { worldPoint, distance, nativeStep3D, browserPosition, nativeDistance, shotAngles, nativeTerrainHeight, terrainCross, height, surface, nativeCellPoint } from './world-coordinates.ts'
 export { worldPoint, distance, nativeStep3D, browserPosition, nativeTerrainHeight, terrainCross, height, surface, nativeCellPoint } from './world-coordinates.ts'
 import { short } from './native-math.ts'
@@ -357,7 +360,6 @@ import {
   spiralCell,
 } from './native-math.ts'
 import {
-  createNativeTerrain,
   queueTerrain,
   processTerrain,
   updateWalkMasks,
@@ -537,23 +539,6 @@ export function unitAnimation(w: World, u: Unit) {
   return w.selected.includes(u.id) ? 'selected' : 'idle'
 }
 export { nativeTerrainCross } from './native-math.ts'
-const originalLand = createNativeTerrain(new Int16Array(16384))
-const originalTerrain = originalLand.heights
-for (const [x, y, h] of level.heights) originalTerrain[y * 128 + x] = h
-// 0x44e850: complete two-traversal initialization before browser resampling.
-// ponytail: original texture assets still supply rendering; native texture
-// consumers join this queue when palette/texture rebuilding is integrated.
-queueTerrain(originalLand, 0, 64, 1, { surface: () => {}, globe: () => {} })
-updateWalkMasks(originalLand, 0, 64)
-export function makeTerrain() {
-  return Array.from({ length: GRID * GRID }, (_, i) => {
-    const x = (i % GRID) - 48,
-      z = Math.floor(i / GRID) - 48,
-      h = nativeTerrainHeight(originalTerrain, (x + 8) * 256, (-z - 8) * 256) / 45
-    // ponytail: cropped/resampled terrain and artificial seabed remain until the native world grid is ported.
-    return h === 0 ? -0.35 : h
-  })
-}
 export const footprint = (kind: BuildingKind) => (kind === 'temple' ? 3.9 : 3)
 export function footprintPoints(kind: BuildingKind, p: Point) {
   const r = footprint(kind),

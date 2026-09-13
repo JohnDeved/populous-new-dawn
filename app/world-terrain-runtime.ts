@@ -1,9 +1,10 @@
 import type { World, Point, NativePoint, Building } from './world-types.ts'
 import { GRID } from './world-rules.ts'
-import { height } from './world-coordinates.ts'
+import { height, nativeTerrainHeight } from './world-coordinates.ts'
 import { short } from './native-math.ts'
 import {
   terrainPointHeight,
+  createNativeTerrain,
   queueTerrain,
   processTerrain,
   updateWalkMasks,
@@ -22,6 +23,26 @@ import {
   type SceneryShapePose,
 } from './building-shapes.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import level from './level-one.ts'
+
+export const originalLand = createNativeTerrain(new Int16Array(16384))
+export const originalTerrain = originalLand.heights
+for (const [x, y, h] of level.heights) originalTerrain[y * 128 + x] = h
+// 0x44e850: complete two-traversal initialization before browser resampling.
+// ponytail: original texture assets still supply rendering; native texture
+// consumers join this queue when palette/texture rebuilding is integrated.
+queueTerrain(originalLand, 0, 64, 1, { surface: () => {}, globe: () => {} })
+updateWalkMasks(originalLand, 0, 64)
+
+export function makeTerrain() {
+  return Array.from({ length: GRID * GRID }, (_, i) => {
+    const x = (i % GRID) - 48,
+      z = Math.floor(i / GRID) - 48,
+      h = nativeTerrainHeight(originalTerrain, (x + 8) * 256, (-z - 8) * 256) / 45
+    // ponytail: cropped/resampled terrain and artificial seabed remain until the native world grid is ported.
+    return h === 0 ? -0.35 : h
+  })
+}
 
 export function nativePosition(w: World, p: Point): NativePoint {
   syncNativeTerrain(w)
