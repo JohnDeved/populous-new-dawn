@@ -373,16 +373,15 @@ import {
 } from './mana.ts'
 export { nativeAngle, nativeStep, random } from './native-math.ts'
 import {
-  nativeSpellRange,
-  prepareSpellPayment,
-  debitSpellMana,
+  spellCaster,
+  spellInRange,
+  beginCast,
   createTribeCasting,
   canShamanCast,
-  registerSpellCooldown,
   stepComputerCastCooldown,
   type TribeCasting,
-  type SpellCaster,
 } from './spell-casting.ts'
+export { recordSpellCast, spellRange, spellInRange, beginCast } from './spell-casting.ts'
 import {
   castShoreBlast,
   processComputerSpells,
@@ -1052,21 +1051,6 @@ export function removeHead(w: World, x: number, y: number) {
   head.active = false
   for (const u of w.units) if (u.work === head.id) release(w, u)
 }
-// 0x4c14c0 increments these bytes during allocation, even if the spell later cancels.
-export function recordSpellCast(w: World, tribe: number, model: number) {
-  if (
-    !Number.isInteger(tribe) ||
-    tribe < 0 ||
-    tribe > 3 ||
-    !Number.isInteger(model) ||
-    model < 0 ||
-    model > 255
-  ) {
-    throw new RangeError('Invalid native spell identity')
-  }
-  if (model < 22) w.spellCasts[tribe][model] = (w.spellCasts[tribe][model] + 1) & 255
-}
-
 export function campaignInternal(w: World, id: number) {
   if (id === 0) return w.turn
   // 0x48f350: total population is a dword; per-class counters are signed words.
@@ -2031,49 +2015,6 @@ export function tell(w: World, message: string) {
   w.message = message
   w.messageUntil = w.time + 9
 }
-function castVoice(w: World, u: Unit, spell: Spell) {
-  sound(
-    w,
-    (u.team === 'blue'
-      ? {
-          blast: 0x76,
-          convertWild: 0x85,
-          hypnotise: 0x7b,
-          ghostArmy: 0x7d,
-          lightning: 0x77,
-          bridge: 0x80,
-          flatten: 0x83,
-          erosion: 0x7e,
-          swamp: 0x7f,
-          firestorm: 0x7c,
-          earthquake: 0x82,
-          volcano: 0x84,
-          tornado: 0x78,
-          shield: 0x87,
-          invisibility: 0x7a,
-          swarm: 0x79,
-        }
-      : {
-          blast: 0x8c,
-          convertWild: 0x9b,
-          hypnotise: 0x91,
-          ghostArmy: 0x93,
-          lightning: 0x8d,
-          bridge: 0x96,
-          flatten: 0x99,
-          erosion: 0x94,
-          swamp: 0x95,
-          firestorm: 0x92,
-          earthquake: 0x98,
-          volcano: 0x9a,
-          tornado: 0x8e,
-          shield: 0x9d,
-          invisibility: 0x90,
-          swarm: 0x8f,
-        })[spell],
-    u
-  )
-}
 export function createGift(w: World, reward: Shrine['kind'], p: Point) {
   const gift = effect(w, 'gift', p) as Gift
   Object.assign(gift, {
@@ -3014,33 +2955,6 @@ export function cast(w: World, spell: Spell, p: Point) {
   w.mode = null
   return true
 }
-// ponytail: browser occupancy supplies the cell's building until native terrain
-// object lists and person flags are integrated. Range/payment override flags
-// are stored per tribe.
-function spellCaster(w: World, u: Unit): SpellCaster {
-  const b = w.buildings.find(b => b.id === u.inside)
-  return {
-    height: nativePosition(w, u).h,
-    flags2: u.inside === null ? 0 : 0x800000,
-    building: b ? { class: 2, model: buildingModel(b), state: b.progress === 1 ? 2 : 1 } : null,
-  }
-}
-export function spellRange(w: World, u: Unit, model: number) {
-  return (
-    nativeSpellRange(
-      w.manaWorld.gameFlags,
-      w.castingTribes[u.team === 'blue' ? 0 : 1].flags,
-      spellCaster(w, u),
-      model
-    ) / 256
-  )
-}
-export function spellInRange(w: World, u: Unit, model: number, target: Point) {
-  return (
-    positionDistance(nativePosition(w, u), nativePosition(w, target)) <=
-    spellRange(w, u, model) * 256
-  )
-}
 // ponytail: browser unit arrays supply cell order until native terrain lists and
 // person records are live. Blast scoring does not consume terrain flags.
 function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
@@ -3541,49 +3455,6 @@ function stepOutcome(w: World) {
     w.manaTribes[id].defeatTimer = t.defeatTimer
     w.manaTribes[id].flags2 = t.flags2
   })
-}
-export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
-  // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
-  const target = { x: Math.floor(p.x / 2) * 2 + 1, z: -Math.floor(-p.z / 2) * 2 - 1 },
-    position = nativePosition(w, u)
-  const tribe = u.team === 'blue' ? 0 : 1,
-    model = SPELLS.find(s => s.id === spell)!.model
-  if (tribe === 0) w.manaWorld.spells[0].stocks[model] = w.shots[spell]
-  const state = w.castingTribes[tribe],
-    price = prepareSpellPayment(w.manaWorld, tribe, state.flags, model)
-  w.projectiles.push({
-    id: w.nextId++,
-    spell,
-    team: u.team,
-    caster: u.id,
-    target,
-    source: { x: u.x, z: u.z },
-    position,
-    destination: nativePosition(w, target),
-    origin: { ...position },
-    phase: 'windup',
-    remaining: 6,
-    turns: 0,
-    visuals: [],
-  })
-  debitSpellMana(w.manaTribes[tribe], state.flags, price)
-  registerSpellCooldown(
-    state,
-    w.manaTribes[tribe].playerType,
-    tribe === 1 ? w.ai.flags : 0,
-    w.manaWorld.gameFlags,
-    0,
-    model
-  )
-  if (tribe === 1) state.aiCooldown = w.ai.attributes[43] & 255 // 0x4f4de0, after allocation.
-  recordSpellCast(w, tribe, model)
-  if (u.team === 'blue') {
-    w.shots[spell] = w.manaWorld.spells[0].stocks[model] & 15
-    w.giftCounts[spell] = Math.max(0, w.giftCounts[spell] - 1)
-    w.stats.cast++
-  }
-  u.casting = { spell, point: target, remaining: 6 / TURNS_PER_SECOND }
-  castVoice(w, u, spell)
 }
 function shotVisual(w: World, p: NativePoint, team: Team, sequence: string, frame = 0) {
   const fx = effect(w, 'trail', browserPosition(p))
