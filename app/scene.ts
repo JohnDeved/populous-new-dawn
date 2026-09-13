@@ -174,27 +174,8 @@ import {
 } from './scene-entities.ts'
 import { rebuildTerrain, updateTerrainTexture, landIndex, updateWater, makeDecorations, updateTerrainFrame, updateDecorationsFrame } from './scene-terrain-runtime.ts'
 import { makeSky, commitSky, updateSky, updateView, currentPreset, captureCamera, skipIntroduction, updateCameraMotion, previewCamera, updateFlyby, cancelOverview, focus, stepViewChange, startGroundView, overview, leaveOverview, zoom } from './scene-camera-runtime.ts'
+import { pickUnit, updatePlacement, planGeometry, pick, pickWorldObject, pointerDown, pointerMove, updateDrag, pointerUp, keyDown, navigationButtons, chooseFollowers, acknowledgePointer, drawPointer, updatePointerFrame, updateSpellPointerFrame } from './scene-input-runtime.ts'
 
-const cameraKeys: Record<string, number> = {
-  w: 1,
-  arrowup: 1,
-  s: 2,
-  arrowdown: 2,
-  a: 199,
-  arrowleft: 5,
-  d: 200,
-  arrowright: 6,
-  q: 201,
-  e: 202,
-  delete: 3,
-  pagedown: 4,
-  numpad8: 1,
-  numpad2: 2,
-  numpad4: 199,
-  numpad6: 200,
-  numpad7: 201,
-  numpad9: 202,
-}
 
 export class GameScene {
   world: World
@@ -711,9 +692,7 @@ export class GameScene {
     return p.z < -1 || p.z > 1 ? null : p
   }
   pickUnit(event: { clientX: number; clientY: number }) {
-    if (this.overviewActive) return
-    const id = this.picking.pick(event)
-    return this.world.units.find(u => u.id === id && u.team === 'blue' && canOrder(u))
+    return pickUnit(this, event)
   }
   visible(p: Point, h = this.y(p)) {
     const q = this.screen(p, h)
@@ -722,68 +701,11 @@ export class GameScene {
   }
 
   updatePlacement() {
-    const w = this.world,
-      kind = w.mode as Building['kind'],
-      p = this.pointer
-    this.cursor.visible =
-      !!p && !!kind && !SPELLS.some(s => s.id === w.mode) && !w.inputMask && w.status === 'playing'
-    if (!p || !this.cursor.visible) {
-      this.placementState = ''
-      return
-    }
-    // ponytail: the browser placement validator supplies validity until the
-    // native plan preview/cell-marking controller owns these transient flags.
-    const invalid = !!placementError(w, kind, p)
-    const pose = buildingPlanPose(w, kind, p)
-    const key = [kind, pose.anchorX, pose.anchorY, pose.angle, invalid, w.landVersion].join(',')
-    if (key === this.placementState) return
-    this.placementState = key
-    this.cursor.geometry.dispose()
-    const { geometry, cells, entrance } = this.planGeometry(pose, invalid)
-    this.cursor.geometry = geometry
-    this.cursor.userData.cells = cells
-    this.cursor.userData.entrance = entrance
-    this.cursor.userData.invalid = invalid
+    updatePlacement(this)
   }
 
   planGeometry(pose: BuildingShapePose, invalid = false, placed = false) {
-    const { cells, entrance } = buildingPlanCells(pose)
-    const w = this.world,
-      flags = new Uint32Array(w.land.flags)
-    // These are presentation marks, not persistent terrain ownership flags.
-    for (let i = 0; i < flags.length; i++) flags[i] &= ~0x1980
-    for (const i of cells) flags[i] |= placed ? 0x410 : invalid ? 0x190 : 0x90
-    if (!placed && entrance !== null) {
-      flags[entrance] |= 0x800
-      if (!cells.includes(entrance)) cells.push(entrance)
-    }
-    const positions: number[] = [],
-      uv: number[] = [],
-      colors: number[] = []
-    for (const i of cells) {
-      const overlay = groundOverlay(flags, i, placed ? 0x400 : flags[i] & 0x180, pose.angle / 512),
-        tint = new THREE.Color(overlay.color & 0xffffff)
-      const x = (i & 127) * 512,
-        y = (i >> 7) * 512,
-        origin = browserPosition({ x, y })
-      for (const triangle of groundOverlayTriangles(flags[i] & 1, overlay.rotation))
-        for (let v = 0; v < 3; v++) {
-          const dx = triangle.positions[v * 2],
-            dy = triangle.positions[v * 2 + 1],
-            j = ((((i >> 7) + dy) & 127) << 7) | (((i & 127) + dx) & 127)
-          positions.push(origin.x + dx * 2, w.land.heights[j] / 128, origin.z - dy * 2)
-          uv.push(
-            ((overlay.tile % 8) * 32 + 0.5 + triangle.uv[v * 2] * 31) / 256,
-            1 - (Math.floor(overlay.tile / 8) * 32 + 0.5 + triangle.uv[v * 2 + 1] * 31) / 1024
-          )
-          colors.push(tint.r, tint.g, tint.b)
-        }
-    }
-    const geometry = new THREE.BufferGeometry()
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
-    return { geometry, cells, entrance }
+    return planGeometry(this, pose, invalid, placed)
   }
 
   rebuildTerrain() {
@@ -805,236 +727,25 @@ export class GameScene {
     makeShrines(this)
   }
   pick(event: { clientX: number; clientY: number }): Point | null {
-    const rect = this.renderer.domElement.getBoundingClientRect()
-    this.mouse.set(
-      ((event.clientX - rect.left) / rect.width) * 2 - 1,
-      1 - ((event.clientY - rect.top) / rect.height) * 2
-    )
-    return this.view.pick(this.mouse, [this.terrain], this.camera)?.point ?? null
+    return pick(this, event)
   }
   pickWorldObject(event: { clientX: number; clientY: number }) {
-    const rect = this.renderer.domElement.getBoundingClientRect()
-    if (this.overviewActive) {
-      return (
-        [...this.world.buildings, ...this.world.shrines].find(object => {
-          const p = this.screen(object)
-          return (
-            this.visible(object) &&
-            Math.hypot(
-              ((p.x + 1) * rect.width) / 2 + rect.left - event.clientX,
-              ((1 - p.y) * rect.height) / 2 + rect.top - event.clientY
-            ) < 10
-          )
-        }) ?? null
-      )
-    }
-    const id = this.picking.pick(event)
-    return (
-      this.world.buildings.find(b => b.id === id) ??
-      this.world.shrines.find(s => s.id === id) ??
-      null
-    )
+    return pickWorldObject(this, event)
   }
   pointerDown = ((event: PointerEvent) => {
-    this.pointerButtons = event.buttons
-    if (
-      event.button === 2 &&
-      !(event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) &&
-      !this.world.selected.length &&
-      !this.world.mode &&
-      !this.world.inputMask &&
-      !this.overviewActive
-    ) {
-      const object = this.pickUnit(event) ?? this.pickWorldObject(event)
-      if (object) this.objectPanels.open(object.id)
-    }
-    const unit =
-      event.button === 0 &&
-      !this.world.mode &&
-      !this.world.inputMask &&
-      !this.overviewActive &&
-      !(this.world.selected.length && (event.shiftKey || (event.altKey && event.ctrlKey)))
-        ? this.pickUnit(event)?.id
-        : undefined
-    this.down = {
-      x: event.clientX,
-      y: event.clientY,
-      button: event.button,
-      unit,
-      extend: event.ctrlKey,
-    }
-    this.drag = null
-    this.dragActive.value = false
-    if (event.button === 0 && !this.world.mode && !this.world.inputMask && !this.overviewActive) {
-      const origin = this.world.units.find(u => u.id === unit) ?? this.pick(event)
-      if (origin) {
-        const start = nativePosition(this.world, origin)
-        this.drag = { start, end: start, active: unit === undefined && !this.world.selected.length }
-      }
-    }
-    if (unit !== undefined) {
-      this.acknowledgePointer(unit)
-      this.onSound(0x6a)
-    }
-    this.dragLast = { x: event.clientX, y: event.clientY }
-    if (
-      this.overviewActive &&
-      !this.world.inputMask &&
-      (event.buttons === 2 || event.buttons === 4)
-    ) {
-      const rect = this.renderer.domElement.getBoundingClientRect()
-      this.globePointer = {
-        x: Math.trunc(event.clientX - rect.left),
-        y: Math.trunc(event.clientY - rect.top),
-      }
-      beginGlobeDrag(this.globeMotion, this.view.globe, this.globePointer)
-    }
-    this.renderer.domElement.setPointerCapture(event.pointerId)
+    pointerDown(this, event)
   }) as EventListener
   pointerMove = ((event: PointerEvent) => {
-    this.pointerButtons = event.buttons
-    this.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
-    if (!this.world.inputMask && (event.buttons === 2 || event.buttons === 4)) {
-      const dx = event.clientX - this.dragLast.x,
-        dy = event.clientY - this.dragLast.y
-      this.cameraMotion.active = 0
-      this.captureCamera()
-      if (event.buttons === 4) {
-        this.world.mode = null
-        this.tooltip.draw = 0
-      }
-      if (this.overviewActive) {
-        const rect = this.renderer.domElement.getBoundingClientRect()
-        this.globePointer = {
-          x: Math.trunc(event.clientX - rect.left),
-          y: Math.trunc(event.clientY - rect.top),
-        }
-      } else dragCamera(this.cameraPosition, this.cameraVelocity, event.buttons === 2, dx, dy)
-      this.viewPoint = browserPosition(this.cameraPosition)
-      this.cameraBearing = (this.cameraPosition.angle * Math.PI) / 1024
-      this.dragLast = { x: event.clientX, y: event.clientY }
-      this.updateView()
-    }
+    pointerMove(this, event)
   }) as EventListener
   updateDrag(event: { clientX: number; clientY: number }) {
-    const drag = this.drag
-    if (!drag || this.world.mode || this.world.inputMask || this.overviewActive) {
-      this.dragActive.value = false
-      return
-    }
-    const picked = this.pick(event),
-      end = picked && nativePosition(this.world, picked)
-    if (!drag.active) {
-      if (this.down.unit !== undefined) drag.active = this.pickUnit(event)?.id !== this.down.unit
-      else if (end) drag.active = dragMoved(drag.start, end)
-    }
-    if (end) drag.end = dragEndpoint(drag.start, end, this.view.angle)
-    this.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
-    this.selectionOverlay.visible = this.dragActive.value
-    if (!this.dragActive.value) return
-    const angle = nativeAngle(
-      ((drag.end.x - drag.start.x) << 16) >> 16,
-      -(((drag.end.y - drag.start.y) << 16) >> 16)
-    )
-    const corners = unwrapDragCorners(
-      dragCorners(drag.start, this.view.angle, angle, positionDistance(drag.start, drag.end))
-    )
-    this.selectionOverlay.update(
-      corners,
-      this.view.angle,
-      ((angle - this.view.angle) & 2047) >> 9,
-      this.world.land,
-      this.view
-    )
+    updateDrag(this, event)
   }
   pointerUp = ((event: PointerEvent) => {
-    this.pointerButtons = event.buttons
-    if (!(event.buttons & 6)) this.globeMotion.dragging = false
-    if (this.world.inputMask || this.overviewStage) return
-    if (event.button === 0) this.updateDrag(event)
-    const drag = this.drag
-    this.drag = null
-    this.dragActive.value = false
-    if (event.button === 0 && drag?.active && !this.world.mode) {
-      selectArea(
-        this.world,
-        drag.start,
-        dragCommand(drag.start, drag.end, this.view.angle),
-        this.down.extend
-      )
-      this.onChange()
-      return
-    }
-    const moved = Math.hypot(event.clientX - this.down.x, event.clientY - this.down.y)
-    if (moved > 7 && event.button !== 0) return
-    if (event.button === 2) {
-      cancelInteraction(this.world)
-      this.onChange()
-      return
-    }
-    if (event.button !== 0) return
-    const clickedUnit = !this.world.mode
-      ? this.world.units.find(u => u.id === this.down.unit)
-      : undefined
-    const pickedId = !this.world.mode && this.picking.pick(event)
-    const picked =
-      this.world.units.find(u => u.id === pickedId) ??
-      this.world.buildings.find(b => b.id === pickedId) ??
-      this.world.shrines.find(h => h.id === pickedId) ??
-      this.world.trees.find(t => t.id === pickedId)
-    const p = picked ?? this.pick(event) ?? clickedUnit
-    if (!p) return
-    if (this.world.mode) {
-      const mode = this.world.mode
-      const ok = SPELLS.some(s => s.id === mode)
-        ? cast(this.world, mode as Parameters<typeof cast>[1], p)
-        : placeBuilding(this.world, mode as Parameters<typeof placeBuilding>[1], p)
-      if (!ok) this.onSound(0x25)
-      else if (!SPELLS.some(s => s.id === mode)) this.onSound(0x24)
-    } else {
-      if (clickedUnit) {
-        selectUnit(this.world, clickedUnit.id, this.down.extend)
-      } else if (this.world.selected.length) {
-        const selected = this.world.selected.slice()
-        if (command(this.world, p, event)) {
-          const marker = commandMarkerPoint(nativePosition(this.world, p), picked?.id ?? 0)
-          if (marker) effect(this.world, 'orderMarker', browserPosition(marker))
-          this.acknowledgePointer(picked?.id ?? 0)
-          this.onSound(0x6a)
-          this.orderSound(selected)
-        }
-      }
-    }
-    this.onChange()
+    pointerUp(this, event)
   }) as EventListener
   keyDown = ((event: KeyboardEvent) => {
-    const key = (
-      event.code === 'Quote' || event.code.startsWith('Numpad') ? event.code : event.key
-    ).toLowerCase()
-    const zoomIn = key === '=' || key === '+',
-      zoomOut = key === '-',
-      modifier = key === 'control' || key === 'shift'
-    if (
-      this.world.inputMask ||
-      (!cameraKeys[key] && !zoomIn && !zoomOut && !modifier && key !== 'quote') ||
-      (event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]') ||
-      (event.ctrlKey && key.length === 1) ||
-      event.metaKey ||
-      event.altKey ||
-      (key === 'quote' && (event.ctrlKey || event.shiftKey))
-    )
-      return
-    if (event.ctrlKey) this.keys.add('control')
-    if (event.shiftKey) this.keys.add('shift')
-    if (zoomIn || zoomOut) {
-      if (!event.shiftKey) {
-        this.zoom(zoomIn)
-        event.preventDefault()
-      }
-      return
-    }
-    this.keys.add(key)
-    if (!modifier) event.preventDefault()
+    keyDown(this, event)
   }) as EventListener
   captureCamera() {
     captureCamera(this)
@@ -1043,30 +754,7 @@ export class GameScene {
     skipIntroduction(this)
   }
   navigationButtons() {
-    if (this.world.inputMask || this.overviewStage || document.querySelector('dialog[open]'))
-      return 0
-    let buttons = 0
-    for (const key of this.keys)
-      buttons = mergeCameraInput(
-        buttons,
-        cameraCommand(cameraKeys[key] ?? 0, {
-          control: this.keys.has('control'),
-          fast: this.keys.has('shift'),
-          overview: this.overviewActive,
-        })
-      )
-    const pointer = this.navigationPointer
-    if (pointer && !(pointer.buttons & 6))
-      buttons = mergeCameraInput(
-        buttons,
-        cameraEdgeButtons(
-          pointer.x,
-          pointer.y,
-          document.documentElement.clientWidth,
-          document.documentElement.clientHeight
-        )
-      )
-    return buttons
+    return navigationButtons(this)
   }
   updateCameraMotion(dt: number) {
     return updateCameraMotion(this, dt)
@@ -1124,34 +812,7 @@ export class GameScene {
     modifiers: { shiftKey: boolean; ctrlKey: boolean },
     focus = false
   ) {
-    const w = this.world
-    if (w.inputMask || this.overviewStage) return
-    if (!focus && (this.overviewActive || w.manaWorld.gameFlags & 32)) return
-    if (model === 7 && w.units.some(u => u.team === 'blue' && isShaman(u) && u.hp > 0))
-      w.castingTribes[0].flags |= focus ? 0x1000 : 0x800
-    if (focus) {
-      const people = hudPeople(w)
-      const id = focusHudPerson(
-        people,
-        model,
-        this.cameraPosition,
-        this.hudFocus[model],
-        modifiers.shiftKey,
-        !!(w.castingTribes[0].flags & 128)
-      )
-      this.hudFocus[model] = id
-      const person = people.find(p => p.id === id)
-      if (person) {
-        this.focus(browserPosition(person), { animate: true })
-        this.objectPanels.open(id)
-      }
-    } else {
-      let mode: 'all' | 'five' | 'single' = 'single'
-      if (modifiers.shiftKey) mode = 'all'
-      else if (modifiers.ctrlKey && model !== 7) mode = 'five'
-      selectFollowers(w, model, this.cameraPosition, mode)
-    }
-    this.onChange()
+    chooseFollowers(this, model, modifiers, focus)
   }
   focus(p: Point = HOME, { animate = false } = {}) {
     focus(this, p, { animate })
@@ -1218,38 +879,10 @@ export class GameScene {
     return result
   }
   acknowledgePointer(target: number) {
-    // 0x4b0080 expires after five frontend visits. Use elapsed presentation
-    // time at the existing 24 Hz reference cadence, never rendered-frame count.
-    this.pointerAck = { target, until: performance.now() + 5000 / 24 }
+    acknowledgePointer(this, target)
   }
   drawPointer(now: number) {
-    const bounds =
-      !this.overviewActive &&
-      !this.world.inputMask &&
-      !this.world.mode &&
-      this.hoveredObject !== null
-        ? this.picking.personBounds(this.hoveredObject)
-        : null
-    this.pointerOutline.style.display = bounds ? '' : 'none'
-    if (!bounds) return
-    const acknowledged =
-      now < this.pointerAck.until && this.pointerAck.target === this.hoveredObject
-    const signature = [
-      bounds.x,
-      bounds.y,
-      bounds.width,
-      bounds.height,
-      this.gameClock.animationFrame % 12,
-      acknowledged,
-    ].join(',')
-    if (signature === this.pointerSignature) return
-    this.pointerSignature = signature
-    const { opacity, lines } = pointerBrackets(bounds, this.gameClock.animationFrame, acknowledged)
-    this.pointerPath.setAttribute('stroke-opacity', String(opacity))
-    this.pointerPath.setAttribute(
-      'd',
-      lines.map(([x, y, u, v]) => `M${x + 0.5},${y + 0.5}L${u + 0.5},${v + 0.5}`).join('')
-    )
+    drawPointer(this, now)
   }
   orderSound(selected = this.world.selected) {
     const units = this.world.units.filter(u => selected.includes(u.id))
@@ -1356,78 +989,11 @@ export class GameScene {
   }
 
   private updatePointerFrame(now: number) {
-    // Original geometry advances per draw; its animation clock is still a
-    // browser 12 Hz presentation clock until native timer ownership is ported.
-    this.updateSpellHalo(Math.floor((now * 12) / 1000))
-    // Picking projects the entire terrain; repeat when the pointer/view changes.
-    const pointerState = [
-      this.world.mode,
-      this.world.inputMask,
-      this.world.turn,
-      this.pointerButtons,
-      this.pointerScreen?.clientX,
-      this.pointerScreen?.clientY,
-      this.world.landVersion,
-      this.viewPoint.x,
-      this.viewPoint.z,
-      this.cameraBearing,
-      this.viewZoom,
-      this.viewPreset,
-      this.viewTransition?.remaining,
-      this.overviewActive,
-      ...this.camera.position.toArray(),
-      this.container.clientWidth,
-      this.container.clientHeight,
-    ].join(',')
-    if (pointerState !== this.pointerState) {
-      if (this.pointerButtons === 1 && this.pointerScreen) this.updateDrag(this.pointerScreen)
-      this.pointer = this.pointerScreen && this.world.mode ? this.pick(this.pointerScreen) : null
-      this.hoveredObject =
-        this.pointerScreen && !this.pointerButtons && !this.world.mode && !this.world.inputMask
-          ? this.overviewActive
-            ? (this.pickWorldObject(this.pointerScreen)?.id ?? null)
-            : this.picking.pick(this.pointerScreen)
-          : null
-      this.pointerState = pointerState
-    }
-    this.selectionOverlay.visible = this.dragActive.value
+    updatePointerFrame(this, now)
   }
 
   private updateSpellPointerFrame(spec: (typeof SPELLS)[number] | undefined) {
-    this.spellPointer.hidden =
-      !spec || !this.pointerScreen || !!this.world.inputMask || this.world.status !== 'playing'
-    if (spec && this.pointerScreen && !this.spellPointer.hidden) {
-      const rect = this.container.getBoundingClientRect()
-      this.spellPointer.style.left = `${this.pointerScreen.clientX - rect.left}px`
-      this.spellPointer.style.top = `${this.pointerScreen.clientY - rect.top}px`
-      // Native outer-turn ownership and full player records remain adapters.
-      const draws = spellCursor(
-        spec.model,
-        this.world.turn,
-        this.pointer ? (spellTargetError(this.world, spec.id, this.pointer)?.code ?? 1) : -1,
-        this.world.shots[spec.id] > 0 ? 3 : 0,
-        !!this.pointer,
-        this.world.manaWorld.gameFlags
-      )
-      ;[...this.spellPointer.children].forEach((child, i) => {
-        const sprite = child as HTMLElement,
-          d = draws[i]
-        sprite.hidden = !d
-        if (d) {
-          const r = (
-            nativeHud.rects as Record<string, { x: number; y: number; w: number; h: number }>
-          )[d.id]
-          sprite.dataset.sprite = String(d.id)
-          Object.assign(sprite.style, {
-            left: `${d.x}px`,
-            top: `${d.y}px`,
-            width: `${r.w}px`,
-            height: `${r.h}px`,
-            backgroundPosition: `-${r.x}px -${r.y}px`,
-          })
-        }
-      })
-    }
+    updateSpellPointerFrame(this, spec)
   }
 
   private updateEnvironmentFrame(skyTicks: number) {
