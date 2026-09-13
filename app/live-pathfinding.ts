@@ -1,7 +1,7 @@
+import { buildingPose } from './building-shapes.ts'
 import {
   nativePosition,
   browserPosition,
-  buildingPose,
   supportsFollower,
   type World,
   type Unit,

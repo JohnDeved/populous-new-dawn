@@ -1,3 +1,6 @@
+import { buildingPose } from './building-shapes.ts'
+import { sound } from './world-effects.ts'
+import { releaseTasks } from './world-tasks.ts'
 import { initializeRouteRecovery, stepRouteRecovery } from './person-route-recovery.ts'
 import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
@@ -18,14 +21,11 @@ import {
   type Unit,
   nativePosition,
   browserPosition,
-  buildingPose,
-  sound,
   unitAnimationSource,
   unitAnimation,
   buildingModel,
   supportsFollower,
   emitGroundSpark,
-  releaseTasks,
   requestTutorial,
   revealUnitInvisibility,
   unitInvisibilityRenderBit,

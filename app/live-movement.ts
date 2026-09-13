@@ -1,11 +1,11 @@
+import { buildingPose } from './building-shapes.ts'
+import { releaseTasks } from './world-tasks.ts'
 import {
-  buildingPose,
   buildingModel,
   browserPosition,
   nativePosition,
   addUnit,
   population,
-  releaseTasks,
   type World,
   type Unit,
 } from './model.ts'

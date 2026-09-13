@@ -1,5 +1,5 @@
 import { restingCellCollision, type CollisionCell } from './person-collision.ts'
-import type { Building } from './model.ts'
+import type { Building } from './world-types.ts'
 import data from './original-shapes.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, nativeStep, random } from './native-math.ts'
@@ -421,4 +421,22 @@ export function buildingQueuePoint(b: BuildingShapePose, index: number): Point {
 
 export function buildingModel(b: Pick<Building, 'kind' | 'level'>) {
   return b.kind === 'hut' ? b.level : b.kind === 'tower' ? 4 : b.kind === 'temple' ? 5 : 7
+}
+
+// Share the displayed object identity with native footprint/entrance lookup.
+export function buildingObject(b: Pick<Building, 'kind' | 'team' | 'level' | 'object'>) {
+  if (b.object !== undefined) return b.object
+  // Older browser state retains its previously displayed family.
+  const tribe = b.team === 'blue' ? 0 : 1
+  if (b.kind === 'hut') return 131 + tribe * 3 + b.level - 1
+  return rules.buildingObjects[buildingModel(b)] + tribe
+}
+
+export function buildingPose(b: Building) {
+  return {
+    object: buildingObject(b),
+    angle: Math.round((b.angle * 2048) / (Math.PI * 2)) & 2047,
+    anchorX: b.anchor?.x ?? Math.round((b.x + 8) * 256) & 0xfe00,
+    anchorY: b.anchor?.y ?? Math.round((-b.z - 8) * 256) & 0xfe00,
+  }
 }

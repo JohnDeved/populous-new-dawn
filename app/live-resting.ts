@@ -1,8 +1,8 @@
+import { buildingPose } from './building-shapes.ts'
+import { sound } from './world-effects.ts'
 import {
   browserPosition,
-  buildingPose,
   nativePosition,
-  sound,
   type World,
   type Unit,
 } from './model.ts'

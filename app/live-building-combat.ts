@@ -1,11 +1,11 @@
+import { buildingPose } from './building-shapes.ts'
+import { joinBattle } from './combat-runtime.ts'
+import { sound } from './world-effects.ts'
 import { cancelLiveResting } from './live-resting.ts'
 import {
-  buildingPose,
   browserPosition,
   nativePosition,
   ensureBuildingDamage,
-  joinBattle,
-  sound,
   syncLandscapeObjects,
   setUnitInvisibility,
   type World,

@@ -1,12 +1,12 @@
+import { buildingPose } from './building-shapes.ts'
+import { releaseTasks } from './world-tasks.ts'
+import { sound } from './world-effects.ts'
 import {
   addUnit,
   buildingModel,
-  buildingPose,
   browserPosition,
   ensureBuildingDamage,
-  releaseTasks,
   selectionPeople,
-  sound,
   type Building,
   type Unit,
   type World,

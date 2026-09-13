@@ -1,7 +1,7 @@
+import { sound } from './world-effects.ts'
 import {
   nativePosition,
   browserPosition,
-  sound,
   type World,
   type Unit,
   type Shrine,
