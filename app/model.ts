@@ -77,6 +77,7 @@ import {
   defaultPersonState,
   faceTribe,
   personAnimationObject,
+  randomPersonSpeed,
   recoverPersonMovement,
   setPersonAnimationRow,
   stopPersonMovement,
@@ -122,7 +123,11 @@ import {
 } from './timber-search.ts'
 import { reincarnationStones, reincarnationTurns, stepReincarnation } from './reincarnation.ts'
 import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
-import { personStepCollision, terrainSupportsPerson } from './person-collision.ts'
+import {
+  personStepCollision,
+  restingCellCollision,
+  terrainSupportsPerson,
+} from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
 import { createBuildingSmoke, stepBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
@@ -149,6 +154,7 @@ import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } fro
 import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
 import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
 import { createVolcano, stepVolcano, type Volcano } from './volcano.ts'
+import { createConvertWild, stepConvertWild, type ConvertWild } from './convert-wild.ts'
 import {
   createTornado,
   stepTornado,
@@ -363,6 +369,7 @@ export type { UnitKind } from './unit-kinds.ts'
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
 export type Spell =
   | 'blast'
+  | 'convertWild'
   | 'lightning'
   | 'bridge'
   | 'flatten'
@@ -561,6 +568,7 @@ export type Effect = Point & {
   firestorm?: Firestorm
   earthquake?: Earthquake
   volcano?: Volcano
+  convertWild?: ConvertWild
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
@@ -592,6 +600,16 @@ export const SPELLS: {
     symbol: '✹',
     color: '#e8b076',
     description: 'Rechargeable · throws followers back. Water is deadly.',
+  },
+  {
+    id: 'convertWild',
+    model: 17,
+    name: 'Convert Wild',
+    cost: 10,
+    key: '',
+    symbol: '✦',
+    color: '#f1e1a2',
+    description: 'Recruits nearby wild people to your tribe.',
   },
   {
     id: 'bridge',
@@ -1909,6 +1927,7 @@ export function createWorld(): World {
     gifts: [],
     giftCounts: {
       blast: 0,
+      convertWild: 0,
       bridge: 0,
       lightning: 0,
       flatten: 0,
@@ -2014,6 +2033,7 @@ export function createWorld(): World {
     wood: 0,
     shots: {
       blast: 4,
+      convertWild: 0,
       bridge: 0,
       lightning: 0,
       flatten: 0,
@@ -2060,7 +2080,13 @@ export function createWorld(): World {
         angle: (o.angle / 2048) * Math.PI * 2,
       })
     }
-    if (o.type === 1) addUnit(w, o.owner === 0 ? 'blue' : 'red', unitKindFromModel(o.model), o)
+    if (o.type === 1)
+      addUnit(
+        w,
+        o.owner === 255 ? 'wild' : o.owner === 0 ? 'blue' : 'red',
+        unitKindFromModel(o.model),
+        o
+      )
     if (o.type === 5 && o.model <= 6)
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
@@ -3151,6 +3177,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
     (u.team === 'blue'
       ? {
           blast: 0x76,
+          convertWild: 0x85,
           lightning: 0x77,
           bridge: 0x80,
           flatten: 0x83,
@@ -3166,6 +3193,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
         }
       : {
           blast: 0x8c,
+          convertWild: 0x9b,
           lightning: 0x8d,
           bridge: 0x96,
           flatten: 0x99,
@@ -4513,6 +4541,7 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'firestorm' ||
             spell === 'earthquake' ||
             spell === 'volcano' ||
+            spell === 'convertWild' ||
             spell === 'tornado' ||
             spell === 'shield' ||
             spell === 'invisibility' ||
@@ -5941,6 +5970,16 @@ function finishCast(
       fx.volcano = createVolcano(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
       fx.team = shaman.team
       fx.duration = Infinity
+    } else if (spell === 'convertWild') {
+      fx.convertWild = createConvertWild(
+        nativePosition(w, p),
+        shaman.team === 'blue' ? 0 : 1,
+        (w.effectCounter - 1) & 255,
+        w.manaTribes[shaman.team === 'blue' ? 0 : 1].playerType === 1
+      )
+      fx.team = shaman.team
+      fx.duration = Infinity
+      sound(w, 0xb4, p)
     } else if (spell === 'tornado') {
       fx.tornado = createTornado(
         w.land,
@@ -6112,6 +6151,74 @@ function stepLiveSwamp(w: World, swamp: Swamp) {
       w.selected = w.selected.filter(id => id !== u.id)
     },
     sound: () => sound(w, 0xaa, browserPosition(swamp.center)),
+  })
+}
+
+function stepLiveConvertWild(w: World, fx: Effect) {
+  const spell = fx.convertWild!,
+    team = spell.tribe === 0 ? 'blue' : 'red',
+    units = new Map<number, Unit>(),
+    cells = new Map<number, LivePerson[]>()
+  for (const u of w.units) {
+    if (u.team !== 'wild' || u.hp <= 0 || u.inside !== null) continue
+    const p = (u.native ??= createLivePerson(w, u)),
+      cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00),
+      row = cells.get(cell) ?? []
+    units.set(p.id, u)
+    row.unshift(p)
+    cells.set(cell, row)
+  }
+  spell.counter = (spell.counter + 1) & 255
+  return stepConvertWild(spell, w, {
+    population: () => population(w, team),
+    people: cell => cells.get(cell) ?? [],
+    unsupported: p => {
+      const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+      return (
+        restingCellCollision(
+          { flags: w.land.flags[index], category: w.land.categories[index] },
+          w.land.walkMasks[0],
+          p
+        ) === 4
+      )
+    },
+    strand: p => {
+      const u = units.get(p.id)
+      if (!u) return
+      const person = u.native!
+      person.previousState = person.state
+      person.state = 8
+      person.substate = 3
+      person.flags2 = (person.flags2 | 0x40000000) >>> 0
+    },
+    suppressed: () => !!(w.manaTribes[spell.tribe].flags2 & 64),
+    convert: p => {
+      const u = units.get(p.id),
+        slot = u ? w.units.indexOf(u) : -1
+      if (!u || slot < 0) return
+      releaseTasks(w, u)
+      if (u.native!.flags2 & 0x20000) removeObjectFromCell(w.objectCells, u.native!)
+      w.objectCells.objects.delete(u.id)
+      u.native!.class = 0
+      u.hp = 0
+      const replacement = addUnit(w, team, 'brave', browserPosition(p))
+      w.units[slot] = replacement
+      w.units.pop()
+      replacement.heading = u.heading
+      replacement.native = createLivePerson(w, replacement)
+      replacement.native.speed = randomPersonSpeed(w, replacement.native)
+      replacement.native.flags4 = (replacement.native.flags4 | 0x40000) >>> 0
+      registerLivePerson(w, replacement.native)
+      sound(w, 5, browserPosition(p))
+      // ponytail: reuse the packed birth flash until an asset import adds native effect model 58.
+      effect(w, 'birth', browserPosition(p))
+    },
+    sparkle: (position, turns) => {
+      const sparkle = effect(w, 'trail', browserPosition(position))
+      sparkle.sprite = { sequence: 'sparkle', frame: 0 }
+      sparkle.height = position.h / 45
+      sparkle.duration = turns / TURNS_PER_SECOND
+    },
   })
 }
 // ponytail: current braves/warriors/shaman use the live order adapter. Replace it
@@ -6505,6 +6612,7 @@ function stepTurn(w: World) {
       })
       if (!alive) fx.duration = fx.age
     }
+    if (fx.convertWild && !stepLiveConvertWild(w, fx)) fx.duration = fx.age
     if (fx.volcano) {
       const cellOf = (p: Point) => {
         const position = nativePosition(w, p)

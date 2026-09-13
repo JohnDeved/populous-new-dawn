@@ -2210,7 +2210,16 @@ export class GameScene {
       }
       return g
     }
-    if (f.wave || f.bridge || f.flatten || f.erosion || f.firestorm || f.earthquake || f.volcano)
+    if (
+      f.wave ||
+      f.bridge ||
+      f.flatten ||
+      f.erosion ||
+      f.firestorm ||
+      f.earthquake ||
+      f.volcano ||
+      f.convertWild
+    )
       return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
@@ -2376,7 +2385,8 @@ export class GameScene {
       f.swamp ||
       f.firestorm ||
       f.earthquake ||
-      f.volcano
+      f.volcano ||
+      f.convertWild
     )
       return
     if (f.sinking) {

@@ -13,6 +13,8 @@ type LegacyGift = {
 }
 
 export function migrateCheckpoint(world: World) {
+  world.shots.convertWild ??= 0
+  world.giftCounts.convertWild ??= 0
   world.shots.shield ??= 0
   world.giftCounts.shield ??= 0
   world.shots.swarm ??= 0

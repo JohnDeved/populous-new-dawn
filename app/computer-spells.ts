@@ -221,12 +221,52 @@ export function chooseSpellTarget(
   return { accepted: false, cell: center }
 }
 
-export type SpellTargetScan = { cursor: number; limit: number; paused: number; targets: number[] }
+export type SpellTargetScan = {
+  cursor: number
+  limit: number
+  paused: number
+  targets: number[]
+  wildTarget?: number
+}
 // 0x4d1420. The scan limit is intentionally retained.
 export function resetSpellTargets(scan: SpellTargetScan) {
   scan.cursor = 0
   scan.paused = 0
   scan.targets.fill(0)
+}
+
+// 0x4f79d0 / 0x4c7370: count a 7x7 wild-person area, then retain only a
+// strictly denser cardinal target six packed-coordinate units away.
+export function convertWildDensity(w: SpellTargetWorld, center: number) {
+  let count = 0
+  for (let y = -6; y <= 6; y += 2)
+    for (let x = -6; x <= 6; x += 2) {
+      const cell = (((center & 255) + x) & 255) | ((((center >>> 8) + y) & 255) << 8)
+      for (const p of objectsAt(w, cell)) if (p.class === 1 && p.model === 1) count++
+    }
+  return count
+}
+
+export function stepConvertWildTarget(w: SpellTargetWorld, center: number) {
+  const x = center & 255,
+    y = center >>> 8,
+    candidates = [
+      center,
+      ((x + 6) & 255) | (y << 8),
+      ((x - 6) & 255) | (y << 8),
+      x | (((y + 6) & 255) << 8),
+      x | (((y - 6) & 255) << 8),
+    ]
+  let cell = center,
+    count = convertWildDensity(w, center)
+  for (const candidate of candidates.slice(1)) {
+    const density = convertWildDensity(w, candidate)
+    if (density > count) {
+      cell = candidate
+      count = density
+    }
+  }
+  return { cell, count }
 }
 
 // General target-scan portion of 0x4d0860. The caller refreshes readiness first.
@@ -425,6 +465,36 @@ export function processComputerSpells(
     entries,
     context.reserve
   )
+  const convert = entries.findIndex((entry, i) => entry.model === 17 && ranges[i])
+  if (
+    convert >= 0 &&
+    eligible() &&
+    allowed(17) &&
+    payment(17) &&
+    mana >= rules.spellCharging[17].cost
+  ) {
+    const casterCell = cellOf(caster)
+    if (scan.wildTarget === undefined) {
+      scan.wildTarget = casterCell
+      if (!convertWildDensity(w, scan.wildTarget))
+        for (const [cell, people] of w.cells)
+          if (people.some(person => person.class === 1 && person.model === 1)) {
+            scan.wildTarget = cell
+            break
+          }
+    }
+    const target = stepConvertWildTarget(w, scan.wildTarget)
+    scan.wildTarget = target.cell
+    if (
+      (target.count && inRange(17, target.cell)) ||
+      (!(rules.personStateFlags[caster.state] & 8) &&
+        target.count < 4 &&
+        convertWildDensity(w, casterCell) >= 5)
+    ) {
+      effects.cast(17, target.cell)
+      return ranges
+    }
+  }
   scanSpellTargets(w, scan, caster, ranges, p => {
     if (!eligible()) return
     for (const model of [2, 5, 3])
