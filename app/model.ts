@@ -23,7 +23,7 @@ import {
 } from './computer-runtime.ts'
 export { computerMarkerOrderCount } from './computer-runtime.ts'
 import { builderActivity, unitAnimationSource, selectionBuilding, canOrder } from './selection-runtime.ts'
-export { unitAnimationSource, canOrder, select, selectionPeople, hudPeople, selectFollowers, setSelection, selectUnit, selectArea, cancelInteraction } from './selection-runtime.ts'
+export { unitAnimation, unitAnimationSource, canOrder, select, selectionPeople, hudPeople, selectFollowers, setSelection, selectUnit, selectArea, cancelInteraction } from './selection-runtime.ts'
 import {
   applyHypnotise,
   invisibilityFollowers,
@@ -164,7 +164,6 @@ import {
   type MeleeGroup,
   type FightParticipant,
 } from './melee-groups.ts'
-import { EncounterPhase } from './melee-encounter.ts'
 import { announceCombatMarches, type CombatMarch } from './combat-order-search.ts'
 import {
   stepLiveBuildingAttack,
@@ -476,53 +475,6 @@ export function canPickUnit(w: World, u: Unit) {
   )
 }
 
-export function unitAnimation(w: World, u: Unit) {
-  if (u.lift > 0) return 'airborne'
-  if (u.casting) return 'cast'
-  if (u.fight?.animation) return u.fight.animation
-  if (u.fight?.action === 'encounter') {
-    const p = u.fight.motion!
-    return p.substate === EncounterPhase.Strike
-      ? 'attack'
-      : p.substate === EncounterPhase.Knockback
-        ? 'stagger'
-        : p.speed
-          ? 'walk'
-          : 'idle'
-  }
-  if (u.fight)
-    return u.fight.action === 'approach'
-      ? 'walk'
-      : u.fight.action === 'ready'
-        ? 'idle'
-        : u.fight.action === 'push'
-          ? 'walk'
-          : u.fight.action
-  if (u.fighting) return 'attack'
-  if (builderActivity(u) && u.builder?.person) {
-    if (u.builder.person.speed) return u.cargo ? 'carry' : 'walk'
-    if (u.builder.task === BuilderTask.Level && u.builder.phase === 28) return 'dance'
-    if (u.builder.task === BuilderTask.ClearScenery && u.builder.phase === SceneryPhase.Harvest)
-      return 'work'
-    if (u.builder.task === BuilderTask.Work && !w.buildings.find(b => b.id === u.work)?.preparation)
-      return 'work'
-    return u.cargo ? 'carryIdle' : 'idle'
-  }
-  if (u.path.length) return u.cargo ? 'carry' : 'walk'
-  if (u.cargo) return 'carryIdle'
-  if (u.harvest) return 'work'
-  if (
-    w.shrines.some(
-      s =>
-        s.id === u.work &&
-        s.active &&
-        distance(s, u) < 3 &&
-        (s.kind !== 'vault' || u.vault?.phase === 2)
-    )
-  )
-    return 'pray'
-  return w.selected.includes(u.id) ? 'selected' : 'idle'
-}
 export { nativeTerrainCross } from './native-math.ts'
 export const footprint = (kind: BuildingKind) => (kind === 'temple' ? 3.9 : 3)
 export function footprintPoints(kind: BuildingKind, p: Point) {
