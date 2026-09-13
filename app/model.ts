@@ -397,6 +397,7 @@ import {
   advanceCollapse,
   stepBuildingShake,
   processBuildingDamage,
+  ensureBuildingDamage,
   igniteBuilding,
   stepBuildingBurn,
   type BuildingBurn,
@@ -405,6 +406,7 @@ import {
   type DamageBuilding,
   type BuildingPlan,
 } from './building-damage.ts'
+export { ensureBuildingDamage } from './building-damage.ts'
 import {
   distributeMana,
   generatedMana,
@@ -2344,31 +2346,6 @@ function cleanupDefeatedTribe(w: World, id: number) {
       state.damage = p.damage
     }
 }
-export function ensureBuildingDamage(b: Building) {
-  if (b.damageState) return b.damageState
-  const model = buildingModel(b)
-  const remaining = Math.trunc(
-    Math.min(b.progress, b.hp / buildingHp(b.kind)) * rules.buildingLife[model]
-  )
-  return (b.damageState = {
-    model,
-    state: b.progress === 1 ? 2 : 1,
-    flags2: 0,
-    flags3: 0,
-    buildingFlags: 0,
-    counter: b.counter,
-    damage: 0,
-    renderFlags: 32,
-    tilt: 0,
-    roll: 0,
-    remaining: 0,
-    stage: buildingWorkStage(remaining, rules.buildingLife[model]),
-    attacker: 255,
-    occupants: 0,
-    plan: { remaining, repairDelay: 0, attacker: 255 },
-  })
-}
-
 function changedBuildingGround(w: World, index: number) {
   const cell = ((index & 127) << 1) | ((index >> 7) << 9)
   queueTerrain(w.land, cell, 2, 1, terrainTextures)

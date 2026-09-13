@@ -1,5 +1,8 @@
 import rules from './original-rules.json' with { type: 'json' }
 import { random } from './native-math.ts'
+import { buildingModel } from './building-shapes.ts'
+import { buildingHp } from './world-rules.ts'
+import type { Building } from './world-types.ts'
 
 const short = (n: number) => (n << 16) >> 16
 const byte = (n: number) => (n << 24) >> 24
@@ -171,6 +174,31 @@ export function buildingWorkStage(remaining: number, life: number) {
   if (remaining >= life) return 4
   if (remaining < 1) return 0
   return Math.max(0, Math.min(3, byte(Math.trunc((remaining * 4 - 1) / (life - 1)))))
+}
+
+export function ensureBuildingDamage(b: Building) {
+  if (b.damageState) return b.damageState
+  const model = buildingModel(b)
+  const remaining = Math.trunc(
+    Math.min(b.progress, b.hp / buildingHp(b.kind)) * rules.buildingLife[model]
+  )
+  return (b.damageState = {
+    model,
+    state: b.progress === 1 ? 2 : 1,
+    flags2: 0,
+    flags3: 0,
+    buildingFlags: 0,
+    counter: b.counter,
+    damage: 0,
+    renderFlags: 32,
+    tilt: 0,
+    roll: 0,
+    remaining: 0,
+    stage: buildingWorkStage(remaining, rules.buildingLife[model]),
+    attacker: 255,
+    occupants: 0,
+    plan: { remaining, repairDelay: 0, attacker: 255 },
+  })
 }
 
 // Complete 0x4ba2c0 with the caller's resolved live building and overlay.
