@@ -54,7 +54,7 @@ function createPanel(scene: GameScene, b: Building) {
   return panel
 }
 
-export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement) {
+export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement | null) {
   const { world } = scene,
     { width, height } = scene.container.getBoundingClientRect()
   for (const [id, panel] of scene.buildingPanels) {
@@ -68,7 +68,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement) 
     )
       panel.hidden = true
   }
-  if (scene.overviewActive || world.inputMask || !atlas.complete || !atlas.naturalWidth) return
+  if (scene.overviewActive || world.inputMask || !atlas?.complete || !atlas.naturalWidth) return
   for (const b of world.buildings) {
     const plan = b.progress < 1,
       school = !plan && (b.kind === 'camp' || b.kind === 'temple'),

@@ -432,6 +432,38 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "checkpoint-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise durable checkpoint discovery, startup choice, exact resume, fresh start, and storage fallback through the shipped browser UI.",
+      "coveredBehavior": [
+        "First visit starts mission one without a stale choice",
+        "Returning-player New Game and Load Game choice before scene creation",
+        "Exact latest-checkpoint restore after reload",
+        "Fresh-world isolation and storage-unavailable fallback"
+      ],
+      "knownLimits": [
+        "Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, profile, or front-end parity."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-checkpoint.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-checkpoint.mjs",
+        "scripts/browser-game.mjs",
+        "app/page.tsx",
+        "app/game-store.ts",
+        "app/building-panels.ts",
+        "app/model.ts",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "messages-native",
       "kind": "native",
       "automation": "safe",

@@ -2,9 +2,27 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 
+async function waitForScene(page) {
+  await page.waitForSelector('.world-viewport canvas')
+  await page.waitForFunction(() => {
+    const main = document.querySelector('main')
+    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber; fiber = fiber.return)
+      for (let hook = fiber.memoizedState; hook; hook = hook.next)
+        if (hook.memoizedState?.current?.unitMeshes)
+          globalThis.testScene = hook.memoizedState.current
+    return !!globalThis.testScene
+  })
+}
+
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const { page, errors } = await openGame(browser)
+  assert.equal(await page.getByRole('dialog', { name: 'Start game' }).count(), 0)
+  const original = await page.evaluate(() => ({
+    height: globalThis.testScene.world.land.heights[0],
+    hp: globalThis.testScene.world.units[0].hp,
+  }))
   await page.evaluate(async () => {
     const scene = globalThis.testScene
     scene.world.speed = 0
@@ -43,46 +61,22 @@ try {
     })
   })
   await page.reload({ waitUntil: 'networkidle' })
-  await page.waitForSelector('.world-viewport canvas')
-  await page.waitForFunction(() => {
-    const main = document.querySelector('main')
-    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
-    for (; fiber; fiber = fiber.return)
-      for (let hook = fiber.memoizedState; hook; hook = hook.next)
-        if (hook.memoizedState?.current?.unitMeshes)
-          globalThis.testScene = hook.memoizedState.current
-    return !!globalThis.testScene
-  })
-  await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
-  await page.keyboard.press('Escape')
-  await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  const restoredLoad = page.getByRole('button', { name: 'Load checkpoint', exact: true })
-  await restoredLoad.waitFor({ state: 'visible' })
-  await page.waitForFunction(() =>
-    [...document.querySelectorAll('button')].some(
-      button => button.textContent?.includes('Load checkpoint') && !button.disabled
-    )
+  const startup = page.getByRole('dialog', { name: 'Start game' })
+  await startup.waitFor()
+  assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'no hidden fresh scene')
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
+  await waitForScene(page)
+  await page.waitForFunction(
+    expected => {
+      const world = globalThis.testScene.world
+      return (
+        world.turn === expected.turn &&
+        world.land.heights[0] === expected.height &&
+        world.units[0].hp === expected.hp
+      )
+    },
+    saved
   )
-  await restoredLoad.click()
-  await page.waitForFunction(expected => {
-    const main = document.querySelector('main')
-    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
-    for (; fiber; fiber = fiber.return)
-      for (let hook = fiber.memoizedState; hook; hook = hook.next) {
-        const scene = hook.memoizedState?.current
-        if (
-          scene?.unitMeshes &&
-          scene.world.turn === expected.turn &&
-          scene.world.land.heights[0] === expected.height &&
-          scene.world.units[0].hp === expected.hp
-        ) {
-          globalThis.testScene = scene
-          return true
-        }
-      }
-    return false
-  }, saved)
   const restored = await page.evaluate(() => ({
     turn: globalThis.testScene.world.turn,
     height: globalThis.testScene.world.land.heights[0],
@@ -102,6 +96,18 @@ try {
     soundPlaying: false,
   })
   assert.ok(restored.soundSerial)
+
+  await page.reload({ waitUntil: 'networkidle' })
+  await page.getByRole('dialog', { name: 'Start game' }).waitFor()
+  await page.getByRole('button', { name: 'New Game', exact: true }).click()
+  await waitForScene(page)
+  const fresh = await page.evaluate(() => ({
+    turn: globalThis.testScene.world.turn,
+    height: globalThis.testScene.world.land.heights[0],
+    hp: globalThis.testScene.world.units[0].hp,
+  }))
+  assert.notEqual(fresh.turn, saved.turn)
+  assert.deepEqual({ height: fresh.height, hp: fresh.hp }, original)
   assert.deepEqual(errors, [])
 
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
@@ -121,7 +127,7 @@ try {
     .waitFor()
   assert.deepEqual(blocked.errors, [])
   await context.close()
-  console.log('PASS: durable checkpoint restores an isolated world after reload')
+  console.log('PASS: startup Load Game restores a durable world; New Game starts fresh')
 } finally {
   await browser.close()
 }

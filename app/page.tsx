@@ -60,8 +60,15 @@ export default function Home() {
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
   const [checkpointNotice, setCheckpointNotice] = useState('')
+  const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   useEffect(() => {
-    void store.restoreCheckpoint()
+    let active = true
+    void store.restoreCheckpoint().then(found => {
+      if (active) setStartup(found ? 'choice' : 'playing')
+    })
+    return () => {
+      active = false
+    }
   }, [store])
   useEffect(() => {
     try {
@@ -110,6 +117,7 @@ export default function Home() {
     }
   }, [])
   useEffect(() => {
+    if (startup !== 'playing') return
     let disposed = false
     if (window.innerWidth < 900)
       store.change(w => {
@@ -138,7 +146,7 @@ export default function Home() {
       engine.current?.dispose()
       engine.current = null
     }
-  }, [world, update, store])
+  }, [world, update, store, startup])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement).closest('input,dialog'))
@@ -270,14 +278,19 @@ export default function Home() {
     setError('')
     store.restart()
     setTab('spells')
+    setStartup('playing')
   }
   function loadCheckpoint() {
     audio.current?.reset()
     setMenu(false)
     setReady(false)
     setError('')
-    store.loadCheckpoint()
+    if (!store.loadCheckpoint()) return
+    store.change(w => {
+      w.paused = false
+    })
     setTab('spells')
+    setStartup('playing')
   }
   async function saveCheckpoint() {
     setCheckpointNotice(
@@ -674,7 +687,30 @@ export default function Home() {
         </div>
       )}
 
-      {(!ready || error) && (
+      {startup === 'choice' && (
+        <div className="loading-world" role="dialog" aria-label="Start game">
+          <span className="loading-rune">⟡</span>
+          <p className="eyebrow">POPULOUS · THE FIRST DAWN</p>
+          <h2>Return to the world?</h2>
+          <p>Load your saved mission or begin Level One again.</p>
+          <div className="menu-actions">
+            <button className="primary-button" aria-label="Load Game" onClick={loadCheckpoint}>
+              Load Game <span>↗</span>
+            </button>
+            <button className="secondary-button" onClick={restart}>
+              New Game
+            </button>
+          </div>
+        </div>
+      )}
+      {startup === 'loading' && (
+        <div className="loading-world" role="status">
+          <span className="loading-rune">⟡</span>
+          <h2>A world is awakening</h2>
+          <p>Looking for your last saved world.</p>
+        </div>
+      )}
+      {startup === 'playing' && (!ready || error) && (
         <div className="loading-world" role="status">
           <span className="loading-rune">⟡</span>
           <h2>{error ? 'The world could not awaken' : 'A world is awakening'}</h2>

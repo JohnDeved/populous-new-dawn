@@ -361,6 +361,30 @@
         "General class-10 allocation/scheduling, reincarnation relocation, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]
+    },
+    {
+      "id": "persistence",
+      "title": "Checkpoints and startup",
+      "mappingStatus": "reviewed",
+      "implementationPaths": ["app/game-store.ts"],
+      "sharedPaths": ["app/page.tsx"],
+      "entrySymbols": [
+        { "path": "app/game-store.ts", "symbol": "createGameStore" },
+        { "path": "app/page.tsx", "symbol": "Home" }
+      ],
+      "parityIds": ["persistence.save", "persistence.load", "interface.menus"],
+      "evidence": [
+        { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
+      ],
+      "nativeAddresses": [],
+      "checkIds": ["checkpoint-browser", "repository-check", "production-build"],
+      "generatedInputIds": [],
+      "risks": [
+        "Asynchronous storage discovery must not start or advance a hidden fresh world before the player chooses."
+      ],
+      "unresolved": [
+        "Original save format, named slots, profile/progression data and exact front-end presentation remain unported."
+      ]
     }
   ],
   "crossCutting": [
@@ -432,12 +456,6 @@
       "mappingStatus": "unmapped",
       "paths": ["app/blast-wave.ts", "app/lightning.ts", "app/land-bridge.ts"],
       "note": "Mechanically inventoried only."
-    },
-    {
-      "id": "persistence-network",
-      "mappingStatus": "unmapped",
-      "paths": ["app/game-store.ts"],
-      "note": "No reviewed persistence or multiplayer mapping in this initial slice."
     },
     {
       "id": "vehicles",
