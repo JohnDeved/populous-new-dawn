@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
+export const short = (v: number) => (v << 16) >> 16
 interface Point {
   x: number
   z: number
