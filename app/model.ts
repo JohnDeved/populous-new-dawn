@@ -2431,7 +2431,8 @@ export function command(
   if (
     model === 19 ||
     model === 33 ||
-    ((model === 3 || model === 27 || queuedBuilding) && (modifiers.ctrlKey || w.orderCursor))
+    ((model === 3 || model === 27 || model === 28 || queuedBuilding) &&
+      (modifiers.ctrlKey || w.orderCursor))
   ) {
     const slot = w.orderCursor
     const input = playerOrderInput(
@@ -2458,7 +2459,7 @@ export function command(
         active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
       if (
         ![17, 31, 32].includes(active) &&
-        (!slot || !person || ![3, 6, 8, 10, 19, 27].includes(active))
+        (!slot || !person || ![3, 6, 8, 10, 19, 27, 28].includes(active))
       ) {
         release(w, u, model === 33)
         if (model === 33 && person) u.native = person
@@ -2469,11 +2470,18 @@ export function command(
     writePersonOrder(
       order,
       model,
-      model === 19 ? 0 : (context.building?.id ?? context.shrine?.id ?? 0),
+      model === 19 ? 0 : (context.person?.id ?? context.building?.id ?? context.shrine?.id ?? 0),
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )
     const result = appendLiveOrders(w, units, order, slot === 0)
+    if (model === 28 && result.accepted)
+      for (const u of units) {
+        const person = u.native ?? u.entry?.person ?? u.builder?.person
+        if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28) continue
+        u.target = context.person!.id
+        route(w, u, context.person!, true)
+      }
     for (const p of selectionPeople(w))
       p.selectionFlags = (p.selectionFlags & ~1) | (p.selectionFlags >>> 7)
     w.orderCursor = input.nextCursor
@@ -5372,6 +5380,19 @@ function stepTurn(w: World) {
         u.delivery = undefined
       }
     }
+    const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
+    if (
+      u.target === null &&
+      activeOrder?.model === 28 &&
+      nativePersonTribe(u) === w.manaWorld.playerTribe
+    ) {
+      const enemy = w.units.find(
+        target =>
+          target.id === activeOrder.a && target.hp > 0 && target.inside === null && !target.lift
+      )
+      u.target = enemy?.id ?? null
+      if (enemy) route(w, u, enemy, true)
+    }
     let target: Unit | Building | undefined =
       u.target === null
         ? undefined
@@ -5380,8 +5401,6 @@ function stepTurn(w: World) {
       target = undefined
     if (!target) {
       cancelLiveBuildingAttack(w, u)
-      if (u.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 28)
-        cancelLiveOrder(w, u)
       u.target = null
       if (startLiveCombatResponse(w, u)) {
         stepLiveBuildingAttack(w, u)
@@ -5432,9 +5451,20 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      [3, 6, 27, 30, 33].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+      ([3, 6, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+        (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
-      stepLiveMovement(w, u, { 33: () => processVaultTask(w, u) })
+      stepLiveMovement(w, u, {
+        28: order => {
+          const enemy = w.units.find(
+            target =>
+              target.id === order.a && target.hp > 0 && target.inside === null && !target.lift
+          )
+          u.target = enemy?.id ?? null
+          return Number(!enemy)
+        },
+        33: () => processVaultTask(w, u),
+      })
     } else if (
       u.team !== 'wild' &&
       !work &&

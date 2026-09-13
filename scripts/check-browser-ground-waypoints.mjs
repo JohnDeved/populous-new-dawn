@@ -53,6 +53,34 @@ try {
   })
   assert.deepEqual(result.visited,[0,1,2]);assert.equal(result.active,0);assert.equal(result.routes,0)
   assert.ok(result.people.every(u=>u.x>11&&u.z>17&&u.state===19&&u.visible&&Number.isInteger(u.frame)),JSON.stringify(result))
+  const attack=await page.evaluate(async()=>{
+   const s=window.testScene,w=s.world,m=await import('/app/model.ts')
+   const version=w.terrainVersion+1;Object.assign(w,m.createWorld());w.terrainVersion=version
+   w.units=[];w.buildings=[];w.shrines=[];w.trees=[];w.manaWorld.gameFlags=32;w.flyby.flags=0;w.inputMask=0;w.speed=0;w.terrain.fill(3)
+   const u=m.addUnit(w,'blue','brave',{x:-15,z:8}),enemy=m.addUnit(w,'red','brave',{x:0,z:20})
+   m.setSelection(w,[u.id]);s.focus({x:0,z:12});s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+   const r=s.renderer.domElement.getBoundingClientRect(),p=s.unitScreen(enemy.id),frame=s.unitMeshes.get(enemy.id).userData.frameHeight
+   return {unit:u.id,enemy:enemy.id,click:{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2-frame/2}}
+  })
+  await click({x:-6,z:8},['Control'])
+  await page.keyboard.down('Control');await page.mouse.click(attack.click.x,attack.click.y);await page.keyboard.up('Control')
+  await click({x:14,z:8})
+  const attackResult=await page.evaluate(async({unit,enemy})=>{
+   const s=window.testScene,w=s.world,{advanceGame}=await import('/app/game-clock.ts'),{currentPersonOrder}=await import('/app/person-orders.ts')
+   const u=w.units.find(u=>u.id===unit),target=w.units.find(u=>u.id===enemy),p=u.native,advance=()=>{w.speed=1;advanceGame(w,s.gameClock,1/12);w.speed=0}
+   const models=p.commands.filter(Boolean).map(id=>w.buildingOrders.records[id].model),waiting=u.target===null
+   for(let i=0;i<200&&currentPersonOrder(w.buildingOrders,p)?.model!==28;i++)advance()
+   advance();const acquired=u.target===enemy,pursuitStart=u.x
+   for(let i=0;i<8;i++)advance()
+   const pursued=u.x!==pursuitStart
+   target.hp=0;advance();const resumed=currentPersonOrder(w.buildingOrders,p)?.model===3,start=u.x
+   for(let i=0;i<8;i++)advance()
+   s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+   const walking=u.x!==start&&s.unitMeshes.get(unit)?.visible
+   for(let i=0;i<300&&w.buildingOrders.active;i++)advance()
+   return {models,waiting,acquired,pursued,resumed,walking,arrived:u.x>12,active:w.buildingOrders.active}
+  },attack)
+  assert.deepEqual(attackResult,{models:[3,28,3],waiting:true,acquired:true,pursued:true,resumed:true,walking:true,arrived:true,active:0})
   await click({x:5,z:12},['Control']);await click({x:0,z:12},['Alt'])
   const alt=await page.evaluate(()=>{const w=window.testScene.world;return {selected:w.selected,cursor:w.orderCursor,orders:w.units[0].native.commands.filter(Boolean).length}})
   assert.deepEqual(alt,{selected:[],cursor:0,orders:2})
@@ -75,5 +103,5 @@ try {
  }
  await page.screenshot({path:'/private/tmp/populous-ground-waypoints.png'})
  assert.deepEqual(errors,[])
- console.log('PASS: desktop/ultrawide real Ctrl mouse waypoints, immediate movement, release modifiers, Alt deselection, ordered arrival, original standing sprites, visible ground feedback and silent rejected clicks')
+ console.log('PASS: desktop/ultrawide real Ctrl mouse waypoints and queued enemy attacks, target-loss handoff, immediate movement, release modifiers, Alt deselection, ordered arrival, original sprites, visible ground feedback and silent rejected clicks')
 }finally{await browser.close()}

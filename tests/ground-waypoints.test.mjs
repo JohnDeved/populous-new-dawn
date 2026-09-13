@@ -68,6 +68,26 @@ test('continued queue allocation failure retains issued orders, and an ordinary 
  turn(w,160);assert.equal(w.buildingOrders.active,0)
 })
 
+test('an enemy-person order waits behind a waypoint and advances when its target becomes unavailable',()=>{
+ const direct=world(1),follower=direct.units[0],directEnemy=addUnit(direct,'red','brave',{x:0,z:20}),start={x:follower.x,z:follower.z}
+ command(direct,directEnemy,{ctrlKey:true});command(direct,{x:20,z:8});assert.deepEqual(follower.native.commands.filter(Boolean).map(id=>direct.buildingOrders.records[id].model),[28,3]);turn(direct,12)
+ assert.ok(follower.x!==start.x||follower.z!==start.z,'a Ctrl-started attack keeps immediate pursuit')
+ directEnemy.hp=0;turn(direct,1);assert.equal(currentPersonOrder(direct.buildingOrders,follower.native)?.model,3)
+ for(const unavailable of [enemy=>enemy.hp=0,enemy=>enemy.inside=999,enemy=>enemy.lift=1]){
+  const w=world(1),u=w.units[0],enemy=addUnit(w,'red','brave',{x:0,z:20})
+  command(w,{x:-4,z:8},{ctrlKey:true});command(w,enemy,{ctrlKey:true});command(w,{x:20,z:8})
+  const p=u.native,models=()=>p.commands.filter(Boolean).map(id=>w.buildingOrders.records[id].model)
+  assert.deepEqual(models(),[3,28,3]);assert.equal(u.target,null)
+  for(let i=0;i<200&&currentPersonOrder(w.buildingOrders,p)?.model!==28;i++)turn(w,1)
+  assert.equal(currentPersonOrder(w.buildingOrders,p)?.model,28);turn(w,1);assert.equal(u.target,enemy.id)
+  const start=u.x;turn(w,8);assert.notEqual(u.x,start,'the active attack pursues its available target')
+  unavailable(enemy);turn(w,1)
+  assert.equal(currentPersonOrder(w.buildingOrders,p)?.model,3);assert.equal(u.target,null)
+  for(let i=0;i<300&&w.buildingOrders.active;i++)turn(w,1)
+  assert.ok(u.x>18);assert.equal(w.buildingOrders.active,0)
+ }
+})
+
 test('ground waypoint handoff uses each playable class default initializer',()=>{
  for(const kind of ['brave','warrior','shaman']){
   const w=world(1,kind);command(w,{x:-4,z:8},{ctrlKey:true});command(w,{x:20,z:24})
