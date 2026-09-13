@@ -151,7 +151,63 @@ try {
    return !u.delivery&&!u.cargo&&w.trees.some(t=>t.model===11&&Math.hypot(t.x-b.x,t.z-b.z)<6)
   },{follower:fixture.follower,plan})
 
+  const queued=await page.evaluate(async()=>{
+   const s=window.testScene,w=s.world,m=await import('/app/model.ts')
+   w.speed=0;w.units=[];w.buildings=[];w.trees=[];w.shrines=[];w.selected=[];w.orderCursor=0;s.treeSignature=''
+   const follower=m.addUnit(w,'blue','brave',{x:-12,z:8})
+   const tree={id:w.nextId++,x:-8,z:8,model:1,logs:4};w.trees.push(tree);w.selected=[follower.id]
+   s.focus({x:0,z:8});s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+   const r=s.renderer.domElement.getBoundingClientRect(),treeMesh=s.decorations.children.find(g=>g.userData.point?.id===tree.id)?.children[0]
+   let treePoint
+   for(const face of s.picking.model(treeMesh,'queued-tree-test').filter(c=>c.kind==='model')){
+    const x=r.left+Math.trunc(face.points.reduce((a,p)=>a+p.x,0)/3),y=r.top+Math.trunc(face.points.reduce((a,p)=>a+p.y,0)/3)
+    if(s.picking.pick({clientX:x,clientY:y})===tree.id){treePoint={x,y};break}
+   }
+   if(!treePoint)throw Error('Queued tree is not visible')
+   const target={x:12,z:8},screen=s.screen(target),cx=r.left+(screen.x+1)*r.width/2,cy=r.top+(1-screen.y)*r.height/2
+   let ground
+   for(let radius=0;radius<=30&&!ground;radius+=3)for(let dy=-radius;dy<=radius&&!ground;dy+=3)for(let dx=-radius;dx<=radius;dx+=3){
+    const event={clientX:cx+dx,clientY:cy+dy},point=s.pick(event)
+    if(!s.picking.pick(event)&&point&&Math.hypot(point.x-target.x,point.z-target.z)<2)ground={x:event.clientX,y:event.clientY}
+   }
+   if(!ground)throw Error('Queued waypoint ground is not visible')
+   return {follower:follower.id,tree:tree.id,treeSize:treeMesh.userData.nativeSize,treePoint,ground}
+  })
+  await page.keyboard.down('Control')
+  await page.mouse.click(queued.treePoint.x,queued.treePoint.y)
+  await page.keyboard.up('Control')
+  assert.deepEqual(await page.evaluate(id=>{
+   const w=window.testScene.world,p=w.units.find(u=>u.id===id).native
+   return {cursor:w.orderCursor,models:p?.commands.filter(Boolean).map(id=>w.buildingOrders.records[id].model)??[]}
+  },queued.follower),{cursor:1,models:[7]})
+  await page.mouse.click(queued.ground.x,queued.ground.y)
+  const records=await page.evaluate(id=>{
+   const w=window.testScene.world,p=w.units.find(u=>u.id===id).native,ids=p.commands.filter(Boolean)
+   return {ids,models:ids.map(id=>w.buildingOrders.records[id].model),flags:ids.map(id=>w.buildingOrders.records[id].flags)}
+  },queued.follower)
+  assert.deepEqual(records.models,[7,3]);assert.equal(records.flags[0],0x84)
+  await page.evaluate(id=>{
+   const s=window.testScene
+   s.gameClock.afterTurn=()=>{
+    window.commandTargetAfterTurn()
+    const w=s.world,u=w.units.find(u=>u.id===id),order=u?.native&&w.buildingOrders.records[u.native.commands[u.native.commandCursor]]
+    if(!window.queuedTimberAdvanced&&u?.cargo===1&&order?.model===3){window.queuedTimberAdvanced=true;w.speed=0}
+   }
+   window.queuedTimberAdvanced=false;s.world.speed=2;s.animate(performance.now())
+  },queued.follower)
+  await page.waitForFunction(()=>window.queuedTimberAdvanced)
+  const advanced=await page.evaluate(({follower,tree})=>{
+   const s=window.testScene,w=s.world,u=w.units.find(u=>u.id===follower),t=w.trees.find(t=>t.id===tree)
+   s.animate(s.previous);cancelAnimationFrame(s.frame)
+   const mesh=s.decorations.children.find(g=>g.userData.point===t)?.children[0]
+   return {cargo:u.cargo,logs:t.logs,size:mesh?.userData.nativeSize,commands:u.native.commands.slice(),cursor:u.native.commandCursor,x:u.x}
+  },queued)
+  assert.equal(advanced.cargo,1);assert.equal(advanced.logs,3);assert.ok(advanced.size<queued.treeSize)
+  assert.equal(advanced.commands[0],0);assert.equal(advanced.commands[1],records.ids[1]);assert.equal(advanced.cursor,1)
+  await page.evaluate(()=>{const s=window.testScene;s.world.speed=2;s.animate(performance.now())})
+  await page.waitForFunction(({id,x})=>window.testScene.world.units.find(u=>u.id===id).x>x+2,{id:queued.follower,x:advanced.x})
+
  }
  assert.deepEqual(errors,[])
- console.log('PASS: actual overlapping person/building/tree commands, combat-interrupted native-timed tree harvesting and plan delivery at desktop and ultrawide sizes')
+ console.log('PASS: actual overlapping targets, direct timber delivery, and queued tree-to-waypoint continuation at desktop and ultrawide sizes')
 } finally {await browser.close()}

@@ -251,12 +251,15 @@
         "tests/player-orders.test.mjs",
         "tests/ground-waypoints.test.mjs",
         "tests/live-movement.test.mjs",
-        "tests/world-movement.test.mjs"
+        "tests/world-movement.test.mjs",
+        "tests/command-context.test.mjs"
       ],
       "cwd": ".",
       "env": [],
       "inputs": [
         "app/live-movement.ts",
+        "app/live-people.ts",
+        "app/model.ts",
         "app/person-orders.ts",
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
@@ -394,6 +397,38 @@
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["May write /private/tmp captures"],
       "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "queued-timber-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise real tree pointer input, native-timed harvesting, visible shrink, and queued waypoint continuation.",
+      "coveredBehavior": [
+        "Exact tree picking",
+        "Ctrl-queued command 7",
+        "Timber transfer",
+        "Visible tree shrink",
+        "Following shared waypoint"
+      ],
+      "knownLimits": ["Does not cover loose-log mode, automatic timber search, or every scenery chain collision."],
+      "executable": "node",
+      "args": ["scripts/check-browser-command-target.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-command-target.mjs",
+        "scripts/browser-game.mjs",
+        "app/live-command.ts",
+        "app/live-movement.ts",
+        "app/live-people.ts",
+        "app/model.ts",
+        "app/scene.ts",
+        "app/scene-picking.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server resources; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

@@ -5,9 +5,11 @@ import cells from './fixtures/command-cells.json' with {type:'json'}
 import feedback from './fixtures/command-feedback.json' with {type:'json'}
 import {chooseContextCommand,commandMarkerPoint} from '../app/command-context.ts'
 import {liveCommandContext} from '../app/live-command.ts'
-import {createWorld,addBuilding,addUnit,browserPosition,syncLandscapeObjects,command,distance,tick} from '../app/model.ts'
+import {createWorld,addBuilding,addUnit,browserPosition,nativePosition,syncLandscapeObjects,command,distance,tick} from '../app/model.ts'
 import {buildingFootprintCells} from '../app/building-shapes.ts'
 import {buildingPose} from '../app/model.ts'
+import {currentPersonOrder} from '../app/person-orders.ts'
+import {advanceGame} from '../app/game-clock.ts'
 
 test('automatic contextual priority matches original single and mixed-class captures',()=>{
  for(const c of priorities.cases)assert.equal(chooseContextCommand(c.flags,c.people),c.model,JSON.stringify(c))
@@ -76,6 +78,41 @@ test('an exact tree click harvests, seeks a timber plan and otherwise returns to
  assert.ok(source.logs<4);assert.equal(resting.tree,null)
  assert.equal(resting.cargo,0);assert.equal(resting.work,null)
  assert.ok(idle.trees.some(t=>t.model===11))
+})
+
+test('a queued ordinary-tree harvest keeps its cargo and advances the existing waypoint',()=>{
+ const run=schedule=>{
+  const w=createWorld();w.units=[];w.buildings=[];w.trees=[];w.shrines=[]
+  w.terrain.fill(3);w.terrainVersion++;w.manaWorld.gameFlags=32
+  const u=addUnit(w,'blue','brave',{x:-12,z:8}),tree={id:w.nextId++,x:-8,z:8,model:1,logs:4}
+  w.trees.push(tree);w.selected=[u.id]
+  assert.equal(command(w,tree,{ctrlKey:true}),true)
+  const p=u.native,treeId=p.commands[0],treeOrder=w.buildingOrders.records[treeId],point=nativePosition(w,tree)
+  assert.deepEqual([treeOrder.model,treeOrder.flags,treeOrder.a,treeOrder.b],[7,0x84,(point.x&0xff00)+128,(point.y&0xff00)+128])
+  assert.equal(command(w,{x:12,z:8}),true)
+  const waypointId=p.commands[1],waypoint=w.buildingOrders.records[waypointId]
+  assert.equal(waypoint.model,3)
+  const history=[]
+  let elapsed=0,index=0,advanced,started
+  const clock={animationTime:0,animationFrame:0,afterTurn:()=>{
+   if(started===undefined&&u.harvest)started=w.turn
+   if(!advanced&&currentPersonOrder(w.buildingOrders,p)===waypoint)
+    advanced={turn:w.turn,harvestTurns:w.turn-started+1,cargo:u.cargo,logs:tree.logs,x:u.x,z:u.z,treeSlot:p.commands[0],waypointSlot:p.commands[1]}
+   history.push([w.turn,u.x,u.z,u.cargo,tree.logs,p.commandCursor,currentPersonOrder(w.buildingOrders,p)?.model??0])
+  }}
+  while(elapsed<20&&!advanced){
+   const dt=Math.min(schedule[index++%schedule.length],20-elapsed)
+   advanceGame(w,clock,dt);elapsed+=dt
+  }
+  assert.ok(advanced)
+  assert.deepEqual(advanced,{turn:advanced.turn,harvestTurns:20,cargo:1,logs:3,x:advanced.x,z:advanced.z,treeSlot:0,waypointSlot:waypointId})
+  const start=advanced.x
+  while(elapsed<24){const dt=Math.min(schedule[index++%schedule.length],24-elapsed);advanceGame(w,clock,dt);elapsed+=dt}
+  assert.ok(u.x>start,'the brave visibly continues toward the queued waypoint')
+  return {history,advanced,treeId,waypointId,random:w.randomState,x:u.x,z:u.z,cargo:u.cargo,logs:tree.logs}
+ }
+ const expected=run([1/60])
+ for(const schedule of [[1/5],[1/30],[1/144],[1/240],[.004,.13,.009,.034]])assert.deepEqual(run(schedule),expected)
 })
 
 test('input feedback matches native ground-cell centers and suppresses flashes over pointed objects',()=>{

@@ -102,7 +102,8 @@
         "computer-attack-native",
         "computer-direct-attack-native",
         "vault-native",
-        "orders-browser"
+        "orders-browser",
+        "queued-timber-browser"
       ],
       "generatedInputIds": ["native-fixtures"],
       "risks": [
@@ -161,7 +162,8 @@
         "construction-native-order",
         "construction-native-fetch",
         "construction-native-timber-search",
-        "construction-browser"
+        "construction-browser",
+        "queued-timber-browser"
       ],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [

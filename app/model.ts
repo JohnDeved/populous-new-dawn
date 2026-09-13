@@ -2451,10 +2451,12 @@ export function command(
     [6, 8, 10].includes(model) &&
     context.building &&
     ['hut', 'camp', 'tower', 'temple'].includes(context.building.kind)
+  const queuedTree =
+    model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
   if (
     model === 19 ||
     model === 33 ||
-    ((model === 3 || model === 27 || model === 28 || queuedBuilding) &&
+    ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {
     const slot = w.orderCursor
@@ -2482,7 +2484,7 @@ export function command(
         active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
       if (
         ![17, 31, 32].includes(active) &&
-        (!slot || !person || ![3, 6, 8, 10, 19, 27, 28].includes(active))
+        (!slot || !person || ![3, 6, 7, 8, 10, 19, 27, 28].includes(active))
       ) {
         release(w, u, model === 33)
         if (model === 33 && person) u.native = person
@@ -2493,7 +2495,11 @@ export function command(
     writePersonOrder(
       order,
       model,
-      model === 19 ? 0 : (context.person?.id ?? context.building?.id ?? context.shrine?.id ?? 0),
+      model === 19
+        ? 0
+        : model === 7
+          ? 1
+          : (context.person?.id ?? context.building?.id ?? context.shrine?.id ?? 0),
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )
@@ -4465,18 +4471,18 @@ function directTimberDestination(w: World, u: Unit) {
 }
 
 // Hut upgrades retain the existing loose-log delivery adapter.
-function harvestAssignedTree(w: World, u: Unit, destination?: Point) {
-  if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return
+function harvestAssignedTree(w: World, u: Unit, destination?: Point, queued = false) {
+  if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return false
   const tree = w.trees.find(t => t.id === u.tree)
   if (!tree) {
     u.tree = null
     u.harvest = undefined
-    return
+    return true
   }
-  if (u.path.length) return
+  if (u.path.length) return false
   if (distance(u, tree) >= 1) {
     route(w, u, tree)
-    return
+    return false
   }
   if (!u.harvest) {
     u.harvest = startTimberHarvest(2, tree.model)
@@ -4484,7 +4490,7 @@ function harvestAssignedTree(w: World, u: Unit, destination?: Point) {
   }
   if (!stepTimberHarvest(u.harvest)) {
     if (tree.model === 11) sound(w, 10, u)
-    return
+    return false
   }
   const wood = timberTransfer(
     Math.round(tree.logs * 100),
@@ -4501,11 +4507,33 @@ function harvestAssignedTree(w: World, u: Unit, destination?: Point) {
   if (destination) route(w, u, destination)
   else {
     u.tree = null
+    if (queued) return true
     const building = directTimberDestination(w, u)
     if (building && route(w, u, entrance(w, building)).length) {
       u.delivery = { target: building.id }
     }
   }
+  return true
+}
+
+function stepQueuedTreeOrder(w: World, u: Unit, order: { a: number; b: number }) {
+  if (u.cargo) return 1
+  if (u.tree === null) {
+    // Native command 7 stores the coarse-cell center, then resolves scenery later.
+    const tree = w.trees.findLast(t => {
+      const point = nativePosition(w, t)
+      return (
+        t.logs > 0 &&
+        t.model >= 1 &&
+        t.model <= 6 &&
+        (point.x & 0xff00) + 128 === order.a &&
+        (point.y & 0xff00) + 128 === order.b
+      )
+    })
+    if (!tree) return 1
+    u.tree = tree.id
+  }
+  return Number(harvestAssignedTree(w, u, undefined, true))
 }
 
 function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
@@ -4909,7 +4937,13 @@ function stepTurn(w: World) {
   w.shots.blast = w.manaWorld.spells[0].stocks[2] & 15
   w.mana = w.manaTribes[0].spellProgress[2] / 1000
   for (const u of w.units)
-    if (u.work === null && u.inside === null && u.hp > 0 && u.kind === 'brave')
+    if (
+      u.work === null &&
+      u.inside === null &&
+      u.hp > 0 &&
+      u.kind === 'brave' &&
+      (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 7)
+    )
       harvestAssignedTree(w, u)
   for (const b of w.buildings) {
     if (b.hp <= 0) continue
@@ -5244,10 +5278,11 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      ([3, 6, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+      ([3, 6, 7, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
       stepLiveMovement(w, u, {
+        7: order => stepQueuedTreeOrder(w, u, order),
         28: order => {
           const enemy = w.units.find(
             target =>
