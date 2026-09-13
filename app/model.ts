@@ -1555,7 +1555,6 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
   return true
 }
 // Shared browser target adapter: cursor feedback and click rejection must agree.
-// Native person flags and complete globe targeting are still being integrated.
 export function spellTargetError(w: World, spell: Spell, p: Point) {
   const spec = SPELLS.find(s => s.id === spell),
     shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
@@ -1573,8 +1572,6 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
     return { code: -1, message: 'Your shaman must finish her current action.' }
   if (!spellInRange(w, shaman, spec.model, p))
     return { code: -2, message: 'Beyond your reach. Move your shaman closer.' }
-  if (Math.abs(p.x) > 45 || Math.abs(p.z) > 45)
-    return { code: -3, message: 'Choose a target within the world.' }
   if (spell === 'bridge' && (!walkable(w.terrain, p) || !walkable(w.terrain, shaman)))
     return {
       code: -3,

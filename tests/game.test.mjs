@@ -1590,7 +1590,7 @@ test('native casting lockout survives animation and computer usage recovers one 
 });
 
 test('spell targeting preserves native cell allowances and wrapped coordinate seams', async () => {
- const {spellInRange}=await import('../app/model.ts');
+ const {spellInRange,spellTargetError}=await import('../app/model.ts');
  const {validateSpellTarget,createTribeCasting,filterSpellEntries}=await import('../app/spell-casting.ts');
  const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),target=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
  w.terrain.fill(3);w.terrainVersion++;w.inputMask=0;w.ai.variables[57]=1;
@@ -1600,6 +1600,11 @@ test('spell targeting preserves native cell allowances and wrapped coordinate se
  for(const e of w.ai.spellEntries)e.people=1;
  tick(w,1/12);assert.equal(w.spellCasts[1][2],1,'target cell is eligible beyond the old truncated-radius distance');
  Object.assign(red,{x:124,z:0});assert.ok(spellInRange(w,red,2,{x:-124,z:0}),'position range wraps at the 256-unit world seam');
+ const player=createWorld(),shaman=player.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ player.manaWorld.gameFlags=32;player.shots.blast=1;Object.assign(shaman,{x:0,z:46});
+ assert.ok(nativePosition(player,{x:1,z:46}).h>0,'the out-of-crop target is original dry land');
+ assert.equal(spellTargetError(player,'blast',{x:1,z:46}),null,'native world land beyond the old browser crop remains targetable');
+ assert.ok(cast(player,'blast',{x:1,z:46}));
  const state=createTribeCasting(false),caster={x:0,y:0,height:256,flags2:0,flags4:0x2000000,state:0,landIndex:1,building:null,casting:state,playerType:2},events=[];
  const effects={cursorBlocked:()=>false,bridgeStart:()=>({x:0,y:0}),notify:(...args)=>events.push(args)};
  assert.equal(validateSpellTarget(0,0,{x:0,y:0},caster,12,{x:0,y:0},2,false,true,effects),-3);

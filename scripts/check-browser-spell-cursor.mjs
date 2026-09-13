@@ -49,9 +49,12 @@ try{
  const old=await page.evaluate(()=>({...window.testScene.pointer}));await page.keyboard.down('q');await page.waitForTimeout(250);await page.keyboard.up('q');
  assert.ok(await page.evaluate(old=>{const p=window.testScene.pointer;return p&&Math.hypot(p.x-old.x,p.z-old.z)>.1;},old));
  await page.mouse.move(100,500);await page.waitForFunction(()=>document.querySelector('.spell-pointer').hidden&&window.testScene.pointer===null);
- await page.keyboard.press('Escape');await page.keyboard.press('1');await move(near);await expect(['point41']);
- const position=await move(near);await page.mouse.click(position.x,position.y);await page.waitForFunction(()=>window.testScene.world.mode===null&&document.querySelector('.spell-pointer').hidden);
- assert.equal(await page.evaluate(()=>window.testScene.world.shots.blast),before-1);
+ await page.keyboard.press('Escape');
+ await page.evaluate(()=>{const s=window.testScene,u=s.world.units.find(u=>u.team==='blue'&&u.kind==='shaman');Object.assign(u,{x:0,z:46});s.focus({x:1,z:46});s.onChange();});
+ const edge={x:1,z:46};await page.keyboard.press('1');await move(edge);await expect(['point41']);
+ assert.ok(await page.evaluate(edge=>window.testScene.y(edge)>0,edge),'out-of-crop browser target is dry land');
+ const position=await move(edge),edgeBefore=await page.evaluate(()=>window.testScene.world.shots.blast);await page.mouse.click(position.x,position.y);await page.waitForFunction(()=>window.testScene.world.mode===null&&document.querySelector('.spell-pointer').hidden);
+ assert.equal(await page.evaluate(()=>window.testScene.world.shots.blast),edgeBefore-1);
  assert.equal(await page.evaluate(()=>window.testScene.world.stats.cast),1);
- assert.deepEqual(errors,[]);console.log('PASS: original spell cursor artwork/offsets, all three spells, range frames, no stock, wet shore, busy shaman, stationary camera targeting, HUD leave, rejected and successful real clicks; no browser errors');
+ assert.deepEqual(errors,[]);console.log('PASS: original spell cursor artwork/offsets, all three spells, range frames, no stock, wet shore, busy shaman, stationary camera targeting, HUD leave, rejected and full-world successful real clicks; no browser errors');
 }finally{await browser.close();}
