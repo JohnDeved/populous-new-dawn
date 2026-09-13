@@ -148,6 +148,7 @@ import { createErosion, stepErosion, type Erosion } from './erosion.ts'
 import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
 import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
+import { createVolcano, stepVolcano, type Volcano } from './volcano.ts'
 import {
   createTornado,
   stepTornado,
@@ -187,6 +188,7 @@ import {
   stepLiveImpulse,
   registerLivePerson,
   changeLivePersonState,
+  disturbLiveVolcanoPerson,
   startMeleeKnockback,
   approachLiveMelee,
   stepLiveMeleeMotion,
@@ -368,6 +370,7 @@ export type Spell =
   | 'swamp'
   | 'firestorm'
   | 'earthquake'
+  | 'volcano'
   | 'tornado'
   | 'shield'
   | 'invisibility'
@@ -557,6 +560,7 @@ export type Effect = Point & {
   swamp?: Swamp
   firestorm?: Firestorm
   earthquake?: Earthquake
+  volcano?: Volcano
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
@@ -658,6 +662,16 @@ export const SPELLS: {
     symbol: '≋',
     color: '#9b755c',
     description: 'Tears open the ground and damages buildings across the fault.',
+  },
+  {
+    id: 'volcano',
+    model: 16,
+    name: 'Volcano',
+    cost: 800,
+    key: '',
+    symbol: '▲',
+    color: '#c95632',
+    description: 'Raises a volcano that destroys nearby buildings and reshapes the land.',
   },
   {
     id: 'tornado',
@@ -1902,6 +1916,7 @@ export function createWorld(): World {
       swamp: 0,
       firestorm: 0,
       earthquake: 0,
+      volcano: 0,
       tornado: 0,
       shield: 0,
       invisibility: 0,
@@ -2006,6 +2021,7 @@ export function createWorld(): World {
       swamp: 0,
       firestorm: 0,
       earthquake: 0,
+      volcano: 0,
       tornado: 0,
       shield: 0,
       invisibility: 0,
@@ -3142,6 +3158,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           swamp: 0x7f,
           firestorm: 0x7c,
           earthquake: 0x82,
+          volcano: 0x84,
           tornado: 0x78,
           shield: 0x87,
           invisibility: 0x7a,
@@ -3156,6 +3173,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           swamp: 0x95,
           firestorm: 0x92,
           earthquake: 0x98,
+          volcano: 0x9a,
           tornado: 0x8e,
           shield: 0x9d,
           invisibility: 0x90,
@@ -4494,6 +4512,7 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'swamp' ||
             spell === 'firestorm' ||
             spell === 'earthquake' ||
+            spell === 'volcano' ||
             spell === 'tornado' ||
             spell === 'shield' ||
             spell === 'invisibility' ||
@@ -4583,7 +4602,7 @@ const terrainTextures = { surface: () => {}, globe: () => {} }
 // ponytail: construction/deformation still write the cropped browser grid.
 // Feed its native vertices through the recovered queue until those producers
 // write the full native map directly; interpolated browser vertices are ignored.
-function notifyHeightChanges(w: World, cells: Iterable<number>, radius: number) {
+function notifyHeightChanges(w: World, changes: Iterable<{ cell: number; radius: number }>) {
   // Notifications only mark dirty state; positions stay fixed throughout this batch.
   // Index once per terrain edit, including edits that change thousands of cells.
   const objects = new Map<number, number[]>()
@@ -4597,7 +4616,7 @@ function notifyHeightChanges(w: World, cells: Iterable<number>, radius: number) 
   w.units.filter(u => u.hp > 0 && u.inside === null).forEach(add)
   w.trees.filter(t => t.logs > 0).forEach(add)
   w.effects.forEach(add)
-  for (const cell of cells) {
+  for (const { cell, radius } of changes) {
     notifyTerrainObjects(
       w.land,
       cell,
@@ -4642,7 +4661,11 @@ function syncNativeTerrain(w: World) {
   // Height notifications may query positions; all native heights are current now.
   w.landVersion = w.terrainVersion
   for (const cell of changed) updateWalkMasks(w.land, cell, 1)
-  if (changed.length) notifyHeightChanges(w, changed, 1)
+  if (changed.length)
+    notifyHeightChanges(
+      w,
+      changed.map(cell => ({ cell, radius: 1 }))
+    )
 }
 function refreshTribeTerritory(w: World, id: number) {
   const team = id === 0 ? 'blue' : id === 1 ? 'red' : null
@@ -4798,7 +4821,7 @@ function changedBuildingGround(w: World, index: number) {
   queueTerrain(w.land, cell, 2, 1, terrainTextures)
   processTerrain(w.land, terrainTextures)
   updateWalkMasks(w.land, cell, 3)
-  notifyHeightChanges(w, [cell], 1)
+  notifyHeightChanges(w, [{ cell, radius: 1 }])
   refreshTerrainSurface(w)
 }
 
@@ -5914,6 +5937,10 @@ function finishCast(
       fx.earthquake = createEarthquake(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1, w)
       fx.team = shaman.team
       fx.duration = Infinity
+    } else if (spell === 'volcano') {
+      fx.volcano = createVolcano(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
+      fx.team = shaman.team
+      fx.duration = Infinity
     } else if (spell === 'tornado') {
       fx.tornado = createTornado(
         w.land,
@@ -6378,7 +6405,7 @@ function stepTurn(w: World) {
   // New class-7 effects are inserted before the current native list cursor;
   // their first processor visit belongs to the following simulation turn.
   const effectCount = w.effects.length,
-    terrainCenters: number[] = []
+    terrainCenters: { cell: number; radius: number }[] = []
   // Native allocated-object order is newest first; terrain and RNG effects are noncommutative.
   for (let index = effectCount - 1; index >= 0; index--) {
     const fx = w.effects[index]
@@ -6435,7 +6462,7 @@ function stepTurn(w: World) {
         },
         terrain: cell => {
           queueTerrain(w.land, cell, 6, 1, terrainTextures)
-          terrainCenters.push(cell)
+          terrainCenters.push({ cell, radius: 6 })
         },
       })
       if (!alive) fx.duration = fx.age
@@ -6445,7 +6472,7 @@ function stepTurn(w: World) {
         sound: () => sound(w, 0xa9, fx),
         terrain: cell => {
           queueTerrain(w.land, cell, 6, 1, terrainTextures)
-          terrainCenters.push(cell)
+          terrainCenters.push({ cell, radius: 6 })
         },
       })
       if (!alive) fx.duration = fx.age
@@ -6472,8 +6499,64 @@ function stepTurn(w: World) {
           queueTerrain(w.land, anchor, radius, 1, terrainTextures)
           processTerrain(w.land, terrainTextures)
           updateWalkMasks(w.land, anchor, radius)
-          notifyHeightChanges(w, [anchor], radius)
+          notifyHeightChanges(w, [{ cell: anchor, radius }])
           refreshTerrainSurface(w)
+        },
+      })
+      if (!alive) fx.duration = fx.age
+    }
+    if (fx.volcano) {
+      const cellOf = (p: Point) => {
+        const position = nativePosition(w, p)
+        return ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+      }
+      const visible = (position: NativePoint, turns = 4) => {
+        const spark = emitGroundSpark(w, position)
+        spark.remaining = turns
+        w.effects.at(-1)!.team = fx.team
+      }
+      // ponytail: reuse live fire/trail effects until the downstream native
+      // rock, fireball, lava-gloop and camera-shake controllers are recovered.
+      const alive = stepVolcano(w.land, fx.volcano, w, {
+        sound: cue => sound(w, cue, fx),
+        shake: () => {},
+        people: cell => w.units.filter(u => u.hp > 0 && u.inside === null && cellOf(u) === cell),
+        exempt: u => u.kind === 'shaman' && u.team === fx.team,
+        disturb: (u, tribe) => disturbLiveVolcanoPerson(w, u, tribe),
+        buildings: cell =>
+          w.buildings.filter(
+            b => b.hp > 0 && !b.preparation && b.damageState?.state !== 3 && cellOf(b) === cell
+          ),
+        collapse: b => {
+          const state = ensureBuildingDamage(b)
+          state.flags2 |= 0x40000000
+          if (state.flags2 & 0x100000) return
+          state.state = 3
+          state.flags2 |= 0x100000
+          b.terrainState = { flooded: 0, delay: 2, reason: 1, dirty: false }
+        },
+        rock: position => visible(position, 8),
+        fireball: (position, large) =>
+          createFire(w, browserPosition(position), {
+            size: large ? 32 : 16,
+            snap: false,
+            smoke: false,
+            turns: large ? 30 : 18,
+          }),
+        gloop: position => visible(position, 6),
+        burst: position => {
+          createFire(w, browserPosition(position), {
+            size: 32,
+            snap: false,
+            smoke: true,
+            turns: 38,
+            light: true,
+          })
+          visible(position, 10)
+        },
+        terrain: (cell, radius) => {
+          queueTerrain(w.land, cell, radius, 1, terrainTextures)
+          terrainCenters.push({ cell, radius })
         },
       })
       if (!alive) fx.duration = fx.age
@@ -6555,7 +6638,10 @@ function stepTurn(w: World) {
       if (changed.size) {
         processTerrain(w.land, terrainTextures)
         for (const cell of changed) updateWalkMasks(w.land, cell, 3)
-        notifyHeightChanges(w, changed, 2)
+        notifyHeightChanges(
+          w,
+          Array.from(changed, cell => ({ cell, radius: 2 }))
+        )
         refreshTerrainSurface(w)
       }
       if (!alive) fx.duration = fx.age
@@ -6563,8 +6649,8 @@ function stepTurn(w: World) {
   }
   if (terrainCenters.length) {
     processTerrain(w.land, terrainTextures)
-    for (const cell of terrainCenters) updateWalkMasks(w.land, cell, 6)
-    notifyHeightChanges(w, terrainCenters, 6)
+    for (const { cell, radius } of terrainCenters) updateWalkMasks(w.land, cell, radius)
+    notifyHeightChanges(w, terrainCenters)
     refreshTerrainSurface(w)
   }
   w.effects = w.effects.filter(f => f.age < f.duration)
@@ -6767,7 +6853,7 @@ function stepTurn(w: World) {
       continue
     }
     u.cooldown = Math.max(0, u.cooldown - dt)
-    if (u.native?.state === 41 || u.native?.state === 26) {
+    if (u.native?.state === 41 || u.native?.state === 26 || u.native?.state === 31) {
       stepLivePerson(w, u)
       continue
     }

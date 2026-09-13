@@ -2210,7 +2210,8 @@ export class GameScene {
       }
       return g
     }
-    if (f.wave || f.bridge || f.flatten || f.erosion || f.firestorm || f.earthquake) return g
+    if (f.wave || f.bridge || f.flatten || f.erosion || f.firestorm || f.earthquake || f.volcano)
+      return g
     if (f.sinking) {
       const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
       mesh.name = 'sinking-building'
@@ -2367,7 +2368,16 @@ export class GameScene {
       }
       return
     }
-    if (f.wave || f.bridge || f.flatten || f.erosion || f.swamp || f.firestorm || f.earthquake)
+    if (
+      f.wave ||
+      f.bridge ||
+      f.flatten ||
+      f.erosion ||
+      f.swamp ||
+      f.firestorm ||
+      f.earthquake ||
+      f.volcano
+    )
       return
     if (f.sinking) {
       g.userData.nativeHeading = f.sinking.angle

@@ -38,8 +38,13 @@ import {
   stepElectrocution,
   type StatefulPerson,
 } from './person-state.ts'
-import { damagePerson, preparePersonTurn, stepPersonReaction } from './person-update.ts'
-import { stepPersonPanic, ignitePeopleInFireCell } from './person-panic.ts'
+import {
+  consumePersonDisruption,
+  damagePerson,
+  preparePersonTurn,
+  stepPersonReaction,
+} from './person-update.ts'
+import { stepPersonPanic, stepVolcanoPanic, ignitePeopleInFireCell } from './person-panic.ts'
 import { strikeLightning } from './lightning.ts'
 import { stepPersonOrders } from './person-order-update.ts'
 import {
@@ -492,6 +497,29 @@ export function initializeLivePanic(
   w.randomState = ctx.state.randomState
 }
 
+export function disturbLiveVolcanoPerson(w: World, u: Unit, tribe: number, p?: LivePerson) {
+  p ??=
+    u.flight ??
+    u.fight?.motion ??
+    u.native ??
+    u.entry?.person ??
+    u.builder?.person ??
+    createLivePerson(w, u)
+  p.flags2 |= 8
+  p.damageAttacker = tribe
+  consumePersonDisruption(p, () => {
+    releaseTasks(w, u)
+    u.flight = undefined
+    u.native = p
+    const ctx = context(w)
+    initializeLivePerson(w, u, ctx, p)
+    w.randomState = ctx.state.randomState
+    w.selected = w.selected.filter(id => id !== u.id)
+    if (p.flags4 & 0x800) p.life = u.hp = 0
+  })
+  if (u.hp > 0 && p.state === 31) u.burnTrail = p.burnTrail = 4
+}
+
 export function strikeLiveLightning(w: World, point: { x: number; y: number }, tribe: number) {
   const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
   const units = new Map<number, Unit>()
@@ -903,6 +931,25 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
   }
 }
 
+function updateLiveVolcanoPanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: LivePerson) {
+  const next = stepVolcanoPanic(ctx.state, p, w.manaWorld.gameFlags, w.levelFlags2, {
+    sound: () => {
+      p.flags4 = (p.flags4 | 16) >>> 0
+      sound(w, 0x51, u, u.id)
+    },
+    release: () => releasePersonRoute(w.motionRoutes, p),
+    outside: point => {
+      const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+      if (!(w.land.flags[cell] & 512)) return point
+      const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+      return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
+    },
+  })
+  u.burnTrail = p.burnTrail
+  u.hp = p.life / 20
+  if (next && !(p.flags2 & 0x100000)) changeLivePersonState(w, u, next)
+}
+
 // Ground motion is shared by panic, celebration and staged building entry.
 export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
   registerLivePerson(w, p)
@@ -966,6 +1013,8 @@ export function stepLivePerson(w: World, u: Unit) {
   if (p.state === 41) stepCelebration(state, p, effects)
   else if (p.state === 26) {
     updateLivePanic(w, u, ctx, p)
+  } else if (p.state === 31) {
+    updateLiveVolcanoPanic(w, u, ctx, p)
   } else if (p.state === 10) {
     // Victory followers can resume through an empty order queue. Ordinary live
     // command/vehicle ownership and the remaining state dispatcher are pending.

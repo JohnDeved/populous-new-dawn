@@ -23,6 +23,20 @@ type HealthPerson = StatefulPerson & {
 type Ground = Pick<NativeTerrain, 'heights' | 'flags' | 'categories'>
 const short = (n: number) => (n << 16) >> 16
 
+export function consumePersonDisruption(
+  p: Pick<StatefulPerson, 'flags2' | 'previousState' | 'state'>,
+  initialize: () => void
+) {
+  const flags = p.flags2
+  if (!(flags & 8)) return
+  p.flags2 = (flags & ~8) >>> 0
+  if (p.state !== 31 && !(flags & 0x100000)) {
+    p.previousState = p.state
+    p.state = 31
+    initialize()
+  }
+}
+
 // Complete 0x4eefd0: terrain/impulse interruption cancels steering recovery.
 export function resetInterruptedPersonMotion(p: StatefulPerson) {
   if (p.flags2 & 0x482004) resetPersonMotion(p)
@@ -145,10 +159,7 @@ export function updatePersonHealth(
     else p.healthMarker = 255
     p.flags3 = (p.maxLife >> 2 < p.life ? p.flags3 & ~0x1000 : p.flags3 | 0x1000) >>> 0
   }
-  if (flags & 8) {
-    p.flags2 = (flags & ~8) >>> 0
-    if (p.state !== 31 && !(flags & 0x100000)) transition(31)
-  }
+  consumePersonDisruption(p, initialize)
 }
 
 // 0x4da080: shields reduce damage before signed-short life storage.

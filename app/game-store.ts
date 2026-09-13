@@ -19,6 +19,8 @@ export function migrateCheckpoint(world: World) {
   world.giftCounts.swarm ??= 0
   world.shots.invisibility ??= 0
   world.giftCounts.invisibility ??= 0
+  world.shots.volcano ??= 0
+  world.giftCounts.volcano ??= 0
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
   if (!gifts.some(gift => gift.kind !== 'gift')) return world
   world.gifts = []

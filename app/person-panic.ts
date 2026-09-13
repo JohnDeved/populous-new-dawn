@@ -9,7 +9,7 @@ interface Point {
   h: number
 }
 type PanickingPerson = StatefulPerson &
-  Point & { anchorX: number; anchorY: number; anchorFlags: number }
+  Point & { anchorX: number; anchorY: number; anchorFlags: number; counter: number }
 
 // State 26 in 0x4d32b0 (switch case 25). Shared person physics runs first.
 export function stepPersonPanic(
@@ -23,6 +23,31 @@ export function stepPersonPanic(
   const next = defaultPersonState(p, gameFlags)
   setPersonAnchor(p, effects.outside({ x: p.x, y: p.y, h: p.h }))
   return next
+}
+
+// 0x4d9080: state 31, entered after Volcano's buried-person flag is consumed.
+export function stepVolcanoPanic(
+  w: { randomState: number },
+  p: PanickingPerson & { burnTrail: number; life: number },
+  gameFlags: number,
+  levelFlags2: number,
+  effects: { sound: () => void; release: () => void; outside: (point: Point) => Point }
+) {
+  if (!(p.counter & 7)) {
+    effects.release()
+    p.flags2 = (p.flags2 | 0x1080) >>> 0
+    p.turnAngle = random(w) & 2047
+  }
+  p.burnTrail = 4
+  if (!(p.flags4 & 16)) effects.sound()
+  let damage = [0, 1, 43, 56, 43, 43, 37, 28, 312][p.model]
+  if (damage === undefined) throw new RangeError(`Unsupported native person model ${p.model}`)
+  if (p.flags3 & 0x80000) damage >>= rules.shieldDamageShift & 31
+  if (!(levelFlags2 & 0x04000000)) p.life = ((p.life - damage) << 16) >> 16
+  p.timer = ((p.timer - 1) << 16) >> 16
+  if (p.timer >= 0) return 0
+  setPersonAnchor(p, effects.outside({ x: p.x, y: p.y, h: p.h }))
+  return defaultPersonState(p, gameFlags)
 }
 
 // Complete 0x4d9200, called only while the person's unsigned +0xa4 is nonzero.
