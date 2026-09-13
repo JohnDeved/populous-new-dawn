@@ -1,3 +1,36 @@
+import type {
+  Team,
+  BuildingKind,
+  Spell,
+  Point,
+  Fight,
+  NativePoint,
+  Projectile,
+  Battle,
+  Unit,
+  Building,
+  Shrine,
+  Tree,
+  SoundEvent,
+  Effect,
+  Gift,
+  World,
+} from './world-types.ts'
+export type {
+  Team,
+  BuildingKind,
+  Spell,
+  Point,
+  Projectile,
+  Unit,
+  Building,
+  Shrine,
+  Tree,
+  SoundEvent,
+  Effect,
+  Gift,
+  World,
+} from './world-types.ts'
 import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipOrder, worshipHeadPose } from './live-worship.ts'
 import {
@@ -365,228 +398,8 @@ import rules from './original-rules.json' with { type: 'json' }
 import { unitKindFromModel, type UnitKind } from './unit-kinds.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
-export type Team = 'blue' | 'red' | 'wild'
 export type { UnitKind } from './unit-kinds.ts'
-export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
-export type Spell =
-  | 'blast'
-  | 'convertWild'
-  | 'hypnotise'
-  | 'ghostArmy'
-  | 'lightning'
-  | 'bridge'
-  | 'flatten'
-  | 'erosion'
-  | 'swamp'
-  | 'firestorm'
-  | 'earthquake'
-  | 'volcano'
-  | 'tornado'
-  | 'shield'
-  | 'invisibility'
-  | 'swarm'
-export type Point = { x: number; z: number }
-type Fight = {
-  group: number
-  opponent: number
-  action: 'encounter' | 'approach' | 'ready' | 'attack' | 'strike' | 'special' | 'recoil' | 'push'
-  started: number
-  remaining?: number
-  animation?: MeleeAttack | 'recoil' | 'walk' | 'idle'
-  knockback?: boolean
-  motion?: LivePerson
-}
-type NativePoint = { x: number; y: number; h: number }
-export type Projectile = {
-  id: number
-  spell: Spell
-  team: Team
-  caster: number
-  target: Point
-  source: Point
-  position: NativePoint
-  destination: NativePoint
-  origin: NativePoint
-  phase: 'windup' | 'flying' | 'arrived'
-  remaining: number
-  turns: number
-  visuals: Effect[]
-  fireball?: boolean
-}
-type Battle = Point & {
-  id: number
-  members: number[]
-  angle: number
-  encounter?: [number, number]
-  encounterBuilding?: number
-  slots?: number[]
-  tribes?: number[]
-  center?: number
-  winner?: number
-  attackReservation?: AttackReservation
-}
-export type Unit = Point & {
-  attackReservation?: AttackReservation
-  supportHeight?: number
-  entry?: BuildingEntry
-  native: LivePerson | null
-  burnTrail?: number
-  flight?: LivePerson
-  vault: VaultTask | null
-  id: number
-  team: Team
-  kind: UnitKind
-  hp: number
-  path: Point[]
-  target: number | null
-  cooldown: number
-  work: number | null
-  inside: number | null
-  cargo: number
-  tree: number | null
-  harvest?: { remaining: number }
-  delivery?: { target: number }
-  builder?: Builder & { person?: LivePerson }
-  timer: number
-  guard: boolean
-  lift: number
-  idleTurns: number
-  heading: number
-  fighting: boolean
-  fight: Fight | null
-  casting: { spell: Spell; point: Point; remaining: number } | null
-  shield?: number
-  invisibility?: number
-  hypnotise?: { originalTeam: Team; remaining: number; counter: number }
-  ghost?: boolean
-}
 export const isShaman = (u: Pick<Unit, 'kind' | 'ghost'>) => u.kind === 'shaman' && !u.ghost
-export type Building = Point & {
-  attackReservation?: AttackReservation
-  admission?: BuildingAdmission
-  dismantled?: boolean
-  id: number
-  anchor?: { x: number; y: number }
-  object?: number
-  team: Team
-  kind: BuildingKind
-  hp: number
-  progress: number
-  timer: number
-  foundation: number
-  level: number
-  logs: number
-  upgrade: number
-  upgrading: boolean
-  angle: number
-  counter: number
-  preparation?: UnbuiltPlan & { height: number; alternateHeight: number; work: number }
-  builders?: number[]
-  birthPending?: boolean
-  woodUnavailable?: boolean
-  timberSearch?: number
-  damageState:
-    | (DamageBuilding & {
-        plan: BuildingPlan
-        renderFlags: number
-        tilt: number
-        roll: number
-        remaining: number
-      })
-    | null
-  burn?: BuildingBurn
-  attackTaskMember?: number
-  terrainState?: BuildingTerrain & { dirty: boolean }
-  shake?: number
-  shakeOrigin?: number
-}
-export type Shrine = Point &
-  WorshipState & {
-    id: number
-    kind: 'bridge' | 'lightning' | 'vault'
-    nextSlot: number
-    slotTimer: number
-    range: number
-    followers: number
-    name: string
-    progress: number
-    duration: number
-    uses: number
-    forced: boolean
-    model: number
-    morph: ModelMorph | null
-    angle: number
-  }
-export type Tree = Point & {
-  id: number
-  logs: number
-  model: number
-  burn?: BurningTree
-  counter?: number
-  growth?: number
-  shake?: number
-  shakeOrigin?: number
-}
-export type SoundEvent = Point & {
-  serial: number
-  cue: number
-  turn: number
-  owner?: number
-  stop?: boolean
-}
-export type Effect = Point & {
-  id: number
-  team?: Team
-  kind:
-    | Spell
-    | 'birth'
-    | 'hit'
-    | 'death'
-    | 'splash'
-    | 'trail'
-    | 'buildingSmoke'
-    | 'debris'
-    | 'fire'
-    | 'sinking'
-    | 'blastWave'
-    | 'orderMarker'
-    | 'reincarnation'
-    | 'gift'
-  height?: number
-  sprite?: { sequence: string; frame: number; fixed?: boolean }
-  animation?: AnimatedUnit | SpellTrail
-  lightning?: Lightning
-  smoke?: BuildingSmoke
-  debris?: BuildingDebris
-  fire?: SceneryFire
-  sinking?: SinkingBuilding & { stage: number }
-  wave?: BlastWave
-  turnsRemaining?: number
-  groundVersion?: number
-  age: number
-  duration: number
-  unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
-  corpse?: { remaining: number; phase: number; ground: number }
-  bridge?: LandBridge
-  flatten?: Flatten
-  erosion?: Erosion
-  swamp?: Swamp
-  firestorm?: Firestorm
-  earthquake?: Earthquake
-  volcano?: Volcano
-  convertWild?: ConvertWild
-  ghostArmy?: true
-  tornado?: Tornado
-  swarm?: { tribe: number; remaining: number; applied: boolean }
-  reincarnation?: { team: Team; phase: number; ground: number }
-}
-export type Gift = Effect & {
-  kind: 'gift'
-  reward: Shrine['kind']
-  remaining: number
-  phase: number
-  frame: number
-}
 export const TURNS_PER_SECOND = 12
 export const SPELLS: {
   id: Spell
@@ -1701,101 +1514,6 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
   return findLivePath(w, start, end)
-}
-export type World = {
-  objectCells: ObjectCells
-  marching: LiveFormation[]
-  combatMarches: CombatMarch[]
-  lastOrderTurn: number
-  buildingOrders: OrderPool
-  motionRoutes: MotionRoutes
-  pathfinding: ReturnType<typeof createLivePathfinding>
-  timberSearches: ReturnType<typeof createTimberSearches>
-  ai: ScriptState &
-    ComputerQueue & {
-      states: number
-      flags: number
-      enemyTribe: number
-      defencePosition: number
-      defenceRadius: number
-      spellEntries: { model: number; mana: number; range: number; people: number; mode: number }[]
-      reincarnation: boolean
-      includeIncompleteBuildings: boolean
-      pendingCommands: { opcode: number; args: number[] }[]
-      trainingSelections: number[][]
-    }
-  messages: MessageState
-  flyby: Flyby
-  inputMask: number
-  lastMessage: number
-  spellCasts: number[][]
-  killCredits: number[][]
-  gifts: Gift[]
-  giftCounts: Record<Spell, number>
-  land: NativeTerrain & Territory
-  landVersion: number
-  lights: TerrainLights
-  lightView: { x: number; y: number }
-  lightRevision: number
-  buildingFootprints: Map<number, RegisteredBuilding & { plan: boolean }>
-  sceneryShadows: Map<number, SceneryShapePose>
-  spellScan: SpellTargetScan
-  castingTribes: TribeCasting[]
-  manaWorld: ManaWorld
-  manaTribes: (ManaTribe & TribeTurnState)[]
-  routeNotice: { flags: 0x200000; message: 603; serial: number } | null
-  tribeCount: number
-  levelFlags2: number
-  outcome: Omit<OutcomeWorld, 'turn' | 'landFlags' | 'playerTribe'> & {
-    cameraTribe: number | null
-    cameraRequest: number
-    cameraPlaying: boolean
-    completedLevel: number | null
-    skyCounter: number
-  }
-  terrain: number[]
-  terrainVersion: number
-  units: Unit[]
-  buildings: Building[]
-  effects: Effect[]
-  projectiles: Projectile[]
-  shrines: Shrine[]
-  trees: Tree[]
-  replants: Replant[]
-  indexedSearch: Uint8Array
-  fights: Battle[]
-  sounds: SoundEvent[]
-  soundSerial: number
-  mana: number
-  wood: number
-  shots: Record<Spell, number>
-  charging: boolean
-  unlockedCamp: boolean
-  time: number
-  turn: number
-  attackAlert: number
-  attackCell: number
-  musicActivity: number
-  pendingTime: number
-  randomState: number
-  cosmeticRandom: { randomState: number }
-  effectCounter: number
-  nextId: number
-  footprints: Footprints
-  selected: number[]
-  orderCursor: number
-  mode: Spell | BuildingKind | null
-  buildingDirections: Record<BuildingKind, number>
-  paused: boolean
-  speed: number
-  message: string
-  messageUntil: number
-  status: 'playing' | 'won' | 'lost'
-  respawn: number
-  redRespawn: number
-  respawnPoint?: Point
-  redRespawnPoint?: Point
-  stats: { built: number; cast: number; bridges: number; trained: number; battlesWon: number[] }
 }
 function planRoute(w: World, u: Unit, end: Point) {
   syncNativeTerrain(w)
