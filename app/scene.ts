@@ -102,6 +102,7 @@ import {
   canPickUnit,
   unitInvisibleToPlayer,
   unitInvisibilityRenderFlag,
+  isShaman,
 } from './model'
 
 import nativeModelData from './original-models.json'
@@ -1930,7 +1931,7 @@ export class GameScene {
     const w = this.world
     if (w.inputMask || this.overviewStage) return
     if (!focus && (this.overviewActive || w.manaWorld.gameFlags & 32)) return
-    if (model === 7 && w.units.some(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0))
+    if (model === 7 && w.units.some(u => u.team === 'blue' && isShaman(u) && u.hp > 0))
       w.castingTribes[0].flags |= focus ? 0x1000 : 0x800
     if (focus) {
       const people = hudPeople(w)
@@ -2218,7 +2219,8 @@ export class GameScene {
       f.firestorm ||
       f.earthquake ||
       f.volcano ||
-      f.convertWild
+      f.convertWild ||
+      f.ghostArmy
     )
       return g
     if (f.sinking) {
@@ -2386,7 +2388,8 @@ export class GameScene {
       f.firestorm ||
       f.earthquake ||
       f.volcano ||
-      f.convertWild
+      f.convertWild ||
+      f.ghostArmy
     )
       return
     if (f.sinking) {
@@ -2538,7 +2541,7 @@ export class GameScene {
   updateSpellHalo(frame: number) {
     const model = SPELLS.find(s => s.id === this.world.mode)?.model ?? this.hoveredSpell
     this.range.userData.model = model
-    const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    const shaman = this.world.units.find(u => u.team === 'blue' && isShaman(u))
     this.range.visible =
       !!shaman &&
       !!model &&
@@ -3144,7 +3147,7 @@ export class GameScene {
       '--population-full-color',
       nativeHud.colors[populationMeter(1, 1, this.gameClock.animationFrame).color]
     )
-    const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    const shaman = this.world.units.find(u => u.team === 'blue' && isShaman(u))
     const portraitMesh = shaman && this.unitMeshes.get(shaman.id)
     drawPortrait(
       this.portrait,

@@ -75,7 +75,8 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
   if (pointedTree) flags |= Context.Tree
   if (enemy) flags |= Context.Enemy
   if (nearby) flags |= Context.NearbyEnemy
-  if (pointedPerson?.kind === 'shaman' && pointedPerson.team === team) flags |= Context.OwnShaman
+  if (pointedPerson?.kind === 'shaman' && !pointedPerson.ghost && pointedPerson.team === team)
+    flags |= Context.OwnShaman
   const people = selected.reduce((mask, u) => mask | (1 << nativePersonModel(u)), 0)
   const model = chooseContextCommand(flags, people)
   // Tree/vehicle/forced/manual choices, ghost-only selection and contested-building

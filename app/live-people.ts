@@ -163,7 +163,11 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     flags2: u.inside === null ? 0 : 0x800000,
     flags3: u.shield ? 0x80000 : 0,
     // Preserve the outdoor target eligibility previously supplied by each spell adapter.
-    flags4: 0x20000000 | (u.inside === null ? 256 : 0) | (u.invisibility ? 0x1000 : 0),
+    flags4:
+      0x20000000 |
+      (u.inside === null ? 256 : 0) |
+      (u.invisibility ? 0x1000 : 0) |
+      (u.ghost ? 0x800 : 0),
     physics: rules.personModels[model].physics,
     speed: 0,
     angle,
@@ -190,7 +194,9 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     draw: 0,
     morph: 0,
     palette: 0,
-    renderFlags: unitInvisibilityRenderFlag(w, u),
+    renderFlags:
+      unitInvisibilityRenderFlag(w, u) |
+      (u.ghost && (u.team === 'blue' ? 0 : 1) === w.manaWorld.playerTribe ? 0x4000 : 0),
     invisibilityRender: u.invisibility ? unitInvisibilityRenderBit(w, u) : undefined,
     f1: 0,
     f2: 0,
@@ -343,6 +349,7 @@ function context(w: World) {
             u =>
               u.hp > 0 &&
               u.kind === 'shaman' &&
+              !u.ghost &&
               u.team === (i === 0 ? 'blue' : i === 1 ? 'red' : null)
           )?.id ?? 0
       )

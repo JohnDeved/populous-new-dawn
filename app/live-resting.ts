@@ -161,7 +161,7 @@ export function stepLiveResting(w: World, u: Unit) {
         get shamans() {
           return new Map(
             w.units
-              .filter(u => u.kind === 'shaman' && u.hp > 0)
+              .filter(u => u.kind === 'shaman' && !u.ghost && u.hp > 0)
               .map(u => [u.team === 'blue' ? 0 : 1, nativePosition(w, u)])
           )
         },

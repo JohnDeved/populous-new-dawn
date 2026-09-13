@@ -104,6 +104,7 @@ function releaseShamanGuard(w: World, person: { tribe: number }) {
       u =>
         u.hp > 0 &&
         u.kind === 'shaman' &&
+        !u.ghost &&
         (u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1) === person.tribe
     ),
     source = shaman && personSource(shaman)

@@ -968,6 +968,34 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "ghost-army-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Ghost Army through the real HUD, projectile, GPU effect, follower rendering, and order path.",
+      "coveredBehavior": [
+        "HUD cast input",
+        "Ghost Army burst",
+        "Translucent ghost followers",
+        "Ghost movement orders"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish complete native raster parity."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-ghost-army.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-ghost-army.mjs",
+        "scripts/browser-game.mjs",
+        "app"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "performance-profile",
       "kind": "performance",
       "automation": "manual",

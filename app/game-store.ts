@@ -17,6 +17,8 @@ export function migrateCheckpoint(world: World) {
   world.giftCounts.convertWild ??= 0
   world.shots.hypnotise ??= 0
   world.giftCounts.hypnotise ??= 0
+  world.shots.ghostArmy ??= 0
+  world.giftCounts.ghostArmy ??= 0
   world.shots.shield ??= 0
   world.giftCounts.shield ??= 0
   world.shots.swarm ??= 0

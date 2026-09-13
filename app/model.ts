@@ -40,6 +40,7 @@ import {
   deselectPerson,
   emptyPersonOrder,
   allocatePersonOrder,
+  acceptsPersonOrder,
   writePersonOrder,
   type OrderPool,
 } from './person-orders.ts'
@@ -371,6 +372,7 @@ export type Spell =
   | 'blast'
   | 'convertWild'
   | 'hypnotise'
+  | 'ghostArmy'
   | 'lightning'
   | 'bridge'
   | 'flatten'
@@ -456,7 +458,9 @@ export type Unit = Point & {
   shield?: number
   invisibility?: number
   hypnotise?: { originalTeam: Team; remaining: number; counter: number }
+  ghost?: boolean
 }
+export const isShaman = (u: Pick<Unit, 'kind' | 'ghost'>) => u.kind === 'shaman' && !u.ghost
 export type Building = Point & {
   attackReservation?: AttackReservation
   admission?: BuildingAdmission
@@ -571,6 +575,7 @@ export type Effect = Point & {
   earthquake?: Earthquake
   volcano?: Volcano
   convertWild?: ConvertWild
+  ghostArmy?: true
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
@@ -622,6 +627,16 @@ export const SPELLS: {
     symbol: '◈',
     color: '#d5a6e6',
     description: 'Temporarily turns up to six nearby enemy followers to your tribe.',
+  },
+  {
+    id: 'ghostArmy',
+    model: 9,
+    name: 'Ghost Army',
+    cost: 18,
+    key: '',
+    symbol: '◇',
+    color: '#b9dcff',
+    description: 'Creates ghost followers that vanish when they meet an enemy.',
   },
   {
     id: 'bridge',
@@ -790,7 +805,9 @@ export const maxHp = (kind: UnitKind) =>
 export const buildingHp = (kind: BuildingKind) => (kind === 'hut' ? 170 : 260)
 export const housing = (b: Building) => rules.buildingCapacity[buildingModel(b)]
 export function population(w: World, team: Team) {
-  return 1 + w.units.filter(u => u.team === team && u.kind !== 'shaman' && u.hp > 0).length
+  return (
+    1 + w.units.filter(u => u.team === team && u.kind !== 'shaman' && !u.ghost && u.hp > 0).length
+  )
 }
 export function populationLimit(w: World, team: Team) {
   return Math.min(
@@ -819,7 +836,7 @@ export function breedingWork(w: World, b: Building) {
 }
 export function trainingCost(w: World, team: Team) {
   return nativeTrainingCost(
-    w.units.filter(u => u.team === team && u.kind === 'warrior' && u.hp > 0).length,
+    w.units.filter(u => u.team === team && u.kind === 'warrior' && !u.ghost && u.hp > 0).length,
     3,
     team === 'blue' ? 2 : 1
   )
@@ -994,6 +1011,11 @@ export function joinBattle(
   structure?: Building,
   mode = structure ? 1 : 0
 ) {
+  if (u.ghost || target.ghost) {
+    if (u.ghost) u.hp = 0
+    if (target.ghost) target.hp = 0
+    return
+  }
   let b = w.fights.find(b => b.id === target.fight?.group)
   if (b) {
     if (b.encounter) return // A model-9 encounter already owns both participants.
@@ -1941,6 +1963,7 @@ export function createWorld(): World {
       blast: 0,
       convertWild: 0,
       hypnotise: 0,
+      ghostArmy: 0,
       bridge: 0,
       lightning: 0,
       flatten: 0,
@@ -2048,6 +2071,7 @@ export function createWorld(): World {
       blast: 4,
       convertWild: 0,
       hypnotise: 0,
+      ghostArmy: 0,
       bridge: 0,
       lightning: 0,
       flatten: 0,
@@ -2154,7 +2178,7 @@ export function createWorld(): World {
     campaignCommand(w, c.opcode, c.args)
     return false
   })
-  w.selected = [w.units.find(u => u.team === 'blue' && u.kind === 'shaman')!.id]
+  w.selected = [w.units.find(u => u.team === 'blue' && isShaman(u))!.id]
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
@@ -2236,12 +2260,16 @@ export function campaignInternal(w: World, id: number) {
 }
 
 // 0x4ecac0: active tribe followers count even while housed or selected by the AI.
-// Ghosts and the remaining person classes are not represented by browser units yet.
+// Ghosts are excluded from tribe aggregates; remaining person classes are not represented yet.
 export function campaignPersonCount(w: World, tribe: number, model?: number) {
   const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null
   return (
     w.units.filter(
-      u => u.team === team && u.hp > 0 && (model === undefined || nativePersonModel(u) === model)
+      u =>
+        u.team === team &&
+        u.hp > 0 &&
+        !u.ghost &&
+        (model === undefined || nativePersonModel(u) === model)
     ).length | 0
   )
 }
@@ -2396,10 +2424,7 @@ function computerSelectionWorld(w: World, tribe: number) {
     orders,
     tribes: Array.from({ length: 4 }, (_, id) => {
       const shaman = w.units.find(
-          u =>
-            u.hp > 0 &&
-            u.kind === 'shaman' &&
-            u.team === (id === 0 ? 'blue' : id === 1 ? 'red' : null)
+          u => u.hp > 0 && isShaman(u) && u.team === (id === 0 ? 'blue' : id === 1 ? 'red' : null)
         ),
         p = shaman && nativePosition(w, shaman)
       return {
@@ -2649,7 +2674,7 @@ function stepComputerTasks(w: World, tribe: number) {
     if (task.type === 28) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined
       const shaman = w.units.find(
-          u => u.hp > 0 && u.kind === 'shaman' && u.team === (tribe === 0 ? 'blue' : 'red')
+          u => u.hp > 0 && isShaman(u) && u.team === (tribe === 0 ? 'blue' : 'red')
         ),
         point = shaman && nativePosition(w, shaman),
         destination = point ? ((point.x >>> 8) & 254) | (point.y & 0xfe00) : 0,
@@ -2712,7 +2737,7 @@ function stepComputerTasks(w: World, tribe: number) {
     }
     if (task.type === 20) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined
-      const shaman = w.units.find(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0),
+      const shaman = w.units.find(u => u.team === 'red' && isShaman(u) && u.hp > 0),
         shamanPosition = shaman && nativePosition(w, shaman),
         staging =
           w.ai.flags & 0x100
@@ -3020,7 +3045,7 @@ export function campaignCommand(
   }
 
   if (opcode === 1102) {
-    const shaman = w.units.some(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0)
+    const shaman = w.units.some(u => u.team === 'red' && isShaman(u) && u.hp > 0)
     requestShamanGuard(
       w.ai,
       read(args[0]),
@@ -3193,6 +3218,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           blast: 0x76,
           convertWild: 0x85,
           hypnotise: 0x7b,
+          ghostArmy: 0x7d,
           lightning: 0x77,
           bridge: 0x80,
           flatten: 0x83,
@@ -3210,6 +3236,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           blast: 0x8c,
           convertWild: 0x9b,
           hypnotise: 0x91,
+          ghostArmy: 0x93,
           lightning: 0x8d,
           bridge: 0x96,
           flatten: 0x99,
@@ -4243,7 +4270,7 @@ export function command(
       u =>
         canOrder(u) &&
         w.selected.includes(u.id) &&
-        !!(rules.personCommands[model].people & (1 << nativePersonModel(u)))
+        acceptsPersonOrder(combatPerson(u), model)
     )
     if (!units.length) {
       tell(w, 'No selected followers can take this order.')
@@ -4307,7 +4334,7 @@ export function command(
     constructionFull = false
   if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
   for (const u of w.units.filter(u => canOrder(u) && w.selected.includes(u.id))) {
-    if (!(rules.personCommands[model].people & (1 << nativePersonModel(u)))) continue
+    if (!acceptsPersonOrder(combatPerson(u), model)) continue
     if (
       friendly &&
       (friendly.progress < 1 || !['hut', 'camp', 'tower', 'temple'].includes(friendly.kind)) &&
@@ -4448,7 +4475,7 @@ function processVaultTask(w: World, u: Unit) {
 }
 
 export function guardShaman(w: World) {
-  const shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && u.kind === 'shaman')
+  const shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
   if (!shaman) return
   for (const u of w.units.filter(
     u => canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman'
@@ -4515,7 +4542,7 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
 // Native person flags and complete globe targeting are still being integrated.
 export function spellTargetError(w: World, spell: Spell, p: Point) {
   const spec = SPELLS.find(s => s.id === spell),
-    shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && u.kind === 'shaman')
+    shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
   if (!spec) return { code: -1, message: '' }
   if (!shaman) return { code: -1, message: 'Your shaman is reincarnating.' }
   if (
@@ -4559,6 +4586,7 @@ export function cast(w: World, spell: Spell, p: Point) {
             spell === 'volcano' ||
             spell === 'convertWild' ||
             spell === 'hypnotise' ||
+            spell === 'ghostArmy' ||
             spell === 'tornado' ||
             spell === 'shield' ||
             spell === 'invisibility' ||
@@ -4572,7 +4600,7 @@ export function cast(w: World, spell: Spell, p: Point) {
     tell(w, error.message)
     return false
   }
-  const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')!
+  const shaman = w.units.find(u => u.team === 'blue' && isShaman(u))!
   release(w, shaman)
   shaman.heading = Math.atan2(p.x - shaman.x, p.z - shaman.z)
   beginCast(w, shaman, spell, p)
@@ -4638,9 +4666,7 @@ function computerSpellWorld(w: World): SpellTargetWorld {
     tribe: 1,
     alliances: 0,
     cells,
-    terrainFlags: () => {
-      throw new Error('Native terrain occupancy flags are not integrated')
-    },
+    terrainFlags: cell => w.land.flags[nativeCellIndex(cell)],
   }
 }
 const nativeCellIndex = (cell: number) => (cell >>> 9) * 128 + ((cell & 254) >>> 1)
@@ -4725,7 +4751,7 @@ function refreshTribeTerritory(w: World, id: number) {
   })
 }
 function stepComputerSpells(w: World) {
-  const u = w.units.find(u => u.team === 'red' && u.kind === 'shaman' && u.hp > 0)
+  const u = w.units.find(u => u.team === 'red' && isShaman(u) && u.hp > 0)
   const person = u ? combatPerson(u) : null
   const caster =
     u && person
@@ -4759,7 +4785,7 @@ function stepComputerSpells(w: World) {
     caster,
     {
       turn: w.turn,
-      population: w.units.filter(p => p.team === 'red' && p.hp > 0).length,
+      population: w.units.filter(p => p.team === 'red' && !p.ghost && p.hp > 0).length,
       mana: w.manaTribes[1].mana,
       reserve: 0,
       gameFlags: w.manaWorld.gameFlags,
@@ -4770,7 +4796,7 @@ function stepComputerSpells(w: World) {
   refreshTribeTerritory(w, 1)
   if (shore) return
   const enemyTeam = w.ai.enemyTribe === 0 ? 'blue' : w.ai.enemyTribe === 1 ? 'red' : null
-  const enemy = w.units.find(p => p.team === enemyTeam && p.kind === 'shaman' && p.hp > 0)
+  const enemy = w.units.find(p => p.team === enemyTeam && isShaman(p) && p.hp > 0)
   const context = {
     turn: w.turn,
     mana: w.manaTribes[1].mana,
@@ -5485,7 +5511,7 @@ function stepScenery(w: World) {
 function processProjectiles(w: World) {
   // Newest native allocations precede older objects. Full mixed-class scheduling remains to be ported.
   for (const shot of [...w.projectiles].reverse()) {
-    const caster = w.units.find(u => u.team === shot.team && u.kind === 'shaman' && u.hp > 0)
+    const caster = w.units.find(u => u.team === shot.team && isShaman(u) && u.hp > 0)
     const remove = () => {
       w.projectiles.splice(w.projectiles.indexOf(shot), 1)
       for (const f of shot.visuals) f.duration = f.age
@@ -6028,6 +6054,94 @@ function stepSwarm(w: World, fx: Effect) {
   return --swarm.remaining > 0
 }
 
+const ghostRanks = [0, 0, 1, 2, 4, 3, 5, 6]
+function ghostArmyCell(w: World, p: Point) {
+  const n = nativePosition(w, p)
+  return ((n.x >>> 8) & 254) | (n.y & 0xfe00)
+}
+function ghostArmyModel(w: World, fx: Effect) {
+  const tribe = fx.team === 'blue' ? 0 : 1
+  if (w.manaTribes[tribe].playerType === 1) return 2
+  const center = ghostArmyCell(w, fx)
+  let model = 2,
+    rank = ghostRanks[model]
+  for (const u of w.units)
+    if (
+      u.team === fx.team &&
+      u.hp > 0 &&
+      u.inside === null &&
+      cellDistanceSquared(ghostArmyCell(w, u), center) <= 2 &&
+      ghostRanks[nativePersonModel(u)] > rank
+    ) {
+      model = nativePersonModel(u)
+      rank = ghostRanks[model]
+    }
+  return model
+}
+function evictGhosts(w: World, team: Team, count: number, center: number) {
+  const ghosts = [...w.units].reverse().filter(u => u.team === team && u.ghost && u.hp > 0)
+  for (let excess = ghosts.length + count - 60; excess > 0; excess--) {
+    let victim: Unit | undefined
+    for (const group of [2, 7, 0]) {
+      let farthest = 0
+      for (const u of ghosts) {
+        const model = nativePersonModel(u)
+        if (
+          u.hp <= 0 ||
+          u.native?.state === 3 ||
+          (group ? model !== group : model === 2 || model === 7)
+        )
+          continue
+        const distance = cellDistanceSquared(ghostArmyCell(w, u), center)
+        if (distance > farthest) {
+          victim = u
+          farthest = distance
+        }
+      }
+      if (victim) break
+    }
+    if (victim && !((victim.native?.flags2 ?? 0) & 0x100000)) victim.hp = 0
+  }
+}
+function stepGhostArmy(w: World, fx: Effect) {
+  if (fx.turnsRemaining === 4) {
+    const center = nativePosition(w, fx),
+      baseX = center.x & 0xfe00,
+      baseY = center.y & 0xfe00
+    for (let i = 0; i < 81; i++) {
+      const position = {
+        x: (baseX + (random(w) & 511)) & 65535,
+        y: (baseY + (random(w) & 511)) & 65535,
+        h: 0,
+      }
+      position.h = terrainPointHeight(w.land, position)
+      random(w) // Successful class-7/model-3 initialization.
+      emitGroundSpark(w, position)
+    }
+  }
+  if (fx.turnsRemaining !== 0) return
+  const model = ghostArmyModel(w, fx),
+    kind = unitKindFromModel(model),
+    count = model === 2 ? 6 : model === 7 ? 1 : 3,
+    center = nativePosition(w, fx),
+    team = fx.team!
+  evictGhosts(w, team, count, ghostArmyCell(w, fx))
+  for (let i = 0; i < count; i++) {
+    const position = {
+        x: short(center.x + (random(w) & 511) - 256),
+        y: short(center.y + (random(w) & 511) - 256),
+      },
+      heading = random(w) & 2047,
+      life = Math.round(maxHp(kind) * 20),
+      hp = Math.floor((life * 3) / 4) + (random(w) % Math.floor(life / 4)),
+      u = addUnit(w, team, kind, browserPosition(position))
+    u.ghost = true
+    u.heading = Math.PI - (heading * Math.PI) / 1024
+    u.hp = hp / 20
+    u.native = createLivePerson(w, u)
+  }
+}
+
 function finishCast(
   w: World,
   shaman: Pick<Unit, 'id' | 'team' | 'x' | 'z'>,
@@ -6060,6 +6174,8 @@ function finishCast(
     sound(w, 0x29, p)
   } else if (spell === 'flatten') {
     sound(w, 0xae, p)
+  } else if (spell === 'ghostArmy') {
+    sound(w, 0xa8, p)
   }
   if (spell === 'bridge') {
     fx.bridge = createLandBridge(nativePosition(w, shaman), nativePosition(w, p))
@@ -6104,6 +6220,11 @@ function finishCast(
       fx.duration = Infinity
       // ponytail: reuse the packed sparkle until the native effect-17 initializer is recovered.
       fx.sprite = { sequence: 'sparkle', frame: 0 }
+    } else if (spell === 'ghostArmy') {
+      fx.team = shaman.team
+      fx.ghostArmy = true
+      fx.turnsRemaining = 5
+      fx.duration = Infinity
     } else if (spell === 'tornado') {
       fx.tornado = createTornado(
         w.land,
@@ -6651,6 +6772,7 @@ function stepTurn(w: World) {
     }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
+    if (fx.ghostArmy) stepGhostArmy(w, fx)
     if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
     if (fx.sinking) {
@@ -6900,7 +7022,7 @@ function stepTurn(w: World) {
     }
     let fired = false
     if (shrine.kind === 'vault') {
-      const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
+      const shaman = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
       // ponytail: native coarse-cell/adjacent-building eligibility awaits the occupancy port.
       const eligible =
         !!shaman &&
@@ -7268,15 +7390,15 @@ function stepTurn(w: World) {
       if ('progress' in target) {
         u.fighting = true
         if (!u.cooldown) {
-          target.hp -= meleeDamage(u)
+          if (!u.ghost) target.hp -= meleeDamage(u)
           u.cooldown = (u.kind === 'shaman' ? 4 : 6) / TURNS_PER_SECOND
-          effect(w, 'hit', target)
+          if (!u.ghost) effect(w, 'hit', target)
         }
       } else contacts.push([u, target])
       continue
     }
     if (u.guard && !u.path.length) {
-      const shaman = w.units.find(a => a.team === u.team && a.kind === 'shaman')
+      const shaman = w.units.find(a => a.team === u.team && isShaman(a))
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
@@ -7408,18 +7530,19 @@ function stepTurn(w: World) {
       !target.casting
     )
       joinBattle(w, u, target)
-  const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44)
-  for (const u of dead) restoreDeadHypnotisedUnit(u)
-  for (const u of dead) {
+  const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44),
+    ordinaryDead = dead.filter(u => !u.ghost)
+  for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u)
+  for (const u of ordinaryDead) {
     const victim = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1,
       person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,
       attacker = person?.damageAttacker ?? 255
     if (victim >= 0 && attacker >= 0 && attacker < 4)
       w.killCredits[attacker][victim] = (w.killCredits[attacker][victim] + 1) & 65535
   }
-  for (const u of dead.filter(u => u.kind === 'shaman'))
+  for (const u of ordinaryDead.filter(u => u.kind === 'shaman'))
     if (
-      w.units.some(a => a.team === u.team && a.hp > 0) &&
+      w.units.some(a => a.team === u.team && !a.ghost && a.hp > 0) &&
       (u.team === 'blue' || (u.team === 'red' && w.ai.reincarnation))
     ) {
       const turns = reincarnationTurns(!supportsFollower(w, u)),
@@ -7434,7 +7557,7 @@ function stepTurn(w: World) {
       visual.reincarnation = { team: u.team, phase: turns === 333 ? 3 : 0, ground: position.h }
       if (u.team === 'blue') tell(w, 'Your shaman will reincarnate.')
     }
-  for (const u of dead) {
+  for (const u of ordinaryDead) {
     cancelLiveResting(w, u)
     const f = effect(w, supportsFollower(w, u) ? 'death' : 'splash', u)
     if (f.kind === 'death') {
@@ -7488,8 +7611,8 @@ function stepTurn(w: World) {
       const site = team === 'blue' ? HOME : ENEMY,
         visual = w.effects.find(f => f.reincarnation?.team === team),
         canSpawn =
-          w.units.some(u => u.team === team) &&
-          !w.units.some(u => u.team === team && u.kind === 'shaman'),
+          w.units.some(u => u.team === team && !u.ghost) &&
+          !w.units.some(u => u.team === team && isShaman(u)),
         step = stepReincarnation(
           Math.round(w[key] * TURNS_PER_SECOND),
           canSpawn,

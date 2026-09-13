@@ -132,7 +132,7 @@ export class ObjectPanels {
       const count = head ? Math.min(head.required, head.followers) : 0
       const vaultShaman =
         head?.kind === 'vault'
-          ? world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
+          ? world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && !u.ghost && u.hp > 0)
           : undefined
       const people = head
         ? head.kind === 'vault'

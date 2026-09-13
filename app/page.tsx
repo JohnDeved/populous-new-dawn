@@ -19,6 +19,7 @@ import {
   maxHp,
   population,
   populationLimit,
+  isShaman,
   ROUTE_FAILURE_TEXT,
   type UnitKind,
 } from './model'
@@ -287,7 +288,7 @@ export default function Home() {
   }
   const blue = world.units.filter(u => u.team === 'blue'),
     red = world.units.filter(u => u.team === 'red')
-  const shaman = blue.find(u => u.kind === 'shaman'),
+  const shaman = blue.find(isShaman),
     selected = blue.filter(u => world.selected.includes(u.id))
   const focused =
     SPELLS.find(s => s.id === (hover ?? world.mode)) ??
@@ -496,10 +497,10 @@ export default function Home() {
           <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
           <button
             className="tribe-flag dakini"
-            title={`Dakini: ${red.length} followers`}
+            title={`Dakini: ${red.filter(u => !u.ghost).length} followers`}
             aria-label="Focus Dakini tribe"
             onClick={() => {
-              const u = red.find(u => u.kind === 'shaman') ?? red[0]
+              const u = red.find(isShaman) ?? red[0]
               if (u) engine.current?.focus(u, { animate: true })
             }}
           />
@@ -534,7 +535,9 @@ export default function Home() {
               {...followerControl(u.kind)}
             >
               <FollowerIcon sprite={u.sprite} />
-              <FollowerNumber count={blue.filter(b => b.hp > 0 && b.kind === u.kind).length} />
+              <FollowerNumber
+                count={blue.filter(b => b.hp > 0 && !b.ghost && b.kind === u.kind).length}
+              />
             </button>
           ))}
           {['Firewarriors', 'Spies'].map(name => (
