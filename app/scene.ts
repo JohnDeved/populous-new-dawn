@@ -33,7 +33,7 @@ import { reincarnationStones } from './reincarnation.ts'
 import { debrisVertices } from './building-debris.ts'
 import { fireUV, fireHeading } from './scenery-fire.ts'
 import { timberScale } from './timber.ts'
-import { soundAttenuation } from './audio'
+import { orderSound, playWorldSounds, soundEnvironment } from './audio'
 import type { SoundEnvironment } from './ambient-sound.ts'
 import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
 import {
@@ -867,17 +867,7 @@ export class GameScene {
       )
   }
   soundEnvironment(): SoundEnvironment {
-    // Sample the next rendered view at the existing 4 Hz audio-input cadence.
-    const painter = this.view.painter
-    const result: SoundEnvironment = {
-      ...painter.terrainAmbience.result(),
-      trees: false,
-      overview: this.overviewActive,
-      activity: this.world.musicActivity,
-    }
-    // Audio owns this snapshot; the next rendered frame fills its terrain counts.
-    painter.pendingSoundEnvironment = result
-    return result
+    return soundEnvironment(this)
   }
   acknowledgePointer(target: number) {
     acknowledgePointer(this, target)
@@ -886,52 +876,10 @@ export class GameScene {
     drawPointer(this, now)
   }
   orderSound(selected = this.world.selected) {
-    const units = this.world.units.filter(u => selected.includes(u.id))
-    if (units.length) this.onSound(units.some(u => u.kind === 'shaman') ? 0x19 : 0x37)
+    orderSound(this, selected)
   }
   playWorldSounds() {
-    for (const event of this.world.sounds)
-      if (event.serial > this.soundSerial) {
-        this.soundSerial = event.serial
-        if (event.stop && event.owner !== undefined) {
-          this.ownedSounds.get(event.owner)?.()
-          this.ownedSounds.delete(event.owner)
-          continue
-        }
-        if (
-          event.cue === 0x6b ||
-          event.cue === 0xe3 ||
-          event.cue === 0xe4 ||
-          event.cue === 0xa2 ||
-          event.cue === 225 ||
-          event.cue === 226
-        ) {
-          this.onSound(event.cue, 1, 0)
-          continue
-        } // Native notification and defeat-sky cues are not positional.
-        const dx = Math.round((event.x - this.viewPoint.x) * 256),
-          dz = Math.round((event.z - this.viewPoint.z) * 256)
-        const screen = this.screen(event)
-        // Native distance curve and projected pan; the full native mixer is still unported.
-        const stop = this.onSound(
-          event.cue,
-          soundAttenuation(dx * dx + dz * dz),
-          screen.x,
-          event.owner === undefined
-            ? undefined
-            : () => {
-                const fire = this.world.effects.find(f => f.id === event.owner)?.fire
-                if (fire) fire.soundPlaying = false
-                const burn = this.world.buildings.find(b => b.id === event.owner)?.burn
-                if (burn) burn.soundPlaying = false
-                const person = this.world.units.find(u => u.id === event.owner)
-                if (person?.native) person.native.flags4 &= ~16
-                if (person?.flight) person.flight.flags4 &= ~16
-                this.ownedSounds.delete(event.owner!)
-              }
-        )
-        if (event.owner !== undefined && stop) this.ownedSounds.set(event.owner, stop)
-      }
+    playWorldSounds(this)
   }
   animate = (now: number) => {
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()

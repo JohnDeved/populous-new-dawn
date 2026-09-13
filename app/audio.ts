@@ -8,6 +8,7 @@ import {
   ambientAccent,
   type SoundEnvironment,
 } from './ambient-sound.ts'
+import type { GameScene } from './scene.ts'
 // First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
@@ -91,6 +92,70 @@ export function cueVariant(cue: number, state: number) {
 // 0x48b100: quadratic distance attenuation in native 1/256 map units.
 export function soundAttenuation(distanceSquared: number) {
   return Math.max(0, Math.floor((0x9000000 - distanceSquared) / 0x900)) / 65536
+}
+
+export function soundEnvironment(scene: GameScene): SoundEnvironment {
+  // Sample the next rendered view at the existing 4 Hz audio-input cadence.
+  const painter = scene.view.painter
+  const result: SoundEnvironment = {
+    ...painter.terrainAmbience.result(),
+    trees: false,
+    overview: scene.overviewActive,
+    activity: scene.world.musicActivity,
+  }
+  // Audio owns this snapshot; the next rendered frame fills its terrain counts.
+  painter.pendingSoundEnvironment = result
+  return result
+}
+
+export function orderSound(scene: GameScene, selected = scene.world.selected) {
+  const units = scene.world.units.filter(u => selected.includes(u.id))
+  if (units.length) scene.onSound(units.some(u => u.kind === 'shaman') ? 0x19 : 0x37)
+}
+
+export function playWorldSounds(scene: GameScene) {
+  for (const event of scene.world.sounds)
+    if (event.serial > scene.soundSerial) {
+      scene.soundSerial = event.serial
+      if (event.stop && event.owner !== undefined) {
+        scene.ownedSounds.get(event.owner)?.()
+        scene.ownedSounds.delete(event.owner)
+        continue
+      }
+      if (
+        event.cue === 0x6b ||
+        event.cue === 0xe3 ||
+        event.cue === 0xe4 ||
+        event.cue === 0xa2 ||
+        event.cue === 225 ||
+        event.cue === 226
+      ) {
+        scene.onSound(event.cue, 1, 0)
+        continue
+      } // Native notification and defeat-sky cues are not positional.
+      const dx = Math.round((event.x - scene.viewPoint.x) * 256),
+        dz = Math.round((event.z - scene.viewPoint.z) * 256)
+      const screen = scene.screen(event)
+      // Native distance curve and projected pan; the full native mixer is still unported.
+      const stop = scene.onSound(
+        event.cue,
+        soundAttenuation(dx * dx + dz * dz),
+        screen.x,
+        event.owner === undefined
+          ? undefined
+          : () => {
+              const fire = scene.world.effects.find(f => f.id === event.owner)?.fire
+              if (fire) fire.soundPlaying = false
+              const burn = scene.world.buildings.find(b => b.id === event.owner)?.burn
+              if (burn) burn.soundPlaying = false
+              const person = scene.world.units.find(u => u.id === event.owner)
+              if (person?.native) person.native.flags4 &= ~16
+              if (person?.flight) person.flight.flags4 &= ~16
+              scene.ownedSounds.delete(event.owner!)
+            }
+      )
+      if (event.owner !== undefined && stop) scene.ownedSounds.set(event.owner, stop)
+    }
 }
 
 export class Soundscape {
