@@ -6,6 +6,8 @@ const missionTwoMessage =
   'Now we must face the Matak Tribe. I sense many Warriors ready to stand against us. In my vision we are aided by magic from a Stone Head. There must be a way to reach it...'
 const tornadoGuidance =
   'Shaman, this Stone Head will aid you faster if you command two of your Followers to worship there.'
+const tornadoInstruction =
+  'Use the Tornado Spell to destroy the Enemy and their buildings before they have a chance to react.'
 
 async function assertMissionTwoMessage(page) {
   const details = page.locator('.campaign-messages details').filter({ hasText: missionTwoMessage })
@@ -108,10 +110,14 @@ try {
     select(world, 'shaman')
     if (!command(world, tornado)) throw new Error('Tornado worship command failed')
     until(() => world.messages.slots.some(message => message?.stringId === 644), 10000)
+    select(world, 'brave')
+    if (!command(world, tornado)) throw new Error('Follower Tornado worship command failed')
+    until(() => world.messages.slots.some(message => message?.stringId === 642), 10000)
     world.speed = 0
     globalThis.testStore.update()
-    const message = world.messages.slots.find(message => message?.stringId === 644)
-    return { turn: world.turn, flags: message.flags, lifetime: message.lifetime, view: message.view }
+    const message = world.messages.slots.find(message => message?.stringId === 644),
+      instruction = world.messages.slots.find(message => message?.stringId === 642)
+    return { turn: world.turn, flags: message.flags, lifetime: message.lifetime, view: message.view, tornado: { flags: instruction.flags, variables: world.ai.variables.slice(9, 12) } }
   })
   const { turn: guidanceTurn, ...guidanceState } = guidance
   assert.ok(guidanceTurn > 700)
@@ -119,7 +125,11 @@ try {
     flags: 0x36f1,
     lifetime: 3000,
     view: { cell: 0x60cc, payload: 308 },
+    tornado: { flags: 0x2d1, variables: [0, 2, 1] },
   })
+  const instruction = page.locator('.campaign-messages details').filter({ hasText: tornadoInstruction })
+  await instruction.locator('summary').click()
+  await instruction.getByText(tornadoInstruction, { exact: true }).waitFor()
   const positioned = page.locator('.campaign-messages details').filter({ hasText: tornadoGuidance })
   assert.equal(await positioned.locator('summary img').getAttribute('src'), '/original/message.png')
   await page.waitForFunction(() => !(globalThis.testScene.world.inputMask & 64))

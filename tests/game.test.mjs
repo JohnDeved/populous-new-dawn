@@ -1227,7 +1227,7 @@ test('mission-one victory continuation creates and restarts the recovered missio
  const legacy=structuredClone(createWorld());delete legacy.outcome.level;delete legacy.shrines[0].reward;migrateCheckpoint(legacy);assert.equal(legacy.outcome.level,1);assert.equal(legacy.shrines[0].reward,'camp');
 });
 
-test('mission-two bridge route reaches the positioned Tornado guidance message',()=>{
+test('mission-two Totem route reaches the Tornado guidance and use instruction',()=>{
  const world=createWorld(2);until(world,()=>world.turn>=122,20);
  const bridge=world.shrines.find(s=>s.kind==='bridgeEffect'),tornado=world.shrines.find(s=>s.kind==='tornado');
  select(world,'shaman');assert.ok(command(world,bridge));until(world,()=>bridge.uses===1,60);
@@ -1237,6 +1237,11 @@ test('mission-two bridge route reaches the positioned Tornado guidance message',
  assert.equal(messageText(message.stringId),'Shaman, this Stone Head will aid you faster if you command two of your Followers to worship there.');
  assert.deepEqual(message.view,{cell:0x60cc,payload:308});assert.deepEqual(messageViewPoint(message),{x:-59,z:-105});
  assert.equal(message.lifetime,3000);assert.equal(message.flags,0x36f1);
+ select(world,'brave');assert.ok(command(world,tornado));
+ until(world,()=>world.messages.slots.some(message=>message?.stringId===642),60);
+ const tornadoMessage=world.messages.slots.find(message=>message?.stringId===642);
+ assert.equal(messageText(tornadoMessage.stringId),'Use the Tornado Spell to destroy the Enemy and their buildings before they have a chance to react.');
+ assert.equal(tornadoMessage.flags,0x2d1);assert.deepEqual(world.ai.variables.slice(9,12),[0,2,1]);
 });
 
 test('mission-two enemy marker orders nearby Matak defenders to counterattack',()=>{

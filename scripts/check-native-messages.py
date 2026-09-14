@@ -1,4 +1,4 @@
-"""Compare native message allocation and first-mission discovery branches.
+"""Compare native message allocation and campaign branches.
 Usage: python scripts/check-native-messages.py /path/to/d3dpoptb.exe [/path/to/cpscr010.dat]
 Sound playback is intercepted; original allocation, list ordering and RNG execute.
 """
@@ -47,6 +47,10 @@ def snapshot():
 
 native=json.loads((root/'app/original-messages.json').read_text());source=Path(sys.argv[1]).parent
 assert read(0x5ae310+102*2,'<H')==native['messages']['102']['stringId']==641
+assert read(0x5ae310+103*2,'<H')==native['messages']['103']['stringId']==642
+language=(source/'language/lang00.dat').read_bytes()
+assert hashlib.sha256(language).hexdigest()==native['sha256']['language/lang00.dat']
+assert language.decode('utf-16le').split('\0')[642]==native['messages']['103']['text']
 palette=(source/'data/pal0-c.dat').read_bytes();hfx=(source/'data/hfx0-0.dat').read_bytes()
 assert hashlib.sha256(palette).hexdigest()==native['sha256']['data/pal0-c.dat']
 assert hashlib.sha256(hfx).hexdigest()==native['sha256']['data/hfx0-0.dat']
@@ -139,6 +143,26 @@ actual=browser("""import {stepMessages} from './app/messages.ts';let s='';for aw
 console.log(JSON.stringify(JSON.parse(s).map(c=>{const sounds=[];for(let i=0;i<c.visits;i++)stepMessages(c.state,()=>sounds.push(0xe4));return {state:c.state,sounds};})));""",cases)
 for c,want,got in zip(cases,expected,actual):assert want==got,(c,want,got)
 print(f'PASS: {len(cases)} native message ordering, transient motion, collision and rebound sequences')
+
+# Mission 2's Tornado-head branch runs the original query, message dispatch,
+# allocator, RNG and one-shot script latch. Only sound playback is intercepted.
+mission_two=json.loads((root/'app/original-script-two.json').read_text())
+mission_two_bytes=(source/'levels/cpscr074.dat').read_bytes()
+assert hashlib.sha256(mission_two_bytes).hexdigest()==mission_two['sha256']=='03931ad1bc69860177c0a0d7d850db46b268683bf95b274926e18fe1f8a5d9db'
+branch=mission_two['codes'][400:442];codes=[12,1003,*branch,1004,1019]
+blob=bytearray(mission_two_bytes);blob[:8192]=bytes(8192);struct.pack_into('<'+'H'*len(codes),blob,0,*codes)
+variables=[0]*64;struct.pack_into('<64i',blob,0x3000,*variables)
+head=program+0x9000;cpu.mem_write(tribe,bytes(0xc65));write(tribe+0xc22,'<B',3)
+cpu.mem_write(head,bytes(256));cpu.mem_write(head+0x2a,b'\6\6');write(head+0x6b,'<b',2);write(0x890394,'<I',head)
+cpu.mem_write(0x8a03e4,bytes(0x40000));write(0x8a03ea+((96//2)*128+204//2)*16,'<H',1)
+seed=0x12345678;reset(seed);write(0x89c6d1,'<I',480);write(0x89d188,'<I',49);cpu.mem_write(program,bytes(blob));sounds.clear()
+call(0x48c6b0,tribe,program);call(0x48c6b0,tribe,program)
+expected=dict(variables=list(struct.unpack('<64i',cpu.mem_read(program+0x3000,256))),state=snapshot(),randomState=read(0x89bc72,'<I'),sounds=list(sounds))
+actual=browser("""import {createWorld,campaignCommand,campaignInternal} from './app/model.ts';import {runScript} from './app/popscript.ts';import original from './app/original-script-two.json' with {type:'json'};
+const script={...original,codes:[12,1003,...original.codes.slice(400,442),1004,1019]};let s='';for await(const c of process.stdin)s+=c;const c=JSON.parse(s),w=createWorld(2);w.turn=49;w.randomState=c.seed;w.shrines.find(h=>h.kind==='tornado').remaining=2;
+for(let i=0;i<2;i++)runScript(script,w.ai,{turn:w.turn,tribe:3,readInternal:id=>campaignInternal(w,id),command:(op,args)=>campaignCommand(w,op,args)});console.log(JSON.stringify({variables:w.ai.variables,state:w.messages,randomState:w.randomState,sounds:w.sounds.map(s=>s.cue)}));""",dict(seed=seed))
+assert expected==actual,(expected,actual)
+print('PASS: native Mission 2 message 103 mapping, Tornado-head branch, type-3 allocation and one-shot latch')
 
 if len(sys.argv)<3:
     print('SKIP: campaign bytecode checks require cpscr010.dat')

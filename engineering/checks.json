@@ -445,6 +445,7 @@
       "coveredBehavior": [
         "First visit starts mission one without a stale choice",
         "Normal Mission 1 victory continues through the shipped result UI into Mission 2",
+        "Mission 2 Totem route and one-shot Tornado-use instruction",
         "Mission 2 marker-triggered Matak tower counterattack",
         "Returning-player New Game and Load Game choice before scene creation",
         "Exact Mission 2 checkpoint restore after reload",
@@ -531,11 +532,12 @@
         "Slot allocation and eviction",
         "Mission 2 type-1 descriptor and message-number binding",
         "Mission 2 positioned-message binding, target, payload, lifetime and flags",
+        "Mission 2 Tornado-head message 103 binding and one-shot script branch",
         "Age and slot ordering",
         "Normalized height, velocity, gravity, collisions, and rebound"
       ],
       "knownLimits": [
-        "Campaign bytecode branches require a separately supplied cpscr010.dat; other notification classes and the original popup renderer remain outside this check."
+        "Remaining Mission 1 campaign bytecode branches require a separately supplied cpscr010.dat; other notification classes and the original popup renderer remain outside this check."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
       "args": ["scripts/check-native-messages.py", "$POPULOUS_EXE"],
@@ -553,12 +555,14 @@
         "scripts/decomp.py",
         "decomp/generated/00430e60.c",
         "decomp/generated/00491040.c",
+        "decomp/research/mission2-message-103.md",
         "decomp/requirements.txt",
         "decomp/tools.json"
       ],
       "prerequisites": [
         "Documented Unicorn Python environment",
-        "Hash-verified user-supplied executable"
+        "Hash-verified user-supplied executable",
+        "Adjacent Mission 2 script and language, palette, and HFX data"
       ],
       "sideEffects": [],
       "resources": ["External executable is read-only"],

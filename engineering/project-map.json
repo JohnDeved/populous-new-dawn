@@ -305,8 +305,11 @@
       "researchPaths": [
         "decomp/generated/0040bce0.c",
         "decomp/research/mission2-enemy-marker.md",
+        "decomp/research/mission2-message-103.md",
         "scripts/check-browser-checkpoint.mjs",
-        "scripts/check-native-building-counterattack.py"
+        "scripts/check-native-building-counterattack.py",
+        "scripts/check-native-messages.py",
+        "scripts/import-messages.py"
       ],
       "sharedPaths": [
         "app/flyby.ts",
@@ -328,6 +331,8 @@
         "campaign.ai",
         "campaign.objectives",
         "campaign.worship",
+        "campaign.missions",
+        "campaign.tutorials",
         "combat.shamans",
         "effects.reincarnation"
       ],
@@ -336,6 +341,7 @@
         { "path": "decomp/research/campaign-progression.md", "heading": "Campaign progression snapshot" },
         { "path": "decomp/research/mission2-positioned-message.md", "heading": "Mission 2 positioned message" },
         { "path": "decomp/research/mission2-enemy-marker.md", "heading": "Mission 2 enemy-marker counterattack" },
+        { "path": "decomp/research/mission2-message-103.md", "heading": "Mission 2 Tornado instruction" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"

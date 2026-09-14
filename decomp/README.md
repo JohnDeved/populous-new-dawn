@@ -140,8 +140,10 @@ warrior patrol, and the type-1 input-release notification are documented in the
 positioned Tornado-head guidance is documented in the
 [Mission 2 positioned-message note](research/mission2-positioned-message.md). This
 is followed by the marker-triggered Matak tower response documented in the
-[Mission 2 enemy-marker note](research/mission2-enemy-marker.md). These bounded
-checks do not claim the remainder of Mission 2.
+[Mission 2 enemy-marker note](research/mission2-enemy-marker.md). The original
+Tornado-use instruction and its one-shot script latch are documented in the
+[Mission 2 Tornado-instruction note](research/mission2-message-103.md). These
+bounded checks do not claim the remainder of Mission 2.
 
 ## Campaign counter comparison
 
@@ -233,12 +235,13 @@ python3 scripts/import-hud.py /path/to/game
 ```
 
 The importer also uses the palette and HFX bank already listed in native asset
-provenance. The check runs 160 original type-3 allocations, 320 original discovery
-script cases and one removal. Only sound playback is intercepted. It compares
-slot contents, serial wrap, text IDs, shared RNG and script variables. It does
-not establish the rest of the original notification types, screen animation,
-popup interaction or full campaign scheduling. The executable and mission script
-are both hash-checked.
+provenance. The check runs 160 original type-3 allocations, the exact Mission 2
+message-103 branch twice, 320 original discovery script cases when `cpscr010.dat`
+is supplied, and one removal. Only sound playback is intercepted. It compares slot
+contents, serial wrap, text IDs, shared RNG and script variables. It does not
+establish the rest of the original notification types, screen animation, popup
+interaction or full campaign scheduling. The executable and relevant mission
+scripts are hash-checked.
 
 
 The campaign oracle also executes 40 native building-list rebuilds and 3,200
