@@ -1,9 +1,10 @@
-import type { Building, Point, Spell, Unit, World } from './world-types.ts'
+import type { Building, BuildingKind, Point, Spell, Unit, World } from './world-types.ts'
 import { nativePosition, syncLandscapeObjects, syncNativeTerrain } from './world-terrain-runtime.ts'
-import { browserPosition, height } from './world-coordinates.ts'
+import { browserPosition, distance, height } from './world-coordinates.ts'
 import { combatPerson, nativePersonModel } from './live-combat.ts'
 import {
   buildingFootprintCells,
+  buildingModel,
   buildingOutsidePoint,
   buildingPose,
 } from './building-shapes.ts'
@@ -12,10 +13,11 @@ import {
   moveCommandAllowed,
   CommandContext as Context,
 } from './command-context.ts'
-import { acceptLivePath, planLivePath } from './live-pathfinding.ts'
+import { acceptLivePath, findLivePath, planLivePath } from './live-pathfinding.ts'
 import { cancelLiveResting } from './live-resting.ts'
 import {
   acceptsPersonOrder,
+  allocatePersonOrder,
   currentPersonOrder,
   emptyPersonOrder,
   playerOrderInput,
@@ -25,17 +27,23 @@ import {
   appendLiveOrders,
   cancelLiveOrder,
   movementOrder,
+  startLiveConstructionOrder,
   startLiveOrder,
 } from './live-movement.ts'
 import { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'
 import { release } from './world-tasks.ts'
 import { releasePersonRoute } from './person-routes.ts'
-import { constructionWorkers } from './construction-runtime.ts'
+import {
+  addBuilding,
+  buildingPlanPose,
+  constructionWorkers,
+  placementError,
+} from './construction-runtime.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
 import { worshipHeadPose, worshipOrder } from './live-worship.ts'
 import { worshipApproach } from './worship.ts'
 import { canShamanCast, spellInRange, beginCast } from './spell-casting.ts'
-import { isShaman, SPELLS } from './world-rules.ts'
+import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
@@ -135,6 +143,12 @@ function planRoute(w: World, u: Unit, end: Point) {
   return planLivePath(w, u, end)
 }
 
+export function findPath(w: World, start: Unit, end: Point): Point[] {
+  syncNativeTerrain(w)
+  syncLandscapeObjects(w)
+  return findLivePath(w, start, end)
+}
+
 export function route(w: World, u: Unit, end: Point, preserveOrders = false) {
   cancelLiveResting(w, u)
   const person = u.native ?? u.fight?.motion
@@ -146,6 +160,80 @@ export function route(w: World, u: Unit, end: Point, preserveOrders = false) {
 export function tell(w: World, message: string) {
   w.message = message
   w.messageUntil = w.time + 9
+}
+
+export function guardShaman(w: World) {
+  const shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
+  if (!shaman) return
+  for (const u of w.units.filter(
+    u => canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman'
+  )) {
+    const guard = !u.guard
+    release(w, u)
+    u.guard = guard
+  }
+  tell(w, 'Selected followers will guard your shaman.')
+}
+
+export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
+  if (w.paused || w.status !== 'playing') return false
+  const spec = BUILDINGS.find(b => b.id === kind)
+  if (
+    !spec ||
+    (kind === 'camp' && !w.unlockedCamp) ||
+    (kind === 'tower' && !w.unlockedTower) ||
+    (kind === 'temple' && !w.unlockedTemple)
+  ) {
+    tell(
+      w,
+      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : 'Warrior Training Hut'} at the vault.`
+    )
+    return false
+  }
+  const plan = buildingPlanPose(w, kind, p)
+  p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
+  const error = placementError(w, kind, p)
+  if (error) {
+    tell(w, error)
+    return false
+  }
+  const selected = w.units.filter(
+    u => u.team === 'blue' && canOrder(u) && u.kind === 'brave' && w.selected.includes(u.id)
+  )
+  const workers = (
+    selected.length
+      ? selected
+      : w.units.filter(
+          u =>
+            u.team === 'blue' &&
+            canOrder(u) &&
+            u.kind === 'brave' &&
+            (u.work === null || u.inside !== null)
+        )
+  )
+    .sort((a, b) => distance(a, p) - distance(b, p))
+    .map(u => ({ u, path: findPath(w, u, p) }))
+    .filter(a => a.path.length)
+    .slice(0, rules.buildingMaxWorkers[buildingModel({ kind, level: 1 })])
+  const b = addBuilding(w, 'blue', kind, p, false, {
+    angle: (plan.angle * Math.PI) / 1024,
+    plan: true,
+  })
+  b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0)
+  if (workers.length) {
+    const order = allocatePersonOrder(w.buildingOrders)
+    if (order) {
+      writePersonOrder(w.buildingOrders.records[order], 6, b.id, 0, 0)
+      for (const { u } of workers) {
+        release(w, u)
+        startLiveOrder(w, u, order)
+        if (startLiveConstructionOrder(w, u)) route(w, u, entrance(w, b), true)
+      }
+    }
+  }
+  w.mode = null
+  tell(w, `${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`)
+  return true
 }
 
 // Shared browser target adapter: cursor feedback and click rejection must agree.

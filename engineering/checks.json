@@ -980,6 +980,7 @@
       "inputs": [
         "scripts/check-browser-construction.mjs",
         "scripts/browser-game.mjs",
+        "app/live-command.ts",
         "app/construction-runtime.ts",
         "app/model.ts",
         "app/scene.ts"

@@ -15,12 +15,9 @@ import {
   invalidateBuildingTimberSearch,
   footprint,
   footprintPoints,
-  placementError,
   groundBuilding,
   buildingContainsPoint,
   buildingBlocksStep,
-  addBuilding,
-  buildingPlanPose,
   rotateBuildingPlan,
   prepareBuildingSite,
 } from './construction-runtime.ts'
@@ -254,8 +251,6 @@ export type {
 import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipHeadPose } from './live-worship.ts'
 import {
-  startLiveOrder,
-  startLiveConstructionOrder,
   cancelLiveOrder,
   stepLiveConversionVictim,
   stepLiveMovement,
@@ -280,15 +275,23 @@ import {
   startLiveCombatResponse,
 } from './live-building-combat.ts'
 import { nativePersonModel, nativePersonTribe } from './live-combat.ts'
-import { buildingDoor, entrance, route, tell } from './live-command.ts'
-export { cast, command, entrance, spellTargetError, tell, walkable } from './live-command.ts'
+import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
+export {
+  cast,
+  command,
+  entrance,
+  findPath,
+  guardShaman,
+  placeBuilding,
+  spellTargetError,
+  tell,
+  walkable,
+} from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
 import {
   currentPersonOrder,
   emptyPersonOrder,
-  allocatePersonOrder,
-  writePersonOrder,
   type OrderPool,
 } from './person-orders.ts'
 import {
@@ -374,7 +377,6 @@ import { stepEarthquake, type Earthquake } from './earthquake.ts'
 import { stepVolcano, type Volcano } from './volcano.ts'
 import { stepLiveTornado, stepLiveTornadoPerson } from './tornado-runtime.ts'
 import {
-  findLivePath,
   probeLivePathCost,
   clearLivePath,
   replanLivePath,
@@ -546,11 +548,6 @@ export function supportsFollower(w: World, p: Point & { inside?: number | null }
   const n = nativePosition(w, p),
     cell = ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
   return !!terrainSupportsPerson(w.land.categories[cell], n)
-}
-export function findPath(w: World, start: Unit, end: Point): Point[] {
-  syncNativeTerrain(w)
-  syncLandscapeObjects(w)
-  return findLivePath(w, start, end)
 }
 export function requestTutorial(w: World, flags: number, message: number) {
   // 0x499f40 mode 9: a single transient tooltip, not tutorial history.
@@ -983,78 +980,6 @@ function processVaultTask(w: World, u: Unit) {
   return Number(done)
 }
 
-export function guardShaman(w: World) {
-  const shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
-  if (!shaman) return
-  for (const u of w.units.filter(
-    u => canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman'
-  )) {
-    const guard = !u.guard
-    release(w, u)
-    u.guard = guard
-  }
-  tell(w, 'Selected followers will guard your shaman.')
-}
-export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
-  if (w.paused || w.status !== 'playing') return false
-  const spec = BUILDINGS.find(b => b.id === kind)
-  if (
-    !spec ||
-    (kind === 'camp' && !w.unlockedCamp) ||
-    (kind === 'tower' && !w.unlockedTower) ||
-    (kind === 'temple' && !w.unlockedTemple)
-  ) {
-    tell(
-      w,
-      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : 'Warrior Training Hut'} at the vault.`
-    )
-    return false
-  }
-  const plan = buildingPlanPose(w, kind, p)
-  p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
-  const error = placementError(w, kind, p)
-  if (error) {
-    tell(w, error)
-    return false
-  }
-  const selected = w.units.filter(
-    u => u.team === 'blue' && canOrder(u) && u.kind === 'brave' && w.selected.includes(u.id)
-  )
-  const workers = (
-    selected.length
-      ? selected
-      : w.units.filter(
-          u =>
-            u.team === 'blue' &&
-            canOrder(u) &&
-            u.kind === 'brave' &&
-            (u.work === null || u.inside !== null)
-        )
-  )
-    .sort((a, b) => distance(a, p) - distance(b, p))
-    .map(u => ({ u, path: findPath(w, u, p) }))
-    .filter(a => a.path.length)
-    .slice(0, rules.buildingMaxWorkers[buildingModel({ kind, level: 1 })])
-  const b = addBuilding(w, 'blue', kind, p, false, {
-    angle: (plan.angle * Math.PI) / 1024,
-    plan: true,
-  })
-  b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0)
-  if (workers.length) {
-    const order = allocatePersonOrder(w.buildingOrders)
-    if (order) {
-      writePersonOrder(w.buildingOrders.records[order], 6, b.id, 0, 0)
-      for (const { u } of workers) {
-        release(w, u)
-        startLiveOrder(w, u, order)
-        if (startLiveConstructionOrder(w, u)) route(w, u, entrance(w, b), true)
-      }
-    }
-  }
-  w.mode = null
-  tell(w, `${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`)
-  return true
-}
 function stepOutcome(w: World) {
   if (w.manaWorld.loadFlags & 0x200 || w.manaWorld.gameFlags & 32) return
   // ponytail: registered native person lists/counts await the shared object

@@ -68,6 +68,8 @@
       "sharedPaths": ["app/model.ts", "app/scene.ts", "app/native-terrain.ts"],
       "entrySymbols": [
         { "path": "app/live-command.ts", "symbol": "command" },
+        { "path": "app/live-command.ts", "symbol": "findPath" },
+        { "path": "app/live-command.ts", "symbol": "guardShaman" },
         { "path": "app/live-movement.ts", "symbol": "appendLiveOrders" },
         { "path": "app/model.ts", "symbol": "stepTurn" }
       ],
@@ -123,6 +125,7 @@
       "title": "Construction and resources",
       "mappingStatus": "reviewed",
       "implementationPaths": [
+        "app/live-command.ts",
         "app/construction-runtime.ts",
         "app/building-preparation.ts",
         "app/building-work.ts",
@@ -137,7 +140,7 @@
       "sharedPaths": ["app/model.ts", "app/native-terrain.ts", "app/scene.ts"],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "placeBuilding" },
-        { "path": "app/model.ts", "symbol": "placeBuilding" },
+        { "path": "app/live-command.ts", "symbol": "placeBuilding" },
         { "path": "app/model.ts", "symbol": "processBuilderWork" }
       ],
       "parityIds": [
