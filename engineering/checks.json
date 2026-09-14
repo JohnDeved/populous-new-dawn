@@ -594,6 +594,7 @@
         "app/model.ts",
         "app/reincarnation.ts",
         "app/scene.ts",
+        "app/scene-terrain-runtime.ts",
         "app/original-units.json"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],

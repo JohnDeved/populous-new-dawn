@@ -298,7 +298,12 @@
         "app/vault.ts",
         "app/worship.ts"
       ],
-      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/scene.ts"],
+      "sharedPaths": [
+        "app/flyby.ts",
+        "app/model.ts",
+        "app/scene.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
       "entrySymbols": [
         { "path": "app/model.ts", "symbol": "missionAI" },
         { "path": "app/model.ts", "symbol": "campaignCommand" },
@@ -343,6 +348,9 @@
         "0x4d5cf0",
         "0x502910",
         "0x5029d0",
+        "0x4a6480",
+        "0x4a7d80",
+        "0x4a7eb0",
         "0x4fb270",
         "0x4facf0"
       ],
@@ -363,7 +371,7 @@
       ],
       "unresolved": [
         "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
-        "General class-10 allocation/scheduling, reincarnation relocation, and model-12 lifecycles outside the playable follower set remain unported.",
+        "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]
     },
