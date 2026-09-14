@@ -6,10 +6,9 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: run Mission 2's recovered PopScript through its first recurring
-scheduled block and produce its first normal player-visible AI or marker action.
-Resolve opcodes 1069 and 1097 from native evidence, release the scripted input lock
-through the live path, and keep composition extraction stopped.
+Current feature lock: behavior-neutral extraction of Mission-aware world bootstrap
+from `app/model.ts`, preserving the `model.ts` façade and exact initialization order.
+Do not mix gameplay or parity changes into this extraction.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, persistence/multiplayer, and modern compatibility—not recurring
