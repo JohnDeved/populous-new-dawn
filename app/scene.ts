@@ -51,7 +51,7 @@ import {
   stepCameraMotion,
   interpolateCamera,
 } from './camera-motion.ts'
-import { defeatSky, createSkyMotion, updateSkyArray, fillSkyArray, skyCloudLayer } from './sky.ts'
+import { createSkyMotion } from './sky.ts'
 import { advanceSkyMotion } from './sky-motion.ts'
 import {
   readTerrainTextures,
@@ -63,7 +63,6 @@ import {
 import { waterTexture, waterPoint, waterCell } from './water.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { modelLighting, modelHighlight, modelWaveOffsets } from './model-lighting.ts'
-import skyPalette from './original-sky.json'
 import {
   createTooltip,
   showObjectTooltip,
@@ -172,7 +171,7 @@ import {
   updateWaveShake,
 } from './scene-entities.ts'
 import { rebuildTerrain, updateTerrainTexture, landIndex, updateWater, makeDecorations, updateTerrainFrame, updateDecorationsFrame } from './scene-terrain-runtime.ts'
-import { makeSky, commitSky, updateSky, updateView, currentPreset, captureCamera, skipIntroduction, updateCameraMotion, previewCamera, updateFlyby, cancelOverview, focus, stepViewChange, startGroundView, overview, leaveOverview, zoom } from './scene-camera-runtime.ts'
+import { makeSky, commitSky, updateSky, updateView, currentPreset, captureCamera, skipIntroduction, updateCameraMotion, updateEnvironmentFrame, previewCamera, updateFlyby, cancelOverview, focus, stepViewChange, startGroundView, overview, leaveOverview, zoom } from './scene-camera-runtime.ts'
 import { pickUnit, updatePlacement, planGeometry, pick, pickWorldObject, pointerDown, pointerMove, updateDrag, pointerUp, keyDown, installInputListeners, navigationButtons, chooseFollowers, acknowledgePointer, drawPointer, updatePointerFrame, updateSpellPointerFrame } from './scene-input-runtime.ts'
 
 
@@ -865,43 +864,7 @@ export class GameScene {
   }
 
   private updateEnvironmentFrame(skyTicks: number) {
-    this.updateWater()
-    this.ground.visible = !this.overviewActive
-    this.globe.visible = this.overviewActive
-    this.scene.background = this.space
-    if (this.overviewActive && this.terrainTextures) {
-      this.globe.phase = (this.globe.phase + (skyTicks >>> 4)) | 0
-      this.globe.update(this.view.globe, this.world, this.terrainTextures)
-    }
-    this.updateSky()
-    // ponytail: initial mission palette; connect live system-palette changes
-    // when the original palette scheduler is integrated.
-    const sky = defeatSky(
-      this.world.outcome.skyCounter,
-      this.world.outcome.lastDefeated,
-      skyPalette.colors,
-      {
-        x: 0,
-        y: 0,
-        width: this.container.clientWidth,
-        screenWidth: this.container.clientWidth,
-        // 0x429f90 clamps the ground-view flash surface to the viewport.
-        surfaceOffset:
-          this.container.clientWidth *
-          Math.max(0, Math.min(this.container.clientHeight, this.view.config.horizon)),
-      }
-    )
-    this.skyFlash.visible = !!sky && !this.overviewActive
-    if (sky) {
-      this.skyFlash.material.uniforms.height.value =
-        (sky.rect[3] - sky.rect[1]) / this.container.clientHeight
-      this.skyFlash.material.uniforms.rgba.value.set(
-        ((sky.color >>> 16) & 255) / 255,
-        ((sky.color >>> 8) & 255) / 255,
-        (sky.color & 255) / 255,
-        (sky.color >>> 24) / 255
-      )
-    }
+    updateEnvironmentFrame(this, skyTicks)
   }
 
   private renderSceneFrame(hovered: ReturnType<typeof worldTooltipObject>, hoveredBuilding: Building | undefined) {

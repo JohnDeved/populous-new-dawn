@@ -1,8 +1,9 @@
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { texture } from './scene-assets.ts'
-import { updateSkyArray, fillSkyArray, skyCloudLayer } from './sky.ts'
+import { defeatSky, updateSkyArray, fillSkyArray, skyCloudLayer } from './sky.ts'
 import { advanceSkyMotion } from './sky-motion.ts'
+import skyPalette from './original-sky.json'
 import { nativePosition, browserPosition, sound, HOME, ENEMY, type Point } from './model'
 import { cameraPreset, cameraConfigIndex } from './projection.ts'
 import { stepFlyby, interruptFlyby } from './flyby.ts'
@@ -136,6 +137,46 @@ export function updateSky(scene: GameScene) {
     position.needsUpdate = true
     const count = layer.triangles.length * 3
     if (mesh.geometry.index?.count !== count) mesh.geometry.setIndex(layer.triangles.flat())
+  }
+}
+
+export function updateEnvironmentFrame(scene: GameScene, skyTicks: number) {
+  scene.updateWater()
+  scene.ground.visible = !scene.overviewActive
+  scene.globe.visible = scene.overviewActive
+  scene.scene.background = scene.space
+  if (scene.overviewActive && scene.terrainTextures) {
+    scene.globe.phase = (scene.globe.phase + (skyTicks >>> 4)) | 0
+    scene.globe.update(scene.view.globe, scene.world, scene.terrainTextures)
+  }
+  scene.updateSky()
+  // ponytail: initial mission palette; connect live system-palette changes
+  // when the original palette scheduler is integrated.
+  const sky = defeatSky(
+    scene.world.outcome.skyCounter,
+    scene.world.outcome.lastDefeated,
+    skyPalette.colors,
+    {
+      x: 0,
+      y: 0,
+      width: scene.container.clientWidth,
+      screenWidth: scene.container.clientWidth,
+      // 0x429f90 clamps the ground-view flash surface to the viewport.
+      surfaceOffset:
+        scene.container.clientWidth *
+        Math.max(0, Math.min(scene.container.clientHeight, scene.view.config.horizon)),
+    }
+  )
+  scene.skyFlash.visible = !!sky && !scene.overviewActive
+  if (sky) {
+    scene.skyFlash.material.uniforms.height.value =
+      (sky.rect[3] - sky.rect[1]) / scene.container.clientHeight
+    scene.skyFlash.material.uniforms.rgba.value.set(
+      ((sky.color >>> 16) & 255) / 255,
+      ((sky.color >>> 8) & 255) / 255,
+      (sky.color & 255) / 255,
+      (sky.color >>> 24) / 255
+    )
   }
 }
 
