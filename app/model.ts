@@ -53,9 +53,15 @@ import { builderActivity, unitAnimationSource, selectionBuilding, canOrder } fro
 export { unitAnimation, unitAnimationSource, canOrder, select, selectionPeople, hudPeople, selectFollowers, setSelection, selectUnit, selectArea, cancelInteraction } from './selection-runtime.ts'
 import {
   applyHypnotise,
+  emitBlastWave,
+  igniteLightningScenery,
   invisibilityFollowers,
+  processProjectiles,
   restoreDeadHypnotisedUnit,
   shieldFollowers,
+  stepGhostArmy,
+  stepLiveBlastWave,
+  stepSwarm,
   stepUnitHypnotise,
   stepUnitInvisibility,
   stepUnitShields,
@@ -107,7 +113,7 @@ import {
   makeTerrain,
 } from './world-terrain-runtime.ts'
 export { nativePosition, buildingStage, syncLandscapeObjects, makeTerrain } from './world-terrain-runtime.ts'
-import { worldPoint, distance, nativeStep3D, browserPosition, nativeDistance, shotAngles, nativeTerrainHeight, terrainCross, height, surface, nativeCellPoint } from './world-coordinates.ts'
+import { worldPoint, distance, nativeStep3D, browserPosition, nativeTerrainHeight, terrainCross, height, surface, nativeCellPoint } from './world-coordinates.ts'
 export { worldPoint, distance, nativeStep3D, browserPosition, nativeTerrainHeight, terrainCross, height, surface, nativeCellPoint } from './world-coordinates.ts'
 import { short } from './native-math.ts'
 import {
@@ -255,8 +261,6 @@ import {
   setPersonAnimationRow,
   stopPersonMovement,
 } from './person-state.ts'
-import { damagePerson } from './person-update.ts'
-import { createBlastWave, stepBlastWave, type BlastWave, type BlastTarget } from './blast-wave.ts'
 import {
   stepBuildingScenery,
   stepBuildingPeople,
@@ -303,16 +307,15 @@ import { collapseBuildingFaces } from './building-debris.ts'
 import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
-import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
-import { createFlatten, stepFlatten, type Flatten } from './flatten.ts'
-import { createErosion, stepErosion, type Erosion } from './erosion.ts'
-import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
-import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
-import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
-import { createVolcano, stepVolcano, type Volcano } from './volcano.ts'
-import { createConvertWild, stepConvertWild, type ConvertWild } from './convert-wild.ts'
+import { stepLandBridge, type LandBridge } from './land-bridge.ts'
+import { stepFlatten, type Flatten } from './flatten.ts'
+import { stepErosion, type Erosion } from './erosion.ts'
+import { stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
+import { stepFirestorm, type Firestorm } from './firestorm.ts'
+import { stepEarthquake, type Earthquake } from './earthquake.ts'
+import { stepVolcano, type Volcano } from './volcano.ts'
+import { stepConvertWild, type ConvertWild } from './convert-wild.ts'
 import {
-  createTornado,
   stepTornado,
   stepTornadoPerson,
   type Tornado,
@@ -342,7 +345,6 @@ import {
   stepLiveElectrocution,
   cancelBuildingEntry,
   leaveLiveBuilding,
-  buildingFirePeople,
   stepLivePerson,
   stepLiveImpulse,
   registerLivePerson,
@@ -380,10 +382,8 @@ import {
   nativeAngle,
   nativeStep,
   random,
-  cellDistanceSquared,
   positionDistance,
   nativeTerrainCross,
-  spiralCell,
 } from './native-math.ts'
 import {
   queueTerrain,
@@ -412,7 +412,6 @@ import {
   levelBuildingGround,
   chooseBuildingObject,
   buildingSmokePoint,
-  buildingFirePoints,
   buildingRepairArea,
 } from './building-shapes.ts'
 import { nativeTrainingCost } from './building-occupants.ts'
@@ -428,7 +427,6 @@ import {
   stepBuildingShake,
   processBuildingDamage,
   ensureBuildingDamage,
-  igniteBuilding,
   stepBuildingBurn,
   type BuildingBurn,
   changeBuildingWork,
@@ -1595,620 +1593,6 @@ function stepOutcome(w: World) {
     w.manaTribes[id].defeatTimer = t.defeatTimer
     w.manaTribes[id].flags2 = t.flags2
   })
-}
-function igniteBuildingAt(w: World, target: NativePoint, tribe: number) {
-  const index = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
-  const id = w.land.buildingIds[index] & 1023
-  const building = w.buildings.find(b => b.id === id && b.hp > 0)
-  if (building) {
-    const state = ensureBuildingDamage(building)
-    igniteBuilding(state, tribe, () => {
-      building.burn = { remaining: 127, soundPlaying: false }
-      const ignitePeople = buildingFirePeople(w)
-      for (const point of buildingFirePoints(buildingPose(building))) {
-        createFire(w, browserPosition(point), {
-          size: point.size,
-          light: point.light,
-          snap: false,
-          smoke: true,
-          turns: 135,
-          suppressEmbers: true,
-        })
-        building.burn.soundPlaying = true
-        ignitePeople(point, building.team === 'blue' ? 0 : 1)
-      }
-    })
-  }
-}
-
-// 0x511ae0's first bolt turn: ignite burnable scenery in the target cell;
-// without scenery, create the short-lived, cell-centered fire instead.
-function igniteLightningScenery(w: World, target: NativePoint, tribe: number) {
-  igniteBuildingAt(w, target, tribe)
-  const trees = w.trees.filter(tree => {
-    const p = nativePosition(w, tree)
-    return (
-      tree.model <= 6 &&
-      tree.logs > 0 &&
-      !tree.burn &&
-      (p.x & 0xfe00) === (target.x & 0xfe00) &&
-      (p.y & 0xfe00) === (target.y & 0xfe00)
-    )
-  })
-  for (const tree of trees)
-    tree.burn = {
-      remaining: 76,
-      started: false,
-      wood: Math.round(tree.logs * 100),
-      scale: debrisModels[tree.model + 12].scale,
-    }
-  const fires = w.effects.filter(
-    ({ fire }) =>
-      fire &&
-      !fire.expiring &&
-      (fire.x & 0xfe00) === (target.x & 0xfe00) &&
-      (fire.y & 0xfe00) === (target.y & 0xfe00)
-  )
-  for (const { fire } of fires) {
-    fire!.expiring = true
-    fire!.remaining = 0
-  }
-  if (!trees.length && !fires.length)
-    createFire(w, browserPosition(target), { size: 16, snap: true, smoke: false, turns: 24 })
-}
-
-// 0x511800: effect model 28, emitted by a Firestorm projectile at impact.
-function impactFirestorm(w: World, target: NativePoint, tribe: number) {
-  const index = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9),
-    point = browserPosition(target)
-  if (rules.terrainCategoryFlags[w.land.categories[index] & 15] & 2) {
-    effect(w, 'splash', point, true)
-    sound(w, 0x55, point)
-  } else {
-    createFire(w, point, {
-      size: 32,
-      snap: false,
-      smoke: false,
-      turns: 22,
-      suppressEmbers: true,
-    })
-    sound(w, 0xb6, point)
-  }
-  const wave = emitBlastWave(w, point, tribe === 0 ? 'blue' : 'red')
-  wave.panic = true
-  wave.scatter = true
-  igniteBuildingAt(w, target, tribe)
-}
-
-function processProjectiles(w: World) {
-  // Newest native allocations precede older objects. Full mixed-class scheduling remains to be ported.
-  for (const shot of [...w.projectiles].reverse()) {
-    const caster = w.units.find(u => u.team === shot.team && isShaman(u) && u.hp > 0)
-    const remove = () => {
-      w.projectiles.splice(w.projectiles.indexOf(shot), 1)
-      for (const f of shot.visuals) f.duration = f.age
-    }
-    if (shot.fireball && shot.remaining > 0) {
-      shot.remaining--
-      continue
-    }
-    if (shot.phase === 'windup') {
-      if (!caster) {
-        remove()
-        continue
-      }
-      if (--shot.remaining > 0) continue
-      shot.source = { x: caster.x, z: caster.z }
-      shot.origin = nativePosition(w, caster)
-      shot.origin.h += 0x60
-      shot.position = { ...shot.origin }
-      // 0x4c21e0: Lightning aims 0x400 above, displaced 0x600 toward the shaman.
-      if (shot.spell === 'lightning') {
-        const d = shot.destination,
-          yaw = nativeAngle(short(shot.origin.x - d.x), -short(shot.origin.y - d.y))
-        shot.destination = nativeStep3D({ ...d, h: d.h + 0x400 }, yaw, 512, 0x600)
-      }
-      shot.phase = 'flying'
-      if (shot.spell === 'blast') {
-        sound(w, 0xa1, shot.source)
-        shot.visuals = Array.from({ length: 5 }, (_, i) =>
-          shotVisual(w, shot.position, shot.team, 'blastShot', i + 3)
-        )
-      }
-      continue
-    }
-    if (shot.phase === 'arrived') {
-      if (!shot.fireball && caster)
-        finishCast(w, { id: shot.caster, team: shot.team, ...shot.source }, shot.spell, shot.target)
-      remove()
-      continue
-    }
-    const p = shot.position,
-      d = shot.destination
-    if (shot.spell === 'blast' || shot.fireball) {
-      // 0x4bb440: model-4 projectiles snap inside the arrival sphere and delete next turn.
-      const speed = shot.fireball ? 250 : 1000
-      if (
-        Math.abs(short(d.x - p.x)) < 0x408 &&
-        Math.abs(short(d.y - p.y)) < 0x408 &&
-        Math.abs(d.h - p.h) < 0x408 &&
-        nativeDistance(p, d) < speed
-      ) {
-        shot.position = {
-          ...d,
-          h: Math.max(d.h, nativePosition(w, browserPosition(d)).h),
-        }
-        shot.phase = 'arrived'
-        // 0x4bb440 removes the four attached tails, but the shot's own head
-        // reaches the target and remains visible until deletion on its next visit.
-        moveVisual(shot.visuals[0], shot.position)
-        for (const f of shot.visuals.slice(1)) f.duration = f.age
-        if (shot.fireball) impactFirestorm(w, d, shot.team === 'blue' ? 0 : 1)
-        continue
-      }
-      const [yaw, pitch] = shotAngles(p, d)
-      shot.position = nativeStep3D(p, yaw, pitch, speed)
-      shot.position.h = Math.max(
-        shot.position.h,
-        nativePosition(w, browserPosition(shot.position)).h
-      )
-      const travelled = nativeDistance(shot.position, shot.origin)
-      moveVisual(shot.visuals[0], shot.position)
-      for (let i = 1; i <= 4; i++)
-        if (i * 80 < travelled)
-          moveVisual(shot.visuals[i], nativeStep3D(shot.position, yaw, pitch, -i * 80))
-      // Four jitter trails; jitter uses game RNG, effect initialization uses cosmetic RNG.
-      if (!shot.fireball && shot.turns > 0)
-        for (let i = 1; i <= 4; i++)
-          if (320 + i * 160 < travelled) {
-            const tail = nativeStep3D(
-              nativeStep3D(shot.position, yaw, pitch, -320),
-              yaw,
-              pitch,
-              -i * 160
-            )
-            tail.x = short(tail.x + 8 - (random(w) & 15))
-            tail.y = short(tail.y + 8 - (random(w) & 15))
-            shotVisual(w, tail, shot.team, 'blastTrail')
-          }
-    } else {
-      // 0x4baf00: 20 substeps of 70; each trail starts with four turns before its second phase.
-      for (let i = 0; i < 20; i++) {
-        const p = shot.position,
-          tail = {
-            ...p,
-            x: short(p.x + 8 - (random(w) & 15)),
-            y: short(p.y + 8 - (random(w) & 15)),
-          }
-        tail.h = Math.max(tail.h, nativePosition(w, browserPosition(tail)).h)
-        shotVisual(w, tail, shot.team, 'spellTrail')
-        if (
-          Math.abs(short(d.x - p.x)) < 108 &&
-          Math.abs(short(d.y - p.y)) < 108 &&
-          Math.abs(d.h - p.h) < 108
-        ) {
-          if (caster)
-            finishCast(
-              w,
-              { id: shot.caster, team: shot.team, ...shot.source },
-              shot.spell,
-              shot.target,
-              shot.position
-            )
-          remove()
-          break
-        }
-        const [yaw, pitch] = shotAngles(p, d)
-        shot.position = nativeStep3D(p, yaw, pitch, 70)
-      }
-    }
-    shot.turns++
-  }
-}
-function emitBlastWave(w: World, point: Point, team: Team, standardForce = false) {
-  const position = nativePosition(w, point)
-  position.h = terrainPointHeight(w.land, position)
-  const fx = effect(w, 'blastWave', point)
-  fx.wave = createBlastWave(
-    position,
-    team === 'blue' ? 0 : 1,
-    !standardForce && !!(w.manaWorld.loadFlags & 0x04000000)
-  )
-  fx.duration = Infinity
-  sound(w, 0xa1, point)
-  return fx.wave
-}
-
-// Native force/damage dispatch with live object adapters. Ordinary allocation
-// still supplies cell order; complete mixed-class lists remain open.
-function stepLiveBlastWave(w: World, wave: BlastWave) {
-  syncLandscapeObjects(w)
-  const units = new Map(
-    w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44).map(u => [u.id, u])
-  )
-  const buildings = new Map(w.buildings.filter(b => b.hp > 0).map(b => [b.id, b]))
-  const cells = new Map<number, BlastTarget[]>()
-  const records = new Map<number, BlastTarget>()
-  const people = new Map<number, LivePerson>()
-  const shaken = new Map<number, Building | Tree>()
-  const add = (p: BlastTarget) => {
-    records.set(p.id, p)
-    const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
-    const cell = cells.get(index) ?? []
-    cell.unshift(p)
-    cells.set(index, cell)
-  }
-  for (const u of units.values()) {
-    if (u.inside !== null) continue
-    const existing = u.flight ?? u.fight?.motion ?? u.native
-    const p = existing ?? createLivePerson(w, u)
-    p.life = Math.round(u.hp * 20)
-    people.set(p.id, p)
-    add(Object.assign(p, { shake: 0, shakeOrigin: 0 }))
-  }
-  const addShaken = (
-    source: Building | Tree,
-    objectClass: 2 | 5,
-    model: number,
-    tribe: number,
-    state: number,
-    flags2 = 0,
-    flags3 = 0
-  ) => {
-    shaken.set(source.id, source)
-    add({
-      ...nativePosition(w, source),
-      id: source.id,
-      class: objectClass,
-      model,
-      tribe,
-      state,
-      previousState: 0,
-      flags2,
-      flags3,
-      flags4: 0,
-      velocity: { x: 0, y: 0, z: 0 },
-      vehicle: 0,
-      burnTrail: 0,
-      life: 0,
-      shake: source.shake ?? 0,
-      shakeOrigin: source.shakeOrigin ?? 0,
-    })
-  }
-  for (const b of buildings.values())
-    addShaken(
-      b,
-      2,
-      buildingModel(b),
-      b.team === 'blue' ? 0 : 1,
-      b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
-      b.damageState?.flags2,
-      b.damageState?.flags3
-    )
-  for (const tree of w.trees)
-    if (tree.logs > 0 && rules.sceneryResourceFlags[tree.model] & 0x40000)
-      addShaken(tree, 5, tree.model, -1, 0)
-  const state = {
-    randomState: w.randomState,
-    search: w.indexedSearch,
-    land: w.land,
-    alliances: w.outcome.alliances,
-    special: !!(w.manaWorld.loadFlags & 0x04000000),
-  }
-  const alive = stepBlastWave(
-    state,
-    wave,
-    {
-      cell: index => cells.get(index) ?? [],
-      building: id => records.get(id),
-    },
-    {
-      panic: p => {
-        w.randomState = state.randomState
-        initializeLivePanic(w, units.get(p.id)!, people.get(p.id)!, true)
-        state.randomState = w.randomState
-      },
-      animation: p => {
-        const u = units.get(p.id)
-        if (!u) return
-        const person = people.get(p.id)!
-        const object = personAnimationObject(person)
-        if (object !== -1) setLivePersonAnimation(w, person, object)
-      },
-      damage: (p, amount) => damagePerson(people.get(p.id)!, w.levelFlags2, wave.tribe, amount),
-      buildingDamage: (p, amount) => {
-        if (w.levelFlags2 & 0x04000000 || p.flags3 & 128) return
-        const b = ensureBuildingDamage(buildings.get(p.id)!)
-        b.damage = ((b.damage + amount) << 16) >> 16
-        if (wave.tribe !== -1 && wave.tribe !== 255) b.attacker = wave.tribe
-      },
-      vehicleDamage: () => {
-        throw new Error('Live vehicle damage has no vehicle owner')
-      },
-      remove: p => {
-        p.life = 0
-      },
-    }
-  )
-  for (const p of people.values()) {
-    const u = units.get(p.id)
-    if (!u) continue
-    u.hp = p.life / 20
-    u.burnTrail = p.burnTrail
-    if (p.flags2 & 0x80000) {
-      if (!u.flight) release(w, u)
-      u.flight = p
-      u.lift = 1
-    }
-  }
-  for (const [id, source] of shaken) {
-    const p = records.get(id)!
-    if (p.shake && !source.shake) {
-      source.shake = 1
-      source.shakeOrigin = p.shakeOrigin
-    }
-  }
-  w.randomState = state.randomState
-  return alive
-}
-
-function stepSwarm(w: World, fx: Effect) {
-  const swarm = fx.swarm!
-  if (!swarm.applied) {
-    const center = nativePosition(w, fx),
-      centerCell = ((center.y & 0xfe00) | ((center.x >>> 8) & 254)) >>> 0,
-      cells = new Set([
-        centerCell,
-        ...Array.from({ length: 7 }, (_, i) => spiralCell(centerCell, i, 0)),
-      ])
-    for (const u of w.units) {
-      if (u.hp <= 0 || u.inside !== null) continue
-      const p =
-          u.builder?.person ??
-          u.flight ??
-          u.fight?.motion ??
-          u.native ??
-          u.entry?.person ??
-          createLivePerson(w, u),
-        cell = ((p.y & 0xfe00) | ((p.x >>> 8) & 254)) >>> 0
-      p.life = Math.round(u.hp * 20)
-      if (
-        !cells.has(cell) ||
-        p.tribe === swarm.tribe ||
-        p.state === 23 ||
-        p.flags2 & 0x800000 ||
-        rules.personModels[p.model].flags & 0x100
-      )
-        continue
-      if (p.flags4 & 0x800) {
-        p.life = 0
-        u.hp = 0
-        continue
-      }
-      if (!(p.flags2 & 0x100000)) initializeLivePanic(w, u, p)
-      damagePerson(p, w.levelFlags2, swarm.tribe, constants.SWARM_PERSON_DAMAGE)
-      u.hp = p.life / 20
-    }
-    swarm.applied = true
-  }
-  // ponytail: one proven native victim pass plus a 65-turn visible lifetime;
-  // add native building pursuit when its controller duration and state 2 are recovered.
-  return --swarm.remaining > 0
-}
-
-const ghostRanks = [0, 0, 1, 2, 4, 3, 5, 6]
-function ghostArmyCell(w: World, p: Point) {
-  const n = nativePosition(w, p)
-  return ((n.x >>> 8) & 254) | (n.y & 0xfe00)
-}
-function ghostArmyModel(w: World, fx: Effect) {
-  const tribe = fx.team === 'blue' ? 0 : 1
-  if (w.manaTribes[tribe].playerType === 1) return 2
-  const center = ghostArmyCell(w, fx)
-  let model = 2,
-    rank = ghostRanks[model]
-  for (const u of w.units)
-    if (
-      u.team === fx.team &&
-      u.hp > 0 &&
-      u.inside === null &&
-      cellDistanceSquared(ghostArmyCell(w, u), center) <= 2 &&
-      ghostRanks[nativePersonModel(u)] > rank
-    ) {
-      model = nativePersonModel(u)
-      rank = ghostRanks[model]
-    }
-  return model
-}
-function evictGhosts(w: World, team: Team, count: number, center: number) {
-  const ghosts = [...w.units].reverse().filter(u => u.team === team && u.ghost && u.hp > 0)
-  for (let excess = ghosts.length + count - 60; excess > 0; excess--) {
-    let victim: Unit | undefined
-    for (const group of [2, 7, 0]) {
-      let farthest = 0
-      for (const u of ghosts) {
-        const model = nativePersonModel(u)
-        if (
-          u.hp <= 0 ||
-          u.native?.state === 3 ||
-          (group ? model !== group : model === 2 || model === 7)
-        )
-          continue
-        const distance = cellDistanceSquared(ghostArmyCell(w, u), center)
-        if (distance > farthest) {
-          victim = u
-          farthest = distance
-        }
-      }
-      if (victim) break
-    }
-    if (victim && !((victim.native?.flags2 ?? 0) & 0x100000)) victim.hp = 0
-  }
-}
-function stepGhostArmy(w: World, fx: Effect) {
-  if (fx.turnsRemaining === 4) {
-    const center = nativePosition(w, fx),
-      baseX = center.x & 0xfe00,
-      baseY = center.y & 0xfe00
-    for (let i = 0; i < 81; i++) {
-      const position = {
-        x: (baseX + (random(w) & 511)) & 65535,
-        y: (baseY + (random(w) & 511)) & 65535,
-        h: 0,
-      }
-      position.h = terrainPointHeight(w.land, position)
-      random(w) // Successful class-7/model-3 initialization.
-      emitGroundSpark(w, position)
-    }
-  }
-  if (fx.turnsRemaining !== 0) return
-  const model = ghostArmyModel(w, fx),
-    kind = unitKindFromModel(model),
-    count = model === 2 ? 6 : model === 7 ? 1 : 3,
-    center = nativePosition(w, fx),
-    team = fx.team!
-  evictGhosts(w, team, count, ghostArmyCell(w, fx))
-  for (let i = 0; i < count; i++) {
-    const position = {
-        x: short(center.x + (random(w) & 511) - 256),
-        y: short(center.y + (random(w) & 511) - 256),
-      },
-      heading = random(w) & 2047,
-      life = Math.round(maxHp(kind) * 20),
-      hp = Math.floor((life * 3) / 4) + (random(w) % Math.floor(life / 4)),
-      u = addUnit(w, team, kind, browserPosition(position))
-    u.ghost = true
-    u.heading = Math.PI - (heading * Math.PI) / 1024
-    u.hp = hp / 20
-    u.native = createLivePerson(w, u)
-  }
-}
-
-function finishCast(
-  w: World,
-  shaman: Pick<Unit, 'id' | 'team' | 'x' | 'z'>,
-  spell: Spell,
-  p: Point,
-  endpoint?: NativePoint
-) {
-  // Effect 78 uses the default wave initializer, then enables scatter.
-  if (spell === 'blast') emitBlastWave(w, p, shaman.team).scatter = true
-  const upper =
-      (spell === 'lightning' || spell === 'tornado') && endpoint ? browserPosition(endpoint) : p,
-    fx = effect(w, spell, upper)
-  if (spell === 'lightning') {
-    // 0x511ef0 raises the displaced projectile endpoint above its local ground.
-    // 0x511f70 creates the upper flash and bolt generator on the next turn.
-    fx.lightning = {
-      tribe: shaman.team === 'blue' ? 0 : 1,
-      start: { ...nativePosition(w, upper), h: Math.round(fx.height! * 45) },
-      target: nativePosition(w, p),
-      seed: 0,
-      turn: -1,
-      segments: [],
-    }
-  }
-  // Spell 2 allocates effect 78 (0x50b630) before effect 38 (0x509c10).
-  if (spell === 'blast') {
-    sound(w, 0xb2, p)
-  } else if (spell === 'bridge') {
-    sound(w, 0xab, p)
-    sound(w, 0x29, p)
-  } else if (spell === 'flatten') {
-    sound(w, 0xae, p)
-  } else if (spell === 'ghostArmy') {
-    sound(w, 0xa8, p)
-  }
-  if (spell === 'bridge') {
-    fx.bridge = createLandBridge(nativePosition(w, shaman), nativePosition(w, p))
-    fx.team = shaman.team
-    fx.duration = Infinity
-    w.stats.bridges++
-    tell(w, 'The earth rises. Lead your followers across the new Land Bridge.')
-  } else {
-    if (spell === 'flatten') {
-      fx.flatten = createFlatten(w.land, nativePosition(w, p))
-      fx.team = shaman.team
-      fx.duration = Infinity
-    } else if (spell === 'erosion') {
-      fx.erosion = createErosion(nativePosition(w, p))
-      fx.team = shaman.team
-      fx.duration = Infinity
-    } else if (spell === 'firestorm') {
-      fx.firestorm = createFirestorm(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
-      fx.team = shaman.team
-      fx.duration = Infinity
-    } else if (spell === 'earthquake') {
-      fx.earthquake = createEarthquake(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1, w)
-      fx.team = shaman.team
-      fx.duration = Infinity
-    } else if (spell === 'volcano') {
-      fx.volcano = createVolcano(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
-      fx.team = shaman.team
-      fx.duration = Infinity
-    } else if (spell === 'convertWild') {
-      fx.convertWild = createConvertWild(
-        nativePosition(w, p),
-        shaman.team === 'blue' ? 0 : 1,
-        (w.effectCounter - 1) & 255,
-        w.manaTribes[shaman.team === 'blue' ? 0 : 1].playerType === 1
-      )
-      fx.team = shaman.team
-      fx.duration = Infinity
-      sound(w, 0xb4, p)
-    } else if (spell === 'hypnotise') {
-      fx.team = shaman.team
-      fx.turnsRemaining = 16
-      fx.duration = Infinity
-      // ponytail: reuse the packed sparkle until the native effect-17 initializer is recovered.
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
-    } else if (spell === 'ghostArmy') {
-      fx.team = shaman.team
-      fx.ghostArmy = true
-      fx.turnsRemaining = 5
-      fx.duration = Infinity
-    } else if (spell === 'tornado') {
-      fx.tornado = createTornado(
-        w.land,
-        endpoint ?? nativePosition(w, p),
-        nativePosition(w, shaman),
-        shaman.team === 'blue' ? 0 : 1,
-        w
-      )
-      fx.team = shaman.team
-      fx.duration = Infinity
-      moveVisual(fx, fx.tornado)
-    } else if (spell === 'swamp') {
-      fx.swamp = createSwamp(
-        nativePosition(w, p),
-        shaman.team === 'blue' ? 0 : 1,
-        (w.effectCounter - 1) & 255,
-        w
-      )
-      fx.team = shaman.team
-      fx.height = fx.swamp.center.h / 45
-      fx.duration = Infinity
-      const owned = w.effects.filter(candidate => candidate.swamp?.tribe === fx.swamp!.tribe),
-        excess = excessSwamp(owned.map(candidate => candidate.swamp!))
-      if (excess) {
-        const oldest = owned.find(candidate => candidate.swamp === excess)!
-        oldest.duration = oldest.age
-      }
-    } else if (spell === 'shield') {
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
-      shieldFollowers(w, p, shaman.team)
-    } else if (spell === 'invisibility') {
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
-      if (invisibilityFollowers(w, p, shaman.team).length) sound(w, 0x31, p)
-    } else if (spell === 'swarm') {
-      fx.swarm = { tribe: shaman.team === 'blue' ? 0 : 1, remaining: 65, applied: false }
-      fx.sprite = { sequence: 'smoke', frame: 0 }
-      fx.duration = Infinity
-      sound(w, 0xa4, p)
-    }
-    if (shaman.team === 'blue')
-      tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
-  }
 }
 
 function stepLiveTornado(w: World, fx: Effect) {
