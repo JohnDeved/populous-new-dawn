@@ -5,6 +5,57 @@ prerequisites: object class plus model, mission availability, acquisition/unlock
 and existing implementation. Research a missing prerequisite deliberately; do not
 assume a model number alone identifies a playable person.
 
+## Resolve supplied inputs before declaring a blocker
+
+Missing from the checkout or an unset `POPULOUS_EXE` means **unconfigured or not
+extracted**, not unavailable. The parent owns recovery from supplied readable inputs;
+do not defer gameplay or ask for another copy before checking the archive.
+
+This checkout's supplied sources (all ignored, repository-relative paths):
+
+- Archive: `work/orchestration/ceo-release/inputs/PopulousTB-Setup.zip`.
+  SHA256 `6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702`.
+- Recovered game root: `work/orchestration/ceo-release/mission2/` (contains the
+  verified `d3dpoptb.exe`, Mission 1/2 scripts, Mission 2 level/header, constants,
+  and `language/lang00.dat`; it is not a complete extraction).
+- Extractor Python: `work/orchestration/ceo-release/venv/bin/python` with the
+  pinned `decomp/extraction-requirements.txt` archive dependency.
+- Native Python: `.tools/decomp/oracle/bin/python`. Verify required imports for
+  the actual probe; archive extraction and native emulation are separate runtimes.
+
+Check the required files in that game root first. Recover missing exact members with
+the existing `scripts/extract-reference.py`, preserving their relative paths beside
+the executable. For example, from the repository root:
+
+```sh
+work/orchestration/ceo-release/venv/bin/python scripts/extract-reference.py \
+  work/orchestration/ceo-release/inputs/PopulousTB-Setup.zip \
+  work/orchestration/ceo-release/mission2 'language/lang00.dat'
+export POPULOUS_EXE="$PWD/work/orchestration/ceo-release/mission2/d3dpoptb.exe"
+```
+
+Inspect archive member names when the exact path is unknown; use the actual mission
+header to choose its script. Verify the executable against `decomp/tools.json` and
+retain input hashes and extraction results in the existing task handoff. Do not run
+the installer, overwrite different existing files, or invoke broad tracked-output
+importers merely to recover an input. Scoped input extraction is authorized research,
+not fixture/parity recording or permission to regenerate tracked assets.
+
+Before dispatch, put the resolved executable/game root, Python, required adjacent
+files and any remaining recovery in the existing packet's `research.assumptions`
+or compact assignment. A specialist lacking write ownership reports the exact
+recovery command to the parent; it does not label readable archived data unavailable.
+After recovery, run the actual affected reader/probe. Extraction alone does not
+establish live integration: verify that separately through the gameplay consumer.
+
+Only report an external input blocker with the attempted path/command and observed
+failure: unreadable archive, absent member after inventory, or hash mismatch. Missing
+decoder/importer support, an unbound native behavior, and unfinished live integration
+are engineering work with a named owner and next check, not unavailable assets.
+Use a newer verified handoff if these local paths change; never bypass denied access.
+
+## Research and durable handoff
+
 Search `decomp/research/`, the subsystem's mapped evidence, `decomp/exports.json`, and
 existing probes first. Reuse valid findings; ask a specialist only the unresolved
 question and identify the decision it will change. An audit may remain read-only.
