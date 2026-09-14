@@ -9,16 +9,16 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: perform the user-queued behavior-neutral composition refactor of
-`app/model.ts` and `app/scene.ts` now that Mission 4 is committed. Keep both stable
-public facades, preserve exact simulation, RNG, render, and audio order, and make no
-parity update. Use one mechanically moved cohesive extraction per independently
-revertible commit; reassess each boundary against the current source and stop
-splitting where ownership is not narrow without new scaffolding.
+Current task lock: expose direct startup selection for the four shipped missions
+through the existing `GameStore.startMission()` path. Preserve checkpoint loading,
+keyboard and mouse access, and post-victory continuation. This is a bounded campaign
+access and menu slice, not complete original-menu or campaign-progression parity;
+do not record parity without explicit authorization.
 
-World initialization extraction finished in commit `ae33ada`. Continue from the
-current source: the supplied module names and order are strong candidates, not a
-quota or immutable plan.
+The user-queued composition refactor reached its natural stopping point after five
+independently revertible extractions through `7d58c2c`. Keep `app/model.ts` and
+`app/scene.ts` as stable facades; do not resume splitting when the next boundary
+would require cycles or new scaffolding.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, saves/profiles, and modern compatibility—not recurring
