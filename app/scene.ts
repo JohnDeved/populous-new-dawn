@@ -22,7 +22,6 @@ import { terrainTiles } from './terrain-visibility.ts'
 import { populationMeter } from './hud-population.ts'
 import { renderBuildingPanels } from './building-panels.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
-import { drawTooltip } from './tooltip-layout.ts'
 import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { advanceGame } from './game-clock.ts'
 import { FpsGraph } from './fps-graph.ts'
@@ -65,7 +64,6 @@ import { terrainPointHeight } from './native-terrain.ts'
 import { modelLighting, modelHighlight, modelWaveOffsets } from './model-lighting.ts'
 import {
   createTooltip,
-  showObjectTooltip,
   stepTooltip,
   forcedTooltipObject,
   worldTooltipObject,
@@ -220,6 +218,7 @@ import {
   navigationButtons,
   chooseFollowers,
   acknowledgePointer,
+  renderTooltip,
   drawPointer,
   updatePointerFrame,
   updateSpellPointerFrame,
@@ -735,40 +734,7 @@ export class GameScene {
     return updateFlyby(this, dt)
   }
   renderTooltip() {
-    let state = this.tooltip
-    if (!state.draw && this.hoveredObject !== null) {
-      // ponytail: hover uses native names but immediate browser hit testing;
-      // connect the original hover delay/ownership when its controller is ported.
-      state = createTooltip()
-      showObjectTooltip(state, worldTooltipObject(this.world, this.hoveredObject), 1)
-      state.draw = 1
-    }
-    const object = worldTooltipObject(this.world, state.target),
-      element = this.tooltipElement
-    element.hidden = !state.draw || !state.text || !object
-    if (element.hidden || !object) return
-    const p =
-      object.type === 1
-        ? this.unitScreen(object.id, 1)
-        : this.screen(object, this.y(object) + 512 / 45)
-    if (!p || (object.type !== 1 && !this.visible(object))) {
-      element.hidden = true
-      return
-    }
-    element.setAttribute(
-      'aria-label',
-      state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
-    )
-    const { width, height } = this.container.getBoundingClientRect()
-    drawTooltip(
-      this.tooltipCanvas,
-      texture('hud').image as HTMLImageElement,
-      state.text,
-      window.innerWidth,
-      Math.trunc(height)
-    )
-    element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
-    element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
+    renderTooltip(this)
   }
   renderBuildingPanels() {
     renderBuildingPanels(this, texture('hud').image as HTMLImageElement)

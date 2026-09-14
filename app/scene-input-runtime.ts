@@ -40,6 +40,9 @@ import { spellCursor } from './spell-casting.ts'
 import nativeHud from './original-hud.json'
 import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
+import { texture } from './scene-assets.ts'
+import { drawTooltip } from './tooltip-layout.ts'
+import { createTooltip, showObjectTooltip, worldTooltipObject } from './tooltips.ts'
 
 const cameraKeys: Record<string, number> = {
   w: 1,
@@ -534,6 +537,43 @@ export function acknowledgePointer(scene: GameScene, target: number) {
   // 0x4b0080 expires after five frontend visits. Use elapsed presentation
   // time at the existing 24 Hz reference cadence, never rendered-frame count.
   scene.pointerAck = { target, until: performance.now() + 5000 / 24 }
+}
+
+export function renderTooltip(scene: GameScene) {
+  let state = scene.tooltip
+  if (!state.draw && scene.hoveredObject !== null) {
+    // ponytail: hover uses native names but immediate browser hit testing;
+    // connect the original hover delay/ownership when its controller is ported.
+    state = createTooltip()
+    showObjectTooltip(state, worldTooltipObject(scene.world, scene.hoveredObject), 1)
+    state.draw = 1
+  }
+  const object = worldTooltipObject(scene.world, state.target),
+    element = scene.tooltipElement
+  element.hidden = !state.draw || !state.text || !object
+  if (element.hidden || !object) return
+  const p =
+    object.type === 1
+      ? scene.unitScreen(object.id, 1)
+      : scene.screen(object, scene.y(object) + 512 / 45)
+  if (!p || (object.type !== 1 && !scene.visible(object))) {
+    element.hidden = true
+    return
+  }
+  element.setAttribute(
+    'aria-label',
+    state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
+  )
+  const { width, height } = scene.container.getBoundingClientRect()
+  drawTooltip(
+    scene.tooltipCanvas,
+    texture('hud').image as HTMLImageElement,
+    state.text,
+    window.innerWidth,
+    Math.trunc(height)
+  )
+  element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
+  element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
 }
 
 export function drawPointer(scene: GameScene, now: number) {
