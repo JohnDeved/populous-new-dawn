@@ -494,7 +494,7 @@
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise continuous campaign progression through Mission 4 into playable Mission 5, including Mission 4 tutorials/checkpoint and Mission 5 opening, objectives, and completion profile.",
+      "purpose": "Exercise continuous campaign progression through Mission 4 into playable Mission 5, including Mission 4 tutorials/checkpoint and Mission 5 opening, Boat tutorial, objectives, and completion profile.",
       "coveredBehavior": [
         "Mission 3 result continuation",
         "Mission 4 original opening flyby, camera movement, input lock, skip control, and HUD resumption",
@@ -505,11 +505,12 @@
         "Mission 4 checkpoint restore",
         "Mission 4 victory continuation into playable Mission 5",
         "Mission 5 imported opening flyby, camera movement, skip control, and input resumption",
+        "Mission 5 Boat-head completion, original positioned tutorial, and one-shot latch",
         "Mission 5 Boat briefing and objective presentation",
         "Mission 5 victory and completed-missions profile"
       ],
       "knownLimits": [
-        "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, and removes Mission 5 enemy forces before exercising the real outcome/profile path; Mission 4/5 recurring AI and full Mission 5 combat remain deferred.",
+        "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, positions one Mission 5 follower at the Boat worship ring before issuing the live order, and removes Mission 5 enemy forces before exercising the real outcome/profile path; starting-route terrain progression, Mission 4/5 recurring AI, and full Mission 5 combat remain deferred.",
         "Mission 5 opening events and trigger come from the imported original script; native timing has not been independently replayed."
       ],
       "executable": "node",
@@ -593,6 +594,7 @@
         "Mission 2 type-1 descriptor and message-number binding",
         "Mission 2 positioned-message binding, target, payload, lifetime and flags",
         "Mission 2 Tornado-head message 103 binding and one-shot script branch",
+        "Mission 5 message 130 English binding",
         "Mission 4 opcode 1179 lifetime, field width, presentation guards, and three original uses",
         "Age and slot ordering",
         "Normalized height, velocity, gravity, collisions, and rebound"
@@ -611,6 +613,7 @@
         "app/original-messages.json",
         "app/original-script-two.json",
         "app/original-script-four.json",
+        "app/original-script-five.json",
         "public/original/message-type1.png",
         "scripts/import-messages.py",
         "scripts/import-original.py",

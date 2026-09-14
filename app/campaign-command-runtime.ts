@@ -510,7 +510,15 @@ export function campaignRules(w: World) {
                   1004,
                   1019,
                 ]
-              : [12, 1003, ...script.codes.slice(992, 1085), 1004, 1019],
+              : [
+                  12,
+                  1003,
+                  ...script.codes.slice(707, 744),
+                  1004,
+                  ...script.codes.slice(992, 1085),
+                  1004,
+                  1019,
+                ],
   }
   // ponytail: Missions 4–5 bind only their delivered sequences; add AI blocks with their hosts.
   runScript(boundCampaignScript, w.ai, {

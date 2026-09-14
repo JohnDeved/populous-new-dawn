@@ -87,6 +87,10 @@
     "65": {
       "stringId": 637,
       "text": "Shaman, you have discovered the Plans for the Guard Tower. This will enable you to establish a new settlement elsewhere."
+    },
+    "130": {
+      "stringId": 662,
+      "text": "The Ancients have granted you a Boat, Shaman."
     }
   }
 }

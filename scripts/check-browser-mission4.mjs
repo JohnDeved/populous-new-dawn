@@ -157,6 +157,31 @@ try {
   await page.getByText('Board followers onto the Boat', { exact: true }).waitFor()
   await page.getByText('Claim the Boat from the stone head, board your followers', { exact: false }).waitFor()
   await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
+  const boatTutorial = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { browserPosition, command, nativePosition, tick } = await import('/app/model.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      { worshipPositions } = await import('/app/worship.ts'),
+      head = world.shrines.find(shrine => shrine.kind === 'boat'),
+      follower = world.units.find(unit => unit.team === 'blue' && unit.kind === 'warrior'),
+      point = worshipPositions({ ...nativePosition(world, head), angle: Math.round(head.angle * 1024 / Math.PI) & 2047 })[0]
+    Object.assign(follower, browserPosition(point))
+    syncLivePersonCells(world)
+    world.selected = [follower.id]
+    const ordered = command(world, head)
+    for (let turn = 0; turn < 120 && !world.messages.slots.some(message => message?.stringId === 662); turn++)
+      tick(world, 1 / 12)
+    globalThis.testStore.update()
+    const message = world.messages.slots.find(message => message?.stringId === 662)
+    return { ordered, boat: world.vehicles.some(vehicle => vehicle.active), message, latch: world.ai.variables[15] }
+  })
+  assert.deepEqual(
+    { ordered: boatTutorial.ordered, boat: boatTutorial.boat, stringId: boatTutorial.message?.stringId, lifetime: boatTutorial.message?.lifetime, view: boatTutorial.message?.view, latch: boatTutorial.latch },
+    { ordered: true, boat: true, stringId: 662, lifetime: 512, view: { cell: 13022, payload: 1800 }, latch: 1 }
+  )
+  const boatMessage = page.locator('.campaign-messages details').filter({ hasText: 'The Ancients have granted you a Boat, Shaman.' })
+  await boatMessage.locator('summary').click()
+  await boatMessage.getByText('The Ancients have granted you a Boat, Shaman.', { exact: true }).waitFor()
   const missionFive = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
       { tick } = await import('/app/model.ts')

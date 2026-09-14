@@ -2271,6 +2271,13 @@ test('shaman escort uses native pursuit cadence and strict boundaries',async()=>
  const ai=createComputerQueue();requestShamanGuard(ai,10,[50,50,50,50,50],true);stepShamanGuardTask(ai,0,{existing:()=>7,select:()=>[]});assert.deepEqual(ai.tasks[0].quotas,[0,5,5,5,3],'existing escorts deplete native model order 2,5,4,6,3');
 });
 
+test('Mission 5 Boat worship emits its original one-shot tutorial',async()=>{
+ const {createGameStore}=await import('../app/game-store.ts'),store=createGameStore();store.startMission(5);const w=store.getWorld(),boat=w.vehicles[0],head=w.shrines.find(s=>s.kind==='boat'),warrior=w.units.find(u=>u.team==='blue'&&u.kind==='warrior');
+ standAtHead(w,warrior,head);until(w,()=>boat.active,10);assert.equal(head.active,false);until(w,()=>w.messages.slots.some(message=>message?.stringId===662),20);
+ const tutorial=w.messages.slots.find(message=>message?.stringId===662);assert.deepEqual({text:messageText(tutorial.stringId),flags:tutorial.flags,lifetime:tutorial.lifetime,view:tutorial.view,latch:w.ai.variables[15]},{text:'The Ancients have granted you a Boat, Shaman.',flags:14065,lifetime:512,view:{cell:13022,payload:1800},latch:1});
+ const serial=tutorial.serial;for(let turn=0;turn<32;turn++)tick(w,1/12);assert.deepEqual(w.messages.slots.filter(message=>message?.stringId===662).map(message=>message.serial),[serial]);
+});
+
 test('Mission 5 grants, boards, sails, lands and checkpoints its original Boat',async()=>{
  const {vehicleCanDisembark}=await import('../app/vehicle-routing.ts'),{createGameStore}=await import('../app/game-store.ts');
  const store=createGameStore();store.startMission(5);let w=store.getWorld(),boat=w.vehicles[0],followers=w.units.filter(u=>u.team==='blue'&&u.kind==='warrior').slice(0,2);const ids=followers.map(u=>u.id),head=w.shrines.find(s=>s.kind==='boat');
