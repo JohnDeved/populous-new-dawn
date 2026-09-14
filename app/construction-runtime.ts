@@ -25,6 +25,7 @@ import {
   type BuildingShapePose,
 } from './building-shapes.ts'
 import { isDismantling } from './live-building-entry.ts'
+import { initializeLivePanic } from './live-people.ts'
 import { pruneBuilders, assignBuilder, BuilderTask, stepConstructionCrew } from './building-workers.ts'
 import { queueTerrain, processTerrain, updateWalkMasks, terrainPointHeight } from './native-terrain.ts'
 import {
@@ -315,7 +316,14 @@ export function dispatchConstructionCrew(w: World, b: Building, workers: Unit[])
     return u.builder
   })
   const finished = stepConstructionCrew(plan, crew, {
-    evacuate: worker => release(w, workers.find(u => u.builder === worker)!),
+    evacuate: worker => {
+      const u = workers.find(u => u.builder === worker)!,
+        p = u.builder?.person ?? u.native,
+        cell = p && ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9),
+        onBuilding = cell != null && !!(w.land.buildingIds[cell] & 1023)
+      release(w, u)
+      if (p && onBuilding) initializeLivePanic(w, u, p)
+    },
     resume: () => {
       const area = buildingRepairArea(buildingPose(b)),
         cells = new Set(area.cells)

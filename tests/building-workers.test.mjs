@@ -8,6 +8,9 @@ import crewFixture from './fixtures/construction-crew.json' with {type:'json'}
 import smokeFixture from './fixtures/repair-smoke.json' with {type:'json'}
 import {buildingRepairArea} from '../app/building-shapes.ts'
 import {releaseTimberReservation,reserveTimber,stepTimberReservations} from '../app/timber.ts'
+import {dispatchConstructionCrew} from '../app/construction-runtime.ts'
+import {createLivePerson} from '../app/live-people.ts'
+import {random} from '../app/native-math.ts'
 
 test('builder admission and stale-slot pruning match complete native calls',()=>{
   assert.equal(fixture.executableSha256,manifest.executableSha256)
@@ -30,6 +33,30 @@ test('construction dispatch, repair clocks and departure gates match native plan
     if(removed)events.push('remove')
     assert.deepEqual({repairDelay:plan.repairDelay,workers,events,linked:removed?0:42},crewFixture.expected[i])
   })
+})
+
+test('scheduled burning plans panic only unlocked builders on building cells',()=>{
+  const w=createWorld(),b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut')
+  b.counter=0;b.burn={remaining:110,soundPlaying:false}
+  const workers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,3)
+  for(const [i,u] of workers.entries()){
+    Object.assign(u,{x:i===1?b.x+12:b.x,z:b.z,work:b.id,inside:null,path:[],builder:{task:BuilderTask.Work,busy:0,phase:0,restart:true}})
+    u.builder.person=createLivePerson(w,u)
+  }
+  workers[2].builder.person.flags2|=0x100000
+  b.builders=workers.map(u=>u.id)
+  const [onBuilding,offBuilding,locked]=workers.map(u=>u.builder.person)
+  const cell=p=>((p.y&65535)>>9)*128+((p.x&65535)>>9)
+  assert.ok(w.land.buildingIds[cell(onBuilding)]&1023)
+  assert.equal(w.land.buildingIds[cell(offBuilding)]&1023,0)
+  const expected={randomState:w.randomState}
+  random(expected);const angle=random(expected)&2047
+  dispatchConstructionCrew(w,b,workers)
+  assert.deepEqual([onBuilding.state,onBuilding.timer,onBuilding.turnAngle],[26,64,angle])
+  assert.equal(w.randomState,expected.randomState)
+  assert.equal(offBuilding.state,10)
+  assert.equal(locked.state,10)
+  assert.ok(workers.every(u=>u.work===null&&!u.builder))
 })
 
 test('repair smoke footprint and terrain refresh match native cell traversal',()=>{

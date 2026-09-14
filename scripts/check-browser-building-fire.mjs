@@ -105,7 +105,8 @@ try {
   assert.equal(await page.evaluate(() => window.testScene.ownedSounds.has(window.burningBuilding.id)), false)
   await page.evaluate(() => {
     const s=window.testScene,w=s.world
-    w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2).map(u=>u.id)
+    window.repairWorkers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2)
+    w.selected=window.repairWorkers.map(u=>u.id)
     s.onChange()
   })
   await page.mouse.click(target.x,target.y)
@@ -144,6 +145,38 @@ try {
   await page.waitForFunction(frame=>window.testScene.unitMeshes.get(window.workingBuilder.id).userData.frame!==frame,pose.frame)
   await page.evaluate(()=>{window.testScene.world.paused=false})
   await page.screenshot({path:'/private/tmp/populous-repair-waiting.png'})
+  assert.ok(await page.evaluate(()=>{
+    const w=window.testScene.world,p=window.workingBuilder.builder.person
+    return !!(w.land.buildingIds[((p.y&65535)>>9)*128+((p.x&65535)>>9)]&1023)&&window.burningBuilding.builders.includes(window.workingBuilder.id)
+  }),'working builder must occupy a registered building cell')
+  await page.evaluate(async()=>{
+    const s=window.testScene,w=s.world,afterTurn=s.gameClock.afterTurn,
+      {ensureBuildingDamage,igniteBuilding}=await import('/app/building-damage.ts'),b=window.burningBuilding
+    s.gameClock.afterTurn=()=>{
+      afterTurn()
+      const u=window.workingBuilder
+      if(u.native?.state===26&&!window.sawBuilderPanic){window.sawBuilderPanic=true;w.speed=0}
+    }
+    const state=ensureBuildingDamage(b)
+    igniteBuilding(state,1,()=>{b.burn={remaining:127,soundPlaying:false}})
+    b.counter=15;w.speed=1
+  })
+  await page.waitForFunction(()=>{
+    return window.sawBuilderPanic
+  },null,{timeout:10000}).catch(async error=>{
+    console.log('Builder panic timeout',await page.evaluate(()=>({burn:window.burningBuilding.burn,counter:window.burningBuilding.counter,worker:{work:window.workingBuilder.work,builder:window.workingBuilder.builder,state:window.workingBuilder.native?.state}})))
+    throw error
+  })
+  assert.ok(await page.evaluate(()=>!window.workingBuilder.builder&&window.workingBuilder.work===null))
+  await page.screenshot({path:'/private/tmp/populous-burning-builder-panic.png'})
+  await page.evaluate(()=>{window.testScene.world.speed=4})
+  await page.waitForFunction(()=>{
+    const w=window.testScene.world
+    if(window.burningBuilding.burn||window.repairWorkers.some(u=>u.native?.state===26))return false
+    w.speed=0;w.selected=window.repairWorkers.map(u=>u.id);window.testScene.onChange();return true
+  })
+  await page.mouse.click(target.x,target.y)
+  assert.ok(await page.evaluate(()=>window.repairWorkers.every(u=>u.work===window.burningBuilding.id)))
   await page.evaluate(()=>{window.testScene.world.speed=4})
   await page.waitForFunction(()=>{
     const delay=window.burningBuilding.damageState.plan.repairDelay
@@ -174,7 +207,7 @@ try {
   assert.equal(await page.evaluate(()=>window.burningBuilding.damageState.state),2)
   await page.screenshot({path:'/private/tmp/populous-repair-complete.png'})
   assert.deepEqual(errors, [])
-  console.log(`PASS: real Lightning hit, ${ids.length} fire sockets (${pixels} GPU pixels), native builder work pose/directional frames/PCM, full repair holdoff, one of two workers fetching, smoke retirement (${smokePixels} GPU pixels) and completed repair; no browser errors`)
+  console.log(`PASS: real Lightning hit, ${ids.length} fire sockets (${pixels} GPU pixels), native builder work pose/directional frames/PCM, occupied-cell builder panic, full repair holdoff, one of two workers fetching, smoke retirement (${smokePixels} GPU pixels) and completed repair; no browser errors`)
 } finally {
   await browser.close()
 }
