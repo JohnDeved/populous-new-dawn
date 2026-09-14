@@ -116,8 +116,41 @@ try {
   assert.deepEqual(result.initial.tutorials, [1, 1, 1])
   assert.deepEqual(result.initial.tutorialLatches, [1, 1, 1])
   assert.deepEqual(result.restored, { level: 4, wild: result.checkpointWild })
+  await page.evaluate(() => {
+    const world = globalThis.testStore.getWorld()
+    world.status = 'won'
+    world.outcome.completedLevel = 3
+    world.outcome.cameraPlaying = false
+    globalThis.testStore.update()
+  })
+  await page.getByRole('button', { name: 'Continue to Mission 5', exact: false }).click()
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    return world.outcome.level === 5 && !world.inputMask
+  })
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByText('Claim the Boat from the stone head', { exact: true }).waitFor()
+  await page.getByText('Board followers onto the Boat', { exact: true }).waitFor()
+  await page.getByText('Claim the Boat from the stone head, board your followers', { exact: false }).waitFor()
+  await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
+  const missionFive = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { tick } = await import('/app/model.ts')
+    world.units = world.units.filter(unit => unit.team !== 'red')
+    for (const building of world.buildings.filter(building => building.team === 'red')) building.hp = 0
+    for (let i = 0; i < 64 && world.status === 'playing'; i++) tick(world, 1 / 12)
+    globalThis.testStore.update()
+    return {
+      level: world.outcome.level,
+      status: world.status,
+      completed: world.outcome.completedLevel,
+      profile: globalThis.testStore.getCompletedMissions(),
+    }
+  })
+  assert.deepEqual(missionFive, { level: 5, status: 'won', completed: 4, profile: [4, 5] })
+  await page.getByRole('button', { name: 'Begin again', exact: false }).waitFor()
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 4 opening flyby skips into playable HUD and restores its checkpoint')
+  console.log('PASS: Mission 4 opens, restores, continues into playable Mission 5 and records its victory')
 } finally {
   await browser.close()
 }

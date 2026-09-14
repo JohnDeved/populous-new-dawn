@@ -341,7 +341,8 @@ export default function Home() {
     BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
-  const enemyName = ['', 'Dakini', 'Chumara', 'Matak'][missionEnemyTribe(world.outcome.level)],
+  const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
+    enemyName = ['', 'Dakini', 'Chumara', 'Matak'][missionEnemyTribe(world.outcome.level)],
     objectives =
       world.outcome.level === 1
         ? [
@@ -367,11 +368,23 @@ export default function Home() {
                 },
                 { text: 'Defeat the Chumara tribe', done: world.status === 'won' },
               ]
-            : [
-                { text: 'Convert the Wildmen', done: blue.length > 3 },
-                { text: 'Discover the Guard Tower', done: world.unlockedTower },
-                { text: 'Defeat the Matak tribe', done: world.status === 'won' },
-              ]
+            : world.outcome.level === 4
+              ? [
+                  { text: 'Convert the Wildmen', done: blue.length > 3 },
+                  { text: 'Discover the Guard Tower', done: world.unlockedTower },
+                  { text: 'Defeat the Matak tribe', done: world.status === 'won' },
+                ]
+              : [
+                  {
+                    text: 'Claim the Boat from the stone head',
+                    done: world.vehicles.some(vehicle => vehicle.active),
+                  },
+                  {
+                    text: 'Board followers onto the Boat',
+                    done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
+                  },
+                  { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
+                ]
   return (
     <main
       ref={shell}
@@ -852,10 +865,10 @@ export default function Home() {
           </div>
           <button
             className="primary-button"
-            onClick={world.status === 'won' && world.outcome.level < 4 ? continueCampaign : restart}
+            onClick={world.status === 'won' && nextMission ? continueCampaign : restart}
           >
-            {world.status === 'won' && world.outcome.level < 4
-              ? `Continue to Mission ${world.outcome.level + 1}`
+            {world.status === 'won' && nextMission
+              ? `Continue to Mission ${nextMission}`
               : 'Begin again'}{' '}
             <span>↗</span>
           </button>
@@ -883,7 +896,9 @@ export default function Home() {
               ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
               : world.outcome.level === 3
                 ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
-                : 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'}
+                : world.outcome.level === 4
+                  ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
+                  : 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

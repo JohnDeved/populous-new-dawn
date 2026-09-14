@@ -494,7 +494,7 @@
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 3 continuation into Mission 4, its opening flyby/skip boundary, contextual tutorials, rendered play, and checkpoint restore through the shipped browser UI.",
+      "purpose": "Exercise continuous campaign progression through Mission 4 into playable Mission 5, including Mission 4 tutorials/checkpoint and Mission 5 objectives/completion profile.",
       "coveredBehavior": [
         "Mission 3 result continuation",
         "Mission 4 original opening flyby, camera movement, input lock, skip control, and HUD resumption",
@@ -502,10 +502,13 @@
         "Mission 4 original Warrior Hut, Preacher, and final-attack tutorial triggers and presentation",
         "Guard Tower knowledge lock",
         "Mission 4 objective presentation",
-        "Mission 4 checkpoint restore"
+        "Mission 4 checkpoint restore",
+        "Mission 4 victory continuation into playable Mission 5",
+        "Mission 5 Boat briefing and objective presentation",
+        "Mission 5 victory and completed-missions profile"
       ],
       "knownLimits": [
-        "Injects the prior Mission 3 win and accelerates the original tutorial conditions; Mission 4's recurring AI remains deferred, while the portable gameplay check covers convert, worship, construction, combat, and victory."
+        "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, and removes Mission 5 enemy forces before exercising the real outcome/profile path; Mission 4/5 recurring AI and full Mission 5 combat remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission4.mjs"],
@@ -516,7 +519,9 @@
         "scripts/browser-game.mjs",
         "tests/mission4-opening.test.mjs",
         "app/level-four.ts",
+        "app/level-five.ts",
         "app/original-script-four.json",
+        "app/original-script-five.json",
         "app/original-messages.json",
         "app/mission-data.ts",
         "app/world-initialization.ts",

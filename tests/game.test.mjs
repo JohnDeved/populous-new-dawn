@@ -1210,6 +1210,8 @@ test('external game store publishes edits and restarts without sharing worlds be
  profile.getWorld().outcome.completedLevel=0;profile.update();assert.deepEqual(profile.getCompletedMissions(),[1]);
  profile.startMission(2);profile.getWorld().outcome.completedLevel=1;profile.startMission(1);
  assert.deepEqual(profile.getCompletedMissions(),[1],'replaced startup state does not record completion');
+ profile.startMission(5);assert.equal(profile.getWorld().inputMask,0,'deferred Mission 5 intro does not lock play');
+ profile.getWorld().outcome.completedLevel=4;profile.update();assert.deepEqual(profile.getCompletedMissions(),[1,5]);
 });
 
 test('mission-one victory continuation creates and restarts the recovered mission-two world', async () => {

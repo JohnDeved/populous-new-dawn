@@ -166,6 +166,8 @@ export function createWorld(missionNumber = 1): World {
     campaignCommand(w, c.opcode, c.args)
     return false
   })
+  // ponytail: Mission 5's intro remains deferred; remove when its script owns opcode 1113.
+  if (missionNumber === 5) w.inputMask &= ~128
   w.selected = [w.units.find(u => u.team === 'blue' && isShaman(u))!.id]
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
