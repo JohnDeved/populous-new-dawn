@@ -9,18 +9,18 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current feature lock: give Mission 3 Chumara its original one-shot Convert Wild
-behavior. Bind the imported turn-zero stock assignment to the live computer spell
-path and prove that ordinary AI turns convert nearby native Wildmen without injected
-stock or test-created followers. Preserve exact stock consumption, targeting, RNG,
-and conversion timing; do not broaden into unrelated Mission 3 script commands.
+Current task lock: extract `createWorld` mechanically from `app/model.ts` into a
+no-model-import `app/world-initialization.ts`, keeping `app/model.ts` as the stable
+public facade. Preserve object iteration, allocation/RNG, pending-command order,
+selection, timber totals, hut timers, terrain synchronization, and initial light view.
+Make no gameplay, parity, naming, cleanup, or scene changes in this commit.
 
-Composition recovery: the queued pass ended after independently committed extractions
-`b87507d` and `1690499`; current sizes are about 2,688 lines for `app/model.ts` and
-934 for `app/scene.ts`, not the superseded 7,500/3,200-line estimate. `app/scene.ts`
-is already a compact composition root, and remaining larger blocks require runtime
-cycles or multi-file ownership migration. Reassess only when gameplay creates a clean
-boundary.
+Composition recovery: user direction re-queued a behavior-neutral pass after Mission
+3 Convert Wild commit `486531c`. Current sizes are about 2,688 lines for `app/model.ts`
+and 934 for `app/scene.ts`, not the superseded 7,500/3,200-line estimate. A fresh
+cycle/caller/check audit found `createWorld` as the sole remaining boundary large and
+cohesive enough to justify extraction. Keep the tiny scene render/disposal methods in
+the composition root unless a named feature creates a stronger boundary.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, saves/profiles, and modern compatibility—not recurring
