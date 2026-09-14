@@ -18,6 +18,12 @@ const STONE_OFFSETS = [
 // Drowning enters at the 32-turn rise; ordinary deaths begin at phase zero.
 export const reincarnationTurns = (drowning: boolean) => (drowning ? 333 : 468)
 
+// 0x4a7d80 enters 0x4a7eb0 once during creation; 0x4a6480 supplies later visits.
+export function reincarnationStoneRise(turn: number) {
+  const visits = Math.min(turn + 1, 16)
+  return visits * 16 - 256
+}
+
 export function stepReincarnation(remaining: number, canSpawn: boolean, effect65: boolean) {
   if (remaining <= 0) return { remaining: 0, phase: 6, height: 0, event: null }
   const phase =

@@ -1,7 +1,7 @@
 // Start npm run dev, then node scripts/check-browser-reincarnation.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { reincarnationStones } from '../app/reincarnation.ts'
+import { reincarnationStoneRise, reincarnationStones } from '../app/reincarnation.ts'
 import { browserPosition } from '../app/model.ts'
 import { effectPixels } from './browser-game.mjs'
 
@@ -11,6 +11,12 @@ try {
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  await page.addInitScript(() => {
+    const requestFrame = window.requestAnimationFrame.bind(window)
+    let held = true
+    window.requestAnimationFrame = callback => held ? 0 : requestFrame(callback)
+    window.resumeFrames = () => { held = false }
+  })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
   await page.waitForSelector('.world-viewport canvas')
   await page.evaluate(() => {
@@ -18,16 +24,15 @@ try {
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
     for (; fiber; fiber = fiber.return) {
       for (let hook = fiber.memoizedState; hook; hook = hook.next) {
-        if (hook.memoizedState?.current?.unitMeshes) window.testScene = hook.memoizedState.current
+        if (hook.memoizedState?.current?.unitMeshes) {
+          window.testScene = hook.memoizedState.current
+          window.testScene.world.speed = 0
+        }
       }
     }
   })
-  await page.waitForFunction(() => window.testScene.world.flyby.flags & 1)
-  await page.keyboard.press('Escape')
-  await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.evaluate(() => {
     const scene = window.testScene
-    scene.world.speed = 0
     scene.focus({ x: 9, z: 33 })
     window.reincarnationSounds = []
     const play = scene.onSound
@@ -49,30 +54,51 @@ try {
           position: group.position.toArray(), heading: group.userData.nativeHeading,
           model: group.children[0].userData.nativeModel,
         })),
+        turn: scene.world.turn,
       }
     })
     assert.equal(state.centers.length, 2)
     assert.equal(state.stones.length, 16)
     const expected = state.centers.flatMap(center => reincarnationStones(state.land, center))
+    const rise = reincarnationStoneRise(state.turn)
     for (let i = 0; i < expected.length; i++) {
       const stone = expected[i]
       const point = browserPosition(stone)
       assert.deepEqual(state.stones[i], {
-        position: [point.x, stone.h / 128, point.z], heading: stone.heading, model: 30,
+        position: [point.x, (stone.h + rise) / 128, point.z], heading: stone.heading, model: 30,
       })
     }
     return state.stones
   }
 
   const initial = await checkStones()
+  assert.equal(await page.evaluate(() => window.testScene.world.turn), 0)
+  await page.evaluate(async () => {
+    const scene = window.testScene, { tick } = await import('/app/model.ts')
+    while (scene.world.turn < 15) tick(scene.world, 1 / 12)
+    scene.animate(performance.now())
+  })
+  const settled = await checkStones()
+  assert.ok(settled.every((stone, index) => stone.position[1] > initial[index].position[1]))
   await page.screenshot({ path: '/private/tmp/populous-reincarnation-front.png' })
+  await page.evaluate(() => {
+    const scene = window.testScene
+    window.resumeFrames()
+    scene.world.speed = 1
+    scene.previous = performance.now()
+    scene.frame = requestAnimationFrame(scene.animate)
+  })
+  await page.waitForFunction(() => window.testScene.world.flyby.flags & 1)
+  await page.keyboard.press('Escape')
+  await page.waitForFunction(() => !window.testScene.world.inputMask)
+  await page.evaluate(() => { window.testScene.world.speed = 0 })
   await page.locator('.world-viewport canvas.battlefield').focus()
   const bearing = await page.evaluate(() => window.testScene.cameraBearing)
   await page.keyboard.down('q')
   await page.waitForFunction(bearing => window.testScene.cameraBearing !== bearing, bearing)
   await page.keyboard.up('q')
   assert.notEqual(await page.evaluate(() => window.testScene.cameraBearing), bearing)
-  assert.deepEqual(await checkStones(), initial)
+  assert.deepEqual(await checkStones(), settled)
   await page.screenshot({ path: '/private/tmp/populous-reincarnation-rotated.png' })
 
   // A terrain edit must re-ground the stone with the native stored-diagonal height.
@@ -91,7 +117,7 @@ try {
     scene.rebuildTerrain()
   })
   const edited = await checkStones()
-  assert.equal(edited[0].position[1], initial[0].position[1] + 1)
+  assert.equal(edited[0].position[1], settled[0].position[1] + 1)
 
   await page.evaluate(() => {
     const scene = window.testScene

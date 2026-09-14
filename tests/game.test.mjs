@@ -7,7 +7,7 @@ import test from 'node:test';
 import {createHash} from 'node:crypto';
 import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
-import {reincarnationTurns,stepReincarnation} from '../app/reincarnation.ts';
+import {reincarnationStoneRise,reincarnationTurns,stepReincarnation} from '../app/reincarnation.ts';
 import {AUDIO_CUES} from '../app/audio.ts';
 import {buildingGradeVertices,buildingPosition} from '../app/building-shapes.ts';
 import {browserPosition} from '../app/model.ts';
@@ -248,6 +248,7 @@ test('original level layout, native foundations, and the complete mission',()=>{
  assert.equal(w.status,'won','the first mission can be won through the full discovery/build/train/combat loop');
 });
 test('housing, mana allocation, pause, drowning, and reincarnation',()=>{
+ assert.deepEqual([0,7,14,15,16].map(reincarnationStoneRise),[-240,-128,-16,0,0]);
  let remaining=reincarnationTurns(false),events=[],boundaries=[];
  for(let call=1;call<=468;call++){
   const step=stepReincarnation(remaining,true,true);

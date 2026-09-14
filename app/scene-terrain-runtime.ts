@@ -15,10 +15,18 @@ import {
   type Effect,
 } from './model'
 import { vertexLighting } from './projection.ts'
-import { reincarnationStones } from './reincarnation.ts'
+import { reincarnationStoneRise, reincarnationStones } from './reincarnation.ts'
 import { timberScale } from './timber.ts'
 import { updateWaveShake } from './scene-entities.ts'
 import rules from './original-rules.json'
+
+function placeReincarnationStone(scene: GameScene, group: THREE.Object3D) {
+  const point = group.userData.groundPoint as Point
+  group.position.y =
+    (terrainPointHeight(scene.world.land, nativePosition(scene.world, point)) +
+      reincarnationStoneRise(scene.world.turn)) /
+    128
+}
 
 export function rebuildTerrain(scene: GameScene) {
   const w = scene.world
@@ -98,8 +106,7 @@ export function rebuildTerrain(scene: GameScene) {
       scene.locate(d, p)
       d.visible = walkable(w.terrain, p)
     }
-    const stone = d.userData.groundPoint as Point | undefined
-    if (stone) d.position.y = terrainPointHeight(w.land, nativePosition(w, stone)) / 128
+    if (d.userData.groundPoint) placeReincarnationStone(scene, d)
   }
 }
 
@@ -212,8 +219,9 @@ export function makeDecorations(scene: GameScene) {
       group.name = 'reincarnation-stone'
       group.userData.groundPoint = browserPosition(stone)
       group.add(nativeModel(30))
-      scene.locate(group, browserPosition(stone), stone.h / 45)
+      scene.locate(group, group.userData.groundPoint)
       scene.orientModel(group, (stone.heading * Math.PI) / 1024)
+      placeReincarnationStone(scene, group)
       scene.decorations.add(group)
     }
   }
@@ -235,6 +243,7 @@ export function updateDecorationsFrame(scene: GameScene) {
     scene.makeDecorations()
   }
   for (const group of scene.decorations.children) {
+    if (group.userData.groundPoint) placeReincarnationStone(scene, group)
     const tree = group.userData.point as Tree | undefined
     if (tree && tree.model !== 11) {
       updateWaveShake(
