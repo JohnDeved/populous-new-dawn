@@ -182,11 +182,39 @@ try {
   const boatMessage = page.locator('.campaign-messages details').filter({ hasText: 'The Ancients have granted you a Boat, Shaman.' })
   await boatMessage.locator('summary').click()
   await boatMessage.getByText('The Ancients have granted you a Boat, Shaman.', { exact: true }).waitFor()
+  const lastStand = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { tick } = await import('/app/model.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+      red = world.units.filter(unit => unit.team === 'red'),
+      survivors = [red.at(-1), ...red.slice(0, 6)],
+      survivorIds = new Set(survivors.map(unit => unit.id)),
+      attacker = survivors.find(unit => unit.kind === 'warrior')
+    world.units = world.units.filter(unit => unit.team !== 'red' || survivorIds.has(unit.id))
+    for (const building of world.buildings.filter(building => building.team === 'red')) building.hp = 0
+    Object.assign(attacker, { x: shaman.x - 12, z: shaman.z, native: undefined })
+    world.killCredits[0][1] = 11
+    const initialDistance = Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z)
+    for (let turn = 0; turn < 64 && !(world.manaTribes[1].flags2 & 0x40); turn++) tick(world, 1 / 12)
+    const order = currentPersonOrder(world.buildingOrders, attacker.native)?.model,
+      target = attacker.target
+    for (let turn = 0; turn < 120 && !attacker.fight && Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z) >= initialDistance; turn++)
+      tick(world, 1 / 12)
+    globalThis.testStore.update()
+    return {
+      enabled: !!(world.manaTribes[1].flags2 & 0x40),
+      order,
+      target,
+      shaman: shaman.id,
+      advanced: !!attacker.fight || Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z) < initialDistance,
+    }
+  })
+  assert.deepEqual(lastStand, { enabled: true, order: 28, target: lastStand.shaman, shaman: lastStand.shaman, advanced: true })
   const missionFive = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
       { tick } = await import('/app/model.ts')
     world.units = world.units.filter(unit => unit.team !== 'red')
-    for (const building of world.buildings.filter(building => building.team === 'red')) building.hp = 0
     for (let i = 0; i < 64 && world.status === 'playing'; i++) tick(world, 1 / 12)
     globalThis.testStore.update()
     return {

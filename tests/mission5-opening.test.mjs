@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
+import { missionEnemyTribe } from '../app/mission-data.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
 
 test('Mission 5 runs its imported opening flyby once through ordinary turns', () => {
   const world = createWorld(5)
@@ -38,4 +40,31 @@ test('Mission 5 runs its imported opening flyby once through ordinary turns', ()
   for (let turn = 0; turn < 2048; turn++) tick(world, 1 / 12)
   assert.equal(world.flyby.events, events)
   assert.equal(world.flyby.events.length, 12)
+})
+
+test('Mission 5 launches its surviving Dakini at the player Shaman', () => {
+  const world = createWorld(5), enemy = missionEnemyTribe(5)
+  for (let turn = 0; turn < 16; turn++) tick(world, 1 / 12)
+  const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+    red = world.units.filter(unit => unit.team === 'red'),
+    survivors = [red.at(-1), ...red.slice(0, 6)],
+    survivorIds = new Set(survivors.map(unit => unit.id)),
+    attacker = survivors.find(unit => unit.kind === 'warrior')
+  world.units = world.units.filter(unit => unit.team !== 'red' || survivorIds.has(unit.id))
+  world.buildings = world.buildings.filter(building => building.team !== 'red')
+  Object.assign(attacker, { x: shaman.x - 12, z: shaman.z })
+  attacker.native = undefined
+  world.killCredits[0][enemy] = 11
+  const initialDistance = Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z)
+
+  for (let turn = 0; turn < 64 && !(world.manaTribes[enemy].flags2 & 0x40); turn++)
+    tick(world, 1 / 12)
+  assert.ok(world.manaTribes[enemy].flags2 & 0x40)
+  for (const unit of survivors) {
+    assert.equal(unit.target, shaman.id)
+    assert.equal(currentPersonOrder(world.buildingOrders, unit.native)?.model, 28)
+  }
+  for (let turn = 0; turn < 120 && !attacker.fight && Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z) >= initialDistance; turn++)
+    tick(world, 1 / 12)
+  assert.ok(attacker.fight || Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z) < initialDistance)
 })
