@@ -93,6 +93,114 @@ async function assertMatakSwarm(page) {
   })
 }
 
+async function assertMatakRaid(page) {
+  const raid = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { command, setSelection, tick } = await import('/app/model.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      warriors = () =>
+        world.units.filter(
+          unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0
+        ),
+      tribe1Kills = world.killCredits[0][1]
+    globalThis.missionTwoBeforeRaid = structuredClone(world)
+    for (let attempts = 0; world.killCredits[0][3] <= 3 && attempts < 8; attempts++) {
+      const target = world.units
+        .filter(unit => unit.team === 'red' && unit.kind !== 'shaman' && unit.hp > 0)
+        .sort(
+          (a, b) =>
+            Math.hypot(a.x + 99, a.z + 105) - Math.hypot(b.x + 99, b.z + 105)
+        )[0]
+      if (!target) throw new Error('Mission 2 ran out of natural Matak raid prerequisites')
+      setSelection(world, warriors().map(unit => unit.id))
+      if (!command(world, target)) throw new Error('Mission 2 Matak attack command failed')
+      for (let i = 0; i < 10000 && target.hp > 0; i++) tick(world, 1 / 12)
+      if (target.hp > 0) throw new Error(`Mission 2 Matak kill timed out at turn ${world.turn}`)
+    }
+    const task = () => world.ai.tasks.find(candidate => candidate.flags & 1 && candidate.type === 20)
+    for (let i = 0; i < 5000 && !task(); i++) tick(world, 1 / 12)
+    const active = task()
+    if (!active) throw new Error(`Mission 2 Matak raid timed out at turn ${world.turn}`)
+    for (
+      let i = 0;
+      i < 2000 &&
+      !(
+        active.members.length === 2 &&
+        active.members.every(id => {
+          const unit = world.units.find(candidate => candidate.id === id)
+          return unit?.native && currentPersonOrder(world.buildingOrders, unit.native)?.model === 19
+        })
+      );
+      i++
+    )
+      tick(world, 1 / 12)
+    const blueHp = world.units
+      .filter(unit => unit.team === 'blue' && unit.hp > 0)
+      .reduce((sum, unit) => sum + unit.hp, 0)
+    for (
+      let i = 0;
+      i < 5000 &&
+      world.units
+        .filter(unit => unit.team === 'blue' && unit.hp > 0)
+        .reduce((sum, unit) => sum + unit.hp, 0) >= blueHp;
+      i++
+    )
+      tick(world, 1 / 12)
+    world.speed = 0
+    globalThis.testStore.update()
+    return {
+      tribe1Kills,
+      tribe1KillsAfter: world.killCredits[0][1],
+      tribe3Kills: world.killCredits[0][3],
+      requested: active.requested,
+      mode: active.mode,
+      entity: active.entity,
+      camp: world.buildings.find(
+        building => building.team === 'blue' && building.kind === 'camp'
+      )?.id,
+      phase: active.phase,
+      fallback: active.fallback,
+      members: [...active.members],
+      active: active.flags & 1,
+      damaged:
+        world.units
+          .filter(unit => unit.team === 'blue' && unit.hp > 0)
+          .reduce((sum, unit) => sum + unit.hp, 0) < blueHp,
+    }
+  })
+  assert.equal(raid.tribe1KillsAfter, raid.tribe1Kills)
+  assert.ok(raid.tribe3Kills > 3)
+  assert.deepEqual(
+    {
+      requested: raid.requested,
+      mode: raid.mode,
+      entity: raid.entity,
+      phase: raid.phase,
+      fallback: raid.fallback,
+      active: raid.active,
+      damaged: raid.damaged,
+    },
+    {
+      requested: 2,
+      mode: 7,
+      entity: raid.camp,
+      phase: 16,
+      fallback: 14,
+      active: 1,
+      damaged: true,
+    }
+  )
+  await page.waitForFunction(
+    ids => ids.every(id => globalThis.testScene.unitMeshes.has(id)),
+    raid.members
+  )
+  await page.evaluate(() => {
+    Object.assign(globalThis.testStore.getWorld(), globalThis.missionTwoBeforeRaid)
+    delete globalThis.missionTwoBeforeRaid
+    globalThis.testStore.update()
+  })
+}
+
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const { page, errors } = await openGame(browser)
@@ -167,7 +275,7 @@ try {
       world,
       world.units
         .filter(unit => unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0)
-        .slice(0, 6)
+        .slice(0, 8)
         .map(unit => unit.id)
     )
     if (!command(world, camp)) throw new Error('Mission 2 warrior training command failed')
@@ -175,7 +283,7 @@ try {
       () =>
         world.units.filter(
           unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0
-        ).length >= 6,
+        ).length >= 8,
       10000
     )
     select(world, 'shaman')
@@ -200,7 +308,7 @@ try {
     flags: 0x36f1,
     lifetime: 3000,
     view: { cell: 0x60cc, payload: 308 },
-    warriors: 6,
+    warriors: 8,
     tornado: { flags: 0x2d1, variables: [0, 2, 1] },
   })
   const instruction = page.locator('.campaign-messages details').filter({ hasText: tornadoInstruction })
@@ -219,6 +327,7 @@ try {
     { x: 0xcd00, y: 0x6100 }
   )
   await assertMatakSwarm(page)
+  await assertMatakRaid(page)
   const counterattack = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
       { createLivePerson, syncLivePersonCells } = await import('/app/live-people.ts'),

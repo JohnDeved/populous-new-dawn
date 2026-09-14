@@ -102,7 +102,7 @@ export function campaignInternal(w: World, id: number) {
     const model = (id < 1152 ? id - 1146 : (id - 1152) % 6) + 2
     return short(campaignPersonCount(w, tribe, model))
   }
-  if (id === 1180) return w.killCredits[0][1] & 65535
+  if (id === 1180) return w.killCredits[0][campaignTribe(w)] & 65535
   if (id === 1050) return constants.SPELL_BLAST // 0x48f350 reads the loaded spell-cost table.
   // 0x48f350: self then four explicit tribes, 16 building models each.
   if (id >= 1066 && id <= 1145) {
@@ -119,6 +119,7 @@ export function campaignInternal(w: World, id: number) {
   if (id === 1223) return 0 // 0x48f350: no-specific-building selector.
   if (id === 1200) return 18 // INT_M_KNOWLEDGE, preceding the person constants.
   if (id >= 1201 && id <= 1206) return id - 1199
+  if (id === 1213) return 7 // 0x48f350: Warrior Training Hut model.
   throw new Error(`Unbound campaign internal ${id}`)
 }
 
@@ -197,10 +198,14 @@ export function campaignAttackEntity(w: World, id: number): AttackTarget | null 
 }
 
 // 0x4f6100 / 0x4f6180: sample native allocation order, buildings first.
-export function campaignAttackTarget(w: World, tribe: number): AttackTarget | null {
+export function campaignAttackTarget(w: World, tribe: number, model = 0): AttackTarget | null {
   const team = campaignTeam(w, tribe)
   if (!team) return null
   const buildings = w.buildings.filter(b => b.team === team && b.hp > 0)
+  if (model) {
+    const building = buildings.find(candidate => buildingModel(candidate) === model)
+    if (building) return campaignAttackEntity(w, building.id)
+  }
   if (buildings.length) {
     for (let i = random(w) % buildings.length; i >= 0; i--) {
       const building = buildings[i]

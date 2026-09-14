@@ -145,7 +145,10 @@ Tornado-use instruction and its one-shot script latch are documented in the
 [Mission 2 Tornado-instruction note](research/mission2-message-103.md). These
 bounded checks do not claim the remainder of Mission 2. The later natural Matak
 Swarm ownership path is isolated in the
-[Mission 2 Matak Swarm note](research/mission2-matak-swarm.md).
+[Mission 2 Matak Swarm note](research/mission2-matak-swarm.md). The organized
+type-20 attack's kill ownership, model-7 target preference, fallbacks, and retained
+Blue target are documented in the
+[Mission 2 Matak raid note](research/mission2-matak-raid.md).
 
 ## Campaign counter comparison
 

@@ -32,6 +32,10 @@ export function migrateCheckpoint(world: World) {
       return false
     })
   }
+  if (world.outcome.level === 2) {
+    world.killCredits[0][3] = Math.max(world.killCredits[0][3], world.killCredits[0][1])
+    world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
+  }
   for (const shrine of world.shrines)
     if (!shrine.reward && shrine.kind !== 'bridgeEffect')
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind

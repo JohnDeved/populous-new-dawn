@@ -2705,7 +2705,7 @@ function stepTurn(w: World) {
     ordinaryDead = dead.filter(u => !u.ghost)
   for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u)
   for (const u of ordinaryDead) {
-    const victim = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1,
+    const victim = u.team === 'blue' ? 0 : u.team === 'red' ? campaignTribe(w) : -1,
       person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,
       attacker = person?.damageAttacker ?? 255
     if (victim >= 0 && attacker >= 0 && attacker < 4)

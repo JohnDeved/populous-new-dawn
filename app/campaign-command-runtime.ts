@@ -183,20 +183,35 @@ export function campaignCommand(
       damage = read(args[4]),
       options = [9, 10, 11, 12].map(index => read(args[index])),
       targetMode = args[2],
+      missionTwoAttack =
+        targetMode === 1071 &&
+        [2, 4].includes(requested) &&
+        field(1, 0, requested) &&
+        field(3, 2, 1213) &&
+        marker === 7 &&
+        damage === 10 &&
+        field(5, 2, 1188) &&
+        field(6, 2, 1188) &&
+        field(7, 2, 1185) &&
+        options.every((value, index) => value === [0, -1, -1, -1][index]),
       validTarget =
         (targetMode === 1070 && requested === 3 && marker === 3) ||
-        (targetMode === 1071 && field(1, 2, 1) && field(3, 2, 1223) && marker === 0)
+        (targetMode === 1071 &&
+          ((field(1, 2, 1) && field(3, 2, 1223) && marker === 0) || missionTwoAttack))
     if (
       args[0] !== 1118 ||
       args[8] !== 1078 ||
-      ![5, 6, 7].every(none) ||
       !validTarget ||
-      damage !== 999 ||
-      options.some((value, index) => value !== [0, -1, -1, 0][index])
+      (!missionTwoAttack &&
+        (![5, 6, 7].every(none) ||
+          damage !== 999 ||
+          options.some((value, index) => value !== [0, -1, -1, 0][index])))
     )
       throw new Error('Unsupported computer attack')
     const target =
-      targetMode === 1070 ? { id: 0, target: level.markers[marker] } : campaignAttackTarget(w, 0)
+      targetMode === 1070
+        ? { id: 0, target: level.markers[marker] }
+        : campaignAttackTarget(w, 0, marker)
     if (target === null) return
     requestAttack(
       w.ai,

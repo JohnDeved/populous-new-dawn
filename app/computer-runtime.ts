@@ -238,7 +238,7 @@ function computerAttackHasOrder(w: World, index: number, model: number, target: 
 }
 
 function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
-  const team = tribe === 1 ? 'blue' : tribe === 0 ? 'red' : null
+  const team = campaignTeam(w, tribe === 0 ? campaignTribe(w) : 0)
   if (!team) return false
   const within = (object: Point) => {
     const p = nativePosition(w, object),
@@ -573,7 +573,7 @@ export function stepComputerTasks(w: World, tribe: number) {
           random: () => random(w),
           entity: id => campaignAttackEntity(w, id),
           tracking: id => computerAttackHasOrder(w, index, 28, id),
-          reacquire: () => campaignAttackTarget(w, tribe === 1 ? 0 : 1),
+          reacquire: () => campaignAttackTarget(w, tribe === 0 ? campaignTribe(w) : 0),
           select: (model, count, destination) => {
             const current = (selection ??= computerSelectionWorld(w, tribe)),
               ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
