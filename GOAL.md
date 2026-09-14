@@ -9,14 +9,14 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: persist completed campaign missions from the real victory signal,
-then show completion and the next recommended mission in the startup selector. Keep
-all four shipped missions directly accessible, keep profile progress separate from
-the latest world checkpoint, and retain session progress when storage is unavailable.
-Selection, restart, defeat, and injected state must not record completion. This is a
-bounded profile/progression slice; do not record parity without explicit authorization.
+Current task lock: deliver Mission 4's original one-shot opening flyby through the
+existing campaign VM, camera, tooltip, input-lock, and skip paths. Preserve exact
+event order and one-shot gating, prove normal HUD interaction resumes after skip,
+and leave the larger recurring AI/tutorial blocks deferred. Do not record parity
+without explicit authorization.
 
-Direct startup selection for Missions 1-4 finished in `c5116e7`.
+Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
+completion and next-mission recommendation finished in `dfc35b5`.
 
 The user-queued composition refactor reached its natural stopping point after five
 independently revertible extractions through `7d58c2c`. Keep `app/model.ts` and
