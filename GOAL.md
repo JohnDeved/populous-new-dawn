@@ -6,11 +6,12 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: honor the renewed explicit request to reassess one natural,
-behavior-neutral extraction from `app/model.ts` or `app/scene.ts` after gameplay
-commit `ae65c5a`. Keep the façade stable and make one independently revertible
-mechanical extraction commit. Stop instead of adding backedges, callback plumbing,
-or tiny quota-driven modules; then return to new gameplay work.
+Current feature lock: continue Mission 2 after gameplay commit `ae65c5a` to the
+next normal player-visible scripted action or failure and implement the smallest
+missing gameplay behavior. The renewed composition request was reassessed after
+the planned leaf modules had already landed; no clean 300–900 line mechanical
+boundary remains without backedges or scaffolding. Revisit only after dependency
+ownership changes naturally or a narrower explicit request.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, persistence/multiplayer, and modern compatibility—not recurring
