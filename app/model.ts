@@ -495,11 +495,13 @@ import {
 export { ensureBuildingDamage } from './building-damage.ts'
 import {
   distributeMana,
-  generatedMana,
   generateFollowerMana,
+  liveManaOrders,
+  manaPeople,
   type ManaWorld,
   type ManaTribe,
 } from './mana.ts'
+export { manaRate } from './mana.ts'
 export { nativeAngle, nativeStep, random } from './native-math.ts'
 import {
   createTribeCasting,
@@ -1492,36 +1494,6 @@ function stepLiveConvertWild(w: World, fx: Effect) {
       sparkle.duration = turns / TURNS_PER_SECOND
     },
   })
-}
-// ponytail: current braves/warriors/shaman use the live order adapter. Replace it
-// with native person records/order ownership when that lifecycle is integrated.
-const liveManaOrders = { records: [], cursor: 1, active: 0 }
-function manaPeople(w: World) {
-  return w.units.map(u => {
-    const tribe = u.team === 'red' ? campaignTribe(w) : (u.native?.tribe ?? 0)
-    return {
-      ...(u.native ?? {
-        class: 1,
-        model: nativePersonModel(u),
-        state: 10,
-        flags2: u.inside !== null ? 0x800000 : 0,
-        flags4: u.hp > 0 ? 0x20000000 : 0,
-        assignment: 0,
-        commandStatus: u.work !== null || u.path.length > 0 || u.target !== null || u.guard ? 1 : 0,
-        commands: [],
-        commandCursor: 0,
-        immediateCommand: 0,
-      }),
-      tribe,
-    }
-  })
-}
-export function manaRate(w: World) {
-  return (
-    (generatedMana(liveManaOrders, manaPeople(w), w.manaTribes)[0] * TURNS_PER_SECOND) /
-    (rules.manaUpdateMask + 1) /
-    1000
-  )
 }
 export interface TurnObserver {
   beforeTurn?: () => void

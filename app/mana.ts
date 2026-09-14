@@ -1,6 +1,10 @@
 import rules from './original-rules.json' with { type: 'json' }
 import constants from './original-constants.json' with { type: 'json' }
 import { currentPersonOrder, type OrderedPerson, type OrderPool } from './person-orders.ts'
+import type { World } from './world-types.ts'
+import { campaignTribe } from './campaign-runtime.ts'
+import { nativePersonModel } from './live-combat.ts'
+import { TURNS_PER_SECOND } from './world-rules.ts'
 
 export type ManaBuilding = {
   id: number
@@ -109,6 +113,37 @@ export function generatedMana(
       Math.imul(n, tribes[i].playerType === 2 ? rules.humanManaFactor : rules.computerManaFactor),
       256
     )
+  )
+}
+
+// ponytail: current braves/warriors/shaman use the live order adapter. Replace it
+// with native person records/order ownership when that lifecycle is integrated.
+export const liveManaOrders = { records: [], cursor: 1, active: 0 }
+export function manaPeople(w: World) {
+  return w.units.map(u => {
+    const tribe = u.team === 'red' ? campaignTribe(w) : (u.native?.tribe ?? 0)
+    return {
+      ...(u.native ?? {
+        class: 1,
+        model: nativePersonModel(u),
+        state: 10,
+        flags2: u.inside !== null ? 0x800000 : 0,
+        flags4: u.hp > 0 ? 0x20000000 : 0,
+        assignment: 0,
+        commandStatus: u.work !== null || u.path.length > 0 || u.target !== null || u.guard ? 1 : 0,
+        commands: [],
+        commandCursor: 0,
+        immediateCommand: 0,
+      }),
+      tribe,
+    }
+  })
+}
+export function manaRate(w: World) {
+  return (
+    (generatedMana(liveManaOrders, manaPeople(w), w.manaTribes)[0] * TURNS_PER_SECOND) /
+    (rules.manaUpdateMask + 1) /
+    1000
   )
 }
 
