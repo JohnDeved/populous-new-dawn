@@ -6,16 +6,17 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: import original Mission 3 from the supplied installer archive
-and make its opening playable through the normal campaign continuation path. Preserve
-its owner-2 enemy tribe, terrain, objects, script initialization, HUD/objectives, and
-naturally earned Swarm stone-head reward; do not invent later script behavior.
+Current work lock: perform the explicitly queued behavior-neutral composition pass
+after the committed Mission 3 opening. First move the defeated-tribe world adapter
+from `app/model.ts` to its existing `app/campaign-runtime.ts` owner without changing
+outcome phase order, RNG, rendering, audio, or public imports. Commit the extraction
+independently and do not record parity for it.
 
-Composition recovery: stop the queued behavior-neutral refactor after commits
-`41b8802` and `cf927f4`. `app/scene.ts` is already a compact composition root, and
-the remaining cohesive `app/model.ts` blocks have runtime paths back through live
-modules; further extraction would require multi-file ownership changes or cycles.
-Reassess only when gameplay work creates a clean boundary.
+Composition recovery: current sizes are about 2,747 lines for `app/model.ts` and 934
+for `app/scene.ts`, not the superseded 7,500/3,200-line estimate. `app/scene.ts` is
+already a compact composition root. Extract only cohesive current seams that need no
+new interfaces, callback plumbing, multi-file ownership migration, or runtime cycles;
+stop this pass when that bar is no longer met, then return to new gameplay features.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, persistence/multiplayer, and modern compatibility—not recurring
