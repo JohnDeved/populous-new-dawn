@@ -2,16 +2,35 @@ import rules from './original-rules.json' with { type: 'json' }
 
 // 0x4a8e20: starting an approach reserves a timber share and resets its 64-turn timer.
 export function reserveTimber(tree: {
-  flags4: number
-  wood: number
-  reservations: number
-  reservationTimer: number
-}) {
-  if (tree.flags4 & 0x100000) return
+  flags4?: number
+  wood?: number
+  reservations?: number
+  reservationTimer?: number
+}, wood = tree.wood ?? 0) {
+  if ((tree.flags4 ?? 0) & 0x100000) return
   tree.reservationTimer = 64
-  tree.reservations = (tree.reservations + 1) & 255
-  if (tree.reservations >= Math.max(1, Math.trunc(((tree.wood << 16) >> 16) / 100)))
-    tree.flags4 = (tree.flags4 | 0x100000) >>> 0
+  tree.reservations = ((tree.reservations ?? 0) + 1) & 255
+  if (tree.reservations >= Math.max(1, Math.trunc(((wood << 16) >> 16) / 100)))
+    tree.flags4 = ((tree.flags4 ?? 0) | 0x100000) >>> 0
+}
+
+// 0x4a6480: reopen after 63 turns, then drain one reservation per object turn.
+export function stepTimberReservations(tree: {
+  flags4?: number
+  reservations?: number
+  reservationTimer?: number
+}) {
+  if (!tree.reservationTimer) return
+  if (tree.reservationTimer > 1) {
+    if (--tree.reservationTimer === 1) tree.flags4 = (tree.flags4 ?? 0) & ~0x100000
+  } else if (tree.reservations) tree.reservations--
+  else tree.reservationTimer = 0
+}
+
+// 0x4a79f0: taking timber releases one reserved share immediately.
+export function releaseTimberReservation(tree: { flags4?: number; reservations?: number }) {
+  tree.flags4 = (tree.flags4 ?? 0) & ~0x100000
+  if (tree.reservations) tree.reservations--
 }
 
 // 0x4d58c0: one loose log per hundred carried units; failed allocation preserves

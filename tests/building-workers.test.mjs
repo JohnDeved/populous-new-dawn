@@ -7,6 +7,7 @@ import {createWorld,placeBuilding,command,tick,entrance} from '../app/model.ts'
 import crewFixture from './fixtures/construction-crew.json' with {type:'json'}
 import smokeFixture from './fixtures/repair-smoke.json' with {type:'json'}
 import {buildingRepairArea} from '../app/building-shapes.ts'
+import {releaseTimberReservation,reserveTimber,stepTimberReservations} from '../app/timber.ts'
 
 test('builder admission and stale-slot pruning match complete native calls',()=>{
   assert.equal(fixture.executableSha256,manifest.executableSha256)
@@ -60,6 +61,34 @@ test('two live builders dispatch one hauler on the original sixteen-turn phase',
   assert.ok(workers.every(u=>u.builder&&u.work===b.id),'delivery leaves the original departure gate active')
   for(let turn=0;turn<600&&workers.some(u=>u.builder);turn++)tick(w,1/12)
   assert.ok(workers.every(u=>!u.builder&&u.work===null),'departure releases task ownership')
+})
+test('later construction haulers skip timber reserved by an earlier search',()=>{
+  const w=createWorld(),b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut')
+  b.progress=0;b.logs=0;b.counter=0;w.manaWorld.gameFlags=32
+  for(const tree of w.trees)tree.logs=1
+  const workers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,4)
+  for(const u of workers)Object.assign(u,{...entrance(w,b),work:b.id,inside:null,path:[],cargo:0,tree:null,builder:{task:BuilderTask.Work,busy:0,phase:0,restart:true}})
+  for(let turn=0;turn<33;turn++)tick(w,1/12)
+  const fetchers=workers.filter(u=>u.builder?.task===BuilderTask.Fetch)
+  assert.equal(fetchers.length,2)
+  assert.equal(fetchers[0].tree,fetchers[1].tree,'same-turn native searches are not atomic')
+  const first=fetchers[0].tree,tree=w.trees.find(tree=>tree.id===first)
+  assert.deepEqual([tree.reservations,tree.flags4&0x100000,tree.reservationTimer],[1,0x100000,64])
+  workers[2].builder={task:BuilderTask.Fetch,busy:0,phase:0,restart:true}
+  for(let turn=0;turn<40&&!workers[2].tree;turn++)tick(w,1/12)
+  assert.ok(workers[2].tree)
+  assert.notEqual(workers[2].tree,first)
+})
+test('timber reservations reopen, drain and release on native transitions',()=>{
+  const tree={wood:100}
+  reserveTimber(tree,tree.wood)
+  assert.deepEqual(tree,{wood:100,flags4:0x100000,reservations:1,reservationTimer:64})
+  for(let turn=0;turn<63;turn++)stepTimberReservations(tree)
+  assert.deepEqual(tree,{wood:100,flags4:0,reservations:1,reservationTimer:1})
+  stepTimberReservations(tree);stepTimberReservations(tree)
+  assert.deepEqual(tree,{wood:100,flags4:0,reservations:0,reservationTimer:0})
+  reserveTimber(tree,tree.wood);releaseTimberReservation(tree)
+  assert.deepEqual(tree,{wood:100,flags4:0,reservations:0,reservationTimer:64})
 })
 test('live plan capacities, duplicate orders and replacement workers share registration',()=>{
   for(const [kind,limit] of [['hut',6],['camp',16]]){

@@ -239,6 +239,8 @@ import {
   stepTimberHarvest,
   timberTransfer,
   dropCarriedTimber,
+  reserveTimber,
+  releaseTimberReservation,
 } from './timber.ts'
 import { createIndexedSearch } from './indexed-search.ts'
 import {
@@ -1125,6 +1127,8 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
         )
       },
       reserve: id => {
+        const tree = w.trees.find(tree => tree.id === id)
+        if (tree) reserveTimber(tree, Math.round(tree.logs * 100))
         u.tree = id
       },
       transfer: (from, _to, requested) => {
@@ -1137,6 +1141,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
             short(rules.personWood[p.model]),
             requested
           )
+          if (amount) releaseTimberReservation(tree)
           tree.logs -= amount / 100
           p.cargo = (p.cargo + amount) & 65535
           if (amount && tree.logs < 1) depleteTree(w, tree, w.manaTribes[p.tribe].playerType === 1)
@@ -1212,6 +1217,7 @@ function processBuilderWork(w: World, u: Unit, b: Building) {
             capacity,
             capacity
           )
+          if (amount) releaseTimberReservation(tree)
           tree.logs -= amount / 100
           p.cargo = (p.cargo + amount) & 65535
           if (amount && tree.logs < 1) depleteTree(w, tree, w.manaTribes[p.tribe].playerType === 1)
@@ -2805,7 +2811,7 @@ function* liveTimberObjects(w: World, cell: number) {
         id: tree.id,
         class: tree.logs > 0 ? 5 : 0,
         model: tree.model,
-        flags4: 0,
+        flags4: tree.flags4 ?? 0,
         wood: Math.round(tree.logs * 100),
       }
   }
@@ -2925,6 +2931,7 @@ function harvestAssignedTree(w: World, u: Unit, destination?: Point, queued = fa
     rules.personWood[2],
     rules.personWood[2]
   )
+  if (wood) releaseTimberReservation(tree)
   tree.logs -= wood / 100
   if (wood && tree.logs < 1)
     depleteTree(w, tree, w.manaTribes[u.team === 'blue' ? 0 : 1].playerType === 1)

@@ -26,6 +26,7 @@ import {
 } from './scenery-fire.ts'
 import { createBuildingSmoke } from './building-smoke.ts'
 import { replantDelay, stepReplant, findReplantSite, stepTreeGrowth } from './tree-growth.ts'
+import { stepTimberReservations } from './timber.ts'
 import { HOME, ENEMY } from './campaign-runtime.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
@@ -247,6 +248,7 @@ export function stepScenery(w: World) {
   // Snapshot before tree/fire callbacks allocate this turn's new scenery.
   const fires = w.effects.filter(fx => fx.fire)
   for (const tree of w.trees) {
+    stepTimberReservations(tree)
     tree.counter = ((tree.counter ?? 0) + 1) & 255
     if (tree.logs <= 0) continue
     if (!tree.burn) {

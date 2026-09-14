@@ -202,6 +202,9 @@ export type Tree = Point & {
   id: number
   logs: number
   model: number
+  flags4?: number
+  reservations?: number
+  reservationTimer?: number
   burn?: BurningTree
   counter?: number
   growth?: number
