@@ -2,15 +2,18 @@
 
 Status: unfinished.
 
-Delivery target: complete the full-game remake by 2026-09-30 end of day
-Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
-coherent runs of high-impact gameplay over recurring cleanup and re-triage.
+Delivery target: complete the single-player release by 2026-09-30 end of day
+Europe/Berlin. Multiplayer, lobby, network, and lockstep work are outside this
+release and must not consume deadline work or block it. Reconsider them only after
+the release through explicit future direction. Keep the remaining scope and
+acceptance quality intact; use the date to favor coherent runs of high-impact
+gameplay over recurring cleanup and re-triage.
 
-Current feature lock: connect Mission 3's recurring PopScript to the live simulation.
-Bind the first native recurring branch end to end, then remove the level-3 execution
-gate only when every command/read reached by that path is supported. Prove its first
-original Chumara action or message through ordinary campaign turns; do not swallow
-unknown commands or claim the rest of the mission script.
+Current feature lock: give Mission 3 Chumara its original one-shot Convert Wild
+behavior. Bind the imported turn-zero stock assignment to the live computer spell
+path and prove that ordinary AI turns convert nearby native Wildmen without injected
+stock or test-created followers. Preserve exact stock consumption, targeting, RNG,
+and conversion timing; do not broaden into unrelated Mission 3 script commands.
 
 Composition recovery: the queued pass ended after independently committed extractions
 `b87507d` and `1690499`; current sizes are about 2,688 lines for `app/model.ts` and
@@ -20,14 +23,16 @@ cycles or multi-file ownership migration. Reassess only when gameplay creates a 
 boundary.
 
 Meet the target through meaningful capability completion across campaign/content,
-game mechanics, persistence/multiplayer, and modern compatibility—not recurring
+game mechanics, saves/profiles, and modern compatibility—not recurring
 cleanup, optimistic forecasts, scope cuts, or weaker acceptance. Report concrete
 deadline blockers as soon as they are proved, apply the smallest recovery, and keep
 useful independent gameplay moving while a true external dependency remains.
 
-Recreate the user-supplied Populous: The Beginning for modern desktop browsers.
-Make steady, fast progress toward a complete, enjoyable game while preserving observable gameplay,
-campaign, controls, simulation, graphics, audio, saves, and multiplayer behavior.
+Recreate the user-supplied Populous: The Beginning single-player game for modern
+desktop browsers.
+Make steady, fast progress toward a complete, enjoyable game while preserving
+observable single-player gameplay, campaign, controls, simulation, graphics, audio,
+and saves.
 Match original outcomes and timing, not obsolete implementation details or hardware
 limitations.
 
