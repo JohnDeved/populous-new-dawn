@@ -298,8 +298,7 @@
         "app/popscript.ts",
         "app/reincarnation.ts",
         "app/vault.ts",
-        "app/worship.ts",
-        "app/world-bootstrap.ts"
+        "app/worship.ts"
       ],
       "sharedPaths": [
         "app/flyby.ts",
