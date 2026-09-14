@@ -9,6 +9,7 @@ import { runScript, scriptState } from './popscript.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import { missionData, missionEnemyTribe, missionPosition } from './mission-data.ts'
 import type { PopScript } from './popscript.ts'
+import { defeatTribe, ensureBuildingDamage } from './building-damage.ts'
 
 export const HOME = missionPosition(1, 'blue'),
   ENEMY = missionPosition(1, 'red')
@@ -17,6 +18,50 @@ export const campaignPosition = (w: World, team: 'blue' | 'red') =>
 export const campaignTribe = (w: World) => missionEnemyTribe(w.outcome.level)
 export const campaignTeam = (w: World, tribe: number) =>
   tribe === 0 ? 'blue' : tribe === campaignTribe(w) ? 'red' : null
+
+export function cleanupDefeatedTribe(w: World, id: number) {
+  // ponytail: browser entity IDs/list order stand in for native registration;
+  // ghosts and internal objects join this adapter with the common object store.
+  const units = w.buildings
+    .filter(b => b.hp > 0)
+    .map(building => ({
+      building,
+      id: building.id,
+      class: 2,
+      model: buildingModel(building),
+      tribe: building.team === 'blue' ? 0 : 1,
+      flags4: 0,
+      hp: 0,
+      buildingFlags: building.damageState?.buildingFlags ?? 0,
+      damage: building.damageState?.damage ?? 0,
+      internalModel: 0,
+    }))
+  const context = {
+    turn: w.turn,
+    lastDefeated: w.outcome.lastDefeated,
+    skyCounter: w.outcome.skyCounter,
+    units,
+  }
+  defeatTribe(
+    context,
+    id,
+    w.castingTribes[id].flags,
+    nativePosition(w, campaignPosition(w, id === 0 ? 'blue' : 'red')),
+    {
+      // Tribe-death sky objects and reveal/camera effects need their native consumers.
+      allocate: () => {},
+      reveal: () => {},
+      remove: () => {},
+    }
+  )
+  w.outcome.skyCounter = context.skyCounter
+  for (const p of units)
+    if (p.tribe === id) {
+      const state = ensureBuildingDamage(p.building)
+      state.buildingFlags = p.buildingFlags
+      state.damage = p.damage
+    }
+}
 
 export function markerHeight(
   terrain: number[],

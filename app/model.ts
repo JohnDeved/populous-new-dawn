@@ -45,6 +45,7 @@ import {
   forceHead,
   campaignPosition,
   campaignTribe,
+  cleanupDefeatedTribe,
 } from './campaign-runtime.ts'
 export {
   campaignInternal,
@@ -480,7 +481,6 @@ import {
 } from './building-terrain.ts'
 import { stepSinkingBuilding, type SinkingBuilding } from './building-sinking.ts'
 import {
-  defeatTribe,
   advanceCollapse,
   stepBuildingShake,
   processBuildingDamage,
@@ -1193,49 +1193,6 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
   w.mode = null
   tell(w, `${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`)
   return true
-}
-function cleanupDefeatedTribe(w: World, id: number) {
-  // ponytail: browser entity IDs/list order stand in for native registration;
-  // ghosts and internal objects join this adapter with the common object store.
-  const units = w.buildings
-    .filter(b => b.hp > 0)
-    .map(building => ({
-      building,
-      id: building.id,
-      class: 2,
-      model: buildingModel(building),
-      tribe: building.team === 'blue' ? 0 : 1,
-      flags4: 0,
-      hp: 0,
-      buildingFlags: building.damageState?.buildingFlags ?? 0,
-      damage: building.damageState?.damage ?? 0,
-      internalModel: 0,
-    }))
-  const context = {
-    turn: w.turn,
-    lastDefeated: w.outcome.lastDefeated,
-    skyCounter: w.outcome.skyCounter,
-    units,
-  }
-  defeatTribe(
-    context,
-    id,
-    w.castingTribes[id].flags,
-    nativePosition(w, campaignPosition(w, id === 0 ? 'blue' : 'red')),
-    {
-      // Tribe-death sky objects and reveal/camera effects need their native consumers.
-      allocate: () => {},
-      reveal: () => {},
-      remove: () => {},
-    }
-  )
-  w.outcome.skyCounter = context.skyCounter
-  for (const p of units)
-    if (p.tribe === id) {
-      const state = ensureBuildingDamage(p.building)
-      state.buildingFlags = p.buildingFlags
-      state.damage = p.damage
-    }
 }
 function stepOutcome(w: World) {
   if (w.manaWorld.loadFlags & 0x200 || w.manaWorld.gameFlags & 32) return
