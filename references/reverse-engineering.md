@@ -8881,8 +8881,13 @@ reacquisition and returns to phase 16 with a movement order. A focused game
 regression checks private record identity, exact target retention, movement after a
 target relocation and contained-target reacquisition.
 
-This is not a complete port of command body `0043a4d0`. Its native subphases,
-attacking-shaman spell branch, ranged/vehicle people, special target flags and
+Follow-up dispatch research corrects the earlier `0043a4d0` attribution: command
+28 runs through `0051fce0` into ordinary attack body `0051a2a0`. Its model-7 test
+admits a shaman as a preacher's target; there is no command-28 attacking-shaman
+spell request. Mission one assigns this command to Red warriors targeting the Blue
+shaman, while shaman self-Blast remains independently owned by `004d0860`. See
+[`decomp/research/command-28-attacking-shaman.md`](../decomp/research/command-28-attacking-shaman.md).
+Ranged/vehicle people, special target flags, the full ordinary attack body and
 general player command-28 queue migration remain open. The browser deliberately
 reuses its established direct-target movement/contact adapter for this bounded
 mission path; the native check proves allocation and ownership, not the whole fight

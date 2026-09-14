@@ -87,6 +87,7 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
+        { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
@@ -98,7 +99,7 @@
           "heading": "Native marching integration and collision snapshots"
         }
       ],
-      "nativeAddresses": ["0x4ee470", "0x4ec810", "0x4ef510"],
+      "nativeAddresses": ["0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
       "checkIds": [
         "orders-portable",
         "orders-native",

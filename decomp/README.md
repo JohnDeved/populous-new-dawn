@@ -1188,7 +1188,16 @@ vehicles, remaining states and full airborne/health dispatch are still open.
 Raw metadata can misname overlapping fields: compiled command 25 clears the
 matched effect's word +0x70, and command 29 tests target word +0x7a. Those offsets
 are confirmed by instructions and CPU comparison, not inferred field names.
-There are 599 raw exports and 55 gameplay regression tests.
+There are 600 raw exports and 55 gameplay regression tests.
+
+### Command 28 has no shaman cast branch
+
+`00432590` dispatches command 28 to `0051fce0`, not `0043a4d0`. The complete
+wrapper calls ordinary attack body `0051a2a0`; its only model-7 test admits a
+shaman as an attacking preacher's target. It makes no spell request. Mission 1
+assigns command 28 to Red warriors targeting the Blue shaman, while shaman
+self-Blast remains independently owned by `004d0860`. See
+[`decomp/research/command-28-attacking-shaman.md`](research/command-28-attacking-shaman.md).
 
 
 ## Idle approach and resting states
