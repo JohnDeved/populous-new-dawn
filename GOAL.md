@@ -6,17 +6,18 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current work lock: perform the explicitly queued behavior-neutral composition pass
-after the committed Mission 3 opening. First move the defeated-tribe world adapter
-from `app/model.ts` to its existing `app/campaign-runtime.ts` owner without changing
-outcome phase order, RNG, rendering, audio, or public imports. Commit the extraction
-independently and do not record parity for it.
+Current feature lock: connect Mission 3's recurring PopScript to the live simulation.
+Bind the first native recurring branch end to end, then remove the level-3 execution
+gate only when every command/read reached by that path is supported. Prove its first
+original Chumara action or message through ordinary campaign turns; do not swallow
+unknown commands or claim the rest of the mission script.
 
-Composition recovery: current sizes are about 2,747 lines for `app/model.ts` and 934
-for `app/scene.ts`, not the superseded 7,500/3,200-line estimate. `app/scene.ts` is
-already a compact composition root. Extract only cohesive current seams that need no
-new interfaces, callback plumbing, multi-file ownership migration, or runtime cycles;
-stop this pass when that bar is no longer met, then return to new gameplay features.
+Composition recovery: the queued pass ended after independently committed extractions
+`b87507d` and `1690499`; current sizes are about 2,688 lines for `app/model.ts` and
+934 for `app/scene.ts`, not the superseded 7,500/3,200-line estimate. `app/scene.ts`
+is already a compact composition root, and remaining larger blocks require runtime
+cycles or multi-file ownership migration. Reassess only when gameplay creates a clean
+boundary.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, persistence/multiplayer, and modern compatibility—not recurring
