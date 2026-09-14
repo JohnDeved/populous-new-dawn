@@ -445,6 +445,7 @@
       "coveredBehavior": [
         "First visit starts mission one without a stale choice",
         "Normal Mission 1 victory continues through the shipped result UI into Mission 2",
+        "Mission 2 marker-triggered Matak tower counterattack",
         "Returning-player New Game and Load Game choice before scene creation",
         "Exact Mission 2 checkpoint restore after reload",
         "Fresh-world isolation and storage-unavailable fallback"
@@ -462,6 +463,11 @@
         "app/messages.ts",
         "app/original-messages.json",
         "app/campaign-command-runtime.ts",
+        "app/live-building-combat.ts",
+        "app/live-combat.ts",
+        "app/combat-targets.ts",
+        "app/indexed-search.ts",
+        "app/person-orders.ts",
         "app/original-script-two.json",
         "app/page.tsx",
         "app/game-store.ts",
@@ -473,6 +479,47 @@
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
       "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Exercise the native Mission 2 tower counterattack branch and compare its live browser contract.",
+      "coveredBehavior": [
+        "Tribe-3 building-list dispatch",
+        "Occupied model-4 tower and Warrior gate",
+        "Hostile and defender scan branches",
+        "Shared immediate model-19 order and person flags"
+      ],
+      "knownLimits": [
+        "Indexed search, alliance/disguise, and person-order leaves are intercepted; browser regressions cover their integrated consumers."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-building-counterattack.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-building-counterattack.py",
+        "scripts/decomp.py",
+        "decomp/generated/0040bce0.c",
+        "decomp/research/mission2-enemy-marker.md",
+        "decomp/requirements.txt",
+        "decomp/tools.json",
+        "app/campaign-command-runtime.ts",
+        "app/live-building-combat.ts",
+        "app/live-combat.ts",
+        "app/combat-targets.ts",
+        "app/indexed-search.ts",
+        "app/person-orders.ts",
+        "app/original-rules.json"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

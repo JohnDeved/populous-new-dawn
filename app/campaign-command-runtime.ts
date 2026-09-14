@@ -28,6 +28,7 @@ import { runScript, scriptValue, type PopScript } from './popscript.ts'
 import { missionData } from './mission-data.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from './building-shapes.ts'
 import { nativePersonModel } from './live-combat.ts'
+import { buildingCounterattack } from './live-building-combat.ts'
 
 export function removeHead(w: World, x: number, y: number) {
   const head = headAt(w, x, y)
@@ -62,6 +63,7 @@ export function campaignCommand(
       1112: 0,
       1117: 0,
       1196: 1,
+      1198: 0,
       1204: 1,
       1076: 3,
       1077: 3,
@@ -254,6 +256,10 @@ export function campaignCommand(
   }
   if (opcode === 1196) {
     w.ai.defenceRadius = read(args[0]) & 255
+    return
+  }
+  if (opcode === 1198) {
+    buildingCounterattack(w, 'red')
     return
   }
   if (opcode === 1108) {

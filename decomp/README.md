@@ -139,7 +139,9 @@ warrior patrol, and the type-1 input-release notification are documented in the
 [Mission 2 startup note](research/mission2-startup-commands.md). The subsequent
 positioned Tornado-head guidance is documented in the
 [Mission 2 positioned-message note](research/mission2-positioned-message.md). This
-does not claim the remainder of Mission 2.
+is followed by the marker-triggered Matak tower response documented in the
+[Mission 2 enemy-marker note](research/mission2-enemy-marker.md). These bounded
+checks do not claim the remainder of Mission 2.
 
 ## Campaign counter comparison
 

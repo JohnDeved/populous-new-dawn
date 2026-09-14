@@ -132,6 +132,28 @@ try {
     }),
     { x: 0xcd00, y: 0x6100 }
   )
+  const counterattack = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { createLivePerson, syncLivePersonCells } = await import('/app/live-people.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      { addUnit, command, select, tick } = await import('/app/model.ts'),
+      tower = world.buildings.find(building => building.team === 'red' && building.kind === 'tower'),
+      defender = addUnit(world, 'red', 'warrior', { x: tower.x + 2, z: tower.z })
+    defender.native = createLivePerson(world, defender)
+    defender.native.state = 17
+    syncLivePersonCells(world)
+    select(world, 'shaman')
+    if (!command(world, tower)) throw new Error('Enemy-tower command failed')
+    for (let i = 0; i < 360 && currentPersonOrder(world.buildingOrders, defender.native)?.model !== 19; i++) {
+      defender.native.flags3 |= 0x800
+      tick(world, 1 / 12)
+    }
+    defender.native.flags3 &= ~0x800
+    const order = currentPersonOrder(world.buildingOrders, defender.native)
+    globalThis.testStore.update()
+    return { defenderId: defender.id, variables: world.ai.variables.slice(1, 3), model: order?.model, flags: order?.flags, a: order?.a, b: order?.b }
+  })
+  assert.deepEqual(counterattack, { defenderId: counterattack.defenderId, variables: [1, 1], model: 19, flags: 0x32, a: 0x7c7c, b: 0x0a0a })
   await page.evaluate(async () => {
     const scene = globalThis.testScene
     scene.world.speed = 0
@@ -188,17 +210,25 @@ try {
     },
     saved
   )
-  const restored = await page.evaluate(() => ({
-    level: globalThis.testScene.world.outcome.level,
-    turn: globalThis.testScene.world.turn,
-    height: globalThis.testScene.world.land.heights[0],
-    hp: globalThis.testScene.world.units[0].hp,
-    paused: globalThis.testScene.world.paused,
-    soundSerial: globalThis.testScene.world.soundSerial,
-    soundCursor: globalThis.testScene.soundSerial,
-    soundPlaying: globalThis.testScene.world.buildings[0].burn.soundPlaying,
-    guidance: globalThis.testScene.world.messages.slots.find(message => message?.stringId === 644)?.view,
-  }))
+  const restored = await page.evaluate(defenderId => {
+    const world = globalThis.testScene.world,
+      defender = world.units.find(unit => unit.id === defenderId),
+      person = defender.native ?? defender.entry?.person ?? defender.builder?.person,
+      orderId = person.immediateCommand || person.commands[person.commandCursor],
+      order = world.buildingOrders.records[orderId]
+    return {
+      level: world.outcome.level,
+      turn: world.turn,
+      height: world.land.heights[0],
+      hp: world.units[0].hp,
+      paused: world.paused,
+      soundSerial: world.soundSerial,
+      soundCursor: globalThis.testScene.soundSerial,
+      soundPlaying: world.buildings[0].burn.soundPlaying,
+      guidance: world.messages.slots.find(message => message?.stringId === 644)?.view,
+      counterattack: { variables: world.ai.variables.slice(1, 3), model: order.model, flags: order.flags, a: order.a, b: order.b },
+    }
+  }, counterattack.defenderId)
   assert.deepEqual(restored, {
     level: 2,
     turn: saved.turn,
@@ -209,6 +239,7 @@ try {
     soundCursor: restored.soundSerial,
     soundPlaying: false,
     guidance: { cell: 0x60cc, payload: 308 },
+    counterattack: { variables: [1, 1], model: 19, flags: 0x32, a: 0x7c7c, b: 0x0a0a },
   })
   assert.ok(restored.soundSerial)
   await assertMissionTwoMessage(page)

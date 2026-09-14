@@ -59,7 +59,7 @@ export function combatPerson(u: Unit): CombatPerson {
 // Adapt existing live ownership without allocating native sprite/state records.
 // ponytail: ordinary people/fights still use browser list ties; retain native
 // cell-chain order where owned, and replace the fallback with mixed-class allocation.
-function combatWorld(w: World, source: CombatPerson, range: number) {
+export function combatWorld(w: World, source: CombatPerson, range: number) {
   const objects = new Map<number, CombatTarget>()
   const owners = new Map<number, Unit | Building | World['fights'][number]>()
   const cells = new Map<number, CombatTarget[]>()

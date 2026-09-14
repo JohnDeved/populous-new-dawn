@@ -1239,6 +1239,22 @@ test('mission-two bridge route reaches the positioned Tornado guidance message',
  assert.equal(message.lifetime,3000);assert.equal(message.flags,0x36f1);
 });
 
+test('mission-two enemy marker orders nearby Matak defenders to counterattack',()=>{
+ const world=createWorld(2);until(world,()=>world.turn>=122,20);
+ const tower=world.buildings.find(b=>b.team==='red'&&b.kind==='tower'),
+  shaman=world.units.find(u=>u.team==='blue'&&u.kind==='shaman');
+ assert.ok(tower&&shaman);
+ const defender=addUnit(world,'red','warrior',{x:tower.x+2,z:tower.z});
+ defender.native=createLivePerson(world,defender);defender.native.state=17;
+ syncLivePersonCells(world);select(world,'shaman');assert.ok(command(world,tower));
+ until(world,()=>{defender.native.flags3|=0x800;return currentPersonOrder(world.buildingOrders,defender.native)?.model===19;},30);
+ defender.native.flags3&=~0x800;
+ const order=currentPersonOrder(world.buildingOrders,defender.native);
+ assert.deepEqual(world.ai.variables.slice(1,3),[1,1]);
+ assert.deepEqual({model:order.model,flags:order.flags,a:order.a,b:order.b},{model:19,flags:0x32,a:levelTwo.markers[0],b:0x0a0a});
+ assert.equal(defender.native.flags3&0x02000000,0x02000000);
+});
+
 test('game store checkpoints restore an isolated exact world snapshot', async () => {
  const {createGameStore,migrateCheckpoint}=await import('../app/game-store.ts');
  const legacy=createWorld(),nextId=legacy.nextId;legacy.effects=[];legacy.gifts=[{kind:'bridge',x:1,z:2,remaining:79}];

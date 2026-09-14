@@ -1,4 +1,4 @@
-import { buildingPose } from './building-shapes.ts'
+import { buildingModel, buildingPose } from './building-shapes.ts'
 import { joinBattle } from './combat-runtime.ts'
 import { sound } from './world-effects.ts'
 import { cancelLiveResting } from './live-resting.ts'
@@ -46,12 +46,14 @@ import {
 } from './combat-pursuit.ts'
 import { approachCombatPerson, approachFight, attackCombatPlan } from './combat-approach.ts'
 import {
+  combatWorld,
   allocateLiveCombatResponse,
   combatPerson,
   nativePersonModel,
   nativePersonTribe,
   selectLiveCombatTarget,
 } from './live-combat.ts'
+import { eligibleCombatPerson } from './combat-targets.ts'
 import { availableFightSlot, releaseAttackReservation } from './combat-targets.ts'
 import { fightWaitingPosition } from './melee-placement.ts'
 import { engagementRange } from './melee-engagement.ts'
@@ -67,8 +69,10 @@ import {
   currentPersonOrder,
   type OrderEffects,
   type PersonOrder,
+  prepareCellOrder,
 } from './person-orders.ts'
 import { buildingAdmission } from './live-building-entry.ts'
+import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 
 const unsupported = (): never => {
   throw new Error('Unported building attack order consumer')
@@ -155,6 +159,93 @@ export function startLiveCombatResponse(w: World, u: Unit) {
     registerLivePerson(w, person)
   }
   return true
+}
+
+function buildingCounterattackCells(w: World, b: Building, radius: number) {
+  const id = startIndexedSearch(w.indexedSearch, 2, 0, 0, radius)
+  if (!id) return null
+  const center = nativePosition(w, b),
+    cx = (center.x >>> 8) & 254,
+    cy = (center.y >>> 8) & 254,
+    cells: number[] = []
+  for (let offset = nextIndexedSearch(w.indexedSearch, id); offset; offset = nextIndexedSearch(w.indexedSearch, id)) {
+    const x = (cx + offset.x * 2) & 254,
+      y = (cy + offset.y * 2) & 254
+    cells.push((y >> 1) * 128 + (x >> 1))
+  }
+  endIndexedSearch(w.indexedSearch, id)
+  return cells
+}
+
+// 0x40bce0/0x40bd20: occupied guard towers order nearby tribe defenders
+// to counterattack only after their area scan detects a hostile person.
+export function buildingCounterattack(w: World, team: 'blue' | 'red') {
+  const tribe = team === 'blue' ? 0 : 1
+  for (const b of w.buildings) {
+    if (b.team !== team || b.hp <= 0 || buildingModel(b) !== 4) continue
+    const admission = buildingAdmission(w, b),
+      first = w.units.find(u => u.id === admission.occupants[0] && u.hp > 0)
+    if (!admission.inside || !first || nativePersonModel(first) !== 3) continue
+    const source = combatPerson(first),
+      radius = Math.max(0, Math.min(31, 7 + ((nativePosition(w, b).h * 7 * 32) >> 16))),
+      scan = buildingCounterattackCells(w, b, radius)
+    if (!scan) continue
+    const { world } = combatWorld(w, source, 255)
+    if (
+      !scan.some(cell =>
+        !(rules.terrainCategoryFlags[w.land.categories[cell] & 15] & 2) &&
+        [...world.cellObjects(cell)].some(target =>
+          target.class === 1 && eligibleCombatPerson(world, source, target)
+        )
+      )
+    )
+      continue
+
+    const marked = new Set<number>()
+    for (const cell of scan) {
+      for (const target of world.cellObjects(cell))
+        if (target.class === 1 && target.tribe === tribe && target.id !== first.id)
+          marked.add(target.id)
+      const buildingId = w.land.buildingIds[cell] & 1023,
+        occupied = w.buildings.find(
+          candidate =>
+            (candidate.id & 1023) === buildingId && candidate.team === team && candidate.hp > 0
+        )
+      if (w.land.flags[cell] & 0x200 && occupied && rules.buildingFlags[buildingModel(occupied)] & 0x400)
+        for (const id of buildingAdmission(w, occupied).occupants) if (id) marked.add(id)
+    }
+
+    let orderId = 0
+    for (const u of w.units) {
+      if (u.team !== team || !marked.has(u.id)) continue
+      let p = u.native ?? u.entry?.person ?? u.builder?.person
+      if (!p) {
+        p = createLivePerson(w, u)
+        u.native = p
+      }
+      if (!(rules.personStateFlags[p.state] & 0x1000)) continue
+      const current = currentPersonOrder(w.buildingOrders, p)
+      if (p.state === 10 && current && !(current.flags & 1) && rules.personCommands[current.model].flags & 0x80)
+        continue
+      if (!orderId) {
+        orderId = allocatePersonOrder(w.buildingOrders)
+        if (!orderId) break
+        const point = nativePosition(w, b),
+          q = (radius * 2 - 4) & 255
+        prepareCellOrder(
+          w.buildingOrders.records[orderId],
+          { a: ((point.x >>> 8) & 254) | (point.y & 0xfe00), b: q | (q << 8) },
+          0x32,
+          w.land.categories,
+          19
+        )
+      }
+      p.flags2 = (p.flags2 | 0x10) >>> 0
+      p.flags3 = (p.flags3 & ~0x02000000) >>> 0
+      attachPersonOrder(w.buildingOrders, p, orderId, -1, orderEffects(w))
+      p.flags3 = (p.flags3 | 0x02000000) >>> 0
+    }
+  }
 }
 
 // Manual command 19 and automatic command 21 share the native area controller.
