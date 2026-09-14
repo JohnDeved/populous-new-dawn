@@ -366,6 +366,18 @@ are covered. These are independently executable engine ports; browser world
 integration still requires original person state and command lifecycle consumers.
 New command exports are research evidence, not completed implementations.
 
+## Mission 1 Red hut producer
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mission1-red-hut.py /path/to/d3dpoptb.exe
+```
+
+The native initial model-3 Red hut supplies five housing slots against the script's
+target of three, so `004e5580` allocates no model-1 construction task and consumes no
+RNG. The conditional type-0 path and its controlled-leaf limits are documented in
+[the focused research note](research/mission1-red-hut.md). This research correction
+does not add gameplay or parity credit.
+
 ## Shared person commands
 
 ```sh
