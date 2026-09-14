@@ -2,6 +2,22 @@
 
 Status: unfinished.
 
+Delivery target: complete the full-game remake by 2026-09-30 end of day
+Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
+coherent runs of high-impact gameplay over recurring cleanup and re-triage.
+
+Current feature lock: restore the Mission 1 enemy shaman's native spell
+counterattack through its live attack path. Keep composition extraction stopped.
+Recovered Mission 2 level, header, and header-selected script inputs are available
+under `work/orchestration/ceo-release/mission2/`; after this lock, the next major
+outcome is normal victory-to-Mission-2 continuation with its native-proof gate.
+
+Meet the target through meaningful capability completion across campaign/content,
+game mechanics, persistence/multiplayer, and modern compatibility—not recurring
+cleanup, optimistic forecasts, scope cuts, or weaker acceptance. Report concrete
+deadline blockers as soon as they are proved, apply the smallest recovery, and keep
+useful independent gameplay moving while a true external dependency remains.
+
 Recreate the user-supplied Populous: The Beginning for modern desktop browsers.
 Make steady, fast progress toward a complete, enjoyable game while preserving observable gameplay,
 campaign, controls, simulation, graphics, audio, saves, and multiplayer behavior.
