@@ -9,14 +9,14 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Mission 4's original one-shot opening flyby through the
-existing campaign VM, camera, tooltip, input-lock, and skip paths. Preserve exact
-event order and one-shot gating, prove normal HUD interaction resumes after skip,
-and leave the larger recurring AI/tutorial blocks deferred. Do not record parity
-without explicit authorization.
+Current task lock: prove the unresolved opcode-1179 trigger/count semantics, then
+deliver Mission 4's original contextual training and attack tutorial messages
+through the shipped campaign and presentation paths. Keep the larger recurring AI
+block deferred and do not record parity without explicit authorization.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
-completion and next-mission recommendation finished in `dfc35b5`.
+completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
+original opening flyby finished in `8ad89d0`.
 
 The user-queued composition refactor reached its natural stopping point after five
 independently revertible extractions through `7d58c2c`. Keep `app/model.ts` and
