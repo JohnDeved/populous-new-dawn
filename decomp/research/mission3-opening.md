@@ -16,8 +16,9 @@ training tables and English message 109 identify it as Temple knowledge used to
 train Preachers. The ordinary head at `(-7,115)` links class-7/model-23 Erosion at
 `(-15,111)`. It clones that effect when worship completes; it is not a spell gift.
 
-The turn-zero script configures Chumara Swarm use, assigns Chumara one Convert Wild
-shot, and opens message 105 directing Blue to the Chumara Vault. The current opening
+The turn-zero script configures Chumara Swarm use, grants Chumara one Convert Wild
+shot with opcode 1115, enables the unrelated marvellous-house death flag with opcode
+1197, and opens message 105 directing Blue to the Chumara Vault. The current opening
 port retains the imported script and its supported initialization but deliberately
 does not run Mission 3's recurring block. Unbound recurring commands include 1221,
 1168, 1179, 1074, 1103, and a later 1030; those block any claim of full Mission 3

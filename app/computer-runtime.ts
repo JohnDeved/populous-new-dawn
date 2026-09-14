@@ -799,6 +799,8 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
     reserve: 0,
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
+    aiStates: w.ai.states,
+    coordinateTarget: w.ai.coordinateLatch,
     blastFrequency: w.ai.attributes[32],
     stock: w.manaWorld.spells[tribe],
   }

@@ -378,6 +378,8 @@ export function processComputerSpells(
     reserve: number
     gameFlags: number
     aiFlags: number
+    aiStates?: number
+    coordinateTarget?: number
     blastFrequency: number
     stock: SpellStock
   },
@@ -465,24 +467,25 @@ export function processComputerSpells(
     entries,
     context.reserve
   )
-  const convert = entries.findIndex((entry, i) => entry.model === 17 && ranges[i])
+  // ponytail: carry the native marker override; add the remaining task-2 phases when gameplay needs them.
+  const convertReady = !!(context.aiStates && context.aiStates & 4) && !!payment(17)
+  const casterCell = cellOf(caster)
   if (
-    convert >= 0 &&
+    convertReady &&
+    scan.wildTarget === undefined &&
+    !((turn + w.tribe + 1) & 63) &&
+    context.aiFlags & 0x40
+  ) {
+    scan.wildTarget = context.coordinateTarget
+    context.aiFlags = (context.aiFlags & ~0x40) >>> 0
+  }
+  if (
+    convertReady &&
+    scan.wildTarget !== undefined &&
     eligible() &&
     allowed(17) &&
-    payment(17) &&
     mana >= rules.spellCharging[17].cost
   ) {
-    const casterCell = cellOf(caster)
-    if (scan.wildTarget === undefined) {
-      scan.wildTarget = casterCell
-      if (!convertWildDensity(w, scan.wildTarget))
-        for (const [cell, people] of w.cells)
-          if (people.some(person => person.class === 1 && person.model === 1)) {
-            scan.wildTarget = cell
-            break
-          }
-    }
     const target = stepConvertWildTarget(w, scan.wildTarget)
     scan.wildTarget = target.cell
     if (

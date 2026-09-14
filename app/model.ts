@@ -665,9 +665,10 @@ export function createWorld(missionNumber = 1): World {
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
     if (
-      ![1038, 1069, 1081, 1091, 1092, 1095, 1097, 1108, 1109, 1112, 1117, 1196, 1204].includes(
-        c.opcode
-      )
+      ![
+        1038, 1069, 1073, 1081, 1091, 1092, 1095, 1097, 1108, 1109, 1112, 1115, 1117, 1196,
+        1197, 1204,
+      ].includes(c.opcode)
     )
       return true
     campaignCommand(w, c.opcode, c.args)

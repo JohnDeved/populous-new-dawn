@@ -29,6 +29,7 @@ import { missionData } from './mission-data.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from './building-shapes.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingCounterattack } from './live-building-combat.ts'
+import rules from './original-rules.json' with { type: 'json' }
 
 export function removeHead(w: World, x: number, y: number) {
   const head = headAt(w, x, y)
@@ -52,6 +53,7 @@ export function campaignCommand(
       1059: 13,
       1068: 4,
       1069: 2,
+      1073: 1,
       1081: 1,
       1091: 7,
       1092: 4,
@@ -78,8 +80,10 @@ export function campaignCommand(
       1176: 1,
       1177: 4,
       1113: 0,
+      1115: 2,
       1180: 0,
       1187: 0,
+      1197: 0,
       1205: 0,
       1206: 0,
       1207: 0,
@@ -126,6 +130,15 @@ export function campaignCommand(
     const [x, y] = args.map(read)
     w.ai.flags = (w.ai.flags | 0x20) >>> 0
     w.ai.coordinateLatch = (x & 255) | ((y & 255) << 8)
+    return
+  }
+  if (opcode === 1073) {
+    const marker = read(args[0]),
+      target = level.markers[marker]
+    if (!Number.isInteger(marker) || target === undefined)
+      throw new RangeError('Invalid computer marker override')
+    w.ai.flags = (w.ai.flags | 0x40) >>> 0
+    w.ai.coordinateLatch = target
     return
   }
   if (opcode === 1097) {
@@ -289,6 +302,24 @@ export function campaignCommand(
       people: people & 255,
       mode: mode & 255,
     }
+    return
+  }
+
+  if (opcode === 1115) {
+    const model = read(args[0]),
+      tribe = args[1] >= 1118 && args[1] <= 1121 ? args[1] - 1118 : read(args[1]),
+      stock = w.manaWorld.spells[tribe]
+    if (!stock || !Number.isInteger(model) || model < 1 || model >= 22)
+      throw new RangeError('Invalid one-shot spell grant')
+    const count = stock.stocks[model] & 15
+    if (count < rules.spellCharging[model].normalLimit)
+      stock.stocks[model] = (stock.stocks[model] & 240) | (count + 1)
+    return
+  }
+
+  if (opcode === 1197) {
+    const tribe = campaignTribe(w)
+    w.manaTribes[tribe].flags2 = (w.manaTribes[tribe].flags2 | 2) >>> 0
     return
   }
 

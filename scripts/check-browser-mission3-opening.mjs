@@ -27,6 +27,10 @@ try {
     const world = globalThis.testStore.getWorld()
     return world.outcome.level === 3 && world.turn >= 16 && world.flyby.flags & 1
   })
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    return world.spellCasts[2][17] === 1 && world.units.filter(unit => unit.team === 'wild').length < 44
+  })
   const result = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld()
     const initial = {
@@ -40,6 +44,10 @@ try {
         events: world.flyby.events.length,
         end: world.flyby.end,
         inputLocked: !!(world.inputMask & 64),
+      },
+      convertWild: {
+        casts: world.spellCasts[2][17],
+        stock: world.manaWorld.spells[2].stocks[17],
       },
     }
     await globalThis.testStore.saveCheckpoint()
@@ -65,8 +73,8 @@ try {
     initial: {
       level: 3,
       blue: 1,
-      red: 7,
-      wild: 44,
+      red: 8,
+      wild: 43,
       vault: true,
       erosion: true,
       recurringFlyby: {
@@ -74,12 +82,13 @@ try {
         end: { x: 42, y: 166, angle: 1144, zoom: 0 },
         inputLocked: true,
       },
+      convertWild: { casts: 1, stock: 0 },
     },
     checkpoint: { level: 3, unlockedTemple: false },
     restart: { level: 3, blue: 1, red: 7, wild: 44 },
   })
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 2 continuation opens Mission 3 data, HUD and recurring flyby')
+  console.log('PASS: Mission 2 continuation opens Mission 3 data, flyby and Chumara conversion')
 } finally {
   await browser.close()
 }

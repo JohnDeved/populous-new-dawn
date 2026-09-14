@@ -152,6 +152,8 @@ Blue target are documented in the
 The imported owner layout, rechargeable Swarm, Temple Vault reward, linked Erosion
 head, and explicitly deferred recurring script for the next campaign world are
 recorded in the [Mission 3 opening note](research/mission3-opening.md).
+Its ordinary one-shot Chumara conversion is documented in the
+[Mission 3 Convert Wild note](research/mission3-convert-wild.md).
 
 ## Campaign counter comparison
 
