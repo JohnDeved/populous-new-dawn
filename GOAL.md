@@ -9,15 +9,16 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver authentic Mission 4 through the shipped campaign path.
-Import its level and script, continue from a won Mission 3, bind only behavior Mission
-4 actually exercises, make its real objective playable to completion, and preserve
-Mission 4 across save/load. Require native evidence for newly encountered commands
-and a browser continuation/play/win/reload path before acceptance.
+Current task lock: perform the user-queued behavior-neutral composition refactor of
+`app/model.ts` and `app/scene.ts` now that Mission 4 is committed. Keep both stable
+public facades, preserve exact simulation, RNG, render, and audio order, and make no
+parity update. Use one mechanically moved cohesive extraction per independently
+revertible commit; reassess each boundary against the current source and stop
+splitting where ownership is not narrow without new scaffolding.
 
-Composition recovery finished in commit `ae33ada`: `createWorld` now lives behind the
-stable `app/model.ts` facade. Do not reopen the rejected tiny scene splits unless a
-named feature creates a stronger boundary.
+World initialization extraction finished in commit `ae33ada`. Continue from the
+current source: the supplied module names and order are strong candidates, not a
+quota or immutable plan.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, saves/profiles, and modern compatibility—not recurring
