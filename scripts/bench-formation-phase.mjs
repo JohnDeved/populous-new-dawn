@@ -7,9 +7,23 @@ import {createWorld,addUnit,command,tick} from '../app/model.ts'
 const baseline=process.argv[2]??'34aef667bd6541d4910c61f77c7943740bc341a9'
 const source=new URL('../app/.formation-phase-baseline.ts',import.meta.url)
 const movement=new URL('../app/.formation-movement-baseline.ts',import.meta.url)
+const turn=new URL('../app/.formation-world-turn-baseline.ts',import.meta.url)
+const show=path=>{try{return execFileSync('git',['show',`${baseline}:app/${path}`],{encoding:'utf8',stdio:['ignore','pipe','ignore']})}catch{return null}}
 try {
- await writeFile(movement,execFileSync('git',['show',baseline+':app/live-movement.ts']))
- await writeFile(source,execFileSync('git',['show',baseline+':app/model.ts'],{encoding:'utf8'}).toString().replace("'./live-movement.ts'","'./.formation-movement-baseline.ts'"))
+ const model=show('model.ts'),previousMovement=show('live-movement.ts'),previousTurn=show('world-turn.ts')
+ assert.ok(model&&previousMovement,'baseline must contain model and movement modules')
+ await writeFile(movement,previousMovement)
+ let previousModel=model
+ if(previousTurn){
+  assert.ok(previousModel.includes("'./world-turn.ts'"),'baseline model must import its world turn')
+  assert.ok(previousTurn.includes("'./live-movement.ts'"),'baseline world turn must import live movement')
+  await writeFile(turn,previousTurn.replace("'./live-movement.ts'","'./.formation-movement-baseline.ts'"))
+  previousModel=previousModel.replace("'./world-turn.ts'","'./.formation-world-turn-baseline.ts'")
+ }else{
+  assert.ok(previousModel.includes("'./live-movement.ts'"),'baseline model must contain live movement import')
+  previousModel=previousModel.replace("'./live-movement.ts'","'./.formation-movement-baseline.ts'")
+ }
+ await writeFile(source,previousModel)
  const previous=(await import(source.href)).tick
  const seed=createWorld();seed.units=[];seed.buildings=[];seed.shrines=[];seed.trees=[];seed.manaWorld.gameFlags=32
  seed.terrain.fill(3);seed.terrainVersion++
@@ -27,4 +41,4 @@ try {
  }
  const stats=raw=>{const a=raw.toSorted((a,b)=>a-b);return {median:a[a.length/2],p95:a[Math.floor(a.length*.95)]}}
  console.log(JSON.stringify({date:new Date().toISOString(),baseline,cpu:cpus()[0].model,node:process.version,people:200,turns:120,warmups:8,pairedSamples:20,millisecondsPerTurn:{before:stats(samples[0]),after:stats(samples[1]),pairedDifference:stats(samples[1].map((v,i)=>v-samples[0][i]))},samples,peaks,scope:'Complete simulation turn CPU on flat ground, including world processors and automatic combat scans. Baseline loads previous model and movement modules; unchanged dependencies shared. No renderer, GPU or cross-hardware FPS claim. Trajectories intentionally differ with corrected scheduling; native phase traces and separate 5–240 Hz replay establish correctness.'}))
-} finally {await rm(source,{force:true});await rm(movement,{force:true})}
+} finally {await rm(source,{force:true});await rm(movement,{force:true});await rm(turn,{force:true})}

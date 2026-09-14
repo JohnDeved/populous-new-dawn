@@ -64,7 +64,8 @@
         "app/person-order-update.ts",
         "app/person-orders.ts",
         "app/person-routes.ts",
-        "app/route-advance.ts"
+        "app/route-advance.ts",
+        "app/world-rules.ts"
       ],
       "researchPaths": [
         "scripts/browser-game.mjs",
@@ -79,7 +80,7 @@
         { "path": "app/live-command.ts", "symbol": "findPath" },
         { "path": "app/live-command.ts", "symbol": "guardShaman" },
         { "path": "app/live-movement.ts", "symbol": "appendLiveOrders" },
-        { "path": "app/model.ts", "symbol": "stepTurn" }
+        { "path": "app/world-turn.ts", "symbol": "stepTurn" }
       ],
       "parityIds": [
         "simulation.orders",
@@ -135,6 +136,7 @@
       "mappingStatus": "reviewed",
       "implementationPaths": [
         "app/live-command.ts",
+        "app/live-construction-runtime.ts",
         "app/construction-runtime.ts",
         "app/building-preparation.ts",
         "app/building-work.ts",
@@ -150,7 +152,7 @@
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "placeBuilding" },
         { "path": "app/live-command.ts", "symbol": "placeBuilding" },
-        { "path": "app/model.ts", "symbol": "processBuilderWork" }
+        { "path": "app/live-construction-runtime.ts", "symbol": "processBuilderWork" }
       ],
       "parityIds": [
         "economy.plans",
@@ -208,7 +210,7 @@
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "animate" },
         { "path": "app/game-clock.ts", "symbol": "GameClock" },
-        { "path": "app/model.ts", "symbol": "tick" }
+        { "path": "app/world-turn.ts", "symbol": "tick" }
       ],
       "parityIds": [
         "world.camera",
@@ -315,7 +317,9 @@
         "app/original-script-four.json",
         "app/original-script-five.json",
         "app/reincarnation.ts",
+        "app/tribe-turns.ts",
         "app/vault.ts",
+        "app/world-effects.ts",
         "app/worship.ts"
       ],
       "researchPaths": [
@@ -491,6 +495,24 @@
         "campaign"
       ],
       "checkIds": ["repository-check"]
+    },
+    {
+      "path": "app/world-turn.ts",
+      "subsystemIds": [
+        "selection",
+        "movement-orders",
+        "construction-resources",
+        "camera-clocks",
+        "terrain-performance",
+        "campaign"
+      ],
+      "checkIds": [
+        "orders-portable",
+        "construction-live-portable",
+        "clock-portable",
+        "repository-check",
+        "production-build"
+      ]
     },
     {
       "path": "app/scene.ts",

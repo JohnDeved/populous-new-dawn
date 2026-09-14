@@ -1,5 +1,5 @@
 // Paired complete-turn comparison at the terrain-change spike. Unchanged modules
-// are shared; only model.ts is loaded from the baseline commit.
+// are shared; model.ts and its extracted world turn are loaded from the baseline commit.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { writeFile, rm } from 'node:fs/promises'
@@ -7,8 +7,18 @@ import { cpus } from 'node:os'
 import { createWorld, addUnit, addBuilding, command, tick, GRID } from '../app/model.ts'
 const baseline = process.argv[2] ?? '8cbe966'
 const source = new URL('../app/.terrain-notifications-baseline.ts', import.meta.url)
+const turn = new URL('../app/.terrain-notifications-world-turn-baseline.ts', import.meta.url)
+const show = path => { try { return execFileSync('git', ['show', `${baseline}:app/${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }) } catch { return null } }
 try {
-  await writeFile(source, execFileSync('git', ['show', `${baseline}:app/model.ts`]))
+  let model = show('model.ts')
+  const previousTurn = show('world-turn.ts')
+  assert.ok(model, 'baseline must contain model.ts')
+  if (previousTurn) {
+    assert.ok(model.includes("'./world-turn.ts'"), 'baseline model must import its world turn')
+    await writeFile(turn, previousTurn)
+    model = model.replace("'./world-turn.ts'", "'./.terrain-notifications-world-turn-baseline.ts'")
+  } else assert.ok(model.includes('function stepTurn('), 'historical baseline model must contain its world turn')
+  await writeFile(source, model)
   const previous = (await import(source.href)).tick
   const seed = createWorld()
   Object.assign(seed, { units: [], buildings: [], trees: [], shrines: [] })
@@ -53,4 +63,4 @@ try {
   console.log(JSON.stringify({ date: new Date().toISOString(), baseline, cpu: cpus()[0].model, node: process.version,
     people: 200, warmups: 10, pairedSamples: 20, milliseconds: { before: stats(samples[0]), after: stats(samples[1]) }, samples,
     scope: 'Complete simulation turn joining two islands after 120 blocked turns; alternating pairs. Full world equality after each pair; final pair continues to turn 600, comparing people every turn and the final full world. No renderer or hardware FPS claim.' }, null, 2))
-} finally { await rm(source, { force: true }) }
+} finally { await rm(source, { force: true }); await rm(turn, { force: true }) }

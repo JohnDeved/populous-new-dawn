@@ -261,6 +261,7 @@
         "app/live-movement.ts",
         "app/live-people.ts",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/person-orders.ts",
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
@@ -400,6 +401,7 @@
         "app/live-vehicles.ts",
         "app/game-store.ts",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/scene-entities.ts",
         "app/scene.ts",
         "app/scene-input-runtime.ts"
@@ -433,6 +435,7 @@
         "app/live-movement.ts",
         "app/live-people.ts",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/scene.ts",
         "app/scene-input-runtime.ts",
         "app/scene-picking.ts"
@@ -482,6 +485,7 @@
         "app/game-store.ts",
         "app/building-panels.ts",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/scene.ts",
         "public/original/message-type1.png"
       ],
@@ -538,6 +542,7 @@
         "app/game-store.ts",
         "app/page.tsx",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/scene.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
@@ -732,6 +737,7 @@
         "scripts/browser-game.mjs",
         "app/audio.ts",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/reincarnation.ts",
         "app/scene.ts",
         "app/scene-terrain-runtime.ts",
@@ -797,6 +803,7 @@
       "inputs": [
         "scripts/check-native-worship.py",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/worship.ts",
         "scripts/decomp.py",
         "decomp/requirements.txt",
@@ -835,6 +842,7 @@
         "app/game-clock.ts",
         "app/live-worship.ts",
         "app/model.ts",
+        "app/world-turn.ts",
         "app/scene.ts",
         "app/original-units.json"
       ],
@@ -873,7 +881,9 @@
         "app/building-workers.ts",
         "app/building-work.ts",
         "app/building-preparation.ts",
-        "app/timber.ts"
+        "app/timber.ts",
+        "app/live-construction-runtime.ts",
+        "app/world-turn.ts"
       ],
       "prerequisites": ["Installed npm dependencies"],
       "sideEffects": [],
@@ -1013,6 +1023,8 @@
         "app/live-command.ts",
         "app/construction-runtime.ts",
         "app/model.ts",
+        "app/live-construction-runtime.ts",
+        "app/world-turn.ts",
         "app/scene.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
@@ -1039,7 +1051,13 @@
       "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs"],
       "cwd": ".",
       "env": [],
-      "inputs": ["app/game-clock.ts", "app/unit-motion.ts", "tests/game-clock.test.mjs"],
+      "inputs": [
+        "app/game-clock.ts",
+        "app/unit-motion.ts",
+        "app/model.ts",
+        "app/world-turn.ts",
+        "tests/game-clock.test.mjs"
+      ],
       "prerequisites": ["Installed npm dependencies"],
       "sideEffects": [],
       "resources": [],
