@@ -6,11 +6,10 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: restore the Mission 1 enemy shaman's native spell
-counterattack through its live attack path. Keep composition extraction stopped.
-Recovered Mission 2 level, header, and header-selected script inputs are available
-under `work/orchestration/ceo-release/mission2/`; after this lock, the next major
-outcome is normal victory-to-Mission-2 continuation with its native-proof gate.
+Current feature lock: run Mission 2's recovered PopScript through its first recurring
+scheduled block and produce its first normal player-visible AI or marker action.
+Resolve opcodes 1069 and 1097 from native evidence, release the scripted input lock
+through the live path, and keep composition extraction stopped.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, persistence/multiplayer, and modern compatibility—not recurring
