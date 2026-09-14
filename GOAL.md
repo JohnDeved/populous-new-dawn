@@ -6,12 +6,15 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: continue Mission 2 after gameplay commit `ae65c5a` to the
-next normal player-visible scripted action or failure and implement the smallest
-missing gameplay behavior. The renewed composition request was reassessed after
-the planned leaf modules had already landed; no clean 300–900 line mechanical
-boundary remains without backedges or scaffolding. Revisit only after dependency
-ownership changes naturally or a narrower explicit request.
+Current feature lock: finish, verify, review, and commit Mission 1 autonomous Red
+hut construction through the normal campaign path.
+
+Queued next: reassess the then-current `app/model.ts` and `app/scene.ts` dependency
+boundaries, then make behavior-neutral composition extractions where a cohesive
+boundary exists. Keep both files as stable public facades, preserve ordering and
+RNG exactly, use one source writer and one independently revertible extraction per
+commit, and do not mix gameplay or parity changes into those commits. The supplied
+module list is guidance, not a quota; avoid cycles, scaffolding, and forced splits.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, persistence/multiplayer, and modern compatibility—not recurring
@@ -126,7 +129,8 @@ Lock one absent player-visible behavior through the shipped UI, campaign, or nor
 system path; tests, isolated helpers, and staged plumbing do not complete it. Keep the
 lock until delivery or a concrete blocker. Bounded means a clear outcome, not an
 artificially tiny change. Allow at most one prerequisite refactor commit for a named
-blocker, then return to the feature; old extraction plans are not a backlog or fallback.
+blocker, then return to the feature; old extraction plans are not a backlog or fallback
+unless explicitly queued by the user as above.
 Reuse current triage while its gameplay and evidence assumptions remain valid.
 
 ## Use subagents where they improve delivery
