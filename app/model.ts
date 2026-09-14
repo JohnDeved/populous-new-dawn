@@ -200,6 +200,7 @@ import {
   SIZE,
   GRID,
   PLANET_RADIUS,
+  unitSpeed,
   maxHp,
   buildingHp,
   ROUTE_FAILURE_TEXT,
@@ -517,19 +518,10 @@ import {
 } from './worship.ts'
 import type { ModelMorph } from './morph.ts'
 import { stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
-import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import type { UnitKind } from './unit-kinds.ts'
 
 export type { UnitKind } from './unit-kinds.ts'
-const unitSpeed = (u: Unit) =>
-  u.kind === 'shaman'
-    ? constants.MEDICINE_MAN_SPEED
-    : u.kind === 'warrior'
-      ? constants.WARRIOR_SPEED
-      : u.kind === 'preacher'
-        ? constants.RELIGIOUS_SPEED
-        : constants.BRAVE_SPEED
 
 export function canPickUnit(w: World, u: Unit) {
   if (unitInvisibleToPlayer(w, u)) return false

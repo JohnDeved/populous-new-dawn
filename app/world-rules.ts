@@ -4,6 +4,14 @@ import constants from './original-constants.json' with { type: 'json' }
 
 export const isShaman = (u: Pick<Unit, 'kind' | 'ghost'>) => u.kind === 'shaman' && !u.ghost
 export const TURNS_PER_SECOND = 12
+export const unitSpeed = (u: Unit) =>
+  u.kind === 'shaman'
+    ? constants.MEDICINE_MAN_SPEED
+    : u.kind === 'warrior'
+      ? constants.WARRIOR_SPEED
+      : u.kind === 'preacher'
+        ? constants.RELIGIOUS_SPEED
+        : constants.BRAVE_SPEED
 export const SPELLS: {
   id: Spell
   model: number
