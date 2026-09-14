@@ -1210,7 +1210,7 @@ test('external game store publishes edits and restarts without sharing worlds be
  profile.getWorld().outcome.completedLevel=0;profile.update();assert.deepEqual(profile.getCompletedMissions(),[1]);
  profile.startMission(2);profile.getWorld().outcome.completedLevel=1;profile.startMission(1);
  assert.deepEqual(profile.getCompletedMissions(),[1],'replaced startup state does not record completion');
- profile.startMission(5);assert.equal(profile.getWorld().inputMask,0,'deferred Mission 5 intro does not lock play');
+ profile.startMission(5);assert.equal(profile.getWorld().inputMask,128,'Mission 5 waits for its opening script');
  profile.getWorld().outcome.completedLevel=4;profile.update();assert.deepEqual(profile.getCompletedMissions(),[1,5]);
 });
 

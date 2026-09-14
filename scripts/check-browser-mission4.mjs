@@ -124,9 +124,33 @@ try {
     globalThis.testStore.update()
   })
   await page.getByRole('button', { name: 'Continue to Mission 5', exact: false }).click()
+  await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 5)
+  await page.waitForFunction(() => {
+    const main = document.querySelector('main')
+    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber; fiber = fiber.return)
+      for (let hook = fiber.memoizedState; hook; hook = hook.next)
+        if (
+          hook.memoizedState?.current?.unitMeshes &&
+          hook.memoizedState.current.world === globalThis.testStore.getWorld()
+        )
+          globalThis.testScene = hook.memoizedState.current
+    return globalThis.testScene?.world === globalThis.testStore.getWorld()
+  })
+  const missionFiveInitialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint })),
+    missionFiveSkip = page.getByRole('button', { name: 'Skip introduction', exact: false })
+  await missionFiveSkip.waitFor()
+  await page.waitForFunction(
+    initial => Math.hypot(
+      globalThis.testScene.viewPoint.x - initial.x,
+      globalThis.testScene.viewPoint.z - initial.z
+    ) > 0.5,
+    missionFiveInitialCamera
+  )
+  await missionFiveSkip.click()
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
-    return world.outcome.level === 5 && !world.inputMask
+    return !(world.flyby.flags & 1) && !world.inputMask && world.ai.variables[10] === 2
   })
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByText('Claim the Boat from the stone head', { exact: true }).waitFor()
