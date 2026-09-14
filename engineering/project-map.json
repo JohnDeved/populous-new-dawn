@@ -478,6 +478,11 @@
       "checkIds": ["repository-check", "production-build"]
     },
     {
+      "path": "app/scene-entities.ts",
+      "subsystemIds": ["selection", "camera-clocks", "terrain-performance"],
+      "checkIds": ["repository-check", "production-build", "camera-browser"]
+    },
+    {
       "path": "app/native-terrain.ts",
       "subsystemIds": ["movement-orders", "construction-resources", "terrain-performance"],
       "checkIds": ["repository-check"]

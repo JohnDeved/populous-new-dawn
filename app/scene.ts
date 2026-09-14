@@ -5,7 +5,6 @@ import {
   loadTexture,
   effectFrame,
   nativeModel,
-  updateModelLighting,
   geometry,
   box,
   part,
@@ -59,7 +58,7 @@ import {
 } from './terrain-texture.ts'
 import { waterTexture, waterPoint, waterCell } from './water.ts'
 import { terrainPointHeight } from './native-terrain.ts'
-import { modelLighting, modelHighlight, modelWaveOffsets } from './model-lighting.ts'
+import { modelLighting, modelWaveOffsets } from './model-lighting.ts'
 import {
   createTooltip,
   stepTooltip,
@@ -167,6 +166,7 @@ import {
   updateBuildingsFrame,
   updateShrinesFrame,
   updateWaveShake,
+  renderSceneFrame,
 } from './scene-entities.ts'
 import {
   rebuildTerrain,
@@ -882,24 +882,7 @@ export class GameScene {
     hovered: ReturnType<typeof worldTooltipObject>,
     hoveredBuilding: Building | undefined
   ) {
-    this.scene.traverse(object => {
-      updateModelLighting(object)
-      if (!object.userData.highlight) return
-      const id = object.parent?.userData.building ?? object.parent?.userData.shrine
-      object.userData.highlight.value =
-        hovered && id === hovered.id
-          ? modelHighlight(
-              { ...hovered, buildingFlags: hoveredBuilding?.damageState?.buildingFlags },
-              this.world.turn,
-              { construction: object.userData.stage !== 4 }
-            )
-          : 0
-    })
-    this.view.painter.landFlags = this.world.land.flags
-    this.view.painter.land = this.world.land
-    this.view.painter.cells = this.world.objectCells
-    this.view.prepare(this.scene)
-    this.renderer.render(this.scene, this.camera)
+    renderSceneFrame(this, hovered, hoveredBuilding)
   }
 
   private updateHudFrame(now: number, dt: number) {

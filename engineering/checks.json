@@ -1060,6 +1060,7 @@
         "scripts/check-browser-camera-smoothing.mjs",
         "scripts/browser-game.mjs",
         "app/scene.ts",
+        "app/scene-entities.ts",
         "app/scene-input-runtime.ts",
         "app/scene-camera-runtime.ts",
         "app/audio.ts",

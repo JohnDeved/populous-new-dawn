@@ -9,6 +9,7 @@ import {
   material,
   part,
   box,
+  updateModelLighting,
 } from './scene-assets.ts'
 import {
   buildingObject,
@@ -35,6 +36,7 @@ import {
   selectionArrow,
 } from './projection.ts'
 import { morphCoordinate } from './morph.ts'
+import { modelHighlight } from './model-lighting.ts'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
@@ -501,4 +503,29 @@ export function updateShrinesFrame(scene: GameScene) {
     }
     entry.g.visible = shrine.active || shrine.kind === 'vault'
   }
+}
+
+export function renderSceneFrame(
+  scene: GameScene,
+  hovered: (Parameters<typeof modelHighlight>[0] & { id: number }) | null,
+  hoveredBuilding: Building | undefined
+) {
+  scene.scene.traverse(object => {
+    updateModelLighting(object)
+    if (!object.userData.highlight) return
+    const id = object.parent?.userData.building ?? object.parent?.userData.shrine
+    object.userData.highlight.value =
+      hovered && id === hovered.id
+        ? modelHighlight(
+            { ...hovered, buildingFlags: hoveredBuilding?.damageState?.buildingFlags },
+            scene.world.turn,
+            { construction: object.userData.stage !== 4 }
+          )
+        : 0
+  })
+  scene.view.painter.landFlags = scene.world.land.flags
+  scene.view.painter.land = scene.world.land
+  scene.view.painter.cells = scene.world.objectCells
+  scene.view.prepare(scene.scene)
+  scene.renderer.render(scene.scene, scene.camera)
 }
