@@ -6,8 +6,9 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: finish, verify, review, and commit Mission 1 autonomous Red
-hut construction through the normal campaign path.
+Current feature lock: make the first independently revertible composition extraction
+by moving player spell targeting/casting ownership from `app/model.ts` into the
+existing command runtime, preserving the `model.ts` facade and exact behavior.
 
 Queued next: reassess the then-current `app/model.ts` and `app/scene.ts` dependency
 boundaries, then make behavior-neutral composition extractions where a cohesive
