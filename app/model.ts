@@ -143,8 +143,9 @@ import {
   stepScenery,
   registerTerrainLight,
   refreshTerrainLights,
+  requestTutorial,
 } from './world-effects.ts'
-export { sound, effect, createGift, emitGroundSpark } from './world-effects.ts'
+export { sound, effect, createGift, emitGroundSpark, requestTutorial } from './world-effects.ts'
 import { buildingObject, buildingPose } from './building-shapes.ts'
 export { buildingObject, buildingPose } from './building-shapes.ts'
 import {
@@ -547,11 +548,6 @@ export function canPickUnit(w: World, u: Unit) {
 }
 
 export { nativeTerrainCross } from './native-math.ts'
-export function requestTutorial(w: World, flags: number, message: number) {
-  // 0x499f40 mode 9: a single transient tooltip, not tutorial history.
-  if (flags === 0x200000 && message === 603)
-    w.routeNotice = { flags, message, serial: (w.routeNotice?.serial ?? 0) + 1 }
-}
 export { buildingModel } from './building-shapes.ts'
 
 export interface TurnObserver {
