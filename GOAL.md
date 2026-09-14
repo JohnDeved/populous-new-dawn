@@ -6,16 +6,17 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: make the next independently revertible composition extraction
-by moving the live follower-mana adapter from `app/model.ts` into the existing
-`app/mana.ts`, preserving the `model.ts` facade and exact behavior.
+Current feature lock: import the next original campaign mission, then ship the first
+naturally unlocked missing mechanic through its normal campaign and HUD path; prefer
+Flatten if that mission's header and script actually expose it. Do not invent an
+unlock. The required next-mission level, header, and referenced PopScript are not in
+the current supplied files, so this lock awaits those original inputs.
 
-Queued next: reassess the then-current `app/model.ts` and `app/scene.ts` dependency
-boundaries, then make behavior-neutral composition extractions where a cohesive
-boundary exists. Keep both files as stable public facades, preserve ordering and
-RNG exactly, use one source writer and one independently revertible extraction per
-commit, and do not mix gameplay or parity changes into those commits. The supplied
-module list is guidance, not a quota; avoid cycles, scaffolding, and forced splits.
+Composition recovery: stop the queued behavior-neutral refactor after commits
+`41b8802` and `cf927f4`. `app/scene.ts` is already a compact composition root, and
+the remaining cohesive `app/model.ts` blocks have runtime paths back through live
+modules; further extraction would require multi-file ownership changes or cycles.
+Reassess only when gameplay work creates a clean boundary.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, persistence/multiplayer, and modern compatibility—not recurring
