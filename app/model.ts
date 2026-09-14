@@ -1682,8 +1682,7 @@ function stepTurn(w: World) {
         computer: id => {
           if (id !== campaignTribe(w)) throw new Error(`Unimplemented campaign tribe ${id}`)
           stepComputerCastCooldown(w.castingTribes[id], w.ai.flags)
-          // ponytail: Mission 3 recurring PopScript resumes when its unbound command set is ported.
-          if (w.outcome.level < 3) campaignRules(w)
+          campaignRules(w)
           stepComputerTasks(w, id)
           stepComputerSpells(w, id)
         },

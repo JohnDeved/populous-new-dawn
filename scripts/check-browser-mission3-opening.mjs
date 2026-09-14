@@ -23,6 +23,10 @@ try {
   await page.getByLabel('Focus Chumara tribe').waitFor()
   assert.equal(await page.getByText('Reach the Chumara Vault').count(), 1)
   assert.equal(await page.getByText('Build a Temple and train a Preacher').count(), 1)
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    return world.outcome.level === 3 && world.turn >= 16 && world.flyby.flags & 1
+  })
   const result = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld()
     const initial = {
@@ -32,6 +36,11 @@ try {
       wild: world.units.filter(unit => unit.team === 'wild').length,
       vault: world.shrines.some(shrine => shrine.kind === 'vault' && shrine.reward === 'temple'),
       erosion: world.shrines.some(shrine => shrine.kind === 'erosionEffect'),
+      recurringFlyby: {
+        events: world.flyby.events.length,
+        end: world.flyby.end,
+        inputLocked: !!(world.inputMask & 64),
+      },
     }
     await globalThis.testStore.saveCheckpoint()
     world.unlockedTemple = true
@@ -53,12 +62,24 @@ try {
     }
   })
   assert.deepEqual(result, {
-    initial: { level: 3, blue: 1, red: 7, wild: 44, vault: true, erosion: true },
+    initial: {
+      level: 3,
+      blue: 1,
+      red: 7,
+      wild: 44,
+      vault: true,
+      erosion: true,
+      recurringFlyby: {
+        events: 22,
+        end: { x: 42, y: 166, angle: 1144, zoom: 0 },
+        inputLocked: true,
+      },
+    },
     checkpoint: { level: 3, unlockedTemple: false },
     restart: { level: 3, blue: 1, red: 7, wild: 44 },
   })
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 2 continuation opens original Mission 3 data and HUD')
+  console.log('PASS: Mission 2 continuation opens Mission 3 data, HUD and recurring flyby')
 } finally {
   await browser.close()
 }

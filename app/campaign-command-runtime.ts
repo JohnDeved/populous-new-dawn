@@ -407,9 +407,11 @@ export function campaignRules(w: World) {
     codes:
       w.outcome.level === 1
         ? [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019]
-        : [12, 1003, ...script.codes.slice(251, 938), 1004, 1019],
+        : w.outcome.level === 2
+          ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
+          : [12, 1003, ...script.codes.slice(833, 984), 1004, 1019],
   }
-  // ponytail: execute these verified original blocks until the remaining mission commands are bound.
+  // ponytail: Mission 3 runs its self-contained opening flyby; add later original blocks as their hosts land.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe: campaignTribe(w),

@@ -55,7 +55,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `00409200`, `004092a0` | Existing building HP in `app/model.ts` | Native structural damage traced; the intercepted person scan records activity and does not dispatch repair |
 | `0048a050`, `0048b500`, `0048b950` | `scripts/import-sound.py`, `app/audio.ts`, `app/model.ts` | Native PCM/cues and partial event dispatch; adaptive music and complete scheduler pending |
 | `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
-| `0048cc60`, `0048f350` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization applied; full game-command host remains open |
+| `0048cc60`, `0048f350` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization and the bounded [Mission 3 recurring flyby](research/mission3-recurring.md) are applied; full game-command host remains open |
 | `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts`, `app/scene.ts` | Worship, automatic reward initialization/visual lifetime and delayed gifts CPU-compared; competitive ownership and generic pickup incomplete |
 | `00492790`, `00492860`, `00491c30`, `004f2900`, `004c2b40`, `004c14c0` | `app/model.ts`, `scripts/check-native-campaign.py` | Cast/stock/head queries and allocation counters CPU-compared; unsupported AI stock still explicit |
