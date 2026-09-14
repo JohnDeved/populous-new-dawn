@@ -493,9 +493,9 @@ export function campaignRules(w: World) {
           ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
           : w.outcome.level === 3
             ? [12, 1003, ...script.codes.slice(833, 984), 1004, 1019]
-            : [12, 1003, ...script.codes.slice(1579, 1654), 1004, 1019],
+            : [12, 1003, ...script.codes.slice(1425, 1654), 1004, 1019],
   }
-  // ponytail: Mission 4 binds its objective/message block; add its AI blocks with their hosts.
+  // ponytail: Mission 4 binds its opening/objective blocks; add its AI blocks with their hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe: campaignTribe(w),

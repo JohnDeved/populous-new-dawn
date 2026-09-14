@@ -19,6 +19,33 @@ try {
   })
   await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).click()
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 4)
+  await page.waitForFunction(() => {
+    const main = document.querySelector('main')
+    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber; fiber = fiber.return)
+      for (let hook = fiber.memoizedState; hook; hook = hook.next)
+        if (
+          hook.memoizedState?.current?.unitMeshes &&
+          hook.memoizedState.current.world === globalThis.testStore.getWorld()
+        )
+          globalThis.testScene = hook.memoizedState.current
+    return globalThis.testScene?.world === globalThis.testStore.getWorld()
+  })
+  const initialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint })),
+    skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
+  await skip.waitFor()
+  await page.waitForFunction(
+    initial => Math.hypot(
+      globalThis.testScene.viewPoint.x - initial.x,
+      globalThis.testScene.viewPoint.z - initial.z
+    ) > 0.5,
+    initialCamera
+  )
+  await skip.click()
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    return !(world.flyby.flags & 1) && !(world.inputMask & 64)
+  })
   await page.getByRole('button', { name: 'Convert Wild, 0 shots' }).waitFor()
   await page.getByLabel('Focus Matak tribe').waitFor()
   await page.getByText('We face a great threat.', { exact: false }).waitFor()
@@ -51,7 +78,7 @@ try {
   assert.ok(result.initial.rendered > 0)
   assert.deepEqual(result.restored, { level: 4, wild: result.initial.wild })
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 3 continuation opens and restores rendered Mission 4')
+  console.log('PASS: Mission 4 opening flyby skips into playable HUD and restores its checkpoint')
 } finally {
   await browser.close()
 }

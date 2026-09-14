@@ -12,6 +12,44 @@ const until = (world, condition, limit = 30_000) => {
   assert.ok(condition(), `Mission 4 condition timed out at turn ${world.turn}`)
 }
 
+test('Mission 4 starts its original opening flyby once through ordinary turns', () => {
+  const world = createWorld(4)
+  for (let turn = 0; turn < 14; turn++) tick(world, 1 / 12)
+  assert.equal(world.flyby.flags & 1, 0)
+
+  tick(world, 1 / 12)
+  assert.equal(world.turn, 15)
+  assert.equal(world.flyby.flags & 1, 1)
+  assert.equal(world.inputMask & 64, 64)
+  assert.equal(world.flyby.warmup, 6)
+  assert.deepEqual(
+    world.flyby.events.map(({ kind, flags, value, start, duration }) => [
+      kind,
+      flags,
+      value,
+      start,
+      duration,
+    ]),
+    [
+      [1, 0, 5196, 1, 29], [5, 2, 5196, 1, 50], [2, 0, 714, 1, 29],
+      [3, 0, 128, 1, 19], [2, 0, 327, 30, 30], [3, 0, 65460, 30, 40],
+      [5, 1, 17980, 55, 60], [1, 0, 17980, 60, 30], [2, 0, 700, 60, 35],
+      [3, 0, 153, 75, 20], [2, 0, 253, 95, 30], [3, 0, 65485, 95, 50],
+      [5, 2, 13556, 120, 100], [1, 0, 13556, 125, 45], [2, 0, 763, 125, 38],
+      [3, 0, 102, 145, 60], [2, 0, 1291, 163, 30], [2, 0, 459, 193, 50],
+      [1, 0, 14006, 200, 25], [3, 0, 0, 210, 30], [1, 0, 63530, 238, 35],
+      [2, 0, 221, 243, 30], [3, 0, 0, 245, 28],
+    ]
+  )
+  assert.deepEqual(world.flyby.end, { x: 42, y: 248, angle: 221, zoom: 0 })
+  assert.equal(world.ai.variables[34], 1)
+
+  const events = world.flyby.events
+  for (let turn = 0; turn < 2048; turn++) tick(world, 1 / 12)
+  assert.equal(world.flyby.events, events)
+  assert.equal(world.flyby.events.length, 23)
+})
+
 test('Mission 4 converts Wildmen, discovers the Guard Tower, and defeats the Matak', () => {
   assert.equal(
     levelFour.sourceSha256,

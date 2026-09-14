@@ -24,8 +24,8 @@ members' orders with command 28 targeting the living player Shaman; `0041cb40`
 can reissue that attack on the native 16/32-turn conditions. It does not directly defeat the tribe. Ordinary
 population-based outcome processing at `00418e30` remains responsible for victory.
 
-The browser binds the authentic level, turn-zero setup, opening message, objective
-block, knowledge rewards, forced attack start, and ordinary victory. Mission 4's
-larger recurring AI/tutorial and flyby blocks remain unbound, so this is not a
-claim of full Mission 4 script or AI parity. No parity update or native recording
-was made.
+The browser binds the authentic level, turn-zero setup, opening flyby, opening
+message, objective block, knowledge rewards, forced attack start, and ordinary
+victory. Mission 4's larger recurring AI and contextual tutorial blocks remain
+unbound, so this is not a claim of full Mission 4 script or AI parity. No parity
+update or native recording was made.

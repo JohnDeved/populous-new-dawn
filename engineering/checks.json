@@ -489,16 +489,17 @@
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 3 continuation into rendered Mission 4 and checkpoint restore through the shipped browser UI.",
+      "purpose": "Exercise Mission 3 continuation into Mission 4, its opening flyby/skip boundary, rendered play, and checkpoint restore through the shipped browser UI.",
       "coveredBehavior": [
         "Mission 3 result continuation",
+        "Mission 4 original opening flyby, camera movement, input lock, skip control, and HUD resumption",
         "Mission 4 terrain, people, rewards, HUD and opening message",
         "Guard Tower knowledge lock",
         "Mission 4 objective presentation",
         "Mission 4 checkpoint restore"
       ],
       "knownLimits": [
-        "Injects the prior Mission 3 win and does not prove Mission 4's deferred AI, tutorial, or flyby blocks; the portable gameplay check covers its convert, worship, construction, combat, and victory path."
+        "Injects the prior Mission 3 win and does not prove Mission 4's deferred recurring AI or contextual tutorial blocks; the portable gameplay check covers its convert, worship, construction, combat, and victory path."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission4.mjs"],
@@ -514,6 +515,9 @@
         "app/mission-data.ts",
         "app/world-initialization.ts",
         "app/campaign-command-runtime.ts",
+        "app/popscript.ts",
+        "app/flyby.ts",
+        "app/scene-camera-runtime.ts",
         "app/game-store.ts",
         "app/page.tsx",
         "app/model.ts",
