@@ -1,4 +1,4 @@
-import type { Building, Point, Unit, World } from './world-types.ts'
+import type { Building, Point, Spell, Unit, World } from './world-types.ts'
 import { nativePosition, syncLandscapeObjects, syncNativeTerrain } from './world-terrain-runtime.ts'
 import { browserPosition, height } from './world-coordinates.ts'
 import { combatPerson, nativePersonModel } from './live-combat.ts'
@@ -34,6 +34,8 @@ import { constructionWorkers } from './construction-runtime.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
 import { worshipHeadPose, worshipOrder } from './live-worship.ts'
 import { worshipApproach } from './worship.ts'
+import { canShamanCast, spellInRange, beginCast } from './spell-casting.ts'
+import { isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
@@ -144,6 +146,74 @@ export function route(w: World, u: Unit, end: Point, preserveOrders = false) {
 export function tell(w: World, message: string) {
   w.message = message
   w.messageUntil = w.time + 9
+}
+
+// Shared browser target adapter: cursor feedback and click rejection must agree.
+export function spellTargetError(w: World, spell: Spell, p: Point) {
+  const spec = SPELLS.find(s => s.id === spell),
+    shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
+  if (!spec) return { code: -1, message: '' }
+  if (!shaman) return { code: -1, message: 'Your shaman is reincarnating.' }
+  if (
+    shaman.lift > 0 ||
+    shaman.casting ||
+    !canShamanCast(w.castingTribes[0], w.manaTribes[0].playerType, {
+      state: 0,
+      flags2: 0,
+      flags4: 0,
+    })
+  )
+    return { code: -1, message: 'Your shaman must finish her current action.' }
+  if (!spellInRange(w, shaman, spec.model, p))
+    return { code: -2, message: 'Beyond your reach. Move your shaman closer.' }
+  if (spell === 'bridge' && (!walkable(w.terrain, p) || !walkable(w.terrain, shaman)))
+    return {
+      code: -3,
+      message: 'Land Bridge must join two dry shores. Aim at land on the opposite island.',
+    }
+  return null
+}
+
+export function cast(w: World, spell: Spell, p: Point) {
+  if (w.paused || w.status !== 'playing') return false
+  const error = spellTargetError(w, spell, p)
+  if (error?.code === -1) {
+    if (error.message) tell(w, error.message)
+    return false
+  }
+  if (w.shots[spell] <= 0) {
+    tell(
+      w,
+      spell === 'blast'
+        ? 'Blast is charging. Braves working or inside huts generate more mana.'
+        : spell === 'flatten' ||
+            spell === 'erosion' ||
+            spell === 'swamp' ||
+            spell === 'firestorm' ||
+            spell === 'earthquake' ||
+            spell === 'volcano' ||
+            spell === 'convertWild' ||
+            spell === 'hypnotise' ||
+            spell === 'ghostArmy' ||
+            spell === 'tornado' ||
+            spell === 'shield' ||
+            spell === 'invisibility' ||
+            spell === 'swarm'
+          ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
+          : 'Worship the stone head to receive this spell.'
+    )
+    return false
+  }
+  if (error) {
+    tell(w, error.message)
+    return false
+  }
+  const shaman = w.units.find(u => u.team === 'blue' && isShaman(u))!
+  release(w, shaman)
+  shaman.heading = Math.atan2(p.x - shaman.x, p.z - shaman.z)
+  beginCast(w, shaman, spell, p)
+  w.mode = null
+  return true
 }
 
 export function buildingDoor(b: Building) {
