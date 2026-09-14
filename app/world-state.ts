@@ -1,7 +1,6 @@
 import type { World, Team, Building, Unit, Point } from './world-types.ts'
 import type { UnitKind } from './unit-kinds.ts'
-import { maxHp } from './world-rules.ts'
-import { TURNS_PER_SECOND } from './world-rules.ts'
+import { maxHp, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { buildingModel } from './building-shapes.ts'
 import { nativeTrainingCost } from './building-occupants.ts'
 import constants from './original-constants.json' with { type: 'json' }
@@ -20,7 +19,7 @@ import { createPathGeometry } from './path-geometry.ts'
 import { createPathSolver } from './path-solver.ts'
 import type { PathSearchState } from './path-search.ts'
 import type { LivePerson } from './live-people.ts'
-import { missionAllowsBuilding, missionData } from './mission-data.ts'
+import { missionAllowsBuilding, missionData, missionSpellMask } from './mission-data.ts'
 import { createMissionLand } from './world-terrain-runtime.ts'
 
 export function createLivePathfinding() {
@@ -61,7 +60,9 @@ export function createWorldState(missionNumber = 1): World {
         object.owner >= 0 && object.owner < 4 ? [object.owner] : []
       )
     ),
-    computerTribe = [...activeTribes].find(id => id !== 0) ?? 1
+    computerTribe = [...activeTribes].find(id => id !== 0) ?? 1,
+    playerSpellMask =
+      missionSpellMask(missionNumber) & SPELLS.reduce((mask, spell) => mask | (1 << spell.model), 0)
   return {
     flyby: createFlyby(),
     inputMask: 0,
@@ -138,8 +139,8 @@ export function createWorldState(missionNumber = 1): World {
       manaFlags: 0,
       turn: 0,
       turnsPerSecond: TURNS_PER_SECOND,
-      spells: Array.from({ length: 4 }, () => ({
-        available: 4,
+      spells: Array.from({ length: 4 }, (_, tribe) => ({
+        available: tribe ? 4 : playerSpellMask,
         disabled: 0,
         stocks: Array(22).fill(0),
       })),
@@ -199,6 +200,7 @@ export function createWorldState(missionNumber = 1): World {
     },
     charging: true,
     unlockedCamp: missionAllowsBuilding(missionNumber, 7),
+    unlockedTemple: missionAllowsBuilding(missionNumber, 5),
     time: 0,
     turn: 0,
     attackAlert: 0,
@@ -219,7 +221,9 @@ export function createWorldState(missionNumber = 1): World {
     message:
       missionNumber === 1
         ? 'Select a brave and send them to the southern stone head to worship for Land Bridge.'
-        : 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.',
+        : missionNumber === 2
+          ? 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.'
+          : 'The Chumara can turn your followers against you. Reach their Vault and learn their power.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

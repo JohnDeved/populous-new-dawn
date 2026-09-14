@@ -5,8 +5,8 @@ The installer itself is never run. See references/level-one.md for extraction.
 import hashlib, json, struct, sys
 from pathlib import Path
 mission = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-word = {1: 'one', 2: 'two'}.get(mission)
-if word is None: raise ValueError('Only recovered missions 1 and 2 are supported')
+word = {1: 'one', 2: 'two', 3: 'three'}.get(mission)
+if word is None: raise ValueError('Only recovered missions 1 through 3 are supported')
 src = Path(sys.argv[1]); name = f'levl{2000 + mission:04}'
 data = (src / f'{name}.dat').read_bytes(); hdr = (src / f'{name}.hdr').read_bytes()
 assert len(data) >= 0x2EDF3 and len(hdr) == 616, 'Unexpected level format'

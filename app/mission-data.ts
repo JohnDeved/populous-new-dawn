@@ -1,11 +1,14 @@
 import levelOne from './level-one.ts'
 import levelTwo from './level-two.ts'
+import levelThree from './level-three.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
+import scriptThree from './original-script-three.json' with { type: 'json' }
 
 const missions = [
   { number: 1, level: levelOne, script: scriptOne },
   { number: 2, level: levelTwo, script: scriptTwo },
+  { number: 3, level: levelThree, script: scriptThree },
 ] as const
 
 export type Mission = (typeof missions)[number]
@@ -26,10 +29,12 @@ const headerMask = (header: readonly number[], offset: number) =>
 export const missionAllowsBuilding = (number: number, model: number) =>
   !!(headerMask(missionData(number).level.header, 4) & (1 << model))
 
+export const missionSpellMask = (number: number) => headerMask(missionData(number).level.header, 0)
+
 export function campaignSpellModels(number: number) {
   const models = new Set<number>(),
     header = missionData(number).level.header,
-    available = headerMask(header, 0)
+    available = missionSpellMask(number)
   for (let model = 1; model < 22; model++) if (available & (1 << model)) models.add(model)
   for (const mission of missions) {
     if (mission.number > number) break
@@ -45,4 +50,12 @@ export function missionPosition(number: number, team: 'blue' | 'red') {
     object = shamans.find(object => (team === 'blue' ? object.owner === 0 : object.owner !== 0))
   if (!object) throw new Error(`Missing ${team} shaman in campaign mission ${number}`)
   return { x: object.x, z: object.z }
+}
+
+export function missionEnemyTribe(number: number) {
+  const shaman = missionData(number).level.objects.find(
+    object => object.type === 1 && object.model === 7 && object.owner > 0 && object.owner < 4
+  )
+  if (!shaman) throw new Error(`Missing enemy shaman in campaign mission ${number}`)
+  return shaman.owner
 }

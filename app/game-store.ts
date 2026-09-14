@@ -14,6 +14,7 @@ type LegacyGift = {
 
 export function migrateCheckpoint(world: World) {
   world.outcome.level ??= 1
+  world.unlockedTemple ??= false
   const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
   world.ai.coordinateLatch ??= 0
   if (oldMissionTwo) {
@@ -37,7 +38,7 @@ export function migrateCheckpoint(world: World) {
     world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
   }
   for (const shrine of world.shrines)
-    if (!shrine.reward && shrine.kind !== 'bridgeEffect')
+    if (!shrine.reward && shrine.kind !== 'bridgeEffect' && shrine.kind !== 'erosionEffect')
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
   for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
   world.shots.convertWild ??= 0

@@ -45,7 +45,7 @@ import {
 } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 import { nativeUnitModel } from './unit-kinds'
-import { campaignSpellModels } from './mission-data'
+import { campaignSpellModels, missionEnemyTribe } from './mission-data'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -322,7 +322,7 @@ export default function Home() {
     BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
-  const enemyName = world.outcome.level === 1 ? 'Dakini' : 'Matak',
+  const enemyName = ['', 'Dakini', 'Chumara', 'Matak'][missionEnemyTribe(world.outcome.level)],
     objectives =
       world.outcome.level === 1
         ? [
@@ -330,14 +330,23 @@ export default function Home() {
             { text: 'Discover warrior training', done: world.unlockedCamp },
             { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
           ]
-        : [
-            {
-              text: 'Open the way with the Totem Pole',
-              done: world.effects.some(effect => !!effect.bridge),
-            },
-            { text: 'Claim Tornado from the stone head', done: world.giftCounts.tornado > 0 },
-            { text: 'Defeat the Matak tribe', done: world.status === 'won' },
-          ]
+        : world.outcome.level === 2
+          ? [
+              {
+                text: 'Open the way with the Totem Pole',
+                done: world.effects.some(effect => !!effect.bridge),
+              },
+              { text: 'Claim Tornado from the stone head', done: world.giftCounts.tornado > 0 },
+              { text: 'Defeat the Matak tribe', done: world.status === 'won' },
+            ]
+          : [
+              { text: 'Reach the Chumara Vault', done: world.unlockedTemple },
+              {
+                text: 'Build a Temple and train a Preacher',
+                done: blue.some(unit => unit.kind === 'preacher'),
+              },
+              { text: 'Defeat the Chumara tribe', done: world.status === 'won' },
+            ]
   return (
     <main
       ref={shell}
@@ -596,16 +605,17 @@ export default function Home() {
               {spellRoster
                 .toSorted((a, b) => spellOrder.indexOf(a.model) - spellOrder.indexOf(b.model))
                 .map(s => {
-                  const view = spellButton({
-                    model: s.model,
-                    permanent: !!(world.manaWorld.spells[0].available & (1 << s.model)),
-                    charging: s.id === 'blast' && world.charging,
-                    hovered: hover === s.id,
-                    selected: world.mode === s.id,
-                    stock: world.shots[s.id],
-                    gifts: world.giftCounts[s.id],
-                    progress: s.id === 'blast' ? Math.round(world.mana * 1000) : 0,
-                  })
+                  const permanent = !!(world.manaWorld.spells[0].available & (1 << s.model)),
+                    view = spellButton({
+                      model: s.model,
+                      permanent,
+                      charging: permanent && (s.id !== 'blast' || world.charging),
+                      hovered: hover === s.id,
+                      selected: world.mode === s.id,
+                      stock: world.shots[s.id],
+                      gifts: world.giftCounts[s.id],
+                      progress: world.manaTribes[0].spellProgress[s.model],
+                    })
                   return (
                     <button
                       key={s.id}
@@ -642,7 +652,10 @@ export default function Home() {
               {BUILDINGS.map(b => (
                 <button
                   key={b.id}
-                  disabled={b.id === 'camp' && !world.unlockedCamp}
+                  disabled={
+                    (b.id === 'camp' && !world.unlockedCamp) ||
+                    (b.id === 'temple' && !world.unlockedTemple)
+                  }
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
                   aria-label={`${b.name}, ${b.cost} wood`}
                   aria-pressed={world.mode === b.id}
@@ -657,7 +670,7 @@ export default function Home() {
                   onFocus={() => setHover(b.id)}
                   onBlur={() => setHover(null)}
                 >
-                  <HudSprite id={b.id === 'hut' ? 1028 : 1030} />
+                  <HudSprite id={b.id === 'hut' ? 1028 : b.id === 'temple' ? 1029 : 1030} />
                 </button>
               ))}
             </div>
@@ -790,12 +803,10 @@ export default function Home() {
           </div>
           <button
             className="primary-button"
-            onClick={
-              world.status === 'won' && world.outcome.level === 1 ? continueCampaign : restart
-            }
+            onClick={world.status === 'won' && world.outcome.level < 3 ? continueCampaign : restart}
           >
-            {world.status === 'won' && world.outcome.level === 1
-              ? 'Continue to Mission 2'
+            {world.status === 'won' && world.outcome.level < 3
+              ? `Continue to Mission ${world.outcome.level + 1}`
               : 'Begin again'}{' '}
             <span>↗</span>
           </button>
@@ -819,7 +830,9 @@ export default function Home() {
         <p>
           {world.outcome.level === 1
             ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
-            : 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'}
+            : world.outcome.level === 2
+              ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
+              : 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

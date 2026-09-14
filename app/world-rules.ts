@@ -196,6 +196,13 @@ export const BUILDINGS: {
     symbol: '⚔',
     description: 'Eight logs. Unlock at the vault, then send braves inside to train with mana.',
   },
+  {
+    id: 'temple',
+    name: 'Temple',
+    cost: 8,
+    symbol: '☼',
+    description: 'Eight logs. Unlock at the vault, then send braves inside to train as preachers.',
+  },
 ]
 export const SIZE = 96,
   GRID = 97

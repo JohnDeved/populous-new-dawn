@@ -7,14 +7,14 @@ import { buildingModel, buildingPose, buildingPosition } from './building-shapes
 import { createComputerQueue, type AttackTarget } from './computer.ts'
 import { runScript, scriptState } from './popscript.ts'
 import constants from './original-constants.json' with { type: 'json' }
-import { missionData, missionPosition } from './mission-data.ts'
+import { missionData, missionEnemyTribe, missionPosition } from './mission-data.ts'
 import type { PopScript } from './popscript.ts'
 
 export const HOME = missionPosition(1, 'blue'),
   ENEMY = missionPosition(1, 'red')
 export const campaignPosition = (w: World, team: 'blue' | 'red') =>
   missionPosition(w.outcome.level, team)
-export const campaignTribe = (w: World) => (w.outcome.level === 2 ? 3 : 1)
+export const campaignTribe = (w: World) => missionEnemyTribe(w.outcome.level)
 export const campaignTeam = (w: World, tribe: number) =>
   tribe === 0 ? 'blue' : tribe === campaignTribe(w) ? 'red' : null
 

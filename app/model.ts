@@ -368,7 +368,7 @@ import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
 import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
 import { stepFlatten, type Flatten } from './flatten.ts'
-import { stepErosion, type Erosion } from './erosion.ts'
+import { createErosion, stepErosion, type Erosion } from './erosion.ts'
 import { stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import { stepFirestorm, type Firestorm } from './firestorm.ts'
 import { stepEarthquake, type Earthquake } from './earthquake.ts'
@@ -503,11 +503,7 @@ import {
 } from './mana.ts'
 export { manaRate } from './mana.ts'
 export { nativeAngle, nativeStep, random } from './native-math.ts'
-import {
-  createTribeCasting,
-  stepComputerCastCooldown,
-  type TribeCasting,
-} from './spell-casting.ts'
+import { createTribeCasting, stepComputerCastCooldown, type TribeCasting } from './spell-casting.ts'
 export { recordSpellCast, spellRange, spellInRange, beginCast } from './spell-casting.ts'
 import { type SpellTargetScan } from './computer-spells.ts'
 import {
@@ -601,31 +597,35 @@ export function createWorld(missionNumber = 1): World {
       const settings = o.settings!,
         linked = level.objects.find(r => r.index + 1 === (settings[6] | (settings[7] << 8))),
         reward = linked?.settings,
-        bridgeTarget = linked && 'target' in linked ? (linked.target as Point) : undefined
+        bridgeTarget = linked && 'target' in linked ? (linked.target as Point) : undefined,
+        effectTarget =
+          linked?.type === 7 && linked.model === 23 ? { x: linked.x, z: linked.z } : undefined
       const rewardSpell =
-          reward?.[0] === 11 ? SPELLS.find(spell => spell.model === reward[1])?.id : undefined,
+          reward?.[0] === 11 ? SPELLS.find(spell => spell.model === reward[1]) : undefined,
+        rewardBuilding =
+          reward?.[0] === 2
+            ? reward[1] === 7
+              ? 'camp'
+              : reward[1] === 5
+                ? 'temple'
+                : undefined
+            : undefined,
         kind =
           settings[0] === 4
             ? 'vault'
             : linked?.type === 7 && linked.model === 24 && bridgeTarget
               ? 'bridgeEffect'
-              : reward?.[0] === 11 && reward[1] === 3
-                ? 'lightning'
-                : reward?.[0] === 11 && reward[1] === 4
-                  ? 'tornado'
-                  : reward?.[0] === 11 && reward[1] === 12
-                    ? 'bridge'
-                    : null
+              : effectTarget
+                ? 'erosionEffect'
+                : rewardSpell?.id
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
       const shrineReward =
         kind === 'vault'
-          ? reward?.[0] === 2 && reward[1] === 7
-            ? 'camp'
-            : rewardSpell
-          : kind === 'bridgeEffect'
+          ? (rewardBuilding ?? rewardSpell?.id)
+          : kind === 'bridgeEffect' || kind === 'erosionEffect'
             ? undefined
             : kind
-      if (kind !== 'bridgeEffect' && !shrineReward)
+      if (kind !== 'bridgeEffect' && kind !== 'erosionEffect' && !shrineReward)
         throw new Error(`Unbound shrine gift ${o.index}`)
       const worship = createWorship(settings)
       const vault =
@@ -648,16 +648,15 @@ export function createWorld(missionNumber = 1): World {
         kind,
         reward: shrineReward,
         ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
+        ...(kind === 'erosionEffect' ? { effectTarget } : {}),
         name:
           kind === 'vault'
             ? 'Vault of Knowledge'
-            : kind === 'bridge'
-              ? 'Land Bridge stone head'
-              : kind === 'bridgeEffect'
-                ? 'Land raising stone head'
-                : kind === 'tornado'
-                  ? 'Tornado stone head'
-                  : 'Lightning stone head',
+            : kind === 'bridgeEffect'
+              ? 'Land raising stone head'
+              : kind === 'erosionEffect'
+                ? 'Erosion stone head'
+                : `${rewardSpell!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,
@@ -693,7 +692,7 @@ export function createGift(w: World, reward: Gift['reward'], p: Point) {
     remaining: 82,
     phase: 6,
     frame:
-      reward === 'camp' || reward === 'vault'
+      reward === 'camp' || reward === 'temple' || reward === 'vault'
         ? 1077
         : 1056 + SPELLS.find(spell => spell.id === reward)!.model,
     height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
@@ -1143,8 +1142,11 @@ export function guardShaman(w: World) {
 export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
   if (w.paused || w.status !== 'playing') return false
   const spec = BUILDINGS.find(b => b.id === kind)
-  if (!spec || (kind === 'camp' && !w.unlockedCamp)) {
-    tell(w, 'Your shaman must discover the Warrior Training Hut at the vault.')
+  if (!spec || (kind === 'camp' && !w.unlockedCamp) || (kind === 'temple' && !w.unlockedTemple)) {
+    tell(
+      w,
+      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : 'Warrior Training Hut'} at the vault.`
+    )
     return false
   }
   const plan = buildingPlanPose(w, kind, p)
@@ -1739,7 +1741,8 @@ function stepTurn(w: World) {
         computer: id => {
           if (id !== campaignTribe(w)) throw new Error(`Unimplemented campaign tribe ${id}`)
           stepComputerCastCooldown(w.castingTribes[id], w.ai.flags)
-          campaignRules(w)
+          // ponytail: Mission 3 recurring PopScript resumes when its unbound command set is ported.
+          if (w.outcome.level < 3) campaignRules(w)
           stepComputerTasks(w, id)
           stepComputerSpells(w, id)
         },
@@ -1766,9 +1769,15 @@ function stepTurn(w: World) {
     if (--gift.remaining !== 0) continue
     gift.duration = gift.age
     effect(w, 'birth', gift)
-    if (gift.reward === 'camp' || gift.reward === 'vault') {
-      w.unlockedCamp = true
-      tell(w, 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.')
+    if (gift.reward === 'camp' || gift.reward === 'temple' || gift.reward === 'vault') {
+      if (gift.reward === 'temple') w.unlockedTemple = true
+      else w.unlockedCamp = true
+      tell(
+        w,
+        gift.reward === 'temple'
+          ? 'Knowledge discovered: build a Temple, then send braves inside to train as preachers.'
+          : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
+      )
     } else {
       // 0x4c2cd0: stocks already at/above the cap are unchanged.
       if (w.shots[gift.reward] < 4) w.shots[gift.reward]++
@@ -2057,7 +2066,7 @@ function stepTurn(w: World) {
         shaman.lift === 0 &&
         !shaman.fight &&
         !shaman.casting &&
-        distance(shaman, shrine) < 3
+        wrappedDistance(shaman, shrine) < 3
       if (shrine.enabled && !(w.turn & 3)) shrine.followers = Number(eligible)
       fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced)
       shrine.progress = shrine.target > 0 ? shrine.work / shrine.target : 0
@@ -2084,13 +2093,19 @@ function stepTurn(w: World) {
         bridge.team = 'blue'
         bridge.duration = Infinity
         w.stats.bridges++
+      } else if (shrine.kind === 'erosionEffect') {
+        const erosion = effect(w, 'erosion', shrine.effectTarget!)
+        erosion.erosion = createErosion(nativePosition(w, shrine.effectTarget!))
+        erosion.duration = Infinity
       } else createGift(w, shrine.reward!, shrine)
       sound(w, 0x70, shrine)
     }
   }
-  // First-mission adapter: only Blast recharges; head rewards remain one-off stocks.
+  // Imported availability selects rechargeable spells; head rewards remain one-off stocks.
   w.manaWorld.turn = w.turn
-  w.manaWorld.spells[0].stocks[2] = w.shots.blast
+  for (const spell of SPELLS)
+    if (w.manaWorld.spells[0].available & (1 << spell.model))
+      w.manaWorld.spells[0].stocks[spell.model] = w.shots[spell.id]
   w.manaWorld.spells[0].disabled = w.charging ? 0 : 2
   w.manaTribes[0].spellProgress[2] = Math.round(w.mana * 1000)
   generateFollowerMana(w.manaWorld, w.manaTribes, manaPeople(w), liveManaOrders)
@@ -2116,7 +2131,9 @@ function stepTurn(w: World) {
       schools[i].timer = b.storedMana
     })
   }
-  w.shots.blast = w.manaWorld.spells[0].stocks[2] & 15
+  for (const spell of SPELLS)
+    if (w.manaWorld.spells[0].available & (1 << spell.model))
+      w.shots[spell.id] = w.manaWorld.spells[0].stocks[spell.model] & 15
   w.mana = w.manaTribes[0].spellProgress[2] / 1000
   for (const u of w.units)
     if (
