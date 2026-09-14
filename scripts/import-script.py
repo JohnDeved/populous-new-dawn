@@ -9,9 +9,9 @@ import sys
 
 source = Path(sys.argv[1])
 mission = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-suffix = {1: '', 2: '-two', 3: '-three', 4: '-four'}.get(mission)
+suffix = {1: '', 2: '-two', 3: '-three', 4: '-four', 5: '-five'}.get(mission)
 if suffix is None:
-    raise ValueError('Only recovered missions 1 through 4 are supported')
+    raise ValueError('Only recovered missions 1 through 5 are supported')
 header = (source / f'levl{2000 + mission:04}.hdr').read_bytes()
 if len(header) != 616:
     raise ValueError('Expected a 616-byte original mission header')

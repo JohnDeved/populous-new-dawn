@@ -223,6 +223,7 @@ import type {
   Point,
   Fight,
   NativePoint,
+  Vehicle,
   Projectile,
   Battle,
   Unit,
@@ -238,6 +239,7 @@ export type {
   BuildingKind,
   Spell,
   Point,
+  Vehicle,
   Projectile,
   Unit,
   Building,
@@ -1651,6 +1653,13 @@ function stepTurn(w: World) {
         const erosion = effect(w, 'erosion', shrine.effectTarget!)
         erosion.erosion = createErosion(nativePosition(w, shrine.effectTarget!))
         erosion.duration = Infinity
+      } else if (shrine.kind === 'boat') {
+        const boat = w.vehicles.find(v => v.id === shrine.rewardVehicle)
+        if (boat) {
+          boat.active = true
+          w.castingTribes[0].flags |= 64
+          tell(w, 'Boat received. Select followers and click it to board.')
+        }
       } else createGift(w, shrine.reward!, shrine)
       sound(w, 0x70, shrine)
     }
@@ -1829,7 +1838,7 @@ function stepTurn(w: World) {
       stepLivePerson(w, u)
       continue
     }
-    if (!supportsFollower(w, u)) {
+    if (!u.native?.vehicle && !supportsFollower(w, u)) {
       u.hp = 0
       continue
     }
@@ -2038,7 +2047,7 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      ([3, 6, 7, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+      ([3, 6, 7, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
       stepLiveMovement(w, u, {

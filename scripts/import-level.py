@@ -5,8 +5,8 @@ The installer itself is never run. See references/level-one.md for extraction.
 import hashlib, json, struct, sys
 from pathlib import Path
 mission = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-word = {1: 'one', 2: 'two', 3: 'three', 4: 'four'}.get(mission)
-if word is None: raise ValueError('Only recovered missions 1 through 4 are supported')
+word = {1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five'}.get(mission)
+if word is None: raise ValueError('Only recovered missions 1 through 5 are supported')
 src = Path(sys.argv[1]); name = f'levl{2000 + mission:04}'
 data = (src / f'{name}.dat').read_bytes(); hdr = (src / f'{name}.hdr').read_bytes()
 assert len(data) >= 0x2EDF3 and len(hdr) == 616, 'Unexpected level format'
@@ -17,10 +17,15 @@ for i in range(2000):
     b = data[0x14043 + i * 55:0x14043 + (i + 1) * 55]
     if not b[1]: continue
     x, z = struct.unpack_from('>HH', b, 3)
-    assert x < 256 and z < 256
-    sx = x / 2 if x < 128 else x / 2 - 128
-    sz = z / 2 if z < 128 else z / 2 - 128
-    o = dict(index=i, model=b[0], type=b[1], owner=b[2], x=(sx-4)*2, z=-(sz+4)*2, angle=struct.unpack_from('<i',b,7)[0])
+    if b[1] == 4:
+        signed = lambda n: (n + 32768) % 65536 - 32768
+        px, pz = signed(x - 2048) / 256, -signed(z + 2048) / 256
+    else:
+        assert x < 256 and z < 256
+        sx = x / 2 if x < 128 else x / 2 - 128
+        sz = z / 2 if z < 128 else z / 2 - 128
+        px, pz = (sx - 4) * 2, -(sz + 4) * 2
+    o = dict(index=i, model=b[0], type=b[1], owner=b[2], x=px, z=pz, angle=struct.unpack_from('<i',b,7)[0])
     if b[1] == 6: o['settings'] = list(b[7:39])
     if b[1] == 7 and b[0] == 24:
         tx, tz = struct.unpack_from('>HxxH', b, 7)

@@ -377,15 +377,16 @@
       "id": "orders-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise real ground waypoint input and visible full-world movement.",
+      "purpose": "Exercise real ground waypoint input, visible full-world movement, and Mission 5 Boat transport.",
       "coveredBehavior": [
         "Desktop pointer input",
         "queued waypoints",
         "pause",
         "render rates",
-        "world seams"
+        "world seams",
+        "Mission 5 Boat picking, boarding, sailing, valid-shore landing, and checkpoint state"
       ],
-      "knownLimits": ["Does not prove all mixed work/combat/transport queues."],
+      "knownLimits": ["Does not prove Boat construction, combat, native artwork, or mixed transport queues."],
       "executable": "node",
       "args": ["scripts/check-browser-ground-waypoints.mjs"],
       "cwd": ".",
@@ -395,7 +396,11 @@
         "scripts/browser-game.mjs",
         "app/live-command.ts",
         "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts",
+        "app/game-store.ts",
         "app/model.ts",
+        "app/scene-entities.ts",
         "app/scene.ts",
         "app/scene-input-runtime.ts"
       ],

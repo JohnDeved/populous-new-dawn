@@ -9,17 +9,29 @@ export async function openGame(browser) {
   await page.waitForSelector('.world-viewport canvas')
   await page.waitForFunction(() => {
     const main = document.querySelector('main')
+    const scenes = [], stores = []
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
     for (; fiber; fiber = fiber.return) {
       for (let hook = fiber.memoizedState; hook; hook = hook.next) {
-        if (hook.memoizedState?.current?.unitMeshes) window.testScene = hook.memoizedState.current
+        if (hook.memoizedState?.current?.unitMeshes) scenes.push(hook.memoizedState)
+        if (hook.memoizedState?.getWorld) stores.push(hook.memoizedState)
       }
     }
-    return !!window.testScene
+    for (const store of stores) {
+      const scene = scenes.find(ref => ref.current?.world === store.getWorld())
+      if (!scene) continue
+      window.testSceneRef = scene
+      window.testScene = scene.current
+      window.testStore = store
+      return true
+    }
+    return false
   })
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1)
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !window.testScene.world.inputMask)
+  await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
+  await page.evaluate(() => { window.testScene = window.testSceneRef.current })
   return { page, errors }
 }
 

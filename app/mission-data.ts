@@ -2,16 +2,19 @@ import levelOne from './level-one.ts'
 import levelTwo from './level-two.ts'
 import levelThree from './level-three.ts'
 import levelFour from './level-four.ts'
+import levelFive from './level-five.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
 import scriptThree from './original-script-three.json' with { type: 'json' }
 import scriptFour from './original-script-four.json' with { type: 'json' }
+import scriptFive from './original-script-five.json' with { type: 'json' }
 
 const missions = [
   { number: 1, level: levelOne, script: scriptOne },
   { number: 2, level: levelTwo, script: scriptTwo },
   { number: 3, level: levelThree, script: scriptThree },
   { number: 4, level: levelFour, script: scriptFour },
+  { number: 5, level: levelFive, script: scriptFive },
 ] as const
 
 export const missionNumbers = missions.map(mission => mission.number)

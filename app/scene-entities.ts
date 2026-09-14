@@ -23,8 +23,10 @@ import {
   unitInvisibleToPlayer,
   unitInvisibilityRenderFlag,
   canPickUnit,
+  browserPosition,
   type Unit,
   type Building,
+  type Vehicle,
 } from './model'
 import { terrainPointHeight } from './native-terrain.ts'
 import { unitHealthGauge } from './unit-health.ts'
@@ -84,7 +86,11 @@ function makeUnit(u: Unit) {
   // Six native rectangles share one atlas quad; transparent ordering stays with
   // this person in the existing painter, including terrain and spell occlusion.
   const health = new THREE.Sprite(
-    new THREE.SpriteMaterial({ map: texture('unit-health'), depthWrite: false, toneMapped: false })
+    new THREE.SpriteMaterial({
+      map: texture('unit-health'),
+      depthWrite: false,
+      toneMapped: false,
+    })
   )
   health.visible = false
   health.userData.atlasTransform = new THREE.Vector4()
@@ -114,7 +120,29 @@ function makeBuilding(b: Building, stage: number) {
   part(health, box(2.5, 0.09, 0.05), material(0x201d16), 0, top)
   const healthFill = part(health, box(2.5, 0.09, 0.06), material(teamColor[b.team]), 0, top, 0.01)
   g.add(health)
-  g.userData = { building: b.id, signature: `${id}-${stage}`, health, healthFill }
+  g.userData = {
+    building: b.id,
+    signature: `${id}-${stage}`,
+    health,
+    healthFill,
+  }
+  return g
+}
+
+function makeVehicle(v: Vehicle) {
+  // ponytail: render resource 838 is not imported; replace this hull when its native asset is recovered.
+  const g = new THREE.Group()
+  part(g, box(3.2, 0.65, 1.45), material(0x76502d), 0, 0.2)
+  part(g, box(2.3, 0.28, 1.1), material(0xb1834f), 0, 0.65)
+  part(g, box(0.12, 2.4, 0.12), material(0x4e3521), 0, 1.45)
+  const sail = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.8, 1.45),
+    new THREE.MeshBasicMaterial({ color: 0xe6dcc1, side: THREE.DoubleSide })
+  )
+  sail.position.set(0, 1.65, 0)
+  sail.rotation.y = Math.PI / 2
+  g.add(sail)
+  g.userData = { point: { id: v.id }, vehicle: v.id }
   return g
 }
 
@@ -197,7 +225,12 @@ export function animatePerson(
     scene.view.config
   )
   const layers = g.userData.layers as THREE.Sprite[]
-  const bounds = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }
+  const bounds = {
+    left: Infinity,
+    top: Infinity,
+    right: -Infinity,
+    bottom: -Infinity,
+  }
   for (let i = 0; i < draws.length; i++) {
     const draw = draws[i]
     let layer = layers[i]
@@ -296,6 +329,10 @@ export function updateUnitsFrame(scene: GameScene) {
     g.quaternion.identity()
     g.userData.nativeHeading = 0
     g.userData.cellPosition = u
+    if (u.native?.vehicle) {
+      g.visible = false
+      continue
+    }
     g.visible =
       (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
       !unitInvisibleToPlayer(scene.world, u)
@@ -386,6 +423,25 @@ export function updateUnitsFrame(scene: GameScene) {
       health.center.set(-gauge.x / gauge.width, 1 + gauge.y / gauge.height)
       health.userData.atlasTransform.set(1 / 25, 1, Math.max(0, Math.min(24, gauge.fill)) / 25, 0)
     }
+  }
+}
+
+export function updateVehiclesFrame(scene: GameScene) {
+  for (const [id, g] of scene.vehicleMeshes)
+    if (!scene.world.vehicles.some(v => v.id === id && v.active)) {
+      scene.objects.remove(g)
+      scene.releaseGroup(g)
+      scene.vehicleMeshes.delete(id)
+    }
+  for (const v of scene.world.vehicles.filter(v => v.active)) {
+    let g = scene.vehicleMeshes.get(v.id)
+    if (!g) {
+      g = makeVehicle(v)
+      scene.vehicleMeshes.set(v.id, g)
+      scene.objects.add(g)
+    }
+    scene.locate(g, browserPosition(v), Math.max(0.12, v.h / 128))
+    scene.orientModel(g, v.heading)
   }
 }
 
@@ -517,7 +573,10 @@ export function renderSceneFrame(
     object.userData.highlight.value =
       hovered && id === hovered.id
         ? modelHighlight(
-            { ...hovered, buildingFlags: hoveredBuilding?.damageState?.buildingFlags },
+            {
+              ...hovered,
+              buildingFlags: hoveredBuilding?.damageState?.buildingFlags,
+            },
             scene.world.turn,
             { construction: object.userData.stage !== 4 }
           )

@@ -6,6 +6,7 @@ import {
   type World,
   type Unit,
   type Point,
+  type Vehicle,
 } from './model.ts'
 import { createLivePerson, collisionWorld, type LivePerson } from './live-people.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
@@ -21,6 +22,21 @@ import {
   routeVehicleAvailable,
 } from './person-routes.ts'
 import { advancePersonRoute } from './route-advance.ts'
+import {
+  boardingVehicle,
+  findVehicleLanding,
+  vehicleCanApproach,
+  vehicleCanDisembark,
+  vehicleCellFree,
+  vehicleReady,
+} from './vehicle-routing.ts'
+import {
+  boardLiveVehicle,
+  leaveLiveVehicle,
+  liveVehicleCellObjects,
+  liveVehicles,
+  nearestLiveBoat,
+} from './live-vehicles.ts'
 import { searchPersonPath, collectSearchPath } from './path-search.ts'
 import { createPathSolver, solvePersonPath } from './path-solver.ts'
 import {
@@ -41,16 +57,25 @@ export function planLivePath(
   u: Unit,
   end: Point,
   p = createLivePerson(w, u),
-  probeOnly = false
+  probeOnly = false,
+  transport = false
 ): LivePerson | null {
-  if (!probeOnly && !supportsFollower(w, end)) return null
+  if (
+    !probeOnly &&
+    !transport &&
+    !w.vehicles.some(v => v.active) &&
+    !supportsFollower(w, end)
+  )
+    return null
   if (!probeOnly) p.flags2 = (p.flags2 | 0x2000000) >>> 0
   try {
     const planned = planDestination(w, u, p, nativePosition(w, end), probeOnly)
     if (probeOnly) return planned ? p : null
+    const vehicleRoute =
+      p.motionGroup && !!(w.motionRoutes.records[p.motionGroup * 109 + 2] & 3)
     if (
       !(p.flags4 & 0x10000000) &&
-      liveRoutePoints(w, p).every(point => supportsFollower(w, point))
+      (vehicleRoute || liveRoutePoints(w, p).every(point => supportsFollower(w, point)))
     )
       return p
   } catch (error) {
@@ -73,18 +98,24 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
   const r = w.pathfinding,
     { state, path, geometry: g, solver } = r,
     collision = collisionWorld(w)
+  const boats = w.vehicles.some(v => v.active)
   const tribes = w.manaTribes.map((t, i) => ({
     playerType: t.playerType,
     requests: (solver.tribeRequests[i] << 16) >> 16,
-    flags: w.castingTribes[i].flags,
+    flags: w.castingTribes[i].flags | (boats ? 32 : 0),
     active: t.active,
     defeatTimer: t.defeatTimer,
   }))
-  const unsupported = () => {
-    throw new Error('Live native vehicle actions are not integrated')
+  const vehicles = liveVehicles(w)
+  const vehicleWorld = {
+    flags: w.land.flags,
+    categories: w.land.categories,
+    boatsEnabled: Number(vehicles.size > 0),
+    vehicles,
+    people: w.pathfinding.people,
+    tribes,
+    cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
   }
-  // The browser world currently has no vehicle objects. Empty vehicle lookups
-  // are exact for that world; adding vehicles requires their real object records.
   const probe = {
     buildingAccess: (cell: number) =>
       buildingBlocksPerson(
@@ -92,9 +123,10 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
         p,
         collision.cell({ x: (cell & 254) << 8, y: cell & 0xfe00 })
       ),
-    boardingBoat: () => 0,
-    disembark: unsupported,
-    boatCell: unsupported,
+    boardingBoat: (cell: number) => boardingVehicle(vehicleWorld, p, cell),
+    disembark: (id: number, to: { x: number; y: number }) =>
+      vehicleCanDisembark(vehicleWorld, vehicles.get(id)!, to),
+    boatCell: (cell: number, id: number) => vehicleCellFree(vehicleWorld, cell, id),
   }
   const searchWorld = {
     state,
@@ -103,12 +135,12 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     categories: w.land.categories,
     flags: w.land.flags,
     walkMasks: w.land.walkMasks,
-    boatsEnabled: 0,
+    boatsEnabled: vehicleWorld.boatsEnabled,
     landLimit: rules.pathLandLimit,
     computerLimit: r.computerLimit,
     humanLimit: r.humanLimit,
     tribes,
-    cellObjects: () => [],
+    cellObjects: vehicleWorld.cellObjects,
   }
   const planner = {
     routes: w.motionRoutes,
@@ -124,7 +156,7 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     humanLimit: r.humanRequests,
     tribes,
     land: w.land,
-    vehicles: new Map(),
+    vehicles,
   }
   const search = (
     person: LivePerson,
@@ -173,11 +205,12 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
       rules.terrainCategoryDirections[
         w.land.categories[((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)] & 15
       ],
-    vehicleReady: unsupported,
+    vehicleReady: id => vehicleReady(vehicleWorld, vehicles.get(id)!),
     advance: () => advanceLiveRoute(w, p),
     build: (_, from, to) =>
       buildPersonRoute(w.motionRoutes, p, from, to, searchOption, tribes[p.tribe], {
-        findVehicle: () => null,
+        findVehicle: (_, center, minimum, maximum) =>
+          nearestLiveBoat(w, center, minimum, maximum) ?? null,
         search: (_, _person, a, b, option, vehicles) => search(p, a, b, option, vehicles),
       }),
   }
@@ -257,7 +290,8 @@ export function clearLivePath(w: World, u: Unit) {
 }
 
 export function acceptLivePath(w: World, u: Unit, p: LivePerson | null) {
-  clearLivePath(w, u)
+  if (w.pathfinding.people.get(u.id) !== p) clearLivePath(w, u)
+  else u.path = []
   if (p) {
     w.pathfinding.people.set(u.id, p)
     u.path = liveRoutePoints(w, p)
@@ -266,22 +300,40 @@ export function acceptLivePath(w: World, u: Unit, p: LivePerson | null) {
 }
 
 function advanceLiveRoute(w: World, p: LivePerson) {
-  const unsupported = () => {
-    throw new Error('Live native vehicle actions are not integrated')
-  }
+  const vehicles = liveVehicles(w),
+    vehicleWorld = {
+      flags: w.land.flags,
+      categories: w.land.categories,
+      boatsEnabled: Number(vehicles.size > 0),
+      vehicles,
+      people: w.pathfinding.people,
+      tribes: w.manaTribes.map(t => ({ playerType: t.playerType })),
+      cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
+    }
   advancePersonRoute(
-    { routes: w.motionRoutes, vehicles: new Map(), people: w.pathfinding.people },
+    { routes: w.motionRoutes, vehicles, people: w.pathfinding.people },
     p,
     {
-      boarding: () => 0,
-      board: unsupported,
-      routeAvailable: () => routeVehicleAvailable(w.motionRoutes, p, () => 0),
-      approach: unsupported,
-      alternativeLanding: unsupported,
-      landingBlocked: unsupported,
-      prepareLanding: unsupported,
-      leaveVehicle: unsupported,
-      clearOrders: unsupported,
+      boarding: (person, cell) => boardingVehicle(vehicleWorld, person, cell),
+      board: (person, vehicle) => boardLiveVehicle(w, person as LivePerson, vehicle as Vehicle),
+      routeAvailable: person =>
+        routeVehicleAvailable(w.motionRoutes, person, cell =>
+          boardingVehicle(vehicleWorld, person, cell)
+        ),
+      approach: (vehicle, to) => vehicleCanApproach(vehicleWorld, vehicle, to),
+      alternativeLanding: (vehicle, to) => {
+        const landing = findVehicleLanding(vehicleWorld, w.indexedSearch, vehicle, to)
+        return landing.found ? landing.point : null
+      },
+      landingBlocked: to =>
+        !!p.vehicle && !vehicleCanDisembark(vehicleWorld, vehicles.get(p.vehicle)!, to),
+      prepareLanding: (vehicle, to) => {
+        vehicle.turnAngle = to.x
+        vehicle.turnY = to.y
+      },
+      leaveVehicle: (vehicle, person, to) =>
+        leaveLiveVehicle(w, vehicle as Vehicle, person as LivePerson, to),
+      clearOrders: person => releasePersonRoute(w.motionRoutes, person),
     }
   )
 }

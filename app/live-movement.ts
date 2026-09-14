@@ -6,6 +6,7 @@ import {
   nativePosition,
   addUnit,
   population,
+  supportsFollower,
   type World,
   type Unit,
 } from './model.ts'
@@ -72,6 +73,14 @@ import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
 import { spyDisguisedFrom } from './computer-spells.ts'
 import {
+  boardLiveVehicle,
+  leaveLiveVehicle,
+  liveVehicleCellObjects,
+  liveVehicles,
+  stepLiveVehicle,
+} from './live-vehicles.ts'
+import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
+import {
   cancelConversionVictim,
   inPreachingRange,
   initializeConversionVictim,
@@ -123,7 +132,10 @@ export const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 6, 7, 8, 10, 11, 17, 19, 21, 25, 27, 28, 30, 31, 32, 33].includes(order.model))
+  if (
+    !order ||
+    ![3, 6, 7, 8, 10, 11, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(order.model)
+  )
     unsupported()
   const state = {
     randomState: rng.randomState,
@@ -146,7 +158,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
       replanLivePath(w, unit, person as LivePerson, { x, y })
     },
     commandPosition: unsupported,
-    allowVehicleOrder: unsupported,
+    allowVehicleOrder: () => true,
     initializeCommand: () => {
       if (order!.model === 6 || order!.model === 7) return
       if (order!.model === 30) {
@@ -175,10 +187,16 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     },
     canStayForTarget: unsupported,
     leaveBuilding: person => {
-      leaveLiveBuilding(w, w.units.find(u => u.id === person.id)!)
+      leaveLiveBuilding(
+        w,
+        w.units.find(u => u.id === person.id)!
+      )
     },
-    resetVehicleMovement: unsupported,
-    leaveSelectedVehicle: unsupported,
+    resetVehicleMovement: id => {
+      const vehicle = w.vehicles.find(v => v.id === id)
+      if (vehicle) vehicle.speed = -1
+    },
+    leaveSelectedVehicle: () => {},
     initializeState: person => {
       w.randomState = state.randomState
       const unit = w.units.find(u => u.id === person.id)!
@@ -271,7 +289,12 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
           model === 33
         ) {
           if (order.model !== model || order.a !== x || order.b !== y)
-            Object.assign(order, { model, a: x, b: y, flags: order.flags | commandFlags })
+            Object.assign(order, {
+              model,
+              a: x,
+              b: y,
+              flags: order.flags | commandFlags,
+            })
           return
         }
         if (model !== 3) unsupported()
@@ -359,7 +382,7 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
   const model = p && currentPersonOrder(w.buildingOrders, p)?.model
-  if (!p || !model || ![3, 6, 7, 17, 27, 28, 30, 31, 32, 33].includes(model)) return
+  if (!p || !model || ![3, 6, 7, 17, 22, 27, 28, 30, 31, 32, 33].includes(model)) return
   if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
@@ -395,7 +418,10 @@ function acquirePreacherVictims(w: World, preacher: LivePerson, radius: number) 
       if (!eligiblePreacherVictim(w, preacher, victim)) continue
       releaseTasks(w, u)
       u.native = victim
-      const state = { randomState: w.randomState, loadFlags: w.manaWorld.loadFlags }
+      const state = {
+        randomState: w.randomState,
+        loadFlags: w.manaWorld.loadFlags,
+      }
       initializeConversionVictim(state, victim, preacher, () =>
         stopPersonMovement(victim, (person, object) =>
           setLivePersonAnimation(w, person as LivePerson, object)
@@ -581,7 +607,10 @@ export function stepShamanGuard(
     'substate' | 'counter' | 'x' | 'y' | 'goalX' | 'goalY' | 'flags2' | 'assignment' | 'speed'
   >,
   target: { x: number; y: number } | null,
-  effects: { recover: () => void; destination: (point: { x: number; y: number }) => void }
+  effects: {
+    recover: () => void
+    destination: (point: { x: number; y: number }) => void
+  }
 ) {
   if (!target) return 1
   if (!p.substate) {
@@ -679,11 +708,76 @@ export function startLiveConstructionOrder(w: World, u: Unit) {
 
 export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects['commands'] = {}) {
   const p = u.native!
-  stepLivePhysics(w, u, p)
-  stepLiveRoute(w, u)
+  const driver = p.vehicle ? stepLiveVehicle(w, p) : false
+  if (!p.vehicle) stepLivePhysics(w, u, p)
+  if (!p.vehicle || driver) stepLiveRoute(w, u)
+  else return
   if (p.state !== 10) return
   const next = stepLiveOrderQueue(w, u, p, {
-    3: order => Number(stepMovementOrder(p, order, w.land.categories, unsupported)),
+    3: order => {
+      if (!p.vehicle)
+        return Number(
+          stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)
+        )
+      if (p.motionGroup) return 0
+      const vehicle = liveVehicles(w).get(p.vehicle),
+        to = { x: p.goalX, y: p.goalY },
+        vehicleWorld = {
+          flags: w.land.flags,
+          categories: w.land.categories,
+          cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
+        }
+      if (vehicle && vehicleCanDisembark(vehicleWorld, vehicle, to)) {
+        // ponytail: bounded shore scan; replace with native 004659d0 outward velocity when ported.
+        const candidates = []
+        for (let y = -512; y <= 512; y += 32)
+          for (let x = -512; x <= 512; x += 32)
+            candidates.push({ x: short(to.x + x), y: short(to.y + y) })
+        candidates.sort(
+          (a, b) => Math.hypot(short(a.x - to.x), short(a.y - to.y)) -
+            Math.hypot(short(b.x - to.x), short(b.y - to.y))
+        )
+        const exits: { x: number; y: number }[] = []
+        for (const candidate of candidates) {
+          if (
+            !supportsFollower(w, browserPosition(candidate)) ||
+            exits.some(
+              exit => Math.hypot(short(exit.x - candidate.x), short(exit.y - candidate.y)) < 96
+            )
+          )
+            continue
+          exits.push(candidate)
+          if (exits.length === vehicle.passengers.length) break
+        }
+        for (const [index, id] of [...vehicle.passengers].entries()) {
+          const passenger = w.pathfinding.people.get(id)
+          if (passenger) leaveLiveVehicle(w, vehicle, passenger, exits[index] ?? to)
+        }
+        return 1
+      }
+      return 0
+    },
+    22: order => {
+      if (p.motionGroup) return 0
+      const vehicle = w.vehicles.find(v => v.id === order.a && v.active)
+      if (!vehicle) return 1
+      const dx = short(vehicle.x - p.x),
+        dy = short(vehicle.y - p.y)
+      // ponytail: the shared terrain route stops at a diagonal coast cell; use 576 after native order-22 approach is ported.
+      if (
+        Math.abs(dx) <= 768 &&
+        Math.abs(dy) <= 768 &&
+        vehicleReady(
+          {
+            flags: w.land.flags,
+            categories: w.land.categories,
+          },
+          vehicle
+        )
+      )
+        boardLiveVehicle(w, p, vehicle)
+      return 0
+    },
     6: order => stepLiveConstructionOrder(w, u, p, order),
     27: () => Number(stepLiveWorship(w, u)),
     30: order =>
@@ -815,7 +909,11 @@ export function stepLiveMarchingFormations(w: World) {
             people.set(id, p)
           }
         }
-      const state = { randomState: w.randomState, poseRandom: w.cosmeticRandom, people }
+      const state = {
+        randomState: w.randomState,
+        poseRandom: w.cosmeticRandom,
+        people,
+      }
       stepMarchingFormation(state, g, {
         remove: () => {
           g.class = 0

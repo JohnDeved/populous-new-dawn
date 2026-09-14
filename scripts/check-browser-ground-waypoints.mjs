@@ -6,6 +6,8 @@ try {
  const {page,errors}=await openGame(browser)
  for(const viewport of [{width:1440,height:1000},{width:3440,height:1440}]){
   await page.setViewportSize(viewport)
+  await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld())
+  await page.evaluate(()=>window.testScene=window.testSceneRef.current)
   await page.evaluate(async()=>{
    const s=window.testScene,w=s.world,m=await import('/app/model.ts');cancelAnimationFrame(s.frame)
    const version=w.terrainVersion+1;Object.assign(w,m.createWorld());w.terrainVersion=version
@@ -123,8 +125,29 @@ try {
    return {shorter,fought,visible:s.unitMeshes.get(unit)?.visible}
   },seamAttack)
   assert.deepEqual(seamResult,{shorter:true,fought:true,visible:true})
+  const boat=await page.evaluate(async()=>{
+   const s=window.testScene,w=s.world,m=await import('/app/model.ts'),routing=await import('/app/vehicle-routing.ts')
+   Object.assign(w,m.createWorld(5));w.flyby.flags=0;w.inputMask=0;w.speed=0
+   for(const {g} of s.shrineMeshes.values()){s.objects.remove(g);s.releaseGroup(g)}s.shrineMeshes.clear();s.makeShrines()
+   const v=w.vehicles[0],u=w.units.find(u=>u.team==='blue'&&u.kind!=='shaman'),land={flags:w.land.flags,categories:w.land.categories,cellObjects:()=>[]},shores=[]
+   v.active=true
+   for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){const p={x:(x+1)*256,y:(y+1)*256};if(routing.vehicleCanDisembark(land,v,p))shores.push(p)}
+   const start=shores.find(p=>{const q=m.browserPosition(p);return Math.hypot(q.x-u.x,q.z-u.z)<10});Object.assign(v,start,{h:0,speed:-1});Object.assign(u,m.browserPosition(v),{x:m.browserPosition(v).x-1});m.setSelection(w,[u.id]);s.focus(m.browserPosition(v));s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+   const screen=s.view.screen(s.vehicleMeshes.get(v.id).position,s.camera),r=s.container.getBoundingClientRect(),click={x:r.left+(screen.x+1)*r.width/2,y:r.top+(1-screen.y)*r.height/2}
+   const target=shores.map(p=>[Math.hypot(((p.x-v.x)<<16>>16),((p.y-v.y)<<16>>16)),p]).filter(([d])=>d>3000&&d<10000).sort((a,b)=>a[0]-b[0])[0][1]
+   s.picking.lastKey='';return {vehicle:v.id,unit:u.id,click,target:m.browserPosition(target),picked:s.pickWorldObject({clientX:click.x,clientY:click.y})?.id,parts:s.vehicleMeshes.get(v.id)?.children.length}
+  })
+  assert.equal(boat.picked,boat.vehicle,JSON.stringify(boat));assert.equal(boat.parts,4)
+  await page.mouse.click(boat.click.x,boat.click.y)
+  const boarded=await page.evaluate(async({vehicle,unit})=>{const s=window.testScene,w=s.world,{advanceGame}=await import('/app/game-clock.ts');w.speed=1;for(let i=0;i<36&&!w.units.find(u=>u.id===unit).native?.vehicle;i++)advanceGame(w,s.gameClock,1/12);w.speed=0;s.animate(s.previous);cancelAnimationFrame(s.frame);await window.testStore.saveCheckpoint();if(!window.testStore.loadCheckpoint())throw Error('occupied Boat checkpoint did not load');const saved=window.testStore.getWorld();return {vehicle:saved.units.find(u=>u.id===unit).native?.vehicle,passengers:saved.vehicles.find(v=>v.id===vehicle).passengers}},boat)
+  assert.deepEqual(boarded,{vehicle:boat.vehicle,passengers:[boat.unit]})
+  await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld())
+  await page.evaluate(()=>window.testScene=window.testSceneRef.current)
+  await click(boat.target)
+  const landed=await page.evaluate(async({vehicle,unit})=>{const s=window.testScene,w=s.world,{advanceGame}=await import('/app/game-clock.ts'),v=w.vehicles.find(v=>v.id===vehicle),u=w.units.find(u=>u.id===unit),before=[v.x,v.y];w.speed=1;for(let i=0;i<24&&v.x===before[0]&&v.y===before[1]&&u.native?.vehicle;i++)advanceGame(w,s.gameClock,1/12);const moved=v.x!==before[0]||v.y!==before[1],attachedWhileMoving=u.native?.vehicle===vehicle;for(let i=0;i<240&&u.native?.vehicle;i++)advanceGame(w,s.gameClock,1/12);w.speed=0;await window.testStore.saveCheckpoint();if(!window.testStore.loadCheckpoint())throw Error('landed Boat checkpoint did not load');const saved=window.testStore.getWorld();return {moved,attachedWhileMoving,aboard:saved.units.find(u=>u.id===unit).native?.vehicle,passengers:saved.vehicles.find(v=>v.id===vehicle).passengers,savedVehicle:saved.vehicles.find(v=>v.id===vehicle)?.id}},boat)
+  assert.deepEqual(landed,{moved:true,attachedWhileMoving:true,aboard:0,passengers:[],savedVehicle:boat.vehicle})
  }
  await page.screenshot({path:'/private/tmp/populous-ground-waypoints.png'})
  assert.deepEqual(errors,[])
- console.log('PASS: desktop/ultrawide real Ctrl mouse waypoints, queued enemy attacks, direct seam combat, target-loss handoff, immediate movement, release modifiers, Alt deselection, ordered arrival, original sprites, visible ground feedback and silent rejected clicks')
+ console.log('PASS: desktop/ultrawide real mouse Boat boarding/landing/checkpoint, Ctrl waypoints, queued enemy attacks, direct seam combat, target-loss handoff, release modifiers, Alt deselection, original sprites and visible feedback')
 }finally{await browser.close()}

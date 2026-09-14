@@ -154,7 +154,11 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
   const rect = scene.renderer.domElement.getBoundingClientRect()
   if (scene.overviewActive) {
     return (
-      [...scene.world.buildings, ...scene.world.shrines].find(object => {
+      [
+        ...scene.world.buildings,
+        ...scene.world.shrines,
+        ...scene.world.vehicles.filter(v => v.active).map(v => ({ ...v, ...browserPosition(v) })),
+      ].find(object => {
         const p = scene.screen(object)
         return (
           scene.visible(object) &&
@@ -167,9 +171,22 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
     )
   }
   const id = scene.picking.pick(event)
+  const nearbyVehicle = scene.world.vehicles.find(v => {
+      const g = scene.vehicleMeshes.get(v.id)
+      if (!v.active || !g?.visible) return false
+      const p = scene.view.screen(g.position, scene.camera)
+      return (
+        Math.hypot(
+          ((p.x + 1) * rect.width) / 2 + rect.left - event.clientX,
+          ((1 - p.y) * rect.height) / 2 + rect.top - event.clientY
+        ) < 18
+      )
+    }),
+    vehicle = scene.world.vehicles.find(v => v.id === id && v.active) ?? nearbyVehicle
   return (
     scene.world.buildings.find(b => b.id === id) ??
     scene.world.shrines.find(s => s.id === id) ??
+    (vehicle ? { ...vehicle, ...browserPosition(vehicle) } : null) ??
     null
   )
 }
@@ -208,7 +225,11 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
     const origin = scene.world.units.find(u => u.id === unit) ?? scene.pick(event)
     if (origin) {
       const start = nativePosition(scene.world, origin)
-      scene.drag = { start, end: start, active: unit === undefined && !scene.world.selected.length }
+      scene.drag = {
+        start,
+        end: start,
+        active: unit === undefined && !scene.world.selected.length,
+      }
     }
   }
   if (unit !== undefined) {
@@ -323,7 +344,8 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
     scene.world.units.find(u => u.id === pickedId) ??
     scene.world.buildings.find(b => b.id === pickedId) ??
     scene.world.shrines.find(h => h.id === pickedId) ??
-    scene.world.trees.find(t => t.id === pickedId)
+    scene.world.trees.find(t => t.id === pickedId) ??
+    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined)
   const p = picked ?? scene.pick(event) ?? clickedUnit
   if (!p) return
   if (scene.world.mode) {

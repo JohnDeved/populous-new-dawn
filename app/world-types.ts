@@ -79,6 +79,22 @@ export type Fight = {
   motion?: LivePerson
 }
 export type NativePoint = { x: number; y: number; h: number }
+export type Vehicle = NativePoint & {
+  id: number
+  class: 4
+  model: number
+  team: Team
+  physics: number
+  speed: number
+  navigationFlags: number
+  passengerCount: number
+  passengers: number[]
+  reservation: number
+  turnAngle: number
+  turnY: number
+  heading: number
+  active: boolean
+}
 export type Projectile = {
   id: number
   spell: Spell
@@ -184,10 +200,11 @@ export type Building = Point & {
 export type Shrine = Point &
   WorshipState & {
     id: number
-    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'vault'
+    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'vault' | 'boat'
     reward?: Spell | 'camp' | 'tower' | 'temple'
     bridgeTarget?: Point
     effectTarget?: Point
+    rewardVehicle?: number
     nextSlot: number
     slotTimer: number
     range: number
@@ -328,6 +345,7 @@ export type World = {
   terrain: number[]
   terrainVersion: number
   units: Unit[]
+  vehicles: Vehicle[]
   buildings: Building[]
   effects: Effect[]
   projectiles: Projectile[]

@@ -1,6 +1,6 @@
 import native from './original-tooltips.json' with { type: 'json' }
 import { missionData } from './mission-data.ts'
-import { nativeCellPoint, distance, type World, type Point } from './model.ts'
+import { nativeCellPoint, browserPosition, distance, type World, type Point } from './model.ts'
 
 export type TooltipObject = Point & {
   id: number
@@ -102,6 +102,17 @@ export function stepTooltip(state: TooltipState, targetValid: boolean, frameRate
 
 export function worldTooltipObject(world: World, id: number): TooltipObject | null {
   const level = missionData(world.outcome.level).level
+  const vehicle = world.vehicles.find(v => v.id === id && v.active)
+  if (vehicle)
+    return {
+      id,
+      ...browserPosition(vehicle),
+      type: 4,
+      model: vehicle.model,
+      owner: vehicle.team === 'blue' ? 0 : 1,
+      tutorial: 0,
+      head: null,
+    }
   const b = world.buildings.find(b => b.id === id && b.hp > 0)
   if (b)
     return {

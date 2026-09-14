@@ -168,6 +168,7 @@ export function createWorldState(missionNumber = 1): World {
     terrain: makeTerrain(land),
     terrainVersion: 0,
     units: [],
+    vehicles: [],
     buildings: [],
     effects: [],
     projectiles: [],
@@ -226,7 +227,9 @@ export function createWorldState(missionNumber = 1): World {
           ? 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.'
           : missionNumber === 3
             ? 'The Chumara can turn your followers against you. Reach their Vault and learn their power.'
-            : 'Convert the Wildmen, discover the Guard Tower, and defeat the Matak.',
+            : missionNumber === 4
+              ? 'Convert the Wildmen, discover the Guard Tower, and defeat the Matak.'
+              : 'Worship the stone head to receive a Boat and cross the water.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

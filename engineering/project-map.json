@@ -57,6 +57,8 @@
       "implementationPaths": [
         "app/live-command.ts",
         "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts",
         "app/marching-formations.ts",
         "app/person-order-start.ts",
         "app/person-order-update.ts",
@@ -64,8 +66,14 @@
         "app/person-routes.ts",
         "app/route-advance.ts"
       ],
-      "researchPaths": ["scripts/check-native-computer-attack.py", "scripts/probe-native-firewarrior.py"],
-      "sharedPaths": ["app/model.ts", "app/scene.ts", "app/native-terrain.ts"],
+      "researchPaths": [
+        "scripts/browser-game.mjs",
+        "scripts/check-browser-ground-waypoints.mjs",
+        "scripts/check-native-computer-attack.py",
+        "scripts/probe-native-firewarrior.py",
+        "tests/game.test.mjs"
+      ],
+      "sharedPaths": ["app/model.ts", "app/scene.ts", "app/native-terrain.ts", "app/tooltips.ts"],
       "entrySymbols": [
         { "path": "app/live-command.ts", "symbol": "command" },
         { "path": "app/live-command.ts", "symbol": "findPath" },
@@ -90,6 +98,7 @@
         { "path": "decomp/README.md", "heading": "Shared person commands" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
         { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
+        { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
@@ -101,7 +110,7 @@
           "heading": "Native marching integration and collision snapshots"
         }
       ],
-      "nativeAddresses": ["0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
+      "nativeAddresses": ["0x463370", "0x463780", "0x463e80", "0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
       "checkIds": [
         "orders-portable",
         "orders-native",
@@ -117,7 +126,7 @@
       ],
       "unresolved": [
         "The live movement adapter handles only a bounded command subset.",
-        "Avoidance, general work/attack restoration, vehicles, specialist classes, and complete scheduler ownership remain open."
+        "Avoidance, general work/attack restoration, vehicle construction/combat, specialist classes, and complete scheduler ownership remain open."
       ]
     },
     {
@@ -295,6 +304,7 @@
         "app/computer.ts",
         "app/computer-runtime.ts",
         "app/live-building-combat.ts",
+        "app/level-five.ts",
         "app/level-four.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
@@ -303,6 +313,7 @@
         "app/person-worship.ts",
         "app/popscript.ts",
         "app/original-script-four.json",
+        "app/original-script-five.json",
         "app/reincarnation.ts",
         "app/vault.ts",
         "app/worship.ts"
@@ -310,14 +321,27 @@
       "researchPaths": [
         "decomp/generated/0040bce0.c",
         "decomp/generated/00430f30.c",
+        "decomp/generated/00463370.c",
+        "decomp/generated/00463780.c",
+        "decomp/generated/00463cb0.c",
+        "decomp/generated/00463e80.c",
+        "decomp/generated/00466be0.c",
+        "decomp/generated/00466d90.c",
+        "decomp/generated/00466e90.c",
+        "decomp/generated/004ef180.c",
+        "decomp/README.md",
+        "decomp/exports.json",
         "decomp/research/mission2-enemy-marker.md",
         "decomp/research/mission2-message-103.md",
         "decomp/research/mission4.md",
+        "decomp/research/mission5-boat.md",
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-messages.py",
-        "scripts/import-messages.py"
+        "scripts/import-level.py",
+        "scripts/import-messages.py",
+        "scripts/import-script.py"
       ],
       "sharedPaths": [
         "app/flyby.ts",
@@ -351,6 +375,7 @@
         { "path": "decomp/research/mission2-enemy-marker.md", "heading": "Mission 2 enemy-marker counterattack" },
         { "path": "decomp/research/mission2-message-103.md", "heading": "Mission 2 Tornado instruction" },
         { "path": "decomp/research/mission4.md", "heading": "Mission 4 data and objective" },
+        { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
@@ -440,6 +465,16 @@
     }
   ],
   "crossCutting": [
+    {
+      "path": "app/world-state.ts",
+      "subsystemIds": ["campaign", "movement-orders", "persistence"],
+      "checkIds": ["orders-portable", "orders-browser", "checkpoint-browser", "repository-check", "production-build"]
+    },
+    {
+      "path": "app/world-types.ts",
+      "subsystemIds": ["campaign", "movement-orders", "persistence", "selection"],
+      "checkIds": ["orders-portable", "orders-browser", "checkpoint-browser", "repository-check", "production-build"]
+    },
     {
       "path": "app/world-initialization.ts",
       "subsystemIds": ["construction-resources", "terrain-performance", "campaign", "persistence"],

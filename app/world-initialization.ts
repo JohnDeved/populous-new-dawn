@@ -37,6 +37,26 @@ export function createWorld(missionNumber = 1): World {
         unitKindFromModel(o.model),
         o
       )
+    if (o.type === 4) {
+      const point = nativePosition(w, o)
+      w.vehicles.push({
+        ...point,
+        id: w.nextId++,
+        class: 4,
+        model: o.model,
+        team: o.owner === 0 ? 'blue' : 'red',
+        physics: 1,
+        speed: -1,
+        navigationFlags: 0,
+        passengerCount: 0,
+        passengers: [],
+        reservation: 0,
+        turnAngle: point.x,
+        turnY: point.y,
+        heading: (o.angle / 2048) * Math.PI * 2,
+        active: false,
+      })
+    }
     if (o.type === 5 && o.model <= 6)
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
@@ -61,19 +81,23 @@ export function createWorld(missionNumber = 1): World {
         kind =
           settings[0] === 4
             ? 'vault'
+            : linked?.type === 4
+              ? 'boat'
             : linked?.type === 7 && linked.model === 24 && bridgeTarget
               ? 'bridgeEffect'
               : effectTarget
                 ? 'erosionEffect'
                 : rewardSpell?.id
+      // Mission 5's Angel head has a dedicated class-7 owner.
+      if (!kind && missionNumber === 5) continue
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
       const shrineReward =
         kind === 'vault'
           ? (rewardBuilding ?? rewardSpell?.id)
-          : kind === 'bridgeEffect' || kind === 'erosionEffect'
+          : kind === 'bridgeEffect' || kind === 'erosionEffect' || kind === 'boat'
             ? undefined
             : kind
-      if (kind !== 'bridgeEffect' && kind !== 'erosionEffect' && !shrineReward)
+      if (kind !== 'bridgeEffect' && kind !== 'erosionEffect' && kind !== 'boat' && !shrineReward)
         throw new Error(`Unbound shrine gift ${o.index}`)
       const worship = createWorship(settings)
       const vault =
@@ -97,14 +121,19 @@ export function createWorld(missionNumber = 1): World {
         reward: shrineReward,
         ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
         ...(kind === 'erosionEffect' ? { effectTarget } : {}),
+        ...(kind === 'boat'
+          ? { rewardVehicle: w.vehicles.find(v => v.model === linked!.model && !v.active)!.id }
+          : {}),
         name:
           kind === 'vault'
             ? 'Vault of Knowledge'
             : kind === 'bridgeEffect'
               ? 'Land raising stone head'
-              : kind === 'erosionEffect'
-                ? 'Erosion stone head'
-                : `${rewardSpell!.name} stone head`,
+            : kind === 'erosionEffect'
+              ? 'Erosion stone head'
+              : kind === 'boat'
+                ? 'Boat stone head'
+              : `${rewardSpell!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,

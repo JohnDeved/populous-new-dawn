@@ -163,6 +163,7 @@ import {
   makeShrines,
   animatePerson,
   updateUnitsFrame,
+  updateVehiclesFrame,
   updateBuildingsFrame,
   updateShrinesFrame,
   updateWaveShake,
@@ -305,6 +306,7 @@ export class GameScene {
   terrainMapVersion: number | null = null
   terrainShadows = new Uint8Array(16384)
   unitMeshes = new Map<number, THREE.Group>()
+  vehicleMeshes = new Map<number, THREE.Group>()
   buildingMeshes = new Map<number, THREE.Group>()
   hoveredObject: number | null = null
   pointerAck = { target: 0, until: 0 }
@@ -825,6 +827,7 @@ export class GameScene {
       this.updateView()
     }
     this.updateUnitsFrame()
+    updateVehiclesFrame(this)
     this.renderTooltip()
     this.updateBuildingsFrame()
     this.updateEffectsFrame()

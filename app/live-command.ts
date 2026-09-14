@@ -18,6 +18,7 @@ import { cancelLiveResting } from './live-resting.ts'
 import {
   acceptsPersonOrder,
   allocatePersonOrder,
+  attachPersonOrder,
   currentPersonOrder,
   emptyPersonOrder,
   playerOrderInput,
@@ -27,6 +28,7 @@ import {
   appendLiveOrders,
   cancelLiveOrder,
   movementOrder,
+  orderEffects,
   startLiveConstructionOrder,
   startLiveOrder,
 } from './live-movement.ts'
@@ -45,6 +47,7 @@ import { worshipApproach } from './worship.ts'
 import { canShamanCast, spellInRange, beginCast } from './spell-casting.ts'
 import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import { randomPersonSpeed } from './person-state.ts'
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
@@ -60,7 +63,15 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
   const pointedBuilding = w.buildings.find(b => b.id === point.id && b.hp > 0)
   const pointedHead = w.shrines.find(h => h.id === point.id && h.active)
   const pointedTree = w.trees.find(t => t.id === point.id && t.logs > 0)
-  if (point.id !== undefined && !pointedPerson && !pointedBuilding && !pointedHead && !pointedTree)
+  const pointedVehicle = w.vehicles.find(v => v.id === point.id && v.active)
+  if (
+    point.id !== undefined &&
+    !pointedPerson &&
+    !pointedBuilding &&
+    !pointedHead &&
+    !pointedTree &&
+    !pointedVehicle
+  )
     return null
   const building =
     pointedBuilding ??
@@ -111,17 +122,18 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
   }
   if (shrine) flags |= shrine.kind === 'vault' ? Context.Building | Context.Vault : Context.Head
   if (pointedTree) flags |= Context.Tree
+  if (pointedVehicle) flags |= Context.Vehicle
   if (enemy) flags |= Context.Enemy
   if (nearby) flags |= Context.NearbyEnemy
   if (pointedPerson?.kind === 'shaman' && !pointedPerson.ghost && pointedPerson.team === team)
     flags |= Context.OwnShaman
   const people = selected.reduce((mask, u) => mask | (1 << nativePersonModel(u)), 0)
   const model = chooseContextCommand(flags, people)
-  // Tree/vehicle/forced/manual choices, ghost-only selection and contested-building
+  // Forced/manual choices, ghost-only selection and contested-building
   // classification require their native lifecycle owners; no invented actions here.
-  // Ordinary live people have no transport owner yet. Never infer it from being
-  // inside a building: native +0x9f and flags4 & 0x800 are transport and ghost data.
-  const tribeFlags = w.castingTribes[team === 'red' ? 1 : 0].flags & ~64
+  const tribeFlags =
+    (w.castingTribes[team === 'red' ? 1 : 0].flags & ~64) |
+    (w.vehicles.some(v => v.active && v.team === team) ? 64 : 0)
   const enabled =
     model !== 3 ||
     moveCommandAllowed(
@@ -130,7 +142,15 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
       nativePosition(w, point),
       tribeFlags
     )
-  return { model, enabled, building, shrine, tree: pointedTree, person: enemy ?? nearby }
+  return {
+    model,
+    enabled,
+    building,
+    shrine,
+    tree: pointedTree,
+    person: enemy ?? nearby,
+    vehicle: pointedVehicle,
+  }
 }
 
 export function walkable(terrain: number[], p: Point) {
@@ -337,6 +357,68 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
+  if (model === 3) {
+    const vehicles = new Set(
+      w.units
+        .filter(u => w.selected.includes(u.id) && u.native?.vehicle)
+        .map(u => u.native!.vehicle)
+    )
+    if (vehicles.size) {
+      const to = nativePosition(w, p)
+      let count = 0
+      for (const id of vehicles) {
+        const vehicle = w.vehicles.find(v => v.id === id && v.active),
+          driver = vehicle && w.units.find(u => u.id === vehicle.passengers[0]),
+          person = driver?.native
+        if (!vehicle || !driver || !person) continue
+        cancelLiveOrder(w, driver)
+        const order = allocatePersonOrder(w.buildingOrders)
+        if (!order) continue
+        Object.assign(w.buildingOrders.records[order], { model: 3, a: to.x & 65535, b: to.y & 65535 })
+        attachPersonOrder(w.buildingOrders, person, order, 0, orderEffects(w))
+        const path = planLivePath(w, driver, p, person, false, true)
+        if (!path) {
+          cancelLiveOrder(w, driver)
+          continue
+        }
+        path.commandStatus = 3
+        path.state = 10
+        acceptLivePath(w, driver, path)
+        count++
+      }
+      tell(w, count ? 'The Boat is on the move.' : 'The Boat cannot reach that point.')
+      return true
+    }
+  }
+  if (model === 22 && context.vehicle) {
+    const point = browserPosition(context.vehicle),
+      units = w.units.filter(
+        u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), 22)
+      ),
+      order = allocatePersonOrder(w.buildingOrders)
+    if (order)
+      Object.assign(w.buildingOrders.records[order], {
+        model: 22,
+        a: context.vehicle.id,
+        b: 0,
+      })
+    let count = 0
+    for (const u of units) {
+      if (!order) continue
+      release(w, u)
+      const path = planLivePath(w, u, point, undefined, false, true)
+      if (!path) continue
+      u.native = path
+      attachPersonOrder(w.buildingOrders, path, order, 0, orderEffects(w))
+      path.commandStatus = 3
+      path.state = 10
+      path.speed = randomPersonSpeed(w, path)
+      acceptLivePath(w, u, path)
+      count++
+    }
+    tell(w, count ? 'Followers are boarding the Boat.' : 'No land route to the Boat.')
+    return true
+  }
   const queuedBuilding =
     [6, 8, 10].includes(model) &&
     context.building &&
