@@ -122,6 +122,7 @@
       "title": "Construction and resources",
       "mappingStatus": "reviewed",
       "implementationPaths": [
+        "app/construction-runtime.ts",
         "app/building-preparation.ts",
         "app/building-work.ts",
         "app/building-workers.ts",

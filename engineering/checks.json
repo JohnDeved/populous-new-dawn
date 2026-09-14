@@ -728,6 +728,7 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "app/construction-runtime.ts",
         "app/building-workers.ts",
         "app/building-work.ts",
         "app/building-preparation.ts",
@@ -868,6 +869,7 @@
       "inputs": [
         "scripts/check-browser-construction.mjs",
         "scripts/browser-game.mjs",
+        "app/construction-runtime.ts",
         "app/model.ts",
         "app/scene.ts"
       ],

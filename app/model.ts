@@ -13,7 +13,7 @@ import {
   addBuilding,
   buildingPlanPose,
   rotateBuildingPlan,
-  checkBuildingSite,
+  prepareBuildingSite,
 } from './construction-runtime.ts'
 export {
   footprint,
@@ -241,14 +241,7 @@ import {
 import { relocateFight } from './melee-placement.ts'
 import { chooseMeleeAttack, meleeDuration, type MeleeAttack } from './melee.ts'
 import { stepPersonFireTrail } from './person-panic.ts'
-import {
-  pruneBuilders,
-  stepConstructionCrew,
-  stepUnbuiltPlan,
-  type UnbuiltPlan,
-  BuilderTask,
-  type Builder,
-} from './building-workers.ts'
+import { BuilderTask } from './building-workers.ts'
 import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from './building-work.ts'
 import { stepBuildingFetch } from './building-fetch.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
@@ -410,7 +403,6 @@ import {
   buildingGradeVertices,
   buildingPlanHeight,
   levelBuildingGround,
-  chooseBuildingObject,
   buildingSmokePoint,
   buildingRepairArea,
 } from './building-shapes.ts'
@@ -629,71 +621,6 @@ function completeBuildingConstruction(w: World, b: Building) {
   b.upgrading = false
   if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   tell(w, `${BUILDINGS.find(s => s.id === b.kind)!.name} completed.`)
-}
-
-// Native plan decisions run before their registered workers. Resource/object
-// ownership and ordinary movement still use the live world adapters.
-function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
-  const plan = b.preparation!,
-    pose = buildingPose(b),
-    cells = new Set(buildingFootprintCells(pose)),
-    cell = (p: Point) => {
-      const n = nativePosition(w, p)
-      return ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
-    },
-    onSite = (p: Point) => cells.has(cell(p)),
-    crew = workers.map(
-      u => (u.builder ??= { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true })
-    )
-  plan.counter = b.counter
-  const action = stepUnbuiltPlan(
-    plan,
-    crew,
-    () => checkBuildingSite(w, pose, plan.model, b.team, b.id).valid,
-    () => {
-      const people = w.units.filter(u => u.hp > 0 && u.inside === null && onSite(u)),
-        scenery = w.trees.filter(t => t.logs > 0 && onSite(t))
-      return {
-        timber: plan.work < rules.buildingPreparationWork[plan.model],
-        grade: buildingGradeVertices(pose).some(
-          v => Math.abs(w.land.heights[v.index] - plan.height) > 1
-        ),
-        scenery: scenery.length,
-        friendly: people.filter(u => u.team === b.team && u.work !== b.id).length,
-        enemies: people.filter(u => u.team !== b.team).length,
-        vehicles: 0,
-        crew: people.filter(u => u.team === b.team && u.work === b.id).length,
-        wooden: scenery.some(t => !!(rules.sceneryResourceFlags[t.model] & 16)),
-      }
-    }
-  )
-  if (action === 'remove') {
-    workers.forEach(u => {
-      if (!finishQueuedConstruction(w, u)) release(w, u)
-    })
-    invalidateBuildingTimberSearch(w, b)
-    w.buildings = w.buildings.filter(other => other !== b)
-    return
-  }
-  if (action === 'allocate') {
-    b.object = chooseBuildingObject(plan.model, b.team === 'blue' ? 0 : 1, w)
-    b.progress = plan.work / rules.buildingLife[plan.model]
-    b.preparation = undefined
-    Object.assign(b, browserPosition(buildingPosition(buildingPose(b))))
-    // Workers already graded the site. Allocation performs only the original
-    // model foundation pass, without the legacy immediate-plan preparation.
-    groundBuilding(w, b, false)
-    for (const u of workers) if (u.builder?.person) u.builder.person.assignment |= 16
-    return
-  }
-  for (const u of workers) {
-    const task = u.builder!
-    if (task.task === 5 || task.task === 6) {
-      // 0x495520 returns task 2 immediately for these two preparation requests.
-      task.task = BuilderTask.Work
-      task.restart = true
-    }
-  }
 }
 
 function processBuilderWork(w: World, u: Unit, b: Building) {
