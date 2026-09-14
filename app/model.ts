@@ -122,6 +122,7 @@ export { releaseTasks } from './world-tasks.ts'
 import {
   sound,
   effect,
+  createGift,
   shotVisual,
   moveVisual,
   emitGroundSpark,
@@ -132,7 +133,7 @@ import {
   registerTerrainLight,
   refreshTerrainLights,
 } from './world-effects.ts'
-export { sound, effect, emitGroundSpark } from './world-effects.ts'
+export { sound, effect, createGift, emitGroundSpark } from './world-effects.ts'
 import { buildingObject, buildingPose } from './building-shapes.ts'
 export { buildingObject, buildingPose } from './building-shapes.ts'
 import {
@@ -232,7 +233,6 @@ import type {
   Tree,
   SoundEvent,
   Effect,
-  Gift,
   World,
 } from './world-types.ts'
 export type {
@@ -684,22 +684,6 @@ export function requestTutorial(w: World, flags: number, message: number) {
   // 0x499f40 mode 9: a single transient tooltip, not tutorial history.
   if (flags === 0x200000 && message === 603)
     w.routeNotice = { flags, message, serial: (w.routeNotice?.serial ?? 0) + 1 }
-}
-export function createGift(w: World, reward: Gift['reward'], p: Point) {
-  const gift = effect(w, 'gift', p) as Gift
-  Object.assign(gift, {
-    reward,
-    remaining: 82,
-    phase: 6,
-    frame:
-      reward === 'camp' || reward === 'temple' || reward === 'vault'
-        ? 1077
-        : 1056 + SPELLS.find(spell => spell.id === reward)!.model,
-    height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
-    duration: Infinity,
-  })
-  w.gifts.push(gift)
-  return gift
 }
 export { buildingModel } from './building-shapes.ts'
 

@@ -6,11 +6,12 @@ import {
   type Tree,
   type SoundEvent,
   type Effect,
+  type Gift,
 } from './world-types.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import modelAssets from './original-models.json' with { type: 'json' }
-import { TURNS_PER_SECOND } from './world-rules.ts'
+import { SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
@@ -125,6 +126,22 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
   w.effects.push(f)
   if (kind === 'blast') registerTerrainLight(w, f, 4)
   return f
+}
+export function createGift(w: World, reward: Gift['reward'], p: Point) {
+  const gift = effect(w, 'gift', p) as Gift
+  Object.assign(gift, {
+    reward,
+    remaining: 82,
+    phase: 6,
+    frame:
+      reward === 'camp' || reward === 'temple' || reward === 'vault'
+        ? 1077
+        : 1056 + SPELLS.find(spell => spell.id === reward)!.model,
+    height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
+    duration: Infinity,
+  })
+  w.gifts.push(gift)
+  return gift
 }
 export function shotVisual(w: World, p: NativePoint, team: Team, sequence: string, frame = 0) {
   const fx = effect(w, 'trail', browserPosition(p))
