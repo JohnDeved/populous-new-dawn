@@ -462,6 +462,7 @@ import { markBuildingTerritory, type Territory } from './territory.ts'
 import {
   processTribes,
   processOutcome,
+  stepOutcome,
   type TribeTurnState,
   type OutcomeWorld,
 } from './tribe-turns.ts'
@@ -628,69 +629,6 @@ function processVaultTask(w: World, u: Unit) {
     head.morph = null
   }
   return Number(done)
-}
-
-function stepOutcome(w: World) {
-  if (w.manaWorld.loadFlags & 0x200 || w.manaWorld.gameFlags & 32) return
-  // ponytail: registered native person lists/counts await the shared object
-  // rebuild. Opening classes retain browser followers through live death states.
-  const tribes = w.manaTribes.map((t, id) => {
-    const team = id === 0 ? 'blue' : id === 1 ? 'red' : null
-    const people = w.units
-      .filter(u => u.team === team)
-      .map(unit => ({
-        unit,
-        model: nativePersonModel(unit),
-        state: unit.native?.state ?? 0,
-        previousState: unit.native?.previousState ?? 0,
-        flags2: unit.native?.flags2 ?? (unit.inside === null ? 0 : 0x800000),
-        flags3: unit.native?.flags3 ?? 0,
-        hp: Math.round(unit.hp * 20),
-      }))
-    return { ...t, flags: w.castingTribes[id].flags, population: people.length, people }
-  })
-  const context = {
-    ...w.outcome,
-    turn: w.turn,
-    landFlags: w.land.landFlags,
-    playerTribe: w.manaWorld.playerTribe,
-  }
-  processOutcome(context, tribes, {
-    camera: id => {
-      w.outcome.cameraTribe = id
-      w.outcome.cameraRequest++
-    },
-    completeLevel: index => {
-      w.outcome.completedLevel = index
-    },
-    cancelInput: () => {
-      w.selected = []
-      w.mode = null
-    },
-    reveal: () => {
-      for (let i = 0; i < w.land.flags.length; i++) w.land.flags[i] |= 8
-    },
-    releasePerson: p => {
-      const person = p.unit.native ?? createLivePerson(w, p.unit)
-      // Celebration owns its native occupant exit after dropping carried logs.
-      releaseTasks(w, p.unit)
-      p.unit.native = person
-    },
-    damage: (p, amount) => {
-      p.unit.hp -= amount / 20
-    },
-    // Persistent campaign saves and network result delivery remain unported.
-    defeat: id => cleanupDefeatedTribe(w, id),
-    initPerson: p => initializeLiveCelebration(w, p.unit),
-    networkResult: () => {},
-  })
-  w.land.landFlags = context.landFlags
-  w.outcome.progressFlags = context.progressFlags
-  w.outcome.lastDefeated = context.lastDefeated
-  tribes.forEach((t, id) => {
-    w.manaTribes[id].defeatTimer = t.defeatTimer
-    w.manaTribes[id].flags2 = t.flags2
-  })
 }
 
 export interface TurnObserver {
