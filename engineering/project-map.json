@@ -426,6 +426,11 @@
   ],
   "crossCutting": [
     {
+      "path": "app/world-initialization.ts",
+      "subsystemIds": ["construction-resources", "terrain-performance", "campaign", "persistence"],
+      "checkIds": ["checkpoint-browser", "repository-check", "production-build"]
+    },
+    {
       "path": "app/model.ts",
       "subsystemIds": [
         "selection",
