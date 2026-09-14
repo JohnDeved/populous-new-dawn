@@ -13,6 +13,7 @@ import {reincarnationStoneRise,reincarnationTurns,stepReincarnation} from '../ap
 import {AUDIO_CUES} from '../app/audio.ts';
 import {buildingGradeVertices,buildingPosition} from '../app/building-shapes.ts';
 import {browserPosition} from '../app/model.ts';
+import {messageText,messageViewPoint} from '../app/messages.ts';
 import originalScript from '../app/original-script.json' with {type:'json'};
 import {createTooltip,forcedTooltipObject,showObjectTooltip,stepTooltip} from '../app/tooltips.ts';
 import {modelMatrix,modelPoint} from '../app/projection.ts';
@@ -1224,6 +1225,18 @@ test('mission-one victory continuation creates and restarts the recovered missio
  const first=world;store.restart();assert.notEqual(store.getWorld(),first);assert.equal(store.getWorld().outcome.level,2);
  const oldMissionTwo=structuredClone(createWorld(2));delete oldMissionTwo.ai.coordinateLatch;oldMissionTwo.tribeCount=2;Object.assign(oldMissionTwo.manaTribes[1],{id:1,spellOwner:1,active:true,mana:12345,pending:321,defeatTimer:17});Object.assign(oldMissionTwo.manaTribes[3],{id:3,spellOwner:3,active:false,mana:0,pending:0,defeatTimer:0});Object.assign(oldMissionTwo.castingTribes[1],{cooldown:9,aiCooldown:11});oldMissionTwo.castingTribes[3].cooldown=oldMissionTwo.castingTribes[3].aiCooldown=0;oldMissionTwo.manaWorld.spells[1].stocks[2]=3;oldMissionTwo.manaWorld.spells[3].stocks[2]=0;oldMissionTwo.spellCasts[1][2]=5;oldMissionTwo.spellCasts[3][2]=0;oldMissionTwo.killCredits[0][1]=7;oldMissionTwo.killCredits[1][0]=8;oldMissionTwo.killCredits[0][3]=oldMissionTwo.killCredits[3][0]=0;oldMissionTwo.inputMask=0;oldMissionTwo.manaWorld.levelFlags&=~0x20000000;oldMissionTwo.ai.flags&=~0x20;for(const task of oldMissionTwo.ai.tasks)if(task.type===7)task.flags&=~3;oldMissionTwo.ai.pendingCommands.push({opcode:1069,args:[3,4]},{opcode:1097,args:[47,48,48]});migrateCheckpoint(oldMissionTwo);assert.equal(oldMissionTwo.tribeCount,4);assert.deepEqual(oldMissionTwo.manaTribes.map(t=>t.active),[true,false,false,true]);assert.deepEqual({mana:oldMissionTwo.manaTribes[3].mana,pending:oldMissionTwo.manaTribes[3].pending,defeat:oldMissionTwo.manaTribes[3].defeatTimer,cooldown:oldMissionTwo.castingTribes[3].cooldown,aiCooldown:oldMissionTwo.castingTribes[3].aiCooldown,stock:oldMissionTwo.manaWorld.spells[3].stocks[2],casts:oldMissionTwo.spellCasts[3][2],blueKills:oldMissionTwo.killCredits[0][3],enemyKills:oldMissionTwo.killCredits[3][0]},{mana:12345,pending:321,defeat:17,cooldown:9,aiCooldown:11,stock:3,casts:5,blueKills:7,enemyKills:8});assert.equal(oldMissionTwo.manaTribes[1].defeatTimer,17);assert.equal(oldMissionTwo.ai.coordinateLatch,0x8232);assert.equal(oldMissionTwo.inputMask,0);assert.ok(oldMissionTwo.ai.tasks.some(t=>t.flags&1&&t.type===7));tick(oldMissionTwo,1/12);
  const legacy=structuredClone(createWorld());delete legacy.outcome.level;delete legacy.shrines[0].reward;migrateCheckpoint(legacy);assert.equal(legacy.outcome.level,1);assert.equal(legacy.shrines[0].reward,'camp');
+});
+
+test('mission-two bridge route reaches the positioned Tornado guidance message',()=>{
+ const world=createWorld(2);until(world,()=>world.turn>=122,20);
+ const bridge=world.shrines.find(s=>s.kind==='bridgeEffect'),tornado=world.shrines.find(s=>s.kind==='tornado');
+ select(world,'shaman');assert.ok(command(world,bridge));until(world,()=>bridge.uses===1,60);
+ until(world,()=>!world.effects.some(effect=>effect.kind==='bridge'),10);
+ select(world,'shaman');assert.ok(command(world,tornado));until(world,()=>world.messages.slots.some(message=>message?.stringId===644),60);
+ const message=world.messages.slots[world.lastMessage];
+ assert.equal(messageText(message.stringId),'Shaman, this Stone Head will aid you faster if you command two of your Followers to worship there.');
+ assert.deepEqual(message.view,{cell:0x60cc,payload:308});assert.deepEqual(messageViewPoint(message),{x:-59,z:-105});
+ assert.equal(message.lifetime,3000);assert.equal(message.flags,0x36f1);
 });
 
 test('game store checkpoints restore an isolated exact world snapshot', async () => {

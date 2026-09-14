@@ -22,7 +22,7 @@ lang=(source/'language/lang00.dat').read_bytes()
 assert len(lang)%2==0 and lang.endswith(b'\0\0')
 strings=lang.decode('utf-16le').split('\0')[:-1]
 messages={}
-for script_name,opcode in [('original-script.json',1176),('original-script-two.json',1174)]:
+for script_name,opcode in [('original-script.json',1176),('original-script-two.json',1174),('original-script-two.json',1177)]:
     script=json.loads((ROOT/'app'/script_name).read_text());codes=script['codes']
     for i in range(len(codes)-2):
         if codes[i:i+2]!=[1006,opcode]:continue

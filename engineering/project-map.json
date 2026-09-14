@@ -326,6 +326,7 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
         { "path": "decomp/research/campaign-progression.md", "heading": "Campaign progression snapshot" },
+        { "path": "decomp/research/mission2-positioned-message.md", "heading": "Mission 2 positioned message" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"

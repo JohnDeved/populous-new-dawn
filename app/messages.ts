@@ -1,4 +1,5 @@
 import native from './original-messages.json' with { type: 'json' }
+import { browserPosition } from './world-coordinates.ts'
 
 export type CampaignMessage = {
   age: number
@@ -9,6 +10,7 @@ export type CampaignMessage = {
   height: number
   speed: number
   lifetime: number
+  view?: { cell: number; payload: number }
 }
 export type MessageState = { slots: (CampaignMessage | null)[]; nextSerial: number }
 export const createMessages = (): MessageState => ({ slots: Array(32).fill(null), nextSerial: 0 })
@@ -16,6 +18,13 @@ export const messageText = (stringId: number) =>
   Object.values(native.messages).find(m => m.stringId === stringId)?.text ?? ''
 export const messageIcon = (message: CampaignMessage) =>
   message.flags & 1 ? '/original/message.png' : '/original/message-type1.png'
+export const messageViewPoint = (message: CampaignMessage) =>
+  message.view
+    ? browserPosition({
+        x: (((message.view.cell & 254) + 1) << 8) & 65535,
+        y: (((message.view.cell >> 8) & 254) + 1) << 8,
+      })
+    : null
 export function messageStringId(number: number) {
   const message = (native.messages as Record<number, { stringId: number }>)[number]
   if (!message) throw new RangeError(`Unimported campaign message ${number}`)
@@ -72,6 +81,10 @@ export function addMessage(
 // 0x431a80 / 0x431c40, type 3. The native list is oldest-first, with slot
 // order breaking equal-age ties; each presentation visit accelerates downward.
 export function stepMessages(state: MessageState, rebound = () => {}) {
+  for (let slot = 0; slot < state.slots.length; slot++) {
+    const message = state.slots[slot]
+    if (message && message.lifetime > 0 && --message.lifetime === 0) state.slots[slot] = null
+  }
   const messages = state.slots
     .map((message, slot) => ({ message, slot }))
     .filter((entry): entry is { message: CampaignMessage; slot: number } => !!entry.message)

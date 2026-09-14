@@ -43,7 +43,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | --- | --- | --- |
 | `0044d7f0`, `004f0f90`, `0044db60`, `0044b100` | `app/tooltips.ts`, `app/scene.ts` | Forced object tooltip names and lifetime CPU-compared; first-mission cell adapter is approximate; hover and modes 3–10 unported |
 | `0044a2f0`, `004a24c0`, `004a1f50`, `00415f70`, `00516a00` | `scripts/import-messages.py`, `app/scene.ts`, `app/globals.css` | Color operands, indexed conversion, opaque rectangle vertices and native border artwork recovered; ordinary English bitmap text/layout now compared below; projection and other blend states pending |
-| `0048eae0`, `00430bd0`, `00430e40`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and discovery/settlement/vault tutorial branches CPU-compared; full notification UI/scheduler pending |
+| `0048eae0`, `00430bd0`, `00430e40`, `00430e60`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and positioned Mission 2 guidance CPU-compared; remaining notification classes pending |
 | `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
 | `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows and per-layer sprite selection; full state ownership remains open |
 | `00586074`, `004e6a70` | `scripts/inspect-executable.py`, `app/model.ts` | Integer angle/sine tables and movement; route selection still browser A* |
@@ -136,8 +136,10 @@ The original header hash is verified before these comparisons.
 The browser also executes the bounded Mission 2 opening through its first recurring
 block. Native tribe-3 scheduling, tower staffing task 7, the ordinary two-marker
 warrior patrol, and the type-1 input-release notification are documented in the
-[Mission 2 startup note](research/mission2-startup-commands.md). This does not claim
-the remainder of Mission 2 or the unavailable localized message text.
+[Mission 2 startup note](research/mission2-startup-commands.md). The subsequent
+positioned Tornado-head guidance is documented in the
+[Mission 2 positioned-message note](research/mission2-positioned-message.md). This
+does not claim the remainder of Mission 2.
 
 ## Campaign counter comparison
 

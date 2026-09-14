@@ -26,7 +26,14 @@ import {
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
-import { messageHeight, messageIcon, messageText, messageTop, removeMessage } from './messages'
+import {
+  messageHeight,
+  messageIcon,
+  messageText,
+  messageTop,
+  messageViewPoint,
+  removeMessage,
+} from './messages'
 import {
   HudSprite,
   FollowerNumber,
@@ -400,6 +407,11 @@ export default function Home() {
             <details
               key={message!.serial}
               open={message!.flags & 0x20000 ? true : undefined}
+              onToggle={event => {
+                const target = messageViewPoint(message!)
+                if (event.currentTarget.open && target)
+                  engine.current?.focus(target, { animate: true })
+              }}
               data-lower={messageTop(message!) > 240 || undefined}
               style={
                 {

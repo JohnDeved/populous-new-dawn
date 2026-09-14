@@ -4,16 +4,19 @@ import { openGame } from './browser-game.mjs'
 
 const missionTwoMessage =
   'Now we must face the Matak Tribe. I sense many Warriors ready to stand against us. In my vision we are aided by magic from a Stone Head. There must be a way to reach it...'
+const tornadoGuidance =
+  'Shaman, this Stone Head will aid you faster if you command two of your Followers to worship there.'
 
 async function assertMissionTwoMessage(page) {
-  await page.getByText(missionTwoMessage, { exact: true }).waitFor()
-  const icon = page.locator('.campaign-messages summary img')
+  const details = page.locator('.campaign-messages details').filter({ hasText: missionTwoMessage })
+  await details.getByText(missionTwoMessage, { exact: true }).waitFor()
+  const icon = details.locator('summary img')
   assert.equal(await icon.getAttribute('src'), '/original/message-type1.png')
   assert.deepEqual(await icon.evaluate(node => {
     const { width, height } = node.getBoundingClientRect()
     return { width, height }
   }), { width: 50, height: 36 })
-  const popup = await page.locator('.campaign-messages details>div').evaluate(node => {
+  const popup = await details.locator('div').evaluate(node => {
     const { top, bottom, height } = node.getBoundingClientRect()
     return { top, bottom, height, viewport: innerHeight }
   })
@@ -89,6 +92,46 @@ try {
   })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
   await assertMissionTwoMessage(page)
+  const guidance = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { command, select, tick } = await import('/app/model.ts'),
+      bridge = world.shrines.find(shrine => shrine.kind === 'bridgeEffect'),
+      tornado = world.shrines.find(shrine => shrine.kind === 'tornado')
+    const until = (ready, limit) => {
+      for (let i = 0; i < limit && !ready(); i++) tick(world, 1 / 12)
+      if (!ready()) throw new Error(`Mission 2 route timed out at turn ${world.turn}`)
+    }
+    select(world, 'shaman')
+    if (!command(world, bridge)) throw new Error('Land-raising worship command failed')
+    until(() => bridge.uses === 1, 10000)
+    until(() => !world.effects.some(effect => effect.kind === 'bridge'), 5000)
+    select(world, 'shaman')
+    if (!command(world, tornado)) throw new Error('Tornado worship command failed')
+    until(() => world.messages.slots.some(message => message?.stringId === 644), 10000)
+    world.speed = 0
+    globalThis.testStore.update()
+    const message = world.messages.slots.find(message => message?.stringId === 644)
+    return { turn: world.turn, flags: message.flags, lifetime: message.lifetime, view: message.view }
+  })
+  const { turn: guidanceTurn, ...guidanceState } = guidance
+  assert.ok(guidanceTurn > 700)
+  assert.deepEqual(guidanceState, {
+    flags: 0x36f1,
+    lifetime: 3000,
+    view: { cell: 0x60cc, payload: 308 },
+  })
+  const positioned = page.locator('.campaign-messages details').filter({ hasText: tornadoGuidance })
+  assert.equal(await positioned.locator('summary img').getAttribute('src'), '/original/message.png')
+  await page.waitForFunction(() => !(globalThis.testScene.world.inputMask & 64))
+  await positioned.locator('summary').click()
+  await page.getByText(tornadoGuidance, { exact: true }).waitFor()
+  assert.deepEqual(
+    await page.evaluate(() => {
+      const { target } = globalThis.testScene.cameraMotion
+      return { x: target.x, y: target.y }
+    }),
+    { x: 0xcd00, y: 0x6100 }
+  )
   await page.evaluate(async () => {
     const scene = globalThis.testScene
     scene.world.speed = 0
@@ -102,7 +145,7 @@ try {
     const { world } = globalThis.testScene,
       [building] = world.buildings,
       [unit] = world.units
-    world.turn = 321
+    world.turn += 10
     world.land.heights[0] = 17
     unit.hp = 23
     building.burn = { remaining: 127, soundPlaying: true }
@@ -154,6 +197,7 @@ try {
     soundSerial: globalThis.testScene.world.soundSerial,
     soundCursor: globalThis.testScene.soundSerial,
     soundPlaying: globalThis.testScene.world.buildings[0].burn.soundPlaying,
+    guidance: globalThis.testScene.world.messages.slots.find(message => message?.stringId === 644)?.view,
   }))
   assert.deepEqual(restored, {
     level: 2,
@@ -164,6 +208,7 @@ try {
     soundSerial: restored.soundSerial,
     soundCursor: restored.soundSerial,
     soundPlaying: false,
+    guidance: { cell: 0x60cc, payload: 308 },
   })
   assert.ok(restored.soundSerial)
   await assertMissionTwoMessage(page)

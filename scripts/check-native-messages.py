@@ -37,7 +37,12 @@ def snapshot():
     result=[]
     for i in range(32):
         p=base+i*45
-        result.append(None if read(p+32,'<B')==0 else dict(age=read(p,'<i'),position=read(p+4,'<i'),serial=read(p+28,'<H'),stringId=read(p+18,'<H'),flags=read(p+33,'<I'),height=read(p+8,'<i'),speed=read(p+12,'<i'),lifetime=read(p+16,'<h')))
+        if read(p+32,'<B')==0:
+            result.append(None);continue
+        flags=read(p+33,'<I')
+        message=dict(age=read(p,'<i'),position=read(p+4,'<i'),serial=read(p+28,'<H'),stringId=read(p+18,'<H'),flags=flags,height=read(p+8,'<i'),speed=read(p+12,'<i'),lifetime=read(p+16,'<h'))
+        if flags&0x20:message['view']=dict(cell=read(p+20,'<H'),payload=read(p+22,'<H'))
+        result.append(message)
     return dict(slots=result,nextSerial=read(0x6841e8,'<H'))
 
 native=json.loads((root/'app/original-messages.json').read_text());source=Path(sys.argv[1]).parent
@@ -101,6 +106,22 @@ const slot=addMessage(c.state,messageStringId(102),()=>rng=audioRandom(rng),480,
 console.log(JSON.stringify({state:c.state,randomState:rng,slot,sounds:[0xe3]}));""",dict(state=dict(slots=slots,nextSerial=7),seed=seed))
 assert expected==actual,(expected,actual)
 print('PASS: native full-pool eviction precedes type-1 cap replacement')
+
+# Mission 2 opcode 1177: original field resolution, allocation, positioned-message
+# setter and flags execute; only sound dispatch is intercepted.
+seed=0x12345678;reset(seed);write(0x89c6d1,'<I',480);write(0x89c6f0,'<b',0);write(0x89c66c,'<I',0)
+write(0x89d1ec,'<HH',0x1234,0xabcd);write(0x89d1fa,'<H',0x555)
+code,fields=program+0x4000,program+0x5000;write(program+0x3100,'<I',fields);write(program+0x3104,'<I',code)
+write(code,'<HHHHH',1177,0,1,2,3)
+for i,value in enumerate((68,204,96,308)):write(fields+i*8,'<ii',0,value)
+sounds.clear();call(0x491040,tribe,program)
+expected=dict(state=snapshot(),randomState=read(0x89bc72,'<I'),slot=read(0x6841e7,'<b'),sounds=list(sounds))
+actual=browser("""import {createWorld,campaignCommand} from './app/model.ts';let s='';for await(const c of process.stdin)s+=c;
+const c=JSON.parse(s),w=createWorld(2);w.randomState=c.seed;
+campaignCommand(w,1177,[0,1,2,3],{fields:[[0,68],[0,204],[0,96],[0,308]]});
+console.log(JSON.stringify({state:w.messages,randomState:w.randomState,slot:w.lastMessage,sounds:w.sounds.map(s=>s.cue)}));""",dict(seed=seed))
+assert expected==actual,(expected,actual)
+print('PASS: native Mission 2 positioned message binding, target, payload, lifetime, flags and RNG')
 
 # Original oldest-first list rebuild and presentation motion. The browser retains
 # only type-3 slots, so pointer links are reconstructed from age and slot order.

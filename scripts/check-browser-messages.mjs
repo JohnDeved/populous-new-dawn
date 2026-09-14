@@ -61,8 +61,38 @@ try {
   await page.screenshot({ path: '/private/tmp/populous-messages.png' })
   await page.locator('.campaign-messages button').first().click()
   assert.equal(await page.locator('.campaign-messages details').count(), 2)
+  await page.evaluate(async () => {
+    const scene = window.testScene,
+      world = scene.world,
+      { campaignCommand } = await import('/app/model.ts')
+    world.messages.slots.fill(null)
+    campaignCommand(world, 1177, [0, 1, 2, 3], {
+      fields: [[0, 68], [0, 204], [0, 96], [0, 308]],
+    })
+    scene.onChange()
+  })
+  const positioned = page.locator('.campaign-messages details').filter({
+    hasText: 'Shaman, this Stone Head will aid you faster',
+  })
+  await positioned.locator('summary').click()
+  assert.deepEqual(
+    await page.evaluate(() => {
+      const { target } = window.testScene.cameraMotion
+      return { x: target.x, y: target.y }
+    }),
+    { x: 0xcd00, y: 0x6100 }
+  )
+  assert.equal(await page.evaluate(async () => {
+    const world = window.testScene.world,
+      message = world.messages.slots.find(message => message?.stringId === 644),
+      { stepMessages } = await import('/app/messages.ts')
+    const lifetime = message.lifetime
+    for (let i = 0; i < lifetime; i++) stepMessages(world.messages)
+    window.testScene.onChange()
+    return world.messages.slots.some(message => message?.stringId === 644)
+  }), false)
   assert.deepEqual(errors, [])
-  console.log('PASS: live campaign messages move, stack, scale, open and dismiss')
+  console.log('PASS: live campaign messages move, stack, focus, expire, scale, open and dismiss')
 } finally {
   await browser.close()
 }

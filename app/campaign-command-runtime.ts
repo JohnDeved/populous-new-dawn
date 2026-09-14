@@ -74,6 +74,7 @@ export function campaignCommand(
       1173: 2,
       1174: 1,
       1176: 1,
+      1177: 4,
       1113: 0,
       1180: 0,
       1187: 0,
@@ -328,6 +329,19 @@ export function campaignCommand(
   if (opcode === 1176) {
     w.lastMessage = addMessage(w.messages, messageStringId(read(args[0])), () => random(w))
     sound(w, 0xe3, campaignPosition(w, 'blue'))
+    return
+  }
+  if (opcode === 1177) {
+    const [number, x, y, payload] = args.map(read)
+    if (w.manaWorld.levelFlags & 0x1000000) return
+    w.lastMessage = addMessage(w.messages, messageStringId(number), () => random(w))
+    const message = w.messages.slots[w.lastMessage]
+    if (message) {
+      message.lifetime = 3000
+      message.view = { cell: ((y & 254) << 8) | (x & 254), payload: payload & 65535 }
+      message.flags |= 0x3620
+      sound(w, 0xe3, campaignPosition(w, 'blue'))
+    }
     return
   }
 

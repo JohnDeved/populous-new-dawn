@@ -461,6 +461,8 @@
         "scripts/browser-game.mjs",
         "app/messages.ts",
         "app/original-messages.json",
+        "app/campaign-command-runtime.ts",
+        "app/original-script-two.json",
         "app/page.tsx",
         "app/game-store.ts",
         "app/building-panels.ts",
@@ -481,6 +483,7 @@
       "coveredBehavior": [
         "Slot allocation and eviction",
         "Mission 2 type-1 descriptor and message-number binding",
+        "Mission 2 positioned-message binding, target, payload, lifetime and flags",
         "Age and slot ordering",
         "Normalized height, velocity, gravity, collisions, and rebound"
       ],
@@ -493,11 +496,16 @@
       "env": ["POPULOUS_EXE"],
       "inputs": [
         "scripts/check-native-messages.py",
+        "app/campaign-command-runtime.ts",
         "app/messages.ts",
         "app/original-messages.json",
+        "app/original-script-two.json",
         "public/original/message-type1.png",
+        "scripts/import-messages.py",
         "scripts/import-original.py",
         "scripts/decomp.py",
+        "decomp/generated/00430e60.c",
+        "decomp/generated/00491040.c",
         "decomp/requirements.txt",
         "decomp/tools.json"
       ],
@@ -517,6 +525,7 @@
       "coveredBehavior": [
         "24 Hz message motion and pause ownership",
         "Native 32x25 logical icon geometry at the uniformly scaled HUD edge",
+        "Positioned-message target focus and finite lifetime",
         "Accessible popup and dismissal"
       ],
       "knownLimits": [
@@ -530,8 +539,10 @@
         "scripts/check-browser-messages.mjs",
         "scripts/browser-game.mjs",
         "app/audio.ts",
+        "app/campaign-command-runtime.ts",
         "app/messages.ts",
         "app/original-messages.json",
+        "app/world-coordinates.ts",
         "app/game-clock.ts",
         "app/page.tsx",
         "app/globals.css",
