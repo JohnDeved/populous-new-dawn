@@ -50,11 +50,13 @@ export function createWorld(missionNumber = 1): World {
           reward?.[0] === 11 ? SPELLS.find(spell => spell.model === reward[1]) : undefined,
         rewardBuilding =
           reward?.[0] === 2
-            ? reward[1] === 7
-              ? 'camp'
-              : reward[1] === 5
-                ? 'temple'
-                : undefined
+            ? reward[1] === 4
+              ? 'tower'
+              : reward[1] === 7
+                ? 'camp'
+                : reward[1] === 5
+                  ? 'temple'
+                  : undefined
             : undefined,
         kind =
           settings[0] === 4
@@ -112,8 +114,23 @@ export function createWorld(missionNumber = 1): World {
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
     if (
       ![
-        1038, 1069, 1073, 1081, 1091, 1092, 1095, 1097, 1108, 1109, 1112, 1115, 1117, 1196,
-        1197, 1204,
+        1038,
+        1069,
+        1073,
+        1081,
+        1091,
+        1092,
+        1095,
+        1097,
+        1108,
+        1109,
+        1112,
+        1115,
+        1117,
+        1196,
+        1197,
+        1204,
+        ...(missionNumber === 4 ? [1174, 1187] : []),
       ].includes(c.opcode)
     )
       return true

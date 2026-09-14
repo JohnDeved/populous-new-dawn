@@ -285,19 +285,21 @@
     },
     {
       "id": "campaign",
-      "title": "Campaign VM and first-mission integration",
+      "title": "Campaign VM and mission integration",
       "mappingStatus": "reviewed",
       "implementationPaths": [
         "app/campaign-command-runtime.ts",
         "app/computer.ts",
         "app/computer-runtime.ts",
         "app/live-building-combat.ts",
+        "app/level-four.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
         "app/object-panels.ts",
         "app/person-worship.ts",
         "app/popscript.ts",
+        "app/original-script-four.json",
         "app/reincarnation.ts",
         "app/vault.ts",
         "app/worship.ts"
@@ -306,6 +308,8 @@
         "decomp/generated/0040bce0.c",
         "decomp/research/mission2-enemy-marker.md",
         "decomp/research/mission2-message-103.md",
+        "decomp/research/mission4.md",
+        "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-messages.py",
@@ -342,6 +346,7 @@
         { "path": "decomp/research/mission2-positioned-message.md", "heading": "Mission 2 positioned message" },
         { "path": "decomp/research/mission2-enemy-marker.md", "heading": "Mission 2 enemy-marker counterattack" },
         { "path": "decomp/research/mission2-message-103.md", "heading": "Mission 2 Tornado instruction" },
+        { "path": "decomp/research/mission4.md", "heading": "Mission 4 data and objective" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
@@ -361,6 +366,9 @@
       ],
       "nativeAddresses": [
         "0x40bce0",
+        "0x41ca10",
+        "0x41cb40",
+        "0x41cc20",
         "0x48c6b0",
         "0x48cc60",
         "0x48f350",
@@ -381,6 +389,7 @@
         "messages-native",
         "building-counterattack-native",
         "messages-browser",
+        "mission4-browser",
         "reincarnation-native",
         "reincarnation-browser",
         "vault-native",
@@ -395,6 +404,7 @@
       ],
       "unresolved": [
         "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
+        "Mission 4's larger recurring AI, tutorial, and flyby blocks remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]
@@ -414,7 +424,7 @@
         { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
       ],
       "nativeAddresses": [],
-      "checkIds": ["checkpoint-browser", "repository-check", "production-build"],
+      "checkIds": ["checkpoint-browser", "mission4-browser", "repository-check", "production-build"],
       "generatedInputIds": [],
       "risks": [
         "Asynchronous storage discovery must not start or advance a hidden fresh world before the player chooses."

@@ -57,7 +57,7 @@ export {
   ENEMY,
   markerHeight,
 } from './campaign-runtime.ts'
-import { campaignRules } from './campaign-command-runtime.ts'
+import { campaignRules, stepForcedCampaignAttack } from './campaign-command-runtime.ts'
 export { campaignCommand, removeHead } from './campaign-command-runtime.ts'
 import {
   computerSelectionWorld,
@@ -1009,10 +1009,15 @@ export function guardShaman(w: World) {
 export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
   if (w.paused || w.status !== 'playing') return false
   const spec = BUILDINGS.find(b => b.id === kind)
-  if (!spec || (kind === 'camp' && !w.unlockedCamp) || (kind === 'temple' && !w.unlockedTemple)) {
+  if (
+    !spec ||
+    (kind === 'camp' && !w.unlockedCamp) ||
+    (kind === 'tower' && !w.unlockedTower) ||
+    (kind === 'temple' && !w.unlockedTemple)
+  ) {
     tell(
       w,
-      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : 'Warrior Training Hut'} at the vault.`
+      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : 'Warrior Training Hut'} at the vault.`
     )
     return false
   }
@@ -1573,6 +1578,7 @@ function stepTurn(w: World) {
     )
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
+  stepForcedCampaignAttack(w)
   stepUnitShields(w)
   stepUnitInvisibility(w)
   stepUnitHypnotise(w)
@@ -1592,14 +1598,22 @@ function stepTurn(w: World) {
     if (--gift.remaining !== 0) continue
     gift.duration = gift.age
     effect(w, 'birth', gift)
-    if (gift.reward === 'camp' || gift.reward === 'temple' || gift.reward === 'vault') {
+    if (
+      gift.reward === 'camp' ||
+      gift.reward === 'tower' ||
+      gift.reward === 'temple' ||
+      gift.reward === 'vault'
+    ) {
       if (gift.reward === 'temple') w.unlockedTemple = true
+      else if (gift.reward === 'tower') w.unlockedTower = true
       else w.unlockedCamp = true
       tell(
         w,
         gift.reward === 'temple'
           ? 'Knowledge discovered: build a Temple, then send braves inside to train as preachers.'
-          : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
+          : gift.reward === 'tower'
+            ? 'Knowledge discovered: build a Guard Tower, then send a follower inside to defend the area.'
+            : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
       )
     } else {
       // 0x4c2cd0: stocks already at/above the cap are unchanged.

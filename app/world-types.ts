@@ -185,7 +185,7 @@ export type Shrine = Point &
   WorshipState & {
     id: number
     kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'vault'
-    reward?: Spell | 'camp' | 'temple'
+    reward?: Spell | 'camp' | 'tower' | 'temple'
     bridgeTarget?: Point
     effectTarget?: Point
     nextSlot: number
@@ -269,7 +269,7 @@ export type Effect = Point & {
 }
 export type Gift = Effect & {
   kind: 'gift'
-  reward: Spell | 'camp' | 'temple' | 'vault'
+  reward: Spell | 'camp' | 'tower' | 'temple' | 'vault'
   remaining: number
   phase: number
   frame: number
@@ -343,6 +343,7 @@ export type World = {
   shots: Record<Spell, number>
   charging: boolean
   unlockedCamp: boolean
+  unlockedTower: boolean
   unlockedTemple: boolean
   time: number
   turn: number

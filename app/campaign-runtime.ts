@@ -142,6 +142,7 @@ export function campaignInternal(w: World, id: number) {
   if (id === 0) return w.turn
   // 0x48f350: total population is a dword; per-class counters are signed words.
   if (id >= 1 && id <= 5) return campaignPersonCount(w, id === 1 ? self : id - 2)
+  if (id === 6) return w.killCredits[0][self] & 65535
   if (id >= 1146 && id <= 1175) {
     const tribe = id < 1152 ? self : Math.floor((id - 1152) / 6)
     const model = (id < 1152 ? id - 1146 : (id - 1152) % 6) + 2

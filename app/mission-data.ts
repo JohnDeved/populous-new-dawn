@@ -1,14 +1,17 @@
 import levelOne from './level-one.ts'
 import levelTwo from './level-two.ts'
 import levelThree from './level-three.ts'
+import levelFour from './level-four.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
 import scriptThree from './original-script-three.json' with { type: 'json' }
+import scriptFour from './original-script-four.json' with { type: 'json' }
 
 const missions = [
   { number: 1, level: levelOne, script: scriptOne },
   { number: 2, level: levelTwo, script: scriptTwo },
   { number: 3, level: levelThree, script: scriptThree },
+  { number: 4, level: levelFour, script: scriptFour },
 ] as const
 
 export type Mission = (typeof missions)[number]

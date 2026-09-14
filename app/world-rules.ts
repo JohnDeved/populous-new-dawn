@@ -190,6 +190,13 @@ export const BUILDINGS: {
     description: 'Three logs. Send braves inside to breed faster and generate more mana.',
   },
   {
+    id: 'tower',
+    name: 'Guard Tower',
+    cost: 5,
+    symbol: '△',
+    description: 'Five logs. A follower stationed inside watches and defends the surrounding area.',
+  },
+  {
     id: 'camp',
     name: 'Warrior Training Hut',
     cost: 8,

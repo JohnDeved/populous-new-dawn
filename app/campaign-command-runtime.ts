@@ -29,7 +29,46 @@ import { missionData } from './mission-data.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from './building-shapes.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingCounterattack } from './live-building-combat.ts'
+import { appendLiveOrders } from './live-movement.ts'
+import { emptyPersonOrder, writePersonOrder } from './person-orders.ts'
+import { route } from './live-command.ts'
+import { nativePosition } from './world-terrain-runtime.ts'
 import rules from './original-rules.json' with { type: 'json' }
+
+function forceCampaignAttack(w: World) {
+  const target = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0),
+    fallback = campaignPosition(w, 'blue'),
+    order = emptyPersonOrder()
+  if (target) writePersonOrder(order, 28, target.id, 0, 0)
+  else {
+    const point = nativePosition(w, fallback)
+    writePersonOrder(order, 3, 0, ((point.x >>> 8) & 255) | (point.y & 0xff00), 0)
+  }
+  for (const unit of w.units.filter(u => {
+    const person = u.native ?? u.entry?.person ?? u.builder?.person ?? u.fight?.motion
+    return (
+      u.team === 'red' &&
+      u.hp > 0 &&
+      !u.ghost &&
+      u.inside === null &&
+      !(person && rules.personStateFlags[person.state] & 0x20)
+    )
+  }))
+    if (appendLiveOrders(w, [unit], order, true).count === 1) {
+      unit.target = target?.id ?? null
+      route(w, unit, target ?? fallback, true)
+    }
+}
+
+export function stepForcedCampaignAttack(w: World) {
+  const state = w.manaTribes[campaignTribe(w)],
+    shaman = w.units.some(u => u.team === 'blue' && isShaman(u) && u.hp > 0),
+    periodic = !(w.turn & 15) && Boolean(state.flags2 & 0x80) !== shaman,
+    retry = !(w.turn & 31) && !!(state.flags2 & 0x400)
+  if (!state.active || state.defeatTimer || !(state.flags2 & 0x40) || (!periodic && !retry)) return
+  if (retry) state.flags2 &= ~0x400
+  forceCampaignAttack(w)
+}
 
 export function removeHead(w: World, x: number, y: number) {
   const head = headAt(w, x, y)
@@ -95,6 +134,7 @@ export function campaignCommand(
       1213: 5,
       1214: 4,
       1215: 2,
+      1221: 1,
     } as Record<number, number>
   )[opcode]
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`)
@@ -323,6 +363,18 @@ export function campaignCommand(
     return
   }
 
+  if (opcode === 1221) {
+    const tribe = campaignTribe(w)
+    if (args[0] === 1023) {
+      w.manaTribes[tribe].flags2 &= ~0x40
+      return
+    }
+    if (args[0] !== 1022) throw new RangeError('Invalid forced attack mode')
+    w.manaTribes[tribe].flags2 |= 0x40
+    forceCampaignAttack(w)
+    return
+  }
+
   // 0x4f2e30 and 0x48cc60 case 0xb0 preserve every unrelated mode bit.
   if (opcode === 1109) {
     w.ai.flags = (w.ai.flags | 0x400) >>> 0
@@ -350,9 +402,8 @@ export function campaignCommand(
   }
   if (opcode === 1174) {
     const message = read(args[0])
-    if (message !== 102) throw new RangeError(`Unimported type-one message ${message}`)
     if (!(w.manaWorld.levelFlags & 0x1000000)) {
-      w.lastMessage = addMessage(w.messages, 641, () => random(w), 480, 1)
+      w.lastMessage = addMessage(w.messages, messageStringId(message), () => random(w), 480, 1)
       if (w.lastMessage >= 0) sound(w, 0xe3, campaignPosition(w, 'blue'))
     }
     return
@@ -440,9 +491,11 @@ export function campaignRules(w: World) {
         ? [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019]
         : w.outcome.level === 2
           ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
-          : [12, 1003, ...script.codes.slice(833, 984), 1004, 1019],
+          : w.outcome.level === 3
+            ? [12, 1003, ...script.codes.slice(833, 984), 1004, 1019]
+            : [12, 1003, ...script.codes.slice(1579, 1654), 1004, 1019],
   }
-  // ponytail: Mission 3 runs its self-contained opening flyby; add later original blocks as their hosts land.
+  // ponytail: Mission 4 binds its objective/message block; add its AI blocks with their hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe: campaignTribe(w),

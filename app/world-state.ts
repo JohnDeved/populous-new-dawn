@@ -200,6 +200,7 @@ export function createWorldState(missionNumber = 1): World {
     },
     charging: true,
     unlockedCamp: missionAllowsBuilding(missionNumber, 7),
+    unlockedTower: missionAllowsBuilding(missionNumber, 4),
     unlockedTemple: missionAllowsBuilding(missionNumber, 5),
     time: 0,
     turn: 0,
@@ -223,7 +224,9 @@ export function createWorldState(missionNumber = 1): World {
         ? 'Select a brave and send them to the southern stone head to worship for Land Bridge.'
         : missionNumber === 2
           ? 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.'
-          : 'The Chumara can turn your followers against you. Reach their Vault and learn their power.',
+          : missionNumber === 3
+            ? 'The Chumara can turn your followers against you. Reach their Vault and learn their power.'
+            : 'Convert the Wildmen, discover the Guard Tower, and defeat the Matak.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

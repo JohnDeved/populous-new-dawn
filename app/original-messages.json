@@ -63,6 +63,30 @@
     "68": {
       "stringId": 644,
       "text": "Shaman, this Stone Head will aid you faster if you command two of your Followers to worship there."
+    },
+    "110": {
+      "stringId": 654,
+      "text": "We face a great threat. The Matak are massing against us. I need the power of Lightning to defeat them, but Preachers are guarding their Vault of Knowledge."
+    },
+    "71": {
+      "stringId": 657,
+      "text": "Your Braves will not be able to handle the Enemy on their own. Build a Warrior Training Hut to train some Warriors."
+    },
+    "72": {
+      "stringId": 658,
+      "text": "The Enemy has the ability to subvert your Followers by using her Preachers. You also have this ability so use it against her."
+    },
+    "73": {
+      "stringId": 659,
+      "text": "Your forces are well trained and the Enemy is weak. Use your advantage to destroy the Enemy once and for all."
+    },
+    "111": {
+      "stringId": 655,
+      "text": "Use the Convert spell to turn Wildmen into faithful Followers."
+    },
+    "65": {
+      "stringId": 637,
+      "text": "Shaman, you have discovered the Plans for the Guard Tower. This will enable you to establish a new settlement elsewhere."
     }
   }
 }

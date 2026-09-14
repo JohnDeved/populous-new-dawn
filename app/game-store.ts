@@ -14,6 +14,7 @@ type LegacyGift = {
 
 export function migrateCheckpoint(world: World) {
   world.outcome.level ??= 1
+  world.unlockedTower ??= false
   world.unlockedTemple ??= false
   const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
   world.ai.coordinateLatch ??= 0

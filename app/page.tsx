@@ -339,14 +339,20 @@ export default function Home() {
               { text: 'Claim Tornado from the stone head', done: world.giftCounts.tornado > 0 },
               { text: 'Defeat the Matak tribe', done: world.status === 'won' },
             ]
-          : [
-              { text: 'Reach the Chumara Vault', done: world.unlockedTemple },
-              {
-                text: 'Build a Temple and train a Preacher',
-                done: blue.some(unit => unit.kind === 'preacher'),
-              },
-              { text: 'Defeat the Chumara tribe', done: world.status === 'won' },
-            ]
+          : world.outcome.level === 3
+            ? [
+                { text: 'Reach the Chumara Vault', done: world.unlockedTemple },
+                {
+                  text: 'Build a Temple and train a Preacher',
+                  done: blue.some(unit => unit.kind === 'preacher'),
+                },
+                { text: 'Defeat the Chumara tribe', done: world.status === 'won' },
+              ]
+            : [
+                { text: 'Convert the Wildmen', done: blue.length > 3 },
+                { text: 'Discover the Guard Tower', done: world.unlockedTower },
+                { text: 'Defeat the Matak tribe', done: world.status === 'won' },
+              ]
   return (
     <main
       ref={shell}
@@ -654,6 +660,7 @@ export default function Home() {
                   key={b.id}
                   disabled={
                     (b.id === 'camp' && !world.unlockedCamp) ||
+                    (b.id === 'tower' && !world.unlockedTower) ||
                     (b.id === 'temple' && !world.unlockedTemple)
                   }
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
@@ -670,7 +677,9 @@ export default function Home() {
                   onFocus={() => setHover(b.id)}
                   onBlur={() => setHover(null)}
                 >
-                  <HudSprite id={b.id === 'hut' ? 1028 : b.id === 'temple' ? 1029 : 1030} />
+                  <HudSprite
+                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
+                  />
                 </button>
               ))}
             </div>
@@ -803,9 +812,9 @@ export default function Home() {
           </div>
           <button
             className="primary-button"
-            onClick={world.status === 'won' && world.outcome.level < 3 ? continueCampaign : restart}
+            onClick={world.status === 'won' && world.outcome.level < 4 ? continueCampaign : restart}
           >
-            {world.status === 'won' && world.outcome.level < 3
+            {world.status === 'won' && world.outcome.level < 4
               ? `Continue to Mission ${world.outcome.level + 1}`
               : 'Begin again'}{' '}
             <span>↗</span>
@@ -832,7 +841,9 @@ export default function Home() {
             ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
             : world.outcome.level === 2
               ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
-              : 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'}
+              : world.outcome.level === 3
+                ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
+                : 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

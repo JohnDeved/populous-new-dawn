@@ -27,6 +27,9 @@ for script_name,opcode in [
     ('original-script-two.json',1174),
     ('original-script-two.json',1176),
     ('original-script-two.json',1177),
+    ('original-script-four.json',1174),
+    ('original-script-four.json',1176),
+    ('original-script-four.json',1177),
 ]:
     script=json.loads((ROOT/'app'/script_name).read_text());codes=script['codes']
     for i in range(len(codes)-2):
