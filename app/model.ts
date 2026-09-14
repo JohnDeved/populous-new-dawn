@@ -145,12 +145,14 @@ import {
   syncLandscapeObjects,
   originalLand,
   makeTerrain,
+  supportsFollower,
 } from './world-terrain-runtime.ts'
 export {
   nativePosition,
   buildingStage,
   syncLandscapeObjects,
   makeTerrain,
+  supportsFollower,
 } from './world-terrain-runtime.ts'
 import {
   worldPoint,
@@ -361,10 +363,7 @@ import {
 } from './timber-search.ts'
 import { reincarnationStones, reincarnationTurns, stepReincarnation } from './reincarnation.ts'
 import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
-import {
-  personStepCollision,
-  terrainSupportsPerson,
-} from './person-collision.ts'
+import { personStepCollision } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import { createSpellTrail, stepSpellTrail, type SpellTrail } from './spell-trails.ts'
 import { createBuildingSmoke, stepBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
@@ -534,15 +533,6 @@ export function canPickUnit(w: World, u: Unit) {
 }
 
 export { nativeTerrainCross } from './native-math.ts'
-// Terrain support follows the original coastal mask, including low dry shore.
-export function supportsFollower(w: World, p: Point & { inside?: number | null }) {
-  // Occupants remain with their building until its controller ejects them.
-  // Terrain-only route points still use the ordinary coastal support predicate.
-  if (p.inside != null && w.buildings.some(b => b.id === p.inside && b.hp > 0)) return true
-  const n = nativePosition(w, p),
-    cell = ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
-  return !!terrainSupportsPerson(w.land.categories[cell], n)
-}
 export function requestTutorial(w: World, flags: number, message: number) {
   // 0x499f40 mode 9: a single transient tooltip, not tutorial history.
   if (flags === 0x200000 && message === 603)

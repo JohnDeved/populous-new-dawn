@@ -24,6 +24,7 @@ import {
 } from './building-shapes.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import levelOne from './level-one.ts'
+import { terrainSupportsPerson } from './person-collision.ts'
 
 export function createMissionLand(level: typeof levelOne) {
   const land = createNativeTerrain(new Int16Array(16384))
@@ -56,6 +57,15 @@ export function nativePosition(w: World, p: Point): NativePoint {
     y: short(Math.round((-p.z - 8) * 256)),
   }
   return { ...position, h: terrainPointHeight(w.land, position) }
+}
+// Terrain support follows the original coastal mask, including low dry shore.
+export function supportsFollower(w: World, p: Point & { inside?: number | null }) {
+  // Occupants remain with their building until its controller ejects them.
+  // Terrain-only route points still use the ordinary coastal support predicate.
+  if (p.inside != null && w.buildings.some(b => b.id === p.inside && b.hp > 0)) return true
+  const n = nativePosition(w, p),
+    cell = ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
+  return !!terrainSupportsPerson(w.land.categories[cell], n)
 }
 export function refreshTerrainSurface(w: World) {
   // Resample the compatibility grid after native writes; keep collision, picking
