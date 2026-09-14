@@ -21,10 +21,9 @@ import {
   routeVehicleAvailable,
 } from './person-routes.ts'
 import { advancePersonRoute } from './route-advance.ts'
-import { searchPersonPath, collectSearchPath, type PathSearchState } from './path-search.ts'
+import { searchPersonPath, collectSearchPath } from './path-search.ts'
 import { createPathSolver, solvePersonPath } from './path-solver.ts'
 import {
-  createPathGeometry,
   preparePathCandidates,
   choosePathCandidate,
   clearPathSegment,
@@ -33,35 +32,7 @@ import {
 } from './path-geometry.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
-export function createLivePathfinding() {
-  const state: PathSearchState = {
-    searches: 0,
-    landLimit: 0,
-    checkingPerson: 0,
-    limit: 0,
-    vehicles: 0,
-    mode: 0,
-    currentBoat: 0,
-    candidateCount: 0,
-    candidateIndex: 0,
-    truncated: 0,
-    walkMask: 0,
-  }
-  // 0x42b590 sets both node limits to 200 and both request limits to zero.
-  return {
-    people: new Map<number, LivePerson>(),
-    state,
-    path: { data: new Uint8Array(2580), count: 0 },
-    geometry: createPathGeometry(),
-    solver: createPathSolver(),
-    measure: { dirty: 0, distance: 0, tribes: 0 },
-    computerLimit: 200,
-    humanLimit: 200,
-    computerRequests: 0,
-    humanRequests: 0,
-    skip: 0,
-  }
-}
+export { createLivePathfinding } from './world-state.ts'
 
 // Input/query wrapper retains the existing destination and terrain validation.
 // Query records are released by the caller; native retries bypass these gates.
