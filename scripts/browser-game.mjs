@@ -5,6 +5,7 @@ export async function openGame(browser) {
   page.on('pageerror', error => errors.push(error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
   await page.waitForSelector('.world-viewport canvas')
   await page.waitForFunction(() => {
     const main = document.querySelector('main')

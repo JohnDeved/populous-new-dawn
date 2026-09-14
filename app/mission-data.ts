@@ -14,6 +14,8 @@ const missions = [
   { number: 4, level: levelFour, script: scriptFour },
 ] as const
 
+export const missionNumbers = missions.map(mission => mission.number)
+
 export type Mission = (typeof missions)[number]
 
 export function missionData(number = 1): Mission {

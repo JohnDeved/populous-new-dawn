@@ -45,7 +45,7 @@ import {
 } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 import { nativeUnitModel } from './unit-kinds'
-import { campaignSpellModels, missionEnemyTribe } from './mission-data'
+import { campaignSpellModels, missionEnemyTribe, missionNumbers } from './mission-data'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -71,8 +71,8 @@ export default function Home() {
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   useEffect(() => {
     let active = true
-    void store.restoreCheckpoint().then(found => {
-      if (active) setStartup(found ? 'choice' : 'playing')
+    void store.restoreCheckpoint().then(() => {
+      if (active) setStartup('choice')
     })
     return () => {
       active = false
@@ -109,6 +109,7 @@ export default function Home() {
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
     portrait = useRef<HTMLCanvasElement>(null),
+    startupDialog = useRef<HTMLDialogElement>(null),
     dialog = useRef<HTMLDialogElement>(null)
   const engine = useRef<GameScene | null>(null),
     audio = useRef<Soundscape | null>(null)
@@ -155,6 +156,13 @@ export default function Home() {
       engine.current = null
     }
   }, [world, update, store, startup])
+  useEffect(() => {
+    const modal = startupDialog.current
+    if (startup === 'choice' && modal && !modal.open) modal.showModal()
+    return () => {
+      if (modal?.open) modal.close()
+    }
+  }, [startup])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement).closest('input,dialog'))
@@ -293,6 +301,15 @@ export default function Home() {
     setError('')
     store.startMission(world.outcome.level + 1)
     setTab('spells')
+  }
+  function startMission(mission: number) {
+    audio.current?.reset()
+    setMenu(false)
+    setReady(false)
+    setError('')
+    store.startMission(mission)
+    setTab('spells')
+    setStartup('playing')
   }
   function loadCheckpoint() {
     audio.current?.reset()
@@ -740,20 +757,36 @@ export default function Home() {
       )}
 
       {startup === 'choice' && (
-        <div className="loading-world" role="dialog" aria-label="Start game">
+        <dialog ref={startupDialog} className="loading-world" aria-label="Start game">
           <span className="loading-rune">⟡</span>
           <p className="eyebrow">POPULOUS · THE FIRST DAWN</p>
-          <h2>Return to the world?</h2>
-          <p>Load your saved mission or begin Level One again.</p>
-          <div className="menu-actions">
-            <button className="primary-button" aria-label="Load Game" onClick={loadCheckpoint}>
-              Load Game <span>↗</span>
-            </button>
-            <button className="secondary-button" onClick={restart}>
-              New Game
-            </button>
+          <h2>Choose your world</h2>
+          <p>
+            Choose a mission{store.hasCheckpoint() ? ' or return to your saved world.' : '.'}
+          </p>
+          <div className="menu-actions" aria-label="Choose mission">
+            {store.hasCheckpoint() && (
+              <button
+                autoFocus
+                className="primary-button"
+                aria-label="Load Game"
+                onClick={loadCheckpoint}
+              >
+                Load Game <span>↗</span>
+              </button>
+            )}
+            {missionNumbers.map(mission => (
+              <button
+                key={mission}
+                autoFocus={!store.hasCheckpoint() && mission === missionNumbers[0]}
+                className="secondary-button"
+                onClick={() => startMission(mission)}
+              >
+                Mission {mission}
+              </button>
+            ))}
           </div>
-        </div>
+        </dialog>
       )}
       {startup === 'loading' && (
         <div className="loading-world" role="status">

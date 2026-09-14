@@ -1203,7 +1203,9 @@ test('external game store publishes edits and restarts without sharing worlds be
  assert.equal(other.getWorld().paused,false);assert.equal(other.getSnapshot(),0);
  store.restart();assert.notEqual(store.getWorld(),old);assert.equal(store.getWorld().mode,null);
  assert.equal(events.length,2);assert.equal(events[1][0],2);
- unsubscribe();store.update();assert.equal(events.length,2);
+ store.startMission(4);assert.equal(store.getWorld().outcome.level,4);
+ store.startMission(1);assert.equal(store.getWorld().outcome.level,1);
+ unsubscribe();store.update();assert.equal(events.length,4);
 });
 
 test('mission-one victory continuation creates and restarts the recovered mission-two world', async () => {

@@ -392,6 +392,20 @@ try {
   const startup = page.getByRole('dialog', { name: 'Start game' })
   await startup.waitFor()
   assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'no hidden fresh scene')
+  const missionFour = page.getByRole('button', { name: 'Mission 4', exact: true })
+  assert.equal(await startup.evaluate(dialog => dialog.matches(':modal')), true)
+  assert.equal(
+    await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement),
+    true
+  )
+  for (let i = 0; i < 4; i++) await page.keyboard.press('Tab')
+  assert.equal(await missionFour.evaluate(button => button === document.activeElement), true)
+  await page.keyboard.press('Enter')
+  await waitForScene(page)
+  await page.waitForFunction(() => globalThis.testScene.world.outcome.level === 4)
+
+  await page.reload({ waitUntil: 'networkidle' })
+  await startup.waitFor()
   await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await waitForScene(page)
   await page.waitForFunction(
@@ -442,7 +456,7 @@ try {
 
   await page.reload({ waitUntil: 'networkidle' })
   await page.getByRole('dialog', { name: 'Start game' }).waitFor()
-  await page.getByRole('button', { name: 'New Game', exact: true }).click()
+  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
   await waitForScene(page)
   const fresh = await page.evaluate(() => ({
     turn: globalThis.testScene.world.turn,
@@ -470,7 +484,7 @@ try {
     .waitFor()
   assert.deepEqual(blocked.errors, [])
   await context.close()
-  console.log('PASS: startup Load Game restores Mission 2; New Game starts fresh in Mission 1')
+  console.log('PASS: startup selects Missions 1 and 4 by keyboard/mouse and restores Mission 2')
 } finally {
   await browser.close()
 }
