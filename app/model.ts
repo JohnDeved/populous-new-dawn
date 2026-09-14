@@ -1566,12 +1566,12 @@ function stepLiveConvertWild(w: World, fx: Effect) {
 // with native person records/order ownership when that lifecycle is integrated.
 const liveManaOrders = { records: [], cursor: 1, active: 0 }
 function manaPeople(w: World) {
-  return w.units.map(
-    u =>
-      u.native ?? {
+  return w.units.map(u => {
+    const tribe = u.team === 'red' ? campaignTribe(w) : (u.native?.tribe ?? 0)
+    return {
+      ...(u.native ?? {
         class: 1,
         model: nativePersonModel(u),
-        tribe: u.team === 'red' ? 1 : 0,
         state: 10,
         flags2: u.inside !== null ? 0x800000 : 0,
         flags4: u.hp > 0 ? 0x20000000 : 0,
@@ -1580,8 +1580,10 @@ function manaPeople(w: World) {
         commands: [],
         commandCursor: 0,
         immediateCommand: 0,
-      }
-  )
+      }),
+      tribe,
+    }
+  })
 }
 export function manaRate(w: World) {
   return (
@@ -2189,8 +2191,11 @@ function stepTurn(w: World) {
   w.manaWorld.spells[0].disabled = w.charging ? 0 : 2
   w.manaTribes[0].spellProgress[2] = Math.round(w.mana * 1000)
   generateFollowerMana(w.manaWorld, w.manaTribes, manaPeople(w), liveManaOrders)
-  for (const team of ['blue', 'red'] as const) {
-    const tribe = w.manaTribes[team === 'blue' ? 0 : 1]
+  for (const [team, tribeId] of [
+    ['blue', 0],
+    ['red', campaignTribe(w)],
+  ] as const) {
+    const tribe = w.manaTribes[tribeId]
     const schools = w.buildings.filter(
       b =>
         b.team === team &&

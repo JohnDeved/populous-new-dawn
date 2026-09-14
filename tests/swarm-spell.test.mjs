@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { addUnit, cast, createWorld, nativePosition, tick } from '../app/model.ts'
+import {
+  addUnit,
+  cast,
+  command,
+  createWorld,
+  nativePosition,
+  placeBuilding,
+  select,
+  setSelection,
+  tick,
+} from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 
@@ -87,4 +97,78 @@ test('Swarm follows player and computer cast paths, panics eligible enemies, and
   migrateCheckpoint(ai)
   assert.equal(ai.shots.swarm, 0)
   assert.equal(ai.giftCounts.swarm, 0)
+})
+
+test('Mission 2 naturally funds the Matak Shaman and casts Swarm through player orders', () => {
+  const missionOne = createWorld()
+  stepUntil(missionOne, () => missionOne.turn >= 4)
+  assert.ok(missionOne.manaTribes[1].mana > 0)
+  assert.equal(missionOne.manaTribes[3].mana, 0)
+
+  const w = createWorld(2)
+  stepUntil(w, () => w.turn >= 70, 1000)
+  assert.equal(w.manaTribes[1].mana, 0)
+  assert.ok(w.manaTribes[3].mana > 0)
+
+  select(w, 'brave')
+  assert.ok(placeBuilding(w, 'camp', { x: -99, z: -105 }))
+  const camp = w.buildings.find(building => building.team === 'blue' && building.kind === 'camp')
+  stepUntil(w, () => camp.progress === 1, 3000)
+  stepUntil(w, () => !w.units.some(unit => unit.builder), 1000)
+  setSelection(
+    w,
+    w.units
+      .filter(unit => unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0)
+      .slice(0, 6)
+      .map(unit => unit.id)
+  )
+  assert.ok(command(w, camp))
+  stepUntil(
+    w,
+    () => w.units.filter(unit => unit.team === 'blue' && unit.kind === 'warrior').length >= 6,
+    10000
+  )
+
+  const bridge = w.shrines.find(shrine => shrine.kind === 'bridgeEffect'),
+    tornado = w.shrines.find(shrine => shrine.kind === 'tornado')
+  select(w, 'shaman')
+  assert.ok(command(w, bridge))
+  stepUntil(w, () => bridge.uses === 1, 10000)
+  stepUntil(w, () => !w.effects.some(effect => effect.kind === 'bridge'), 5000)
+  select(w, 'shaman')
+  assert.ok(command(w, tornado))
+  stepUntil(w, () => w.messages.slots.some(message => message?.stringId === 644), 10000)
+  select(w, 'brave')
+  assert.ok(command(w, tornado))
+  stepUntil(w, () => w.messages.slots.some(message => message?.stringId === 642), 10000)
+
+  setSelection(
+    w,
+    w.units
+      .filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0)
+      .slice(0, 6)
+      .map(unit => unit.id)
+  )
+  const inactive = { mana: w.manaTribes[1].mana, available: w.manaTribes[1].available },
+    matakMana = w.manaTribes[3].mana
+  assert.ok(command(w, { x: 83, z: 127 }))
+  stepUntil(
+    w,
+    () => w.projectiles.some(projectile => projectile.team === 'red' && projectile.spell === 'swarm'),
+    5000
+  )
+  stepUntil(w, () => w.effects.some(effect => effect.swarm), 100)
+  stepUntil(
+    w,
+    () => w.units.some(unit => unit.team === 'blue' && unit.native?.state === 26),
+    100
+  )
+  assert.deepEqual(
+    { mana: w.manaTribes[1].mana, available: w.manaTribes[1].available },
+    inactive
+  )
+  assert.ok(w.manaTribes[3].mana < matakMana)
+  assert.equal(w.spellCasts[3][5], 1)
+  assert.equal(w.spellCasts[1][5], 0)
+  assert.equal(w.effects.find(effect => effect.swarm).swarm.tribe, 3)
 })

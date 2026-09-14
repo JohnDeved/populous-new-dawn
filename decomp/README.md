@@ -143,7 +143,9 @@ is followed by the marker-triggered Matak tower response documented in the
 [Mission 2 enemy-marker note](research/mission2-enemy-marker.md). The original
 Tornado-use instruction and its one-shot script latch are documented in the
 [Mission 2 Tornado-instruction note](research/mission2-message-103.md). These
-bounded checks do not claim the remainder of Mission 2.
+bounded checks do not claim the remainder of Mission 2. The later natural Matak
+Swarm ownership path is isolated in the
+[Mission 2 Matak Swarm note](research/mission2-matak-swarm.md).
 
 ## Campaign counter comparison
 

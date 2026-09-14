@@ -41,6 +41,58 @@ async function waitForScene(page) {
   })
 }
 
+async function assertMatakSwarm(page) {
+  const swarm = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { command, setSelection, tick } = await import('/app/model.ts'),
+      warriors = world.units
+        .filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0)
+        .slice(0, 6),
+      inactive = { mana: world.manaTribes[1].mana, available: world.manaTribes[1].available },
+      matakMana = world.manaTribes[3].mana
+    globalThis.missionTwoBeforeSwarm = structuredClone(world)
+    setSelection(world, warriors.map(unit => unit.id))
+    if (!command(world, { x: 83, z: 127 })) throw new Error('Matak approach command failed')
+    for (
+      let i = 0;
+      i < 5000 &&
+      !world.projectiles.some(projectile => projectile.team === 'red' && projectile.spell === 'swarm');
+      i++
+    )
+      tick(world, 1 / 12)
+    const projectile = world.projectiles.find(
+      projectile => projectile.team === 'red' && projectile.spell === 'swarm'
+    )
+    if (!projectile) throw new Error(`Mission 2 Matak Swarm timed out at turn ${world.turn}`)
+    for (let i = 0; i < 100 && !world.effects.some(effect => effect.swarm); i++) tick(world, 1 / 12)
+    world.speed = 0
+    globalThis.testStore.update()
+    const effect = world.effects.find(effect => effect.swarm)
+    return {
+      effectId: effect?.id,
+      effectTribe: effect?.swarm.tribe,
+      tribe1: { mana: world.manaTribes[1].mana, available: world.manaTribes[1].available },
+      inactive,
+      tribe3Mana: world.manaTribes[3].mana,
+      matakMana,
+      tribe1Casts: world.spellCasts[1][5],
+      tribe3Casts: world.spellCasts[3][5],
+    }
+  })
+  assert.ok(swarm.effectId)
+  assert.equal(swarm.effectTribe, 3)
+  assert.deepEqual(swarm.tribe1, swarm.inactive)
+  assert.ok(swarm.tribe3Mana < swarm.matakMana)
+  assert.equal(swarm.tribe1Casts, 0)
+  assert.equal(swarm.tribe3Casts, 1)
+  await page.waitForFunction(effectId => globalThis.testScene.fxMeshes.has(effectId), swarm.effectId)
+  await page.evaluate(() => {
+    Object.assign(globalThis.testStore.getWorld(), globalThis.missionTwoBeforeSwarm)
+    delete globalThis.missionTwoBeforeSwarm
+    globalThis.testStore.update()
+  })
+}
+
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const { page, errors } = await openGame(browser)
@@ -96,13 +148,36 @@ try {
   await assertMissionTwoMessage(page)
   const guidance = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
-      { command, select, tick } = await import('/app/model.ts'),
+      { command, placeBuilding, select, setSelection, tick } = await import('/app/model.ts'),
       bridge = world.shrines.find(shrine => shrine.kind === 'bridgeEffect'),
       tornado = world.shrines.find(shrine => shrine.kind === 'tornado')
     const until = (ready, limit) => {
       for (let i = 0; i < limit && !ready(); i++) tick(world, 1 / 12)
       if (!ready()) throw new Error(`Mission 2 route timed out at turn ${world.turn}`)
     }
+    select(world, 'brave')
+    if (!placeBuilding(world, 'camp', { x: -99, z: -105 }))
+      throw new Error('Mission 2 warrior camp placement failed')
+    const camp = world.buildings.find(
+      building => building.team === 'blue' && building.kind === 'camp'
+    )
+    until(() => camp.progress === 1, 3000)
+    until(() => !world.units.some(unit => unit.builder), 1000)
+    setSelection(
+      world,
+      world.units
+        .filter(unit => unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0)
+        .slice(0, 6)
+        .map(unit => unit.id)
+    )
+    if (!command(world, camp)) throw new Error('Mission 2 warrior training command failed')
+    until(
+      () =>
+        world.units.filter(
+          unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0
+        ).length >= 6,
+      10000
+    )
     select(world, 'shaman')
     if (!command(world, bridge)) throw new Error('Land-raising worship command failed')
     until(() => bridge.uses === 1, 10000)
@@ -117,7 +192,7 @@ try {
     globalThis.testStore.update()
     const message = world.messages.slots.find(message => message?.stringId === 644),
       instruction = world.messages.slots.find(message => message?.stringId === 642)
-    return { turn: world.turn, flags: message.flags, lifetime: message.lifetime, view: message.view, tornado: { flags: instruction.flags, variables: world.ai.variables.slice(9, 12) } }
+    return { turn: world.turn, flags: message.flags, lifetime: message.lifetime, view: message.view, warriors: world.units.filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0).length, tornado: { flags: instruction.flags, variables: world.ai.variables.slice(9, 12) } }
   })
   const { turn: guidanceTurn, ...guidanceState } = guidance
   assert.ok(guidanceTurn > 700)
@@ -125,6 +200,7 @@ try {
     flags: 0x36f1,
     lifetime: 3000,
     view: { cell: 0x60cc, payload: 308 },
+    warriors: 6,
     tornado: { flags: 0x2d1, variables: [0, 2, 1] },
   })
   const instruction = page.locator('.campaign-messages details').filter({ hasText: tornadoInstruction })
@@ -142,6 +218,7 @@ try {
     }),
     { x: 0xcd00, y: 0x6100 }
   )
+  await assertMatakSwarm(page)
   const counterattack = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
       { createLivePerson, syncLivePersonCells } = await import('/app/live-people.ts'),

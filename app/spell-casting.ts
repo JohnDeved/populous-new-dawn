@@ -6,6 +6,7 @@ import { SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { buildingModel } from './building-shapes.ts'
 import { sound } from './world-effects.ts'
+import { campaignTribe } from './campaign-runtime.ts'
 
 export type SpellCaster = {
   height: number
@@ -378,10 +379,11 @@ export function spellCaster(w: World, u: Unit): SpellCaster {
   }
 }
 export function spellRange(w: World, u: Unit, model: number) {
+  const tribe = u.team === 'blue' ? 0 : campaignTribe(w)
   return (
     nativeSpellRange(
       w.manaWorld.gameFlags,
-      w.castingTribes[u.team === 'blue' ? 0 : 1].flags,
+      w.castingTribes[tribe].flags,
       spellCaster(w, u),
       model
     ) / 256
@@ -398,7 +400,7 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
   const target = { x: Math.floor(p.x / 2) * 2 + 1, z: -Math.floor(-p.z / 2) * 2 - 1 },
     position = nativePosition(w, u)
-  const tribe = u.team === 'blue' ? 0 : 1,
+  const tribe = u.team === 'blue' ? 0 : campaignTribe(w),
     model = SPELLS.find(s => s.id === spell)!.model
   if (tribe === 0) w.manaWorld.spells[0].stocks[model] = w.shots[spell]
   const state = w.castingTribes[tribe],
@@ -422,12 +424,12 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   registerSpellCooldown(
     state,
     w.manaTribes[tribe].playerType,
-    tribe === 1 ? w.ai.flags : 0,
+    u.team === 'red' ? w.ai.flags : 0,
     w.manaWorld.gameFlags,
     0,
     model
   )
-  if (tribe === 1) state.aiCooldown = w.ai.attributes[43] & 255 // 0x4f4de0, after allocation.
+  if (u.team === 'red') state.aiCooldown = w.ai.attributes[43] & 255 // 0x4f4de0, after allocation.
   recordSpellCast(w, tribe, model)
   if (u.team === 'blue') {
     w.shots[spell] = w.manaWorld.spells[0].stocks[model] & 15

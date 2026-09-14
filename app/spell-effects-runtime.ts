@@ -31,6 +31,7 @@ import {
 } from './world-effects.ts'
 import { addUnit } from './world-state.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
+import { campaignTribe } from './campaign-runtime.ts'
 import { browserPosition, nativeDistance, nativeStep3D, shotAngles } from './world-coordinates.ts'
 import { release, releaseTasks } from './world-tasks.ts'
 import type {
@@ -899,7 +900,11 @@ function finishCast(
       fx.sprite = { sequence: 'sparkle', frame: 0 }
       if (invisibilityFollowers(w, p, shaman.team).length) sound(w, 0x31, p)
     } else if (spell === 'swarm') {
-      fx.swarm = { tribe: shaman.team === 'blue' ? 0 : 1, remaining: 65, applied: false }
+      fx.swarm = {
+        tribe: shaman.team === 'blue' ? 0 : campaignTribe(w),
+        remaining: 65,
+        applied: false,
+      }
       fx.sprite = { sequence: 'smoke', frame: 0 }
       fx.duration = Infinity
       sound(w, 0xa4, p)
