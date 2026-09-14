@@ -9,14 +9,16 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: prove the unresolved opcode-1179 trigger/count semantics, then
-deliver Mission 4's original contextual training and attack tutorial messages
-through the shipped campaign and presentation paths. Keep the larger recurring AI
-block deferred and do not record parity without explicit authorization.
+Current task lock: deliver Mission 5's original granted Boat as a visible, pickable
+gameplay vehicle through the shipped campaign path. Selected followers must board,
+cross water under an ordinary player command, disembark onto valid shore, and survive
+save/load. Keep Boat construction/combat and Angel of Death outside this slice, and
+do not record parity without explicit authorization.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
-original opening flyby finished in `8ad89d0`.
+original opening flyby finished in `8ad89d0`; Mission 4's contextual training and
+attack tutorials finished in `20254b5`.
 
 The user-queued composition refactor reached its natural stopping point after five
 independently revertible extractions through `7d58c2c`. Keep `app/model.ts` and
