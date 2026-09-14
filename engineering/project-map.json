@@ -516,7 +516,12 @@
     {
       "id": "effects-spells",
       "mappingStatus": "unmapped",
-      "paths": ["app/blast-wave.ts", "app/lightning.ts", "app/land-bridge.ts"],
+      "paths": [
+        "app/blast-wave.ts",
+        "app/lightning.ts",
+        "app/land-bridge.ts",
+        "app/tornado-runtime.ts"
+      ],
       "note": "Mechanically inventoried only."
     },
     {
