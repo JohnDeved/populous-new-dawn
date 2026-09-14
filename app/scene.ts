@@ -19,10 +19,8 @@ import { focusHudPerson } from './hud-selection.ts'
 import { ObjectPanels } from './object-panels.ts'
 import { unitHealthGauge } from './unit-health.ts'
 import { terrainTiles } from './terrain-visibility.ts'
-import { populationMeter } from './hud-population.ts'
 import { renderBuildingPanels } from './building-panels.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
-import { drawPortrait, portraitBackground } from './hud-portrait.ts'
 import { advanceGame } from './game-clock.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { UnitMotion, interpolateUnitPosition } from './unit-motion.ts'
@@ -83,7 +81,6 @@ import {
   placementError,
   walkable,
   distance,
-  maxHp,
   buildingHp,
   cast,
   command,
@@ -111,7 +108,6 @@ import {
   canPickUnit,
   unitInvisibleToPlayer,
   unitInvisibilityRenderFlag,
-  isShaman,
 } from './model'
 
 import nativeModelData from './original-models.json'
@@ -149,10 +145,8 @@ import { SelectionOverlay } from './drag-overlay.ts'
 import { nativeAngle, positionDistance } from './native-math.ts'
 import { GlobeRenderer } from './globe-renderer.ts'
 import { beginGlobeDrag, stepGlobeMotion, type GlobeMotion } from './globe.ts'
-import nativeUnits from './original-units.json'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeEffects from './original-effects.json'
-import nativeHud from './original-hud.json'
 import { spellCursor } from './spell-casting.ts'
 import { spellHalo, haloBucket } from './spell-halo.ts'
 import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
@@ -223,6 +217,7 @@ import {
   updatePointerFrame,
   updateSpellPointerFrame,
 } from './scene-input-runtime.ts'
+import { updateHudFrame } from './scene-hud-runtime.ts'
 
 export class GameScene {
   world: World
@@ -908,39 +903,7 @@ export class GameScene {
   }
 
   private updateHudFrame(now: number, dt: number) {
-    this.drawPointer(now)
-    this.renderBuildingPanels()
-    this.objectPanels.update(texture('hud').image as HTMLImageElement)
-    this.container.parentElement!.style.setProperty(
-      '--population-full-color',
-      nativeHud.colors[populationMeter(1, 1, this.gameClock.animationFrame).color]
-    )
-    const shaman = this.world.units.find(u => u.team === 'blue' && isShaman(u))
-    const portraitMesh = shaman && this.unitMeshes.get(shaman.id)
-    drawPortrait(
-      this.portrait,
-      texture(nativeUnits.atlas).image as HTMLImageElement,
-      portraitMesh?.userData.frame,
-      portraitMesh?.userData.frameFlip ?? false,
-      portraitBackground(
-        shaman
-          ? {
-              health: Math.round(shaman.hp * 20),
-              maximum: Math.round(maxHp('shaman') * 20),
-              state: shaman.native?.state ?? 0,
-            }
-          : null,
-        this.gameClock.animationFrame,
-        this.portrait.parentElement?.matches(':hover,:active') ?? false
-      ),
-      this.view.config
-    )
-    this.uiTimer += dt
-    if (this.uiTimer > 0.2) {
-      this.onChange()
-      this.uiTimer = 0
-    }
-    this.drawMinimap()
+    updateHudFrame(this, now, dt)
   }
   releaseGroup(g: THREE.Object3D) {
     releaseGroup(g)
