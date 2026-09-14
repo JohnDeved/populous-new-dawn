@@ -459,11 +459,14 @@
       "inputs": [
         "scripts/check-browser-checkpoint.mjs",
         "scripts/browser-game.mjs",
+        "app/messages.ts",
+        "app/original-messages.json",
         "app/page.tsx",
         "app/game-store.ts",
         "app/building-panels.ts",
         "app/model.ts",
-        "app/scene.ts"
+        "app/scene.ts",
+        "public/original/message-type1.png"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
@@ -474,9 +477,10 @@
       "id": "messages-native",
       "kind": "native",
       "automation": "safe",
-      "purpose": "Compare native type-3 campaign message allocation, ordering, motion, collisions, and rebound state.",
+      "purpose": "Compare native type-1 and type-3 campaign message allocation, ordering, motion, collisions, and rebound state.",
       "coveredBehavior": [
         "Slot allocation and eviction",
+        "Mission 2 type-1 descriptor and message-number binding",
         "Age and slot ordering",
         "Normalized height, velocity, gravity, collisions, and rebound"
       ],
@@ -491,6 +495,8 @@
         "scripts/check-native-messages.py",
         "app/messages.ts",
         "app/original-messages.json",
+        "public/original/message-type1.png",
+        "scripts/import-original.py",
         "scripts/decomp.py",
         "decomp/requirements.txt",
         "decomp/tools.json"
@@ -529,7 +535,9 @@
         "app/game-clock.ts",
         "app/page.tsx",
         "app/globals.css",
-        "app/scene.ts"
+        "app/scene.ts",
+        "public/original/message.png",
+        "public/original/message-type1.png"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes /private/tmp/populous-messages.png"],

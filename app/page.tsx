@@ -26,7 +26,7 @@ import {
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
-import { messageHeight, messageText, messageTop, removeMessage } from './messages'
+import { messageHeight, messageIcon, messageText, messageTop, removeMessage } from './messages'
 import {
   HudSprite,
   FollowerNumber,
@@ -409,7 +409,7 @@ export default function Home() {
               }
             >
               <summary aria-label="Read campaign message">
-                <img src="/original/message.png" alt="" />
+                <img src={messageIcon(message!)} alt="" />
               </summary>
               <div>
                 <p>{messageText(message!.stringId)}</p>

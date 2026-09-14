@@ -14,6 +14,8 @@ export type MessageState = { slots: (CampaignMessage | null)[]; nextSerial: numb
 export const createMessages = (): MessageState => ({ slots: Array(32).fill(null), nextSerial: 0 })
 export const messageText = (stringId: number) =>
   Object.values(native.messages).find(m => m.stringId === stringId)?.text ?? ''
+export const messageIcon = (message: CampaignMessage) =>
+  message.flags & 1 ? '/original/message.png' : '/original/message-type1.png'
 export function messageStringId(number: number) {
   const message = (native.messages as Record<number, { stringId: number }>)[number]
   if (!message) throw new RangeError(`Unimported campaign message ${number}`)
@@ -28,7 +30,6 @@ export function addMessage(
   screenHeight = 480,
   type: 1 | 3 = 3
 ) {
-  if (type === 1 && state.slots.some(message => message && !(message.flags & 1))) return -1
   let slot = state.slots.indexOf(null)
   if (slot < 0) {
     let oldest = 0
@@ -42,7 +43,11 @@ export function addMessage(
     // Native selection is uninitialized if every occupied slot has age zero.
     if (slot < 0) throw new Error('No aged notification can be replaced')
   }
-  const defaults = type === 1 ? { ...native.defaults, flags: 64 } : native.defaults,
+  if (type === 1) {
+    const prior = state.slots.findIndex(message => message && !(message.flags & 1))
+    if (prior >= 0) state.slots[prior] = null
+  }
+  const defaults = type === 1 ? native.type1 : native.defaults,
     speed = Math.trunc((defaults.speed << 16) / 480)
   let height = Math.trunc((defaults.height << 16) / 480)
   if (

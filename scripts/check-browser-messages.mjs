@@ -47,6 +47,10 @@ try {
     }),
     { width: 30, height: 44 }
   )
+  assert.equal(
+    await page.locator('.campaign-messages summary img').first().getAttribute('src'),
+    '/original/message.png'
+  )
   await page.locator('.campaign-messages summary').first().click()
   await page.getByText(/Single Shot Landbridge/).waitFor()
   const popup = await page.locator('.campaign-messages details').first().locator('div').evaluate(node => {

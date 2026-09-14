@@ -1,5 +1,5 @@
 """Import message/tooltip text, native string IDs and interface artwork.
-Usage: python3 scripts/import-messages.py /path/to/extracted/game
+Usage: python3 scripts/import-messages.py /path/to/extracted/game [--messages-only]
 """
 import hashlib
 import importlib.util
@@ -9,7 +9,8 @@ import struct
 import sys
 from decomp import inspect, ROOT
 
-source=Path(sys.argv[1]);exe=source/'d3dpoptb.exe';identity=inspect(exe);b=exe.read_bytes()
+source=Path(sys.argv[1]);messages_only='--messages-only' in sys.argv[2:]
+exe=source/'d3dpoptb.exe';identity=inspect(exe);b=exe.read_bytes()
 pe=struct.unpack_from('<I',b,60)[0];opt=struct.unpack_from('<H',b,pe+20)[0]
 sections=[struct.unpack_from('<8sIIII',b,pe+24+opt+i*40) for i in range(struct.unpack_from('<H',b,pe+6)[0])]
 def read(address,size):
@@ -20,28 +21,35 @@ def read(address,size):
 lang=(source/'language/lang00.dat').read_bytes()
 assert len(lang)%2==0 and lang.endswith(b'\0\0')
 strings=lang.decode('utf-16le').split('\0')[:-1]
-script=json.loads((ROOT/'app/original-script.json').read_text());codes=script['codes'];messages={}
-for i in range(len(codes)-2):
-    if codes[i:i+2]!=[1006,1176]:continue
-    kind,number=script['fields'][codes[i+2]]
-    assert kind==0,'Resolve dynamic message IDs before importing'
-    string_id=struct.unpack('<H',read(0x5ae310+number*2,2))[0]
-    assert 0<=string_id<len(strings)
-    messages[number]={'stringId':string_id,'text':strings[string_id]}
-record=read(0x59caf8+3*28,28)
-assert record[10]==1 and record[11]==0 and record[23]==0 # List category, no type cap or deletion history.
-# 0x49f9c0: draw kind at +13, normal/selected icon at +17/+19.
-assert struct.unpack_from('<I',record,13)[0]==3
-icon=struct.unpack_from('<H',record,17)[0]
-defaults={'lifetime':struct.unpack_from('<h',record)[0],'height':struct.unpack_from('<h',record,8)[0],
-          'speed':struct.unpack_from('<i',record,4)[0],'flags':struct.unpack_from('<I',record,24)[0],'icon':icon}
+messages={}
+for script_name,opcode in [('original-script.json',1176),('original-script-two.json',1174)]:
+    script=json.loads((ROOT/'app'/script_name).read_text());codes=script['codes']
+    for i in range(len(codes)-2):
+        if codes[i:i+2]!=[1006,opcode]:continue
+        kind,number=script['fields'][codes[i+2]]
+        assert kind==0,'Resolve dynamic message IDs before importing'
+        string_id=struct.unpack('<H',read(0x5ae310+number*2,2))[0]
+        assert 0<=string_id<len(strings)
+        messages[number]={'stringId':string_id,'text':strings[string_id]}
+def profile(kind,cap):
+    record=read(0x59caf8+kind*28,28)
+    assert record[10]==1 and record[11]==cap and record[23]==0
+    assert struct.unpack_from('<I',record,13)[0]==3
+    icon=struct.unpack_from('<H',record,17)[0]
+    assert struct.unpack_from('<H',record,19)[0]==icon
+    return {'lifetime':struct.unpack_from('<h',record)[0],'height':struct.unpack_from('<h',record,8)[0],
+            'speed':struct.unpack_from('<i',record,4)[0],'flags':struct.unpack_from('<I',record,24)[0],'icon':icon}
+type1=profile(1,1);defaults=profile(3,0);icon=defaults['icon']
 spec=importlib.util.spec_from_file_location('assets',ROOT/'scripts/import-original.py')
 assets=importlib.util.module_from_spec(spec);spec.loader.exec_module(assets)
 palette=(source/'data/pal0-c.dat').read_bytes();hfx=(source/'data/hfx0-0.dat').read_bytes()
-w,h,pixels=assets.sprites(hfx,palette)[icon];assets.png(ROOT/'public/original/message.png',w,h,pixels)
-out={'executableSha256':identity['sha256'],'sha256':{name:hashlib.sha256((source/name).read_bytes()).hexdigest() for name in ['language/lang00.dat','data/pal0-c.dat','data/hfx0-0.dat']},'defaults':defaults,'messages':messages}
+if not messages_only:
+    w,h,pixels=assets.sprites(hfx,palette)[icon];assets.png(ROOT/'public/original/message.png',w,h,pixels)
+w,h,pixels=assets.sprites(hfx,palette)[type1['icon']];assets.png(ROOT/'public/original/message-type1.png',w,h,pixels)
+out={'executableSha256':identity['sha256'],'sha256':{name:hashlib.sha256((source/name).read_bytes()).hexdigest() for name in ['language/lang00.dat','data/pal0-c.dat','data/hfx0-0.dat']},'defaults':defaults,'type1':type1,'messages':messages}
 (ROOT/'app/original-messages.json').write_text(json.dumps(out,indent=2)+'\n')
-print(f'Imported {len(messages)} original messages and HFX icon {icon}')
+print(f"Imported {len(messages)} original messages and HFX icons {type1['icon']}, {icon}")
+if messages_only:raise SystemExit
 
 # 0x4f0f90: class-specific names, including enemy and multiplayer variants.
 names={}

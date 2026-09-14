@@ -1,8 +1,8 @@
-"""Compare native type-3 message allocation and first-mission discovery branches.
+"""Compare native message allocation and first-mission discovery branches.
 Usage: python scripts/check-native-messages.py /path/to/d3dpoptb.exe [/path/to/cpscr010.dat]
 Sound playback is intercepted; original allocation, list ordering and RNG execute.
 """
-import json, random, struct, subprocess, sys
+import hashlib, importlib.util, json, random, struct, subprocess, sys, tempfile
 from pathlib import Path
 from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP
@@ -40,6 +40,18 @@ def snapshot():
         result.append(None if read(p+32,'<B')==0 else dict(age=read(p,'<i'),position=read(p+4,'<i'),serial=read(p+28,'<H'),stringId=read(p+18,'<H'),flags=read(p+33,'<I'),height=read(p+8,'<i'),speed=read(p+12,'<i'),lifetime=read(p+16,'<h')))
     return dict(slots=result,nextSerial=read(0x6841e8,'<H'))
 
+native=json.loads((root/'app/original-messages.json').read_text());source=Path(sys.argv[1]).parent
+assert read(0x5ae310+102*2,'<H')==native['messages']['102']['stringId']==641
+palette=(source/'data/pal0-c.dat').read_bytes();hfx=(source/'data/hfx0-0.dat').read_bytes()
+assert hashlib.sha256(palette).hexdigest()==native['sha256']['data/pal0-c.dat']
+assert hashlib.sha256(hfx).hexdigest()==native['sha256']['data/hfx0-0.dat']
+spec=importlib.util.spec_from_file_location('assets',root/'scripts/import-original.py')
+assets=importlib.util.module_from_spec(spec);spec.loader.exec_module(assets)
+w,h,pixels=assets.sprites(hfx,palette)[native['type1']['icon']]
+with tempfile.TemporaryDirectory() as temporary:
+    rendered=Path(temporary)/'message-type1.png';assets.png(rendered,w,h,pixels)
+    assert rendered.read_bytes()==(root/'public/original/message-type1.png').read_bytes()
+
 rng=random.Random(1176);cases=[];expected=[]
 for filled in [0,1,15,31,32]:
     for trial in range(32):
@@ -62,6 +74,33 @@ let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON
 actual=browser(js,cases);assert len(actual)==len(expected)
 for c,want,got in zip(cases,expected,actual):assert want==got,(c,want,got)
 print(f'PASS: {len(cases)} native message allocations, slot eviction, text binding and RNG')
+
+# Mission 2 command 1174 resolves message number 102, then type-1 cap replacement
+# retains the free slot chosen before the prior type-1 message is removed.
+seed=0x12345678;reset(seed);write(0x89c6d1,'<I',480);sounds.clear()
+call(0x48ea80,641);write(base,'<i',1);call(0x48ea80,641)
+expected=dict(state=snapshot(),randomState=read(0x89bc72,'<I'),slot=read(0x6841e7,'<b'),sounds=list(sounds))
+actual=browser("""import {addMessage,messageStringId} from './app/messages.ts';import {audioRandom} from './app/audio.ts';
+let s='';for await(const c of process.stdin)s+=c;const c=JSON.parse(s);let rng=c.seed;
+addMessage(c.state,messageStringId(102),()=>rng=audioRandom(rng),480,1);c.state.slots[0].age=1;
+const slot=addMessage(c.state,messageStringId(102),()=>rng=audioRandom(rng),480,1);
+console.log(JSON.stringify({state:c.state,randomState:rng,slot,sounds:[0xe3,0xe3]}));""",dict(state=dict(slots=[None]*32,nextSerial=0),seed=seed))
+assert expected==actual,(expected,actual)
+print('PASS: native Mission 2 type-1 allocation, cap replacement, text binding and RNG')
+
+seed=0xabcdef01;reset(seed,7);write(0x89c6d1,'<I',480);slots=[]
+for i in range(32):
+    kind=1 if i==5 else 3;age=200 if kind==1 else i+1;p=base+i*45
+    write(p,'<i',age);write(p+32,'<B',kind);write(p+33,'<I',0x50 if kind==1 else 0xd1)
+    slots.append(dict(age=age,position=0,serial=0,stringId=0,flags=0x50 if kind==1 else 0xd1,height=0,speed=0,lifetime=0))
+write(0x683b89,'<B',1);write(0x683b8b,'<B',31);write(0x6841e3,'<B',32);sounds.clear();call(0x48ea80,641)
+expected=dict(state=snapshot(),randomState=read(0x89bc72,'<I'),slot=read(0x6841e7,'<b'),sounds=list(sounds))
+actual=browser("""import {addMessage,messageStringId} from './app/messages.ts';import {audioRandom} from './app/audio.ts';
+let s='';for await(const c of process.stdin)s+=c;const c=JSON.parse(s);let rng=c.seed;
+const slot=addMessage(c.state,messageStringId(102),()=>rng=audioRandom(rng),480,1);
+console.log(JSON.stringify({state:c.state,randomState:rng,slot,sounds:[0xe3]}));""",dict(state=dict(slots=slots,nextSerial=7),seed=seed))
+assert expected==actual,(expected,actual)
+print('PASS: native full-pool eviction precedes type-1 cap replacement')
 
 # Original oldest-first list rebuild and presentation motion. The browser retains
 # only type-3 slots, so pointer links are reconstructed from age and slot order.

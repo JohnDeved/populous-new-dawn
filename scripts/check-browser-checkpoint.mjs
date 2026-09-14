@@ -2,6 +2,24 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 
+const missionTwoMessage =
+  'Now we must face the Matak Tribe. I sense many Warriors ready to stand against us. In my vision we are aided by magic from a Stone Head. There must be a way to reach it...'
+
+async function assertMissionTwoMessage(page) {
+  await page.getByText(missionTwoMessage, { exact: true }).waitFor()
+  const icon = page.locator('.campaign-messages summary img')
+  assert.equal(await icon.getAttribute('src'), '/original/message-type1.png')
+  assert.deepEqual(await icon.evaluate(node => {
+    const { width, height } = node.getBoundingClientRect()
+    return { width, height }
+  }), { width: 50, height: 36 })
+  const popup = await page.locator('.campaign-messages details>div').evaluate(node => {
+    const { top, bottom, height } = node.getBoundingClientRect()
+    return { top, bottom, height, viewport: innerHeight }
+  })
+  assert.ok(popup.height > 40 && popup.top >= 0 && popup.bottom <= popup.viewport, popup)
+}
+
 async function waitForScene(page) {
   await page.waitForSelector('.world-viewport canvas')
   await page.waitForFunction(() => {
@@ -70,6 +88,7 @@ try {
     )
   })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
+  await assertMissionTwoMessage(page)
   await page.evaluate(async () => {
     const scene = globalThis.testScene
     scene.world.speed = 0
@@ -147,6 +166,7 @@ try {
     soundPlaying: false,
   })
   assert.ok(restored.soundSerial)
+  await assertMissionTwoMessage(page)
 
   await page.reload({ waitUntil: 'networkidle' })
   await page.getByRole('dialog', { name: 'Start game' }).waitFor()
