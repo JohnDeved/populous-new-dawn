@@ -6,11 +6,10 @@ Delivery target: complete the full-game remake by 2026-09-30 end of day
 Europe/Berlin. Keep scope and acceptance quality intact; use the date to favor
 coherent runs of high-impact gameplay over recurring cleanup and re-triage.
 
-Current feature lock: complete the naturally reachable Shaman water-death
-reincarnation relocation and sinking lifecycle in Mission 1, preserving native
-position, phase, sound, selection, and final stone-site spawn behavior. This is the
-highest-impact unblocked fallback while the next-mission level, header, and referenced
-PopScript remain absent; return to that campaign import when those inputs arrive.
+Current feature lock: import original Mission 3 from the supplied installer archive
+and make its opening playable through the normal campaign continuation path. Preserve
+its owner-2 enemy tribe, terrain, objects, script initialization, HUD/objectives, and
+naturally earned Swarm stone-head reward; do not invent later script behavior.
 
 Composition recovery: stop the queued behavior-neutral refactor after commits
 `41b8802` and `cf927f4`. `app/scene.ts` is already a compact composition root, and
