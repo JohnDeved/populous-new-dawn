@@ -2650,6 +2650,18 @@ function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
   }
 }
 
+// Browser positions may differ by a map period; native movement uses signed-short displacement.
+function wrappedPlanarDelta(a: Point, b: Point) {
+  return {
+    x: short(Math.round(b.x * 256) - Math.round(a.x * 256)),
+    z: short(Math.round(b.z * 256) - Math.round(a.z * 256)),
+  }
+}
+function wrappedDistance(a: Point, b: Point) {
+  const { x, z } = wrappedPlanarDelta(a, b)
+  return Math.hypot(x, z) / 256
+}
+
 function stepTurn(w: World) {
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
@@ -3339,14 +3351,21 @@ function stepTurn(w: World) {
       stepLiveBuildingAttack(w, u, target)
       continue
     }
-    const targetDistance = target ? distance(u, target) : Infinity
+    const targetDelta = target && !('progress' in target) ? wrappedPlanarDelta(u, target) : null
+    const targetDistance = target
+      ? targetDelta
+        ? Math.hypot(targetDelta.x, targetDelta.z) / 256
+        : distance(u, target)
+      : Infinity
     const reach = target && 'progress' in target ? 4.3 : 1.7
     if (target) {
       // 0x51a2a0 raises quiet music to activity without overriding battle music.
       // ponytail: target ownership remains the live attack adapter until the
       // shared native command controller is integrated.
       if (!w.musicActivity && nativePersonTribe(u) === w.manaWorld.playerTribe) w.musicActivity = 1
-      u.heading = Math.atan2(target.x - u.x, target.z - u.z)
+      u.heading = targetDelta
+        ? Math.atan2(targetDelta.x, targetDelta.z)
+        : Math.atan2(target.x - u.x, target.z - u.z)
       if (u.target === null && u.work === null) {
         u.target = target.id
         if (targetDistance >= reach) route(w, u, target)
@@ -3413,8 +3432,7 @@ function stepTurn(w: World) {
         clearLivePath(w, u)
         continue
       }
-      const dx = Math.round(next.x * 256) - Math.round(u.x * 256),
-        dz = Math.round(next.z * 256) - Math.round(u.z * 256),
+      const { x: dx, z: dz } = wrappedPlanarDelta(u, next),
         angle = nativeAngle(dx, dz)
       if (dx || dz) {
         u.heading = Math.PI - (angle * Math.PI) / 1024
@@ -3511,7 +3529,7 @@ function stepTurn(w: World) {
       target.inside === null &&
       u.lift === 0 &&
       target.lift === 0 &&
-      distance(u, target) < 1.7 &&
+      wrappedDistance(u, target) < 1.7 &&
       !u.fight &&
       !u.casting &&
       !target.casting

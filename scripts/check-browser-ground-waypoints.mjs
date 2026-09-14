@@ -100,8 +100,31 @@ try {
   await click({x:5,z:12})
   const full=await page.evaluate(()=>({cues:window.feedbackCues,markers:window.testScene.world.effects.filter(f=>f.kind==='orderMarker').length,active:window.testScene.world.buildingOrders.active}))
   assert.equal(full.markers,1);assert.equal(full.active,799);assert.ok(full.cues.includes(106))
+  const seamAttack=await page.evaluate(async()=>{
+   const s=window.testScene,w=s.world,m=await import('/app/model.ts'),terrain=await import('/app/native-terrain.ts')
+   const version=w.terrainVersion+1;Object.assign(w,m.createWorld());w.terrainVersion=version
+   w.units=[];w.buildings=[];w.shrines=[];w.trees=[];w.nextId=1000;w.manaWorld.gameFlags=32;w.flyby.flags=0;w.inputMask=0;w.speed=0;w.terrain.fill(3)
+   w.land.heights.fill(135);w.land.categories.fill(0);w.land.landFlags=0;terrain.queueTerrain(w.land,0,64,1,{surface(){},globe(){}});terrain.updateWalkMasks(w.land,0,64);w.landVersion=w.terrainVersion
+   const u=m.addUnit(w,'blue','brave',{x:-127,z:0}),enemy=m.addUnit(w,'red','warrior',{x:127,z:0})
+   m.setSelection(w,[u.id]);s.focus({x:127,z:0});s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+   const r=s.renderer.domElement.getBoundingClientRect(),p=s.unitScreen(enemy.id),frame=s.unitMeshes.get(enemy.id).userData.frameHeight
+   return {unit:u.id,enemy:enemy.id,click:{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2-frame/2}}
+  })
+  await page.keyboard.down('Shift');await page.mouse.click(seamAttack.click.x,seamAttack.click.y);await page.keyboard.up('Shift')
+  const seamIssued=await page.evaluate(({unit,enemy})=>{const w=window.testScene.world,u=w.units.find(u=>u.id===unit);return {target:u?.target,enemy,message:w.message}},seamAttack)
+  assert.equal(seamIssued.target,seamAttack.enemy,JSON.stringify(seamIssued))
+  const seamResult=await page.evaluate(async({unit,enemy})=>{
+   const s=window.testScene,w=s.world,{advanceGame}=await import('/app/game-clock.ts'),u=w.units.find(u=>u.id===unit),target=w.units.find(u=>u.id===enemy)
+   const delta=(a,b)=>(((a-b+128)%256+256)%256)-128,separation=()=>Math.hypot(delta(target.x,u.x),delta(target.z,u.z)),before=separation()
+   w.speed=1;advanceGame(w,s.gameClock,1/12);let fought=!!w.fights.length
+   const shorter=separation()<before
+   for(let i=0;i<47&&!fought;i++){advanceGame(w,s.gameClock,1/12);fought=!!w.fights.length}w.speed=0
+   s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
+   return {shorter,fought,visible:s.unitMeshes.get(unit)?.visible}
+  },seamAttack)
+  assert.deepEqual(seamResult,{shorter:true,fought:true,visible:true})
  }
  await page.screenshot({path:'/private/tmp/populous-ground-waypoints.png'})
  assert.deepEqual(errors,[])
- console.log('PASS: desktop/ultrawide real Ctrl mouse waypoints and queued enemy attacks, target-loss handoff, immediate movement, release modifiers, Alt deselection, ordered arrival, original sprites, visible ground feedback and silent rejected clicks')
+ console.log('PASS: desktop/ultrawide real Ctrl mouse waypoints, queued enemy attacks, direct seam combat, target-loss handoff, immediate movement, release modifiers, Alt deselection, ordered arrival, original sprites, visible ground feedback and silent rejected clicks')
 }finally{await browser.close()}

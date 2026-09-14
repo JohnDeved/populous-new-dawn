@@ -40,6 +40,24 @@ test('followers cross the former crop and both world seams, then settle at every
  }
 })
 
+test('direct attacks take the short route and engage across both world seams',()=>{
+ for(const [from,to] of [[[-135,0],[119,0]],[[0,-135],[0,119]]]){
+  const w=world(),attacker=addUnit(w,'blue','brave',{x:from[0],z:from[1]}),target=addUnit(w,'red','warrior',{x:to[0],z:to[1]})
+  w.selected=[attacker.id]
+  const separation=()=>Math.hypot(delta(target.x,attacker.x),delta(target.z,attacker.z))
+  assert.ok(command(w,target))
+  const before=separation(),clock={animationTime:0,animationFrame:0}
+  advanceGame(w,clock,1/12)
+  assert.ok(separation()<before,'direct pursuit must move along the shortest wrapped displacement')
+  let fought=!!w.fights.length
+  for(let i=0;i<47&&!fought;i++){
+   advanceGame(w,clock,1/12)
+   fought=!!w.fights.length
+  }
+  assert.ok(fought,'direct pursuit must enter melee across the seam')
+ }
+})
+
 test('live heights and sprite grounding read native terrain outside the compatibility grid',()=>{
  const w=world(),point={x:52,z:52},n=nativePosition(w,point),cell=((n.y&65535)>>9)*128+((n.x&65535)>>9)
  w.land.heights[cell]=420
