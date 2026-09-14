@@ -59,6 +59,7 @@
       "callers": [
         "scripts/import-original.py",
         "scripts/import-level.py",
+        "scripts/import-script.py",
         "scripts/import-hud.py",
         "scripts/import-sound.py",
         "scripts/import-music.py"
@@ -67,6 +68,13 @@
       "outputs": [
         {
           "path": "app/level-one.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
+          "path": "app/level-two.ts",
           "type": "file",
           "tracked": true,
           "protected": true,
@@ -144,6 +152,13 @@
         },
         {
           "path": "app/original-script.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-two.json",
           "type": "file",
           "tracked": true,
           "protected": true,

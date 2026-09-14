@@ -33,7 +33,12 @@ import {
   stepConstructionCrew,
   stepUnbuiltPlan,
 } from './building-workers.ts'
-import { queueTerrain, processTerrain, updateWalkMasks, terrainPointHeight } from './native-terrain.ts'
+import {
+  queueTerrain,
+  processTerrain,
+  updateWalkMasks,
+  terrainPointHeight,
+} from './native-terrain.ts'
 import {
   terrainTextures,
   nativePosition,
@@ -45,7 +50,7 @@ import { invalidateTimberSearch } from './timber-search.ts'
 import { invalidateTimberRoutes } from './timber-search.ts'
 import { buildingCellValid } from './building-validity.ts'
 import { reincarnationStones } from './reincarnation.ts'
-import { HOME, ENEMY } from './campaign-runtime.ts'
+import { campaignPosition } from './campaign-runtime.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
 import { BUILDINGS, buildingHp } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
@@ -108,7 +113,7 @@ export function checkBuildingSite(
       land.buildingIds[i] = (land.buildingIds[i] & 0xfc00) | id
     }
   }
-  for (const center of [HOME, ENEMY])
+  for (const center of [campaignPosition(w, 'blue'), campaignPosition(w, 'red')])
     for (const stone of reincarnationStones(land, nativePosition(w, center))) add(stone, 12)
   const world = {
     land,
@@ -156,7 +161,10 @@ export function placementError(w: World, kind: BuildingKind, p: Point) {
   p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
   // ponytail: placement reach still uses settlement proximity until the full
   // preview controller's territory and capacity queries are connected.
-  if (!w.buildings.some(b => b.team === 'blue' && distance(b, p) < 16) && distance(HOME, p) > 16)
+  if (
+    !w.buildings.some(b => b.team === 'blue' && distance(b, p) < 16) &&
+    distance(campaignPosition(w, 'blue'), p) > 16
+  )
     return 'Build next to your settlement or reincarnation site.'
   return null
 }

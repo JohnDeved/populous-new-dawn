@@ -1,5 +1,5 @@
-"""Import the original first mission's PopScript bytecode without executing it.
-Usage: python3 scripts/import-script.py /path/to/extracted/levels
+"""Import original mission PopScript bytecode without executing it.
+Usage: python3 scripts/import-script.py /path/to/extracted/levels [mission]
 """
 import hashlib
 import json
@@ -8,9 +8,13 @@ import struct
 import sys
 
 source = Path(sys.argv[1])
-header = (source / 'levl2001.hdr').read_bytes()
-if len(header) != 616 or header[89] != 10:
-    raise ValueError('Expected the original first mission header selecting script 10')
+mission = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+suffix = {1: '', 2: '-two'}.get(mission)
+if suffix is None:
+    raise ValueError('Only recovered missions 1 and 2 are supported')
+header = (source / f'levl{2000 + mission:04}.hdr').read_bytes()
+if len(header) != 616:
+    raise ValueError('Expected a 616-byte original mission header')
 name = f'cpscr{header[89]:03}.dat'
 data = (source / name).read_bytes()
 if len(data) != 12552 or struct.unpack_from('<H', data)[0] != 12:
@@ -39,5 +43,5 @@ for i, code in enumerate(codes):
 fields = fields[:max(used) + 1]
 out = dict(source=name, sha256=hashlib.sha256(data).hexdigest(), codes=codes, fields=fields,
            variables=list(struct.unpack_from('<64i', data, 12288)), commands=commands)
-(Path(__file__).resolve().parents[1] / 'app/original-script.json').write_text(json.dumps(out, separators=(',', ':')) + '\n')
+(Path(__file__).resolve().parents[1] / f'app/original-script{suffix}.json').write_text(json.dumps(out, separators=(',', ':')) + '\n')
 print(f'Imported {name}: {len(codes)} words, {len(commands)} command signatures; SHA256 {out["sha256"]}')

@@ -7,6 +7,8 @@ import test from 'node:test';
 import {createHash} from 'node:crypto';
 import nativeModels from '../app/original-models.json' with {type:'json'};
 import level from '../app/level-one.ts';
+import levelTwo from '../app/level-two.ts';
+import scriptTwo from '../app/original-script-two.json' with {type:'json'};
 import {reincarnationStoneRise,reincarnationTurns,stepReincarnation} from '../app/reincarnation.ts';
 import {AUDIO_CUES} from '../app/audio.ts';
 import {buildingGradeVertices,buildingPosition} from '../app/building-shapes.ts';
@@ -1203,12 +1205,28 @@ test('external game store publishes edits and restarts without sharing worlds be
  unsubscribe();store.update();assert.equal(events.length,2);
 });
 
+test('mission-one victory continuation creates and restarts the recovered mission-two world', async () => {
+ const {createGameStore,migrateCheckpoint}=await import('../app/game-store.ts');
+ const {campaignSpellModels}=await import('../app/mission-data.ts');
+ const store=createGameStore();store.startMission(2);const world=store.getWorld();
+ assert.equal(levelTwo.sourceSha256,'83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f');assert.equal(levelTwo.headerSha256,'44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49');assert.equal(scriptTwo.source,'cpscr074.dat');assert.equal(scriptTwo.sha256,'03931ad1bc69860177c0a0d7d850db46b268683bf95b274926e18fe1f8a5d9db');
+ assert.deepEqual({level:world.outcome.level,blue:world.units.filter(u=>u.team==='blue').length,red:world.units.filter(u=>u.team==='red').length,wild:world.units.filter(u=>u.team==='wild').length,buildings:world.buildings.length},
+  {level:2,blue:9,red:18,wild:0,buildings:6});
+ assert.deepEqual(world.shrines.map(s=>[s.kind,s.reward]),[['vault','swarm'],['bridgeEffect',undefined],['tornado','tornado']]);
+ assert.deepEqual(world.shrines.find(s=>s.kind==='bridgeEffect').bridgeTarget,{x:-61,z:-105});
+ assert.equal(world.unlockedCamp,true);assert.equal(world.inputMask,0);const spells=campaignSpellModels(2);for(const model of [2,3,4,5,12])assert.ok(spells.has(model));assert.equal(spells.has(17),false);
+ const first=world;store.restart();assert.notEqual(store.getWorld(),first);assert.equal(store.getWorld().outcome.level,2);
+ const legacy=structuredClone(createWorld());delete legacy.outcome.level;delete legacy.shrines[0].reward;migrateCheckpoint(legacy);assert.equal(legacy.outcome.level,1);assert.equal(legacy.shrines[0].reward,'camp');
+});
+
 test('game store checkpoints restore an isolated exact world snapshot', async () => {
  const {createGameStore,migrateCheckpoint}=await import('../app/game-store.ts');
  const legacy=createWorld(),nextId=legacy.nextId;legacy.effects=[];legacy.gifts=[{kind:'bridge',x:1,z:2,remaining:79}];
  migrateCheckpoint(legacy);const gift=legacy.gifts[0];
  assert.deepEqual({kind:gift.kind,reward:gift.reward,remaining:gift.remaining,phase:gift.phase,id:gift.id},{kind:'gift',reward:'bridge',remaining:79,phase:3,id:nextId});
  assert.equal(legacy.effects[0],gift,'legacy gifts regain shared visual ownership');
+ const oldVault=createWorld();oldVault.gifts[0]=createGift(oldVault,'camp',{x:0,z:0});oldVault.gifts[0].reward='vault';
+ migrateCheckpoint(oldVault);assert.equal(oldVault.gifts[0].reward,'camp');
  const store=createGameStore(),saved=store.getWorld(),turn=saved.turn,height=saved.land.heights[0],hp=saved.units[0].hp;
  assert.equal(store.hasCheckpoint(),false);assert.equal(await store.restoreCheckpoint(),false);
  assert.equal(await store.saveCheckpoint(),false);assert.equal(store.hasCheckpoint(),true);

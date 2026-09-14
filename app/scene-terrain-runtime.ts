@@ -8,8 +8,7 @@ import {
   nativePosition,
   browserPosition,
   walkable,
-  HOME,
-  ENEMY,
+  campaignPosition,
   type Point,
   type Tree,
   type Effect,
@@ -212,7 +211,10 @@ export function makeDecorations(scene: GameScene) {
     g.userData.point = tree
     scene.decorations.add(g)
   }
-  for (const center of [HOME, ENEMY]) {
+  for (const center of [
+    campaignPosition(scene.world, 'blue'),
+    campaignPosition(scene.world, 'red'),
+  ]) {
     const stones = reincarnationStones(scene.world.land, nativePosition(scene.world, center))
     for (const stone of stones) {
       const group = new THREE.Group()

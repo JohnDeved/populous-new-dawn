@@ -33,12 +33,18 @@ import {
   campaignPeopleInMarker,
   campaignAttackTarget,
   forceHead,
-  missionAI,
+  campaignPosition,
+} from './campaign-runtime.ts'
+export {
+  campaignInternal,
+  campaignPersonCount,
+  campaignBuildingCount,
+  forceHead,
+  campaignPosition,
   HOME,
   ENEMY,
   markerHeight,
 } from './campaign-runtime.ts'
-export { campaignInternal, campaignPersonCount, campaignBuildingCount, forceHead, HOME, ENEMY, markerHeight } from './campaign-runtime.ts'
 import { campaignCommand, campaignRules } from './campaign-command-runtime.ts'
 export { campaignCommand, removeHead } from './campaign-command-runtime.ts'
 import {
@@ -49,8 +55,25 @@ import {
   stepComputerTasks,
 } from './computer-runtime.ts'
 export { computerMarkerOrderCount } from './computer-runtime.ts'
-import { builderActivity, unitAnimationSource, selectionBuilding, canOrder } from './selection-runtime.ts'
-export { unitAnimation, unitAnimationSource, canOrder, select, selectionPeople, hudPeople, selectFollowers, setSelection, selectUnit, selectArea, cancelInteraction } from './selection-runtime.ts'
+import {
+  builderActivity,
+  unitAnimationSource,
+  selectionBuilding,
+  canOrder,
+} from './selection-runtime.ts'
+export {
+  unitAnimation,
+  unitAnimationSource,
+  canOrder,
+  select,
+  selectionPeople,
+  hudPeople,
+  selectFollowers,
+  setSelection,
+  selectUnit,
+  selectArea,
+  cancelInteraction,
+} from './selection-runtime.ts'
 import {
   applyHypnotise,
   emitBlastWave,
@@ -112,9 +135,34 @@ import {
   originalLand,
   makeTerrain,
 } from './world-terrain-runtime.ts'
-export { nativePosition, buildingStage, syncLandscapeObjects, makeTerrain } from './world-terrain-runtime.ts'
-import { worldPoint, distance, nativeStep3D, browserPosition, nativeTerrainHeight, terrainCross, height, surface, nativeCellPoint } from './world-coordinates.ts'
-export { worldPoint, distance, nativeStep3D, browserPosition, nativeTerrainHeight, terrainCross, height, surface, nativeCellPoint } from './world-coordinates.ts'
+export {
+  nativePosition,
+  buildingStage,
+  syncLandscapeObjects,
+  makeTerrain,
+} from './world-terrain-runtime.ts'
+import {
+  worldPoint,
+  distance,
+  nativeStep3D,
+  browserPosition,
+  nativeTerrainHeight,
+  terrainCross,
+  height,
+  surface,
+  nativeCellPoint,
+} from './world-coordinates.ts'
+export {
+  worldPoint,
+  distance,
+  nativeStep3D,
+  browserPosition,
+  nativeTerrainHeight,
+  terrainCross,
+  height,
+  surface,
+  nativeCellPoint,
+} from './world-coordinates.ts'
 import { short } from './native-math.ts'
 import {
   housing,
@@ -125,7 +173,14 @@ import {
   addUnit,
   createWorldState,
 } from './world-state.ts'
-export { housing, population, populationLimit, breedingWork, trainingCost, addUnit } from './world-state.ts'
+export {
+  housing,
+  population,
+  populationLimit,
+  breedingWork,
+  trainingCost,
+  addUnit,
+} from './world-state.ts'
 import {
   isShaman,
   TURNS_PER_SECOND,
@@ -300,7 +355,7 @@ import { collapseBuildingFaces } from './building-debris.ts'
 import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
-import { stepLandBridge, type LandBridge } from './land-bridge.ts'
+import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
 import { stepFlatten, type Flatten } from './flatten.ts'
 import { stepErosion, type Erosion } from './erosion.ts'
 import { stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
@@ -444,9 +499,7 @@ import {
   type TribeCasting,
 } from './spell-casting.ts'
 export { recordSpellCast, spellRange, spellInRange, beginCast } from './spell-casting.ts'
-import {
-  type SpellTargetScan,
-} from './computer-spells.ts'
+import { type SpellTargetScan } from './computer-spells.ts'
 import {
   requestAttack,
   requestMarkerTask,
@@ -456,14 +509,7 @@ import {
 } from './computer.ts'
 import { availableTrainingPeople } from './computer-selection.ts'
 import { createFlyby, flybyCommand, type Flyby } from './flyby.ts'
-import level from './level-one.ts'
-import originalScript from './original-script.json' with { type: 'json' }
-import {
-  runScript,
-  scriptValue,
-  type ScriptState,
-  type PopScript,
-} from './popscript.ts'
+import { missionData } from './mission-data.ts'
 import {
   createWorship,
   stepWorship,
@@ -473,7 +519,6 @@ import {
   type WorshipState,
 } from './worship.ts'
 import type { ModelMorph } from './morph.ts'
-import { createMessages, addMessage, messageStringId, type MessageState } from './messages.ts'
 import { stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
@@ -489,7 +534,6 @@ const unitSpeed = (u: Unit) =>
       : u.kind === 'preacher'
         ? constants.RELIGIOUS_SPEED
         : constants.BRAVE_SPEED
-
 
 export function canPickUnit(w: World, u: Unit) {
   if (unitInvisibleToPlayer(w, u)) return false
@@ -516,19 +560,29 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
   syncLandscapeObjects(w)
   return findLivePath(w, start, end)
 }
-export function createWorld(): World {
-  const w = createWorldState()
+export function createWorld(missionNumber = 1): World {
+  const mission = missionData(missionNumber),
+    level = mission.level,
+    w = createWorldState(missionNumber)
   for (const o of level.objects) {
     if (o.type === 2 && o.owner !== 255) {
-      addBuilding(w, o.owner === 0 ? 'blue' : 'red', o.model === 7 ? 'camp' : 'hut', o, true, {
-        level: o.model === 3 ? 3 : 1,
+      const kind =
+        o.model === 4 ? 'tower' : o.model === 5 ? 'temple' : o.model === 7 ? 'camp' : 'hut'
+      addBuilding(w, o.owner === 0 ? 'blue' : 'red', kind, o, true, {
+        level: kind === 'hut' ? o.model : 1,
         angle: (o.angle / 2048) * Math.PI * 2,
       })
     }
     if (o.type === 1)
       addUnit(
         w,
-        o.owner === 255 ? 'wild' : o.owner === 0 ? 'blue' : 'red',
+        o.owner === 255 && missionNumber === 2 && distance(o, campaignPosition(w, 'blue')) < 6
+          ? 'blue'
+          : o.owner === 255
+            ? 'wild'
+            : o.owner === 0
+              ? 'blue'
+              : 'red',
         unitKindFromModel(o.model),
         o
       )
@@ -536,18 +590,34 @@ export function createWorld(): World {
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
       const settings = o.settings!,
-        reward = level.objects.find(
-          r => r.index + 1 === (settings[6] | (settings[7] << 8))
-        )?.settings
-      const kind =
-        settings[0] === 4
-          ? 'vault'
-          : reward?.[0] === 11 && reward[1] === 3
-            ? 'lightning'
-            : reward?.[0] === 11 && reward[1] === 12
-              ? 'bridge'
-              : null
+        linked = level.objects.find(r => r.index + 1 === (settings[6] | (settings[7] << 8))),
+        reward = linked?.settings,
+        bridgeTarget = linked && 'target' in linked ? (linked.target as Point) : undefined
+      const rewardSpell =
+          reward?.[0] === 11 ? SPELLS.find(spell => spell.model === reward[1])?.id : undefined,
+        kind =
+          settings[0] === 4
+            ? 'vault'
+            : linked?.type === 7 && linked.model === 24 && bridgeTarget
+              ? 'bridgeEffect'
+              : reward?.[0] === 11 && reward[1] === 3
+                ? 'lightning'
+                : reward?.[0] === 11 && reward[1] === 4
+                  ? 'tornado'
+                  : reward?.[0] === 11 && reward[1] === 12
+                    ? 'bridge'
+                    : null
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
+      const shrineReward =
+        kind === 'vault'
+          ? reward?.[0] === 2 && reward[1] === 7
+            ? 'camp'
+            : rewardSpell
+          : kind === 'bridgeEffect'
+            ? undefined
+            : kind
+      if (kind !== 'bridgeEffect' && !shrineReward)
+        throw new Error(`Unbound shrine gift ${o.index}`)
       const worship = createWorship(settings)
       const vault =
         kind === 'vault'
@@ -567,12 +637,18 @@ export function createWorld(): World {
         x: o.x,
         z: o.z,
         kind,
+        reward: shrineReward,
+        ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
         name:
           kind === 'vault'
             ? 'Vault of Knowledge'
             : kind === 'bridge'
               ? 'Land Bridge stone head'
-              : 'Lightning stone head',
+              : kind === 'bridgeEffect'
+                ? 'Land raising stone head'
+                : kind === 'tornado'
+                  ? 'Tornado stone head'
+                  : 'Lightning stone head',
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,
@@ -580,6 +656,9 @@ export function createWorld(): World {
     }
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
+    // ponytail: Mission 2's input-lock presentation waits for unported recurring
+    // script commands; consume the lock until that complete intro can also release it.
+    if (missionNumber !== 1 && c.opcode === 1112) return false
     if (![1038, 1081, 1091, 1092, 1095, 1108, 1109, 1112, 1117, 1196, 1204].includes(c.opcode))
       return true
     campaignCommand(w, c.opcode, c.args)
@@ -589,7 +668,7 @@ export function createWorld(): World {
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
-  w.lightView = nativePosition(w, HOME)
+  w.lightView = nativePosition(w, campaignPosition(w, 'blue'))
   return w
 }
 export function requestTutorial(w: World, flags: number, message: number) {
@@ -597,13 +676,16 @@ export function requestTutorial(w: World, flags: number, message: number) {
   if (flags === 0x200000 && message === 603)
     w.routeNotice = { flags, message, serial: (w.routeNotice?.serial ?? 0) + 1 }
 }
-export function createGift(w: World, reward: Shrine['kind'], p: Point) {
+export function createGift(w: World, reward: Gift['reward'], p: Point) {
   const gift = effect(w, 'gift', p) as Gift
   Object.assign(gift, {
     reward,
     remaining: 82,
     phase: 6,
-    frame: { vault: 1077, lightning: 1059, bridge: 1068 }[reward],
+    frame:
+      reward === 'camp' || reward === 'vault'
+        ? 1077
+        : 1056 + SPELLS.find(spell => spell.id === reward)!.model,
     height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
     duration: Infinity,
   })
@@ -614,7 +696,6 @@ export { buildingModel } from './building-shapes.ts'
 
 // Native slots retain registration order. Browser work orders supply eligibility
 // until the complete native person/plan command ownership is connected.
-
 
 function completeBuildingConstruction(w: World, b: Building) {
   if (!b.upgrading && !b.damageState) w.stats.built++
@@ -1190,12 +1271,18 @@ function cleanupDefeatedTribe(w: World, id: number) {
     skyCounter: w.outcome.skyCounter,
     units,
   }
-  defeatTribe(context, id, w.castingTribes[id].flags, nativePosition(w, id === 0 ? HOME : ENEMY), {
-    // Tribe-death sky objects and reveal/camera effects need their native consumers.
-    allocate: () => {},
-    reveal: () => {},
-    remove: () => {},
-  })
+  defeatTribe(
+    context,
+    id,
+    w.castingTribes[id].flags,
+    nativePosition(w, campaignPosition(w, id === 0 ? 'blue' : 'red')),
+    {
+      // Tribe-death sky objects and reveal/camera effects need their native consumers.
+      allocate: () => {},
+      reveal: () => {},
+      remove: () => {},
+    }
+  )
   w.outcome.skyCounter = context.skyCounter
   for (const p of units)
     if (p.tribe === id) {
@@ -1777,7 +1864,6 @@ function entranceWood(w: World, b: Building) {
   )
 }
 
-
 function* liveTimberObjects(w: World, cell: number) {
   // ponytail: scan the live tree array; index it by native cell if scenery scale makes this hot.
   for (let i = w.trees.length - 1; i >= 0; i--) {
@@ -1844,7 +1930,6 @@ function stepLiveTimberSearches(w: World) {
     id => w.units.some(u => u.id === id && u.hp > 0)
   )
 }
-
 
 function findBuildingWood(w: World, u: Unit, b: Building) {
   const door = buildingOutsidePoint(buildingPose(b))
@@ -2020,7 +2105,7 @@ function stepTurn(w: World) {
     if (--gift.remaining !== 0) continue
     gift.duration = gift.age
     effect(w, 'birth', gift)
-    if (gift.reward === 'vault') {
+    if (gift.reward === 'camp' || gift.reward === 'vault') {
       w.unlockedCamp = true
       tell(w, 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.')
     } else {
@@ -2030,7 +2115,7 @@ function stepTurn(w: World) {
       w.giftCounts[gift.reward] = Math.min(15, w.giftCounts[gift.reward] + 1)
       tell(
         w,
-        `${gift.reward === 'bridge' ? 'Land Bridge' : 'Lightning'} received. ${w.shots[gift.reward]} shots ready.`
+        `${SPELLS.find(spell => spell.id === gift.reward)!.name} received. ${w.shots[gift.reward]} shots ready.`
       )
     }
   }
@@ -2329,7 +2414,16 @@ function stepTurn(w: World) {
     if (fired) {
       shrine.progress = 0
       shrine.uses++
-      createGift(w, shrine.kind, shrine)
+      if (shrine.kind === 'bridgeEffect') {
+        const bridge = effect(w, 'bridge', shrine)
+        bridge.bridge = createLandBridge(
+          nativePosition(w, shrine),
+          nativePosition(w, shrine.bridgeTarget!)
+        )
+        bridge.team = 'blue'
+        bridge.duration = Infinity
+        w.stats.bridges++
+      } else createGift(w, shrine.reward!, shrine)
       sound(w, 0x70, shrine)
     }
   }
@@ -2924,7 +3018,7 @@ function stepTurn(w: World) {
     const key = team === 'blue' ? 'respawn' : 'redRespawn',
       pointKey = team === 'blue' ? 'respawnPoint' : 'redRespawnPoint'
     if (w[key] > 0) {
-      const site = team === 'blue' ? HOME : ENEMY,
+      const site = campaignPosition(w, team),
         visual = w.effects.find(f => f.reincarnation?.team === team),
         canSpawn =
           w.units.some(u => u.team === team && !u.ghost) &&
@@ -2942,7 +3036,7 @@ function stepTurn(w: World) {
       if (step.event === 'splash') effect(w, 'splash', w[pointKey] ?? site)
       else if (step.event === 'rise') effect(w, 'birth', site)
       else if (step.event === 'spawn') {
-        const u = addUnit(w, team, 'shaman', team === 'blue' ? HOME : ENEMY)
+        const u = addUnit(w, team, 'shaman', site)
         if ((team === 'blue' ? 0 : 1) === w.manaWorld.playerTribe) sound(w, 0x6b, site)
         if (team === 'blue' && !w.selected.length) w.selected = [u.id]
         if (visual) visual.duration = visual.age

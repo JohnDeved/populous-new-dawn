@@ -41,7 +41,7 @@ import {
   stepTrainingTask,
   type TrainingBuilding,
 } from './computer.ts'
-import level from './level-one.ts'
+import { missionData } from './mission-data.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { spellCaster, beginCast } from './spell-casting.ts'
 import { clearLivePath } from './live-pathfinding.ts'
@@ -274,6 +274,7 @@ export function computerMarkerOrderCount(
   marker: number,
   secondary: number
 ) {
+  const level = missionData(w.outcome.level).level
   const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null,
     primary = level.markers[marker],
     alternate = secondary === -1 ? -1 : level.markers[secondary],
@@ -303,6 +304,7 @@ export function computerMarkerOrderCount(
 }
 
 export function stepComputerTasks(w: World, tribe: number) {
+  const level = missionData(w.outcome.level).level
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
     produceMissionWarriorTraining(w)

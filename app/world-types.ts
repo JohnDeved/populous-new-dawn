@@ -184,7 +184,9 @@ export type Building = Point & {
 export type Shrine = Point &
   WorshipState & {
     id: number
-    kind: 'bridge' | 'lightning' | 'vault'
+    kind: 'bridge' | 'bridgeEffect' | 'lightning' | 'tornado' | 'vault'
+    reward?: Spell | 'camp'
+    bridgeTarget?: Point
     nextSlot: number
     slotTimer: number
     range: number
@@ -266,7 +268,7 @@ export type Effect = Point & {
 }
 export type Gift = Effect & {
   kind: 'gift'
-  reward: Shrine['kind']
+  reward: Spell | 'camp' | 'vault'
   remaining: number
   phase: number
   frame: number

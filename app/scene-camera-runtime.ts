@@ -4,7 +4,7 @@ import { texture } from './scene-assets.ts'
 import { defeatSky, updateSkyArray, fillSkyArray, skyCloudLayer } from './sky.ts'
 import { advanceSkyMotion } from './sky-motion.ts'
 import skyPalette from './original-sky.json'
-import { nativePosition, browserPosition, sound, HOME, ENEMY, type Point } from './model'
+import { nativePosition, browserPosition, sound, HOME, campaignPosition, type Point } from './model'
 import { cameraPreset, cameraConfigIndex } from './projection.ts'
 import { stepFlyby, interruptFlyby } from './flyby.ts'
 import { stepCameraInput } from './camera-input.ts'
@@ -252,7 +252,7 @@ export function updateCameraMotion(scene: GameScene, dt: number) {
       w.manaWorld.gameFlags,
       0,
       scene.cameraPosition,
-      nativePosition(w, w.outcome.cameraTribe === 0 ? HOME : ENEMY)
+      nativePosition(w, campaignPosition(w, w.outcome.cameraTribe === 0 ? 'blue' : 'red'))
     )
   }
   let active = !!(s.active || motion.active)

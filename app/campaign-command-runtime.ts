@@ -5,13 +5,10 @@ import {
   campaignPeopleInMarker,
   campaignAttackTarget,
   forceHead,
-  HOME,
+  campaignPosition,
   markerHeight,
 } from './campaign-runtime.ts'
-import {
-  computerSelectionWorld,
-  computerTrainingBuilding,
-} from './computer-runtime.ts'
+import { computerSelectionWorld, computerTrainingBuilding } from './computer-runtime.ts'
 import { availableTrainingPeople } from './computer-selection.ts'
 import {
   requestAttack,
@@ -26,8 +23,7 @@ import { sound } from './world-effects.ts'
 import { flybyCommand } from './flyby.ts'
 import { addMessage, messageStringId } from './messages.ts'
 import { runScript, scriptValue, type PopScript } from './popscript.ts'
-import level from './level-one.ts'
-import originalScript from './original-script.json' with { type: 'json' }
+import { missionData } from './mission-data.ts'
 
 export function removeHead(w: World, x: number, y: number) {
   const head = headAt(w, x, y)
@@ -41,8 +37,9 @@ export function campaignCommand(
   w: World,
   opcode: number,
   args: number[],
-  script: PopScript = originalScript
+  script: PopScript = missionData(w.outcome.level).script
 ) {
+  const level = missionData(w.outcome.level).level
   const arity = (
     {
       1028: 1,
@@ -289,7 +286,7 @@ export function campaignCommand(
 
   if (opcode === 1176) {
     w.lastMessage = addMessage(w.messages, messageStringId(read(args[0])), () => random(w))
-    sound(w, 0xe3, HOME)
+    sound(w, 0xe3, campaignPosition(w, 'blue'))
     return
   }
 
@@ -299,7 +296,7 @@ export function campaignCommand(
   }
   let value: number
   if (opcode === 1085) {
-    value = markerHeight(w.terrain, read(args[0]))
+    value = markerHeight(w.terrain, read(args[0]), w.outcome.level, w.land.heights)
   } else if (opcode === 1131) {
     value = ((headAt(w, read(args[0]), read(args[1]))?.remaining ?? 0) << 24) >> 24
   } else {
@@ -327,16 +324,20 @@ export function campaignCommand(
   writeVariable(args.at(-1)!, value)
 }
 
-const boundCampaignScript = {
-  ...originalScript,
-  codes: [12, 1003, ...originalScript.codes.slice(382, 1524), 1004, 1019],
-}
 export function campaignRules(w: World) {
+  const script = missionData(w.outcome.level).script
+  // ponytail: Mission 2 enters with its verified turn-zero setup; recurring
+  // execution resumes when its first unbound command (1069) is implemented.
+  if (w.outcome.level !== 1) return
+  const boundCampaignScript = {
+    ...script,
+    codes: [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019],
+  }
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe: 1,
     readInternal: id => campaignInternal(w, id),
-    command: (opcode, args) => campaignCommand(w, opcode, args),
+    command: (opcode, args) => campaignCommand(w, opcode, args, script),
   })
 }

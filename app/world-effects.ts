@@ -27,7 +27,7 @@ import {
 import { createBuildingSmoke } from './building-smoke.ts'
 import { replantDelay, stepReplant, findReplantSite, stepTreeGrowth } from './tree-growth.ts'
 import { stepTimberReservations } from './timber.ts'
-import { HOME, ENEMY } from './campaign-runtime.ts'
+import { campaignPosition } from './campaign-runtime.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
 import type { NativeModel } from './model-faces.ts'
@@ -223,7 +223,7 @@ export function stepScenery(w: World) {
         }
         for (const tree of w.trees) if (tree.logs > 0) add(nativePosition(w, tree), tree.model)
         for (const shrine of w.shrines) add(nativePosition(w, shrine), 9)
-        for (const center of [HOME, ENEMY])
+        for (const center of [campaignPosition(w, 'blue'), campaignPosition(w, 'red')])
           for (const stone of reincarnationStones(w.land, nativePosition(w, center))) add(stone, 12)
         for (const fx of w.effects) if (fx.fire) add(fx.fire, 10)
         const point = findReplantSite(

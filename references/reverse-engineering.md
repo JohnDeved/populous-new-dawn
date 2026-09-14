@@ -2073,6 +2073,14 @@ requests celebration unless the world already has its win bit, replaces the
 world result bits (`0x6000000`) with win (`0x2000000`), cancels input, optionally
 requests the most recently defeated tribe's camera and sets campaign progress
 byte `009608b2 & 1`. It calls `004860c0` with signed-short level number minus one.
+
+Reviewed `004860c0` makes no calls. It snapshots the current 56-byte player-things
+record to the fixed `level_hdr_savegame_mem` buffer at `0089a3a9`. One 48-byte
+record per non-player tribe and four opaque values go into the selected 164-byte
+in-memory level slot; index 99 is a no-op. Disk serialization belongs to separate
+callers in `00427220`, so neither this callee nor the returning victory branch
+requests the next screen or level. The durable handoff is
+[`decomp/research/campaign-progression.md`](../decomp/research/campaign-progression.md).
 Loss replaces the same result bits with `0x4000000`, cancels input and requests
 the player's camera and defeat cleanup. Simultaneous campaign extinction loses.
 

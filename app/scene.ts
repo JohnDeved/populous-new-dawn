@@ -161,7 +161,13 @@ import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
 import { lightningLines, lineQuad, lightningTexture, type Lightning } from './lightning.ts'
 import rules from './original-rules.json'
-import { makeFx, animateFx, animateLightning, updateSpellHalo, updateEffectsFrame } from './scene-effects.ts'
+import {
+  makeFx,
+  animateFx,
+  animateLightning,
+  updateSpellHalo,
+  updateEffectsFrame,
+} from './scene-effects.ts'
 import {
   makeShrines,
   animatePerson,
@@ -170,10 +176,54 @@ import {
   updateShrinesFrame,
   updateWaveShake,
 } from './scene-entities.ts'
-import { rebuildTerrain, updateTerrainTexture, landIndex, updateWater, makeDecorations, updateTerrainFrame, updateDecorationsFrame } from './scene-terrain-runtime.ts'
-import { makeSky, commitSky, updateSky, updateView, currentPreset, captureCamera, skipIntroduction, updateCameraMotion, updateEnvironmentFrame, previewCamera, updateFlyby, cancelOverview, focus, stepViewChange, startGroundView, overview, leaveOverview, zoom } from './scene-camera-runtime.ts'
-import { pickUnit, updatePlacement, planGeometry, pick, pickWorldObject, pointerDown, pointerMove, updateDrag, pointerUp, keyDown, installInputListeners, navigationButtons, chooseFollowers, acknowledgePointer, drawPointer, updatePointerFrame, updateSpellPointerFrame } from './scene-input-runtime.ts'
-
+import {
+  rebuildTerrain,
+  updateTerrainTexture,
+  landIndex,
+  updateWater,
+  makeDecorations,
+  updateTerrainFrame,
+  updateDecorationsFrame,
+} from './scene-terrain-runtime.ts'
+import {
+  makeSky,
+  commitSky,
+  updateSky,
+  updateView,
+  currentPreset,
+  captureCamera,
+  skipIntroduction,
+  updateCameraMotion,
+  updateEnvironmentFrame,
+  previewCamera,
+  updateFlyby,
+  cancelOverview,
+  focus,
+  stepViewChange,
+  startGroundView,
+  overview,
+  leaveOverview,
+  zoom,
+} from './scene-camera-runtime.ts'
+import {
+  pickUnit,
+  updatePlacement,
+  planGeometry,
+  pick,
+  pickWorldObject,
+  pointerDown,
+  pointerMove,
+  updateDrag,
+  pointerUp,
+  keyDown,
+  installInputListeners,
+  navigationButtons,
+  chooseFollowers,
+  acknowledgePointer,
+  drawPointer,
+  updatePointerFrame,
+  updateSpellPointerFrame,
+} from './scene-input-runtime.ts'
 
 export class GameScene {
   world: World
@@ -549,7 +599,7 @@ export class GameScene {
     this.rebuildTerrain()
     this.makeDecorations()
     this.makeShrines()
-    this.focus({ x: 2, z: 30 })
+    this.focus(this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman') ?? HOME)
     this.drawMinimap()
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
@@ -867,7 +917,10 @@ export class GameScene {
     updateEnvironmentFrame(this, skyTicks)
   }
 
-  private renderSceneFrame(hovered: ReturnType<typeof worldTooltipObject>, hoveredBuilding: Building | undefined) {
+  private renderSceneFrame(
+    hovered: ReturnType<typeof worldTooltipObject>,
+    hoveredBuilding: Building | undefined
+  ) {
     this.scene.traverse(object => {
       updateModelLighting(object)
       if (!object.userData.highlight) return

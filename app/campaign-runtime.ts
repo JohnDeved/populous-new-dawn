@@ -6,31 +6,37 @@ import { nativePersonModel } from './live-combat.ts'
 import { buildingModel, buildingPose, buildingPosition } from './building-shapes.ts'
 import { createComputerQueue, type AttackTarget } from './computer.ts'
 import { runScript, scriptState } from './popscript.ts'
-import level from './level-one.ts'
 import constants from './original-constants.json' with { type: 'json' }
-import originalScript from './original-script.json' with { type: 'json' }
+import { missionData, missionPosition } from './mission-data.ts'
+import type { PopScript } from './popscript.ts'
 
-const missionPosition = (owner: number) => {
-  const o = level.objects.find(o => o.type === 1 && o.model === 7 && o.owner === owner)!
-  return { x: o.x, z: o.z }
-}
-export const HOME = missionPosition(0),
-  ENEMY = missionPosition(1)
+export const HOME = missionPosition(1, 'blue'),
+  ENEMY = missionPosition(1, 'red')
+export const campaignPosition = (w: World, team: 'blue' | 'red') =>
+  missionPosition(w.outcome.level, team)
 
-export function markerHeight(terrain: number[], index: number) {
+export function markerHeight(
+  terrain: number[],
+  index: number,
+  missionNumber = 1,
+  nativeTerrain: Int16Array | undefined = missionNumber === 1 ? originalTerrain : undefined
+) {
+  const level = missionData(missionNumber).level
   if (!Number.isInteger(index) || index < 0 || index >= level.markers.length)
     throw new RangeError('Invalid campaign marker')
   const packed = level.markers[index],
     p = nativeCellPoint(packed)
-  if (Math.abs(p.x) > 48 || Math.abs(p.z) > 48)
-    return originalTerrain[((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1)]
+  if (Math.abs(p.x) > 48 || Math.abs(p.z) > 48) {
+    if (!nativeTerrain) throw new RangeError('Campaign marker is outside the browser terrain')
+    return nativeTerrain[((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1)]
+  }
   const h = height(terrain, p.x, p.z)
   return h === -0.35 ? 0 : short(Math.round(h * 45)) // Convert the browser's artificial seabed back to native zero.
 }
 
-export function missionAI() {
+export function missionAI(script: PopScript = missionData().script) {
   const ai = {
-    ...scriptState(originalScript),
+    ...scriptState(script),
     ...createComputerQueue(),
     states: 0,
     flags: 0,
@@ -51,7 +57,7 @@ export function missionAI() {
   }
   // ponytail: turn-zero setup only; bind the remaining commands and live reads before recurring execution.
   ai.attributes[43] = 12 // 0x461d70: attribute 43 before the turn-zero script.
-  runScript(originalScript, ai, {
+  runScript(script, ai, {
     turn: 0,
     tribe: 1,
     readInternal: id => {
@@ -129,6 +135,7 @@ export function campaignPersonCount(w: World, tribe: number, model?: number) {
 
 // 0x492680 / 0x4f54f0: inclusive wrapped square around a script marker.
 export function campaignPeopleInMarker(w: World, tribe: number, marker: number, radius: number) {
+  const level = missionData(w.outcome.level).level
   if (!Number.isInteger(tribe) || tribe < -1 || tribe > 3)
     throw new RangeError('Invalid campaign marker tribe')
   if (!Number.isInteger(marker) || marker < 0 || marker >= level.markers.length)
@@ -204,6 +211,7 @@ export function campaignAttackTarget(w: World, tribe: number): AttackTarget | nu
 
 // 0x48cc60 / 0x4fbf40: marker coordinates select a coarse cell, not a radius.
 export function forceHead(w: World, marker: number) {
+  const level = missionData(w.outcome.level).level
   if (!Number.isInteger(marker) || marker < 0 || marker >= level.markers.length)
     throw new RangeError('Invalid trigger marker')
   const packed = level.markers[marker],

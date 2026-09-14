@@ -7,10 +7,13 @@ async function waitForScene(page) {
   await page.waitForFunction(() => {
     const main = document.querySelector('main')
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
-    for (; fiber; fiber = fiber.return)
-      for (let hook = fiber.memoizedState; hook; hook = hook.next)
+    for (; fiber; fiber = fiber.return) {
+      for (let hook = fiber.memoizedState; hook; hook = hook.next) {
         if (hook.memoizedState?.current?.unitMeshes)
           globalThis.testScene = hook.memoizedState.current
+        if (hook.memoizedState?.getWorld) globalThis.testStore = hook.memoizedState
+      }
+    }
     return !!globalThis.testScene
   })
 }
@@ -19,10 +22,35 @@ const browser = await chromium.launch({ headless: !process.argv.includes('--head
 try {
   const { page, errors } = await openGame(browser)
   assert.equal(await page.getByRole('dialog', { name: 'Start game' }).count(), 0)
-  const original = await page.evaluate(() => ({
+  const missionOne = await page.evaluate(() => ({
     height: globalThis.testScene.world.land.heights[0],
     hp: globalThis.testScene.world.units[0].hp,
   }))
+  await page.evaluate(async () => {
+    const main = document.querySelector('main')
+    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber; fiber = fiber.return)
+      for (let hook = fiber.memoizedState; hook; hook = hook.next)
+        if (hook.memoizedState?.getWorld) globalThis.testStore = hook.memoizedState
+    const world = globalThis.testStore.getWorld(),
+      { tick } = await import('/app/model.ts')
+    world.units = world.units.filter(unit => unit.team === 'blue')
+    world.turn = 31
+    tick(world, 1 / 12)
+    globalThis.testStore.update()
+  })
+  await page.getByRole('button', { name: 'Continue to Mission 2', exact: false }).click()
+  await waitForScene(page)
+  await page.waitForFunction(() => globalThis.testScene.world === globalThis.testStore.getWorld())
+  const original = await page.evaluate(() => ({
+    level: globalThis.testScene.world.outcome.level,
+    height: globalThis.testScene.world.land.heights[0],
+    hp: globalThis.testScene.world.units[0].hp,
+  }))
+  assert.equal(original.level, 2)
+  await page.locator('.loading-world').waitFor({ state: 'detached' })
+  await page.keyboard.press('Escape')
+  await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
   await page.evaluate(async () => {
     const scene = globalThis.testScene
     scene.world.speed = 0
@@ -44,6 +72,7 @@ try {
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   assert.equal(await load.isEnabled(), true)
   const saved = await page.evaluate(() => ({
+    level: globalThis.testScene.world.outcome.level,
     turn: globalThis.testScene.world.turn,
     height: globalThis.testScene.world.land.heights[0],
     hp: globalThis.testScene.world.units[0].hp,
@@ -71,6 +100,7 @@ try {
       const world = globalThis.testScene.world
       return (
         world.turn === expected.turn &&
+        world.outcome.level === expected.level &&
         world.land.heights[0] === expected.height &&
         world.units[0].hp === expected.hp
       )
@@ -78,6 +108,7 @@ try {
     saved
   )
   const restored = await page.evaluate(() => ({
+    level: globalThis.testScene.world.outcome.level,
     turn: globalThis.testScene.world.turn,
     height: globalThis.testScene.world.land.heights[0],
     hp: globalThis.testScene.world.units[0].hp,
@@ -87,6 +118,7 @@ try {
     soundPlaying: globalThis.testScene.world.buildings[0].burn.soundPlaying,
   }))
   assert.deepEqual(restored, {
+    level: 2,
     turn: saved.turn,
     height: saved.height,
     hp: saved.hp,
@@ -107,7 +139,7 @@ try {
     hp: globalThis.testScene.world.units[0].hp,
   }))
   assert.notEqual(fresh.turn, saved.turn)
-  assert.deepEqual({ height: fresh.height, hp: fresh.hp }, original)
+  assert.deepEqual({ height: fresh.height, hp: fresh.hp }, missionOne)
   assert.deepEqual(errors, [])
 
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
@@ -127,7 +159,7 @@ try {
     .waitFor()
   assert.deepEqual(blocked.errors, [])
   await context.close()
-  console.log('PASS: startup Load Game restores a durable world; New Game starts fresh')
+  console.log('PASS: startup Load Game restores Mission 2; New Game starts fresh in Mission 1')
 } finally {
   await browser.close()
 }

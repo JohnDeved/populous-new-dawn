@@ -290,6 +290,7 @@
       "implementationPaths": [
         "app/computer.ts",
         "app/computer-runtime.ts",
+        "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
         "app/object-panels.ts",
@@ -301,14 +302,16 @@
       ],
       "sharedPaths": [
         "app/flyby.ts",
+        "app/game-store.ts",
         "app/model.ts",
+        "app/page.tsx",
         "app/scene.ts",
         "app/scene-terrain-runtime.ts"
       ],
       "entrySymbols": [
-        { "path": "app/model.ts", "symbol": "missionAI" },
-        { "path": "app/model.ts", "symbol": "campaignCommand" },
-        { "path": "app/model.ts", "symbol": "campaignRules" },
+        { "path": "app/campaign-runtime.ts", "symbol": "missionAI" },
+        { "path": "app/campaign-command-runtime.ts", "symbol": "campaignCommand" },
+        { "path": "app/campaign-command-runtime.ts", "symbol": "campaignRules" },
         { "path": "app/computer-runtime.ts", "symbol": "stepComputerTasks" }
       ],
       "parityIds": [
@@ -322,6 +325,7 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        { "path": "decomp/research/campaign-progression.md", "heading": "Campaign progression snapshot" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
@@ -352,6 +356,7 @@
         "0x4a6480",
         "0x4a7d80",
         "0x4a7eb0",
+        "0x4860c0",
         "0x4fb270",
         "0x4facf0"
       ],

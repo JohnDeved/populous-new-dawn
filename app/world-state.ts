@@ -12,7 +12,7 @@ import { createMessages } from './messages.ts'
 import { emptyPersonOrder } from './person-orders.ts'
 import { createMotionRoutes } from './person-routes.ts'
 import { createTimberSearches } from './timber-search.ts'
-import { originalLand, makeTerrain } from './world-terrain-runtime.ts'
+import { makeTerrain } from './world-terrain-runtime.ts'
 import { createIndexedSearch } from './indexed-search.ts'
 import { createFootprints } from './footprints.ts'
 import { createTribeCasting } from './spell-casting.ts'
@@ -20,6 +20,8 @@ import { createPathGeometry } from './path-geometry.ts'
 import { createPathSolver } from './path-solver.ts'
 import type { PathSearchState } from './path-search.ts'
 import type { LivePerson } from './live-people.ts'
+import { missionAllowsBuilding, missionData } from './mission-data.ts'
+import { createMissionLand } from './world-terrain-runtime.ts'
 
 export function createLivePathfinding() {
   const state: PathSearchState = {
@@ -51,12 +53,14 @@ export function createLivePathfinding() {
   }
 }
 
-export function createWorldState(): World {
+export function createWorldState(missionNumber = 1): World {
+  const mission = missionData(missionNumber),
+    land = createMissionLand(mission.level)
   return {
     flyby: createFlyby(),
     inputMask: 0,
     lastMessage: -1,
-    ai: missionAI(),
+    ai: missionAI(mission.script),
     messages: createMessages(),
     spellCasts: Array.from({ length: 4 }, () => Array(22).fill(0)),
     killCredits: Array.from({ length: 4 }, () => Array(4).fill(0)),
@@ -92,7 +96,7 @@ export function createWorldState(): World {
     pathfinding: createLivePathfinding(),
     timberSearches: createTimberSearches(),
     land: {
-      ...structuredClone(originalLand),
+      ...land,
       regions: new Uint8Array(16384),
       searchMarks: new Uint8Array(16384),
       searchTag: 255,
@@ -109,7 +113,7 @@ export function createWorldState(): World {
     levelFlags2: 0,
     outcome: {
       campaignTribes: 2,
-      level: 1,
+      level: mission.number,
       progressFlags: 0,
       lastDefeated: 0,
       defeatedCounts: [0, 0, 0, 0],
@@ -154,7 +158,7 @@ export function createWorldState(): World {
       shamanGuardChanged: 0,
     })),
     routeNotice: null,
-    terrain: makeTerrain(),
+    terrain: makeTerrain(land),
     terrainVersion: 0,
     units: [],
     buildings: [],
@@ -188,7 +192,7 @@ export function createWorldState(): World {
       swarm: 0,
     },
     charging: true,
-    unlockedCamp: false,
+    unlockedCamp: missionAllowsBuilding(missionNumber, 7),
     time: 0,
     turn: 0,
     attackAlert: 0,
@@ -206,7 +210,10 @@ export function createWorldState(): World {
     buildingDirections: { hut: 0, tower: 0, temple: 0, camp: 0 },
     paused: false,
     speed: 1,
-    message: 'Select a brave and send them to the southern stone head to worship for Land Bridge.',
+    message:
+      missionNumber === 1
+        ? 'Select a brave and send them to the southern stone head to worship for Land Bridge.'
+        : 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

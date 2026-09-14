@@ -107,16 +107,16 @@ try{
  assert.ok(await page.evaluate(()=>{const r=window.testStore.getWorld().motionRoutes.records;return r[109]===0&&r[110]===0&&r[111]===0;}),'last live follower frees the shared route');
  await page.waitForFunction(()=>!window.testStore.getWorld().outcome.cameraPlaying);
  await page.evaluate(()=>{
-  const store=window.testStore,restart=store.restart,old=store.getWorld()
-  store.restart=()=>{
-   restart();const w=store.getWorld()
-   // Observe reset before the next turn legitimately allocates resting people.
-   window.restartClean=w!==old&&w.units.every(u=>u.native===null)&&w.objectCells.heads.every(id=>!id)&&w.motionRoutes.records.every(n=>n===0)
+  const store=window.testStore,startMission=store.startMission,old=store.getWorld()
+  store.startMission=mission=>{
+   startMission(mission);const w=store.getWorld()
+   // Observe the transition before the next turn legitimately allocates resting people.
+   window.missionTwoStart={fresh:w!==old,level:w.outcome.level,blue:w.units.filter(u=>u.team==='blue').length,red:w.units.filter(u=>u.team==='red').length,buildings:w.buildings.length,shrines:w.shrines.map(s=>s.kind)}
   }
  })
  await page.waitForSelector('.end-screen button');await page.locator('.end-screen button').click();
- await page.waitForFunction(()=>window.testStore.getWorld().status==='playing');
- assert.equal(await page.evaluate(()=>window.restartClean),true);
+ await page.waitForFunction(()=>window.testStore.getWorld().outcome.level===2&&window.testStore.getWorld().status==='playing');
+ assert.deepEqual(await page.evaluate(()=>window.missionTwoStart),{fresh:true,level:2,blue:9,red:18,buildings:6,shrines:['vault','bridgeEffect','tornado']});
  assert.deepEqual(errors,[]);
- console.log('PASS: delayed Lightning victory, live celebration, native routes and frames, pause, circles, chains, obstacle detours, shared route release and restart; no page errors');
+ console.log('PASS: delayed Lightning victory, live celebration, native routes and frames, pause, circles, chains, obstacle detours, shared route release and Mission 2 continuation; no page errors');
 }finally{await browser.close();}

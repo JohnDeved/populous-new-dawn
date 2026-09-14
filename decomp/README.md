@@ -719,8 +719,13 @@ before object work, respecting load/special-mode gates. It retires immediate
 empty-tribe victory/loss, records native flags/counters/completion requests and
 feeds defeat timers back into the tribe processor. Browser followers still adapt
 native registration/counts; native celebration, collapsing defeated buildings,
-end-camera playback, persistent progression and post-result simulation remain
-unfinished. The browser result screen currently stops further simulation.
+end-camera playback and post-result simulation remain unfinished.
+
+Reviewed `004860c0` evidence proves that campaign victory stores an in-memory
+per-level snapshot but does not request a screen or level load. The browser result
+screen now exposes the equivalent player boundary and starts a fresh Mission 2
+from its recovered level/header/script. See the
+[campaign progression note](research/campaign-progression.md).
 
 
 ## Defeated buildings and damage stages

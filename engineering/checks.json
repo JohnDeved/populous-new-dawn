@@ -441,11 +441,12 @@
       "id": "checkpoint-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise durable checkpoint discovery, startup choice, exact resume, fresh start, and storage fallback through the shipped browser UI.",
+      "purpose": "Exercise durable Mission 2 checkpoint discovery, startup choice, exact resume, fresh Mission 1 start, and storage fallback through the shipped browser UI.",
       "coveredBehavior": [
         "First visit starts mission one without a stale choice",
+        "Normal Mission 1 victory continues through the shipped result UI into Mission 2",
         "Returning-player New Game and Load Game choice before scene creation",
-        "Exact latest-checkpoint restore after reload",
+        "Exact Mission 2 checkpoint restore after reload",
         "Fresh-world isolation and storage-unavailable fallback"
       ],
       "knownLimits": [

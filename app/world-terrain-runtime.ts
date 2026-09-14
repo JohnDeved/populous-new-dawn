@@ -23,22 +23,27 @@ import {
   type SceneryShapePose,
 } from './building-shapes.ts'
 import rules from './original-rules.json' with { type: 'json' }
-import level from './level-one.ts'
+import levelOne from './level-one.ts'
 
-export const originalLand = createNativeTerrain(new Int16Array(16384))
+export function createMissionLand(level: typeof levelOne) {
+  const land = createNativeTerrain(new Int16Array(16384))
+  for (const [x, y, h] of level.heights) land.heights[y * 128 + x] = h
+  // 0x44e850: complete two-traversal initialization before browser resampling.
+  // ponytail: original texture assets still supply rendering; native texture
+  // consumers join this queue when palette/texture rebuilding is integrated.
+  queueTerrain(land, 0, 64, 1, { surface: () => {}, globe: () => {} })
+  updateWalkMasks(land, 0, 64)
+  return land
+}
+
+export const originalLand = createMissionLand(levelOne)
 export const originalTerrain = originalLand.heights
-for (const [x, y, h] of level.heights) originalTerrain[y * 128 + x] = h
-// 0x44e850: complete two-traversal initialization before browser resampling.
-// ponytail: original texture assets still supply rendering; native texture
-// consumers join this queue when palette/texture rebuilding is integrated.
-queueTerrain(originalLand, 0, 64, 1, { surface: () => {}, globe: () => {} })
-updateWalkMasks(originalLand, 0, 64)
 
-export function makeTerrain() {
+export function makeTerrain(land = originalLand) {
   return Array.from({ length: GRID * GRID }, (_, i) => {
     const x = (i % GRID) - 48,
       z = Math.floor(i / GRID) - 48,
-      h = nativeTerrainHeight(originalTerrain, (x + 8) * 256, (-z - 8) * 256) / 45
+      h = nativeTerrainHeight(land.heights, (x + 8) * 256, (-z - 8) * 256) / 45
     // ponytail: cropped/resampled terrain and artificial seabed remain until the native world grid is ported.
     return h === 0 ? -0.35 : h
   })

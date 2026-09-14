@@ -38,7 +38,7 @@ import {
 } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 import { nativeUnitModel } from './unit-kinds'
-const missionSpellModels = new Set([2, 3, 12])
+import { campaignSpellModels } from './mission-data'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -51,6 +51,7 @@ export default function Home() {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const world = store.getWorld(),
     update = store.update
+  const missionSpellModels = campaignSpellModels(world.outcome.level)
   const spellRoster = SPELLS.filter(s => missionSpellModels.has(s.model) || world.shots[s.id] > 0)
   const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
@@ -161,8 +162,7 @@ export default function Home() {
       const s =
         !e.code.startsWith('Numpad') &&
         SPELLS.find(
-          s =>
-            s.key === e.key && (missionSpellModels.has(s.model) || world.shots[s.id] > 0)
+          s => s.key === e.key && (missionSpellModels.has(s.model) || world.shots[s.id] > 0)
         )
       if (s) {
         store.change(w => {
@@ -280,6 +280,13 @@ export default function Home() {
     setTab('spells')
     setStartup('playing')
   }
+  function continueCampaign() {
+    audio.current?.reset()
+    setReady(false)
+    setError('')
+    store.startMission(world.outcome.level + 1)
+    setTab('spells')
+  }
   function loadCheckpoint() {
     audio.current?.reset()
     setMenu(false)
@@ -308,11 +315,22 @@ export default function Home() {
     BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
-  const objectives = [
-    { text: 'Bridge to the central island', done: world.stats.bridges > 0 },
-    { text: 'Discover warrior training', done: world.unlockedCamp },
-    { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-  ]
+  const enemyName = world.outcome.level === 1 ? 'Dakini' : 'Matak',
+    objectives =
+      world.outcome.level === 1
+        ? [
+            { text: 'Bridge to the central island', done: world.stats.bridges > 0 },
+            { text: 'Discover warrior training', done: world.unlockedCamp },
+            { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
+          ]
+        : [
+            {
+              text: 'Open the way with the Totem Pole',
+              done: world.effects.some(effect => !!effect.bridge),
+            },
+            { text: 'Claim Tornado from the stone head', done: world.giftCounts.tornado > 0 },
+            { text: 'Defeat the Matak tribe', done: world.status === 'won' },
+          ]
   return (
     <main
       ref={shell}
@@ -510,8 +528,8 @@ export default function Home() {
           <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
           <button
             className="tribe-flag dakini"
-            title={`Dakini: ${red.filter(u => !u.ghost).length} followers`}
-            aria-label="Focus Dakini tribe"
+            title={`${enemyName}: ${red.filter(u => !u.ghost).length} followers`}
+            aria-label={`Focus ${enemyName} tribe`}
             onClick={() => {
               const u = red.find(isShaman) ?? red[0]
               if (u) engine.current?.focus(u, { animate: true })
@@ -563,48 +581,48 @@ export default function Home() {
         <section className="command-dock" aria-label="Command panel">
           {tab === 'spells' && (
             <div className="spell-list">
-              {spellRoster.toSorted(
-                (a, b) => spellOrder.indexOf(a.model) - spellOrder.indexOf(b.model)
-              ).map(s => {
-                const view = spellButton({
-                  model: s.model,
-                  permanent: !!(world.manaWorld.spells[0].available & (1 << s.model)),
-                  charging: s.id === 'blast' && world.charging,
-                  hovered: hover === s.id,
-                  selected: world.mode === s.id,
-                  stock: world.shots[s.id],
-                  gifts: world.giftCounts[s.id],
-                  progress: s.id === 'blast' ? Math.round(world.mana * 1000) : 0,
-                })
-                return (
-                  <button
-                    key={s.id}
-                    className="spell-card"
-                    style={{ borderImageSource: `url('/original/hud-${view.frame}.png')` }}
-                    aria-label={`${s.name}, ${world.shots[s.id]} shots`}
-                    aria-pressed={world.mode === s.id}
-                    title={s.name}
-                    onClick={() =>
-                      store.change(w => {
-                        w.mode = w.mode === s.id ? null : s.id
-                      })
-                    }
-                    onContextMenu={e => {
-                      e.preventDefault()
-                      if (s.id === 'blast')
+              {spellRoster
+                .toSorted((a, b) => spellOrder.indexOf(a.model) - spellOrder.indexOf(b.model))
+                .map(s => {
+                  const view = spellButton({
+                    model: s.model,
+                    permanent: !!(world.manaWorld.spells[0].available & (1 << s.model)),
+                    charging: s.id === 'blast' && world.charging,
+                    hovered: hover === s.id,
+                    selected: world.mode === s.id,
+                    stock: world.shots[s.id],
+                    gifts: world.giftCounts[s.id],
+                    progress: s.id === 'blast' ? Math.round(world.mana * 1000) : 0,
+                  })
+                  return (
+                    <button
+                      key={s.id}
+                      className="spell-card"
+                      style={{ borderImageSource: `url('/original/hud-${view.frame}.png')` }}
+                      aria-label={`${s.name}, ${world.shots[s.id]} shots`}
+                      aria-pressed={world.mode === s.id}
+                      title={s.name}
+                      onClick={() =>
                         store.change(w => {
-                          w.charging = !w.charging
+                          w.mode = w.mode === s.id ? null : s.id
                         })
-                    }}
-                    onMouseEnter={() => setHover(s.id)}
-                    onMouseLeave={() => setHover(null)}
-                    onFocus={() => setHover(s.id)}
-                    onBlur={() => setHover(null)}
-                  >
-                    <SpellButtonArt view={view} />
-                  </button>
-                )
-              })}
+                      }
+                      onContextMenu={e => {
+                        e.preventDefault()
+                        if (s.id === 'blast')
+                          store.change(w => {
+                            w.charging = !w.charging
+                          })
+                      }}
+                      onMouseEnter={() => setHover(s.id)}
+                      onMouseLeave={() => setHover(null)}
+                      onFocus={() => setHover(s.id)}
+                      onBlur={() => setHover(null)}
+                    >
+                      <SpellButtonArt view={view} />
+                    </button>
+                  )
+                })}
             </div>
           )}
           {tab === 'buildings' && (
@@ -741,7 +759,7 @@ export default function Home() {
           <h2>{world.status === 'won' ? 'A world united.' : 'Even gods can fall.'}</h2>
           <p>
             {world.status === 'won'
-              ? 'The Dakini are defeated. Your people will remember this dawn.'
+              ? `The ${enemyName} are defeated. Your people will remember this dawn.`
               : 'Your tribe has fallen, but every beginning is another chance.'}
           </p>
           <div className="end-stats">
@@ -758,8 +776,16 @@ export default function Home() {
               <small>BUILDINGS RAISED</small>
             </span>
           </div>
-          <button className="primary-button" onClick={restart}>
-            Begin again <span>↗</span>
+          <button
+            className="primary-button"
+            onClick={
+              world.status === 'won' && world.outcome.level === 1 ? continueCampaign : restart
+            }
+          >
+            {world.status === 'won' && world.outcome.level === 1
+              ? 'Continue to Mission 2'
+              : 'Begin again'}{' '}
+            <span>↗</span>
           </button>
         </div>
       )}
@@ -779,7 +805,9 @@ export default function Home() {
         <span className="eyebrow">POPULOUS · THE FIRST DAWN</span>
         <h2>The world can wait.</h2>
         <p>
-          Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.
+          {world.outcome.level === 1
+            ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
+            : 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
@@ -824,7 +852,7 @@ export default function Home() {
           </button>
           <button onClick={() => engine.current?.zoom(true)}>Zoom in</button>
           <button onClick={() => engine.current?.zoom(false)}>Zoom out</button>
-          <button onClick={() => engine.current?.focus(HOME, { animate: true })}>
+          <button onClick={() => engine.current?.focus(shaman ?? HOME, { animate: true })}>
             Focus settlement
           </button>
         </div>

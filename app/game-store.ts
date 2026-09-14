@@ -13,6 +13,11 @@ type LegacyGift = {
 }
 
 export function migrateCheckpoint(world: World) {
+  world.outcome.level ??= 1
+  for (const shrine of world.shrines)
+    if (!shrine.reward && shrine.kind !== 'bridgeEffect')
+      shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
+  for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
   world.shots.convertWild ??= 0
   world.giftCounts.convertWild ??= 0
   world.shots.hypnotise ??= 0
@@ -35,7 +40,7 @@ export function migrateCheckpoint(world: World) {
       world.gifts.push(saved)
       continue
     }
-    const gift = createGift(world, saved.kind, saved)
+    const gift = createGift(world, saved.kind === 'vault' ? 'camp' : saved.kind, saved)
     gift.remaining = saved.remaining
     gift.phase = Math.max(0, Math.min(6, saved.remaining - 76))
   }
@@ -138,7 +143,11 @@ export function createGameStore() {
       return true
     },
     restart: () => {
-      world = createWorld()
+      world = createWorld(world.outcome.level)
+      update()
+    },
+    startMission: (mission: number) => {
+      world = createWorld(mission)
       update()
     },
   }
