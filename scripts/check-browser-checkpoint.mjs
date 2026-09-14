@@ -50,6 +50,25 @@ try {
   assert.equal(original.level, 2)
   await page.locator('.loading-world').waitFor({ state: 'detached' })
   await page.keyboard.press('Escape')
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld(),
+      tower = world.buildings.find(building => building.team === 'red' && building.kind === 'tower'),
+      patrols = world.units.filter(unit => {
+        if (unit.team !== 'red' || !unit.native) return false
+        const id = unit.native.immediateCommand || unit.native.commands[unit.native.commandCursor],
+          order = id ? world.buildingOrders.records[id] : null
+        return order?.model === 25
+      }).length
+    return (
+      world.turn >= 122 &&
+      !(world.inputMask & 128) &&
+      world.ai.flags & 0x40000 &&
+      tower &&
+      world.units.some(unit => unit.inside === tower.id && unit.kind === 'warrior') &&
+      patrols === 3 &&
+      world.messages.slots[world.lastMessage]?.stringId === 641
+    )
+  })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
   await page.evaluate(async () => {
     const scene = globalThis.testScene

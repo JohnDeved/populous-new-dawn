@@ -1,4 +1,4 @@
-import { createGift, createWorld, type Gift, type World } from './model.ts'
+import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -14,6 +14,24 @@ type LegacyGift = {
 
 export function migrateCheckpoint(world: World) {
   world.outcome.level ??= 1
+  const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
+  world.ai.coordinateLatch ??= 0
+  if (oldMissionTwo) {
+    world.manaTribes[3] = structuredClone(world.manaTribes[1])
+    world.castingTribes[3] = structuredClone(world.castingTribes[1])
+    world.manaWorld.spells[3] = structuredClone(world.manaWorld.spells[1])
+    world.spellCasts[3] = [...world.spellCasts[1]]
+    world.killCredits[3] = [...world.killCredits[1]]
+    for (const row of world.killCredits) row[3] = row[1]
+    world.tribeCount = 4
+    world.manaTribes[1].active = false
+    Object.assign(world.manaTribes[3], { id: 3, spellOwner: 3, active: true })
+    world.ai.pendingCommands = world.ai.pendingCommands.filter(command => {
+      if (![1069, 1097].includes(command.opcode)) return true
+      campaignCommand(world, command.opcode, command.args)
+      return false
+    })
+  }
   for (const shrine of world.shrines)
     if (!shrine.reward && shrine.kind !== 'bridgeEffect')
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind

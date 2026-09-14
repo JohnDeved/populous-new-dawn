@@ -14,6 +14,9 @@ export const HOME = missionPosition(1, 'blue'),
   ENEMY = missionPosition(1, 'red')
 export const campaignPosition = (w: World, team: 'blue' | 'red') =>
   missionPosition(w.outcome.level, team)
+export const campaignTribe = (w: World) => (w.outcome.level === 2 ? 3 : 1)
+export const campaignTeam = (w: World, tribe: number) =>
+  tribe === 0 ? 'blue' : tribe === campaignTribe(w) ? 'red' : null
 
 export function markerHeight(
   terrain: number[],
@@ -34,7 +37,7 @@ export function markerHeight(
   return h === -0.35 ? 0 : short(Math.round(h * 45)) // Convert the browser's artificial seabed back to native zero.
 }
 
-export function missionAI(script: PopScript = missionData().script) {
+export function missionAI(script: PopScript = missionData().script, tribe = 1) {
   const ai = {
     ...scriptState(script),
     ...createComputerQueue(),
@@ -59,7 +62,7 @@ export function missionAI(script: PopScript = missionData().script) {
   ai.attributes[43] = 12 // 0x461d70: attribute 43 before the turn-zero script.
   runScript(script, ai, {
     turn: 0,
-    tribe: 1,
+    tribe,
     readInternal: id => {
       if (id === 0) return 0
       throw new Error(`Unbound initial script read ${id}`)
@@ -90,11 +93,12 @@ export function headAt(w: World, x: number, y: number) {
 }
 
 export function campaignInternal(w: World, id: number) {
+  const self = campaignTribe(w)
   if (id === 0) return w.turn
   // 0x48f350: total population is a dword; per-class counters are signed words.
-  if (id >= 1 && id <= 5) return campaignPersonCount(w, id === 1 ? 1 : id - 2)
+  if (id >= 1 && id <= 5) return campaignPersonCount(w, id === 1 ? self : id - 2)
   if (id >= 1146 && id <= 1175) {
-    const tribe = id < 1152 ? 1 : Math.floor((id - 1152) / 6)
+    const tribe = id < 1152 ? self : Math.floor((id - 1152) / 6)
     const model = (id < 1152 ? id - 1146 : (id - 1152) % 6) + 2
     return short(campaignPersonCount(w, tribe, model))
   }
@@ -102,7 +106,7 @@ export function campaignInternal(w: World, id: number) {
   if (id === 1050) return constants.SPELL_BLAST // 0x48f350 reads the loaded spell-cost table.
   // 0x48f350: self then four explicit tribes, 16 building models each.
   if (id >= 1066 && id <= 1145) {
-    const tribe = id < 1082 ? 1 : Math.floor((id - 1082) / 16)
+    const tribe = id < 1082 ? self : Math.floor((id - 1082) / 16)
     const model = id < 1082 ? id - 1065 : ((id - 1082) % 16) + 1
     const value = campaignBuildingCount(w, tribe, model, w.ai.includeIncompleteBuildings)
     w.ai.includeIncompleteBuildings = false
@@ -121,7 +125,7 @@ export function campaignInternal(w: World, id: number) {
 // 0x4ecac0: active tribe followers count even while housed or selected by the AI.
 // Ghosts are excluded from tribe aggregates; remaining person classes are not represented yet.
 export function campaignPersonCount(w: World, tribe: number, model?: number) {
-  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null
+  const team = campaignTeam(w, tribe)
   return (
     w.units.filter(
       u =>
@@ -145,7 +149,7 @@ export function campaignPeopleInMarker(w: World, tribe: number, marker: number, 
   const target = level.markers[marker],
     tx = target & 255,
     ty = target >>> 8,
-    team = tribe === -1 ? 'wild' : tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null,
+    team = tribe === -1 ? 'wild' : campaignTeam(w, tribe),
     wrapped = (a: number, b: number) => Math.min(Math.abs(a - b), 256 - Math.abs(a - b)) >> 1
   return (
     w.units.filter(u => {
@@ -164,7 +168,7 @@ export function campaignBuildingCount(
   model: number,
   includeIncomplete: boolean
 ) {
-  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null
+  const team = campaignTeam(w, tribe)
   const count = w.buildings.filter(
     b =>
       b.team === team &&
@@ -194,7 +198,7 @@ export function campaignAttackEntity(w: World, id: number): AttackTarget | null 
 
 // 0x4f6100 / 0x4f6180: sample native allocation order, buildings first.
 export function campaignAttackTarget(w: World, tribe: number): AttackTarget | null {
-  const team = tribe === 0 ? 'blue' : tribe === 1 ? 'red' : null
+  const team = campaignTeam(w, tribe)
   if (!team) return null
   const buildings = w.buildings.filter(b => b.team === team && b.hp > 0)
   if (buildings.length) {

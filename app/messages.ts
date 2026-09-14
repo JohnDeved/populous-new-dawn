@@ -20,14 +20,15 @@ export function messageStringId(number: number) {
   return message.stringId
 }
 
-// 0x430bd0 / 0x430e40, type 3. Other notification classes have different caps
-// and deletion-history rules and must not enter this allocator yet.
+// 0x430bd0 / 0x430e40, imported type-3 and Mission 2 type-1 profiles.
 export function addMessage(
   state: MessageState,
   stringId: number,
   drawRandom: () => number,
-  screenHeight = 480
+  screenHeight = 480,
+  type: 1 | 3 = 3
 ) {
+  if (type === 1 && state.slots.some(message => message && !(message.flags & 1))) return -1
   let slot = state.slots.indexOf(null)
   if (slot < 0) {
     let oldest = 0
@@ -41,8 +42,9 @@ export function addMessage(
     // Native selection is uninitialized if every occupied slot has age zero.
     if (slot < 0) throw new Error('No aged notification can be replaced')
   }
-  const speed = Math.trunc((native.defaults.speed << 16) / 480)
-  let height = Math.trunc((native.defaults.height << 16) / 480)
+  const defaults = type === 1 ? { ...native.defaults, flags: 64 } : native.defaults,
+    speed = Math.trunc((defaults.speed << 16) / 480)
+  let height = Math.trunc((defaults.height << 16) / 480)
   if (
     Math.trunc(((Math.imul(screenHeight, height) + Math.trunc(screenHeight / 2)) | 0) / 65536) & 1
   )
@@ -52,8 +54,8 @@ export function addMessage(
     position: 0,
     serial: state.nextSerial,
     stringId: stringId & 65535,
-    flags: native.defaults.flags | 0x10,
-    lifetime: native.defaults.lifetime,
+    flags: defaults.flags | 0x10,
+    lifetime: defaults.lifetime,
     height,
     speed: speed + (drawRandom() % Math.trunc(speed / 2)),
   }

@@ -55,12 +55,18 @@ export function createLivePathfinding() {
 
 export function createWorldState(missionNumber = 1): World {
   const mission = missionData(missionNumber),
-    land = createMissionLand(mission.level)
+    land = createMissionLand(mission.level),
+    activeTribes = new Set(
+      mission.level.objects.flatMap(object =>
+        object.owner >= 0 && object.owner < 4 ? [object.owner] : []
+      )
+    ),
+    computerTribe = [...activeTribes].find(id => id !== 0) ?? 1
   return {
     flyby: createFlyby(),
     inputMask: 0,
     lastMessage: -1,
-    ai: missionAI(mission.script),
+    ai: missionAI(mission.script, computerTribe),
     messages: createMessages(),
     spellCasts: Array.from({ length: 4 }, () => Array(22).fill(0)),
     killCredits: Array.from({ length: 4 }, () => Array(4).fill(0)),
@@ -109,7 +115,7 @@ export function createWorldState(missionNumber = 1): World {
     sceneryShadows: new Map(),
     spellScan: { cursor: 0, limit: 0, paused: 0, targets: [0, 0, 0, 0] },
     castingTribes: Array.from({ length: 4 }, (_, id) => createTribeCasting(id !== 0)),
-    tribeCount: 2,
+    tribeCount: Math.max(...activeTribes) + 1,
     levelFlags2: 0,
     outcome: {
       campaignTribes: 2,
@@ -142,7 +148,7 @@ export function createWorldState(missionNumber = 1): World {
       id,
       spellOwner: id,
       playerType: id === 0 ? 2 : 1,
-      active: id < 2,
+      active: activeTribes.has(id),
       defeatTimer: 0,
       flags2: 0,
       mana: 0,

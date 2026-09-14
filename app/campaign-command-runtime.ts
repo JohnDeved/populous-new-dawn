@@ -6,6 +6,7 @@ import {
   campaignAttackTarget,
   forceHead,
   campaignPosition,
+  campaignTribe,
   markerHeight,
 } from './campaign-runtime.ts'
 import { computerSelectionWorld, computerTrainingBuilding } from './computer-runtime.ts'
@@ -14,6 +15,7 @@ import {
   requestAttack,
   requestMarkerTask,
   requestShamanGuard,
+  requestTowerStaffing,
   requestTraining,
 } from './computer.ts'
 import { release } from './world-tasks.ts'
@@ -24,6 +26,8 @@ import { flybyCommand } from './flyby.ts'
 import { addMessage, messageStringId } from './messages.ts'
 import { runScript, scriptValue, type PopScript } from './popscript.ts'
 import { missionData } from './mission-data.ts'
+import { buildingFootprintCells, buildingModel, buildingPose } from './building-shapes.ts'
+import { nativePersonModel } from './live-combat.ts'
 
 export function removeHead(w: World, x: number, y: number) {
   const head = headAt(w, x, y)
@@ -46,10 +50,12 @@ export function campaignCommand(
       1038: 3,
       1059: 13,
       1068: 4,
+      1069: 2,
       1081: 1,
       1091: 7,
       1092: 4,
       1095: 2,
+      1097: 3,
       1102: 1,
       1108: 6,
       1109: 0,
@@ -66,6 +72,7 @@ export function campaignCommand(
       1171: 2,
       1172: 1,
       1173: 2,
+      1174: 1,
       1176: 1,
       1113: 0,
       1180: 0,
@@ -109,6 +116,31 @@ export function campaignCommand(
     if (!Number.isInteger(index) || index < 0 || index >= w.ai.attributes.length)
       throw new RangeError('Invalid computer attribute')
     w.ai.attributes[index] = read(args[1]) & 255
+    return
+  }
+
+  if (opcode === 1069) {
+    const [x, y] = args.map(read)
+    w.ai.flags = (w.ai.flags | 0x20) >>> 0
+    w.ai.coordinateLatch = (x & 255) | ((y & 255) << 8)
+    return
+  }
+  if (opcode === 1097) {
+    const [model, x, y] = args.map(read),
+      target = w.buildings.find(building => {
+        if (building.team !== 'red' || building.hp <= 0 || buildingModel(building) !== 4)
+          return false
+        const cell = ((y & 254) >>> 1) * 128 + ((x & 254) >>> 1)
+        return buildingFootprintCells(buildingPose(building)).includes(cell)
+      })
+    if (
+      !target ||
+      w.units.some(
+        unit => unit.inside === target.id && (nativePersonModel(unit) === model || isShaman(unit))
+      )
+    )
+      return
+    requestTowerStaffing(w.ai, target.id, model)
     return
   }
 
@@ -172,7 +204,7 @@ export function campaignCommand(
       w.ai.attributes.slice(11, 17),
       w.ai.attributes[28],
       !!(w.ai.states & (1 << 20)),
-      1,
+      campaignTribe(w),
       target.id
     )
     return
@@ -189,7 +221,7 @@ export function campaignCommand(
     const [count, model] = args.map(read)
     if (count <= 0 || model !== 3)
       throw new Error(`Unsupported computer training ${count}:${model}`)
-    const selection = computerSelectionWorld(w, 1)
+    const selection = computerSelectionWorld(w, campaignTribe(w))
     requestTraining(w.ai, count, model, availableTrainingPeople(selection.world), targetModel =>
       computerTrainingBuilding(w, targetModel)
     )
@@ -263,6 +295,15 @@ export function campaignCommand(
     }
     return
   }
+  if (opcode === 1174) {
+    const message = read(args[0])
+    if (message !== 102) throw new RangeError(`Unimported type-one message ${message}`)
+    if (!(w.manaWorld.levelFlags & 0x1000000)) {
+      w.lastMessage = addMessage(w.messages, 641, () => random(w), 480, 1)
+      if (w.lastMessage >= 0) sound(w, 0xe3, campaignPosition(w, 'blue'))
+    }
+    return
+  }
   if (opcode === 1180 || opcode === 1187) {
     const message = w.messages.slots[w.lastMessage]
     if (message) message.flags |= opcode === 1180 ? 0x200 : 0x20000
@@ -326,17 +367,17 @@ export function campaignCommand(
 
 export function campaignRules(w: World) {
   const script = missionData(w.outcome.level).script
-  // ponytail: Mission 2 enters with its verified turn-zero setup; recurring
-  // execution resumes when its first unbound command (1069) is implemented.
-  if (w.outcome.level !== 1) return
   const boundCampaignScript = {
     ...script,
-    codes: [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019],
+    codes:
+      w.outcome.level === 1
+        ? [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019]
+        : [12, 1003, ...script.codes.slice(251, 938), 1004, 1019],
   }
   // ponytail: execute these verified original blocks until the remaining mission commands are bound.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
-    tribe: 1,
+    tribe: campaignTribe(w),
     readInternal: id => campaignInternal(w, id),
     command: (opcode, args) => campaignCommand(w, opcode, args, script),
   })

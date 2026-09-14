@@ -27,6 +27,7 @@ export type ComputerQueue = {
   tasks: ComputerTask[]
   cursor: number
   flags: number
+  coordinateLatch: number
   selectionOwner: number
   commandDelay: number
   markerValue: number
@@ -59,6 +60,7 @@ export function createComputerQueue(): ComputerQueue {
     })),
     cursor: 0,
     flags: 0,
+    coordinateLatch: 0,
     selectionOwner: 10,
     commandDelay: 0,
     markerValue: 0,
@@ -68,6 +70,20 @@ export function createComputerQueue(): ComputerQueue {
       quotas: [0, 0, 0, 0],
     })),
   }
+}
+
+// 0x4e67b0: command 1097 allocates one tower-staffing task in the first free slot.
+export function requestTowerStaffing(ai: ComputerQueue, target: number, model: number) {
+  const task = ai.tasks.find(t => !(t.flags & 1))
+  if (!task) return
+  Object.assign(task, {
+    flags: ((task.flags & ~2) | 1) >>> 0,
+    type: 7,
+    phase: 0,
+    target: target & 65535,
+    requested: model | 0,
+    members: [],
+  })
 }
 
 // 0x4e6550: type 24 snapshots up to four marker-entry records into the first free task.
@@ -100,16 +116,14 @@ export type MarkerInput = {
 export type MarkerAction =
   | { kind: 'select'; id: number }
   | { kind: 'order'; ids: number[]; marker: number }
-  | { kind: 'guard'; ids: number[]; marker: number }
+  | { kind: 'guard'; ids: number[]; marker: number; secondary: number }
   | { kind: 'restore'; ids: number[] }
 
-// 0x4cedd0 special and ordinary no-secondary routes.
+// 0x4cedd0 marker routes.
 export function stepMarkerTask(ai: ComputerQueue, index: number, input: MarkerInput) {
   const task = ai.tasks[index],
     actions: MarkerAction[] = []
   const route = task.route[task.mode]
-  if (!task.extra && route.secondary !== -1)
-    throw new Error('Unbound secondary computer marker route')
   if (task.phase === 0) {
     task.selected = 0
     task.remaining = 0
@@ -154,7 +168,9 @@ export function stepMarkerTask(ai: ComputerQueue, index: number, input: MarkerIn
   if (task.phase === 5) {
     const ids = [...task.members]
     actions.push(
-      { kind: task.extra ? 'order' : 'guard', ids, marker: route.marker },
+      task.extra
+        ? { kind: 'order', ids, marker: route.marker }
+        : { kind: 'guard', ids, marker: route.marker, secondary: route.secondary },
       { kind: 'restore', ids }
     )
     task.members.length = 0
@@ -358,7 +374,7 @@ export function stepShamanGuardTask(
 
 // 0x4f2290 / 0x4f5c80: selection is locked across task calls; type-20 tasks
 // can also block acquisition while the lock itself is free.
-function acquireSelection(ai: ComputerQueue, index: number) {
+export function acquireSelection(ai: ComputerQueue, index: number) {
   const task = ai.tasks[index]
   if (!(ai.flags & 2)) {
     if (
@@ -377,7 +393,7 @@ function acquireSelection(ai: ComputerQueue, index: number) {
   }
   return ai.selectionOwner === index
 }
-function releaseSelection(ai: ComputerQueue, index: number) {
+export function releaseSelection(ai: ComputerQueue, index: number) {
   if (ai.selectionOwner !== index) return
   ai.flags = (ai.flags & ~2) >>> 0
   ai.selectionOwner = 10

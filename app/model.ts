@@ -44,6 +44,7 @@ import {
   campaignAttackTarget,
   forceHead,
   campaignPosition,
+  campaignTribe,
 } from './campaign-runtime.ts'
 export {
   campaignInternal,
@@ -665,10 +666,11 @@ export function createWorld(missionNumber = 1): World {
     }
   }
   w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
-    // ponytail: Mission 2's input-lock presentation waits for unported recurring
-    // script commands; consume the lock until that complete intro can also release it.
-    if (missionNumber !== 1 && c.opcode === 1112) return false
-    if (![1038, 1081, 1091, 1092, 1095, 1108, 1109, 1112, 1117, 1196, 1204].includes(c.opcode))
+    if (
+      ![1038, 1069, 1081, 1091, 1092, 1095, 1097, 1108, 1109, 1112, 1117, 1196, 1204].includes(
+        c.opcode
+      )
+    )
       return true
     campaignCommand(w, c.opcode, c.args)
     return false
@@ -1830,11 +1832,11 @@ function stepTurn(w: World) {
       {
         territory: id => refreshTribeTerritory(w, id),
         computer: id => {
-          if (id !== 1) throw new Error(`Unimplemented campaign tribe ${id}`)
+          if (id !== campaignTribe(w)) throw new Error(`Unimplemented campaign tribe ${id}`)
           stepComputerCastCooldown(w.castingTribes[id], w.ai.flags)
           campaignRules(w)
           stepComputerTasks(w, id)
-          stepComputerSpells(w)
+          stepComputerSpells(w, id)
         },
       }
     )

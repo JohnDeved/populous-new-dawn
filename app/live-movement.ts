@@ -123,7 +123,7 @@ export const orderEffects = (w: World): OrderEffects => ({
 
 function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  if (!order || ![3, 6, 7, 8, 10, 11, 17, 19, 21, 27, 28, 30, 31, 32, 33].includes(order.model))
+  if (!order || ![3, 6, 7, 8, 10, 11, 17, 19, 21, 25, 27, 28, 30, 31, 32, 33].includes(order.model))
     unsupported()
   const state = {
     randomState: rng.randomState,
@@ -310,14 +310,15 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
 }
 
 // 0x4cedd0 commits movement and persistent guard as one native command group.
-export function appendLiveGuardOrders(w: World, units: Unit[], marker: number) {
+export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, secondary = -1) {
   const group = {
     records: Array.from({ length: 8 }, emptyPersonOrder),
     count: 0,
     cursor: 0,
   }
-  queuePersonOrder(group, 3, 0, marker)
+  if (secondary === -1) queuePersonOrder(group, 3, 0, marker)
   queuePersonOrder(group, 11, 0x606, marker)
+  if (secondary !== -1) queuePersonOrder(group, 11, 0x606, secondary)
   const people = units.map(u => {
     const p = u.native ?? createLivePerson(w, u)
     u.native = p

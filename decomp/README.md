@@ -133,6 +133,12 @@ real native queries; only the final `004f2160` removal request is intercepted.
 The browser comparison checks marker variables and head removal on the same turns.
 The original header hash is verified before these comparisons.
 
+The browser also executes the bounded Mission 2 opening through its first recurring
+block. Native tribe-3 scheduling, tower staffing task 7, the ordinary two-marker
+warrior patrol, and the type-1 input-release notification are documented in the
+[Mission 2 startup note](research/mission2-startup-commands.md). This does not claim
+the remainder of Mission 2 or the unavailable localized message text.
+
 ## Campaign counter comparison
 
 ```sh
