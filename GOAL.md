@@ -9,11 +9,14 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: expose direct startup selection for the four shipped missions
-through the existing `GameStore.startMission()` path. Preserve checkpoint loading,
-keyboard and mouse access, and post-victory continuation. This is a bounded campaign
-access and menu slice, not complete original-menu or campaign-progression parity;
-do not record parity without explicit authorization.
+Current task lock: persist completed campaign missions from the real victory signal,
+then show completion and the next recommended mission in the startup selector. Keep
+all four shipped missions directly accessible, keep profile progress separate from
+the latest world checkpoint, and retain session progress when storage is unavailable.
+Selection, restart, defeat, and injected state must not record completion. This is a
+bounded profile/progression slice; do not record parity without explicit authorization.
+
+Direct startup selection for Missions 1-4 finished in `c5116e7`.
 
 The user-queued composition refactor reached its natural stopping point after five
 independently revertible extractions through `7d58c2c`. Keep `app/model.ts` and
