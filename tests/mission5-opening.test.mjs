@@ -3,6 +3,7 @@ import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
 import { missionEnemyTribe } from '../app/mission-data.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { buildingFootprintCells, buildingModel, buildingPose } from '../app/building-shapes.ts'
 
 test('Mission 5 runs its imported opening flyby once through ordinary turns', () => {
   const world = createWorld(5)
@@ -67,4 +68,23 @@ test('Mission 5 launches its surviving Dakini at the player Shaman', () => {
   for (let turn = 0; turn < 120 && !attacker.fight && Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z) >= initialDistance; turn++)
     tick(world, 1 / 12)
   assert.ok(attacker.fight || Math.hypot(attacker.x - shaman.x, attacker.z - shaman.z) < initialDistance)
+})
+
+test('Mission 5 staffs its original Dakini tower with a Preacher', () => {
+  const world = createWorld(5),
+    cell = ((178 & 254) >>> 1) * 128 + ((194 & 254) >>> 1),
+    tower = world.buildings.find(building =>
+      building.team === 'red' &&
+      buildingModel(building) === 4 &&
+      buildingFootprintCells(buildingPose(building)).includes(cell)
+    )
+  assert.ok(tower)
+  for (let turn = 0; turn < 256 && !world.ai.tasks.some(task => task.flags & 1 && task.target === tower.id); turn++)
+    tick(world, 1 / 12)
+  const task = world.ai.tasks.find(task => task.flags & 1 && task.target === tower.id)
+  assert.equal(task?.requested, 4)
+  for (let turn = 0; turn < 128 && !world.units.some(unit => unit.inside === tower.id); turn++)
+    tick(world, 1 / 12)
+  const occupant = world.units.find(unit => unit.inside === tower.id)
+  assert.deepEqual([occupant?.team, occupant?.kind], ['red', 'preacher'])
 })

@@ -157,6 +157,23 @@ try {
   await page.getByText('Board followers onto the Boat', { exact: true }).waitFor()
   await page.getByText('Claim the Boat from the stone head, board your followers', { exact: false }).waitFor()
   await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
+  const towerStaffing = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { tick } = await import('/app/model.ts'),
+      { buildingFootprintCells, buildingModel, buildingPose } = await import('/app/building-shapes.ts'),
+      cell = ((178 & 254) >>> 1) * 128 + ((194 & 254) >>> 1),
+      tower = world.buildings.find(building =>
+        building.team === 'red' &&
+        buildingModel(building) === 4 &&
+        buildingFootprintCells(buildingPose(building)).includes(cell)
+      )
+    for (let turn = 0; turn < 256 && !world.units.some(unit => unit.inside === tower.id); turn++)
+      tick(world, 1 / 12)
+    globalThis.testStore.update()
+    const occupant = world.units.find(unit => unit.inside === tower.id)
+    return { tower: !!tower, team: occupant?.team, kind: occupant?.kind }
+  })
+  assert.deepEqual(towerStaffing, { tower: true, team: 'red', kind: 'preacher' })
   const boatTutorial = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
       { browserPosition, command, nativePosition, tick } = await import('/app/model.ts'),
