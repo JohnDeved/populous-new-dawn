@@ -43,7 +43,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | --- | --- | --- |
 | `0044d7f0`, `004f0f90`, `0044db60`, `0044b100` | `app/tooltips.ts`, `app/scene.ts` | Forced object tooltip names and lifetime CPU-compared; first-mission cell adapter is approximate; hover and modes 3–10 unported |
 | `0044a2f0`, `004a24c0`, `004a1f50`, `00415f70`, `00516a00` | `scripts/import-messages.py`, `app/scene.ts`, `app/globals.css` | Color operands, indexed conversion, opaque rectangle vertices and native border artwork recovered; ordinary English bitmap text/layout now compared below; projection and other blend states pending |
-| `0048eae0`, `00430bd0`, `00430e40`, `00430e60`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal and positioned Mission 2 guidance CPU-compared; remaining notification classes pending |
+| `0048eae0`, `00430bd0`, `00430e40`, `00430e60`, `00430f30`, `00430fe0` | `app/messages.ts`, `app/model.ts`, `scripts/import-messages.py` | Type-3 allocation/removal, finite lifetime, and positioned Mission 2 guidance CPU-compared; remaining notification classes pending |
 | `0040c670`, `0040cc60` | `scripts/import-original.py`, `app/morph.ts`, `app/scene.ts` | Bank redirect and integer door coordinates CPU-compared; full morph scheduling unfinished |
 | `0045f9d0`, `004ee7b0`, `0040cc30` | `scripts/import-original.py`, `app/scene.ts` | Native animation rows and per-layer sprite selection; full state ownership remains open |
 | `00586074`, `004e6a70` | `scripts/inspect-executable.py`, `app/model.ts` | Integer angle/sine tables and movement; route selection still browser A* |
@@ -246,8 +246,8 @@ python3 scripts/import-hud.py /path/to/game
 
 The importer also uses the palette and HFX bank already listed in native asset
 provenance. The check runs 160 original type-3 allocations, the exact Mission 2
-message-103 branch twice, 320 original discovery script cases when `cpscr010.dat`
-is supplied, and one removal. Only sound playback is intercepted. It compares slot
+message-103 branch twice, Mission 4's three finite-lifetime tutorial commands,
+320 original discovery script cases when `cpscr010.dat` is supplied, and one removal. Only sound playback is intercepted. It compares slot
 contents, serial wrap, text IDs, shared RNG and script variables. It does not
 establish the rest of the original notification types, screen animation, popup
 interaction or full campaign scheduling. The executable and relevant mission

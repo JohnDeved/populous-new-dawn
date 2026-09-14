@@ -24,8 +24,18 @@ members' orders with command 28 targeting the living player Shaman; `0041cb40`
 can reissue that attack on the native 16/32-turn conditions. It does not directly defeat the tribe. Ordinary
 population-based outcome processing at `00418e30` remains responsible for victory.
 
-The browser binds the authentic level, turn-zero setup, opening flyby, opening
-message, objective block, knowledge rewards, forced attack start, and ordinary
-victory. Mission 4's larger recurring AI and contextual tutorial blocks remain
+Opcode 1179 is `0048cc60` case `0x97` because the dispatch subtracts `0x404`;
+case `0x9b` is unrelated opcode 1183. It resolves one script field, advances the
+cursor, then—when level flag `0x01000000` is clear and a last message exists—calls
+`00430f30`. That leaf accepts message types whose descriptor has bit `0x80` and
+writes the resolved value's low 16 bits to message offset `0x10`, its lifetime.
+The three contextual branches create type-3 messages 71, 72, and 73 and set each
+lifetime to 256. A hash-verified executable/script probe executed all three native
+dispatches plus the level, slot, type, and field-width guard cases without
+intercepting leaves.
+
+The browser binds the authentic level, turn-zero setup, contextual training and
+attack tutorials, opening flyby/message, objective block, knowledge rewards,
+forced attack start, and ordinary victory. Mission 4's larger recurring AI remains
 unbound, so this is not a claim of full Mission 4 script or AI parity. No parity
 update or native recording was made.

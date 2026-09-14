@@ -309,6 +309,7 @@
       ],
       "researchPaths": [
         "decomp/generated/0040bce0.c",
+        "decomp/generated/00430f30.c",
         "decomp/research/mission2-enemy-marker.md",
         "decomp/research/mission2-message-103.md",
         "decomp/research/mission4.md",
@@ -375,6 +376,7 @@
         "0x48c6b0",
         "0x48cc60",
         "0x48f350",
+        "0x430f30",
         "0x431a80",
         "0x431c40",
         "0x4615f0",
@@ -407,7 +409,7 @@
       ],
       "unresolved": [
         "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
-        "Mission 4's larger recurring AI and contextual tutorial blocks remain deferred.",
+        "Mission 4's larger recurring AI remains deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

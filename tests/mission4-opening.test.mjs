@@ -50,6 +50,45 @@ test('Mission 4 starts its original opening flyby once through ordinary turns', 
   assert.equal(world.flyby.events.length, 23)
 })
 
+test('Mission 4 teaches training and attack from its original live conditions once', () => {
+  const world = createWorld(4),
+    promote = count => {
+      for (const unit of world.units.filter(unit => unit.team === 'wild').slice(0, count))
+        unit.team = 'blue'
+    },
+    runTutorialTurn = turn => {
+      world.turn = turn
+      tick(world, 1 / 12)
+    },
+    tutorialIds = () =>
+      world.messages.slots
+        .filter(message => message && [657, 658, 659].includes(message.stringId))
+        .map(message => message.stringId)
+
+  promote(25)
+  runTutorialTurn(253)
+  assert.deepEqual(tutorialIds(), [657])
+  assert.equal(world.messages.slots[world.lastMessage].lifetime, 256)
+
+  promote(15)
+  runTutorialTurn(509)
+  assert.deepEqual(tutorialIds(), [657, 658])
+
+  const followers = world.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave')
+  for (const unit of followers.slice(0, 10)) unit.kind = 'warrior'
+  for (const unit of followers.slice(10, 20)) unit.kind = 'preacher'
+  runTutorialTurn(765)
+  assert.deepEqual(tutorialIds(), [657, 658, 659])
+  assert.ok(
+    world.messages.slots
+      .filter(message => message && [657, 658, 659].includes(message.stringId))
+      .every(message => message.lifetime === 256 && message.flags & 0x200)
+  )
+
+  runTutorialTurn(1021)
+  assert.deepEqual(tutorialIds(), [657, 658, 659])
+})
+
 test('Mission 4 converts Wildmen, discovers the Guard Tower, and defeats the Matak', () => {
   assert.equal(
     levelFour.sourceSha256,

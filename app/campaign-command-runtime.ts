@@ -118,6 +118,7 @@ export function campaignCommand(
       1174: 1,
       1176: 1,
       1177: 4,
+      1179: 1,
       1113: 0,
       1115: 2,
       1180: 0,
@@ -434,6 +435,13 @@ export function campaignCommand(
     sound(w, 0xe3, campaignPosition(w, 'blue'))
     return
   }
+  if (opcode === 1179) {
+    const lifetime = read(args[0]),
+      message = w.messages.slots[w.lastMessage]
+    if (!(w.manaWorld.levelFlags & 0x1000000) && message && message.flags & 1)
+      message.lifetime = (lifetime << 16) >> 16
+    return
+  }
   if (opcode === 1177) {
     const [number, x, y, payload] = args.map(read)
     if (w.manaWorld.levelFlags & 0x1000000) return
@@ -493,9 +501,16 @@ export function campaignRules(w: World) {
           ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
           : w.outcome.level === 3
             ? [12, 1003, ...script.codes.slice(833, 984), 1004, 1019]
-            : [12, 1003, ...script.codes.slice(1425, 1654), 1004, 1019],
+            : [
+                12,
+                1003,
+                ...script.codes.slice(1113, 1246),
+                ...script.codes.slice(1425, 1654),
+                1004,
+                1019,
+              ],
   }
-  // ponytail: Mission 4 binds its opening/objective blocks; add its AI blocks with their hosts.
+  // ponytail: Mission 4 binds its tutorials/opening/objective blocks; add AI blocks with their hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe: campaignTribe(w),

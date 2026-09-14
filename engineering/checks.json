@@ -489,17 +489,18 @@
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 3 continuation into Mission 4, its opening flyby/skip boundary, rendered play, and checkpoint restore through the shipped browser UI.",
+      "purpose": "Exercise Mission 3 continuation into Mission 4, its opening flyby/skip boundary, contextual tutorials, rendered play, and checkpoint restore through the shipped browser UI.",
       "coveredBehavior": [
         "Mission 3 result continuation",
         "Mission 4 original opening flyby, camera movement, input lock, skip control, and HUD resumption",
         "Mission 4 terrain, people, rewards, HUD and opening message",
+        "Mission 4 original Warrior Hut, Preacher, and final-attack tutorial triggers and presentation",
         "Guard Tower knowledge lock",
         "Mission 4 objective presentation",
         "Mission 4 checkpoint restore"
       ],
       "knownLimits": [
-        "Injects the prior Mission 3 win and does not prove Mission 4's deferred recurring AI or contextual tutorial blocks; the portable gameplay check covers its convert, worship, construction, combat, and victory path."
+        "Injects the prior Mission 3 win and accelerates the original tutorial conditions; Mission 4's recurring AI remains deferred, while the portable gameplay check covers convert, worship, construction, combat, and victory."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission4.mjs"],
@@ -573,12 +574,13 @@
       "id": "messages-native",
       "kind": "native",
       "automation": "safe",
-      "purpose": "Compare native type-1 and type-3 campaign message allocation, ordering, motion, collisions, and rebound state.",
+      "purpose": "Compare native campaign message allocation, finite lifetime, ordering, motion, collisions, and rebound state.",
       "coveredBehavior": [
         "Slot allocation and eviction",
         "Mission 2 type-1 descriptor and message-number binding",
         "Mission 2 positioned-message binding, target, payload, lifetime and flags",
         "Mission 2 Tornado-head message 103 binding and one-shot script branch",
+        "Mission 4 opcode 1179 lifetime, field width, presentation guards, and three original uses",
         "Age and slot ordering",
         "Normalized height, velocity, gravity, collisions, and rebound"
       ],
@@ -595,20 +597,23 @@
         "app/messages.ts",
         "app/original-messages.json",
         "app/original-script-two.json",
+        "app/original-script-four.json",
         "public/original/message-type1.png",
         "scripts/import-messages.py",
         "scripts/import-original.py",
         "scripts/decomp.py",
         "decomp/generated/00430e60.c",
+        "decomp/generated/00430f30.c",
         "decomp/generated/00491040.c",
         "decomp/research/mission2-message-103.md",
+        "decomp/research/mission4.md",
         "decomp/requirements.txt",
         "decomp/tools.json"
       ],
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable",
-        "Adjacent Mission 2 script and language, palette, and HFX data"
+        "Adjacent Mission 2 and Mission 4 scripts plus language, palette, and HFX data"
       ],
       "sideEffects": [],
       "resources": ["External executable is read-only"],

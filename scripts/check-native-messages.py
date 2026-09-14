@@ -127,6 +127,26 @@ console.log(JSON.stringify({state:w.messages,randomState:w.randomState,slot:w.la
 assert expected==actual,(expected,actual)
 print('PASS: native Mission 2 positioned message binding, target, payload, lifetime, flags and RNG')
 
+# Mission 4 opcode 1179 resolves its operand before presentation guards, then
+# writes the low 16 bits only for the last type-3 message.
+mission_four=(source/'levels/cpscr013.dat').read_bytes()
+assert hashlib.sha256(mission_four).hexdigest()=='d0f72bd1d35fcc24f0529edce9d7d87df9ad96ae22607dbd64e11cad818f76fe'
+assert [struct.unpack_from('<3H',mission_four,index*2) for index in (1152,1197,1235)]==[(1006,1179,165)]*3
+def lifetime_case(*,last=0,level_flags=0,message_type=3,value=256):
+    reset(1);cpu.mem_write(program,mission_four);cpu.mem_write(tribe,bytes(0xc65))
+    write(base+0x10,'<h',999);write(base+0x20,'<b',message_type);write(0x6841e7,'<b',last)
+    write(0x89c669,'<I',level_flags);write(program+0x3100,'<I',program+0x2000);write(program+0x3104,'<I',program+1152*2)
+    write(program+0x2000+165*8+4,'<i',value);call(0x48cc60,tribe,program)
+    return read(base+0x10,'<h'),(read(program+0x3104,'<I')-program)//2
+lifetime_cases=[{},dict(last=-1),dict(level_flags=0x1000000),dict(message_type=1),dict(value=0x12345678)]
+expected=[(256,1155),(999,1155),(999,1155),(999,1155),(0x5678,1155)]
+actual=[lifetime_case(**case) for case in lifetime_cases]
+assert actual==expected,(actual,expected)
+browser_lifetimes=browser("""import {campaignCommand,createWorld} from './app/model.ts';let s='';for await(const c of process.stdin)s+=c;
+console.log(JSON.stringify(JSON.parse(s).map(c=>{const w=createWorld(4);w.messages.slots[0]={age:0,position:0,serial:0,stringId:657,flags:c.message_type===3?0xd1:0x50,height:0,speed:0,lifetime:999};w.lastMessage=c.last;w.manaWorld.levelFlags=c.level_flags;campaignCommand(w,1179,[0],{fields:[[0,c.value]]});return [w.messages.slots[0].lifetime,1155]})));""",[dict(last=c.get('last',0),level_flags=c.get('level_flags',0),message_type=c.get('message_type',3),value=c.get('value',256)) for c in lifetime_cases])
+assert browser_lifetimes==[list(value) for value in expected],(browser_lifetimes,expected)
+print('PASS: native Mission 4 opcode 1179 lifetime, field width and presentation guards')
+
 # Original oldest-first list rebuild and presentation motion. The browser retains
 # only type-3 slots, so pointer links are reconstructed from age and slot order.
 cases=[];expected=[]

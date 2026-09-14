@@ -55,28 +55,67 @@ try {
   await page.getByText('Objectives · 0 / 3', { exact: true }).click()
   await page.getByText('Convert the Wildmen', { exact: true }).waitFor()
   await page.getByText('Discover the Guard Tower', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
 
-  const result = await page.evaluate(async () => {
+  await page.evaluate(() => {
     const world = globalThis.testStore.getWorld()
-    const initial = {
+    globalThis.mission4Initial = {
       blue: world.units.filter(unit => unit.team === 'blue').length,
       red: world.units.filter(unit => unit.team === 'red').length,
       wild: world.units.filter(unit => unit.team === 'wild').length,
       rewards: world.shrines.map(shrine => shrine.reward),
       rendered: globalThis.testScene.unitMeshes.size,
     }
+  })
+  const triggerTutorial = async (turn, promote, warriors, preachers, stringId, text) => {
+    await page.evaluate(([turn, promote, warriors, preachers]) => {
+      const world = globalThis.testStore.getWorld()
+      for (const unit of world.units.filter(unit => unit.team === 'wild').slice(0, promote))
+        unit.team = 'blue'
+      const followers = world.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave')
+      for (const unit of followers.slice(0, warriors)) unit.kind = 'warrior'
+      for (const unit of followers.slice(warriors, warriors + preachers)) unit.kind = 'preacher'
+      world.turn = turn
+    }, [turn, promote, warriors, preachers])
+    await page.waitForFunction(
+      stringId =>
+        globalThis.testStore
+          .getWorld()
+          .messages.slots.some(message => message?.stringId === stringId),
+      stringId
+    )
+    const message = page.locator('.campaign-messages details').filter({ hasText: text })
+    await message.locator('summary').click()
+    await message.getByText(text, { exact: false }).waitFor()
+  }
+  await triggerTutorial(253, 25, 0, 0, 657, 'Build a Warrior Training Hut')
+  await triggerTutorial(509, 15, 0, 0, 658, 'subvert your Followers')
+  await triggerTutorial(765, 0, 10, 10, 659, 'destroy the Enemy once and for all')
+
+  const result = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld()
+    const initial = {
+      ...globalThis.mission4Initial,
+      tutorials: [657, 658, 659].map(stringId =>
+        world.messages.slots.filter(message => message?.stringId === stringId).length
+      ),
+      tutorialLatches: [20, 21, 24].map(index => world.ai.variables[index]),
+    }
+    const checkpointWild = world.units.filter(unit => unit.team === 'wild').length
     await globalThis.testStore.saveCheckpoint()
     globalThis.testStore.startMission(1)
     if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 4 checkpoint load failed')
     const restored = globalThis.testStore.getWorld()
-    return { initial, restored: { level: restored.outcome.level, wild: restored.units.filter(unit => unit.team === 'wild').length } }
+    return { initial, checkpointWild, restored: { level: restored.outcome.level, wild: restored.units.filter(unit => unit.team === 'wild').length } }
   })
   assert.equal(result.initial.blue, 1)
   assert.equal(result.initial.red, 7)
   assert.ok(result.initial.wild >= 50)
   assert.deepEqual(result.initial.rewards, ['tower', 'convertWild', 'lightning'])
   assert.ok(result.initial.rendered > 0)
-  assert.deepEqual(result.restored, { level: 4, wild: result.initial.wild })
+  assert.deepEqual(result.initial.tutorials, [1, 1, 1])
+  assert.deepEqual(result.initial.tutorialLatches, [1, 1, 1])
+  assert.deepEqual(result.restored, { level: 4, wild: result.checkpointWild })
   assert.deepEqual(errors, [])
   console.log('PASS: Mission 4 opening flyby skips into playable HUD and restores its checkpoint')
 } finally {
