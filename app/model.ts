@@ -182,7 +182,6 @@ import {
   breedingWork,
   trainingCost,
   addUnit,
-  createWorldState,
 } from './world-state.ts'
 export {
   housing,
@@ -520,9 +519,7 @@ import {
 } from './computer.ts'
 import { availableTrainingPeople } from './computer-selection.ts'
 import { createFlyby, flybyCommand, type Flyby } from './flyby.ts'
-import { missionData } from './mission-data.ts'
 import {
-  createWorship,
   stepWorship,
   stepWorshipHead,
   countWorshippers,
@@ -533,7 +530,7 @@ import type { ModelMorph } from './morph.ts'
 import { stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
-import { unitKindFromModel, type UnitKind } from './unit-kinds.ts'
+import type { UnitKind } from './unit-kinds.ts'
 
 export type { UnitKind } from './unit-kinds.ts'
 const unitSpeed = (u: Unit) =>
