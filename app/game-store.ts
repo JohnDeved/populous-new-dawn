@@ -1,8 +1,10 @@
 import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
+import { missionNumbers } from './mission-data.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
-  CHECKPOINT_VERSION = 1
+  CHECKPOINT_VERSION = 1,
+  PROFILE_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
 
 type LegacyGift = {
@@ -83,15 +85,27 @@ function openCheckpointDatabase() {
   }))
 }
 
-async function readStoredCheckpoint() {
+async function readStoredState() {
   const database = await openCheckpointDatabase()
-  if (!database) return null
-  return new Promise<World | null>((resolve, reject) => {
+  if (!database) return { checkpoint: null, completed: [] }
+  return new Promise<{ checkpoint: World | null; completed: number[] }>((resolve, reject) => {
     const transaction = database.transaction(CHECKPOINT_STORE),
-      request = transaction.objectStore(CHECKPOINT_STORE).get('latest')
+      store = transaction.objectStore(CHECKPOINT_STORE),
+      checkpointRequest = store.get('latest'),
+      profileRequest = store.get('profile')
     transaction.addEventListener('complete', () => {
-      const saved = request.result as { version?: number; world?: World } | undefined
-      resolve(saved?.version === CHECKPOINT_VERSION && saved.world ? saved.world : null)
+      const saved = checkpointRequest.result as { version?: number; world?: World } | undefined,
+        profile = profileRequest.result as { version?: number; completed?: unknown } | undefined
+      resolve({
+        checkpoint: saved?.version === CHECKPOINT_VERSION && saved.world ? saved.world : null,
+        completed:
+          profile?.version === PROFILE_VERSION && Array.isArray(profile.completed)
+            ? profile.completed.filter(
+                (mission): mission is number =>
+                  Number.isInteger(mission) && missionNumbers.some(number => number === mission)
+              )
+            : [],
+      })
     })
     const fail = () => reject(transaction.error)
     transaction.addEventListener('error', fail)
@@ -99,12 +113,12 @@ async function readStoredCheckpoint() {
   })
 }
 
-async function writeStoredCheckpoint(world: World) {
+async function writeStoredValue(key: 'latest' | 'profile', value: unknown) {
   const database = await openCheckpointDatabase()
   if (!database) return false
   return new Promise<boolean>((resolve, reject) => {
     const transaction = database.transaction(CHECKPOINT_STORE, 'readwrite')
-    transaction.objectStore(CHECKPOINT_STORE).put({ version: CHECKPOINT_VERSION, world }, 'latest')
+    transaction.objectStore(CHECKPOINT_STORE).put(value, key)
     transaction.addEventListener('complete', () => resolve(true))
     const fail = () => reject(transaction.error)
     transaction.addEventListener('error', fail)
@@ -117,11 +131,33 @@ async function writeStoredCheckpoint(world: World) {
 export function createGameStore() {
   let world = createWorld(),
     checkpoint: World | null = null,
+    observedCompletion = world.outcome.completedLevel,
     revision = 0
+  const completedMissions = new Set<number>()
   const listeners = new Set<() => void>()
   const update = () => {
+    if (world.outcome.completedLevel !== observedCompletion) {
+      observedCompletion = world.outcome.completedLevel
+      const mission = observedCompletion === null ? null : observedCompletion + 1
+      if (
+        mission !== null &&
+        missionNumbers.some(number => number === mission) &&
+        !completedMissions.has(mission)
+      ) {
+        completedMissions.add(mission)
+        void writeStoredValue('profile', {
+          version: PROFILE_VERSION,
+          completed: [...completedMissions].sort((a, b) => a - b),
+        }).catch(() => {})
+      }
+    }
     revision++
     for (const listener of listeners) listener()
+  }
+  const replaceWorld = (next: World) => {
+    world = next
+    observedCompletion = world.outcome.completedLevel
+    update()
   }
   return {
     getWorld: () => world,
@@ -138,13 +174,14 @@ export function createGameStore() {
       update()
     },
     hasCheckpoint: () => !!checkpoint,
+    getCompletedMissions: () => [...completedMissions].sort((a, b) => a - b),
     restoreCheckpoint: async () => {
       try {
-        const saved = await readStoredCheckpoint()
-        if (!checkpoint && saved) {
-          checkpoint = migrateCheckpoint(structuredClone(saved))
-          update()
-        }
+        const saved = await readStoredState()
+        if (!checkpoint && saved.checkpoint)
+          checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
+        for (const mission of saved.completed) completedMissions.add(mission)
+        update()
       } catch {
         // Browser storage is optional; retain any in-session checkpoint.
       }
@@ -155,24 +192,21 @@ export function createGameStore() {
       checkpoint = saved
       update()
       try {
-        return await writeStoredCheckpoint(saved)
+        return await writeStoredValue('latest', { version: CHECKPOINT_VERSION, world: saved })
       } catch {
         return false
       }
     },
     loadCheckpoint: () => {
       if (!checkpoint) return false
-      world = migrateCheckpoint(structuredClone(checkpoint))
-      update()
+      replaceWorld(migrateCheckpoint(structuredClone(checkpoint)))
       return true
     },
     restart: () => {
-      world = createWorld(world.outcome.level)
-      update()
+      replaceWorld(createWorld(world.outcome.level))
     },
     startMission: (mission: number) => {
-      world = createWorld(mission)
-      update()
+      replaceWorld(createWorld(mission))
     },
   }
 }

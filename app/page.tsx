@@ -58,6 +58,8 @@ export default function Home() {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const world = store.getWorld(),
     update = store.update
+  const completedMissions = store.getCompletedMissions(),
+    recommendedMission = missionNumbers.find(mission => !completedMissions.includes(mission))
   const missionSpellModels = campaignSpellModels(world.outcome.level)
   const spellRoster = SPELLS.filter(s => missionSpellModels.has(s.model) || world.shots[s.id] > 0)
   const { routeNotice } = world
@@ -764,6 +766,9 @@ export default function Home() {
           <p>
             Choose a mission{store.hasCheckpoint() ? ' or return to your saved world.' : '.'}
           </p>
+          {!!completedMissions.length && recommendedMission && (
+            <p role="status">Mission {recommendedMission} is recommended next.</p>
+          )}
           <div className="menu-actions" aria-label="Choose mission">
             {store.hasCheckpoint() && (
               <button
@@ -780,9 +785,11 @@ export default function Home() {
                 key={mission}
                 autoFocus={!store.hasCheckpoint() && mission === missionNumbers[0]}
                 className="secondary-button"
+                aria-label={`Mission ${mission}${completedMissions.includes(mission) ? ', completed' : ''}`}
                 onClick={() => startMission(mission)}
               >
                 Mission {mission}
+                {completedMissions.includes(mission) && <span aria-hidden="true"> ✓</span>}
               </button>
             ))}
           </div>

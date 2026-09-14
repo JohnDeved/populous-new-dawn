@@ -422,7 +422,7 @@
         { "path": "app/game-store.ts", "symbol": "createGameStore" },
         { "path": "app/page.tsx", "symbol": "Home" }
       ],
-      "parityIds": ["persistence.save", "persistence.load", "interface.menus"],
+      "parityIds": ["persistence.save", "persistence.load", "persistence.profile", "interface.menus"],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
       ],
@@ -433,7 +433,7 @@
         "Asynchronous storage discovery must not start or advance a hidden fresh world before the player chooses."
       ],
       "unresolved": [
-        "Original save format, named slots, profile/progression data and exact front-end presentation remain unported."
+        "Original save format, named slots, options, broader profile data and exact front-end presentation remain unported."
       ]
     }
   ],

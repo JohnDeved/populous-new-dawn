@@ -1206,6 +1206,10 @@ test('external game store publishes edits and restarts without sharing worlds be
  store.startMission(4);assert.equal(store.getWorld().outcome.level,4);
  store.startMission(1);assert.equal(store.getWorld().outcome.level,1);
  unsubscribe();store.update();assert.equal(events.length,4);
+ const profile=createGameStore();assert.deepEqual(profile.getCompletedMissions(),[]);
+ profile.getWorld().outcome.completedLevel=0;profile.update();assert.deepEqual(profile.getCompletedMissions(),[1]);
+ profile.startMission(2);profile.getWorld().outcome.completedLevel=1;profile.startMission(1);
+ assert.deepEqual(profile.getCompletedMissions(),[1],'replaced startup state does not record completion');
 });
 
 test('mission-one victory continuation creates and restarts the recovered mission-two world', async () => {

@@ -391,6 +391,11 @@ try {
   await page.reload({ waitUntil: 'networkidle' })
   const startup = page.getByRole('dialog', { name: 'Start game' })
   await startup.waitFor()
+  await page.getByRole('status').filter({ hasText: 'Mission 2 is recommended next.' }).waitFor()
+  assert.match(
+    await page.getByRole('button', { name: 'Mission 1, completed', exact: true }).textContent(),
+    /✓/
+  )
   assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'no hidden fresh scene')
   const missionFour = page.getByRole('button', { name: 'Mission 4', exact: true })
   assert.equal(await startup.evaluate(dialog => dialog.matches(':modal')), true)
@@ -456,7 +461,7 @@ try {
 
   await page.reload({ waitUntil: 'networkidle' })
   await page.getByRole('dialog', { name: 'Start game' }).waitFor()
-  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
+  await page.getByRole('button', { name: 'Mission 1, completed', exact: true }).click()
   await waitForScene(page)
   const fresh = await page.evaluate(() => ({
     turn: globalThis.testScene.world.turn,
@@ -476,6 +481,19 @@ try {
     })
   })
   const blocked = await openGame({ newPage: () => context.newPage() })
+  await waitForScene(blocked.page)
+  await blocked.page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld(),
+      { tick } = await import('/app/model.ts')
+    world.units = world.units.filter(unit => unit.team === 'blue')
+    world.turn = 31
+    tick(world, 1 / 12)
+    globalThis.testStore.update()
+  })
+  assert.deepEqual(
+    await blocked.page.evaluate(() => globalThis.testStore.getCompletedMissions()),
+    [1]
+  )
   await blocked.page.getByRole('button', { name: 'Menu', exact: true }).click()
   await blocked.page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await blocked.page
@@ -484,7 +502,7 @@ try {
     .waitFor()
   assert.deepEqual(blocked.errors, [])
   await context.close()
-  console.log('PASS: startup selects Missions 1 and 4 by keyboard/mouse and restores Mission 2')
+  console.log('PASS: startup persists campaign completion and restores Mission 2')
 } finally {
   await browser.close()
 }

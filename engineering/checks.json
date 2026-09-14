@@ -441,19 +441,20 @@
       "id": "checkpoint-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise startup selection for shipped missions, durable Mission 2 checkpoint discovery, exact resume, and storage fallback through the shipped browser UI.",
+      "purpose": "Exercise startup selection, campaign completion persistence, durable Mission 2 checkpoint discovery, exact resume, and storage fallback through the shipped browser UI.",
       "coveredBehavior": [
         "First visit offers Missions 1 through 4 before scene creation",
         "Mission 1 mouse and Mission 4 keyboard selection",
         "Normal Mission 1 victory continues through the shipped result UI into Mission 2",
+        "Normal Mission 1 victory persists a completion mark and Mission 2 recommendation",
         "Mission 2 Totem route and one-shot Tornado-use instruction",
         "Mission 2 marker-triggered Matak tower counterattack",
         "Returning-player mission and Load Game choice before scene creation",
         "Exact Mission 2 checkpoint restore after reload",
-        "Fresh-world isolation and storage-unavailable fallback"
+        "Fresh-world isolation and in-session completion/checkpoint fallback when storage is unavailable"
       ],
       "knownLimits": [
-        "Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, profile, or front-end parity."
+        "Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-checkpoint.mjs"],
