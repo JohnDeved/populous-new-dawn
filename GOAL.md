@@ -9,18 +9,15 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: extract `createWorld` mechanically from `app/model.ts` into a
-no-model-import `app/world-initialization.ts`, keeping `app/model.ts` as the stable
-public facade. Preserve object iteration, allocation/RNG, pending-command order,
-selection, timber totals, hut timers, terrain synchronization, and initial light view.
-Make no gameplay, parity, naming, cleanup, or scene changes in this commit.
+Current task lock: deliver authentic Mission 4 through the shipped campaign path.
+Import its level and script, continue from a won Mission 3, bind only behavior Mission
+4 actually exercises, make its real objective playable to completion, and preserve
+Mission 4 across save/load. Require native evidence for newly encountered commands
+and a browser continuation/play/win/reload path before acceptance.
 
-Composition recovery: user direction re-queued a behavior-neutral pass after Mission
-3 Convert Wild commit `486531c`. Current sizes are about 2,688 lines for `app/model.ts`
-and 934 for `app/scene.ts`, not the superseded 7,500/3,200-line estimate. A fresh
-cycle/caller/check audit found `createWorld` as the sole remaining boundary large and
-cohesive enough to justify extraction. Keep the tiny scene render/disposal methods in
-the composition root unless a named feature creates a stronger boundary.
+Composition recovery finished in commit `ae33ada`: `createWorld` now lives behind the
+stable `app/model.ts` facade. Do not reopen the rejected tiny scene splits unless a
+named feature creates a stronger boundary.
 
 Meet the target through meaningful capability completion across campaign/content,
 game mechanics, saves/profiles, and modern compatibility—not recurring
