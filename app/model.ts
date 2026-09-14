@@ -95,6 +95,8 @@ import {
   shieldFollowers,
   stepGhostArmy,
   stepLiveBlastWave,
+  stepLiveConvertWild,
+  stepLiveSwamp,
   stepSwarm,
   stepUnitHypnotise,
   stepUnitInvisibility,
@@ -315,7 +317,6 @@ import {
   defaultPersonState,
   faceTribe,
   personAnimationObject,
-  randomPersonSpeed,
   recoverPersonMovement,
   setPersonAnimationRow,
   stopPersonMovement,
@@ -356,7 +357,6 @@ import { reincarnationStones, reincarnationTurns, stepReincarnation } from './re
 import { stepHutBirth, hutBirthPoints } from './hut-birth.ts'
 import {
   personStepCollision,
-  restingCellCollision,
   terrainSupportsPerson,
 } from './person-collision.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
@@ -369,11 +369,9 @@ import { stepLightning, type Lightning } from './lightning.ts'
 import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
 import { stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
-import { stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import { stepFirestorm, type Firestorm } from './firestorm.ts'
 import { stepEarthquake, type Earthquake } from './earthquake.ts'
 import { stepVolcano, type Volcano } from './volcano.ts'
-import { stepConvertWild, type ConvertWild } from './convert-wild.ts'
 import { stepLiveTornado, stepLiveTornadoPerson } from './tornado-runtime.ts'
 import {
   findLivePath,
@@ -1120,113 +1118,6 @@ function stepOutcome(w: World) {
   })
 }
 
-function stepLiveSwamp(w: World, swamp: Swamp) {
-  const units = new Map<number, Unit>(),
-    people = new Map<number, LivePerson>(),
-    cells = new Map<number, SwampTarget[]>()
-  for (const u of w.units) {
-    if (u.inside !== null || (u.hp <= 0 && !u.flight)) continue
-    const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u),
-      cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9),
-      row = cells.get(cell) ?? []
-    units.set(p.id, u)
-    people.set(p.id, p)
-    row.unshift({ ...p, attached: p.vehicle, immune: false })
-    cells.set(cell, row)
-  }
-  swamp.counter = (swamp.counter + 1) & 255
-  return stepSwamp(w.land, swamp, !!(w.manaWorld.gameFlags & 2), {
-    cell: packed => cells.get(((packed >>> 9) & 127) * 128 + ((packed & 254) >>> 1)) ?? [],
-    kill: target => {
-      const p = people.get(target.id)!,
-        u = units.get(p.id)!
-      releaseTasks(w, u)
-      u.native = p
-      p.previousState = p.state
-      p.state = 27
-      p.flags2 = (p.flags2 | 0x100000) >>> 0
-      p.damageAttacker = swamp.tribe
-      u.hp = 0
-    },
-    remove: target => {
-      const p = people.get(target.id)!,
-        u = units.get(p.id)!
-      releaseTasks(w, u)
-      const index = w.units.indexOf(u)
-      if (index !== -1) w.units.splice(index, 1)
-      w.selected = w.selected.filter(id => id !== u.id)
-    },
-    sound: () => sound(w, 0xaa, browserPosition(swamp.center)),
-  })
-}
-
-function stepLiveConvertWild(w: World, fx: Effect) {
-  const spell = fx.convertWild!,
-    team = spell.tribe === 0 ? 'blue' : 'red',
-    units = new Map<number, Unit>(),
-    cells = new Map<number, LivePerson[]>()
-  for (const u of w.units) {
-    if (u.team !== 'wild' || u.hp <= 0 || u.inside !== null) continue
-    const p = (u.native ??= createLivePerson(w, u)),
-      cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00),
-      row = cells.get(cell) ?? []
-    units.set(p.id, u)
-    row.unshift(p)
-    cells.set(cell, row)
-  }
-  spell.counter = (spell.counter + 1) & 255
-  return stepConvertWild(spell, w, {
-    population: () => population(w, team),
-    people: cell => cells.get(cell) ?? [],
-    unsupported: p => {
-      const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
-      return (
-        restingCellCollision(
-          { flags: w.land.flags[index], category: w.land.categories[index] },
-          w.land.walkMasks[0],
-          p
-        ) === 4
-      )
-    },
-    strand: p => {
-      const u = units.get(p.id)
-      if (!u) return
-      const person = u.native!
-      person.previousState = person.state
-      person.state = 8
-      person.substate = 3
-      person.flags2 = (person.flags2 | 0x40000000) >>> 0
-    },
-    suppressed: () => !!(w.manaTribes[spell.tribe].flags2 & 64),
-    convert: p => {
-      const u = units.get(p.id),
-        slot = u ? w.units.indexOf(u) : -1
-      if (!u || slot < 0) return
-      releaseTasks(w, u)
-      if (u.native!.flags2 & 0x20000) removeObjectFromCell(w.objectCells, u.native!)
-      w.objectCells.objects.delete(u.id)
-      u.native!.class = 0
-      u.hp = 0
-      const replacement = addUnit(w, team, 'brave', browserPosition(p))
-      w.units[slot] = replacement
-      w.units.pop()
-      replacement.heading = u.heading
-      replacement.native = createLivePerson(w, replacement)
-      replacement.native.speed = randomPersonSpeed(w, replacement.native)
-      replacement.native.flags4 = (replacement.native.flags4 | 0x40000) >>> 0
-      registerLivePerson(w, replacement.native)
-      sound(w, 5, browserPosition(p))
-      // ponytail: reuse the packed birth flash until an asset import adds native effect model 58.
-      effect(w, 'birth', browserPosition(p))
-    },
-    sparkle: (position, turns) => {
-      const sparkle = effect(w, 'trail', browserPosition(position))
-      sparkle.sprite = { sequence: 'sparkle', frame: 0 }
-      sparkle.height = position.h / 45
-      sparkle.duration = turns / TURNS_PER_SECOND
-    },
-  })
-}
 export interface TurnObserver {
   beforeTurn?: () => void
   afterTurn?: () => void
