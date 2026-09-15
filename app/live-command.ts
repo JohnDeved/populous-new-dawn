@@ -210,11 +210,12 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     !spec ||
     (kind === 'camp' && !w.unlockedCamp) ||
     (kind === 'tower' && !w.unlockedTower) ||
-    (kind === 'temple' && !w.unlockedTemple)
+    (kind === 'temple' && !w.unlockedTemple) ||
+    (kind === 'firewarriorHut' && !w.unlockedFirewarriorHut)
   ) {
     tell(
       w,
-      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : 'Warrior Training Hut'} at the vault.`
+      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : kind === 'firewarriorHut' ? 'Firewarrior Training Hut' : 'Warrior Training Hut'} at the vault.`
     )
     return false
   }
@@ -434,7 +435,7 @@ export function command(
   const queuedBuilding =
     [6, 8, 10].includes(model) &&
     context.building &&
-    ['hut', 'camp', 'tower', 'temple'].includes(context.building.kind)
+    ['hut', 'camp', 'tower', 'temple', 'firewarriorHut'].includes(context.building.kind)
   const queuedTree =
     model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
   if (
@@ -530,7 +531,8 @@ export function command(
     if (!acceptsPersonOrder(combatPerson(u), model)) continue
     if (
       friendly &&
-      (friendly.progress < 1 || !['hut', 'camp', 'tower', 'temple'].includes(friendly.kind)) &&
+      (friendly.progress < 1 ||
+        !['hut', 'camp', 'tower', 'temple', 'firewarriorHut'].includes(friendly.kind)) &&
       u.kind !== 'brave'
     )
       continue
@@ -580,6 +582,7 @@ export function command(
       if (friendly.progress < 1) message = 'Braves assigned to construction.'
       else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
       else if (friendly.kind === 'temple') message = 'Braves sent to train as preachers.'
+      else if (friendly.kind === 'firewarriorHut') message = 'Braves sent to train as firewarriors.'
       else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
       else message = 'Braves sent to live in the hut.'
     } else if (enemy) message = 'Your followers march to battle.'

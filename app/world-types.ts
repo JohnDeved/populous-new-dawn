@@ -56,7 +56,7 @@ export const teamForTribe = (tribe: number): Team =>
 export const tribeForTeam = (team: Team) => (team === 'wild' ? -1 : TRIBE_TEAMS.indexOf(team))
 export const animationTeam = (team: Team): 'blue' | 'red' | 'wild' =>
   team === 'yellow' || team === 'green' ? 'red' : team
-export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
+export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple' | 'firewarriorHut'
 export type Spell =
   | 'blast'
   | 'convertWild'
@@ -208,7 +208,7 @@ export type Shrine = Point &
   WorshipState & {
     id: number
     kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'vault' | 'boat'
-    reward?: Spell | 'camp' | 'tower' | 'temple'
+    reward?: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut'
     bridgeTarget?: Point
     effectTarget?: Point
     rewardVehicle?: number
@@ -263,6 +263,7 @@ export type Effect = Point & {
     | 'orderMarker'
     | 'reincarnation'
     | 'gift'
+    | 'firewarriorShot'
   height?: number
   sprite?: { sequence: string; frame: number; fixed?: boolean }
   animation?: AnimatedUnit | SpellTrail
@@ -290,10 +291,11 @@ export type Effect = Point & {
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
+  firewarriorShot?: { source: number; target: number; remaining: number }
 }
 export type Gift = Effect & {
   kind: 'gift'
-  reward: Spell | 'camp' | 'tower' | 'temple' | 'vault'
+  reward: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'vault'
   remaining: number
   phase: number
   frame: number
@@ -377,6 +379,7 @@ export type World = {
   unlockedCamp: boolean
   unlockedTower: boolean
   unlockedTemple: boolean
+  unlockedFirewarriorHut: boolean
   time: number
   turn: number
   attackAlert: number

@@ -44,6 +44,13 @@ and failed after balance initialization. That earlier table is not a verified ru
 The retained probe reports the observation instead of asserting that unsupported
 table; it is an exploratory executable probe, not a browser/native comparison.
 
+Rechecked for the Mission 8 slice on 2026-09-15: ordinary on-foot launch creates
+two projectiles, sets cooldown 25, uses speed `0x200`, and renders object `0x460`
+with descriptor row `0x1d`. The executable's tower cooldown is 36 despite the
+supplied text constant naming `SW_BLAST_RATE_TOWER` as 100. The live slice covers
+only cooldown 25 and ordinary brave impact; tower, bloodlust and other target
+classes remain outside its comparison.
+
 ## Boundaries and next step
 
 The allocator at `004ed8a0` is supplied with two slots; sound `0048a050`, animation

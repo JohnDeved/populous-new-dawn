@@ -141,7 +141,7 @@ def main():
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
     # Models actually used in this mission, including every hut family, upgrade and all four tribe colors.
-    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,95,96,97,103,104,106,*range(107,143)]
+    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,95,96,97,99,103,104,106,*range(107,143)]
     animation_tiles = read('data/anibl0-0.dat')
     assert len(animation_tiles) == 500
     fire = animation_tiles[20:40] # ANIBL record 1, consumed by 0x4f0f60.
@@ -261,6 +261,18 @@ def main():
             metadata[signature][state]=animation(team,kind,start,True)
         obj=rules['personAnimationObjects'][27*9+4]
         metadata[signature]['electrocution']=animation(team,kind,rules['animationObjects'][obj][0],True)
+    # Firewarrior is new to the browser roster, so append it after every
+    # previously reviewed frame index instead of shifting native fixtures.
+    for team in ['blue','red']:
+        kind='firewarrior';signature=f'{team}-{kind}'
+        states={'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'strike':104,'special':200,'recoil':112,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416,'dance':96,'idleGesture':728}
+        metadata[signature]={state:animation(team,kind,start) for state,start in states.items()}
+        obj=rules['personAnimationObjects'][2*9+6]
+        metadata[signature]['launch']=animation(team,kind,rules['animationObjects'][obj][0])
+        for state,start in [('stagger',128),('idleShift',384),('idleLook',392),('idleScratch',400)]:
+            metadata[signature][state]=animation(team,kind,start)
+        obj=rules['personAnimationObjects'][27*9+6]
+        metadata[signature]['electrocution']=animation(team,kind,rules['animationObjects'][obj][0])
     # Keep raw pieces: the original scales offsets and rectangles separately,
     # and enables/disables layers at draw time (including standing shadows).
     used+=sorted({layer['piece'] for layers in rendered for layer in layers}-set(used))
@@ -305,7 +317,7 @@ def main():
     for k,v in re.findall(r'^\s*P3CONST_(\S+)\s*=\s*(-?\d+)',data.decode('ascii'),re.M):constants.setdefault(k,int(v))
     assert constants['LIFE_BRAVE']==1000 and constants['BRAVE_SPEED']==70
     (project/'app/original-constants.json').write_text(json.dumps(constants,indent=2)+'\n')
-    icons={'selection':53,'blast':355,'lightning':356,'bridge':365,'brave':666,'warrior':668,'shaman':664,'buildings':676,'spells':678,'followers':680,'gold':712,'hut':1028,'tower':1029,'camp':1030,'temple':1032}
+    icons={'selection':53,'blast':355,'lightning':356,'bridge':365,'brave':666,'warrior':668,'firewarrior':672,'shaman':664,'buildings':676,'spells':678,'followers':680,'gold':712,'hut':1028,'tower':1029,'camp':1030,'temple':1032}
     for name,i in icons.items():png(output/(name+'.png'),*hfx[i])
     png(output/'portrait.png',*bank[6879])
     for name,w,h,gray in [('bigf0-c.dat',256,1152,False),('disp0-c.dat',256,256,True),('watdisp.dat',256,256,True)]:

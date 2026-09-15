@@ -117,6 +117,8 @@
         "orders-native",
         "computer-attack-native",
         "computer-direct-attack-native",
+        "mission8-firewarrior-native",
+        "mission8-browser",
         "vault-native",
         "orders-browser",
         "queued-timber-browser"
@@ -184,6 +186,7 @@
         "construction-native-fetch",
         "construction-native-timber-search",
         "construction-browser",
+        "mission8-browser",
         "queued-timber-browser"
       ],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
@@ -311,6 +314,7 @@
         "app/level-four.ts",
         "app/level-six.ts",
         "app/level-seven.ts",
+        "app/level-eight.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
@@ -321,6 +325,7 @@
         "app/original-script-five.json",
         "app/original-script-six.json",
         "app/original-script-seven.json",
+        "app/original-script-eight.json",
         "app/reincarnation.ts",
         "app/tribe-turns.ts",
         "app/vault.ts",
@@ -347,6 +352,9 @@
         "decomp/research/mission6-economy.md",
         "decomp/research/mission6.md",
         "decomp/research/mission7.md",
+        "decomp/research/firewarrior.md",
+        "scripts/check-browser-mission8.mjs",
+        "scripts/check-native-firewarrior.py",
         "scripts/check-browser-mission7.mjs",
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-checkpoint.mjs",
@@ -361,6 +369,11 @@
       "sharedPaths": [
         "app/flyby.ts",
         "app/game-store.ts",
+        "app/firewarrior.ts",
+        "app/live-building-entry.ts",
+        "app/building-shapes.ts",
+        "app/combat-runtime.ts",
+        "app/unit-kinds.ts",
         "app/model.ts",
         "app/page.tsx",
         "app/scene.ts",
@@ -451,6 +464,8 @@
         "mission4-browser",
         "mission7-opening-native",
         "mission7-browser",
+        "mission8-firewarrior-native",
+        "mission8-browser",
         "reincarnation-native",
         "reincarnation-browser",
         "vault-native",
@@ -468,6 +483,7 @@
         "Mission 4's larger recurring AI remains deferred.",
         "Mission 6's recurring scripts and later mission-specific content remain deferred.",
         "Mission 7's attack AI, later messages, Erosion acquisition, and victory remain deferred.",
+        "Mission 8's AI, tutorials, victory, and broader Firewarrior tower, bloodlust, line-of-fire, impact, and trail behavior remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]
@@ -487,7 +503,7 @@
         { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
       ],
       "nativeAddresses": [],
-      "checkIds": ["checkpoint-browser", "mission4-browser", "repository-check", "production-build"],
+      "checkIds": ["checkpoint-browser", "mission4-browser", "mission8-browser", "repository-check", "production-build"],
       "generatedInputIds": [],
       "risks": [
         "Asynchronous storage discovery must not start or advance a hidden fresh world before the player chooses."

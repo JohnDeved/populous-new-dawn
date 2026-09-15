@@ -7,6 +7,16 @@ export function worldPoint(terrain: number[], p: Point) {
   return { x: p.x, y: (height(terrain, p.x, p.z) * 45) / 128, z: p.z }
 }
 export const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.z - b.z)
+export function wrappedPlanarDelta(a: Point, b: Point) {
+  return {
+    x: short(Math.round(b.x * 256) - Math.round(a.x * 256)),
+    z: short(Math.round(b.z * 256) - Math.round(a.z * 256)),
+  }
+}
+export function wrappedDistance(a: Point, b: Point) {
+  const { x, z } = wrappedPlanarDelta(a, b)
+  return Math.hypot(x, z) / 256
+}
 // 0x4e6ac0: native XYZ, including signed-short wrap and half-scale vertical steps.
 export function nativeStep3D(
   p: NativePoint,

@@ -45,7 +45,7 @@ export function meleeDamage(u: Unit) {
           : constants.FIGHT_DAMAGE_BRAVE
   return Math.max(32, Math.floor((base * u.hp) / maxHp(u.kind))) / 20
 }
-function applyUnitDamage(u: Unit, damage: number) {
+export function applyUnitDamage(u: Unit, damage: number) {
   let amount = Math.round(damage * 20)
   if (u.shield) amount >>= rules.shieldDamageShift & 31
   u.hp = Math.max(0, (Math.round(u.hp * 20) - amount) / 20)

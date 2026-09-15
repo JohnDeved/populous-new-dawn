@@ -52,7 +52,7 @@ import { invalidateTimberRoutes } from './timber-search.ts'
 import { buildingCellValid } from './building-validity.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { campaignPosition, campaignShamanTeams } from './campaign-runtime.ts'
-import { browserPosition, distance } from './world-coordinates.ts'
+import { browserPosition, distance, wrappedDistance } from './world-coordinates.ts'
 import { BUILDINGS, buildingHp } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
 import { short } from './native-math.ts'
@@ -166,7 +166,7 @@ export function placementError(w: World, kind: BuildingKind, p: Point) {
   // preview controller's territory and capacity queries are connected.
   if (
     !w.buildings.some(b => b.team === 'blue' && distance(b, p) < 16) &&
-    distance(campaignPosition(w, 'blue'), p) > 16
+    wrappedDistance(campaignPosition(w, 'blue'), p) > 16
   )
     return 'Build next to your settlement or reincarnation site.'
   return null

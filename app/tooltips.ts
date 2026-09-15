@@ -1,6 +1,13 @@
 import native from './original-tooltips.json' with { type: 'json' }
 import { missionData } from './mission-data.ts'
-import { nativeCellPoint, browserPosition, distance, type World, type Point } from './model.ts'
+import {
+  nativeCellPoint,
+  browserPosition,
+  buildingModel,
+  distance,
+  type World,
+  type Point,
+} from './model.ts'
 import { tribeForTeam } from './world-types.ts'
 
 export type TooltipObject = Point & {
@@ -119,7 +126,7 @@ export function worldTooltipObject(world: World, id: number): TooltipObject | nu
     return {
       ...b,
       type: 2,
-      model: b.kind === 'hut' ? b.level : b.kind === 'camp' ? 7 : b.kind === 'tower' ? 4 : 5,
+      model: buildingModel(b),
       owner: tribeForTeam(b.team),
       tutorial: 0,
       head: null,

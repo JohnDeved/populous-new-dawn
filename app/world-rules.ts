@@ -9,6 +9,8 @@ export const unitSpeed = (u: Unit) =>
     ? constants.MEDICINE_MAN_SPEED
     : u.kind === 'warrior'
       ? constants.WARRIOR_SPEED
+      : u.kind === 'firewarrior'
+        ? constants.SUPER_WARRIOR_SPEED
       : u.kind === 'preacher'
         ? constants.RELIGIOUS_SPEED
         : constants.BRAVE_SPEED
@@ -218,6 +220,13 @@ export const BUILDINGS: {
     symbol: '☼',
     description: 'Eight logs. Unlock at the vault, then send braves inside to train as preachers.',
   },
+  {
+    id: 'firewarriorHut',
+    name: 'Firewarrior Training Hut',
+    cost: 8,
+    symbol: '✹',
+    description: 'Eight logs. Unlock at the vault, then send braves inside to train as Firewarriors.',
+  },
 ]
 export const SIZE = 96,
   GRID = 97
@@ -227,6 +236,8 @@ export const maxHp = (kind: UnitKind) =>
     ? constants.LIFE_SHAMEN
     : kind === 'warrior'
       ? constants.LIFE_WARR
+      : kind === 'firewarrior'
+        ? constants.LIFE_SWARR
       : kind === 'preacher'
         ? constants.LIFE_PREACH
         : constants.LIFE_BRAVE) / 20

@@ -19,7 +19,15 @@ export function createWorld(missionNumber = 1): World {
   for (const o of level.objects) {
     if (o.type === 2 && o.owner !== 255) {
       const kind =
-        o.model === 4 ? 'tower' : o.model === 5 ? 'temple' : o.model === 7 ? 'camp' : 'hut'
+        o.model === 4
+          ? 'tower'
+          : o.model === 5
+            ? 'temple'
+            : o.model === 7
+              ? 'camp'
+              : o.model === 8
+                ? 'firewarriorHut'
+                : 'hut'
       addBuilding(w, teamForTribe(o.owner), kind, o, true, {
         level: kind === 'hut' ? o.model : 1,
         angle: (o.angle / 2048) * Math.PI * 2,
@@ -73,8 +81,10 @@ export function createWorld(missionNumber = 1): World {
               ? 'tower'
               : reward[1] === 7
                 ? 'camp'
-                : reward[1] === 5
+              : reward[1] === 5
                   ? 'temple'
+                  : reward[1] === 8
+                    ? 'firewarriorHut'
                   : undefined
             : undefined,
         kind =

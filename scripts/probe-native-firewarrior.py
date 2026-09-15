@@ -79,7 +79,7 @@ def hook(c, address, size, user):
         ret()
         return
     if address == 0x4EE700:
-        events.append(("animation", read(sp + 8, "I")))
+        events.append(("animation", read(sp + 8, "I"), read(sp + 12, "I")))
         ret()
         return
     if address == 0x4010B0:
@@ -136,12 +136,14 @@ write(source + 0xB2, "b", 0)
 
 projectile_id = call(0x51FBF0, source, target, 0) & 0xFFFF
 assert projectile_id == 4, projectile_id
-assert read(source + 0xB2, "b") != 0
+assert read(source + 0xB2, "b") == 25
 for p in shots:
     assert read(p + 0x2A, "BB") == 8
     assert read(p + 0x2B, "B") == 6
     assert read(p + 0x88, "H") == 1
     assert read(p + 0x8A, "H") == 2
+    assert read(p + 0x5F, "h") == 0x200
+assert events.count(("animation", 0x1D, 0x460)) == 2
 
 before = read(target + 0x6E, "h")
 for _ in range(64):
@@ -169,5 +171,5 @@ for model in (2, 3, 4, 5, 6, 7, 8):
     write(0x8A03E4 + cell * 16 + 6, "H", 2)
     call(0x514410, shots[1])
     damage[model] = 30000 - read(target + 0x6E, "h")
-print(f"PASS: scoped native firewarrior launch, nonlethal impact, deletion ({identity['sha256']})")
+print(f"PASS: scoped native paired firewarrior launch, cooldown 25, object 0x460, speed 0x200, nonlethal impact and deletion ({identity['sha256']})")
 print(f"OBSERVED damage by target model with supplied balance data: {damage}")

@@ -129,7 +129,14 @@ export function makeFx(scene: GameScene, f: Effect) {
   if (f.unit) {
     g.userData.layers = []
     g.userData.owner = tribeForTeam(f.unit.team)
-    g.userData.draw = f.unit.kind === 'preacher' ? 16 : f.unit.kind === 'warrior' ? 15 : 14
+    g.userData.draw =
+      f.unit.kind === 'preacher'
+        ? 16
+        : f.unit.kind === 'firewarrior'
+          ? 17
+          : f.unit.kind === 'warrior'
+            ? 15
+            : 14
     g.userData.drawFlags = f.corpse ? 0 : 2
     g.userData.shaman = f.unit.kind === 'shaman'
     if (f.corpse)

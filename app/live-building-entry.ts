@@ -255,7 +255,11 @@ export function buildingAdmission(w: World, b: Building): BuildingAdmission {
     counter: b.counter,
     storedMana: b.timer,
   })
-  if (bootstrap && (b.kind === 'camp' || b.kind === 'temple') && state.inside) {
+  if (
+    bootstrap &&
+    (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut') &&
+    state.inside
+  ) {
     const ctx = context(w),
       weight = trainingOccupantWeight(ctx, state)
     state.activity = weight ? state.activity | 128 : state.activity & ~128
@@ -619,7 +623,7 @@ export function stepLiveTraining(w: World, b: Building) {
       w.manaTribes[tribe].available = (w.manaTribes[tribe].available + amount) | 0
     },
     allocateTrainee: (model, tribe, x, y, angle) => {
-      if (![2, 3, 4].includes(model)) unsupported()
+      if (![2, 3, 4, 6].includes(model)) unsupported()
       const u = addUnit(w, teamForTribe(tribe), unitKindFromModel(model), browserPosition({ x, y }))
       u.heading = Math.PI - (angle * Math.PI) / 1024
       const p = person(w, u)

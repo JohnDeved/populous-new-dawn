@@ -119,6 +119,8 @@ import {
   height,
   surface,
   nativeCellPoint,
+  wrappedPlanarDelta,
+  wrappedDistance,
 } from './world-coordinates.ts'
 import { short } from './native-math.ts'
 import {
@@ -188,6 +190,7 @@ import {
   startLiveCombatResponse,
 } from './live-building-combat.ts'
 import { nativePersonModel, nativePersonTribe } from './live-combat.ts'
+import { firewarriorRange, launchFirewarrior, stepFirewarriorShots } from './firewarrior.ts'
 import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
@@ -425,18 +428,6 @@ export function tick(w: World, dt: number, observer?: TurnObserver) {
     observer?.afterTurn?.()
   }
 }
-// Browser positions may differ by a map period; native movement uses signed-short displacement.
-function wrappedPlanarDelta(a: Point, b: Point) {
-  return {
-    x: short(Math.round(b.x * 256) - Math.round(a.x * 256)),
-    z: short(Math.round(b.z * 256) - Math.round(a.z * 256)),
-  }
-}
-function wrappedDistance(a: Point, b: Point) {
-  const { x, z } = wrappedPlanarDelta(a, b)
-  return Math.hypot(x, z) / 256
-}
-
 function stepTurn(w: World) {
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
@@ -491,10 +482,12 @@ function stepTurn(w: World) {
       gift.reward === 'camp' ||
       gift.reward === 'tower' ||
       gift.reward === 'temple' ||
+      gift.reward === 'firewarriorHut' ||
       gift.reward === 'vault'
     ) {
       if (gift.reward === 'temple') w.unlockedTemple = true
       else if (gift.reward === 'tower') w.unlockedTower = true
+      else if (gift.reward === 'firewarriorHut') w.unlockedFirewarriorHut = true
       else w.unlockedCamp = true
       tell(
         w,
@@ -502,6 +495,8 @@ function stepTurn(w: World) {
           ? 'Knowledge discovered: build a Temple, then send braves inside to train as preachers.'
           : gift.reward === 'tower'
             ? 'Knowledge discovered: build a Guard Tower, then send a follower inside to defend the area.'
+            : gift.reward === 'firewarriorHut'
+              ? 'Knowledge discovered: build a Firewarrior Training Hut, then send braves inside.'
             : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
       )
     } else {
@@ -772,6 +767,7 @@ function stepTurn(w: World) {
     refreshTerrainSurface(w)
   }
   w.effects = w.effects.filter(f => f.age < f.duration)
+  stepFirewarriorShots(w)
   processProjectiles(w)
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
@@ -849,7 +845,7 @@ function stepTurn(w: World) {
     const schools = w.buildings.filter(
       b =>
         b.team === team &&
-        (b.kind === 'camp' || b.kind === 'temple') &&
+        (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut') &&
         b.progress === 1 &&
         b.hp > 0
     )
@@ -905,7 +901,7 @@ function stepTurn(w: World) {
       }
       if (wasIncomplete) continue
     }
-    if (b.kind === 'camp' || b.kind === 'temple') {
+    if (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut') {
       stepLiveTraining(w, b)
     } else if (b.kind === 'hut') {
       const admission = buildingAdmission(w, b)
@@ -1091,7 +1087,13 @@ function stepTurn(w: World) {
     if (u.inside !== null) {
       const b = w.buildings.find(b => b.id === u.inside && b.hp > 0)
       if (b) {
-        if ((b.kind === 'camp' || b.kind === 'tower' || b.kind === 'temple') && u.entry)
+        if (
+          (b.kind === 'camp' ||
+            b.kind === 'tower' ||
+            b.kind === 'temple' ||
+            b.kind === 'firewarriorHut') &&
+          u.entry
+        )
           stepBuildingEntry(w, u, b)
         continue
       }
@@ -1105,6 +1107,7 @@ function stepTurn(w: World) {
         work.kind === 'camp' ||
         work.kind === 'tower' ||
         work.kind === 'temple' ||
+        work.kind === 'firewarriorHut' ||
         !!((work.admission?.activity ?? 0) & 0x8000)) &&
       (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
       !work.burn &&
@@ -1175,7 +1178,8 @@ function stepTurn(w: World) {
         ? Math.hypot(targetDelta.x, targetDelta.z) / 256
         : distance(u, target)
       : Infinity
-    const reach = target && 'progress' in target ? 4.3 : 1.7
+    const reach =
+      target && 'progress' in target ? 4.3 : u.kind === 'firewarrior' ? firewarriorRange : 1.7
     if (target) {
       // 0x51a2a0 raises quiet music to activity without overriding battle music.
       // ponytail: target ownership remains the live attack adapter until the
@@ -1199,6 +1203,13 @@ function stepTurn(w: World) {
       }
     }
     if (target && targetDistance < reach) {
+      if (!('progress' in target) && u.kind === 'firewarrior') {
+        u.path = []
+        if (u.native) u.native.speed = 0
+        u.fighting = true
+        if (!u.cooldown) launchFirewarrior(w, u, target)
+        continue
+      }
       if ('progress' in target) {
         u.fighting = true
         if (!u.cooldown) {

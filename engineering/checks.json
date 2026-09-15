@@ -660,6 +660,87 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare the bounded native Firewarrior launch and impact contract with the live simulation implementation.",
+      "coveredBehavior": [
+        "Paired projectile allocation and identity",
+        "Range, cooldown, speed, target binding, and deletion",
+        "Live paired motion and ordinary Brave impact"
+      ],
+      "knownLimits": [
+        "Allocator, audio, trail, and several world consumers are intercepted; tower, bloodlust, line-of-fire, broad target damage, and complete native play remain deferred."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-firewarrior.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-firewarrior.py",
+        "scripts/probe-native-firewarrior.py",
+        "app/firewarrior.ts",
+        "app/combat-runtime.ts",
+        "app/live-building-entry.ts",
+        "app/tooltips.ts",
+        "app/original-rules.json",
+        "decomp/research/firewarrior.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent constant.dat",
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 7 continuation into Mission 8 and the Firewarrior acquisition, construction, training, ranged attack, rendering, and checkpoint slice through the shipped browser game.",
+      "coveredBehavior": [
+        "Mission 7 result continuation into exact Mission 8 data",
+        "Authentic Vault unlock through rendered-object input",
+        "Real Firewarrior Training Hut placement and construction",
+        "Brave training and Firewarrior HUD selection",
+        "Enemy input, paired ranged shots, GPU pixels, impact damage, and checkpoint restoration"
+      ],
+      "knownLimits": [
+        "Seeds Mission 7 victory, positions the authentic Shaman at the remote Vault entrance, clears the prior construction selection, accelerates training mana, and positions one enemy in range.",
+        "Mission 8 AI, tutorials, victory, and broader Firewarrior tower, bloodlust, line-of-fire, impact, and trail behavior remain deferred."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission8.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission8.mjs",
+        "scripts/browser-game.mjs",
+        "app/level-eight.ts",
+        "app/original-script-eight.json",
+        "app/original-models.json",
+        "app/original-units.json",
+        "app/mission-data.ts",
+        "app/firewarrior.ts",
+        "app/live-command.ts",
+        "app/live-building-entry.ts",
+        "app/building-panels.ts",
+        "app/tooltips.ts",
+        "app/world-turn.ts",
+        "app/page.tsx",
+        "app/game-store.ts",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",

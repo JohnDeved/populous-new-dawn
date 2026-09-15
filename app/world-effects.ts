@@ -139,7 +139,11 @@ export function createGift(w: World, reward: Gift['reward'], p: Point) {
     remaining: 82,
     phase: 6,
     frame:
-      reward === 'camp' || reward === 'tower' || reward === 'temple' || reward === 'vault'
+      reward === 'camp' ||
+      reward === 'tower' ||
+      reward === 'temple' ||
+      reward === 'firewarriorHut' ||
+      reward === 'vault'
         ? 1077
         : 1056 + SPELLS.find(spell => spell.id === reward)!.model,
     height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,

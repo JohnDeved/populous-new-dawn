@@ -407,17 +407,29 @@ export default function Home() {
                         done: !!world.manaTribes[3].defeatTimer,
                       },
                     ]
-                  : [
-                      { text: 'Convert the Wildmen', done: blue.length > 1 },
-                      {
-                        text: 'Claim Invisibility from the stone head',
-                        done: world.giftCounts.invisibility > 0,
-                      },
-                      {
-                        text: 'Conceal followers with Invisibility',
-                        done: blue.some(unit => !!unit.invisibility),
-                      },
-                    ]
+                  : world.outcome.level === 7
+                    ? [
+                        { text: 'Convert the Wildmen', done: blue.length > 1 },
+                        {
+                          text: 'Claim Invisibility from the stone head',
+                          done: world.giftCounts.invisibility > 0,
+                        },
+                        {
+                          text: 'Conceal followers with Invisibility',
+                          done: blue.some(unit => !!unit.invisibility),
+                        },
+                      ]
+                    : [
+                        {
+                          text: 'Discover Firewarrior training',
+                          done: world.unlockedFirewarriorHut,
+                        },
+                        {
+                          text: 'Train a Firewarrior',
+                          done: blue.some(unit => unit.kind === 'firewarrior'),
+                        },
+                        { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
+                      ]
   return (
     <main
       ref={shell}
@@ -649,6 +661,7 @@ export default function Home() {
               { kind: 'brave', label: 'Braves', sprite: 666 },
               { kind: 'warrior', label: 'Warriors', sprite: 668 },
               { kind: 'preacher', label: 'Preachers', sprite: 670 },
+              { kind: 'firewarrior', label: 'Firewarriors', sprite: 672 },
             ] as const
           ).map(u => (
             <button
@@ -664,11 +677,9 @@ export default function Home() {
               />
             </button>
           ))}
-          {['Firewarriors', 'Spies'].map(name => (
-            <button key={name} disabled aria-label={name} title={name}>
-              <FollowerNumber count={0} />
-            </button>
-          ))}
+          <button disabled aria-label="Spies" title="Spies">
+            <FollowerNumber count={0} />
+          </button>
         </section>
         <ManaMeter tribe={world.manaTribes[0]} world={world.manaWorld} />
         <section className="command-dock" aria-label="Command panel">
@@ -727,7 +738,8 @@ export default function Home() {
                   disabled={
                     (b.id === 'camp' && !world.unlockedCamp) ||
                     (b.id === 'tower' && !world.unlockedTower) ||
-                    (b.id === 'temple' && !world.unlockedTemple)
+                    (b.id === 'temple' && !world.unlockedTemple) ||
+                    (b.id === 'firewarriorHut' && !world.unlockedFirewarriorHut)
                   }
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
                   aria-label={`${b.name}, ${b.cost} wood`}
@@ -744,7 +756,13 @@ export default function Home() {
                   onBlur={() => setHover(null)}
                 >
                   <HudSprite
-                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
+                    id={
+                      b.id === 'hut'
+                        ? 1028
+                        : b.id === 'tower' || b.id === 'temple'
+                          ? 1029
+                          : 1030
+                    }
                   />
                 </button>
               ))}
@@ -757,6 +775,7 @@ export default function Home() {
                   { id: 'shaman', label: 'Shaman', sprite: 664 },
                   { id: 'brave', label: 'Braves', sprite: 666 },
                   { id: 'warrior', label: 'Warriors', sprite: 668 },
+                  { id: 'firewarrior', label: 'Firewarriors', sprite: 672 },
                   { id: 'all', label: 'Everyone', sprite: 680 },
                 ] as const
               ).map(u => (
@@ -934,7 +953,9 @@ export default function Home() {
                     ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
                     : world.outcome.level === 6
                       ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
-                      : 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'}
+                      : world.outcome.level === 7
+                        ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
+                        : 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

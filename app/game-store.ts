@@ -91,6 +91,7 @@ export function migrateCheckpoint(world: World) {
   for (const vehicle of world.vehicles) vehicle.active ??= true
   world.unlockedTower ??= false
   world.unlockedTemple ??= false
+  world.unlockedFirewarriorHut ??= false
   const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
   world.ai.coordinateLatch ??= 0
   if (oldMissionTwo) {

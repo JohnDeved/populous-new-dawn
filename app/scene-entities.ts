@@ -375,7 +375,14 @@ export function updateUnitsFrame(scene: GameScene) {
       }
     }
     g.userData.draw =
-      animationSource?.draw ?? (u.kind === 'preacher' ? 16 : u.kind === 'warrior' ? 15 : 14)
+      animationSource?.draw ??
+      (u.kind === 'preacher'
+        ? 16
+        : u.kind === 'firewarrior'
+          ? 17
+          : u.kind === 'warrior'
+            ? 15
+            : 14)
     const nativeRenderFlags = animationSource?.renderFlags ?? 0,
       invisibilityRenderFlag = unitInvisibilityRenderFlag(scene.world, u),
       renderFlags =
