@@ -72,6 +72,7 @@ import {
 import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
 import { spyDisguisedFrom } from './computer-spells.ts'
+import { teamForTribe, tribeForTeam } from './world-types.ts'
 import {
   boardLiveVehicle,
   leaveLiveVehicle,
@@ -110,11 +111,7 @@ function releaseShamanGuard(w: World, person: { tribe: number }) {
   tribe.shamanGuards = Math.max(0, short(tribe.shamanGuards - 1))
   if (tribe.shamanGuards) return
   const shaman = w.units.find(
-      u =>
-        u.hp > 0 &&
-        u.kind === 'shaman' &&
-        !u.ghost &&
-        (u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1) === person.tribe
+      u => u.hp > 0 && u.kind === 'shaman' && !u.ghost && tribeForTeam(u.team) === person.tribe
     ),
     source = shaman && personSource(shaman)
   if (source?.speed) source.speed = randomPersonSpeed(w, source)
@@ -187,10 +184,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     },
     canStayForTarget: unsupported,
     leaveBuilding: person => {
-      leaveLiveBuilding(
-        w,
-        w.units.find(u => u.id === person.id)!
-      )
+      leaveLiveBuilding(w, w.units.find(u => u.id === person.id)!)
     },
     resetVehicleMovement: id => {
       const vehicle = w.vehicles.find(v => v.id === id)
@@ -465,7 +459,7 @@ function releasePreacherVictims(w: World, preacher: LivePerson, radius: number) 
 function replaceConvertedVictim(w: World, u: Unit, preacher: LivePerson) {
   const victim = u.native!,
     oldId = u.id,
-    team = preacher.tribe === 0 ? 'blue' : 'red',
+    team = teamForTribe(preacher.tribe),
     slot = w.units.indexOf(u)
   if (slot < 0) throw new Error('Missing converted victim')
   // alloc_unit initializes a person speed before conversion replaces it.
@@ -512,7 +506,7 @@ export function stepLiveConversionVictim(w: World, u: Unit) {
   if (result === 'cancel')
     changeLivePersonState(w, u, cancelConversionVictim(victim, w.manaWorld.gameFlags))
   else if (result === 'convert') {
-    const team = preacher!.tribe === 0 ? 'blue' : 'red'
+    const team = teamForTribe(preacher!.tribe)
     if (population(w, team) <= 199 || w.manaTribes[victim.tribe].flags2 & 64)
       replaceConvertedVictim(w, u, preacher!)
   } else u.heading = Math.PI - (victim.turnAngle * Math.PI) / 1024
@@ -652,7 +646,7 @@ function stepLiveConstructionOrder(w: World, u: Unit, p: LivePerson, order: Pers
       b && {
         id: b.id,
         class: 2,
-        tribe: b.team === 'blue' ? 0 : 1,
+        tribe: tribeForTeam(b.team),
         flags2: b.hp > 0 ? 0 : 1,
         plan: b.id,
         signal: 0,
@@ -734,7 +728,8 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
           for (let x = -512; x <= 512; x += 32)
             candidates.push({ x: short(to.x + x), y: short(to.y + y) })
         candidates.sort(
-          (a, b) => Math.hypot(short(a.x - to.x), short(a.y - to.y)) -
+          (a, b) =>
+            Math.hypot(short(a.x - to.x), short(a.y - to.y)) -
             Math.hypot(short(b.x - to.x), short(b.y - to.y))
         )
         const exits: { x: number; y: number }[] = []
@@ -852,9 +847,7 @@ export function stepLiveOrderQueue(
               id = w.land.buildingIds[cell] & 1023,
               building =
                 w.land.flags[cell] & 512
-                  ? w.buildings.find(
-                      b => (b.id & 1023) === id && b.team === (p.tribe === 0 ? 'blue' : 'red')
-                    )
+                  ? w.buildings.find(b => (b.id & 1023) === id && b.team === teamForTribe(p.tribe))
                   : undefined
             remove(slot)
             const nextId = allocatePersonOrder(w.buildingOrders)

@@ -1,8 +1,7 @@
 import rules from './original-rules.json' with { type: 'json' }
 import constants from './original-constants.json' with { type: 'json' }
 import { currentPersonOrder, type OrderedPerson, type OrderPool } from './person-orders.ts'
-import type { World } from './world-types.ts'
-import { campaignTribe } from './campaign-runtime.ts'
+import { tribeForTeam, type World } from './world-types.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { TURNS_PER_SECOND } from './world-rules.ts'
 
@@ -121,7 +120,7 @@ export function generatedMana(
 export const liveManaOrders = { records: [], cursor: 1, active: 0 }
 export function manaPeople(w: World) {
   return w.units.map(u => {
-    const tribe = u.team === 'red' ? campaignTribe(w) : (u.native?.tribe ?? 0)
+    const tribe = u.native?.tribe ?? tribeForTeam(u.team)
     return {
       ...(u.native ?? {
         class: 1,

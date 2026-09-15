@@ -1,5 +1,5 @@
 import { stepTribeCastCooldown, type TribeCasting } from './spell-casting.ts'
-import type { World } from './world-types.ts'
+import { teamForTribe, type World } from './world-types.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { createLivePerson, initializeLiveCelebration } from './live-people.ts'
 import { releaseTasks } from './world-tasks.ts'
@@ -187,7 +187,7 @@ export function stepOutcome(w: World) {
   // ponytail: registered native person lists/counts await the shared object
   // rebuild. Opening classes retain browser followers through live death states.
   const tribes = w.manaTribes.map((t, id) => {
-    const team = id === 0 ? 'blue' : id === 1 ? 'red' : null
+    const team = teamForTribe(id)
     const people = w.units
       .filter(u => u.team === team)
       .map(unit => ({

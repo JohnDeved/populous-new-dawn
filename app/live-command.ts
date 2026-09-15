@@ -1,4 +1,12 @@
-import type { Building, BuildingKind, Point, Spell, Unit, World } from './world-types.ts'
+import {
+  tribeForTeam,
+  type Building,
+  type BuildingKind,
+  type Point,
+  type Spell,
+  type Unit,
+  type World,
+} from './world-types.ts'
 import { nativePosition, syncLandscapeObjects, syncNativeTerrain } from './world-terrain-runtime.ts'
 import { browserPosition, distance, height } from './world-coordinates.ts'
 import { combatPerson, nativePersonModel } from './live-combat.ts'
@@ -132,7 +140,7 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
   // Forced/manual choices, ghost-only selection and contested-building
   // classification require their native lifecycle owners; no invented actions here.
   const tribeFlags =
-    (w.castingTribes[team === 'red' ? 1 : 0].flags & ~64) |
+    (w.castingTribes[tribeForTeam(team)].flags & ~64) |
     (w.vehicles.some(v => v.active && v.team === team) ? 64 : 0)
   const enabled =
     model !== 3 ||
@@ -374,7 +382,11 @@ export function command(
         cancelLiveOrder(w, driver)
         const order = allocatePersonOrder(w.buildingOrders)
         if (!order) continue
-        Object.assign(w.buildingOrders.records[order], { model: 3, a: to.x & 65535, b: to.y & 65535 })
+        Object.assign(w.buildingOrders.records[order], {
+          model: 3,
+          a: to.x & 65535,
+          b: to.y & 65535,
+        })
         attachPersonOrder(w.buildingOrders, person, order, 0, orderEffects(w))
         const path = planLivePath(w, driver, p, person, false, true)
         if (!path) {
@@ -440,10 +452,7 @@ export function command(
       modifiers.altKey
     )
     const units = w.units.filter(
-      u =>
-        canOrder(u) &&
-        w.selected.includes(u.id) &&
-        acceptsPersonOrder(combatPerson(u), model)
+      u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), model)
     )
     if (!units.length) {
       tell(w, 'No selected followers can take this order.')

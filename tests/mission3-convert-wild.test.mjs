@@ -30,7 +30,7 @@ test('Mission 3 Chumara spends its original Convert Wild shot through ordinary t
     tick(world, 1 / 12)
   }
   assert.equal(world.units.filter(unit => unit.team === 'wild').length, 43)
-  assert.equal(world.units.filter(unit => unit.team === 'red').length, 8)
+  assert.equal(world.units.filter(unit => unit.team === 'yellow').length, 8)
 
   for (let turn = 0; turn < 512; turn++) tick(world, 1 / 12)
   assert.equal(world.spellCasts[2][17], 1)

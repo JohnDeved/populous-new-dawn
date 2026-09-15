@@ -36,7 +36,7 @@ test('Mission 3 opens through original Chumara, Swarm, Temple and Erosion paths'
 
   const world = createWorld(3)
   assert.equal(world.units.filter(unit => unit.team === 'blue').length, 1)
-  assert.equal(world.units.filter(unit => unit.team === 'red').length, 7)
+  assert.equal(world.units.filter(unit => unit.team === 'yellow').length, 7)
   assert.equal(world.units.filter(unit => unit.team === 'wild').length, 44)
   assert.equal(
     world.buildings.filter(building => building.team === 'blue' && building.kind === 'hut').length,
@@ -53,12 +53,12 @@ test('Mission 3 opens through original Chumara, Swarm, Temple and Erosion paths'
   until(world, () => world.unlockedTemple)
   assert.ok(world.shots.swarm > 0)
   const enemy = world.units
-    .filter(unit => unit.team === 'red' && unit.kind !== 'shaman' && unit.hp > 0)
+    .filter(unit => unit.team === 'yellow' && unit.kind !== 'shaman' && unit.hp > 0)
     .findLast(unit => cast(world, 'swarm', unit))
   assert.ok(enemy)
   until(
     world,
-    () => world.units.some(unit => unit.team === 'red' && unit.native?.state === 26),
+    () => world.units.some(unit => unit.team === 'yellow' && unit.native?.state === 26),
     500
   )
   assert.equal(world.effects.find(effect => effect.swarm)?.swarm?.tribe, 0)

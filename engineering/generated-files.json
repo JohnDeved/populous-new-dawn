@@ -102,6 +102,13 @@
           "producer": "scripts/import-level.py"
         },
         {
+          "path": "app/level-six.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
           "path": "app/original-camera.json",
           "type": "file",
           "tracked": true,
@@ -201,6 +208,13 @@
         },
         {
           "path": "app/original-script-five.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-six.json",
           "type": "file",
           "tracked": true,
           "protected": true,

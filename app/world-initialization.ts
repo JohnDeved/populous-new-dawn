@@ -1,6 +1,6 @@
 import type { Point, World } from './world-types.ts'
 import { addBuilding } from './construction-runtime.ts'
-import { campaignPosition } from './campaign-runtime.ts'
+import { campaignPosition, withCampaignTribe } from './campaign-runtime.ts'
 import { campaignCommand } from './campaign-command-runtime.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
 import { distance } from './world-coordinates.ts'
@@ -10,6 +10,7 @@ import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { missionData } from './mission-data.ts'
 import { createWorship } from './worship.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
+import { teamForTribe } from './world-types.ts'
 
 export function createWorld(missionNumber = 1): World {
   const mission = missionData(missionNumber),
@@ -19,7 +20,7 @@ export function createWorld(missionNumber = 1): World {
     if (o.type === 2 && o.owner !== 255) {
       const kind =
         o.model === 4 ? 'tower' : o.model === 5 ? 'temple' : o.model === 7 ? 'camp' : 'hut'
-      addBuilding(w, o.owner === 0 ? 'blue' : 'red', kind, o, true, {
+      addBuilding(w, teamForTribe(o.owner), kind, o, true, {
         level: kind === 'hut' ? o.model : 1,
         angle: (o.angle / 2048) * Math.PI * 2,
       })
@@ -31,9 +32,7 @@ export function createWorld(missionNumber = 1): World {
           ? 'blue'
           : o.owner === 255
             ? 'wild'
-            : o.owner === 0
-              ? 'blue'
-              : 'red',
+            : teamForTribe(o.owner),
         unitKindFromModel(o.model),
         o
       )
@@ -44,7 +43,7 @@ export function createWorld(missionNumber = 1): World {
         id: w.nextId++,
         class: 4,
         model: o.model,
-        team: o.owner === 0 ? 'blue' : 'red',
+        team: teamForTribe(o.owner),
         physics: 1,
         speed: -1,
         navigationFlags: 0,
@@ -83,11 +82,11 @@ export function createWorld(missionNumber = 1): World {
             ? 'vault'
             : linked?.type === 4
               ? 'boat'
-            : linked?.type === 7 && linked.model === 24 && bridgeTarget
-              ? 'bridgeEffect'
-              : effectTarget
-                ? 'erosionEffect'
-                : rewardSpell?.id
+              : linked?.type === 7 && linked.model === 24 && bridgeTarget
+                ? 'bridgeEffect'
+                : effectTarget
+                  ? 'erosionEffect'
+                  : rewardSpell?.id
       // Mission 5's Angel head has a dedicated class-7 owner.
       if (!kind && missionNumber === 5) continue
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
@@ -129,43 +128,47 @@ export function createWorld(missionNumber = 1): World {
             ? 'Vault of Knowledge'
             : kind === 'bridgeEffect'
               ? 'Land raising stone head'
-            : kind === 'erosionEffect'
-              ? 'Erosion stone head'
-              : kind === 'boat'
-                ? 'Boat stone head'
-              : `${rewardSpell!.name} stone head`,
+              : kind === 'erosionEffect'
+                ? 'Erosion stone head'
+                : kind === 'boat'
+                  ? 'Boat stone head'
+                  : `${rewardSpell!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,
       })
     }
   }
-  w.ai.pendingCommands = w.ai.pendingCommands.filter(c => {
-    if (
-      ![
-        1038,
-        1069,
-        1073,
-        1081,
-        1091,
-        1092,
-        1095,
-        1097,
-        1108,
-        1109,
-        1112,
-        1115,
-        1117,
-        1196,
-        1197,
-        1204,
-        ...(missionNumber === 4 ? [1174, 1187] : []),
-      ].includes(c.opcode)
-    )
-      return true
-    campaignCommand(w, c.opcode, c.args)
-    return false
-  })
+  for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
+    if (w.campaignAIs[tribe])
+      withCampaignTribe(w, tribe, ai => {
+        ai.pendingCommands = ai.pendingCommands.filter(c => {
+          if (
+            ![
+              1038,
+              1069,
+              1073,
+              1081,
+              1091,
+              1092,
+              1095,
+              1097,
+              1108,
+              1109,
+              1112,
+              1115,
+              1117,
+              1196,
+              1197,
+              1204,
+              ...(missionNumber === 4 ? [1174, 1187] : []),
+            ].includes(c.opcode)
+          )
+            return true
+          campaignCommand(w, c.opcode, c.args)
+          return false
+        })
+      })
   w.selected = [w.units.find(u => u.team === 'blue' && isShaman(u))!.id]
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)

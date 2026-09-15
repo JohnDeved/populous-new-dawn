@@ -39,10 +39,11 @@ test('complete native cell validity and exact placement feedback', () => {
   })
 })
 
-test('placement protects reincarnation stones and reserves both plans and incomplete scaffolds', () => {
+test('placement protects reincarnation stones without a living Shaman and reserves buildings', () => {
   for (let direction = 0; direction < 4; direction++) {
     const w = createWorld()
     w.manaWorld.gameFlags = 32
+    w.units = w.units.filter(unit => unit.team !== 'blue' || unit.kind !== 'shaman')
     w.buildingDirections.hut = direction
     assert.match(placementError(w, 'hut', { x: 4, z: 32 }), /worship/)
     assert.equal(placeBuilding(w, 'hut', { x: 4, z: 32 }), false)

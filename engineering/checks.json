@@ -498,7 +498,7 @@
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise continuous campaign progression through Mission 4 into playable Mission 5, including Mission 4 tutorials/checkpoint and Mission 5 opening, tower staffing, Boat tutorial, forced last stand, objectives, and completion profile.",
+      "purpose": "Exercise continuous campaign progression through Mission 4 and Mission 5 into the first playable Mission 6 slice, including Mission 6 tribe identity, checkpoint, objectives, and outcome handling.",
       "coveredBehavior": [
         "Mission 3 result continuation",
         "Mission 4 original opening flyby, camera movement, input lock, skip control, and HUD resumption",
@@ -513,11 +513,14 @@
         "Mission 5 Boat-head completion, original positioned tutorial, and one-shot latch",
         "Mission 5 low-population forced attack mode, command-28 Shaman target, and live survivor advance",
         "Mission 5 Boat briefing and objective presentation",
-        "Mission 5 victory and completed-missions profile"
+        "Mission 5 victory and completed-missions profile",
+        "Mission 5 continuation into the original Mission 6 world and ordinary control",
+        "Mission 6 distinct Chumara and Matak state, rendering, checkpoint restore, objectives, and two-opponent outcome"
       ],
       "knownLimits": [
         "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, positions one Mission 5 follower at the Boat worship ring, injects late-mission population/kill thresholds plus one reachable survivor, and removes Mission 5 enemy forces before exercising the real outcome/profile path; starting-route terrain progression, broader recurring AI, complete housed-Preacher behavior, and full Mission 5 combat remain deferred.",
-        "Mission 5 opening events and trigger come from the imported original script; native timing has not been independently replayed."
+        "Mission 5 opening events and trigger come from the imported original script; native timing has not been independently replayed.",
+        "Mission 6 recurring scripts and later mission-specific content remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission4.mjs"],
@@ -528,14 +531,18 @@
         "scripts/browser-game.mjs",
         "tests/mission4-opening.test.mjs",
         "tests/mission5-opening.test.mjs",
+        "tests/mission6.test.mjs",
         "app/level-four.ts",
         "app/level-five.ts",
+        "app/level-six.ts",
         "app/original-script-four.json",
         "app/original-script-five.json",
+        "app/original-script-six.json",
         "app/original-messages.json",
         "app/mission-data.ts",
         "app/world-initialization.ts",
         "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
         "app/popscript.ts",
         "app/flyby.ts",
         "app/scene-camera-runtime.ts",
@@ -543,6 +550,9 @@
         "app/page.tsx",
         "app/model.ts",
         "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/scene-entities.ts",
+        "app/minimap-renderer.ts",
         "app/scene.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],

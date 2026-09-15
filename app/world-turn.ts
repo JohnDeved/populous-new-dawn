@@ -44,6 +44,7 @@ import {
   campaignPosition,
   campaignTribe,
   cleanupDefeatedTribe,
+  withCampaignTribe,
 } from './campaign-runtime.ts'
 import { campaignRules, stepForcedCampaignAttack } from './campaign-command-runtime.ts'
 import {
@@ -141,6 +142,7 @@ import {
   buildingHp,
   ROUTE_FAILURE_TEXT,
 } from './world-rules.ts'
+import { TRIBE_TEAMS, teamForTribe, tribeForTeam } from './world-types.ts'
 import type {
   Team,
   BuildingKind,
@@ -189,11 +191,7 @@ import { nativePersonModel, nativePersonTribe } from './live-combat.ts'
 import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
-import {
-  currentPersonOrder,
-  emptyPersonOrder,
-  type OrderPool,
-} from './person-orders.ts'
+import { currentPersonOrder, emptyPersonOrder, type OrderPool } from './person-orders.ts'
 import {
   clickPersonSelection,
   markPersonSelected,
@@ -305,11 +303,7 @@ import {
   syncLivePersonCells,
   type LivePerson,
 } from './live-people.ts'
-import {
-  removeObjectFromCell,
-  objectsInCell,
-  type ObjectCells,
-} from './object-cells.ts'
+import { removeObjectFromCell, objectsInCell, type ObjectCells } from './object-cells.ts'
 import {
   stepBuildingEntry,
   isDismantling,
@@ -461,17 +455,19 @@ function stepTurn(w: World) {
       {
         territory: id => refreshTribeTerritory(w, id),
         computer: id => {
-          if (id !== campaignTribe(w)) throw new Error(`Unimplemented campaign tribe ${id}`)
-          stepComputerCastCooldown(w.castingTribes[id], w.ai.flags)
-          campaignRules(w)
-          stepComputerTasks(w, id)
-          stepComputerSpells(w, id)
+          withCampaignTribe(w, id, ai => {
+            stepComputerCastCooldown(w.castingTribes[id], ai.flags)
+            campaignRules(w)
+            stepComputerTasks(w, id)
+            stepComputerSpells(w, id)
+          })
         },
       }
     )
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
-  stepForcedCampaignAttack(w)
+  for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
+    if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
   stepUnitShields(w)
   stepUnitInvisibility(w)
   stepUnitHypnotise(w)
@@ -687,7 +683,7 @@ function stepTurn(w: World) {
     if (fx.swarm && !stepSwarm(w, fx)) fx.duration = fx.age
     if (fx.firestorm) {
       const alive = stepFirestorm(w.land, fx.firestorm, w, shot => {
-        const team = fx.firestorm!.tribe === 0 ? 'blue' : 'red'
+        const team = teamForTribe(fx.firestorm!.tribe)
         w.projectiles.push({
           id: w.nextId++,
           spell: 'firestorm',
@@ -724,7 +720,7 @@ function stepTurn(w: World) {
           const wave = emitBlastWave(
             w,
             browserPosition(fx.lightning.target),
-            fx.lightning.tribe === 0 ? 'blue' : 'red',
+            teamForTribe(fx.lightning.tribe),
             true
           )
           wave.scatter = true
@@ -846,11 +842,10 @@ function stepTurn(w: World) {
   w.manaWorld.spells[0].disabled = w.charging ? 0 : 2
   w.manaTribes[0].spellProgress[2] = Math.round(w.mana * 1000)
   generateFollowerMana(w.manaWorld, w.manaTribes, manaPeople(w), liveManaOrders)
-  for (const [team, tribeId] of [
-    ['blue', 0],
-    ['red', campaignTribe(w)],
-  ] as const) {
+  for (const [tribeId, team] of TRIBE_TEAMS.entries()) {
+    if (tribeId >= w.tribeCount) break
     const tribe = w.manaTribes[tribeId]
+    if (!tribe.active) continue
     const schools = w.buildings.filter(
       b =>
         b.team === team &&
@@ -1362,7 +1357,7 @@ function stepTurn(w: World) {
     ordinaryDead = dead.filter(u => !u.ghost)
   for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u)
   for (const u of ordinaryDead) {
-    const victim = u.team === 'blue' ? 0 : u.team === 'red' ? campaignTribe(w) : -1,
+    const victim = tribeForTeam(u.team),
       person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,
       attacker = person?.damageAttacker ?? 255
     if (victim >= 0 && attacker >= 0 && attacker < 4)
@@ -1371,15 +1366,21 @@ function stepTurn(w: World) {
   for (const u of ordinaryDead.filter(u => u.kind === 'shaman'))
     if (
       w.units.some(a => a.team === u.team && !a.ghost && a.hp > 0) &&
-      (u.team === 'blue' || (u.team === 'red' && w.ai.reincarnation))
+      (u.team === 'blue' || !!w.campaignAIs[tribeForTeam(u.team)]?.reincarnation)
     ) {
       const turns = reincarnationTurns(!supportsFollower(w, u)),
-        key = u.team === 'blue' ? 'respawn' : 'redRespawn',
-        pointKey = u.team === 'blue' ? 'respawnPoint' : 'redRespawnPoint',
+        tribe = tribeForTeam(u.team),
         position = nativePosition(w, u),
         visual = effect(w, 'reincarnation', u)
-      w[key] = turns / TURNS_PER_SECOND
-      w[pointKey] = { x: u.x, z: u.z }
+      w.respawns[tribe] = turns / TURNS_PER_SECOND
+      w.respawnPoints[tribe] = { x: u.x, z: u.z }
+      if (tribe === 0) {
+        w.respawn = w.respawns[tribe]
+        w.respawnPoint = w.respawnPoints[tribe]
+      } else if (tribe === 1) {
+        w.redRespawn = w.respawns[tribe]
+        w.redRespawnPoint = w.respawnPoints[tribe]
+      }
       visual.duration = Infinity
       visual.height = position.h / 45
       visual.reincarnation = { team: u.team, phase: turns === 333 ? 3 : 0, ground: position.h }
@@ -1402,8 +1403,8 @@ function stepTurn(w: World) {
     invalidateBuildingTimberSearch(w, b)
     markBuildingTerritory(
       w.land,
-      { ...nativePosition(w, b), tribe: b.team === 'blue' ? 0 : 1 },
-      b.team === 'blue' ? 11 : w.ai.defenceRadius,
+      { ...nativePosition(w, b), tribe: tribeForTeam(b.team) },
+      w.campaignAIs[tribeForTeam(b.team)]?.defenceRadius ?? 11,
       true
     )
     if (!b.terrainState?.reason && !b.dismantled) effect(w, 'death', b)
@@ -1432,34 +1433,43 @@ function stepTurn(w: World) {
   syncLivePersonCells(w)
   syncLandscapeObjects(w)
   cleanBattles(w)
-  for (const team of ['blue', 'red'] as const) {
-    const key = team === 'blue' ? 'respawn' : 'redRespawn',
-      pointKey = team === 'blue' ? 'respawnPoint' : 'redRespawnPoint'
-    if (w[key] > 0) {
+  for (const [tribe, team] of TRIBE_TEAMS.entries()) {
+    const legacyRemaining = tribe === 0 ? w.respawn : tribe === 1 ? w.redRespawn : 0,
+      remaining = w.respawns[tribe] || legacyRemaining,
+      point =
+        w.respawnPoints[tribe] ??
+        (tribe === 0 ? w.respawnPoint : tribe === 1 ? w.redRespawnPoint : undefined)
+    if (remaining > 0) {
       const site = campaignPosition(w, team),
         visual = w.effects.find(f => f.reincarnation?.team === team),
         canSpawn =
           w.units.some(u => u.team === team && !u.ghost) &&
           !w.units.some(u => u.team === team && isShaman(u)),
         step = stepReincarnation(
-          Math.round(w[key] * TURNS_PER_SECOND),
+          Math.round(remaining * TURNS_PER_SECOND),
           canSpawn,
-          !supportsFollower(w, w[pointKey] ?? site)
+          !supportsFollower(w, point ?? site)
         )
-      w[key] = step.remaining / TURNS_PER_SECOND
+      w.respawns[tribe] = step.remaining / TURNS_PER_SECOND
+      if (tribe === 0) w.respawn = w.respawns[tribe]
+      else if (tribe === 1) w.redRespawn = w.respawns[tribe]
       if (visual?.reincarnation) {
         visual.reincarnation.phase = step.phase
         visual.height = (visual.reincarnation.ground + step.height) / 45
       }
-      if (step.event === 'splash') effect(w, 'splash', w[pointKey] ?? site)
+      if (step.event === 'splash') effect(w, 'splash', point ?? site)
       else if (step.event === 'rise') effect(w, 'birth', site)
       else if (step.event === 'spawn') {
         const u = addUnit(w, team, 'shaman', site)
-        if ((team === 'blue' ? 0 : 1) === w.manaWorld.playerTribe) sound(w, 0x6b, site)
+        if (tribe === w.manaWorld.playerTribe) sound(w, 0x6b, site)
         if (team === 'blue' && !w.selected.length) w.selected = [u.id]
         if (visual) visual.duration = visual.age
       }
-      if (!w[key]) delete w[pointKey]
+      if (!w.respawns[tribe]) {
+        w.respawnPoints[tribe] = undefined
+        if (tribe === 0) delete w.respawnPoint
+        else if (tribe === 1) delete w.redRespawnPoint
+      }
     }
   }
   refreshTerrainLights(w) // 0x4ec6f0: lighting follows the completed object turn.
@@ -1467,10 +1477,14 @@ function stepTurn(w: World) {
   // The result overlay remains while followers continue their native celebration.
   // Full progression presentation is still being reconstructed.
   if (w.land.landFlags & 0x2000000) {
+    for (let tribe = 1; tribe < w.respawns.length; tribe++) {
+      w.respawns[tribe] = 0
+      w.respawnPoints[tribe] = undefined
+      const visual = w.effects.find(f => f.reincarnation?.team === teamForTribe(tribe))
+      if (visual) visual.duration = visual.age
+    }
     w.redRespawn = 0
     delete w.redRespawnPoint
-    const visual = w.effects.find(f => f.reincarnation?.team === 'red')
-    if (visual) visual.duration = visual.age
     w.status = 'won'
   }
   if (w.land.landFlags & 0x4000000) {
@@ -1482,4 +1496,3 @@ function stepTurn(w: World) {
   }
   w.effects = w.effects.filter(f => f.age < f.duration)
 }
-

@@ -1,11 +1,6 @@
 import { buildingPose } from './building-shapes.ts'
 import { sound } from './world-effects.ts'
-import {
-  browserPosition,
-  nativePosition,
-  type World,
-  type Unit,
-} from './model.ts'
+import { browserPosition, nativePosition, type World, type Unit } from './model.ts'
 import {
   createLivePerson,
   registerLivePerson,
@@ -35,6 +30,7 @@ import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './l
 import { allocatePersonOrder, attachPersonOrder, clearPersonOrders } from './person-orders.ts'
 import { orderEffects } from './live-movement.ts'
 import sprites from './original-units.json' with { type: 'json' }
+import { tribeForTeam } from './world-types.ts'
 
 const slots = createRestingSlots()
 const cellIndex = (p: { x: number; y: number }) => (p.y >> 9) * 128 + (p.x >> 9)
@@ -162,7 +158,7 @@ export function stepLiveResting(w: World, u: Unit) {
           return new Map(
             w.units
               .filter(u => u.kind === 'shaman' && !u.ghost && u.hp > 0)
-              .map(u => [u.team === 'blue' ? 0 : 1, nativePosition(w, u)])
+              .map(u => [tribeForTeam(u.team), nativePosition(w, u)])
           )
         },
       },

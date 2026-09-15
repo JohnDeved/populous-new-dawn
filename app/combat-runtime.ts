@@ -1,22 +1,38 @@
-import { type Unit, type World, type Battle, type Building } from './world-types.ts'
+import { tribeForTeam, type Unit, type World, type Battle, type Building } from './world-types.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import { maxHp } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { type MeleeAttack, meleeDuration, chooseMeleeAttack } from './melee.ts'
 import { nativeAngle, nativeStep, random, short } from './native-math.ts'
 import { nativePersonTribe, nativePersonModel } from './live-combat.ts'
-import { creditAttackTask } from './computer.ts'
+import { creditCampaignAttackTask } from './campaign-runtime.ts'
 import { effect, sound } from './world-effects.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { relocateFight } from './melee-placement.ts'
-import { collisionWorld, enterLiveCombat, setLivePersonAnimation, createMeleePerson, createLivePerson, stepLiveEncounter, startMeleeKnockback, approachLiveMelee } from './live-people.ts'
+import {
+  collisionWorld,
+  enterLiveCombat,
+  setLivePersonAnimation,
+  createMeleePerson,
+  createLivePerson,
+  stepLiveEncounter,
+  startMeleeKnockback,
+  approachLiveMelee,
+} from './live-people.ts'
 import { buildingOutsidePoint, buildingPose } from './building-shapes.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { EncounterPhase } from './melee-encounter.ts'
 import { release, clearFightAssignment } from './world-tasks.ts'
 import { stopPersonMovement, setPersonAnimationRow } from './person-state.ts'
-import { type MeleeGroup, joinMeleeGroup, type FightParticipant, cleanFightRoster, releaseFightRoster, fightCenter } from './melee-groups.ts'
+import {
+  type MeleeGroup,
+  joinMeleeGroup,
+  type FightParticipant,
+  cleanFightRoster,
+  releaseFightRoster,
+  fightCenter,
+} from './melee-groups.ts'
 
 export function meleeDamage(u: Unit) {
   const base =
@@ -81,14 +97,14 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   if (target.fight?.motion) target.fight.motion.damageAttacker = nativePersonTribe(u)
   applyUnitDamage(target, damage)
   if (targetHp > 0 && target.hp === 0)
-    creditAttackTask(w.ai, u.id, rules.personModels[nativePersonModel(target)].fightRank)
+    creditCampaignAttackTask(w, u.id, rules.personModels[nativePersonModel(target)].fightRank)
   const unitHp = u.hp
   if (action !== 'special') {
     if (u.fight?.motion) u.fight.motion.damageAttacker = nativePersonTribe(target)
     applyUnitDamage(u, counter)
   }
   if (action !== 'special' && unitHp > 0 && u.hp === 0)
-    creditAttackTask(w.ai, target.id, rules.personModels[nativePersonModel(u)].fightRank)
+    creditCampaignAttackTask(w, target.id, rules.personModels[nativePersonModel(u)].fightRank)
   effect(w, 'hit', target)
   if (action !== 'special') effect(w, 'hit', u)
 }
@@ -328,7 +344,7 @@ export function cleanBattles(w: World) {
       ...nativePosition(w, u),
       id: u.id,
       class: p?.class ?? 1,
-      tribe: u.team === 'blue' ? 0 : u.team === 'red' ? 1 : 255,
+      tribe: u.team === 'wild' ? 255 : tribeForTeam(u.team),
       state: p?.state ?? (u.fight ? 25 : 10),
       flags2: p?.flags2 ?? 0,
       life: short(Math.round(u.hp * 20)),
@@ -408,7 +424,7 @@ export function processBattles(w: World) {
     const center = fightCenter(
       { members: b.slots!, tribes: b.tribes!, count: members.length },
       ids,
-      new Map(members.map(u => [u.id, { tribe: u.team === 'blue' ? 0 : 1 }]))
+      new Map(members.map(u => [u.id, { tribe: tribeForTeam(u.team) }]))
     )
     if (center.index > 0) [members[0], members[center.index]] = [members[center.index], members[0]]
     if ((b.center ?? b.members[0]) !== center.id) {

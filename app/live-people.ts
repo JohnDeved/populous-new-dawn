@@ -15,6 +15,7 @@ import {
 import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 import { stepMeleeEncounter } from './melee-encounter.ts'
 import { nativePersonModel } from './live-combat.ts'
+import { teamForTribe, tribeForTeam } from './world-types.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
@@ -151,7 +152,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     state: 10,
     previousState: 0,
     substate: 0,
-    tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
+    tribe: tribeForTeam(u.team),
     x: pos.x & 65535,
     y: pos.y & 65535,
     h: pos.h,
@@ -194,7 +195,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     palette: 0,
     renderFlags:
       unitInvisibilityRenderFlag(w, u) |
-      (u.ghost && (u.team === 'blue' ? 0 : 1) === w.manaWorld.playerTribe ? 0x4000 : 0),
+      (u.ghost && tribeForTeam(u.team) === w.manaWorld.playerTribe ? 0x4000 : 0),
     invisibilityRender: u.invisibility ? unitInvisibilityRenderBit(w, u) : undefined,
     f1: 0,
     f2: 0,
@@ -344,11 +345,7 @@ function context(w: World) {
       return w.manaTribes.map(
         (_, i) =>
           w.units.find(
-            u =>
-              u.hp > 0 &&
-              u.kind === 'shaman' &&
-              !u.ghost &&
-              u.team === (i === 0 ? 'blue' : i === 1 ? 'red' : null)
+            u => u.hp > 0 && u.kind === 'shaman' && !u.ghost && u.team === teamForTribe(i)
           )?.id ?? 0
       )
     },
@@ -600,7 +597,7 @@ export function collisionWorld(w: World): CollisionWorld {
           class: 2,
           state: b.progress === 1 ? 2 : 1,
           flags2: 0,
-          tribe: b.team === 'blue' ? 0 : 1,
+          tribe: tribeForTeam(b.team),
           related: 0,
         })
       for (const u of w.units)
@@ -609,7 +606,7 @@ export function collisionWorld(w: World): CollisionWorld {
           class: 1,
           state: u.native?.state ?? 10,
           flags2: u.hp > 0 ? (u.native?.flags2 ?? 0) : 1,
-          tribe: u.team === 'blue' ? 0 : 1,
+          tribe: tribeForTeam(u.team),
           related: 0,
         })
       return objects

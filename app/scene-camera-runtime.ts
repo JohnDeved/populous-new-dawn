@@ -29,6 +29,7 @@ import {
   stepGlobeMorph,
 } from './camera-view.ts'
 import { stepGlobeMotion } from './globe.ts'
+import { teamForTribe, type TribeTeam } from './world-types.ts'
 
 export function makeSky(scene: GameScene) {
   // Native sky commands precede land and receive a farther depth (0x47c7e0).
@@ -252,7 +253,7 @@ export function updateCameraMotion(scene: GameScene, dt: number) {
       w.manaWorld.gameFlags,
       0,
       scene.cameraPosition,
-      nativePosition(w, campaignPosition(w, w.outcome.cameraTribe === 0 ? 'blue' : 'red'))
+      nativePosition(w, campaignPosition(w, teamForTribe(w.outcome.cameraTribe ?? 0) as TribeTeam))
     )
   }
   let active = !!(s.active || motion.active)

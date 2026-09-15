@@ -9,6 +9,7 @@ import {
 import { terrainBrightness, type TerrainTextures } from './terrain-texture.ts'
 import hud from './original-hud.json'
 import { nativeUnitModel } from './unit-kinds.ts'
+import { tribeForTeam } from './world-types.ts'
 
 export class MinimapRenderer {
   terrain = document.createElement('canvas')
@@ -67,7 +68,7 @@ export class MinimapRenderer {
         ...nativePosition(world, u),
         category: 1,
         model: u.team === 'wild' ? 1 : nativeUnitModel(u.kind),
-        tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
+        tribe: tribeForTeam(u.team),
         hidden:
           !!u.inside ||
           !!(((u.flight ?? u.native)?.flags4 ?? 0) & 0x40000000) ||
@@ -78,7 +79,7 @@ export class MinimapRenderer {
         ...nativePosition(world, b),
         category: 2,
         model: 0,
-        tribe: b.team === 'blue' ? 0 : 1,
+        tribe: tribeForTeam(b.team),
         hidden: false,
         visible: true,
       })),

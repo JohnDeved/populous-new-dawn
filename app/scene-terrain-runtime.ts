@@ -13,6 +13,7 @@ import {
   type Tree,
   type Effect,
 } from './model'
+import { campaignShamanTeams } from './campaign-runtime.ts'
 import { vertexLighting } from './projection.ts'
 import { reincarnationStoneRise, reincarnationStones } from './reincarnation.ts'
 import { timberScale } from './timber.ts'
@@ -211,10 +212,8 @@ export function makeDecorations(scene: GameScene) {
     g.userData.point = tree
     scene.decorations.add(g)
   }
-  for (const center of [
-    campaignPosition(scene.world, 'blue'),
-    campaignPosition(scene.world, 'red'),
-  ]) {
+  for (const team of campaignShamanTeams(scene.world)) {
+    const center = campaignPosition(scene.world, team)
     const stones = reincarnationStones(scene.world.land, nativePosition(scene.world, center))
     for (const stone of stones) {
       const group = new THREE.Group()

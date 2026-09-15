@@ -305,9 +305,11 @@
         "app/campaign-command-runtime.ts",
         "app/computer.ts",
         "app/computer-runtime.ts",
+        "app/campaign-runtime.ts",
         "app/live-building-combat.ts",
         "app/level-five.ts",
         "app/level-four.ts",
+        "app/level-six.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
@@ -316,6 +318,7 @@
         "app/popscript.ts",
         "app/original-script-four.json",
         "app/original-script-five.json",
+        "app/original-script-six.json",
         "app/reincarnation.ts",
         "app/tribe-turns.ts",
         "app/vault.ts",
@@ -339,6 +342,7 @@
         "decomp/research/mission2-message-103.md",
         "decomp/research/mission4.md",
         "decomp/research/mission5-boat.md",
+        "decomp/research/mission6.md",
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
@@ -380,6 +384,7 @@
         { "path": "decomp/research/mission2-message-103.md", "heading": "Mission 2 Tornado instruction" },
         { "path": "decomp/research/mission4.md", "heading": "Mission 4 data and objective" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
+        { "path": "decomp/research/mission6.md", "heading": "Mission 6 opening and tribes" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
@@ -409,6 +414,8 @@
         "0x431a80",
         "0x431c40",
         "0x4615f0",
+        "0x461510",
+        "0x418e30",
         "0x4d5cf0",
         "0x502910",
         "0x5029d0",
@@ -439,6 +446,7 @@
       "unresolved": [
         "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
         "Mission 4's larger recurring AI remains deferred.",
+        "Mission 6's recurring scripts and later mission-specific content remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

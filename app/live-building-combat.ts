@@ -12,6 +12,7 @@ import {
   type Unit,
   type Building,
 } from './model.ts'
+import { teamForTribe, tribeForTeam, type Team } from './world-types.ts'
 import {
   createLivePerson,
   moveLivePerson,
@@ -100,7 +101,7 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
   const cell = ((order.a & 254) >> 1) + ((order.a & 0xfe00) >> 9) * 128
   const id = w.land.buildingIds[cell] & 1023
   return w.buildings.find(
-    b => b.id === id && b.hp > 0 && b.progress === 1 && b.team !== (p.tribe === 0 ? 'blue' : 'red')
+    b => b.id === id && b.hp > 0 && b.progress === 1 && b.team !== teamForTribe(p.tribe)
   )
 }
 
@@ -168,7 +169,11 @@ function buildingCounterattackCells(w: World, b: Building, radius: number) {
     cx = (center.x >>> 8) & 254,
     cy = (center.y >>> 8) & 254,
     cells: number[] = []
-  for (let offset = nextIndexedSearch(w.indexedSearch, id); offset; offset = nextIndexedSearch(w.indexedSearch, id)) {
+  for (
+    let offset = nextIndexedSearch(w.indexedSearch, id);
+    offset;
+    offset = nextIndexedSearch(w.indexedSearch, id)
+  ) {
     const x = (cx + offset.x * 2) & 254,
       y = (cy + offset.y * 2) & 254
     cells.push((y >> 1) * 128 + (x >> 1))
@@ -179,8 +184,8 @@ function buildingCounterattackCells(w: World, b: Building, radius: number) {
 
 // 0x40bce0/0x40bd20: occupied guard towers order nearby tribe defenders
 // to counterattack only after their area scan detects a hostile person.
-export function buildingCounterattack(w: World, team: 'blue' | 'red') {
-  const tribe = team === 'blue' ? 0 : 1
+export function buildingCounterattack(w: World, team: Team) {
+  const tribe = tribeForTeam(team)
   for (const b of w.buildings) {
     if (b.team !== team || b.hp <= 0 || buildingModel(b) !== 4) continue
     const admission = buildingAdmission(w, b),
@@ -192,11 +197,12 @@ export function buildingCounterattack(w: World, team: 'blue' | 'red') {
     if (!scan) continue
     const { world } = combatWorld(w, source, 255)
     if (
-      !scan.some(cell =>
-        !(rules.terrainCategoryFlags[w.land.categories[cell] & 15] & 2) &&
-        [...world.cellObjects(cell)].some(target =>
-          target.class === 1 && eligibleCombatPerson(world, source, target)
-        )
+      !scan.some(
+        cell =>
+          !(rules.terrainCategoryFlags[w.land.categories[cell] & 15] & 2) &&
+          [...world.cellObjects(cell)].some(
+            target => target.class === 1 && eligibleCombatPerson(world, source, target)
+          )
       )
     )
       continue
@@ -211,7 +217,11 @@ export function buildingCounterattack(w: World, team: 'blue' | 'red') {
           candidate =>
             (candidate.id & 1023) === buildingId && candidate.team === team && candidate.hp > 0
         )
-      if (w.land.flags[cell] & 0x200 && occupied && rules.buildingFlags[buildingModel(occupied)] & 0x400)
+      if (
+        w.land.flags[cell] & 0x200 &&
+        occupied &&
+        rules.buildingFlags[buildingModel(occupied)] & 0x400
+      )
         for (const id of buildingAdmission(w, occupied).occupants) if (id) marked.add(id)
     }
 
@@ -225,7 +235,12 @@ export function buildingCounterattack(w: World, team: 'blue' | 'red') {
       }
       if (!(rules.personStateFlags[p.state] & 0x1000)) continue
       const current = currentPersonOrder(w.buildingOrders, p)
-      if (p.state === 10 && current && !(current.flags & 1) && rules.personCommands[current.model].flags & 0x80)
+      if (
+        p.state === 10 &&
+        current &&
+        !(current.flags & 1) &&
+        rules.personCommands[current.model].flags & 0x80
+      )
         continue
       if (!orderId) {
         orderId = allocatePersonOrder(w.buildingOrders)
@@ -549,7 +564,7 @@ function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
     ...buildingPose(b),
     ...nativePosition(w, b),
     class: 2,
-    tribe: b.team === 'blue' ? 0 : 1,
+    tribe: tribeForTeam(b.team),
   }
   const context = {
     randomState: w.randomState,

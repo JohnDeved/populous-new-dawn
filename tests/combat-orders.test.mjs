@@ -68,16 +68,16 @@ test('coastal response targets come from the corrected native cell, including it
 })
 
 test('tower counterattacks ignore hostile people in water', () => {
-  const w=createWorld(2),tower=w.buildings.find(b=>b.team==='red'&&b.kind==='tower')
+  const w=createWorld(2),tower=w.buildings.find(b=>b.team==='green'&&b.kind==='tower')
   for(let i=0;i<200&&!w.units.some(u=>u.inside===tower.id);i++)tick(w,1/12)
-  const defender=addUnit(w,'red','warrior',{x:tower.x+2,z:tower.z}),
+  const defender=addUnit(w,'green','warrior',{x:tower.x+2,z:tower.z}),
     hostile=addUnit(w,'blue','shaman',{x:tower.x+1,z:tower.z})
   defender.native=createLivePerson(w,defender);defender.native.state=17
   hostile.native=createLivePerson(w,hostile);hostile.native.state=17;syncLivePersonCells(w)
   const p=nativePosition(w,hostile),cell=((p.y&65535)>>9)*128+((p.x&65535)>>9)
-  w.land.categories[cell]=1;buildingCounterattack(w,'red')
+  w.land.categories[cell]=1;buildingCounterattack(w,'green')
   assert.equal(currentPersonOrder(w.buildingOrders,defender.native),undefined)
-  w.land.categories[cell]=3;buildingCounterattack(w,'red')
+  w.land.categories[cell]=3;buildingCounterattack(w,'green')
   assert.equal(currentPersonOrder(w.buildingOrders,defender.native)?.model,19)
 })
 

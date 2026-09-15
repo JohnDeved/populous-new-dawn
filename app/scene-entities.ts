@@ -43,8 +43,15 @@ import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
+import { animationTeam, tribeForTeam } from './world-types.ts'
 
-const teamColor = { blue: 0x303fc1, red: 0xb92720, wild: 0x9f9170 }
+const teamColor = {
+  blue: 0x303fc1,
+  red: 0xb92720,
+  yellow: 0xd1aa22,
+  green: 0x29864a,
+  wild: 0x9f9170,
+}
 
 function makeUnit(u: Unit) {
   const g = new THREE.Group()
@@ -97,7 +104,7 @@ function makeUnit(u: Unit) {
   g.add(health)
   g.userData = {
     unit: u.id,
-    owner: u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1,
+    owner: tribeForTeam(u.team),
     signature: `${u.team}-${u.kind}`,
     layers: [],
     shadow,
@@ -383,14 +390,15 @@ export function updateUnitsFrame(scene: GameScene) {
         string,
         Record<string, { frames: number[]; flip: boolean }[]>
       >
-    )[g.userData.signature]
+    )[`${animationTeam(u.team)}-${u.kind}`]
     const state = unitAnimation(scene.world, u)
     if (g.userData.state !== state) {
       g.userData.state = state
       g.userData.since = scene.world.time
     }
     if (animationSource) {
-      const source = animationSource.object + (u.team === 'red' && u.kind === 'shaman' ? 8 : 0)
+      const source =
+        animationSource.object + (animationTeam(u.team) === 'red' && u.kind === 'shaman' ? 8 : 0)
       const directions = Object.values(animations).find(
         d => 'source' in d[0] && d[0].source === source
       )

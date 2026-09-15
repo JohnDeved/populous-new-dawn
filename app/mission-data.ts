@@ -3,11 +3,14 @@ import levelTwo from './level-two.ts'
 import levelThree from './level-three.ts'
 import levelFour from './level-four.ts'
 import levelFive from './level-five.ts'
+import levelSix from './level-six.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
 import scriptThree from './original-script-three.json' with { type: 'json' }
 import scriptFour from './original-script-four.json' with { type: 'json' }
 import scriptFive from './original-script-five.json' with { type: 'json' }
+import scriptSix from './original-script-six.json' with { type: 'json' }
+import { teamForTribe, tribeForTeam, type TribeTeam } from './world-types.ts'
 
 const missions = [
   { number: 1, level: levelOne, script: scriptOne },
@@ -15,6 +18,7 @@ const missions = [
   { number: 3, level: levelThree, script: scriptThree },
   { number: 4, level: levelFour, script: scriptFour },
   { number: 5, level: levelFive, script: scriptFive },
+  { number: 6, level: levelSix, script: scriptSix.tribes[2] },
 ] as const
 
 export const missionNumbers = missions.map(mission => mission.number)
@@ -52,13 +56,23 @@ export function campaignSpellModels(number: number) {
   return models
 }
 
-export function missionPosition(number: number, team: 'blue' | 'red') {
+export function missionPosition(number: number, team: TribeTeam) {
   const { level } = missionData(number),
     shamans = level.objects.filter(object => object.type === 1 && object.model === 7),
-    object = shamans.find(object => (team === 'blue' ? object.owner === 0 : object.owner !== 0))
+    object = shamans.find(object => object.owner === tribeForTeam(team))
   if (!object) throw new Error(`Missing ${team} shaman in campaign mission ${number}`)
   return { x: object.x, z: object.z }
 }
+
+export function missionScript(number: number, tribe = missionEnemyTribe(number)) {
+  if (number !== 6) return missionData(number).script
+  const script = scriptSix.tribes[tribe as 1 | 2 | 3]
+  if (!script) throw new Error(`Missing ${teamForTribe(tribe)} script in campaign mission 6`)
+  return script
+}
+
+export const missionComputerTribes = (number: number) =>
+  number === 6 ? [1, 2, 3] : [missionEnemyTribe(number)]
 
 export function missionEnemyTribe(number: number) {
   const shaman = missionData(number).level.objects.find(

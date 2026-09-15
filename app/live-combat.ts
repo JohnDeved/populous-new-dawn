@@ -1,4 +1,4 @@
-import type { World, Unit, Building } from './model.ts'
+import { tribeForTeam, type World, type Unit, type Building } from './world-types.ts'
 import { buildingModel } from './building-shapes.ts'
 import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
 import {
@@ -25,8 +25,7 @@ import { nativeUnitModel } from './unit-kinds.ts'
 
 export const nativePersonModel = (u: Pick<Unit, 'team' | 'kind'>) =>
   u.team === 'wild' ? 1 : nativeUnitModel(u.kind)
-const tribes = { wild: -1, blue: 0, red: 1 }
-export const nativePersonTribe = (u: Pick<Unit, 'team'>) => tribes[u.team]
+export const nativePersonTribe = (u: Pick<Unit, 'team'>) => tribeForTeam(u.team)
 const position = (u: { x: number; z: number }) => ({
   x: Math.round((u.x + 8) * 256) & 65535,
   y: Math.round((-u.z - 8) * 256) & 65535,

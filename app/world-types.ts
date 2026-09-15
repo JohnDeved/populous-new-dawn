@@ -48,7 +48,14 @@ import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
 
-export type Team = 'blue' | 'red' | 'wild'
+export const TRIBE_TEAMS = ['blue', 'red', 'yellow', 'green'] as const
+export type TribeTeam = (typeof TRIBE_TEAMS)[number]
+export type Team = TribeTeam | 'wild'
+export const teamForTribe = (tribe: number): Team =>
+  tribe === -1 || tribe === 255 ? 'wild' : (TRIBE_TEAMS[tribe] ?? 'wild')
+export const tribeForTeam = (team: Team) => (team === 'wild' ? -1 : TRIBE_TEAMS.indexOf(team))
+export const animationTeam = (team: Team): 'blue' | 'red' | 'wild' =>
+  team === 'yellow' || team === 'green' ? 'red' : team
 export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple'
 export type Spell =
   | 'blast'
@@ -291,6 +298,22 @@ export type Gift = Effect & {
   phase: number
   frame: number
 }
+export type CampaignAI = ScriptState &
+  ComputerQueue & {
+    states: number
+    flags: number
+    enemyTribe: number
+    defencePosition: number
+    defenceRadius: number
+    task9a: number
+    task9b: number
+    spellEntries: { model: number; mana: number; range: number; people: number; mode: number }[]
+    reincarnation: boolean
+    includeIncompleteBuildings: boolean
+    pendingCommands: { opcode: number; args: number[] }[]
+    trainingSelections: number[][]
+  }
+
 export type World = {
   objectCells: ObjectCells
   marching: LiveFormation[]
@@ -300,19 +323,9 @@ export type World = {
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
   timberSearches: ReturnType<typeof createTimberSearches>
-  ai: ScriptState &
-    ComputerQueue & {
-      states: number
-      flags: number
-      enemyTribe: number
-      defencePosition: number
-      defenceRadius: number
-      spellEntries: { model: number; mana: number; range: number; people: number; mode: number }[]
-      reincarnation: boolean
-      includeIncompleteBuildings: boolean
-      pendingCommands: { opcode: number; args: number[] }[]
-      trainingSelections: number[][]
-    }
+  ai: CampaignAI
+  campaignAIs: (CampaignAI | null)[]
+  activeCampaignTribe: number
   messages: MessageState
   flyby: Flyby
   inputMask: number
@@ -329,6 +342,7 @@ export type World = {
   buildingFootprints: Map<number, RegisteredBuilding & { plan: boolean }>
   sceneryShadows: Map<number, SceneryShapePose>
   spellScan: SpellTargetScan
+  spellScans: SpellTargetScan[]
   castingTribes: TribeCasting[]
   manaWorld: ManaWorld
   manaTribes: (ManaTribe & TribeTurnState)[]
@@ -387,5 +401,7 @@ export type World = {
   redRespawn: number
   respawnPoint?: Point
   redRespawnPoint?: Point
+  respawns: number[]
+  respawnPoints: (Point | undefined)[]
   stats: { built: number; cast: number; bridges: number; trained: number; battlesWon: number[] }
 }

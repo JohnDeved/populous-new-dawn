@@ -46,6 +46,7 @@ import {
 import { spellButton, spellOrder } from './spell-button'
 import { nativeUnitModel } from './unit-kinds'
 import { campaignSpellModels, missionEnemyTribe, missionNumbers } from './mission-data'
+import { teamForTribe, type TribeTeam } from './world-types'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -333,7 +334,16 @@ export default function Home() {
     )
   }
   const blue = world.units.filter(u => u.team === 'blue'),
-    red = world.units.filter(u => u.team === 'red')
+    enemyTribes = world.outcome.level === 6 ? [2, 3] : [missionEnemyTribe(world.outcome.level)],
+    enemies = enemyTribes.map(tribe => {
+      const name = ['', 'Dakini', 'Chumara', 'Matak'][tribe]
+      return {
+        tribe,
+        name,
+        team: teamForTribe(tribe) as TribeTeam,
+        units: world.units.filter(u => u.team === teamForTribe(tribe)),
+      }
+    })
   const shaman = blue.find(isShaman),
     selected = blue.filter(u => world.selected.includes(u.id))
   const focused =
@@ -342,7 +352,7 @@ export default function Home() {
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
-    enemyName = ['', 'Dakini', 'Chumara', 'Matak'][missionEnemyTribe(world.outcome.level)],
+    enemyName = enemies.map(enemy => enemy.name).join(' and '),
     objectives =
       world.outcome.level === 1
         ? [
@@ -374,17 +384,28 @@ export default function Home() {
                   { text: 'Discover the Guard Tower', done: world.unlockedTower },
                   { text: 'Defeat the Matak tribe', done: world.status === 'won' },
                 ]
-              : [
-                  {
-                    text: 'Claim the Boat from the stone head',
-                    done: world.vehicles.some(vehicle => vehicle.active),
-                  },
-                  {
-                    text: 'Board followers onto the Boat',
-                    done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
-                  },
-                  { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-                ]
+              : world.outcome.level === 5
+                ? [
+                    {
+                      text: 'Claim the Boat from the stone head',
+                      done: world.vehicles.some(vehicle => vehicle.active),
+                    },
+                    {
+                      text: 'Board followers onto the Boat',
+                      done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
+                    },
+                    { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
+                  ]
+                : [
+                    {
+                      text: 'Defeat the Chumara tribe',
+                      done: !!world.manaTribes[2].defeatTimer,
+                    },
+                    {
+                      text: 'Defeat the Matak tribe',
+                      done: !!world.manaTribes[3].defeatTimer,
+                    },
+                  ]
   return (
     <main
       ref={shell}
@@ -585,17 +606,18 @@ export default function Home() {
             ?
           </button>
           <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
-          <button
-            className="tribe-flag dakini"
-            title={`${enemyName}: ${red.filter(u => !u.ghost).length} followers`}
-            aria-label={`Focus ${enemyName} tribe`}
-            onClick={() => {
-              const u = red.find(isShaman) ?? red[0]
-              if (u) engine.current?.focus(u, { animate: true })
-            }}
-          />
-          <span className="tribe-flag chumara" />
-          <span className="tribe-flag matak" />
+          {enemies.map(enemy => (
+            <button
+              key={enemy.tribe}
+              className={`tribe-flag ${enemy.name.toLowerCase()}`}
+              title={`${enemy.name}: ${enemy.units.filter(u => !u.ghost).length} followers`}
+              aria-label={`Focus ${enemy.name} tribe`}
+              onClick={() => {
+                const u = enemy.units.find(isShaman) ?? enemy.units[0]
+                if (u) engine.current?.focus(u, { animate: true })
+              }}
+            />
+          ))}
         </div>
         <section className="tribe-classes" aria-label="Followers">
           <button
@@ -776,9 +798,7 @@ export default function Home() {
           <span className="loading-rune">⟡</span>
           <p className="eyebrow">POPULOUS · THE FIRST DAWN</p>
           <h2>Choose your world</h2>
-          <p>
-            Choose a mission{store.hasCheckpoint() ? ' or return to your saved world.' : '.'}
-          </p>
+          <p>Choose a mission{store.hasCheckpoint() ? ' or return to your saved world.' : '.'}</p>
           {!!completedMissions.length && recommendedMission && (
             <p role="status">Mission {recommendedMission} is recommended next.</p>
           )}
@@ -898,7 +918,9 @@ export default function Home() {
                 ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
                 : world.outcome.level === 4
                   ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
-                  : 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'}
+                  : world.outcome.level === 5
+                    ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
+                    : 'Establish your settlement, then defeat both the Chumara and Matak tribes.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

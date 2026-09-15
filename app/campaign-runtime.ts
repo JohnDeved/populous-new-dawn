@@ -1,23 +1,60 @@
-import type { World } from './world-types.ts'
+import {
+  TRIBE_TEAMS,
+  teamForTribe,
+  tribeForTeam,
+  type CampaignAI,
+  type TribeTeam,
+  type World,
+} from './world-types.ts'
 import { height, nativeCellPoint } from './world-coordinates.ts'
 import { nativePosition, originalTerrain } from './world-terrain-runtime.ts'
 import { short, random } from './native-math.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingModel, buildingPose, buildingPosition } from './building-shapes.ts'
-import { createComputerQueue, type AttackTarget } from './computer.ts'
+import { createComputerQueue, creditAttackTask, type AttackTarget } from './computer.ts'
 import { runScript, scriptState } from './popscript.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import { missionData, missionEnemyTribe, missionPosition } from './mission-data.ts'
 import type { PopScript } from './popscript.ts'
 import { defeatTribe, ensureBuildingDamage } from './building-damage.ts'
+import { SPELLS } from './world-rules.ts'
+
+const spellMana = (model: number) => SPELLS.find(spell => spell.model === model)!.cost * 1000
 
 export const HOME = missionPosition(1, 'blue'),
   ENEMY = missionPosition(1, 'red')
-export const campaignPosition = (w: World, team: 'blue' | 'red') =>
+export const campaignPosition = (w: World, team: TribeTeam) =>
   missionPosition(w.outcome.level, team)
-export const campaignTribe = (w: World) => missionEnemyTribe(w.outcome.level)
-export const campaignTeam = (w: World, tribe: number) =>
-  tribe === 0 ? 'blue' : tribe === campaignTribe(w) ? 'red' : null
+export const campaignShamanTeams = (w: World) =>
+  TRIBE_TEAMS.filter((_, tribe) =>
+    missionData(w.outcome.level).level.objects.some(
+      object => object.type === 1 && object.model === 7 && object.owner === tribe
+    )
+  )
+export const campaignTribe = (w: World) => w.activeCampaignTribe
+export const campaignTeam = (_w: World, tribe: number) => teamForTribe(tribe)
+
+export function withCampaignTribe<T>(w: World, tribe: number, run: (ai: CampaignAI) => T) {
+  const ai = w.campaignAIs[tribe]
+  if (!ai) throw new Error(`Missing campaign AI for tribe ${tribe}`)
+  const previousTribe = w.activeCampaignTribe,
+    previousAI = w.ai,
+    previousScan = w.spellScan
+  w.activeCampaignTribe = tribe
+  w.ai = ai
+  w.spellScan = w.spellScans[tribe]
+  try {
+    return run(ai)
+  } finally {
+    w.activeCampaignTribe = previousTribe
+    w.ai = previousAI
+    w.spellScan = previousScan
+  }
+}
+
+export function creditCampaignAttackTask(w: World, person: number, damage: number) {
+  for (const ai of w.campaignAIs) if (ai) creditAttackTask(ai, person, damage)
+}
 
 export function cleanupDefeatedTribe(w: World, id: number) {
   // ponytail: browser entity IDs/list order stand in for native registration;
@@ -29,7 +66,7 @@ export function cleanupDefeatedTribe(w: World, id: number) {
       id: building.id,
       class: 2,
       model: buildingModel(building),
-      tribe: building.team === 'blue' ? 0 : 1,
+      tribe: tribeForTeam(building.team),
       flags4: 0,
       hp: 0,
       buildingFlags: building.damageState?.buildingFlags ?? 0,
@@ -42,18 +79,17 @@ export function cleanupDefeatedTribe(w: World, id: number) {
     skyCounter: w.outcome.skyCounter,
     units,
   }
-  defeatTribe(
-    context,
-    id,
-    w.castingTribes[id].flags,
-    nativePosition(w, campaignPosition(w, id === 0 ? 'blue' : 'red')),
-    {
-      // Tribe-death sky objects and reveal/camera effects need their native consumers.
-      allocate: () => {},
-      reveal: () => {},
-      remove: () => {},
-    }
-  )
+  const team = teamForTribe(id),
+    origin =
+      w.units.find(unit => unit.team === team) ??
+      w.buildings.find(building => building.team === team) ??
+      campaignPosition(w, 'blue')
+  defeatTribe(context, id, w.castingTribes[id].flags, nativePosition(w, origin), {
+    // Tribe-death sky objects and reveal/camera effects need their native consumers.
+    allocate: () => {},
+    reveal: () => {},
+    remove: () => {},
+  })
   w.outcome.skyCounter = context.skyCounter
   for (const p of units)
     if (p.tribe === id) {
@@ -91,6 +127,8 @@ export function missionAI(script: PopScript = missionData().script, tribe = 1) {
     enemyTribe: 0,
     defencePosition: 0,
     defenceRadius: 11,
+    task9a: 0,
+    task9b: 0,
     spellEntries: Array.from({ length: 8 }, () => ({
       model: 0,
       mana: 0,
@@ -110,6 +148,7 @@ export function missionAI(script: PopScript = missionData().script, tribe = 1) {
     tribe,
     readInternal: id => {
       if (id === 0) return 0
+      if (id >= 1050 && id <= 1065) return spellMana(id - 1048)
       throw new Error(`Unbound initial script read ${id}`)
     },
     command: (opcode, args) => {
@@ -118,7 +157,13 @@ export function missionAI(script: PopScript = missionData().script, tribe = 1) {
         const bit = 1 << (opcode - 1028)
         if (args[0] === 1022) ai.states |= bit
         else if (args[0] === 1023) ai.states &= ~bit
-      } else if (opcode === 1164) {
+      } else if (opcode === 1066) {
+        ai.flags |= 0x10
+        ai.task9a = args[0] & 255
+      } else if (opcode === 1067) ai.task9b = args[0] & 255
+      else if (opcode === 1123) ai.flags |= 0x2000
+      else if (opcode === 1125) ai.flags |= 0x4000
+      else if (opcode === 1164) {
         if (args[0] === 1022) ai.reincarnation = true
         else if (args[0] === 1023) ai.reincarnation = false
       } else ai.pendingCommands.push({ opcode, args })
@@ -149,7 +194,7 @@ export function campaignInternal(w: World, id: number) {
     return short(campaignPersonCount(w, tribe, model))
   }
   if (id === 1180) return w.killCredits[0][campaignTribe(w)] & 65535
-  if (id === 1050) return constants.SPELL_BLAST // 0x48f350 reads the loaded spell-cost table.
+  if (id >= 1050 && id <= 1065) return spellMana(id - 1048) // Loaded spell-cost table.
   // 0x48f350: self then four explicit tribes, 16 building models each.
   if (id >= 1066 && id <= 1145) {
     const tribe = id < 1082 ? self : Math.floor((id - 1082) / 16)

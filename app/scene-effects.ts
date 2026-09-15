@@ -20,6 +20,7 @@ import { spellHalo, haloBucket } from './spell-halo.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
+import { tribeForTeam } from './world-types.ts'
 
 export function makeFx(scene: GameScene, f: Effect) {
   const g = new THREE.Group()
@@ -120,14 +121,14 @@ export function makeFx(scene: GameScene, f: Effect) {
   if (f.reincarnation) {
     g.name = 'reincarnation-effect'
     g.userData.layers = []
-    g.userData.owner = f.reincarnation.team === 'blue' ? 0 : 1
+    g.userData.owner = tribeForTeam(f.reincarnation.team)
     g.userData.draw = 14
     g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [680], flip: false }))
     return g
   }
   if (f.unit) {
     g.userData.layers = []
-    g.userData.owner = f.unit.team === 'blue' ? 0 : f.unit.team === 'red' ? 1 : -1
+    g.userData.owner = tribeForTeam(f.unit.team)
     g.userData.draw = f.unit.kind === 'preacher' ? 16 : f.unit.kind === 'warrior' ? 15 : 14
     g.userData.drawFlags = f.corpse ? 0 : 2
     g.userData.shaman = f.unit.kind === 'shaman'

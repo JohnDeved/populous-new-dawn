@@ -1,4 +1,10 @@
-import type { World, Point, NativePoint, Building } from './world-types.ts'
+import {
+  tribeForTeam,
+  type World,
+  type Point,
+  type NativePoint,
+  type Building,
+} from './world-types.ts'
 import { GRID } from './world-rules.ts'
 import { height, nativeTerrainHeight } from './world-coordinates.ts'
 import { short } from './native-math.ts'
@@ -123,7 +129,7 @@ export function syncLandscapeObjects(w: World) {
       .filter(b => b.hp > 0)
       .map(b => [
         b.id,
-        { ...buildingPose(b), id: b.id, tribe: b.team === 'blue' ? 0 : 1, plan: !!b.preparation },
+        { ...buildingPose(b), id: b.id, tribe: tribeForTeam(b.team), plan: !!b.preparation },
       ])
   )
   const shade = (i: number) => cellShade(w, i)

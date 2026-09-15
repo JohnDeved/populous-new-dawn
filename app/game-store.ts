@@ -1,5 +1,6 @@
 import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
-import { missionNumbers } from './mission-data.ts'
+import { missionEnemyTribe, missionNumbers } from './mission-data.ts'
+import { teamForTribe } from './world-types.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -14,9 +15,79 @@ type LegacyGift = {
   remaining: number
 }
 
+function migrateLegacyComputerTeam(world: World, tribe: number) {
+  const team = teamForTribe(tribe),
+    retag = (owner?: { tribe: number; damageAttacker?: number }) => {
+      if (owner?.tribe === 1) owner.tribe = tribe
+      if (owner?.damageAttacker === 1) owner.damageAttacker = tribe
+    },
+    retagEffect = (effect: World['effects'][number]) => {
+      if (effect.team === 'red') effect.team = team
+      if (effect.unit?.team === 'red') effect.unit.team = team
+      if (effect.reincarnation?.team === 'red') effect.reincarnation.team = team
+      for (const owner of [
+        effect.lightning,
+        effect.wave,
+        effect.swamp,
+        effect.firestorm,
+        effect.earthquake,
+        effect.volcano,
+        effect.convertWild,
+        effect.tornado,
+        effect.swarm,
+      ])
+        retag(owner)
+    }
+  for (const unit of world.units) {
+    if (unit.hypnotise?.originalTeam === 'red') unit.hypnotise.originalTeam = team
+    if (unit.team === 'red') unit.team = team
+    for (const person of [unit.native, unit.flight, unit.entry?.person, unit.builder?.person, unit.fight?.motion])
+      retag(person ?? undefined)
+  }
+  for (const building of world.buildings) {
+    if (building.team === 'red') building.team = team
+    if (building.damageState?.attacker === 1) building.damageState.attacker = tribe
+    if (building.damageState?.plan.attacker === 1) building.damageState.plan.attacker = tribe
+  }
+  for (const vehicle of world.vehicles) if (vehicle.team === 'red') vehicle.team = team
+  for (const effect of world.effects) retagEffect(effect)
+  for (const projectile of world.projectiles) {
+    if (projectile.team === 'red') projectile.team = team
+    for (const effect of projectile.visuals) retagEffect(effect)
+  }
+  for (const formation of world.marching) retag(formation)
+  for (const fight of world.fights)
+    if (fight.tribes) fight.tribes = fight.tribes.map(id => (id === 1 ? tribe : id))
+  for (const footprint of world.buildingFootprints.values()) retag(footprint)
+  for (let index = 0; index < world.land.regions.length; index++)
+    if (world.land.regions[index] & 0x20)
+      world.land.regions[index] = (world.land.regions[index] & ~0x20) | (1 << (tribe + 4))
+}
+
 export function migrateCheckpoint(world: World) {
   world.outcome.level ??= 1
+  const computerTribe = missionEnemyTribe(world.outcome.level),
+    legacySingleAI = !world.campaignAIs
   world.vehicles ??= []
+  if (legacySingleAI && computerTribe !== 1) migrateLegacyComputerTeam(world, computerTribe)
+  world.activeCampaignTribe ??= computerTribe
+  world.campaignAIs ??= Array(4).fill(null)
+  world.campaignAIs[computerTribe] ??= world.ai
+  world.spellScans ??= Array.from({ length: 4 }, (_, id) =>
+    id === computerTribe
+      ? world.spellScan
+      : { cursor: 0, limit: 0, paused: 0, targets: [0, 0, 0, 0] }
+  )
+  world.respawns ??= Array.from({ length: 4 }, (_, id) =>
+    id === 0 ? (world.respawn ?? 0) : id === computerTribe ? (world.redRespawn ?? 0) : 0
+  )
+  world.respawnPoints ??= Array.from({ length: 4 }, (_, id) =>
+    id === 0 ? world.respawnPoint : id === computerTribe ? world.redRespawnPoint : undefined
+  )
+  if (legacySingleAI && computerTribe !== 1) {
+    world.redRespawn = 0
+    delete world.redRespawnPoint
+  }
   for (const vehicle of world.vehicles) vehicle.active ??= true
   world.unlockedTower ??= false
   world.unlockedTemple ??= false

@@ -1,4 +1,5 @@
 import {
+  tribeForTeam,
   type World,
   type Unit,
   type Building,
@@ -50,7 +51,7 @@ import { invalidateTimberSearch } from './timber-search.ts'
 import { invalidateTimberRoutes } from './timber-search.ts'
 import { buildingCellValid } from './building-validity.ts'
 import { reincarnationStones } from './reincarnation.ts'
-import { campaignPosition } from './campaign-runtime.ts'
+import { campaignPosition, campaignShamanTeams } from './campaign-runtime.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
 import { BUILDINGS, buildingHp } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
@@ -74,8 +75,8 @@ export function checkBuildingSite(
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
   const tribe = {
-    tribe: team === 'blue' ? 0 : 1,
-    playerType: w.manaTribes[team === 'blue' ? 0 : 1].playerType,
+    tribe: tribeForTeam(team),
+    playerType: w.manaTribes[tribeForTeam(team)].playerType,
     flags: 0,
   }
   // ponytail: build a read-only cell view until all scenery and shrine classes
@@ -84,7 +85,7 @@ export function checkBuildingSite(
   const buildings = new Map(
     w.buildings
       .filter(b => b.hp > 0)
-      .map(b => [b.id & 1023, { model: buildingModel(b), tribe: b.team === 'blue' ? 0 : 1 }])
+      .map(b => [b.id & 1023, { model: buildingModel(b), tribe: tribeForTeam(b.team) }])
   )
   const scenery = new Map<number, { class: number; model: number }[]>()
   const add = (p: NativePoint, model: number) => {
@@ -113,8 +114,10 @@ export function checkBuildingSite(
       land.buildingIds[i] = (land.buildingIds[i] & 0xfc00) | id
     }
   }
-  for (const center of [campaignPosition(w, 'blue'), campaignPosition(w, 'red')])
+  for (const team of campaignShamanTeams(w)) {
+    const center = campaignPosition(w, team)
     for (const stone of reincarnationStones(land, nativePosition(w, center))) add(stone, 12)
+  }
   const world = {
     land,
     // ponytail: the live first mission has no fog ownership; connect these
@@ -221,11 +224,7 @@ export function addBuilding(
     kind,
     object: plan
       ? rules.buildingObjects[buildingModel({ kind, level: buildingLevel })]
-      : chooseBuildingObject(
-          buildingModel({ kind, level: buildingLevel }),
-          team === 'blue' ? 0 : 1,
-          w
-        ),
+      : chooseBuildingObject(buildingModel({ kind, level: buildingLevel }), tribeForTeam(team), w),
     hp: buildingHp(kind),
     progress: complete ? 1 : 0,
     timer: 0,
@@ -330,7 +329,7 @@ export function prepareBuildingSite(w: World, b: Building, workers: Unit[]) {
     return
   }
   if (action === 'allocate') {
-    b.object = chooseBuildingObject(plan.model, b.team === 'blue' ? 0 : 1, w)
+    b.object = chooseBuildingObject(plan.model, tribeForTeam(b.team), w)
     b.progress = plan.work / rules.buildingLife[plan.model]
     b.preparation = undefined
     Object.assign(b, browserPosition(buildingPosition(buildingPose(b))))

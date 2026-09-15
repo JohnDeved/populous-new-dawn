@@ -1,4 +1,4 @@
-import type { Point, Unit, World } from './world-types.ts'
+import { tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
   registerLivePerson,
@@ -100,7 +100,7 @@ export function computerSelectionWorld(w: World, tribe: number) {
       class: 2,
       model: buildingModel(b),
       state: b.progress === 1 ? 2 : 1,
-      tribe: b.team === 'blue' ? 0 : tribe,
+      tribe: tribeForTeam(b.team),
       x: position.x & 65535,
       y: position.y & 65535,
       flags2: 0,
@@ -138,11 +138,12 @@ export function computerSelectionWorld(w: World, tribe: number) {
   return { world, sources }
 }
 
-export function computerTrainingBuilding(w: World, model: number) {
+export function computerTrainingBuilding(w: World, model: number, tribe = campaignTribe(w)) {
+  const team = campaignTeam(w, tribe)
   return (
     w.buildings.find(
       b =>
-        b.team === 'red' &&
+        b.team === team &&
         b.hp > 0 &&
         b.progress === 1 &&
         b.damageState?.state !== 3 &&
@@ -152,9 +153,10 @@ export function computerTrainingBuilding(w: World, model: number) {
 }
 
 function trainingBuilding(w: World, id: number, tribe: number): TrainingBuilding | null {
+  const team = campaignTeam(w, tribe)
   const b = w.buildings.find(
     b =>
-      b.id === id && b.team === 'red' && b.hp > 0 && b.progress === 1 && b.damageState?.state !== 3
+      b.id === id && b.team === team && b.hp > 0 && b.progress === 1 && b.damageState?.state !== 3
   )
   if (!b) return null
   const admission = buildingAdmission(w, b),
@@ -176,7 +178,8 @@ function trainingBuilding(w: World, id: number, tribe: number): TrainingBuilding
 
 // 0x4f2ac0: reservations in sibling tasks and live command-8 people prevent
 // zero-count training requests from committing the same capacity again.
-function committedTraining(w: World, current: number, model: number) {
+function committedTraining(w: World, current: number, model: number, tribe: number) {
+  const team = campaignTeam(w, tribe)
   const matches = (id: number) => {
     const b = w.buildings.find(b => b.id === id && b.hp > 0)
     return !!b && buildingModel(b) === model
@@ -190,7 +193,7 @@ function committedTraining(w: World, current: number, model: number) {
     else if (task.phase === 5 || task.phase === 6) count += task.selected
   }
   for (const u of w.units) {
-    if (u.team !== 'red' || u.hp <= 0) continue
+    if (u.team !== team || u.hp <= 0) continue
     const p = unitAnimationSource(u) ?? u.native,
       order = p && (p.state === 10 || p.state === 33) && currentPersonOrder(w.buildingOrders, p)
     if (order && !(order.flags & 1) && order.model === 8 && matches(p.target)) count++
@@ -264,7 +267,7 @@ function produceMissionWarriorTraining(w: World, tribe: number) {
   const model = 3,
     trainingModel = 7,
     trained = campaignPersonCount(w, tribe, model),
-    target = computerTrainingBuilding(w, trainingModel)
+    target = computerTrainingBuilding(w, trainingModel, tribe)
   if (
     !(w.ai.states & (1 << 6)) ||
     !target ||
@@ -329,7 +332,7 @@ export function stepComputerTasks(w: World, tribe: number) {
       const target = w.buildings.find(
           building =>
             building.id === task.target &&
-            building.team === 'red' &&
+            building.team === campaignTeam(w, tribe) &&
             building.hp > 0 &&
             buildingModel(building) === 4
         ),
@@ -492,7 +495,7 @@ export function stepComputerTasks(w: World, tribe: number) {
     if (task.type === 28) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined
       const shaman = w.units.find(
-          u => u.hp > 0 && isShaman(u) && u.team === (tribe === 0 ? 'blue' : 'red')
+          u => u.hp > 0 && isShaman(u) && u.team === campaignTeam(w, tribe)
         ),
         point = shaman && nativePosition(w, shaman),
         destination = point ? ((point.x >>> 8) & 254) | (point.y & 0xfe00) : 0,
@@ -555,7 +558,9 @@ export function stepComputerTasks(w: World, tribe: number) {
     }
     if (task.type === 20) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined
-      const shaman = w.units.find(u => u.team === 'red' && isShaman(u) && u.hp > 0),
+      const shaman = w.units.find(
+          u => u.team === campaignTeam(w, tribe) && isShaman(u) && u.hp > 0
+        ),
         shamanPosition = shaman && nativePosition(w, shaman),
         staging =
           w.ai.flags & 0x100
@@ -649,7 +654,7 @@ export function stepComputerTasks(w: World, tribe: number) {
       preference: w.ai.attributes[7],
       population: campaignPersonCount(w, tribe),
       trained: campaignPersonCount(w, tribe, 3),
-      committed: target ? committedTraining(w, index, target.model) : 0,
+      committed: target ? committedTraining(w, index, target.model, tribe) : 0,
       maximum: w.ai.attributes[33],
       select: (building, count) => {
         const b = w.buildings.find(b => b.id === building.id)!,
@@ -708,7 +713,7 @@ function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
     class: 1,
     model: nativePersonModel(u),
     state: live?.state ?? 0,
-    tribe: u.team === 'wild' ? -1 : u.team === 'blue' ? 0 : 1,
+    tribe: tribeForTeam(u.team),
     x: p.x,
     y: p.y,
     flags2: u.inside === null ? 0 : 0x800000,
@@ -722,7 +727,6 @@ function computerSpellWorld(w: World, tribe: number): SpellTargetWorld {
   for (const u of w.units)
     if (u.hp > 0 && u.inside === null) {
       const p = computerSpellPerson(w, u)
-      if (u.team === 'red') p.tribe = tribe
       const cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
       const objects = cells.get(cell) ?? []
       objects.push(p)
@@ -730,7 +734,7 @@ function computerSpellWorld(w: World, tribe: number): SpellTargetWorld {
     }
   return {
     tribe,
-    alliances: 0,
+    alliances: w.outcome.alliances[tribe],
     cells,
     terrainFlags: cell => w.land.flags[nativeCellIndex(cell)],
   }
@@ -747,7 +751,8 @@ export function refreshTribeTerritory(w: World, id: number) {
   })
 }
 export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
-  const u = w.units.find(u => u.team === 'red' && isShaman(u) && u.hp > 0)
+  const team = campaignTeam(w, tribe),
+    u = w.units.find(u => u.team === team && isShaman(u) && u.hp > 0)
   const person = u ? combatPerson(u) : null
   const caster =
     u && person
@@ -781,7 +786,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
     caster,
     {
       turn: w.turn,
-      population: w.units.filter(p => p.team === 'red' && !p.ghost && p.hp > 0).length,
+      population: w.units.filter(p => p.team === team && !p.ghost && p.hp > 0).length,
       mana: w.manaTribes[tribe].mana,
       reserve: 0,
       gameFlags: w.manaWorld.gameFlags,

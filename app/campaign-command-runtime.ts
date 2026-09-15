@@ -6,6 +6,7 @@ import {
   campaignAttackTarget,
   forceHead,
   campaignPosition,
+  campaignTeam,
   campaignTribe,
   markerHeight,
 } from './campaign-runtime.ts'
@@ -25,7 +26,7 @@ import { sound } from './world-effects.ts'
 import { flybyCommand } from './flyby.ts'
 import { addMessage, messageStringId } from './messages.ts'
 import { runScript, scriptValue, type PopScript } from './popscript.ts'
-import { missionData } from './mission-data.ts'
+import { missionData, missionScript } from './mission-data.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from './building-shapes.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingCounterattack } from './live-building-combat.ts'
@@ -36,7 +37,8 @@ import { nativePosition } from './world-terrain-runtime.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 function forceCampaignAttack(w: World) {
-  const target = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0),
+  const team = campaignTeam(w, campaignTribe(w)),
+    target = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0),
     fallback = campaignPosition(w, 'blue'),
     order = emptyPersonOrder()
   if (target) writePersonOrder(order, 28, target.id, 0, 0)
@@ -47,7 +49,7 @@ function forceCampaignAttack(w: World) {
   for (const unit of w.units.filter(u => {
     const person = u.native ?? u.entry?.person ?? u.builder?.person ?? u.fight?.motion
     return (
-      u.team === 'red' &&
+      u.team === team &&
       u.hp > 0 &&
       !u.ghost &&
       u.inside === null &&
@@ -82,7 +84,7 @@ export function campaignCommand(
   w: World,
   opcode: number,
   args: number[],
-  script: PopScript = missionData(w.outcome.level).script
+  script: PopScript = missionScript(w.outcome.level, campaignTribe(w))
 ) {
   const level = missionData(w.outcome.level).level
   const arity = (
@@ -185,7 +187,11 @@ export function campaignCommand(
   if (opcode === 1097) {
     const [model, x, y] = args.map(read),
       target = w.buildings.find(building => {
-        if (building.team !== 'red' || building.hp <= 0 || buildingModel(building) !== 4)
+        if (
+          building.team !== campaignTeam(w, campaignTribe(w)) ||
+          building.hp <= 0 ||
+          buildingModel(building) !== 4
+        )
           return false
         const cell = ((y & 254) >>> 1) * 128 + ((x & 254) >>> 1)
         return buildingFootprintCells(buildingPose(building)).includes(cell)
@@ -295,13 +301,14 @@ export function campaignCommand(
       throw new Error(`Unsupported computer training ${count}:${model}`)
     const selection = computerSelectionWorld(w, campaignTribe(w))
     requestTraining(w.ai, count, model, availableTrainingPeople(selection.world), targetModel =>
-      computerTrainingBuilding(w, targetModel)
+      computerTrainingBuilding(w, targetModel, campaignTribe(w))
     )
     return
   }
 
   if (opcode === 1102) {
-    const shaman = w.units.some(u => u.team === 'red' && isShaman(u) && u.hp > 0)
+    const team = campaignTeam(w, campaignTribe(w)),
+      shaman = w.units.some(u => u.team === team && isShaman(u) && u.hp > 0)
     requestShamanGuard(
       w.ai,
       read(args[0]),
@@ -328,7 +335,7 @@ export function campaignCommand(
     return
   }
   if (opcode === 1198) {
-    buildingCounterattack(w, 'red')
+    buildingCounterattack(w, campaignTeam(w, campaignTribe(w)))
     return
   }
   if (opcode === 1108) {
@@ -491,7 +498,10 @@ export function campaignCommand(
 }
 
 export function campaignRules(w: World) {
-  const script = missionData(w.outcome.level).script
+  // Mission 6's first playable slice preserves its distinct initialized AI state;
+  // recurring script behavior lands with the commands it requires.
+  if (w.outcome.level === 6) return
+  const script = missionScript(w.outcome.level, campaignTribe(w))
   const boundCampaignScript = {
     ...script,
     codes:

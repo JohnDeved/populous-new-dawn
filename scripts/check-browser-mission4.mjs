@@ -19,18 +19,19 @@ try {
   })
   await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).click()
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 4)
-  await page.waitForFunction(() => {
-    const main = document.querySelector('main')
-    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
-    for (; fiber; fiber = fiber.return)
-      for (let hook = fiber.memoizedState; hook; hook = hook.next)
-        if (
-          hook.memoizedState?.current?.unitMeshes &&
-          hook.memoizedState.current.world === globalThis.testStore.getWorld()
-        )
-          globalThis.testScene = hook.memoizedState.current
-    return globalThis.testScene?.world === globalThis.testStore.getWorld()
+  await page.evaluate(() => {
+    const world = globalThis.testStore.getWorld()
+    globalThis.mission4Initial = {
+      blue: world.units.filter(unit => unit.team === 'blue').length,
+      green: world.units.filter(unit => unit.team === 'green').length,
+      wild: world.units.filter(unit => unit.team === 'wild').length,
+      rewards: world.shrines.map(shrine => shrine.reward),
+    }
   })
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
   const initialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint })),
     skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
   await skip.waitFor()
@@ -57,24 +58,17 @@ try {
   await page.getByText('Discover the Guard Tower', { exact: true }).waitFor()
   await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
 
-  await page.evaluate(() => {
-    const world = globalThis.testStore.getWorld()
-    globalThis.mission4Initial = {
-      blue: world.units.filter(unit => unit.team === 'blue').length,
-      red: world.units.filter(unit => unit.team === 'red').length,
-      wild: world.units.filter(unit => unit.team === 'wild').length,
-      rewards: world.shrines.map(shrine => shrine.reward),
-      rendered: globalThis.testScene.unitMeshes.size,
-    }
-  })
+  await page.evaluate(() => (globalThis.mission4Initial.rendered = globalThis.testScene.unitMeshes.size))
   const triggerTutorial = async (turn, promote, warriors, preachers, stringId, text) => {
     await page.evaluate(([turn, promote, warriors, preachers]) => {
       const world = globalThis.testStore.getWorld()
       for (const unit of world.units.filter(unit => unit.team === 'wild').slice(0, promote))
         unit.team = 'blue'
       const followers = world.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave')
-      for (const unit of followers.slice(0, warriors)) unit.kind = 'warrior'
-      for (const unit of followers.slice(warriors, warriors + preachers)) unit.kind = 'preacher'
+      for (const unit of followers.slice(0, warriors))
+        Object.assign(unit, { kind: 'warrior', native: null })
+      for (const unit of followers.slice(warriors, warriors + preachers))
+        Object.assign(unit, { kind: 'preacher', native: null })
       world.turn = turn
     }, [turn, promote, warriors, preachers])
     await page.waitForFunction(
@@ -109,7 +103,7 @@ try {
     return { initial, checkpointWild, restored: { level: restored.outcome.level, wild: restored.units.filter(unit => unit.team === 'wild').length } }
   })
   assert.equal(result.initial.blue, 1)
-  assert.equal(result.initial.red, 7)
+  assert.equal(result.initial.green, 7)
   assert.ok(result.initial.wild >= 50)
   assert.deepEqual(result.initial.rewards, ['tower', 'convertWild', 'lightning'])
   assert.ok(result.initial.rendered > 0)
@@ -125,18 +119,10 @@ try {
   })
   await page.getByRole('button', { name: 'Continue to Mission 5', exact: false }).click()
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 5)
-  await page.waitForFunction(() => {
-    const main = document.querySelector('main')
-    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
-    for (; fiber; fiber = fiber.return)
-      for (let hook = fiber.memoizedState; hook; hook = hook.next)
-        if (
-          hook.memoizedState?.current?.unitMeshes &&
-          hook.memoizedState.current.world === globalThis.testStore.getWorld()
-        )
-          globalThis.testScene = hook.memoizedState.current
-    return globalThis.testScene?.world === globalThis.testStore.getWorld()
-  })
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
   const missionFiveInitialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint })),
     missionFiveSkip = page.getByRole('button', { name: 'Skip introduction', exact: false })
   await missionFiveSkip.waitFor()
@@ -242,9 +228,61 @@ try {
     }
   })
   assert.deepEqual(missionFive, { level: 5, status: 'won', completed: 4, profile: [4, 5] })
-  await page.getByRole('button', { name: 'Begin again', exact: false }).waitFor()
+  await page.getByRole('button', { name: 'Continue to Mission 6', exact: false }).click()
+  await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 6)
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  await page.getByLabel('Focus Chumara tribe').waitFor()
+  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByText('Defeat the Chumara tribe', { exact: true }).waitFor()
+  await page.getByText('Defeat the Matak tribe', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
+  const missionSix = await page.evaluate(async () => {
+    const world = globalThis.testStore.getWorld()
+    await globalThis.testStore.saveCheckpoint()
+    globalThis.testStore.startMission(1)
+    if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 checkpoint load failed')
+    const restored = globalThis.testStore.getWorld(),
+      renderedOwners = [...globalThis.testScene.unitMeshes.values()].map(mesh => mesh.userData.owner)
+    restored.units = restored.units.filter(unit => unit.team !== 'yellow')
+    restored.turn = 32
+    const { stepOutcome } = await import('/app/tribe-turns.ts')
+    stepOutcome(restored)
+    const oneOpponent = restored.land.landFlags & 0x2000000
+    restored.units = restored.units.filter(unit => unit.team !== 'green')
+    restored.turn = 48
+    stepOutcome(restored)
+    globalThis.testStore.update()
+    return {
+      blue: restored.units.filter(unit => unit.team === 'blue').length,
+      yellow: world.units.filter(unit => unit.team === 'yellow').length,
+      green: world.units.filter(unit => unit.team === 'green').length,
+      wild: world.units.filter(unit => unit.team === 'wild').length,
+      independentAI: restored.campaignAIs[2] !== restored.campaignAIs[3],
+      independentScans: restored.spellScans[2] !== restored.spellScans[3],
+      renderedOwners,
+      oneOpponent,
+      victory: restored.land.landFlags & 0x2000000,
+      completed: restored.outcome.completedLevel,
+    }
+  })
+  assert.deepEqual(
+    { yellow: missionSix.yellow, green: missionSix.green, wild: missionSix.wild },
+    { yellow: 8, green: 7, wild: 172 }
+  )
+  assert.equal(missionSix.blue, 7)
+  assert.equal(missionSix.independentAI, true)
+  assert.equal(missionSix.independentScans, true)
+  assert.ok(missionSix.renderedOwners.includes(2))
+  assert.ok(missionSix.renderedOwners.includes(3))
+  assert.equal(missionSix.oneOpponent, 0)
+  assert.equal(missionSix.victory, 0x2000000)
+  assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 4 opens, restores, continues into playable Mission 5 and records its victory')
+  console.log('PASS: campaign continues through playable Mission 6 with distinct Chumara and Matak')
 } finally {
   await browser.close()
 }

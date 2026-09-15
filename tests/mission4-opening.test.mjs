@@ -106,7 +106,7 @@ test('Mission 4 converts Wildmen, discovers the Guard Tower, and defeats the Mat
 
   const world = createWorld(4)
   assert.equal(world.units.filter(unit => unit.team === 'blue').length, 1)
-  assert.equal(world.units.filter(unit => unit.team === 'red').length, 7)
+  assert.equal(world.units.filter(unit => unit.team === 'green').length, 7)
   assert.equal(world.units.filter(unit => unit.team === 'wild').length, 53)
   assert.equal(world.buildings.filter(building => building.kind === 'hut').length, 2)
   assert.deepEqual(
@@ -122,11 +122,11 @@ test('Mission 4 converts Wildmen, discovers the Guard Tower, and defeats the Mat
   forcedAttack.killCredits[0][3] = 11
   for (let turn = 0; turn < 62; turn++) tick(forcedAttack, 1 / 12)
   assert.ok(forcedAttack.manaTribes[3].flags2 & 0x40)
-  for (const unit of forcedAttack.units.filter(unit => unit.team === 'red')) {
+  for (const unit of forcedAttack.units.filter(unit => unit.team === 'green')) {
     assert.equal(unit.target, forcedTarget.id)
     assert.equal(currentPersonOrder(forcedAttack.buildingOrders, unit.native)?.model, 28)
   }
-  const retrying = forcedAttack.units.find(unit => unit.team === 'red')
+  const retrying = forcedAttack.units.find(unit => unit.team === 'green')
   retrying.target = null
   tick(forcedAttack, 2 / 12)
   assert.equal(retrying.target, forcedTarget.id)
@@ -163,8 +163,8 @@ test('Mission 4 converts Wildmen, discovers the Guard Tower, and defeats the Mat
 
   for (let attack = 0; world.status === 'playing' && attack < 24; attack++) {
     const target =
-      world.units.find(unit => unit.team === 'red' && unit.kind !== 'shaman' && unit.hp > 0) ??
-      world.units.find(unit => unit.team === 'red' && unit.hp > 0)
+      world.units.find(unit => unit.team === 'green' && unit.kind !== 'shaman' && unit.hp > 0) ??
+      world.units.find(unit => unit.team === 'green' && unit.hp > 0)
     if (!target) break
     setSelection(
       world,

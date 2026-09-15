@@ -1,5 +1,10 @@
-import type { Building, Tree, World } from './world-types.ts'
-import { queueTerrain, processTerrain, updateWalkMasks, terrainPointHeight } from './native-terrain.ts'
+import { tribeForTeam, type Building, type Tree, type World } from './world-types.ts'
+import {
+  queueTerrain,
+  processTerrain,
+  updateWalkMasks,
+  terrainPointHeight,
+} from './native-terrain.ts'
 import {
   terrainTextures,
   nativePosition,
@@ -30,7 +35,7 @@ import { initializeLivePanic } from './live-people.ts'
 import { createBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
 import { random } from './native-math.ts'
 import { buildingHp } from './world-rules.ts'
-import { creditAttackTask } from './computer.ts'
+import { creditCampaignAttackTask } from './campaign-runtime.ts'
 import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -52,7 +57,7 @@ function emitBuildingDebris(w: World, b: Building, stage: number, rng: { randomS
     h: Math.round(b.foundation * 45),
     angle: buildingPose(b).angle,
     flags3: b.damageState?.flags3 ?? 0,
-    tribe: b.team === 'blue' ? 0 : 1,
+    tribe: tribeForTeam(b.team),
     stage: buildingStage(b),
   }
   for (const fragment of collapseBuildingFaces(
@@ -278,7 +283,7 @@ export function stepDamagedBuilding(w: World, b: Building) {
     removePlan: () => {},
     notify: () => {},
     removeBuilding: () => {
-      if (b.attackTaskMember !== undefined) creditAttackTask(w.ai, b.attackTaskMember, 1)
+      if (b.attackTaskMember !== undefined) creditCampaignAttackTask(w, b.attackTaskMember, 1)
       b.hp = 0
     },
     sound: () => sound(w, 0x34, b),

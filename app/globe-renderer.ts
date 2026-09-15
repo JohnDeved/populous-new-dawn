@@ -16,6 +16,7 @@ import {
 } from './globe.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import { buildingModel, nativePosition, unitInvisibleToPlayer, type World } from './model.ts'
+import { tribeForTeam } from './world-types.ts'
 import hud from './original-hud.json'
 import effects from './original-effects.json'
 import { lineQuad } from './lightning.ts'
@@ -229,7 +230,7 @@ export class GlobeRenderer extends THREE.Group {
     }
     this.buildingIcons.clear()
     const buildings = new Map(
-      world.buildings.map(b => [b.id, { id: b.id, tribe: b.team === 'blue' ? 0 : 1 }])
+      world.buildings.map(b => [b.id, { id: b.id, tribe: tribeForTeam(b.team) }])
     )
     for (let cell = 0; cell < world.land.flags.length; cell++) {
       const flags = world.land.flags[cell]
@@ -275,11 +276,8 @@ export class GlobeRenderer extends THREE.Group {
       if (u.inside !== null || u.hp <= 0 || unitInvisibleToPlayer(world, u)) continue
       const p = locate(u)
       if (!p) continue
-      const fill = color(
-          { blue: globePalette.tribes[0], red: globePalette.tribes[1], wild: globePalette.wild }[
-            u.team
-          ]
-        ),
+      const tribe = tribeForTeam(u.team),
+        fill = color(tribe < 0 ? globePalette.wild : globePalette.tribes[tribe]),
         { x, y } = p
       if (u.kind === 'shaman' && u.team === 'blue')
         polygon([x - 4, y + 4, x, y - 4, x + 4, y + 4], fill)
@@ -346,7 +344,7 @@ export class GlobeRenderer extends THREE.Group {
         cellX = position.x & 0xfe00,
         cellY = position.y & 0xfe00,
         cell = (cellY >> 9) * 128 + (cellX >> 9),
-        tribe = { blue: 0, red: 1, wild: 4 }[f.team ?? 'wild']
+        tribe = tribeForTeam(f.team ?? 'wild')
       if (
         animation.renderFlags & 16 ||
         ('flags4' in animation && Number(animation.flags4) & 0x20000) ||

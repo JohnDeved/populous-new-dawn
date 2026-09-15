@@ -1,4 +1,11 @@
-import type { World, Team, Building, Unit, Point } from './world-types.ts'
+import {
+  tribeForTeam,
+  type World,
+  type Team,
+  type Building,
+  type Unit,
+  type Point,
+} from './world-types.ts'
 import type { UnitKind } from './unit-kinds.ts'
 import { maxHp, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { buildingModel } from './building-shapes.ts'
@@ -19,7 +26,13 @@ import { createPathGeometry } from './path-geometry.ts'
 import { createPathSolver } from './path-solver.ts'
 import type { PathSearchState } from './path-search.ts'
 import type { LivePerson } from './live-people.ts'
-import { missionAllowsBuilding, missionData, missionSpellMask } from './mission-data.ts'
+import {
+  missionAllowsBuilding,
+  missionComputerTribes,
+  missionData,
+  missionScript,
+  missionSpellMask,
+} from './mission-data.ts'
 import { createMissionLand } from './world-terrain-runtime.ts'
 
 export function createLivePathfinding() {
@@ -55,19 +68,32 @@ export function createLivePathfinding() {
 export function createWorldState(missionNumber = 1): World {
   const mission = missionData(missionNumber),
     land = createMissionLand(mission.level),
-    activeTribes = new Set(
+    objectTribes = new Set(
       mission.level.objects.flatMap(object =>
         object.owner >= 0 && object.owner < 4 ? [object.owner] : []
       )
     ),
-    computerTribe = [...activeTribes].find(id => id !== 0) ?? 1,
+    computerTribe = [...objectTribes].find(id => id !== 0) ?? 1,
+    computerTribes = missionComputerTribes(missionNumber),
+    activeTribes = new Set(missionNumber === 6 ? [0, ...computerTribes] : objectTribes),
+    campaignAIs = Array.from({ length: 4 }, (_, id) =>
+      computerTribes.includes(id) ? missionAI(missionScript(missionNumber, id), id) : null
+    ),
+    spellScans = Array.from({ length: 4 }, () => ({
+      cursor: 0,
+      limit: 0,
+      paused: 0,
+      targets: [0, 0, 0, 0],
+    })),
     playerSpellMask =
       missionSpellMask(missionNumber) & SPELLS.reduce((mask, spell) => mask | (1 << spell.model), 0)
   return {
     flyby: createFlyby(),
     inputMask: 0,
     lastMessage: -1,
-    ai: missionAI(mission.script, computerTribe),
+    ai: campaignAIs[computerTribe]!,
+    campaignAIs,
+    activeCampaignTribe: computerTribe,
     messages: createMessages(),
     spellCasts: Array.from({ length: 4 }, () => Array(22).fill(0)),
     killCredits: Array.from({ length: 4 }, () => Array(4).fill(0)),
@@ -114,12 +140,13 @@ export function createWorldState(missionNumber = 1): World {
     lightRevision: 0,
     buildingFootprints: new Map(),
     sceneryShadows: new Map(),
-    spellScan: { cursor: 0, limit: 0, paused: 0, targets: [0, 0, 0, 0] },
+    spellScan: spellScans[computerTribe],
+    spellScans,
     castingTribes: Array.from({ length: 4 }, (_, id) => createTribeCasting(id !== 0)),
     tribeCount: Math.max(...activeTribes) + 1,
     levelFlags2: 0,
     outcome: {
-      campaignTribes: 2,
+      campaignTribes: Math.max(...activeTribes) + 1,
       level: mission.number,
       progressFlags: 0,
       lastDefeated: 0,
@@ -229,11 +256,15 @@ export function createWorldState(missionNumber = 1): World {
             ? 'The Chumara can turn your followers against you. Reach their Vault and learn their power.'
             : missionNumber === 4
               ? 'Convert the Wildmen, discover the Guard Tower, and defeat the Matak.'
-              : 'Worship the stone head to receive a Boat and cross the water.',
+              : missionNumber === 5
+                ? 'Worship the stone head to receive a Boat and cross the water.'
+                : 'Establish your settlement and defeat both the Chumara and Matak tribes.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,
     redRespawn: 0,
+    respawns: [0, 0, 0, 0],
+    respawnPoints: [undefined, undefined, undefined, undefined],
     stats: { built: 0, cast: 0, bridges: 0, trained: 0, battlesWon: [0, 0, 0, 0] },
   }
 }
@@ -273,7 +304,7 @@ export function trainingCost(w: World, team: Team) {
   return nativeTrainingCost(
     w.units.filter(u => u.team === team && u.kind === 'warrior' && !u.ghost && u.hp > 0).length,
     3,
-    team === 'blue' ? 2 : 1
+    w.manaTribes[tribeForTeam(team)].playerType
   )
 }
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {

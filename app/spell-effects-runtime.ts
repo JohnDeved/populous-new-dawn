@@ -31,19 +31,20 @@ import {
 } from './world-effects.ts'
 import { addUnit, population } from './world-state.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
-import { campaignTribe } from './campaign-runtime.ts'
 import { browserPosition, nativeDistance, nativeStep3D, shotAngles } from './world-coordinates.ts'
 import { release, releaseTasks } from './world-tasks.ts'
-import type {
-  Building,
-  Effect,
-  NativePoint,
-  Point,
-  Spell,
-  Team,
-  Tree,
-  Unit,
-  World,
+import {
+  teamForTribe,
+  tribeForTeam,
+  type Building,
+  type Effect,
+  type NativePoint,
+  type Point,
+  type Spell,
+  type Team,
+  type Tree,
+  type Unit,
+  type World,
 } from './world-types.ts'
 import { buildingFirePoints, buildingModel, buildingPose } from './building-shapes.ts'
 import { ensureBuildingDamage, igniteBuilding } from './building-damage.ts'
@@ -152,7 +153,7 @@ export function stepUnitHypnotise(w: World) {
     if (!status || u.hp <= 0) continue
     status.counter = (status.counter + 1) & 255
     if (status.counter & 7 || --status.remaining > 0) continue
-    const tribe = status.originalTeam === 'blue' ? 0 : status.originalTeam === 'red' ? 1 : -1
+    const tribe = tribeForTeam(status.originalTeam)
     if (tribe >= 0 && w.manaTribes[tribe].defeatTimer) {
       delete u.hypnotise
       for (const p of retainedPeople(u)) p.flags4 = (p.flags4 & ~0x4000) >>> 0
@@ -165,7 +166,7 @@ export function restoreDeadHypnotisedUnit(u: Unit) {
   u.team = u.hypnotise.originalTeam
   delete u.hypnotise
   for (const p of retainedPeople(u)) {
-    p.tribe = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1
+    p.tribe = tribeForTeam(u.team)
     p.flags4 = (p.flags4 & ~0x4000) >>> 0
   }
 }
@@ -230,13 +231,13 @@ export function setUnitInvisibility(w: World, u: Unit, turns: number) {
 export function unitInvisibleToPlayer(w: World, u: Unit) {
   return !!(
     u.invisibility &&
-    u.team !== (w.manaWorld.playerTribe === 0 ? 'blue' : 'red') &&
+    u.team !== teamForTribe(w.manaWorld.playerTribe) &&
     !(w.manaTribes[w.manaWorld.playerTribe]?.flags2 & 8)
   )
 }
 
 export function unitInvisibilityRenderBit(w: World, u: Unit) {
-  return u.team !== (w.manaWorld.playerTribe === 0 ? 'blue' : 'red') &&
+  return u.team !== teamForTribe(w.manaWorld.playerTribe) &&
     !(w.manaTribes[w.manaWorld.playerTribe]?.flags2 & 8)
     ? 16
     : 0x4000
@@ -245,7 +246,7 @@ export function unitInvisibilityRenderBit(w: World, u: Unit) {
 export function unitInvisibilityRenderFlag(w: World, u: Unit) {
   if (!u.invisibility) return 0
   const flag = unitInvisibilityRenderBit(w, u)
-  if (flag !== 0x4000 || u.team !== (w.manaWorld.playerTribe === 0 ? 'blue' : 'red')) return flag
+  if (flag !== 0x4000 || u.team !== teamForTribe(w.manaWorld.playerTribe)) return flag
   const timer = Math.ceil(u.invisibility! / 8),
     mask = timer < 6 ? 1 : timer < 14 ? 2 : timer < 24 ? 4 : 0
   return mask && !(w.turn & mask) ? 0 : flag
@@ -315,7 +316,7 @@ function igniteBuildingAt(w: World, target: NativePoint, tribe: number) {
           suppressEmbers: true,
         })
         building.burn.soundPlaying = true
-        ignitePeople(point, building.team === 'blue' ? 0 : 1)
+        ignitePeople(point, tribeForTeam(building.team))
       }
     })
   }
@@ -374,7 +375,7 @@ function impactFirestorm(w: World, target: NativePoint, tribe: number) {
     })
     sound(w, 0xb6, point)
   }
-  const wave = emitBlastWave(w, point, tribe === 0 ? 'blue' : 'red')
+  const wave = emitBlastWave(w, point, teamForTribe(tribe))
   wave.panic = true
   wave.scatter = true
   igniteBuildingAt(w, target, tribe)
@@ -443,7 +444,7 @@ export function processProjectiles(w: World) {
         // reaches the target and remains visible until deletion on its next visit.
         moveVisual(shot.visuals[0], shot.position)
         for (const f of shot.visuals.slice(1)) f.duration = f.age
-        if (shot.fireball) impactFirestorm(w, d, shot.team === 'blue' ? 0 : 1)
+        if (shot.fireball) impactFirestorm(w, d, tribeForTeam(shot.team))
         continue
       }
       const [yaw, pitch] = shotAngles(p, d)
@@ -511,7 +512,7 @@ export function emitBlastWave(w: World, point: Point, team: Team, standardForce 
   const fx = effect(w, 'blastWave', point)
   fx.wave = createBlastWave(
     position,
-    team === 'blue' ? 0 : 1,
+    tribeForTeam(team),
     !standardForce && !!(w.manaWorld.loadFlags & 0x04000000)
   )
   fx.duration = Infinity
@@ -580,7 +581,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       b,
       2,
       buildingModel(b),
-      b.team === 'blue' ? 0 : 1,
+      tribeForTeam(b.team),
       b.damageState?.state ?? (b.progress === 1 ? 2 : 1),
       b.damageState?.flags2,
       b.damageState?.flags3
@@ -738,7 +739,7 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
 
 export function stepLiveConvertWild(w: World, fx: Effect) {
   const spell = fx.convertWild!,
-    team = spell.tribe === 0 ? 'blue' : 'red',
+    team = teamForTribe(spell.tribe),
     units = new Map<number, Unit>(),
     cells = new Map<number, LivePerson[]>()
   for (const u of w.units) {
@@ -810,7 +811,7 @@ function ghostArmyCell(w: World, p: Point) {
   return ((n.x >>> 8) & 254) | (n.y & 0xfe00)
 }
 function ghostArmyModel(w: World, fx: Effect) {
-  const tribe = fx.team === 'blue' ? 0 : 1
+  const tribe = tribeForTeam(fx.team!)
   if (w.manaTribes[tribe].playerType === 1) return 2
   const center = ghostArmyCell(w, fx)
   let model = 2,
@@ -908,7 +909,7 @@ function finishCast(
     // 0x511ef0 raises the displaced projectile endpoint above its local ground.
     // 0x511f70 creates the upper flash and bolt generator on the next turn.
     fx.lightning = {
-      tribe: shaman.team === 'blue' ? 0 : 1,
+      tribe: tribeForTeam(shaman.team),
       start: { ...nativePosition(w, upper), h: Math.round(fx.height! * 45) },
       target: nativePosition(w, p),
       seed: 0,
@@ -943,23 +944,23 @@ function finishCast(
       fx.team = shaman.team
       fx.duration = Infinity
     } else if (spell === 'firestorm') {
-      fx.firestorm = createFirestorm(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
+      fx.firestorm = createFirestorm(nativePosition(w, p), tribeForTeam(shaman.team))
       fx.team = shaman.team
       fx.duration = Infinity
     } else if (spell === 'earthquake') {
-      fx.earthquake = createEarthquake(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1, w)
+      fx.earthquake = createEarthquake(nativePosition(w, p), tribeForTeam(shaman.team), w)
       fx.team = shaman.team
       fx.duration = Infinity
     } else if (spell === 'volcano') {
-      fx.volcano = createVolcano(nativePosition(w, p), shaman.team === 'blue' ? 0 : 1)
+      fx.volcano = createVolcano(nativePosition(w, p), tribeForTeam(shaman.team))
       fx.team = shaman.team
       fx.duration = Infinity
     } else if (spell === 'convertWild') {
       fx.convertWild = createConvertWild(
         nativePosition(w, p),
-        shaman.team === 'blue' ? 0 : 1,
+        tribeForTeam(shaman.team),
         (w.effectCounter - 1) & 255,
-        w.manaTribes[shaman.team === 'blue' ? 0 : 1].playerType === 1
+        w.manaTribes[tribeForTeam(shaman.team)].playerType === 1
       )
       fx.team = shaman.team
       fx.duration = Infinity
@@ -980,7 +981,7 @@ function finishCast(
         w.land,
         endpoint ?? nativePosition(w, p),
         nativePosition(w, shaman),
-        shaman.team === 'blue' ? 0 : 1,
+        tribeForTeam(shaman.team),
         w
       )
       fx.team = shaman.team
@@ -989,7 +990,7 @@ function finishCast(
     } else if (spell === 'swamp') {
       fx.swamp = createSwamp(
         nativePosition(w, p),
-        shaman.team === 'blue' ? 0 : 1,
+        tribeForTeam(shaman.team),
         (w.effectCounter - 1) & 255,
         w
       )
@@ -1010,7 +1011,7 @@ function finishCast(
       if (invisibilityFollowers(w, p, shaman.team).length) sound(w, 0x31, p)
     } else if (spell === 'swarm') {
       fx.swarm = {
-        tribe: shaman.team === 'blue' ? 0 : campaignTribe(w),
+        tribe: tribeForTeam(shaman.team),
         remaining: 65,
         applied: false,
       }

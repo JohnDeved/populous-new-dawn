@@ -154,7 +154,7 @@ test('Mission 2 naturally funds the Matak Shaman and casts Swarm through player 
   assert.ok(command(w, { x: 83, z: 127 }))
   stepUntil(
     w,
-    () => w.projectiles.some(projectile => projectile.team === 'red' && projectile.spell === 'swarm'),
+    () => w.projectiles.some(projectile => projectile.team === 'green' && projectile.spell === 'swarm'),
     5000
   )
   stepUntil(w, () => w.effects.some(effect => effect.swarm), 100)

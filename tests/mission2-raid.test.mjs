@@ -44,7 +44,7 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     w.units.filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0)
   for (let attempts = 0; w.killCredits[0][3] <= 3 && attempts < 8; attempts++) {
     const target = w.units
-      .filter(unit => unit.team === 'red' && unit.kind !== 'shaman' && unit.hp > 0)
+      .filter(unit => unit.team === 'green' && unit.kind !== 'shaman' && unit.hp > 0)
       .sort((a, b) => Math.hypot(a.x + 99, a.z + 105) - Math.hypot(b.x + 99, b.z + 105))[0]
     assert.ok(target)
     setSelection(w, warriors().map(unit => unit.id))

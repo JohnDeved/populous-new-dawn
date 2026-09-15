@@ -1,4 +1,4 @@
-import type { Building, Point, Unit, World } from './world-types.ts'
+import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
 import { BUILDINGS, buildingHp, unitSpeed } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
 import { short, positionDistance } from './native-math.ts'
@@ -13,11 +13,7 @@ import {
   buildingOutsidePoint,
   buildingPose,
 } from './building-shapes.ts'
-import {
-  collisionWorld,
-  createLivePerson,
-  setLivePersonAnimation,
-} from './live-people.ts'
+import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { removeObjectFromCell } from './object-cells.ts'
 import { turnPerson } from './person-motion.ts'
@@ -54,11 +50,7 @@ import {
 import { restingCellAvailable } from './resting-slots.ts'
 import { release } from './world-tasks.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
-import {
-  stepBuildingApproach,
-  stepBuildingDeparture,
-  stepBuildingWork,
-} from './building-work.ts'
+import { stepBuildingApproach, stepBuildingDeparture, stepBuildingWork } from './building-work.ts'
 import { faceTribe } from './person-state.ts'
 import { looseWoodInCell } from './hut-upgrade.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
@@ -286,7 +278,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
         id: u.id,
         class: 1,
         model: nativePersonModel(u),
-        tribe: u.team === 'blue' ? 0 : 1,
+        tribe: tribeForTeam(u.team),
         state: u.native?.state ?? (u.work === null ? 1 : 10),
         speed: u.native?.speed ?? (u.path.length ? unitSpeed(u) : 0),
         flags2: u.native?.flags2 ?? 0,
@@ -555,7 +547,7 @@ export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queu
   if (wood) releaseTimberReservation(tree)
   tree.logs -= wood / 100
   if (wood && tree.logs < 1)
-    depleteTree(w, tree, w.manaTribes[u.team === 'blue' ? 0 : 1].playerType === 1)
+    depleteTree(w, tree, w.manaTribes[tribeForTeam(u.team)].playerType === 1)
   u.cargo += wood / 100
   if (!destination && u.native) u.native.cargo = Math.round(u.cargo * 100)
   u.harvest = undefined
@@ -603,5 +595,3 @@ export function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
     harvestAssignedTree(w, u, entrance(w, b))
   }
 }
-
-

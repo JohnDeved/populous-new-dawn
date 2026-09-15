@@ -1,6 +1,7 @@
 import { buildingPose } from './building-shapes.ts'
 import { releaseTasks } from './world-tasks.ts'
 import { sound } from './world-effects.ts'
+import { teamForTribe, tribeForTeam } from './world-types.ts'
 import {
   addUnit,
   buildingModel,
@@ -230,7 +231,7 @@ export function buildingAdmission(w: World, b: Building): BuildingAdmission {
     id: b.id,
     class: 2,
     model: buildingModel(b),
-    tribe: b.team === 'blue' ? 0 : 1,
+    tribe: tribeForTeam(b.team),
     flags2: 0,
     flags3: 0,
     activity: 8,
@@ -271,13 +272,13 @@ function context(w: World) {
     buildingIds: [] as number[],
   }))
   for (const u of w.units) {
-    const tribe = u.team === 'blue' ? 0 : u.team === 'red' ? 1 : -1
+    const tribe = tribeForTeam(u.team)
     if (u.hp > 0 && tribe >= 0) tribes[tribe].personCounts[nativePersonModel(u)]++
     if (u.entry || u.inside !== null) people.set(u.id, u.entry?.person ?? u.native ?? person(w, u))
   }
   const buildings = new Map<number, BuildingAdmission>()
   for (const b of w.buildings) {
-    tribes[b.team === 'blue' ? 0 : 1].buildingIds.push(b.id)
+    tribes[tribeForTeam(b.team)].buildingIds.push(b.id)
     if (b.hp > 0 && b.admission) buildings.set(b.id, b.admission)
   }
   return {
@@ -619,12 +620,7 @@ export function stepLiveTraining(w: World, b: Building) {
     },
     allocateTrainee: (model, tribe, x, y, angle) => {
       if (![2, 3, 4].includes(model)) unsupported()
-      const u = addUnit(
-        w,
-        tribe === 0 ? 'blue' : 'red',
-        unitKindFromModel(model),
-        browserPosition({ x, y })
-      )
+      const u = addUnit(w, teamForTribe(tribe), unitKindFromModel(model), browserPosition({ x, y }))
       u.heading = Math.PI - (angle * Math.PI) / 1024
       const p = person(w, u)
       ctx.people.set(p.id, p)

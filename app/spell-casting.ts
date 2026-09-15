@@ -1,12 +1,11 @@
 import rules from './original-rules.json' with { type: 'json' }
 import type { ManaTribe, ManaWorld, SpellStock } from './mana.ts'
 import { cellDistanceSquared, positionDistance } from './native-math.ts'
-import type { Point, Spell, Unit, World } from './world-types.ts'
+import { tribeForTeam, type Point, type Spell, type Unit, type World } from './world-types.ts'
 import { SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { buildingModel } from './building-shapes.ts'
 import { sound } from './world-effects.ts'
-import { campaignTribe } from './campaign-runtime.ts'
 
 export type SpellCaster = {
   height: number
@@ -379,7 +378,7 @@ export function spellCaster(w: World, u: Unit): SpellCaster {
   }
 }
 export function spellRange(w: World, u: Unit, model: number) {
-  const tribe = u.team === 'blue' ? 0 : campaignTribe(w)
+  const tribe = tribeForTeam(u.team)
   return (
     nativeSpellRange(
       w.manaWorld.gameFlags,
@@ -400,7 +399,7 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
   const target = { x: Math.floor(p.x / 2) * 2 + 1, z: -Math.floor(-p.z / 2) * 2 - 1 },
     position = nativePosition(w, u)
-  const tribe = u.team === 'blue' ? 0 : campaignTribe(w),
+  const tribe = tribeForTeam(u.team),
     model = SPELLS.find(s => s.id === spell)!.model
   if (tribe === 0) w.manaWorld.spells[0].stocks[model] = w.shots[spell]
   const state = w.castingTribes[tribe],
@@ -424,12 +423,12 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   registerSpellCooldown(
     state,
     w.manaTribes[tribe].playerType,
-    u.team === 'red' ? w.ai.flags : 0,
+    tribe === 0 ? 0 : (w.campaignAIs[tribe]?.flags ?? 0),
     w.manaWorld.gameFlags,
     0,
     model
   )
-  if (u.team === 'red') state.aiCooldown = w.ai.attributes[43] & 255 // 0x4f4de0, after allocation.
+  if (tribe !== 0) state.aiCooldown = w.campaignAIs[tribe]?.attributes[43] ?? 0 // 0x4f4de0, after allocation.
   recordSpellCast(w, tribe, model)
   if (u.team === 'blue') {
     w.shots[spell] = w.manaWorld.spells[0].stocks[model] & 15
