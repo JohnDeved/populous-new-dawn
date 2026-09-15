@@ -354,6 +354,7 @@
       "coveredBehavior": [
         "Initial Guard Tower and settlement construction requests",
         "Warrior Training Hut selection from supplied post-profile Matak attributes",
+        "Chumara Temple selection from attribute 2 and Preacher production from attribute 6",
         "Chumara and Matak Warrior production",
         "Construction and training task fields, capacity gates, and RNG consumption",
         "Phase-8 deficient-builder retry threshold and phase-4 recovery"
@@ -367,6 +368,8 @@
       "env": ["POPULOUS_EXE"],
       "inputs": [
         "scripts/check-native-mission6-economy.py",
+        "decomp/generated/004e5580.c",
+        "decomp/generated/004e59a0.c",
         "decomp/generated/004f5d20.c",
         "app/original-script-six.json",
         "scripts/decomp.py",

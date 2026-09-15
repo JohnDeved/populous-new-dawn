@@ -275,27 +275,34 @@ function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
   )
 }
 
-function produceMissionWarriorTraining(w: World, tribe: number) {
+function produceMissionTraining(w: World, tribe: number) {
   if (w.ai.tasks.every(task => task.flags & 1)) return
-  const model = 3,
-    trainingModel = 7,
-    trained = campaignPersonCount(w, tribe, model),
-    target = computerTrainingBuilding(w, trainingModel, tribe)
-  if (
-    !(w.ai.states & (1 << 6)) ||
-    !target ||
-    Math.trunc((w.ai.attributes[7] * campaignPersonCount(w, tribe)) / 100) <= trained
-  )
-    return
-  random(w) // Native producer chooses among eligible classes; mission one has only warrior training.
+  if (!(w.ai.states & (1 << 6))) return
+  const population = campaignPersonCount(w, tribe),
+    eligible = [
+      ...(w.outcome.level === 6 && tribe === 2
+        ? [{ model: 4, building: 5, preference: 6 }]
+        : []),
+      { model: 3, building: 7, preference: 7 },
+    ]
+      .map(candidate => ({
+        ...candidate,
+        target: computerTrainingBuilding(w, candidate.building, tribe),
+      }))
+      .filter(
+        candidate =>
+          candidate.target &&
+          Math.trunc((w.ai.attributes[candidate.preference] * population) / 100) >
+            campaignPersonCount(w, tribe, candidate.model)
+      )
+  if (!eligible.length) return
+  const { model, building, target } = eligible[random(w) % eligible.length]
   const selection = computerSelectionWorld(w, tribe),
     available = availableTrainingPeople(selection.world),
-    capacity = rules.buildingCapacity[trainingModel]
+    capacity = rules.buildingCapacity[building]
   // ponytail: preserve Mission 1's established gate until that producer is re-probed.
   if (w.outcome.level === 6 ? available < capacity : available >= capacity) return
-  requestTraining(w.ai, 0, model, available, candidate =>
-    candidate === trainingModel ? target : 0
-  )
+  requestTraining(w.ai, 0, model, available, candidate => (candidate === building ? target : 0))
 }
 
 // Mission 6's ordinary 0x4e5580 producer reaches training buildings before housing.
@@ -340,9 +347,11 @@ function produceMissionSixBuilding(w: World, tribe: number) {
     ? 4
     : !has(7) && w.ai.attributes[3]
       ? 7
-      : housing < w.ai.attributes[10]
-        ? 1
-        : 0
+      : tribe === 2 && !has(5) && w.ai.attributes[2]
+        ? 5
+        : housing < w.ai.attributes[10]
+          ? 1
+          : 0
   return !!model && requestConstruction(w.ai, model, origin)
 }
 
@@ -362,7 +371,7 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.flags &= ~3
       task.members.length = 0
     }
-  if (![1, 4, 7].includes(task.requested))
+  if (![1, 4, 5, 7].includes(task.requested))
     throw new Error(`Unbound computer construction ${task.requested}`)
   if (task.phase === 0) {
     task.target =
@@ -406,7 +415,13 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       const building = addBuilding(
         w,
         team,
-        task.requested === 1 ? 'hut' : task.requested === 7 ? 'camp' : 'tower',
+        task.requested === 1
+          ? 'hut'
+          : task.requested === 5
+            ? 'temple'
+            : task.requested === 7
+              ? 'camp'
+              : 'tower',
         point,
         false,
         {
@@ -534,7 +549,7 @@ export function stepComputerTasks(w: World, tribe: number) {
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
     if (produceMissionSixBuilding(w, tribe)) return
-    produceMissionWarriorTraining(w, tribe)
+    produceMissionTraining(w, tribe)
     return
   }
   if (phase !== 'dispatch') return
@@ -866,12 +881,13 @@ export function stepComputerTasks(w: World, tribe: number) {
     }
     if (task.type !== 6) throw new Error(`Unbound computer task ${task.type}`)
     const target = trainingBuilding(w, task.target, tribe)
+    const trainedModel = target ? rules.buildingTrainedModel[target.model] : 3
     let selection: ReturnType<typeof computerSelectionWorld> | undefined
     const actions = stepTrainingTask(w.ai, index, target, {
       tribe,
-      preference: w.ai.attributes[7],
+      preference: w.ai.attributes[trainedModel === 4 ? 6 : 7],
       population: campaignPersonCount(w, tribe),
-      trained: campaignPersonCount(w, tribe, 3),
+      trained: campaignPersonCount(w, tribe, trainedModel),
       committed: target ? committedTraining(w, index, target.model, tribe) : 0,
       maximum: w.ai.attributes[33],
       select: (building, count) => {

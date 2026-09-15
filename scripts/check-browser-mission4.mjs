@@ -342,6 +342,13 @@ try {
         constructionWorld.buildings.some(
           building => building.team === 'green' && building.kind === 'camp' && building.progress === 1
         ) &&
+        constructionWorld.buildings.some(
+          building =>
+            building.team === 'yellow' && building.kind === 'temple' && building.progress === 1
+        ) &&
+        constructionWorld.units.some(
+          unit => unit.team === 'yellow' && unit.kind === 'preacher'
+        ) &&
         housing('yellow') >= constructionWorld.campaignAIs[2].attributes[10] &&
         housing('green') >= 6 &&
         constructionWorld.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior')
@@ -388,6 +395,22 @@ try {
               .length >= 6,
         },
       ],
+      chumaraTemple: {
+        target: constructionWorld.campaignAIs[2].attributes[2],
+        completed: constructionWorld.buildings.some(
+          building =>
+            building.team === 'yellow' && building.kind === 'temple' && building.progress === 1
+        ),
+        preacher: constructionWorld.units.some(
+          unit => unit.team === 'yellow' && unit.kind === 'preacher'
+        ),
+        restored: restoredConstruction.buildings.some(
+          building =>
+            building.team === 'yellow' && building.kind === 'temple' && building.progress === 1
+        ) && restoredConstruction.units.some(
+          unit => unit.team === 'yellow' && unit.kind === 'preacher'
+        ),
+      },
       population: constructionWorld.units.filter(unit => unit.team === 'green' && unit.hp > 0).length,
       restoredPopulation: restoredConstruction.units.filter(
         unit => unit.team === 'green' && unit.hp > 0
@@ -526,6 +549,12 @@ try {
     { model: 7, completed: true, housing: true, output: true },
     { model: 7, completed: true, housing: true, output: true },
   ])
+  assert.deepEqual(missionSix.construction.chumaraTemple, {
+    target: 1,
+    completed: true,
+    preacher: true,
+    restored: true,
+  })
   assert.ok(missionSix.construction.population >= 23)
   assert.ok(missionSix.construction.restoredPopulation >= 23)
   assert.ok(missionSix.construction.restoredWarriors >= 6)

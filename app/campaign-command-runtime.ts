@@ -544,7 +544,15 @@ export function campaignRules(w: World) {
     codes:
       w.outcome.level === 6
         ? tribe === 2
-          ? [12, 1003, ...script.codes.slice(1409, 1464), 1004, 1019]
+          ? [
+              12,
+              1003,
+              ...script.codes.slice(636, 685),
+              ...script.codes.slice(731, 746),
+              ...script.codes.slice(1409, 1464),
+              1004,
+              1019,
+            ]
           : tribe === 3
             ? [
                 12,

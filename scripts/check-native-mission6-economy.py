@@ -1,4 +1,4 @@
-"""Probe Mission 6 construction and Chumara/Matak Warrior training gates."""
+"""Probe Mission 6 construction and Chumara/Matak specialist-training gates."""
 import hashlib
 import json
 import struct
@@ -43,6 +43,7 @@ def ret(value=0):
 mode = "construction"
 queries = []
 available = 6
+training_building = 7
 
 
 def leaf(_cpu, address, _size, _user):
@@ -50,7 +51,7 @@ def leaf(_cpu, address, _size, _user):
     if address == 0x408DD0:
         model = read(sp + 4)
         queries.append(["enabled", model])
-        ret(1 if mode == "construction" or model == 7 else 0)
+        ret(1 if mode == "construction" or model == training_building else 0)
     elif address == 0x4F67B0:
         queries.append(["available"])
         ret(available)
@@ -60,7 +61,7 @@ def leaf(_cpu, address, _size, _user):
     else:
         model = read(sp + 8)
         queries.append(["building", model])
-        ret(42 if model == 7 else 0)
+        ret(42 if model == training_building else 0)
 
 
 for address in (0x408DD0, 0x4F67B0, 0x4F6730, 0x4F36D0):
@@ -70,6 +71,7 @@ profiles = [
     ("initial", 2, 125, 4, 7, 0x40, 0xB69A, [38, 0, 0, 1, 0, 0, 15, 40, 0, 4, 9, 0, 80, 30, 2, 2, 0, 0, 75, 0, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 5, 0]),
     ("initial", 3, 124, 2, 1, 0x20, 0x80D0, [28, 0, 0, 0, 0, 0, 5, 10, 0, 2, 10, 0, 88, 12, 5, 2, 0, 0, 90, 1, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 7, 0]),
     ("post-profile", 3, 124, 2, 7, 0x20, 0x4A4A, [28, 0, 8, 64, 72, 32, 40, 70, 64, 2, 168, 80, 66, 152, 140, 100, 128]),
+    ("temple", 2, 125, 4, 5, 0x40, 0xD094, [38, 0, 1, 0, 0, 0, 15, 40, 0, 4, 9, 0, 80, 30, 2, 2, 0, 0, 75, 0, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 5, 0]),
 ]
 observations = []
 for stage, tribe, turn, limit, wanted, flags, latch, attributes in profiles:
@@ -108,22 +110,33 @@ for stage, tribe, turn, limit, wanted, flags, latch, attributes in profiles:
 
 mode = "training"
 training = []
-for tribe, population, trained, preference, available_count in [(2, 8, 1, 40, 6), (3, 7, 0, 70, 5)]:
+for tribe, population, trained, preference, available_count, training_building, person_model, attribute in [
+    (2, 8, 1, 40, 6, 7, 3, 7),
+    (3, 7, 0, 70, 5, 7, 3, 7),
+    (2, 8, 0, 15, 5, 5, 4, 6),
+]:
     cpu.mem_write(ai, bytes(0xC65))
     write(ai + 0x59A, "I", 1 << 6)
     write(ai + 0xC22, "B", tribe)
     write(ai + 0x91D, "I", population)
-    write(ai + 0xA27 + 3 * 2, "H", trained)
-    write(ai + 0xB7D + 7 * 2, "H", 1)
-    write(0x9607EA + tribe * 48 + 7, "B", preference)
+    write(ai + 0xA27 + person_model * 2, "H", trained)
+    write(ai + 0xB7D + training_building * 2, "H", 1)
+    write(0x9607EA + tribe * 48 + attribute, "B", preference)
     write(0x89D178, "I", 0x12345678)
     available = available_count
     queries.clear()
     assert call(0x4E59A0, ai, 0) == 1
-    result = {"tribe": tribe, "available": available, "flags": read(ai + 0x74), "type": read(ai + 0x85, "B"), "target": read(ai + 0x68), "requested": read(ai + 0x6C), "phase": read(ai + 0x78, "H"), "rng": hex(read(0x89D178)), "queries": list(queries)}
-    assert result == {"tribe": tribe, "available": available_count, "flags": 1, "type": 6, "target": 42, "requested": 0, "phase": 0, "rng": "0x32be789b", "queries": [["enabled", 5], ["enabled", 6], ["enabled", 7], ["building", 7], ["enabled", 8], ["available"], ["housingOrders"], ["building", 7]]}
+    result = {"tribe": tribe, "person": person_model, "building": training_building, "available": available, "flags": read(ai + 0x74), "type": read(ai + 0x85, "B"), "target": read(ai + 0x68), "requested": read(ai + 0x6C), "phase": read(ai + 0x78, "H"), "rng": hex(read(0x89D178)), "queries": list(queries)}
+    expected_queries = []
+    for candidate in (5, 6, 7, 8):
+        expected_queries.append(["enabled", candidate])
+        if candidate == training_building:
+            expected_queries.append(["building", candidate])
+    expected_queries.extend([["available"], ["housingOrders"], ["building", training_building]])
+    assert result == {"tribe": tribe, "person": person_model, "building": training_building, "available": available_count, "flags": 1, "type": 6, "target": 42, "requested": 0, "phase": 0, "rng": "0x32be789b", "queries": expected_queries}
     training.append(result)
 
+training_building = 7
 cpu.mem_write(ai, bytes(0xC65))
 write(ai + 0x59A, "I", 1 << 6)
 write(ai + 0xC22, "B", 3)

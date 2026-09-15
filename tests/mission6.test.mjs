@@ -120,6 +120,57 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
   }
 })
 
+test('Mission 6 Chumara builds a Temple and trains its first Preacher', () => {
+  let world = createWorld(6)
+  for (
+    let turn = 0;
+    turn < 3000 &&
+    !(
+      world.campaignAIs[2].attributes[2] === 1 &&
+      world.buildings.some(building => building.team === 'yellow' && buildingModel(building) === 5)
+    );
+    turn++
+  )
+    tick(world, 1 / 12)
+  assert.equal(world.campaignAIs[2].attributes[2], 1)
+  assert.equal(
+    world.buildings.filter(building => building.team === 'yellow' && buildingModel(building) === 5)
+      .length,
+    1
+  )
+
+  world = migrateCheckpoint(structuredClone(world))
+  for (
+    let turn = 0;
+    turn < 6000 &&
+    !(
+      world.buildings.some(
+        building =>
+          building.team === 'yellow' && buildingModel(building) === 5 && building.progress === 1
+      ) && world.units.some(unit => unit.team === 'yellow' && unit.kind === 'preacher')
+    );
+    turn++
+  )
+    tick(world, 1 / 12)
+  assert.equal(
+    world.buildings.filter(
+      building =>
+        building.team === 'yellow' && buildingModel(building) === 5 && building.progress === 1
+    ).length,
+    1
+  )
+  assert.ok(world.units.some(unit => unit.team === 'yellow' && unit.kind === 'preacher'))
+
+  const restored = migrateCheckpoint(structuredClone(world))
+  assert.ok(
+    restored.buildings.some(
+      building =>
+        building.team === 'yellow' && buildingModel(building) === 5 && building.progress === 1
+    )
+  )
+  assert.ok(restored.units.some(unit => unit.team === 'yellow' && unit.kind === 'preacher'))
+})
+
 test('Mission 6 opponents establish settlements, grow, and launch the first Matak raid', () => {
   const failed = createWorld(6)
   for (
