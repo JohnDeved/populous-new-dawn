@@ -4,6 +4,8 @@ import levelSix from '../app/level-six.ts'
 import scriptSix from '../app/original-script-six.json' with { type: 'json' }
 import { addUnit, createWorld, joinBattle, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { syncLivePersonCells } from '../app/live-people.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
 import { stepOutcome } from '../app/tribe-turns.ts'
 
 test('Mission 6 keeps both original opponents distinct through outcome and checkpoints', () => {
@@ -76,4 +78,32 @@ test('Mission 6 credits each opponent attack task independently', () => {
   for (let turn = 0; turn < 240 && victims.some(victim => victim.hp > 0); turn++) tick(world, 1 / 12)
   assert.ok(victims.every(victim => victim.hp === 0))
   assert.deepEqual(tasks.map(task => task.damage), [1, 1])
+})
+
+test('Mission 6 low-population survivors counterattack the player Shaman', () => {
+  for (const { tribe, team, triggerTurn } of [
+    { tribe: 2, team: 'yellow', triggerTurn: 8 },
+    { tribe: 3, team: 'green', triggerTurn: 7 },
+  ]) {
+    const world = createWorld(6),
+      survivor = world.units.find(unit => unit.team === team && unit.kind === 'brave'),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+      start = { x: survivor.x, z: survivor.z }
+    Object.assign(shaman, { x: survivor.x + 12, z: survivor.z })
+    world.units = world.units.filter(unit => unit.team !== team || unit === survivor)
+    syncLivePersonCells(world)
+    world.killCredits[0][tribe] = 6
+    world.turn = triggerTurn - 1
+
+    tick(world, 1 / 12)
+    assert.equal(world.manaTribes[tribe].flags2 & 0x40, 0)
+    tick(world, 1 / 12)
+    assert.equal(world.manaTribes[tribe].flags2 & 0x40, 0x40)
+
+    const order = currentPersonOrder(world.buildingOrders, survivor.native)
+    assert.deepEqual(order && { model: order.model, target: order.a }, { model: 28, target: shaman.id })
+    for (let turn = 0; turn < 64 && !survivor.fight; turn++) tick(world, 1 / 12)
+    assert.ok(Math.hypot(survivor.x - start.x, survivor.z - start.z) > 0)
+    assert.ok(survivor.fight)
+  }
 })

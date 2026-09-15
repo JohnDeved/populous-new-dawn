@@ -245,8 +245,43 @@ try {
     await globalThis.testStore.saveCheckpoint()
     globalThis.testStore.startMission(1)
     if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 checkpoint load failed')
-    const restored = globalThis.testStore.getWorld(),
-      renderedOwners = [...globalThis.testScene.unitMeshes.values()].map(mesh => mesh.userData.owner)
+    const { tick } = await import('/app/model.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      renderedOwners = [...globalThis.testScene.unitMeshes.values()].map(mesh => mesh.userData.owner),
+      counterattacks = []
+    for (const { tribe, team, triggerTurn } of [
+      { tribe: 2, team: 'yellow', triggerTurn: 8 },
+      { tribe: 3, team: 'green', triggerTurn: 7 },
+    ]) {
+      if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 scenario restore failed')
+      const scenario = globalThis.testStore.getWorld(),
+        survivor = scenario.units.find(unit => unit.team === team && unit.kind === 'brave'),
+        shaman = scenario.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+        start = { x: survivor.x, z: survivor.z }
+      Object.assign(shaman, { x: survivor.x + 12, z: survivor.z })
+      scenario.units = scenario.units.filter(unit => unit.team !== team || unit === survivor)
+      syncLivePersonCells(scenario)
+      scenario.killCredits[0][tribe] = 6
+      scenario.turn = triggerTurn - 1
+      tick(scenario, 1 / 12)
+      const early = scenario.manaTribes[tribe].flags2 & 0x40
+      tick(scenario, 1 / 12)
+      const order = currentPersonOrder(scenario.buildingOrders, survivor.native)
+      for (let turn = 0; turn < 64 && !survivor.fight; turn++) tick(scenario, 1 / 12)
+      counterattacks.push({
+        team,
+        early,
+        enabled: scenario.manaTribes[tribe].flags2 & 0x40,
+        order: order?.model,
+        target: order?.a,
+        shaman: shaman.id,
+        moved: Math.hypot(survivor.x - start.x, survivor.z - start.z) > 0,
+        engaged: !!survivor.fight,
+      })
+    }
+    if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 outcome restore failed')
+    const restored = globalThis.testStore.getWorld()
     restored.units = restored.units.filter(unit => unit.team !== 'yellow')
     restored.turn = 32
     const { stepOutcome } = await import('/app/tribe-turns.ts')
@@ -263,6 +298,7 @@ try {
       wild: world.units.filter(unit => unit.team === 'wild').length,
       independentAI: restored.campaignAIs[2] !== restored.campaignAIs[3],
       independentScans: restored.spellScans[2] !== restored.spellScans[3],
+      counterattacks,
       renderedOwners,
       oneOpponent,
       victory: restored.land.landFlags & 0x2000000,
@@ -276,13 +312,22 @@ try {
   assert.equal(missionSix.blue, 7)
   assert.equal(missionSix.independentAI, true)
   assert.equal(missionSix.independentScans, true)
+  assert.deepEqual(
+    missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
+      team, early, enabled, order, targetedShaman: target === shaman, moved, engaged,
+    })),
+    [
+      { team: 'yellow', early: 0, enabled: 0x40, order: 28, targetedShaman: true, moved: true, engaged: true },
+      { team: 'green', early: 0, enabled: 0x40, order: 28, targetedShaman: true, moved: true, engaged: true },
+    ]
+  )
   assert.ok(missionSix.renderedOwners.includes(2))
   assert.ok(missionSix.renderedOwners.includes(3))
   assert.equal(missionSix.oneOpponent, 0)
   assert.equal(missionSix.victory, 0x2000000)
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
-  console.log('PASS: campaign continues through playable Mission 6 with distinct Chumara and Matak')
+  console.log('PASS: campaign continues through Mission 6 with distinct live opponent counterattacks')
 } finally {
   await browser.close()
 }

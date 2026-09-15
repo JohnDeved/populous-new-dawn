@@ -498,46 +498,50 @@ export function campaignCommand(
 }
 
 export function campaignRules(w: World) {
-  // Mission 6's first playable slice preserves its distinct initialized AI state;
-  // recurring script behavior lands with the commands it requires.
-  if (w.outcome.level === 6) return
-  const script = missionScript(w.outcome.level, campaignTribe(w))
+  const tribe = campaignTribe(w),
+    script = missionScript(w.outcome.level, tribe)
   const boundCampaignScript = {
     ...script,
     codes:
-      w.outcome.level === 1
-        ? [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019]
-        : w.outcome.level === 2
-          ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
-          : w.outcome.level === 3
-            ? [12, 1003, ...script.codes.slice(833, 984), 1004, 1019]
-            : w.outcome.level === 4
-              ? [
-                  12,
-                  1003,
-                  ...script.codes.slice(1113, 1246),
-                  ...script.codes.slice(1425, 1654),
-                  1004,
-                  1019,
-                ]
-              : [
-                  12,
-                  1003,
-                  ...script.codes.slice(529, 546),
-                  1004,
-                  ...script.codes.slice(707, 744),
-                  1004,
-                  ...script.codes.slice(818, 827),
-                  1004,
-                  ...script.codes.slice(992, 1085),
-                  1004,
-                  1019,
-                ],
+      w.outcome.level === 6
+        ? tribe === 2
+          ? [12, 1003, ...script.codes.slice(1409, 1464), 1004, 1019]
+          : tribe === 3
+            ? [12, 1003, ...script.codes.slice(1185, 1220), 1004, 1019]
+            : [12, 1003, 1004, 1019]
+        : w.outcome.level === 1
+          ? [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019]
+          : w.outcome.level === 2
+            ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
+            : w.outcome.level === 3
+              ? [12, 1003, ...script.codes.slice(833, 984), 1004, 1019]
+              : w.outcome.level === 4
+                ? [
+                    12,
+                    1003,
+                    ...script.codes.slice(1113, 1246),
+                    ...script.codes.slice(1425, 1654),
+                    1004,
+                    1019,
+                  ]
+                : [
+                    12,
+                    1003,
+                    ...script.codes.slice(529, 546),
+                    1004,
+                    ...script.codes.slice(707, 744),
+                    1004,
+                    ...script.codes.slice(818, 827),
+                    1004,
+                    ...script.codes.slice(992, 1085),
+                    1004,
+                    1019,
+                  ],
   }
-  // ponytail: Missions 4–5 bind only their delivered sequences; add AI blocks with their hosts.
+  // ponytail: Missions 4–6 bind only complete delivered blocks; add later AI blocks with their hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
-    tribe: campaignTribe(w),
+    tribe,
     readInternal: id => campaignInternal(w, id),
     command: (opcode, args) => campaignCommand(w, opcode, args, script),
   })

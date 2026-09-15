@@ -9,17 +9,18 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver the first playable Mission 6 slice through the shipped
-campaign path. Continue from Mission 5, load the original Mission 6 world, keep its
-Chumara and Matak tribes distinct through ordinary turns, give the player control,
-and require both opponents to be defeated before victory. Keep later Mission 6
-script/content expansion outside this first slice, and do not record parity without
-explicit authorization.
+Current task lock: deliver Mission 6's original low-population counterattacks through
+ordinary tribe turns. After the player kills more than five members and leaves either
+the Chumara or Matak below eight people without a settlement, that tribe's survivors
+must pursue the player's Shaman through live orders and combat. Preserve independent
+script/checkpoint state, keep unsupported later commands outside this slice, and do
+not record parity without explicit authorization.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
 original opening flyby finished in `8ad89d0`; Mission 4's contextual training and
-attack tutorials finished in `20254b5`.
+attack tutorials finished in `20254b5`; the first playable Mission 6 slice finished
+in `0ac9764`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not
