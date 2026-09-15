@@ -11,7 +11,7 @@ import { buildingFootprintCells, buildingModel } from '../app/building-shapes.ts
 import { nativeCellIndex, nativePosition } from '../app/world-terrain-runtime.ts'
 import { spiralCell } from '../app/native-math.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
-import { withCampaignTribe } from '../app/campaign-runtime.ts'
+import { campaignInternal, withCampaignTribe } from '../app/campaign-runtime.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
 
 test('Mission 6 keeps both original opponents distinct through outcome and checkpoints', () => {
@@ -35,6 +35,12 @@ test('Mission 6 keeps both original opponents distinct through outcome and check
   assert.notEqual(world.campaignAIs[2], world.campaignAIs[3])
   assert.notEqual(world.spellScans[2], world.spellScans[3])
   assert.equal(world.campaignAIs[3].variables[32], 150000)
+
+  const profile = createWorld(6)
+  for (let turn = 0; turn < 121; turn++) tick(profile, 1 / 12)
+  assert.equal(profile.campaignAIs[3].attributes[3], 0)
+  tick(profile, 1 / 12)
+  assert.deepEqual(profile.campaignAIs[3].attributes.slice(2, 8), [8, 64, 72, 32, 40, 70])
 
   tick(world, 1 / 12)
   const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
@@ -114,7 +120,7 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
   }
 })
 
-test('Mission 6 opponents autonomously establish their first settlements', () => {
+test('Mission 6 opponents establish settlements and train Matak Warriors', () => {
   const failed = createWorld(6)
   for (
     let turn = 0;
@@ -315,7 +321,11 @@ test('Mission 6 opponents autonomously establish their first settlements', () =>
       camp?.progress === 1 &&
       hut?.progress === 1 &&
       world.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length > 1 &&
-      world.units.filter(unit => unit.team === 'green' && unit.kind === 'brave').length > 6
+      world.buildings.some(
+        building =>
+          building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
+      ) &&
+      world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length >= 6
     )
       break
     tick(world, 1 / 12)
@@ -323,7 +333,27 @@ test('Mission 6 opponents autonomously establish their first settlements', () =>
   assert.equal(world.buildings.find(building => building.id === campId)?.kind, 'camp')
   assert.equal(world.buildings.find(building => building.id === hutId)?.kind, 'hut')
   assert.ok(housing('yellow') >= world.campaignAIs[2].attributes[10])
-  assert.ok(housing('green') >= world.campaignAIs[3].attributes[10])
+  assert.ok(housing('green') >= 6)
   assert.ok(world.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length > 1)
-  assert.ok(world.units.filter(unit => unit.team === 'green' && unit.kind === 'brave').length > 6)
+  assert.deepEqual(world.campaignAIs[3].attributes.slice(2, 8), [8, 64, 72, 32, 40, 70])
+  assert.ok(
+    world.buildings.some(
+      building =>
+        building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
+    )
+  )
+  assert.ok(world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length >= 6)
+  assert.ok(withCampaignTribe(world, 3, () => campaignInternal(world, 1147)) > 5)
+
+  const restoredProduction = migrateCheckpoint(structuredClone(world))
+  assert.ok(
+    restoredProduction.buildings.some(
+      building =>
+        building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
+    )
+  )
+  assert.ok(
+    restoredProduction.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
+      .length >= 6
+  )
 })

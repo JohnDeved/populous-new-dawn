@@ -334,9 +334,11 @@ function produceMissionSixBuilding(w: World, tribe: number) {
         ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
         : 0
   if (!origin) return false
+  // ponytail: one school of each kind is enough for the currently integrated specialist paths;
+  // use native attribute target counts when later missions need multiple schools.
   const model = !base
     ? 4
-    : tribe === 2 && !has(7) && w.ai.attributes[3]
+    : !has(7) && w.ai.attributes[3]
       ? 7
       : housing < w.ai.attributes[10]
         ? 1

@@ -9,11 +9,11 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Mission 5's original ordinary Dakini raid. Its imported
-script must naturally pass the original gates, allocate the exact Shaman-targeted
-type-20 attack, send the existing followers into live combat with the player, and
-retire or retreat through the normal task path. Keep unrelated Mission 5 commands,
-other ATTACK forms, and parity recording outside this slice.
+Current task lock: deliver Mission 6 Matak Warrior production. The original profile
+must drive autonomous Warrior Training Hut construction and naturally train at least
+six Warriors through the normal settlement path, satisfying the Matak first raid's
+Warrior gate. Keep its still-unmet population gate and raid command, Chumara Temple
+production, and parity recording outside this slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -21,7 +21,8 @@ original opening flyby finished in `8ad89d0`; Mission 4's contextual training an
 attack tutorials finished in `20254b5`; the first playable Mission 6 slice finished
 in `0ac9764`; its original low-population counterattacks finished in `cefc928`; both
 opponents' first autonomous Guard Towers finished in `244ffc8`; their first settlement
-expansion finished in `750f4ba`.
+expansion finished in `750f4ba`; Mission 5's ordinary Dakini raid finished in
+`7b94971`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not

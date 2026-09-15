@@ -337,20 +337,21 @@ try {
           building => building.team === 'yellow' && building.kind === 'camp' && building.progress === 1
         ) &&
         constructionWorld.buildings.some(
-          building => building.team === 'green' && building.kind === 'hut' && building.progress === 1
+          building => building.team === 'green' && building.kind === 'camp' && building.progress === 1
         ) &&
         housing('yellow') >= constructionWorld.campaignAIs[2].attributes[10] &&
-        housing('green') >= constructionWorld.campaignAIs[3].attributes[10] &&
+        housing('green') >= 6 &&
         constructionWorld.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior')
           .length > 1 &&
-        constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'brave').length >
-          6
+        constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
+          .length >= 6
       );
       turn++
     )
       tick(constructionWorld, 1 / 12)
     const construction = {
       assigned,
+      matakProfile: constructionWorld.campaignAIs[3].attributes.slice(2, 8),
       completed: ['yellow', 'green'].map(team =>
         constructionWorld.buildings.some(
           building =>
@@ -371,15 +372,15 @@ try {
             ).length > 1,
         },
         {
-          model: 1,
+          model: 7,
           completed: constructionWorld.buildings.some(
             building =>
-              building.team === 'green' && building.kind === 'hut' && building.progress === 1
+              building.team === 'green' && building.kind === 'camp' && building.progress === 1
           ),
-          housing: housing('green') >= constructionWorld.campaignAIs[3].attributes[10],
+          housing: housing('green') >= 6,
           output:
-            constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'brave')
-              .length > 6,
+            constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
+              .length >= 6,
         },
       ],
     }
@@ -453,6 +454,7 @@ try {
       { model: 4, workers: 2 },
     ]
   )
+  assert.deepEqual(missionSix.construction.matakProfile, [8, 64, 72, 32, 40, 70])
   assert.notEqual(
     missionSix.construction.assigned[0].building,
     missionSix.construction.assigned[1].building
@@ -460,7 +462,7 @@ try {
   assert.deepEqual(missionSix.construction.completed, [true, true])
   assert.deepEqual(missionSix.construction.expansion, [
     { model: 7, completed: true, housing: true, output: true },
-    { model: 1, completed: true, housing: true, output: true },
+    { model: 7, completed: true, housing: true, output: true },
   ])
   assert.deepEqual(
     missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
@@ -478,7 +480,7 @@ try {
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 6 opponents establish settlements and counterattack through live browser paths'
+    'PASS: Mission 6 opponents establish settlements, train Warriors, and counterattack through live browser paths'
   )
 } finally {
   await browser.close()

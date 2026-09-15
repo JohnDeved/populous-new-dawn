@@ -44,10 +44,18 @@ feeds the existing native `00404c80` birth path; at the initial Mission 6 popula
 band its 4,000 base work becomes 1,187 and each eligible building update contributes
 twice its occupants plus two, without RNG.
 
-Construction remains the higher-priority producer. The tower supplies one housing
-slot and a model-1 Hut supplies three; both tribes therefore keep requesting Huts
-until live huts and plans reach Chumara's target of nine and Matak's target of ten
-before Chumara training.
+Matak's original profile block is cpscr015 words 352–500. `EVERY 255 OFFSET 132`
+runs first at turn 121 and, below population 80, sets the model-7 target attribute 3
+to 64 and Warrior percentage attribute 7 to 70. At Matak's next producer turn 124,
+native `004e5580` therefore requests model 7 before housing and consumes no RNG.
+With a completed model-7 building, zero Warriors, and five available Braves,
+`004e59a0` allocates type 6 with count zero and consumes one RNG draw. Four available
+Braves fail the capacity gate after that same draw.
+
+Construction remains the higher-priority producer. Before Matak's recurring profile,
+the tower supplies one housing slot and a model-1 Hut supplies three. The profile
+then makes Matak's model-7 request precede further housing; Chumara keeps its initial
+housing target of nine before training.
 
 ## Live integration and boundary
 
@@ -56,12 +64,13 @@ RNG order, bounded spiral search, model-4 validity, two-Brave selection, command
 and the existing timber/construction lifecycle. The Mission 6 portable regression
 and continuous Mission 4→5→6 browser check prove both tribes independently assign
 workers, survive checkpoint restoration, complete their first Guard Tower, then
-complete the camp and native housing sequence and reach live warrior training and
-population growth. Native site validation does not reject living people, and its
+complete their first settlement expansion, run Matak's profile, construct both
+Warrior Training Huts, and reach live Warrior production. Native site validation
+does not reject living people, and its
 builder tasks 5 and 6 immediately return to ordinary work. The browser therefore
 skips only grounded Wildman-occupied candidates until native wild wandering is live;
 the regression covers the first Chumara candidate and subsequent valid site.
 
 Explicit `BUILD_AT`/1082 occurs later (Chumara turn 501 and gated Matak turn 55).
-Ordinary 1059 attacks and command 1093 remain outside this slice. No parity ledger
-status was changed.
+Ordinary 1059 attacks, Matak's still-unmet population gate, and command 1093 remain
+outside this slice. No parity ledger status was changed.

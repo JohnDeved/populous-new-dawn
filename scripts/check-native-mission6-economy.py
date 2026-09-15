@@ -1,4 +1,4 @@
-"""Probe Mission 6's initial/post-tower construction and Chumara training gate."""
+"""Probe Mission 6 construction and Chumara/Matak Warrior training gates."""
 import hashlib
 import json
 import struct
@@ -42,6 +42,7 @@ def ret(value=0):
 
 mode = "construction"
 queries = []
+available = 6
 
 
 def leaf(_cpu, address, _size, _user):
@@ -52,7 +53,7 @@ def leaf(_cpu, address, _size, _user):
         ret(1 if mode == "construction" or model == 7 else 0)
     elif address == 0x4F67B0:
         queries.append(["available"])
-        ret(6)
+        ret(available)
     elif address == 0x4F6730:
         queries.append(["housingOrders"])
         ret(0)
@@ -66,11 +67,12 @@ for address in (0x408DD0, 0x4F67B0, 0x4F6730, 0x4F36D0):
     cpu.hook_add(UC_HOOK_CODE, leaf, begin=address, end=address)
 
 profiles = [
-    (2, 125, 4, 7, 0x40, 0xB69A, [38, 0, 0, 1, 0, 0, 15, 40, 0, 4, 9, 0, 80, 30, 2, 2, 0, 0, 75, 0, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 5, 0]),
-    (3, 124, 2, 1, 0x20, 0x80D0, [28, 0, 0, 0, 0, 0, 5, 10, 0, 2, 10, 0, 88, 12, 5, 2, 0, 0, 90, 1, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 7, 0]),
+    ("initial", 2, 125, 4, 7, 0x40, 0xB69A, [38, 0, 0, 1, 0, 0, 15, 40, 0, 4, 9, 0, 80, 30, 2, 2, 0, 0, 75, 0, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 5, 0]),
+    ("initial", 3, 124, 2, 1, 0x20, 0x80D0, [28, 0, 0, 0, 0, 0, 5, 10, 0, 2, 10, 0, 88, 12, 5, 2, 0, 0, 90, 1, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 7, 0]),
+    ("post-profile", 3, 124, 2, 7, 0x20, 0x4A4A, [28, 0, 8, 64, 72, 32, 40, 70, 64, 2, 168, 80, 66, 152, 140, 100, 128]),
 ]
 observations = []
-for tribe, turn, limit, wanted, flags, latch, attributes in profiles:
+for stage, tribe, turn, limit, wanted, flags, latch, attributes in profiles:
     base = 0x4444 + tribe * 0x202
     cpu.mem_write(ai, bytes(0xC65))
     cpu.mem_write(building, bytes(0x100))
@@ -102,19 +104,34 @@ for tribe, turn, limit, wanted, flags, latch, attributes in profiles:
     }
     assert result == {"flags": 1, "type": 0, "requested": wanted, "origin": base, "exact": 0, "phase": 0}
     assert read(0x89D178) == 0x12345678
-    observations.append({"tribe": tribe, "turn": turn, "taskLimit": limit, "task": result, "coordinateLatch": latch, "enabledQueries": list(queries), "producerRng": "0x12345678"})
+    observations.append({"stage": stage, "tribe": tribe, "turn": turn, "taskLimit": limit, "task": result, "coordinateLatch": latch, "enabledQueries": list(queries), "producerRng": "0x12345678"})
 
 mode = "training"
+training = []
+for tribe, population, trained, preference, available_count in [(2, 8, 1, 40, 6), (3, 7, 0, 70, 5)]:
+    cpu.mem_write(ai, bytes(0xC65))
+    write(ai + 0x59A, "I", 1 << 6)
+    write(ai + 0xC22, "B", tribe)
+    write(ai + 0x91D, "I", population)
+    write(ai + 0xA27 + 3 * 2, "H", trained)
+    write(ai + 0xB7D + 7 * 2, "H", 1)
+    write(0x9607EA + tribe * 48 + 7, "B", preference)
+    write(0x89D178, "I", 0x12345678)
+    available = available_count
+    queries.clear()
+    assert call(0x4E59A0, ai, 0) == 1
+    result = {"tribe": tribe, "available": available, "flags": read(ai + 0x74), "type": read(ai + 0x85, "B"), "target": read(ai + 0x68), "requested": read(ai + 0x6C), "phase": read(ai + 0x78, "H"), "rng": hex(read(0x89D178)), "queries": list(queries)}
+    assert result == {"tribe": tribe, "available": available_count, "flags": 1, "type": 6, "target": 42, "requested": 0, "phase": 0, "rng": "0x32be789b", "queries": [["enabled", 5], ["enabled", 6], ["enabled", 7], ["building", 7], ["enabled", 8], ["available"], ["housingOrders"], ["building", 7]]}
+    training.append(result)
+
 cpu.mem_write(ai, bytes(0xC65))
 write(ai + 0x59A, "I", 1 << 6)
-write(ai + 0xC22, "B", 2)
-write(ai + 0x91D, "I", 8)
-write(ai + 0xA27 + 3 * 2, "H", 1)
+write(ai + 0xC22, "B", 3)
+write(ai + 0x91D, "I", 7)
 write(ai + 0xB7D + 7 * 2, "H", 1)
-write(0x9607EA + 2 * 48 + 7, "B", 40)
+write(0x9607EA + 3 * 48 + 7, "B", 70)
 write(0x89D178, "I", 0x12345678)
-queries.clear()
-assert call(0x4E59A0, ai, 0) == 1
-training = {"flags": read(ai + 0x74), "type": read(ai + 0x85, "B"), "target": read(ai + 0x68), "requested": read(ai + 0x6C), "phase": read(ai + 0x78, "H"), "rng": hex(read(0x89D178)), "queries": list(queries)}
-assert training == {"flags": 1, "type": 6, "target": 42, "requested": 0, "phase": 0, "rng": "0x32be789b", "queries": [["enabled", 5], ["enabled", 6], ["enabled", 7], ["building", 7], ["enabled", 8], ["available"], ["housingOrders"], ["building", 7]]}
-print(json.dumps({"executableSha256": SHA, "construction": observations, "training": training}, indent=2))
+available = 4
+assert call(0x4E59A0, ai, 0) == 0
+assert read(0x89D178) == 0x32BE789B
+print(json.dumps({"executableSha256": SHA, "construction": observations, "training": training, "belowCapacity": {"available": available, "allocated": False, "rng": hex(read(0x89D178))}}, indent=2))
