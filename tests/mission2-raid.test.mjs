@@ -64,7 +64,8 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     w,
     () =>
       raid.members.length === 2 &&
-      raid.members.every(id => {
+      raid.phase === 16 &&
+      raid.members.some(id => {
         const unit = w.units.find(candidate => candidate.id === id)
         return unit?.native && currentPersonOrder(w.buildingOrders, unit.native)?.model === 19
       }),

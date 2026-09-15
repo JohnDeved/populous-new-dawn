@@ -992,7 +992,7 @@ test('mission-one Dakini trains and launches its native attack route when Blue e
  for(const unit of w.units.filter(u=>u.team==='red'&&u.kind!=='shaman'))Object.assign(unit,redStart);
  w.ai.defencePosition=staging;w.ai.variables[50]=1;w.ai.variables[2]=0;w.turn=201;tick(w,1/12);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
- assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,retreatPercent:50,quotas:w.ai.attributes.slice(11,17)});
+ assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,retreatPercent:50,quotas:[11,12,13,16,17,19].map(index=>w.ai.attributes[index])});
  assert.equal(w.ai.variables[8],1);assert.equal(w.ai.variables[2],1);
  until(w,()=>task.members.length===3,2);
  assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind),['warrior','warrior','warrior']);
@@ -1041,7 +1041,7 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);
  task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual([11,12,13,16,17,19].map(i=>w.ai.attributes[i]),[100,100,0,0,0,1]);
- assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,retreatPercent:50,quotas:w.ai.attributes.slice(11,17)});
+ assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,retreatPercent:50,quotas:[11,12,13,16,17,19].map(i=>w.ai.attributes[i])});
  assert.equal(w.ai.variables[3],1,'the original one-shot attack latch closes');
  until(w,()=>task.members.length===3,2);
  until(w,()=>task.members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),30);

@@ -279,12 +279,26 @@ export function campaignCommand(
         field(6, 2, 1186) &&
         field(7, 2, 1185) &&
         options.every((value, index) => value === [0, 0, 16, -1][index]),
+      missionSixChumaraAttack =
+        w.outcome.level === 6 &&
+        campaignTribe(w) === 2 &&
+        targetMode === 1071 &&
+        requested === 4 &&
+        field(1, 0, 4) &&
+        field(3, 2, 1223) &&
+        marker === 0 &&
+        damage === 20 &&
+        field(5, 2, 1188) &&
+        field(6, 2, 1186) &&
+        field(7, 2, 1188) &&
+        options.every((value, index) => value === [0, 7, -1, -1][index]),
       validTarget =
         (targetMode === 1070 && requested === 3 && marker === 3) ||
         (targetMode === 1071 &&
           ((field(1, 2, 1) && field(3, 2, 1223) && marker === 0) || missionTwoAttack)) ||
         missionFiveAttack ||
-        missionSixAttack
+        missionSixAttack ||
+        missionSixChumaraAttack
     if (
       args[0] !== 1118 ||
       args[8] !== 1078 ||
@@ -292,6 +306,7 @@ export function campaignCommand(
       (!missionTwoAttack &&
         !missionFiveAttack &&
         !missionSixAttack &&
+        !missionSixChumaraAttack &&
         (![5, 6, 7].every(none) ||
           damage !== 999 ||
           options.some((value, index) => value !== [0, -1, -1, 0][index])))
@@ -313,7 +328,7 @@ export function campaignCommand(
       marker,
       requested,
       damage,
-      w.ai.attributes.slice(11, 17),
+      [11, 12, 13, 16, 17, 19].map(index => w.ai.attributes[index]),
       w.ai.attributes[28],
       !!(w.ai.states & (1 << 20)),
       campaignTribe(w),
@@ -547,8 +562,9 @@ export function campaignRules(w: World) {
           ? [
               12,
               1003,
-              ...script.codes.slice(636, 685),
+              ...script.codes.slice(636, 716),
               ...script.codes.slice(731, 746),
+              ...script.codes.slice(787, 837),
               ...script.codes.slice(1409, 1464),
               1004,
               1019,

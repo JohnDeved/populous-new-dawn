@@ -2,9 +2,10 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import levelSix from '../app/level-six.ts'
 import scriptSix from '../app/original-script-six.json' with { type: 'json' }
-import { addUnit, createWorld, joinBattle, tick } from '../app/model.ts'
+import { addUnit, browserPosition, createWorld, joinBattle, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
+import { stepLiveConversionVictim, stepLivePreaching } from '../app/live-movement.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { stepOutcome } from '../app/tribe-turns.ts'
 import { buildingFootprintCells, buildingModel } from '../app/building-shapes.ts'
@@ -120,7 +121,7 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
   }
 })
 
-test('Mission 6 Chumara builds a Temple and trains its first Preacher', () => {
+test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () => {
   let world = createWorld(6)
   for (
     let turn = 0;
@@ -169,6 +170,97 @@ test('Mission 6 Chumara builds a Temple and trains its first Preacher', () => {
     )
   )
   assert.ok(restored.units.some(unit => unit.team === 'yellow' && unit.kind === 'preacher'))
+
+  for (
+    let turn = 0;
+    turn < 10000 &&
+    !restored.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 20);
+    turn++
+  )
+    tick(restored, 1 / 12)
+  const attack = restored.campaignAIs[2].tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.deepEqual(restored.campaignAIs[2].attributes.slice(6, 17), [
+    12, 20, 0, 3, 25, 0, 80, 30, 2, 2, 0,
+  ])
+  assert.ok(withCampaignTribe(restored, 2, () => campaignInternal(restored, 1147)) > 4)
+  assert.ok(withCampaignTribe(restored, 2, () => campaignInternal(restored, 1148)) > 2)
+  assert.deepEqual(
+    attack && {
+      requested: attack.requested,
+      damage: attack.extra,
+      marker: attack.mode,
+      quotas: attack.quotas,
+      scheduled: (restored.turn - 1 + 2 + 179) & 511,
+    },
+    { requested: 4, damage: 20, marker: 0, quotas: [0, 80, 30, 0, 0, 0], scheduled: 0 }
+  )
+  assert.equal(restored.campaignAIs[2].variables[1], 1)
+
+  const raiding = migrateCheckpoint(structuredClone(restored)),
+    restoredAttack = raiding.campaignAIs[2].tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.ok(restoredAttack)
+  assert.equal(
+    raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20).length,
+    1
+  )
+  for (let turn = 0; turn < 64 && restoredAttack.members.length < 4; turn++)
+    tick(raiding, 1 / 12)
+  assert.deepEqual(
+    restoredAttack.members
+      .map(id => raiding.units.find(unit => unit.id === id)?.kind)
+      .sort(),
+    ['preacher', 'warrior', 'warrior', 'warrior']
+  )
+  for (let turn = 0; turn < 3000 && restoredAttack.phase !== 16; turn++)
+    tick(raiding, 1 / 12)
+  assert.equal(restoredAttack.phase, 16)
+  const preacherId = restoredAttack.members.find(
+      id => raiding.units.find(unit => unit.id === id)?.kind === 'preacher'
+    ),
+    preacher = raiding.units.find(unit => unit.id === preacherId),
+    preacherPerson = preacher && (preacher.native ?? preacher.fight?.motion)
+  assert.equal(
+    preacherPerson && currentPersonOrder(raiding.buildingOrders, preacherPerson)?.model,
+    17
+  )
+  assert.ok(
+    restoredAttack.members.some(id => {
+      const unit = raiding.units.find(unit => unit.id === id),
+        person = unit && (unit.native ?? unit.fight?.motion),
+        order = person && currentPersonOrder(raiding.buildingOrders, person)
+      return order?.model === 19 && order.a === restoredAttack.target && order.b === 0x0808
+    })
+  )
+  const converting = migrateCheckpoint(structuredClone(raiding)),
+    convertingPreacher = converting.units.find(unit => unit.id === preacherId)
+  converting.units = converting.units.filter(unit => unit.id === preacherId)
+  syncLivePersonCells(converting)
+  const knownIds = new Set(converting.units.map(unit => unit.id)),
+    conversionPoint = browserPosition(convertingPreacher.native ?? convertingPreacher.fight?.motion),
+    victim = addUnit(converting, 'blue', 'brave', {
+      x: conversionPoint.x + 1,
+      z: conversionPoint.z,
+    })
+  for (let turn = 0; turn < 700 && converting.units.some(unit => unit.id === victim.id); turn++) {
+    stepLivePreaching(converting, convertingPreacher)
+    const liveVictim = converting.units.find(unit => unit.id === victim.id)
+    if (liveVictim?.native?.state === 23) stepLiveConversionVictim(converting, liveVictim)
+  }
+  assert.ok(
+    converting.units.some(
+      unit =>
+        !knownIds.has(unit.id) &&
+        unit.team === 'yellow' &&
+        unit.kind === 'brave' &&
+        (unit.native?.flags4 ?? 0) & 0x40000
+    )
+  )
+  for (let turn = 0; turn < 513; turn++) tick(raiding, 1 / 12)
+  assert.equal(restoredAttack.flags & 1, 1)
+  assert.equal(
+    raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20).length,
+    1
+  )
 })
 
 test('Mission 6 opponents establish settlements, grow, and launch the first Matak raid', () => {
@@ -188,6 +280,7 @@ test('Mission 6 opponents establish settlements, grow, and launch the first Mata
   )
 
   let world = createWorld(6)
+  world.campaignAIs[2].variables[1] = 1 // Keep this established scenario focused on Matak's raid.
   for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
   assert.equal(world.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 0), false)
   assert.equal(world.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0), false)

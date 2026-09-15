@@ -63,6 +63,35 @@ native state-33 route recovery for a complete 1,024-turn recurrence. A completed
 normal Land Bridge between the closest component shores changes the same query
 to a 15-point route. Later raids remain unhosted.
 
+## First Chumara raid
+
+Script 14 words 685–715 raise Chumara's housing target to 25 and set Warrior and
+Preacher production to 20% and 12% once population exceeds 20 and a completed
+model-3 Hut exists. Words 787–836 schedule the first raid at turn `331 + 512n`.
+Variable 1 must be zero, own Warrior count must exceed four, and own Preacher count
+must exceed two. The resolved ATTACK vector is
+`[1118,4,1071,0,20,5,3,5,1078,0,7,-1,-1]`; it clears attribute 19 before allocation,
+then latches attribute 19 and variable 1 to one.
+
+The verified native interpreter and allocator reject each failed gate and allocate
+one type-20 task for the passing case. Native snapshots away attributes
+`[11,12,13,16,17,19]`, producing `[0,80,30,0,0,0]`; integer selection for four
+followers is therefore three Warriors and one Preacher. The existing native route
+probe covers the mixed group through hostile dispatch, where the three Warriors
+share command 19 and the Preacher receives its own command 17 at the centered hostile
+target cell `(0x1280, 0xaa80)`, then task retirement and slot reuse. A disambiguation
+run moved the regroup cell without changing that payload. Blue building identity,
+coordinates, staging/person state, payload preparation, acknowledgement, and phase-16
+targets remain controlled as documented by `scripts/check-native-computer-attack.py`.
+
+The continuous campaign path reaches the same allocation without injected Chumara
+population, classes, tasks, or script state, preserves it through checkpoint restore,
+and issues the Blue-targeted live order. The selected live Preacher receives its native
+command 17 and converts a reachable Blue follower through the ordinary conversion
+controllers. Initial yellow followers have short routes to Blue; the isolated starting
+Warrior does not. Allocation has no route gate, so unreachable members retain the
+shared state-33 route recovery behavior.
+
 ## Evidence and limits
 
 The recovered scripts were stepped with their effects intercepted. Verified

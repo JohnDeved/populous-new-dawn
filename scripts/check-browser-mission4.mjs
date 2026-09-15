@@ -290,8 +290,9 @@ try {
     await globalThis.testStore.saveCheckpoint()
     globalThis.testStore.startMission(1)
     if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 checkpoint load failed')
-    const { tick } = await import('/app/model.ts'),
+    const { addUnit, browserPosition, tick } = await import('/app/model.ts'),
       { syncLivePersonCells } = await import('/app/live-people.ts'),
+      { stepLiveConversionVictim, stepLivePreaching } = await import('/app/live-movement.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
       { buildingModel } = await import('/app/building-shapes.ts'),
       { migrateCheckpoint } = await import('/app/game-store.ts'),
@@ -419,10 +420,103 @@ try {
         unit => unit.team === 'green' && unit.kind === 'warrior'
       ).length,
     }
-    const raidSource = migrateCheckpoint(structuredClone(constructionWorld))
+    const chumaraSource = migrateCheckpoint(structuredClone(constructionWorld))
+    chumaraSource.campaignAIs[3].variables[20] = 1
+    for (const task of chumaraSource.campaignAIs[3].tasks) if (task.type === 20) task.flags = 0
     for (
       let turn = 0;
-      turn < 2048 &&
+      turn < 10000 &&
+      !chumaraSource.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 20);
+      turn++
+    )
+      tick(chumaraSource, 1 / 12)
+    const allocatedChumara = chumaraSource.campaignAIs[2].tasks.find(
+        task => task.flags & 1 && task.type === 20
+      ),
+      chumaraWorld = migrateCheckpoint(structuredClone(chumaraSource)),
+      chumaraTask = chumaraWorld.campaignAIs[2].tasks.find(
+        task => task.flags & 1 && task.type === 20
+      )
+    if (chumaraTask)
+      for (let turn = 0; turn < 64 && chumaraTask.members.length < 4; turn++)
+        tick(chumaraWorld, 1 / 12)
+    const chumaraMix = chumaraTask?.members
+      .map(id => chumaraWorld.units.find(unit => unit.id === id)?.kind)
+      .sort()
+    let chumaraTargeted = false
+    if (chumaraTask) {
+      for (let turn = 0; turn < 3000 && chumaraTask.phase !== 16; turn++) {
+        tick(chumaraWorld, 1 / 12)
+        chumaraTargeted ||= chumaraTask.members.some(id => {
+          const unit = chumaraWorld.units.find(unit => unit.id === id),
+            person = unit && (unit.native ?? unit.fight?.motion),
+            order = person && currentPersonOrder(chumaraWorld.buildingOrders, person)
+          return order?.model === 19 && order.a === chumaraTask.target && order.b === 0x0808
+        })
+      }
+    }
+    const chumaraPreacherId = chumaraTask?.members.find(
+        id => chumaraWorld.units.find(unit => unit.id === id)?.kind === 'preacher'
+      ),
+      chumaraPreacher = chumaraWorld.units.find(unit => unit.id === chumaraPreacherId),
+      chumaraPreacherPerson = chumaraPreacher &&
+        (chumaraPreacher.native ?? chumaraPreacher.fight?.motion),
+      chumaraPreacherCommand = chumaraPreacherPerson &&
+        currentPersonOrder(chumaraWorld.buildingOrders, chumaraPreacherPerson)?.model,
+      conversionWorld = migrateCheckpoint(structuredClone(chumaraWorld)),
+      conversionPreacher = conversionWorld.units.find(unit => unit.id === chumaraPreacherId)
+    conversionWorld.units = conversionWorld.units.filter(unit => unit.id === chumaraPreacherId)
+    syncLivePersonCells(conversionWorld)
+    const knownConversionIds = new Set(conversionWorld.units.map(unit => unit.id)),
+      conversionPoint = conversionPreacher && browserPosition(
+        conversionPreacher.native ?? conversionPreacher.fight?.motion
+      ),
+      conversionVictim = conversionPreacher &&
+        addUnit(conversionWorld, 'blue', 'brave', {
+          x: conversionPoint.x + 1,
+          z: conversionPoint.z,
+        })
+    for (
+      let turn = 0;
+      turn < 700 && conversionVictim &&
+        conversionWorld.units.some(unit => unit.id === conversionVictim.id);
+      turn++
+    ) {
+      stepLivePreaching(conversionWorld, conversionPreacher)
+      const liveVictim = conversionWorld.units.find(unit => unit.id === conversionVictim.id)
+      if (liveVictim?.native?.state === 23)
+        stepLiveConversionVictim(conversionWorld, liveVictim)
+    }
+    const chumaraConverted = conversionWorld.units.some(
+      unit =>
+        !knownConversionIds.has(unit.id) &&
+        unit.team === 'yellow' &&
+        unit.kind === 'brave' &&
+        ((unit.native?.flags4 ?? 0) & 0x40000) !== 0
+    )
+    for (let turn = 0; turn < 513; turn++) tick(chumaraWorld, 1 / 12)
+    const chumaraCheckpointTasks = chumaraWorld.campaignAIs[2].tasks.filter(
+      task => task.flags & 1 && task.type === 20
+    ).length
+    const chumaraRaid = allocatedChumara && {
+      requested: allocatedChumara.requested,
+      damage: allocatedChumara.extra,
+      marker: allocatedChumara.mode,
+      latched: chumaraSource.campaignAIs[2].variables[1],
+      checkpointTasks: chumaraCheckpointTasks,
+      mix: chumaraMix,
+      targeted: chumaraTargeted,
+      preacherCommand: chumaraPreacherCommand,
+      converted: chumaraConverted,
+    }
+    const raidSource = migrateCheckpoint(structuredClone(world))
+    raidSource.campaignAIs[2].variables[1] = 1
+    for (const task of raidSource.campaignAIs[2].tasks) if (task.type === 20) task.flags = 0
+    raidSource.campaignAIs[3].variables[20] = 0
+    for (const task of raidSource.campaignAIs[3].tasks) if (task.type === 20) task.flags = 0
+    for (
+      let turn = 0;
+      turn < 15000 &&
       !raidSource.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
       turn++
     )
@@ -517,6 +611,7 @@ try {
       independentAI: restored.campaignAIs[2] !== restored.campaignAIs[3],
       independentScans: restored.spellScans[2] !== restored.spellScans[3],
       construction,
+      chumaraRaid,
       raid,
       counterattacks,
       renderedOwners,
@@ -558,6 +653,17 @@ try {
   assert.ok(missionSix.construction.population >= 23)
   assert.ok(missionSix.construction.restoredPopulation >= 23)
   assert.ok(missionSix.construction.restoredWarriors >= 6)
+  assert.deepEqual(missionSix.chumaraRaid, {
+    requested: 4,
+    damage: 20,
+    marker: 0,
+    latched: 1,
+    checkpointTasks: 1,
+    mix: ['preacher', 'warrior', 'warrior', 'warrior'],
+    targeted: true,
+    preacherCommand: 17,
+    converted: true,
+  })
   assert.deepEqual(missionSix.raid, {
     requested: 5,
     damage: 128,
@@ -588,7 +694,7 @@ try {
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 6 opponents establish settlements, sustain Matak growth, raid, and counterattack through live browser paths'
+    'PASS: Mission 6 opponents establish settlements, launch mixed raids, and counterattack through live browser paths'
   )
 } finally {
   await browser.close()

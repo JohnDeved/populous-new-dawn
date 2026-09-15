@@ -15,13 +15,17 @@ import {
   unitAnimationSource,
 } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
-import { stepLiveConversionVictim, stepLivePreaching } from '../app/live-movement.ts'
+import {
+  appendLiveOrders,
+  stepLiveConversionVictim,
+  stepLivePreaching,
+} from '../app/live-movement.ts'
 import {
   conversionDelay,
   stepConversionVictim,
   stepPreachingOrder,
 } from '../app/preacher-conversion.ts'
-import { currentPersonOrder } from '../app/person-orders.ts'
+import { currentPersonOrder, emptyPersonOrder, writePersonOrder } from '../app/person-orders.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 
 function scenario(forced = false) {
@@ -50,6 +54,24 @@ test('native conversion delay uses the recovered 200/3 timing basis', () => {
     Array.from({ length: 5 }, () => conversionDelay(special)),
     [203, 191, 196, 205, 189]
   )
+})
+
+test('a full order pool does not stop a moving Preacher without attaching its sermon', () => {
+  const w = createWorld(),
+    preacher = addUnit(w, 'blue', 'preacher', { x: HOME.x + 2, z: HOME.z }),
+    p = createLivePerson(w, preacher),
+    sermon = emptyPersonOrder()
+  preacher.native = p
+  p.speed = 73
+  p.goalX = p.x + 512
+  for (const order of w.buildingOrders.records.slice(1)) order.references = 1
+  writePersonOrder(sermon, 17, p.x, p.y, 0)
+  assert.deepEqual(appendLiveOrders(w, [preacher], sermon, true), { accepted: false, count: 0 })
+  assert.deepEqual({ speed: p.speed, goalX: p.goalX, commands: p.commands }, {
+    speed: 73,
+    goalX: p.x + 512,
+    commands: Array(8).fill(0),
+  })
 })
 
 test('inside command 31 binds its building and uses the native five-cell sermon radius', () => {

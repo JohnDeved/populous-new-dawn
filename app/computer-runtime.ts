@@ -861,9 +861,23 @@ export function stepComputerTasks(w: World, tribe: number) {
               if (appendLiveOrders(w, [u], order, true).count === 1) u.target = action.target
             continue
           }
-          if (action.kind === 'attack')
+          if (action.kind === 'attack') {
+            const preachers = units.filter(unit => unit.kind === 'preacher'),
+              attackers = units.filter(unit => unit.kind !== 'preacher')
             Object.assign(order, { model: 19, a: action.target, b: 0x0808 })
-          else writePersonOrder(order, 3, 0, action.target, 0)
+            if (attackers.length) appendLiveOrders(w, attackers, order, action.replace)
+            for (const preacher of preachers) {
+              const sermon = emptyPersonOrder(),
+                point = {
+                  x: ((action.target & 255) << 8) + 0x80,
+                  y: (action.target & 0xff00) + 0x80,
+                }
+              writePersonOrder(sermon, 17, point.x, point.y, 0)
+              appendLiveOrders(w, [preacher], sermon, action.replace)
+            }
+            continue
+          }
+          writePersonOrder(order, 3, 0, action.target, 0)
           const issued = units.length ? appendLiveOrders(w, units, order, action.replace) : null
           if (action.kind === 'move') for (const u of units) u.target = null
           if (

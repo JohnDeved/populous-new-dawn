@@ -66,7 +66,7 @@ test('Mission 5 launches its original ordinary raid when the player reaches the 
       quotas: task.quotas,
       retreat: task.retreatPercent,
     },
-    { requested: 2, damage: 6, entity: shaman.id, quotas: [50, 50, 0, 1, 1, 0], retreat: 20 }
+    { requested: 2, damage: 6, entity: shaman.id, quotas: [50, 50, 0, 0, 0, 100], retreat: 20 }
   )
 
   let attackers = []

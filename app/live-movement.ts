@@ -277,6 +277,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
         if (
           model === 6 ||
           model === 7 ||
+          model === 17 ||
           model === 27 ||
           model === 28 ||
           model === 30 ||
@@ -322,6 +323,18 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     if (u.entry) initializeBuildingPerson(w, p)
     else changeLivePersonState(w, u)
     adoptLiveOrders(w, u, p)
+    if (accepted && command.model === 17) {
+      releasePersonRoute(w.motionRoutes, p)
+      clearLivePath(w, u)
+      Object.assign(p, {
+        anchorX: p.x,
+        anchorY: p.y,
+        goalX: p.x,
+        goalY: p.y,
+        speed: 0,
+        substate: 0,
+      })
+    }
   }
   return { accepted, count }
 }

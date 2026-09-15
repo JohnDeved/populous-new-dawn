@@ -18,12 +18,14 @@ tribes=0x89d1c8;red=tribes+0xc65
 markers=0x89b7a5;target_marker=0xfa06;staging=0xf204
 original=json.loads((root/'app/original-script.json').read_text())
 mission_five=json.loads((root/'app/original-script-five.json').read_text())
-mission_six=json.loads((root/'app/original-script-six.json').read_text())['tribes']['3']
+mission_six_scripts=json.loads((root/'app/original-script-six.json').read_text())['tribes']
+mission_six=mission_six_scripts['3'];mission_six_chumara=mission_six_scripts['2']
 source=Path(sys.argv[1]).parent/'levels/cpscr010.dat'
 assert hashlib.sha256(source.read_bytes()).hexdigest()==original['sha256']
 source_five=Path(sys.argv[1]).parent/'levels/cpscr058.dat'
 assert hashlib.sha256(source_five.read_bytes()).hexdigest()==mission_five['sha256']
 assert mission_six['sha256']=='01dcc425abaf6bf9680e1d62cede2d5c3a0de9739631d69516d810bc424b8e60'
+assert mission_six_chumara['sha256']=='7ee29a7c5e3f49bee4e2a40c1ef0bf5b1796d082dd3396e1a5a85900c917cb1a'
 codes=[12,1003,*original['codes'][716:731],1004,1019]
 assert codes[2:]==[1006,1059,1118,20,1070,20,160,161,161,161,1078,1,49,49,1,1004,1019]
 tribe_codes=[12,1003,*original['codes'][900:915],1004,1019]
@@ -31,8 +33,11 @@ assert tribe_codes[2:]==[1006,1059,1118,109,1071,164,160,161,161,161,1078,1,49,4
 mission_five_codes=[12,1003,*mission_five['codes'][649:664],1004,1019]
 assert mission_five_codes[2:]==[1006,1059,1118,52,1072,124,54,26,84,84,1078,1,51,51,51,1004,1019]
 mission_six_codes=[12,1003,*mission_six['codes'][681:751],1004,1002,1004,1004,1019]
+mission_six_chumara_codes=[12,1003,*mission_six_chumara['codes'][787:837],1004,1019]
+chumara_profile=bytes([38,0,0,1,0,0,15,40,0,4,9,0,80,30,2,2,0,0,75,0,0,0,0,0,255,1,0,0,25,1,1,1,128,5,0])
 assert mission_six_codes[2:18]==[1005,154,155,1003,1000,1014,87,1,1003,1000,1020,1012,156,99,1012,103]
 assert mission_six_codes[25:42]==[1006,1059,1118,83,1071,158,4,112,19,105,1078,1,1,131,39,1006,1092]
+assert mission_six_chumara_codes[26:41]==[1006,1059,1118,11,1071,170,115,30,27,30,1078,1,122,64,64]
 
 def write(p,fmt,*values):cpu.mem_write(p,struct.pack(fmt,*values))
 def return_from_leaf(value=0):
@@ -134,6 +139,22 @@ assert target_trace==['primary'],target_trace
 assert struct.unpack('<i',cpu.mem_read(program+12288+8*4,4))[0]==1
 assert struct.unpack('<i',cpu.mem_read(program+12288+16*4,4))[0]==7
 assert struct.unpack('<i',cpu.mem_read(program+12288+20*4,4))[0]==1
+for turn,warriors,preachers,started in [(330,5,3,0),(331,4,3,0),(331,5,2,0),(331,5,3,1)]:
+    initialize();write(red+0xc22,'<B',2);write(0x89d188,'<I',turn)
+    write(red+0xa2d,'<h',warriors);write(red+0xa2f,'<h',preachers)
+    cpu.mem_write(0x96084a,chumara_profile)
+    state={**mission_six_chumara,'variables':mission_six_chumara['variables'][:]};state['variables'][1]=started
+    run(mission_six_chumara_codes,state)
+    assert not [task for task in tasks() if task['type']==20],(turn,warriors,preachers,started,tasks())
+initialize();write(red+0xc22,'<B',2);write(0x89d188,'<I',331)
+write(red+0xa2d,'<h',5);write(red+0xa2f,'<h',3);cpu.mem_write(0x96084a,chumara_profile)
+target_trace.clear();tribe_probe=True;run(mission_six_chumara_codes,mission_six_chumara);tribe_probe=False
+chumara_attacks=[task for task in tasks() if task['type']==20]
+assert len(chumara_attacks)==1,chumara_attacks
+task=chumara_attacks[0]
+assert task['requested']==4 and task['damage']==20 and task['marker']==0 and task['entity']==77,task
+assert target_trace==['primary'],target_trace
+assert struct.unpack('<i',cpu.mem_read(program+12288+1*4,4))[0]==1
 for enabled,maximum,full in [(False,1,False),(True,0,False),(True,1,True)]:
     initialize(enabled,maximum,full);before=bytes(cpu.mem_read(red+0x36,10*0x52));run()
     assert bytes(cpu.mem_read(red+0x36,10*0x52))==before,(enabled,maximum,full,tasks())
@@ -141,6 +162,7 @@ print('PASS: native mission-one ATTACK decoded and allocated type 20; disabled, 
 print('PASS: native later ATTACK dispatched Blue building selection and retained the controlled id and route')
 print('PASS: native mission-five ATTACK selected the living Blue Shaman and retained its id')
 print('PASS: native mission-six first Matak ATTACK passed its exact gates, allocated type 20, and latched variables')
+print('PASS: native mission-six first Chumara ATTACK passed its exact gates, allocated type 20, and latched variable 1')
 
 # Exercise the deterministic ordinary-person route through phase 14.
 people=0x2008000
@@ -196,17 +218,20 @@ def native_call(address,*args):
 def add_person(id_,model,next_id):
     p=people+id_*256;cpu.mem_write(p,bytes(256))
     write(p+8,'<I',people+next_id*256 if next_id else 0)
-    write(p+0x24,'<H',id_);write(p+0x2a,'<BBBB',1,model,17,1)
+    write(p+0x24,'<H',id_);write(p+0x2a,'<BBBB',1,model,17,2)
     write(p+0x3d,'<HH',0xf000+id_*0x100,0x0800+id_*0x100)
     write(0x890390+id_*4,'<I',p)
 
-initialize();run();taskp=red+0x36+allocated[0]['index']*0x52
+initialize();write(red+0xc22,'<B',2);write(0x89d188,'<I',331)
+write(red+0xa2d,'<h',5);write(red+0xa2f,'<h',3);cpu.mem_write(0x96084a,chumara_profile)
+tribe_probe=True;run(mission_six_chumara_codes,mission_six_chumara);tribe_probe=False
+allocated=tasks();taskp=red+0x36+allocated[0]['index']*0x52
 cpu.mem_write(0x890390,bytes(4096));cpu.mem_write(0x8a03e4,bytes(0x40000))
+write(0x890390+77*4,'<I',target_building)
 cpu.mem_write(0xa0d108,bytes(4096));cpu.mem_write(0x938830,bytes(8000))
 write(0x96aa78,'<HH',1,0)
-# AWAY_BRAVE and AWAY_WARRIOR are mission-one's first two away attributes.
-cpu.mem_write(0x96081a,bytes([34,34,0,0,0,0]))
-for id_,model,next_id in [(1,2,2),(2,3,3),(3,2,4),(4,3,0)]:add_person(id_,model,next_id)
+# Chumara's first raid snapshots AWAY_BRAVE, AWAY_WARRIOR and AWAY_PREACHER.
+for id_,model,next_id in [(1,3,2),(2,3,3),(3,3,4),(4,4,0)]:add_person(id_,model,next_id)
 write(red+0x881,'<I',people+256)
 phases=[]
 for _ in range(12):
@@ -220,10 +245,10 @@ for id_ in range(1,5):
     p=people+id_*256
     ids=[v for v in [struct.unpack('<H',cpu.mem_read(p+0x9b,2))[0],*struct.unpack('<8H',cpu.mem_read(p+0x8b,16))] if v]
     if ids:queued.append((id_,ids,[cpu.mem_read(0x938830+v*10,1)[0] for v in ids]))
-assert len(queued)==3 and all(models==[3] for _,_,models in queued),(phases,queued,trace)
-assert {cpu.mem_read(people+id_*256+0x2b,1)[0] for id_,_,_ in queued}=={2,3},queued
+assert len(queued)==4 and all(models==[3] for _,_,models in queued),(phases,queued,trace)
+assert [cpu.mem_read(people+id_*256+0x2b,1)[0] for id_,_,_ in queued]==[3,3,3,4],queued
 shared={id_ for _,ids,_ in queued for id_ in ids}
-assert len(shared)==1 and struct.unpack('<H',cpu.mem_read(0x938830+shared.pop()*10+2,2))[0]==3,queued
+assert len(shared)==1 and struct.unpack('<H',cpu.mem_read(0x938830+shared.pop()*10+2,2))[0]==4,queued
 assert next(event for event in trace if event[0]=='prepare-order')[3:5]==(0x480,0xf280),trace
 assert struct.unpack('<I',cpu.mem_read(red+0x596,4))[0]&2==0
 assert cpu.mem_read(red+0x5b3,1)[0]==10
@@ -233,10 +258,10 @@ members=[id_ for id_,_,_ in queued]
 assert all(cpu.mem_read(people+id_*256+0xaf,1)[0]==allocated[0]['index']+1 for id_ in members),members
 rng=struct.unpack('<I',cpu.mem_read(0x89d178,4))[0]
 routing=True;route=[];locks=[];route_trace=len(trace)
-for _ in range(10):
+for _ in range(14):
     phase=struct.unpack('<H',cpu.mem_read(taskp+0x42,2))[0]
     if phase==10:
-        write(people+members[0]*256+0x3d,'<HH',0x0600,0xfa00)
+        write(people+members[0]*256+0x3d,'<HH',0x1200,0xaa00)
     native_call(0x4cb400,red,allocated[0]['index'])
     phase=struct.unpack('<H',cpu.mem_read(taskp+0x42,2))[0];route.append(phase)
     locks.append((phase,bool(struct.unpack('<I',cpu.mem_read(red+0x596,4))[0]&2),
@@ -244,7 +269,7 @@ for _ in range(10):
     if phase==10:
         assert struct.unpack('<I',cpu.mem_read(taskp+4,4))[0]==0
     if phase==11:
-        assert struct.unpack('<H',cpu.mem_read(taskp+0x12,2))[0]==target_marker
+        assert struct.unpack('<H',cpu.mem_read(taskp+0x12,2))[0]==target_route
         assert struct.unpack('<I',cpu.mem_read(taskp+4,4))[0]==1
         for id_ in members:
             p=people+id_*256
@@ -255,11 +280,13 @@ for _ in range(10):
         assert struct.unpack('<I',cpu.mem_read(taskp+4,4))[0]==0
         assert all(cpu.mem_read(people+id_*256+0x2c,1)[0]==17 for id_ in members)
     if phase==14:break
-assert route==[18,7,9,10,11,12,6,14],route
+assert route==[18,7,8,6,7,9,10,11,12,6,14],route
 assert [item for item in locks if item[0] in (9,12)]==[(9,True,allocated[0]['index']),(12,True,allocated[0]['index'])],locks
 assert all(not locked and owner==10 for phase,locked,owner in locks if phase in (10,6,14)),locks
 orders=[event for event in trace[route_trace:] if event[0]=='prepare-order']
-assert len(orders)==6 and all(event[2:]==(3,0x0680,0xfa80,0) for event in orders),orders
+assert len(orders)==12,orders
+assert all(event[2:]==(3,0x0080,0x0080,0) for event in orders[:4]),orders
+assert all(event[2:]==(3,0x1280,0xaa80,0) for event in orders[4:]),orders
 assert struct.unpack('<I',cpu.mem_read(taskp+4,4))[0]==1
 assert struct.unpack('<I',cpu.mem_read(taskp+0x3e,4))[0]&1
 assert all(cpu.mem_read(people+id_*256+0xaf,1)[0]==allocated[0]['index']+1 for id_ in members)
@@ -273,13 +300,15 @@ for id_ in members:
     p=people+id_*256
     ids=[v for v in [struct.unpack('<H',cpu.mem_read(p+0x9b,2))[0],*struct.unpack('<8H',cpu.mem_read(p+0x8b,16))] if v]
     attack.append((id_,ids,[cpu.mem_read(0x938830+v*10,1)[0] for v in ids]))
-assert len(attack)==3 and all(models==[19] for _,_,models in attack),attack
-shared={id_ for _,ids,_ in attack for id_ in ids}
-assert len(shared)==1,attack
+assert len(attack)==4 and [models for _,_,models in attack]==[[19],[19],[19],[17]],attack
+shared={id_ for _,ids,_ in attack[:3] for id_ in ids}
+assert len(shared)==1 and len(attack[3][1])==1 and attack[3][1][0] not in shared,attack
+preacher_record=0x938830+attack[3][1][0]*10
+assert struct.unpack('<HH',cpu.mem_read(preacher_record+6,4))==(0x1280,0xaa80),attack
 attack_id=shared.pop();record=0x938830+attack_id*10
 assert struct.unpack('<H',cpu.mem_read(record+2,2))[0]==3
 payload=struct.unpack('<HH',cpu.mem_read(record+6,4))
-assert payload==(target_marker,0x0808),payload
+assert payload==(target_route,0x0808),payload
 assert struct.unpack('<I',cpu.mem_read(red+0x596,4))[0]&2==0
 assert cpu.mem_read(red+0x5b3,1)[0]==10
 for id_ in members:write(people+id_*256+0xaf,'<B',0)
@@ -291,4 +320,4 @@ assert struct.unpack('<I',cpu.mem_read(red+0x596,4))[0]&2==0
 assert cpu.mem_read(red+0x5b3,1)[0]==10
 run();reallocated=tasks()
 assert len(reallocated)==1 and reallocated[0]['index']==allocated[0]['index'],reallocated
-print(f'PASS: native type-20 phases {phases+route+[15,16,23]} dispatched one shared attack, retired and reused its slot')
+print(f'PASS: native mixed Chumara type-20 phases {phases+route+[15,16,23]} dispatched one shared attack, retired and reused its slot')
