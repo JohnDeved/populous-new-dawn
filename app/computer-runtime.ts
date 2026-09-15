@@ -69,7 +69,7 @@ import {
 import { refreshBuildingTerritory } from './territory.ts'
 import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
-import { releaseTasks } from './world-tasks.ts'
+import { release, releaseTasks } from './world-tasks.ts'
 
 export function computerSelectionWorld(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
@@ -830,8 +830,10 @@ export function stepComputerTasks(w: World, tribe: number) {
       for (const action of actions) {
         if (action.kind === 'select') {
           const u = w.units.find(u => u.id === action.id)
-          if (!u || u.inside !== null || u.entry || u.work !== null)
-            throw new Error('Unsupported computer attack selection')
+          if (!u) throw new Error('Missing computer attack selection')
+          const person = unitAnimationSource(u)
+          if (u.inside !== null || u.entry || u.work !== null)
+            u.native = release(w, u) ?? person ?? u.native
           u.native ??= createLivePerson(w, u)
           registerLivePerson(w, u.native)
           changeLivePersonState(w, u, 14)

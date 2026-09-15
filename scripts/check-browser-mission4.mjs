@@ -192,6 +192,8 @@ try {
       { missionData } = await import('/app/mission-data.ts'),
       { syncLivePersonCells } = await import('/app/live-people.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
+      { cellDistanceSquared } = await import('/app/native-math.ts'),
+      { nativePosition } = await import('/app/world-terrain-runtime.ts'),
       shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
       marker = missionData(5).level.markers[10]
     Object.assign(
@@ -394,6 +396,55 @@ try {
         unit => unit.team === 'green' && unit.kind === 'warrior'
       ).length,
     }
+    const raidSource = migrateCheckpoint(structuredClone(constructionWorld))
+    for (
+      let turn = 0;
+      turn < 2048 &&
+      !raidSource.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
+      turn++
+    )
+      tick(raidSource, 1 / 12)
+    const allocatedRaid = raidSource.campaignAIs[3].tasks.find(
+        task => task.flags & 1 && task.type === 20
+      ),
+      raidWorld = migrateCheckpoint(structuredClone(raidSource)),
+      raidTask = raidWorld.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
+    let raidTargeted = false,
+      raidReleased = false
+    if (raidTask)
+      for (let turn = 0; turn < 1025; turn++) {
+        tick(raidWorld, 1 / 12)
+        if (raidTask.members.length && raidTask.members.every(id => {
+          const unit = raidWorld.units.find(unit => unit.id === id)
+          return unit && unit.inside === null && !unit.entry && unit.work === null
+        })) raidReleased = true
+        for (const id of raidTask.members) {
+          const unit = raidWorld.units.find(unit => unit.id === id),
+            person = unit && (unit.native ?? unit.fight?.motion),
+            order = person && currentPersonOrder(raidWorld.buildingOrders, person)
+          if (raidTask.phase === 10 && order?.model === 3 &&
+              order.a === (((raidTask.target << 8) + 128) & 65535) &&
+              order.b === ((raidTask.target & 0xff00) + 128))
+            raidTargeted = true
+        }
+      }
+    const raid = allocatedRaid && {
+      requested: allocatedRaid.requested,
+      damage: allocatedRaid.extra,
+      building: allocatedRaid.mode,
+      scheduled: (raidSource.turn - 1 + 3 + 399) & 1023,
+      latched: raidSource.campaignAIs[3].variables[20],
+      nextSize: raidSource.campaignAIs[3].variables[16],
+      checkpointTasks: raidWorld.campaignAIs[3].tasks.filter(
+        task => task.flags & 1 && task.type === 20
+      ).length,
+      members: raidTask?.members.length ?? 0,
+      released: raidReleased,
+      targeted: raidTargeted,
+      waitingForBridge: raidTask?.phase === 10 && raidTask.members.every(id =>
+        raidWorld.units.find(unit => unit.id === id)?.native?.state === 33
+      ),
+    }
     for (const { tribe, team, triggerTurn } of [
       { tribe: 2, team: 'yellow', triggerTurn: 8 },
       { tribe: 3, team: 'green', triggerTurn: 7 },
@@ -443,6 +494,7 @@ try {
       independentAI: restored.campaignAIs[2] !== restored.campaignAIs[3],
       independentScans: restored.spellScans[2] !== restored.spellScans[3],
       construction,
+      raid,
       counterattacks,
       renderedOwners,
       oneOpponent,
@@ -477,6 +529,20 @@ try {
   assert.ok(missionSix.construction.population >= 23)
   assert.ok(missionSix.construction.restoredPopulation >= 23)
   assert.ok(missionSix.construction.restoredWarriors >= 6)
+  assert.deepEqual(missionSix.raid, {
+    requested: 5,
+    damage: 128,
+    building: 0,
+    scheduled: 0,
+    latched: 1,
+    nextSize: 7,
+    checkpointTasks: 1,
+    members: missionSix.raid.members,
+    released: true,
+    targeted: true,
+    waitingForBridge: true,
+  })
+  assert.ok(missionSix.raid.members > 0)
   assert.deepEqual(
     missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
       team, early, enabled, order, targetedShaman: target === shaman, moved, engaged,
@@ -493,7 +559,7 @@ try {
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 6 opponents establish settlements, sustain Matak growth, and counterattack through live browser paths'
+    'PASS: Mission 6 opponents establish settlements, sustain Matak growth, raid, and counterattack through live browser paths'
   )
 } finally {
   await browser.close()

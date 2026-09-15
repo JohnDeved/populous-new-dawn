@@ -120,7 +120,7 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
   }
 })
 
-test('Mission 6 opponents establish settlements and sustain Matak population growth', () => {
+test('Mission 6 opponents establish settlements, grow, and launch the first Matak raid', () => {
   const failed = createWorld(6)
   for (
     let turn = 0;
@@ -399,5 +399,66 @@ test('Mission 6 opponents establish settlements and sustain Matak population gro
   assert.ok(withCampaignTribe(restoredProduction, 3, () => campaignInternal(restoredProduction, 1)) > 22)
   assert.ok(
     withCampaignTribe(restoredProduction, 3, () => campaignInternal(restoredProduction, 1147)) > 5
+  )
+
+  for (
+    let turn = 0;
+    turn < 2048 &&
+    !restoredProduction.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
+    turn++
+  )
+    tick(restoredProduction, 1 / 12)
+  const attack = restoredProduction.campaignAIs[3].tasks.find(
+    task => task.flags & 1 && task.type === 20
+  )
+  assert.deepEqual(
+    attack && {
+      requested: attack.requested,
+      damage: attack.extra,
+      building: attack.mode,
+      scheduled: (restoredProduction.turn - 1 + 3 + 399) & 1023,
+    },
+    { requested: 5, damage: 128, building: 0, scheduled: 0 }
+  )
+  assert.equal(restoredProduction.campaignAIs[3].variables[20], 1)
+  assert.equal(restoredProduction.campaignAIs[3].variables[16], 7)
+
+  const raiding = migrateCheckpoint(structuredClone(restoredProduction)),
+    restoredAttack = raiding.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
+  let targeted = false,
+    released = false
+  for (let turn = 0; turn < 1025; turn++) {
+    tick(raiding, 1 / 12)
+    if (
+      restoredAttack.members.length &&
+      restoredAttack.members.every(id => {
+        const unit = raiding.units.find(unit => unit.id === id)
+        return unit && unit.inside === null && !unit.entry && unit.work === null
+      })
+    )
+      released = true
+    for (const id of restoredAttack.members) {
+      const unit = raiding.units.find(unit => unit.id === id),
+        person = unit && (unit.native ?? unit.fight?.motion),
+        order = person && currentPersonOrder(raiding.buildingOrders, person)
+      if (
+        restoredAttack.phase === 10 &&
+        order?.model === 3 &&
+        order.a === (((restoredAttack.target << 8) + 128) & 65535) &&
+        order.b === ((restoredAttack.target & 0xff00) + 128)
+      )
+        targeted = true
+    }
+  }
+  assert.ok(restoredAttack.members.length > 0)
+  assert.equal(released, true)
+  assert.equal(targeted, true)
+  assert.equal(restoredAttack.phase, 10)
+  assert.ok(
+    restoredAttack.members.every(id => raiding.units.find(unit => unit.id === id)?.native?.state === 33)
+  )
+  assert.equal(
+    raiding.campaignAIs[3].tasks.filter(task => task.flags & 1 && task.type === 20).length,
+    1
   )
 })

@@ -194,6 +194,7 @@ export function campaignInternal(w: World, id: number) {
     return short(campaignPersonCount(w, tribe, model))
   }
   if (id === 1180) return w.killCredits[0][campaignTribe(w)] & 65535
+  if (id === 1048) return w.manaTribes[self].mana | 0
   if (id >= 1050 && id <= 1065) return spellMana(id - 1048) // Loaded spell-cost table.
   // 0x48f350: self then four explicit tribes, 16 building models each.
   if (id >= 1066 && id <= 1145) {

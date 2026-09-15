@@ -41,6 +41,28 @@ an active-tribe gate. Defeating only tribe 2 or only tribe 3 starts that tribe's
 defeat timer and does not win. Once both are empty, it sets victory
 `0x02000000` and completes level index 5.
 
+## First Matak raid
+
+Script 15 words 681–750 schedule the first raid at turn `622 + 1024n` from
+`(turn + 3 + 399) & 1023`. Variable 20 must be zero, then native internal
+1048 (the tribe mana dword at AI `+0x94d`) must exceed variable 32's 150000,
+own population must exceed 22, and own Warrior count must exceed 5.
+
+The resolved ATTACK vector is
+`[1118,5,1071,0,128,12,3,2,1078,0,0,16,-1]`, followed by marker task
+`[1,-1,-1,-1]`. The script sets variables 8 and 20 to one and raises variable
+16 from 5 to 7. `scripts/check-native-computer-attack.py` executes the exact
+bounded block through the original interpreter and allocator, checks the
+type-20 task and latches, then exercises the shared ordinary attack route.
+Selection/world leaves after allocation remain supplied as documented by that
+check. The initial Matak and Blue land components are disconnected: the shared
+native-matched path query reaches Matak's `0x80ce` staging cell but returns no
+route from any initial Matak follower to any initial Blue follower. The shipped
+portable and browser paths therefore verify the Blue-targeted model-3 order and
+native state-33 route recovery for a complete 1,024-turn recurrence. A completed
+normal Land Bridge between the closest component shores changes the same query
+to a 15-point route. Later raids remain unhosted.
+
 ## Evidence and limits
 
 The recovered scripts were stepped with their effects intercepted. Verified

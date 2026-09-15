@@ -266,17 +266,32 @@ export function campaignCommand(
         field(6, 2, 1185) &&
         field(7, 2, 1185) &&
         options.every((value, index) => value === [0, -1, -1, -1][index]),
+      missionSixAttack =
+        w.outcome.level === 6 &&
+        campaignTribe(w) === 3 &&
+        targetMode === 1071 &&
+        requested === 5 &&
+        field(1, 1, 16) &&
+        field(3, 2, 1223) &&
+        marker === 0 &&
+        damage === 128 &&
+        field(5, 2, 1195) &&
+        field(6, 2, 1186) &&
+        field(7, 2, 1185) &&
+        options.every((value, index) => value === [0, 0, 16, -1][index]),
       validTarget =
         (targetMode === 1070 && requested === 3 && marker === 3) ||
         (targetMode === 1071 &&
           ((field(1, 2, 1) && field(3, 2, 1223) && marker === 0) || missionTwoAttack)) ||
-        missionFiveAttack
+        missionFiveAttack ||
+        missionSixAttack
     if (
       args[0] !== 1118 ||
       args[8] !== 1078 ||
       !validTarget ||
       (!missionTwoAttack &&
         !missionFiveAttack &&
+        !missionSixAttack &&
         (![5, 6, 7].every(none) ||
           damage !== 999 ||
           options.some((value, index) => value !== [0, -1, -1, 0][index])))
@@ -535,6 +550,9 @@ export function campaignRules(w: World) {
                 12,
                 1003,
                 ...script.codes.slice(352, 501),
+                ...script.codes.slice(681, 752),
+                1002,
+                1004,
                 ...script.codes.slice(1185, 1220),
                 1004,
                 1019,

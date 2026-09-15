@@ -1,4 +1,4 @@
-"""Inspect Mission 1/5 native ATTACK decoding and the ordinary attack route.
+"""Inspect Mission 1/5/6 native ATTACK decoding and the ordinary attack route.
 
 Usage: python scripts/check-native-computer-attack.py /path/to/d3dpoptb.exe
 The original interpreter, task allocator, selector, group builder and commit execute.
@@ -18,16 +18,21 @@ tribes=0x89d1c8;red=tribes+0xc65
 markers=0x89b7a5;target_marker=0xfa06;staging=0xf204
 original=json.loads((root/'app/original-script.json').read_text())
 mission_five=json.loads((root/'app/original-script-five.json').read_text())
+mission_six=json.loads((root/'app/original-script-six.json').read_text())['tribes']['3']
 source=Path(sys.argv[1]).parent/'levels/cpscr010.dat'
 assert hashlib.sha256(source.read_bytes()).hexdigest()==original['sha256']
 source_five=Path(sys.argv[1]).parent/'levels/cpscr058.dat'
 assert hashlib.sha256(source_five.read_bytes()).hexdigest()==mission_five['sha256']
+assert mission_six['sha256']=='01dcc425abaf6bf9680e1d62cede2d5c3a0de9739631d69516d810bc424b8e60'
 codes=[12,1003,*original['codes'][716:731],1004,1019]
 assert codes[2:]==[1006,1059,1118,20,1070,20,160,161,161,161,1078,1,49,49,1,1004,1019]
 tribe_codes=[12,1003,*original['codes'][900:915],1004,1019]
 assert tribe_codes[2:]==[1006,1059,1118,109,1071,164,160,161,161,161,1078,1,49,49,1,1004,1019]
 mission_five_codes=[12,1003,*mission_five['codes'][649:664],1004,1019]
 assert mission_five_codes[2:]==[1006,1059,1118,52,1072,124,54,26,84,84,1078,1,51,51,51,1004,1019]
+mission_six_codes=[12,1003,*mission_six['codes'][681:751],1004,1002,1004,1004,1019]
+assert mission_six_codes[2:18]==[1005,154,155,1003,1000,1014,87,1,1003,1000,1020,1012,156,99,1012,103]
+assert mission_six_codes[25:42]==[1006,1059,1118,83,1071,158,4,112,19,105,1078,1,1,131,39,1006,1092]
 
 def write(p,fmt,*values):cpu.mem_write(p,struct.pack(fmt,*values))
 def return_from_leaf(value=0):
@@ -109,12 +114,33 @@ assert task['type']==20 and task['phase']==0 and task['requested']==3 and task['
 assert task['route']==target_route and task['original']==target_route,task
 assert task['marker']==0 and task['entity']==77,task
 assert target_trace==['primary'],target_trace
+mission_six_state={**mission_six,'variables':mission_six['variables'][:]}
+mission_six_state['variables'][16]=5;mission_six_state['variables'][32]=150000
+for mana,population,warriors,turn,started in [(150000,23,6,622,0),(150001,22,6,622,0),(150001,23,5,622,0),(150001,23,6,621,0),(150001,23,6,622,1)]:
+    initialize();write(red+0xc22,'<B',3);write(red+0x94d,'<i',mana);write(0x8a0014,'<I',population)
+    write(0x89d188,'<I',turn);write(0x960893,'<B',1);write(red+0xa2d,'<h',warriors)
+    blocked_state={**mission_six_state,'variables':mission_six_state['variables'][:]};blocked_state['variables'][20]=started
+    run(mission_six_codes,blocked_state)
+    assert not [task for task in tasks() if task['type']==20],(mana,population,warriors,turn,started,tasks())
+initialize();write(red+0xc22,'<B',3);write(red+0x94d,'<i',150001);write(0x8a0014,'<I',23)
+write(0x89d188,'<I',622);write(0x960893,'<B',1)
+write(red+0xa2d,'<h',6);target_trace.clear();tribe_probe=True
+run(mission_six_codes,mission_six_state);tribe_probe=False
+mission_six_attacks=[task for task in tasks() if task['type']==20]
+assert len(mission_six_attacks)==1,mission_six_attacks
+task=mission_six_attacks[0]
+assert task['requested']==5 and task['damage']==128 and task['marker']==0 and task['entity']==77,task
+assert target_trace==['primary'],target_trace
+assert struct.unpack('<i',cpu.mem_read(program+12288+8*4,4))[0]==1
+assert struct.unpack('<i',cpu.mem_read(program+12288+16*4,4))[0]==7
+assert struct.unpack('<i',cpu.mem_read(program+12288+20*4,4))[0]==1
 for enabled,maximum,full in [(False,1,False),(True,0,False),(True,1,True)]:
     initialize(enabled,maximum,full);before=bytes(cpu.mem_read(red+0x36,10*0x52));run()
     assert bytes(cpu.mem_read(red+0x36,10*0x52))==before,(enabled,maximum,full,tasks())
 print('PASS: native mission-one ATTACK decoded and allocated type 20; disabled, capped and full queues refused')
 print('PASS: native later ATTACK dispatched Blue building selection and retained the controlled id and route')
 print('PASS: native mission-five ATTACK selected the living Blue Shaman and retained its id')
+print('PASS: native mission-six first Matak ATTACK passed its exact gates, allocated type 20, and latched variables')
 
 # Exercise the deterministic ordinary-person route through phase 14.
 people=0x2008000

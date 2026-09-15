@@ -9,11 +9,12 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver sustained Mission 6 Matak housing and population growth.
-The normal settlement path must finish enough Matak Huts to reach population 23 or
-more while retaining at least six Warriors, satisfying both original first-raid
-population gates. Keep the raid command itself, Chumara Temple production, and parity
-recording outside this slice.
+Current task lock: deliver Matak's first ordinary Mission 6 raid. The original
+recurring script and newly satisfied population/Warrior gates must allocate its
+ATTACK through the normal schedule. The selected green force must receive the Blue-
+targeted shared live order, then retain it in native route recovery on the initially
+disconnected islands until the player makes a Land Bridge. Keep later raids, Chumara
+attacks and Temple production, and parity recording outside this slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -22,7 +23,8 @@ attack tutorials finished in `20254b5`; the first playable Mission 6 slice finis
 in `0ac9764`; its original low-population counterattacks finished in `cefc928`; both
 opponents' first autonomous Guard Towers finished in `244ffc8`; their first settlement
 expansion finished in `750f4ba`; Mission 5's ordinary Dakini raid finished in
-`7b94971`; Mission 6 Matak Warrior production finished in `d5ef216`.
+`7b94971`; Mission 6 Matak Warrior production finished in `d5ef216`; sustained Matak
+housing and population growth finished in `7217eef`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not
