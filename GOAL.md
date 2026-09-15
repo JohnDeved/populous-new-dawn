@@ -9,13 +9,12 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Chumara's first mixed Mission 6 assault. Bind its exact
-original profile and ATTACK gates so the unmodified yellow settlement allocates one
-requested-four type-20 task with the native three-Warrior/one-Preacher composition.
-The selected force must receive the normal Blue-targeted live order, preserve native
-route behavior on the mission terrain, and allow the Preacher to convert through the
-ordinary combat path once reachable. Keep later attacks and parity recording outside
-this slice.
+Current task lock: deliver Mission 3's first autonomous Chumara settlement and
+naturally trained Preacher. Bind the original producer schedule and construction
+order so an unmodified Mission 3 world builds the prerequisite settlement through
+normal AI tasks, then host the complete existing training block and convert one
+Brave through the ordinary Temple path. Keep later raids, broader
+recurring blocks, tutorial presentation, and parity recording outside this slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -27,6 +26,8 @@ expansion finished in `750f4ba`; Mission 5's ordinary Dakini raid finished in
 `7b94971`; Mission 6 Matak Warrior production finished in `d5ef216`; sustained Matak
 housing and population growth finished in `7217eef`; Matak's first ordinary raid
 finished in `e026556`; Chumara Temple and Preacher production finished in `b413819`.
+Chumara's first mixed Mission 6 raid finished in `5dbbec8`; complete base-game input
+recovery finished in `c77a2f7`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not

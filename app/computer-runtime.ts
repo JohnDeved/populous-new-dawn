@@ -306,7 +306,7 @@ function produceMissionTraining(w: World, tribe: number) {
 }
 
 // Mission 6's ordinary 0x4e5580 producer reaches training buildings before housing.
-function produceMissionSixBuilding(w: World, tribe: number) {
+function produceMissionBuilding(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
     has = (model: number) =>
       w.buildings.some(
@@ -326,7 +326,7 @@ function produceMissionSixBuilding(w: World, tribe: number) {
         return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
       }, 0)
   if (
-    w.outcome.level !== 6 ||
+    ![3, 6].includes(w.outcome.level) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
@@ -548,7 +548,7 @@ export function stepComputerTasks(w: World, tribe: number) {
   const level = missionData(w.outcome.level).level
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
-    if (produceMissionSixBuilding(w, tribe)) return
+    if (produceMissionBuilding(w, tribe)) return
     produceMissionTraining(w, tribe)
     return
   }

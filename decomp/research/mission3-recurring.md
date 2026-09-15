@@ -26,3 +26,30 @@ excluded because their game-command hosts are unbound; this is not full Mission 
 script or AI parity. Native mode-2 tooltip lookup also wraps byte coordinates that
 the current browser lookup does not, so the later Vault callout is absent even
 though the flyby and visible Skip introduction path run.
+
+## Chumara settlement and first Preacher
+
+Turn-zero producer attributes request one Tower and one Temple, with one active
+construction task and no Warrior Training Hut or housing. Chumara producer
+opportunities are turns `61,125,189,253,...`. Native `004e5580` first allocates a
+type-0 Tower task at the Shaman cell, then a Temple from the accepted construction
+base after the Tower completes; neither allocation consumes RNG.
+
+Codes `308..<457` are not a construction profile. Opcode `1173` writes AI-local
+interval bytes at `ai+0x53f+4*index` and leaves the producer attribute table
+unchanged. Hosting those writes as attributes would invent Warrior Hut demand.
+
+The complete `729..<768` block runs for tribe 2 when `(turn+2)&15 == 0`. After a
+Temple completes it sets housing target 15, requests person model 4 (Preacher)
+through a type-6 Temple task, and sets user variable 23. Re-evaluation emits no
+second request and consumes no RNG. The next free construction opportunity then
+requests a Hut. The verified sequence is Tower → Temple → one Preacher → huts.
+
+The focused native probe used the same executable and script hashes above plus
+level SHA256 `eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf`
+and header SHA256 `219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0`.
+It executed the interpreter, construction producer, explicit training allocation,
+task writer, and construction-base/count helpers in the hash-verified executable.
+Building availability, completed Temple id, population, and available people were
+controlled leaves. Terrain acceptance, worker movement, timber, construction,
+Temple admission, and checkpoint restoration require live browser evidence.

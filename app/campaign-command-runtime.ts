@@ -346,7 +346,7 @@ export function campaignCommand(
 
   if (opcode === 1095) {
     const [count, model] = args.map(read)
-    if (count <= 0 || model !== 3)
+    if (count <= 0 || ![3, 4].includes(model))
       throw new Error(`Unsupported computer training ${count}:${model}`)
     const selection = computerSelectionWorld(w, campaignTribe(w))
     requestTraining(w.ai, count, model, availableTrainingPeople(selection.world), targetModel =>
@@ -587,7 +587,14 @@ export function campaignRules(w: World) {
           : w.outcome.level === 2
             ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
             : w.outcome.level === 3
-              ? [12, 1003, ...script.codes.slice(833, 984), 1004, 1019]
+              ? [
+                  12,
+                  1003,
+                  ...script.codes.slice(729, 768),
+                  ...script.codes.slice(833, 984),
+                  1004,
+                  1019,
+                ]
               : w.outcome.level === 4
                 ? [
                     12,

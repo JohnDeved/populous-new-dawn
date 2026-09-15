@@ -12,6 +12,12 @@ from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EIP, UC_X86_REG_ESP
 EXE = Path(sys.argv[1])
 SHA = "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
 assert hashlib.sha256(EXE.read_bytes()).hexdigest() == SHA
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = EXE.parent / "levels/cpscr012.dat"
+SCRIPT_SHA = "d5dfcd826f77909a64cca03ca9d9e3d351d2a7cb3f63eb8ba811b59916e83601"
+assert hashlib.sha256(SCRIPT.read_bytes()).hexdigest() == SCRIPT_SHA
+mission_three_script = json.loads((ROOT / "app/original-script-three.json").read_text())
+assert mission_three_script["sha256"] == SCRIPT_SHA
 cpu, _ = native_cpu(EXE)
 cpu.mem_map(0x2000000, 0x60000)
 ai, building, stack, stop = 0x2000000, 0x2002000, 0x205D000, 0x205E000
@@ -147,6 +153,7 @@ write(0x89D178, "I", 0x12345678)
 available = 4
 assert call(0x4E59A0, ai, 0) == 0
 assert read(0x89D178) == 0x32BE789B
+below_capacity = {"available": available, "allocated": False, "rng": hex(read(0x89D178))}
 
 # 0x4c6da0 phase 8 retries an incomplete plan after its builders are lost.
 plan, cell = 0x2003000, 0x1E0A
@@ -195,4 +202,107 @@ call(0x4C6DA0, ai, 0)
 assert read(task8 + 0x42, "H") == 8
 assert read(task8 + 0x0D, "B") == 9
 
-print(json.dumps({"executableSha256": SHA, "construction": observations, "training": training, "belowCapacity": {"available": available, "allocated": False, "rng": hex(read(0x89D178))}, "lostBuilderRecovery": recovery}, indent=2))
+mode = "construction"
+mission_three_attributes = [40,0,1,0,0,0,0,10,0,1,0,100,0,0,2,1,0,0,20,0,0,0,0,0,0,1,0,64,20,1,0,0,128,1,0,0,0,0,0,0,0,1,0,0,0,0,1,0]
+
+
+def mission_three_request(models, origin, housing=0):
+    cpu.mem_write(ai, bytes(0xC65))
+    cpu.mem_write(building, bytes(0x300))
+    write(ai + 0x596, "I", 0x60)
+    write(ai + 0x59A, "I", 1)
+    write(ai + 0x36A, "H", origin)
+    write(ai + 0x5B4, "B", 2)
+    write(ai + 0xC22, "B", 2)
+    attributes = mission_three_attributes.copy()
+    attributes[10] = housing
+    cpu.mem_write(0x9607EA + 2 * 48, bytes(attributes))
+    for index, model in enumerate(models):
+        address = building + index * 0x100
+        write(address + 8, "I", building + (index + 1) * 0x100 if index + 1 < len(models) else 0)
+        write(address + 0x2B, "BB", model, 2)
+    write(ai + 0x885, "I", building if models else 0)
+    write(0x89D178, "I", 0x12345678)
+    queries.clear()
+    assert call(0x4E5580, ai, 0) == 1
+    task = ai
+    result = {"requested": read(task + 0x68), "origin": read(task + 0x6C), "queries": list(queries), "rng": hex(read(0x89D178))}
+    assert read(task + 0x74) == 1 and read(task + 0x85, "B") == 0 and read(task + 0x70) == 0 and read(task + 0x78, "H") == 0
+    return result
+
+
+mission_three = [
+    mission_three_request([], 0x60DA),
+    mission_three_request([4], 0x4242),
+    mission_three_request([4, 5], 0x4242, 15),
+]
+assert [(item["requested"], item["origin"]) for item in mission_three] == [(4, 0x60DA), (5, 0x4242), (1, 0x4242)]
+assert all(item["rng"] == "0x12345678" for item in mission_three)
+
+program = 0x2010000
+commands = []
+
+
+def mission_three_command(_cpu, _address, _size, _user):
+    pc = read(program + 0x3104)
+    opcode = read(pc + 2, "H")
+    arity = mission_three_script["commands"][str(opcode)]
+    args = list(struct.unpack("<" + "H" * arity, cpu.mem_read(pc + 4, arity * 2)))
+    commands.append([opcode, args])
+    if opcode == 1095:
+        return
+    write(program + 0x3104, "I", pc + 4 + arity * 2)
+    ret(1)
+
+
+def mission_three_internal(_cpu, _address, _size, _user):
+    field = read(cpu.reg_read(UC_X86_REG_ESP) + 12)
+    kind, value = struct.unpack("<Ii", cpu.mem_read(field, 8))
+    if kind == 2 and value == 1:
+        ret(7)
+    elif kind == 2 and value == 1070:
+        ret(1)
+
+
+cpu.hook_add(UC_HOOK_CODE, mission_three_command, begin=0x48CC60, end=0x48CC60)
+cpu.hook_add(UC_HOOK_CODE, mission_three_internal, begin=0x48F350, end=0x48F350)
+source = SCRIPT.read_bytes()
+training_codes = [12, 1003, *mission_three_script["codes"][729:768], 1004, 1019]
+
+
+def run_mission_three_training(turn, preserve_variables=False):
+    variables = cpu.mem_read(program + 0x3000, 256) if preserve_variables else bytes(256)
+    blob = bytearray(source)
+    blob[:8192] = bytes(8192)
+    struct.pack_into("<" + "H" * len(training_codes), blob, 0, *training_codes)
+    blob[12288:12544] = variables
+    cpu.mem_write(program, bytes(blob))
+    write(0x89D188, "I", turn)
+    call(0x48C6B0, ai, program)
+
+
+mode = "training"
+training_building = 5
+available = 6
+cpu.mem_write(ai, bytes(0xC65))
+write(ai + 0x885, "I", building)
+write(ai + 0xC22, "B", 2)
+cpu.mem_write(0x9607EA + 2 * 48, bytes(mission_three_attributes))
+write(0x89D178, "I", 0x12345678)
+run_mission_three_training(190)
+mission_three_training = {
+    "flags": read(ai + 0x74),
+    "type": read(ai + 0x85, "B"),
+    "target": read(ai + 0x68),
+    "requested": read(ai + 0x6C),
+    "phase": read(ai + 0x78, "H"),
+    "latch": read(program + 0x3000 + 23 * 4, "i"),
+}
+assert commands == [[1095, [11, 144]]]
+assert mission_three_training == {"flags": 1, "type": 6, "target": 42, "requested": 1, "phase": 0, "latch": 1}
+assert read(0x9607EA + 2 * 48 + 10, "B") == 15 and read(0x89D178) == 0x12345678
+commands.clear()
+run_mission_three_training(206, True)
+assert commands == [] and read(program + 0x3000 + 23 * 4, "i") == 1
+
+print(json.dumps({"executableSha256": SHA, "missionThreeConstruction": mission_three, "missionThreeTraining": mission_three_training, "construction": observations, "training": training, "belowCapacity": below_capacity, "lostBuilderRecovery": recovery}, indent=2))

@@ -5,13 +5,18 @@ import { openGame } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const { page, errors } = await openGame(browser)
-  await page.evaluate(async () => {
-    const main = document.querySelector('main')
-    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
-    for (; fiber; fiber = fiber.return)
-      for (let hook = fiber.memoizedState; hook; hook = hook.next)
-        if (hook.memoizedState?.getWorld) globalThis.testStore = hook.memoizedState
-    globalThis.testStore.startMission(2)
+  await page.evaluate(() => {
+    const world = globalThis.testStore.getWorld()
+    world.status = 'won'
+    world.outcome.cameraPlaying = false
+    globalThis.testStore.update()
+  })
+  await page.getByRole('button', { name: 'Continue to Mission 2', exact: false }).click()
+  await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 2)
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => {
     const world = globalThis.testStore.getWorld()
     world.status = 'won'
     world.outcome.cameraPlaying = false
@@ -32,11 +37,18 @@ try {
     return world.spellCasts[2][17] === 1 && world.units.filter(unit => unit.team === 'wild').length < 44
   })
   const result = await page.evaluate(async () => {
-    const world = globalThis.testStore.getWorld()
+    const world = globalThis.testStore.getWorld(),
+      { tick } = await import('/app/model.ts'),
+      complete = kind =>
+        world.buildings.some(
+          building => building.team === 'yellow' && building.kind === kind && building.progress === 1
+        ),
+      preacher = () =>
+        world.units.some(unit => unit.team === 'yellow' && unit.kind === 'preacher' && unit.hp > 0)
     const initial = {
       level: world.outcome.level,
       blue: world.units.filter(unit => unit.team === 'blue').length,
-      red: world.units.filter(unit => unit.team === 'red').length,
+      yellow: world.units.filter(unit => unit.team === 'yellow').length,
       wild: world.units.filter(unit => unit.team === 'wild').length,
       vault: world.shrines.some(shrine => shrine.kind === 'vault' && shrine.reward === 'temple'),
       erosion: world.shrines.some(shrine => shrine.kind === 'erosionEffect'),
@@ -50,12 +62,31 @@ try {
         stock: world.manaWorld.spells[2].stocks[17],
       },
     }
+    for (let turn = 0; turn < 6000 && !preacher(); turn++) tick(world, 1 / 12)
+    if (!preacher()) throw new Error(`Mission 3 Chumara Preacher timed out at turn ${world.turn}`)
+    initial.settlement = {
+      tower: complete('tower'),
+      camp: complete('camp'),
+      temple: complete('temple'),
+      preacher: preacher(),
+      trainingLatch: world.ai.variables[23],
+    }
     await globalThis.testStore.saveCheckpoint()
     world.unlockedTemple = true
     globalThis.testStore.startMission(1)
     if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 3 checkpoint load failed')
     const restored = globalThis.testStore.getWorld(),
-      checkpoint = { level: restored.outcome.level, unlockedTemple: restored.unlockedTemple }
+      checkpoint = {
+        level: restored.outcome.level,
+        unlockedTemple: restored.unlockedTemple,
+        settlement: restored.buildings.filter(
+          building => building.team === 'yellow' && building.progress === 1
+        ).length,
+        preacher: restored.units.filter(
+          unit => unit.team === 'yellow' && unit.kind === 'preacher' && unit.hp > 0
+        ).length,
+        trainingLatch: restored.ai.variables[23],
+      }
     globalThis.testStore.restart()
     const restarted = globalThis.testStore.getWorld()
     return {
@@ -64,8 +95,10 @@ try {
       restart: {
         level: restarted.outcome.level,
         blue: restarted.units.filter(unit => unit.team === 'blue').length,
-        red: restarted.units.filter(unit => unit.team === 'red').length,
+        yellow: restarted.units.filter(unit => unit.team === 'yellow').length,
         wild: restarted.units.filter(unit => unit.team === 'wild').length,
+        settlement: restarted.buildings.filter(building => building.team === 'yellow').length,
+        trainingLatch: restarted.ai.variables[23],
       },
     }
   })
@@ -73,7 +106,7 @@ try {
     initial: {
       level: 3,
       blue: 1,
-      red: 8,
+      yellow: 8,
       wild: 43,
       vault: true,
       erosion: true,
@@ -83,12 +116,13 @@ try {
         inputLocked: true,
       },
       convertWild: { casts: 1, stock: 0 },
+      settlement: { tower: true, camp: false, temple: true, preacher: true, trainingLatch: 1 },
     },
-    checkpoint: { level: 3, unlockedTemple: false },
-    restart: { level: 3, blue: 1, red: 7, wild: 44 },
+    checkpoint: { level: 3, unlockedTemple: false, settlement: 2, preacher: 1, trainingLatch: 1 },
+    restart: { level: 3, blue: 1, yellow: 7, wild: 44, settlement: 0, trainingLatch: 0 },
   })
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 2 continuation opens Mission 3 data, flyby and Chumara conversion')
+  console.log('PASS: Mission 3 opens, builds Chumara settlement, trains Preacher and restores checkpoint')
 } finally {
   await browser.close()
 }

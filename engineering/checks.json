@@ -351,8 +351,10 @@
       "id": "mission6-economy-native",
       "kind": "native",
       "automation": "safe",
-      "purpose": "Execute Mission 6's native ordinary construction, lost-builder recovery, and specialist-training producers.",
+      "purpose": "Execute Mission 3 and Mission 6 native ordinary construction, lost-builder recovery, and specialist-training producers.",
       "coveredBehavior": [
+        "Mission 3 Tower then Temple construction requests without Warrior Training Hut demand",
+        "Mission 3 original training block, one-Preacher task, housing target, and repetition latch",
         "Initial Guard Tower and settlement construction requests",
         "Warrior Training Hut selection from supplied post-profile Matak attributes",
         "Chumara Temple selection from attribute 2 and Preacher production from attribute 6",
@@ -372,6 +374,7 @@
         "decomp/generated/004e5580.c",
         "decomp/generated/004e59a0.c",
         "decomp/generated/004f5d20.c",
+        "app/original-script-three.json",
         "app/original-script-six.json",
         "scripts/decomp.py",
         "decomp/requirements.txt",
@@ -379,7 +382,7 @@
       ],
       "prerequisites": [
         "Documented Unicorn Python environment",
-        "Hash-verified user-supplied executable"
+        "Hash-verified user-supplied executable and adjacent Mission 3 script"
       ],
       "sideEffects": [],
       "resources": ["External executable is read-only"],
@@ -531,6 +534,45 @@
         "app/world-turn.ts",
         "app/scene.ts",
         "public/original/message-type1.png"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission3-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 3 opening, recurring Chumara settlement construction, first Preacher training, and checkpoint restoration through the live browser game.",
+      "coveredBehavior": [
+        "Mission 2 result continuation into Mission 3 data and objectives",
+        "Mission 3 original opening flyby and one-shot Convert Wild cast",
+        "Mission 3 autonomous Chumara settlement construction through ordinary type-0 tasks",
+        "Mission 3 first naturally requested and trained Chumara Preacher",
+        "Mission 3 checkpoint and restart identity, construction, Preacher, and script-latch preservation"
+      ],
+      "knownLimits": [
+        "Seeds Mission 2 victory before exercising the real continuation path; it does not prove natural Mission 2 or Mission 3 victory.",
+        "Later Mission 3 recurring raids, warnings, marker behavior, and broader tutorial presentation remain deferred."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission3-opening.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission3-opening.mjs",
+        "scripts/browser-game.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/computer-runtime.ts",
+        "app/original-models.json",
+        "app/original-script-three.json",
+        "app/mission-data.ts",
+        "app/page.tsx",
+        "app/game-store.ts",
+        "app/model.ts",
+        "app/world-turn.ts",
+        "app/scene.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
