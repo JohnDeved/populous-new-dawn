@@ -3,6 +3,7 @@ import {
   headAt,
   campaignInternal,
   campaignPeopleInMarker,
+  campaignAttackEntity,
   campaignAttackTarget,
   forceHead,
   campaignPosition,
@@ -254,15 +255,28 @@ export function campaignCommand(
         field(6, 2, 1188) &&
         field(7, 2, 1185) &&
         options.every((value, index) => value === [0, -1, -1, -1][index]),
+      missionFiveAttack =
+        targetMode === 1072 &&
+        requested === 2 &&
+        field(1, 0, 2) &&
+        field(3, 2, 1206) &&
+        marker === 7 &&
+        damage === 6 &&
+        field(5, 2, 1188) &&
+        field(6, 2, 1185) &&
+        field(7, 2, 1185) &&
+        options.every((value, index) => value === [0, -1, -1, -1][index]),
       validTarget =
         (targetMode === 1070 && requested === 3 && marker === 3) ||
         (targetMode === 1071 &&
-          ((field(1, 2, 1) && field(3, 2, 1223) && marker === 0) || missionTwoAttack))
+          ((field(1, 2, 1) && field(3, 2, 1223) && marker === 0) || missionTwoAttack)) ||
+        missionFiveAttack
     if (
       args[0] !== 1118 ||
       args[8] !== 1078 ||
       !validTarget ||
       (!missionTwoAttack &&
+        !missionFiveAttack &&
         (![5, 6, 7].every(none) ||
           damage !== 999 ||
           options.some((value, index) => value !== [0, -1, -1, 0][index])))
@@ -271,7 +285,12 @@ export function campaignCommand(
     const target =
       targetMode === 1070
         ? { id: 0, target: level.markers[marker] }
-        : campaignAttackTarget(w, 0, marker)
+        : targetMode === 1072
+          ? campaignAttackEntity(
+              w,
+              w.units.find(u => u.team === campaignTeam(w, 0) && isShaman(u) && u.hp > 0)?.id ?? 0
+            )
+          : campaignAttackTarget(w, 0, marker)
     if (target === null) return
     requestAttack(
       w.ai,
@@ -471,7 +490,12 @@ export function campaignCommand(
   if (opcode === 1085) {
     value = markerHeight(w.terrain, read(args[0]), w.outcome.level, w.land.heights)
   } else if (opcode === 1131) {
-    value = ((headAt(w, read(args[0]), read(args[1]))?.remaining ?? 0) << 24) >> 24
+    const x = read(args[0]),
+      y = read(args[1]),
+      remaining =
+        headAt(w, x, y)?.remaining ?? (w.outcome.level === 5 && x === 166 && y === 130 ? 1 : 0)
+    // ponytail: Mission 5's Angel reward is still deferred; remove this fallback when that head becomes playable.
+    value = (remaining << 24) >> 24
   } else {
     const tribe = args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0])
     const model = read(args[1])
@@ -528,6 +552,7 @@ export function campaignRules(w: World) {
                     12,
                     1003,
                     ...script.codes.slice(529, 546),
+                    ...script.codes.slice(599, 706),
                     1004,
                     ...script.codes.slice(707, 744),
                     1004,

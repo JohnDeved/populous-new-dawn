@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorld, tick } from '../app/model.ts'
-import { missionEnemyTribe } from '../app/mission-data.ts'
+import { browserPosition, createWorld, tick } from '../app/model.ts'
+import { missionData, missionEnemyTribe } from '../app/mission-data.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from '../app/building-shapes.ts'
+import { syncLivePersonCells } from '../app/live-people.ts'
 
 test('Mission 5 runs its imported opening flyby once through ordinary turns', () => {
   const world = createWorld(5)
@@ -41,6 +42,46 @@ test('Mission 5 runs its imported opening flyby once through ordinary turns', ()
   for (let turn = 0; turn < 2048; turn++) tick(world, 1 / 12)
   assert.equal(world.flyby.events, events)
   assert.equal(world.flyby.events.length, 12)
+})
+
+test('Mission 5 launches its original ordinary raid when the player reaches the Angel head', () => {
+  const world = createWorld(5),
+    shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+    marker = missionData(5).level.markers[10]
+  Object.assign(
+    shaman,
+    browserPosition({ x: (marker & 255) * 256, y: (marker >>> 8) * 256 }),
+    { native: undefined }
+  )
+  syncLivePersonCells(world)
+
+  for (let turn = 0; turn < 64 && !world.ai.tasks.some(task => task.flags & 1 && task.type === 20); turn++)
+    tick(world, 1 / 12)
+  const task = world.ai.tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.deepEqual(
+    task && {
+      requested: task.requested,
+      damage: task.extra,
+      entity: task.entity,
+      quotas: task.quotas,
+      retreat: task.retreatPercent,
+    },
+    { requested: 2, damage: 6, entity: shaman.id, quotas: [50, 50, 0, 1, 1, 0], retreat: 20 }
+  )
+
+  let attackers = []
+  for (let turn = 0; turn < 256 && attackers.length < 2; turn++) {
+    tick(world, 1 / 12)
+    attackers = world.units.filter(unit => unit.team === 'red' && unit.target === shaman.id)
+  }
+  assert.equal(attackers.length, 2)
+  assert.ok(attackers.every(unit => currentPersonOrder(world.buildingOrders, unit.native)?.model === 28))
+  const hp = shaman.hp
+  for (let turn = 0; turn < 512 && shaman.hp === hp && !attackers.some(unit => unit.fight); turn++)
+    tick(world, 1 / 12)
+  assert.ok(shaman.hp < hp || attackers.some(unit => unit.fight))
+  for (let turn = 0; turn < 512 && (task.flags & 1); turn++) tick(world, 1 / 12)
+  assert.equal(task.flags & 1, 0)
 })
 
 test('Mission 5 launches its surviving Dakini at the player Shaman', () => {

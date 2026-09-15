@@ -185,6 +185,49 @@ try {
   const boatMessage = page.locator('.campaign-messages details').filter({ hasText: 'The Ancients have granted you a Boat, Shaman.' })
   await boatMessage.locator('summary').click()
   await boatMessage.getByText('The Ancients have granted you a Boat, Shaman.', { exact: true }).waitFor()
+  const ordinaryRaid = await page.evaluate(async () => {
+    await globalThis.testStore.saveCheckpoint()
+    const world = globalThis.testStore.getWorld(),
+      { browserPosition, tick } = await import('/app/model.ts'),
+      { missionData } = await import('/app/mission-data.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+      marker = missionData(5).level.markers[10]
+    Object.assign(
+      shaman,
+      browserPosition({ x: (marker & 255) * 256, y: (marker >>> 8) * 256 }),
+      { native: undefined }
+    )
+    syncLivePersonCells(world)
+    for (let turn = 0; turn < 64 && !world.ai.tasks.some(task => task.flags & 1 && task.type === 20); turn++)
+      tick(world, 1 / 12)
+    const task = world.ai.tasks.find(task => task.flags & 1 && task.type === 20),
+      taskFields = task && [task.requested, task.extra, task.entity, task.retreatPercent]
+    let attackers = []
+    for (let turn = 0; turn < 256 && attackers.length < 2; turn++) {
+      tick(world, 1 / 12)
+      attackers = world.units.filter(unit => unit.team === 'red' && unit.target === shaman.id)
+    }
+    const orders = attackers.map(unit => currentPersonOrder(world.buildingOrders, unit.native)?.model),
+      hp = shaman.hp
+    for (let turn = 0; turn < 512 && shaman.hp === hp && !attackers.some(unit => unit.fight); turn++)
+      tick(world, 1 / 12)
+    const engaged = shaman.hp < hp || attackers.some(unit => unit.fight)
+    for (let turn = 0; turn < 512 && (task?.flags & 1); turn++) tick(world, 1 / 12)
+    const retired = !(task?.flags & 1)
+    if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 5 raid restore failed')
+    globalThis.testStore.update()
+    return { taskFields, shaman: shaman.id, attackers: attackers.length, orders, engaged, retired }
+  })
+  assert.deepEqual(ordinaryRaid, {
+    taskFields: [2, 6, ordinaryRaid.shaman, 20],
+    shaman: ordinaryRaid.shaman,
+    attackers: 2,
+    orders: [28, 28],
+    engaged: true,
+    retired: true,
+  })
   const lastStand = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
       { tick } = await import('/app/model.ts'),

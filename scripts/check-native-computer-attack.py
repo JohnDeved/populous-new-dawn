@@ -1,4 +1,4 @@
-"""Inspect mission one's native ATTACK decode and ordinary attack route.
+"""Inspect Mission 1/5 native ATTACK decoding and the ordinary attack route.
 
 Usage: python scripts/check-native-computer-attack.py /path/to/d3dpoptb.exe
 The original interpreter, task allocator, selector, group builder and commit execute.
@@ -17,12 +17,17 @@ program,stack,stop=0x2000000,0x201d000,0x201e000
 tribes=0x89d1c8;red=tribes+0xc65
 markers=0x89b7a5;target_marker=0xfa06;staging=0xf204
 original=json.loads((root/'app/original-script.json').read_text())
+mission_five=json.loads((root/'app/original-script-five.json').read_text())
 source=Path(sys.argv[1]).parent/'levels/cpscr010.dat'
 assert hashlib.sha256(source.read_bytes()).hexdigest()==original['sha256']
+source_five=Path(sys.argv[1]).parent/'levels/cpscr058.dat'
+assert hashlib.sha256(source_five.read_bytes()).hexdigest()==mission_five['sha256']
 codes=[12,1003,*original['codes'][716:731],1004,1019]
 assert codes[2:]==[1006,1059,1118,20,1070,20,160,161,161,161,1078,1,49,49,1,1004,1019]
 tribe_codes=[12,1003,*original['codes'][900:915],1004,1019]
 assert tribe_codes[2:]==[1006,1059,1118,109,1071,164,160,161,161,161,1078,1,49,49,1,1004,1019]
+mission_five_codes=[12,1003,*mission_five['codes'][649:664],1004,1019]
+assert mission_five_codes[2:]==[1006,1059,1118,52,1072,124,54,26,84,84,1078,1,51,51,51,1004,1019]
 
 def write(p,fmt,*values):cpu.mem_write(p,struct.pack(fmt,*values))
 def return_from_leaf(value=0):
@@ -39,10 +44,10 @@ def initialize(enabled=True,maximum=1,full=False):
     write(0x960833,'<B',maximum)
     if full:
         for i in range(10):write(red+0x36+i*0x52+0x3e,'<I',1)
-def run(script_codes=codes):
+def run(script_codes=codes,script=original):
     blob=bytearray(12552);struct.pack_into('<'+'H'*len(script_codes),blob,0,*script_codes)
-    for i,field in enumerate(original['fields']):struct.pack_into('<Ii',blob,8192+i*8,*field)
-    struct.pack_into('<64i',blob,12288,*original['variables']);cpu.mem_write(program,bytes(blob))
+    for i,field in enumerate(script['fields']):struct.pack_into('<Ii',blob,8192+i*8,*field)
+    struct.pack_into('<64i',blob,12288,*script['variables']);cpu.mem_write(program,bytes(blob))
     write(stack,'<III',stop,red,program);cpu.reg_write(UC_X86_REG_ESP,stack)
     cpu.emu_start(0x48c6b0,stop,timeout=100000,count=200000)
     assert cpu.reg_read(UC_X86_REG_EIP)==stop
@@ -69,7 +74,13 @@ assert task['type']==20 and task['phase']==0 and task['requested']==3 and task['
 assert task['route']==target_marker and task['original']==target_marker,task
 assert task['marker']==3 and task['entity']==0,task
 target_building=0x2007000;target_route=0xaa12;tribe_probe=False;target_trace=[]
+target_shaman=0x2006000;shaman_probe=False
 def target_leaf(cpu,address,size,user):
+    if address==0x4f25a0:
+        if not shaman_probe:return
+        sp=cpu.reg_read(UC_X86_REG_ESP)
+        assert struct.unpack('<I',cpu.mem_read(sp+4,4))[0]==tribes
+        target_trace.append('shaman');return_from_leaf(target_shaman);return
     if not tribe_probe:return
     sp=cpu.reg_read(UC_X86_REG_ESP)
     if address==0x4f6100:
@@ -81,9 +92,17 @@ def target_leaf(cpu,address,size,user):
     if address==0x404420:
         building,out=struct.unpack('<II',cpu.mem_read(sp+4,8));assert building==target_building
         write(out,'<HH',0x1234,0xabcd);return_from_leaf()
-for address in (0x4f6100,0x4f6180,0x404420):cpu.hook_add(UC_HOOK_CODE,target_leaf,begin=address,end=address)
+for address in (0x4f25a0,0x4f6100,0x4f6180,0x404420):cpu.hook_add(UC_HOOK_CODE,target_leaf,begin=address,end=address)
+cpu.mem_write(target_shaman,bytes(256));write(target_shaman,'<I',1)
+write(target_shaman+0x24,'<H',91);write(target_shaman+0x2a,'<BB',1,7)
+write(target_shaman+0x3d,'<HH',0xa612,0x8412);write(0x890390+91*4,'<I',target_shaman)
+initialize();target_trace.clear();shaman_probe=True;run(mission_five_codes,mission_five);shaman_probe=False
+shaman_attack=tasks();assert len(shaman_attack)==1,shaman_attack
+task=shaman_attack[0]
+assert task['type']==20 and task['requested']==2 and task['damage']==6,task
+assert task['marker']==7 and task['entity']==91 and target_trace==['shaman'],(task,target_trace)
 cpu.mem_write(target_building,bytes(256));write(target_building+0x24,'<H',77);write(target_building+0x2a,'<B',2)
-initialize();write(red+0x91d,'<I',3);tribe_probe=True;run(tribe_codes);tribe_probe=False
+initialize();write(red+0x91d,'<I',3);target_trace.clear();tribe_probe=True;run(tribe_codes);tribe_probe=False
 tribe_attack=tasks();assert len(tribe_attack)==1,tribe_attack
 task=tribe_attack[0]
 assert task['type']==20 and task['phase']==0 and task['requested']==3 and task['damage']==999,task
@@ -95,6 +114,7 @@ for enabled,maximum,full in [(False,1,False),(True,0,False),(True,1,True)]:
     assert bytes(cpu.mem_read(red+0x36,10*0x52))==before,(enabled,maximum,full,tasks())
 print('PASS: native mission-one ATTACK decoded and allocated type 20; disabled, capped and full queues refused')
 print('PASS: native later ATTACK dispatched Blue building selection and retained the controlled id and route')
+print('PASS: native mission-five ATTACK selected the living Blue Shaman and retained its id')
 
 # Exercise the deterministic ordinary-person route through phase 14.
 people=0x2008000
