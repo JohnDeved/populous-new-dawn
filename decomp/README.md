@@ -384,6 +384,18 @@ RNG. The conditional type-0 path and its controlled-leaf limits are documented i
 [the focused research note](research/mission1-red-hut.md). This research correction
 does not add gameplay or parity credit.
 
+## Mission 6 autonomous construction
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mission6-economy.py /path/to/d3dpoptb.exe
+```
+
+The reviewed producer, allocation, model-count, housing, and training exports establish
+Mission 6's tower, Warrior Training Hut, housing, and training order. The probe controls
+building availability/count and person availability leaves; live site choice, movement,
+construction, training, and births remain browser evidence. See the
+[focused evidence and limits](research/mission6-economy.md).
+
 ## Shared person commands
 
 ```sh

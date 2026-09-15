@@ -7,7 +7,12 @@ import { migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { stepOutcome } from '../app/tribe-turns.ts'
-import { buildingModel } from '../app/building-shapes.ts'
+import { buildingFootprintCells, buildingModel } from '../app/building-shapes.ts'
+import { nativeCellIndex, nativePosition } from '../app/world-terrain-runtime.ts'
+import { spiralCell } from '../app/native-math.ts'
+import rules from '../app/original-rules.json' with { type: 'json' }
+import { withCampaignTribe } from '../app/campaign-runtime.ts'
+import { stepComputerTasks } from '../app/computer-runtime.ts'
 
 test('Mission 6 keeps both original opponents distinct through outcome and checkpoints', () => {
   assert.equal(
@@ -109,7 +114,7 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
   }
 })
 
-test('Mission 6 opponents autonomously build their first Guard Towers', () => {
+test('Mission 6 opponents autonomously establish their first settlements', () => {
   const failed = createWorld(6)
   for (
     let turn = 0;
@@ -179,4 +184,146 @@ test('Mission 6 opponents autonomously build their first Guard Towers', () => {
       )
     )
   )
+
+  const pendingCamp = migrateCheckpoint(structuredClone(world)),
+    pendingAI = pendingCamp.campaignAIs[2]
+  Object.assign(
+    pendingAI.tasks.find(task => !(task.flags & 1)),
+    { flags: 1, type: 0, requested: 7, phase: 0 }
+  )
+  pendingCamp.turn = 125
+  withCampaignTribe(pendingCamp, 2, () => stepComputerTasks(pendingCamp, 2))
+  assert.equal(
+    pendingAI.tasks.filter(
+      task => task.flags & 1 && task.type === 0 && task.requested === 7 && task.phase < 3
+    ).length,
+    1
+  )
+
+  for (
+    let turn = 0;
+    turn < 200 &&
+    ![
+      world.campaignAIs[2].tasks.some(task => task.phase === 8 && task.requested === 7),
+      world.campaignAIs[3].tasks.some(task => task.phase === 8 && task.requested === 1),
+    ].every(Boolean);
+    turn++
+  )
+    tick(world, 1 / 12)
+  const expansionTasks = [
+    world.campaignAIs[2].tasks.find(task => task.phase === 8 && task.requested === 7),
+    world.campaignAIs[3].tasks.find(task => task.phase === 8 && task.requested === 1),
+  ]
+  assert.deepEqual(
+    expansionTasks.map(task =>
+      task && { model: task.requested, workers: task.members.length, origin: task.origin }
+    ),
+    [
+      { model: 7, workers: 2, origin: tasks[0].target },
+      { model: 1, workers: 2, origin: tasks[1].target },
+    ]
+  )
+  const blockedCell = spiralCell(expansionTasks[0].origin, 0, expansionTasks[0].mode),
+    blockedFootprint = new Set(
+      buildingFootprintCells({
+        object: rules.buildingObjects[7],
+        angle: expansionTasks[0].fallback * 512,
+        anchorX: (blockedCell & 254) << 8,
+        anchorY: blockedCell & 0xfe00,
+      })
+    )
+  assert.ok(
+    world.units.some(unit => {
+      const p = nativePosition(world, unit)
+      return (
+        unit.team === 'wild' &&
+        unit.hp > 0 &&
+        unit.inside === null &&
+        !unit.lift &&
+        blockedFootprint.has(nativeCellIndex(((p.x >>> 8) & 254) | (p.y & 0xfe00)))
+      )
+    })
+  )
+  assert.notEqual(expansionTasks[0].target, blockedCell)
+
+  const redirected = migrateCheckpoint(structuredClone(world)),
+    redirectedAI = redirected.campaignAIs[2],
+    redirectedCamp = redirected.buildings.find(building => building.id === expansionTasks[0].entity),
+    redirectedWorker = redirected.units.find(unit => unit.id === expansionTasks[0].members[0]),
+    warriorsBefore = redirected.units.filter(
+      unit => unit.team === 'yellow' && unit.kind === 'warrior'
+    ).length
+  redirectedCamp.progress = 1
+  redirectedCamp.preparation = undefined
+  redirected.units = redirected.units.filter(
+    unit => unit.team !== 'yellow' || unit.kind !== 'brave' || unit === redirectedWorker
+  )
+  redirectedAI.tasks.forEach(task => (task.flags = 0))
+  Object.assign(redirectedAI.tasks[0], {
+    flags: 1,
+    type: 6,
+    phase: 4,
+    target: redirectedCamp.id,
+    requested: 1,
+    remaining: 1,
+  })
+  redirectedAI.trainingSelections[0] = []
+  redirectedAI.flags |= 2
+  redirectedAI.selectionOwner = redirectedAI.cursor = 0
+  redirected.turn = 0
+  assert.equal(
+    currentPersonOrder(
+      redirected.buildingOrders,
+      redirectedWorker.native ?? redirectedWorker.builder.person
+    )?.model,
+    6
+  )
+  withCampaignTribe(redirected, 2, () => stepComputerTasks(redirected, 2))
+  assert.equal(redirectedWorker.work, null)
+  assert.equal(redirectedWorker.builder, undefined)
+  assert.deepEqual(redirectedAI.trainingSelections[0], [redirectedWorker.id])
+  withCampaignTribe(redirected, 2, () => stepComputerTasks(redirected, 2))
+  withCampaignTribe(redirected, 2, () => stepComputerTasks(redirected, 2))
+  for (
+    let turn = 0;
+    turn < 1000 &&
+    redirected.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length ===
+      warriorsBefore;
+    turn++
+  )
+    tick(redirected, 1 / 12)
+  assert.ok(redirectedCamp.builders.every(id => id !== redirectedWorker.id))
+  assert.ok(
+    redirected.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length >
+      warriorsBefore
+  )
+
+  world = migrateCheckpoint(structuredClone(world))
+  const campId = expansionTasks[0].entity,
+    hutId = expansionTasks[1].entity,
+    housing = team =>
+      world.buildings
+        .filter(building => building.team === team && building.hp > 0)
+        .reduce((sum, building) => {
+          const model = buildingModel(building)
+          return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
+        }, 0)
+  for (let turn = 0; turn < 6000; turn++) {
+    const camp = world.buildings.find(building => building.id === campId),
+      hut = world.buildings.find(building => building.id === hutId)
+    if (
+      camp?.progress === 1 &&
+      hut?.progress === 1 &&
+      world.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length > 1 &&
+      world.units.filter(unit => unit.team === 'green' && unit.kind === 'brave').length > 6
+    )
+      break
+    tick(world, 1 / 12)
+  }
+  assert.equal(world.buildings.find(building => building.id === campId)?.kind, 'camp')
+  assert.equal(world.buildings.find(building => building.id === hutId)?.kind, 'hut')
+  assert.ok(housing('yellow') >= world.campaignAIs[2].attributes[10])
+  assert.ok(housing('green') >= world.campaignAIs[3].attributes[10])
+  assert.ok(world.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length > 1)
+  assert.ok(world.units.filter(unit => unit.team === 'green' && unit.kind === 'brave').length > 6)
 })

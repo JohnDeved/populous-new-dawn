@@ -249,10 +249,18 @@ try {
       { syncLivePersonCells } = await import('/app/live-people.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
       { buildingModel } = await import('/app/building-shapes.ts'),
+      { default: rules } = await import('/app/original-rules.json'),
       renderedOwners = [...globalThis.testScene.unitMeshes.values()].map(mesh => mesh.userData.owner),
       counterattacks = []
     if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 construction restore failed')
     const constructionWorld = globalThis.testStore.getWorld()
+    const housing = team =>
+      constructionWorld.buildings
+        .filter(building => building.team === team && building.hp > 0)
+        .reduce((sum, building) => {
+          const model = buildingModel(building)
+          return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
+        }, 0)
     for (
       let turn = 0;
       turn < 100 &&
@@ -278,6 +286,26 @@ try {
       turn++
     )
       tick(constructionWorld, 1 / 12)
+    for (
+      let turn = 0;
+      turn < 6000 &&
+      !(
+        constructionWorld.buildings.some(
+          building => building.team === 'yellow' && building.kind === 'camp' && building.progress === 1
+        ) &&
+        constructionWorld.buildings.some(
+          building => building.team === 'green' && building.kind === 'hut' && building.progress === 1
+        ) &&
+        housing('yellow') >= constructionWorld.campaignAIs[2].attributes[10] &&
+        housing('green') >= constructionWorld.campaignAIs[3].attributes[10] &&
+        constructionWorld.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior')
+          .length > 1 &&
+        constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'brave').length >
+          6
+      );
+      turn++
+    )
+      tick(constructionWorld, 1 / 12)
     const construction = {
       assigned,
       completed: ['yellow', 'green'].map(team =>
@@ -286,6 +314,31 @@ try {
             building.team === team && buildingModel(building) === 4 && building.progress === 1
         )
       ),
+      expansion: [
+        {
+          model: 7,
+          completed: constructionWorld.buildings.some(
+            building =>
+              building.team === 'yellow' && building.kind === 'camp' && building.progress === 1
+          ),
+          housing: housing('yellow') >= constructionWorld.campaignAIs[2].attributes[10],
+          output:
+            constructionWorld.units.filter(
+              unit => unit.team === 'yellow' && unit.kind === 'warrior'
+            ).length > 1,
+        },
+        {
+          model: 1,
+          completed: constructionWorld.buildings.some(
+            building =>
+              building.team === 'green' && building.kind === 'hut' && building.progress === 1
+          ),
+          housing: housing('green') >= constructionWorld.campaignAIs[3].attributes[10],
+          output:
+            constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'brave')
+              .length > 6,
+        },
+      ],
     }
     for (const { tribe, team, triggerTurn } of [
       { tribe: 2, team: 'yellow', triggerTurn: 8 },
@@ -362,6 +415,10 @@ try {
     missionSix.construction.assigned[1].building
   )
   assert.deepEqual(missionSix.construction.completed, [true, true])
+  assert.deepEqual(missionSix.construction.expansion, [
+    { model: 7, completed: true, housing: true, output: true },
+    { model: 1, completed: true, housing: true, output: true },
+  ])
   assert.deepEqual(
     missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
       team, early, enabled, order, targetedShaman: target === shaman, moved, engaged,
@@ -377,7 +434,9 @@ try {
   assert.equal(missionSix.victory, 0x2000000)
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 6 opponents build independently and counterattack through live browser paths')
+  console.log(
+    'PASS: Mission 6 opponents establish settlements and counterattack through live browser paths'
+  )
 } finally {
   await browser.close()
 }

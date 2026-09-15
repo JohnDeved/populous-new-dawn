@@ -9,7 +9,12 @@ import {
 import { unitAnimationSource } from './selection-runtime.ts'
 import { nativePosition, nativeCellIndex } from './world-terrain-runtime.ts'
 import { combatPerson, nativePersonModel } from './live-combat.ts'
-import { buildingModel, buildingPose, buildingPosition } from './building-shapes.ts'
+import {
+  buildingFootprintCells,
+  buildingModel,
+  buildingPose,
+  buildingPosition,
+} from './building-shapes.ts'
 import { buildingAdmission } from './live-building-entry.ts'
 import {
   currentPersonOrder,
@@ -64,6 +69,7 @@ import {
 import { refreshBuildingTerritory } from './territory.ts'
 import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
+import { releaseTasks } from './world-tasks.ts'
 
 export function computerSelectionWorld(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
@@ -283,33 +289,59 @@ function produceMissionWarriorTraining(w: World, tribe: number) {
     return
   random(w) // Native producer chooses among eligible classes; mission one has only warrior training.
   const selection = computerSelectionWorld(w, tribe),
-    available = availableTrainingPeople(selection.world)
-  if (available >= rules.buildingCapacity[trainingModel]) return
+    available = availableTrainingPeople(selection.world),
+    capacity = rules.buildingCapacity[trainingModel]
+  // ponytail: preserve Mission 1's established gate until that producer is re-probed.
+  if (w.outcome.level === 6 ? available < capacity : available >= capacity) return
   requestTraining(w.ai, 0, model, available, candidate =>
     candidate === trainingModel ? target : 0
   )
 }
 
-// Mission 6's ordinary 0x4e5580 producer reaches model 4 before its housing branch.
-function produceMissionSixTower(w: World, tribe: number) {
+// Mission 6's ordinary 0x4e5580 producer reaches training buildings before housing.
+function produceMissionSixBuilding(w: World, tribe: number) {
+  const team = campaignTeam(w, tribe),
+    has = (model: number) =>
+      w.buildings.some(
+        building => building.team === team && building.hp > 0 && buildingModel(building) === model
+      ) ||
+      w.ai.tasks.some(
+        task =>
+          task.flags & 1 && task.type === 0 && task.requested === model && task.phase < 3
+      ),
+    base = w.buildings.find(
+      building => building.team === team && building.hp > 0 && buildingModel(building) === 4
+    ),
+    housing = w.buildings
+      .filter(building => building.team === team && building.hp > 0)
+      .reduce((sum, building) => {
+        const model = buildingModel(building)
+        return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
+      }, 0)
   if (
     w.outcome.level !== 6 ||
     !(w.ai.states & 1) ||
-    w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9] ||
-    w.buildings.some(
-      building =>
-        building.team === campaignTeam(w, tribe) && building.hp > 0 && buildingModel(building) === 4
-    )
+    w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
   const selection = computerSelectionWorld(w, tribe)
   if (availableTrainingPeople(selection.world) < 2) return false
-  const shaman = w.units.find(
-      unit => unit.team === campaignTeam(w, tribe) && isShaman(unit) && unit.hp > 0
-    ),
-    position = shaman && nativePosition(w, shaman)
-  if (!position) return false
-  return requestConstruction(w.ai, 4, ((position.x >>> 8) & 254) | (position.y & 0xfe00))
+  const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
+    position = shaman && nativePosition(w, shaman),
+    origin = base
+      ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
+      : position
+        ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+        : 0
+  if (!origin) return false
+  const model = !base
+    ? 4
+    : tribe === 2 && !has(7) && w.ai.attributes[3]
+      ? 7
+      : housing < w.ai.attributes[10]
+        ? 1
+        : 0
+  return !!model && requestConstruction(w.ai, model, origin)
 }
 
 function stepComputerConstruction(w: World, tribe: number, index: number) {
@@ -328,9 +360,11 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.flags &= ~3
       task.members.length = 0
     }
-  if (task.requested !== 4) throw new Error(`Unbound computer construction ${task.requested}`)
+  if (![1, 4, 7].includes(task.requested))
+    throw new Error(`Unbound computer construction ${task.requested}`)
   if (task.phase === 0) {
-    task.target = !task.extra && w.ai.flags & 0x20 ? w.ai.coordinateLatch : task.origin
+    task.target =
+      task.requested === 4 && !task.extra && w.ai.flags & 0x20 ? w.ai.coordinateLatch : task.origin
     task.elapsed = 0
     task.remaining = 2000
     task.mode = w.ai.attributes[30] ? random(w) & 3 : 1
@@ -342,21 +376,43 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       const cell = spiralCell(task.target, task.elapsed++, task.mode),
         point = nativeCellPoint(cell),
         pose = {
-          object: rules.buildingObjects[4],
+          object: rules.buildingObjects[task.requested],
           angle: task.fallback * 512,
           anchorX: (cell & 254) << 8,
           anchorY: cell & 0xfe00,
-        }
-      if (!checkBuildingSite(w, pose, 4, team).valid) continue
+        },
+        footprint = new Set(buildingFootprintCells(pose))
+      if (!checkBuildingSite(w, pose, task.requested, team).valid) continue
+      // ponytail: wild units lack native wandering; remove this veto when their movement is live.
+      if (
+        w.units.some(unit => {
+          const p = nativePosition(w, unit)
+          return (
+            unit.team === 'wild' &&
+            unit.hp > 0 &&
+            unit.inside === null &&
+            !unit.lift &&
+            footprint.has(nativeCellIndex(((p.x >>> 8) & 254) | (p.y & 0xfe00)))
+          )
+        })
+      )
+        continue
       const selection = computerSelectionWorld(w, tribe),
         [worker] = selectComputerPeople(selection.world, 2, 2, -1, 1, cell, 0, 1),
         unit = w.units.find(unit => unit.id === worker)
       if (!unit || !findPath(w, unit, point).length) continue
-      const building = addBuilding(w, team, 'tower', point, false, {
-        angle: (task.fallback * Math.PI) / 2,
-        plan: true,
-      })
-      building.builders = Array(rules.buildingMaxWorkers[4]).fill(0)
+      const building = addBuilding(
+        w,
+        team,
+        task.requested === 1 ? 'hut' : task.requested === 7 ? 'camp' : 'tower',
+        point,
+        false,
+        {
+          angle: (task.fallback * Math.PI) / 2,
+          plan: true,
+        }
+      )
+      building.builders = Array(rules.buildingMaxWorkers[task.requested]).fill(0)
       task.target = cell
       task.entity = building.id
       task.phase = 4
@@ -461,7 +517,7 @@ export function stepComputerTasks(w: World, tribe: number) {
   const level = missionData(w.outcome.level).level
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
-    if (produceMissionSixTower(w, tribe)) return
+    if (produceMissionSixBuilding(w, tribe)) return
     produceMissionWarriorTraining(w, tribe)
     return
   }
@@ -818,8 +874,9 @@ export function stepComputerTasks(w: World, tribe: number) {
         restoreComputerSelection(w, index)
       } else if (action.kind === 'select') {
         const u = w.units.find(u => u.id === action.id)
-        if (!u || u.inside !== null || u.entry || u.work !== null)
+        if (!u || u.inside !== null || u.entry)
           throw new Error('Unsupported computer training selection')
+        if (u.work !== null) releaseTasks(w, u)
         u.native ??= createLivePerson(w, u)
         registerLivePerson(w, u.native)
         changeLivePersonState(w, u, 14)

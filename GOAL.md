@@ -9,18 +9,20 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Mission 6's first autonomous enemy construction loop.
-Through ordinary turns, Chumara and Matak must independently request their native
-model-4 task, find a valid site, assign two Braves, and complete the plan through the
-live construction path. Keep later housing, training, explicit BUILD_AT, and attacks
-outside this evidence-bounded slice; preserve independent checkpoint state and do not
-record parity without explicit authorization.
+Current task lock: deliver Mission 6's first autonomous settlement expansion.
+After their opening towers, ordinary producer turns must make Chumara build its first
+Warrior Training Hut and Matak build its first Hut through the existing task-0 path,
+continue ordinary Huts to their native housing targets, then reach the corresponding
+live training or population growth. Keep expansion beyond those targets, explicit
+BUILD_AT, and attacks outside this slice; preserve independent checkpoint state and
+do not record parity without explicit authorization.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
 original opening flyby finished in `8ad89d0`; Mission 4's contextual training and
 attack tutorials finished in `20254b5`; the first playable Mission 6 slice finished
-in `0ac9764`; its original low-population counterattacks finished in `cefc928`.
+in `0ac9764`; its original low-population counterattacks finished in `cefc928`; both
+opponents' first autonomous Guard Towers finished in `244ffc8`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not
