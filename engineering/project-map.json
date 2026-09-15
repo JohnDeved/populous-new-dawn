@@ -150,7 +150,7 @@
       ],
       "sharedPaths": ["app/model.ts", "app/native-terrain.ts", "app/scene.ts"],
       "entrySymbols": [
-        { "path": "app/scene.ts", "symbol": "placeBuilding" },
+        { "path": "app/scene-input-runtime.ts", "symbol": "pointerUp" },
         { "path": "app/live-command.ts", "symbol": "placeBuilding" },
         { "path": "app/live-construction-runtime.ts", "symbol": "processBuilderWork" }
       ],

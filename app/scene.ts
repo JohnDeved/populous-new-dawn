@@ -1,224 +1,107 @@
-import {
-  nativeModels,
-  material,
-  texture,
-  loadTexture,
-  effectFrame,
-  nativeModel,
-  geometry,
-  box,
-  part,
-  releaseGroup,
-} from './scene-assets.ts'
-import { pointerBrackets } from './world-picking.ts'
-import pointerPalette from './original-pointer.json' with { type: 'json' }
-import { commandMarkerPoint } from './command-context.ts'
-import { ScenePicking } from './scene-picking.ts'
-import { focusHudPerson } from './hud-selection.ts'
-import { ObjectPanels } from './object-panels.ts'
-import { unitHealthGauge } from './unit-health.ts'
-import { terrainTiles } from './terrain-visibility.ts'
-import { renderBuildingPanels } from './building-panels.ts'
-import { MinimapRenderer } from './minimap-renderer.ts'
-import { advanceGame } from './game-clock.ts'
-import { FpsGraph } from './fps-graph.ts'
-import { UnitMotion, interpolateUnitPosition } from './unit-motion.ts'
-import { ProjectileMotion } from './projectile-motion.ts'
-import { reincarnationStones } from './reincarnation.ts'
-import { debrisVertices } from './building-debris.ts'
-import { fireUV, fireHeading } from './scenery-fire.ts'
-import { timberScale } from './timber.ts'
-import { orderSound, playWorldSounds, soundEnvironment } from './audio'
-import type { SoundEnvironment } from './ambient-sound.ts'
-import { stepFlyby, interruptFlyby, type FlybyCamera } from './flyby.ts'
-import {
-  cameraCommand,
-  cameraEdgeButtons,
-  mergeCameraInput,
-  dragCamera,
-  stepCameraInput,
-} from './camera-input.ts'
-import {
-  createCameraMotion,
-  requestCameraFocus,
-  createResultCamera,
-  beginResultCamera,
-  stepResultCamera,
-  stepCameraMotion,
-  interpolateCamera,
-} from './camera-motion.ts'
-import { createSkyMotion } from './sky.ts'
-import { advanceSkyMotion } from './sky-motion.ts'
-import {
-  readTerrainTextures,
-  terrainAtlas,
-  updateFootprintTiles,
-  terrainTextureBounds,
-  type TerrainTextures,
-} from './terrain-texture.ts'
-import { waterTexture, waterPoint, waterCell } from './water.ts'
-import { terrainPointHeight } from './native-terrain.ts'
-import { modelLighting, modelWaveOffsets } from './model-lighting.ts'
-import {
-  createTooltip,
-  stepTooltip,
-  forcedTooltipObject,
-  worldTooltipObject,
-  tooltipPalette,
-} from './tooltips.ts'
 import * as THREE from 'three'
+import type { SoundEnvironment } from './ambient-sound.ts'
+import { orderSound, playWorldSounds, soundEnvironment } from './audio'
+import { renderBuildingPanels } from './building-panels.ts'
+import { createCameraMotion, createResultCamera } from './camera-motion.ts'
+import { type FlybyCamera } from './flyby.ts'
+import { FpsGraph } from './fps-graph.ts'
+import { advanceGame } from './game-clock.ts'
+import { MinimapRenderer } from './minimap-renderer.ts'
 import {
-  buildingObject,
-  buildingPlanPose,
-  buildingPose,
-  buildingStage,
-  nativePosition,
-  browserPosition,
-  sound,
   HOME,
-  ENEMY,
-  placementError,
-  walkable,
-  distance,
-  buildingHp,
-  cast,
-  command,
-  effect,
-  cancelInteraction,
-  selectUnit,
-  selectArea,
-  selectFollowers,
-  hudPeople,
-  placeBuilding,
-  spellRange,
-  spellTargetError,
   SPELLS,
-  TURNS_PER_SECOND,
-  type World,
-  type Point,
-  type Tree,
-  type Unit,
+  nativePosition,
   type Building,
   type Effect,
-  type Gift,
-  unitAnimation,
-  unitAnimationSource,
-  canOrder,
-  canPickUnit,
-  unitInvisibleToPlayer,
-  unitInvisibilityRenderFlag,
+  type Point,
+  type World,
 } from './model'
+import { ObjectPanels } from './object-panels.ts'
+import pointerPalette from './original-pointer.json' with { type: 'json' }
+import { ProjectileMotion } from './projectile-motion.ts'
+import { loadTexture, releaseGroup, texture } from './scene-assets.ts'
+import { ScenePicking } from './scene-picking.ts'
+import { createSkyMotion } from './sky.ts'
+import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
+import { terrainTiles } from './terrain-visibility.ts'
+import { createTooltip, tooltipPalette, worldTooltipObject } from './tooltips.ts'
+import { UnitMotion } from './unit-motion.ts'
+import { waterTexture } from './water.ts'
 
-import nativeModelData from './original-models.json'
-import { modelDepthBias, modelStage, modelTextureModes, type NativeModel } from './model-faces.ts'
-import { morphCoordinate } from './morph.ts'
-import {
-  vertexLighting,
-  spriteDirection,
-  spriteCoordinate,
-  spriteBucket,
-  spriteShadow,
-  selectionArrow,
-  scaledEffectSize,
-  cameraPreset,
-  cameraConfigIndex,
-  type CameraConfig,
-} from './projection.ts'
-import {
-  zoomPreset,
-  viewTransitionFrames,
-  stepViewTransition,
-  beginGlobeMorph,
-  stepGlobeMorph,
-  type GlobeMorph,
-} from './camera-view.ts'
+import { type BuildingShapePose } from './building-shapes.ts'
+import { type GlobeMorph } from './camera-view.ts'
+import { SelectionOverlay } from './drag-overlay.ts'
+import { GlobeRenderer } from './globe-renderer.ts'
+import { type GlobeMotion } from './globe.ts'
+import { type Lightning } from './lightning.ts'
+import { type CameraConfig } from './projection.ts'
 import { RenderView } from './render-view.ts'
 import {
-  dragEndpoint,
-  dragCommand,
-  dragCorners,
-  unwrapDragCorners,
-  dragMoved,
-} from './drag-selection.ts'
-import { SelectionOverlay } from './drag-overlay.ts'
-import { nativeAngle, positionDistance } from './native-math.ts'
-import { GlobeRenderer } from './globe-renderer.ts'
-import { beginGlobeDrag, stepGlobeMotion, type GlobeMotion } from './globe.ts'
-import { spriteLayers } from './sprite-layers.ts'
-import nativeEffects from './original-effects.json'
-import { spellCursor } from './spell-casting.ts'
-import { spellHalo, haloBucket } from './spell-halo.ts'
-import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
-import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
-import { lightningLines, lineQuad, lightningTexture, type Lightning } from './lightning.ts'
-import rules from './original-rules.json'
-import {
-  makeFx,
-  animateFx,
-  animateLightning,
-  updateSpellHalo,
-  updateEffectsFrame,
-} from './scene-effects.ts'
-import {
-  makeShrines,
-  animatePerson,
-  updateUnitsFrame,
-  updateVehiclesFrame,
-  updateBuildingsFrame,
-  updateShrinesFrame,
-  updateWaveShake,
-  renderSceneFrame,
-} from './scene-entities.ts'
-import {
-  rebuildTerrain,
-  updateTerrainTexture,
-  landIndex,
-  updateWater,
-  makeDecorations,
-  updateTerrainFrame,
-  updateDecorationsFrame,
-} from './scene-terrain-runtime.ts'
-import {
-  makeSky,
-  commitSky,
-  updateSky,
-  updateView,
-  currentPreset,
+  cancelOverview,
   captureCamera,
+  commitSky,
+  currentPreset,
+  focus,
+  leaveOverview,
+  makeSky,
+  overview,
+  previewCamera,
   skipIntroduction,
+  startGroundView,
+  stepViewChange,
   updateCameraMotion,
   updateEnvironmentFrame,
-  previewCamera,
   updateFlyby,
-  cancelOverview,
-  focus,
-  stepViewChange,
-  startGroundView,
-  overview,
-  leaveOverview,
+  updateSky,
+  updateView,
   zoom,
 } from './scene-camera-runtime.ts'
 import {
-  pickUnit,
-  updatePlacement,
-  planGeometry,
+  animateFx,
+  animateLightning,
+  makeFx,
+  updateEffectsFrame,
+  updateSpellHalo,
+} from './scene-effects.ts'
+import {
+  animatePerson,
+  makeShrines,
+  renderSceneFrame,
+  updateBuildingsFrame,
+  updateShrinesFrame,
+  updateUnitsFrame,
+  updateVehiclesFrame,
+} from './scene-entities.ts'
+import { updateHudFrame } from './scene-hud-runtime.ts'
+import {
+  acknowledgePointer,
+  chooseFollowers,
+  drawPointer,
+  installInputListeners,
+  keyDown,
+  navigationButtons,
   pick,
+  pickUnit,
   pickWorldObject,
+  planGeometry,
   pointerDown,
   pointerMove,
-  updateDrag,
   pointerUp,
-  keyDown,
-  installInputListeners,
-  navigationButtons,
-  chooseFollowers,
-  acknowledgePointer,
   renderTooltip,
-  drawPointer,
+  updateDrag,
+  updatePlacement,
   updatePointerFrame,
   updateSpellPointerFrame,
 } from './scene-input-runtime.ts'
-import { updateHudFrame } from './scene-hud-runtime.ts'
+import {
+  landIndex,
+  makeDecorations,
+  rebuildTerrain,
+  updateDecorationsFrame,
+  updateTerrainFrame,
+  updateTerrainTexture,
+  updateWater,
+} from './scene-terrain-runtime.ts'
 
 export class GameScene {
   world: World
