@@ -52,6 +52,8 @@ export function changedBuildingGround(w: World, index: number) {
 }
 
 function emitBuildingDebris(w: World, b: Building, stage: number, rng: { randomState: number }) {
+  const model =
+    debrisModels[buildingObject(b)] ?? debrisModels[rules.buildingObjects[buildingModel(b)]]
   const source = {
     ...nativePosition(w, b),
     h: Math.round(b.foundation * 45),
@@ -62,7 +64,7 @@ function emitBuildingDebris(w: World, b: Building, stage: number, rng: { randomS
   }
   for (const fragment of collapseBuildingFaces(
     w.land,
-    debrisModels[buildingObject(b)],
+    model,
     source,
     stage,
     rng

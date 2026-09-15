@@ -1,4 +1,4 @@
-# Mission 10 opening and first Totem
+# Mission 10 opening and Totems
 
 ## Supplied data
 
@@ -60,10 +60,19 @@ true after tick 5,760, and false again after clearing. Browser commands 1200,
 1201, and 1202 therefore use a checkpointed nullable remaining-turn counter:
 positive is active, zero is complete, and null is cleared.
 
-The later second-Totem and deadline-failure branches are documented but remain
-outside this delivery boundary. Message 59/string 681 points to the Totem in the
-Matak settlement. Message 131/string 682 reports deadline failure and the
-island's return beneath the sea.
+The second-success slice is words `528..<633`. Command 1131 queries object 58,
+the one-use Totem at browser `(-5,21)` with two intended worshippers and target
+64. Completion clears the deadline, queues the authored six-track final flyby,
+sets variable 6, initializes variable 18 to 64, and decrements it on later
+eligible evaluations. After 64 evaluations, command 1151 forces marker 20's
+object 39, whose ten links create the settlement Erosion chain. The script does
+not issue a victory command; the normal outcome system remains responsible for
+eventual victory.
+
+Words `633..<647` are the separate Shaman-loss watchdog, not part of the success
+slice. Deadline expiry starts at word 647. Message 59/string 681 points to the
+Totem in the Matak settlement; message 131/string 682 reports deadline failure
+and the island's return beneath the sea. Those loss branches remain unbound.
 
 ## Evidence and limits
 
@@ -71,13 +80,16 @@ island's return beneath the sea.
 recurring block while intercepting game-command leaves and supplying only the
 head-count result. It executes the original timer routines directly. The
 existing Boat House native probe separately verifies the 600-turn producer and
-occupied launch. The browser check continues Mission 9 into Mission 10, uses the
-authored Boat House crossing, rallies and boards a party through rendered input,
-sails and disembarks it through the selected-Boat ground command, and clicks the
-rendered Totem with transported followers under live combat. It then observes the
-flyby/deadline and linked allocations and checks deterministic save/restore and
-restart state. Boat-click boarding is a browser shorthand; exact native automatic
-cross-water group routing remains open.
+occupied launch. The browser check continues Mission 9 into Mission 10 and uses
+the authored Boat House for both crossings. Rendered HUD, ground, Boat, Totem,
+menu, and Blast input carry the party through live defenders; checkpoint reload
+resumes second-Totem worship deterministically. The check observes both flybys,
+deadline clearing, the 64-evaluation delay, all ten Erosion targets, terrain
+upload, building-mesh synchronization, objective UI, and restart state. A
+deterministic test starting with the intact settlement separately verifies
+Erosion-driven building removal. Boat-click boarding is a browser shorthand;
+exact native automatic cross-water group routing remains open.
 
-Full Mission 10 combat/AI, command 1093, the second objective, deadline failure,
-and exact model-90/model-26 terrain equivalence remain open.
+Full Mission 10 AI, command 1093, Shaman-loss and deadline-failure branches,
+natural endgame victory, and exact model-90/model-26 terrain equivalence remain
+open.

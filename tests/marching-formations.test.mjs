@@ -36,3 +36,15 @@ test('native movement completion preserves payload, seam and vehicle boundaries 
   assert.deepEqual([personReachedOrder(c.person,c.order,()=>c.vehicle),stepMovementOrder(c.person,c.order,land,()=>c.vehicle)],c.expected)
  }
 })
+
+test('marching cleanup tolerates a member whose native record was already released',()=>{
+ const c=structuredClone(fixture.cases.find(entry=>entry.mode==='controller'&&entry.input.g.count>2).input),
+  missing=c.g.members.find(Boolean),
+  people=new Map(c.people.filter(person=>person.id!==missing).map(person=>[person.id,person]))
+ assert.doesNotThrow(()=>stepMarchingFormation({randomState:c.randomState,poseRandom:{randomState:c.poseRandom},people},c.g,{
+  remove:()=>{c.g.class=0},
+  destination:(person,to)=>{person.turnAngle=to.x;person.turnY=to.y;person.flags2=((person.flags2&~128)|4096)>>>0},
+  setAnimation:()=>{},
+ }))
+ assert.ok(!c.g.members.includes(missing))
+})

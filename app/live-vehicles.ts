@@ -73,6 +73,15 @@ export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
   }
 }
 
+export function removeMissingVehiclePassengers(w: World) {
+  const people = new Set(w.units.map(unit => unit.id))
+  for (const vehicle of w.vehicles) {
+    vehicle.passengers = vehicle.passengers.filter(id => people.has(id))
+    vehicle.passengerCount = vehicle.passengers.length
+    if (!vehicle.passengerCount) vehicle.speed = -1
+  }
+}
+
 export function stepLiveVehicle(w: World, p: LivePerson) {
   const v = w.vehicles.find(v => v.id === p.vehicle && v.active)
   if (!v) return false

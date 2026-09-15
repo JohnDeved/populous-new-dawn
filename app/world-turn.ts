@@ -316,7 +316,11 @@ import {
   type BuildingAdmission,
 } from './live-building-entry.ts'
 import { stepBuildingEntryClocks } from './training.ts'
-import { boardLiveVehicle, syncLiveVehiclePassengers } from './live-vehicles.ts'
+import {
+  boardLiveVehicle,
+  removeMissingVehiclePassengers,
+  syncLiveVehiclePassengers,
+} from './live-vehicles.ts'
 import {
   createMotionRoutes,
   ageFailedRoutes,
@@ -1509,6 +1513,7 @@ function stepTurn(w: World) {
       cancelBuildingEntry(w, u)
     }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
+  removeMissingVehiclePassengers(w)
   w.buildings = w.buildings.filter(b => b.hp > 0)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
   syncLivePersonCells(w)

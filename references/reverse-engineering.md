@@ -8901,7 +8901,7 @@ reuses its established direct-target movement/contact adapter for this bounded
 mission path; the native check proves allocation and ownership, not the whole fight
 controller.
 
-## 2026-09-15 — Mission 10 opening and first Totem
+## 2026-09-15 — Mission 10 opening and Totems
 
 Exact Mission 10 level/header data and tribe-3 `cpscr059.dat` are now imported.
 The supplied active Blue Boat is stranded in open water; the usable crossing comes
@@ -8921,8 +8921,20 @@ completes the rendered Totem with transported followers under live combat, admit
 the linked Totem into the live scene, and preserves the transition across paired
 checkpoint advancement and restart.
 
+The exact second-success slice is words `528..<633`; `633..<647` is the separate
+Shaman-loss watchdog and expiry begins at 647. Object 58 is the one-use,
+two-follower, target-64 Totem at browser `(-5,21)`. Its completion clears the
+timer, latches variable 6, runs the six-event final flyby, counts variable 18
+down from 64, then forces marker 20's object 39 and its ten linked Erosion
+targets. It does not directly win the level. The browser reaches this path by a
+second rendered Boat crossing and uses player-cast Blast against the live Matak
+guard, resumes worship after checkpoint reload, renders the delayed terrain,
+keeps building meshes synchronized with the surviving world state, and exposes
+the completed objective through the menu. The deterministic intact-settlement
+test separately verifies Erosion-driven building removal.
+
 The browser maps the two linked model-26 objects to its reviewed Earthquake
 controller. Exact model-90/model-26 terrain equivalence, native automatic
 cross-water group routing (the browser currently exposes Boat-click boarding as a
-shorthand), full Mission 10 AI, command 1093, the second objective, and deadline
-failure remain open.
+shorthand), full Mission 10 AI, command 1093, the Shaman-loss/deadline-failure
+branches, and natural endgame victory remain open.

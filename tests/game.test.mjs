@@ -1899,6 +1899,23 @@ test('live native cell order follows arrivals and removes dead records', async (
  assert.ok(createWorld().objectCells.heads.every(id=>!id),'restart has no stale cell heads');
 });
 
+test('live cell insertion repairs a stale head left by a removed person',async()=>{
+ const {insertObjectIntoCell}=await import('../app/object-cells.ts');
+ const w={heads:new Uint16Array(16384),objects:new Map()},p={id:7,x:512,y:512,h:0,flags2:0,flags3:0,cellNext:0,cellPrevious:0,displacement:{x:0,y:0,h:0}};
+ w.heads[129]=99;w.objects.set(p.id,p);insertObjectIntoCell(w,p,p);
+ assert.equal(w.heads[129],p.id);assert.equal(p.cellNext,0);assert.equal(p.cellPrevious,0);
+});
+
+test('dead vehicle passengers release their slots and driver position',async()=>{
+ const {removeMissingVehiclePassengers}=await import('../app/live-vehicles.ts');
+ const w=createWorld(5),boat=w.vehicles[0],survivor=w.units[0];
+ Object.assign(boat,{passengers:[999,survivor.id],passengerCount:2,speed:100});
+ removeMissingVehiclePassengers(w);
+ assert.deepEqual(boat.passengers,[survivor.id]);assert.equal(boat.passengerCount,1);assert.equal(boat.speed,100);
+ w.units=[];removeMissingVehiclePassengers(w);
+ assert.deepEqual(boat.passengers,[]);assert.equal(boat.passengerCount,0);assert.equal(boat.speed,-1);
+});
+
 test('live native preparation consumes reroutes and completes slow turns and reactions', async () => {
  const {createLivePerson,stepLivePerson}=await import('../app/live-people.ts');
  const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');w.units=[u];u.native=createLivePerson(w,u);

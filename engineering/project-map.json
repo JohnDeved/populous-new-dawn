@@ -390,6 +390,7 @@
         "scripts/import-messages.py",
         "scripts/import-script.py",
         "references/reverse-engineering.md",
+        "tests/marching-formations.test.mjs",
         "tests/mission10-opening.test.mjs"
       ],
       "sharedPaths": [
@@ -398,8 +399,13 @@
         "app/firewarrior.ts",
         "app/live-building-entry.ts",
         "app/building-shapes.ts",
+        "app/building-runtime.ts",
         "app/combat-runtime.ts",
+        "app/live-vehicles.ts",
+        "app/marching-formations.ts",
+        "app/object-cells.ts",
         "app/unit-kinds.ts",
+        "app/world-turn.ts",
         "app/model.ts",
         "app/page.tsx",
         "app/scene.ts",
@@ -441,7 +447,7 @@
         },
         {
           "path": "decomp/research/mission10-opening.md",
-          "heading": "Mission 10 opening and first Totem"
+          "heading": "Mission 10 opening and Totems"
         },
         {
           "path": "references/reverse-engineering.md",
@@ -523,7 +529,7 @@
         "Mission 7's attack AI, later messages, Erosion acquisition, and victory remain deferred.",
         "Mission 8's AI, tutorials, victory, and broader Firewarrior tower, bloodlust, line-of-fire, impact, and trail behavior remain deferred.",
         "Mission 9's AI, tutorials, victory, recurring Boat production, Boat combat/death, and exact replacement hull art remain deferred.",
-        "Mission 10's native automatic cross-water group route, full AI command block, second objective, deadline failure, and exact model-90/model-26 terrain consumers remain deferred.",
+        "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

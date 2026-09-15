@@ -21,7 +21,9 @@ export function insertObjectIntoCell(w: ObjectCells, p: CellObject, to: { x: num
   const i = index(to)
   p.cellPrevious = 0
   p.cellNext = w.heads[i]
-  if (p.cellNext) w.objects.get(p.cellNext)!.cellPrevious = p.id
+  const next = w.objects.get(p.cellNext)
+  if (next) next.cellPrevious = p.id
+  else p.cellNext = 0
   w.heads[i] = p.id
   p.flags2 = (p.flags2 | 0x20000) >>> 0
 }

@@ -552,11 +552,17 @@ try {
   }, { boatId: launchedMission10.boatId, driverId: launchedMission10.driverId })
 
   await page.keyboard.press('Escape')
+  await page.getByLabel('Select and focus shaman').click()
   await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
   const mission10Party = await page.evaluate(() => {
     const world = globalThis.testScene.world,
       ids = world.units
-        .filter(unit => world.selected.includes(unit.id) && unit.team === 'blue' && unit.kind === 'warrior')
+        .filter(
+          unit =>
+            world.selected.includes(unit.id) &&
+            unit.team === 'blue' &&
+            (unit.kind === 'warrior' || unit.kind === 'shaman')
+        )
         .map(unit => unit.id)
     if (ids.length < 2) throw new Error('Mission 10 HUD did not select the Warrior landing party')
     return ids
@@ -642,17 +648,19 @@ try {
     }
     if (!gathered) throw new Error('Mission 10 landing party did not rally beside the Boat')
   }, { followerIds: mission10Party, target: mission10Gather.native })
+  await page.getByLabel('Select and focus shaman').click()
   await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
 
   const mission10Boat = await page.evaluate(boatId => {
     const scene = globalThis.testScene,
-      boat = scene.world.vehicles.find(vehicle => vehicle.id === boatId)
-    scene.focus(boat)
+      boat = scene.world.vehicles.find(vehicle => vehicle.id === boatId),
+      mesh = scene.vehicleMeshes.get(boat.id)
+    scene.focus(mesh.position)
     for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
       scene.updateCameraMotion(1 / 24)
     scene.onChange()
     scene.renderer.render(scene.scene, scene.camera)
-    const projected = scene.view.screen(scene.vehicleMeshes.get(boat.id).position, scene.camera),
+    const projected = scene.view.screen(mesh.position, scene.camera),
       bounds = scene.container.getBoundingClientRect(),
       center = {
         x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
@@ -785,7 +793,18 @@ try {
   assert.ok(landedMission10.people.every(vehicle => vehicle === 0), JSON.stringify(landedMission10))
   assert.deepEqual(landedMission10.passengers, [])
 
-  await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
+  await page.keyboard.press('Escape')
+  await page.getByLabel('Select warrior').click()
+  await page.getByLabel('Select warrior').click()
+  assert.equal(
+    await page.evaluate(() => {
+      const world = globalThis.testScene.world
+      return world.units.filter(
+        unit => world.selected.includes(unit.id) && unit.team === 'blue' && unit.kind === 'warrior'
+      ).length
+    }),
+    2
+  )
   const totemPoint = await page.evaluate(() => {
     const scene = globalThis.testScene,
       totem = scene.world.shrines.find(shrine => shrine.kind === 'linkedEffects'),
@@ -798,6 +817,7 @@ try {
         const event = { clientX: x + dx, clientY: y + dy }
         if (
           document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement &&
+          !scene.pickUnit(event) &&
           scene.pickWorldObject(event)?.id === totem.id
         )
           return { x: event.clientX, y: event.clientY }
@@ -976,6 +996,572 @@ try {
   assert.equal(renderedTransition.inputMask & 0x40, 0, JSON.stringify(renderedTransition))
   assert.equal(renderedTransition.picked, true, JSON.stringify(renderedTransition))
 
+  await page.keyboard.press('Escape')
+  await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
+  let secondLegWarriors = await page.evaluate(ids => {
+    const world = globalThis.testScene.world,
+      survivors = ids.filter(id => {
+        const unit = world.units.find(candidate => candidate.id === id)
+        return (
+          unit &&
+          world.selected.includes(unit.id) &&
+          unit.team === 'blue' &&
+          unit.kind === 'warrior' &&
+          unit.hp > 0
+        )
+      })
+    if (survivors.length < 1)
+      throw new Error(`Mission 10 first-Totem party has too few survivors: ${survivors}`)
+    return survivors
+  }, mission10Party)
+  const secondLegBoat = await page.evaluate(boatId => {
+    const scene = globalThis.testScene,
+      boat = scene.world.vehicles.find(vehicle => vehicle.id === boatId),
+      mesh = scene.vehicleMeshes.get(boat.id)
+    scene.focus(mesh.position)
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+    const projected = scene.view.screen(mesh.position, scene.camera),
+      bounds = scene.container.getBoundingClientRect(),
+      center = {
+        x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+        y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+      }
+    for (let radius = 0; radius <= 90; radius += 3)
+      for (let dy = -radius; dy <= radius; dy += 3)
+        for (let dx = -radius; dx <= radius; dx += 3) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue
+          const click = { x: center.x + dx, y: center.y + dy },
+            event = { clientX: click.x, clientY: click.y }
+          if (
+            document.elementFromPoint(click.x, click.y) === scene.renderer.domElement &&
+            !scene.pickUnit(event) &&
+            scene.pickWorldObject(event)?.id === boat.id
+          )
+            return click
+        }
+    throw new Error(
+      `No exposed Mission 10 Boat geometry for the second crossing: ${JSON.stringify({
+        boat,
+        mesh: scene.vehicleMeshes.get(boat.id) && {
+          visible: scene.vehicleMeshes.get(boat.id).visible,
+          position: scene.vehicleMeshes.get(boat.id).position.toArray(),
+        },
+        selected: scene.world.selected,
+        selectedPeople: scene.world.units
+          .filter(unit => scene.world.selected.includes(unit.id))
+          .map(unit => ({ id: unit.id, hp: unit.hp, position: [unit.x, unit.z] })),
+      })}`
+    )
+  }, launchedMission10.boatId)
+  await page.mouse.click(secondLegBoat.x, secondLegBoat.y)
+  secondLegWarriors = await page.evaluate(async ({ boatId, followerIds }) => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts')
+    for (let turn = 0; turn < 4_000; turn++) {
+      const alive = followerIds.filter(id => {
+        const unit = world.units.find(candidate => candidate.id === id)
+        return unit && unit.hp > 0
+      })
+      if (
+        alive.length &&
+        alive.every(id => world.units.find(unit => unit.id === id)?.native?.vehicle === boatId)
+      )
+        return alive
+      tick(world, 1 / 12)
+    }
+    throw new Error(
+      `Mission 10 party did not reboard for the second Totem: ${JSON.stringify({
+        passengers: world.vehicles.find(vehicle => vehicle.id === boatId)?.passengers,
+        people: followerIds.map(id => ({
+          id,
+          vehicle: world.units.find(unit => unit.id === id)?.native?.vehicle,
+          hp: world.units.find(unit => unit.id === id)?.hp,
+        })),
+      })}`
+    )
+  }, { boatId: launchedMission10.boatId, followerIds: secondLegWarriors })
+
+  await page.keyboard.press('h')
+  const secondLegShaman = await page.evaluate(() => {
+    const world = globalThis.testScene.world,
+      shaman = world.units.find(
+        unit => world.selected.includes(unit.id) && unit.team === 'blue' && unit.kind === 'shaman'
+      )
+    if (!shaman || shaman.hp <= 0) throw new Error('Mission 10 Shaman did not survive the first Totem')
+    return shaman.id
+  })
+  await page.mouse.click(secondLegBoat.x, secondLegBoat.y)
+  await page.evaluate(async ({ boatId, shamanId }) => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts')
+    for (let turn = 0; turn < 4_000; turn++) {
+      if (world.units.find(unit => unit.id === shamanId)?.native?.vehicle === boatId) return
+      tick(world, 1 / 12)
+    }
+    throw new Error('Mission 10 Shaman did not board for the second Totem')
+  }, { boatId: launchedMission10.boatId, shamanId: secondLegShaman })
+  const secondLegParty = [...secondLegWarriors, secondLegShaman]
+  await page.keyboard.press('Escape')
+  await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
+
+  const secondTotemLanding = await page.evaluate(async boatId => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { browserPosition, findPath, nativePosition } = await import('/app/model.ts'),
+      { vehicleCanDisembark } = await import('/app/vehicle-routing.ts'),
+      { worshipHeadPose } = await import('/app/live-worship.ts'),
+      { worshipApproach } = await import('/app/worship.ts'),
+      boat = world.vehicles.find(vehicle => vehicle.id === boatId),
+      passenger = world.units.find(unit => unit.id === boat.passengers[0]),
+      totem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole'),
+      destination = nativePosition(world, totem),
+      land = { flags: world.land.flags, categories: world.land.categories, cellObjects: () => [] },
+      enemies = world.units.filter(
+        unit => unit.team === 'green' && unit.hp > 0 && unit.inside === null && !unit.native?.vehicle
+      ),
+      routeLength = point => {
+        const target = browserPosition(point),
+          routeWorld = structuredClone(world),
+          probe = routeWorld.units.find(unit => unit.id === passenger.id),
+          probeTotem = routeWorld.shrines.find(shrine => shrine.id === totem.id)
+        Object.assign(probe, { x: target.x, z: target.z })
+        Object.assign(probe.native, { x: point.x & 65535, y: point.y & 65535, vehicle: 0 })
+        return findPath(
+          routeWorld,
+          probe,
+          browserPosition(worshipApproach(worshipHeadPose(routeWorld, probeTotem)))
+        ).length
+      },
+      candidates = []
+    for (let y = -4_096; y <= 4_096; y += 512)
+      for (let x = -4_096; x <= 4_096; x += 512) {
+        const point = { x: destination.x + x, y: destination.y + y },
+          distance = Math.hypot(x, y)
+        if (!distance || !vehicleCanDisembark(land, boat, point)) continue
+        const target = browserPosition(point),
+          route = routeLength(point),
+          safety = Math.min(...enemies.map(unit => Math.hypot(unit.x - target.x, unit.z - target.z)))
+        if (route) candidates.push({ distance, point, route, safety })
+      }
+    candidates.sort(
+      (a, b) => b.safety - a.safety || a.route - b.route || a.distance - b.distance || a.point.y - b.point.y || a.point.x - b.point.x
+    )
+    for (const { point } of candidates) {
+      const target = browserPosition(point)
+      for (const bearing of [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]) {
+        scene.cameraBearing = bearing
+        scene.updateView()
+        scene.focus(target)
+        scene.onChange()
+        scene.renderer.render(scene.scene, scene.camera)
+        cancelAnimationFrame(scene.frame)
+        const projected = scene.screen(target),
+          bounds = scene.container.getBoundingClientRect(),
+          center = {
+            x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+            y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+          },
+          seen = new Set(),
+          hits = []
+        for (let radius = 0; radius <= 100; radius += 3)
+          for (let dy = -radius; dy <= radius; dy += 3)
+            for (let dx = -radius; dx <= radius; dx += 3) {
+              if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue
+              const screen = { x: center.x + dx, y: center.y + dy },
+                event = { clientX: screen.x, clientY: screen.y },
+                picked = scene.pick(event),
+                native = picked && nativePosition(world, picked)
+              if (
+                picked &&
+                document.elementFromPoint(screen.x, screen.y) === scene.renderer.domElement &&
+                !scene.pickUnit(event) &&
+                !scene.pickWorldObject(event) &&
+                vehicleCanDisembark(land, boat, native)
+              ) {
+                const key = `${native.x},${native.y}`
+                if (seen.has(key)) continue
+                seen.add(key)
+                hits.push({
+                  screen,
+                  native,
+                  offset: Math.hypot(picked.x - target.x, picked.z - target.z),
+                })
+              }
+        }
+        for (const { screen, native, offset } of hits.sort((a, b) => a.offset - b.offset)) {
+          if (offset > 1.5) break
+          return { ...screen, native }
+        }
+      }
+    }
+    throw new Error('No exposed Mission 10 ground objective near the second Totem')
+  }, launchedMission10.boatId)
+  await page.mouse.click(secondTotemLanding.x, secondTotemLanding.y)
+  await page.evaluate(async ({ boatId, followerIds }) => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      boat = world.vehicles.find(vehicle => vehicle.id === boatId)
+    for (let turn = 0; turn < 12_000; turn++) {
+      tick(world, 1 / 12)
+      if (
+        !boat.passengers.length &&
+        followerIds.every(id => world.units.find(unit => unit.id === id)?.native?.vehicle === 0)
+      )
+        return
+    }
+    throw new Error(
+      `Mission 10 party did not disembark at the second Totem: ${JSON.stringify({
+        boat,
+        people: followerIds.map(id => {
+          const unit = world.units.find(candidate => candidate.id === id),
+            person = unit?.native
+          return {
+            id,
+            hp: unit?.hp,
+            vehicle: person?.vehicle,
+            state: person?.state,
+            position: person && [person.x, person.y],
+            destination: person && [person.destinationX, person.destinationY],
+            goal: person && [person.goalX, person.goalY],
+            motionGroup: person?.motionGroup,
+            path: unit?.path,
+            order: person && currentPersonOrder(world.buildingOrders, person),
+          }
+        }),
+      })}`
+    )
+  }, { boatId: launchedMission10.boatId, followerIds: secondLegParty })
+
+  await page.keyboard.press('Escape')
+  await page.keyboard.press('h')
+  await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
+  const assignSecondTotem = async () => {
+    const point = await page.evaluate(async () => {
+      const scene = globalThis.testScene,
+        world = scene.world,
+        { liveCommandContext } = await import('/app/live-command.ts'),
+        totem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole')
+      scene.focus(totem)
+      scene.onChange()
+      scene.renderer.render(scene.scene, scene.camera)
+      cancelAnimationFrame(scene.frame)
+      const projected = scene.screen(totem),
+        bounds = scene.container.getBoundingClientRect(),
+        x = bounds.left + ((projected.x + 1) * bounds.width) / 2,
+        y = bounds.top + ((1 - projected.y) * bounds.height) / 2
+      for (let dy = -150; dy <= 15; dy += 3)
+        for (let dx = -35; dx <= 35; dx += 3) {
+          const event = { clientX: x + dx, clientY: y + dy },
+            picked = scene.pickWorldObject(event),
+            context = picked && liveCommandContext(world, picked)
+          if (
+            document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement &&
+            !scene.pickUnit(event) &&
+            picked?.id === totem.id &&
+            context?.model === 27 &&
+            context.enabled
+          )
+            return { x: event.clientX, y: event.clientY }
+        }
+      throw new Error('No exposed Mission 10 second-Totem geometry')
+    })
+    await page.mouse.click(point.x, point.y)
+    await page.evaluate(followerIds => {
+      const world = globalThis.testScene.world,
+        totem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole'),
+        assigned = followerIds.filter(id => world.units.find(unit => unit.id === id)?.work === totem.id)
+      if (assigned.length < 2)
+        throw new Error(
+          `Rendered second-Totem command found no route: ${JSON.stringify({
+            selected: world.selected,
+            assigned,
+            message: world.message,
+            people: followerIds.map(id => {
+              const unit = world.units.find(candidate => candidate.id === id)
+              return unit && { id, hp: unit.hp, position: [unit.x, unit.z] }
+            }),
+          })}`
+        )
+    }, secondLegParty)
+  }
+  await assignSecondTotem()
+
+  await page.evaluate(async () => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts'),
+      totem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole')
+    for (let turn = 0; totem.progress === 0 && turn < 2_000; turn++) tick(world, 1 / 12)
+    if (totem.progress === 0) throw new Error('Second Totem worshippers never reached the head')
+  })
+
+  for (let shot = 0; shot < 4; shot++) {
+    await page.keyboard.press('h')
+    const target = await page.evaluate(async () => {
+      const scene = globalThis.testScene,
+        world = scene.world,
+        { spellInRange } = await import('/app/spell-casting.ts'),
+        shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+        totem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole'),
+        enemy = world.units
+          .filter(
+            unit =>
+              unit.team === 'green' &&
+              unit.hp > 0 &&
+              Math.hypot(unit.x - totem.x, unit.z - totem.z) < 14 &&
+              spellInRange(world, shaman, 2, unit)
+          )
+          .sort(
+            (a, b) =>
+              Math.hypot(a.x - shaman.x, a.z - shaman.z) -
+              Math.hypot(b.x - shaman.x, b.z - shaman.z)
+          )[0]
+      return enemy && { id: enemy.id, x: totem.x, z: totem.z }
+    })
+    if (!target) break
+    await page.evaluate(() => {
+      const scene = globalThis.testScene
+      if (!scene.overviewActive) scene.overview()
+      for (let frame = 0; scene.overviewStage && frame < 200; frame++) scene.stepViewChange()
+      scene.onChange()
+      scene.renderer.render(scene.scene, scene.camera)
+      cancelAnimationFrame(scene.frame)
+    })
+    await page.keyboard.press('1')
+    const blastPoint = await page.evaluate(target => {
+      const scene = globalThis.testScene,
+        projected = scene.screen(target),
+        bounds = scene.container.getBoundingClientRect(),
+        event = {
+          clientX: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+          clientY: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+        },
+        picked = scene.pick(event)
+      if (!picked || Math.hypot(picked.x - target.x, picked.z - target.z) > 1)
+        throw new Error(`Globe did not expose Mission 10 defender ${target.id}`)
+      return { x: event.clientX, y: event.clientY }
+    }, target)
+    await page.mouse.click(blastPoint.x, blastPoint.y)
+    if ((await page.evaluate(() => globalThis.testScene.world.mode)) !== null)
+      throw new Error(`Mission 10 Blast ${target.id} was rejected`)
+    await page.evaluate(async () => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts')
+      for (let turn = 0; turn < 512; turn++) {
+        tick(world, 1 / 12)
+        const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+        if (
+          !shaman?.casting &&
+          !world.projectiles.some(projectile => projectile.spell === 'blast') &&
+          world.castingTribes[0].cooldown === 0
+        )
+          return
+      }
+      throw new Error('Mission 10 Blast did not resolve')
+    })
+  }
+
+  await page.evaluate(() => {
+    const scene = globalThis.testScene
+    if (scene.overviewActive) scene.overview()
+    for (let frame = 0; scene.overviewStage && frame < 200; frame++) scene.stepViewChange()
+    scene.onChange()
+  })
+  await page.keyboard.press('Escape')
+  await page.keyboard.press('h')
+  await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
+  await assignSecondTotem()
+
+  const completedSecondTotem = await page.evaluate(async followerIds => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts'),
+      totem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole'),
+      assigned = followerIds.filter(id => world.units.find(unit => unit.id === id)?.work === totem.id)
+    if (assigned.length < 2)
+      throw new Error(
+        `Rendered second-Totem input assigned too few followers: ${JSON.stringify({
+          selected: world.selected,
+          assigned,
+          people: followerIds.map(id => {
+            const unit = world.units.find(candidate => candidate.id === id)
+            return { id, hp: unit?.hp, work: unit?.work, position: unit && [unit.x, unit.z] }
+          }),
+        })}`
+      )
+    for (let turn = 0; totem.progress === 0 && turn < 2_000; turn++) tick(world, 1 / 12)
+    if (!totem.active || totem.progress <= 0)
+      throw new Error(`Second Totem did not begin live worship: ${JSON.stringify(totem)}`)
+    await globalThis.testStore.saveCheckpoint()
+    const control = structuredClone(world)
+    if (!globalThis.testStore.loadCheckpoint()) throw new Error('Second-Totem checkpoint failed')
+    const restored = globalThis.testStore.getWorld(),
+      restoredTotem = restored.shrines.find(shrine => shrine.name === 'Erosion Totem Pole'),
+      snapshot = candidate => {
+        const shrine = candidate.shrines.find(entry => entry.name === 'Erosion Totem Pole')
+        return {
+          turn: candidate.turn,
+          randomState: candidate.randomState,
+          timer: candidate.campaignTimer,
+          inputMask: candidate.inputMask,
+          variables: [candidate.ai.variables[6], candidate.ai.variables[9], candidate.ai.variables[18]],
+          shrine: {
+            active: shrine.active,
+            remaining: shrine.remaining,
+            uses: shrine.uses,
+            work: shrine.work,
+            progress: shrine.progress,
+          },
+          flyby: candidate.flyby,
+          effects: candidate.effects.map(effect => ({
+            id: effect.id,
+            kind: effect.kind,
+            age: effect.age,
+            erosion: !!effect.erosion,
+          })),
+          landVersion: candidate.landVersion,
+        }
+      }
+    for (let turn = 0; !restored.ai.variables[6] && turn < 6_000; turn++) {
+      tick(control, 1 / 12)
+      tick(restored, 1 / 12)
+    }
+    if (!restored.ai.variables[6] || !control.ai.variables[6])
+      throw new Error(
+        `Second Totem did not complete after reload: ${JSON.stringify({
+          control: snapshot(control),
+          restored: snapshot(restored),
+        })}`
+      )
+    return {
+      assigned: assigned.length,
+      restored: snapshot(restored),
+      deterministic: snapshot(control),
+      flybyEvents: restored.flyby.events.map(event => [
+        event.kind,
+        event.value,
+        event.start,
+        event.duration,
+      ]),
+    }
+  }, secondLegParty)
+  assert.ok(completedSecondTotem.assigned >= 2)
+  assert.deepEqual(completedSecondTotem.restored, completedSecondTotem.deterministic)
+  assert.deepEqual(completedSecondTotem.restored.variables, [1, 1, 63])
+  assert.equal(completedSecondTotem.restored.timer, null)
+  assert.equal(completedSecondTotem.restored.shrine.remaining, 0)
+  assert.equal(completedSecondTotem.restored.shrine.uses, 1)
+  assert.deepEqual(completedSecondTotem.flybyEvents, [
+    [2, 186, 1, 34],
+    [1, 49152, 2, 30],
+    [1, 50190, 32, 30],
+    [2, 1497, 36, 30],
+    [1, 57346, 63, 30],
+    [2, 1009, 66, 28],
+  ])
+
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  const finalPresentation = await page.evaluate(() => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      start = scene.previous ?? performance.now()
+    cancelAnimationFrame(scene.frame)
+    let frames = 0,
+      sawFlyby = false
+    while (world.inputMask & 0x40 && frames < 1_200) {
+      sawFlyby ||= !!(world.flyby.flags & 1)
+      scene.animate(start + (++frames * 1_000) / 24)
+      cancelAnimationFrame(scene.frame)
+    }
+    return { frames, sawFlyby, inputMask: world.inputMask }
+  })
+  assert.equal(finalPresentation.sawFlyby, true, JSON.stringify(finalPresentation))
+  assert.equal(finalPresentation.inputMask & 0x40, 0, JSON.stringify(finalPresentation))
+
+  if (errors.length) throw new Error(`Mission 10 browser errors: ${JSON.stringify(errors)}`)
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByText(/^Objectives · \d \/ 3$/).click()
+  await page.getByText('✓ Reach the Totem Pole in the Matak settlement', { exact: true }).waitFor()
+  await page.getByLabel('Close menu').click()
+
+  const settlementErosion = await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts')
+    while (world.ai.variables[18] > 1 && world.turn < 20_000) tick(world, 1 / 12)
+    scene.focus({ x: -3, z: 55 })
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    const gl = scene.renderer.getContext(),
+      size = gl.drawingBufferWidth * gl.drawingBufferHeight * 4,
+      beforePixels = new Uint8Array(size),
+      afterPixels = new Uint8Array(size)
+    scene.animate(scene.previous ?? performance.now())
+    cancelAnimationFrame(scene.frame)
+    gl.readPixels(
+      0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight,
+      gl.RGBA, gl.UNSIGNED_BYTE, beforePixels
+    )
+    const beforeHeights = Array.from(world.land.heights),
+      beforeGreen = world.buildings.filter(building => building.team === 'green').map(b => b.id)
+    tick(world, 1 / 12)
+    const head = world.shrines.find(
+        shrine =>
+          shrine.name === 'Erosion stone head' && shrine.uses === 1 && shrine.forced === true
+      ),
+      delayedEffects = world.effects.filter(effect => effect.erosion).map(effect => [effect.x, effect.z])
+    for (let turn = 0; turn < 120; turn++) tick(world, 1 / 12)
+    scene.animate(scene.previous ?? performance.now())
+    cancelAnimationFrame(scene.frame)
+    gl.readPixels(
+      0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight,
+      gl.RGBA, gl.UNSIGNED_BYTE, afterPixels
+    )
+    const afterGreen = world.buildings.filter(building => building.team === 'green').map(b => b.id),
+      removed = beforeGreen.filter(id => !afterGreen.includes(id)),
+      staleBuildingMeshes = [...scene.buildingMeshes.keys()].filter(
+        id => !world.buildings.some(building => building.id === id)
+      ),
+      changedPixels = beforePixels.reduce(
+        (count, value, index) =>
+          index % 4 === 0 &&
+          (value !== afterPixels[index] ||
+            beforePixels[index + 1] !== afterPixels[index + 1] ||
+            beforePixels[index + 2] !== afterPixels[index + 2])
+            ? count + 1
+            : count,
+        0
+      )
+    return {
+      countdown: world.ai.variables[18],
+      head: head && { uses: head.uses, targets: head.effectTargets?.length },
+      delayedEffects,
+      changedHeights: world.land.heights.filter(
+        (height, index) => height !== beforeHeights[index]
+      ).length,
+      changedPixels,
+      terrainVersions: [scene.terrainVersion, world.landVersion],
+      removed,
+      removedMeshes: removed.filter(id => !scene.buildingMeshes.has(id)),
+      staleBuildingMeshes,
+      status: world.status,
+    }
+  })
+  assert.equal(settlementErosion.countdown, 0, JSON.stringify(settlementErosion))
+  assert.deepEqual(settlementErosion.head, { uses: 1, targets: 10 })
+  assert.equal(settlementErosion.delayedEffects.length, 10, JSON.stringify(settlementErosion))
+  assert.ok(settlementErosion.changedHeights > 0, JSON.stringify(settlementErosion))
+  assert.ok(settlementErosion.changedPixels > 100, JSON.stringify(settlementErosion))
+  assert.equal(settlementErosion.terrainVersions[0], settlementErosion.terrainVersions[1])
+  assert.deepEqual(settlementErosion.removedMeshes, settlementErosion.removed)
+  assert.deepEqual(settlementErosion.staleBuildingMeshes, [])
+  assert.equal(settlementErosion.status, 'playing')
+
   await page.evaluate(() => globalThis.testStore.startMission(10))
   assert.deepEqual(
     await page.evaluate(() => {
@@ -983,16 +1569,16 @@ try {
         totem = world.shrines.find(shrine => shrine.kind === 'linkedEffects')
       return {
         timer: world.campaignTimer,
-        latch: world.ai.variables[9],
+        latches: [world.ai.variables[6], world.ai.variables[9], world.ai.variables[18]],
         remaining: totem.remaining,
         nextTotem: world.shrines.some(shrine => shrine.name === 'Erosion Totem Pole'),
       }
     }),
-    { timer: null, latch: 0, remaining: 1, nextTotem: false }
+    { timer: null, latches: [0, 0, 0], remaining: 1, nextTotem: false }
   )
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 8 continues through exact Missions 9 and 10; Boat House play and the Mission 10 Boat, Totem, flyby, deadline, checkpoint and restart paths work'
+    'PASS: Mission 8 continues through exact Missions 9 and 10; both Mission 10 Totems, Boat crossings, flybys, deadline clear, settlement Erosion, checkpoint and restart paths work'
   )
 } finally {
   await browser.close()

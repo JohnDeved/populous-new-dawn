@@ -254,7 +254,14 @@ export function stepMarchingFormation(
   for (let slot = 0; slot < 12; slot++) {
     const id = g.members[slot]
     if (!id) continue
-    const p = w.people.get(id)!
+    const p = w.people.get(id)
+    if (!p) {
+      g.members[slot] = 0
+      g.count = (g.count - 1) & 255
+      updateFreeSlot(g)
+      if (!g.count) e.remove()
+      continue
+    }
     const blocked = !!(p.flags2 & 0x80800)
     if (
       p.class &&

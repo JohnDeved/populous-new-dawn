@@ -1,4 +1,4 @@
-"""Inspect Mission 10's first Totem trigger and execute its bounded native script branch.
+"""Execute Mission 10's bounded first- and second-Totem native script branches.
 
 Usage: .tools/decomp/oracle/bin/python scripts/check-native-mission10-opening.py /path/to/d3dpoptb.exe
 The PopScript game-command host is intercepted; the timer leaf executes natively.
@@ -53,6 +53,22 @@ def record(index):
     raw = level[0x14043 + index * 55:0x14043 + (index + 1) * 55]
     x, y = struct.unpack_from("<HH", raw, 3)
     return {"index": index, "class": raw[1], "model": raw[0], "owner": raw[2], "x": x, "y": y}
+
+def worship_record(index):
+    result = record(index)
+    raw = level[0x14043 + index * 55:0x14043 + (index + 1) * 55]
+    settings = raw[7:39]
+    result.update({
+        "remaining": settings[3],
+        "required": struct.unpack_from("<h", settings, 4)[0],
+        "linksOneBased": [
+            struct.unpack_from("<H", settings, 6 + i * 2)[0]
+            for i in range(10)
+            if struct.unpack_from("<H", settings, 6 + i * 2)[0]
+        ],
+        "target": struct.unpack_from("<h", settings, 26)[0],
+    })
+    return result
 
 trigger_raw = level[0x14043 + 119 * 55:0x14043 + 120 * 55]
 settings = trigger_raw[7:39]
@@ -143,6 +159,78 @@ assert [entry["opcode"] for entry in fired["commands"]] == [
 ]
 assert (fired["v7"], fired["v9"]) == (1, 1)
 
+# The exact second-Totem success block ends before the independent Shaman-loss
+# watchdog. Keep the VM state between countdown evaluations just as the live
+# recurring script does.
+second = worship_record(58)
+assert second == {
+    "index": 58,
+    "class": 6,
+    "model": 6,
+    "owner": 0,
+    "x": 0x0300,
+    "y": 0xE300,
+    "remaining": 1,
+    "required": 2,
+    "linksOneBased": [52, 58, 57, 51, 56, 55, 54, 53, 30, 29],
+    "target": 64,
+}
+forced = worship_record(39)
+marker20 = struct.unpack_from("<256H", header, 100)[20]
+assert (forced["class"], forced["model"], forced["x"], forced["y"]) == (6, 6, 0x8100, 0x4700)
+assert marker20 == 0x4680
+
+second_fragment = [12, 1003, *codes[528:633], 1004, 1019]
+second_blob = bytearray(script_bytes)
+second_blob[:8192] = bytes(8192)
+struct.pack_into("<" + "H" * len(second_fragment), second_blob, 0, *second_fragment)
+
+def initialize_second(v6=0, v9=1, v18=0):
+    cpu.mem_write(program, bytes(second_blob))
+    variables = [0] * 64
+    variables[6], variables[9], variables[18] = v6, v9, v18
+    cpu.mem_write(program + 0x3000, struct.pack("<64i", *variables))
+
+def run_second(turn, remaining, clear=True):
+    scenario["head"] = remaining
+    if clear:
+        trace.clear()
+    cpu.mem_write(tribe, bytes(0xC65))
+    cpu.mem_write(tribe + 0xC22, bytes([3]))
+    cpu.mem_write(0x89D188, struct.pack("<I", turn))
+    cpu.mem_write(stack, struct.pack("<III", stop, tribe, program))
+    cpu.reg_write(UC_X86_REG_ESP, stack)
+    cpu.emu_start(0x48C6B0, stop, timeout=100000, count=100000)
+    assert cpu.reg_read(UC_X86_REG_EIP) == stop
+    variables = struct.unpack("<64i", cpu.mem_read(program + 0x3000, 256))
+    return {
+        "turn": turn,
+        "remaining": remaining,
+        "commands": list(trace),
+        "v6": variables[6],
+        "v9": variables[9],
+        "v18": variables[18],
+    }
+
+initialize_second()
+second_ineligible = run_second(14, 0)
+initialize_second()
+second_waiting = run_second(15, 1)
+initialize_second()
+second_fired = run_second(15, 0)
+assert second_ineligible["commands"] == []
+assert [entry["opcode"] for entry in second_waiting["commands"]] == [1131]
+assert [entry["opcode"] for entry in second_fired["commands"]] == [
+    1131, 1201, 1205, 1208, 1209, 1209, 1209, 1210, 1210, 1210, 1214, 1206,
+]
+assert (second_fired["v6"], second_fired["v9"], second_fired["v18"]) == (1, 1, 63)
+
+for turn in range(16, 79):
+    second_countdown = run_second(turn, 0)
+assert second_countdown["v18"] == 0
+assert [entry["opcode"] for entry in second_countdown["commands"]] == [1151]
+assert second_countdown["commands"][0]["values"] == [20]
+
 cpu.hook_del(hook)
 def call(address, *args):
     cpu.mem_write(stack, struct.pack("<" + "I" * (len(args) + 1), stop, *args))
@@ -165,13 +253,22 @@ assert call(0x4A5EC0) == 0
 
 print(json.dumps({
     "hashes": {str(path.relative_to(ROOT)): digest for path, digest in EXPECTED.items()},
-    "script": {"words": len(codes), "slice": "391..<528", "eligibleTurnModulo16": 5,
-               "ineligible": ineligible, "waiting": waiting, "fired": fired},
+    "script": {
+        "words": len(codes),
+        "firstTotem": {"slice": "391..<528", "eligibleTurnModulo16": 5,
+                       "ineligible": ineligible, "waiting": waiting, "fired": fired},
+        "secondTotem": {"slice": "528..<633", "eligibleTurnModulo16": 15,
+                        "ineligible": second_ineligible, "waiting": second_waiting,
+                        "fired": second_fired, "countdownEvaluationsIncludingFire": 64,
+                        "countdownResult": second_countdown},
+    },
     "trigger119": {"record": record(119), "remaining": settings[3], "required": 2,
                    "target": 64, "linksOneBased": links, "linkedRecords": linked},
     "boat109": boat,
+    "secondTotem58": second,
+    "postTotemHead": {"marker": 20, "packed": marker20, "record": forced},
     "messages": {"57": 679, "58": 680, "59": 681, "131": 682},
     "timer": {"seconds": 480, "turnsPerSecond": 12, "nativeTicks": 5760,
               "completionAfterTicks": 5760, "clearRestoresIncomplete": True},
 }, indent=2))
-print("PASS: Mission 10 trigger map, native post-head VM branch, and native 480-second timer leaf")
+print("PASS: Mission 10 Totem branches, delayed Erosion head, and native 480-second timer leaf")

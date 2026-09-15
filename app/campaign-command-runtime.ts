@@ -650,6 +650,7 @@ export function campaignRules(w: World) {
                           ...script.codes.slice(391, 405),
                           ...script.codes.slice(440, 443),
                           ...script.codes.slice(445, 528),
+                          ...script.codes.slice(528, 633),
                           1004,
                           1019,
                         ]
