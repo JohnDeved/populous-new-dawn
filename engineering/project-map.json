@@ -352,6 +352,7 @@
         "app/worship.ts"
       ],
       "researchPaths": [
+        "engineering/single-player-feasibility.md",
         "decomp/generated/0040bce0.c",
         "decomp/generated/00430f30.c",
         "decomp/generated/00463370.c",
@@ -540,6 +541,7 @@
       "mappingStatus": "reviewed",
       "implementationPaths": ["app/game-store.ts"],
       "sharedPaths": ["app/page.tsx"],
+      "researchPaths": ["engineering/single-player-feasibility.md"],
       "entrySymbols": [
         { "path": "app/game-store.ts", "symbol": "createGameStore" },
         { "path": "app/page.tsx", "symbol": "Home" }
