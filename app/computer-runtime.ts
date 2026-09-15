@@ -17,8 +17,12 @@ import {
   emptyPersonOrder,
   writePersonOrder,
 } from './person-orders.ts'
-import { appendLiveOrders, appendLiveGuardOrders } from './live-movement.ts'
-import { cellDistanceSquared, random } from './native-math.ts'
+import {
+  appendLiveOrders,
+  appendLiveGuardOrders,
+  startLiveConstructionOrder,
+} from './live-movement.ts'
+import { cellDistanceSquared, random, spiralCell } from './native-math.ts'
 import { isShaman, SPELLS } from './world-rules.ts'
 import {
   campaignPersonCount,
@@ -38,6 +42,7 @@ import {
   acquireSelection,
   dispatchComputerTask,
   releaseSelection,
+  requestConstruction,
   requestTraining,
   stepAttackTask,
   stepMarkerTask,
@@ -57,6 +62,8 @@ import {
   type SpellTargetWorld,
 } from './computer-spells.ts'
 import { refreshBuildingTerritory } from './territory.ts'
+import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
+import { entrance, findPath, route } from './live-command.ts'
 
 export function computerSelectionWorld(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
@@ -283,6 +290,138 @@ function produceMissionWarriorTraining(w: World, tribe: number) {
   )
 }
 
+// Mission 6's ordinary 0x4e5580 producer reaches model 4 before its housing branch.
+function produceMissionSixTower(w: World, tribe: number) {
+  if (
+    w.outcome.level !== 6 ||
+    !(w.ai.states & 1) ||
+    w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9] ||
+    w.buildings.some(
+      building =>
+        building.team === campaignTeam(w, tribe) && building.hp > 0 && buildingModel(building) === 4
+    )
+  )
+    return false
+  const selection = computerSelectionWorld(w, tribe)
+  if (availableTrainingPeople(selection.world) < 2) return false
+  const shaman = w.units.find(
+      unit => unit.team === campaignTeam(w, tribe) && isShaman(unit) && unit.hp > 0
+    ),
+    position = shaman && nativePosition(w, shaman)
+  if (!position) return false
+  return requestConstruction(w.ai, 4, ((position.x >>> 8) & 254) | (position.y & 0xfe00))
+}
+
+function stepComputerConstruction(w: World, tribe: number, index: number) {
+  const task = w.ai.tasks[index],
+    team = campaignTeam(w, tribe),
+    cleanup = (removePlan = false) => {
+      for (const id of task.members) {
+        const unit = w.units.find(unit => unit.id === id)
+        if (unit?.native?.state === 14) changeLivePersonState(w, unit, 10)
+      }
+      if (removePlan)
+        w.buildings = w.buildings.filter(
+          building => building.id !== task.entity || !building.preparation
+        )
+      releaseSelection(w.ai, index)
+      task.flags &= ~3
+      task.members.length = 0
+    }
+  if (task.requested !== 4) throw new Error(`Unbound computer construction ${task.requested}`)
+  if (task.phase === 0) {
+    task.target = !task.extra && w.ai.flags & 0x20 ? w.ai.coordinateLatch : task.origin
+    task.elapsed = 0
+    task.remaining = 2000
+    task.mode = w.ai.attributes[30] ? random(w) & 3 : 1
+    task.fallback = random(w) & 3
+    task.phase = 2
+  }
+  if (task.phase === 2) {
+    for (let scanned = 0; scanned < 40 && task.elapsed < task.remaining; scanned++) {
+      const cell = spiralCell(task.target, task.elapsed++, task.mode),
+        point = nativeCellPoint(cell),
+        pose = {
+          object: rules.buildingObjects[4],
+          angle: task.fallback * 512,
+          anchorX: (cell & 254) << 8,
+          anchorY: cell & 0xfe00,
+        }
+      if (!checkBuildingSite(w, pose, 4, team).valid) continue
+      const selection = computerSelectionWorld(w, tribe),
+        [worker] = selectComputerPeople(selection.world, 2, 2, -1, 1, cell, 0, 1),
+        unit = w.units.find(unit => unit.id === worker)
+      if (!unit || !findPath(w, unit, point).length) continue
+      const building = addBuilding(w, team, 'tower', point, false, {
+        angle: (task.fallback * Math.PI) / 2,
+        plan: true,
+      })
+      building.builders = Array(rules.buildingMaxWorkers[4]).fill(0)
+      task.target = cell
+      task.entity = building.id
+      task.phase = 4
+      return
+    }
+    if (task.elapsed >= task.remaining) cleanup()
+    return
+  }
+  if (task.phase === 4) {
+    if (acquireSelection(w.ai, index)) task.phase = 5
+    return
+  }
+  if (task.phase === 5) {
+    const selection = computerSelectionWorld(w, tribe),
+      ids = selectComputerPeople(selection.world, 2, 2, -1, 1, task.target, 0, 2)
+    if (ids.length !== 2) {
+      cleanup(true)
+      return
+    }
+    for (const id of ids) {
+      const unit = w.units.find(unit => unit.id === id)!,
+        source = selection.sources.get(id)
+      if (source) source.flags3 = selection.world.units.get(id)!.flags3
+      unit.native ??= createLivePerson(w, unit)
+      registerLivePerson(w, unit.native)
+      changeLivePersonState(w, unit, 14)
+    }
+    task.members = ids
+    task.phase = 6
+    w.ai.commandDelay = 20
+    return
+  }
+  if (task.phase === 6) {
+    task.phase = 7
+    return
+  }
+  if (task.phase === 7) {
+    const building = w.buildings.find(building => building.id === task.entity && building.hp > 0),
+      units = task.members.flatMap(id => {
+        const unit = w.units.find(unit => unit.id === id && unit.hp > 0)
+        return unit ? [unit] : []
+      }),
+      order = emptyPersonOrder()
+    if (!building || units.length !== 2) {
+      cleanup(true)
+      return
+    }
+    writePersonOrder(order, 6, building.id, task.target, 0)
+    const issued = appendLiveOrders(w, units, order, true)
+    if (!issued.accepted || issued.count !== 2) {
+      cleanup(true)
+      return
+    }
+    for (const unit of units)
+      if (startLiveConstructionOrder(w, unit)) route(w, unit, entrance(w, building), true)
+    releaseSelection(w.ai, index)
+    task.phase = 8
+    return
+  }
+  if (task.phase === 8) {
+    const building = w.buildings.find(building => building.id === task.entity && building.hp > 0)
+    if (!building || building.progress === 1) cleanup()
+  }
+}
+
 export function computerMarkerOrderCount(
   w: World,
   tribe: number,
@@ -322,12 +461,17 @@ export function stepComputerTasks(w: World, tribe: number) {
   const level = missionData(w.outcome.level).level
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
+    if (produceMissionSixTower(w, tribe)) return
     produceMissionWarriorTraining(w, tribe)
     return
   }
   if (phase !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
     const task = w.ai.tasks[index]
+    if (task.type === 0) {
+      stepComputerConstruction(w, tribe, index)
+      return
+    }
     if (task.type === 7) {
       const target = w.buildings.find(
           building =>

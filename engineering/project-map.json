@@ -342,10 +342,12 @@
         "decomp/research/mission2-message-103.md",
         "decomp/research/mission4.md",
         "decomp/research/mission5-boat.md",
+        "decomp/research/mission6-economy.md",
         "decomp/research/mission6.md",
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
+        "scripts/check-native-mission6-economy.py",
         "scripts/check-native-messages.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
@@ -384,6 +386,10 @@
         { "path": "decomp/research/mission2-message-103.md", "heading": "Mission 2 Tornado instruction" },
         { "path": "decomp/research/mission4.md", "heading": "Mission 4 data and objective" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
+        {
+          "path": "decomp/research/mission6-economy.md",
+          "heading": "Mission 6 autonomous construction"
+        },
         { "path": "decomp/research/mission6.md", "heading": "Mission 6 opening and tribes" },
         {
           "path": "references/reverse-engineering.md",
@@ -414,6 +420,9 @@
         "0x431a80",
         "0x431c40",
         "0x4615f0",
+        "0x4c6da0",
+        "0x4e5580",
+        "0x4f5270",
         "0x461510",
         "0x418e30",
         "0x4d5cf0",

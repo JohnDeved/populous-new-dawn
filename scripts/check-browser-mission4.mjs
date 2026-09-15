@@ -248,8 +248,45 @@ try {
     const { tick } = await import('/app/model.ts'),
       { syncLivePersonCells } = await import('/app/live-people.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
+      { buildingModel } = await import('/app/building-shapes.ts'),
       renderedOwners = [...globalThis.testScene.unitMeshes.values()].map(mesh => mesh.userData.owner),
       counterattacks = []
+    if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 construction restore failed')
+    const constructionWorld = globalThis.testStore.getWorld()
+    for (
+      let turn = 0;
+      turn < 100 &&
+      [2, 3].some(tribe =>
+        constructionWorld.campaignAIs[tribe].tasks.every(task => task.phase !== 8)
+      );
+      turn++
+    )
+      tick(constructionWorld, 1 / 12)
+    const assigned = [2, 3].map(tribe => {
+      const task = constructionWorld.campaignAIs[tribe].tasks.find(task => task.phase === 8)
+      return task && { model: task.requested, workers: task.members.length, building: task.entity }
+    })
+    for (
+      let turn = 0;
+      turn < 6000 &&
+      ['yellow', 'green'].some(team =>
+        constructionWorld.buildings.every(
+          building =>
+            building.team !== team || buildingModel(building) !== 4 || building.progress < 1
+        )
+      );
+      turn++
+    )
+      tick(constructionWorld, 1 / 12)
+    const construction = {
+      assigned,
+      completed: ['yellow', 'green'].map(team =>
+        constructionWorld.buildings.some(
+          building =>
+            building.team === team && buildingModel(building) === 4 && building.progress === 1
+        )
+      ),
+    }
     for (const { tribe, team, triggerTurn } of [
       { tribe: 2, team: 'yellow', triggerTurn: 8 },
       { tribe: 3, team: 'green', triggerTurn: 7 },
@@ -298,6 +335,7 @@ try {
       wild: world.units.filter(unit => unit.team === 'wild').length,
       independentAI: restored.campaignAIs[2] !== restored.campaignAIs[3],
       independentScans: restored.spellScans[2] !== restored.spellScans[3],
+      construction,
       counterattacks,
       renderedOwners,
       oneOpponent,
@@ -313,6 +351,18 @@ try {
   assert.equal(missionSix.independentAI, true)
   assert.equal(missionSix.independentScans, true)
   assert.deepEqual(
+    missionSix.construction.assigned.map(({ model, workers }) => ({ model, workers })),
+    [
+      { model: 4, workers: 2 },
+      { model: 4, workers: 2 },
+    ]
+  )
+  assert.notEqual(
+    missionSix.construction.assigned[0].building,
+    missionSix.construction.assigned[1].building
+  )
+  assert.deepEqual(missionSix.construction.completed, [true, true])
+  assert.deepEqual(
     missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
       team, early, enabled, order, targetedShaman: target === shaman, moved, engaged,
     })),
@@ -327,7 +377,7 @@ try {
   assert.equal(missionSix.victory, 0x2000000)
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
-  console.log('PASS: campaign continues through Mission 6 with distinct live opponent counterattacks')
+  console.log('PASS: Mission 6 opponents build independently and counterattack through live browser paths')
 } finally {
   await browser.close()
 }

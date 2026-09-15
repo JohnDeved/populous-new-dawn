@@ -7,6 +7,7 @@ import { migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { stepOutcome } from '../app/tribe-turns.ts'
+import { buildingModel } from '../app/building-shapes.ts'
 
 test('Mission 6 keeps both original opponents distinct through outcome and checkpoints', () => {
   assert.equal(
@@ -106,4 +107,76 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
     assert.ok(Math.hypot(survivor.x - start.x, survivor.z - start.z) > 0)
     assert.ok(survivor.fight)
   }
+})
+
+test('Mission 6 opponents autonomously build their first Guard Towers', () => {
+  const failed = createWorld(6)
+  for (
+    let turn = 0;
+    turn < 100 && failed.campaignAIs[3].tasks.every(task => task.phase !== 4);
+    turn++
+  )
+    tick(failed, 1 / 12)
+  failed.units = failed.units.filter(unit => unit.team !== 'green' || unit.kind !== 'brave')
+  for (let turn = 0; turn < 4; turn++) tick(failed, 1 / 12)
+  assert.equal(failed.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0), false)
+  assert.equal(
+    failed.buildings.some(building => building.team === 'green' && buildingModel(building) === 4),
+    false
+  )
+
+  let world = createWorld(6)
+  for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
+  assert.equal(world.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 0), false)
+  assert.equal(world.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0), false)
+
+  tick(world, 1 / 12)
+  const matak = world.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 0)
+  assert.deepEqual(
+    matak && { model: matak.requested, origin: matak.origin, phase: matak.phase },
+    { model: 4, origin: 0x72d8, phase: 0 }
+  )
+  tick(world, 1 / 12)
+  const chumara = world.campaignAIs[2].tasks.find(task => task.flags & 1 && task.type === 0)
+  assert.deepEqual(
+    chumara && { model: chumara.requested, origin: chumara.origin, phase: chumara.phase },
+    { model: 4, origin: 0xd094, phase: 0 }
+  )
+
+  for (
+    let turn = 0;
+    turn < 32 && [2, 3].some(tribe => !world.campaignAIs[tribe].tasks.some(task => task.phase === 8));
+    turn++
+  )
+    tick(world, 1 / 12)
+  const tasks = [2, 3].map(tribe => world.campaignAIs[tribe].tasks.find(task => task.phase === 8))
+  assert.ok(tasks.every(task => task?.members.length === 2))
+  assert.notEqual(tasks[0].entity, tasks[1].entity)
+  assert.ok(
+    tasks.every(task => {
+      const building = world.buildings.find(building => building.id === task.entity)
+      return building && buildingModel(building) === 4 && building.builders.filter(Boolean).length === 2
+    })
+  )
+
+  world = migrateCheckpoint(structuredClone(world))
+  assert.notEqual(world.campaignAIs[2].tasks, world.campaignAIs[3].tasks)
+  for (
+    let turn = 0;
+    turn < 6000 &&
+    ['yellow', 'green'].some(team =>
+      world.buildings.every(
+        building => building.team !== team || buildingModel(building) !== 4 || building.progress < 1
+      )
+    );
+    turn++
+  )
+    tick(world, 1 / 12)
+  assert.ok(
+    ['yellow', 'green'].every(team =>
+      world.buildings.some(
+        building => building.team === team && buildingModel(building) === 4 && building.progress === 1
+      )
+    )
+  )
 })

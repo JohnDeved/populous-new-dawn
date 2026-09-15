@@ -72,6 +72,27 @@ export function createComputerQueue(): ComputerQueue {
   }
 }
 
+// 0x4e5580 / 0x462790: ordinary construction uses the first free task slot.
+export function requestConstruction(
+  ai: ComputerQueue,
+  model: number,
+  origin: number,
+  exact = false
+) {
+  const task = ai.tasks.find(task => !(task.flags & 1))
+  if (!task) return false
+  Object.assign(task, {
+    flags: ((task.flags & ~2) | 1) >>> 0,
+    type: 0,
+    phase: 0,
+    requested: model | 0,
+    origin: origin & 65535,
+    extra: Number(exact),
+    members: [],
+  })
+  return true
+}
+
 // 0x4e67b0: command 1097 allocates one tower-staffing task in the first free slot.
 export function requestTowerStaffing(ai: ComputerQueue, target: number, model: number) {
   const task = ai.tasks.find(t => !(t.flags & 1))
