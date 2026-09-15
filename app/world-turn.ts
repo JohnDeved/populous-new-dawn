@@ -271,7 +271,7 @@ import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge
 import { stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
 import { stepFirestorm, type Firestorm } from './firestorm.ts'
-import { stepEarthquake, type Earthquake } from './earthquake.ts'
+import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
 import { stepVolcano, type Volcano } from './volcano.ts'
 import { stepLiveTornado, stepLiveTornadoPerson } from './tornado-runtime.ts'
 import {
@@ -434,6 +434,7 @@ function stepTurn(w: World) {
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
   if (w.land.landFlags & 2) return
   syncNativeTerrain(w)
+  if (w.campaignTimer !== null && w.campaignTimer > 0) w.campaignTimer--
   if (!(w.land.landFlags & 0x800000))
     processTribes(
       {
@@ -821,9 +822,22 @@ function stepTurn(w: World) {
         bridge.duration = Infinity
         w.stats.bridges++
       } else if (shrine.kind === 'erosionEffect') {
-        const erosion = effect(w, 'erosion', shrine.effectTarget!)
-        erosion.erosion = createErosion(nativePosition(w, shrine.effectTarget!))
-        erosion.duration = Infinity
+        for (const target of shrine.effectTargets ?? [shrine.effectTarget!]) {
+          const erosion = effect(w, 'erosion', target)
+          erosion.erosion = createErosion(nativePosition(w, target))
+          erosion.duration = Infinity
+        }
+      } else if (shrine.kind === 'linkedEffects') {
+        for (const target of shrine.earthquakeTargets ?? []) {
+          const quake = effect(w, 'earthquake', target)
+          quake.earthquake = createEarthquake(nativePosition(w, target), 0, w)
+          quake.team = 'blue'
+          quake.duration = Infinity
+        }
+        if (shrine.linkedShrine) {
+          w.shrines.push(shrine.linkedShrine)
+          delete shrine.linkedShrine
+        }
       } else if (shrine.kind === 'boat') {
         const boat = w.vehicles.find(v => v.id === shrine.rewardVehicle)
         if (boat) {

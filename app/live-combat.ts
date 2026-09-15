@@ -22,6 +22,7 @@ import {
 } from './combat-targets.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeUnitModel } from './unit-kinds.ts'
+import { objectsInCell } from './object-cells.ts'
 
 export const nativePersonModel = (u: Pick<Unit, 'team' | 'kind'>) =>
   u.team === 'wild' ? 1 : nativeUnitModel(u.kind)
@@ -109,8 +110,8 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
       const row = cells.get(cell)
       if (!row) return []
       const ordered: CombatTarget[] = []
-      for (let id = w.objectCells.heads[cell]; id; id = w.objectCells.objects.get(id)!.cellNext) {
-        const object = objects.get(id)
+      for (const indexed of objectsInCell(w.objectCells, cell)) {
+        const object = objects.get(indexed.id)
         if (object && row.includes(object)) ordered.push(object)
       }
       return ordered.length ? [...ordered, ...row.filter(o => !ordered.includes(o))] : row

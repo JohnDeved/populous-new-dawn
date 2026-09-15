@@ -728,7 +728,8 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         )
       if (p.motionGroup) return 0
       const vehicle = liveVehicles(w).get(p.vehicle),
-        to = { x: p.goalX, y: p.goalY },
+        // The route may coast-correct p.goal; command 3 retains the clicked land target.
+        to = { x: order.a, y: order.b },
         vehicleWorld = {
           flags: w.land.flags,
           categories: w.land.categories,
@@ -769,12 +770,20 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
       if (p.motionGroup) return 0
       const vehicle = w.vehicles.find(v => v.id === order.a && v.active)
       if (!vehicle) return 1
+      const holdVehicle = () => {
+        p.goalX = p.destinationX = vehicle.x
+        p.goalY = p.destinationY = vehicle.y
+      }
+      if (p.vehicle === vehicle.id) {
+        holdVehicle()
+        return 0
+      }
       const dx = short(vehicle.x - p.x),
         dy = short(vehicle.y - p.y)
-      // ponytail: the shared terrain route stops at a diagonal coast cell; use 576 after native order-22 approach is ported.
+      // 0x4eadc0 accepts the targeted ready Boat from the adjacent terminal coast cell.
       if (
-        Math.abs(dx) <= 768 &&
-        Math.abs(dy) <= 768 &&
+        Math.abs(dx) <= 576 &&
+        Math.abs(dy) <= 576 &&
         vehicleReady(
           {
             flags: w.land.flags,
@@ -782,8 +791,9 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
           },
           vehicle
         )
-      )
-        boardLiveVehicle(w, p, vehicle)
+      ) {
+        if (boardLiveVehicle(w, p, vehicle)) holdVehicle()
+      }
       return 0
     },
     6: order => stepLiveConstructionOrder(w, u, p, order),

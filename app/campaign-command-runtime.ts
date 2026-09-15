@@ -21,7 +21,7 @@ import {
   requestTraining,
 } from './computer.ts'
 import { release } from './world-tasks.ts'
-import { isShaman, SPELLS } from './world-rules.ts'
+import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { random } from './native-math.ts'
 import { sound } from './world-effects.ts'
 import { flybyCommand } from './flyby.ts'
@@ -127,6 +127,9 @@ export function campaignCommand(
       1180: 0,
       1187: 0,
       1197: 0,
+      1200: 1,
+      1201: 0,
+      1202: 1,
       1205: 0,
       1206: 0,
       1207: 0,
@@ -465,6 +468,18 @@ export function campaignCommand(
     }
     return
   }
+  if (opcode === 1200) {
+    w.campaignTimer = Math.max(0, read(args[0])) * TURNS_PER_SECOND
+    return
+  }
+  if (opcode === 1201) {
+    w.campaignTimer = null
+    return
+  }
+  if (opcode === 1202) {
+    writeVariable(args[0], Number(w.campaignTimer === 0))
+    return
+  }
   if (opcode === 1180 || opcode === 1187) {
     const message = w.messages.slots[w.lastMessage]
     if (message) message.flags |= opcode === 1180 ? 0x200 : 0x20000
@@ -628,9 +643,19 @@ export function campaignRules(w: World) {
                         1004,
                         1019,
                       ]
-                    : [12, 1003, 1004, 1019],
+                    : w.outcome.level === 10
+                      ? [
+                          12,
+                          1003,
+                          ...script.codes.slice(391, 405),
+                          ...script.codes.slice(440, 443),
+                          ...script.codes.slice(445, 528),
+                          1004,
+                          1019,
+                        ]
+                      : [12, 1003, 1004, 1019],
   }
-  // ponytail: Missions 4–7 bind only complete delivered blocks; add later AI blocks with their hosts.
+  // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe,

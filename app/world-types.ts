@@ -208,10 +208,13 @@ export type Building = Point & {
 export type Shrine = Point &
   WorshipState & {
     id: number
-    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'vault' | 'boat'
+    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'linkedEffects' | 'vault' | 'boat'
     reward?: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse'
     bridgeTarget?: Point
     effectTarget?: Point
+    effectTargets?: Point[]
+    earthquakeTargets?: Point[]
+    linkedShrine?: Shrine
     rewardVehicle?: number
     nextSlot: number
     slotTimer: number
@@ -333,6 +336,7 @@ export type World = {
   flyby: Flyby
   inputMask: number
   lastMessage: number
+  campaignTimer: number | null
   spellCasts: number[][]
   killCredits: number[][]
   gifts: Gift[]

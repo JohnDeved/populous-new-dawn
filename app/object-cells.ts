@@ -61,7 +61,8 @@ export function moveObjectInCells(
 export function* objectsInCell(w: ObjectCells, cell: number) {
   let id = w.heads[((cell >>> 9) & 127) * 128 + ((cell & 254) >> 1)]
   while (id) {
-    const p = w.objects.get(id)!
+    const p = w.objects.get(id)
+    if (!p) break
     yield p
     id = p.cellNext
   }
@@ -72,8 +73,10 @@ export function cellObjectOrder(w: ObjectCells) {
   const order = new Map<number, number>()
   for (let id of w.heads)
     for (let rank = 0; id; rank++) {
+      const object = w.objects.get(id)
+      if (!object) break
       order.set(id, rank)
-      id = w.objects.get(id)!.cellNext
+      id = object.cellNext
     }
   return order
 }

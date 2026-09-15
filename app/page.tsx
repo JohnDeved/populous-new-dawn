@@ -431,24 +431,43 @@ export default function Home() {
                           },
                           { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
                         ]
-                      : [
-                          {
-                            text: 'Discover the Boat House',
-                            done: world.unlockedBoatHouse,
-                          },
-                          {
-                            text: 'Build the Boat House',
-                            done: world.buildings.some(
-                              building => building.kind === 'boatHouse' && building.progress === 1
-                            ),
-                          },
-                          {
-                            text: 'Send a Brave inside to launch and board a Boat',
-                            done: world.vehicles.some(
-                              vehicle => vehicle.active && vehicle.passengers.length
-                            ),
-                          },
-                        ]
+                      : world.outcome.level === 9
+                        ? [
+                            {
+                              text: 'Discover the Boat House',
+                              done: world.unlockedBoatHouse,
+                            },
+                            {
+                              text: 'Build the Boat House',
+                              done: world.buildings.some(
+                                building => building.kind === 'boatHouse' && building.progress === 1
+                              ),
+                            },
+                            {
+                              text: 'Send a Brave inside to launch and board a Boat',
+                              done: world.vehicles.some(
+                                vehicle => vehicle.active && vehicle.passengers.length
+                              ),
+                            },
+                          ]
+                        : [
+                            {
+                              text: 'Board two followers onto the provided Boat',
+                              done: world.vehicles.some(vehicle => vehicle.passengers.length >= 2),
+                            },
+                            {
+                              text: 'Worship the Totem Pole across the water',
+                              done: world.shrines.some(
+                                shrine => shrine.kind === 'linkedEffects' && shrine.uses > 0
+                              ),
+                            },
+                            {
+                              text: 'Reach the Totem Pole in the Matak settlement',
+                              done: world.shrines.some(
+                                shrine => shrine.name === 'Erosion Totem Pole' && shrine.uses > 0
+                              ),
+                            },
+                          ]
   return (
     <main
       ref={shell}
@@ -971,7 +990,9 @@ export default function Home() {
                         ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
                         : world.outcome.level === 8
                           ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
-                          : 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'}
+                          : world.outcome.level === 9
+                            ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
+                            : 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

@@ -13,6 +13,7 @@ import {
 } from './scene-assets.ts'
 import {
   buildingObject,
+  buildingModel,
   buildingPose,
   buildingStage,
   nativePosition,
@@ -27,6 +28,7 @@ import {
   type Unit,
   type Building,
   type Vehicle,
+  type Shrine,
 } from './model'
 import { terrainPointHeight } from './native-terrain.ts'
 import { unitHealthGauge } from './unit-health.ts'
@@ -119,8 +121,10 @@ function makeUnit(u: Unit) {
 
 function makeBuilding(b: Building, stage: number) {
   const g = new THREE.Group(),
-    id = buildingObject(b)
-  const model = nativeModel(id, b.kind === 'temple' ? 1.65 : 2, stage)
+    id = buildingObject(b),
+    // Some later tribe-color variants are not in the compact render bank yet.
+    renderId = nativeModels[id] ? id : rules.buildingObjects[buildingModel(b)]
+  const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage)
   g.add(model)
   const health = new THREE.Group(),
     top = b.kind === 'tower' ? 6 : 4.8
@@ -174,16 +178,18 @@ export function updateWaveShake(
   } else group.userData.nativeWave = { phase, origin: source.shakeOrigin, ...point }
 }
 
+function makeShrine(scene: GameScene, shrine: Shrine) {
+  const g = new THREE.Group()
+  g.add(nativeModel(shrine.model))
+  scene.locate(g, shrine)
+  scene.orientModel(g, shrine.angle)
+  scene.objects.add(g)
+  g.userData.shrine = shrine.id
+  scene.shrineMeshes.set(shrine.id, { g })
+}
+
 export function makeShrines(scene: GameScene) {
-  for (const shrine of scene.world.shrines) {
-    const g = new THREE.Group()
-    g.add(nativeModel(shrine.model))
-    scene.locate(g, shrine)
-    scene.orientModel(g, shrine.angle)
-    scene.objects.add(g)
-    g.userData.shrine = shrine.id
-    scene.shrineMeshes.set(shrine.id, { g })
-  }
+  for (const shrine of scene.world.shrines) makeShrine(scene, shrine)
 }
 
 export function animatePerson(
@@ -537,6 +543,8 @@ export function updateShrinesFrame(scene: GameScene) {
       scene.releaseGroup(entry.g)
       scene.shrineMeshes.delete(id)
     }
+  for (const shrine of scene.world.shrines)
+    if (!scene.shrineMeshes.has(shrine.id)) makeShrine(scene, shrine)
   for (const shrine of scene.world.shrines) {
     const entry = scene.shrineMeshes.get(shrine.id)!
     scene.locate(entry.g, shrine)

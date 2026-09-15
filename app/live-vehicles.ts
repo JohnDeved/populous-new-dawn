@@ -52,6 +52,7 @@ export function leaveLiveVehicle(w: World, v: Vehicle, p: LivePerson, to: { x: n
   if (slot < 0) return
   v.passengers.splice(slot, 1)
   v.passengerCount = v.passengers.filter(Boolean).length
+  if (!v.passengerCount) v.speed = -1
   p.vehicle = 0
   Object.assign(p, to, {
     h: terrainPointHeight(w.land, to),

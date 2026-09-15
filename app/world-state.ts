@@ -91,6 +91,7 @@ export function createWorldState(missionNumber = 1): World {
     flyby: createFlyby(),
     inputMask: 0,
     lastMessage: -1,
+    campaignTimer: null,
     ai: campaignAIs[computerTribe]!,
     campaignAIs,
     activeCampaignTribe: computerTribe,

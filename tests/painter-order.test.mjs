@@ -60,6 +60,23 @@ test('cell render order matches native mixed passes and retained arrival order',
     assert.deepEqual(submitted, c.submitted)
   }
 })
+test('cell traversal preserves live ordering when a stale chain entry is encountered', () => {
+  const world = { heads: new Uint16Array(16384), objects: new Map() },
+    object = {
+      id: 1,
+      x: 256,
+      y: 256,
+      h: 0,
+      flags2: 0,
+      flags3: 0,
+      cellNext: 2,
+      cellPrevious: 0,
+    }
+  world.heads[0] = object.id
+  world.objects.set(object.id, object)
+  assert.deepEqual([...objectsInCell(world, 0)].map(candidate => candidate.id), [1])
+  assert.deepEqual([...cellObjectOrder(world)], [[1, 0]])
+})
 test('mixed polygon buckets, reverse insertion ties and raster depths match native captures', () => {
   assert.equal(fixture.executableSha256, camera.executableSha256)
   for (const c of fixture.cases) {

@@ -107,6 +107,22 @@
     "51": {
       "stringId": 669,
       "text": "Shaman, beware. You are being attacked by invisible Enemies!"
+    },
+    "57": {
+      "stringId": 679,
+      "text": "I have had a terrible vision with scenes of death and destruction as our settlement sank into the sea! I must move swiftly if I am to save my tribe and wreak revenge upon our Enemies."
+    },
+    "131": {
+      "stringId": 682,
+      "text": "You have run out of time, Shaman, and your revenge has failed. The island has returned to the depths of the ocean."
+    },
+    "58": {
+      "stringId": 680,
+      "text": "Shaman, the Totem Pole across the water can give you the land you need to replenish your tribe."
+    },
+    "59": {
+      "stringId": 681,
+      "text": "Shaman, the Totem Pole in the Matak settlement has the power to grant your revenge."
     }
   }
 }

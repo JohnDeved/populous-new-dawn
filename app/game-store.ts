@@ -99,6 +99,7 @@ export function migrateCheckpoint(world: World) {
   world.unlockedTemple ??= false
   world.unlockedFirewarriorHut ??= false
   world.unlockedBoatHouse ??= false
+  if (!Object.hasOwn(world, 'campaignTimer')) world.campaignTimer = null
   const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
   world.ai.coordinateLatch ??= 0
   if (oldMissionTwo) {
@@ -126,6 +127,7 @@ export function migrateCheckpoint(world: World) {
       !shrine.reward &&
       shrine.kind !== 'bridgeEffect' &&
       shrine.kind !== 'erosionEffect' &&
+      shrine.kind !== 'linkedEffects' &&
       shrine.kind !== 'boat'
     )
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind

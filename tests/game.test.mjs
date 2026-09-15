@@ -2279,7 +2279,7 @@ test('Mission 5 Boat worship emits its original one-shot tutorial',async()=>{
 });
 
 test('Mission 5 grants, boards, sails, lands and checkpoints its original Boat',async()=>{
- const {vehicleCanDisembark}=await import('../app/vehicle-routing.ts'),{createGameStore}=await import('../app/game-store.ts');
+ const {vehicleCanDisembark,vehicleReady}=await import('../app/vehicle-routing.ts'),{createGameStore}=await import('../app/game-store.ts');
  const store=createGameStore();store.startMission(5);let w=store.getWorld(),boat=w.vehicles[0],followers=w.units.filter(u=>u.team==='blue'&&u.kind==='warrior').slice(0,2);const ids=followers.map(u=>u.id),head=w.shrines.find(s=>s.kind==='boat');
  assert.deepEqual([boat.model,boat.x,boat.y,boat.active],[1,0x54e4,-23249,false]);assert.equal(head.rewardVehicle,boat.id);
  head.forced=true;head.reset=false;until(w,()=>boat.active,10);assert.equal(head.active,false);
@@ -2289,7 +2289,7 @@ test('Mission 5 grants, boards, sails, lands and checkpoints its original Boat',
  assert.ok(command(w,{...browserPosition(boat),id:boat.id}));until(w,()=>boat.passengers.length===2,3);assert.deepEqual(boat.passengers,ids);
  await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();boat=w.vehicles[0];followers=ids.map(id=>w.units.find(u=>u.id===id));assert.deepEqual(boat.passengers,ids);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));
  const target=shores.map(p=>[Math.hypot(((p.x-boat.x)<<16>>16),((p.y-boat.y)<<16>>16)),p]).filter(([d])=>d>3000&&d<10000).sort((a,b)=>a[0]-b[0])[0][1];
- const before=[boat.x,boat.y];assert.ok(command(w,browserPosition(target)));until(w,()=>boat.x!==before[0]||boat.y!==before[1],3);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));assert.notDeepEqual([boat.x,boat.y],[target.x,target.y]);
- until(w,()=>followers.every(u=>!u.native?.vehicle),20);assert.deepEqual(boat.passengers,[]);assert.ok(followers.every(u=>vehicleCanDisembark(vehicleWorld(),boat,u.native)));
+ const before=[boat.x,boat.y];assert.ok(command(w,browserPosition(target)));until(w,()=>boat.x!==before[0]||boat.y!==before[1],3);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));assert.ok(followers[0].native.motionGroup);assert.ok(followers.every(u=>u.native.motionGroup===followers[0].native.motionGroup));assert.notDeepEqual([boat.x,boat.y],[target.x,target.y]);
+ until(w,()=>followers.every(u=>!u.native?.vehicle),20);assert.deepEqual(boat.passengers,[]);assert.equal(boat.speed,-1);assert.ok(vehicleReady(vehicleWorld(),boat));assert.ok(followers.every(u=>vehicleCanDisembark(vehicleWorld(),boat,u.native)));
  await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();assert.deepEqual(w.vehicles[0].passengers,[]);assert.ok(ids.every(id=>!w.units.find(u=>u.id===id).native?.vehicle));
 });

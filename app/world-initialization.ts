@@ -14,8 +14,20 @@ import { teamForTribe } from './world-types.ts'
 
 export function createWorld(missionNumber = 1): World {
   const mission = missionData(missionNumber),
-    level = mission.level,
-    w = createWorldState(missionNumber)
+    level = mission.level
+  const linkedObjects = (object: (typeof level.objects)[number]) =>
+    Array.from(
+      { length: 10 },
+      (_, i) => object.settings![6 + i * 2] | (object.settings![7 + i * 2] << 8)
+    )
+      .filter(Boolean)
+      .flatMap(index => level.objects.find(candidate => candidate.index + 1 === index) ?? [])
+  const w = createWorldState(missionNumber),
+    linkedObjectIds = new Set(
+      level.objects
+        .filter(object => object.type === 6 && object.model === 6)
+        .flatMap(object => linkedObjects(object).map(linked => linked.index + 1))
+    )
   for (const o of level.objects) {
     if (o.type === 2 && o.owner !== 255) {
       const kind =
@@ -63,27 +75,33 @@ export function createWorld(missionNumber = 1): World {
         turnAngle: point.x,
         turnY: point.y,
         heading: (o.angle / 2048) * Math.PI * 2,
-        active: false,
+        active: !linkedObjectIds.has(o.index + 1),
       })
     }
     if (o.type === 5 && o.model <= 6)
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
+      if (linkedObjectIds.has(o.index + 1)) continue
       const settings = o.settings!,
-        linkedObjects = Array.from(
-          { length: 10 },
-          (_, i) => settings[6 + i * 2] | (settings[7 + i * 2] << 8)
-        )
-          .filter(Boolean)
-          .flatMap(index => level.objects.find(object => object.index + 1 === index) ?? []),
-        rewardObject = linkedObjects.find(object => object.type === 6 && object.model === 2),
-        linkedVehicle = linkedObjects.find(object => object.type === 4),
-        bridge = linkedObjects.find(object => object.type === 7 && object.model === 24),
-        erosion = linkedObjects.find(object => object.type === 7 && object.model === 23),
+        links = linkedObjects(o),
+        rewardObject = links.find(object => object.type === 6 && object.model === 2),
+        linkedVehicle = links.find(object => object.type === 4),
+        bridge = links.find(object => object.type === 7 && object.model === 24),
+        erosion = links.find(object => object.type === 7 && object.model === 23),
+        earthquakes = links.filter(object => object.type === 7 && object.model === 26),
+        linkedHead = links.find(object => object.type === 6 && object.model === 6),
         linked = linkedVehicle ?? bridge ?? erosion ?? rewardObject,
         reward = rewardObject?.settings,
         bridgeTarget = bridge && 'target' in bridge ? (bridge.target as Point) : undefined,
-        effectTarget = erosion ? { x: erosion.x, z: erosion.z } : undefined
+        effectTarget = erosion ? { x: erosion.x, z: erosion.z } : undefined,
+        effectTargets = links
+          .filter(object => object.type === 7 && object.model === 23)
+          .map(object => ({ x: object.x, z: object.z })),
+        earthquakeTargets = earthquakes.map(object => ({ x: object.x, z: object.z })),
+        linkedHeadObjects = linkedHead ? linkedObjects(linkedHead) : [],
+        linkedHeadTargets = linkedHeadObjects
+          .filter(object => object.type === 7 && object.model === 23)
+          .map(object => ({ x: object.x, z: object.z }))
       const rewardSpell =
           reward?.[0] === 11 ? SPELLS.find(spell => spell.model === reward[1]) : undefined,
         rewardBuilding =
@@ -103,32 +121,44 @@ export function createWorld(missionNumber = 1): World {
         kind =
           settings[0] === 4
             ? 'vault'
-            : linked?.type === 4
-              ? 'boat'
-              : linked?.type === 7 && linked.model === 24 && bridgeTarget
-                ? 'bridgeEffect'
-                : effectTarget
-                  ? 'erosionEffect'
-                  : rewardSpell?.id
+            : earthquakeTargets.length && linkedHead
+              ? 'linkedEffects'
+              : linked?.type === 4
+                ? 'boat'
+                : linked?.type === 7 && linked.model === 24 && bridgeTarget
+                  ? 'bridgeEffect'
+                  : effectTarget
+                    ? 'erosionEffect'
+                    : rewardSpell?.id
       // Mission 5's Angel head has a dedicated class-7 owner.
       if (!kind && missionNumber === 5) continue
       // Decorative trigger links have no collectible reward owner.
       if (
         !kind &&
-        linkedObjects.length > 0 &&
-        linkedObjects.every(object => object.type === 7 && object.model === 81)
+        links.length > 0 &&
+        links.every(object => object.type === 7 && object.model === 81)
       )
         continue
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
       const shrineReward =
         kind === 'vault'
           ? (rewardBuilding ?? rewardSpell?.id)
-          : kind === 'bridgeEffect' || kind === 'erosionEffect' || kind === 'boat'
+          : kind === 'bridgeEffect' ||
+              kind === 'erosionEffect' ||
+              kind === 'linkedEffects' ||
+              kind === 'boat'
             ? undefined
             : kind
-      if (kind !== 'bridgeEffect' && kind !== 'erosionEffect' && kind !== 'boat' && !shrineReward)
+      if (
+        kind !== 'bridgeEffect' &&
+        kind !== 'erosionEffect' &&
+        kind !== 'linkedEffects' &&
+        kind !== 'boat' &&
+        !shrineReward
+      )
         throw new Error(`Unbound shrine gift ${o.index}`)
-      const worship = createWorship(settings)
+      const worship = createWorship(settings),
+        linkedWorship = linkedHead ? createWorship(linkedHead.settings!) : undefined
       const vault =
         kind === 'vault'
           ? level.objects.find(r => r.type === 2 && r.model === 18 && distance(r, o) < 3)
@@ -142,14 +172,40 @@ export function createWorld(missionNumber = 1): World {
         forced: false,
         morph: null,
         model: kind === 'vault' ? 154 : 45,
-        angle: ((vault?.angle ?? 0) / 2048) * Math.PI * 2,
+        angle: (((vault?.angle ?? o.angle) & 2047) / 2048) * Math.PI * 2,
         id: w.nextId++,
         x: o.x,
         z: o.z,
         kind,
         reward: shrineReward,
         ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
-        ...(kind === 'erosionEffect' ? { effectTarget } : {}),
+        ...(kind === 'erosionEffect' ? { effectTarget, effectTargets } : {}),
+        ...(kind === 'linkedEffects' && linkedHead
+          ? {
+              earthquakeTargets,
+              linkedShrine: {
+                ...linkedWorship!,
+                nextSlot: 0,
+                slotTimer: 0,
+                range: linkedHead.settings![1],
+                followers: 0,
+                forced: false,
+                morph: null,
+                model: 45,
+                angle: ((linkedHead.angle & 2047) / 2048) * Math.PI * 2,
+                id: w.nextId++,
+                x: linkedHead.x,
+                z: linkedHead.z,
+                kind: 'erosionEffect',
+                effectTarget: linkedHeadTargets[0],
+                effectTargets: linkedHeadTargets,
+                name: 'Erosion Totem Pole',
+                progress: 0,
+                duration: (linkedWorship!.target * 4) / TURNS_PER_SECOND,
+                uses: 0,
+              },
+            }
+          : {}),
         ...(kind === 'boat'
           ? { rewardVehicle: w.vehicles.find(v => v.model === linked!.model && !v.active)!.id }
           : {}),
@@ -160,9 +216,11 @@ export function createWorld(missionNumber = 1): World {
               ? 'Land raising stone head'
               : kind === 'erosionEffect'
                 ? 'Erosion stone head'
-                : kind === 'boat'
-                  ? 'Boat stone head'
-                  : `${rewardSpell!.name} stone head`,
+                : kind === 'linkedEffects'
+                  ? 'Totem Pole'
+                  : kind === 'boat'
+                    ? 'Boat stone head'
+                    : `${rewardSpell!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,
@@ -191,7 +249,7 @@ export function createWorld(missionNumber = 1): World {
               1196,
               1197,
               1204,
-              ...(missionNumber === 4 ? [1174, 1187] : []),
+              ...(missionNumber === 4 || missionNumber === 10 ? [1174, 1187] : []),
             ].includes(c.opcode)
           )
             return true

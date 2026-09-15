@@ -8900,3 +8900,29 @@ general player command-28 queue migration remain open. The browser deliberately
 reuses its established direct-target movement/contact adapter for this bounded
 mission path; the native check proves allocation and ownership, not the whole fight
 controller.
+
+## 2026-09-15 — Mission 10 opening and first Totem
+
+Exact Mission 10 level/header data and tribe-3 `cpscr059.dat` are now imported.
+The supplied active Blue Boat is stranded in open water; the usable crossing comes
+from the authored Blue Boat House's 600-turn occupied launch. Message 57/string 679
+opens the level. The first authored objective is the one-use Totem at browser
+`(29,-67)`: two intended worshippers, target 64. Reviewed `004fb270` shows that
+completion clones its five linked templates: model 90, two model-26 effects, the
+next Totem, and scenery.
+
+`scripts/check-native-mission10-opening.py EXE` byte-verifies all inputs, executes
+the original `0048c6b0` VM over words `391..<528`, and directly exercises the
+native timer routines. The first-Totem transition is eligible at tribe-3 turns
+`5 mod 16`, latches variables 7/9, queues the ten-event flyby, locks input, and
+starts 480 seconds = 5,760 simulation turns. The browser continues Mission 9 into
+this exact opening, launches and uses the authored Boat through rendered input,
+completes the rendered Totem with transported followers under live combat, admits
+the linked Totem into the live scene, and preserves the transition across paired
+checkpoint advancement and restart.
+
+The browser maps the two linked model-26 objects to its reviewed Earthquake
+controller. Exact model-90/model-26 terrain equivalence, native automatic
+cross-water group routing (the browser currently exposes Boat-click boarding as a
+shorthand), full Mission 10 AI, command 1093, the second objective, and deadline
+failure remain open.

@@ -42,7 +42,7 @@ import {
 } from './live-movement.ts'
 import { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'
 import { release } from './world-tasks.ts'
-import { releasePersonRoute } from './person-routes.ts'
+import { attachPersonRoute, releasePersonRoute } from './person-routes.ts'
 import {
   addBuilding,
   buildingPlanPose,
@@ -399,6 +399,26 @@ export function command(
         path.commandStatus = 3
         path.state = 10
         acceptLivePath(w, driver, path)
+        for (const passengerId of vehicle.passengers.slice(1)) {
+          const passengerUnit = w.units.find(u => u.id === passengerId),
+            passenger = passengerUnit?.native
+          if (!passengerUnit || !passenger || !path.motionGroup) continue
+          cancelLiveOrder(w, passengerUnit)
+          attachPersonOrder(w.buildingOrders, passenger, order, 0, orderEffects(w))
+          attachPersonRoute(w.motionRoutes, passenger, path.motionGroup)
+          Object.assign(passenger, {
+            commandStatus: 3,
+            state: 10,
+            motionIndex: path.motionIndex,
+            goalX: path.goalX,
+            goalY: path.goalY,
+            destinationX: path.destinationX,
+            destinationY: path.destinationY,
+            turnAngle: path.turnAngle,
+            turnY: path.turnY,
+          })
+          acceptLivePath(w, passengerUnit, passenger)
+        }
         count++
       }
       tell(w, count ? 'The Boat is on the move.' : 'The Boat cannot reach that point.')
