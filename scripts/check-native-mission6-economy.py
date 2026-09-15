@@ -134,4 +134,52 @@ write(0x89D178, "I", 0x12345678)
 available = 4
 assert call(0x4E59A0, ai, 0) == 0
 assert read(0x89D178) == 0x32BE789B
-print(json.dumps({"executableSha256": SHA, "construction": observations, "training": training, "belowCapacity": {"available": available, "allocated": False, "rng": hex(read(0x89D178))}}, indent=2))
+
+# 0x4c6da0 phase 8 retries an incomplete plan after its builders are lost.
+plan, cell = 0x2003000, 0x1E0A
+task8 = ai + 0x36
+cpu.mem_write(ai, bytes(0xC65))
+cpu.mem_write(building, bytes(0x100))
+cpu.mem_write(plan, bytes(0x100))
+write(ai + 0xC22, "B", 3)
+write(task8, "H", cell)
+write(task8 + 9, "B", 7)
+write(task8 + 0x42, "H", 8)
+write(building + 0x24, "H", 100)
+write(building + 0x2A, "B", 2)
+write(building + 0x2C, "B", 1)
+write(building + 0x2F, "B", 3)
+write(building + 0x82, "h", 101)
+write(plan + 0x24, "H", 101)
+write(plan + 0x2A, "B", 9)
+write(plan + 0x9A, "B", 1)
+write(0x890390 + 100 * 4, "I", building)
+write(0x890390 + 101 * 4, "I", plan)
+cell_index = ((cell & 0xFE00) >> 9) * 128 + ((cell & 0xFE) >> 1)
+write(0x8A03EC + cell_index * 16, "H", 100)
+
+
+def phase8_leaf(_cpu, _address, _size, _user):
+    ret(0)
+
+
+cpu.hook_add(UC_HOOK_CODE, phase8_leaf, begin=0x4F6320, end=0x4F6320)
+for _ in range(16):
+    call(0x4C6DA0, ai, 0)
+assert read(task8 + 0x42, "H") == 8
+assert read(task8 + 0x0D, "B") == 16
+call(0x4C6DA0, ai, 0)
+recovery = {
+    "phase": read(task8 + 0x42, "H"),
+    "retainedBuilders": read(task8 + 0x0C, "B"),
+    "retries": read(task8 + 0x0D, "B"),
+}
+assert recovery == {"phase": 4, "retainedBuilders": 1, "retries": 16}
+write(task8 + 0x42, "H", 8)
+write(task8 + 0x0D, "B", 9)
+write(plan + 0x9A, "B", 2)
+call(0x4C6DA0, ai, 0)
+assert read(task8 + 0x42, "H") == 8
+assert read(task8 + 0x0D, "B") == 9
+
+print(json.dumps({"executableSha256": SHA, "construction": observations, "training": training, "belowCapacity": {"available": available, "allocated": False, "rng": hex(read(0x89D178))}, "lostBuilderRecovery": recovery}, indent=2))

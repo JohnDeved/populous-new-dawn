@@ -57,6 +57,14 @@ the tower supplies one housing slot and a model-1 Hut supplies three. The profil
 then makes Matak's model-7 request precede further housing; Chumara keeps its initial
 housing target of nine before training.
 
+Native `004c6da0` phase 8 also recovers incomplete construction after assigned
+builders are lost. It compares the plan's assigned-builder count with the native
+required count of two. Sixteen deficient dispatches increment task byte `+0x0d`;
+the seventeenth returns to phase 4, retains the observed count in byte `+0x0c`, and
+leaves the retry byte at 16. Phase 7 resets the retry byte before entering phase 8.
+The focused probe executes object/plan resolution, `004f5d20`, the comparison, and
+the task writes natively; only the unrelated `004f6320` progress helper is neutralized.
+
 ## Live integration and boundary
 
 `stepComputerTasks` now preserves those schedules, per-tribe queues, center choice,
@@ -65,12 +73,14 @@ and the existing timber/construction lifecycle. The Mission 6 portable regressio
 and continuous Mission 4→5→6 browser check prove both tribes independently assign
 workers, survive checkpoint restoration, complete their first Guard Tower, then
 complete their first settlement expansion, run Matak's profile, construct both
-Warrior Training Huts, and reach live Warrior production. Native site validation
-does not reject living people, and its
+Warrior Training Huts, recover construction after training redirects builders, and
+reach Matak population 23 while retaining at least six Warriors. Both original
+first-raid population reads (`I1 > 22` and `I1147 > 5`) then pass through normal
+simulation and checkpoint restoration. Native site validation does not reject living people, and its
 builder tasks 5 and 6 immediately return to ordinary work. The browser therefore
 skips only grounded Wildman-occupied candidates until native wild wandering is live;
 the regression covers the first Chumara candidate and subsequent valid site.
 
 Explicit `BUILD_AT`/1082 occurs later (Chumara turn 501 and gated Matak turn 55).
-Ordinary 1059 attacks, Matak's still-unmet population gate, and command 1093 remain
-outside this slice. No parity ledger status was changed.
+Ordinary 1059 attacks and command 1093 remain outside this slice. No parity ledger
+status was changed.

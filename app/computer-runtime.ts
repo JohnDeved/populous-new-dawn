@@ -417,6 +417,7 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       building.builders = Array(rules.buildingMaxWorkers[task.requested]).fill(0)
       task.target = cell
       task.entity = building.id
+      task.retries = 0
       task.phase = 4
       return
     }
@@ -428,10 +429,18 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
     return
   }
   if (task.phase === 5) {
-    const selection = computerSelectionWorld(w, tribe),
+    const building = w.buildings.find(building => building.id === task.entity && building.hp > 0),
+      selection = computerSelectionWorld(w, tribe),
       ids = selectComputerPeople(selection.world, 2, 2, -1, 1, task.target, 0, 2)
-    if (ids.length !== 2) {
+    if (!building) {
       cleanup(true)
+      return
+    }
+    if (!ids.length) {
+      if (task.retries) {
+        releaseSelection(w.ai, index)
+        task.phase = 8
+      } else cleanup(true)
       return
     }
     for (const id of ids) {
@@ -458,13 +467,13 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
         return unit ? [unit] : []
       }),
       order = emptyPersonOrder()
-    if (!building || units.length !== 2) {
+    if (!building || !units.length) {
       cleanup(true)
       return
     }
     writePersonOrder(order, 6, building.id, task.target, 0)
     const issued = appendLiveOrders(w, units, order, true)
-    if (!issued.accepted || issued.count !== 2) {
+    if (!issued.accepted || issued.count !== units.length) {
       cleanup(true)
       return
     }
@@ -472,11 +481,16 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       if (startLiveConstructionOrder(w, unit)) route(w, unit, entrance(w, building), true)
     releaseSelection(w.ai, index)
     task.phase = 8
+    task.retries = 0
     return
   }
   if (task.phase === 8) {
     const building = w.buildings.find(building => building.id === task.entity && building.hp > 0)
     if (!building || building.progress === 1) cleanup()
+    else if ((building.builders?.filter(Boolean).length ?? 0) < 2) {
+      if (task.retries < 16) task.retries++
+      else task.phase = 4
+    }
   }
 }
 

@@ -292,6 +292,7 @@ try {
       { syncLivePersonCells } = await import('/app/live-people.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
       { buildingModel } = await import('/app/building-shapes.ts'),
+      { migrateCheckpoint } = await import('/app/game-store.ts'),
       { default: rules } = await import('/app/original-rules.json'),
       renderedOwners = [...globalThis.testScene.unitMeshes.values()].map(mesh => mesh.userData.owner),
       counterattacks = []
@@ -331,7 +332,7 @@ try {
       tick(constructionWorld, 1 / 12)
     for (
       let turn = 0;
-      turn < 6000 &&
+      turn < 12000 &&
       !(
         constructionWorld.buildings.some(
           building => building.team === 'yellow' && building.kind === 'camp' && building.progress === 1
@@ -344,11 +345,13 @@ try {
         constructionWorld.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior')
           .length > 1 &&
         constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
-          .length >= 6
+          .length >= 6 &&
+        constructionWorld.units.filter(unit => unit.team === 'green' && unit.hp > 0).length >= 23
       );
       turn++
     )
       tick(constructionWorld, 1 / 12)
+    const restoredConstruction = migrateCheckpoint(structuredClone(constructionWorld))
     const construction = {
       assigned,
       matakProfile: constructionWorld.campaignAIs[3].attributes.slice(2, 8),
@@ -383,6 +386,13 @@ try {
               .length >= 6,
         },
       ],
+      population: constructionWorld.units.filter(unit => unit.team === 'green' && unit.hp > 0).length,
+      restoredPopulation: restoredConstruction.units.filter(
+        unit => unit.team === 'green' && unit.hp > 0
+      ).length,
+      restoredWarriors: restoredConstruction.units.filter(
+        unit => unit.team === 'green' && unit.kind === 'warrior'
+      ).length,
     }
     for (const { tribe, team, triggerTurn } of [
       { tribe: 2, team: 'yellow', triggerTurn: 8 },
@@ -464,6 +474,9 @@ try {
     { model: 7, completed: true, housing: true, output: true },
     { model: 7, completed: true, housing: true, output: true },
   ])
+  assert.ok(missionSix.construction.population >= 23)
+  assert.ok(missionSix.construction.restoredPopulation >= 23)
+  assert.ok(missionSix.construction.restoredWarriors >= 6)
   assert.deepEqual(
     missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
       team, early, enabled, order, targetedShaman: target === shaman, moved, engaged,
@@ -480,7 +493,7 @@ try {
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 6 opponents establish settlements, train Warriors, and counterattack through live browser paths'
+    'PASS: Mission 6 opponents establish settlements, sustain Matak growth, and counterattack through live browser paths'
   )
 } finally {
   await browser.close()

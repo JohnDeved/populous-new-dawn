@@ -120,7 +120,7 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
   }
 })
 
-test('Mission 6 opponents establish settlements and train Matak Warriors', () => {
+test('Mission 6 opponents establish settlements and sustain Matak population growth', () => {
   const failed = createWorld(6)
   for (
     let turn = 0;
@@ -252,6 +252,41 @@ test('Mission 6 opponents establish settlements and train Matak Warriors', () =>
   )
   assert.notEqual(expansionTasks[0].target, blockedCell)
 
+  const recovering = migrateCheckpoint(structuredClone(world)),
+    recoveringAI = recovering.campaignAIs[3],
+    recoveringTask = recoveringAI.tasks.find(task => task.entity === expansionTasks[1].entity),
+    recoveringBuilding = recovering.buildings.find(building => building.id === recoveringTask.entity),
+    recoveringIndex = recoveringAI.tasks.indexOf(recoveringTask)
+  recoveringAI.tasks.forEach(task => {
+    if (task !== recoveringTask) task.flags = 0
+  })
+  recoveringBuilding.builders.fill(0)
+  recoveringTask.retries = 0
+  recovering.turn = 0
+  for (let visit = 0; visit < 16; visit++) {
+    recoveringAI.cursor = recoveringIndex
+    withCampaignTribe(recovering, 3, () => stepComputerTasks(recovering, 3))
+  }
+  assert.deepEqual(
+    { phase: recoveringTask.phase, retries: recoveringTask.retries },
+    { phase: 8, retries: 16 }
+  )
+  recoveringAI.cursor = recoveringIndex
+  withCampaignTribe(recovering, 3, () => stepComputerTasks(recovering, 3))
+  assert.deepEqual(
+    { phase: recoveringTask.phase, retries: recoveringTask.retries },
+    { phase: 4, retries: 16 }
+  )
+  for (let phase = 0; phase < 4; phase++) {
+    recoveringAI.cursor = recoveringIndex
+    withCampaignTribe(recovering, 3, () => stepComputerTasks(recovering, 3))
+  }
+  assert.equal(recoveringTask.phase, 8)
+  assert.ok(recoveringBuilding.builders.some(Boolean))
+  for (let turn = 0; turn < 6000 && recoveringBuilding.progress < 1; turn++)
+    tick(recovering, 1 / 12)
+  assert.equal(recoveringBuilding.progress, 1)
+
   const redirected = migrateCheckpoint(structuredClone(world)),
     redirectedAI = redirected.campaignAIs[2],
     redirectedCamp = redirected.buildings.find(building => building.id === expansionTasks[0].entity),
@@ -307,6 +342,7 @@ test('Mission 6 opponents establish settlements and train Matak Warriors', () =>
   world = migrateCheckpoint(structuredClone(world))
   const campId = expansionTasks[0].entity,
     hutId = expansionTasks[1].entity,
+    population = team => world.units.filter(unit => unit.team === team && unit.hp > 0).length,
     housing = team =>
       world.buildings
         .filter(building => building.team === team && building.hp > 0)
@@ -314,7 +350,7 @@ test('Mission 6 opponents establish settlements and train Matak Warriors', () =>
           const model = buildingModel(building)
           return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
         }, 0)
-  for (let turn = 0; turn < 6000; turn++) {
+  for (let turn = 0; turn < 12000; turn++) {
     const camp = world.buildings.find(building => building.id === campId),
       hut = world.buildings.find(building => building.id === hutId)
     if (
@@ -325,7 +361,8 @@ test('Mission 6 opponents establish settlements and train Matak Warriors', () =>
         building =>
           building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
       ) &&
-      world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length >= 6
+      world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length >= 6 &&
+      population('green') >= 23
     )
       break
     tick(world, 1 / 12)
@@ -343,6 +380,8 @@ test('Mission 6 opponents establish settlements and train Matak Warriors', () =>
     )
   )
   assert.ok(world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length >= 6)
+  assert.ok(population('green') >= 23)
+  assert.ok(withCampaignTribe(world, 3, () => campaignInternal(world, 1)) > 22)
   assert.ok(withCampaignTribe(world, 3, () => campaignInternal(world, 1147)) > 5)
 
   const restoredProduction = migrateCheckpoint(structuredClone(world))
@@ -355,5 +394,10 @@ test('Mission 6 opponents establish settlements and train Matak Warriors', () =>
   assert.ok(
     restoredProduction.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
       .length >= 6
+  )
+  assert.ok(restoredProduction.units.filter(unit => unit.team === 'green' && unit.hp > 0).length >= 23)
+  assert.ok(withCampaignTribe(restoredProduction, 3, () => campaignInternal(restoredProduction, 1)) > 22)
+  assert.ok(
+    withCampaignTribe(restoredProduction, 3, () => campaignInternal(restoredProduction, 1147)) > 5
   )
 })
