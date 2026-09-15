@@ -71,9 +71,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
   if (scene.overviewActive || world.inputMask || !atlas?.complete || !atlas.naturalWidth) return
   for (const b of world.buildings) {
     const plan = b.progress < 1,
-      school =
-        !plan &&
-        (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut'),
+      school = !plan && (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut'),
       tower = !plan && b.kind === 'tower',
       admission = b.admission,
       activity = admission?.activity ?? 0
@@ -214,6 +212,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       tower: 'guard tower',
       temple: 'temple',
       firewarriorHut: 'firewarrior hut',
+      boatHouse: 'boat house',
     }[b.kind]
     dismantle.setAttribute('aria-label', dismantling ? 'Cancel dismantling' : `Dismantle ${name}`)
     dismantle.title = dismantling ? 'Cancel dismantling' : `Dismantle ${name} and recover timber`

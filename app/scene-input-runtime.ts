@@ -184,9 +184,9 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
     }),
     vehicle = scene.world.vehicles.find(v => v.id === id && v.active) ?? nearbyVehicle
   return (
+    (vehicle ? { ...vehicle, ...browserPosition(vehicle) } : null) ??
     scene.world.buildings.find(b => b.id === id) ??
     scene.world.shrines.find(s => s.id === id) ??
-    (vehicle ? { ...vehicle, ...browserPosition(vehicle) } : null) ??
     null
   )
 }
@@ -342,10 +342,11 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const pickedId = !scene.world.mode && scene.picking.pick(event)
   const picked =
     scene.world.units.find(u => u.id === pickedId) ??
+    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
     scene.world.buildings.find(b => b.id === pickedId) ??
     scene.world.shrines.find(h => h.id === pickedId) ??
     scene.world.trees.find(t => t.id === pickedId) ??
-    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined)
+    undefined
   const p = picked ?? scene.pick(event) ?? clickedUnit
   if (!p) return
   if (scene.world.mode) {

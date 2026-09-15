@@ -41,7 +41,13 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
   for (const unit of world.units) {
     if (unit.hypnotise?.originalTeam === 'red') unit.hypnotise.originalTeam = team
     if (unit.team === 'red') unit.team = team
-    for (const person of [unit.native, unit.flight, unit.entry?.person, unit.builder?.person, unit.fight?.motion])
+    for (const person of [
+      unit.native,
+      unit.flight,
+      unit.entry?.person,
+      unit.builder?.person,
+      unit.fight?.motion,
+    ])
       retag(person ?? undefined)
   }
   for (const building of world.buildings) {
@@ -92,6 +98,7 @@ export function migrateCheckpoint(world: World) {
   world.unlockedTower ??= false
   world.unlockedTemple ??= false
   world.unlockedFirewarriorHut ??= false
+  world.unlockedBoatHouse ??= false
   const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
   world.ai.coordinateLatch ??= 0
   if (oldMissionTwo) {

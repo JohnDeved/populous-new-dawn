@@ -56,7 +56,7 @@ export const teamForTribe = (tribe: number): Team =>
 export const tribeForTeam = (team: Team) => (team === 'wild' ? -1 : TRIBE_TEAMS.indexOf(team))
 export const animationTeam = (team: Team): 'blue' | 'red' | 'wild' =>
   team === 'yellow' || team === 'green' ? 'red' : team
-export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple' | 'firewarriorHut'
+export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse'
 export type Spell =
   | 'blast'
   | 'convertWild'
@@ -177,6 +177,7 @@ export type Building = Point & {
   hp: number
   progress: number
   timer: number
+  boatLaunched?: boolean
   foundation: number
   level: number
   logs: number
@@ -208,7 +209,7 @@ export type Shrine = Point &
   WorshipState & {
     id: number
     kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'vault' | 'boat'
-    reward?: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut'
+    reward?: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse'
     bridgeTarget?: Point
     effectTarget?: Point
     rewardVehicle?: number
@@ -295,7 +296,7 @@ export type Effect = Point & {
 }
 export type Gift = Effect & {
   kind: 'gift'
-  reward: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'vault'
+  reward: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse' | 'vault'
   remaining: number
   phase: number
   frame: number
@@ -380,6 +381,7 @@ export type World = {
   unlockedTower: boolean
   unlockedTemple: boolean
   unlockedFirewarriorHut: boolean
+  unlockedBoatHouse: boolean
   time: number
   turn: number
   attackAlert: number

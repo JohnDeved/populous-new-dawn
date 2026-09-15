@@ -419,17 +419,36 @@ export default function Home() {
                           done: blue.some(unit => !!unit.invisibility),
                         },
                       ]
-                    : [
-                        {
-                          text: 'Discover Firewarrior training',
-                          done: world.unlockedFirewarriorHut,
-                        },
-                        {
-                          text: 'Train a Firewarrior',
-                          done: blue.some(unit => unit.kind === 'firewarrior'),
-                        },
-                        { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-                      ]
+                    : world.outcome.level === 8
+                      ? [
+                          {
+                            text: 'Discover Firewarrior training',
+                            done: world.unlockedFirewarriorHut,
+                          },
+                          {
+                            text: 'Train a Firewarrior',
+                            done: blue.some(unit => unit.kind === 'firewarrior'),
+                          },
+                          { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
+                        ]
+                      : [
+                          {
+                            text: 'Discover the Boat House',
+                            done: world.unlockedBoatHouse,
+                          },
+                          {
+                            text: 'Build the Boat House',
+                            done: world.buildings.some(
+                              building => building.kind === 'boatHouse' && building.progress === 1
+                            ),
+                          },
+                          {
+                            text: 'Send a Brave inside to launch and board a Boat',
+                            done: world.vehicles.some(
+                              vehicle => vehicle.active && vehicle.passengers.length
+                            ),
+                          },
+                        ]
   return (
     <main
       ref={shell}
@@ -739,7 +758,8 @@ export default function Home() {
                     (b.id === 'camp' && !world.unlockedCamp) ||
                     (b.id === 'tower' && !world.unlockedTower) ||
                     (b.id === 'temple' && !world.unlockedTemple) ||
-                    (b.id === 'firewarriorHut' && !world.unlockedFirewarriorHut)
+                    (b.id === 'firewarriorHut' && !world.unlockedFirewarriorHut) ||
+                    (b.id === 'boatHouse' && !world.unlockedBoatHouse)
                   }
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
                   aria-label={`${b.name}, ${b.cost} wood`}
@@ -756,13 +776,7 @@ export default function Home() {
                   onBlur={() => setHover(null)}
                 >
                   <HudSprite
-                    id={
-                      b.id === 'hut'
-                        ? 1028
-                        : b.id === 'tower' || b.id === 'temple'
-                          ? 1029
-                          : 1030
-                    }
+                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
                   />
                 </button>
               ))}
@@ -955,7 +969,9 @@ export default function Home() {
                       ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
                       : world.outcome.level === 7
                         ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
-                        : 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'}
+                        : world.outcome.level === 8
+                          ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
+                          : 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

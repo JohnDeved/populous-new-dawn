@@ -741,6 +741,91 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Probe the native model-13 Boat House producer gates, launch transform, allocation identity, boarding, and retained building state.",
+      "coveredBehavior": [
+        "Occupant and 600-work launch gates",
+        "Dock-cell position and shore heading transform",
+        "Class-4/model-1 same-tribe allocation and navigation flags",
+        "Selected-worker boarding, timer reset, and retained Boat House"
+      ],
+      "knownLimits": [
+        "Shape enumeration, allocation storage, height, routing, boarding, motion, and removal leaves are supplied; the external work increment and full native world remain outside this probe."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-boat-house.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-boat-house.py",
+        "app/original-rules.json",
+        "decomp/generated/00406600.c",
+        "decomp/generated/0040b6d0.c",
+        "decomp/generated/00465580.c",
+        "decomp/research/mission9-boat-house.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent game data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 8 continuation into Mission 9 and the Boat House unlock, construction, production, transport, rendering, and checkpoint slice through the shipped browser game.",
+      "coveredBehavior": [
+        "Mission 8 result continuation into exact Mission 9 data",
+        "Authentic Vault unlock through rendered-object input",
+        "Real model-13 shore placement and construction",
+        "Brave admission and 600-turn first-Boat production",
+        "Visible class-4/model-1 Boat, boarding, sailing, disembark, and occupied/landed checkpoints"
+      ],
+      "knownLimits": [
+        "Seeds Mission 8 victory and positions the authentic Shaman and one selected Brave at their remote entrances.",
+        "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat/death, and exact replacement hull art remain deferred."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission9.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission9.mjs",
+        "scripts/browser-game.mjs",
+        "app/level-nine.ts",
+        "app/original-script-nine.json",
+        "app/original-models.json",
+        "app/mission-data.ts",
+        "app/building-shapes.ts",
+        "app/construction-runtime.ts",
+        "app/live-command.ts",
+        "app/live-building-entry.ts",
+        "app/live-people.ts",
+        "app/live-vehicles.ts",
+        "app/scene-input-runtime.ts",
+        "app/world-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/page.tsx",
+        "app/game-store.ts",
+        "app/scene.ts",
+        "app/scene-entities.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",

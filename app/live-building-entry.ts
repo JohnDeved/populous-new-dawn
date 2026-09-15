@@ -563,7 +563,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
             enterBuilding: () => {
               enterBuilding(ctx, p, state, occupancyEffects(w))
             },
-            workInside: unsupported,
+            workInside: () => (state.model === 13 ? 0 : unsupported()),
           })
       }
       w.randomState = ctx.randomState

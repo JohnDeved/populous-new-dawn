@@ -27,7 +27,9 @@ export function createWorld(missionNumber = 1): World {
               ? 'camp'
               : o.model === 8
                 ? 'firewarriorHut'
-                : 'hut'
+                : o.model === 13
+                  ? 'boatHouse'
+                  : 'hut'
       addBuilding(w, teamForTribe(o.owner), kind, o, true, {
         level: kind === 'hut' ? o.model : 1,
         angle: (o.angle / 2048) * Math.PI * 2,
@@ -68,11 +70,20 @@ export function createWorld(missionNumber = 1): World {
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
       const settings = o.settings!,
-        linked = level.objects.find(r => r.index + 1 === (settings[6] | (settings[7] << 8))),
-        reward = linked?.settings,
-        bridgeTarget = linked && 'target' in linked ? (linked.target as Point) : undefined,
-        effectTarget =
-          linked?.type === 7 && linked.model === 23 ? { x: linked.x, z: linked.z } : undefined
+        linkedObjects = Array.from(
+          { length: 10 },
+          (_, i) => settings[6 + i * 2] | (settings[7 + i * 2] << 8)
+        )
+          .filter(Boolean)
+          .flatMap(index => level.objects.find(object => object.index + 1 === index) ?? []),
+        rewardObject = linkedObjects.find(object => object.type === 6 && object.model === 2),
+        linkedVehicle = linkedObjects.find(object => object.type === 4),
+        bridge = linkedObjects.find(object => object.type === 7 && object.model === 24),
+        erosion = linkedObjects.find(object => object.type === 7 && object.model === 23),
+        linked = linkedVehicle ?? bridge ?? erosion ?? rewardObject,
+        reward = rewardObject?.settings,
+        bridgeTarget = bridge && 'target' in bridge ? (bridge.target as Point) : undefined,
+        effectTarget = erosion ? { x: erosion.x, z: erosion.z } : undefined
       const rewardSpell =
           reward?.[0] === 11 ? SPELLS.find(spell => spell.model === reward[1]) : undefined,
         rewardBuilding =
@@ -81,11 +92,13 @@ export function createWorld(missionNumber = 1): World {
               ? 'tower'
               : reward[1] === 7
                 ? 'camp'
-              : reward[1] === 5
+                : reward[1] === 5
                   ? 'temple'
                   : reward[1] === 8
                     ? 'firewarriorHut'
-                  : undefined
+                    : reward[1] === 13
+                      ? 'boatHouse'
+                      : undefined
             : undefined,
         kind =
           settings[0] === 4
@@ -99,6 +112,13 @@ export function createWorld(missionNumber = 1): World {
                   : rewardSpell?.id
       // Mission 5's Angel head has a dedicated class-7 owner.
       if (!kind && missionNumber === 5) continue
+      // Decorative trigger links have no collectible reward owner.
+      if (
+        !kind &&
+        linkedObjects.length > 0 &&
+        linkedObjects.every(object => object.type === 7 && object.model === 81)
+      )
+        continue
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
       const shrineReward =
         kind === 'vault'

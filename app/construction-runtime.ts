@@ -18,6 +18,7 @@ import {
   buildingOutsidePoint,
   buildingFootprintCells,
   buildingFootprintTiles,
+  buildingShapeCells,
   buildingPosition,
   buildingGradeVertices,
   buildingPlanHeight,
@@ -161,12 +162,21 @@ export function placementError(w: World, kind: BuildingKind, p: Point) {
     if (result.flags & 0x20000000) return 'Leave the worship site clear.'
     return 'The whole building needs dry land, including its fence and doorway.'
   }
+  if (kind === 'boatHouse') {
+    const launch = buildingShapeCells(plan).find(cell => cell.mask & 16)
+    if (
+      !launch ||
+      !(rules.terrainCategoryFlags[w.land.categories[launch.index] & 15] & 60) ||
+      w.land.flags[launch.index] & 4
+    )
+      return 'The Boat House dock must face navigable water.'
+  }
   p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
   // ponytail: placement reach still uses settlement proximity until the full
   // preview controller's territory and capacity queries are connected.
   if (
     !w.buildings.some(b => b.team === 'blue' && distance(b, p) < 16) &&
-    wrappedDistance(campaignPosition(w, 'blue'), p) > 16
+    wrappedDistance(campaignPosition(w, 'blue'), p) > (kind === 'boatHouse' ? 32 : 16)
   )
     return 'Build next to your settlement or reincarnation site.'
   return null
@@ -187,6 +197,9 @@ export function groundBuilding(w: World, b: Building, prepare = b.progress < 1) 
     updateWalkMasks(w.land, cell, radius + 1)
     invalidateTimberRoutes(w.timberSearches, cell, radius)
   })
+  if (model === 13 || model === 14)
+    for (const cell of buildingShapeCells(pose))
+      if (cell.mask & 16) w.land.flags[cell.index] &= ~0x1000000
   b.foundation = terrainPointHeight(w.land, buildingPosition(pose)) / 45
   refreshTerrainSurface(w)
 }

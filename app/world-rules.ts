@@ -11,9 +11,9 @@ export const unitSpeed = (u: Unit) =>
       ? constants.WARRIOR_SPEED
       : u.kind === 'firewarrior'
         ? constants.SUPER_WARRIOR_SPEED
-      : u.kind === 'preacher'
-        ? constants.RELIGIOUS_SPEED
-        : constants.BRAVE_SPEED
+        : u.kind === 'preacher'
+          ? constants.RELIGIOUS_SPEED
+          : constants.BRAVE_SPEED
 export const SPELLS: {
   id: Spell
   model: number
@@ -225,7 +225,15 @@ export const BUILDINGS: {
     name: 'Firewarrior Training Hut',
     cost: 8,
     symbol: '✹',
-    description: 'Eight logs. Unlock at the vault, then send braves inside to train as Firewarriors.',
+    description:
+      'Eight logs. Unlock at the vault, then send braves inside to train as Firewarriors.',
+  },
+  {
+    id: 'boatHouse',
+    name: 'Boat House',
+    cost: 5,
+    symbol: '⚓',
+    description: 'Five logs. Unlock at the vault, then build at the shore to launch a Boat.',
   },
 ]
 export const SIZE = 96,
@@ -238,8 +246,8 @@ export const maxHp = (kind: UnitKind) =>
       ? constants.LIFE_WARR
       : kind === 'firewarrior'
         ? constants.LIFE_SWARR
-      : kind === 'preacher'
-        ? constants.LIFE_PREACH
-        : constants.LIFE_BRAVE) / 20
+        : kind === 'preacher'
+          ? constants.LIFE_PREACH
+          : constants.LIFE_BRAVE) / 20
 export const buildingHp = (kind: BuildingKind) => (kind === 'hut' ? 170 : 260)
 export const ROUTE_FAILURE_TEXT = "One or more of your people can't get to this point."

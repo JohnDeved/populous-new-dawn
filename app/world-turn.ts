@@ -95,7 +95,7 @@ import {
   refreshTerrainLights,
   requestTutorial,
 } from './world-effects.ts'
-import { buildingObject, buildingPose } from './building-shapes.ts'
+import { buildingObject, buildingPose, buildingShapeCells } from './building-shapes.ts'
 import {
   nativePosition,
   refreshTerrainSurface,
@@ -316,6 +316,7 @@ import {
   type BuildingAdmission,
 } from './live-building-entry.ts'
 import { stepBuildingEntryClocks } from './training.ts'
+import { boardLiveVehicle, syncLiveVehiclePassengers } from './live-vehicles.ts'
 import {
   createMotionRoutes,
   ageFailedRoutes,
@@ -483,11 +484,13 @@ function stepTurn(w: World) {
       gift.reward === 'tower' ||
       gift.reward === 'temple' ||
       gift.reward === 'firewarriorHut' ||
+      gift.reward === 'boatHouse' ||
       gift.reward === 'vault'
     ) {
       if (gift.reward === 'temple') w.unlockedTemple = true
       else if (gift.reward === 'tower') w.unlockedTower = true
       else if (gift.reward === 'firewarriorHut') w.unlockedFirewarriorHut = true
+      else if (gift.reward === 'boatHouse') w.unlockedBoatHouse = true
       else w.unlockedCamp = true
       tell(
         w,
@@ -497,7 +500,9 @@ function stepTurn(w: World) {
             ? 'Knowledge discovered: build a Guard Tower, then send a follower inside to defend the area.'
             : gift.reward === 'firewarriorHut'
               ? 'Knowledge discovered: build a Firewarrior Training Hut, then send braves inside.'
-            : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
+              : gift.reward === 'boatHouse'
+                ? 'Knowledge discovered: build a Boat House at the shore to launch a Boat.'
+                : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
       )
     } else {
       // 0x4c2cd0: stocks already at/above the cap are unchanged.
@@ -903,6 +908,51 @@ function stepTurn(w: World) {
     }
     if (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut') {
       stepLiveTraining(w, b)
+    } else if (b.kind === 'boatHouse' && !b.boatLaunched && inhabitants.length) {
+      if (++b.timer >= 600) {
+        const pose = buildingPose(b),
+          launch = buildingShapeCells(pose).find(cell => cell.mask & 16)
+        if (launch) {
+          const x = short((((launch.index & 127) * 2 + 1) * 256) & 65535),
+            y = short(((Math.floor(launch.index / 128) * 2 + 1) * 256) & 65535),
+            direction = rules.terrainCategoryDirections[w.land.categories[launch.index] & 15],
+            heading = direction < 0 ? (pose.angle + 1024) & 2047 : (direction << 8) & 2047,
+            boat: Vehicle = {
+              x,
+              y,
+              h: terrainPointHeight(w.land, { x, y }),
+              id: w.nextId++,
+              class: 4,
+              model: 1,
+              team: b.team,
+              physics: 1,
+              speed: -1,
+              navigationFlags: 0x8004,
+              passengerCount: 0,
+              passengers: [],
+              reservation: 0,
+              turnAngle: x,
+              turnY: y,
+              heading: (heading * Math.PI * 2) / 2048,
+              active: true,
+            },
+            worker = inhabitants[0]
+          w.vehicles.push(boat)
+          release(w, worker)
+          worker.native = createLivePerson(w, worker)
+          w.pathfinding.people.set(worker.id, worker.native)
+          boardLiveVehicle(w, worker.native, boat)
+          if (w.manaTribes[tribeForTeam(b.team)].playerType === 1)
+            for (const occupant of inhabitants.slice(1)) {
+              release(w, occupant)
+              occupant.native = createLivePerson(w, occupant)
+            }
+          b.timer = 0
+          b.boatLaunched = true
+          w.castingTribes[tribeForTeam(b.team)].flags |= 64
+          tell(w, 'Boat launched. Its builder is aboard and ready to sail.')
+        }
+      }
     } else if (b.kind === 'hut') {
       const admission = buildingAdmission(w, b)
       if (
@@ -1108,6 +1158,7 @@ function stepTurn(w: World) {
         work.kind === 'tower' ||
         work.kind === 'temple' ||
         work.kind === 'firewarriorHut' ||
+        work.kind === 'boatHouse' ||
         !!((work.admission?.activity ?? 0) & 0x8000)) &&
       (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
       !work.burn &&
@@ -1142,6 +1193,11 @@ function stepTurn(w: World) {
       }
     }
     const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
+    if (u.native?.vehicle && !activeOrder) {
+      const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
+      if (vehicle) syncLiveVehiclePassengers(w, vehicle)
+      continue
+    }
     if (
       u.target === null &&
       activeOrder?.model === 28 &&

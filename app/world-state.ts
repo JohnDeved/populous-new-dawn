@@ -231,6 +231,7 @@ export function createWorldState(missionNumber = 1): World {
     unlockedTower: missionAllowsBuilding(missionNumber, 4),
     unlockedTemple: missionAllowsBuilding(missionNumber, 5),
     unlockedFirewarriorHut: missionAllowsBuilding(missionNumber, 8),
+    unlockedBoatHouse: missionAllowsBuilding(missionNumber, 13),
     time: 0,
     turn: 0,
     attackAlert: 0,
@@ -245,7 +246,14 @@ export function createWorldState(missionNumber = 1): World {
     selected: [],
     orderCursor: 0,
     mode: null,
-    buildingDirections: { hut: 0, tower: 0, temple: 0, camp: 0, firewarriorHut: 0 },
+    buildingDirections: {
+      hut: 0,
+      tower: 0,
+      temple: 0,
+      camp: 0,
+      firewarriorHut: 0,
+      boatHouse: 0,
+    },
     paused: false,
     speed: 1,
     message:
@@ -257,13 +265,15 @@ export function createWorldState(missionNumber = 1): World {
             ? 'The Chumara can turn your followers against you. Reach their Vault and learn their power.'
             : missionNumber === 4
               ? 'Convert the Wildmen, discover the Guard Tower, and defeat the Matak.'
-            : missionNumber === 5
-              ? 'Worship the stone head to receive a Boat and cross the water.'
-              : missionNumber === 6
-                ? 'Establish your settlement and defeat both the Chumara and Matak tribes.'
-                : missionNumber === 7
-                  ? 'Convert Wildmen and seize Invisibility from the Chumara Vault.'
-                  : 'Seize Firewarrior training from the Dakini Vault and build your ranged force.',
+              : missionNumber === 5
+                ? 'Worship the stone head to receive a Boat and cross the water.'
+                : missionNumber === 6
+                  ? 'Establish your settlement and defeat both the Chumara and Matak tribes.'
+                  : missionNumber === 7
+                    ? 'Convert Wildmen and seize Invisibility from the Chumara Vault.'
+                    : missionNumber === 8
+                      ? 'Seize Firewarrior training from the Dakini Vault and build your ranged force.'
+                      : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

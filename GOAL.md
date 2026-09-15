@@ -9,13 +9,8 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: add Mission 8 as a selectable campaign world and deliver its
-Firewarrior vertical slice: discover the Firewarrior Training Hut through the
-original Vault, build it, train and select a Firewarrior through the shipped HUD,
-then damage an enemy with a visible ranged attack. Reuse the existing import,
-campaign, worship, building, training, combat, rendering, and checkpoint paths.
-Keep complete Mission 8 AI, recurring behavior, victory, tutorial parity, other
-Firewarrior behaviors, and parity recording outside this slice.
+Current task lock: none. Select the next absent, player-visible feature through the
+priority process below before beginning another implementation slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -31,6 +26,8 @@ Chumara's first mixed Mission 6 raid finished in `5dbbec8`; complete base-game i
 recovery finished in `c77a2f7`.
 Mission 3's autonomous Tower, Temple, and first Preacher finished in `cc1e8b4`.
 Mission 7's Convert Wild to Invisibility vertical slice finished in `2912b43`.
+Mission 8's Firewarrior vertical slice finished in `88f4a97`.
+Mission 9's Boat House-to-Boat vertical slice finished in the current feature commit.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not
