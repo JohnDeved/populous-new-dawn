@@ -396,16 +396,28 @@ export default function Home() {
                     },
                     { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
                   ]
-                : [
-                    {
-                      text: 'Defeat the Chumara tribe',
-                      done: !!world.manaTribes[2].defeatTimer,
-                    },
-                    {
-                      text: 'Defeat the Matak tribe',
-                      done: !!world.manaTribes[3].defeatTimer,
-                    },
-                  ]
+                : world.outcome.level === 6
+                  ? [
+                      {
+                        text: 'Defeat the Chumara tribe',
+                        done: !!world.manaTribes[2].defeatTimer,
+                      },
+                      {
+                        text: 'Defeat the Matak tribe',
+                        done: !!world.manaTribes[3].defeatTimer,
+                      },
+                    ]
+                  : [
+                      { text: 'Convert the Wildmen', done: blue.length > 1 },
+                      {
+                        text: 'Claim Invisibility from the stone head',
+                        done: world.giftCounts.invisibility > 0,
+                      },
+                      {
+                        text: 'Conceal followers with Invisibility',
+                        done: blue.some(unit => !!unit.invisibility),
+                      },
+                    ]
   return (
     <main
       ref={shell}
@@ -920,7 +932,9 @@ export default function Home() {
                   ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
                   : world.outcome.level === 5
                     ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
-                    : 'Establish your settlement, then defeat both the Chumara and Matak tribes.'}
+                    : world.outcome.level === 6
+                      ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
+                      : 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

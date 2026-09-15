@@ -389,6 +389,44 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute Mission 7's startup message and complete turn-6 flyby in the native interpreter and compare the live campaign path.",
+      "coveredBehavior": [
+        "Mission 7 startup message 50 and open-message command",
+        "Complete codes 1892 through 1977 flyby schedule for Chumara tribe 2",
+        "Variable-31 one-shot latch",
+        "Live message, cue, flyby events, endpoint, and input lock"
+      ],
+      "knownLimits": [
+        "The native game-command dispatcher is intercepted; existing focused checks cover the bound message and flyby handlers.",
+        "Mission 7 attack AI, later messages, Erosion acquisition, and victory remain excluded."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission7-opening.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission7-opening.py",
+        "app/original-script-seven.json",
+        "app/original-messages.json",
+        "app/campaign-command-runtime.ts",
+        "app/mission-data.ts",
+        "app/model.ts",
+        "scripts/decomp.py",
+        "decomp/requirements.txt",
+        "decomp/tools.json"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable and adjacent Mission 7 script"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent levels/cpscr021.dat are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "computer-direct-attack-native",
       "kind": "native",
       "automation": "safe",
@@ -573,6 +611,48 @@
         "app/model.ts",
         "app/world-turn.ts",
         "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 6 continuation into Mission 7 and its Convert Wild to Invisibility vertical slice through the shipped browser game.",
+      "coveredBehavior": [
+        "Mission 6 result continuation into Mission 7 terrain, tribes, heads, HUD, and objectives",
+        "Original Mission 7 startup message, opening flyby, input lock, and skip control",
+        "Naturally charged Convert Wild cast through HUD and terrain input",
+        "Authentic Shaman Vault command through rendered-object input and delayed Invisibility delivery",
+        "Invisibility cast on the converted follower through HUD and unit input",
+        "Mission 7 checkpoint identity, exhausted Vault, and concealed follower restoration"
+      ],
+      "knownLimits": [
+        "Seeds Mission 6 victory, positions the authentic Shaman at the remote Vault entrance, and positions the converted follower within casting range.",
+        "It does not prove the full-map Vault route, natural Mission 6 or Mission 7 victory, later Mission 7 AI, or Erosion acquisition."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission7.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission7.mjs",
+        "scripts/browser-game.mjs",
+        "tests/mission7.test.mjs",
+        "app/level-seven.ts",
+        "app/original-script-seven.json",
+        "app/original-messages.json",
+        "app/mission-data.ts",
+        "app/page.tsx",
+        "app/game-store.ts",
+        "app/campaign-command-runtime.ts",
+        "app/model.ts",
+        "app/world-turn.ts",
+        "app/scene.ts",
+        "app/scene-input-runtime.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],

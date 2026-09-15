@@ -310,6 +310,7 @@
         "app/level-five.ts",
         "app/level-four.ts",
         "app/level-six.ts",
+        "app/level-seven.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
@@ -319,6 +320,7 @@
         "app/original-script-four.json",
         "app/original-script-five.json",
         "app/original-script-six.json",
+        "app/original-script-seven.json",
         "app/reincarnation.ts",
         "app/tribe-turns.ts",
         "app/vault.ts",
@@ -344,10 +346,13 @@
         "decomp/research/mission5-boat.md",
         "decomp/research/mission6-economy.md",
         "decomp/research/mission6.md",
+        "decomp/research/mission7.md",
+        "scripts/check-browser-mission7.mjs",
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
+        "scripts/check-native-mission7-opening.py",
         "scripts/check-native-messages.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
@@ -391,6 +396,10 @@
           "heading": "Mission 6 autonomous construction"
         },
         { "path": "decomp/research/mission6.md", "heading": "Mission 6 opening and tribes" },
+        {
+          "path": "decomp/research/mission7.md",
+          "heading": "Mission 7 opening and Invisibility path"
+        },
         {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
@@ -440,6 +449,8 @@
         "building-counterattack-native",
         "messages-browser",
         "mission4-browser",
+        "mission7-opening-native",
+        "mission7-browser",
         "reincarnation-native",
         "reincarnation-browser",
         "vault-native",
@@ -456,6 +467,7 @@
         "Eight mission-one startup commands and substantial recurring command/read coverage remain deferred.",
         "Mission 4's larger recurring AI remains deferred.",
         "Mission 6's recurring scripts and later mission-specific content remain deferred.",
+        "Mission 7's attack AI, later messages, Erosion acquisition, and victory remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

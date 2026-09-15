@@ -604,22 +604,33 @@ export function campaignRules(w: World) {
                     1004,
                     1019,
                   ]
-                : [
-                    12,
-                    1003,
-                    ...script.codes.slice(529, 546),
-                    ...script.codes.slice(599, 706),
-                    1004,
-                    ...script.codes.slice(707, 744),
-                    1004,
-                    ...script.codes.slice(818, 827),
-                    1004,
-                    ...script.codes.slice(992, 1085),
-                    1004,
-                    1019,
-                  ],
+                : w.outcome.level === 5
+                  ? [
+                      12,
+                      1003,
+                      ...script.codes.slice(529, 546),
+                      ...script.codes.slice(599, 706),
+                      1004,
+                      ...script.codes.slice(707, 744),
+                      1004,
+                      ...script.codes.slice(818, 827),
+                      1004,
+                      ...script.codes.slice(992, 1085),
+                      1004,
+                      1019,
+                    ]
+                  : w.outcome.level === 7
+                    ? [
+                        12,
+                        1003,
+                        ...script.codes.slice(254, 259),
+                        ...script.codes.slice(1892, 1978),
+                        1004,
+                        1019,
+                      ]
+                    : [12, 1003, 1004, 1019],
   }
-  // ponytail: Missions 4–6 bind only complete delivered blocks; add later AI blocks with their hosts.
+  // ponytail: Missions 4–7 bind only complete delivered blocks; add later AI blocks with their hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe,

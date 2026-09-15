@@ -91,6 +91,22 @@
     "130": {
       "stringId": 662,
       "text": "The Ancients have granted you a Boat, Shaman."
+    },
+    "50": {
+      "stringId": 668,
+      "text": "The Chumara will use the spell of Invisibility to attack us. Once again, I sense a Stone Head that contains a prize: the spell of Erode! Then, I will seize the power of Invisibility from their Vault of Knowledge."
+    },
+    "100": {
+      "stringId": 670,
+      "text": "Use the Erode spell on steep mountains to weather the rock and make the land walkable again. You can also use it to destroy enemy buildings by eroding the land beneath them."
+    },
+    "112": {
+      "stringId": 656,
+      "text": "Use the Invisibility spell on your own people and make them undetectable when entering an Enemy settlement."
+    },
+    "51": {
+      "stringId": 669,
+      "text": "Shaman, beware. You are being attacked by invisible Enemies!"
     }
   }
 }
