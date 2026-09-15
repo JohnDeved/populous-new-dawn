@@ -9,8 +9,9 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: none. Select the next absent, player-visible feature through the
-priority process below before beginning another implementation slice.
+Current task lock: prove ordinary Mission 2 victory, continue through the shipped
+result UI, then prove ordinary Mission 3 victory. Bind only blockers exposed by
+that real sequential path before beginning another mission opening.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
