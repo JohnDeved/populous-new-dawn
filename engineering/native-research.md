@@ -41,6 +41,15 @@ the installer, overwrite different existing files, or invoke broad tracked-outpu
 importers merely to recover an input. Scoped input extraction is authorized research,
 not fixture/parity recording or permission to regenerate tracked assets.
 
+For a complete base-game root, select the installer's base component explicitly;
+the expansion contains different files with some of the same destinations:
+
+```sh
+work/orchestration/ceo-release/venv/bin/python scripts/extract-reference.py \
+  --component Component0 work/orchestration/ceo-release/inputs/PopulousTB-Setup.zip \
+  work/orchestration/ceo-release/native-run '*'
+```
+
 Before dispatch, put the resolved executable/game root, Python, required adjacent
 files and any remaining recovery in the existing packet's `research.assumptions`
 or compact assignment. A specialist lacking write ownership reports the exact

@@ -13,6 +13,7 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('installer', type=Path)
 p.add_argument('output', type=Path)
 p.add_argument('patterns', nargs='+')
+p.add_argument('--component')
 args = p.parse_args()
 if zipfile.is_zipfile(args.installer):
     with zipfile.ZipFile(args.installer) as z:
@@ -25,11 +26,16 @@ archive = InnoArchive(bytearray(data))
 selected = {}
 for entry in archive.files:
     if not entry.path.startswith('data/{app}/'): continue
-    name = entry.path[len('data/{app}/'):].lower()
+    components = entry.setup.Condition.Components
+    if args.component and components not in ('', args.component): continue
+    name = entry.path[len('data/{app}/'):].lower().lstrip('/')
     if not any(fnmatch.fnmatchcase(name, pattern.lower()) for pattern in args.patterns): continue
     path = PurePosixPath(name)
     if path.is_absolute() or '..' in path.parts or '\\' in name: raise ValueError(f'Unsafe path: {name}')
-    if name in selected: raise ValueError(f'Ambiguous installer destination: {name}')
+    if name in selected:
+        if archive.read_file_and_check(selected[name]) != archive.read_file_and_check(entry):
+            raise ValueError(f'Ambiguous installer destination: {name}')
+        continue
     selected[name] = entry
 for pattern in args.patterns:
     if not any(fnmatch.fnmatchcase(n, pattern.lower()) for n in selected): raise ValueError(f'No files match {pattern}')
