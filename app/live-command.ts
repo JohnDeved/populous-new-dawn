@@ -142,7 +142,11 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
   // classification require their native lifecycle owners; no invented actions here.
   const tribeFlags =
     (w.castingTribes[tribeForTeam(team)].flags & ~64) |
-    (w.vehicles.some(v => v.active && v.team === team) ? 64 : 0)
+    (w.vehicles.some(
+      v => v.active && v.team === team && !(rules.vehicleRestFlags[v.model] & 1)
+    )
+      ? 64
+      : 0)
   const enabled =
     model !== 3 ||
     moveCommandAllowed(
@@ -235,11 +239,12 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     (kind === 'temple' && !w.unlockedTemple) ||
     (kind === 'spyHut' && !w.unlockedSpyHut) ||
     (kind === 'firewarriorHut' && !w.unlockedFirewarriorHut) ||
-    (kind === 'boatHouse' && !w.unlockedBoatHouse)
+    (kind === 'boatHouse' && !w.unlockedBoatHouse) ||
+    (kind === 'balloonHut' && !w.unlockedBalloonHut)
   ) {
     tell(
       w,
-      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : kind === 'spyHut' ? 'Spy Training Hut' : kind === 'firewarriorHut' ? 'Firewarrior Training Hut' : kind === 'boatHouse' ? 'Boat House' : 'Warrior Training Hut'} at the vault.`
+      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : kind === 'spyHut' ? 'Spy Training Hut' : kind === 'firewarriorHut' ? 'Firewarrior Training Hut' : kind === 'boatHouse' ? 'Boat House' : kind === 'balloonHut' ? 'Balloon Hut' : 'Warrior Training Hut'} at the vault.`
     )
     return false
   }
@@ -307,10 +312,15 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
     return { code: -1, message: 'Your shaman must finish her current action.' }
   if (!spellInRange(w, shaman, spec.model, p))
     return { code: -2, message: 'Beyond your reach. Move your shaman closer.' }
-  if (spell === 'bridge' && (!walkable(w.terrain, p) || !walkable(w.terrain, shaman)))
+  const target = nativePosition(w, p),
+    targetCell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
+  if (
+    spell === 'bridge' &&
+    rules.terrainCategoryFlags[w.land.categories[targetCell] & 15] & 2
+  )
     return {
       code: -3,
-      message: 'Land Bridge must join two dry shores. Aim at land on the opposite island.',
+      message: 'Land Bridge must target dry terrain.',
     }
   return null
 }
@@ -397,7 +407,12 @@ export function command(
         .map(u => u.native!.vehicle)
     )
     if (vehicles.size) {
-      const to = nativePosition(w, p)
+      const to = nativePosition(w, p),
+        landingReservations = {
+          search: w.indexedSearch,
+          records: new Uint8Array(48),
+          count: 0,
+        }
       let count = 0
       for (const id of vehicles) {
         const vehicle = w.vehicles.find(v => v.id === id && v.active),
@@ -413,19 +428,24 @@ export function command(
           b: to.y & 65535,
         })
         attachPersonOrder(w.buildingOrders, person, order, 0, orderEffects(w))
-        const path = planLivePath(w, driver, p, person, false, true)
+        const path = planLivePath(w, driver, p, person, false, true, landingReservations)
         if (!path) {
           cancelLiveOrder(w, driver)
           continue
         }
+        Object.assign(w.buildingOrders.records[order], {
+          a: path.goalX & 65535,
+          b: path.goalY & 65535,
+        })
         path.commandStatus = 3
         path.state = 10
         acceptLivePath(w, driver, path)
         for (const passengerId of vehicle.passengers.slice(1)) {
           const passengerUnit = w.units.find(u => u.id === passengerId),
             passenger = passengerUnit?.native
-          if (!passengerUnit || !passenger || !path.motionGroup) continue
+          if (!passengerUnit || !passenger) continue
           cancelLiveOrder(w, passengerUnit)
+          if (!path.motionGroup) continue
           attachPersonOrder(w.buildingOrders, passenger, order, 0, orderEffects(w))
           attachPersonRoute(w.motionRoutes, passenger, path.motionGroup)
           Object.assign(passenger, {
@@ -443,7 +463,7 @@ export function command(
         }
         count++
       }
-      tell(w, count ? 'The Boat is on the move.' : 'The Boat cannot reach that point.')
+      tell(w, count ? 'Your transport is on the move.' : 'The transport cannot reach that point.')
       return true
     }
   }
@@ -475,13 +495,23 @@ export function command(
       changeLivePersonState(w, u, 10)
       count++
     }
-    tell(w, count ? 'Followers are boarding the Boat.' : 'No land route to the Boat.')
+    const name = rules.vehicleRestFlags[context.vehicle.model] & 1 ? 'Balloon' : 'Boat'
+    tell(w, count ? `Followers are boarding the ${name}.` : `No land route to the ${name}.`)
     return true
   }
   const queuedBuilding =
     [6, 8, 10].includes(model) &&
     context.building &&
-    ['hut', 'camp', 'tower', 'temple', 'spyHut', 'firewarriorHut', 'boatHouse'].includes(
+    [
+      'hut',
+      'camp',
+      'tower',
+      'temple',
+      'spyHut',
+      'firewarriorHut',
+      'boatHouse',
+      'balloonHut',
+    ].includes(
       context.building.kind
     )
   const queuedTree =
@@ -589,9 +619,16 @@ export function command(
     if (
       friendly &&
       (friendly.progress < 1 ||
-        !['hut', 'camp', 'tower', 'temple', 'spyHut', 'firewarriorHut', 'boatHouse'].includes(
-          friendly.kind
-        )) &&
+        ![
+          'hut',
+          'camp',
+          'tower',
+          'temple',
+          'spyHut',
+          'firewarriorHut',
+          'boatHouse',
+          'balloonHut',
+        ].includes(friendly.kind)) &&
       u.kind !== 'brave'
     )
       continue
@@ -644,6 +681,7 @@ export function command(
       else if (friendly.kind === 'spyHut') message = 'Braves sent to train as spies.'
       else if (friendly.kind === 'firewarriorHut') message = 'Braves sent to train as firewarriors.'
       else if (friendly.kind === 'boatHouse') message = 'Braves sent to build a Boat.'
+      else if (friendly.kind === 'balloonHut') message = 'Braves sent to build a Balloon.'
       else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
       else message = 'Braves sent to live in the hut.'
     } else if (enemy) message = 'Your followers march to battle.'

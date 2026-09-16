@@ -23,8 +23,10 @@ import {
 } from './person-routes.ts'
 import { advancePersonRoute } from './route-advance.ts'
 import {
+  adjustVehicleDestination,
   boardingVehicle,
   findVehicleLanding,
+  type LandingReservations,
   vehicleCanApproach,
   vehicleCanDisembark,
   vehicleCellFree,
@@ -58,16 +60,48 @@ export function planLivePath(
   end: Point,
   p = createLivePerson(w, u),
   probeOnly = false,
-  transport = false
+  transport = false,
+  landingReservations?: LandingReservations
 ): LivePerson | null {
   if (
     !probeOnly &&
     !transport &&
-    !w.vehicles.some(v => v.active) &&
+    !w.vehicles.some(v => v.active && !(rules.vehicleRestFlags[v.model] & 1)) &&
     !supportsFollower(w, end)
   )
     return null
   if (!probeOnly) p.flags2 = (p.flags2 | 0x2000000) >>> 0
+  const vehicle = p.vehicle && w.vehicles.find(v => v.id === p.vehicle && v.active)
+  if (transport && vehicle && rules.vehicleRestFlags[vehicle.model] & 1) {
+    const goal = nativePosition(w, end),
+      vehicleWorld = {
+        flags: w.land.flags,
+        categories: w.land.categories,
+        cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
+      }
+    adjustVehicleDestination(
+      vehicleWorld,
+      landingReservations ?? { search: w.indexedSearch, records: new Uint8Array(48), count: 0 },
+      vehicle,
+      goal
+    )
+    if (!vehicleCanDisembark(vehicleWorld, vehicle, goal)) {
+      const landing = findVehicleLanding(vehicleWorld, w.indexedSearch, vehicle, goal)
+      if (landing.found) Object.assign(goal, landing.point)
+    }
+    releasePersonRoute(w.motionRoutes, p)
+    Object.assign(p, {
+      goalX: goal.x & 65535,
+      goalY: goal.y & 65535,
+      destinationX: goal.x & 65535,
+      destinationY: goal.y & 65535,
+      turnAngle: goal.x & 65535,
+      turnY: goal.y & 65535,
+      motionGroup: 0,
+      motionIndex: 0,
+    })
+    return p
+  }
   try {
     const planned = planDestination(w, u, p, nativePosition(w, end), probeOnly)
     if (probeOnly) return planned ? p : null
@@ -98,7 +132,7 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
   const r = w.pathfinding,
     { state, path, geometry: g, solver } = r,
     collision = collisionWorld(w)
-  const boats = w.vehicles.some(v => v.active)
+  const boats = w.vehicles.some(v => v.active && !(rules.vehicleRestFlags[v.model] & 1))
   const tribes = w.manaTribes.map((t, i) => ({
     playerType: t.playerType,
     requests: (solver.tribeRequests[i] << 16) >> 16,
@@ -110,7 +144,7 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
   const vehicleWorld = {
     flags: w.land.flags,
     categories: w.land.categories,
-    boatsEnabled: Number(vehicles.size > 0),
+    boatsEnabled: Number(boats),
     vehicles,
     people: w.pathfinding.people,
     tribes,
@@ -301,10 +335,11 @@ export function acceptLivePath(w: World, u: Unit, p: LivePerson | null) {
 
 function advanceLiveRoute(w: World, p: LivePerson) {
   const vehicles = liveVehicles(w),
+    boats = [...vehicles.values()].some(v => !(rules.vehicleRestFlags[v.model] & 1)),
     vehicleWorld = {
       flags: w.land.flags,
       categories: w.land.categories,
-      boatsEnabled: Number(vehicles.size > 0),
+      boatsEnabled: Number(boats),
       vehicles,
       people: w.pathfinding.people,
       tribes: w.manaTribes.map(t => ({ playerType: t.playerType })),

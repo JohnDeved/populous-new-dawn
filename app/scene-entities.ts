@@ -124,7 +124,9 @@ function makeBuilding(b: Building, stage: number) {
   const g = new THREE.Group(),
     id = buildingObject(b),
     // Some later tribe-color variants are not in the compact render bank yet.
-    renderId = nativeModels[id] ? id : rules.buildingObjects[buildingModel(b)]
+    base = rules.buildingObjects[buildingModel(b)],
+    // ponytail: Balloon Hut resource 87 is not imported; use the existing dock mesh until recovered.
+    renderId = nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13]
   const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage)
   g.add(model)
   const health = new THREE.Group(),
@@ -142,8 +144,23 @@ function makeBuilding(b: Building, stage: number) {
 }
 
 function makeVehicle(v: Vehicle) {
-  // ponytail: render resource 838 is not imported; replace this hull when its native asset is recovered.
   const g = new THREE.Group()
+  if (v.model === 3 || v.model === 4) {
+    // ponytail: render resource 839 is not imported; replace this silhouette when recovered.
+    const envelope = new THREE.Mesh(
+      new THREE.SphereGeometry(1.7, 16, 10),
+      material(0xd6c36a)
+    )
+    envelope.scale.set(1.35, 0.85, 1)
+    envelope.position.y = 2.3
+    g.add(envelope)
+    part(g, box(1.2, 0.55, 0.9), material(0x76502d), 0, 0.35)
+    for (const x of [-0.45, 0.45])
+      for (const z of [-0.3, 0.3]) part(g, box(0.04, 1.7, 0.04), material(0x4e3521), x, 1.25, z)
+    g.userData = { point: { id: v.id }, vehicle: v.id }
+    return g
+  }
+  // ponytail: render resource 838 is not imported; replace this hull when its native asset is recovered.
   part(g, box(3.2, 0.65, 1.45), material(0x76502d), 0, 0.2)
   part(g, box(2.3, 0.28, 1.1), material(0xb1834f), 0, 0.65)
   part(g, box(0.12, 2.4, 0.12), material(0x4e3521), 0, 1.45)

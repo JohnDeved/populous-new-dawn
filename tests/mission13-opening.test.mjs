@@ -1,9 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { liveCommandContext, spellTargetError } from '../app/live-command.ts'
+import { liveVehicleCellObjects } from '../app/live-vehicles.ts'
 import { messageText } from '../app/messages.ts'
 import { missionComputerTribes, missionData, missionScript } from '../app/mission-data.ts'
-import { tick } from '../app/model.ts'
+import { addBuilding, browserPosition, command, tick } from '../app/model.ts'
+import { terrainPointHeight } from '../app/native-terrain.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
+import { vehicleCanDisembark } from '../app/vehicle-routing.ts'
 import { createGift } from '../app/world-effects.ts'
 import { createWorld } from '../app/world-initialization.ts'
 
@@ -104,7 +109,7 @@ test('Mission 13 starts its original Yellow turn-6 flyby once', () => {
   assert.equal(world.flyby.events.length, 24)
 })
 
-test('Mission 13 Balloon Hut knowledge is visible without exposing Balloon behavior', () => {
+test('Mission 13 Balloon Hut knowledge is visible before construction', () => {
   const world = createWorld(13)
   createGift(
     world,
@@ -116,6 +121,122 @@ test('Mission 13 Balloon Hut knowledge is visible without exposing Balloon behav
   assert.equal(world.unlockedBalloonHut, true)
   assert.equal(world.message, 'Knowledge discovered: Balloon Hut.')
   assert.equal(world.vehicles.length, 0)
+})
+
+test('Mission 13 Land Bridge uses native surface categories at low shore', () => {
+  const world = createWorld(13),
+    shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+    target = { x: -27_648, y: -17_920 },
+    targetCell = ((target.y & 65_535) >> 9) * 128 + ((target.x & 65_535) >> 9)
+  Object.assign(shaman, { x: -102, z: 56 })
+  world.land.categories[targetCell] = 5
+
+  assert.equal(terrainPointHeight(world.land, target), 0)
+  assert.equal(spellTargetError(world, 'bridge', { x: -116, z: 62 }), null)
+  world.land.categories[targetCell] = 1
+  assert.equal(spellTargetError(world, 'bridge', { x: -116, z: 62 })?.code, -3)
+})
+
+test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', () => {
+  let world = createWorld(13)
+  createGift(
+    world,
+    'balloonHut',
+    world.shrines.find(shrine => shrine.reward === 'balloonHut')
+  )
+  for (let turn = 0; turn < 82; turn++) tick(world, 1 / 12)
+
+  const hut = addBuilding(world, 'blue', 'balloonHut', { x: 0, z: 0 }, true),
+    braves = world.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave'),
+    produce = brave => {
+      brave.inside = hut.id
+      brave.work = hut.id
+      hut.timer = 999
+      tick(world, 1 / 12)
+    }
+  produce(braves[0])
+  produce(braves[1])
+
+  assert.equal(world.vehicles.length, 2)
+  assert.ok(world.vehicles.every(vehicle => vehicle.model === 3 && vehicle.physics === 0))
+  const balloon = world.vehicles[0],
+    driver = world.units.find(unit => unit.id === balloon.passengers[0]),
+    passenger = braves[2]
+  assert.equal(balloon.passengerCount, 1)
+  assert.equal(driver.native.vehicle, balloon.id)
+  assert.ok(driver.native.flags4 & 0x2000000)
+  const findLanding = (state, vehicle) => {
+    const vehicleWorld = {
+      flags: state.land.flags,
+      categories: state.land.categories,
+      cellObjects: cell => liveVehicleCellObjects(state, cell),
+    }
+    for (let y = 0; y < 256; y += 2)
+      for (let x = 0; x < 256; x += 2) {
+        const point = { x: (x + 1) * 256, y: (y + 1) * 256 },
+          distance = Math.hypot(
+            ((point.x - vehicle.x) << 16) >> 16,
+            ((point.y - vehicle.y) << 16) >> 16
+          )
+        if (
+          distance > 3_000 &&
+          distance < 10_000 &&
+          vehicleCanDisembark(vehicleWorld, vehicle, point) &&
+          liveCommandContext(state, browserPosition(point))?.enabled
+        )
+          return point
+      }
+  }
+
+  world.selected = [driver.id]
+  const firstLanding = findLanding(world, balloon)
+  assert.ok(firstLanding)
+  assert.ok(command(world, browserPosition(firstLanding)))
+  for (let turn = 0; balloon.passengerCount && turn < 1_000; turn++) tick(world, 1 / 12)
+  assert.equal(balloon.passengerCount, 0)
+
+  Object.assign(passenger.native, { x: driver.native.x, y: driver.native.y })
+  Object.assign(passenger, browserPosition(driver.native))
+  world.selected = [passenger.id]
+  assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
+  for (let turn = 0; balloon.passengerCount < 1 && turn < 1_000; turn++) tick(world, 1 / 12)
+  world.selected = [driver.id]
+  assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
+  for (let turn = 0; balloon.passengerCount < 2 && turn < 1_000; turn++) tick(world, 1 / 12)
+  assert.deepEqual(balloon.passengers, [passenger.id, driver.id])
+
+  world = migrateCheckpoint(structuredClone(world))
+  const restored = world.vehicles.find(vehicle => vehicle.id === balloon.id),
+    occupants = restored.passengers.map(id => world.units.find(unit => unit.id === id)),
+    before = { x: restored.x, y: restored.y }
+  world.selected = occupants.map(unit => unit.id)
+  const target = findLanding(world, restored)
+  assert.ok(target)
+  const clicked = { x: target.x + 37, y: target.y + 91 }
+  assert.ok(command(world, browserPosition(clicked)))
+  const flightOrder = currentPersonOrder(world.buildingOrders, occupants[0].native)
+  assert.deepEqual([flightOrder.a & 255, flightOrder.b & 255], [0, 0])
+  assert.notDeepEqual([flightOrder.a, flightOrder.b], [clicked.x, clicked.y])
+  for (let turn = 0; restored.passengers.length && turn < 1_000; turn++) tick(world, 1 / 12)
+  for (let turn = 0; turn < 32; turn++) tick(world, 1 / 12)
+
+  assert.equal(
+    restored.passengerCount,
+    0,
+    JSON.stringify({
+      vehicle: restored,
+      occupants: occupants.map(unit => ({
+        id: unit.id,
+        vehicle: unit.native.vehicle,
+        order: currentPersonOrder(world.buildingOrders, unit.native),
+      })),
+    })
+  )
+  assert.deepEqual(restored.passengers, [])
+  assert.ok(Math.hypot(restored.x - before.x, restored.y - before.y) > 3_000)
+  assert.equal(restored.h, terrainPointHeight(world.land, restored) + 560)
+  assert.ok(occupants.every(unit => !unit.native.vehicle && !(unit.native.flags4 & 0x2000000)))
+  assert.ok(occupants.every(unit => !currentPersonOrder(world.buildingOrders, unit.native)))
 })
 
 test('Mission 13 opening remains deterministic through checkpoint migration', () => {

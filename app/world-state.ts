@@ -257,6 +257,7 @@ export function createWorldState(missionNumber = 1): World {
       camp: 0,
       firewarriorHut: 0,
       boatHouse: 0,
+      balloonHut: 0,
     },
     paused: false,
     speed: 1,

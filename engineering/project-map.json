@@ -411,6 +411,10 @@
         "decomp/research/mission12-opening.md",
         "decomp/research/mission12-spy-sabotage.md",
         "decomp/research/mission13-opening.md",
+        "decomp/research/mission13-balloon.md",
+        "decomp/generated/004641d0.c",
+        "decomp/generated/00465c50.c",
+        "decomp/generated/00465ea0.c",
         "app/original-script-eleven.json",
         "scripts/check-browser-mission11.mjs",
         "scripts/check-browser-mission9.mjs",
@@ -423,6 +427,7 @@
         "scripts/check-native-mission12-opening.py",
         "scripts/check-native-mission12-spy-sabotage.py",
         "scripts/check-native-mission13-opening.py",
+        "scripts/check-native-balloon.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -534,6 +539,10 @@
           "heading": "Mission 13 native opening findings"
         },
         {
+          "path": "decomp/research/mission13-balloon.md",
+          "heading": "Mission 13 Balloon transport"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -591,7 +600,10 @@
         "0x4919e0",
         "0x499aa0",
         "0x4f1fe0",
-        "0x4f6020"
+        "0x4f6020",
+        "0x4641d0",
+        "0x465c50",
+        "0x465ea0"
       ],
       "checkIds": [
         "messages-native",
@@ -611,6 +623,7 @@
         "mission12-opening-native",
         "mission12-spy-sabotage-native",
         "mission13-opening-native",
+        "mission13-balloon-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -637,7 +650,7 @@
         "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
         "Mission 11's Chumara housing, later BUILD_AT construction and staffing, production profiles, attacks, flyby, objectives, victory, unsupported script commands, and natural completion remain deferred.",
         "Mission 12's later AI, objectives, victory, broader Spy detection/combat and normal cross-island sabotage transport, Balloon behavior, opcode 1190 consumer, unsupported script commands, and natural completion remain deferred.",
-        "Mission 13's later AI, objectives, victory, Balloon construction and behavior, unsupported script commands, and natural completion remain deferred.",
+        "Mission 13's later AI, objectives, victory, Balloon combat/death, exact Balloon art, unsupported script commands, and natural completion remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

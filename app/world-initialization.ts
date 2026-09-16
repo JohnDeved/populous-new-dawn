@@ -43,6 +43,8 @@ export function createWorld(missionNumber = 1): World {
                   ? 'firewarriorHut'
                   : o.model === 13
                     ? 'boatHouse'
+                    : o.model === 15
+                      ? 'balloonHut'
                     : 'hut'
       addBuilding(w, teamForTribe(o.owner), kind, o, true, {
         level: kind === 'hut' ? o.model : 1,

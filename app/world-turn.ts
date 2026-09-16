@@ -973,25 +973,33 @@ function stepTurn(w: World) {
       b.kind === 'firewarriorHut'
     ) {
       stepLiveTraining(w, b)
-    } else if (b.kind === 'boatHouse' && !b.boatLaunched && inhabitants.length) {
-      if (++b.timer >= 600) {
+    } else if (
+      ((b.kind === 'boatHouse' && !b.boatLaunched) || b.kind === 'balloonHut') &&
+      inhabitants.length
+    ) {
+      const balloon = b.kind === 'balloonHut'
+      if (++b.timer >= (balloon ? 1000 : 600)) {
         const pose = buildingPose(b),
           launch = buildingShapeCells(pose).find(cell => cell.mask & 16)
         if (launch) {
           const x = short((((launch.index & 127) * 2 + 1) * 256) & 65535),
             y = short(((Math.floor(launch.index / 128) * 2 + 1) * 256) & 65535),
             direction = rules.terrainCategoryDirections[w.land.categories[launch.index] & 15],
-            heading = direction < 0 ? (pose.angle + 1024) & 2047 : (direction << 8) & 2047,
-            boat: Vehicle = {
+            heading = balloon
+              ? (pose.angle + 1024) & 2047
+              : direction < 0
+                ? (pose.angle + 1024) & 2047
+                : (direction << 8) & 2047,
+            vehicle: Vehicle = {
               x,
               y,
-              h: terrainPointHeight(w.land, { x, y }),
+              h: terrainPointHeight(w.land, { x, y }) + (balloon ? 560 : 0),
               id: w.nextId++,
               class: 4,
-              model: 1,
+              model: balloon ? 3 : 1,
               team: b.team,
-              physics: 1,
-              speed: -1,
+              physics: balloon ? 0 : 1,
+              speed: balloon ? 0 : -1,
               navigationFlags: 0x8004,
               passengerCount: 0,
               passengers: [],
@@ -1002,20 +1010,27 @@ function stepTurn(w: World) {
               active: true,
             },
             worker = inhabitants[0]
-          w.vehicles.push(boat)
+          w.vehicles.push(vehicle)
           release(w, worker)
           worker.native = createLivePerson(w, worker)
           w.pathfinding.people.set(worker.id, worker.native)
-          boardLiveVehicle(w, worker.native, boat)
+          boardLiveVehicle(w, worker.native, vehicle)
           if (w.manaTribes[tribeForTeam(b.team)].playerType === 1)
             for (const occupant of inhabitants.slice(1)) {
               release(w, occupant)
               occupant.native = createLivePerson(w, occupant)
             }
           b.timer = 0
-          b.boatLaunched = true
-          w.castingTribes[tribeForTeam(b.team)].flags |= 64
-          tell(w, 'Boat launched. Its builder is aboard and ready to sail.')
+          if (!balloon) {
+            b.boatLaunched = true
+            w.castingTribes[tribeForTeam(b.team)].flags |= 64
+          }
+          tell(
+            w,
+            balloon
+              ? 'Balloon launched. Its builder is aboard and ready to fly.'
+              : 'Boat launched. Its builder is aboard and ready to sail.'
+          )
         }
       }
     } else if (b.kind === 'hut') {
@@ -1229,6 +1244,7 @@ function stepTurn(w: World) {
         work.kind === 'spyHut' ||
         work.kind === 'firewarriorHut' ||
         work.kind === 'boatHouse' ||
+        work.kind === 'balloonHut' ||
         !!((work.admission?.activity ?? 0) & 0x8000)) &&
       (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
       !work.burn &&

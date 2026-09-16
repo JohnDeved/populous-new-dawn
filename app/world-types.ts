@@ -64,6 +64,7 @@ export type BuildingKind =
   | 'spyHut'
   | 'firewarriorHut'
   | 'boatHouse'
+  | 'balloonHut'
 export type Spell =
   | 'blast'
   | 'convertWild'

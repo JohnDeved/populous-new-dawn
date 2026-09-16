@@ -9,12 +9,11 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Next feature lock: deliver the first ordinary Mission 13 Balloon transport path.
-Resolve native producer/model semantics, then use the shipped Balloon Hut reward to
-construct the producer, create and board a Balloon, fly and land through player
-controls, and preserve the occupied vehicle across checkpoint reload. Reuse the
-existing vehicle path; do not substitute another mission opening, isolated spawn,
-or broad vehicle abstraction.
+Current closure lock: finish, commit, and push the first ordinary Mission 13 Balloon
+transport path. It now reaches the authored reward through three naturally charged
+Land Bridges, constructs the Hut, produces and boards a Balloon, flies and lands,
+and reloads the occupied vehicle on a fresh page. Close verification and review
+before selecting the next new feature.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's

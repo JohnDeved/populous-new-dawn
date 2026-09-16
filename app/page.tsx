@@ -784,7 +784,8 @@ export default function Home() {
                     (b.id === 'temple' && !world.unlockedTemple) ||
                     (b.id === 'spyHut' && !world.unlockedSpyHut) ||
                     (b.id === 'firewarriorHut' && !world.unlockedFirewarriorHut) ||
-                    (b.id === 'boatHouse' && !world.unlockedBoatHouse)
+                    (b.id === 'boatHouse' && !world.unlockedBoatHouse) ||
+                    (b.id === 'balloonHut' && !world.unlockedBalloonHut)
                   }
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
                   aria-label={`${b.name}, ${b.cost} wood`}
