@@ -276,6 +276,7 @@
         "app/terrain-notifications.ts",
         "app/terrain-texture.ts",
         "app/terrain-visibility.ts",
+        "app/scene-terrain-runtime.ts",
         "app/viewport-bounds.ts"
       ],
       "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
@@ -283,6 +284,7 @@
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncNativeTerrain" },
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncLandscapeObjects" },
         { "path": "app/render-view.ts", "symbol": "RenderView" },
+        { "path": "app/scene-terrain-runtime.ts", "symbol": "initializeTerrain" },
         { "path": "app/scene.ts", "symbol": "updateTerrainTexture" }
       ],
       "parityIds": [

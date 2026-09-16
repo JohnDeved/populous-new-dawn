@@ -22,11 +22,9 @@ import { ProjectileMotion } from './projectile-motion.ts'
 import { loadTexture, releaseGroup, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
-import { readTerrainTextures, terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
-import { terrainTiles } from './terrain-visibility.ts'
+import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import { createTooltip, tooltipPalette, worldTooltipObject } from './tooltips.ts'
 import { UnitMotion } from './unit-motion.ts'
-import { waterTexture } from './water.ts'
 
 import { type BuildingShapePose } from './building-shapes.ts'
 import { type GlobeMorph } from './camera-view.ts'
@@ -94,6 +92,7 @@ import {
   updateSpellPointerFrame,
 } from './scene-input-runtime.ts'
 import {
+  initializeTerrain,
   landIndex,
   makeDecorations,
   rebuildTerrain,
@@ -388,84 +387,7 @@ export class GameScene {
     this.makeSky()
     this.camera.up.set(0, 0, -1)
     this.camera.position.set(30, 155, 0)
-    this.terrainMap.colorSpace = THREE.NoColorSpace
-    this.terrainMap.minFilter = THREE.LinearFilter
-    this.terrainMap.magFilter = THREE.LinearFilter
-    this.waterMap.colorSpace = THREE.NoColorSpace
-    this.waterMap.wrapT = THREE.RepeatWrapping
-    this.waterMap.wrapS = THREE.RepeatWrapping
-    this.waterMap.minFilter = THREE.LinearFilter
-    this.waterMap.magFilter = THREE.LinearFilter
-    void Promise.all(
-      ['landscape.bin', 'waves.bin'].map(name =>
-        fetch(`/original/${name}`, { signal: this.terrainLoad.signal }).then(response => {
-          if (!response.ok) throw new Error(`Terrain texture load failed: ${response.status}`)
-          return response.arrayBuffer()
-        })
-      )
-    )
-      .then(([buffer, waves]) => {
-        if (!this.terrainLoad.signal.aborted) {
-          if (waves.byteLength !== 65536) throw new Error('Invalid original wave table')
-          this.terrainTextures = readTerrainTextures(buffer)
-          this.waves = new Uint8Array(waves)
-          const indexed = waterTexture(this.terrainTextures, 0),
-            pixels = this.waterMap.image.data as Uint8Array,
-            palette = this.terrainTextures.palette
-          indexed.forEach((c, i) =>
-            pixels.set([palette[c * 4], palette[c * 4 + 1], palette[c * 4 + 2], 255], i * 4)
-          )
-          this.waterMap.needsUpdate = true
-          this.updateTerrainTexture()
-          this.waterState = ''
-        }
-      })
-      .catch(error => {
-        if (!this.terrainLoad.signal.aborted) console.error(error)
-      })
-    this.terrain = new THREE.InstancedMesh(
-      new THREE.BufferGeometry(),
-      new THREE.ShaderMaterial({
-        uniforms: {
-          map: { value: this.terrainMap },
-          waterMap: { value: this.waterMap },
-          scroll: this.waterScroll,
-        },
-        vertexShader: `
-          attribute vec2 landUv;
-          attribute float surface;
-          attribute vec3 light;
-          attribute vec3 highlight;
-          varying vec2 land, waterUV;
-          varying float sea;
-          varying vec3 diffuse, specular;
-          void main() {
-            land = landUv;
-            waterUV = vec2(uv.x + 8., -uv.y - 8.) / 16.;
-            sea = surface;
-            diffuse = light;
-            specular = highlight;
-            gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
-          }`,
-        fragmentShader: `
-          uniform sampler2D map, waterMap;
-          uniform float scroll;
-          varying vec2 land, waterUV;
-          varying float sea;
-          varying vec3 diffuse, specular;
-          void main() {
-            gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV + scroll) : texture2D(map, land);
-            gl_FragColor.rgb = clamp(gl_FragColor.rgb * diffuse + specular, 0., 1.);
-          }`,
-      }),
-      9
-    )
-    terrainTiles.forEach(([x, z], i) =>
-      this.terrain.setMatrixAt(i, new THREE.Matrix4().makeTranslation(x * 256, 0, z * 256))
-    )
-    this.terrain.userData.nativeRelative = true
-    this.terrain.userData.painterGround = true
-    this.terrain.userData.terrainGrid = true
+    this.terrain = initializeTerrain(this)
     this.selectionOverlay = new SelectionOverlay(texture('atlas'), this.view)
     this.selectionOverlay.material.uniforms.dragActive = this.dragActive
     this.scene.add(this.selectionOverlay)

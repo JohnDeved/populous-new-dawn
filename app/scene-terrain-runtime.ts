@@ -1,8 +1,14 @@
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { nativeModels, nativeModel } from './scene-assets.ts'
-import { terrainAtlas, updateFootprintTiles, terrainTextureBounds } from './terrain-texture.ts'
-import { waterCell, waterPoint } from './water.ts'
+import {
+  readTerrainTextures,
+  terrainAtlas,
+  updateFootprintTiles,
+  terrainTextureBounds,
+} from './terrain-texture.ts'
+import { terrainTiles } from './terrain-visibility.ts'
+import { waterCell, waterPoint, waterTexture } from './water.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
   nativePosition,
@@ -19,6 +25,88 @@ import { reincarnationStoneRise, reincarnationStones } from './reincarnation.ts'
 import { timberScale } from './timber.ts'
 import { updateWaveShake } from './scene-entities.ts'
 import rules from './original-rules.json'
+
+export function initializeTerrain(scene: GameScene) {
+  scene.terrainMap.colorSpace = THREE.NoColorSpace
+  scene.terrainMap.minFilter = THREE.LinearFilter
+  scene.terrainMap.magFilter = THREE.LinearFilter
+  scene.waterMap.colorSpace = THREE.NoColorSpace
+  scene.waterMap.wrapT = THREE.RepeatWrapping
+  scene.waterMap.wrapS = THREE.RepeatWrapping
+  scene.waterMap.minFilter = THREE.LinearFilter
+  scene.waterMap.magFilter = THREE.LinearFilter
+  void Promise.all(
+    ['landscape.bin', 'waves.bin'].map(name =>
+      fetch(`/original/${name}`, { signal: scene.terrainLoad.signal }).then(response => {
+        if (!response.ok) throw new Error(`Terrain texture load failed: ${response.status}`)
+        return response.arrayBuffer()
+      })
+    )
+  )
+    .then(([buffer, waves]) => {
+      if (!scene.terrainLoad.signal.aborted) {
+        if (waves.byteLength !== 65536) throw new Error('Invalid original wave table')
+        scene.terrainTextures = readTerrainTextures(buffer)
+        scene.waves = new Uint8Array(waves)
+        const indexed = waterTexture(scene.terrainTextures, 0),
+          pixels = scene.waterMap.image.data as Uint8Array,
+          palette = scene.terrainTextures.palette
+        indexed.forEach((c, i) =>
+          pixels.set([palette[c * 4], palette[c * 4 + 1], palette[c * 4 + 2], 255], i * 4)
+        )
+        scene.waterMap.needsUpdate = true
+        scene.updateTerrainTexture()
+        scene.waterState = ''
+      }
+    })
+    .catch(error => {
+      if (!scene.terrainLoad.signal.aborted) console.error(error)
+    })
+  const terrain = new THREE.InstancedMesh(
+    new THREE.BufferGeometry(),
+    new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: scene.terrainMap },
+        waterMap: { value: scene.waterMap },
+        scroll: scene.waterScroll,
+      },
+      vertexShader: `
+          attribute vec2 landUv;
+          attribute float surface;
+          attribute vec3 light;
+          attribute vec3 highlight;
+          varying vec2 land, waterUV;
+          varying float sea;
+          varying vec3 diffuse, specular;
+          void main() {
+            land = landUv;
+            waterUV = vec2(uv.x + 8., -uv.y - 8.) / 16.;
+            sea = surface;
+            diffuse = light;
+            specular = highlight;
+            gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
+          }`,
+      fragmentShader: `
+          uniform sampler2D map, waterMap;
+          uniform float scroll;
+          varying vec2 land, waterUV;
+          varying float sea;
+          varying vec3 diffuse, specular;
+          void main() {
+            gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV + scroll) : texture2D(map, land);
+            gl_FragColor.rgb = clamp(gl_FragColor.rgb * diffuse + specular, 0., 1.);
+          }`,
+    }),
+    9
+  )
+  terrainTiles.forEach(([x, z], i) =>
+    terrain.setMatrixAt(i, new THREE.Matrix4().makeTranslation(x * 256, 0, z * 256))
+  )
+  terrain.userData.nativeRelative = true
+  terrain.userData.painterGround = true
+  terrain.userData.terrainGrid = true
+  return terrain
+}
 
 function placeReincarnationStone(scene: GameScene, group: THREE.Object3D) {
   const point = group.userData.groundPoint as Point

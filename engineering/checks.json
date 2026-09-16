@@ -571,6 +571,7 @@
         "app/model.ts",
         "app/world-turn.ts",
         "app/scene.ts",
+        "app/scene-terrain-runtime.ts",
         "public/original/message-type1.png"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
@@ -1670,7 +1671,8 @@
         "scripts/check-browser-terrain-copies.mjs",
         "scripts/browser-game.mjs",
         "app/render-view.ts",
-        "app/scene.ts"
+        "app/scene.ts",
+        "app/scene-terrain-runtime.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["May write tracked performance artifacts and fixed /private/tmp captures"],
