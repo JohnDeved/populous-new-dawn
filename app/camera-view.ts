@@ -47,6 +47,38 @@ export function stepViewTransition(
   return remaining
 }
 
+// Sample the next native configuration without advancing its owned state.
+// The projection and shader both consume integers; quantize the displayed
+// fields together rather than letting CPU and GPU round different values.
+export function previewViewTransition(
+  current: CameraConfig,
+  target: CameraConfig,
+  remaining: number,
+  frames: number,
+  fraction: number
+) {
+  if (!remaining || fraction <= 0) return current
+  const next = { ...current }
+  stepViewTransition(next, target, remaining, frames)
+  if (fraction >= 1) return next
+  const preview = { ...current }
+  for (const key of [
+    'curvature',
+    'scale',
+    'pitch',
+    'perspective',
+    'depth',
+    'spriteScale',
+    'shamanScale',
+    'horizon',
+    'offsetX',
+    'offsetY',
+  ] as const)
+    preview[key] = Math.round(current[key] + (next[key] - current[key]) * fraction)
+  // Bounds, sprite mode and other discrete fields keep their native boundary.
+  return preview
+}
+
 export interface GlobeMorph {
   value: number
   source: number
