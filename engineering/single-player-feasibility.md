@@ -19,30 +19,31 @@ recovery independently of campaign gameplay.
 
 - `PARITY.md` reports 26.94% verified gameplay and game-mechanics parity at ledger
   revision 28. Campaign and persistence each have zero complete broad checkpoints.
-- `app/mission-data.ts` registers Missions 1-10. Missions 11-25 are not available
-  through the shipped selector or Continue path, although matching ignored original
-  level/header/script inputs are present for investigation.
-- Missions 1-10 are not complete campaign deliveries. The runtime deliberately
+- `app/mission-data.ts` registers Missions 1-13. Missions 14-25 are not available
+  through the shipped selector or Continue path, although the PND01 inventory
+  classifies matching supplied level/header/script inputs for later integration.
+- Missions 1-13 are not complete campaign deliveries. The runtime deliberately
   executes selected recurring PopScript blocks. Missions 8 and 9 currently use no
-  recurring block; Missions 4-10 retain documented AI, tutorial, failure, victory,
+  recurring block; Missions 4-13 retain documented AI, tutorial, failure, victory,
   or special-object gaps.
-- The ten imported scripts name 95 command opcodes. Forty-six are absent from the
+- The thirteen imported scripts name 95 command opcodes. Forty-six are absent from the
   recurring `campaignCommand` arity table, but that number is not a backlog: several
   are already handled during turn-zero initialization and others may never be
   reached by a selected mission path. Required commands must be derived from the
   failing full script block, not implemented from this count.
-- The generic outcome system can grant victory after all active campaign opponents
-  lose their population. Existing Mission 3 browser evidence seeds Mission 2 victory
-  and explicitly does not prove natural Mission 2 or Mission 3 victory.
+- The generic outcome system grants victory after all active campaign opponents lose
+  their population. The rendered-control route in `744ad67` proves ordinary Mission
+  2 and Mission 3 victories, shipped Mission 2→3 continuation, and the Mission 4
+  offer; later optional AI/tutorial branches remain separate parity work.
 
 ## Critical work and estimates
 
 | Work | Evidence-backed boundary | Estimate | Important unknowns |
 | --- | --- | ---: | --- |
-| Ordinary Mission 2 victory → Continue | Mission 1→2, Totems, Tornado, Matak Swarm/raid, combat, and generic extinction victory are live; only full-path proof is absent. | 1-3 engineering days | Stragglers, reincarnation, terrain access, or AI balance may prevent ordinary elimination. |
-| Ordinary Mission 3 victory | Opening, Convert Wild, first recurring flyby, Chumara construction and Preacher are live; later recurring blocks are excluded. | 3-8 days; 1-2 weeks if broader AI is required | A minimal win may pass without authentic recurring opposition; command 1030/1074/1103/1168 reachability is unresolved. |
-| Complete Missions 4-10 | Openings and vertical slices exist, but natural endgames and substantial AI/tutorial branches remain incomplete. | 3-8 weeks total | Scope differs sharply by mission; Mission 10 failure branches and exact special terrain consumers remain open. |
-| Missions 11-25 and progression | Runtime registry and importers stop at Mission 10; original inputs exist but unique objects, mechanics and commands are unassessed. | Months, not one opening-sized slice | Per-mission object classes, script hosts, AI, tutorials and endgames are unknown. |
+| Ordinary Mission 2 victory → Continue | Delivered in `744ad67` through rendered player controls, natural Matak defeat, result UI, profile completion, and shipped Continue. | Complete for this boundary | Broader Mission 2 parity remains outside this completed route. |
+| Ordinary Mission 3 victory | Delivered in `744ad67` through rendered player controls and natural Chumara defeat. Later `1030/1074/1103/1168` branches are reachable optional AI/tutorial behavior, not completion gates. | Complete for this boundary | Full recurring opposition and tutorial parity remain separate work. |
+| Complete Missions 4-13 | Openings and vertical slices exist, but natural endgames and substantial AI/tutorial branches remain incomplete. | 3-8 weeks total | Scope differs sharply by mission; Mission 10 failure branches, exact special terrain consumers, and later specialist/vehicle paths remain open. |
+| Missions 14-25 and progression | Runtime registry reaches Mission 13; the PND01 inventory classifies all 25 supplied mission inputs, but later unique objects, mechanics and commands remain unintegrated. | Months, not one opening-sized slice | Per-mission object classes, script hosts, AI, tutorials and endgames remain unevenly known. |
 | One trustworthy original-save compatibility slice | No original fixture, parser, converter, loader export, or native load oracle exists. | 5-10 engineering days under the capture assumptions below; 2-4 weeks if the native loader is tightly coupled | Mid-level saves may differ from campaign-progress slots; file APIs, checksums/compression, pointer relocation and licensing/provenance are unresolved. |
 
 Recent delivery demonstrates that a bounded mission vertical slice can land in
@@ -78,14 +79,17 @@ environment, this slice is blocked rather than merely slower.
 
 ## Immediate execution order
 
-1. Build a real-input Mission 2 completion check without seeding victory.
-2. Continue through the shipped result UI into Mission 3, then complete Mission 3
-   without seeding victory. Bind only observed missing mission behavior.
-3. In parallel when independent capacity is available, acquire one controlled
+1. Use the accepted natural Mission 2→3 route as the baseline for later campaign
+   work; do not reopen it without contradictory evidence.
+2. In parallel when independent capacity is available, acquire one controlled
    authentic save and recover the exact loader boundary before writing a decoder.
-4. Re-estimate Missions 4-25 after the two natural-victory runs reveal which shared
-   VM, AI, combat, and pathfinding gaps repeat.
+3. Re-estimate Missions 4-25 using the delivered PND01 inventory and select a
+   release-critical gameplay/system gap rather than another convenient opening.
+4. Bind later Mission 3 AI/tutorial blocks only as complete behaviors when their
+   remaining parity is selected; do not add isolated command stubs.
 
-This checkpoint changes no parity status. No native, browser, build, or recording
-command was run for it; its conclusions come from the current source, manifests,
-ledger, retained native research, available original inputs, and commit history.
+This update changes no parity status. PND02 reuses the accepted natural-victory
+receipt, adds a current fingerprinted checkpoint-browser receipt, and uses a
+non-recording structured script walk plus byte inspection for the later-command
+boundary. No native game, build, CrossOver, fixture-recording, or parity-recording
+command was run for this update.

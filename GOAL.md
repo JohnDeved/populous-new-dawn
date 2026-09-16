@@ -9,10 +9,9 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Next feature lock: reconcile PND02's remaining acceptance against the actual ticket
-without adding requirements. Complete only missing fresh-session, restart, legacy,
-and reachable Mission 2-3 proof; correct overstated handoffs; and produce the final
-evidence/checklist disposition.
+Next feature selection: choose from reviewed release-critical gameplay and system
+gaps using the delivered PND01 inventory. Do not substitute another convenient
+mission opening or expansion for a more important release blocker.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -44,6 +43,10 @@ Mission 12's first player-acquired Spy finished in `6eb55b2`.
 Mission 13's playable opening finished in `f261e60`.
 Mission 12's first playable Spy disguise and sabotage finished in `68d0f24`.
 The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
+PND02's ordinary Mission 2-3 victories, shipped Mission 2→3 continuation, Mission 4
+offer, fresh-page checkpoint, restart, legacy migration, and required-reachability
+acceptance are complete; later Mission 3 AI/tutorial branches remain separate parity
+work.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not
@@ -144,11 +147,8 @@ code.
 
 ## Current execution order: highest-impact playable parity
 
-Mandatory near-term order:
-
-1. Complete the PND02 acceptance lock stated above.
-2. Then choose from reviewed release-critical gaps and the PND01 campaign/system
-   inventory, not another convenient mission opening or expansion.
+Mandatory near-term order: choose from reviewed release-critical gaps and the PND01
+campaign/system inventory, not another convenient mission opening or expansion.
 
 Explicit user direction wins. Continue a valid feature lock. Only when none exists,
 compare at most five candidates using current implementation and evidence, identify

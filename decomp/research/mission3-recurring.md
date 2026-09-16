@@ -53,3 +53,30 @@ task writer, and construction-base/count helpers in the hash-verified executable
 Building availability, completed Temple id, population, and available people were
 controlled leaves. Terrain acceptance, worker movement, timber, construction,
 Temple admission, and checkpoint restoration require live browser evidence.
+
+## Later-block reachability and PND02 boundary
+
+A structured walk of the same imported script plus byte inspection of the existing
+native dispatcher classified the later commands that were previously unresolved:
+
+| Command | Ordinary reachability | Role |
+| --- | --- | --- |
+| `1168` | Every 32 turns from turn 30 while variable 20 is clear | Counts Blue state-23 conversion victims for an optional anti-preaching message. |
+| `1074` | Every 128 turns from turn 123 after Chumara has a Preacher and population above eight | Allocates a delayed Chumara AI person task. |
+| `1103` | The same schedule when Blue has at most three people near marker 7 or Chumara population is at least eight | Retargets qualifying Chumara AI orders. |
+| later `1030(OFF)` | Every 32 turns from turn 30 once Chumara population exceeds fourteen | Disables an AI state bit during prolonged play. |
+
+All four branches are reachable missing Mission 3 AI/tutorial parity, but none reads
+or writes the objective, victory, reward, profile, or continuation state. The
+rendered-control route accepted in `744ad67` wins Mission 3, records completion, and
+offers Mission 4 while these later blocks remain excluded. They are therefore not
+required for PND02 natural-completion acceptance and must not be added as isolated
+command stubs. A later full-Mission-3 slice should bind `1168` with its state-23
+consumer or one complete AI block containing `1074`/`1103`.
+
+The classification used executable SHA-256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`,
+the script/level/header hashes above, reviewed interpreter export `0048cc60`, and
+byte inspection of `004913f0`, `004f21f0`, `004f4520`, and `004f3280`. No native
+game run, Ghidra project, CrossOver bottle, fixture recording, or parity update was
+used.
