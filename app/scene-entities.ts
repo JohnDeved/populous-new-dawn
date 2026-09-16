@@ -409,23 +409,25 @@ export function updateUnitsFrame(scene: GameScene) {
       g.userData.state = state
       g.userData.since = scene.world.time
     }
-    if (animationSource) {
-      const source =
-        animationSource.object + (animationTeam(u.team) === 'red' && u.kind === 'shaman' ? 8 : 0)
-      const directions = Object.values(animations).find(
-        d => 'source' in d[0] && d[0].source === source
-      )
-      if (!directions)
-        throw new Error(`Unimported follower animation ${g.userData.signature}/${source}`)
-      scene.animatePerson(g, u.heading, directions, 0, false, animationSource.f2)
-    } else
-      scene.animatePerson(
-        g,
-        u.heading,
-        animations[state] ?? animations.idle,
-        scene.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
-        !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state)
-      )
+    const source = animationSource
+        ? animationSource.object +
+          (animationTeam(u.team) === 'red' && u.kind === 'shaman' ? 8 : 0)
+        : undefined,
+      nativeDirections =
+        source === undefined
+          ? undefined
+          : Object.values(animations).find(d => 'source' in d[0] && d[0].source === source),
+      directions = nativeDirections || animations[state] || animations.idle
+    scene.animatePerson(
+      g,
+      u.heading,
+      directions,
+      nativeDirections
+        ? 0
+        : scene.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
+      !nativeDirections && !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state),
+      nativeDirections ? animationSource!.f2 : undefined
+    )
     const gauge = unitHealthGauge({
       enabled: !!showHealth,
       owner: g.userData.owner,

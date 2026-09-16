@@ -27,6 +27,7 @@ export class ScenePicking {
   >()
   lastKey = ''
   lastId: number | null = null
+  lastKind: 'person' | 'model' | null = null
   constructor(readonly scene: GameScene) {}
 
   model(mesh: THREE.Mesh, viewKey: string) {
@@ -224,8 +225,15 @@ export class ScenePicking {
         b.source.object - a.source.object ||
         b.face - a.face
     )
+    const picked = pickQueuedObjects(hits, point)
     this.lastKey = key
-    this.lastId = pickQueuedObjects(hits, point)?.id ?? null
+    this.lastId = picked?.id ?? null
+    this.lastKind = picked?.kind ?? null
     return this.lastId
+  }
+
+  pickPerson(event: { clientX: number; clientY: number }) {
+    const id = this.pick(event)
+    return this.lastKind === 'person' ? id : null
   }
 }

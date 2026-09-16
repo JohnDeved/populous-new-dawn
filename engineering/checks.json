@@ -618,6 +618,45 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Win Mission 2, continue through the shipped result UI, and win Mission 3 through rendered player controls and ordinary simulation ownership.",
+      "coveredBehavior": [
+        "Mission 2 construction, training, Totem worship, Tornado casting, combat, and natural Matak defeat",
+        "Mission 2 result presentation and shipped Continue transition into Mission 3",
+        "Mission 3 Vault worship, Swarm and Blast casting, Temple and Preacher use, Erosion worship, conversion, construction, training, combat, and natural Chumara defeat",
+        "Rendered mixed-object picking, campaign camera dismissal, combat animation fallback, and ordinary result ownership across the sequential path"
+      ],
+      "knownLimits": [
+        "Advances ordinary simulation turns faster than wall time while preserving campaign, AI, RNG, combat, and outcome ownership.",
+        "Does not establish native-equivalent timing or behavior outside the exercised Mission 2 and Mission 3 route."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-campaign-natural-victory.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-campaign-natural-victory.mjs",
+        "scripts/browser-game.mjs",
+        "app/combat-runtime.ts",
+        "app/live-building-combat.ts",
+        "app/live-movement.ts",
+        "app/live-people.ts",
+        "app/scene-effects.ts",
+        "app/scene-entities.ts",
+        "app/scene-input-runtime.ts",
+        "app/scene-picking.ts",
+        "app/model.ts",
+        "app/page.tsx",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context campaign profile state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission7-browser",
       "kind": "browser",
       "automation": "safe",

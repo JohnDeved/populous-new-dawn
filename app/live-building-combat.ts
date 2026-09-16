@@ -33,6 +33,7 @@ import {
   cancelLiveOrder,
   stepLiveOrderQueue,
   adoptLiveOrders,
+  releaseShamanGuard,
 } from './live-movement.ts'
 import {
   findCombatApproachPoint,
@@ -81,7 +82,7 @@ const unsupported = (): never => {
 const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
   stopWork: person => releaseLiveAttackReservation(w, person.workTarget),
-  releaseSpell: unsupported,
+  releaseSpell: person => releaseShamanGuard(w, person as LivePerson),
   deleteObject: unsupported,
   releaseFight: p => {
     Object.assign(p, { workFlags: 0 })

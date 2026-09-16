@@ -402,6 +402,23 @@ export function cleanBattles(w: World) {
     if (u.fight && motion && motion.state !== 29 && !(rules.personStateFlags[motion.state] & 16))
       u.fight = null
   }
+  // An airborne encounter can finish its impulse during the cleanup pass above.
+  // Drop that model-9 group before processBattles visits its now-released person.
+  for (const b of w.fights) {
+    if (
+      !b.encounter ||
+      b.members.every(id => {
+        const u = units.get(id)
+        return u?.fight?.group === b.id && u.fight.motion
+      })
+    )
+      continue
+    for (const id of b.members) {
+      const u = units.get(id)
+      if (u?.fight?.group === b.id) clearFightAssignment(u)
+    }
+    b.members = []
+  }
   w.fights = w.fights.filter(b => b.members.length > 1)
   return rosters
 }

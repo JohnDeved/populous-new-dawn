@@ -20,7 +20,7 @@ import { spellHalo, haloBucket } from './spell-halo.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
-import { tribeForTeam } from './world-types.ts'
+import { animationTeam, tribeForTeam } from './world-types.ts'
 
 export function makeFx(scene: GameScene, f: Effect) {
   const g = new THREE.Group()
@@ -303,7 +303,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
         string,
         Record<string, { frames: number[]; flip: boolean }[]>
       >
-    )[`${f.unit.team}-${f.unit.kind}`]
+    )[`${animationTeam(f.unit.team)}-${f.unit.kind}`]
     scene.animatePerson(g, f.unit.heading, animations.die, f.age, true)
     for (const layer of g.userData.layers as THREE.Sprite[])
       layer.material.opacity = Math.min(1, (f.duration - f.age) * 3)

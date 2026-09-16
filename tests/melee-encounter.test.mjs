@@ -81,6 +81,18 @@ test('the native skip-intro flag and player cancellation do not leave stuck enco
   assert.ok(a.path.length)
 })
 
+test('an encounter releases cleanly when an airborne participant returns to ordinary motion',()=>{
+  const {w,a,b}=encounter(),clock={animationTime:0,animationFrame:0}
+  advanceGame(w,clock,1/12)
+  assert.ok(w.fights[0]?.encounter)
+  b.flight=b.fight.motion
+  b.flight.state=10
+  assert.doesNotThrow(()=>advanceGame(w,clock,1/12))
+  assert.equal(w.fights.length,0)
+  assert.equal(a.fight,null)
+  assert.equal(b.fight,null)
+})
+
 test('live fights refresh the first native player alert each object turn',()=>{
   const quiet=createWorld();quiet.units=[];quiet.buildings=[];quiet.fights=[]
   quiet.attackAlert=1;quiet.attackCell=0x1235

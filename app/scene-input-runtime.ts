@@ -67,7 +67,7 @@ const cameraKeys: Record<string, number> = {
 
 export function pickUnit(scene: GameScene, event: { clientX: number; clientY: number }) {
   if (scene.overviewActive) return
-  const id = scene.picking.pick(event)
+  const id = scene.picking.pickPerson(event)
   return scene.world.units.find(u => u.id === id && u.team === 'blue' && canOrder(u))
 }
 
@@ -339,7 +339,7 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const clickedUnit = !scene.world.mode
     ? scene.world.units.find(u => u.id === scene.down.unit)
     : undefined
-  const pickedId = !scene.world.mode && scene.picking.pick(event)
+  const pickedId = !scene.world.mode && scene.picking.pickPerson(event)
   const picked =
     scene.world.units.find(u => u.id === pickedId) ??
     (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??

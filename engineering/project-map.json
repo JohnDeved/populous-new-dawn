@@ -41,7 +41,12 @@
         { "path": "references/modern-performance.md", "heading": "Mixed-object picking" }
       ],
       "nativeAddresses": ["0x443d30", "0x4440a0", "0x444270", "0x444430", "0x4445d0", "0x4449d0"],
-      "checkIds": ["selection-portable", "selection-native-drag", "selection-browser-drag"],
+      "checkIds": [
+        "selection-portable",
+        "selection-native-drag",
+        "selection-browser-drag",
+        "campaign-natural-victory-browser"
+      ],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "Painter-order hits and selection state cross rendering, input, audio, and shared command ownership."
@@ -132,7 +137,8 @@
         "mission9-browser",
         "vault-native",
         "orders-browser",
-        "queued-timber-browser"
+        "queued-timber-browser",
+        "campaign-natural-victory-browser"
       ],
       "generatedInputIds": ["native-fixtures"],
       "risks": [
@@ -201,7 +207,8 @@
         "mission8-browser",
         "mission9-boat-house-native",
         "mission9-browser",
-        "queued-timber-browser"
+        "queued-timber-browser",
+        "campaign-natural-victory-browser"
       ],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
@@ -516,6 +523,7 @@
         "vault-native",
         "worship-native",
         "worship-browser",
+        "campaign-natural-victory-browser",
         "repository-check",
         "production-build"
       ],
@@ -551,7 +559,15 @@
         { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
       ],
       "nativeAddresses": [],
-      "checkIds": ["checkpoint-browser", "mission4-browser", "mission8-browser", "mission9-browser", "repository-check", "production-build"],
+      "checkIds": [
+        "checkpoint-browser",
+        "mission4-browser",
+        "mission8-browser",
+        "mission9-browser",
+        "campaign-natural-victory-browser",
+        "repository-check",
+        "production-build"
+      ],
       "generatedInputIds": [],
       "risks": [
         "Asynchronous storage discovery must not start or advance a hidden fresh world before the player chooses."

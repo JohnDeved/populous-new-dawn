@@ -105,7 +105,7 @@ function outsideBuilding(w: World, point: { x: number; y: number }) {
 const personSource = (u: Unit) =>
   u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
 
-function releaseShamanGuard(w: World, person: { tribe: number }) {
+export function releaseShamanGuard(w: World, person: { tribe: number }) {
   const tribe = w.manaTribes[person.tribe]
   tribe.shamanGuardChanged = 1
   tribe.shamanGuards = Math.max(0, short(tribe.shamanGuards - 1))
@@ -195,7 +195,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
       w.randomState = state.randomState
       const unit = w.units.find(u => u.id === person.id)!
       if (unit.entry?.person === person) initializeBuildingPerson(w, person as LivePerson)
-      else changeLivePersonState(w, unit)
+      else changeLivePersonState(w, unit, undefined, person as LivePerson)
       state.randomState = w.randomState
     },
   }

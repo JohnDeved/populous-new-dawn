@@ -8,8 +8,9 @@ import scanners from './fixtures/combat-scanners.json' with {type:'json'}
 import {startCombatResponse} from '../app/combat-orders.ts'
 import {automaticCombatScanner,canAutoEngage,engagementRange} from '../app/melee-engagement.ts'
 import {automaticMeleeTarget} from '../app/live-combat.ts'
-import {buildingCounterattack,startLiveCombatResponse} from '../app/live-building-combat.ts'
+import {buildingCounterattack,cancelLiveBuildingAttack,startLiveCombatResponse} from '../app/live-building-combat.ts'
 import {createLivePerson,syncLivePersonCells} from '../app/live-people.ts'
+import {startLiveOrders} from '../app/live-movement.ts'
 import {createWorld,addUnit,command,nativePosition,tick,unitAnimationSource} from '../app/model.ts'
 
 const unsupported = () => {throw Error('Unexpected world consumer')}
@@ -55,6 +56,30 @@ test('live campaign scan suppression consumes pending alerts without changing pe
   w.levelFlags2=0;assert.equal(automaticMeleeTarget(w,u),enemy)
   w.turn=5;u.native.flags3|=0x800;w.levelFlags2=0x2000000
   assert.equal(automaticMeleeTarget(w,u),undefined);assert.equal(u.native.flags3&0x800,0)
+})
+
+test('dead building attackers release queued shaman-guard duty', () => {
+  const w=field(),u=addUnit(w,'red','warrior',{x:0,z:0}),p=createLivePerson(w,u)
+  u.native=p
+  Object.assign(w.buildingOrders.records[1],{model:19,flags:0,references:1,object:0,a:0,b:0})
+  Object.assign(w.buildingOrders.records[2],{model:30,flags:0,references:1,object:0,a:0,b:0})
+  p.commands[0]=1;p.commands[1]=2
+  w.buildingOrders.active=2
+  w.manaTribes[p.tribe].shamanGuards=1
+  cancelLiveBuildingAttack(w,u)
+  assert.equal(w.manaTribes[p.tribe].shamanGuards,0)
+  assert.deepEqual(p.commands,[0,0,0,0,0,0,0,0])
+  assert.equal(w.buildingOrders.active,0)
+})
+
+test('fight motion initializes its retained sermon without a native owner', () => {
+  const w=field(),u=addUnit(w,'blue','preacher',{x:0,z:0}),p=createLivePerson(w,u)
+  Object.assign(w.buildingOrders.records[1],{model:17,flags:0,references:1,object:0,a:p.x,b:p.y})
+  p.commands[0]=1;p.state=10
+  u.native=null;u.fight={group:77,action:'approach',motion:p}
+  startLiveOrders(w,p,w)
+  assert.equal(p.commandStatus,17)
+  assert.equal(currentPersonOrder(w.buildingOrders,p)?.model,17)
 })
 
 test('coastal response targets come from the corrected native cell, including its newly exposed edge', () => {

@@ -468,15 +468,15 @@ export function initializeLiveRouteRecovery(w: World, p: LivePerson) {
   )
 }
 
-export function changeLivePersonState(w: World, u: Unit, next?: number) {
-  const p = u.native!
+export function changeLivePersonState(w: World, u: Unit, next?: number, source = u.native!) {
+  const p = source
   if (p.flags2 & 0x100000) return
   if (next !== undefined) {
     p.previousState = p.state
     p.state = next
   }
   const ctx = context(w)
-  initializeLivePerson(w, u, ctx)
+  initializeLivePerson(w, u, ctx, p)
   w.randomState = ctx.state.randomState
 }
 

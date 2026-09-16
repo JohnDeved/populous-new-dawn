@@ -1,11 +1,11 @@
 // Shared setup for desktop checks; keep test access out of the shipped game API.
-export async function openGame(browser) {
+export async function openGame(browser, mission = 1) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
+  await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).click()
   await page.waitForSelector('.world-viewport canvas')
   await page.waitForFunction(() => {
     const main = document.querySelector('main')
