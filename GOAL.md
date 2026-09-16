@@ -9,12 +9,13 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Mission 11 Matak's first ordinary Hut through the existing
-Mission 10 continuation. Continue Matak's native producer after its Guard Tower so
-turn 124 requests one model-1 Hut, reuse ordinary construction and upgrades, preserve
-the plan across checkpoints, and render the result. Keep Chumara housing, the later
-gated `BUILD_AT` tower, production profiles, attacks, natural Mission 10 victory,
-Mission 11 objectives, and mission completion outside this bounded slice.
+Current task lock: deliver Mission 11 Matak's first script-requested `BUILD_AT` Guard Tower
+through the existing Mission 10 continuation. Bind only the first eligible native
+`BUILD_AT(120,166)` branch after the model-3 Hut prerequisite, reuse ordinary AI
+spiral site selection and construction, preserve the request across checkpoints, and
+render the completed tower. Keep later `BUILD_AT` towers, staffing, Chumara housing,
+production profiles, attacks, natural Mission 10 victory, Mission 11 objectives, and
+mission completion outside this bounded slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -39,6 +40,7 @@ Mission 5's Angel-head reward and live Angel strike finished in `4d4f041`.
 Mission 8's Firewarrior Guard-Tower combat finished in `57db8ce`.
 Mission 11's playable opening finished in `bbd93b3`.
 Mission 11's first autonomous Guard Towers finished in `51d777a`.
+Mission 11's first Matak Hut finished in `723358a`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not

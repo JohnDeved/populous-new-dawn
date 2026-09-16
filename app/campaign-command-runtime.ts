@@ -15,6 +15,7 @@ import { computerSelectionWorld, computerTrainingBuilding } from './computer-run
 import { availableTrainingPeople } from './computer-selection.ts'
 import {
   requestAttack,
+  requestConstruction,
   requestMarkerTask,
   requestShamanGuard,
   requestTowerStaffing,
@@ -97,6 +98,7 @@ export function campaignCommand(
       1069: 2,
       1073: 1,
       1081: 1,
+      1082: 2,
       1091: 7,
       1092: 4,
       1095: 2,
@@ -186,6 +188,11 @@ export function campaignCommand(
       throw new RangeError('Invalid computer marker override')
     w.ai.flags = (w.ai.flags | 0x40) >>> 0
     w.ai.coordinateLatch = target
+    return
+  }
+  if (opcode === 1082) {
+    const [x, y] = args.map(read)
+    requestConstruction(w.ai, 4, (x & 255) | ((y & 255) << 8), true)
     return
   }
   if (opcode === 1097) {
@@ -652,7 +659,24 @@ export function campaignRules(w: World) {
                           1004,
                           1019,
                         ]
-                      : [12, 1003, 1004, 1019],
+                      : w.outcome.level === 11 && tribe === 3
+                        ? [
+                            12,
+                            1003,
+                            // Native EVERY-255 wrapper plus only its first BUILD_AT branch.
+                            1005,
+                            70,
+                            1003,
+                            ...script.codes.slice(599, 625),
+                            // Close the two IFs, EVERY block, and bounded top-level block.
+                            1002,
+                            1004,
+                            1002,
+                            1004,
+                            1004,
+                            1019,
+                          ]
+                        : [12, 1003, 1004, 1019],
   }
   // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
   runScript(boundCampaignScript, w.ai, {

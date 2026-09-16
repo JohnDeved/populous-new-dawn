@@ -5,7 +5,7 @@ import { tick } from '../app/model.ts'
 import { messageText } from '../app/messages.ts'
 import { missionAllowsBuilding, missionComputerTribes } from '../app/mission-data.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
-import { buildingModel } from '../app/building-shapes.ts'
+import { buildingModel, buildingPose } from '../app/building-shapes.ts'
 
 test('Mission 11 opens with both enemy tribes and four original knowledge sites', () => {
   const world = createWorld(11)
@@ -43,7 +43,7 @@ test('Mission 11 opens with both enemy tribes and four original knowledge sites'
   assert.equal(world.status, 'playing')
 })
 
-test('Mission 11 opponents build their first Guard Towers and Matak Hut on native cadence', () => {
+test('Mission 11 opponents build their first settlement and scripted BUILD_AT tower on native cadence', () => {
   let world = createWorld(11)
   for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
   assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
@@ -80,6 +80,8 @@ test('Mission 11 opponents build their first Guard Towers and Matak Hut on nativ
     ]
   )
   assert.ok([matak, chumara].every(task => task.phase === 8 && task.members.length === 2))
+  const matakTowerId = matak.entity,
+    chumaraTowerId = chumara.entity
 
   while (world.turn < 124) tick(world, 1 / 12)
   assert.ok(world.campaignAIs[3].tasks.every(task => !(task.flags & 1) || task.requested === 4))
@@ -106,12 +108,66 @@ test('Mission 11 opponents build their first Guard Towers and Matak Hut on nativ
   assert.equal(resumedHut?.origin, 0xda7a)
   assert.notEqual(resumedHut?.phase, 0)
 
-  while (world.turn < 1000) tick(world, 1 / 12)
+  while (world.turn < 4605) tick(world, 1 / 12)
+  assert.ok(
+    world.campaignAIs[3].tasks.every(task => !(task.flags & 1) || !task.extra),
+    'BUILD_AT tower must wait for its native 256-turn cadence after the model-3 Hut'
+  )
+  assert.equal(world.campaignAIs[3].variables[6], 0)
+
+  const rejectedBuildAt = structuredClone(world)
+  tick(rejectedBuildAt, 1 / 12)
+  const rejectedTask = rejectedBuildAt.campaignAIs[3].tasks.find(
+      task => task.flags & 1 && task.extra === 1
+    ),
+    rejectedPlan = rejectedBuildAt.buildings.find(building => building.id === rejectedTask?.entity),
+    rejectedHut = rejectedBuildAt.buildings.find(
+      building => building.team === 'green' && buildingModel(building) === 3
+    )
+  assert.ok(rejectedPlan && rejectedHut)
+  rejectedPlan.hp = 0
+  rejectedHut.hp = 0
+  for (const unit of rejectedBuildAt.units)
+    if (unit.team === 'green' && unit.kind !== 'shaman') unit.hp = 0
+  while (rejectedBuildAt.turn < 4900) tick(rejectedBuildAt, 1 / 12)
+  assert.equal(rejectedBuildAt.campaignAIs[3].variables[6], 1)
+  assert.ok(rejectedBuildAt.campaignAIs[3].tasks.every(task => !(task.flags & 1) || !task.extra))
+  assert.equal(
+    rejectedBuildAt.buildings.filter(
+      building => building.team === 'green' && building.hp > 0 && buildingModel(building) === 4
+    ).length,
+    1
+  )
+
+  tick(world, 1 / 12)
+  const buildAtTower = world.campaignAIs[3].tasks.find(
+      task => task.flags & 1 && task.requested === 4 && task.extra === 1
+    ),
+    buildAtPlan = world.buildings.find(building => building.id === buildAtTower?.entity),
+    hutId = hut.entity,
+    buildAtTowerId = buildAtTower?.entity
+  assert.deepEqual(
+    buildAtTower && {
+      origin: buildAtTower.origin,
+      target: buildAtTower.target,
+      elapsed: buildAtTower.elapsed,
+      mode: buildAtTower.mode,
+      extra: buildAtTower.extra,
+      phase: buildAtTower.phase,
+    },
+    { origin: 0xa678, target: 0xa478, elapsed: 4, mode: 1, extra: 1, phase: 4 }
+  )
+  const buildAtPose = buildAtPlan && buildingPose(buildAtPlan)
+  assert.deepEqual(buildAtPose && { anchorX: buildAtPose.anchorX, anchorY: buildAtPose.anchorY }, {
+    anchorX: 0x7800,
+    anchorY: 0xa400,
+  })
+  assert.equal(world.campaignAIs[3].variables[6], 1)
 
   const control = world
   world = migrateCheckpoint(structuredClone(control))
   assert.deepEqual(world, control)
-  while (world.turn < 5000) {
+  while (world.turn < 5500) {
     tick(world, 1 / 12)
     tick(control, 1 / 12)
   }
@@ -124,9 +180,10 @@ test('Mission 11 opponents build their first Guard Towers and Matak Hut on nativ
       building.progress,
     ]),
     [
-      [matak.entity, 'green', 4, 1],
-      [chumara.entity, 'yellow', 4, 1],
-      [hut.entity, 'green', 3, 1],
+      [matakTowerId, 'green', 4, 1],
+      [chumaraTowerId, 'yellow', 4, 1],
+      [hutId, 'green', 3, 1],
+      [buildAtTowerId, 'green', 4, 1],
     ]
   )
   assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))

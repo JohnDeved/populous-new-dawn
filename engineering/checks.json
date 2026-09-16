@@ -945,11 +945,11 @@
         "Matak ordinary producer opportunities at turns 60, 124, 188, and 252",
         "Turn-124 non-exact model-1 Hut task allocation from an accepted tower base",
         "Two-Brave minimum and RNG-neutral allocation",
-        "Later exact BUILD_AT handler and model-3 Hut prerequisite boundary"
+        "Later BUILD_AT handler and model-3 Hut prerequisite boundary"
       ],
       "knownLimits": [
         "The probe calls the producer directly with the accepted tower owner, its 0xda7a base cell, and model availability supplied. Cadence, construction-task limit, and housing-target gates are static reviewed evidence; the browser check owns the natural tower, site selection, construction, upgrades, and rendering.",
-        "The later exact BUILD_AT tower remains deferred because its model-3 Hut gate matures thousands of turns after the first scheduled block."
+        "The first BUILD_AT tower is covered separately by mission11-build-at-native after this probe's model-3 Hut prerequisite matures."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
       "args": ["scripts/check-native-mission11-housing.py", "$POPULOUS_EXE"],
@@ -959,6 +959,39 @@
         "scripts/check-native-mission11-housing.py",
         "decomp/generated/004e5530.c",
         "decomp/research/mission11-first-expansion.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 script"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute Mission 11 Matak's first BUILD_AT branch, allocation, and rejected spiral search against hash-verified original inputs.",
+      "coveredBehavior": [
+        "EVERY-255 cadence, completed model-3 Hut gate, variable-6 latch, and two-free-task minimum",
+        "Opcode-1082 model-4 task allocation from packed origin 0xa678 with extra field 1 and no allocation RNG",
+        "Ordinary native spiral search excluding the origin, one orientation RNG draw, terminal cleanup, and no script retry after rejection"
+      ],
+      "knownLimits": [
+        "The completed model-3 count and an inert base building are supplied; the live browser check owns the naturally upgraded Hut and first eligible turn 4605.",
+        "Candidate acceptance is forced to reject. Natural Mission 11 terrain acceptance, worker construction, rendering, and checkpoint continuation remain browser evidence."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission11-build-at.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission11-build-at.py",
+        "decomp/generated/004e5530.c",
+        "decomp/research/mission11-exact-tower.md",
         "decomp/requirements.txt",
         "decomp/sections.tsv"
       ],
@@ -1009,7 +1042,7 @@
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 10 result continuation into Mission 11's opening, first Guard Towers, and first Matak Hut through the shipped browser game.",
+      "purpose": "Exercise Mission 10 result continuation into Mission 11's opening, first settlement, and first scripted Matak BUILD_AT tower through the shipped browser game.",
       "coveredBehavior": [
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
         "Rendered Blue, Chumara, Matak, and wild populations",
@@ -1017,14 +1050,16 @@
         "Original opening message and both enemy tribe HUD controls",
         "No construction before the native turn-60/61 Matak and Chumara Guard-Tower requests",
         "Turn-124 Matak model-1 Hut request with no Chumara housing",
+        "First eligible turn-4605 BUILD_AT allocation from origin (120,166) after the naturally upgraded model-3 Hut",
         "Complete in-progress AI-task, worker, building-order, movement-route, and RNG checkpoint restoration matching the original uninterrupted world",
-        "Completed and rendered Matak and Chumara Guard Towers plus the Matak Hut through level 3",
-        "No replacement towers, replacement Hut, further housing, or school production",
+        "Ordinary spiral site selection followed by completion and rendering of the scripted Matak Guard Tower",
+        "Completed and rendered opening Guard Towers plus the Matak Hut through level 3 and scripted BUILD_AT tower",
+        "No replacement towers, replacement Hut, further BUILD_AT requests, housing, or school production",
         "Real canvas movement input for the selected Blue Shaman"
       ],
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
-        "Mission 11 Chumara housing, later exact BUILD_AT construction, production profiles, attacks, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
+        "Mission 11 Chumara housing, later BUILD_AT construction and staffing, production profiles, attacks, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1048,7 +1083,8 @@
         "app/scene.ts",
         "app/scene-entities.ts",
         "decomp/research/mission11-first-settlement.md",
-        "decomp/research/mission11-first-expansion.md"
+        "decomp/research/mission11-first-expansion.md",
+        "decomp/research/mission11-exact-tower.md"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],

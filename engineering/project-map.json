@@ -397,6 +397,7 @@
         "decomp/research/mission10-opening.md",
         "decomp/research/mission11-first-settlement.md",
         "decomp/research/mission11-first-expansion.md",
+        "decomp/research/mission11-exact-tower.md",
         "app/original-script-eleven.json",
         "scripts/check-browser-mission11.mjs",
         "scripts/check-browser-mission9.mjs",
@@ -404,6 +405,7 @@
         "scripts/check-native-mission10-opening.py",
         "scripts/check-native-mission11-settlement.py",
         "scripts/check-native-mission11-housing.py",
+        "scripts/check-native-mission11-build-at.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -493,6 +495,10 @@
           "heading": "Mission 11 first Matak housing expansion"
         },
         {
+          "path": "decomp/research/mission11-exact-tower.md",
+          "heading": "Mission 11 first Matak BUILD_AT tower"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -561,6 +567,7 @@
         "mission10-opening-native",
         "mission11-settlement-native",
         "mission11-housing-native",
+        "mission11-build-at-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -585,7 +592,7 @@
         "Mission 8's AI, tutorials, victory, and broader Firewarrior terrain line-of-fire, building targets, Bloodlust, target damage, and trail behavior remain deferred.",
         "Mission 9's AI, tutorials, victory, recurring Boat production, Boat combat/death, and exact replacement hull art remain deferred.",
         "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
-        "Mission 11's Chumara housing, later exact BUILD_AT construction, production profiles, attacks, flyby, objectives, victory, unsupported script commands, and natural completion remain deferred.",
+        "Mission 11's Chumara housing, later BUILD_AT construction and staffing, production profiles, attacks, flyby, objectives, victory, unsupported script commands, and natural completion remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

@@ -91,14 +91,14 @@ try {
       motionRoutes: structuredClone(world.motionRoutes),
     })
     let world = store.getWorld()
-    for (let turn = 0; turn < 1000; turn++) tick(world, 1 / 12)
+    while (world.turn < 4606) tick(world, 1 / 12)
     const control = structuredClone(world),
       before = snapshot(control)
     await store.saveCheckpoint()
     if (!store.loadCheckpoint()) throw new Error('Mission 11 settlement checkpoint failed')
     world = store.getWorld()
     const restored = snapshot(world)
-    while (world.turn < 5000) {
+    while (world.turn < 5500) {
       tick(control, 1 / 12)
       tick(world, 1 / 12)
     }
@@ -109,14 +109,27 @@ try {
   assert.deepEqual(
     checkpoint.before.buildings
       .filter((_, index) => checkpoint.before.buildingModels[index] === 4)
-      .map(tower => tower.team),
-    ['green', 'yellow']
+      .map(tower => [tower.team, tower.progress]),
+    [
+      ['green', 1],
+      ['yellow', 1],
+      ['green', 0],
+    ]
   )
   assert.deepEqual(
     checkpoint.before.ais.map(ai =>
-      ai.tasks.filter(task => task.flags & 1).map(task => [task.requested, task.members.length])
+      ai.tasks
+        .filter(task => task.flags & 1)
+        .map(task => [
+          task.requested,
+          task.members.length,
+          task.extra,
+          task.origin,
+          task.target,
+          task.phase,
+        ])
     ),
-    [[], [[1, 2]]]
+    [[], [[4, 0, 1, 0xa678, 0xa478, 4]]]
   )
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
@@ -126,7 +139,7 @@ try {
     const scene = globalThis.testScene,
       world = scene.world,
       { tick } = await import('/app/model.ts'),
-      { buildingModel } = await import('/app/building-shapes.ts')
+      { buildingModel, buildingPose } = await import('/app/building-shapes.ts')
     globalThis.testStore.update()
     scene.onChange()
     scene.animate(scene.previous)
@@ -143,6 +156,16 @@ try {
         building.progress,
       ]),
       onlySettlement: world.buildings.length === buildings.length,
+      buildAtTower: buildings.some(building => {
+        const pose = buildingPose(building)
+        return (
+          building.team === 'green' &&
+          buildingModel(building) === 4 &&
+          building.progress === 1 &&
+          pose.anchorX === 0x7800 &&
+          pose.anchorY === 0xa400
+        )
+      }),
       rendered: buildings.every(building => {
         const group = scene.buildingMeshes.get(building.id)
         return (
@@ -169,9 +192,11 @@ try {
       ['green', 4, 1],
       ['yellow', 4, 1],
       ['green', 3, 1],
+      ['green', 4, 1],
     ]
   )
   assert.equal(settlement.onlySettlement, true)
+  assert.equal(settlement.buildAtTower, true)
   assert.equal(settlement.rendered, true)
   assert.equal(settlement.activeTasks, 0)
   assert.equal(settlement.replacements, 0)

@@ -25,11 +25,12 @@ untouched control through level 3, and the shipped Mission 10-to-11 browser path
 renders both Guard Towers and the level-3 Matak Hut.
 
 Chumara housing and further ordinary housing remain deferred. Native opcode 1082
-dispatches to reviewed export `004e5530`, which requests an exact model-4 task at its
-packed coordinate. Mission 11 first reaches `BUILD_AT(120,166)` in the Matak block
+dispatches to reviewed export `004e5530`, which requests a model-4 task from its
+packed coordinate with field `extra=1`. Mission 11 first reaches `BUILD_AT(120,166)` in the Matak block
 scheduled for turn 253, but it also requires an existing model-3 Hut. Native Hut
 maturity through reviewed routine `004050c0` needs at least 1,584 turns for model 1
 to reach model 2 and another 1,184 turns for model 2 to reach model 3. Binding that
-later exact tower is therefore a separate playable slice. Production profiles,
-attacks, objectives, victory, and natural completion also remain deferred. No parity
-ledger status changed.
+first BUILD_AT tower is documented in [mission11-exact-tower.md](mission11-exact-tower.md);
+`extra=1` preserves the script origin but still uses ordinary spiral site selection.
+Production profiles, attacks, objectives, victory, and natural completion remain
+deferred. No parity ledger status changed.
