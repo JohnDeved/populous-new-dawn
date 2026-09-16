@@ -71,7 +71,12 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
   if (scene.overviewActive || world.inputMask || !atlas?.complete || !atlas.naturalWidth) return
   for (const b of world.buildings) {
     const plan = b.progress < 1,
-      school = !plan && (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut'),
+      school =
+        !plan &&
+        (b.kind === 'camp' ||
+          b.kind === 'temple' ||
+          b.kind === 'spyHut' ||
+          b.kind === 'firewarriorHut'),
       tower = !plan && b.kind === 'tower',
       admission = b.admission,
       activity = admission?.activity ?? 0
@@ -183,7 +188,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
         'aria-label',
         tower
           ? `Guard tower: ${occupants.length} of 1 occupants`
-          : `${b.kind === 'temple' ? 'Preacher' : b.kind === 'firewarriorHut' ? 'Firewarrior' : 'Warrior'} training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
+          : `${b.kind === 'temple' ? 'Preacher' : b.kind === 'spyHut' ? 'Spy' : b.kind === 'firewarriorHut' ? 'Firewarrior' : 'Warrior'} training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
       )
     }
     const p = scene.screen(b)

@@ -706,6 +706,7 @@ export default function Home() {
               { kind: 'warrior', label: 'Warriors', sprite: 668 },
               { kind: 'preacher', label: 'Preachers', sprite: 670 },
               { kind: 'firewarrior', label: 'Firewarriors', sprite: 672 },
+              { kind: 'spy', label: 'Spies', sprite: 674 },
             ] as const
           ).map(u => (
             <button
@@ -721,9 +722,6 @@ export default function Home() {
               />
             </button>
           ))}
-          <button disabled aria-label="Spies" title="Spies">
-            <FollowerNumber count={0} />
-          </button>
         </section>
         <ManaMeter tribe={world.manaTribes[0]} world={world.manaWorld} />
         <section className="command-dock" aria-label="Command panel">
@@ -783,6 +781,7 @@ export default function Home() {
                     (b.id === 'camp' && !world.unlockedCamp) ||
                     (b.id === 'tower' && !world.unlockedTower) ||
                     (b.id === 'temple' && !world.unlockedTemple) ||
+                    (b.id === 'spyHut' && !world.unlockedSpyHut) ||
                     (b.id === 'firewarriorHut' && !world.unlockedFirewarriorHut) ||
                     (b.id === 'boatHouse' && !world.unlockedBoatHouse)
                   }
@@ -801,7 +800,13 @@ export default function Home() {
                   onBlur={() => setHover(null)}
                 >
                   <HudSprite
-                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
+                    id={
+                      b.id === 'hut'
+                        ? 1028
+                        : b.id === 'tower' || b.id === 'temple'
+                          ? 1029
+                          : 1030
+                    }
                   />
                 </button>
               ))}
@@ -815,6 +820,7 @@ export default function Home() {
                   { id: 'brave', label: 'Braves', sprite: 666 },
                   { id: 'warrior', label: 'Warriors', sprite: 668 },
                   { id: 'firewarrior', label: 'Firewarriors', sprite: 672 },
+                  { id: 'spy', label: 'Spies', sprite: 674 },
                   { id: 'all', label: 'Everyone', sprite: 680 },
                 ] as const
               ).map(u => (

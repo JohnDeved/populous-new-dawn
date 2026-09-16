@@ -9,6 +9,8 @@ export const unitSpeed = (u: Unit) =>
     ? constants.MEDICINE_MAN_SPEED
     : u.kind === 'warrior'
       ? constants.WARRIOR_SPEED
+      : u.kind === 'spy'
+        ? constants.SPY_SPEED
       : u.kind === 'firewarrior'
         ? constants.SUPER_WARRIOR_SPEED
         : u.kind === 'preacher'
@@ -221,6 +223,13 @@ export const BUILDINGS: {
     description: 'Eight logs. Unlock at the vault, then send braves inside to train as preachers.',
   },
   {
+    id: 'spyHut',
+    name: 'Spy Training Hut',
+    cost: 8,
+    symbol: '◈',
+    description: 'Eight logs. Unlock at the vault, then send braves inside to train as Spies.',
+  },
+  {
     id: 'firewarriorHut',
     name: 'Firewarrior Training Hut',
     cost: 8,
@@ -244,6 +253,8 @@ export const maxHp = (kind: UnitKind) =>
     ? constants.LIFE_SHAMEN
     : kind === 'warrior'
       ? constants.LIFE_WARR
+      : kind === 'spy'
+        ? constants.LIFE_SPY
       : kind === 'firewarrior'
         ? constants.LIFE_SWARR
         : kind === 'preacher'

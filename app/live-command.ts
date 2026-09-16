@@ -212,12 +212,13 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
     (kind === 'camp' && !w.unlockedCamp) ||
     (kind === 'tower' && !w.unlockedTower) ||
     (kind === 'temple' && !w.unlockedTemple) ||
+    (kind === 'spyHut' && !w.unlockedSpyHut) ||
     (kind === 'firewarriorHut' && !w.unlockedFirewarriorHut) ||
     (kind === 'boatHouse' && !w.unlockedBoatHouse)
   ) {
     tell(
       w,
-      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : kind === 'firewarriorHut' ? 'Firewarrior Training Hut' : kind === 'boatHouse' ? 'Boat House' : 'Warrior Training Hut'} at the vault.`
+      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : kind === 'spyHut' ? 'Spy Training Hut' : kind === 'firewarriorHut' ? 'Firewarrior Training Hut' : kind === 'boatHouse' ? 'Boat House' : 'Warrior Training Hut'} at the vault.`
     )
     return false
   }
@@ -459,7 +460,7 @@ export function command(
   const queuedBuilding =
     [6, 8, 10].includes(model) &&
     context.building &&
-    ['hut', 'camp', 'tower', 'temple', 'firewarriorHut', 'boatHouse'].includes(
+    ['hut', 'camp', 'tower', 'temple', 'spyHut', 'firewarriorHut', 'boatHouse'].includes(
       context.building.kind
     )
   const queuedTree =
@@ -558,7 +559,7 @@ export function command(
     if (
       friendly &&
       (friendly.progress < 1 ||
-        !['hut', 'camp', 'tower', 'temple', 'firewarriorHut', 'boatHouse'].includes(
+        !['hut', 'camp', 'tower', 'temple', 'spyHut', 'firewarriorHut', 'boatHouse'].includes(
           friendly.kind
         )) &&
       u.kind !== 'brave'
@@ -610,6 +611,7 @@ export function command(
       if (friendly.progress < 1) message = 'Braves assigned to construction.'
       else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
       else if (friendly.kind === 'temple') message = 'Braves sent to train as preachers.'
+      else if (friendly.kind === 'spyHut') message = 'Braves sent to train as spies.'
       else if (friendly.kind === 'firewarriorHut') message = 'Braves sent to train as firewarriors.'
       else if (friendly.kind === 'boatHouse') message = 'Braves sent to build a Boat.'
       else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'

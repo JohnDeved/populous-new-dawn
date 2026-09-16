@@ -8,6 +8,9 @@ import { buildingQueuePoint } from '../app/building-shapes.ts'
 import { prepareMovementOrder } from '../app/person-orders.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import sprites from '../app/original-units.json' with { type: 'json' }
+import rules from '../app/original-rules.json' with { type: 'json' }
+import { unitSpeed } from '../app/world-rules.ts'
+import { nativeUnitDraw } from '../app/unit-kinds.ts'
 
 function schoolScenario(kind, count, direction) {
   const w = createWorld()
@@ -126,6 +129,37 @@ test('a funded Temple trains a native model-4 preacher and sends it outside', ()
   assert.ok(preacher.path.length)
   assert.equal(sprites.animations['blue-preacher'].preachStart[0].source, 160)
   assert.equal(sprites.animations['blue-preacher'].preach[0].source, 168)
+})
+
+test('a funded Spy Training Hut trains an original model-5 Spy and sends it outside', () => {
+  const { w, b, people } = schoolScenario('spyHut', 1, 3)
+  until(w, () => people[0].inside === b.id && !people[0].entry?.person.speed)
+  w.manaWorld.gameFlags = 0
+  b.timer = 65535
+  until(w, () => w.units.some(u => u.team === 'blue' && u.kind === 'spy'), 60)
+  const spy = w.units.find(u => u.team === 'blue' && u.kind === 'spy')
+  assert.ok(spy)
+  assert.equal(w.stats.trained, 1)
+  assert.equal(spy.hp, 30)
+  assert.equal(unitSpeed(spy), 66)
+  assert.equal(nativePersonModel(spy), 5)
+  assert.equal(campaignPersonCount(w, 0, 5), 1)
+  assert.equal(unitAnimationSource(spy)?.model, 5)
+  assert.equal(nativeUnitDraw(spy.kind), 17)
+  assert.equal(nativeUnitDraw('firewarrior'), 18)
+  assert.equal(spy.inside, null)
+  assert.ok(spy.path.length)
+  assert.equal(sprites.animations['blue-spy'].walk[0].source, 40)
+  assert.deepEqual(rules.animationDescriptors[17], {
+    hold: 0,
+    step: 0,
+    mode: 2,
+    person: 2,
+    variant: 3,
+    palette: 240,
+    reset: 0,
+    flags: 0,
+  })
 })
 
 test('queue movement, admission, conversion and shared references are independent of render rate', () => {

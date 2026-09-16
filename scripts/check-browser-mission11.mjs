@@ -2,14 +2,15 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 
-async function moveSelectedShaman(page, mission) {
-  const order = await page.evaluate(async label => {
+async function moveSelectedUnit(page, kind, mission) {
+  const order = await page.evaluate(async ({ kind, label }) => {
     const scene = globalThis.testScene,
       world = scene.world,
       { supportsFollower } = await import('/app/model.ts'),
-      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+      unit = world.units.find(unit => unit.team === 'blue' && unit.kind === kind),
       bounds = scene.container.getBoundingClientRect()
-    scene.focus(shaman)
+    if (!unit || !world.selected.includes(unit.id)) throw new Error(`${label} ${kind} is not selected`)
+    scene.focus(unit)
     for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
       scene.updateCameraMotion(1 / 24)
     scene.onChange()
@@ -18,8 +19,8 @@ async function moveSelectedShaman(page, mission) {
       for (let step = 0; step < 16; step++) {
         const angle = (step * Math.PI) / 8,
           target = {
-            x: shaman.x + Math.cos(angle) * radius,
-            z: shaman.z + Math.sin(angle) * radius,
+            x: unit.x + Math.cos(angle) * radius,
+            z: unit.z + Math.sin(angle) * radius,
           }
         if (!supportsFollower(world, target)) continue
         const projected = scene.screen(target),
@@ -28,27 +29,27 @@ async function moveSelectedShaman(page, mission) {
             y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
           },
           picked = scene.pick({ clientX: point.x, clientY: point.y })
-        if (picked && Math.hypot(picked.x - shaman.x, picked.z - shaman.z) > 3)
-          return { id: shaman.id, before: [shaman.x, shaman.z], point }
+        if (picked && Math.hypot(picked.x - unit.x, picked.z - unit.z) > 3)
+          return { id: unit.id, before: [unit.x, unit.z], point }
       }
-    throw new Error(`No exposed ${label} movement destination`)
-  }, mission)
+    throw new Error(`No exposed ${label} ${kind} movement destination`)
+  }, { kind, label: mission })
   await page.mouse.click(order.point.x, order.point.y)
   const moved = await page.evaluate(async ({ id, before }) => {
     const scene = globalThis.testScene,
       world = scene.world,
       { tick } = await import('/app/model.ts'),
-      shaman = world.units.find(unit => unit.id === id)
+      unit = world.units.find(unit => unit.id === id)
     for (
       let turn = 0;
-      Math.hypot(shaman.x - before[0], shaman.z - before[1]) < 0.5 && turn < 240;
+      Math.hypot(unit.x - before[0], unit.z - before[1]) < 0.5 && turn < 240;
       turn++
     )
       tick(world, 1 / 12)
     scene.onChange()
     scene.renderer.render(scene.scene, scene.camera)
     return {
-      distance: Math.hypot(shaman.x - before[0], shaman.z - before[1]),
+      distance: Math.hypot(unit.x - before[0], unit.z - before[1]),
       visible: scene.unitMeshes.get(id)?.visible,
     }
   }, order)
@@ -285,7 +286,7 @@ try {
   assert.equal(settlement.replacements, 0)
   assert.equal(settlement.replacementTasks, 0)
 
-  await moveSelectedShaman(page, 'Mission 11')
+  await moveSelectedUnit(page, 'shaman', 'Mission 11')
 
   assert.deepEqual(
     await page.evaluate(() => {
@@ -446,7 +447,246 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await moveSelectedShaman(page, 'Mission 12')
+  await moveSelectedUnit(page, 'shaman', 'Mission 12')
+
+  const convertPoint = await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+      wild = world.units.find(unit => unit.team === 'wild' && unit.hp > 0)
+    for (let turn = 0; !world.shots.convertWild && turn < 5_000; turn++) tick(world, 1 / 12)
+    if (!world.shots.convertWild || !wild) throw new Error('Mission 12 Convert Wild prerequisite failed')
+    Object.assign(shaman, { x: wild.x + 1, z: wild.z })
+    syncLivePersonCells(world)
+    world.selected = [shaman.id]
+    world.speed = 0
+    scene.focus(wild)
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+    const point = scene.screen(wild),
+      bounds = scene.container.getBoundingClientRect()
+    return {
+      x: bounds.left + ((point.x + 1) * bounds.width) / 2,
+      y: bounds.top + ((1 - point.y) * bounds.height) / 2,
+    }
+  })
+  await page.getByRole('button', { name: 'Convert Wild, 1 shots' }).click()
+  await page.mouse.click(convertPoint.x, convertPoint.y)
+  const brave = await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts')
+    for (
+      let turn = 0;
+      !world.units.some(unit => unit.team === 'blue' && unit.kind === 'brave') && turn < 120;
+      turn++
+    )
+      tick(world, 1 / 12)
+    const unit = world.units.find(unit => unit.team === 'blue' && unit.kind === 'brave')
+    if (!unit) throw new Error('Mission 12 Convert Wild did not produce a Brave')
+    scene.onChange()
+    return unit.id
+  })
+
+  await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { entrance } = await import('/app/live-command.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+      vault = world.shrines.find(shrine => shrine.kind === 'vault' && shrine.reward === 'spyHut')
+    if (!vault) throw new Error('Mission 12 Spy Vault is missing')
+    Object.assign(shaman, entrance(world, vault, 2))
+    syncLivePersonCells(world)
+    world.selected = [shaman.id]
+    scene.focus(vault)
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+  })
+  const vaultPoint = await page.evaluate(() => {
+    const scene = globalThis.testScene,
+      vault = scene.world.shrines.find(shrine => shrine.kind === 'vault' && shrine.reward === 'spyHut'),
+      point = scene.screen(vault),
+      bounds = scene.container.getBoundingClientRect(),
+      x = bounds.left + ((point.x + 1) * bounds.width) / 2,
+      y = bounds.top + ((1 - point.y) * bounds.height) / 2
+    for (let dy = -75; dy <= 0; dy += 3)
+      for (let dx = -20; dx <= 20; dx += 3) {
+        const event = { clientX: x + dx, clientY: y + dy }
+        if (scene.pickWorldObject(event)?.id === vault.id)
+          return { x: event.clientX, y: event.clientY }
+      }
+    throw new Error('No exposed Mission 12 Spy Vault geometry')
+  })
+  await page.mouse.click(vaultPoint.x, vaultPoint.y)
+  await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts')
+    for (let turn = 0; !world.unlockedSpyHut && turn < 2_000; turn++) tick(world, 1 / 12)
+    if (!world.unlockedSpyHut) throw new Error('Mission 12 Spy Vault did not unlock the school')
+    scene.onChange()
+  })
+
+  await page.getByLabel('Select brave', { exact: true }).click()
+  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  const spyBuilding = page.getByRole('button', { name: /Spy Training Hut/ })
+  assert.equal(await spyBuilding.isEnabled(), true)
+  const site = await page.evaluate(async braveId => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { browserPosition, buildingPlanPose, placementError } = await import('/app/model.ts'),
+      brave = world.units.find(unit => unit.id === braveId),
+      bounds = scene.container.getBoundingClientRect(),
+      candidates = []
+    for (let z = brave.z - 16; z <= brave.z + 16; z += 0.5)
+      for (let x = brave.x - 16; x <= brave.x + 16; x += 0.5)
+        if (!placementError(world, 'spyHut', { x, z })) {
+          const plan = buildingPlanPose(world, 'spyHut', { x, z }),
+            point = browserPosition({ x: plan.anchorX, y: plan.anchorY })
+          if (!candidates.some(candidate => candidate.x === point.x && candidate.z === point.z))
+            candidates.push(point)
+        }
+    candidates.sort(
+      (a, b) =>
+        Math.min(...world.trees.map(tree => Math.hypot(tree.x - a.x, tree.z - a.z))) -
+        Math.min(...world.trees.map(tree => Math.hypot(tree.x - b.x, tree.z - b.z)))
+    )
+    if (!candidates.length) throw new Error('No valid Mission 12 Spy Hut site')
+    const candidate = candidates[0]
+    scene.focus(candidate)
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+    const projected = scene.screen(candidate),
+      point = {
+        x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+        y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+      },
+      picked = scene.pick({ clientX: point.x, clientY: point.y })
+    if (!picked || placementError(world, 'spyHut', picked))
+      throw new Error('No exposed Mission 12 Spy Hut site')
+    return point
+  }, brave)
+  await spyBuilding.click()
+  await page.mouse.move(site.x, site.y)
+  await page.evaluate(() => globalThis.testScene.updatePointerFrame(performance.now()))
+  await page.mouse.click(site.x, site.y)
+  const school = await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { setSelection, tick } = await import('/app/model.ts'),
+      building = world.buildings.find(b => b.team === 'blue' && b.kind === 'spyHut')
+    if (!building || building.progress !== 0)
+      throw new Error('Rendered Spy Hut input did not place the school')
+    for (let turn = 0; building.progress < 1 && turn < 20_000; turn++) tick(world, 1 / 12)
+    if (building.progress < 1)
+      throw new Error(`Spy school construction timed out: ${JSON.stringify(building)}`)
+    for (let turn = 0; world.units.some(unit => unit.work === building.id) && turn < 2_000; turn++)
+      tick(world, 1 / 12)
+    if (world.units.some(unit => unit.work === building.id))
+      throw new Error('Spy school builder did not depart')
+    setSelection(world, [])
+    scene.onChange()
+    return building.id
+  })
+
+  await page.getByLabel('Select brave', { exact: true }).click()
+  await page.evaluate(async id => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { entrance } = await import('/app/live-command.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      school = world.buildings.find(building => building.id === id),
+      brave = world.units.find(unit => world.selected.includes(unit.id) && unit.kind === 'brave')
+    Object.assign(brave, entrance(world, school, 2))
+    syncLivePersonCells(world)
+    scene.focus(school)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+  }, school)
+  const schoolPoint = await page.evaluate(id => {
+    const scene = globalThis.testScene,
+      school = scene.world.buildings.find(building => building.id === id),
+      point = scene.screen(school),
+      bounds = scene.container.getBoundingClientRect(),
+      x = bounds.left + ((point.x + 1) * bounds.width) / 2,
+      y = bounds.top + ((1 - point.y) * bounds.height) / 2
+    for (let dy = -75; dy <= 20; dy += 3)
+      for (let dx = -30; dx <= 30; dx += 3) {
+        const event = { clientX: x + dx, clientY: y + dy }
+        if (scene.pickWorldObject(event)?.id === school.id)
+          return { x: event.clientX, y: event.clientY }
+      }
+    throw new Error('No exposed Mission 12 Spy school geometry')
+  }, school)
+  await page.mouse.click(schoolPoint.x, schoolPoint.y)
+  const schoolPanel = page.locator('.training-panel:not([hidden])')
+  await schoolPanel.waitFor({ state: 'visible' })
+  assert.match(await schoolPanel.getAttribute('aria-label'), /^Spy training:/)
+  const spy = await page.evaluate(async id => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts'),
+      school = world.buildings.find(building => building.id === id)
+    for (
+      let turn = 0;
+      !world.units.some(unit => unit.team === 'blue' && unit.kind === 'spy') && turn < 2_000;
+      turn++
+    ) {
+      school.timer = 65535
+      tick(world, 1 / 12)
+    }
+    const unit = world.units.find(candidate => candidate.team === 'blue' && candidate.kind === 'spy')
+    if (!unit) throw new Error('Mission 12 Spy training timed out')
+    scene.onChange()
+    return unit.id
+  }, school)
+  await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      { setSelection } = await import('/app/model.ts')
+    setSelection(scene.world, [])
+    scene.onChange()
+  })
+  await page.getByLabel('Select spy', { exact: true }).click()
+  await moveSelectedUnit(page, 'spy', 'Mission 12')
+  const renderedSpy = await page.evaluate(async id => {
+    const scene = globalThis.testScene,
+      sprites = (await import('/app/original-units.json')).default,
+      unit = scene.world.units.find(candidate => candidate.id === id),
+      mesh = scene.unitMeshes.get(id)
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    scene.renderer.render(scene.scene, scene.camera)
+    const frames = new Set(
+      Object.values(sprites.animations['blue-spy']).flatMap(directions =>
+        directions.flatMap(direction => direction.frames)
+      )
+    )
+    return {
+      model: unit.kind,
+      visible: mesh.visible,
+      draw: mesh.userData.draw,
+      originalFrame: frames.has(mesh.userData.frame),
+      layers: mesh.userData.layers.filter(layer => layer.visible).length,
+    }
+  }, spy)
+  assert.deepEqual(renderedSpy, {
+    model: 'spy',
+    visible: true,
+    draw: 17,
+    originalFrame: true,
+    layers: renderedSpy.layers,
+  })
+  assert.ok(renderedSpy.layers > 0)
+
   await page.getByLabel('Menu', { exact: true }).click()
   await page.getByRole('button', { name: 'Restart world' }).click()
   await page.waitForFunction(() => {
@@ -458,7 +698,7 @@ try {
   })
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Missions 10-12 continue through rendered openings, Mission 11 autonomous construction, Mission 12 three-enemy presentation, checkpoint restoration, restart, profile retention and real movement input'
+    'PASS: Missions 10-12 continue through rendered openings, Mission 11 autonomous construction, and Mission 12 reaches a trained, rendered, selected and moving Spy through live Vault, Convert Wild and construction input with checkpoint, restart and profile retention'
   )
 } finally {
   await browser.close()

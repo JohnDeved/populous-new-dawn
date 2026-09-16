@@ -17,6 +17,7 @@ import {
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import { buildingModel, nativePosition, unitInvisibleToPlayer, type World } from './model.ts'
 import { tribeForTeam } from './world-types.ts'
+import { nativeUnitModel } from './unit-kinds.ts'
 import hud from './original-hud.json'
 import effects from './original-effects.json'
 import { lineQuad } from './lightning.ts'
@@ -308,9 +309,7 @@ export class GlobeRenderer extends THREE.Group {
             buildingModel(b),
             occupants.length,
             b.team === 'blue',
-            occupants.map(
-              u => ({ brave: 2, warrior: 3, preacher: 4, firewarrior: 6, shaman: 5 })[u.kind]
-            )
+            occupants.map(u => nativeUnitModel(u.kind))
           )
         icon(globePoint(view, position.x, position.y), id)
       }

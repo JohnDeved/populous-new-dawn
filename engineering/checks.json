@@ -1077,7 +1077,7 @@
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise direct Mission 12 selection, Mission 10 result continuation into Mission 11's settlement and scripted tower, then Mission 11 result continuation into Mission 12's bounded opening through the shipped browser game.",
+      "purpose": "Exercise direct Mission 12 selection, Mission 10 result continuation into Mission 11's settlement and scripted tower, then Mission 11 result continuation into Mission 12's bounded opening and first player-trained Spy through the shipped browser game.",
       "coveredBehavior": [
         "Direct Mission 12 world-selector start with imported terrain and rendered scenery",
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
@@ -1095,12 +1095,13 @@
         "Mission 11 result continuation into exact Mission 12 level and three enemy scripts with profile retention",
         "Rendered Blue, Dakini, Chumara, Matak, and wild populations; three Vaults; 31 authored buildings; and the native Spy Training Hut model",
         "Original opening message, all three enemy HUD controls, rendered turn-7 flyby motion, and shipped Skip-introduction input release",
-        "Mission 12 checkpoint restoration and deterministic continuation, restart, and profile retention"
+        "Mission 12 checkpoint restoration and deterministic continuation, restart, and profile retention",
+        "Mission 12 Convert Wild, Spy Vault reward, rendered Spy Training Hut placement and construction, model-5 training, original Spy sprite rendering, HUD selection, and rendered movement input"
       ],
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
         "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
-        "Mission 11 later housing/staffing/attacks/objectives and Mission 12 later AI, objectives, victory, Spy behavior, Balloon behavior, opcode 1190's downstream consumer, and full script command coverage remain deferred."
+        "Mission 11 later housing/staffing/attacks/objectives and Mission 12 later AI, objectives, victory, Spy disguise/sabotage/combat, Balloon behavior, opcode 1190's downstream consumer, and full script command coverage remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1130,6 +1131,14 @@
         "app/game-store.ts",
         "app/scene.ts",
         "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/building-panels.ts",
+        "app/globe-renderer.ts",
+        "app/unit-kinds.ts",
+        "app/live-building-entry.ts",
+        "app/live-command.ts",
+        "app/world-rules.ts",
+        "app/original-units.json",
         "decomp/research/mission11-first-settlement.md",
         "decomp/research/mission11-first-expansion.md",
         "decomp/research/mission11-exact-tower.md",

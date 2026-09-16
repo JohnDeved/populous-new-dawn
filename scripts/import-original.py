@@ -273,6 +273,18 @@ def main():
             metadata[signature][state]=animation(team,kind,start)
         obj=rules['personAnimationObjects'][27*9+6]
         metadata[signature]['electrocution']=animation(team,kind,rules['animationObjects'][obj][0])
+    # Spy reuses the already imported VFRA frames and VELE layers. Draw descriptor
+    # 17 selects its person variant without growing or reindexing the reviewed atlas.
+    for team in ['blue','red']:
+        kind='spy';signature=f'{team}-{kind}'
+        states={'walk':40,'idle':48,'selected':64,'work':88,'chop':104,'attack':120,'strike':104,'special':200,'recoil':112,'pray':144,'carry':72,'carryIdle':80,'airborne':152,'die':312,'drown':416,'dance':96,'idleGesture':728}
+        metadata[signature]={state:animation(team,kind,start,True) for state,start in states.items()}
+        obj=rules['personAnimationObjects'][2*9+5]
+        metadata[signature]['launch']=animation(team,kind,rules['animationObjects'][obj][0],True)
+        for state,start in [('stagger',128),('idleShift',384),('idleLook',392),('idleScratch',400)]:
+            metadata[signature][state]=animation(team,kind,start,True)
+        obj=rules['personAnimationObjects'][27*9+5]
+        metadata[signature]['electrocution']=animation(team,kind,rules['animationObjects'][obj][0],True)
     # Keep raw pieces: the original scales offsets and rectangles separately,
     # and enables/disables layers at draw time (including standing shadows).
     used+=sorted({layer['piece'] for layers in rendered for layer in layers}-set(used))

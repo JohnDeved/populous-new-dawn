@@ -903,7 +903,10 @@ function stepTurn(w: World) {
     const schools = w.buildings.filter(
       b =>
         b.team === team &&
-        (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut') &&
+        (b.kind === 'camp' ||
+          b.kind === 'temple' ||
+          b.kind === 'spyHut' ||
+          b.kind === 'firewarriorHut') &&
         b.progress === 1 &&
         b.hp > 0
     )
@@ -959,7 +962,12 @@ function stepTurn(w: World) {
       }
       if (wasIncomplete) continue
     }
-    if (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut') {
+    if (
+      b.kind === 'camp' ||
+      b.kind === 'temple' ||
+      b.kind === 'spyHut' ||
+      b.kind === 'firewarriorHut'
+    ) {
       stepLiveTraining(w, b)
     } else if (b.kind === 'boatHouse' && !b.boatLaunched && inhabitants.length) {
       if (++b.timer >= 600) {
@@ -1194,6 +1202,7 @@ function stepTurn(w: World) {
           (b.kind === 'camp' ||
             b.kind === 'tower' ||
             b.kind === 'temple' ||
+            b.kind === 'spyHut' ||
             b.kind === 'firewarriorHut') &&
           u.entry
         )
@@ -1210,6 +1219,7 @@ function stepTurn(w: World) {
         work.kind === 'camp' ||
         work.kind === 'tower' ||
         work.kind === 'temple' ||
+        work.kind === 'spyHut' ||
         work.kind === 'firewarriorHut' ||
         work.kind === 'boatHouse' ||
         !!((work.admission?.activity ?? 0) & 0x8000)) &&

@@ -43,6 +43,7 @@ import { morphCoordinate } from './morph.ts'
 import { modelHighlight } from './model-lighting.ts'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
+import { nativeUnitDraw } from './unit-kinds.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, tribeForTeam } from './world-types.ts'
@@ -380,9 +381,7 @@ export function updateUnitsFrame(scene: GameScene) {
         shadow.center.set(-r.x / r.width, 1 + r.y / r.height)
       }
     }
-    g.userData.draw =
-      animationSource?.draw ??
-      (u.kind === 'preacher' ? 16 : u.kind === 'firewarrior' ? 17 : u.kind === 'warrior' ? 15 : 14)
+    g.userData.draw = animationSource?.draw ?? nativeUnitDraw(u.kind)
     const nativeRenderFlags = animationSource?.renderFlags ?? 0,
       invisibilityRenderFlag = unitInvisibilityRenderFlag(scene.world, u),
       renderFlags =

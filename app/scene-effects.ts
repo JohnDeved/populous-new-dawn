@@ -21,6 +21,7 @@ import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, tribeForTeam } from './world-types.ts'
+import { nativeUnitDraw } from './unit-kinds.ts'
 
 export function makeFx(scene: GameScene, f: Effect) {
   const g = new THREE.Group()
@@ -138,14 +139,7 @@ export function makeFx(scene: GameScene, f: Effect) {
   if (f.unit) {
     g.userData.layers = []
     g.userData.owner = tribeForTeam(f.unit.team)
-    g.userData.draw =
-      f.unit.kind === 'preacher'
-        ? 16
-        : f.unit.kind === 'firewarrior'
-          ? 17
-          : f.unit.kind === 'warrior'
-            ? 15
-            : 14
+    g.userData.draw = nativeUnitDraw(f.unit.kind)
     g.userData.drawFlags = f.corpse ? 0 : 2
     g.userData.shaman = f.unit.kind === 'shaman'
     if (f.corpse)
