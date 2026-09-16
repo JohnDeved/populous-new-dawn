@@ -226,7 +226,15 @@ export type Shrine = Point &
   WorshipState & {
     id: number
     kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'linkedEffects' | 'vault' | 'boat' | 'angel'
-    reward?: Spell | 'camp' | 'tower' | 'temple' | 'spyHut' | 'firewarriorHut' | 'boatHouse'
+    reward?:
+      | Spell
+      | 'camp'
+      | 'tower'
+      | 'temple'
+      | 'spyHut'
+      | 'firewarriorHut'
+      | 'boatHouse'
+      | 'balloonHut'
     bridgeTarget?: Point
     effectTarget?: Point
     effectTargets?: Point[]
@@ -319,7 +327,16 @@ export type Effect = Point & {
 }
 export type Gift = Effect & {
   kind: 'gift'
-  reward: Spell | 'camp' | 'tower' | 'temple' | 'spyHut' | 'firewarriorHut' | 'boatHouse' | 'vault'
+  reward:
+    | Spell
+    | 'camp'
+    | 'tower'
+    | 'temple'
+    | 'spyHut'
+    | 'firewarriorHut'
+    | 'boatHouse'
+    | 'balloonHut'
+    | 'vault'
   remaining: number
   phase: number
   frame: number
@@ -407,6 +424,7 @@ export type World = {
   unlockedSpyHut: boolean
   unlockedFirewarriorHut: boolean
   unlockedBoatHouse: boolean
+  unlockedBalloonHut: boolean
   time: number
   turn: number
   attackAlert: number

@@ -14,7 +14,7 @@ import { buildingModel, buildingPose, buildingPosition } from './building-shapes
 import { createComputerQueue, creditAttackTask, type AttackTarget } from './computer.ts'
 import { runScript, scriptState } from './popscript.ts'
 import constants from './original-constants.json' with { type: 'json' }
-import { missionData, missionEnemyTribe, missionPosition } from './mission-data.ts'
+import { missionData, missionEnemyTribe, missionPosition, missionScript } from './mission-data.ts'
 import type { PopScript } from './popscript.ts'
 import { defeatTribe, ensureBuildingDamage } from './building-damage.ts'
 import { SPELLS } from './world-rules.ts'
@@ -118,7 +118,7 @@ export function markerHeight(
   return h === -0.35 ? 0 : short(Math.round(h * 45)) // Convert the browser's artificial seabed back to native zero.
 }
 
-export function missionAI(script: PopScript = missionData().script, tribe = 1) {
+export function missionAI(script: PopScript = missionScript(1), tribe = 1) {
   const ai = {
     ...scriptState(script),
     ...createComputerQueue(),

@@ -234,6 +234,7 @@ export function createWorldState(missionNumber = 1): World {
     unlockedSpyHut: missionAllowsBuilding(missionNumber, 6),
     unlockedFirewarriorHut: missionAllowsBuilding(missionNumber, 8),
     unlockedBoatHouse: missionAllowsBuilding(missionNumber, 13),
+    unlockedBalloonHut: missionAllowsBuilding(missionNumber, 15),
     time: 0,
     turn: 0,
     attackAlert: 0,

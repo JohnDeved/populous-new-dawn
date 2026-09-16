@@ -40,6 +40,8 @@ for script_name,opcode in [
     ('original-script-eleven.json',1176),
     ('original-script-twelve.json',1174),
     ('original-script-twelve.json',1176),
+    ('original-script-thirteen.json',1174),
+    ('original-script-thirteen.json',1176),
 ]:
     imported=json.loads((ROOT/'app'/script_name).read_text())
     for script in imported.get('tribes', {'0': imported}).values():

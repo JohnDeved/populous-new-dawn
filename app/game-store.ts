@@ -100,6 +100,7 @@ export function migrateCheckpoint(world: World) {
   world.unlockedSpyHut ??= false
   world.unlockedFirewarriorHut ??= false
   world.unlockedBoatHouse ??= false
+  world.unlockedBalloonHut ??= false
   if (!Object.hasOwn(world, 'campaignTimer')) world.campaignTimer = null
   const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
   world.ai.coordinateLatch ??= 0

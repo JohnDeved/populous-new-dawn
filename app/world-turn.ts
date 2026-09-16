@@ -494,6 +494,7 @@ function stepTurn(w: World) {
       gift.reward === 'spyHut' ||
       gift.reward === 'firewarriorHut' ||
       gift.reward === 'boatHouse' ||
+      gift.reward === 'balloonHut' ||
       gift.reward === 'vault'
     ) {
       if (gift.reward === 'temple') w.unlockedTemple = true
@@ -501,6 +502,7 @@ function stepTurn(w: World) {
       else if (gift.reward === 'spyHut') w.unlockedSpyHut = true
       else if (gift.reward === 'firewarriorHut') w.unlockedFirewarriorHut = true
       else if (gift.reward === 'boatHouse') w.unlockedBoatHouse = true
+      else if (gift.reward === 'balloonHut') w.unlockedBalloonHut = true
       else w.unlockedCamp = true
       tell(
         w,
@@ -514,6 +516,8 @@ function stepTurn(w: World) {
                 ? 'Knowledge discovered: build a Firewarrior Training Hut, then send braves inside.'
                 : gift.reward === 'boatHouse'
                   ? 'Knowledge discovered: build a Boat House at the shore to launch a Boat.'
+                  : gift.reward === 'balloonHut'
+                    ? 'Knowledge discovered: Balloon Hut.'
                   : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
       )
     } else {

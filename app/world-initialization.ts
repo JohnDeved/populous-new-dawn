@@ -122,7 +122,9 @@ export function createWorld(missionNumber = 1): World {
                       ? 'firewarriorHut'
                       : reward[1] === 13
                         ? 'boatHouse'
-                        : undefined
+                        : reward[1] === 15
+                          ? 'balloonHut'
+                          : undefined
             : undefined,
         kind =
           settings[0] === 4
@@ -261,7 +263,7 @@ export function createWorld(missionNumber = 1): World {
               1197,
               1204,
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
-              ...([4, 10, 11, 12].includes(missionNumber) ? [1174, 1187] : []),
+              ...([4, 10, 11, 12, 13].includes(missionNumber) ? [1174, 1187] : []),
             ].includes(c.opcode)
           )
             return true

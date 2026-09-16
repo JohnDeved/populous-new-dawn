@@ -3,37 +3,46 @@ import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 
 async function moveSelectedUnit(page, kind, mission) {
-  const order = await page.evaluate(async ({ kind, label }) => {
-    const scene = globalThis.testScene,
-      world = scene.world,
-      { supportsFollower } = await import('/app/model.ts'),
-      unit = world.units.find(unit => unit.team === 'blue' && unit.kind === kind),
-      bounds = scene.container.getBoundingClientRect()
-    if (!unit || !world.selected.includes(unit.id)) throw new Error(`${label} ${kind} is not selected`)
-    scene.focus(unit)
-    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
-      scene.updateCameraMotion(1 / 24)
-    scene.onChange()
-    scene.renderer.render(scene.scene, scene.camera)
-    for (let radius = 4; radius <= 12; radius += 2)
-      for (let step = 0; step < 16; step++) {
-        const angle = (step * Math.PI) / 8,
-          target = {
-            x: unit.x + Math.cos(angle) * radius,
-            z: unit.z + Math.sin(angle) * radius,
-          }
-        if (!supportsFollower(world, target)) continue
-        const projected = scene.screen(target),
-          point = {
-            x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
-            y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
-          },
-          picked = scene.pick({ clientX: point.x, clientY: point.y })
-        if (picked && Math.hypot(picked.x - unit.x, picked.z - unit.z) > 3)
-          return { id: unit.id, before: [unit.x, unit.z], point }
-      }
-    throw new Error(`No exposed ${label} ${kind} movement destination`)
-  }, { kind, label: mission })
+  const order = await page.evaluate(
+    async ({ kind, label }) => {
+      const scene = globalThis.testScene,
+        world = scene.world,
+        { supportsFollower } = await import('/app/model.ts'),
+        unit = world.units.find(unit => unit.team === 'blue' && unit.kind === kind),
+        bounds = scene.container.getBoundingClientRect()
+      if (!unit || !world.selected.includes(unit.id))
+        throw new Error(`${label} ${kind} is not selected`)
+      scene.focus(unit)
+      for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+        scene.updateCameraMotion(1 / 24)
+      scene.onChange()
+      scene.renderer.render(scene.scene, scene.camera)
+      for (let radius = 4; radius <= 12; radius += 2)
+        for (let step = 0; step < 16; step++) {
+          const angle = (step * Math.PI) / 8,
+            target = {
+              x: unit.x + Math.cos(angle) * radius,
+              z: unit.z + Math.sin(angle) * radius,
+            }
+          if (!supportsFollower(world, target)) continue
+          const projected = scene.screen(target),
+            point = {
+              x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+              y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+            },
+            picked = scene.pick({ clientX: point.x, clientY: point.y })
+          if (
+            picked &&
+            !scene.pickUnit({ clientX: point.x, clientY: point.y }) &&
+            !scene.pickWorldObject({ clientX: point.x, clientY: point.y }) &&
+            Math.hypot(picked.x - unit.x, picked.z - unit.z) > 3
+          )
+            return { id: unit.id, before: [unit.x, unit.z], point }
+        }
+      throw new Error(`No exposed ${label} ${kind} movement destination`)
+    },
+    { kind, label: mission }
+  )
   await page.mouse.click(order.point.x, order.point.y)
   const moved = await page.evaluate(async ({ id, before }) => {
     const scene = globalThis.testScene,
@@ -457,7 +466,8 @@ try {
       shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
       wild = world.units.find(unit => unit.team === 'wild' && unit.hp > 0)
     for (let turn = 0; !world.shots.convertWild && turn < 5_000; turn++) tick(world, 1 / 12)
-    if (!world.shots.convertWild || !wild) throw new Error('Mission 12 Convert Wild prerequisite failed')
+    if (!world.shots.convertWild || !wild)
+      throw new Error('Mission 12 Convert Wild prerequisite failed')
     Object.assign(shaman, { x: wild.x + 1, z: wild.z })
     syncLivePersonCells(world)
     world.selected = [shaman.id]
@@ -511,7 +521,9 @@ try {
   })
   const vaultPoint = await page.evaluate(() => {
     const scene = globalThis.testScene,
-      vault = scene.world.shrines.find(shrine => shrine.kind === 'vault' && shrine.reward === 'spyHut'),
+      vault = scene.world.shrines.find(
+        shrine => shrine.kind === 'vault' && shrine.reward === 'spyHut'
+      ),
       point = scene.screen(vault),
       bounds = scene.container.getBoundingClientRect(),
       x = bounds.left + ((point.x + 1) * bounds.width) / 2,
@@ -644,7 +656,9 @@ try {
       school.timer = 65535
       tick(world, 1 / 12)
     }
-    const unit = world.units.find(candidate => candidate.team === 'blue' && candidate.kind === 'spy')
+    const unit = world.units.find(
+      candidate => candidate.team === 'blue' && candidate.kind === 'spy'
+    )
     if (!unit) throw new Error('Mission 12 Spy training timed out')
     scene.onChange()
     return unit.id
@@ -696,9 +710,156 @@ try {
       world.outcome.level === 12 && world.turn === 0 && store.getCompletedMissions().includes(11)
     )
   })
+  assert.deepEqual(
+    await page.evaluate(() => {
+      const store = globalThis.testStore,
+        world = store.getWorld()
+      world.status = 'won'
+      world.outcome.cameraPlaying = false
+      world.outcome.completedLevel = 11
+      store.update()
+      return store.getCompletedMissions()
+    }),
+    [11, 12]
+  )
+  await page.getByRole('button', { name: 'Continue to Mission 13', exact: false }).click()
+  await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 13)
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  await page.getByLabel('Focus Chumara tribe').waitFor()
+  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByText('I sense a new threat', { exact: false }).waitFor()
+  const missionThirteenSkip = page.getByRole('button', {
+    name: 'Skip introduction',
+    exact: false,
+  })
+  await missionThirteenSkip.waitFor()
+
+  const missionThirteen = await page.evaluate(() => {
+    const scene = globalThis.testScene,
+      world = scene.world
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+    return {
+      level: world.outcome.level,
+      camera: { ...scene.viewPoint },
+      teams: Object.fromEntries(
+        ['blue', 'red', 'yellow', 'green', 'wild'].map(team => [
+          team,
+          world.units.filter(unit => unit.team === team).length,
+        ])
+      ),
+      sites: world.shrines.map(shrine => [shrine.kind, shrine.reward]),
+      siteMeshes: world.shrines.filter(shrine => {
+        const group = scene.shrineMeshes.get(shrine.id)?.g
+        return (
+          group?.visible &&
+          group.parent === scene.objects &&
+          group.children.some(child => child.visible)
+        )
+      }).length,
+      selected: world.units.find(unit => world.selected.includes(unit.id))?.kind,
+      unitMeshes: world.units.filter(unit => scene.unitMeshes.get(unit.id)?.visible).length,
+      vehicles: world.vehicles.length,
+      balloonHut: world.unlockedBalloonHut,
+      flyby: {
+        events: world.flyby.events.length,
+        end: { ...world.flyby.end },
+        latch: world.campaignAIs[2].variables[11],
+        inputMask: world.inputMask,
+      },
+    }
+  })
+  assert.equal(missionThirteen.level, 13)
+  assert.deepEqual(missionThirteen.teams, {
+    blue: 7,
+    red: 0,
+    yellow: 7,
+    green: 7,
+    wild: 146,
+  })
+  assert.deepEqual(missionThirteen.sites, [
+    ['vault', 'balloonHut'],
+    ['firestorm', 'firestorm'],
+    ['shield', 'shield'],
+    ['volcano', 'volcano'],
+    ['vault', 'earthquake'],
+  ])
+  assert.equal(missionThirteen.siteMeshes, 5)
+  assert.equal(missionThirteen.selected, 'shaman')
+  assert.equal(
+    missionThirteen.unitMeshes,
+    Object.values(missionThirteen.teams).reduce((sum, count) => sum + count, 0)
+  )
+  assert.equal(missionThirteen.vehicles, 0)
+  assert.equal(missionThirteen.balloonHut, false)
+  assert.equal(await page.getByRole('button', { name: /Balloon Hut/ }).count(), 0)
+  assert.deepEqual(
+    {
+      events: missionThirteen.flyby.events,
+      end: missionThirteen.flyby.end,
+      latch: missionThirteen.flyby.latch,
+    },
+    {
+      events: 24,
+      end: { x: 248, y: 58, angle: 350, zoom: 0 },
+      latch: 1,
+    }
+  )
+  assert.equal(missionThirteen.flyby.inputMask & 64, 64)
+  await page.waitForFunction(
+    initial =>
+      Math.hypot(
+        globalThis.testScene.viewPoint.x - initial.x,
+        globalThis.testScene.viewPoint.z - initial.z
+      ) > 0.5,
+    missionThirteen.camera
+  )
+  await missionThirteenSkip.click()
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    return !(world.flyby.flags & 1) && !(world.inputMask & 64)
+  })
+
+  await page.getByLabel('Menu', { exact: true }).click()
+  await page.getByText('Seek Balloon Hut, Firestorm, Shield', { exact: false }).waitFor()
+  await page.getByLabel('Close menu').click()
+  await moveSelectedUnit(page, 'shaman', 'Mission 13')
+
+  const missionThirteenCheckpoint = await page.evaluate(async () => {
+    const store = globalThis.testStore,
+      { tick } = await import('/app/model.ts')
+    let world = store.getWorld()
+    for (let turn = 0; turn < 64; turn++) tick(world, 1 / 12)
+    const checkpoint = structuredClone(world)
+    await store.saveCheckpoint()
+    if (!store.loadCheckpoint()) throw new Error('Mission 13 opening checkpoint failed')
+    world = store.getWorld()
+    const restored = structuredClone(world),
+      control = structuredClone(world)
+    for (let turn = 0; turn < 64; turn++) {
+      tick(control, 1 / 12)
+      tick(world, 1 / 12)
+    }
+    return { checkpoint, restored, control, continued: structuredClone(world) }
+  })
+  assert.deepEqual(missionThirteenCheckpoint.restored, missionThirteenCheckpoint.checkpoint)
+  assert.equal(missionThirteenCheckpoint.restored.outcome.level, 13)
+  assert.deepEqual(missionThirteenCheckpoint.continued, missionThirteenCheckpoint.control)
+  await page.getByLabel('Menu', { exact: true }).click()
+  await page.getByRole('button', { name: 'Restart world' }).click()
+  await page.waitForFunction(() => {
+    const store = globalThis.testStore,
+      world = store.getWorld()
+    return (
+      world.outcome.level === 13 && world.turn === 0 && store.getCompletedMissions().includes(12)
+    )
+  })
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Missions 10-12 continue through rendered openings, Mission 11 autonomous construction, and Mission 12 reaches a trained, rendered, selected and moving Spy through live Vault, Convert Wild and construction input with checkpoint, restart and profile retention'
+    'PASS: Missions 10-13 continue through rendered openings, Mission 11 autonomous construction, Mission 12 reaches a trained moving Spy, and Mission 13 renders both opponents, original knowledge, movement, checkpoint, restart and profile retention'
   )
 } finally {
   await browser.close()

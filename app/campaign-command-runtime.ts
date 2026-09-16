@@ -709,7 +709,16 @@ export function campaignRules(w: World) {
                               1004,
                               1019,
                             ]
-                          : [12, 1003, 1004, 1019],
+                          : w.outcome.level === 13 && tribe === 2
+                            ? [
+                                12,
+                                1003,
+                                // Native turn-6 one-shot flyby, including its EVERY and variable-11 latch.
+                                ...script.codes.slice(1655, 1808),
+                                1004,
+                                1019,
+                              ]
+                            : [12, 1003, 1004, 1019],
   }
   // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
   runScript(boundCampaignScript, w.ai, {

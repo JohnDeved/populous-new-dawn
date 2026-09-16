@@ -344,6 +344,7 @@
         "app/level-ten.ts",
         "app/level-eleven.ts",
         "app/level-twelve.ts",
+        "app/level-thirteen.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
@@ -358,6 +359,7 @@
         "app/original-script-nine.json",
         "app/original-script-ten.json",
         "app/original-script-twelve.json",
+        "app/original-script-thirteen.json",
         "app/original-messages.json",
         "app/reincarnation.ts",
         "app/tribe-turns.ts",
@@ -407,6 +409,7 @@
         "decomp/research/mission11-exact-tower.md",
         "decomp/research/mission11-reactive-noop.md",
         "decomp/research/mission12-opening.md",
+        "decomp/research/mission13-opening.md",
         "app/original-script-eleven.json",
         "scripts/check-browser-mission11.mjs",
         "scripts/check-browser-mission9.mjs",
@@ -417,6 +420,7 @@
         "scripts/check-native-mission11-build-at.py",
         "scripts/check-native-mission11-reactive-noop.py",
         "scripts/check-native-mission12-opening.py",
+        "scripts/check-native-mission13-opening.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -438,7 +442,8 @@
         "tests/marching-formations.test.mjs",
         "tests/mission10-opening.test.mjs",
         "tests/mission11-opening.test.mjs",
-        "tests/mission12-opening.test.mjs"
+        "tests/mission12-opening.test.mjs",
+        "tests/mission13-opening.test.mjs"
       ],
       "sharedPaths": [
         "app/flyby.ts",
@@ -519,6 +524,10 @@
           "heading": "Mission 12 native opening findings"
         },
         {
+          "path": "decomp/research/mission13-opening.md",
+          "heading": "Mission 13 native opening findings"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -594,6 +603,7 @@
         "mission11-housing-native",
         "mission11-build-at-native",
         "mission12-opening-native",
+        "mission13-opening-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -620,6 +630,7 @@
         "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
         "Mission 11's Chumara housing, later BUILD_AT construction and staffing, production profiles, attacks, flyby, objectives, victory, unsupported script commands, and natural completion remain deferred.",
         "Mission 12's later AI, objectives, victory, Spy behavior, Balloon behavior, opcode 1190 consumer, unsupported script commands, and natural completion remain deferred.",
+        "Mission 13's later AI, objectives, victory, Balloon construction and behavior, unsupported script commands, and natural completion remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

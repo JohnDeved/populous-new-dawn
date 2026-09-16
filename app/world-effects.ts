@@ -146,6 +146,7 @@ export function createGift(w: World, reward: Gift['reward'], p: Point) {
       reward === 'spyHut' ||
       reward === 'firewarriorHut' ||
       reward === 'boatHouse' ||
+      reward === 'balloonHut' ||
       reward === 'vault'
         ? 1077
         : 1056 + SPELLS.find(spell => spell.id === reward)!.model,

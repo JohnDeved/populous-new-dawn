@@ -38,7 +38,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 Recent reusable topic notes: [Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
-[Mission 12 opening](research/mission12-opening.md), and
+[Mission 12 opening](research/mission12-opening.md),
+[Mission 13 opening](research/mission13-opening.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
 
@@ -425,6 +426,20 @@ and zero-Brave failure against hash-verified Mission 12 inputs. Flyby rendering 
 complete producer world ownership remain browser evidence; opcode 1190's downstream
 object-flag consumer and all later Mission 12 behavior remain unresolved. See the
 [focused evidence and limits](research/mission12-opening.md).
+
+## Mission 13 opening
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mission13-opening.py /path/to/d3dpoptb.exe
+```
+
+The bounded probe executes both active enemy turn-zero scripts and Yellow's turn-6
+one-shot flyby. It establishes the exact populations, five linked knowledge rewards,
+opening message, AI initialization, 24-event flyby sequence, input schedule, and
+variable-11 latch against hash-verified Mission 13 inputs. Camera rendering, player
+movement, save/restart, and profile continuation remain browser evidence; later AI,
+objectives, victory, and Balloon behavior remain unresolved. See the
+[focused evidence and limits](research/mission13-opening.md).
 
 ## Shared person commands
 

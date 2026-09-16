@@ -1077,7 +1077,7 @@
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise direct Mission 12 selection, Mission 10 result continuation into Mission 11's settlement and scripted tower, then Mission 11 result continuation into Mission 12's bounded opening and first player-trained Spy through the shipped browser game.",
+      "purpose": "Exercise direct Mission 12 selection, Missions 10-12 result continuation through Mission 11's settlement, Mission 12's first player-trained Spy, and Mission 13's bounded opening through the shipped browser game.",
       "coveredBehavior": [
         "Direct Mission 12 world-selector start with imported terrain and rendered scenery",
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
@@ -1096,12 +1096,16 @@
         "Rendered Blue, Dakini, Chumara, Matak, and wild populations; three Vaults; 31 authored buildings; and the native Spy Training Hut model",
         "Original opening message, all three enemy HUD controls, rendered turn-7 flyby motion, and shipped Skip-introduction input release",
         "Mission 12 checkpoint restoration and deterministic continuation, restart, and profile retention",
-        "Mission 12 Convert Wild, Spy Vault reward, rendered Spy Training Hut placement and construction, model-5 training, original Spy sprite rendering, HUD selection, and rendered movement input"
+        "Mission 12 Convert Wild, Spy Vault reward, rendered Spy Training Hut placement and construction, model-5 training, original Spy sprite rendering, HUD selection, and rendered movement input",
+        "Mission 12 result continuation into exact Mission 13 level and both active enemy scripts with profile retention",
+        "Rendered Blue, Chumara, Matak, and wild populations plus five authored Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge sites",
+        "Original Mission 13 message, both enemy HUD controls, rendered turn-6 flyby motion, variable-11 latch, and shipped Skip-introduction input release",
+        "Mission 13 selected Shaman movement, deterministic checkpoint continuation, restart, and profile retention"
       ],
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
         "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
-        "Mission 11 later housing/staffing/attacks/objectives and Mission 12 later AI, objectives, victory, Spy disguise/sabotage/combat, Balloon behavior, opcode 1190's downstream consumer, and full script command coverage remain deferred."
+        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, Spy disguise/sabotage/combat, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon behavior, and full script command coverage remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1112,10 +1116,13 @@
         "scripts/browser-game.mjs",
         "tests/mission11-opening.test.mjs",
         "tests/mission12-opening.test.mjs",
+        "tests/mission13-opening.test.mjs",
         "app/level-eleven.ts",
         "app/level-twelve.ts",
+        "app/level-thirteen.ts",
         "app/original-script-eleven.json",
         "app/original-script-twelve.json",
+        "app/original-script-thirteen.json",
         "app/original-messages.json",
         "app/original-models.json",
         "app/mission-data.ts",
@@ -1142,7 +1149,8 @@
         "decomp/research/mission11-first-settlement.md",
         "decomp/research/mission11-first-expansion.md",
         "decomp/research/mission11-exact-tower.md",
-        "decomp/research/mission12-opening.md"
+        "decomp/research/mission12-opening.md",
+        "decomp/research/mission13-opening.md"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
@@ -1187,6 +1195,44 @@
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable with adjacent Mission 12 level, header, three scripts, and English language data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute Mission 13's active enemy turn-zero scripts, opening message/failure gate, one-shot flyby, populations, and authored knowledge links against hash-verified original inputs.",
+      "coveredBehavior": [
+        "Mission 13 level, header, both active enemy scripts, English message data, and executable identity",
+        "Exact Yellow and Green turn-zero AI attributes, variables, coordinates, marker entries, defence state, message state, and suppression gate",
+        "Yellow turn-6 one-shot flyby command order, arguments, variable-11 latch, and RNG-neutral simulation path",
+        "Blue, Yellow, Green, and Wild authored populations with Red absent",
+        "Five authored knowledge links, including model-15 Balloon Hut knowledge"
+      ],
+      "knownLimits": [
+        "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
+        "Object populations and knowledge links are decoded from the verified level without a full native world load.",
+        "Later Mission 13 AI, objectives, victory, and Balloon construction, production, movement, combat, and art remain unresolved."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission13-opening.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission13-opening.py",
+        "app/level-thirteen.ts",
+        "app/original-script-thirteen.json",
+        "app/original-messages.json",
+        "decomp/research/mission13-opening.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 13 level, header, scripts 29/30, and English language data"
       ],
       "sideEffects": [],
       "resources": ["External executable and adjacent game data are read-only"],
