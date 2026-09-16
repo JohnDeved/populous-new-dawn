@@ -139,6 +139,7 @@ export type Battle = Point & {
 }
 export type Unit = Point & {
   attackReservation?: AttackReservation
+  damageAttacker?: number
   supportHeight?: number
   entry?: BuildingEntry
   native: LivePerson | null
@@ -304,7 +305,7 @@ export type Effect = Point & {
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
-  firewarriorShot?: { source: number; target: number; remaining: number }
+  firewarriorShot?: { source: number; target: number; remaining: number; tower?: boolean }
   angel?: AngelState
 }
 export type Gift = Effect & {

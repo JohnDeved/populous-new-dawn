@@ -48,8 +48,33 @@ Rechecked for the Mission 8 slice on 2026-09-15: ordinary on-foot launch creates
 two projectiles, sets cooldown 25, uses speed `0x200`, and renders object `0x460`
 with descriptor row `0x1d`. The executable's tower cooldown is 36 despite the
 supplied text constant naming `SW_BLAST_RATE_TOWER` as 100. The live slice covers
-only cooldown 25 and ordinary brave impact; tower, bloodlust and other target
-classes remain outside its comparison.
+cooldown 25 and ordinary Brave impact. Bloodlust and other target classes remain
+outside its comparison.
+
+## Guard-tower combat composition (2026-09-16)
+
+The retained [`0051f470`](../generated/0051f470.c) export and
+`scripts/probe-native-firewarrior-tower.py` compose the state-21 tower scanner,
+readiness, paired launch, and Brave impact against the hash-verified executable.
+At flat ground height 128, the tower range is 13: native scales idle range 11 by
+`engagementHeightFactors[clamp(signedHeight >> 7, 0, 7)] / 256`, adds four for
+tower support, then forces the result odd. The scanner uses even radius 12 and
+row-major cell/list order through the common combat selector. Readiness uses a
+strict per-axis limit of `range * 256 + 56` (3383 passes, 3384 fails) plus terrain
+occlusion. State 21 scans on the model-6 mask-3 cadence only when cooldown is zero.
+
+The paired projectiles start at perpendicular offsets of -96/+96. After the lateral
+step, native clamps their base height to the higher of the source ground and terrain
+at that offset, then adds tower support height plus 16; the tower cooldown is 36.
+The probed hostile Brave takes 500 native life, mapped to 25 browser HP per
+projectile. A lethal impact requests kill credit with the source and target identities.
+
+The probe supplies the global order and projectile slots and intercepts order
+allocation/attachment/sharing, audio, animation, sunlight, and the downstream
+kill-credit consumer. Browser terrain-line sampling, the special level-flag range,
+building targets, Bloodlust, broad target damage, and full native play remain open.
+The retained second probe is intentional: it isolates the substantially larger
+tower scanner composition from the ordinary projectile-impact oracle.
 
 ## Boundaries and next step
 
@@ -58,9 +83,6 @@ The allocator at `004ed8a0` is supplied with two slots; sound `0048a050`, animat
 Deletion `004edcf0` is observed and allowed to execute. World lists, terrain,
 occupancy, positions, health, and the allocation context are synthetic.
 
-This does not prove normal targeting, terrain line-of-fire, repeated firing, rendered
-projectiles, tower behavior, bloodlust, allocation exhaustion, lethal side effects,
-or whole-world integration. Do not hard-code the observed damage table into gameplay.
-Next: establish the original acquisition path, then trace balance/protection and
-impact side effects for that scope and build a browser/native comparison using these
-existing exports and probe. Preserve any newly exposed uncertainty here.
+This does not prove general terrain line-of-fire, Bloodlust, allocation exhaustion,
+broad target damage, or whole-world native play. Do not hard-code the ordinary
+synthetic damage table into gameplay. Preserve any newly exposed uncertainty here.

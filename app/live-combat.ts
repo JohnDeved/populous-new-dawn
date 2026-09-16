@@ -47,7 +47,12 @@ export function combatPerson(u: Unit): CombatPerson {
     model: nativePersonModel(u),
     tribe: nativePersonTribe(u),
     flags2: (p?.flags2 ?? 0) | (u.inside === null ? 0 : 0x800000),
-    flags4: (p?.flags4 ?? 0) | held.flags4 | (u.lift > 0 ? 0x400 : 0),
+    flags4:
+      (p?.flags4 ?? 0) |
+      held.flags4 |
+      (u.lift > 0 ? 0x400 : 0) |
+      (u.invisibility ? 0x1000 : 0) |
+      (u.ghost ? 0x800 : 0),
     state: p?.state ?? state,
     life: Math.round(u.hp * 20),
     vehicle: p?.vehicle ?? 0,
@@ -164,7 +169,9 @@ export function selectLiveCombatTarget(
 function combatScan(
   w: World,
   p: Omit<Parameters<typeof automaticCombatScanner>[0], 'counter'>,
-  order: Parameters<typeof automaticCombatScanner>[1]
+  order: Parameters<typeof automaticCombatScanner>[1],
+  inTower = false,
+  firewarriorReady = () => false
 ) {
   const scan = { ...p, counter: w.turn & 255 },
     scanner = automaticCombatScanner(
@@ -172,8 +179,8 @@ function combatScan(
       order,
       w.levelFlags2,
       () => false,
-      false,
-      () => false
+      inTower,
+      firewarriorReady
     )
   p.flags3 = scan.flags3
   return scanner
@@ -220,9 +227,14 @@ export function allocateLiveCombatResponse(
   return id && w.buildingOrders.records[id].model === 21 ? id : 0
 }
 
-export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undefined {
+function automaticTarget(
+  w: World,
+  u: Unit,
+  expected: 'melee' | 'firewarrior',
+  inTower: boolean
+): Unit | Building | undefined {
   if (u.team === 'wild') return
-  const native = u.builder?.person ?? u.native
+  const native = u.builder?.person ?? u.native ?? u.entry?.person
   const model = nativePersonModel(u)
   // Ordinary counters retain the world phase until native allocation owns them.
   if (w.turn & rules.personModels[model].scanMask && !((native?.flags3 ?? 0) & 0x800)) return
@@ -242,12 +254,15 @@ export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undef
   // remain in the command migration; do not invent the ritual eligibility result.
   // The ordinary live roster uses the melee scanner. Specialist response
   // controllers must own their distinct searches rather than fall through here.
-  if (combatScan(w, p, current) !== 'melee' || current?.model === 27) return
-  const range = engagementRange(p, current, false)
+  if (combatScan(w, p, current, inTower, () => !u.cooldown) !== expected || current?.model === 27)
+    return
+  const range = engagementRange(p, current, inTower)
   if (!range) return
   const radius = Math.trunc(range / 2) * 2
   const area = { a: ((source.x >>> 8) & 254) | (source.y & 0xfe00), b: radius | (radius << 8) }
-  const buildings = !!(rules.personStateFlags[p.state] & 8) && !p.vehicle
+  // Building attacks remain outside the Firewarrior tower slice. Letting one
+  // reserve a building here would starve eligible person targets we can fire at.
+  const buildings = !inTower && !!(rules.personStateFlags[p.state] & 8) && !p.vehicle
   const response = emptyPersonOrder()
   prepareCellOrder(response, area, 32 | (buildings ? 16 : 0), w.land.categories)
   // Coastal preparation can move the order center by one cell. Include that
@@ -269,4 +284,11 @@ export function automaticMeleeTarget(w: World, u: Unit): Unit | Building | undef
   return 'members' in owner
     ? w.units.find(t => owner.members.includes(t.id) && t.hp > 0 && t.team !== u.team)
     : owner
+}
+
+export const automaticMeleeTarget = (w: World, u: Unit) => automaticTarget(w, u, 'melee', false)
+
+export function automaticTowerFirewarriorTarget(w: World, u: Unit) {
+  const target = automaticTarget(w, u, 'firewarrior', true)
+  return target && !('progress' in target) ? target : undefined
 }

@@ -78,6 +78,7 @@
         "scripts/check-browser-ground-waypoints.mjs",
         "scripts/check-native-computer-attack.py",
         "scripts/probe-native-firewarrior.py",
+        "scripts/probe-native-firewarrior-tower.py",
         "tests/game.test.mjs"
       ],
       "sharedPaths": [
@@ -389,6 +390,7 @@
         "decomp/research/mission6.md",
         "decomp/research/mission7.md",
         "decomp/research/firewarrior.md",
+        "decomp/generated/0051f470.c",
         "decomp/research/mission9-boat-house.md",
         "decomp/research/mission10-opening.md",
         "scripts/check-browser-mission9.mjs",
@@ -396,6 +398,7 @@
         "scripts/check-native-mission10-opening.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
+        "scripts/probe-native-firewarrior-tower.py",
         "scripts/check-browser-mission7.mjs",
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-mission5-angel.mjs",
@@ -524,7 +527,8 @@
         "0x4a5d40",
         "0x4a5eb0",
         "0x4a5ec0",
-        "0x4a5ee0"
+        "0x4a5ee0",
+        "0x51f470"
       ],
       "checkIds": [
         "messages-native",
@@ -558,7 +562,7 @@
         "Mission 4's larger recurring AI remains deferred.",
         "Mission 6's recurring scripts and later mission-specific content remain deferred.",
         "Mission 7's attack AI, later messages, Erosion acquisition, and victory remain deferred.",
-        "Mission 8's AI, tutorials, victory, and broader Firewarrior tower, bloodlust, line-of-fire, impact, and trail behavior remain deferred.",
+        "Mission 8's AI, tutorials, victory, and broader Firewarrior terrain line-of-fire, building targets, Bloodlust, target damage, and trail behavior remain deferred.",
         "Mission 9's AI, tutorials, victory, recurring Boat production, Boat combat/death, and exact replacement hull art remain deferred.",
         "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",

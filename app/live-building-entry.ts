@@ -80,6 +80,7 @@ import sprites from './original-units.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { nativePersonModel } from './live-combat.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
+import { stepTowerFirewarrior } from './firewarrior.ts'
 
 type EntryPerson = LivePerson & { savedVehicle: number; orderDelay: number }
 export interface BuildingEntry {
@@ -442,6 +443,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
       p.timer = ((p.timer - 1) << 16) >> 16
       if (p.timer < 1) p.renderFlags |= 2
     }
+    if (u.kind === 'firewarrior') stepTowerFirewarrior(w, u)
     return
   }
   const state = b && buildingAdmission(w, b),

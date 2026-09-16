@@ -9,10 +9,12 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Mission 5's Angel-head reward through ordinary follower
-worship, then prove the linked Angel appears, seeks an enemy, strikes, and cleans
-itself up through the live rendered game. Preserve the native evidence boundary for
-the still-unknown initial lifetime and exact model-91 presentation.
+Current task lock: deliver Firewarrior Guard-Tower combat through ordinary Mission 8
+training, construction, and garrison input, then prove autonomous eligible-hostile
+targeting, the paired ranged attack, the original tower cadence, damage/kill credit,
+release, and checkpoint restoration through the live rendered game. Reuse the
+existing Firewarrior projectile and target-eligibility paths; do not grow a general
+specialist-tower framework.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -33,6 +35,7 @@ in `3de1a8c`.
 Mission 7's Convert Wild to Invisibility vertical slice finished in `2912b43`.
 Mission 8's Firewarrior vertical slice finished in `88f4a97`.
 Mission 9's Boat House-to-Boat vertical slice finished in the current feature commit.
+Mission 5's Angel-head reward and live Angel strike finished in `4d4f041`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not

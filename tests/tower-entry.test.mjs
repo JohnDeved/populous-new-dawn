@@ -7,6 +7,8 @@ import { advanceGame } from '../app/game-clock.ts'
 import { objectsInCell } from '../app/object-cells.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { createLivePerson } from '../app/live-people.ts'
+import { towerFirewarriorReady } from '../app/firewarrior.ts'
+import { nativePosition } from '../app/world-terrain-runtime.ts'
 
 function until(w, ready, limit = 300) {
   for (let i = 0; i < limit && !ready(); i++) tick(w, 1 / 12)
@@ -33,7 +35,7 @@ function scenario(team = 'blue', direction = 2, kind = 'brave', count = 1) {
 test('tower admission uses rotated tribe sockets, ground membership and original one-shot occupant pose', () => {
   for (const team of ['blue', 'red'])
     for (let direction = 0; direction < 4; direction++)
-      for (const kind of ['brave', 'warrior', 'shaman']) {
+      for (const kind of ['brave', 'warrior', 'firewarrior', 'shaman']) {
         const {
           w,
           b,
@@ -72,7 +74,7 @@ test('tower admission uses rotated tribe sockets, ground membership and original
 })
 
 test('a tower admits one follower and movement orders preserve elevation until physics resumes', () => {
-  const { w, b, people } = scenario('blue', 2, 'brave', 2)
+  const { w, b, people } = scenario('blue', 2, 'firewarrior', 2)
   until(w, () => people.some(u => u.inside === b.id))
   for (let i = 0; i < 80; i++) tick(w, 1 / 12)
   assert.equal(people.filter(u => u.inside === b.id).length, 1)
@@ -119,7 +121,7 @@ test('destroying an occupied tower releases its native record and display height
     w,
     b,
     people: [u],
-  } = scenario()
+  } = scenario('blue', 2, 'firewarrior')
   until(w, () => u.inside === b.id)
   b.hp = 0
   tick(w, 1 / 12)
@@ -128,6 +130,55 @@ test('destroying an occupied tower releases its native record and display height
   assert.equal(u.supportHeight, undefined)
   assert.ok(u.hp > 0)
   assert.equal(w.buildingOrders.active, 0)
+})
+
+test('a tower Firewarrior autonomously attacks an eligible hostile on the tower cadence', () => {
+  const {
+    w,
+    b,
+    people: [guard],
+  } = scenario('blue', 2, 'firewarrior')
+  until(w, () => guard.inside === b.id)
+  w.units = [guard]
+  w.effects = []
+  guard.cooldown = 0
+  guard.entry.person.counter = 0
+  guard.entry.person.flags3 &= ~0x800
+  addBuilding(w, 'red', 'hut', { x: guard.x - 6, z: guard.z }, true)
+  const ally = addUnit(w, 'blue', 'brave', { x: guard.x + 2, z: guard.z }),
+    hidden = addUnit(w, 'red', 'brave', { x: guard.x + 4, z: guard.z }),
+    target = addUnit(w, 'red', 'brave', { x: guard.x + 8, z: guard.z })
+  hidden.invisibility = 10
+  target.hp = 50
+  target.x = guard.x + 3383 / 256
+  assert.equal(towerFirewarriorReady(w, guard, target), true)
+  target.x = guard.x + 3384 / 256
+  assert.equal(towerFirewarriorReady(w, guard, target), false)
+  target.x = guard.x + 8
+  target.native = createLivePerson(w, target)
+  target.native.damageAttacker = 3
+  let scanTurns = 0
+  while (!w.effects.some(effect => effect.firewarriorShot) && scanTurns++ < 4) tick(w, 1 / 12)
+  assert.ok(scanTurns >= 1 && scanTurns <= 4)
+  const shots = w.effects.filter(effect => effect.firewarriorShot)
+  assert.equal(shots.length, 2)
+  assert.ok(shots.every(shot => shot.firewarriorShot.target === target.id))
+  assert.equal(guard.cooldown, 36 / 12)
+  assert.ok(
+    shots.every(
+      shot =>
+        shot.height * 45 ===
+        Math.max(guard.entry.person.h, nativePosition(w, shot).h) +
+          guard.entry.person.supportHeight +
+          16
+    )
+  )
+  assert.equal(ally.hp, 50)
+  assert.equal(hidden.hp, 50)
+  until(w, () => !w.units.some(unit => unit.id === target.id), 32)
+  assert.equal(w.killCredits[0][1], 1)
+  assert.equal(w.killCredits[3][1], 0)
+  assert.equal(guard.inside, b.id)
 })
 
 test('tower preachers hand occupancy to command 31 and cleanly leave or die', () => {

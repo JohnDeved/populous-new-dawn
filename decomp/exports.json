@@ -6,6 +6,7 @@
   "snapshot": "Fresh Ghidra analysis followed by ImportMetadata.java with memory/properties disabled; all file-backed section bytes verified before export. Pseudocode is unreviewed where no port is recorded.",
   "files": {
     "004bbcf0.c": "bd8625f80164055029ff28d1ec81aa17268f474b0dd34b4234b4c39687d26315",
+    "0051f470.c": "d8cfefb1d292f00be566dcb71d53da2c283f625e63cd283f576592464fed2f04",
     "0051fbf0.c": "d1e178d893089d7258b7781947014ee6b130f34b5086d1725aa76608eaf834ec",
     "00401040.c": "5e922afec0f81a68a5545be8cbd7528e3081c1542f84505f1c1d2644b5a76583",
     "004010b0.c": "38c2d767d69bbceac0d9d88d819cdaf7e1cbb22a005aa37c609d417c803695d7",

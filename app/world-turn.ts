@@ -1475,7 +1475,8 @@ function stepTurn(w: World) {
   for (const u of ordinaryDead) {
     const victim = tribeForTeam(u.team),
       person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,
-      attacker = person?.damageAttacker ?? 255
+      recorded = person?.damageAttacker,
+      attacker = recorded !== undefined && recorded < 4 ? recorded : (u.damageAttacker ?? 255)
     if (victim >= 0 && attacker >= 0 && attacker < 4)
       w.killCredits[attacker][victim] = (w.killCredits[attacker][victim] + 1) & 65535
   }

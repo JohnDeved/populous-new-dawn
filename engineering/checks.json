@@ -707,10 +707,11 @@
       "coveredBehavior": [
         "Paired projectile allocation and identity",
         "Range, cooldown, speed, target binding, and deletion",
-        "Live paired motion and ordinary Brave impact"
+        "Live paired motion and ordinary Brave impact",
+        "Guard-Tower range extension, cooldown, elevated origin, and eligible-hostile targeting"
       ],
       "knownLimits": [
-        "Allocator, audio, trail, and several world consumers are intercepted; tower, bloodlust, line-of-fire, broad target damage, and complete native play remain deferred."
+        "Global order/projectile allocation, audio, trail, and the downstream kill-credit consumer are intercepted; browser terrain occlusion, the special level-flag range, Bloodlust, broad target damage, and complete native play remain deferred."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
       "args": ["scripts/check-native-firewarrior.py", "$POPULOUS_EXE"],
@@ -719,12 +720,17 @@
       "inputs": [
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior.py",
+        "scripts/probe-native-firewarrior-tower.py",
         "app/firewarrior.ts",
         "app/combat-runtime.ts",
+        "app/combat-targets.ts",
+        "app/live-combat.ts",
         "app/live-building-entry.ts",
+        "app/world-types.ts",
         "app/tooltips.ts",
         "app/original-rules.json",
         "decomp/research/firewarrior.md",
+        "decomp/generated/0051f470.c",
         "decomp/requirements.txt",
         "decomp/sections.tsv"
       ],
@@ -747,11 +753,12 @@
         "Authentic Vault unlock through rendered-object input",
         "Real Firewarrior Training Hut placement and construction",
         "Brave training and Firewarrior HUD selection",
-        "Enemy input, paired ranged shots, GPU pixels, impact damage, and checkpoint restoration"
+        "Enemy input, paired ranged shots, GPU pixels, impact damage, and checkpoint restoration",
+        "Real Guard Tower construction and garrison input, autonomous tower shots, kill credit, and occupied checkpoint restoration"
       ],
       "knownLimits": [
-        "Seeds Mission 7 victory, positions the authentic Shaman at the remote Vault entrance, clears the prior construction selection, accelerates training mana, and positions one enemy in range.",
-        "Mission 8 AI, tutorials, victory, and broader Firewarrior tower, bloodlust, line-of-fire, impact, and trail behavior remain deferred."
+        "Seeds Mission 7 victory, positions the authentic Shaman at the remote Vault entrance, clears construction/Firewarrior selections, accelerates training mana, and positions authentic enemies in range.",
+        "Mission 8 AI, tutorials, victory, and broader Firewarrior Bloodlust, terrain line-of-fire, target damage, and trail behavior remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission8.mjs"],
@@ -766,11 +773,15 @@
         "app/original-units.json",
         "app/mission-data.ts",
         "app/firewarrior.ts",
+        "app/combat-targets.ts",
+        "app/live-combat.ts",
         "app/live-command.ts",
         "app/live-building-entry.ts",
         "app/building-panels.ts",
         "app/tooltips.ts",
         "app/world-turn.ts",
+        "app/world-types.ts",
+        "tests/tower-entry.test.mjs",
         "app/page.tsx",
         "app/game-store.ts",
         "app/scene.ts"

@@ -35,7 +35,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Firewarrior launch and open boundaries](research/firewarrior.md),
+Recent reusable topic notes: [Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
