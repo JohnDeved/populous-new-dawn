@@ -36,7 +36,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 ## Port index
 
 Recent reusable topic notes: [Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
-[Mission 10 opening](research/mission10-opening.md), and
+[Mission 10 opening](research/mission10-opening.md),
+[Mission 11 first settlement](research/mission11-first-settlement.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
 
@@ -56,6 +57,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `00409200`, `004092a0` | Existing building HP in `app/model.ts` | Native structural damage traced; the intercepted person scan records activity and does not dispatch repair |
 | `0048a050`, `0048b500`, `0048b950` | `scripts/import-sound.py`, `app/audio.ts`, `app/model.ts` | Native PCM/cues and partial event dispatch; adaptive music and complete scheduler pending |
 | `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
+| `004615f0`, `004e5580`, `004c6da0` | `app/computer-runtime.ts` | [Mission 11's first settlement action](research/mission11-first-settlement.md) reuses the ordinary producer and construction task path; later scripted `BUILD_AT`, production profiles and attacks remain open |
 | `0048cc60`, `0048f350`, `0041ca10`, `0041cc20`, `004a5d20`, `004a5d40`, `004a5ec0` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization, bounded [Mission 3 recurring flyby](research/mission3-recurring.md), [Mission 4 objective](research/mission4.md), [Mission 7 opening](research/mission7.md), and both [Mission 10 Totem/flyby transitions](research/mission10-opening.md) are applied; full game-command host and Mission 10 loss/endgame branches remain open |
 | `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts`, `app/scene.ts` | Worship, automatic reward initialization/visual lifetime and delayed gifts CPU-compared; competitive ownership and generic pickup incomplete |
@@ -396,6 +398,18 @@ Mission 6's tower, Warrior Training Hut, housing, and training order. The probe 
 building availability/count and person availability leaves; live site choice, movement,
 construction, training, and births remain browser evidence. See the
 [focused evidence and limits](research/mission6-economy.md).
+
+## Mission 11 first autonomous settlement
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mission11-settlement.py /path/to/d3dpoptb.exe
+```
+
+The probe executes Mission 11 Matak turn-zero setup and the native ordinary
+producer, establishing the turn-60 model-4 task, Shaman-cell origin, coordinate
+latch, and RNG neutrality. Site choice, worker movement, construction, rendering,
+and checkpoint restoration remain browser evidence. See the
+[focused evidence and limits](research/mission11-first-settlement.md).
 
 ## Shared person commands
 

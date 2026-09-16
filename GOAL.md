@@ -9,11 +9,13 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver a playable Mission 11 opening through the existing Mission
-10 continuation UI, with original level data, Chumara and Matak populations, four
-knowledge sites, the opening message, rendered world, and an ordinary player movement
-order. Keep recurring Mission 11 AI, natural Mission 10 victory, full objectives, and
-mission completion outside this bounded opening slice.
+Current task lock: deliver Mission 11's first autonomous enemy settlement action
+through the existing Mission 10 continuation. Reuse the ordinary native producer and
+construction path so Matak and Chumara plan their first Guard Towers, preserve an
+in-progress plan across checkpoints, and complete and render both towers. Stop Mission
+11's producer after each tribe's first request, including after tower loss. Keep later
+scripted construction, production profiles, attacks, natural Mission 10 victory,
+Mission 11 objectives, and mission completion outside this bounded slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -36,6 +38,7 @@ Mission 8's Firewarrior vertical slice finished in `88f4a97`.
 Mission 9's Boat House-to-Boat vertical slice finished in the current feature commit.
 Mission 5's Angel-head reward and live Angel strike finished in `4d4f041`.
 Mission 8's Firewarrior Guard-Tower combat finished in `57db8ce`.
+Mission 11's playable opening finished in `bbd93b3`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not

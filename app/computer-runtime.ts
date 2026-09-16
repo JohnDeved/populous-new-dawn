@@ -71,6 +71,8 @@ import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
 import { release, releaseTasks } from './world-tasks.ts'
 
+const mission11SettlementRequested = 0x80000000
+
 export function computerSelectionWorld(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
     sources = new Map<number, LivePerson>(),
@@ -305,7 +307,7 @@ function produceMissionTraining(w: World, tribe: number) {
   requestTraining(w.ai, 0, model, available, candidate => (candidate === building ? target : 0))
 }
 
-// Mission 6's ordinary 0x4e5580 producer reaches training buildings before housing.
+// The ordinary 0x4e5580 producer reaches training buildings before housing.
 function produceMissionBuilding(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
     has = (model: number) =>
@@ -326,8 +328,9 @@ function produceMissionBuilding(w: World, tribe: number) {
         return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
       }, 0)
   if (
-    ![3, 6].includes(w.outcome.level) ||
+    ![3, 6, 11].includes(w.outcome.level) ||
     !(w.ai.states & 1) ||
+    (w.outcome.level === 11 && !!(w.ai.flags & mission11SettlementRequested)) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
@@ -345,14 +348,20 @@ function produceMissionBuilding(w: World, tribe: number) {
   // use native attribute target counts when later missions need multiple schools.
   const model = !base
     ? 4
-    : !has(7) && w.ai.attributes[3]
-      ? 7
-      : tribe === 2 && !has(5) && w.ai.attributes[2]
-        ? 5
-        : housing < w.ai.attributes[10]
-          ? 1
-          : 0
-  return !!model && requestConstruction(w.ai, model, origin)
+    : w.outcome.level === 11
+      ? 0 // ponytail: later Mission 11 housing and schools await their own native slice.
+      : !has(7) && w.ai.attributes[3]
+        ? 7
+        : tribe === 2 && !has(5) && w.ai.attributes[2]
+          ? 5
+          : housing < w.ai.attributes[10]
+            ? 1
+            : 0
+  if (!model || !requestConstruction(w.ai, model, origin)) return false
+  // ponytail: this slice owns one proved request per tribe, not replacement towers or later housing.
+  if (w.outcome.level === 11)
+    w.ai.flags = (w.ai.flags | mission11SettlementRequested) >>> 0
+  return true
 }
 
 function stepComputerConstruction(w: World, tribe: number, index: number) {

@@ -4,6 +4,8 @@ import { createWorld } from '../app/world-initialization.ts'
 import { tick } from '../app/model.ts'
 import { messageText } from '../app/messages.ts'
 import { missionAllowsBuilding, missionComputerTribes } from '../app/mission-data.ts'
+import { migrateCheckpoint } from '../app/game-store.ts'
+import { buildingModel } from '../app/building-shapes.ts'
 
 test('Mission 11 opens with both enemy tribes and four original knowledge sites', () => {
   const world = createWorld(11)
@@ -39,4 +41,70 @@ test('Mission 11 opens with both enemy tribes and four original knowledge sites'
   )
   for (let turn = 0; turn < 24; turn++) tick(world, 1 / 12)
   assert.equal(world.status, 'playing')
+})
+
+test('Mission 11 opponents build their first Guard Towers on the native cadence', () => {
+  let world = createWorld(11)
+  for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
+  assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
+
+  tick(world, 1 / 12)
+  assert.ok(world.campaignAIs[2].tasks.every(task => !(task.flags & 1)))
+  assert.deepEqual(
+    world.campaignAIs[3].tasks
+      .filter(task => task.flags & 1)
+      .map(task => ({ requested: task.requested, origin: task.origin, phase: task.phase })),
+    [{ requested: 4, origin: 0xce76, phase: 0 }]
+  )
+
+  tick(world, 1 / 12)
+
+  const matak = world.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 0),
+    chumara = world.campaignAIs[2].tasks.find(task => task.flags & 1 && task.type === 0)
+  assert.deepEqual(
+    matak && { requested: matak.requested, origin: matak.origin, phase: matak.phase },
+    { requested: 4, origin: 0xce76, phase: 4 }
+  )
+  assert.deepEqual(
+    chumara && { requested: chumara.requested, origin: chumara.origin, phase: chumara.phase },
+    { requested: 4, origin: 0xa8ce, phase: 0 }
+  )
+
+  for (let turn = 0; turn < 8; turn++) tick(world, 1 / 12)
+  const towers = world.buildings.filter(building => buildingModel(building) === 4)
+  assert.deepEqual(
+    towers.map(building => [building.team, building.id]),
+    [
+      ['green', matak.entity],
+      ['yellow', chumara.entity],
+    ]
+  )
+  assert.ok([matak, chumara].every(task => task.phase === 8 && task.members.length === 2))
+
+  const control = world
+  world = migrateCheckpoint(structuredClone(control))
+  assert.deepEqual(world, control)
+  for (let turn = 0; turn < 900; turn++) {
+    tick(world, 1 / 12)
+    tick(control, 1 / 12)
+  }
+  assert.deepEqual(world, control)
+  assert.deepEqual(
+    world.buildings.map(building => [
+      building.id,
+      building.team,
+      buildingModel(building),
+      building.progress,
+    ]),
+    [
+      [matak.entity, 'green', 4, 1],
+      [chumara.entity, 'yellow', 4, 1],
+    ]
+  )
+  assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
+
+  for (const tower of world.buildings) tower.hp = 0
+  for (let turn = 0; turn < 200; turn++) tick(world, 1 / 12)
+  assert.ok(world.buildings.every(building => buildingModel(building) !== 4 || building.hp <= 0))
+  assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
 })

@@ -937,20 +937,58 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute Mission 11 Matak turn-zero setup and the first ordinary construction producer against hash-verified original inputs.",
+      "coveredBehavior": [
+        "Mission 11 level, header, both enemy scripts, and executable identity",
+        "Matak turn-zero construction limit, housing target, and coordinate latch",
+        "Turn-60 type-0 model-4 task allocation from the Matak Shaman cell",
+        "Coordinate-latch dispatch center and RNG-neutral allocation",
+        "Later turn-253 explicit BUILD_AT boundary"
+      ],
+      "knownLimits": [
+        "The available-Brave count is intercepted as six from the supplied raw level records.",
+        "Terrain acceptance, plan insertion, worker movement, completion, rendering, and checkpoint restoration remain browser evidence."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission11-settlement.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission11-settlement.py",
+        "app/original-script-eleven.json",
+        "decomp/research/mission11-first-settlement.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 level, header, and scripts"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 10 result continuation into the bounded playable Mission 11 opening through the shipped browser game.",
+      "purpose": "Exercise Mission 10 result continuation into Mission 11's opening and first autonomous enemy settlement action through the shipped browser game.",
       "coveredBehavior": [
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
         "Rendered Blue, Chumara, Matak, and wild populations",
         "Two Vaults and two stone heads with Hypnotise, Flatten, and Swamp rewards",
         "Original opening message and both enemy tribe HUD controls",
+        "No construction before the native turn-60/61 Matak and Chumara Guard-Tower requests",
+        "Complete in-progress AI-task, worker, building-order, movement-route, and RNG checkpoint restoration matching the original uninterrupted world",
+        "Completed and rendered Matak and Chumara Guard Towers without replacement towers or later housing and school production",
         "Real canvas movement input for the selected Blue Shaman"
       ],
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
-        "Mission 11 recurring AI, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
+        "Mission 11 later scripted construction, production profiles, attacks, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -964,11 +1002,16 @@
         "app/original-script-eleven.json",
         "app/original-messages.json",
         "app/mission-data.ts",
+        "app/computer-runtime.ts",
+        "app/construction-runtime.ts",
         "app/world-initialization.ts",
         "app/world-state.ts",
+        "app/world-turn.ts",
         "app/page.tsx",
         "app/game-store.ts",
-        "app/scene.ts"
+        "app/scene.ts",
+        "app/scene-entities.ts",
+        "decomp/research/mission11-first-settlement.md"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
