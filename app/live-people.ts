@@ -524,6 +524,25 @@ export function disturbLiveVolcanoPerson(w: World, u: Unit, tribe: number, p?: L
 
 export function strikeLiveLightning(w: World, point: { x: number; y: number }, tribe: number) {
   const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+  const prison =
+      tribe !== w.manaWorld.playerTribe && w.buildings.find(b => b.kind === 'prison' && b.hp > 0),
+    captive =
+      prison &&
+      w.units.find(
+        u =>
+          u.inside === prison.id &&
+          u.team === teamForTribe(w.manaWorld.playerTribe) &&
+          u.kind === 'shaman' &&
+          u.hp > 0
+      )
+  if (captive) {
+    const p = leaveLiveBuilding(w, captive)
+    if (p) {
+      p.previousState = p.state
+      p.state = 3
+      captive.native = p
+    }
+  }
   const units = new Map<number, Unit>()
   const people: LivePerson[] = []
   // Ordinary allocation still supplies cell order, as in the live Blast adapter.
@@ -531,7 +550,8 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     if (u.inside !== null || (u.hp <= 0 && !u.flight && u.native?.state !== 44)) continue
     const existing = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
     const position = existing ?? nativePosition(w, u)
-    if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell) continue
+    if (u !== captive && ((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell)
+      continue
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
     units.set(p.id, u)

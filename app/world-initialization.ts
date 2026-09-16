@@ -66,7 +66,9 @@ export function createWorld(missionNumber = 1): World {
                     ? 'boatHouse'
                     : o.model === 15
                       ? 'balloonHut'
-                      : 'hut'
+                      : o.model === 19
+                        ? 'prison'
+                        : 'hut'
       addBuilding(w, teamForTribe(o.owner), kind, o, true, {
         level: kind === 'hut' ? o.model : 1,
         angle: (o.angle / 2048) * Math.PI * 2,
@@ -249,6 +251,12 @@ export function createWorld(missionNumber = 1): World {
       })
     }
   }
+  if (missionNumber === 15) {
+    const prison = w.buildings.find(b => b.kind === 'prison'),
+      captive = w.units.find(u => u.team === 'blue' && isShaman(u))
+    if (!prison || !captive) throw new Error('Missing authored Mission 15 Prison objective')
+    captive.inside = prison.id
+  }
   for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
     if (w.campaignAIs[tribe])
       withCampaignTribe(w, tribe, ai => {
@@ -271,6 +279,7 @@ export function createWorld(missionNumber = 1): World {
               1196,
               1197,
               1204,
+              ...(missionNumber === 15 ? [1174, 1187, 1200] : []),
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
               ...([4, 10, 11, 12, 13].includes(missionNumber) ? [1174, 1187] : []),
             ].includes(c.opcode)
@@ -280,7 +289,9 @@ export function createWorld(missionNumber = 1): World {
           return false
         })
       })
-  w.selected = [w.units.find(u => u.team === 'blue' && isShaman(u))!.id]
+  w.selected = w.units
+    .filter(u => u.team === 'blue' && isShaman(u) && u.inside === null)
+    .map(u => u.id)
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)

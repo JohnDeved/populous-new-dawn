@@ -260,6 +260,7 @@ export function createWorldState(missionNumber = 1): World {
       firewarriorHut: 0,
       boatHouse: 0,
       balloonHut: 0,
+      prison: 0,
     },
     paused: false,
     speed: 1,
@@ -284,7 +285,9 @@ export function createWorldState(missionNumber = 1): World {
                         ? 'For the first time we must face all three Enemy tribes. I must prepare for a mighty struggle.'
                         : missionNumber === 14
                           ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge.'
-                          : 'Discover the Boat House and launch a vessel to cross the world.',
+                          : missionNumber === 15
+                            ? 'Destroy the Prison before time runs out and free your Shaman.'
+                            : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

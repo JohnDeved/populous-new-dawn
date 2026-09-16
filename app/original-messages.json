@@ -139,6 +139,10 @@
     "1": {
       "stringId": 688,
       "text": "I sense a new threat\u0085 an attack from the skies. I must make ready for the battle to come."
+    },
+    "148": {
+      "stringId": 1228,
+      "text": "The Dakini have trapped me in this magical prison and I cannot escape. I must command my Followers to free me or we are all doomed."
     }
   }
 }

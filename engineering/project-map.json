@@ -351,6 +351,7 @@
         "app/level-twelve.ts",
         "app/level-thirteen.ts",
         "app/level-fourteen.ts",
+        "app/level-fifteen.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
@@ -367,6 +368,7 @@
         "app/original-script-twelve.json",
         "app/original-script-thirteen.json",
         "app/original-script-fourteen.json",
+        "app/original-script-fifteen.json",
         "app/original-messages.json",
         "app/reincarnation.ts",
         "app/tribe-turns.ts",
@@ -420,6 +422,16 @@
         "decomp/research/mission13-opening.md",
         "decomp/research/mission13-balloon.md",
         "decomp/research/mission14-linked-angel.md",
+        "decomp/research/mission15-prison.md",
+        "decomp/generated/0040c3a0.c",
+        "decomp/generated/00492b40.c",
+        "decomp/generated/00499960.c",
+        "decomp/generated/004a5d20.c",
+        "decomp/generated/004a5eb0.c",
+        "decomp/generated/004a5ec0.c",
+        "decomp/generated/004a5ee0.c",
+        "decomp/generated/004e2770.c",
+        "decomp/generated/004f6a10.c",
         "decomp/generated/004641d0.c",
         "decomp/generated/00465c50.c",
         "decomp/generated/00465ea0.c",
@@ -437,6 +449,7 @@
         "scripts/check-native-mission13-opening.py",
         "scripts/check-native-balloon.py",
         "scripts/check-native-mission14-rewards.py",
+        "scripts/check-native-mission15-prison.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -444,6 +457,7 @@
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-mission5-angel.mjs",
         "scripts/check-browser-mission14-rewards.mjs",
+        "scripts/check-browser-mission15-prison.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
@@ -461,7 +475,8 @@
         "tests/mission11-opening.test.mjs",
         "tests/mission12-opening.test.mjs",
         "tests/mission13-opening.test.mjs",
-        "tests/mission14-rewards.test.mjs"
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission15-prison.test.mjs"
       ],
       "sharedPaths": [
         "app/flyby.ts",
@@ -472,6 +487,7 @@
         "app/building-shapes.ts",
         "app/building-runtime.ts",
         "app/combat-runtime.ts",
+        "app/live-people.ts",
         "app/live-vehicles.ts",
         "app/marching-formations.ts",
         "app/object-cells.ts",
@@ -554,6 +570,10 @@
           "heading": "Mission 13 Balloon transport"
         },
         {
+          "path": "decomp/research/mission15-prison.md",
+          "heading": "Mission 15 Prison native findings"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -572,12 +592,15 @@
       ],
       "nativeAddresses": [
         "0x40bce0",
+        "0x40c3a0",
         "0x41ca10",
         "0x41cb40",
         "0x41cc20",
         "0x48c6b0",
         "0x48cc60",
         "0x48f350",
+        "0x492b40",
+        "0x499960",
         "0x430f30",
         "0x431a80",
         "0x431c40",
@@ -614,7 +637,9 @@
         "0x4f6020",
         "0x4641d0",
         "0x465c50",
-        "0x465ea0"
+        "0x465ea0",
+        "0x4e2770",
+        "0x4f6a10"
       ],
       "checkIds": [
         "messages-native",
@@ -636,6 +661,7 @@
         "mission13-opening-native",
         "mission13-balloon-native",
         "mission14-rewards-native",
+        "mission15-prison-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -646,6 +672,8 @@
         "mission5-angel-browser",
         "mission14-rewards-portable",
         "mission14-rewards-browser",
+        "mission15-prison-portable",
+        "mission15-prison-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"

@@ -434,7 +434,9 @@ export function buildingModel(b: Pick<Building, 'kind' | 'level'>) {
               ? 13
               : b.kind === 'balloonHut'
                 ? 15
-              : 7
+                : b.kind === 'prison'
+                  ? 19
+                  : 7
 }
 
 // Share the displayed object identity with native footprint/entrance lookup.

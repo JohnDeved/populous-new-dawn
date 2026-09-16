@@ -1511,6 +1511,49 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 15 Prison initialization, captive state, follower damage, release, timer, Prison predicate, and enemy Lightning expiry chain against the hash-verified executable.",
+      "coveredBehavior": [
+        "Authored Prison, captive Blue Shaman, marker, timer, and script branches",
+        "Native Prison initialization and state-42 captive ownership",
+        "Ordinary Brave building strike damage and Prison destruction release",
+        "Global Prison-existence predicate plus 450-second timer and cancellation",
+        "Expired branch input lock and enemy Lightning scheduling"
+      ],
+      "knownLimits": [
+        "Presentation, registration, adjacency, footprint enumeration, and generic state/motion leaves are supplied as documented in the research note.",
+        "The probe does not emulate plan allocation, terrain routing, audiovisual playback, queued-Lightning delay, or downstream generic Shaman-defeat UI."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission15-prison.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission15-prison.py",
+        "decomp/research/mission15-prison.md",
+        "decomp/generated/0040c3a0.c",
+        "decomp/generated/00492b40.c",
+        "decomp/generated/00499960.c",
+        "decomp/generated/004a5d20.c",
+        "decomp/generated/004a5eb0.c",
+        "decomp/generated/004a5ec0.c",
+        "decomp/generated/004a5ee0.c",
+        "decomp/generated/004e2770.c",
+        "decomp/generated/004f6a10.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 15 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
@@ -2065,6 +2108,92 @@
         "app/world-rules.ts",
         "app/world-state.ts",
         "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes and restores the browser checkpoint database"],
+      "resources": ["Fixed server and browser storage resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 15 launch, captive Prison rescue, timed enemy-Lightning loss, and checkpoint state.",
+      "coveredBehavior": [
+        "Mission 15 imported level, original scripts, opening message, Prison, captive Shaman, and timer",
+        "Ordinary Brave command-19 Prison attack deals native damage and frees the Shaman",
+        "Rescue cancels the timer and survives checkpoint migration",
+        "Expiry locks input, schedules one yellow Lightning cast, kills the captive Shaman, and persists loss",
+        "An expiry already fired remains a loss if the Prison falls before Lightning lands",
+        "Only enemy Lightning activates the global-Prison captive branch, independently of its target cell"
+      ],
+      "knownLimits": [
+        "The test bounds Prison damage after one real ordinary follower strike.",
+        "Exact Prison debris/audio and later Mission 15 AI remain outside this feature slice."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission15-prison.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission15-prison.test.mjs",
+        "app/building-runtime.ts",
+        "app/building-shapes.ts",
+        "app/campaign-command-runtime.ts",
+        "app/level-fifteen.ts",
+        "app/live-building-combat.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-fifteen.json",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 15 Prison rescue and timed Lightning failure through shipped UI, rendered objects/effects, ordinary commands, and browser checkpoints.",
+      "coveredBehavior": [
+        "Mission 15 launch and original objective presentation from the shipped mission chooser",
+        "Rendered Prison pixels, Brave selection, pointer targeting, command 19, and native first-strike damage",
+        "Prison destruction, captive release, timer cancellation, and checkpoint restore",
+        "Timed input lock, one enemy Lightning cast, rendered Lightning pixels, Shaman loss, and checkpoint restore"
+      ],
+      "knownLimits": [
+        "The selected Brave is placed at the authored Prison edge, simulation RNG is fixed for route repeatability, and damage is bounded after the first real pointer-issued strike.",
+        "The expiry timer is bounded to one turn after the live mission starts.",
+        "Headless GPU pixels do not establish exact native raster parity; exact Prison debris/audio and later Mission 15 AI remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission15-prison.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission15-prison.mjs",
+        "scripts/browser-game.mjs",
+        "app/building-runtime.ts",
+        "app/building-shapes.ts",
+        "app/campaign-command-runtime.ts",
+        "app/game-store.ts",
+        "app/level-fifteen.ts",
+        "app/live-building-combat.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-fifteen.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/scene-entities.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
         "app/world-types.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
