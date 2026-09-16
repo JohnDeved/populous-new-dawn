@@ -3,8 +3,10 @@ import {chromium} from '@playwright/test'
 import {openGame,effectPixels} from './browser-game.mjs'
 const browser=await chromium.launch({headless:true})
 try {
- const {page,errors}=await openGame(browser)
+ let page
+ const errors=[]
  for(const viewport of [{width:1440,height:1000},{width:3440,height:1440}]){
+  const game=await openGame(browser);page=game.page
   await page.setViewportSize(viewport)
   await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld())
   await page.evaluate(()=>window.testScene=window.testSceneRef.current)
@@ -146,6 +148,7 @@ try {
   await click(boat.target)
   const landed=await page.evaluate(async({vehicle,unit})=>{const s=window.testScene,w=s.world,{advanceGame}=await import('/app/game-clock.ts'),v=w.vehicles.find(v=>v.id===vehicle),u=w.units.find(u=>u.id===unit),before=[v.x,v.y];w.speed=1;for(let i=0;i<24&&v.x===before[0]&&v.y===before[1]&&u.native?.vehicle;i++)advanceGame(w,s.gameClock,1/12);const moved=v.x!==before[0]||v.y!==before[1],attachedWhileMoving=u.native?.vehicle===vehicle;for(let i=0;i<240&&u.native?.vehicle;i++)advanceGame(w,s.gameClock,1/12);w.speed=0;await window.testStore.saveCheckpoint();if(!window.testStore.loadCheckpoint())throw Error('landed Boat checkpoint did not load');const saved=window.testStore.getWorld();return {moved,attachedWhileMoving,aboard:saved.units.find(u=>u.id===unit).native?.vehicle,passengers:saved.vehicles.find(v=>v.id===vehicle).passengers,savedVehicle:saved.vehicles.find(v=>v.id===vehicle)?.id}},boat)
   assert.deepEqual(landed,{moved:true,attachedWhileMoving:true,aboard:0,passengers:[],savedVehicle:boat.vehicle})
+  errors.push(...game.errors)
  }
  await page.screenshot({path:'/private/tmp/populous-ground-waypoints.png'})
  assert.deepEqual(errors,[])

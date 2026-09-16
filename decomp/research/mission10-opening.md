@@ -81,14 +81,17 @@ recurring block while intercepting game-command leaves and supplying only the
 head-count result. It executes the original timer routines directly. The
 existing Boat House native probe separately verifies the 600-turn producer and
 occupied launch. The browser check continues Mission 9 into Mission 10 and uses
-the authored Boat House for both crossings. Rendered HUD, ground, Boat, Totem,
-menu, and Blast input carry the party through live defenders; checkpoint reload
-resumes second-Totem worship deterministically. The check observes both flybys,
-deadline clearing, the 64-evaluation delay, all ten Erosion targets, terrain
-upload, building-mesh synchronization, objective UI, and restart state. A
-deterministic test starting with the intact settlement separately verifies
-Erosion-driven building removal. Boat-click boarding is a browser shorthand;
-exact native automatic cross-water group routing remains open.
+the authored Boat House for both crossings. Its first crossing uses an ordinary
+ground command to exercise automatic group boarding, checkpoint restoration,
+landing, and retained-order completion; the second crossing still uses explicit
+Boat input. Rendered HUD, ground, Boat, Totem, menu, and Blast input carry the
+party through live defenders; checkpoint reload resumes second-Totem worship
+deterministically. The check observes both flybys, deadline clearing, the
+64-evaluation delay, all ten Erosion targets, terrain upload, building-mesh
+synchronization, objective UI, and restart state. A deterministic test starting
+with the intact settlement separately verifies Erosion-driven building removal.
+The complete native simultaneous automatic-crossing schedule and live
+full/unavailable-Boat retry remain open.
 
 Full Mission 10 AI, command 1093, Shaman-loss and deadline-failure branches,
 natural endgame victory, and exact model-90/model-26 terrain equivalence remain

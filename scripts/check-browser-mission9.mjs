@@ -553,7 +553,9 @@ try {
 
   await page.keyboard.press('Escape')
   await page.getByLabel('Select and focus shaman').click()
-  await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
+  await page.getByLabel('Select warrior').click()
+  await page.getByLabel('Select warrior').click()
+  await page.getByLabel('Select warrior').click()
   const mission10Party = await page.evaluate(() => {
     const world = globalThis.testScene.world,
       ids = world.units
@@ -564,7 +566,7 @@ try {
             (unit.kind === 'warrior' || unit.kind === 'shaman')
         )
         .map(unit => unit.id)
-    if (ids.length < 2) throw new Error('Mission 10 HUD did not select the Warrior landing party')
+    if (ids.length !== 4) throw new Error('Mission 10 HUD did not select the Shaman and three Warriors')
     return ids
   })
 
@@ -650,71 +652,6 @@ try {
     // The native failed-route cache lives for 16 turns after the rally command.
     for (let turn = 0; turn < 16; turn++) tick(world, 1 / 12)
   }, { followerIds: mission10Party, target: mission10Gather.native })
-  await page.getByLabel('Select and focus shaman').click()
-  await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
-
-  const mission10Boat = await page.evaluate(boatId => {
-    const scene = globalThis.testScene,
-      boat = scene.world.vehicles.find(vehicle => vehicle.id === boatId),
-      mesh = scene.vehicleMeshes.get(boat.id)
-    scene.focus(mesh.position)
-    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
-      scene.updateCameraMotion(1 / 24)
-    scene.onChange()
-    scene.renderer.render(scene.scene, scene.camera)
-    const projected = scene.view.screen(mesh.position, scene.camera),
-      bounds = scene.container.getBoundingClientRect(),
-      center = {
-        x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
-        y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
-      }
-    for (let radius = 0; radius <= 90; radius += 3)
-      for (let dy = -radius; dy <= radius; dy += 3)
-        for (let dx = -radius; dx <= radius; dx += 3) {
-          if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue
-          const click = { x: center.x + dx, y: center.y + dy },
-            event = { clientX: click.x, clientY: click.y }
-          if (
-            document.elementFromPoint(click.x, click.y) === scene.renderer.domElement &&
-            !scene.pickUnit(event) &&
-            scene.pickWorldObject(event)?.id === boat.id
-          )
-            return click
-        }
-    throw new Error('No exposed Mission 10 Boat geometry for the gathered party')
-  }, launchedMission10.boatId)
-  await page.mouse.click(mission10Boat.x, mission10Boat.y)
-  await page.evaluate(async ({ boatId, followerIds }) => {
-    const world = globalThis.testScene.world,
-      { tick } = await import('/app/model.ts'),
-      { currentPersonOrder } = await import('/app/person-orders.ts')
-    let boarded = false
-    for (let turn = 0; !boarded && turn < 4_000; turn++) {
-      tick(world, 1 / 12)
-      boarded = followerIds.every(
-        id => world.units.find(unit => unit.id === id)?.native?.vehicle === boatId
-      )
-    }
-    if (!boarded)
-      throw new Error(
-        `Mission 10 landing party did not board the rendered Boat: ${JSON.stringify({
-          boat: world.vehicles.find(vehicle => vehicle.id === boatId),
-          selection: world.selected,
-          people: followerIds.map(id => {
-            const unit = world.units.find(candidate => candidate.id === id)
-            return {
-              id,
-              vehicle: unit?.native?.vehicle,
-              position: unit && [unit.x, unit.z],
-              state: unit?.native?.state,
-              order: unit?.native && currentPersonOrder(world.buildingOrders, unit.native),
-            }
-          }),
-          message: world.message,
-        })}`
-      )
-  }, { boatId: launchedMission10.boatId, followerIds: mission10Party })
-
   const mission10Landing = await page.evaluate(async () => {
     const scene = globalThis.testScene,
       world = scene.world,
@@ -751,6 +688,7 @@ try {
               )
           if (
             picked &&
+            !scene.pickUnit(event) &&
             !scene.pickWorldObject(event) &&
             distance < 5_000 &&
             supportsFollower(world, picked) &&
@@ -762,9 +700,80 @@ try {
     throw new Error('No exposed Mission 10 ground objective near the first Totem')
   })
   await page.mouse.click(mission10Landing.x, mission10Landing.y)
-  const landedMission10 = await page.evaluate(async ({ boatId, followerIds, before }) => {
+  const automaticBoarding = await page.evaluate(async ({ boatId, followerIds }) => {
     const world = globalThis.testScene.world,
       { tick } = await import('/app/model.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      boat = world.vehicles.find(vehicle => vehicle.id === boatId)
+    for (let turn = 0; turn < 4_000; turn++) {
+      if (
+        followerIds.every(
+          id => world.units.find(unit => unit.id === id)?.native?.vehicle === boatId
+        )
+      ) {
+        const before = followerIds.map(id => {
+          const person = world.units.find(unit => unit.id === id).native,
+            order = currentPersonOrder(world.buildingOrders, person)
+          return {
+            id,
+            order: order && [order.model, order.a, order.b],
+            goal: [person.goalX, person.goalY],
+            route: person.motionGroup,
+            vehicle: person.vehicle,
+          }
+        })
+        await globalThis.testStore.saveCheckpoint()
+        if (!globalThis.testStore.loadCheckpoint())
+          throw new Error('Automatic Mission 10 Boat crossing checkpoint failed')
+        const restored = globalThis.testStore.getWorld()
+        return {
+          before,
+          restored: followerIds.map(id => {
+            const person = restored.units.find(unit => unit.id === id).native,
+              order = currentPersonOrder(restored.buildingOrders, person)
+            return {
+              id,
+              order: order && [order.model, order.a, order.b],
+              goal: [person.goalX, person.goalY],
+              route: person.motionGroup,
+              vehicle: person.vehicle,
+            }
+          }),
+          passengers: [...boat.passengers],
+        }
+      }
+      tick(world, 1 / 12)
+    }
+    throw new Error(
+      `Mission 10 party did not automatically board: ${JSON.stringify({
+        boat,
+        selection: world.selected,
+        people: followerIds.map(id => {
+          const unit = world.units.find(candidate => candidate.id === id),
+            person = unit?.native
+          return {
+            id,
+            vehicle: person?.vehicle,
+            position: person && [person.x, person.y],
+            goal: person && [person.goalX, person.goalY],
+            route: person?.motionGroup,
+            order: person && currentPersonOrder(world.buildingOrders, person),
+          }
+        }),
+        message: world.message,
+      })}`
+    )
+  }, { boatId: launchedMission10.boatId, followerIds: mission10Party })
+  assert.deepEqual(automaticBoarding.restored, automaticBoarding.before)
+  assert.deepEqual(automaticBoarding.passengers.toSorted(), mission10Party.toSorted())
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  const landedMission10 = await page.evaluate(async ({ boatId, followerIds, before, target }) => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
       boat = world.vehicles.find(vehicle => vehicle.id === boatId)
     let moved = false
     const boardedIds = new Set(
@@ -777,8 +786,21 @@ try {
         if (world.units.find(unit => unit.id === id)?.native?.vehicle === boat.id) boardedIds.add(id)
       if (boardedIds.size === followerIds.length && !boat.passengers.length) break
     }
+    const continuation = structuredClone(world)
+    let completed = false
+    for (let turn = 0; turn < 4_000; turn++) {
+      completed = followerIds.every(id => {
+        const unit = continuation.units.find(candidate => candidate.id === id),
+          person = unit?.native ?? unit?.fight?.motion
+        return person && currentPersonOrder(continuation.buildingOrders, person)?.model !== 3 &&
+          Math.hypot((person.x - target.x) << 16 >> 16, (person.y - target.y) << 16 >> 16) < 1_200
+      })
+      if (completed) break
+      tick(continuation, 1 / 12)
+    }
     return {
       moved,
+      completed,
       boarded: boardedIds.size === followerIds.length,
       boardedIds: [...boardedIds],
       passengers: [...boat.passengers],
@@ -788,29 +810,90 @@ try {
     boatId: launchedMission10.boatId,
     followerIds: mission10Party,
     before: mission10Gather.boat,
+    target: mission10Landing.native,
   })
   assert.equal(landedMission10.moved, true, JSON.stringify(landedMission10))
+  assert.equal(landedMission10.completed, true, JSON.stringify(landedMission10))
   assert.equal(landedMission10.boarded, true, JSON.stringify(landedMission10))
-  assert.deepEqual(landedMission10.boardedIds, mission10Party)
+  assert.deepEqual(landedMission10.boardedIds.toSorted(), mission10Party.toSorted())
   assert.ok(landedMission10.people.every(vehicle => vehicle === 0), JSON.stringify(landedMission10))
   assert.deepEqual(landedMission10.passengers, [])
 
   await page.keyboard.press('Escape')
-  await page.getByLabel('Select warrior').click()
-  await page.getByLabel('Select warrior').click()
-  assert.equal(
-    await page.evaluate(() => {
-      const world = globalThis.testScene.world
-      return world.units.filter(
-        unit => world.selected.includes(unit.id) && unit.team === 'blue' && unit.kind === 'warrior'
-      ).length
-    }),
-    2
+  const mission10SelectionDrag = await page.evaluate(async ids => {
+    const scene = globalThis.testScene,
+      units = ids.map(id => scene.world.units.find(unit => unit.id === id)),
+      { nativePosition } = await import('/app/model.ts'),
+      { terrainPointHeight } = await import('/app/native-terrain.ts'),
+      target = {
+        x: units.reduce((sum, unit) => sum + unit.x, 0) / units.length,
+        z: units.reduce((sum, unit) => sum + unit.z, 0) / units.length,
+      }
+    scene.focus(target)
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+    const bounds = scene.container.getBoundingClientRect(),
+      point = world => {
+        const projected = scene.view.project(
+          world,
+          terrainPointHeight(scene.world.land, nativePosition(scene.world, world)) / 45
+        )
+        return { x: bounds.left + projected.screenX, y: bounds.top + projected.screenY }
+      },
+      x = units.map(unit => unit.x),
+      z = units.map(unit => unit.z),
+      pickable = unit => {
+        const projected = scene.unitScreen(unit.id),
+          sprite = scene.unitMeshes.get(unit.id)?.userData.bounds,
+          base = {
+            x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+            y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+          }
+        for (let dy = sprite.top; dy <= sprite.bottom; dy += 2)
+          for (let dx = sprite.left; dx <= sprite.right; dx += 2) {
+            const click = { x: base.x + dx, y: base.y + dy }
+            if (scene.pickUnit({ clientX: click.x, clientY: click.y })?.id === unit.id)
+              return click
+          }
+        return null
+      },
+      worship = units.filter(unit => unit.kind === 'warrior').map(pickable).filter(Boolean).slice(0, 1)
+    if (worship.length !== 1) {
+      throw new Error('Transported Mission 10 worshippers are not pickable')
+    }
+    return {
+      from: point({ x: Math.min(...x) - 2, z: Math.min(...z) - 2 }),
+      to: point({ x: Math.max(...x) + 2, z: Math.max(...z) + 2 }),
+      worship,
+    }
+  }, mission10Party)
+  await page.mouse.move(mission10SelectionDrag.from.x, mission10SelectionDrag.from.y)
+  await page.mouse.down()
+  await page.mouse.move(mission10SelectionDrag.to.x, mission10SelectionDrag.to.y, { steps: 12 })
+  await page.mouse.up()
+  assert.deepEqual(
+    await page.evaluate(() => globalThis.testScene.world.selected.toSorted()),
+    mission10Party.toSorted()
   )
+  await page.keyboard.press('Escape')
+  await page.mouse.click(mission10SelectionDrag.worship[0].x, mission10SelectionDrag.worship[0].y)
+  await page.getByLabel('Select warrior').click()
+  await page.getByLabel('Select warrior').click()
+  const mission10Worshippers = await page.evaluate(() => globalThis.testScene.world.selected)
+  assert.equal(mission10Worshippers.length, 3)
+  assert.ok(mission10Worshippers.every(id => mission10Party.includes(id)))
   const totemPoint = await page.evaluate(() => {
     const scene = globalThis.testScene,
       totem = scene.world.shrines.find(shrine => shrine.kind === 'linkedEffects'),
-      point = scene.screen(totem),
+      target = { x: totem.x, z: totem.z }
+    scene.focus(target)
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+    const point = scene.screen(totem),
       bounds = scene.container.getBoundingClientRect(),
       x = bounds.left + ((point.x + 1) * bounds.width) / 2,
       y = bounds.top + ((1 - point.y) * bounds.height) / 2
@@ -850,7 +933,7 @@ try {
           message: world.message,
         })}`
       )
-    // Two worshippers meet the native preferred count while the rest defend the landing.
+    // The transported Warriors worship while the Shaman remains available for the second leg.
     let peakProgress = 0,
       peakFollowers = 0,
       lostAt = null
@@ -893,12 +976,12 @@ try {
       earthquakes: world.effects.filter(effect => effect.earthquake).length,
       nextTotem: world.shrines.some(shrine => shrine.name === 'Erosion Totem Pole'),
       flybyEvents: world.flyby.events.length,
-    }
+    },
+      control = structuredClone(world)
     await globalThis.testStore.saveCheckpoint()
     if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 10 Totem checkpoint failed')
     const restored = globalThis.testStore.getWorld(),
       restoredTotem = restored.shrines.find(shrine => shrine.kind === 'linkedEffects'),
-      control = structuredClone(world),
       restoredAtLoad = {
         remaining: restoredTotem.remaining,
         uses: restoredTotem.uses,

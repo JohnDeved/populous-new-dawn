@@ -19,3 +19,27 @@ movement, landing, and checkpoint state. Its four-part hull is provisional becau
 the source artwork for object 838 is not imported. Native bobbing, cooldown,
 lifetime/death, exact pre-reward visibility, and motion leaves `00465c50`,
 `00465ea0`, and `00466fc0` remain open. Ghidra pseudocode is evidence, not source.
+
+## Automatic command-3 crossing
+
+The ordinary native move command is one reference-counted order shared in tribe-list
+order. Vehicle routes reuse only an exact start and destination; the nearby-start
+reuse used by land routes is deliberately excluded. `00466920` chooses the nearest
+active, ready model-1 Boat below its five-person capacity when it is empty or driven
+by the same tribe. Only computer player type 1 respects the reservation byte; a
+human may use an otherwise eligible reserved Boat.
+
+`004657d0` fills the first free slot and makes the first arrival the driver. A later
+passenger whose goal is within 440 native units on each axis adopts the driver's
+route and motion index. `00465c50` keeps that driver waiting while capacity remains
+and a nearby allied routed person still has the matching Boat leg. Missing, full,
+busy, or wrong-driver Boats retain command 3 and its final goal for `004d42a0` /
+`004e9d80` recovery rather than deleting the order.
+
+The native route build/advance probes execute automatic boarding, removal, and
+landing leaves. Inspected exports establish readiness, capacity, reservation,
+same-driver, cell-order, boarding, and driver-wait behavior.
+The complete simultaneous multi-person schedule is not byte-executed end to end;
+the shipped Mission 10 browser check covers its live composition, including ordinary
+ground input, multi-person boarding, checkpoint resume, sailing, disembark, and the
+retained objective.

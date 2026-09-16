@@ -5,6 +5,8 @@ import { terrainPointHeight } from './native-terrain.ts'
 import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
 import { randomPersonSpeed } from './person-state.ts'
 import { movePosition, nativeAngle } from './native-math.ts'
+import { attachPersonRoute, releasePersonRoute, routeVehicleAvailable } from './person-routes.ts'
+import { boardingVehicle, vehicleReady } from './vehicle-routing.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 const short = (n: number) => (n << 16) >> 16
@@ -19,13 +21,23 @@ export const liveVehicleCellObjects = (w: World, cell: number) =>
 
 export function nearestLiveBoat(
   w: World,
+  p: Pick<LivePerson, 'tribe'>,
   center: { x: number; y: number },
   minimum: number,
   maximum: number
 ) {
   return w.vehicles
     .filter(v => {
-      if (!v.active || rules.vehicleRestFlags[v.model] & 1) return false
+      if (
+        !v.active ||
+        v.model !== 1 ||
+        v.passengerCount >= rules.vehicleCapacity[v.model] ||
+        !vehicleReady(w.land, v) ||
+        (w.manaTribes[p.tribe].playerType === 1 && v.reservation)
+      )
+        return false
+      const driver = v.passengerCount && w.pathfinding.people.get(v.passengers[0])
+      if (driver && driver.tribe !== p.tribe) return false
       const distance = Math.hypot(short(v.x - center.x), short(v.y - center.y))
       return distance >= minimum && distance < maximum
     })
@@ -46,6 +58,18 @@ export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
   v.passengerCount++
   p.vehicle = v.id
   p.speed = 0
+  const driver = slot && w.pathfinding.people.get(v.passengers[0])
+  if (
+    driver &&
+    p.motionGroup &&
+    driver.motionGroup !== p.motionGroup &&
+    Math.abs(short(driver.goalX - p.goalX)) < 440 &&
+    Math.abs(short(driver.goalY - p.goalY)) < 440
+  ) {
+    releasePersonRoute(w.motionRoutes, p)
+    attachPersonRoute(w.motionRoutes, p, driver.motionGroup)
+    p.motionIndex = driver.motionIndex
+  }
   if (rules.vehicleRestFlags[v.model] & 1) p.flags4 = (p.flags4 | 0x2000000) >>> 0
   else p.flags4 = (p.flags4 & ~0x2000000) >>> 0
   syncLiveVehiclePassengers(w, v)
@@ -197,6 +221,39 @@ export function stepLiveVehicle(w: World, p: LivePerson) {
   if (v.passengers[0] !== p.id) {
     syncLiveVehiclePassengers(w, v)
     return false
+  }
+  const vehicles = liveVehicles(w),
+    vehicleWorld = {
+      flags: w.land.flags,
+      categories: w.land.categories,
+      boatsEnabled: 1,
+      vehicles,
+      people: w.pathfinding.people,
+      tribes: w.manaTribes.map(tribe => ({ playerType: tribe.playerType })),
+      cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
+    }
+  if (
+    v.passengerCount < rules.vehicleCapacity[v.model] &&
+    [...w.pathfinding.people.values()].some(candidate => {
+      if (
+        candidate.id === p.id ||
+        candidate.vehicle ||
+        candidate.tribe !== p.tribe ||
+        Math.abs(short(candidate.x - v.x)) >= 3_072 ||
+        Math.abs(short(candidate.y - v.y)) >= 3_072
+      )
+        return false
+      let matching = false
+      routeVehicleAvailable(w.motionRoutes, candidate, cell => {
+        matching = boardingVehicle(vehicleWorld, candidate, cell) === v.id
+        return matching ? v.id : 0
+      })
+      return matching
+    })
+  ) {
+    v.speed = -1
+    syncLiveVehiclePassengers(w, v)
+    return true
   }
   const dx = short(p.destinationX - v.x),
     dy = short(p.destinationY - v.y),

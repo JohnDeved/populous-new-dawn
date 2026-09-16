@@ -9,14 +9,12 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current feature lock: deliver original vehicle damage, destruction states, and
-passenger ejection through shipped play. Reuse the existing Blast consumer and the
-live Mission 9 and Mission 13 acquisition paths; preserve checkpoint behavior and
-the native signed life/timer edge cases. Native evidence proves occupied vehicles
-reset positive damage to the shipped 5000 constant on the next controller pass, so
-do not claim separated ordinary Blasts can accumulate into an occupied kill. Verify
-exact Boat sinking, Balloon removal, and alive passenger detachment without instant
-deletion shortcuts.
+Current feature lock: deliver normal automatic Boat crossing through shipped play.
+An ordinary selected land group ordered across water must find the authored Boat,
+board without a Boat-click shortcut, sail, disembark, and resume the retained order.
+Preserve group/order identity, capacity and failure behavior, and checkpoint resume;
+reuse the existing routing, boarding, and landing owners instead of adding a second
+transport path.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -48,6 +46,7 @@ Mission 12's first player-acquired Spy finished in `6eb55b2`.
 Mission 13's playable opening finished in `f261e60`.
 Mission 12's first playable Spy disguise and sabotage finished in `68d0f24`.
 Mission 13's first ordinary Balloon transport finished in `2f83643`.
+Original Boat/Balloon damage, destruction, and passenger ejection finished in `795a60d`.
 The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
 PND02's ordinary Mission 2-3 victories, shipped Mission 2→3 continuation, Mission 4
 offer, fresh-page checkpoint, restart, legacy migration, and required-reachability

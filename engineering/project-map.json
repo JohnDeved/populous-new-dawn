@@ -79,6 +79,7 @@
         "scripts/check-native-computer-attack.py",
         "scripts/probe-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
+        "tests/automatic-boat-crossing.test.mjs",
         "tests/game.test.mjs"
       ],
       "sharedPaths": [
@@ -127,10 +128,11 @@
           "heading": "Native marching integration and collision snapshots"
         }
       ],
-      "nativeAddresses": ["0x406600", "0x40b6d0", "0x463370", "0x463780", "0x463cb0", "0x463e80", "0x465580", "0x466190", "0x466f00", "0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
+      "nativeAddresses": ["0x406600", "0x40b6d0", "0x463370", "0x463780", "0x463cb0", "0x463e80", "0x465580", "0x4657d0", "0x465c50", "0x466190", "0x4663c0", "0x466920", "0x466f00", "0x4d42a0", "0x4e9d80", "0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
       "checkIds": [
         "orders-portable",
         "orders-native",
+        "automatic-boat-crossing-portable",
         "computer-attack-native",
         "computer-direct-attack-native",
         "mission8-firewarrior-native",

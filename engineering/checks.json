@@ -304,6 +304,38 @@
       }
     },
     {
+      "id": "automatic-boat-crossing-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check automatic Boat eligibility and compatible passenger route adoption.",
+      "coveredBehavior": [
+        "Full, enemy-driven, and computer-reserved Boat exclusion",
+        "Human reservation behavior",
+        "Later passenger adoption of the compatible driver route and motion index",
+        "Land-only nearby routes do not hold an occupied Boat"
+      ],
+      "knownLimits": [
+        "The real multi-person command, matching-leg driver wait, checkpoint, sailing, landing, and retained objective completion are covered by mission9-browser.",
+        "Full or unavailable Boat retry is established only by native route evidence; this portable check covers exclusion, not the live retry schedule."
+      ],
+      "executable": "node",
+      "args": ["--test", "tests/automatic-boat-crossing.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/automatic-boat-crossing.test.mjs",
+        "app/live-vehicles.ts",
+        "app/person-routes.ts",
+        "app/vehicle-routing.ts",
+        "app/world-initialization.ts",
+        "app/original-rules.json"
+      ],
+      "prerequisites": ["Installed npm dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "computer-attack-native",
       "kind": "native",
       "automation": "safe",
@@ -956,7 +988,7 @@
         "Visible class-4/model-1 Boat, boarding, sailing, disembark, and occupied/landed checkpoints",
         "Mission 9 result continuation into exact Mission 10 data and opening message",
         "Mission 10 stranded supplied Boat plus occupied launch from the authored Boat House",
-        "Rendered party rally, Boat boarding, sailing, disembark, and first-Totem input with live defenders",
+        "Rendered party rally and ordinary ground command across water, automatic Boat search/boarding, sailing, disembark, retained objective, and first-Totem input with live defenders",
         "Linked earthquakes/next Totem, ten-track flyby, and 5,760-turn deadline",
         "Second rendered Boat crossing, safe-coast selection, four player-cast Blasts against live defenders, and second-Totem input",
         "Second-Totem checkpoint continuation, deadline clear, six-track final flyby, objective UI, delayed ten-target settlement Erosion, GPU terrain update, building-mesh synchronization, and restart"
@@ -964,7 +996,7 @@
       "knownLimits": [
         "Seeds Mission 8 and Mission 9 victory before exercising Mission 10 through rendered player input.",
         "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat targeting/feedback, and exact replacement hull art remain deferred; destruction is covered separately.",
-        "Mission 10 uses the existing rendered Boat-click boarding shorthand; exact native automatic cross-water group routing remains deferred.",
+        "The complete native simultaneous multi-person crossing schedule is not byte-executed end to end; native route/vehicle probes and the live Mission 10 composition divide that evidence.",
         "After four rendered Blasts, surviving nearby defenders are removed to isolate second-Totem checkpoint continuation; this check does not prove fully player-driven defender clearance.",
         "Mission 10 full AI, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
       ],
@@ -993,6 +1025,7 @@
         "app/live-command.ts",
         "app/live-building-entry.ts",
         "app/live-movement.ts",
+        "app/live-pathfinding.ts",
         "app/live-people.ts",
         "app/live-vehicles.ts",
         "app/object-cells.ts",
@@ -1008,6 +1041,7 @@
         "app/page.tsx",
         "app/game-store.ts",
         "app/scene.ts",
+        "tests/automatic-boat-crossing.test.mjs",
         "app/scene-entities.ts",
         "tests/mission10-opening.test.mjs",
         "decomp/research/mission10-opening.md"

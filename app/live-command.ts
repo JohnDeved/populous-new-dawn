@@ -651,14 +651,16 @@ export function command(
         : enemy && 'progress' in enemy
           ? entrance(w, enemy)
           : (enemy ?? tree ?? p)
-    const path = planLivePath(w, u, goal)
-    if (!path) continue
+    const order = moveOrder || headOrder,
+      path = moveOrder ? null : planLivePath(w, u, goal)
+    if (!moveOrder && !path) continue
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
     release(w, u)
-    if (moveOrder || headOrder) {
-      releasePersonRoute(w.motionRoutes, path)
-      startLiveOrder(w, u, moveOrder || headOrder)
-    } else acceptLivePath(w, u, path)
+    if (order) {
+      if (path) releasePersonRoute(w.motionRoutes, path)
+      startLiveOrder(w, u, order)
+    }
+    else acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null
     if (friendly && friendly.progress < 1 && !dismantling)
       u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }

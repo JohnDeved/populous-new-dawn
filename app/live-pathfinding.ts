@@ -244,7 +244,7 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     build: (_, from, to) =>
       buildPersonRoute(w.motionRoutes, p, from, to, searchOption, tribes[p.tribe], {
         findVehicle: (_, center, minimum, maximum) =>
-          nearestLiveBoat(w, center, minimum, maximum) ?? null,
+          nearestLiveBoat(w, p, center, minimum, maximum) ?? null,
         search: (_, _person, a, b, option, vehicles) => search(p, a, b, option, vehicles),
       }),
   }
