@@ -9,11 +9,10 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current feature commit: deliver Mission 12's first playable Spy disguise and
-enemy-building sabotage through the normal Spy Hut, player selection and commands,
-original disguise countdown and apparent tribe, visible building ignition, discovery,
-checkpoint, and restart paths. Broader Spy detection/combat and ordinary cross-island
-transport remain separate features.
+Next feature lock: reconcile PND02's remaining acceptance against the actual ticket
+without adding requirements. Complete only missing fresh-session, restart, legacy,
+and reachable Mission 2-3 proof; correct overstated handoffs; and produce the final
+evidence/checklist disposition.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -43,7 +42,7 @@ Mission 11's first script-requested `BUILD_AT` Guard Tower finished in `3217651`
 Mission 12's playable opening finished in `bacde84`.
 Mission 12's first player-acquired Spy finished in `6eb55b2`.
 Mission 13's playable opening finished in `f261e60`.
-Mission 12's first playable Spy disguise and sabotage finishes in the current feature commit.
+Mission 12's first playable Spy disguise and sabotage finished in `68d0f24`.
 The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
 
 The user-queued composition refactor finished in independently revertible commits
@@ -144,6 +143,12 @@ decompiler output and address bookkeeping in decompilation evidence, not live ga
 code.
 
 ## Current execution order: highest-impact playable parity
+
+Mandatory near-term order:
+
+1. Complete the PND02 acceptance lock stated above.
+2. Then choose from reviewed release-critical gaps and the PND01 campaign/system
+   inventory, not another convenient mission opening or expansion.
 
 Explicit user direction wins. Continue a valid feature lock. Only when none exists,
 compare at most five candidates using current implementation and evidence, identify
