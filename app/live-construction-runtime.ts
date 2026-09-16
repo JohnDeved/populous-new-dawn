@@ -96,7 +96,10 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
     clearLivePath(w, u)
     setDirectPersonDestination(w.motionRoutes, p, to)
     if (direct) u.path = [browserPosition(to)]
-    else route(w, u, browserPosition(to), true)
+    else if (!route(w, u, browserPosition(to), true).length) {
+      // ponytail: short construction fallback; remove when the person solver handles plan edges.
+      u.path = [browserPosition(to)]
+    }
   }
   const animation = (_: unknown, object: number) => {
     setLivePersonAnimation(w, p, object)

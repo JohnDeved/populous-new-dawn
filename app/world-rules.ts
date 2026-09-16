@@ -244,6 +244,13 @@ export const BUILDINGS: {
     symbol: '⚓',
     description: 'Five logs. Unlock at the vault, then build at the shore to launch a Boat.',
   },
+  {
+    id: 'balloonHut',
+    name: 'Balloon Hut',
+    cost: 11,
+    symbol: '◉',
+    description: 'Eleven logs. Unlock at the vault, then send braves inside to launch a Balloon.',
+  },
 ]
 export const SIZE = 96,
   GRID = 97

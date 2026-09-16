@@ -432,6 +432,8 @@ export function buildingModel(b: Pick<Building, 'kind' | 'level'>) {
             ? 8
             : b.kind === 'boatHouse'
               ? 13
+              : b.kind === 'balloonHut'
+                ? 15
               : 7
 }
 

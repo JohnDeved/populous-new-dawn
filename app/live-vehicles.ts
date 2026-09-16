@@ -43,6 +43,8 @@ export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
   v.passengerCount++
   p.vehicle = v.id
   p.speed = 0
+  if (rules.vehicleRestFlags[v.model] & 1) p.flags4 = (p.flags4 | 0x2000000) >>> 0
+  else p.flags4 = (p.flags4 & ~0x2000000) >>> 0
   syncLiveVehiclePassengers(w, v)
   return true
 }
@@ -54,6 +56,7 @@ export function leaveLiveVehicle(w: World, v: Vehicle, p: LivePerson, to: { x: n
   v.passengerCount = v.passengers.filter(Boolean).length
   if (!v.passengerCount) v.speed = -1
   p.vehicle = 0
+  p.flags4 = (p.flags4 & ~0x2000000) >>> 0
   Object.assign(p, to, {
     h: terrainPointHeight(w.land, to),
     anchorX: to.x,
@@ -100,6 +103,7 @@ export function stepLiveVehicle(w: World, p: LivePerson) {
     v.heading = Math.atan2(dx, -dy)
     v.speed = speed
   } else v.speed = -1
+  if (rules.vehicleRestFlags[v.model] & 1) v.h = terrainPointHeight(w.land, v) + 560
   syncLiveVehiclePassengers(w, v)
   return true
 }

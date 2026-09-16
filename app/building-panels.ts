@@ -219,6 +219,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       spyHut: 'spy training hut',
       firewarriorHut: 'firewarrior hut',
       boatHouse: 'boat house',
+      balloonHut: 'balloon hut',
     }[b.kind]
     dismantle.setAttribute('aria-label', dismantling ? 'Cancel dismantling' : `Dismantle ${name}`)
     dismantle.title = dismantling ? 'Cancel dismantling' : `Dismantle ${name} and recover timber`

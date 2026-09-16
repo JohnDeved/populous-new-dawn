@@ -33,10 +33,11 @@ export function drawPortrait(
   context.clearRect(0, 0, canvas.width, canvas.height)
   context.fillStyle = hud.colors[background]
   context.fillRect(35, 116, 25, 30)
-  if (frame === undefined || !atlas?.complete || !atlas.naturalWidth) return
+  const sprite = frame === undefined ? undefined : units.frames[frame]
+  if (!sprite || !atlas?.complete || !atlas.naturalWidth) return
   context.imageSmoothingEnabled = false
   for (const layer of spriteLayers(
-    units.frames[frame].layers,
+    sprite.layers,
     units.pieces,
     { flags: 2 | Number(flip) },
     view

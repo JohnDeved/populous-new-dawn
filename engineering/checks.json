@@ -1077,7 +1077,7 @@
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise direct Mission 12 selection, Missions 10-12 result continuation through Mission 11's settlement, Mission 12's first player-trained Spy disguise and sabotage, and Mission 13's bounded opening through the shipped browser game.",
+      "purpose": "Exercise direct Mission 12 selection, Missions 10-12 result continuation through Mission 11's settlement, Mission 12's first player-trained Spy disguise and sabotage, and Mission 13's three-Land-Bridge Balloon Hut route plus first ordinary Balloon transport through the shipped browser game.",
       "coveredBehavior": [
         "Direct Mission 12 world-selector start with imported terrain and rendered scenery",
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
@@ -1101,12 +1101,13 @@
         "Mission 12 result continuation into exact Mission 13 level and both active enemy scripts with profile retention",
         "Rendered Blue, Chumara, Matak, and wild populations plus five authored Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge sites",
         "Original Mission 13 message, both enemy HUD controls, rendered turn-6 flyby motion, variable-11 latch, and shipped Skip-introduction input release",
-        "Mission 13 selected Shaman movement, deterministic checkpoint continuation, restart, and profile retention"
+        "Mission 13 selected Shaman movement, deterministic checkpoint continuation, restart, and profile retention",
+        "Mission 13 natural charge and rendered casting of three Land Bridges, guarded Shaman traversal with a rendered protective Swarm, Balloon Hut worship reward, rendered UI placement, ordinary construction, recurring model-3 production, rendered boarding, fresh-page occupied checkpoint reload, restored-page player-directed flight, landing, and disembark"
       ],
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
         "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
-        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/combat, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon behavior, and full script command coverage remain deferred."
+        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/combat, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon combat/death, exact Balloon art, and full script command coverage remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1146,6 +1147,11 @@
         "app/live-building-entry.ts",
         "app/live-building-combat.ts",
         "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/native-terrain.ts",
+        "app/vehicle-routing.ts",
+        "app/live-construction-runtime.ts",
+        "app/live-vehicles.ts",
         "app/live-command.ts",
         "app/world-rules.ts",
         "app/original-units.json",
@@ -1154,7 +1160,8 @@
         "decomp/research/mission11-exact-tower.md",
         "decomp/research/mission12-opening.md",
         "decomp/research/mission12-spy-sabotage.md",
-        "decomp/research/mission13-opening.md"
+        "decomp/research/mission13-opening.md",
+        "decomp/research/mission13-balloon.md"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
@@ -1253,7 +1260,7 @@
       "knownLimits": [
         "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
         "Object populations and knowledge links are decoded from the verified level without a full native world load.",
-        "Later Mission 13 AI, objectives, victory, and Balloon construction, production, movement, combat, and art remain unresolved."
+        "Later Mission 13 AI, objectives, victory, Balloon combat/death, and exact Balloon art remain unresolved; construction, recurring production, occupied persistence, movement, and landing are separate browser/native Balloon evidence."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
       "args": ["scripts/check-native-mission13-opening.py", "$POPULOUS_EXE"],
@@ -1274,6 +1281,39 @@
       ],
       "sideEffects": [],
       "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Balloon Hut output links and exact Balloon capacity, layout, states, rest height, production work, and airborne flag against the hash-verified executable.",
+      "coveredBehavior": [
+        "Building model 15 produces class-4 model 3 and model 16 produces model 4",
+        "Models 3 and 4 have byte-identical vehicle descriptors",
+        "Capacity 2, passenger layout 2, landed state 2, occupied state 4, rest height 560, production work 1000, and airborne flag 1"
+      ],
+      "knownLimits": [
+        "Descriptor bytes do not execute the producer or a complete native world.",
+        "Construction, recurring production, player controls, persistence, rendering, and full-world integration remain portable/browser evidence.",
+        "Exact native per-tick steering, combat/death, audio, and source artwork remain unresolved."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-balloon.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-balloon.py",
+        "decomp/generated/004641d0.c",
+        "decomp/generated/00465c50.c",
+        "decomp/generated/00465ea0.c",
+        "decomp/research/mission13-balloon.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable"],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

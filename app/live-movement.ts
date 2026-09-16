@@ -741,16 +741,29 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
           categories: w.land.categories,
           cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
         }
+      if (
+        vehicle &&
+        rules.vehicleRestFlags[vehicle.model] & 1 &&
+        Math.hypot(short(to.x - vehicle.x), short(to.y - vehicle.y)) >
+          rules.personSpeeds[vehicle.physics]
+      )
+        return 0
       if (vehicle && vehicleCanDisembark(vehicleWorld, vehicle, to)) {
         // ponytail: bounded shore scan; replace with native 004659d0 outward velocity when ported.
-        const candidates = []
-        for (let y = -512; y <= 512; y += 32)
-          for (let x = -512; x <= 512; x += 32)
+        const airborne = !!(rules.vehicleRestFlags[vehicle.model] & 1),
+          radius = airborne ? 1024 : 512,
+          candidates = []
+        for (let y = -radius; y <= radius; y += 32)
+          for (let x = -radius; x <= radius; x += 32)
             candidates.push({ x: short(to.x + x), y: short(to.y + y) })
         candidates.sort(
           (a, b) =>
-            Math.hypot(short(a.x - to.x), short(a.y - to.y)) -
-            Math.hypot(short(b.x - to.x), short(b.y - to.y))
+            (airborne
+              ? Math.abs(Math.hypot(short(a.x - to.x), short(a.y - to.y)) - 1024)
+              : Math.hypot(short(a.x - to.x), short(a.y - to.y))) -
+            (airborne
+              ? Math.abs(Math.hypot(short(b.x - to.x), short(b.y - to.y)) - 1024)
+              : Math.hypot(short(b.x - to.x), short(b.y - to.y)))
         )
         const exits: { x: number; y: number }[] = []
         for (const candidate of candidates) {
@@ -765,7 +778,8 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
           if (exits.length === vehicle.passengers.length) break
         }
         for (const [index, id] of [...vehicle.passengers].entries()) {
-          const passenger = w.pathfinding.people.get(id)
+          const passenger =
+            w.pathfinding.people.get(id) ?? w.units.find(unit => unit.id === id)?.native
           if (passenger) leaveLiveVehicle(w, vehicle, passenger, exits[index] ?? to)
         }
         return 1

@@ -152,16 +152,20 @@ export function adjustVehicleDestination(
   endIndexedSearch(slots.search, handle)
 }
 
-// Complete 0x464ce0: always return an output point, even when no landing is
-// found. The initial point keeps its exact coordinates; alternatives are centers.
+// Complete 0x464ce0 for Boats. Balloon state 4 reuses the bounded search with its
+// distinct disembark predicate; the initial point remains exact, alternatives center.
 export function findVehicleLanding(
   w: VehicleLand,
   search: Uint8Array,
-  v: Pick<RoutingVehicle, 'id'>,
+  v: Pick<RoutingVehicle, 'id' | 'model'>,
   to: Point
 ) {
   let point = { ...to },
-    found = vehicleCanApproach(w, v, to)
+    canLand = (candidate: Point) =>
+      rules.vehicleRestFlags[v.model] & 1
+        ? vehicleCanDisembark(w, v, candidate)
+        : vehicleCanApproach(w, v, candidate),
+    found = canLand(to)
   if (!found) {
     const handle = startIndexedSearch(search, 2, 0, 0, 16),
       center = cell(to)
@@ -175,7 +179,7 @@ export function findVehicleLanding(
           x: ((((center & 255) + offset.x * 2) & 255) + 1) * 256,
           y: ((((center >> 8) + offset.y * 2) & 255) + 1) * 256,
         }
-        if (vehicleCanApproach(w, v, candidate)) {
+        if (canLand(candidate)) {
           point = candidate
           found = true
           break

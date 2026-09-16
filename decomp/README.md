@@ -40,7 +40,8 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 11 first settlement](research/mission11-first-settlement.md),
 [Mission 12 opening](research/mission12-opening.md),
 [Mission 12 Spy disguise and sabotage](research/mission12-spy-sabotage.md),
-[Mission 13 opening](research/mission13-opening.md), and
+[Mission 13 opening](research/mission13-opening.md),
+[Mission 13 Balloon transport](research/mission13-balloon.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
 
@@ -64,7 +65,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `0048cc60`, `0048f350`, `0041ca10`, `0041cc20`, `004a5d20`, `004a5d40`, `004a5ec0` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization, bounded [Mission 3 recurring flyby](research/mission3-recurring.md), [Mission 4 objective](research/mission4.md), [Mission 7 opening](research/mission7.md), and both [Mission 10 Totem/flyby transitions](research/mission10-opening.md) are applied; full game-command host and Mission 10 loss/endgame branches remain open |
 | `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts`, `app/scene.ts` | Worship, automatic reward initialization/visual lifetime and delayed gifts CPU-compared; competitive ownership and generic pickup incomplete |
-| `00463370`, `00463780`, `00463e80`, `004657d0`, `004659d0`, `00466be0`, `00406600`, `0040b6d0`, `00465580` | `app/live-vehicles.ts`, `app/live-pathfinding.ts`, `app/world-turn.ts`, `app/scene-entities.ts` | [Mission 5 granted Boat](research/mission5-boat.md) is live through worship, boarding, sailing, landing and checkpoints; [Mission 9 Boat House](research/mission9-boat-house.md) adds the native first-production gate and launch transform; recurring production, exact work scheduling, source artwork, combat, bobbing and lifetime remain open |
+| `00463370`, `00463780`, `00463e80`, `004641d0`, `004657d0`, `004659d0`, `00465c50`, `00465ea0`, `00466be0`, `00406600`, `0040b6d0`, `00465580` | `app/live-vehicles.ts`, `app/live-pathfinding.ts`, `app/world-turn.ts`, `app/scene-entities.ts` | [Mission 5 granted Boat](research/mission5-boat.md) is live through worship, boarding, sailing, landing and checkpoints; [Mission 9 Boat House](research/mission9-boat-house.md) adds the native first-production gate and launch transform; [Mission 13 Balloon transport](research/mission13-balloon.md) adds recurring production, boarding, airborne movement, landing and occupied checkpoint reload; exact art, combat/death, audio, and complete native steering remain open |
 | `00492790`, `00492860`, `00491c30`, `004f2900`, `004c2b40`, `004c14c0` | `app/model.ts`, `scripts/check-native-campaign.py` | Cast/stock/head queries and allocation counters CPU-compared; unsupported AI stock still explicit |
 
 For each subsequent port, preserve the original branch ordering, integer widths/rounding, state transitions and scheduling when established. Record uncertainty rather than silently replacing it with a guessed rule. Add a runnable behavioral check and update the [detailed evidence log](../references/reverse-engineering.md) and [goal checklist](../GOAL.md). Existing browser tests establish internal consistency; they are not yet cross-engine replay evidence.
@@ -452,8 +453,22 @@ one-shot flyby. It establishes the exact populations, five linked knowledge rewa
 opening message, AI initialization, 24-event flyby sequence, input schedule, and
 variable-11 latch against hash-verified Mission 13 inputs. Camera rendering, player
 movement, save/restart, and profile continuation remain browser evidence; later AI,
-objectives, victory, and Balloon behavior remain unresolved. See the
+objectives, victory, and later Balloon combat/art remain unresolved. See the
 [focused evidence and limits](research/mission13-opening.md).
+
+## Mission 13 Balloon transport
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-balloon.py /path/to/d3dpoptb.exe
+```
+
+The bounded descriptor check establishes Balloon Hut output links, the identical
+model-3/4 Balloon descriptors, capacity, passenger layout, landed/occupied states,
+rest height, production work, and airborne flag. The shipped Mission 13 browser path
+now covers reward, UI construction, recurring production, boarding, checkpoint
+reload, flight, landing, and disembark. Exact native per-tick steering, combat/death,
+audio, and source artwork remain open. See the
+[focused evidence and limits](research/mission13-balloon.md).
 
 ## Shared person commands
 

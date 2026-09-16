@@ -1,12 +1,8 @@
-// Shared setup for desktop checks; keep test access out of the shipped game API.
-export async function openGame(browser, mission = 1) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
-  const errors = []
-  page.on('pageerror', error => errors.push(error.message))
-  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
-  await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).click()
+export async function bindGame(page) {
   await page.waitForSelector('.world-viewport canvas')
+  await page.waitForFunction(
+    () => !document.querySelector('[data-vinext-dev-error-overlay]')?.shadowRoot?.textContent?.trim()
+  )
   await page.waitForFunction(() => {
     const main = document.querySelector('main')
     const scenes = [], stores = []
@@ -19,7 +15,11 @@ export async function openGame(browser, mission = 1) {
     }
     for (const store of stores) {
       const scene = scenes.find(ref => ref.current?.world === store.getWorld())
-      if (!scene) continue
+      if (
+        !scene?.current?.renderer?.domElement?.isConnected ||
+        document.querySelector('.loading-world')
+      )
+        continue
       window.testSceneRef = scene
       window.testScene = scene.current
       window.testStore = store
@@ -27,6 +27,18 @@ export async function openGame(browser, mission = 1) {
     }
     return false
   })
+}
+
+// Shared setup for desktop checks; keep test access out of the shipped game API.
+export async function openGame(browser, mission = 1) {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
+    page = await context.newPage()
+  const errors = []
+  page.on('pageerror', error => errors.push(error.stack ?? error.message))
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).click()
+  await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1)
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !window.testScene.world.inputMask)
