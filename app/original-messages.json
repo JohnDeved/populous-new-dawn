@@ -123,6 +123,14 @@
     "59": {
       "stringId": 681,
       "text": "Shaman, the Totem Pole in the Matak settlement has the power to grant your revenge."
+    },
+    "60": {
+      "stringId": 684,
+      "text": "Once again we must face two tribes. I shall crush the Matak, then I must deal with the greater threat of the Chumara."
+    },
+    "147": {
+      "stringId": 1227,
+      "text": "Use the Hypnotise spell to convert Enemy Followers to your cause. But beware, the effects will fade with time."
     }
   }
 }

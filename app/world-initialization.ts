@@ -256,7 +256,7 @@ export function createWorld(missionNumber = 1): World {
               1196,
               1197,
               1204,
-              ...(missionNumber === 4 || missionNumber === 10 ? [1174, 1187] : []),
+              ...([4, 10, 11].includes(missionNumber) ? [1174, 1187] : []),
             ].includes(c.opcode)
           )
             return true

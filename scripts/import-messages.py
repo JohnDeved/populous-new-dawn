@@ -36,15 +36,19 @@ for script_name,opcode in [
     ('original-script-ten.json',1174),
     ('original-script-ten.json',1176),
     ('original-script-ten.json',1177),
+    ('original-script-eleven.json',1174),
+    ('original-script-eleven.json',1176),
 ]:
-    script=json.loads((ROOT/'app'/script_name).read_text());codes=script['codes']
-    for i in range(len(codes)-2):
-        if codes[i:i+2]!=[1006,opcode]:continue
-        kind,number=script['fields'][codes[i+2]]
-        assert kind==0,'Resolve dynamic message IDs before importing'
-        string_id=struct.unpack('<H',read(0x5ae310+number*2,2))[0]
-        assert 0<=string_id<len(strings)
-        messages[number]={'stringId':string_id,'text':strings[string_id]}
+    imported=json.loads((ROOT/'app'/script_name).read_text())
+    for script in imported.get('tribes', {'0': imported}).values():
+        codes=script['codes']
+        for i in range(len(codes)-2):
+            if codes[i:i+2]!=[1006,opcode]:continue
+            kind,number=script['fields'][codes[i+2]]
+            assert kind==0,'Resolve dynamic message IDs before importing'
+            string_id=struct.unpack('<H',read(0x5ae310+number*2,2))[0]
+            assert 0<=string_id<len(strings)
+            messages[number]={'stringId':string_id,'text':strings[string_id]}
 def profile(kind,cap):
     record=read(0x59caf8+kind*28,28)
     assert record[10]==1 and record[11]==cap and record[23]==0

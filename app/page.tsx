@@ -45,7 +45,7 @@ import {
 } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 import { nativeUnitModel } from './unit-kinds'
-import { campaignSpellModels, missionEnemyTribe, missionNumbers } from './mission-data'
+import { campaignSpellModels, missionComputerTribes, missionNumbers } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
@@ -334,7 +334,9 @@ export default function Home() {
     )
   }
   const blue = world.units.filter(u => u.team === 'blue'),
-    enemyTribes = world.outcome.level === 6 ? [2, 3] : [missionEnemyTribe(world.outcome.level)],
+    enemyTribes = missionComputerTribes(world.outcome.level).filter(
+      tribe => world.outcome.level !== 6 || tribe !== 1
+    ),
     enemies = enemyTribes.map(tribe => {
       const name = ['', 'Dakini', 'Chumara', 'Matak'][tribe]
       return {
@@ -450,24 +452,28 @@ export default function Home() {
                               ),
                             },
                           ]
-                        : [
-                            {
-                              text: 'Board two followers onto the provided Boat',
-                              done: world.vehicles.some(vehicle => vehicle.passengers.length >= 2),
-                            },
-                            {
-                              text: 'Worship the Totem Pole across the water',
-                              done: world.shrines.some(
-                                shrine => shrine.kind === 'linkedEffects' && shrine.uses > 0
-                              ),
-                            },
-                            {
-                              text: 'Reach the Totem Pole in the Matak settlement',
-                              done: world.shrines.some(
-                                shrine => shrine.name === 'Erosion Totem Pole' && shrine.uses > 0
-                              ),
-                            },
-                          ]
+                        : world.outcome.level === 10
+                          ? [
+                              {
+                                text: 'Board two followers onto the provided Boat',
+                                done: world.vehicles.some(
+                                  vehicle => vehicle.passengers.length >= 2
+                                ),
+                              },
+                              {
+                                text: 'Worship the Totem Pole across the water',
+                                done: world.shrines.some(
+                                  shrine => shrine.kind === 'linkedEffects' && shrine.uses > 0
+                                ),
+                              },
+                              {
+                                text: 'Reach the Totem Pole in the Matak settlement',
+                                done: world.shrines.some(
+                                  shrine => shrine.name === 'Erosion Totem Pole' && shrine.uses > 0
+                                ),
+                              },
+                            ]
+                          : []
   return (
     <main
       ref={shell}
@@ -992,7 +998,9 @@ export default function Home() {
                           ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
                           : world.outcome.level === 9
                             ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
-                            : 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'}
+                            : world.outcome.level === 10
+                              ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
+                              : 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
@@ -1013,17 +1021,21 @@ export default function Home() {
           </button>
         </div>
         {checkpointNotice && <p role="status">{checkpointNotice}</p>}
-        <details className="menu-objectives">
-          <summary>Objectives · {objectives.filter(o => o.done).length} / 3</summary>
-          <ul>
-            {objectives.map(o => (
-              <li key={o.text}>
-                {o.done ? '✓ ' : ''}
-                {o.text}
-              </li>
-            ))}
-          </ul>
-        </details>
+        {objectives.length > 0 && (
+          <details className="menu-objectives">
+            <summary>
+              Objectives · {objectives.filter(o => o.done).length} / {objectives.length}
+            </summary>
+            <ul>
+              {objectives.map(o => (
+                <li key={o.text}>
+                  {o.done ? '✓ ' : ''}
+                  {o.text}
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
         <div className="menu-utilities">
           <span>{timeLabel(world.time)}</span>
           <button

@@ -937,6 +937,45 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 10 result continuation into the bounded playable Mission 11 opening through the shipped browser game.",
+      "coveredBehavior": [
+        "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
+        "Rendered Blue, Chumara, Matak, and wild populations",
+        "Two Vaults and two stone heads with Hypnotise, Flatten, and Swamp rewards",
+        "Original opening message and both enemy tribe HUD controls",
+        "Real canvas movement input for the selected Blue Shaman"
+      ],
+      "knownLimits": [
+        "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
+        "Mission 11 recurring AI, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission11.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission11.mjs",
+        "scripts/browser-game.mjs",
+        "tests/mission11-opening.test.mjs",
+        "app/level-eleven.ts",
+        "app/original-script-eleven.json",
+        "app/original-messages.json",
+        "app/mission-data.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/page.tsx",
+        "app/game-store.ts",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
@@ -1084,6 +1123,7 @@
         "Mission 2 positioned-message binding, target, payload, lifetime and flags",
         "Mission 2 Tornado-head message 103 binding and one-shot script branch",
         "Mission 5 message 130 English binding",
+        "Mission 11 messages 60/147 English bindings and per-tribe script provenance",
         "Mission 4 opcode 1179 lifetime, field width, presentation guards, and three original uses",
         "Age and slot ordering",
         "Normalized height, velocity, gravity, collisions, and rebound"
@@ -1103,6 +1143,7 @@
         "app/original-script-two.json",
         "app/original-script-four.json",
         "app/original-script-five.json",
+        "app/original-script-eleven.json",
         "public/original/message-type1.png",
         "scripts/import-messages.py",
         "scripts/import-original.py",

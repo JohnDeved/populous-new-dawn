@@ -49,10 +49,18 @@ native=json.loads((root/'app/original-messages.json').read_text());source=Path(s
 assert read(0x5ae310+102*2,'<H')==native['messages']['102']['stringId']==641
 assert read(0x5ae310+103*2,'<H')==native['messages']['103']['stringId']==642
 assert read(0x5ae310+130*2,'<H')==native['messages']['130']['stringId']==662
+assert read(0x5ae310+60*2,'<H')==native['messages']['60']['stringId']==684
+assert read(0x5ae310+147*2,'<H')==native['messages']['147']['stringId']==1227
 language=(source/'language/lang00.dat').read_bytes()
 assert hashlib.sha256(language).hexdigest()==native['sha256']['language/lang00.dat']
 assert language.decode('utf-16le').split('\0')[642]==native['messages']['103']['text']
 assert language.decode('utf-16le').split('\0')[662]==native['messages']['130']['text']
+assert language.decode('utf-16le').split('\0')[684]==native['messages']['60']['text']
+assert language.decode('utf-16le').split('\0')[1227]==native['messages']['147']['text']
+mission_eleven=json.loads((root/'app/original-script-eleven.json').read_text())['tribes']
+for tribe_id in ('1','2','3'):
+    script=mission_eleven[tribe_id]
+    assert hashlib.sha256((source/'levels'/script['source']).read_bytes()).hexdigest()==script['sha256']
 palette=(source/'data/pal0-c.dat').read_bytes();hfx=(source/'data/hfx0-0.dat').read_bytes()
 assert hashlib.sha256(palette).hexdigest()==native['sha256']['data/pal0-c.dat']
 assert hashlib.sha256(hfx).hexdigest()==native['sha256']['data/hfx0-0.dat']

@@ -9,12 +9,11 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Firewarrior Guard-Tower combat through ordinary Mission 8
-training, construction, and garrison input, then prove autonomous eligible-hostile
-targeting, the paired ranged attack, the original tower cadence, damage/kill credit,
-release, and checkpoint restoration through the live rendered game. Reuse the
-existing Firewarrior projectile and target-eligibility paths; do not grow a general
-specialist-tower framework.
+Current task lock: deliver a playable Mission 11 opening through the existing Mission
+10 continuation UI, with original level data, Chumara and Matak populations, four
+knowledge sites, the opening message, rendered world, and an ordinary player movement
+order. Keep recurring Mission 11 AI, natural Mission 10 victory, full objectives, and
+mission completion outside this bounded opening slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -36,6 +35,7 @@ Mission 7's Convert Wild to Invisibility vertical slice finished in `2912b43`.
 Mission 8's Firewarrior vertical slice finished in `88f4a97`.
 Mission 9's Boat House-to-Boat vertical slice finished in the current feature commit.
 Mission 5's Angel-head reward and live Angel strike finished in `4d4f041`.
+Mission 8's Firewarrior Guard-Tower combat finished in `57db8ce`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not
