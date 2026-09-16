@@ -1,6 +1,6 @@
-import { buildingModel, buildingPose } from './building-shapes.ts'
+import { buildingFirePoints, buildingModel, buildingPose } from './building-shapes.ts'
 import { joinBattle } from './combat-runtime.ts'
-import { sound } from './world-effects.ts'
+import { createFire, effect, sound } from './world-effects.ts'
 import { cancelLiveResting } from './live-resting.ts'
 import {
   browserPosition,
@@ -18,6 +18,7 @@ import {
   moveLivePerson,
   setLivePersonAnimation,
   registerLivePerson,
+  buildingFirePeople,
   leaveLiveBuilding,
   collisionWorld,
   changeLivePersonState,
@@ -75,6 +76,8 @@ import {
 } from './person-orders.ts'
 import { buildingAdmission } from './live-building-entry.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
+import { igniteBuilding } from './building-damage.ts'
+import { random } from './native-math.ts'
 
 const unsupported = (): never => {
   throw new Error('Unported building attack order consumer')
@@ -108,12 +111,101 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
 
 export function cancelLiveBuildingAttack(w: World, u: Unit) {
   const p = u.native ?? u.fight?.motion ?? u.flight
-  if (!p || ![11, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
+  if (!p || ![11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
   if (u.native === p) u.native = null
   u.fighting = false
+}
+
+function spyDetected(w: World, p: LivePerson) {
+  const target = p.disguise >>> 6,
+    px = (p.x & 65535) >> 9,
+    py = (p.y & 65535) >> 9,
+    near = (a: number, b: number) => Math.abs(((a - b + 64) & 127) - 64) <= 1
+  return w.units.some(u => {
+    if (u.hp <= 0 || u.inside !== null || tribeForTeam(u.team) !== target) return false
+    const other = nativePosition(w, u)
+    return near((other.x & 65535) >> 9, px) && near((other.y & 65535) >> 9, py)
+  })
+}
+
+function revealSpy(p: LivePerson) {
+  p.disguise = (p.tribe << 6) & 255
+}
+
+function igniteSabotagedBuilding(w: World, b: Building, tribe: number) {
+  igniteBuilding(ensureBuildingDamage(b), tribe, () => {
+    b.burn = { remaining: 127, soundPlaying: false }
+    const ignitePeople = buildingFirePeople(w)
+    for (const point of buildingFirePoints(buildingPose(b))) {
+      createFire(w, browserPosition(point), {
+        size: point.size,
+        light: point.light,
+        snap: false,
+        smoke: true,
+        turns: 135,
+        suppressEmbers: true,
+      })
+      b.burn.soundPlaying = true
+      ignitePeople(point, tribeForTeam(b.team))
+    }
+  })
+}
+
+function stepSpySabotage(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
+  const cell = ((order.b & 65535) >> 9) * 128 + ((order.a & 65535) >> 9),
+    id = w.land.buildingIds[cell] & 1023,
+    b = w.buildings.find(
+      candidate =>
+        candidate.id === id &&
+        candidate.hp > 0 &&
+        candidate.progress === 1 &&
+        candidate.team !== teamForTribe(p.tribe)
+    )
+  if (!b) return 1
+  u.target = b.id
+  u.heading = Math.atan2(b.x - u.x, b.z - u.z)
+  if (p.substate === 0) {
+    if (p.motionGroup || u.path.length) return 0
+    const outside = buildingOutsidePoint(buildingPose(b)),
+      dx = ((p.x - outside.x + 0x8000) & 0xffff) - 0x8000,
+      dy = ((p.y - outside.y + 0x8000) & 0xffff) - 0x8000
+    if (Math.abs(dx) > 0x100 || Math.abs(dy) > 0x100) return 1
+    p.substate = 1
+    p.timer = 10
+  } else if (p.substate === 1) {
+    if (spyDetected(w, p)) revealSpy(p)
+    if (--p.timer < 1) {
+      p.substate = 2
+      setLivePersonAnimation(w, p, 0x65)
+      p.timer = ((rules.animationDescriptors[p.draw]?.step ?? 0) + 1) * sprites.frameCounts[p.object]
+    }
+  } else if (p.substate === 2) {
+    if (spyDetected(w, p)) revealSpy(p)
+    if (--p.timer < 1) {
+      effect(w, 'hit', u)
+      sound(w, 0x36, u, u.id)
+      p.substate = 3
+      p.timer = 8
+    }
+  } else if (p.substate === 3) {
+    if (--p.timer < 1) {
+      igniteSabotagedBuilding(w, b, p.tribe)
+      p.substate = 4
+      p.timer = 24
+      const targetTribe = tribeForTeam(b.team)
+      if (
+        spyDetected(w, p) ||
+        (w.manaTribes[p.tribe].playerType !== 1 &&
+          !(w.land.landFlags & 8) &&
+          random(w) % 100 < (w.campaignAIs[targetTribe]?.attributes[40] ?? 0))
+      )
+        revealSpy(p)
+    }
+  } else if (--p.timer < 1) return 1
+  return 0
 }
 
 export function startLiveCombatResponse(w: World, u: Unit) {
@@ -268,7 +360,7 @@ export function buildingCounterattack(w: World, team: Team) {
 export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
   if (
     !u.native ||
-    ![11, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+    ![11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
   ) {
     if (!b) return
     cancelLiveResting(w, u)
@@ -315,6 +407,7 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
   if (p.state !== 10) return
   const next = stepLiveOrderQueue(w, u, p, {
     11: order => Number(stepGuardOrder(w, u, p, order)),
+    15: order => stepSpySabotage(w, u, p, order),
     19: order => Number(stepAreaAttack(w, u, p, order)),
   })
   if (next) {
@@ -323,7 +416,8 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
     changeLivePersonState(w, u, next)
   }
   if (!u.fight) adoptLiveOrders(w, u, p)
-  if (![11, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) u.target = null
+  if (![11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
+    u.target = null
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
 }
 

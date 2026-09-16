@@ -70,6 +70,7 @@ import {
   type MarchingFormation,
 } from './marching-formations.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import constants from './original-constants.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
 import { spyDisguisedFrom } from './computer-spells.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
@@ -131,7 +132,9 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
   if (
     !order ||
-    ![3, 6, 7, 8, 10, 11, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(order.model)
+    ![3, 6, 7, 8, 10, 11, 15, 16, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(
+      order.model
+    )
   )
     unsupported()
   const state = {
@@ -277,6 +280,8 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
         if (
           model === 6 ||
           model === 7 ||
+          model === 15 ||
+          model === 16 ||
           model === 17 ||
           model === 27 ||
           model === 28 ||
@@ -389,7 +394,8 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
   const model = p && currentPersonOrder(w.buildingOrders, p)?.model
-  if (!p || !model || ![3, 6, 7, 17, 22, 27, 28, 30, 31, 32, 33].includes(model)) return
+  if (!p || !model || ![3, 6, 7, 15, 16, 17, 22, 27, 28, 30, 31, 32, 33].includes(model))
+    return
   if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
@@ -842,8 +848,10 @@ export function stepLiveOrderQueue(
           : { x: order.a, y: order.b },
       vehicleDestination: unsupported,
       vehicleReady: unsupported,
-      changeTribe: unsupported,
-      effectiveTribe: unsupported,
+      changeTribe: tribe => {
+        p.disguise = ((tribe & 3) << 6) | constants.SPY_DISGUISE_DELAY
+      },
+      effectiveTribe: () => (p.disguise & 63 ? p.tribe : p.disguise >>> 6),
       cellObjects: unsupported,
       arrival: unsupported,
       leaveVehicle: () => {

@@ -227,7 +227,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     anchorFlags: 0,
     velocity: { x: 0, y: 0, z: 0 },
     life: short(Math.round(u.hp * 20)),
-    disguise: 0,
+    disguise: model === 5 ? (tribeForTeam(u.team) << 6) & 255 : 0,
     savedVehicle: 0,
     formationDelay: 0,
     orderDelay: 0,
@@ -432,7 +432,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
       }),
     startOrders: p => {
       if (
-        [3, 6, 7, 8, 10, 11, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(
+        [3, 6, 7, 8, 10, 11, 15, 16, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(
           currentPersonOrder(w.buildingOrders, p)?.model ?? 0
         )
       )

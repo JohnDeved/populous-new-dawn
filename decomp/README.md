@@ -39,6 +39,7 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
 [Mission 12 opening](research/mission12-opening.md),
+[Mission 12 Spy disguise and sabotage](research/mission12-spy-sabotage.md),
 [Mission 13 opening](research/mission13-opening.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
@@ -426,6 +427,19 @@ and zero-Brave failure against hash-verified Mission 12 inputs. Flyby rendering 
 complete producer world ownership remain browser evidence; opcode 1190's downstream
 object-flag consumer and all later Mission 12 behavior remain unresolved. See the
 [focused evidence and limits](research/mission12-opening.md).
+
+## Mission 12 Spy disguise and sabotage
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mission12-spy-sabotage.py /path/to/d3dpoptb.exe
+```
+
+The bounded probe establishes model-5 initialization, command 16's 63-update
+disguise transition, command 15's coordinate target and ignition/reveal lifecycle,
+and the correction that command 34 assigns training-building entry rather than
+sabotage. Rendering, canvas input, fire effects, and checkpoint restoration remain
+browser/portable evidence. See the
+[focused evidence and limits](research/mission12-spy-sabotage.md).
 
 ## Mission 13 opening
 
@@ -1321,7 +1335,8 @@ Shared initialization passes 5,120 cases across 1/10/14/17/19/36/39/41. The runt
 animation table now includes objects 161–163; the state-19 gesture duration uses
 fixed frame source 712 at `005a6adc`, even for a different current object. Original
 brave/warrior gesture sprites are extracted, bringing the atlas to 2,216 frames;
-spy rendering remains outside the current supported live classes. There are 609
+Spy rendering now supports the verified disguise palette lifecycle; other specialist
+idle rendering remains outside the current supported live classes. There are 609
 raw exports and 56 gameplay regressions, including a composed approach/resting
 handoff and real-browser gesture rendering. Ordinary live idle scheduling remains
 unintegrated until its native search/slot/world consumers are available.

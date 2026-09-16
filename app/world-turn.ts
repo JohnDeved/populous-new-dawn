@@ -1094,6 +1094,9 @@ function stepTurn(w: World) {
   for (const u of w.units) {
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
+    const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
+    if (spy?.model === 5 && spy.disguise & 63)
+      spy.disguise = (spy.disguise & 0xc0) | ((spy.disguise - 1) & 63)
     if (u.native?.state === 44) {
       stepLiveElectrocution(w, u)
       continue
@@ -1150,7 +1153,7 @@ function stepTurn(w: World) {
     }
     if (
       u.native &&
-      [11, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+      [11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
       stepLiveBuildingAttack(w, u)
       continue
@@ -1350,7 +1353,7 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      ([3, 6, 7, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+      ([3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
       stepLiveMovement(w, u, {

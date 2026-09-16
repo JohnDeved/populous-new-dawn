@@ -1077,7 +1077,7 @@
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise direct Mission 12 selection, Missions 10-12 result continuation through Mission 11's settlement, Mission 12's first player-trained Spy, and Mission 13's bounded opening through the shipped browser game.",
+      "purpose": "Exercise direct Mission 12 selection, Missions 10-12 result continuation through Mission 11's settlement, Mission 12's first player-trained Spy disguise and sabotage, and Mission 13's bounded opening through the shipped browser game.",
       "coveredBehavior": [
         "Direct Mission 12 world-selector start with imported terrain and rendered scenery",
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
@@ -1097,6 +1097,7 @@
         "Original opening message, all three enemy HUD controls, rendered turn-7 flyby motion, and shipped Skip-introduction input release",
         "Mission 12 checkpoint restoration and deterministic continuation, restart, and profile retention",
         "Mission 12 Convert Wild, Spy Vault reward, rendered Spy Training Hut placement and construction, model-5 training, original Spy sprite rendering, HUD selection, and rendered movement input",
+        "Mission 12 rendered tribe-disguise control, 63-turn palette transition, canvas-issued command-15 sabotage, visible building ignition, native reveal, and active-order checkpoint restoration",
         "Mission 12 result continuation into exact Mission 13 level and both active enemy scripts with profile retention",
         "Rendered Blue, Chumara, Matak, and wild populations plus five authored Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge sites",
         "Original Mission 13 message, both enemy HUD controls, rendered turn-6 flyby motion, variable-11 latch, and shipped Skip-introduction input release",
@@ -1105,7 +1106,7 @@
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
         "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
-        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, Spy disguise/sabotage/combat, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon behavior, and full script command coverage remain deferred."
+        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/combat, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon behavior, and full script command coverage remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1143,6 +1144,8 @@
         "app/globe-renderer.ts",
         "app/unit-kinds.ts",
         "app/live-building-entry.ts",
+        "app/live-building-combat.ts",
+        "app/live-movement.ts",
         "app/live-command.ts",
         "app/world-rules.ts",
         "app/original-units.json",
@@ -1150,11 +1153,46 @@
         "decomp/research/mission11-first-expansion.md",
         "decomp/research/mission11-exact-tower.md",
         "decomp/research/mission12-opening.md",
+        "decomp/research/mission12-spy-sabotage.md",
         "decomp/research/mission13-opening.md"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
       "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute native Spy initialization, disguise timing, command correction, building sabotage ignition, and reveal against the hash-verified executable.",
+      "coveredBehavior": [
+        "Model-5 initialization stores the owner's tribe in the disguise upper bits",
+        "Command 16 stores the selected target tribe plus the original 63-update delay",
+        "Real and apparent tribe helpers before and after disguise completion",
+        "Command 34 distributes command 8 toward a training-building model and is not sabotage",
+        "Command 15 phase-3 building state/attacker mutation and phase-4 disguise reveal"
+      ],
+      "knownLimits": [
+        "Allocation, terrain, movement, animation, and teardown leaves are supplied; full native gameplay is not executed.",
+        "The exact original UI setter for disguise choice, ordinary discovery percentages, render pixels, and save-file serialization remain browser/portable or open evidence."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission12-spy-sabotage.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission12-spy-sabotage.py",
+        "decomp/research/mission12-spy-sabotage.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

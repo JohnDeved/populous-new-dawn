@@ -15,6 +15,7 @@ import {
   cancelInteraction,
   tell,
   guardShaman,
+  disguiseSelectedSpies,
   rotateBuildingPlan,
   maxHp,
   population,
@@ -833,6 +834,21 @@ export default function Home() {
                   <HudSprite id={u.sprite} />
                 </button>
               ))}
+              {selected.some(u => u.kind === 'spy') &&
+                enemies.map(enemy => (
+                  <button
+                    key={`disguise-${enemy.tribe}`}
+                    aria-label={`Disguise selected spies as ${enemy.name}`}
+                    title={`Disguise selected spies as ${enemy.name}`}
+                    onClick={() =>
+                      store.change(w => {
+                        disguiseSelectedSpies(w, enemy.tribe)
+                      })
+                    }
+                  >
+                    {enemy.name}
+                  </button>
+                ))}
             </div>
           )}
         </section>

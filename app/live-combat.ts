@@ -57,7 +57,7 @@ export function combatPerson(u: Unit): CombatPerson {
     life: Math.round(u.hp * 20),
     vehicle: p?.vehicle ?? 0,
     group: u.fight?.group ?? 0,
-    disguise: 0,
+    disguise: p?.disguise ?? 0,
   }
 }
 

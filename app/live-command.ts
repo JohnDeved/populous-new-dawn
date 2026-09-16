@@ -204,6 +204,27 @@ export function guardShaman(w: World) {
   tell(w, 'Selected followers will guard your shaman.')
 }
 
+export function disguiseSelectedSpies(w: World, tribe: number) {
+  if (w.paused || w.status !== 'playing' || tribe < 0 || tribe > 3) return false
+  const units = w.units.filter(
+    u =>
+      u.kind === 'spy' &&
+      canOrder(u) &&
+      w.selected.includes(u.id) &&
+      tribeForTeam(u.team) !== tribe
+  )
+  if (!units.length) return false
+  for (const u of units) release(w, u)
+  const order = emptyPersonOrder()
+  writePersonOrder(order, 16, tribe, 0, 0)
+  const result = appendLiveOrders(w, units, order, true)
+  tell(
+    w,
+    result.accepted ? 'Your spies are preparing their disguises.' : 'No command slots available.'
+  )
+  return result.accepted
+}
+
 export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
   if (w.paused || w.status !== 'playing') return false
   const spec = BUILDINGS.find(b => b.id === kind)
@@ -466,6 +487,7 @@ export function command(
   const queuedTree =
     model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
   if (
+    model === 15 ||
     model === 19 ||
     model === 33 ||
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
@@ -493,7 +515,7 @@ export function command(
         active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
       if (
         ![17, 31, 32].includes(active) &&
-        (!slot || !person || ![3, 6, 7, 8, 10, 19, 27, 28].includes(active))
+        (!slot || !person || ![3, 6, 7, 8, 10, 15, 19, 27, 28].includes(active))
       ) {
         release(w, u, model === 33)
         if (model === 33 && person) u.native = person
@@ -513,6 +535,14 @@ export function command(
       input.flags
     )
     const result = appendLiveOrders(w, units, order, slot === 0)
+    if (model === 15 && result.accepted && context.building)
+      for (const u of units) {
+        const person = u.native ?? u.entry?.person ?? u.builder?.person
+        if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 15) continue
+        u.target = context.building.id
+        const path = planLivePath(w, u, entrance(w, context.building), person)
+        if (path) acceptLivePath(w, u, path)
+      }
     if (model === 28 && result.accepted)
       for (const u of units) {
         const person = u.native ?? u.entry?.person ?? u.builder?.person

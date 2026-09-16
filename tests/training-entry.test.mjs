@@ -2,8 +2,10 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import captures from './fixtures/movement-order.json' with { type: 'json' }
 import manifest from '../decomp/exports.json' with { type: 'json' }
-import { createWorld, addBuilding, addUnit, campaignPersonCount, command, tick, housing, manaRate, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
+import { createWorld, addBuilding, addUnit, campaignPersonCount, command, disguiseSelectedSpies, entrance, tick, housing, manaRate, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
 import { nativePersonModel } from '../app/live-combat.ts'
+import { createLivePerson } from '../app/live-people.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
 import { buildingQueuePoint } from '../app/building-shapes.ts'
 import { prepareMovementOrder } from '../app/person-orders.ts'
 import { advanceGame } from '../app/game-clock.ts'
@@ -160,6 +162,29 @@ test('a funded Spy Training Hut trains an original model-5 Spy and sends it outs
     reset: 0,
     flags: 0,
   })
+  until(w, () => spy.path.length === 0)
+  w.selected = [spy.id]
+  assert.equal(disguiseSelectedSpies(w, 1), true)
+  tick(w, 1 / 12)
+  assert.equal(spy.native.disguise, 0x7f, 'command 16 starts the native 63-turn disguise')
+  for (let turn = 0; turn < 63; turn++) tick(w, 1 / 12)
+  assert.equal(spy.native.disguise, 0x40, 'the completed Spy appears as the chosen tribe')
+
+  const target = addBuilding(w, 'red', 'hut', { x: spy.x + 7, z: spy.z }, true),
+    door = entrance(w, target),
+    detector = addUnit(w, 'red', 'brave', { x: door.x + 0.5, z: door.z })
+  detector.native = createLivePerson(w, detector)
+  detector.native.state = 14 // Keep the detector present without starting unrelated combat.
+  w.selected = [spy.id]
+  assert.equal(command(w, target), true)
+  assert.equal(currentPersonOrder(w.buildingOrders, spy.native)?.model, 15)
+  until(w, () => !!target.burn, 600)
+  assert.equal(target.damageState.state, 4)
+  assert.equal(target.damageState.attacker, 0)
+  assert.equal(spy.native.disguise, 0, 'nearby target-tribe detection reveals the saboteur')
+  const checkpoint = structuredClone(w)
+  assert.equal(currentPersonOrder(checkpoint.buildingOrders, checkpoint.units.find(u => u.id === spy.id).native)?.model, 15)
+  assert.equal(checkpoint.buildings.find(b => b.id === target.id).burn.remaining, target.burn.remaining)
 })
 
 test('queue movement, admission, conversion and shared references are independent of render rate', () => {

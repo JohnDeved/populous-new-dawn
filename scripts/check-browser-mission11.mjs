@@ -701,6 +701,150 @@ try {
   })
   assert.ok(renderedSpy.layers > 0)
 
+  const sabotage = await page.evaluate(async id => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { entrance } = await import('/app/model.ts'),
+      { tribeForTeam } = await import('/app/world-types.ts'),
+      spy = world.units.find(unit => unit.id === id)
+    const candidates = world.buildings
+      .filter(building => building.team !== 'blue' && building.hp > 0 && building.progress === 1)
+      .map(building => {
+        const door = entrance(world, building),
+          clearance = Math.min(
+            ...world.units
+              .filter(unit => unit.team === building.team && unit.hp > 0 && unit.inside === null)
+              .map(unit => Math.hypot(unit.x - door.x, unit.z - door.z))
+          )
+        return {
+          building,
+          clearance,
+          distance: Math.hypot(spy.x - door.x, spy.z - door.z),
+        }
+      })
+      .toSorted((a, b) => b.clearance - a.clearance || a.distance - b.distance)
+    const target = candidates[0]
+    if (!target) throw new Error('No Mission 12 enemy building for Spy sabotage')
+    const tribe = tribeForTeam(target.building.team),
+      name = ['', 'Dakini', 'Chumara', 'Matak'][tribe]
+    return { id: target.building.id, tribe, name, clearance: target.clearance }
+  }, spy)
+  await page.getByTitle('followers', { exact: true }).click()
+  await page.getByLabel(`Disguise selected spies as ${sabotage.name}`).click()
+  const disguised = await page.evaluate(async ({ id, tribe }) => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts'),
+      unit = world.units.find(candidate => candidate.id === id)
+    tick(world, 1 / 12)
+    for (let turn = 0; (unit.native?.disguise & 63) && turn < 80; turn++) tick(world, 1 / 12)
+    scene.onChange()
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    scene.renderer.render(scene.scene, scene.camera)
+    return {
+      disguise: unit.native?.disguise,
+      owner: scene.unitMeshes.get(id)?.userData.owner,
+      expected: tribe << 6,
+    }
+  }, { id: spy, tribe: sabotage.tribe })
+  assert.deepEqual(disguised, {
+    disguise: disguised.expected,
+    owner: sabotage.tribe,
+    expected: sabotage.tribe << 6,
+  })
+
+  await page.evaluate(async ({ buildingId, spyId }) => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { entrance } = await import('/app/model.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      { tribeForTeam } = await import('/app/world-types.ts'),
+      building = world.buildings.find(candidate => candidate.id === buildingId),
+      spy = world.units.find(candidate => candidate.id === spyId)
+    world.campaignAIs[tribeForTeam(building.team)].attributes[40] = 100
+    Object.assign(spy, entrance(world, building))
+    spy.path = []
+    syncLivePersonCells(world)
+    scene.focus(building)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+  }, { buildingId: sabotage.id, spyId: spy })
+  const sabotagePoint = await page.evaluate(id => {
+    const scene = globalThis.testScene,
+      building = scene.world.buildings.find(candidate => candidate.id === id),
+      point = scene.screen(building),
+      bounds = scene.container.getBoundingClientRect(),
+      x = bounds.left + ((point.x + 1) * bounds.width) / 2,
+      y = bounds.top + ((1 - point.y) * bounds.height) / 2
+    for (let dy = -75; dy <= 30; dy += 3)
+      for (let dx = -35; dx <= 35; dx += 3) {
+        const event = { clientX: x + dx, clientY: y + dy }
+        if (scene.pickWorldObject(event)?.id === building.id)
+          return { x: event.clientX, y: event.clientY }
+      }
+    throw new Error('No exposed Mission 12 sabotage target geometry')
+  }, sabotage.id)
+  await page.mouse.click(sabotagePoint.x, sabotagePoint.y)
+  const sabotageCheckpoint = await page.evaluate(async ({ spyId, buildingId }) => {
+    const store = globalThis.testStore,
+      world = store.getWorld(),
+      { tick } = await import('/app/model.ts'),
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      unit = world.units.find(candidate => candidate.id === spyId),
+      building = world.buildings.find(candidate => candidate.id === buildingId)
+    if (currentPersonOrder(world.buildingOrders, unit.native)?.model !== 15)
+      throw new Error('Canvas input did not issue native Spy command 15')
+    for (let turn = 0; !building.burn && turn < 2_000; turn++) tick(world, 1 / 12)
+    if (!building.burn)
+      throw new Error(
+        `Mission 12 Spy sabotage did not ignite its target: ${JSON.stringify({
+          spy: {
+            x: unit.x,
+            z: unit.z,
+            hp: unit.hp,
+            path: unit.path.length,
+            target: unit.target,
+            state: unit.native?.state,
+            status: unit.native?.commandStatus,
+            phase: unit.native?.substate,
+            timer: unit.native?.timer,
+            disguise: unit.native?.disguise,
+          },
+          order: unit.native ? currentPersonOrder(world.buildingOrders, unit.native) : null,
+          building: { hp: building.hp, progress: building.progress, damage: building.damageState },
+        })}`
+      )
+    const snapshot = source => {
+      const spy = source.units.find(candidate => candidate.id === spyId),
+        target = source.buildings.find(candidate => candidate.id === buildingId),
+        order = currentPersonOrder(source.buildingOrders, spy.native)
+      return {
+        disguise: spy.native.disguise,
+        substate: spy.native.substate,
+        timer: spy.native.timer,
+        order: order && { model: order.model, a: order.a, b: order.b },
+        building: {
+          state: target.damageState.state,
+          attacker: target.damageState.attacker,
+          burn: structuredClone(target.burn),
+        },
+      }
+    }
+    const before = snapshot(world)
+    await store.saveCheckpoint()
+    if (!store.loadCheckpoint()) throw new Error('Mission 12 Spy sabotage checkpoint failed')
+    return { before, restored: snapshot(store.getWorld()) }
+  }, { spyId: spy, buildingId: sabotage.id })
+  assert.deepEqual(sabotageCheckpoint.restored, sabotageCheckpoint.before)
+  assert.equal(sabotageCheckpoint.before.building.state, 4)
+  assert.equal(sabotageCheckpoint.before.building.attacker, 0)
+  assert.equal(sabotageCheckpoint.before.disguise, 0)
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+
   await page.getByLabel('Menu', { exact: true }).click()
   await page.getByRole('button', { name: 'Restart world' }).click()
   await page.waitForFunction(() => {
@@ -859,7 +1003,7 @@ try {
   })
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Missions 10-13 continue through rendered openings, Mission 11 autonomous construction, Mission 12 reaches a trained moving Spy, and Mission 13 renders both opponents, original knowledge, movement, checkpoint, restart and profile retention'
+    'PASS: Missions 10-13 continue through rendered openings, Mission 11 autonomous construction, Mission 12 trains, disguises and sabotages with a checkpoint-safe Spy, and Mission 13 renders both opponents, original knowledge, movement, checkpoint, restart and profile retention'
   )
 } finally {
   await browser.close()

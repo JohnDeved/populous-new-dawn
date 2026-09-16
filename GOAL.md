@@ -9,11 +9,11 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current feature commit: deliver Mission 13's playable opening through the shipped
-Mission 12 continuation and selector, imported terrain and active enemy scripts,
-original message and turn-6 flyby, authored knowledge sites, ordinary Shaman movement,
-checkpoint, restart, and profile retention. Later Mission 13 AI, objectives, victory,
-and Balloon construction and behavior remain separate features.
+Current feature commit: deliver Mission 12's first playable Spy disguise and
+enemy-building sabotage through the normal Spy Hut, player selection and commands,
+original disguise countdown and apparent tribe, visible building ignition, discovery,
+checkpoint, and restart paths. Broader Spy detection/combat and ordinary cross-island
+transport remain separate features.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -42,7 +42,8 @@ Mission 11's first Matak Hut finished in `723358a`.
 Mission 11's first script-requested `BUILD_AT` Guard Tower finished in `3217651`.
 Mission 12's playable opening finished in `bacde84`.
 Mission 12's first player-acquired Spy finished in `6eb55b2`.
-Mission 13's playable opening finishes in the current feature commit.
+Mission 13's playable opening finished in `f261e60`.
+Mission 12's first playable Spy disguise and sabotage finishes in the current feature commit.
 The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
 
 The user-queued composition refactor finished in independently revertible commits

@@ -32,7 +32,7 @@ export function unitAnimationSource(u: Unit) {
   if (
     u.native &&
     (u.native.state !== 10 ||
-      [3, 6, 17, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
+      [3, 6, 15, 16, 17, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
   )
     return u.native
   if (u.entry) return u.entry.person

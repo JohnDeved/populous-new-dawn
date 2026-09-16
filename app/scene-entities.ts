@@ -46,7 +46,7 @@ import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
-import { animationTeam, tribeForTeam } from './world-types.ts'
+import { animationTeam, teamForTribe, tribeForTeam } from './world-types.ts'
 
 const teamColor = {
   blue: 0x303fc1,
@@ -357,7 +357,17 @@ export function updateUnitsFrame(scene: GameScene) {
       ;(shield.material as THREE.MeshBasicMaterial).opacity =
         0.18 + Math.sin(scene.world.time * 6) * 0.04
     }
-    const animationSource = unitAnimationSource(u)
+    const animationSource = unitAnimationSource(u),
+      person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
+      owner = tribeForTeam(u.team),
+      disguise = u.kind === 'spy' ? (person?.disguise ?? owner << 6) : owner << 6,
+      target = disguise >>> 6,
+      apparent =
+        target !== owner && (!(disguise & 63) || !(scene.gameClock.animationFrame & 2))
+          ? target
+          : owner,
+      renderTeam = teamForTribe(apparent)
+    g.userData.owner = apparent
     g.userData.depthBias =
       animationSource && animationSource.flags3 & 0x400
         ? ((animationSource.morph << 24) >> 24) * 16
@@ -396,14 +406,15 @@ export function updateUnitsFrame(scene: GameScene) {
         string,
         Record<string, { frames: number[]; flip: boolean }[]>
       >
-    )[`${animationTeam(u.team)}-${u.kind}`]
+    )[`${animationTeam(renderTeam)}-${u.kind}`]
     const state = unitAnimation(scene.world, u)
     if (g.userData.state !== state) {
       g.userData.state = state
       g.userData.since = scene.world.time
     }
     const source = animationSource
-        ? animationSource.object + (animationTeam(u.team) === 'red' && u.kind === 'shaman' ? 8 : 0)
+        ? animationSource.object +
+          (animationTeam(renderTeam) === 'red' && u.kind === 'shaman' ? 8 : 0)
         : undefined,
       nativeDirections =
         source === undefined
