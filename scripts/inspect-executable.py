@@ -93,6 +93,7 @@ if len(sys.argv)>2:
     rules['personWood']=[value(0x5a7060+i*50+20,2) for i in range(9)]
     rules['personHarvestTurns']=[value(0x5a7060+i*50+29,1) for i in range(9)]
     rules['vehicleCapacity']=[value(0x5a7938+i*23+8,1) for i in range(5)]
+    rules['vehicleLife']=[value(0x5a7938+i*23,2) for i in range(5)]
     rules['vehicleRestFlags']=[value(0x5a7938+i*23+21,1) for i in range(5)]
     rules['pathSearchStepLimit']=value(0x59bd8c)
     rules['pathSteps']=[dict(zip(['x','y'],struct.unpack('<ii',read(0x59bd90+i*10,8)))) for i in range(4)]

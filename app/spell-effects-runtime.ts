@@ -65,6 +65,7 @@ import { createTornado } from './tornado.ts'
 import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import { tell } from './live-command.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
+import { damageLiveVehicle } from './live-vehicles.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
@@ -528,6 +529,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
     w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44).map(u => [u.id, u])
   )
   const buildings = new Map(w.buildings.filter(b => b.hp > 0).map(b => [b.id, b]))
+  const vehicles = new Map(w.vehicles.filter(v => v.active).map(v => [v.id, v]))
   const cells = new Map<number, BlastTarget[]>()
   const records = new Map<number, BlastTarget>()
   const people = new Map<number, LivePerson>()
@@ -589,6 +591,21 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   for (const tree of w.trees)
     if (tree.logs > 0 && rules.sceneryResourceFlags[tree.model] & 0x40000)
       addShaken(tree, 5, tree.model, -1, 0)
+  for (const v of vehicles.values())
+    add({
+      ...v,
+      tribe: tribeForTeam(v.team),
+      state: 0,
+      previousState: 0,
+      flags2: 0,
+      flags3: 0,
+      flags4: 256,
+      velocity: { x: 0, y: 0, z: 0 },
+      vehicle: 0,
+      burnTrail: 0,
+      shake: 0,
+      shakeOrigin: 0,
+    })
   const state = {
     randomState: w.randomState,
     search: w.indexedSearch,
@@ -623,9 +640,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
         b.damage = ((b.damage + amount) << 16) >> 16
         if (wave.tribe !== -1 && wave.tribe !== 255) b.attacker = wave.tribe
       },
-      vehicleDamage: () => {
-        throw new Error('Live vehicle damage has no vehicle owner')
-      },
+      vehicleDamage: (p, amount) => damageLiveVehicle(w, vehicles.get(p.id)!, wave.tribe, amount),
       remove: p => {
         p.life = 0
       },

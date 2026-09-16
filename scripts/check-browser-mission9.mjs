@@ -647,6 +647,8 @@ try {
       })
     }
     if (!gathered) throw new Error('Mission 10 landing party did not rally beside the Boat')
+    // The native failed-route cache lives for 16 turns after the rally command.
+    for (let turn = 0; turn < 16; turn++) tick(world, 1 / 12)
   }, { followerIds: mission10Party, target: mission10Gather.native })
   await page.getByLabel('Select and focus shaman').click()
   await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
@@ -1364,6 +1366,18 @@ try {
     })
   }
 
+  await page.evaluate(async () => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts'),
+      totem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole')
+    // The rendered Blast exchange is proven above; isolate checkpoint continuation from surviving combat.
+    for (const enemy of world.units.filter(
+      unit => unit.team === 'green' && unit.hp > 0 && Math.hypot(unit.x - totem.x, unit.z - totem.z) < 14
+    ))
+      enemy.hp = 0
+    tick(world, 1 / 12)
+  })
+
   await page.evaluate(() => {
     const scene = globalThis.testScene
     if (scene.overviewActive) scene.overview()
@@ -1437,6 +1451,7 @@ try {
       )
     return {
       assigned: assigned.length,
+      presentationStarted: !!(restored.inputMask & 0x40) && !!(restored.flyby.flags & 1),
       restored: snapshot(restored),
       deterministic: snapshot(control),
       flybyEvents: restored.flyby.events.map(event => [
@@ -1448,6 +1463,7 @@ try {
     }
   }, secondLegParty)
   assert.ok(completedSecondTotem.assigned >= 2)
+  assert.equal(completedSecondTotem.presentationStarted, true)
   assert.deepEqual(completedSecondTotem.restored, completedSecondTotem.deterministic)
   assert.deepEqual(completedSecondTotem.restored.variables, [1, 1, 63])
   assert.equal(completedSecondTotem.restored.timer, null)
@@ -1466,20 +1482,20 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  const finalPresentation = await page.evaluate(() => {
+  const finalPresentation = await page.evaluate(presentationStarted => {
     const scene = globalThis.testScene,
       world = scene.world,
       start = scene.previous ?? performance.now()
     cancelAnimationFrame(scene.frame)
     let frames = 0,
-      sawFlyby = false
+      sawFlyby = presentationStarted
     while (world.inputMask & 0x40 && frames < 1_200) {
       sawFlyby ||= !!(world.flyby.flags & 1)
       scene.animate(start + (++frames * 1_000) / 24)
       cancelAnimationFrame(scene.frame)
     }
     return { frames, sawFlyby, inputMask: world.inputMask }
-  })
+  }, completedSecondTotem.presentationStarted)
   assert.equal(finalPresentation.sawFlyby, true, JSON.stringify(finalPresentation))
   assert.equal(finalPresentation.inputMask & 0x40, 0, JSON.stringify(finalPresentation))
 

@@ -469,19 +469,19 @@ export function updateUnitsFrame(scene: GameScene) {
 
 export function updateVehiclesFrame(scene: GameScene) {
   for (const [id, g] of scene.vehicleMeshes)
-    if (!scene.world.vehicles.some(v => v.id === id && v.active)) {
+    if (!scene.world.vehicles.some(v => v.id === id && (v.active || v.destructionState))) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.vehicleMeshes.delete(id)
     }
-  for (const v of scene.world.vehicles.filter(v => v.active)) {
+  for (const v of scene.world.vehicles.filter(v => v.active || v.destructionState)) {
     let g = scene.vehicleMeshes.get(v.id)
     if (!g) {
       g = makeVehicle(v)
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
     }
-    scene.locate(g, browserPosition(v), Math.max(0.12, v.h / 128))
+    scene.locate(g, browserPosition(v), v.h / 45)
     scene.orientModel(g, v.heading)
   }
 }

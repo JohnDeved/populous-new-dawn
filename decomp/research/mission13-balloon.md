@@ -55,6 +55,7 @@ Run the descriptor check with:
 The checked-in exports are Ghidra pseudocode, not recovered source. The descriptor
 check proves exact static fields; the producer interpretation also reuses reviewed
 `00406600`. Browser evidence owns construction, recurring production, persistence,
-rendered controls, and full-world integration. Exact native per-tick steering,
-combat/death, audio, Balloon Hut source artwork, and model-3 Balloon artwork remain
-outside this slice.
+rendered controls, and full-world integration. Shared vehicle destruction is covered
+by `vehicle-destruction.md`; exact native per-tick steering, combat targeting/feedback,
+downstream ejected-passenger fate, audio, Balloon Hut source artwork, and model-3
+Balloon artwork remain outside this slice.

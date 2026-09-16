@@ -322,6 +322,7 @@ import { stepBuildingEntryClocks } from './training.ts'
 import {
   boardLiveVehicle,
   removeMissingVehiclePassengers,
+  stepLiveVehicles,
   syncLiveVehiclePassengers,
 } from './live-vehicles.ts'
 import {
@@ -1008,6 +1009,8 @@ function stepTurn(w: World) {
               turnY: y,
               heading: (heading * Math.PI * 2) / 2048,
               active: true,
+              life: rules.vehicleLife[balloon ? 3 : 1],
+              destructionState: 0,
             },
             worker = inhabitants[0]
           w.vehicles.push(vehicle)
@@ -1506,6 +1509,7 @@ function stepTurn(w: World) {
       !target.casting
     )
       joinBattle(w, u, target)
+  stepLiveVehicles(w)
   const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44),
     ordinaryDead = dead.filter(u => !u.ghost)
   for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u)

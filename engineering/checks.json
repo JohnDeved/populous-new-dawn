@@ -792,6 +792,86 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute the native vehicle-damage gates, signed life boundaries, occupied reset, Boat/Balloon destruction-state selection, and full-capacity passenger ejection.",
+      "coveredBehavior": [
+        "Enemy-only signed-short damage at 0x00466f00",
+        "Same-tribe and special-load immunity",
+        "Exact-zero sentinel and one-to-zero transition",
+        "Occupied positive-life reset to the shipped constant.dat value 5000",
+        "Model-1 Boat state 5 and model-3 Balloon state 6 selection",
+        "Immediate native ejection of five Boat and two Balloon passengers with cleared slots and vehicle links",
+        "Native 160-horizontal/+60-vertical ejection vector for the supplied exit target"
+      ],
+      "knownLimits": [
+        "Exit-target search, asset-backed animation, and generic initialization leaves are supplied; audiovisual effects, final removal, and downstream passenger water/land survival remain portable/static evidence or open."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-vehicle-damage.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-vehicle-damage.py",
+        "scripts/inspect-executable.py",
+        "app/live-vehicles.ts",
+        "app/original-constants.json",
+        "app/original-rules.json",
+        "decomp/generated/00463cb0.c",
+        "decomp/generated/00463370.c",
+        "decomp/generated/00463780.c",
+        "decomp/generated/004659d0.c",
+        "decomp/generated/00466f00.c",
+        "decomp/generated/00466190.c",
+        "decomp/research/vehicle-destruction.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "vehicle-destruction-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise rendered Blast input through ordinary world scheduling into enemy Boat damage, destruction, fresh-page checkpoint reload, visible sinking, and mesh removal.",
+      "coveredBehavior": [
+        "Authored Mission 10 Boat and rendered player Blast input",
+        "Natural empty-vehicle life aging followed by Blast damage through the live class-4 consumer",
+        "Inactive state-5 persistence through fresh-page checkpoint reload",
+        "Visible Boat sinking followed by destruction-mesh removal"
+      ],
+      "knownLimits": [
+        "The authored Boat owner is changed to an enemy tribe for the bounded interaction because supported campaign content does not yet produce an enemy vehicle.",
+        "Occupied ejection is native/portable evidence; downstream passenger terrain fate, exact effects, audio, and enemy vehicle AI remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-vehicle-destruction.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-vehicle-destruction.mjs",
+        "scripts/browser-game.mjs",
+        "app/live-vehicles.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-turn.ts",
+        "app/game-store.ts",
+        "app/scene-entities.ts",
+        "app/world-initialization.ts",
+        "app/original-rules.json"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission9-boat-house-native",
       "kind": "native",
       "automation": "safe",
@@ -878,13 +958,14 @@
         "Mission 10 stranded supplied Boat plus occupied launch from the authored Boat House",
         "Rendered party rally, Boat boarding, sailing, disembark, and first-Totem input with live defenders",
         "Linked earthquakes/next Totem, ten-track flyby, and 5,760-turn deadline",
-        "Second rendered Boat crossing, safe-coast selection, player-cast Blast defense, and second-Totem input",
+        "Second rendered Boat crossing, safe-coast selection, four player-cast Blasts against live defenders, and second-Totem input",
         "Second-Totem checkpoint continuation, deadline clear, six-track final flyby, objective UI, delayed ten-target settlement Erosion, GPU terrain update, building-mesh synchronization, and restart"
       ],
       "knownLimits": [
         "Seeds Mission 8 and Mission 9 victory before exercising Mission 10 through rendered player input.",
-        "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat/death, and exact replacement hull art remain deferred.",
+        "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat targeting/feedback, and exact replacement hull art remain deferred; destruction is covered separately.",
         "Mission 10 uses the existing rendered Boat-click boarding shorthand; exact native automatic cross-water group routing remains deferred.",
+        "After four rendered Blasts, surviving nearby defenders are removed to isolate second-Totem checkpoint continuation; this check does not prove fully player-driven defender clearance.",
         "Mission 10 full AI, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
       ],
       "executable": "node",
@@ -1107,7 +1188,7 @@
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
         "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
-        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/combat, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon combat/death, exact Balloon art, and full script command coverage remain deferred."
+        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/combat, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon combat targeting/feedback, exact Balloon art, and full script command coverage remain deferred; destruction is covered separately."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1260,7 +1341,7 @@
       "knownLimits": [
         "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
         "Object populations and knowledge links are decoded from the verified level without a full native world load.",
-        "Later Mission 13 AI, objectives, victory, Balloon combat/death, and exact Balloon art remain unresolved; construction, recurring production, occupied persistence, movement, and landing are separate browser/native Balloon evidence."
+        "Later Mission 13 AI, objectives, victory, Balloon combat targeting/feedback, and exact Balloon art remain unresolved; construction, transport, and destruction are separate browser/native Balloon evidence."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
       "args": ["scripts/check-native-mission13-opening.py", "$POPULOUS_EXE"],
@@ -1296,7 +1377,7 @@
       "knownLimits": [
         "Descriptor bytes do not execute the producer or a complete native world.",
         "Construction, recurring production, player controls, persistence, rendering, and full-world integration remain portable/browser evidence.",
-        "Exact native per-tick steering, combat/death, audio, and source artwork remain unresolved."
+        "Exact native per-tick steering, combat targeting/feedback, downstream ejected-passenger fate, audio, and source artwork remain unresolved; destruction is covered separately."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
       "args": ["scripts/check-native-balloon.py", "$POPULOUS_EXE"],

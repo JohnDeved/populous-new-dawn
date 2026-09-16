@@ -1,6 +1,7 @@
 import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
 import { missionEnemyTribe, missionNumbers } from './mission-data.ts'
 import { teamForTribe } from './world-types.ts'
+import rules from './original-rules.json' with { type: 'json' }
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -94,7 +95,11 @@ export function migrateCheckpoint(world: World) {
     world.redRespawn = 0
     delete world.redRespawnPoint
   }
-  for (const vehicle of world.vehicles) vehicle.active ??= true
+  for (const vehicle of world.vehicles) {
+    vehicle.active ??= true
+    vehicle.life ??= rules.vehicleLife[vehicle.model]
+    vehicle.destructionState ??= 0
+  }
   world.unlockedTower ??= false
   world.unlockedTemple ??= false
   world.unlockedSpyHut ??= false

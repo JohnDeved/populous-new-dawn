@@ -9,11 +9,14 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current closure lock: finish, commit, and push the first ordinary Mission 13 Balloon
-transport path. It now reaches the authored reward through three naturally charged
-Land Bridges, constructs the Hut, produces and boards a Balloon, flies and lands,
-and reloads the occupied vehicle on a fresh page. Close verification and review
-before selecting the next new feature.
+Current feature lock: deliver original vehicle damage, destruction states, and
+passenger ejection through shipped play. Reuse the existing Blast consumer and the
+live Mission 9 and Mission 13 acquisition paths; preserve checkpoint behavior and
+the native signed life/timer edge cases. Native evidence proves occupied vehicles
+reset positive damage to the shipped 5000 constant on the next controller pass, so
+do not claim separated ordinary Blasts can accumulate into an occupied kill. Verify
+exact Boat sinking, Balloon removal, and alive passenger detachment without instant
+deletion shortcuts.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -44,6 +47,7 @@ Mission 12's playable opening finished in `bacde84`.
 Mission 12's first player-acquired Spy finished in `6eb55b2`.
 Mission 13's playable opening finished in `f261e60`.
 Mission 12's first playable Spy disguise and sabotage finished in `68d0f24`.
+Mission 13's first ordinary Balloon transport finished in `2f83643`.
 The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
 PND02's ordinary Mission 2-3 victories, shipped Mission 2→3 continuation, Mission 4
 offer, fresh-page checkpoint, restart, legacy migration, and required-reachability

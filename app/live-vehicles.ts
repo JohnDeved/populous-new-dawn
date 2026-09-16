@@ -1,7 +1,10 @@
 import type { LivePerson } from './live-people.ts'
-import type { Vehicle, World } from './world-types.ts'
+import { tribeForTeam, type Vehicle, type World } from './world-types.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
+import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
+import { randomPersonSpeed } from './person-state.ts'
+import { movePosition, nativeAngle } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 const short = (n: number) => (n << 16) >> 16
@@ -82,6 +85,109 @@ export function removeMissingVehiclePassengers(w: World) {
     vehicle.passengers = vehicle.passengers.filter(id => people.has(id))
     vehicle.passengerCount = vehicle.passengers.length
     if (!vehicle.passengerCount) vehicle.speed = -1
+  }
+}
+
+export function damageLiveVehicle(w: World, v: Vehicle, attacker: number, amount: number) {
+  if (w.levelFlags2 & 0x04000000 || tribeForTeam(v.team) === attacker) return
+  v.life = short(v.life - short(amount))
+}
+
+// 0x466190: one shared ejection target, including coastal and seven-direction fallback.
+export function vehicleExitTarget(w: World, v: Vehicle) {
+  const index = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9),
+    category = w.land.categories[index] & 15,
+    airborne = !!(rules.vehicleRestFlags[v.model] & 1),
+    length = airborne ? 1024 : 512
+  let angle = Math.round((v.heading * 1024) / Math.PI) & 2047,
+    target = { x: v.x & 65535, y: v.y & 65535 }
+  if (!(rules.terrainCategoryFlags[category] & 60)) movePosition(target, angle, length)
+  else {
+    const x = v.x & 0xfe00,
+      y = v.y & 0xfe00,
+      direction = rules.terrainCategoryDirections[category],
+      offsets = [
+        [256, -128],
+        [-128, -128],
+        [-128, 256],
+        [-128, 640],
+        [256, 640],
+        [640, 640],
+        [640, 256],
+        [640, -128],
+      ][direction]
+    target = { x: (x + offsets[0]) & 65535, y: (y + offsets[1]) & 65535 }
+    angle = ((direction + 4) & 7) << 8
+  }
+  const blocked = (p: { x: number; y: number }) => {
+    const i = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+    return restingCellCollision(
+      { flags: w.land.flags[i], category: w.land.categories[i] },
+      w.land.walkMasks[w.pathfinding.state.walkMask],
+      p,
+      true
+    )
+  }
+  if (!blocked(target)) return target
+  for (let attempt = 0; attempt < 7; attempt++) {
+    angle = (angle + 256) & 2047
+    const candidate = { x: v.x & 65535, y: v.y & 65535 }
+    movePosition(candidate, angle, airborne ? 1024 : 768)
+    if (!blocked(candidate)) return candidate
+  }
+  return { x: v.x & 65535, y: v.y & 65535 }
+}
+
+function destroyLiveVehicle(w: World, v: Vehicle) {
+  v.active = false
+  v.speed = -1
+  v.destructionState = rules.vehicleRestFlags[v.model] & 1 ? 6 : 5
+  const exit = vehicleExitTarget(w, v)
+  for (const id of v.passengers) {
+    const u = w.units.find(unit => unit.id === id),
+      p = w.pathfinding.people.get(id) ?? u?.native
+    if (!p) continue
+    p.vehicle = 0
+    p.flags2 = (p.flags2 | 0x80010) >>> 0
+    p.flags4 = ((p.flags4 & ~0x2000000) | 0x1000400) >>> 0
+    p.speed = randomPersonSpeed(w, p)
+    const angle = nativeAngle(short(exit.x - p.x), -short(exit.y - p.y))
+    p.velocity = {
+      x: short(Math.imul(rules.sine[angle], 160) >> 16),
+      y: 60,
+      z: short(Math.imul(rules.sine[(angle + 512) & 2047], 160) >> 16),
+    }
+    if (u) {
+      u.flight = p
+      u.lift = 1
+    }
+  }
+  v.passengers = []
+  v.passengerCount = 0
+}
+
+export function stepLiveVehicles(w: World) {
+  for (const v of w.vehicles) {
+    if (v.destructionState === 5) {
+      const cell = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9)
+      if (terrainSupportsPerson(w.land.categories[cell], v)) {
+        v.destructionState = 0
+        continue
+      }
+      v.h = short(v.h - 8)
+      if (v.h < -191) v.destructionState = 0
+      continue
+    }
+    if (v.destructionState === 6) {
+      v.h = short(v.h + 80)
+      if (v.h > 1023) v.destructionState = 0
+      continue
+    }
+    // 0x463cb0 deliberately leaves exact zero untouched and restores occupied positive life.
+    if (!v.active || !v.life) continue
+    v.life = short(v.life - 1)
+    if (v.life < 1) destroyLiveVehicle(w, v)
+    else if (v.speed > 0 || v.passengerCount) v.life = rules.vehicleLife[v.model]
   }
 }
 

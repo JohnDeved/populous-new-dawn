@@ -691,6 +691,7 @@ try {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
   })
+  await page.evaluate(() => (globalThis.testScene.world.speed = 0))
 
   await page.getByLabel('Menu', { exact: true }).click()
   await page.getByText('Prepare for all three Enemy tribes', { exact: false }).waitFor()
@@ -1242,6 +1243,7 @@ try {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
   })
+  await page.evaluate(() => (globalThis.testScene.world.speed = 0))
 
   await page.getByLabel('Menu', { exact: true }).click()
   await page.getByText('Seek Balloon Hut, Firestorm, Shield', { exact: false }).waitFor()
@@ -1259,7 +1261,7 @@ try {
   const bridgeShaman = await unitClickPoint(page, 'shaman')
   await page.mouse.click(bridgeShaman.click.x, bridgeShaman.click.y)
   const bridgeEscorts = []
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     const escort = await braveClickPoint(page, bridgeEscorts)
     await page.keyboard.down('Control')
     await page.mouse.click(escort.click.x, escort.click.y)
@@ -1306,6 +1308,7 @@ try {
     if (shaman.hp <= 0 || Math.hypot(shaman.x - target.x, shaman.z - target.z) > 3)
       throw new Error('Mission 13 party did not reach the safe bridge approach')
   }, bridgeApproach)
+  await castSwarm(page, { x: -70, z: 68 })
 
   crossing = await terrainClickPoint(page, firstBridgeSource)
   await page.mouse.click(crossing.x, crossing.y)

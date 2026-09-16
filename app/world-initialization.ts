@@ -11,6 +11,7 @@ import { missionData } from './mission-data.ts'
 import { createWorship } from './worship.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
+import rules from './original-rules.json' with { type: 'json' }
 
 export function createWorld(missionNumber = 1): World {
   const mission = missionData(missionNumber),
@@ -80,6 +81,8 @@ export function createWorld(missionNumber = 1): World {
         turnY: point.y,
         heading: (o.angle / 2048) * Math.PI * 2,
         active: !linkedObjectIds.has(o.index + 1),
+        life: rules.vehicleLife[o.model],
+        destructionState: 0,
       })
     }
     if (o.type === 5 && o.model <= 6)

@@ -115,6 +115,7 @@
         { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
+        { "path": "decomp/research/vehicle-destruction.md", "heading": "Vehicle damage and destruction" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
@@ -126,7 +127,7 @@
           "heading": "Native marching integration and collision snapshots"
         }
       ],
-      "nativeAddresses": ["0x406600", "0x40b6d0", "0x465580", "0x463370", "0x463780", "0x463e80", "0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
+      "nativeAddresses": ["0x406600", "0x40b6d0", "0x463370", "0x463780", "0x463cb0", "0x463e80", "0x465580", "0x466190", "0x466f00", "0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
       "checkIds": [
         "orders-portable",
         "orders-native",
@@ -134,6 +135,8 @@
         "computer-direct-attack-native",
         "mission8-firewarrior-native",
         "mission8-browser",
+        "vehicle-destruction-native",
+        "vehicle-destruction-browser",
         "mission9-boat-house-native",
         "mission9-browser",
         "vault-native",

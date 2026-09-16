@@ -109,6 +109,8 @@ export type Vehicle = NativePoint & {
   turnY: number
   heading: number
   active: boolean
+  life: number
+  destructionState: 0 | 5 | 6
 }
 export type Projectile = {
   id: number
