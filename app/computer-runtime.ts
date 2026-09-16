@@ -71,7 +71,8 @@ import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
 import { release, releaseTasks } from './world-tasks.ts'
 
-const mission11SettlementRequested = 0x80000000
+const mission11TowerRequested = 0x80000000,
+  mission11HousingRequested = 0x40000000
 
 export function computerSelectionWorld(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
@@ -282,9 +283,7 @@ function produceMissionTraining(w: World, tribe: number) {
   if (!(w.ai.states & (1 << 6))) return
   const population = campaignPersonCount(w, tribe),
     eligible = [
-      ...(w.outcome.level === 6 && tribe === 2
-        ? [{ model: 4, building: 5, preference: 6 }]
-        : []),
+      ...(w.outcome.level === 6 && tribe === 2 ? [{ model: 4, building: 5, preference: 6 }] : []),
       { model: 3, building: 7, preference: 7 },
     ]
       .map(candidate => ({
@@ -315,8 +314,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         building => building.team === team && building.hp > 0 && buildingModel(building) === model
       ) ||
       w.ai.tasks.some(
-        task =>
-          task.flags & 1 && task.type === 0 && task.requested === model && task.phase < 3
+        task => task.flags & 1 && task.type === 0 && task.requested === model && task.phase < 3
       ),
     base = w.buildings.find(
       building => building.team === team && building.hp > 0 && buildingModel(building) === 4
@@ -330,7 +328,6 @@ function produceMissionBuilding(w: World, tribe: number) {
   if (
     ![3, 6, 11].includes(w.outcome.level) ||
     !(w.ai.states & 1) ||
-    (w.outcome.level === 11 && !!(w.ai.flags & mission11SettlementRequested)) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
@@ -344,12 +341,20 @@ function produceMissionBuilding(w: World, tribe: number) {
         ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
         : 0
   if (!origin) return false
+  if (
+    w.outcome.level === 11 &&
+    ((!base && !!(w.ai.flags & mission11TowerRequested)) ||
+      (base && (tribe !== 3 || !!(w.ai.flags & mission11HousingRequested))))
+  )
+    return false
   // ponytail: one school of each kind is enough for the currently integrated specialist paths;
   // use native attribute target counts when later missions need multiple schools.
   const model = !base
     ? 4
     : w.outcome.level === 11
-      ? 0 // ponytail: later Mission 11 housing and schools await their own native slice.
+      ? housing < w.ai.attributes[10]
+        ? 1
+        : 0 // ponytail: one Matak Hut only; later housing and schools await their own slices.
       : !has(7) && w.ai.attributes[3]
         ? 7
         : tribe === 2 && !has(5) && w.ai.attributes[2]
@@ -358,9 +363,10 @@ function produceMissionBuilding(w: World, tribe: number) {
             ? 1
             : 0
   if (!model || !requestConstruction(w.ai, model, origin)) return false
-  // ponytail: this slice owns one proved request per tribe, not replacement towers or later housing.
+  // ponytail: keep each proved Mission 11 request one-shot until its next native slice.
   if (w.outcome.level === 11)
-    w.ai.flags = (w.ai.flags | mission11SettlementRequested) >>> 0
+    w.ai.flags =
+      (w.ai.flags | (model === 4 ? mission11TowerRequested : mission11HousingRequested)) >>> 0
   return true
 }
 
@@ -383,6 +389,33 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
   if (![1, 4, 5, 7].includes(task.requested))
     throw new Error(`Unbound computer construction ${task.requested}`)
   if (task.phase === 0) {
+    if (w.outcome.level === 11 && tribe === 3 && task.requested === 1) {
+      const towerReady = w.buildings.some(
+          building =>
+            building.team === team &&
+            building.hp > 0 &&
+            buildingModel(building) === 4 &&
+            building.progress === 1
+        ),
+        towerPending =
+          w.buildings.some(
+            building =>
+              building.team === team &&
+              building.hp > 0 &&
+              buildingModel(building) === 4 &&
+              building.progress !== 1
+          ) ||
+          w.ai.tasks.some(
+            candidate =>
+              candidate !== task &&
+              !!(candidate.flags & 1) &&
+              candidate.type === 0 &&
+              candidate.requested === 4
+          )
+      // ponytail: wait only while the slower browser tower is genuinely pending;
+      // if it is lost, continue the native request from its captured origin.
+      if (!towerReady && towerPending) return
+    }
     task.target =
       task.requested === 4 && !task.extra && w.ai.flags & 0x20 ? w.ai.coordinateLatch : task.origin
     task.elapsed = 0

@@ -43,7 +43,7 @@ test('Mission 11 opens with both enemy tribes and four original knowledge sites'
   assert.equal(world.status, 'playing')
 })
 
-test('Mission 11 opponents build their first Guard Towers on the native cadence', () => {
+test('Mission 11 opponents build their first Guard Towers and Matak Hut on native cadence', () => {
   let world = createWorld(11)
   for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
   assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
@@ -81,10 +81,37 @@ test('Mission 11 opponents build their first Guard Towers on the native cadence'
   )
   assert.ok([matak, chumara].every(task => task.phase === 8 && task.members.length === 2))
 
+  while (world.turn < 124) tick(world, 1 / 12)
+  assert.ok(world.campaignAIs[3].tasks.every(task => !(task.flags & 1) || task.requested === 4))
+  tick(world, 1 / 12)
+  const hut = world.campaignAIs[3].tasks.find(task => task.flags & 1 && task.requested === 1)
+  assert.deepEqual(hut && { origin: hut.origin, exact: hut.extra, phase: hut.phase }, {
+    origin: 0xda7a,
+    exact: 0,
+    phase: 0,
+  })
+  assert.ok(world.campaignAIs[2].tasks.every(task => !(task.flags & 1) || task.requested === 4))
+
+  const towerLoss = structuredClone(world),
+    lostTower = towerLoss.buildings.find(building => building.id === matak.entity)
+  assert.ok(lostTower)
+  lostTower.hp = 0
+  let resumedHut = towerLoss.campaignAIs[3].tasks.find(
+    task => task.flags & 1 && task.requested === 1
+  )
+  for (let turn = 0; turn < 200 && resumedHut?.phase === 0; turn++) {
+    tick(towerLoss, 1 / 12)
+    resumedHut = towerLoss.campaignAIs[3].tasks.find(task => task.flags & 1 && task.requested === 1)
+  }
+  assert.equal(resumedHut?.origin, 0xda7a)
+  assert.notEqual(resumedHut?.phase, 0)
+
+  while (world.turn < 1000) tick(world, 1 / 12)
+
   const control = world
   world = migrateCheckpoint(structuredClone(control))
   assert.deepEqual(world, control)
-  for (let turn = 0; turn < 900; turn++) {
+  while (world.turn < 5000) {
     tick(world, 1 / 12)
     tick(control, 1 / 12)
   }
@@ -99,6 +126,7 @@ test('Mission 11 opponents build their first Guard Towers on the native cadence'
     [
       [matak.entity, 'green', 4, 1],
       [chumara.entity, 'yellow', 4, 1],
+      [hut.entity, 'green', 3, 1],
     ]
   )
   assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))

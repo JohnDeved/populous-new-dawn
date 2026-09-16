@@ -937,6 +937,40 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute Mission 11 Matak's first post-tower ordinary housing allocation against hash-verified original inputs.",
+      "coveredBehavior": [
+        "Matak ordinary producer opportunities at turns 60, 124, 188, and 252",
+        "Turn-124 non-exact model-1 Hut task allocation from an accepted tower base",
+        "Two-Brave minimum and RNG-neutral allocation",
+        "Later exact BUILD_AT handler and model-3 Hut prerequisite boundary"
+      ],
+      "knownLimits": [
+        "The probe calls the producer directly with the accepted tower owner, its 0xda7a base cell, and model availability supplied. Cadence, construction-task limit, and housing-target gates are static reviewed evidence; the browser check owns the natural tower, site selection, construction, upgrades, and rendering.",
+        "The later exact BUILD_AT tower remains deferred because its model-3 Hut gate matures thousands of turns after the first scheduled block."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission11-housing.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission11-housing.py",
+        "decomp/generated/004e5530.c",
+        "decomp/research/mission11-first-expansion.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 script"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission11-settlement-native",
       "kind": "native",
       "automation": "safe",
@@ -975,20 +1009,22 @@
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 10 result continuation into Mission 11's opening and first autonomous enemy settlement action through the shipped browser game.",
+      "purpose": "Exercise Mission 10 result continuation into Mission 11's opening, first Guard Towers, and first Matak Hut through the shipped browser game.",
       "coveredBehavior": [
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
         "Rendered Blue, Chumara, Matak, and wild populations",
         "Two Vaults and two stone heads with Hypnotise, Flatten, and Swamp rewards",
         "Original opening message and both enemy tribe HUD controls",
         "No construction before the native turn-60/61 Matak and Chumara Guard-Tower requests",
+        "Turn-124 Matak model-1 Hut request with no Chumara housing",
         "Complete in-progress AI-task, worker, building-order, movement-route, and RNG checkpoint restoration matching the original uninterrupted world",
-        "Completed and rendered Matak and Chumara Guard Towers without replacement towers or later housing and school production",
+        "Completed and rendered Matak and Chumara Guard Towers plus the Matak Hut through level 3",
+        "No replacement towers, replacement Hut, further housing, or school production",
         "Real canvas movement input for the selected Blue Shaman"
       ],
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
-        "Mission 11 later scripted construction, production profiles, attacks, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
+        "Mission 11 Chumara housing, later exact BUILD_AT construction, production profiles, attacks, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1011,7 +1047,8 @@
         "app/game-store.ts",
         "app/scene.ts",
         "app/scene-entities.ts",
-        "decomp/research/mission11-first-settlement.md"
+        "decomp/research/mission11-first-settlement.md",
+        "decomp/research/mission11-first-expansion.md"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],

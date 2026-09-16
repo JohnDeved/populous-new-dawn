@@ -91,14 +91,14 @@ try {
       motionRoutes: structuredClone(world.motionRoutes),
     })
     let world = store.getWorld()
-    for (let turn = 0; turn < 70; turn++) tick(world, 1 / 12)
+    for (let turn = 0; turn < 1000; turn++) tick(world, 1 / 12)
     const control = structuredClone(world),
       before = snapshot(control)
     await store.saveCheckpoint()
     if (!store.loadCheckpoint()) throw new Error('Mission 11 settlement checkpoint failed')
     world = store.getWorld()
     const restored = snapshot(world)
-    for (let turn = 0; turn < 900; turn++) {
+    while (world.turn < 5000) {
       tick(control, 1 / 12)
       tick(world, 1 / 12)
     }
@@ -112,13 +112,11 @@ try {
       .map(tower => tower.team),
     ['green', 'yellow']
   )
-  assert.ok(
-    checkpoint.before.ais.every(
-      ai =>
-        ai.tasks.filter(task => task.flags & 1).length === 1 &&
-        ai.tasks.find(task => task.flags & 1).requested === 4 &&
-        ai.tasks.find(task => task.flags & 1).members.length === 2
-    )
+  assert.deepEqual(
+    checkpoint.before.ais.map(ai =>
+      ai.tasks.filter(task => task.flags & 1).map(task => [task.requested, task.members.length])
+    ),
+    [[], [[1, 2]]]
   )
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
@@ -129,29 +127,24 @@ try {
       world = scene.world,
       { tick } = await import('/app/model.ts'),
       { buildingModel } = await import('/app/building-shapes.ts')
-    const complete = () =>
-      ['green', 'yellow'].every(team =>
-        world.buildings.some(
-          building =>
-            building.team === team && buildingModel(building) === 4 && building.progress === 1
-        )
-      )
-    const settled = () =>
-      complete() &&
-      [2, 3].every(tribe => !world.campaignAIs[tribe].tasks.some(task => task.flags & 1))
-    for (let turn = 0; turn < 1000 && !settled(); turn++) tick(world, 1 / 12)
-    if (!settled()) throw new Error(`Mission 11 Guard Towers timed out at turn ${world.turn}`)
     globalThis.testStore.update()
     scene.onChange()
     scene.animate(scene.previous)
     cancelAnimationFrame(scene.frame)
     scene.renderer.render(scene.scene, scene.camera)
-    const towers = world.buildings.filter(building => buildingModel(building) === 4)
+    const buildings = world.buildings.filter(building =>
+      ['green', 'yellow'].includes(building.team)
+    )
     const result = {
-      towers: towers.map(tower => [tower.id, tower.team, tower.progress]),
-      onlyTowers: world.buildings.length === towers.length,
-      rendered: towers.every(tower => {
-        const group = scene.buildingMeshes.get(tower.id)
+      buildings: buildings.map(building => [
+        building.id,
+        building.team,
+        buildingModel(building),
+        building.progress,
+      ]),
+      onlySettlement: world.buildings.length === buildings.length,
+      rendered: buildings.every(building => {
+        const group = scene.buildingMeshes.get(building.id)
         return (
           !!group && group.parent === scene.objects && group.children.some(child => child.visible)
         )
@@ -160,29 +153,28 @@ try {
         world.campaignAIs[tribe].tasks.filter(task => task.flags & 1)
       ).length,
     }
-    for (const tower of towers) tower.hp = 0
+    for (const building of buildings) building.hp = 0
     for (let turn = 0; turn < 200; turn++) tick(world, 1 / 12)
     return {
       ...result,
-      replacementTowers: world.buildings.filter(
-        building => buildingModel(building) === 4 && building.hp > 0
-      ).length,
+      replacements: world.buildings.filter(building => building.hp > 0).length,
       replacementTasks: [2, 3].flatMap(tribe =>
         world.campaignAIs[tribe].tasks.filter(task => task.flags & 1)
       ).length,
     }
   })
   assert.deepEqual(
-    settlement.towers.map(([, team, progress]) => [team, progress]),
+    settlement.buildings.map(([, team, model, progress]) => [team, model, progress]),
     [
-      ['green', 1],
-      ['yellow', 1],
+      ['green', 4, 1],
+      ['yellow', 4, 1],
+      ['green', 3, 1],
     ]
   )
-  assert.equal(settlement.onlyTowers, true)
+  assert.equal(settlement.onlySettlement, true)
   assert.equal(settlement.rendered, true)
   assert.equal(settlement.activeTasks, 0)
-  assert.equal(settlement.replacementTowers, 0)
+  assert.equal(settlement.replacements, 0)
   assert.equal(settlement.replacementTasks, 0)
 
   const order = await page.evaluate(async () => {
