@@ -9,13 +9,13 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: deliver Mission 11 Matak's first script-requested `BUILD_AT` Guard Tower
-through the existing Mission 10 continuation. Bind only the first eligible native
-`BUILD_AT(120,166)` branch after the model-3 Hut prerequisite, reuse ordinary AI
-spiral site selection and construction, preserve the request across checkpoints, and
-render the completed tower. Keep later `BUILD_AT` towers, staffing, Chumara housing,
-production profiles, attacks, natural Mission 10 victory, Mission 11 objectives, and
-mission completion outside this bounded slice.
+Current task lock: close the PND02 campaign-checkpoint acceptance gap. Diagnose
+the stale Mission 2 RED-tower and three-patrol wait in
+`scripts/check-browser-checkpoint.mjs` against current Mission 2 ownership, AI,
+and presentation behavior; repair the exact test assumption or live gameplay bug,
+then prove fresh-session campaign retention, restart, and legacy Mission 1 loading.
+Preserve meaningful assertions and keep unrelated campaign expansion outside this
+bounded slice.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -41,6 +41,7 @@ Mission 8's Firewarrior Guard-Tower combat finished in `57db8ce`.
 Mission 11's playable opening finished in `bbd93b3`.
 Mission 11's first autonomous Guard Towers finished in `51d777a`.
 Mission 11's first Matak Hut finished in `723358a`.
+Mission 11's first script-requested `BUILD_AT` Guard Tower finished in `3217651`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not

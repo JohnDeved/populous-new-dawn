@@ -1004,6 +1004,41 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission11-reactive-noop-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute Mission 11 Matak's first reactive requested-zero ATTACK branch and native type-20 retirement.",
+      "coveredBehavior": [
+        "EVERY-2047 cadence, Blue marker-17 census gate, and variable-5 one-shot latch",
+        "Matak one-shot Swamp grant and exact opcode-1059 task fields",
+        "Requested-zero selection of no attackers, phase-23 retirement, and unchanged RNG",
+        "Full-queue allocation failure retaining the spell grant and latch"
+      ],
+      "knownLimits": [
+        "The marker census is supplied as a passing branch input; synthetic eligible Warriors, Preachers, and Firewarriors prove that requested zero still selects nobody.",
+        "Later Mission 11 attack blocks remain unexamined."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission11-reactive-noop.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission11-reactive-noop.py",
+        "scripts/check-native-computer-attack.py",
+        "app/original-script-eleven.json",
+        "decomp/research/mission11-reactive-noop.md",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 header and script"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission11-settlement-native",
       "kind": "native",
       "automation": "safe",
