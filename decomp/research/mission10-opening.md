@@ -70,15 +70,22 @@ not issue a victory command; the normal outcome system remains responsible for
 eventual victory.
 
 Words `633..<647` are the separate Shaman-loss watchdog, not part of the success
-slice. Deadline expiry starts at word 647. Message 59/string 681 points to the
-Totem in the Matak settlement; message 131/string 682 reports deadline failure
-and the island's return beneath the sea. Those loss branches remain unbound.
+slice. Deadline expiry is words `647..<722`, evaluated for tribe 3 at turns `1
+mod 16`. Command 1202 leaves variable 8 clear while the timer is incomplete.
+Twelve turns after the 5,760th timer tick in the authored schedule, it reports
+complete; the branch queues message 131/string 682, adds its head and open-message
+flags, forces heads 24-26, queues the four-event sinking flyby, latches variable 9
+from 1 to 2, sets level flag `0x01000000`, and sets player-tribe flag `0x00020000`.
+The normal outcome phase consumes that player flag and reports loss; opcode 1222
+does not itself set the result. Message 59/string 681 remains the second-Totem hint.
 
 ## Evidence and limits
 
 `scripts/check-native-mission10-opening.py` executes the original VM over the
-recurring block while intercepting game-command leaves and supplying only the
-head-count result. It executes the original timer routines directly. The
+recurring and deadline blocks while intercepting game-command leaves and supplying
+the head-count and timer-query results. It directly executes the original timer,
+level-flag, and player-result-flag leaves. Message, head, flyby, and outcome
+consumers remain outside that byte-executed composition. The
 existing Boat House native probe separately verifies the 600-turn producer and
 occupied launch. The browser check continues Mission 9 into Mission 10 and uses
 the authored Boat House for both crossings. Its first crossing uses an ordinary
@@ -86,13 +93,15 @@ ground command to exercise automatic group boarding, checkpoint restoration,
 landing, and retained-order completion; the second crossing still uses explicit
 Boat input. Rendered HUD, ground, Boat, Totem, menu, and Blast input carry the
 party through live defenders; checkpoint reload resumes second-Totem worship
-deterministically. The check observes both flybys, deadline clearing, the
-64-evaluation delay, all ten Erosion targets, terrain upload, building-mesh
-synchronization, objective UI, and restart state. A deterministic test starting
+deterministically. From a saved first-Totem checkpoint it also advances the exact
+remaining timer, observes the authored failure message, normal outcome loss screen,
+and `Begin again`, then reloads the checkpoint and continues the success path. The
+check observes both success flybys, deadline clearing, the 64-evaluation delay, all
+ten Erosion targets, terrain upload, building-mesh synchronization, objective UI,
+and restart state. A deterministic test starting
 with the intact settlement separately verifies Erosion-driven building removal.
 The complete native simultaneous automatic-crossing schedule and live
 full/unavailable-Boat retry remain open.
 
-Full Mission 10 AI, command 1093, Shaman-loss and deadline-failure branches,
-natural endgame victory, and exact model-90/model-26 terrain equivalence remain
-open.
+Full Mission 10 AI, command 1093, the Shaman-loss branch, natural endgame victory,
+and exact model-90/model-26 terrain equivalence remain open.

@@ -1038,6 +1038,108 @@ try {
   assert.deepEqual(completedTotem.restored, completedTotem.expected)
   assert.deepEqual(completedTotem.advancedRestored, completedTotem.advancedControl)
 
+  const deadlineDefeat = await page.evaluate(async () => {
+    const store = globalThis.testStore,
+      { tick } = await import('/app/model.ts')
+    let world = store.getWorld()
+    const savedRemaining = world.campaignTimer
+    if (!savedRemaining) throw new Error(`Mission 10 deadline is not active: ${savedRemaining}`)
+    await store.saveCheckpoint()
+    for (let turn = 0; turn < 7; turn++) tick(world, 1 / 12)
+    const changedRemaining = world.campaignTimer
+    if (!store.loadCheckpoint()) throw new Error('Mission 10 deadline checkpoint failed')
+    world = store.getWorld()
+    const restoredRemaining = world.campaignTimer
+    for (let turn = 0; turn < restoredRemaining - 1; turn++) tick(world, 1 / 12)
+    const beforeExpiry = {
+      timer: world.campaignTimer,
+      status: world.status,
+      failureMessage: world.messages.slots.some(message => message?.stringId === 682),
+    }
+    tick(world, 1 / 12)
+    const atExpiry = {
+      timer: world.campaignTimer,
+      status: world.status,
+      failureMessage: world.messages.slots.some(message => message?.stringId === 682),
+    }
+    let branchTurns = 0
+    while (!world.messages.slots.some(message => message?.stringId === 682) && branchTurns < 16) {
+      tick(world, 1 / 12)
+      branchTurns++
+    }
+    const message = world.messages.slots.find(candidate => candidate?.stringId === 682)
+    const branch = {
+      flags: (message?.flags ?? 0) & 0x20200,
+      latch: world.ai.variables[9],
+      levelFlag: world.manaWorld.levelFlags & 0x1000000,
+      playerFlag: world.castingTribes[world.manaWorld.playerTribe].flags & 0x20000,
+      status: world.status,
+    }
+    let outcomeTurns = 0
+    while (world.status === 'playing' && outcomeTurns < 16) {
+      tick(world, 1 / 12)
+      outcomeTurns++
+    }
+    store.update()
+    return {
+      savedRemaining,
+      changedRemaining,
+      restoredRemaining,
+      beforeExpiry,
+      atExpiry,
+      branchTurns,
+      branch,
+      outcomeTurns,
+      status: world.status,
+    }
+  })
+  assert.ok(deadlineDefeat.changedRemaining < deadlineDefeat.savedRemaining)
+  assert.equal(deadlineDefeat.restoredRemaining, deadlineDefeat.savedRemaining)
+  assert.deepEqual(deadlineDefeat.beforeExpiry, {
+    timer: 1,
+    status: 'playing',
+    failureMessage: false,
+  })
+  assert.deepEqual(deadlineDefeat.atExpiry, {
+    timer: 0,
+    status: 'playing',
+    failureMessage: false,
+  })
+  assert.ok(deadlineDefeat.branchTurns > 0 && deadlineDefeat.branchTurns <= 16)
+  assert.deepEqual(deadlineDefeat.branch, {
+    flags: 0x20200,
+    latch: 2,
+    levelFlag: 0x1000000,
+    playerFlag: 0x20000,
+    status: 'playing',
+  })
+  assert.ok(deadlineDefeat.outcomeTurns > 0 && deadlineDefeat.outcomeTurns <= 16)
+  assert.equal(deadlineDefeat.status, 'lost')
+  await page
+    .getByText(
+      'You have run out of time, Shaman, and your revenge has failed. The island has returned to the depths of the ocean.',
+      { exact: true }
+    )
+    .waitFor()
+  await page.waitForFunction(() => !globalThis.testStore.getWorld().outcome.cameraPlaying)
+  await page.getByText('THE CIRCLE IS BROKEN', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Begin again', exact: false }).click()
+  assert.deepEqual(
+    await page.evaluate(() => {
+      const world = globalThis.testStore.getWorld(),
+        totem = world.shrines.find(shrine => shrine.kind === 'linkedEffects')
+      return {
+        timer: world.campaignTimer,
+        latches: [world.ai.variables[7], world.ai.variables[9]],
+        remaining: totem.remaining,
+        failureMessage: world.messages.slots.some(message => message?.stringId === 682),
+        status: world.status,
+      }
+    }),
+    { timer: null, latches: [0, 0], remaining: 1, failureMessage: false, status: 'playing' }
+  )
+  assert.equal(await page.evaluate(() => globalThis.testStore.loadCheckpoint()), true)
+
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
@@ -1677,7 +1779,7 @@ try {
   )
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 8 continues through exact Missions 9 and 10; both Mission 10 Totems, Boat crossings, flybys, deadline clear, settlement Erosion, checkpoint and restart paths work'
+    'PASS: Mission 8 continues through exact Missions 9 and 10; both Mission 10 Totems, Boat crossings, flybys, deadline defeat and clear, settlement Erosion, checkpoint and restart paths work'
   )
 } finally {
   await browser.close()

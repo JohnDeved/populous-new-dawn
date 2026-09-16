@@ -942,18 +942,19 @@
     {
       "id": "mission10-opening-native",
       "kind": "native",
-      "automation": "manual",
-      "purpose": "Execute the native Mission 10 Totem transitions, final Erosion delay, and 480-second deadline timer against hash-verified original inputs.",
+      "automation": "safe",
+      "purpose": "Execute the native Mission 10 Totem transitions, final Erosion delay, 480-second timer, and deadline-failure branch against hash-verified original inputs.",
       "coveredBehavior": [
         "Mission 10 level, header, script, and executable identity",
         "Native opening, hint, next-objective, and deadline-failure message bindings",
         "First-Totem linked template inventory and worship settings",
         "Tribe-3 recurring VM gate, command order, and variables 7/9 latches",
         "Native 5,760-turn deadline completion and clear behavior",
+        "Deadline poll gate, message 131, sinking flyby command sequence, variable 9 latch, level flag, and player forced-result flag",
         "Second-Totem timer clear, six-event flyby, variable 6 latch, 64-evaluation variable 18 countdown, and marker-20 force"
       ],
       "knownLimits": [
-        "Game-command leaves are intercepted and command 1131's head result is supplied.",
+        "Message, head, flyby, and outcome consumers are intercepted; commands 1131 and 1202 receive supplied results. The timer, level-flag, and player-result-flag leaves execute natively.",
         "The full native level, Boat route, trigger clones, and class-7 model-90/model-26 terrain consumers are not executed."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
@@ -979,7 +980,7 @@
       "id": "mission9-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 8 continuation through Missions 9 and 10, including both Mission 10 Boat crossings, Totems, flybys, deadline clear, settlement Erosion, checkpoint, and restart paths.",
+      "purpose": "Exercise Mission 8 continuation through Missions 9 and 10, including both Mission 10 Boat crossings, Totems, flybys, deadline defeat and clear, settlement Erosion, checkpoint, and restart paths.",
       "coveredBehavior": [
         "Mission 8 result continuation into exact Mission 9 data",
         "Authentic Vault unlock through rendered-object input",
@@ -990,6 +991,7 @@
         "Mission 10 stranded supplied Boat plus occupied launch from the authored Boat House",
         "Rendered party rally and ordinary ground command across water, automatic Boat search/boarding, sailing, disembark, retained objective, and first-Totem input with live defenders",
         "Linked earthquakes/next Totem, ten-track flyby, and 5,760-turn deadline",
+        "Saved first-Totem deadline checkpoint, final incomplete and complete timer boundaries, authored failure message, normal loss UI, and Begin-again restart",
         "Second rendered Boat crossing, safe-coast selection, four player-cast Blasts against live defenders, and second-Totem input",
         "Second-Totem checkpoint continuation, deadline clear, six-track final flyby, objective UI, delayed ten-target settlement Erosion, GPU terrain update, building-mesh synchronization, and restart"
       ],
@@ -998,7 +1000,7 @@
         "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat targeting/feedback, and exact replacement hull art remain deferred; destruction is covered separately.",
         "The complete native simultaneous multi-person crossing schedule is not byte-executed end to end; native route/vehicle probes and the live Mission 10 composition divide that evidence.",
         "After four rendered Blasts, surviving nearby defenders are removed to isolate second-Totem checkpoint continuation; this check does not prove fully player-driven defender clearance.",
-        "Mission 10 full AI, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
+        "Mission 10 full AI, Shaman-loss branch, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission9.mjs"],
@@ -1014,6 +1016,7 @@
         "app/original-messages.json",
         "app/original-models.json",
         "app/mission-data.ts",
+        "app/campaign-command-runtime.ts",
         "app/building-shapes.ts",
         "app/building-runtime.ts",
         "app/live-vehicles.ts",

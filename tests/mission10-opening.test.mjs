@@ -52,6 +52,26 @@ test('Mission 10 runs its first Totem deadline and second Totem Erosion sequence
     undefined
   )
 
+  const expired = structuredClone(checkpoint)
+  tick(expired, 5_759 / 12)
+  assert.equal(expired.campaignTimer, 1)
+  assert.equal(expired.status, 'playing')
+  assert.equal(expired.messages.slots.some(message => message?.stringId === 682), false)
+  tick(expired, 1 / 12)
+  assert.equal(expired.campaignTimer, 0)
+  assert.equal(expired.status, 'playing')
+  for (let turn = 0; !expired.messages.slots.some(message => message?.stringId === 682) && turn < 16; turn++)
+    tick(expired, 1 / 12)
+  const failure = expired.messages.slots.find(message => message?.stringId === 682)
+  assert.ok(failure)
+  assert.equal(failure.flags & 0x20200, 0x20200)
+  assert.equal(expired.manaWorld.levelFlags & 0x1000000, 0x1000000)
+  assert.equal(expired.castingTribes[0].flags & 0x20000, 0x20000)
+  assert.equal(expired.ai.variables[9], 2)
+  assert.equal(expired.status, 'playing')
+  for (let turn = 0; expired.status === 'playing' && turn < 16; turn++) tick(expired, 1 / 12)
+  assert.equal(expired.status, 'lost')
+
   const secondTotem = world.shrines.find(shrine => shrine.name === 'Erosion Totem Pole'),
     beforeHeights = Array.from(world.land.heights),
     beforeGreenBuildings = world.buildings.filter(building => building.team === 'green').length

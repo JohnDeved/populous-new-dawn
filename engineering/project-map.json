@@ -652,7 +652,7 @@
         "Mission 7's attack AI, later messages, Erosion acquisition, and victory remain deferred.",
         "Mission 8's AI, tutorials, victory, and broader Firewarrior terrain line-of-fire, building targets, Bloodlust, target damage, and trail behavior remain deferred.",
         "Mission 9's AI, tutorials, victory, recurring Boat production, Boat combat/death, and exact replacement hull art remain deferred.",
-        "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
+        "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss branch, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
         "Mission 11's Chumara housing, later BUILD_AT construction and staffing, production profiles, attacks, flyby, objectives, victory, unsupported script commands, and natural completion remain deferred.",
         "Mission 12's later AI, objectives, victory, broader Spy detection/combat and normal cross-island sabotage transport, Balloon behavior, opcode 1190 consumer, unsupported script commands, and natural completion remain deferred.",
         "Mission 13's later AI, objectives, victory, Balloon combat/death, exact Balloon art, unsupported script commands, and natural completion remain deferred.",

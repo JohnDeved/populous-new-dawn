@@ -9,12 +9,11 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current feature lock: deliver normal automatic Boat crossing through shipped play.
-An ordinary selected land group ordered across water must find the authored Boat,
-board without a Boat-click shortcut, sail, disembark, and resume the retained order.
-Preserve group/order identity, capacity and failure behavior, and checkpoint resume;
-reuse the existing routing, boarding, and landing owners instead of adding a second
-transport path.
+Current feature lock: deliver Mission 10's first-Totem deadline defeat through
+shipped play. After the Totem starts its authored 480-second timer, the first 5,759
+turns must remain playable; expiry after 5,760 turns must lead through the original
+failure message to the normal loss screen/restart path. Preserve exact checkpointed
+remaining time, and keep second-Totem completion clearing the deadline.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -47,6 +46,7 @@ Mission 13's playable opening finished in `f261e60`.
 Mission 12's first playable Spy disguise and sabotage finished in `68d0f24`.
 Mission 13's first ordinary Balloon transport finished in `2f83643`.
 Original Boat/Balloon damage, destruction, and passenger ejection finished in `795a60d`.
+Mission 10's normal automatic Boat crossing finished in `5bfd8c1`.
 The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
 PND02's ordinary Mission 2-3 victories, shipped Mission 2→3 continuation, Mission 4
 offer, fresh-page checkpoint, restart, legacy migration, and required-reachability

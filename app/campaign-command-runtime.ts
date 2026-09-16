@@ -118,6 +118,7 @@ export function campaignCommand(
       1136: 0,
       1138: 2,
       1151: 1,
+      1169: 0,
       1171: 2,
       1172: 1,
       1173: 2,
@@ -146,6 +147,7 @@ export function campaignCommand(
       1214: 4,
       1215: 2,
       1221: 1,
+      1222: 1,
     } as Record<number, number>
   )[opcode]
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`)
@@ -476,6 +478,17 @@ export function campaignCommand(
     else if (args[0] === 1023) w.manaWorld.gameFlags = (w.manaWorld.gameFlags | 0x40) >>> 0
     return
   }
+  if (opcode === 1222) {
+    if (args[0] === 1022) w.manaWorld.levelFlags &= ~0x1000000
+    else if (args[0] === 1023) w.manaWorld.levelFlags |= 0x1000000
+    else throw new RangeError('Invalid level availability mode')
+    return
+  }
+
+  if (opcode === 1169) {
+    w.castingTribes[w.manaWorld.playerTribe].flags |= 0x20000
+    return
+  }
 
   if (opcode === 1112) {
     if (!(w.manaWorld.levelFlags & 0x1000000)) {
@@ -680,6 +693,7 @@ export function campaignRules(w: World) {
                           ...script.codes.slice(440, 443),
                           ...script.codes.slice(445, 528),
                           ...script.codes.slice(528, 633),
+                          ...script.codes.slice(647, 722),
                           1004,
                           1019,
                         ]

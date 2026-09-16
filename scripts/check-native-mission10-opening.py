@@ -1,4 +1,4 @@
-"""Execute Mission 10's bounded first- and second-Totem native script branches.
+"""Execute Mission 10's bounded Totem and deadline-failure native script branches.
 
 Usage: .tools/decomp/oracle/bin/python scripts/check-native-mission10-opening.py /path/to/d3dpoptb.exe
 The PopScript game-command host is intercepted; the timer leaf executes natively.
@@ -90,7 +90,7 @@ for message_number, string_id in ((57, 679), (58, 680), (59, 681), (131, 682)):
 cpu.mem_map(0x2000000, 0x20000)
 program, tribe, stack, stop = 0x2000000, 0x2008000, 0x201D000, 0x201E000
 trace = []
-scenario = {"head": 1}
+scenario = {"head": 1, "timer": 0}
 
 def read_u32(address):
     return struct.unpack("<I", cpu.mem_read(address, 4))[0]
@@ -121,6 +121,9 @@ def intercept_command(_cpu, _address, _size, _user):
     if opcode == 1131:
         _, variable = fields[args[-1]]
         cpu.mem_write(program + 0x3000 + variable * 4, struct.pack("<i", scenario["head"]))
+    elif opcode == 1202:
+        _, variable = fields[args[-1]]
+        cpu.mem_write(program + 0x3000 + variable * 4, struct.pack("<i", scenario["timer"]))
     cpu.mem_write(program + 0x3104, struct.pack("<I", pointer + 4 + arity * 2))
     return_from_hook()
 
@@ -231,6 +234,48 @@ assert second_countdown["v18"] == 0
 assert [entry["opcode"] for entry in second_countdown["commands"]] == [1151]
 assert second_countdown["commands"][0]["values"] == [20]
 
+# Deadline expiry is a separate recurring block. It polls the native timer at
+# turn 1 mod 16, presents the authored loss, sinks three heads, and requests
+# player defeat only after its flyby is queued.
+deadline_fragment = [12, 1003, *codes[647:722], 1004, 1019]
+deadline_blob = bytearray(script_bytes)
+deadline_blob[:8192] = bytes(8192)
+struct.pack_into("<" + "H" * len(deadline_fragment), deadline_blob, 0, *deadline_fragment)
+
+def run_deadline(turn, complete, latch=1):
+    scenario["timer"] = complete
+    trace.clear()
+    cpu.mem_write(program, bytes(deadline_blob))
+    variables = [0] * 64
+    variables[9] = latch
+    cpu.mem_write(program + 0x3000, struct.pack("<64i", *variables))
+    cpu.mem_write(tribe, bytes(0xC65))
+    cpu.mem_write(tribe + 0xC22, bytes([3]))
+    cpu.mem_write(0x89D188, struct.pack("<I", turn))
+    cpu.mem_write(stack, struct.pack("<III", stop, tribe, program))
+    cpu.reg_write(UC_X86_REG_ESP, stack)
+    cpu.emu_start(0x48C6B0, stop, timeout=100000, count=100000)
+    assert cpu.reg_read(UC_X86_REG_EIP) == stop
+    variables = struct.unpack("<64i", cpu.mem_read(program + 0x3000, 256))
+    return {"turn": turn, "timerComplete": complete, "initialLatch": latch,
+            "commands": list(trace), "v8": variables[8], "v9": variables[9]}
+
+deadline_ineligible = run_deadline(0, 1)
+deadline_waiting = run_deadline(1, 0)
+deadline_fired = run_deadline(1, 1)
+assert deadline_ineligible["commands"] == []
+assert [entry["opcode"] for entry in deadline_waiting["commands"]] == [1202]
+assert (deadline_waiting["v8"], deadline_waiting["v9"]) == (0, 1)
+assert [entry["opcode"] for entry in deadline_fired["commands"]] == [
+    1202, 1176, 1187, 1180, 1222, 1151, 1151, 1151, 1205, 1208,
+    1209, 1210, 1210, 1214, 1206, 1169,
+]
+assert [entry["values"] for entry in deadline_fired["commands"]] == [
+    [0], [131], [], [], [1023], [24], [25], [26], [], [1023],
+    [2, 66, 2, 23], [1632, 1, 15], [296, 17, 6], [36, 54, 1646, 0], [], [],
+]
+assert (deadline_fired["v8"], deadline_fired["v9"]) == (1, 2)
+
 cpu.hook_del(hook)
 def call(address, *args):
     cpu.mem_write(stack, struct.pack("<" + "I" * (len(args) + 1), stop, *args))
@@ -238,6 +283,20 @@ def call(address, *args):
     cpu.emu_start(address, stop, timeout=100000, count=100000)
     assert cpu.reg_read(UC_X86_REG_EIP) == stop
     return cpu.reg_read(UC_X86_REG_EAX)
+
+# Execute the two result-owner leaves rather than inferring them from names.
+cpu.mem_write(program, struct.pack("<3H", 1006, 1222, 1023))
+cpu.mem_write(program + 0x3104, struct.pack("<I", program))
+cpu.mem_write(0x89C669, struct.pack("<I", 0))
+call(0x48CC60, tribe, program)
+assert read_u32(0x89C669) & 0x1000000
+
+cpu.mem_write(program, struct.pack("<2H", 1006, 1169))
+cpu.mem_write(program + 0x3104, struct.pack("<I", program))
+cpu.mem_write(0x89C6F0, b"\0")
+cpu.mem_write(0x89DB05, struct.pack("<I", 0))
+call(0x48CC60, tribe, program)
+assert read_u32(0x89DB05) & 0x20000
 
 cpu.mem_write(0x89C661, b"\0")
 call(0x4A5D20, 12 * 480, 1)
@@ -261,6 +320,12 @@ print(json.dumps({
                         "ineligible": second_ineligible, "waiting": second_waiting,
                         "fired": second_fired, "countdownEvaluationsIncludingFire": 64,
                         "countdownResult": second_countdown},
+        "deadlineFailure": {"slice": "647..<722", "eligibleTurnModulo16": 1,
+                            "ineligible": deadline_ineligible,
+                            "waiting": deadline_waiting, "fired": deadline_fired,
+                            "timerCompletionToBranchTurns": 12,
+                            "levelFlag": "0x01000000",
+                            "playerDefeatRequest": "0x00020000"},
     },
     "trigger119": {"record": record(119), "remaining": settings[3], "required": 2,
                    "target": 64, "linksOneBased": links, "linkedRecords": linked},
@@ -271,4 +336,4 @@ print(json.dumps({
     "timer": {"seconds": 480, "turnsPerSecond": 12, "nativeTicks": 5760,
               "completionAfterTicks": 5760, "clearRestoresIncomplete": True},
 }, indent=2))
-print("PASS: Mission 10 Totem branches, delayed Erosion head, and native 480-second timer leaf")
+print("PASS: Mission 10 Totem branches, deadline failure, and native 480-second timer leaf")
