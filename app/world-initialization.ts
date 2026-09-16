@@ -90,6 +90,8 @@ export function createWorld(missionNumber = 1): World {
         erosion = links.find(object => object.type === 7 && object.model === 23),
         earthquakes = links.filter(object => object.type === 7 && object.model === 26),
         linkedHead = links.find(object => object.type === 6 && object.model === 6),
+        angelStatue = links.find(object => object.type === 7 && object.model === 91),
+        angelTarget = links.find(object => object.type === 7 && object.model === 88),
         linked = linkedVehicle ?? bridge ?? erosion ?? rewardObject,
         reward = rewardObject?.settings,
         bridgeTarget = bridge && 'target' in bridge ? (bridge.target as Point) : undefined,
@@ -121,17 +123,17 @@ export function createWorld(missionNumber = 1): World {
         kind =
           settings[0] === 4
             ? 'vault'
-            : earthquakeTargets.length && linkedHead
-              ? 'linkedEffects'
-              : linked?.type === 4
-                ? 'boat'
-                : linked?.type === 7 && linked.model === 24 && bridgeTarget
-                  ? 'bridgeEffect'
-                  : effectTarget
-                    ? 'erosionEffect'
-                    : rewardSpell?.id
-      // Mission 5's Angel head has a dedicated class-7 owner.
-      if (!kind && missionNumber === 5) continue
+            : angelStatue && angelTarget
+              ? 'angel'
+              : earthquakeTargets.length && linkedHead
+                ? 'linkedEffects'
+                : linked?.type === 4
+                  ? 'boat'
+                  : linked?.type === 7 && linked.model === 24 && bridgeTarget
+                    ? 'bridgeEffect'
+                    : effectTarget
+                      ? 'erosionEffect'
+                      : rewardSpell?.id
       // Decorative trigger links have no collectible reward owner.
       if (
         !kind &&
@@ -146,7 +148,8 @@ export function createWorld(missionNumber = 1): World {
           : kind === 'bridgeEffect' ||
               kind === 'erosionEffect' ||
               kind === 'linkedEffects' ||
-              kind === 'boat'
+              kind === 'boat' ||
+              kind === 'angel'
             ? undefined
             : kind
       if (
@@ -154,6 +157,7 @@ export function createWorld(missionNumber = 1): World {
         kind !== 'erosionEffect' &&
         kind !== 'linkedEffects' &&
         kind !== 'boat' &&
+        kind !== 'angel' &&
         !shrineReward
       )
         throw new Error(`Unbound shrine gift ${o.index}`)
@@ -209,6 +213,7 @@ export function createWorld(missionNumber = 1): World {
         ...(kind === 'boat'
           ? { rewardVehicle: w.vehicles.find(v => v.model === linked!.model && !v.active)!.id }
           : {}),
+        ...(kind === 'angel' ? { angelTarget: { x: angelTarget!.x, z: angelTarget!.z } } : {}),
         name:
           kind === 'vault'
             ? 'Vault of Knowledge'
@@ -220,7 +225,9 @@ export function createWorld(missionNumber = 1): World {
                   ? 'Totem Pole'
                   : kind === 'boat'
                     ? 'Boat stone head'
-                    : `${rewardSpell!.name} stone head`,
+                    : kind === 'angel'
+                      ? 'Angel of Death stone head'
+                      : `${rewardSpell!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,

@@ -72,6 +72,9 @@ export const AUDIO_CUES = [
   222,
   225,
   226,
+  217,
+  219,
+  220,
 ]
 export function audioRandom(state: number) {
   const n = (Math.imul(state, 0x24a1) + 0x24df) >>> 0

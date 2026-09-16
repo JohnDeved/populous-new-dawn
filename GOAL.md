@@ -9,9 +9,10 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: prove ordinary Mission 2 victory, continue through the shipped
-result UI, then prove ordinary Mission 3 victory. Bind only blockers exposed by
-that real sequential path before beginning another mission opening.
+Current task lock: deliver Mission 5's Angel-head reward through ordinary follower
+worship, then prove the linked Angel appears, seeks an enemy, strikes, and cleans
+itself up through the live rendered game. Preserve the native evidence boundary for
+the still-unknown initial lifetime and exact model-91 presentation.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -26,6 +27,9 @@ finished in `e026556`; Chumara Temple and Preacher production finished in `b4138
 Chumara's first mixed Mission 6 raid finished in `5dbbec8`; complete base-game input
 recovery finished in `c77a2f7`.
 Mission 3's autonomous Tower, Temple, and first Preacher finished in `cc1e8b4`.
+Ordinary Mission 2 victory, shipped continuation, and ordinary Mission 3 victory
+finished in `744ad67`; the later scene terrain initialization extraction finished
+in `3de1a8c`.
 Mission 7's Convert Wild to Invisibility vertical slice finished in `2912b43`.
 Mission 8's Firewarrior vertical slice finished in `88f4a97`.
 Mission 9's Boat House-to-Boat vertical slice finished in the current feature commit.

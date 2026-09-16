@@ -118,6 +118,13 @@ export type Projectile = {
   visuals: Effect[]
   fireball?: boolean
 }
+export type AngelState = {
+  phase: 'seeking' | 'striking' | 'dying'
+  target: number | null
+  heading: number
+  timer: number
+  lifetime: number
+}
 export type Battle = Point & {
   id: number
   members: number[]
@@ -208,7 +215,7 @@ export type Building = Point & {
 export type Shrine = Point &
   WorshipState & {
     id: number
-    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'linkedEffects' | 'vault' | 'boat'
+    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'linkedEffects' | 'vault' | 'boat' | 'angel'
     reward?: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse'
     bridgeTarget?: Point
     effectTarget?: Point
@@ -216,6 +223,7 @@ export type Shrine = Point &
     earthquakeTargets?: Point[]
     linkedShrine?: Shrine
     rewardVehicle?: number
+    angelTarget?: Point
     nextSlot: number
     slotTimer: number
     range: number
@@ -268,6 +276,7 @@ export type Effect = Point & {
     | 'reincarnation'
     | 'gift'
     | 'firewarriorShot'
+    | 'angel'
   height?: number
   sprite?: { sequence: string; frame: number; fixed?: boolean }
   animation?: AnimatedUnit | SpellTrail
@@ -296,6 +305,7 @@ export type Effect = Point & {
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
   firewarriorShot?: { source: number; target: number; remaining: number }
+  angel?: AngelState
 }
 export type Gift = Effect & {
   kind: 'gift'

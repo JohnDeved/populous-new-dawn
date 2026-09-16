@@ -84,6 +84,7 @@ import {
   sound,
   effect,
   createGift,
+  createAngel,
   shotVisual,
   moveVisual,
   emitGroundSpark,
@@ -95,6 +96,8 @@ import {
   refreshTerrainLights,
   requestTutorial,
 } from './world-effects.ts'
+import { stepAngel } from './angel.ts'
+import { damagePerson } from './person-update.ts'
 import { buildingObject, buildingPose, buildingShapeCells } from './building-shapes.ts'
 import {
   nativePosition,
@@ -539,6 +542,31 @@ function stepTurn(w: World) {
     }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
+    if (fx.angel) {
+      const event = stepAngel(w, fx)
+      // Keep the bounded presentation offset stable while exact native flight height remains open.
+      fx.height = (terrainPointHeight(w.land, nativePosition(w, fx)) + 640) / 45
+      if (event.hit) {
+        const source =
+          event.hit.flight ??
+          event.hit.fight?.motion ??
+          event.hit.native ??
+          event.hit.entry?.person ??
+          event.hit.builder?.person ??
+          (event.hit.native = createLivePerson(w, event.hit))
+        source.life = Math.round(event.hit.hp * 20)
+        source.flags3 = (source.flags3 & ~0x80000) | (event.hit.shield ? 0x80000 : 0)
+        damagePerson(source, w.levelFlags2, tribeForTeam(fx.team!), Math.round(event.hit.hp * 20))
+        event.hit.hp = Math.max(0, source.life / 20)
+        effect(w, 'hit', event.hit)
+        sound(w, 0xdc, event.hit)
+      }
+      if (event.expired) {
+        sound(w, 0xb2, fx)
+        effect(w, 'death', fx)
+        fx.duration = fx.age
+      }
+    }
     if (fx.ghostArmy) stepGhostArmy(w, fx)
     if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
@@ -849,6 +877,9 @@ function stepTurn(w: World) {
           w.castingTribes[0].flags |= 64
           tell(w, 'Boat received. Select followers and click it to board.')
         }
+      } else if (shrine.kind === 'angel') {
+        // ponytail: keep the stone-head mesh until class-7/model-91's sprite presentation is decoded.
+        createAngel(w, teamForTribe(w.manaWorld.playerTribe), shrine.angelTarget!)
       } else createGift(w, shrine.reward!, shrine)
       sound(w, 0x70, shrine)
     }

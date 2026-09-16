@@ -382,13 +382,7 @@ export function updateUnitsFrame(scene: GameScene) {
     }
     g.userData.draw =
       animationSource?.draw ??
-      (u.kind === 'preacher'
-        ? 16
-        : u.kind === 'firewarrior'
-          ? 17
-          : u.kind === 'warrior'
-            ? 15
-            : 14)
+      (u.kind === 'preacher' ? 16 : u.kind === 'firewarrior' ? 17 : u.kind === 'warrior' ? 15 : 14)
     const nativeRenderFlags = animationSource?.renderFlags ?? 0,
       invisibilityRenderFlag = unitInvisibilityRenderFlag(scene.world, u),
       renderFlags =
@@ -410,8 +404,7 @@ export function updateUnitsFrame(scene: GameScene) {
       g.userData.since = scene.world.time
     }
     const source = animationSource
-        ? animationSource.object +
-          (animationTeam(u.team) === 'red' && u.kind === 'shaman' ? 8 : 0)
+        ? animationSource.object + (animationTeam(u.team) === 'red' && u.kind === 'shaman' ? 8 : 0)
         : undefined,
       nativeDirections =
         source === undefined
@@ -422,9 +415,7 @@ export function updateUnitsFrame(scene: GameScene) {
       g,
       u.heading,
       directions,
-      nativeDirections
-        ? 0
-        : scene.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
+      nativeDirections ? 0 : scene.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
       !nativeDirections && !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state),
       nativeDirections ? animationSource!.f2 : undefined
     )
@@ -582,7 +573,7 @@ export function updateShrinesFrame(scene: GameScene) {
         mesh.userData.morphStart = morph.started
       }
     }
-    entry.g.visible = shrine.active || shrine.kind === 'vault'
+    entry.g.visible = shrine.active || shrine.kind === 'vault' || shrine.kind === 'angel'
   }
 }
 

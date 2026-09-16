@@ -1323,6 +1323,82 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 5's authored Angel head, live worship completion, hostile chase and strike, and cleanup.",
+      "coveredBehavior": [
+        "Model-91/model-88 linked head initialization",
+        "Live follower worship and one-shot completion",
+        "Winning-tribe Angel allocation at the authored marker",
+        "Alliance/invisibility filtering, shield-aware damage, kill credit, strike timing, and cleanup",
+        "Legacy Mission 5 checkpoint insertion of the previously omitted authored head"
+      ],
+      "knownLimits": [
+        "The bounded browser lifetime replaces an unrecovered native +0x97 initializer; model-91's exact sprite presentation remains deferred.",
+        "Flight speed 128, the +640 presentation height, and combined 0xd9/0xdb spawn timing are bounded approximations because their native scaling and activation ordering remain unrecovered."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission5-angel.test.mjs",
+        "app/angel.ts",
+        "app/game-store.ts",
+        "app/live-worship.ts",
+        "app/world-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/worship.ts",
+        "app/level-five.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 5's Angel head through rendered HUD selection, pointer worship, presentation, autonomous combat, and original audio.",
+      "coveredBehavior": [
+        "Mission 5 launch and ordinary introduction skip",
+        "Rendered warrior selection and stone-head command",
+        "Live prayer completion and linked Angel reward",
+        "Angel GPU pixels, movement, enemy targeting, lethal strike, and audio"
+      ],
+      "knownLimits": [
+        "An existing warrior is positioned at the worship ring to bound travel; no head, Angel, enemy, or completion state is injected.",
+        "Headless GPU pixels do not establish full original raster parity.",
+        "The check proves visible movement and cue presence, not exact native flight speed, height, or activation timing."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission5-angel.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission5-angel.mjs",
+        "scripts/browser-game.mjs",
+        "app/angel.ts",
+        "app/audio.ts",
+        "app/game-clock.ts",
+        "app/live-worship.ts",
+        "app/scene-effects.ts",
+        "app/scene-entities.ts",
+        "app/world-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/original-units.json"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes /private/tmp/populous-mission5-angel.png"],
+      "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

@@ -122,13 +122,18 @@ export function migrateCheckpoint(world: World) {
     world.killCredits[0][3] = Math.max(world.killCredits[0][3], world.killCredits[0][1])
     world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
   }
+  if (world.outcome.level === 5 && !world.shrines.some(shrine => shrine.kind === 'angel')) {
+    const angel = createWorld(5).shrines.find(shrine => shrine.kind === 'angel')!
+    world.shrines.push({ ...structuredClone(angel), id: world.nextId++ })
+  }
   for (const shrine of world.shrines)
     if (
       !shrine.reward &&
       shrine.kind !== 'bridgeEffect' &&
       shrine.kind !== 'erosionEffect' &&
       shrine.kind !== 'linkedEffects' &&
-      shrine.kind !== 'boat'
+      shrine.kind !== 'boat' &&
+      shrine.kind !== 'angel'
     )
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
   for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'

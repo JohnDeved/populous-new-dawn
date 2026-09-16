@@ -8,6 +8,7 @@ import {
   type Effect,
   type Gift,
 } from './world-types.ts'
+import { createAngelState } from './angel.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import modelAssets from './original-models.json' with { type: 'json' }
@@ -152,6 +153,17 @@ export function createGift(w: World, reward: Gift['reward'], p: Point) {
   })
   w.gifts.push(gift)
   return gift
+}
+export function createAngel(w: World, team: Team, p: Point) {
+  const angel = effect(w, 'angel', p)
+  angel.team = team
+  angel.angel = createAngelState()
+  angel.duration = Infinity
+  // ponytail: bounded flight height and combined spawn cues until native activation timing is traced.
+  angel.height = (terrainPointHeight(w.land, nativePosition(w, p)) + 640) / 45
+  sound(w, 0xd9, p)
+  sound(w, 0xdb, p)
+  return angel
 }
 export function shotVisual(w: World, p: NativePoint, team: Team, sequence: string, frame = 0) {
   const fx = effect(w, 'trail', browserPosition(p))

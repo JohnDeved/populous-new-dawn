@@ -537,9 +537,7 @@ export function campaignCommand(
   } else if (opcode === 1131) {
     const x = read(args[0]),
       y = read(args[1]),
-      remaining =
-        headAt(w, x, y)?.remaining ?? (w.outcome.level === 5 && x === 166 && y === 130 ? 1 : 0)
-    // ponytail: Mission 5's Angel reward is still deferred; remove this fallback when that head becomes playable.
+      remaining = headAt(w, x, y)?.remaining ?? 0
     value = (remaining << 24) >> 24
   } else {
     const tribe = args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0])

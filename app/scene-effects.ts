@@ -126,6 +126,15 @@ export function makeFx(scene: GameScene, f: Effect) {
     g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [680], flip: false }))
     return g
   }
+  if (f.angel) {
+    g.name = 'angel-of-death'
+    g.userData.layers = []
+    g.userData.owner = tribeForTeam(f.team!)
+    g.userData.draw = 15
+    g.userData.drawFlags = 2
+    g.userData.directions = nativeUnits.animations['blue-warrior'].stagger
+    return g
+  }
   if (f.unit) {
     g.userData.layers = []
     g.userData.owner = tribeForTeam(f.unit.team)
@@ -284,6 +293,12 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     if (g.userData.frame !== frame) for (const direction of directions) direction.frames[0] = frame
     g.userData.drawFlags = f.reincarnation.phase >= 3 ? 6 : 0
     scene.animatePerson(g, 0, directions, 0)
+    return
+  }
+  if (f.angel) {
+    scene.animatePerson(g, f.angel.heading, g.userData.directions, f.age)
+    const scale = f.angel.phase === 'dying' ? Math.max(0, f.angel.timer / 16) : 1
+    g.scale.setScalar(scale)
     return
   }
   if (f.unit) {
