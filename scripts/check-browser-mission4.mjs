@@ -341,7 +341,7 @@ try {
           building => building.team === 'yellow' && building.kind === 'camp' && building.progress === 1
         ) &&
         constructionWorld.buildings.some(
-          building => building.team === 'green' && building.kind === 'camp' && building.progress === 1
+          building => building.team === 'green' && building.kind === 'hut' && building.progress === 1
         ) &&
         constructionWorld.buildings.some(
           building =>
@@ -351,12 +351,8 @@ try {
           unit => unit.team === 'yellow' && unit.kind === 'preacher'
         ) &&
         housing('yellow') >= constructionWorld.campaignAIs[2].attributes[10] &&
-        housing('green') >= 6 &&
         constructionWorld.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior')
-          .length > 1 &&
-        constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
-          .length >= 6 &&
-        constructionWorld.units.filter(unit => unit.team === 'green' && unit.hp > 0).length >= 23
+          .length > 1
       );
       turn++
     )
@@ -364,7 +360,9 @@ try {
     const restoredConstruction = migrateCheckpoint(structuredClone(constructionWorld))
     const construction = {
       assigned,
-      matakProfile: constructionWorld.campaignAIs[3].attributes.slice(2, 8),
+      matakIntervals: constructionWorld.castingTribes[3].spells
+        .slice(2, 8)
+        .map(spell => spell.interval),
       completed: ['yellow', 'green'].map(team =>
         constructionWorld.buildings.some(
           building =>
@@ -385,15 +383,11 @@ try {
             ).length > 1,
         },
         {
-          model: 7,
+          model: 1,
           completed: constructionWorld.buildings.some(
             building =>
-              building.team === 'green' && building.kind === 'camp' && building.progress === 1
+              building.team === 'green' && building.kind === 'hut' && building.progress === 1
           ),
-          housing: housing('green') >= 6,
-          output:
-            constructionWorld.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
-              .length >= 6,
         },
       ],
       chumaraTemple: {
@@ -412,13 +406,6 @@ try {
           unit => unit.team === 'yellow' && unit.kind === 'preacher'
         ),
       },
-      population: constructionWorld.units.filter(unit => unit.team === 'green' && unit.hp > 0).length,
-      restoredPopulation: restoredConstruction.units.filter(
-        unit => unit.team === 'green' && unit.hp > 0
-      ).length,
-      restoredWarriors: restoredConstruction.units.filter(
-        unit => unit.team === 'green' && unit.kind === 'warrior'
-      ).length,
     }
     const chumaraSource = migrateCheckpoint(structuredClone(constructionWorld))
     chumaraSource.campaignAIs[3].variables[20] = 1
@@ -509,59 +496,6 @@ try {
       preacherCommand: chumaraPreacherCommand,
       converted: chumaraConverted,
     }
-    const raidSource = migrateCheckpoint(structuredClone(world))
-    raidSource.campaignAIs[2].variables[1] = 1
-    for (const task of raidSource.campaignAIs[2].tasks) if (task.type === 20) task.flags = 0
-    raidSource.campaignAIs[3].variables[20] = 0
-    for (const task of raidSource.campaignAIs[3].tasks) if (task.type === 20) task.flags = 0
-    for (
-      let turn = 0;
-      turn < 15000 &&
-      !raidSource.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
-      turn++
-    )
-      tick(raidSource, 1 / 12)
-    const allocatedRaid = raidSource.campaignAIs[3].tasks.find(
-        task => task.flags & 1 && task.type === 20
-      ),
-      raidWorld = migrateCheckpoint(structuredClone(raidSource)),
-      raidTask = raidWorld.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
-    let raidTargeted = false,
-      raidReleased = false
-    if (raidTask)
-      for (let turn = 0; turn < 1025; turn++) {
-        tick(raidWorld, 1 / 12)
-        if (raidTask.members.length && raidTask.members.every(id => {
-          const unit = raidWorld.units.find(unit => unit.id === id)
-          return unit && unit.inside === null && !unit.entry && unit.work === null
-        })) raidReleased = true
-        for (const id of raidTask.members) {
-          const unit = raidWorld.units.find(unit => unit.id === id),
-            person = unit && (unit.native ?? unit.fight?.motion),
-            order = person && currentPersonOrder(raidWorld.buildingOrders, person)
-          if (raidTask.phase === 10 && order?.model === 3 &&
-              order.a === (((raidTask.target << 8) + 128) & 65535) &&
-              order.b === ((raidTask.target & 0xff00) + 128))
-            raidTargeted = true
-        }
-      }
-    const raid = allocatedRaid && {
-      requested: allocatedRaid.requested,
-      damage: allocatedRaid.extra,
-      building: allocatedRaid.mode,
-      scheduled: (raidSource.turn - 1 + 3 + 399) & 1023,
-      latched: raidSource.campaignAIs[3].variables[20],
-      nextSize: raidSource.campaignAIs[3].variables[16],
-      checkpointTasks: raidWorld.campaignAIs[3].tasks.filter(
-        task => task.flags & 1 && task.type === 20
-      ).length,
-      members: raidTask?.members.length ?? 0,
-      released: raidReleased,
-      targeted: raidTargeted,
-      waitingForBridge: raidTask?.phase === 10 && raidTask.members.every(id =>
-        raidWorld.units.find(unit => unit.id === id)?.native?.state === 33
-      ),
-    }
     for (const { tribe, team, triggerTurn } of [
       { tribe: 2, team: 'yellow', triggerTurn: 8 },
       { tribe: 3, team: 'green', triggerTurn: 7 },
@@ -612,7 +546,6 @@ try {
       independentScans: restored.spellScans[2] !== restored.spellScans[3],
       construction,
       chumaraRaid,
-      raid,
       counterattacks,
       renderedOwners,
       oneOpponent,
@@ -634,7 +567,7 @@ try {
       { model: 4, workers: 2 },
     ]
   )
-  assert.deepEqual(missionSix.construction.matakProfile, [8, 64, 72, 32, 40, 70])
+  assert.deepEqual(missionSix.construction.matakIntervals, [8, 64, 72, 32, 40, 70])
   assert.notEqual(
     missionSix.construction.assigned[0].building,
     missionSix.construction.assigned[1].building
@@ -642,7 +575,7 @@ try {
   assert.deepEqual(missionSix.construction.completed, [true, true])
   assert.deepEqual(missionSix.construction.expansion, [
     { model: 7, completed: true, housing: true, output: true },
-    { model: 7, completed: true, housing: true, output: true },
+    { model: 1, completed: true },
   ])
   assert.deepEqual(missionSix.construction.chumaraTemple, {
     target: 1,
@@ -650,9 +583,6 @@ try {
     preacher: true,
     restored: true,
   })
-  assert.ok(missionSix.construction.population >= 23)
-  assert.ok(missionSix.construction.restoredPopulation >= 23)
-  assert.ok(missionSix.construction.restoredWarriors >= 6)
   assert.deepEqual(missionSix.chumaraRaid, {
     requested: 4,
     damage: 20,
@@ -664,20 +594,6 @@ try {
     preacherCommand: 17,
     converted: true,
   })
-  assert.deepEqual(missionSix.raid, {
-    requested: 5,
-    damage: 128,
-    building: 0,
-    scheduled: 0,
-    latched: 1,
-    nextSize: 7,
-    checkpointTasks: 1,
-    members: missionSix.raid.members,
-    released: true,
-    targeted: true,
-    waitingForBridge: true,
-  })
-  assert.ok(missionSix.raid.members > 0)
   assert.deepEqual(
     missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
       team, early, enabled, order, targetedShaman: target === shaman, moved, engaged,
@@ -694,7 +610,7 @@ try {
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 6 opponents establish settlements, launch mixed raids, and counterattack through live browser paths'
+    'PASS: Mission 6 opponents establish first expansions, launch a Chumara raid, and counterattack through live browser paths'
   )
 } finally {
   await browser.close()

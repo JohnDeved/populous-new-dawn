@@ -9,11 +9,12 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current feature lock: deliver Mission 10's first-Totem deadline defeat through
-shipped play. After the Totem starts its authored 480-second timer, the first 5,759
-turns must remain playable; expiry after 5,760 turns must lead through the original
-failure message to the normal loss screen/restart path. Preserve exact checkpointed
-remaining time, and keep second-Totem completion clearing the deadline.
+Current feature lock: deliver Mission 14's linked multi-reward and generic Angel
+acquisition through shipped play. First use one bounded shared prerequisite commit
+to correct opcode 1173's spell-interval ownership and prove one
+real affected campaign caller; then return immediately to worship, stock, UI, cast,
+effect, and checkpoint ownership for the new acquisition path. Do not widen later
+Mission 14 AI until its command/read cycles are proved.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -22,11 +23,12 @@ attack tutorials finished in `20254b5`; the first playable Mission 6 slice finis
 in `0ac9764`; its original low-population counterattacks finished in `cefc928`; both
 opponents' first autonomous Guard Towers finished in `244ffc8`; their first settlement
 expansion finished in `750f4ba`; Mission 5's ordinary Dakini raid finished in
-`7b94971`; Mission 6 Matak Warrior production finished in `d5ef216`; sustained Matak
-housing and population growth finished in `7217eef`; Matak's first ordinary raid
-finished in `e026556`; Chumara Temple and Preacher production finished in `b413819`.
+`7b94971`; Chumara Temple and Preacher production finished in `b413819`.
 Chumara's first mixed Mission 6 raid finished in `5dbbec8`; complete base-game input
 recovery finished in `c77a2f7`.
+Opcode 1173 evidence invalidated the former Matak Warrior-production (`d5ef216`),
+sustained-growth (`7217eef`), and naturally gated raid (`e026556`) claims; reclaim
+them only after finding their real producer-attribute owner.
 Mission 3's autonomous Tower, Temple, and first Preacher finished in `cc1e8b4`.
 Ordinary Mission 2 victory, shipped continuation, and ordinary Mission 3 victory
 finished in `744ad67`; the later scene terrain initialization extraction finished
@@ -47,6 +49,7 @@ Mission 12's first playable Spy disguise and sabotage finished in `68d0f24`.
 Mission 13's first ordinary Balloon transport finished in `2f83643`.
 Original Boat/Balloon damage, destruction, and passenger ejection finished in `795a60d`.
 Mission 10's normal automatic Boat crossing finished in `5bfd8c1`.
+Mission 10's authored first-Totem deadline defeat finished in `47ec487`.
 The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
 PND02's ordinary Mission 2-3 victories, shipped Mission 2→3 continuation, Mission 4
 offer, fresh-page checkpoint, restart, legacy migration, and required-reachability

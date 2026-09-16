@@ -399,9 +399,11 @@ does not add gameplay or parity credit.
 ```
 
 The reviewed producer, allocation, model-count, housing, and training exports establish
-Mission 6's tower, Warrior Training Hut, housing, and training order. The probe controls
-building availability/count and person availability leaves; live site choice, movement,
-construction, training, and births remain browser evidence. See the
+Mission 6's initial towers and expansions plus conditional construction/training
+consumers. The model-7 Matak case uses supplied synthetic producer attributes; opcode
+1173 does not provide them. The probe controls building availability/count and person
+availability leaves; live site choice, movement, construction, training, and births
+remain browser evidence. See the
 [focused evidence and limits](research/mission6-economy.md).
 
 ## Mission 11 first autonomous settlement

@@ -26,6 +26,9 @@ try {
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 3)
   await page.getByRole('button', { name: 'Swarm, 0 shots' }).waitFor()
   await page.getByLabel('Focus Chumara tribe').waitFor()
+  await page.evaluate(
+    () => (globalThis.mission3ProducerAttributes = [...globalThis.testStore.getWorld().ai.attributes])
+  )
   assert.equal(await page.getByText('Reach the Chumara Vault').count(), 1)
   assert.equal(await page.getByText('Build a Temple and train a Preacher').count(), 1)
   await page.waitForFunction(() => {
@@ -35,6 +38,10 @@ try {
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return world.spellCasts[2][17] === 1 && world.units.filter(unit => unit.team === 'wild').length < 44
+  })
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    return world.turn >= 122 && world.castingTribes[2].spells[17].interval === 8
   })
   const result = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
@@ -61,6 +68,10 @@ try {
         casts: world.spellCasts[2][17],
         stock: world.manaWorld.spells[2].stocks[17],
       },
+      spellIntervals: world.castingTribes[2].spells.map(spell => spell.interval),
+      attributesUnchanged: world.ai.attributes.every(
+        (value, index) => value === globalThis.mission3ProducerAttributes[index]
+      ),
     }
     for (let turn = 0; turn < 6000 && !preacher(); turn++) tick(world, 1 / 12)
     if (!preacher()) throw new Error(`Mission 3 Chumara Preacher timed out at turn ${world.turn}`)
@@ -86,6 +97,7 @@ try {
           unit => unit.team === 'yellow' && unit.kind === 'preacher' && unit.hp > 0
         ).length,
         trainingLatch: restored.ai.variables[23],
+        spellInterval: restored.castingTribes[2].spells[17].interval,
       }
     globalThis.testStore.restart()
     const restarted = globalThis.testStore.getWorld()
@@ -105,9 +117,9 @@ try {
   assert.deepEqual(result, {
     initial: {
       level: 3,
-      blue: 1,
-      yellow: 8,
-      wild: 43,
+      blue: 2,
+      yellow: 14,
+      wild: 37,
       vault: true,
       erosion: true,
       recurringFlyby: {
@@ -116,9 +128,18 @@ try {
         inputLocked: true,
       },
       convertWild: { casts: 1, stock: 0 },
+      spellIntervals: [1, 1, 8, 64, 72, 32, 40, 70, 64, 1, 168, 80, 66, 152, 140, 100, 128, 8, 1, 48, 1, 1],
+      attributesUnchanged: true,
       settlement: { tower: true, camp: false, temple: true, preacher: true, trainingLatch: 1 },
     },
-    checkpoint: { level: 3, unlockedTemple: false, settlement: 2, preacher: 1, trainingLatch: 1 },
+    checkpoint: {
+      level: 3,
+      unlockedTemple: false,
+      settlement: 2,
+      preacher: 1,
+      trainingLatch: 1,
+      spellInterval: 8,
+    },
     restart: { level: 3, blue: 1, yellow: 7, wild: 44, settlement: 0, trainingLatch: 0 },
   })
   assert.deepEqual(errors, [])

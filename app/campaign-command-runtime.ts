@@ -172,10 +172,11 @@ export function campaignCommand(
     return
   }
   if (opcode === 1173) {
-    const index = read(args[0])
-    if (!Number.isInteger(index) || index < 0 || index >= w.ai.attributes.length)
-      throw new RangeError('Invalid computer attribute')
-    w.ai.attributes[index] = read(args[1]) & 255
+    const spells = w.castingTribes[campaignTribe(w)].spells,
+      index = read(args[0])
+    if (!Number.isInteger(index) || index < 0 || index >= spells.length)
+      throw new RangeError('Invalid computer spell interval')
+    spells[index].interval = read(args[1]) & 255
     return
   }
 
@@ -647,6 +648,7 @@ export function campaignRules(w: World) {
               ? [
                   12,
                   1003,
+                  ...script.codes.slice(308, 457),
                   ...script.codes.slice(729, 768),
                   ...script.codes.slice(833, 984),
                   1004,

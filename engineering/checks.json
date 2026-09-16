@@ -388,7 +388,7 @@
         "Mission 3 Tower then Temple construction requests without Warrior Training Hut demand",
         "Mission 3 original training block, one-Preacher task, housing target, and repetition latch",
         "Initial Guard Tower and settlement construction requests",
-        "Warrior Training Hut selection from supplied post-profile Matak attributes",
+        "Warrior Training Hut selection from supplied synthetic Matak attributes",
         "Chumara Temple selection from attribute 2 and Preacher production from attribute 6",
         "Chumara and Matak Warrior production",
         "Construction and training task fields, capacity gates, and RNG consumption",
@@ -609,6 +609,40 @@
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
       "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "campaign-interval-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare native spell-use intervals, cooldown consumers, and PopScript opcode 1173 ownership against the browser campaign runtime.",
+      "coveredBehavior": [
+        "Native tribe casting initialization and four-tribe cooldown gates",
+        "Successful-cast usage registration and interval-based recovery",
+        "Opcode 1173 byte ownership, bounds, neighboring state preservation, and Mission 3 profile values"
+      ],
+      "knownLimits": [
+        "Projectile, UI, and unrelated world-work leaves are supplied; this does not execute a complete native campaign battle.",
+        "Only the selected Mission 3 profile is composed with opcode 1173; wider recurring AI remains deferred."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-cast-cooldowns.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-cast-cooldowns.py",
+        "app/spell-casting.ts",
+        "app/campaign-command-runtime.ts",
+        "app/original-script-three.json",
+        "decomp/generated/0048cc60.c",
+        "decomp/requirements.txt"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable is read-only"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
@@ -1438,7 +1472,7 @@
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise continuous campaign progression through Mission 4 and Mission 5 into playable Mission 6, including Mission 6 tribe identity, growth, first Matak and Chumara raids, checkpoint, objectives, and outcome handling.",
+      "purpose": "Exercise continuous campaign progression through Mission 4 and Mission 5 into playable Mission 6, including Mission 6 tribe identity, first expansions, first Chumara raid, checkpoint, objectives, and outcome handling.",
       "coveredBehavior": [
         "Mission 3 result continuation",
         "Mission 4 original opening flyby, camera movement, input lock, skip control, and HUD resumption",
@@ -1457,14 +1491,13 @@
         "Mission 5 victory and completed-missions profile",
         "Mission 5 continuation into the original Mission 6 world and ordinary control",
         "Mission 6 distinct Chumara and Matak state, rendering, checkpoint restore, objectives, and two-opponent outcome",
-        "Mission 6 autonomous Guard Towers, sustained housing, both Warrior Training Huts, recurring Matak profile, both tribes' Warrior production, and Matak population 23 through checkpoint restoration",
-        "Mission 6 first naturally gated Matak raid allocation, redirected workers, Blue-targeted live order, initial-island route recovery, latches, full recurrence, and checkpoint restoration",
+        "Mission 6 autonomous Guard Towers, Chumara Warrior Training Hut, Matak Hut, recurring spell-interval profile, Chumara Warrior production, and checkpoint restoration",
         "Mission 6 first naturally gated Chumara mixed raid allocation, three-Warrior/one-Preacher selection, Blue-targeted live order, selected-Preacher conversion, latch, and checkpoint restoration"
       ],
       "knownLimits": [
         "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, positions one Mission 5 follower at the Boat worship ring and the Shaman at the Angel trigger, injects late-mission population/kill thresholds plus one reachable survivor, and removes Mission 5 enemy forces before exercising the real outcome/profile path; starting-route terrain progression, broader recurring AI, the Angel reward, complete housed-Preacher behavior, and other Mission 5 combat remain deferred.",
         "Mission 5 opening events and trigger come from the imported original script; native timing has not been independently replayed.",
-        "Mission 6 later ordinary attacks after each tribe's first raid, broader BUILD_AT behavior, and later mission-specific content remain deferred."
+        "Mission 6 Matak Warrior-production attributes, natural growth/raid gate, later ordinary attacks, broader BUILD_AT behavior, and later mission-specific content remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission4.mjs"],

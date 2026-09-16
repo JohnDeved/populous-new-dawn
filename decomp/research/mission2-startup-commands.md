@@ -12,7 +12,7 @@ Its enemy shaman, warriors, and model-4 tower belong to native tribe 3. PopScrip
 `EVERY` includes the signed tribe in its mask expression, so the browser must retain
 tribe 3 for script and computer scheduling even though its UI renders every enemy as
 the existing red team. The input-unlock command first runs at turn 69 for tribe 3;
-the first code-ordered recurring attribute block runs at turn 121.
+the first code-ordered recurring spell-interval block runs at turn 121.
 
 Command 1069 resolves two operands and truncates both to bytes. Mission 2 supplies
 50 and 130. [`004f5280`](../generated/004f5280.c) sets AI flag `0x20` and stores the
@@ -62,7 +62,9 @@ not claimed.
 `work/orchestration/mission2-recurring/native/inspect-schedule.mjs` executes the
 recovered browser interpreter with current turn and internal model 1202 supplied,
 intercepting all command effects. Its saved result confirms startup at turn 0,
-unlock at turn 69, and the first recurring attribute block at turn 121 for tribe 3.
+unlock at turn 69, and the first recurring spell-interval block at turn 121 for
+tribe 3. Direct native dispatcher execution later established that opcode `1173`
+writes tribe-local spell intervals, not producer attributes.
 This is control-flow evidence, not a live native-game probe.
 
 The eight exports were produced by Ghidra 12.1.3 after section-byte verification against

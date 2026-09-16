@@ -496,16 +496,16 @@ test('original campaign setup disables only enemy reincarnation and retains defe
  const fresh=createWorld();fresh.ai.attributes[0]=99;assert.equal(createWorld().ai.attributes[0],12,'new games own independent script state');
 });
 
-test('mission-one AI applies its native population difficulty table on the original phase',async()=>{
+test('mission-one AI applies its native spell interval profile on the original phase',async()=>{
  const {campaignInternal}=await import('../app/model.ts'),direct=createWorld(),raw={...originalScript,fields:[[0,47],[0,511],[0,48]]};
  direct.ai.flags=0xa5;campaignCommand(direct,1172,[1022]);assert.equal(direct.ai.flags,0x400a5);
  campaignCommand(direct,1172,[0]);assert.equal(direct.ai.flags,0x400a5,'other raw modes are native no-ops');
  campaignCommand(direct,1172,[1023]);assert.equal(direct.ai.flags,0xa5);
- campaignCommand(direct,1173,[0,1],raw);assert.equal(direct.ai.attributes[47],255);
- assert.throws(()=>campaignCommand(direct,1173,[2,1],raw),/Invalid computer attribute/);
+ raw.fields=[[0,21],[0,511],[0,22]];campaignCommand(direct,1173,[0,1],raw);assert.equal(direct.castingTribes[1].spells[21].interval,255);
+ assert.throws(()=>campaignCommand(direct,1173,[2,1],raw),/Invalid computer spell interval/);
  assert.deepEqual([campaignInternal(direct,1243),campaignInternal(direct,1244)],[19,17]);
- const run=count=>{const w=createWorld();w.units=[];addUnit(w,'blue','shaman',HOME);for(let i=0;i<count;i++)addUnit(w,'red','brave',ENEMY);w.ai.attributes.fill(0);w.ai.flags=0;w.turn=122;tick(w,1/12);assert.equal(w.ai.flags&0x40000,0);tick(w,1/12);return w;};
- const low=run(79),high=run(80),pick=w=>[7,11,12,13,14,15,16,17,19].map(i=>w.ai.attributes[i]);
+ const run=count=>{const w=createWorld();w.units=[];addUnit(w,'blue','shaman',HOME);for(let i=0;i<count;i++)addUnit(w,'red','brave',ENEMY);w.ai.flags=0;w.turn=122;tick(w,1/12);assert.equal(w.ai.flags&0x40000,0);tick(w,1/12);return w;};
+ const low=run(79),high=run(80),pick=w=>[7,11,12,13,14,15,16,17,19].map(i=>w.castingTribes[1].spells[i].interval);
  assert.deepEqual(pick(low),[70,80,66,152,140,100,128,8,48]);
  assert.deepEqual(pick(high),[35,40,33,204,70,50,64,4,24]);
  assert.equal(low.ai.flags&0x40000,0x40000);assert.equal(high.ai.flags&0x40000,0x40000);
@@ -979,12 +979,12 @@ test('campaign attack commitment follows living warrior counts on its original t
  }
 });
 
-test('mission-one Dakini trains and launches its native attack route when Blue enters marker three',async()=>{
+test('mission-one Dakini launches its native attack route when Blue enters marker three',async()=>{
  const {joinBattle}=await import('../app/model.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
  const {requestAttack}=await import('../app/computer.ts');
  const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
- until(w,()=>w.units.filter(u=>u.team==='red'&&u.kind==='warrior'&&u.hp>0).length===3,40);
+ addUnit(w,'red','warrior',ENEMY);
  until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===6),10);
  const marker=nativeCellPoint(level.markers[3]),staging=(level.markers[3]&0xff00)|((level.markers[3]+12)&255);
  addUnit(w,'blue','warrior',{x:marker.x,z:marker.z+12});
@@ -995,7 +995,7 @@ test('mission-one Dakini trains and launches its native attack route when Blue e
  assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,retreatPercent:50,quotas:[11,12,13,16,17,19].map(index=>w.ai.attributes[index])});
  assert.equal(w.ai.variables[8],1);assert.equal(w.ai.variables[2],1);
  until(w,()=>task.members.length===3,2);
- assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind),['warrior','warrior','warrior']);
+ assert.deepEqual(task.members.map(id=>w.units.find(u=>u.id===id).kind),['brave','warrior','warrior']);
  const phases=[];let radiusDistance=0;until(w,()=>{if(phases.at(-1)!==task.phase)phases.push(task.phase);if(task.phase!==11)return false;radiusDistance=Math.min(...task.members.map(id=>{const u=w.units.find(unit=>unit.id===id);return Math.hypot(u.x-marker.x,u.z-marker.z);}));return true;},20);
  const attacker=w.units.find(u=>u.id===task.members[0]),owner=attacker.native,target=addUnit(w,'blue','warrior',attacker);target.hp=10;joinBattle(w,attacker,target);
  assert.equal(attacker.native,null);assert.equal(attacker.fight.motion,owner);
@@ -1227,7 +1227,7 @@ test('mission-one victory continuation creates and restarts the recovered missio
  const tower=world.buildings.find(b=>b.team==='green'&&b.kind==='tower');assert.ok(world.ai.tasks.some(t=>t.flags&1&&t.type===7&&t.target===tower.id));
  until(world,()=>world.units.some(u=>u.inside===tower.id&&u.team==='green'&&u.kind==='warrior'),4);
  until(world,()=>world.turn>=70,4);const openingMessage=world.messages.slots[world.lastMessage],{messageIcon,messageText}=await import('../app/messages.ts');assert.equal(world.inputMask&128,0);assert.equal(openingMessage.stringId,641);assert.equal(openingMessage.flags&0x20000,0x20000);assert.equal(messageText(641),'Now we must face the Matak Tribe. I sense many Warriors ready to stand against us. In my vision we are aided by magic from a Stone Head. There must be a way to reach it...');assert.equal(messageIcon(openingMessage),'/original/message-type1.png');
- until(world,()=>world.turn>=122,5);assert.equal(world.ai.flags&0x40000,0x40000);assert.deepEqual(world.ai.attributes.slice(2,9),[8,64,72,32,40,70,64]);
+ until(world,()=>world.turn>=122,5);assert.equal(world.ai.flags&0x40000,0x40000);assert.deepEqual(world.castingTribes[3].spells.slice(2,9).map(spell=>spell.interval),[8,64,72,32,40,70,64]);
  const patrol=world.units.filter(u=>u.team==='green'&&u.native&&currentPersonOrder(world.buildingOrders,u.native)?.model===25);assert.equal(patrol.length,3);assert.ok(patrol.every(u=>u.native.computerAssignment===0));
  const spells=campaignSpellModels(2);for(const model of [2,3,4,5,12])assert.ok(spells.has(model));assert.equal(spells.has(17),false);
  const first=world;store.restart();assert.notEqual(store.getWorld(),first);assert.equal(store.getWorld().outcome.level,2);

@@ -41,7 +41,11 @@ test('Mission 6 keeps both original opponents distinct through outcome and check
   for (let turn = 0; turn < 121; turn++) tick(profile, 1 / 12)
   assert.equal(profile.campaignAIs[3].attributes[3], 0)
   tick(profile, 1 / 12)
-  assert.deepEqual(profile.campaignAIs[3].attributes.slice(2, 8), [8, 64, 72, 32, 40, 70])
+  assert.deepEqual(
+    profile.castingTribes[3].spells.slice(2, 8).map(spell => spell.interval),
+    [8, 64, 72, 32, 40, 70]
+  )
+  assert.equal(profile.campaignAIs[3].attributes[3], 0)
 
   tick(world, 1 / 12)
   const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
@@ -263,7 +267,7 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
   )
 })
 
-test('Mission 6 opponents establish settlements, grow, and launch the first Matak raid', () => {
+test('Mission 6 opponents establish their initial towers and first expansions', () => {
   const failed = createWorld(6)
   for (
     let turn = 0;
@@ -483,126 +487,4 @@ test('Mission 6 opponents establish settlements, grow, and launch the first Mata
       warriorsBefore
   )
 
-  world = migrateCheckpoint(structuredClone(world))
-  const campId = expansionTasks[0].entity,
-    hutId = expansionTasks[1].entity,
-    population = team => world.units.filter(unit => unit.team === team && unit.hp > 0).length,
-    housing = team =>
-      world.buildings
-        .filter(building => building.team === team && building.hp > 0)
-        .reduce((sum, building) => {
-          const model = buildingModel(building)
-          return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
-        }, 0)
-  for (let turn = 0; turn < 12000; turn++) {
-    const camp = world.buildings.find(building => building.id === campId),
-      hut = world.buildings.find(building => building.id === hutId)
-    if (
-      camp?.progress === 1 &&
-      hut?.progress === 1 &&
-      world.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length > 1 &&
-      world.buildings.some(
-        building =>
-          building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
-      ) &&
-      world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length >= 6 &&
-      population('green') >= 23
-    )
-      break
-    tick(world, 1 / 12)
-  }
-  assert.equal(world.buildings.find(building => building.id === campId)?.kind, 'camp')
-  assert.equal(world.buildings.find(building => building.id === hutId)?.kind, 'hut')
-  assert.ok(housing('yellow') >= world.campaignAIs[2].attributes[10])
-  assert.ok(housing('green') >= 6)
-  assert.ok(world.units.filter(unit => unit.team === 'yellow' && unit.kind === 'warrior').length > 1)
-  assert.deepEqual(world.campaignAIs[3].attributes.slice(2, 8), [8, 64, 72, 32, 40, 70])
-  assert.ok(
-    world.buildings.some(
-      building =>
-        building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
-    )
-  )
-  assert.ok(world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length >= 6)
-  assert.ok(population('green') >= 23)
-  assert.ok(withCampaignTribe(world, 3, () => campaignInternal(world, 1)) > 22)
-  assert.ok(withCampaignTribe(world, 3, () => campaignInternal(world, 1147)) > 5)
-
-  const restoredProduction = migrateCheckpoint(structuredClone(world))
-  assert.ok(
-    restoredProduction.buildings.some(
-      building =>
-        building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
-    )
-  )
-  assert.ok(
-    restoredProduction.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior')
-      .length >= 6
-  )
-  assert.ok(restoredProduction.units.filter(unit => unit.team === 'green' && unit.hp > 0).length >= 23)
-  assert.ok(withCampaignTribe(restoredProduction, 3, () => campaignInternal(restoredProduction, 1)) > 22)
-  assert.ok(
-    withCampaignTribe(restoredProduction, 3, () => campaignInternal(restoredProduction, 1147)) > 5
-  )
-
-  for (
-    let turn = 0;
-    turn < 2048 &&
-    !restoredProduction.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
-    turn++
-  )
-    tick(restoredProduction, 1 / 12)
-  const attack = restoredProduction.campaignAIs[3].tasks.find(
-    task => task.flags & 1 && task.type === 20
-  )
-  assert.deepEqual(
-    attack && {
-      requested: attack.requested,
-      damage: attack.extra,
-      building: attack.mode,
-      scheduled: (restoredProduction.turn - 1 + 3 + 399) & 1023,
-    },
-    { requested: 5, damage: 128, building: 0, scheduled: 0 }
-  )
-  assert.equal(restoredProduction.campaignAIs[3].variables[20], 1)
-  assert.equal(restoredProduction.campaignAIs[3].variables[16], 7)
-
-  const raiding = migrateCheckpoint(structuredClone(restoredProduction)),
-    restoredAttack = raiding.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
-  let targeted = false,
-    released = false
-  for (let turn = 0; turn < 1025; turn++) {
-    tick(raiding, 1 / 12)
-    if (
-      restoredAttack.members.length &&
-      restoredAttack.members.every(id => {
-        const unit = raiding.units.find(unit => unit.id === id)
-        return unit && unit.inside === null && !unit.entry && unit.work === null
-      })
-    )
-      released = true
-    for (const id of restoredAttack.members) {
-      const unit = raiding.units.find(unit => unit.id === id),
-        person = unit && (unit.native ?? unit.fight?.motion),
-        order = person && currentPersonOrder(raiding.buildingOrders, person)
-      if (
-        restoredAttack.phase === 10 &&
-        order?.model === 3 &&
-        order.a === (((restoredAttack.target << 8) + 128) & 65535) &&
-        order.b === ((restoredAttack.target & 0xff00) + 128)
-      )
-        targeted = true
-    }
-  }
-  assert.ok(restoredAttack.members.length > 0)
-  assert.equal(released, true)
-  assert.equal(targeted, true)
-  assert.equal(restoredAttack.phase, 10)
-  assert.ok(
-    restoredAttack.members.every(id => raiding.units.find(unit => unit.id === id)?.native?.state === 33)
-  )
-  assert.equal(
-    raiding.campaignAIs[3].tasks.filter(task => task.flags & 1 && task.type === 20).length,
-    1
-  )
 })

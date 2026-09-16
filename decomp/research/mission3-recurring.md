@@ -21,11 +21,12 @@ Only external leaf `004af0a0` was intercepted; the PopScript interpreter and
 flyby handlers executed in the hash-verified native executable.
 
 The browser executes exactly this bounded original block through ordinary Mission
-3 turns and its existing flyby command adapter. Later recurring blocks remain
-excluded because their game-command hosts are unbound; this is not full Mission 3
-script or AI parity. Native mode-2 tooltip lookup also wraps byte coordinates that
-the current browser lookup does not, so the later Vault callout is absent even
-though the flyby and visible Skip introduction path run.
+3 turns and its existing flyby command adapter. The interval-profile block below
+is also live; other later recurring blocks remain excluded because their
+game-command hosts are unbound. This is not full Mission 3 script or AI parity.
+Native mode-2 tooltip lookup also wraps byte coordinates that the current browser
+lookup does not, so the later Vault callout is absent even though the flyby and
+visible Skip introduction path run.
 
 ## Chumara settlement and first Preacher
 
@@ -35,9 +36,18 @@ opportunities are turns `61,125,189,253,...`. Native `004e5580` first allocates 
 type-0 Tower task at the Shaman cell, then a Temple from the accepted construction
 base after the Tower completes; neither allocation consumes RNG.
 
-Codes `308..<457` are not a construction profile. Opcode `1173` writes AI-local
-interval bytes at `ai+0x53f+4*index` and leaves the producer attribute table
-unchanged. Hosting those writes as attributes would invent Warrior Hut demand.
+Codes `308..<457` are not a construction profile. Opcode `1173` writes the active
+tribe's spell-use interval byte at `tribe+0x53f+4*index` and leaves the separate
+producer attribute table unchanged. The logical spell range is `0..21`; the native
+handler does not bounds-check it, so the browser rejects indexes outside its live
+spell array. Values truncate to one byte.
+
+For Chumara, the block first executes on native turn 122. Population below 73 sets
+intervals `{2:8,3:64,4:72,5:32,6:40,7:70,8:64,10:168,11:80,12:66,13:152,14:140,15:100,16:128,17:8,19:48}`;
+population 73 or above halves that profile except for its authored values at 8 and
+13. Native literals above 255 truncate. The browser now runs this exact block on
+ordinary Mission 3 turns, preserves it in checkpoints, and consumes interval 17
+through the existing successful-cast cooldown path as `8 << 6` turns.
 
 The complete `729..<768` block runs for tribe 2 when `(turn+2)&15 == 0`. After a
 Temple completes it sets housing target 15, requests person model 4 (Preacher)
@@ -51,8 +61,11 @@ and header SHA256 `219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d
 It executed the interpreter, construction producer, explicit training allocation,
 task writer, and construction-base/count helpers in the hash-verified executable.
 Building availability, completed Temple id, population, and available people were
-controlled leaves. Terrain acceptance, worker movement, timber, construction,
-Temple admission, and checkpoint restoration require live browser evidence.
+controlled leaves. The interval-profile probe supplied only the internal population
+read; the interpreter, opcode dispatcher, spell constants, neighboring-state
+preservation, and cooldown consumer ran natively. Terrain acceptance, worker
+movement, timber, construction, Temple admission, and checkpoint restoration
+require live browser evidence.
 
 ## Later-block reachability and PND02 boundary
 

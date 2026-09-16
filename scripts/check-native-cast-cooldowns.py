@@ -81,3 +81,57 @@ for delay in [0,1,12,64,255]:
     reset();t=0x89d1c8;write(t+0x89d,'I',base);write(0x892443,'I',base+0x1000);write(0x960815,'B',delay)
     call(0x4f4de0,t,2,0);assert read(t+0x5bd,'B')==delay
 print('PASS: allocator delay assignment on failure, including zero and maximum byte values')
+
+# Opcode 1173 writes the active tribe's per-spell recovery byte, not the
+# separate producer attribute table. The original handler does not guard its
+# index, so the browser owns the safe 22-entry boundary.
+program,code,fields=base+0x10000,base+0x14000,base+0x15000
+def interval_dispatch(index,value):
+    reset();t=0x89d1c8+2*0xc65;attributes=0x9607ea+2*48
+    cpu.mem_write(t,bytes([0x5a])*0xc65);cpu.mem_write(attributes,bytes([0xa5])*48)
+    before=bytes(cpu.mem_read(t,0xc65));before_attributes=bytes(cpu.mem_read(attributes,48))
+    cpu.mem_write(program,bytes(0x6000));write(program+0x3100,'I',fields);write(program+0x3104,'I',code)
+    write(code,'4H',1006,1173,0,1);write(fields,'Ii',0,index);write(fields+8,'Ii',0,value)
+    call(0x48cc60,t,program)
+    after=bytes(cpu.mem_read(t,0xc65));changed=[i for i,(a,b) in enumerate(zip(before,after)) if a!=b]
+    assert changed==[0x53f+index*4],changed
+    assert after[changed[0]]==value&255
+    assert bytes(cpu.mem_read(attributes,48))==before_attributes
+    return after[changed[0]]
+assert interval_dispatch(0,300)==44
+assert interval_dispatch(21,511)==255
+print('PASS: opcode 1173 endpoint byte ownership and producer-attribute preservation')
+
+# Execute Mission 3's exact EVERY-255 profile at its first Chumara evaluation.
+mission_three=json.loads((root/'app/original-script-three.json').read_text())
+fragment=[12,1003,*mission_three['codes'][308:457],1004,1019]
+blob=bytearray(12552);struct.pack_into('<'+'H'*len(fragment),blob,0,*fragment)
+for i,field in enumerate(mission_three['fields']):struct.pack_into('<Ii',blob,8192+i*8,*field)
+reset();write(0x89c661,'I',0);write(0x89c6f0,'B',0);call(0x42b660,2)
+t=0x89d1c8+2*0xc65;attributes=0x9607ea+2*48
+cpu.mem_write(program,bytes(blob));write(t+0xc22,'B',2)
+cpu.mem_write(attributes,bytes([0xa5])*48);write(0x89d188,'I',122)
+def population(cpu,address,size,user):
+    sp=cpu.reg_read(UC_X86_REG_ESP);kind,index=struct.unpack('<Ii',cpu.mem_read(read(sp+12,'I'),8))
+    if kind==2 and index==1:
+        cpu.reg_write(UC_X86_REG_EAX,10);cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
+population_hook=cpu.hook_add(UC_HOOK_CODE,population,begin=0x48f350,end=0x48f350)
+write(stack,'III',stop,t,program);cpu.reg_write(UC_X86_REG_ESP,stack)
+cpu.emu_start(0x48c6b0,stop,timeout=1000000,count=1000000);cpu.hook_del(population_hook)
+assert cpu.reg_read(UC_X86_REG_EIP)==stop
+profile=state(t)
+expected_intervals=[1,1,8,64,72,32,40,70,64,1,168,80,66,152,140,100,128,8,1,48,1,1]
+assert [spell['interval'] for spell in profile['spells']]==expected_intervals
+assert read(t+0x596,'I')&0x40000
+assert bytes(cpu.mem_read(attributes,48))==bytes([0xa5])*48
+assert call(0x4f20b0,t,17)==8<<6
+js="""import {createWorld,tick} from './app/model.ts';import {campaignCommand} from './app/campaign-command-runtime.ts';import {registerSpellCooldown} from './app/spell-casting.ts';
+const w=createWorld(3),before=[...w.ai.attributes];tick(w,123/12);const casting=w.castingTribes[2];
+casting.spells[17].used=casting.spells[17].remaining=0;registerSpellCooldown(casting,1,w.ai.flags,w.manaWorld.gameFlags,0,17);
+let invalid=false;try{campaignCommand(w,1173,[0,1],{fields:[[0,22],[0,1]]})}catch(error){invalid=error instanceof RangeError}
+console.log(JSON.stringify({intervals:casting.spells.map(s=>s.interval),attributesUnchanged:w.ai.attributes.every((v,i)=>v===before[i]),flags:w.ai.flags&0x40000,remaining:casting.spells[17].remaining,invalid}));"""
+browser=subprocess.run(['node','--experimental-strip-types','--input-type=module','-e',js],capture_output=True,text=True,cwd=root)
+assert browser.returncode==0,browser.stderr
+actual=json.loads(browser.stdout)
+assert actual==dict(intervals=expected_intervals,attributesUnchanged=True,flags=0x40000,remaining=8<<6,invalid=True),actual
+print('PASS: Mission 3 turn-122 interval profile and existing successful-cast recovery consumer')

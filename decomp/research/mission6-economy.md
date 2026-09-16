@@ -46,18 +46,18 @@ Braves. A Chumara probe with population eight, no Preachers, attribute 6 at 15, 
 completed Temple, and five available Braves allocates type 6 at that Temple with
 count zero and advances RNG from `0x12345678` to `0x32be789b`.
 
-Matak's original profile block is cpscr015 words 352–500. `EVERY 255 OFFSET 132`
-runs first at turn 121 and, below population 80, sets the model-7 target attribute 3
-to 64 and Warrior percentage attribute 7 to 70. At Matak's next producer turn 124,
-native `004e5580` therefore requests model 7 before housing and consumes no RNG.
-With a completed model-7 building, zero Warriors, and five available Braves,
-`004e59a0` allocates type 6 with count zero and consumes one RNG draw. Four available
-Braves fail the capacity gate after that same draw.
+Matak's original cpscr015 words 352–500 run first at turn 121 under `EVERY 255
+OFFSET 132`. Direct execution of opcode `1173` established that this is a
+spell-interval profile: it writes tribe-local bytes at `tribe+0x53f+4*index` and
+does not change the producer attributes at `0x9607ea+48*tribe`. The earlier claim
+that this block made the producer request a model-7 building was incorrect. The
+focused producer probe's model-7 scenario remains a synthetic consumer test, not
+evidence that this script block supplies those attributes.
 
-Construction remains the higher-priority producer. Before Matak's recurring profile,
-the tower supplies one housing slot and a model-1 Hut supplies three. The profile
-then makes Matak's model-7 request precede further housing; Chumara keeps its initial
-housing target of nine before training.
+Construction remains the higher-priority producer. Matak's initial attributes make
+the tower followed by a model-1 Hut reachable; the interval profile does not add a
+later model-7 request. Chumara keeps its initial housing target of nine before
+training.
 
 Chumara's `EVERY 511 OFFSET 39` profile enables one model-5 Temple after its
 population exceeds nine and it has more than two completed model-1 Huts. Its
@@ -79,18 +79,18 @@ the task writes natively; only the unrelated `004f6320` progress helper is neutr
 `stepComputerTasks` now preserves those schedules, per-tribe queues, center choice,
 RNG order, bounded spiral search, model-4 validity, two-Brave selection, command 6,
 and the existing timber/construction lifecycle. The Mission 6 portable regression
-and continuous Mission 4→5→6 browser check prove both tribes independently assign
-workers, survive checkpoint restoration, complete their first Guard Tower, then
-complete their first settlement expansion, run Matak's profile, construct both
-Warrior Training Huts, recover construction after training redirects builders, and
-reach Matak population 23 while retaining at least six Warriors. They also prove
-Chumara's profile enables exactly one Temple, normal construction completes it, and
-the shared type-6 path converts a Brave into a Preacher across checkpoint restoration.
-Both original first-raid population reads (`I1 > 22` and `I1147 > 5`) then pass through normal
-simulation and checkpoint restoration. Native site validation does not reject living people, and its
-builder tasks 5 and 6 immediately return to ordinary work. The browser therefore
-skips only grounded Wildman-occupied candidates until native wild wandering is live;
-the regression covers the first Chumara candidate and subsequent valid site.
+proves both tribes independently assign workers, survive checkpoint restoration,
+complete their first Guard Tower, and allocate Chumara's initial model-7 expansion
+and Matak's initial Hut. It also covers construction recovery and the shared type-6
+training consumer with an explicitly prepared building. The former claim that the
+interval profile naturally produced Matak's Warrior Hut, population growth, and
+first raid has been retired. Those later behaviors require their actual producer
+attribute owner before they can be reclaimed as live integration.
+
+Native site validation does not reject living people, and its builder tasks 5 and 6
+immediately return to ordinary work. The browser therefore skips only grounded
+Wildman-occupied candidates until native wild wandering is live; the regression
+covers the first Chumara candidate and subsequent valid site.
 
 Explicit `BUILD_AT`/1082 occurs later (Chumara turn 501 and gated Matak turn 55).
 Ordinary 1059 attacks and command 1093 remain outside this slice. No parity ledger
