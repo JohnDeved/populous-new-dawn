@@ -11,6 +11,7 @@ import levelTen from './level-ten.ts'
 import levelEleven from './level-eleven.ts'
 import levelTwelve from './level-twelve.ts'
 import levelThirteen from './level-thirteen.ts'
+import levelFourteen from './level-fourteen.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
 import scriptThree from './original-script-three.json' with { type: 'json' }
@@ -24,6 +25,7 @@ import scriptTen from './original-script-ten.json' with { type: 'json' }
 import scriptEleven from './original-script-eleven.json' with { type: 'json' }
 import scriptTwelve from './original-script-twelve.json' with { type: 'json' }
 import scriptThirteen from './original-script-thirteen.json' with { type: 'json' }
+import scriptFourteen from './original-script-fourteen.json' with { type: 'json' }
 import { teamForTribe, tribeForTeam, type TribeTeam } from './world-types.ts'
 
 const missions = [
@@ -40,6 +42,7 @@ const missions = [
   { number: 11, level: levelEleven, script: scriptEleven },
   { number: 12, level: levelTwelve, script: scriptTwelve },
   { number: 13, level: levelThirteen, script: scriptThirteen },
+  { number: 14, level: levelFourteen, script: scriptFourteen },
 ] as const
 
 export const missionNumbers = missions.map(mission => mission.number)

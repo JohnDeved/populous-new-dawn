@@ -474,7 +474,23 @@ export default function Home() {
                                 ),
                               },
                             ]
-                          : []
+                          : world.outcome.level === 14
+                            ? [
+                                {
+                                  text: 'Claim Angel of Death from the stone head',
+                                  done: world.giftCounts.angel > 0,
+                                },
+                                {
+                                  text: 'Claim Earthquake and Land Bridge together',
+                                  done:
+                                    world.giftCounts.earthquake > 0 && world.giftCounts.bridge > 0,
+                                },
+                                {
+                                  text: 'Cast Angel of Death',
+                                  done: world.effects.some(effect => !!effect.angel),
+                                },
+                              ]
+                            : []
   return (
     <main
       ref={shell}
@@ -1027,7 +1043,9 @@ export default function Home() {
                                 ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
                                 : world.outcome.level === 12
                                   ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
-                                  : 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'}
+                                  : world.outcome.level === 13
+                                    ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
+                                    : 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

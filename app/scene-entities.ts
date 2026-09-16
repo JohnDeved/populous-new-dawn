@@ -600,7 +600,8 @@ export function updateShrinesFrame(scene: GameScene) {
         mesh.userData.morphStart = morph.started
       }
     }
-    entry.g.visible = shrine.active || shrine.kind === 'vault' || shrine.kind === 'angel'
+    entry.g.visible =
+      shrine.active || shrine.kind === 'vault' || (shrine.kind === 'angel' && !!shrine.angelTarget)
   }
 }
 

@@ -9,12 +9,11 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current feature lock: deliver Mission 14's linked multi-reward and generic Angel
-acquisition through shipped play. First use one bounded shared prerequisite commit
-to correct opcode 1173's spell-interval ownership and prove one
-real affected campaign caller; then return immediately to worship, stock, UI, cast,
-effect, and checkpoint ownership for the new acquisition path. Do not widen later
-Mission 14 AI until its command/read cycles are proved.
+Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
+cast, combat, and checkpoint path finished in the current feature commit after the
+bounded opcode 1173 prerequisite. Later Mission 14 AI remains separate until its
+command/read cycles are proved. No new feature is locked; reassess the highest-impact
+new gameplay gap at the clean boundary.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's

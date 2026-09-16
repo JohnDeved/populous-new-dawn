@@ -42,6 +42,7 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 12 Spy disguise and sabotage](research/mission12-spy-sabotage.md),
 [Mission 13 opening](research/mission13-opening.md),
 [Mission 13 Balloon transport](research/mission13-balloon.md),
+[Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
 [vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
@@ -473,6 +474,20 @@ reload, flight, landing, and disembark; shared vehicle destruction is covered be
 Exact native per-tick steering, combat targeting/feedback, downstream ejected-passenger
 fate, audio, and source artwork remain open. See the
 [focused evidence and limits](research/mission13-balloon.md).
+
+## Mission 14 linked rewards and generic Angel
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mission14-rewards.py /path/to/d3dpoptb.exe
+```
+
+The bounded native probe executes both authored worship completions, delayed stock
+delivery, generic spell-13 validation/allocation, and the Angel allocation chain.
+It establishes slot-order cloning of every link, paired Earthquake/Land Bridge
+delivery, Angel's one-shot cap and pre-allocation consumption, Blue ownership, cell
+targeting, lifetime, and presentation/audio handoffs. Projectile transit, browser
+combat/rendering/audio, and checkpoint restoration remain integration evidence. See
+the [focused evidence and limits](research/mission14-linked-angel.md).
 
 ## Shared person commands
 

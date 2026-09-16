@@ -161,8 +161,8 @@ export function createAngel(w: World, team: Team, p: Point) {
   angel.team = team
   angel.angel = createAngelState()
   angel.duration = Infinity
-  // ponytail: bounded flight height and combined spawn cues until native activation timing is traced.
-  angel.height = (terrainPointHeight(w.land, nativePosition(w, p)) + 640) / 45
+  // The native controller starts 100 units above terrain; later phases vary the target height.
+  angel.height = (terrainPointHeight(w.land, nativePosition(w, p)) + 100) / 45
   sound(w, 0xd9, p)
   sound(w, 0xdb, p)
   return angel

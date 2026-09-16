@@ -1469,6 +1469,48 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 14 linked reward traversal, delayed stock caps, and the generic model-13 Angel allocation chain against the hash-verified executable.",
+      "coveredBehavior": [
+        "Triggers 48 and 55 clone and delete every linked object in slot order",
+        "Earthquake, Land Bridge, and Angel gifts resolve to Blue after 82 visits with native caps and gift counts",
+        "Spell 13 validates a normal cell target and consumes its shot before allocation without failure refund",
+        "Blue ownership and the centered target persist through cast, projectile, effect, presentation, and Angel payload",
+        "Angel duration, life, movement constants, initial height rule, and audio handoffs"
+      ],
+      "knownLimits": [
+        "Allocation, deletion, audio playback, template copy, shared-reference outcome, cleanup, and shaman initialization are intercepted leaves documented in the research note.",
+        "Projectile transit, live Angel combat, renderer/audio playback, native save serialization, and browser reachability are not proved by this probe."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission14-rewards.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission14-rewards.py",
+        "decomp/research/mission14-linked-angel.md",
+        "decomp/generated/00485b00.c",
+        "decomp/generated/004fb270.c",
+        "decomp/generated/004facf0.c",
+        "decomp/generated/004c24f0.c",
+        "decomp/generated/004f4de0.c",
+        "decomp/generated/004c14c0.c",
+        "decomp/generated/004c1d10.c",
+        "decomp/generated/00512240.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 14 level and constant data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
@@ -1879,8 +1921,8 @@
         "Legacy Mission 5 checkpoint insertion of the previously omitted authored head"
       ],
       "knownLimits": [
-        "The bounded browser lifetime replaces an unrecovered native +0x97 initializer; model-91's exact sprite presentation remains deferred.",
-        "Flight speed 128, the +640 presentation height, and combined 0xd9/0xdb spawn timing are bounded approximations because their native scaling and activation ordering remain unrecovered."
+        "The browser check bounds cleanup after combat; model-91's exact sprite presentation remains deferred.",
+        "Flight speed 128, the stable +100 initial-height offset, and combined 0xd9/0xdb spawn timing are bounded approximations because native chase height and activation ordering remain unrecovered."
       ],
       "executable": "node",
       "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs"],
@@ -1940,6 +1982,94 @@
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes /private/tmp/populous-mission5-angel.png"],
       "resources": ["Fixed server/capture resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 14 launch, linked Earthquake/Land Bridge delivery, generic Angel acquisition and cast, and checkpoint state.",
+      "coveredBehavior": [
+        "Mission 14 level and three original tribe scripts load",
+        "One live worship completion allocates both linked gifts in authored order",
+        "Angel enters one-off stock, casting, live combat controller, and checkpoint paths",
+        "Mission 5's special linked Angel payload remains distinct"
+      ],
+      "knownLimits": [
+        "The test bounds worship duration after real follower orders reach the authored ring.",
+        "The browser models the linked spell rewards but not the heads' class-7 decoration clones.",
+        "Later Mission 14 AI and victory behavior remain outside this feature slice."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission14-rewards.test.mjs", "tests/mission5-angel.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission5-angel.test.mjs",
+        "app/level-fourteen.ts",
+        "app/original-script-fourteen.json",
+        "app/mission-data.ts",
+        "app/game-store.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/worship.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 14 linked rewards and generic Angel through rendered follower selection, pointer worship, HUD casting, GPU presentation, and browser checkpoint storage.",
+      "coveredBehavior": [
+        "Mission 14 launch from the shipped mission chooser",
+        "Rendered six- and five-follower selection plus stone-head pointer commands",
+        "Earthquake, Land Bridge, and Angel one-off HUD stocks",
+        "Real Angel HUD selection and terrain cast",
+        "Angel GPU pixels and browser checkpoint restore"
+      ],
+      "knownLimits": [
+        "Followers are positioned at authored worship rings and accumulated work is bounded after real input establishes worship.",
+        "Headless GPU pixels do not establish exact native raster parity.",
+        "Later Mission 14 AI and victory behavior remain outside this feature slice."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission14-rewards.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission14-rewards.mjs",
+        "scripts/browser-game.mjs",
+        "app/angel.ts",
+        "app/game-clock.ts",
+        "app/game-store.ts",
+        "app/level-fourteen.ts",
+        "app/mission-data.ts",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/scene-entities.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes and restores the browser checkpoint database"],
+      "resources": ["Fixed server and browser storage resources; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

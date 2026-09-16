@@ -23,6 +23,7 @@ import { removeObjectFromCell } from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
+  createAngel,
   effect,
   emitGroundSpark,
   moveVisual,
@@ -915,6 +916,11 @@ function finishCast(
   p: Point,
   endpoint?: NativePoint
 ) {
+  if (spell === 'angel') {
+    createAngel(w, shaman.team, p)
+    if (shaman.team === 'blue') tell(w, 'Angel of Death! The world bends to your will.')
+    return
+  }
   // Effect 78 uses the default wave initializer, then enables scatter.
   if (spell === 'blast') emitBlastWave(w, p, shaman.team).scatter = true
   const upper =

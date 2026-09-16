@@ -12,8 +12,8 @@ export function createAngelState(): AngelState {
     target: null,
     heading: 0,
     timer: 0,
-    // ponytail: bounded gameplay lifetime until native class-1/model-8 +0x97 initialization is recovered.
-    lifetime: 60 * 12,
+    // FUN_004d2740 state 28 initializes AOD_DURATION at +0x97.
+    lifetime: 2500,
   }
 }
 

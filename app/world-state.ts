@@ -111,6 +111,7 @@ export function createWorldState(missionNumber = 1): World {
       swamp: 0,
       firestorm: 0,
       earthquake: 0,
+      angel: 0,
       volcano: 0,
       tornado: 0,
       shield: 0,
@@ -221,6 +222,7 @@ export function createWorldState(missionNumber = 1): World {
       swamp: 0,
       firestorm: 0,
       earthquake: 0,
+      angel: 0,
       volcano: 0,
       tornado: 0,
       shield: 0,
@@ -280,7 +282,9 @@ export function createWorldState(missionNumber = 1): World {
                       ? 'Seize Firewarrior training from the Dakini Vault and build your ranged force.'
                       : missionNumber === 12
                         ? 'For the first time we must face all three Enemy tribes. I must prepare for a mighty struggle.'
-                        : 'Discover the Boat House and launch a vessel to cross the world.',
+                        : missionNumber === 14
+                          ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge.'
+                          : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

@@ -109,7 +109,8 @@ try {
     }
     const hit = world.effects.some(effect => effect.kind === 'hit'),
       strikeCue = world.sounds.some(sound => sound.cue === 0xdc)
-    for (let frame = 0; frame < 1800 && world.effects.includes(angel); frame++)
+    angel.angel.lifetime = 1
+    for (let frame = 0; frame < 64 && world.effects.includes(angel); frame++)
       advanceGame(world, scene.gameClock, 1 / 24)
     world.speed = 0
     scene.onChange()

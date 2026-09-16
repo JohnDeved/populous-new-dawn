@@ -338,6 +338,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           swamp: 0x7f,
           firestorm: 0x7c,
           earthquake: 0x82,
+          angel: 0x81,
           volcano: 0x84,
           tornado: 0x78,
           shield: 0x87,
@@ -356,6 +357,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           swamp: 0x95,
           firestorm: 0x92,
           earthquake: 0x98,
+          angel: 0x97,
           volcano: 0x9a,
           tornado: 0x8e,
           shield: 0x9d,
@@ -432,7 +434,6 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   recordSpellCast(w, tribe, model)
   if (u.team === 'blue') {
     w.shots[spell] = w.manaWorld.spells[0].stocks[model] & 15
-    w.giftCounts[spell] = Math.max(0, w.giftCounts[spell] - 1)
     w.stats.cast++
   }
   u.casting = { spell, point: target, remaining: 6 / TURNS_PER_SECOND }

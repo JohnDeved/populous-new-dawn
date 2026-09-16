@@ -648,7 +648,7 @@ test('worship decays without followers and continues at full spell stock', () =>
  const shaman = w.units.find(u => u.kind === 'shaman' && u.team === 'blue');
  assert.ok(cast(w, 'bridge', shaman));
  assert.equal(w.shots.bridge, 3);
- assert.equal(w.giftCounts.bridge, 0, 'human casting spends a gift count too');
+ assert.equal(w.giftCounts.bridge, 1, 'casting preserves the cumulative gift count');
 });
 
 test('vault discovery follows worship, door, entry and exit tasks', () => {

@@ -137,6 +137,16 @@ export const SPELLS: {
     description: 'Tears open the ground and damages buildings across the fault.',
   },
   {
+    id: 'angel',
+    model: 13,
+    name: 'Angel of Death',
+    cost: 510,
+    key: '',
+    symbol: '◆',
+    color: '#d9c7b5',
+    description: 'Summons an Angel of Death to hunt enemy followers.',
+  },
+  {
     id: 'volcano',
     model: 16,
     name: 'Volcano',

@@ -141,7 +141,7 @@ export function migrateCheckpoint(world: World) {
       shrine.kind !== 'erosionEffect' &&
       shrine.kind !== 'linkedEffects' &&
       shrine.kind !== 'boat' &&
-      shrine.kind !== 'angel'
+      !(shrine.kind === 'angel' && shrine.angelTarget)
     )
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
   for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
@@ -159,6 +159,8 @@ export function migrateCheckpoint(world: World) {
   world.giftCounts.invisibility ??= 0
   world.shots.volcano ??= 0
   world.giftCounts.volcano ??= 0
+  world.shots.angel ??= 0
+  world.giftCounts.angel ??= 0
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
   if (!gifts.some(gift => gift.kind !== 'gift')) return world
   world.gifts = []

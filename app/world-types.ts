@@ -77,6 +77,7 @@ export type Spell =
   | 'swamp'
   | 'firestorm'
   | 'earthquake'
+  | 'angel'
   | 'volcano'
   | 'tornado'
   | 'shield'
@@ -238,6 +239,7 @@ export type Shrine = Point &
       | 'firewarriorHut'
       | 'boatHouse'
       | 'balloonHut'
+    rewards?: NonNullable<Shrine['reward']>[]
     bridgeTarget?: Point
     effectTarget?: Point
     effectTargets?: Point[]

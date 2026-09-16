@@ -519,17 +519,16 @@ function stepTurn(w: World) {
                   ? 'Knowledge discovered: build a Boat House at the shore to launch a Boat.'
                   : gift.reward === 'balloonHut'
                     ? 'Knowledge discovered: Balloon Hut.'
-                  : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
+                    : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
       )
     } else {
       // 0x4c2cd0: stocks already at/above the cap are unchanged.
-      if (w.shots[gift.reward] < 4) w.shots[gift.reward]++
+      const spell = SPELLS.find(spell => spell.id === gift.reward)!
+      if (w.shots[gift.reward] < rules.spellCharging[spell.model].normalLimit)
+        w.shots[gift.reward]++
       // 0x4c2aa0: the separate gift counter increases even at full stock.
       w.giftCounts[gift.reward] = Math.min(15, w.giftCounts[gift.reward] + 1)
-      tell(
-        w,
-        `${SPELLS.find(spell => spell.id === gift.reward)!.name} received. ${w.shots[gift.reward]} shots ready.`
-      )
+      tell(w, `${spell.name} received. ${w.shots[gift.reward]} shots ready.`)
     }
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
@@ -553,8 +552,8 @@ function stepTurn(w: World) {
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
     if (fx.angel) {
       const event = stepAngel(w, fx)
-      // Keep the bounded presentation offset stable while exact native flight height remains open.
-      fx.height = (terrainPointHeight(w.land, nativePosition(w, fx)) + 640) / 45
+      // ponytail: keep one stable native initial offset until target midpoints enter browser state.
+      fx.height = (terrainPointHeight(w.land, nativePosition(w, fx)) + 100) / 45
       if (event.hit) {
         const source =
           event.hit.flight ??
@@ -886,10 +885,10 @@ function stepTurn(w: World) {
           w.castingTribes[0].flags |= 64
           tell(w, 'Boat received. Select followers and click it to board.')
         }
-      } else if (shrine.kind === 'angel') {
+      } else if (shrine.kind === 'angel' && shrine.angelTarget) {
         // ponytail: keep the stone-head mesh until class-7/model-91's sprite presentation is decoded.
-        createAngel(w, teamForTribe(w.manaWorld.playerTribe), shrine.angelTarget!)
-      } else createGift(w, shrine.reward!, shrine)
+        createAngel(w, teamForTribe(w.manaWorld.playerTribe), shrine.angelTarget)
+      } else for (const reward of shrine.rewards ?? [shrine.reward!]) createGift(w, reward, shrine)
       sound(w, 0x70, shrine)
     }
   }

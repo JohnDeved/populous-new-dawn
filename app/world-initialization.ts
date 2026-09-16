@@ -1,4 +1,4 @@
-import type { Point, World } from './world-types.ts'
+import type { Point, Shrine, World } from './world-types.ts'
 import { addBuilding } from './construction-runtime.ts'
 import { campaignPosition, withCampaignTribe } from './campaign-runtime.ts'
 import { campaignCommand } from './campaign-command-runtime.ts'
@@ -23,6 +23,26 @@ export function createWorld(missionNumber = 1): World {
     )
       .filter(Boolean)
       .flatMap(index => level.objects.find(candidate => candidate.index + 1 === index) ?? [])
+  const linkedReward = (object: (typeof level.objects)[number]): Shrine['reward'] => {
+    const reward = object.settings!
+    if (reward[0] === 11) return SPELLS.find(spell => spell.model === reward[1])?.id
+    if (reward[0] !== 2) return
+    return reward[1] === 4
+      ? 'tower'
+      : reward[1] === 7
+        ? 'camp'
+        : reward[1] === 5
+          ? 'temple'
+          : reward[1] === 6
+            ? 'spyHut'
+            : reward[1] === 8
+              ? 'firewarriorHut'
+              : reward[1] === 13
+                ? 'boatHouse'
+                : reward[1] === 15
+                  ? 'balloonHut'
+                  : undefined
+  }
   const w = createWorldState(missionNumber),
     linkedObjectIds = new Set(
       level.objects
@@ -46,7 +66,7 @@ export function createWorld(missionNumber = 1): World {
                     ? 'boatHouse'
                     : o.model === 15
                       ? 'balloonHut'
-                    : 'hut'
+                      : 'hut'
       addBuilding(w, teamForTribe(o.owner), kind, o, true, {
         level: kind === 'hut' ? o.model : 1,
         angle: (o.angle / 2048) * Math.PI * 2,
@@ -91,7 +111,9 @@ export function createWorld(missionNumber = 1): World {
       if (linkedObjectIds.has(o.index + 1)) continue
       const settings = o.settings!,
         links = linkedObjects(o),
-        rewardObject = links.find(object => object.type === 6 && object.model === 2),
+        rewardObjects = links.filter(object => object.type === 6 && object.model === 2),
+        rewardObject = rewardObjects[0],
+        rewards = rewardObjects.flatMap(object => linkedReward(object) ?? []),
         linkedVehicle = links.find(object => object.type === 4),
         bridge = links.find(object => object.type === 7 && object.model === 24),
         erosion = links.find(object => object.type === 7 && object.model === 23),
@@ -100,7 +122,6 @@ export function createWorld(missionNumber = 1): World {
         angelStatue = links.find(object => object.type === 7 && object.model === 91),
         angelTarget = links.find(object => object.type === 7 && object.model === 88),
         linked = linkedVehicle ?? bridge ?? erosion ?? rewardObject,
-        reward = rewardObject?.settings,
         bridgeTarget = bridge && 'target' in bridge ? (bridge.target as Point) : undefined,
         effectTarget = erosion ? { x: erosion.x, z: erosion.z } : undefined,
         effectTargets = links
@@ -111,30 +132,12 @@ export function createWorld(missionNumber = 1): World {
         linkedHeadTargets = linkedHeadObjects
           .filter(object => object.type === 7 && object.model === 23)
           .map(object => ({ x: object.x, z: object.z }))
-      const rewardSpell =
-          reward?.[0] === 11 ? SPELLS.find(spell => spell.model === reward[1]) : undefined,
-        rewardBuilding =
-          reward?.[0] === 2
-            ? reward[1] === 4
-              ? 'tower'
-              : reward[1] === 7
-                ? 'camp'
-                : reward[1] === 5
-                  ? 'temple'
-                  : reward[1] === 6
-                    ? 'spyHut'
-                    : reward[1] === 8
-                      ? 'firewarriorHut'
-                      : reward[1] === 13
-                        ? 'boatHouse'
-                        : reward[1] === 15
-                          ? 'balloonHut'
-                          : undefined
-            : undefined,
+      const rewardSpell = SPELLS.find(spell => spell.id === rewards[0]),
+        isAngelHead = !!(angelStatue && angelTarget),
         kind =
           settings[0] === 4
             ? 'vault'
-            : angelStatue && angelTarget
+            : isAngelHead
               ? 'angel'
               : earthquakeTargets.length && linkedHead
                 ? 'linkedEffects'
@@ -155,12 +158,12 @@ export function createWorld(missionNumber = 1): World {
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
       const shrineReward =
         kind === 'vault'
-          ? (rewardBuilding ?? rewardSpell?.id)
+          ? rewards[0]
           : kind === 'bridgeEffect' ||
               kind === 'erosionEffect' ||
               kind === 'linkedEffects' ||
               kind === 'boat' ||
-              kind === 'angel'
+              isAngelHead
             ? undefined
             : kind
       if (
@@ -168,7 +171,7 @@ export function createWorld(missionNumber = 1): World {
         kind !== 'erosionEffect' &&
         kind !== 'linkedEffects' &&
         kind !== 'boat' &&
-        kind !== 'angel' &&
+        !isAngelHead &&
         !shrineReward
       )
         throw new Error(`Unbound shrine gift ${o.index}`)
@@ -193,6 +196,7 @@ export function createWorld(missionNumber = 1): World {
         z: o.z,
         kind,
         reward: shrineReward,
+        ...(rewards.length > 1 ? { rewards } : {}),
         ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
         ...(kind === 'erosionEffect' ? { effectTarget, effectTargets } : {}),
         ...(kind === 'linkedEffects' && linkedHead
@@ -224,7 +228,7 @@ export function createWorld(missionNumber = 1): World {
         ...(kind === 'boat'
           ? { rewardVehicle: w.vehicles.find(v => v.model === linked!.model && !v.active)!.id }
           : {}),
-        ...(kind === 'angel' ? { angelTarget: { x: angelTarget!.x, z: angelTarget!.z } } : {}),
+        ...(isAngelHead ? { angelTarget: { x: angelTarget!.x, z: angelTarget!.z } } : {}),
         name:
           kind === 'vault'
             ? 'Vault of Knowledge'
@@ -236,9 +240,9 @@ export function createWorld(missionNumber = 1): World {
                   ? 'Totem Pole'
                   : kind === 'boat'
                     ? 'Boat stone head'
-                    : kind === 'angel'
+                    : isAngelHead
                       ? 'Angel of Death stone head'
-                      : `${rewardSpell!.name} stone head`,
+                      : `${SPELLS.find(spell => spell.id === shrineReward)!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,
