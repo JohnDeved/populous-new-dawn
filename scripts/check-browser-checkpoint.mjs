@@ -45,6 +45,9 @@ async function assertMatakSwarm(page) {
   const swarm = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
       { command, setSelection, tick } = await import('/app/model.ts'),
+      enemyTeam = world.units.find(
+        unit => unit.kind === 'shaman' && unit.team !== 'blue' && unit.team !== 'wild'
+      )?.team,
       warriors = world.units
         .filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0)
         .slice(0, 6),
@@ -56,12 +59,14 @@ async function assertMatakSwarm(page) {
     for (
       let i = 0;
       i < 5000 &&
-      !world.projectiles.some(projectile => projectile.team === 'red' && projectile.spell === 'swarm');
+      !world.projectiles.some(
+        projectile => projectile.team === enemyTeam && projectile.spell === 'swarm'
+      );
       i++
     )
       tick(world, 1 / 12)
     const projectile = world.projectiles.find(
-      projectile => projectile.team === 'red' && projectile.spell === 'swarm'
+      projectile => projectile.team === enemyTeam && projectile.spell === 'swarm'
     )
     if (!projectile) throw new Error(`Mission 2 Matak Swarm timed out at turn ${world.turn}`)
     for (let i = 0; i < 100 && !world.effects.some(effect => effect.swarm); i++) tick(world, 1 / 12)
@@ -98,6 +103,9 @@ async function assertMatakRaid(page) {
     const world = globalThis.testStore.getWorld(),
       { command, setSelection, tick } = await import('/app/model.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
+      enemyTeam = world.units.find(
+        unit => unit.kind === 'shaman' && unit.team !== 'blue' && unit.team !== 'wild'
+      )?.team,
       warriors = () =>
         world.units.filter(
           unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0
@@ -106,7 +114,7 @@ async function assertMatakRaid(page) {
     globalThis.missionTwoBeforeRaid = structuredClone(world)
     for (let attempts = 0; world.killCredits[0][3] <= 3 && attempts < 8; attempts++) {
       const target = world.units
-        .filter(unit => unit.team === 'red' && unit.kind !== 'shaman' && unit.hp > 0)
+        .filter(unit => unit.team === enemyTeam && unit.kind !== 'shaman' && unit.hp > 0)
         .sort(
           (a, b) =>
             Math.hypot(a.x + 99, a.z + 105) - Math.hypot(b.x + 99, b.z + 105)
@@ -235,9 +243,14 @@ try {
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld(),
-      tower = world.buildings.find(building => building.team === 'red' && building.kind === 'tower'),
+      enemyTeam = world.units.find(
+        unit => unit.kind === 'shaman' && unit.team !== 'blue' && unit.team !== 'wild'
+      )?.team,
+      tower = world.buildings.find(
+        building => building.team === enemyTeam && building.kind === 'tower'
+      ),
       patrols = world.units.filter(unit => {
-        if (unit.team !== 'red' || !unit.native) return false
+        if (unit.team !== enemyTeam || !unit.native) return false
         const id = unit.native.immediateCommand || unit.native.commands[unit.native.commandCursor],
           order = id ? world.buildingOrders.records[id] : null
         return order?.model === 25
@@ -333,8 +346,13 @@ try {
       { createLivePerson, syncLivePersonCells } = await import('/app/live-people.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
       { addUnit, command, select, tick } = await import('/app/model.ts'),
-      tower = world.buildings.find(building => building.team === 'red' && building.kind === 'tower'),
-      defender = addUnit(world, 'red', 'warrior', { x: tower.x + 2, z: tower.z })
+      enemyTeam = world.units.find(
+        unit => unit.kind === 'shaman' && unit.team !== 'blue' && unit.team !== 'wild'
+      )?.team,
+      tower = world.buildings.find(
+        building => building.team === enemyTeam && building.kind === 'tower'
+      ),
+      defender = addUnit(world, enemyTeam, 'warrior', { x: tower.x + 2, z: tower.z })
     defender.native = createLivePerson(world, defender)
     defender.native.state = 17
     syncLivePersonCells(world)
