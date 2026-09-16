@@ -9,13 +9,13 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
-Current task lock: close the PND02 campaign-checkpoint acceptance gap. Diagnose
-the stale Mission 2 RED-tower and three-patrol wait in
-`scripts/check-browser-checkpoint.mjs` against current Mission 2 ownership, AI,
-and presentation behavior; repair the exact test assumption or live gameplay bug,
-then prove fresh-session campaign retention, restart, and legacy Mission 1 loading.
-Preserve meaningful assertions and keep unrelated campaign expansion outside this
-bounded slice.
+Current task lock: deliver Mission 12's playable campaign opening through world
+selection and Mission 11 continuation. Import the hash-verified original terrain,
+objects, three enemy scripts, message, and required render assets; prove all four
+tribes, authored knowledge sites and buildings, ordinary Shaman movement, exact
+checkpoint continuation, restart, and profile retention. Bound the slice at the
+native opening: full Mission 12 AI, objectives, victory, Spy behavior, Balloon
+behavior, and unsupported later PopScript branches remain separate features.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's
@@ -42,6 +42,7 @@ Mission 11's playable opening finished in `bbd93b3`.
 Mission 11's first autonomous Guard Towers finished in `51d777a`.
 Mission 11's first Matak Hut finished in `723358a`.
 Mission 11's first script-requested `BUILD_AT` Guard Tower finished in `3217651`.
+The PND02 Mission 2 checkpoint acceptance repair finished in `7330e9c`.
 
 The user-queued composition refactor finished in independently revertible commits
 through `e3124a4`. Keep `app/model.ts` and `app/scene.ts` as stable facades; do not

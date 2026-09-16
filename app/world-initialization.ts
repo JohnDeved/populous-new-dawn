@@ -35,13 +35,15 @@ export function createWorld(missionNumber = 1): World {
           ? 'tower'
           : o.model === 5
             ? 'temple'
-            : o.model === 7
-              ? 'camp'
-              : o.model === 8
-                ? 'firewarriorHut'
-                : o.model === 13
-                  ? 'boatHouse'
-                  : 'hut'
+            : o.model === 6
+              ? 'spyHut'
+              : o.model === 7
+                ? 'camp'
+                : o.model === 8
+                  ? 'firewarriorHut'
+                  : o.model === 13
+                    ? 'boatHouse'
+                    : 'hut'
       addBuilding(w, teamForTribe(o.owner), kind, o, true, {
         level: kind === 'hut' ? o.model : 1,
         angle: (o.angle / 2048) * Math.PI * 2,
@@ -114,11 +116,13 @@ export function createWorld(missionNumber = 1): World {
                 ? 'camp'
                 : reward[1] === 5
                   ? 'temple'
-                  : reward[1] === 8
-                    ? 'firewarriorHut'
-                    : reward[1] === 13
-                      ? 'boatHouse'
-                      : undefined
+                  : reward[1] === 6
+                    ? 'spyHut'
+                    : reward[1] === 8
+                      ? 'firewarriorHut'
+                      : reward[1] === 13
+                        ? 'boatHouse'
+                        : undefined
             : undefined,
         kind =
           settings[0] === 4
@@ -256,7 +260,8 @@ export function createWorld(missionNumber = 1): World {
               1196,
               1197,
               1204,
-              ...([4, 10, 11].includes(missionNumber) ? [1174, 1187] : []),
+              ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
+              ...([4, 10, 11, 12].includes(missionNumber) ? [1174, 1187] : []),
             ].includes(c.opcode)
           )
             return true

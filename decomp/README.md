@@ -37,7 +37,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 Recent reusable topic notes: [Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
-[Mission 11 first settlement](research/mission11-first-settlement.md), and
+[Mission 11 first settlement](research/mission11-first-settlement.md),
+[Mission 12 opening](research/mission12-opening.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
 
@@ -410,6 +411,20 @@ producer, establishing the turn-60 model-4 task, Shaman-cell origin, coordinate
 latch, and RNG neutrality. Site choice, worker movement, construction, rendering,
 and checkpoint restoration remain browser evidence. See the
 [focused evidence and limits](research/mission11-first-settlement.md).
+
+## Mission 12 opening
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-mission12-opening.py /path/to/d3dpoptb.exe
+```
+
+The bounded probe executes all three turn-zero scripts, the turn-7 one-shot flyby,
+and the first ordinary Guard Tower producer for every enemy tribe. It establishes
+the opening message/configuration, exact flyby sequence, turn-60/61/62 task fields,
+and zero-Brave failure against hash-verified Mission 12 inputs. Flyby rendering and
+complete producer world ownership remain browser evidence; opcode 1190's downstream
+object-flag consumer and all later Mission 12 behavior remain unresolved. See the
+[focused evidence and limits](research/mission12-opening.md).
 
 ## Shared person commands
 

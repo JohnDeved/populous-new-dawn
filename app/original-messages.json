@@ -131,6 +131,10 @@
     "147": {
       "stringId": 1227,
       "text": "Use the Hypnotise spell to convert Enemy Followers to your cause. But beware, the effects will fade with time."
+    },
+    "0": {
+      "stringId": 686,
+      "text": "For the first time we must face all three Enemy tribes. I must prepare for a mighty struggle."
     }
   }
 }

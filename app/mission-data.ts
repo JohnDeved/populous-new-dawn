@@ -9,6 +9,7 @@ import levelEight from './level-eight.ts'
 import levelNine from './level-nine.ts'
 import levelTen from './level-ten.ts'
 import levelEleven from './level-eleven.ts'
+import levelTwelve from './level-twelve.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
 import scriptThree from './original-script-three.json' with { type: 'json' }
@@ -20,6 +21,7 @@ import scriptEight from './original-script-eight.json' with { type: 'json' }
 import scriptNine from './original-script-nine.json' with { type: 'json' }
 import scriptTen from './original-script-ten.json' with { type: 'json' }
 import scriptEleven from './original-script-eleven.json' with { type: 'json' }
+import scriptTwelve from './original-script-twelve.json' with { type: 'json' }
 import { teamForTribe, tribeForTeam, type TribeTeam } from './world-types.ts'
 
 const missions = [
@@ -34,6 +36,7 @@ const missions = [
   { number: 9, level: levelNine, script: scriptNine },
   { number: 10, level: levelTen, script: scriptTen },
   { number: 11, level: levelEleven, script: scriptEleven.tribes[2] },
+  { number: 12, level: levelTwelve, script: scriptTwelve.tribes[1] },
 ] as const
 
 export const missionNumbers = missions.map(mission => mission.number)
@@ -80,8 +83,9 @@ export function missionPosition(number: number, team: TribeTeam) {
 }
 
 export function missionScript(number: number, tribe = missionEnemyTribe(number)) {
-  if (number !== 6 && number !== 11) return missionData(number).script
-  const scripts = number === 6 ? scriptSix.tribes : scriptEleven.tribes,
+  if (number !== 6 && number !== 11 && number !== 12) return missionData(number).script
+  const scripts =
+      number === 6 ? scriptSix.tribes : number === 11 ? scriptEleven.tribes : scriptTwelve.tribes,
     script = scripts[tribe as 1 | 2 | 3]
   if (!script)
     throw new Error(`Missing ${teamForTribe(tribe)} script in campaign mission ${number}`)
@@ -89,7 +93,7 @@ export function missionScript(number: number, tribe = missionEnemyTribe(number))
 }
 
 export const missionComputerTribes = (number: number) =>
-  number === 6 ? [1, 2, 3] : number === 11 ? [2, 3] : [missionEnemyTribe(number)]
+  number === 6 || number === 12 ? [1, 2, 3] : number === 11 ? [2, 3] : [missionEnemyTribe(number)]
 
 export function missionEnemyTribe(number: number) {
   const shaman = missionData(number).level.objects.find(

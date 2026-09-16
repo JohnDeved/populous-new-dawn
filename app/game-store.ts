@@ -97,6 +97,7 @@ export function migrateCheckpoint(world: World) {
   for (const vehicle of world.vehicles) vehicle.active ??= true
   world.unlockedTower ??= false
   world.unlockedTemple ??= false
+  world.unlockedSpyHut ??= false
   world.unlockedFirewarriorHut ??= false
   world.unlockedBoatHouse ??= false
   if (!Object.hasOwn(world, 'campaignTimer')) world.campaignTimer = null

@@ -211,6 +211,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       hut: 'hut',
       tower: 'guard tower',
       temple: 'temple',
+      spyHut: 'spy training hut',
       firewarriorHut: 'firewarrior hut',
       boatHouse: 'boat house',
     }[b.kind]

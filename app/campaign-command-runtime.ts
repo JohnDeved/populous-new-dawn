@@ -23,7 +23,7 @@ import {
 } from './computer.ts'
 import { release } from './world-tasks.ts'
 import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
-import { random } from './native-math.ts'
+import { cellsNear, random } from './native-math.ts'
 import { sound } from './world-effects.ts'
 import { flybyCommand } from './flyby.ts'
 import { addMessage, messageStringId } from './messages.ts'
@@ -116,6 +116,7 @@ export function campaignCommand(
       1085: 2,
       1131: 3,
       1136: 0,
+      1138: 2,
       1151: 1,
       1171: 2,
       1172: 1,
@@ -128,6 +129,7 @@ export function campaignCommand(
       1115: 2,
       1180: 0,
       1187: 0,
+      1190: 3,
       1197: 0,
       1200: 1,
       1201: 0,
@@ -424,6 +426,28 @@ export function campaignCommand(
     return
   }
 
+  if (opcode === 1138) {
+    const tribe = args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0]),
+      target = w.manaTribes[tribe]
+    if (!target) throw new RangeError('Invalid campaign mana tribe')
+    target.mana = (target.mana + read(args[1])) | 0
+    return
+  }
+
+  if (opcode === 1190) {
+    const [x, y, radius] = args.map(read),
+      center = (x & 254) | ((y & 254) << 8),
+      range = (radius & 255) * 2
+    for (const unit of w.units) {
+      if (nativePersonModel(unit) !== 1) continue
+      const position = nativePosition(w, unit),
+        cell = ((position.x >>> 8) & 254) | (((position.y >>> 8) & 254) << 8)
+      if (!cellsNear(center, cell, range)) continue
+      unit.nativeFlags7f = ((unit.nativeFlags7f ?? 0) | 2) & 255
+    }
+    return
+  }
+
   if (opcode === 1197) {
     const tribe = campaignTribe(w)
     w.manaTribes[tribe].flags2 = (w.manaTribes[tribe].flags2 | 2) >>> 0
@@ -676,7 +700,16 @@ export function campaignRules(w: World) {
                             1004,
                             1019,
                           ]
-                        : [12, 1003, 1004, 1019],
+                        : w.outcome.level === 12 && tribe === 1
+                          ? [
+                              12,
+                              1003,
+                              // Native turn-7 one-shot flyby, including its EVERY and variable-25 latch.
+                              ...script.codes.slice(1318, 1449),
+                              1004,
+                              1019,
+                            ]
+                          : [12, 1003, 1004, 1019],
   }
   // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
   runScript(boundCampaignScript, w.ai, {

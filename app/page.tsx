@@ -1000,7 +1000,9 @@ export default function Home() {
                             ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
                             : world.outcome.level === 10
                               ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
-                              : 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'}
+                              : world.outcome.level === 11
+                                ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
+                                : 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

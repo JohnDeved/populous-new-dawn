@@ -1077,8 +1077,9 @@
       "id": "mission11-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 10 result continuation into Mission 11's opening, first settlement, and first scripted Matak BUILD_AT tower through the shipped browser game.",
+      "purpose": "Exercise direct Mission 12 selection, Mission 10 result continuation into Mission 11's settlement and scripted tower, then Mission 11 result continuation into Mission 12's bounded opening through the shipped browser game.",
       "coveredBehavior": [
+        "Direct Mission 12 world-selector start with imported terrain and rendered scenery",
         "Mission 10 result continuation into exact Mission 11 level and per-tribe script data",
         "Rendered Blue, Chumara, Matak, and wild populations",
         "Two Vaults and two stone heads with Hypnotise, Flatten, and Swamp rewards",
@@ -1090,11 +1091,16 @@
         "Ordinary spiral site selection followed by completion and rendering of the scripted Matak Guard Tower",
         "Completed and rendered opening Guard Towers plus the Matak Hut through level 3 and scripted BUILD_AT tower",
         "No replacement towers, replacement Hut, further BUILD_AT requests, housing, or school production",
-        "Real canvas movement input for the selected Blue Shaman"
+        "Real canvas movement input for the selected Blue Shaman",
+        "Mission 11 result continuation into exact Mission 12 level and three enemy scripts with profile retention",
+        "Rendered Blue, Dakini, Chumara, Matak, and wild populations; three Vaults; 31 authored buildings; and the native Spy Training Hut model",
+        "Original opening message, all three enemy HUD controls, rendered turn-7 flyby motion, and shipped Skip-introduction input release",
+        "Mission 12 checkpoint restoration and deterministic continuation, restart, and profile retention"
       ],
       "knownLimits": [
         "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
-        "Mission 11 Chumara housing, later BUILD_AT construction and staffing, production profiles, attacks, flyby, objectives, victory, full script command coverage, and natural completion remain deferred."
+        "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
+        "Mission 11 later housing/staffing/attacks/objectives and Mission 12 later AI, objectives, victory, Spy behavior, Balloon behavior, opcode 1190's downstream consumer, and full script command coverage remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission11.mjs"],
@@ -1104,26 +1110,77 @@
         "scripts/check-browser-mission11.mjs",
         "scripts/browser-game.mjs",
         "tests/mission11-opening.test.mjs",
+        "tests/mission12-opening.test.mjs",
         "app/level-eleven.ts",
+        "app/level-twelve.ts",
         "app/original-script-eleven.json",
+        "app/original-script-twelve.json",
         "app/original-messages.json",
+        "app/original-models.json",
         "app/mission-data.ts",
+        "app/campaign-command-runtime.ts",
         "app/computer-runtime.ts",
         "app/construction-runtime.ts",
         "app/world-initialization.ts",
         "app/world-state.ts",
         "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/building-shapes.ts",
         "app/page.tsx",
         "app/game-store.ts",
         "app/scene.ts",
         "app/scene-entities.ts",
         "decomp/research/mission11-first-settlement.md",
         "decomp/research/mission11-first-expansion.md",
-        "decomp/research/mission11-exact-tower.md"
+        "decomp/research/mission11-exact-tower.md",
+        "decomp/research/mission12-opening.md"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
       "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute Mission 12's three turn-zero scripts, opening message/failure gate, one-shot flyby, and first Guard Tower producers against hash-verified original inputs.",
+      "coveredBehavior": [
+        "Mission 12 level, header, all three enemy scripts, English message data, and executable identity",
+        "Exact per-tribe turn-zero AI attributes, coordinates, spells, markers, defence state, mana addition, marker heights, message state, and suppression gate",
+        "Tribe-1 turn-7 one-shot flyby command order, arguments, variable-25 latch, and RNG-neutral simulation path",
+        "Matak, Chumara, and Dakini first model-4 tasks at turns 60, 61, and 62 with exact Shaman-cell origins",
+        "Zero-available-Brave producer failure without task allocation or RNG consumption",
+        "Opcode 1190 target enumeration and object-flag mutation"
+      ],
+      "knownLimits": [
+        "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
+        "Producer current-base and available-Brave leaves are supplied from the verified level; loaded-world ownership, site choice, workers, and construction remain portable/browser evidence.",
+        "Opcode 1190's downstream object-flag consumer and every later Mission 12 branch remain unresolved."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission12-opening.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission12-opening.py",
+        "app/level-twelve.ts",
+        "app/original-script-twelve.json",
+        "decomp/research/mission12-opening.md",
+        "decomp/generated/00491350.c",
+        "decomp/generated/004919e0.c",
+        "decomp/generated/00499aa0.c",
+        "decomp/generated/004f1fe0.c",
+        "decomp/generated/004f6020.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 12 level, header, three scripts, and English language data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

@@ -343,6 +343,7 @@
         "app/level-nine.ts",
         "app/level-ten.ts",
         "app/level-eleven.ts",
+        "app/level-twelve.ts",
         "app/mission-data.ts",
         "app/live-worship.ts",
         "app/messages.ts",
@@ -356,6 +357,7 @@
         "app/original-script-eight.json",
         "app/original-script-nine.json",
         "app/original-script-ten.json",
+        "app/original-script-twelve.json",
         "app/original-messages.json",
         "app/reincarnation.ts",
         "app/tribe-turns.ts",
@@ -387,6 +389,11 @@
         "decomp/generated/004dd700.c",
         "decomp/generated/004e0a30.c",
         "decomp/generated/00512240.c",
+        "decomp/generated/00491350.c",
+        "decomp/generated/004919e0.c",
+        "decomp/generated/00499aa0.c",
+        "decomp/generated/004f1fe0.c",
+        "decomp/generated/004f6020.c",
         "decomp/research/mission6-economy.md",
         "decomp/research/mission6.md",
         "decomp/research/mission7.md",
@@ -399,6 +406,7 @@
         "decomp/research/mission11-first-expansion.md",
         "decomp/research/mission11-exact-tower.md",
         "decomp/research/mission11-reactive-noop.md",
+        "decomp/research/mission12-opening.md",
         "app/original-script-eleven.json",
         "scripts/check-browser-mission11.mjs",
         "scripts/check-browser-mission9.mjs",
@@ -408,6 +416,7 @@
         "scripts/check-native-mission11-housing.py",
         "scripts/check-native-mission11-build-at.py",
         "scripts/check-native-mission11-reactive-noop.py",
+        "scripts/check-native-mission12-opening.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -421,17 +430,22 @@
         "scripts/check-native-messages.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
+        "scripts/import-original.py",
         "scripts/import-script.py",
+        "app/original-models.json",
+        "public/original/provenance.json",
         "references/reverse-engineering.md",
         "tests/marching-formations.test.mjs",
         "tests/mission10-opening.test.mjs",
-        "tests/mission11-opening.test.mjs"
+        "tests/mission11-opening.test.mjs",
+        "tests/mission12-opening.test.mjs"
       ],
       "sharedPaths": [
         "app/flyby.ts",
         "app/game-store.ts",
         "app/firewarrior.ts",
         "app/live-building-entry.ts",
+        "app/building-panels.ts",
         "app/building-shapes.ts",
         "app/building-runtime.ts",
         "app/combat-runtime.ts",
@@ -501,6 +515,10 @@
           "heading": "Mission 11 first Matak BUILD_AT tower"
         },
         {
+          "path": "decomp/research/mission12-opening.md",
+          "heading": "Mission 12 native opening findings"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -553,7 +571,12 @@
         "0x4a5eb0",
         "0x4a5ec0",
         "0x4a5ee0",
-        "0x51f470"
+        "0x51f470",
+        "0x491350",
+        "0x4919e0",
+        "0x499aa0",
+        "0x4f1fe0",
+        "0x4f6020"
       ],
       "checkIds": [
         "messages-native",
@@ -570,6 +593,7 @@
         "mission11-settlement-native",
         "mission11-housing-native",
         "mission11-build-at-native",
+        "mission12-opening-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -595,6 +619,7 @@
         "Mission 9's AI, tutorials, victory, recurring Boat production, Boat combat/death, and exact replacement hull art remain deferred.",
         "Mission 10's native automatic cross-water group route, full AI command block, Shaman-loss/deadline-failure branches, natural endgame victory, and exact model-90/model-26 terrain consumers remain deferred.",
         "Mission 11's Chumara housing, later BUILD_AT construction and staffing, production profiles, attacks, flyby, objectives, victory, unsupported script commands, and natural completion remain deferred.",
+        "Mission 12's later AI, objectives, victory, Spy behavior, Balloon behavior, opcode 1190 consumer, unsupported script commands, and natural completion remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
       ]

@@ -231,6 +231,7 @@ export function createWorldState(missionNumber = 1): World {
     unlockedCamp: missionAllowsBuilding(missionNumber, 7),
     unlockedTower: missionAllowsBuilding(missionNumber, 4),
     unlockedTemple: missionAllowsBuilding(missionNumber, 5),
+    unlockedSpyHut: missionAllowsBuilding(missionNumber, 6),
     unlockedFirewarriorHut: missionAllowsBuilding(missionNumber, 8),
     unlockedBoatHouse: missionAllowsBuilding(missionNumber, 13),
     time: 0,
@@ -251,6 +252,7 @@ export function createWorldState(missionNumber = 1): World {
       hut: 0,
       tower: 0,
       temple: 0,
+      spyHut: 0,
       camp: 0,
       firewarriorHut: 0,
       boatHouse: 0,
@@ -274,7 +276,9 @@ export function createWorldState(missionNumber = 1): World {
                     ? 'Convert Wildmen and seize Invisibility from the Chumara Vault.'
                     : missionNumber === 8
                       ? 'Seize Firewarrior training from the Dakini Vault and build your ranged force.'
-                      : 'Discover the Boat House and launch a vessel to cross the world.',
+                      : missionNumber === 12
+                        ? 'For the first time we must face all three Enemy tribes. I must prepare for a mighty struggle.'
+                        : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

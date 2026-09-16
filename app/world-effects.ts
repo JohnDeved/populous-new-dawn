@@ -143,6 +143,7 @@ export function createGift(w: World, reward: Gift['reward'], p: Point) {
       reward === 'camp' ||
       reward === 'tower' ||
       reward === 'temple' ||
+      reward === 'spyHut' ||
       reward === 'firewarriorHut' ||
       reward === 'boatHouse' ||
       reward === 'vault'

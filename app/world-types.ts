@@ -56,7 +56,14 @@ export const teamForTribe = (tribe: number): Team =>
 export const tribeForTeam = (team: Team) => (team === 'wild' ? -1 : TRIBE_TEAMS.indexOf(team))
 export const animationTeam = (team: Team): 'blue' | 'red' | 'wild' =>
   team === 'yellow' || team === 'green' ? 'red' : team
-export type BuildingKind = 'hut' | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse'
+export type BuildingKind =
+  | 'hut'
+  | 'camp'
+  | 'tower'
+  | 'temple'
+  | 'spyHut'
+  | 'firewarriorHut'
+  | 'boatHouse'
 export type Spell =
   | 'blast'
   | 'convertWild'
@@ -138,6 +145,8 @@ export type Battle = Point & {
   attackReservation?: AttackReservation
 }
 export type Unit = Point & {
+  // Raw person byte +0x7f. Its Mission 12 script mutation is known; the later consumer is not.
+  nativeFlags7f?: number
   attackReservation?: AttackReservation
   damageAttacker?: number
   supportHeight?: number
@@ -217,7 +226,7 @@ export type Shrine = Point &
   WorshipState & {
     id: number
     kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'linkedEffects' | 'vault' | 'boat' | 'angel'
-    reward?: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse'
+    reward?: Spell | 'camp' | 'tower' | 'temple' | 'spyHut' | 'firewarriorHut' | 'boatHouse'
     bridgeTarget?: Point
     effectTarget?: Point
     effectTargets?: Point[]
@@ -310,7 +319,7 @@ export type Effect = Point & {
 }
 export type Gift = Effect & {
   kind: 'gift'
-  reward: Spell | 'camp' | 'tower' | 'temple' | 'firewarriorHut' | 'boatHouse' | 'vault'
+  reward: Spell | 'camp' | 'tower' | 'temple' | 'spyHut' | 'firewarriorHut' | 'boatHouse' | 'vault'
   remaining: number
   phase: number
   frame: number
@@ -395,6 +404,7 @@ export type World = {
   unlockedCamp: boolean
   unlockedTower: boolean
   unlockedTemple: boolean
+  unlockedSpyHut: boolean
   unlockedFirewarriorHut: boolean
   unlockedBoatHouse: boolean
   time: number

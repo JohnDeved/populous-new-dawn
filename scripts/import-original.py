@@ -141,7 +141,7 @@ def main():
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
     # Models actually used in this mission, including every hut family, upgrade and all four tribe colors.
-    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,*range(83,87),95,96,97,99,103,104,106,*range(107,143)]
+    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,*range(83,87),*range(91,98),99,103,104,106,*range(107,143)]
     animation_tiles = read('data/anibl0-0.dat')
     assert len(animation_tiles) == 500
     fire = animation_tiles[20:40] # ANIBL record 1, consumed by 0x4f0f60.

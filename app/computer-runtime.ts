@@ -72,7 +72,8 @@ import { entrance, findPath, route } from './live-command.ts'
 import { release, releaseTasks } from './world-tasks.ts'
 
 const mission11TowerRequested = 0x80000000,
-  mission11HousingRequested = 0x40000000
+  mission11HousingRequested = 0x40000000,
+  mission12TowerRequested = 0x20000000
 
 export function computerSelectionWorld(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
@@ -326,7 +327,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
       }, 0)
   if (
-    ![3, 6, 11].includes(w.outcome.level) ||
+    ![3, 6, 11, 12].includes(w.outcome.level) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
@@ -335,12 +336,17 @@ function produceMissionBuilding(w: World, tribe: number) {
   if (availableTrainingPeople(selection.world) < 2) return false
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     position = shaman && nativePosition(w, shaman),
-    origin = base
-      ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
-      : position
+    origin =
+      w.outcome.level === 12 && position
         ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
-        : 0
+        : base
+          ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
+          : position
+            ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+            : 0
   if (!origin) return false
+  // ponytail: only the first proved Mission 12 producer request belongs to this opening slice.
+  if (w.outcome.level === 12 && w.ai.flags & mission12TowerRequested) return false
   if (
     w.outcome.level === 11 &&
     ((!base && !!(w.ai.flags & mission11TowerRequested)) ||
@@ -351,22 +357,25 @@ function produceMissionBuilding(w: World, tribe: number) {
   // use native attribute target counts when later missions need multiple schools.
   const model = !base
     ? 4
-    : w.outcome.level === 11
-      ? housing < w.ai.attributes[10]
-        ? 1
-        : 0 // ponytail: one Matak Hut only; later housing and schools await their own slices.
-      : !has(7) && w.ai.attributes[3]
-        ? 7
-        : tribe === 2 && !has(5) && w.ai.attributes[2]
-          ? 5
-          : housing < w.ai.attributes[10]
-            ? 1
-            : 0
+    : w.outcome.level === 12
+      ? 4
+      : w.outcome.level === 11
+        ? housing < w.ai.attributes[10]
+          ? 1
+          : 0 // ponytail: one Matak Hut only; later housing and schools await their own slices.
+        : !has(7) && w.ai.attributes[3]
+          ? 7
+          : tribe === 2 && !has(5) && w.ai.attributes[2]
+            ? 5
+            : housing < w.ai.attributes[10]
+              ? 1
+              : 0
   if (!model || !requestConstruction(w.ai, model, origin)) return false
   // ponytail: keep each proved Mission 11 request one-shot until its next native slice.
   if (w.outcome.level === 11)
     w.ai.flags =
       (w.ai.flags | (model === 4 ? mission11TowerRequested : mission11HousingRequested)) >>> 0
+  else if (w.outcome.level === 12) w.ai.flags = (w.ai.flags | mission12TowerRequested) >>> 0
   return true
 }
 

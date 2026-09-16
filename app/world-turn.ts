@@ -491,12 +491,14 @@ function stepTurn(w: World) {
       gift.reward === 'camp' ||
       gift.reward === 'tower' ||
       gift.reward === 'temple' ||
+      gift.reward === 'spyHut' ||
       gift.reward === 'firewarriorHut' ||
       gift.reward === 'boatHouse' ||
       gift.reward === 'vault'
     ) {
       if (gift.reward === 'temple') w.unlockedTemple = true
       else if (gift.reward === 'tower') w.unlockedTower = true
+      else if (gift.reward === 'spyHut') w.unlockedSpyHut = true
       else if (gift.reward === 'firewarriorHut') w.unlockedFirewarriorHut = true
       else if (gift.reward === 'boatHouse') w.unlockedBoatHouse = true
       else w.unlockedCamp = true
@@ -506,11 +508,13 @@ function stepTurn(w: World) {
           ? 'Knowledge discovered: build a Temple, then send braves inside to train as preachers.'
           : gift.reward === 'tower'
             ? 'Knowledge discovered: build a Guard Tower, then send a follower inside to defend the area.'
-            : gift.reward === 'firewarriorHut'
-              ? 'Knowledge discovered: build a Firewarrior Training Hut, then send braves inside.'
-              : gift.reward === 'boatHouse'
-                ? 'Knowledge discovered: build a Boat House at the shore to launch a Boat.'
-                : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
+            : gift.reward === 'spyHut'
+              ? 'Knowledge discovered: Spy Training Hut.'
+              : gift.reward === 'firewarriorHut'
+                ? 'Knowledge discovered: build a Firewarrior Training Hut, then send braves inside.'
+                : gift.reward === 'boatHouse'
+                  ? 'Knowledge discovered: build a Boat House at the shore to launch a Boat.'
+                  : 'Knowledge discovered: build a Warrior Training Hut, then send braves inside.'
       )
     } else {
       // 0x4c2cd0: stocks already at/above the cap are unchanged.
