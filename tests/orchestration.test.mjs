@@ -789,6 +789,39 @@ test('real mapped evidence excerpts retain their material performance boundaries
   )
 })
 
+// Keep Shaman-specific routing out of the terrain packet's mandatory metadata.
+// Do not solve growth by increasing the default budget or trimming evidence/check limits.
+test('Shaman appearance context keeps its complete checks and evidence within the default budget', () => {
+  const { project, checks } = validateRepository(ROOT)
+  const terrainMapping = project.subsystems.find(item => item.id === 'terrain-performance')
+  const shamanMapping = project.subsystems.find(item => item.id === 'shaman-appearance')
+  const expectedChecks = [
+    'shaman-appearance-portable', 'shaman-assets-static',
+    'shaman-appearance-browser', 'shaman-appearance-native',
+  ]
+  assert.deepEqual(shamanMapping.checkIds, expectedChecks)
+  assert.ok(expectedChecks.every(id => !terrainMapping.checkIds.includes(id)))
+  assert.equal(terrainMapping.implementationPaths[0], 'app/native-terrain.ts')
+  const packet = contextPacket(ROOT, { subsystem: 'shaman-appearance' })
+  assert.equal(packet.budgetBytes, 24_000)
+  assert.ok(packet.contextBytes <= packet.budgetBytes)
+  assert.deepEqual(packet.checks.map(check => check.id), expectedChecks)
+  for (const projected of packet.checks) {
+    const original = checks.checks.find(check => check.id === projected.id)
+    assert.equal(projected.purpose, original.purpose)
+    assert.deepEqual(projected.knownLimits, original.knownLimits)
+    assert.deepEqual(projected.command, [original.executable, ...original.args])
+    assert.deepEqual(projected.prerequisites, original.prerequisites)
+    assert.deepEqual(projected.sideEffects, original.sideEffects)
+    assert.deepEqual(projected.resources, original.resources)
+  }
+  for (const reference of shamanMapping.evidence)
+    assert.ok(packet.sourceExcerpts.some(item =>
+      item.path === reference.path && item.headingTrail.at(-1) === reference.heading
+    ), 'Required original Shaman evidence must remain visible: ' + reference.heading)
+  assert.equal(packet.executesChecks, false)
+})
+
 test('plan handles cross-cutting edits, renames, deletions, untracked and unsafe inputs without executing checks', () =>
   withRepo(repo => {
     const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()

@@ -277,7 +277,6 @@
       "title": "Terrain and presentation performance",
       "mappingStatus": "reviewed",
       "implementationPaths": [
-        "app/shaman-appearance.ts",
         "app/native-terrain.ts",
         "app/world-terrain-runtime.ts",
         "app/painter-order.ts",
@@ -289,23 +288,7 @@
         "app/scene-terrain-runtime.ts",
         "app/viewport-bounds.ts"
       ],
-      "researchPaths": [
-        "scripts/import-original.py",
-        "app/original-units.json",
-        "public/original/unit-layers.png",
-        "public/original/provenance.json",
-        "tests/shaman-appearance.test.mjs",
-        "tests/sprite-layers.test.mjs",
-        "scripts/check-static-shaman-appearance.py",
-        "scripts/check-native-shaman-appearance.py",
-        "scripts/check-browser-shaman-appearance.mjs",
-        "scripts/check-browser-sprite-layers.mjs",
-        "scripts/check-browser-reincarnation.mjs"
-      ],
-      "sharedPaths": [
-        "app/scene-entities.ts",
-        "app/scene-effects.ts",
-        "app/world-turn.ts","app/model.ts", "app/render-view.ts", "app/scene.ts"],
+      "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncNativeTerrain" },
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncLandscapeObjects" },
@@ -342,10 +325,6 @@
       ],
       "nativeAddresses": ["0x4306d0", "0x44df40", "0x44e940", "0x4f9380", "0x4b5f40"],
       "checkIds": [
-        "shaman-appearance-portable",
-        "shaman-assets-static",
-        "shaman-appearance-browser",
-        "shaman-appearance-native",
         "terrain-portable",
         "terrain-native",
         "terrain-browser",
@@ -362,6 +341,93 @@
       "unresolved": [
         "Browser-path equivalence does not establish complete native renderer parity.",
         "Current source lacks fresh representative hardware frame evidence for every populated combat and terrain workload."
+      ]
+    },
+    {
+      "id": "shaman-appearance",
+      "title": "Original Shaman appearance",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/shaman-appearance.ts"
+      ],
+      "researchPaths": [
+        "scripts/import-original.py",
+        "app/original-units.json",
+        "public/original/unit-layers.png",
+        "public/original/provenance.json",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs",
+        "scripts/check-static-shaman-appearance.py",
+        "scripts/check-native-shaman-appearance.py",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "scripts/check-browser-sprite-layers.mjs",
+        "scripts/check-browser-reincarnation.mjs"
+      ],
+      "sharedPaths": [
+        "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/world-turn.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/shaman-appearance.ts",
+          "symbol": "shamanAppearance"
+        },
+        {
+          "path": "app/scene-entities.ts",
+          "symbol": "updateUnitsFrame"
+        },
+        {
+          "path": "app/scene-effects.ts",
+          "symbol": "animateFx"
+        },
+        {
+          "path": "scripts/import-original.py",
+          "symbol": "append_shaman_units"
+        }
+      ],
+      "parityIds": [
+        "graphics.sprites.layers",
+        "graphics.sprites.roster",
+        "graphics.sprites.states",
+        "combat.shamans"
+      ],
+      "evidence": [
+        {
+          "path": "decomp/README.md",
+          "heading": "Original person sprite layers and regression coverage"
+        },
+        {
+          "path": "decomp/README.md",
+          "heading": "Animated shaman portrait — 2026-09-09"
+        },
+        {
+          "path": "decomp/README.md",
+          "heading": "2026-09-12 — shaman reincarnation lifecycle"
+        }
+      ],
+      "nativeAddresses": [
+        "0x4673b0",
+        "0x450e60",
+        "0x5029d0"
+      ],
+      "checkIds": [
+        "shaman-appearance-portable",
+        "shaman-assets-static",
+        "shaman-appearance-browser",
+        "shaman-appearance-native"
+      ],
+      "generatedInputIds": [
+        "native-fixtures",
+        "imported-runtime-data"
+      ],
+      "risks": [
+        "Preserve old frame/piece indices and occupied pixels; source IDs are not packed frame indices.",
+        "Native execution, browser/GPU validation and fixture recording require separately reserved resources."
+      ],
+      "unresolved": [
+        "Static original-byte evidence and bounded live checks do not certify a full native graphics loop, complete death-frame timing or performance nonregression.",
+        "Generic follower/Spy behavior and simulation state remain outside the Shaman-only appearance repair."
       ]
     },
     {
