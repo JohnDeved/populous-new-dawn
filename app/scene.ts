@@ -189,6 +189,7 @@ export class GameScene {
   terrainUpload = new THREE.DataTexture()
   terrainAtlasState: ReturnType<typeof terrainAtlas> | undefined
   terrainLoad = new AbortController()
+  ready: Promise<void> = Promise.resolve()
   terrainMapVersion: number | null = null
   terrainShadows = new Uint8Array(16384)
   unitMeshes = new Map<number, THREE.Group>()
@@ -323,13 +324,15 @@ export class GameScene {
       alpha: true,
       powerPreference: 'high-performance',
     })
-    // Upload the shared effects atlas during loading, before the first hit or spell.
-    for (const name of ['effects', 'unit-health']) {
+    // Upload shared UI/effect atlases before the scene becomes interactive. A failed optional
+    // atlas remains the existing graceful-degradation path; readiness still waits for the real
+    // load attempt instead of inventing a timer.
+    const preload = ['effects', 'unit-health'].map(name => {
       const asset = loadTexture(name)
-      void asset.ready.then(loaded => {
+      return asset.ready.then(loaded => {
         if (loaded && !this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
       })
-    }
+    })
     this.renderer.shadowMap.enabled = false
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.toneMapping = THREE.NoToneMapping
@@ -391,7 +394,9 @@ export class GameScene {
     this.makeSky()
     this.camera.up.set(0, 0, -1)
     this.camera.position.set(30, 155, 0)
-    this.terrain = initializeTerrain(this)
+    const terrain = initializeTerrain(this)
+    this.terrain = terrain.terrain
+    this.ready = Promise.all([terrain.ready, ...preload]).then(() => undefined)
     this.selectionOverlay = new SelectionOverlay(texture('atlas'), this.view)
     this.selectionOverlay.material.uniforms.dragActive = this.dragActive
     this.scene.add(this.selectionOverlay)
