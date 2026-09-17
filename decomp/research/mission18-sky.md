@@ -8,6 +8,18 @@ The supplied base-game executable is `ceo-release/native-run/d3dpoptb.exe`, SHA-
 
 The supplied `levels/levl2018.hdr` is 616 bytes, SHA-256 `6ede1c60604d8f0e4f8c959ece873506e8a5882b93c93df12a000061483232c4`; its landscape byte 96 is **16**. `data/pal0-g.dat` is readable, **1,024 bytes**, SHA-256 `63abc7be002f6ebe763a39f921e8b7442fe2839150e8ca7a05c0084440e982ac`. The retained full installer index places it in **Component0**. Indexed `sky0-g.dat` and D3D g1/g2 layers are also supplied; **neither `dsky0-gb.png` nor default `dsky0-0b.png` is present in the canonical tree or that package index**. This publication reuses those observations; no extraction was repeated. Host readability does not observe a Windows file-open result or another installation's files.
 
+## Fresh-checkout static verification
+
+The tracked [static checker](../../scripts/check-static-mission18-sky.py) now contains the PE reader, explicit EXE SHA-256 guard, instruction/operand/branch expectations, import/vtable checks and inspectable decoded windows. It is **original-byte static evidence, not a Ghidra export or native execution**. A fresh checkout needs only Python 3.9+ with **Capstone 5** (validated with 5.0.7, already used by the repository's other research checks) and the explicitly supplied EXE:
+
+```sh
+python3 -B scripts/check-static-mission18-sky.py /path/to/d3dpoptb.exe
+```
+
+Add `--output /path/to/new-report.json` to retain the full byte listings, branch targets, conditions, script/EXE hashes and result. The parent directory must exist; an existing output is refused. `--data-root /path/to/original-game` optionally rechecks the historical Mission 18 HDR/palette identities, but is **not required** for the EXE-only proof. No adjacent game files, ignored scratch reports, Git checkout/head, hard-coded worktree, Unicorn, pefile or Ghidra are required. Package availability and native API success are not certified by an EXE-only run.
+
+The former 410-assertion scratch receipt remains historical. The new run has its own result and fingerprint; it does not rerun that receipt's old-head/protected-file assertions or certify runtime/pixel behavior.
+
 ## 1. Filename selection requires a successful palette open
 
 [The landscape loader](../generated/0042a500.c) calls `0042a140` on a bank change. The routine first copies bank-0 defaults. For nonzero bank values it adds `0x30` below 10 or `0x57` otherwise: **16 maps to `g`**. It substitutes the candidate into a local palette path, resolves it and opens it. Only return **0** from `00526280` at `0042a402` permits the global character writes at `0042a41b..0042a469`.
@@ -54,7 +66,7 @@ Do not repeat package extraction, copy a different bank or invent a backdrop. CE
 
 ## Retained proof and reuse
 
-The unchanged research receipt at **`work/orchestration/pnd01-sky-followup/proof-verified/evidence.json`** reports **410 static assertions** on research head `9e611126d333017f1a49c61dd78be557b1d98da7`, completed September 16 at 23:52:44 Berlin (exit 0). Its SHA-256 is `67f43246fbb7ab7269f0e00cb4fc508eaa3c139a6689af0306b288992f03b5a2`. This publication performs only affected documentation/reference checks; it does not relabel that receipt as a new runtime proof.
+The unchanged research receipt at **`work/orchestration/pnd01-sky-followup/proof-verified/evidence.json`** reports **410 static assertions** on research head `9e611126d333017f1a49c61dd78be557b1d98da7`, completed September 16 at 23:52:44 Berlin (exit 0). Its SHA-256 is `67f43246fbb7ab7269f0e00cb4fc508eaa3c139a6689af0306b288992f03b5a2`. The initial publication reused that receipt. The September 17 review repair adds and runs the independent tracked static checker above, with a new fingerprint; the original receipt remains unchanged and is not relabelled as a runtime proof.
 
 Useful byte-window fingerprints (exclusive end; windows include cleanup/padding where recorded):
 
@@ -64,4 +76,4 @@ Useful byte-window fingerprints (exclusive end; windows include cleanup/padding 
 | `004b5f40..<004b60c5` — wrapper | `c49cd3d83cf6b4b7de5db450581bc98c33a890b5548fcfdfa815046264b4e065` |
 | `004309b0..<00430add` — image leaf | `0d4f1b8e37009bb3a333b217c16c40feea1982368903f19ba58fd6ef3b208d1b` |
 
-The same ignored research directory retains `pe_reader.py` (SHA-256 `45f0d5eef1dda73a0393bf7d6bdf1aa19f01703adc95db9a0d8eae92e11e44bf`), `analyze_sky.py` (`189ed4578f7aeb0dc5c1bd5aa1e7064bf182d6dc735a5286d4395fabaaa66903`), the CEO address handoff, inputs and bounded listings. The analyzer is guarded to its **research head and protected-file snapshot**: it is not a current-head gameplay check and must not be run here merely to reproduce documentation. The addresses, conditions and fingerprints above retain the useful result without copying scratch logs or claiming rendered parity.
+The same ignored research directory retains `pe_reader.py` (SHA-256 `45f0d5eef1dda73a0393bf7d6bdf1aa19f01703adc95db9a0d8eae92e11e44bf`), `analyze_sky.py` (`189ed4578f7aeb0dc5c1bd5aa1e7064bf182d6dc735a5286d4395fabaaa66903`), the CEO address handoff, inputs and bounded listings. That historical analyzer remains tied to its old research snapshot and is not the reproduction entry point. Use the tracked checker above instead: it has no old-head/worktree/scratch dependency and exposes the byte-backed caller/return conditions in a fresh checkout. Neither checker certifies rendered parity.

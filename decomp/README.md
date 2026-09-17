@@ -43,6 +43,7 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 13 opening](research/mission13-opening.md),
 [Mission 13 Balloon transport](research/mission13-balloon.md),
 [Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
+[Mission 18 sky filename and image-load conditions](research/mission18-sky.md),
 [vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
@@ -74,6 +75,16 @@ For each subsequent port, preserve the original branch ordering, integer widths/
 
 Reusable negative findings for terrain-route invalidation and damage-triggered repair
 are retained in [rejected adapter candidates](research/rejected-adapter-candidates.md).
+
+## Mission 18 sky static evidence
+
+[Mission 18 sky](research/mission18-sky.md) records palette-open-gated filename selection, alternate-root policy and failed-image return paths. Reproduce the original-byte proof from a fresh checkout with Python 3.9+ and the existing Capstone 5 dependency (validated 5.0.7):
+
+```sh
+python3 -B scripts/check-static-mission18-sky.py /path/to/d3dpoptb.exe
+```
+
+This tracked checker rejects an unexpected EXE SHA and does not execute or emulate it. Optional `--output /path/to/new-report.json` retains decoded bytes/conditions without overwriting a file. Only the EXE is required; optional `--data-root` checks supplied HDR/palette identity. No scratch/head/Ghidra dependency or new framework. Actual runtime path/open/UI/palette/lens state and pixels remain unproved; the historical 410-assertion receipt is not current runtime acceptance.
 
 ## Forced tooltip comparison
 
