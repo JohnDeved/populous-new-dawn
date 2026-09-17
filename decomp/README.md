@@ -5039,3 +5039,10 @@ shared producer, generic construction, Hut admission, and birth controller to
 reach six Huts per tribe, natural population growth, an idle producer, rendered
 settlements, and checkpoint continuity. Boat staffing/transport, training,
 attacks, and outcome remain open. See `research/mission23-settlement.md`.
+
+## Original loading-art static evidence
+
+[Original loading artwork, selected callers and load failures](research/loading-art.md)
+publishes the 130×161 original mask and bounded caller/resource-error proof.
+Reproduce with `python3 -B scripts/check-static-loading-art.py --data-root /path/to/original-game`.
+This is static evidence, not native execution or full loading-screen fidelity.

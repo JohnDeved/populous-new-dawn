@@ -691,7 +691,9 @@
         "tests/tutorial.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
-        "tests/shield-spell.test.mjs"
+        "tests/shield-spell.test.mjs",
+        "decomp/research/loading-art.md",
+        "scripts/check-static-loading-art.py"
       ],
       "sharedPaths": [
         "app/armageddon.ts",
@@ -876,7 +878,10 @@
         {
           "path": "references/reverse-engineering.md",
           "heading": "Worship work and delayed gifts (2026-09-07)"
-        }
+        },
+        {"path": "decomp/research/loading-art.md", "heading": "Reproduce from a fresh checkout"},
+        {"path": "decomp/research/loading-art.md", "heading": "New caller evidence: real resource-loading entry, not a percentage"},
+        {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"}
       ],
       "nativeAddresses": [
         "0x40bce0",
@@ -959,7 +964,15 @@
         "0x4f2aa0",
         "0x511ae0",
         "0x511640",
-        "0x50e060"
+        "0x50e060",
+        "0x522c00",
+        "0x5231c0",
+        "0x4a4960",
+        "0x4a4f70",
+        "0x49bdf0",
+        "0x49beb0",
+        "0x527380",
+        "0x52adf0"
       ],
       "checkIds": [
         "messages-native",
