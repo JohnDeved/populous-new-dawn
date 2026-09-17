@@ -6,6 +6,7 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type MouseEvent,
+  type SyntheticEvent,
 } from 'react'
 import {
   BUILDINGS,
@@ -152,7 +153,7 @@ export default function Home() {
     import('./scene')
       .then(({ GameScene }) => {
         if (disposed || !viewport.current || !minimap.current || !portrait.current) return
-        scene = new GameScene(
+        const created = new GameScene(
           viewport.current,
           minimap.current,
           portrait.current,
@@ -160,10 +161,11 @@ export default function Home() {
           update,
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
         )
-        engine.current = scene
-        if (world.drawMode === 2) scene.overview()
-        return scene.ready.then(() => {
-          if (!disposed && engine.current === scene) setReady(true)
+        scene = created
+        engine.current = created
+        if (world.drawMode === 2) created.overview()
+        return created.ready.then(() => {
+          if (!disposed && engine.current === created && created.start()) setReady(true)
         })
       })
       .catch(e => {
@@ -385,6 +387,12 @@ export default function Home() {
     BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
+  function blockLoadingInteraction(event: SyntheticEvent) {
+    if (ready || (event.target as Element).closest('.loading-world')) return false
+    event.preventDefault()
+    event.stopPropagation()
+    return true
+  }
   const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
     enemyName = enemies.map(enemy => enemy.name).join(' and '),
     objectives =
@@ -582,7 +590,11 @@ export default function Home() {
     <main
       ref={shell}
       className="game-shell"
+      onPointerDownCapture={blockLoadingInteraction}
+      onPointerUpCapture={blockLoadingInteraction}
+      onContextMenuCapture={blockLoadingInteraction}
       onClickCapture={e => {
+        if (blockLoadingInteraction(e)) return
         if (
           world.inputMask &&
           !(e.target as Element).closest(

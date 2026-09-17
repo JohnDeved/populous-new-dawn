@@ -259,6 +259,8 @@ export class GameScene {
   keys = new Set<string>()
   resize: ResizeObserver
   frame = 0
+  started = false
+  disposed = false
   fpsGraph = new URLSearchParams(location.search).has('fps') ? new FpsGraph() : null
   previous: number | null = null
   uiTimer = 0
@@ -414,8 +416,16 @@ export class GameScene {
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
-    installInputListeners(this, minimap)
+  }
+  start() {
+    if (this.started) return true
+    if (this.disposed || this.terrainLoad.signal.aborted) return false
+    this.started = true
+    this.previous = null
+    this.drawMinimap()
+    installInputListeners(this, this.mini)
     this.frame = requestAnimationFrame(this.animate)
+    return true
   }
   makeSky() {
     makeSky(this)
@@ -709,7 +719,9 @@ export class GameScene {
     releaseGroup(g)
   }
   dispose() {
-    cancelAnimationFrame(this.frame)
+    if (this.disposed) return
+    this.disposed = true
+    if (this.frame) cancelAnimationFrame(this.frame)
     for (const stop of this.ownedSounds.values()) stop()
     this.ownedSounds.clear()
     this.terrainLoad.abort()
