@@ -59,7 +59,7 @@ import { terrainPointHeight } from './native-terrain.ts'
 import { damagePerson } from './person-update.ts'
 import { personAnimationObject, randomPersonSpeed } from './person-state.ts'
 import { restingCellCollision } from './person-collision.ts'
-import { isShaman, maxHp, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
+import { isShaman, maxHp, TURNS_PER_SECOND } from './world-rules.ts'
 import { createLandBridge } from './land-bridge.ts'
 import { createFlatten } from './flatten.ts'
 import { createErosion } from './erosion.ts'
@@ -69,6 +69,14 @@ import { createVolcano } from './volcano.ts'
 import { createConvertWild, stepConvertWild } from './convert-wild.ts'
 import { createTornado } from './tornado.ts'
 import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
+import {
+  SWARM_LIFETIME,
+  createSwarmState,
+  hasSwarmRuntime,
+  stepSwarmMotion,
+  swarmNeedsScan,
+  swarmState,
+} from './swarm.ts'
 import { tell } from './live-command.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import {
@@ -727,10 +735,23 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
 }
 
 export function stepSwarm(w: World, fx: Effect) {
-  const swarm = fx.swarm!
-  if (!swarm.applied) {
+  const stored = fx.swarm!
+  if (!hasSwarmRuntime(stored)) {
     const center = nativePosition(w, fx),
-      centerCell = ((center.y & 0xfe00) | ((center.x >>> 8) & 254)) >>> 0,
+      migrated = createSwarmState(
+        w,
+        center,
+        stored.tribe,
+        point => terrainPointHeight(w.land, point)
+      ),
+      elapsed = Math.max(0, 65 - stored.remaining)
+    migrated.remaining = Math.max(1, SWARM_LIFETIME - elapsed)
+    migrated.applied = stored.applied
+    fx.swarm = migrated
+  }
+  const swarm = swarmState(fx.swarm!)
+  if (swarmNeedsScan(swarm)) {
+    const centerCell = ((swarm.y & 0xfe00) | ((swarm.x >>> 8) & 254)) >>> 0,
       cells = new Set([
         centerCell,
         ...Array.from({ length: 7 }, (_, i) => spiralCell(centerCell, i, 0)),
@@ -754,6 +775,10 @@ export function stepSwarm(w: World, fx: Effect) {
         rules.personModels[p.model].flags & 0x100
       )
         continue
+      if (p.vehicle) {
+        const vehicle = w.vehicles.find(candidate => candidate.id === p.vehicle)
+        if (vehicle) leaveLiveVehicle(w, vehicle, p, { x: p.x, y: p.y })
+      }
       if (p.flags4 & 0x800) {
         p.life = 0
         u.hp = 0
@@ -765,8 +790,9 @@ export function stepSwarm(w: World, fx: Effect) {
     }
     swarm.applied = true
   }
-  // ponytail: one proven native victim pass plus a 65-turn visible lifetime;
-  // add native building pursuit when its controller duration and state 2 are recovered.
+  stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point))
+  Object.assign(fx, browserPosition(swarm))
+  fx.height = swarm.h / 45
   return --swarm.remaining > 0
 }
 
@@ -1062,7 +1088,6 @@ function finishCast(
 ) {
   if (spell === 'angel') {
     createAngel(w, shaman.team, p)
-    if (shaman.team === 'blue') tell(w, 'Angel of Death! The world bends to your will.')
     return
   }
   if (spell === 'teleport') {
@@ -1192,16 +1217,16 @@ function finishCast(
       fx.sprite = { sequence: 'sparkle', frame: 0 }
       bloodlustFollowers(w, p, shaman.team)
     } else if (spell === 'swarm') {
-      fx.swarm = {
-        tribe: tribeForTeam(shaman.team),
-        remaining: 65,
-        applied: false,
-      }
-      fx.sprite = { sequence: 'smoke', frame: 0 }
+      const center = nativePosition(w, p)
+      fx.swarm = createSwarmState(
+        w,
+        center,
+        tribeForTeam(shaman.team),
+        point => terrainPointHeight(w.land, point)
+      )
       fx.duration = Infinity
+      fx.height = swarmState(fx.swarm).h / 45
       sound(w, 0xa4, p)
     }
-    if (shaman.team === 'blue')
-      tell(w, `${SPELLS.find(s => s.id === spell)!.name}! The world bends to your will.`)
   }
 }

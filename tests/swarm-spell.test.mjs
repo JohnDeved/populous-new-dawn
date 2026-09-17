@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import crypto from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import {
   addUnit,
@@ -13,13 +15,41 @@ import {
 } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { advanceGame } from '../app/game-clock.ts'
+import { SWARM_INSECT_COUNT, SWARM_LIFETIME, hasSwarmRuntime, swarmState } from '../app/swarm.ts'
+
+test('Swarm uses the supplied standalone original insect texture', () => {
+  const png = readFileSync(new URL('../public/original/insect.png', import.meta.url))
+  assert.equal(
+    crypto.createHash('sha256').update(png).digest('hex'),
+    '84433882241475ba1ab76f14e7703b78a7ed02eb3cdfd7cc7c89f525b35a0f35'
+  )
+})
 
 const stepUntil = (w, predicate, limit = 160) => {
   for (let i = 0; !predicate() && i < limit; i++) tick(w, 1 / 12)
   assert.ok(predicate())
 }
 
-test('Swarm follows player and computer cast paths, panics eligible enemies, and expires', () => {
+test('confirmed invented generic and Angel success strings are not emitted', () => {
+  for (const spell of ['bloodlust', 'angel']) {
+    const world = createWorld(16),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+    world.manaWorld.loadFlags |= 0x200
+    world.message = 'sentinel'
+    world.shots[spell] = 1
+    world.castingTribes[0].cooldown = 0
+    assert.ok(cast(world, spell, { x: shaman.x + 1, z: shaman.z }))
+    stepUntil(
+      world,
+      () => !shaman.casting && !world.projectiles.some(projectile => projectile.spell === spell),
+      1000
+    )
+    assert.equal(world.message, 'sentinel')
+  }
+})
+
+test('Swarm follows player and computer cast paths with native insects, victim cadence, and lifetime', () => {
   const w = createWorld()
   w.manaWorld.loadFlags |= 0x200
   w.terrain.fill(3)
@@ -44,22 +74,103 @@ test('Swarm follows player and computer cast paths, panics eligible enemies, and
   }
   protectedVictim.native.flags2 |= 0x100000
   removedVictim.native.flags4 |= 0x800
-  victim.hp = 20 // Browser damage may lead its retained native record between effect visits.
-  const life = victim.hp
+  victim.hp = 20
+  const life = victim.hp,
+    randomBefore = w.randomState
 
   w.shots.swarm = 1
   assert.ok(cast(w, 'swarm', { x: 2, z: 0 }))
-  stepUntil(w, () => victim.native?.state === 26)
-  const swarm = w.effects.find(fx => fx.swarm)
-  assert.ok(swarm)
+  stepUntil(w, () => w.effects.some(fx => fx.swarm?.applied))
+  const fx = w.effects.find(candidate => candidate.swarm),
+    swarm = swarmState(fx.swarm)
+  assert.ok(fx)
   assert.equal(w.shots.swarm, 0)
+  assert.equal(fx.sprite, undefined)
+  assert.equal(swarm.insects.length, SWARM_INSECT_COUNT)
+  assert.equal(swarm.remaining, SWARM_LIFETIME - 1)
+  assert.notEqual(w.randomState, randomBefore)
+  assert.equal(victim.native.state, 26)
   assert.equal(victim.hp, life - 5)
   assert.equal(protectedVictim.native.state === 26, false)
   assert.equal(protectedVictim.hp, untouchedLife.get(protectedVictim.id) - 5)
   assert.equal(removedVictim.hp, 0)
   for (const unit of [enemyShaman, ally, farEnemy]) assert.equal(unit.hp, untouchedLife.get(unit.id))
   assert.ok(w.sounds.some(sound => sound.cue === 0xa4))
-  stepUntil(w, () => !w.effects.some(fx => fx.id === swarm.id), 70)
+
+  // Supporting fixture: pin a new eligible Brave to the moving native controller to prove
+  // the recovered every-eight-visits scan cadence without depending on the cloud's random walk.
+  const cadenceVictim = addUnit(w, 'red', 'brave', fx)
+  cadenceVictim.native = createLivePerson(w, cadenceVictim)
+  cadenceVictim.native.state = 14
+  const cadenceLife = cadenceVictim.hp,
+    changes = []
+  for (let visit = 0; visit < 8; visit++) {
+    const current = swarmState(fx.swarm),
+      before = cadenceVictim.hp
+    cadenceVictim.native.x = current.x
+    cadenceVictim.native.y = current.y
+    cadenceVictim.x = fx.x
+    cadenceVictim.z = fx.z
+    tick(w, 1 / 12)
+    if (cadenceVictim.hp !== before) changes.push(visit + 1)
+  }
+  assert.deepEqual(changes, [8])
+  assert.equal(cadenceVictim.hp, cadenceLife - 5)
+  assert.equal(cadenceVictim.native.state, 26)
+
+  // Structured-clone checkpoints keep the controller and all 60 insects. Equal wall time
+  // under different render schedules must yield the same fixed-turn simulation state.
+  const checkpoint = structuredClone(w),
+    regular = migrateCheckpoint(structuredClone(checkpoint)),
+    irregular = migrateCheckpoint(structuredClone(checkpoint))
+  const runSchedule = (world, schedule, seconds) => {
+    const clock = { animationTime: 0, animationFrame: 0 }
+    let elapsed = 0,
+      frame = 0
+    while (elapsed < seconds - 1e-9) {
+      const dt = Math.min(schedule[frame++ % schedule.length], seconds - elapsed)
+      advanceGame(world, clock, dt)
+      elapsed += dt
+    }
+  }
+  const stateOf = world => {
+    const effect = world.effects.find(candidate => candidate.id === fx.id),
+      state = swarmState(effect.swarm)
+    return {
+      turn: world.turn,
+      randomState: world.randomState,
+      remaining: state.remaining,
+      applied: state.applied,
+      parent: [state.x, state.y, state.h, state.heading, state.wander],
+      insects: state.insects.map(insect => [
+        insect.x,
+        insect.y,
+        insect.h,
+        insect.vx,
+        insect.vy,
+        insect.verticalOffset,
+        ...insect.jitter,
+      ]),
+    }
+  }
+  runSchedule(regular, [1 / 60], 2)
+  runSchedule(irregular, [1 / 5, 1 / 240, 1 / 30, 1 / 120], 2)
+  assert.deepEqual(stateOf(irregular), stateOf(regular))
+
+  const legacy = migrateCheckpoint(structuredClone(checkpoint)),
+    legacyFx = legacy.effects.find(candidate => candidate.id === fx.id)
+  legacyFx.swarm = { tribe: legacyFx.swarm.tribe, remaining: 60, applied: true }
+  legacyFx.sprite = { sequence: 'smoke', frame: 0 }
+  tick(legacy, 1 / 12)
+  assert.equal(hasSwarmRuntime(legacyFx.swarm), true)
+  assert.equal(swarmState(legacyFx.swarm).insects.length, SWARM_INSECT_COUNT)
+
+  const liveFx = w.effects.find(candidate => candidate.id === fx.id),
+    remaining = swarmState(liveFx.swarm).remaining
+  for (let visit = 0; visit < remaining - 1; visit++) tick(w, 1 / 12)
+  assert.ok(w.effects.some(candidate => candidate.id === fx.id))
+  tick(w, 1 / 12)
+  assert.equal(w.effects.some(candidate => candidate.id === fx.id), false)
 
   const ai = createWorld(),
     red = ai.units.find(u => u.team === 'red' && u.kind === 'shaman'),
@@ -90,7 +201,10 @@ test('Swarm follows player and computer cast paths, panics eligible enemies, and
   tick(ai, 1 / 12)
   assert.equal(ai.projectiles.at(-1)?.spell, 'swarm')
   stepUntil(ai, () => target.native?.state === 26)
-  assert.ok(ai.effects.some(fx => fx.swarm?.tribe === 1))
+  const aiSwarm = ai.effects.find(effect => effect.swarm)
+  assert.ok(aiSwarm)
+  assert.equal(aiSwarm.swarm.tribe, 1)
+  assert.equal(swarmState(aiSwarm.swarm).insects.length, SWARM_INSECT_COUNT)
 
   delete ai.shots.swarm
   delete ai.giftCounts.swarm
