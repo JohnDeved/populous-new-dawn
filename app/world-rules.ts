@@ -11,11 +11,11 @@ export const unitSpeed = (u: Unit) =>
       ? constants.WARRIOR_SPEED
       : u.kind === 'spy'
         ? constants.SPY_SPEED
-      : u.kind === 'firewarrior'
-        ? constants.SUPER_WARRIOR_SPEED
-        : u.kind === 'preacher'
-          ? constants.RELIGIOUS_SPEED
-          : constants.BRAVE_SPEED
+        : u.kind === 'firewarrior'
+          ? constants.SUPER_WARRIOR_SPEED
+          : u.kind === 'preacher'
+            ? constants.RELIGIOUS_SPEED
+            : constants.BRAVE_SPEED
 export const SPELLS: {
   id: Spell
   model: number
@@ -187,6 +187,36 @@ export const SPELLS: {
     description: 'Conceals up to six nearby followers until they fight or the spell expires.',
   },
   {
+    id: 'armageddon',
+    model: 18,
+    name: 'Armageddon',
+    cost: 999999,
+    key: '',
+    symbol: '⚔',
+    color: '#d57953',
+    description: 'Calls every tribe into a final arena battle.',
+  },
+  {
+    id: 'bloodlust',
+    model: 20,
+    name: 'Bloodlust',
+    cost: 999999,
+    key: '',
+    symbol: '✷',
+    color: '#e15445',
+    description: 'Drives up to six nearby followers into a powerful fighting frenzy.',
+  },
+  {
+    id: 'teleport',
+    model: 21,
+    name: 'Teleport',
+    cost: 999999,
+    key: '',
+    symbol: '◈',
+    color: '#d8b7ff',
+    description: 'Moves the Shaman instantly to the chosen destination.',
+  },
+  {
     id: 'swarm',
     model: 5,
     name: 'Swarm',
@@ -272,10 +302,10 @@ export const maxHp = (kind: UnitKind) =>
       ? constants.LIFE_WARR
       : kind === 'spy'
         ? constants.LIFE_SPY
-      : kind === 'firewarrior'
-        ? constants.LIFE_SWARR
-        : kind === 'preacher'
-          ? constants.LIFE_PREACH
-          : constants.LIFE_BRAVE) / 20
+        : kind === 'firewarrior'
+          ? constants.LIFE_SWARR
+          : kind === 'preacher'
+            ? constants.LIFE_PREACH
+            : constants.LIFE_BRAVE) / 20
 export const buildingHp = (kind: BuildingKind) => (kind === 'hut' ? 170 : 260)
 export const ROUTE_FAILURE_TEXT = "One or more of your people can't get to this point."

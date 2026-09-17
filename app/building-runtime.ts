@@ -62,13 +62,7 @@ function emitBuildingDebris(w: World, b: Building, stage: number, rng: { randomS
     tribe: tribeForTeam(b.team),
     stage: buildingStage(b),
   }
-  for (const fragment of collapseBuildingFaces(
-    w.land,
-    model,
-    source,
-    stage,
-    rng
-  )) {
+  for (const fragment of collapseBuildingFaces(w.land, model, source, stage, rng)) {
     const fx = effect(w, 'debris', browserPosition(fragment))
     fx.debris = fragment
     fx.duration = Infinity
@@ -279,7 +273,9 @@ export function stepDamagedBuilding(w: World, b: Building) {
       smoke.cloud = emitBuildingSmoke(w, b, context)
       return smoke.cloud ? smoke : null
     },
-    debris: oldStage => emitBuildingDebris(w, b, oldStage, context),
+    debris: oldStage => {
+      if (b.kind !== 'prison') emitBuildingDebris(w, b, oldStage, context)
+    },
     canRespond: () => false,
     reserve: () => {},
     removePlan: () => {},
@@ -292,10 +288,11 @@ export function stepDamagedBuilding(w: World, b: Building) {
   })
   // ponytail: native plan stages drive collapse; combat HP,
   // plan geometry and AI repair selection await the rest of the building port.
-  b.hp = Math.min(
-    b.hp,
-    (buildingHp(b.kind) * Math.max(0, state.plan.remaining)) / rules.buildingLife[state.model]
-  )
+  if (rules.buildingLife[state.model] > 0)
+    b.hp = Math.min(
+      b.hp,
+      (buildingHp(b.kind) * Math.max(0, state.plan.remaining)) / rules.buildingLife[state.model]
+    )
   w.randomState = context.randomState
   if (smoke.cloud) smoke.cloud.lifetime = smoke.duration
 }

@@ -17,6 +17,7 @@ export interface Lightning {
   seed: number
   turn: number
   segments: { from: Point; to: Point }[]
+  visualOnly?: boolean
 }
 export interface LightningLine {
   x1: number

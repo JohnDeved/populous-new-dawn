@@ -76,7 +76,7 @@ if len(sys.argv)>2:
     rules['blastPersonDamage']=value(0x5aa510)
     rules['blastBuildingDamage']=value(0x5aa50c)
     rules['blastAlliedLimit']=value(0x5aa5b8)
-    rules['shieldDamageShift']=value(0x5aa5b0)
+    rules['bloodlustDamageShift']=value(0x5aa5b0)
     rules['buildingPreparationTasks']=[value(0x5a80c1+i*2,1) for i in range(7)]
     rules['buildingWorkRadius']=[value(0x5a7228+i*76+34,2) for i in range(20)]
     rules['buildingLife']=[value(0x5a7228+i*76+26,2) for i in range(20)]

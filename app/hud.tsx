@@ -7,15 +7,15 @@ import { healthBarPixels } from './hud-health.ts'
 
 export function HudSprite({ id }: { id: number | string }) {
   const r = (native.rects as Record<string, { x: number; y: number; w: number; h: number }>)[id]
-  // ponytail: shipped atlas predates Shield; remove after reimporting HFX sprites 408–410.
-  if (!r && typeof id === 'number' && id >= 408 && id <= 410)
+  // ponytail: shipped atlas predates Shield/Bloodlust; remove after reimporting HFX sprites 408–413.
+  if (!r && typeof id === 'number' && id >= 408 && id <= 413)
     return (
       <i
         className="hud-sprite"
         aria-hidden="true"
         style={{ width: 28, height: 25, background: 'none', font: '20px/25px serif' }}
       >
-        ◌
+        {id <= 410 ? '◌' : '✷'}
       </i>
     )
   if (!r) throw Error(`HUD sprite ${id} is unavailable`)

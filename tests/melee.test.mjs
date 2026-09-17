@@ -4,7 +4,6 @@ import { createWorld, addUnit, tick, random, fightPosition, meleeDamage, command
 import { createLivePerson } from '../app/live-people.ts'
 import { automaticMeleeTarget } from '../app/live-combat.ts'
 import { pursuitDestinationChanged } from '../app/person-routes.ts'
-import rules from '../app/original-rules.json' with { type: 'json' }
 
 test('pursuit refresh uses the original inclusive axis threshold and signed coordinates', () => {
   const goal = { goalX: 1000, goalY: 2000 }
@@ -153,15 +152,12 @@ test('group attacks hit busy opponents without restarting their action or facing
   }
 })
 
-test('Magical Shield reduces live melee damage', () => {
+test('Magical Shield does not block native mode-one melee damage', () => {
   const { w, defender, attacker } = group('warrior', 0, 3)
   defender.shield = 100
   const life = Math.round(defender.hp * 20)
   tick(w, 1 / 12)
-  assert.equal(
-    defender.hp,
-    (life - (Math.round(meleeDamage(attacker) * 20) >> (rules.shieldDamageShift & 31))) / 20
-  )
+  assert.equal(defender.hp, (life - Math.round(meleeDamage(attacker) * 20)) / 20)
 })
 
 test('opportunistic reach is measured from the opponent slot with an exclusive 360-unit boundary', () => {

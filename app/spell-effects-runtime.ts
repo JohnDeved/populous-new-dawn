@@ -19,7 +19,7 @@ import {
   short,
   spiralCell,
 } from './native-math.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { moveObjectInCells, objectsInCell, removeObjectFromCell } from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
@@ -47,7 +47,12 @@ import {
   type Unit,
   type World,
 } from './world-types.ts'
-import { buildingFirePoints, buildingModel, buildingPose } from './building-shapes.ts'
+import {
+  buildingFirePoints,
+  buildingModel,
+  buildingOutsidePoint,
+  buildingPose,
+} from './building-shapes.ts'
 import { ensureBuildingDamage, igniteBuilding } from './building-damage.ts'
 import { createBlastWave, stepBlastWave, type BlastTarget, type BlastWave } from './blast-wave.ts'
 import { terrainPointHeight } from './native-terrain.ts'
@@ -66,10 +71,18 @@ import { createTornado } from './tornado.ts'
 import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import { tell } from './live-command.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
-import { damageLiveVehicle } from './live-vehicles.ts'
+import {
+  boardLiveVehicle,
+  damageLiveVehicle,
+  leaveLiveVehicle,
+  liveVehicleCellObjects,
+} from './live-vehicles.ts'
+import { startArmageddon } from './armageddon.ts'
+import { setDirectPersonDestination } from './person-routes.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
+const BLOODLUST_TURNS = constants.BLOODLUST_COUNT_X8 * 8
 const INVISIBILITY_TURNS = constants.INVISIBLE_COUNT_X8 * 8
 const HYPNOTISE_COUNT = constants.HYPNO_COUNT_X8
 
@@ -176,7 +189,7 @@ export function restoreDeadHypnotisedUnit(u: Unit) {
 function setUnitShield(u: Unit, turns: number) {
   u.shield = turns
   for (const p of [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person])
-    if (p) p.flags3 = turns ? (p.flags3 | 0x80000) >>> 0 : (p.flags3 & ~0x80000) >>> 0
+    if (p) p.flags3 = turns ? (p.flags3 | 0x8000) >>> 0 : (p.flags3 & ~0x8000) >>> 0
 }
 
 export function stepUnitShields(w: World) {
@@ -203,6 +216,50 @@ export function shieldFollowers(w: World, point: Point, team: Team) {
     )
     .slice(0, constants.SHIELD_NUM_PEOPLE)
   for (const u of targets) setUnitShield(u, SHIELD_TURNS)
+  return targets
+}
+
+function setUnitBloodlust(u: Unit, turns: number) {
+  u.bloodlust = turns
+  for (const p of [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person])
+    if (p) p.flags3 = turns ? (p.flags3 | 0x80000) >>> 0 : (p.flags3 & ~0x80000) >>> 0
+}
+
+export function stepUnitBloodlust(w: World) {
+  for (const u of w.units) if (u.bloodlust) setUnitBloodlust(u, u.bloodlust - 1)
+}
+
+export function bloodlustFollowers(w: World, point: Point, team: Team) {
+  const center = nativePosition(w, point),
+    x = (center.x >>> 8) & 254,
+    y = (center.y >>> 8) & 254,
+    units = new Map(w.units.map(u => [u.id, u])),
+    candidates: Unit[] = []
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2])
+      for (const p of objectsInCell(w.objectCells, ((x + dx) & 254) | (((y + dy) & 254) << 8))) {
+        const u = units.get(p.id),
+          person = p as LivePerson
+        if (
+          u?.team === team &&
+          nativePersonModel(u) !== 1 &&
+          nativePersonModel(u) !== 7 &&
+          nativePersonModel(u) !== 8 &&
+          !(person.flags4 & 0x4800) &&
+          !(p.flags3 & 0x80000)
+        )
+          candidates.push(u)
+      }
+  const targets = candidates
+    .map((u, order) => ({ u, order }))
+    .toSorted(
+      (a, b) =>
+        positionDistance(nativePosition(w, a.u), center) -
+          positionDistance(nativePosition(w, b.u), center) || b.order - a.order
+    )
+    .slice(0, constants.BLOODLUST_NUM_PEOPLE)
+    .map(({ u }) => u)
+  for (const u of targets) setUnitBloodlust(u, BLOODLUST_TURNS)
   return targets
 }
 
@@ -909,6 +966,93 @@ export function stepGhostArmy(w: World, fx: Effect) {
   }
 }
 
+// 0x515180: model-21 moves the owning tribe's Shaman when its height-banded
+// effect visit arrives. It is not a generic person teleport.
+export function stepTeleport(w: World, fx: Effect) {
+  const teleport = fx.teleport!,
+    visit = ++teleport.visits,
+    height = (teleport.target.h << 16) >> 16,
+    relocationVisit =
+      height > 0x333
+        ? 8
+        : height > 0x267
+          ? 9
+          : height > 0x19b
+            ? 10
+            : height > 0xcf
+              ? 11
+              : height >= 0
+                ? 12
+                : Infinity
+  if (visit === 1) {
+    const visual = effect(w, 'trail', fx)
+    visual.sprite = { sequence: 'sparkle', frame: 0 }
+    visual.duration = 12 / TURNS_PER_SECOND
+  }
+  if (visit !== relocationVisit) return true
+  const shaman = w.units.find(
+    unit => unit.team === fx.team && unit.kind === 'shaman' && unit.hp > 0
+  )
+  if (!shaman) return false
+  const origin = nativePosition(w, shaman),
+    baseX = origin.x & 0xfe00,
+    baseY = origin.y & 0xfe00
+  for (let index = 0; index < 81; index++) {
+    const position = {
+      x: (baseX + (random(w) & 511)) & 65535,
+      y: (baseY + (random(w) & 511)) & 65535,
+      h: 0,
+    }
+    position.h = terrainPointHeight(w.land, position)
+    emitGroundSpark(w, position)
+  }
+  const person = unitAnimationSource(shaman) ?? shaman.native ?? createLivePerson(w, shaman)
+  if (person.vehicle) {
+    const vehicle = w.vehicles.find(candidate => candidate.id === person.vehicle)
+    if (vehicle) leaveLiveVehicle(w, vehicle, person, origin)
+  }
+  release(w, shaman)
+  shaman.flight = undefined
+  shaman.native = person
+  let target = teleport.target,
+    cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
+  if (w.land.flags[cell] & 512) {
+    const building = w.buildings.find(
+      candidate => candidate.id === (w.land.buildingIds[cell] & 1023)
+    )
+    if (building) {
+      const outside = buildingOutsidePoint(buildingPose(building))
+      target = { ...outside, h: terrainPointHeight(w.land, outside) }
+    }
+  }
+  target = {
+    x: (target.x & 0xfe00) + 0x100,
+    y: (target.y & 0xfe00) + 0x100,
+    h: terrainPointHeight(w.land, target),
+  }
+  registerLivePerson(w, person)
+  moveObjectInCells(w.objectCells, person, target)
+  Object.assign(person, {
+    anchorX: target.x,
+    anchorY: target.y,
+    speed: 0,
+    previousState: person.state,
+    state: w.manaWorld.levelFlags & 2 ? 39 : rules.personModels[7].nextState,
+  })
+  setDirectPersonDestination(w.motionRoutes, person, target)
+  person.flags2 = (person.flags2 | 0x1080) >>> 0
+  Object.assign(shaman, browserPosition(target))
+  const vehicle = liveVehicleCellObjects(w, ((target.x >>> 8) & 254) | (target.y & 0xfe00)).find(
+    candidate =>
+      !candidate.passengerCount ||
+      candidate.passengers.some(
+        id => w.units.find(unit => unit.id === id)?.team === shaman.team
+      )
+  )
+  if (vehicle) boardLiveVehicle(w, person, vehicle)
+  return false
+}
+
 function finishCast(
   w: World,
   shaman: Pick<Unit, 'id' | 'team' | 'x' | 'z'>,
@@ -921,11 +1065,25 @@ function finishCast(
     if (shaman.team === 'blue') tell(w, 'Angel of Death! The world bends to your will.')
     return
   }
+  if (spell === 'teleport') {
+    const fx = effect(w, spell, p),
+      target = nativePosition(w, p)
+    fx.team = shaman.team
+    fx.teleport = { visits: 0, target }
+    fx.duration = Infinity
+    fx.height = target.h / 45
+    return
+  }
   // Effect 78 uses the default wave initializer, then enables scatter.
   if (spell === 'blast') emitBlastWave(w, p, shaman.team).scatter = true
   const upper =
       (spell === 'lightning' || spell === 'tornado') && endpoint ? browserPosition(endpoint) : p,
     fx = effect(w, spell, upper)
+  if (spell === 'armageddon') {
+    fx.team = shaman.team
+    if (!startArmageddon(w, fx)) fx.duration = fx.age
+    return
+  }
   if (spell === 'lightning') {
     // 0x511ef0 raises the displaced projectile endpoint above its local ground.
     // 0x511f70 creates the upper flash and bolt generator on the next turn.
@@ -1030,6 +1188,9 @@ function finishCast(
     } else if (spell === 'invisibility') {
       fx.sprite = { sequence: 'sparkle', frame: 0 }
       if (invisibilityFollowers(w, p, shaman.team).length) sound(w, 0x31, p)
+    } else if (spell === 'bloodlust') {
+      fx.sprite = { sequence: 'sparkle', frame: 0 }
+      bloodlustFollowers(w, p, shaman.team)
     } else if (spell === 'swarm') {
       fx.swarm = {
         tribe: tribeForTeam(shaman.team),

@@ -12,6 +12,13 @@ import levelEleven from './level-eleven.ts'
 import levelTwelve from './level-twelve.ts'
 import levelThirteen from './level-thirteen.ts'
 import levelFourteen from './level-fourteen.ts'
+import levelFifteen from './level-fifteen.ts'
+import levelSixteen from './level-sixteen.ts'
+import levelSeventeen from './level-seventeen.ts'
+import levelEighteen from './level-eighteen.ts'
+import levelNineteen from './level-nineteen.ts'
+import levelTwenty from './level-twenty.ts'
+import levelTwentyOne from './level-twenty-one.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
 import scriptThree from './original-script-three.json' with { type: 'json' }
@@ -26,7 +33,15 @@ import scriptEleven from './original-script-eleven.json' with { type: 'json' }
 import scriptTwelve from './original-script-twelve.json' with { type: 'json' }
 import scriptThirteen from './original-script-thirteen.json' with { type: 'json' }
 import scriptFourteen from './original-script-fourteen.json' with { type: 'json' }
+import scriptFifteen from './original-script-fifteen.json' with { type: 'json' }
+import scriptSixteen from './original-script-sixteen.json' with { type: 'json' }
+import scriptSeventeen from './original-script-seventeen.json' with { type: 'json' }
+import scriptEighteen from './original-script-eighteen.json' with { type: 'json' }
+import scriptNineteen from './original-script-nineteen.json' with { type: 'json' }
+import scriptTwenty from './original-script-twenty.json' with { type: 'json' }
+import scriptTwentyOne from './original-script-twenty-one.json' with { type: 'json' }
 import { teamForTribe, tribeForTeam, type TribeTeam } from './world-types.ts'
+import type { PopScript } from './popscript.ts'
 
 const missions = [
   { number: 1, level: levelOne, script: scriptOne },
@@ -43,6 +58,13 @@ const missions = [
   { number: 12, level: levelTwelve, script: scriptTwelve },
   { number: 13, level: levelThirteen, script: scriptThirteen },
   { number: 14, level: levelFourteen, script: scriptFourteen },
+  { number: 15, level: levelFifteen, script: scriptFifteen },
+  { number: 16, level: levelSixteen, script: scriptSixteen },
+  { number: 17, level: levelSeventeen, script: scriptSeventeen },
+  { number: 18, level: levelEighteen, script: scriptEighteen },
+  { number: 19, level: levelNineteen, script: scriptNineteen },
+  { number: 20, level: levelTwenty, script: scriptTwenty },
+  { number: 21, level: levelTwentyOne, script: scriptTwentyOne },
 ] as const
 
 export const missionNumbers = missions.map(mission => mission.number)
@@ -91,7 +113,7 @@ export function missionPosition(number: number, team: TribeTeam) {
 export function missionScript(number: number, tribe = missionEnemyTribe(number)) {
   const source = missionData(number).script
   if (!('tribes' in source)) return source
-  const script = source.tribes[tribe as 1 | 2 | 3]
+  const script = (source.tribes as Partial<Record<1 | 2 | 3, PopScript>>)[tribe as 1 | 2 | 3]
   if (!script)
     throw new Error(`Missing ${teamForTribe(tribe)} script in campaign mission ${number}`)
   return script

@@ -139,12 +139,25 @@ export function migrateCheckpoint(world: World) {
       !shrine.reward &&
       shrine.kind !== 'bridgeEffect' &&
       shrine.kind !== 'erosionEffect' &&
+      shrine.kind !== 'flattenEffect' &&
+      shrine.kind !== 'volcanoEffect' &&
       shrine.kind !== 'linkedEffects' &&
       shrine.kind !== 'boat' &&
       !(shrine.kind === 'angel' && shrine.angelTarget)
     )
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
   for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
+  for (const unit of world.units)
+    if (unit.shield && !unit.bloodlust)
+      for (const person of [
+        unit.native,
+        unit.flight,
+        unit.entry?.person,
+        unit.builder?.person,
+        unit.fight?.motion,
+      ])
+        if (person && (person.flags3 ?? 0) & 0x80000)
+          person.flags3 = (((person.flags3 ?? 0) & ~0x80000) | 0x8000) >>> 0
   world.shots.convertWild ??= 0
   world.giftCounts.convertWild ??= 0
   world.shots.hypnotise ??= 0
@@ -157,6 +170,12 @@ export function migrateCheckpoint(world: World) {
   world.giftCounts.swarm ??= 0
   world.shots.invisibility ??= 0
   world.giftCounts.invisibility ??= 0
+  world.shots.bloodlust ??= 0
+  world.giftCounts.bloodlust ??= 0
+  world.shots.teleport ??= 0
+  world.giftCounts.teleport ??= 0
+  world.shots.armageddon ??= 0
+  world.giftCounts.armageddon ??= 0
   world.shots.volcano ??= 0
   world.giftCounts.volcano ??= 0
   world.shots.angel ??= 0

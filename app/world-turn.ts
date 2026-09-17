@@ -73,8 +73,10 @@ import {
   stepLiveConvertWild,
   stepLiveSwamp,
   stepSwarm,
+  stepTeleport,
   stepUnitHypnotise,
   stepUnitInvisibility,
+  stepUnitBloodlust,
   stepUnitShields,
   unitInvisibleToPlayer,
 } from './spell-effects-runtime.ts'
@@ -271,11 +273,11 @@ import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
 import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
-import { stepFlatten, type Flatten } from './flatten.ts'
+import { createFlatten, stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
-import { stepFirestorm, type Firestorm } from './firestorm.ts'
+import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
 import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
-import { stepVolcano, type Volcano } from './volcano.ts'
+import { createVolcano, stepVolcano, type Volcano } from './volcano.ts'
 import { stepLiveTornado, stepLiveTornadoPerson } from './tornado-runtime.ts'
 import {
   probeLivePathCost,
@@ -417,6 +419,7 @@ import type { ModelMorph } from './morph.ts'
 import { processVaultTask, stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import type { UnitKind } from './unit-kinds.ts'
+import { stepArmageddon } from './armageddon.ts'
 
 export interface TurnObserver {
   beforeTurn?: () => void
@@ -443,7 +446,7 @@ function stepTurn(w: World) {
   if (w.land.landFlags & 2) return
   syncNativeTerrain(w)
   if (w.campaignTimer !== null && w.campaignTimer > 0) w.campaignTimer--
-  if (!(w.land.landFlags & 0x800000))
+  if (!(w.land.landFlags & 0x800000) && !(w.manaWorld.gameFlags & 2))
     processTribes(
       {
         ...w.manaWorld,
@@ -467,9 +470,11 @@ function stepTurn(w: World) {
     )
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
-  for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
-    if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
+  if (!(w.manaWorld.gameFlags & 2))
+    for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
+      if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
   stepUnitShields(w)
+  stepUnitBloodlust(w)
   stepUnitInvisibility(w)
   stepUnitHypnotise(w)
   w.attackAlert = 0 // 0x4ec6f0: current object turn owns the first player fight alert.
@@ -541,6 +546,7 @@ function stepTurn(w: World) {
   for (let index = effectCount - 1; index >= 0; index--) {
     const fx = w.effects[index]
     fx.age += dt
+    if (fx.armageddon) stepArmageddon(w, fx)
     if (fx.corpse) {
       const step = stepReincarnation(fx.corpse.remaining, true, false)
       fx.corpse.remaining = step.remaining
@@ -563,7 +569,10 @@ function stepTurn(w: World) {
           event.hit.builder?.person ??
           (event.hit.native = createLivePerson(w, event.hit))
         source.life = Math.round(event.hit.hp * 20)
-        source.flags3 = (source.flags3 & ~0x80000) | (event.hit.shield ? 0x80000 : 0)
+        source.flags3 =
+          (source.flags3 & ~0x88000) |
+          (event.hit.shield ? 0x8000 : 0) |
+          (event.hit.bloodlust ? 0x80000 : 0)
         damagePerson(source, w.levelFlags2, tribeForTeam(fx.team!), Math.round(event.hit.hp * 20))
         event.hit.hp = Math.max(0, source.life / 20)
         effect(w, 'hit', event.hit)
@@ -576,6 +585,7 @@ function stepTurn(w: World) {
       }
     }
     if (fx.ghostArmy) stepGhostArmy(w, fx)
+    if (fx.teleport && !stepTeleport(w, fx)) fx.duration = fx.age
     if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
     if (fx.sinking) {
@@ -754,9 +764,10 @@ function stepTurn(w: World) {
         fx.lightning.seed = w.randomState
         setAnimationObject(fx.animation!, 41, 1361)
         sound(w, 0xa2, fx)
-        strikeLiveLightning(w, fx.lightning.target, fx.lightning.tribe)
+        if (!fx.lightning.visualOnly)
+          strikeLiveLightning(w, fx.lightning.target, fx.lightning.tribe)
       } else {
-        if (fx.lightning.turn === 0) {
+        if (fx.lightning.turn === 0 && !fx.lightning.visualOnly) {
           igniteLightningScenery(w, fx.lightning.target, fx.lightning.tribe)
           const wave = emitBlastWave(
             w,
@@ -867,13 +878,52 @@ function stepTurn(w: World) {
           erosion.erosion = createErosion(nativePosition(w, target))
           erosion.duration = Infinity
         }
+      } else if (shrine.kind === 'flattenEffect') {
+        const flatten = effect(w, 'flatten', shrine.effectTarget!)
+        flatten.flatten = createFlatten(w.land, nativePosition(w, shrine.effectTarget!))
+        flatten.team = 'blue'
+        flatten.duration = Infinity
+      } else if (shrine.kind === 'volcanoEffect') {
+        const volcano = effect(w, 'volcano', shrine.effectTarget!)
+        volcano.volcano = createVolcano(nativePosition(w, shrine.effectTarget!), 0)
+        volcano.team = 'blue'
+        volcano.duration = Infinity
       } else if (shrine.kind === 'linkedEffects') {
+        for (const reward of shrine.rewards ?? (shrine.reward ? [shrine.reward] : []))
+          createGift(w, reward, shrine)
         for (const target of shrine.earthquakeTargets ?? []) {
           const quake = effect(w, 'earthquake', target)
           quake.earthquake = createEarthquake(nativePosition(w, target), 0, w)
           quake.team = 'blue'
           quake.duration = Infinity
         }
+        for (const target of shrine.lightningTargets ?? []) {
+          const bolt = effect(w, 'lightning', target),
+            position = nativePosition(w, target)
+          bolt.lightning = {
+            tribe: 0,
+            start: { ...position, h: position.h + 1024 },
+            target: position,
+            seed: w.randomState,
+            turn: 0,
+            segments: [],
+            visualOnly: true,
+          }
+        }
+        for (const target of shrine.firestormTargets ?? []) {
+          const firestorm = effect(w, 'firestorm', target)
+          firestorm.firestorm = createFirestorm(nativePosition(w, target), 0)
+          firestorm.team = 'blue'
+          firestorm.duration = Infinity
+        }
+        for (const target of shrine.volcanoTargets ?? []) {
+          const volcano = effect(w, 'volcano', target)
+          volcano.volcano = createVolcano(nativePosition(w, target), 0)
+          volcano.team = 'blue'
+          volcano.duration = Infinity
+        }
+        for (const tree of shrine.linkedTrees ?? [])
+          w.trees.push({ ...tree, id: w.nextId++, logs: 4 })
         if (shrine.linkedShrine) {
           w.shrines.push(shrine.linkedShrine)
           delete shrine.linkedShrine
@@ -897,7 +947,9 @@ function stepTurn(w: World) {
   for (const spell of SPELLS)
     if (w.manaWorld.spells[0].available & (1 << spell.model))
       w.manaWorld.spells[0].stocks[spell.model] = w.shots[spell.id]
-  w.manaWorld.spells[0].disabled = w.charging ? 0 : 2
+  w.manaWorld.spells[0].disabled = w.charging
+    ? w.manaWorld.spells[0].disabled & ~2
+    : w.manaWorld.spells[0].disabled | 2
   w.manaTribes[0].spellProgress[2] = Math.round(w.mana * 1000)
   generateFollowerMana(w.manaWorld, w.manaTribes, manaPeople(w), liveManaOrders)
   for (const [tribeId, team] of TRIBE_TEAMS.entries()) {
@@ -1108,6 +1160,7 @@ function stepTurn(w: World) {
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
     }))
   syncLandscapeObjects(w)
+  const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
   for (const u of w.units) {
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
@@ -1127,6 +1180,7 @@ function stepTurn(w: World) {
       continue
     }
     if (u.hp <= 0) continue
+    if (armageddon && (armageddon.phase < 2 || u.native?.state === 39)) continue
     if (u.native?.state === 14) continue
     const recovering = u.native ?? u.entry?.person
     if (recovering?.state === 33) {

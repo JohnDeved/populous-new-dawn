@@ -72,6 +72,20 @@ function makeUnit(u: Unit) {
   shield.position.y = 0.9
   shield.visible = false
   g.add(shield)
+  const bloodlust = new THREE.Mesh(
+    geometry('bloodlust-aura', () => new THREE.TorusGeometry(0.48, 0.08, 6, 12)),
+    new THREE.MeshBasicMaterial({
+      color: 0xff3d18,
+      transparent: true,
+      opacity: 0.8,
+      depthWrite: false,
+    })
+  )
+  bloodlust.name = 'bloodlust-aura'
+  bloodlust.rotation.x = Math.PI / 2
+  bloodlust.position.y = 0.12
+  bloodlust.visible = false
+  g.add(bloodlust)
   const shadow = new THREE.Sprite(
     new THREE.SpriteMaterial({
       map: texture('effects'),
@@ -114,6 +128,7 @@ function makeUnit(u: Unit) {
     selection,
     health,
     shield,
+    bloodlust,
     heading: 0,
     frame: -1,
   }
@@ -374,6 +389,9 @@ export function updateUnitsFrame(scene: GameScene) {
       ;(shield.material as THREE.MeshBasicMaterial).opacity =
         0.18 + Math.sin(scene.world.time * 6) * 0.04
     }
+    const bloodlust = g.userData.bloodlust as THREE.Mesh
+    bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(scene.world.turn & 2))
+    if (bloodlust.visible) bloodlust.rotation.z = scene.world.time * 4
     const animationSource = unitAnimationSource(u),
       person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
       owner = tribeForTeam(u.team),

@@ -1511,6 +1511,49 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 15 Prison initialization, captive state, follower damage, release, timer, Prison predicate, and enemy Lightning expiry chain against the hash-verified executable.",
+      "coveredBehavior": [
+        "Authored Prison, captive Blue Shaman, marker, timer, and script branches",
+        "Native Prison initialization and state-42 captive ownership",
+        "Ordinary Brave building strike damage and Prison destruction release",
+        "Global Prison-existence predicate plus 450-second timer and cancellation",
+        "Expired branch input lock and enemy Lightning scheduling"
+      ],
+      "knownLimits": [
+        "Presentation, registration, adjacency, footprint enumeration, and generic state/motion leaves are supplied as documented in the research note.",
+        "The probe does not emulate plan allocation, terrain routing, audiovisual playback, queued-Lightning delay, or downstream generic Shaman-defeat UI."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission15-prison.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission15-prison.py",
+        "decomp/research/mission15-prison.md",
+        "decomp/generated/0040c3a0.c",
+        "decomp/generated/00492b40.c",
+        "decomp/generated/00499960.c",
+        "decomp/generated/004a5d20.c",
+        "decomp/generated/004a5eb0.c",
+        "decomp/generated/004a5ec0.c",
+        "decomp/generated/004a5ee0.c",
+        "decomp/generated/004e2770.c",
+        "decomp/generated/004f6a10.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 15 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
@@ -2070,6 +2113,786 @@
       "prerequisites": ["Running game server", "Playwright Chromium"],
       "sideEffects": ["Writes and restores the browser checkpoint database"],
       "resources": ["Fixed server and browser storage resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 15 launch, captive Prison rescue, timed enemy-Lightning loss, and checkpoint state.",
+      "coveredBehavior": [
+        "Mission 15 imported level, original scripts, opening message, Prison, captive Shaman, and timer",
+        "Ordinary Brave command-19 Prison attack deals native damage and frees the Shaman",
+        "Rescue cancels the timer and survives checkpoint migration",
+        "Expiry locks input, schedules one yellow Lightning cast, kills the captive Shaman, and persists loss",
+        "An expiry already fired remains a loss if the Prison falls before Lightning lands",
+        "Only enemy Lightning activates the global-Prison captive branch, independently of its target cell"
+      ],
+      "knownLimits": [
+        "The test bounds Prison damage after one real ordinary follower strike.",
+        "Exact Prison debris/audio and later Mission 15 AI remain outside this feature slice."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission15-prison.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission15-prison.test.mjs",
+        "app/building-runtime.ts",
+        "app/building-shapes.ts",
+        "app/campaign-command-runtime.ts",
+        "app/level-fifteen.ts",
+        "app/live-building-combat.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-fifteen.json",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 15 Prison rescue and timed Lightning failure through shipped UI, rendered objects/effects, ordinary commands, and browser checkpoints.",
+      "coveredBehavior": [
+        "Mission 15 launch and original objective presentation from the shipped mission chooser",
+        "Rendered Prison pixels, Brave selection, pointer targeting, command 19, and native first-strike damage",
+        "Prison destruction, captive release, timer cancellation, and checkpoint restore",
+        "Timed input lock, one enemy Lightning cast, rendered Lightning pixels, Shaman loss, and checkpoint restore"
+      ],
+      "knownLimits": [
+        "The selected Brave is placed at the authored Prison edge, simulation RNG is fixed for route repeatability, and damage is bounded after the first real pointer-issued strike.",
+        "The expiry timer is bounded to one turn after the live mission starts.",
+        "Headless GPU pixels do not establish exact native raster parity; exact Prison debris/audio and later Mission 15 AI remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission15-prison.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission15-prison.mjs",
+        "scripts/browser-game.mjs",
+        "app/building-runtime.ts",
+        "app/building-shapes.ts",
+        "app/campaign-command-runtime.ts",
+        "app/game-store.ts",
+        "app/level-fifteen.ts",
+        "app/live-building-combat.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-fifteen.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/scene-entities.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes and restores the browser checkpoint database"],
+      "resources": ["Fixed server and browser storage resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 16 Bloodlust acquisition, selection, status, Shield coexistence, combat modifiers, and expiry against the hash-verified executable.",
+      "coveredBehavior": [
+        "Authored model-20 rewards, triggers, scripts, and messages",
+        "Exact 3x3 cell scan, eligibility, six-person limit, and tie order",
+        "Bloodlust and Shield flag/timer separation",
+        "Melee damage, incoming damage, and native expiry cadence"
+      ],
+      "knownLimits": [
+        "The expiry driver intercepts unrelated AI, motion, presentation, and cleanup leaves.",
+        "Firewarrior and rendering consumers reuse already-reviewed exports rather than duplicate emulation here."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission16-bloodlust.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission16-bloodlust.py",
+        "decomp/research/mission16-bloodlust.md",
+        "decomp/generated/00515650.c",
+        "decomp/generated/00515690.c",
+        "decomp/generated/005156b0.c",
+        "decomp/generated/005156f0.c",
+        "decomp/generated/00515e30.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 16 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 16 Bloodlust worship, cast selection, combat consumers, expiry, and checkpoint state.",
+      "coveredBehavior": [
+        "Mission 16 imported level, scripts, messages, and two Bloodlust heads",
+        "Worship grants stock and HUD casting affects exactly six eligible followers",
+        "Melee and Firewarrior output, incoming damage, movement flag, and Shield coexistence",
+        "Status expiry and checkpoint migration"
+      ],
+      "knownLimits": [
+        "Original HFX artwork and a distinct AI Bloodlust casting policy are not established."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission16-bloodlust.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission16-bloodlust.test.mjs",
+        "app/combat-runtime.ts",
+        "app/firewarrior.ts",
+        "app/game-store.ts",
+        "app/level-sixteen.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-rules.json",
+        "app/original-script-sixteen.json",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 16 Bloodlust acquisition, HUD cast, visible status, live combat, expiry, and restore through shipped browser paths.",
+      "coveredBehavior": [
+        "Mission 16 chooser and objective presentation",
+        "Pointer-issued worship and delayed Bloodlust stock",
+        "HUD spell button, terrain cast, six affected followers, visible aura, and expiry blink",
+        "Autonomous live melee, expiry, and checkpoint restore"
+      ],
+      "knownLimits": [
+        "The check positions worshippers and combatants to bound pathfinding time.",
+        "Headless GPU rendering does not establish exact native HFX raster parity."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission16-bloodlust.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission16-bloodlust.mjs",
+        "scripts/browser-game.mjs",
+        "app/combat-runtime.ts",
+        "app/game-store.ts",
+        "app/hud.tsx",
+        "app/level-sixteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-sixteen.json",
+        "app/scene-entities.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes and restores the browser checkpoint database"],
+      "resources": ["Fixed server and browser storage resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 17 Armageddon acquisition, stock, targeting, descriptor, and cast allocation against the hash-verified executable.",
+      "coveredBehavior": [
+        "Authored trigger 440 and linked model-18 reward 442",
+        "Eighty-two-visit gift stock and one-shot cap",
+        "Ground/water targeting, range, and missing-Shaman failures",
+        "Successful and failed class-11 model-18 allocation with spent stock"
+      ],
+      "knownLimits": [
+        "Arena phase behavior is established by the registered controller exports and portable/live checks rather than emulated in this probe.",
+        "Allocation, unit-state leaves, and audio playback are intercepted."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission17-armageddon.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission17-armageddon.py",
+        "decomp/research/mission17-armageddon.md",
+        "decomp/generated/00477060.c",
+        "decomp/generated/004772e0.c",
+        "decomp/generated/00477780.c",
+        "decomp/generated/00477890.c",
+        "decomp/generated/00477b90.c",
+        "decomp/generated/00477d50.c",
+        "decomp/generated/004780e0.c",
+        "decomp/generated/004781d0.c",
+        "decomp/generated/004782d0.c",
+        "decomp/generated/00478500.c",
+        "decomp/generated/00478610.c",
+        "decomp/generated/00478860.c",
+        "decomp/generated/00478990.c",
+        "decomp/generated/004af0a0.c",
+        "decomp/generated/004d9420.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 17 level data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 17 reward acquisition, HUD cast allocation, arena phases, state-39 staging, checkpoints, battle handoff, and generic results.",
+      "coveredBehavior": [
+        "Mission 17 imported level, scripts, message 697, and Armageddon head",
+        "Worship gift, stock, HUD cast path, exact arena center terrain, and four tribe directions",
+        "State-39 staging, ordinary combat targets, checkpoint preservation, and modal input",
+        "Generic victory and defeat outcomes with teardown"
+      ],
+      "knownLimits": [
+        "The portable result counterexamples remove one side after real battle orders begin to keep runtime bounded.",
+        "Exact native camera interpolation, audio, and Shaman automatic spell choices remain presentation/controller limits."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission17-armageddon.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission17-armageddon.test.mjs",
+        "app/armageddon.ts",
+        "app/game-store.ts",
+        "app/level-seventeen.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-seventeen.json",
+        "app/special-battle.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 17 Armageddon reward, HUD cast, checkpoint, rendered arena, live battle order, and victory through shipped browser paths.",
+      "coveredBehavior": [
+        "Mission 17 chooser, objective, and original opening message",
+        "Live worship and delayed model-18 stock",
+        "HUD spell button and pointer cast, modal control, checkpoint restore, terrain morph, and rendered participants",
+        "State-39 staging, ordinary combat engagement, generic victory, and restored input"
+      ],
+      "knownLimits": [
+        "Worshippers are placed at native slots and the blue roster is enlarged to bound the winning run.",
+        "Enemy life is cleared after real central battle orders begin; the portable check separately covers defeat and a full natural melee run was observed during implementation."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission17-armageddon.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission17-armageddon.mjs",
+        "scripts/browser-game.mjs",
+        "app/armageddon.ts",
+        "app/game-store.ts",
+        "app/hud.tsx",
+        "app/level-seventeen.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-seventeen.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/special-battle.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes and restores the browser checkpoint database"],
+      "resources": ["Fixed server and browser storage resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 18 rewards, Red's authored patrol, and bank-g sky fallback against hash-verified native data.",
+      "coveredBehavior": [
+        "Mission 18 script and landscape-bank selection",
+        "Armageddon and both Volcano reward links",
+        "Red marker 1-to-2 patrol setup and turn-zero allocation",
+        "Missing-backdrop type-1 sky fallback and exact 4x4 RGB average"
+      ],
+      "knownLimits": [
+        "The native check byte-verifies the authored script and data rather than running a complete game process.",
+        "Device rasterization, non-lens view configuration, recurring command 1074, and later Mission 18 AI remain open."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission18.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission18.py",
+        "decomp/research/mission18.md",
+        "decomp/generated/0042a140.c",
+        "decomp/generated/004306d0.c",
+        "decomp/generated/004b5f40.c",
+        "public/original/sky-g.png"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 18 level and data files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 18 authored setup, rewards, Red patrol, Armageddon arena results, and checkpoint preservation.",
+      "coveredBehavior": [
+        "Mission 18 level, scripts, tribes, opening, and objective",
+        "Armageddon and both Volcano worship rewards",
+        "Authored Red marker patrol through live AI guard orders",
+        "Armageddon arena checkpoint plus generic victory and defeat teardown"
+      ],
+      "knownLimits": [
+        "Result counterexamples remove one side after arena battle orders begin to bound runtime.",
+        "Later recurring AI, exact Shaman spell choices, camera interpolation, and audio remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission18.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission18.test.mjs",
+        "app/armageddon.ts",
+        "app/campaign-command-runtime.ts",
+        "app/computer-runtime.ts",
+        "app/level-eighteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-eighteen.json",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 18 selection, bank-g sky, opening, authored worship rewards, and HUD stock through the shipped browser path.",
+      "coveredBehavior": [
+        "Mission 18 chooser, objective, and original opening message",
+        "One opaque bank-g lens with no backdrop or second cloud layer",
+        "Rendered bank-g sky pixels",
+        "Live worship for Armageddon and both Volcano rewards plus HUD stock"
+      ],
+      "knownLimits": [
+        "The focused browser check accelerates worship after followers enter their native slots.",
+        "The portable check owns Red patrol, Armageddon arena, checkpoint, and both result directions."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission18.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission18.mjs",
+        "scripts/browser-game.mjs",
+        "app/level-eighteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-assets.ts",
+        "app/scene-camera-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "public/original/sky-g.png"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 19 rewards, objective script, bank-d inputs, and Teleport timing against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Mission 19 script and landscape-bank selection",
+        "Firestorm, Volcano, and Teleport reward links",
+        "Last-chance Chumara warning, forced loss, forced win, and Teleport tutorial script blocks",
+        "Strict height-banded Teleport relocation visits",
+        "Exact imported bank-d input and output identity"
+      ],
+      "knownLimits": [
+        "Only allocator and retirement leaves are intercepted in the executable Teleport timing probe.",
+        "Warning 127/128 reachability, audiovisual presentation, and later Mission 19 AI remain open."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission19.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission19.py",
+        "decomp/research/mission19.md",
+        "decomp/generated/0049a1c0.c",
+        "decomp/generated/0049a1f0.c",
+        "decomp/generated/00515180.c",
+        "decomp/generated/00516d70.c",
+        "decomp/generated/00516e10.c",
+        "decomp/generated/00516eb0.c",
+        "public/original/sky-d.png",
+        "public/original/clouds-d.png",
+        "public/original/clouds-high-d.png"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 19 level and data files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 19 authored setup, worship rewards, Teleport relocation/checkpoint, warning, and objective results.",
+      "coveredBehavior": [
+        "Mission 19 level, scripts, tribes, opening, self-only combat masks, and rewards",
+        "Rejected and accepted Teleport stock plus delayed deterministic relocation",
+        "Mid-Teleport checkpoint continuation",
+        "One-shot last-chance warning, forced victory, forced loss, and simultaneous-loss priority"
+      ],
+      "knownLimits": [
+        "Focused objective cases place the script clock at its native cadence before changing the relevant population state.",
+        "Warning 127/128, later AI, exact rendering, and audio remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission19.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission19.test.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-nineteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-nineteen.json",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 18-to-19 continuation, bank-d sky, opening, Teleport worship/HUD cast, and last-chance warning through the shipped browser path.",
+      "coveredBehavior": [
+        "Mission 19 chooser, Mission 18 continuation, objective, and original opening message",
+        "Rendered bank-d backdrop and both cloud layers",
+        "Live Teleport worship through selection and battlefield input",
+        "HUD Teleport targeting, stock consumption, Shaman relocation, and warning presentation"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at their native slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation and all objective result directions."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission19.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission19.mjs",
+        "scripts/browser-game.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/level-nineteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-assets.ts",
+        "app/scene-camera-runtime.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "public/original/sky-d.png",
+        "public/original/clouds-d.png",
+        "public/original/clouds-high-d.png"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 20's ordered linked worship chain, one-use lifecycle, and startup opcode 1127 against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Four linked worship heads and their authored slot order",
+        "Land Bridge, Flatten, Firestorm, and Volcano gifts",
+        "Earthquake, Lightning, Firestorm, Volcano, and scenery activations",
+        "Interrupted-worship reset and successful one-use consumption",
+        "Opcode 1127 AI flag mutation"
+      ],
+      "knownLimits": [
+        "Allocation, deletion, template-copy, first-processing, and presentation leaves are intercepted.",
+        "Complete post-dispatch terrain, damage, rendering, and audio evolution remains browser integration evidence."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission20.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission20.py",
+        "decomp/research/mission20-linked-chain.md"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 20 level and script files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 20's authored opening, four linked worship stages, effects, rewards, and checkpoint continuation.",
+      "coveredBehavior": [
+        "Mission 20 level, script, tribe, opening, and startup flags",
+        "Ordered four-stage worship chain and authored follower requirements",
+        "Terrain, Lightning, Firestorm, Volcano, scenery, and spell-gift activation",
+        "One-use consumption and live-chain checkpoint continuation"
+      ],
+      "knownLimits": [
+        "The focused test supplies worship followers at authored slots and accelerates completed worship work.",
+        "Exact class-7 presentation/audio and later Mission 20 AI remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission20.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission20.test.mjs",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-twenty.ts",
+        "app/lightning.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-twenty.json",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 19-to-20 continuation, opening, all four linked heads, effects, and reward stocks through the shipped browser path.",
+      "coveredBehavior": [
+        "Mission 20 chooser, Mission 19 continuation, objective, and original opening message",
+        "Live worship through selection and battlefield input",
+        "Earthquake, four Lightning generators, Firestorm, Volcano, and linked scenery",
+        "Land Bridge, Flatten, Firestorm, and Volcano HUD stocks"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at authored slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation; later Mission 20 AI and exact audiovisual presentation remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission20.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission20.mjs",
+        "scripts/browser-game.mjs",
+        "app/campaign-runtime.ts",
+        "app/level-twenty.ts",
+        "app/lightning.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 21's fresh spell/mana state, first-fault records, exact height predicate and cadence, linked activation order, and opcode-1199 cleanup against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Marker-17 signed-height equality and one-unit seal boundaries",
+        "Turn-127 sampling, turn-1951 eruption, and turn-1983 cleanup cadence",
+        "Zero Flatten stock, 30000 starting mana, Convert Wild availability, and the three-person linked Flatten totem",
+        "Flatten sentinel, unique first-Volcano source, and ordered initial/eruption trigger links",
+        "Warning 126 payload, position, flags, and lifetime",
+        "Opcode 1199 class-7 model filter and inclusive cleanup square"
+      ],
+      "knownLimits": [
+        "Allocation, template copy, first-processing, deletion, worship presentation, and shared-reference leaves are intercepted.",
+        "This is not a full native route-timing playthrough, renderer/audio comparison, checkpoint proof, later-fault proof, AI proof, or mission-outcome proof."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission21.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission21.py",
+        "decomp/generated/00490ba0.c",
+        "decomp/generated/004f1ed0.c",
+        "decomp/research/mission21-first-fault.md"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 21 level, header, script, and language files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 21's authored opening and first fault through ordinary Convert Wild, linked-totem worship, eruption, and checkpoint paths.",
+      "coveredBehavior": [
+        "Mission 21 level, script, tribe, opening, baseline, and linked fault triggers",
+        "Focused native-style charging, Convert Wild, and three-person totem worship seal the fault before the deadline",
+        "Unsealed turn-1951 Volcano and positioned warning",
+        "Armed, sealed, dispatched, and erupted checkpoint continuation without replay"
+      ],
+      "knownLimits": [
+        "The portable check drives production command APIs; the browser check supplies the shipped-control proof.",
+        "Native end-to-end route timing, exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission21.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission21.test.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-twenty-one.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-twenty-one.json",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 20-to-21 continuation, focused charging, HUD Convert Wild, linked-totem worship, the unsealed eruption, and both checkpoint paths through the shipped browser.",
+      "coveredBehavior": [
+        "Mission 21 chooser, Mission 20 continuation, and original opening message",
+        "Per-spell charging controls fund HUD Convert Wild without injected stock",
+        "Converted nearby Wildmen worship the authored three-person Flatten totem and cancel the eruption",
+        "Turn-1951 warning and linked Volcano world effect",
+        "Sealed and erupted checkpoint restoration without duplicate effects"
+      ],
+      "knownLimits": [
+        "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
+        "Exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission21.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission21.mjs",
+        "scripts/browser-game.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-twenty-one.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

@@ -9,11 +9,54 @@ the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
 gameplay over recurring cleanup and re-triage.
 
+Mission 15's authored Prison rescue and timed-failure objective finished in the
+current feature commit: ordinary follower attacks release the captive Shaman, rescue
+cancels the native timer, and expiry locks input before enemy Lightning causes the
+loss. Later Mission 15 AI remains separate work.
+
+Mission 16's authored Bloodlust acquisition and first complete live status loop
+finished in the current feature commit: both rewards grant model-20 stock, the HUD
+casts on the native follower set, and status duration, combat/Firewarrior modifiers,
+movement, feedback, Shield coexistence, expiry, and checkpoints are integrated.
+Later Mission 16 AI remains separate work.
+
+Mission 17's authored Armageddon loop finished in the current feature commit:
+worship grants model-18 stock, the HUD cast rebuilds and stages every active tribe
+in the native arena, existing combat reaches victory or defeat, control is restored,
+and in-progress phases survive checkpoints. Later Mission 17 AI and exact Shaman
+auto-spell, camera, and audio presentation remain separate work.
+
+Mission 18's authored tribes and opening, exact bank-g sky, Armageddon and both
+Volcano rewards, first authored Red marker patrol, both Armageddon result directions,
+and in-arena checkpoint continuity finished in the current feature commit. Recurring
+command 1074 and later Mission 18 AI remain separate work.
+
+Mission 19's Mission 18→19 continuation, authored bank-d sky and
+Firestorm/Volcano/Teleport rewards, delayed Shaman Teleport with checkpoint
+continuity, last-chance Chumara warning, Chumara-loss defeat, and Dakini-loss
+victory finished in the current feature commit. Native evidence requires self-only
+combat masks, not a generic Blue-Chumara alliance. Warning messages 127/128 and
+later Mission 19 AI remain separate until their producers are recovered.
+
+Mission 20's Mission 19→20 continuation, authored create-land-for-war opening,
+and four-stage linked worship chain finished in this feature commit. Ordinary
+worship now activates the ordered Land Bridge, Flatten, Firestorm, and Volcano
+gifts plus the linked Earthquake, Lightning, Firestorm, Volcano, and scenery
+effects; one-use consumption and checkpoint continuation are integrated. Later
+Mission 20 AI, objectives/victory, and exact effect presentation remain separate
+work.
+
+Mission 21's Mission 20→21 continuation, authored opening, and first fault pair
+finished in this feature commit. Focusing mana on Convert Wild, recruiting the
+nearby Wildmen, and sending three followers to the authored Flatten totem seals the
+fault before its native deadline; leaving it unsealed produces the warning and one
+Volcano. Both outcomes survive checkpoints without replay. Later fault pairs, AI,
+victory, and exact class-7/model-39 presentation remain separate work.
+
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
-cast, combat, and checkpoint path finished in the current feature commit after the
-bounded opcode 1173 prerequisite. Later Mission 14 AI remains separate until its
-command/read cycles are proved. No new feature is locked; reassess the highest-impact
-new gameplay gap at the clean boundary.
+cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173
+prerequisite. Later Mission 14 AI remains separate until its command/read cycles are
+proved.
 
 Direct startup selection for Missions 1-4 finished in `c5116e7`; durable campaign
 completion and next-mission recommendation finished in `dfc35b5`; Mission 4's

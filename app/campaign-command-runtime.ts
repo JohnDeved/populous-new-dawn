@@ -36,6 +36,8 @@ import { appendLiveOrders } from './live-movement.ts'
 import { emptyPersonOrder, writePersonOrder } from './person-orders.ts'
 import { route } from './live-command.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
+import { nativeCellPoint } from './world-coordinates.ts'
+import { beginCast } from './spell-casting.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 function forceCampaignAttack(w: World) {
@@ -94,6 +96,7 @@ export function campaignCommand(
       1028: 1,
       1038: 3,
       1059: 13,
+      1064: 3,
       1068: 4,
       1069: 2,
       1073: 1,
@@ -110,6 +113,7 @@ export function campaignCommand(
       1117: 0,
       1196: 1,
       1198: 0,
+      1199: 3,
       1204: 1,
       1076: 3,
       1077: 3,
@@ -119,6 +123,7 @@ export function campaignCommand(
       1138: 2,
       1151: 1,
       1169: 0,
+      1170: 0,
       1171: 2,
       1172: 1,
       1173: 2,
@@ -148,6 +153,7 @@ export function campaignCommand(
       1215: 2,
       1221: 1,
       1222: 1,
+      1223: 1,
     } as Record<number, number>
   )[opcode]
   if (arity === undefined) throw new Error(`Unbound campaign command ${opcode}`)
@@ -351,6 +357,27 @@ export function campaignCommand(
     )
     return
   }
+  if (opcode === 1064) {
+    const [model, marker, targetTribe] = args.map(read)
+    if (model !== 3 || targetTribe !== 0 || level.markers[marker] === undefined)
+      throw new Error(`Unbound campaign spell task ${model}:${marker}:${targetTribe}`)
+    const caster = w.units.find(
+      unit =>
+        unit.team === campaignTeam(w, campaignTribe(w)) &&
+        isShaman(unit) &&
+        unit.hp > 0 &&
+        !unit.casting
+    )
+    if (
+      !caster ||
+      w.projectiles.some(
+        projectile => projectile.spell === 'lightning' && projectile.team === caster.team
+      )
+    )
+      return
+    beginCast(w, caster, 'lightning', nativeCellPoint(level.markers[marker]))
+    return
+  }
 
   if (opcode === 1068) {
     const tribe =
@@ -400,6 +427,15 @@ export function campaignCommand(
   }
   if (opcode === 1198) {
     buildingCounterattack(w, campaignTeam(w, campaignTribe(w)))
+    return
+  }
+  if (opcode === 1199) {
+    const radius = read(args[2])
+    if (!Number.isInteger(radius) || radius < 0 || radius > 127)
+      throw new RangeError('Invalid special-object radius')
+    // Native removes/morphs class-7 scenery in this square; those objects are not browser entities.
+    read(args[0])
+    read(args[1])
     return
   }
   if (opcode === 1108) {
@@ -485,9 +521,20 @@ export function campaignCommand(
     else throw new RangeError('Invalid level availability mode')
     return
   }
+  if (opcode === 1223) {
+    writeVariable(
+      args[0],
+      Number(w.buildings.some(building => building.kind === 'prison' && building.hp > 0))
+    )
+    return
+  }
 
   if (opcode === 1169) {
     w.castingTribes[w.manaWorld.playerTribe].flags |= 0x20000
+    return
+  }
+  if (opcode === 1170) {
+    w.castingTribes[w.manaWorld.playerTribe].flags |= 0x40000
     return
   }
 
@@ -610,6 +657,12 @@ export function campaignCommand(
 }
 
 export function campaignRules(w: World) {
+  if (
+    w.outcome.level === 15 &&
+    w.inputMask & 128 &&
+    !w.units.some(unit => unit.team === 'blue' && isShaman(unit) && unit.hp > 0)
+  )
+    w.land.landFlags |= 0x4000000
   const tribe = campaignTribe(w),
     script = missionScript(w.outcome.level, tribe)
   const boundCampaignScript = {
@@ -734,7 +787,50 @@ export function campaignRules(w: World) {
                                 1004,
                                 1019,
                               ]
-                            : [12, 1003, 1004, 1019],
+                            : w.outcome.level === 15 && tribe === 2
+                              ? [
+                                  12,
+                                  1003,
+                                  // Native timer-expiry gate, input lock, enemy Lightning task, and flyby.
+                                  ...script.codes.slice(552, 622),
+                                  // Native EVERY-15 Prison-exists query and timer cancellation.
+                                  ...script.codes.slice(770, 789),
+                                  ...script.codes.slice(795, 800),
+                                  1004,
+                                  1019,
+                                ]
+                              : w.outcome.level === 19 && tribe === 1
+                                ? [
+                                    12,
+                                    1003,
+                                    // Native 64-turn last-chance warning and 16-turn Chumara-loss latch.
+                                    ...script.codes.slice(316, 319),
+                                    ...script.codes.slice(401, 434),
+                                    1004,
+                                    ...script.codes.slice(584, 604),
+                                    1004,
+                                    1019,
+                                  ]
+                                : w.outcome.level === 19 && tribe === 2
+                                  ? [
+                                      12,
+                                      1003,
+                                      // Native Dakini-loss victory and Teleport-stock tutorial latches.
+                                      ...script.codes.slice(310, 360),
+                                      1004,
+                                      1019,
+                                    ]
+                                  : w.outcome.level === 21 && tribe === 1
+                                    ? [
+                                        12,
+                                        1003,
+                                        // First authored fault: terrain seal check, warning, deadline, and eruption.
+                                        ...script.codes.slice(797, 957),
+                                        1004,
+                                        1004,
+                                        1019,
+                                      ]
+                                    : [12, 1003, 1004, 1019],
   }
   // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
   runScript(boundCampaignScript, w.ai, {

@@ -43,7 +43,13 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 13 opening](research/mission13-opening.md),
 [Mission 13 Balloon transport](research/mission13-balloon.md),
 [Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
+[Mission 15 Prison rescue and timed failure](research/mission15-prison.md),
+[Mission 16 Bloodlust acquisition and status](research/mission16-bloodlust.md),
+[Mission 18 authored patrol and projected sky](research/mission18.md),
 [Mission 18 sky filename and image-load conditions](research/mission18-sky.md),
+[Mission 19 Teleport and Chumara-protection objective](research/mission19.md),
+[Mission 20 linked worship chain](research/mission20-linked-chain.md),
+[Mission 21 first fault](research/mission21-first-fault.md),
 [vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
@@ -66,6 +72,11 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `0048c6b0`, `0048c980`, `0048f130`, `0048f230`, `0048ef00`, `0048ed90` | `app/popscript.ts` | Control flow, arithmetic, attribute widths and EVERY masks compared against native x86 |
 | `004615f0`, `004e5530`, `004e5580`, `004c6da0`, `004cb400` | `app/computer-runtime.ts`, `app/campaign-command-runtime.ts` | [Mission 11's first settlement action](research/mission11-first-settlement.md), [first Matak Hut](research/mission11-first-expansion.md), and [first scripted BUILD_AT tower](research/mission11-exact-tower.md) reuse the ordinary producer, spiral search, and construction task path. Its [first reactive requested-zero branch](research/mission11-reactive-noop.md) grants Swamp but selects no attackers and retires; later real attacks, `BUILD_AT`, staffing, Chumara housing, and production profiles remain open. |
 | `0048cc60`, `0048f350`, `0041ca10`, `0041cc20`, `004a5d20`, `004a5d40`, `004a5ec0` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization, bounded [Mission 3 recurring flyby](research/mission3-recurring.md), [Mission 4 objective](research/mission4.md), [Mission 7 opening](research/mission7.md), and both [Mission 10 Totem/flyby transitions](research/mission10-opening.md) are applied; full game-command host and Mission 10 loss/endgame branches remain open |
+| `0040c3a0`, `00492b40`, `00499960`, `004a5d20`, `004a5eb0`, `004a5ec0`, `004a5ee0`, `004e2770`, `004f6a10` | `app/campaign-command-runtime.ts`, `app/live-building-combat.ts`, `app/live-people.ts` | [Mission 15 Prison rescue and timed failure](research/mission15-prison.md) covers the captive Shaman, ordinary follower damage, Prison release, 450-second timer, global Prison predicate, and enemy Lightning loss; exact debris/audio and later mission AI remain open |
+| `00515650`, `00515690`, `005156b0`, `005156f0`, `00515e30` | `app/spell-effects-runtime.ts`, `app/combat-runtime.ts`, `app/firewarrior.ts`, `app/scene-entities.ts` | [Mission 16 Bloodlust](research/mission16-bloodlust.md) covers linked acquisition, exact six-follower selection, status lifetime, Shield coexistence, combat and Firewarrior modifiers, movement initialization, and expiry feedback; original HFX artwork and AI casting policy remain open |
+| `00515180`, `0049a1c0`, `0049a1f0`, `00516d70`, `00516e10`, `00516eb0` | `app/spell-effects-runtime.ts`, `app/campaign-command-runtime.ts`, `scripts/check-native-mission19.py` | [Mission 19 Teleport and Chumara protection](research/mission19.md) covers height-banded relocation, Shaman/container reset, objective warning and result ownership, and proves self-only combat masks; warning 127/128 reachability remains deferred until internal 1178's producer is recovered |
+| `00485b00`, `004fb270`, `0048cc60`, `004f2aa0`, `00511ae0`, `00511640`, `0050e060` | `app/world-initialization.ts`, `app/world-turn.ts`, `app/campaign-runtime.ts`, `scripts/check-native-mission20.py` | [Mission 20 linked worship chain](research/mission20-linked-chain.md) covers ordered gifts, terrain/effect activations, one-use consumption/retry, overloaded scenery link tokens, and opcode 1127; exact class-7 presentation/audio and complete downstream disaster equivalence remain open |
+| `0042b660`, `0048c6b0`, `0048cc60`, `00490ba0`, `00492920`, `004f1ed0`, `004fb270` | `app/campaign-command-runtime.ts`, `app/world-initialization.ts`, `app/world-turn.ts`, `scripts/check-native-mission21.py` | [Mission 21 first fault](research/mission21-first-fault.md) covers fresh spell/mana state, the Convert Wild and linked-totem seal route, exact height predicate, sentinel, deadline, warning, unique first Volcano activation, checkpoint latches, and opcode-1199 cleanup; native end-to-end route timing, model-39/component presentation, later faults, AI, and outcome remain open |
 | `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts`, `app/scene.ts` | Worship, automatic reward initialization/visual lifetime and delayed gifts CPU-compared; competitive ownership and generic pickup incomplete |
 | `00463370`, `00463780`, `00463e80`, `004641d0`, `004657d0`, `004659d0`, `00466190`, `00465c50`, `00465ea0`, `00466be0`, `00466f00`, `00406600`, `0040b6d0`, `00465580` | `app/live-vehicles.ts`, `app/live-pathfinding.ts`, `app/world-turn.ts`, `app/scene-entities.ts` | [Mission 5 granted Boat](research/mission5-boat.md) is live through worship, boarding, sailing, landing and checkpoints; [Mission 9 Boat House](research/mission9-boat-house.md) adds the native first-production gate and launch transform; [Mission 13 Balloon transport](research/mission13-balloon.md) adds recurring production, boarding, airborne movement, landing and occupied checkpoint reload; [vehicle destruction](research/vehicle-destruction.md) adds shipped 5000 life, damage gates, sinking/rising, and alive passenger ejection; exact art, audio, complete steering, and downstream terrain-dependent passenger fate remain open |
@@ -84,7 +95,7 @@ are retained in [rejected adapter candidates](research/rejected-adapter-candidat
 python3 -B scripts/check-static-mission18-sky.py /path/to/d3dpoptb.exe
 ```
 
-This tracked checker rejects an unexpected EXE SHA and does not execute or emulate it. Optional `--output /path/to/new-report.json` retains decoded bytes/conditions without overwriting a file. Only the EXE is required; optional `--data-root` checks supplied HDR/palette identity. No scratch/head/Ghidra dependency or new framework. Actual runtime path/open/UI/palette/lens state and pixels remain unproved; the historical 410-assertion receipt is not current runtime acceptance.
+For the later authored patrol, exact 4×4 texture average and projected-lens binding, see [Mission 18’s implementation evidence](research/mission18.md#bank-g-sky). Non-lens configuration and device/exact-presentation limits remain there. This tracked checker rejects an unexpected EXE SHA and does not execute or emulate it. Optional `--output /path/to/new-report.json` retains decoded bytes/conditions without overwriting a file. Only the EXE is required; optional `--data-root` checks supplied HDR/palette identity. No scratch/head/Ghidra dependency or new framework. Actual runtime path/open/UI/palette/lens state and pixels remain unproved; the historical 410-assertion receipt is not current runtime acceptance.
 
 ## Forced tooltip comparison
 
@@ -4871,3 +4882,56 @@ the imported layered unit atlas. The browser check observes shaman respawn plus
 ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timing,
 relocation, particles/audio, general class-10 scheduling and unplayable follower
 models remain open.
+
+## 2026-09-17 — Mission 17 Armageddon
+
+`check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,
+82-visit stock grant, model-18 descriptor and target results, and successful and
+failed cast allocation. Fifteen registered exports cover the effect-86 start,
+terrain morph, roster rebuild/ranking, state-39 staging, battle orders,
+recurring controller, modal input, and teardown. The browser port reuses the
+existing terrain, state-39, melee, generic outcome, and checkpoint owners. Exact
+Shaman automatic spell choices, camera interpolation, and HFX/audio remain open;
+see `research/mission17-armageddon.md`.
+
+## 2026-09-17 — Mission 18 authored patrol and bank-g sky
+
+`check-native-mission18.py EXE` verifies the three authored rewards, Red's
+turn-zero 7-Warrior/3-Firewarrior/1-Preacher marker patrol, bank-16 `g` filename
+selection, missing-backdrop type-1 fallback, and exact 4×4 RGB sky average. The
+browser reuses the live marker-order and Armageddon owners and binds the fallback
+as one opaque projected lens layer. Recurring command 1074, the unreachable Green
+attacks, non-lens view configuration, device rasterization, and exact presentation
+remain open; see `research/mission18.md`. New registered exports are `0042a140`,
+`004306d0`, and `004b5f40`.
+
+## 2026-09-17 — Mission 19 Teleport and Chumara protection
+
+`check-native-mission19.py EXE` verifies the authored Firestorm, Volcano, and
+Teleport rewards, Red's last-chance warning and forced loss, Yellow's forced win
+and Teleport tutorial, exact bank-d inputs, and the strict height boundaries in
+the original model-21 effect handler. The browser port keeps native self-only
+combat masks and reuses the ordinary worship, stock, Shaman, vehicle, result, and
+checkpoint owners. Warning messages 127/128, later Mission 19 AI, and exact
+presentation remain open; see `research/mission19.md`. New registered exports are
+`00515180`, `0049a1c0`, `0049a1f0`, `00516d70`, `00516e10`, and `00516eb0`.
+
+## 2026-09-17 — Mission 20 linked worship chain
+
+`check-native-mission20.py EXE` verifies the four one-use worship heads, native
+slot order, overloaded scenery tokens, linked Lightning/Firestorm/Volcano world
+effects, cancellation reset, duplicate prevention, and opcode 1127's single AI
+flag mutation. The browser reuses the ordinary worship, gift, disaster,
+checkpoint, and campaign owners. Exact effect presentation/audio and complete
+post-dispatch disaster equivalence remain open; see
+`research/mission20-linked-chain.md`.
+
+## 2026-09-17 — Mission 21 first fault
+
+`check-native-mission21.py EXE` verifies fresh spell/mana state, marker 17's
+signed-height predicate, turn-1951 deadline, the linked three-person Flatten
+totem, unique first Volcano source, warning 126, checkpoint latches, and opcode
+1199's class-7 cleanup square. The browser drives ordinary focused charging,
+Convert Wild, worship, script, terrain, message, and checkpoint owners; native
+end-to-end route timing, exact model-39/component presentation, later faults, AI,
+and mission outcome remain open. See `research/mission21-first-fault.md`.

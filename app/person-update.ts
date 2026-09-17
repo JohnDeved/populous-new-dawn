@@ -162,7 +162,7 @@ export function updatePersonHealth(
   consumePersonDisruption(p, initialize)
 }
 
-// 0x4da080: shields reduce damage before signed-short life storage.
+// 0x4da080: Shield blocks ordinary damage; Bloodlust reduces accepted damage.
 export function damagePerson(
   p: { life: number; flags3: number; tribe: number; damageAttacker: number },
   levelFlags2: number,
@@ -171,7 +171,7 @@ export function damagePerson(
   mode = 0
 ) {
   if (levelFlags2 & 0x04000000 || (!mode && p.flags3 & 0x8000)) return
-  if (p.flags3 & 0x80000) amount >>= rules.shieldDamageShift & 31
+  if (p.flags3 & 0x80000) amount >>= rules.bloodlustDamageShift & 31
   p.life = short(p.life - short(amount))
   if (p.tribe !== -1 && p.tribe !== 255 && attacker !== -1 && attacker !== 255)
     p.damageAttacker = attacker & 255

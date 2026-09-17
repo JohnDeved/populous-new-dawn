@@ -165,6 +165,48 @@
           "producer": "scripts/import-level.py"
         },
         {
+          "path": "app/level-fifteen.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
+          "path": "app/level-sixteen.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
+          "path": "app/level-eighteen.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
+          "path": "app/level-nineteen.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
+          "path": "app/level-twenty.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
+          "path": "app/level-twenty-one.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
           "path": "app/original-camera.json",
           "type": "file",
           "tracked": true,
@@ -327,6 +369,48 @@
         },
         {
           "path": "app/original-script-fourteen.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-fifteen.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-sixteen.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-eighteen.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-nineteen.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-twenty.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-script.py"
+        },
+        {
+          "path": "app/original-script-twenty-one.json",
           "type": "file",
           "tracked": true,
           "protected": true,

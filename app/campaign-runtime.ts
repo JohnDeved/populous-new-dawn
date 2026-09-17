@@ -149,6 +149,7 @@ export function missionAI(script: PopScript = missionScript(1), tribe = 1) {
     readInternal: id => {
       if (id === 0) return 0
       if (id >= 1050 && id <= 1065) return spellMana(id - 1048)
+      if (id >= 1184 && id <= 1199) return id - 1183
       throw new Error(`Unbound initial script read ${id}`)
     },
     command: (opcode, args) => {
@@ -163,6 +164,7 @@ export function missionAI(script: PopScript = missionScript(1), tribe = 1) {
       } else if (opcode === 1067) ai.task9b = args[0] & 255
       else if (opcode === 1123) ai.flags |= 0x2000
       else if (opcode === 1125) ai.flags |= 0x4000
+      else if (opcode === 1127) ai.flags |= 0x8000
       else if (opcode === 1164) {
         if (args[0] === 1022) ai.reincarnation = true
         else if (args[0] === 1023) ai.reincarnation = false
@@ -208,6 +210,7 @@ export function campaignInternal(w: World, id: number) {
   if (id >= 1184 && id <= 1199) return id - 1183
   if (id === 1243) return 19
   if (id === 1244) return 17
+  if (id === 1245) return 21
   if (id === 1223) return 0 // 0x48f350: no-specific-building selector.
   if (id === 1236) return 10 - w.ai.tasks.filter(task => task.flags & 1).length
   if (id === 1200) return 18 // INT_M_KNOWLEDGE, preceding the person constants.

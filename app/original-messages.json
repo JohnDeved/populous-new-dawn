@@ -139,6 +139,62 @@
     "1": {
       "stringId": 688,
       "text": "I sense a new threat\u0085 an attack from the skies. I must make ready for the battle to come."
+    },
+    "148": {
+      "stringId": 1228,
+      "text": "The Dakini have trapped me in this magical prison and I cannot escape. I must command my Followers to free me or we are all doomed."
+    },
+    "3": {
+      "stringId": 694,
+      "text": "I sense a spell hidden somewhere in this desert land that will increase the strength of my Followers. I must find it."
+    },
+    "66": {
+      "stringId": 695,
+      "text": "Use Bloodlust to fill your tribe with a powerful fighting frenzy."
+    },
+    "4": {
+      "stringId": 697,
+      "text": "I sense a great struggle ahead. The Chumara, Dakini and Matak are massing their forces against us."
+    },
+    "5": {
+      "stringId": 699,
+      "text": "The Dakini are the mightiest of the three tribes we must face. I fear that if they are not stopped they will unleash a terrible magic upon us."
+    },
+    "6": {
+      "stringId": 701,
+      "text": "The Dakini have grown too powerful on this world. I am suspicious of allying my tribe with the Chumara, but I must protect their settlement and prevent the Dakini from destroying us all."
+    },
+    "12": {
+      "stringId": 702,
+      "text": "Use Teleport to move instantly to any location on the world."
+    },
+    "127": {
+      "stringId": 703,
+      "text": "Your allies' defences have been breached. They are under attack!"
+    },
+    "128": {
+      "stringId": 704,
+      "text": "Your allies are losing their battle against the Dakini. They are desperate for your help."
+    },
+    "129": {
+      "stringId": 705,
+      "text": "The Chumara have given up all hope of survival. This is your last chance to save them."
+    },
+    "7": {
+      "stringId": 707,
+      "text": "I sense the Dakini are preparing for war. I must create more land to build on if I am to increase my forces and face them in battle."
+    },
+    "8": {
+      "stringId": 709,
+      "text": "This is a mysterious, hostile land. I sense there are many dangers that I must face before we meet the Dakini in Battle."
+    },
+    "10": {
+      "stringId": 710,
+      "text": "Well done Shaman. The Totem's Flatten spell has sealed the fault, preventing an eruption. More faults can be sealed by using this spell."
+    },
+    "126": {
+      "stringId": 711,
+      "text": "A fault has become unstable and sparked a massive volcano! There are still more faults on the world that can be fused with the correct spell."
     }
   }
 }

@@ -87,7 +87,7 @@ test('Mission 5 Angel head delivers its linked hostile summon through live worsh
     'native reach is a component-wise square, including its diagonal'
   )
   for (let turn = 0; turn < 20 && victim.hp === hp; turn++) tick(world, 1 / 12)
-  assert.ok(victim.hp > 0 && victim.hp < hp, 'Shield reduces the otherwise lethal strike')
+  assert.equal(victim.hp, hp, 'Shield blocks the mode-zero strike')
   assert.equal(world.killCredits[0][1], credits)
   assert.ok(world.effects.some(effect => effect.kind === 'hit'))
 

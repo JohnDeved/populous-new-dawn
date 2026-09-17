@@ -47,6 +47,7 @@ import type { ModelMorph } from './morph.ts'
 import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
+import type { Armageddon } from './armageddon.ts'
 
 export const TRIBE_TEAMS = ['blue', 'red', 'yellow', 'green'] as const
 export type TribeTeam = (typeof TRIBE_TEAMS)[number]
@@ -65,6 +66,7 @@ export type BuildingKind =
   | 'firewarriorHut'
   | 'boatHouse'
   | 'balloonHut'
+  | 'prison'
 export type Spell =
   | 'blast'
   | 'convertWild'
@@ -82,6 +84,9 @@ export type Spell =
   | 'tornado'
   | 'shield'
   | 'invisibility'
+  | 'armageddon'
+  | 'bloodlust'
+  | 'teleport'
   | 'swarm'
 export type Point = { x: number; z: number }
 export type Fight = {
@@ -182,6 +187,7 @@ export type Unit = Point & {
   fight: Fight | null
   casting: { spell: Spell; point: Point; remaining: number } | null
   shield?: number
+  bloodlust?: number
   invisibility?: number
   hypnotise?: { originalTeam: Team; remaining: number; counter: number }
   ghost?: boolean
@@ -229,7 +235,16 @@ export type Building = Point & {
 export type Shrine = Point &
   WorshipState & {
     id: number
-    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'linkedEffects' | 'vault' | 'boat' | 'angel'
+    kind:
+      | Spell
+      | 'bridgeEffect'
+      | 'erosionEffect'
+      | 'flattenEffect'
+      | 'volcanoEffect'
+      | 'linkedEffects'
+      | 'vault'
+      | 'boat'
+      | 'angel'
     reward?:
       | Spell
       | 'camp'
@@ -244,6 +259,10 @@ export type Shrine = Point &
     effectTarget?: Point
     effectTargets?: Point[]
     earthquakeTargets?: Point[]
+    lightningTargets?: Point[]
+    firestormTargets?: Point[]
+    volcanoTargets?: Point[]
+    linkedTrees?: { x: number; z: number; model: number }[]
     linkedShrine?: Shrine
     rewardVehicle?: number
     angelTarget?: Point
@@ -324,10 +343,18 @@ export type Effect = Point & {
   volcano?: Volcano
   convertWild?: ConvertWild
   ghostArmy?: true
+  armageddon?: Armageddon
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
+  teleport?: { visits: number; target: NativePoint }
   reincarnation?: { team: Team; phase: number; ground: number }
-  firewarriorShot?: { source: number; target: number; remaining: number; tower?: boolean }
+  firewarriorShot?: {
+    source: number
+    target: number
+    remaining: number
+    tower?: boolean
+    bloodlust?: boolean
+  }
   angel?: AngelState
 }
 export type Gift = Effect & {

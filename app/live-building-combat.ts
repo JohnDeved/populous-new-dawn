@@ -180,7 +180,8 @@ function stepSpySabotage(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
     if (--p.timer < 1) {
       p.substate = 2
       setLivePersonAnimation(w, p, 0x65)
-      p.timer = ((rules.animationDescriptors[p.draw]?.step ?? 0) + 1) * sprites.frameCounts[p.object]
+      p.timer =
+        ((rules.animationDescriptors[p.draw]?.step ?? 0) + 1) * sprites.frameCounts[p.object]
     }
   } else if (p.substate === 2) {
     if (spyDetected(w, p)) revealSpy(p)
@@ -674,7 +675,7 @@ function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
   const result = attackCombatBuilding(context, p, target, {
     ...combatMotion(w, u, p),
     buildingAt: to => w.land.buildingIds[(to.y >> 9) * 128 + (to.x >> 9)],
-    hasDefenders: () => buildingAdmission(w, b).inside > 0,
+    hasDefenders: () => b.kind !== 'prison' && buildingAdmission(w, b).inside > 0,
     removeDefender: () => {
       const admission = buildingAdmission(w, b)
       const id = admission.occupants.find(Boolean),
