@@ -702,9 +702,10 @@ export function createMeleePerson(w: World, u: Unit) {
   return p
 }
 
-// 0x518480; currently playable classes need no spy-disguise consumer. Ordinary
-// outdoor fight entry also uses this grounding after releasing its old work.
+// 0x518480/0x5184e0. Ordinary outdoor fight entry uses this grounding after
+// releasing its old work.
 function initializeGroundCombat(w: World, p: LivePerson) {
+  if (p.model === 5) p.disguise = (p.tribe << 6) & 255
   p.flags4 = (p.flags4 & ~0x400) >>> 0
   p.h = terrainPointHeight(w.land, p)
   p.flags2 = (p.flags2 | 0x40200200) >>> 0

@@ -583,8 +583,12 @@ try {
   )
   await page.getByRole('button', { name: 'Continue to Mission 12', exact: false }).click()
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 12)
-  await page.waitForFunction(() => globalThis.testStore.getWorld().flyby.flags & 1)
-  await page.evaluate(() => (globalThis.testStore.getWorld().speed = 0))
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    if (!(world.flyby.flags & 1)) return false
+    world.speed = 0
+    return true
+  })
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
@@ -1028,6 +1032,95 @@ try {
     owner: sabotage.tribe,
     expected: sabotage.tribe << 6,
   })
+
+  const combatTarget = await page.evaluate(async ({ spyId, apparentTribe }) => {
+    const scene = globalThis.testScene,
+      store = globalThis.testStore,
+      world = scene.world,
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      { tribeForTeam } = await import('/app/world-types.ts'),
+      spy = world.units.find(unit => unit.id === spyId),
+      enemy = world.units.find(
+        unit =>
+          unit.team !== 'blue' &&
+          unit.team !== 'wild' &&
+          tribeForTeam(unit.team) !== apparentTribe &&
+          unit.hp > 0 &&
+          unit.inside === null &&
+          !unit.fight &&
+          !unit.native?.vehicle
+    )
+    if (!enemy) throw new Error('No authored Mission 12 enemy for Spy combat reveal')
+    if (!world.selected.includes(spy.id))
+      throw new Error('Mission 12 trained Spy did not retain shipped UI selection')
+    await store.saveCheckpoint()
+    Object.assign(spy, { x: enemy.x + 1, z: enemy.z })
+    spy.path = []
+    syncLivePersonCells(world)
+    scene.focus(enemy)
+    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+      scene.updateCameraMotion(1 / 24)
+    scene.onChange()
+    scene.renderer.render(scene.scene, scene.camera)
+    const projected = scene.unitScreen(enemy.id),
+      bounds = scene.container.getBoundingClientRect(),
+      sprite = scene.unitMeshes.get(enemy.id)?.userData.bounds,
+      center = {
+        x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+        y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+      }
+    for (let dy = sprite.top; dy <= sprite.bottom; dy += 2)
+      for (let dx = sprite.left; dx <= sprite.right; dx += 2) {
+        const click = { x: center.x + dx, y: center.y + dy }
+        if (scene.picking.pickPerson({ clientX: click.x, clientY: click.y }) === enemy.id)
+          return { id: enemy.id, click }
+      }
+    throw new Error('No exposed Mission 12 combat target geometry')
+  }, { spyId: spy, apparentTribe: sabotage.tribe })
+  await page.mouse.click(combatTarget.click.x, combatTarget.click.y)
+  const revealedByCombat = await page.evaluate(async ({ spyId, targetId }) => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts'),
+      spy = world.units.find(unit => unit.id === spyId)
+    if (!spy.fight && spy.target !== targetId)
+      throw new Error(
+        `Canvas input did not target the authored enemy: ${JSON.stringify({
+          selected: world.selected,
+          message: world.message,
+          target: spy.target,
+        })}`
+      )
+    for (let turn = 0; !spy.fight && turn < 240; turn++) tick(world, 1 / 12)
+    scene.onChange()
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    scene.renderer.render(scene.scene, scene.camera)
+    return {
+      action: spy.fight?.action,
+      hostileOpponent: world.units.some(
+        unit => unit.id === spy.fight?.opponent && unit.team !== 'blue' && unit.team !== 'wild'
+      ),
+      disguise: spy.fight?.motion?.disguise,
+      owner: scene.unitMeshes.get(spyId)?.userData.owner,
+      targetId,
+    }
+  }, { spyId: spy, targetId: combatTarget.id })
+  assert.deepEqual(revealedByCombat, {
+    action: 'encounter',
+    hostileOpponent: true,
+    disguise: 0,
+    owner: 0,
+    targetId: combatTarget.id,
+  })
+  await page.evaluate(() => {
+    if (!globalThis.testStore.loadCheckpoint())
+      throw new Error('Mission 12 pre-combat Spy checkpoint failed')
+  })
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
 
   await page.evaluate(async ({ buildingId, spyId }) => {
     const scene = globalThis.testScene,

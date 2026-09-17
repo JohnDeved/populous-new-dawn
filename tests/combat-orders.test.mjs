@@ -9,7 +9,7 @@ import {startCombatResponse} from '../app/combat-orders.ts'
 import {automaticCombatScanner,canAutoEngage,engagementRange} from '../app/melee-engagement.ts'
 import {automaticMeleeTarget} from '../app/live-combat.ts'
 import {buildingCounterattack,cancelLiveBuildingAttack,startLiveCombatResponse} from '../app/live-building-combat.ts'
-import {createLivePerson,syncLivePersonCells} from '../app/live-people.ts'
+import {createLivePerson,enterLiveCombat,syncLivePersonCells} from '../app/live-people.ts'
 import {startLiveOrders} from '../app/live-movement.ts'
 import {createWorld,addUnit,command,nativePosition,tick,unitAnimationSource} from '../app/model.ts'
 
@@ -47,6 +47,11 @@ function field() {
   w.land.categories.fill(0);w.land.flags.fill(0);w.land.buildingIds.fill(0);w.land.owners.fill(0)
   return w
 }
+test('ordinary combat entry reveals a completed Spy disguise', () => {
+  const w=field(),spy=addUnit(w,'blue','spy',{x:0,z:0}),p=createLivePerson(w,spy)
+  p.disguise=2<<6;spy.native=p
+  assert.equal(enterLiveCombat(w,spy,29).disguise,0)
+})
 test('live campaign scan suppression consumes pending alerts without changing person counters or sprites', () => {
   const w=field(), u=addUnit(w,'blue','warrior',{x:1,z:-1}), enemy=addUnit(w,'red','brave',{x:1.5,z:-1})
   u.native=createLivePerson(w,u);u.native.counter=99;u.native.flags3|=0x800

@@ -28,10 +28,14 @@ Completed enemy-building context with the Spy-only people mask `0x20` selects co
 
 Nearby detection scans the surrounding 3x3 coarse cells for an outdoor person of the disguise target tribe. Detection and a successful aftermath roll call `004de7f0`, restoring `realTribe << 6`. The discovery percentage is the target tribe's AI attribute 40. Ignition sets building state 4 and attacker attribution; browser fire rendering and structural burn progression remain world-owned effects.
 
+## Ordinary combat reveal
+
+The new-encounter path `0051a2a0 -> 0051e150 -> 004d2740` initializes both people in state 29 through `00518480`. For class-1/model-5 Spy, that initializer calls `004de7f0` and restores `realTribe << 6`. Eligibility and encounter allocation happen first; reveal happens before group membership, encounter phase, fight handoff, or damage. Existing-group admission uses state 25 and `005184e0`, which performs the same reveal before its slot and group-id writes.
+
 ## Checkpoint ownership
 
 An active restore must retain the full disguise byte, person command phase/timer/movement fields, command-15 order and pool ownership, and the target building's registered cell, damage state, attacker, and burn state. The browser checkpoint structured-clones these existing world owners; no parallel Spy save record is needed.
 
 ## Evidence boundary
 
-The native check supplies unrelated allocation, terrain, movement, animation, and teardown leaves. It proves Spy initialization, the 63-update transition, command-34 correction, command-15 ignition, and deterministic reveal at a 100% discovery input. The shipped browser check supplies normal Mission 12 training and rendered controls, then uses a bounded enemy-building approach setup because cross-island transport is separate gameplay. Broader Spy combat, every detection arrangement, transport to enemy islands, and exact original UI gesture for choosing a tribe remain open.
+The native check supplies unrelated allocation, terrain, movement, animation, and teardown leaves. It proves Spy initialization, the 63-update transition, command-34 correction, command-15 ignition, and deterministic reveal at a 100% discovery input. Byte-verified combat exports prove the ordinary encounter ordering without a new native probe. The shipped browser check supplies normal Mission 12 training and rendered controls, then uses bounded approach setups because cross-island transport is separate gameplay. Broader detection arrangements, combat reinforcement/death, transport to enemy islands, and the exact original UI gesture for choosing a tribe remain open.
