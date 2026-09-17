@@ -2,18 +2,29 @@ import assert from 'node:assert/strict'
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { bindGame } from './browser-game.mjs'
 
 const output = process.env.PND_QUEUE_OUTPUT ?? '/private/tmp'
 const evidence = { before: null, rotated: null, acquisition: null, restored: null }
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
-  const { page, errors } = await openGame(browser)
+  const context = await browser.newContext({ viewport: { width: 1920, height: 1400 } }),
+    page = await context.newPage(),
+    errors = []
+  page.on('pageerror', error => errors.push(error.stack ?? error.message))
+  page.on('console', message => {
+    if (message.type() === 'error') errors.push(message.text())
+  })
   page.setDefaultTimeout(10_000)
+  await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Mission 6', exact: true }).evaluate(button => button.click())
+  await bindGame(page)
+  await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
+  await page.keyboard.press('Escape')
+  await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
   await page.evaluate(() => {
-    const store = globalThis.testStore
-    store.startMission(6)
-    const world = store.getWorld()
+    const store = globalThis.testStore,
+      world = store.getWorld()
     world.status = 'won'
     world.outcome.cameraPlaying = false
     store.update()
