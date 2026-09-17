@@ -76,6 +76,35 @@ building targets, Bloodlust, broad target damage, and full native play remain op
 The retained second probe is intentional: it isolates the substantially larger
 tower scanner composition from the ordinary projectile-impact oracle.
 
+## On-foot automatic response (2026-09-17)
+
+Native on-foot model 6 uses a shared command-21 response, not the ordinary combat
+selector or the tower's direct-target adapter. The exact owner chain is periodic
+dispatch `004d4690`, cooldown gate `0051fcd0`, initializer `0051e9a0`, specialist
+scan/readiness `0051f470`/`0051f990`, command-21 execution `0051a2a0`, specialist
+selector [`0051d0b0`](../generated/0051d0b0.c), target preparation `00520300`, and
+paired launch `0051fbf0`.
+
+Run `.tools/decomp/oracle/bin/python scripts/probe-native-firewarrior-auto.py
+<executable>`. The retained no-hook probe executes complete `0051d0b0` and ordinary
+`0051c4c0`. In its verified fixture the specialist selector chooses the farther
+hostile model 6 while the ordinary selector chooses the nearer model 4. Repeated
+specialist selection sets reservation `0x200000`, moves to the unreserved person,
+then falls back to the first candidate once all are reserved.
+
+Substates 10/11 launch once in phase `0x2c`, retain command 21 through the firing
+animation, then phase `0x28` waits for the tracked projectile to disappear or six
+visits. Phase `0x2d` is a shared-recipient cooldown wait and never launches. The
+next volley is a fresh scan and command after cooldown; player movement replaces
+the response, source death clears its orders, and target loss completes the command
+without deleting an already-launched projectile.
+
+The checked-in export was produced with Ghidra 12.1.3 from executable SHA256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`; its manifest
+hash is `257d830a5597b5e39d8bf6d178e5c053d2391add96f7899d8470a793337b2853`.
+The live implementation intentionally remains person-only and omits native terrain
+line-of-fire and the initializer's building/plan branch.
+
 ## Boundaries and next step
 
 The allocator at `004ed8a0` is supplied with two slots; sound `0048a050`, animation

@@ -55,6 +55,7 @@ import {
   nativePersonModel,
   nativePersonTribe,
   selectLiveCombatTarget,
+  selectLiveFirewarriorTarget,
 } from './live-combat.ts'
 import { eligibleCombatPerson } from './combat-targets.ts'
 import { availableFightSlot, releaseAttackReservation } from './combat-targets.ts'
@@ -78,6 +79,7 @@ import { buildingAdmission } from './live-building-entry.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 import { igniteBuilding } from './building-damage.ts'
 import { random } from './native-math.ts'
+import { firewarriorReady, launchFirewarrior } from './firewarrior.ts'
 
 const unsupported = (): never => {
   throw new Error('Unported building attack order consumer')
@@ -242,7 +244,14 @@ export function startLiveCombatResponse(w: World, u: Unit) {
       })
     return people.map(({ person }) => person)
   }
-  const id = allocateLiveCombatResponse(w, source, peers, orderEffects(w))
+  const id = allocateLiveCombatResponse(
+    w,
+    u,
+    source,
+    peers,
+    orderEffects(w),
+    target => !u.cooldown && (!target || firewarriorReady(w, u, target))
+  )
   if (!id) return false
   for (const { unit, person } of people) {
     if (person.immediateCommand !== id) continue
@@ -494,7 +503,10 @@ function stepAreaAttack(
       withinCombatArea(p, command, undefined, { range, vehicleReady: unsupported }),
     select: (command: PersonOrder, vehicleOnly: boolean) => {
       if (vehicleOnly || p.vehicle) unsupported()
-      selected ??= selectLiveCombatTarget(w, u, command)
+      selected ??=
+        p.model === 6 && command.model === 21
+          ? selectLiveFirewarriorTarget(w, u, command, target => firewarriorReady(w, u, target))
+          : selectLiveCombatTarget(w, u, command)
       return selected && { id: selected.target.id, type: selected.type }
     },
     prepareTarget: (command: PersonOrder) =>
@@ -505,7 +517,16 @@ function stepAreaAttack(
         { ...selected!.target, vehicle: 0 },
         {
           ...motion,
-          canFire: unsupported,
+          canFire: () => {
+            if (p.model !== 6) return unsupported()
+            const owner = selected?.owner
+            return (
+              !!owner &&
+              !('progress' in owner) &&
+              !('members' in owner) &&
+              firewarriorReady(w, u, owner)
+            )
+          },
           commandPosition: area => ({
             x: ((area.a & 254) + 1) * 256,
             y: (((area.a >>> 8) & 254) + 1) * 256,
@@ -524,6 +545,42 @@ function stepAreaAttack(
   const building = w.buildings.find(b => b.id === p.workTarget && b.hp > 0)
   const target = w.units.find(unit => unit.id === p.workTarget && unit.hp > 0)
   const fight = w.fights.find(b => b.id === p.workTarget)
+  if ([10, 11].includes(p.substate)) {
+    if (!target) return true
+    if (p.animationMode === 40) {
+      if (!p.stateObject || !w.effects.some(effect => effect.id === p.stateObject) || --p.timer < 1) {
+        Object.assign(p, { animationMode: 0, stateObject: 0, timer: 0 })
+        u.fighting = false
+        return true
+      }
+      return false
+    }
+    if (p.animationMode === 44) {
+      if (--p.timer < 1) Object.assign(p, { animationMode: 40, timer: 6 })
+      return false
+    }
+    if (p.animationMode === 45) {
+      if (!u.cooldown || --p.timer < 1) {
+        Object.assign(p, { animationMode: 0, timer: 0 })
+        return true
+      }
+      return false
+    }
+    if (!firewarriorReady(w, u, target)) restart = true
+    else if (u.cooldown) Object.assign(p, { animationMode: 45, timer: 32 })
+    else {
+      u.target = target.id
+      u.heading = Math.atan2(target.x - u.x, target.z - u.z)
+      u.fighting = true
+      setLivePersonAnimation(w, p, 15)
+      Object.assign(p, {
+        animationMode: 44,
+        stateObject: launchFirewarrior(w, u, target),
+        timer: (rules.animationDescriptors[p.draw].step + 1) * sprites.frameCounts[p.object],
+      })
+    }
+    return false
+  }
   if (!building && !target && !fight) restart = true
   else if (p.substate === 3 && building)
     restart = attackBuilding(w, u, p, building) === 'restart' || restart

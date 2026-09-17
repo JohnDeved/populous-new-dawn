@@ -39,6 +39,8 @@ test('Mission 15 ordinary Prison attack frees the captive and cancels the timer'
   Object.assign(brave, browserPosition(buildingOutsidePoint(buildingPose(prison))), {
     inside: null,
     native: null,
+    // This test isolates Prison attack ownership; live enemy Firewarriors now shoot it.
+    hp: 1000,
   })
   syncLivePersonCells(world)
   world.selected = [brave.id]

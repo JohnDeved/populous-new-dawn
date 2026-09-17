@@ -235,3 +235,30 @@ export function selectCombatTarget(w: CombatTargetWorld, p: CombatPerson, order:
   else reserveCombatTarget(target, p)
   return { target, type: choice?.type ?? 1 }
 }
+
+// 0x51d0b0's person-only model-6 slice. Nearby people win outright; otherwise
+// specialist classes win before ordinary people, with the native reservation fallback.
+export function selectFirewarriorTarget(
+  w: CombatTargetWorld,
+  p: CombatPerson,
+  order: AreaOrder,
+  ready: (target: CombatPerson) => boolean,
+  reserve = true
+) {
+  const candidates = collectTargets(w, p, order)
+    .filter((target): target is CombatPerson => target.class === 1 && ready(target))
+    .map(target => ({ target, distance: positionDistance(p, target) }))
+    .toSorted((a, b) => a.distance - b.distance)
+  if (!candidates.length) return null
+  const priority = (target: CombatPerson) =>
+    target.model === 8 ? 1 : target.model === 7 ? 2 : target.model === 6 ? 3 : 6
+  const nearby = candidates[0].distance < 0x481
+  const ordered = nearby
+    ? candidates
+    : candidates.toSorted((a, b) => priority(a.target) - priority(b.target))
+  const choice = nearby
+    ? ordered[0]
+    : ordered.find(({ target }) => !(target.flags4 & 0x200000)) ?? ordered[0]
+  if (reserve) reserveCombatTarget(choice.target, p)
+  return { target: choice.target, type: 2 }
+}

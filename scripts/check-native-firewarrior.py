@@ -10,6 +10,7 @@ executable = Path(sys.argv[1])
 oracle = root / ".tools/decomp/oracle/bin/python"
 subprocess.run([oracle, root / "scripts/probe-native-firewarrior.py", executable], check=True)
 subprocess.run([oracle, root / "scripts/probe-native-firewarrior-tower.py", executable], check=True)
+subprocess.run([oracle, root / "scripts/probe-native-firewarrior-auto.py", executable], check=True)
 
 browser = r"""
 import assert from 'node:assert/strict';
@@ -41,4 +42,4 @@ const admission=buildingAdmission(w,school);assert.ok(admission.activity&128);as
 assert.equal(worldTooltipObject(w,school.id)?.model,8);
 """
 subprocess.run(["npx", "tsx", "-e", browser], cwd=root, check=True)
-print("PASS: native/live ordinary and Guard-Tower Firewarrior paths, school restore and tooltip identity")
+print("PASS: native/live ordinary, automatic and Guard-Tower Firewarrior paths, school restore and tooltip identity")

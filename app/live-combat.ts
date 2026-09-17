@@ -14,6 +14,7 @@ import { shareCombatOrder, startCombatResponse } from './combat-orders.ts'
 import {
   detectCombatThreat,
   selectCombatTarget,
+  selectFirewarriorTarget,
   type AttackReservation,
   type CombatTarget,
   type CombatPerson,
@@ -166,6 +167,37 @@ export function selectLiveCombatTarget(
   return { ...result, owner }
 }
 
+export function selectLiveFirewarriorTarget(
+  w: World,
+  u: Unit,
+  order: { model: number; flags: number; a: number; b: number },
+  ready: (target: Unit) => boolean,
+  reserve = true
+) {
+  const source = combatPerson(u)
+  const center = { ...source, x: (order.a & 254) * 256, y: order.a & 0xfe00 }
+  const { world, owners } = combatWorld(w, center, Math.max(order.b & 255, order.b >>> 8) + 2)
+  const result = selectFirewarriorTarget(
+    world,
+    source,
+    order,
+    target => {
+      const owner = owners.get(target.id)
+      return !!owner && !('progress' in owner) && !('members' in owner) && ready(owner)
+    },
+    reserve
+  )
+  if (!result) return
+  const owner = owners.get(result.target.id) as Unit
+  if (reserve)
+    owner.attackReservation = {
+      flags4: result.target.flags4 & 0x300000,
+      reactionTimer: result.target.reactionTimer,
+      reactionDuration: result.target.reactionDuration,
+    }
+  return { ...result, owner }
+}
+
 function combatScan(
   w: World,
   p: Omit<Parameters<typeof automaticCombatScanner>[0], 'counter'>,
@@ -207,19 +239,45 @@ function startPreacherResponse(
   return id
 }
 
+function startFirewarriorResponse(
+  w: World,
+  u: Unit,
+  p: CombatPerson & OrderedPerson & { h: number },
+  peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
+  effects: OrderEffects,
+  ready: (target: Unit) => boolean
+) {
+  const range = engagementRange(p, currentPersonOrder(w.buildingOrders, p), false)
+  if (!range) return 0
+  const radius = Math.trunc(range / 2) * 2,
+    area = { model: 21, flags: 32, a: ((p.x >>> 8) & 254) | (p.y & 0xfe00), b: radius * 257 }
+  if (!selectLiveFirewarriorTarget(w, u, area, ready, false)) return 0
+  const id = allocatePersonOrder(w.buildingOrders)
+  if (!id) return 0
+  prepareCellOrder(w.buildingOrders.records[id], area, 32, w.land.categories)
+  p.flags2 = (p.flags2 | 16) >>> 0
+  attachPersonOrder(w.buildingOrders, p, id, -1, effects)
+  shareCombatOrder(w.buildingOrders, p, id, peers(), effects)
+  return id
+}
+
 // Live adapter for the already recovered 0x51e5e0/0x520480 allocator. The
 // caller owns actual person creation/adoption; this function only owns the scan.
 export function allocateLiveCombatResponse(
   w: World,
+  u: Unit,
   p: CombatPerson & OrderedPerson & { h: number; commandPhase: number },
   peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
-  effects: OrderEffects
+  effects: OrderEffects,
+  firewarriorReady: (target?: Unit) => boolean = () => false
 ) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  const scanner = combatScan(w, p, order)
-  if (scanner !== 'melee' && scanner !== 'preacher') return 0
+  const scanner = combatScan(w, p, order, false, firewarriorReady)
+  if (scanner !== 'melee' && scanner !== 'preacher' && scanner !== 'firewarrior') return 0
   if (order?.model === 27) return 0
   if (scanner === 'preacher') return startPreacherResponse(w, p, peers, effects)
+  if (scanner === 'firewarrior')
+    return startFirewarriorResponse(w, u, p, peers, effects, target => firewarriorReady(target))
   const range = engagementRange(p, order, false),
     { world } = combatWorld(w, p, range)
   startCombatResponse(world, w.buildingOrders, p, peers, effects)

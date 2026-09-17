@@ -37,7 +37,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 Recent reusable topic notes: [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
-[Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
+[Firewarrior launch, automatic response, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
 [Mission 12 opening](research/mission12-opening.md),

@@ -772,6 +772,7 @@
       "purpose": "Compare the bounded native Firewarrior launch and impact contract with the live simulation implementation.",
       "coveredBehavior": [
         "Paired projectile allocation and identity",
+        "On-foot shared automatic response, specialist target reservation, command lifetime, and repeated-volley ownership",
         "Range, cooldown, speed, target binding, and deletion",
         "Live paired motion and ordinary Brave impact",
         "Guard-Tower range extension, cooldown, elevated origin, and eligible-hostile targeting"
@@ -786,17 +787,20 @@
       "inputs": [
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior.py",
+        "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
         "app/firewarrior.ts",
         "app/combat-runtime.ts",
         "app/combat-targets.ts",
         "app/live-combat.ts",
+        "app/live-building-combat.ts",
         "app/live-building-entry.ts",
         "app/world-types.ts",
         "app/tooltips.ts",
         "app/original-rules.json",
         "decomp/research/firewarrior.md",
         "decomp/generated/0051f470.c",
+        "decomp/generated/0051d0b0.c",
         "decomp/requirements.txt",
         "decomp/sections.tsv"
       ],
@@ -820,6 +824,7 @@
         "Real Firewarrior Training Hut placement and construction",
         "Brave training and Firewarrior HUD selection",
         "Enemy input, paired ranged shots, GPU pixels, impact damage, and checkpoint restoration",
+        "Idle on-foot specialist selection and shared automatic command-21 response",
         "Real Guard Tower construction and garrison input, autonomous tower shots, kill credit, and occupied checkpoint restoration"
       ],
       "knownLimits": [

@@ -28,6 +28,7 @@ export function launchFirewarrior(w: World, source: Unit, target: Unit) {
       building => building.id === source.inside && building.kind === 'tower'
     ),
     yaw = nativeAngle(short(destination.x - origin.x), -short(destination.y - origin.y))
+  let tracked = 0
   const heightOffset = tower
     ? (source.entry?.person.supportHeight ?? source.supportHeight ?? 0) + 16
     : 80
@@ -44,12 +45,15 @@ export function launchFirewarrior(w: World, source: Unit, target: Unit) {
       remaining: 16,
       tower: !!tower,
       bloodlust: !!source.bloodlust,
+      destination: { ...destination, h: destination.h + 80 },
     }
+    tracked ||= fx.id
   }
   source.cooldown =
     (tower ? towerFirewarriorCooldown : firewarriorCooldown) /
     (source.bloodlust ? 1 << constants.BLOODLUST_SW_BLAST_X : 1)
   sound(w, 0xa1, source)
+  return tracked
 }
 
 export function stepTowerFirewarrior(w: World, source: Unit) {
@@ -62,19 +66,19 @@ export function stepTowerFirewarrior(w: World, source: Unit) {
   launchFirewarrior(w, source, target)
 }
 
-export function towerFirewarriorReady(w: World, source: Unit, target: Unit) {
+export function firewarriorReady(w: World, source: Unit, target: Unit, inTower = false) {
   const origin = nativePosition(w, source),
     destination = nativePosition(w, target),
-    person = source.entry?.person,
+    person = source.entry?.person ?? source.native,
     range = engagementRange(
       {
         model: 6,
-        state: person?.state ?? 21,
+        state: person?.state ?? source.native?.state ?? (inTower ? 21 : 17),
         commandStatus: person?.commandStatus ?? 0,
         h: origin.h,
       },
       undefined,
-      true
+      inTower
     ),
     threshold = range * 256 + 56
   return (
@@ -83,23 +87,30 @@ export function towerFirewarriorReady(w: World, source: Unit, target: Unit) {
   )
 }
 
+export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
+  firewarriorReady(w, source, target, true)
+
 export function stepFirewarriorShots(w: World) {
   for (const fx of w.effects.filter(effect => effect.firewarriorShot)) {
     const shot = fx.firewarriorShot!,
       target = w.units.find(unit => unit.id === shot.target && unit.hp > 0)
-    if (!target || !shot.remaining--) {
+    if (!shot.remaining--) {
       fx.duration = fx.age
       continue
     }
     const position = nativePosition(w, fx),
-      destination = nativePosition(w, target)
+      destination = target ? nativePosition(w, target) : shot.destination
+    if (!destination) {
+      fx.duration = fx.age
+      continue
+    }
     position.h = Math.round((fx.height ?? position.h / 45) * 45)
-    destination.h += 80
+    if (target) destination.h += 80
     if (nativeDistance(position, destination) <= 0x200) {
       // ponytail: this slice proves the ordinary Brave result. Add the native
       // target table, splash, protection, and LOS as those live paths land.
-      const source = w.units.find(unit => unit.id === shot.source),
-        damaged = applyUnitDamage(
+      const source = w.units.find(unit => unit.id === shot.source && unit.hp > 0),
+        damaged = target && applyUnitDamage(
           target,
           (shot.tower ? 25 : 10) * (shot.bloodlust ? constants.BLOODLUST_DAMAGE_X : 1)
         )
@@ -110,7 +121,7 @@ export function stepFirewarriorShots(w: World) {
         target.damageAttacker = attacker
         if (person) person.damageAttacker = attacker
       }
-      effect(w, 'hit', target)
+      if (target) effect(w, 'hit', target)
       fx.duration = fx.age
       continue
     }

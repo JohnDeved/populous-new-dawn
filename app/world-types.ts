@@ -361,6 +361,7 @@ export type Effect = Point & {
     remaining: number
     tower?: boolean
     bloodlust?: boolean
+    destination?: NativePoint
   }
   angel?: AngelState
 }

@@ -4,7 +4,7 @@ import { effectPixels, openGame } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
-  const { page, errors } = await openGame(browser)
+  const { page, errors } = await openGame(browser, 7)
   page.setDefaultTimeout(15_000)
   await page.evaluate(() => {
     const store = globalThis.testStore
@@ -277,6 +277,43 @@ try {
   }, target)
   assert.equal(impact.hp, target.hp - 20)
   assert.equal(impact.pairAlive, false)
+
+  const automatic = await page.evaluate(async ({ firewarrior, priorTarget }) => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts'),
+      { syncLivePersonCells } = await import('/app/live-people.ts'),
+      source = world.units.find(unit => unit.id === firewarrior),
+      prior = world.units.find(unit => unit.id === priorTarget),
+      enemy = world.units.find(unit => unit.team === 'red' && unit.kind === 'shaman')
+    if (!enemy) throw new Error('Mission 8 has no hostile Shaman for automatic Firewarrior response')
+    prior.hp = 0
+    Object.assign(source, { cooldown: 0, target: null, path: [] })
+    Object.assign(enemy, { x: source.x + 2, z: source.z, hp: 200 })
+    syncLivePersonCells(world)
+    let response = false,
+      shots = []
+    for (let turn = 0; shots.length !== 2 && turn < 16; turn++) {
+      tick(world, 1 / 12)
+      response ||=
+        !!source.native?.immediateCommand &&
+        world.buildingOrders.records[source.native.immediateCommand].model === 21
+      shots = world.effects.filter(effect => effect.firewarriorShot)
+    }
+    const result = {
+      response,
+      shots: shots.length,
+      targets: shots.map(shot => shot.firewarriorShot.target),
+      cooldown: source.cooldown,
+    }
+    enemy.hp = 0
+    source.target = null
+    return result
+  }, { firewarrior, priorTarget: target.id })
+  assert.equal(automatic.response, true)
+  assert.equal(automatic.shots, 2)
+  assert.ok(automatic.targets.every(id => id !== target.id))
+  assert.equal(automatic.cooldown, 25 / 12)
 
   await page.getByLabel('Select brave').click({ modifiers: ['Shift'] })
   await page.getByRole('button', { name: 'buildings B', exact: true }).click()

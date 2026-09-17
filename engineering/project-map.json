@@ -78,6 +78,7 @@
         "scripts/check-browser-ground-waypoints.mjs",
         "scripts/check-native-computer-attack.py",
         "scripts/probe-native-firewarrior.py",
+        "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
         "tests/automatic-boat-crossing.test.mjs",
         "tests/game.test.mjs"
@@ -537,6 +538,7 @@
         "scripts/check-native-mission22-gifts.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
+        "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
         "scripts/check-browser-mission7.mjs",
         "scripts/check-browser-mission4.mjs",

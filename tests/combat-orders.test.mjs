@@ -139,6 +139,66 @@ test('live same-cell followers share one automatic command 21 and resume their q
   assert.ok(units.every(u=>unitAnimationSource(u)===u.native))
 })
 
+test('an on-foot Firewarrior owns one automatic response per cooldown and yields to player movement', () => {
+  const w=field(), source=addUnit(w,'blue','firewarrior',{x:0,z:0}), near=addUnit(w,'red','preacher',{x:5,z:0}), target=addUnit(w,'red','firewarrior',{x:6,z:0})
+  near.hp=target.hp=200
+  const person=createLivePerson(w,source)
+  source.native=person;person.state=17;person.flags3|=0x800
+  assert.equal(startLiveCombatResponse(w,source),true)
+  assert.equal(w.buildingOrders.records[person.immediateCommand].model,21)
+  tick(w,1/12)
+  assert.equal(w.effects.filter(effect=>effect.firewarriorShot).length,2)
+  assert.ok(w.effects.filter(effect=>effect.firewarriorShot).every(effect=>effect.firewarriorShot.target===target.id))
+  assert.ok(person.immediateCommand)
+  assert.equal(person.animationMode,44)
+  assert.equal(source.cooldown,25/12)
+
+  const close=field(), closeShooter=addUnit(close,'blue','firewarrior',{x:0,z:0}), reserved=addUnit(close,'red','brave',{x:1,z:0})
+  addUnit(close,'red','firewarrior',{x:4,z:0})
+  reserved.attackReservation={flags4:0x200000,reactionTimer:0,reactionDuration:0}
+  closeShooter.native=createLivePerson(close,closeShooter);closeShooter.native.state=17;closeShooter.native.flags3|=0x800
+  assert.equal(startLiveCombatResponse(close,closeShooter),true);tick(close,1/12)
+  const closeShots=close.effects.filter(effect=>effect.firewarriorShot)
+  assert.equal(closeShots.length,2)
+  assert.ok(closeShots.every(effect=>effect.firewarriorShot.target===reserved.id))
+
+  for(let i=0;i<12&&person.immediateCommand;i++)tick(w,1/12)
+  assert.equal(person.immediateCommand,0)
+  assert.equal(source.target,null)
+
+  let previous=source.cooldown,repeated=false
+  for(let i=0;i<80&&!repeated;i++){
+    tick(w,1/12)
+    repeated=source.cooldown>previous
+    previous=source.cooldown
+  }
+  assert.equal(repeated,true)
+  assert.ok(person.immediateCommand)
+  w.selected=[source.id]
+  command(w,{x:8,z:0})
+  assert.equal(source.target,null)
+  assert.equal(source.native?.immediateCommand??0,0)
+  assert.equal(currentPersonOrder(w.buildingOrders,source.native)?.model,3)
+
+  const lost=field(), shooter=addUnit(lost,'blue','firewarrior',{x:0,z:0}), victim=addUnit(lost,'red','shaman',{x:2,z:0})
+  shooter.native=createLivePerson(lost,shooter);shooter.native.state=17;shooter.native.flags3|=0x800
+  assert.equal(startLiveCombatResponse(lost,shooter),true);tick(lost,1/12)
+  victim.hp=0;tick(lost,1/12)
+  assert.equal(shooter.target,null)
+  assert.equal(shooter.native?.immediateCommand??0,0)
+  assert.ok(lost.effects.some(effect=>effect.firewarriorShot),'launched shots finish after target loss')
+
+  const dead=field(), attacker=addUnit(dead,'blue','firewarrior',{x:0,z:0}), defender=addUnit(dead,'red','shaman',{x:2,z:0})
+  attacker.native=createLivePerson(dead,attacker);attacker.native.state=17;attacker.native.flags3|=0x800
+  assert.equal(startLiveCombatResponse(dead,attacker),true)
+  tick(dead,1/12)
+  assert.ok(dead.effects.some(effect=>effect.firewarriorShot))
+  attacker.hp=0
+  for(let i=0;i<20&&dead.effects.some(effect=>effect.firewarriorShot);i++)tick(dead,1/12)
+  assert.equal(dead.buildingOrders.active,0)
+  assert.notEqual(defender.damageAttacker,0,'a dead source cannot retain projectile credit')
+})
+
 test('automatic combat restarts a retained direct tree harvest instead of harvesting during battle', () => {
   const w=field(),u=addUnit(w,'blue','brave',{x:0,z:0}),tree={id:w.nextId++,x:1,z:0,model:1,logs:4}
   w.trees.push(tree);w.selected=[u.id];command(w,tree)
