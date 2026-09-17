@@ -13,15 +13,20 @@ The first such cell supplies the Boat's centered native X/Y coordinates and
 terrain height. The producer allocates class 4, model 1 for the building's
 tribe. For ordinary shore data its final heading is `shoreDirection << 8`; it
 sets navigation flags `0x8004`, removes the chosen worker from the house, and
-boards that worker. Human tribes eject the remaining occupants. The work
-accumulator resets to zero and the Boat House remains intact.
+boards that worker. The remaining-occupant loop runs only when tribe field
+`+0xc1f` is `1`; the mana probe maps that field to `playerType`, where type 1 is
+computer and type 2 is human. A four-occupant comparison therefore ejects the
+three remaining occupants for type 1, while type 2 retains them in their original
+physical slots. The work accumulator resets to zero and the Boat House remains intact.
 
 The non-recording isolated probe ran native `0x00406600` and descriptor reads,
 while supplying shape enumeration, allocation, height, routing, boarding, and
 other bounded leaves. Cases with no occupant, an ineligible occupant, timer
 599, 600, and 601 launched `false, false, false, true, true`. The positive cases
 allocated class 4/model 1/same tribe at the supplied dock cell and preserved the
-completed Boat House with timer zero.
+completed Boat House with timer zero. The bounded multi-occupant extension supplies
+`0x00407490` slot/count removal semantics: type 1 finishes with zero occupants, while
+type 2 removes only the boarded driver and retains three occupants in slots 1-3.
 
 Reviewed exports: `00406600.c` (producer), `0040b6d0.c` (dock-mask setup), and
 `00465580.c` (shore-heading helper). Existing Mission 5 evidence covers the

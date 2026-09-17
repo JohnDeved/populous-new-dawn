@@ -273,7 +273,9 @@ try {
   await page.mouse.move(1400, 50)
 
   // Ordinary entry: select existing Mission 9 Braves through the HUD and click the rendered house.
-  await page.getByRole('button', { name: 'Select brave', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Select brave', exact: true })
+    .click({ modifiers: ['Shift'] })
   const commanded = await page.evaluate(() => {
     const world = globalThis.testScene.world
     return world.selected.filter(id => {
@@ -287,30 +289,19 @@ try {
   await page.evaluate(() => {
     globalThis.testScene.world.speed = 8
   })
-  await page
-    .waitForFunction(
-      id => {
-        const world = globalThis.testScene.world
-        return world.units.some(
+  await page.waitForFunction(
+    houseId => {
+      const world = globalThis.testScene.world,
+        house = world.buildings.find(building => building.id === houseId),
+        inside = world.units.filter(
           unit =>
-            unit.id === id &&
-            unit.inside !== null &&
-            world.buildings.some(b => b.id === unit.inside && b.kind === 'boatHouse')
+            unit.inside === houseId && unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0
         )
-      },
-      commanded[0],
-      { timeout: 30_000 }
-    )
-    .catch(async () => {
-      await page.waitForFunction(
-        houseId =>
-          globalThis.testScene.world.units.some(
-            unit => unit.inside === houseId && unit.team === 'blue' && unit.kind === 'brave'
-          ),
-        houseId,
-        { timeout: 30_000 }
-      )
-    })
+      return house?.admission?.inside === 4 && inside.length === 4
+    },
+    houseId,
+    { timeout: 30_000 }
+  )
   const residentIds = await page.evaluate(id => {
     const scene = globalThis.testScene,
       world = scene.world,
@@ -319,7 +310,7 @@ try {
     scene.onChange()
     return world.units.filter(unit => unit.inside === house.id && unit.hp > 0).map(unit => unit.id)
   }, houseId)
-  assert.ok(residentIds.length > 0 && residentIds.length <= 4, JSON.stringify(residentIds))
+  assert.equal(residentIds.length, 4, JSON.stringify(residentIds))
   assert.ok(
     residentIds.some(id => commanded.includes(id)),
     'at least one HUD-commanded Brave must enter normally'
@@ -400,13 +391,21 @@ try {
         boat = world.vehicles.find(vehicle => vehicle.active && vehicle.model === 1)
       world.speed = 0
       scene.onChange()
+      const driver = boat.passengers[0],
+        remaining = residents.filter(id => id !== driver),
+        admissionSlots = [...house.admission.occupants]
       return {
         timer: house.timer,
         launched: house.boatLaunched,
+        driver,
         passengers: [...boat.passengers],
-        residentStillInside: residents.filter(
+        driverInside: world.units.find(unit => unit.id === driver)?.inside ?? null,
+        remaining,
+        remainingInside: remaining.filter(
           id => world.units.find(unit => unit.id === id)?.inside === houseId
         ),
+        admissionInside: house.admission.inside,
+        admissionSlots,
         liveInside: world.units
           .filter(unit => unit.inside === houseId && unit.hp > 0)
           .map(unit => unit.id),
@@ -416,20 +415,45 @@ try {
   )
   assert.equal(launched.timer, 0)
   assert.equal(launched.launched, true)
-  assert.ok(
-    launched.passengers.some(id => residentIds.includes(id)),
-    JSON.stringify(launched)
+  assert.ok(residentIds.includes(launched.driver), JSON.stringify(launched))
+  assert.deepEqual(launched.passengers, [launched.driver])
+  assert.equal(launched.driverInside, null)
+  assert.equal(launched.admissionInside, launched.remaining.length)
+  assert.equal(launched.admissionSlots.includes(launched.driver), false)
+  assert.deepEqual(
+    launched.admissionSlots.filter(Boolean).toSorted((a, b) => a - b),
+    launched.remaining.toSorted((a, b) => a - b)
   )
-  assert.deepEqual(launched.residentStillInside, [])
-  assert.deepEqual(launched.liveInside, [])
+  assert.deepEqual(
+    launched.remainingInside.toSorted((a, b) => a - b),
+    launched.remaining.toSorted((a, b) => a - b)
+  )
+  assert.deepEqual(
+    launched.liveInside.toSorted((a, b) => a - b),
+    launched.remaining.toSorted((a, b) => a - b)
+  )
 
-  // The retained house remains hoverable and must not expose stale resident slots after launch.
+  // Native playerType 2 retains non-driver occupants; the driver slot alone must disappear.
   await hoverHouse()
   assert.equal(
     await panel.getAttribute('aria-label'),
-    'Boat House: 0 of 4 workers; 0 of 6 Boat work'
+    `Boat House: ${launched.remaining.length} of 4 workers; 0 of 6 Boat work`
   )
-  assert.equal(await panel.locator('button:not(.dismantle-control):not([hidden])').count(), 0)
+  const retainedWorkers = panel.locator('button:not(.dismantle-control):not([hidden])')
+  assert.equal(await retainedWorkers.count(), launched.remaining.length)
+  const retainedIds = await retainedWorkers.evaluateAll(buttons =>
+    buttons.map(button => Number(button.dataset.person))
+  )
+  assert.equal(retainedIds.includes(launched.driver), false)
+  assert.deepEqual(
+    retainedIds.toSorted((a, b) => a - b),
+    launched.remaining.toSorted((a, b) => a - b)
+  )
+  await page.evaluate(() => {
+    globalThis.testScene.world.selected = []
+  })
+  await retainedWorkers.first().click()
+  assert.deepEqual(await page.evaluate(() => globalThis.testScene.world.selected), [retainedIds[0]])
   assert.deepEqual(errors, [])
 
   const evidence = {
@@ -446,13 +470,16 @@ try {
       dismantleToggle: true,
       partialWork: partial,
       launched: true,
-      staleSlotsCleared: true,
+      driverSlotCleared: true,
+      retainedHumanOccupants: launched.remaining.length,
+      retainedOccupantsSelectable: true,
     },
     controlledBoundaries: {
       authoredShamanMovedToVaultEntrance: true,
       unlockAndConstructionSimulationAccelerated: true,
       noBuildingOrResidentInjection: true,
       noHoveredObjectAssignment: true,
+      multiBraveHudSelection: true,
     },
   }
   writeFileSync(
@@ -461,7 +488,7 @@ try {
   )
   await page.screenshot({ path: resolve(output, 'boat-house-menu.png') })
   console.log(
-    'PASS: Mission 9 Boat House uses real unlock/place/entry and genuine pointer ScenePicking menu opening; occupant selection/focus, dismantle/cancel, live work blocks, launch and stale-slot cleanup pass',
+    'PASS: Mission 9 Boat House uses real unlock/place/entry and genuine pointer ScenePicking menu opening; occupant selection/focus, dismantle/cancel, live work blocks, driver boarding/removal and native type-2 retained occupants pass',
     evidence
   )
 } finally {
