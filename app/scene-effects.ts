@@ -24,6 +24,22 @@ import { animationTeam, tribeForTeam } from './world-types.ts'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { shamanAppearance, shamanNativeDirections, shamanReincarnationPose } from './shaman-appearance.ts'
 
+export function makeVaultKnowledgeMarker(frame: number) {
+  const g = new THREE.Group()
+  g.name = 'vault-knowledge-reward'
+  g.userData.layers = []
+  g.userData.owner = 0
+  g.userData.draw = 0
+  g.userData.drawFlags = 6
+  g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [frame], flip: false }))
+  return g
+}
+
+export function animateVaultKnowledgeMarker(scene: GameScene, g: THREE.Group, visible: boolean) {
+  g.visible = visible
+  if (visible) scene.animatePerson(g, 0, g.userData.directions, 0)
+}
+
 export function makeFx(scene: GameScene, f: Effect) {
   const g = new THREE.Group()
   if (f.swamp) {

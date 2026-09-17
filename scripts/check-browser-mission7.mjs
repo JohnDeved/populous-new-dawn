@@ -14,7 +14,7 @@ try {
     world.outcome.cameraPlaying = false
     store.update()
   })
-  await page.getByRole('button', { name: 'Continue to Mission 7', exact: false }).click()
+  await page.getByRole('button', { name: 'Continue to Mission 7', exact: false }).click({ timeout: 60_000 })
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 7)
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()

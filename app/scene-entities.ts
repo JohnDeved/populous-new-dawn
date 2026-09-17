@@ -50,6 +50,12 @@ import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, teamForTribe, tribeForTeam } from './world-types.ts'
+import {
+  vaultKnowledgeFrame,
+  vaultKnowledgePlacement,
+  vaultKnowledgeVisible,
+} from './vault-appearance.ts'
+import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
 
 const teamColor = {
   blue: 0x303fc1,
@@ -202,6 +208,17 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
   scene.orientModel(g, shrine.angle)
   scene.objects.add(g)
   g.userData.shrine = shrine.id
+  if (shrine.kind === 'vault') {
+    const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel)
+    if (frame !== null) {
+      const marker = makeVaultKnowledgeMarker(frame),
+        placement = vaultKnowledgePlacement(shrine)
+      scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
+      marker.userData.cellPosition = placement
+      scene.objects.add(marker)
+      g.userData.vaultKnowledgeMarker = marker
+    }
+  }
   scene.shrineMeshes.set(shrine.id, { g })
 }
 
@@ -567,6 +584,11 @@ export function updateBuildingsFrame(scene: GameScene) {
 export function updateShrinesFrame(scene: GameScene) {
   for (const [id, entry] of scene.shrineMeshes)
     if (!scene.world.shrines.some(s => s.id === id && s.model)) {
+      const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
+      if (marker) {
+        scene.objects.remove(marker)
+        scene.releaseGroup(marker)
+      }
       scene.objects.remove(entry.g)
       scene.releaseGroup(entry.g)
       scene.shrineMeshes.delete(id)
@@ -578,6 +600,13 @@ export function updateShrinesFrame(scene: GameScene) {
     if (!entry) continue
     scene.locate(entry.g, shrine)
     scene.orientModel(entry.g, shrine.angle)
+    const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
+    if (marker) {
+      const placement = vaultKnowledgePlacement(shrine)
+      scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
+      marker.userData.cellPosition = placement
+      animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
+    }
     let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
     if (mesh.userData.nativeModel !== shrine.model) {
       entry.g.remove(mesh)
