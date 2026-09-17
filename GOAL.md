@@ -53,12 +53,13 @@ fault before its native deadline; leaving it unsealed produces the warning and o
 Volcano. Both outcomes survive checkpoints without replay. Later fault pairs, AI,
 victory, and exact class-7/model-39 presentation remain separate work.
 
-Mission 22's authored solo-Shaman opening and first gift/transport slice finished in
-this feature commit. Ordinary Land Bridge work reaches the delayed 600,000-mana
-gift; the separate presentation-only head grants no resources; and a Swarm-assisted
-approach reaches the empty Red Boat, whose first passenger claims it before a
-checkpointed sail and landing. The independent 1,000,000-mana head, Yellow Balloon,
-exact stone presentation, AI, objective, and natural outcome remain separate work.
+Mission 22's authored solo-Shaman opening and both gift/transport routes finished in
+this feature commit. The Shaman claims the empty Red Boat, reaches the delayed
+600,000-mana gift, builds to and claims the empty Yellow Balloon, then flies to the
+delayed 1,000,000-mana head and returns safely; first-passenger ownership, worship,
+travel, landings, and occupied checkpoints use shipped controls. The separate
+presentation-only head grants no resources. Exact stone presentation, AI, objective,
+and natural outcome remain separate work.
 
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
 cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173

@@ -112,74 +112,26 @@ async function vehicleClickPoint(page, vehicleId) {
   }, vehicleId)
 }
 
-async function vehicleLandingTarget(page, vehicleId) {
-  return page.evaluate(async id => {
-    const scene = globalThis.testScene,
-      world = scene.world,
-      { browserPosition, nativePosition } = await import('/app/model.ts'),
-      { liveCommandContext } = await import('/app/live-command.ts'),
-      { liveVehicleCellObjects } = await import('/app/live-vehicles.ts'),
-      { vehicleCanDisembark } = await import('/app/vehicle-routing.ts'),
-      vehicle = world.vehicles.find(candidate => candidate.id === id),
-      land = {
-        flags: world.land.flags,
-        categories: world.land.categories,
-        cellObjects: cell => liveVehicleCellObjects(world, cell),
-      },
-      candidates = []
-    if (!vehicle.passengers.some(passenger => world.selected.includes(passenger)))
-      throw new Error('Boat passenger is not selected through player controls')
-    world.mode = null
-    for (let y = 0; y < 256; y += 2)
-      for (let x = 0; x < 256; x += 2) {
-        const point = { x: (x + 1) * 256, y: (y + 1) * 256 },
-          distance = Math.hypot(
-            ((point.x - vehicle.x) << 16) >> 16,
-            ((point.y - vehicle.y) << 16) >> 16
-          )
-        if (distance > 3_000 && distance < 10_000 && vehicleCanDisembark(land, vehicle, point))
-          candidates.push([distance, point])
-      }
-    for (const [, point] of candidates.sort((a, b) => a[0] - b[0])) {
-      const target = browserPosition({ x: point.x + 73, y: point.y + 119 })
-      if (target.x >= 20) continue
-      scene.focus(target)
-      for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
-        scene.updateCameraMotion(1 / 24)
-      scene.onChange()
-      scene.renderer.render(scene.scene, scene.camera)
-      const projected = scene.screen(target),
-        bounds = scene.container.getBoundingClientRect(),
-        screen = {
-          x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
-          y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
-        },
-        event = { clientX: screen.x, clientY: screen.y },
-        picked = scene.pick(event)
-      if (
-        picked &&
-        document.elementFromPoint(screen.x, screen.y) === scene.renderer.domElement &&
-        !scene.pickUnit(event) &&
-        !scene.pickWorldObject(event) &&
-        vehicleCanDisembark(land, vehicle, nativePosition(world, picked)) &&
-        liveCommandContext(world, picked)?.enabled
-      )
-        return screen
-    }
-    throw new Error('No exposed Boat landing target')
-  }, vehicleId)
-}
-
 async function focusSpell(page, id, name) {
-  const otherNames = await page.evaluate(async selected => {
+  const charging = await page.evaluate(async selected => {
     const world = globalThis.testScene.world,
-      { SPELLS } = await import('/app/world-rules.ts')
-    return SPELLS.filter(
-      spell => spell.id !== selected && world.manaWorld.spells[0].available & (1 << spell.model)
-    ).map(spell => spell.name)
+      stock = world.manaWorld.spells[0],
+      { SPELLS } = await import('/app/world-rules.ts'),
+      spell = SPELLS.find(candidate => candidate.id === selected)
+    return {
+      enableSelected: !!(stock.disabled & (1 << (spell.model - 1))),
+      otherNames: SPELLS.filter(
+        candidate =>
+          candidate.id !== selected &&
+          stock.available & (1 << candidate.model) &&
+          !(stock.disabled & (1 << (candidate.model - 1)))
+      ).map(candidate => candidate.name),
+    }
   }, id)
-  for (const other of otherNames)
+  for (const other of charging.otherNames)
     await page.getByRole('button', { name: new RegExp(`^${other},`) }).click({ button: 'right' })
+  if (charging.enableSelected)
+    await page.getByRole('button', { name: new RegExp(`^${name},`) }).click({ button: 'right' })
   return page.evaluate(async selected => {
     const scene = globalThis.testScene,
       world = scene.world,
@@ -372,7 +324,7 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  const landing = await vehicleLandingTarget(page, boatId)
+  const landing = await terrainClickPoint(page, { x: -25, z: -63 })
   await page.mouse.click(landing.x, landing.y)
   assert.deepEqual(
     await page.evaluate(async id => {
@@ -386,8 +338,228 @@ try {
     ['blue', 0, 100, 0]
   )
 
+  const southernHeadId = await page.evaluate(() =>
+    globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 600_000).id
+  )
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  const southernHead = await shrineClickPoint(page, southernHeadId)
+  await page.mouse.click(southernHead.x, southernHead.y)
+  assert.equal(
+    await page.evaluate(async id => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        head = world.shrines.find(shrine => shrine.id === id)
+      for (let turn = 0; head.uses !== 1 && turn < 700; turn++) tick(world, 1 / 12)
+      return head.uses
+    }, southernHeadId),
+    1
+  )
+  await focusSpell(page, 'bridge', 'Land Bridge')
+  await focusSpell(page, 'swarm', 'Swarm')
+
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  const returnBoat = await vehicleClickPoint(page, boatId)
+  await page.mouse.click(returnBoat.x, returnBoat.y)
+  assert.equal(
+    await page.evaluate(async id => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        boat = world.vehicles.find(vehicle => vehicle.id === id)
+      for (let turn = 0; !boat.passengerCount && turn < 500; turn++) tick(world, 1 / 12)
+      return boat.passengerCount
+    }, boatId),
+    1
+  )
+  const balloonShore = await terrainClickPoint(page, { x: -83, z: -57 })
+  await page.mouse.click(balloonShore.x, balloonShore.y)
+  assert.equal(
+    await page.evaluate(async id => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        boat = world.vehicles.find(vehicle => vehicle.id === id)
+      for (let turn = 0; boat.passengerCount && turn < 2_000; turn++) tick(world, 1 / 12)
+      return boat.passengerCount
+    }, boatId),
+    0
+  )
+
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  const balloonBridge = await terrainClickPoint(page, { x: -83, z: -69 }, 'bridge')
+  await page.getByRole('button', { name: /Land Bridge, [1-9] shots/ }).click()
+  await page.mouse.click(balloonBridge.x, balloonBridge.y)
+  const balloonId = await page.evaluate(async () => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { tick } = await import('/app/model.ts'),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+    for (let turn = 0; shaman.casting && turn < 100; turn++) tick(world, 1 / 12)
+    for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
+    world.speed = 0
+    scene.onChange()
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    return world.vehicles.find(vehicle => vehicle.model === 3).id
+  })
+  const balloonPoint = await vehicleClickPoint(page, balloonId)
+  await page.mouse.click(balloonPoint.x, balloonPoint.y)
+  assert.deepEqual(
+    await page.evaluate(async id => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        balloon = world.vehicles.find(vehicle => vehicle.id === id),
+        shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+      for (let turn = 0; !balloon.passengerCount && turn < 1_000; turn++) tick(world, 1 / 12)
+      return [balloon.team, balloon.passengerCount, shaman.native?.vehicle]
+    }, balloonId),
+    ['blue', 1, balloonId]
+  )
+  await page.evaluate(() => globalThis.testStore.saveCheckpoint())
+  await page.evaluate(() => globalThis.testStore.loadCheckpoint())
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+
+  const northernLanding = await terrainClickPoint(page, { x: 55, z: 121 })
+  await page.mouse.click(northernLanding.x, northernLanding.y)
+  assert.equal(
+    await page.evaluate(async id => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        balloon = world.vehicles.find(vehicle => vehicle.id === id)
+      for (let turn = 0; balloon.passengerCount && turn < 2_000; turn++) tick(world, 1 / 12)
+      return balloon.passengerCount
+    }, balloonId),
+    0
+  )
+  const priorSwarms = await page.evaluate(() =>
+    globalThis.testScene.world.effects.filter(effect => effect.swarm).map(effect => effect.id)
+  )
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  const northernSwarm = await terrainClickPoint(page, { x: 55, z: 121 }, 'swarm')
+  await page.getByRole('button', { name: /^Swarm, [1-9] shots$/ }).click()
+  await page.mouse.click(northernSwarm.x, northernSwarm.y)
+  await page.evaluate(async ids => {
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts')
+    for (
+      let turn = 0;
+      !world.effects.some(effect => effect.swarm?.applied && !ids.includes(effect.id)) && turn < 100;
+      turn++
+    )
+      tick(world, 1 / 12)
+    if (!world.effects.some(effect => effect.swarm?.applied && !ids.includes(effect.id)))
+      throw new Error('Rendered northern Swarm missed')
+  }, priorSwarms)
+  const northernHeadId = await page.evaluate(() =>
+    globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 1_000_000).id
+  )
+  const northernHead = await shrineClickPoint(page, northernHeadId)
+  await page.mouse.click(northernHead.x, northernHead.y)
+  const northernCompletion = await page.evaluate(async ({ headId, balloonId }) => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        head = world.shrines.find(shrine => shrine.id === headId),
+        balloon = world.vehicles.find(vehicle => vehicle.id === balloonId)
+      for (let turn = 0; head.uses !== 1 && turn < 700; turn++) tick(world, 1 / 12)
+      for (let turn = 0; world.effects.some(effect => effect.reward === 'mana') && turn < 100; turn++)
+        tick(world, 1 / 12)
+      return [
+        head.active,
+        head.uses,
+        head.rewardDelay,
+        world.effects.some(effect => effect.reward === 'mana'),
+        world.manaTribes[0].pending,
+        balloon.team,
+        balloon.passengerCount,
+      ]
+    }, { headId: northernHeadId, balloonId })
+  assert.deepEqual(northernCompletion.slice(0, 4), [false, 1, 0, false])
+  assert.ok(northernCompletion[4] >= 990_000)
+  assert.deepEqual(northernCompletion.slice(5), ['blue', 0])
+  await page.evaluate(() => globalThis.testStore.saveCheckpoint())
+  await page.evaluate(() => globalThis.testStore.loadCheckpoint())
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  assert.deepEqual(
+    await page.evaluate(({ headId, balloonId }) => {
+      const world = globalThis.testScene.world,
+        head = world.shrines.find(shrine => shrine.id === headId),
+        balloon = world.vehicles.find(vehicle => vehicle.id === balloonId)
+      return [
+        head.active,
+        head.uses,
+        head.rewardDelay,
+        world.effects.some(effect => effect.reward === 'mana'),
+        world.manaTribes[0].pending,
+        balloon.team,
+        balloon.passengerCount,
+      ]
+    }, { headId: northernHeadId, balloonId }),
+    northernCompletion
+  )
+
+  const returnBalloon = await vehicleClickPoint(page, balloonId)
+  await page.mouse.click(returnBalloon.x, returnBalloon.y)
+  const returnBoarding = await page.evaluate(async ({ id, previousPending, headId }) => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        balloon = world.vehicles.find(vehicle => vehicle.id === id),
+        head = world.shrines.find(shrine => shrine.id === headId)
+      for (let turn = 0; !balloon.passengerCount && turn < 1_000; turn++) {
+        tick(world, 1 / 12)
+        if (
+          head.active ||
+          head.uses !== 1 ||
+          head.rewardDelay ||
+          world.effects.some(effect => effect.reward === 'mana') ||
+          world.manaTribes[0].pending > previousPending
+        )
+          throw new Error('Northern mana gift replayed after checkpoint restore')
+        previousPending = world.manaTribes[0].pending
+      }
+      return [balloon.passengerCount, previousPending]
+    }, { id: balloonId, previousPending: northernCompletion[4], headId: northernHeadId })
+  assert.equal(returnBoarding[0], 1)
+  const safeLanding = await terrainClickPoint(page, { x: -29, z: -33 })
+  await page.mouse.click(safeLanding.x, safeLanding.y)
+  const returned = await page.evaluate(async ({ balloonId, headId, previousPending }) => {
+      const world = globalThis.testScene.world,
+        { tick } = await import('/app/model.ts'),
+        balloon = world.vehicles.find(vehicle => vehicle.id === balloonId),
+        head = world.shrines.find(shrine => shrine.id === headId),
+        shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+      for (let turn = 0; balloon.passengerCount && turn < 2_000; turn++) {
+        tick(world, 1 / 12)
+        if (
+          head.active ||
+          head.uses !== 1 ||
+          head.rewardDelay ||
+          world.effects.some(effect => effect.reward === 'mana') ||
+          world.manaTribes[0].pending > previousPending
+        )
+          throw new Error('Northern mana gift replayed during the return flight')
+        previousPending = world.manaTribes[0].pending
+      }
+      return [
+        balloon.team,
+        balloon.passengerCount,
+        shaman.hp,
+        shaman.native?.vehicle,
+        head.active,
+        head.uses,
+        head.rewardDelay,
+        world.effects.some(effect => effect.reward === 'mana'),
+        world.manaTribes[0].pending,
+      ]
+    }, { balloonId, headId: northernHeadId, previousPending: returnBoarding[1] })
+  assert.deepEqual(returned.slice(0, 8), ['blue', 0, 100, 0, false, 1, 0, false])
+  assert.ok(returned[8] <= northernCompletion[4])
+
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 22 solo mana gift, enemy Boat claim, checkpoint, sailing, and landing')
+  console.log('PASS: Mission 22 solo gifts, Boat and Balloon claims, checkpoint, travel, and landing')
 } finally {
   await browser.close()
 }

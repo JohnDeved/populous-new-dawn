@@ -528,9 +528,20 @@ export default function Home() {
                                         ),
                                       },
                                       {
-                                        text: 'Steal an enemy Boat or Balloon',
-                                        done: world.vehicles.some(
-                                          vehicle => vehicle.team === 'blue'
+                                        text: 'Steal the enemy Boat and Balloon',
+                                        done: [1, 3].every(model =>
+                                          world.vehicles.some(
+                                            vehicle => vehicle.model === model && vehicle.team === 'blue'
+                                          )
+                                        ),
+                                      },
+                                      {
+                                        text: 'Fly north and claim the final mana gift',
+                                        done: world.shrines.some(
+                                          shrine =>
+                                            shrine.kind === 'mana' &&
+                                            shrine.rewardMana === 1_000_000 &&
+                                            shrine.uses > 0
                                         ),
                                       },
                                     ]

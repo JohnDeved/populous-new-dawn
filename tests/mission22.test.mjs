@@ -186,3 +186,121 @@ test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat',
   assert.equal(shaman.hp, 100)
   assert.equal(boat.team, 'blue')
 })
+
+test('Mission 22 Shaman can claim the authored Balloon and complete the northern mana route', () => {
+  let world = createWorld(22),
+    shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+    balloon = world.vehicles.find(vehicle => vehicle.model === 3),
+    boat = world.vehicles.find(vehicle => vehicle.model === 1),
+    south = world.shrines.find(shrine => shrine.rewardMana === 600_000),
+    north = world.shrines.find(shrine => shrine.rewardMana === 1_000_000)
+
+  focusCharging(world, 5)
+  stepUntil(world, () => world.shots.swarm > 0, 1_500)
+  moveShaman(world, shaman, { x: 0, z: -45 })
+  moveShaman(world, shaman, { x: 20, z: -45 })
+  assert.ok(cast(world, 'swarm', { x: 27, z: -29 }))
+  stepUntil(world, () => world.effects.some(effect => effect.swarm?.applied), 100)
+
+  world.selected = [shaman.id]
+  assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
+  stepUntil(world, () => boat.passengerCount === 1, 500)
+  assert.ok(command(world, { x: -25, z: -63 }))
+  stepUntil(world, () => boat.passengerCount === 0, 2_000)
+
+  world.charging = true
+  world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 4) & ~(1 << 11)
+  world.selected = [shaman.id]
+  assert.ok(command(world, { ...south, id: south.id }))
+  stepUntil(world, () => south.rewardDelay === 50, 500)
+  stepUntil(world, () => south.uses === 1, 150)
+  stepUntil(world, () => world.shots.swarm > 0 && world.shots.bridge > 0, 2_000)
+
+  world.selected = [shaman.id]
+  assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
+  stepUntil(world, () => boat.passengerCount === 1, 500)
+  assert.ok(command(world, { x: -83, z: -57 }))
+  stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
+  stepUntil(world, () => !shaman.casting, 100)
+  for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
+
+  world.selected = [shaman.id]
+  assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
+  stepUntil(world, () => balloon.passengerCount === 1, 1_000)
+  assert.deepEqual([balloon.team, balloon.passengers, shaman.native.vehicle], [
+    'blue',
+    [shaman.id],
+    balloon.id,
+  ])
+
+  world = migrateCheckpoint(structuredClone(world))
+  shaman = world.units.find(unit => unit.id === shaman.id)
+  balloon = world.vehicles.find(vehicle => vehicle.id === balloon.id)
+  north = world.shrines.find(shrine => shrine.id === north.id)
+  assert.deepEqual([balloon.team, balloon.passengers, shaman.native.vehicle], [
+    'blue',
+    [shaman.id],
+    balloon.id,
+  ])
+
+  world.selected = [shaman.id]
+  assert.ok(command(world, { x: 55, z: 121 }))
+  stepUntil(world, () => balloon.passengerCount === 0, 2_000)
+  const priorSwarms = new Set(world.effects.filter(effect => effect.swarm).map(effect => effect.id))
+  assert.ok(cast(world, 'swarm', { x: 55, z: 121 }))
+  stepUntil(
+    world,
+    () => world.effects.some(effect => effect.swarm?.applied && !priorSwarms.has(effect.id)),
+    100
+  )
+  world.selected = [shaman.id]
+  assert.ok(command(world, { ...north, id: north.id }))
+  stepUntil(world, () => north.rewardDelay === 50, 500)
+  stepUntil(world, () => north.uses === 1, 150)
+  stepUntil(world, () => !world.effects.some(effect => effect.reward === 'mana'), 100)
+  assert.ok(world.manaTribes[0].pending >= 990_000)
+
+  const pending = world.manaTribes[0].pending
+  world = migrateCheckpoint(structuredClone(world))
+  shaman = world.units.find(unit => unit.id === shaman.id)
+  balloon = world.vehicles.find(vehicle => vehicle.id === balloon.id)
+  north = world.shrines.find(shrine => shrine.id === north.id)
+  assert.deepEqual(
+    [
+      north.active,
+      north.uses,
+      north.rewardDelay,
+      world.effects.some(effect => effect.reward === 'mana'),
+      world.manaTribes[0].pending,
+      balloon.team,
+      balloon.passengerCount,
+    ],
+    [false, 1, 0, false, pending, 'blue', 0]
+  )
+  let previousPending = pending
+  const continueWithoutReplay = (done, limit) => {
+    for (let turn = 0; turn < limit; turn++) {
+      tick(world, 1 / 12)
+      assert.deepEqual(
+        [north.active, north.uses, north.rewardDelay, world.effects.some(effect => effect.reward === 'mana')],
+        [false, 1, 0, false]
+      )
+      assert.ok(world.manaTribes[0].pending <= previousPending)
+      previousPending = world.manaTribes[0].pending
+      if (done()) return
+    }
+    assert.fail(`condition timed out at turn ${world.turn}`)
+  }
+
+  world.selected = [shaman.id]
+  assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
+  continueWithoutReplay(() => balloon.passengerCount === 1, 1_000)
+  assert.ok(command(world, { x: -29, z: -33 }))
+  continueWithoutReplay(() => balloon.passengerCount === 0, 2_000)
+  assert.deepEqual([balloon.team, shaman.native.vehicle, shaman.hp], ['blue', 0, 100])
+  assert.deepEqual(
+    [north.active, north.uses, north.rewardDelay, world.effects.some(effect => effect.reward === 'mana')],
+    [false, 1, 0, false]
+  )
+})
