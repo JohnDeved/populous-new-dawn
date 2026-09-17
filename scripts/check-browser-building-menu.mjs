@@ -88,6 +88,87 @@ try {
     const image = texture('hud').image
     return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
   })
+
+  const panel = page.locator('.training-panel:not(.construction-panel):not(.tower-panel):not([hidden])')
+  const authored = await page.evaluate(() => {
+    const s = window.testScene,
+      w = s.world,
+      hut = w.buildings.find(b => b.team === 'blue' && b.kind === 'hut' && b.progress >= 1 && b.hp > 0)
+    if (!hut) throw new Error('Mission 1 authored hut acceptance path is unavailable')
+    w.speed = 0
+    s.focus(hut)
+    s.startGroundView(3)
+    for (let i = 0; i < 18; i++) s.updateCameraMotion(1 / 24)
+    s.onChange()
+    s.renderer.render(s.scene, s.camera)
+    return { hutId: hut.id }
+  })
+  const authoredPoint = await page.evaluate(id => {
+    const s = window.testScene,
+      hut = s.world.buildings.find(b => b.id === id),
+      projected = s.screen(hut),
+      bounds = s.renderer.domElement.getBoundingClientRect(),
+      cx = bounds.left + ((projected.x + 1) * bounds.width) / 2,
+      cy = bounds.top + ((1 - projected.y) * bounds.height) / 2
+    for (let dy = -120; dy <= 40; dy += 3)
+      for (let dx = -70; dx <= 70; dx += 3) {
+        const event = { clientX: cx + dx, clientY: cy + dy }
+        if (
+          document.elementFromPoint(event.clientX, event.clientY) === s.renderer.domElement &&
+          s.picking.pick(event) === id
+        ) return { x: event.clientX, y: event.clientY }
+      }
+    throw new Error(`No rendered ScenePicking hit point for authored hut ${id}`)
+  }, authored.hutId)
+
+  await page.getByLabel('Select brave').click()
+  const commanded = await page.evaluate(() => {
+    const s = window.testScene
+    return s.world.selected.filter(id => {
+      const unit = s.world.units.find(candidate => candidate.id === id)
+      return unit?.team === 'blue' && unit.kind === 'brave' && unit.hp > 0 && unit.inside === null
+    })
+  })
+  assert.ok(commanded.length > 0, 'Mission 1 HUD must select at least one authored living Brave for housing entry')
+  await page.mouse.click(authoredPoint.x, authoredPoint.y)
+  await page.evaluate(() => { window.testScene.world.speed = 8 })
+  await page.waitForFunction(id => {
+    const s = window.testScene, b = s.world.buildings.find(candidate => candidate.id === id)
+    return b?.admission?.inside === 3 && b.admission.occupants.filter(person => person && s.world.units.find(u => u.id === person)?.inside === id).length === 3
+  }, authored.hutId)
+  const authoredResident = await page.evaluate(id => {
+    const s = window.testScene, b = s.world.buildings.find(candidate => candidate.id === id)
+    s.world.speed = 0
+    const resident = b.admission.occupants.find(person => person && s.world.units.find(u => u.id === person)?.inside === id)
+    if (!resident) throw new Error(`Authored hut ${id} has no live resident after ordinary entry`)
+    return resident
+  }, authored.hutId)
+
+  await page.mouse.move(1400, 50)
+  await page.waitForFunction(() => window.testScene.hoveredObject === null)
+  await page.mouse.move(authoredPoint.x, authoredPoint.y)
+  await page.waitForFunction(({ hutId, x, y }) => {
+    const s = window.testScene
+    return s.hoveredObject === hutId && s.picking.pick({ clientX: x, clientY: y }) === hutId
+  }, { hutId: authored.hutId, x: authoredPoint.x, y: authoredPoint.y })
+  await panel.waitFor({ state: 'visible' })
+  assert.equal(await panel.getAttribute('aria-label'), 'Hut: 3 of 3 occupants')
+  const authoredOccupants = panel.locator('button:not(.dismantle-control):not([hidden])')
+  assert.ok(await authoredOccupants.count() > 0, 'authored hut pointer opening exposes a resident control')
+  const residentIndex = await authoredOccupants.evaluateAll((buttons, resident) => buttons.findIndex(button => Number(button.dataset.person) === resident), authoredResident)
+  assert.ok(commanded.includes(authoredResident), `authored resident ${authoredResident} came from the ordinary HUD-selected entry command`)
+  assert.ok(residentIndex >= 0, `authored resident ${authoredResident} is visible in the hut menu`)
+  await page.evaluate(() => { window.testScene.world.selected = [] })
+  await authoredOccupants.nth(residentIndex).click()
+  assert.deepEqual(await page.evaluate(() => window.testScene.world.selected), [authoredResident])
+  const authoredDismantle = panel.locator('.dismantle-control')
+  await authoredDismantle.click()
+  assert.equal(await authoredDismantle.getAttribute('aria-pressed'), 'true')
+  assert.ok(await page.evaluate(id => window.testScene.world.buildings.find(b => b.id === id).admission.activity & 0x8000, authored.hutId))
+  await authoredDismantle.click()
+  assert.equal(await authoredDismantle.getAttribute('aria-pressed'), 'false')
+  await page.mouse.move(1400, 50)
+
   const setup = await page.evaluate(async () => {
     const s = window.testScene,
       w = s.world,
@@ -131,8 +212,7 @@ try {
     }
   })
 
-  const panel = page.locator('.training-panel:not(.construction-panel):not(.tower-panel):not([hidden])')
-  const open = async id => {
+  const openFixture = async id => {
     await page.evaluate(id => {
       const s = window.testScene
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
@@ -161,7 +241,7 @@ try {
   const capacities = [3, 4, 5], widths = [88, 104, 120], results = []
   for (let i = 0; i < setup.huts.length; i++) {
     const h = setup.huts[i], capacity = capacities[i]
-    await open(h.id)
+    await openFixture(h.id)
     assert.equal(await panel.getAttribute('aria-label'), `Hut: ${capacity} of ${capacity} occupants`)
     assert.deepEqual(await panel.locator('canvas').evaluate(c => [c.width, c.height]), [widths[i], 62])
     const occupants = panel.locator('button:not(.dismantle-control):not([hidden])')
@@ -197,7 +277,7 @@ try {
     await hide()
   }
 
-  await open(setup.empty)
+  await openFixture(setup.empty)
   assert.equal(await panel.getAttribute('aria-label'), 'Hut: 0 of 3 occupants')
   assert.equal(await panel.locator('button:not(.dismantle-control):not([hidden])').count(), 0)
   const hoverControl = panel.locator('.dismantle-control')
@@ -221,7 +301,7 @@ try {
   await page.evaluate(() => window.testScene.renderBuildingPanels())
   assert.equal(await panel.count(), 0, 'leaving both building and panel hides the hover menu')
 
-  await open(setup.empty)
+  await openFixture(setup.empty)
   const dismantle = panel.locator('.dismantle-control')
   await dismantle.click()
   assert.equal(await dismantle.getAttribute('aria-pressed'), 'true')
@@ -254,7 +334,7 @@ try {
     b.admission.inside = 0
     s.renderBuildingPanels()
   }, checkpoint.id)
-  await open(checkpoint.id)
+  await openFixture(checkpoint.id)
   assert.equal(await panel.getAttribute('aria-label'), 'Hut: 0 of 3 occupants')
   assert.equal(await page.evaluate(() => window.testStore.loadCheckpoint()), true)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
@@ -262,7 +342,7 @@ try {
     window.testScene = window.testSceneRef.current
     window.testScene.hoveredObject = null
   })
-  await open(checkpoint.id)
+  await openFixture(checkpoint.id)
   assert.equal(await panel.getAttribute('aria-label'), 'Hut: 3 of 3 occupants')
   assert.deepEqual(
     await panel.locator('button:not(.dismantle-control):not([hidden])').evaluateAll(bs => bs.map(b => Number(b.dataset.person))),
@@ -270,7 +350,7 @@ try {
     'checkpoint restore rebuilds live occupant IDs without retaining post-save stale state'
   )
 
-  await open(setup.empty)
+  await openFixture(setup.empty)
   await page.evaluate(id => {
     const s = window.testScene,
       b = s.world.buildings.find(b => b.id === id)
@@ -281,9 +361,9 @@ try {
 
   assert.deepEqual(errors, [])
   await page.screenshot({ path: resolve(output, 'populous-building-menu.png') })
-  const evidence = { capacities: results, staleAdmissionClamped: true, enemySuppressed: true, pointerTransition: true, dismantleToggle: true }
+  const evidence = { authoredCampaign: { hutId: authored.hutId, resident: authoredResident, scenePickingOpen: true, ordinaryEntry: true, occupantSelection: true, dismantleToggle: true }, controlledFixture: { capacities: results, staleAdmissionClamped: true, enemySuppressed: true, pointerTransition: true, dismantleToggle: true } }
   writeFileSync(resolve(output, 'populous-building-menu-browser.json'), JSON.stringify(evidence, null, 2) + '\n')
-  console.log('PASS: owned hut kind-7 menus use 3/4/5 capacities, clamp stale physical slots, use real world hover, select/focus, refresh departures, retain pointer transitions, toggle dismantling, suppress enemy controls, restore checkpoints and remove destroyed panels', evidence)
+  console.log('PASS: authored Mission 1 hut opens from genuine pointer ScenePicking after ordinary Brave entry, exposes occupant selection and dismantle/cancel; controlled fixtures cover native 3/4/5 capacities, stale-slot compaction, pointer persistence, enemy gating, checkpoint restore and destroyed-panel cleanup', evidence)
 } finally {
   if (browser) await browser.close()
   await stopServer()
