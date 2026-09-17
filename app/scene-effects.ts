@@ -22,6 +22,7 @@ import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, tribeForTeam } from './world-types.ts'
 import { nativeUnitDraw } from './unit-kinds.ts'
+import { shamanAppearance, shamanNativeDirections, shamanReincarnationPose } from './shaman-appearance.ts'
 
 export function makeFx(scene: GameScene, f: Effect) {
   const g = new THREE.Group()
@@ -125,7 +126,10 @@ export function makeFx(scene: GameScene, f: Effect) {
     g.userData.layers = []
     g.userData.owner = tribeForTeam(f.reincarnation.team)
     g.userData.draw = 14
-    g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [680], flip: false }))
+    const pose = shamanReincarnationPose(f.reincarnation.team, f.reincarnation.phase)
+    g.userData.shaman = true
+    g.userData.layerOwner = pose.layerOwner
+    g.userData.directions = pose.directions
     return g
   }
   if (f.angel) {
@@ -284,11 +288,11 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.reincarnation) {
-    const frame = f.reincarnation.phase === 0 ? 680 : f.reincarnation.phase === 1 ? 352 : 360,
-      directions = g.userData.directions as { frames: number[]; flip: boolean }[]
-    if (g.userData.frame !== frame) for (const direction of directions) direction.frames[0] = frame
+    const pose = shamanReincarnationPose(f.reincarnation.team, f.reincarnation.phase)
+    g.userData.layerOwner = pose.layerOwner
+    g.userData.directions = pose.directions
     g.userData.drawFlags = f.reincarnation.phase >= 3 ? 6 : 0
-    scene.animatePerson(g, 0, directions, 0)
+    scene.animatePerson(g, f.unit?.heading ?? 0, pose.directions, 0)
     return
   }
   if (f.angel) {
@@ -309,13 +313,23 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
       scene.animatePerson(g, f.unit.heading, directions, 0)
       return
     }
+    // The model-12 effect already draws this Shaman's body/spirit. Keep the
+    // legacy short death event for gameplay bookkeeping without a second sprite.
+    if (f.unit.kind === 'shaman' && scene.world.effects.some(other => other.reincarnation?.team === f.unit!.team)) {
+      g.visible = false
+      return
+    }
     const animations = (
       nativeUnits.animations as Record<
         string,
         Record<string, { frames: number[]; flip: boolean }[]>
       >
-    )[`${animationTeam(f.unit.team)}-${f.unit.kind}`]
-    scene.animatePerson(g, f.unit.heading, animations.die, f.age, true)
+    )[f.unit.kind === 'shaman' ? shamanAppearance(f.unit.team).signature : `${animationTeam(f.unit.team)}-${f.unit.kind}`]
+    const directions = f.unit.kind === 'shaman'
+      ? shamanNativeDirections(f.unit.team, 680)!
+      : animations.die
+    g.userData.directions = directions
+    scene.animatePerson(g, f.unit.heading, directions, f.age, true)
     for (const layer of g.userData.layers as THREE.Sprite[])
       layer.material.opacity = Math.min(1, (f.duration - f.age) * 3)
     return

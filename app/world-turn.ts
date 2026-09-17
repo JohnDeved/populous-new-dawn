@@ -1637,6 +1637,7 @@ function stepTurn(w: World) {
       visual.duration = Infinity
       visual.height = position.h / 45
       visual.reincarnation = { team: u.team, phase: turns === 333 ? 3 : 0, ground: position.h }
+      visual.unit = { team: u.team, kind: u.kind, heading: u.heading }
       if (u.team === 'blue') tell(w, 'Your shaman will reincarnate.')
     }
   for (const u of ordinaryDead) {

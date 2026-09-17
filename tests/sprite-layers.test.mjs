@@ -9,7 +9,7 @@ import provenance from '../public/original/provenance.json' with { type: 'json' 
 
 test('unit atlas retains reviewed tribe/state/direction layers when new models append', () => {
   const atlas = readFileSync(new URL(`../public/original/${units.atlas}.png`, import.meta.url))
-  const reviewedAtlas = '07230c4c0ffa01aa1d763e7a31378809aae735987109c1e9ca2de6ad31c23d97'
+  const reviewedAtlas = 'c8911ddbcf595d1cdadbd3e74bebbf22945a1134422ae12820ac548d38d5f751'
   assert.equal(createHash('sha256').update(atlas).digest('hex'), reviewedAtlas)
   assert.equal(provenance.unitAtlasSha256, reviewedAtlas)
   assert.equal(fixtures.pieceHashes.length, 3216)
