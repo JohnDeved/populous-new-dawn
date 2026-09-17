@@ -23,6 +23,15 @@ immediately when the worker has independent work; `wait JOB_ID` later resumes wa
 A paused/crashed queue returns `deferred` (exit2) with the existing job ID: do not
 enqueue a duplicate. Escalate only unresolved resource cleanup or acceptance decisions.
 
+`run` prints a compact job-ID/recovery receipt to stderr **before** waiting; final
+stdout remains one result object. A Local Dev foreground timeout can end the waiting
+client while the detached job continues. Resume with `wait JOB_ID`, not another test.
+Identical unfinished submissions (effective spec and source fingerprint) reuse one
+job, even across concurrent callers. If the same spec has different inputs while its
+job is unfinished, submission refuses and names that job; wait or cancel it before
+submitting corrected inputs. Terminal jobs are not deduplicated: use their saved ID
+to recover a lost result, rather than invoking `run` again after completion.
+
 ```json
 {
   "owner": "worker task ID",
@@ -119,6 +128,11 @@ process itself crashed leaving `recovery.lock`, inspect the exact process owners
 and repair the receipt/lock under one operator; do not automatically delete it on age.
 PID reuse can conservatively block recovery; it must never authorize killing another
 process. A blocked queue is preferable to contaminated measurements.
+
+Admission uses a short `submission.lock` containing its PID/identity; it never holds
+the lock while executing a job. If a submitter crashes inside admission, verify that
+exact owner is gone and inspect the recorded job/order before removing only that
+lock. Do not expire it by age or remove a live owner's lock.
 
 Do not mix manual timed grants and automatic jobs. Finish/release existing grants,
 pause while an outside-queue workload owns the machine, then have every worker use
