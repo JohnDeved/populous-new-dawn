@@ -35,7 +35,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
+Recent reusable topic notes: [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
+[LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
 [Firewarrior launch, automatic response, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
@@ -90,6 +91,19 @@ For each subsequent port, preserve the original branch ordering, integer widths/
 
 Reusable negative findings for terrain-route invalidation and damage-triggered repair
 are retained in [rejected adapter candidates](research/rejected-adapter-candidates.md).
+
+## Recorded-demo provenance static evidence
+
+[The recorded-demo note](research/recorded-demo-provenance.md) establishes raw-state/current-height fields but leaves all five source-map IDs **UNRESOLVED**. Recorded demo state is not a user-created save fixture; U08 remains separate. Use Python 3.9+, existing Capstone 5.0.7 and the unchanged sibling PE32 reader:
+
+```sh
+python3 -B scripts/check-static-recorded-demo-provenance.py \
+  --exe /path/to/d3dpoptb.exe \
+  --data-root /path/to/original-game \
+  --output-dir /path/to/new-recorded-demo-evidence
+```
+
+Use a new output directory under an existing parent. The checker enforces the EXE and all11 canonical rddata sizes/hashes; it writes byte listings, five current-height projections and evidence.json. Optional `--imports-root /path/to/checkout` repeats only the three accepted, hash-pinned imported-height comparisons (220 checks); neither non-equality nor similarity assigns/excludes a source map. No target execution, Ghidra, full save codec, fixture or parity claim.
 
 ## LEVL2131 static classification evidence
 

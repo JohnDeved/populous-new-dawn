@@ -413,6 +413,8 @@
       ],
       "researchPaths": [
         "engineering/single-player-feasibility.md",
+        "decomp/research/recorded-demo-provenance.md",
+        "scripts/check-static-recorded-demo-provenance.py",
         "decomp/research/demo131-entry.md",
         "scripts/check-static-demo131-entry.py",
         "decomp/research/tutorial-entry.md",
@@ -629,6 +631,10 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        {
+          "path": "decomp/research/recorded-demo-provenance.md",
+          "heading": "Reproduce the static boundary proof"
+        },
         {
           "path": "decomp/research/demo131-entry.md",
           "heading": "Reproduce the static proof"
