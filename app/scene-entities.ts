@@ -45,6 +45,7 @@ import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
+import { initializeStoneHead, stoneHeadFrame, stoneHeadPositions } from './stone-head-animation.ts'
 import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
@@ -615,7 +616,18 @@ export function updateShrinesFrame(scene: GameScene) {
       mesh = nativeModel(shrine.model)
       entry.g.add(mesh)
     }
-    if (shrine.morph) {
+    const stone = initializeStoneHead(shrine, scene.world.outcome.level)
+    if (stone) {
+      const frame = stoneHeadFrame(stone)
+      if (mesh.userData.stoneHeadFrame !== frame) {
+        const position = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
+        position.copyArray(stoneHeadPositions(frame))
+        position.needsUpdate = true
+        mesh.geometry.computeBoundingSphere()
+        mesh.geometry.computeBoundingBox()
+        mesh.userData.stoneHeadFrame = frame
+      }
+    } else if (shrine.morph) {
       const morph = shrine.morph,
         frame = Math.min(morph.duration, Math.max(0, scene.world.turn - morph.started + 1))
       mesh.userData.morph = true
@@ -639,7 +651,7 @@ export function updateShrinesFrame(scene: GameScene) {
       }
     }
     entry.g.visible =
-      shrine.active || shrine.kind === 'vault' || (shrine.kind === 'angel' && !!shrine.angelTarget)
+      !!stone || shrine.active || shrine.kind === 'vault' || (shrine.kind === 'angel' && !!shrine.angelTarget)
   }
 }
 

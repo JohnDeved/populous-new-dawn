@@ -9,6 +9,7 @@ import { addUnit, breedingWork, createWorldState } from './world-state.ts'
 import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { missionData, tutorialLevel } from './mission-data.ts'
 import { createWorship } from './worship.ts'
+import { initializeStoneHead } from './stone-head-animation.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -470,5 +471,6 @@ export function createWorld(missionNumber = 1): World {
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
   w.lightView = nativePosition(w, campaignPosition(w, 'blue'))
+  for (const shrine of w.shrines) initializeStoneHead(shrine, missionNumber)
   return w
 }
