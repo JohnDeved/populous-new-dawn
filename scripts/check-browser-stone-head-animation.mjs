@@ -121,7 +121,7 @@ try {
     w.manaWorld.gameFlags=32;w.units=w.units.filter(u=>u.team==='blue');w.selected=w.units.map(u=>u.id)
     w.paused=false;w.speed=0;window.renderStone()
     const p=s.screen(head),r=s.container.getBoundingClientRect()
-    return{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}
+    return{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2,actors:[...w.selected]}
   })
   await page.mouse.click(click.x,click.y)
   assert.equal(await page.evaluate(()=>window.testScene.world.units[0].native?.commandStatus),27)
@@ -138,7 +138,11 @@ try {
     const mesh=s.shrineMeshes.get(head.id).g.children[0]
     return{history,uses:head.uses,shots:w.shots.bridge,roster:liveWorshippers(w,head).map(p=>p.id),renderedFrame:mesh.userData.stoneHeadFrame,expectedFrame:stoneHeadFrame(head.stoneHead)}
   })
-  assert.ok(report.worship.uses>0&&report.worship.shots>0);assert.equal(report.worship.roster.length,7)
+  report.commandActors = click.actors
+  assert.ok(report.worship.uses>0&&report.worship.shots>0)
+  // Startup may already have recruited nearby Wilds. Compare the actual issued
+  // command roster, not the fresh-createWorld fixture's original seven people.
+  assert.deepEqual(new Set(report.worship.roster),new Set(click.actors))
   assert.ok(report.worship.history.some(h=>!h.enabled&&h.frame===1),'Disabled reward/refill interval must hold nativeframe1')
   assert.equal(report.worship.renderedFrame,report.worship.expectedFrame)
   await page.screenshot({path:join(output,'ordinary-worship-reward.png')})
