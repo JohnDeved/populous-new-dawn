@@ -1,5 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import {spawnSync} from 'node:child_process'
+import {fileURLToPath} from 'node:url'
 import {personInCompletedTower} from '../app/person-selection.ts'
 import fixture from './fixtures/world-picking.json' with {type:'json'}
 import {pickQueuedObjects, roundPixel, personHitBounds, modelHitBounds, inHitBounds} from '../app/world-picking.ts'
@@ -42,4 +44,19 @@ test('live pointer eligibility uses the active record and recorded cell building
   }
   u.native=undefined;assert.equal(canPickUnit(w,u),false)
   u.inside=null;assert.equal(canPickUnit(w,u),true)
+})
+
+
+test('ScenePicking re-resolves injected overlapping terrain candidates against the current painter command',()=>{
+  const script=fileURLToPath(new URL('./fixtures/scene-picking-cache-witness.mjs',import.meta.url))
+  const run=spawnSync(process.execPath,['--experimental-transform-types',script],{encoding:'utf8'})
+  assert.equal(run.status,0,run.stderr||run.stdout)
+  const line=run.stdout.trim().split('\n').at(-1)
+  const result=JSON.parse(line)
+  assert.equal(result.fixture,'injected-painter-order-overlap')
+  assert.equal(result.naturalGameplay,false)
+  assert.deepEqual(result.identities.map(identity=>identity.slice(1)),[[0,0],[1,0],[0,0]])
+  assert.deepEqual(result.visiblePicks,[null,7,null])
+  assert.equal(result.candidateArrayReused,true)
+  assert.equal(result.cachedEqualsFresh,true)
 })
