@@ -6,7 +6,7 @@ No database or cloud save storage is provisioned; game saves remain browser-loca
 
 ## Local production deployment
 
-Use Node 22.13+ and the existing Wrangler login:
+Use Node 24.18.0 and the existing Wrangler login:
 
 ```sh
 npm ci
@@ -44,7 +44,7 @@ Configure the Worker's Settings > Build as follows:
 - Production deploy command: `npx wrangler deploy --config dist/server/wrangler.json`.
 - Non-production deploy command: `npx wrangler versions upload --config dist/server/wrangler.json`.
 - Enable non-production branch builds and PR preview comments.
-- Build variable: `NODE_VERSION=22.16.0`.
+- Build variable: `NODE_VERSION=24.18.0`.
 
 Cloudflare installs dependencies and manages its own build token. Branch builds
 upload preview versions; only main builds deploy production. Cloudflare supplies
