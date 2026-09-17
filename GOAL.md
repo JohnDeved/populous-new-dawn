@@ -46,6 +46,13 @@ effects; one-use consumption and checkpoint continuation are integrated. Later
 Mission 20 AI, objectives/victory, and exact effect presentation remain separate
 work.
 
+Mission 21's Mission 20→21 continuation, authored opening, and first fault pair
+finished in this feature commit. Focusing mana on Convert Wild, recruiting the
+nearby Wildmen, and sending three followers to the authored Flatten totem seals the
+fault before its native deadline; leaving it unsealed produces the warning and one
+Volcano. Both outcomes survive checkpoints without replay. Later fault pairs, AI,
+victory, and exact class-7/model-39 presentation remain separate work.
+
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
 cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173
 prerequisite. Later Mission 14 AI remains separate until its command/read cycles are

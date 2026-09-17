@@ -2787,6 +2787,115 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission21-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 21's fresh spell/mana state, first-fault records, exact height predicate and cadence, linked activation order, and opcode-1199 cleanup against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Marker-17 signed-height equality and one-unit seal boundaries",
+        "Turn-127 sampling, turn-1951 eruption, and turn-1983 cleanup cadence",
+        "Zero Flatten stock, 30000 starting mana, Convert Wild availability, and the three-person linked Flatten totem",
+        "Flatten sentinel, unique first-Volcano source, and ordered initial/eruption trigger links",
+        "Warning 126 payload, position, flags, and lifetime",
+        "Opcode 1199 class-7 model filter and inclusive cleanup square"
+      ],
+      "knownLimits": [
+        "Allocation, template copy, first-processing, deletion, worship presentation, and shared-reference leaves are intercepted.",
+        "This is not a full native route-timing playthrough, renderer/audio comparison, checkpoint proof, later-fault proof, AI proof, or mission-outcome proof."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission21.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission21.py",
+        "decomp/generated/00490ba0.c",
+        "decomp/generated/004f1ed0.c",
+        "decomp/research/mission21-first-fault.md"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 21 level, header, script, and language files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 21's authored opening and first fault through ordinary Convert Wild, linked-totem worship, eruption, and checkpoint paths.",
+      "coveredBehavior": [
+        "Mission 21 level, script, tribe, opening, baseline, and linked fault triggers",
+        "Focused native-style charging, Convert Wild, and three-person totem worship seal the fault before the deadline",
+        "Unsealed turn-1951 Volcano and positioned warning",
+        "Armed, sealed, dispatched, and erupted checkpoint continuation without replay"
+      ],
+      "knownLimits": [
+        "The portable check drives production command APIs; the browser check supplies the shipped-control proof.",
+        "Native end-to-end route timing, exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission21.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission21.test.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-twenty-one.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-twenty-one.json",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 20-to-21 continuation, focused charging, HUD Convert Wild, linked-totem worship, the unsealed eruption, and both checkpoint paths through the shipped browser.",
+      "coveredBehavior": [
+        "Mission 21 chooser, Mission 20 continuation, and original opening message",
+        "Per-spell charging controls fund HUD Convert Wild without injected stock",
+        "Converted nearby Wildmen worship the authored three-person Flatten totem and cancel the eruption",
+        "Turn-1951 warning and linked Volcano world effect",
+        "Sealed and erupted checkpoint restoration without duplicate effects"
+      ],
+      "knownLimits": [
+        "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
+        "Exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission21.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission21.mjs",
+        "scripts/browser-game.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-twenty-one.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

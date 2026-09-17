@@ -235,7 +235,16 @@ export type Building = Point & {
 export type Shrine = Point &
   WorshipState & {
     id: number
-    kind: Spell | 'bridgeEffect' | 'erosionEffect' | 'linkedEffects' | 'vault' | 'boat' | 'angel'
+    kind:
+      | Spell
+      | 'bridgeEffect'
+      | 'erosionEffect'
+      | 'flattenEffect'
+      | 'volcanoEffect'
+      | 'linkedEffects'
+      | 'vault'
+      | 'boat'
+      | 'angel'
     reward?:
       | Spell
       | 'camp'

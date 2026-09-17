@@ -507,7 +507,16 @@ export default function Home() {
                                     done: world.giftCounts.volcano > 0,
                                   },
                                 ]
-                            : []
+                              : world.outcome.level === 21
+                                ? [
+                                    {
+                                      text: 'Convert Wildmen and send three followers to seal the first fault',
+                                      done:
+                                        world.campaignAIs[1]?.variables[22] === 2 &&
+                                        world.campaignAIs[1]?.variables[28] === 1,
+                                    },
+                                  ]
+                                : []
   return (
     <main
       ref={shell}
@@ -768,7 +777,8 @@ export default function Home() {
                     view = spellButton({
                       model: s.model,
                       permanent,
-                      charging: permanent && (s.id !== 'blast' || world.charging),
+                      charging:
+                        permanent && !(world.manaWorld.spells[0].disabled & (1 << (s.model - 1))),
                       hovered: hover === s.id,
                       selected: world.mode === s.id,
                       stock: world.shots[s.id],
@@ -782,7 +792,7 @@ export default function Home() {
                       style={{ borderImageSource: `url('/original/hud-${view.frame}.png')` }}
                       aria-label={`${s.name}, ${world.shots[s.id]} shots`}
                       aria-pressed={world.mode === s.id}
-                      title={s.name}
+                      title={`${s.name}${permanent ? ' · Right-click to pause or resume charging' : ''}`}
                       onClick={() =>
                         store.change(w => {
                           w.mode = w.mode === s.id ? null : s.id
@@ -790,9 +800,12 @@ export default function Home() {
                       }
                       onContextMenu={e => {
                         e.preventDefault()
-                        if (s.id === 'blast')
+                        if (permanent)
                           store.change(w => {
-                            w.charging = !w.charging
+                            const bit = 1 << (s.model - 1)
+                            w.manaWorld.spells[0].disabled ^= bit
+                            if (s.id === 'blast')
+                              w.charging = !(w.manaWorld.spells[0].disabled & bit)
                           })
                       }}
                       onMouseEnter={() => setHover(s.id)}
@@ -1066,7 +1079,9 @@ export default function Home() {
                                             ? 'Claim Armageddon and survive the final arena battle against every tribe.'
                                             : world.outcome.level === 20
                                               ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
-                                            : 'Prepare for the enemy tribes\' powerful magic and seek Armageddon.'}
+                                              : world.outcome.level === 21
+                                                ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
+                                                : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
@@ -1176,12 +1191,12 @@ export default function Home() {
           <strong>Shaman / focus / guard shaman / pause / cancel</strong>
         </div>
         <p className="help-tip">
-          Each spell shows its own casting range. Blast recharges; right-click its card to pause
-          charging and direct more mana to training. Worship the southern head for Land Bridge (four
-          held at once), and the central head for four Lightning gifts. Only your shaman can learn
-          at the vault. Select braves and click a friendly hut to house them, or a completed
-          training hut to train them. Builders carry logs from trees. Followers drown in water;
-          Blast can knock them off a shore.
+          Each spell shows its own casting range. Right-click a rechargeable spell to pause or
+          resume it and focus mana elsewhere. Worship the southern head for Land Bridge (four held
+          at once), and the central head for four Lightning gifts. Only your shaman can learn at the
+          vault. Select braves and click a friendly hut to house them, or a completed training hut to
+          train them. Builders carry logs from trees. Followers drown in water; Blast can knock them
+          off a shore.
         </p>
         <div className="audio-settings">
           <button

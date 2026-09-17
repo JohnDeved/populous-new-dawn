@@ -162,11 +162,7 @@ export function createWorld(missionNumber = 1): World {
         destructionState: 0,
       })
     }
-    if (
-      o.type === 5 &&
-      o.model <= 6 &&
-      !(missionNumber === 20 && linkedObjectIds.has(o.index + 1))
-    )
+    if (o.type === 5 && o.model <= 6 && !(missionNumber === 20 && linkedObjectIds.has(o.index + 1)))
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
       if (linkedObjectIds.has(o.index + 1)) continue
@@ -182,13 +178,24 @@ export function createWorld(missionNumber = 1): World {
         linkedVehicle = links.find(object => object.type === 4),
         bridge = links.find(object => object.type === 7 && object.model === 24),
         erosion = links.find(object => object.type === 7 && object.model === 23),
+        flatten =
+          missionNumber === 21 && o.index === 46
+            ? links.find(object => object.type === 7 && object.model === 31)
+            : undefined,
+        volcano =
+          missionNumber === 21 && o.index === 68
+            ? links.find(object => object.type === 7 && object.model === 15)
+            : undefined,
         earthquakes = links.filter(object => object.type === 7 && object.model === 26),
         linkedHead = links.find(object => object.type === 6 && object.model === 6),
         angelStatue = links.find(object => object.type === 7 && object.model === 91),
         angelTarget = links.find(object => object.type === 7 && object.model === 88),
         linked = linkedVehicle ?? bridge ?? erosion ?? rewardObject,
         bridgeTarget = bridge && 'target' in bridge ? (bridge.target as Point) : undefined,
-        effectTarget = erosion ? { x: erosion.x, z: erosion.z } : undefined,
+        effectTarget =
+          erosion || flatten
+            ? { x: (erosion ?? flatten)!.x, z: (erosion ?? flatten)!.z }
+            : undefined,
         effectTargets = links
           .filter(object => object.type === 7 && object.model === 23)
           .map(object => ({ x: object.x, z: object.z })),
@@ -210,9 +217,13 @@ export function createWorld(missionNumber = 1): World {
                   ? 'boat'
                   : linked?.type === 7 && linked.model === 24 && bridgeTarget
                     ? 'bridgeEffect'
-                    : effectTarget
-                      ? 'erosionEffect'
-                      : rewardSpell?.id
+                    : flatten
+                      ? 'flattenEffect'
+                      : volcano
+                        ? 'volcanoEffect'
+                        : effectTarget
+                          ? 'erosionEffect'
+                          : rewardSpell?.id
       // Decorative trigger links have no collectible reward owner.
       if (
         !kind &&
@@ -220,12 +231,16 @@ export function createWorld(missionNumber = 1): World {
         links.every(object => object.type === 7 && object.model === 81)
       )
         continue
+      // ponytail: keep unsupported Mission 21 linked scenery inert until its objective lands.
+      if (!kind && missionNumber === 21) continue
       if (!kind) throw new Error(`Unbound shrine reward ${o.index}`)
       const shrineReward =
         kind === 'vault'
           ? rewards[0]
           : kind === 'bridgeEffect' ||
               kind === 'erosionEffect' ||
+              kind === 'flattenEffect' ||
+              kind === 'volcanoEffect' ||
               kind === 'linkedEffects' ||
               kind === 'boat' ||
               isAngelHead
@@ -234,6 +249,8 @@ export function createWorld(missionNumber = 1): World {
       if (
         kind !== 'bridgeEffect' &&
         kind !== 'erosionEffect' &&
+        kind !== 'flattenEffect' &&
+        kind !== 'volcanoEffect' &&
         kind !== 'linkedEffects' &&
         kind !== 'boat' &&
         !isAngelHead &&
@@ -264,6 +281,8 @@ export function createWorld(missionNumber = 1): World {
         ...(rewards.length > 1 ? { rewards } : {}),
         ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
         ...(kind === 'erosionEffect' ? { effectTarget, effectTargets } : {}),
+        ...(kind === 'flattenEffect' ? { effectTarget } : {}),
+        ...(kind === 'volcanoEffect' ? { effectTarget: { x: volcano!.x, z: volcano!.z } } : {}),
         ...(kind === 'linkedEffects' && linkedHead
           ? {
               earthquakeTargets,
@@ -301,13 +320,17 @@ export function createWorld(missionNumber = 1): World {
               ? 'Land raising stone head'
               : kind === 'erosionEffect'
                 ? 'Erosion stone head'
-                : kind === 'linkedEffects'
-                  ? 'Totem Pole'
-                  : kind === 'boat'
-                    ? 'Boat stone head'
-                    : isAngelHead
-                      ? 'Angel of Death stone head'
-                      : `${SPELLS.find(spell => spell.id === shrineReward)!.name} stone head`,
+                : kind === 'flattenEffect'
+                  ? 'Flatten stone head'
+                  : kind === 'volcanoEffect'
+                    ? 'Volcano stone head'
+                    : kind === 'linkedEffects'
+                      ? 'Totem Pole'
+                      : kind === 'boat'
+                        ? 'Boat stone head'
+                        : isAngelHead
+                          ? 'Angel of Death stone head'
+                          : `${SPELLS.find(spell => spell.id === shrineReward)!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,
@@ -344,7 +367,8 @@ export function createWorld(missionNumber = 1): World {
               1204,
               ...(missionNumber === 15 ? [1174, 1187, 1200] : []),
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
-              ...([4, 10, 11, 12, 13, 17, 18, 19, 20].includes(missionNumber)
+              ...(missionNumber === 21 ? [1085, 1138] : []),
+              ...([4, 10, 11, 12, 13, 17, 18, 19, 20, 21].includes(missionNumber)
                 ? [1174, 1187]
                 : []),
             ].includes(c.opcode)

@@ -273,7 +273,7 @@ import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 import { stepLightning, type Lightning } from './lightning.ts'
 import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
-import { stepFlatten, type Flatten } from './flatten.ts'
+import { createFlatten, stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
 import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
 import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
@@ -878,6 +878,16 @@ function stepTurn(w: World) {
           erosion.erosion = createErosion(nativePosition(w, target))
           erosion.duration = Infinity
         }
+      } else if (shrine.kind === 'flattenEffect') {
+        const flatten = effect(w, 'flatten', shrine.effectTarget!)
+        flatten.flatten = createFlatten(w.land, nativePosition(w, shrine.effectTarget!))
+        flatten.team = 'blue'
+        flatten.duration = Infinity
+      } else if (shrine.kind === 'volcanoEffect') {
+        const volcano = effect(w, 'volcano', shrine.effectTarget!)
+        volcano.volcano = createVolcano(nativePosition(w, shrine.effectTarget!), 0)
+        volcano.team = 'blue'
+        volcano.duration = Infinity
       } else if (shrine.kind === 'linkedEffects') {
         for (const reward of shrine.rewards ?? (shrine.reward ? [shrine.reward] : []))
           createGift(w, reward, shrine)
@@ -937,7 +947,9 @@ function stepTurn(w: World) {
   for (const spell of SPELLS)
     if (w.manaWorld.spells[0].available & (1 << spell.model))
       w.manaWorld.spells[0].stocks[spell.model] = w.shots[spell.id]
-  w.manaWorld.spells[0].disabled = w.charging ? 0 : 2
+  w.manaWorld.spells[0].disabled = w.charging
+    ? w.manaWorld.spells[0].disabled & ~2
+    : w.manaWorld.spells[0].disabled | 2
   w.manaTribes[0].spellProgress[2] = Math.round(w.mana * 1000)
   generateFollowerMana(w.manaWorld, w.manaTribes, manaPeople(w), liveManaOrders)
   for (const [tribeId, team] of TRIBE_TEAMS.entries()) {

@@ -113,6 +113,7 @@ export function campaignCommand(
       1117: 0,
       1196: 1,
       1198: 0,
+      1199: 3,
       1204: 1,
       1076: 3,
       1077: 3,
@@ -426,6 +427,15 @@ export function campaignCommand(
   }
   if (opcode === 1198) {
     buildingCounterattack(w, campaignTeam(w, campaignTribe(w)))
+    return
+  }
+  if (opcode === 1199) {
+    const radius = read(args[2])
+    if (!Number.isInteger(radius) || radius < 0 || radius > 127)
+      throw new RangeError('Invalid special-object radius')
+    // Native removes/morphs class-7 scenery in this square; those objects are not browser entities.
+    read(args[0])
+    read(args[1])
     return
   }
   if (opcode === 1108) {
@@ -810,7 +820,17 @@ export function campaignRules(w: World) {
                                       1004,
                                       1019,
                                     ]
-                              : [12, 1003, 1004, 1019],
+                                  : w.outcome.level === 21 && tribe === 1
+                                    ? [
+                                        12,
+                                        1003,
+                                        // First authored fault: terrain seal check, warning, deadline, and eruption.
+                                        ...script.codes.slice(797, 957),
+                                        1004,
+                                        1004,
+                                        1019,
+                                      ]
+                                    : [12, 1003, 1004, 1019],
   }
   // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
   runScript(boundCampaignScript, w.ai, {

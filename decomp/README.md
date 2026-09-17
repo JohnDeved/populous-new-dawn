@@ -47,6 +47,7 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 16 Bloodlust acquisition and status](research/mission16-bloodlust.md),
 [Mission 19 Teleport and Chumara-protection objective](research/mission19.md),
 [Mission 20 linked worship chain](research/mission20-linked-chain.md),
+[Mission 21 first fault](research/mission21-first-fault.md),
 [vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
@@ -73,6 +74,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `00515650`, `00515690`, `005156b0`, `005156f0`, `00515e30` | `app/spell-effects-runtime.ts`, `app/combat-runtime.ts`, `app/firewarrior.ts`, `app/scene-entities.ts` | [Mission 16 Bloodlust](research/mission16-bloodlust.md) covers linked acquisition, exact six-follower selection, status lifetime, Shield coexistence, combat and Firewarrior modifiers, movement initialization, and expiry feedback; original HFX artwork and AI casting policy remain open |
 | `00515180`, `0049a1c0`, `0049a1f0`, `00516d70`, `00516e10`, `00516eb0` | `app/spell-effects-runtime.ts`, `app/campaign-command-runtime.ts`, `scripts/check-native-mission19.py` | [Mission 19 Teleport and Chumara protection](research/mission19.md) covers height-banded relocation, Shaman/container reset, objective warning and result ownership, and proves self-only combat masks; warning 127/128 reachability remains deferred until internal 1178's producer is recovered |
 | `00485b00`, `004fb270`, `0048cc60`, `004f2aa0`, `00511ae0`, `00511640`, `0050e060` | `app/world-initialization.ts`, `app/world-turn.ts`, `app/campaign-runtime.ts`, `scripts/check-native-mission20.py` | [Mission 20 linked worship chain](research/mission20-linked-chain.md) covers ordered gifts, terrain/effect activations, one-use consumption/retry, overloaded scenery link tokens, and opcode 1127; exact class-7 presentation/audio and complete downstream disaster equivalence remain open |
+| `0042b660`, `0048c6b0`, `0048cc60`, `00490ba0`, `00492920`, `004f1ed0`, `004fb270` | `app/campaign-command-runtime.ts`, `app/world-initialization.ts`, `app/world-turn.ts`, `scripts/check-native-mission21.py` | [Mission 21 first fault](research/mission21-first-fault.md) covers fresh spell/mana state, the Convert Wild and linked-totem seal route, exact height predicate, sentinel, deadline, warning, unique first Volcano activation, checkpoint latches, and opcode-1199 cleanup; native end-to-end route timing, model-39/component presentation, later faults, AI, and outcome remain open |
 | `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts`, `app/scene.ts` | Worship, automatic reward initialization/visual lifetime and delayed gifts CPU-compared; competitive ownership and generic pickup incomplete |
 | `00463370`, `00463780`, `00463e80`, `004641d0`, `004657d0`, `004659d0`, `00466190`, `00465c50`, `00465ea0`, `00466be0`, `00466f00`, `00406600`, `0040b6d0`, `00465580` | `app/live-vehicles.ts`, `app/live-pathfinding.ts`, `app/world-turn.ts`, `app/scene-entities.ts` | [Mission 5 granted Boat](research/mission5-boat.md) is live through worship, boarding, sailing, landing and checkpoints; [Mission 9 Boat House](research/mission9-boat-house.md) adds the native first-production gate and launch transform; [Mission 13 Balloon transport](research/mission13-balloon.md) adds recurring production, boarding, airborne movement, landing and occupied checkpoint reload; [vehicle destruction](research/vehicle-destruction.md) adds shipped 5000 life, damage gates, sinking/rising, and alive passenger ejection; exact art, audio, complete steering, and downstream terrain-dependent passenger fate remain open |
@@ -4911,3 +4913,13 @@ flag mutation. The browser reuses the ordinary worship, gift, disaster,
 checkpoint, and campaign owners. Exact effect presentation/audio and complete
 post-dispatch disaster equivalence remain open; see
 `research/mission20-linked-chain.md`.
+
+## 2026-09-17 — Mission 21 first fault
+
+`check-native-mission21.py EXE` verifies fresh spell/mana state, marker 17's
+signed-height predicate, turn-1951 deadline, the linked three-person Flatten
+totem, unique first Volcano source, warning 126, checkpoint latches, and opcode
+1199's class-7 cleanup square. The browser drives ordinary focused charging,
+Convert Wild, worship, script, terrain, message, and checkpoint owners; native
+end-to-end route timing, exact model-39/component presentation, later faults, AI,
+and mission outcome remain open. See `research/mission21-first-fault.md`.

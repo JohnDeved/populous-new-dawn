@@ -370,6 +370,7 @@
         "app/level-eighteen.ts",
         "app/level-nineteen.ts",
         "app/level-twenty.ts",
+        "app/level-twenty-one.ts",
         "app/mission-data.ts",
         "app/original-rules.json",
         "app/person-panic.ts",
@@ -395,6 +396,7 @@
         "app/original-script-eighteen.json",
         "app/original-script-nineteen.json",
         "app/original-script-twenty.json",
+        "app/original-script-twenty-one.json",
         "app/level-seventeen.ts",
         "app/armageddon.ts",
         "app/original-messages.json",
@@ -418,6 +420,8 @@
         "decomp/generated/00466d90.c",
         "decomp/generated/00466e90.c",
         "decomp/generated/004ef180.c",
+        "decomp/generated/00490ba0.c",
+        "decomp/generated/004f1ed0.c",
         "decomp/README.md",
         "decomp/exports.json",
         "decomp/research/mission2-enemy-marker.md",
@@ -458,6 +462,7 @@
         "decomp/research/mission18.md",
         "decomp/research/mission19.md",
         "decomp/research/mission20-linked-chain.md",
+        "decomp/research/mission21-first-fault.md",
         "decomp/generated/0042a140.c",
         "decomp/generated/004306d0.c",
         "decomp/generated/004b5f40.c",
@@ -519,6 +524,7 @@
         "scripts/check-native-mission18.py",
         "scripts/check-native-mission19.py",
         "scripts/check-native-mission20.py",
+        "scripts/check-native-mission21.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -532,6 +538,7 @@
         "scripts/check-browser-mission18.mjs",
         "scripts/check-browser-mission19.mjs",
         "scripts/check-browser-mission20.mjs",
+        "scripts/check-browser-mission21.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
@@ -557,6 +564,7 @@
         "tests/mission18.test.mjs",
         "tests/mission19.test.mjs",
         "tests/mission20.test.mjs",
+        "tests/mission21.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs"
@@ -678,6 +686,10 @@
         {
           "path": "decomp/research/mission20-linked-chain.md",
           "heading": "Authored topology and order"
+        },
+        {
+          "path": "decomp/research/mission21-first-fault.md",
+          "heading": "Authored lifecycle"
         },
         {
           "path": "references/reverse-engineering.md",
@@ -804,6 +816,7 @@
         "mission18-native",
         "mission19-native",
         "mission20-native",
+        "mission21-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -826,6 +839,8 @@
         "mission19-browser",
         "mission20-portable",
         "mission20-browser",
+        "mission21-portable",
+        "mission21-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"
@@ -874,6 +889,8 @@
         "mission19-browser",
         "mission20-portable",
         "mission20-browser",
+        "mission21-portable",
+        "mission21-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"
