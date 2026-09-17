@@ -20,12 +20,7 @@ export function texture(kind: string) {
 }
 export function loadTexture(kind: string) {
   const cached = textures.get(kind)
-  if (cached) {
-    if (cached.status !== 'failed') return cached
-    // Failed scenes are disposed before their retry action is available. Retain successful
-    // and in-flight shared textures, but replace a completed failure with a fresh request.
-    cached.texture.dispose()
-  }
+  if (cached) return cached
   let loaded!: (success: boolean) => void
   const result: TextureAsset = {
     texture: null as unknown as THREE.Texture,
@@ -88,6 +83,17 @@ export function loadTexture(kind: string) {
   }
   textures.set(kind, result)
   return result
+}
+
+export function retryFailedTexture(kind: string) {
+  const cached = textures.get(kind)
+  if (!cached || cached.status !== 'failed') return cached ?? loadTexture(kind)
+  // Retry is an explicit scene/preload-attempt decision. Passive texture()/loadTexture()
+  // lookups must keep reusing a failed optional entry instead of turning render loops into
+  // implicit network/disposal retry loops.
+  cached.texture.dispose()
+  textures.delete(kind)
+  return loadTexture(kind)
 }
 export function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: number; h: number }) {
   const uv = (sprite.userData.atlasTransform ??= new THREE.Vector4())

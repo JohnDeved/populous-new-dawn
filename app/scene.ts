@@ -20,7 +20,7 @@ import { ObjectPanels } from './object-panels.ts'
 import pointerPalette from './original-pointer.json' with { type: 'json' }
 import nativeUnits from './original-units.json'
 import { ProjectileMotion } from './projectile-motion.ts'
-import { loadTexture, releaseGroup, texture } from './scene-assets.ts'
+import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
@@ -338,7 +338,7 @@ export class GameScene {
         [nativeUnits.atlas, true],
       ] as const
     ).map(([name, required]) => {
-      const asset = loadTexture(name)
+      const asset = required ? retryFailedTexture(name) : loadTexture(name)
       return asset.ready.then(loaded => {
         if (!loaded) {
           if (required) throw new Error(`Required scene texture failed to load: ${name}`)
