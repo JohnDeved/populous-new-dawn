@@ -122,6 +122,7 @@ export function campaignCommand(
       1136: 0,
       1138: 2,
       1139: 1,
+      1142: 2,
       1143: 1,
       1151: 1,
       1169: 0,
@@ -171,6 +172,18 @@ export function campaignCommand(
   if (opcode === 1139) {
     writeVariable(args[0], Number(w.drawMode === 2))
     return
+  }
+  if (opcode === 1142) {
+    const record = read(args[0])
+    // Native highlights UI record 41 for Tutorial operand 16. The browser has no
+    // separate record; its existing Shaman box and direct selection remain live.
+    if (
+      w.outcome.level === tutorialLevel &&
+      record === 16 &&
+      (args[1] === 1022 || args[1] === 1023)
+    )
+      return
+    throw new RangeError('Unsupported tutorial interface highlight')
   }
   if (opcode === 1143) {
     if (w.outcome.level === tutorialLevel && read(args[0]) === 2) return
@@ -685,6 +698,8 @@ export function campaignRules(w: World) {
             1003,
             // Original overview sample plus the stage 0→4 opening camera lessons.
             ...script.codes.slice(2547, 2573),
+            // Stage 4 Shaman-selection instruction; stop before the stage-5 flyby.
+            ...script.codes.slice(2648, 2671),
             ...script.codes.slice(2671, 2700),
             ...script.codes.slice(2700, 2760),
             1004,

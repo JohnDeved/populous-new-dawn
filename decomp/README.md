@@ -39,6 +39,7 @@ Recent reusable topic notes: [Recorded-demo raw state and unresolved source-map 
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
 [Tutorial first World View lesson](research/tutorial-first-lesson.md),
+[Tutorial Shaman-selection lesson](research/tutorial-shaman-selection.md),
 [Firewarrior launch, automatic response, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
@@ -145,8 +146,9 @@ native completion/result path.
 [The camera-controls lesson](research/tutorial-camera-lesson.md) records the
 canonical stage-3 flyby schedule through stage 4 and its existing browser
 edge-scroll/cursor-key owners. The script schedules this transition; it does not
-contain an input-success predicate. Stage 4's command 1142 and later lessons remain
-open.
+contain an input-success predicate. [The Shaman-selection lesson](research/tutorial-shaman-selection.md)
+records command 1142's presentation-only UI highlight, the authored stage-4 message,
+and the existing live browser selection path through stage 5. Later lessons remain open.
 
 ## Mission 18 sky static evidence
 

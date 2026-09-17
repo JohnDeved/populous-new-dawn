@@ -11,8 +11,13 @@ const until = (world, predicate, turns = 256) => {
   assert.ok(predicate(), `Tutorial condition timed out at turn ${world.turn}`)
 }
 
-test('Tutorial advances through World View and the canonical camera flyby', () => {
+test('Tutorial advances through World View, camera flyby, and Shaman selection lesson', () => {
   const world = createWorld(79)
+  const initialSelection = [...world.selected]
+  assert.deepEqual(
+    initialSelection.map(id => world.units.find(unit => unit.id === id)?.kind),
+    ['shaman']
+  )
   assert.equal(level.sourceSha256, '22bd7ec9aa287245d8a41f42f40f468f06f09663304b87c8ccf75e15101068d8')
   assert.equal(level.headerSha256, '58a80720a75c6c7018e4e8e95c1e1e3d87de1038e524b8a712a1bc905a40f641')
   assert.equal(script.sha256, 'cdb5d7abd327933ac22e7824aebae70a60faa504049d05d8ff32dedc730d3603')
@@ -65,6 +70,12 @@ test('Tutorial advances through World View and the canonical camera flyby', () =
       ],
     }
   )
+  until(world, () => world.ai.variables[9] === 5)
+  assert.equal(
+    messageText(world.messages.slots[world.lastMessage].stringId),
+    'Left-click on the Shaman directly to select her, or left-click on the Shaman Box on the Control Panel. Right-click when you want to deselect her.'
+  )
+  assert.deepEqual(world.selected, initialSelection, 'the instruction does not replace live selection')
 })
 
 test('Tutorial restart recreates fresh script and view state', () => {

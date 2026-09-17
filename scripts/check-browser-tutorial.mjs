@@ -60,6 +60,29 @@ try {
   await page.waitForFunction(
     () => !(window.testScene.world.flyby.flags & 1) && !(window.testScene.world.inputMask & 64)
   )
+  await page.waitForFunction(() => window.testScene.world.ai.variables[9] === 5)
+  await page
+    .locator('.campaign-messages')
+    .getByText(/Left-click on the Shaman directly/)
+    .waitFor()
+  const shaman = await page.evaluate(() => {
+    const scene = window.testScene,
+      unit = scene.world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
+      mesh = unit && scene.unitMeshes.get(unit.id)
+    if (!unit || !mesh?.userData.bounds) throw new Error('Authored Blue Shaman is not rendered')
+    const rect = scene.container.getBoundingClientRect(),
+      point = scene.unitScreen(unit.id),
+      bounds = mesh.userData.bounds
+    return {
+      id: unit.id,
+      x: rect.left + ((point.x + 1) * rect.width) / 2 + (bounds.left + bounds.right) / 2,
+      y: rect.top + ((1 - point.y) * rect.height) / 2 + (bounds.top + bounds.bottom) / 2,
+    }
+  })
+  await page.mouse.click(shaman.x, shaman.y, { button: 'right' })
+  await page.waitForFunction(() => !window.testScene.world.selected.length)
+  await page.mouse.click(shaman.x, shaman.y)
+  await page.waitForFunction(id => window.testScene.world.selected.includes(id), shaman.id)
   const returned = await page.evaluate(() => window.testScene.cameraPosition.angle)
   await page.keyboard.down('ArrowRight')
   await page.waitForFunction(angle => window.testScene.cameraPosition.angle !== angle, returned)
@@ -70,7 +93,7 @@ try {
   await page.getByRole('button', { name: 'Quit to Main Menu', exact: true }).click()
   await page.getByRole('heading', { name: 'Choose your world', exact: true }).waitFor()
   assert.deepEqual(errors, [])
-  console.log('PASS: Tutorial World View and camera-control lessons, flyby, and normal exit')
+  console.log('PASS: Tutorial World View, camera controls, Shaman selection, and normal exit')
 } finally {
   await browser.close()
 }
