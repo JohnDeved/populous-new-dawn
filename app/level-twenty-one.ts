@@ -6028,7 +6028,7 @@ export default {
       ],
     },
     { index: 44, model: 15, type: 7, owner: 0, x: 51.0, z: 57.0, angle: 0 },
-    { index: 45, model: 9, type: 5, owner: 255, x: 33.0, z: 117.0, angle: 0 },
+    {"heading":512, index: 45, model: 9, type: 5, owner: 255, x: 33.0, z: 117.0, angle: 0 },
     {
       index: 46,
       model: 6,
@@ -6405,7 +6405,7 @@ export default {
         1, 0,
       ],
     },
-    { index: 314, model: 9, type: 5, owner: 255, x: -135.0, z: 79.0, angle: 0 },
+    {"heading":0, index: 314, model: 9, type: 5, owner: 255, x: -135.0, z: 79.0, angle: 0 },
     {
       index: 315,
       model: 2,

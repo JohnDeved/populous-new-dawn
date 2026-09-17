@@ -1,3 +1,4 @@
+import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
   changedBuildingGround,
   damageDisasterBuilding,
@@ -988,6 +989,7 @@ function stepTurn(w: World) {
       } else for (const reward of shrine.rewards ?? [shrine.reward!]) createGift(w, reward, shrine)
       if (shrine.kind !== 'mana' && shrine.kind !== 'inert') sound(w, 0x70, shrine)
     }
+    syncStoneHeadPresentation(shrine)
   }
   // Imported availability selects rechargeable spells; head rewards remain one-off stocks.
   w.manaWorld.turn = w.turn

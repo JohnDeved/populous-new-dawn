@@ -10732,7 +10732,7 @@ export default {
         0, 0,
       ],
     },
-    { index: 5, model: 9, type: 5, owner: 255, x: 85.0, z: -77.0, angle: 0 },
+    {"heading":0, index: 5, model: 9, type: 5, owner: 255, x: 85.0, z: -77.0, angle: 0 },
     {
       index: 6,
       model: 6,
@@ -10759,7 +10759,7 @@ export default {
         0, 0,
       ],
     },
-    { index: 8, model: 9, type: 5, owner: 255, x: -33.0, z: -13.0, angle: 0 },
+    {"heading":1536, index: 8, model: 9, type: 5, owner: 255, x: -33.0, z: -13.0, angle: 0 },
     {
       index: 9,
       model: 6,
@@ -10992,7 +10992,7 @@ export default {
         0, 0,
       ],
     },
-    { index: 217, model: 9, type: 5, owner: 255, x: 29.0, z: 119.0, angle: 0 },
+    {"heading":1536, index: 217, model: 9, type: 5, owner: 255, x: 29.0, z: 119.0, angle: 0 },
     {
       index: 218,
       model: 6,

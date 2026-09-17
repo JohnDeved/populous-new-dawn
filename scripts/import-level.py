@@ -19,6 +19,7 @@ for i in range(2000):
     x, z = struct.unpack_from('<hh', b, 3)
     px, pz = x / 256 - 8, -z / 256 - 8
     o = dict(index=i, model=b[0], type=b[1], owner=b[2], x=px, z=pz, angle=struct.unpack_from('<i',b,7)[0])
+    if b[1] == 5 and b[0] == 9: o['heading'] = struct.unpack_from('<H', b, 10)[0]
     if b[1] == 6: o['settings'] = list(b[7:39])
     if b[1] == 7 and b[0] == 24:
         tx, tz = struct.unpack_from('>HxxH', b, 7)
