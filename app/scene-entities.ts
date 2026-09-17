@@ -51,8 +51,8 @@ import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, teamForTribe, tribeForTeam } from './world-types.ts'
 import {
-  VAULT_KNOWLEDGE_NATIVE_HEIGHT,
   vaultKnowledgeFrame,
+  vaultKnowledgePlacement,
   vaultKnowledgeVisible,
 } from './vault-appearance.ts'
 import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
@@ -211,9 +211,10 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
   if (shrine.kind === 'vault') {
     const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel)
     if (frame !== null) {
-      const marker = makeVaultKnowledgeMarker(frame)
-      scene.locate(marker, shrine, scene.y(shrine) + VAULT_KNOWLEDGE_NATIVE_HEIGHT / 45)
-      marker.userData.cellPosition = shrine
+      const marker = makeVaultKnowledgeMarker(frame),
+        placement = vaultKnowledgePlacement(shrine)
+      scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
+      marker.userData.cellPosition = placement
       scene.objects.add(marker)
       g.userData.vaultKnowledgeMarker = marker
     }
@@ -601,8 +602,9 @@ export function updateShrinesFrame(scene: GameScene) {
     scene.orientModel(entry.g, shrine.angle)
     const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
     if (marker) {
-      scene.locate(marker, shrine, scene.y(shrine) + VAULT_KNOWLEDGE_NATIVE_HEIGHT / 45)
-      marker.userData.cellPosition = shrine
+      const placement = vaultKnowledgePlacement(shrine)
+      scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
+      marker.userData.cellPosition = placement
       animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
     }
     let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>

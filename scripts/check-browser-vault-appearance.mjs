@@ -122,7 +122,11 @@ try {
       configuredFrame: marker.userData.directions[0].frames[0],
       visible: marker.visible,
       visibleLayers: marker.userData.layers.filter(layer => layer.visible).length,
-      nativeHeightOffset: Math.round((marker.position.y - entry.g.position.y) * 128),
+      markerNativeX: Math.round((marker.position.x + 8) * 256) & 65535,
+      markerNativeY: Math.round((-marker.position.z - 8) * 256) & 65535,
+      nativeHeightOffset: Math.round(
+        marker.position.y * 128 - scene.y(marker.userData.cellPosition) * 45
+      ),
       hasGlow: !!marker.userData.glow,
       markerCount: scene.objects.children.filter(child => child.name === 'vault-knowledge-reward')
         .length,
@@ -135,7 +139,9 @@ try {
     configuredFrame: 1062,
     visible: true,
     visibleLayers: evidence.before.visibleLayers,
-    nativeHeightOffset: 800,
+    markerNativeX: 26880,
+    markerNativeY: 14080,
+    nativeHeightOffset: 1072,
     hasGlow: false,
     markerCount: 1,
   })
@@ -154,15 +160,19 @@ try {
       frame: marker.userData.frame,
       visible: marker.visible,
       visibleLayers: marker.userData.layers.filter(layer => layer.visible).length,
+      markerNativeX: Math.round((marker.position.x + 8) * 256) & 65535,
+      markerNativeY: Math.round((-marker.position.z - 8) * 256) & 65535,
       nativeHeightOffset: Math.round(
-        (marker.position.y - scene.shrineMeshes.get(vault.id).g.position.y) * 128
+        marker.position.y * 128 - scene.y(marker.userData.cellPosition) * 45
       ),
     }
   })
   assert.equal(evidence.rotated.frame, 1062)
   assert.equal(evidence.rotated.visible, true)
   assert.ok(evidence.rotated.visibleLayers > 0)
-  assert.equal(evidence.rotated.nativeHeightOffset, 800)
+  assert.equal(evidence.rotated.markerNativeX, 26880)
+  assert.equal(evidence.rotated.markerNativeY, 14080)
+  assert.equal(evidence.rotated.nativeHeightOffset, 1072)
 
   await page.evaluate(async () => {
     const scene = globalThis.testScene,

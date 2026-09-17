@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  VAULT_KNOWLEDGE_NATIVE_HEIGHT,
+  VAULT_KNOWLEDGE_SOCKET,
   vaultKnowledgeFrame,
+  vaultKnowledgePlacement,
   vaultKnowledgeVisible,
 } from '../app/vault-appearance.ts'
 
-test('Vault knowledge uses the original class-6/model-2 reward frames and height', () => {
-  assert.equal(VAULT_KNOWLEDGE_NATIVE_HEIGHT, 800)
+test('Vault knowledge uses the original class-6/model-2 reward frames and socket', () => {
+  assert.equal(VAULT_KNOWLEDGE_SOCKET, 1)
   assert.equal(vaultKnowledgeFrame('invisibility'), 1062)
   assert.equal(vaultKnowledgeFrame('lightning'), 1059)
   assert.equal(vaultKnowledgeFrame('bridge'), 1068)
@@ -21,4 +22,9 @@ test('Vault knowledge is present only while its authored reward source is active
   assert.equal(vaultKnowledgeVisible({ ...vault, active: false }), false)
   assert.equal(vaultKnowledgeVisible({ ...vault, reward: undefined }), false)
   assert.equal(vaultKnowledgeVisible({ ...vault, kind: 'lightning' }), false)
+})
+
+test('Mission 7 Vault knowledge uses occupied model-18 socket 1 placement', () => {
+  const placement = vaultKnowledgePlacement({ x: 97, z: -63, model: 154, angle: Math.PI })
+  assert.deepEqual(placement, { x: 97, z: -63, heightOffset: 1072 })
 })
