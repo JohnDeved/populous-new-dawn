@@ -240,8 +240,17 @@ for a concrete question that reduces uncertainty or allows useful independent wo
 - `pnd-scout`: uncertain priorities, live ownership, integration gaps, or check scope.
 - `pnd-native`: original behavior and unresolved native/browser boundaries.
 - `pnd-performance`: timing, rendering, hot paths, resources, or measurements.
-- Fresh `pnd-reviewer`: finished non-trivial changes and acceptance evidence,
-  before commit or parity/evidence claims.
+- Dedicated ChatGPT reviewers through Local Dev: finished non-trivial changes
+  and acceptance evidence, before integration or parity/evidence claims. Use
+  [Reviewer 1](https://chatgpt.com/c/6aac64d7-e0a8-83eb-8591-642392067b5e) or
+  [Reviewer 2](https://chatgpt.com/c/6aac6528-e4e0-83eb-937f-58e788b30e26), both
+  at xhigh/Extra High. This user-directed route replaces Codex review subagents:
+  assign each PR to one available reviewer and do not duplicate its full review
+  in Codex. Provide the exact head/base, full diff, acceptance criteria and retained
+  receipts. Reviewers inspect read-only, report concrete findings and ACCEPT/REJECT,
+  and notify the CEO by Codex CLI on completion, blocker, error or any stop,
+  including their chat ID. Follow-up reviews cover repairs and unresolved findings.
+  The CEO retains final acceptance, necessary integration checks and main merges.
 
 Give specialists compact assignments, relevant sources, response budgets, and
 completion conditions. Require actionable findings with provenance and limitations.
