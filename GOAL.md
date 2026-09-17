@@ -20,6 +20,12 @@ casts on the native follower set, and status duration, combat/Firewarrior modifi
 movement, feedback, Shield coexistence, expiry, and checkpoints are integrated.
 Later Mission 16 AI remains separate work.
 
+Mission 17's authored Armageddon loop finished in the current feature commit:
+worship grants model-18 stock, the HUD cast rebuilds and stages every active tribe
+in the native arena, existing combat reaches victory or defeat, control is restored,
+and in-progress phases survive checkpoints. Later Mission 17 AI and exact Shaman
+auto-spell, camera, and audio presentation remain separate work.
+
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
 cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173
 prerequisite. Later Mission 14 AI remains separate until its command/read cycles are

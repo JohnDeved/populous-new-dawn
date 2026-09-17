@@ -62,7 +62,8 @@ export function makeFx(scene: GameScene, f: Effect) {
     f.earthquake ||
     f.volcano ||
     f.convertWild ||
-    f.ghostArmy
+    f.ghostArmy ||
+    f.armageddon
   )
     return g
   if (f.sinking) {
@@ -237,7 +238,8 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     f.earthquake ||
     f.volcano ||
     f.convertWild ||
-    f.ghostArmy
+    f.ghostArmy ||
+    f.armageddon
   )
     return
   if (f.sinking) {

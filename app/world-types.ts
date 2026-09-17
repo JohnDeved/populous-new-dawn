@@ -47,6 +47,7 @@ import type { ModelMorph } from './morph.ts'
 import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
+import type { Armageddon } from './armageddon.ts'
 
 export const TRIBE_TEAMS = ['blue', 'red', 'yellow', 'green'] as const
 export type TribeTeam = (typeof TRIBE_TEAMS)[number]
@@ -83,6 +84,7 @@ export type Spell =
   | 'tornado'
   | 'shield'
   | 'invisibility'
+  | 'armageddon'
   | 'bloodlust'
   | 'swarm'
 export type Point = { x: number; z: number }
@@ -327,6 +329,7 @@ export type Effect = Point & {
   volcano?: Volcano
   convertWild?: ConvertWild
   ghostArmy?: true
+  armageddon?: Armageddon
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }

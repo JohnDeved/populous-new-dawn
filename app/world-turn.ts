@@ -418,6 +418,7 @@ import type { ModelMorph } from './morph.ts'
 import { processVaultTask, stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import type { UnitKind } from './unit-kinds.ts'
+import { stepArmageddon } from './armageddon.ts'
 
 export interface TurnObserver {
   beforeTurn?: () => void
@@ -444,7 +445,7 @@ function stepTurn(w: World) {
   if (w.land.landFlags & 2) return
   syncNativeTerrain(w)
   if (w.campaignTimer !== null && w.campaignTimer > 0) w.campaignTimer--
-  if (!(w.land.landFlags & 0x800000))
+  if (!(w.land.landFlags & 0x800000) && !(w.manaWorld.gameFlags & 2))
     processTribes(
       {
         ...w.manaWorld,
@@ -468,8 +469,9 @@ function stepTurn(w: World) {
     )
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
-  for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
-    if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
+  if (!(w.manaWorld.gameFlags & 2))
+    for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
+      if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
   stepUnitShields(w)
   stepUnitBloodlust(w)
   stepUnitInvisibility(w)
@@ -543,6 +545,7 @@ function stepTurn(w: World) {
   for (let index = effectCount - 1; index >= 0; index--) {
     const fx = w.effects[index]
     fx.age += dt
+    if (fx.armageddon) stepArmageddon(w, fx)
     if (fx.corpse) {
       const step = stepReincarnation(fx.corpse.remaining, true, false)
       fx.corpse.remaining = step.remaining
@@ -1113,6 +1116,7 @@ function stepTurn(w: World) {
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
     }))
   syncLandscapeObjects(w)
+  const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
   for (const u of w.units) {
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
@@ -1132,6 +1136,7 @@ function stepTurn(w: World) {
       continue
     }
     if (u.hp <= 0) continue
+    if (armageddon && (armageddon.phase < 2 || u.native?.state === 39)) continue
     if (u.native?.state === 14) continue
     const recovering = u.native ?? u.entry?.person
     if (recovering?.state === 33) {

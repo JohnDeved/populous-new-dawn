@@ -818,13 +818,7 @@ export default function Home() {
                   onBlur={() => setHover(null)}
                 >
                   <HudSprite
-                    id={
-                      b.id === 'hut'
-                        ? 1028
-                        : b.id === 'tower' || b.id === 'temple'
-                          ? 1029
-                          : 1030
-                    }
+                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
                   />
                 </button>
               ))}
@@ -1045,7 +1039,13 @@ export default function Home() {
                                   ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
                                   : world.outcome.level === 13
                                     ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
-                                    : 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'}
+                                    : world.outcome.level === 14
+                                      ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
+                                      : world.outcome.level === 15
+                                        ? 'Free your imprisoned Shaman before the Dakini timer expires.'
+                                        : world.outcome.level === 16
+                                          ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
+                                          : 'Claim Armageddon and survive the final arena battle against every tribe.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

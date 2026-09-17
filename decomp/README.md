@@ -4864,3 +4864,14 @@ the imported layered unit atlas. The browser check observes shaman respawn plus
 ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timing,
 relocation, particles/audio, general class-10 scheduling and unplayable follower
 models remain open.
+
+## 2026-09-17 — Mission 17 Armageddon
+
+`check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,
+82-visit stock grant, model-18 descriptor and target results, and successful and
+failed cast allocation. Fifteen registered exports cover the effect-86 start,
+terrain morph, roster rebuild/ranking, state-39 staging, battle orders,
+recurring controller, modal input, and teardown. The browser port reuses the
+existing terrain, state-39, melee, generic outcome, and checkpoint owners. Exact
+Shaman automatic spell choices, camera interpolation, and HFX/audio remain open;
+see `research/mission17-armageddon.md`.

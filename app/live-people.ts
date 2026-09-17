@@ -1,5 +1,5 @@
 import { buildingPose } from './building-shapes.ts'
-import { emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
+import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
 import { releaseTasks } from './world-tasks.ts'
 import { initializeRouteRecovery, stepRouteRecovery } from './person-route-recovery.ts'
 import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
@@ -106,6 +106,7 @@ import {
 import { positionDistance, random } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
+import { initializeSpecialBattle } from './special-battle.ts'
 
 export type LivePerson = StatefulPerson &
   Celebrant &
@@ -414,6 +415,53 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
     routeRecovery: () => initializeLiveRouteRecovery(w, p),
     encounter: () => initializeGroundCombat(w, p),
     fight: () => initializeGroundCombat(w, p),
+    specialBattle: () => {
+      const arena = w.effects.find(fx => fx.armageddon)
+      if (!arena?.armageddon) throw new Error('Missing Armageddon controller')
+      initializeSpecialBattle(
+        {
+          randomState: state.randomState,
+          center: nativePosition(w, arena),
+          directions: arena.armageddon.directions,
+          populations: arena.armageddon.populations,
+        },
+        p,
+        {
+          leaveVehicle: () => {
+            u.inside = null
+            p.vehicle = 0
+          },
+          insert: point => {
+            registerLivePerson(w, p)
+            moveObjectInCells(w.objectCells, p, point)
+            Object.assign(u, browserPosition(point))
+          },
+          height: point => terrainPointHeight(w.land, point),
+          allocate: (_unitClass, _model, _tribe, point) => {
+            const visual = effect(w, 'trail', browserPosition(point))
+            visual.sprite = { sequence: 'sparkle', frame: 0 }
+            visual.duration = 15 / 12
+            visual.animation = {
+              object: 0,
+              draw: 0,
+              morph: 0,
+              palette: 0,
+              renderFlags: 0,
+              f1: 0,
+              f2: 0,
+              stamp: 0,
+              flags3: 0,
+              morphTimer: 0,
+              morphFrames: 0,
+            }
+            return Object.assign(visual.animation, { flags2: 0, state: 0, duration: 15 })
+          },
+          initializeEffect: () => {},
+          releaseMotion: () => releasePersonRoute(w.motionRoutes, p),
+          setAnimation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
+        }
+      )
+    },
     celebrate: () => stepCelebration(state, p, effects),
     setAnimation: (p, o) => effects.animation(p as LivePerson, o, true),
     releaseMotion: p => effects.releaseMotion(p as LivePerson),

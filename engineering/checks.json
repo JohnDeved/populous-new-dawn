@@ -2324,6 +2324,140 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 17 Armageddon acquisition, stock, targeting, descriptor, and cast allocation against the hash-verified executable.",
+      "coveredBehavior": [
+        "Authored trigger 440 and linked model-18 reward 442",
+        "Eighty-two-visit gift stock and one-shot cap",
+        "Ground/water targeting, range, and missing-Shaman failures",
+        "Successful and failed class-11 model-18 allocation with spent stock"
+      ],
+      "knownLimits": [
+        "Arena phase behavior is established by the registered controller exports and portable/live checks rather than emulated in this probe.",
+        "Allocation, unit-state leaves, and audio playback are intercepted."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission17-armageddon.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission17-armageddon.py",
+        "decomp/research/mission17-armageddon.md",
+        "decomp/generated/00477060.c",
+        "decomp/generated/004772e0.c",
+        "decomp/generated/00477780.c",
+        "decomp/generated/00477890.c",
+        "decomp/generated/00477b90.c",
+        "decomp/generated/00477d50.c",
+        "decomp/generated/004780e0.c",
+        "decomp/generated/004781d0.c",
+        "decomp/generated/004782d0.c",
+        "decomp/generated/00478500.c",
+        "decomp/generated/00478610.c",
+        "decomp/generated/00478860.c",
+        "decomp/generated/00478990.c",
+        "decomp/generated/004af0a0.c",
+        "decomp/generated/004d9420.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 17 level data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 17 reward acquisition, HUD cast allocation, arena phases, state-39 staging, checkpoints, battle handoff, and generic results.",
+      "coveredBehavior": [
+        "Mission 17 imported level, scripts, message 697, and Armageddon head",
+        "Worship gift, stock, HUD cast path, exact arena center terrain, and four tribe directions",
+        "State-39 staging, ordinary combat targets, checkpoint preservation, and modal input",
+        "Generic victory and defeat outcomes with teardown"
+      ],
+      "knownLimits": [
+        "The portable result counterexamples remove one side after real battle orders begin to keep runtime bounded.",
+        "Exact native camera interpolation, audio, and Shaman automatic spell choices remain presentation/controller limits."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission17-armageddon.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission17-armageddon.test.mjs",
+        "app/armageddon.ts",
+        "app/game-store.ts",
+        "app/level-seventeen.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-seventeen.json",
+        "app/special-battle.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 17 Armageddon reward, HUD cast, checkpoint, rendered arena, live battle order, and victory through shipped browser paths.",
+      "coveredBehavior": [
+        "Mission 17 chooser, objective, and original opening message",
+        "Live worship and delayed model-18 stock",
+        "HUD spell button and pointer cast, modal control, checkpoint restore, terrain morph, and rendered participants",
+        "State-39 staging, ordinary combat engagement, generic victory, and restored input"
+      ],
+      "knownLimits": [
+        "Worshippers are placed at native slots and the blue roster is enlarged to bound the winning run.",
+        "Enemy life is cleared after real central battle orders begin; the portable check separately covers defeat and a full natural melee run was observed during implementation."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission17-armageddon.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission17-armageddon.mjs",
+        "scripts/browser-game.mjs",
+        "app/armageddon.ts",
+        "app/game-store.ts",
+        "app/hud.tsx",
+        "app/level-seventeen.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-seventeen.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/special-battle.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes and restores the browser checkpoint database"],
+      "resources": ["Fixed server and browser storage resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

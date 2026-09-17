@@ -67,6 +67,7 @@ import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } fro
 import { tell } from './live-command.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { damageLiveVehicle } from './live-vehicles.ts'
+import { startArmageddon } from './armageddon.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
@@ -971,6 +972,11 @@ function finishCast(
   const upper =
       (spell === 'lightning' || spell === 'tornado') && endpoint ? browserPosition(endpoint) : p,
     fx = effect(w, spell, upper)
+  if (spell === 'armageddon') {
+    fx.team = shaman.team
+    if (!startArmageddon(w, fx)) fx.duration = fx.age
+    return
+  }
   if (spell === 'lightning') {
     // 0x511ef0 raises the displaced projectile endpoint above its local ground.
     // 0x511f70 creates the upper flash and bolt generator on the next turn.
