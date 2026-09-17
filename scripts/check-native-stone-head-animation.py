@@ -134,7 +134,7 @@ for(const row of input.phases){assert.deepEqual(stoneHeadRawPoints(row.frame),ro
     link = list(disassembler.disasm(bytes(cpu.mem_read(0x4851e0,0x190)),0x4851e0))
     comparisons = [i for i in link if i.mnemonic == 'cmp' and '+ 0x80]' in i.op_str and i.op_str.endswith(', 3')]
     flag_writes = [i for i in link if i.mnemonic == 'or' and '+ 0x6d]' in i.op_str and i.op_str.endswith(', 0x20')]
-    assert comparisons and flag_writes
+    assert comparisons and flag_writes, [(hex(i.address), i.mnemonic, i.op_str) for i in link]
     linked_evidence = [dict(va=f'{i.address:08x}', bytes=i.bytes.hex(), text=i.mnemonic+' '+i.op_str) for i in comparisons + flag_writes]
 
     model_calls, triangles = 0, 0
