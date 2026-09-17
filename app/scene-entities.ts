@@ -44,6 +44,7 @@ import { modelHighlight } from './model-lighting.ts'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
+import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
@@ -160,34 +161,14 @@ function makeBuilding(b: Building, stage: number) {
 }
 
 function makeVehicle(v: Vehicle) {
-  const g = new THREE.Group()
-  if (v.model === 3 || v.model === 4) {
-    // ponytail: render resource 839 is not imported; replace this silhouette when recovered.
-    const envelope = new THREE.Mesh(
-      new THREE.SphereGeometry(1.7, 16, 10),
-      material(0xd6c36a)
-    )
-    envelope.scale.set(1.35, 0.85, 1)
-    envelope.position.y = 2.3
-    g.add(envelope)
-    part(g, box(1.2, 0.55, 0.9), material(0x76502d), 0, 0.35)
-    for (const x of [-0.45, 0.45])
-      for (const z of [-0.3, 0.3]) part(g, box(0.04, 1.7, 0.04), material(0x4e3521), x, 1.25, z)
-    g.userData = { point: { id: v.id }, vehicle: v.id }
-    return g
-  }
-  // ponytail: render resource 838 is not imported; replace this hull when its native asset is recovered.
-  part(g, box(3.2, 0.65, 1.45), material(0x76502d), 0, 0.2)
-  part(g, box(2.3, 0.28, 1.1), material(0xb1834f), 0, 0.65)
-  part(g, box(0.12, 2.4, 0.12), material(0x4e3521), 0, 1.45)
-  const sail = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.8, 1.45),
-    new THREE.MeshBasicMaterial({ color: 0xe6dcc1, side: THREE.DoubleSide })
-  )
-  sail.position.set(0, 1.65, 0)
-  sail.rotation.y = Math.PI / 2
-  g.add(sail)
-  g.userData = { point: { id: v.id }, vehicle: v.id }
+  const g = new THREE.Group(),
+    resource = originalVehicleMesh(v.model),
+    mesh = nativeModel(resource)
+  if (!mesh) throw new Error(`Missing original vehicle mesh ${resource}`)
+  // Reuse the original model UV/material, integer transform, lighting and
+  // painter/picking consumers. The vehicle's gameplay position stays unchanged.
+  g.add(mesh)
+  g.userData = { point: { id: v.id }, vehicle: v.id, vehicleMesh: resource }
   return g
 }
 
@@ -498,6 +479,13 @@ export function updateVehiclesFrame(scene: GameScene) {
       g = makeVehicle(v)
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
+    }
+    if (g.userData.vehicleTeam !== v.team) {
+      const mesh = g.children[0] as THREE.Mesh<THREE.BufferGeometry>
+      const uv = mesh.geometry.getAttribute('uv') as THREE.BufferAttribute
+      uv.copyArray(originalVehicleUV(v.model, v.team))
+      uv.needsUpdate = true
+      g.userData.vehicleTeam = v.team
     }
     scene.locate(g, browserPosition(v), v.h / 45)
     scene.orientModel(g, v.heading)
