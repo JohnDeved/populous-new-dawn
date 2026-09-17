@@ -150,6 +150,10 @@ export class GameScene {
   viewTransition: {
     config: CameraConfig
     remaining: number
+    time: number
+    previewStartTime: number
+    previewFraction: number
+    preview?: CameraConfig
     angle?: { target: number; increment: number }
   } | null = null
   overviewStage: 'enter' | 'exit' | null = null
