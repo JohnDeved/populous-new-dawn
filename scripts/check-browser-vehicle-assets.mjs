@@ -11,6 +11,7 @@ import { modelMatrix, modelPoint, projectPoint } from '../app/projection.ts'
 import { modelShade } from '../app/model-lighting.ts'
 import { modelTriangleVisible, polygonBucket } from '../app/painter-order.ts'
 import models from '../app/original-models.json' with { type: 'json' }
+import { originalVehicleUV } from '../app/vehicle-appearance.ts'
 
 assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_DEADLINE, 'Use the canonical shared queue')
 assert.ok(process.argv.includes('--output-dir'))
@@ -132,12 +133,19 @@ try {
       for (const team of ['blue', 'red', 'yellow', 'green']) {
         vehicle.team = team; window.renderVehicleFrame(vehicle)
         const mesh = s.vehicleMeshes.get(id).children[0]
-        rows.push({ team, mesh: mesh.userData.nativeModel, geometry: mesh.geometry.uuid, material: mesh.material.uuid })
+        rows.push({ team, mesh: mesh.userData.nativeModel, geometry: mesh.geometry.uuid, material: mesh.material.uuid, uv: Array.from(mesh.geometry.getAttribute('uv').array) })
       }
       vehicle.team = old; window.renderVehicleFrame(vehicle)
       return rows
     }, id)
     assert.ok(teams.every(row => row.mesh === expectedMesh && row.geometry === teams[0].geometry && row.material === teams[0].material))
+    for (const row of teams) assert.deepEqual(row.uv, [...originalVehicleUV(actor.model, row.team)], 'Actual vehicle UV attribute must follow original tribe texture selection')
+    assert.equal(new Set(teams.map(row => createHash('sha256').update(JSON.stringify(row.uv)).digest('hex'))).size, 4)
+    for (const team of ['blue', 'red', 'yellow', 'green']) {
+      await page.evaluate(({ id, team }) => { const s = window.testScene, v = s.world.vehicles.find(v => v.id === id); v.team = team; window.renderVehicleFrame(v) }, { id, team })
+      await page.screenshot({ path: join(out, `vehicle-${expectedMesh}-${team}.png`) })
+    }
+    await page.evaluate(({ id, team }) => { const s = window.testScene, v = s.world.vehicles.find(v => v.id === id); v.team = team; window.renderVehicleFrame(v) }, { id, team: actor.team })
     report.stages.push({ actor: id, originalMesh: expectedMesh, eightDirections: true, genuineHoverPick: true, tribeIdentity: teams })
   }
   writeFileSync(join(out, 'native-model-input.json'), JSON.stringify(report.frames) + '\n')

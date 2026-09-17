@@ -3,7 +3,7 @@ import test from 'node:test'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import models from '../app/original-models.json' with { type: 'json' }
-import { originalVehicleMesh } from '../app/vehicle-appearance.ts'
+import { originalVehicleMesh, originalVehicleTextureTile, originalVehicleUV } from '../app/vehicle-appearance.ts'
 import { modelStage } from '../app/model-faces.ts'
 import { modelLighting } from '../app/model-lighting.ts'
 import { createWorld } from '../app/world-initialization.ts'
@@ -109,4 +109,39 @@ test('the shipped vehicle factory consumes original models, with no custom hull/
   assert.ok(!/SphereGeometry|PlaneGeometry|\bbox\(/.test(factory))
   assert.ok(entities.includes('scene.locate(g, browserPosition(v), v.h / 45)'))
   assert.ok(entities.includes('scene.orientModel(g, v.heading)'))
+})
+
+test('original vehicle owner textures use adjacent source tiles and retain local UVs', () => {
+  const teams = ['blue', 'red', 'yellow', 'green', 'wild']
+  const owners = [0, 1, 2, 3, -1]
+  for (const [type, id] of [[1, 143], [3, 144]]) {
+    const original = new Float32Array(modelStage(models[id], 4).uv)
+    assert.deepEqual(originalVehicleUV(type, 'blue'), original)
+    const data = models[id]
+    for (const [t, team] of teams.entries()) {
+      const uv = originalVehicleUV(type, team)
+      assert.equal(uv, originalVehicleUV(type + 1, team), 'Same mesh family shares cached UVs')
+      assert.equal(uv, originalVehicleUV(type, team), 'Repeated frames do not allocate UV arrays')
+      let cursor = 0, changed = 0
+      for (let face = 0; face < data.tiles.length; face++) {
+        const source = data.tiles[face], count = data.faces[face * 2] === 3 ? 3 : 6
+        const flagged = [186, 202, 210].includes(source)
+        const expected = source + (flagged ? owners[t] : 0)
+        assert.equal(originalVehicleTextureTile(source, team), expected)
+        for (let corner = 0; corner < count; corner++, cursor++) {
+          assert.equal(Math.floor(uv[cursor * 2] * 8), expected & 7)
+          assert.equal(Math.floor((1 - uv[cursor * 2 + 1]) * 32), expected >> 3)
+          const beforeU = original[cursor * 2] * 8 - (source & 7)
+          const beforeV = (1 - original[cursor * 2 + 1]) * 32 - (source >> 3)
+          const afterU = uv[cursor * 2] * 8 - (expected & 7)
+          const afterV = (1 - uv[cursor * 2 + 1]) * 32 - (expected >> 3)
+          assert.ok(Math.abs(beforeU - afterU) < 2e-6 && Math.abs(beforeV - afterV) < 2e-6)
+          if (!flagged) assert.deepEqual([...uv.slice(cursor * 2, cursor * 2 + 2)], [...original.slice(cursor * 2, cursor * 2 + 2)])
+          else changed++
+        }
+      }
+      assert.ok(changed > 0)
+    }
+    assert.equal(new Set(teams.map(team => hash([...originalVehicleUV(type, team)]))).size, 5)
+  }
 })

@@ -44,7 +44,7 @@ import { modelHighlight } from './model-lighting.ts'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
-import { originalVehicleMesh } from './vehicle-appearance.ts'
+import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
@@ -479,6 +479,13 @@ export function updateVehiclesFrame(scene: GameScene) {
       g = makeVehicle(v)
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
+    }
+    if (g.userData.vehicleTeam !== v.team) {
+      const mesh = g.children[0] as THREE.Mesh<THREE.BufferGeometry>
+      const uv = mesh.geometry.getAttribute('uv') as THREE.BufferAttribute
+      uv.copyArray(originalVehicleUV(v.model, v.team))
+      uv.needsUpdate = true
+      g.userData.vehicleTeam = v.team
     }
     scene.locate(g, browserPosition(v), v.h / 45)
     scene.orientModel(g, v.heading)

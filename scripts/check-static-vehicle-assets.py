@@ -148,13 +148,19 @@ def main():
         raw['data/bl320-c.dat'], raw['data/pal0-c.dat'], raw['data/al0-c.dat'],
         rules['objectTextureAlpha']))
     expected_image = Image.frombytes('RGBA', (256, 1024), bytes(canonical))
-    for tile in all_tiles:
+    # Post-load00418de0 enables tribe textures for143/144. The static bitmap
+    # identifies base tiles; the focused native checker executes the owner path.
+    flagged_tiles = sorted(tile for tile in all_tiles if exe.read(0x5aa218 + tile, 1)[0] & 1)
+    assert flagged_tiles == [186, 202, 210]
+    checked_tiles = all_tiles | {tile + owner for tile in flagged_tiles for owner in [-1, 0, 1, 2, 3]}
+    for tile in checked_tiles:
         rectangle = (tile % 8 * 32, tile // 8 * 32, tile % 8 * 32 + 32, tile // 8 * 32 + 32)
         assert atlas.crop(rectangle).tobytes() == expected_image.crop(rectangle).tobytes(), tile
     result = dict(status='PASS_STATIC_ORIGINAL_VEHICLE_ASSETS', exeSHA256=sha(exe.data),
                   sourceSHA256=sha(Path(__file__).read_bytes()), inputs=inputs, windows=windows,
                   descriptors=descriptors, models=records, restoredVertices=assertions,
-                  textureTiles=sorted(all_tiles), equivalentCampaignBanks=[2, 6], noMorphRows=True,
+                  textureTiles=sorted(all_tiles), originalTribeTextureBases=flagged_tiles,
+                  allOwnerAtlasTiles=sorted(checked_tiles), equivalentCampaignBanks=[2, 6], noMorphRows=True,
                   limits='Original bytes/decoded assets only; no native execution, live gameplay, GPU pixels or performance acceptance.')
     if args.output:
         with args.output.open('x') as output:
