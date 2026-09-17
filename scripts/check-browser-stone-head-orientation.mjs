@@ -115,7 +115,7 @@ async function run() {
         assert.ok(pick,'Correctly oriented authored mesh must be pickable')
         await page.mouse.move(pick.clientX,pick.clientY)
         await page.evaluate(()=>window.drawOrientation())
-        assert.equal(await page.evaluate(()=>window.testScene.hovered),pick.id)
+        assert.equal(await page.evaluate(()=>window.testScene.hoveredObject),pick.id)
         for(const k of ['vertices','shades','biases','submitted'])delete model[k]
         report.frames.push(frame)
         await page.screenshot({path:join(output,`mission-${item.mission}-bearing-${bearing}.png`)})
