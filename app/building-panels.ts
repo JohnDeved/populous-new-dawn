@@ -1,10 +1,27 @@
 import type { GameScene } from './scene.ts'
 import { buildingModel, type Building } from './model.ts'
 import rules from './original-rules.json' with { type: 'json' }
-import { drawOccupantPanel, paintPanel } from './training-panel.ts'
+import { drawOccupantPanel, occupantPanelControlLayout, paintPanel } from './training-panel.ts'
 import { constructionPanel } from './construction-panel.ts'
 import { selectBuildingOccupants, dismantleBuilding } from './live-building-entry.ts'
 import { nativeUnitModel } from './unit-kinds.ts'
+
+export function buildingOccupantPanelProfile(
+  b: Pick<Building, 'kind' | 'level' | 'progress'>
+): { kind: 'resident' | 'training'; capacity: 1 | 3 | 4 | 5 } | null {
+  if (b.progress < 1) return null
+  if (b.kind === 'hut')
+    return { kind: 'resident', capacity: rules.buildingCapacity[buildingModel(b)] as 3 | 4 | 5 }
+  if (b.kind === 'tower') return { kind: 'resident', capacity: 1 }
+  if (
+    b.kind === 'camp' ||
+    b.kind === 'temple' ||
+    b.kind === 'spyHut' ||
+    b.kind === 'firewarriorHut'
+  )
+    return { kind: 'training', capacity: 5 }
+  return null
+}
 
 function createPanel(scene: GameScene, b: Building) {
   const panel = document.createElement('div')
@@ -71,17 +88,13 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
   if (scene.overviewActive || world.inputMask || !atlas?.complete || !atlas.naturalWidth) return
   for (const b of world.buildings) {
     const plan = b.progress < 1,
-      school =
-        !plan &&
-        (b.kind === 'camp' ||
-          b.kind === 'temple' ||
-          b.kind === 'spyHut' ||
-          b.kind === 'firewarriorHut'),
-      tower = !plan && b.kind === 'tower',
+      profile = buildingOccupantPanelProfile(b),
+      school = profile?.kind === 'training',
+      tower = profile?.kind === 'resident' && b.kind === 'tower',
+      hut = profile?.kind === 'resident' && b.kind === 'hut',
       admission = b.admission,
       activity = admission?.activity ?? 0
-    if ((!plan && !school && !tower) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b))
-      continue
+    if ((!plan && !profile) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b)) continue
     // ponytail: activity/hover owns visibility until native panel allocation/lifetime is ported.
     if (
       !(activity & (128 | 0x8000)) &&
@@ -92,24 +105,26 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     )
       continue
     const ids = plan ? b.builders : admission?.occupants
-    const occupants = (ids ?? []).flatMap(id => {
-      const u =
-        id &&
-        world.units.find(
-          unit =>
-            unit.id === id && unit.hp > 0 && (plan ? unit.work === b.id : unit.inside === b.id)
-        )
-      return u
-        ? [
-            {
-              id: u.id,
-              model: nativeUnitModel(u.kind),
-              kind: u.kind,
-              selected: world.selected.includes(u.id),
-            },
-          ]
-        : []
-    })
+    const occupants = (ids ?? [])
+      .flatMap(id => {
+        const u =
+          id &&
+          world.units.find(
+            unit =>
+              unit.id === id && unit.hp > 0 && (plan ? unit.work === b.id : unit.inside === b.id)
+          )
+        return u
+          ? [
+              {
+                id: u.id,
+                model: nativeUnitModel(u.kind),
+                kind: u.kind,
+                selected: world.selected.includes(u.id),
+              },
+            ]
+          : []
+      })
+      .slice(0, plan ? undefined : profile!.capacity)
     const old = scene.buildingPanels.get(b.id)
     if (old && old.children.length !== rules.buildingMaxWorkers[buildingModel(b)] + 2) {
       old.remove()
@@ -167,28 +182,34 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
         `Construction: ${occupants.length} of ${state.capacity} workers; ${state.wood} of ${state.totalWood} timber`
       )
     } else {
-      const cost = tower ? 0 : (admission?.trainingCost ?? 0),
+      const capacity = profile!.capacity,
+        cost = school ? (admission?.trainingCost ?? 0) : 0,
         progress = b.timer,
-        top = activity & 128 && cost ? 7 : 1
+        active = school && !!(activity & 128),
+        controls = occupantPanelControlLayout({ capacity, active, cost })
       drawOccupantPanel(canvas, atlas, {
         ...shared,
-        capacity: tower ? 1 : 5,
+        capacity,
         cost,
         progress,
-        active: !tower && !!(activity & 128),
+        active,
       })
       for (let i = 0; i < buttons.length; i++) {
-        buttons[i].style.left = `${(tower ? 1 : 3) + i * 17}px`
-        buttons[i].style.top = `${top}px`
+        const slot = controls.people[i]
+        if (!slot) continue
+        buttons[i].style.left = `${slot.x}px`
+        buttons[i].style.top = `${slot.y}px`
       }
       dismantle.hidden = false
-      dismantle.style.left = tower ? '21px' : '91px'
-      dismantle.style.top = `${top - 1}px`
+      dismantle.style.left = `${controls.control.x}px`
+      dismantle.style.top = `${controls.control.y}px`
       panel.setAttribute(
         'aria-label',
         tower
           ? `Guard tower: ${occupants.length} of 1 occupants`
-          : `${b.kind === 'temple' ? 'Preacher' : b.kind === 'spyHut' ? 'Spy' : b.kind === 'firewarriorHut' ? 'Firewarrior' : 'Warrior'} training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
+          : hut
+            ? `Hut: ${occupants.length} of ${capacity} occupants`
+            : `${b.kind === 'temple' ? 'Preacher' : b.kind === 'spyHut' ? 'Spy' : b.kind === 'firewarriorHut' ? 'Firewarrior' : 'Warrior'} training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
       )
     }
     const p = scene.screen(b)
@@ -205,7 +226,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       button.dataset.person = String(person.id)
       button.setAttribute(
         'aria-label',
-        `${plan ? 'Worker' : tower ? 'Occupant' : 'Trainee'} ${i + 1}: ${person.kind}`
+        `${plan ? 'Worker' : school ? 'Trainee' : 'Occupant'} ${i + 1}: ${person.kind}`
       )
       button.setAttribute('aria-pressed', String(person.selected))
       button.title = 'Click to select; Shift-click for all workers; right-click to focus'

@@ -1,8 +1,10 @@
 import hud from './original-hud.json' with { type: 'json' }
 import { chargeFills } from './hud-charge.ts'
 
+export type OccupantPanelCapacity = 1 | 3 | 4 | 5
+
 export interface OccupantPanelState {
-  capacity?: 1 | 5
+  capacity?: OccupantPanelCapacity
   occupants: { model: number; selected: boolean }[]
   active: boolean
   cost: number
@@ -42,17 +44,45 @@ export function panelControl(
     events.push(['sprite', s.dismantling ? 48 : 51, x, y, -1, false])
 }
 
-// 0x504bc0, kinds 5/7: one row of training/tower occupants, control and tail.
-// Panel allocation, input commands and lifetime are separate from its artwork.
-export function occupantPanel(s: OccupantPanelState) {
+function occupantPanelGeometry(capacity: OccupantPanelCapacity, charged: boolean) {
   const icon = rects[75],
     button = rects[46],
-    tail = rects[52],
-    rowWidth = (icon.w + 1) * (s.capacity ?? 5) + 4,
+    rowWidth = (icon.w + 1) * capacity + 4,
     contentWidth = rowWidth + button.w + 4,
     width = (contentWidth + 7) & ~7,
     x = Math.trunc((width - contentWidth) / 2),
-    y = s.active && s.cost ? 6 : 0,
+    y = charged ? 6 : 0
+  return { icon, button, rowWidth, contentWidth, width, x, y }
+}
+
+export function occupantPanelControlLayout(
+  s: Pick<OccupantPanelState, 'capacity' | 'active' | 'cost'>
+) {
+  const capacity = s.capacity ?? 5,
+    { icon, rowWidth, x, y } = occupantPanelGeometry(capacity, s.active && !!s.cost)
+  return {
+    people: Array.from({ length: capacity }, (_, i) => ({
+      x: x + 1 + i * (icon.w + 1),
+      y: y + 1,
+    })),
+    control: { x: x + rowWidth, y },
+  }
+}
+
+export function occupantPanelControls(capacity: OccupantPanelCapacity, charged: boolean) {
+  const layout = occupantPanelControlLayout({ capacity, active: charged, cost: charged ? 1 : 0 })
+  return { occupants: layout.people, control: layout.control }
+}
+
+// 0x504bc0, kinds 5/7: one row of building occupants, control and tail.
+// Panel allocation, input commands and lifetime are separate from its artwork.
+export function occupantPanel(s: OccupantPanelState) {
+  const capacity = s.capacity ?? 5,
+    { icon, button, rowWidth, contentWidth, width, x, y } = occupantPanelGeometry(
+      capacity,
+      s.active && !!s.cost
+    ),
+    tail = rects[52],
     rowHeight = icon.h + 5,
     events: PanelDraw[] = []
   if (y) {
@@ -62,7 +92,7 @@ export function occupantPanel(s: OccupantPanelState) {
         events.push(['fill', fill.palette, [x + 1, 1, x + 1 + fill.width, 4], 255])
   }
   panelFrame(events, x, y, rowWidth, rowHeight)
-  for (let i = 0; i < (s.capacity ?? 5); i++) {
+  for (let i = 0; i < capacity; i++) {
     const person = s.occupants[i],
       left = x + 1 + i * (icon.w + 1)
     if (!person) events.push(['sprite', 75, left, y + 1, 172, true])
