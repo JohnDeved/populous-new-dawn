@@ -775,10 +775,11 @@
         "On-foot shared automatic response, specialist target reservation, command lifetime, and repeated-volley ownership",
         "Range, cooldown, speed, target binding, and deletion",
         "Live paired motion and ordinary Brave impact",
-        "Guard-Tower range extension, cooldown, elevated origin, and eligible-hostile targeting"
+        "Guard-Tower range extension, cooldown, elevated origin, and eligible-hostile targeting",
+        "Completed-building eligibility, ranged substate, tracked impact, 40-point damage, attribution, and repeat cooldown"
       ],
       "knownLimits": [
-        "Global order/projectile allocation, audio, trail, and the downstream kill-credit consumer are intercepted; browser terrain occlusion, the special level-flag range, Bloodlust, broad target damage, and complete native play remain deferred."
+        "Global order/projectile allocation, audio, trail, and the downstream kill-credit consumer are intercepted; the completed-building branch is established by indexed byte-verified exports rather than a constructed native probe; browser terrain occlusion, the special level-flag range, Bloodlust, broad target damage, and complete native play remain deferred."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
       "args": ["scripts/check-native-firewarrior.py", "$POPULOUS_EXE"],
@@ -790,6 +791,7 @@
         "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
         "app/firewarrior.ts",
+        "app/building-damage.ts",
         "app/combat-runtime.ts",
         "app/combat-targets.ts",
         "app/live-combat.ts",
@@ -855,6 +857,47 @@
         "tests/tower-entry.test.mjs",
         "app/page.tsx",
         "app/game-store.ts",
+        "app/scene.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
+      "resources": ["Fixed game server and browser; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise a Mission 10 UI-trained Firewarrior's native command-19 ranged attack against an authored completed enemy building.",
+      "coveredBehavior": [
+        "Mission 10 authored Firewarrior Hut training and Firewarrior HUD selection",
+        "Rendered authored enemy-building input and command-19 ownership",
+        "Paired GPU projectile rendering with one tracked building impact",
+        "Native 40-point building damage, attacker attribution, cooldown, and repeated volley"
+      ],
+      "knownLimits": [
+        "Accelerates training mana and positions the trained Firewarrior and authentic hostile people to isolate the authored building target.",
+        "Broad terrain line-of-fire, plans, Bloodlust, tower-origin building attacks, and building destruction remain deferred."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-firewarrior-building.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-firewarrior-building.mjs",
+        "scripts/browser-game.mjs",
+        "app/level-ten.ts",
+        "app/original-script-ten.json",
+        "app/firewarrior.ts",
+        "app/building-damage.ts",
+        "app/combat-targets.ts",
+        "app/live-combat.ts",
+        "app/live-building-combat.ts",
+        "app/live-command.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "tests/combat-orders.test.mjs",
+        "app/page.tsx",
         "app/scene.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],

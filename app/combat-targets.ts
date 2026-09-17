@@ -236,29 +236,40 @@ export function selectCombatTarget(w: CombatTargetWorld, p: CombatPerson, order:
   return { target, type: choice?.type ?? 1 }
 }
 
-// 0x51d0b0's person-only model-6 slice. Nearby people win outright; otherwise
-// specialist classes win before ordinary people, with the native reservation fallback.
+// 0x51d0b0's model-6 slice. Nearby people win outright; otherwise specialist
+// people win before completed buildings, with the native reservation fallback.
 export function selectFirewarriorTarget(
   w: CombatTargetWorld,
   p: CombatPerson,
   order: AreaOrder,
-  ready: (target: CombatPerson) => boolean,
+  ready: (target: CombatPerson | CombatBuilding) => boolean,
   reserve = true
 ) {
   const candidates = collectTargets(w, p, order)
-    .filter((target): target is CombatPerson => target.class === 1 && ready(target))
+    .filter(
+      (target): target is CombatPerson | CombatBuilding =>
+        (target.class === 1 || target.class === 2) && ready(target)
+    )
     .map(target => ({ target, distance: positionDistance(p, target) }))
     .toSorted((a, b) => a.distance - b.distance)
   if (!candidates.length) return null
-  const priority = (target: CombatPerson) =>
-    target.model === 8 ? 1 : target.model === 7 ? 2 : target.model === 6 ? 3 : 6
-  const nearby = candidates[0].distance < 0x481
-  const ordered = nearby
-    ? candidates
-    : candidates.toSorted((a, b) => priority(a.target) - priority(b.target))
+  const priority = (target: CombatPerson | CombatBuilding) =>
+    target.class === 2
+      ? 7
+      : target.model === 8
+        ? 1
+        : target.model === 7
+          ? 2
+          : target.model === 6
+            ? 3
+            : 6
+  const nearby = candidates.find(
+    ({ target, distance }) => target.class === 1 && distance < 0x481
+  )
+  const ordered = candidates.toSorted((a, b) => priority(a.target) - priority(b.target))
   const choice = nearby
-    ? ordered[0]
+    ? nearby
     : ordered.find(({ target }) => !(target.flags4 & 0x200000)) ?? ordered[0]
   if (reserve) reserveCombatTarget(choice.target, p)
-  return { target: choice.target, type: 2 }
+  return { target: choice.target, type: choice.target.class === 2 ? 3 : 2 }
 }

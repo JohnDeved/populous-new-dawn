@@ -1,6 +1,7 @@
 # Firewarrior launch and open boundaries
 
-Preserved 2026-09-13. Research only; no playable Firewarrior feature or parity credit.
+Preserved 2026-09-13 and extended through 2026-09-17. Bounded live slices exist;
+this file records evidence and open mechanics rather than parity percentage.
 
 ## Reuse before investigation
 
@@ -102,8 +103,23 @@ without deleting an already-launched projectile.
 The checked-in export was produced with Ghidra 12.1.3 from executable SHA256
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`; its manifest
 hash is `257d830a5597b5e39d8bf6d178e5c053d2391add96f7899d8470a793337b2853`.
-The live implementation intentionally remains person-only and omits native terrain
-line-of-fire and the initializer's building/plan branch.
+### Completed-building target branch (2026-09-17)
+
+The same indexed exports prove the missing completed-building branch without a new
+Ghidra run. When the current person-state flags contain `0x08`, `0051e9a0` may create
+automatic command 21 with flags `0x22`. `0051d0b0` admits hostile completed class-2
+buildings and returns target type 3; `0051a2a0` maps that type plus source model 6 to
+substate 11, which shares the ranged `0051fbf0` launch instead of ordinary building
+strikes. `0051f990` uses building coordinates, the usual strict per-axis range, and
+the retained terrain-line test.
+
+`004bbcf0` marks only the second tracked projectile for impact. Its
+`004bbf30 → 00514410 → 00409200` path adds `blastBuildingDamage` 40 and records the
+projectile tribe as attacker; cooldown 25 gates the next fresh volley. Mission 8 has
+no authored enemy class-2 building, so live browser acceptance uses Mission 10's
+authored completed Green Hut and its shipped training, HUD selection, and building
+command path. Plans, broad terrain-line coverage, Bloodlust, tower-origin building
+targets, and complete destruction remain open.
 
 ## Boundaries and next step
 

@@ -11,7 +11,7 @@ import {automaticMeleeTarget} from '../app/live-combat.ts'
 import {buildingCounterattack,cancelLiveBuildingAttack,startLiveCombatResponse} from '../app/live-building-combat.ts'
 import {createLivePerson,enterLiveCombat,syncLivePersonCells} from '../app/live-people.ts'
 import {startLiveOrders} from '../app/live-movement.ts'
-import {createWorld,addUnit,command,nativePosition,tick,unitAnimationSource} from '../app/model.ts'
+import {createWorld,addUnit,addBuilding,command,nativePosition,syncLandscapeObjects,tick,unitAnimationSource} from '../app/model.ts'
 
 const unsupported = () => {throw Error('Unexpected world consumer')}
 test('original automatic commands preserve normal queues, share one reference-counted record and handle allocation exhaustion', () => {
@@ -202,6 +202,30 @@ test('an on-foot Firewarrior owns one automatic response per cooldown and yields
   for(let i=0;i<20&&dead.effects.some(effect=>effect.firewarriorShot);i++)tick(dead,1/12)
   assert.equal(dead.buildingOrders.active,0)
   assert.notEqual(defender.damageAttacker,0,'a dead source cannot retain projectile credit')
+})
+
+test('an on-foot Firewarrior repeatedly launches at and damages a completed enemy building', () => {
+  const w=field(), building=addBuilding(w,'red','hut',{x:3,z:0}), source=addUnit(w,'blue','firewarrior',{x:0,z:0})
+  addUnit(w,'red','shaman',{x:30,z:30})
+  syncLandscapeObjects(w);source.native=createLivePerson(w,source);source.native.state=17;source.native.flags3|=0x800;syncLivePersonCells(w)
+  assert.equal(startLiveCombatResponse(w,source),true)
+  assert.equal(w.buildingOrders.records[source.native.immediateCommand].flags,0x22)
+  for(let i=0;i<8&&!building.damageState?.damage;i++)tick(w,1/12)
+  assert.equal(building.damageState.damage,40,'only the tracked projectile applies native building damage')
+  assert.equal(building.damageState.attacker,0)
+  let prior=source.cooldown,repeated=false
+  for(let i=0;i<80&&!repeated;i++){
+    tick(w,1/12)
+    repeated=source.cooldown>prior
+    prior=source.cooldown
+  }
+  assert.equal(repeated,true)
+  assert.equal(source.target,building.id)
+  const priorDamage=building.damageState.damage
+  source.hp=0
+  for(let i=0;i<20&&building.damageState.damage<=priorDamage;i++)tick(w,1/12)
+  assert.ok(building.damageState.damage>priorDamage,'a launched building shot survives its source')
+  assert.equal(building.damageState.attacker,0)
 })
 
 test('automatic combat restarts a retained direct tree harvest instead of harvesting during battle', () => {

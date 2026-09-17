@@ -520,12 +520,7 @@ function stepAreaAttack(
           canFire: () => {
             if (p.model !== 6) return unsupported()
             const owner = selected?.owner
-            return (
-              !!owner &&
-              !('progress' in owner) &&
-              !('members' in owner) &&
-              firewarriorReady(w, u, owner)
-            )
+            return !!owner && !('members' in owner) && firewarriorReady(w, u, owner)
           },
           commandPosition: area => ({
             x: ((area.a & 254) + 1) * 256,
@@ -546,7 +541,8 @@ function stepAreaAttack(
   const target = w.units.find(unit => unit.id === p.workTarget && unit.hp > 0)
   const fight = w.fights.find(b => b.id === p.workTarget)
   if ([10, 11].includes(p.substate)) {
-    if (!target) return true
+    const fireTarget = p.substate === 11 ? building : target
+    if (!fireTarget) return true
     if (p.animationMode === 40) {
       if (!p.stateObject || !w.effects.some(effect => effect.id === p.stateObject) || --p.timer < 1) {
         Object.assign(p, { animationMode: 0, stateObject: 0, timer: 0 })
@@ -566,16 +562,16 @@ function stepAreaAttack(
       }
       return false
     }
-    if (!firewarriorReady(w, u, target)) restart = true
+    if (!firewarriorReady(w, u, fireTarget)) restart = true
     else if (u.cooldown) Object.assign(p, { animationMode: 45, timer: 32 })
     else {
-      u.target = target.id
-      u.heading = Math.atan2(target.x - u.x, target.z - u.z)
+      u.target = fireTarget.id
+      u.heading = Math.atan2(fireTarget.x - u.x, fireTarget.z - u.z)
       u.fighting = true
       setLivePersonAnimation(w, p, 15)
       Object.assign(p, {
         animationMode: 44,
-        stateObject: launchFirewarrior(w, u, target),
+        stateObject: launchFirewarrior(w, u, fireTarget),
         timer: (rules.animationDescriptors[p.draw].step + 1) * sprites.frameCounts[p.object],
       })
     }

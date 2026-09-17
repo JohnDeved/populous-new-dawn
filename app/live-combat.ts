@@ -171,7 +171,7 @@ export function selectLiveFirewarriorTarget(
   w: World,
   u: Unit,
   order: { model: number; flags: number; a: number; b: number },
-  ready: (target: Unit) => boolean,
+  ready: (target: Unit | Building) => boolean,
   reserve = true
 ) {
   const source = combatPerson(u)
@@ -183,12 +183,12 @@ export function selectLiveFirewarriorTarget(
     order,
     target => {
       const owner = owners.get(target.id)
-      return !!owner && !('progress' in owner) && !('members' in owner) && ready(owner)
+      return !!owner && !('members' in owner) && ready(owner)
     },
     reserve
   )
   if (!result) return
-  const owner = owners.get(result.target.id) as Unit
+  const owner = owners.get(result.target.id) as Unit | Building
   if (reserve)
     owner.attackReservation = {
       flags4: result.target.flags4 & 0x300000,
@@ -245,16 +245,19 @@ function startFirewarriorResponse(
   p: CombatPerson & OrderedPerson & { h: number },
   peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
   effects: OrderEffects,
-  ready: (target: Unit) => boolean
+  ready: (target: Unit | Building) => boolean
 ) {
   const range = engagementRange(p, currentPersonOrder(w.buildingOrders, p), false)
   if (!range) return 0
   const radius = Math.trunc(range / 2) * 2,
-    area = { model: 21, flags: 32, a: ((p.x >>> 8) & 254) | (p.y & 0xfe00), b: radius * 257 }
-  if (!selectLiveFirewarriorTarget(w, u, area, ready, false)) return 0
+    buildings = !!(rules.personStateFlags[p.state] & 8) && !p.vehicle,
+    area = { model: 21, flags: 32 | (buildings ? 2 : 0), a: ((p.x >>> 8) & 254) | (p.y & 0xfe00), b: radius * 257 },
+    selected = selectLiveFirewarriorTarget(w, u, area, ready, false)
+  if (!selected) return 0
   const id = allocatePersonOrder(w.buildingOrders)
   if (!id) return 0
   prepareCellOrder(w.buildingOrders.records[id], area, 32, w.land.categories)
+  if ('progress' in selected.owner) w.buildingOrders.records[id].flags |= 2
   p.flags2 = (p.flags2 | 16) >>> 0
   attachPersonOrder(w.buildingOrders, p, id, -1, effects)
   shareCombatOrder(w.buildingOrders, p, id, peers(), effects)
@@ -269,7 +272,7 @@ export function allocateLiveCombatResponse(
   p: CombatPerson & OrderedPerson & { h: number; commandPhase: number },
   peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
   effects: OrderEffects,
-  firewarriorReady: (target?: Unit) => boolean = () => false
+  firewarriorReady: (target?: Unit | Building) => boolean = () => false
 ) {
   const order = currentPersonOrder(w.buildingOrders, p)
   const scanner = combatScan(w, p, order, false, firewarriorReady)

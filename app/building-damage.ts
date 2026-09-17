@@ -116,26 +116,46 @@ export function stepBuildingShake(
   }
 }
 
-// Complete 0x409140. Strikes accumulate damage; the building update applies it.
-export function damageBuildingByPerson(
-  w: {
-    levelFlags2: number
-    playerTribe: number
-    attackAlert: number
-    attackCell: number
-    tribes: { flags: number }[]
-  },
-  b: { x: number; y: number; tribe: number; flags3: number; damage: number; attacker: number },
-  p: { model: number; tribe: number }
+type BuildingDamageWorld = {
+  levelFlags2: number
+  playerTribe: number
+  attackAlert: number
+  attackCell: number
+  tribes: { flags: number }[]
+}
+type BuildingDamageTarget = {
+  x: number
+  y: number
+  tribe: number
+  flags3: number
+  damage: number
+  attacker: number
+}
+
+// Complete 0x409200. Damage accumulates; the building update applies it.
+export function damageBuilding(
+  w: BuildingDamageWorld,
+  b: BuildingDamageTarget,
+  damage: number,
+  attacker: number
 ) {
   if (w.levelFlags2 & 0x4000000 || b.flags3 & 128) return
-  b.damage = short(b.damage + rules.personBuildingDamage[p.model])
-  if (p.tribe !== -1) b.attacker = p.tribe & 255
+  b.damage = short(b.damage + damage)
+  if (attacker !== -1) b.attacker = attacker & 255
   if (b.tribe === w.playerTribe && !w.attackAlert) {
     w.attackAlert = 1
     w.attackCell = ((b.x >>> 8) | (b.y & 0xff00)) & 0xfefe
     w.tribes[w.playerTribe].flags = (w.tribes[w.playerTribe].flags | 0x8000) >>> 0
   }
+}
+
+// Complete 0x409140. Strikes route their model damage through 0x409200.
+export function damageBuildingByPerson(
+  w: BuildingDamageWorld,
+  b: BuildingDamageTarget,
+  p: { model: number; tribe: number }
+) {
+  damageBuilding(w, b, rules.personBuildingDamage[p.model], p.tribe)
 }
 
 // 0x408cb0: protected models and buildings already burning ignore ignition.

@@ -358,9 +358,11 @@ export type Effect = Point & {
   firewarriorShot?: {
     source: number
     target: number
+    attacker: number
     remaining: number
     tower?: boolean
     bloodlust?: boolean
+    impact?: boolean
     destination?: NativePoint
   }
   angel?: AngelState
