@@ -54,10 +54,27 @@ that this block made the producer request a model-7 building was incorrect. The
 focused producer probe's model-7 scenario remains a synthetic consumer test, not
 evidence that this script block supplies those attributes.
 
-Construction remains the higher-priority producer. Matak's initial attributes make
-the tower followed by a model-1 Hut reachable; the interval profile does not add a
-later model-7 request. Chumara keeps its initial housing target of nine before
-training.
+CPATR is also not the missing producer owner. Mission 6 header bytes `88..91` are
+`[4,14,14,15]`, selecting CPATR014 for tribes 1/2 and CPATR015 for tribe 3, but
+`00485660` clears the first 48 bytes of each loaded 144-byte record before
+`00486160` copies them into the producer table. The reviewed exports are
+[`00485660`](../generated/00485660.c) and [`00486160`](../generated/00486160.c).
+The turn-zero CPSCR assignments create the initial producer tables.
+
+CPSCR015 words `501..549` are the first later Matak producer profile. For tribe 3,
+`EVERY 511 OFFSET 339` first fires on turn 170 and requires own population `>10`
+plus more than two completed model-1 buildings. It sets attributes
+`9=2,10=15,1=0,3=1,4=0,2=1,35=0,36=0,7=15,8=0,6=5`. Native negative controls at
+turn 169, population 10, and two buildings made no changes. Attribute 3 exposes the
+model-7 target, but 15% Warrior training alone plateaued live at five Warriors.
+
+Words `550..580` are the smallest required second profile. `EVERY 511 OFFSET 359`
+next fires on turn 662 after its early turn-150 opportunity and requires population
+`>20` plus a completed model-3 building. It changes exactly attributes
+`6:5→10,7:15→20,9:2→4,10:15→20`; controls at turn 661, population 20, and
+zero model-3 buildings made no changes. At the observed population 34, 20% permits
+the sixth Warrior required by the raid gate. No later profile is needed for this
+first-raid slice.
 
 Chumara's `EVERY 511 OFFSET 39` profile enables one model-5 Temple after its
 population exceeds nine and it has more than two completed model-1 Huts. Its
@@ -76,22 +93,19 @@ the task writes natively; only the unrelated `004f6320` progress helper is neutr
 
 ## Live integration and boundary
 
-`stepComputerTasks` now preserves those schedules, per-tribe queues, center choice,
-RNG order, bounded spiral search, model-4 validity, two-Brave selection, command 6,
-and the existing timber/construction lifecycle. The Mission 6 portable regression
-proves both tribes independently assign workers, survive checkpoint restoration,
-complete their first Guard Tower, and allocate Chumara's initial model-7 expansion
-and Matak's initial Hut. It also covers construction recovery and the shared type-6
-training consumer with an explicitly prepared building. The former claim that the
-interval profile naturally produced Matak's Warrior Hut, population growth, and
-first raid has been retired. Those later behaviors require their actual producer
-attribute owner before they can be reclaimed as live integration.
+`stepComputerTasks` preserves those schedules, per-tribe queues, center choice, RNG
+order, bounded spiral search, two-Brave selection, command 6, and the existing
+timber/construction lifecycle. The Mission 6 regression now runs the two exact Matak
+profiles through ordinary simulation: Matak completes its Tower, housing, and
+Warrior Training Hut, grows past 22, trains more than five Warriors, crosses the
+original mana gate, allocates the first type-20 raid, and retains the disconnected
+route plus checkpoint state. Chumara's existing first expansion and mixed raid stay
+covered independently. No parity ledger status was changed.
 
 Native site validation does not reject living people, and its builder tasks 5 and 6
 immediately return to ordinary work. The browser therefore skips only grounded
 Wildman-occupied candidates until native wild wandering is live; the regression
 covers the first Chumara candidate and subsequent valid site.
 
-Explicit `BUILD_AT`/1082 occurs later (Chumara turn 501 and gated Matak turn 55).
-Ordinary 1059 attacks and command 1093 remain outside this slice. No parity ledger
-status was changed.
+Explicit `BUILD_AT`/1082 occurs later (Chumara turn 501 and gated Matak turn 55), and
+command 1093 remains outside this slice.

@@ -726,6 +726,8 @@ export function campaignRules(w: World) {
                   12,
                   1003,
                   ...script.codes.slice(352, 501),
+                  // Population-gated Matak construction and training profiles.
+                  ...script.codes.slice(501, 581),
                   ...script.codes.slice(681, 752),
                   1002,
                   1004,
