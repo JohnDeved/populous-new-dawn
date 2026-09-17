@@ -31,7 +31,9 @@ try {
   page.setDefaultTimeout(20000)
   page.on('pageerror', error => report.errors.push(error.stack ?? error.message))
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
-  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
+  // Existing startup layout can position this button outside pointer viewport;
+  // activate its real keyboard handler inside the owned headless page.
+  await page.getByRole('button', { name: 'Mission 1', exact: true }).press('Enter')
   await bindGame(page)
   const skip = page.getByRole('button', { name: /Skip introduction/ })
   if (await skip.isVisible()) await skip.click()
