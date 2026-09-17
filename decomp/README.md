@@ -35,7 +35,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
+Recent reusable topic notes: [Tutorial conditional entry and script loading](research/tutorial-entry.md),
+[Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
 [Mission 12 opening](research/mission12-opening.md),
@@ -86,6 +87,19 @@ For each subsequent port, preserve the original branch ordering, integer widths/
 
 Reusable negative findings for terrain-route invalidation and damage-triggered repair
 are retained in [rejected adapter candidates](research/rejected-adapter-candidates.md).
+
+## Tutorial entry static evidence
+
+[The tutorial note](research/tutorial-entry.md) links the original Tutorial-labelled control to level 79 and HDR/CPATR057/CPSCR057, with explicit input/state conditions and distinct I/O-failure/header-only empty-program paths. Reproduce using Python 3.9+, existing Capstone 5.0.7 and the unchanged sibling PE32 reader:
+
+```sh
+python3 -B scripts/check-static-tutorial-entry.py \
+  --exe /path/to/d3dpoptb.exe \
+  --data-root /path/to/original-game \
+  --output-dir /path/to/new-tutorial-evidence
+```
+
+The output directory must be new, with an existing parent. It contains inspectable byte listings and an evidence/result JSON; `--data-root` is optional for EXE-only verification. No scratch, Git-head, current-cwd discovery, Ghidra or emulator is required. This is conditional static evidence, not native boot/click/playthrough or full U01 acceptance.
 
 ## Mission 18 sky static evidence
 
