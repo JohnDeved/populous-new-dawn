@@ -223,7 +223,7 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
 }
 
 export function makeShrines(scene: GameScene) {
-  for (const shrine of scene.world.shrines) makeShrine(scene, shrine)
+  for (const shrine of scene.world.shrines) if (shrine.model) makeShrine(scene, shrine)
 }
 
 export function animatePerson(
@@ -576,15 +576,16 @@ export function updateBuildingsFrame(scene: GameScene) {
 
 export function updateShrinesFrame(scene: GameScene) {
   for (const [id, entry] of scene.shrineMeshes)
-    if (!scene.world.shrines.some(s => s.id === id)) {
+    if (!scene.world.shrines.some(s => s.id === id && s.model)) {
       scene.objects.remove(entry.g)
       scene.releaseGroup(entry.g)
       scene.shrineMeshes.delete(id)
     }
   for (const shrine of scene.world.shrines)
-    if (!scene.shrineMeshes.has(shrine.id)) makeShrine(scene, shrine)
+    if (shrine.model && !scene.shrineMeshes.has(shrine.id)) makeShrine(scene, shrine)
   for (const shrine of scene.world.shrines) {
-    const entry = scene.shrineMeshes.get(shrine.id)!
+    const entry = scene.shrineMeshes.get(shrine.id)
+    if (!entry) continue
     scene.locate(entry.g, shrine)
     scene.orientModel(entry.g, shrine.angle)
     let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>

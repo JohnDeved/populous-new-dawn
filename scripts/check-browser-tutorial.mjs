@@ -57,14 +57,49 @@ try {
     })),
     { stage: 4, flybyActive: true, inputLocked: true }
   )
-  await page.waitForFunction(
-    () => !(window.testScene.world.flyby.flags & 1) && !(window.testScene.world.inputMask & 64)
-  )
   await page.waitForFunction(() => window.testScene.world.ai.variables[9] === 5)
   await page
     .locator('.campaign-messages')
     .getByText(/Left-click on the Shaman directly/)
     .waitFor()
+  assert.equal(
+    await page.evaluate(() =>
+      window.testScene.world.shrines.some(shrine => shrine.name === 'Obelisk')
+    ),
+    false
+  )
+  await page.waitForFunction(() => window.testScene.world.ai.variables[9] === 6)
+  await page.waitForFunction(() => {
+    const scene = window.testScene,
+      obelisk = scene.world.shrines.find(shrine => shrine.name === 'Obelisk')
+    return !!obelisk && scene.shrineMeshes.has(obelisk.id)
+  })
+  assert.deepEqual(
+    await page.evaluate(() => {
+      const scene = window.testScene,
+        trigger = scene.world.shrines.find(shrine => shrine.name === 'Tutorial Obelisk trigger'),
+        obelisk = scene.world.shrines.find(shrine => shrine.name === 'Obelisk')
+      return {
+        stage: scene.world.ai.variables[9],
+        inputLocked: !!(scene.world.inputMask & 64),
+        flybyActive: !!(scene.world.flyby.flags & 1),
+        triggerRendered: !!trigger && scene.shrineMeshes.has(trigger.id),
+        obeliskRendered: !!obelisk && scene.shrineMeshes.has(obelisk.id),
+        obeliskPosition: obelisk && [obelisk.x, obelisk.z],
+      }
+    }),
+    {
+      stage: 6,
+      inputLocked: true,
+      flybyActive: true,
+      triggerRendered: false,
+      obeliskRendered: true,
+      obeliskPosition: [-33, -49],
+    }
+  )
+  await page.waitForFunction(
+    () => !(window.testScene.world.flyby.flags & 1) && !(window.testScene.world.inputMask & 64)
+  )
   const shaman = await page.evaluate(() => {
     const scene = window.testScene,
       unit = scene.world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
@@ -93,7 +128,7 @@ try {
   await page.getByRole('button', { name: 'Quit to Main Menu', exact: true }).click()
   await page.getByRole('heading', { name: 'Choose your world', exact: true }).waitFor()
   assert.deepEqual(errors, [])
-  console.log('PASS: Tutorial World View, camera controls, Shaman selection, and normal exit')
+  console.log('PASS: Tutorial camera, Shaman selection, Obelisk transition, and normal exit')
 } finally {
   await browser.close()
 }

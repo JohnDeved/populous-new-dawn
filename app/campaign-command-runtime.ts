@@ -698,7 +698,9 @@ export function campaignRules(w: World) {
             1003,
             // Original overview sample plus the stage 0→4 opening camera lessons.
             ...script.codes.slice(2547, 2573),
-            // Stage 4 Shaman-selection instruction; stop before the stage-5 flyby.
+            // Stage 5 forces the hidden Obelisk trigger, runs its flyby, and stops at stage 6.
+            ...script.codes.slice(2599, 2648),
+            // Stage 4 Shaman-selection instruction; the stage-5 branch runs on the next pass.
             ...script.codes.slice(2648, 2671),
             ...script.codes.slice(2671, 2700),
             ...script.codes.slice(2700, 2760),

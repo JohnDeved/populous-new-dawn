@@ -40,6 +40,7 @@ Recent reusable topic notes: [Recorded-demo raw state and unresolved source-map 
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
 [Tutorial first World View lesson](research/tutorial-first-lesson.md),
 [Tutorial Shaman-selection lesson](research/tutorial-shaman-selection.md),
+[Tutorial stage-5 Obelisk transition](research/tutorial-obelisk-transition.md),
 [Firewarrior launch, automatic response, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
@@ -148,7 +149,9 @@ canonical stage-3 flyby schedule through stage 4 and its existing browser
 edge-scroll/cursor-key owners. The script schedules this transition; it does not
 contain an input-success predicate. [The Shaman-selection lesson](research/tutorial-shaman-selection.md)
 records command 1142's presentation-only UI highlight, the authored stage-4 message,
-and the existing live browser selection path through stage 5. Later lessons remain open.
+and the existing live browser selection path through stage 5. [The Obelisk transition](research/tutorial-obelisk-transition.md)
+records the linked marker-102 head, exact flyby, and stage-6 stop. Mode-3 Shaman-only
+worship, its visit delay, and later lessons remain open.
 
 ## Mission 18 sky static evidence
 

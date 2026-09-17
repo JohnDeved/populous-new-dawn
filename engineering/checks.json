@@ -3196,7 +3196,7 @@
       "id": "tutorial-first-lesson-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise distinct Tutorial entry, World View, real camera controls, stage-3 flyby, Shaman selection, and normal exit through shipped browser controls.",
+      "purpose": "Exercise distinct Tutorial entry, World View, real camera controls, authored flybys, Shaman selection, linked Obelisk transition, and normal exit through shipped browser controls.",
       "coveredBehavior": [
         "Distinct Tutorial chooser and level-79 world",
         "Rendered authored units in World View",
@@ -3204,12 +3204,14 @@
         "Original edge-scroll lesson appears after the live view-mode sample",
         "Cursor-key rotation and screen-edge scrolling move the live camera",
         "The stage-3 flyby owns input, reaches stage 4, and returns control",
-        "The authored Shaman instruction reaches stage 5 and a real click selects the living Blue Shaman",
+        "The authored Shaman instruction remains at stage 5 until the next script pass advances through the marker-102 flyby to stage 6",
+        "The hidden logical trigger is not rendered and its linked authored Obelisk is rendered",
+        "A real click selects the living Blue Shaman after the flyby returns control",
         "Escape opens the menu, Tutorial saving is unavailable, and Quit returns to the chooser"
       ],
       "knownLimits": [
         "Headless browser rendering does not establish exact native presentation.",
-        "Right-click overview exit, later lessons, completion, and original frontend styling remain deferred."
+        "Mode-3 Shaman worship, right-click overview exit, later lessons, completion, and original frontend styling remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-tutorial.mjs"],
@@ -3227,6 +3229,7 @@
         "app/camera-input.ts",
         "app/scene-input-runtime.ts",
         "app/scene-camera-runtime.ts",
+        "app/scene-entities.ts",
         "app/world-initialization.ts",
         "app/world-state.ts",
         "app/world-types.ts"
