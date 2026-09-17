@@ -130,6 +130,27 @@ bool nativeCellVisible(){
 }
 `
 
+export interface ViewPickCandidate {
+  point: { x: number; z: number }
+  object: THREE.Object3D
+  depth: number
+  triangle: number
+  instance: number
+}
+interface PickSubmissionState {
+  revision: number
+  position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute
+  positionVersion: number
+  index: THREE.BufferAttribute | null
+  indexVersion: number
+  drawStart: number
+  drawCount: number
+  instances: number
+  instanceVersion: number
+  matrix: string
+  cells: Uint32Array
+}
+
 export class RenderView {
   groundPickCache = new WeakMap<
     THREE.Object3D,
@@ -143,6 +164,7 @@ export class RenderView {
       }
     >
   >()
+  pickSubmissions = new WeakMap<THREE.Object3D, PickSubmissionState>()
 
   painter = new Painter(this)
   materials = new WeakMap<
@@ -299,9 +321,86 @@ export class RenderView {
     )
   }
 
+  // Cache identity for the terrain that is actually submitted to the painter.
+  // updateTerrainVisibility rewrites the same index buffer each render, so its raw
+  // BufferAttribute version is not a stable cache key. Compare the submitted cell
+  // list when that version changes and retain a revision while the contents match.
+  pickSubmissionKey(objects: THREE.Object3D[]) {
+    const keys: string[] = []
+    for (const root of objects)
+      root.traverseVisible(object => {
+        if (!(object instanceof THREE.Mesh) || !object.visible) return
+        object.updateWorldMatrix(true, false)
+        const geometry = object.geometry,
+          position = geometry.getAttribute('position'),
+          index = geometry.getIndex(),
+          positionVersion = 'data' in position ? position.data.version : position.version,
+          drawStart = geometry.drawRange.start,
+          drawCount = index ? Math.min(index.count, geometry.drawRange.count) : position.count,
+          instances = object instanceof THREE.InstancedMesh ? object.count : 1,
+          instanceVersion =
+            object instanceof THREE.InstancedMesh ? object.instanceMatrix.version : -1,
+          matrix = object.matrixWorld.elements.join(',')
+        const cached = this.pickSubmissions.get(object)
+        let same =
+          !!cached &&
+          cached.position === position &&
+          cached.positionVersion === positionVersion &&
+          cached.index === index &&
+          cached.drawStart === drawStart &&
+          cached.drawCount === drawCount &&
+          cached.instances === instances &&
+          cached.instanceVersion === instanceVersion &&
+          cached.matrix === matrix
+        let cells = cached?.cells ?? new Uint32Array(0)
+        if (same && index && index.version !== cached!.indexVersion) {
+          if (object.userData.terrainGrid) {
+            const count = Math.ceil(drawCount / 6)
+            if (cells.length !== count) same = false
+            else
+              for (let i = 0; i < count; i++)
+                if (cells[i] !== index.getX(i * 6)) {
+                  same = false
+                  break
+                }
+          } else same = false
+        }
+        if (!same) {
+          if (index && object.userData.terrainGrid) {
+            const count = Math.ceil(drawCount / 6)
+            cells = new Uint32Array(count)
+            for (let i = 0; i < count; i++) cells[i] = index.getX(i * 6)
+          } else cells = new Uint32Array(0)
+        }
+        const revision = same ? cached!.revision : (cached?.revision ?? 0) + 1
+        this.pickSubmissions.set(object, {
+          revision,
+          position,
+          positionVersion,
+          index,
+          indexVersion: index?.version ?? -1,
+          drawStart,
+          drawCount,
+          instances,
+          instanceVersion,
+          matrix,
+          cells,
+        })
+        keys.push(`${object.id}:${revision}`)
+      })
+    return keys.join('|')
+  }
+
   // Pick the projected triangles themselves. A straight 3D ray cannot invert the
-  // native nonlinear surface. The globe supplies its own native inverse.
-  pick(mouse: THREE.Vector2, objects: THREE.Object3D[], camera: THREE.Camera, nativeEdges = false) {
+  // native nonlinear surface. The globe supplies its own native inverse. Keep
+  // geometric candidates separate from painter depth so a cached pixel can be
+  // re-resolved when building footprints or other painter ordering changes.
+  pickCandidates(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges = false
+  ): ViewPickCandidate[] {
     if (this.overview) {
       const p = globePick(
         this.globe,
@@ -309,25 +408,21 @@ export class RenderView {
         Math.trunc(((1 - mouse.y) * this.projection.height) / 2)
       )
       return p && objects[0]
-        ? {
-            point: {
-              x: (((p.x - 2048) << 16) >> 16) / 256,
-              z: -(((p.y + 2048) << 16) >> 16) / 256,
+        ? [
+            {
+              point: {
+                x: (((p.x - 2048) << 16) >> 16) / 256,
+                z: -(((p.y + 2048) << 16) >> 16) / 256,
+              },
+              object: objects[0],
+              depth: 0,
+              triangle: 0,
+              instance: 0,
             },
-            object: objects[0],
-            depth: 0,
-            triangle: 0,
-            instance: 0,
-          }
-        : null
+          ]
+        : []
     }
-    let best: {
-      point: { x: number; z: number }
-      object: THREE.Object3D
-      depth: number
-      triangle: number
-      instance: number
-    } | null = null
+    const candidates: ViewPickCandidate[] = []
     for (const root of objects)
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || !object.visible) return
@@ -408,7 +503,7 @@ export class RenderView {
             const ids = index
               ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
               : [i, i + 1, i + 2]
-            const [a, b, c] = ids.map(i => screen[i])
+            const [a, b, c] = ids.map(id => screen[id])
             // Reject distant triangles before allocating pixel-edge test inputs.
             // One pixel of padding preserves native nearest-even rounding.
             if (
@@ -427,8 +522,8 @@ export class RenderView {
               continue
             const determinant = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y)
             if (Math.abs(determinant) < 1e-12) continue
-            const u = ((b.y - c.y) * (mouse.x - c.x) + (c.x - b.x) * (mouse.y - c.y)) / determinant
-            const v = ((c.y - a.y) * (mouse.x - c.x) + (a.x - c.x) * (mouse.y - c.y)) / determinant,
+            const u = ((b.y - c.y) * (mouse.x - c.x) + (c.x - b.x) * (mouse.y - c.y)) / determinant,
+              v = ((c.y - a.y) * (mouse.x - c.x) + (a.x - c.x) * (mouse.y - c.y)) / determinant,
               t = 1 - u - v
             if (nativeEdges) {
               const { width, height } = this.projection
@@ -438,39 +533,49 @@ export class RenderView {
                     x: Math.trunc(((mouse.x + 1) * width) / 2),
                     y: Math.trunc(((1 - mouse.y) * height) / 2),
                   },
-                  [c, b, a].map(p => ({ x: ((p.x + 1) * width) / 2, y: ((1 - p.y) * height) / 2 })),
+                  [c, b, a].map(p => ({
+                    x: ((p.x + 1) * width) / 2,
+                    y: ((1 - p.y) * height) / 2,
+                  })),
                   true
                 )
               )
                 continue
             } else if (u < 0 || v < 0 || t < 0) continue
-            const depth =
-              (!this.overview ? this.painter.depth(object, ids[0] / 3, instance) : null) ??
-              u * a.z + v * b.z + t * c.z
-            if (depth < -1 || depth > 1 || (best && depth >= best.depth)) continue
             const weights = [u / a.w, v / b.w, t / c.w],
-              sum = weights.reduce((a, b) => a + b),
+              sum = weights.reduce((total, weight) => total + weight),
               p = new THREE.Vector3()
             ids.forEach((id, j) => p.addScaledVector(world[id], weights[j] / sum))
             if (!this.overview && !this.visible(p, unwrapped)) continue
             const wrap = (n: number) => ((((n + 128) % 256) + 256) % 256) - 128
-            best = {
+            candidates.push({
               point: { x: wrap(p.x), z: wrap(p.z) },
               object,
-              depth,
+              depth: u * a.z + v * b.z + t * c.z,
               triangle: ids[0] / 3,
               instance,
-            }
+            })
           }
         }
       })
-    return best as {
-      point: { x: number; z: number }
-      object: THREE.Object3D
-      depth: number
-      triangle: number
-      instance: number
-    } | null
+    return candidates
+  }
+
+  resolvePickCandidates(candidates: ViewPickCandidate[]) {
+    let best: ViewPickCandidate | null = null
+    for (const candidate of candidates) {
+      const depth =
+        (!this.overview
+          ? this.painter.depth(candidate.object, candidate.triangle, candidate.instance)
+          : null) ?? candidate.depth
+      if (depth < -1 || depth > 1 || (best && depth >= best.depth)) continue
+      best = { ...candidate, depth }
+    }
+    return best
+  }
+
+  pick(mouse: THREE.Vector2, objects: THREE.Object3D[], camera: THREE.Camera, nativeEdges = false) {
+    return this.resolvePickCandidates(this.pickCandidates(mouse, objects, camera, nativeEdges))
   }
   updateTerrainVisibility(object: THREE.Object3D) {
     if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return

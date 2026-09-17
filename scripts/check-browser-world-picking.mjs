@@ -57,47 +57,127 @@ try {
  await page.evaluate(id=>{window.testScene.world.selected=[id]},result.first)
  await page.mouse.click(result.target.clientX,result.target.clientY)
  assert.equal(await page.evaluate(id=>window.testScene.world.units.find(u=>u.id===id).work,result.first),result.target.id,'a visible building click issues the building order')
- const terrainCache=await page.evaluate(target=>{
-  const s=window.testScene,w=s.world,original=s.view.pick.bind(s.view)
-  let queries=0
-  s.view.pick=(...args)=>{queries++;return original(...args)}
-  s.picking.groundKey='';s.picking.groundHits.clear();s.picking.lastKey=''
-  const first=s.picking.pick(target)
-  s.frame++;s.picking.lastKey=''
-  const repeated=s.picking.pick(target)
-  const repeatedQueries=queries
-  const land=w.landVersion
-  w.landVersion++;s.frame++;s.picking.lastKey=''
-  const changedLand=s.picking.pick(target)
-  const landQueries=queries
-  w.landVersion=land
-  const bearing=s.cameraBearing
-  s.cameraBearing=(bearing+Math.PI/2)%(Math.PI*2);s.updateView();s.animate(s.previous);cancelAnimationFrame(s.frame)
-  const g=s.buildingMeshes.get(target.id),mesh=g.children.find(c=>c.userData.nativeModel!==undefined)
-  const viewKey=[s.view.center.x,s.view.center.y,s.view.rawCenter.x,s.view.rawCenter.y,...Object.values(s.view.projection)].join(',')
-  const commands=s.picking.model(mesh,viewKey),faces=commands.filter(c=>c.kind==='model'),r=s.renderer.domElement.getBoundingClientRect()
-  let rotated=null
-  for(const face of faces){
-   const x=Math.trunc(face.points.reduce((a,p)=>a+p.x,0)/3),y=Math.trunc(face.points.reduce((a,p)=>a+p.y,0)/3)
-   const e={clientX:r.left+x,clientY:r.top+y}
-   s.picking.lastKey=''
-   if(s.picking.pick(e)===target.id){rotated=e;break}
+ const reviewCases=await page.evaluate(async({target,firstId})=>{
+  const s=window.testScene,w=s.world,
+    shapes=await import('/app/building-shapes.ts'),
+    terrainRuntime=await import('/app/world-terrain-runtime.ts'),
+    types=await import('/app/world-types.ts')
+  const directCandidates=s.view.pickCandidates.bind(s.view)
+  const rect=()=>s.renderer.domElement.getBoundingClientRect()
+  const mouse=event=>{
+   const r=rect(),x=Math.trunc(event.clientX-r.left),y=Math.trunc(event.clientY-r.top)
+   return s.mouse.clone().set((x*2)/r.width-1,1-(y*2)/r.height)
   }
-  const cameraQueries=queries
-  s.cameraBearing=bearing;s.updateView();s.view.pick=original
-  if(!rotated)throw Error('Camera-rotated hut has no selectable face')
-  return {first,repeated,changedLand,repeatedQueries,landQueries,cameraQueries}
- },result.target)
- assert.equal(terrainCache.first,result.target.id)
- assert.equal(terrainCache.repeated,result.target.id)
- assert.equal(terrainCache.changedLand,result.target.id)
- assert.equal(terrainCache.repeatedQueries,1,'same pixel/view reuses geometric terrain hit across rendered frames')
- assert.equal(terrainCache.landQueries,2,'terrain-version change invalidates geometric terrain hit')
- assert.ok(terrainCache.cameraQueries>terrainCache.landQueries,'camera change invalidates geometric terrain hit')
+  const signature=hit=>{
+   if(!hit)return null
+   const command=s.view.painter.command(hit.object,hit.triangle,hit.instance)
+   return [hit.object.id,hit.triangle,hit.instance,Number(hit.depth.toFixed(6)),command?.bucket??null,command?.cell??null,command?.phase??null,command?.object??null,command?.face??null]
+  }
+  const compare=(event,label)=>{
+   s.picking.lastKey=''
+   const picked=s.picking.pick(event),r=rect(),pixel=`${Math.trunc(event.clientX-r.left)},${Math.trunc(event.clientY-r.top)}`,
+     candidates=s.picking.groundHits.get(pixel)
+   if(!candidates)throw Error(`${label}: ScenePicking did not cache terrain candidates`)
+   const cached=s.view.resolvePickCandidates(candidates),
+     fresh=s.view.resolvePickCandidates(directCandidates(mouse(event),[s.terrain],s.camera,true)),
+     a=signature(cached),b=signature(fresh)
+   if(JSON.stringify(a)!==JSON.stringify(b))throw Error(`${label}: cached ${JSON.stringify(a)} != fresh ${JSON.stringify(b)}`)
+   return {picked,signature:a,key:s.picking.groundKey,candidates:candidates.length}
+  }
+  const render=()=>s.renderSceneFrame(null,null)
+  render()
+  const stable=compare(target,'stable')
+
+  // Isolate camera/view invalidation at the same pixel with unchanged land state.
+  const first=w.units.find(u=>u.id===firstId),savedFirst={x:first.x,z:first.z},savedPoint={...s.viewPoint},savedBearing=s.cameraBearing
+  first.x=s.viewPoint.x;first.z=s.viewPoint.z;s.updateUnitsFrame();render()
+  const r0=rect(),p0=s.unitScreen(firstId),frame=s.unitMeshes.get(firstId).userData.frameHeight,
+    centerEvent={clientX:r0.left+(p0.x+1)*r0.width/2,clientY:r0.top+(1-p0.y)*r0.height/2-frame/2},
+    originalPickCandidates=s.view.pickCandidates.bind(s.view)
+  let queries=0
+  s.view.pickCandidates=(...args)=>{queries++;return originalPickCandidates(...args)}
+  s.picking.groundKey='';s.picking.groundHits.clear();s.picking.lastKey=''
+  compare(centerEvent,'camera-base')
+  const baseQueries=queries,landVersion=w.landVersion
+  compare(centerEvent,'camera-repeat')
+  if(queries!==baseQueries)throw Error('same pixel/view did not reuse terrain candidates')
+  s.cameraBearing=(savedBearing+Math.PI/2)%(Math.PI*2);s.updateView()
+  compare(centerEvent,'camera-only')
+  if(queries<=baseQueries)throw Error('camera change did not invalidate terrain candidates')
+  if(w.landVersion!==landVersion)throw Error('camera invalidation was confounded by landVersion')
+  s.cameraBearing=savedBearing;s.updateView();render()
+
+  // Real pre-render pick -> render -> same-pixel revisit. Move camera center and the
+  // test person together so the pointer target is unchanged while submitted terrain changes.
+  const shift=4
+  s.viewPoint={x:savedPoint.x+shift,z:savedPoint.z};first.x+=shift;s.updateView();s.updateUnitsFrame()
+  const submissionBefore=s.view.pickSubmissionKey([s.terrain]),queriesBefore=queries
+  compare(centerEvent,'submission-prerender')
+  const preRenderQueries=queries
+  if(preRenderQueries<=queriesBefore)throw Error('pre-render view change did not invalidate candidates')
+  render()
+  const submissionAfter=s.view.pickSubmissionKey([s.terrain])
+  if(submissionAfter===submissionBefore)throw Error('rendered terrain submission change was not detected')
+  compare(centerEvent,'submission-postrender')
+  if(queries<=preRenderQueries)throw Error('post-render submitted terrain did not invalidate candidates')
+  s.viewPoint=savedPoint;first.x=savedFirst.x;first.z=savedFirst.z;s.updateView();s.updateUnitsFrame();render()
+  s.view.pickCandidates=originalPickCandidates
+
+  // Footprint flags change painter depth without changing landVersion. A cached
+  // candidate set must therefore be able to choose a different overlapping winner.
+  const hut=w.buildings.find(b=>b.id===target.id),pose=shapes.buildingPose(hut),registered={...pose,id:hut.id,tribe:types.tribeForTeam(hut.team)},
+    footprintVersion=w.landVersion,candidateSets=[]
+  for(let dy=-28;dy<=28;dy+=4)for(let dx=-28;dx<=28;dx+=4){
+   const event={clientX:target.clientX+dx,clientY:target.clientY+dy},candidates=directCandidates(mouse(event),[s.terrain],s.camera,true)
+   if(candidates.length>1)candidateSets.push({event,candidates,on:signature(s.view.resolvePickCandidates(candidates))})
+  }
+  shapes.registerBuildingFootprint(w.land,registered,0,i=>w.land.shadows[i]&15,()=>{})
+  if(w.landVersion!==footprintVersion)throw Error('footprint removal unexpectedly changed landVersion')
+  render()
+  let footprintCase=null
+  for(const entry of candidateSets){
+   const cached=signature(s.view.resolvePickCandidates(entry.candidates)),fresh=signature(s.view.pick(mouse(entry.event),[s.terrain],s.camera,true))
+   if(JSON.stringify(cached)!==JSON.stringify(fresh))throw Error('footprint removal cached winner differs from fresh winner')
+   if(JSON.stringify(cached)!==JSON.stringify(entry.on)){footprintCase={...entry,off:cached};break}
+  }
+  if(!footprintCase)throw Error('no overlapping terrain winner changed after real footprint removal')
+  shapes.registerBuildingFootprint(w.land,registered,1,i=>w.land.shadows[i]&15,()=>{})
+  if(w.landVersion!==footprintVersion)throw Error('footprint addition unexpectedly changed landVersion')
+  render()
+  const footprintRestored=signature(s.view.resolvePickCandidates(footprintCase.candidates)),
+    footprintFresh=signature(s.view.pick(mouse(footprintCase.event),[s.terrain],s.camera,true))
+  if(JSON.stringify(footprintRestored)!==JSON.stringify(footprintFresh))throw Error('footprint addition cached winner differs from fresh winner')
+  if(JSON.stringify(footprintRestored)!==JSON.stringify(footprintCase.on))throw Error('footprint addition did not restore original terrain winner')
+
+  // Actual terrain edits rebuild CPU geometry before render. Compare cached/fresh
+  // both before and after the following render, then restore the terrain.
+  const native=terrainRuntime.nativePosition(w,hut),cell=((native.y&65535)>>9)*128+((native.x&65535)>>9),height=w.land.heights[cell],beforeEdit=w.landVersion
+  compare(target,'terrain-before')
+  w.land.heights[cell]=height+4;terrainRuntime.refreshTerrainSurface(w);s.updateTerrainFrame()
+  if(w.landVersion===beforeEdit)throw Error('terrain edit did not advance landVersion')
+  const terrainPre=compare(target,'terrain-prerender')
+  render()
+  const terrainPost=compare(target,'terrain-postrender')
+  w.land.heights[cell]=height;terrainRuntime.refreshTerrainSurface(w);s.updateTerrainFrame();render()
+
+  // Zoom gets its own cache dependency check, independent of the camera/land case.
+  const savedZoom=s.viewZoom
+  s.viewZoom=savedZoom+1;s.updateView()
+  const zoomTarget=(()=>{
+   const g=s.buildingMeshes.get(hut.id),mesh=g.children.find(c=>c.userData.nativeModel!==undefined),viewKey=[s.view.center.x,s.view.center.y,s.view.rawCenter.x,s.view.rawCenter.y,...Object.values(s.view.projection)].join(','),faces=s.picking.model(mesh,viewKey).filter(c=>c.kind==='model'),r=rect()
+   for(const face of faces){const x=Math.trunc(face.points.reduce((a,p)=>a+p.x,0)/3),y=Math.trunc(face.points.reduce((a,p)=>a+p.y,0)/3),event={clientX:r.left+x,clientY:r.top+y};s.picking.lastKey='';if(s.picking.pick(event)===hut.id)return event}
+   throw Error('zoomed hut has no selectable face')
+  })()
+  const zoomPre=compare(zoomTarget,'zoom-prerender');render();const zoomPost=compare(zoomTarget,'zoom-postrender')
+  s.viewZoom=savedZoom;s.updateView();render()
+  return {stable,cameraQueries:queries,submissionBefore,submissionAfter,footprint:{on:footprintCase.on,off:footprintCase.off,restored:footprintRestored},terrain:{pre:terrainPre.signature,post:terrainPost.signature},zoom:{pre:zoomPre.signature,post:zoomPost.signature}}
+ },{target:result.target,firstId:result.first})
+ assert.notDeepEqual(reviewCases.footprint.on,reviewCases.footprint.off,'footprint removal changes the terrain painter winner')
+ assert.deepEqual(reviewCases.footprint.restored,reviewCases.footprint.on,'footprint addition restores the terrain painter winner')
  let cacheQueries=0
  for(const [width,height] of [[1440,1000],[3440,1440]]){
   await page.setViewportSize({width,height})
-  cacheQueries+=await page.evaluate(async()=>{
+  cacheQueries+=await page.evaluate(async hutId=>{
    const s=window.testScene
    let count=0
    for(const bearing of [0,Math.PI/2,Math.PI]){
@@ -110,15 +190,36 @@ try {
      count++
     }
    }
+   // Exercise ScenePicking itself after the real viewport resize. The cached
+   // candidate winner must match a fresh current-submission query at the resized target.
+   s.setSize();s.updateView();s.renderSceneFrame(null,null)
+   const hutGroup=s.buildingMeshes.get(hutId),hutMesh=hutGroup.children.find(c=>c.userData.nativeModel!==undefined),
+     viewKey=[s.view.center.x,s.view.center.y,s.view.rawCenter.x,s.view.rawCenter.y,...Object.values(s.view.projection)].join(','),
+     faces=s.picking.model(hutMesh,viewKey).filter(c=>c.kind==='model'),r=s.renderer.domElement.getBoundingClientRect()
+   let target=null
+   for(const face of faces){
+    const x=Math.trunc(face.points.reduce((a,p)=>a+p.x,0)/3),y=Math.trunc(face.points.reduce((a,p)=>a+p.y,0)/3),event={clientX:r.left+x,clientY:r.top+y}
+    s.picking.lastKey=''
+    if(s.picking.pick(event)===hutId){target=event;break}
+   }
+   if(!target)throw Error('Resized hut has no selectable face')
+   s.picking.lastKey='';s.picking.pick(target)
+   const px=`${Math.trunc(target.clientX-r.left)},${Math.trunc(target.clientY-r.top)}`,
+     cached=s.picking.groundHits.get(px),mouse=s.mouse.clone().set(((target.clientX-r.left)*2)/r.width-1,1-((target.clientY-r.top)*2)/r.height)
+   if(!cached)throw Error('Resize did not populate ScenePicking terrain candidates')
+   const result=h=>h&&[h.object.id,h.triangle,h.instance,Number(h.depth.toFixed(6))],
+     a=result(s.view.resolvePickCandidates(cached)),b=result(s.view.pick(mouse,[s.terrain],s.camera,true))
+   if(JSON.stringify(a)!==JSON.stringify(b))throw Error('ScenePicking cache differs from fresh pick after viewport resize')
+
    // A new position buffer may have the same version as the old one.
    const mesh=s.buildingMeshes.values().next().value.children.find(c=>c.userData.nativeModel!==undefined)
-   const a=s.picking.model(mesh,'same-view'),position=mesh.geometry.getAttribute('position').clone()
+   const modelBefore=s.picking.model(mesh,'same-view'),position=mesh.geometry.getAttribute('position').clone()
    for(let i=0;i<position.count;i++)position.setY(i,position.getY(i)+1)
    mesh.geometry.setAttribute('position',position)
-   const b=s.picking.model(mesh,'same-view')
-   if(a===b)throw Error('Model picking reused replaced geometry')
+   const modelAfter=s.picking.model(mesh,'same-view')
+   if(modelBefore===modelAfter)throw Error('Model picking reused replaced geometry')
    return count
-  })
+  },result.target.id)
  }
 
  assert.deepEqual(errors,[])

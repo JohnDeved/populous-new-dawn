@@ -29,10 +29,7 @@ export class ScenePicking {
   lastId: number | null = null
   lastKind: 'person' | 'model' | null = null
   groundKey = ''
-  groundHits = new Map<
-    string,
-    { object: THREE.Object3D; triangle: number; instance: number } | null
-  >()
+  groundHits = new Map<string, ReturnType<GameScene['view']['pickCandidates']>>()
   constructor(readonly scene: GameScene) {}
 
   model(mesh: THREE.Mesh, viewKey: string) {
@@ -206,31 +203,34 @@ export class ScenePicking {
       // The terrain triangle depends on view/display/land geometry, not the current
       // person/model painter stream. Cache only that geometric hit; resolve its
       // painter command every visit so occupancy and animated object ordering stay live.
-      const groundKey = [viewKey, rect.width, rect.height, s.world.landVersion].join(',')
+      const groundKey = [
+        viewKey,
+        rect.width,
+        rect.height,
+        view.pickSubmissionKey([s.terrain]),
+      ].join(',')
       if (groundKey !== this.groundKey) {
         this.groundKey = groundKey
         this.groundHits.clear()
       }
       const pixelKey = `${point.x},${point.y}`
-      let terrain = this.groundHits.get(pixelKey)
-      if (terrain === undefined && !this.groundHits.has(pixelKey)) {
-        const hit = view.pick(
+      let candidates = this.groundHits.get(pixelKey)
+      if (!candidates) {
+        candidates = view.pickCandidates(
           new THREE.Vector2((point.x * 2) / rect.width - 1, 1 - (point.y * 2) / rect.height),
           [s.terrain],
           s.camera,
           true
         )
-        terrain = hit
-          ? { object: hit.object, triangle: hit.triangle, instance: hit.instance }
-          : null
         // Pointer motion can visit many pixels; keep a small locality cache rather
         // than retaining an unbounded screen-sized map.
         if (this.groundHits.size >= 64) this.groundHits.delete(this.groundHits.keys().next().value!)
-        this.groundHits.set(pixelKey, terrain)
+        this.groundHits.set(pixelKey, candidates)
       }
-      const source =
-        terrain && view.painter.command(terrain.object, terrain.triangle, terrain.instance)
-      // The cached terrain query already performed the native pixel-edge test.
+      const terrain = view.resolvePickCandidates(candidates),
+        source = terrain && view.painter.command(terrain.object, terrain.triangle, terrain.instance)
+      // The cached candidates already performed the native pixel-edge test. Resolve
+      // painter depth and command ownership on every visit so footprint ordering stays live.
       if (source)
         hits.push({
           kind: 'ground',
