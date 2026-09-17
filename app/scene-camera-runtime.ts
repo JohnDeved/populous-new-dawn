@@ -25,6 +25,7 @@ import {
   zoomPreset,
   viewTransitionFrames,
   stepViewTransition,
+  previewViewTransition,
   beginGlobeMorph,
   stepGlobeMorph,
 } from './camera-view.ts'
@@ -201,7 +202,9 @@ export function updateView(scene: GameScene) {
     scene.viewZoom,
     scene.overviewActive,
     document.documentElement.clientWidth,
-    scene.viewTransition?.config ?? (scene.viewPreset ? scene.currentPreset() : undefined)
+    scene.viewTransition?.preview ??
+      scene.viewTransition?.config ??
+      (scene.viewPreset ? scene.currentPreset() : undefined)
   )
 }
 
@@ -264,6 +267,17 @@ export function updateCameraMotion(scene: GameScene, dt: number) {
       nativePosition(w, campaignPosition(w, teamForTribe(w.outcome.cameraTribe ?? 0) as TribeTeam))
     )
   }
+  // Ordinary zoom has the same native cadence, but keeps its own remainder:
+  // capturing a fractional pan/turn must not restart the zoom's timer. World
+  // view and result-camera choreography retain the existing shared ordering.
+  const zoomTransition =
+    !scene.overviewActive && !scene.overviewStage && !scene.viewTransition?.angle
+      ? scene.viewTransition
+      : null
+  const zoomDue = () =>
+    zoomTransition !== null &&
+    zoomTransition === scene.viewTransition &&
+    zoomTransition.time + 1e-9 >= 1 / 24
   let active = !!(s.active || motion.active)
   if (!active) scene.captureCamera()
   if (buttons & 15) {
@@ -276,8 +290,16 @@ export function updateCameraMotion(scene: GameScene, dt: number) {
   // throttling and its shared camera/flyby ordering are fully integrated.
   if (!w.paused || !s.active) {
     scene.cameraTime += dt
-    while (scene.cameraTime + 1e-9 >= 1 / 24) {
-      scene.stepViewChange()
+    if (zoomTransition) zoomTransition.time += dt
+    while (scene.cameraTime + 1e-9 >= 1 / 24 || zoomDue()) {
+      if (zoomDue() && zoomTransition!.time + 1e-9 >= scene.cameraTime) {
+        // Process the earlier boundary first after a navigation capture has
+        // separated the two remainders. Coincident ticks keep zoom-before-input.
+        const beforeCamera = zoomTransition!.time > scene.cameraTime + 1e-9
+        scene.stepViewChange()
+        zoomTransition!.time = Math.max(0, zoomTransition!.time - 1 / 24)
+        if (beforeCamera) continue
+      } else if (!zoomTransition) scene.stepViewChange()
       buttons = scene.navigationButtons()
       if (!w.inputMask && !scene.overviewStage && !document.querySelector('dialog[open]')) {
         if (buttons || Object.values(scene.cameraVelocity).some(Boolean)) {
@@ -355,6 +377,7 @@ export function updateCameraMotion(scene: GameScene, dt: number) {
     scene.cameraBearing = (scene.cameraPosition.angle * Math.PI) / 1024
   }
   if (scene.previewCamera(buttons)) active = true
+  if (dt > 0 && previewGroundZoom(scene)) active = true
   if (active) scene.updateView()
   return active
 }
@@ -367,7 +390,7 @@ export function previewCamera(scene: GameScene, buttons: number) {
     scene.resultCamera.active ||
     scene.overviewActive ||
     scene.overviewStage ||
-    scene.viewTransition ||
+    scene.viewTransition?.angle ||
     scene.world.flyby.flags & 1
   )
     return false
@@ -490,9 +513,50 @@ export function cameraBookmark(scene: GameScene, slot: number, set: boolean) {
   scene.tooltip.draw = 0
 }
 
+// Only ordinary ground zoom is previewed; globe/heading choreography is not
+// speculated, and previewing cannot run native notifications or change masks.
+export function previewGroundZoom(scene: GameScene) {
+  const transition = scene.viewTransition
+  if (
+    !transition ||
+    scene.world.inputMask ||
+    scene.overviewActive ||
+    scene.overviewStage ||
+    transition.angle ||
+    (scene.world.paused && scene.resultCamera.active)
+  )
+    return false
+  const fraction = Math.max(
+    transition.previewFraction,
+    Math.min(
+      1,
+      Math.max(
+        0,
+        (transition.time - transition.previewStartTime) / (1 / 24 - transition.previewStartTime)
+      )
+    )
+  )
+  if (fraction <= 1e-9) return false
+  // A lock/camera capture must never roll back an already displayed sample.
+  // Retargeting starts a new transition from that displayed config instead.
+  if (fraction !== transition.previewFraction) scene.pointerState = ''
+  transition.previewFraction = fraction
+  transition.preview = previewViewTransition(
+    transition.config,
+    scene.currentPreset(),
+    transition.remaining,
+    viewTransitionFrames(24),
+    fraction
+  )
+  return true
+}
+
 export function stepViewChange(scene: GameScene) {
   if (scene.world.inputMask) return
   if (scene.viewTransition && !scene.overviewActive) {
+    scene.viewTransition.preview = undefined
+    scene.viewTransition.previewStartTime = 0
+    scene.viewTransition.previewFraction = 0
     scene.viewTransition.remaining = stepViewTransition(
       scene.viewTransition.config,
       scene.currentPreset(),
@@ -528,13 +592,18 @@ export function stepViewChange(scene: GameScene) {
 }
 
 export function startGroundView(scene: GameScene, preset: number, bearing?: number) {
+  const previousTime = scene.viewTransition?.time
   if (scene.cameraPreviewButtons !== null) scene.captureCamera()
-  const frames = viewTransitionFrames(24)
+  const frames = viewTransitionFrames(24),
+    time = previousTime ?? scene.cameraTime
   scene.viewPreset = preset
   scene.viewZoom = 0
   scene.viewTransition = {
     config: { ...scene.view.config, bounds: [...scene.view.config.bounds] },
     remaining: frames,
+    time,
+    previewStartTime: time,
+    previewFraction: 0,
   }
   if (bearing !== undefined) {
     const target = Math.round((bearing * 1024) / Math.PI) & 2047
