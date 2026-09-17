@@ -234,6 +234,11 @@ shared build directories, fixed-port servers, fixed screenshot/report paths, and
 performance resources. Browser/native checks can mutate tracked artifacts; source
 read-only analysis and artifact-producing verification are separate assignments.
 
+Prepared competing commands can use the [shared test queue](performance-queue.md)
+for automatic FIFO execution across worktrees, bounded runtime, verified cleanup
+and durable results. Transition existing reservations before enabling the queue;
+commands outside it still require explicit coordination.
+
 Never hand-edit `PARITY.md`, mass-regenerate evidence, shrink parity scope, or run
 `parity:record` to hide an unrelated failure. `.openai/hosting.json` remains outside
 this workflow. Runtime module extraction/refactoring is allowed only as the single

@@ -1,0 +1,294 @@
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import net from 'node:net'
+import { spawn, execFileSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { queueDirectory, submit, recover, waitForResult } from '../scripts/performance-queue.mjs'
+
+const cli = fileURLToPath(new URL('../scripts/performance-queue.mjs', import.meta.url))
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+const read = p => JSON.parse(fs.readFileSync(p, 'utf8'))
+const fixtureSource = `
+const fs = require('node:fs'), { spawn } = require('node:child_process');
+const mode = process.argv[2], id = process.env.PND_QUEUE_JOB_ID;
+const log = text => fs.appendFileSync(process.env.EVENTS, id+' '+text+'\\n');
+const release = () => fs.writeFileSync(process.env.PND_QUEUE_CLEANUP, JSON.stringify({jobId:id,resourcesReleased:true,releasedAt:new Date().toISOString(),processes:[]}));
+log('start');
+if(mode === 'missing') process.exit(0);
+if(mode === 'detached') {
+ const child=spawn(process.execPath,['-e','setTimeout(()=>{},30000)'],{detached:true,stdio:'ignore'});child.unref();
+ fs.writeFileSync(process.env.PND_QUEUE_CLEANUP,JSON.stringify({jobId:id,resourcesReleased:true,releasedAt:new Date().toISOString(),processes:[{pid:child.pid,group:true}]}));
+ process.exit(0);
+}
+process.on('SIGTERM',()=>{release();log('stop');process.exit(0)});
+setTimeout(()=>{release();log('end');process.exit(mode==='fail'?2:0)},mode==='wait'?30000:160);
+`
+function fixture(t) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pnd-queue-')),
+    repo = path.join(root, 'repo'),
+    dir = path.join(root, 'queue')
+  fs.mkdirSync(repo)
+  fs.mkdirSync(dir)
+  fs.writeFileSync(path.join(repo, 'fixture.cjs'), fixtureSource)
+  const git = (...a) =>
+    execFileSync('git', ['-C', repo, ...a], { stdio: 'pipe' })
+      .toString()
+      .trim()
+  git('init', '-q')
+  git('add', '.')
+  git(
+    '-c',
+    'user.name=Queue test',
+    '-c',
+    'user.email=queue@example.invalid',
+    'commit',
+    '-qm',
+    'fixture'
+  )
+  t.after(async () => {
+    for (const file of fs
+      .readdirSync(path.join(dir, 'jobs'), { withFileTypes: true })
+      .filter(x => x.name.endsWith('.json'))) {
+      const job = read(path.join(dir, 'jobs', file.name))
+      if (job.pid && ['running', 'starting'].includes(job.status))
+        try {
+          process.kill(-job.pid, 'SIGTERM')
+        } catch {}
+      const receipt = path.join(job.output, 'cleanup.json')
+      if (fs.existsSync(receipt))
+        for (const p of read(receipt).processes ?? [])
+          try {
+            process.kill(-p.pid, 'SIGTERM')
+          } catch {}
+    }
+    await wait(250)
+    const lock = path.join(dir, 'controller.lock', 'owner.json')
+    if (fs.existsSync(lock))
+      try {
+        process.kill(read(lock).pid, 'SIGTERM')
+      } catch {}
+    await wait(100)
+    fs.rmSync(root, { recursive: true, force: true })
+  })
+  fs.mkdirSync(path.join(dir, 'jobs'))
+  const events = path.join(root, 'events')
+  const spec = (mode = 'ok', extra = {}) => ({
+    owner: 'queue-test',
+    label: mode,
+    cwd: repo,
+    command: [process.execPath, 'fixture.cjs', mode],
+    inputs: ['fixture.cjs'],
+    ports: [],
+    cleanup: 'receipt',
+    timeoutMs: 5000,
+    env: { EVENTS: events },
+    ...extra,
+  })
+  const job = id => read(path.join(dir, 'jobs', `${id}.json`))
+  return { root, repo, dir, events, git, spec, job }
+}
+async function until(predicate, description, timeout = 8000) {
+  const end = Date.now() + timeout
+  while (Date.now() < end) {
+    const value = predicate()
+    if (value) return value
+    await wait(30)
+  }
+  assert.fail(`Timed out: ${description}`)
+}
+async function released(f) {
+  await until(() => !fs.existsSync(path.join(f.dir, 'controller.lock')), 'controller release')
+}
+
+test('concurrent submitters and controllers preserve FIFO without overlap', async t => {
+  const f = fixture(t)
+  fs.writeFileSync(path.join(f.dir, 'pause.json'), '{}')
+  const specs = Array.from({ length: 3 }, (_, i) => {
+    const file = path.join(f.root, `spec${i}.json`)
+    fs.writeFileSync(file, JSON.stringify(f.spec()))
+    return file
+  })
+  await Promise.all(
+    specs.map(
+      file =>
+        new Promise((resolve, reject) => {
+          const p = spawn(process.execPath, [cli, 'submit', file, '--dir', f.dir], {
+            stdio: 'ignore',
+          })
+          p.on('exit', code => (code === 0 ? resolve() : reject(Error(`submit ${code}`))))
+        })
+    )
+  )
+  await released(f)
+  await recover(f.dir)
+  const ids = fs.readFileSync(path.join(f.dir, 'order'), 'utf8').trim().split('\n')
+  await until(() => ids.every(id => f.job(id).status === 'passed'), 'all jobs')
+  assert.deepEqual(
+    fs.readFileSync(f.events, 'utf8').trim().split('\n'),
+    ids.flatMap(id => [`${id} start`, `${id} end`])
+  )
+  assert(ids.every(id => f.job(id).status === 'passed'))
+})
+
+test('failed and timed-out jobs release before automatic next job', async t => {
+  const f = fixture(t),
+    a = submit(f.spec('fail'), f.dir),
+    b = submit(f.spec('wait', { timeoutMs: 400 }), f.dir),
+    c = submit(f.spec(), f.dir)
+  await until(() => f.job(c.id).status === 'passed', 'following job')
+  assert.equal(f.job(a.id).status, 'failed')
+  assert.equal(f.job(b.id).status, 'timed-out')
+  const events = fs.readFileSync(f.events, 'utf8')
+  assert(events.indexOf(`${b.id} stop`) < events.indexOf(`${c.id} start`))
+})
+
+test('cancel running and queued jobs without running queued command', async t => {
+  const f = fixture(t),
+    a = submit(f.spec('wait'), f.dir)
+  await until(() => fs.existsSync(f.events), 'first started')
+  const b = submit(f.spec(), f.dir),
+    c = submit(f.spec(), f.dir)
+  fs.writeFileSync(path.join(b.output, 'cancel'), '')
+  fs.writeFileSync(path.join(a.output, 'cancel'), '')
+  await until(() => f.job(c.id).status === 'passed', 'after cancellation')
+  assert.equal(f.job(a.id).status, 'cancelled')
+  assert.equal(f.job(b.id).status, 'cancelled')
+  assert(!fs.readFileSync(f.events, 'utf8').includes(`${b.id} start`))
+})
+
+test('missing cleanup blocks handoff, recovery requires a fresh matching receipt', async t => {
+  const f = fixture(t),
+    a = submit(f.spec('missing'), f.dir),
+    b = submit(f.spec(), f.dir)
+  await until(() => f.job(a.id).status === 'cleanup-blocked', 'cleanup failure')
+  await released(f)
+  assert.equal(f.job(b.id).status, 'queued')
+  await assert.rejects(recover(f.dir), /receipt is missing/)
+  fs.writeFileSync(
+    path.join(a.output, 'cleanup.json'),
+    JSON.stringify({
+      jobId: 'wrong',
+      resourcesReleased: true,
+      releasedAt: new Date().toISOString(),
+      processes: [],
+    })
+  )
+  await assert.rejects(recover(f.dir), /stale cleanup/)
+  fs.writeFileSync(
+    path.join(a.output, 'cleanup.json'),
+    JSON.stringify({
+      jobId: a.id,
+      resourcesReleased: true,
+      releasedAt: new Date().toISOString(),
+      processes: [],
+    })
+  )
+  await recover(f.dir)
+  await until(() => f.job(b.id).status === 'passed', 'recovered queue')
+})
+
+test('live detached child prevents next test and is never killed by the queue', async t => {
+  const f = fixture(t),
+    a = submit(f.spec('detached'), f.dir),
+    b = submit(f.spec(), f.dir)
+  await until(() => f.job(a.id).status === 'cleanup-blocked', 'detached process check')
+  await released(f)
+  const pid = read(path.join(a.output, 'cleanup.json')).processes[0].pid
+  process.kill(pid, 0)
+  await assert.rejects(recover(f.dir), /still alive/)
+  assert.equal(f.job(b.id).status, 'queued')
+  process.kill(-pid, 'SIGTERM')
+  await until(() => {
+    try {
+      process.kill(pid, 0)
+      return false
+    } catch {
+      return true
+    }
+  }, 'fixture child exit')
+  await recover(f.dir)
+  await until(() => f.job(b.id).status === 'passed', 'detached cleanup recovery')
+})
+
+test('controller crash retains lock; recovery refuses live owner or job', async t => {
+  const f = fixture(t),
+    a = submit(f.spec('wait'), f.dir),
+    b = submit(f.spec(), f.dir)
+  await until(() => f.job(a.id).status === 'running' && fs.existsSync(f.events), 'active job')
+  await assert.rejects(recover(f.dir), /Controller is still alive/)
+  const controller = read(path.join(f.dir, 'controller.lock', 'owner.json')).pid
+  process.kill(controller, 'SIGKILL')
+  await wait(100)
+  await assert.rejects(recover(f.dir), /still alive/)
+  assert.equal(f.job(b.id).status, 'queued')
+  process.kill(-f.job(a.id).pid, 'SIGTERM')
+  await wait(200)
+  await recover(f.dir)
+  await until(() => f.job(b.id).status === 'passed', 'post-crash recovery')
+})
+
+test('source drift and busy ports block commands without touching existing server', async t => {
+  const f = fixture(t)
+  fs.writeFileSync(path.join(f.dir, 'pause.json'), '{}')
+  const a = submit(f.spec(), f.dir)
+  fs.appendFileSync(path.join(f.repo, 'fixture.cjs'), '\n// queued input changed\n')
+  await released(f)
+  await recover(f.dir)
+  await until(() => f.job(a.id).status === 'blocked', 'source drift')
+  assert(!fs.existsSync(f.events))
+  const server = net.createServer()
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  t.after(() => server.close())
+  const b = submit(f.spec('ok', { ports: [server.address().port] }), f.dir)
+  await until(() => f.job(b.id).status === 'blocked', 'occupied port')
+  assert(server.listening)
+  assert(!fs.existsSync(f.events))
+})
+
+test('all linked worktrees resolve the same queue; invalid specs never launch', async t => {
+  const f = fixture(t),
+    other = path.join(f.root, 'worktree')
+  f.git('worktree', 'add', '-qb', 'test-worker', other)
+  assert.equal(queueDirectory(other), queueDirectory(f.repo))
+  assert.throws(() => submit(f.spec('ok', { command: 'echo unsafe' }), f.dir), /argv/)
+  assert.throws(() => submit(f.spec('ok', { timeoutMs: Infinity }), f.dir), /timeout/)
+  assert.throws(() => submit(f.spec('ok', { notify: ['echo', 'done'] }), f.dir), /Use run/)
+  assert(!fs.existsSync(f.events))
+})
+
+test('submission preserves PATH and run returns one compact result without agent polling', async t => {
+  const f = fixture(t),
+    bin = path.join(f.root, 'bin'),
+    oldPath = process.env.PATH
+  fs.mkdirSync(bin)
+  fs.writeFileSync(path.join(bin, 'queue-fixture'), `#!${process.execPath}\n${fixtureSource}`, {
+    mode: 0o700,
+  })
+  fs.writeFileSync(path.join(f.dir, 'pause.json'), '{}')
+  process.env.PATH = `${bin}:${oldPath}`
+  let job
+  try {
+    job = submit(f.spec('ok', { command: ['queue-fixture', 'ok'] }), f.dir)
+  } finally {
+    process.env.PATH = oldPath
+  }
+  assert.equal((await waitForResult(f.dir, job.id)).status, 'deferred')
+  await released(f)
+  await recover(f.dir)
+  assert.equal((await waitForResult(f.dir, job.id)).status, 'passed')
+  const spec = path.join(f.root, 'run.json')
+  fs.writeFileSync(spec, JSON.stringify(f.spec()))
+  const result = await new Promise((resolve, reject) => {
+    const p = spawn(process.execPath, [cli, 'run', spec, '--dir', f.dir]),
+      output = []
+    p.stdout.on('data', c => output.push(c))
+    p.on('exit', code =>
+      code === 0 ? resolve(JSON.parse(Buffer.concat(output))) : reject(Error(`run ${code}`))
+    )
+  })
+  assert.equal(result.status, 'passed')
+  assert.equal(result.spec, undefined)
+})
