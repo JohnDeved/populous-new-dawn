@@ -5,6 +5,10 @@ import { openGame } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const { page, errors } = await openGame(browser)
+  const activate = async locator => {
+    await locator.focus()
+    await page.keyboard.press('Enter')
+  }
   await page.evaluate(() => {
     const main = document.querySelector('main')
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
@@ -17,7 +21,7 @@ try {
     world.outcome.cameraPlaying = false
     globalThis.testStore.update()
   })
-  await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).click()
+  await activate(page.getByRole('button', { name: 'Continue to Mission 4', exact: false }))
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 4)
   await page.evaluate(() => {
     const world = globalThis.testStore.getWorld()
@@ -42,7 +46,7 @@ try {
     ) > 0.5,
     initialCamera
   )
-  await skip.click()
+  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
@@ -79,20 +83,22 @@ try {
       stringId
     )
     const message = page.locator('.campaign-messages details').filter({ hasText: text })
-    await message.locator('summary').click()
+    if (!(await message.evaluate(details => details.open))) await message.locator('summary').click()
     await message.getByText(text, { exact: false }).waitFor()
+    return message.count()
   }
-  await triggerTutorial(253, 25, 0, 0, 657, 'Build a Warrior Training Hut')
-  await triggerTutorial(509, 15, 0, 0, 658, 'subvert your Followers')
-  await triggerTutorial(765, 0, 10, 10, 659, 'destroy the Enemy once and for all')
+  const tutorialMessages = [
+    await triggerTutorial(253, 25, 0, 0, 657, 'Build a Warrior Training Hut'),
+    await triggerTutorial(509, 15, 0, 0, 658, 'subvert your Followers'),
+    await triggerTutorial(765, 0, 10, 10, 659, 'destroy the Enemy once and for all'),
+  ]
+  await page.waitForFunction(() => [20, 21, 24].every(index => globalThis.testStore.getWorld().ai.variables[index]))
+  await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
 
   const result = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld()
     const initial = {
       ...globalThis.mission4Initial,
-      tutorials: [657, 658, 659].map(stringId =>
-        world.messages.slots.filter(message => message?.stringId === stringId).length
-      ),
       tutorialLatches: [20, 21, 24].map(index => world.ai.variables[index]),
     }
     const checkpointWild = world.units.filter(unit => unit.team === 'wild').length
@@ -107,7 +113,7 @@ try {
   assert.ok(result.initial.wild >= 50)
   assert.deepEqual(result.initial.rewards, ['tower', 'convertWild', 'lightning'])
   assert.ok(result.initial.rendered > 0)
-  assert.deepEqual(result.initial.tutorials, [1, 1, 1])
+  assert.deepEqual(tutorialMessages, [1, 1, 1])
   assert.deepEqual(result.initial.tutorialLatches, [1, 1, 1])
   assert.deepEqual(result.restored, { level: 4, wild: result.checkpointWild })
   await page.evaluate(() => {
@@ -117,7 +123,7 @@ try {
     world.outcome.cameraPlaying = false
     globalThis.testStore.update()
   })
-  await page.getByRole('button', { name: 'Continue to Mission 5', exact: false }).click()
+  await activate(page.getByRole('button', { name: 'Continue to Mission 5', exact: false }))
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 5)
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
@@ -133,7 +139,7 @@ try {
     ) > 0.5,
     missionFiveInitialCamera
   )
-  await missionFiveSkip.click()
+  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !world.inputMask && world.ai.variables[10] === 2
@@ -273,24 +279,36 @@ try {
     }
   })
   assert.deepEqual(missionFive, { level: 5, status: 'won', completed: 4, profile: [4, 5] })
-  await page.getByRole('button', { name: 'Continue to Mission 6', exact: false }).click()
+  await activate(page.getByRole('button', { name: 'Continue to Mission 6', exact: false }))
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 6)
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  await page.waitForFunction(() =>
+    globalThis.testStore.getWorld().castingTribes[3].spells
+      .slice(2, 8)
+      .every((spell, index) => spell.interval === [8, 64, 72, 32, 40, 70][index])
+  )
+  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await page.waitForFunction(() => {
+    const world = globalThis.testStore.getWorld()
+    return !(world.flyby.flags & 1) && !world.inputMask
+  })
+  await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
   await page.getByLabel('Focus Chumara tribe').waitFor()
   await page.getByLabel('Focus Matak tribe').waitFor()
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByText('Defeat the Chumara tribe', { exact: true }).waitFor()
   await page.getByText('Defeat the Matak tribe', { exact: true }).waitFor()
   await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
+  await page.waitForFunction(() => !globalThis.testStore.getWorld().paused)
   const missionSix = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld()
     await globalThis.testStore.saveCheckpoint()
     globalThis.testStore.startMission(1)
     if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 checkpoint load failed')
-    const { addUnit, browserPosition, tick } = await import('/app/model.ts'),
+    const { addUnit, browserPosition, createWorld, tick } = await import('/app/model.ts'),
       { syncLivePersonCells } = await import('/app/live-people.ts'),
       { stepLiveConversionVictim, stepLivePreaching } = await import('/app/live-movement.ts'),
       { currentPersonOrder } = await import('/app/person-orders.ts'),
@@ -407,9 +425,34 @@ try {
         ),
       },
     }
-    const chumaraSource = migrateCheckpoint(structuredClone(constructionWorld))
+    let chumaraSource = createWorld(6)
     chumaraSource.campaignAIs[3].variables[20] = 1
+    chumaraSource.manaTribes[3].active = false
     for (const task of chumaraSource.campaignAIs[3].tasks) if (task.type === 20) task.flags = 0
+    for (
+      let turn = 0;
+      turn < 3000 && !(
+        chumaraSource.campaignAIs[2].attributes[2] === 1 &&
+        chumaraSource.buildings.some(
+          building => building.team === 'yellow' && buildingModel(building) === 5
+        )
+      );
+      turn++
+    )
+      tick(chumaraSource, 1 / 12)
+    chumaraSource = migrateCheckpoint(structuredClone(chumaraSource))
+    for (
+      let turn = 0;
+      turn < 6000 && !(
+        chumaraSource.buildings.some(
+          building =>
+            building.team === 'yellow' && buildingModel(building) === 5 && building.progress === 1
+        ) && chumaraSource.units.some(unit => unit.team === 'yellow' && unit.kind === 'preacher')
+      );
+      turn++
+    )
+      tick(chumaraSource, 1 / 12)
+    chumaraSource = migrateCheckpoint(structuredClone(chumaraSource))
     for (
       let turn = 0;
       turn < 10000 &&
@@ -496,12 +539,66 @@ try {
       preacherCommand: chumaraPreacherCommand,
       converted: chumaraConverted,
     }
+    const matakSource = migrateCheckpoint(structuredClone(world))
+    for (
+      let turn = 0;
+      turn < 15000 &&
+      !matakSource.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
+      turn++
+    )
+      tick(matakSource, 1 / 12)
+    const allocatedMatak = matakSource.campaignAIs[3].tasks.find(
+        task => task.flags & 1 && task.type === 20
+      ),
+      matakWorld = migrateCheckpoint(structuredClone(matakSource)),
+      matakTask = matakWorld.campaignAIs[3].tasks.find(
+        task => task.flags & 1 && task.type === 20
+      )
+    if (matakTask)
+      for (let turn = 0; turn < 64 && matakTask.members.length < 5; turn++)
+        tick(matakWorld, 1 / 12)
+    let matakTargeted = false
+    if (matakTask)
+      for (let turn = 0; turn < 1025; turn++) {
+        tick(matakWorld, 1 / 12)
+        matakTargeted ||= matakTask.members.some(id => {
+          const unit = matakWorld.units.find(unit => unit.id === id),
+            person = unit && (unit.native ?? unit.fight?.motion),
+            order = person && currentPersonOrder(matakWorld.buildingOrders, person)
+          return (
+            order?.model === 3 &&
+            order.a === (((matakTask.target << 8) + 128) & 65535) &&
+            order.b === ((matakTask.target & 0xff00) + 128)
+          )
+        })
+      }
+    const matakRaid = allocatedMatak && matakTask && {
+      requested: allocatedMatak.requested,
+      damage: allocatedMatak.extra,
+      marker: allocatedMatak.mode,
+      scheduled: (matakSource.turn - 1 + 3 + 399) & 1023,
+      latched: matakSource.campaignAIs[3].variables[20],
+      attributes: matakSource.campaignAIs[3].attributes.slice(1, 11),
+      camp: matakSource.buildings.some(
+        building =>
+          building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
+      ),
+      population: matakSource.units.filter(unit => unit.team === 'green' && unit.hp > 0).length > 22,
+      warriors:
+        matakSource.units.filter(
+          unit => unit.team === 'green' && unit.kind === 'warrior' && unit.hp > 0
+        ).length > 5,
+      checkpointTasks: matakWorld.campaignAIs[3].tasks.filter(
+        task => task.flags & 1 && task.type === 20
+      ).length,
+      mix: matakTask.members.map(id => matakWorld.units.find(unit => unit.id === id)?.kind).sort(),
+      disconnectedRecovery: matakTask.phase === 10 && matakTargeted,
+    }
     for (const { tribe, team, triggerTurn } of [
       { tribe: 2, team: 'yellow', triggerTurn: 8 },
       { tribe: 3, team: 'green', triggerTurn: 7 },
     ]) {
-      if (!globalThis.testStore.loadCheckpoint()) throw new Error('Mission 6 scenario restore failed')
-      const scenario = globalThis.testStore.getWorld(),
+      const scenario = createWorld(6),
         survivor = scenario.units.find(unit => unit.team === team && unit.kind === 'brave'),
         shaman = scenario.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
         start = { x: survivor.x, z: survivor.z }
@@ -513,7 +610,8 @@ try {
       tick(scenario, 1 / 12)
       const early = scenario.manaTribes[tribe].flags2 & 0x40
       tick(scenario, 1 / 12)
-      const order = currentPersonOrder(scenario.buildingOrders, survivor.native)
+      const person = survivor.native ?? survivor.fight?.motion,
+        order = person && currentPersonOrder(scenario.buildingOrders, person)
       for (let turn = 0; turn < 64 && !survivor.fight; turn++) tick(scenario, 1 / 12)
       counterattacks.push({
         team,
@@ -546,6 +644,7 @@ try {
       independentScans: restored.spellScans[2] !== restored.spellScans[3],
       construction,
       chumaraRaid,
+      matakRaid,
       counterattacks,
       renderedOwners,
       oneOpponent,
@@ -594,6 +693,20 @@ try {
     preacherCommand: 17,
     converted: true,
   })
+  assert.deepEqual(missionSix.matakRaid, {
+    requested: 5,
+    damage: 128,
+    marker: 0,
+    scheduled: 0,
+    latched: 1,
+    attributes: [0, 1, 1, 0, 0, 10, 20, 0, 4, 20],
+    camp: true,
+    population: true,
+    warriors: true,
+    checkpointTasks: 1,
+    mix: ['brave', 'warrior', 'warrior', 'warrior', 'warrior'],
+    disconnectedRecovery: true,
+  })
   assert.deepEqual(
     missionSix.counterattacks.map(({ team, early, enabled, order, target, shaman, moved, engaged }) => ({
       team, early, enabled, order, targetedShaman: target === shaman, moved, engaged,
@@ -610,7 +723,7 @@ try {
   assert.equal(missionSix.completed, 5)
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 6 opponents establish first expansions, launch a Chumara raid, and counterattack through live browser paths'
+    'PASS: Mission 6 opponents expand, train specialists, launch first raids, and counterattack through live browser paths'
   )
 } finally {
   await browser.close()

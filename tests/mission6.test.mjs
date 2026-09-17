@@ -127,6 +127,8 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
 
 test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () => {
   let world = createWorld(6)
+  world.campaignAIs[3].variables[20] = 1 // Keep this established scenario focused on Chumara's raid.
+  world.manaTribes[3].active = false
   for (
     let turn = 0;
     turn < 3000 &&
@@ -267,7 +269,7 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
   )
 })
 
-test('Mission 6 opponents establish their initial towers and first expansions', () => {
+test('Mission 6 opponents expand and Matak launches its first Warrior raid', () => {
   const failed = createWorld(6)
   for (
     let turn = 0;
@@ -284,7 +286,6 @@ test('Mission 6 opponents establish their initial towers and first expansions', 
   )
 
   let world = createWorld(6)
-  world.campaignAIs[2].variables[1] = 1 // Keep this established scenario focused on Matak's raid.
   for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
   assert.equal(world.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 0), false)
   assert.equal(world.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0), false)
@@ -487,4 +488,40 @@ test('Mission 6 opponents establish their initial towers and first expansions', 
       warriorsBefore
   )
 
+  for (
+    let turn = 0;
+    turn < 15000 && !world.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
+    turn++
+  )
+    tick(world, 1 / 12)
+  const attack = world.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.deepEqual(world.campaignAIs[3].attributes.slice(1, 11), [0, 1, 1, 0, 0, 10, 20, 0, 4, 20])
+  assert.ok(
+    world.buildings.some(
+      building =>
+        building.team === 'green' && buildingModel(building) === 7 && building.progress === 1
+    )
+  )
+  assert.ok(world.units.filter(unit => unit.team === 'green' && unit.kind === 'warrior').length > 5)
+  assert.deepEqual(
+    attack && {
+      requested: attack.requested,
+      damage: attack.extra,
+      marker: attack.mode,
+      scheduled: (world.turn - 1 + 3 + 399) & 1023,
+    },
+    { requested: 5, damage: 128, marker: 0, scheduled: 0 }
+  )
+  assert.equal(world.campaignAIs[3].variables[20], 1)
+
+  const raiding = migrateCheckpoint(structuredClone(world)),
+    restoredAttack = raiding.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.ok(restoredAttack)
+  for (let turn = 0; turn < 64 && restoredAttack.members.length < 5; turn++)
+    tick(raiding, 1 / 12)
+  assert.equal(restoredAttack.members.length, 5)
+  assert.deepEqual(
+    restoredAttack.members.map(id => raiding.units.find(unit => unit.id === id)?.kind).sort(),
+    ['brave', 'warrior', 'warrior', 'warrior', 'warrior']
+  )
 })

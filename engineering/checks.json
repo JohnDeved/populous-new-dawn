@@ -383,18 +383,20 @@
       "id": "mission6-economy-native",
       "kind": "native",
       "automation": "safe",
-      "purpose": "Execute Mission 3 and Mission 6 native ordinary construction, lost-builder recovery, and specialist-training producers.",
+      "purpose": "Execute Mission 3 and Mission 6 native ordinary construction, lost-builder recovery, specialist-training producers, and Matak producer profiles.",
       "coveredBehavior": [
         "Mission 3 Tower then Temple construction requests without Warrior Training Hut demand",
         "Mission 3 original training block, one-Preacher task, housing target, and repetition latch",
         "Initial Guard Tower and settlement construction requests",
-        "Warrior Training Hut selection from supplied synthetic Matak attributes",
+        "Exact CPSCR015 population/building gates and producer-attribute writes for the first two Matak profiles",
+        "Warrior Training Hut selection from the first authored Matak profile",
         "Chumara Temple selection from attribute 2 and Preacher production from attribute 6",
         "Chumara and Matak Warrior production",
         "Construction and training task fields, capacity gates, and RNG consumption",
         "Phase-8 deficient-builder retry threshold and phase-4 recovery"
       ],
       "knownLimits": [
+        "The CPATR clear/copy path is reviewed static loader evidence; this probe executes CPSCR and producer consumers.",
         "Site search, worker movement, timber, construction completion, training conversion, and browser presentation are checked separately."
       ],
       "executable": "python3",
@@ -406,6 +408,8 @@
         "decomp/generated/004e5580.c",
         "decomp/generated/004e59a0.c",
         "decomp/generated/004f5d20.c",
+        "decomp/generated/00485660.c",
+        "decomp/generated/00486160.c",
         "app/original-script-three.json",
         "app/original-script-six.json",
         "scripts/decomp.py",
@@ -414,7 +418,7 @@
       ],
       "prerequisites": [
         "Documented Unicorn Python environment",
-        "Hash-verified user-supplied executable and adjacent Mission 3 script"
+        "Hash-verified user-supplied executable and adjacent Mission 3 and Mission 6 scripts"
       ],
       "sideEffects": [],
       "resources": ["External executable is read-only"],
@@ -1607,7 +1611,7 @@
       "id": "mission4-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise continuous campaign progression through Mission 4 and Mission 5 into playable Mission 6, including Mission 6 tribe identity, first expansions, first Chumara raid, checkpoint, objectives, and outcome handling.",
+      "purpose": "Exercise continuous campaign progression through Mission 4 and Mission 5 into playable Mission 6, including Mission 6 tribe identity, autonomous expansions, first Chumara and Matak raids, checkpoint, objectives, and outcome handling.",
       "coveredBehavior": [
         "Mission 3 result continuation",
         "Mission 4 original opening flyby, camera movement, input lock, skip control, and HUD resumption",
@@ -1627,12 +1631,13 @@
         "Mission 5 continuation into the original Mission 6 world and ordinary control",
         "Mission 6 distinct Chumara and Matak state, rendering, checkpoint restore, objectives, and two-opponent outcome",
         "Mission 6 autonomous Guard Towers, Chumara Warrior Training Hut, Matak Hut, recurring spell-interval profile, Chumara Warrior production, and checkpoint restoration",
-        "Mission 6 first naturally gated Chumara mixed raid allocation, three-Warrior/one-Preacher selection, Blue-targeted live order, selected-Preacher conversion, latch, and checkpoint restoration"
+        "Mission 6 first naturally gated Chumara mixed raid allocation, three-Warrior/one-Preacher selection, Blue-targeted live order, selected-Preacher conversion, latch, and checkpoint restoration",
+        "Mission 6 Matak producer profiles, natural Warrior Training Hut, population/Warrior/mana gates, first raid allocation, Blue-targeted disconnected-route recovery, latch, and checkpoint restoration"
       ],
       "knownLimits": [
         "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, positions one Mission 5 follower at the Boat worship ring and the Shaman at the Angel trigger, injects late-mission population/kill thresholds plus one reachable survivor, and removes Mission 5 enemy forces before exercising the real outcome/profile path; starting-route terrain progression, broader recurring AI, the Angel reward, complete housed-Preacher behavior, and other Mission 5 combat remain deferred.",
         "Mission 5 opening events and trigger come from the imported original script; native timing has not been independently replayed.",
-        "Mission 6 Matak Warrior-production attributes, natural growth/raid gate, later ordinary attacks, broader BUILD_AT behavior, and later mission-specific content remain deferred."
+        "Mission 6 later ordinary attacks, broader BUILD_AT behavior, later producer profiles, and later mission-specific content remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission4.mjs"],

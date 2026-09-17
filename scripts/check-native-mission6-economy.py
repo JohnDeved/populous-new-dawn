@@ -18,6 +18,11 @@ SCRIPT_SHA = "d5dfcd826f77909a64cca03ca9d9e3d351d2a7cb3f63eb8ba811b59916e83601"
 assert hashlib.sha256(SCRIPT.read_bytes()).hexdigest() == SCRIPT_SHA
 mission_three_script = json.loads((ROOT / "app/original-script-three.json").read_text())
 assert mission_three_script["sha256"] == SCRIPT_SHA
+MISSION_SIX_SCRIPT = EXE.parent / "levels/cpscr015.dat"
+MISSION_SIX_SCRIPT_SHA = "01dcc425abaf6bf9680e1d62cede2d5c3a0de9739631d69516d810bc424b8e60"
+assert hashlib.sha256(MISSION_SIX_SCRIPT.read_bytes()).hexdigest() == MISSION_SIX_SCRIPT_SHA
+mission_six_script = json.loads((ROOT / "app/original-script-six.json").read_text())["tribes"]["3"]
+assert mission_six_script["sha256"] == MISSION_SIX_SCRIPT_SHA
 cpu, _ = native_cpu(EXE)
 cpu.mem_map(0x2000000, 0x60000)
 ai, building, stack, stop = 0x2000000, 0x2002000, 0x205D000, 0x205E000
@@ -241,12 +246,14 @@ assert all(item["rng"] == "0x12345678" for item in mission_three)
 
 program = 0x2010000
 commands = []
+active_script = mission_three_script
+script_internals = {1: 7, 1070: 1}
 
 
 def mission_three_command(_cpu, _address, _size, _user):
     pc = read(program + 0x3104)
     opcode = read(pc + 2, "H")
-    arity = mission_three_script["commands"][str(opcode)]
+    arity = active_script["commands"][str(opcode)]
     args = list(struct.unpack("<" + "H" * arity, cpu.mem_read(pc + 4, arity * 2)))
     commands.append([opcode, args])
     if opcode == 1095:
@@ -258,10 +265,8 @@ def mission_three_command(_cpu, _address, _size, _user):
 def mission_three_internal(_cpu, _address, _size, _user):
     field = read(cpu.reg_read(UC_X86_REG_ESP) + 12)
     kind, value = struct.unpack("<Ii", cpu.mem_read(field, 8))
-    if kind == 2 and value == 1:
-        ret(7)
-    elif kind == 2 and value == 1070:
-        ret(1)
+    if kind == 2 and value in script_internals:
+        ret(script_internals[value])
 
 
 cpu.hook_add(UC_HOOK_CODE, mission_three_command, begin=0x48CC60, end=0x48CC60)
@@ -305,4 +310,53 @@ commands.clear()
 run_mission_three_training(206, True)
 assert commands == [] and read(program + 0x3000 + 23 * 4, "i") == 1
 
-print(json.dumps({"executableSha256": SHA, "missionThreeConstruction": mission_three, "missionThreeTraining": mission_three_training, "construction": observations, "training": training, "belowCapacity": below_capacity, "lostBuilderRecovery": recovery}, indent=2))
+matak_initial = [28, 0, 0, 0, 0, 0, 5, 10, 0, 2, 10, 0, 88, 12, 5, 2, 0, 0, 90, 1, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 7, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0]
+
+
+def run_matak_profile(codes, turn, internals, attributes):
+    global active_script, script_internals
+    active_script = mission_six_script
+    script_internals = internals
+    blob = bytearray(MISSION_SIX_SCRIPT.read_bytes())
+    blob[:8192] = bytes(8192)
+    struct.pack_into("<" + "H" * len(codes), blob, 0, *codes)
+    blob[12288:12544] = bytes(256)
+    cpu.mem_write(program, bytes(blob))
+    cpu.mem_write(ai, bytes(0xC65))
+    write(ai + 0xC22, "B", 3)
+    cpu.mem_write(0x9607EA + 3 * 48, bytes(attributes))
+    write(0x89D188, "I", turn)
+    commands.clear()
+    call(0x48C6B0, ai, program)
+    assert commands == []
+    return list(cpu.mem_read(0x9607EA + 3 * 48, 48))
+
+
+first_profile_codes = [12, 1003, *mission_six_script["codes"][501:550], 1004, 1019]
+first_profiles = []
+for name, turn, population, huts in (
+    ("passing", 170, 11, 3),
+    ("offTurn", 169, 11, 3),
+    ("populationBoundary", 170, 10, 3),
+    ("hutBoundary", 170, 11, 2),
+):
+    after = run_matak_profile(first_profile_codes, turn, {1: population, 1066: huts}, matak_initial)
+    first_profiles.append({"case": name, "turn": turn, "population": population, "completedModel1": huts, "attributes": after})
+assert first_profiles[0]["attributes"] == [28, 0, 1, 1, 0, 0, 5, 15, 0, 2, 15, 0, 88, 12, 5, 2, 0, 0, 90, 1, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 7, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0]
+assert all(case["attributes"] == matak_initial for case in first_profiles[1:])
+
+second_profile_codes = [12, 1003, *mission_six_script["codes"][550:581], 1004, 1019]
+second_profiles = []
+for name, turn, population, huts in (
+    ("passing", 662, 21, 1),
+    ("offTurn", 661, 21, 1),
+    ("populationBoundary", 662, 20, 1),
+    ("hutBoundary", 662, 21, 0),
+):
+    before = first_profiles[0]["attributes"]
+    after = run_matak_profile(second_profile_codes, turn, {1: population, 1068: huts}, before)
+    second_profiles.append({"case": name, "turn": turn, "population": population, "completedModel3": huts, "attributes": after})
+assert second_profiles[0]["attributes"] == [28, 0, 1, 1, 0, 0, 10, 20, 0, 4, 20, 0, 88, 12, 5, 2, 0, 0, 90, 1, 0, 0, 0, 0, 255, 1, 0, 0, 25, 1, 1, 1, 128, 7, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0]
+assert all(case["attributes"] == first_profiles[0]["attributes"] for case in second_profiles[1:])
+
+print(json.dumps({"executableSha256": SHA, "missionThreeConstruction": mission_three, "missionThreeTraining": mission_three_training, "construction": observations, "training": training, "belowCapacity": below_capacity, "lostBuilderRecovery": recovery, "matakProfiles": [first_profiles, second_profiles]}, indent=2))
