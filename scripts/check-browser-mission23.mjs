@@ -152,18 +152,38 @@ try {
       scene = globalThis.testSceneRef.current,
       world = store.getWorld(),
       { tick } = await import('/app/model.ts'),
-      { buildingModel } = await import('/app/building-shapes.ts')
-    while (world.turn < 1500) tick(world, 1 / 12)
+      { buildingModel } = await import('/app/building-shapes.ts'),
+      initialYellow = new Set(world.units.filter(unit => unit.team === 'yellow').map(unit => unit.id))
+    while (world.turn < 2585) tick(world, 1 / 12)
     store.update()
     scene.onChange()
     scene.animate(scene.previous)
     cancelAnimationFrame(scene.frame)
     scene.renderer.render(scene.scene, scene.camera)
-    const buildings = world.buildings
+    const buildings = world.buildings,
+      teams = ['red', 'yellow', 'green']
     return {
-      buildings: buildings
-        .map(building => [building.team, buildingModel(building), building.progress])
-        .sort(),
+      buildings: Object.fromEntries(
+        teams.map(team => [
+          team,
+          buildings
+            .filter(building => building.team === team)
+            .map(buildingModel)
+            .sort((a, b) => a - b),
+        ])
+      ),
+      population: Object.fromEntries(
+        teams.map(team => [team, world.units.filter(unit => unit.team === team).length])
+      ),
+      constructionIdle: [1, 2, 3].every(tribe =>
+        world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))
+      ),
+      newbornRendered: world.units.some(
+        unit =>
+          unit.team === 'yellow' &&
+          !initialYellow.has(unit.id) &&
+          scene.unitMeshes.get(unit.id)?.visible
+      ),
       rendered: buildings.every(building => {
         const group = scene.buildingMeshes.get(building.id)
         return !!group && group.parent === scene.objects && group.children.some(child => child.visible)
@@ -171,19 +191,19 @@ try {
     }
   })
   assert.deepEqual(settlement, {
-    buildings: [
-      ['green', 1, 1],
-      ['green', 4, 1],
-      ['red', 1, 1],
-      ['red', 4, 1],
-      ['yellow', 13, 1],
-      ['yellow', 4, 1],
-    ],
+    buildings: {
+      red: [1, 1, 1, 1, 1, 1, 4],
+      yellow: [1, 1, 1, 1, 1, 1, 4, 13],
+      green: [1, 1, 1, 1, 1, 1, 4],
+    },
+    population: { red: 12, yellow: 12, green: 16 },
+    constructionIdle: true,
+    newbornRendered: true,
     rendered: true,
   })
 
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 23 continuation, settlement cycle, linked gift, and checkpoint')
+  console.log('PASS: Mission 23 continuation, recurrent housing, population, linked gift, and checkpoint')
 } finally {
   await browser.close()
 }

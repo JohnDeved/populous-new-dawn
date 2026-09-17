@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify Mission 23's first two autonomous enemy settlement requests."""
+"""Verify Mission 23's autonomous settlement and housing requests."""
 
 import hashlib
 import struct
@@ -81,6 +81,19 @@ profiles = {
     2: (0x1B8BEF, 0x20, 0x44BC, 4, 18, 0x66CE, 13),
     3: (0x1B8FEF, 0x120, 0xA89A, 4, 18, 0xA684, 1),
 }
+
+
+def supply_buildings(cpu, ai, models):
+    base, stride = 0x2050000, 0x40
+    cpu.mem_write(base, bytes(stride * max(len(models), 1)))
+    for index, model in enumerate(models):
+        node = base + index * stride
+        write(cpu, node + 8, "I", base + (index + 1) * stride if index + 1 < len(models) else 0)
+        write(cpu, node + 0x2B, "B", model)
+        write(cpu, node + 0x2C, "B", 0)
+    write(cpu, ai + 0x885, "I", base if models else 0)
+
+
 for tribe, script_id in scripts.items():
     states, flags, latch, task_limit, housing, expected_origin, next_model = profiles[tribe]
     cpu, _ = native_cpu(EXE)
@@ -148,7 +161,33 @@ for tribe, script_id in scripts.items():
         read(cpu, ai + 0x78, "H"),
         read(cpu, 0x89D178),
     ) == (1, 0, next_model, current_base, 0, 0, 0x12345678)
+
+    cpu.mem_write(ai + 0x36, bytes(10 * 0x52))
+    supply_buildings(cpu, ai, [4, next_model])
+    assert invoke(cpu, stack, stop, 0x4F6480, ai, next_model) == 1
+    assert invoke(cpu, stack, stop, 0x4F6520, ai) == (4 if next_model == 1 else 1)
+    third_turn = 191 - tribe
+    assert (third_turn + tribe + 1) & 63 == 0
+    write(cpu, 0x89D178, "I", 0x23456789)
+    assert invoke(cpu, stack, stop, 0x4E5580, ai, 0) == 1
+    assert (
+        read(cpu, ai + 0x74),
+        read(cpu, ai + 0x85, "B"),
+        read(cpu, ai + 0x68),
+        read(cpu, ai + 0x6C),
+        read(cpu, ai + 0x70),
+        read(cpu, ai + 0x78, "H"),
+        read(cpu, 0x89D178),
+    ) == (1, 0, 1, current_base, 0, 0, 0x23456789)
+
+    cpu.mem_write(ai + 0x36, bytes(10 * 0x52))
+    supply_buildings(cpu, ai, [4, 2, 2, 1, 1, 1] + ([13] if tribe == 2 else []))
+    assert invoke(cpu, stack, stop, 0x4F6520, ai) == 18
+    write(cpu, 0x89D178, "I", 0x3456789A)
+    assert invoke(cpu, stack, stop, 0x4E5580, ai, 0) == 0
+    assert all(read(cpu, ai + 0x74 + index * 0x52) == 0 for index in range(10))
+    assert read(cpu, 0x89D178) == 0x3456789A
     cpu.hook_del(people_hook)
     cpu.hook_del(available_hook)
 
-print("PASS: Mission 23 first two enemy settlement steps verified")
+print("PASS: Mission 23 recurrent housing and capacity stop verified")

@@ -74,7 +74,7 @@ test('Mission 23 loads its authored tribes, Wildmen and worship chain', () => {
   )
 })
 
-test('Mission 23 enemy tribes complete their first two native settlement steps', () => {
+test('Mission 23 enemy tribes grow their native settlements and populations', () => {
   const world = createWorld(23)
   for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
   assert.ok([1, 2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
@@ -125,14 +125,37 @@ test('Mission 23 enemy tribes complete their first two native settlement steps',
     })
   }
 
-  while (world.turn < 200) tick(world, 1 / 12)
+  while (world.turn < 188) tick(world, 1 / 12)
+  const restored = migrateCheckpoint(structuredClone(world))
+  assert.deepEqual(restored, world)
+  for (const tribe of [3, 2, 1]) {
+    tick(world, 1 / 12)
+    tick(restored, 1 / 12)
+    const task = world.campaignAIs[tribe].tasks.find(
+      task => task.flags & 1 && task.type === 0 && task.requested === 1 && task.phase === 0
+    )
+    assert.deepEqual(task && { requested: task.requested, origin: task.origin, phase: task.phase }, {
+      requested: 1,
+      origin: towerOrigins.get(tribe),
+      phase: 0,
+    })
+    assert.deepEqual(restored, world)
+  }
+
+  while (world.turn < 200) {
+    tick(world, 1 / 12)
+    tick(restored, 1 / 12)
+  }
   assert.deepEqual(
     world.buildings.map(building => [building.team, buildingModel(building)]).sort(),
     [
       ['green', 1],
+      ['green', 1],
       ['green', 4],
       ['red', 1],
+      ['red', 1],
       ['red', 4],
+      ['yellow', 1],
       ['yellow', 13],
       ['yellow', 4],
     ]
@@ -150,15 +173,38 @@ test('Mission 23 enemy tribes complete their first two native settlement steps',
     { target: 0x46ca, orientation: 1, placement: { valid: true, flags: 0 } }
   )
 
-  const restored = migrateCheckpoint(structuredClone(world))
+  let yellowBirthTurn = 0
+  while (world.turn < 2585) {
+    tick(world, 1 / 12)
+    tick(restored, 1 / 12)
+    if (!yellowBirthTurn && world.units.filter(unit => unit.team === 'yellow').length > 7)
+      yellowBirthTurn = world.turn
+  }
   assert.deepEqual(restored, world)
-  while (world.turn < 1500) {
+  assert.equal(yellowBirthTurn, 967)
+  assert.ok(world.buildings.every(building => building.progress === 1))
+  assert.deepEqual(
+    ['red', 'yellow', 'green'].map(team => [
+      team,
+      world.buildings.filter(building => building.team === team && buildingModel(building) === 1)
+        .length,
+      world.units.filter(unit => unit.team === team).length,
+    ]),
+    [
+      ['red', 6, 12],
+      ['yellow', 6, 12],
+      ['green', 6, 16],
+    ]
+  )
+  assert.ok([1, 2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
+  const buildings = world.buildings.length
+  for (let turn = 0; turn < 128; turn++) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
   }
   assert.deepEqual(restored, world)
-  assert.ok(world.buildings.every(building => building.progress === 1))
-  assert.equal(world.buildings.length, 6)
+  assert.equal(world.buildings.length, buildings)
+  assert.ok([1, 2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
 })
 
 test('Mission 23 unlocks and repeats the native zero-mana gift through ordinary worship', () => {

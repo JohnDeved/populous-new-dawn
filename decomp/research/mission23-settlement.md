@@ -1,4 +1,4 @@
-# Mission 23 first enemy settlements
+# Mission 23 enemy settlements and housing growth
 
 ## Native contract
 
@@ -31,6 +31,13 @@ authored attribute 35 target of one selects model 13 before housing, while Red
 and Green fall through to housing below their target of 18. Native has no
 one-shot latch for this recurrent producer.
 
+With those first two buildings supplied as complete, the third visits request
+model-1 Huts for Green on turn 188, Yellow on turn 189, and Red on turn 190.
+Each again uses the current base and has `flags=1`, type 0, exact 0, phase 0,
+and unchanged allocation RNG. Yellow's native model count sees its one Boat
+House, satisfies attribute 35, and falls through to housing. At native housing
+capacity 18, the producer returns without a task or RNG change.
+
 Run:
 
 ```sh
@@ -39,19 +46,24 @@ Run:
 ```
 
 The non-recording check hashes the executable and Mission 23 inputs, executes
-native initialization and producer code, and verifies task fields and RNG. It
-supplies only the authored Shaman base cell and six available Braves for the
-first requests. The post-Tower cases supply one completed Tower and building
-availability, then execute `004f6020` against a distinct current-base sentinel.
+native initialization and producer code, and verifies all three request cycles,
+the capacity stop, task fields, and RNG. It supplies the authored Shaman base
+cell and six available Braves for the first requests. Later cases supply linked
+completed-building records and execute native model/housing counts plus
+`004f6020` against a distinct current-base sentinel.
 
 ## Live integration and boundary
 
-Mission 23 reuses the existing browser producer and construction task. The
-portable regression proves both native-cadence request cycles, ordinary worker
-assignment and completion, and exact checkpoint continuation through turn 1500.
-The second cycle completes Green and Red Huts plus Yellow's Boat House while
-preserving all three Towers. The rendered browser check covers the same six
-completed buildings through the shipped Mission 23 path.
+Mission 23 reuses the existing browser producer, construction task, Hut
+admission, and birth controller. A checkpoint before the third requests resumes
+identically through turn 2713. The third cycle adds one Hut per tribe; ordinary
+cadences then reach six completed Huts per tribe. The Tower plus those Huts give
+live housing 19: the strict below-target check requests the final three-capacity
+Hut from 16, then stops above the authored target 18. Yellow produces its first
+natural new Brave on turn 967. At turn 2585 all construction tasks are idle, and
+another 128 turns create no task or building. The rendered browser check covers
+the same completed settlements and grown populations through the shipped
+Mission 22 continuation.
 
 The shared model-13 construction path needs no Mission-specific shoreline rule.
 The complete native `0044ee50` comparison covers shore masks without intercepted
@@ -59,14 +71,15 @@ decision helpers. Mission 23's ordinary search accepts Yellow's Boat House at
 cell `0x46ca`, orientation 1, after 127 candidates; shared validity returns true
 with zero feedback flags. Its dock cells are land with non-land within radius 2.
 
-The browser deliberately stops once each tribe has its first post-Tower task,
-plan, or building. If that object is lost, a later producer cadence may retry;
-this is a bounded integration guard, not a claimed native one-shot latch.
+Boat production was investigated but not invented. Native scheduler task `0x11`
+only runs after a person already has a retained cross-water goal, and task `0x13`
+only runs from an occupied vehicle. Neither staffs the first Boat House nor
+authors that goal; a live turn-2500 Mission 23 state has a completed empty Yellow
+Boat House with no vehicle task. That dependency remains open.
 
 Natural school construction and specialist training are not established: all
 authored school targets are zero. No nonzero attack is proved reachable from this
 slice. The earliest static candidate is Green script word 1060 on turn 1405, but
 it requires more than five Warriors and more than five Firewarriors plus census
-and mana gates. Recurrent housing, Boat production and transport, training
-reachability, attacks, combat, and natural outcome remain separate work. No
-parity ledger status changed.
+and mana gates. Boat staffing/transport, training reachability, attacks, combat,
+and natural outcome remain separate work. No parity ledger status changed.

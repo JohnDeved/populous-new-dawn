@@ -332,8 +332,6 @@ function produceMissionBuilding(w: World, tribe: number) {
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
-  // ponytail: stop after Mission 23's first post-Tower request; later housing needs its own proof.
-  if (w.outcome.level === 23 && has(4) && has(tribe === 2 ? 13 : 1)) return false
   const selection = computerSelectionWorld(w, tribe)
   if (availableTrainingPeople(selection.world) < 2) return false
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
@@ -360,9 +358,11 @@ function produceMissionBuilding(w: World, tribe: number) {
   const model = !base
     ? 4
     : w.outcome.level === 23
-      ? tribe === 2
+      ? tribe === 2 && !has(13) && w.ai.attributes[35]
         ? 13
-        : 1
+        : housing < w.ai.attributes[10]
+          ? 1
+          : 0
       : w.outcome.level === 12
         ? 4
         : w.outcome.level === 11

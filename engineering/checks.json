@@ -3043,14 +3043,16 @@
       "id": "mission23-settlement-native",
       "kind": "native",
       "automation": "safe",
-      "purpose": "Verify Mission 23's first Guard Towers and post-Tower Green/Red Hut plus Yellow Boat House requests against hash-verified native code and data.",
+      "purpose": "Verify Mission 23's Guard Towers, Boat House, recurrent housing requests, and housing-target stop against hash-verified native code and data.",
       "coveredBehavior": [
         "Enemy startup scripts, rosters, construction limit, housing target, and zero school targets",
         "Green, Yellow, and Red first producer turns, Shaman origins, type-0 model-4 task fields, and unchanged RNG",
-        "Current-base Red/Green model-1 Hut and Yellow model-13 Boat House task fields with unchanged allocation RNG"
+        "Current-base Red/Green model-1 Hut and Yellow model-13 Boat House task fields with unchanged allocation RNG",
+        "Third-cycle model-1 Hut requests for all tribes after Yellow satisfies its Boat House target",
+        "Native housing count 18 returns without a task or RNG change"
       ],
       "knownLimits": [
-        "The probe supplies authored Shaman origins and available Brave counts; post-Tower cases additionally supply a completed Tower, building availability, and a distinct current-base sentinel.",
+        "The probe supplies authored Shaman origins and available Brave counts; later cases supply completed-building lists, building availability, and distinct current-base sentinels.",
         "It does not execute terrain-site acceptance, construction completion, training, attacks, combat, or outcome."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
@@ -3070,17 +3072,18 @@
       "id": "mission23-portable",
       "kind": "portable",
       "automation": "safe",
-      "purpose": "Check Mission 23's canonical setup, first two enemy settlement steps, linked gifts, and checkpoint continuation.",
+      "purpose": "Check Mission 23's canonical setup, recurrent enemy housing and population growth, linked gifts, and checkpoint continuation.",
       "coveredBehavior": [
         "Mission 23 level, scripts, tribes, Wildmen, and reward topology",
-        "Native-cadence Guard Tower, Green/Red Hut, and Yellow Boat House requests, ordinary construction, and deterministic checkpoint completion",
+        "Native-cadence Guard Tower, Boat House, and recurrent Hut requests through the housing target",
+        "Ordinary construction, Yellow's first natural newborn, producer stop, and deterministic checkpoint continuation",
         "Generic model-13 shore placement at the deterministic Mission 23 site",
         "A real Land Bridge makes trigger 305 reachable before ordinary authored-Brave worship",
         "Trigger-305 retirement, repeatable trigger-303 zero-mana gifts, and checkpoint continuation"
       ],
       "knownLimits": [
         "The focused check supplies one Land Bridge stock and accelerates completed worship work after real orders establish followers.",
-        "Recurrent housing, Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+        "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
       ],
       "executable": "node",
       "args": ["--experimental-strip-types", "--test", "tests/mission23.test.mjs"],
@@ -3110,16 +3113,17 @@
       "id": "mission23-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 22 continuation into Mission 23, the rendered first two enemy settlement steps, and linked gifts through shipped browser controls.",
+      "purpose": "Exercise Mission 22 continuation into Mission 23, rendered recurrent enemy housing and population growth, and linked gifts through shipped browser controls.",
       "coveredBehavior": [
         "Mission 22 result Continue reaches registered Mission 23",
-        "Ordinary simulation completes and renders all three Guard Towers, Green/Red Huts, and Yellow's Boat House",
+        "Ordinary simulation completes and renders all three Guard Towers, six Huts per tribe, and Yellow's Boat House",
+        "Enemy population grows naturally and construction becomes idle at the housing target",
         "Rendered authored-Brave selection and ordinary pointer worship at triggers 305 and 303",
         "Zero-mana delayed wrapper, checkpoint continuity, trigger-305 retirement, and trigger-303 repeatability"
       ],
       "knownLimits": [
         "The focused check positions authored units, supplies one Land Bridge stock, and advances fixed turns after shipped pointer orders establish worship.",
-        "Recurrent housing, Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+        "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission23.mjs"],
