@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import {
   animateStoneHeads, createStoneHeadAnimation, initializeStoneHead, originalStoneHeadSource,
-  stepStoneHeadAnimation, stoneHeadFrame, stoneHeadPositions, stoneHeadRawPoints,
+  stepStoneHeadAnimation, stoneHeadFrame, stoneHeadPositions, stoneHeadRawPoints, syncStoneHeadEnabled,
 } from '../app/stone-head-animation.ts'
 import { createWorld, command } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
@@ -166,4 +166,16 @@ test('shipped scene updates ordinary head positions byphase and leaves Vault on 
   assert.ok(scene.includes('} else if (shrine.morph) {'))
   const clock = readFileSync(new URL('../app/game-clock.ts', import.meta.url), 'utf8')
   assert.ok(clock.indexOf('animateStoneHeads(w)') > clock.indexOf('animateLiveObjects(w)'))
+})
+
+test('disable and refill within one presentation interval reset once without advancing the clock', () => {
+  const state = createStoneHeadAnimation(true, source)
+  for (let i = 0; i < 7; i++) stepStoneHeadAnimation(state, true)
+  assert.equal(state.f1, 28)
+  syncStoneHeadEnabled(state, false)
+  assert.equal(state.f1, 28); assert.equal(stoneHeadFrame(state), 1)
+  syncStoneHeadEnabled(state, true)
+  assert.equal(state.f1, 0); assert.equal(stoneHeadFrame(state), 0)
+  stepStoneHeadAnimation(state, true)
+  assert.equal(state.f1, 4)
 })

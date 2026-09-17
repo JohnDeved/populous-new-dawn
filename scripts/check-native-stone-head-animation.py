@@ -116,6 +116,11 @@ def main():
                 enabled = next_enabled
             call(0x4ee7b0, stone)
             rows.append(dict(enabled=enabled, action='step', **sample()))
+    # Fast-game simulation can disable/refill between presentation boundaries.
+    for enabled in (False, True):
+        write(trigger + 0x6d, 'B', 0x20 | int(enabled))
+        call(0x4fbd20, trigger, stone, 0, int(enabled))
+        rows.append(dict(enabled=enabled, action='sync', **sample()))
     phases = []
     write(stone + 0x35, 'H', read(stone + 0x35, 'H') & ~0xc00)
     for frame in range(18):
@@ -124,11 +129,11 @@ def main():
     assert bytes(cpu.mem_read(faces, len(original_faces))) == original_faces, 'Morph must not overwrite base faces/UVs/normals'
     node = """
 import assert from 'node:assert/strict';
-import {createStoneHeadAnimation,stepStoneHeadAnimation,stoneHeadFrame,stoneHeadRawPoints,stoneHeadPositions} from './app/stone-head-animation.ts';
+import {createStoneHeadAnimation,stepStoneHeadAnimation,stoneHeadFrame,stoneHeadRawPoints,stoneHeadPositions,syncStoneHeadEnabled} from './app/stone-head-animation.ts';
 import data from './app/original-stone-heads.json' with {type:'json'};
 let text='';for await(const chunk of process.stdin)text+=chunk;const input=JSON.parse(text);
 const s=createStoneHeadAnimation(true,{triggerIndex:28,sceneryIndex:33});
-for(const row of input.rows){if(row.action==='step')stepStoneHeadAnimation(s,row.enabled);
+for(const row of input.rows){if(row.action==='step')stepStoneHeadAnimation(s,row.enabled);else if(row.action==='sync')syncStoneHeadEnabled(s,row.enabled);
  assert.equal(s.f1&65535,row.f1);assert.equal(s.renderFlags&0xc00,row.renderMode);assert.equal(stoneHeadFrame(s),row.frame);
  assert.deepEqual(stoneHeadRawPoints(row.frame),row.points);}
 for(const row of input.phases){assert.deepEqual(stoneHeadRawPoints(row.frame),row.points);

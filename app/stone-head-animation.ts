@@ -70,7 +70,7 @@ export function initializeStoneHead(shrine: Shrine, mission: number): StoneHeadA
 
 const animationData = { frameCounts: [], modelFrames: [], morphDurations: [0, data.frames - 1] }
 
-export function stepStoneHeadAnimation(state: StoneHeadAnimation, enabled: boolean) {
+export function syncStoneHeadEnabled(state: StoneHeadAnimation, enabled: boolean) {
   if (state.enabled !== enabled) {
     if (enabled) {
       // The refill branch reselects the object before releasing its hold.
@@ -84,6 +84,17 @@ export function stepStoneHeadAnimation(state: StoneHeadAnimation, enabled: boole
     }
     state.enabled = enabled
   }
+}
+
+// Record transitions even when fast simulation performs disable+refill between
+// presentation boundaries. This notification never advances the animation clock.
+export function syncStoneHeadPresentation(shrine: Shrine) {
+  if (shrine.kind !== 'vault' && shrine.stoneHead)
+    syncStoneHeadEnabled(shrine.stoneHead, shrine.enabled)
+}
+
+export function stepStoneHeadAnimation(state: StoneHeadAnimation, enabled: boolean) {
+  syncStoneHeadEnabled(state, enabled)
   stepObjectAnimation(state, { counter: 0, levelFlags: 0, levelFlags2: 0 }, animationData, () => {})
 }
 
