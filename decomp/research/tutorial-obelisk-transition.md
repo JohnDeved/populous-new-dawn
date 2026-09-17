@@ -11,10 +11,28 @@ Marker 102 (`0x08e4`) resolves to authored class-6/model-6 object 2. Reviewed
 ordered links materialize class-6/model-6 object 42 and colocated model-9 Obelisk
 object 46, then retire the one-use source. The flyby points at that linked Obelisk.
 
-Object 42 is mode 3: native admission is Shaman-only and completion has a separate
-51-qualifying-visit delay. The authored Blue Shaman is object 41. This identifies the
-participant but does not prove terrain reachability or completion of the worship
-lesson.
+Object 42 is mode 3 and the authored Blue Shaman is object 41. The exact admission
+and completion controller is recorded below.
+
+## Mode-3 worship controller (2026-09-17)
+
+The hash-pinned executable and focused `FUN_0043bcc0` probe establish that command 27
+rejects a non-model-7 person when the colocated class-6/model-6 head has flag `0x10`
+at `+0x6d` or signed mode 3 at `+0x68`. A mode-3 Brave stops in substate 1 while the
+Shaman enters substate 2; the same Brave is admitted by mode 0.
+
+`FUN_004fb270` samples mode 3 only when `head+0x2e & 3 == 0` and counts eligible
+class-1/model-7 people. Object 42 has required 1, target 10, and remaining 1. Its
+tenth qualifying single-Shaman sample sets the separate short countdown at `+0x9e`
+to 51 and immediately decrements it to 50. Fifty later controller invocations do not
+require the Shaman. At zero the head becomes inactive, its links materialize, and
+`FUN_004ef180` deletes the class-6/model-6 head.
+
+CPSCR057 words 2573–2598 are the lesson opening rather than a completion reward:
+when stage variable 9 is 6 and variable 7 is not 1, they disable highlight 16, show
+message 150/string 1231, and set stage 9. Later word 1022 reads head 42 through
+`1131(230,40,var5)`; word 1036 queries linked head 44. Browser routing, rendering,
+audio, and later Tutorial transitions remain separate evidence boundaries.
 
 ## Reproduce and stop
 
@@ -30,7 +48,8 @@ With the hash-verified executable at `work/orchestration/ceo-release/native-run/
 Both reusable probes pass for marker forcing and ordered linked-head/model-9 cloning.
 EXE SHA256: `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 
-Stop at stage 6 after word 2647. Words 2573–2598 begin the next lesson: disable
-highlight 16, show message 150 (“Worshipping Obelisks…”), and jump to stage 9.
-The probes intercept allocation/copy/deletion and presentation/audio leaves; they
-are not a native Tutorial playthrough, renderer capture, or natural worship proof.
+The focused mode-3 probe is retained under ignored
+`work/orchestration/tutorial-obelisk-worship/native/`; it passed without starting a
+Ghidra process. The probes intercept allocation/copy/deletion and
+presentation/audio leaves; they are not a native Tutorial playthrough or renderer
+capture.

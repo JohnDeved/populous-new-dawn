@@ -874,7 +874,12 @@ function stepTurn(w: World) {
         const counts = countWorshippers(
           { ...worshipHeadPose(w, shrine), range: shrine.range },
           w.buildingOrders,
-          cell => objectsInCell(w.objectCells, cell) as Iterable<LivePerson>
+          cell => {
+            const people = objectsInCell(w.objectCells, cell) as Iterable<LivePerson>
+            return shrine.mode === 3
+              ? Array.from(people).filter(person => person.model === 7)
+              : people
+          }
         )
         const recipient =
           shrine.kind === 'mana' || shrine.rewardMana !== undefined

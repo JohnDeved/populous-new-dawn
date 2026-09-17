@@ -186,13 +186,13 @@ export function createWorld(missionNumber = 1): World {
           kind: 'linkedEffects',
           linkedShrine: {
             ...linkedWorship,
-            // ponytail: mode-3 Shaman admission and its visit delay ship with the worship lesson.
-            enabled: false,
+            enabled: true,
             nextSlot: 0,
             slotTimer: 0,
             range: linkedHead.settings![1],
             followers: 0,
             forced: false,
+            mode: linkedHead.settings![0],
             morph: null,
             model: 45,
             angle: ((linkedHead.angle & 2047) / 2048) * Math.PI * 2,

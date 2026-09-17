@@ -70,9 +70,7 @@ export function stepLiveWorship(w: World, u: Unit) {
         point => !!planLivePath(w, u, browserPosition(point), p, true)
       ),
     occupied,
-    // First-mission spell heads have no shaman-only trigger. Vault command 33
-    // retains its own controller; general trigger-object ownership is pending.
-    shamanOnly: () => false,
+    shamanOnly: () => head.mode === 3,
     destination: point => {
       clearLivePath(w, u)
       acceptLivePath(w, u, planLivePath(w, u, browserPosition(point), p))

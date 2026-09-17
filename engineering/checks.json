@@ -3200,7 +3200,7 @@
       "id": "tutorial-first-lesson-portable",
       "kind": "portable",
       "automation": "safe",
-      "purpose": "Check the canonical Tutorial world, opening messages, view-mode sample, stage-3 flyby, Shaman-selection instruction, and deterministic restart.",
+      "purpose": "Check the canonical Tutorial world through its first mode-3 Shaman Obelisk worship lesson and deterministic restart.",
       "coveredBehavior": [
         "Hash-pinned LEVL2079 and CPSCR057 inputs",
         "Fresh stage-0 script and World View mode",
@@ -3208,11 +3208,12 @@
         "Opcode 1139 view-mode sample and stage-2 to stage-3 advance",
         "Canonical stage-3 flyby events, input lock, and stage-4 advance",
         "Authored stage-4 Shaman-selection instruction and stage-5 advance without synthetic selection",
+        "Linked Obelisk materialization, stage-9 instruction, Shaman-only worship, ten qualifying samples, and independent 50-visit countdown",
         "Restart restores fresh script and view state"
       ],
       "knownLimits": [
         "The portable check changes the same world-owned draw mode that the Scene owns in the browser check.",
-        "Later Tutorial lessons, scripted trigger heads, completion, and native presentation remain deferred."
+        "Later Tutorial lessons, later scripted trigger heads, completion, and native presentation remain deferred."
       ],
       "executable": "node",
       "args": ["--experimental-strip-types", "--test", "tests/tutorial.test.mjs"],
@@ -3227,6 +3228,9 @@
         "app/mission-data.ts",
         "app/original-messages.json",
         "app/original-script-tutorial.json",
+        "app/live-worship.ts",
+        "app/person-worship.ts",
+        "app/worship.ts",
         "app/world-initialization.ts",
         "app/world-state.ts",
         "app/world-turn.ts",
@@ -3241,7 +3245,7 @@
       "id": "tutorial-first-lesson-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise distinct Tutorial entry, World View, real camera controls, authored flybys, Shaman selection, linked Obelisk transition, and normal exit through shipped browser controls.",
+      "purpose": "Exercise distinct Tutorial entry, camera lessons, Shaman selection, linked Obelisk worship, and normal exit through shipped browser controls.",
       "coveredBehavior": [
         "Distinct Tutorial chooser and level-79 world",
         "Rendered authored units in World View",
@@ -3252,11 +3256,12 @@
         "The authored Shaman instruction remains at stage 5 until the next script pass advances through the marker-102 flyby to stage 6",
         "The hidden logical trigger is not rendered and its linked authored Obelisk is rendered",
         "A real click selects the living Blue Shaman after the flyby returns control",
+        "Rendered Obelisk input drives live Shaman routing, mode-3 worship, and the independent completion countdown",
         "Escape opens the menu, Tutorial saving is unavailable, and Quit returns to the chooser"
       ],
       "knownLimits": [
         "Headless browser rendering does not establish exact native presentation.",
-        "Mode-3 Shaman worship, right-click overview exit, later lessons, completion, and original frontend styling remain deferred."
+        "Right-click overview exit, later lessons, completion, and original frontend styling remain deferred."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-tutorial.mjs"],
@@ -3270,6 +3275,9 @@
         "app/mission-data.ts",
         "app/original-messages.json",
         "app/original-script-tutorial.json",
+        "app/live-command.ts",
+        "app/live-worship.ts",
+        "app/person-worship.ts",
         "app/page.tsx",
         "app/camera-input.ts",
         "app/scene-input-runtime.ts",
@@ -3277,6 +3285,7 @@
         "app/scene-entities.ts",
         "app/world-initialization.ts",
         "app/world-state.ts",
+        "app/world-turn.ts",
         "app/world-types.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],

@@ -118,6 +118,54 @@ try {
   await page.waitForFunction(() => !window.testScene.world.selected.length)
   await page.mouse.click(shaman.x, shaman.y)
   await page.waitForFunction(id => window.testScene.world.selected.includes(id), shaman.id)
+  await page.waitForFunction(() => window.testScene.world.ai.variables[9] === 9)
+  await page
+    .locator('.campaign-messages')
+    .getByText(/Worshipping Obelisks benefit you/)
+    .waitFor()
+  const obelisk = await page.evaluate(() => {
+    const scene = window.testScene,
+      shrine = scene.world.shrines.find(candidate => candidate.name === 'Obelisk'),
+      projected = shrine && scene.screen(shrine),
+      bounds = scene.container.getBoundingClientRect()
+    if (!shrine || !projected) throw new Error('Authored Tutorial Obelisk is unavailable')
+    const x = bounds.left + ((projected.x + 1) * bounds.width) / 2,
+      y = bounds.top + ((1 - projected.y) * bounds.height) / 2
+    for (let dy = -60; dy <= 60; dy += 3)
+      for (let dx = -60; dx <= 60; dx += 3) {
+        const event = { clientX: x + dx, clientY: y + dy }
+        if (
+          document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement &&
+          scene.pickWorldObject(event)?.id === shrine.id
+        )
+          return { id: shrine.id, x: event.clientX, y: event.clientY }
+      }
+    throw new Error('No exposed Tutorial Obelisk geometry')
+  })
+  await page.mouse.click(obelisk.x, obelisk.y)
+  await page.waitForFunction(
+    ({ shrine, person }) => {
+      const world = window.testScene.world,
+        shaman = world.units.find(unit => unit.id === person)
+      return shaman?.work === shrine
+    },
+    { shrine: obelisk.id, person: shaman.id }
+  )
+  const worship = await page.evaluate(async id => {
+    const world = window.testScene.world,
+      shrine = world.shrines.find(candidate => candidate.id === id),
+      { tick } = await import('/app/model.ts')
+    for (let turn = 0; shrine.rewardDelay !== 50 && turn < 2_000; turn++) tick(world, 1 / 12)
+    if (shrine.rewardDelay !== 50) throw new Error('Tutorial Obelisk worship timed out')
+    const countdownTurn = world.turn
+    for (let turn = 0; shrine.active && turn < 64; turn++) tick(world, 1 / 12)
+    return {
+      active: shrine.active,
+      countdown: world.turn - countdownTurn,
+      uses: shrine.uses,
+    }
+  }, obelisk.id)
+  assert.deepEqual(worship, { active: false, countdown: 50, uses: 1 })
   const returned = await page.evaluate(() => window.testScene.cameraPosition.angle)
   await page.keyboard.down('ArrowRight')
   await page.waitForFunction(angle => window.testScene.cameraPosition.angle !== angle, returned)
@@ -128,7 +176,7 @@ try {
   await page.getByRole('button', { name: 'Quit to Main Menu', exact: true }).click()
   await page.getByRole('heading', { name: 'Choose your world', exact: true }).waitFor()
   assert.deepEqual(errors, [])
-  console.log('PASS: Tutorial camera, Shaman selection, Obelisk transition, and normal exit')
+  console.log('PASS: Tutorial camera, Shaman selection, Obelisk worship, and normal exit')
 } finally {
   await browser.close()
 }

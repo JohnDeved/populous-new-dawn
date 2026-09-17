@@ -282,6 +282,7 @@ export type Shrine = Point &
     duration: number
     uses: number
     forced: boolean
+    mode?: number
     model: number
     morph: ModelMorph | null
     angle: number

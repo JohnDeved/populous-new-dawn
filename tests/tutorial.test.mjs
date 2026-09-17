@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorld, tick } from '../app/model.ts'
+import { command, createWorld, tick } from '../app/model.ts'
 import { createGameStore } from '../app/game-store.ts'
 import level from '../app/level-tutorial.ts'
 import script from '../app/original-script-tutorial.json' with { type: 'json' }
@@ -100,6 +100,7 @@ test('Tutorial advances through Shaman selection into the authored Obelisk flyby
         model: obelisk.model,
         active: obelisk.active,
         enabled: obelisk.enabled,
+        mode: obelisk.mode,
       },
     },
     {
@@ -114,9 +115,30 @@ test('Tutorial advances through Shaman selection into the authored Obelisk flyby
         { kind: 3, flags: 0, value: 0, start: 17, duration: 14 },
       ],
       trigger: { position: [-35, -17], model: 0, active: false },
-      obelisk: { position: [-33, -49], model: 45, active: true, enabled: false },
+      obelisk: { position: [-33, -49], model: 45, active: true, enabled: true, mode: 3 },
     }
   )
+  until(world, () => world.ai.variables[9] === 9)
+  assert.equal(
+    messageText(world.messages.slots[world.lastMessage].stringId),
+    'Worshipping Obelisks benefit you in a variety of ways. To command the Shaman to worship an Obelisk, select the Shaman and left-click on the Obelisk.'
+  )
+  world.flyby.flags &= ~1
+  world.inputMask &= ~64
+  const brave = world.units.find(unit => unit.team === 'blue' && unit.kind === 'brave'),
+    shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+  world.selected = [brave.id]
+  assert.equal(command(world, obelisk), true)
+  until(world, () => brave.work === null, 2_000)
+  assert.equal(obelisk.work, 0, 'a rejected Brave cannot contribute mode-3 worship work')
+  world.selected = [shaman.id]
+  assert.equal(command(world, obelisk), true)
+  until(world, () => obelisk.rewardDelay === 50, 2_000)
+  assert.equal(obelisk.active, true)
+  const countdownTurn = world.turn
+  assert.equal(command(world, { x: shaman.x + 4, z: shaman.z }), true)
+  until(world, () => !obelisk.active, 64)
+  assert.equal(world.turn - countdownTurn, 50)
 })
 
 test('Tutorial restart recreates fresh script and view state', () => {
