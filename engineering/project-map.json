@@ -412,6 +412,8 @@
       ],
       "researchPaths": [
         "engineering/single-player-feasibility.md",
+        "decomp/research/mission18-sky.md",
+        "scripts/check-static-mission18-sky.py",
         "decomp/generated/0040bce0.c",
         "decomp/generated/00430f30.c",
         "decomp/generated/00463370.c",
@@ -621,6 +623,10 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        {
+          "path": "decomp/research/mission18-sky.md",
+          "heading": "Fresh-checkout static verification"
+        },
         { "path": "decomp/research/campaign-progression.md", "heading": "Campaign progression snapshot" },
         { "path": "decomp/research/mission2-positioned-message.md", "heading": "Mission 2 positioned message" },
         { "path": "decomp/research/mission2-enemy-marker.md", "heading": "Mission 2 enemy-marker counterattack" },

@@ -45,6 +45,8 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
 [Mission 15 Prison rescue and timed failure](research/mission15-prison.md),
 [Mission 16 Bloodlust acquisition and status](research/mission16-bloodlust.md),
+[Mission 18 authored patrol and projected sky](research/mission18.md),
+[Mission 18 sky filename and image-load conditions](research/mission18-sky.md),
 [Mission 19 Teleport and Chumara-protection objective](research/mission19.md),
 [Mission 20 linked worship chain](research/mission20-linked-chain.md),
 [Mission 21 first fault](research/mission21-first-fault.md),
@@ -86,6 +88,16 @@ For each subsequent port, preserve the original branch ordering, integer widths/
 
 Reusable negative findings for terrain-route invalidation and damage-triggered repair
 are retained in [rejected adapter candidates](research/rejected-adapter-candidates.md).
+
+## Mission 18 sky static evidence
+
+[Mission 18 sky](research/mission18-sky.md) records palette-open-gated filename selection, alternate-root policy and failed-image return paths. Reproduce the original-byte proof from a fresh checkout with Python 3.9+ and the existing Capstone 5 dependency (validated 5.0.7):
+
+```sh
+python3 -B scripts/check-static-mission18-sky.py /path/to/d3dpoptb.exe
+```
+
+For the later authored patrol, exact 4×4 texture average and projected-lens binding, see [Mission 18’s implementation evidence](research/mission18.md#bank-g-sky). Non-lens configuration and device/exact-presentation limits remain there. This tracked checker rejects an unexpected EXE SHA and does not execute or emulate it. Optional `--output /path/to/new-report.json` retains decoded bytes/conditions without overwriting a file. Only the EXE is required; optional `--data-root` checks supplied HDR/palette identity. No scratch/head/Ghidra dependency or new framework. Actual runtime path/open/UI/palette/lens state and pixels remain unproved; the historical 410-assertion receipt is not current runtime acceptance.
 
 ## Forced tooltip comparison
 
