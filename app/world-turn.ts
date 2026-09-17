@@ -275,9 +275,9 @@ import { stepLightning, type Lightning } from './lightning.ts'
 import { createLandBridge, stepLandBridge, type LandBridge } from './land-bridge.ts'
 import { stepFlatten, type Flatten } from './flatten.ts'
 import { createErosion, stepErosion, type Erosion } from './erosion.ts'
-import { stepFirestorm, type Firestorm } from './firestorm.ts'
+import { createFirestorm, stepFirestorm, type Firestorm } from './firestorm.ts'
 import { createEarthquake, stepEarthquake, type Earthquake } from './earthquake.ts'
-import { stepVolcano, type Volcano } from './volcano.ts'
+import { createVolcano, stepVolcano, type Volcano } from './volcano.ts'
 import { stepLiveTornado, stepLiveTornadoPerson } from './tornado-runtime.ts'
 import {
   probeLivePathCost,
@@ -764,9 +764,10 @@ function stepTurn(w: World) {
         fx.lightning.seed = w.randomState
         setAnimationObject(fx.animation!, 41, 1361)
         sound(w, 0xa2, fx)
-        strikeLiveLightning(w, fx.lightning.target, fx.lightning.tribe)
+        if (!fx.lightning.visualOnly)
+          strikeLiveLightning(w, fx.lightning.target, fx.lightning.tribe)
       } else {
-        if (fx.lightning.turn === 0) {
+        if (fx.lightning.turn === 0 && !fx.lightning.visualOnly) {
           igniteLightningScenery(w, fx.lightning.target, fx.lightning.tribe)
           const wave = emitBlastWave(
             w,
@@ -878,12 +879,41 @@ function stepTurn(w: World) {
           erosion.duration = Infinity
         }
       } else if (shrine.kind === 'linkedEffects') {
+        for (const reward of shrine.rewards ?? (shrine.reward ? [shrine.reward] : []))
+          createGift(w, reward, shrine)
         for (const target of shrine.earthquakeTargets ?? []) {
           const quake = effect(w, 'earthquake', target)
           quake.earthquake = createEarthquake(nativePosition(w, target), 0, w)
           quake.team = 'blue'
           quake.duration = Infinity
         }
+        for (const target of shrine.lightningTargets ?? []) {
+          const bolt = effect(w, 'lightning', target),
+            position = nativePosition(w, target)
+          bolt.lightning = {
+            tribe: 0,
+            start: { ...position, h: position.h + 1024 },
+            target: position,
+            seed: w.randomState,
+            turn: 0,
+            segments: [],
+            visualOnly: true,
+          }
+        }
+        for (const target of shrine.firestormTargets ?? []) {
+          const firestorm = effect(w, 'firestorm', target)
+          firestorm.firestorm = createFirestorm(nativePosition(w, target), 0)
+          firestorm.team = 'blue'
+          firestorm.duration = Infinity
+        }
+        for (const target of shrine.volcanoTargets ?? []) {
+          const volcano = effect(w, 'volcano', target)
+          volcano.volcano = createVolcano(nativePosition(w, target), 0)
+          volcano.team = 'blue'
+          volcano.duration = Infinity
+        }
+        for (const tree of shrine.linkedTrees ?? [])
+          w.trees.push({ ...tree, id: w.nextId++, logs: 4 })
         if (shrine.linkedShrine) {
           w.shrines.push(shrine.linkedShrine)
           delete shrine.linkedShrine

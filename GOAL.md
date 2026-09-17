@@ -38,6 +38,14 @@ victory finished in the current feature commit. Native evidence requires self-on
 combat masks, not a generic Blue-Chumara alliance. Warning messages 127/128 and
 later Mission 19 AI remain separate until their producers are recovered.
 
+Mission 20's Mission 19→20 continuation, authored create-land-for-war opening,
+and four-stage linked worship chain finished in this feature commit. Ordinary
+worship now activates the ordered Land Bridge, Flatten, Firestorm, and Volcano
+gifts plus the linked Earthquake, Lightning, Firestorm, Volcano, and scenery
+effects; one-use consumption and checkpoint continuation are integrated. Later
+Mission 20 AI, objectives/victory, and exact effect presentation remain separate
+work.
+
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
 cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173
 prerequisite. Later Mission 14 AI remains separate until its command/read cycles are

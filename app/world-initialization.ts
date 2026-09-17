@@ -22,7 +22,15 @@ export function createWorld(missionNumber = 1): World {
       (_, i) => object.settings![6 + i * 2] | (object.settings![7 + i * 2] << 8)
     )
       .filter(Boolean)
-      .flatMap(index => level.objects.find(candidate => candidate.index + 1 === index) ?? [])
+      .flatMap(index => {
+        const overloaded = missionNumber === 20 && index >= 0x06ac && index <= 0x06b1
+        const linked =
+          level.objects.find(candidate => candidate.index + 1 === index) ??
+          (overloaded
+            ? level.objects.find(candidate => candidate.index + 1 === (index & 255))
+            : undefined)
+        return linked ?? []
+      })
   const linkedReward = (object: (typeof level.objects)[number]): Shrine['reward'] => {
     const reward = object.settings!
     if (reward[0] === 11) return SPELLS.find(spell => spell.model === reward[1])?.id
@@ -49,6 +57,53 @@ export function createWorld(missionNumber = 1): World {
         .filter(object => object.type === 6 && object.model === 6)
         .flatMap(object => linkedObjects(object).map(linked => linked.index + 1))
     )
+  function missionTwentyShrine(object: (typeof level.objects)[number]): Shrine {
+    const settings = object.settings!,
+      links = linkedObjects(object),
+      rewards = links
+        .filter(link => link.type === 6 && link.model === 2)
+        .flatMap(link => linkedReward(link) ?? []),
+      worship = createWorship(settings),
+      linkedHead = links.find(link => link.type === 6 && link.model === 6),
+      rewardSpell = SPELLS.find(spell => spell.id === rewards[0])
+    return {
+      ...worship,
+      nextSlot: 0,
+      slotTimer: 0,
+      range: settings[1],
+      followers: 0,
+      forced: false,
+      morph: null,
+      model: 45,
+      angle: ((object.angle & 2047) / 2048) * Math.PI * 2,
+      id: w.nextId++,
+      x: object.x,
+      z: object.z,
+      kind: 'linkedEffects',
+      reward: rewards[0],
+      ...(rewards.length > 1 ? { rewards } : {}),
+      earthquakeTargets: links
+        .filter(link => link.type === 7 && link.model === 26)
+        .map(link => ({ x: link.x, z: link.z })),
+      lightningTargets: links
+        .filter(link => link.type === 7 && link.model === 30)
+        .map(link => ({ x: link.x, z: link.z })),
+      firestormTargets: links
+        .filter(link => link.type === 7 && link.model === 22)
+        .map(link => ({ x: link.x, z: link.z })),
+      volcanoTargets: links
+        .filter(link => link.type === 7 && link.model === 15)
+        .map(link => ({ x: link.x, z: link.z })),
+      linkedTrees: links
+        .filter(link => link.type === 5 && link.model <= 6)
+        .map(link => ({ x: link.x, z: link.z, model: link.model })),
+      ...(linkedHead ? { linkedShrine: missionTwentyShrine(linkedHead) } : {}),
+      name: `${rewardSpell?.name ?? 'Linked'} stone head`,
+      progress: 0,
+      duration: (worship.target * 4) / TURNS_PER_SECOND,
+      uses: 0,
+    }
+  }
   for (const o of level.objects) {
     if (o.type === 2 && o.owner !== 255) {
       const kind =
@@ -107,10 +162,18 @@ export function createWorld(missionNumber = 1): World {
         destructionState: 0,
       })
     }
-    if (o.type === 5 && o.model <= 6)
+    if (
+      o.type === 5 &&
+      o.model <= 6 &&
+      !(missionNumber === 20 && linkedObjectIds.has(o.index + 1))
+    )
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
       if (linkedObjectIds.has(o.index + 1)) continue
+      if (missionNumber === 20 && o.index === 322) {
+        w.shrines.push(missionTwentyShrine(o))
+        continue
+      }
       const settings = o.settings!,
         links = linkedObjects(o),
         rewardObjects = links.filter(object => object.type === 6 && object.model === 2),
@@ -281,7 +344,7 @@ export function createWorld(missionNumber = 1): World {
               1204,
               ...(missionNumber === 15 ? [1174, 1187, 1200] : []),
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
-              ...([4, 10, 11, 12, 13, 17, 18, 19].includes(missionNumber)
+              ...([4, 10, 11, 12, 13, 17, 18, 19, 20].includes(missionNumber)
                 ? [1174, 1187]
                 : []),
             ].includes(c.opcode)

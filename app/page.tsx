@@ -490,6 +490,23 @@ export default function Home() {
                                   done: world.effects.some(effect => !!effect.angel),
                                 },
                               ]
+                            : world.outcome.level === 20
+                              ? [
+                                  {
+                                    text: 'Claim Land Bridge and reveal the next stone head',
+                                    done: world.giftCounts.bridge > 0,
+                                  },
+                                  {
+                                    text: 'Claim Flatten and Firestorm along the linked path',
+                                    done:
+                                      world.giftCounts.flatten > 0 &&
+                                      world.giftCounts.firestorm > 0,
+                                  },
+                                  {
+                                    text: 'Reach the final stone head and claim Volcano',
+                                    done: world.giftCounts.volcano > 0,
+                                  },
+                                ]
                             : []
   return (
     <main
@@ -1047,6 +1064,8 @@ export default function Home() {
                                           ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
                                           : world.outcome.level === 17
                                             ? 'Claim Armageddon and survive the final arena battle against every tribe.'
+                                            : world.outcome.level === 20
+                                              ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
                                             : 'Prepare for the enemy tribes\' powerful magic and seek Armageddon.'}
         </p>
         <div className="menu-actions">

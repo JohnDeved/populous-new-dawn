@@ -369,6 +369,7 @@
         "app/level-sixteen.ts",
         "app/level-eighteen.ts",
         "app/level-nineteen.ts",
+        "app/level-twenty.ts",
         "app/mission-data.ts",
         "app/original-rules.json",
         "app/person-panic.ts",
@@ -393,6 +394,7 @@
         "app/original-script-seventeen.json",
         "app/original-script-eighteen.json",
         "app/original-script-nineteen.json",
+        "app/original-script-twenty.json",
         "app/level-seventeen.ts",
         "app/armageddon.ts",
         "app/original-messages.json",
@@ -455,6 +457,7 @@
         "decomp/research/mission17-armageddon.md",
         "decomp/research/mission18.md",
         "decomp/research/mission19.md",
+        "decomp/research/mission20-linked-chain.md",
         "decomp/generated/0042a140.c",
         "decomp/generated/004306d0.c",
         "decomp/generated/004b5f40.c",
@@ -515,6 +518,7 @@
         "scripts/check-native-mission17-armageddon.py",
         "scripts/check-native-mission18.py",
         "scripts/check-native-mission19.py",
+        "scripts/check-native-mission20.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -527,6 +531,7 @@
         "scripts/check-browser-mission17-armageddon.mjs",
         "scripts/check-browser-mission18.mjs",
         "scripts/check-browser-mission19.mjs",
+        "scripts/check-browser-mission20.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
@@ -551,6 +556,7 @@
         "tests/mission17-armageddon.test.mjs",
         "tests/mission18.test.mjs",
         "tests/mission19.test.mjs",
+        "tests/mission20.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs"
@@ -567,6 +573,7 @@
         "app/combat-runtime.ts",
         "app/live-people.ts",
         "app/live-vehicles.ts",
+        "app/lightning.ts",
         "app/marching-formations.ts",
         "app/object-cells.ts",
         "app/unit-kinds.ts",
@@ -669,6 +676,10 @@
           "heading": "Teleport model 21"
         },
         {
+          "path": "decomp/research/mission20-linked-chain.md",
+          "heading": "Authored topology and order"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -760,7 +771,12 @@
         "0x478860",
         "0x478990",
         "0x4af0a0",
-        "0x4d9420"
+        "0x4d9420",
+        "0x485b00",
+        "0x4f2aa0",
+        "0x511ae0",
+        "0x511640",
+        "0x50e060"
       ],
       "checkIds": [
         "messages-native",
@@ -787,6 +803,7 @@
         "mission17-armageddon-native",
         "mission18-native",
         "mission19-native",
+        "mission20-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -807,6 +824,8 @@
         "mission18-browser",
         "mission19-portable",
         "mission19-browser",
+        "mission20-portable",
+        "mission20-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"
@@ -853,6 +872,8 @@
         "mission9-browser",
         "mission19-portable",
         "mission19-browser",
+        "mission20-portable",
+        "mission20-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"

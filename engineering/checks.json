@@ -2683,6 +2683,110 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission20-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 20's ordered linked worship chain, one-use lifecycle, and startup opcode 1127 against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Four linked worship heads and their authored slot order",
+        "Land Bridge, Flatten, Firestorm, and Volcano gifts",
+        "Earthquake, Lightning, Firestorm, Volcano, and scenery activations",
+        "Interrupted-worship reset and successful one-use consumption",
+        "Opcode 1127 AI flag mutation"
+      ],
+      "knownLimits": [
+        "Allocation, deletion, template-copy, first-processing, and presentation leaves are intercepted.",
+        "Complete post-dispatch terrain, damage, rendering, and audio evolution remains browser integration evidence."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission20.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission20.py",
+        "decomp/research/mission20-linked-chain.md"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 20 level and script files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 20's authored opening, four linked worship stages, effects, rewards, and checkpoint continuation.",
+      "coveredBehavior": [
+        "Mission 20 level, script, tribe, opening, and startup flags",
+        "Ordered four-stage worship chain and authored follower requirements",
+        "Terrain, Lightning, Firestorm, Volcano, scenery, and spell-gift activation",
+        "One-use consumption and live-chain checkpoint continuation"
+      ],
+      "knownLimits": [
+        "The focused test supplies worship followers at authored slots and accelerates completed worship work.",
+        "Exact class-7 presentation/audio and later Mission 20 AI remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission20.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission20.test.mjs",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-twenty.ts",
+        "app/lightning.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-twenty.json",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 19-to-20 continuation, opening, all four linked heads, effects, and reward stocks through the shipped browser path.",
+      "coveredBehavior": [
+        "Mission 20 chooser, Mission 19 continuation, objective, and original opening message",
+        "Live worship through selection and battlefield input",
+        "Earthquake, four Lightning generators, Firestorm, Volcano, and linked scenery",
+        "Land Bridge, Flatten, Firestorm, and Volcano HUD stocks"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at authored slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation; later Mission 20 AI and exact audiovisual presentation remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission20.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission20.mjs",
+        "scripts/browser-game.mjs",
+        "app/campaign-runtime.ts",
+        "app/level-twenty.ts",
+        "app/lightning.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

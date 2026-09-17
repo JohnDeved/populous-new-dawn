@@ -250,6 +250,10 @@ export type Shrine = Point &
     effectTarget?: Point
     effectTargets?: Point[]
     earthquakeTargets?: Point[]
+    lightningTargets?: Point[]
+    firestormTargets?: Point[]
+    volcanoTargets?: Point[]
+    linkedTrees?: { x: number; z: number; model: number }[]
     linkedShrine?: Shrine
     rewardVehicle?: number
     angelTarget?: Point
