@@ -35,7 +35,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Tutorial conditional entry and script loading](research/tutorial-entry.md),
+Recent reusable topic notes: [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
+[Tutorial conditional entry and script loading](research/tutorial-entry.md),
 [Firewarrior launch, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
@@ -89,6 +90,19 @@ For each subsequent port, preserve the original branch ordering, integer widths/
 
 Reusable negative findings for terrain-route invalidation and damage-triggered repair
 are retained in [rejected adapter candidates](research/rejected-adapter-candidates.md).
+
+## LEVL2131 static classification evidence
+
+[The Face Off / LEVL2131 note](research/demo131-entry.md) records the conditional lobby selector and header-only start loader that does not request CPSCR130. Exclusive single-player/Rolling Demo scope remains unresolved; **multiplayer stays excluded from implementation**. Reproduce this static original-content proof with Python 3.9+, existing Capstone 5.0.7 and the SHA-locked sibling PE32 reader:
+
+```sh
+python3 -B scripts/check-static-demo131-entry.py \
+  --exe /path/to/d3dpoptb.exe \
+  --data-root /path/to/original-game \
+  --output-dir /path/to/new-demo131-evidence
+```
+
+All six canonical input sizes/hashes and the EXE identity are enforced. Use a new output directory under an existing parent; it contains evidence.json and inspectable original-byte windows. No ignored-report, old-head, fixed-cwd, Ghidra, emulator or networking dependency. This is neither a native session nor a new scope exclusion.
 
 ## Tutorial entry static evidence
 

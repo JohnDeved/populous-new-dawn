@@ -412,6 +412,8 @@
       ],
       "researchPaths": [
         "engineering/single-player-feasibility.md",
+        "decomp/research/demo131-entry.md",
+        "scripts/check-static-demo131-entry.py",
         "decomp/research/tutorial-entry.md",
         "scripts/check-static-tutorial-entry.py",
         "decomp/research/mission18-sky.md",
@@ -625,6 +627,10 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        {
+          "path": "decomp/research/demo131-entry.md",
+          "heading": "Reproduce the static proof"
+        },
         {
           "path": "decomp/research/tutorial-entry.md",
           "heading": "Reproduce the static proof"
