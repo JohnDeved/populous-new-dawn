@@ -187,6 +187,16 @@ export const SPELLS: {
     description: 'Conceals up to six nearby followers until they fight or the spell expires.',
   },
   {
+    id: 'bloodlust',
+    model: 20,
+    name: 'Bloodlust',
+    cost: 999999,
+    key: '',
+    symbol: '✷',
+    color: '#e15445',
+    description: 'Drives up to six nearby followers into a powerful fighting frenzy.',
+  },
+  {
     id: 'swarm',
     model: 5,
     name: 'Swarm',

@@ -75,6 +75,7 @@ import {
   stepSwarm,
   stepUnitHypnotise,
   stepUnitInvisibility,
+  stepUnitBloodlust,
   stepUnitShields,
   unitInvisibleToPlayer,
 } from './spell-effects-runtime.ts'
@@ -470,6 +471,7 @@ function stepTurn(w: World) {
   for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
     if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
   stepUnitShields(w)
+  stepUnitBloodlust(w)
   stepUnitInvisibility(w)
   stepUnitHypnotise(w)
   w.attackAlert = 0 // 0x4ec6f0: current object turn owns the first player fight alert.
@@ -563,7 +565,10 @@ function stepTurn(w: World) {
           event.hit.builder?.person ??
           (event.hit.native = createLivePerson(w, event.hit))
         source.life = Math.round(event.hit.hp * 20)
-        source.flags3 = (source.flags3 & ~0x80000) | (event.hit.shield ? 0x80000 : 0)
+        source.flags3 =
+          (source.flags3 & ~0x88000) |
+          (event.hit.shield ? 0x8000 : 0) |
+          (event.hit.bloodlust ? 0x80000 : 0)
         damagePerson(source, w.levelFlags2, tribeForTeam(fx.team!), Math.round(event.hit.hp * 20))
         event.hit.hp = Math.max(0, source.life / 20)
         effect(w, 'hit', event.hit)

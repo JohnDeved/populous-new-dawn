@@ -14,6 +14,12 @@ current feature commit: ordinary follower attacks release the captive Shaman, re
 cancels the native timer, and expiry locks input before enemy Lightning causes the
 loss. Later Mission 15 AI remains separate work.
 
+Mission 16's authored Bloodlust acquisition and first complete live status loop
+finished in the current feature commit: both rewards grant model-20 stock, the HUD
+casts on the native follower set, and status duration, combat/Firewarrior modifiers,
+movement, feedback, Shield coexistence, expiry, and checkpoints are integrated.
+Later Mission 16 AI remains separate work.
+
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
 cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173
 prerequisite. Later Mission 14 AI remains separate until its command/read cycles are

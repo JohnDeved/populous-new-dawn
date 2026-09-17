@@ -143,6 +143,14 @@
     "148": {
       "stringId": 1228,
       "text": "The Dakini have trapped me in this magical prison and I cannot escape. I must command my Followers to free me or we are all doomed."
+    },
+    "3": {
+      "stringId": 694,
+      "text": "I sense a spell hidden somewhere in this desert land that will increase the strength of my Followers. I must find it."
+    },
+    "66": {
+      "stringId": 695,
+      "text": "Use Bloodlust to fill your tribe with a powerful fighting frenzy."
     }
   }
 }

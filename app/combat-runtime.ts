@@ -43,12 +43,15 @@ export function meleeDamage(u: Unit) {
         : u.kind === 'preacher'
           ? constants.FIGHT_DAMAGE_PREACH
           : constants.FIGHT_DAMAGE_BRAVE
-  return Math.max(32, Math.floor((base * u.hp) / maxHp(u.kind))) / 20
+  const damage = Math.max(32, Math.floor((base * u.hp) / maxHp(u.kind)))
+  return (u.bloodlust ? damage * constants.BLOODLUST_DAMAGE_X : damage) / 20
 }
-export function applyUnitDamage(u: Unit, damage: number) {
+export function applyUnitDamage(u: Unit, damage: number, mode = 0) {
+  if (!mode && u.shield) return false
   let amount = Math.round(damage * 20)
-  if (u.shield) amount >>= rules.shieldDamageShift & 31
+  if (u.bloodlust) amount >>= rules.bloodlustDamageShift & 31
   u.hp = Math.max(0, (Math.round(u.hp * 20) - amount) / 20)
+  return true
 }
 function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
@@ -95,13 +98,13 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   }
   const targetHp = target.hp
   if (target.fight?.motion) target.fight.motion.damageAttacker = nativePersonTribe(u)
-  applyUnitDamage(target, damage)
+  applyUnitDamage(target, damage, 1)
   if (targetHp > 0 && target.hp === 0)
     creditCampaignAttackTask(w, u.id, rules.personModels[nativePersonModel(target)].fightRank)
   const unitHp = u.hp
   if (action !== 'special') {
     if (u.fight?.motion) u.fight.motion.damageAttacker = nativePersonTribe(target)
-    applyUnitDamage(u, counter)
+    applyUnitDamage(u, counter, 1)
   }
   if (action !== 'special' && unitHp > 0 && u.hp === 0)
     creditCampaignAttackTask(w, target.id, rules.personModels[nativePersonModel(u)].fightRank)

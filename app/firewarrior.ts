@@ -10,6 +10,7 @@ import { applyUnitDamage } from './combat-runtime.ts'
 import { TURNS_PER_SECOND } from './world-rules.ts'
 import { automaticTowerFirewarriorTarget } from './live-combat.ts'
 import { engagementRange } from './melee-engagement.ts'
+import constants from './original-constants.json' with { type: 'json' }
 
 export const firewarriorRange = rules.personModels[6].idleRange
 export const firewarriorCooldown = 25 / TURNS_PER_SECOND
@@ -37,9 +38,17 @@ export function launchFirewarrior(w: World, source: Unit, target: Unit) {
     fx.height = position.h / 45
     fx.duration = Infinity
     fx.sprite = { sequence: 'blastShot', frame: 0, fixed: true }
-    fx.firewarriorShot = { source: source.id, target: target.id, remaining: 16, tower: !!tower }
+    fx.firewarriorShot = {
+      source: source.id,
+      target: target.id,
+      remaining: 16,
+      tower: !!tower,
+      bloodlust: !!source.bloodlust,
+    }
   }
-  source.cooldown = tower ? towerFirewarriorCooldown : firewarriorCooldown
+  source.cooldown =
+    (tower ? towerFirewarriorCooldown : firewarriorCooldown) /
+    (source.bloodlust ? 1 << constants.BLOODLUST_SW_BLAST_X : 1)
   sound(w, 0xa1, source)
 }
 
@@ -88,16 +97,19 @@ export function stepFirewarriorShots(w: World) {
     destination.h += 80
     if (nativeDistance(position, destination) <= 0x200) {
       // ponytail: this slice proves the ordinary Brave result. Add the native
-      // target table, splash, protection, bloodlust, and LOS as those live paths land.
-      const source = w.units.find(unit => unit.id === shot.source)
-      if (source) {
+      // target table, splash, protection, and LOS as those live paths land.
+      const source = w.units.find(unit => unit.id === shot.source),
+        damaged = applyUnitDamage(
+          target,
+          (shot.tower ? 25 : 10) * (shot.bloodlust ? constants.BLOODLUST_DAMAGE_X : 1)
+        )
+      if (damaged && source) {
         const attacker = tribeForTeam(source.team),
           person =
             target.fight?.motion ?? target.native ?? target.entry?.person ?? target.builder?.person
         target.damageAttacker = attacker
         if (person) person.damageAttacker = attacker
       }
-      applyUnitDamage(target, shot.tower ? 25 : 10)
       effect(w, 'hit', target)
       fx.duration = fx.age
       continue

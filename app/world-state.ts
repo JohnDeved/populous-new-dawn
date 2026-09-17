@@ -116,6 +116,7 @@ export function createWorldState(missionNumber = 1): World {
       tornado: 0,
       shield: 0,
       invisibility: 0,
+      bloodlust: 0,
       swarm: 0,
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
@@ -227,6 +228,7 @@ export function createWorldState(missionNumber = 1): World {
       tornado: 0,
       shield: 0,
       invisibility: 0,
+      bloodlust: 0,
       swarm: 0,
     },
     charging: true,
@@ -287,7 +289,9 @@ export function createWorldState(missionNumber = 1): World {
                           ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge.'
                           : missionNumber === 15
                             ? 'Destroy the Prison before time runs out and free your Shaman.'
-                            : 'Discover the Boat House and launch a vessel to cross the world.',
+                            : missionNumber === 16
+                              ? 'Find Bloodlust in the desert and use its fighting frenzy against your enemies.'
+                              : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

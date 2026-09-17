@@ -2202,6 +2202,128 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 16 Bloodlust acquisition, selection, status, Shield coexistence, combat modifiers, and expiry against the hash-verified executable.",
+      "coveredBehavior": [
+        "Authored model-20 rewards, triggers, scripts, and messages",
+        "Exact 3x3 cell scan, eligibility, six-person limit, and tie order",
+        "Bloodlust and Shield flag/timer separation",
+        "Melee damage, incoming damage, and native expiry cadence"
+      ],
+      "knownLimits": [
+        "The expiry driver intercepts unrelated AI, motion, presentation, and cleanup leaves.",
+        "Firewarrior and rendering consumers reuse already-reviewed exports rather than duplicate emulation here."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission16-bloodlust.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission16-bloodlust.py",
+        "decomp/research/mission16-bloodlust.md",
+        "decomp/generated/00515650.c",
+        "decomp/generated/00515690.c",
+        "decomp/generated/005156b0.c",
+        "decomp/generated/005156f0.c",
+        "decomp/generated/00515e30.c",
+        "decomp/requirements.txt",
+        "decomp/sections.tsv"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 16 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 16 Bloodlust worship, cast selection, combat consumers, expiry, and checkpoint state.",
+      "coveredBehavior": [
+        "Mission 16 imported level, scripts, messages, and two Bloodlust heads",
+        "Worship grants stock and HUD casting affects exactly six eligible followers",
+        "Melee and Firewarrior output, incoming damage, movement flag, and Shield coexistence",
+        "Status expiry and checkpoint migration"
+      ],
+      "knownLimits": [
+        "Original HFX artwork and a distinct AI Bloodlust casting policy are not established."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission16-bloodlust.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission16-bloodlust.test.mjs",
+        "app/combat-runtime.ts",
+        "app/firewarrior.ts",
+        "app/game-store.ts",
+        "app/level-sixteen.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-rules.json",
+        "app/original-script-sixteen.json",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 16 Bloodlust acquisition, HUD cast, visible status, live combat, expiry, and restore through shipped browser paths.",
+      "coveredBehavior": [
+        "Mission 16 chooser and objective presentation",
+        "Pointer-issued worship and delayed Bloodlust stock",
+        "HUD spell button, terrain cast, six affected followers, visible aura, and expiry blink",
+        "Autonomous live melee, expiry, and checkpoint restore"
+      ],
+      "knownLimits": [
+        "The check positions worshippers and combatants to bound pathfinding time.",
+        "Headless GPU rendering does not establish exact native HFX raster parity."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission16-bloodlust.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission16-bloodlust.mjs",
+        "scripts/browser-game.mjs",
+        "app/combat-runtime.ts",
+        "app/game-store.ts",
+        "app/hud.tsx",
+        "app/level-sixteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-sixteen.json",
+        "app/scene-entities.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-rules.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": ["Writes and restores the browser checkpoint database"],
+      "resources": ["Fixed server and browser storage resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

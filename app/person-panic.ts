@@ -42,7 +42,7 @@ export function stepVolcanoPanic(
   if (!(p.flags4 & 16)) effects.sound()
   let damage = [0, 1, 43, 56, 43, 43, 37, 28, 312][p.model]
   if (damage === undefined) throw new RangeError(`Unsupported native person model ${p.model}`)
-  if (p.flags3 & 0x80000) damage >>= rules.shieldDamageShift & 31
+  if (p.flags3 & 0x80000) damage >>= rules.bloodlustDamageShift & 31
   if (!(levelFlags2 & 0x04000000)) p.life = ((p.life - damage) << 16) >> 16
   p.timer = ((p.timer - 1) << 16) >> 16
   if (p.timer >= 0) return 0

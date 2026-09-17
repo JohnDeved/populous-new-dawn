@@ -19,7 +19,7 @@ import {
   short,
   spiralCell,
 } from './native-math.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { objectsInCell, removeObjectFromCell } from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
@@ -70,6 +70,7 @@ import { damageLiveVehicle } from './live-vehicles.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
+const BLOODLUST_TURNS = constants.BLOODLUST_COUNT_X8 * 8
 const INVISIBILITY_TURNS = constants.INVISIBLE_COUNT_X8 * 8
 const HYPNOTISE_COUNT = constants.HYPNO_COUNT_X8
 
@@ -176,7 +177,7 @@ export function restoreDeadHypnotisedUnit(u: Unit) {
 function setUnitShield(u: Unit, turns: number) {
   u.shield = turns
   for (const p of [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person])
-    if (p) p.flags3 = turns ? (p.flags3 | 0x80000) >>> 0 : (p.flags3 & ~0x80000) >>> 0
+    if (p) p.flags3 = turns ? (p.flags3 | 0x8000) >>> 0 : (p.flags3 & ~0x8000) >>> 0
 }
 
 export function stepUnitShields(w: World) {
@@ -203,6 +204,50 @@ export function shieldFollowers(w: World, point: Point, team: Team) {
     )
     .slice(0, constants.SHIELD_NUM_PEOPLE)
   for (const u of targets) setUnitShield(u, SHIELD_TURNS)
+  return targets
+}
+
+function setUnitBloodlust(u: Unit, turns: number) {
+  u.bloodlust = turns
+  for (const p of [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person])
+    if (p) p.flags3 = turns ? (p.flags3 | 0x80000) >>> 0 : (p.flags3 & ~0x80000) >>> 0
+}
+
+export function stepUnitBloodlust(w: World) {
+  for (const u of w.units) if (u.bloodlust) setUnitBloodlust(u, u.bloodlust - 1)
+}
+
+export function bloodlustFollowers(w: World, point: Point, team: Team) {
+  const center = nativePosition(w, point),
+    x = (center.x >>> 8) & 254,
+    y = (center.y >>> 8) & 254,
+    units = new Map(w.units.map(u => [u.id, u])),
+    candidates: Unit[] = []
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2])
+      for (const p of objectsInCell(w.objectCells, ((x + dx) & 254) | (((y + dy) & 254) << 8))) {
+        const u = units.get(p.id),
+          person = p as LivePerson
+        if (
+          u?.team === team &&
+          nativePersonModel(u) !== 1 &&
+          nativePersonModel(u) !== 7 &&
+          nativePersonModel(u) !== 8 &&
+          !(person.flags4 & 0x4800) &&
+          !(p.flags3 & 0x80000)
+        )
+          candidates.push(u)
+      }
+  const targets = candidates
+    .map((u, order) => ({ u, order }))
+    .toSorted(
+      (a, b) =>
+        positionDistance(nativePosition(w, a.u), center) -
+          positionDistance(nativePosition(w, b.u), center) || b.order - a.order
+    )
+    .slice(0, constants.BLOODLUST_NUM_PEOPLE)
+    .map(({ u }) => u)
+  for (const u of targets) setUnitBloodlust(u, BLOODLUST_TURNS)
   return targets
 }
 
@@ -1030,6 +1075,9 @@ function finishCast(
     } else if (spell === 'invisibility') {
       fx.sprite = { sequence: 'sparkle', frame: 0 }
       if (invisibilityFollowers(w, p, shaman.team).length) sound(w, 0x31, p)
+    } else if (spell === 'bloodlust') {
+      fx.sprite = { sequence: 'sparkle', frame: 0 }
+      bloodlustFollowers(w, p, shaman.team)
     } else if (spell === 'swarm') {
       fx.swarm = {
         tribe: tribeForTeam(shaman.team),

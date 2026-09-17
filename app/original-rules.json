@@ -3134,7 +3134,7 @@
   "blastPersonDamage": 50,
   "blastBuildingDamage": 40,
   "blastAlliedLimit": 5,
-  "shieldDamageShift": 3,
+  "bloodlustDamageShift": 3,
   "buildingPreparationTasks": [
     7,
     8,

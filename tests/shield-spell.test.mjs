@@ -26,16 +26,16 @@ test('Magical Shield protects six nearby followers for the native lifetime', () 
   assert.equal(targets[0].shield, constants.SHIELD_COUNT_X8 * 8)
 
   const person = createLivePerson(w, targets[0])
-  assert.ok(person.flags3 & 0x80000)
+  assert.ok(person.flags3 & 0x8000)
   const life = person.life
   damagePerson(person, 0, 1, 80)
-  assert.equal(person.life, life - 10)
+  assert.equal(person.life, life)
 
   targets[0].shield = 1
   targets[0].native = person
   stepUnitShields(w)
   assert.equal(targets[0].shield, 0)
-  assert.equal(person.flags3 & 0x80000, 0)
+  assert.equal(person.flags3 & 0x8000, 0)
 
   w.shots.shield = 1
   assert.ok(cast(w, 'shield', { x: 1, z: 0 }))
@@ -46,9 +46,17 @@ test('Magical Shield protects six nearby followers for the native lifetime', () 
 
 test('old checkpoints default new Shield stock without disturbing their world', () => {
   const w = createWorld()
+  const unit = w.units.find(unit => unit.kind === 'brave')
+  assert.ok(unit)
+  unit.shield = 1
+  unit.native = createLivePerson(w, unit)
+  unit.native.flags3 = (unit.native.flags3 & ~0x8000) | 0x80000
   delete w.shots.shield
   delete w.giftCounts.shield
   assert.equal(migrateCheckpoint(w), w)
   assert.equal(w.shots.shield, 0)
   assert.equal(w.giftCounts.shield, 0)
+  assert.equal(unit.native.flags3 & 0x88000, 0x8000)
+  stepUnitShields(w)
+  assert.equal(unit.native.flags3 & 0x88000, 0)
 })

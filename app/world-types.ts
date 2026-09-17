@@ -83,6 +83,7 @@ export type Spell =
   | 'tornado'
   | 'shield'
   | 'invisibility'
+  | 'bloodlust'
   | 'swarm'
 export type Point = { x: number; z: number }
 export type Fight = {
@@ -183,6 +184,7 @@ export type Unit = Point & {
   fight: Fight | null
   casting: { spell: Spell; point: Point; remaining: number } | null
   shield?: number
+  bloodlust?: number
   invisibility?: number
   hypnotise?: { originalTeam: Team; remaining: number; counter: number }
   ghost?: boolean
@@ -328,7 +330,13 @@ export type Effect = Point & {
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   reincarnation?: { team: Team; phase: number; ground: number }
-  firewarriorShot?: { source: number; target: number; remaining: number; tower?: boolean }
+  firewarriorShot?: {
+    source: number
+    target: number
+    remaining: number
+    tower?: boolean
+    bloodlust?: boolean
+  }
   angel?: AngelState
 }
 export type Gift = Effect & {
