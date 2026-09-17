@@ -153,34 +153,37 @@ try {
       world = store.getWorld(),
       { tick } = await import('/app/model.ts'),
       { buildingModel } = await import('/app/building-shapes.ts')
-    while (world.turn < 1000) tick(world, 1 / 12)
+    while (world.turn < 1500) tick(world, 1 / 12)
     store.update()
     scene.onChange()
     scene.animate(scene.previous)
     cancelAnimationFrame(scene.frame)
     scene.renderer.render(scene.scene, scene.camera)
-    const towers = world.buildings.filter(building => buildingModel(building) === 4)
+    const buildings = world.buildings
     return {
-      towers: towers.map(building => [building.team, building.progress]).sort(),
-      onlyTowers: towers.length === world.buildings.length,
-      rendered: towers.every(building => {
+      buildings: buildings
+        .map(building => [building.team, buildingModel(building), building.progress])
+        .sort(),
+      rendered: buildings.every(building => {
         const group = scene.buildingMeshes.get(building.id)
         return !!group && group.parent === scene.objects && group.children.some(child => child.visible)
       }),
     }
   })
   assert.deepEqual(settlement, {
-    towers: [
-      ['green', 1],
-      ['red', 1],
-      ['yellow', 1],
+    buildings: [
+      ['green', 1, 1],
+      ['green', 4, 1],
+      ['red', 1, 1],
+      ['red', 4, 1],
+      ['yellow', 13, 1],
+      ['yellow', 4, 1],
     ],
-    onlyTowers: true,
     rendered: true,
   })
 
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 23 continuation, first settlements, linked gift, and checkpoint')
+  console.log('PASS: Mission 23 continuation, settlement cycle, linked gift, and checkpoint')
 } finally {
   await browser.close()
 }

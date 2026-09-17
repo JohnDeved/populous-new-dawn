@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify Mission 23's first autonomous enemy settlement requests."""
+"""Verify Mission 23's first two autonomous enemy settlement requests."""
 
 import hashlib
 import struct
@@ -103,6 +103,7 @@ for tribe, script_id in scripts.items():
         attributes[1:5],
         read(cpu, 0x89D178),
     ) == (states, flags, latch, task_limit, housing, [0, 0, 0, 0], 0x87654321)
+    assert attributes[35] == (1 if tribe == 2 else 0)
     assert all(read(cpu, ai + 0x74 + index * 0x52) == 0 for index in range(10))
     origin = tribe_input(tribe)
     assert origin == expected_origin
@@ -110,10 +111,8 @@ for tribe, script_id in scripts.items():
     def producer_leaf(_cpu, address, _size, _user):
         ret(cpu, origin if address == 0x4F6020 else 6)
 
-    hooks = [
-        cpu.hook_add(UC_HOOK_CODE, producer_leaf, begin=address, end=address)
-        for address in (0x4F6020, 0x4F67B0)
-    ]
+    base_hook = cpu.hook_add(UC_HOOK_CODE, producer_leaf, begin=0x4F6020, end=0x4F6020)
+    people_hook = cpu.hook_add(UC_HOOK_CODE, producer_leaf, begin=0x4F67B0, end=0x4F67B0)
     write(cpu, 0x89D178, "I", 0x12345678)
     assert invoke(cpu, stack, stop, 0x4E5580, ai, 0) == 1
     assert (
@@ -127,20 +126,29 @@ for tribe, script_id in scripts.items():
     ) == (1, 0, 4, origin, 0, 0, 0x12345678)
 
     cpu.mem_write(ai + 0x36, bytes(10 * 0x52))
+    cpu.hook_del(base_hook)
+    current_base = 0x2200 + tribe * 0x202
+    write(cpu, ai + 0x36A, "H", current_base)
     write(cpu, ai + 0xB85, "H", 1)
     write(cpu, ai + 0x5B4, "B", 1)
 
     def available_leaf(_cpu, _address, _size, _user):
         ret(cpu, 1)
 
-    hooks.append(cpu.hook_add(UC_HOOK_CODE, available_leaf, begin=0x408DD0, end=0x408DD0))
-    assert invoke(cpu, stack, stop, 0x4E5580, ai, 0) == 1
-    assert (read(cpu, ai + 0x85, "B"), read(cpu, ai + 0x68), read(cpu, 0x89D178)) == (
-        0,
-        next_model,
-        0x12345678,
+    available_hook = cpu.hook_add(
+        UC_HOOK_CODE, available_leaf, begin=0x408DD0, end=0x408DD0
     )
-    for hook in hooks:
-        cpu.hook_del(hook)
+    assert invoke(cpu, stack, stop, 0x4E5580, ai, 0) == 1
+    assert (
+        read(cpu, ai + 0x74),
+        read(cpu, ai + 0x85, "B"),
+        read(cpu, ai + 0x68),
+        read(cpu, ai + 0x6C),
+        read(cpu, ai + 0x70),
+        read(cpu, ai + 0x78, "H"),
+        read(cpu, 0x89D178),
+    ) == (1, 0, next_model, current_base, 0, 0, 0x12345678)
+    cpu.hook_del(people_hook)
+    cpu.hook_del(available_hook)
 
-print("PASS: Mission 23 first enemy settlements verified")
+print("PASS: Mission 23 first two enemy settlement steps verified")

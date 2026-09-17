@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { migrateCheckpoint } from '../app/game-store.ts'
-import { buildingModel } from '../app/building-shapes.ts'
+import { buildingModel, buildingPose } from '../app/building-shapes.ts'
+import { checkBuildingSite } from '../app/construction-runtime.ts'
 import { createLivePerson, syncLivePersonCells } from '../app/live-people.ts'
 import { missionComputerTribes, missionData, missionScript } from '../app/mission-data.ts'
 import { browserPosition, cast, command, createWorld, nativePosition, tick } from '../app/model.ts'
@@ -73,7 +74,7 @@ test('Mission 23 loads its authored tribes, Wildmen and worship chain', () => {
   )
 })
 
-test('Mission 23 enemy tribes start their native first settlements', () => {
+test('Mission 23 enemy tribes complete their first two native settlement steps', () => {
   const world = createWorld(23)
   for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
   assert.ok([1, 2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
@@ -101,19 +102,63 @@ test('Mission 23 enemy tribes start their native first settlements', () => {
     ['green', 'red', 'yellow']
   )
 
+  while (world.turn < 124) tick(world, 1 / 12)
+  const towerOrigins = new Map(
+    [1, 2, 3].map(tribe => [
+      tribe,
+      world.campaignAIs[tribe].tasks.find(task => task.flags & 1 && task.requested === 4).target,
+    ])
+  )
+  for (const [tribe, requested] of [
+    [3, 1],
+    [2, 13],
+    [1, 1],
+  ]) {
+    tick(world, 1 / 12)
+    const task = world.campaignAIs[tribe].tasks.find(
+      task => task.flags & 1 && task.type === 0 && task.requested === requested
+    )
+    assert.deepEqual(task && { requested: task.requested, origin: task.origin, phase: task.phase }, {
+      requested,
+      origin: towerOrigins.get(tribe),
+      phase: 0,
+    })
+  }
+
+  while (world.turn < 200) tick(world, 1 / 12)
+  assert.deepEqual(
+    world.buildings.map(building => [building.team, buildingModel(building)]).sort(),
+    [
+      ['green', 1],
+      ['green', 4],
+      ['red', 1],
+      ['red', 4],
+      ['yellow', 13],
+      ['yellow', 4],
+    ]
+  )
+  const boatHouse = world.buildings.find(
+      building => building.team === 'yellow' && buildingModel(building) === 13
+    ),
+    boatTask = world.campaignAIs[2].tasks.find(task => task.entity === boatHouse?.id)
+  assert.deepEqual(
+    boatHouse && boatTask && {
+      target: boatTask.target,
+      orientation: boatTask.fallback,
+      placement: checkBuildingSite(world, buildingPose(boatHouse), 13, 'yellow', boatHouse.id),
+    },
+    { target: 0x46ca, orientation: 1, placement: { valid: true, flags: 0 } }
+  )
+
   const restored = migrateCheckpoint(structuredClone(world))
   assert.deepEqual(restored, world)
-  while (world.turn < 1000) {
+  while (world.turn < 1500) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
   }
   assert.deepEqual(restored, world)
-  assert.ok(
-    world.buildings
-      .filter(building => buildingModel(building) === 4)
-      .every(building => building.progress === 1)
-  )
-  assert.ok(world.buildings.every(building => buildingModel(building) === 4))
+  assert.ok(world.buildings.every(building => building.progress === 1))
+  assert.equal(world.buildings.length, 6)
 })
 
 test('Mission 23 unlocks and repeats the native zero-mana gift through ordinary worship', () => {

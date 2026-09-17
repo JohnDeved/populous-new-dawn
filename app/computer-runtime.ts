@@ -332,8 +332,8 @@ function produceMissionBuilding(w: World, tribe: number) {
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
-  // ponytail: stop after Mission 23's first Tower; add the proved Yellow Boat Hut with model-13 construction.
-  if (w.outcome.level === 23 && has(4)) return false
+  // ponytail: stop after Mission 23's first post-Tower request; later housing needs its own proof.
+  if (w.outcome.level === 23 && has(4) && has(tribe === 2 ? 13 : 1)) return false
   const selection = computerSelectionWorld(w, tribe)
   if (availableTrainingPeople(selection.world) < 2) return false
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
@@ -359,19 +359,23 @@ function produceMissionBuilding(w: World, tribe: number) {
   // use native attribute target counts when later missions need multiple schools.
   const model = !base
     ? 4
-    : w.outcome.level === 12
-      ? 4
-      : w.outcome.level === 11
-        ? housing < w.ai.attributes[10]
-          ? 1
-          : 0 // ponytail: one Matak Hut only; later housing and schools await their own slices.
-        : !has(7) && w.ai.attributes[3]
-          ? 7
-          : tribe === 2 && !has(5) && w.ai.attributes[2]
-            ? 5
-            : housing < w.ai.attributes[10]
-              ? 1
-              : 0
+    : w.outcome.level === 23
+      ? tribe === 2
+        ? 13
+        : 1
+      : w.outcome.level === 12
+        ? 4
+        : w.outcome.level === 11
+          ? housing < w.ai.attributes[10]
+            ? 1
+            : 0 // ponytail: one Matak Hut only; later housing and schools await their own slices.
+          : !has(7) && w.ai.attributes[3]
+            ? 7
+            : tribe === 2 && !has(5) && w.ai.attributes[2]
+              ? 5
+              : housing < w.ai.attributes[10]
+                ? 1
+                : 0
   if (!model || !requestConstruction(w.ai, model, origin)) return false
   // ponytail: keep each proved Mission 11 request one-shot until its next native slice.
   if (w.outcome.level === 11)
@@ -397,7 +401,7 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.flags &= ~3
       task.members.length = 0
     }
-  if (![1, 4, 5, 7].includes(task.requested))
+  if (![1, 4, 5, 7, 13].includes(task.requested))
     throw new Error(`Unbound computer construction ${task.requested}`)
   if (task.phase === 0) {
     if (w.outcome.level === 11 && tribe === 3 && task.requested === 1) {
@@ -470,11 +474,13 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
         team,
         task.requested === 1
           ? 'hut'
-          : task.requested === 5
-            ? 'temple'
-            : task.requested === 7
-              ? 'camp'
-              : 'tower',
+          : task.requested === 13
+            ? 'boatHouse'
+            : task.requested === 5
+              ? 'temple'
+              : task.requested === 7
+                ? 'camp'
+                : 'tower',
         point,
         false,
         {
