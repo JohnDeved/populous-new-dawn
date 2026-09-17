@@ -1,6 +1,11 @@
 // Start npm run dev, then node scripts/check-browser-reincarnation.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
+import { mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+
+const artifactDir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? `work/orchestration/reincarnation-${process.pid}`)
+mkdirSync(artifactDir, { recursive: true })
 import { reincarnationStoneRise, reincarnationStones } from '../app/reincarnation.ts'
 import { browserPosition } from '../app/model.ts'
 import { effectPixels } from './browser-game.mjs'
@@ -18,6 +23,7 @@ try {
     window.resumeFrames = () => { held = false }
   })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
   await page.waitForSelector('.world-viewport canvas')
   await page.evaluate(() => {
     const main = document.querySelector('main')
@@ -80,7 +86,7 @@ try {
   })
   const settled = await checkStones()
   assert.ok(settled.every((stone, index) => stone.position[1] > initial[index].position[1]))
-  await page.screenshot({ path: '/private/tmp/populous-reincarnation-front.png' })
+  await page.screenshot({ path: `${artifactDir}/populous-reincarnation-front.png` })
   await page.evaluate(() => {
     const scene = window.testScene
     window.resumeFrames()
@@ -99,7 +105,7 @@ try {
   await page.keyboard.up('q')
   assert.notEqual(await page.evaluate(() => window.testScene.cameraBearing), bearing)
   assert.deepEqual(await checkStones(), settled)
-  await page.screenshot({ path: '/private/tmp/populous-reincarnation-rotated.png' })
+  await page.screenshot({ path: `${artifactDir}/populous-reincarnation-rotated.png` })
 
   // A terrain edit must re-ground the stone with the native stored-diagonal height.
   await page.evaluate(() => {
@@ -130,7 +136,7 @@ try {
     const scene = window.testScene
     const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
     const mesh = effect && scene.fxMeshes.get(effect.id)
-    if (!effect || effect.reincarnation.phase !== 0 || mesh?.userData.frame !== 680) return false
+    if (!effect || effect.reincarnation.phase !== 0 || mesh?.userData.directions?.[0]?.source !== 680) return false
     scene.world.speed = 0
     return true
   })
@@ -138,14 +144,14 @@ try {
     const scene = window.testScene
     const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
     const mesh = scene.fxMeshes.get(effect.id)
-    return { point: { x: effect.x, z: effect.z }, frame: mesh.userData.frame, layers: mesh.userData.layers.length }
-  }), { point: await page.evaluate(() => window.reincarnationDeath), frame: 680, layers: 2 })
+    return { point: { x: effect.x, z: effect.z }, source: mesh.userData.directions[0].source, layers: mesh.userData.layers.length }
+  }), { point: await page.evaluate(() => window.reincarnationDeath), source: 680, layers: 2 })
   await page.evaluate(() => { window.testScene.world.speed = 8 })
   await page.waitForFunction(() => {
     const scene = window.testScene
     const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
     const mesh = effect && scene.fxMeshes.get(effect.id)
-    if (!effect || effect.reincarnation.phase !== 1 || mesh?.userData.frame !== 352) return false
+    if (!effect || effect.reincarnation.phase !== 1 || mesh?.userData.directions?.[0]?.source !== 352) return false
     scene.world.speed = 0
     return true
   })
@@ -154,7 +160,7 @@ try {
     const scene = window.testScene
     const effect = scene.world.effects.find(f => f.reincarnation?.team === 'blue')
     const mesh = effect && scene.fxMeshes.get(effect.id)
-    if (!effect || effect.reincarnation.phase !== 3 || mesh?.userData.frame !== 360) return false
+    if (!effect || effect.reincarnation.phase !== 3 || mesh?.userData.directions?.[0]?.source !== 360) return false
     scene.world.speed = 0
     return true
   })
@@ -162,7 +168,7 @@ try {
     const effect = window.testScene.world.effects.find(f => f.reincarnation?.team === 'blue')
     return effect.height * 45 > effect.reincarnation.ground
   }))
-  await page.screenshot({ path: '/private/tmp/populous-reincarnation-rise.png' })
+  await page.screenshot({ path: `${artifactDir}/populous-reincarnation-rise.png` })
   await page.evaluate(() => { window.testScene.world.speed = 32 })
   await page.waitForFunction(() => {
     const scene = window.testScene
@@ -210,7 +216,7 @@ try {
     visible: true, remaining: 468, phase: 0, height: 0,
   })
   assert.ok(await effectPixels(page, [corpse.id]) > 10, 'ordinary corpse must contribute live GPU pixels')
-  await page.screenshot({ path: '/private/tmp/populous-corpse.png' })
+  await page.screenshot({ path: `${artifactDir}/populous-corpse.png` })
   const corpseTimeline = await page.evaluate(async () => {
     const scene = window.testScene, world = scene.world, { tick } = await import('/app/model.ts'), rows = []
     let visits = 0

@@ -44,6 +44,7 @@ import { modelHighlight } from './model-lighting.ts'
 import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
+import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, teamForTribe, tribeForTeam } from './world-types.ts'
@@ -260,7 +261,7 @@ export function animatePerson(
     frame.layers,
     nativeUnits.pieces,
     {
-      owner: shaman ? -1 : g.userData.owner,
+      owner: g.userData.layerOwner ?? (shaman ? -1 : g.userData.owner),
       person: descriptor.person,
       variant: descriptor.variant,
       flags: (g.userData.drawFlags ?? 0) | (cycle.flip ? 1 : 0),
@@ -441,20 +442,19 @@ export function updateUnitsFrame(scene: GameScene) {
         string,
         Record<string, { frames: number[]; flip: boolean }[]>
       >
-    )[`${animationTeam(renderTeam)}-${u.kind}`]
+    )[u.kind === 'shaman' ? shamanAppearance(u.team).signature : `${animationTeam(renderTeam)}-${u.kind}`]
     const state = unitAnimation(scene.world, u)
     if (g.userData.state !== state) {
       g.userData.state = state
       g.userData.since = scene.world.time
     }
-    const source = animationSource
-        ? animationSource.object +
-          (animationTeam(renderTeam) === 'red' && u.kind === 'shaman' ? 8 : 0)
-        : undefined,
+    const source = animationSource?.object,
       nativeDirections =
         source === undefined
           ? undefined
-          : Object.values(animations).find(d => 'source' in d[0] && d[0].source === source),
+          : u.kind === 'shaman'
+            ? shamanNativeDirections(u.team, source)
+            : Object.values(animations).find(d => 'source' in d[0] && d[0].source === source),
       directions = nativeDirections || animations[state] || animations.idle
     scene.animatePerson(
       g,

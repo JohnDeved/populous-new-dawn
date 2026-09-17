@@ -277,6 +277,7 @@
       "title": "Terrain and presentation performance",
       "mappingStatus": "reviewed",
       "implementationPaths": [
+        "app/shaman-appearance.ts",
         "app/native-terrain.ts",
         "app/world-terrain-runtime.ts",
         "app/painter-order.ts",
@@ -288,7 +289,23 @@
         "app/scene-terrain-runtime.ts",
         "app/viewport-bounds.ts"
       ],
-      "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
+      "researchPaths": [
+        "scripts/import-original.py",
+        "app/original-units.json",
+        "public/original/unit-layers.png",
+        "public/original/provenance.json",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs",
+        "scripts/check-static-shaman-appearance.py",
+        "scripts/check-native-shaman-appearance.py",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "scripts/check-browser-sprite-layers.mjs",
+        "scripts/check-browser-reincarnation.mjs"
+      ],
+      "sharedPaths": [
+        "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/world-turn.ts","app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncNativeTerrain" },
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncLandscapeObjects" },
@@ -325,6 +342,10 @@
       ],
       "nativeAddresses": ["0x4306d0", "0x44df40", "0x44e940", "0x4f9380", "0x4b5f40"],
       "checkIds": [
+        "shaman-appearance-portable",
+        "shaman-assets-static",
+        "shaman-appearance-browser",
+        "shaman-appearance-native",
         "terrain-portable",
         "terrain-native",
         "terrain-browser",

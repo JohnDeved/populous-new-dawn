@@ -2,17 +2,22 @@
 // complete original x86 renderers, not from the TS renderer under test.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { writeFileSync } from 'node:fs'
+import { writeFileSync, mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 import units from '../app/original-units.json' with { type: 'json' }
 import fixtures from '../tests/fixtures/unit-sprites.json' with { type: 'json' }
+import provenance from '../public/original/provenance.json' with { type: 'json' }
+
+const artifactDir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? `work/orchestration/sprite-layers-${process.pid}`)
+mkdirSync(artifactDir, { recursive: true })
 
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
   const response = await page.request.get(`${process.env.POPULOUS_URL ?? 'http://localhost:3000'}/original/${units.atlas}.png`)
-  assert.equal(createHash('sha256').update(await response.body()).digest('hex'), fixtures.atlasSha256, 'Served atlas is stale or changed')
+  assert.equal(createHash('sha256').update(await response.body()).digest('hex'), provenance.unitAtlasSha256, 'Served atlas is stale or changed')
   await page.waitForFunction(() => [...window.testScene.unitMeshes.values()].some(g => g.userData.layers?.[0]?.material.map.image?.complete))
   const result = await page.evaluate(({ units, cases }) => {
     const s = window.testScene, renderer = s.renderer, gl = renderer.getContext()
@@ -94,7 +99,7 @@ try {
     }
     return { failures, frames: frames.size, checkedPixels, sheet: sheet.toDataURL('image/png') }
   }, { units, cases: fixtures.cases })
-  writeFileSync('/private/tmp/populous-unit-sprite-regression.png', Buffer.from(result.sheet.split(',')[1], 'base64'))
+  writeFileSync(`${artifactDir}/populous-unit-sprite-regression.png`, Buffer.from(result.sheet.split(',')[1], 'base64'))
   assert.equal(result.failures.length, 0, JSON.stringify(result.failures.slice(0, 10)))
   assert.deepEqual(errors, [])
   console.log(`PASS: ${fixtures.cases.length} GPU sprite poses (${result.frames} frames, ${result.checkedPixels} coloured pixels), imported tribes/classes, 8 directions, walking/work/combat/airborne/death; served atlas hash; no browser errors`)

@@ -3528,6 +3528,220 @@
       "resources": ["Serialize performance runs, fixed server, browser, GPU, and capture path"],
       "expected": { "exitCode": 0, "artifacts": [] },
       "advisory": true
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check four-tribe Shaman sources, unchanged old atlas pixels, and original Mission23 checkpoint/death identity.",
+      "coveredBehavior": [
+        "All four original Shaman families and eight directions",
+        "Every old frame/piece and3276occupied pixel rectangles preserved",
+        "576existing layer fixtures and3216piece hashes unchanged",
+        "Normal effect producer and checkpoint retain team/heading"
+      ],
+      "knownLimits": [
+        "Portable checks do not certify rendered gameplay or complete native animation timing."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs"
+      ],
+      "inputs": [
+        "app/shaman-appearance.ts",
+        "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/world-turn.ts",
+        "app/original-units.json",
+        "app/animation.ts",
+        "app/sprite-layers.ts",
+        "app/world-types.ts",
+        "app/game-store.ts",
+        "app/mission-data.ts",
+        "public/original/unit-layers.png",
+        "public/original/provenance.json",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs",
+        "tests/fixtures/unit-sprites.json"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13 with TypeScript stripping",
+        "Installed repository dependencies"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_PYTHON",
+        "POPULOUS_DATA_ROOT"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "automation": "safe",
+      "purpose": "Compare all imported Shaman frame chains, layer metadata and atlas pieces against supplied original asset bytes.",
+      "coveredBehavior": [
+        "Pinned source inputs",
+        "All raw frame/layer identities and original RGBA",
+        "Four tribe/source mappings and independent original-byte pixel reference"
+      ],
+      "knownLimits": [
+        "Static original-byte comparison; no native executable or browser is run."
+      ],
+      "executable": "$POPULOUS_PYTHON",
+      "args": [
+        "-B",
+        "scripts/check-static-shaman-appearance.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "inputs": [
+        "scripts/check-static-shaman-appearance.py",
+        "scripts/import-original.py",
+        "app/original-units.json",
+        "public/original/provenance.json",
+        "public/original/unit-layers.png",
+        "tests/fixtures/unit-sprites.json"
+      ],
+      "prerequisites": [
+        "Existing Python environment with Pillow",
+        "Supplied hash-matching original data root"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_URL",
+        "POPULOUS_SHAMAN_REFERENCE",
+        "POPULOUS_SHAMAN_OUTPUT"
+      ],
+      "sideEffects": [
+        "Creates an isolated browser profile and writes only the supplied new artifact directory"
+      ],
+      "resources": [
+        "Browser/GPU/server serialized by explicit CEO grant"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Check the shipped four-tribe renderer, diagnostic actions, normal lifecycle, checkpoint UI and original-byte GPU pixels in an explicitly reserved slot.",
+      "coveredBehavior": [
+        "Actual Mission23 roster",
+        "Native source/f2 and eight directions through live renderer",
+        "Death/body/shared-spirit/reappearance and heading continuity",
+        "Checkpoint UI and real camera input",
+        "Original-byte pixel reference with recorded provenance"
+      ],
+      "knownLimits": [
+        "Requires an explicit browser/GPU slot; cannot run from a portable aggregate.",
+        "Controlled pose/death edge cases supplement ordinary mission startup; no144fps or performance-nonregression claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/check-browser-shaman-appearance.mjs",
+        "--reference-report",
+        "$POPULOUS_SHAMAN_REFERENCE",
+        "--output-dir",
+        "$POPULOUS_SHAMAN_OUTPUT",
+        "--headed"
+      ],
+      "inputs": [
+        "app/shaman-appearance.ts",
+        "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/world-turn.ts",
+        "app/original-units.json",
+        "app/animation.ts",
+        "app/sprite-layers.ts",
+        "app/world-types.ts",
+        "app/game-store.ts",
+        "app/mission-data.ts",
+        "public/original/unit-layers.png",
+        "public/original/provenance.json",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs",
+        "tests/fixtures/unit-sprites.json",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "scripts/browser-game.mjs"
+      ],
+      "prerequisites": [
+        "Owned server at127.0.0.1:4318",
+        "Installed Playwright browser",
+        "Static reference report from the current atlas",
+        "A new unique ignored output directory",
+        "Explicit runtime resource grant"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_PYTHON",
+        "POPULOUS_EXE",
+        "POPULOUS_SHAMAN_NATIVE_OUTPUT"
+      ],
+      "sideEffects": [
+        "Writes a new explicitly supplied evidence JSON; never records fixtures"
+      ],
+      "resources": [
+        "Native execution serialized by CEO"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Optionally compare all four Shaman layer selections with the original portrait routine using the existing HUD oracle.",
+      "coveredBehavior": [
+        "Four tribes/actions/directions and cycle endpoints",
+        "Original00450e60 branch and retained raster submissions"
+      ],
+      "knownLimits": [
+        "Requires a separate native-execution grant; not included in browser/GPU approval.",
+        "Original world draw is separate static evidence; this does not execute the entire graphics loop."
+      ],
+      "executable": "$POPULOUS_PYTHON",
+      "args": [
+        "-B",
+        "scripts/check-native-shaman-appearance.py",
+        "$POPULOUS_EXE",
+        "--output",
+        "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+      ],
+      "inputs": [
+        "scripts/check-native-shaman-appearance.py",
+        "scripts/check-native-hud-portrait.py",
+        "scripts/decomp.py",
+        "app/shaman-appearance.ts",
+        "app/original-units.json",
+        "app/sprite-layers.ts",
+        "tests/fixtures/hud-portrait.json"
+      ],
+      "prerequisites": [
+        "Documented native Python environment",
+        "Hash-verified supplied EXE/adjacent assets",
+        "Explicit native resource grant"
+      ]
     }
   ]
 }
