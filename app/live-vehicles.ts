@@ -1,5 +1,5 @@
 import type { LivePerson } from './live-people.ts'
-import { tribeForTeam, type Vehicle, type World } from './world-types.ts'
+import { teamForTribe, tribeForTeam, type Vehicle, type World } from './world-types.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
@@ -54,6 +54,7 @@ export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
     i => !v.passengers[i]
   )
   if (slot === undefined) return false
+  if (!v.passengerCount) v.team = teamForTribe(p.tribe)
   v.passengers[slot] = p.id
   v.passengerCount++
   p.vehicle = v.id
@@ -76,7 +77,12 @@ export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
   return true
 }
 
-export function leaveLiveVehicle(w: World, v: Vehicle, p: LivePerson, to: { x: number; y: number }) {
+export function leaveLiveVehicle(
+  w: World,
+  v: Vehicle,
+  p: LivePerson,
+  to: { x: number; y: number }
+) {
   const slot = v.passengers.indexOf(p.id)
   if (slot < 0) return
   v.passengers.splice(slot, 1)

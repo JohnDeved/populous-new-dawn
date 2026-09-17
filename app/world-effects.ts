@@ -133,10 +133,11 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
   if (kind === 'blast') registerTerrainLight(w, f, 4)
   return f
 }
-export function createGift(w: World, reward: Gift['reward'], p: Point) {
+export function createGift(w: World, reward: Gift['reward'], p: Point, rewardModel = 0) {
   const gift = effect(w, 'gift', p) as Gift
   Object.assign(gift, {
     reward,
+    rewardModel,
     remaining: 82,
     phase: 6,
     frame:
@@ -149,7 +150,9 @@ export function createGift(w: World, reward: Gift['reward'], p: Point) {
       reward === 'balloonHut' ||
       reward === 'vault'
         ? 1077
-        : 1056 + SPELLS.find(spell => spell.id === reward)!.model,
+        : reward === 'mana'
+          ? 1056 + rewardModel
+          : 1056 + SPELLS.find(spell => spell.id === reward)!.model,
     height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
     duration: Infinity,
   })

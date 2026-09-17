@@ -2896,6 +2896,113 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission22-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 22's two delayed mana gifts, presentation-only stone head, independent authored vehicles, first-passenger Boat claim, and vehicle lifetime against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Authored 1000000 and 600000 mana gift topology",
+        "51-visit head completion and 82-visit neutral gift payout",
+        "Trigger-141 delayed stone presentation without gameplay reward",
+        "Independent Yellow Balloon and Red Boat records",
+        "First eligible passenger claims an empty enemy Boat",
+        "5000-pass empty stationary Boat and Balloon lifetime"
+      ],
+      "knownLimits": [
+        "Allocation, template copy, deletion, selected presentation data, person eligibility, and some vehicle setup leaves are intercepted.",
+        "The probe does not establish the full trigger controller's generic completion cue, a native route-timing playthrough, exact renderer comparison, save-format proof, AI proof, or mission-outcome proof."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission22-gifts.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission22-gifts.py",
+        "decomp/research/mission22-rewards.md"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 22 level, header, script, and language files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 22's authored solo opening, inert head, natural mana-gift worship, and independent empty enemy Boat claim and travel.",
+      "coveredBehavior": [
+        "Mission 22 level, scripts, solo Shaman, opening message, mana heads, and authored vehicles",
+        "Presentation-only head consumes without granting resources",
+        "Land Bridge makes the 600000-mana head reachable through ordinary worship and delayed payout",
+        "Swarm-assisted approach, first-passenger Boat claim, checkpoint, sailing, and disembarkation"
+      ],
+      "knownLimits": [
+        "The portable check drives production commands; the browser check supplies shipped-control proof.",
+        "The 1000000-mana head's separate live route, exact stone animation/assets, AI, objective, and mission outcome remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission22.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission22.test.mjs",
+        "app/game-store.ts",
+        "app/level-twenty-two.ts",
+        "app/live-command.ts",
+        "app/live-vehicles.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-twenty-two.json",
+        "app/world-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 22's solo start, terrain-enabled mana gift, enemy Boat claim, checkpoint, sailing, and landing through shipped browser controls.",
+      "coveredBehavior": [
+        "Mission 22 chooser, original opening, and one-Shaman roster",
+        "HUD Land Bridge and rendered head selection reach the delayed 600000-mana gift",
+        "HUD Swarm and rendered movement/Boat selection reach and claim the empty Red Boat",
+        "Occupied Boat checkpoint restoration, sailing, and rendered landing"
+      ],
+      "knownLimits": [
+        "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
+        "The 1000000-mana head's separate live route, exact stone animation/assets, AI, objective, and mission outcome remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission22.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission22.mjs",
+        "scripts/browser-game.mjs",
+        "app/game-store.ts",
+        "app/level-twenty-two.ts",
+        "app/live-command.ts",
+        "app/live-vehicles.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/world-effects.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

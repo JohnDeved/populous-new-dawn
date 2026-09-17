@@ -143,6 +143,7 @@ export function migrateCheckpoint(world: World) {
       shrine.kind !== 'volcanoEffect' &&
       shrine.kind !== 'linkedEffects' &&
       shrine.kind !== 'boat' &&
+      shrine.kind !== 'inert' &&
       !(shrine.kind === 'angel' && shrine.angelTarget)
     )
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind

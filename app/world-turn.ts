@@ -493,7 +493,11 @@ function stepTurn(w: World) {
     if (--gift.remaining !== 0) continue
     gift.duration = gift.age
     effect(w, 'birth', gift)
-    if (
+    if (gift.reward === 'mana') {
+      const tribe = w.manaTribes[gift.recipient ?? w.manaWorld.playerTribe]
+      tribe.pending = (tribe.pending + (gift.amount ?? 0)) | 0
+      tell(w, `${(gift.amount ?? 0).toLocaleString()} mana received.`)
+    } else if (
       gift.reward === 'camp' ||
       gift.reward === 'tower' ||
       gift.reward === 'temple' ||
@@ -830,6 +834,21 @@ function stepTurn(w: World) {
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
   for (const shrine of w.shrines) {
     if (shrine.kind !== 'vault') stepWorshipHead(shrine)
+    if ((shrine.kind === 'mana' || shrine.kind === 'inert') && shrine.rewardDelay) {
+      if (--shrine.rewardDelay === 0) {
+        shrine.remaining = 0
+        shrine.active = false
+        shrine.uses++
+        sound(w, 0x70, shrine)
+        if (shrine.kind === 'mana') {
+          const gift = createGift(w, 'mana', shrine, shrine.rewardModel)
+          gift.amount = shrine.rewardMana
+          gift.recipient = shrine.rewardRecipient ?? w.manaWorld.playerTribe
+          gift.phase = 1
+        }
+      }
+      continue
+    }
     if (!shrine.active) continue
     if (shrine.reset) {
       shrine.forced = false
@@ -851,18 +870,23 @@ function stepTurn(w: World) {
       shrine.progress = shrine.target > 0 ? shrine.work / shrine.target : 0
     } else {
       // The trigger still uses world-turn phase until native mixed-class scheduling.
-      if (shrine.enabled && !(w.turn & 3))
-        shrine.followers = countWorshippers(
+      if (shrine.enabled && !(w.turn & 3)) {
+        const counts = countWorshippers(
           { ...worshipHeadPose(w, shrine), range: shrine.range },
           w.buildingOrders,
           cell => objectsInCell(w.objectCells, cell) as Iterable<LivePerson>
-        )[w.manaWorld.playerTribe]
+        )
+        const recipient =
+          shrine.kind === 'mana' ? counts.findIndex(count => count > 0) : w.manaWorld.playerTribe
+        shrine.rewardRecipient = recipient < 0 ? undefined : recipient
+        shrine.followers = recipient < 0 ? 0 : counts[recipient]
+      }
       fired = stepWorship(shrine, w.turn, shrine.followers, shrine.forced)
       shrine.progress = worshipProgress(shrine)
     }
     if (fired) {
       shrine.progress = 0
-      shrine.uses++
+      if (shrine.kind !== 'mana' && shrine.kind !== 'inert') shrine.uses++
       if (shrine.kind === 'bridgeEffect') {
         const bridge = effect(w, 'bridge', shrine)
         bridge.bridge = createLandBridge(
@@ -935,11 +959,16 @@ function stepTurn(w: World) {
           w.castingTribes[0].flags |= 64
           tell(w, 'Boat received. Select followers and click it to board.')
         }
+      } else if (shrine.kind === 'mana' || shrine.kind === 'inert') {
+        // Native installs 51 and consumes the first visit immediately.
+        shrine.remaining = 1
+        shrine.active = true
+        shrine.rewardDelay = 50
       } else if (shrine.kind === 'angel' && shrine.angelTarget) {
         // ponytail: keep the stone-head mesh until class-7/model-91's sprite presentation is decoded.
         createAngel(w, teamForTribe(w.manaWorld.playerTribe), shrine.angelTarget)
       } else for (const reward of shrine.rewards ?? [shrine.reward!]) createGift(w, reward, shrine)
-      sound(w, 0x70, shrine)
+      if (shrine.kind !== 'mana' && shrine.kind !== 'inert') sound(w, 0x70, shrine)
     }
   }
   // Imported availability selects rechargeable spells; head rewards remain one-off stocks.

@@ -57,6 +57,7 @@ import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
 import { changeLivePersonState, registerLivePerson } from './live-people.ts'
+import { vehicleExitTarget } from './live-vehicles.ts'
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
@@ -142,9 +143,7 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
   // classification require their native lifecycle owners; no invented actions here.
   const tribeFlags =
     (w.castingTribes[tribeForTeam(team)].flags & ~64) |
-    (w.vehicles.some(
-      v => v.active && v.team === team && !(rules.vehicleRestFlags[v.model] & 1)
-    )
+    (w.vehicles.some(v => v.active && v.team === team && !(rules.vehicleRestFlags[v.model] & 1))
       ? 64
       : 0)
   const enabled =
@@ -212,10 +211,7 @@ export function disguiseSelectedSpies(w: World, tribe: number) {
   if (w.paused || w.status !== 'playing' || tribe < 0 || tribe > 3) return false
   const units = w.units.filter(
     u =>
-      u.kind === 'spy' &&
-      canOrder(u) &&
-      w.selected.includes(u.id) &&
-      tribeForTeam(u.team) !== tribe
+      u.kind === 'spy' && canOrder(u) && w.selected.includes(u.id) && tribeForTeam(u.team) !== tribe
   )
   if (!units.length) return false
   for (const u of units) release(w, u)
@@ -314,10 +310,7 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
     return { code: -2, message: 'Beyond your reach. Move your shaman closer.' }
   const target = nativePosition(w, p),
     targetCell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
-  if (
-    spell === 'bridge' &&
-    rules.terrainCategoryFlags[w.land.categories[targetCell] & 15] & 2
-  )
+  if (spell === 'bridge' && rules.terrainCategoryFlags[w.land.categories[targetCell] & 15] & 2)
     return {
       code: -3,
       message: 'Land Bridge must target dry terrain.',
@@ -468,7 +461,7 @@ export function command(
     }
   }
   if (model === 22 && context.vehicle) {
-    const point = browserPosition(context.vehicle),
+    const point = browserPosition(vehicleExitTarget(w, context.vehicle)),
       units = w.units.filter(
         u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), 22)
       ),
@@ -511,9 +504,7 @@ export function command(
       'firewarriorHut',
       'boatHouse',
       'balloonHut',
-    ].includes(
-      context.building.kind
-    )
+    ].includes(context.building.kind)
   const queuedTree =
     model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
   if (
@@ -659,8 +650,7 @@ export function command(
     if (order) {
       if (path) releasePersonRoute(w.motionRoutes, path)
       startLiveOrder(w, u, order)
-    }
-    else acceptLivePath(w, u, path)
+    } else acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null
     if (friendly && friendly.progress < 1 && !dismantling)
       u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }

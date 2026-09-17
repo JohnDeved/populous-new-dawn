@@ -244,6 +244,8 @@ export type Shrine = Point &
       | 'linkedEffects'
       | 'vault'
       | 'boat'
+      | 'mana'
+      | 'inert'
       | 'angel'
     reward?:
       | Spell
@@ -254,6 +256,7 @@ export type Shrine = Point &
       | 'firewarriorHut'
       | 'boatHouse'
       | 'balloonHut'
+      | 'mana'
     rewards?: NonNullable<Shrine['reward']>[]
     bridgeTarget?: Point
     effectTarget?: Point
@@ -265,6 +268,10 @@ export type Shrine = Point &
     linkedTrees?: { x: number; z: number; model: number }[]
     linkedShrine?: Shrine
     rewardVehicle?: number
+    rewardMana?: number
+    rewardModel?: number
+    rewardDelay?: number
+    rewardRecipient?: number
     angelTarget?: Point
     nextSlot: number
     slotTimer: number
@@ -369,6 +376,10 @@ export type Gift = Effect & {
     | 'boatHouse'
     | 'balloonHut'
     | 'vault'
+    | 'mana'
+  amount?: number
+  recipient?: number
+  rewardModel?: number
   remaining: number
   phase: number
   frame: number

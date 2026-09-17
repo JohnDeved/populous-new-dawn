@@ -516,7 +516,25 @@ export default function Home() {
                                         world.campaignAIs[1]?.variables[28] === 1,
                                     },
                                   ]
-                                : []
+                                : world.outcome.level === 22
+                                  ? [
+                                      {
+                                        text: 'Use Land Bridge to claim the southern mana gift',
+                                        done: world.shrines.some(
+                                          shrine =>
+                                            shrine.kind === 'mana' &&
+                                            shrine.rewardMana === 600_000 &&
+                                            shrine.uses > 0
+                                        ),
+                                      },
+                                      {
+                                        text: 'Steal an enemy Boat or Balloon',
+                                        done: world.vehicles.some(
+                                          vehicle => vehicle.team === 'blue'
+                                        ),
+                                      },
+                                    ]
+                                  : []
   return (
     <main
       ref={shell}
@@ -1081,7 +1099,9 @@ export default function Home() {
                                               ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
                                               : world.outcome.level === 21
                                                 ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
-                                                : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
+                                                : world.outcome.level === 22
+                                                  ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
+                                                  : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
@@ -1194,9 +1214,9 @@ export default function Home() {
           Each spell shows its own casting range. Right-click a rechargeable spell to pause or
           resume it and focus mana elsewhere. Worship the southern head for Land Bridge (four held
           at once), and the central head for four Lightning gifts. Only your shaman can learn at the
-          vault. Select braves and click a friendly hut to house them, or a completed training hut to
-          train them. Builders carry logs from trees. Followers drown in water; Blast can knock them
-          off a shore.
+          vault. Select braves and click a friendly hut to house them, or a completed training hut
+          to train them. Builders carry logs from trees. Followers drown in water; Blast can knock
+          them off a shore.
         </p>
         <div className="audio-settings">
           <button

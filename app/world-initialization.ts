@@ -175,6 +175,19 @@ export function createWorld(missionNumber = 1): World {
         rewardObjects = links.filter(object => object.type === 6 && object.model === 2),
         rewardObject = rewardObjects[0],
         rewards = rewardObjects.flatMap(object => linkedReward(object) ?? []),
+        manaReward =
+          missionNumber === 22
+            ? rewardObjects.find(
+                object => object.settings?.[0] === 6 && [3, 5].includes(object.settings[1])
+              )
+            : undefined,
+        rewardMana = manaReward
+          ? (manaReward.settings![4] |
+              (manaReward.settings![5] << 8) |
+              (manaReward.settings![6] << 16) |
+              (manaReward.settings![7] << 24)) >>>
+            0
+          : undefined,
         linkedVehicle = links.find(object => object.type === 4),
         bridge = links.find(object => object.type === 7 && object.model === 24),
         erosion = links.find(object => object.type === 7 && object.model === 23),
@@ -188,6 +201,7 @@ export function createWorld(missionNumber = 1): World {
             : undefined,
         earthquakes = links.filter(object => object.type === 7 && object.model === 26),
         linkedHead = links.find(object => object.type === 6 && object.model === 6),
+        inert = links.find(object => object.type === 7 && object.model === 92),
         angelStatue = links.find(object => object.type === 7 && object.model === 91),
         angelTarget = links.find(object => object.type === 7 && object.model === 88),
         linked = linkedVehicle ?? bridge ?? erosion ?? rewardObject,
@@ -211,19 +225,23 @@ export function createWorld(missionNumber = 1): World {
             ? 'vault'
             : isAngelHead
               ? 'angel'
-              : earthquakeTargets.length && linkedHead
-                ? 'linkedEffects'
-                : linked?.type === 4
-                  ? 'boat'
-                  : linked?.type === 7 && linked.model === 24 && bridgeTarget
-                    ? 'bridgeEffect'
-                    : flatten
-                      ? 'flattenEffect'
-                      : volcano
-                        ? 'volcanoEffect'
-                        : effectTarget
-                          ? 'erosionEffect'
-                          : rewardSpell?.id
+              : manaReward
+                ? 'mana'
+                : missionNumber === 22 && inert
+                  ? 'inert'
+                  : earthquakeTargets.length && linkedHead
+                    ? 'linkedEffects'
+                    : linked?.type === 4
+                      ? 'boat'
+                      : linked?.type === 7 && linked.model === 24 && bridgeTarget
+                        ? 'bridgeEffect'
+                        : flatten
+                          ? 'flattenEffect'
+                          : volcano
+                            ? 'volcanoEffect'
+                            : effectTarget
+                              ? 'erosionEffect'
+                              : rewardSpell?.id
       // Decorative trigger links have no collectible reward owner.
       if (
         !kind &&
@@ -243,6 +261,8 @@ export function createWorld(missionNumber = 1): World {
               kind === 'volcanoEffect' ||
               kind === 'linkedEffects' ||
               kind === 'boat' ||
+              kind === 'mana' ||
+              kind === 'inert' ||
               isAngelHead
             ? undefined
             : kind
@@ -253,6 +273,8 @@ export function createWorld(missionNumber = 1): World {
         kind !== 'volcanoEffect' &&
         kind !== 'linkedEffects' &&
         kind !== 'boat' &&
+        kind !== 'mana' &&
+        kind !== 'inert' &&
         !isAngelHead &&
         !shrineReward
       )
@@ -312,6 +334,9 @@ export function createWorld(missionNumber = 1): World {
         ...(kind === 'boat'
           ? { rewardVehicle: w.vehicles.find(v => v.model === linked!.model && !v.active)!.id }
           : {}),
+        ...(kind === 'mana'
+          ? { rewardMana, rewardModel: manaReward!.settings![1], rewardDelay: 0 }
+          : {}),
         ...(isAngelHead ? { angelTarget: { x: angelTarget!.x, z: angelTarget!.z } } : {}),
         name:
           kind === 'vault'
@@ -328,9 +353,13 @@ export function createWorld(missionNumber = 1): World {
                       ? 'Totem Pole'
                       : kind === 'boat'
                         ? 'Boat stone head'
-                        : isAngelHead
-                          ? 'Angel of Death stone head'
-                          : `${SPELLS.find(spell => spell.id === shrineReward)!.name} stone head`,
+                        : kind === 'mana'
+                          ? 'Mana stone head'
+                          : kind === 'inert'
+                            ? 'Stone head'
+                            : isAngelHead
+                              ? 'Angel of Death stone head'
+                              : `${SPELLS.find(spell => spell.id === shrineReward)!.name} stone head`,
         progress: 0,
         duration: (worship.target * 4) / TURNS_PER_SECOND,
         uses: 0,
@@ -368,7 +397,7 @@ export function createWorld(missionNumber = 1): World {
               ...(missionNumber === 15 ? [1174, 1187, 1200] : []),
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
               ...(missionNumber === 21 ? [1085, 1138] : []),
-              ...([4, 10, 11, 12, 13, 17, 18, 19, 20, 21].includes(missionNumber)
+              ...([4, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22].includes(missionNumber)
                 ? [1174, 1187]
                 : []),
             ].includes(c.opcode)
