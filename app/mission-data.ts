@@ -21,6 +21,7 @@ import levelTwenty from './level-twenty.ts'
 import levelTwentyOne from './level-twenty-one.ts'
 import levelTwentyTwo from './level-twenty-two.ts'
 import levelTwentyThree from './level-twenty-three.ts'
+import levelTutorial from './level-tutorial.ts'
 import scriptOne from './original-script.json' with { type: 'json' }
 import scriptTwo from './original-script-two.json' with { type: 'json' }
 import scriptThree from './original-script-three.json' with { type: 'json' }
@@ -44,6 +45,7 @@ import scriptTwenty from './original-script-twenty.json' with { type: 'json' }
 import scriptTwentyOne from './original-script-twenty-one.json' with { type: 'json' }
 import scriptTwentyTwo from './original-script-twenty-two.json' with { type: 'json' }
 import scriptTwentyThree from './original-script-twenty-three.json' with { type: 'json' }
+import scriptTutorial from './original-script-tutorial.json' with { type: 'json' }
 import { teamForTribe, tribeForTeam, type TribeTeam } from './world-types.ts'
 import type { PopScript } from './popscript.ts'
 
@@ -73,11 +75,15 @@ const missions = [
   { number: 23, level: levelTwentyThree, script: scriptTwentyThree },
 ] as const
 
+export const tutorialLevel = 79
+const tutorial = { number: tutorialLevel, level: levelTutorial, script: scriptTutorial } as const
+
 export const missionNumbers = missions.map(mission => mission.number)
 
-export type Mission = (typeof missions)[number]
+export type Mission = (typeof missions)[number] | typeof tutorial
 
 export function missionData(number = 1): Mission {
+  if (number === tutorialLevel) return tutorial
   const mission = missions.find(mission => mission.number === number)
   if (!mission) throw new RangeError(`Unsupported campaign mission ${number}`)
   return mission
@@ -100,7 +106,7 @@ export function campaignSpellModels(number: number) {
     header = missionData(number).level.header,
     available = missionSpellMask(number)
   for (let model = 1; model < 22; model++) if (available & (1 << model)) models.add(model)
-  for (const mission of missions) {
+  for (const mission of number === tutorialLevel ? [] : missions) {
     if (mission.number > number) break
     for (const object of mission.level.objects)
       if (object.type === 6 && object.settings?.[0] === 11) models.add(object.settings[1])

@@ -7,7 +7,7 @@ import { distance } from './world-coordinates.ts'
 import { short } from './native-math.ts'
 import { addUnit, breedingWork, createWorldState } from './world-state.ts'
 import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
-import { missionData } from './mission-data.ts'
+import { missionData, tutorialLevel } from './mission-data.ts'
 import { createWorship } from './worship.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
@@ -166,6 +166,8 @@ export function createWorld(missionNumber = 1): World {
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
       if (linkedObjectIds.has(o.index + 1)) continue
+      // ponytail: bind later tutorial trigger heads only when their authored lessons ship.
+      if (missionNumber === tutorialLevel && ![74, 76].includes(o.index)) continue
       if (missionNumber === 20 && o.index === 322) {
         w.shrines.push(missionTwentyShrine(o))
         continue
@@ -233,17 +235,17 @@ export function createWorld(missionNumber = 1): World {
                     ? 'linkedEffects'
                     : missionNumber === 23 && linkedHead
                       ? 'linkedEffects'
-                    : linked?.type === 4
-                      ? 'boat'
-                      : linked?.type === 7 && linked.model === 24 && bridgeTarget
-                        ? 'bridgeEffect'
-                        : flatten
-                          ? 'flattenEffect'
-                          : volcano
-                            ? 'volcanoEffect'
-                            : effectTarget
-                              ? 'erosionEffect'
-                              : rewardSpell?.id
+                      : linked?.type === 4
+                        ? 'boat'
+                        : linked?.type === 7 && linked.model === 24 && bridgeTarget
+                          ? 'bridgeEffect'
+                          : flatten
+                            ? 'flattenEffect'
+                            : volcano
+                              ? 'volcanoEffect'
+                              : effectTarget
+                                ? 'erosionEffect'
+                                : rewardSpell?.id
       // Decorative trigger links have no collectible reward owner.
       if (
         !kind &&

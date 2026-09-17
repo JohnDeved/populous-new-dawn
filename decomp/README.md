@@ -38,6 +38,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 Recent reusable topic notes: [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
+[Tutorial first World View lesson](research/tutorial-first-lesson.md),
 [Firewarrior launch, automatic response, tower combat and open boundaries](research/firewarrior.md),
 [Mission 10 opening](research/mission10-opening.md),
 [Mission 11 first settlement](research/mission11-first-settlement.md),
@@ -134,6 +135,12 @@ python3 -B scripts/check-static-tutorial-entry.py \
 ```
 
 The output directory must be new, with an existing parent. It contains inspectable byte listings and an evidence/result JSON; `--data-root` is optional for EXE-only verification. No scratch, Git-head, current-cwd discovery, Ghidra or emulator is required. This is conditional static evidence, not native boot/click/playthrough or full U01 acceptance.
+
+[The first-lesson note](research/tutorial-first-lesson.md) records CPSCR057's
+stage-0 through stage-3 World View sequence, opcode 1139's `draw_mode == 2` sample,
+and the reviewed command-1143 UI-record export. It proves the bounded script and
+overview-input boundary, not the full Tutorial, raw Windows event producer, or
+native completion/result path.
 
 ## Mission 18 sky static evidence
 

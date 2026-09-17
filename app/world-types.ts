@@ -415,6 +415,7 @@ export type World = {
   activeCampaignTribe: number
   messages: MessageState
   flyby: Flyby
+  drawMode: number
   inputMask: number
   lastMessage: number
   campaignTimer: number | null

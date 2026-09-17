@@ -46,7 +46,12 @@ import {
 } from './hud'
 import { spellButton, spellOrder } from './spell-button'
 import { nativeUnitModel } from './unit-kinds'
-import { campaignSpellModels, missionComputerTribes, missionNumbers } from './mission-data'
+import {
+  campaignSpellModels,
+  missionComputerTribes,
+  missionNumbers,
+  tutorialLevel,
+} from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
@@ -148,6 +153,7 @@ export default function Home() {
             update,
             (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
           )
+          if (world.drawMode === 2) engine.current.overview()
           setReady(true)
         } catch (e) {
           setError(e instanceof Error ? e.message : 'Unable to start the 3D world.')
@@ -192,6 +198,11 @@ export default function Home() {
       if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
+        if (store.getWorld().outcome.level === tutorialLevel) {
+          e.preventDefault()
+          setMenu(true)
+          return
+        }
         store.change(cancelInteraction)
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
@@ -314,6 +325,12 @@ export default function Home() {
     store.startMission(mission)
     setTab('spells')
     setStartup('playing')
+  }
+  function exitTutorial() {
+    audio.current?.reset()
+    setMenu(false)
+    setReady(false)
+    setStartup('choice')
   }
   function loadCheckpoint() {
     audio.current?.reset()
@@ -531,7 +548,8 @@ export default function Home() {
                                         text: 'Steal the enemy Boat and Balloon',
                                         done: [1, 3].every(model =>
                                           world.vehicles.some(
-                                            vehicle => vehicle.model === model && vehicle.team === 'blue'
+                                            vehicle =>
+                                              vehicle.model === model && vehicle.team === 'blue'
                                           )
                                         ),
                                       },
@@ -964,6 +982,13 @@ export default function Home() {
           {!!completedMissions.length && recommendedMission && (
             <p role="status">Mission {recommendedMission} is recommended next.</p>
           )}
+          <button
+            className="secondary-button"
+            aria-label="Tutorial"
+            onClick={() => startMission(tutorialLevel)}
+          >
+            Tutorial
+          </button>
           <div className="menu-actions" aria-label="Choose mission">
             {store.hasCheckpoint() && (
               <button
@@ -1072,62 +1097,72 @@ export default function Home() {
         <span className="eyebrow">POPULOUS · THE FIRST DAWN</span>
         <h2>The world can wait.</h2>
         <p>
-          {world.outcome.level === 1
-            ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
-            : world.outcome.level === 2
-              ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
-              : world.outcome.level === 3
-                ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
-                : world.outcome.level === 4
-                  ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
-                  : world.outcome.level === 5
-                    ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
-                    : world.outcome.level === 6
-                      ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
-                      : world.outcome.level === 7
-                        ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
-                        : world.outcome.level === 8
-                          ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
-                          : world.outcome.level === 9
-                            ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
-                            : world.outcome.level === 10
-                              ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
-                              : world.outcome.level === 11
-                                ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
-                                : world.outcome.level === 12
-                                  ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
-                                  : world.outcome.level === 13
-                                    ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
-                                    : world.outcome.level === 14
-                                      ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
-                                      : world.outcome.level === 15
-                                        ? 'Free your imprisoned Shaman before the Dakini timer expires.'
-                                        : world.outcome.level === 16
-                                          ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
-                                          : world.outcome.level === 17
-                                            ? 'Claim Armageddon and survive the final arena battle against every tribe.'
-                                            : world.outcome.level === 20
-                                              ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
-                                              : world.outcome.level === 21
-                                                ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
-                                                : world.outcome.level === 22
-                                                  ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
-                                                  : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
+          {world.outcome.level === tutorialLevel
+            ? 'Leave the World View with Return, then learn to move and rotate the camera.'
+            : world.outcome.level === 1
+              ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
+              : world.outcome.level === 2
+                ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
+                : world.outcome.level === 3
+                  ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
+                  : world.outcome.level === 4
+                    ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
+                    : world.outcome.level === 5
+                      ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
+                      : world.outcome.level === 6
+                        ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
+                        : world.outcome.level === 7
+                          ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
+                          : world.outcome.level === 8
+                            ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
+                            : world.outcome.level === 9
+                              ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
+                              : world.outcome.level === 10
+                                ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
+                                : world.outcome.level === 11
+                                  ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
+                                  : world.outcome.level === 12
+                                    ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
+                                    : world.outcome.level === 13
+                                      ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
+                                      : world.outcome.level === 14
+                                        ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
+                                        : world.outcome.level === 15
+                                          ? 'Free your imprisoned Shaman before the Dakini timer expires.'
+                                          : world.outcome.level === 16
+                                            ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
+                                            : world.outcome.level === 17
+                                              ? 'Claim Armageddon and survive the final arena battle against every tribe.'
+                                              : world.outcome.level === 20
+                                                ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
+                                                : world.outcome.level === 21
+                                                  ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
+                                                  : world.outcome.level === 22
+                                                    ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
+                                                    : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
             Return to the world <span>↗</span>
           </button>
-          <button className="secondary-button" onClick={() => void saveCheckpoint()}>
-            Save checkpoint
-          </button>
-          <button
-            className="secondary-button"
-            disabled={!store.hasCheckpoint()}
-            onClick={loadCheckpoint}
-          >
-            Load checkpoint
-          </button>
+          {world.outcome.level === tutorialLevel ? (
+            <button className="secondary-button" onClick={exitTutorial}>
+              Quit to Main Menu
+            </button>
+          ) : (
+            <>
+              <button className="secondary-button" onClick={() => void saveCheckpoint()}>
+                Save checkpoint
+              </button>
+              <button
+                className="secondary-button"
+                disabled={!store.hasCheckpoint()}
+                onClick={loadCheckpoint}
+              >
+                Load checkpoint
+              </button>
+            </>
+          )}
           <button className="secondary-button" onClick={restart}>
             Restart world
           </button>

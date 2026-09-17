@@ -461,6 +461,7 @@
         "app/level-twenty-one.ts",
         "app/level-twenty-two.ts",
         "app/level-twenty-three.ts",
+        "app/level-tutorial.ts",
         "app/mission-data.ts",
         "app/original-rules.json",
         "app/person-panic.ts",
@@ -489,6 +490,7 @@
         "app/original-script-twenty-one.json",
         "app/original-script-twenty-two.json",
         "app/original-script-twenty-three.json",
+        "app/original-script-tutorial.json",
         "app/level-seventeen.ts",
         "app/armageddon.ts",
         "app/original-messages.json",
@@ -507,6 +509,8 @@
         "decomp/research/demo131-entry.md",
         "scripts/check-static-demo131-entry.py",
         "decomp/research/tutorial-entry.md",
+        "decomp/research/tutorial-first-lesson.md",
+        "decomp/generated/00492d20.c",
         "scripts/check-static-tutorial-entry.py",
         "decomp/research/mission18-sky.md",
         "scripts/check-static-mission18-sky.py",
@@ -648,6 +652,7 @@
         "scripts/check-browser-mission21.mjs",
         "scripts/check-browser-mission22.mjs",
         "scripts/check-browser-mission23.mjs",
+        "scripts/check-browser-tutorial.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
@@ -676,6 +681,7 @@
         "tests/mission21.test.mjs",
         "tests/mission22.test.mjs",
         "tests/mission23.test.mjs",
+        "tests/tutorial.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs"
@@ -739,6 +745,10 @@
         {
           "path": "decomp/research/tutorial-entry.md",
           "heading": "Reproduce the static proof"
+        },
+        {
+          "path": "decomp/research/tutorial-first-lesson.md",
+          "heading": "Native boundary"
         },
         {
           "path": "decomp/research/mission18-sky.md",
@@ -857,6 +867,7 @@
         "0x41cc20",
         "0x48c6b0",
         "0x48cc60",
+        "0x492d20",
         "0x48f350",
         "0x492b40",
         "0x499960",
@@ -989,6 +1000,8 @@
         "mission22-browser",
         "mission23-portable",
         "mission23-browser",
+        "tutorial-first-lesson-portable",
+        "tutorial-first-lesson-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"
@@ -1009,7 +1022,8 @@
         "Mission 12's later AI, objectives, victory, broader Spy detection/combat and normal cross-island sabotage transport, Balloon behavior, opcode 1190 consumer, unsupported script commands, and natural completion remain deferred.",
         "Mission 13's later AI, objectives, victory, Balloon combat/death, exact Balloon art, unsupported script commands, and natural completion remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
-        "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported."
+        "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported.",
+        "The Tutorial is delivered only through its first World View lesson; later trigger heads, lessons, completion, and exact frontend presentation remain open."
       ]
     },
     {

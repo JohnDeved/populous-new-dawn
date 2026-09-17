@@ -28,7 +28,7 @@ import { sound } from './world-effects.ts'
 import { flybyCommand } from './flyby.ts'
 import { addMessage, messageStringId } from './messages.ts'
 import { runScript, scriptValue, type PopScript } from './popscript.ts'
-import { missionData, missionScript } from './mission-data.ts'
+import { missionData, missionScript, tutorialLevel } from './mission-data.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from './building-shapes.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { buildingCounterattack } from './live-building-combat.ts'
@@ -121,6 +121,8 @@ export function campaignCommand(
       1131: 3,
       1136: 0,
       1138: 2,
+      1139: 1,
+      1143: 1,
       1151: 1,
       1169: 0,
       1170: 0,
@@ -164,6 +166,15 @@ export function campaignCommand(
     if (!Number.isInteger(index) || index < 0 || index >= 64)
       throw new RangeError('Invalid campaign query destination')
     w.ai.variables[index] = value | 0
+  }
+
+  if (opcode === 1139) {
+    writeVariable(args[0], Number(w.drawMode === 2))
+    return
+  }
+  if (opcode === 1143) {
+    if (w.outcome.level === tutorialLevel && read(args[0]) === 2) return
+    throw new RangeError('Unsupported tutorial interface record')
   }
 
   if (opcode === 1028) {
@@ -668,169 +679,179 @@ export function campaignRules(w: World) {
   const boundCampaignScript = {
     ...script,
     codes:
-      w.outcome.level === 6
-        ? tribe === 2
-          ? [
-              12,
-              1003,
-              ...script.codes.slice(636, 716),
-              ...script.codes.slice(731, 746),
-              ...script.codes.slice(787, 837),
-              ...script.codes.slice(1409, 1464),
-              1004,
-              1019,
-            ]
-          : tribe === 3
+      w.outcome.level === tutorialLevel
+        ? [
+            12,
+            1003,
+            // Original overview sample plus the stage 0→3 opening lesson.
+            ...script.codes.slice(2547, 2573),
+            ...script.codes.slice(2700, 2760),
+            1004,
+            1019,
+          ]
+        : w.outcome.level === 6
+          ? tribe === 2
             ? [
                 12,
                 1003,
-                ...script.codes.slice(352, 501),
-                ...script.codes.slice(681, 752),
-                1002,
-                1004,
-                ...script.codes.slice(1185, 1220),
+                ...script.codes.slice(636, 716),
+                ...script.codes.slice(731, 746),
+                ...script.codes.slice(787, 837),
+                ...script.codes.slice(1409, 1464),
                 1004,
                 1019,
               ]
-            : [12, 1003, 1004, 1019]
-        : w.outcome.level === 1
-          ? [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019]
-          : w.outcome.level === 2
-            ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
-            : w.outcome.level === 3
+            : tribe === 3
               ? [
                   12,
                   1003,
-                  ...script.codes.slice(308, 457),
-                  ...script.codes.slice(729, 768),
-                  ...script.codes.slice(833, 984),
+                  ...script.codes.slice(352, 501),
+                  ...script.codes.slice(681, 752),
+                  1002,
+                  1004,
+                  ...script.codes.slice(1185, 1220),
                   1004,
                   1019,
                 ]
-              : w.outcome.level === 4
+              : [12, 1003, 1004, 1019]
+          : w.outcome.level === 1
+            ? [12, 1003, ...script.codes.slice(382, 1524), 1004, 1019]
+            : w.outcome.level === 2
+              ? [12, 1003, ...script.codes.slice(251, 938), 1004, 1019]
+              : w.outcome.level === 3
                 ? [
                     12,
                     1003,
-                    ...script.codes.slice(1113, 1246),
-                    ...script.codes.slice(1425, 1654),
+                    ...script.codes.slice(308, 457),
+                    ...script.codes.slice(729, 768),
+                    ...script.codes.slice(833, 984),
                     1004,
                     1019,
                   ]
-                : w.outcome.level === 5
+                : w.outcome.level === 4
                   ? [
                       12,
                       1003,
-                      ...script.codes.slice(529, 546),
-                      ...script.codes.slice(599, 706),
-                      1004,
-                      ...script.codes.slice(707, 744),
-                      1004,
-                      ...script.codes.slice(818, 827),
-                      1004,
-                      ...script.codes.slice(992, 1085),
+                      ...script.codes.slice(1113, 1246),
+                      ...script.codes.slice(1425, 1654),
                       1004,
                       1019,
                     ]
-                  : w.outcome.level === 7
+                  : w.outcome.level === 5
                     ? [
                         12,
                         1003,
-                        ...script.codes.slice(254, 259),
-                        ...script.codes.slice(1892, 1978),
+                        ...script.codes.slice(529, 546),
+                        ...script.codes.slice(599, 706),
+                        1004,
+                        ...script.codes.slice(707, 744),
+                        1004,
+                        ...script.codes.slice(818, 827),
+                        1004,
+                        ...script.codes.slice(992, 1085),
                         1004,
                         1019,
                       ]
-                    : w.outcome.level === 10
+                    : w.outcome.level === 7
                       ? [
                           12,
                           1003,
-                          ...script.codes.slice(391, 405),
-                          ...script.codes.slice(440, 443),
-                          ...script.codes.slice(445, 528),
-                          ...script.codes.slice(528, 633),
-                          ...script.codes.slice(647, 722),
+                          ...script.codes.slice(254, 259),
+                          ...script.codes.slice(1892, 1978),
                           1004,
                           1019,
                         ]
-                      : w.outcome.level === 11 && tribe === 3
+                      : w.outcome.level === 10
                         ? [
                             12,
                             1003,
-                            // Native EVERY-255 wrapper plus only its first BUILD_AT branch.
-                            1005,
-                            70,
-                            1003,
-                            ...script.codes.slice(599, 625),
-                            // Close the two IFs, EVERY block, and bounded top-level block.
-                            1002,
-                            1004,
-                            1002,
-                            1004,
+                            ...script.codes.slice(391, 405),
+                            ...script.codes.slice(440, 443),
+                            ...script.codes.slice(445, 528),
+                            ...script.codes.slice(528, 633),
+                            ...script.codes.slice(647, 722),
                             1004,
                             1019,
                           ]
-                        : w.outcome.level === 12 && tribe === 1
+                        : w.outcome.level === 11 && tribe === 3
                           ? [
                               12,
                               1003,
-                              // Native turn-7 one-shot flyby, including its EVERY and variable-25 latch.
-                              ...script.codes.slice(1318, 1449),
+                              // Native EVERY-255 wrapper plus only its first BUILD_AT branch.
+                              1005,
+                              70,
+                              1003,
+                              ...script.codes.slice(599, 625),
+                              // Close the two IFs, EVERY block, and bounded top-level block.
+                              1002,
+                              1004,
+                              1002,
+                              1004,
                               1004,
                               1019,
                             ]
-                          : w.outcome.level === 13 && tribe === 2
+                          : w.outcome.level === 12 && tribe === 1
                             ? [
                                 12,
                                 1003,
-                                // Native turn-6 one-shot flyby, including its EVERY and variable-11 latch.
-                                ...script.codes.slice(1655, 1808),
+                                // Native turn-7 one-shot flyby, including its EVERY and variable-25 latch.
+                                ...script.codes.slice(1318, 1449),
                                 1004,
                                 1019,
                               ]
-                            : w.outcome.level === 15 && tribe === 2
+                            : w.outcome.level === 13 && tribe === 2
                               ? [
                                   12,
                                   1003,
-                                  // Native timer-expiry gate, input lock, enemy Lightning task, and flyby.
-                                  ...script.codes.slice(552, 622),
-                                  // Native EVERY-15 Prison-exists query and timer cancellation.
-                                  ...script.codes.slice(770, 789),
-                                  ...script.codes.slice(795, 800),
+                                  // Native turn-6 one-shot flyby, including its EVERY and variable-11 latch.
+                                  ...script.codes.slice(1655, 1808),
                                   1004,
                                   1019,
                                 ]
-                              : w.outcome.level === 19 && tribe === 1
+                              : w.outcome.level === 15 && tribe === 2
                                 ? [
                                     12,
                                     1003,
-                                    // Native 64-turn last-chance warning and 16-turn Chumara-loss latch.
-                                    ...script.codes.slice(316, 319),
-                                    ...script.codes.slice(401, 434),
-                                    1004,
-                                    ...script.codes.slice(584, 604),
+                                    // Native timer-expiry gate, input lock, enemy Lightning task, and flyby.
+                                    ...script.codes.slice(552, 622),
+                                    // Native EVERY-15 Prison-exists query and timer cancellation.
+                                    ...script.codes.slice(770, 789),
+                                    ...script.codes.slice(795, 800),
                                     1004,
                                     1019,
                                   ]
-                                : w.outcome.level === 19 && tribe === 2
+                                : w.outcome.level === 19 && tribe === 1
                                   ? [
                                       12,
                                       1003,
-                                      // Native Dakini-loss victory and Teleport-stock tutorial latches.
-                                      ...script.codes.slice(310, 360),
+                                      // Native 64-turn last-chance warning and 16-turn Chumara-loss latch.
+                                      ...script.codes.slice(316, 319),
+                                      ...script.codes.slice(401, 434),
+                                      1004,
+                                      ...script.codes.slice(584, 604),
                                       1004,
                                       1019,
                                     ]
-                                  : w.outcome.level === 21 && tribe === 1
+                                  : w.outcome.level === 19 && tribe === 2
                                     ? [
                                         12,
                                         1003,
-                                        // First authored fault: terrain seal check, warning, deadline, and eruption.
-                                        ...script.codes.slice(797, 957),
-                                        1004,
+                                        // Native Dakini-loss victory and Teleport-stock tutorial latches.
+                                        ...script.codes.slice(310, 360),
                                         1004,
                                         1019,
                                       ]
-                                    : [12, 1003, 1004, 1019],
+                                    : w.outcome.level === 21 && tribe === 1
+                                      ? [
+                                          12,
+                                          1003,
+                                          // First authored fault: terrain seal check, warning, deadline, and eruption.
+                                          ...script.codes.slice(797, 957),
+                                          1004,
+                                          1004,
+                                          1019,
+                                        ]
+                                      : [12, 1003, 1004, 1019],
   }
   // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
   runScript(boundCampaignScript, w.ai, {

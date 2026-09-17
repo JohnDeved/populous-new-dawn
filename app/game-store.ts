@@ -73,6 +73,7 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
 
 export function migrateCheckpoint(world: World) {
   world.outcome.level ??= 1
+  world.drawMode ??= 0
   const computerTribe = missionEnemyTribe(world.outcome.level),
     legacySingleAI = !world.campaignAIs
   world.vehicles ??= []

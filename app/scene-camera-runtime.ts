@@ -510,6 +510,7 @@ export function stepViewChange(scene: GameScene) {
       scene.viewTransition = null
       if (scene.overviewStage === 'enter') {
         scene.overviewActive = true
+        scene.world.drawMode = 2
         beginGlobeMorph(scene.globeMorph, true)
       } else scene.overviewStage = null
     }
@@ -520,6 +521,7 @@ export function stepViewChange(scene: GameScene) {
     if (!scene.globeMorph.active) {
       if (scene.overviewStage === 'exit') {
         scene.overviewActive = false
+        scene.world.drawMode = 0
         scene.startGroundView(scene.overviewReturn.preset, scene.overviewReturn.bearing)
       } else scene.overviewStage = null
     }

@@ -199,6 +199,162 @@
     "149": {
       "stringId": 1229,
       "text": "None of my followers could accompany me to this world. I am alone and I shall need all my strength and cunning to survive. "
+    },
+    "17": {
+      "stringId": 525,
+      "text": "Welcome to Populous: The Beginning. You can leave this Tutorial and return to the Main Menu by pressing the Escape key and choosing Quit to Main Menu."
+    },
+    "141": {
+      "stringId": 1221,
+      "text": "Well done. You have completed the Tutorial."
+    },
+    "49": {
+      "stringId": 566,
+      "text": "Worship this Obelisk to finish the fighting section of the tutorial."
+    },
+    "47": {
+      "stringId": 564,
+      "text": "This is a Preacher. He can convert Enemy Followers to your cause. Command your Preacher to attack the Enemy Warriors. He will stop them and use his chants to convert them to your tribe. Do not disturb your Preacher while he preaches to the Enemy."
+    },
+    "121": {
+      "stringId": 570,
+      "text": "This time, the Enemy has defeated your Preacher."
+    },
+    "48": {
+      "stringId": 565,
+      "text": "Congratulations. You have turned the Enemy Warriors into loyal Followers!"
+    },
+    "45": {
+      "stringId": 562,
+      "text": "This is a Warrior. He is much better at fighting than the Brave but he cannot build. Close by are some Enemy Braves. Command your Warrior to attack them."
+    },
+    "120": {
+      "stringId": 569,
+      "text": "This time the Enemy has defeated your Warrior."
+    },
+    "46": {
+      "stringId": 563,
+      "text": "Congratulations! You have defeated the Enemy. They are no match for your Warrior's sword!"
+    },
+    "43": {
+      "stringId": 560,
+      "text": "Congratulations, you have defeated the Enemy Brave!"
+    },
+    "44": {
+      "stringId": 561,
+      "text": "This time the Enemy has defeated your Brave."
+    },
+    "42": {
+      "stringId": 559,
+      "text": "Move your mouse pointer over your Brave and left-click to select him. Then, move your mouse pointer over the Enemy Brave and left-click to attack him."
+    },
+    "77": {
+      "stringId": 568,
+      "text": "Braves sent to a Warrior Training Hut become Warriors. Training uses Mana. Try training two Warriors."
+    },
+    "41": {
+      "stringId": 556,
+      "text": "Worship this Obelisk to finish the building section of the tutorial."
+    },
+    "119": {
+      "stringId": 557,
+      "text": "Each Hut you build increases your maximum population by three."
+    },
+    "39": {
+      "stringId": 554,
+      "text": "You haven't assigned Braves to enter your Huts. After a while, any idle Braves outside a Hut will enter it to rest without being ordered to."
+    },
+    "37": {
+      "stringId": 552,
+      "text": "When placed in Huts, Braves generate more Mana for you and breed to increase the size of your tribe. Select your Braves and left-click on the building to put them in."
+    },
+    "36": {
+      "stringId": 551,
+      "text": "Now build another Hut for your Braves to live in."
+    },
+    "40": {
+      "stringId": 555,
+      "text": "Right-click on the Hut to find out who is occupying it. Full Huts are upgraded over time, increasing their capacity to a maximum of five Followers."
+    },
+    "35": {
+      "stringId": 550,
+      "text": "You haven't assigned any Braves to build on the Plan! Nearby idle Braves will automatically build after a short while."
+    },
+    "34": {
+      "stringId": 549,
+      "text": "Now that you have placed down the Hut Plan, select your Braves and left-click on the Plan. They will start preparing the foundations and collecting wood for construction."
+    },
+    "33": {
+      "stringId": 548,
+      "text": "Move your mouse to the Buildings Panel and select the flashing Hut icon. When you move your mouse over the land, you will see that you are holding a Plan.  Move the Plan next to the other Huts and left-click to place it down. The arrow on the Plan indicates the entrance of the Hut. Rotate the Plan by pressing the Space Bar."
+    },
+    "122": {
+      "stringId": 535,
+      "text": "Now move on to the advanced tutorial. Worship at an Obelisk to go to a new section of the tutorial."
+    },
+    "31": {
+      "stringId": 540,
+      "text": "Worship this Obelisk to finish the spell casting section of the tutorial."
+    },
+    "30": {
+      "stringId": 539,
+      "text": "Congratulations! You've killed all the Braves."
+    },
+    "28": {
+      "stringId": 537,
+      "text": "You have run out of Blast spells. You'll have to wait for one to charge up again."
+    },
+    "29": {
+      "stringId": 538,
+      "text": "The last Brave is slightly out of your current spell range. However, the higher you are, the further your spells will reach. Command the Shaman to enter the Guard Tower to give you the height you need."
+    },
+    "117": {
+      "stringId": 546,
+      "text": "Select the Blast spell from the Spells Panel on the left. Move the mouse pointer over the Enemy Braves standing on the islands and left-click to blast them."
+    },
+    "116": {
+      "stringId": 545,
+      "text": "Worshipping Vaults of Knowledge will provide you with new spells and building Plans. To command the Shaman to worship the Vault of Knowledge, select her and left-click on it."
+    },
+    "115": {
+      "stringId": 544,
+      "text": "Pray at this Totem Pole to trigger a Landbridge."
+    },
+    "113": {
+      "stringId": 542,
+      "text": "Congratulations, you've destroyed the Guard Tower!"
+    },
+    "114": {
+      "stringId": 543,
+      "text": "You've received another Lightning spell."
+    },
+    "27": {
+      "stringId": 536,
+      "text": "Select the Lightning Spell from the panel on the left. Move the mouse pointer over the Enemy Guard Tower on the island and left-click to fire the spell at it. The Shaman will walk into range before casting the spell."
+    },
+    "32": {
+      "stringId": 541,
+      "text": "Stone Heads grant you temporary gifts. To command the Shaman to worship this Stone Head, select her and left-click on it."
+    },
+    "150": {
+      "stringId": 1231,
+      "text": "Worshipping Obelisks benefit you in a variety of ways. To command the Shaman to worship an Obelisk, select the Shaman and left-click on the Obelisk."
+    },
+    "61": {
+      "stringId": 567,
+      "text": "Left-click on the Shaman directly to select her, or left-click on the Shaman Box on the Control Panel. Right-click when you want to deselect her."
+    },
+    "135": {
+      "stringId": 1216,
+      "text": "Move the mouse pointer to the edge of the screen to scroll and use the Cursor Keys to rotate."
+    },
+    "137": {
+      "stringId": 1218,
+      "text": "This is the World View. Use the Cursor Keys to rotate and right-click anywhere or press Return to zoom in. You can press Return at any time to come back to the World View."
+    },
+    "38": {
+      "stringId": 553,
+      "text": "The people in this Hut are producing Mana. A full Hut breeds new Followers more quickly than an empty one.  "
     }
   }
 }

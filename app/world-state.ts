@@ -32,6 +32,7 @@ import {
   missionData,
   missionScript,
   missionSpellMask,
+  tutorialLevel,
 } from './mission-data.ts'
 import { createMissionLand } from './world-terrain-runtime.ts'
 
@@ -89,6 +90,7 @@ export function createWorldState(missionNumber = 1): World {
       missionSpellMask(missionNumber) & SPELLS.reduce((mask, spell) => mask | (1 << spell.model), 0)
   return {
     flyby: createFlyby(),
+    drawMode: missionNumber === tutorialLevel ? 2 : 0,
     inputMask: 0,
     lastMessage: -1,
     campaignTimer: null,
@@ -271,7 +273,9 @@ export function createWorldState(missionNumber = 1): World {
     paused: false,
     speed: 1,
     message:
-      missionNumber === 1
+      missionNumber === tutorialLevel
+        ? ''
+        : missionNumber === 1
         ? 'Select a brave and send them to the southern stone head to worship for Land Bridge.'
         : missionNumber === 2
           ? 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.'
@@ -298,11 +302,11 @@ export function createWorldState(missionNumber = 1): World {
                               : missionNumber === 17
                                 ? 'Find Armageddon and prepare every tribe for the final arena battle.'
                                 : missionNumber === 18
-                                  ? 'Prepare for the enemy tribes\' powerful magic and seek Armageddon.'
+                                  ? "Prepare for the enemy tribes' powerful magic and seek Armageddon."
                                   : missionNumber === 19
                                     ? 'Protect the Chumara settlement from the Dakini and seek Teleport.'
-                                  : 'Discover the Boat House and launch a vessel to cross the world.',
-    messageUntil: 18,
+                                    : 'Discover the Boat House and launch a vessel to cross the world.',
+    messageUntil: missionNumber === tutorialLevel ? 0 : 18,
     status: 'playing',
     respawn: 0,
     redRespawn: 0,
