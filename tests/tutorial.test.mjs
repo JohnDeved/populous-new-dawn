@@ -11,7 +11,7 @@ const until = (world, predicate, turns = 256) => {
   assert.ok(predicate(), `Tutorial condition timed out at turn ${world.turn}`)
 }
 
-test('Tutorial starts fresh in World View and real view state advances its first lesson', () => {
+test('Tutorial advances through World View and the canonical camera flyby', () => {
   const world = createWorld(79)
   assert.equal(level.sourceSha256, '22bd7ec9aa287245d8a41f42f40f468f06f09663304b87c8ccf75e15101068d8')
   assert.equal(level.headerSha256, '58a80720a75c6c7018e4e8e95c1e1e3d87de1038e524b8a712a1bc905a40f641')
@@ -42,6 +42,29 @@ test('Tutorial starts fresh in World View and real view state advances its first
     messageText(world.messages.slots[world.lastMessage].stringId),
     'Move the mouse pointer to the edge of the screen to scroll and use the Cursor Keys to rotate.'
   )
+  until(world, () => world.ai.variables[9] === 4)
+  assert.deepEqual(
+    {
+      stage: world.ai.variables[9],
+      inputLocked: !!(world.inputMask & 64),
+      flybyActive: !!(world.flyby.flags & 1),
+      events: world.flyby.events.map(({ kind, value, start, duration }) => ({
+        kind,
+        value,
+        start,
+        duration,
+      })),
+    },
+    {
+      stage: 4,
+      inputLocked: true,
+      flybyActive: true,
+      events: [
+        { kind: 1, value: 5334, start: 1, duration: 30 },
+        { kind: 2, value: 256, start: 1, duration: 30 },
+      ],
+    }
+  )
 })
 
 test('Tutorial restart recreates fresh script and view state', () => {
@@ -49,11 +72,18 @@ test('Tutorial restart recreates fresh script and view state', () => {
   store.startMission(79)
   const first = store.getWorld()
   first.drawMode = 0
-  until(first, () => first.ai.variables[9] === 3)
+  until(first, () => first.ai.variables[9] === 4)
+  assert.ok(first.flyby.flags & 1)
   store.restart()
   assert.notEqual(store.getWorld(), first)
   assert.deepEqual(
-    { level: store.getWorld().outcome.level, stage: store.getWorld().ai.variables[9], drawMode: store.getWorld().drawMode },
-    { level: 79, stage: 0, drawMode: 2 }
+    {
+      level: store.getWorld().outcome.level,
+      stage: store.getWorld().ai.variables[9],
+      drawMode: store.getWorld().drawMode,
+      flybyActive: !!(store.getWorld().flyby.flags & 1),
+      inputLocked: !!(store.getWorld().inputMask & 64),
+    },
+    { level: 79, stage: 0, drawMode: 2, flybyActive: false, inputLocked: false }
   )
 })

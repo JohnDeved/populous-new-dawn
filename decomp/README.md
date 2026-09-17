@@ -142,6 +142,12 @@ and the reviewed command-1143 UI-record export. It proves the bounded script and
 overview-input boundary, not the full Tutorial, raw Windows event producer, or
 native completion/result path.
 
+[The camera-controls lesson](research/tutorial-camera-lesson.md) records the
+canonical stage-3 flyby schedule through stage 4 and its existing browser
+edge-scroll/cursor-key owners. The script schedules this transition; it does not
+contain an input-success predicate. Stage 4's command 1142 and later lessons remain
+open.
+
 ## Mission 18 sky static evidence
 
 [Mission 18 sky](research/mission18-sky.md) records palette-open-gated filename selection, alternate-root policy and failed-image return paths. Reproduce the original-byte proof from a fresh checkout with Python 3.9+ and the existing Capstone 5 dependency (validated 5.0.7):

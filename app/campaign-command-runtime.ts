@@ -683,8 +683,9 @@ export function campaignRules(w: World) {
         ? [
             12,
             1003,
-            // Original overview sample plus the stage 0→3 opening lesson.
+            // Original overview sample plus the stage 0→4 opening camera lessons.
             ...script.codes.slice(2547, 2573),
+            ...script.codes.slice(2671, 2700),
             ...script.codes.slice(2700, 2760),
             1004,
             1019,

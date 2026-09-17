@@ -510,6 +510,7 @@
         "scripts/check-static-demo131-entry.py",
         "decomp/research/tutorial-entry.md",
         "decomp/research/tutorial-first-lesson.md",
+        "decomp/research/tutorial-camera-lesson.md",
         "decomp/generated/00492d20.c",
         "scripts/check-static-tutorial-entry.py",
         "decomp/research/mission18-sky.md",
@@ -749,6 +750,10 @@
         {
           "path": "decomp/research/tutorial-first-lesson.md",
           "heading": "Native boundary"
+        },
+        {
+          "path": "decomp/research/tutorial-camera-lesson.md",
+          "heading": "Canonical stage 3 to 4 boundary"
         },
         {
           "path": "decomp/research/mission18-sky.md",
@@ -1023,7 +1028,7 @@
         "Mission 13's later AI, objectives, victory, Balloon combat/death, exact Balloon art, unsupported script commands, and natural completion remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported.",
-        "The Tutorial is delivered only through its first World View lesson; later trigger heads, lessons, completion, and exact frontend presentation remain open."
+        "The Tutorial is delivered through its World View and camera-controls lessons to stage 4; Shaman selection, later trigger heads, lessons, completion, and exact frontend presentation remain open."
       ]
     },
     {
