@@ -693,7 +693,8 @@
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs",
         "decomp/research/loading-art.md",
-        "scripts/check-static-loading-art.py"
+        "scripts/check-static-loading-art.py",
+        "decomp/research/vault-side-fire.md"
       ],
       "sharedPaths": [
         "app/armageddon.ts",
@@ -881,7 +882,9 @@
         },
         {"path": "decomp/research/loading-art.md", "heading": "Reproduce from a fresh checkout"},
         {"path": "decomp/research/loading-art.md", "heading": "New caller evidence: real resource-loading entry, not a percentage"},
-        {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"}
+        {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"},
+        {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
+        {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"}
       ],
       "nativeAddresses": [
         "0x40bce0",

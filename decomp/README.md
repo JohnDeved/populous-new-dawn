@@ -5046,3 +5046,7 @@ attacks, and outcome remain open. See `research/mission23-settlement.md`.
 publishes the 130×161 original mask and bounded caller/resource-error proof.
 Reproduce with `python3 -B scripts/check-static-loading-art.py --data-root /path/to/original-game`.
 This is static evidence, not native execution or full loading-screen fidelity.
+
+## Vault side-fire evidence
+
+[Vault side-fire research](research/vault-side-fire.md) traces generic ignition, the Vault descriptor protection bit and empty original fire attachments. It separates those static exclusions from the unobserved full Mission 7 effect timeline; no decorative flame implementation is justified by this evidence.
