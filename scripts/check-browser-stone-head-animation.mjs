@@ -150,10 +150,38 @@ try {
   assert.equal(await page.evaluate(()=>window.testStore.saveCheckpoint()),true)
   const restored=await context.newPage();restored.setDefaultTimeout(20000)
   await restored.goto(url,{waitUntil:'domcontentloaded'})
+  await restored.getByRole('button',{name:'Load Game',exact:true}).waitFor({state:'attached'})
+  // The real Load Game action intentionally unpauses. Observe the actual restore
+  // boundary before that resumes simulation, rather than expecting an old phase
+  // to remain frozen while the new scene loads and presents frames.
+  await restored.evaluate(()=>{
+    const main=document.querySelector('main')
+    let fiber=main[Object.keys(main).find(k=>k.startsWith('__reactFiber'))]
+    for(;fiber;fiber=fiber.return)for(let hook=fiber.memoizedState;hook;hook=hook.next){
+      const store=hook.memoizedState
+      if(!store?.getWorld||!store?.loadCheckpoint)continue
+      const original=store.loadCheckpoint
+      store.loadCheckpoint=function(...args){
+        const result=original.apply(this,args)
+        window.restoredStoneAtLoad=structuredClone(store.getWorld().shrines.find(h=>h.kind==='bridge').stoneHead)
+        return result
+      }
+      return
+    }
+    throw Error('Existing checkpoint store not found at Load Game boundary')
+  })
   await restored.getByRole('button',{name:'Load Game',exact:true}).press('Enter')
-  await bindGame(restored)
-  const loaded=await restored.evaluate(()=>window.testScene.world.shrines.find(h=>h.kind==='bridge').stoneHead)
+  await restored.waitForFunction(()=>window.restoredStoneAtLoad)
+  const loaded=await restored.evaluate(()=>window.restoredStoneAtLoad)
   assert.deepEqual(loaded,checkpointState)
+  await bindGame(restored)
+  const resumed=await restored.evaluate(async()=>{
+    const {stoneHeadFrame}=await import('/app/stone-head-animation.ts'),s=window.testScene
+    s.world.paused=true;s.animate(s.previous);cancelAnimationFrame(s.frame)
+    const h=s.world.shrines.find(h=>h.kind==='bridge')
+    return{actual:s.shrineMeshes.get(h.id).g.children[0].userData.stoneHeadFrame,expected:stoneHeadFrame(h.stoneHead)}
+  })
+  assert.equal(resumed.actual,resumed.expected)
   await restored.close()
   report.stages.push({newPageCheckpointPhasePreserved:true})
   report.exhaustion=await page.evaluate(async()=>{
