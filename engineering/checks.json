@@ -2458,6 +2458,112 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission18-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 18 rewards, Red's authored patrol, and bank-g sky fallback against hash-verified native data.",
+      "coveredBehavior": [
+        "Mission 18 script and landscape-bank selection",
+        "Armageddon and both Volcano reward links",
+        "Red marker 1-to-2 patrol setup and turn-zero allocation",
+        "Missing-backdrop type-1 sky fallback and exact 4x4 RGB average"
+      ],
+      "knownLimits": [
+        "The native check byte-verifies the authored script and data rather than running a complete game process.",
+        "Device rasterization, non-lens view configuration, recurring command 1074, and later Mission 18 AI remain open."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission18.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission18.py",
+        "decomp/research/mission18.md",
+        "decomp/generated/0042a140.c",
+        "decomp/generated/004306d0.c",
+        "decomp/generated/004b5f40.c",
+        "public/original/sky-g.png"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 18 level and data files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 18 authored setup, rewards, Red patrol, Armageddon arena results, and checkpoint preservation.",
+      "coveredBehavior": [
+        "Mission 18 level, scripts, tribes, opening, and objective",
+        "Armageddon and both Volcano worship rewards",
+        "Authored Red marker patrol through live AI guard orders",
+        "Armageddon arena checkpoint plus generic victory and defeat teardown"
+      ],
+      "knownLimits": [
+        "Result counterexamples remove one side after arena battle orders begin to bound runtime.",
+        "Later recurring AI, exact Shaman spell choices, camera interpolation, and audio remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission18.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission18.test.mjs",
+        "app/armageddon.ts",
+        "app/campaign-command-runtime.ts",
+        "app/computer-runtime.ts",
+        "app/level-eighteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-eighteen.json",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 18 selection, bank-g sky, opening, authored worship rewards, and HUD stock through the shipped browser path.",
+      "coveredBehavior": [
+        "Mission 18 chooser, objective, and original opening message",
+        "One opaque bank-g lens with no backdrop or second cloud layer",
+        "Rendered bank-g sky pixels",
+        "Live worship for Armageddon and both Volcano rewards plus HUD stock"
+      ],
+      "knownLimits": [
+        "The focused browser check accelerates worship after followers enter their native slots.",
+        "The portable check owns Red patrol, Armageddon arena, checkpoint, and both result directions."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission18.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission18.mjs",
+        "scripts/browser-game.mjs",
+        "app/level-eighteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-assets.ts",
+        "app/scene-camera-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "public/original/sky-g.png"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

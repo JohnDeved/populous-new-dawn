@@ -44,7 +44,13 @@ export function loadTexture(kind: string) {
   t.wrapT = THREE.RepeatWrapping
   t.wrapS = THREE.RepeatWrapping
   t.anisotropy = 8
-  if (kind === 'atlas' || kind === 'sky' || kind === 'clouds' || kind === 'clouds-high') {
+  if (
+    kind === 'atlas' ||
+    kind === 'sky' ||
+    kind === 'sky-g' ||
+    kind === 'clouds' ||
+    kind === 'clouds-high'
+  ) {
     // 0x47cc60 / 0x47d6f0: ordinary smoothed textures use bilinear
     // filtering of encoded palette colors, without mipmaps or anisotropy.
     t.colorSpace = THREE.NoColorSpace

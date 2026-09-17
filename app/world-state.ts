@@ -295,7 +295,9 @@ export function createWorldState(missionNumber = 1): World {
                               ? 'Find Bloodlust in the desert and use its fighting frenzy against your enemies.'
                               : missionNumber === 17
                                 ? 'Find Armageddon and prepare every tribe for the final arena battle.'
-                                : 'Discover the Boat House and launch a vessel to cross the world.',
+                                : missionNumber === 18
+                                  ? 'Prepare for the enemy tribes\' powerful magic and seek Armageddon.'
+                                  : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: 18,
     status: 'playing',
     respawn: 0,

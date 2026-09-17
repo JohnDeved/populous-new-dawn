@@ -4875,3 +4875,14 @@ recurring controller, modal input, and teardown. The browser port reuses the
 existing terrain, state-39, melee, generic outcome, and checkpoint owners. Exact
 Shaman automatic spell choices, camera interpolation, and HFX/audio remain open;
 see `research/mission17-armageddon.md`.
+
+## 2026-09-17 — Mission 18 authored patrol and bank-g sky
+
+`check-native-mission18.py EXE` verifies the three authored rewards, Red's
+turn-zero 7-Warrior/3-Firewarrior/1-Preacher marker patrol, bank-16 `g` filename
+selection, missing-backdrop type-1 fallback, and exact 4×4 RGB sky average. The
+browser reuses the live marker-order and Armageddon owners and binds the fallback
+as one opaque projected lens layer. Recurring command 1074, the unreachable Green
+attacks, non-lens view configuration, device rasterization, and exact presentation
+remain open; see `research/mission18.md`. New registered exports are `0042a140`,
+`004306d0`, and `004b5f40`.

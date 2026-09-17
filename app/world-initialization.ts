@@ -281,7 +281,7 @@ export function createWorld(missionNumber = 1): World {
               1204,
               ...(missionNumber === 15 ? [1174, 1187, 1200] : []),
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
-              ...([4, 10, 11, 12, 13, 17].includes(missionNumber) ? [1174, 1187] : []),
+              ...([4, 10, 11, 12, 13, 17, 18].includes(missionNumber) ? [1174, 1187] : []),
             ].includes(c.opcode)
           )
             return true

@@ -282,6 +282,8 @@
         "app/terrain-notifications.ts",
         "app/terrain-texture.ts",
         "app/terrain-visibility.ts",
+        "app/scene-assets.ts",
+        "app/scene-camera-runtime.ts",
         "app/scene-terrain-runtime.ts",
         "app/viewport-bounds.ts"
       ],
@@ -316,10 +318,18 @@
           "heading": "Painter geometry work on the Mac GPU"
         },
         { "path": "references/modern-performance.md", "heading": "Batch terrain notifications" },
-        { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" }
+        { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" },
+        { "path": "decomp/research/mission18.md", "heading": "Bank-g sky" }
       ],
-      "nativeAddresses": ["0x44df40", "0x44e940", "0x4f9380"],
-      "checkIds": ["terrain-portable", "terrain-native", "terrain-browser", "performance-profile"],
+      "nativeAddresses": ["0x4306d0", "0x44df40", "0x44e940", "0x4f9380", "0x4b5f40"],
+      "checkIds": [
+        "terrain-portable",
+        "terrain-native",
+        "terrain-browser",
+        "mission18-native",
+        "mission18-browser",
+        "performance-profile"
+      ],
       "generatedInputIds": ["native-fixtures", "performance-records"],
       "risks": [
         "Renderer batching, terrain mutation, picking, GPU identity, shared capture paths, and performance noise require separate evidence."
@@ -354,6 +364,7 @@
         "app/level-fourteen.ts",
         "app/level-fifteen.ts",
         "app/level-sixteen.ts",
+        "app/level-eighteen.ts",
         "app/mission-data.ts",
         "app/original-rules.json",
         "app/person-panic.ts",
@@ -376,6 +387,7 @@
         "app/original-script-fifteen.json",
         "app/original-script-sixteen.json",
         "app/original-script-seventeen.json",
+        "app/original-script-eighteen.json",
         "app/level-seventeen.ts",
         "app/armageddon.ts",
         "app/original-messages.json",
@@ -436,6 +448,10 @@
         "decomp/research/mission15-prison.md",
         "decomp/research/mission16-bloodlust.md",
         "decomp/research/mission17-armageddon.md",
+        "decomp/research/mission18.md",
+        "decomp/generated/0042a140.c",
+        "decomp/generated/004306d0.c",
+        "decomp/generated/004b5f40.c",
         "decomp/generated/00477060.c",
         "decomp/generated/004772e0.c",
         "decomp/generated/00477780.c",
@@ -485,6 +501,7 @@
         "scripts/check-native-mission15-prison.py",
         "scripts/check-native-mission16-bloodlust.py",
         "scripts/check-native-mission17-armageddon.py",
+        "scripts/check-native-mission18.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -495,6 +512,7 @@
         "scripts/check-browser-mission15-prison.mjs",
         "scripts/check-browser-mission16-bloodlust.mjs",
         "scripts/check-browser-mission17-armageddon.mjs",
+        "scripts/check-browser-mission18.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
@@ -517,6 +535,7 @@
         "tests/mission15-prison.test.mjs",
         "tests/mission16-bloodlust.test.mjs",
         "tests/mission17-armageddon.test.mjs",
+        "tests/mission18.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs"
@@ -625,6 +644,10 @@
         {
           "path": "decomp/research/mission17-armageddon.md",
           "heading": "Arena owner"
+        },
+        {
+          "path": "decomp/research/mission18.md",
+          "heading": "Authored gameplay"
         },
         {
           "path": "references/reverse-engineering.md",
@@ -737,6 +760,7 @@
         "mission15-prison-native",
         "mission16-bloodlust-native",
         "mission17-armageddon-native",
+        "mission18-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -753,6 +777,8 @@
         "mission16-bloodlust-browser",
         "mission17-armageddon-portable",
         "mission17-armageddon-browser",
+        "mission18-portable",
+        "mission18-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"

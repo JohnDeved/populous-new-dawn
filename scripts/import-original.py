@@ -338,6 +338,15 @@ def main():
         png(output/({'bigf0-c.dat':'land-colours','disp0-c.dat':'land-detail','watdisp.dat':'water-detail'}[name]+'.png'),w,h,rgba)
     for src,dst in [('dsky0-c1.png','clouds.png'),('dsky0-c2.png','clouds-high.png'),('dsky0-cb.png','sky.png')]:
         data=read('data/d3d/'+src);(output/dst).write_bytes(data)
+    sky_g=read('data/sky0-g.dat');palette_g=read('data/pal0-g.dat')
+    assert len(sky_g)==512*512 and len(palette_g)==1024
+    # 0x4306d0 averages each 4x4 RGB block before 004b60d0 creates the 128px type-1 texture.
+    sky_g_rgba=bytearray()
+    for y in range(128):
+        for x in range(128):
+            colors=[palette_g[sky_g[(y*4+dy)*512+x*4+dx]*4:][:3] for dy in range(4) for dx in range(4)]
+            sky_g_rgba.extend(sum(color[channel] for color in colors)>>4 for channel in range(3));sky_g_rgba.append(255)
+    png(output/'sky-g.png',128,128,sky_g_rgba)
     lens=read('data/skylens.dat');assert len(lens)==81*26*8
     (project/'app/original-skylens.json').write_text(json.dumps(list(struct.unpack('<4212i',lens)),separators=(',',':'))+'\n')
     terrain=[read('data/'+name) for name in ['pal0-c.dat','bigf0-c.dat','cliff0-c.dat','disp0-c.dat','fade0-c.dat']]

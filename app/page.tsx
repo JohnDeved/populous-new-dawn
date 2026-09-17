@@ -1045,7 +1045,9 @@ export default function Home() {
                                         ? 'Free your imprisoned Shaman before the Dakini timer expires.'
                                         : world.outcome.level === 16
                                           ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
-                                          : 'Claim Armageddon and survive the final arena battle against every tribe.'}
+                                          : world.outcome.level === 17
+                                            ? 'Claim Armageddon and survive the final arena battle against every tribe.'
+                                            : 'Prepare for the enemy tribes\' powerful magic and seek Armageddon.'}
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>

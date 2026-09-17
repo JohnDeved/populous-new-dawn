@@ -30,8 +30,10 @@ import {
 } from './camera-view.ts'
 import { stepGlobeMotion } from './globe.ts'
 import { teamForTribe, type TribeTeam } from './world-types.ts'
+import { missionData } from './mission-data.ts'
 
 export function makeSky(scene: GameScene) {
+  const typeOne = missionData(scene.world.outcome.level).level.landscapeBank === 16
   // Native sky commands precede land and receive a farther depth (0x47c7e0).
   // Draw before other transparent objects, with opaque land still occluding it.
   scene.skyFlash.renderOrder = -10000
@@ -44,6 +46,8 @@ export function makeSky(scene: GameScene) {
   scene.skyBackdrop.userData.nativeIgnore = true
   scene.scene.add(scene.skyBackdrop)
   for (const [i, name] of ['clouds', 'clouds-high'].entries()) {
+    // Bank g has no backdrop: 00517630 draws only one opaque 256-size type-1 lens.
+    const opaque = typeOne && i === 0
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(31 * 3), 3))
     geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(31 * 2), 2))
@@ -51,13 +55,13 @@ export function makeSky(scene: GameScene) {
     const mesh = new THREE.Mesh(
       geo,
       new THREE.ShaderMaterial({
-        uniforms: { map: { value: texture(name) } },
+        uniforms: { map: { value: texture(opaque ? 'sky-g' : name) } },
         vertexShader:
           'attribute float fade; varying vec2 cloudUV; varying float cloudAlpha; void main(){cloudUV=vec2(uv.x,1.-uv.y);cloudAlpha=fade;gl_Position=vec4(position.xy,1.,1.);}',
         fragmentShader: `uniform sampler2D map; varying vec2 cloudUV; varying float cloudAlpha;
-        void main(){gl_FragColor=texture2D(map,cloudUV);gl_FragColor.a*=cloudAlpha;
+        void main(){gl_FragColor=texture2D(map,cloudUV);${opaque ? 'gl_FragColor.rgb*=cloudAlpha;' : 'gl_FragColor.a*=cloudAlpha;'}
         }`,
-        transparent: true,
+        transparent: !opaque,
         depthWrite: false,
         depthTest: true,
         toneMapped: false,
@@ -87,6 +91,7 @@ export function commitSky(
 }
 
 export function updateSky(scene: GameScene) {
+  const typeOne = missionData(scene.world.outcome.level).level.landscapeBank === 16
   const camera = {
     x: (scene.viewPoint.x + 8) * 256,
     y: (-scene.viewPoint.z - 8) * 256,
@@ -108,10 +113,10 @@ export function updateSky(scene: GameScene) {
   // Keep the native horizon/UV scale. Wide views can expose space below it;
   // extend the backdrop edge color there without stretching clouds or terrain.
   const horizon = scene.view.config.horizon
-  scene.skyBackdrop.visible = !scene.overviewActive
+  scene.skyBackdrop.visible = !scene.overviewActive && !typeOne
   scene.skyBackdrop.material.uniforms.height.value = horizon / height
   for (const [i, mesh] of scene.skyClouds.entries()) {
-    mesh.visible = scene.skyBackdrop.visible && horizon > 0
+    mesh.visible = !scene.overviewActive && horizon > 0 && (!typeOne || i === 0)
     if (!mesh.visible) continue
     // ponytail: the browser battlefield is the render surface. Its HUD is
     // outside that surface, so include the original optional left strip.
@@ -122,7 +127,7 @@ export function updateSky(scene: GameScene) {
       height,
       horizon,
       i ? 192 : 256,
-      true,
+      !typeOne,
       true,
       true,
       true
@@ -131,7 +136,7 @@ export function updateSky(scene: GameScene) {
     layer.vertices.forEach((v, j) => {
       position.setXYZ(j, (v.x * 2) / width - 1, 1 - (v.y * 2) / height, 1)
       uv.setXY(j, v.u, v.v)
-      fade.setX(j, (v.color >>> 24) / 255)
+      fade.setX(j, ((typeOne ? v.color : v.color >>> 24) & 255) / 255)
     })
     fade.needsUpdate = true
     uv.needsUpdate = true

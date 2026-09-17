@@ -26,6 +26,11 @@ in the native arena, existing combat reaches victory or defeat, control is resto
 and in-progress phases survive checkpoints. Later Mission 17 AI and exact Shaman
 auto-spell, camera, and audio presentation remain separate work.
 
+Mission 18's authored tribes and opening, exact bank-g sky, Armageddon and both
+Volcano rewards, first authored Red marker patrol, both Armageddon result directions,
+and in-arena checkpoint continuity finished in the current feature commit. Recurring
+command 1074 and later Mission 18 AI remain separate work.
+
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
 cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173
 prerequisite. Later Mission 14 AI remains separate until its command/read cycles are
