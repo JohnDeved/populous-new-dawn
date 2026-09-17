@@ -31,6 +31,13 @@ Volcano rewards, first authored Red marker patrol, both Armageddon result direct
 and in-arena checkpoint continuity finished in the current feature commit. Recurring
 command 1074 and later Mission 18 AI remain separate work.
 
+Mission 19's Mission 18→19 continuation, authored bank-d sky and
+Firestorm/Volcano/Teleport rewards, delayed Shaman Teleport with checkpoint
+continuity, last-chance Chumara warning, Chumara-loss defeat, and Dakini-loss
+victory finished in the current feature commit. Native evidence requires self-only
+combat masks, not a generic Blue-Chumara alliance. Warning messages 127/128 and
+later Mission 19 AI remain separate until their producers are recovered.
+
 Mission 14's linked Earthquake/Land Bridge rewards and generic Angel acquisition,
 cast, combat, and checkpoint path finished in `99bf314` after the bounded opcode 1173
 prerequisite. Later Mission 14 AI remains separate until its command/read cycles are

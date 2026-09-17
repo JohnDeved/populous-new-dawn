@@ -19,7 +19,7 @@ import {
   short,
   spiralCell,
 } from './native-math.ts'
-import { objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import { moveObjectInCells, objectsInCell, removeObjectFromCell } from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
@@ -47,7 +47,12 @@ import {
   type Unit,
   type World,
 } from './world-types.ts'
-import { buildingFirePoints, buildingModel, buildingPose } from './building-shapes.ts'
+import {
+  buildingFirePoints,
+  buildingModel,
+  buildingOutsidePoint,
+  buildingPose,
+} from './building-shapes.ts'
 import { ensureBuildingDamage, igniteBuilding } from './building-damage.ts'
 import { createBlastWave, stepBlastWave, type BlastTarget, type BlastWave } from './blast-wave.ts'
 import { terrainPointHeight } from './native-terrain.ts'
@@ -66,8 +71,14 @@ import { createTornado } from './tornado.ts'
 import { createSwamp, excessSwamp, stepSwamp, type Swamp, type SwampTarget } from './swamp.ts'
 import { tell } from './live-command.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
-import { damageLiveVehicle } from './live-vehicles.ts'
+import {
+  boardLiveVehicle,
+  damageLiveVehicle,
+  leaveLiveVehicle,
+  liveVehicleCellObjects,
+} from './live-vehicles.ts'
 import { startArmageddon } from './armageddon.ts'
+import { setDirectPersonDestination } from './person-routes.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
@@ -955,6 +966,93 @@ export function stepGhostArmy(w: World, fx: Effect) {
   }
 }
 
+// 0x515180: model-21 moves the owning tribe's Shaman when its height-banded
+// effect visit arrives. It is not a generic person teleport.
+export function stepTeleport(w: World, fx: Effect) {
+  const teleport = fx.teleport!,
+    visit = ++teleport.visits,
+    height = (teleport.target.h << 16) >> 16,
+    relocationVisit =
+      height > 0x333
+        ? 8
+        : height > 0x267
+          ? 9
+          : height > 0x19b
+            ? 10
+            : height > 0xcf
+              ? 11
+              : height >= 0
+                ? 12
+                : Infinity
+  if (visit === 1) {
+    const visual = effect(w, 'trail', fx)
+    visual.sprite = { sequence: 'sparkle', frame: 0 }
+    visual.duration = 12 / TURNS_PER_SECOND
+  }
+  if (visit !== relocationVisit) return true
+  const shaman = w.units.find(
+    unit => unit.team === fx.team && unit.kind === 'shaman' && unit.hp > 0
+  )
+  if (!shaman) return false
+  const origin = nativePosition(w, shaman),
+    baseX = origin.x & 0xfe00,
+    baseY = origin.y & 0xfe00
+  for (let index = 0; index < 81; index++) {
+    const position = {
+      x: (baseX + (random(w) & 511)) & 65535,
+      y: (baseY + (random(w) & 511)) & 65535,
+      h: 0,
+    }
+    position.h = terrainPointHeight(w.land, position)
+    emitGroundSpark(w, position)
+  }
+  const person = unitAnimationSource(shaman) ?? shaman.native ?? createLivePerson(w, shaman)
+  if (person.vehicle) {
+    const vehicle = w.vehicles.find(candidate => candidate.id === person.vehicle)
+    if (vehicle) leaveLiveVehicle(w, vehicle, person, origin)
+  }
+  release(w, shaman)
+  shaman.flight = undefined
+  shaman.native = person
+  let target = teleport.target,
+    cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
+  if (w.land.flags[cell] & 512) {
+    const building = w.buildings.find(
+      candidate => candidate.id === (w.land.buildingIds[cell] & 1023)
+    )
+    if (building) {
+      const outside = buildingOutsidePoint(buildingPose(building))
+      target = { ...outside, h: terrainPointHeight(w.land, outside) }
+    }
+  }
+  target = {
+    x: (target.x & 0xfe00) + 0x100,
+    y: (target.y & 0xfe00) + 0x100,
+    h: terrainPointHeight(w.land, target),
+  }
+  registerLivePerson(w, person)
+  moveObjectInCells(w.objectCells, person, target)
+  Object.assign(person, {
+    anchorX: target.x,
+    anchorY: target.y,
+    speed: 0,
+    previousState: person.state,
+    state: w.manaWorld.levelFlags & 2 ? 39 : rules.personModels[7].nextState,
+  })
+  setDirectPersonDestination(w.motionRoutes, person, target)
+  person.flags2 = (person.flags2 | 0x1080) >>> 0
+  Object.assign(shaman, browserPosition(target))
+  const vehicle = liveVehicleCellObjects(w, ((target.x >>> 8) & 254) | (target.y & 0xfe00)).find(
+    candidate =>
+      !candidate.passengerCount ||
+      candidate.passengers.some(
+        id => w.units.find(unit => unit.id === id)?.team === shaman.team
+      )
+  )
+  if (vehicle) boardLiveVehicle(w, person, vehicle)
+  return false
+}
+
 function finishCast(
   w: World,
   shaman: Pick<Unit, 'id' | 'team' | 'x' | 'z'>,
@@ -965,6 +1063,15 @@ function finishCast(
   if (spell === 'angel') {
     createAngel(w, shaman.team, p)
     if (shaman.team === 'blue') tell(w, 'Angel of Death! The world bends to your will.')
+    return
+  }
+  if (spell === 'teleport') {
+    const fx = effect(w, spell, p),
+      target = nativePosition(w, p)
+    fx.team = shaman.team
+    fx.teleport = { visits: 0, target }
+    fx.duration = Infinity
+    fx.height = target.h / 45
     return
   }
   // Effect 78 uses the default wave initializer, then enables scatter.

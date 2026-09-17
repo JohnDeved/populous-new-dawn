@@ -86,6 +86,7 @@ export type Spell =
   | 'invisibility'
   | 'armageddon'
   | 'bloodlust'
+  | 'teleport'
   | 'swarm'
 export type Point = { x: number; z: number }
 export type Fight = {
@@ -332,6 +333,7 @@ export type Effect = Point & {
   armageddon?: Armageddon
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
+  teleport?: { visits: number; target: NativePoint }
   reincarnation?: { team: Team; phase: number; ground: number }
   firewarriorShot?: {
     source: number

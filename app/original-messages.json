@@ -159,6 +159,26 @@
     "5": {
       "stringId": 699,
       "text": "The Dakini are the mightiest of the three tribes we must face. I fear that if they are not stopped they will unleash a terrible magic upon us."
+    },
+    "6": {
+      "stringId": 701,
+      "text": "The Dakini have grown too powerful on this world. I am suspicious of allying my tribe with the Chumara, but I must protect their settlement and prevent the Dakini from destroying us all."
+    },
+    "12": {
+      "stringId": 702,
+      "text": "Use Teleport to move instantly to any location on the world."
+    },
+    "127": {
+      "stringId": 703,
+      "text": "Your allies' defences have been breached. They are under attack!"
+    },
+    "128": {
+      "stringId": 704,
+      "text": "Your allies are losing their battle against the Dakini. They are desperate for your help."
+    },
+    "129": {
+      "stringId": 705,
+      "text": "The Chumara have given up all hope of survival. This is your last chance to save them."
     }
   }
 }

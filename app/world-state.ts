@@ -118,6 +118,7 @@ export function createWorldState(missionNumber = 1): World {
       invisibility: 0,
       armageddon: 0,
       bloodlust: 0,
+      teleport: 0,
       swarm: 0,
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
@@ -231,6 +232,7 @@ export function createWorldState(missionNumber = 1): World {
       invisibility: 0,
       armageddon: 0,
       bloodlust: 0,
+      teleport: 0,
       swarm: 0,
     },
     charging: true,
@@ -297,6 +299,8 @@ export function createWorldState(missionNumber = 1): World {
                                 ? 'Find Armageddon and prepare every tribe for the final arena battle.'
                                 : missionNumber === 18
                                   ? 'Prepare for the enemy tribes\' powerful magic and seek Armageddon.'
+                                  : missionNumber === 19
+                                    ? 'Protect the Chumara settlement from the Dakini and seek Teleport.'
                                   : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: 18,
     status: 'playing',

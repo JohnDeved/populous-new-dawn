@@ -345,6 +345,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           invisibility: 0x7a,
           armageddon: 0x86,
           bloodlust: 0x88,
+          teleport: 0x89,
           swarm: 0x79,
         }
       : {
@@ -366,6 +367,7 @@ function castVoice(w: World, u: Unit, spell: Spell) {
           invisibility: 0x90,
           armageddon: 0x9c,
           bloodlust: 0x9e,
+          teleport: 0x9f,
           swarm: 0x8f,
         })[spell],
     u

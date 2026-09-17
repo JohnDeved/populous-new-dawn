@@ -73,6 +73,7 @@ import {
   stepLiveConvertWild,
   stepLiveSwamp,
   stepSwarm,
+  stepTeleport,
   stepUnitHypnotise,
   stepUnitInvisibility,
   stepUnitBloodlust,
@@ -584,6 +585,7 @@ function stepTurn(w: World) {
       }
     }
     if (fx.ghostArmy) stepGhostArmy(w, fx)
+    if (fx.teleport && !stepTeleport(w, fx)) fx.duration = fx.age
     if (fx.wave && !stepLiveBlastWave(w, fx.wave)) fx.duration = fx.age
     if (fx.debris && !stepDebrisEffect(w, fx, w)) fx.duration = fx.age
     if (fx.sinking) {

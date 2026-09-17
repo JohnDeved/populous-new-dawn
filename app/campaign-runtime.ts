@@ -208,6 +208,7 @@ export function campaignInternal(w: World, id: number) {
   if (id >= 1184 && id <= 1199) return id - 1183
   if (id === 1243) return 19
   if (id === 1244) return 17
+  if (id === 1245) return 21
   if (id === 1223) return 0 // 0x48f350: no-specific-building selector.
   if (id === 1236) return 10 - w.ai.tasks.filter(task => task.flags & 1).length
   if (id === 1200) return 18 // INT_M_KNOWLEDGE, preceding the person constants.

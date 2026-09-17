@@ -45,6 +45,7 @@ Recent reusable topic notes: [Firewarrior launch, tower combat and open boundari
 [Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
 [Mission 15 Prison rescue and timed failure](research/mission15-prison.md),
 [Mission 16 Bloodlust acquisition and status](research/mission16-bloodlust.md),
+[Mission 19 Teleport and Chumara-protection objective](research/mission19.md),
 [vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
@@ -69,6 +70,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `0048cc60`, `0048f350`, `0041ca10`, `0041cc20`, `004a5d20`, `004a5d40`, `004a5ec0` | `app/model.ts`, `scripts/import-script.py` | First-mission initialization, bounded [Mission 3 recurring flyby](research/mission3-recurring.md), [Mission 4 objective](research/mission4.md), [Mission 7 opening](research/mission7.md), and both [Mission 10 Totem/flyby transitions](research/mission10-opening.md) are applied; full game-command host and Mission 10 loss/endgame branches remain open |
 | `0040c3a0`, `00492b40`, `00499960`, `004a5d20`, `004a5eb0`, `004a5ec0`, `004a5ee0`, `004e2770`, `004f6a10` | `app/campaign-command-runtime.ts`, `app/live-building-combat.ts`, `app/live-people.ts` | [Mission 15 Prison rescue and timed failure](research/mission15-prison.md) covers the captive Shaman, ordinary follower damage, Prison release, 450-second timer, global Prison predicate, and enemy Lightning loss; exact debris/audio and later mission AI remain open |
 | `00515650`, `00515690`, `005156b0`, `005156f0`, `00515e30` | `app/spell-effects-runtime.ts`, `app/combat-runtime.ts`, `app/firewarrior.ts`, `app/scene-entities.ts` | [Mission 16 Bloodlust](research/mission16-bloodlust.md) covers linked acquisition, exact six-follower selection, status lifetime, Shield coexistence, combat and Firewarrior modifiers, movement initialization, and expiry feedback; original HFX artwork and AI casting policy remain open |
+| `00515180`, `0049a1c0`, `0049a1f0`, `00516d70`, `00516e10`, `00516eb0` | `app/spell-effects-runtime.ts`, `app/campaign-command-runtime.ts`, `scripts/check-native-mission19.py` | [Mission 19 Teleport and Chumara protection](research/mission19.md) covers height-banded relocation, Shaman/container reset, objective warning and result ownership, and proves self-only combat masks; warning 127/128 reachability remains deferred until internal 1178's producer is recovered |
 | `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts`, `app/scene.ts` | Worship, automatic reward initialization/visual lifetime and delayed gifts CPU-compared; competitive ownership and generic pickup incomplete |
 | `00463370`, `00463780`, `00463e80`, `004641d0`, `004657d0`, `004659d0`, `00466190`, `00465c50`, `00465ea0`, `00466be0`, `00466f00`, `00406600`, `0040b6d0`, `00465580` | `app/live-vehicles.ts`, `app/live-pathfinding.ts`, `app/world-turn.ts`, `app/scene-entities.ts` | [Mission 5 granted Boat](research/mission5-boat.md) is live through worship, boarding, sailing, landing and checkpoints; [Mission 9 Boat House](research/mission9-boat-house.md) adds the native first-production gate and launch transform; [Mission 13 Balloon transport](research/mission13-balloon.md) adds recurring production, boarding, airborne movement, landing and occupied checkpoint reload; [vehicle destruction](research/vehicle-destruction.md) adds shipped 5000 life, damage gates, sinking/rising, and alive passenger ejection; exact art, audio, complete steering, and downstream terrain-dependent passenger fate remain open |
@@ -4886,3 +4888,14 @@ as one opaque projected lens layer. Recurring command 1074, the unreachable Gree
 attacks, non-lens view configuration, device rasterization, and exact presentation
 remain open; see `research/mission18.md`. New registered exports are `0042a140`,
 `004306d0`, and `004b5f40`.
+
+## 2026-09-17 — Mission 19 Teleport and Chumara protection
+
+`check-native-mission19.py EXE` verifies the authored Firestorm, Volcano, and
+Teleport rewards, Red's last-chance warning and forced loss, Yellow's forced win
+and Teleport tutorial, exact bank-d inputs, and the strict height boundaries in
+the original model-21 effect handler. The browser port keeps native self-only
+combat masks and reuses the ordinary worship, stock, Shaman, vehicle, result, and
+checkpoint owners. Warning messages 127/128, later Mission 19 AI, and exact
+presentation remain open; see `research/mission19.md`. New registered exports are
+`00515180`, `0049a1c0`, `0049a1f0`, `00516d70`, `00516e10`, and `00516eb0`.

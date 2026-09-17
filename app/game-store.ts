@@ -170,6 +170,8 @@ export function migrateCheckpoint(world: World) {
   world.giftCounts.invisibility ??= 0
   world.shots.bloodlust ??= 0
   world.giftCounts.bloodlust ??= 0
+  world.shots.teleport ??= 0
+  world.giftCounts.teleport ??= 0
   world.shots.armageddon ??= 0
   world.giftCounts.armageddon ??= 0
   world.shots.volcano ??= 0

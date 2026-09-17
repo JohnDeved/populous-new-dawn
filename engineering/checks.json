@@ -2564,6 +2564,125 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission19-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 19 rewards, objective script, bank-d inputs, and Teleport timing against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Mission 19 script and landscape-bank selection",
+        "Firestorm, Volcano, and Teleport reward links",
+        "Last-chance Chumara warning, forced loss, forced win, and Teleport tutorial script blocks",
+        "Strict height-banded Teleport relocation visits",
+        "Exact imported bank-d input and output identity"
+      ],
+      "knownLimits": [
+        "Only allocator and retirement leaves are intercepted in the executable Teleport timing probe.",
+        "Warning 127/128 reachability, audiovisual presentation, and later Mission 19 AI remain open."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission19.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission19.py",
+        "decomp/research/mission19.md",
+        "decomp/generated/0049a1c0.c",
+        "decomp/generated/0049a1f0.c",
+        "decomp/generated/00515180.c",
+        "decomp/generated/00516d70.c",
+        "decomp/generated/00516e10.c",
+        "decomp/generated/00516eb0.c",
+        "public/original/sky-d.png",
+        "public/original/clouds-d.png",
+        "public/original/clouds-high-d.png"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 19 level and data files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 19 authored setup, worship rewards, Teleport relocation/checkpoint, warning, and objective results.",
+      "coveredBehavior": [
+        "Mission 19 level, scripts, tribes, opening, self-only combat masks, and rewards",
+        "Rejected and accepted Teleport stock plus delayed deterministic relocation",
+        "Mid-Teleport checkpoint continuation",
+        "One-shot last-chance warning, forced victory, forced loss, and simultaneous-loss priority"
+      ],
+      "knownLimits": [
+        "Focused objective cases place the script clock at its native cadence before changing the relevant population state.",
+        "Warning 127/128, later AI, exact rendering, and audio remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission19.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "tests/mission19.test.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/game-store.ts",
+        "app/level-nineteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/original-script-nineteen.json",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "app/world-turn.ts"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 18-to-19 continuation, bank-d sky, opening, Teleport worship/HUD cast, and last-chance warning through the shipped browser path.",
+      "coveredBehavior": [
+        "Mission 19 chooser, Mission 18 continuation, objective, and original opening message",
+        "Rendered bank-d backdrop and both cloud layers",
+        "Live Teleport worship through selection and battlefield input",
+        "HUD Teleport targeting, stock consumption, Shaman relocation, and warning presentation"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at their native slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation and all objective result directions."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission19.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission19.mjs",
+        "scripts/browser-game.mjs",
+        "app/campaign-command-runtime.ts",
+        "app/level-nineteen.ts",
+        "app/mission-data.ts",
+        "app/original-messages.json",
+        "app/page.tsx",
+        "app/scene-assets.ts",
+        "app/scene-camera-runtime.ts",
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-state.ts",
+        "public/original/sky-d.png",
+        "public/original/clouds-d.png",
+        "public/original/clouds-high-d.png"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

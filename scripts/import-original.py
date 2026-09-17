@@ -336,8 +336,9 @@ def main():
         data=read('data/'+name);assert len(data)==w*h
         rgba=b''.join((bytes([(v+128)%256]*3) if gray else palette[v*4:v*4+3])+b'\xff' for v in data)
         png(output/({'bigf0-c.dat':'land-colours','disp0-c.dat':'land-detail','watdisp.dat':'water-detail'}[name]+'.png'),w,h,rgba)
-    for src,dst in [('dsky0-c1.png','clouds.png'),('dsky0-c2.png','clouds-high.png'),('dsky0-cb.png','sky.png')]:
-        data=read('data/d3d/'+src);(output/dst).write_bytes(data)
+    for sky_bank,suffix in [('c',''),('d','-d')]:
+        for layer,dst in [('1','clouds'),('2','clouds-high'),('b','sky')]:
+            data=read(f'data/d3d/dsky0-{sky_bank}{layer}.png');(output/f'{dst}{suffix}.png').write_bytes(data)
     sky_g=read('data/sky0-g.dat');palette_g=read('data/pal0-g.dat')
     assert len(sky_g)==512*512 and len(palette_g)==1024
     # 0x4306d0 averages each 4x4 RGB block before 004b60d0 creates the 128px type-1 texture.

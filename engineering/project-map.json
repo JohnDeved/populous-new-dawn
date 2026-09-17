@@ -319,7 +319,8 @@
         },
         { "path": "references/modern-performance.md", "heading": "Batch terrain notifications" },
         { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" },
-        { "path": "decomp/research/mission18.md", "heading": "Bank-g sky" }
+        { "path": "decomp/research/mission18.md", "heading": "Bank-g sky" },
+        { "path": "decomp/research/mission19.md", "heading": "Bank-d authored sky inputs" }
       ],
       "nativeAddresses": ["0x4306d0", "0x44df40", "0x44e940", "0x4f9380", "0x4b5f40"],
       "checkIds": [
@@ -328,6 +329,8 @@
         "terrain-browser",
         "mission18-native",
         "mission18-browser",
+        "mission19-native",
+        "mission19-browser",
         "performance-profile"
       ],
       "generatedInputIds": ["native-fixtures", "performance-records"],
@@ -365,6 +368,7 @@
         "app/level-fifteen.ts",
         "app/level-sixteen.ts",
         "app/level-eighteen.ts",
+        "app/level-nineteen.ts",
         "app/mission-data.ts",
         "app/original-rules.json",
         "app/person-panic.ts",
@@ -388,6 +392,7 @@
         "app/original-script-sixteen.json",
         "app/original-script-seventeen.json",
         "app/original-script-eighteen.json",
+        "app/original-script-nineteen.json",
         "app/level-seventeen.ts",
         "app/armageddon.ts",
         "app/original-messages.json",
@@ -449,9 +454,16 @@
         "decomp/research/mission16-bloodlust.md",
         "decomp/research/mission17-armageddon.md",
         "decomp/research/mission18.md",
+        "decomp/research/mission19.md",
         "decomp/generated/0042a140.c",
         "decomp/generated/004306d0.c",
         "decomp/generated/004b5f40.c",
+        "decomp/generated/0049a1c0.c",
+        "decomp/generated/0049a1f0.c",
+        "decomp/generated/00515180.c",
+        "decomp/generated/00516d70.c",
+        "decomp/generated/00516e10.c",
+        "decomp/generated/00516eb0.c",
         "decomp/generated/00477060.c",
         "decomp/generated/004772e0.c",
         "decomp/generated/00477780.c",
@@ -502,6 +514,7 @@
         "scripts/check-native-mission16-bloodlust.py",
         "scripts/check-native-mission17-armageddon.py",
         "scripts/check-native-mission18.py",
+        "scripts/check-native-mission19.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-tower.py",
@@ -513,6 +526,7 @@
         "scripts/check-browser-mission16-bloodlust.mjs",
         "scripts/check-browser-mission17-armageddon.mjs",
         "scripts/check-browser-mission18.mjs",
+        "scripts/check-browser-mission19.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
@@ -536,6 +550,7 @@
         "tests/mission16-bloodlust.test.mjs",
         "tests/mission17-armageddon.test.mjs",
         "tests/mission18.test.mjs",
+        "tests/mission19.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs"
@@ -650,6 +665,10 @@
           "heading": "Authored gameplay"
         },
         {
+          "path": "decomp/research/mission19.md",
+          "heading": "Teleport model 21"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -721,6 +740,12 @@
         "0x5156b0",
         "0x5156f0",
         "0x515e30",
+        "0x515180",
+        "0x49a1c0",
+        "0x49a1f0",
+        "0x516d70",
+        "0x516e10",
+        "0x516eb0",
         "0x477060",
         "0x4772e0",
         "0x477780",
@@ -761,6 +786,7 @@
         "mission16-bloodlust-native",
         "mission17-armageddon-native",
         "mission18-native",
+        "mission19-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -779,6 +805,8 @@
         "mission17-armageddon-browser",
         "mission18-portable",
         "mission18-browser",
+        "mission19-portable",
+        "mission19-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"
@@ -823,6 +851,8 @@
         "mission4-browser",
         "mission8-browser",
         "mission9-browser",
+        "mission19-portable",
+        "mission19-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"

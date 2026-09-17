@@ -122,6 +122,7 @@ export function campaignCommand(
       1138: 2,
       1151: 1,
       1169: 0,
+      1170: 0,
       1171: 2,
       1172: 1,
       1173: 2,
@@ -522,6 +523,10 @@ export function campaignCommand(
     w.castingTribes[w.manaWorld.playerTribe].flags |= 0x20000
     return
   }
+  if (opcode === 1170) {
+    w.castingTribes[w.manaWorld.playerTribe].flags |= 0x40000
+    return
+  }
 
   if (opcode === 1112) {
     if (!(w.manaWorld.levelFlags & 0x1000000)) {
@@ -784,6 +789,27 @@ export function campaignRules(w: World) {
                                   1004,
                                   1019,
                                 ]
+                              : w.outcome.level === 19 && tribe === 1
+                                ? [
+                                    12,
+                                    1003,
+                                    // Native 64-turn last-chance warning and 16-turn Chumara-loss latch.
+                                    ...script.codes.slice(316, 319),
+                                    ...script.codes.slice(401, 434),
+                                    1004,
+                                    ...script.codes.slice(584, 604),
+                                    1004,
+                                    1019,
+                                  ]
+                                : w.outcome.level === 19 && tribe === 2
+                                  ? [
+                                      12,
+                                      1003,
+                                      // Native Dakini-loss victory and Teleport-stock tutorial latches.
+                                      ...script.codes.slice(310, 360),
+                                      1004,
+                                      1019,
+                                    ]
                               : [12, 1003, 1004, 1019],
   }
   // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.

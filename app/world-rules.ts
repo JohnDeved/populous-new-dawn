@@ -207,6 +207,16 @@ export const SPELLS: {
     description: 'Drives up to six nearby followers into a powerful fighting frenzy.',
   },
   {
+    id: 'teleport',
+    model: 21,
+    name: 'Teleport',
+    cost: 999999,
+    key: '',
+    symbol: '◈',
+    color: '#d8b7ff',
+    description: 'Moves the Shaman instantly to the chosen destination.',
+  },
+  {
     id: 'swarm',
     model: 5,
     name: 'Swarm',

@@ -46,10 +46,8 @@ export function loadTexture(kind: string) {
   t.anisotropy = 8
   if (
     kind === 'atlas' ||
-    kind === 'sky' ||
-    kind === 'sky-g' ||
-    kind === 'clouds' ||
-    kind === 'clouds-high'
+    kind.startsWith('sky') ||
+    kind.startsWith('clouds')
   ) {
     // 0x47cc60 / 0x47d6f0: ordinary smoothed textures use bilinear
     // filtering of encoded palette colors, without mipmaps or anisotropy.
