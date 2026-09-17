@@ -174,6 +174,7 @@ def main():
           'levels/levl2079.hdr':'58a80720a75c6c7018e4e8e95c1e1e3d87de1038e524b8a712a1bc905a40f641',
           'levels/cpscr057.dat':'cdb5d7abd327933ac22e7824aebae70a60faa504049d05d8ff32dedc730d3603',
           'language/lang00.dat':'e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d',
+          'levels/cpatr057.dat':'6f17daf7484583dcef9b5d3a3e7a61ad5037ded27ca2a04a7fb770ab7f5d52c7',
         }
         records=[]
         for name,digest in expected.items():
@@ -183,7 +184,7 @@ def main():
         equal(header[56:88].split(b'\0')[0],b'TUTORIAL','authored header label')
         equal('CPSCR%03d.DAT'%header[89],'CPSCR057.DAT','selected script path')
         script=(a.data_root/'levels/cpscr057.dat').read_bytes();equal(len(script),12552,'script buffer length');equal(struct.unpack_from('<H',script)[0],12,'supplied VM version12')
-        attributes=(a.data_root/'levels/cpatr057.dat').read_bytes();equal(len(attributes),144,'selected CPATR057 exists with144 bytes');records.append({'path':'levels/cpatr057.dat','bytes':len(attributes),'sha256':sha(attributes),'hashScope':'first measured in this focused run; no previous expected hash asserted'})
+        attributes=(a.data_root/'levels/cpatr057.dat').read_bytes();equal(len(attributes),144,'selected CPATR057 exists with144 bytes')
         language=(a.data_root/'language/lang00.dat').read_bytes().decode('utf-16le').split('\0')
         equal(language[299],'Tutorial','actual localized descriptor text');equal(language[235],'Yes','secondary callback descriptor label, not a proved confirmation flow')
         inputs={'status':'PASS_TUTORIAL_INPUT_IDENTITIES','files':records,'header':{'tribes':2,'selectedScripts':[57],'landscape':header[96],'objectBank':header[97]},'label299':language[299],'limits':'Host readable original bytes; no original process file-open, input or script execution was observed.'}
