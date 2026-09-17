@@ -1,9 +1,11 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
-Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only]
+Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only]
 --units-only appends Shaman families to the existing unit atlas and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
+--training-huts-only appends meshes 98/100/101/102/105 and provenance modelIds,
+retaining every existing model, texture and unrelated asset.
 Native layout evidence and remaining renderer differences: references/native-assets.md.
 Only Python's standard library is needed. Format/geometry checks run on every import.
 """
@@ -248,6 +250,34 @@ def append_shaman_units(source, project):
           f"{len(units['pieces']) - len(old_pieces)} pieces; atlas {width}x{height}; "
           "old frame/piece indices and animation clocks preserved.")
 
+def decode_original_model(objects, faces, points, i):
+    """Decode one original OBJS/FACS/PNTS record without writing any asset."""
+    _, nf, np, _, _, _, scale, sf, _, sp, _, *_ = struct.unpack_from('<Hhhbbii4I6h4b3h',objects,i*54)
+    assert nf>0 and np>0 and scale>0 and sf>0 and sp>0
+    p, uv, order, face_stages, tiles, normals, modes, biases = [], [], [], [], [], [], [], []
+    for face in range(sf-1,sf+nf-1):
+        # Keep mode-zero faces: collapse allocates them and consumes RNG too.
+        modes.append(faces[face*60+7])
+        biases.append(-struct.unpack_from("<b",objects,i*54+6)[0]-struct.unpack_from("<b",faces,face*60+58)[0])
+        _, tile, _, n, _ = struct.unpack_from('<hhHBb',faces,face*60)
+        assert n in (3,4) and 0<=tile<256
+        face_stages.extend([n, faces[face*60+59]]) # 0x471c40: visibility/cap bits, not texture-size byte +7.
+        tiles.append(tile)
+        flags = struct.unpack_from('<H', faces, face*60+4)[0]
+        normals.append([-1]*4 if flags & 1 else list(struct.unpack_from('<4h', faces, face*60+48)))
+        texcoords = struct.unpack_from('<8i',faces,face*60+8)
+        indices = struct.unpack_from('<4h',faces,face*60+40)
+        for k in ([0,1,2] if n==3 else [0,1,2,0,2,3]):
+            order.append(indices[k])
+            index = sp+indices[k]-1; assert 0<=index<len(points)//6
+            x,y,z=struct.unpack_from('<3h',points,index*6)
+            # The level importer reverses map Z: geometry must use the same handedness.
+            p.extend(round(v/(scale*3),6) for v in (x,y,-z))
+            uv.extend([round((tile%8+texcoords[k*2]/0x200000)/8,7),round(1-(tile//8+texcoords[k*2+1]/0x200000)/32,7)])
+    assert len(p)//3 == len(uv)//2 and len(p)%9 == 0
+    decoded = {'p':p,'uv':uv,'scale':scale,'faces':face_stages,'tiles':tiles,'normals':normals,'modes':modes,'biases':biases,'panelHeight':int(struct.unpack_from('<h',objects,i*54+40)[0]/2)}
+    return decoded, (scale, order)
+
 def append_vehicle_models(source, project):
     """Import only original class-4 mesh IDs 143/144; keep all previous assets.
 
@@ -314,8 +344,48 @@ def append_vehicle_models(source, project):
     provenance_path.write_text(json.dumps(provenance, indent=2) + '\n')
     print('Imported original Boat 143 and Balloon 144; all prior models and atlas bytes retained.')
 
+def append_training_hut_models(source, project):
+    """Append only the five absent original tribe-specific training meshes.
+
+    0040b170 chooses a distinct object for each owner. The original points and
+    textures differ from Blue; neither a fallback mesh nor recoloring is valid.
+    """
+    selected = (98, 100, 101, 102, 105)
+    models_path = project / 'app/original-models.json'
+    provenance_path = project / 'public/original/provenance.json'
+    models = json.loads(models_path.read_text())
+    provenance = json.loads(provenance_path.read_text())
+    if provenance['objectBank'] != 2:
+        raise ValueError('Training-hut append requires the reviewed bank-2 baseline')
+    raw = []
+    for kind in ('objs', 'facs', 'pnts'):
+        name = f'objects/{kind}0-2.dat'
+        data = (source / name).read_bytes()
+        if hashlib.sha256(data).hexdigest() != provenance['sha256'][name]:
+            raise ValueError('Original training-hut input hash mismatch: ' + name)
+        raw.append(data)
+    if any(len(data) % stride for data, stride in zip(raw, (54, 60, 6))):
+        raise ValueError('Invalid original training-hut record sizes')
+    additions = {str(model): decode_original_model(*raw, model)[0] for model in selected}
+    for key, decoded in additions.items():
+        if key in models and models[key] != decoded:
+            raise ValueError('Refusing to overwrite a differing existing training mesh: ' + key)
+    models.update(additions)
+    for model in selected:
+        if model not in provenance['modelIds']:
+            provenance['modelIds'].append(model)
+    models_path.write_text(json.dumps(models, separators=(',', ':')))
+    provenance_path.write_text(json.dumps(provenance, indent=2) + '\n')
+    print('Appended original training-hut meshes 98, 100, 101, 102, 105; previous models and atlas retained.')
+
+
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]
+    if '--training-huts-only' in sys.argv[2:]:
+        if sys.argv[2:] != ['--training-huts-only']:
+            raise ValueError('Usage: import-original.py GAME_ROOT --training-huts-only')
+        append_training_hut_models(source, project)
+        return
     if '--vehicles-only' in sys.argv[2:]:
         if sys.argv[2:] != ['--vehicles-only']:
             raise ValueError('Usage: import-original.py GAME_ROOT --vehicles-only')
@@ -345,38 +415,14 @@ def main():
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
     # Models actually used in this mission, including every hut family, upgrade and all four tribe colors.
-    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,*range(83,87),*range(91,98),99,103,104,106,*range(107,143)]
+    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,*range(83,87),*range(91,107),*range(107,143)]
     animation_tiles = read('data/anibl0-0.dat')
     assert len(animation_tiles) == 500
     fire = animation_tiles[20:40] # ANIBL record 1, consumed by 0x4f0f60.
     assert 0 < fire[17] <= 12
     (project/'app/original-fire.json').write_text(json.dumps(dict(model=5,tile=fire[16],frames=list(fire[4:4+fire[17]])),indent=2)+'\n')
     for i in selected:
-        _, nf, np, _, _, _, scale, sf, _, sp, _, *_ = struct.unpack_from('<Hhhbbii4I6h4b3h',objects,i*54)
-        assert nf>0 and np>0 and scale>0 and sf>0 and sp>0
-        p, uv, order, face_stages, tiles, normals, modes, biases = [], [], [], [], [], [], [], []
-        for face in range(sf-1,sf+nf-1):
-            # Keep mode-zero faces: collapse allocates them and consumes RNG too.
-            modes.append(faces[face*60+7])
-            biases.append(-struct.unpack_from("<b",objects,i*54+6)[0]-struct.unpack_from("<b",faces,face*60+58)[0])
-            _, tile, _, n, _ = struct.unpack_from('<hhHBb',faces,face*60)
-            assert n in (3,4) and 0<=tile<256
-            face_stages.extend([n, faces[face*60+59]]) # 0x471c40: visibility/cap bits, not texture-size byte +7.
-            tiles.append(tile)
-            flags = struct.unpack_from('<H', faces, face*60+4)[0]
-            normals.append([-1]*4 if flags & 1 else list(struct.unpack_from('<4h', faces, face*60+48)))
-            texcoords = struct.unpack_from('<8i',faces,face*60+8)
-            indices = struct.unpack_from('<4h',faces,face*60+40)
-            for k in ([0,1,2] if n==3 else [0,1,2,0,2,3]):
-                order.append(indices[k])
-                index = sp+indices[k]-1; assert 0<=index<len(points)//6
-                x,y,z=struct.unpack_from('<3h',points,index*6)
-                # The level importer reverses map Z: geometry must use the same handedness.
-                p.extend(round(v/(scale*3),6) for v in (x,y,-z))
-                uv.extend([round((tile%8+texcoords[k*2]/0x200000)/8,7),round(1-(tile//8+texcoords[k*2+1]/0x200000)/32,7)])
-        assert len(p)//3 == len(uv)//2 and len(p)%9 == 0
-        models[i] = {'p':p,'uv':uv,'scale':scale,'faces':face_stages,'tiles':tiles,'normals':normals,'modes':modes,'biases':biases,'panelHeight':int(struct.unpack_from('<h',objects,i*54+40)[0]/2)}
-        topology[i] = (scale, order)
+        models[i], topology[i] = decode_original_model(objects, faces, points, i)
     assert all(topology[i] == topology[152] for i in (153,154,155)), 'Vault morph topology differs'
     (project/'app/original-models.json').write_text(json.dumps(models,separators=(',',':')))
     bank = sprites(read('data/hspr0-0.dat'),palette); assert len(bank)==7953
