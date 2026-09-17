@@ -9,6 +9,7 @@ import { currentPersonOrder } from '../app/person-orders.ts'
 import { buildingQueuePoint } from '../app/building-shapes.ts'
 import { prepareMovementOrder } from '../app/person-orders.ts'
 import { advanceGame } from '../app/game-clock.ts'
+import { migrateCheckpoint } from '../app/game-store.ts'
 import sprites from '../app/original-units.json' with { type: 'json' }
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { unitSpeed } from '../app/world-rules.ts'
@@ -88,6 +89,46 @@ test('queue cancellation retains successors and occupant departure reuses the fi
   until(w, () => b.admission.inside === 5)
   assert.equal(b.admission.occupants[1], before[0])
   for (const i of [0, 2, 3, 4, 5]) assert.equal(b.admission.occupants[i], original[i])
+})
+
+test('checkpoint reload preserves a full training hut and its waiting queue without loss', () => {
+  const { w, b, people } = scenario(1)
+  const expected = people.map(person => person.id).sort((a, b) => a - b)
+  const exact = ids => {
+    assert.equal(new Set(ids).size, expected.length)
+    assert.deepEqual(ids.slice().sort((a, b) => a - b), expected)
+  }
+  until(
+    w,
+    () =>
+      b.admission?.inside === 5 &&
+      queue(w, b).length === 3 &&
+      people.every(u => !u.entry?.person.speed)
+  )
+  exact([...b.admission.occupants.filter(Boolean), ...queue(w, b)])
+  const restored = migrateCheckpoint(structuredClone(w))
+  const resume = world => {
+    const school = world.buildings.find(building => building.id === b.id),
+      leaving = world.units.find(unit => unit.id === school.admission.occupants[2])
+    exact([...school.admission.occupants.filter(Boolean), ...queue(world, school)])
+    world.selected = [leaving.id]
+    command(world, { x: 8, z: 30 })
+    until(world, () => school.admission.inside === 5 && queue(world, school).length === 2)
+    return {
+      occupants: school.admission.occupants.filter(Boolean),
+      queue: queue(world, school),
+      leaving: leaving.id,
+      people: world.units
+        .filter(unit => people.some(person => person.id === unit.id))
+        .map(unit => unit.id)
+        .sort((a, b) => a - b),
+    }
+  }
+  const restoredResult = resume(restored),
+    sourceResult = resume(w)
+  assert.deepEqual(restoredResult, sourceResult)
+  exact([...restoredResult.occupants, ...restoredResult.queue, restoredResult.leaving])
+  assert.deepEqual(restoredResult.people, expected)
 })
 
 test('funded training replaces a complete batch, releases references and walks warriors out', () => {

@@ -581,6 +581,12 @@ queue handoff. Command comparisons execute native geometry, queue, speed/RNG, st
 and facing logic; path requests, animation output, cargo, occupant
 entry and inside work remain supplied world consumers. These are engine
 reconstructions, not proof of live browser pathfinding or training arrival.
+The four training models all retain capacity five. Native evidence serializes only
+waiting-list head release with the 16-turn `entryDelay`; direct entrants and the
+separate `entering` counter may overlap up to capacity, and conversion scans the
+five-slot batch. Issue #29 therefore does not justify a one-person capacity or
+doorway mutex. Exact full-native rendered co-location of direct entrants remains
+outside these controller comparisons.
 
 ## Original building footprint geometry
 

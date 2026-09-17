@@ -1147,6 +1147,19 @@ continued reconstruction. Live world adapters, pathfinding, occupancy, order
 advancement and the original mission's training block remain unfinished. This
 checkpoint does not enable an approximate training AI in their place.
 
+Issue #29's reported one-person limit is not an admission, occupancy, or training
+rule in the recovered original controller.
+Models 5–8 each have capacity five. Direct arrivals may overlap up to that capacity;
+only a stopped waiting-list head is released toward the doorway when `entryDelay`
+is zero, after which `00434610` writes the native 16-building-turn delay. The
+separate `entering` counter also remains capacity-bounded, while `00407150` fills
+the five occupant slots and `00405b80` converts their aggregate training weight as
+a batch. This distinguishes serialized queue-head release from one total occupant,
+one active trainee, or a strict no-overlap doorway mutex. Player and computer
+orders share this command-8 path in the live game; no capacity-one repair is valid.
+Exact full-native rendered co-location and movement timing for simultaneous direct
+entrants remain unverified and must not be inferred from these controller checks.
+
 ## Original footprint masks, entrances and queue geometry
 
 `app/building-shapes.ts` reconstructs the shape consumers `00404420`,
