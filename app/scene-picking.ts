@@ -28,6 +28,8 @@ export class ScenePicking {
   lastKey = ''
   lastId: number | null = null
   lastKind: 'person' | 'model' | null = null
+  groundKey = ''
+  groundHits = new Map<string, ReturnType<GameScene['view']['pickCandidates']>>()
   constructor(readonly scene: GameScene) {}
 
   model(mesh: THREE.Mesh, viewKey: string) {
@@ -198,17 +200,37 @@ export class ScenePicking {
           if (c.kind === 'model' && inHitTriangle(point, c.points)) hits.push({ ...c, source })
       })
     if (hits.some(h => h.kind !== 'bounds')) {
-      // Reuse projected vertices, but resolve depth from this frame's commands:
-      // building occupancy can change ground ordering even while paused.
-      const terrain = view.pick(
-        new THREE.Vector2((point.x * 2) / rect.width - 1, 1 - (point.y * 2) / rect.height),
-        [s.terrain],
-        s.camera,
-        true
-      )
-      const source =
-        terrain && view.painter.command(terrain.object, terrain.triangle, terrain.instance)
-      // The terrain query already performed the native pixel-edge test.
+      // The terrain triangle depends on view/display/land geometry, not the current
+      // person/model painter stream. Cache only that geometric hit; resolve its
+      // painter command every visit so occupancy and animated object ordering stay live.
+      const groundKey = [
+        viewKey,
+        rect.width,
+        rect.height,
+        view.pickSubmissionKey([s.terrain]),
+      ].join(',')
+      if (groundKey !== this.groundKey) {
+        this.groundKey = groundKey
+        this.groundHits.clear()
+      }
+      const pixelKey = `${point.x},${point.y}`
+      let candidates = this.groundHits.get(pixelKey)
+      if (!candidates) {
+        candidates = view.pickCandidates(
+          new THREE.Vector2((point.x * 2) / rect.width - 1, 1 - (point.y * 2) / rect.height),
+          [s.terrain],
+          s.camera,
+          true
+        )
+        // Pointer motion can visit many pixels; keep a small locality cache rather
+        // than retaining an unbounded screen-sized map.
+        if (this.groundHits.size >= 64) this.groundHits.delete(this.groundHits.keys().next().value!)
+        this.groundHits.set(pixelKey, candidates)
+      }
+      const terrain = view.resolvePickCandidates(candidates),
+        source = terrain && view.painter.command(terrain.object, terrain.triangle, terrain.instance)
+      // The cached candidates already performed the native pixel-edge test. Resolve
+      // painter depth and command ownership on every visit so footprint ordering stays live.
       if (source)
         hits.push({
           kind: 'ground',
