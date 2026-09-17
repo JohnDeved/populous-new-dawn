@@ -1050,15 +1050,11 @@ export default function Home() {
       )}
       {startup === 'playing' && (!ready || error) && (
         <div className="loading-world" role="status">
-          <span className="loading-rune">⟡</span>
-          <h2>{error ? 'The world could not awaken' : 'A world is awakening'}</h2>
-          <p>
-            {error
-              ? 'The battlefield did not finish loading. Retry the same request when you are ready.'
-              : 'Raising the earth. Gathering your people.'}
-          </p>
-          {error && (
+          {error ? (
             <>
+              <span className="loading-rune">⟡</span>
+              <h2>The world could not awaken</h2>
+              <p>The battlefield did not finish loading. Retry the same request when you are ready.</p>
               <details>
                 <summary>Technical details</summary>
                 {error}
@@ -1067,6 +1063,11 @@ export default function Home() {
                 Try again
               </button>
             </>
+          ) : (
+            <div className="loading-original-art">
+              <span className="loading-original-label">Loading...</span>
+              <img src="/original/loading-mask.png" width={130} height={161} alt="" />
+            </div>
           )}
         </div>
       )}
