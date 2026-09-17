@@ -18,6 +18,7 @@ import {
 } from './model'
 import { ObjectPanels } from './object-panels.ts'
 import pointerPalette from './original-pointer.json' with { type: 'json' }
+import nativeUnits from './original-units.json'
 import { ProjectileMotion } from './projectile-motion.ts'
 import { loadTexture, releaseGroup, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
@@ -326,13 +327,24 @@ export class GameScene {
       alpha: true,
       powerPreference: 'high-performance',
     })
-    // Upload shared UI/effect atlases before the scene becomes interactive. A failed optional
-    // atlas remains the existing graceful-degradation path; readiness still waits for the real
-    // load attempt instead of inventing a timer.
-    const preload = ['effects', 'unit-health'].map(name => {
+    // Upload shared textures before the scene becomes interactive. Effects/health retain their
+    // existing optional degradation; the building/model and person atlases are required for a
+    // playable world and therefore reject readiness on a real load failure.
+    const preload = (
+      [
+        ['effects', false],
+        ['unit-health', false],
+        ['atlas', true],
+        [nativeUnits.atlas, true],
+      ] as const
+    ).map(([name, required]) => {
       const asset = loadTexture(name)
       return asset.ready.then(loaded => {
-        if (loaded && !this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
+        if (!loaded) {
+          if (required) throw new Error(`Required scene texture failed to load: ${name}`)
+          return
+        }
+        if (!this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
       })
     })
     this.renderer.shadowMap.enabled = false

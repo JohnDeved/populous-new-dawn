@@ -145,6 +145,139 @@ async function assertPendingFrozen(page, expectedLevel, holdMs = 1200) {
   return before
 }
 
+const REQUIRED_TEXTURES = ['atlas.png', 'unit-layers.png']
+const SHARED_PRELOAD_TEXTURES = REQUIRED_TEXTURES
+
+async function installTextureControl(page) {
+  const counts = new Map(SHARED_PRELOAD_TEXTURES.map(name => [name, 0]))
+  let activeHold = null
+  await page.route('**/original/**', async route => {
+    const pathname = new URL(route.request().url()).pathname,
+      name = pathname.slice(pathname.lastIndexOf('/') + 1)
+    if (counts.has(name)) counts.set(name, counts.get(name) + 1)
+    const hold = activeHold
+    if (hold?.names.has(name)) {
+      hold.count++
+      hold.matched.push(name)
+      const action = await hold.gate
+      try {
+        if (action === 'fail') await route.abort('failed')
+        else await route.continue()
+      } catch {}
+      return
+    }
+    try { await route.continue() } catch {}
+  })
+  return {
+    hold(names) {
+      assert.equal(activeHold, null, 'texture hold already active')
+      let settle
+      const hold = {
+        names: new Set(names),
+        matched: [],
+        count: 0,
+        gate: new Promise(resolve => { settle = resolve }),
+        release: () => {
+          if (activeHold === hold) activeHold = null
+          settle('continue')
+        },
+        fail: () => {
+          if (activeHold === hold) activeHold = null
+          settle('fail')
+        },
+      }
+      activeHold = hold
+      return hold
+    },
+    count(name) { return counts.get(name) ?? 0 },
+    snapshot() { return Object.fromEntries(counts) },
+  }
+}
+
+async function runRequiredTextureRetryCase(browser, target) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } }),
+    page = await context.newPage(),
+    control = await installTextureControl(page),
+    other = REQUIRED_TEXTURES.find(name => name !== target)
+  await page.goto(url, { waitUntil: 'networkidle' })
+  let hold = control.hold([target])
+  await selectMission(page, 1)
+  await waitForCount(() => hold.count, 1)
+  const delayed = await assertPendingFrozen(page, 1)
+  assert.equal(control.count(target), 1)
+  assert.equal(control.count(other), 1)
+  hold.fail()
+  await page.getByRole('heading', { name: 'The world could not awaken' }).waitFor()
+  await bindStoreOnly(page)
+  assert.equal(await page.evaluate(() => globalThis.loadingTestStore.getWorld().outcome.level), 1)
+
+  // Retry on the same page must replace only the completed failed entry. The other essential
+  // atlas stays shared and must not issue another request.
+  const beforeRetry = control.snapshot()
+  hold = control.hold([target])
+  await page.getByRole('button', { name: 'Try again' }).click()
+  await waitForCount(() => hold.count, 1)
+  assert.equal(control.count(target), beforeRetry[target] + 1)
+  for (const name of SHARED_PRELOAD_TEXTURES.filter(name => name !== target))
+    assert.equal(control.count(name), beforeRetry[name], { target, name, beforeRetry, now: control.snapshot() })
+  const retried = await assertPendingFrozen(page, 1, 300)
+  await finishHeldLoad(page, hold, retried, 1)
+  await skipIntroduction(page)
+
+  // A successful retry is now warm: a same-page scene replacement reuses both essential
+  // atlas cache entries without touching the network again.
+  const warmCounts = control.snapshot()
+  await page.getByRole('button', { name: 'Game settings' }).click()
+  await page.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await page.locator('.loading-world').waitFor({ state: 'detached' })
+  await bindGame(page)
+  assert.deepEqual(control.snapshot(), warmCounts, { target, warmCounts, now: control.snapshot() })
+  await context.close()
+  return { target, delayedTurn: delayed.turn, counts: warmCounts }
+}
+
+async function runPendingTextureReplacementCase(browser) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } }),
+    page = await context.newPage(),
+    control = await installTextureControl(page)
+  await page.goto(url, { waitUntil: 'networkidle' })
+  const hold = control.hold(REQUIRED_TEXTURES)
+  await selectMission(page, 1)
+  await waitForCount(() => hold.count, 2)
+  await assertPendingFrozen(page, 1, 300)
+  await bindInternals(page)
+  await page.evaluate(() => { globalThis.staleAtlasScene = globalThis.loadingTestScene })
+
+  // Replacing the world aborts/disposes the stale scene, but the replacement must share the
+  // same pending global atlas entries instead of cancelling or duplicating them.
+  await page.evaluate(() => globalThis.loadingTestStore.startMission(2))
+  await page.waitForFunction(() =>
+    globalThis.loadingTestSceneRef?.current &&
+    globalThis.loadingTestSceneRef.current !== globalThis.staleAtlasScene
+  )
+  const replacement = await snapshot(page)
+  assert.equal(replacement.level, 2)
+  assert.equal(replacement.scene.started, false)
+  assert.equal(control.count('atlas.png'), 1)
+  assert.equal(control.count('unit-layers.png'), 1)
+  hold.release()
+  await page.locator('.loading-world').waitFor({ state: 'detached' })
+  await bindGame(page)
+  assert.equal(await page.evaluate(() => globalThis.testStore.getWorld().outcome.level), 2)
+  assert.deepEqual(
+    await page.evaluate(() => ({
+      started: globalThis.staleAtlasScene.started,
+      disposed: globalThis.staleAtlasScene.disposed,
+      aborted: globalThis.staleAtlasScene.terrainLoad.signal.aborted,
+      frame: globalThis.staleAtlasScene.frame,
+    })),
+    { started: false, disposed: true, aborted: true, frame: 0 }
+  )
+  assert.equal(control.count('atlas.png'), 1)
+  assert.equal(control.count('unit-layers.png'), 1)
+  await context.close()
+}
+
 async function finishHeldLoad(page, hold, frozen, expectedLevel) {
   const releasedAt = Date.now()
   hold.release()
@@ -361,8 +494,12 @@ try {
 
   assert.deepEqual(pageErrors, [])
   await context.close()
+
+  for (const target of REQUIRED_TEXTURES) await runRequiredTextureRetryCase(browser, target)
+  await runPendingTextureReplacementCase(browser)
+
   console.log(
-    'PASS: delayed loading freezes simulation/RNG/flyby/camera and blocks camera/HUD/minimap input; activation has no catch-up, restart/Continue/checkpoint lifecycle works, stale loads never start, and mission/checkpoint retries preserve request identity'
+    'PASS: loading freezes simulation/RNG/flyby/camera and blocks input; activation has no catch-up; restart/Continue/checkpoint/stale lifecycle works; atlas and unit-layers each gate readiness, retry failed cache entries on the same page, stay warm after success, and share pending loads across stale-scene replacement'
   )
 } finally {
   await browser.close()

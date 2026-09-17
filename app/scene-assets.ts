@@ -9,17 +9,34 @@ import { lightningTexture } from './lightning.ts'
 export const nativeModels: Record<number, NativeModel> = nativeModelData
 export const material = (color: number, extra = {}) =>
   new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra })
-const textures = new Map<string, { texture: THREE.Texture; ready: Promise<boolean> }>()
+type TextureAsset = {
+  texture: THREE.Texture
+  ready: Promise<boolean>
+  status: 'loading' | 'ready' | 'failed'
+}
+const textures = new Map<string, TextureAsset>()
 export function texture(kind: string) {
   return loadTexture(kind).texture
 }
 export function loadTexture(kind: string) {
   const cached = textures.get(kind)
-  if (cached) return cached
+  if (cached) {
+    if (cached.status !== 'failed') return cached
+    // Failed scenes are disposed before their retry action is available. Retain successful
+    // and in-flight shared textures, but replace a completed failure with a fresh request.
+    cached.texture.dispose()
+  }
   let loaded!: (success: boolean) => void
-  const ready = new Promise<boolean>(resolve => {
-    loaded = resolve
-  })
+  const result: TextureAsset = {
+    texture: null as unknown as THREE.Texture,
+    status: 'loading',
+    ready: new Promise<boolean>(resolve => {
+      loaded = success => {
+        result.status = success ? 'ready' : 'failed'
+        resolve(success)
+      }
+    }),
+  }
   const t =
     kind === 'lightning-bolt'
       ? new THREE.DataTexture(lightningTexture(), 32, 32)
@@ -32,6 +49,7 @@ export function loadTexture(kind: string) {
             loaded(false)
           }
         )
+  result.texture = t
   if (kind === 'lightning-bolt') {
     loaded(true)
     t.needsUpdate = true
@@ -68,7 +86,6 @@ export function loadTexture(kind: string) {
     t.magFilter = THREE.NearestFilter
     t.generateMipmaps = false
   }
-  const result = { texture: t, ready }
   textures.set(kind, result)
   return result
 }
