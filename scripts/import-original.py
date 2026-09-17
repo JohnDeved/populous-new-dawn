@@ -1,7 +1,9 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
-Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only]
+Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only]
 --units-only appends Shaman families to the existing unit atlas and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
+--vehicles-only appends original mesh143/144 to original-models.json and its
+provenance modelIds; it never regenerates the shared object atlas.
 Native layout evidence and remaining renderer differences: references/native-assets.md.
 Only Python's standard library is needed. Format/geometry checks run on every import.
 """
@@ -246,8 +248,79 @@ def append_shaman_units(source, project):
           f"{len(units['pieces']) - len(old_pieces)} pieces; atlas {width}x{height}; "
           "old frame/piece indices and animation clocks preserved.")
 
+def append_vehicle_models(source, project):
+    """Import only original class-4 mesh IDs 143/144; keep all previous assets.
+
+    00463c63 reads descriptor+4, then 004ee700 selects draw type 2. The adjacent
+    838/839 descriptor+6 values are tooltip string IDs (004f0f90/0044d7f0), not
+    missing render resources. Campaign object banks 2 and 6 share these meshes.
+    """
+    models_path = project / 'app/original-models.json'
+    provenance_path = project / 'public/original/provenance.json'
+    models = json.loads(models_path.read_text())
+    provenance = json.loads(provenance_path.read_text())
+    if provenance['objectBank'] != 2:
+        raise ValueError('Vehicle append requires the reviewed bank-2 model baseline')
+    original = dict(models)
+    raw = {}
+    for kind in ['objs', 'facs', 'pnts']:
+        name = f'objects/{kind}0-2.dat'
+        data = (source / name).read_bytes()
+        if hashlib.sha256(data).hexdigest() != provenance['sha256'][name]:
+            raise ValueError('Original vehicle input hash mismatch: ' + name)
+        raw[kind] = data
+    objects, faces, points = raw['objs'], raw['facs'], raw['pnts']
+    if len(objects) % 54 or len(faces) % 60 or len(points) % 6:
+        raise ValueError('Invalid original vehicle record sizes')
+    for model in [143, 144]:
+        record = struct.unpack_from('<Hhhbbii4I6h4b3h', objects, model * 54)
+        flags, face_count, point_count, scale = record[0], record[1], record[2], record[6]
+        face_start, point_start = record[7], record[9]
+        if flags or scale != 160 or face_count < 1 or point_count < 1:
+            raise ValueError('Unexpected original static vehicle model: ' + str(model))
+        assert 1 <= face_start and face_start + face_count - 1 <= len(faces) // 60
+        assert 1 <= point_start and point_start + point_count - 1 <= len(points) // 6
+        p, uv, stages, tiles, normals, modes, biases = [], [], [], [], [], [], []
+        for face in range(face_start - 1, face_start + face_count - 1):
+            offset = face * 60
+            _, tile, face_flags, count, mode = struct.unpack_from('<hhHBb', faces, offset)
+            assert count in (3, 4) and 0 <= tile < 256 and mode in (3, 6, 22)
+            indices = struct.unpack_from('<4h', faces, offset + 40)
+            tex = struct.unpack_from('<8i', faces, offset + 8)
+            stages.extend([count, faces[offset + 59]])
+            tiles.append(tile)
+            modes.append(mode)
+            biases.append(-struct.unpack_from('<b', objects, model * 54 + 6)[0]
+                          - struct.unpack_from('<b', faces, offset + 58)[0])
+            normals.append([-1] * 4 if face_flags & 1
+                           else list(struct.unpack_from('<4h', faces, offset + 48)))
+            for corner in ([0, 1, 2] if count == 3 else [0, 1, 2, 0, 2, 3]):
+                assert 0 <= indices[corner] < point_count
+                x, y, z = struct.unpack_from('<3h', points, (point_start + indices[corner] - 1) * 6)
+                p.extend(round(value / (scale * 3), 6) for value in (x, y, -z))
+                uv.extend([round((tile % 8 + tex[corner * 2] / 0x200000) / 8, 7),
+                           round(1 - (tile // 8 + tex[corner * 2 + 1] / 0x200000) / 32, 7)])
+        decoded = dict(p=p, uv=uv, scale=scale, faces=stages, tiles=tiles,
+                       normals=normals, modes=modes, biases=biases,
+                       panelHeight=int(struct.unpack_from('<h', objects, model * 54 + 40)[0] / 2))
+        if str(model) in models and models[str(model)] != decoded:
+            raise ValueError('Refusing to overwrite a differing existing vehicle model: ' + str(model))
+        models[str(model)] = decoded
+    assert all(models[key] == value for key, value in original.items())
+    for model in [143, 144]:
+        if model not in provenance['modelIds']:
+            provenance['modelIds'].append(model)
+    models_path.write_text(json.dumps(models, separators=(',', ':')))
+    provenance_path.write_text(json.dumps(provenance, indent=2) + '\n')
+    print('Imported original Boat 143 and Balloon 144; all prior models and atlas bytes retained.')
+
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]
+    if '--vehicles-only' in sys.argv[2:]:
+        if sys.argv[2:] != ['--vehicles-only']:
+            raise ValueError('Usage: import-original.py GAME_ROOT --vehicles-only')
+        append_vehicle_models(source, project)
+        return
     if '--units-only' in sys.argv[2:]:
         if sys.argv[2:] != ['--units-only']:
             raise ValueError('Usage: import-original.py GAME_ROOT --units-only')
@@ -489,6 +562,7 @@ def main():
     unit_atlas_hash=hashlib.sha256((output/'unit-layers.png').read_bytes()).hexdigest()
     (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'animationFrames':len(rendered),'spritePieces':len(pieces),'unitAtlasSha256':unit_atlas_hash,'sha256':hashes},indent=2)+'\n')
     append_shaman_units(source, project)
+    append_vehicle_models(source, project)
     print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} layered animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 
 if __name__=='__main__':main()
