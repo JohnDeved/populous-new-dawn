@@ -73,6 +73,7 @@ try {
    const command=s.view.painter.command(hit.object,hit.triangle,hit.instance)
    return [hit.object.id,hit.triangle,hit.instance,Number(hit.depth.toFixed(6)),command?.bucket??null,command?.cell??null,command?.phase??null,command?.object??null,command?.face??null]
   }
+  const identity=hit=>hit&&[hit.object.id,hit.triangle,hit.instance]
   const compare=(event,label)=>{
    s.picking.lastKey=''
    const picked=s.picking.pick(event),r=rect(),pixel=`${Math.trunc(event.clientX-r.left)},${Math.trunc(event.clientY-r.top)}`,
@@ -123,31 +124,59 @@ try {
   s.viewPoint=savedPoint;first.x=savedFirst.x;first.z=savedFirst.z;s.updateView();s.updateUnitsFrame();render()
   s.view.pickCandidates=originalPickCandidates
 
-  // Footprint flags change painter depth without changing landVersion. A cached
-  // candidate set must therefore be able to choose a different overlapping winner.
+  // Footprint flags change painter depth without changing landVersion. Require a
+  // real winner identity change (object/triangle/instance), then drive that exact
+  // witness through ScenePicking so depth/bucket-only movement cannot satisfy this case.
   const hut=w.buildings.find(b=>b.id===target.id),pose=shapes.buildingPose(hut),registered={...pose,id:hut.id,tribe:types.tribeForTeam(hut.team)},
     footprintVersion=w.landVersion,candidateSets=[]
   for(let dy=-28;dy<=28;dy+=4)for(let dx=-28;dx<=28;dx+=4){
-   const event={clientX:target.clientX+dx,clientY:target.clientY+dy},candidates=directCandidates(mouse(event),[s.terrain],s.camera,true)
-   if(candidates.length>1)candidateSets.push({event,candidates,on:signature(s.view.resolvePickCandidates(candidates))})
+   const event={clientX:target.clientX+dx,clientY:target.clientY+dy},candidates=directCandidates(mouse(event),[s.terrain],s.camera,true),winner=s.view.resolvePickCandidates(candidates)
+   if(candidates.length>1)candidateSets.push({event,candidates,on:signature(winner),onIdentity:identity(winner)})
   }
   shapes.registerBuildingFootprint(w.land,registered,0,i=>w.land.shadows[i]&15,()=>{})
   if(w.landVersion!==footprintVersion)throw Error('footprint removal unexpectedly changed landVersion')
   render()
-  let footprintCase=null
+  const changed=[]
   for(const entry of candidateSets){
-   const cached=signature(s.view.resolvePickCandidates(entry.candidates)),fresh=signature(s.view.pick(mouse(entry.event),[s.terrain],s.camera,true))
-   if(JSON.stringify(cached)!==JSON.stringify(fresh))throw Error('footprint removal cached winner differs from fresh winner')
-   if(JSON.stringify(cached)!==JSON.stringify(entry.on)){footprintCase={...entry,off:cached};break}
+   const cached=s.view.resolvePickCandidates(entry.candidates),fresh=s.view.pick(mouse(entry.event),[s.terrain],s.camera,true),
+     cachedSignature=signature(cached),freshSignature=signature(fresh),offIdentity=identity(cached)
+   if(JSON.stringify(cachedSignature)!==JSON.stringify(freshSignature))throw Error('footprint removal cached winner differs from fresh winner')
+   if(JSON.stringify(offIdentity)!==JSON.stringify(entry.onIdentity))changed.push({...entry,off:cachedSignature,offIdentity})
   }
-  if(!footprintCase)throw Error('no overlapping terrain winner changed after real footprint removal')
+  if(!changed.length)throw Error('no overlapping terrain winner identity changed after real footprint removal')
   shapes.registerBuildingFootprint(w.land,registered,1,i=>w.land.shadows[i]&15,()=>{})
   if(w.landVersion!==footprintVersion)throw Error('footprint addition unexpectedly changed landVersion')
   render()
-  const footprintRestored=signature(s.view.resolvePickCandidates(footprintCase.candidates)),
-    footprintFresh=signature(s.view.pick(mouse(footprintCase.event),[s.terrain],s.camera,true))
-  if(JSON.stringify(footprintRestored)!==JSON.stringify(footprintFresh))throw Error('footprint addition cached winner differs from fresh winner')
-  if(JSON.stringify(footprintRestored)!==JSON.stringify(footprintCase.on))throw Error('footprint addition did not restore original terrain winner')
+  const sceneGround=(event,label)=>{
+   s.picking.lastKey=''
+   s.picking.pick(event)
+   const r=rect(),pixel=`${Math.trunc(event.clientX-r.left)},${Math.trunc(event.clientY-r.top)}`,candidates=s.picking.groundHits.get(pixel)
+   if(!candidates)return null
+   const hit=s.view.resolvePickCandidates(candidates),fresh=s.view.pick(mouse(event),[s.terrain],s.camera,true)
+   if(JSON.stringify(signature(hit))!==JSON.stringify(signature(fresh)))throw Error(`${label}: ScenePicking terrain winner differs from fresh winner`)
+   return {candidates,identity:identity(hit),signature:signature(hit)}
+  }
+  let footprintCase=null,sceneOn=null
+  for(const entry of changed){
+   const probe=sceneGround(entry.event,'footprint-on')
+   if(probe&&JSON.stringify(probe.identity)===JSON.stringify(entry.onIdentity)){footprintCase=entry;sceneOn=probe;break}
+  }
+  if(!footprintCase||!sceneOn)throw Error('identity-changing footprint witness was not exercised through ScenePicking')
+  const reusedCandidates=sceneOn.candidates
+  shapes.registerBuildingFootprint(w.land,registered,0,i=>w.land.shadows[i]&15,()=>{})
+  if(w.landVersion!==footprintVersion)throw Error('ScenePicking footprint removal unexpectedly changed landVersion')
+  render()
+  const sceneOff=sceneGround(footprintCase.event,'footprint-off')
+  if(!sceneOff)throw Error('ScenePicking lost footprint witness after removal')
+  if(sceneOff.candidates!==reusedCandidates)throw Error('footprint-only painter change invalidated geometric ScenePicking candidates')
+  if(JSON.stringify(sceneOff.identity)!==JSON.stringify(footprintCase.offIdentity))throw Error('ScenePicking did not select the changed terrain winner identity after footprint removal')
+  shapes.registerBuildingFootprint(w.land,registered,1,i=>w.land.shadows[i]&15,()=>{})
+  if(w.landVersion!==footprintVersion)throw Error('ScenePicking footprint addition unexpectedly changed landVersion')
+  render()
+  const sceneRestored=sceneGround(footprintCase.event,'footprint-restored')
+  if(!sceneRestored)throw Error('ScenePicking lost footprint witness after restoration')
+  if(sceneRestored.candidates!==reusedCandidates)throw Error('footprint restoration invalidated geometric ScenePicking candidates')
+  if(JSON.stringify(sceneRestored.identity)!==JSON.stringify(footprintCase.onIdentity))throw Error('ScenePicking did not restore original terrain winner identity')
 
   // Actual terrain edits rebuild CPU geometry before render. Compare cached/fresh
   // both before and after the following render, then restore the terrain.
@@ -170,10 +199,10 @@ try {
   })()
   const zoomPre=compare(zoomTarget,'zoom-prerender');render();const zoomPost=compare(zoomTarget,'zoom-postrender')
   s.viewZoom=savedZoom;s.updateView();render()
-  return {stable,cameraQueries:queries,submissionBefore,submissionAfter,footprint:{on:footprintCase.on,off:footprintCase.off,restored:footprintRestored},terrain:{pre:terrainPre.signature,post:terrainPost.signature},zoom:{pre:zoomPre.signature,post:zoomPost.signature}}
+  return {stable,cameraQueries:queries,submissionBefore,submissionAfter,footprint:{on:sceneOn.signature,off:sceneOff.signature,restored:sceneRestored.signature,onIdentity:sceneOn.identity,offIdentity:sceneOff.identity,restoredIdentity:sceneRestored.identity},terrain:{pre:terrainPre.signature,post:terrainPost.signature},zoom:{pre:zoomPre.signature,post:zoomPost.signature}}
  },{target:result.target,firstId:result.first})
- assert.notDeepEqual(reviewCases.footprint.on,reviewCases.footprint.off,'footprint removal changes the terrain painter winner')
- assert.deepEqual(reviewCases.footprint.restored,reviewCases.footprint.on,'footprint addition restores the terrain painter winner')
+ assert.notDeepEqual(reviewCases.footprint.onIdentity,reviewCases.footprint.offIdentity,'footprint removal changes terrain object/triangle/instance winner identity')
+ assert.deepEqual(reviewCases.footprint.restoredIdentity,reviewCases.footprint.onIdentity,'footprint addition restores terrain winner identity')
  let cacheQueries=0
  for(const [width,height] of [[1440,1000],[3440,1440]]){
   await page.setViewportSize({width,height})
