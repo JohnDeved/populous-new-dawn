@@ -158,7 +158,7 @@ try {
    if(JSON.stringify(cachedSignature)!==JSON.stringify(freshSignature))throw Error('footprint restoration cached winner differs from fresh winner')
    if(JSON.stringify(identity(cached))!==JSON.stringify(entry.onIdentity))throw Error('footprint restoration did not restore original terrain winner identity')
   }
-  const naturalFootprint={naturalGameplay:true,overlappingPixels:candidateSets.length,signatureChanges,identityChanges,naturalIdentityWitness:identityChanges>0}
+  const naturalFootprint={naturalGameplay:true,overlappingPixels:candidateSets.length,signatureChanges,identityChanges,identityChangedThisSample:identityChanges>0}
 
   // Actual terrain edits rebuild CPU geometry before render. Compare cached/fresh
   // both before and after the following render, then restore the terrain.
@@ -234,5 +234,5 @@ try {
  }
 
  assert.deepEqual(errors,[])
- console.log('PASS: enemy occlusion, stable overlapping sprite ownership, actual hut orders, natural footprint cached/fresh coverage (identity witness='+reviewCases.footprint.naturalIdentityWitness+'), and '+cacheQueries+' cached/fresh terrain queries across rotations/displays; replaced model buffers invalidate picking')
+ console.log('PASS: enemy occlusion, stable overlapping sprite ownership, actual hut orders, natural footprint cached/fresh coverage (identity changed this sample='+reviewCases.footprint.identityChangedThisSample+'; not asserted as a natural witness), and '+cacheQueries+' cached/fresh terrain queries across rotations/displays; replaced model buffers invalidate picking')
 } finally {await browser.close()}
