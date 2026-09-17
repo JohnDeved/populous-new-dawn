@@ -27,7 +27,12 @@ test('original class4 mesh selection distinguishes geometry from tooltip IDs', (
 })
 
 test('vehicle-only import preserves all68 existing model records', () => {
-  const old = Object.fromEntries(Object.entries(models).filter(([id]) => Number(id) !== 143 && Number(id) !== 144))
+  // Pin the original baseline records, allowing unrelated model imports to append.
+  const ids = [5, 13, 14, 15, 16, 17, 18, 30, 45, 79, 80, 81, 82, 83, 84, 85, 86,
+    91, 92, 93, 94, 95, 96, 97, 99, 103, 104, 106, 107, 108, 109, 110, 111, 112,
+    113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128,
+    129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 152, 153, 154, 155]
+  const old = Object.fromEntries(ids.map(id => [id, models[id]]))
   assert.equal(Object.keys(old).length, 68)
   assert.equal(hash(old), 'b5bfc6e2d0b837c5c46c880c04c441db76a6fc9a7219dc1eadb015cc3495553d')
   for (const id of [143, 144]) {

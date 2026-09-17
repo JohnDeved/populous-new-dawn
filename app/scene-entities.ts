@@ -45,6 +45,7 @@ import { spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
+import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
@@ -140,10 +141,11 @@ function makeUnit(u: Unit) {
 function makeBuilding(b: Building, stage: number) {
   const g = new THREE.Group(),
     id = buildingObject(b),
-    // Some later tribe-color variants are not in the compact render bank yet.
     base = rules.buildingObjects[buildingModel(b)],
-    // ponytail: Balloon Hut resource 87 is not imported; use the existing dock mesh until recovered.
-    renderId = nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13]
+    // Training huts require their actual tribe mesh. Preserve unrelated and
+    // neutral fallback behavior; Balloon Hut resource87 remains unimported.
+    renderId = originalTrainingHutObject(b) ??
+      (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
   const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage)
   g.add(model)
   const health = new THREE.Group(),
