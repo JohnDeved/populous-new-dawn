@@ -144,13 +144,16 @@ check blocked, and leaves later checks not-run. Restarting does not reuse old pa
 
 Generate delegated assignments from the parent contract with `context --role`; do
 not maintain a second contract. The emitted envelope contains task/base/input
-identity, one question and role deliverable, a 500–800 word response budget, no
+identity, one question and role deliverable, a 350–500 word response budget, no
 write authority, forbidden actions/paths, acceptance and stop conditions, current
 direction with source hashes, exact parity/check scope, evidence, corrections,
 unknowns, and expandable omissions. Reviewer envelopes additionally contain the
 actual final change records and fingerprint, a tracked full-diff command, and every
 untracked path. An overflow is explicitly `incomplete`.
 
-Handoffs contain conclusions, exact source/symbol evidence, unresolved questions,
-changed files observed, actual check results, and stop status—not chain-of-thought
-or copied terminal logs.
+Role packets use 350–500 word Cavecrew-style response contracts: scouts return ranked
+path/line findings, native and performance specialists return named evidence/limit
+blocks, and reviewers return finding lines plus receipt status and ACCEPT/REJECT.
+Handoffs retain exact source/symbol evidence, unresolved questions, changed files,
+actual check results, and stop status—not chain-of-thought, repeated context, or copied
+terminal logs.

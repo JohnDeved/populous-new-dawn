@@ -528,6 +528,8 @@ test('role context carries a validated bounded assignment and explicit overflow'
     assert.equal(native.status, 'complete')
     assert.equal(native.role, 'native')
     assert.equal(native.assignment.allowedWrites.length, 0)
+    assert.equal(native.assignment.responseBudgetWords, 500)
+    assert.match(native.assignment.responseFormat, /PROVES.*LIVE GAP.*STOP/)
     assert.equal(native.assignment.identity.baseCommit, base)
     assert.deepEqual(native.parityScope.map(entry => entry.id), ['group.item.part'])
     assert.match(native.sourceExcerpts.find(item => item.path === 'docs.md').excerpt, /bounded|open/i)
@@ -744,6 +746,8 @@ test('reviewer context fingerprints the actual dirty, renamed, deleted, and untr
       contract: contractPath,
     })
     assert.equal(review.status, 'complete')
+    assert.equal(review.assignment.responseBudgetWords, 400)
+    assert.match(review.assignment.responseFormat, /Findings only.*ACCEPT.*REJECT/)
     assert.deepEqual(review.assignment.review.trackedDiffCommand, [
       'git',
       'diff',

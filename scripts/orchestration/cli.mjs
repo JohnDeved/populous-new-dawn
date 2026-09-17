@@ -19,6 +19,12 @@ export const DEFAULT_CONTEXT_BUDGET = 24_000
 export const DEFAULT_ROLE_CONTEXT_BUDGET = 12_000
 const RESULT_STATES = new Set(['passed', 'failed', 'blocked', 'not-run', 'not-applicable'])
 const CONTEXT_ROLES = new Set(['scout', 'native', 'performance', 'reviewer'])
+const ROLE_RESPONSES = {
+  scout: [350, 'Rank at most three findings as `N. path:line — finding; recommendation`; end with `RECOMMEND:`. No narrative or copied logs.'],
+  native: [500, 'Use `PROVES`, `DOES NOT PROVE`, `LIVE GAP`, and `STOP` with exact path/symbol provenance. No copied logs.'],
+  performance: [500, 'Use `WORKLOAD`, `RESULT`, `NOISE/LIMIT`, and `STOP`; report comparable measurements only. No copied logs.'],
+  reviewer: [400, 'Findings only as `path:line: severity: problem; smallest fix`, then receipt status and `ACCEPT` or `REJECT`.'],
+}
 const PERFORMANCE_WORKLOAD_HEADING = /\b(workload|benchmark|measured?|measurement|cost|frame|timing|performance|cpu|gpu|render(?:er|ing)?|allocation|memory)\b/i
 const ID = /^[a-z][a-z0-9.-]*$/
 const INDEX_EXTENSIONS = new Set(['.md', '.ts', '.tsx', '.mjs', '.py', '.json', '.toml'])
@@ -785,7 +791,8 @@ export function contextPacket(
         performance: 'Define a comparable workload and report measurement evidence, corrections, noise, and limitations.',
         reviewer: 'Review the actual final changes and receipts, seek counterexamples, and return findings plus a stop decision.',
       }[role],
-      responseBudgetWords: role === 'reviewer' ? 800 : 600,
+      responseBudgetWords: ROLE_RESPONSES[role][0],
+      responseFormat: ROLE_RESPONSES[role][1],
       allowedWrites: researchOutput ? [researchOutput] : [],
       ...(researchOutput ? { researchHandoff: {
         guide: 'engineering/native-research.md',

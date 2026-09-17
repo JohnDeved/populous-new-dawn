@@ -111,6 +111,10 @@ the packet's actual change manifest and full-diff command. Dispatch a fresh fina
 reviewer once for substantive gameplay, parity, performance, or high-risk architecture
 changes, with the final diff, acceptance criteria, and completed receipts together.
 Repeat review only for substantive repairs or unresolved findings.
+Use each packet's compact response format. Scouts return ranked path/line findings;
+native and performance specialists return evidence, limits, live gap/workload, and
+stop status; reviewers return finding lines, receipt status, and ACCEPT/REJECT.
+Do not request narrative or copied logs when the structured result is sufficient.
 Before native research, verify live prerequisites and reuse existing topic notes.
 For artifact-producing native assignments, use `--research-output` with a contract-
 allowed ignored task directory. The parent reviews and commits useful exports, probes,

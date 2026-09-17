@@ -49,6 +49,9 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    Start with packet-cited paths/headings; refine the packet query for a disclosed
    candidate path when needed. Do not send whole project history,
    `GOAL.md`, native notes, or the performance log. Do not recursively delegate.
+   Use the role packet's compact response format instead of requesting prose: ranked
+   path/line findings for scouts, evidence/limit blocks for native and performance,
+   and finding lines plus receipt status and ACCEPT/REJECT for reviewers.
    For native work, follow `engineering/native-research.md`: verify live prerequisites,
    reuse indexed findings, give new research a contract-allowed `--research-output`
    directory, and integrate useful artifacts into durable evidence before deferral.
