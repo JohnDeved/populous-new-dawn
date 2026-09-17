@@ -166,6 +166,52 @@ export function createWorld(missionNumber = 1): World {
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
     if (o.type === 6 && o.model === 6) {
       if (linkedObjectIds.has(o.index + 1)) continue
+      if (missionNumber === tutorialLevel && o.index === 2) {
+        const worship = createWorship(o.settings!),
+          linkedHead = linkedObjects(o).find(object => object.type === 6 && object.model === 6)!,
+          linkedWorship = createWorship(linkedHead.settings!)
+        w.shrines.push({
+          ...worship,
+          nextSlot: 0,
+          slotTimer: 0,
+          range: o.settings![1],
+          followers: 0,
+          forced: false,
+          morph: null,
+          model: 0,
+          angle: ((o.angle & 2047) / 2048) * Math.PI * 2,
+          id: w.nextId++,
+          x: o.x,
+          z: o.z,
+          kind: 'linkedEffects',
+          linkedShrine: {
+            ...linkedWorship,
+            // ponytail: mode-3 Shaman admission and its visit delay ship with the worship lesson.
+            enabled: false,
+            nextSlot: 0,
+            slotTimer: 0,
+            range: linkedHead.settings![1],
+            followers: 0,
+            forced: false,
+            morph: null,
+            model: 45,
+            angle: ((linkedHead.angle & 2047) / 2048) * Math.PI * 2,
+            id: w.nextId++,
+            x: linkedHead.x,
+            z: linkedHead.z,
+            kind: 'inert',
+            name: 'Obelisk',
+            progress: 0,
+            duration: (linkedWorship.target * 4) / TURNS_PER_SECOND,
+            uses: 0,
+          },
+          name: 'Tutorial Obelisk trigger',
+          progress: 0,
+          duration: (worship.target * 4) / TURNS_PER_SECOND,
+          uses: 0,
+        })
+        continue
+      }
       // ponytail: bind later tutorial trigger heads only when their authored lessons ship.
       if (missionNumber === tutorialLevel && ![74, 76].includes(o.index)) continue
       if (missionNumber === 20 && o.index === 322) {

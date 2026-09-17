@@ -11,7 +11,7 @@ const until = (world, predicate, turns = 256) => {
   assert.ok(predicate(), `Tutorial condition timed out at turn ${world.turn}`)
 }
 
-test('Tutorial advances through World View, camera flyby, and Shaman selection lesson', () => {
+test('Tutorial advances through Shaman selection into the authored Obelisk flyby', () => {
   const world = createWorld(79)
   const initialSelection = [...world.selected]
   assert.deepEqual(
@@ -76,6 +76,47 @@ test('Tutorial advances through World View, camera flyby, and Shaman selection l
     'Left-click on the Shaman directly to select her, or left-click on the Shaman Box on the Control Panel. Right-click when you want to deselect her.'
   )
   assert.deepEqual(world.selected, initialSelection, 'the instruction does not replace live selection')
+  assert.equal(
+    world.shrines.some(shrine => shrine.name === 'Obelisk'),
+    false,
+    'the stage-5 Obelisk branch waits for the next script pass'
+  )
+  until(world, () => world.ai.variables[9] === 6)
+  const trigger = world.shrines.find(shrine => shrine.name === 'Tutorial Obelisk trigger'),
+    obelisk = world.shrines.find(shrine => shrine.name === 'Obelisk')
+  assert.deepEqual(
+    {
+      stage: world.ai.variables[9],
+      inputLocked: !!(world.inputMask & 64),
+      flybyActive: !!(world.flyby.flags & 1),
+      events: world.flyby.events,
+      trigger: trigger && {
+        position: [trigger.x, trigger.z],
+        model: trigger.model,
+        active: trigger.active,
+      },
+      obelisk: obelisk && {
+        position: [obelisk.x, obelisk.z],
+        model: obelisk.model,
+        active: obelisk.active,
+        enabled: obelisk.enabled,
+      },
+    },
+    {
+      stage: 6,
+      inputLocked: true,
+      flybyActive: true,
+      events: [
+        { kind: 1, flags: 0, value: 10470, start: 1, duration: 30 },
+        { kind: 2, flags: 0, value: 1406, start: 1, duration: 30 },
+        { kind: 3, flags: 0, value: 102, start: 1, duration: 15 },
+        { kind: 5, flags: 1, value: 10470, start: 2, duration: 29 },
+        { kind: 3, flags: 0, value: 0, start: 17, duration: 14 },
+      ],
+      trigger: { position: [-35, -17], model: 0, active: false },
+      obelisk: { position: [-33, -49], model: 45, active: true, enabled: false },
+    }
+  )
 })
 
 test('Tutorial restart recreates fresh script and view state', () => {

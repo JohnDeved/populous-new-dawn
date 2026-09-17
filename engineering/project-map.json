@@ -512,6 +512,7 @@
         "decomp/research/tutorial-first-lesson.md",
         "decomp/research/tutorial-camera-lesson.md",
         "decomp/research/tutorial-shaman-selection.md",
+        "decomp/research/tutorial-obelisk-transition.md",
         "decomp/generated/00491810.c",
         "decomp/generated/00492d20.c",
         "scripts/check-static-tutorial-entry.py",
@@ -760,6 +761,10 @@
         {
           "path": "decomp/research/tutorial-shaman-selection.md",
           "heading": "Native boundary"
+        },
+        {
+          "path": "decomp/research/tutorial-obelisk-transition.md",
+          "heading": "Native stage-5 boundary"
         },
         {
           "path": "decomp/research/mission18-sky.md",
@@ -1034,7 +1039,7 @@
         "Mission 13's later AI, objectives, victory, Balloon combat/death, exact Balloon art, unsupported script commands, and natural completion remain deferred.",
         "General class-10 allocation/scheduling, reincarnation relocation and static-site sinking, and model-12 lifecycles outside the playable follower set remain unported.",
         "Generic command-29 reward pickup, competitive worship ownership, and Windows UI callbacks remain unported.",
-        "The Tutorial is delivered through its World View, camera-controls, and Shaman-selection lessons to stage 5; later trigger heads, lessons, completion, and exact frontend presentation remain open."
+        "The Tutorial is delivered through its World View, camera-controls, Shaman-selection, and linked Obelisk-transition lessons to stage 6; mode-3 Shaman worship, later lessons, completion, and exact frontend presentation remain open."
       ]
     },
     {
