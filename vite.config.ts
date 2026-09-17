@@ -54,7 +54,9 @@ export default defineConfig(async () => {
       sites(),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        config: localBindingConfig,
+        ...(process.env.PND_CLOUDFLARE === "1"
+          ? { configPath: "./wrangler.cloudflare.jsonc" }
+          : { config: localBindingConfig }),
       }),
     ],
   };
