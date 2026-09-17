@@ -80,6 +80,7 @@ import {
   liveVehicleCellObjects,
   liveVehicles,
   stepLiveVehicle,
+  vehicleExitTarget,
 } from './live-vehicles.ts'
 import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
 import {
@@ -798,12 +799,10 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         holdVehicle()
         return 0
       }
-      const dx = short(vehicle.x - p.x),
-        dy = short(vehicle.y - p.y)
-      // 0x4eadc0 accepts the targeted ready Boat from the adjacent terminal coast cell.
+      const close = (point: { x: number; y: number }) =>
+        Math.abs(short(point.x - p.x)) <= 576 && Math.abs(short(point.y - p.y)) <= 576
       if (
-        Math.abs(dx) <= 576 &&
-        Math.abs(dy) <= 576 &&
+        (close(vehicle) || close(vehicleExitTarget(w, vehicle))) &&
         vehicleReady(
           {
             flags: w.land.flags,
