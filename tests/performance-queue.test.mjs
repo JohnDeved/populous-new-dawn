@@ -108,7 +108,7 @@ test('concurrent submitters and controllers preserve FIFO without overlap', asyn
   fs.writeFileSync(path.join(f.dir, 'pause.json'), '{}')
   const specs = Array.from({ length: 3 }, (_, i) => {
     const file = path.join(f.root, `spec${i}.json`)
-    fs.writeFileSync(file, JSON.stringify(f.spec()))
+    fs.writeFileSync(file, JSON.stringify(f.spec('ok', { label: `distinct workload ${i}` })))
     return file
   })
   await Promise.all(
@@ -149,8 +149,8 @@ test('cancel running and queued jobs without running queued command', async t =>
   const f = fixture(t),
     a = submit(f.spec('wait'), f.dir)
   await until(() => fs.existsSync(f.events), 'first started')
-  const b = submit(f.spec(), f.dir),
-    c = submit(f.spec(), f.dir)
+  const b = submit(f.spec('ok', { label: 'cancel this workload' }), f.dir),
+    c = submit(f.spec('ok', { label: 'following workload' }), f.dir)
   fs.writeFileSync(path.join(b.output, 'cancel'), '')
   fs.writeFileSync(path.join(a.output, 'cancel'), '')
   await until(() => f.job(c.id).status === 'passed', 'after cancellation')
@@ -291,4 +291,79 @@ test('submission preserves PATH and run returns one compact result without agent
   })
   assert.equal(result.status, 'passed')
   assert.equal(result.spec, undefined)
+})
+
+test('concurrent identical retries share one unfinished job; completed work can run again', async t => {
+  const f = fixture(t),
+    specFile = path.join(f.root, 'retry.json')
+  fs.writeFileSync(path.join(f.dir, 'pause.json'), '{}')
+  fs.writeFileSync(specFile, JSON.stringify(f.spec()))
+  const jobs = await Promise.all(
+    Array.from(
+      { length: 4 },
+      () =>
+        new Promise((resolve, reject) => {
+          const child = spawn(process.execPath, [cli, 'submit', specFile, '--dir', f.dir]),
+            output = []
+          child.stdout.on('data', data => output.push(data))
+          child.on('exit', code =>
+            code === 0
+              ? resolve(JSON.parse(Buffer.concat(output)))
+              : reject(Error(`submit ${code}`))
+          )
+        })
+    )
+  )
+  assert.equal(new Set(jobs.map(job => job.id)).size, 1)
+  assert.deepEqual(fs.readFileSync(path.join(f.dir, 'order'), 'utf8').trim().split('\n'), [
+    jobs[0].id,
+  ])
+  fs.appendFileSync(path.join(f.repo, 'fixture.cjs'), '\n// changed queued input\n')
+  assert.throws(
+    () => submit(f.spec(), f.dir),
+    new RegExp(`Unfinished job ${jobs[0].id} has different inputs`)
+  )
+  fs.writeFileSync(path.join(f.repo, 'fixture.cjs'), fixtureSource)
+  assert.equal(submit(f.spec(), f.dir).id, jobs[0].id)
+  await released(f)
+  await recover(f.dir)
+  await until(() => f.job(jobs[0].id).status === 'passed', 'one execution')
+  assert.equal(fs.readFileSync(f.events, 'utf8').trim().split('\n').length, 2)
+  const next = submit(f.spec(), f.dir)
+  assert.notEqual(next.id, jobs[0].id)
+  await until(() => f.job(next.id).status === 'passed', 'intentional later execution')
+})
+
+test('run exposes a recovery ID before caller interruption; retry keeps the running job', async t => {
+  const f = fixture(t),
+    spec = f.spec('wait'),
+    specFile = path.join(f.root, 'interrupted.json')
+  fs.writeFileSync(specFile, JSON.stringify(spec))
+  const caller = spawn(process.execPath, [cli, 'run', specFile, '--dir', f.dir]),
+    output = []
+  t.after(() => caller.kill('SIGTERM'))
+  caller.stderr.on('data', data => output.push(data))
+  const receipt = await until(() => {
+    const line = Buffer.concat(output).toString().split('\n')[0]
+    try {
+      return JSON.parse(line)
+    } catch {
+      return null
+    }
+  }, 'early job ID')
+  assert.equal(receipt.resume, `wait ${receipt.id}`)
+  await until(
+    () => f.job(receipt.id).status === 'running' && fs.existsSync(f.events),
+    'detached job'
+  )
+  await new Promise(resolve => {
+    caller.once('exit', resolve)
+    caller.kill('SIGTERM')
+  })
+  assert.equal(f.job(receipt.id).status, 'running')
+  assert.equal(submit(spec, f.dir).id, receipt.id)
+  fs.writeFileSync(path.join(f.job(receipt.id).output, 'cancel'), '')
+  await until(() => f.job(receipt.id).status === 'cancelled', 'owned job cancellation')
+  assert.equal((await waitForResult(f.dir, receipt.id)).status, 'cancelled')
+  assert.equal(fs.readFileSync(f.events, 'utf8').trim().split('\n').length, 2)
 })

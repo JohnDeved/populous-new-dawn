@@ -7,6 +7,7 @@ import fs from 'node:fs'
 import net from 'node:net'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isDeepStrictEqual } from 'node:util'
 
 const script = fileURLToPath(import.meta.url)
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -151,21 +152,59 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
   // A queued job must not inherit another submitter's Node/CLI lookup paths.
   spec = { ...spec, env: { PATH: process.env.PATH, ...spec.env } }
   initialize(dir)
+  const inputs = fingerprint(spec),
+    lock = path.join(dir, 'submission.lock'),
+    deadline = Date.now() + 5000,
+    sleeper = new Int32Array(new SharedArrayBuffer(4))
+  let fd
+  while (fd === undefined) {
+    try {
+      fd = fs.openSync(lock, 'wx', 0o600)
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error
+      assert(Date.now() < deadline, 'Submission lock busy; inspect its owner before retrying')
+      Atomics.wait(sleeper, 0, 0, 20)
+    }
+  }
+  let job
+  try {
+    fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, identity: identity(process.pid) }))
+    // Serialize only admission: a lost client must not enqueue the same active work twice.
+    job = ordered(dir).find(
+      previous =>
+        ['queued', 'starting', 'running', 'cleanup-blocked'].includes(previous.status) &&
+        !exists(path.join(previous.output, 'cancel')) &&
+        isDeepStrictEqual(previous.spec, spec)
+    )
+    if (job)
+      assert.deepEqual(
+        inputs,
+        job.fingerprint,
+        `Unfinished job ${job.id} has different inputs; wait for it or cancel it before resubmitting`
+      )
+    else job = enqueue(spec, inputs, dir)
+  } finally {
+    fs.closeSync(fd)
+    fs.unlinkSync(lock)
+  }
+  kick(dir)
+  return job
+}
+function enqueue(spec, inputs, dir) {
   const id = randomUUID(),
     output = path.join(dir, 'jobs', id)
   fs.mkdirSync(output)
   const job = {
     id,
     spec,
-    fingerprint: fingerprint(spec),
+    fingerprint: inputs,
     status: 'queued',
     submittedAt: new Date().toISOString(),
     output,
   }
   write(jobFile(dir, id), job)
-  // A single short O_APPEND write orders concurrent submissions without a second lock.
+  // Keep one append per admitted job; controller startup remains outside the admission lock.
   fs.appendFileSync(path.join(dir, 'order'), id + '\n', { mode: 0o600 })
-  kick(dir)
   return job
 }
 async function cleaned(job) {
@@ -398,6 +437,8 @@ async function main() {
   initialize(dir)
   if (command === 'run' || command === 'wait') {
     const id = command === 'run' ? submit(json(path.resolve(args[0])), dir).id : args[0]
+    if (command === 'run')
+      console.error(JSON.stringify({ id, result: jobFile(dir, id), resume: `wait ${id}` }))
     const job = await waitForResult(dir, id)
     console.log(
       JSON.stringify({
