@@ -205,20 +205,7 @@ export class GameScene {
   objects = new THREE.Group()
   decorations = new THREE.Group()
   shrineMeshes = new Map<number, { g: THREE.Group }>()
-  cursor = new THREE.Mesh(
-    new THREE.BufferGeometry(),
-    new THREE.MeshBasicMaterial({
-      map: texture('atlas'),
-      vertexColors: true,
-      transparent: true,
-      alphaTest: 0.01,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -1,
-    })
-  )
+  cursor: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
   plans = new Map<number, THREE.Mesh>()
   placementState = ''
   range = new THREE.Group()
@@ -327,26 +314,42 @@ export class GameScene {
       alpha: true,
       powerPreference: 'high-performance',
     })
-    // Upload shared textures before the scene becomes interactive. Effects/health retain their
-    // existing optional degradation; the building/model and person atlases are required for a
-    // playable world and therefore reject readiness on a real load failure.
-    const preload = (
-      [
-        ['effects', false],
-        ['unit-health', false],
-        ['atlas', true],
-        [nativeUnits.atlas, true],
-      ] as const
-    ).map(([name, required]) => {
-      const asset = required ? retryFailedTexture(name) : loadTexture(name)
-      return asset.ready.then(loaded => {
-        if (!loaded) {
-          if (required) throw new Error(`Required scene texture failed to load: ${name}`)
-          return
-        }
-        if (!this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
+    // Resolve failed required textures before constructing anything that captures them.
+    // Passive texture()/loadTexture() lookups still reuse failures; only this new-scene
+    // preload boundary may replace a completed required failure.
+    const atlasAsset = retryFailedTexture('atlas'),
+      unitAtlasAsset =
+        nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
+      preload = (
+        [
+          ['effects', loadTexture('effects'), false],
+          ['unit-health', loadTexture('unit-health'), false],
+          ['atlas', atlasAsset, true],
+          [nativeUnits.atlas, unitAtlasAsset, true],
+        ] as const
+      ).map(([name, asset, required]) =>
+        asset.ready.then(loaded => {
+          if (!loaded) {
+            if (required) throw new Error(`Required scene texture failed to load: ${name}`)
+            return
+          }
+          if (!this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
+        })
+      )
+    this.cursor = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({
+        map: atlasAsset.texture,
+        vertexColors: true,
+        transparent: true,
+        alphaTest: 0.01,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
       })
-    })
+    )
     this.renderer.shadowMap.enabled = false
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.toneMapping = THREE.NoToneMapping
