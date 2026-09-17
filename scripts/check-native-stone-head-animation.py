@@ -78,9 +78,20 @@ def main():
     cpu.mem_write(trigger, bytes(0x100)); cpu.mem_write(stone, bytes(0x100))
     write(trigger + 0x2a, 'BB', 6, 6)
     write(trigger + 0x68, 'B', 0)
-    write(trigger + 0x6d, 'B', 0x21)
+    write(trigger + 0x6d, 'B', 1)
     write(stone + 0x2a, 'BB', 5, 9)
-    call(0x4fbd20, trigger, stone, 0, 1)
+    # Three supplied objects reproduce the authored automatic-gift linkage.
+    # Execute the actual post-load walker: it sets0x20 and initializes the stone.
+    gift = 0x2000600
+    cpu.mem_write(gift, bytes(0x100))
+    write(trigger + 4, 'I', gift); write(gift + 4, 'I', stone)
+    write(trigger + 0x72, 'H', 30)
+    write(gift + 8, 'I', 30); write(gift + 0x24, 'H', 30)
+    write(gift + 0x2a, 'BB', 6, 2); write(gift + 0x80, 'B', 3)
+    write(0x890324, 'I', trigger)
+    call(0x4851e0)
+    assert read(trigger + 0x6d, 'B') & 0x20
+    write(0x890324, 'I', 0)
     assert read(stone + 0x33, 'H') == 45 and read(stone + 0x3b, 'b') == 1
     assert read(stone + 0x97, 'B') == 2
     original_faces = bytes(cpu.mem_read(faces, len((args.data_root / 'objects/facs0-2.dat').read_bytes())))
@@ -132,10 +143,17 @@ for(const row of input.phases){assert.deepEqual(stoneHeadRawPoints(row.frame),ro
     # the misleading name of an inferred C struct member. settings[2] maps +0x80.
     disassembler = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
     link = list(disassembler.disasm(bytes(cpu.mem_read(0x4851e0,0x190)),0x4851e0))
-    comparisons = [i for i in link if i.mnemonic == 'cmp' and '+ 0x80]' in i.op_str and i.op_str.endswith(', 3')]
-    flag_writes = [i for i in link if i.mnemonic == 'or' and '+ 0x6d]' in i.op_str and i.op_str.endswith(', 0x20')]
-    assert comparisons and flag_writes, [(hex(i.address), i.mnemonic, i.op_str) for i in link]
-    linked_evidence = [dict(va=f'{i.address:08x}', bytes=i.bytes.hex(), text=i.mnemonic+' '+i.op_str) for i in comparisons + flag_writes]
+    by_address = {i.address: i for i in link}
+    expected_link = {
+        0x48525c: ('mov', 'al, byte ptr [edi + 0x80]'),
+        0x485262: ('cmp', 'al, 3'),
+        0x485266: ('or', 'byte ptr [esi + 0x6d], 0x20'),
+    }
+    linked_evidence = []
+    for address, expected in expected_link.items():
+        instruction = by_address[address]
+        assert (instruction.mnemonic, instruction.op_str) == expected
+        linked_evidence.append(dict(va=f'{address:08x}', bytes=instruction.bytes.hex(), text=instruction.mnemonic+' '+instruction.op_str))
 
     model_calls, triangles = 0, 0
     if args.live_models:
@@ -185,8 +203,8 @@ for(const row of input.phases){assert.deepEqual(stoneHeadRawPoints(row.frame),ro
                   fullBaseFaces=len(base_model['faces'])//2, unchangedBaseFacesUVNormals=True,
                   linkFlagEvidence=linked_evidence, rows=rows, phasesResult=phases,
                   liveModelCalls=model_calls, liveTriangles=triangles,
-                  executed=['0040ce30','004fbd20','004a66c0','004ee700','0040cb90','0040cbf0','004ee7b0','0040cc10','0040c9f0','0040cc60'] + (['004708d0'] if args.live_models else []),
-                  supplied=['Verified original bank2resources relocated into test memory','Trigger flag/enable transitions and visible-object context','Optional actual browser camera/object poses'],
+                  executed=['004851e0','0040ce30','004fbd20','004a66c0','004ee700','0040cb90','0040cbf0','004ee7b0','0040cc10','0040c9f0','0040cc60'] + (['004708d0'] if args.live_models else []),
+                  supplied=['Verified original bank2resources relocated into test memory','Three-object automatic-gift allocation list, enable transitions and visible-object context','Optional actual browser camera/object poses'],
                   intercepted=[], limits='Original model45 presentation only. No full scene traversal, native wallclock rate, audio193 synchronization, other families or native GPU raster certification.')
     args.output.parent.mkdir(parents=True,exist_ok=True)
     with args.output.open('x') as stream: json.dump(result,stream,indent=2); stream.write('\n')
