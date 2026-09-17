@@ -9,9 +9,9 @@ import sys
 
 source = Path(sys.argv[1])
 mission = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-suffix = {1: '', 2: '-two', 3: '-three', 4: '-four', 5: '-five', 6: '-six', 7: '-seven', 8: '-eight', 9: '-nine', 10: '-ten', 11: '-eleven', 12: '-twelve', 13: '-thirteen', 14: '-fourteen', 15: '-fifteen', 16: '-sixteen', 17: '-seventeen', 18: '-eighteen', 19: '-nineteen', 20: '-twenty', 21: '-twenty-one', 22: '-twenty-two'}.get(mission)
+suffix = {1: '', 2: '-two', 3: '-three', 4: '-four', 5: '-five', 6: '-six', 7: '-seven', 8: '-eight', 9: '-nine', 10: '-ten', 11: '-eleven', 12: '-twelve', 13: '-thirteen', 14: '-fourteen', 15: '-fifteen', 16: '-sixteen', 17: '-seventeen', 18: '-eighteen', 19: '-nineteen', 20: '-twenty', 21: '-twenty-one', 22: '-twenty-two', 23: '-twenty-three'}.get(mission)
 if suffix is None:
-    raise ValueError('Only recovered missions 1 through 22 are supported')
+    raise ValueError('Only recovered missions 1 through 23 are supported')
 header = (source / f'levl{2000 + mission:04}.hdr').read_bytes()
 if len(header) != 616:
     raise ValueError('Expected a 616-byte original mission header')

@@ -877,7 +877,9 @@ function stepTurn(w: World) {
           cell => objectsInCell(w.objectCells, cell) as Iterable<LivePerson>
         )
         const recipient =
-          shrine.kind === 'mana' ? counts.findIndex(count => count > 0) : w.manaWorld.playerTribe
+          shrine.kind === 'mana' || shrine.rewardMana !== undefined
+            ? counts.findIndex(count => count > 0)
+            : w.manaWorld.playerTribe
         shrine.rewardRecipient = recipient < 0 ? undefined : recipient
         shrine.followers = recipient < 0 ? 0 : counts[recipient]
       }
@@ -913,6 +915,17 @@ function stepTurn(w: World) {
         volcano.team = 'blue'
         volcano.duration = Infinity
       } else if (shrine.kind === 'linkedEffects') {
+        if (shrine.rewardMana !== undefined) {
+          const gift = createGift(
+            w,
+            'mana',
+            shrine.effectTarget ?? shrine,
+            shrine.rewardModel
+          )
+          gift.amount = shrine.rewardMana
+          gift.recipient = shrine.rewardRecipient ?? w.manaWorld.playerTribe
+          gift.phase = 1
+        }
         for (const reward of shrine.rewards ?? (shrine.reward ? [shrine.reward] : []))
           createGift(w, reward, shrine)
         for (const target of shrine.earthquakeTargets ?? []) {

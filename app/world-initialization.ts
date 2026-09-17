@@ -231,6 +231,8 @@ export function createWorld(missionNumber = 1): World {
                   ? 'inert'
                   : earthquakeTargets.length && linkedHead
                     ? 'linkedEffects'
+                    : missionNumber === 23 && linkedHead
+                      ? 'linkedEffects'
                     : linked?.type === 4
                       ? 'boat'
                       : linked?.type === 7 && linked.model === 24 && bridgeTarget
@@ -321,10 +323,16 @@ export function createWorld(missionNumber = 1): World {
                 id: w.nextId++,
                 x: linkedHead.x,
                 z: linkedHead.z,
-                kind: 'erosionEffect',
-                effectTarget: linkedHeadTargets[0],
-                effectTargets: linkedHeadTargets,
-                name: 'Erosion Totem Pole',
+                kind: missionNumber === 23 ? 'linkedEffects' : 'erosionEffect',
+                ...(missionNumber === 23
+                  ? {
+                      rewardMana: 0,
+                      rewardModel: linkedHeadObjects.find(object => object.settings?.[0] === 6)
+                        ?.settings?.[1],
+                      effectTarget: linkedHeadObjects.find(object => object.settings?.[0] === 6),
+                    }
+                  : { effectTarget: linkedHeadTargets[0], effectTargets: linkedHeadTargets }),
+                name: missionNumber === 23 ? 'Stone head' : 'Erosion Totem Pole',
                 progress: 0,
                 duration: (linkedWorship!.target * 4) / TURNS_PER_SECOND,
                 uses: 0,

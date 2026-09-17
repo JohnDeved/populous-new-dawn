@@ -3012,6 +3012,104 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission23-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 23's authored trigger-303 gift and trigger-305 linked reward outcomes against hash-verified native data and executable code.",
+      "coveredBehavior": [
+        "Canonical Mission 23 reward topology",
+        "Trigger-303 class-6/model-2 wrapper, tag 53, local recipient, 82-visit delay, and zero-mana result",
+        "Trigger-305 class-5/model-9 plus class-6/model-6 allocation and retirement order",
+        "Trigger-305 one-shot ownership, trigger-303 repeatability, and checkpoint-relevant state"
+      ],
+      "knownLimits": [
+        "Focused allocation and presentation leaves may be intercepted and documented by the probe.",
+        "The check does not establish Mission 23 AI, natural outcome, exact rendering/audio, or a complete native playthrough."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission23.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission23.py",
+        "decomp/research/mission23-gifts.md"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 23 level, header, script, and language files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check Mission 23's canonical setup, one-shot linked unlock, repeatable zero-mana wrapper, and checkpoint continuation.",
+      "coveredBehavior": [
+        "Mission 23 level, scripts, tribes, Wildmen, and reward topology",
+        "A real Land Bridge makes trigger 305 reachable before ordinary authored-Brave worship",
+        "Trigger-305 retirement, repeatable trigger-303 zero-mana gifts, and checkpoint continuation"
+      ],
+      "knownLimits": [
+        "The focused check supplies one Land Bridge stock and accelerates completed worship work after real orders establish followers.",
+        "Mission 23 AI, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+      ],
+      "executable": "node",
+      "args": ["--experimental-strip-types", "--test", "tests/mission23.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/game-store.ts",
+        "app/level-twenty-three.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-script-twenty-three.json",
+        "app/worship.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "tests/mission23.test.mjs"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Exercise Mission 22 continuation into Mission 23, its one-shot linked unlock, and repeatable zero-mana gift through shipped browser controls.",
+      "coveredBehavior": [
+        "Mission 22 result Continue reaches registered Mission 23",
+        "Rendered authored-Brave selection and ordinary pointer worship at triggers 305 and 303",
+        "Zero-mana delayed wrapper, checkpoint continuity, trigger-305 retirement, and trigger-303 repeatability"
+      ],
+      "knownLimits": [
+        "The focused check positions authored units, supplies one Land Bridge stock, and advances fixed turns after shipped pointer orders establish worship.",
+        "Mission 23 AI, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+      ],
+      "executable": "node",
+      "args": ["scripts/check-browser-mission23.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/check-browser-mission23.mjs",
+        "scripts/browser-game.mjs",
+        "app/game-store.ts",
+        "app/level-twenty-three.ts",
+        "app/live-people.ts",
+        "app/mission-data.ts",
+        "app/original-script-twenty-three.json",
+        "app/page.tsx",
+        "app/worship.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts"
+      ],
+      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "sideEffects": [],
+      "resources": ["Fixed server and browser resources; run serially"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-live-portable",
       "kind": "portable",
       "automation": "safe",

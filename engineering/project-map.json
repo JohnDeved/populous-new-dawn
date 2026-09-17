@@ -373,6 +373,7 @@
         "app/level-twenty.ts",
         "app/level-twenty-one.ts",
         "app/level-twenty-two.ts",
+        "app/level-twenty-three.ts",
         "app/mission-data.ts",
         "app/original-rules.json",
         "app/person-panic.ts",
@@ -400,6 +401,7 @@
         "app/original-script-twenty.json",
         "app/original-script-twenty-one.json",
         "app/original-script-twenty-two.json",
+        "app/original-script-twenty-three.json",
         "app/level-seventeen.ts",
         "app/armageddon.ts",
         "app/original-messages.json",
@@ -475,6 +477,7 @@
         "decomp/research/mission20-linked-chain.md",
         "decomp/research/mission21-first-fault.md",
         "decomp/research/mission22-rewards.md",
+        "decomp/research/mission23-gifts.md",
         "decomp/generated/0042a140.c",
         "decomp/generated/004306d0.c",
         "decomp/generated/004b5f40.c",
@@ -538,6 +541,7 @@
         "scripts/check-native-mission20.py",
         "scripts/check-native-mission21.py",
         "scripts/check-native-mission22-gifts.py",
+        "scripts/check-native-mission23.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-auto.py",
@@ -554,6 +558,7 @@
         "scripts/check-browser-mission20.mjs",
         "scripts/check-browser-mission21.mjs",
         "scripts/check-browser-mission22.mjs",
+        "scripts/check-browser-mission23.mjs",
         "scripts/check-browser-checkpoint.mjs",
         "scripts/check-native-building-counterattack.py",
         "scripts/check-native-mission6-economy.py",
@@ -581,6 +586,7 @@
         "tests/mission20.test.mjs",
         "tests/mission21.test.mjs",
         "tests/mission22.test.mjs",
+        "tests/mission23.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs"
@@ -728,6 +734,10 @@
           "heading": "Exact authored topology"
         },
         {
+          "path": "decomp/research/mission23-gifts.md",
+          "heading": "Native observations"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -854,6 +864,7 @@
         "mission20-native",
         "mission21-native",
         "mission22-native",
+        "mission23-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",
@@ -880,6 +891,8 @@
         "mission21-browser",
         "mission22-portable",
         "mission22-browser",
+        "mission23-portable",
+        "mission23-browser",
         "campaign-natural-victory-browser",
         "repository-check",
         "production-build"
