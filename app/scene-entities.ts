@@ -46,6 +46,7 @@ import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
 import { initializeStoneHead, stoneHeadFrame, stoneHeadPositions } from './stone-head-animation.ts'
+import { stoneHeadAngle } from './stone-head-orientation.ts'
 import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
@@ -206,7 +207,7 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
   const g = new THREE.Group()
   g.add(nativeModel(shrine.model))
   scene.locate(g, shrine)
-  scene.orientModel(g, shrine.angle)
+  scene.orientModel(g, stoneHeadAngle(shrine, scene.world.outcome.level))
   scene.objects.add(g)
   g.userData.shrine = shrine.id
   if (shrine.kind === 'vault') {
@@ -600,7 +601,7 @@ export function updateShrinesFrame(scene: GameScene) {
     const entry = scene.shrineMeshes.get(shrine.id)
     if (!entry) continue
     scene.locate(entry.g, shrine)
-    scene.orientModel(entry.g, shrine.angle)
+    scene.orientModel(entry.g, stoneHeadAngle(shrine, scene.world.outcome.level))
     const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
     if (marker) {
       const placement = vaultKnowledgePlacement(shrine)
