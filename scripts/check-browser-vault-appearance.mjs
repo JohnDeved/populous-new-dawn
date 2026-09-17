@@ -2,13 +2,40 @@ import assert from 'node:assert/strict'
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { chromium } from '@playwright/test'
-import { bindGame } from './browser-game.mjs'
 
 const output = process.env.PND_QUEUE_OUTPUT ?? '/private/tmp'
 const evidence = { before: null, rotated: null, acquisition: null, restored: null }
+
+async function bindVisibleGame(page) {
+  await page.waitForFunction(() => {
+    const main = document.querySelector('main')
+    if (!main) return false
+    const scenes = [],
+      stores = []
+    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber; fiber = fiber.return) {
+      for (let hook = fiber.memoizedState; hook; hook = hook.next) {
+        if (hook.memoizedState?.current?.unitMeshes) scenes.push(hook.memoizedState)
+        if (hook.memoizedState?.getWorld) stores.push(hook.memoizedState)
+      }
+    }
+    for (const store of stores) {
+      const scene = scenes.find(ref => ref.current?.world === store.getWorld())
+      const canvas = scene?.current?.renderer?.domElement
+      if (!canvas?.isConnected || document.querySelector('.loading-world')) continue
+      const bounds = canvas.getBoundingClientRect()
+      if (!bounds.width || !bounds.height) continue
+      globalThis.testSceneRef = scene
+      globalThis.testScene = scene.current
+      globalThis.testStore = store
+      return true
+    }
+    return false
+  })
+}
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
-  const context = await browser.newContext({ viewport: { width: 1920, height: 1400 } }),
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await context.newPage(),
     errors = []
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
@@ -16,15 +43,49 @@ try {
     if (message.type() === 'error') errors.push(message.text())
   })
   page.setDefaultTimeout(10_000)
-  await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  await page.getByRole('button', { name: 'Mission 6', exact: true }).evaluate(button => button.click())
-  await bindGame(page)
-  await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
+  await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', {
+    waitUntil: 'domcontentloaded',
+  })
+  const missionOne = page.getByRole('button', { name: 'Mission 1', exact: true })
+  await missionOne.focus()
+  await page.keyboard.press('Enter')
+  await page.waitForSelector('.world-viewport canvas:visible', { timeout: 30_000 })
+  await page.waitForFunction(() => {
+    const main = document.querySelector('main')
+    const scenes = [], stores = []
+    let fiber = main?.[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber; fiber = fiber.return) {
+      for (let hook = fiber.memoizedState; hook; hook = hook.next) {
+        if (hook.memoizedState?.current?.unitMeshes) scenes.push(hook.memoizedState)
+        if (hook.memoizedState?.getWorld) stores.push(hook.memoizedState)
+      }
+    }
+    for (const store of stores) {
+      const scene = scenes.find(ref => {
+        const current = ref.current,
+          canvas = current?.renderer?.domElement
+        if (current?.world !== store.getWorld() || !canvas?.isConnected) return false
+        const rect = canvas.getBoundingClientRect(), style = getComputedStyle(canvas)
+        return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
+      })
+      if (!scene || document.querySelector('.loading-world')) continue
+      globalThis.testSceneRef = scene
+      globalThis.testScene = scene.current
+      globalThis.testStore = store
+      return true
+    }
+    return false
+  })
+  await page.waitForFunction(
+    () => !!(globalThis.testScene?.world.flyby.flags & 1) && !!globalThis.testScene.world.inputMask,
+    { timeout: 30_000 }
+  )
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
   await page.evaluate(() => {
-    const store = globalThis.testStore,
-      world = store.getWorld()
+    const store = globalThis.testStore
+    store.startMission(6)
+    const world = store.getWorld()
     world.status = 'won'
     world.outcome.cameraPlaying = false
     store.update()
@@ -35,8 +96,13 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  await page.waitForFunction(
+    () => !!(globalThis.testScene.world.flyby.flags & 1) && !!globalThis.testStore.getWorld().inputMask,
+    { timeout: 30_000 }
+  )
   const skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
   if (await skip.isVisible().catch(() => false)) await skip.click()
+  else await page.keyboard.press('Escape')
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
 
   evidence.before = await page.evaluate(() => {
