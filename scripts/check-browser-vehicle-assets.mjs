@@ -147,7 +147,17 @@ try {
   const restored = await context.newPage()
   restored.setDefaultTimeout(20_000)
   await restored.goto(url, { waitUntil: 'domcontentloaded' })
-  await restored.getByRole('button', { name: 'Load Game', exact: true }).click()
+  await restored.getByRole('button', { name: 'Load Game', exact: true }).waitFor({ state: 'attached' })
+  await restored.bringToFront()
+  // The existing startup layout can put this button outside the pointer viewport.
+  // Use its real keyboard focus order rather than forcing a DOM click or editing loading code.
+  let loadTabs = 0
+  while (loadTabs < 64 && await restored.evaluate(() => document.activeElement?.getAttribute('aria-label')) !== 'Load Game') {
+    await restored.keyboard.press('Tab'); loadTabs++
+  }
+  assert.equal(await restored.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Load Game')
+  await restored.keyboard.press('Enter')
+  report.checkpointKeyboardTabs = loadTabs
   await bindGame(restored)
   const loaded = await restored.evaluate(() => window.testScene.world.vehicles.map(v => ({ id: v.id, model: v.model, team: v.team })))
   assert.deepEqual(loaded.filter(v => originals.some(o => o.id === v.id)), originals.map(({ id, model, team }) => ({ id, model, team })))
