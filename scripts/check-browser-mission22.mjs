@@ -198,6 +198,42 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  const worshipAppearance = await page.evaluate(() => {
+    const scene = globalThis.testScene
+    return scene.world.shrines.map(shrine => ({
+      kind: shrine.kind,
+      mode: shrine.mode,
+      model: shrine.model,
+      meshModel: scene.shrineMeshes.get(shrine.id)?.g.children[0]?.userData.nativeModel,
+    }))
+  })
+  assert.deepEqual(
+    worshipAppearance.map(({ mode, model, meshModel }) => [mode, model, meshModel]),
+    [[3, 8, 8], [3, 8, 8], [3, 8, 8]]
+  )
+  const braveRejection = await page.evaluate(async () => {
+    const { createWorld, addUnit, command, tick } = await import('/app/model.ts'),
+      world = createWorld(22),
+      head = world.shrines.find(shrine => shrine.kind === 'inert'),
+      brave = addUnit(world, 'blue', 'brave', head)
+    world.inputMask = 0
+    // Supporting fixture only: Mission 22 authors no Blue Brave.
+    tick(world, 1 / 12)
+    tick(world, 1 / 12)
+    world.selected = [brave.id]
+    const submitted = command(world, head)
+    for (let turn = 0; turn < 300 && brave.native?.commandStatus !== 0; turn++) tick(world, 1 / 12)
+    return {
+      submitted,
+      command: brave.native?.commandStatus,
+      work: head.work,
+      followers: head.followers,
+      rewardDelay: head.rewardDelay ?? null,
+      mode: head.mode,
+      model: head.model,
+    }
+  })
+  assert.deepEqual(braveRejection, { submitted: true, command: 0, work: 0, followers: 0, rewardDelay: null, mode: 3, model: 8 })
 
   await focusSpell(page, 'bridge', 'Land Bridge')
   const bridgePoint = await terrainClickPoint(page, { x: -29, z: -49 }, 'bridge')
@@ -257,12 +293,12 @@ try {
       for (let turn = 0; world.effects.some(effect => effect.id === gift.id) && turn < 90; turn++)
         tick(world, 1 / 12)
       return {
-        head: [head.active, head.uses],
+        head: [head.active, head.uses, head.mode, head.model],
         gift: giftState,
         pending: world.manaTribes[0].pending >= 590_000,
       }
     }, manaHead),
-    { head: [false, 1], gift: [600_000, 0, 5, 1], pending: true }
+    { head: [false, 1, 3, 8], gift: [600_000, 0, 5, 1], pending: true }
   )
 
   await page.evaluate(() => {
