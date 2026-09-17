@@ -40,11 +40,18 @@ Configure the Worker's Settings > Build as follows:
 
 - Production branch: `main`.
 - Root directory: `/`.
-- Build command: `npm run check && npm run build:cloudflare`.
+- Build command (production and previews): `npm run build:cloudflare`.
 - Production deploy command: `npx wrangler deploy --config dist/server/wrangler.json`.
 - Non-production deploy command: `npx wrangler versions upload --config dist/server/wrangler.json`.
 - Enable non-production branch builds and PR preview comments.
 - Build variable: `NODE_VERSION=24.18.0`.
+- Enable build caching for production and previews to reuse npm downloads.
+
+Cloudflare runs only the application build and deployment; tests, typechecking,
+parity, and workflow checks run separately during development and review. Keep
+`npm run check` out of the Cloudflare build command. The deploy commands above
+upload the existing build; do not use `deploy:cloudflare` or `preview:cloudflare`
+there, because those local convenience scripts would build the app a second time.
 
 Cloudflare installs dependencies and manages its own build token. Branch builds
 upload preview versions; only main builds deploy production. Cloudflare supplies
