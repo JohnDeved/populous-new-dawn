@@ -147,8 +147,40 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
 
+  const settlement = await page.evaluate(async () => {
+    const store = globalThis.testStore,
+      scene = globalThis.testSceneRef.current,
+      world = store.getWorld(),
+      { tick } = await import('/app/model.ts'),
+      { buildingModel } = await import('/app/building-shapes.ts')
+    while (world.turn < 1000) tick(world, 1 / 12)
+    store.update()
+    scene.onChange()
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    scene.renderer.render(scene.scene, scene.camera)
+    const towers = world.buildings.filter(building => buildingModel(building) === 4)
+    return {
+      towers: towers.map(building => [building.team, building.progress]).sort(),
+      onlyTowers: towers.length === world.buildings.length,
+      rendered: towers.every(building => {
+        const group = scene.buildingMeshes.get(building.id)
+        return !!group && group.parent === scene.objects && group.children.some(child => child.visible)
+      }),
+    }
+  })
+  assert.deepEqual(settlement, {
+    towers: [
+      ['green', 1],
+      ['red', 1],
+      ['yellow', 1],
+    ],
+    onlyTowers: true,
+    rendered: true,
+  })
+
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 23 continuation, linked worship unlock, zero-mana gift, and checkpoint')
+  console.log('PASS: Mission 23 continuation, first settlements, linked gift, and checkpoint')
 } finally {
   await browser.close()
 }

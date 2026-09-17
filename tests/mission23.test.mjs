@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { buildingModel } from '../app/building-shapes.ts'
 import { createLivePerson, syncLivePersonCells } from '../app/live-people.ts'
 import { missionComputerTribes, missionData, missionScript } from '../app/mission-data.ts'
 import { browserPosition, cast, command, createWorld, nativePosition, tick } from '../app/model.ts'
@@ -70,6 +71,49 @@ test('Mission 23 loads its authored tribes, Wildmen and worship chain', () => {
     [repeat.kind, repeat.rewardMana, repeat.rewardModel, repeat.effectTarget.x, repeat.effectTarget.z],
     ['linkedEffects', 0, 53, 55, 79]
   )
+})
+
+test('Mission 23 enemy tribes start their native first settlements', () => {
+  const world = createWorld(23)
+  for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
+  assert.ok([1, 2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
+
+  for (const [tribe, origin] of [
+    [3, 0xa684],
+    [2, 0x66ce],
+    [1, 0x0a08],
+  ]) {
+    tick(world, 1 / 12)
+    const task = world.campaignAIs[tribe].tasks.find(task => task.flags & 1 && task.type === 0)
+    assert.deepEqual(task && { requested: task.requested, origin: task.origin, phase: task.phase }, {
+      requested: 4,
+      origin,
+      phase: 0,
+    })
+  }
+
+  for (let turn = 0; turn < 8; turn++) tick(world, 1 / 12)
+  assert.deepEqual(
+    world.buildings
+      .filter(building => buildingModel(building) === 4)
+      .map(building => building.team)
+      .sort(),
+    ['green', 'red', 'yellow']
+  )
+
+  const restored = migrateCheckpoint(structuredClone(world))
+  assert.deepEqual(restored, world)
+  while (world.turn < 1000) {
+    tick(world, 1 / 12)
+    tick(restored, 1 / 12)
+  }
+  assert.deepEqual(restored, world)
+  assert.ok(
+    world.buildings
+      .filter(building => buildingModel(building) === 4)
+      .every(building => building.progress === 1)
+  )
+  assert.ok(world.buildings.every(building => buildingModel(building) === 4))
 })
 
 test('Mission 23 unlocks and repeats the native zero-mana gift through ordinary worship', () => {

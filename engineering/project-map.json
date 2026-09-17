@@ -478,6 +478,7 @@
         "decomp/research/mission21-first-fault.md",
         "decomp/research/mission22-rewards.md",
         "decomp/research/mission23-gifts.md",
+        "decomp/research/mission23-settlement.md",
         "decomp/generated/0042a140.c",
         "decomp/generated/004306d0.c",
         "decomp/generated/004b5f40.c",
@@ -542,6 +543,7 @@
         "scripts/check-native-mission21.py",
         "scripts/check-native-mission22-gifts.py",
         "scripts/check-native-mission23.py",
+        "scripts/check-native-mission23-settlement.py",
         "scripts/check-browser-mission8.mjs",
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior-auto.py",
@@ -738,6 +740,10 @@
           "heading": "Native observations"
         },
         {
+          "path": "decomp/research/mission23-settlement.md",
+          "heading": "Native contract"
+        },
+        {
           "path": "references/reverse-engineering.md",
           "heading": "PopScript control flow and first-mission initialization"
         },
@@ -865,6 +871,7 @@
         "mission21-native",
         "mission22-native",
         "mission23-native",
+        "mission23-settlement-native",
         "mission11-browser",
         "reincarnation-native",
         "reincarnation-browser",

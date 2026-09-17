@@ -3040,25 +3040,55 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Verify Mission 23's three first autonomous Guard Tower requests and post-Tower producer boundary against hash-verified native code and data.",
+      "coveredBehavior": [
+        "Enemy startup scripts, rosters, construction limit, housing target, and zero school targets",
+        "Green, Yellow, and Red first producer turns, Shaman origins, type-0 model-4 task fields, and unchanged RNG",
+        "Controlled Red/Green Hut and Yellow Boat Hut post-Tower choices"
+      ],
+      "knownLimits": [
+        "The probe supplies authored Shaman origins and available Brave counts; the post-Tower decision additionally supplies a completed Tower and building availability.",
+        "It does not execute terrain-site acceptance, construction completion, training, attacks, combat, or outcome."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-mission23-settlement.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-mission23-settlement.py",
+        "decomp/research/mission23-settlement.md"
+      ],
+      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 23 level, header, and script files"],
+      "sideEffects": [],
+      "resources": ["External executable and adjacent game data are read-only"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "mission23-portable",
       "kind": "portable",
       "automation": "safe",
-      "purpose": "Check Mission 23's canonical setup, one-shot linked unlock, repeatable zero-mana wrapper, and checkpoint continuation.",
+      "purpose": "Check Mission 23's canonical setup, first enemy settlements, linked gifts, and checkpoint continuation.",
       "coveredBehavior": [
         "Mission 23 level, scripts, tribes, Wildmen, and reward topology",
+        "Native-cadence first enemy Guard Tower requests, ordinary construction, and deterministic checkpoint completion",
         "A real Land Bridge makes trigger 305 reachable before ordinary authored-Brave worship",
         "Trigger-305 retirement, repeatable trigger-303 zero-mana gifts, and checkpoint continuation"
       ],
       "knownLimits": [
         "The focused check supplies one Land Bridge stock and accelerates completed worship work after real orders establish followers.",
-        "Mission 23 AI, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+        "Post-Tower production, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
       ],
       "executable": "node",
       "args": ["--experimental-strip-types", "--test", "tests/mission23.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
+        "app/building-shapes.ts",
         "app/game-store.ts",
+        "app/computer-runtime.ts",
         "app/level-twenty-three.ts",
         "app/live-people.ts",
         "app/mission-data.ts",
@@ -3077,15 +3107,16 @@
       "id": "mission23-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 22 continuation into Mission 23, its one-shot linked unlock, and repeatable zero-mana gift through shipped browser controls.",
+      "purpose": "Exercise Mission 22 continuation into Mission 23, rendered first enemy settlements, and linked gifts through shipped browser controls.",
       "coveredBehavior": [
         "Mission 22 result Continue reaches registered Mission 23",
+        "Ordinary simulation completes and renders all three first enemy Guard Towers",
         "Rendered authored-Brave selection and ordinary pointer worship at triggers 305 and 303",
         "Zero-mana delayed wrapper, checkpoint continuity, trigger-305 retirement, and trigger-303 repeatability"
       ],
       "knownLimits": [
         "The focused check positions authored units, supplies one Land Bridge stock, and advances fixed turns after shipped pointer orders establish worship.",
-        "Mission 23 AI, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+        "Post-Tower production, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-mission23.mjs"],
@@ -3094,7 +3125,9 @@
       "inputs": [
         "scripts/check-browser-mission23.mjs",
         "scripts/browser-game.mjs",
+        "app/building-shapes.ts",
         "app/game-store.ts",
+        "app/computer-runtime.ts",
         "app/level-twenty-three.ts",
         "app/live-people.ts",
         "app/mission-data.ts",

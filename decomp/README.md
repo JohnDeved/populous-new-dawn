@@ -55,6 +55,7 @@ Recent reusable topic notes: [Recorded-demo raw state and unresolved source-map 
 [Mission 21 first fault](research/mission21-first-fault.md),
 [Mission 22 rewards and transport](research/mission22-rewards.md),
 [Mission 23 linked zero-mana gift](research/mission23-gifts.md),
+[Mission 23 first enemy settlements](research/mission23-settlement.md),
 [vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
 [camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
@@ -84,6 +85,7 @@ research; publication and scratch handoff follow [native research](../engineerin
 | `0042b660`, `0048c6b0`, `0048cc60`, `00490ba0`, `00492920`, `004f1ed0`, `004fb270` | `app/campaign-command-runtime.ts`, `app/world-initialization.ts`, `app/world-turn.ts`, `scripts/check-native-mission21.py` | [Mission 21 first fault](research/mission21-first-fault.md) covers fresh spell/mana state, the Convert Wild and linked-totem seal route, exact height predicate, sentinel, deadline, warning, unique first Volcano activation, checkpoint latches, and opcode-1199 cleanup; native end-to-end route timing, model-39/component presentation, later faults, AI, and outcome remain open |
 | `0041a500`, `00463ba0`, `00463cb0`, `004657d0`, `00479cd0`, `00485b00`, `004facf0`, `004fb270`, `004fbd20` | `app/live-command.ts`, `app/live-vehicles.ts`, `app/world-initialization.ts`, `app/world-turn.ts`, `scripts/check-native-mission22-gifts.py` | [Mission 22 rewards and transport](research/mission22-rewards.md) covers the two delayed mana gifts, presentation-only stone head, independent authored vehicles, first-passenger Boat claim, and 5,000-pass vehicle lifetime; the second head's live route, exact presentation, AI, and outcome remain open |
 | `0041a500`, `00485b00`, `004facf0`, `004fb270` | `app/world-initialization.ts`, `app/world-turn.ts`, `scripts/check-native-mission23.py` | [Mission 23 linked gift](research/mission23-gifts.md) proves trigger 305's one-shot stone/head transition and trigger 303's repeatable 82-visit, worshipper-owned zero-mana wrapper; exact stone/gift presentation, AI, and outcome remain open |
+| `004615f0`, `00461d70`, `0048c6b0`, `004e5580` | `app/computer-runtime.ts`, `scripts/check-native-mission23-settlement.py` | [Mission 23 first enemy settlements](research/mission23-settlement.md) prove all three native first Guard Tower requests, live construction, and checkpoint continuation; Red/Green Hut and Yellow Boat Hut follow-up production, training, attacks, and outcome remain open |
 | `0043c7a0`, `004fb270`, `004fbf40` | `app/vault.ts`, `app/model.ts` | All command-33 task phases and type-4 work CPU-compared; movement/adjacency leaves and full object scheduling unfinished |
 | `00485b00`, `004fb270`, `004facf0`, `004c2cd0`, `004c2aa0` | `app/worship.ts`, `app/model.ts`, `app/scene.ts` | Worship, automatic reward initialization/visual lifetime and delayed gifts CPU-compared; competitive ownership and generic pickup incomplete |
 | `00463370`, `00463780`, `00463e80`, `004641d0`, `004657d0`, `004659d0`, `00466190`, `00465c50`, `00465ea0`, `00466be0`, `00466f00`, `00406600`, `0040b6d0`, `00465580` | `app/live-vehicles.ts`, `app/live-pathfinding.ts`, `app/world-turn.ts`, `app/scene-entities.ts` | [Mission 5 granted Boat](research/mission5-boat.md) is live through worship, boarding, sailing, landing and checkpoints; [Mission 9 Boat House](research/mission9-boat-house.md) adds the native first-production gate and launch transform; [Mission 13 Balloon transport](research/mission13-balloon.md) adds recurring production, boarding, airborne movement, landing and occupied checkpoint reload; [vehicle destruction](research/vehicle-destruction.md) adds shipped 5000 life, damage gates, sinking/rising, and alive passenger ejection; exact art, audio, complete steering, and downstream terrain-dependent passenger fate remain open |
@@ -5007,3 +5009,12 @@ local worshipper recipient, 82-visit lifetime, and zero-mana result. The browser
 reuses ordinary Land Bridge, worship, gift, continuation, and checkpoint owners.
 Exact stone/gift presentation, recurring AI, and the natural mission outcome remain
 open; see `research/mission23-gifts.md`.
+
+## 2026-09-17 — Mission 23 first enemy settlements
+
+`check-native-mission23-settlement.py EXE` verifies all three enemy startup
+profiles and the first ordinary Guard Tower requests on turns 60–62 without RNG
+consumption. The browser reuses the shared producer and construction task to build
+and checkpoint the three Towers. Production stops there because native Yellow next
+chooses an unbound model-13 Boat Hut; training, attacks, and outcome remain open.
+See `research/mission23-settlement.md`.

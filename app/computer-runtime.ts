@@ -327,11 +327,13 @@ function produceMissionBuilding(w: World, tribe: number) {
         return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
       }, 0)
   if (
-    ![3, 6, 11, 12].includes(w.outcome.level) ||
+    ![3, 6, 11, 12, 23].includes(w.outcome.level) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
+  // ponytail: stop after Mission 23's first Tower; add the proved Yellow Boat Hut with model-13 construction.
+  if (w.outcome.level === 23 && has(4)) return false
   const selection = computerSelectionWorld(w, tribe)
   if (availableTrainingPeople(selection.world) < 2) return false
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
