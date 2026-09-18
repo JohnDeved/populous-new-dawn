@@ -83,8 +83,7 @@ function createPanel(scene: GameScene, b: Building) {
 }
 
 export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement | null) {
-  const { world } = scene,
-    { width, height } = scene.container.getBoundingClientRect()
+  const { world } = scene
   for (const [id, panel] of scene.buildingPanels) {
     if (!world.buildings.some(b => b.id === id && b.hp > 0)) {
       panel.remove()
@@ -257,10 +256,27 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
             : `${b.kind === 'temple' ? 'Preacher' : b.kind === 'spyHut' ? 'Spy' : b.kind === 'firewarriorHut' ? 'Firewarrior' : 'Warrior'} training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
       )
     }
-    const p = scene.screen(b)
+    const p = scene.screen(b),
+      containerRect = scene.container.getBoundingClientRect(),
+      rendererRect = scene.renderer.domElement.getBoundingClientRect(),
+      scale = Number.parseFloat(getComputedStyle(panel).getPropertyValue('--hud-scale')) || 1,
+      rendererLeft = rendererRect.left - containerRect.left,
+      rendererTop = rendererRect.top - containerRect.top,
+      anchorX = rendererLeft + ((p.x + 1) * rendererRect.width) / 2,
+      anchorY = rendererTop + ((1 - p.y) * rendererRect.height) / 2,
+      halfPanelWidth = (canvas.width * scale) / 2,
+      panelHeight = canvas.height * scale,
+      left = Math.max(
+        rendererLeft + halfPanelWidth,
+        Math.min(rendererLeft + rendererRect.width - halfPanelWidth, anchorX)
+      ),
+      top = Math.max(
+        rendererTop + panelHeight,
+        Math.min(rendererTop + rendererRect.height, anchorY)
+      )
     panel.hidden = false
-    panel.style.left = `${((p.x + 1) * width) / 2}px`
-    panel.style.top = `${((1 - p.y) * height) / 2}px`
+    panel.style.left = `${left}px`
+    panel.style.top = `${top}px`
     panel.style.width = `${canvas.width}px`
     panel.style.height = `${canvas.height}px`
     for (let i = 0; i < buttons.length; i++) {
