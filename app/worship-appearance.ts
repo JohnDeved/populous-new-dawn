@@ -2,7 +2,7 @@ import { missionData } from './mission-data.ts'
 import type { Shrine } from './world-types.ts'
 
 // 0x4851e0 links class-6/model-6 heads to colocated model-9 scenery; 0x4fbd20 selects the presentation object.
-// This issue-22 slice restores only the proved mode-3 Obelisk identity. Model8 remains outside model45 Stone Head animation.
+// Issue 22 currently restores the proved static mode-3 Obelisk and mode-5 Angel-head identities; neither joins model45 Stone Head animation.
 export const WORSHIP_STONE_HEAD_MODEL = 45
 export const WORSHIP_OBELISK_MODEL = 8
 export const WORSHIP_ANGEL_MODEL = 157
