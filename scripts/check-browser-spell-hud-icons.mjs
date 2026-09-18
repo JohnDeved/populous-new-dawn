@@ -65,7 +65,7 @@ try{
   }
   const blank=async()=>{await page.mouse.move(5,5);await page.evaluate(()=>document.activeElement?.blur())}
   async function capture(card,id,state,spell){
-    const rect=native.rects[id],position=`-${rect.x}px -${rect.y}px`
+    const rect=native.rects[id],position=`${-rect.x}px ${-rect.y}px`
     await card.evaluate((button,position)=>{
       if(![...button.querySelectorAll('i.hud-sprite')].some(n=>n.style.backgroundPosition===position))
         throw Error('Expected original icon position absent: '+position)
