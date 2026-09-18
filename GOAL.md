@@ -205,6 +205,28 @@ code.
 
 ## Current execution order: highest-impact playable parity
 
+User priority (September 18): workers directly own PND release-gate work, with
+overdue prerequisites first. PND-01 remains overdue; PND-02 is accepted. Finish a
+running check or reviewable delivery before switching, then prefer work that closes
+the gate's remaining acceptance over another convenient cosmetic or research slice.
+Worker1 owns PND-01's remaining original-save fixture prerequisite leading to PND-07;
+Worker2 owns PND-10's message regression repair; Worker3 owns PND-04 training/task
+behavior; Worker4 owns PND-08 natural campaign completion; Worker5 owns PND-06
+worship/spell acceptance blockers. User reports are child tasks, not replacements
+for complete gate acceptance. Reuse the accepted inventory; do not repeat it or
+close a gate from documentation alone. CEO coordinates shared ownership, integration
+and final acceptance. Preserve original deadlines and the September 30 target.
+
+Use GitHub labels on issues and PRs: `release-gate` for PND gates, `overdue` for
+missed original dates, and `status:blocked`, `status:in-progress` or
+`status:needs-review` for the current state. Blocked work must name its concrete
+dependency in the body or latest status comment. Reuse an existing blocker ticket
+or create one with an owner, next action and acceptance; label prerequisite work
+`unblocks` and prioritize it by downstream release impact. Use `priority:critical`
+for overdue prerequisites and the release critical path, plus existing type labels.
+Do not label merely unfinished work blocked. Remove stale status labels when the
+state changes; a closed blocker does not automatically satisfy its dependent gate.
+
 Mandatory near-term order: choose from reviewed release-critical gaps and the PND01
 campaign/system inventory, not another convenient mission opening or expansion.
 
@@ -243,18 +265,65 @@ for a concrete question that reduces uncertainty or allows useful independent wo
 - Dedicated ChatGPT reviewers through Local Dev: finished non-trivial changes
   and acceptance evidence, before integration or parity/evidence claims. Use
   [Reviewer 1](https://chatgpt.com/c/6aac64d7-e0a8-83eb-8591-642392067b5e) or
-  [Reviewer 2](https://chatgpt.com/c/6aac6528-e4e0-83eb-937f-58e788b30e26), both
-  at xhigh/Extra High. This user-directed route replaces Codex review subagents:
+  [Reviewer 2](https://chatgpt.com/c/6aac6528-e4e0-83eb-937f-58e788b30e26).
+  Reviewer 1 uses Pro thinking; Reviewer 2 uses xhigh/Extra High. This user-directed route replaces Codex review subagents:
   assign each PR to one available reviewer and do not duplicate its full review
   in Codex. Provide the exact head/base, full diff, acceptance criteria and retained
   receipts. Reviewers inspect read-only, report concrete findings and ACCEPT/REJECT,
-  and notify the CEO by Codex CLI on completion, blocker, error or any stop,
-  including their chat ID. Follow-up reviews cover repairs and unresolved findings.
+  and notify the CEO on a verdict, actionable blocker or unexpected stop,
+  using the compact reporting rule below. Follow-up reviews cover repairs and unresolved findings.
   The CEO retains final acceptance, necessary integration checks and main merges.
+  Every review applies [README's TypeScript quality workflow](README.md#typescript-quality-workflow)
+  to maintained TypeScript changes: inspect readability, helper reuse, unnecessary
+  machinery and decompiler-style code; verify source-bound `format:check`, `lint`
+  and `lint:standard` results. Reuse valid receipts; obtain missing read-only checks
+  through normal check coordination. Report legacy Oxlint findings honestly and
+  distinguish them from introduced defects. Consult Fallow health/duplication/unused
+  results as advisory evidence (exit 1 findings, exit 2 tool failure); verify callers
+  before proposing deletion. Reviewers never run modifying `format` or regenerate
+  importer-owned data. Record quality findings or explicit non-applicability in the
+  durable review, without repeating logs in the compact handoff.
 
 Give specialists compact assignments, relevant sources, response budgets, and
 completion conditions. Require actionable findings with provenance and limitations.
 Parallelize independent questions; keep small tasks with the parent.
+
+### Keep coordination short
+
+Send one delta-only handoff, normally at most 120 words:
+`Worker/Reviewer | issue/PR | state | head`; what changed; decision or next action;
+one durable evidence link/path with exact receipts and limits; resources held.
+Keep full hashes, attempts, logs and preservation inventories in that artifact.
+Expand only when needed to explain a concrete defect. Do not resend prior evidence.
+
+Report review-ready delivery, a blocker requiring another owner, an unexpected
+stop, or a material scope/deadline change. Keep corrected command errors, routine
+test bring-up and acknowledgements in local evidence. Retain assigned checkpoints,
+but send only a changed finding or missed forecast. A delivery timeout is uncertain:
+check delivery before retrying; never send repeated full handoffs.
+
+The CEO routes first: use the latest report, collapse superseded reports, and read
+deep evidence only for review, integration or an unresolved decision. Do not echo
+every handoff or refresh every ledger per message. Give each assignment one bounded
+fallback task with a separate reservation when available; after delivery or a hard
+block, continue that preauthorized task while review proceeds. Otherwise request
+routing once. The watcher remains a deduplicated failsafe, not routine reporting.
+
+Reduce chat coordination traffic: reuse the watcher's fresh local snapshot and
+worker handoff before requesting another chat read. Routine snapshots are batched
+every three minutes; local queued-report deduplication stays fast. Keep the
+15-minute long-idle threshold and 30-minute reminder cooldown. Recognize both
+compact worker headers and explicit chat IDs. One CEO routes assignments/reviews;
+workers report once to the CEO rather than also messaging reviewers. After a
+successful send, allow at least one snapshot interval before verifying execution;
+delivery alone is not execution. On `Too many requests`, honor any supplied retry
+delay and pause repeated calls to that tool. The user-authorized Chrome fallback
+can wake an idle worker through the ordinary ChatGPT UI: use the single-call helper
+documented in `work/orchestration/worker-watch-cli/README.md`. It reuses tabs,
+checks active responses/drafts, records send attempts before clicking, and returns
+a compact result. Never replay uncertain delivery, interrupt an active response,
+or work around a rate limit shown by ChatGPT itself. A stalled page returns once;
+do not enter a refresh loop. Busy destinations await their next state change.
 
 Follow `AGENTS.md` and the engineering skill for workflow mechanics. Supply applicable
 constraints and cited sections instead of whole goals, histories, or the performance

@@ -740,11 +740,8 @@ export function stepSwarm(w: World, fx: Effect) {
   const stored = fx.swarm!
   if (!hasSwarmRuntime(stored)) {
     const center = nativePosition(w, fx),
-      migrated = createSwarmState(
-        w,
-        center,
-        stored.tribe,
-        point => terrainPointHeight(w.land, point)
+      migrated = createSwarmState(w, center, stored.tribe, point =>
+        terrainPointHeight(w.land, point)
       ),
       elapsed = Math.max(0, 65 - stored.remaining)
     migrated.remaining = Math.max(1, SWARM_LIFETIME - elapsed)
@@ -1079,9 +1076,7 @@ export function stepTeleport(w: World, fx: Effect) {
   const vehicle = liveVehicleCellObjects(w, ((target.x >>> 8) & 254) | (target.y & 0xfe00)).find(
     candidate =>
       !candidate.passengerCount ||
-      candidate.passengers.some(
-        id => w.units.find(unit => unit.id === id)?.team === shaman.team
-      )
+      candidate.passengers.some(id => w.units.find(unit => unit.id === id)?.team === shaman.team)
   )
   if (vehicle) boardLiveVehicle(w, person, vehicle)
   return false
@@ -1226,11 +1221,8 @@ function finishCast(
       bloodlustFollowers(w, p, shaman.team)
     } else if (spell === 'swarm') {
       const center = nativePosition(w, p)
-      fx.swarm = createSwarmState(
-        w,
-        center,
-        tribeForTeam(shaman.team),
-        point => terrainPointHeight(w.land, point)
+      fx.swarm = createSwarmState(w, center, tribeForTeam(shaman.team), point =>
+        terrainPointHeight(w.land, point)
       )
       fx.duration = Infinity
       fx.height = swarmState(fx.swarm).h / 45

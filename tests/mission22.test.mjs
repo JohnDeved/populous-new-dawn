@@ -6,7 +6,7 @@ import { liveCommandContext } from '../app/live-command.ts'
 import { liveVehicleCellObjects } from '../app/live-vehicles.ts'
 import { messageText } from '../app/messages.ts'
 import { missionComputerTribes, missionData, missionScript } from '../app/mission-data.ts'
-import { browserPosition, cast, command, tick } from '../app/model.ts'
+import { addUnit, browserPosition, cast, command, tick } from '../app/model.ts'
 import { vehicleCanDisembark } from '../app/vehicle-routing.ts'
 import { createWorld } from '../app/world-initialization.ts'
 
@@ -54,11 +54,11 @@ test('Mission 22 opens with its solo Shaman, native heads, tribes and transport'
     'None of my followers could accompany me to this world. I am alone and I shall need all my strength and cunning to survive. '
   )
   assert.deepEqual(
-    world.shrines.map(head => [head.kind, head.required, head.target, head.rewardMana]),
+    world.shrines.map(head => [head.kind, head.mode, head.model, head.required, head.target, head.rewardMana]),
     [
-      ['mana', 1, 5, 600_000],
-      ['inert', 1, 5, undefined],
-      ['mana', 1, 35, 1_000_000],
+      ['mana', 3, 8, 1, 5, 600_000],
+      ['inert', 3, 8, 1, 5, undefined],
+      ['mana', 3, 8, 1, 35, 1_000_000],
     ]
   )
   assert.deepEqual(
@@ -67,6 +67,25 @@ test('Mission 22 opens with its solo Shaman, native heads, tribes and transport'
       [3, 'yellow', 5_000],
       [1, 'red', 5_000],
     ]
+  )
+})
+
+
+test('Mission 22 mode-3 head rejects an injected Brave supporting fixture', () => {
+  const world = createWorld(22),
+    head = world.shrines.find(shrine => shrine.kind === 'inert'),
+    brave = addUnit(world, 'blue', 'brave', head)
+  world.inputMask = 0
+  // Supporting fixture only: Mission 22 authors no Blue Brave. Initialize the real live person,
+  // then send the ordinary command-27 path to the authored mode-3 head.
+  tick(world, 1 / 12)
+  tick(world, 1 / 12)
+  world.selected = [brave.id]
+  assert.equal(command(world, head), true)
+  for (let turn = 0; turn < 300 && brave.native?.commandStatus !== 0; turn++) tick(world, 1 / 12)
+  assert.deepEqual(
+    { mode: head.mode, model: head.model, work: head.work, followers: head.followers, rewardDelay: head.rewardDelay, command: brave.native?.commandStatus },
+    { mode: 3, model: 8, work: 0, followers: 0, rewardDelay: undefined, command: 0 }
   )
 })
 
@@ -110,6 +129,7 @@ test('Mission 22 southern head delivers its delayed 600,000 mana gift after real
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)
   head = world.shrines.find(shrine => shrine.id === head.id)
+  assert.deepEqual([head.mode, head.model], [3, 8])
   stepUntil(world, () => world.effects.some(effect => effect.reward === 'mana'), 50)
   const gift = world.effects.find(effect => effect.reward === 'mana')
   assert.deepEqual([gift.amount, gift.recipient, gift.rewardModel, gift.phase, gift.remaining], [

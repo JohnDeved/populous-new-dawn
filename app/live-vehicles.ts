@@ -7,10 +7,17 @@ import { randomPersonSpeed } from './person-state.ts'
 import { movePosition, nativeAngle } from './native-math.ts'
 import { attachPersonRoute, releasePersonRoute, routeVehicleAvailable } from './person-routes.ts'
 import { boardingVehicle, vehicleReady } from './vehicle-routing.ts'
+import { moveObjectInCells } from './object-cells.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 const short = (n: number) => (n << 16) >> 16
 const packedCell = (p: { x: number; y: number }) => ((p.x >> 8) & 254) | (p.y & 0xfe00)
+
+function relocateLivePerson(w: World, p: LivePerson, to: { x: number; y: number; h: number }) {
+  if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
+    moveObjectInCells(w.objectCells, p, to)
+  else Object.assign(p, to)
+}
 
 export const liveVehicles = (w: World) =>
   new Map(w.vehicles.filter(v => v.active).map(v => [v.id, v]))
@@ -90,8 +97,8 @@ export function leaveLiveVehicle(
   if (!v.passengerCount) v.speed = -1
   p.vehicle = 0
   p.flags4 = (p.flags4 & ~0x2000000) >>> 0
-  Object.assign(p, to, {
-    h: terrainPointHeight(w.land, to),
+  relocateLivePerson(w, p, { ...to, h: terrainPointHeight(w.land, to) })
+  Object.assign(p, {
     anchorX: to.x,
     anchorY: to.y,
     speed: rules.personSpeeds[p.physics],
@@ -103,9 +110,9 @@ export function leaveLiveVehicle(
 export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
   for (const id of v.passengers) {
     const p = w.pathfinding.people.get(id)
-    if (p) Object.assign(p, { x: v.x, y: v.y, h: v.h })
+    if (p) relocateLivePerson(w, p, { x: v.x, y: v.y, h: v.h })
     const unit = w.units.find(u => u.id === id)
-    if (unit) Object.assign(unit, browserPosition(v))
+    if (unit) Object.assign(unit, browserPosition(p ?? v))
   }
 }
 

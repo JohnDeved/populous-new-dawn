@@ -40,7 +40,6 @@ const stepUntil = (w, predicate, limit = 160) => {
   assert.ok(predicate())
 }
 
-
 const originalRandom = state => {
   const n = (Math.imul(state, 0x24a1) + 0x24df) >>> 0
   return ((n >>> 13) | (n << 19)) >>> 0
@@ -72,8 +71,7 @@ test('Swarm creation and first controller visit preserve original gameplay RNG a
     verticalMotionDraw = next(),
     yMotionDraw = next(),
     jitter = Array.from({ length: 10 }, () => signed9(next()))
-  for (let i = 1; i < SWARM_INSECT_COUNT; i++)
-    for (let draw = 0; draw < 16; draw++) next()
+  for (let i = 1; i < SWARM_INSECT_COUNT; i++) for (let draw = 0; draw < 16; draw++) next()
 
   initializeSwarmInsects(rng, state)
   assert.equal(rng.randomState, expected)
@@ -146,7 +144,6 @@ test('Swarm final fifteen controller visits progressively remove children before
   assert.equal(counts.at(-1), 0)
 })
 
-
 test('Swarm reveals disguised Spies on panic and panic-protected non-removal paths', () => {
   const w = createWorld()
   w.manaWorld.loadFlags |= 0x200
@@ -174,10 +171,10 @@ test('Swarm reveals disguised Spies on panic and panic-protected non-removal pat
 
   assert.equal(spy.native.state, 26)
   assert.equal(spy.native.disguise, 1 << 6)
-  assert.equal(spy.hp, life - 5)
+  assert.equal(spy.hp - 4 / 20, life - 5)
   assert.equal(protectedSpy.native.state === 26, false)
   assert.equal(protectedSpy.native.disguise, 1 << 6)
-  assert.equal(protectedSpy.hp, protectedLife - 5)
+  assert.equal(protectedSpy.hp - 4 / 20, protectedLife - 5)
 })
 
 test('confirmed invented generic and Angel success strings are not emitted', () => {
@@ -245,18 +242,20 @@ test('Swarm follows player and computer cast paths with native insects, victim c
   assert.equal(swarm.insects.length, SWARM_INSECT_COUNT)
   assert.equal(swarm.remaining, SWARM_LIFETIME - 1)
   assert.notEqual(w.randomState, randomBefore)
+  assert.equal(w.turn, 8, 'Swarm impact lands on the recovered eighth-turn healing cadence')
   assert.equal(victim.native.state, 26)
-  assert.equal(victim.hp, life - 5)
+  assert.equal(victim.hp - 4 / 20, life - 5)
   assert.equal(protectedVictim.native.state === 26, false)
-  assert.equal(protectedVictim.hp, untouchedLife.get(protectedVictim.id) - 5)
+  assert.equal(protectedVictim.hp - 6 / 20, untouchedLife.get(protectedVictim.id) - 5)
   assert.equal(removedVictim.hp, 0)
   assert.equal(spy.native.state, 26)
   assert.equal(spy.native.disguise, 1 << 6)
-  assert.equal(spy.hp, spyLife - 5)
+  assert.equal(spy.hp - 4 / 20, spyLife - 5)
   assert.equal(protectedSpy.native.state === 26, false)
   assert.equal(protectedSpy.native.disguise, 1 << 6)
-  assert.equal(protectedSpy.hp, protectedSpyLife - 5)
-  for (const unit of [enemyShaman, ally, farEnemy]) assert.equal(unit.hp, untouchedLife.get(unit.id))
+  assert.equal(protectedSpy.hp - 4 / 20, protectedSpyLife - 5)
+  for (const unit of [enemyShaman, ally, farEnemy])
+    assert.equal(unit.hp, untouchedLife.get(unit.id))
   assert.ok(w.sounds.some(sound => sound.cue === 0xa4))
 
   // Supporting fixture: pin a new eligible Brave to the moving native controller to prove
@@ -277,7 +276,7 @@ test('Swarm follows player and computer cast paths with native insects, victim c
     if (cadenceVictim.hp !== before) changes.push(visit + 1)
   }
   assert.deepEqual(changes, [8])
-  assert.equal(cadenceVictim.hp, cadenceLife - 5)
+  assert.equal(cadenceVictim.hp - 4 / 20, cadenceLife - 5)
   assert.equal(cadenceVictim.native.state, 26)
 
   // Structured-clone checkpoints keep the controller and all 60 insects. Equal wall time
@@ -334,7 +333,10 @@ test('Swarm follows player and computer cast paths with native insects, victim c
   for (let visit = 0; visit < remaining - 1; visit++) tick(w, 1 / 12)
   assert.ok(w.effects.some(candidate => candidate.id === fx.id))
   tick(w, 1 / 12)
-  assert.equal(w.effects.some(candidate => candidate.id === fx.id), false)
+  assert.equal(
+    w.effects.some(candidate => candidate.id === fx.id),
+    false
+  )
 
   const ai = createWorld(),
     red = ai.units.find(u => u.team === 'red' && u.kind === 'shaman'),
@@ -361,7 +363,7 @@ test('Swarm follows player and computer cast paths with native insects, victim c
     mode: 0,
   }))
   const p = nativePosition(ai, target)
-  ai.spellScan.targets[0] = ((p.y & 0xfe00) | ((p.x >>> 8) & 254)) || 1
+  ai.spellScan.targets[0] = (p.y & 0xfe00) | ((p.x >>> 8) & 254) || 1
   tick(ai, 1 / 12)
   assert.equal(ai.projectiles.at(-1)?.spell, 'swarm')
   stepUntil(ai, () => target.native?.state === 26)
@@ -432,19 +434,13 @@ test('Mission 2 naturally funds the Matak Shaman and casts Swarm through player 
   assert.ok(command(w, { x: 83, z: 127 }))
   stepUntil(
     w,
-    () => w.projectiles.some(projectile => projectile.team === 'green' && projectile.spell === 'swarm'),
+    () =>
+      w.projectiles.some(projectile => projectile.team === 'green' && projectile.spell === 'swarm'),
     5000
   )
   stepUntil(w, () => w.effects.some(effect => effect.swarm), 100)
-  stepUntil(
-    w,
-    () => w.units.some(unit => unit.team === 'blue' && unit.native?.state === 26),
-    100
-  )
-  assert.deepEqual(
-    { mana: w.manaTribes[1].mana, available: w.manaTribes[1].available },
-    inactive
-  )
+  stepUntil(w, () => w.units.some(unit => unit.team === 'blue' && unit.native?.state === 26), 100)
+  assert.deepEqual({ mana: w.manaTribes[1].mana, available: w.manaTribes[1].available }, inactive)
   assert.ok(w.manaTribes[3].mana < matakMana)
   assert.equal(w.spellCasts[3][5], 1)
   assert.equal(w.spellCasts[1][5], 0)

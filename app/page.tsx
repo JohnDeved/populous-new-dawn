@@ -6,6 +6,7 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type MouseEvent,
+  type SyntheticEvent,
 } from 'react'
 import {
   BUILDINGS,
@@ -27,14 +28,7 @@ import {
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
-import {
-  messageHeight,
-  messageIcon,
-  messageText,
-  messageTop,
-  messageViewPoint,
-  removeMessage,
-} from './messages'
+import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
 import {
   HudSprite,
   FollowerNumber,
@@ -60,6 +54,21 @@ const timeLabel = (time: number) =>
     .toString()
     .padStart(2, '0')}`
 
+const messageScreenX = (value: number, width: number) => {
+    const product = Math.imul(width, value)
+    return (product + ((product >> 31) & 0xffff)) >> 16
+  },
+  messageScreenY = (value: number, height: number) => {
+    const product = (Math.imul(height, value) + Math.trunc(height / 2)) | 0
+    return (product + ((product >> 31) & 0xffff)) >> 16
+  }
+
+type LoadRequest =
+  | { kind: 'mission'; mission: number }
+  | { kind: 'checkpoint' }
+  | { kind: 'restart' }
+  | { kind: 'continue'; mission: number }
+
 export default function Home() {
   const [store] = useState(createGameStore)
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
@@ -76,6 +85,7 @@ export default function Home() {
   const [musicVolume, setMusicVolume] = useState(0.65)
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
+  const [messageViewportHeight, setMessageViewportHeight] = useState(480)
   const [checkpointNotice, setCheckpointNotice] = useState('')
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   useEffect(() => {
@@ -102,6 +112,8 @@ export default function Home() {
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
   const followerPress = useRef<EventTarget | null>(null)
+  const loadRequest = useRef<LoadRequest | null>(null)
+  const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
   useEffect(() => {
     const resize = () => {
       // Scale artwork uniformly; extra screen height extends only the panel background.
@@ -109,11 +121,38 @@ export default function Home() {
       const preferred =
         hudSize === 'auto' ? Math.min(2.5, Math.max(1, Math.floor(fit * 2) / 2)) : Number(hudSize)
       shell.current?.style.setProperty('--hud-scale', String(Math.min(preferred, fit)))
+
+      // 0x4314c0 + 0x44a1f0: campaign notifications use independent screen
+      // parameterization, not the user's uniformly scaled HUD artwork size.
+      let normalizedMessageWidth = 0x0ccc
+      if (messageScreenX(normalizedMessageWidth, window.innerWidth) & 1)
+        normalizedMessageWidth += 0x66
+      shell.current?.style.setProperty(
+        '--message-width',
+        `${messageScreenX(normalizedMessageWidth, window.innerWidth)}px`
+      )
+      setMessageViewportHeight(window.innerHeight)
     }
     resize()
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
   }, [hudSize])
+  useEffect(() => {
+    const opened: number[] = []
+    for (const message of world.messages.slots) {
+      if (!message || !(message.flags & 2)) continue
+      const details = messageDetails.current.get(message.serial)
+      if (!details) continue
+      details.open = true
+      opened.push(message.serial)
+    }
+    if (!opened.length) return
+    const serials = new Set(opened)
+    store.change(w => {
+      for (const message of w.messages.slots)
+        if (message && serials.has(message.serial)) message.flags &= ~2
+    })
+  })
   const [hover, setHover] = useState<string | null>(null)
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
@@ -136,7 +175,8 @@ export default function Home() {
   }, [])
   useEffect(() => {
     if (startup !== 'playing') return
-    let disposed = false
+    let disposed = false,
+      scene: GameScene | null = null
     if (window.innerWidth < 900)
       store.change(w => {
         w.paused = true
@@ -144,26 +184,31 @@ export default function Home() {
     import('./scene')
       .then(({ GameScene }) => {
         if (disposed || !viewport.current || !minimap.current || !portrait.current) return
-        try {
-          engine.current = new GameScene(
-            viewport.current,
-            minimap.current,
-            portrait.current,
-            world,
-            update,
-            (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
-          )
-          if (world.drawMode === 2) engine.current.overview()
-          setReady(true)
-        } catch (e) {
-          setError(e instanceof Error ? e.message : 'Unable to start the 3D world.')
-        }
+        const created = new GameScene(
+          viewport.current,
+          minimap.current,
+          portrait.current,
+          world,
+          update,
+          (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
+        )
+        scene = created
+        engine.current = created
+        if (world.drawMode === 2) created.overview()
+        return created.ready.then(() => {
+          if (!disposed && engine.current === created && created.start()) setReady(true)
+        })
       })
-      .catch(e => setError(String(e)))
+      .catch(e => {
+        if (disposed || scene?.terrainLoad.signal.aborted) return
+        scene?.dispose()
+        if (engine.current === scene) engine.current = null
+        setError(e instanceof Error ? e.message : 'Unable to finish loading the 3D world.')
+      })
     return () => {
       disposed = true
-      engine.current?.dispose()
-      engine.current = null
+      scene?.dispose()
+      if (engine.current === scene) engine.current = null
     }
   }, [world, update, store, startup])
   useEffect(() => {
@@ -175,7 +220,13 @@ export default function Home() {
   }, [startup])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement).closest('input,dialog'))
+      if (
+        !ready ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        (e.target as HTMLElement).closest('input,dialog')
+      )
         return
       if (world.inputMask) {
         if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
@@ -230,7 +281,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store])
+  }, [world, update, store, ready])
   useEffect(() => {
     if (menu) {
       store.change(w => {
@@ -301,48 +352,44 @@ export default function Home() {
       },
     }
   }
-  function restart() {
+  function beginLoad(request: LoadRequest) {
     audio.current?.reset()
     setMenu(false)
     setReady(false)
     setError('')
-    store.restart()
+    if (request.kind === 'checkpoint') {
+      if (!store.loadCheckpoint()) return
+      store.change(w => {
+        w.paused = false
+      })
+    } else if (request.kind === 'restart') store.restart()
+    else store.startMission(request.mission)
+    loadRequest.current = request
     setTab('spells')
     setStartup('playing')
+  }
+  function restart() {
+    beginLoad({ kind: 'restart' })
   }
   function continueCampaign() {
-    audio.current?.reset()
-    setReady(false)
-    setError('')
-    store.startMission(world.outcome.level + 1)
-    setTab('spells')
+    beginLoad({ kind: 'continue', mission: world.outcome.level + 1 })
   }
   function startMission(mission: number) {
-    audio.current?.reset()
-    setMenu(false)
-    setReady(false)
-    setError('')
-    store.startMission(mission)
-    setTab('spells')
-    setStartup('playing')
+    beginLoad({ kind: 'mission', mission })
   }
   function exitTutorial() {
     audio.current?.reset()
     setMenu(false)
     setReady(false)
+    setError('')
+    loadRequest.current = null
     setStartup('choice')
   }
   function loadCheckpoint() {
-    audio.current?.reset()
-    setMenu(false)
-    setReady(false)
-    setError('')
-    if (!store.loadCheckpoint()) return
-    store.change(w => {
-      w.paused = false
-    })
-    setTab('spells')
-    setStartup('playing')
+    beginLoad({ kind: 'checkpoint' })
+  }
+  function retryLoad() {
+    if (loadRequest.current) beginLoad(loadRequest.current)
   }
   async function saveCheckpoint() {
     setCheckpointNotice(
@@ -371,6 +418,12 @@ export default function Home() {
     BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
+  function blockLoadingInteraction(event: SyntheticEvent) {
+    if (ready || (event.target as Element).closest('.loading-world')) return false
+    event.preventDefault()
+    event.stopPropagation()
+    return true
+  }
   const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
     enemyName = enemies.map(enemy => enemy.name).join(' and '),
     objectives =
@@ -568,7 +621,11 @@ export default function Home() {
     <main
       ref={shell}
       className="game-shell"
+      onPointerDownCapture={blockLoadingInteraction}
+      onPointerUpCapture={blockLoadingInteraction}
+      onContextMenuCapture={blockLoadingInteraction}
       onClickCapture={e => {
+        if (blockLoadingInteraction(e)) return
         if (
           world.inputMask &&
           !(e.target as Element).closest(
@@ -629,40 +686,50 @@ export default function Home() {
           .map((message, slot) => ({ message, slot }))
           .filter(entry => entry.message)
           .sort((a, b) => b.message!.age - a.message!.age)
-          .map(({ message, slot }) => (
-            <details
-              key={message!.serial}
-              open={message!.flags & 0x20000 ? true : undefined}
-              onToggle={event => {
-                const target = messageViewPoint(message!)
-                if (event.currentTarget.open && target)
-                  engine.current?.focus(target, { animate: true })
-              }}
-              data-lower={messageTop(message!) > 240 || undefined}
-              style={
-                {
-                  '--message-height': `${messageHeight(message!)}px`,
-                  top: `calc(${messageTop(message!)}px * var(--hud-scale))`,
-                } as CSSProperties
-              }
-            >
-              <summary aria-label="Read campaign message">
-                <img src={messageIcon(message!)} alt="" />
-              </summary>
-              <div>
-                <p>{messageText(message!.stringId)}</p>
-                <button
-                  onClick={() => {
-                    removeMessage(world.messages, slot)
-                    update()
+          .map(({ message, slot }) => {
+            const top = messageScreenY(message!.position, messageViewportHeight),
+              height = messageScreenY(message!.height, messageViewportHeight)
+            return (
+              <details
+                key={message!.serial}
+                data-message-serial={message!.serial}
+                ref={element => {
+                  if (element) messageDetails.current.set(message!.serial, element)
+                  else messageDetails.current.delete(message!.serial)
+                }}
+                data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
+                style={
+                  {
+                    '--message-height': `${height}px`,
+                    top: `${top}px`,
+                  } as CSSProperties
+                }
+              >
+                <summary
+                  aria-label="Read campaign message"
+                  onClick={event => {
+                    const target = messageViewPoint(message!),
+                      details = event.currentTarget.parentElement as HTMLDetailsElement
+                    if (!details.open && target) engine.current?.focus(target, { animate: true })
                   }}
-                  aria-label="Dismiss campaign message"
                 >
-                  ×
-                </button>
-              </div>
-            </details>
-          ))}
+                  <img src={messageIcon(message!)} alt="" />
+                </summary>
+                <div>
+                  <p>{messageText(message!.stringId)}</p>
+                  <button
+                    onClick={() => {
+                      removeMessage(world.messages, slot)
+                      update()
+                    }}
+                    aria-label="Dismiss campaign message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </details>
+            )
+          })}
       </aside>
       {ready && !!(world.flyby.flags & 1) && (
         <button className="skip-introduction" onClick={() => engine.current?.skipIntroduction()}>
@@ -901,42 +968,22 @@ export default function Home() {
               ))}
             </div>
           )}
-          {tab === 'followers' && (
+          {tab === 'followers' && selected.some(u => u.kind === 'spy') && (
             <div className="follower-list">
-              {(
-                [
-                  { id: 'shaman', label: 'Shaman', sprite: 664 },
-                  { id: 'brave', label: 'Braves', sprite: 666 },
-                  { id: 'warrior', label: 'Warriors', sprite: 668 },
-                  { id: 'firewarrior', label: 'Firewarriors', sprite: 672 },
-                  { id: 'spy', label: 'Spies', sprite: 674 },
-                  { id: 'all', label: 'Everyone', sprite: 680 },
-                ] as const
-              ).map(u => (
+              {enemies.map(enemy => (
                 <button
-                  key={u.id}
-                  title={`${u.label} · Shift: all · Ctrl: five followers · Right-click: focus next`}
-                  aria-label={`Select ${u.label.toLowerCase()}`}
-                  {...followerControl(u.id)}
+                  key={`disguise-${enemy.tribe}`}
+                  aria-label={`Disguise selected spies as ${enemy.name}`}
+                  title={`Disguise selected spies as ${enemy.name}`}
+                  onClick={() =>
+                    store.change(w => {
+                      disguiseSelectedSpies(w, enemy.tribe)
+                    })
+                  }
                 >
-                  <HudSprite id={u.sprite} />
+                  {enemy.name}
                 </button>
               ))}
-              {selected.some(u => u.kind === 'spy') &&
-                enemies.map(enemy => (
-                  <button
-                    key={`disguise-${enemy.tribe}`}
-                    aria-label={`Disguise selected spies as ${enemy.name}`}
-                    title={`Disguise selected spies as ${enemy.name}`}
-                    onClick={() =>
-                      store.change(w => {
-                        disguiseSelectedSpies(w, enemy.tribe)
-                      })
-                    }
-                  >
-                    {enemy.name}
-                  </button>
-                ))}
             </div>
           )}
         </section>
@@ -976,8 +1023,8 @@ export default function Home() {
       {startup === 'choice' && (
         <dialog ref={startupDialog} className="loading-world" aria-label="Start game">
           <span className="loading-rune">⟡</span>
-          <p className="eyebrow">POPULOUS · THE FIRST DAWN</p>
-          <h2>Choose your world</h2>
+          <p className="eyebrow">Populous: The Beginning</p>
+          <h2>Select Level</h2>
           <p>Choose a mission{store.hasCheckpoint() ? ' or return to your saved world.' : '.'}</p>
           {!!completedMissions.length && recommendedMission && (
             <p role="status">Mission {recommendedMission} is recommended next.</p>
@@ -1018,29 +1065,30 @@ export default function Home() {
       {startup === 'loading' && (
         <div className="loading-world" role="status">
           <span className="loading-rune">⟡</span>
-          <h2>A world is awakening</h2>
+          <h2>Loading...</h2>
           <p>Looking for your last saved world.</p>
         </div>
       )}
       {startup === 'playing' && (!ready || error) && (
-        <div className="loading-world" role="status">
-          <span className="loading-rune">⟡</span>
-          <h2>{error ? 'The world could not awaken' : 'A world is awakening'}</h2>
-          <p>
-            {error
-              ? 'This game needs WebGL 2. Try a current browser with hardware acceleration enabled.'
-              : 'Raising the earth. Gathering your people.'}
-          </p>
-          {error && (
+        <div className={error ? 'loading-world' : 'loading-world loading-world-original'} role="status">
+          {error ? (
             <>
+              <span className="loading-rune">⟡</span>
+              <h2>Loading failed</h2>
+              <p>The battlefield did not finish loading. Retry the same request when you are ready.</p>
               <details>
                 <summary>Technical details</summary>
                 {error}
               </details>
-              <button className="primary-button" onClick={restart}>
+              <button className="primary-button" onClick={retryLoad}>
                 Try again
               </button>
             </>
+          ) : (
+            <div className="loading-original-art">
+              <span className="loading-original-label">Loading...</span>
+              <img src="/original/loading-mask.png" width={130} height={161} alt="" />
+            </div>
           )}
         </div>
       )}
@@ -1048,13 +1096,13 @@ export default function Home() {
         <div className="end-screen">
           <span className="end-rune">{world.status === 'won' ? '✺' : '◈'}</span>
           <p className="eyebrow">
-            {world.status === 'won' ? 'THE FIRST STEP TO GODHOOD' : 'THE CIRCLE IS BROKEN'}
+            {world.status === 'won' ? 'Level Complete' : 'Level Failed'}
           </p>
-          <h2>{world.status === 'won' ? 'A world united.' : 'Even gods can fall.'}</h2>
+          <h2>{world.status === 'won' ? 'Level Won' : 'Level Lost'}</h2>
           <p>
             {world.status === 'won'
-              ? `The ${enemyName} are defeated. Your people will remember this dawn.`
-              : 'Your tribe has fallen, but every beginning is another chance.'}
+              ? `The ${enemyName} are defeated.`
+              : 'You have failed to conquer this world.'}
           </p>
           <div className="end-stats">
             <span>
@@ -1076,7 +1124,7 @@ export default function Home() {
           >
             {world.status === 'won' && nextMission
               ? `Continue to Mission ${nextMission}`
-              : 'Begin again'}{' '}
+              : 'Restart Level'}{' '}
             <span>↗</span>
           </button>
         </div>
@@ -1094,8 +1142,8 @@ export default function Home() {
         <button className="dialog-close" onClick={() => setMenu(false)} aria-label="Close menu">
           ×
         </button>
-        <span className="eyebrow">POPULOUS · THE FIRST DAWN</span>
-        <h2>The world can wait.</h2>
+        <span className="eyebrow">Populous: The Beginning</span>
+        <h2>Game settings</h2>
         <p>
           {world.outcome.level === tutorialLevel
             ? 'Leave the World View with Return, then learn to move and rotate the camera.'
@@ -1143,7 +1191,7 @@ export default function Home() {
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
-            Return to the world <span>↗</span>
+            Continue Game <span>↗</span>
           </button>
           {world.outcome.level === tutorialLevel ? (
             <button className="secondary-button" onClick={exitTutorial}>

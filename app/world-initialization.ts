@@ -9,6 +9,8 @@ import { addUnit, breedingWork, createWorldState } from './world-state.ts'
 import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { missionData, tutorialLevel } from './mission-data.ts'
 import { createWorship } from './worship.ts'
+import { worshipAppearanceModel } from './worship-appearance.ts'
+import { initializeStoneHead } from './stone-head-animation.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -74,7 +76,8 @@ export function createWorld(missionNumber = 1): World {
       followers: 0,
       forced: false,
       morph: null,
-      model: 45,
+      mode: settings[0],
+      model: worshipAppearanceModel(settings[0]),
       angle: ((object.angle & 2047) / 2048) * Math.PI * 2,
       id: w.nextId++,
       x: object.x,
@@ -194,7 +197,7 @@ export function createWorld(missionNumber = 1): World {
             forced: false,
             mode: linkedHead.settings![0],
             morph: null,
-            model: 45,
+            model: worshipAppearanceModel(linkedHead.settings![0]),
             angle: ((linkedHead.angle & 2047) / 2048) * Math.PI * 2,
             id: w.nextId++,
             x: linkedHead.x,
@@ -343,7 +346,8 @@ export function createWorld(missionNumber = 1): World {
         followers: 0,
         forced: false,
         morph: null,
-        model: kind === 'vault' ? 154 : 45,
+        mode: settings[0],
+        model: kind === 'vault' ? 154 : worshipAppearanceModel(settings[0]),
         angle: (((vault?.angle ?? o.angle) & 2047) / 2048) * Math.PI * 2,
         id: w.nextId++,
         x: o.x,
@@ -365,8 +369,9 @@ export function createWorld(missionNumber = 1): World {
                 range: linkedHead.settings![1],
                 followers: 0,
                 forced: false,
+                mode: linkedHead.settings![0],
                 morph: null,
-                model: 45,
+                model: worshipAppearanceModel(linkedHead.settings![0]),
                 angle: ((linkedHead.angle & 2047) / 2048) * Math.PI * 2,
                 id: w.nextId++,
                 x: linkedHead.x,
@@ -470,5 +475,6 @@ export function createWorld(missionNumber = 1): World {
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
   w.lightView = nativePosition(w, campaignPosition(w, 'blue'))
+  for (const shrine of w.shrines) initializeStoneHead(shrine, missionNumber)
   return w
 }

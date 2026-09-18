@@ -5,20 +5,17 @@ import {
   browserPosition,
   command,
   createWorld,
-  nativePosition,
   tick,
 } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { messageText } from '../app/messages.ts'
 import { missionData, missionScript } from '../app/mission-data.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
+import { worshipHeadPose } from '../app/live-worship.ts'
 import { worshipPositions } from '../app/worship.ts'
 
 function startWorship(world, head) {
-  const slots = worshipPositions({
-      ...nativePosition(world, head),
-      angle: Math.round((head.angle * 1024) / Math.PI) & 2047,
-    }),
+  const slots = worshipPositions(worshipHeadPose(world, head)),
     followers = Array.from({ length: head.required }, (_, index) =>
       addUnit(world, 'blue', 'brave', browserPosition(slots[index]))
     )

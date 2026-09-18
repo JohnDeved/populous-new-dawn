@@ -5,14 +5,25 @@ import { drawOccupantPanel, occupantPanelControlLayout, paintPanel } from './tra
 import { constructionPanel } from './construction-panel.ts'
 import { selectBuildingOccupants, dismantleBuilding } from './live-building-entry.ts'
 import { nativeUnitModel } from './unit-kinds.ts'
+import {
+  BALLOON_HUT_CAPACITY,
+  BALLOON_HUT_WORKSHOP_PROFILE,
+  BOAT_HOUSE_CAPACITY,
+  BOAT_HOUSE_WORKSHOP_PROFILE,
+  drawWorkshopPanel,
+  workshopPanelControls,
+  workshopWorkBlocks,
+} from './workshop-panel.ts'
 
 export function buildingOccupantPanelProfile(
   b: Pick<Building, 'kind' | 'level' | 'progress'>
-): { kind: 'resident' | 'training'; capacity: 1 | 3 | 4 | 5 } | null {
+): { kind: 'resident' | 'training' | 'workshop'; capacity: 1 | 3 | 4 | 5 | 6 } | null {
   if (b.progress < 1) return null
   if (b.kind === 'hut')
     return { kind: 'resident', capacity: rules.buildingCapacity[buildingModel(b)] as 3 | 4 | 5 }
   if (b.kind === 'tower') return { kind: 'resident', capacity: 1 }
+  if (b.kind === 'boatHouse') return { kind: 'workshop', capacity: BOAT_HOUSE_CAPACITY }
+  if (b.kind === 'balloonHut') return { kind: 'workshop', capacity: BALLOON_HUT_CAPACITY }
   if (
     b.kind === 'camp' ||
     b.kind === 'temple' ||
@@ -72,8 +83,7 @@ function createPanel(scene: GameScene, b: Building) {
 }
 
 export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement | null) {
-  const { world } = scene,
-    { width, height } = scene.container.getBoundingClientRect()
+  const { world } = scene
   for (const [id, panel] of scene.buildingPanels) {
     if (!world.buildings.some(b => b.id === id && b.hp > 0)) {
       panel.remove()
@@ -90,6 +100,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     const plan = b.progress < 1,
       profile = buildingOccupantPanelProfile(b),
       school = profile?.kind === 'training',
+      workshop = profile?.kind === 'workshop',
       tower = profile?.kind === 'resident' && b.kind === 'tower',
       hut = profile?.kind === 'resident' && b.kind === 'hut',
       admission = b.admission,
@@ -181,8 +192,41 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
         'aria-label',
         `Construction: ${occupants.length} of ${state.capacity} workers; ${state.wood} of ${state.totalWood} timber`
       )
+    } else if (workshop) {
+      const workshopProfile =
+          b.kind === 'balloonHut' ? BALLOON_HUT_WORKSHOP_PROFILE : BOAT_HOUSE_WORKSHOP_PROFILE,
+        controls = workshopPanelControls(workshopProfile),
+        progress = workshopWorkBlocks(b.timer, workshopProfile),
+        workshopName = b.kind === 'balloonHut' ? 'Balloon Hut' : 'Boat House',
+        vehicleName = b.kind === 'balloonHut' ? 'Balloon' : 'Boat'
+      drawWorkshopPanel(
+        canvas,
+        atlas,
+        {
+          occupants: shared.occupants,
+          progress: b.timer,
+          dismantling,
+          turn: world.turn,
+          controlHover: dismantle.matches(':hover'),
+          controlPressed: dismantle.matches(':active'),
+        },
+        workshopProfile
+      )
+      for (let i = 0; i < buttons.length; i++) {
+        const slot = controls.people[i]
+        if (!slot) continue
+        buttons[i].style.left = `${slot.x}px`
+        buttons[i].style.top = `${slot.y}px`
+      }
+      dismantle.hidden = false
+      dismantle.style.left = `${controls.control.x}px`
+      dismantle.style.top = `${controls.control.y}px`
+      panel.setAttribute(
+        'aria-label',
+        `${workshopName}: ${occupants.length} of ${workshopProfile.capacity} workers; ${progress} of ${workshopProfile.workBlocks} ${vehicleName} work`
+      )
     } else {
-      const capacity = profile!.capacity,
+      const capacity = profile!.capacity as 1 | 3 | 4 | 5,
         cost = school ? (admission?.trainingCost ?? 0) : 0,
         progress = b.timer,
         active = school && !!(activity & 128),
@@ -212,10 +256,27 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
             : `${b.kind === 'temple' ? 'Preacher' : b.kind === 'spyHut' ? 'Spy' : b.kind === 'firewarriorHut' ? 'Firewarrior' : 'Warrior'} training: ${occupants.length} of 5 occupants; ${cost ? Math.min(100, Math.trunc((progress * 100) / cost)) : 0}% charged`
       )
     }
-    const p = scene.screen(b)
+    const p = scene.screen(b),
+      containerRect = scene.container.getBoundingClientRect(),
+      rendererRect = scene.renderer.domElement.getBoundingClientRect(),
+      scale = Number.parseFloat(getComputedStyle(panel).getPropertyValue('--hud-scale')) || 1,
+      rendererLeft = rendererRect.left - containerRect.left,
+      rendererTop = rendererRect.top - containerRect.top,
+      anchorX = rendererLeft + ((p.x + 1) * rendererRect.width) / 2,
+      anchorY = rendererTop + ((1 - p.y) * rendererRect.height) / 2,
+      halfPanelWidth = (canvas.width * scale) / 2,
+      panelHeight = canvas.height * scale,
+      left = Math.max(
+        rendererLeft + halfPanelWidth,
+        Math.min(rendererLeft + rendererRect.width - halfPanelWidth, anchorX)
+      ),
+      top = Math.max(
+        rendererTop + panelHeight,
+        Math.min(rendererTop + rendererRect.height, anchorY)
+      )
     panel.hidden = false
-    panel.style.left = `${((p.x + 1) * width) / 2}px`
-    panel.style.top = `${((1 - p.y) * height) / 2}px`
+    panel.style.left = `${left}px`
+    panel.style.top = `${top}px`
     panel.style.width = `${canvas.width}px`
     panel.style.height = `${canvas.height}px`
     for (let i = 0; i < buttons.length; i++) {
@@ -226,7 +287,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       button.dataset.person = String(person.id)
       button.setAttribute(
         'aria-label',
-        `${plan ? 'Worker' : school ? 'Trainee' : 'Occupant'} ${i + 1}: ${person.kind}`
+        `${plan || workshop ? 'Worker' : school ? 'Trainee' : 'Occupant'} ${i + 1}: ${person.kind}`
       )
       button.setAttribute('aria-pressed', String(person.selected))
       button.title = 'Click to select; Shift-click for all workers; right-click to focus'

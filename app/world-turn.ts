@@ -1,3 +1,4 @@
+import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
   changedBuildingGround,
   damageDisasterBuilding,
@@ -290,6 +291,7 @@ import {
   collisionWorld,
   enterLiveCombat,
   stepLivePhysics,
+  stepLivePersonHealth,
   stepLiveEncounter,
   createLivePerson,
   createMeleePerson,
@@ -988,6 +990,7 @@ function stepTurn(w: World) {
       } else for (const reward of shrine.rewards ?? [shrine.reward!]) createGift(w, reward, shrine)
       if (shrine.kind !== 'mana' && shrine.kind !== 'inert') sound(w, 0x70, shrine)
     }
+    syncStoneHeadPresentation(shrine)
   }
   // Imported availability selects rechargeable spells; head rewards remain one-off stocks.
   w.manaWorld.turn = w.turn
@@ -1565,6 +1568,7 @@ function stepTurn(w: World) {
       }
     } else u.idleTurns = 0
   }
+  stepLivePersonHealth(w)
   for (const { unit: u, previous } of burningPeople) {
     if (u.hp <= 0 && !u.flight) continue
     const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }
