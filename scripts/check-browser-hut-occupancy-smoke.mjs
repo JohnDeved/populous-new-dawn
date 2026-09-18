@@ -3,6 +3,7 @@ import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { bindGame, openGame } from './browser-game.mjs'
 import effects from '../app/original-effects.json' with { type: 'json' }
+import rules from '../app/original-rules.json' with { type: 'json' }
 
 assert.deepEqual(
   effects.animations.hutSmokeFull.map(frame => [frame.source, frame.w, frame.h]),
@@ -12,72 +13,40 @@ assert.deepEqual(
   effects.animations.hutSmokePartial.map(frame => [frame.source, frame.w, frame.h]),
   Array.from({ length: 16 }, (_, i) => [1385 + i, 32, 64])
 )
+assert.deepEqual(rules.buildingCapacity.slice(1, 4), [3, 4, 5])
 
-async function smokeSnapshot(page) {
-  return page.evaluate(async () => {
-    const scene = window.testScene,
-      world = scene.world,
-      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      group = hut && scene.buildingMeshes.get(hut.id),
-      smoke = group?.userData.hutOccupancySmoke
-    if (!hut || !smoke) return null
-    const { buildingModel, buildingPose, browserPosition } = await import('/app/model.ts'),
-      { buildingSocketPoint } = await import('/app/building-shapes.ts'),
-      { terrainPointHeight } = await import('/app/native-terrain.ts'),
-      rules = (await import('/app/original-rules.json')).default,
-      capacity = rules.buildingCapacity[buildingModel(hut)],
-      socket = buildingSocketPoint(buildingPose(hut), capacity),
-      point = browserPosition(socket),
-      expectedY = (terrainPointHeight(world.land, socket) + socket.heightOffset) / 128
-    return {
-      counter: hut.counter,
-      occupants: world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length,
-      capacity,
-      root: structuredClone(smoke.state.root),
-      visible: smoke.group.visible,
-      position: { x: smoke.group.position.x, y: smoke.group.position.y, z: smoke.group.position.z },
-      expected: { x: point.x, y: expectedY, z: point.z },
-      size: { x: smoke.sprite.scale.x, y: smoke.sprite.scale.y },
-      gameplayRandom: world.randomState,
-      cosmeticRandom: world.cosmeticRandom.randomState,
-      animationFrame: scene.gameClock.animationFrame,
-    }
-  })
+const report = {}
+const reportPath =
+  (process.env.PND_QUEUE_OUTPUT ?? '/private/tmp') + '/issue73-fresh-hut-acceptance.json'
+const writeReport = () => writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n')
+
+async function pauseGame(page) {
+  if (!(await page.evaluate(() => window.testScene.world.paused)))
+    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+  await page.waitForFunction(() => window.testScene.world.paused)
 }
 
-async function renderedPixels(page) {
-  return page.evaluate(() => {
-    const scene = window.testScene,
-      hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      smoke = hut && scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
-    if (!smoke?.group.visible) return 0
-    const renderer = scene.renderer,
-      gl = renderer.getContext(),
-      length = gl.drawingBufferWidth * gl.drawingBufferHeight * 4,
-      before = new Uint8Array(length),
-      after = new Uint8Array(length)
-    renderer.render(scene.scene, scene.camera)
-    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, before)
-    smoke.group.visible = false
-    renderer.render(scene.scene, scene.camera)
-    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, after)
-    smoke.group.visible = true
-    let pixels = 0
-    for (let i = 0; i < length; i += 4)
-      if (
-        before[i] !== after[i] ||
-        before[i + 1] !== after[i + 1] ||
-        before[i + 2] !== after[i + 2]
-      )
-        pixels++
-    return pixels
-  })
+async function resumeGame(page) {
+  if (await page.evaluate(() => window.testScene.world.paused))
+    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+  await page.waitForFunction(() => !window.testScene.world.paused)
 }
 
-async function setSpeed(page, speed) {
-  await page.evaluate(speed => {
-    window.testScene.world.speed = speed
-  }, speed)
+async function ensureDoubleSpeed(page) {
+  const current = await page.evaluate(() => window.testScene.world.speed)
+  if (current === 2) return
+  assert.equal(current, 1, 'rendered game-speed control expects the normal 1x state')
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: '1× game speed', exact: true }).click()
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.waitForFunction(() => window.testScene.world.speed === 2)
+}
+
+async function focusSettlement(page) {
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Focus settlement', exact: true }).click()
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.waitForFunction(() => !window.testScene.cameraMotion.active)
 }
 
 async function clearSelection(page) {
@@ -100,7 +69,7 @@ async function renderedPersonTarget(page, id) {
     const scene = window.testScene,
       rect = scene.renderer.domElement.getBoundingClientRect(),
       bounds = scene.picking.personBounds(id)
-    if (!bounds) throw new Error('Selected free Brave ' + id + ' has no rendered person bounds')
+    if (!bounds) throw new Error('Free Brave ' + id + ' has no rendered person bounds')
     for (let y = bounds.y + 2; y < bounds.y + bounds.height - 1; y += 3)
       for (let x = bounds.x + 2; x < bounds.x + bounds.width - 1; x += 3) {
         const event = { clientX: rect.left + x, clientY: rect.top + y }
@@ -110,7 +79,7 @@ async function renderedPersonTarget(page, id) {
         )
           return { x: event.clientX, y: event.clientY }
       }
-    throw new Error('No shipped pointer hit for free Brave ' + id)
+    throw new Error('No rendered pointer hit for free Brave ' + id)
   }, id)
 }
 
@@ -123,16 +92,52 @@ async function selectRenderedPeople(page, ids) {
     if (index) await page.keyboard.up('Control')
   }
   const selected = await page.evaluate(() => [...window.testScene.world.selected])
-  assert.deepEqual([...selected].sort((a, b) => a - b), [...ids].sort((a, b) => a - b))
+  assert.deepEqual(
+    [...selected].sort((a, b) => a - b),
+    [...ids].sort((a, b) => a - b)
+  )
 }
 
+async function buildSiteCandidates(page) {
+  return page.evaluate(() => {
+    const scene = window.testScene,
+      rect = scene.renderer.domElement.getBoundingClientRect(),
+      points = [
+        { x: -1.7, z: 32.3 },
+        { x: 4, z: 32 },
+        { x: -8, z: 32 },
+        { x: 6, z: 27 },
+        { x: -9, z: 27 },
+        { x: 10, z: 32 },
+        { x: -12, z: 32 },
+      ]
+    return points.map(point => {
+      const projected = scene.screen(point, Math.max(0, scene.y(point)))
+      return {
+        world: point,
+        x: rect.left + ((projected.x + 1) * rect.width) / 2,
+        y: rect.top + ((1 - projected.y) * rect.height) / 2,
+      }
+    })
+  })
+}
 
-
-const firstAdmissionEvidence = {}
-const firstAdmissionPath = `${process.env.PND_QUEUE_OUTPUT ?? '/private/tmp'}/issue73-first-admission.json`
-
-function writeFirstAdmissionEvidence() {
-  writeFileSync(firstAdmissionPath, JSON.stringify(firstAdmissionEvidence, null, 2) + '\n')
+async function resolveBuildSite(page) {
+  for (const candidate of await buildSiteCandidates(page)) {
+    await page.mouse.move(candidate.x, candidate.y)
+    const valid = await page.evaluate(candidate => {
+      const scene = window.testScene,
+        hit = document.elementFromPoint(candidate.x, candidate.y)
+      return {
+        canvas: hit === scene.renderer.domElement,
+        mode: scene.world.mode,
+        visible: scene.cursor.visible,
+        invalid: !!scene.cursor.userData.invalid,
+      }
+    }, candidate)
+    if (valid.canvas && valid.mode === 'hut' && valid.visible && !valid.invalid) return candidate
+  }
+  throw new Error('No rendered valid Mission 1 hut construction site')
 }
 
 async function resolveHutDispatch(page) {
@@ -141,7 +146,7 @@ async function resolveHutDispatch(page) {
       world = scene.world,
       hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
       { liveCommandContext } = await import('/app/live-command.ts')
-    if (!hut) throw new Error('Mission 1 hut disappeared before first admission dispatch')
+    if (!hut) throw new Error('Fresh Mission 1 hut disappeared before dispatch')
     scene.renderer.render(scene.scene, scene.camera)
     const projected = scene.screen(hut),
       rect = scene.renderer.domElement.getBoundingClientRect(),
@@ -161,6 +166,7 @@ async function resolveHutDispatch(page) {
           pickingId === hut.id &&
           object?.id === hut.id &&
           context?.enabled &&
+          context.model === 8 &&
           context.building?.id === hut.id
         )
           return {
@@ -172,451 +178,571 @@ async function resolveHutDispatch(page) {
             contextModel: context.model,
           }
       }
-    throw new Error('No rendered/clickable Mission 1 hut point with enabled building context')
+    throw new Error('No rendered fresh-hut point with enabled command-8 context')
   })
 }
 
-async function firstAdmissionSnapshot(page, target) {
-  return page.evaluate(async target => {
+async function resolveGroundDispatch(page) {
+  return page.evaluate(async () => {
     const scene = window.testScene,
       world = scene.world,
       hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      person = world.units.find(unit => unit.id === window.hutSmoke.firstPersonId),
-      source = person?.native ?? person?.entry?.person ?? person?.builder?.person,
-      { currentPersonOrder } = await import('/app/person-orders.ts'),
-      { liveCommandContext } = await import('/app/live-command.ts'),
-      { buildingModel } = await import('/app/model.ts'),
-      rules = (await import('/app/original-rules.json')).default,
-      pickedId = target ? scene.picking.pick(target) : null,
-      object = target ? scene.pickWorldObject(target) : null,
-      context = object && liveCommandContext(world, object),
-      hit = target ? document.elementFromPoint(target.x, target.y) : null,
-      order = source && currentPersonOrder(world.buildingOrders, source)
-    return {
-      turn: world.turn,
-      speed: world.speed,
-      paused: world.paused,
-      status: world.status,
-      flybyFlags: world.flyby.flags,
-      inputMask: world.inputMask,
-      lastOrderTurn: world.lastOrderTurn,
-      selected: [...world.selected],
-      camera: {
-        cameraMotion: scene.cameraMotion.active,
-        viewTransition: scene.viewTransition?.remaining ?? 0,
-        overviewStage: scene.overviewStage,
-        overviewActive: scene.overviewActive,
-      },
-      person: person
-        ? {
-            id: person.id,
-            x: person.x,
-            z: person.z,
-            inside: person.inside,
-            work: person.work,
-            path: person.path?.length ?? 0,
-            entry: !!person.entry,
-            state: source?.state ?? null,
-            substate: source?.substate ?? null,
-            commandStatus: source?.commandStatus ?? null,
-            order: order
-              ? { model: order.model, a: order.a, b: order.b, flags: order.flags }
-              : null,
+      { liveCommandContext } = await import('/app/live-command.ts')
+    if (!hut) throw new Error('Fresh Mission 1 hut disappeared before ground dispatch')
+    scene.renderer.render(scene.scene, scene.camera)
+    const rect = scene.renderer.domElement.getBoundingClientRect()
+    for (const radius of [8, 10, 12, 14])
+      for (let step = 0; step < 16; step++) {
+        const angle = (step * Math.PI) / 8,
+          worldPoint = {
+            x: hut.x + Math.cos(angle) * radius,
+            z: hut.z + Math.sin(angle) * radius,
+          },
+          projected = scene.screen(worldPoint),
+          event = {
+            clientX: rect.left + ((projected.x + 1) * rect.width) / 2,
+            clientY: rect.top + ((1 - projected.y) * rect.height) / 2,
           }
-        : null,
-      pick: {
-        pickingId: pickedId,
-        pickingKind: scene.picking.lastKind,
-        objectId: object?.id ?? null,
-        objectKind: object?.kind ?? null,
-        context: context
-          ? {
-              model: context.model,
-              enabled: context.enabled,
-              buildingId: context.building?.id ?? null,
-            }
-          : null,
-      },
-      hut: hut
-        ? {
-            id: hut.id,
-            kind: hut.kind,
-            level: hut.level,
-            progress: hut.progress,
-            hp: hut.hp,
-            capacity: rules.buildingCapacity[buildingModel(hut)],
-            admission: hut.admission
-              ? { inside: hut.admission.inside, occupants: [...hut.admission.occupants] }
-              : null,
+        if (
+          event.clientX <= rect.left ||
+          event.clientX >= rect.right ||
+          event.clientY <= rect.top ||
+          event.clientY >= rect.bottom ||
+          document.elementFromPoint(event.clientX, event.clientY) !== scene.renderer.domElement ||
+          scene.pickUnit(event) ||
+          scene.pickWorldObject(event)
+        )
+          continue
+        const point = scene.pick(event),
+          context = point && liveCommandContext(world, point)
+        if (point && context?.enabled && context.model === 3 && !context.building)
+          return {
+            x: event.clientX,
+            y: event.clientY,
+            point: { x: point.x, z: point.z },
+            contextModel: context.model,
           }
-        : null,
-      target,
-      hit: {
-        tag: hit?.tagName ?? null,
-        className: hit instanceof HTMLElement ? hit.className : null,
-        isCanvas: hit === scene.renderer.domElement,
-      },
-    }
-  }, target)
-}
-
-async function departOne(page, hutTarget, groundTarget) {
-  await clearSelection(page)
-  await page.mouse.move(hutTarget.x, hutTarget.y)
-  const panel = page.getByRole('group', { name: /^Hut: \d+ of \d+ occupants$/ })
-  await panel.waitFor({ state: 'visible' })
-  const occupant = panel.getByRole('button', { name: /^Occupant 1:/ })
-  await occupant.click()
-  const before = await page.evaluate(() => {
-    const world = window.testScene.world,
-      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
-    return world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length
+      }
+    throw new Error('No rendered nearby ground point with enabled move context')
   })
-  await page.mouse.click(groundTarget.x, groundTarget.y)
-  await page.waitForFunction(before => {
-    const world = window.testScene.world,
-      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
-    return world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length === before - 1
-  }, before)
 }
 
-const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
-try {
-  acceptance: {
-  const { page, errors } = await openGame(browser, 1)
-  page.setDefaultTimeout(30_000)
-
-  const fixture = await page.evaluate(async () => {
+async function smokeSnapshot(page) {
+  return page.evaluate(async () => {
     const scene = window.testScene,
       world = scene.world,
-      hut = world.buildings.find(
-        building =>
-          building.team === 'blue' &&
-          building.kind === 'hut' &&
-          building.level === 1 &&
-          building.progress >= 1 &&
-          (building.admission?.inside ?? 0) === 0 &&
-          !world.units.some(unit => unit.inside === building.id && unit.hp > 0)
-      )
-    if (!hut) throw new Error('Mission 1 naturally empty completed blue level-1 hut is unavailable')
-    const people = world.units
-      .filter(
-        unit =>
-          unit.team === 'blue' &&
-          unit.kind === 'brave' &&
-          unit.inside === null &&
-          unit.work === null &&
-          unit.hp > 0
-      )
-      .sort(
-        (a, b) =>
-          Math.hypot(a.x - hut.x, a.z - hut.z) - Math.hypot(b.x - hut.x, b.z - hut.z)
-      )
-      .slice(0, 3)
-    if (people.length !== 3) throw new Error('Mission 1 does not have three free Braves')
-
-    window.hutSmoke = { hutId: hut.id, peopleIds: people.map(unit => unit.id) }
-    world.speed = 0
-    scene.focus(hut)
-    scene.startGroundView(2)
-    for (let i = 0; i < 18; i++) scene.updateCameraMotion(1 / 24)
-
-    const rect = scene.renderer.domElement.getBoundingClientRect(),
-      ground = scene.screen({ x: 9, z: 37 }),
-      groundTarget = {
-        x: rect.left + ((ground.x + 1) * rect.width) / 2,
-        y: rect.top + ((1 - ground.y) * rect.height) / 2,
-      },
-      redHut = world.buildings.find(
-        building => building.team === 'red' && building.kind === 'hut' && building.progress >= 1
-      )
+      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
+      group = hut && scene.buildingMeshes.get(hut.id),
+      smoke = group?.userData.hutOccupancySmoke
+    if (!hut || !smoke) return null
+    const { buildingModel, buildingPose, browserPosition } = await import('/app/model.ts'),
+      { buildingSocketPoint } = await import('/app/building-shapes.ts'),
+      { terrainPointHeight } = await import('/app/native-terrain.ts'),
+      originalEffects = (await import('/app/original-effects.json')).default,
+      originalRules = (await import('/app/original-rules.json')).default,
+      capacity = originalRules.buildingCapacity[buildingModel(hut)],
+      socket = buildingSocketPoint(buildingPose(hut), capacity),
+      point = browserPosition(socket),
+      expectedY = (terrainPointHeight(world.land, socket) + socket.heightOffset) / 128,
+      root = smoke.state.root,
+      sequence = root ? (root.mode === 'full' ? 'hutSmokeFull' : 'hutSmokePartial') : null,
+      frame =
+        root === null
+          ? null
+          : (((scene.gameClock.animationFrame - root.frameStart) % 16) + 16) % 16,
+      asset =
+        sequence === null || frame === null ? null : originalEffects.animations[sequence][frame],
+      atlas = smoke.sprite.userData.atlasTransform
     return {
-      groundTarget,
-      redHutId: redHut?.id ?? null,
+      counter: hut.counter,
+      occupants: world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length,
+      admissionInside: hut.admission?.inside ?? 0,
+      capacity,
+      socketIndex: capacity,
+      root: structuredClone(root),
+      visible: smoke.group.visible,
+      sequence,
+      frame,
+      frameSource: asset?.source ?? null,
+      atlas: atlas ? [atlas.x, atlas.y, atlas.z, atlas.w] : null,
+      expectedAtlas: asset
+        ? [
+            asset.w / originalEffects.width,
+            asset.h / originalEffects.height,
+            ((asset.index % 8) * 256) / originalEffects.width,
+            1 - (Math.floor(asset.index / 8) * 256 + asset.h) / originalEffects.height,
+          ]
+        : null,
+      position: { x: smoke.group.position.x, y: smoke.group.position.y, z: smoke.group.position.z },
+      expected: { x: point.x, y: expectedY, z: point.z },
+      size: { x: smoke.sprite.scale.x, y: smoke.sprite.scale.y },
+      gameplayRandom: world.randomState,
+      cosmeticRandom: world.cosmeticRandom.randomState,
+      animationFrame: scene.gameClock.animationFrame,
     }
   })
+}
 
-  await page.waitForFunction(() => {
-    const scene = window.testScene,
-      hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId)
-    return !!hut && !!scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
-  })
-
-  let state = await smokeSnapshot(page)
-  assert.ok(state)
-  assert.equal(state.occupants, 0)
-  assert.equal(state.capacity, 3)
-  assert.equal(state.root, null)
-  assert.equal(state.visible, false)
-  if (fixture.redHutId !== null)
-    assert.equal(
-      await page.evaluate(id => window.testScene.buildingMeshes.get(id)?.userData.hutOccupancySmoke, fixture.redHutId),
-      undefined,
-      'native occupancy smoke producer is player-tribe only'
-    )
-
-  await page.waitForFunction(() => {
-    const scene = window.testScene
-    return (
-      !scene.world.inputMask &&
-      !scene.world.paused &&
-      !scene.cameraMotion.active &&
-      !scene.viewTransition &&
-      !scene.overviewStage
-    )
-  })
-  await clearSelection(page)
-  await page.getByLabel('Select brave').click()
-  const firstPersonId = await page.evaluate(() => {
-    const world = window.testScene.world,
-      selected = world.selected.filter(id => {
-        const unit = world.units.find(candidate => candidate.id === id)
-        return (
-          unit?.team === 'blue' &&
-          unit.kind === 'brave' &&
-          unit.hp > 0 &&
-          unit.inside === null &&
-          unit.work === null
-        )
-      })
-    if (world.selected.length !== 1 || selected.length !== 1)
-      throw new Error(
-        'Shipped selection controls did not produce exactly one free living Brave from an empty group'
-      )
-    const id = selected[0],
-      old = window.hutSmoke.peopleIds
-    window.hutSmoke.firstPersonId = id
-    window.hutSmoke.peopleIds = [id, ...old.filter(candidate => candidate !== id)].slice(0, 3)
-    return id
-  })
-  let hutTarget = await resolveHutDispatch(page)
-  firstAdmissionEvidence.before = await firstAdmissionSnapshot(page, hutTarget)
-  writeFirstAdmissionEvidence()
-  assert.equal(firstAdmissionEvidence.before.inputMask, 0)
-  assert.equal(firstAdmissionEvidence.before.paused, false)
-  assert.equal(firstAdmissionEvidence.before.camera.cameraMotion, 0)
-  assert.equal(firstAdmissionEvidence.before.camera.viewTransition, 0)
-  assert.equal(firstAdmissionEvidence.before.camera.overviewStage, null)
-  assert.deepEqual(firstAdmissionEvidence.before.selected, [firstPersonId])
-  assert.equal(hutTarget.pickingId, firstAdmissionEvidence.before.hut.id)
-  assert.equal(hutTarget.objectId, firstAdmissionEvidence.before.hut.id)
-  assert.equal(hutTarget.contextModel, 8)
-  assert.equal(firstAdmissionEvidence.before.hit.isCanvas, true)
-
-  await page.mouse.click(hutTarget.x, hutTarget.y)
-  firstAdmissionEvidence.afterDispatch = await firstAdmissionSnapshot(page, hutTarget)
-  writeFirstAdmissionEvidence()
-  assert.equal(
-    firstAdmissionEvidence.afterDispatch.lastOrderTurn,
-    firstAdmissionEvidence.afterDispatch.turn,
-    'real hut click must immediately accept a player order'
-  )
-  assert.equal(
-    firstAdmissionEvidence.afterDispatch.person?.work,
-    firstAdmissionEvidence.afterDispatch.hut.id,
-    'real hut click must immediately bind the selected Brave to the hut'
-  )
-
-  await setSpeed(page, 4)
-  try {
-    await page.waitForFunction(firstPersonId => {
-      const world = window.testScene.world,
-        hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
-        person = world.units.find(unit => unit.id === firstPersonId)
-      return person?.inside === hut.id
-    }, firstPersonId)
-  } catch (error) {
-    firstAdmissionEvidence.afterWait = await firstAdmissionSnapshot(page, hutTarget)
-    writeFirstAdmissionEvidence()
-    console.error('[issue73-first-admission] evidence ' + firstAdmissionPath)
-    throw error
-  }
-  await page.waitForFunction(() => {
+async function renderedPixels(page) {
+  return page.evaluate(() => {
     const scene = window.testScene,
       hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      smoke = scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
-    return smoke?.state.root?.mode === 'partial' && smoke.group.visible
-  })
-  await setSpeed(page, 0)
-
-  state = await smokeSnapshot(page)
-  assert.equal(state.occupants, 1)
-  assert.equal(state.root.mode, 'partial')
-  assert.deepEqual(state.position, state.expected)
-  assert.deepEqual(state.size, { x: 32, y: 64 })
-  const partialPixels = await renderedPixels(page)
-  assert.ok(partialPixels > 20, 'partial occupancy smoke rendered only ' + partialPixels + ' pixels')
-  firstAdmissionEvidence.admitted = await firstAdmissionSnapshot(page, hutTarget)
-  firstAdmissionEvidence.partialPixels = partialPixels
-  writeFirstAdmissionEvidence()
-  if (process.env.HUT_SMOKE_FIRST_ADMISSION_ONLY === '1') {
-    assert.deepEqual(errors, [])
-    console.log(
-      'PASS: shipped Select brave + rendered hut pick admitted one Mission 1 Brave and produced native-socket partial occupancy smoke; evidence ' +
-        firstAdmissionPath
+      smoke = hut && scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
+    if (!smoke?.group.visible) return 0
+    const renderer = scene.renderer,
+      gl = renderer.getContext(),
+      length = gl.drawingBufferWidth * gl.drawingBufferHeight * 4,
+      before = new Uint8Array(length),
+      after = new Uint8Array(length)
+    renderer.render(scene.scene, scene.camera)
+    gl.readPixels(
+      0,
+      0,
+      gl.drawingBufferWidth,
+      gl.drawingBufferHeight,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      before
     )
-    break acceptance
-  }
+    smoke.group.visible = false
+    renderer.render(scene.scene, scene.camera)
+    gl.readPixels(
+      0,
+      0,
+      gl.drawingBufferWidth,
+      gl.drawingBufferHeight,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      after
+    )
+    smoke.group.visible = true
+    let pixels = 0
+    for (let i = 0; i < length; i += 4)
+      if (
+        before[i] !== after[i] ||
+        before[i + 1] !== after[i + 1] ||
+        before[i + 2] !== after[i + 2]
+      )
+        pixels++
+    return pixels
+  })
+}
 
-  const remainingPeople = await page.evaluate(firstPersonId => {
-    const world = window.testScene.world,
-      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
-    return world.units
-      .filter(
-        unit =>
-          unit.id !== firstPersonId &&
-          unit.team === 'blue' &&
-          unit.kind === 'brave' &&
-          unit.hp > 0 &&
-          unit.inside === null &&
-          unit.work === null
-      )
-      .sort(
-        (a, b) =>
-          Math.hypot(a.x - hut.x, a.z - hut.z) - Math.hypot(b.x - hut.x, b.z - hut.z)
-      )
-      .slice(0, 2)
-      .map(unit => unit.id)
-  }, firstPersonId)
-  assert.equal(remainingPeople.length, 2, 'Mission 1 needs two current free Braves for full occupancy')
-  await page.evaluate(ids => {
-    window.hutSmoke.peopleIds = [window.hutSmoke.firstPersonId, ...ids]
-  }, remainingPeople)
-  await selectRenderedPeople(page, remainingPeople)
-  hutTarget = await resolveHutDispatch(page)
-  await page.mouse.click(hutTarget.x, hutTarget.y)
-  const fullDispatch = await page.evaluate(ids => {
+async function admissionDispatch(page, ids) {
+  await pauseGame(page)
+  await selectRenderedPeople(page, ids)
+  await resumeGame(page)
+  const target = await resolveHutDispatch(page),
+    before = await page.evaluate(ids => {
+      const world = window.testScene.world,
+        hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
+      return {
+        turn: world.turn,
+        hutId: hut.id,
+        selected: [...world.selected],
+        people: ids.map(id => {
+          const unit = world.units.find(candidate => candidate.id === id)
+          return { id, inside: unit?.inside ?? null, work: unit?.work ?? null }
+        }),
+      }
+    }, ids)
+  await page.mouse.click(target.x, target.y)
+  const immediate = await page.evaluate(ids => {
     const world = window.testScene.world,
       hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
     return {
       turn: world.turn,
       lastOrderTurn: world.lastOrderTurn,
       hutId: hut.id,
+      selected: [...world.selected],
       people: ids.map(id => {
         const unit = world.units.find(candidate => candidate.id === id)
         return { id, inside: unit?.inside ?? null, work: unit?.work ?? null }
       }),
     }
-  }, remainingPeople)
-  assert.equal(fullDispatch.lastOrderTurn, fullDispatch.turn)
+  }, ids)
   assert.ok(
-    fullDispatch.people.every(person => person.inside === fullDispatch.hutId || person.work === fullDispatch.hutId),
-    'full-occupancy click must immediately dispatch both selected free Braves to the hut'
+    immediate.lastOrderTurn >= before.turn && immediate.lastOrderTurn <= immediate.turn,
+    'real hut click must immediately accept the selected resident order'
   )
-  await setSpeed(page, 4)
-  await page.waitForFunction(() => {
-    const world = window.testScene.world,
-      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
-    return window.hutSmoke.peopleIds.every(
-      id => world.units.find(unit => unit.id === id)?.inside === hut.id
-    )
-  })
-  await page.waitForFunction(() => {
-    const scene = window.testScene,
-      hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      smoke = scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
-    return smoke?.state.root?.mode === 'full' && smoke.group.visible
-  })
-  await setSpeed(page, 0)
+  assert.ok(
+    immediate.people.every(
+      person => person.inside === immediate.hutId || person.work === immediate.hutId
+    ),
+    'real hut click must immediately dispatch every selected free Brave to the hut'
+  )
+  return { target, before, immediate }
+}
 
+async function departOne(page) {
+  await pauseGame(page)
+  await clearSelection(page)
+  const hutTarget = await resolveHutDispatch(page)
+  await page.mouse.move(hutTarget.x, hutTarget.y)
+  const panel = page.getByRole('group', { name: /^Hut: [0-9]+ of [0-9]+ occupants$/ })
+  await panel.waitFor({ state: 'visible' })
+  const occupant = panel.getByRole('button', { name: /^Occupant 1:/ }),
+    id = Number(await occupant.getAttribute('data-person'))
+  assert.ok(id > 0, 'visible hut occupant must expose its live person id')
+  await occupant.click()
+  assert.deepEqual(await page.evaluate(() => [...window.testScene.world.selected]), [id])
+  let groundTarget = await resolveGroundDispatch(page)
+  const before = await page.evaluate(id => {
+    const world = window.testScene.world,
+      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
+      unit = world.units.find(candidate => candidate.id === id)
+    return {
+      turn: world.turn,
+      hutId: hut.id,
+      residents: world.units.filter(person => person.inside === hut.id && person.hp > 0).length,
+      admissionInside: hut.admission?.inside ?? 0,
+      unitInside: unit?.inside ?? null,
+    }
+  }, id)
+  assert.equal(before.unitInside, before.hutId)
+  await resumeGame(page)
+  groundTarget = await resolveGroundDispatch(page)
+  await page.mouse.click(groundTarget.x, groundTarget.y)
+  const immediate = await page.evaluate(id => {
+    const world = window.testScene.world,
+      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
+      unit = world.units.find(candidate => candidate.id === id)
+    return {
+      turn: world.turn,
+      lastOrderTurn: world.lastOrderTurn,
+      residents: world.units.filter(person => person.inside === hut.id && person.hp > 0).length,
+      admissionInside: hut.admission?.inside ?? 0,
+      unitInside: unit?.inside ?? null,
+    }
+  }, id)
+  assert.ok(immediate.lastOrderTurn >= before.turn && immediate.lastOrderTurn <= immediate.turn)
+  assert.equal(immediate.unitInside, null)
+  assert.equal(immediate.residents, before.residents - 1)
+  assert.equal(immediate.admissionInside, before.admissionInside - 1)
+  await page.waitForFunction(turn => window.testScene.world.turn > turn, immediate.turn)
+  await pauseGame(page)
+  return { id, hutTarget, groundTarget, before, immediate }
+}
+
+const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+try {
+  const { page, errors } = await openGame(browser, 1)
+  page.setDefaultTimeout(30_000)
+  await ensureDoubleSpeed(page)
+  await focusSettlement(page)
+  await pauseGame(page)
+
+  const builderIds = await page.evaluate(() => {
+    const scene = window.testScene,
+      site = { x: -1.7, z: 32.3 }
+    return scene.world.units
+      .filter(
+        unit =>
+          unit.team === 'blue' &&
+          unit.kind === 'brave' &&
+          unit.hp > 0 &&
+          unit.inside === null &&
+          unit.work === null &&
+          scene.picking.personBounds(unit.id)
+      )
+      .sort(
+        (a, b) => Math.hypot(a.x - site.x, a.z - site.z) - Math.hypot(b.x - site.x, b.z - site.z)
+      )
+      .slice(0, 6)
+      .map(unit => unit.id)
+  })
+  assert.ok(
+    builderIds.length >= 3,
+    'fresh hut construction needs at least three rendered free Braves'
+  )
+  await selectRenderedPeople(page, builderIds)
+
+  const beforeBuildings = await page.evaluate(() => window.testScene.world.buildings.map(b => b.id))
+  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'Hut, 3 wood', exact: true }).click()
+  let buildTarget = await resolveBuildSite(page)
+  await resumeGame(page)
+  buildTarget = await resolveBuildSite(page)
+  await page.mouse.click(buildTarget.x, buildTarget.y)
+  await page.waitForFunction(
+    before =>
+      window.testScene.world.buildings.some(
+        building =>
+          !before.includes(building.id) &&
+          building.team === 'blue' &&
+          building.kind === 'hut' &&
+          building.level === 1 &&
+          building.progress < 1
+      ),
+    beforeBuildings
+  )
+  const hutId = await page.evaluate(
+    before =>
+      window.testScene.world.buildings.find(
+        building =>
+          !before.includes(building.id) &&
+          building.team === 'blue' &&
+          building.kind === 'hut' &&
+          building.level === 1
+      ).id,
+    beforeBuildings
+  )
+  const placed = await page.evaluate(
+    ({ hutId, builderIds }) => {
+      const world = window.testScene.world,
+        hut = world.buildings.find(building => building.id === hutId)
+      return {
+        hutId,
+        builders: [...hut.builders],
+        assigned: builderIds.filter(id => hut.builders.includes(id)),
+        selected: [...world.selected],
+      }
+    },
+    { hutId, builderIds }
+  )
+  assert.ok(placed.assigned.length >= 3, 'rendered hut placement must assign the selected Braves')
+  report.construction = { builderIds, buildTarget, placed }
+  writeReport()
+
+  await page.waitForFunction(
+    hutId => {
+      const hut = window.testScene.world.buildings.find(building => building.id === hutId)
+      return hut?.progress === 1 && hut.builders.every(id => id === 0)
+    },
+    hutId,
+    { timeout: 180_000 }
+  )
+  await page.waitForFunction(
+    ({ hutId, builderIds }) => {
+      const world = window.testScene.world,
+        hut = world.buildings.find(building => building.id === hutId)
+      return (
+        hut?.admission?.inside === 0 &&
+        !world.units.some(unit => unit.inside === hutId && unit.hp > 0) &&
+        builderIds.every(id => {
+          const unit = world.units.find(candidate => candidate.id === id)
+          return !unit || unit.work === null
+        })
+      )
+    },
+    { hutId, builderIds },
+    { timeout: 60_000 }
+  )
+  await pauseGame(page)
+  await page.evaluate(hutId => {
+    window.hutSmoke = { hutId }
+  }, hutId)
+  await page.waitForFunction(hutId => {
+    const scene = window.testScene
+    return !!scene.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
+  }, hutId)
+
+  let state = await smokeSnapshot(page)
+  assert.ok(state)
+  assert.equal(state.occupants, 0)
+  assert.equal(state.admissionInside, 0)
+  assert.equal(state.capacity, 3)
+  assert.equal(state.socketIndex, 3)
+  const zeroStart = state.counter,
+    turnsToProducer = (32 - (zeroStart & 31)) & 31 || 32
+  await resumeGame(page)
+  await page.waitForFunction(
+    ({ hutId, start, required }) => {
+      const scene = window.testScene,
+        world = scene.world,
+        hut = world.buildings.find(building => building.id === hutId),
+        smoke = scene.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
+      return (
+        ((hut.counter - start) & 255) >= required &&
+        !world.units.some(unit => unit.inside === hutId && unit.hp > 0) &&
+        (hut.admission?.inside ?? 0) === 0 &&
+        smoke?.state.root === null &&
+        !smoke.group.visible
+      )
+    },
+    { hutId, start: zeroStart, required: turnsToProducer }
+  )
+  await pauseGame(page)
+  state = await smokeSnapshot(page)
+  assert.equal(state.root, null)
+  assert.equal(state.visible, false)
+  report.zero = state
+  writeReport()
+
+  const residentIds = await page.evaluate(builderIds => {
+    const scene = window.testScene,
+      preferred = new Set(builderIds)
+    return scene.world.units
+      .filter(
+        unit =>
+          unit.team === 'blue' &&
+          unit.kind === 'brave' &&
+          unit.hp > 0 &&
+          unit.inside === null &&
+          unit.work === null &&
+          scene.picking.personBounds(unit.id)
+      )
+      .sort((a, b) => Number(preferred.has(b.id)) - Number(preferred.has(a.id)))
+      .slice(0, 3)
+      .map(unit => unit.id)
+  }, builderIds)
+  assert.equal(residentIds.length, 3, 'fresh hut acceptance needs three rendered free Braves')
+
+  const partialDispatch = await admissionDispatch(page, [residentIds[0]])
+  report.partialDispatch = partialDispatch
+  await page.waitForFunction(
+    ({ hutId, id }) => {
+      const world = window.testScene.world
+      return world.units.find(unit => unit.id === id)?.inside === hutId
+    },
+    { hutId, id: residentIds[0] }
+  )
+  await page.waitForFunction(hutId => {
+    const scene = window.testScene,
+      smoke = scene.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
+    return smoke?.state.root?.mode === 'partial' && smoke.group.visible
+  }, hutId)
+  await pauseGame(page)
+  state = await smokeSnapshot(page)
+  assert.equal(state.occupants, 1)
+  assert.equal(state.admissionInside, 1)
+  assert.equal(state.root.mode, 'partial')
+  assert.equal(state.sequence, 'hutSmokePartial')
+  assert.ok(state.frameSource >= 1385 && state.frameSource <= 1400)
+  assert.deepEqual(state.atlas, state.expectedAtlas)
+  assert.deepEqual(state.position, state.expected)
+  assert.deepEqual(state.size, { x: 32, y: 64 })
+  const partialPixels = await renderedPixels(page)
+  assert.ok(
+    partialPixels > 20,
+    'partial occupancy smoke rendered only ' + partialPixels + ' pixels'
+  )
+  report.partial = { ...state, pixels: partialPixels }
+  writeReport()
+
+  const fullDispatch = await admissionDispatch(page, residentIds.slice(1))
+  report.fullDispatch = fullDispatch
+  await page.waitForFunction(
+    ({ hutId, ids }) => {
+      const world = window.testScene.world
+      return ids.every(id => world.units.find(unit => unit.id === id)?.inside === hutId)
+    },
+    { hutId, ids: residentIds.slice(1) }
+  )
+  await page.waitForFunction(hutId => {
+    const scene = window.testScene,
+      smoke = scene.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
+    return smoke?.state.root?.mode === 'full' && smoke.group.visible
+  }, hutId)
+  await pauseGame(page)
   state = await smokeSnapshot(page)
   assert.equal(state.occupants, 3)
+  assert.equal(state.admissionInside, 3)
   assert.equal(state.root.mode, 'full')
+  assert.equal(state.sequence, 'hutSmokeFull')
+  assert.ok(state.frameSource >= 1329 && state.frameSource <= 1344)
+  assert.deepEqual(state.atlas, state.expectedAtlas)
   assert.deepEqual(state.position, state.expected)
   const fullPixels = await renderedPixels(page)
   assert.ok(fullPixels > 20, 'full occupancy smoke rendered only ' + fullPixels + ' pixels')
+  report.full = { ...state, pixels: fullPixels, residentIds }
+  writeReport()
 
-  const paused = await page.evaluate(async () => {
-    const scene = window.testScene,
-      hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      smoke = scene.buildingMeshes.get(hut.id).userData.hutOccupancySmoke,
-      before = {
-        counter: hut.counter,
-        root: structuredClone(smoke.state.root),
-        cosmeticRandom: scene.world.cosmeticRandom.randomState,
-        animationFrame: scene.gameClock.animationFrame,
-      }
-    scene.world.paused = true
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const after = {
-      counter: hut.counter,
-      root: structuredClone(smoke.state.root),
-      cosmeticRandom: scene.world.cosmeticRandom.randomState,
-      animationFrame: scene.gameClock.animationFrame,
+  const pausedBefore = await smokeSnapshot(page)
+  await page.waitForTimeout(300)
+  const pausedAfter = await smokeSnapshot(page)
+  assert.deepEqual(
+    {
+      counter: pausedAfter.counter,
+      root: pausedAfter.root,
+      cosmeticRandom: pausedAfter.cosmeticRandom,
+      animationFrame: pausedAfter.animationFrame,
+    },
+    {
+      counter: pausedBefore.counter,
+      root: pausedBefore.root,
+      cosmeticRandom: pausedBefore.cosmeticRandom,
+      animationFrame: pausedBefore.animationFrame,
     }
-    scene.world.paused = false
-    return { before, after }
-  })
-  assert.deepEqual(paused.after, paused.before)
+  )
 
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  const load = page.getByRole('button', { name: 'Load checkpoint', exact: true })
+  assert.equal(await load.isEnabled(), true)
   await page.getByRole('button', { name: 'Close menu', exact: true }).click()
 
-  await departOne(page, hutTarget, fixture.groundTarget)
-  await setSpeed(page, 4)
-  await page.waitForFunction(() => {
+  const firstDeparture = await departOne(page)
+  report.firstDeparture = firstDeparture
+  await resumeGame(page)
+  await page.waitForFunction(hutId => {
     const scene = window.testScene,
-      hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      smoke = scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
+      world = scene.world,
+      smoke = scene.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
     return (
-      scene.world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length === 2 &&
+      world.units.filter(unit => unit.inside === hutId && unit.hp > 0).length === 2 &&
       smoke?.state.root?.mode === 'partial'
     )
-  })
-  await setSpeed(page, 0)
+  }, hutId)
+  await pauseGame(page)
   state = await smokeSnapshot(page)
   assert.equal(state.occupants, 2)
   assert.equal(state.root.mode, 'partial')
   assert.deepEqual(state.position, state.expected)
 
-  await departOne(page, hutTarget, fixture.groundTarget)
-  await departOne(page, hutTarget, fixture.groundTarget)
-  await setSpeed(page, 4)
-  await page.waitForFunction(() => {
+  report.secondDeparture = await departOne(page)
+  report.thirdDeparture = await departOne(page)
+  await resumeGame(page)
+  await page.waitForFunction(hutId => {
     const scene = window.testScene,
-      hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      smoke = scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
+      world = scene.world,
+      smoke = scene.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
     return (
-      scene.world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length === 0 &&
+      world.units.filter(unit => unit.inside === hutId && unit.hp > 0).length === 0 &&
+      (world.buildings.find(building => building.id === hutId)?.admission?.inside ?? 0) === 0 &&
       smoke?.state.root === null &&
       !smoke.group.visible
     )
-  })
-  await setSpeed(page, 0)
+  }, hutId)
+  await pauseGame(page)
   state = await smokeSnapshot(page)
   assert.equal(state.occupants, 0)
+  assert.equal(state.admissionInside, 0)
   assert.equal(state.root, null)
   assert.equal(state.visible, false)
+  report.emptyAgain = state
+  writeReport()
 
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
-  await page.waitForFunction(() => {
+  await page.waitForFunction(hutId => {
     const scene = window.testScene,
-      hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
+      world = scene.world,
+      hut = world.buildings.find(building => building.id === hutId),
       smoke = hut && scene.buildingMeshes.get(hut.id)?.userData.hutOccupancySmoke
     return (
       hut &&
-      scene.world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length === 3 &&
+      world.units.filter(unit => unit.inside === hutId && unit.hp > 0).length === 3 &&
       smoke?.state.root?.mode === 'full' &&
       smoke.group.visible
     )
-  })
+  }, hutId)
   state = await smokeSnapshot(page)
   assert.equal(state.occupants, 3)
   assert.equal(state.root.mode, 'full')
   assert.deepEqual(state.position, state.expected)
+  assert.equal(state.frameSource >= 1329 && state.frameSource <= 1344, true)
+  assert.deepEqual(state.atlas, state.expectedAtlas)
   assert.deepEqual(errors, [])
-
+  report.checkpoint = state
+  report.result =
+    'PASS fresh rendered hut construction; zero sampling; partial/full native HFX/socket smoke; departures; pause; checkpoint'
+  writeReport()
   console.log(
-    'PASS: real Mission 1 hut occupancy drives 0→partial→full→partial→empty root smoke at native capacity/socket, pause is stable, checkpoint restores full occupancy, player-only gating holds, and original HFX render (' +
-      partialPixels +
-      '/' +
-      fullPixels +
-      ' pixels); secondary full-hut child puffs remain intentionally excluded'
+    'PASS: fresh rendered Mission 1 hut construction establishes true zero occupancy; real resident input drives model75 partial HFX1385-1400 then model74 full HFX1329-1344 at capacity socket 3; full→partial→empty, pause and checkpoint restoration pass; supported capacities remain sockets 3/4/5; secondary full-hut child puffs remain excluded; evidence ' +
+      reportPath
   )
-  }
 } finally {
   await browser.close()
 }
