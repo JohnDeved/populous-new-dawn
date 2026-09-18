@@ -6,7 +6,10 @@ export const STONE_HEAD_149_MODEL = 149
 
 type AuthoredObject = StoneScenery & { angle: number; settings?: readonly number[] }
 type HeadIdentity = Pick<Shrine, 'x' | 'z' | 'range' | 'angle'>
-export type StoneHead149Source = { triggerIndex: number; sceneryIndex: number }
+export interface StoneHead149Source {
+  triggerIndex: number
+  sceneryIndex: number
+}
 
 // 004851e0 supplies the scenery and derives flags from actual reward links.
 // 004fbd20 selects 149 for mode0 with neither flag0x10 nor flag0x20. Other
@@ -27,7 +30,7 @@ export function findStoneHead149Source(
     )
   // An ambiguous or incomplete authored identity is not evidence for this family.
   if (matches.length !== 1) return null
-  const trigger = matches[0],
+  const [trigger] = matches,
     settings = trigger.settings!
   if (settings[0] !== 0 || settings.length < 26) return null
   const byLink = new Map(objects.map(object => [object.index + 1, object]))

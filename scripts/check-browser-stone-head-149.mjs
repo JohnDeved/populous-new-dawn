@@ -218,13 +218,14 @@ try {
     ids =>
       ids.map(id => {
         const unit = window.testScene.world.units.find(unit => unit.id === id)
-        return { id, command: unit.native?.commandStatus, x: unit.x, z: unit.z }
+        return { id, work: unit.work, command: unit.native?.commandStatus, x: unit.x, z: unit.z }
       }),
     selected
   )
-  assert.ok(orders.filter(order => order.command === 27).length >= 2, JSON.stringify(orders))
   report.orders = orders
   save()
+  // Normal dispatch sets work immediately; native command27 is a later movement transition.
+  assert.ok(orders.filter(order => order.work === root.id).length >= 2, JSON.stringify(orders))
   let completed = false
   for (let batch = 0; batch < 64 && !completed; batch++) {
     const progress = await page.evaluate(async id => {
