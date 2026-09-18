@@ -40,6 +40,7 @@ import {
 import {
   consumePersonDisruption,
   damagePerson,
+  regeneratePersonHealth,
   preparePersonTurn,
   stepPersonReaction,
 } from './person-update.ts'
@@ -104,6 +105,7 @@ import {
   type CellObject,
 } from './object-cells.ts'
 import { positionDistance, random } from './native-math.ts'
+import { maxHp } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
 import { initializeSpecialBattle } from './special-battle.ts'
@@ -242,6 +244,31 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
 // Share native exit placement without allocating a synthetic occupancy world.
 // ponytail: ordinary occupants still belong to the browser unit list; native
 // six-slot admission, training repricing and order ownership remain to be wired.
+export function stepLivePersonHealth(w: World) {
+  for (const u of w.units) {
+    if (u.hp <= 0) continue
+    const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
+    if (p && (rules.personStateFlags[p.state] & 1 || p.flags2 & 0x80000)) continue
+
+    const maxLife = short(Math.round(maxHp(u.kind) * 20)),
+      health = {
+        model: p?.model ?? nativePersonModel(u),
+        life: short(Math.round(u.hp * 20)),
+        maxLife,
+        healthMarker: 0,
+        flags3: p?.flags3 ?? 0,
+      }
+    if (w.manaWorld.gameFlags & 128) health.life = maxLife
+    else regeneratePersonHealth(health, w.turn)
+
+    u.hp = health.life / 20
+    if (p) {
+      p.life = health.life
+      p.flags3 = health.flags3
+    }
+  }
+}
+
 export function leaveLiveBuilding(w: World, u: Unit) {
   const entry = leaveBuildingEntry(w, u)
   if (entry) return entry
