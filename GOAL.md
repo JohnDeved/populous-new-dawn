@@ -205,6 +205,18 @@ code.
 
 ## Current execution order: highest-impact playable parity
 
+User priority (September 18): workers directly own PND release-gate work, with
+overdue prerequisites first. PND-01 remains overdue; PND-02 is accepted. Finish a
+running check or reviewable delivery before switching, then prefer work that closes
+the gate's remaining acceptance over another convenient cosmetic or research slice.
+Worker1 owns PND-01's remaining original-save fixture prerequisite leading to PND-07;
+Worker2 owns PND-10's message regression repair; Worker3 owns PND-04 training/task
+behavior; Worker4 owns PND-08 natural campaign completion; Worker5 owns PND-06
+worship/spell acceptance blockers. User reports are child tasks, not replacements
+for complete gate acceptance. Reuse the accepted inventory; do not repeat it or
+close a gate from documentation alone. CEO coordinates shared ownership, integration
+and final acceptance. Preserve original deadlines and the September 30 target.
+
 Mandatory near-term order: choose from reviewed release-critical gaps and the PND01
 campaign/system inventory, not another convenient mission opening or expansion.
 
