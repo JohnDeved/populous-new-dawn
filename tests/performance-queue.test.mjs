@@ -117,7 +117,12 @@ async function unusedPort() {
   return port
 }
 
-async function supervisorFault(t, checkerSource, expected, serverCommand) {
+async function supervisorFault(
+  t,
+  checkerSource,
+  expected,
+  { serverCommand, serverSource, expectedProcesses } = {}
+) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pnd-supervisor-')),
     output = path.join(root, 'output'),
     checker = path.join(root, 'checker.mjs'),
@@ -129,7 +134,8 @@ async function supervisorFault(t, checkerSource, expected, serverCommand) {
   fs.writeFileSync(checker, checkerSource)
   fs.writeFileSync(
     server,
-    `const http=require('node:http');http.createServer((q,r)=>r.end('ready')).listen(Number(process.argv[3]),process.argv[2]);\n`
+    serverSource ??
+      `const http=require('node:http');http.createServer((q,r)=>r.end('ready')).listen(Number(process.argv[3]),process.argv[2]);\n`
   )
   t.after(() => fs.rmSync(root, { recursive: true, force: true }))
   const env = {
@@ -146,7 +152,7 @@ async function supervisorFault(t, checkerSource, expected, serverCommand) {
       checkerCommand: [process.execPath, checker],
       cwd: root,
       env,
-      serverCommand: serverCommand?.(port) ?? [process.execPath, server, '127.0.0.1', String(port)],
+      serverCommand: serverCommand ?? [process.execPath, server, '127.0.0.1', String(port)],
       readinessTimeoutMs: 1_000,
       checkerStdio: 'ignore',
     }),
@@ -155,7 +161,7 @@ async function supervisorFault(t, checkerSource, expected, serverCommand) {
   const receipt = read(cleanup)
   assert.equal(receipt.jobId, env.PND_QUEUE_JOB_ID)
   assert.equal(receipt.resourcesReleased, true)
-  assert.equal(receipt.processes.length, serverCommand ? 1 : 2)
+  assert.equal(receipt.processes.length, expectedProcesses ?? 2)
   for (const processRecord of receipt.processes)
     assert.throws(() => process.kill(-processRecord.pid, 0), { code: 'ESRCH' })
   return { marker }
@@ -174,7 +180,7 @@ test('browser supervisor does not start the checker while the server port refuse
     t,
     `import fs from 'node:fs';fs.writeFileSync(process.env.CHECKER_MARKER,'started')\n`,
     /Server startup failed/,
-    () => [process.execPath, '-e', 'setTimeout(()=>{},30000)']
+    { serverCommand: [process.execPath, '-e', 'setTimeout(()=>{},30000)'], expectedProcesses: 1 }
   )
   assert.equal(fs.existsSync(marker), false)
 })
@@ -182,10 +188,102 @@ test('browser supervisor does not start the checker while the server port refuse
 test('browser supervisor verifies cleanup after a checker exception', async t => {
   const { marker } = await supervisorFault(
     t,
-    `import fs from 'node:fs';fs.writeFileSync(process.env.CHECKER_MARKER,'started');throw new Error('runner exception')\n`,
+    `import fs from 'node:fs';if(process.env.PND_QUEUE_CLEANUP)throw new Error('checker inherited cleanup authority');fs.writeFileSync(process.env.CHECKER_MARKER,'started');throw new Error('runner exception')\n`,
     /Checker failed/
   )
   assert.equal(fs.existsSync(marker), true)
+})
+
+test('browser supervisor classifies server spawn failure and verifies empty cleanup', async t => {
+  await supervisorFault(
+    t,
+    `throw new Error('checker must not start')\n`,
+    /Server startup failed/,
+    { serverCommand: ['/pnd/missing-server-command'], expectedProcesses: 0 }
+  )
+})
+
+test('browser supervisor stops the checker when the ready server exits', async t => {
+  await supervisorFault(
+    t,
+    `setTimeout(()=>{},30000)\n`,
+    /Server exited during checking: 9/,
+    {
+      serverSource: `const http=require('node:http');const server=http.createServer((q,r)=>r.end('ready'));server.listen(Number(process.argv[3]),process.argv[2],()=>setTimeout(()=>process.exit(9),500));\n`,
+    }
+  )
+})
+
+test('browser supervisor SIGTERM includes a detached checker descendant', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pnd-supervisor-signal-')),
+    output = path.join(root, 'output'),
+    cleanup = path.join(output, 'cleanup.json'),
+    checker = path.join(root, 'checker.mjs'),
+    server = path.join(root, 'server.cjs'),
+    wrapper = path.join(root, 'wrapper.mjs'),
+    browserPidFile = path.join(root, 'browser.pid'),
+    browserTerm = path.join(root, 'browser-term'),
+    checkerPidFile = path.join(root, 'checker.pid'),
+    serverPidFile = path.join(root, 'server.pid'),
+    errorFile = path.join(root, 'supervisor-error'),
+    port = await unusedPort()
+  fs.mkdirSync(output)
+  fs.writeFileSync(
+    server,
+    `const fs=require('node:fs'),http=require('node:http');fs.writeFileSync(process.env.SERVER_PID,String(process.pid));http.createServer((q,r)=>r.end('ready')).listen(Number(process.argv[3]),process.argv[2]);\n`
+  )
+  fs.writeFileSync(
+    checker,
+    `import fs from 'node:fs';import {spawn} from 'node:child_process';fs.writeFileSync(process.env.CHECKER_PID,String(process.pid));const source="const fs=require('node:fs');process.on('SIGTERM',()=>{fs.writeFileSync(process.env.BROWSER_TERM,'SIGTERM');process.exit(0)});setInterval(()=>{},1000)";const child=spawn(process.execPath,['-e',source],{detached:true,stdio:'ignore',env:process.env});child.unref();fs.writeFileSync(process.env.BROWSER_PID,String(child.pid));setInterval(()=>{},1000);\n`
+  )
+  fs.writeFileSync(
+    wrapper,
+    `import fs from 'node:fs';import {inspect} from 'node:util';import {superviseBrowserCheck} from ${JSON.stringify(new URL('../scripts/performance-queue.mjs', import.meta.url).href)};try{await superviseBrowserCheck({checkerCommand:[process.execPath,${JSON.stringify(checker)}],cwd:${JSON.stringify(root)},env:process.env,serverCommand:[process.execPath,${JSON.stringify(server)},'127.0.0.1',process.env.PND_QUEUE_PORTS],readinessTimeoutMs:1000,checkerStdio:'ignore'})}catch(error){fs.writeFileSync(process.env.SUPERVISOR_ERROR,inspect(error,{depth:8}));process.exitCode=1}\n`
+  )
+  const env = {
+      ...process.env,
+      BROWSER_PID: browserPidFile,
+      BROWSER_TERM: browserTerm,
+      CHECKER_PID: checkerPidFile,
+      SERVER_PID: serverPidFile,
+      SUPERVISOR_ERROR: errorFile,
+      PND_QUEUE_JOB_ID: 'supervisor-signal-test',
+      PND_QUEUE_OUTPUT: output,
+      PND_QUEUE_CLEANUP: cleanup,
+      PND_QUEUE_PORTS: String(port),
+      POPULOUS_URL: `http://127.0.0.1:${port}`,
+    },
+    supervisor = spawn(process.execPath, [wrapper], { cwd: root, env, stdio: 'ignore' })
+  t.after(async () => {
+    for (const pidFile of [browserPidFile, checkerPidFile, serverPidFile])
+      if (fs.existsSync(pidFile))
+        try {
+          process.kill(-Number(fs.readFileSync(pidFile, 'utf8')), 'SIGKILL')
+        } catch {
+          // The fixture process already exited.
+        }
+    await wait(100)
+    fs.rmSync(root, { recursive: true, force: true })
+  })
+  await until(() => fs.existsSync(browserPidFile), 'detached browser start')
+  await wait(350)
+  process.kill(supervisor.pid, 'SIGTERM')
+  const result = await new Promise(resolve =>
+    supervisor.once('exit', (code, signal) => resolve({ code, signal }))
+  )
+  assert.equal(result.signal, null)
+  assert.notEqual(result.code, 0)
+  assert.equal(fs.readFileSync(browserTerm, 'utf8'), 'SIGTERM')
+  assert(
+    fs.existsSync(cleanup),
+    fs.existsSync(errorFile) ? fs.readFileSync(errorFile, 'utf8') : 'supervisor wrote no cleanup receipt'
+  )
+  const browserPid = Number(fs.readFileSync(browserPidFile, 'utf8')),
+    receipt = read(cleanup)
+  assert(receipt.processes.some(processRecord => processRecord.pid === browserPid))
+  assert.equal(receipt.processes.length, 3)
+  for (const processRecord of receipt.processes)
+    assert.throws(() => process.kill(-processRecord.pid, 0), { code: 'ESRCH' })
 })
 
 test('concurrent submitters and controllers preserve FIFO without overlap', async t => {

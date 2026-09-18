@@ -27,6 +27,24 @@ function identity(pid) {
   const r = spawnSync('ps', ['-p', String(pid), '-o', 'lstart='], { encoding: 'utf8' })
   return r.status === 0 ? r.stdout.trim() : null
 }
+function processTable() {
+  const r = spawnSync('ps', ['-axo', 'pid=,ppid=,pgid=,lstart='], { encoding: 'utf8' })
+  assert.equal(r.status, 0, `Could not inspect process ownership: ${r.stderr.trim()}`)
+  return r.stdout
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map(line => {
+      const match = line.trim().match(/^(\d+)\s+(\d+)\s+(\d+)\s+(.+)$/)
+      assert(match, `Could not parse process ownership: ${line}`)
+      return {
+        pid: Number(match[1]),
+        ppid: Number(match[2]),
+        pgid: Number(match[3]),
+        identity: match[4].trim(),
+      }
+    })
+}
 function alive(pid, group = false) {
   try {
     process.kill(group ? -pid : pid, 0)
@@ -134,13 +152,31 @@ async function portFree(port) {
     })
   return (await probe('127.0.0.1')) && (await probe('::1'))
 }
-async function stopGroup(pid) {
-  if (!alive(pid, true)) return
-  signal(pid, 'SIGTERM')
-  for (let i = 0; alive(pid, true) && i < 20; i++) await sleep(50)
-  if (alive(pid, true)) signal(pid, 'SIGKILL')
-  for (let i = 0; alive(pid, true) && i < 20; i++) await sleep(50)
-  assert(!alive(pid, true), `Owned process group ${pid} is still alive`)
+function groupRows(group, table = processTable()) {
+  return table.filter(processRecord => processRecord.pgid === group.pid)
+}
+function verifyGroupIdentity(group, table = processTable()) {
+  const rows = groupRows(group, table)
+  if (!rows.length) return rows
+  assert(
+    rows.some(row => group.members.get(row.pid) === row.identity),
+    `Refusing to signal process group ${group.pid}: owned process identity is no longer present`
+  )
+  for (const row of rows) group.members.set(row.pid, row.identity)
+  return rows
+}
+function signalOwnedGroup(group, value) {
+  if (!verifyGroupIdentity(group).length) return false
+  signal(group.pid, value)
+  if (value === 'SIGTERM') group.terminationSent = true
+  return true
+}
+async function stopGroup(group) {
+  if (!group.terminationSent && !signalOwnedGroup(group, 'SIGTERM')) return
+  for (let i = 0; groupRows(group).length && i < 20; i++) await sleep(50)
+  if (groupRows(group).length) signalOwnedGroup(group, 'SIGKILL')
+  for (let i = 0; groupRows(group).length && i < 20; i++) await sleep(50)
+  assert(!groupRows(group).length, `Owned process group ${group.pid} is still alive`)
 }
 function childOutcome(child) {
   return new Promise(resolve => {
@@ -185,16 +221,64 @@ export async function superviseBrowserCheck({
   ]
   argv(serverCommand, 'serverCommand')
 
-  const owned = [],
-    signalHandlers = new Map()
+  const ownedProcesses = new Map(),
+    ownedGroups = new Map(),
+    signalHandlers = new Map(),
+    interruptErrors = []
+  const remember = processRecord => {
+    ownedProcesses.set(processRecord.pid, processRecord.identity)
+    let group = ownedGroups.get(processRecord.pgid)
+    if (!group) {
+      group = { pid: processRecord.pgid, members: new Map() }
+      ownedGroups.set(group.pid, group)
+    }
+    group.members.set(processRecord.pid, processRecord.identity)
+  }
+  const rememberRoot = (child, label) => {
+    try {
+      assert(child.pid, `${label} did not report a PID`)
+      const processRecord = processTable().find(row => row.pid === child.pid)
+      assert(processRecord, `${label} PID ${child.pid} disappeared before ownership was recorded`)
+      assert.equal(processRecord.pgid, child.pid, `${label} did not start in its owned process group`)
+      remember(processRecord)
+    } catch (error) {
+      interruptErrors.push(error)
+      throw error
+    }
+  }
+  const captureDescendants = () => {
+    const table = processTable(),
+      byPid = new Map(table.map(processRecord => [processRecord.pid, processRecord])),
+      confirmed = new Set()
+    for (const [pid, processIdentity] of ownedProcesses) {
+      const processRecord = byPid.get(pid)
+      if (processRecord?.identity === processIdentity) confirmed.add(pid)
+    }
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const processRecord of table) {
+        if (!confirmed.has(processRecord.ppid) || confirmed.has(processRecord.pid)) continue
+        remember(processRecord)
+        confirmed.add(processRecord.pid)
+        changed = true
+      }
+    }
+    for (const pid of confirmed) remember(byPid.get(pid))
+  }
   let terminationSignal = null
   const interrupt = signalName => {
     terminationSignal = signalName
-    for (const pid of owned)
+    try {
+      captureDescendants()
+    } catch (error) {
+      interruptErrors.push(error)
+    }
+    for (const group of [...ownedGroups.values()].reverse())
       try {
-        signal(pid, 'SIGTERM')
-      } catch {
-        // Final cleanup still verifies this group and preserves the queue block on failure.
+        signalOwnedGroup(group, 'SIGTERM')
+      } catch (error) {
+        interruptErrors.push(error)
       }
   }
   for (const signalName of ['SIGTERM', 'SIGINT']) {
@@ -205,28 +289,32 @@ export async function superviseBrowserCheck({
 
   let failure = null
   try {
-    assert(await portFree(port), `Refusing to start over occupied port ${port}`)
-    const serverLog = fs.openSync(path.join(env.PND_QUEUE_OUTPUT, 'server.log'), 'wx', 0o600)
-    let server
+    let server, serverResult
     try {
-      server = spawn(serverCommand[0], serverCommand.slice(1), {
-        cwd,
-        detached: true,
-        env: { ...env, WRANGLER_LOG_PATH: path.join(env.PND_QUEUE_OUTPUT, 'wrangler.log') },
-        stdio: ['ignore', serverLog, serverLog],
-      })
-    } finally {
-      fs.closeSync(serverLog)
-    }
-    const serverResult = childOutcome(server)
-    assert(server.pid, 'Server did not report a PID')
-    owned.push(server.pid)
-    try {
+      assert(await portFree(port), `Refusing to start over occupied port ${port}`)
+      const serverLog = fs.openSync(path.join(env.PND_QUEUE_OUTPUT, 'server.log'), 'wx', 0o600)
+      try {
+        server = spawn(serverCommand[0], serverCommand.slice(1), {
+          cwd,
+          detached: true,
+          env: { ...env, WRANGLER_LOG_PATH: path.join(env.PND_QUEUE_OUTPUT, 'wrangler.log') },
+          stdio: ['ignore', serverLog, serverLog],
+        })
+      } finally {
+        fs.closeSync(serverLog)
+      }
+      serverResult = childOutcome(server)
+      if (!server.pid) {
+        const result = await serverResult
+        throw result.error ?? new Error('Server did not report a PID')
+      }
+      rememberRoot(server, 'Server')
       const deadline = Date.now() + readinessTimeoutMs
       let ready = false
       while (Date.now() < deadline) {
+        captureDescendants()
         if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
-        if (server.exitCode !== null) {
+        if (server.exitCode !== null || server.signalCode !== null) {
           const result = await serverResult
           if (result.error) throw result.error
           throw new Error(`server exited with ${result.code ?? result.signal}`)
@@ -248,20 +336,45 @@ export async function superviseBrowserCheck({
     }
 
     try {
+      const checkerEnv = { ...env, POPULOUS_URL: url.toString() }
+      delete checkerEnv.PND_QUEUE_CLEANUP
       const checker = spawn(checkerCommand[0], checkerCommand.slice(1), {
         cwd,
         detached: true,
-        env: { ...env, POPULOUS_URL: url.toString() },
+        env: checkerEnv,
         stdio: checkerStdio,
       })
-      assert(checker.pid, 'Checker did not report a PID')
-      owned.push(checker.pid)
-      const result = await childOutcome(checker)
+      const checkerResult = childOutcome(checker)
+      if (!checker.pid) {
+        const result = await checkerResult
+        throw result.error ?? new Error('Checker did not report a PID')
+      }
+      rememberRoot(checker, 'Checker')
+      const checkerEvent = checkerResult.then(result => ({ source: 'checker', result })),
+        serverEvent = serverResult.then(result => ({ source: 'server', result }))
+      let event
+      while (!event) {
+        captureDescendants()
+        event = await Promise.race([
+          checkerEvent,
+          serverEvent,
+          sleep(250).then(() => null),
+        ])
+        if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
+      }
+      captureDescendants()
+      if (event.source === 'server') {
+        const { result } = event
+        if (result.error) throw new Error(`Server exited during checking: ${result.error.message}`)
+        throw new Error(`Server exited during checking: ${result.code ?? result.signal}`)
+      }
+      const { result } = event
       if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
       if (result.error) throw result.error
       if (result.signal) throw new Error(`checker exited from signal ${result.signal}`)
       if (result.code !== 0) throw new Error(`checker exited with code ${result.code}`)
     } catch (error) {
+      if (error.message.startsWith('Server exited during checking:')) throw error
       throw new Error(`Checker failed: ${error.message}`, { cause: error })
     }
   } catch (error) {
@@ -269,8 +382,16 @@ export async function superviseBrowserCheck({
   } finally {
     let cleanupFailure = null
     try {
-      const stopped = await Promise.allSettled([...owned].reverse().map(stopGroup)),
-        cleanupErrors = stopped.filter(result => result.status === 'rejected').map(result => result.reason)
+      try {
+        captureDescendants()
+      } catch (error) {
+        interruptErrors.push(error)
+      }
+      const stopped = await Promise.allSettled([...ownedGroups.values()].reverse().map(stopGroup)),
+        cleanupErrors = [
+          ...interruptErrors,
+          ...stopped.filter(result => result.status === 'rejected').map(result => result.reason),
+        ]
       for (let i = 0; !(await portFree(port)) && i < 20; i++) await sleep(50)
       if (!(await portFree(port))) cleanupErrors.push(new Error(`Owned port ${port} is still occupied`))
       if (cleanupErrors.length) cleanupFailure = new AggregateError(cleanupErrors, 'Owned resources remain')
@@ -279,7 +400,14 @@ export async function superviseBrowserCheck({
           jobId: env.PND_QUEUE_JOB_ID,
           resourcesReleased: true,
           releasedAt: new Date().toISOString(),
-          processes: owned.map(pid => ({ pid, group: true })),
+          processes: [...ownedGroups.values()].map(group => ({
+            pid: group.pid,
+            group: true,
+            members: [...group.members].map(([pid, processIdentity]) => ({
+              pid,
+              identity: processIdentity,
+            })),
+          })),
         })
     } catch (cleanupError) {
       cleanupFailure = cleanupError

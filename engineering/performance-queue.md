@@ -81,7 +81,10 @@ coordination and must not be listed as a port to acquire/release.
 on that exact URL, then starts the checker in a separate owned process group. It
 installs cleanup before the checker loads, so dependency/import failures and checker
 exceptions retain the same verified-release gate. The queue requires the URL's port
-to be the job's one declared port.
+to be the job's one declared port. Only the supervisor receives `PND_QUEUE_CLEANUP`.
+It records descendant process groups and their creation identities, then rechecks an
+owned identity immediately before a group signal. Missing or changed identity proof
+withholds the receipt and preserves the queue block.
 
 After cleanup, atomically write this receipt (temporary file then rename):
 
