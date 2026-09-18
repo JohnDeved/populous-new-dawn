@@ -124,39 +124,56 @@ async function summaryRect(page, stringId) {
   })
   const message = await currentMessage(page, stringId)
   if (!message) throw new Error(`message ${stringId} is unavailable`)
-  const rect = await details.locator('summary').evaluate(node => {
-    const box = node.getBoundingClientRect(),
-      style = getComputedStyle(node.parentElement)
+  const layout = await details.locator('summary').evaluate(node => {
+    const summary = node.getBoundingClientRect(),
+      detail = node.parentElement,
+      detailBox = detail.getBoundingClientRect(),
+      popup = detail.open ? detail.querySelector(':scope > div')?.getBoundingClientRect() : null,
+      hud = document.querySelector('.native-hud').getBoundingClientRect(),
+      world = document.querySelector('.world-viewport').getBoundingClientRect(),
+      style = getComputedStyle(detail)
     return {
-      left: box.left,
-      top: box.top,
-      width: box.width,
-      height: box.height,
+      summary: {
+        left: summary.left,
+        top: summary.top,
+        width: summary.width,
+        height: summary.height,
+      },
+      detailsLeft: detailBox.left,
+      popup: popup
+        ? { left: popup.left, top: popup.top, width: popup.width, height: popup.height }
+        : null,
+      hudRight: hud.right,
+      worldLeft: world.left,
       transitionDuration: style.transitionDuration,
     }
   })
-  return { details, message, rect }
+  return { details, message, layout }
 }
 
-async function assertNativeRect(page, stringId, width, height) {
-  const { details, message, rect } = await summaryRect(page, stringId),
+async function assertComposedRect(page, stringId, width, height) {
+  const { details, message, layout } = await summaryRect(page, stringId),
     expected = {
-      left: screenX(0x2800, width),
+      left: layout.worldLeft,
       top: screenY(message.position, height),
       width: stripWidth(width),
       height: screenY(message.height, height),
     }
+  assert.equal(layout.hudRight, layout.worldLeft, 'browser HUD/world seam must be contiguous')
   assert.deepEqual(
-    { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+    layout.summary,
     expected,
-    `message ${stringId} native screen parameterization`
+    `message ${stringId} browser seam anchor + native size/Y parameterization`
   )
+  assert.equal(layout.detailsLeft, layout.worldLeft, 'message details parent must track browser seam')
+  if (layout.popup)
+    assert.equal(layout.popup.left, layout.worldLeft, 'open popup body must track browser seam')
   assert.equal(
-    rect.transitionDuration,
+    layout.transitionDuration,
     '0s',
-    'native message positions must not have CSS wall-clock smoothing'
+    'campaign message position remains unsmoothed while animation-cadence diagnosis is open'
   )
-  return { details, message, rect, expected }
+  return { details, message, layout, expected }
 }
 
 async function closeMenu(page) {
@@ -251,7 +268,7 @@ try {
     false,
     'pending message must remain icon-only while entering'
   )
-  await assertNativeRect(page, 641, 1440, 1000)
+  await assertComposedRect(page, 641, 1440, 1000)
   await page.screenshot({ path: resolve(output, 'message-641-entry.png') })
 
   // Use the shipped 24 Hz presentation owner with simulation speed zero until native settle consumption.
@@ -279,7 +296,7 @@ try {
       .messages.slots.find(candidate => candidate?.stringId === 641)
     return details?.open && message && !(message.flags & 2) && !(message.flags & 0x20000)
   }, missionTwoOpening)
-  await assertNativeRect(page, 641, 1440, 1000)
+  await assertComposedRect(page, 641, 1440, 1000)
   assert.deepEqual(
     await opening.locator('summary img').evaluate(node => {
       const rect = node.getBoundingClientRect()
@@ -294,11 +311,15 @@ try {
   await finishFlybyPresentation(page)
   assert.equal(await page.evaluate(() => window.testStore.getWorld().inputMask), 0)
 
-  // HUD preference is independent: sidebar scale changes, campaign-message geometry does not.
-  const beforeHud = await assertNativeRect(page, 641, 1440, 1000),
-    hudBefore = await page
+  // Browser composition adaptation: native x=0x2800 is the original HUD right edge,
+  // while the modern browser HUD has its own capped/user-selectable scale. Anchor the message
+  // parent/summary/popup to the actual rendered HUD/world seam; retain native width and Y.
+  const automatic1440 = await assertComposedRect(page, 641, 1440, 1000),
+    hudAutomatic1440 = await page
       .locator('.native-hud')
       .evaluate(node => node.getBoundingClientRect().width)
+  assert.equal(automatic1440.layout.summary.left, hudAutomatic1440)
+
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('1')
   await closeMenu(page)
@@ -306,31 +327,62 @@ try {
     width => document.querySelector('.native-hud').getBoundingClientRect().width === width,
     100
   )
-  const afterHud = await assertNativeRect(page, 641, 1440, 1000)
-  assert.deepEqual(afterHud.rect, beforeHud.rect)
-  assert.ok(hudBefore > 100)
+  const hud1001440 = await assertComposedRect(page, 641, 1440, 1000)
+  assert.equal(hud1001440.layout.summary.left, 100)
+  assert.deepEqual(
+    {
+      top: hud1001440.layout.summary.top,
+      width: hud1001440.layout.summary.width,
+      height: hud1001440.layout.summary.height,
+    },
+    {
+      top: automatic1440.layout.summary.top,
+      width: automatic1440.layout.summary.width,
+      height: automatic1440.layout.summary.height,
+    },
+    'HUD preference changes only the browser seam X anchor, not native width/Y'
+  )
+  assert.notEqual(
+    hud1001440.layout.summary.left,
+    automatic1440.layout.summary.left,
+    'message X must follow the actual browser seam when HUD size changes'
+  )
 
-  // Exact native viewport parameterization after resize, still independent of HUD preference.
   await page.setViewportSize({ width: 3440, height: 1440 })
   await page.waitForFunction(
-    expected => {
-      const details = [...document.querySelectorAll('.campaign-messages details')].find(node =>
-          node.textContent.includes(expected.text)
-        ),
-        summary = details?.querySelector('summary')
-      return summary && summary.getBoundingClientRect().left === expected.left
+    width => {
+      const summary = document.querySelector('.campaign-messages summary')
+      return summary && summary.getBoundingClientRect().width === width
     },
-    { text: missionTwoOpening, left: screenX(0x2800, 3440) }
+    stripWidth(3440)
   )
-  await assertNativeRect(page, 641, 3440, 1440)
+  const hud1003440 = await assertComposedRect(page, 641, 3440, 1440)
+  assert.equal(hud1003440.layout.summary.left, 100)
+
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('auto')
+  await closeMenu(page)
+  await page.waitForFunction(
+    width => document.querySelector('.native-hud').getBoundingClientRect().width === width,
+    250
+  )
+  const automatic3440 = await assertComposedRect(page, 641, 3440, 1440)
+  assert.equal(automatic3440.layout.summary.left, 250)
+  assert.equal(automatic3440.layout.popup?.left, 250)
+
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.waitForFunction(
-    left => {
+    ({ width, left }) => {
       const summary = document.querySelector('.campaign-messages summary')
-      return summary && summary.getBoundingClientRect().left === left
+      return (
+        summary &&
+        summary.getBoundingClientRect().width === width &&
+        summary.getBoundingClientRect().left === left
+      )
     },
-    screenX(0x2800, 1440)
+    { width: stripWidth(1440), left: 200 }
   )
+  await assertComposedRect(page, 641, 1440, 1000)
 
   // A consumed record stays closed when the user closes it and after a real checkpoint reload.
   await opening.locator('summary').click()
@@ -475,8 +527,15 @@ try {
     },
     presentation: {
       noCssTopTransition: true,
-      nativeScreenParameterization: true,
-      hudPreferenceIndependent: true,
+      browserSeamAnchoredX: true,
+      nativeWidthAndYParameterization: true,
+      popupBodySharesSeamAnchor: true,
+      seams: {
+        automatic1440: automatic1440.layout.worldLeft,
+        hud1001440: hud1001440.layout.worldLeft,
+        hud1003440: hud1003440.layout.worldLeft,
+        automatic3440: automatic3440.layout.worldLeft,
+      },
       viewports: [
         [1440, 1000],
         [3440, 1440],
@@ -496,7 +555,7 @@ try {
     JSON.stringify(evidence, null, 2) + '\n'
   )
   console.log(
-    'PASS: authored Mission 2 campaign messages use native settle-gated auto-open and viewport geometry; focus, dismissal, checkpoint and HUD-size independence pass',
+    'PASS: authored Mission 2 campaign messages use settle-gated auto-open; summary/details/popup track the rendered browser HUD/world seam while native width/Y, focus, dismissal and checkpoint behavior remain intact',
     evidence
   )
 } finally {

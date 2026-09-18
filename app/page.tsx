@@ -128,10 +128,6 @@ export default function Home() {
       if (messageScreenX(normalizedMessageWidth, window.innerWidth) & 1)
         normalizedMessageWidth += 0x66
       shell.current?.style.setProperty(
-        '--message-left',
-        `${messageScreenX(0x2800, window.innerWidth)}px`
-      )
-      shell.current?.style.setProperty(
         '--message-width',
         `${messageScreenX(normalizedMessageWidth, window.innerWidth)}px`
       )
