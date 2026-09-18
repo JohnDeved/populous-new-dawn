@@ -158,3 +158,29 @@ checkpoint assertions remain. The browser fixture proves level 1 / capacity 3 /
 socket 3; retained helper evidence covers supported capacities/sockets 3/4/5.
 Neither the checker nor this note claims live level-2/3 coverage, full original
 idle/birth scheduling equivalence, or secondary full-hut child puffs.
+
+
+### Continuous newcomer guarding (2026-09-18 continuation)
+
+Retained checker job `15842be7-aa4f-48c5-9060-14fe78be14a4` proved that initial
+Guard staging works but is not sufficient: eight live Blue Braves were guarded
+at turn 1060, while new unguarded Brave 89 was incoming at turn 1139. The hut
+still had zero residents and an absent root. The next checker therefore does
+not cache a fixed cohort of people presumed to stay outside.
+
+Every live smoke-stage wait now observes both stage readiness and all live Blue
+Braves not in the explicitly controlled resident cohort. A newcomer wakes that
+wait; the checker pauses through the HUD, selects the actual person through a
+rendered sprite or occupant panel (HUD focus is the bounded offscreen fallback),
+and issues G only to that unguarded person. Existing guarded people and controlled
+residents are excluded by identity even while a controlled resident is still
+approaching the hut. Guard dispatch receipts retain the protected IDs and exact
+selection. No parallel input watcher races the admission/departure controls.
+
+The checker resumes normal ticks and rechecks after every real Pause click,
+including input-latency races. The same observer is used after checkpoint load,
+so a previously seen ID is never assumed to remain guarded. Each stage is bounded
+to 60 seconds and each input batch to 32 people; unexpected production failures
+are recorded rather than repaired. No world, unit, order, occupancy, position,
+clock, or RNG state is injected. Reverse partial smoke also retains visible-pixel
+and atlas assertions. Production and the canonical wrapper remain frozen.
