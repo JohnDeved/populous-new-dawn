@@ -97,10 +97,10 @@ Colour Palette407, Sky Detail411 and Anti-Aliasing410. Do not populate an appare
 complete settings screen from every descriptor in the binary. Other code may
 modify behavior, but that is not demonstrated by this bounded path.
 
-Type10 controls use choice lists and callbacks; type11 controls toggle a stored
-state and invoke their setter. The observed lists for Tooltips, Rotation, Quick
-Defaults, Colour Palette and Filtering have exact language-ID arrays, but their
-complete value labels and application semantics were not separately validated.
+Type10/type11 entries and their visibility are recorded above. Their choice/
+toggle behavior and callback/setter dispatch are not established by the retained
+175-condition receipt or cited sources. Complete value labels and application
+semantics remain unvalidated.
 No guessed numeric range, default, persistence policy, texture-filter backend or
 sound-quality implementation follows from this inventory. The two Sound sliders
 reference getters/setters `004c4c90/004c4cb0` and `004c4d20/004c4d40`; these are
@@ -125,13 +125,11 @@ can be accepted. Responsive browser scaling should preserve the proved reference
 composition while keeping every control pointer/keyboard reachable, not repeat
 the current long unwrapped mission-row overflow.
 
-A native resource table at **`005d71f0`** references twelve paths
-`data\fenew\febackg0.dat` through`febackg9.dat`, then`febackga.dat` and
-`febackgb.dat`, followed by a `#` sentinel. This is a concrete asset lead—not proof
-that menu0 uses file0, that each supplied file was available, or that these are
-uncompressed full-screen bitmaps. The specific resource selector, load/decode
-format, palette and dimensions are not resolved here. No generated/menu assets
-are installed and no guessed background is offered as a substitute.
+The retained code iterates the resource table at **`005d71f0`** until a `#`
+sentinel. The selected resource and referenced string/file identities remain
+unresolved. The selector, load/decode format, palette, dimensions and final
+composition are also unproved here. No generated/menu assets are installed and
+no guessed background is offered as a substitute.
 
 Retained [render_menu_text](../generated/004fe070.c) and
 [render_char_outer](../generated/004fe270.c) establish a font-type-dependent glyph
