@@ -56,10 +56,9 @@ This also corrects the old browser binding, which rendered `open` directly from
 `0x20000` before motion had reached the native gate and never consumed the pending
 bit.
 
-## Exact screen parameterization
+## Exact screen parameterization and browser composition mapping
 
-Native notification layout in `004314c0` is not tied to the user HUD-size setting.
-The retained coordinate converters are:
+The retained native coordinate converters are:
 
 - `0044a1f0 parameterize_by_screen_width(value)`:
   `product = screenWidth * value`; return
@@ -74,20 +73,38 @@ width `0x0ccc`. It first parameterizes `0x0ccc`; if that pixel width is odd it a
 record's normalized `position` and `height` are independently passed through the
 height converter.
 
-The implementation therefore:
+The native HUD evidence supplies the missing composition relationship:
+`scripts/check-native-hud.py` records the HUD right edge from logical X 100 using the
+same width converter. `100 * 65536 / 640 == 0x2800` exactly, so in the original
+composition the campaign-message strip begins at the native HUD/world seam. The
+retained fixture records that shared native coordinate as 100 px at 640x480, 225 px
+at 1440x1000, and 537 px at 3440x1440.
 
-- computes strip X/width from the actual viewport width in the existing resize path;
-- computes each message top/height from the actual viewport height using the exact
-  integer formulas above;
-- keeps this independent from `--hud-scale`, so changing the modern sidebar size does
-  not move campaign notifications;
-- removes the browser-only `top .2s linear` transition rather than replacing it with
-  guessed easing or RAF interpolation.
+The browser HUD is a deliberate modern adaptation: `--side` is the actual rendered
+sidebar width after a uniformly capped/user-selectable HUD scale, and
+`.world-viewport` starts at that same seam. It therefore does **not** generally equal
+the native independently parameterized X (for example auto HUD is 200 px at
+1440x1000 and 250 px at 3440x1440). Applying native `screenX(0x2800)` as an absolute
+browser X while leaving the adapted HUD unchanged separated the messages from their
+browser world seam.
 
-At the 640x480 reference viewport the values remain the original browser reference
-geometry. Modern viewports use the native independent X/Y parameterization and its
-rounding, rather than multiplying 480-reference pixels by the uniformly capped HUD
-scale.
+The browser mapping now therefore:
+
+- anchors the message parent X to the actual rendered browser HUD/world seam
+  (`var(--side)` / `.world-viewport.left`);
+- retains the native full-screen width parameterization for the message strip width;
+- retains exact full-height parameterization for each message top/height;
+- allows the X anchor to move with the modern HUD-size preference because that
+  preference changes the actual browser seam; this is an explicit browser composition
+  adaptation, not a claim about an original user HUD-size option;
+- keeps the browser-only `top .2s linear` transition removed. The follow-up user
+  report that motion now appears laggy remains a separate unresolved cadence issue;
+  no easing or clock change is inferred from the position repair.
+
+At the 640x480 reference viewport the browser seam and native X both remain 100 px.
+At modern viewports the browser deliberately preserves the original **HUD-edge
+relationship** rather than simultaneously claiming that its capped HUD and the
+native independently scaled HUD occupy the same pixels.
 
 ## Interaction preserved
 
