@@ -36,7 +36,8 @@ try {
   const result = await page.evaluate(async () => {
     const s = window.testScene,
       w = s.world,
-      { advanceGame } = await import('/app/game-clock.ts')
+      { advanceGame } = await import('/app/game-clock.ts'),
+      { swarmState } = await import('/app/swarm.ts')
     if (w.projectiles[0]?.spell !== 'swarm') throw Error('HUD click did not cast Swarm')
     cancelAnimationFrame(s.frame)
     w.paused = true
@@ -50,24 +51,82 @@ try {
     }
     for (let i = 0; !w.effects.some(fx => fx.swarm?.applied) && i < 120; i++) step()
     const victim = w.units.find(u => u.team === 'red' && u.kind === 'brave'),
-      swarm = w.effects.find(fx => fx.swarm)
+      swarm = w.effects.find(fx => fx.swarm),
+      state = swarmState(swarm.swarm),
+      group = s.fxMeshes.get(swarm.id),
+      beforePause = JSON.stringify({
+        turn: w.turn,
+        remaining: state.remaining,
+        parent: [state.x, state.y, state.h],
+        insect: [state.insects[0].x, state.insects[0].y, state.insects[0].h],
+      })
+    advanceGame(w, s.gameClock, 1)
+    const afterPause = swarmState(w.effects.find(fx => fx.id === swarm.id).swarm)
     return {
-      effect: swarm?.id,
+      effect: swarm.id,
       panic: victim?.native?.state,
+      hp: victim?.hp,
       shots: w.shots.swarm,
       cue: w.sounds.some(sound => sound.cue === 0xa4),
+      remaining: state.remaining,
+      insects: state.insects.length,
+      visual: [group?.name, group?.children.length, group?.children[0]?.name],
+      pauseStable:
+        beforePause ===
+        JSON.stringify({
+          turn: w.turn,
+          remaining: afterPause.remaining,
+          parent: [afterPause.x, afterPause.y, afterPause.h],
+          insect: [afterPause.insects[0].x, afterPause.insects[0].y, afterPause.insects[0].h],
+        }),
+      inventedText: /world bends to your will/i.test(w.message),
     }
   })
   assert.ok(result.effect)
   assert.equal(result.panic, 26)
+  assert.ok(result.hp < 100)
   assert.equal(result.shots, 0)
   assert.equal(result.cue, true)
+  assert.equal(result.insects, 60)
+  assert.deepEqual(result.visual, ['swarm-insects', 60, 'swarm-insect'])
+  assert.equal(result.pauseStable, true)
+  assert.equal(result.inventedText, false)
+  await page.waitForFunction(id => {
+    const sprite = window.testScene.fxMeshes.get(id)?.children[0],
+      image = sprite?.material?.map?.image
+    return image?.width === 32 && image?.height === 32
+  }, result.effect)
   assert.ok((await effectPixels(page, [result.effect])) > 10)
+
+  assert.equal(await page.evaluate(() => window.testStore.saveCheckpoint()), true)
+  await page.evaluate(() => window.testStore.loadCheckpoint())
+  await page.waitForFunction(
+    () => window.testSceneRef.current?.world === window.testStore.getWorld()
+  )
+  const restored = await page.evaluate(async id => {
+    window.testScene = window.testSceneRef.current
+    const s = window.testScene,
+      w = s.world,
+      { swarmState } = await import('/app/swarm.ts'),
+      swarm = w.effects.find(fx => fx.id === id),
+      state = swarmState(swarm.swarm)
+    s.animate(s.previous)
+    cancelAnimationFrame(s.frame)
+    return {
+      remaining: state.remaining,
+      insects: state.insects.length,
+      group: [s.fxMeshes.get(id)?.name, s.fxMeshes.get(id)?.children.length],
+    }
+  }, result.effect)
+  assert.equal(restored.remaining, result.remaining)
+  assert.equal(restored.insects, 60)
+  assert.deepEqual(restored.group, ['swarm-insects', 60])
+
   const expired = await page.evaluate(async id => {
     const s = window.testScene,
       w = s.world,
       { advanceGame } = await import('/app/game-clock.ts')
-    for (let i = 0; w.effects.some(fx => fx.id === id) && i < 70; i++) {
+    for (let i = 0; w.effects.some(fx => fx.id === id) && i < 205; i++) {
       w.paused = false
       advanceGame(w, s.gameClock, 1 / 12)
       w.paused = true
@@ -78,7 +137,7 @@ try {
   }, result.effect)
   assert.equal(expired, true)
   assert.deepEqual(errors, [])
-  console.log('PASS: HUD Swarm cast panics its enemy, plays its cue, renders, and expires')
+  console.log('PASS: HUD Swarm casts, renders 60 original insects, affects its enemy, checkpoints, pauses, and expires')
 } finally {
   await browser.close()
 }

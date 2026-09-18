@@ -23,6 +23,8 @@ import rules from './original-rules.json'
 import { animationTeam, tribeForTeam } from './world-types.ts'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { shamanAppearance, shamanNativeDirections, shamanReincarnationPose } from './shaman-appearance.ts'
+import { short } from './native-math.ts'
+import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
 
 export function makeVaultKnowledgeMarker(frame: number) {
   const g = new THREE.Group()
@@ -51,6 +53,27 @@ export function makeFx(scene: GameScene, f: Effect) {
     pool.rotation.x = -Math.PI / 2
     pool.position.y = 0.02
     g.add(pool)
+    return g
+  }
+  if (f.swarm) {
+    g.name = 'swarm-insects'
+    for (let i = 0; i < SWARM_INSECT_COUNT; i++) {
+      const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: texture('insect'),
+          transparent: true,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      )
+      sprite.name = 'swarm-insect'
+      sprite.center.set(0.5, 0.5)
+      // Native primitive case 0x11 calls draw_insect(..., 7.0f); the sprite spans twice that radius.
+      sprite.scale.set(14, 14, 1)
+      sprite.userData.nativePrimitive = 0x11
+      sprite.userData.nativeSize = 7
+      g.add(sprite)
+    }
     return g
   }
   if (f.tornado) {
@@ -229,6 +252,25 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
       interpolateUnitPosition(from, to, Math.min(1, scene.world.pendingTime * TURNS_PER_SECOND))
     )
     g.userData.cellPosition = f
+  }
+  if (f.swarm) {
+    if (!hasSwarmRuntime(f.swarm)) {
+      for (const child of g.children) child.visible = false
+      return
+    }
+    const swarm = swarmState(f.swarm)
+    for (let i = 0; i < g.children.length; i++) {
+      const sprite = g.children[i] as THREE.Sprite,
+        insect = swarm.insects[i]
+      sprite.visible = !!insect
+      if (!insect) continue
+      sprite.position.set(
+        short(insect.x - swarm.x) / 256,
+        (insect.h - swarm.h) / 128,
+        -short(insect.y - swarm.y) / 256
+      )
+    }
+    return
   }
   if (f.tornado) {
     const frames = nativeEffects.animations.smoke,
