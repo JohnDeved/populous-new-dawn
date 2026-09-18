@@ -562,6 +562,7 @@ try {
   const northernHeadId = await page.evaluate(() =>
     globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 1_000_000).id
   )
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
   const northernHead = await shrineClickPoint(page, northernHeadId)
   await page.mouse.click(northernHead.x, northernHead.y)
   const northernCompletion = await page.evaluate(async ({ headId, balloonId }) => {
