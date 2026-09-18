@@ -173,4 +173,35 @@ Recovered command-8/admission semantics: **permit concurrent entry pipeline up t
 
 Current-only candidate causes tested: **shared-order ownership, counter phasing and building-clock order rejected**.
 
-Production fix: **blocked on one end-to-end native group-entry timeline**. A hard one-at-a-time gate would currently be fabricated rather than native-supported.
+Production fix: **no gameplay-state repair is demonstrated**. The continuation proof below disproves a hard one-person semaphore in the exercised native command/admission composition; the remaining report concerns visible doorway/motion/animation behavior.
+
+## Continuation proof: native group admission allows same-turn calls
+
+The authorized GUI-free native continuation was executed on the canonical executable through the shared queue.
+
+The proof used:
+- real state-10 command dispatcher `0x432590`;
+- real command-8 controller `0x434610`;
+- real admission `0x407150` plus native occupancy/weight/cost/order-cleanup logic;
+- the exact entry-clock blocks inside `0x403280`, after all person visits;
+- one shared command-8 record for eight braves and a model-7 Warrior Training Hut with capacity 5.
+
+Result:
+- native `entering` reached 5;
+- actual `0x407150` calls occurred twice on turn 14 (people 5, 7);
+- actual `0x407150` calls occurred three times on turn 15 (people 2, 4, 6);
+- interior occupancy therefore reached 5 with multiple native admission calls on the same simulated turn.
+
+This **disproves a hard one-person admission semaphore** in the exercised native command/admission composition. It does not close the reported original visual-doorway behavior.
+
+Exact limitations:
+- full `unit_processing_class_1_person` (`0x4d32b0`) was not executed; the real state-10 dispatcher `0x432590` was called after manual class-counter increment;
+- route/pathfinding/ground motion was supplied as deterministic straight-line movement toward coordinates produced by native command-8 geometry;
+- destination/release-motion/cargo/work consumers were supplied;
+- admission/occupancy itself was native, while transport/cell/tower/indicator consumers remained supplied by the existing occupant oracle;
+- no rendering, animation proof, panel, conversion, browser input, or OS focus was involved.
+
+Therefore there is still no demonstrated gameplay-state repair in `app/training.ts`, `app/live-building-entry.ts`, or capacity data. The remaining issue29 question is narrower: whether original **visible doorway/movement/animation composition** serialized the crossing despite the simulation accepting multiple residents in the same turn. Any repair now requires evidence in that presentation/motion composition, not a capacity or admission-state guess.
+
+Canonical job: `e1048af1-dece-431e-bb5d-667a7567e383`.
+Ignored durable result: `work/orchestration/worker-3-training-entry/native-group-entry-result.json`.
