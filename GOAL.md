@@ -273,6 +273,16 @@ for a concrete question that reduces uncertainty or allows useful independent wo
   and notify the CEO on a verdict, actionable blocker or unexpected stop,
   using the compact reporting rule below. Follow-up reviews cover repairs and unresolved findings.
   The CEO retains final acceptance, necessary integration checks and main merges.
+  Every review applies [README's TypeScript quality workflow](README.md#typescript-quality-workflow)
+  to maintained TypeScript changes: inspect readability, helper reuse, unnecessary
+  machinery and decompiler-style code; verify source-bound `format:check`, `lint`
+  and `lint:standard` results. Reuse valid receipts; obtain missing read-only checks
+  through normal check coordination. Report legacy Oxlint findings honestly and
+  distinguish them from introduced defects. Consult Fallow health/duplication/unused
+  results as advisory evidence (exit 1 findings, exit 2 tool failure); verify callers
+  before proposing deletion. Reviewers never run modifying `format` or regenerate
+  importer-owned data. Record quality findings or explicit non-applicability in the
+  durable review, without repeating logs in the compact handoff.
 
 Give specialists compact assignments, relevant sources, response budgets, and
 completion conditions. Require actionable findings with provenance and limitations.
