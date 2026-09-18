@@ -80,11 +80,50 @@ async function setSpeed(page, speed) {
   }, speed)
 }
 
-async function selectPeople(page, indices) {
-  await page.evaluate(indices => {
+async function clearSelection(page) {
+  for (let i = 0; i < 2; i++) {
+    const state = await page.evaluate(() => ({
+      selected: window.testScene.world.selected.length,
+      mode: window.testScene.world.mode,
+    }))
+    if (!state.selected && !state.mode) return
+    await page.keyboard.press('Escape')
+  }
+  await page.waitForFunction(() => {
     const world = window.testScene.world
-    world.selected = indices.map(index => window.hutSmoke.peopleIds[index])
-  }, indices)
+    return !world.selected.length && !world.mode
+  })
+}
+
+async function renderedPersonTarget(page, id) {
+  return page.evaluate(id => {
+    const scene = window.testScene,
+      rect = scene.renderer.domElement.getBoundingClientRect(),
+      bounds = scene.picking.personBounds(id)
+    if (!bounds) throw new Error('Selected free Brave ' + id + ' has no rendered person bounds')
+    for (let y = bounds.y + 2; y < bounds.y + bounds.height - 1; y += 3)
+      for (let x = bounds.x + 2; x < bounds.x + bounds.width - 1; x += 3) {
+        const event = { clientX: rect.left + x, clientY: rect.top + y }
+        if (
+          document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement &&
+          scene.picking.pickPerson(event) === id
+        )
+          return { x: event.clientX, y: event.clientY }
+      }
+    throw new Error('No shipped pointer hit for free Brave ' + id)
+  }, id)
+}
+
+async function selectRenderedPeople(page, ids) {
+  await clearSelection(page)
+  for (const [index, id] of ids.entries()) {
+    const target = await renderedPersonTarget(page, id)
+    if (index) await page.keyboard.down('Control')
+    await page.mouse.click(target.x, target.y)
+    if (index) await page.keyboard.up('Control')
+  }
+  const selected = await page.evaluate(() => [...window.testScene.world.selected])
+  assert.deepEqual([...selected].sort((a, b) => a - b), [...ids].sort((a, b) => a - b))
 }
 
 
@@ -222,6 +261,7 @@ async function firstAdmissionSnapshot(page, target) {
 }
 
 async function departOne(page, hutTarget, groundTarget) {
+  await clearSelection(page)
   await page.mouse.move(hutTarget.x, hutTarget.y)
   const panel = page.getByRole('group', { name: /^Hut: \d+ of \d+ occupants$/ })
   await panel.waitFor({ state: 'visible' })
@@ -322,23 +362,25 @@ try {
       !scene.overviewStage
     )
   })
+  await clearSelection(page)
   await page.getByLabel('Select brave').click()
   const firstPersonId = await page.evaluate(() => {
-    const scene = window.testScene,
-      world = scene.world,
+    const world = window.testScene.world,
       selected = world.selected.filter(id => {
         const unit = world.units.find(candidate => candidate.id === id)
         return unit?.team === 'blue' && unit.kind === 'brave' && unit.hp > 0 && unit.inside === null
       })
-    if (selected.length !== 1)
-      throw new Error('Shipped Select brave control did not select exactly one free living Brave')
+    if (world.selected.length !== 1 || selected.length !== 1)
+      throw new Error(
+        'Shipped selection controls did not produce exactly one free living Brave from an empty group'
+      )
     const id = selected[0],
       old = window.hutSmoke.peopleIds
     window.hutSmoke.firstPersonId = id
     window.hutSmoke.peopleIds = [id, ...old.filter(candidate => candidate !== id)].slice(0, 3)
     return id
   })
-  const hutTarget = await resolveHutDispatch(page)
+  let hutTarget = await resolveHutDispatch(page)
   firstAdmissionEvidence.before = await firstAdmissionSnapshot(page, hutTarget)
   writeFirstAdmissionEvidence()
   assert.equal(firstAdmissionEvidence.before.inputMask, 0)
@@ -347,13 +389,9 @@ try {
   assert.equal(firstAdmissionEvidence.before.camera.viewTransition, 0)
   assert.equal(firstAdmissionEvidence.before.camera.overviewStage, null)
   assert.deepEqual(firstAdmissionEvidence.before.selected, [firstPersonId])
-  assert.equal(firstAdmissionEvidence.before.pick.pickingId, firstAdmissionEvidence.before.hut.id)
-  assert.equal(firstAdmissionEvidence.before.pick.objectId, firstAdmissionEvidence.before.hut.id)
-  assert.equal(firstAdmissionEvidence.before.pick.context?.enabled, true)
-  assert.equal(
-    firstAdmissionEvidence.before.pick.context?.buildingId,
-    firstAdmissionEvidence.before.hut.id
-  )
+  assert.equal(hutTarget.pickingId, firstAdmissionEvidence.before.hut.id)
+  assert.equal(hutTarget.objectId, firstAdmissionEvidence.before.hut.id)
+  assert.equal(hutTarget.contextModel, 8)
   assert.equal(firstAdmissionEvidence.before.hit.isCanvas, true)
 
   await page.mouse.click(hutTarget.x, hutTarget.y)
@@ -411,8 +449,28 @@ try {
     break acceptance
   }
 
-  await selectPeople(page, [1, 2])
+  const remainingPeople = await page.evaluate(() => window.hutSmoke.peopleIds.slice(1, 3))
+  await selectRenderedPeople(page, remainingPeople)
+  hutTarget = await resolveHutDispatch(page)
   await page.mouse.click(hutTarget.x, hutTarget.y)
+  const fullDispatch = await page.evaluate(ids => {
+    const world = window.testScene.world,
+      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
+    return {
+      turn: world.turn,
+      lastOrderTurn: world.lastOrderTurn,
+      hutId: hut.id,
+      people: ids.map(id => {
+        const unit = world.units.find(candidate => candidate.id === id)
+        return { id, inside: unit?.inside ?? null, work: unit?.work ?? null }
+      }),
+    }
+  }, remainingPeople)
+  assert.equal(fullDispatch.lastOrderTurn, fullDispatch.turn)
+  assert.ok(
+    fullDispatch.people.every(person => person.inside === fullDispatch.hutId || person.work === fullDispatch.hutId),
+    'full-occupancy click must immediately dispatch both selected free Braves to the hut'
+  )
   await setSpeed(page, 4)
   await page.waitForFunction(() => {
     const world = window.testScene.world,
