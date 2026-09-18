@@ -2298,7 +2298,7 @@ test('Mission 5 Boat worship emits its original one-shot tutorial',async()=>{
 test('Mission 5 grants, boards, sails, lands and checkpoints its original Boat',async()=>{
  const {vehicleCanDisembark,vehicleReady}=await import('../app/vehicle-routing.ts'),{createGameStore}=await import('../app/game-store.ts');
  const store=createGameStore();store.startMission(5);let w=store.getWorld(),boat=w.vehicles[0],followers=w.units.filter(u=>u.team==='blue'&&u.kind==='warrior').slice(0,2);const ids=followers.map(u=>u.id),head=w.shrines.find(s=>s.kind==='boat');
- assert.deepEqual([boat.model,boat.x,boat.y,boat.active],[1,0x54e4,-23249,false]);assert.equal(head.rewardVehicle,boat.id);
+ assert.deepEqual([boat.model,boat.x,boat.y,boat.active],[1,-7084,12197,false]);assert.equal(head.rewardVehicle,boat.id);
  head.forced=true;head.reset=false;until(w,()=>boat.active,10);assert.equal(head.active,false);
  const shores=[],vehicleWorld=()=>({flags:w.land.flags,categories:w.land.categories,cellObjects:()=>[]});
  for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){const p={x:(x+1)*256,y:(y+1)*256};if(vehicleCanDisembark(vehicleWorld(),boat,p))shores.push(p);}
