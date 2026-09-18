@@ -526,20 +526,23 @@ async function attackMatak(page) {
       continue
     }
     const selected = await selectArmy(page),
-      before = (await snapshot(page)).lastOrderTurn
+      beforeState = await snapshot(page),
+      before = beforeState.lastOrderTurn,
+      selectedIds = beforeState.selected
     await clickEntity(page, 'units', target.id)
     const dispatch = await page.evaluate(
-      ({ target, before }) => {
+      ({ target, before, selectedIds }) => {
         const world = window.testStore.getWorld(),
-          selected = new Set(world.selected)
+          attackers = new Set(selectedIds)
         return {
-          accepted: world.lastOrderTurn >= before,
-          assigned: world.units.filter(unit => selected.has(unit.id) && unit.target === target)
-            .length,
+          accepted: world.lastOrderTurn > before,
+          before,
+          after: world.lastOrderTurn,
+          assigned: world.units.filter(unit => attackers.has(unit.id) && unit.target === target).length,
           selected: [...world.selected],
         }
       },
-      { target: target.id, before }
+      { target: target.id, before, selectedIds }
     )
     assert.ok(
       dispatch.accepted || dispatch.assigned > 0,
