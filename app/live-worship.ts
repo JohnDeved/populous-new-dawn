@@ -1,11 +1,5 @@
 import { sound } from './world-effects.ts'
-import {
-  nativePosition,
-  browserPosition,
-  type World,
-  type Unit,
-  type Shrine,
-} from './model.ts'
+import { nativePosition, browserPosition, type World, type Unit, type Shrine } from './model.ts'
 import { setLivePersonAnimation, type LivePerson } from './live-people.ts'
 import { planLivePath, clearLivePath, acceptLivePath } from './live-pathfinding.ts'
 import { allocatePersonOrder, writePersonOrder } from './person-orders.ts'
@@ -16,12 +10,17 @@ import { stepWorshipPerson } from './person-worship.ts'
 import { findWorshipPlace, worshipPositions } from './worship.ts'
 import { moveObjectInCells, objectsInCell } from './object-cells.ts'
 import { terrainPointHeight } from './native-terrain.ts'
+import { stoneHeadAngle } from './stone-head-orientation.ts'
 import { selectTrainingOccupants } from './training.ts'
 import sprites from './original-units.json' with { type: 'json' }
 
 export function worshipHeadPose(w: World, head: Shrine) {
   const p = nativePosition(w, head)
-  return { x: p.x & 65535, y: p.y & 65535, angle: Math.round((head.angle * 1024) / Math.PI) & 2047 }
+  return {
+    x: p.x & 65535,
+    y: p.y & 65535,
+    angle: Math.round((stoneHeadAngle(head, w.outcome.level) * 1024) / Math.PI) & 2047,
+  }
 }
 
 function* standingPeople(w: World, point: { x: number; y: number }) {
