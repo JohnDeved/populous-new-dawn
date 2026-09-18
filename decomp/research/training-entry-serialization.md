@@ -205,3 +205,67 @@ Therefore there is still no demonstrated gameplay-state repair in `app/training.
 
 Canonical job: `e1048af1-dece-431e-bb5d-667a7567e383`.
 Ignored durable result: `work/orchestration/worker-3-training-entry/native-group-entry-result.json`.
+
+
+## One-shot real-motion continuation: stopped at the animation boundary
+
+The CEO-authorized single canonical composition run was attempted from preserved head
+`8c937643cf57a25aae0f748846d45d4024c7ae37` with the old supplied-motion result
+left intact. The dedicated probe removed the old occupant-checker hooks and the
+`supplied_motion` function. It initialized a flat native terrain/walk mask, the
+completed model-7 hut's native position/cell membership and real `0x403a00`
+footprint, native person cell membership, and brave life/max-life so full
+`0x4d32b0` could own the decisive person visit.
+
+The one authorized queued run was
+`e1210710-9e18-4611-ad7e-69baf46f9eb3`. It failed on the first person visit and
+was **not retried**.
+
+What executed before the stop:
+
+- turn 1, person 1 entered real `0x4e6d00` at position
+  `(13312,14848)`, class counter 1, command-8 substate 0;
+- real native motion changed the position to `(13312,14922)`;
+- real `0x4eadc0` was reached at that post-motion position with
+  `routeId=0`, `routeIndex=0`; no synthetic route was created;
+- real command-8 then called native destination handling with the hut approach
+  point `(16512,15808)`;
+- no `0x407150` admission call occurred before the stop;
+- none of the probe's explicit unsupported-abort leaves fired, and none of the
+  supplied ambient/indicator leaves had fired yet.
+
+The captured exception was an emulator `UcError` after the destination call and
+before the first `0x4d32b0` visit returned. The retained command-8 decomp places
+`0x4d4f40` immediately after that first destination setup; `0x4d4f40`
+computes native speed/RNG and then enters `0x4d4040` object/animation setup.
+This is also the boundary the retained `check-native-training-queue.py`
+explicitly supplies as an **animation output** leaf while leaving geometry,
+speed/RNG and stopping native. Because this one-shot probe intentionally did not
+pre-supply that presentation leaf, the result does not advance far enough to
+answer the same-turn admission question.
+
+Interpretation is therefore bounded:
+
+- the run proves that the retained fixture reaches real native motion and real
+  route-advance before command-8 destination initialization;
+- it shows the retained flags use the native direct-destination path
+  (`routeId=0`) at this point, so a route record must not be invented merely
+  to satisfy the proof;
+- it does **not** prove or disprove same-turn admissions under the requested
+  full composition;
+- it does **not** identify a browser motion/admission defect, and it does not
+  establish presentation/occlusion as the only remaining cause;
+- the first exact native-vs-current admission divergence remains unresolved,
+  because the native fixture stopped on person 1 of turn 1 before a comparable
+  admission timeline existed.
+
+The evidence limit is now narrower than the earlier supplied-motion proof:
+continuing this exact composition would require explicitly admitting the
+`0x4d4040` animation/object setup as an external supplied presentation leaf (or
+providing all of its original presentation data dependencies). That was not part
+of the single-run authorization, so no correction/retry was made.
+
+Ignored durable result:
+`work/orchestration/worker-3-training-entry/native-group-entry-real-motion-result.json`.
+The preserved prior supplied-motion result remains
+`work/orchestration/worker-3-training-entry/native-group-entry-result.json`.
