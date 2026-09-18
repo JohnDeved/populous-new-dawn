@@ -263,8 +263,16 @@ async function clickEntity(page, collection, id) {
 
 async function dismissFlyby(page) {
   if (await page.evaluate(() => !!(globalThis.testScene.world.inputMask & 64))) {
+    await page.evaluate(() => {
+      const scene = globalThis.testScene,
+        now = performance.now()
+      cancelAnimationFrame(scene.frame)
+      scene.previous = now
+      scene.animate(now)
+    })
     await page.keyboard.press('Escape')
     await page.waitForFunction(() => !(globalThis.testScene.world.inputMask & 64))
+    await suspendOwnedFrame(page)
   }
 }
 
