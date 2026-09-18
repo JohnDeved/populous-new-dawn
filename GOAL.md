@@ -317,9 +317,13 @@ compact worker headers and explicit chat IDs. One CEO routes assignments/reviews
 workers report once to the CEO rather than also messaging reviewers. After a
 successful send, allow at least one snapshot interval before verifying execution;
 delivery alone is not execution. On `Too many requests`, honor any supplied retry
-delay; otherwise pause nonessential chat calls for five minutes, then back off
-further on recurrence. Never turn uncertain delivery into repeated sends or retry
-through another transport. Busy destinations await their next state change.
+delay and pause repeated calls to that tool. The user-authorized Chrome fallback
+can wake an idle worker through the ordinary ChatGPT UI: use the single-call helper
+documented in `work/orchestration/worker-watch-cli/README.md`. It reuses tabs,
+checks active responses/drafts, records send attempts before clicking, and returns
+a compact result. Never replay uncertain delivery, interrupt an active response,
+or work around a rate limit shown by ChatGPT itself. A stalled page returns once;
+do not enter a refresh loop. Busy destinations await their next state change.
 
 Follow `AGENTS.md` and the engineering skill for workflow mechanics. Supply applicable
 constraints and cited sections instead of whole goals, histories, or the performance
