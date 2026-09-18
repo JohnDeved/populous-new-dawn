@@ -31,7 +31,7 @@ try {
   })
 
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
   assert.deepEqual(
     await page.evaluate(() => globalThis.testScene.world.selected),
     [target.shaman],
