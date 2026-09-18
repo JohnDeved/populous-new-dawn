@@ -13,11 +13,7 @@ import rules from './original-rules.json' with { type: 'json' }
 const short = (n: number) => (n << 16) >> 16
 const packedCell = (p: { x: number; y: number }) => ((p.x >> 8) & 254) | (p.y & 0xfe00)
 
-function relocateLivePerson(
-  w: World,
-  p: LivePerson,
-  to: { x: number; y: number; h: number }
-) {
+function relocateLivePerson(w: World, p: LivePerson, to: { x: number; y: number; h: number }) {
   if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
     moveObjectInCells(w.objectCells, p, to)
   else Object.assign(p, to)
