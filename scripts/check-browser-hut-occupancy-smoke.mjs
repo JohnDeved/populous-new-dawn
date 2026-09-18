@@ -294,15 +294,18 @@ try {
           building.team === 'blue' &&
           building.kind === 'hut' &&
           building.level === 1 &&
-          building.progress >= 1
+          building.progress >= 1 &&
+          (building.admission?.inside ?? 0) === 0 &&
+          !world.units.some(unit => unit.inside === building.id && unit.hp > 0)
       )
-    if (!hut) throw new Error('Mission 1 completed blue level-1 hut is unavailable')
+    if (!hut) throw new Error('Mission 1 naturally empty completed blue level-1 hut is unavailable')
     const people = world.units
       .filter(
         unit =>
           unit.team === 'blue' &&
           unit.kind === 'brave' &&
           unit.inside === null &&
+          unit.work === null &&
           unit.hp > 0
       )
       .sort(
@@ -368,7 +371,13 @@ try {
     const world = window.testScene.world,
       selected = world.selected.filter(id => {
         const unit = world.units.find(candidate => candidate.id === id)
-        return unit?.team === 'blue' && unit.kind === 'brave' && unit.hp > 0 && unit.inside === null
+        return (
+          unit?.team === 'blue' &&
+          unit.kind === 'brave' &&
+          unit.hp > 0 &&
+          unit.inside === null &&
+          unit.work === null
+        )
       })
     if (world.selected.length !== 1 || selected.length !== 1)
       throw new Error(
@@ -449,7 +458,30 @@ try {
     break acceptance
   }
 
-  const remainingPeople = await page.evaluate(() => window.hutSmoke.peopleIds.slice(1, 3))
+  const remainingPeople = await page.evaluate(firstPersonId => {
+    const world = window.testScene.world,
+      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId)
+    return world.units
+      .filter(
+        unit =>
+          unit.id !== firstPersonId &&
+          unit.team === 'blue' &&
+          unit.kind === 'brave' &&
+          unit.hp > 0 &&
+          unit.inside === null &&
+          unit.work === null
+      )
+      .sort(
+        (a, b) =>
+          Math.hypot(a.x - hut.x, a.z - hut.z) - Math.hypot(b.x - hut.x, b.z - hut.z)
+      )
+      .slice(0, 2)
+      .map(unit => unit.id)
+  }, firstPersonId)
+  assert.equal(remainingPeople.length, 2, 'Mission 1 needs two current free Braves for full occupancy')
+  await page.evaluate(ids => {
+    window.hutSmoke.peopleIds = [window.hutSmoke.firstPersonId, ...ids]
+  }, remainingPeople)
   await selectRenderedPeople(page, remainingPeople)
   hutTarget = await resolveHutDispatch(page)
   await page.mouse.click(hutTarget.x, hutTarget.y)
