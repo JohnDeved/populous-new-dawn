@@ -158,3 +158,52 @@ Focused receipt:
 
 This resolves the asset-only blocker. The visibility/state rule remains a separate
 runtime change and must still preserve reward, mana, stock, RNG and save behavior.
+
+
+## Producer timing correction after exhaustive caller check
+
+A later bounded caller search corrects the earlier “live reward-source mask” wording above.
+The supplied executable has exactly one direct call/jump to `0042cbc0`:
+`0042b4bd` during normal level initialization. No reward-consumption refresh caller was found.
+Therefore `0x96aa82` is a **mission-load snapshot** of authored class-6/model-2
+sources whose `settings[0] == 11`, not a mask recomputed from surviving heads.
+
+The browser adapter accordingly derives the mask from
+`missionData(world.outcome.level).level.objects` and does not add a persisted field.
+`004c3110` ownership/stock still takes precedence over that static discovery mask;
+when browser one-off stock exists, the browser's authoritative `world.shots` is the
+equivalent source because reward delivery stores those shots there before casting copies
+them into the mana stock array. This changes no reward, mana, stock, RNG or checkpoint data.
+
+Fresh Mission 1, actual store restart/checkpoint restoration, stock precedence, and a
+later Mission 16 all pass the same generic predicate tests. Descriptor mode 2 remains
+data-driven through `original-rules.json`; no spell-name exception is used.
+
+
+## 2026-09-18 visibility implementation acceptance boundary
+
+The generic adapter is implemented in `app/spell-visibility.ts` and the spell panel now
+uses it without changing reward delivery, mana accounting, stock storage, RNG, or
+checkpoint/schema data.
+
+Focused source checks:
+- `tests/spell-visibility.test.mjs`: fresh Mission 1, restart/checkpoint restore,
+  later Mission 16, stock precedence, HFX1056 branch and data-driven mode-2 permission;
+- `tests/spell-hud-icons.test.mjs`: accepted six-frame append plus HFX1056;
+- combined result: 10/10 passing;
+- `tsc --noEmit`: passing;
+- the new helper is Oxfmt- and Oxlint-clean.
+
+Canonical browser attempts are retained under the shared performance queue:
+- `d5968a78-2059-4813-8b56-2636b55ca4d1`: checker navigation failed because
+  Playwright's pointer click considered the mission button outside the viewport;
+- `03ffac3c-2350-4cd1-b88c-54c853e33f19`: checker advanced further but its custom
+  intro synchronization timed out;
+- `1606021d-7a78-4fcf-8ef1-d3794356ab9c`: shared `openGame` reached the rendered
+  Mission 1 HUD. Roster count, the `Undiscovered spell` label, and disabled state
+  assertions passed before the diagnostic's literal CSS `backgroundPosition` comparison
+  failed for the question-mark sprite. The diagnostic did not log the browser-serialized
+  position, so browser sprite-position acceptance remains open.
+
+All three cleanup receipts report `resourcesReleased=true`. The bounded changed-checker
+budget is exhausted; no further browser retry is claimed here.
