@@ -6,21 +6,24 @@ import { constructionPanel } from './construction-panel.ts'
 import { selectBuildingOccupants, dismantleBuilding } from './live-building-entry.ts'
 import { nativeUnitModel } from './unit-kinds.ts'
 import {
+  BALLOON_HUT_CAPACITY,
+  BALLOON_HUT_WORKSHOP_PROFILE,
   BOAT_HOUSE_CAPACITY,
-  BOAT_HOUSE_WORK_BLOCKS,
-  boatHousePanelControls,
-  boatHouseWorkBlocks,
-  drawBoatHousePanel,
+  BOAT_HOUSE_WORKSHOP_PROFILE,
+  drawWorkshopPanel,
+  workshopPanelControls,
+  workshopWorkBlocks,
 } from './workshop-panel.ts'
 
 export function buildingOccupantPanelProfile(
   b: Pick<Building, 'kind' | 'level' | 'progress'>
-): { kind: 'resident' | 'training' | 'workshop'; capacity: 1 | 3 | 4 | 5 } | null {
+): { kind: 'resident' | 'training' | 'workshop'; capacity: 1 | 3 | 4 | 5 | 6 } | null {
   if (b.progress < 1) return null
   if (b.kind === 'hut')
     return { kind: 'resident', capacity: rules.buildingCapacity[buildingModel(b)] as 3 | 4 | 5 }
   if (b.kind === 'tower') return { kind: 'resident', capacity: 1 }
   if (b.kind === 'boatHouse') return { kind: 'workshop', capacity: BOAT_HOUSE_CAPACITY }
+  if (b.kind === 'balloonHut') return { kind: 'workshop', capacity: BALLOON_HUT_CAPACITY }
   if (
     b.kind === 'camp' ||
     b.kind === 'temple' ||
@@ -191,16 +194,25 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
         `Construction: ${occupants.length} of ${state.capacity} workers; ${state.wood} of ${state.totalWood} timber`
       )
     } else if (workshop) {
-      const controls = boatHousePanelControls(),
-        progress = boatHouseWorkBlocks(b.timer)
-      drawBoatHousePanel(canvas, atlas, {
-        occupants: shared.occupants,
-        progress: b.timer,
-        dismantling,
-        turn: world.turn,
-        controlHover: dismantle.matches(':hover'),
-        controlPressed: dismantle.matches(':active'),
-      })
+      const workshopProfile =
+          b.kind === 'balloonHut' ? BALLOON_HUT_WORKSHOP_PROFILE : BOAT_HOUSE_WORKSHOP_PROFILE,
+        controls = workshopPanelControls(workshopProfile),
+        progress = workshopWorkBlocks(b.timer, workshopProfile),
+        workshopName = b.kind === 'balloonHut' ? 'Balloon Hut' : 'Boat House',
+        vehicleName = b.kind === 'balloonHut' ? 'Balloon' : 'Boat'
+      drawWorkshopPanel(
+        canvas,
+        atlas,
+        {
+          occupants: shared.occupants,
+          progress: b.timer,
+          dismantling,
+          turn: world.turn,
+          controlHover: dismantle.matches(':hover'),
+          controlPressed: dismantle.matches(':active'),
+        },
+        workshopProfile
+      )
       for (let i = 0; i < buttons.length; i++) {
         const slot = controls.people[i]
         if (!slot) continue
@@ -212,10 +224,10 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       dismantle.style.top = `${controls.control.y}px`
       panel.setAttribute(
         'aria-label',
-        `Boat House: ${occupants.length} of ${BOAT_HOUSE_CAPACITY} workers; ${progress} of ${BOAT_HOUSE_WORK_BLOCKS} Boat work`
+        `${workshopName}: ${occupants.length} of ${workshopProfile.capacity} workers; ${progress} of ${workshopProfile.workBlocks} ${vehicleName} work`
       )
     } else {
-      const capacity = profile!.capacity,
+      const capacity = profile!.capacity as 1 | 3 | 4 | 5,
         cost = school ? (admission?.trainingCost ?? 0) : 0,
         progress = b.timer,
         active = school && !!(activity & 128),
