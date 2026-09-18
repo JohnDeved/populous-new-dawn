@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { bindGame, openGame } from './browser-game.mjs'
 import effects from '../app/original-effects.json' with { type: 'json' }
@@ -86,6 +87,140 @@ async function selectPeople(page, indices) {
   }, indices)
 }
 
+
+
+const firstAdmissionEvidence = {}
+const firstAdmissionPath = `${process.env.PND_QUEUE_OUTPUT ?? '/private/tmp'}/issue73-first-admission.json`
+
+function writeFirstAdmissionEvidence() {
+  writeFileSync(firstAdmissionPath, JSON.stringify(firstAdmissionEvidence, null, 2) + '\n')
+}
+
+async function resolveHutDispatch(page) {
+  return page.evaluate(async () => {
+    const scene = window.testScene,
+      world = scene.world,
+      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
+      { liveCommandContext } = await import('/app/live-command.ts')
+    if (!hut) throw new Error('Mission 1 hut disappeared before first admission dispatch')
+    scene.renderer.render(scene.scene, scene.camera)
+    const projected = scene.screen(hut),
+      rect = scene.renderer.domElement.getBoundingClientRect(),
+      center = {
+        x: rect.left + ((projected.x + 1) * rect.width) / 2,
+        y: rect.top + ((1 - projected.y) * rect.height) / 2,
+      }
+    for (let dy = -120; dy <= 60; dy += 3)
+      for (let dx = -75; dx <= 75; dx += 3) {
+        const event = { clientX: center.x + dx, clientY: center.y + dy },
+          hit = document.elementFromPoint(event.clientX, event.clientY)
+        if (hit !== scene.renderer.domElement) continue
+        const pickingId = scene.picking.pick(event),
+          object = scene.pickWorldObject(event),
+          context = object && liveCommandContext(world, object)
+        if (
+          pickingId === hut.id &&
+          object?.id === hut.id &&
+          context?.enabled &&
+          context.building?.id === hut.id
+        )
+          return {
+            x: event.clientX,
+            y: event.clientY,
+            projected: center,
+            pickingId,
+            objectId: object.id,
+            contextModel: context.model,
+          }
+      }
+    throw new Error('No rendered/clickable Mission 1 hut point with enabled building context')
+  })
+}
+
+async function firstAdmissionSnapshot(page, target) {
+  return page.evaluate(async target => {
+    const scene = window.testScene,
+      world = scene.world,
+      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
+      person = world.units.find(unit => unit.id === window.hutSmoke.firstPersonId),
+      source = person?.native ?? person?.entry?.person ?? person?.builder?.person,
+      { currentPersonOrder } = await import('/app/person-orders.ts'),
+      { liveCommandContext } = await import('/app/live-command.ts'),
+      { buildingModel } = await import('/app/model.ts'),
+      rules = (await import('/app/original-rules.json')).default,
+      pickedId = target ? scene.picking.pick(target) : null,
+      object = target ? scene.pickWorldObject(target) : null,
+      context = object && liveCommandContext(world, object),
+      hit = target ? document.elementFromPoint(target.x, target.y) : null,
+      order = source && currentPersonOrder(world.buildingOrders, source)
+    return {
+      turn: world.turn,
+      speed: world.speed,
+      paused: world.paused,
+      status: world.status,
+      flybyFlags: world.flyby.flags,
+      inputMask: world.inputMask,
+      lastOrderTurn: world.lastOrderTurn,
+      selected: [...world.selected],
+      camera: {
+        cameraMotion: scene.cameraMotion.active,
+        viewTransition: scene.viewTransition?.remaining ?? 0,
+        overviewStage: scene.overviewStage,
+        overviewActive: scene.overviewActive,
+      },
+      person: person
+        ? {
+            id: person.id,
+            x: person.x,
+            z: person.z,
+            inside: person.inside,
+            work: person.work,
+            path: person.path?.length ?? 0,
+            entry: !!person.entry,
+            state: source?.state ?? null,
+            substate: source?.substate ?? null,
+            commandStatus: source?.commandStatus ?? null,
+            order: order
+              ? { model: order.model, a: order.a, b: order.b, flags: order.flags }
+              : null,
+          }
+        : null,
+      pick: {
+        pickingId: pickedId,
+        pickingKind: scene.picking.lastKind,
+        objectId: object?.id ?? null,
+        objectKind: object?.kind ?? null,
+        context: context
+          ? {
+              model: context.model,
+              enabled: context.enabled,
+              buildingId: context.building?.id ?? null,
+            }
+          : null,
+      },
+      hut: hut
+        ? {
+            id: hut.id,
+            kind: hut.kind,
+            level: hut.level,
+            progress: hut.progress,
+            hp: hut.hp,
+            capacity: rules.buildingCapacity[buildingModel(hut)],
+            admission: hut.admission
+              ? { inside: hut.admission.inside, occupants: [...hut.admission.occupants] }
+              : null,
+          }
+        : null,
+      target,
+      hit: {
+        tag: hit?.tagName ?? null,
+        className: hit instanceof HTMLElement ? hit.className : null,
+        isCanvas: hit === scene.renderer.domElement,
+      },
+    }
+  }, target)
+}
+
 async function departOne(page, hutTarget, groundTarget) {
   await page.mouse.move(hutTarget.x, hutTarget.y)
   const panel = page.getByRole('group', { name: /^Hut: \d+ of \d+ occupants$/ })
@@ -107,14 +242,13 @@ async function departOne(page, hutTarget, groundTarget) {
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
+  acceptance: {
   const { page, errors } = await openGame(browser, 1)
   page.setDefaultTimeout(30_000)
 
   const fixture = await page.evaluate(async () => {
     const scene = window.testScene,
       world = scene.world,
-      { buildingPose, browserPosition, nativePosition } = await import('/app/model.ts'),
-      { buildingFootprintCells } = await import('/app/building-shapes.ts'),
       hut = world.buildings.find(
         building =>
           building.team === 'blue' &&
@@ -144,34 +278,8 @@ try {
     scene.startGroundView(2)
     for (let i = 0; i < 18; i++) scene.updateCameraMotion(1 / 24)
 
-    const rect = scene.container.getBoundingClientRect()
-    let hutTarget = null
-    for (const point of [
-      hut,
-      ...buildingFootprintCells(buildingPose(hut)).map(index =>
-        browserPosition({
-          x: (index % 128) * 512 + 256,
-          y: Math.floor(index / 128) * 512 + 256,
-        })
-      ),
-    ]) {
-      const projected = scene.screen(point),
-        candidate = {
-          x: rect.left + ((projected.x + 1) * rect.width) / 2,
-          y: rect.top + ((1 - projected.y) * rect.height) / 2,
-        },
-        picked = scene.pick({ clientX: candidate.x, clientY: candidate.y })
-      if (!picked) continue
-      const native = nativePosition(world, picked),
-        cell = ((native.y & 65535) >> 9) * 128 + ((native.x & 65535) >> 9)
-      if ((world.land.buildingIds[cell] & 1023) === hut.id) {
-        hutTarget = candidate
-        break
-      }
-    }
-    if (!hutTarget) throw new Error('No clickable residential-hut footprint')
-
-    const ground = scene.screen({ x: 9, z: 37 }),
+    const rect = scene.renderer.domElement.getBoundingClientRect(),
+      ground = scene.screen({ x: 9, z: 37 }),
       groundTarget = {
         x: rect.left + ((ground.x + 1) * rect.width) / 2,
         y: rect.top + ((1 - ground.y) * rect.height) / 2,
@@ -180,7 +288,6 @@ try {
         building => building.team === 'red' && building.kind === 'hut' && building.progress >= 1
       )
     return {
-      hutTarget,
       groundTarget,
       redHutId: redHut?.id ?? null,
     }
@@ -205,15 +312,78 @@ try {
       'native occupancy smoke producer is player-tribe only'
     )
 
-  await selectPeople(page, [0])
-  await page.mouse.click(fixture.hutTarget.x, fixture.hutTarget.y)
-  await setSpeed(page, 4)
   await page.waitForFunction(() => {
-    const world = window.testScene.world,
-      hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
-      person = world.units.find(unit => unit.id === window.hutSmoke.peopleIds[0])
-    return person?.inside === hut.id
+    const scene = window.testScene
+    return (
+      !scene.world.inputMask &&
+      !scene.world.paused &&
+      !scene.cameraMotion.active &&
+      !scene.viewTransition &&
+      !scene.overviewStage
+    )
   })
+  await page.getByLabel('Select brave').click()
+  const firstPersonId = await page.evaluate(() => {
+    const scene = window.testScene,
+      world = scene.world,
+      selected = world.selected.filter(id => {
+        const unit = world.units.find(candidate => candidate.id === id)
+        return unit?.team === 'blue' && unit.kind === 'brave' && unit.hp > 0 && unit.inside === null
+      })
+    if (selected.length !== 1)
+      throw new Error('Shipped Select brave control did not select exactly one free living Brave')
+    const id = selected[0],
+      old = window.hutSmoke.peopleIds
+    window.hutSmoke.firstPersonId = id
+    window.hutSmoke.peopleIds = [id, ...old.filter(candidate => candidate !== id)].slice(0, 3)
+    return id
+  })
+  const hutTarget = await resolveHutDispatch(page)
+  firstAdmissionEvidence.before = await firstAdmissionSnapshot(page, hutTarget)
+  writeFirstAdmissionEvidence()
+  assert.equal(firstAdmissionEvidence.before.inputMask, 0)
+  assert.equal(firstAdmissionEvidence.before.paused, false)
+  assert.equal(firstAdmissionEvidence.before.camera.cameraMotion, 0)
+  assert.equal(firstAdmissionEvidence.before.camera.viewTransition, 0)
+  assert.equal(firstAdmissionEvidence.before.camera.overviewStage, null)
+  assert.deepEqual(firstAdmissionEvidence.before.selected, [firstPersonId])
+  assert.equal(firstAdmissionEvidence.before.pick.pickingId, firstAdmissionEvidence.before.hut.id)
+  assert.equal(firstAdmissionEvidence.before.pick.objectId, firstAdmissionEvidence.before.hut.id)
+  assert.equal(firstAdmissionEvidence.before.pick.context?.enabled, true)
+  assert.equal(
+    firstAdmissionEvidence.before.pick.context?.buildingId,
+    firstAdmissionEvidence.before.hut.id
+  )
+  assert.equal(firstAdmissionEvidence.before.hit.isCanvas, true)
+
+  await page.mouse.click(hutTarget.x, hutTarget.y)
+  firstAdmissionEvidence.afterDispatch = await firstAdmissionSnapshot(page, hutTarget)
+  writeFirstAdmissionEvidence()
+  assert.equal(
+    firstAdmissionEvidence.afterDispatch.lastOrderTurn,
+    firstAdmissionEvidence.afterDispatch.turn,
+    'real hut click must immediately accept a player order'
+  )
+  assert.equal(
+    firstAdmissionEvidence.afterDispatch.person?.work,
+    firstAdmissionEvidence.afterDispatch.hut.id,
+    'real hut click must immediately bind the selected Brave to the hut'
+  )
+
+  await setSpeed(page, 4)
+  try {
+    await page.waitForFunction(firstPersonId => {
+      const world = window.testScene.world,
+        hut = world.buildings.find(building => building.id === window.hutSmoke.hutId),
+        person = world.units.find(unit => unit.id === firstPersonId)
+      return person?.inside === hut.id
+    }, firstPersonId)
+  } catch (error) {
+    firstAdmissionEvidence.afterWait = await firstAdmissionSnapshot(page, hutTarget)
+    writeFirstAdmissionEvidence()
+    console.error('[issue73-first-admission] evidence ' + firstAdmissionPath)
+    throw error
+  }
   await page.waitForFunction(() => {
     const scene = window.testScene,
       hut = scene.world.buildings.find(building => building.id === window.hutSmoke.hutId),
@@ -229,9 +399,20 @@ try {
   assert.deepEqual(state.size, { x: 32, y: 64 })
   const partialPixels = await renderedPixels(page)
   assert.ok(partialPixels > 20, 'partial occupancy smoke rendered only ' + partialPixels + ' pixels')
+  firstAdmissionEvidence.admitted = await firstAdmissionSnapshot(page, hutTarget)
+  firstAdmissionEvidence.partialPixels = partialPixels
+  writeFirstAdmissionEvidence()
+  if (process.env.HUT_SMOKE_FIRST_ADMISSION_ONLY === '1') {
+    assert.deepEqual(errors, [])
+    console.log(
+      'PASS: shipped Select brave + rendered hut pick admitted one Mission 1 Brave and produced native-socket partial occupancy smoke; evidence ' +
+        firstAdmissionPath
+    )
+    break acceptance
+  }
 
   await selectPeople(page, [1, 2])
-  await page.mouse.click(fixture.hutTarget.x, fixture.hutTarget.y)
+  await page.mouse.click(hutTarget.x, hutTarget.y)
   await setSpeed(page, 4)
   await page.waitForFunction(() => {
     const world = window.testScene.world,
@@ -282,7 +463,7 @@ try {
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.getByRole('button', { name: 'Close menu', exact: true }).click()
 
-  await departOne(page, fixture.hutTarget, fixture.groundTarget)
+  await departOne(page, hutTarget, fixture.groundTarget)
   await setSpeed(page, 4)
   await page.waitForFunction(() => {
     const scene = window.testScene,
@@ -299,8 +480,8 @@ try {
   assert.equal(state.root.mode, 'partial')
   assert.deepEqual(state.position, state.expected)
 
-  await departOne(page, fixture.hutTarget, fixture.groundTarget)
-  await departOne(page, fixture.hutTarget, fixture.groundTarget)
+  await departOne(page, hutTarget, fixture.groundTarget)
+  await departOne(page, hutTarget, fixture.groundTarget)
   await setSpeed(page, 4)
   await page.waitForFunction(() => {
     const scene = window.testScene,
@@ -345,6 +526,7 @@ try {
       fullPixels +
       ' pixels); secondary full-hut child puffs remain intentionally excluded'
   )
+  }
 } finally {
   await browser.close()
 }
