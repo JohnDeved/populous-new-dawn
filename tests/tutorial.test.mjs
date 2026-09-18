@@ -115,7 +115,7 @@ test('Tutorial advances through Shaman selection into the authored Obelisk flyby
         { kind: 3, flags: 0, value: 0, start: 17, duration: 14 },
       ],
       trigger: { position: [-35, -17], model: 0, active: false },
-      obelisk: { position: [-33, -49], model: 45, active: true, enabled: true, mode: 3 },
+      obelisk: { position: [-33, -49], model: 8, active: true, enabled: true, mode: 3 },
     }
   )
   until(world, () => world.ai.variables[9] === 9)
