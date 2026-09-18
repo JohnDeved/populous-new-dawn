@@ -280,7 +280,7 @@ try {
 
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
-  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
 
   await departOne(page, fixture.hutTarget, fixture.groundTarget)
   await setSpeed(page, 4)
