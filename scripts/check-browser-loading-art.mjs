@@ -110,6 +110,8 @@ function assertOriginalLayout(layout) {
   assert.equal(layout.heading, null)
   assert.equal(layout.shell.width, layout.viewport.width)
   assert.equal(layout.shell.height, layout.viewport.height)
+  assert.ok(Math.abs(layout.shell.x) < 0.01, { shellX: layout.shell.x, layout })
+  assert.ok(Math.abs(layout.shell.y) < 0.01, { shellY: layout.shell.y, layout })
   const expectedX = layout.shell.x + Math.trunc((layout.shell.width - 130) / 2),
     expectedY = layout.shell.y + Math.trunc((layout.shell.height - 161) / 2)
   assert.ok(Math.abs(layout.image.x - expectedX) < 0.01, { expectedX, actualX: layout.image.x, layout })
