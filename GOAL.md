@@ -309,6 +309,18 @@ fallback task with a separate reservation when available; after delivery or a ha
 block, continue that preauthorized task while review proceeds. Otherwise request
 routing once. The watcher remains a deduplicated failsafe, not routine reporting.
 
+Reduce chat coordination traffic: reuse the watcher's fresh local snapshot and
+worker handoff before requesting another chat read. Routine snapshots are batched
+every three minutes; local queued-report deduplication stays fast. Keep the
+15-minute long-idle threshold and 30-minute reminder cooldown. Recognize both
+compact worker headers and explicit chat IDs. One CEO routes assignments/reviews;
+workers report once to the CEO rather than also messaging reviewers. After a
+successful send, allow at least one snapshot interval before verifying execution;
+delivery alone is not execution. On `Too many requests`, honor any supplied retry
+delay; otherwise pause nonessential chat calls for five minutes, then back off
+further on recurrence. Never turn uncertain delivery into repeated sends or retry
+through another transport. Busy destinations await their next state change.
+
 Follow `AGENTS.md` and the engineering skill for workflow mechanics. Supply applicable
 constraints and cited sections instead of whole goals, histories, or the performance
 log; expand only when the evidence requires it.
