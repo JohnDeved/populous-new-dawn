@@ -6,7 +6,13 @@ import path from 'node:path'
 import net from 'node:net'
 import { spawn, execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { queueDirectory, submit, recover, waitForResult } from '../scripts/performance-queue.mjs'
+import {
+  queueDirectory,
+  submit,
+  recover,
+  superviseBrowserCheck,
+  waitForResult,
+} from '../scripts/performance-queue.mjs'
 
 const cli = fileURLToPath(new URL('../scripts/performance-queue.mjs', import.meta.url))
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -102,6 +108,85 @@ async function until(predicate, description, timeout = 8000) {
 async function released(f) {
   await until(() => !fs.existsSync(path.join(f.dir, 'controller.lock')), 'controller release')
 }
+
+async function unusedPort() {
+  const server = net.createServer()
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const port = server.address().port
+  await new Promise(resolve => server.close(resolve))
+  return port
+}
+
+async function supervisorFault(t, checkerSource, expected, serverCommand) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pnd-supervisor-')),
+    output = path.join(root, 'output'),
+    checker = path.join(root, 'checker.mjs'),
+    server = path.join(root, 'server.cjs'),
+    cleanup = path.join(output, 'cleanup.json'),
+    marker = path.join(root, 'checker-started'),
+    port = await unusedPort()
+  fs.mkdirSync(output)
+  fs.writeFileSync(checker, checkerSource)
+  fs.writeFileSync(
+    server,
+    `const http=require('node:http');http.createServer((q,r)=>r.end('ready')).listen(Number(process.argv[3]),process.argv[2]);\n`
+  )
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }))
+  const env = {
+    ...process.env,
+    CHECKER_MARKER: marker,
+    PND_QUEUE_JOB_ID: 'supervisor-fault-test',
+    PND_QUEUE_OUTPUT: output,
+    PND_QUEUE_CLEANUP: cleanup,
+    PND_QUEUE_PORTS: String(port),
+    POPULOUS_URL: `http://127.0.0.1:${port}`,
+  }
+  await assert.rejects(
+    superviseBrowserCheck({
+      checkerCommand: [process.execPath, checker],
+      cwd: root,
+      env,
+      serverCommand: serverCommand?.(port) ?? [process.execPath, server, '127.0.0.1', String(port)],
+      readinessTimeoutMs: 1_000,
+      checkerStdio: 'ignore',
+    }),
+    expected
+  )
+  const receipt = read(cleanup)
+  assert.equal(receipt.jobId, env.PND_QUEUE_JOB_ID)
+  assert.equal(receipt.resourcesReleased, true)
+  assert.equal(receipt.processes.length, serverCommand ? 1 : 2)
+  for (const processRecord of receipt.processes)
+    assert.throws(() => process.kill(-processRecord.pid, 0), { code: 'ESRCH' })
+  return { marker }
+}
+
+test('browser supervisor verifies cleanup after a missing checker dependency', async t => {
+  await supervisorFault(
+    t,
+    `import '@pnd/missing-browser-supervisor-fixture'\n`,
+    /Checker failed/
+  )
+})
+
+test('browser supervisor does not start the checker while the server port refuses connections', async t => {
+  const { marker } = await supervisorFault(
+    t,
+    `import fs from 'node:fs';fs.writeFileSync(process.env.CHECKER_MARKER,'started')\n`,
+    /Server startup failed/,
+    () => [process.execPath, '-e', 'setTimeout(()=>{},30000)']
+  )
+  assert.equal(fs.existsSync(marker), false)
+})
+
+test('browser supervisor verifies cleanup after a checker exception', async t => {
+  const { marker } = await supervisorFault(
+    t,
+    `import fs from 'node:fs';fs.writeFileSync(process.env.CHECKER_MARKER,'started');throw new Error('runner exception')\n`,
+    /Checker failed/
+  )
+  assert.equal(fs.existsSync(marker), true)
+})
 
 test('concurrent submitters and controllers preserve FIFO without overlap', async t => {
   const f = fixture(t)

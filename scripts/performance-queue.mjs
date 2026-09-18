@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// One local measurement lane. Runners remain responsible for detached browser cleanup.
+// One local measurement lane with an optional owner for browser-check descendants.
 import assert from 'node:assert/strict'
 import { spawn, spawnSync, execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -133,6 +133,165 @@ async function portFree(port) {
       server.listen({ port, host }, () => server.close(() => resolve(true)))
     })
   return (await probe('127.0.0.1')) && (await probe('::1'))
+}
+async function stopGroup(pid) {
+  if (!alive(pid, true)) return
+  signal(pid, 'SIGTERM')
+  for (let i = 0; alive(pid, true) && i < 20; i++) await sleep(50)
+  if (alive(pid, true)) signal(pid, 'SIGKILL')
+  for (let i = 0; alive(pid, true) && i < 20; i++) await sleep(50)
+  assert(!alive(pid, true), `Owned process group ${pid} is still alive`)
+}
+function childOutcome(child) {
+  return new Promise(resolve => {
+    child.once('error', error => resolve({ error }))
+    child.once('exit', (code, signal) => resolve({ code, signal }))
+  })
+}
+export async function superviseBrowserCheck({
+  checkerCommand,
+  cwd = process.cwd(),
+  env = process.env,
+  serverCommand,
+  readinessTimeoutMs = 45_000,
+  checkerStdio = 'inherit',
+}) {
+  assert(process.platform !== 'win32', 'Browser supervisor requires POSIX process groups')
+  argv(checkerCommand, 'checkerCommand')
+  assert(env.PND_QUEUE_JOB_ID, 'PND_QUEUE_JOB_ID is required')
+  assert(env.PND_QUEUE_OUTPUT, 'PND_QUEUE_OUTPUT is required')
+  assert(env.PND_QUEUE_CLEANUP, 'PND_QUEUE_CLEANUP is required')
+  assert(env.POPULOUS_URL, 'POPULOUS_URL is required')
+  const url = new URL(env.POPULOUS_URL),
+    host = url.hostname,
+    port = Number(url.port || 80),
+    declaredPorts = (env.PND_QUEUE_PORTS ?? '')
+      .split(',')
+      .filter(Boolean)
+      .map(Number)
+  assert.equal(url.protocol, 'http:', 'POPULOUS_URL must use http')
+  assert(['127.0.0.1', 'localhost'].includes(host), 'POPULOUS_URL must use loopback')
+  assert(Number.isInteger(port) && port > 0 && port < 65536, 'POPULOUS_URL has an invalid port')
+  assert.deepEqual(declaredPorts, [port], 'Queue job must declare the POPULOUS_URL port only')
+  serverCommand ??= [
+    'npm',
+    'run',
+    'dev',
+    '--',
+    '--port',
+    String(port),
+    '--hostname',
+    host,
+  ]
+  argv(serverCommand, 'serverCommand')
+
+  const owned = [],
+    signalHandlers = new Map()
+  let terminationSignal = null
+  const interrupt = signalName => {
+    terminationSignal = signalName
+    for (const pid of owned)
+      try {
+        signal(pid, 'SIGTERM')
+      } catch {
+        // Final cleanup still verifies this group and preserves the queue block on failure.
+      }
+  }
+  for (const signalName of ['SIGTERM', 'SIGINT']) {
+    const handler = () => interrupt(signalName)
+    signalHandlers.set(signalName, handler)
+    process.once(signalName, handler)
+  }
+
+  let failure = null
+  try {
+    assert(await portFree(port), `Refusing to start over occupied port ${port}`)
+    const serverLog = fs.openSync(path.join(env.PND_QUEUE_OUTPUT, 'server.log'), 'wx', 0o600)
+    let server
+    try {
+      server = spawn(serverCommand[0], serverCommand.slice(1), {
+        cwd,
+        detached: true,
+        env: { ...env, WRANGLER_LOG_PATH: path.join(env.PND_QUEUE_OUTPUT, 'wrangler.log') },
+        stdio: ['ignore', serverLog, serverLog],
+      })
+    } finally {
+      fs.closeSync(serverLog)
+    }
+    const serverResult = childOutcome(server)
+    assert(server.pid, 'Server did not report a PID')
+    owned.push(server.pid)
+    try {
+      const deadline = Date.now() + readinessTimeoutMs
+      let ready = false
+      while (Date.now() < deadline) {
+        if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
+        if (server.exitCode !== null) {
+          const result = await serverResult
+          if (result.error) throw result.error
+          throw new Error(`server exited with ${result.code ?? result.signal}`)
+        }
+        try {
+          const response = await fetch(url, { signal: AbortSignal.timeout(1_000) })
+          if (response.ok) {
+            ready = true
+            break
+          }
+        } catch {
+          // The owned server has not accepted this exact URL yet.
+        }
+        await sleep(100)
+      }
+      if (!ready) throw new Error(`server was not ready at ${url}`)
+    } catch (error) {
+      throw new Error(`Server startup failed: ${error.message}`, { cause: error })
+    }
+
+    try {
+      const checker = spawn(checkerCommand[0], checkerCommand.slice(1), {
+        cwd,
+        detached: true,
+        env: { ...env, POPULOUS_URL: url.toString() },
+        stdio: checkerStdio,
+      })
+      assert(checker.pid, 'Checker did not report a PID')
+      owned.push(checker.pid)
+      const result = await childOutcome(checker)
+      if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
+      if (result.error) throw result.error
+      if (result.signal) throw new Error(`checker exited from signal ${result.signal}`)
+      if (result.code !== 0) throw new Error(`checker exited with code ${result.code}`)
+    } catch (error) {
+      throw new Error(`Checker failed: ${error.message}`, { cause: error })
+    }
+  } catch (error) {
+    failure = error
+  } finally {
+    let cleanupFailure = null
+    try {
+      const stopped = await Promise.allSettled([...owned].reverse().map(stopGroup)),
+        cleanupErrors = stopped.filter(result => result.status === 'rejected').map(result => result.reason)
+      for (let i = 0; !(await portFree(port)) && i < 20; i++) await sleep(50)
+      if (!(await portFree(port))) cleanupErrors.push(new Error(`Owned port ${port} is still occupied`))
+      if (cleanupErrors.length) cleanupFailure = new AggregateError(cleanupErrors, 'Owned resources remain')
+      else
+        write(env.PND_QUEUE_CLEANUP, {
+          jobId: env.PND_QUEUE_JOB_ID,
+          resourcesReleased: true,
+          releasedAt: new Date().toISOString(),
+          processes: owned.map(pid => ({ pid, group: true })),
+        })
+    } catch (cleanupError) {
+      cleanupFailure = cleanupError
+    }
+    if (cleanupFailure)
+      failure = failure
+        ? new AggregateError([failure, cleanupFailure], 'Browser check and cleanup both failed')
+        : cleanupFailure
+    for (const [signalName, handler] of signalHandlers)
+      process.removeListener(signalName, handler)
+  }
+  if (failure) throw failure
 }
 function kick(dir) {
   const log = fs.openSync(path.join(dir, 'controller.log'), 'a', 0o600)
@@ -276,6 +435,7 @@ async function execute(job, dir) {
         PND_QUEUE_OUTPUT: job.output,
         PND_QUEUE_DEADLINE: new Date(deadline).toISOString(),
         PND_QUEUE_CLEANUP: path.join(job.output, 'cleanup.json'),
+        PND_QUEUE_PORTS: job.spec.ports.join(','),
       },
     })
     child.on('error', error => {
@@ -430,8 +590,13 @@ export async function waitForResult(dir, id) {
   }
 }
 async function main() {
-  const [command, ...args] = process.argv.slice(2),
-    index = args.indexOf('--dir')
+  const [command, ...args] = process.argv.slice(2)
+  if (command === 'supervise') {
+    assert(args.length, 'supervise requires a checker path')
+    await superviseBrowserCheck({ checkerCommand: [process.execPath, ...args] })
+    return
+  }
+  const index = args.indexOf('--dir')
   const dir = index === -1 ? queueDirectory() : path.resolve(args[index + 1])
   if (index !== -1) args.splice(index, 2)
   initialize(dir)
@@ -491,7 +656,7 @@ async function main() {
   else if (command === 'resume' || command === 'recover') await recover(dir)
   else
     throw Error(
-      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH]'
+      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH] | supervise CHECKER [ARG...]'
     )
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === script)
