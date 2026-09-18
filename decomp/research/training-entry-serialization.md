@@ -372,3 +372,129 @@ preserved separately and are not overwritten by this stop.
 
 Source-binding receipt:
 `work/orchestration/worker-3-training-entry/native-group-entry-unit-pool-prerequisite.json`.
+
+
+## Formation-aware visible doorway composition — retained-evidence continuation
+
+Research head: `4212d1a35ba27602e8d5ae31154b0e3abfeeb209`. This section supersedes
+older statements above that leave the pool/formation prerequisite unresolved or
+infer presentation as the only possible cause. It does not alter those historical
+receipts and does not claim a production repair.
+
+The preserved formation-aware canonical job
+`838acb15-f68d-424e-b47b-b8933be255fe` completed the requested model-5/object-95,
+capacity-5, eight-Brave shared-command-8 fixture. Its authentic contiguous pool,
+formation phase `0x4ec7da -> 0x501000`, person motion/route, command and admission
+bodies reached five occupants in 58 turns. Result:
+`work/orchestration/worker-3-training-entry/native-group-entry-formation-phase-result.json`
+(SHA-256 `d9e3e4ea6ea327b164c2a0779a3c3f9428c69804cb4cc78320f1e9aa072e792a`).
+The formation-phase findings/audit beside that result preserve its full scope and
+queue provenance. This continuation reuses it; no new native job was executed.
+
+### What the apparent single-file crossing can mean
+
+The original-data approach point is `(16640,15232)` and the inside target is
+`(16640,16448)` for the retained pose: a 1,216-native-unit (4.75 browser-unit)
+segment, not a one-slot doorway. The command-8 near test checks each coordinate
+against 112 and runs on an even class counter. Position, substate, occupancy,
+render eligibility and visible pixels are different measurements.
+
+| Brave | First substate 5 | Real admission | Substate 13 / speed zero |
+| ---: | ---: | ---: | ---: |
+| 7 | 37 | 50 | 51 |
+| 3 | 39 | 52 | 53 |
+| 6 | 40 | 53 | 54 |
+| 8 | 40 | 55 | 56 |
+| 5 | 43 | 58 | Not captured after turn 58 |
+
+All five admissions returned `AL=1` and increased occupancy by one. All other
+turns 1–58 had zero calls. Nevertheless, five people simultaneously occupied
+substate 5, and two began it on turn 40. Thus single admissions do not imply a
+single-person approach pipeline. Four observed admitted people took one further
+native motion step before the next command visit stopped them; the fifth next
+visit is outside the retained trace. These facts follow from the saved
+`turnVisits` and `timeline`, and `004d32b0.c`/`00434610.c` call ordering.
+
+Training admission selects mode 3 of `0x4d80e0`: it sets occupancy but retains
+commands/cell membership and does not set object hide bit `0x10`.
+`0046ec80.c` tests that hide bit before queuing the sprite through `0x46f080`;
+it does not equate training occupancy with invisibility. Browser
+`building-occupants.ts::setPersonOccupancy` and
+`scene-entities.ts::updateUnitsFrame` preserve this distinction in ground view.
+There is no demonstrated missing admission-time hide operation to add.
+
+The supported narrow composition is therefore **formation-spaced motion toward
+a shared inside target, staggered arrival, a further motion step before stopping,
+and camera-dependent model-face/sprite overlap**. It is compatible with seeing
+successive doorway crossings without a capacity-one or admission-lock rule.
+Native and browser painters order model faces and sprites by buckets and source
+order, rather than using an occupancy semaphore as an occlusion mask.
+
+A controlled projection of the retained turn-58 resident anchors through the
+imported 640x480 normal camera at yaw 0 spans only **0.5625 by 4.8125 pixels**;
+the referenced Brave frame is 22 by 30 pixels. Eight controlled preset/yaw cases
+show overlapping anchor ranges and nearer model triangles covering their anchor
+points. These are projection/solid-triangle diagnostics, **not** alpha-tested
+sprite pixels, original-camera evidence, or proof that every resident is hidden.
+Texture holes, individual animation layers and the actual camera still matter.
+
+### Concrete presentation-adapter candidate, not a gameplay repair
+
+`UnitMotion.afterTurn` collapses `from` to `to` on **any** `inside` identity change,
+including mode-3 trainees which remain renderable. With the five saved native
+admission-step endpoints, the actual unmodified adapter skips interpolation over
+**0.293203–0.340405 browser units**. With identical endpoints but unchanged
+occupancy metadata, it interpolates normally; halfway through the turn the
+positions differ by **0.146602–0.170202 units**. This is an observed,
+occupancy-metadata-triggered presentation discontinuity, not an admission gate.
+It could move an otherwise visible final step across a roof/wall coverage edge.
+
+Native `0046f080.c` instead interpolates from position minus displacement under
+its flags/counter conditions; occupancy mode 3 does not zero those displacements.
+However, the retained composition trace did **not** capture per-turn flags3,
+displacements, complete render flags or presentation stamps. It therefore cannot
+establish the original interpolation-enabled pixel trajectory for this fixture.
+The broad browser interpolation regression intentionally treats entry as discrete;
+this candidate must be checked specifically for visible training entry before
+changing `unit-motion.ts`. It cannot explain or repair multi-admission turns in
+other browser fixtures by itself.
+
+### Exact remaining visual evidence boundary
+
+The old `check-browser-training.mjs` checks each resident group's `visible` flag,
+but its framebuffer subtraction measures only the three queued outsiders.
+The retained `2026-09-10-training.json` value of 685 pixels is **not** a resident
+or doorway-crossing pixel count. Globe view independently omits all `u.inside`
+people; that separate camera mode must not be confused with ground-view occlusion.
+
+The missing comparison is a same-pose, same-camera, same-fraction person-pixel
+trace joining `0x46ec80 -> 0x46f080` to the original model queue/painter
+(`0x4708d0`, `0x4673b0`) and the shipped ground renderer. It needs each person's
+object/frame/render flags, interpolation flags/displacement/stamp, cell order,
+model pose and camera state. Preserve the native admissions and compare the last
+visible sprite pixels before/after them, first with the hut present, then in
+labelled diagnostic passes isolating hut coverage and person overlap. Any
+interpolation A/B must change presentation only, not simulation or admission.
+No new camera, movement, occlusion, capacity or semaphore rule is justified yet.
+
+Current stop: **NEEDS_REVIEW for the exact reported visible cause**. The narrow
+composition and one concrete adapter discontinuity are identified; a matched
+original-frame disappearance boundary is not established. No browser production,
+capacity, admission or training code was changed.
+
+### Continuation artifacts and checks
+
+All new executable diagnostics are ignored under
+`work/orchestration/worker-3-training-entry/`:
+`doorway-composition-analysis.mjs`, `doorway-composition-result.json`,
+`doorway-composition-checks.json`, and `doorway-composition-portable.log`.
+Analysis result SHA-256:
+`fbdc081d4ef0d8098466f13d7976dec5579a266f6615fa90e88119ec1b1830b4`.
+
+- `node --check .../doorway-composition-analysis.mjs`: passed, exit 0.
+- `node .../doorway-composition-analysis.mjs`: passed, exit 0; retained-data analysis
+  and actual portable interpolation adapter, not native emulation or rendering.
+- `node --test tests/unit-motion.test.mjs tests/painter-order.test.mjs`: passed,
+  exit 0; all eight checks. Input/log hashes are in the checks receipt.
+- Native and browser/pixel runs: not run in this continuation; native evidence is
+  reused and the missing visual inputs are reported rather than invented.
