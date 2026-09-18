@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Populous · The First Dawn',
     description:
       'Lead your tribe. Shape the earth. Become a god. A playable browser tribute to Populous: The Beginning.',
-    icons: { icon: '/favicon.png' },
+    icons: { icon: '/favicon.ico' },
     openGraph: {
       title: 'Populous · The First Dawn',
       description: 'Lead your tribe. Shape the earth. Become a god.',
