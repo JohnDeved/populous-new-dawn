@@ -1,10 +1,24 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import levelFive from '../app/level-five.ts'
 import { browserPosition, createWorld, tick } from '../app/model.ts'
 import { missionData, missionEnemyTribe } from '../app/mission-data.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from '../app/building-shapes.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
+
+test('Mission 5 imports its linked Boat template from the verified native coordinates', () => {
+  assert.equal(
+    levelFive.sourceSha256,
+    'fce3c6555933d9e6d04490739a90f0cd188bc561a977c0c28e04aa265955f90b'
+  )
+  assert.deepEqual(
+    levelFive.objects
+      .filter(object => object.type === 4)
+      .map(({ index, model, owner, x, z }) => ({ index, model, owner, x, z })),
+    [{ index: 100, model: 1, owner: 0, x: -35.671875, z: -55.64453125 }]
+  )
+})
 
 test('Mission 5 runs its imported opening flyby once through ordinary turns', () => {
   const world = createWorld(5)
