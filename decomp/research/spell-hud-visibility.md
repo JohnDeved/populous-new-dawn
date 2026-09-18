@@ -137,3 +137,24 @@ Therefore no general-rule runtime implementation can faithfully represent the
 native undiscovered state within issue #78's no-atlas/no-icon scope. Hidden,
 owned-visible, visible-but-not-castable, and undiscovered are source-resolved;
 only the required undiscovered artwork remains outside this reservation.
+
+
+## 2026-09-18 HFX1056 prerequisite landed
+
+The previously identified asset prerequisite is now installed through the same
+preservation-oriented append path as the accepted Shield/Bloodlust frames.
+
+- HFX0 frame 1056 decodes to 20x23 RGBA,
+  SHA-256 `2bcbf3fe1f260915ea712059866e6024c33e11b96ec4d8b84c6a1895d39611b4`.
+- It is appended at `{x:0,y:437,w:20,h:23}` below the accepted 1024x436 atlas.
+- The prior 1024x436 RGBA prefix SHA remains
+  `2ce6727f161b377f1a09c36f1f3b1541a90f4bff7d562ee8cc3df92a7418d584`.
+- All 1,743 pre-existing rectangles are preserved; HFX408-413 retain their accepted
+  y=411 rectangles and original RGBA hashes.
+- Canonical source inputs remain pinned to the existing HFX0/palette SHA-256 values.
+
+Focused receipt:
+`work/orchestration/issue78-spell-visibility/hfx1056-preservation.json`.
+
+This resolves the asset-only blocker. The visibility/state rule remains a separate
+runtime change and must still preserve reward, mana, stock, RNG and save behavior.
