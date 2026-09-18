@@ -40,20 +40,30 @@ async function resumeGame(page) {
   await page.waitForFunction(() => !window.testScene.world.paused)
 }
 
+// dialog.close() removes `open` before its queued close event. The React
+// onClose handler then unpauses; consume both before issuing a fresh Pause.
+async function closeMenuForGameplay(page) {
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.waitForFunction(() => {
+    const dialog = document.querySelector('.game-dialog')
+    return dialog && !dialog.open && window.testScene.world.paused === false
+  })
+}
+
 async function ensureDoubleSpeed(page) {
   const current = await page.evaluate(() => window.testScene.world.speed)
   if (current === 2) return
   assert.equal(current, 1, 'rendered game-speed control expects the normal 1x state')
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await page.getByRole('button', { name: '1× game speed', exact: true }).click()
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await closeMenuForGameplay(page)
   await page.waitForFunction(() => window.testScene.world.speed === 2)
 }
 
 async function focusSettlement(page) {
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await page.getByRole('button', { name: 'Focus settlement', exact: true }).click()
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await closeMenuForGameplay(page)
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
 }
 
@@ -872,7 +882,7 @@ try {
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   const load = page.getByRole('button', { name: 'Load checkpoint', exact: true })
   assert.equal(await load.isEnabled(), true)
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await closeMenuForGameplay(page)
 
   stage('full to partial departure')
   const firstDeparture = await departOne(page, residentIds)
