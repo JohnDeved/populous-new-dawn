@@ -125,6 +125,16 @@ export function personIsDrowning(land: Ground, p: HealthPerson) {
   )
 }
 
+export function regeneratePersonHealth(
+  p: Pick<HealthPerson, 'model' | 'life' | 'maxLife' | 'healthMarker' | 'flags3'>,
+  turn: number
+) {
+  if (!(rules.personModels[p.model].flags & 8) || turn & 7) return
+  if (p.life < p.maxLife) p.life = short(p.life + rules.personHealing[p.model])
+  else p.healthMarker = 255
+  p.flags3 = (p.maxLife >> 2 < p.life ? p.flags3 & ~0x1000 : p.flags3 | 0x1000) >>> 0
+}
+
 // Complete 0x4d43a0, after the state controller when its state allows health.
 // State-2/3/31 initialization remains an explicit class/state consumer.
 export function updatePersonHealth(
@@ -154,11 +164,7 @@ export function updatePersonHealth(
     transition(3)
     return
   }
-  if (rules.personModels[p.model].flags & 8 && !(turn & 7)) {
-    if (p.life < p.maxLife) p.life = short(p.life + rules.personHealing[p.model])
-    else p.healthMarker = 255
-    p.flags3 = (p.maxLife >> 2 < p.life ? p.flags3 & ~0x1000 : p.flags3 | 0x1000) >>> 0
-  }
+  regeneratePersonHealth(p, turn)
   consumePersonDisruption(p, initialize)
 }
 

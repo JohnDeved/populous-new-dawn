@@ -291,6 +291,7 @@ import {
   collisionWorld,
   enterLiveCombat,
   stepLivePhysics,
+  stepLivePersonHealth,
   stepLiveEncounter,
   createLivePerson,
   createMeleePerson,
@@ -1567,6 +1568,7 @@ function stepTurn(w: World) {
       }
     } else u.idleTurns = 0
   }
+  stepLivePersonHealth(w)
   for (const { unit: u, previous } of burningPeople) {
     if (u.hp <= 0 && !u.flight) continue
     const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }
