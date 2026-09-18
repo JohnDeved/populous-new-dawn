@@ -18,8 +18,9 @@ import {
 } from './model'
 import { ObjectPanels } from './object-panels.ts'
 import pointerPalette from './original-pointer.json' with { type: 'json' }
+import nativeUnits from './original-units.json'
 import { ProjectileMotion } from './projectile-motion.ts'
-import { loadTexture, releaseGroup, texture } from './scene-assets.ts'
+import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
@@ -189,6 +190,7 @@ export class GameScene {
   terrainUpload = new THREE.DataTexture()
   terrainAtlasState: ReturnType<typeof terrainAtlas> | undefined
   terrainLoad = new AbortController()
+  ready: Promise<void> = Promise.resolve()
   terrainMapVersion: number | null = null
   terrainShadows = new Uint8Array(16384)
   unitMeshes = new Map<number, THREE.Group>()
@@ -203,20 +205,7 @@ export class GameScene {
   objects = new THREE.Group()
   decorations = new THREE.Group()
   shrineMeshes = new Map<number, { g: THREE.Group }>()
-  cursor = new THREE.Mesh(
-    new THREE.BufferGeometry(),
-    new THREE.MeshBasicMaterial({
-      map: texture('atlas'),
-      vertexColors: true,
-      transparent: true,
-      alphaTest: 0.01,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -1,
-    })
-  )
+  cursor: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
   plans = new Map<number, THREE.Mesh>()
   placementState = ''
   range = new THREE.Group()
@@ -258,6 +247,8 @@ export class GameScene {
   keys = new Set<string>()
   resize: ResizeObserver
   frame = 0
+  started = false
+  disposed = false
   fpsGraph = new URLSearchParams(location.search).has('fps') ? new FpsGraph() : null
   previous: number | null = null
   uiTimer = 0
@@ -323,13 +314,42 @@ export class GameScene {
       alpha: true,
       powerPreference: 'high-performance',
     })
-    // Upload the shared effects atlas during loading, before the first hit or spell.
-    for (const name of ['effects', 'unit-health']) {
-      const asset = loadTexture(name)
-      void asset.ready.then(loaded => {
-        if (loaded && !this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
+    // Resolve failed required textures before constructing anything that captures them.
+    // Passive texture()/loadTexture() lookups still reuse failures; only this new-scene
+    // preload boundary may replace a completed required failure.
+    const atlasAsset = retryFailedTexture('atlas'),
+      unitAtlasAsset =
+        nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
+      preload = (
+        [
+          ['effects', loadTexture('effects'), false],
+          ['unit-health', loadTexture('unit-health'), false],
+          ['atlas', atlasAsset, true],
+          [nativeUnits.atlas, unitAtlasAsset, true],
+        ] as const
+      ).map(([name, asset, required]) =>
+        asset.ready.then(loaded => {
+          if (!loaded) {
+            if (required) throw new Error(`Required scene texture failed to load: ${name}`)
+            return
+          }
+          if (!this.terrainLoad.signal.aborted) this.renderer.initTexture(asset.texture)
+        })
+      )
+    this.cursor = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({
+        map: atlasAsset.texture,
+        vertexColors: true,
+        transparent: true,
+        alphaTest: 0.01,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
       })
-    }
+    )
     this.renderer.shadowMap.enabled = false
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.toneMapping = THREE.NoToneMapping
@@ -391,7 +411,9 @@ export class GameScene {
     this.makeSky()
     this.camera.up.set(0, 0, -1)
     this.camera.position.set(30, 155, 0)
-    this.terrain = initializeTerrain(this)
+    const terrain = initializeTerrain(this)
+    this.terrain = terrain.terrain
+    this.ready = Promise.all([terrain.ready, ...preload]).then(() => undefined)
     this.selectionOverlay = new SelectionOverlay(texture('atlas'), this.view)
     this.selectionOverlay.material.uniforms.dragActive = this.dragActive
     this.scene.add(this.selectionOverlay)
@@ -409,8 +431,16 @@ export class GameScene {
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
-    installInputListeners(this, minimap)
+  }
+  start() {
+    if (this.started) return true
+    if (this.disposed || this.terrainLoad.signal.aborted) return false
+    this.started = true
+    this.previous = null
+    this.drawMinimap()
+    installInputListeners(this, this.mini)
     this.frame = requestAnimationFrame(this.animate)
+    return true
   }
   makeSky() {
     makeSky(this)
@@ -704,7 +734,9 @@ export class GameScene {
     releaseGroup(g)
   }
   dispose() {
-    cancelAnimationFrame(this.frame)
+    if (this.disposed) return
+    this.disposed = true
+    if (this.frame) cancelAnimationFrame(this.frame)
     for (const stop of this.ownedSounds.values()) stop()
     this.ownedSounds.clear()
     this.terrainLoad.abort()

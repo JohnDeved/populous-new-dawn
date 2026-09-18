@@ -6,6 +6,7 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type MouseEvent,
+  type SyntheticEvent,
 } from 'react'
 import {
   BUILDINGS,
@@ -60,6 +61,12 @@ const timeLabel = (time: number) =>
     .toString()
     .padStart(2, '0')}`
 
+type LoadRequest =
+  | { kind: 'mission'; mission: number }
+  | { kind: 'checkpoint' }
+  | { kind: 'restart' }
+  | { kind: 'continue'; mission: number }
+
 export default function Home() {
   const [store] = useState(createGameStore)
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
@@ -102,6 +109,7 @@ export default function Home() {
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
   const followerPress = useRef<EventTarget | null>(null)
+  const loadRequest = useRef<LoadRequest | null>(null)
   useEffect(() => {
     const resize = () => {
       // Scale artwork uniformly; extra screen height extends only the panel background.
@@ -136,7 +144,8 @@ export default function Home() {
   }, [])
   useEffect(() => {
     if (startup !== 'playing') return
-    let disposed = false
+    let disposed = false,
+      scene: GameScene | null = null
     if (window.innerWidth < 900)
       store.change(w => {
         w.paused = true
@@ -144,26 +153,31 @@ export default function Home() {
     import('./scene')
       .then(({ GameScene }) => {
         if (disposed || !viewport.current || !minimap.current || !portrait.current) return
-        try {
-          engine.current = new GameScene(
-            viewport.current,
-            minimap.current,
-            portrait.current,
-            world,
-            update,
-            (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
-          )
-          if (world.drawMode === 2) engine.current.overview()
-          setReady(true)
-        } catch (e) {
-          setError(e instanceof Error ? e.message : 'Unable to start the 3D world.')
-        }
+        const created = new GameScene(
+          viewport.current,
+          minimap.current,
+          portrait.current,
+          world,
+          update,
+          (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
+        )
+        scene = created
+        engine.current = created
+        if (world.drawMode === 2) created.overview()
+        return created.ready.then(() => {
+          if (!disposed && engine.current === created && created.start()) setReady(true)
+        })
       })
-      .catch(e => setError(String(e)))
+      .catch(e => {
+        if (disposed || scene?.terrainLoad.signal.aborted) return
+        scene?.dispose()
+        if (engine.current === scene) engine.current = null
+        setError(e instanceof Error ? e.message : 'Unable to finish loading the 3D world.')
+      })
     return () => {
       disposed = true
-      engine.current?.dispose()
-      engine.current = null
+      scene?.dispose()
+      if (engine.current === scene) engine.current = null
     }
   }, [world, update, store, startup])
   useEffect(() => {
@@ -175,7 +189,13 @@ export default function Home() {
   }, [startup])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement).closest('input,dialog'))
+      if (
+        !ready ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        (e.target as HTMLElement).closest('input,dialog')
+      )
         return
       if (world.inputMask) {
         if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
@@ -230,7 +250,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store])
+  }, [world, update, store, ready])
   useEffect(() => {
     if (menu) {
       store.change(w => {
@@ -301,48 +321,44 @@ export default function Home() {
       },
     }
   }
-  function restart() {
+  function beginLoad(request: LoadRequest) {
     audio.current?.reset()
     setMenu(false)
     setReady(false)
     setError('')
-    store.restart()
+    if (request.kind === 'checkpoint') {
+      if (!store.loadCheckpoint()) return
+      store.change(w => {
+        w.paused = false
+      })
+    } else if (request.kind === 'restart') store.restart()
+    else store.startMission(request.mission)
+    loadRequest.current = request
     setTab('spells')
     setStartup('playing')
+  }
+  function restart() {
+    beginLoad({ kind: 'restart' })
   }
   function continueCampaign() {
-    audio.current?.reset()
-    setReady(false)
-    setError('')
-    store.startMission(world.outcome.level + 1)
-    setTab('spells')
+    beginLoad({ kind: 'continue', mission: world.outcome.level + 1 })
   }
   function startMission(mission: number) {
-    audio.current?.reset()
-    setMenu(false)
-    setReady(false)
-    setError('')
-    store.startMission(mission)
-    setTab('spells')
-    setStartup('playing')
+    beginLoad({ kind: 'mission', mission })
   }
   function exitTutorial() {
     audio.current?.reset()
     setMenu(false)
     setReady(false)
+    setError('')
+    loadRequest.current = null
     setStartup('choice')
   }
   function loadCheckpoint() {
-    audio.current?.reset()
-    setMenu(false)
-    setReady(false)
-    setError('')
-    if (!store.loadCheckpoint()) return
-    store.change(w => {
-      w.paused = false
-    })
-    setTab('spells')
-    setStartup('playing')
+    beginLoad({ kind: 'checkpoint' })
+  }
+  function retryLoad() {
+    if (loadRequest.current) beginLoad(loadRequest.current)
   }
   async function saveCheckpoint() {
     setCheckpointNotice(
@@ -371,6 +387,12 @@ export default function Home() {
     BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
+  function blockLoadingInteraction(event: SyntheticEvent) {
+    if (ready || (event.target as Element).closest('.loading-world')) return false
+    event.preventDefault()
+    event.stopPropagation()
+    return true
+  }
   const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
     enemyName = enemies.map(enemy => enemy.name).join(' and '),
     objectives =
@@ -568,7 +590,11 @@ export default function Home() {
     <main
       ref={shell}
       className="game-shell"
+      onPointerDownCapture={blockLoadingInteraction}
+      onPointerUpCapture={blockLoadingInteraction}
+      onContextMenuCapture={blockLoadingInteraction}
       onClickCapture={e => {
+        if (blockLoadingInteraction(e)) return
         if (
           world.inputMask &&
           !(e.target as Element).closest(
@@ -1028,7 +1054,7 @@ export default function Home() {
           <h2>{error ? 'The world could not awaken' : 'A world is awakening'}</h2>
           <p>
             {error
-              ? 'This game needs WebGL 2. Try a current browser with hardware acceleration enabled.'
+              ? 'The battlefield did not finish loading. Retry the same request when you are ready.'
               : 'Raising the earth. Gathering your people.'}
           </p>
           {error && (
@@ -1037,7 +1063,7 @@ export default function Home() {
                 <summary>Technical details</summary>
                 {error}
               </details>
-              <button className="primary-button" onClick={restart}>
+              <button className="primary-button" onClick={retryLoad}>
                 Try again
               </button>
             </>
