@@ -65,18 +65,24 @@ async function portFree() {
 
 async function waitForServer(timeoutMs) {
   const deadline = Date.now() + timeoutMs
+  let probe = 0
+  console.error(`[issue73-server] advertised ${url.toString()}`)
   while (Date.now() < deadline) {
     if (terminationSignal) throw new Error(`Queue termination requested: ${terminationSignal}`)
     if (server?.exitCode !== null) throw new Error('Game server exited before becoming ready')
+    probe++
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, { signal: AbortSignal.timeout(1_000) })
+      console.error(
+        `[issue73-server] probe ${probe} HTTP ${response.status} ${response.statusText}`
+      )
       if (response.ok) return
-    } catch {
-      // The queue-owned server is still starting.
+    } catch (error) {
+      console.error(`[issue73-server] probe ${probe} ERROR ${error.name}: ${error.message}`)
     }
     await sleep(100)
   }
-  throw new Error(`Game server was not ready within ${timeoutMs}ms`)
+  throw new Error(`Game server was not ready within ${timeoutMs}ms at ${url.toString()}`)
 }
 
 async function runChecker() {
@@ -131,12 +137,16 @@ try {
   assert(await portFree(), 'Refusing to start over an occupied POPULOUS_URL port')
   const serverLog = fs.openSync(path.join(output, 'server.log'), 'wx', 0o600)
   try {
-    server = spawn('npm', ['run', 'dev', '--', '--port', String(port)], {
-      cwd: process.cwd(),
-      detached: true,
-      env: process.env,
-      stdio: ['ignore', serverLog, serverLog],
-    })
+    server = spawn(
+      'npm',
+      ['run', 'dev', '--', '--port', String(port), '--hostname', url.hostname],
+      {
+        cwd: process.cwd(),
+        detached: true,
+        env: process.env,
+        stdio: ['ignore', serverLog, serverLog],
+      }
+    )
   } finally {
     fs.closeSync(serverLog)
   }
