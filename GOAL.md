@@ -270,13 +270,34 @@ for a concrete question that reduces uncertainty or allows useful independent wo
   assign each PR to one available reviewer and do not duplicate its full review
   in Codex. Provide the exact head/base, full diff, acceptance criteria and retained
   receipts. Reviewers inspect read-only, report concrete findings and ACCEPT/REJECT,
-  and notify the CEO by Codex CLI on completion, blocker, error or any stop,
-  including their chat ID. Follow-up reviews cover repairs and unresolved findings.
+  and notify the CEO on a verdict, actionable blocker or unexpected stop,
+  using the compact reporting rule below. Follow-up reviews cover repairs and unresolved findings.
   The CEO retains final acceptance, necessary integration checks and main merges.
 
 Give specialists compact assignments, relevant sources, response budgets, and
 completion conditions. Require actionable findings with provenance and limitations.
 Parallelize independent questions; keep small tasks with the parent.
+
+### Keep coordination short
+
+Send one delta-only handoff, normally at most 120 words:
+`Worker/Reviewer | issue/PR | state | head`; what changed; decision or next action;
+one durable evidence link/path with exact receipts and limits; resources held.
+Keep full hashes, attempts, logs and preservation inventories in that artifact.
+Expand only when needed to explain a concrete defect. Do not resend prior evidence.
+
+Report review-ready delivery, a blocker requiring another owner, an unexpected
+stop, or a material scope/deadline change. Keep corrected command errors, routine
+test bring-up and acknowledgements in local evidence. Retain assigned checkpoints,
+but send only a changed finding or missed forecast. A delivery timeout is uncertain:
+check delivery before retrying; never send repeated full handoffs.
+
+The CEO routes first: use the latest report, collapse superseded reports, and read
+deep evidence only for review, integration or an unresolved decision. Do not echo
+every handoff or refresh every ledger per message. Give each assignment one bounded
+fallback task with a separate reservation when available; after delivery or a hard
+block, continue that preauthorized task while review proceeds. Otherwise request
+routing once. The watcher remains a deduplicated failsafe, not routine reporting.
 
 Follow `AGENTS.md` and the engineering skill for workflow mechanics. Supply applicable
 constraints and cited sections instead of whole goals, histories, or the performance
