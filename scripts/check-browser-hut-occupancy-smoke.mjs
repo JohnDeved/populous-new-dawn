@@ -15,10 +15,15 @@ assert.deepEqual(
 )
 assert.deepEqual(rules.buildingCapacity.slice(1, 4), [3, 4, 5])
 
-const report = {}
+const report = { strategy: 'rendered construction; guard staging; explicit admission and release' }
 const reportPath =
   (process.env.PND_QUEUE_OUTPUT ?? '/private/tmp') + '/issue73-fresh-hut-acceptance.json'
 const writeReport = () => writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n')
+const stage = name => {
+  report.stage = name
+  writeReport()
+  console.log('[issue73] ' + name)
+}
 
 async function pauseGame(page) {
   if (!(await page.evaluate(() => window.testScene.world.paused)))
@@ -64,12 +69,12 @@ async function clearSelection(page) {
   })
 }
 
-async function renderedPersonTarget(page, id) {
-  return page.evaluate(id => {
+async function renderedPersonTarget(page, id, required = true) {
+  const target = await page.evaluate(id => {
     const scene = window.testScene,
       rect = scene.renderer.domElement.getBoundingClientRect(),
       bounds = scene.picking.personBounds(id)
-    if (!bounds) throw new Error('Free Brave ' + id + ' has no rendered person bounds')
+    if (!bounds) return null
     for (let y = bounds.y + 2; y < bounds.y + bounds.height - 1; y += 3)
       for (let x = bounds.x + 2; x < bounds.x + bounds.width - 1; x += 3) {
         const event = { clientX: rect.left + x, clientY: rect.top + y }
@@ -79,8 +84,10 @@ async function renderedPersonTarget(page, id) {
         )
           return { x: event.clientX, y: event.clientY }
       }
-    throw new Error('No rendered pointer hit for free Brave ' + id)
+    return null
   }, id)
+  if (required) assert.ok(target, 'No rendered pointer hit for free Brave ' + id)
+  return target
 }
 
 async function selectRenderedPeople(page, ids) {
@@ -96,6 +103,74 @@ async function selectRenderedPeople(page, ids) {
     [...selected].sort((a, b) => a - b),
     [...ids].sort((a, b) => a - b)
   )
+}
+
+// G is the shipped Guard command: it releases real work/occupancy and keeps
+// idle auto-housing from reclaiming the staged Braves. Never write those fields.
+async function guardSelected(page, ids) {
+  const snapshot = () =>
+    page.evaluate(ids => {
+      const world = window.testScene.world,
+        hut = world.buildings.find(b => b.id === window.hutSmoke.hutId)
+      return {
+        turn: world.turn,
+        selected: [...world.selected],
+        residents: world.units.filter(u => u.inside === hut.id && u.hp > 0).map(u => u.id),
+        admissionInside: hut.admission?.inside ?? 0,
+        people: ids.map(id => {
+          const u = world.units.find(u => u.id === id)
+          return { id, inside: u?.inside, work: u?.work, guard: u?.guard, hp: u?.hp }
+        }),
+      }
+    }, ids)
+  const before = await snapshot(),
+    record = { before }
+  ;(report.guardOrders ??= []).push(record)
+  writeReport()
+  assert.deepEqual(
+    [...before.selected].sort((a, b) => a - b),
+    [...ids].sort((a, b) => a - b)
+  )
+  assert.ok(
+    before.people.every(u => u.hp > 0 && !u.guard),
+    'Guard must enable, not toggle off'
+  )
+  await resumeGame(page)
+  await page.keyboard.press('g')
+  record.immediate = await snapshot()
+  writeReport()
+  assert.ok(
+    record.immediate.people.every(u => u.guard && u.inside === null && u.work === null),
+    'shipped Guard must release every selected Brave through the normal task/occupancy owner'
+  )
+  await pauseGame(page)
+  return record
+}
+
+async function chooseRenderedResidents(page, preferred, count) {
+  const candidates = await page.evaluate(preferred => {
+    const scene = window.testScene,
+      first = new Set(preferred)
+    return scene.world.units
+      .filter(
+        u =>
+          u.team === 'blue' &&
+          u.kind === 'brave' &&
+          u.hp > 0 &&
+          u.guard &&
+          u.inside === null &&
+          u.work === null &&
+          scene.picking.personBounds(u.id)
+      )
+      .sort((a, b) => Number(first.has(b.id)) - Number(first.has(a.id)))
+      .map(u => u.id)
+  }, preferred)
+  const ids = []
+  for (const id of candidates) {
+    if (await renderedPersonTarget(page, id, false)) ids.push(id)
+    if (ids.length === count) return ids
+  }
+  throw new Error('Guard staging has only ' + ids.length + ' pickable Braves; requires ' + count)
 }
 
 async function buildSiteCandidates(page) {
@@ -254,6 +329,18 @@ async function smokeSnapshot(page) {
         sequence === null || frame === null ? null : originalEffects.animations[sequence][frame],
       atlas = smoke.sprite.userData.atlasTransform
     return {
+      turn: world.turn,
+      progress: hut.progress,
+      level: hut.level,
+      residentIds: world.units.filter(u => u.inside === hut.id && u.hp > 0).map(u => u.id),
+      incomingIds: world.units
+        .filter(u => u.work === hut.id && u.inside !== hut.id && u.hp > 0)
+        .map(u => u.id),
+      unguardedOutsideIds: world.units
+        .filter(
+          u => u.team === 'blue' && u.kind === 'brave' && u.hp > 0 && u.inside === null && !u.guard
+        )
+        .map(u => u.id),
       counter: hut.counter,
       occupants: world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length,
       admissionInside: hut.admission?.inside ?? 0,
@@ -316,6 +403,7 @@ async function renderedPixels(page) {
       after
     )
     smoke.group.visible = true
+    renderer.render(scene.scene, scene.camera)
     let pixels = 0
     for (let i = 0; i < length; i += 4)
       if (
@@ -346,6 +434,9 @@ async function admissionDispatch(page, ids) {
         }),
       }
     }, ids)
+  const record = { target, before }
+  ;(report.admissionOrders ??= []).push(record)
+  writeReport()
   await page.mouse.click(target.x, target.y)
   const immediate = await page.evaluate(ids => {
     const world = window.testScene.world,
@@ -361,6 +452,8 @@ async function admissionDispatch(page, ids) {
       }),
     }
   }, ids)
+  record.immediate = immediate
+  writeReport()
   assert.ok(
     immediate.lastOrderTurn >= before.turn && immediate.lastOrderTurn <= immediate.turn,
     'real hut click must immediately accept the selected resident order'
@@ -381,7 +474,7 @@ async function departOne(page) {
   await page.mouse.move(hutTarget.x, hutTarget.y)
   const panel = page.getByRole('group', { name: /^Hut: [0-9]+ of [0-9]+ occupants$/ })
   await panel.waitFor({ state: 'visible' })
-  const occupant = panel.getByRole('button', { name: /^Occupant 1:/ }),
+  const occupant = panel.getByRole('button', { name: /^Occupant [0-9]+:/ }).first(),
     id = Number(await occupant.getAttribute('data-person'))
   assert.ok(id > 0, 'visible hut occupant must expose its live person id')
   await occupant.click()
@@ -419,14 +512,20 @@ async function departOne(page) {
   assert.equal(immediate.unitInside, null)
   assert.equal(immediate.residents, before.residents - 1)
   assert.equal(immediate.admissionInside, before.admissionInside - 1)
+  // Hold this released Brave outside; an unguarded idle person can re-enter
+  // before the next 32-count smoke sample even after a successful ground order.
+  const guard = await guardSelected(page, [id])
+  await resumeGame(page)
   await page.waitForFunction(turn => window.testScene.world.turn > turn, immediate.turn)
   await pauseGame(page)
-  return { id, hutTarget, groundTarget, before, immediate }
+  return { id, hutTarget, groundTarget, before, immediate, guard }
 }
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+let page, errors
 try {
-  const { page, errors } = await openGame(browser, 1)
+  stage('construction')
+  ;({ page, errors } = await openGame(browser, 1))
   page.setDefaultTimeout(30_000)
   await ensureDoubleSpeed(page)
   await focusSettlement(page)
@@ -512,22 +611,6 @@ try {
     hutId,
     { timeout: 180_000 }
   )
-  await page.waitForFunction(
-    ({ hutId, builderIds }) => {
-      const world = window.testScene.world,
-        hut = world.buildings.find(building => building.id === hutId)
-      return (
-        hut?.admission?.inside === 0 &&
-        !world.units.some(unit => unit.inside === hutId && unit.hp > 0) &&
-        builderIds.every(id => {
-          const unit = world.units.find(candidate => candidate.id === id)
-          return !unit || unit.work === null
-        })
-      )
-    },
-    { hutId, builderIds },
-    { timeout: 60_000 }
-  )
   await pauseGame(page)
   await page.evaluate(hutId => {
     window.hutSmoke = { hutId }
@@ -536,6 +619,21 @@ try {
     const scene = window.testScene
     return !!scene.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
   }, hutId)
+  // Completion releases builders, not a stable empty-hut promise. Retain the
+  // observed occupancy, then issue a normal order to the entire live Brave cohort.
+  report.completedConstruction = await smokeSnapshot(page)
+  stage('guard staging')
+  await clearSelection(page)
+  await page
+    .getByRole('button', { name: 'Select brave', exact: true })
+    .click({ modifiers: ['Shift'] })
+  const stagedIds = await page.evaluate(() =>
+    window.testScene.world.units
+      .filter(u => u.team === 'blue' && u.kind === 'brave' && u.hp > 0)
+      .map(u => u.id)
+  )
+  report.staging = await guardSelected(page, stagedIds)
+  stage('absent smoke after normal release')
 
   let state = await smokeSnapshot(page)
   assert.ok(state)
@@ -564,29 +662,17 @@ try {
   )
   await pauseGame(page)
   state = await smokeSnapshot(page)
+  assert.equal(state.occupants, 0)
+  assert.equal(state.admissionInside, 0)
+  assert.deepEqual(state.incomingIds, [])
   assert.equal(state.root, null)
   assert.equal(state.visible, false)
   report.zero = state
+  await page.screenshot({ path: reportPath.replace('.json', '-zero.png') })
   writeReport()
 
-  const residentIds = await page.evaluate(builderIds => {
-    const scene = window.testScene,
-      preferred = new Set(builderIds)
-    return scene.world.units
-      .filter(
-        unit =>
-          unit.team === 'blue' &&
-          unit.kind === 'brave' &&
-          unit.hp > 0 &&
-          unit.inside === null &&
-          unit.work === null &&
-          scene.picking.personBounds(unit.id)
-      )
-      .sort((a, b) => Number(preferred.has(b.id)) - Number(preferred.has(a.id)))
-      .slice(0, 3)
-      .map(unit => unit.id)
-  }, builderIds)
-  assert.equal(residentIds.length, 3, 'fresh hut acceptance needs three rendered free Braves')
+  const residentIds = await chooseRenderedResidents(page, builderIds, 1)
+  stage('partial admission')
 
   const partialDispatch = await admissionDispatch(page, [residentIds[0]])
   report.partialDispatch = partialDispatch
@@ -618,9 +704,13 @@ try {
     'partial occupancy smoke rendered only ' + partialPixels + ' pixels'
   )
   report.partial = { ...state, pixels: partialPixels }
+  await page.screenshot({ path: reportPath.replace('.json', '-partial.png') })
   writeReport()
 
-  const fullDispatch = await admissionDispatch(page, residentIds.slice(1))
+  const additionalResidents = await chooseRenderedResidents(page, builderIds, 2)
+  residentIds.push(...additionalResidents)
+  stage('full admission')
+  const fullDispatch = await admissionDispatch(page, additionalResidents)
   report.fullDispatch = fullDispatch
   await page.waitForFunction(
     ({ hutId, ids }) => {
@@ -646,11 +736,14 @@ try {
   const fullPixels = await renderedPixels(page)
   assert.ok(fullPixels > 20, 'full occupancy smoke rendered only ' + fullPixels + ' pixels')
   report.full = { ...state, pixels: fullPixels, residentIds }
+  await page.screenshot({ path: reportPath.replace('.json', '-full.png') })
   writeReport()
 
+  stage('pause and checkpoint save')
   const pausedBefore = await smokeSnapshot(page)
   await page.waitForTimeout(300)
   const pausedAfter = await smokeSnapshot(page)
+  report.pause = { before: pausedBefore, after: pausedAfter }
   assert.deepEqual(
     {
       counter: pausedAfter.counter,
@@ -672,6 +765,7 @@ try {
   assert.equal(await load.isEnabled(), true)
   await page.getByRole('button', { name: 'Close menu', exact: true }).click()
 
+  stage('full to partial departure')
   const firstDeparture = await departOne(page)
   report.firstDeparture = firstDeparture
   await resumeGame(page)
@@ -690,6 +784,8 @@ try {
   assert.equal(state.root.mode, 'partial')
   assert.deepEqual(state.position, state.expected)
 
+  report.partialAfterDeparture = state
+  stage('partial to absent departures')
   report.secondDeparture = await departOne(page)
   report.thirdDeparture = await departOne(page)
   await resumeGame(page)
@@ -713,6 +809,7 @@ try {
   report.emptyAgain = state
   writeReport()
 
+  stage('checkpoint restore')
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
@@ -736,13 +833,24 @@ try {
   assert.deepEqual(state.atlas, state.expectedAtlas)
   assert.deepEqual(errors, [])
   report.checkpoint = state
+  report.errors = errors
+  report.stage = 'complete'
   report.result =
-    'PASS fresh rendered hut construction; zero sampling; partial/full native HFX/socket smoke; departures; pause; checkpoint'
+    'PASS rendered construction; normal Guard release and zero sampling; explicit partial/full native HFX/socket smoke; panel-ground departures held outside; pause; checkpoint'
   writeReport()
   console.log(
-    'PASS: fresh rendered Mission 1 hut construction establishes true zero occupancy; real resident input drives model75 partial HFX1385-1400 then model74 full HFX1329-1344 at capacity socket 3; full→partial→empty, pause and checkpoint restoration pass; supported capacities remain sockets 3/4/5; secondary full-hut child puffs remain excluded; evidence ' +
+    'PASS: rendered Mission 1 hut construction followed by shipped Guard release establishes zero occupancy; real resident input drives model75 partial HFX1385-1400 then model74 full HFX1329-1344 at capacity socket 3; full→partial→empty, pause and checkpoint restoration pass; supported capacities remain sockets 3/4/5; secondary full-hut child puffs remain excluded; evidence ' +
       reportPath
   )
+} catch (error) {
+  report.result = 'FAIL'
+  report.failure = { stage: report.stage, message: error.message, stack: error.stack }
+  report.lastSnapshot = page ? await smokeSnapshot(page).catch(() => null) : null
+  report.errors = errors ?? []
+  if (page)
+    await page.screenshot({ path: reportPath.replace('.json', '-failure.png') }).catch(() => {})
+  writeReport()
+  throw error
 } finally {
   await browser.close()
 }

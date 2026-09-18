@@ -94,3 +94,67 @@ row cells 142-143 remain untouched.
 This is not collapse/damage smoke model 76. The existing
 `buildingSmoke` HFX1345-1360 path and its damage smoke lifecycle remain
 unchanged.
+
+
+## Worker 2 acceptance fixture correction (2026-09-18)
+
+Production remains `3cee6b7d0b329c3000715cfbcaf4a0b8a833709d`; the retained
+checker base is `5a0476f573c3133c75f7b0dfd829a7931c38df90`. Canonical job
+`49a66586-c9aa-429a-b703-b18d49e7f33e` successfully placed hut 64 with six
+rendered Braves, then failed the assumed zero-occupancy assertion with **three**
+residents. Its resource cleanup receipt passed. This is not evidence of a smoke,
+socket, RNG, atlas, or admission-owner fault.
+
+### Construction, admission, and release are separate owners
+
+Native plan controller `004b8bb0` assigns departure task 9 when construction work
+is complete, waits for departure phase 6, and retires the plan. The command-6
+wrapper `00495520` finishes when its registered plan disappears; it does not
+establish a persistent zero-occupancy state. The current equivalent is
+`stepConstructionCrew` → `dispatchConstructionCrew` →
+`finishQueuedConstruction`/`release`. `completeBuildingConstruction` records the
+completion and initializes the birth timer; it does not force people inside.
+
+Normal habitation is separately owned by command 8 (`00434610`), admission
+`00407150`, and removal `00407490`. Admission takes an empty physical slot and
+increments the count. Removal clears the actual person's slot, decrements the
+count, restores visibility/cell membership at unchanged XY, and supplies the
+outside anchor/facing and 12-turn entry delay. It does **not** teleport the person
+to the door. `buildingAdmission`, `leaveBuildingEntry`, and the shared task release
+adapter connect these existing owners to live units.
+
+The current `world-turn.ts` idle adapter can order an unassigned, unguarded Brave
+to a nearby completed hut after more than 16 idle turns, checking every 16 world
+turns, within distance 8, with room for actual/reserved inhabitants. Therefore
+neither builder release nor a successful resident ground order promises a stable
+empty hut. These exact idle thresholds describe the current adapter, not a newly
+proved reconstruction of the original whole-game scheduler. Birth work also
+continues at zero occupancy (`stepHutBirth` adds the native occupancy-plus-one
+term); empty huts must not be treated as permanently quiescent.
+
+### Normal-input fixture
+
+The checker keeps the proven rendered construction path and records whichever
+occupancy it naturally produces. It uses the shipped Shift-click Brave roster
+control and **G / Guard shaman** command to release the live cohort and hold it
+out of automatic housing. `guardShaman` calls the existing `release` owner;
+there are no direct calls to gameplay mutators from browser evaluation and no
+writes to positions, occupants, slots, orders, clocks, or RNG. The receipt retains
+selected identities, before/after resident counts, admission counts, and guard
+state. Actual simulation turns must cross the next smoke producer visit before
+the zero sample is accepted.
+
+Pickable guarded Braves are then selected through their rendered pixels and sent
+to the hut with normal command-8 clicks: one for partial, then two more for full.
+For the reverse transition, each visible occupant-panel selection receives a
+revalidated ground click. The checker first verifies that person's immediate
+release and both count decrements, then issues Guard to prevent that same person
+from idling back inside before the smoke sample. Unexpected occupants are not
+silently removed to make an assertion pass. Failure records include the last
+observed residents/incoming identities and the exact stage.
+
+The existing HFX, atlas UV, capacity socket, pixel-contribution, pause, and
+checkpoint assertions remain. The browser fixture proves level 1 / capacity 3 /
+socket 3; retained helper evidence covers supported capacities/sockets 3/4/5.
+Neither the checker nor this note claims live level-2/3 coverage, full original
+idle/birth scheduling equivalence, or secondary full-hut child puffs.
