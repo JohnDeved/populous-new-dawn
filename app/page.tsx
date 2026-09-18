@@ -927,42 +927,22 @@ export default function Home() {
               ))}
             </div>
           )}
-          {tab === 'followers' && (
+          {tab === 'followers' && selected.some(u => u.kind === 'spy') && (
             <div className="follower-list">
-              {(
-                [
-                  { id: 'shaman', label: 'Shaman', sprite: 664 },
-                  { id: 'brave', label: 'Braves', sprite: 666 },
-                  { id: 'warrior', label: 'Warriors', sprite: 668 },
-                  { id: 'firewarrior', label: 'Firewarriors', sprite: 672 },
-                  { id: 'spy', label: 'Spies', sprite: 674 },
-                  { id: 'all', label: 'Everyone', sprite: 680 },
-                ] as const
-              ).map(u => (
+              {enemies.map(enemy => (
                 <button
-                  key={u.id}
-                  title={`${u.label} · Shift: all · Ctrl: five followers · Right-click: focus next`}
-                  aria-label={`Select ${u.label.toLowerCase()}`}
-                  {...followerControl(u.id)}
+                  key={`disguise-${enemy.tribe}`}
+                  aria-label={`Disguise selected spies as ${enemy.name}`}
+                  title={`Disguise selected spies as ${enemy.name}`}
+                  onClick={() =>
+                    store.change(w => {
+                      disguiseSelectedSpies(w, enemy.tribe)
+                    })
+                  }
                 >
-                  <HudSprite id={u.sprite} />
+                  {enemy.name}
                 </button>
               ))}
-              {selected.some(u => u.kind === 'spy') &&
-                enemies.map(enemy => (
-                  <button
-                    key={`disguise-${enemy.tribe}`}
-                    aria-label={`Disguise selected spies as ${enemy.name}`}
-                    title={`Disguise selected spies as ${enemy.name}`}
-                    onClick={() =>
-                      store.change(w => {
-                        disguiseSelectedSpies(w, enemy.tribe)
-                      })
-                    }
-                  >
-                    {enemy.name}
-                  </button>
-                ))}
             </div>
           )}
         </section>
@@ -1049,16 +1029,12 @@ export default function Home() {
         </div>
       )}
       {startup === 'playing' && (!ready || error) && (
-        <div className="loading-world" role="status">
-          <span className="loading-rune">⟡</span>
-          <h2>{error ? 'The world could not awaken' : 'A world is awakening'}</h2>
-          <p>
-            {error
-              ? 'The battlefield did not finish loading. Retry the same request when you are ready.'
-              : 'Raising the earth. Gathering your people.'}
-          </p>
-          {error && (
+        <div className={error ? 'loading-world' : 'loading-world loading-world-original'} role="status">
+          {error ? (
             <>
+              <span className="loading-rune">⟡</span>
+              <h2>The world could not awaken</h2>
+              <p>The battlefield did not finish loading. Retry the same request when you are ready.</p>
               <details>
                 <summary>Technical details</summary>
                 {error}
@@ -1067,6 +1043,11 @@ export default function Home() {
                 Try again
               </button>
             </>
+          ) : (
+            <div className="loading-original-art">
+              <span className="loading-original-label">Loading...</span>
+              <img src="/original/loading-mask.png" width={130} height={161} alt="" />
+            </div>
           )}
         </div>
       )}
