@@ -49,20 +49,30 @@ async function state(page) {
   })
 }
 
+async function suspendOwnedFrame(page) {
+  await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
+}
+
 async function advance(page, turns) {
   return page.evaluate(async turns => {
-    const world = globalThis.testScene.world,
-      { tick } = await import('/app/model.ts')
+    const scene = globalThis.testScene,
+      world = scene.world
+    cancelAnimationFrame(scene.frame)
+    const { tick } = await import('/app/model.ts')
     for (let turn = 0; turn < turns && world.status === 'playing'; turn++) tick(world, 1 / 12)
     globalThis.testStore.update()
-    globalThis.testScene.animate(globalThis.testScene.previous)
-    cancelAnimationFrame(globalThis.testScene.frame)
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
     return world.status
   }, turns)
 }
 
 async function advanceOutcome(page) {
-  await page.evaluate(() => globalThis.testScene.animate(performance.now()))
+  await page.evaluate(() => {
+    const scene = globalThis.testScene
+    cancelAnimationFrame(scene.frame)
+    scene.animate(performance.now())
+  })
   await page.waitForFunction(() => !globalThis.testScene.world.outcome.cameraPlaying)
   await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
 }
@@ -70,8 +80,10 @@ async function advanceOutcome(page) {
 async function advanceUntil(page, condition, limit, label, required = true) {
   const result = await page.evaluate(
     async ({ condition, limit }) => {
-      const world = globalThis.testScene.world,
-        { tick } = await import('/app/model.ts'),
+      const scene = globalThis.testScene,
+        world = scene.world
+      cancelAnimationFrame(scene.frame)
+      const { tick } = await import('/app/model.ts'),
         ready = () => {
           if (condition.type === 'building')
             return world.buildings.some(
@@ -144,8 +156,8 @@ async function advanceUntil(page, condition, limit, label, required = true) {
       for (let turn = 0; turn < limit && world.status === 'playing' && !ready(); turn++)
         tick(world, 1 / 12)
       globalThis.testStore.update()
-      globalThis.testScene.animate(globalThis.testScene.previous)
-      cancelAnimationFrame(globalThis.testScene.frame)
+      scene.animate(scene.previous)
+      cancelAnimationFrame(scene.frame)
       return {
         ready: ready(),
         turn: world.turn,
@@ -805,6 +817,7 @@ async function missionThree(page) {
 try {
   const { page, errors } = await openGame(browser, 2)
   page.setDefaultTimeout(20_000)
+  await suspendOwnedFrame(page)
   await missionTwo(page)
   await advanceOutcome(page)
   assert.equal(
@@ -823,6 +836,7 @@ try {
   await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
+  await suspendOwnedFrame(page)
   await missionThree(page)
   await advanceOutcome(page)
   assert.equal(
