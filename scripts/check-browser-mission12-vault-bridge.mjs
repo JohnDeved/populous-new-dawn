@@ -337,64 +337,96 @@ async function topology() {
 }
 
 async function shorePoint(lead, farIsland, spell = null) {
-  await render()
-  const result = await page.evaluate(
-    async ({ lead, farIsland, spell }) => {
-      const s = window.testScene,
-        w = window.testStore.getWorld()
-      const { supportsFollower, nativePosition, spellTargetError } = await import('/app/model.ts')
-      s.focus(lead)
-      s.onChange()
-      s.renderer.render(s.scene, s.camera)
-      const b = s.container.getBoundingClientRect(),
-        samples = []
-      for (const radius of [0, 0.25, 0.5, 0.75, 1, 1.5])
-        for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 8) {
-          const target = {
-            x: lead.x + Math.cos(angle) * radius,
-            z: lead.z + Math.sin(angle) * radius,
-          }
-          const v = s.screen(target),
-            e = {
-              clientX: b.left + ((v.x + 1) * b.width) / 2,
-              clientY: b.top + ((1 - v.y) * b.height) / 2,
+  // A valid shore can be hidden by higher foreground terrain at one bearing.
+  // Rotate through normal owned-page keys; never force a pick through terrain.
+  for (let view = 0; view < 8; view++) {
+    await render()
+    const result = await page.evaluate(
+      async ({ lead, farIsland, spell }) => {
+        const s = window.testScene,
+          w = window.testStore.getWorld()
+        const { supportsFollower, nativePosition, spellTargetError } = await import('/app/model.ts')
+        s.focus(lead)
+        s.onChange()
+        s.renderer.render(s.scene, s.camera)
+        const b = s.container.getBoundingClientRect(),
+          samples = []
+        for (const radius of [0, 0.25, 0.5, 0.75, 1, 1.5])
+          for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 8) {
+            const target = {
+              x: lead.x + Math.cos(angle) * radius,
+              z: lead.z + Math.sin(angle) * radius,
             }
-          if (
-            document.elementFromPoint(e.clientX, e.clientY) !== s.renderer.domElement ||
-            s.picking.pick(e) !== null
-          )
-            continue
-          const picked = s.pick(e)
-          if (!picked) continue
-          const n = nativePosition(w, picked),
-            quarter = ((n.y & 65535) >>> 8) * 256 + ((n.x & 65535) >>> 8)
-          const error = spell ? spellTargetError(w, spell, picked) : null
-          const item = {
-            x: e.clientX,
-            y: e.clientY,
-            point: { x: picked.x, z: picked.z },
-            native: n,
-            supported: supportsFollower(w, picked),
-            componentAllowed: !!farIsland[quarter],
-            error,
+            const v = s.screen(target),
+              e = {
+                clientX: b.left + ((v.x + 1) * b.width) / 2,
+                clientY: b.top + ((1 - v.y) * b.height) / 2,
+              }
+            if (
+              document.elementFromPoint(e.clientX, e.clientY) !== s.renderer.domElement ||
+              s.picking.pick(e) !== null
+            )
+              continue
+            const picked = s.pick(e)
+            if (!picked) continue
+            const n = nativePosition(w, picked),
+              quarter = ((n.y & 65535) >>> 8) * 256 + ((n.x & 65535) >>> 8)
+            const error = spell ? spellTargetError(w, spell, picked) : null
+            const item = {
+              x: e.clientX,
+              y: e.clientY,
+              point: { x: picked.x, z: picked.z },
+              native: n,
+              supported: supportsFollower(w, picked),
+              componentAllowed: !!farIsland[quarter],
+              error,
+            }
+            if (samples.length < 10) samples.push(item)
+            if (
+              item.supported &&
+              item.componentAllowed &&
+              !error &&
+              Math.hypot(picked.x - lead.x, picked.z - lead.z) < 2
+            )
+              return { found: true, pick: item, samples }
           }
-          if (samples.length < 10) samples.push(item)
-          if (
-            item.supported &&
-            item.componentAllowed &&
-            !error &&
-            Math.hypot(picked.x - lead.x, picked.z - lead.z) < 2
-          )
-            return { found: true, pick: item, samples }
-        }
-      return { found: false, samples }
-    },
-    { lead, farIsland, spell }
-  )
-  report.actions.push({ kind: 'terrain-pick', lead, spell, ...result })
-  save()
-  assert.ok(result.found, 'No supported live shore pick/cast eligibility near Mission12 lead')
-  return result.pick
+        return { found: false, samples }
+      },
+      { lead, farIsland, spell }
+    )
+    report.actions.push({ kind: 'terrain-pick', lead, spell, view, ...result })
+    save()
+    if (result.found) return result.pick
+    if (view === 7) break
+    await page.mouse.move(820, 500)
+    await page.keyboard.down('ArrowRight')
+    let rotation
+    try {
+      rotation = await page.evaluate(() => {
+        const s = window.testScene,
+          w = window.testStore.getWorld()
+        const before = { turn: w.turn, angle: s.cameraPosition.angle }
+        // Existing navigation check exercises this same presentation-only hook.
+        for (let step = 0; step < 10; step++) s.updateCameraMotion(1 / 24)
+        return { before, after: { turn: w.turn, angle: s.cameraPosition.angle } }
+      })
+    } finally {
+      await page.keyboard.up('ArrowRight')
+    }
+    report.actions.push({ kind: 'ordinary-camera-rotation', ...rotation })
+    save()
+    assert.equal(
+      rotation.before.turn,
+      rotation.after.turn,
+      'Camera search must not advance simulation'
+    )
+    assert.notEqual(
+      rotation.before.angle,
+      rotation.after.angle,
+      'Actual arrow input must rotate the view'
+    )
+  }
+  throw new Error('No unoccluded supported shore pick at eight normal camera bearings')
 }
 
 async function move(pick, label) {
