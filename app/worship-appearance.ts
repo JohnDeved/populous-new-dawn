@@ -21,8 +21,8 @@ export function authoredWorshipMode(
 ): number | undefined {
   const heading = Math.round((shrine.angle * 2048) / (Math.PI * 2)) & 2047,
     modes = new Set(
-      missionData(missionNumber).level.objects
-        .filter(
+      missionData(missionNumber)
+        .level.objects.filter(
           object =>
             object.type === 6 &&
             object.model === 6 &&
