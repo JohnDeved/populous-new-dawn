@@ -180,7 +180,7 @@ try {
   assert.ok(combat.flags & 0x80000)
   assert.equal(combat.aura, true)
   assert.equal(combat.blinkOff, true)
-  await page.getByText(/Bloodlust! The world bends to your will/).waitFor()
+  assert.equal(await page.getByText(/Bloodlust! The world bends to your will/).count(), 0)
 
   assert.equal(await page.evaluate(() => globalThis.testStore.saveCheckpoint()), true)
   const restored = await page.evaluate(async fighterId => {

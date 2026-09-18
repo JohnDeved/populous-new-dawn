@@ -1,74 +1,19 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
-import { spawn } from 'node:child_process'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { bindGame } from './browser-game.mjs'
 
 const projectRoot = process.cwd(),
   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
   { chromium } = requireFromProject('@playwright/test'),
-  output = process.env.PND_QUEUE_OUTPUT ?? '/private/tmp',
-  port = 4314
+  output = process.env.PND_QUEUE_OUTPUT
+assert(output, 'Use the shared queue browser supervisor')
+assert(process.env.POPULOUS_URL, 'Use the shared queue browser supervisor')
 mkdirSync(output, { recursive: true })
-let server
-async function startServer() {
-  if (process.env.POPULOUS_URL) return
-  const log = openSync(resolve(output, 'server.log'), 'a')
-  server = spawn(resolve(projectRoot, 'node_modules/.bin/vinext'), ['dev', '--port', String(port)], {
-    cwd: process.cwd(),
-    detached: true,
-    stdio: ['ignore', log, log],
-    env: { ...process.env, WRANGLER_LOG_PATH: resolve(output, 'wrangler.log') },
-  })
-  process.env.POPULOUS_URL = `http://localhost:${port}`
-  for (let i = 0; i < 120; i++) {
-    if (server.exitCode !== null) throw new Error(`dev server exited with ${server.exitCode}`)
-    try {
-      const response = await fetch(process.env.POPULOUS_URL)
-      if (response.ok) return
-    } catch {}
-    await new Promise(resolve => setTimeout(resolve, 250))
-  }
-  throw new Error('dev server readiness timed out')
-}
-async function waitForServerExit(timeoutMs) {
-  if (!server || server.exitCode !== null || server.signalCode !== null) return true
-  return await new Promise(resolve => {
-    let timeout
-    const onExit = () => finish(true)
-    const finish = exited => {
-      if (timeout) clearTimeout(timeout)
-      server.off('exit', onExit)
-      resolve(exited)
-    }
-    server.once('exit', onExit)
-    if (server.exitCode !== null || server.signalCode !== null) return finish(true)
-    timeout = setTimeout(() => finish(server.exitCode !== null || server.signalCode !== null), timeoutMs)
-  })
-}
-async function stopServer() {
-  if (!server) return
-  try { process.kill(-server.pid, 'SIGTERM') } catch {}
-  if (await waitForServerExit(5000)) return
-  try { process.kill(-server.pid, 'SIGKILL') } catch {}
-  if (!await waitForServerExit(5000)) throw new Error('dev server did not exit after SIGKILL')
-}
-function cleanupReceipt() {
-  if (!process.env.PND_QUEUE_CLEANUP) return
-  const receipt = {
-    jobId: process.env.PND_QUEUE_JOB_ID,
-    resourcesReleased: true,
-    releasedAt: new Date().toISOString(),
-    processes: server ? [{ pid: server.pid, group: true }] : [],
-  }, temporary = `${process.env.PND_QUEUE_CLEANUP}.tmp`
-  writeFileSync(temporary, JSON.stringify(receipt, null, 2) + '\n')
-  renameSync(temporary, process.env.PND_QUEUE_CLEANUP)
-}
 
 let browser
 try {
-  await startServer()
   browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await context.newPage(),
@@ -373,6 +318,4 @@ try {
   console.log('PASS: authored Mission 1 hut opens from genuine pointer ScenePicking after ordinary Brave entry, exposes occupant selection and dismantle/cancel; controlled fixtures cover native 3/4/5 capacities, stale-slot compaction, pointer persistence, enemy gating, checkpoint restore and destroyed-panel cleanup', evidence)
 } finally {
   if (browser) await browser.close()
-  await stopServer()
-  cleanupReceipt()
 }

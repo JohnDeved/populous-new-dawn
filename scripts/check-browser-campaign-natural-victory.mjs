@@ -49,20 +49,30 @@ async function state(page) {
   })
 }
 
+async function suspendOwnedFrame(page) {
+  await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
+}
+
 async function advance(page, turns) {
   return page.evaluate(async turns => {
-    const world = globalThis.testScene.world,
-      { tick } = await import('/app/model.ts')
+    const scene = globalThis.testScene,
+      world = scene.world
+    cancelAnimationFrame(scene.frame)
+    const { tick } = await import('/app/model.ts')
     for (let turn = 0; turn < turns && world.status === 'playing'; turn++) tick(world, 1 / 12)
     globalThis.testStore.update()
-    globalThis.testScene.animate(globalThis.testScene.previous)
-    cancelAnimationFrame(globalThis.testScene.frame)
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
     return world.status
   }, turns)
 }
 
 async function advanceOutcome(page) {
-  await page.evaluate(() => globalThis.testScene.animate(performance.now()))
+  await page.evaluate(() => {
+    const scene = globalThis.testScene
+    cancelAnimationFrame(scene.frame)
+    scene.animate(performance.now())
+  })
   await page.waitForFunction(() => !globalThis.testScene.world.outcome.cameraPlaying)
   await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
 }
@@ -70,8 +80,10 @@ async function advanceOutcome(page) {
 async function advanceUntil(page, condition, limit, label, required = true) {
   const result = await page.evaluate(
     async ({ condition, limit }) => {
-      const world = globalThis.testScene.world,
-        { tick } = await import('/app/model.ts'),
+      const scene = globalThis.testScene,
+        world = scene.world
+      cancelAnimationFrame(scene.frame)
+      const { tick } = await import('/app/model.ts'),
         ready = () => {
           if (condition.type === 'building')
             return world.buildings.some(
@@ -144,8 +156,8 @@ async function advanceUntil(page, condition, limit, label, required = true) {
       for (let turn = 0; turn < limit && world.status === 'playing' && !ready(); turn++)
         tick(world, 1 / 12)
       globalThis.testStore.update()
-      globalThis.testScene.animate(globalThis.testScene.previous)
-      cancelAnimationFrame(globalThis.testScene.frame)
+      scene.animate(scene.previous)
+      cancelAnimationFrame(scene.frame)
       return {
         ready: ready(),
         turn: world.turn,
@@ -251,8 +263,16 @@ async function clickEntity(page, collection, id) {
 
 async function dismissFlyby(page) {
   if (await page.evaluate(() => !!(globalThis.testScene.world.inputMask & 64))) {
+    await page.evaluate(() => {
+      const scene = globalThis.testScene,
+        now = performance.now()
+      cancelAnimationFrame(scene.frame)
+      scene.previous = now
+      scene.animate(now)
+    })
     await page.keyboard.press('Escape')
     await page.waitForFunction(() => !(globalThis.testScene.world.inputMask & 64))
+    await suspendOwnedFrame(page)
   }
 }
 
@@ -402,17 +422,53 @@ async function reachableApproach(page, target, radius = 12, choice = 0) {
   )
 }
 
+async function spellPoint(page, spell, collection, id) {
+  return page.evaluate(
+    async ({ spell, collection, id }) => {
+      const scene = globalThis.testScene,
+        world = scene.world,
+        object = world[collection].find(candidate => candidate.id === id)
+      if (!object) throw new Error(`Missing ${collection} spell target ${id}`)
+      scene.focus(object)
+      scene.onChange()
+      scene.renderer.render(scene.scene, scene.camera)
+      const projected = scene.screen(object),
+        bounds = scene.container.getBoundingClientRect(),
+        event = {
+          clientX: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+          clientY: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+        },
+        picked = scene.pick(event)
+      if (document.elementFromPoint(event.clientX, event.clientY) !== scene.renderer.domElement)
+        throw new Error(`No rendered ground point for ${collection} spell target ${id}`)
+      if (!picked) throw new Error(`No terrain pick for ${collection} spell target ${id}`)
+      const wrapped = value => ((value + 128) % 256 + 256) % 256 - 128,
+        distance = Math.hypot(wrapped(picked.x - object.x), wrapped(picked.z - object.z))
+      if (distance >= 2)
+        throw new Error(
+          `Terrain pick for ${collection} spell target ${id} moved ${distance.toFixed(3)} map units`
+        )
+      const { spellTargetError } = await import('/app/model.ts')
+      return {
+        x: event.clientX,
+        y: event.clientY,
+        point: { x: picked.x, z: picked.z },
+        error: spellTargetError(world, spell, picked),
+      }
+    },
+    { spell, collection, id }
+  )
+}
+
 async function castAt(page, spell, collection, id, required = true) {
-  let target
-  try {
-    target = await entityPoint(page, collection, id)
-  } catch {
-    const object = (await state(page))[collection].find(candidate => candidate.id === id)
-    assert.ok(object, `Missing ${collection} spell target ${id}`)
-    target = await groundPoint(page, object)
-  }
   const shot = spell.toLowerCase(),
+    target = await spellPoint(page, shot, collection, id),
     before = (await state(page)).shots[shot]
+  if (target.error) {
+    if (required)
+      assert.fail(`${spell} target was rejected before input: ${JSON.stringify(target)}`)
+    return false
+  }
   await page.getByLabel(/spells/).click()
   await page.getByRole('button', { name: new RegExp(`^${spell}, `) }).click()
   await page.mouse.click(target.x, target.y)
@@ -805,6 +861,7 @@ async function missionThree(page) {
 try {
   const { page, errors } = await openGame(browser, 2)
   page.setDefaultTimeout(20_000)
+  await suspendOwnedFrame(page)
   await missionTwo(page)
   await advanceOutcome(page)
   assert.equal(
@@ -823,6 +880,7 @@ try {
   await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
+  await suspendOwnedFrame(page)
   await missionThree(page)
   await advanceOutcome(page)
   assert.equal(

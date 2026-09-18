@@ -7,7 +7,8 @@ installation, or a dated time slot. Source work and small portable checks can co
 One exclusive lane deliberately favors clean measurements over maximum concurrency.
 When submitting through Local Dev, retain the intentional background controller
 (`backgroundProcessPolicy: keep`); completing the submission task must not kill it.
-Individual test runners still clean all their own processes before returning.
+Browser checks use the queue's `supervise` mode unless they already have a reviewed
+parent guardian. The supervisor owns startup, checker descendants and cleanup.
 
 All linked worktrees share `<git-common-dir>/pnd-test-queue`. Do not use a separate
 `--dir` for real jobs: that option exists for isolated queue tests. Other repositories,
@@ -35,13 +36,14 @@ to recover a lost result, rather than invoking `run` again after completion.
 ```json
 {
   "owner": "worker task ID",
-  "label": "issue24 matched hover diagnostic",
+  "label": "authored hut menu browser acceptance",
   "cwd": "/absolute/isolated/worktree",
-  "command": ["node", "work/orchestration/issue24/run-measurement.mjs"],
-  "inputs": ["work/orchestration/issue24/run-measurement.mjs"],
-  "ports": [4318],
+  "command": ["node", "scripts/performance-queue.mjs", "supervise", "scripts/check-browser-building-menu.mjs"],
+  "inputs": ["scripts/performance-queue.mjs", "scripts/check-browser-building-menu.mjs"],
+  "ports": [4314],
   "timeoutMs": 480000,
-  "cleanup": "receipt"
+  "cleanup": "receipt",
+  "env": { "POPULOUS_URL": "http://127.0.0.1:4314" }
 }
 ```
 
@@ -74,6 +76,15 @@ and clean every browser profile, detached process group, server and temporary wa
 assertion it starts, including on SIGTERM. Never stop a pre-existing shared server.
 Declare only ports the runner owns; an existing shared server needs explicit owner
 coordination and must not be listed as a port to acquire/release.
+
+`supervise CHECKER [ARG...]` starts the development server on `POPULOUS_URL`, waits
+on that exact URL, then starts the checker in a separate owned process group. It
+installs cleanup before the checker loads, so dependency/import failures and checker
+exceptions retain the same verified-release gate. The queue requires the URL's port
+to be the job's one declared port. Only the supervisor receives `PND_QUEUE_CLEANUP`.
+It records descendant process groups and their creation identities, then rechecks an
+owned identity immediately before a group signal. Missing or changed identity proof
+withholds the receipt and preserves the queue block.
 
 After cleanup, atomically write this receipt (temporary file then rename):
 
