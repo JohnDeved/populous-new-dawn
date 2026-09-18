@@ -9,7 +9,7 @@ export function setShamanDeathPhase(effect: Effect, phase: number) {
   if (!death || (death.phase === phase && effect.animation && death.displayedFrame !== undefined))
     return
   death.phase = phase
-  const animation = (effect.animation ??= {
+  effect.animation ??= {
     object: 0,
     draw: 14,
     morph: 0,
@@ -21,8 +21,12 @@ export function setShamanDeathPhase(effect: Effect, phase: number) {
     flags3: 0,
     morphTimer: 0,
     morphFrames: 0,
-  })
-  setAnimationObject(animation, 14, phase === 0 ? 680 : phase === 1 ? 352 : 360)
+  }
+  const animation = effect.animation
+  let object = 360
+  if (phase === 0) object = 680
+  else if (phase === 1) object = 352
+  setAnimationObject(animation, 14, object)
   animation.f2 = phase >= 3 ? units.frameCounts[360] - 1 : 0
   if (phase >= 3) animation.renderFlags |= 0x6002
   if (phase >= 4) animation.renderFlags |= 0x10
