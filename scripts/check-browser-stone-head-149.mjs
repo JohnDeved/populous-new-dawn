@@ -687,12 +687,32 @@ try {
     return { id: root.id, pixels: root.pixels, heading: root.heading }
   })
   await stage('normal-authored-party-selection', async () => {
+    const before = await state(),
+      intended = await page.evaluate(() =>
+        window.testScene.world.units
+          .filter(u => u.team === 'blue' && u.kind === 'warrior' && u.hp > 0)
+          .map(u => u.id)
+      )
+    // HUD selection is additive: cancel the initial Shaman through the real UI.
+    await page.keyboard.press('Escape')
+    const cleared = await state()
+    report.actions.push({ label: 'real-UI-selection-clear', before, cleared, intended })
+    save()
+    assert.deepEqual(cleared.selected, [], 'Escape must clear the existing selection')
+    assert.equal(cleared.turn, before.turn, 'Selection must not advance gameplay')
     // Mission10 authors four Blue model3 warriors; all fit the original Boat.
     await page
       .getByRole('button', { name: 'Select warrior', exact: true })
       .click({ modifiers: ['Control'] })
     partyIds = await page.evaluate(() => [...window.testScene.world.selected])
     const selected = await state()
+    report.actions.push({ label: 'intended-Warrior-party', intended, selected })
+    save()
+    assert.deepEqual(
+      [...partyIds].sort((a, b) => a - b),
+      [...intended].sort((a, b) => a - b)
+    )
+    assert.equal(selected.turn, before.turn, 'Party proof must precede acceleration')
     assert.ok(
       partyIds.length >= 2 && partyIds.length <= 5,
       'Select at least two authored followers within Boat capacity'
