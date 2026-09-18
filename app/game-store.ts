@@ -30,6 +30,8 @@ export function migrateLegacyWorshipAppearance(world: World) {
         if (mode === 3) shrine.model = worshipAppearanceModel(mode)
       }
     }
+    if (shrine.mode === 5 && shrine.model === WORSHIP_STONE_HEAD_MODEL)
+      shrine.model = worshipAppearanceModel(shrine.mode)
     if (shrine.linkedShrine) migrate(shrine.linkedShrine)
   }
   for (const shrine of world.shrines) migrate(shrine)

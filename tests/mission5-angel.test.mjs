@@ -17,7 +17,7 @@ test('Mission 5 Angel head delivers its linked hostile summon through live worsh
       remaining: head.remaining,
       model: head.model,
     },
-    { x: -97, z: 117, target: { x: -51, z: 15 }, remaining: 1, model: 45 }
+    { x: -97, z: 117, target: { x: -51, z: 15 }, remaining: 1, model: 157 }
   )
 
   world.inputMask = 0
@@ -44,7 +44,7 @@ test('Mission 5 Angel head delivers its linked hostile summon through live worsh
       active: head.active,
       model: head.model,
     },
-    { x: -51, z: 15, team: 'blue', kind: 'angel', uses: 1, active: false, model: 45 }
+    { x: -51, z: 15, team: 'blue', kind: 'angel', uses: 1, active: false, model: 157 }
   )
   assert.ok(world.sounds.some(sound => sound.cue === 0xd9))
   assert.ok(world.sounds.some(sound => sound.cue === 0xdb))
@@ -117,6 +117,47 @@ test('Mission 5 Angel head delivers its linked hostile summon through live worsh
   assert.ok(world.sounds.some(sound => sound.cue === 0xb2))
 })
 
+test('Mission 5 checkpoint migration upgrades only the persisted Angel presentation', () => {
+  const world = createWorld(5),
+    angel = world.shrines.find(shrine => shrine.kind === 'angel')
+  angel.model = 45
+  angel.work = 7
+  angel.followers = 2
+  const before = {
+      x: angel.x,
+      z: angel.z,
+      target: structuredClone(angel.angelTarget),
+      work: angel.work,
+      followers: angel.followers,
+      remaining: angel.remaining,
+      uses: angel.uses,
+      active: angel.active,
+    },
+    randomState = world.randomState,
+    cosmeticRandom = structuredClone(world.cosmeticRandom)
+
+  migrateCheckpoint(world)
+  assert.equal(angel.mode, 5)
+  assert.equal(angel.model, 157)
+  assert.deepEqual(
+    {
+      x: angel.x,
+      z: angel.z,
+      target: angel.angelTarget,
+      work: angel.work,
+      followers: angel.followers,
+      remaining: angel.remaining,
+      uses: angel.uses,
+      active: angel.active,
+    },
+    before
+  )
+  assert.equal(world.randomState, randomState)
+  assert.deepEqual(world.cosmeticRandom, cosmeticRandom)
+  migrateCheckpoint(world)
+  assert.equal(angel.model, 157)
+})
+
 test('Mission 5 checkpoint migration adds only the previously omitted Angel head', () => {
   const world = createWorld(5),
     angel = world.shrines.find(shrine => shrine.kind === 'angel'),
@@ -130,8 +171,14 @@ test('Mission 5 checkpoint migration adds only the previously omitted Angel head
   const restored = world.shrines.filter(shrine => shrine.kind === 'angel')
   assert.equal(restored.length, 1)
   assert.deepEqual(
-    { id: restored[0].id, x: restored[0].x, z: restored[0].z, target: restored[0].angelTarget },
-    { id: oldId, x: -97, z: 117, target: { x: -51, z: 15 } }
+    {
+      id: restored[0].id,
+      x: restored[0].x,
+      z: restored[0].z,
+      target: restored[0].angelTarget,
+      model: restored[0].model,
+    },
+    { id: oldId, x: -97, z: 117, target: { x: -51, z: 15 }, model: 157 }
   )
   assert.equal(world.nextId, oldId + 1)
   assert.deepEqual(other, before)

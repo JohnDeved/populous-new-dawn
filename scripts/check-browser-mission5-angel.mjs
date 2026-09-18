@@ -89,7 +89,7 @@ try {
     { ...reward.angel, id: undefined },
     { id: undefined, x: -51, z: 15, team: 'blue', phase: 'seeking' }
   )
-  assert.deepEqual(reward.head, { active: false, uses: 1, model: 45 })
+  assert.deepEqual(reward.head, { active: false, uses: 1, model: 157 })
   assert.ok(reward.mesh.visible && reward.mesh.layers > 0 && Number.isInteger(reward.mesh.frame))
   assert.equal(reward.summonCues, true)
   const pixels = await effectPixels(page, [reward.angel.id])

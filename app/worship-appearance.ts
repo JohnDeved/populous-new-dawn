@@ -5,9 +5,12 @@ import type { Shrine } from './world-types.ts'
 // This issue-22 slice restores only the proved mode-3 Obelisk identity. Model8 remains outside model45 Stone Head animation.
 export const WORSHIP_STONE_HEAD_MODEL = 45
 export const WORSHIP_OBELISK_MODEL = 8
+export const WORSHIP_ANGEL_MODEL = 157
 
 export function worshipAppearanceModel(mode: number | undefined): number {
-  return mode === 3 ? WORSHIP_OBELISK_MODEL : WORSHIP_STONE_HEAD_MODEL
+  if (mode === 3) return WORSHIP_OBELISK_MODEL
+  if (mode === 5) return WORSHIP_ANGEL_MODEL
+  return WORSHIP_STONE_HEAD_MODEL
 }
 
 // Legacy checkpoints predate Shrine.mode. Recover the authored trigger without
