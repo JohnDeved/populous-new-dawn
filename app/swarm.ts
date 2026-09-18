@@ -6,17 +6,19 @@ export const SWARM_INSECT_COUNT = 60
 export const SWARM_SCAN_INTERVAL = 8
 export const SWARM_SPEED = 80
 
-export type SwarmInsect = {
+export interface SwarmInsect {
+  index?: number
   x: number
   y: number
   h: number
   vx: number
+  verticalVelocity?: number
   vy: number
   verticalOffset: number
   jitter: number[]
 }
 
-export type SwarmState = {
+export interface SwarmState {
   tribe: number
   remaining: number
   applied: boolean
@@ -34,13 +36,15 @@ const signed7 = (n: number) => (n & 0x7f) - 0x40
 const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(high, n))
 const div = (n: number, d: number) => Math.trunc(n / d)
 
+// 0x510020 initializes only the model-21 controller. Its 60 model-27 children
+// belong to the controller's first processing visit in 0x510120/0x510d40.
 export function createSwarmState(
   w: { randomState: number },
   center: NativePoint,
   tribe: number,
   terrainHeight: (p: Pick<NativePoint, 'x' | 'y'>) => number
 ): SwarmState {
-  const state: SwarmState = {
+  return {
     tribe,
     remaining: SWARM_LIFETIME,
     applied: false,
@@ -52,37 +56,66 @@ export function createSwarmState(
     wander: random(w) & 0x1f,
     insects: [],
   }
-  for (let i = 0; i < SWARM_INSECT_COUNT; i++) {
+}
+
+// 0x510d40. Gameplay RNG order is position x/y, signed controller-relative
+// height, three motion fields (0x49/0x4b/0x4d), then ten signed jitter fields.
+export function initializeSwarmInsects(w: { randomState: number }, state: SwarmState) {
+  if (state.insects.length) return
+  for (let index = 0; index < SWARM_INSECT_COUNT; index++) {
     const x = (state.x + signed9(random(w))) & 65535,
       y = (state.y + signed9(random(w))) & 65535,
       verticalOffset = signed7(random(w)),
       vx = random(w) & 0x7f,
-      vy = random(w) & 0x7f
-    random(w) // Native child Z velocity; browser visuals use ground-relative height instead.
-    const jitter = Array.from({ length: 10 }, () => signed9(random(w)))
+      verticalVelocity = random(w) & 0x7f,
+      vy = random(w) & 0x7f,
+      jitter = Array.from({ length: 10 }, () => signed9(random(w)))
     state.insects.push({
+      index,
       x,
       y,
-      h: terrainHeight({ x, y }) + 50,
+      h: state.h + verticalOffset,
       vx,
+      verticalVelocity,
       vy,
       verticalOffset,
       jitter,
     })
   }
-  return state
 }
 
-export function hasSwarmRuntime(value: { tribe: number; remaining: number; applied: boolean }): value is SwarmState {
+export function hasSwarmRuntime(value: {
+  tribe: number
+  remaining: number
+  applied: boolean
+}): value is SwarmState {
   return Array.isArray((value as SwarmState).insects)
 }
 
-export function swarmState(value: { tribe: number; remaining: number; applied: boolean }): SwarmState {
+export function swarmState(value: {
+  tribe: number
+  remaining: number
+  applied: boolean
+}): SwarmState {
   return value as SwarmState
 }
 
 export function swarmNeedsScan(state: SwarmState) {
   return (state.remaining & (SWARM_SCAN_INTERVAL - 1)) === 0
+}
+
+// 0x510120 removes matching low-nibble child indices during remaining 15..1,
+// then clears the survivors when the controller expires. The stable allocation
+// ordinal is the browser particle equivalent of the native child index.
+export function stepSwarmLifetime(state: SwarmState) {
+  if (state.remaining > 0 && state.remaining < 16)
+    state.insects = state.insects.filter(
+      (insect, index) => ((insect.index ?? index) & 0xf) !== state.remaining
+    )
+  state.remaining--
+  if (state.remaining > 0) return true
+  state.insects = []
+  return false
 }
 
 export function stepSwarmMotion(

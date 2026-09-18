@@ -16,7 +16,15 @@ import {
 import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { advanceGame } from '../app/game-clock.ts'
-import { SWARM_INSECT_COUNT, SWARM_LIFETIME, hasSwarmRuntime, swarmState } from '../app/swarm.ts'
+import {
+  SWARM_INSECT_COUNT,
+  SWARM_LIFETIME,
+  createSwarmState,
+  hasSwarmRuntime,
+  initializeSwarmInsects,
+  stepSwarmLifetime,
+  swarmState,
+} from '../app/swarm.ts'
 
 test('Swarm uses the supplied standalone original insect texture', () => {
   const png = readFileSync(new URL('../public/original/insect.png', import.meta.url))
@@ -30,6 +38,106 @@ const stepUntil = (w, predicate, limit = 160) => {
   for (let i = 0; !predicate() && i < limit; i++) tick(w, 1 / 12)
   assert.ok(predicate())
 }
+
+
+const originalRandom = state => {
+  const n = (Math.imul(state, 0x24a1) + 0x24df) >>> 0
+  return ((n >>> 13) | (n << 19)) >>> 0
+}
+const signed9 = n => (n & 0x1ff) - 0x100
+const signed7 = n => (n & 0x7f) - 0x40
+
+test('Swarm creation and first controller visit preserve original gameplay RNG and child fields', () => {
+  const seed = 0x12345678,
+    rng = { randomState: seed },
+    center = { x: 0x4567, y: 0x89ab, h: 0 },
+    terrainHeight = () => 900,
+    state = createSwarmState(rng, center, 2, terrainHeight)
+  let expected = seed
+  const next = () => (expected = originalRandom(expected))
+
+  const headingDraw = next(),
+    wanderDraw = next()
+  assert.equal(rng.randomState, expected)
+  assert.equal(state.heading, headingDraw & 0x7ff)
+  assert.equal(state.wander, wanderDraw & 0x1f)
+  assert.equal(state.h, 1100)
+  assert.deepEqual(state.insects, [])
+
+  const xDraw = next(),
+    yDraw = next(),
+    heightDraw = next(),
+    xMotionDraw = next(),
+    verticalMotionDraw = next(),
+    yMotionDraw = next(),
+    jitter = Array.from({ length: 10 }, () => signed9(next()))
+  for (let i = 1; i < SWARM_INSECT_COUNT; i++)
+    for (let draw = 0; draw < 16; draw++) next()
+
+  initializeSwarmInsects(rng, state)
+  assert.equal(rng.randomState, expected)
+  assert.equal(state.insects.length, SWARM_INSECT_COUNT)
+  assert.deepEqual(state.insects[0], {
+    index: 0,
+    x: (state.x + signed9(xDraw)) & 65535,
+    y: (state.y + signed9(yDraw)) & 65535,
+    h: state.h + signed7(heightDraw),
+    vx: xMotionDraw & 0x7f,
+    verticalVelocity: verticalMotionDraw & 0x7f,
+    vy: yMotionDraw & 0x7f,
+    verticalOffset: signed7(heightDraw),
+    jitter,
+  })
+})
+
+test('Swarm final fifteen controller visits progressively remove children before expiry', () => {
+  const rng = { randomState: 0x76543210 },
+    state = createSwarmState(rng, { x: 1000, y: 2000, h: 0 }, 0, () => 300)
+  initializeSwarmInsects(rng, state)
+  state.remaining = 15
+  const counts = []
+  for (let remaining = 15; remaining > 0; remaining--) {
+    const alive = stepSwarmLifetime(state)
+    counts.push(state.insects.length)
+    assert.equal(alive, remaining > 1)
+  }
+  assert.ok(counts.slice(0, -1).every((count, i, all) => !i || count < all[i - 1]))
+  assert.equal(counts.at(-1), 0)
+})
+
+
+test('Swarm reveals disguised Spies on panic and panic-protected non-removal paths', () => {
+  const w = createWorld()
+  w.manaWorld.loadFlags |= 0x200
+  w.terrain.fill(3)
+  w.terrainVersion++
+  w.units = []
+  w.buildings = []
+  w.trees = []
+  w.shrines = []
+  addUnit(w, 'blue', 'shaman', { x: 0, z: 0 })
+  const spy = addUnit(w, 'red', 'spy', { x: 2, z: 0 }),
+    protectedSpy = addUnit(w, 'red', 'spy', { x: 2, z: 0 })
+  for (const unit of [spy, protectedSpy]) {
+    unit.native = createLivePerson(w, unit)
+    unit.native.state = 14
+    unit.native.disguise = 0
+  }
+  protectedSpy.native.flags2 |= 0x100000
+  const life = spy.hp,
+    protectedLife = protectedSpy.hp
+
+  w.shots.swarm = 1
+  assert.ok(cast(w, 'swarm', { x: 2, z: 0 }))
+  stepUntil(w, () => w.effects.some(fx => fx.swarm?.applied), 1000)
+
+  assert.equal(spy.native.state, 26)
+  assert.equal(spy.native.disguise, 1 << 6)
+  assert.equal(spy.hp, life - 5)
+  assert.equal(protectedSpy.native.state === 26, false)
+  assert.equal(protectedSpy.native.disguise, 1 << 6)
+  assert.equal(protectedSpy.hp, protectedLife - 5)
+})
 
 test('confirmed invented generic and Angel success strings are not emitted', () => {
   for (const spell of ['bloodlust', 'angel']) {
@@ -62,6 +170,8 @@ test('Swarm follows player and computer cast paths with native insects, victim c
   const victim = addUnit(w, 'red', 'brave', { x: 2, z: 0 }),
     protectedVictim = addUnit(w, 'red', 'warrior', { x: 2, z: 0 }),
     removedVictim = addUnit(w, 'red', 'preacher', { x: 2, z: 0 }),
+    spy = addUnit(w, 'red', 'spy', { x: 2, z: 0 }),
+    protectedSpy = addUnit(w, 'red', 'spy', { x: 2, z: 0 }),
     enemyShaman = addUnit(w, 'red', 'shaman', { x: 2, z: 0 }),
     ally = addUnit(w, 'blue', 'brave', { x: 2, z: 0 }),
     farEnemy = addUnit(w, 'red', 'brave', { x: 20, z: 20 })
@@ -73,9 +183,14 @@ test('Swarm follows player and computer cast paths with native insects, victim c
     unit.native.state = 14
   }
   protectedVictim.native.flags2 |= 0x100000
+  protectedSpy.native.flags2 |= 0x100000
   removedVictim.native.flags4 |= 0x800
+  spy.native.disguise = 0
+  protectedSpy.native.disguise = 0
   victim.hp = 20
   const life = victim.hp,
+    spyLife = spy.hp,
+    protectedSpyLife = protectedSpy.hp,
     randomBefore = w.randomState
 
   w.shots.swarm = 1
@@ -94,6 +209,12 @@ test('Swarm follows player and computer cast paths with native insects, victim c
   assert.equal(protectedVictim.native.state === 26, false)
   assert.equal(protectedVictim.hp, untouchedLife.get(protectedVictim.id) - 5)
   assert.equal(removedVictim.hp, 0)
+  assert.equal(spy.native.state, 26)
+  assert.equal(spy.native.disguise, 1 << 6)
+  assert.equal(spy.hp, spyLife - 5)
+  assert.equal(protectedSpy.native.state === 26, false)
+  assert.equal(protectedSpy.native.disguise, 1 << 6)
+  assert.equal(protectedSpy.hp, protectedSpyLife - 5)
   for (const unit of [enemyShaman, ally, farEnemy]) assert.equal(unit.hp, untouchedLife.get(unit.id))
   assert.ok(w.sounds.some(sound => sound.cue === 0xa4))
 
@@ -143,10 +264,12 @@ test('Swarm follows player and computer cast paths with native insects, victim c
       applied: state.applied,
       parent: [state.x, state.y, state.h, state.heading, state.wander],
       insects: state.insects.map(insect => [
+        insect.index,
         insect.x,
         insect.y,
         insect.h,
         insect.vx,
+        insect.verticalVelocity,
         insect.vy,
         insect.verticalOffset,
         ...insect.jitter,

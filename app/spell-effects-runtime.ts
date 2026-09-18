@@ -73,6 +73,8 @@ import {
   SWARM_LIFETIME,
   createSwarmState,
   hasSwarmRuntime,
+  initializeSwarmInsects,
+  stepSwarmLifetime,
   stepSwarmMotion,
   swarmNeedsScan,
   swarmState,
@@ -750,6 +752,7 @@ export function stepSwarm(w: World, fx: Effect) {
     fx.swarm = migrated
   }
   const swarm = swarmState(fx.swarm!)
+  initializeSwarmInsects(w, swarm)
   if (swarmNeedsScan(swarm)) {
     const centerCell = ((swarm.y & 0xfe00) | ((swarm.x >>> 8) & 254)) >>> 0,
       cells = new Set([
@@ -785,6 +788,7 @@ export function stepSwarm(w: World, fx: Effect) {
         continue
       }
       if (!(p.flags2 & 0x100000)) initializeLivePanic(w, u, p)
+      if (p.model === 5) p.disguise = (p.tribe << 6) & 255
       damagePerson(p, w.levelFlags2, swarm.tribe, constants.SWARM_PERSON_DAMAGE)
       u.hp = p.life / 20
     }
@@ -793,7 +797,7 @@ export function stepSwarm(w: World, fx: Effect) {
   stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point))
   Object.assign(fx, browserPosition(swarm))
   fx.height = swarm.h / 45
-  return --swarm.remaining > 0
+  return stepSwarmLifetime(swarm)
 }
 
 export function stepLiveSwamp(w: World, swamp: Swamp) {
