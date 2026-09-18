@@ -751,8 +751,12 @@ export function stepSwarm(w: World, fx: Effect) {
     migrated.applied = stored.applied
     fx.swarm = migrated
   }
-  const swarm = swarmState(fx.swarm!)
-  initializeSwarmInsects(w, swarm)
+  const swarm = swarmState(fx.swarm!),
+    initializing = swarm.phase === 'initializing'
+  if (initializing) {
+    initializeSwarmInsects(w, swarm)
+    swarm.phase = 'wandering'
+  }
   if (swarmNeedsScan(swarm)) {
     const centerCell = ((swarm.y & 0xfe00) | ((swarm.x >>> 8) & 254)) >>> 0,
       cells = new Set([
@@ -794,7 +798,7 @@ export function stepSwarm(w: World, fx: Effect) {
     }
     swarm.applied = true
   }
-  stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point))
+  stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point), !initializing)
   Object.assign(fx, browserPosition(swarm))
   fx.height = swarm.h / 45
   return stepSwarmLifetime(swarm)

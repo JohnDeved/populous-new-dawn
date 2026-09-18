@@ -18,7 +18,10 @@ export interface SwarmInsect {
   jitter: number[]
 }
 
+export type SwarmPhase = 'initializing' | 'wandering'
+
 export interface SwarmState {
+  phase: SwarmPhase
   tribe: number
   remaining: number
   applied: boolean
@@ -45,6 +48,7 @@ export function createSwarmState(
   terrainHeight: (p: Pick<NativePoint, 'x' | 'y'>) => number
 ): SwarmState {
   return {
+    phase: 'initializing',
     tribe,
     remaining: SWARM_LIFETIME,
     applied: false,
@@ -97,7 +101,9 @@ export function swarmState(value: {
   remaining: number
   applied: boolean
 }): SwarmState {
-  return value as SwarmState
+  const state = value as SwarmState
+  state.phase ??= state.insects.length ? 'wandering' : 'initializing'
+  return state
 }
 
 export function swarmNeedsScan(state: SwarmState) {
@@ -121,20 +127,23 @@ export function stepSwarmLifetime(state: SwarmState) {
 export function stepSwarmMotion(
   w: { randomState: number },
   state: SwarmState,
-  terrainHeight: (p: Pick<NativePoint, 'x' | 'y'>) => number
+  terrainHeight: (p: Pick<NativePoint, 'x' | 'y'>) => number,
+  wander = true
 ) {
-  if (positionDistanceSquared(state, state.origin) < 0x900001) {
-    const before = state.wander
-    state.wander = before - 1
-    if (before === 0) {
+  if (wander) {
+    if (positionDistanceSquared(state, state.origin) < 0x900001) {
+      const before = state.wander
+      state.wander = before - 1
+      if (before === 0) {
+        state.wander = random(w) & 0x1f
+        state.heading = random(w) & 0x7ff
+      }
+    } else {
       state.wander = random(w) & 0x1f
-      state.heading = random(w) & 0x7ff
+      const dx = short(state.origin.x - state.x),
+        dy = short(state.origin.y - state.y)
+      state.heading = (nativeAngle(dx, -dy) + (random(w) & 0x7f) - 0x40) & 0x7ff
     }
-  } else {
-    state.wander = random(w) & 0x1f
-    const dx = short(state.origin.x - state.x),
-      dy = short(state.origin.y - state.y)
-    state.heading = (nativeAngle(dx, -dy) + (random(w) & 0x7f) - 0x40) & 0x7ff
   }
 
   const parent = { x: state.x, y: state.y }

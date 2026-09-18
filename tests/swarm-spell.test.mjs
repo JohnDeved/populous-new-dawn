@@ -14,6 +14,7 @@ import {
   tick,
 } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
+import { stepSwarm } from '../app/spell-effects-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import {
@@ -88,6 +89,46 @@ test('Swarm creation and first controller visit preserve original gameplay RNG a
     verticalOffset: signed7(heightDraw),
     jitter,
   })
+})
+
+test('Swarm first live visit allocates children before wandering begins on the second visit', () => {
+  const w = createWorld()
+  w.units = []
+  w.randomState = 0x17
+  const center = { x: 0x4567, y: 0x89ab, h: 0 },
+    state = createSwarmState(w, center, 0, () => 900),
+    fx = {
+      id: 999,
+      kind: 'swarm',
+      x: 0,
+      z: 0,
+      age: 0,
+      duration: Infinity,
+      swarm: state,
+    }
+  let expected = 0x17
+  const next = () => (expected = originalRandom(expected)),
+    creationHeading = next() & 0x7ff,
+    creationWander = next() & 0x1f
+  assert.equal(creationWander, 0)
+  for (let draw = 0; draw < SWARM_INSECT_COUNT * 16; draw++) next()
+  const afterAllocation = expected
+
+  assert.equal(stepSwarm(w, fx), true)
+  assert.equal(w.randomState, afterAllocation)
+  assert.equal(state.heading, creationHeading)
+  assert.equal(state.wander, creationWander)
+  assert.equal(state.insects.length, SWARM_INSECT_COUNT)
+  assert.equal(state.remaining, SWARM_LIFETIME - 1)
+  assert.equal(state.phase, 'wandering')
+
+  const secondWander = next() & 0x1f,
+    secondHeading = next() & 0x7ff
+  assert.equal(stepSwarm(w, fx), true)
+  assert.equal(w.randomState, expected)
+  assert.equal(state.wander, secondWander)
+  assert.equal(state.heading, secondHeading)
+  assert.equal(state.remaining, SWARM_LIFETIME - 2)
 })
 
 test('Swarm final fifteen controller visits progressively remove children before expiry', () => {
