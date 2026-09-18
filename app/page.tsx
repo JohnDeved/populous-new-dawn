@@ -1026,8 +1026,8 @@ export default function Home() {
       {startup === 'choice' && (
         <dialog ref={startupDialog} className="loading-world" aria-label="Start game">
           <span className="loading-rune">⟡</span>
-          <p className="eyebrow">POPULOUS · THE FIRST DAWN</p>
-          <h2>Choose your world</h2>
+          <p className="eyebrow">Populous: The Beginning</p>
+          <h2>Select Level</h2>
           <p>Choose a mission{store.hasCheckpoint() ? ' or return to your saved world.' : '.'}</p>
           {!!completedMissions.length && recommendedMission && (
             <p role="status">Mission {recommendedMission} is recommended next.</p>
@@ -1068,7 +1068,7 @@ export default function Home() {
       {startup === 'loading' && (
         <div className="loading-world" role="status">
           <span className="loading-rune">⟡</span>
-          <h2>A world is awakening</h2>
+          <h2>Loading...</h2>
           <p>Looking for your last saved world.</p>
         </div>
       )}
@@ -1077,7 +1077,7 @@ export default function Home() {
           {error ? (
             <>
               <span className="loading-rune">⟡</span>
-              <h2>The world could not awaken</h2>
+              <h2>Loading failed</h2>
               <p>The battlefield did not finish loading. Retry the same request when you are ready.</p>
               <details>
                 <summary>Technical details</summary>
@@ -1099,13 +1099,13 @@ export default function Home() {
         <div className="end-screen">
           <span className="end-rune">{world.status === 'won' ? '✺' : '◈'}</span>
           <p className="eyebrow">
-            {world.status === 'won' ? 'THE FIRST STEP TO GODHOOD' : 'THE CIRCLE IS BROKEN'}
+            {world.status === 'won' ? 'Level Complete' : 'Level Failed'}
           </p>
-          <h2>{world.status === 'won' ? 'A world united.' : 'Even gods can fall.'}</h2>
+          <h2>{world.status === 'won' ? 'Level Won' : 'Level Lost'}</h2>
           <p>
             {world.status === 'won'
-              ? `The ${enemyName} are defeated. Your people will remember this dawn.`
-              : 'Your tribe has fallen, but every beginning is another chance.'}
+              ? `The ${enemyName} are defeated.`
+              : 'You have failed to conquer this world.'}
           </p>
           <div className="end-stats">
             <span>
@@ -1127,7 +1127,7 @@ export default function Home() {
           >
             {world.status === 'won' && nextMission
               ? `Continue to Mission ${nextMission}`
-              : 'Begin again'}{' '}
+              : 'Restart Level'}{' '}
             <span>↗</span>
           </button>
         </div>
@@ -1145,8 +1145,8 @@ export default function Home() {
         <button className="dialog-close" onClick={() => setMenu(false)} aria-label="Close menu">
           ×
         </button>
-        <span className="eyebrow">POPULOUS · THE FIRST DAWN</span>
-        <h2>The world can wait.</h2>
+        <span className="eyebrow">Populous: The Beginning</span>
+        <h2>Game settings</h2>
         <p>
           {world.outcome.level === tutorialLevel
             ? 'Leave the World View with Return, then learn to move and rotate the camera.'
@@ -1194,7 +1194,7 @@ export default function Home() {
         </p>
         <div className="menu-actions">
           <button className="primary-button" onClick={() => setMenu(false)}>
-            Return to the world <span>↗</span>
+            Continue Game <span>↗</span>
           </button>
           {world.outcome.level === tutorialLevel ? (
             <button className="secondary-button" onClick={exitTutorial}>
