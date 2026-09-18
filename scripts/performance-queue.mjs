@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// One local measurement lane. Runners remain responsible for detached browser cleanup.
+// One local measurement lane with an optional owner for browser-check descendants.
 import assert from 'node:assert/strict'
 import { spawn, spawnSync, execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -26,6 +26,24 @@ function write(file, value) {
 function identity(pid) {
   const r = spawnSync('ps', ['-p', String(pid), '-o', 'lstart='], { encoding: 'utf8' })
   return r.status === 0 ? r.stdout.trim() : null
+}
+function processTable() {
+  const r = spawnSync('ps', ['-axo', 'pid=,ppid=,pgid=,lstart='], { encoding: 'utf8' })
+  assert.equal(r.status, 0, `Could not inspect process ownership: ${r.stderr.trim()}`)
+  return r.stdout
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map(line => {
+      const match = line.trim().match(/^(\d+)\s+(\d+)\s+(\d+)\s+(.+)$/)
+      assert(match, `Could not parse process ownership: ${line}`)
+      return {
+        pid: Number(match[1]),
+        ppid: Number(match[2]),
+        pgid: Number(match[3]),
+        identity: match[4].trim(),
+      }
+    })
 }
 function alive(pid, group = false) {
   try {
@@ -133,6 +151,275 @@ async function portFree(port) {
       server.listen({ port, host }, () => server.close(() => resolve(true)))
     })
   return (await probe('127.0.0.1')) && (await probe('::1'))
+}
+function groupRows(group, table = processTable()) {
+  return table.filter(processRecord => processRecord.pgid === group.pid)
+}
+function verifyGroupIdentity(group, table = processTable()) {
+  const rows = groupRows(group, table)
+  if (!rows.length) return rows
+  assert(
+    rows.some(row => group.members.get(row.pid) === row.identity),
+    `Refusing to signal process group ${group.pid}: owned process identity is no longer present`
+  )
+  for (const row of rows) group.members.set(row.pid, row.identity)
+  return rows
+}
+function signalOwnedGroup(group, value) {
+  if (!verifyGroupIdentity(group).length) return false
+  signal(group.pid, value)
+  if (value === 'SIGTERM') group.terminationSent = true
+  return true
+}
+async function stopGroup(group) {
+  if (!group.terminationSent && !signalOwnedGroup(group, 'SIGTERM')) return
+  for (let i = 0; groupRows(group).length && i < 20; i++) await sleep(50)
+  if (groupRows(group).length) signalOwnedGroup(group, 'SIGKILL')
+  for (let i = 0; groupRows(group).length && i < 20; i++) await sleep(50)
+  assert(!groupRows(group).length, `Owned process group ${group.pid} is still alive`)
+}
+function childOutcome(child) {
+  return new Promise(resolve => {
+    child.once('error', error => resolve({ error }))
+    child.once('exit', (code, signal) => resolve({ code, signal }))
+  })
+}
+export async function superviseBrowserCheck({
+  checkerCommand,
+  cwd = process.cwd(),
+  env = process.env,
+  serverCommand,
+  readinessTimeoutMs = 45_000,
+  checkerStdio = 'inherit',
+}) {
+  assert(process.platform !== 'win32', 'Browser supervisor requires POSIX process groups')
+  argv(checkerCommand, 'checkerCommand')
+  assert(env.PND_QUEUE_JOB_ID, 'PND_QUEUE_JOB_ID is required')
+  assert(env.PND_QUEUE_OUTPUT, 'PND_QUEUE_OUTPUT is required')
+  assert(env.PND_QUEUE_CLEANUP, 'PND_QUEUE_CLEANUP is required')
+  assert(env.POPULOUS_URL, 'POPULOUS_URL is required')
+  const url = new URL(env.POPULOUS_URL),
+    host = url.hostname,
+    port = Number(url.port || 80),
+    declaredPorts = (env.PND_QUEUE_PORTS ?? '')
+      .split(',')
+      .filter(Boolean)
+      .map(Number)
+  assert.equal(url.protocol, 'http:', 'POPULOUS_URL must use http')
+  assert(['127.0.0.1', 'localhost'].includes(host), 'POPULOUS_URL must use loopback')
+  assert(Number.isInteger(port) && port > 0 && port < 65536, 'POPULOUS_URL has an invalid port')
+  assert.deepEqual(declaredPorts, [port], 'Queue job must declare the POPULOUS_URL port only')
+  serverCommand ??= [
+    'npm',
+    'run',
+    'dev',
+    '--',
+    '--port',
+    String(port),
+    '--hostname',
+    host,
+  ]
+  argv(serverCommand, 'serverCommand')
+
+  const ownedProcesses = new Map(),
+    ownedGroups = new Map(),
+    signalHandlers = new Map(),
+    interruptErrors = []
+  const remember = processRecord => {
+    ownedProcesses.set(processRecord.pid, processRecord.identity)
+    let group = ownedGroups.get(processRecord.pgid)
+    if (!group) {
+      group = { pid: processRecord.pgid, members: new Map() }
+      ownedGroups.set(group.pid, group)
+    }
+    group.members.set(processRecord.pid, processRecord.identity)
+  }
+  const rememberRoot = (child, label) => {
+    try {
+      assert(child.pid, `${label} did not report a PID`)
+      const processRecord = processTable().find(row => row.pid === child.pid)
+      assert(processRecord, `${label} PID ${child.pid} disappeared before ownership was recorded`)
+      assert.equal(processRecord.pgid, child.pid, `${label} did not start in its owned process group`)
+      remember(processRecord)
+    } catch (error) {
+      interruptErrors.push(error)
+      throw error
+    }
+  }
+  const captureDescendants = () => {
+    const table = processTable(),
+      byPid = new Map(table.map(processRecord => [processRecord.pid, processRecord])),
+      confirmed = new Set()
+    for (const [pid, processIdentity] of ownedProcesses) {
+      const processRecord = byPid.get(pid)
+      if (processRecord?.identity === processIdentity) confirmed.add(pid)
+    }
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const processRecord of table) {
+        if (!confirmed.has(processRecord.ppid) || confirmed.has(processRecord.pid)) continue
+        remember(processRecord)
+        confirmed.add(processRecord.pid)
+        changed = true
+      }
+    }
+    for (const pid of confirmed) remember(byPid.get(pid))
+  }
+  let terminationSignal = null
+  const interrupt = signalName => {
+    terminationSignal = signalName
+    try {
+      captureDescendants()
+    } catch (error) {
+      interruptErrors.push(error)
+    }
+    for (const group of [...ownedGroups.values()].reverse())
+      try {
+        signalOwnedGroup(group, 'SIGTERM')
+      } catch (error) {
+        interruptErrors.push(error)
+      }
+  }
+  for (const signalName of ['SIGTERM', 'SIGINT']) {
+    const handler = () => interrupt(signalName)
+    signalHandlers.set(signalName, handler)
+    process.once(signalName, handler)
+  }
+
+  let failure = null
+  try {
+    let server, serverResult
+    try {
+      assert(await portFree(port), `Refusing to start over occupied port ${port}`)
+      const serverLog = fs.openSync(path.join(env.PND_QUEUE_OUTPUT, 'server.log'), 'wx', 0o600)
+      try {
+        server = spawn(serverCommand[0], serverCommand.slice(1), {
+          cwd,
+          detached: true,
+          env: { ...env, WRANGLER_LOG_PATH: path.join(env.PND_QUEUE_OUTPUT, 'wrangler.log') },
+          stdio: ['ignore', serverLog, serverLog],
+        })
+      } finally {
+        fs.closeSync(serverLog)
+      }
+      serverResult = childOutcome(server)
+      if (!server.pid) {
+        const result = await serverResult
+        throw result.error ?? new Error('Server did not report a PID')
+      }
+      rememberRoot(server, 'Server')
+      const deadline = Date.now() + readinessTimeoutMs
+      let ready = false
+      while (Date.now() < deadline) {
+        captureDescendants()
+        if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
+        if (server.exitCode !== null || server.signalCode !== null) {
+          const result = await serverResult
+          if (result.error) throw result.error
+          throw new Error(`server exited with ${result.code ?? result.signal}`)
+        }
+        try {
+          const response = await fetch(url, { signal: AbortSignal.timeout(1_000) })
+          if (response.ok) {
+            ready = true
+            break
+          }
+        } catch {
+          // The owned server has not accepted this exact URL yet.
+        }
+        await sleep(100)
+      }
+      if (!ready) throw new Error(`server was not ready at ${url}`)
+    } catch (error) {
+      throw new Error(`Server startup failed: ${error.message}`, { cause: error })
+    }
+
+    try {
+      const checkerEnv = { ...env, POPULOUS_URL: url.toString() }
+      delete checkerEnv.PND_QUEUE_CLEANUP
+      const checker = spawn(checkerCommand[0], checkerCommand.slice(1), {
+        cwd,
+        detached: true,
+        env: checkerEnv,
+        stdio: checkerStdio,
+      })
+      const checkerResult = childOutcome(checker)
+      if (!checker.pid) {
+        const result = await checkerResult
+        throw result.error ?? new Error('Checker did not report a PID')
+      }
+      rememberRoot(checker, 'Checker')
+      const checkerEvent = checkerResult.then(result => ({ source: 'checker', result })),
+        serverEvent = serverResult.then(result => ({ source: 'server', result }))
+      let event
+      while (!event) {
+        captureDescendants()
+        event = await Promise.race([
+          checkerEvent,
+          serverEvent,
+          sleep(250).then(() => null),
+        ])
+        if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
+      }
+      captureDescendants()
+      if (event.source === 'server') {
+        const { result } = event
+        if (result.error) throw new Error(`Server exited during checking: ${result.error.message}`)
+        throw new Error(`Server exited during checking: ${result.code ?? result.signal}`)
+      }
+      const { result } = event
+      if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
+      if (result.error) throw result.error
+      if (result.signal) throw new Error(`checker exited from signal ${result.signal}`)
+      if (result.code !== 0) throw new Error(`checker exited with code ${result.code}`)
+    } catch (error) {
+      if (error.message.startsWith('Server exited during checking:')) throw error
+      throw new Error(`Checker failed: ${error.message}`, { cause: error })
+    }
+  } catch (error) {
+    failure = error
+  } finally {
+    let cleanupFailure = null
+    try {
+      try {
+        captureDescendants()
+      } catch (error) {
+        interruptErrors.push(error)
+      }
+      const stopped = await Promise.allSettled([...ownedGroups.values()].reverse().map(stopGroup)),
+        cleanupErrors = [
+          ...interruptErrors,
+          ...stopped.filter(result => result.status === 'rejected').map(result => result.reason),
+        ]
+      for (let i = 0; !(await portFree(port)) && i < 20; i++) await sleep(50)
+      if (!(await portFree(port))) cleanupErrors.push(new Error(`Owned port ${port} is still occupied`))
+      if (cleanupErrors.length) cleanupFailure = new AggregateError(cleanupErrors, 'Owned resources remain')
+      else
+        write(env.PND_QUEUE_CLEANUP, {
+          jobId: env.PND_QUEUE_JOB_ID,
+          resourcesReleased: true,
+          releasedAt: new Date().toISOString(),
+          processes: [...ownedGroups.values()].map(group => ({
+            pid: group.pid,
+            group: true,
+            members: [...group.members].map(([pid, processIdentity]) => ({
+              pid,
+              identity: processIdentity,
+            })),
+          })),
+        })
+    } catch (cleanupError) {
+      cleanupFailure = cleanupError
+    }
+    if (cleanupFailure)
+      failure = failure
+        ? new AggregateError([failure, cleanupFailure], 'Browser check and cleanup both failed')
+        : cleanupFailure
+    for (const [signalName, handler] of signalHandlers)
+      process.removeListener(signalName, handler)
+  }
+  if (failure) throw failure
 }
 function kick(dir) {
   const log = fs.openSync(path.join(dir, 'controller.log'), 'a', 0o600)
@@ -276,6 +563,7 @@ async function execute(job, dir) {
         PND_QUEUE_OUTPUT: job.output,
         PND_QUEUE_DEADLINE: new Date(deadline).toISOString(),
         PND_QUEUE_CLEANUP: path.join(job.output, 'cleanup.json'),
+        PND_QUEUE_PORTS: job.spec.ports.join(','),
       },
     })
     child.on('error', error => {
@@ -430,8 +718,13 @@ export async function waitForResult(dir, id) {
   }
 }
 async function main() {
-  const [command, ...args] = process.argv.slice(2),
-    index = args.indexOf('--dir')
+  const [command, ...args] = process.argv.slice(2)
+  if (command === 'supervise') {
+    assert(args.length, 'supervise requires a checker path')
+    await superviseBrowserCheck({ checkerCommand: [process.execPath, ...args] })
+    return
+  }
+  const index = args.indexOf('--dir')
   const dir = index === -1 ? queueDirectory() : path.resolve(args[index + 1])
   if (index !== -1) args.splice(index, 2)
   initialize(dir)
@@ -491,7 +784,7 @@ async function main() {
   else if (command === 'resume' || command === 'recover') await recover(dir)
   else
     throw Error(
-      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH]'
+      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH] | supervise CHECKER [ARG...]'
     )
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === script)
