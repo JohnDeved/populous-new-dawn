@@ -1,3 +1,4 @@
+import { shamanDeathVfx } from './shaman-death-vfx.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { texture, effectFrame, nativeModel } from './scene-assets.ts'
@@ -27,7 +28,6 @@ import {
   shamanNativeDirections,
   shamanReincarnationPose,
 } from './shaman-appearance.ts'
-import { shamanDeathVfx } from './shaman-death-vfx.ts'
 import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
 
@@ -351,7 +351,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.reincarnation) {
-    const vfx = shamanDeathVfx(f.reincarnation.phase)
+    const vfx = shamanDeathVfx(f.reincarnation.phase, f.reincarnation.displayedFrame)
     g.visible = vfx.visible
     if (!g.visible) return
     const pose = shamanReincarnationPose(f.reincarnation.team, f.reincarnation.phase)

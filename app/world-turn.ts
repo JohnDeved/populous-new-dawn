@@ -1,3 +1,4 @@
+import { setShamanDeathPhase } from './shaman-death-vfx.ts'
 import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
   changedBuildingGround,
@@ -923,12 +924,7 @@ function stepTurn(w: World) {
         volcano.duration = Infinity
       } else if (shrine.kind === 'linkedEffects') {
         if (shrine.rewardMana !== undefined) {
-          const gift = createGift(
-            w,
-            'mana',
-            shrine.effectTarget ?? shrine,
-            shrine.rewardModel
-          )
+          const gift = createGift(w, 'mana', shrine.effectTarget ?? shrine, shrine.rewardModel)
           gift.amount = shrine.rewardMana
           gift.recipient = shrine.rewardRecipient ?? w.manaWorld.playerTribe
           gift.phase = 1
@@ -1647,6 +1643,7 @@ function stepTurn(w: World) {
       visual.height = position.h / 45
       visual.reincarnation = { team: u.team, phase: turns === 333 ? 3 : 0, ground: position.h }
       visual.unit = { team: u.team, kind: u.kind, heading: u.heading }
+      setShamanDeathPhase(visual, visual.reincarnation.phase)
       if (u.team === 'blue') tell(w, 'Your shaman will reincarnate.')
     }
   for (const u of ordinaryDead) {
@@ -1718,7 +1715,7 @@ function stepTurn(w: World) {
       if (tribe === 0) w.respawn = w.respawns[tribe]
       else if (tribe === 1) w.redRespawn = w.respawns[tribe]
       if (visual?.reincarnation) {
-        visual.reincarnation.phase = step.phase
+        setShamanDeathPhase(visual, step.phase)
         visual.height = (visual.reincarnation.ground + step.height) / 45
       }
       if (step.event === 'splash') effect(w, 'splash', point ?? site)
