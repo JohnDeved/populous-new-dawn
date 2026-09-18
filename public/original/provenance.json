@@ -113,5 +113,21 @@
     "data/skylens.dat": "4004b11ed6ce1d1240a86588b7bc22abc7d6160f5d048d1b97888ea234ea3b3d",
     "data/cliff0-c.dat": "a1e756622f142ff45615e873c757c01a53ebdb6b54383d28577d6c807fba8c72",
     "data/fade0-c.dat": "d95163a55e441156b2e2c675f5c9f6f26d3f6016b72fe0896901f17e6ee622f0"
+  },
+  "stoneHeads": {
+    "baseModel": 45,
+    "keyModels": [
+      46,
+      47
+    ],
+    "morphIndex": 1,
+    "animationUpdates": 18,
+    "asset": "app/original-stone-heads.json",
+    "sha256": {
+      "objects/objs0-2.dat": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d",
+      "objects/facs0-2.dat": "01a9a6d02efa0d35f7026cd97f8e01f72cbfb72e94217efe8256e8fe43597e9a",
+      "objects/pnts0-2.dat": "09ebbdc9496d2ebd3a932be96af3fd27e6701a41105a5154aec4abe39e50b911",
+      "objects/morph0-2.dat": "1939b4d30839f2ab49ea110abb29d40eb001d6cc6fa4932be72ce44c3aebf066"
+    }
   }
 }

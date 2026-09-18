@@ -5,14 +5,22 @@ import { drawOccupantPanel, occupantPanelControlLayout, paintPanel } from './tra
 import { constructionPanel } from './construction-panel.ts'
 import { selectBuildingOccupants, dismantleBuilding } from './live-building-entry.ts'
 import { nativeUnitModel } from './unit-kinds.ts'
+import {
+  BOAT_HOUSE_CAPACITY,
+  BOAT_HOUSE_WORK_BLOCKS,
+  boatHousePanelControls,
+  boatHouseWorkBlocks,
+  drawBoatHousePanel,
+} from './workshop-panel.ts'
 
 export function buildingOccupantPanelProfile(
   b: Pick<Building, 'kind' | 'level' | 'progress'>
-): { kind: 'resident' | 'training'; capacity: 1 | 3 | 4 | 5 } | null {
+): { kind: 'resident' | 'training' | 'workshop'; capacity: 1 | 3 | 4 | 5 } | null {
   if (b.progress < 1) return null
   if (b.kind === 'hut')
     return { kind: 'resident', capacity: rules.buildingCapacity[buildingModel(b)] as 3 | 4 | 5 }
   if (b.kind === 'tower') return { kind: 'resident', capacity: 1 }
+  if (b.kind === 'boatHouse') return { kind: 'workshop', capacity: BOAT_HOUSE_CAPACITY }
   if (
     b.kind === 'camp' ||
     b.kind === 'temple' ||
@@ -90,6 +98,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     const plan = b.progress < 1,
       profile = buildingOccupantPanelProfile(b),
       school = profile?.kind === 'training',
+      workshop = profile?.kind === 'workshop',
       tower = profile?.kind === 'resident' && b.kind === 'tower',
       hut = profile?.kind === 'resident' && b.kind === 'hut',
       admission = b.admission,
@@ -181,6 +190,30 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
         'aria-label',
         `Construction: ${occupants.length} of ${state.capacity} workers; ${state.wood} of ${state.totalWood} timber`
       )
+    } else if (workshop) {
+      const controls = boatHousePanelControls(),
+        progress = boatHouseWorkBlocks(b.timer)
+      drawBoatHousePanel(canvas, atlas, {
+        occupants: shared.occupants,
+        progress: b.timer,
+        dismantling,
+        turn: world.turn,
+        controlHover: dismantle.matches(':hover'),
+        controlPressed: dismantle.matches(':active'),
+      })
+      for (let i = 0; i < buttons.length; i++) {
+        const slot = controls.people[i]
+        if (!slot) continue
+        buttons[i].style.left = `${slot.x}px`
+        buttons[i].style.top = `${slot.y}px`
+      }
+      dismantle.hidden = false
+      dismantle.style.left = `${controls.control.x}px`
+      dismantle.style.top = `${controls.control.y}px`
+      panel.setAttribute(
+        'aria-label',
+        `Boat House: ${occupants.length} of ${BOAT_HOUSE_CAPACITY} workers; ${progress} of ${BOAT_HOUSE_WORK_BLOCKS} Boat work`
+      )
     } else {
       const capacity = profile!.capacity,
         cost = school ? (admission?.trainingCost ?? 0) : 0,
@@ -226,7 +259,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       button.dataset.person = String(person.id)
       button.setAttribute(
         'aria-label',
-        `${plan ? 'Worker' : school ? 'Trainee' : 'Occupant'} ${i + 1}: ${person.kind}`
+        `${plan || workshop ? 'Worker' : school ? 'Trainee' : 'Occupant'} ${i + 1}: ${person.kind}`
       )
       button.setAttribute('aria-pressed', String(person.selected))
       button.title = 'Click to select; Shift-click for all workers; right-click to focus'

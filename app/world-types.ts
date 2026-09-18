@@ -44,6 +44,7 @@ import type { Flyby } from './flyby.ts'
 import type { ScriptState } from './popscript.ts'
 import type { WorshipState } from './worship.ts'
 import type { ModelMorph } from './morph.ts'
+import type { StoneHeadAnimation } from './stone-head-animation.ts'
 import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
@@ -285,6 +286,8 @@ export type Shrine = Point &
     mode?: number
     model: number
     morph: ModelMorph | null
+    // Undefined legacy saves lazily derive only an authored model45 family; null is unsupported.
+    stoneHead?: StoneHeadAnimation | null
     angle: number
   }
 export type Tree = Point & {

@@ -9,7 +9,12 @@ import { lightningTexture } from './lightning.ts'
 export const nativeModels: Record<number, NativeModel> = nativeModelData
 export const material = (color: number, extra = {}) =>
   new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra })
-const textures = new Map<string, { texture: THREE.Texture; ready: Promise<boolean> }>()
+type TextureAsset = {
+  texture: THREE.Texture
+  ready: Promise<boolean>
+  status: 'loading' | 'ready' | 'failed'
+}
+const textures = new Map<string, TextureAsset>()
 export function texture(kind: string) {
   return loadTexture(kind).texture
 }
@@ -17,9 +22,16 @@ export function loadTexture(kind: string) {
   const cached = textures.get(kind)
   if (cached) return cached
   let loaded!: (success: boolean) => void
-  const ready = new Promise<boolean>(resolve => {
-    loaded = resolve
-  })
+  const result: TextureAsset = {
+    texture: null as unknown as THREE.Texture,
+    status: 'loading',
+    ready: new Promise<boolean>(resolve => {
+      loaded = success => {
+        result.status = success ? 'ready' : 'failed'
+        resolve(success)
+      }
+    }),
+  }
   const t =
     kind === 'lightning-bolt'
       ? new THREE.DataTexture(lightningTexture(), 32, 32)
@@ -32,6 +44,7 @@ export function loadTexture(kind: string) {
             loaded(false)
           }
         )
+  result.texture = t
   if (kind === 'lightning-bolt') {
     loaded(true)
     t.needsUpdate = true
@@ -68,9 +81,19 @@ export function loadTexture(kind: string) {
     t.magFilter = THREE.NearestFilter
     t.generateMipmaps = false
   }
-  const result = { texture: t, ready }
   textures.set(kind, result)
   return result
+}
+
+export function retryFailedTexture(kind: string) {
+  const cached = textures.get(kind)
+  if (!cached || cached.status !== 'failed') return cached ?? loadTexture(kind)
+  // Retry is an explicit scene/preload-attempt decision. Passive texture()/loadTexture()
+  // lookups must keep reusing a failed optional entry instead of turning render loops into
+  // implicit network/disposal retry loops.
+  cached.texture.dispose()
+  textures.delete(kind)
+  return loadTexture(kind)
 }
 export function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: number; h: number }) {
   const uv = (sprite.userData.atlasTransform ??= new THREE.Vector4())

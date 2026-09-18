@@ -24,6 +24,7 @@ load_native_shapes(cpu, EXE, 0x2020000, 0x2024000)
 
 building = 0x2010000
 worker = 0x2011000
+workers = [worker + i * 0x100 for i in range(4)]
 boat = 0x2012000
 stack = 0x204d000
 stop = 0x204e000
@@ -78,12 +79,26 @@ def hook(c, address, _size, _user):
     elif address == 0x465580:  # supplied native shore-direction result
         events.append(["shore-heading", args(2)[1] & 0xFFFF, case["shore_heading"]])
         value = case["shore_heading"]
-    elif address == 0x407490:  # supplied occupant removal
-        _, occupant = args(2)
-        events.append(["remove", occupant])
-        write(building + 0xA6, "B", 0)
-        write(building + 0x86, "H", 0)
-        value = worker
+    elif address == 0x407490:  # supplied 0x407490 slot/count semantics used by the producer
+        hut, occupant = args(2)
+        assert hut == building
+        slots = [read(building + 0x86 + i * 2, "H") for i in range(6)]
+        if occupant:
+            wanted = read(occupant + 0x24, "H")
+            slot = next((i for i, person_id in enumerate(slots) if person_id == wanted), -1)
+        else:
+            slot = next((i for i, person_id in enumerate(slots) if person_id), -1)
+        if slot >= 0:
+            removed_id = slots[slot]
+            value = read(0x890390 + removed_id * 4, "I")
+            write(building + 0xA6, "B", max(0, read(building + 0xA6, "B") - 1))
+            write(building + 0x86 + slot * 2, "H", 0)
+            write(building + 0x9C, "H", read(building + 0x9C, "H") & 0xFFFB)
+            events.append(["remove", removed_id, slot, "specific" if occupant else "first"])
+        else:
+            events.append(["remove-miss", occupant])
+    elif address == 0x436CA0:  # supplied order cleanup for native type-1 remaining-occupant ejection
+        events.append(["clear-orders", args(1)[0]])
     elif address == 0x4657D0:  # supplied boarding consumer
         events.append(["board", *args(2)])
     elif address == 0x465EA0:  # supplied initial motion consumer
@@ -112,6 +127,7 @@ for target in (
     0x44E940,
     0x465580,
     0x407490,
+    0x436CA0,
     0x4657D0,
     0x465EA0,
     0x464AE0,
@@ -145,7 +161,7 @@ def call(address, *args):
     assert cpu.reg_read(UC_X86_REG_EIP) == stop
 
 
-def run(name, timer, occupant=True, working=True, model=13):
+def run(name, timer, occupant=True, working=True, model=13, player_type=1, occupant_count=None):
     global case, events
     case = {
         "name": name,
@@ -156,7 +172,7 @@ def run(name, timer, occupant=True, working=True, model=13):
         "height": 77,
     }
     events = []
-    for address in (building, worker, boat):
+    for address in (building, *workers, boat):
         cpu.mem_write(address, bytes(256))
     # Shape enumeration is supplied below, so object identity is inert here.
     write(building + 0x24, "H", 1)
@@ -168,21 +184,26 @@ def run(name, timer, occupant=True, working=True, model=13):
     write(building + 0x9C, "H", 0x20)
     write(building + 0xA4, "h", timer)
     write(0x892443, "I", 0x2013000)
-    if occupant:
-        write(building + 0x86, "H", 1)
-        write(building + 0xA6, "B", 1)
-        write(0x890390 + 4, "I", worker)
-        write(worker + 0x24, "H", 1)
-        write(worker + 0x2A, "BBB", 1, 2, 1)
-        write(worker + 0x2F, "B", 2)
-        write(worker + 0x70, "h", 80)
-        write(worker + 0xA9, "B", 0 if working else 1)
-    write(0x89D1C8 + 2 * 0xC65 + 0xC1F, "B", 1)  # tribe 2 is human
+    count = (1 if occupant else 0) if occupant_count is None else occupant_count
+    assert 0 <= count <= 4
+    slot_ids = list(range(1, count + 1)) + [0] * (6 - count)
+    write(building + 0x86, "HHHHHH", *slot_ids)
+    write(building + 0xA6, "B", count)
+    for index, address in enumerate(workers[:count], start=1):
+        write(0x890390 + index * 4, "I", address)
+        write(address + 0x24, "H", index)
+        write(address + 0x2A, "BBB", 1, 2, 1)
+        write(address + 0x2F, "B", 2)
+        write(address + 0x70, "h", 80)
+        write(address + 0xA9, "B", 0 if working or index > 1 else 1)
+    write(0x89D1C8 + 2 * 0xC65 + 0xC1F, "B", player_type)
     call(0x406600, building)
     allocations = [e for e in events if e[0] == "allocate" and e[1] == 4]
     return {
         "name": name,
         "timerBefore": timer,
+        "playerType": player_type,
+        "occupantsBefore": count,
         "launched": bool(allocations),
         "allocation": allocations[0] if allocations else None,
         "boat": {
@@ -202,9 +223,11 @@ def run(name, timer, occupant=True, working=True, model=13):
             "state": read(building + 0x2C, "B"),
             "timer": read(building + 0xA4, "h"),
             "occupants": read(building + 0xA6, "B"),
+            "occupantSlots": [read(building + 0x86 + i * 2, "H") for i in range(6)],
             "workFlags": read(building + 0x9C, "H"),
         },
         "worker": {
+            "id": read(worker + 0x24, "H"),
             "workState": read(worker + 0xA8, "B"),
             "workFlags": read(worker + 0x76, "B"),
         },
@@ -231,8 +254,22 @@ for result in results[-2:]:
         "state": 2,
         "timer": 0,
         "occupants": 0,
+        "occupantSlots": [0, 0, 0, 0, 0, 0],
         "workFlags": 0x20,
     }
+
+multi = [
+    run("type1-four-occupants", 600, player_type=1, occupant_count=4),
+    run("type2-four-occupants", 600, player_type=2, occupant_count=4),
+]
+type1, type2 = multi
+assert type1["launched"] and type2["launched"]
+assert type1["building"]["occupants"] == 0, type1
+assert type1["building"]["occupantSlots"] == [0, 0, 0, 0, 0, 0], type1
+assert [event[1] for event in type1["events"] if event[0] == "remove"] == [1, 2, 3, 4], type1
+assert type2["building"]["occupants"] == 3, type2
+assert type2["building"]["occupantSlots"] == [0, 2, 3, 4, 0, 0], type2
+assert [event[1] for event in type2["events"] if event[0] == "remove"] == [1], type2
 
 report = {
     "executableSha256": identity["sha256"],
@@ -250,13 +287,21 @@ report = {
         "0x004ee470 spatial insertion",
         "0x0044e940 height reader",
         "0x00465580 shore-heading result",
-        "0x00407490 occupant removal",
+        "0x00407490 occupant removal (faithful slot/count subset)",
+        "0x00436ca0 remaining-occupant order cleanup",
         "0x004657d0 boarding",
         "0x00465ea0 initial motion",
         "0x00464ae0 routing target",
         "0x00436c20 command-record allocation",
         "0x004ef180 deletion",
     ],
+    "playerTypeEvidence": {
+        "fieldOffset": "0xc1f",
+        "type1": "computer",
+        "type2": "human",
+        "sources": ["scripts/check-native-mana.py", "app/world-state.ts"],
+    },
     "cases": results,
+    "multiOccupantCases": multi,
 }
 print(json.dumps(report, indent=2))

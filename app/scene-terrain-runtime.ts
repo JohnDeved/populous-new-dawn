@@ -35,33 +35,28 @@ export function initializeTerrain(scene: GameScene) {
   scene.waterMap.wrapS = THREE.RepeatWrapping
   scene.waterMap.minFilter = THREE.LinearFilter
   scene.waterMap.magFilter = THREE.LinearFilter
-  void Promise.all(
+  const ready = Promise.all(
     ['landscape.bin', 'waves.bin'].map(name =>
       fetch(`/original/${name}`, { signal: scene.terrainLoad.signal }).then(response => {
         if (!response.ok) throw new Error(`Terrain texture load failed: ${response.status}`)
         return response.arrayBuffer()
       })
     )
-  )
-    .then(([buffer, waves]) => {
-      if (!scene.terrainLoad.signal.aborted) {
-        if (waves.byteLength !== 65536) throw new Error('Invalid original wave table')
-        scene.terrainTextures = readTerrainTextures(buffer)
-        scene.waves = new Uint8Array(waves)
-        const indexed = waterTexture(scene.terrainTextures, 0),
-          pixels = scene.waterMap.image.data as Uint8Array,
-          palette = scene.terrainTextures.palette
-        indexed.forEach((c, i) =>
-          pixels.set([palette[c * 4], palette[c * 4 + 1], palette[c * 4 + 2], 255], i * 4)
-        )
-        scene.waterMap.needsUpdate = true
-        scene.updateTerrainTexture()
-        scene.waterState = ''
-      }
-    })
-    .catch(error => {
-      if (!scene.terrainLoad.signal.aborted) console.error(error)
-    })
+  ).then(([buffer, waves]) => {
+    if (scene.terrainLoad.signal.aborted) return
+    if (waves.byteLength !== 65536) throw new Error('Invalid original wave table')
+    scene.terrainTextures = readTerrainTextures(buffer)
+    scene.waves = new Uint8Array(waves)
+    const indexed = waterTexture(scene.terrainTextures, 0),
+      pixels = scene.waterMap.image.data as Uint8Array,
+      palette = scene.terrainTextures.palette
+    indexed.forEach((c, i) =>
+      pixels.set([palette[c * 4], palette[c * 4 + 1], palette[c * 4 + 2], 255], i * 4)
+    )
+    scene.waterMap.needsUpdate = true
+    scene.updateTerrainTexture()
+    scene.waterState = ''
+  })
   const terrain = new THREE.InstancedMesh(
     new THREE.BufferGeometry(),
     new THREE.ShaderMaterial({
@@ -105,7 +100,7 @@ export function initializeTerrain(scene: GameScene) {
   terrain.userData.nativeRelative = true
   terrain.userData.painterGround = true
   terrain.userData.terrainGrid = true
-  return terrain
+  return { terrain, ready }
 }
 
 function placeReincarnationStone(scene: GameScene, group: THREE.Object3D) {
