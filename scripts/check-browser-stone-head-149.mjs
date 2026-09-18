@@ -178,6 +178,22 @@ async function inspect(name, heading) {
   return evidence
 }
 
+async function checkpoint(before, heading) {
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  await page.waitForFunction(() => window.testStore.hasCheckpoint())
+  await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+  await bindGame(page)
+  await hold()
+  const resume = page.getByRole('button', { name: 'Continue Game', exact: false })
+  if (await resume.isVisible()) await resume.click()
+  await render()
+  const restored = await inspect(before.name, heading)
+  assert.deepEqual(restored.state, before.state)
+  assert.equal(restored.turn, before.turn)
+  report.checkpointPreserved = true
+}
+
 try {
   browser = await chromium.launch({ headless: true })
   const opened = await openGame(browser, 10)
@@ -206,92 +222,89 @@ try {
   })
   report.staticGeometryAndStateStable = true
 
-  await page
-    .getByRole('button', { name: 'Select brave', exact: true })
-    .click({ modifiers: ['Control'] })
-  const selected = await page.evaluate(() => [...window.testScene.world.selected])
-  assert.ok(selected.length >= 2, 'Two authored followers must be selected through the HUD')
-  // HUD selection may recenter the camera; rebuild the real pick after it.
-  const target = await inspect('Totem Pole', 0)
-  await page.mouse.click(target.pick.x, target.pick.y)
-  const orders = await page.evaluate(
-    ids =>
-      ids.map(id => {
-        const unit = window.testScene.world.units.find(unit => unit.id === id)
-        return { id, work: unit.work, command: unit.native?.commandStatus, x: unit.x, z: unit.z }
-      }),
-    selected
-  )
-  report.orders = orders
-  save()
-  // Normal dispatch sets work immediately; native command27 is a later movement transition.
-  assert.ok(orders.filter(order => order.work === root.id).length >= 2, JSON.stringify(orders))
-  let completed = false
-  for (let batch = 0; batch < 64 && !completed; batch++) {
-    const progress = await page.evaluate(async id => {
-      const scene = window.testScene,
-        world = scene.world,
-        { tick } = await import('/app/model.ts'),
-        head = world.shrines.find(head => head.id === id)
-      for (let visit = 0; visit < 64 && !head.uses && world.status === 'playing'; visit++)
-        tick(world, 1 / 12)
-      scene.onChange()
-      return {
-        turn: world.turn,
-        work: head.work,
-        followers: head.followers,
-        uses: head.uses,
-        remaining: head.remaining,
-        forced: head.forced,
-        active: head.active,
-        status: world.status,
-        linked: world.shrines.some(head => head.name === 'Erosion Totem Pole'),
-        units: world.units
-          .filter(unit => world.selected.includes(unit.id))
-          .map(unit => ({
-            id: unit.id,
-            x: unit.x,
-            z: unit.z,
-            hp: unit.hp,
-            state: unit.native?.state,
-            command: unit.native?.commandStatus,
-          })),
-      }
-    }, root.id)
-    report.progress.push(progress)
+  if (process.argv.includes('--static-only')) {
+    await checkpoint(root, 0)
+    assert.deepEqual(report.errors, [])
+    report.limits.push(
+      'Base/checkpoint acceptance only; linked reveal and ordinary worship route are not passed by this mode.'
+    )
+    report.status = 'PASS_STATIC_149_AUTHORED_BASE_CHECKPOINT'
+  } else {
+    await page
+      .getByRole('button', { name: 'Select brave', exact: true })
+      .click({ modifiers: ['Control'] })
+    const selected = await page.evaluate(() => [...window.testScene.world.selected])
+    assert.ok(selected.length >= 2, 'Two authored followers must be selected through the HUD')
+    // HUD selection may recenter the camera; rebuild the real pick after it.
+    const target = await inspect('Totem Pole', 0)
+    await page.mouse.click(target.pick.x, target.pick.y)
+    const orders = await page.evaluate(
+      ids =>
+        ids.map(id => {
+          const unit = window.testScene.world.units.find(unit => unit.id === id)
+          return { id, work: unit.work, command: unit.native?.commandStatus, x: unit.x, z: unit.z }
+        }),
+      selected
+    )
+    report.orders = orders
     save()
-    assert.equal(progress.forced, false)
-    assert.equal(progress.status, 'playing')
-    completed = progress.uses === 1 && progress.linked
-  }
-  assert.ok(
-    completed,
-    'Authored normal follower route/prayer must reveal the linked Totem within 4096 turns'
-  )
-  await render()
-  const skip = page.locator('.skip-introduction')
-  if (await skip.isVisible()) await skip.click()
-  await render()
-  const linked = await inspect('Erosion Totem Pole', 1024)
-  assert.equal(linked.state.work, 0)
-  assert.equal(linked.state.uses, 0)
-  report.normalWorshipRevealedLinked149 = true
+    // Normal dispatch sets work immediately; native command27 is a later movement transition.
+    assert.ok(orders.filter(order => order.work === root.id).length >= 2, JSON.stringify(orders))
+    let completed = false
+    for (let batch = 0; batch < 64 && !completed; batch++) {
+      const progress = await page.evaluate(async id => {
+        const scene = window.testScene,
+          world = scene.world,
+          { tick } = await import('/app/model.ts'),
+          head = world.shrines.find(head => head.id === id)
+        for (let visit = 0; visit < 64 && !head.uses && world.status === 'playing'; visit++)
+          tick(world, 1 / 12)
+        scene.onChange()
+        return {
+          turn: world.turn,
+          work: head.work,
+          followers: head.followers,
+          uses: head.uses,
+          remaining: head.remaining,
+          forced: head.forced,
+          active: head.active,
+          status: world.status,
+          linked: world.shrines.some(head => head.name === 'Erosion Totem Pole'),
+          units: world.units
+            .filter(unit => world.selected.includes(unit.id))
+            .map(unit => ({
+              id: unit.id,
+              x: unit.x,
+              z: unit.z,
+              hp: unit.hp,
+              state: unit.native?.state,
+              command: unit.native?.commandStatus,
+            })),
+        }
+      }, root.id)
+      report.progress.push(progress)
+      save()
+      assert.equal(progress.forced, false)
+      assert.equal(progress.status, 'playing')
+      completed = progress.uses === 1 && progress.linked
+    }
+    assert.ok(
+      completed,
+      'Authored normal follower route/prayer must reveal the linked Totem within 4096 turns'
+    )
+    await render()
+    const skip = page.locator('.skip-introduction')
+    if (await skip.isVisible()) await skip.click()
+    await render()
+    const linked = await inspect('Erosion Totem Pole', 1024)
+    assert.equal(linked.state.work, 0)
+    assert.equal(linked.state.uses, 0)
+    report.normalWorshipRevealedLinked149 = true
 
-  await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
-  await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
-  await bindGame(page)
-  await hold()
-  const resume = page.getByRole('button', { name: 'Continue Game', exact: false })
-  if (await resume.isVisible()) await resume.click()
-  await render()
-  const restored = await inspect('Erosion Totem Pole', 1024)
-  assert.deepEqual(restored.state, linked.state)
-  assert.equal(restored.turn, linked.turn)
-  report.checkpointPreserved = true
-  assert.deepEqual(report.errors, [])
-  report.status = 'PASS_STATIC_149_AUTHORED_MISSION10'
+    await checkpoint(linked, 1024)
+    assert.deepEqual(report.errors, [])
+    report.status = 'PASS_STATIC_149_AUTHORED_MISSION10'
+  }
 } catch (error) {
   report.status = 'FAILED_STATIC_149_AUTHORED_MISSION10'
   report.error = error.stack ?? String(error)

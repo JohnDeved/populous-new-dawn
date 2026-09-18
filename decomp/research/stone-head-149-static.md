@@ -82,3 +82,23 @@ Run-specific results and README TypeScript quality findings belong to the ignore
 continuation packet and immutable shared queue receipts. Keep failures/advisory
 findings distinct from passing required gates. Independent integration review is
 still required; do not mark gameplay parity or close #21 from this static slice.
+
+## Acceptance boundary found during continuation
+
+The broad Mission10 worship/reveal browser probe is retained as the checker's
+default mode. Its initial command-status assertion was corrected to the actual
+initial `unit.work` assignment, but the ordinary route still assigned no followers.
+No actors, work, rewards, route behavior or clocks were changed to bypass that
+failure. Linked reveal is **not** browser-accepted by this slice.
+
+`--static-only` is a separate, explicitly narrower authored acceptance: Mission10
+UI entry, exact base149 mesh/atlas attributes, visible GPU pixels, real pointer
+hover, stable geometry/state and ordinary save/load UI. It does not certify normal
+worship completion or reinterpret the failed full-route receipts as passes. The
+original broader contract and its missing acceptance remain visible for review.
+
+The first aggregate check reached684/685 passing tests; its Mission5 initial Boat
+coordinate assertion also fails identically on untouched base4897ea93. The
+continuation keeps that baseline failure instead of editing unrelated Boat code.
+Repository-wide advisory formatting/lint/unused findings remain; new selector
+oxlint findings were repaired without changing selection behavior.
