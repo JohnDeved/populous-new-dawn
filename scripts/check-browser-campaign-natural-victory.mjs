@@ -422,17 +422,53 @@ async function reachableApproach(page, target, radius = 12, choice = 0) {
   )
 }
 
+async function spellPoint(page, spell, collection, id) {
+  return page.evaluate(
+    async ({ spell, collection, id }) => {
+      const scene = globalThis.testScene,
+        world = scene.world,
+        object = world[collection].find(candidate => candidate.id === id)
+      if (!object) throw new Error(`Missing ${collection} spell target ${id}`)
+      scene.focus(object)
+      scene.onChange()
+      scene.renderer.render(scene.scene, scene.camera)
+      const projected = scene.screen(object),
+        bounds = scene.container.getBoundingClientRect(),
+        event = {
+          clientX: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+          clientY: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+        },
+        picked = scene.pick(event)
+      if (document.elementFromPoint(event.clientX, event.clientY) !== scene.renderer.domElement)
+        throw new Error(`No rendered ground point for ${collection} spell target ${id}`)
+      if (!picked) throw new Error(`No terrain pick for ${collection} spell target ${id}`)
+      const wrapped = value => ((value + 128) % 256 + 256) % 256 - 128,
+        distance = Math.hypot(wrapped(picked.x - object.x), wrapped(picked.z - object.z))
+      if (distance >= 2)
+        throw new Error(
+          `Terrain pick for ${collection} spell target ${id} moved ${distance.toFixed(3)} map units`
+        )
+      const { spellTargetError } = await import('/app/model.ts')
+      return {
+        x: event.clientX,
+        y: event.clientY,
+        point: { x: picked.x, z: picked.z },
+        error: spellTargetError(world, spell, picked),
+      }
+    },
+    { spell, collection, id }
+  )
+}
+
 async function castAt(page, spell, collection, id, required = true) {
-  let target
-  try {
-    target = await entityPoint(page, collection, id)
-  } catch {
-    const object = (await state(page))[collection].find(candidate => candidate.id === id)
-    assert.ok(object, `Missing ${collection} spell target ${id}`)
-    target = await groundPoint(page, object)
-  }
   const shot = spell.toLowerCase(),
+    target = await spellPoint(page, shot, collection, id),
     before = (await state(page)).shots[shot]
+  if (target.error) {
+    if (required)
+      assert.fail(`${spell} target was rejected before input: ${JSON.stringify(target)}`)
+    return false
+  }
   await page.getByLabel(/spells/).click()
   await page.getByRole('button', { name: new RegExp(`^${spell}, `) }).click()
   await page.mouse.click(target.x, target.y)
