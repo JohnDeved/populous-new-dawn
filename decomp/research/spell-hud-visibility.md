@@ -122,3 +122,18 @@ through `scripts/import-hud.py`. After that lands, #78 can implement one narrow
 spell-visibility helper and page filter using the predicates above, disable interaction
 when casting permission is false, and cover fresh/restart/checkpoint/later-mission
 lifecycle without reward, mana, stock, RNG or save mutation.
+
+
+## 2026-09-18 current-main recheck
+
+Revalidated after merging fetched `origin/main` `4897ea93833b5062aabc357a9aa54787f150c44e`.
+The owned visibility inputs (`app/page.tsx`, `app/spell-button.ts`, `app/mission-data.ts`,
+`app/world-state.ts`, `app/mana.ts`, `app/world-types.ts`) have no drift from the
+retained producer proof. The exact placeholder prerequisite is also unchanged:
+`scripts/import-hud.py` still omits HFX0 frame 1056 and
+`app/original-hud.json` still has no `1056` rectangle.
+
+Therefore no general-rule runtime implementation can faithfully represent the
+native undiscovered state within issue #78's no-atlas/no-icon scope. Hidden,
+owned-visible, visible-but-not-castable, and undiscovered are source-resolved;
+only the required undiscovered artwork remains outside this reservation.
