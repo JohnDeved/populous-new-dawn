@@ -179,7 +179,7 @@ async function inspect(name, heading) {
 }
 
 async function checkpoint(before, heading) {
-  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
