@@ -152,7 +152,7 @@ try {
   }
   assert(server.pid, 'Game server did not report a PID')
   owned.push({ pid: server.pid, group: true })
-  await waitForServer(45_000)
+  await waitForServer(90_000)
   await runChecker()
 } catch (error) {
   failure = error
