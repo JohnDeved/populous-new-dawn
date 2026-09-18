@@ -11,14 +11,12 @@ import {
 } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
+import { worshipHeadPose } from '../app/live-worship.ts'
 import { specialBattlePosition } from '../app/special-battle.ts'
 import { worshipPositions } from '../app/worship.ts'
 
 function finishWorship(world, head) {
-  const slots = worshipPositions({
-      ...nativePosition(world, head),
-      angle: Math.round((head.angle * 1024) / Math.PI) & 2047,
-    }),
+  const slots = worshipPositions(worshipHeadPose(world, head)),
     followers = Array.from({ length: head.required }, (_, index) =>
       addUnit(world, 'blue', 'brave', browserPosition(slots[index]))
     )

@@ -1,18 +1,16 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { browserPosition, cast, command, createWorld, nativePosition, tick } from '../app/model.ts'
+import { browserPosition, cast, command, createWorld, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
+import { worshipHeadPose } from '../app/live-worship.ts'
 import { worshipPositions } from '../app/worship.ts'
 
 function finishWorship(world, head) {
   const followers = world.units
     .filter(unit => unit.team === 'blue' && unit.kind === 'brave')
     .slice(0, head.required)
-  const slots = worshipPositions({
-    ...nativePosition(world, head),
-    angle: Math.round((head.angle * 1024) / Math.PI) & 2047,
-  })
+  const slots = worshipPositions(worshipHeadPose(world, head))
   followers.forEach((unit, index) =>
     Object.assign(unit, browserPosition(slots[index]), { native: null })
   )
