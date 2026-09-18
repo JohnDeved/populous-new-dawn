@@ -265,8 +265,8 @@ for a concrete question that reduces uncertainty or allows useful independent wo
 - Dedicated ChatGPT reviewers through Local Dev: finished non-trivial changes
   and acceptance evidence, before integration or parity/evidence claims. Use
   [Reviewer 1](https://chatgpt.com/c/6aac64d7-e0a8-83eb-8591-642392067b5e) or
-  [Reviewer 2](https://chatgpt.com/c/6aac6528-e4e0-83eb-937f-58e788b30e26), both
-  at xhigh/Extra High. This user-directed route replaces Codex review subagents:
+  [Reviewer 2](https://chatgpt.com/c/6aac6528-e4e0-83eb-937f-58e788b30e26).
+  Reviewer 1 uses Pro thinking; Reviewer 2 uses xhigh/Extra High. This user-directed route replaces Codex review subagents:
   assign each PR to one available reviewer and do not duplicate its full review
   in Codex. Provide the exact head/base, full diff, acceptance criteria and retained
   receipts. Reviewers inspect read-only, report concrete findings and ACCEPT/REJECT,
