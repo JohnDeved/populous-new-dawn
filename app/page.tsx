@@ -692,6 +692,7 @@ export default function Home() {
             return (
               <details
                 key={message!.serial}
+                data-message-serial={message!.serial}
                 ref={element => {
                   if (element) messageDetails.current.set(message!.serial, element)
                   else messageDetails.current.delete(message!.serial)

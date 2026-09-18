@@ -271,6 +271,73 @@ try {
   await assertComposedRect(page, 641, 1440, 1000)
   await page.screenshot({ path: resolve(output, 'message-641-entry.png') })
 
+  // Ordinary publication witness: let the real scene RAF advance campaign-message motion,
+  // but reset the slower generic HUD publisher. The DOM must follow the mutated message
+  // before any store revision is published; otherwise top remains stale until uiTimer > .2s.
+  const publication = await page.evaluate(async serial => {
+    const scene = window.testScene,
+      store = window.testStore,
+      world = store.getWorld(),
+      element = document.querySelector(
+        `.campaign-messages details[data-message-serial="${serial}"]`
+      )
+    if (!element) throw new Error(`campaign message element ${serial} is unavailable`)
+    const message = world.messages.slots.find(candidate => candidate?.serial === serial)
+    if (!message) throw new Error(`campaign message state ${serial} is unavailable`)
+
+    const screenY = (value, height) => {
+        const product = (Math.imul(height, value) + Math.trunc(height / 2)) | 0
+        return (product + ((product >> 31) & 0xffff)) >> 16
+      },
+      startPosition = message.position,
+      startRevision = store.getSnapshot()
+
+    scene.world.speed = 0
+    scene.world.paused = false
+    // Isolate the message binding from the generic React publisher. Headless RAF may
+    // deliver a long first frame, so keep only this witness below the .2s threshold
+    // while still running the shipped scene RAF and advanceGame/message path.
+    scene.uiTimer = -1000
+    scene.gameClock.animationTime = 0
+    scene.previous = null
+    if (!scene.frame) scene.frame = requestAnimationFrame(scene.animate)
+
+    let witness = null
+    for (let frame = 0; frame < 30; frame++) {
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      const current = world.messages.slots.find(candidate => candidate?.serial === serial)
+      if (!current) throw new Error(`campaign message ${serial} disappeared during publication witness`)
+      const revision = store.getSnapshot()
+      if (current.position !== startPosition && revision === startRevision) {
+        witness = {
+          startPosition,
+          position: current.position,
+          startRevision,
+          revision,
+          top: element.getBoundingClientRect().top,
+          expectedTop: screenY(current.position, window.innerHeight),
+        }
+        break
+      }
+    }
+
+    if (scene.frame) cancelAnimationFrame(scene.frame)
+    scene.frame = 0
+    scene.previous = null
+    return witness
+  }, entry.serial)
+  assert.ok(publication, 'message motion must occur before the slower general HUD publication')
+  assert.equal(
+    publication.revision,
+    publication.startRevision,
+    'publication witness must not rely on a React/store revision'
+  )
+  assert.equal(
+    publication.top,
+    publication.expectedTop,
+    'campaign-message DOM top must track presentation state before general HUD publication'
+  )
+
   // Use the shipped 24 Hz presentation owner with simulation speed zero until native settle consumption.
   const settled = await page.evaluate(async () => {
     const scene = window.testScene,
