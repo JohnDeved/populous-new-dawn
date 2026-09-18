@@ -1,3 +1,4 @@
+import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { buildingPose } from './building-shapes.ts'
 import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
 import { releaseTasks } from './world-tasks.ts'
@@ -1208,7 +1209,8 @@ export function animateLiveObjects(w: World) {
       stampFootprints(w.footprints, p.x, p.y)
     }
   }
-  for (const f of w.effects)
+  for (const f of w.effects) {
+    if (f.reincarnation) latchShamanDeathFrame(f)
     if (f.animation)
       stepObjectAnimation(
         f.animation,
@@ -1216,4 +1218,5 @@ export function animateLiveObjects(w: World) {
         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
         () => {}
       )
+  }
 }

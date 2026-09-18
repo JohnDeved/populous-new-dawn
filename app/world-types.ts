@@ -358,7 +358,7 @@ export type Effect = Point & {
   tornado?: Tornado
   swarm?: { tribe: number; remaining: number; applied: boolean }
   teleport?: { visits: number; target: NativePoint }
-  reincarnation?: { team: Team; phase: number; ground: number }
+  reincarnation?: { team: Team; phase: number; ground: number; displayedFrame?: number }
   firewarriorShot?: {
     source: number
     target: number

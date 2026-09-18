@@ -351,7 +351,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.reincarnation) {
-    const vfx = shamanDeathVfx(f.reincarnation.phase)
+    const vfx = shamanDeathVfx(f.reincarnation.phase, f.reincarnation.displayedFrame)
     g.visible = vfx.visible
     if (!g.visible) return
     const pose = shamanReincarnationPose(f.reincarnation.team, f.reincarnation.phase)
