@@ -3,7 +3,7 @@ import test from 'node:test'
 import { createWorld, command, tick, cast, placeBuilding, addUnit } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { UnitMotion } from '../app/unit-motion.ts'
-import { addMessage, messageTop } from '../app/messages.ts'
+import { addMessage, messageTop, stepMessages } from '../app/messages.ts'
 
 const schedules = [
   ...[5, 30, 60, 120, 144, 240].map(hz => [1 / hz]),
@@ -106,30 +106,82 @@ test('paused time stays paused; long active frames retain elapsed time', () => {
 
 test('campaign messages use the presentation clock and freeze while paused', () => {
   const results = schedules.map(schedule => {
-    const w = createWorld(), clock = { animationTime: 0, animationFrame: 0 }
+    const w = createWorld(),
+      clock = { animationTime: 0, animationFrame: 0 }
     w.speed = 0
-    for (const [age, stringId] of [[3, 615], [2, 616], [1, 611]]) {
+    for (const [age, stringId] of [
+      [3, 615],
+      [2, 616],
+      [1, 611],
+    ]) {
       const slot = addMessage(w.messages, stringId, () => 0)
       w.messages.slots[slot].age = age
+      if (age === 3) w.messages.slots[slot].flags |= 0x20000
     }
     advance(w, clock, 5, schedule)
     return w.messages.slots.filter(Boolean).map(message => ({
-      top: messageTop(message), speed: message.speed, flags: message.flags,
+      top: messageTop(message),
+      speed: message.speed,
+      flags: message.flags,
     }))
   })
   results.forEach(result => assert.deepEqual(result, results[0]))
-  assert.deepEqual(results[0].map(message => message.top), [455, 430, 405])
+  assert.deepEqual(
+    results[0].map(message => message.top),
+    [455, 430, 405]
+  )
+  assert.equal(results[0][0].flags & 0x20000, 0, 'settled pending message is consumed')
+  assert.equal(results[0][0].flags & 2, 2, 'consumed popup produces the native transient draw bit')
 
-  const sounded = createWorld(), soundedClock = { animationTime: 0, animationFrame: 0 }
+  const sounded = createWorld(),
+    soundedClock = { animationTime: 0, animationFrame: 0 }
   sounded.speed = 0
   addMessage(sounded.messages, 615, () => 0)
   advanceGame(sounded, soundedClock, 5)
   assert.ok(sounded.sounds.some(event => event.cue === 0xe4))
 
-  const w = createWorld(), clock = { animationTime: 0, animationFrame: 0 }
-  addMessage(w.messages, 615, () => 0)
+  const w = createWorld(),
+    clock = { animationTime: 0, animationFrame: 0 }
+  const pausedSlot = addMessage(w.messages, 615, () => 0)
+  w.messages.slots[pausedSlot].flags |= 0x20000
   w.paused = true
   const before = structuredClone(w.messages)
   advanceGame(w, clock, 5)
   assert.deepEqual(w.messages, before)
+})
+
+test('campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit', () => {
+  const entering = createWorld(),
+    enteringSlot = addMessage(entering.messages, 615, () => 0)
+  entering.messages.slots[enteringSlot].flags |= 0x20000
+  entering.messages.slots[enteringSlot].speed = 1
+  entering.messages.slots[enteringSlot].position = 0
+  stepMessages(entering.messages)
+  assert.equal(entering.messages.slots[enteringSlot].flags & 0x20000, 0x20000)
+  assert.equal(entering.messages.slots[enteringSlot].flags & 2, 0)
+
+  const state = createWorld().messages,
+    firstSlot = addMessage(state, 615, () => 0),
+    secondSlot = addMessage(state, 616, () => 0),
+    first = state.slots[firstSlot],
+    second = state.slots[secondSlot]
+  first.age = 2
+  second.age = 1
+  first.flags |= 0x20000
+  second.flags |= 0x20000
+  first.speed = 1
+  second.speed = 1
+  const firstTarget = 0x10000 - first.height
+  first.position = firstTarget - 1
+  second.position = firstTarget - second.height - 1
+
+  stepMessages(state)
+  assert.equal(first.flags & 0x20000, 0)
+  assert.equal(first.flags & 2, 2)
+  assert.equal(second.flags & 0x20000, 0x20000, 'only one pending popup is consumed per visit')
+  assert.equal(second.flags & 2, 0)
+
+  stepMessages(state)
+  assert.equal(second.flags & 0x20000, 0)
+  assert.equal(second.flags & 2, 2)
 })
