@@ -269,3 +269,106 @@ Ignored durable result:
 `work/orchestration/worker-3-training-entry/native-group-entry-real-motion-result.json`.
 The preserved prior supplied-motion result remains
 `work/orchestration/worker-3-training-entry/native-group-entry-result.json`.
+
+
+## Corrected speed/animation composition: stopped at the native unit pool
+
+A later bounded correction exists on the preserved research head
+`b33e7b5eeef9a7918bce0d8af924965038859489`. Queue provenance binds it to
+canonical job `ebc079a1-df98-4cdd-8d02-14c0491a8f2a` with an empty tracked
+diff. This job is the one corrected native composition attempt; it must not be
+repeated under the unchanged native-proof budget.
+
+The earlier animation-boundary prerequisite was repaired from original data,
+not by substituting a canned animation or speed result. Native
+`0x42c320 load_vele` is the producer of the six-byte `vstart_related`
+runtime records consumed by `0x4d4040`. The corrected harness materialized
+the verified frame-count projection from the shipped files already exercised
+by `scripts/check-native-animation.py`:
+
+- `data/vstart-0.ani`: SHA-256
+  `64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa`;
+- `data/vfra-0.ani`: SHA-256
+  `c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258`;
+- 792 VSTART records were projected; the Brave's referenced object-40 chain
+  has four frames.
+
+The corrected composition therefore left these decisive functions original:
+full person update `0x4d32b0`, speed/RNG `0x4d4f40`, object/animation
+setter `0x4d4040`, person motion `0x4e6d00`, route advance
+`0x4eadc0`, command-8 `0x434610`, and admission `0x407150`.
+No straight-line movement, synthetic route, or canned speed was supplied.
+The only supplied leaves remained the explicit ambient post-person consumers
+`0x4d4690`, `0x4d9bd0`, `0x4def50`, `0x4da2a0`, plus the
+post-admission occupancy indicator `0x40c4e0`.
+
+The corrected run completed 23 full person/building-clock turns with all eight
+Braves still in native state 10, command-8 substate 1, and with the genuine
+direct-destination route state `routeId=0`. At the end of turn 23 the
+positions were:
+
+| person | x | y | speed |
+| ---: | ---: | ---: | ---: |
+| 1 | 14963 | 15392 | 75 |
+| 2 | 14949 | 15406 | 71 |
+| 3 | 15303 | 15469 | 84 |
+| 4 | 14983 | 15442 | 71 |
+| 5 | 15204 | 15421 | 73 |
+| 6 | 15506 | 15531 | 83 |
+| 7 | 15591 | 15520 | 84 |
+| 8 | 15420 | 15517 | 79 |
+
+There were **no end-turn substate-5 persons** and **no actual
+`0x407150` admission calls** in those complete turns.
+
+On turn 24, person 1 entered real motion at `(14963,15392)`, state 10,
+substate 1, speed 75 and direct goal `(16512,15808)`. Real
+`0x4e6d00` advanced it to `(15039,15412)`, and real `0x4eadc0` was
+then reached with `routeId=0`. Before the person visit completed, original
+`0x4ed8a0 alloc_unit` was reached. The harness intentionally aborted rather
+than inventing allocator output. No supplied ambient leaf had fired on turn 24
+and no admission had occurred.
+
+The exact missing native producer is now identifiable:
+`0x4ee300 update_unit_lists`. It rebuilds `free_units_less_640`,
+`free_units_more_640`, `allocated_units`, `units_to_free` and their
+allocation counts by walking the original contiguous
+`unit_array_ptr_2 .. unit_array_ptr_3` pool. `0x4ed8a0` consumes those
+lists and free unit records. The bounded training fixture instead materializes
+only its selected people/building at dedicated addresses and pointer-table
+entries; it never constructs the original contiguous free-unit pool. Executing
+through `0x4ed8a0` without that producer's genuine inputs would therefore
+fake native world-allocation semantics.
+
+The retained abort receipt records the allocator address but not its return
+address or arguments. Static command-8 evidence is not enough to name the
+upstream caller safely: the obvious substate-1 cargo-release path
+`0x4d58c0` requires both goal deltas below `0x70`, while turn-24 person 1
+was still `1473` native x-units and `396` y-units from its goal, and the
+fixture's cargo field `+0x78` was initialized to zero. The allocator call
+must therefore not be labelled as a cargo/drop event without another
+caller-bearing trace.
+
+This stops the requested discriminator. The corrected run does not prove
+one-at-a-time entry, multiple same-turn admissions, a browser defect, or a
+presentation-only cause. Reaching a comparable admission timeline requires
+authentic original unit-pool initialization compatible with
+`0x4ee300`; the current native run budget does not authorize another
+composition attempt.
+
+Canonical corrected job:
+`ebc079a1-df98-4cdd-8d02-14c0491a8f2a`.
+
+Ignored corrected result:
+`work/orchestration/worker-3-training-entry/native-group-entry-real-motion-corrected-result.json`
+(SHA-256 `a2a6019f591c057d6aca27ea6fa303fab68baa579f2bb4cfc4ed062050480dd9`).
+
+Ignored animation diagnostic:
+`work/orchestration/worker-3-training-entry/native-group-entry-animation-boundary-diagnostic.json`
+(SHA-256 `7f7146774c3a903cb76e080a87d9d04aa1ce7b5940a5ee06931a3db121fc30f0`).
+
+The earlier supplied-motion result and failed real-motion result remain
+preserved separately and are not overwritten by this stop.
+
+Source-binding receipt:
+`work/orchestration/worker-3-training-entry/native-group-entry-unit-pool-prerequisite.json`.
