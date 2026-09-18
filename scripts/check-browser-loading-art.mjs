@@ -73,16 +73,20 @@ async function selectMission(page, mission) {
 
 async function loadingLayout(page) {
   return page.evaluate(() => {
-    const overlay = document.querySelector('.loading-world'),
+    const shell = document.querySelector('.game-shell'),
+      overlay = document.querySelector('.loading-world'),
       art = document.querySelector('.loading-original-art'),
       img = art?.querySelector('img'),
       label = art?.querySelector('.loading-original-label')
-    if (!overlay || !art || !img || !label) return null
-    const o = overlay.getBoundingClientRect(),
+    if (!shell || !overlay || !art || !img || !label) return null
+    const s = shell.getBoundingClientRect(),
+      o = overlay.getBoundingClientRect(),
       a = art.getBoundingClientRect(),
       i = img.getBoundingClientRect(),
       l = label.getBoundingClientRect()
     return {
+      shell: { x: s.x, y: s.y, width: s.width, height: s.height },
+      viewport: { width: innerWidth, height: innerHeight },
       overlay: { x: o.x, y: o.y, width: o.width, height: o.height },
       art: { x: a.x, y: a.y, width: a.width, height: a.height },
       image: { x: i.x, y: i.y, width: i.width, height: i.height },
@@ -104,13 +108,15 @@ function assertOriginalLayout(layout) {
   assert.equal(layout.image.height, 161)
   assert.equal(layout.label.text, 'Loading...')
   assert.equal(layout.heading, null)
-  const overlayCenterX = layout.overlay.x + layout.overlay.width / 2,
-    overlayCenterY = layout.overlay.y + layout.overlay.height / 2,
-    imageCenterX = layout.image.x + layout.image.width / 2,
-    imageCenterY = layout.image.y + layout.image.height / 2
-  assert.ok(Math.abs(overlayCenterX - imageCenterX) < 0.6, { overlayCenterX, imageCenterX })
-  assert.ok(Math.abs(overlayCenterY - imageCenterY) < 0.6, { overlayCenterY, imageCenterY })
-  assert.ok(layout.label.y + layout.label.height <= layout.image.y + 0.6, layout)
+  assert.equal(layout.shell.width, layout.viewport.width)
+  assert.equal(layout.shell.height, layout.viewport.height)
+  const expectedX = layout.shell.x + Math.trunc((layout.shell.width - 130) / 2),
+    expectedY = layout.shell.y + Math.trunc((layout.shell.height - 161) / 2)
+  assert.ok(Math.abs(layout.image.x - expectedX) < 0.01, { expectedX, actualX: layout.image.x, layout })
+  assert.ok(Math.abs(layout.image.y - expectedY) < 0.01, { expectedY, actualY: layout.image.y, layout })
+  assert.ok(Math.abs(layout.art.x - expectedX) < 0.01, { expectedX, actualX: layout.art.x, layout })
+  assert.ok(Math.abs(layout.art.y - expectedY) < 0.01, { expectedY, actualY: layout.art.y, layout })
+  assert.ok(layout.label.y + layout.label.height <= layout.image.y + 0.01, layout)
 }
 
 verifyMaskPng()

@@ -1049,7 +1049,7 @@ export default function Home() {
         </div>
       )}
       {startup === 'playing' && (!ready || error) && (
-        <div className="loading-world" role="status">
+        <div className={error ? 'loading-world' : 'loading-world loading-world-original'} role="status">
           {error ? (
             <>
               <span className="loading-rune">⟡</span>
