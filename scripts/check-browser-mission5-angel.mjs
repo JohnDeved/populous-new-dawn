@@ -1,11 +1,23 @@
 import assert from 'node:assert/strict'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 import { bindGame, effectPixels, openGame } from './browser-game.mjs'
+
+const artifactDir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? 'work/orchestration/worker5-22-static157-recovery/browser')
+mkdirSync(artifactDir, { recursive: true })
+const report = { stages: [] }
+const stage = (name, data) => { report.stages.push({ name, data }); console.log(JSON.stringify({ name, data })) }
 
 const MODEL157_SHA256 = 'b7504236b474eef4157b0cc7e4060f9a893d82ef632e3468df80f896c7f39070'
 const ATLAS_SHA256 = 'fdb5c2af7ca43debb5d943036969df29949773b6b94c0b7ce99ffc5d946b27b0'
 
 async function selectWarriors(page) {
+  // Shift adds to the current selection; clear the initially selected Shaman
+  // through the shipped UI before asserting exactly the four authored warriors.
+  await page.locator('.world-viewport canvas.battlefield').focus()
+  await page.keyboard.press('Escape')
+  assert.equal(await page.evaluate(() => globalThis.testScene.world.selected.length), 0)
   await page
     .getByRole('button', { name: 'Select warrior', exact: true })
     .click({ modifiers: ['Shift'] })
@@ -69,12 +81,14 @@ async function finishHead(page, id, maxTurns, finishBridge = false) {
         world = scene.world,
         { advanceGame } = await import('/app/game-clock.ts'),
         head = world.shrines.find(shrine => shrine.id === headId)
+      world.speed = 1
       let turns = 0
       for (; turns < max && head.active; turns++) advanceGame(world, scene.gameClock, 1 / 12)
       let bridgeTurns = 0
       if (bridge)
         for (; bridgeTurns < 96 && world.effects.some(effect => !!effect.bridge); bridgeTurns++)
           advanceGame(world, scene.gameClock, 1 / 12)
+      world.speed = 0
       return {
         turns,
         bridgeTurns,
@@ -154,8 +168,18 @@ async function headFingerprint(page) {
 }
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+let page
 try {
-  const { page, errors } = await openGame(browser, 5)
+  const opened = await openGame(browser, 5)
+  page = opened.page
+  const { errors } = opened
+  // Own pacing while asynchronous asset/checkpoint work and UI input run;
+  // advancement still uses the unchanged chronological game clock.
+  await page.evaluate(() => {
+    const scene = globalThis.testScene
+    cancelAnimationFrame(scene.frame)
+    scene.world.speed = 0
+  })
 
   const authored = await page.evaluate(() => {
     const world = globalThis.testScene.world,
@@ -188,8 +212,10 @@ try {
 
   await commandHead(page, authored.bridge1.id)
   const firstBridge = await finishHead(page, authored.bridge1.id, 6000, true)
+  stage('first authored bridge', firstBridge)
   await commandHead(page, authored.bridge2.id)
   const secondBridge = await finishHead(page, authored.bridge2.id, 2000, true)
+  stage('second authored bridge', secondBridge)
 
   const beforeCheckpoint = await headFingerprint(page)
   assert.equal(beforeCheckpoint.head.model, 157)
@@ -215,6 +241,7 @@ try {
   await bindGame(page)
   const afterCheckpoint = await headFingerprint(page)
   assert.deepEqual(afterCheckpoint, beforeCheckpoint)
+  stage('static157 assets and checkpoint', afterCheckpoint)
 
   await commandHead(page, authored.angel.id)
   const reward = await page.evaluate(
@@ -222,11 +249,13 @@ try {
       const scene = globalThis.testScene,
         world = scene.world,
         { advanceGame } = await import('/app/game-clock.ts')
+      world.speed = 1
       let turns = 0
       for (; turns < maxTurns && !world.effects.some(effect => !!effect.angel); turns++)
         advanceGame(world, scene.gameClock, 1 / 12)
       const head = world.shrines.find(shrine => shrine.id === headId),
         angel = world.effects.find(effect => !!effect.angel)
+      world.speed = 0
       if (angel) scene.focus(angel)
       scene.onChange()
       scene.animate(scene.previous)
@@ -270,13 +299,83 @@ try {
     { id: undefined, x: -51, z: 15, team: 'blue', phase: 'seeking', lifetime: 2500 }
   )
   assert.equal(reward.summonCues, true)
+  const rewardMesh = await page.evaluate(id => {
+    const mesh = globalThis.testScene.fxMeshes.get(id)
+    return mesh && { visible: mesh.visible, layers: mesh.userData.layers.length, frame: mesh.userData.frame }
+  }, reward.angel.id)
+  assert.ok(rewardMesh?.visible && rewardMesh.layers > 0 && Number.isInteger(rewardMesh.frame))
+  stage('normal authored Angel reward', reward)
   const pixels = await effectPixels(page, [reward.angel.id])
   assert.ok(pixels > 20, `Angel sprite must reach GPU pixels (${pixels})`)
-  await page.screenshot({ path: '/private/tmp/populous-mission5-static157.png' })
+  const combat = await page.evaluate(async angelId => {
+    const scene = globalThis.testScene,
+      world = scene.world,
+      { advanceGame } = await import('/app/game-clock.ts'),
+      angel = world.effects.find(effect => effect.id === angelId)
+    world.speed = 1
+    let target = null
+    for (let frame = 0; frame < 1200; frame++) {
+      advanceGame(world, scene.gameClock, 1 / 24)
+      target ??= angel.angel.target
+      if (target && !world.units.some(unit => unit.id === target)) break
+    }
+    const hit = world.effects.some(effect => effect.kind === 'hit'),
+      strikeCue = world.sounds.some(sound => sound.cue === 0xdc)
+    // Retain PR105's bounded expiry-only fixture after a natural chase/strike;
+    // no travel, reward, target, damage or kill state is forced.
+    angel.angel.lifetime = 1
+    for (let frame = 0; frame < 64 && world.effects.includes(angel); frame++)
+      advanceGame(world, scene.gameClock, 1 / 24)
+    world.speed = 0
+    scene.onChange()
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    return {
+      target,
+      removed: !!target && !world.units.some(unit => unit.id === target),
+      advanced: angel.x !== -51 || angel.z !== 15,
+      hit,
+      strikeCue,
+      cleaned: !world.effects.includes(angel),
+      cleanupCue: world.sounds.some(sound => sound.cue === 0xb2),
+      meshRemoved: !scene.fxMeshes.has(angel.id),
+    }
+  }, reward.angel.id)
+  assert.ok(combat.target)
+  assert.deepEqual(
+    {
+      removed: combat.removed,
+      advanced: combat.advanced,
+      hit: combat.hit,
+      strikeCue: combat.strikeCue,
+      cleaned: combat.cleaned,
+      cleanupCue: combat.cleanupCue,
+      meshRemoved: combat.meshRemoved,
+    },
+    {
+      removed: true,
+      advanced: true,
+      hit: true,
+      strikeCue: true,
+      cleaned: true,
+      cleanupCue: true,
+      meshRemoved: true,
+    }
+  )
+  stage('preserved autonomous combat and bounded expiry', combat)
+  stage('Angel GPU contribution', { pixels })
+  await page.screenshot({ path: resolve(artifactDir, 'mission5-static157.png') })
   assert.deepEqual(errors, [])
   console.log(
-    `PASS: Mission 5 authored bridges ${firstBridge.turns}+${secondBridge.turns} turns, checkpointed model157 ${MODEL157_SHA256.slice(0, 12)}, normal warrior worship, linked Angel reward, ${pixels} Angel GPU pixels; no stock/reward/position injection`
+    `PASS: Mission 5 authored bridges ${firstBridge.turns}+${secondBridge.turns} turns, checkpointed model157 ${MODEL157_SHA256.slice(0, 12)}, normal warrior worship, linked Angel reward, ${pixels} Angel GPU pixels; no stock/reward/position injection; inherited bounded expiry fixture after natural combat`
   )
+  report.status = 'PASS'
+} catch (error) {
+  report.status = 'FAIL'
+  report.error = error.stack ?? String(error)
+  if (page) await page.screenshot({ path: resolve(artifactDir, 'failure.png') }).catch(() => {})
+  throw error
 } finally {
+  writeFileSync(resolve(artifactDir, 'report.json'), JSON.stringify(report, null, 2))
   await browser.close()
 }
