@@ -599,7 +599,9 @@ async function lifecycleUntil(label, condition, limit, personId, schoolId, batch
             case 'departed':
               return !w.units.some(u => u.work === schoolId)
             case 'trained':
-              return !!u && u.kind === 'spy' && u.inside === null
+              return (
+                !!u && u.kind === 'spy' && u.inside === null && !u.path.length && u.work === null
+              )
             case 'disguised':
               return !!u?.native && u.native.disguise === condition.tribe << 6
             case 'near':
@@ -644,6 +646,126 @@ async function lifecycleUntil(label, condition, limit, personId, schoolId, batch
       ' ordinary turns; inspect actual command/queue/school/mana state'
   )
 }
+async function observeTrainingReplacement(sourceId, schoolId) {
+  const observation = await page.evaluate(
+    async ({ sourceId, schoolId }) => {
+      const w = window.testStore.getWorld(),
+        s = window.testScene,
+        { tick } = await import('/app/model.ts')
+      if (!window.__vault12OwnsRaf || s.frame)
+        throw Error('Training observation requires exclusive RAF ownership')
+      const existing = new Set(w.units.map(u => u.id)),
+        samples = []
+      let replacement = null,
+        missing = null
+      const start = w.turn,
+        scalar = o =>
+          o &&
+          Object.fromEntries(
+            Object.entries(o).filter(
+              e => e[1] === null || ['number', 'string', 'boolean'].includes(typeof e[1])
+            )
+          )
+      for (let n = 0; n < 20000; n++) {
+        const trainee = w.units.find(u => u.id === sourceId),
+          school = w.buildings.find(b => b.id === schoolId)
+        if (!trainee || trainee.hp <= 0) {
+          missing = { turn: w.turn, sourceId }
+          break
+        }
+        const before = {
+          turn: w.turn,
+          source: scalar(trainee),
+          admission: school?.admission && {
+            ...scalar(school.admission),
+            occupants: [...school.admission.occupants],
+          },
+          timer: school?.timer,
+        }
+        tick(w, 1 / 12)
+        const old = w.units.find(u => u.id === sourceId),
+          after = w.buildings.find(b => b.id === schoolId)
+        const spawned = w.units.filter(
+          u => u.team === 'blue' && u.kind === 'spy' && u.hp > 0 && !existing.has(u.id)
+        )
+        if (!(n % 64))
+          samples.push({
+            turn: w.turn,
+            source: scalar(old),
+            school: after && { timer: after.timer, admission: scalar(after.admission) },
+            newSpies: spawned.map(u => scalar(u)),
+          })
+        if (!old && spawned.length) {
+          replacement = {
+            before,
+            after: {
+              turn: w.turn,
+              school: after && {
+                ...scalar(after),
+                admission: after.admission && {
+                  ...scalar(after.admission),
+                  occupants: [...after.admission.occupants],
+                },
+              },
+              spies: spawned.map(u => ({
+                ...scalar(u),
+                native: scalar(u.native),
+                path: structuredClone(u.path),
+              })),
+            },
+          }
+          break
+        }
+        if (!old || old.hp <= 0) {
+          missing = { turn: w.turn, sourceId }
+          break
+        }
+        if (w.status !== 'playing') break
+      }
+      window.testStore.update()
+      const now = performance.now()
+      s.previous = now
+      s.animate(now)
+      if (s.frame) cancelAnimationFrame(s.frame)
+      s.frame = 0
+      s.previous = null
+      return {
+        start,
+        end: w.turn,
+        replacement,
+        missing,
+        samples,
+        identityRule:
+          'Existing training-conversion.ts allocates replacement people and removes source occupants; object identity is not stable.',
+      }
+    },
+    { sourceId, schoolId }
+  )
+  report.trainingReplacement = observation
+  save()
+  assert.ok(
+    observation.replacement,
+    'NORMAL_TRAINING_FIRST_FAULT: no witnessed original occupant to allocated Spy replacement'
+  )
+  const { before, after } = observation.replacement
+  assert.equal(before.source.id, sourceId)
+  assert.equal(before.source.kind, 'brave')
+  assert.equal(before.source.inside, schoolId)
+  assert.ok(before.admission.occupants.includes(sourceId))
+  assert.equal(after.school.admission.lastActivity, after.turn)
+  assert.equal(after.school.admission.trainingCost, 0)
+  assert.equal(after.spies.length, 1, 'This one-occupant training must yield one new Spy')
+  const spy = after.spies[0]
+  assert.notEqual(spy.id, sourceId)
+  assert.equal(spy.native.model, 5)
+  assert.equal(spy.team, 'blue')
+  assert.ok(
+    Math.hypot(spy.x - after.school.x, spy.z - after.school.z) < 2,
+    'New Spy must originate at the actual training building'
+  )
+  return spy.id
+}
+
 async function entityHit(collection, id) {
   for (let view = 0; view < 8; view++) {
     await render()
@@ -1336,6 +1458,7 @@ try {
     await lifecycleUntil('normal builder departure', { kind: 'departed' }, 2000, brave, school)
     return lifecycleState(brave, school)
   })
+  let spyId
   await stage('ordinary-Spy-training', async () => {
     await redirectManaToTraining()
     const order = await actualOrder(
@@ -1349,22 +1472,31 @@ try {
       order.unit.order?.model === 8 || order.unit.work === school,
       'Actual training command8/building assignment'
     )
+    spyId = await observeTrainingReplacement(brave, school)
     await lifecycleUntil(
-      'normal approach/entry/mana-funded Spy training and exit',
+      'normal new Spy exit movement finishes',
       { kind: 'trained' },
-      20000,
-      brave,
-      school
+      2000,
+      spyId,
+      school,
+      16
     )
-    const trained = await lifecycleState(brave, school)
+    const trained = await lifecycleState(spyId, school)
     assert.equal(trained.unit.kind, 'spy')
     assert.equal(trained.unit.team, 'blue')
-    assert.equal(trained.unit.id, brave)
+    assert.equal(trained.unit.id, spyId)
+    assert.notEqual(spyId, brave)
     assert.equal(trained.unit.inside, null)
-    const hit = await entityHit('units', brave)
-    return { trained, renderedHit: hit, schoolTimerForced: false }
+    const hit = await entityHit('units', spyId)
+    return {
+      sourceBrave: brave,
+      allocatedSpy: spyId,
+      trained,
+      renderedHit: hit,
+      schoolTimerForced: false,
+    }
   })
-  const encounter = await chooseEncounter(brave)
+  const encounter = await chooseEncounter(spyId)
   report.encounterPlan = encounter
   save()
   assert.ok(
@@ -1372,16 +1504,16 @@ try {
     'No outdoor hostile in Spy current connected land; further legitimate transport prerequisite, not fabricated opponent'
   )
   await stage('real-Spy-disguise', async () => {
-    await selectPerson(brave)
+    await selectPerson(spyId)
     await page.getByRole('button', { name: 'followers V', exact: true }).click()
-    const before = await lifecycleState(brave, school)
+    const before = await lifecycleState(spyId, school)
     await page
       .getByRole('button', {
         name: 'Disguise selected spies as ' + encounter.disguiseName,
         exact: true,
       })
       .click()
-    const after = await lifecycleState(brave, school)
+    const after = await lifecycleState(spyId, school)
     report.actions.push({
       kind: 'real-disguise-command',
       tribe: encounter.disguiseTribe,
@@ -1395,21 +1527,21 @@ try {
       'native command16 disguise countdown',
       { kind: 'disguised', tribe: encounter.disguiseTribe },
       256,
-      brave,
+      spyId,
       school,
       1
     )
     await render()
-    const disguised = await lifecycleState(brave, school)
+    const disguised = await lifecycleState(spyId, school)
     assert.equal(disguised.unit.native.disguise, encounter.disguiseTribe << 6)
     assert.equal(disguised.selectedSprite.owner, encounter.disguiseTribe)
     return disguised
   })
   await stage('ordinary-cancel-and-reassignment', async () => {
-    const before = await lifecycleState(brave, school),
+    const before = await lifecycleState(spyId, school),
       start = { x: before.unit.x, z: before.unit.z }
     const first = await clearGroundOrder(
-      brave,
+      spyId,
       school,
       { x: start.x + 6, z: start.z },
       'first normal move'
@@ -1418,14 +1550,14 @@ try {
       'ordinary movement before reassignment',
       { kind: 'turns' },
       4,
-      brave,
+      spyId,
       school,
       1
     )
-    const beforeEscape = await lifecycleState(brave, school)
+    const beforeEscape = await lifecycleState(spyId, school)
     await page.keyboard.press('Escape')
-    const deselected = await lifecycleState(brave, school)
-    assert.equal(deselected.selected.includes(brave), false)
+    const deselected = await lifecycleState(spyId, school)
+    assert.equal(deselected.selected.includes(spyId), false)
     assert.equal(deselected.turn, beforeEscape.turn)
     assert.deepEqual(
       deselected.unit.order,
@@ -1433,7 +1565,7 @@ try {
       'Escape deselects; must not invent order cancellation'
     )
     const replacement = await clearGroundOrder(
-      brave,
+      spyId,
       school,
       { x: start.x, z: start.z + 4 },
       'replace active movement using real ground order'
@@ -1443,7 +1575,7 @@ try {
       'replacement move reaches real terrain',
       { kind: 'near', point: replacement },
       1500,
-      brave,
+      spyId,
       school,
       16
     )
@@ -1457,7 +1589,7 @@ try {
     }
   })
   await stage('ordinary-combat-reveal-and-cleanup', () =>
-    ordinaryEncounter(brave, school, encounter.enemy.id)
+    ordinaryEncounter(spyId, school, encounter.enemy.id)
   )
   assert.deepEqual(report.errors, [])
   assert.equal(report.deadlineReached, undefined)
