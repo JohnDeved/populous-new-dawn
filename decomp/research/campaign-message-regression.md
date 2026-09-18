@@ -27,25 +27,32 @@ The repair is deliberately limited to the X mapping:
 
 The existing authored Mission 2 browser acceptance now independently measures `.native-hud.right` and `.world-viewport.left` and requires the message `details`, summary and open popup body to share that seam at 1440×1000 and 3440×1440 under Automatic and 100% HUD sizes.
 
-## Motion regression: diagnosis remains open
+## Motion regression: browser publication bottleneck
 
-The reported lag has a separate source-level concern and is **not** repaired by this X-only change.
+The follow-up lag report exposed a second, independent browser presentation defect. It does **not** establish a new native animation rate.
 
-Native ordering:
+Native ordering remains bounded as before:
 
-- `draw_main 004a4960` calls `004314c0` before `main_loop_outer`.
+- `draw_main 004a4960` calls `004314c0` before `main_loop_outer`;
 - when messages exist, `004314c0` calls motion routine `00431c40` regardless of whether `offset_counter_2` changed;
 - only age/lifetime bookkeeping in `004314c0` is explicitly gated by the `offset_counter_2` change;
-- the repository's native message checker calls `00431a80` + `00431c40` per presentation visit and proves the browser motion state transition for each visit.
+- the repository's native message checker proves browser/native message-state transitions per presentation visit, but the original wall-clock draw rate is still not recovered.
 
-Browser ordering:
+The browser had an additional publication throttle unrelated to those motion rules:
 
-- `advanceGame` advances `stepMessages` at the existing 24 Hz adapter;
-- React state exposed by `page.tsx` is normally refreshed from `scene-hud-runtime.ts` only when `uiTimer > 0.2`, roughly a 5 Hz UI refresh boundary;
-- before PR71, `.campaign-messages details` had `transition:top .2s linear`;
-- PR71 removed that CSS transition while leaving the React refresh boundary unchanged;
-- the PR71 acceptance advances message state manually and calls `testStore.update()`, so it does not measure the ordinary user-visible React refresh cadence.
+- `advanceGame` mutates campaign-message position through the existing presentation adapter;
+- `page.tsx` rendered that mutable position into each campaign-message `style.top`;
+- ordinary React/store publication from `scene-hud-runtime.ts` occurred only when `uiTimer > 0.2`;
+- therefore several message-state changes could occur while the mounted DOM retained an older `top`;
+- the earlier browser acceptance manually called `testStore.update()` after advancing message state, bypassing that ordinary state-to-DOM bottleneck.
 
-This is enough to explain why removing the transition can expose visibly discrete top updates, but it is **not** enough to choose a parity repair. The original actual draw/presentation rate has not been proved, and the follow-up must not infer per-RAF stepping, restore arbitrary easing, or change game clocks/RNG from this evidence alone. The X-position repair therefore leaves `messages.ts`, `game-clock.ts`, `scene-hud-runtime.ts`, simulation speed, lifetimes and CSS smoothing unchanged.
+The repair removes only this extra browser publication delay. Each rendered campaign-message `details` carries its stable message serial. The existing per-frame HUD presentation function directly synchronizes the **already mounted** message element's `top` and lower-half popup direction from the current mutable message state. The general `scene.onChange()` / `uiTimer > 0.2` React publication boundary is unchanged, so unrelated HUD/page state is not rerendered every frame.
 
-A later cadence repair requires independently anchored evidence for the original presentation schedule or an explicitly justified browser adaptation. Until then, issue 59 should report position fixed and animation lag still open rather than treating the prior pass as complete evidence.
+This is deliberately not CSS smoothing or a new clock:
+
+- no `transition: top` is restored;
+- no new polling or RAF loop is created;
+- `messages.ts`, `game-clock.ts`, `world-turn.ts`, simulation speed, lifetime, collision, RNG and sound ownership are unchanged;
+- DOM top changes only when the existing message presentation state changes.
+
+The focused acceptance now starts ordinary scene RAF with the generic HUD publisher reset, waits for message position to change **before the store revision changes**, and requires the mounted DOM top to match that new position. That independently proves the campaign-message binding no longer waits for the 0.2-second general UI publication. It does not infer or certify the original executable's absolute presentation frequency.
