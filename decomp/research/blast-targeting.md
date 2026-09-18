@@ -4,17 +4,17 @@ Research base: `bb5980c2bc85fdfc9bd91d5bdc58eb9866b3bebb` on `codex/worker-3-bla
 
 Canonical original executable: `/Users/johann/populous-browser/work/orchestration/ceo-release/native-run/d3dpoptb.exe`, SHA-256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 
-This note is a bounded issue #74 research result. No runtime, picking, HUD, spell, asset, or checkpoint source was changed. Existing native/current spell, picking, command-target, pointer-bracket, Blast-impact and Blast-wave evidence was reused. No new native proof was necessary.
+This note is a bounded issue #74 research result. No runtime, picking, HUD, spell, asset, or checkpoint source was changed. Existing native/current spell, picking, command-target, pointer-bracket, Blast-impact and Blast-wave evidence was reused. No new native execution was performed; the unresolved identity-transport bridge below remains a prerequisite for end-to-end direct-click proof.
 
 ## Result
 
-The user-reported Blast behavior is real and is narrower than generic aim assist:
+Retained evidence establishes distinct input paths and a conditional target-following mechanism, with an unresolved bridge between them:
 
 - A ground Blast and a direct object/person Blast are distinct native input paths.
-- A direct click transports the picked object's identity as well as its click-time position.
+- A direct click selects an object/person, uses its click-time position and records its identity for pointer acknowledgement. Its identity transfer into the spell command remains unproved.
 - Blast is spell model **2** and its original descriptor has flags `0x44bf`.
 - Native targeting code tests bit `0x40` of the descriptor's **high byte** at `0x5a80eb + model*0x3e`; this is full-word flag **`0x4000`**. Blast therefore has the target-following flag.
-- That identity persists into the class-8 Blast shot. While the target remains valid, the shot destination is refreshed from the target's current position before motion, so a directly targeted moving unit is followed.
+- Static decomp shows that a supplied spell target ID persists into the class-8 shot and refreshes its destination while valid. This does not independently prove that the clicked object's ID reaches that field.
 - If the referenced target dies/disappears/becomes invalid, native clears the target ID and does **not** acquire another target. The projectile continues toward the last destination it had.
 - The native frontend also records the clicked target ID for the same pointer-bracket acknowledgement used by normal contextual targeting. Ground Blast instead takes the zero-ID ground branch and creates the ground-click marker.
 - This is not evidence that every spell homes. The target-following behavior is descriptor-gated; issue #74 should restore Blast first and must not add blanket seeking to other spells.
@@ -23,27 +23,28 @@ The user-reported Blast behavior is real and is narrower than generic aim assist
 
 The shipped normal spell click is in `004aab80`, case `0xc4`.
 
-After checking the selected spell is usable, the producer builds command `0x84`. It preserves two independent facts:
-
-1. the selected spell model, packed above the low eleven payload bits; and
-2. the currently picked object ID in those low eleven bits.
+After checking the selected spell is usable, the producer builds command `0x84`. The retained expression packs the selected spell model above the low eleven payload bits while preserving the pre-existing low bits of `local_334._2_2_`. It does **not** visibly merge the just-picked `uVar22` ID into those bits. Their provenance is unresolved. A nearby contextual-command branch explicitly merges `uVar13` into low eleven bits; that separate branch is not proof of the spell-click assignment.
 
 The pick order is the native person hit (`unit_index_1`) and then the mixed object hit (`unit_index_2`), with the existing special exclusion for class 10 / type 16. This producer does not itself establish an enemy-only eligibility rule, so a browser repair must not invent one merely because the reported case is an enemy person.
 
-When an object ID is available, the command's position is that object's current native position. When no object is available, target ID is zero and the command carries the ground/minimap position instead.
+When an object ID is available, the command's position is that object's current native position. When no object is available, the picked ID is zero and the command carries the ground/minimap position instead.
 
 The same branch writes the selected target ID to `DAT_0089bc20`, sets acknowledgement lifetime `DAT_0089bc1e = 5`, and sends:
-`set_tribe_command(..., 0x84, packedSpellAndTarget, position)`.
+`set_tribe_command(..., 0x84, payloadWithSpellModel, position)`.
+
+Here the payload name does not imply a proved picked-ID assignment.
 
 Only the zero-ID ground branch allocates the immediate ground-selection marker (effect model `0x3d`). This gives a native distinction between direct target and ground aim before any projectile is created.
 
 ### Command-consumer boundary
 
-`0043e8e0`, command `0x84`, decodes the spell model with `payloadHigh >> 11`, performs spell creation/payment work, and decrements stock. The current decomp at that broad command-dispatch boundary does not make every low-eleven-bit transfer obvious. The direct-target semantics themselves are nevertheless established by the normal input producer plus the original spell-unit and class-8 shot processors below.
+`0043e8e0`, command `0x84`, decodes the spell model with `payloadHigh >> 11`, performs spell creation/payment work, and decrements stock. The retained evidence does not close **picked object → command `0x84` low eleven bits → spell-unit `+0x6a`**. Both the low-bit provenance in case `0xc4` and its transfer into the spell unit remain unresolved, including the local normal-entry path.
 
-If an implementation later needs to reproduce the exact multiplayer/tribe-command wire ownership of the low eleven target bits rather than the local normal-entry behavior, that packet-to-spell-unit assignment is the remaining narrow low-level proof point. It is not necessary to establish the current browser gap or Blast homing behavior.
+No retained executed checker establishes this bridge. `check-native-command-target.py` covers a different contextual packet family. Before claiming end-to-end direct-click homing or implementing its identity transport as native-equivalent, establish this bridge; the downstream static mechanism alone is insufficient.
 
 ## Original target persistence before and during flight
+
+The following mechanism is supported by retained **static decomp**, conditional on a target ID reaching spell `+0x6a`; it is not an executed end-to-end spell-click comparison.
 
 ### Spell unit: `004c1d10` (`spell_unit_processing_1`)
 
@@ -65,7 +66,7 @@ Blast is model 2 and `spellCharging[2].flags == 0x44bf`, so Blast satisfies the 
 
 The class-8 shot allocator receives the target ID, writes it to shot offset `+0x98`, and copies the current destination.
 
-If target ID is nonzero and the originating spell descriptor has the high-byte `0x40` target-follow bit, it sets bit `4` in shot byte `+0x6e`. Thus Blast carries both the original target identity and a target-following marker into its projectile object.
+If target ID is nonzero and the originating spell descriptor has the high-byte `0x40` target-follow bit, it sets bit `4` in shot byte `+0x6e`. Thus a Blast supplied with a target ID carries that identity and a target-following marker into its projectile object.
 
 ### Shot processing: `004bae30` (`unit_processing_class_8_shot`)
 
@@ -80,7 +81,7 @@ There is no replacement-target search in this path. Clearing identity leaves the
 
 ### Blast motion: `004bb440`
 
-Subtype 4 moves from the shot's current position toward its current destination and snaps into the arrival sphere. Because `004bae30` refreshes that destination immediately before subtype-4 motion while identity is valid, the original direct-target Blast steers toward a moving target. Once identity is cleared, the same motion code continues toward the last destination.
+Subtype 4 moves from the shot's current position toward its current destination and snaps into the arrival sphere. Because `004bae30` refreshes that destination immediately before subtype-4 motion while identity is valid, a Blast supplied with a valid target ID steers toward that moving target. Once identity is cleared, the same motion code continues toward the last destination.
 
 That gives the required death/retarget answer:
 
@@ -106,7 +107,7 @@ These mechanisms are already represented by existing native checkers and current
 - `scripts/check-native-spell-targets.py` covers spell target validity.
 - `scripts/check-native-spell-cursor.py` covers generic spell-cursor/readiness/blocked feedback.
 - `scripts/check-native-spell-button.py` covers spell stock/button behavior.
-- `scripts/check-native-command-target.py` and `scripts/check-native-world-picking.py` provide existing direct-object/contextual-target transport/picking evidence.
+- `scripts/check-native-command-target.py` and `scripts/check-native-world-picking.py` provide contextual-command and picking evidence; neither closes the spell-click `0x84` identity bridge.
 - `scripts/check-native-blast-impact.py` and `scripts/check-native-blast-wave.py` cover downstream Blast impact/wave behavior.
 
 Blast's extracted model-2 spell row remains:
@@ -154,9 +155,9 @@ Current `cast(w, spell, p)` accepts only a point-like target.
 
 | Behavior | Original | Current browser |
 | --- | --- | --- |
-| Ground Blast | target ID 0 + ground point; ground marker branch | terrain point only |
-| Direct enemy/object Blast | transports object ID + current point | object identity discarded in spell mode |
-| Moving direct target | Blast target ID survives into class-8 shot; destination refreshed every shot visit | fixed destination; no target ID |
+| Ground Blast | picked ID 0 + ground point; ground marker branch | terrain point only |
+| Direct enemy/object Blast | picked object position + acknowledgement proved; command identity bridge unresolved | object identity discarded in spell mode |
+| Moving supplied target | static decomp: supplied spell ID reaches class-8 shot and refreshes destination; clicked-ID provenance unresolved | fixed destination; no target ID |
 | Target death/removal | clears identity, keeps last destination, no reacquire | no identity to clear; always fixed point |
 | Replacement target | none | none, but only because targeting is absent |
 | Direct-target HUD | same object-ID pointer acknowledgement slot/brackets as contextual target | person/object brackets disabled while spell mode active |
@@ -164,7 +165,7 @@ Current `cast(w, spell, p)` accepts only a point-like target.
 
 ## Exact implementation reservation — not performed in this research task
 
-The smallest faithful Blast-only repair should reserve these production owners together, because splitting identity at input from identity in projectile state would recreate the current loss:
+Subject to first resolving the picked-ID transport bridge, the proposed Blast-only repair would reserve these production owners together. This is a prospective scope, not accepted end-to-end native equivalence:
 
 1. **`app/scene-input-runtime.ts`**
    - For Blast mode only, preserve native object/person picking alongside the terrain point.
@@ -200,8 +201,8 @@ No picking-engine rewrite, no generic HUD redesign, no blanket “all spells hom
 
 ## Native-proof decision and remaining uncertainty
 
-A new canonical native execution was not submitted. Existing generated native functions plus existing spell/picking/pointer checkers answer the issue #74 behavior directly, and another proof would add queue cost without changing the implementation reservation.
+No new native execution was submitted. Static decomp supports direct-versus-ground selection, click position, acknowledgement assignment and the downstream supplied-ID homing/clear/no-reacquire mechanism. The retained pointer-bracket checker separately executes bracket rendering and acknowledgement expiry; it does not execute the spell-click identity bridge.
 
-The narrow unresolved low-level detail is only the exact internal packet-to-spell-unit assignment of the command `0x84` low eleven target-ID bits in all transport modes. If a later implementation attempts to alter shared command/network ownership rather than repairing the local normal-entry path, prove that assignment separately first.
+The unresolved bridge is the provenance of case `0xc4`'s preserved low eleven payload bits and their transfer through command `0x84` into spell `+0x6a`. This is necessary for the local direct-click claim too, not merely multiplayer or all-transport plumbing. A future source or executed comparison must bind the picked object independently to those fields before end-to-end fidelity is claimed.
 
-For the requested local-player Blast behavior, the native/current gap is established without inventing aim assist or applying target-follow behavior to unrelated spells.
+The current browser's point-only input/projectile and absent spell-mode brackets are source-supported gaps. They do not fill the missing original transport proof. No new run is required to correct this documentation; no blanket seeking or enemy-only eligibility rule follows from the retained evidence.
