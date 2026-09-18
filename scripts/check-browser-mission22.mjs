@@ -198,6 +198,114 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  const worshipAppearance = await page.evaluate(() => {
+    const scene = globalThis.testScene
+    return scene.world.shrines.map(shrine => ({
+      kind: shrine.kind,
+      mode: shrine.mode,
+      model: shrine.model,
+      meshModel: scene.shrineMeshes.get(shrine.id)?.g.children[0]?.userData.nativeModel,
+    }))
+  })
+  assert.deepEqual(
+    worshipAppearance.map(({ mode, model, meshModel }) => [mode, model, meshModel]),
+    [[3, 8, 8], [3, 8, 8], [3, 8, 8]]
+  )
+  const legacyCheckpoint = await page.evaluate(async () => {
+    const store = globalThis.testStore,
+      world = store.getWorld(),
+      heads = world.shrines,
+      mana = heads.find(shrine => shrine.kind === 'mana' && shrine.rewardMana === 600_000),
+      inert = heads.find(shrine => shrine.kind === 'inert'),
+      identity = heads.map(shrine => [shrine.id, shrine.x, shrine.z, shrine.kind, shrine.angle, shrine.range])
+    world.randomState = 0x3456789a
+    world.cosmeticRandom.randomState = 0x456789ab
+    mana.work = 17
+    mana.followers = 1
+    mana.uses = 2
+    mana.rewardDelay = 19
+    mana.rewardRecipient = 2
+    for (const shrine of heads) {
+      delete shrine.mode
+      shrine.model = 45
+    }
+    const saved = await store.saveCheckpoint()
+    world.randomState = 1
+    mana.work = 99
+    if (!store.loadCheckpoint()) throw new Error('Legacy Mission22 checkpoint did not load')
+    const loaded = store.getWorld(),
+      loadedMana = loaded.shrines.find(shrine => shrine.id === mana.id),
+      loadedInert = loaded.shrines.find(shrine => shrine.id === inert.id),
+      preservedState = [loadedMana.work, loadedMana.followers, loadedMana.uses, loadedMana.rewardDelay, loadedMana.rewardRecipient],
+      preservedRandom = [loaded.randomState, loaded.cosmeticRandom.randomState],
+      { addUnit, command, tick } = await import('/app/model.ts'),
+      brave = addUnit(loaded, 'blue', 'brave', loadedInert)
+    loaded.inputMask = 0
+    tick(loaded, 1 / 12)
+    tick(loaded, 1 / 12)
+    loaded.selected = [brave.id]
+    const submitted = command(loaded, loadedInert)
+    for (let turn = 0; turn < 300 && brave.native?.commandStatus !== 0; turn++) tick(loaded, 1 / 12)
+    return {
+      saved,
+      identity,
+      loadedIdentity: loaded.shrines.map(shrine => [shrine.id, shrine.x, shrine.z, shrine.kind, shrine.angle, shrine.range]),
+      appearances: loaded.shrines.map(shrine => [shrine.mode, shrine.model]),
+      state: preservedState,
+      random: preservedRandom,
+      brave: {
+        submitted,
+        command: brave.native?.commandStatus,
+        work: loadedInert.work,
+        followers: loadedInert.followers,
+        mode: loadedInert.mode,
+        model: loadedInert.model,
+      },
+    }
+  })
+  assert.equal(legacyCheckpoint.saved, true)
+  assert.deepEqual(legacyCheckpoint.loadedIdentity, legacyCheckpoint.identity)
+  assert.deepEqual(legacyCheckpoint.appearances, [[3, 8], [3, 8], [3, 8]])
+  assert.deepEqual(legacyCheckpoint.state, [17, 1, 2, 19, 2])
+  assert.deepEqual(legacyCheckpoint.random, [0x3456789a, 0x456789ab])
+  assert.deepEqual(legacyCheckpoint.brave, {
+    submitted: true,
+    command: 0,
+    work: 0,
+    followers: 0,
+    mode: 3,
+    model: 8,
+  })
+
+  await page.evaluate(() => globalThis.testStore.startMission(22))
+  await page.waitForFunction(
+    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+  )
+  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+
+  const braveRejection = await page.evaluate(async () => {
+    const { createWorld, addUnit, command, tick } = await import('/app/model.ts'),
+      world = createWorld(22),
+      head = world.shrines.find(shrine => shrine.kind === 'inert'),
+      brave = addUnit(world, 'blue', 'brave', head)
+    world.inputMask = 0
+    // Supporting fixture only: Mission 22 authors no Blue Brave.
+    tick(world, 1 / 12)
+    tick(world, 1 / 12)
+    world.selected = [brave.id]
+    const submitted = command(world, head)
+    for (let turn = 0; turn < 300 && brave.native?.commandStatus !== 0; turn++) tick(world, 1 / 12)
+    return {
+      submitted,
+      command: brave.native?.commandStatus,
+      work: head.work,
+      followers: head.followers,
+      rewardDelay: head.rewardDelay ?? null,
+      mode: head.mode,
+      model: head.model,
+    }
+  })
+  assert.deepEqual(braveRejection, { submitted: true, command: 0, work: 0, followers: 0, rewardDelay: null, mode: 3, model: 8 })
 
   await focusSpell(page, 'bridge', 'Land Bridge')
   const bridgePoint = await terrainClickPoint(page, { x: -29, z: -49 }, 'bridge')
@@ -257,12 +365,12 @@ try {
       for (let turn = 0; world.effects.some(effect => effect.id === gift.id) && turn < 90; turn++)
         tick(world, 1 / 12)
       return {
-        head: [head.active, head.uses],
+        head: [head.active, head.uses, head.mode, head.model],
         gift: giftState,
         pending: world.manaTribes[0].pending >= 590_000,
       }
     }, manaHead),
-    { head: [false, 1], gift: [600_000, 0, 5, 1], pending: true }
+    { head: [false, 1, 3, 8], gift: [600_000, 0, 5, 1], pending: true }
   )
 
   await page.evaluate(() => {
@@ -454,6 +562,7 @@ try {
   const northernHeadId = await page.evaluate(() =>
     globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 1_000_000).id
   )
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
   const northernHead = await shrineClickPoint(page, northernHeadId)
   await page.mouse.click(northernHead.x, northernHead.y)
   const northernCompletion = await page.evaluate(async ({ headId, balloonId }) => {

@@ -2,6 +2,11 @@ import { campaignCommand, createGift, createWorld, type Gift, type World } from 
 import { missionEnemyTribe, missionNumbers } from './mission-data.ts'
 import { teamForTribe } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
+import {
+  WORSHIP_STONE_HEAD_MODEL,
+  authoredWorshipMode,
+  worshipAppearanceModel,
+} from './worship-appearance.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -14,6 +19,20 @@ type LegacyGift = {
   z: number
   kind: 'vault' | 'lightning' | 'bridge'
   remaining: number
+}
+
+export function migrateLegacyWorshipAppearance(world: World) {
+  const migrate = (shrine: World['shrines'][number]) => {
+    if (shrine.mode === undefined && shrine.model === WORSHIP_STONE_HEAD_MODEL) {
+      const mode = authoredWorshipMode(world.outcome.level, shrine)
+      if (mode !== undefined) {
+        shrine.mode = mode
+        if (mode === 3) shrine.model = worshipAppearanceModel(mode)
+      }
+    }
+    if (shrine.linkedShrine) migrate(shrine.linkedShrine)
+  }
+  for (const shrine of world.shrines) migrate(shrine)
 }
 
 function migrateLegacyComputerTeam(world: World, tribe: number) {
@@ -131,6 +150,7 @@ export function migrateCheckpoint(world: World) {
     world.killCredits[0][3] = Math.max(world.killCredits[0][3], world.killCredits[0][1])
     world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
   }
+  migrateLegacyWorshipAppearance(world)
   if (world.outcome.level === 5 && !world.shrines.some(shrine => shrine.kind === 'angel')) {
     const angel = createWorld(5).shrines.find(shrine => shrine.kind === 'angel')!
     world.shrines.push({ ...structuredClone(angel), id: world.nextId++ })
