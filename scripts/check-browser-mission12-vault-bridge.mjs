@@ -96,6 +96,12 @@ async function state() {
       lastOrderTurn: w.lastOrderTurn,
       selected: [...w.selected],
       shots: { ...w.shots },
+      manaObservation: {
+        available: w.manaTribes[0].available,
+        rate: w.manaTribes[0].previousRate,
+        bridgeProgress: w.manaTribes[0].spellProgress[12],
+        disabled: w.manaWorld.spells[0].disabled,
+      },
       units: w.units.filter(u => u.hp > 0).map(person),
       shrines: w.shrines.map(v => ({
         id: v.id,
@@ -209,6 +215,12 @@ async function until(label, condition, limit, batch = 128) {
             group: u.native?.motionGroup,
           },
           shots: { ...w.shots },
+          manaObservation: {
+            available: w.manaTribes[0].available,
+            rate: w.manaTribes[0].previousRate,
+            bridgeProgress: w.manaTribes[0].spellProgress[12],
+            disabled: w.manaWorld.spells[0].disabled,
+          },
           unlockedSpyHut: w.unlockedSpyHut,
         }
       },
@@ -559,19 +571,69 @@ try {
   const landBefore = await topology()
   assert.equal(landBefore.connected, false, 'Mission12 must independently require this crossing')
   await stage('authored-Land-Bridge-charge', async () => {
-    const flags = await page.evaluate(() => {
-      const w = window.testStore.getWorld(),
-        s = w.manaWorld.spells[0]
-      return {
-        available: !!(s.available & (1 << 12)),
-        paused: !!(s.disabled & (1 << 11)),
-        stock: w.shots.bridge,
-      }
-    })
-    assert.ok(flags.available)
-    assert.equal(flags.paused, false)
+    const chargingState = () =>
+      page.evaluate(async () => {
+        const w = window.testStore.getWorld(),
+          { SPELLS } = await import('/app/model.ts')
+        const { chargingSpells } = await import('/app/mana.ts')
+        const stock = w.manaWorld.spells[0],
+          mana = w.manaTribes[0]
+        return {
+          turn: w.turn,
+          available: stock.available,
+          disabled: stock.disabled,
+          allocation: chargingSpells(w.manaWorld, 0),
+          rate: mana.previousRate,
+          bridgeProgress: mana.spellProgress[12],
+          bridgeStock: w.shots.bridge,
+          spells: SPELLS.filter(s => stock.available & (1 << s.model)).map(s => ({
+            id: s.id,
+            name: s.name,
+            model: s.model,
+            paused: !!(stock.disabled & (1 << (s.model - 1))),
+          })),
+        }
+      })
+    const initialCharging = await chargingState()
+    report.chargingBeforePriority = initialCharging
+    save()
+    const bridge = initialCharging.spells.find(s => s.id === 'bridge')
+    assert.ok(bridge, 'Land Bridge must be authored, not granted')
+    assert.equal(bridge.paused, false)
+    // Original HUD charging control: redirect ordinary incoming mana instead of
+    // assuming a small idle tribe can fill every expensive spell in this bound.
+    await page.getByRole('button', { name: /^spells/ }).click()
+    for (const other of initialCharging.spells.filter(s => s.id !== 'bridge' && !s.paused)) {
+      const before = await chargingState()
+      await page
+        .getByRole('button', { name: new RegExp('^' + other.name + ', ') })
+        .click({ button: 'right' })
+      const after = await chargingState(),
+        bit = 1 << (other.model - 1)
+      report.actions.push({
+        kind: 'ordinary-charge-priority',
+        spell: other.id,
+        beforeTurn: before.turn,
+        afterTurn: after.turn,
+        beforeDisabled: before.disabled,
+        afterDisabled: after.disabled,
+        bit,
+      })
+      save()
+      assert.equal(before.turn, after.turn)
+      assert.equal(
+        after.disabled,
+        before.disabled ^ bit,
+        'Rendered context menu must toggle only its original charging bit'
+      )
+    }
+    const prioritized = await chargingState()
+    report.chargingAfterPriority = prioritized
+    save()
+    assert.equal(prioritized.allocation.active, 1)
+    assert.equal(prioritized.allocation.highest, 12)
     await until('ordinary Land Bridge charge', { kind: 'stock', spell: 'bridge' }, 30000)
-    return { before: flags, stock: (await state()).shots.bridge }
+    return { before: initialCharging, prioritized, after: await chargingState() }
   })
   await stage('rendered-source-shore-approach', async () => {
     await selectActor()
