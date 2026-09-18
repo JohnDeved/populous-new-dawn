@@ -2,10 +2,12 @@
 
 ## Bounded integration
 
-Built from fetched main4897ea93833b5062aabc357a9aa54787f150c44e in a separate
-worktree. Reviewed f62e996 remains untouched; this branch includes its required
-last-frame rise/hidden-wait behavior because that change is not yet on main.
-It is a bounded successor, not a second effect emitter or full #30 closure.
+Started from fetched main4897ea93833b5062aabc357a9aa54787f150c44e in a separate
+worktree. During validation, main merged the reviewed f62e996 and the Boat-test
+correction; only this unpublished cadence branch was rebased onto
+5ad3fff1d18803625d7557321b196309b5407abc. The reviewed head/worktree remains
+unchanged. Its guarded-caller source assertion is updated only for the additional
+displayed-frame argument. This is not a second emitter or full #30 closure.
 
 `shaman-death-vfx.ts` owns only phase-entry animation resets, a displayed-frame
 latch and read-only frame/visibility selection. The ordinary Shaman producer and

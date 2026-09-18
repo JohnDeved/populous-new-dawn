@@ -1,4 +1,3 @@
-import { shamanDeathVfx } from './shaman-death-vfx.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { texture, effectFrame, nativeModel } from './scene-assets.ts'
@@ -28,6 +27,7 @@ import {
   shamanNativeDirections,
   shamanReincarnationPose,
 } from './shaman-appearance.ts'
+import { shamanDeathVfx } from './shaman-death-vfx.ts'
 import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
 

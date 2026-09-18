@@ -57,7 +57,7 @@ test('earlier body/transition poses retain their existing renderer behavior', ()
 
 test('the live caller applies the bounded presentation only to model-12 reincarnation effects', () => {
   const source = readFileSync(new URL('../app/scene-effects.ts', import.meta.url), 'utf8')
-  const start = source.indexOf('const vfx = shamanDeathVfx(f.reincarnation.phase)')
+  const start = source.indexOf('const vfx = shamanDeathVfx(f.reincarnation.phase, f.reincarnation.displayedFrame)')
   assert.ok(start > source.indexOf('export function animateFx'))
   const branch = source.slice(start, source.indexOf('if (f.angel)', start))
   assert.match(branch, /g.visible = vfx.visible/)

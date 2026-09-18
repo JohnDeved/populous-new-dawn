@@ -22,7 +22,7 @@ export function setShamanDeathPhase(effect: Effect, phase: number) {
     morphTimer: 0,
     morphFrames: 0,
   }
-  const animation = effect.animation
+  const { animation } = effect
   let object = 360
   if (phase === 0) object = 680
   else if (phase === 1) object = 352
