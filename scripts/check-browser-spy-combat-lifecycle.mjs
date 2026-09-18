@@ -1505,7 +1505,9 @@ try {
   )
   await stage('real-Spy-disguise', async () => {
     await selectPerson(spyId)
-    await page.getByRole('button', { name: 'followers V', exact: true }).click()
+    const followersTab = page.getByTitle('followers', { exact: true })
+    await followersTab.click()
+    assert.equal(await followersTab.getAttribute('aria-pressed'), 'true')
     const before = await lifecycleState(spyId, school)
     await page
       .getByRole('button', {
